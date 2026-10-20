@@ -77,7 +77,7 @@ RESTART_TRIGGER = "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;"
 #: the selected CRF stream's two terms, the disruption and the received toggle:
 #: a control that ANDs a veto into the CRF restart plants it inside this group,
 #: since on RESTART_TRIGGER the `&` binds to the AAF toggle alone
-CRF_RESTART_TERMS = "        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))"
+CRF_RESTART_TERMS = "        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p_w))"
 RESTART_DECL = ("  wire mcr_restart_p_w /* verilator public_flat_rd */ =\n"
                 "       (crf_clk_selected_r\n" + CRF_RESTART_TERMS + "\n" + RESTART_TRIGGER)
 TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
@@ -158,7 +158,7 @@ CONTROLS = [
             "source control: a real source change toggles mr once", True),
     Control("selected CRF mr propagation is removed", "datapath",
             CRF_RESTART_TERMS,
-            "        & (tkd_crflk_q_r & ~crf_locked_w))",
+            "        & (tkd_crflk_q_r ^ crf_locked_w))",
             "CRF control: selected CRF mr propagates exactly once", True),
     Control("the grandmaster identity re-bases the render stage as well as the step",
             "datapath", RENDER_TRIGGER,

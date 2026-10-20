@@ -3,6 +3,14 @@
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  */
 
+//! LOCKSTEP REFERENCE (tb/verilator/avtp_rxmon/sim_lockstep.cpp): the module
+//! of dev e8454e27 with its name changed, and with #762's silence
+//! interruption (sil_si_r, stopped_i) and its stopped-gap rule applied in the
+//! same lines as the shipping engine, so the #640 M6 comparison stays exact on
+//! every column.
+//! #762 itself is graded by count in the harness's [SI] cases, never against
+//! this copy: lockstep_mutants.py plants each #762 defect in BOTH modules.
+
 /*
 ------------------------------------------------------------------------------
   File        : KL_avtp_rx_monitor_ctx.sv
@@ -139,6 +147,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
                                                 //! the 0x002B law's second
                                                 //! unlock cause - it rides
                                                 //! the silence-unlock walk)
+  input  wire [N_LISTENERS_P-1:0] stopped_i,    //! bound-and-stopped (#762)
 
   //! --- stream-0 legacy config (no-regression aliases) -------------------
   input  wire [63:0]  sid0_i,            //! sink-0 bound sid (LCTX w0/w1)
@@ -301,6 +310,9 @@ module KL_avtp_rx_monitor_ctx_ref #(
 
   logic [N_LISTENERS_P-1:0] bind_pend_r;
   logic [N_LISTENERS_P-1:0] sil_pend_r;
+  //! #762: the pending unlock is the silence watchdog's, not an unbind's,
+  //! so its walk also counts STREAM_INTERRUPTED (Milan v1.2 5.3.8.10 Table 5.6)
+  logic [N_LISTENERS_P-1:0] sil_si_r;
   logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
   logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
 
@@ -785,6 +797,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
       ddrop_add_r <= '0;
       bind_pend_r  <= '0;
       sil_pend_r   <= '0;
+      sil_si_r     <= '0;
       iv_pend_r    <= '0;
       frx_add_r    <= '0;
       for (int s = 0; s < N_LISTENERS_P; s++) frx_acc_r[s] <= '0;
@@ -866,6 +879,12 @@ module KL_avtp_rx_monitor_ctx_ref #(
           if (32'(sil_ms_r[s]) >= UNLOCK_MS_C - 1) begin
             sil_pend_r[s] <= 1'b1;
             sil_ms_r[s]   <= '0;
+            //! #762: a silence of a bound, started stream interrupts its
+            //! playback. This expiry is the event's one boundary: an Unbind
+            //! or a STOP after it leaves the mark for the walk to count, and
+            //! one on or before it leaves no mark
+            if (bound_i[s] && !bind_fall_i[s] && !stopped_i[s])
+              sil_si_r[s] <= 1'b1;
           end
           else sil_ms_r[s] <= sil_ms_r[s] + 7'd1;
         end
@@ -987,9 +1006,12 @@ module KL_avtp_rx_monitor_ctx_ref #(
             //! counters walk here.
             if (cur_r.tv) tv_cnt_r[ev_s_r]  <= tv_cnt_r[ev_s_r]  + 32'd1;
             else          tnv_cnt_r[ev_s_r] <= tnv_cnt_r[ev_s_r] + 32'd1;
+            //! #762: a gap interrupts only a started input's playback; the
+            //! stopped state is read at this verdict, the gap's one boundary
             inc_list_r <=
                 (lock_now_w  ? (12'b1 << C_ML_C) : 12'b0)
-              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C))
+              | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)
+                  && !stopped_i[ev_s_r])
                              ? (12'b1 << C_SI_C) : 12'b0);
             wrph_r <= '0;
             mst_r  <= M_PWR_S;
@@ -1036,9 +1058,17 @@ module KL_avtp_rx_monitor_ctx_ref #(
                 locked_sh_r[ev_s_r]  <= 1'b0;
                 sil_ms_r[ev_s_r]     <= '0;
                 sil_pend_r[ev_s_r]   <= 1'b0;
+                sil_si_r[ev_s_r]     <= 1'b0;
                 sil_mode_r <= 1'b0;
                 wrph_r     <= '0;
-                mst_r      <= M_IDLE_S;
+                //! #762: a silence unlock then counts STREAM_INTERRUPTED
+                //! through the ordinary RMW below, which yields to PDU
+                //! pressure like every other counter walk
+                if (sil_si_r[ev_s_r]) begin
+                  inc_list_r <= 12'b1 << C_SI_C;
+                  mst_r      <= M_INC_S;
+                end
+                else mst_r <= M_IDLE_S;
               end
             endcase
           end
@@ -1103,6 +1133,7 @@ module KL_avtp_rx_monitor_ctx_ref #(
             //! MEDIA_UNLOCKED over a zeroed MEDIA_LOCKED and strand the
             //! stream at UNLOCKED=LOCKED+1, which is neither legal state
             sil_pend_r[ev_s_r]   <= 1'b0;
+            sil_si_r[ev_s_r]     <= 1'b0;
             //! a parked walk remainder for THIS stream dies with the era
             //! too (its counters are zeroed by the bind-zero walk below)
             if (iv_res_s_r == ev_s_r) iv_res_list_r <= '0;
