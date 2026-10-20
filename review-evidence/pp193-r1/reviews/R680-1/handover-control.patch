@@ -1,0 +1,13 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -974,8 +974,8 @@
+                          : app_r[take_src_w[t]];
+           fourpack_r[t] <= take_new_w[t] ? cfp_w[take_src_w[t]]
+                                          : fourpack_r[take_src_w[t]];
+-          rla_pend_r[t] <= rla_pend_r[take_src_w[t]] || la_rx_app_w;
+-          per_pend_r[t] <= per_pend_r[take_src_w[t]] || periodic_tick_i;
++          rla_pend_r[t] <= 1'b0;
++          per_pend_r[t] <= 1'b0;
+           wdone_r[t]    <= (walk_r != W_IDLE) && wdone_r[take_src_w[t]];
+         end
+       end

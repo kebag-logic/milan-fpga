@@ -1,0 +1,225 @@
+diff --git a/tb/pp_top/gsi_internal.hpp b/tb/pp_top/gsi_internal.hpp
+index 953feec..ca0f61b 100644
+--- a/tb/pp_top/gsi_internal.hpp
++++ b/tb/pp_top/gsi_internal.hpp
+@@ -396,6 +396,213 @@ struct InternalStreamInfoPhase {
+           "VLAN168 unbind clears the full stored VLAN");
+   }
+ 
++  // ---- Table 5.22 started/stopped by START/STOP_STREAMING (issue #192) ----
++  // Milan 5.4.2.19 and 5.4.2.20: START/STOP_STREAMING change exactly the
++  // started state of a bound input, which Table 5.22 lists among the
++  // GET_STREAM_INFO causes. That notification answers no command, so every
++  // registered controller receives it, the requester included (5.4.5.1);
++  // the command's own unsolicited response reaches the others alone
++  // (5.4.5.2). A (CTLR) is the requester and B a second registered
++  // controller. Each controller's sequence_id is modelled from the wire: the
++  // count of unsolicited frames it was sent before.
++  static constexpr uint64_t B_MAC = 0x0202C2C2C2C2ull;
++  uint16_t b_unsolicited = 0;
++
++  struct Uns {
++    std::vector<uint8_t> f;
++    uint16_t seq;
++  };
++
++  // every AECP frame transmitted within `ms`, in order; none left queued
++  std::vector<std::vector<uint8_t>> drain_aecp(int ms) {
++    std::vector<std::vector<uint8_t>> got;
++    for (int t = 0; t <= ms; ++t) {
++      while (!io.q_aecp.empty()) {
++        got.push_back(io.q_aecp.front());
++        io.q_aecp.pop_front();
++      }
++      if (t < ms) io.run_ms(1);
++    }
++    return got;
++  }
++
++  // the unsolicited frames to `mac` in arrival order, each with the
++  // sequence_id it must carry: that controller's next one (5.4.5.1)
++  static std::vector<Uns> unsolicited_to(
++      const std::vector<std::vector<uint8_t>>& got, uint64_t mac,
++      uint16_t& next) {
++    std::vector<Uns> v;
++    for (const auto& f : got)
++      if (f.size() >= 42 && (f[36] & 0x80) && fv_u64(f, 0, 6) == mac)
++        v.push_back(Uns{f, next++});
++    return v;
++  }
++
++  static std::vector<Uns> stream_info_of(const std::vector<Uns>& v,
++                                         unsigned sink) {
++    std::vector<Uns> s;
++    for (const auto& u : v)
++      if ((fv_u64(u.f, 36, 2) & 0x7FFF) == 0x000F
++          && fv_u64(u.f, 38, 2) == 0x0005 && fv_u64(u.f, 40, 2) == sink)
++        s.push_back(u);
++    return s;
++  }
++
++  static size_t count_type(const std::vector<Uns>& v, uint16_t op) {
++    size_t n = 0;
++    for (const auto& u : v)
++      if ((fv_u64(u.f, 36, 2) & 0x7FFF) == op) ++n;
++    return n;
++  }
++
++  // the unsolicited GET_STREAM_INFO a settled (COMPLETED) sink owes `mac`
++  static std::vector<uint8_t> settled_info(uint64_t mac, uint64_t eid,
++                                           uint16_t seq, unsigned sink,
++                                           bool stopped, uint8_t code,
++                                           uint64_t bridge) {
++    auto body = StreamInfoPhase::gsi_body(0x0005, sink, true, 3 << 5);
++    putbe(&body[44], 2, 2);
++    body[34] = code;
++    putbe(&body[36], bridge, 8);
++    if (stopped) body[7] |= 0x08;                 // STREAMING_WAIT
++    auto want = aecp_frame(mac, OWN_MAC, 1, 0, EID, eid, seq, 0x000F, body);
++    want[36] |= 0x80;
++    return want;
++  }
++
++  void register_b() {
++    const auto seq = sequence++;
++    io.feed(aecp_frame(OWN_MAC, B_MAC, 0, 0, EID, CTLR2_EID, seq,
++                       0x0024, std::vector<uint8_t>(4, 0)));
++    auto f = io.wait_any(io.q_aecp, 500);
++    CHECK(f.size() >= 38 && fv_u64(f, 0, 6) == B_MAC
++          && fv_u64(f, 34, 2) == seq && ((f[16] >> 3) & 31) == 0,
++          "GI SN register: a second controller B registered");
++    b_unsolicited = 0;
++  }
++
++  // START_STREAMING (0x0022) or STOP_STREAMING (0x0023) from A
++  void streaming(uint16_t op, unsigned sink) {
++    std::vector<uint8_t> body(4, 0);
++    putbe(&body[0], 0x0005, 2);
++    putbe(&body[2], sink, 2);
++    io.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, sequence++,
++                       op, body));
++  }
++
++  // A's solicited answers to `n` commands from sequence_id `first` on
++  size_t answered(const std::vector<std::vector<uint8_t>>& got,
++                  uint16_t first, unsigned n) const {
++    size_t ok = 0;
++    for (const auto& f : got)
++      if (f.size() >= 38 && !(f[36] & 0x80) && fv_u64(f, 0, 6) == CTLR_MAC
++          && static_cast<uint16_t>(fv_u64(f, 34, 2) - first) < n
++          && ((f[16] >> 3) & 31) == 0)
++        ++ok;
++    return ok;
++  }
++
++  // exactly one GET_STREAM_INFO for `sink` among `v`, byte-exact at its
++  // controller's own sequence_id, carrying the final state
++  void one_info(const char* step, const char* who, const std::vector<Uns>& v,
++                uint64_t mac, uint64_t eid, unsigned sink, bool stopped,
++                uint8_t code = 0, uint64_t bridge = 0) {
++    const auto s = stream_info_of(v, sink);
++    CHECK(s.size() == 1, "GI %s: exactly one GET_STREAM_INFO for sink %u at "
++          "%s, got %zu", step, sink, who, s.size());
++    if (s.empty()) return;
++    const auto want = settled_info(mac, eid, s[0].seq, sink, stopped, code,
++                                   bridge);
++    CHECK(s[0].f == want, "GI %s: %s's sink %u notification is byte-exact: "
++          "u = 1, its DA, entity_id and sequence_id %u, STREAMING_WAIT %s",
++          step, who, sink, s[0].seq, stopped ? "set" : "clear");
++    if (s[0].f != want) { dump("GI got", s[0].f); dump("GI expected", want); }
++  }
++
++  // the solicited read after a step agrees with what was pushed
++  void read_back(const char* step, unsigned sink, bool stopped,
++                 uint8_t code = 0, uint64_t bridge = 0) {
++    const auto f = query(sink);
++    check_frame(f, step, sink, 3, 0, code, bridge, false, true, stopped);
++  }
++
++  // one START/STOP_STREAMING from A on sink 0, nothing else in flight
++  void started_step(const char* step, uint16_t op, bool stopped) {
++    const uint16_t first = sequence;
++    const bool was = (io.d->aecp_strm_started_o & 1) != 0;
++    streaming(op, 0);
++    const auto got = drain_aecp(150);
++    const auto at_a = unsolicited_to(got, CTLR_MAC, unsolicited_sequence);
++    const auto at_b = unsolicited_to(got, B_MAC, b_unsolicited);
++    CHECK(answered(got, first, 1) == 1
++          && was == stopped && ((io.d->aecp_strm_started_o & 1) != 0) != stopped,
++          "GI %s: A's command answered SUCCESS and moved sink 0's started "
++          "state (premise)", step);
++    one_info(step, "A, the requester", at_a, CTLR_MAC, CTLR_EID, 0, stopped);
++    one_info(step, "B", at_b, B_MAC, CTLR2_EID, 0, stopped);
++    CHECK(count_type(at_a, op) == 0 && count_type(at_b, op) == 1,
++          "GI %s: the command's own unsolicited response reaches B once and "
++          "A never (Milan 5.4.5.2)", step);
++    CHECK(got.size() == 4, "GI %s: nothing else is sent, got %zu frames",
++          step, got.size());
++    read_back(step, 0, stopped);
++  }
++
++  // STOP_STREAMING on sink 0 coinciding with sink 0's first Talker
++  // registration, another GET_STREAM_INFO cause. The engine takes no command
++  // while a notification is pending, so the STOP commits with the notify
++  // block idle and its round would be claimed at once. The integrator's
++  // GET_AVB_INFO change, raised on the clock the engine takes the STOP,
++  // holds the block with a round of its own until the STOP has answered, so
++  // the STOP's change and the registration both pend before sink 0's round
++  // is claimed: one notification each, carrying both changes.
++  void started_with_registration() {
++    const char* step = "STOP-WITH-REGISTRATION";
++    const uint16_t first = sequence;
++    const auto taken = io.d->dbg_aecp_cmd_o;
++    streaming(0x0023, 0);
++    for (long b = 50L * MS_CYC; b != 0 && io.d->dbg_aecp_cmd_o == taken; --b)
++      io.step();
++    const bool before = io.d->dbg_aecp_cmd_o != taken
++                        && (io.d->aecp_strm_started_o & 1) != 0;
++    io.d->gsi_avb_chg_i = 1;
++    io.step();
++    io.d->gsi_avb_chg_i = 0;
++    attribute(0, 7, BRIDGE0, true);
++    const auto got = drain_aecp(250);
++    const auto at_a = unsolicited_to(got, CTLR_MAC, unsolicited_sequence);
++    const auto at_b = unsolicited_to(got, B_MAC, b_unsolicited);
++    CHECK(before && answered(got, first, 1) == 1
++          && (io.d->aecp_strm_started_o & 1) == 0,
++          "GI %s: the GET_AVB_INFO change came after the engine took the STOP "
++          "and before it stopped sink 0, which it then did (premise)", step);
++    CHECK(count_type(at_a, 0x0027) == 1 && count_type(at_b, 0x0027) == 1,
++          "GI %s: the GET_AVB_INFO change reached A and B once each "
++          "(premise)", step);
++    one_info(step, "A, the requester", at_a, CTLR_MAC, CTLR_EID, 0, true, 7,
++             BRIDGE0);
++    one_info(step, "B", at_b, B_MAC, CTLR2_EID, 0, true, 7, BRIDGE0);
++    CHECK(got.size() == 6, "GI %s: nothing else is sent, got %zu frames",
++          step, got.size());
++    read_back(step, 0, true, 7, BRIDGE0);
++  }
++
++  void started_notify() {
++    io.dram = image(2);
++    boot();
++    register_controller();
++    discover(0);
++    binding(0, true);
++    pair("SN-BIND", 0, 2);
++    settle(0, probe(0));
++    register_b();
++    started_step("STOP-BY-A", 0x0023, true);
++    started_step("START-BY-A", 0x0022, false);
++    started_with_registration();
++    io.run_ms(100);
++    CHECK(io.q_aecp.empty(), "GI SN final: no late or duplicate notification");
++  }
++
+   void run() {
+     io.dram = image(2);
+     io.gsi_retired_stuck = true;
+@@ -480,5 +687,6 @@ struct InternalStreamInfoPhase {
+     CHECK(io.gsi_internal_leaks == 0,
+           "GI internal seam: selectors 5/7 never requested from integrator");
+     vlan_retention();
++    started_notify();
+   }
+ };

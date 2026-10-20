@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -355,7 +355,7 @@
+     s_w  = reg_in_i ? SRP_EV_IN : SRP_EV_MT;
+     if (!txla) begin
+       case (st)
+-        A_VP_C, A_AA_C, A_AP_C: m = {1'b1, sj_w};
++        A_VP_C, A_AA_C, A_AP_C: m = {1'b0, sj_w};
+         A_VN_C, A_AN_C:         m = {1'b1, SRP_EV_NEW};
+         A_LA_C:                 m = {1'b1, SRP_EV_LV};
+         A_LO_C:                 m = {1'b1, s_w};

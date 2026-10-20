@@ -1,0 +1,21 @@
+[R680] NEGATIVE - exact head 6ddfcda4c3170b8f463c8623833f7541ca8c1faf
+
+Independent verdict recorded before reading any prior review findings. Final evidence consolidation is in progress.
+
+F1 MAJOR — Conformance, RTL, Robustness, Tests: a parked Leave is excluded from owner grouping; another sink declaring its StreamID creates a second applicant. Both index orders reproduce through FSM and complete SRP datapath. A 47-byte frame contains two VectorAttributes for one value, New and Lv; when Lv comes last the peer ends MT while the current sink declares Ready. See parked-probe.log and parked-wire-probe.log. Authorities: IEEE 802.1Q-2018 10.7.7, 35.2.6 NOTE, 35.1.2.2; Milan 4.2.7.2.2; public #193 owner ruling. Required outcome: one applicant identity across live and parked values, with no stale Lv after renewed demand; regression and killed fault controls in both index orders.
+
+F2 MINOR — Docs: PR body gives the accepted +1,037 LUT / +50 FF OOC result without the measured sink count required by the manager answer. The published invocation is KL_pp_shadow without an explicit shape override, and the public module defaults are eight inputs/eight outputs. Add the verified measured shape and explicitly distinguish any unmeasured 1x1 figure. This affects measurement provenance, so it is not wording-only residue.
+
+F3 RESIDUE — Docs: newly added source comments in tb/srp_top/sim_main.cpp:2996 and :3110 retain SW/SW3 labels. Remove those labels while retaining behavior and issue/spec citations. No behavior changes.
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN | #193 body/rulings, #188/#189, SRP architecture, packet probe | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| RTL | UNCLEAN | listener FSM owner_map/app_arb/handover/walk, full diff/history, merged #192 notification wiring | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| Robustness | UNCLEAN | parked-value reuse in both index orders; shipped handover and collision checks | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| Tests | UNCLEAN | 1403 FSM checks and 5 wire checks pass; two FSM and two packet regressions fail; public control receipts | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| Docs | UNCLEAN | docs/README, architecture 02/07/10, test READMEs, PR body and area receipts | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+
+Limits: no full parent or processor bank rerun, no physical calibration/hardware. Source validation is separate from the manager's future current-dev candidate. Scoped control rerun and restoration audit remain to be consolidated.
+
+R680-1 FINISHED
