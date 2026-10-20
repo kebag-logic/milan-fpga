@@ -28,11 +28,11 @@
                 with P = NUM / DEN ns exactly (62500 / 3 at 48 kHz). The
                 ceiling leaves offset_ns at most 1 ns above periods * P, five
                 orders of magnitude inside the 10.8 band, and never below the
-                Max Transit Time. KL_crf_tx keeps its own converter for the
-                offset it stamps (it is fed the raw row: rounding a rounded
-                value up again would add a period); this module serves the
-                AAF talkers and the GET_STREAM_INFO readback of every row, so
-                what a controller reads is what the wire carries.
+                Max Transit Time. This module serves every output of the
+                domain, the AAF talkers and the CRF output (KL_crf_tx with
+                ROUND_MTT_P = 0, its own converter not elaborated), and the
+                GET_STREAM_INFO readback of every row, so what a controller
+                reads is what every output stamps.
 
                 NOT IDEMPOTENT, as Equation 14 is not in whole ns: a whole
                 number of periods that is no multiple of three (97 periods,
@@ -41,11 +41,14 @@
                 98. Values a controller ordinarily sets, multiples of
                 62,500 ns (0.25, 0.5, 1 and 2 ms), are exact and idempotent.
 
-                SEQUENTIAL, ONE DIVIDER. The rows change at register rate
-                (SET_STREAM_INFO), so one restoring divider converts them in
-                turn, round and round (two passes of DIVW_C steps each, so a
-                row set by a controller is applied within N_P conversions,
-                about 75 cycles each). A row's output only ever moves to a
+                SEQUENTIAL, ONE DIVIDER, NO MULTIPLIER. The rows change at
+                register rate (SET_STREAM_INFO), so one restoring divider
+                converts them in turn, round and round (two passes of DIVW_C
+                steps each, so a row set by a controller is applied within
+                N_P conversions, about 75 cycles each). Pass 1's numerator
+                TTmax * DEN is shifted adds of the small constant DEN, and
+                pass 2's, periods * NUM, is pass 1's numerator less its
+                remainder. A row's output only ever moves to a
                 whole conversion, never a half-converted value. Reset loads
                 every row's output with the rounding of RESET_NS_P, its
                 factory value, computed at elaboration, so no row reads 0 at
@@ -100,7 +103,6 @@ module KL_mtt_round #(
   localparam longint unsigned PER_MAX_C  = NUM1_MAX_C / 64'(NUM_C);
   localparam longint unsigned NUM2_MAX_C = PER_MAX_C * 64'(NUM_C) + 64'(DEN_C) - 64'd1;
   localparam int unsigned DIVW_C  = $clog2(((NUM1_MAX_C > NUM2_MAX_C) ? NUM1_MAX_C : NUM2_MAX_C) + 64'd1);
-  localparam int unsigned PERW_C  = $clog2(PER_MAX_C + 64'd1);
   localparam int unsigned REMW_C  = $clog2(NUM_C + 1) + 1;
   localparam int unsigned STEPW_C = $clog2(DIVW_C + 1);
   localparam int unsigned IW_C    = (N_P > 1) ? $clog2(N_P) : 1;
@@ -114,6 +116,17 @@ module KL_mtt_round #(
 
   logic [IW_C-1:0]    row_r;          //! the row the divider converts
 
+  //! x * DEN as shifted adds: DEN is a small elaboration constant (3 at
+  //! 48 kHz), so this is adders, never a multiplier block
+  function automatic logic [DIVW_C-1:0] mul_den(input logic [31:0] x);
+    logic [DIVW_C-1:0] acc;
+    acc = '0;
+    for (int b = 0; b < 32; b++)
+      if (((DEN_C >> b) & 1) != 0) acc = acc + (DIVW_C'(x) << b);
+    return acc;
+  endfunction
+
+  logic [DIVW_C-1:0]  dv_n1_r;        //! pass 1's numerator, kept for pass 2
   logic [DIVW_C-1:0]  dv_num_r;
   logic [DIVW_C-1:0]  dv_quot_r;
   logic [REMW_C-1:0]  dv_rem_r;
@@ -127,6 +140,11 @@ module KL_mtt_round #(
   wire              dv_ge_w  = (dv_rsh_w >= dv_div_w);
   //! the served row's input, and the row after it
   wire [31:0]       raw_row_w = raw_ns_i[32*row_r +: 32];
+  //! pass 1 divides TTmax * DEN + NUM - 1 by NUM: quotient periods, remainder
+  //! r. So periods * NUM is that numerator less r, and pass 2's numerator,
+  //! periods * NUM + DEN - 1, needs no multiplier either
+  wire [DIVW_C-1:0] dv_n1_w   = mul_den(raw_row_w) + DIVW_C'(NUM_C - 1);
+  wire [DIVW_C-1:0] dv_n2_w   = dv_n1_r - DIVW_C'(dv_rem_r) + DIVW_C'(DEN_C - 1);
   wire [IW_C-1:0]   row_nx_w  = (32'(row_r) == N_P - 1) ? '0 : row_r + 1'b1;
 
   always_ff @(posedge clk_i) begin : rounder
@@ -134,6 +152,7 @@ module KL_mtt_round #(
       for (int unsigned k = 0; k < N_P; k++)
         ofs_ns_o[32*k +: 32] <= round_c(64'(RESET_NS_P[32*k +: 32]));
       row_r      <= '0;
+      dv_n1_r    <= '0;
       dv_num_r   <= '0;
       dv_quot_r  <= '0;
       dv_rem_r   <= '0;
@@ -142,7 +161,8 @@ module KL_mtt_round #(
       dv_pass2_r <= 1'b0;
     end else if (!dv_busy_r) begin
       //! the next row's conversion: pass 1 answers ceil(TTmax * DEN / NUM)
-      dv_num_r   <= DIVW_C'(raw_row_w) * DIVW_C'(DEN_C) + DIVW_C'(NUM_C - 1);
+      dv_n1_r    <= dv_n1_w;
+      dv_num_r   <= dv_n1_w;
       dv_quot_r  <= '0;
       dv_rem_r   <= '0;
       dv_step_r  <= STEPW_C'(DIVW_C);
@@ -156,7 +176,7 @@ module KL_mtt_round #(
     end else if (!dv_pass2_r) begin
       //! pass 1 answered ceil(TTmax / P); pass 2 turns it back into ns,
       //! rounded up again
-      dv_num_r   <= DIVW_C'(dv_quot_r[PERW_C-1:0]) * DIVW_C'(NUM_C) + DIVW_C'(DEN_C - 1);
+      dv_num_r   <= dv_n2_w;
       dv_quot_r  <= '0;
       dv_rem_r   <= '0;
       dv_step_r  <= STEPW_C'(DIVW_C);

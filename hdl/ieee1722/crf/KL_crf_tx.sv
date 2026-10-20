@@ -127,7 +127,14 @@
 
 `default_nettype none
 
-module KL_crf_tx (
+module KL_crf_tx #(
+  //! 1: transit_ns_i is the Max Transit Time as set, rounded up to whole
+  //! media clock periods here (Equation 14, the converter below). 0: it is
+  //! already the offset to stamp, whole periods, rounded by the integration
+  //! with the same rule for every output of the domain (milan_datapath's
+  //! KL_mtt_round, #632), and no converter is elaborated
+  parameter bit ROUND_MTT_P = 1'b1
+)(
   input  wire         clk_i,             //! cd_milan datapath clock
   input  wire         rst_n,
   //! the clock domain's media event (KL_media_domain_event); every 96th is
@@ -141,9 +148,10 @@ module KL_crf_tx (
   input  wire [47:0]  dest_mac_i,        //! MAAP-range multicast DMAC (CSR)
   input  wire [47:0]  station_mac_i,     //! src MAC ([47:40] first on wire)
   //! the Max Transit Time (10.7 TTmax) this stream's timestamps are offset
-  //! by. NOT stamped raw - Equation 14 rounds it up to a whole number of
-  //! media clock periods first, in the sequential converter below, which is
-  //! why this port may change at any time and the frame path never waits.
+  //! by. With ROUND_MTT_P it is NOT stamped raw - Equation 14 rounds it up to
+  //! a whole number of media clock periods first, in the sequential converter
+  //! below, which is why this port may change at any time and the frame path
+  //! never waits. Without it, it is the rounded offset, stamped as given.
   input  wire [31:0]  transit_ns_i,
 
   //! AVTP "tu" (timing uncertain), IEEE 1722-2016 10.4.5 - "behaves the same
@@ -289,6 +297,8 @@ module KL_crf_tx (
   //! 32-bit result would wrap and move the timestamp 4.29 s backwards, so
   //! the extra bits are kept and the 64-bit add below stays exact.
   logic [DIVW_C-1:0]  mtt_ofs_r;    //! ceil(periods * P) ns - what launches stamp
+
+  if (ROUND_MTT_P != 0) begin : g_round
   logic [31:0]        mtt_seen_r;   //! the transit_ns_i this offset belongs to
   logic               mtt_valid_r;  //! at least one conversion has completed
 
@@ -376,6 +386,14 @@ module KL_crf_tx (
       dv_busy_r   <= 1'b0;
     end
   end : mtt_round
+  end : g_round
+  else begin : g_applied
+  //! the offset as the integration rounded it, registered
+  always_ff @(posedge clk_i or negedge rst_n) begin : mtt_take
+    if (!rst_n) mtt_ofs_r <= '0;
+    else        mtt_ofs_r <= DIVW_C'(transit_ns_i);
+  end : mtt_take
+  end : g_applied
 
   // -----------------------------------------------------------------------
   // The event grid: every 96th domain media event (2 ms at 48 kHz) is a CRF

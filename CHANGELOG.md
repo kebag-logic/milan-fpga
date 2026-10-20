@@ -81,7 +81,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/media_phase` proves the loop and the interfaces.
 - It grades the in-tree blend and four AAF offsets too.
-- Its `make mutants` target plants twenty-seven defects.
+- Its `make mutants` target plants twenty-eight defects.
 - `capture_coherence` grades the talker's stamps at the TDM pins.
 - The bench proof follows after merge.
 

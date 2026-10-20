@@ -4,8 +4,8 @@
 // Several AAF outputs and the CRF output of one clock domain, each with its
 // own presentation offset (#632, R678-1-F2), bound as milan_datapath binds
 // them: the per-STREAM_OUTPUT rows go through KL_mtt_round, whose applied
-// rows the talkers stamp and GET_STREAM_INFO reads back, and KL_crf_tx takes
-// its raw row and rounds it itself. The domain's frame grid comes from the
+// rows the talkers and the CRF output stamp (KL_crf_tx ROUND_MTT_P = 0) and
+// GET_STREAM_INFO reads back. The domain's frame grid comes from the
 // harness: an event per frame with its instant, the time base of the pairs
 // injected after it, as the capture walk hands the talkers a frame and its
 // instant together.
@@ -69,12 +69,12 @@ module ofs_wrap #(
     .frames_sent_o (), .frame_p_o (), .frame_idx_o (), .frame_tu_o (), .frame_mr_o ()
   );
 
-  KL_crf_tx u_crf (
+  KL_crf_tx #(.ROUND_MTT_P (1'b0)) u_crf (
     .clk_i (clk_i), .rst_n (rst_n), .ev_p_i (ev_p_i), .ev_ns_i (ev_ns_i),
     .enable_i (1'b1), .sid_i (64'h0011_2233_4455_0009),
     .dest_mac_i (48'h91E0_F000_FE00), .station_mac_i (48'h0011_2233_4455),
-    //! the raw row: KL_crf_tx rounds it itself (milan_datapath's wiring)
-    .transit_ns_i (raw_ns_i[N_AAF_P*32 +: 32]),
+    //! the applied row, as milan_datapath wires it
+    .transit_ns_i (applied_ns_o[N_AAF_P*32 +: 32]),
     .ts_uncertain_i (1'b0), .mr_i (1'b0),
     .tu_last_o (), .mr_last_o (), .vlan_en_i (1'b0), .vlan_pcp_i (3'd3),
     .vlan_vid_i (12'd2), .m_axis_tdata (crf_tdata_o), .m_axis_tkeep (),

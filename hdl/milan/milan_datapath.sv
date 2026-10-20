@@ -3432,10 +3432,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! every output of the clock domain stamps whole periods from its grid
   //! (IEEE 1722-2016 4.3.5, 10.8 Eq. 15). A non-period offset (2,010,000 ns
   //! at 48 kHz) would leave its stream 0.48 Ps off the CRF timing points.
-  //! The AAF talkers stamp these rows and GET_STREAM_INFO reads them back;
-  //! KL_crf_tx is fed its raw row and rounds it the same way itself (its
-  //! 48 kHz base is the domain rate on every shape, so the CRF row read
-  //! back is the one it stamps).
+  //! The AAF talkers and the CRF output stamp these rows and GET_STREAM_INFO
+  //! reads them back, one rounding for every output of the domain.
   function automatic logic [ACMP_SRC_C*32-1:0] pres_reset_rows();
     logic [ACMP_SRC_C*32-1:0] r;
     for (int row = 0; row < ACMP_SRC_C; row++) r[32*row +: 32] = ADP_STROUT_PRES_NS_C[row];
@@ -6355,7 +6353,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  the REAL audio-MMCM 96-sample event grid. Joins the low-rate control
   //  merge untagged (no MSRP TA yet - see the module header).
   // ==========================================================================
-  KL_crf_tx crf_tx (
+  //! its offset comes rounded, by the rule it would apply (pres_round)
+  KL_crf_tx #(.ROUND_MTT_P (1'b0)) crf_tx (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! its timing points: every 96th domain media event, stamped with that
     //! event's instant (#632; 4.3.5 with the AAF talkers, 10.8 once phased)
@@ -6370,9 +6369,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! Milan: the presentation time offset applies to CRF like any stream -
     //! same source of truth as the AAF framers (SET_STREAM_INFO ACC_LAT/
     //! MTT), reading ITS OWN per-STREAM_OUTPUT entry: the CRF output is
-    //! talker_unique_id CRF_TUID_C = N_STREAMS. Shapes without a CRF
-    //! output leave the entry at its 2 ms default and cfg_crft_en low.
-    .transit_ns_i  (aecp_pres_offset[32*CRF_TUID_C +: 32]),
+    //! talker_unique_id CRF_TUID_C = N_STREAMS, as applied: whole media clock
+    //! periods (#632). Shapes without a CRF output leave the entry at its 2 ms
+    //! default and cfg_crft_en low.
+    .transit_ns_i  (aecp_pres_applied_w[32*CRF_TUID_C +: 32]),
     .ts_uncertain_i (clkv_tu_w),
     //! IEEE 1722-2016 10.4.3 mr: the level KL_media_clock_restart grants this
     //! Stream Output, and the level the last completed PDU carried going back

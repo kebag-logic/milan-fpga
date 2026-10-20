@@ -34,11 +34,14 @@ LATPKG = "KL_media_if_latency_pkg.sv"
 I2SCAP = "KL_aaf_capture_i2s.sv"
 #: the synthetic three-interface shape's integration (the bench plays it)
 PINWRAP = "pin_wrap.sv"
+#: the offsets harness's integration, milan_datapath's binding
+OFSWRAP = "ofs_wrap.sv"
 SOURCES = {SERVO: HDL / SERVO, DOMEV: HDL / DOMEV, CRFTX: HDL / CRFTX, MTTR: HDL / MTTR,
-           LATPKG: HDL / LATPKG, I2SCAP: HDL / "../aaf" / I2SCAP, PINWRAP: HERE / PINWRAP}
+           LATPKG: HDL / LATPKG, I2SCAP: HDL / "../aaf" / I2SCAP, PINWRAP: HERE / PINWRAP,
+           OFSWRAP: HERE / OFSWRAP}
 #: Makefile variable that names each mutable source
 MAKEVAR = {SERVO: "SERVO_RTL", DOMEV: "DOMEV_RTL", CRFTX: "CRFTX_RTL", MTTR: "MTTR_RTL",
-           LATPKG: "LATPKG_RTL", I2SCAP: "I2SCAP_RTL", PINWRAP: "PIN_WRAP"}
+           LATPKG: "LATPKG_RTL", I2SCAP: "I2SCAP_RTL", PINWRAP: "PIN_WRAP", OFSWRAP: "OFS_WRAP"}
 #: the five harnesses: (build target, objdir variable, executable)
 PINS = "pins"
 BLEND = "blend"
@@ -161,6 +164,11 @@ MUTANTS = (
      (("      ofs_ns_o[32*row_r +: 32] <= dv_quot_r[31:0];",
        "      ofs_ns_o[32*row_r +: 32] <= raw_row_w;"),),
      OFS, "[ofs A] every AAF output stamps whole periods from the CRF timing points"),
+    #: the CRF output stamping its row as set while the readback shows it applied
+    ("crf_row_raw", OFSWRAP,
+     (("    .transit_ns_i (applied_ns_o[N_AAF_P*32 +: 32]),",
+       "    .transit_ns_i (raw_ns_i[N_AAF_P*32 +: 32]),"),),
+     OFS, "[ofs A] every CRF timing point is a frame instant plus the CRF row as read back"),
     ("domain_event_not_backdated", DOMEV,
      (("  assign mark_ns_o = ptp_ns_i - 64'(MARK_LAT_NS_P);", "  assign mark_ns_o = ptp_ns_i;"),),
      "engage", "[engage] every DUT CRF timestamp is a frame instant of its own grid"),

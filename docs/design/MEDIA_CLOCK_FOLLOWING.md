@@ -1671,8 +1671,10 @@ lands in the render and loopback rings after it, inside their bands.
   AAF talkers, so every output of the domain stamps whole periods from its
   grid (R678-1-F2): 2,010,000 ns, 96.48 periods at 48 kHz, applies as 97,
   2,020,834 ns, where the raw value sat 0.48 Ps off the CRF timing points.
-  GET_STREAM_INFO reads back the applied value. `KL_crf_tx` takes its raw row
-  and rounds it the same way, so the CRF row read back is the one it stamps.
+  GET_STREAM_INFO reads back the applied value. The CRF output stamps its
+  applied row too (`KL_crf_tx` `ROUND_MTT_P = 0`, its own converter and its
+  multiplier block no longer elaborated), so one rounding serves every output
+  and what a controller reads is what every output stamps.
   The rule is not idempotent in whole ns: a period count that is no multiple
   of three has a ceiling (2,020,834 ns) that is above it, so writing back a
   read value of that kind applies one period more. The values a controller
@@ -1813,7 +1815,7 @@ target was chosen for it.
 | The detector alone, every boundary placed exactly: samples either side of +/-Ps/2 (balanced, 129:127, 160:96, jittered) read the half-period phase and pull at the slew limit, never settled; a mean in band of samples out of it never settles; settled rises at the fourth full in-band window and not before, falls at every hold and at the first out-of-band window; a phase crossing +Ps/2 re-folds the short way; d = +/-(2^25 - 1) ns is sampled and +/-2^25 ns is not; each hold on, one cycle before and one after a window's closing edge commits no correction, none and the whole one | `media_phase` det (`sim_det.cpp`) | the tracking fold removed; the window's re-fold removed; settled from the mean alone; the snapshot reading only the valid flag; settled the engaged bit; the fold-range guard removed; the fold not centred |
 | Engagements at +/-Ps/2 under 8 ns timestamp truncation and +/-48 ns jitter; a local PHC step | `media_phase` `edge`, `edge2`, `phcstep` | the PHC step left out of the hold (`phcstep`) |
 | Every case: settled never reads 1 at a window whose true phase is outside the band, and `MCSRV_STAT[9]` mirrors `phase_o[21]` on every cycle | every `media_phase` loop case | settled the engaged bit (det) |
-| Four AAF outputs and the CRF output of one domain with offsets 0, 1, 20,833, 20,834, 62,500, 2,000,000, 2,010,000, 4,294,958,333 and 0xFFFFFFFF ns, set at reset and at run time: every row read back as applied, every timestamp a frame instant plus that row, every AAF output whole periods from the CRF timing points | `media_phase` ofs (`sim_ofs.cpp`); `milan_dp` nxn legs read a 2,010,000 ns row back through GET_STREAM_INFO | the offsets stamped as set |
+| Four AAF outputs and the CRF output of one domain with offsets 0, 1, 20,833, 20,834, 62,500, 2,000,000, 2,010,000, 4,294,958,333 and 0xFFFFFFFF ns, set at reset and at run time: every row read back as applied, every AAF timestamp and every CRF timing point a frame instant plus its row, every AAF output whole periods from the CRF timing points | `media_phase` ofs (`sim_ofs.cpp`); `milan_dp` nxn legs read a 2,010,000 ns row back through GET_STREAM_INFO | the offsets stamped as set; the CRF output stamping its row as set |
 | The in-tree I2S + TDM8 blend: the I2S pair and every TDM pair of each frame the crossbar banks started at its pins within +/-5 % of Ps of the banked instant, unfolded, six reset phases | `media_phase` blend (`sim_blend.cpp`) | the frame closed on its TDM pair with the TDM latency; the I2S pair copied a pop late |
 
 `make -C tb/verilator/media_phase mutants` runs that suite's campaign as its own
