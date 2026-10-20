@@ -138,14 +138,15 @@ class Campaign:
         self.rep.section("per-field accept/reject verdicts (lock must survive)")
         # label, PDU overrides, counter that must move, frames_rx accepted?
         #
-        # channels_per_frame is deliberately absent: the listener follows WIRE
-        # TRUTH for the channel count rather than rejecting a PDU that
-        # disagrees with the bound format's declared channels. That is the fix
-        # for the declared-8ch / wire-2ch silence bug — a talker sending fewer
-        # channels than the format advertises must still render, de-interleaved
-        # by the PDU's own count (the wire_chans path the chmap64 render
-        # crossbar consumes). Covered as an ACCEPTED probe below, not a
-        # rejection.
+        # channels_per_frame is deliberately absent: this campaign's DUT is the
+        # flat test instrument KL_avtp_rx_monitor, which keeps the family
+        # compare on purpose and accepts any nonzero channel count, so a count
+        # probe is graded as ACCEPTED below, not as a rejection. That is the
+        # instrument's behaviour, not the device listener's rule: the shipping
+        # KL_avtp_rx_monitor_ctx counts UNSUPPORTED_FORMAT for and discards a
+        # PDU whose channel count differs from the STREAM_INPUT's current
+        # format (#765, FR-STR-03; Milan v1.2 4.4.2.2, Table 5.6, Table 6.2),
+        # graded by tb/verilator/avtp_rxmon's [UF] cases.
         probes = [
             ("sequence jump", dict(sequence_num=0x7F), C_SEQMM, True),
             ("unsupported bit_depth", dict(bit_depth=17), C_UNSUPFMT, False),
@@ -171,13 +172,15 @@ class Campaign:
             self.rep.eq("%s: no unlock event" % label,
                         after[C_UNLOCKCNT], before[C_UNLOCKCNT])
 
-    def wire_truth(self) -> None:
-        """channels_per_frame follows the WIRE, it does not reject the PDU."""
-        self.rep.section("wire-truth channel count (declared-vs-wire mismatch)")
+    def instrument_channel_family(self) -> None:
+        """The flat instrument's family compare accepts any nonzero
+        channels_per_frame; the device listener does not (#765)."""
+        self.rep.section("flat instrument family compare: any channel count "
+                         "accepted (the device listener rejects, #765)")
         for chans in (1, 2, 3, 4, 8):
             before = self.lock_stream()
             after = self.send(channels_per_frame=chans)
-            self.rep.ck("channels_per_frame=%d: accepted (wire truth)" % chans,
+            self.rep.ck("channels_per_frame=%d: accepted (family compare)" % chans,
                         after[C_FRAMES] > before[C_FRAMES],
                         str(self.delta(before, after)))
             self.rep.eq("channels_per_frame=%d: not flagged unsupported" % chans,
@@ -485,7 +488,7 @@ def main() -> int:
         m = c.model_inventory()
         c.baseline()
         c.field_verdicts()
-        c.wire_truth()
+        c.instrument_channel_family()
         c.foreign()
         c.accept_verdict()
         c.truncation()

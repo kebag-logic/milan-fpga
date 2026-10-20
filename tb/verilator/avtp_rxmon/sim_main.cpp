@@ -243,8 +243,9 @@ class AvtpRxMonitorHarness {
     //! Hands [11] the FRAMES_RX reading it measures its own +2 against.
     long family_mismatch_counts_unsupported_format_only(){
         printf("\n[10] FAMILY mismatch counts UNSUPPORTED_FORMAT and nothing else\n");
-        //! channel count is NOT a family term (Milan BAF Section 4, task #24):
-        //! only subtype/encoding/rate/depth/sparse reject
+        //! the flat instrument's family compare: only subtype/encoding/rate/
+        //! depth/sparse reject here; the device listener also rejects another
+        //! channel count (#765)
         long frx = dut->cnt_frames_rx_o;
         { AafCfg c; c.seq=63; c.nsr=0x07; feed(build_aaf(stim, c)); }       // 96 kHz PDU
         { AafCfg c; c.seq=63; c.depth=24; feed(build_aaf(stim, c)); }       // wrong depth
@@ -430,8 +431,8 @@ class AvtpRxMonitorHarness {
     void family_change_while_locked_counts_then_relocks(){
         printf("\n[27] FAMILY change while locked: unsupported counts, relock on match\n");
         // USER bug 6 repro, re-aimed at a FAMILY term (task #24: a channels-only
-        // change no longer mismatches - that is the BAF law, not a regression):
-        // the listener reconfigures to a 96 kHz format while the wire stays
+        // change does not mismatch in this flat instrument's family compare;
+        // the device listener rejects it, #765): the listener reconfigures to a 96 kHz format while the wire stays
         // 48 kHz -> rate mismatch counts UNSUPPORTED; back to 48 kHz -> relock.
         dut->bound_i=0; cyc(3);
         dut->clk_src_i=0; dut->servo_conv_i=0;
@@ -455,8 +456,10 @@ class AvtpRxMonitorHarness {
     }
 
     void channel_freedom_accepts_every_count(){
-        printf("\n[28] channel FREEDOM (Milan BAF Section 4 + USER 08-07: accept\n"
-               "     EVERY channel count, route only the mapped subset)\n");
+        printf("\n[28] flat instrument FAMILY compare, kept on purpose: any\n"
+               "     nonzero channel count is accepted here. The device listener\n"
+               "     KL_avtp_rx_monitor_ctx rejects a count other than the current\n"
+               "     format's (#765; Milan v1.2 4.4.2.2, Table 5.6, Table 6.2)\n");
         dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);   // fresh era (counters reset)
         { AafCfg c; c.seq=0; c.chans=2; feed(build_aaf(stim, c)); } // 2ch wire vs 8ch fmt
         ck("[28a] 2ch-wire ACCEPTED under 8ch fmt", dut->cnt_frames_rx_o, 1);
@@ -465,11 +468,10 @@ class AvtpRxMonitorHarness {
         ck("[28c] 8ch-wire accepted", dut->cnt_frames_rx_o, 2);
         { AafCfg c; c.seq=2; c.chans=0; feed(build_aaf(stim, c)); } // zero channels = junk
         ck("[28d] 0ch rejected", dut->cnt_unsupported_fmt_o, 1);
-        //! the 08-07 live case: the wire carries MORE channels than the SET
-        //! format (the peer declared 4ch, sink set 4ch, wire 8ch-era) - accepts,
-        //! the maps route what they map
+        //! the wire carries MORE channels than the set format: the flat
+        //! instrument accepts it, the maps route what they map
         { AafCfg c; c.seq=2; c.chans=9; feed(build_aaf(stim, c)); } // above the SET format
-        ck("[28e] 9ch-wire ACCEPTED over 8ch fmt (BAF family)",
+        ck("[28e] 9ch-wire ACCEPTED over 8ch fmt (family compare)",
            dut->cnt_frames_rx_o, 3);
         ck("[28f] ...and no UNSUPPORTED for it", dut->cnt_unsupported_fmt_o, 1);
     }

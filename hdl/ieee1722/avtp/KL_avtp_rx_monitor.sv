@@ -179,13 +179,15 @@ module KL_avtp_rx_monitor #(
   wire [7:0] p_depth   = fsh_i[39:32];   // O+19
   wire       p_sp      = fsh_i[12];      // O+22 [4]
 
-  //! reference aaf_pdu_format_matches: subtype, format, nsr and bit_depth
-  //! strict; CHANNELS UNBOUNDED (Milan BAF v1.1 Section 4 + USER 08-07:
-  //! "accept every format, but does not need to route all channels") - a
-  //! Base Listener supports ALL channel counts of its rate family, so the
-  //! configured format never bounds acceptance: the depacketizer extracts
-  //! by the PDU's own data_len and the input maps route the subset.
-  //! sparse always NORMAL=0.
+  //! family compare, kept on purpose in this flat test instrument:
+  //! subtype, format, nsr and bit_depth strict, any nonzero channel count
+  //! accepted, sparse always NORMAL=0. The TBs use it to drive any count
+  //! of the family through the parser and depacketizer. It is NOT the
+  //! device listener's rule: the shipping KL_avtp_rx_monitor_ctx also
+  //! compares the 10-bit channels_per_frame with the STREAM_INPUT's
+  //! current format, and counts UNSUPPORTED_FORMAT for and discards a PDU
+  //! with another count (#765, FR-STR-03; Milan v1.2 4.4.2.2, Table 5.6,
+  //! Table 6.2).
   wire fmt_ok = (subtype_i == f_subtype) &&
                 (p_format  == f_format)  &&
                 (p_nsr     == f_nsr)     &&
