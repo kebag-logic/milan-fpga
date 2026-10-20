@@ -1,0 +1,26 @@
+2026-10-19T04:01:18Z
+[PASS] the unmutated gateware still passes the dynmap leg
+[PASS] the unmutated gateware still passes the listener leg
+[PASS] the unmutated gateware still passes the talker leg
+[PASS] mutant caught: the map restore runs over the D3 walk's roll-back - breaks "[MAPREC] D3 roll-back: SPI 0: number_of_mappings" (its tallies report 6 failure(s) across 331 checks)
+[PASS] mutant caught: GET_AUDIO_MAP does not wait for the map restore - breaks "[MAPREC] held GET: answered with the restored list" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: the format judge does not wait for the map restore - breaks "[MAPREC] held SET_STREAM_FORMAT: SUCCESS against the restored list" (its tallies report 2 failure(s) across 331 checks)
+[PASS] mutant caught: the entity enable does not wait for the map restore - breaks "[MAPREC] held GET: the entity enable waits for the map restore" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: every phase-5 beat marks its record, changed or not (DR2b) - breaks "[MAPREC] unchanged: no record write follows an unchanged edit" (its tallies report 3 failure(s) across 331 checks)
+[PASS] mutant caught: a restore write counts as a change - breaks "[MAPREC] saved: the restore itself writes no record" (its tallies report 2 failure(s) across 331 checks)
+[PASS] mutant caught: a change after the latch does not taint the write - breaks "[MAPREC] taint: the window ends on the final list" (its tallies report 5 failure(s) across 331 checks)
+[PASS] mutant caught: a fourth attempt follows the third failure - breaks "[MAPREC] failing writes: three attempts, then no more" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: no backoff between attempts - breaks "[MAPREC] failing writes: the attempts are at least 500 ms apart" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: the last failed attempt raises no alarm - breaks "[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: the map restore has no per-wait deadline - breaks "[MAPREC] silent memory: the walk ends at its per-wait deadline" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: the map restore has no aggregate deadline - breaks "[MAPREC] slow memory: SPI 0: number_of_mappings" (its tallies report 8 failure(s) across 331 checks)
+[PASS] mutant caught: the arbiter does not drain a read the map writer abandoned - breaks "[MAPREC] silent memory, late answer: a later change reaches the window" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: the arbiter's selection moves while the backend serves a command - breaks "[MAPREC] shared face: both writers' records are in the window" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: the map writer's pending is not reported - breaks "[MAPREC] empty: PP_STAT pend rises with the accepted change" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: the map writer's alarm does not reach nvm_alarm - breaks "[MAPREC] failing writes: the alarm (PP_STAT[4]) is raised" (its tallies report 1 failure(s) across 331 checks)
+[PASS] mutant caught: an empty reset, under the listener's end-to-end check - breaks "T18 POWER-ON: with no map command since the reset, the lane renders injected events" (its tallies report 8 failure(s) across 264 checks)
+[PASS] mutant caught: an empty reset, under the talker's end-to-end check - breaks "[V] every requested column was decoded" (its tallies report 20 failure(s) across 134 checks)
+
+21 checks: 21 PASS, 0 FAIL
+CAMPAIGN rc=0
+2026-10-19T05:24:35Z

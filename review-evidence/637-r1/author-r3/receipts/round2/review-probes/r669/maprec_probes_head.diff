@@ -1,0 +1,32 @@
+--- r669/maprec_probes.py	2026-10-20 07:04:15.132846294 +0200
++++ r669/maprec_probes_head.py	2026-10-20 07:05:14.692987748 +0200
+@@ -23,16 +23,13 @@
+     # a framed, crc-clean record the ADD rule refuses must put the reset set
+     # back (amr_fsm AS_EEND step 2); the mutant leaves the port EMPTY
+     "no_putback": [(
+-        "          end else if ((amr_step_r == 2'd1) && !amr_ok_r) begin\n",
+-        "          end else if ((amr_step_r == 2'd1) && !amr_ok_r) begin\n"
+-        "            amr_r_r <= amr_r_r + AMR_RW_C'(1); amr_step_r <= 2'd0;\n"
+-        "            amr_src_r <= 1'b0; amr_st_r <= AS_RNEXT;\n"
+-        "          end else if (1'b0) begin\n")],
++        "            if (!amr_ok_r) amr_pb_r <= amr_pb_r | amr_rmask_w;\n",
++        "            if (1'b0) amr_pb_r <= amr_pb_r | amr_rmask_w;\n")],
+     # the hole rule: a mapping after an UNUSED entry is malformed
+     "no_hole_rule": [("amr_malformed_r <= 1'b1;", "amr_malformed_r <= 1'b0;")],
+     # layout_version and record_id are not judged
+-    "no_layout_id": [("          end else if (!amr_hid_r\n",
+-                      "          end else if (1'b0\n")],
++    "no_layout_id": [("          if (!amr_hframe_r || !amr_hid_r || (amr_hcrc_r != amr_crc_r)\n",
++                      "          if (!amr_hframe_r || 1'b0 || (amr_hcrc_r != amr_crc_r)\n")],
+     # an entry outside every ADD range is silently dropped, not refused
+     "no_range_refuse": [(
+         "                    //! outside every range an ADD accepts\n"
+@@ -76,7 +73,7 @@
+     suite = tree / SUITE_REL
+     dp = out / f"milan_datapath_{name}.sv" if name != "clean" else tree / DP_REL
+     mdir = out / f"obj_{name}"
+-    cmd = ["make", "-s", "-j16", "-C", str(suite), "-o", "ltn_rom.hex", "-o",
++    cmd = ["make", "-s", "-j8", "-C", str(suite), "-o", "ltn_rom.hex", "-o",
+            "ucode.hex", "dynmap-build", f"DP_SRC={dp}", f"DYNMAP_MDIR={mdir}",
+            f"VERILATOR={os.environ.get('VERILATOR', 'verilator')}"]
+     r = subprocess.run(cmd, capture_output=True, text=True, check=False)

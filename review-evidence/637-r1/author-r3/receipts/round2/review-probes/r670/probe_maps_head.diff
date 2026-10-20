@@ -1,0 +1,13 @@
+--- r670/probe_maps.py	2026-10-20 07:04:15.143397538 +0200
++++ r670/probe_maps_head.py	2026-10-20 07:05:14.693191674 +0200
+@@ -102,8 +102,8 @@
+     tofile='probe/sim_nxn.cpp')))
+ env = dict(os.environ, TMPDIR=str(p / 'scratch'), PYTHONDONTWRITEBYTECODE='1')
+ compiler = env.get('REVIEW_VERILATOR', '<tools>/pinned-verilator-5.050/verilator')
+-command = ['make', '-j16', '-C', 'tb/verilator/milan_dp', 'dynmap',
+-           'VERILATOR=' + compiler, 'VERILATOR_JOBS=12']
++command = ['make', '-j8', '-C', 'tb/verilator/milan_dp', 'dynmap',
++           'VERILATOR=' + compiler, 'VERILATOR_JOBS=2']
+ with (p / 'receipts/probe-maps.log').open('w') as log:
+     rc = subprocess.run(command, cwd=work, env=env, stdout=log,
+                         stderr=subprocess.STDOUT, check=False).returncode

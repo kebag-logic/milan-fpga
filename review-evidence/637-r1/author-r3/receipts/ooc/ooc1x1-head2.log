@@ -1,0 +1,27 @@
+2026-10-19T04:52:22Z
+90b1536653d4c9db6fd8624dfe3ff3bb818aba3f
+<scratch>/route-head2/work/ax7101-ooc/baseline_ooc.tcl
+EXPORT rc=0
+VIVADO rc=0
+2026-10-19T05:48:19Z
+endpoint ooc-1x1: <scratch>/route-head2/work/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              23314       23366        52  ok
+FF               19821       19823         2  ok
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  wrapper: LUT +52, FF +2
+  u_pp: LUT +48, FF +0
+  u_pp/u_nvm_port: LUT +47, FF +0
+  u_nvm: LUT +22, FF +0
+  u_pp/u_tx_slots: LUT +6, FF +0
+  u_pp/u_aecp: LUT -5, FF +0
+  u_pp/u_aecp/u_d3: LUT -5, FF +0
+  ctl_fifo: LUT -4, FF +0
+  u_pp/g_rx_pool[2].u_rx_slots: LUT +4, FF +0
+  u_pp/g_rx_pool[5].u_rx_slots: LUT -4, FF +0
+RESULT: PASS
+GATE rc=0
+2026-10-19T05:48:19Z
