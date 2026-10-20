@@ -490,21 +490,20 @@ module KL_avtp_rx_monitor_ctx_ref #(
   wire [7:0] p_depth_w  = cur_r.fsh[39:32];
   wire       p_sp_w     = cur_r.fsh[12];
 
-  //! reference aaf_pdu_format_matches, FAMILY compare (Milan BAF v1.1
-  //! Section 4 + USER 08-07: "the stream input format must accept every
-  //! format, but does not need to route all channels"). A Base Listener's
-  //! STREAM_INPUT supports ALL channel counts of its rate family - the
-  //! configured format is the NOMINAL selection, never an acceptance
-  //! bound, so the wire's channels_per_frame does not appear here at all:
-  //! the depacketizer de-interleaves by the PDU's own count and the input
-  //! maps route the subset. UNSUPPORTED_FORMAT remains for genuine family
-  //! mismatches only (subtype, encoding, rate, depth, sparse).
+  //! reference current-format compare, the same terms as the shipping
+  //! engine (#765; Milan v1.2 4.4.2.2, Table 5.6 UNSUPPORTED_FORMAT,
+  //! Table 6.2): a PDU is in format only when its subtype, AAF format,
+  //! nominal rate, bit depth and full 10-bit channels_per_frame all equal
+  //! the STREAM_INPUT's current format, the count is nonzero and the
+  //! stream is not sparse. Any other PDU counts UNSUPPORTED_FORMAT and is
+  //! discarded before acceptance. This supersedes the earlier family
+  //! reading (every channel count of the rate family accepted), which the
+  //! flat test instrument KL_avtp_rx_monitor still keeps on purpose.
   wire fmt_ok_w = (cur_r.subtype == f_subtype_w) &&
                   (p_format_w  == f_format_w)  &&
                   (p_nsr_w     == f_nsr_w)     &&
                   (p_depth_w   == f_depth_w)   &&
-                  //! #765: the current format's channel count, applied
-                  //! here as in the shipping engine
+                  //! #765: the current format's channel count
                   (p_cpf_w     == f_cpf_w)     &&
                   (p_cpf_w     != 10'd0)       &&
                   (p_sp_w      == 1'b0);
