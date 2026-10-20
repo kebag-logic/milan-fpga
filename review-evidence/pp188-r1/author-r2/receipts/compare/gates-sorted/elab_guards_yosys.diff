@@ -1,0 +1,60 @@
+--- base/elab_guards_yosys
++++ head/elab_guards_yosys
+@@ -34,18 +34,18 @@
+-GUARD yosys KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: all.v:4613: ERROR: FATAL: .
+-GUARD yosys KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: all.v:4607: ERROR: FATAL: .
+-GUARD yosys KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: all.v:4604: ERROR: FATAL: .
+-GUARD yosys KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: all.v:4610: ERROR: FATAL: .
+-GUARD yosys KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: all.v:6188: ERROR: FATAL: .
+-GUARD yosys KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: all.v:6205: ERROR: FATAL: .
+-GUARD yosys KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: all.v:6208: ERROR: FATAL: .
+-GUARD yosys KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: all.v:6202: ERROR: FATAL: .
+-GUARD yosys KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: all.v:6194: ERROR: FATAL: .
+-GUARD yosys KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: all.v:8477: ERROR: FATAL: .
+-GUARD yosys KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: all.v:9903: ERROR: FATAL: .
+-GUARD yosys KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: all.v:9909: ERROR: FATAL: .
+-GUARD yosys KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: all.v:9906: ERROR: FATAL: .
+-GUARD yosys KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: all.v:9900: ERROR: FATAL: .
+-GUARD yosys KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: all.v:10884: ERROR: FATAL: .
+-GUARD yosys KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: all.v:10890: ERROR: FATAL: .
+-GUARD yosys KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: all.v:10887: ERROR: FATAL: .
+-GUARD yosys KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: all.v:11498: ERROR: FATAL: .
++GUARD yosys KL_aecp_desc_store.gen_g_base_align DESC_BASE_P=0x20000001: all.v:4615: ERROR: FATAL: .
++GUARD yosys KL_aecp_desc_store.gen_g_beats LINE_BYTES_P=4096: all.v:4609: ERROR: FATAL: .
++GUARD yosys KL_aecp_desc_store.gen_g_line_align LINE_BYTES_P=577: all.v:4606: ERROR: FATAL: .
++GUARD yosys KL_aecp_desc_store.gen_g_names NAME_ENTRIES_P=1025: all.v:4612: ERROR: FATAL: .
++GUARD yosys KL_aecp_engine.gen_g_frame_fit TX_OVERSIZE_BYTES_P=617: all.v:6190: ERROR: FATAL: .
++GUARD yosys KL_aecp_engine.gen_g_gamap_page_fit LINE_BYTES_P=568 fixture: all.v:6207: ERROR: FATAL: .
++GUARD yosys KL_aecp_engine.gen_g_line_ceiling LINE_BYTES_P=1016 fixture: all.v:6210: ERROR: FATAL: .
++GUARD yosys KL_aecp_engine.gen_g_line_step LINE_BYTES_P=577: all.v:6204: ERROR: FATAL: .
++GUARD yosys KL_aecp_engine.gen_g_resp_cap_fit LINE_BYTES_P=575 fixture: all.v:6196: ERROR: FATAL: .
++GUARD yosys KL_aecp_notify.g_rows_guard N_IF_P=2 N_CTRL_P=1: all.v:8479: ERROR: FATAL: .
++GUARD yosys KL_aecp_nvm_writer.g_backoff_check RETRY_BACKOFF_CYC_P=0: all.v:9905: ERROR: FATAL: .
++GUARD yosys KL_aecp_nvm_writer.g_rs_agg_check RS_AGG_CYC_P=0: all.v:9911: ERROR: FATAL: .
++GUARD yosys KL_aecp_nvm_writer.g_rs_tmo_check RS_TMO_CYC_P=0: all.v:9908: ERROR: FATAL: .
++GUARD yosys KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: all.v:9902: ERROR: FATAL: .
++GUARD yosys KL_aecp_resp_buf.gen_g_base_align RESP_BASE_P=0x20100001: all.v:10886: ERROR: FATAL: .
++GUARD yosys KL_aecp_resp_buf.gen_g_beats RESP_BYTES_P=4089: all.v:10892: ERROR: FATAL: .
++GUARD yosys KL_aecp_resp_buf.gen_g_size RESP_BYTES_P=16: all.v:10889: ERROR: FATAL: .
++GUARD yosys KL_aecp_ucpu.gen_g_d8_cap RESP_D8_CAP_BYTES_P=1025: all.v:11500: ERROR: FATAL: .
+@@ -53,10 +53,10 @@
+-GUARD yosys KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: all.v:13834: ERROR: FATAL: .
+-GUARD yosys KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: all.v:13824: ERROR: FATAL: .
+-GUARD yosys KL_pp_originator.g_inflight_check INFLIGHT_P=17: all.v:14331: ERROR: FATAL: .
+-GUARD yosys KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: all.v:14694: ERROR: FATAL: .
+-GUARD yosys KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: all.v:17491: ERROR: FATAL: .
+-GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: all.v:21711: ERROR: FATAL: .
+-GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: all.v:21729: ERROR: FATAL: .
+-GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: all.v:21714: ERROR: FATAL: .
+-GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: all.v:21717: ERROR: FATAL: .
+-GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: all.v:21720: ERROR: FATAL: .
++GUARD yosys KL_pp_nvm_port.g_maxp_check MAX_PAYLOAD_P=65528: all.v:13836: ERROR: FATAL: .
++GUARD yosys KL_pp_nvm_port.g_tmo_check MEM_TIMEOUT_CYC_P=0: all.v:13826: ERROR: FATAL: .
++GUARD yosys KL_pp_originator.g_inflight_check INFLIGHT_P=17: all.v:14333: ERROR: FATAL: .
++GUARD yosys KL_pp_release_merge.g_slot_count_check N_SLOTS_P=0: all.v:14696: ERROR: FATAL: .
++GUARD yosys KL_srp_encoder.g_depth_check TX_STD_BYTES_P=557: all.v:17493: ERROR: FATAL: .
++GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: all.v:21753: ERROR: FATAL: .
++GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: all.v:21771: ERROR: FATAL: .
++GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: all.v:21756: ERROR: FATAL: .
++GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: all.v:21759: ERROR: FATAL: .
++GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: all.v:21762: ERROR: FATAL: .

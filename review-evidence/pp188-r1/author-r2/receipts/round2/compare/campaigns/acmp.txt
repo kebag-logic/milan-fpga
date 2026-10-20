@@ -1,0 +1,80 @@
+DIFF cdl_not_44_rejected@pp_top.log
+   head only: FAIL: AS5d precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5d precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5d precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+   head only: FAIL: AS5e precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5e precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5e precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+DIFF rf_swap_sticky@pp_top.log
+   head only: FAIL: AS5d precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 1)
+   head only: FAIL: AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 1, decl 2, flags 0x0042, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0042)
+DIFF rf_swap_unlatched@pp_top.log
+   head only: FAIL: AS5e precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 2)
+   head only: FAIL: AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 2, decl 1, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+DIFF st_ls_index_zero@pp_top.log
+   head only: FAIL: AS5d precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5d precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5d precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+   head only: FAIL: AS5e precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5e precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5e precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+DIFF st_ls_settle_as_withdraw@pp_top.log
+   head only: FAIL: AS5d precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5d precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5d precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+   head only: FAIL: AS5e precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5e precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5e precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+DIFF st_ls_sid_da_swapped@pp_top.log
+   head only: FAIL: AS5d precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5d precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5d precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+   head only: FAIL: AS5e precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5e precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5e precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+DIFF st_ls_state_none@pp_top.log
+   head only: FAIL: AS5d precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5d precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5d precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+   head only: FAIL: AS5e precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5e precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5e precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+DIFF st_ls_vid_dropped@pp_top.log
+   head only: FAIL: AS5d precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5d precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5d precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+   head only: FAIL: AS5e precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 0, coalesced 0)
+   head only: FAIL: AS5e precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 0)
+   head only: FAIL: AS5e precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 0 then 0)
+   head only: FAIL: AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 0, decl 0, flags 0x0002, 6 answers, 6 ACMP frames
+   head only: FAIL: AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)
+HEAD ONLY router_coalesce_unflagged@pp_top.log: 2 FAIL lines
+HEAD ONLY tk_failed_and_payload@pp_top.log: 2 FAIL lines
+HEAD ONLY tk_failed_first_payload@pp_top.log: 4 FAIL lines
+HEAD ONLY tk_failed_or_payload@pp_top.log: 2 FAIL lines
+HEAD ONLY tk_type_unlatched@pp_top.log: 10 FAIL lines
+common logs: 59 identical FAIL sets, 8 differ

@@ -1,0 +1,118 @@
+# New and changed checks, each with the planted controls that fail it (head campaign receipts)
+
+## tb/srp_stream_fsms (srp_top campaign, rec/head-camps/work/srp_top)
+
+### listener-rebind-abandons-leave (rc=2 failures=1 KILLED)
+FAIL: RB1: the next tx! sends the old stream's Lv, Ready, and nothing else (0 pushes, code -1)
+
+### listener-declaration-not-held (rc=2 failures=3 KILLED)
+FAIL: RB1: the new stream registers at once, its Listener not yet declared (reg 1, decl 2)
+FAIL: RB1: the next tx! sends the old stream's Lv, Ready, and nothing else (1 pushes, code 0)
+FAIL: RB1: the tx! after it declares the new stream, New Ready (1 pushes, decl 0)
+
+### listener-park-never-retires (rc=2 failures=1 KILLED)
+FAIL: RB1: the tx! after it declares the new stream, New Ready (0 pushes, decl 0)
+
+### listener-reprobe-abandons-leave (rc=2 failures=1 KILLED)
+FAIL: RB2: after a re-probe onto the same stream the next tx! sends its Lv, Ready (0 pushes, code -1)
+
+### listener-reprobe-parks-own-stream (rc=2 failures=1 KILLED)
+FAIL: RB3: a re-probe whose talker registers before tx! sends New Ready on the same stream, no Lv (1 pushes, code 5)
+
+### walk-ignores-leave-copy (rc=2 failures=17 KILLED)
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2007) [2/2]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2007) [3/5]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2007) [9/9]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..6007) [1/1]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..6017) [2/2]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..6047) [3/5]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..6087) [9/9]
+FAIL: WK11: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2017) [3/5]
+FAIL: WK11: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2017) [9/9]
+FAIL: WK11: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2027) [9/9]
+FAIL: WK11: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2037) [3/5]
+FAIL: WK11: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2037) [9/9]
+FAIL: WK11: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2047) [3/5]
+FAIL: WK11: Leave 4 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2057) [9/9]
+FAIL: WK11: Leave 5 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2067) [9/9]
+FAIL: WK11: Leave 6 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2077) [9/9]
+FAIL: WK11: Leave 7 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2087) [9/9]
+
+### lsid-ram-read-sink-0 (rc=2 failures=12 KILLED)
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [3/5]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [9/9]
+FAIL: WK11: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [3/5]
+FAIL: WK11: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [9/9]
+FAIL: WK11: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [3/5]
+FAIL: WK11: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [9/9]
+FAIL: WK11: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [3/5]
+FAIL: WK11: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [9/9]
+FAIL: WK11: Leave 4 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [9/9]
+FAIL: WK11: Leave 5 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [9/9]
+FAIL: WK11: Leave 6 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [9/9]
+FAIL: WK11: Leave 7 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [9/9]
+
+### lsid-flops-read-sink-0 (rc=2 failures=1 KILLED)
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..1007) [2/2]
+
+### lsid-ram-written-with-new-stream (rc=2 failures=14 KILLED)
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2007) [3/5]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2007) [9/9]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..6047) [3/5]
+FAIL: WK11: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..6087) [9/9]
+FAIL: WK11: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2017) [3/5]
+FAIL: WK11: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2017) [9/9]
+FAIL: WK11: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2027) [9/9]
+FAIL: WK11: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2037) [3/5]
+FAIL: WK11: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2037) [9/9]
+FAIL: WK11: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2047) [3/5]
+FAIL: WK11: Leave 4 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2057) [9/9]
+FAIL: WK11: Leave 5 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2067) [9/9]
+FAIL: WK11: Leave 6 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2077) [9/9]
+FAIL: WK11: Leave 7 names the stream_id its sink held (type 3, fp 2, stream_id 0011..2087) [9/9]
+
+### wsid-write-ignores-ready (rc=2 failures=4 KILLED)
+FAIL: WK10: push 4 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..6047) [3/5]
+FAIL: WK10: push 8 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..6087) [9/9]
+FAIL: WK11: the listener walk sends 1 Leaves (got 0) [3/5]
+FAIL: WK11: the listener walk sends 1 Leaves (got 0) [9/9]
+
+## tb/acmp_listener and tb/pp_top (acmp campaign, rec/head-camps3/work/acmp)
+
+### rf_swap_unlatched@acmp_listener: {"mutant": "rf_swap_unlatched@acmp_listener", "verdict": "KILLED", "missing": []}
+3170 checks: 3166 PASS, 4 FAIL
+FAIL: B4: after the swap to Talker Failed GET_RX_STATE carries REGISTERING_FAILED 0x0040 (flags 0x0002)
+FAIL: B4: no invented arc; the swap to Talker Failed latches RF
+FAIL: B4 REF-BUG: flags got b1 s1 w0 r0 d1 g1 t0 want b1 s1 w0 r0 d3 g1 t0
+FAIL: F05.3 TK_REG x SOK: flags got b1 s1 w0 r0 d1 g1 t0 want b1 s1 w0 r0 d3 g1 t0
+
+### rf_swap_sticky@acmp_listener: {"mutant": "rf_swap_sticky@acmp_listener", "verdict": "KILLED", "missing": []}
+3170 checks: 3168 PASS, 2 FAIL
+FAIL: B4b: after the swap back GET_RX_STATE clears REGISTERING_FAILED (flags 0x0042)
+FAIL: B4b: no invented arc; the swap back to Talker Advertise clears RF
+
+### rf_swap_unlatched@pp_top: {"mutant": "rf_swap_unlatched@pp_top", "verdict": "KILLED", "missing": []}
+ACMP: 48 checks, 1 failures
+FAIL: AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 2, decl 1)
+
+### rf_swap_sticky@pp_top: {"mutant": "rf_swap_sticky@pp_top", "verdict": "KILLED", "missing": []}
+ACMP: 48 checks, 1 failures
+FAIL: AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 1, decl 2)
+
+### rebind_abandons_leave@pp_top: {"mutant": "rebind_abandons_leave@pp_top", "verdict": "KILLED", "missing": []}
+ACMP: 48 checks, 1 failures
+FAIL: AS7: a rebind settled 6 ms after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and nothing for the new one (ready 1, settled 1, quiet 1)
+
+### park_never_retires@pp_top: {"mutant": "park_never_retires@pp_top", "verdict": "KILLED", "missing": []}
+ACMP: 48 checks, 1 failures
+FAIL: AS7: the MRPDU after it declares the new stream, New Ready (decl 0, reg 1)
+
+### st_ls_teardown_as_declare@pp_top: {"mutant": "st_ls_teardown_as_declare@pp_top", "verdict": "KILLED", "missing": []}
+ACMP: 48 checks, 1 failures
+FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2
+
+### st_ls_teardown_lost@pp_top: {"mutant": "st_ls_teardown_lost@pp_top", "verdict": "KILLED", "missing": []}
+ACMP: 48 checks, 3 failures
+FAIL: AS6: no Listener declared and no match held any more (decl 2, reg 1)
+FAIL: AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact
+FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2

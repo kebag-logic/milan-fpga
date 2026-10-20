@@ -1,0 +1,96 @@
+[
+ {
+  "mutant": "golden-acmp_listener",
+  "suite": "tb/acmp_listener",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top--acmp-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "rf_swap_unlatched@acmp_listener",
+  "suite": "tb/acmp_listener",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "B4: no invented arc; the swap to Talker Failed latches RF",
+   "B4: after the swap to Talker Failed GET_RX_STATE carries REGISTERING_FAILED"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "F05.3 TK_REG x SOK: flags got b1 s1 w0 r0 d1 g1 t0 want b1 s1 w0 r0 d3 g1 t0",
+   "B4 REF-BUG: flags got b1 s1 w0 r0 d1 g1 t0 want b1 s1 w0 r0 d3 g1 t0",
+   "B4: no invented arc; the swap to Talker Failed latches RF",
+   "B4: after the swap to Talker Failed GET_RX_STATE carries REGISTERING_FAILED 0x0040 (flags 0x0002)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rf_swap_sticky@acmp_listener",
+  "suite": "tb/acmp_listener",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "B4b: no invented arc; the swap back to Talker Advertise clears RF",
+   "B4b: after the swap back GET_RX_STATE clears REGISTERING_FAILED"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "B4b: no invented arc; the swap back to Talker Advertise clears RF",
+   "B4b: after the swap back GET_RX_STATE clears REGISTERING_FAILED (flags 0x0042)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rf_swap_unlatched@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5b: after the in-place swap to Talker Failed"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 2, decl 1)",
+   "AS5e precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 2)",
+   "AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 2, decl 1, flags 0x0002, 6 answers, 6 ACMP frames)",
+   "AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "rf_swap_sticky@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5c: after the swap back to Talker Advertise"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 1, decl 2)",
+   "AS5d precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 1)",
+   "AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 1, decl 2, flags 0x0042, 6 answers, 6 ACMP frames)",
+   "AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0042)"
+  ],
+  "verdict": "KILLED"
+ }
+]

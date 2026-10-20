@@ -1,0 +1,78 @@
+DIFF bound_view_not_latched@pp_top.log
+   head only: FAIL: AS7: a rebind settled <t> after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and nothing for the new one (ready 1, settled 0, quiet 1)
+DIFF cdl_not_44_rejected@pp_top.log
+   head only: FAIL: AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 0, decl 0)
+   head only: FAIL: AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 0, decl 0)
+   head only: FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2
+DIFF field_reset_blocked@acmp_listener.log
+   base only: FAIL: B4 REF-BUG: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+   base only: FAIL: B4: no invented arc, no RF latch from the spurious rise
+   base only: FAIL: F05.3 TK_REG x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+   base only: FAIL: RV8d: ...one cycle after its record write, for that sink (pulse @-1 sink -1, write @2108720 sink 0)
+   head only: FAIL: B4 REF-BUG: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d3 g1 t0
+   head only: FAIL: B4: after the swap to Talker Failed GET_RX_STATE carries REGISTERING_FAILED 0x0040 (flags 0xffffffff)
+   head only: FAIL: B4: no invented arc; the swap to Talker Failed latches RF
+   head only: FAIL: B4b: after the swap back GET_RX_STATE clears REGISTERING_FAILED (flags 0xffffffff)
+   head only: FAIL: B4b: no invented arc; the swap back to Talker Advertise clears RF
+   head only: FAIL: F05.3 TK_REG x SOK: flags got b0 s0 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d3 g1 t0
+   head only: FAIL: RV8d: ...one cycle after its record write, for that sink (pulse @-1 sink -1, write @2120720 sink 0)
+DIFF rec_read_sink_zero@acmp_listener.log
+   base only: FAIL: B4 REF-BUG: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d1 g1 t0
+   base only: FAIL: B4: no invented arc, no RF latch from the spurious rise
+   base only: FAIL: F05.3 TK_REG x SOK: flags got b1 s1 w0 r0 d0 g0 t1 want b1 s1 w0 r0 d1 g1 t0
+   base only: FAIL: RV8d: ...one cycle after its record write, for that sink (pulse @-1 sink -1, write @39941 sink 2)
+   head only: FAIL: B4 REF-BUG: flags got b1 s1 w0 r0 d0 g0 t0 want b1 s1 w0 r0 d3 g1 t0
+   head only: FAIL: B4: after the swap to Talker Failed GET_RX_STATE carries REGISTERING_FAILED 0x0040 (flags 0x0002)
+   head only: FAIL: B4: no invented arc; the swap to Talker Failed latches RF
+   head only: FAIL: B4b: no invented arc; the swap back to Talker Advertise clears RF
+   head only: FAIL: F05.3 TK_REG x SOK: flags got b1 s1 w0 r0 d0 g0 t1 want b1 s1 w0 r0 d3 g1 t0
+   head only: FAIL: RV8d: ...one cycle after its record write, for that sink (pulse @-1 sink -1, write @40123 sink 2)
+DIFF rec_started_unstored@acmp_listener.log
+   base only: FAIL: B4 REF-BUG: flags got b1 s0 w0 r0 d1 g1 t0 want b1 s1 w0 r0 d1 g1 t0
+   base only: FAIL: F05.3 TK_REG x SOK: flags got b1 s0 w0 r0 d1 g1 t0 want b1 s1 w0 r0 d1 g1 t0
+   base only: FAIL: RV8d: ...one cycle after its record write, for that sink (pulse @-1 sink -1, write @45005 sink 2)
+   head only: FAIL: B4 REF-BUG: flags got b1 s0 w0 r0 d3 g1 t0 want b1 s1 w0 r0 d3 g1 t0
+   head only: FAIL: F05.3 TK_REG x SOK: flags got b1 s0 w0 r0 d3 g1 t0 want b1 s1 w0 r0 d3 g1 t0
+   head only: FAIL: RV8d: ...one cycle after its record write, for that sink (pulse @-1 sink -1, write @45187 sink 2)
+DIFF st_ls_index_zero@pp_top.log
+   head only: FAIL: AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 0, decl 0)
+   head only: FAIL: AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 0, decl 0)
+   head only: FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2
+   head only: FAIL: AS7: a rebind settled <t> after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and nothing for the new one (ready 0, settled 1, quiet 1)
+   head only: FAIL: AS7: the MRPDU after it declares the new stream, New Ready (decl 0, reg 0)
+DIFF st_ls_settle_as_withdraw@pp_top.log
+   head only: FAIL: AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 0, decl 0)
+   head only: FAIL: AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 0, decl 0)
+   head only: FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2
+   head only: FAIL: AS7: a rebind settled <t> after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and nothing for the new one (ready 0, settled 1, quiet 1)
+   head only: FAIL: AS7: the MRPDU after it declares the new stream, New Ready (decl 0, reg 0)
+DIFF st_ls_sid_da_swapped@pp_top.log
+   head only: FAIL: AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 0, decl 0)
+   head only: FAIL: AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 0, decl 0)
+   head only: FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2
+   head only: FAIL: AS7: a rebind settled <t> after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and nothing for the new one (ready 0, settled 1, quiet 1)
+   head only: FAIL: AS7: the MRPDU after it declares the new stream, New Ready (decl 0, reg 0)
+DIFF st_ls_state_none@pp_top.log
+   head only: FAIL: AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 0, decl 0)
+   head only: FAIL: AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 0, decl 0)
+   head only: FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2
+   head only: FAIL: AS7: a rebind settled <t> after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and nothing for the new one (ready 0, settled 1, quiet 1)
+   head only: FAIL: AS7: the MRPDU after it declares the new stream, New Ready (decl 0, reg 0)
+DIFF st_ls_teardown_as_declare@pp_top.log
+   base only: FAIL: AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact
+   head only: FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2
+DIFF st_ls_teardown_lost@pp_top.log
+   head only: FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2
+DIFF st_ls_vid_dropped@pp_top.log
+   head only: FAIL: AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 0, decl 0)
+   head only: FAIL: AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 0, decl 0)
+   head only: FAIL: AS6: the sink's VLAN membership is released: MVRP Lv of VID 2
+   head only: FAIL: AS7: a rebind settled <t> after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and nothing for the new one (ready 0, settled 1, quiet 1)
+   head only: FAIL: AS7: the MRPDU after it declares the new stream, New Ready (decl 0, reg 0)
+HEAD ONLY park_never_retires@pp_top.log: 1 FAIL lines
+HEAD ONLY rebind_abandons_leave@pp_top.log: 1 FAIL lines
+HEAD ONLY rf_swap_sticky@acmp_listener.log: 2 FAIL lines
+HEAD ONLY rf_swap_sticky@pp_top.log: 1 FAIL lines
+HEAD ONLY rf_swap_unlatched@acmp_listener.log: 4 FAIL lines
+HEAD ONLY rf_swap_unlatched@pp_top.log: 1 FAIL lines
+common logs: 45 identical FAIL sets, 12 differ

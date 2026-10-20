@@ -1,0 +1,8 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+listener-rebind-abandons-leave: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB8
+listener-park-never-retires: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB7
+listener-rebind-abandons-leave: rc=2 failures=11 KILLED tags=WK11,WK12
+listener-park-never-retires: rc=2 failures=17 KILLED tags=WK10,WK12,WK8
+listener-aa-tx-stays-aa: rc=2 failures=4 KILLED tags=WK12 precondition
+7 checks: 7 PASS, 0 FAIL

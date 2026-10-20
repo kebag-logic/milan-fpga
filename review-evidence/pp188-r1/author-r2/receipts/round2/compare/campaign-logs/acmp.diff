@@ -1,0 +1,11 @@
+--- base/acmp
++++ head/acmp
+@@ -64,0 +65,5 @@
++{"mutant": "tk_failed_first_payload@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "tk_failed_or_payload@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "tk_failed_and_payload@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "router_coalesce_unflagged@pp_top", "verdict": "KILLED", "missing": []}
++{"mutant": "tk_type_unlatched@pp_top", "verdict": "KILLED", "missing": []}
+@@ -68 +73 @@
+-ACMP mutations: 60 of 60 KILLED by their named checks; goldens PASS
++ACMP mutations: 65 of 65 KILLED by their named checks; goldens PASS

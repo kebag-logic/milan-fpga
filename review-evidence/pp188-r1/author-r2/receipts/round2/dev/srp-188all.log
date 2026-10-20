@@ -1,0 +1,21 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+wsid-write-ignores-ready: rc=2 failures=4 KILLED tags=WK10,WK11
+listener-rebind-abandons-leave: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB8
+listener-declaration-not-held: rc=2 failures=9 KILLED tags=RB1,RB4,RB6,RB7
+listener-park-never-retires: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB7
+listener-reprobe-abandons-leave: rc=2 failures=1 KILLED tags=RB2
+listener-reprobe-parks-own-stream: rc=2 failures=2 KILLED tags=RB3,RB5
+walk-ignores-leave-copy: rc=2 failures=34 KILLED tags=WK11,WK12
+lsid-ram-read-sink-0: rc=2 failures=24 KILLED tags=WK11,WK12
+lsid-flops-read-sink-0: rc=2 failures=2 KILLED tags=WK11,WK12
+lsid-ram-written-with-new-stream: rc=2 failures=28 KILLED tags=WK11,WK12
+listener-csid-ram-ignores-park: rc=2 failures=2 KILLED tags=RB4,RB5
+listener-csid-ram-ignores-park: rc=2 failures=14 KILLED tags=WK12
+listener-csid-flops-ignores-park: rc=2 failures=3 KILLED tags=WK12
+listener-rebind-back-keeps-park: rc=2 failures=1 KILLED tags=RB5
+listener-lo-not-owed: rc=2 failures=2 KILLED tags=RB6,RB8
+listener-park-retires-on-txla: rc=2 failures=1 KILLED tags=RB7
+listener-parked-applies-rx: rc=2 failures=1 KILLED tags=RB8
+listener-unrecorded-applicant-owes: rc=2 failures=1 KILLED tags=RB9
+20 checks: 20 PASS, 0 FAIL
