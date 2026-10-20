@@ -64,7 +64,9 @@
                           phase Theta, the sum over
                           the window's nominal 256 PDUs (a shift: a short
                           window only pulls less, and never counts towards
-                          settled), enters the integrator, clamped, one
+                          settled; a window keeps at most 264 samples, so
+                          a talker sending faster than it declares cannot
+                          wrap it), enters the integrator, clamped, one
                           window late:
                             integ += (3 * 2^PH_GAIN_LSH_P / 128) / 2 * Theta
                           which makes the loop type 2 against phase with
@@ -222,7 +224,7 @@
                 (Ps = 62500), [20] engaged (the term will act on it), [21]
                 settled (inside +/-5 % of Ps, the 10.8 bound, for
                 PH_SETTLE_WIN_P windows running), [22] that window was
-                valid, [31:23] its PDU count (saturating). The settled flag
+                valid, [31:23] its samples (at most 264). The settled flag
                 is also status_o[9] (A_MCSRV_STAT); the word itself reaches
                 no CSR.
 
@@ -488,6 +490,17 @@ module KL_mmcm_drp_servo #(
     $error("KL_mmcm_drp_servo: a %0d ns window holds %0d ns CRF PDUs, not a power of two under 2^%0d, so its phase is no shift of its sum.",
            NOM_WIN_NS_P, PH_PDU_NS_C, PH_CW_C);
   end : g_nom_guard
+  //! the window keeps at most PH_CAP_C samples, the nominal count plus 1/32,
+  //! which a window at any rate inside the authority never reaches. A talker
+  //! sending faster than its declared interval then cannot carry the window
+  //! phase, the sum over the nominal count, past 33/32 of Ps/2: inside the
+  //! PH_TW_C-bit phase whatever it sends
+  localparam int unsigned  PH_CAP_C = PH_NOM_PDU_C + PH_NOM_PDU_C / 32;
+  if (((longint'(PH_CAP_C) * PH_HALF_C) >> PH_NOM_LOG2_C) >= (longint'(1) << (PH_TW_C - 1)) ||
+      PH_CAP_C >= (1 << PH_CW_C)) begin : g_cap_guard
+    $error("KL_mmcm_drp_servo: %0d samples of up to Ps/2 = %0d over %0d leave the %0d-bit window phase.",
+           PH_CAP_C, PH_HALF_C, PH_NOM_PDU_C, PH_TW_C);
+  end : g_cap_guard
   if (PH_CLAMP_C <= 0 || PH_CLAMP_C >= PH_HALF_C) begin : g_clamp_guard
     $error("KL_mmcm_drp_servo: PH_SLEW_NS_P=%0d at PH_GAIN_LSH_P=%0d gives a phase clamp of %0d, outside (0, Ps/2 = %0d).",
            PH_SLEW_NS_P, PH_GAIN_LSH_P, PH_CLAMP_C, PH_HALF_C);
@@ -788,7 +801,7 @@ module KL_mmcm_drp_servo #(
       //! phase and verdicts, and open the next one clean. A sample whose fold
       //! completes on the closing cycle belongs to the next window.
       if (win_close_w) begin
-        ph_wcnt_r    <= (ph_cnt_r > PH_CW_C'(511)) ? 9'd511 : 9'(ph_cnt_r);
+        ph_wcnt_r    <= 9'(ph_cnt_r);             //! at most PH_CAP_C
         ph_wvalid_r  <= ph_wok_close_w;
         ph_theta_v_r <= ph_wok_close_w;
         if (ph_wok_close_w) ph_theta_r <= ph_wmean_w;
@@ -801,9 +814,9 @@ module KL_mmcm_drp_servo #(
         ph_sum_r  <= ph_acc_w ? PH_SW_C'(ph_fold_w) : '0;
         ph_cnt_r  <= ph_acc_w ? PH_CW_C'(1) : '0;
         ph_wok_r  <= 1'b1;
-      end else if (ph_acc_w) begin
+      end else if (ph_acc_w && ph_cnt_r != PH_CW_C'(PH_CAP_C)) begin
         ph_sum_r <= ph_sum_r + PH_SW_C'(ph_fold_w);
-        if (ph_cnt_r != '1) ph_cnt_r <= ph_cnt_r + 1'b1;
+        ph_cnt_r <= ph_cnt_r + 1'b1;
       end
 
       //! hold: the open window is spoiled and the last window's phase is no

@@ -53,7 +53,7 @@ PIN_SRCS = $(RTL_DIR)/ieee1722/crf/KL_media_if_latency_pkg.sv \
            $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
            $(DOMEV_RTL) $(CRFTX_RTL) $(PIN_WRAP)
 
-CASES = engage engage2 step ramp holdover internal mr slew carry
+CASES = engage engage2 step ramp holdover internal mr slew burst carry
 OUT  ?= obj_logs
 
 .PHONY: all run build cases pins pins-build mutants clean

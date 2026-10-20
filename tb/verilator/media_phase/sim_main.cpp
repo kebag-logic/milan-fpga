@@ -33,6 +33,10 @@
 //   slew      the local PHC slews 27 us at 200 ppm under the #545 slew level:
 //             re-acquired the short way (6.2 us, not the 27 us the slew
 //             moved) and held
+//   burst     the talker sends 4 % faster than its declared interval for
+//             one window, its timestamps still on its grid: the window keeps
+//             264 samples, the cap, so its phase cannot wrap, and the phase
+//             is held
 //
 // Each event case also requires the phase term to let go at the event (the
 // engaged bit, phase_o[20], low on some datapath cycle shortly after it):
@@ -49,6 +53,7 @@
 #include "../../common/verilator_harness.hpp"
 #include "../mmcm_servo/mmcm_model.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -160,6 +165,12 @@ class MediaPhaseHarness {
         const double src = ref_t0_ns_ + static_cast<double>(ref_j_) * 2e6;
         ref_j_++;
         ref_next_send_ns_ = ref_t0_ns_ + static_cast<double>(ref_j_) * 2e6 + 30e3 + jitter_ns();
+        //! a burst sends the next PDU 1.92 ms after this one whatever its
+        //! timestamp; afterwards the talker waits for its grid again
+        if (now_s() >= burst_t0_ && now_s() < burst_t1_) {
+            ref_next_send_ns_ = t_ns + 1.92e6;
+            burst_sent_.push_back(now_s());
+        }
         if (!ref_on_) return;
         dut_->frame_p_i = 1;
         dut_->ts_ns_i = static_cast<uint64_t>(std::llround(src + kMttNs));
@@ -188,6 +199,9 @@ class MediaPhaseHarness {
     void observe_clk() {
         // the hold: the phase term must let go at each event that holds it
         if (now_s() >= letgo_from_ && now_s() <= letgo_until_ && !engaged()) letgo_seen_ = true;
+        // the most samples any window kept (phase_o[31:23])
+        const unsigned wcnt = (dut_->phase_o >> 23) & 0x1FF;
+        if (wcnt > max_wcnt_) max_wcnt_ = wcnt;
         // the DUT's CRF output frames: 8 beats, timestamp at frame bytes 34..41
         if (dut_->crft_tvalid_o) {
             const uint64_t d = dut_->crft_tdata_o;
@@ -478,6 +492,38 @@ class MediaPhaseHarness {
         common_checks("slew");
     }
 
+    //! a talker sending 4 % faster than its declared timestamp_interval, its
+    //! timestamps still 2 ms apart on its grid (so the phase each sample
+    //! reads is unchanged): about 266 PDUs land in a 512 ms window.
+    //! The window keeps at most 264 (the nominal 256 plus 1/32), so its
+    //! phase, the sum over 256, stays inside 33/32 of Ps/2 and cannot wrap
+    void case_burst() {
+        start_settled();
+        //! from a servo window boundary for 0.6 s, so one whole window lies
+        //! inside the burst while its timestamps (80 us further ahead each
+        //! PDU) stay inside the detector's 33.5 ms fold range
+        auto* r = dut_->rootp;
+        const uint64_t w0 = r->media_phase_wrap__DOT__servo__DOT__win_start_r;
+        while (r->media_phase_wrap__DOT__servo__DOT__win_start_r == w0) tick_one();
+        burst_t0_ = now_s();
+        burst_t1_ = burst_t0_ + 0.6;
+        max_wcnt_ = 0;
+        std::printf("  info: [burst] the talker sends every 1.92 ms from %.2f s for 0.6 s\n", now_s());
+        grade_reacquired("burst", now_s(), 30.0, 45.0);
+        size_t most = 0;
+        for (size_t i = 0, j = 0; j < burst_sent_.size(); j++) {
+            while (burst_sent_[j] - burst_sent_[i] >= kWindowS) i++;
+            most = std::max(most, j - i + 1);
+        }
+        char what[160];
+        std::snprintf(what, sizeof what, "[burst] the burst put more than 264 PDUs in some 512 ms (%zu)", most);
+        check_.that(what, most > 264);
+        std::snprintf(what, sizeof what, "[burst] the window the burst filled kept exactly 264 samples, the cap (max %u)",
+                      max_wcnt_);
+        check_.that(what, max_wcnt_ == 264);
+        common_checks("burst");
+    }
+
     //! the phase term off (AAF following leaves it off): the integrator must
     //! carry every odd error exactly, so over N committed windows it moves by
     //! exactly sum(e) / 2^KI_SHIFT_P; the floored form drops every odd LSB
@@ -530,6 +576,10 @@ class MediaPhaseHarness {
     double slew_t0_ = 1e9;
     double slew_t1_ = 1e9;
     double slew_ns_ = 0;
+    double burst_t0_ = 1e9;
+    double burst_t1_ = 1e9;
+    std::vector<double> burst_sent_;
+    unsigned max_wcnt_ = 0;
     double lo_ppm_ = 8.0;
     double ramp_t0_ = 1e9;
     double ramp_t1_ = 2e9;
@@ -576,6 +626,7 @@ int MediaPhaseHarness::run(const std::string& name) {
     else if (name == "internal") case_internal();
     else if (name == "mr") case_mr();
     else if (name == "slew") case_slew();
+    else if (name == "burst") case_burst();
     else if (name == "carry") case_carry();
     else check_.fail("unknown case");
     return check_.report();
