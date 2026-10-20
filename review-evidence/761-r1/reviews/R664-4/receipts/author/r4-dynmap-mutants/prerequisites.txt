@@ -1,0 +1,3 @@
+Before the re-run, in the same clone (outside the campaign, which builds with -o so it never remakes them):
+make -s -C tb/verilator/milan_dp_render ltn_rom.hex ucode.hex tdm8r_aemi.bin   (rc 0)
+make -s -C tb/verilator/capture_coherence ltn_rom.hex ucode.hex              (rc 0)
