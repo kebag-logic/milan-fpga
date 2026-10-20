@@ -319,8 +319,18 @@ struct ColumnTally {
 //! ethertype and a C-TAG) are not the talker's and are ignored.
 class ColumnBench {
  public:
+    //! one PDU's avtp_timestamp (AVTPDU octets 12..15, frame octets 30..33)
+    //! and the 16-bit frame ordinal its first column's channel 0 carries: the
+    //! datapath leg grades the stamp against that frame's pins (#632)
+    struct Stamp {
+        std::uint32_t ts;
+        std::uint32_t ord16;
+    };
+    std::vector<Stamp> stamps;
+
     void restart() {
         t_ = ColumnTally{};
+        stamps.clear();
         pdu_.clear();
         live_ = false;
         tail_ = false;
@@ -422,6 +432,10 @@ class ColumnBench {
             t_.bad_pdus++;
             return;
         }
+        const std::uint8_t* w0 = &pdu_[static_cast<size_t>(kPayloadOffset)];
+        stamps.push_back({(static_cast<std::uint32_t>(pdu_[30]) << 24) | (static_cast<std::uint32_t>(pdu_[31]) << 16) |
+                              (static_cast<std::uint32_t>(pdu_[32]) << 8) | pdu_[33],
+                          (static_cast<std::uint32_t>(w0[1]) << 8) | w0[2]});
         for (int e = 0; e < kEvents; e++) {
             decode_column(&pdu_[static_cast<size_t>(kPayloadOffset + e * kChans * 4)]);
         }

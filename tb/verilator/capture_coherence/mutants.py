@@ -118,6 +118,10 @@ from ci_case_receipts import Receipt, canonical, partition  # noqa: E402
 TORN = "[A] AAF columns mixing two TDM frames"
 MISCOUNT = "[C] walks whose repeat or skip the junction counters did not count"
 LOCK_SLIP = "[C] slips while the CRF lock held"
+#: the datapath leg's pin grade of the talker's timestamps (#632)
+PIN_BAND = ("[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the "
+            "presentation offset, inside +/-5 % of Ps")
+PIN_DERIV = "[PIN] ...and inside the marker latency's derivation"
 
 #: every build's MAKEFLAGS: nothing inherited from the make that started this
 #: driver. GNU make 4.3 hands a `make -C` recipe MAKEFLAGS=w, which reached
@@ -227,12 +231,24 @@ MUTATIONS = [
     ("dp-band", "milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off",
      (("    .FS_HZ_P            (48_000),\n    .LOCK_KEEPOFF_CYC_P (MGA_KEEPOFF_CYC_C)",
        "    .FS_HZ_P            (48_000)"),
-      ("    .frame_ev_i (aafcap_pv_w &&\n"
-       "                 (32'(aafcap_slot_w) == CMAP_TDM_FRAME_PAIRS_C - 1)),\n"
+      ("    .frame_ev_i (frame_mark_w),\n"
        "    .tick_i     (media_tick_q_r),",
        "    .frame_ev_i (aafcap_pv_w && (aafcap_slot_w == 4'd0)),\n"
        "    .tick_i     (media_tick_p),")),
      LOCK_SLIP),
+    ("dp", "the AAF talkers stamp the live PHC at the walk again: the capture age and the pair offset "
+           "back in the timestamp (#632)",
+     (("  assign aaf_tbase_w = dom_live_w ? aaf_tbase_r : ptp_now_w;",
+       "  assign aaf_tbase_w = ptp_now_w;"),),
+     PIN_BAND),
+    ("dp", "the domain event's marker latency drops its frame term: every stamp a sample period late (#632)",
+     (("    .MARK_LAT_NS_P (DOM_MARK_LAT_NS_C),",
+       "    .MARK_LAT_NS_P (DOM_MARK_LAT_NS_C - 32'(KL_media_if_latency_pkg::cyc_ns(1, 64'(AUDIO_IF_FS_HZ_P)))),"),),
+     PIN_BAND),
+    ("dp", "the marker latency drops the front-end's FIFO write term (one clk_tdm_i cycle, #632)",
+     (("  localparam longint DOM_WR_CYC_C = (AUDIO_IF_SLOTS_P == 0) ? 64'd5 : 64'd1;",
+       "  localparam longint DOM_WR_CYC_C = 64'd0;"),),
+     PIN_DERIV),
     ("chmap", "RM7: a tick queued behind a running walk takes no snapshot when its walk starts",
      ((SNAP, "  wire tdm_snap_w = (st_r == CM_IDLE_S) && !tick_pend_r && tick_i;"),),
      "Q: col 2 pair 0 L is frame 4"),
