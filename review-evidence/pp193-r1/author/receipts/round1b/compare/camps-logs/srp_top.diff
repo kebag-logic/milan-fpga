@@ -1,0 +1,28 @@
+--- base/srp_top.log
++++ head/srp_top.log
+@@ -15,0 +16 @@
++control srp_top share: rc=0 PASS
+@@ -139 +140 @@
+-listener-declaration-not-held: rc=2 failures=9 KILLED tags=RB1,RB4,RB6,RB7
++listener-declaration-not-held: rc=2 failures=5 KILLED tags=RB1,RB4,RB6,RB7
+@@ -179,2 +180,18 @@
+-assertion coverage: 101/101; missing=[]
+-179 checks: 179 PASS, 0 FAIL
++listener-settle-compare-dropped: rc=2 failures=5 KILLED tags=SW1,SW2,SW3
++listener-settle-compare-dropped: rc=2 failures=26 KILLED tags=SH1,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
++listener-rider-not-quiet: rc=2 failures=1 KILLED tags=SH1
++listener-teardown-applies-lv: rc=2 failures=9 KILLED tags=SH2,SH4,SH7,SH8
++listener-handover-drops-state: rc=2 failures=9 KILLED tags=SH2,SH4,SH7,SH8
++listener-withdraw-ignores-riders: rc=2 failures=9 KILLED tags=SH2,SH4,SH6,SH7
++listener-withdraw-ignores-riders: rc=2 failures=2 KILLED tags=SW2
++listener-teardown-keeps-declaring: rc=2 failures=54 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,RB1,RB4,RB7,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
++listener-teardown-keeps-declaring: rc=2 failures=1 KILLED tags=SW2
++listener-group-order-reversed: rc=2 failures=7 KILLED tags=SH1,SH3,SH4,SH5,SH8,SH9
++listener-rider-settle-hands-over: rc=2 failures=2 KILLED tags=SH5,SH9
++listener-type-not-combined: rc=2 failures=6 KILLED tags=SH6
++listener-type-not-combined: rc=2 failures=1 KILLED tags=SW3
++listener-handover-forgets-walk-mark: rc=2 failures=1 KILLED tags=SH7
++listener-settle-parks-shared-stream: rc=2 failures=1 KILLED tags=SH8
++listener-group-op-during-settle: rc=2 failures=1 KILLED tags=SH9
++assertion coverage: 113/113; missing=[]
++196 checks: 196 PASS, 0 FAIL

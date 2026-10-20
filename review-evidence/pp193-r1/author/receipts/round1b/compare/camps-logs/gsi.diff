@@ -1,0 +1,19 @@
+--- base/gsi.log
++++ head/gsi.log
+@@ -19,5 +19,11 @@
+-{"variant": "failure-change-redeclares", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-REFRESH wire: a changed FailureInformation sends no Listener New"], "passed": true}
+-{"variant": "index-guard-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI INDEX-GUARD solicited: pbsta sink 9 = 0, got 1"], "passed": true}
+-{"variant": "bridge-gate-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI ADVERTISE unsolicited: full failure bridge sink 0"], "passed": true}
+-{"variant": "restored", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+-GSI mutations: 20 detected by named checks; golden and restored PASS
++{"variant": "failure-change-redeclares", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": false}
++Traceback (most recent call last):
++  File "<tree>2/tb/pp_top/gsi_mutants.py", line 194, in <module>
++    raise SystemExit(main())
++                     ~~~~^^
++  File "<tree>2/tb/pp_top/gsi_mutants.py", line 186, in main
++    records += [report(result, output) for result in results]
++                ~~~~~~^^^^^^^^^^^^^^^^
++  File "<tree>2/tb/pp_top/gsi_mutants.py", line 158, in report
++    raise RuntimeError(f"{result['variant']}: missing expected verdict; see {log}")
++RuntimeError: failure-change-redeclares: missing expected verdict; see <scratch>/rec/head-camps/work/gsi/failure-change-redeclares-run.log
