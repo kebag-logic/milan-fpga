@@ -1196,7 +1196,9 @@ Two checks require one AAF input and the CRF Media Clock Input at sink
 `N_STREAMS`, so sink 1 is the CRF sink. The leg keeps the `obj_ax1x1`
 verification substitutes: gPTP option OFF, the 100 MHz fabric clock and the
 render lane pruned. STOP_STREAMING and START_STREAMING arrive over the wire, and
-every count is read with `GET_COUNTERS(STREAM_INPUT, 0)`. While the input is
+every count is read with `GET_COUNTERS(STREAM_INPUT, 0)`. Its PDUs carry the
+input's current format, read with GET_STREAM_FORMAT, because a PDU in another
+format counts UNSUPPORTED_FORMAT and is discarded (#765). While the input is
 stopped, a gap of two lost PDUs moves SEQ_NUM_MISMATCH and the 100 ms silence
 moves MEDIA_UNLOCKED, but neither moves STREAM_INTERRUPTED. After START and a
 relock past the 8-PDU settle window, the same gap counts STREAM_INTERRUPTED

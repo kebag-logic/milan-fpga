@@ -6761,9 +6761,15 @@ class NxnDatapathHarness {
     void prove_a_stopped_stream_input_counts_no_interruption() {
         printf("-- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED --\n");
         const std::vector<uint8_t> ti4 = {0x00, 0x05, 0x00, 0x00};
+        //! the stimulus carries STREAM_INPUT 0's current format (#765)
+        const uint8_t ch0 = rx_chans(0);
+        printf("   STREAM_INPUT 0's current format: %u channels\n",
+               static_cast<unsigned>(ch0));
         // one PDU per 256-cycle counter interval, so each interval flag
         // (SEQ_NUM_MISMATCH) commits before the next PDU
-        auto pdu = [this](uint8_t seq) { inject(mkaaf(sid0, seq, 2, 0xC0), 400); };
+        auto pdu = [this, ch0](uint8_t seq) {
+            inject(mkaaf(sid0, seq, ch0, 0xC0), std::max(400, aaf_bytes(ch0)));
+        };
         // the discard section's last PDU was 0x22: carry on in order
         for (uint8_t s = 0x23; s <= 0x2B; s++) pdu(s);
         const std::vector<uint8_t> r1 = sin0_ctrs(0x9130);
