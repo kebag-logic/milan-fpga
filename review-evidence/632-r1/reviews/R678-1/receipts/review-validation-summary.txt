@@ -1,0 +1,61 @@
+a6ae20f9124ad58cb7492b8c7364da68bd19031b implementation/configuration/submodule equality to reviewed head: rc=0
+e85df0917effb5cd6b88557a50d5d9e6588ac590 implementation/configuration/submodule equality to reviewed head: rc=0
+Phase integral gain = 3/128 trim units per ns; integer/fraction contribution = 2/256 per 1/3 ns.
+Independent linear small-signal poles: [np.complex128(0.9437116030736835+0j), np.complex128(0.7015804386854136+0j), np.complex128(-0.3952920417590999+0j), np.complex128(3.2179131401278706e-19+0j)]
+Phase bandwidth Hz = 0.01800896146167358
+Rate bandwidth Hz = 0.11017119191213419
+case-burst.log
+  info: [pre] inside the band 0.06 s after the event
+  info: [burst] the talker sends every 1.92 ms from 15.05 s for 0.6 s
+  info: [burst] inside the band 0.06 s after the event
+== media_phase burst: checks: 14   failures: 0 ==
+RESULT: PASS
+case-carry.log
+  info: [carry] 40 windows, 15 odd errors, sum(e) 255, integrator moved 32640/256
+== media_phase carry: checks: 6   failures: 0 ==
+RESULT: PASS
+case-engage.log
+  info: [engage] inside the band 27.46 s after the event
+  [ ok ] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 304.7)
+== media_phase engage: checks: 10   failures: 0 ==
+RESULT: PASS
+case-engage2.log
+  info: [engage2] inside the band 23.36 s after the event
+  [ ok ] [engage2] the pull is slew-limited: <= 400 ns of phase per window (max 328.5)
+== media_phase engage2: checks: 10   failures: 0 ==
+RESULT: PASS
+case-holdover.log
+  info: [pre] inside the band 0.06 s after the event
+  info: [holdover] the reference returns at 30.00 s, phase +0.4820 Ps
+  info: [holdover] inside the band 27.33 s after the event
+== media_phase holdover: checks: 14   failures: 0 ==
+RESULT: PASS
+case-internal.log
+  info: [pre] inside the band 0.06 s after the event
+  info: [internal] CRF selected again at 30.00 s, phase +0.2448 Ps
+  info: [internal] inside the band 24.32 s after the event
+== media_phase internal: checks: 14   failures: 0 ==
+RESULT: PASS
+case-mr.log
+  info: [pre] inside the band 0.06 s after the event
+  info: [mr] mr toggled with a 1.8 us jump at 15.00 s
+  info: [mr] inside the band 0.38 s after the event
+== media_phase mr: checks: 13   failures: 0 ==
+RESULT: PASS
+case-ramp.log
+  info: [pre] inside the band 0.06 s after the event
+== media_phase ramp: checks: 10   failures: 0 ==
+RESULT: PASS
+case-slew.log
+  info: [pre] inside the band 0.06 s after the event
+  info: [slew] the local PHC slews +27 us at 200 ppm from 15.00 s
+  info: [slew] phase +0.3019 Ps when the slew ends
+  info: [slew] inside the band 20.04 s after the event
+== media_phase slew: checks: 14   failures: 0 ==
+RESULT: PASS
+case-step.log
+  info: [pre] inside the band 0.06 s after the event
+  info: [step] the reference stepped by 0.37 Ps at 15.00 s
+  info: [step] inside the band 21.70 s after the event
+== media_phase step: checks: 13   failures: 0 ==
+RESULT: PASS

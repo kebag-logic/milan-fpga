@@ -1,0 +1,108 @@
+COMMAND: ['$REVIEWS/632-r678-1-packet/scratch/phase-build/Vmedia_phase', '+case=burst']
+[burst] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  t=   0.51 s state=3 phase=    263.4 ns (+0.0126 Ps) dut=      0.0 ns eng=0 set=0 trim=+0.000 ppm
+  t=   1.02 s state=3 phase=    109.8 ns (+0.0053 Ps) dut=      0.0 ns eng=0 set=0 trim=+0.000 ppm
+  t=   1.54 s state=3 phase=    -31.8 ns (-0.0015 Ps) dut=      0.0 ns eng=0 set=0 trim=-0.062 ppm
+  t=   2.05 s state=3 phase=   -157.7 ns (-0.0076 Ps) dut=      0.0 ns eng=0 set=0 trim=-0.125 ppm
+  t=   2.56 s state=3 phase=   -125.6 ns (-0.0060 Ps) dut=      0.0 ns eng=0 set=0 trim=-0.562 ppm
+  t=   3.07 s state=4 phase=   -179.3 ns (-0.0086 Ps) dut=      0.0 ns eng=0 set=0 trim=+0.000 ppm
+  t=   3.58 s state=4 phase=   -153.3 ns (-0.0074 Ps) dut=      0.0 ns eng=0 set=0 trim=-0.625 ppm
+  t=   4.10 s state=4 phase=   -182.0 ns (-0.0087 Ps) dut=   -168.0 ns eng=1 set=0 trim=-0.062 ppm
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  t=   4.61 s state=4 phase=   -128.2 ns (-0.0062 Ps) dut=   -168.7 ns eng=1 set=0 trim=-0.688 ppm
+  t=   5.12 s state=4 phase=   -125.0 ns (-0.0060 Ps) dut=   -144.3 ns eng=1 set=0 trim=-0.125 ppm
+  t=   5.63 s state=4 phase=   -183.0 ns (-0.0088 Ps) dut=   -112.3 ns eng=1 set=1 trim=-0.312 ppm
+  t=   6.14 s state=4 phase=   -194.3 ns (-0.0093 Ps) dut=   -180.3 ns eng=1 set=1 trim=-0.312 ppm
+  t=   6.66 s state=4 phase=   -188.7 ns (-0.0091 Ps) dut=   -192.3 ns eng=1 set=1 trim=-0.375 ppm
+  t=   7.17 s state=4 phase=   -165.9 ns (-0.0080 Ps) dut=   -191.7 ns eng=1 set=1 trim=-0.375 ppm
+  t=   7.68 s state=4 phase=   -126.0 ns (-0.0060 Ps) dut=   -174.7 ns eng=1 set=1 trim=-0.438 ppm
+  t=   8.19 s state=4 phase=    -69.3 ns (-0.0033 Ps) dut=   -134.0 ns eng=1 set=1 trim=-0.438 ppm
+  t=   8.70 s state=4 phase=   -141.0 ns (-0.0068 Ps) dut=    -74.7 ns eng=1 set=1 trim=+0.000 ppm
+  t=   9.22 s state=4 phase=    -98.3 ns (-0.0047 Ps) dut=   -124.0 ns eng=1 set=1 trim=-0.688 ppm
+  t=   9.73 s state=4 phase=   -106.9 ns (-0.0051 Ps) dut=   -112.0 ns eng=1 set=1 trim=-0.062 ppm
+  t=  10.24 s state=4 phase=   -177.7 ns (-0.0085 Ps) dut=   -100.3 ns eng=1 set=1 trim=-0.250 ppm
+  t=  10.75 s state=4 phase=   -202.1 ns (-0.0097 Ps) dut=   -174.7 ns eng=1 set=1 trim=-0.312 ppm
+  t=  11.26 s state=4 phase=   -210.4 ns (-0.0101 Ps) dut=   -200.0 ns eng=1 set=1 trim=-0.312 ppm
+  t=  11.78 s state=4 phase=   -201.7 ns (-0.0097 Ps) dut=   -209.3 ns eng=1 set=1 trim=-0.375 ppm
+  t=  12.29 s state=4 phase=   -175.4 ns (-0.0084 Ps) dut=   -202.7 ns eng=1 set=1 trim=-0.375 ppm
+  t=  12.80 s state=4 phase=   -131.8 ns (-0.0063 Ps) dut=   -177.0 ns eng=1 set=1 trim=-0.438 ppm
+  t=  13.31 s state=4 phase=    -70.6 ns (-0.0034 Ps) dut=   -142.7 ns eng=1 set=1 trim=-0.438 ppm
+  t=  13.82 s state=4 phase=      7.3 ns (+0.0003 Ps) dut=    -81.0 ns eng=1 set=1 trim=-0.500 ppm
+  t=  14.34 s state=4 phase=    -45.0 ns (-0.0022 Ps) dut=      1.0 ns eng=1 set=1 trim=-0.062 ppm
+  t=  14.85 s state=4 phase=     14.9 ns (+0.0007 Ps) dut=    -35.7 ns eng=1 set=1 trim=-0.688 ppm
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [burst] the talker sends every 1.92 ms from 15.05 s for 0.6 s
+  t=  15.36 s state=4 phase=     21.1 ns (+0.0010 Ps) dut=     -4.0 ns eng=1 set=1 trim=-0.125 ppm
+  t=  15.87 s state=4 phase=    -37.0 ns (-0.0018 Ps) dut=     33.7 ns eng=1 set=1 trim=-0.312 ppm
+  t=  16.38 s state=4 phase=    -51.2 ns (-0.0025 Ps) dut=    -28.0 ns eng=1 set=0 trim=-0.312 ppm
+  t=  16.90 s state=4 phase=    -52.9 ns (-0.0025 Ps) dut=    -49.3 ns eng=1 set=0 trim=-0.312 ppm
+  t=  17.41 s state=4 phase=    -41.0 ns (-0.0020 Ps) dut=    -56.3 ns eng=1 set=0 trim=-0.375 ppm
+  t=  17.92 s state=4 phase=    -15.2 ns (-0.0007 Ps) dut=    -45.7 ns eng=1 set=0 trim=-0.375 ppm
+  t=  18.43 s state=4 phase=     24.6 ns (+0.0012 Ps) dut=    -20.0 ns eng=1 set=1 trim=-0.438 ppm
+  t=  18.94 s state=4 phase=    -66.5 ns (-0.0032 Ps) dut=     19.3 ns eng=1 set=1 trim=+0.000 ppm
+  [ ok ] [burst] phase inside +/-5 % of Ps within 30 s of the event
+  info: [burst] inside the band 0.06 s after the event
+  t=  19.46 s state=4 phase=    -46.1 ns (-0.0022 Ps) dut=    -45.0 ns eng=1 set=1 trim=-0.625 ppm
+  t=  19.97 s state=4 phase=    -79.8 ns (-0.0038 Ps) dut=    -63.0 ns eng=1 set=1 trim=+0.000 ppm
+  t=  20.48 s state=4 phase=    -32.3 ns (-0.0016 Ps) dut=    -62.3 ns eng=1 set=1 trim=-0.688 ppm
+  t=  20.99 s state=4 phase=    -38.1 ns (-0.0018 Ps) dut=    -48.0 ns eng=1 set=1 trim=-0.062 ppm
+  t=  21.50 s state=4 phase=   -107.6 ns (-0.0052 Ps) dut=    -30.0 ns eng=1 set=1 trim=-0.250 ppm
+  t=  22.02 s state=4 phase=   -132.2 ns (-0.0063 Ps) dut=   -105.3 ns eng=1 set=1 trim=-0.312 ppm
+  t=  22.53 s state=4 phase=   -142.0 ns (-0.0068 Ps) dut=   -129.7 ns eng=1 set=1 trim=-0.312 ppm
+  t=  23.04 s state=4 phase=   -136.5 ns (-0.0066 Ps) dut=   -141.7 ns eng=1 set=1 trim=-0.375 ppm
+  t=  23.55 s state=4 phase=   -114.8 ns (-0.0055 Ps) dut=   -137.3 ns eng=1 set=1 trim=-0.375 ppm
+  t=  24.06 s state=4 phase=    -76.8 ns (-0.0037 Ps) dut=   -114.0 ns eng=1 set=1 trim=-0.438 ppm
+  t=  24.58 s state=4 phase=    -23.5 ns (-0.0011 Ps) dut=    -86.0 ns eng=1 set=1 trim=-0.438 ppm
+  t=  25.09 s state=4 phase=     44.9 ns (+0.0022 Ps) dut=    -32.7 ns eng=1 set=1 trim=-0.500 ppm
+  t=  25.60 s state=4 phase=    -17.3 ns (-0.0008 Ps) dut=     35.3 ns eng=1 set=1 trim=-0.062 ppm
+  t=  26.11 s state=4 phase=     32.0 ns (+0.0015 Ps) dut=     -1.3 ns eng=1 set=1 trim=-0.688 ppm
+  t=  26.62 s state=4 phase=     26.6 ns (+0.0013 Ps) dut=     19.0 ns eng=1 set=1 trim=-0.062 ppm
+  t=  27.14 s state=4 phase=    -44.1 ns (-0.0021 Ps) dut=     34.7 ns eng=1 set=1 trim=-0.250 ppm
+  t=  27.65 s state=4 phase=    -71.3 ns (-0.0034 Ps) dut=    -41.0 ns eng=1 set=1 trim=-0.312 ppm
+  t=  28.16 s state=4 phase=    -85.3 ns (-0.0041 Ps) dut=    -69.0 ns eng=1 set=1 trim=-0.312 ppm
+  t=  28.67 s state=4 phase=    -85.4 ns (-0.0041 Ps) dut=    -83.3 ns eng=1 set=1 trim=-0.312 ppm
+  t=  29.18 s state=4 phase=    -70.9 ns (-0.0034 Ps) dut=    -85.3 ns eng=1 set=1 trim=-0.375 ppm
+  t=  29.70 s state=4 phase=    -42.1 ns (-0.0020 Ps) dut=    -71.0 ns eng=1 set=1 trim=-0.375 ppm
+  t=  30.21 s state=4 phase=      1.3 ns (+0.0001 Ps) dut=    -50.3 ns eng=1 set=1 trim=-0.438 ppm
+  t=  30.72 s state=4 phase=     59.1 ns (+0.0028 Ps) dut=     -8.3 ns eng=1 set=1 trim=-0.438 ppm
+  t=  31.23 s state=4 phase=    -14.7 ns (-0.0007 Ps) dut=     52.3 ns eng=1 set=1 trim=+0.000 ppm
+  t=  31.74 s state=4 phase=     22.6 ns (+0.0011 Ps) dut=      3.0 ns eng=1 set=1 trim=-0.688 ppm
+  t=  32.26 s state=4 phase=      4.7 ns (+0.0002 Ps) dut=      6.0 ns eng=1 set=1 trim=-0.062 ppm
+  t=  32.77 s state=4 phase=     66.5 ns (+0.0032 Ps) dut=     15.7 ns eng=1 set=1 trim=-0.688 ppm
+  t=  33.28 s state=4 phase=     74.1 ns (+0.0036 Ps) dut=     47.3 ns eng=1 set=1 trim=-0.125 ppm
+  t=  33.79 s state=4 phase=     15.8 ns (+0.0008 Ps) dut=     86.7 ns eng=1 set=1 trim=-0.312 ppm
+  t=  34.30 s state=4 phase=     -0.1 ns (-0.0000 Ps) dut=     17.3 ns eng=1 set=1 trim=-0.312 ppm
+  t=  34.82 s state=4 phase=     -4.3 ns (-0.0002 Ps) dut=     -0.7 ns eng=1 set=1 trim=-0.312 ppm
+  t=  35.33 s state=4 phase=      3.9 ns (+0.0002 Ps) dut=     -5.0 ns eng=1 set=1 trim=-0.375 ppm
+  t=  35.84 s state=4 phase=     25.2 ns (+0.0012 Ps) dut=     -0.7 ns eng=1 set=1 trim=-0.375 ppm
+  t=  36.35 s state=4 phase=     59.4 ns (+0.0029 Ps) dut=     20.0 ns eng=1 set=1 trim=-0.438 ppm
+  t=  36.86 s state=4 phase=    106.0 ns (+0.0051 Ps) dut=     54.3 ns eng=1 set=1 trim=-0.438 ppm
+  t=  37.38 s state=4 phase=     19.6 ns (+0.0009 Ps) dut=    101.3 ns eng=1 set=1 trim=+0.000 ppm
+  t=  37.89 s state=4 phase=     42.8 ns (+0.0021 Ps) dut=     37.0 ns eng=1 set=1 trim=-0.625 ppm
+  t=  38.40 s state=4 phase=      9.9 ns (+0.0005 Ps) dut=     27.7 ns eng=1 set=1 trim=+0.000 ppm
+  t=  38.91 s state=4 phase=     56.2 ns (+0.0027 Ps) dut=     20.7 ns eng=1 set=1 trim=-0.688 ppm
+  t=  39.42 s state=4 phase=     47.8 ns (+0.0023 Ps) dut=     41.3 ns eng=1 set=1 trim=-0.062 ppm
+  t=  39.94 s state=4 phase=    -25.8 ns (-0.0012 Ps) dut=     59.7 ns eng=1 set=1 trim=-0.250 ppm
+  t=  40.45 s state=4 phase=    -56.6 ns (-0.0027 Ps) dut=    -23.3 ns eng=1 set=1 trim=-0.250 ppm
+  t=  40.96 s state=4 phase=    -75.3 ns (-0.0036 Ps) dut=    -54.0 ns eng=1 set=1 trim=-0.312 ppm
+  t=  41.47 s state=4 phase=    -80.3 ns (-0.0039 Ps) dut=    -73.3 ns eng=1 set=1 trim=-0.312 ppm
+  t=  41.98 s state=4 phase=    -70.8 ns (-0.0034 Ps) dut=    -80.3 ns eng=1 set=1 trim=-0.375 ppm
+  t=  42.50 s state=4 phase=    -46.4 ns (-0.0022 Ps) dut=    -70.0 ns eng=1 set=1 trim=-0.375 ppm
+  t=  43.01 s state=4 phase=     -7.6 ns (-0.0004 Ps) dut=    -51.7 ns eng=1 set=1 trim=-0.438 ppm
+  t=  43.52 s state=4 phase=     45.2 ns (+0.0022 Ps) dut=    -16.0 ns eng=1 set=1 trim=-0.438 ppm
+  t=  44.03 s state=4 phase=    -33.6 ns (-0.0016 Ps) dut=     38.3 ns eng=1 set=1 trim=+0.000 ppm
+  t=  44.54 s state=4 phase=     -1.2 ns (-0.0001 Ps) dut=    -13.3 ns eng=1 set=1 trim=-0.625 ppm
+  [ ok ] [burst] phase held inside +/-5 % of Ps to the end (max 142.0 ns)
+  [ ok ] [burst] the DUT's CRF output on the reference's grid (max 303.2 ns)
+  [ ok ] [burst] the servo reports settled at the end
+  [ ok ] [burst] still LOCKED at the end
+  [ ok ] [burst] the burst put more than 264 PDUs in some 512 ms (267)
+  [ ok ] [burst] the window the burst filled kept exactly 264 samples, the cap (max 264)
+  [ ok ] [burst] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [burst] fine-PS protocol clean
+== media_phase burst: checks: 14   failures: 0 ==
+RESULT: PASS

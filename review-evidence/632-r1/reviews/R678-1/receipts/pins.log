@@ -1,0 +1,18 @@
+COMMAND: ['$REVIEWS/632-r678-1-packet/scratch/pins-build/Vpin_wrap']
+[pins] three interfaces on one clock domain: A TDM8 owner, B TDM4, C TDM32, graded at their pins
+  info: [pins A] 1435 stamps, 11480 slot grades, max |stamp - (slot MSB - offset)| 30.2 ns
+  [ ok ] [pins A] stamps graded at every slot (11480)
+  [ ok ] [pins A] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 30.2 ns)
+  [ ok ] [pins A] ...and inside the derivation, +/-40 ns (max 30.2 ns)
+  info: [pins B] 1435 stamps, 5740 slot grades, max |stamp - (slot MSB - offset)| 29.5 ns
+  [ ok ] [pins B] stamps graded at every slot (5740)
+  [ ok ] [pins B] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 29.5 ns)
+  [ ok ] [pins B] ...and inside the derivation, +/-40 ns (max 29.5 ns)
+  info: [pins C] 1435 stamps, 45920 slot grades, max |stamp - (slot MSB - offset)| 30.6 ns
+  [ ok ] [pins C] stamps graded at every slot (45920)
+  [ ok ] [pins C] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 30.6 ns)
+  [ ok ] [pins C] ...and inside the derivation, +/-40 ns (max 30.6 ns)
+  [ ok ] [pins] every CRF timing point is a frame instant of ALL three interfaces' pins, inside +/-5 % of Ps (14 points, max A 29.7 ns, B 15.8 ns, C 95.8 ns)
+  [ ok ] [pins] the interfaces' constants differ (A 20964.0 ns, B 20801.3 ns, C 5308.5 ns): at least 162.8 ns apart, beyond the derivation band, so a swap cannot pass
+== media_phase pins: checks: 11   failures: 0 ==
+RESULT: PASS
