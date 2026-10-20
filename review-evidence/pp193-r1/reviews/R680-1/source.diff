@@ -1,0 +1,2161 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index d7d1073..2c5269c 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -465,7 +465,7 @@ verification).
+ |---|---|---|---|---|---|---|---|---|
+ | REQ-NOT-001 | Milan §5.4.5.1 | Fan-out: one message per registered controller excluding requester; per-entry DA/EID/seq on recorded port; seq +1 after handing to stack | shall | A; traced | [GAP-06](#gap-06) | KL_aecp_notify row walk (landed; pp_top ST fans out to all 16 rows) | 06 §7 | STORM |
+ | REQ-NOT-002 | Milan §5.4.5.2 | Triggers: every successful state-changing command; equivalent non-ATDECC changes while unlocked | shall | A; traced | [GAP-06](#gap-06) | command effect queue and observed fabric triggers (landed; every notifying class pushed byte-exact, pp_top NP). MGMT-origin (non-ATDECC) changes are **not supported by this build**: nothing outside ATDECC changes command-settable state (06 §7 trigger class 2) | 06 §7 | RND |
+-| REQ-NOT-003 | Milan Table 5.22 | Async triggers: GET_STREAM_INFO/GET_AVB_INFO/GET_AS_PATH field changes; GET_COUNTERS ≤1/descriptor/s; LOCK auto-unlock; auto-DEREGISTER | shall | P; traced | [GAP-06](#gap-06) | KL_aecp_notify observed trigger set and per-descriptor limiter (landed); committed per-sink accumulated-latency changes notify, unchanged refreshes stay silent (#113, pp_top GI response tests: walking one and walking zero isolate every comparator bit; six truncation mutants require named failures) | 06 §7 | STORM |
++| REQ-NOT-003 | Milan Table 5.22 | Async triggers: GET_STREAM_INFO/GET_AVB_INFO/GET_AS_PATH field changes; GET_COUNTERS ≤1/descriptor/s; LOCK auto-unlock; auto-DEREGISTER | shall | P; traced | [GAP-06](#gap-06) | KL_aecp_notify observed trigger set and per-descriptor limiter (landed); committed per-sink accumulated-latency changes notify, unchanged refreshes stay silent (#113, pp_top GI response tests: walking one and walking zero isolate every comparator bit; six truncation mutants require named failures); every started/stopped change of a Stream Input notifies every registered controller, a START/STOP_STREAMING's requester included, and a coincident Talker registration shares the one notification (#192, pp_top GI STOP-BY-A, START-BY-A, STOP-WITH-REGISTRATION and G7f) | 06 §7 | STORM |
+ | REQ-NOT-004 | Milan §5.4.5.3 | Departing-controller detection: per-controller random 30–60 s; CONTROLLER_AVAILABLE + retry; any-status reply re-arms; silence ⇒ remove + targeted DEREGISTER | shall | A; traced | [GAP-06](#gap-06) | registry monitor plus originator (landed) | 06 §7 | TIM |
+ | REQ-NOT-005 | Milan §5.3.4.2 | Registry cleared by power cycle | shall | A; traced | [GAP-09](#gap-09); graded across a power cycle (#59, `tb/pp_top` D3V: two registrations, one TIME_LIMITED, notify nobody after it, no CONTROLLER_AVAILABLE or expiry DEREGISTER reaches them, sixteen new rows register, a returning controller restarts at sequence_id 0) | volatile policy: no record; the reset clears every row (`KL_aecp_notify` `valid_r`) | 07 §5 | NVM |
+ 
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 953e6b4..d7404a2 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -268,8 +268,8 @@ status checks trust those exemptions, and the Oversize cells are rendering input
+ | 0x0017 | GET_CLOCK_SOURCE | shall | — | RO_SNAPSHOT | no | yes | no | — | 16 | 32 B (cdl 20) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+ | 0x0018 | SET_CONTROL | shall (identify) | value 0/255 | IDENTIFY | yes | no | no | class 4: success with state change, requester excluded | 17 | 29 B (cdl 17); one LINEAR_UINT8 value | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+ | 0x0019 | GET_CONTROL | shall (identify) | — (variable-size, so not a GET_DYNAMIC_INFO member) | RO_SNAPSHOT | no | no | no | — | 16 | 29 B (cdl 17); one LINEAR_UINT8 value | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+-| 0x0022 | START_STREAMING | shall | **input only** (Δ11); every other type `NOT_SUPPORTED` | STREAM_CFG | yes | no | no | class 9: Table 5.22 started/stopped | 16 | 28 B (cdl 16); `{type, index}` on every arm | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, ENTITY_MISBEHAVING, NOT_SUPPORTED |
+-| 0x0023 | STOP_STREAMING | shall | **input only** (Δ11); every other type `NOT_SUPPORTED` | STREAM_CFG | yes | no | no | class 9: Table 5.22 started/stopped | 16 | 28 B (cdl 16); `{type, index}` on every arm | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, ENTITY_MISBEHAVING, NOT_SUPPORTED |
++| 0x0022 | START_STREAMING | shall | **input only** (Δ11); every other type `NOT_SUPPORTED` | STREAM_CFG | yes | no | no | class 9: success with state change, requester excluded; the started/stopped GET_STREAM_INFO is a separate event | 16 | 28 B (cdl 16); `{type, index}` on every arm | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, ENTITY_MISBEHAVING, NOT_SUPPORTED |
++| 0x0023 | STOP_STREAMING | shall | **input only** (Δ11); every other type `NOT_SUPPORTED` | STREAM_CFG | yes | no | no | class 9: success with state change, requester excluded; the started/stopped GET_STREAM_INFO is a separate event | 16 | 28 B (cdl 16); `{type, index}` on every arm | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, ENTITY_MISBEHAVING, NOT_SUPPORTED |
+ | 0x0024 | REGISTER_UNSOLICITED_NOTIFICATION | shall | §7; accepts 2013 no-flags form | REGISTRY_OP | no | no | no | — | 16 | 28 B echo (cdl 16); w/ flags | SUCCESS, NO_RESOURCES |
+ | 0x0025 | DEREGISTER_UNSOLICITED_NOTIFICATION | shall | §7 | REGISTRY_OP | no | no | no | event: auto-deregister → targeted | 12 | 24 B echo (cdl 12) | SUCCESS |
+ | 0x0026 | IDENTIFY_NOTIFICATION | unsolicited-only | as command → `BAD_ARGUMENTS` echo (IEEE §7.4.39.2, the opcode-specific rule — it governs over §9.3.5.3.3's fallback) | RO_SNAPSHOT | no | no | no | event: is one | 16 | 28 B echo (cdl 16); the unsolicited response | BAD_ARGUMENTS |
+@@ -459,7 +459,7 @@ MSRP_FAILURE_VALID=0} ⇔ **streaming**.
+ | Field / flag | Owner record | Signal ([F02.10](02_interfaces.md#fig-02-statusdict)) | Update event | Async notif (Table 5.22) |
+ |---|---|---|---|---|
+ | stream_format | integrator face word 1, folding the published SET_STREAM_FORMAT row when valid | - | SET_STREAM_FORMAT | via command trigger |
+-| BOUND, STREAMING_WAIT | ACMP sink record, published binding/started view folded by the integrator | — | listener-SM commits; a started/stopped change under a live binding, including a re-bind that flips STREAMING_WAIT | yes (input) |
++| BOUND, STREAMING_WAIT | ACMP sink record, published binding/started view folded by the integrator | — | listener-SM commits; a started/stopped change under a live binding, by START/STOP_STREAMING or by a re-bind that flips STREAMING_WAIT | yes (input) |
+ | pbsta, acmpsta | ACMP sink record, internal selector 7 | `pbsta[sink]`, `acmpsta[sink]` | changed record write, including preload | yes (input) |
+ | stream_id / DA + their *_VALID flags | sink record (settled), published view folded by the integrator into selectors 2 / 4 and validity flags | — | A15 / A8 | yes |
+ | stream_vlan_id / STREAM_VLAN_ID_VALID | full settled VLAN internally in selector 6 [63:48], zero while unsettled; validity flag remains integrator-owned | — | A15 / A8 | yes |
+@@ -1200,12 +1200,13 @@ step 1). A repeated double probe timeout that leaves the status unchanged
+ pushes nothing.
+ 
+ The committed started/stopped change under a live binding also pushes
+-(`act_strt_chg_o`: the §5.5.3.5.6 re-bind short-circuit, and a re-bind to
+-another talker from a bound state). For a re-bind to another talker from
+-PRB_W_RESP that changes started/stopped, with no retained status the byte
+-stays ACTIVE/0, so `act_strt_chg_o` is the only push. With a retained status,
+-both listener terms fire on the same record write and their OR sends one
+-frame.
++(`act_strt_chg_o`), whatever made it: START/STOP_STREAMING (Milan v1.2
++§5.4.2.19, §5.4.2.20), the §5.5.3.5.6 re-bind short-circuit, and a re-bind
++to another talker from a bound state (issue #192). For a re-bind to another
++talker from PRB_W_RESP that changes started/stopped, with no retained status
++the byte stays ACTIVE/0, so `act_strt_chg_o` is the only push. With a
++retained status, both listener terms fire on the same record write and their
++OR sends one frame.
+ 
+ The other triggers are the SRP registration and unregistration events; SRP's committed
+ per-sink accumulated-latency change (`evt_tk_latency_chg_o`, including a
+@@ -1216,8 +1217,17 @@ The SRP change strobes register on the attribute latch write alongside any
+ registration event; the per-sink OR therefore raises one event even if several
+ fields change together. No GET_COUNTERS rate limit applies to GET_STREAM_INFO.
+ The two listener terms register off the same record write, so a walk that
+-moves both pushes one frame. A START/STOP_STREAMING's own change is excluded:
+-the command sends its opcode-specific unsolicited response instead.
++moves both pushes one frame. A START/STOP_STREAMING that changes the state
++causes two notifications of different kinds: its opcode-specific
++unsolicited response, to every registered controller except the requester
++(§5.4.5.2, first paragraph), and this GET_STREAM_INFO, to every registered
++controller, the requester included: it answers no command, so it has no
++requesting controller to exclude (§5.4.5.1, "if any"). §5.4.5.2's last
++paragraph sends the Table 5.22 notifications "asynchronously of any command
++when the state of the entity changes"; that says when they are sent, not
++which changes count. A started/stopped change that meets another GET_STREAM_INFO
++cause of the same input before that input's round is claimed shares its one
++pending bit, so one notification carries the final state.
+ Coalescing merges same-key pending triggers (safe: notifications carry current full
+ state); LOCK/DEREGISTER events are never coalesced. Ordering: notification after
+ commit and after the solicited response ([03 §6](03_packet_engine.md) rule a).
+@@ -1356,7 +1366,7 @@ to; they select nothing in the engine.
+ | 0x0014 / 0x0015 SET/GET_SAMPLING_RATE | real lock-protected per-Audio Unit dynamic state; SET accepts only a rate the located AUDIO_UNIT's `sampling_rates` list holds and refuses any other `BAD_ARGUMENTS` carrying the current rate (§6.4) |
+ | 0x0016 / 0x0017 SET/GET_CLOCK_SOURCE | real lock-protected per-Clock Domain dynamic state |
+ | 0x0018 / 0x0019 SET/GET_CONTROL | real volatile Identify control with values 0 and 255 |
+-| 0x0022 / 0x0023 START/STOP_STREAMING | real started/stopped state on the ACMP binding record (`pp_acmp_pkg.sv`'s `f_started`), which clears on unbind and is projected by the NVM shadow. The dynamic store's selector 6 is RETIRED rather than reused, so there is no second copy. The write-only request region separates capture from completion: success follows the record write or a confirmed no-op, and a bounded request that cannot start reports `ENTITY_MISBEHAVING` without changing the record. The same `st_err` arm also surfaces a descriptor-store write timeout as `ENTITY_MISBEHAVING` for every WRITE_ST user, where it was previously silently ignored. A Stream Output, and every other descriptor type, answers `NOT_SUPPORTED` per Milan Section 5.4.2.19/.20. A state-changing success sends the opcode-specific unsolicited response to every registered controller except the requester; the generic Table 5.22 started-state event is suppressed for that same command so it does not duplicate the push. |
++| 0x0022 / 0x0023 START/STOP_STREAMING | real started/stopped state on the ACMP binding record (`pp_acmp_pkg.sv`'s `f_started`), which clears on unbind and is projected by the NVM shadow. The dynamic store's selector 6 is RETIRED rather than reused, so there is no second copy. The write-only request region separates capture from completion: success follows the record write or a confirmed no-op, and a bounded request that cannot start reports `ENTITY_MISBEHAVING` without changing the record. The same `st_err` arm also surfaces a descriptor-store write timeout as `ENTITY_MISBEHAVING` for every WRITE_ST user, where it was previously silently ignored. A Stream Output, and every other descriptor type, answers `NOT_SUPPORTED` per Milan Section 5.4.2.19/.20. A state-changing success sends the opcode-specific unsolicited response to every registered controller except the requester, and the Table 5.22 started/stopped change sends GET_STREAM_INFO to every registered controller, the requester included (§7, issue #192). |
+ | 0x0024 / 0x0025 REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | real bounded controller registry |
+ | 0x0027 GET_AVB_INFO | real AVB Interface response from the integrator state face; `NO_SUCH_DESCRIPTOR` for an AVB_INTERFACE index the image lacks, `BAD_ARGUMENTS` for a command short of §7.4.40.1's four bytes, and `NOT_IMPLEMENTED` with the command echoed for any other descriptor_type (§6.10, issue #177) |
+ | 0x0028 GET_AS_PATH | real gPTP path response from the integrator state face |
+diff --git a/docs/architecture/10_srp_engine.md b/docs/architecture/10_srp_engine.md
+index 313fd7d..0b18233 100644
+--- a/docs/architecture/10_srp_engine.md
++++ b/docs/architecture/10_srp_engine.md
+@@ -211,6 +211,7 @@ CRF), so no inactive slot is elaborated: at 1x1 each FSM's matcher holds exactly
+ | Walk {stream_id, DA, VLAN} `g_wid_ram.wid_r` | talker | M x 124, from M = 3 | distributed RAM | at M = 1 and 2 the walk reads the matcher's flip-flops: a 2-way multiplexer is cheaper than a second copy |
+ | Walk stream_id `g_wsid_ram.wsid_r` | listener | N x 64, from N = 3 | distributed RAM | as above, for the listener walk |
+ | Leave copy `lsid_r` (issue #188) | listener | N x 64 | distributed RAM from N = 3, flip-flops at N = 1 and 2 | written by the settle that parks an owed Leave, read at the walk sink; the same arms as the walk's copy ([§6.4](#sec-10-owed-leave)) |
++| Same-stream map `eq_r`, own types `dcl_r`, walk marks `wdone_r` (issue #193) | listener | N(N-1)/2 x 1, N x 2, N x 1 | flip-flops | the owner election reads every pair in one cycle; the settle writes its sink's pairs from one compare per sink ([§6.4](#sec-10-shared-stream)) |
+ | Registration data `lat_r`, `fcode_r`, `fsysid_r` | listener | N x 104 | flip-flops | published per sink in parallel (`acc_latency`, `msrp_fail_code/bridge`) |
+ | Slopes `slope_q_r` | admission | M x 32 | distributed RAM | one write (the slope pipeline) and one read (the admission walk) per cycle |
+ | Working and published grants `wgslope_r`, `gslope_r` | admission | M x 32 each | flip-flops | a round publishes every grant at once; `granted_slope_bps` is per source |
+@@ -244,6 +245,8 @@ standalone at the build's 50 MHz (issue #230; Vivado 2026.1, `xc7a100t-fgg484-2`
+ area-baseline recipe of the reference platform). The listener figures predate the leave
+ copy of issue #188 and were not measured again: it adds 64 bits per sink (distributed RAM
+ from three sinks, flip-flops at one and two) and one 64-bit comparator per listener FSM.
++Nor do they include the owner election of issue #193: one 64-bit comparator and three
++flip-flops per sink, N(N-1)/2 flip-flops for the same-stream map, and the election logic.
+ 
+ | Block | LUT per context | Flip-flops per context | Before issue #230 |
+ |---|---:|---:|---|
+@@ -610,6 +613,42 @@ latency only where a Leave is owed: the new stream's New goes out one T-MRP-JOIN
+ old Lv instead of beside it. The Δ13 registrar (Milan §4.2.7.2.2) is untouched. The Leave
+ carries the parameter declared (Ready or Asking Failed).
+ 
++<a id="sec-10-shared-stream"></a>*Sinks on one stream share one declaration (issue
++[#193](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/193)).*
++Two or more sinks can be settled on one stream_id. The Listener attribute's value is the
++stream_id alone, so 802.1Q-2018 §10.7.7 gives that value one applicant, and the §35.2.6
++NOTE allows at most one Listener declaration per StreamID per port. Each sink keeps its own
++matcher and registrar. The value's single applicant lives in one of the sinks' existing
++per-sink slots, chosen by owner election:
++
++| Role | Which sink | Its applicant slot |
++|---|---|---|
++| Owner | the lowest-index sink declaring the stream_id (its talker registered) | holds the applicant; only it transmits |
++| Rider | every other sink settled on the stream_id | VO: it takes no event (received value, LeaveAll, periodic!, tx!) and sends nothing |
++
++- **Requests and the declared type.** A sink's declaration request (Ready, or Asking Failed
++  on a Talker Failed) only sets that sink's own type. The applicant declares the sum of
++  the declaring sinks' types: Ready with Asking Failed is Ready Failed (§35.1.2.2 a-c,
++  Table 35-14 of §35.2.4.4.3; Milan §4.2.7). New! is applied when the first sink declares,
++  and when the sum changes, as a change in place (§35.2.6).
++- **Handover.** When the owner stops declaring and another sink still does, the next of
++  them takes the applicant with its state. The owner may stop by A8, by A15, or because
++  its talker withdrew. The handover applies no Lv! and no New! (§35.1.2.2: the stream is
++  still wanted), unless the sum changed. On an A15 of the sink holding the applicant, the
++  applicant goes to another sink whose record holds the stream_id: the next declarer, else
++  the lowest-index such sink. The settle then owes nothing and parks nothing. The
++  applicant carries its walk mark, so a handover during a tx! walk never gives it two tx!.
++- **The last declarer.** Its withdrawal applies Lv!, and the rules above (the owed Leave,
++  the park, the settle arms) apply as for a single sink.
++- **Reporting.** Each sink still reports its own registration, `tk_reg_state` and
++  `lstn_decl_state`, the latter being its own type while its stream's applicant declares,
++  and its own GET_RX_STATE. The sum reaches the wire only.
++
++The election runs from registered state, so a request, a teardown or a handover takes
++effect on the applicant one clock after it is accepted, and a group's operation waits out
++any clock that accepts a settle or a teardown, which may move the record it would hand to. Same-stream pairs come from one
++64-bit compare per sink at each settle, kept as an N(N-1)/2-bit map (§5.1).
++
+ ### 6.5 LeaveAll and the Δ13 registrar deviation
+ 
+ <a id="fig-10-leaveall"></a>**F10.9 — LeaveAll cycle (either side may start it)**
+diff --git a/hdl/acmp/KL_pp_acmp_listener.sv b/hdl/acmp/KL_pp_acmp_listener.sv
+index 36fa9d6..000392e 100644
+--- a/hdl/acmp/KL_pp_acmp_listener.sv
++++ b/hdl/acmp/KL_pp_acmp_listener.sv
+@@ -208,17 +208,17 @@ module KL_pp_acmp_listener
+     //! one pulse per COMMITTED started/stopped transition, with `act_sink_o`
+     //! naming the sink. Milan Table 5.22 lists "Started/stopped state (Stream
+     //! Input only)" among the changes that must push a GET_STREAM_INFO
+-    //! unsolicited notification, and this is that trigger.
++    //! unsolicited notification, and this is that trigger, whatever walk
++    //! made the change: START/STOP_STREAMING or a re-bind (issue #192).
+     //!
+     //! It is NOT the other obligation, and the two are easy to conflate:
+     //! IEEE §7.5.2 makes START_STREAMING and STOP_STREAMING themselves
+     //! unsolicited-response commands ("when an ATDECC Entity sends a response
+     //! to one of the commands below with a status code of SUCCESS then it
+     //! also sends an unsolicited response"), which Milan §5.4.5.2 restates.
+-    //! That response is NOT sent: the engine's unsolicited-kind map has no
+-    //! entry for these opcodes, exactly as it has none for the SET_* family.
+-    //! It is the same systemic gap, tracked as issue #69, and it is named
+-    //! here so this trigger is not mistaken for covering it.
++    //! The engine's command trigger sends that response, to every registered
++    //! controller but the requester. This pulse's GET_STREAM_INFO answers no
++    //! command and goes to every registered controller (Milan §5.4.5.1).
+     //!
+     //! SEPARATE from `act_notify_o`, which fires for every committed record
+     //! change: upstream compares the committed pbsta/acmpsta instead, and
+@@ -226,7 +226,6 @@ module KL_pp_acmp_listener
+     //! is registered off the same X_WB write as that compare, so a walk that
+     //! changes both lands both in one cycle.
+     output logic                         act_strt_chg_o,
+-    output logic                         act_strt_cmd_chg_o,
+     //! THE PUBLISHED RECORD WRITE VIEW, functional despite the `dbg_` prefix.
+     //! The private probe-controller overlay reads as zero stream-ID here
+     //! until settlement (Milan 5.3.8.9). It is the single writer's view that
+@@ -872,7 +871,6 @@ module KL_pp_acmp_listener
+       strt_was_r        <= 1'b0;
+       bnd_was_r         <= 1'b0;
+       act_strt_chg_o    <= 1'b0;
+-      act_strt_cmd_chg_o <= 1'b0;
+       tk_eid_f_r    <= 64'd0;
+       tk_uid_f_r    <= 16'd0;
+       flags_f_r     <= 16'd0;
+@@ -934,7 +932,6 @@ module KL_pp_acmp_listener
+       act_nvm_o         <= 1'b0;
+       act_notify_o      <= 1'b0;
+       act_strt_chg_o    <= 1'b0;
+-      act_strt_cmd_chg_o <= 1'b0;
+       f_cap_v_r         <= 1'b0;
+ 
+       unique case (xs_r)
+@@ -1466,9 +1463,6 @@ module KL_pp_acmp_listener
+           //! fires in this same cycle, so the two OR into one frame.
+           act_strt_chg_o <= cellmut_r && bnd_was_r && rec_r.f_bound
+                             && (rec_r.f_started != strt_was_r);
+-          act_strt_cmd_chg_o <= cellmut_r && bnd_was_r && rec_r.f_bound
+-                                && src_strq_r
+-                                && (rec_r.f_started != strt_was_r);
+           if (src_strq_r) begin
+             strq_done_r <= 1'b1;
+             strq_fail_r <= 1'b0;
+diff --git a/hdl/aecp/ucode/aecp_commands.json b/hdl/aecp/ucode/aecp_commands.json
+index 83a61fe..5f7f4f9 100644
+--- a/hdl/aecp/ucode/aecp_commands.json
++++ b/hdl/aecp/ucode/aecp_commands.json
+@@ -254,7 +254,7 @@
+       "response": {"cdl": 16},
+       "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "ENTITY_MISBEHAVING", "NOT_SUPPORTED"],
+       "hazard": "STREAM_CFG", "lock": true,
+-      "notify": {"class": 9, "kind": "PP_UNS_STRM_C", "body": "STRMUNS", "doc": "Table 5.22 started/stopped"},
++      "notify": {"class": 9, "kind": "PP_UNS_STRM_C", "body": "STRMUNS", "doc": "success with state change, requester excluded; the started/stopped GET_STREAM_INFO is a separate event"},
+       "gdi": false, "oversize": false,
+       "entries": ["STRT", "STRMNS", "STRMBAD"],
+       "doc": {"mandate": "shall", "scope": "**input only** (Δ11); every other type `NOT_SUPPORTED`", "size": "`{type, index}` on every arm"}
+@@ -266,7 +266,7 @@
+       "response": {"cdl": 16},
+       "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "ENTITY_MISBEHAVING", "NOT_SUPPORTED"],
+       "hazard": "STREAM_CFG", "lock": true,
+-      "notify": {"class": 9, "kind": "PP_UNS_STRM_C", "body": "STRMUNS", "doc": "Table 5.22 started/stopped"},
++      "notify": {"class": 9, "kind": "PP_UNS_STRM_C", "body": "STRMUNS", "doc": "success with state change, requester excluded; the started/stopped GET_STREAM_INFO is a separate event"},
+       "gdi": false, "oversize": false,
+       "entries": ["STOP", "STRMNS", "STRMBAD"],
+       "doc": {"mandate": "shall", "scope": "**input only** (Δ11); every other type `NOT_SUPPORTED`", "size": "`{type, index}` on every arm"}
+diff --git a/hdl/srp/KL_srp_listener_fsm.sv b/hdl/srp/KL_srp_listener_fsm.sv
+index dfb1364..577ce90 100644
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -81,6 +81,29 @@
+ //                be discarded, and the new value starts in VO at once.
+ //                Nothing back-pressures ACMP; a new declaration that meets
+ //                an owed Lv goes out one T-MRP-JOIN after it.
++//                Sinks settled on one stream_id share ONE declaring
++//                applicant (802.1Q §10.7.7; the §35.2.6 NOTE: at most one
++//                Listener declaration per StreamID per port; issue #193),
++//                kept in the per-sink slots: the owner, the lowest-index
++//                sink declaring the stream_id, holds it; every other sink
++//                on the stream_id is a rider, its slot VO, taking no event
++//                and sending nothing. A sink's declaration request only
++//                sets its own type; the applicant declares the sum of the
++//                declaring sinks' types (§35.1.2.2 a-c, Table 35-14: Ready
++//                with AskingFailed is ReadyFailed; Milan §4.2.7), and a
++//                first declarer or a changed sum is New! (a change in
++//                place, §35.2.6). When the owner stops declaring (A8, A15
++//                or a withdrawal) and a rider still declares, the next
++//                rider takes the applicant with its state: no Lv!, no New!
++//                unless the sum changed (§35.1.2.2: Lv only for a stream no
++//                longer wanted). The last declarer's withdrawal is Lv!, and
++//                the owed-Leave rules above apply to it unchanged, except
++//                that an A15 of the sink holding the applicant hands it to
++//                another sink whose record holds the stream_id, instead of
++//                parking it. The handover carries the applicant's walk
++//                mark, so it never gets two tx! in one walk. The
++//                registrar, the matcher and the class-C/D outputs stay per
++//                sink; lstn_decl_state reports the sink's own type.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+@@ -372,6 +395,17 @@ module KL_srp_listener_fsm
+   // the applicant still holds the previous stream_id (the leave copy) and
+   // owes it its LA/LO message at the next tx! (banner, issue #188)
+   logic [N_SINKS_P-1:0]        lvp_r;
++  // one declaring applicant per stream_id (banner, issue #193). dcl_r is
++  // the sink's own declared type (0 none, else AskingFailed or Ready), from
++  // the grant of its registrar's declaration request to the grant of the
++  // withdrawal, or to its A8 or A15.
++  logic [N_SINKS_P-1:0][1:0]   dcl_r;
++  // eq_r[s][t], s < t only: sinks s and t hold the same matcher stream_id,
++  // written at the later of the two settles
++  logic [N_SINKS_P-1:0][N_SINKS_P-1:0] eq_r;
++  // the applicant in this slot has had its tx!/txLA! in the current walk;
++  // a handover carries it with the applicant, so it never has two
++  logic [N_SINKS_P-1:0]        wdone_r;
+ 
+   // tick walk
+   typedef enum logic [1:0] {
+@@ -499,38 +533,129 @@ module KL_srp_listener_fsm
+     end
+   end
+ 
++  // ------------------------------- one declaring applicant per stream_id
++  // (banner, issue #193) From the registered state. A group is the sinks
++  // whose applicant is for one stream_id: a record, no parked Leave, the
++  // same matcher stream_id (eq_r, written by the settle from one compare
++  // per sink, cset_w). One member of each group is active and takes the
++  // group applicant's events: the member holding a non-VO applicant, else
++  // the owner, else the lowest-index member. Every other member is quiet:
++  // VO, no event, no message (802.1Q-2018 §10.7.7). A sink outside every
++  // group (no record, or a parked Leave) is alone and active; it declares
++  // nothing, since its request waits while the Leave is parked (app_arb).
++  logic [N_SINKS_P-1:0]                cset_w;    // settle stream_id == sid_r
++  logic [N_SINKS_P-1:0]                mbr_w;     // applicant is for sid_r
++  logic [N_SINKS_P-1:0][N_SINKS_P-1:0] same_w;    // same group, s == t too
++  logic [N_SINKS_P-1:0]                dcl_w;     // the sink declares
++  logic [N_SINKS_P-1:0]                nvo_w;     // holds a non-VO applicant
++  logic [N_SINKS_P-1:0]                lo_dcl_w;  // a lower member declares
++  logic [N_SINKS_P-1:0]                lo_nvo_w;  // a lower member is non-VO
++  logic [N_SINKS_P-1:0]                lo_mbr_w;  // a lower member exists
++  logic [N_SINKS_P-1:0]                anyh_w;    // some member is non-VO
++  logic [N_SINKS_P-1:0]                anyo_w;    // some member declares
++  logic [N_SINKS_P-1:0]                own_w;     // lowest-index declaring
++  logic [N_SINKS_P-1:0]                act_w;     // takes the group's events
++  logic [N_SINKS_P-1:0]                quiet_w;   // another member is active
++  logic [N_SINKS_P-1:0]                gdecl_w;   // the group applicant declares
++  logic [N_SINKS_P-1:0][1:0]           cfp_w;     // combined declared type
++  logic [N_SINKS_P-1:0]                op_new_w;  // New!: declare cfp_w
++  logic [N_SINKS_P-1:0]                op_mv_w;   // hand over to the owner
++  logic [N_SINKS_P-1:0]                op_lv_w;   // Lv!: no member declares
++  logic [N_SINKS_P-1:0]                op_w;
++  always_comb begin : owner_map
++    for (int unsigned s = 0; s < N_SINKS_P; s++) begin
++      cset_w[s] = (ctl_stream_id_i == sid_r[s]);
++      mbr_w[s]  = rec_valid_r[s] && !lvp_r[s];
++      dcl_w[s]  = (dcl_r[s] != 2'd0);
++      nvo_w[s]  = mbr_w[s] && (app_r[s] != A_VO_C);
++    end
++    for (int unsigned s = 0; s < N_SINKS_P; s++) begin
++      for (int unsigned t = 0; t < N_SINKS_P; t++) begin
++        same_w[s][t] = (s == t) || (mbr_w[s] && mbr_w[t]
++                                    && ((s < t) ? eq_r[s][t] : eq_r[t][s]));
++      end
++    end
++    for (int unsigned s = 0; s < N_SINKS_P; s++) begin
++      lo_dcl_w[s] = 1'b0;
++      lo_nvo_w[s] = 1'b0;
++      lo_mbr_w[s] = 1'b0;
++      anyh_w[s]   = 1'b0;
++      anyo_w[s]   = 1'b0;
++      gdecl_w[s]  = 1'b0;
++      cfp_w[s]    = 2'd0;
++      for (int unsigned t = 0; t < N_SINKS_P; t++) begin
++        if (same_w[s][t]) begin
++          if (t < s) begin
++            lo_dcl_w[s] = lo_dcl_w[s] | dcl_w[t];
++            lo_nvo_w[s] = lo_nvo_w[s] | nvo_w[t];
++            lo_mbr_w[s] = 1'b1;
++          end
++          anyh_w[s] = anyh_w[s] | nvo_w[t];
++          anyo_w[s] = anyo_w[s] | dcl_w[t];
++          gdecl_w[s] = gdecl_w[s] | (mbr_w[t] && app_declaring_f(app_r[t]));
++          // Ready with AskingFailed is ReadyFailed: the codes OR (srp_decl_e)
++          cfp_w[s] = cfp_w[s] | dcl_r[t];
++        end
++      end
++      own_w[s]   = dcl_w[s] && !lo_dcl_w[s];
++      act_w[s]   = (nvo_w[s] && !lo_nvo_w[s])
++                || (!anyh_w[s] && (own_w[s] || (!anyo_w[s] && !lo_mbr_w[s])));
++      quiet_w[s] = mbr_w[s] && !act_w[s];
++      // what the active member does to the group applicant: declare the
++      // combined type (none declared yet, or another combination), take it
++      // to the owner, or withdraw it after the last declarer
++      op_new_w[s] = anyo_w[s] && (!app_declaring_f(app_r[s])
++                                  || (fourpack_r[s] != cfp_w[s]));
++      op_mv_w[s]  = anyo_w[s] && !own_w[s];
++      op_lv_w[s]  = !anyo_w[s] && app_declaring_f(app_r[s]);
++      op_w[s]     = act_w[s] && (op_new_w[s] || op_mv_w[s] || op_lv_w[s]);
++    end
++  end
++
+   // ------------------------------------------------- applicant arbitration
+   logic                 ctl_acc_w;
+   logic [N_SINKS_P-1:0] app_ev_v_w;
+   logic [N_SINKS_P-1:0][3:0] app_ev_w;
+   logic [N_SINKS_P-1:0] decl_grant_w;
++  logic [N_SINKS_P-1:0] op_gnt_w;
+   logic [N_SINKS_P-1:0] rla_grant_w;
+   logic [N_SINKS_P-1:0] per_grant_w;
+   logic                 walk_grant_w;
++  logic                 walk_tx_w;
+ 
+   assign ctl_ready_o = !evt_valid_i;
+   assign ctl_acc_w   = ctl_valid_i && ctl_ready_o;
+ 
+   always_comb begin : app_arb
+     walk_grant_w = 1'b0;
++    walk_tx_w    = 1'b0;
+     for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+-      app_ev_v_w[s]   = 1'b0;
+-      app_ev_w[s]     = AE_RNEW_C;
+-      decl_grant_w[s] = 1'b0;
+-      rla_grant_w[s]  = 1'b0;
+-      per_grant_w[s]  = 1'b0;
+-      if (app_rx_hit_w[s]) begin
++      app_ev_v_w[s]  = 1'b0;
++      app_ev_w[s]    = AE_RNEW_C;
++      op_gnt_w[s]    = 1'b0;
++      rla_grant_w[s] = 1'b0;
++      per_grant_w[s] = 1'b0;
++      // a request for the new stream_id waits while the old one is owed; a
++      // granted request only sets the sink's own type (dcl_r)
++      decl_grant_w[s] = (decl_pend_r[s] != D_NOP_C) && !lvp_r[s]
++                     && !(ctl_acc_w && (ctl_sink_i == SNK_W_C'(s)));
++      if (app_rx_hit_w[s] && !quiet_w[s]) begin
+         app_ev_v_w[s] = 1'b1;
+         app_ev_w[s]   = rx_app_ev_w;
+       end else if (ctl_acc_w && (ctl_sink_i == SNK_W_C'(s))) begin
+-        // settle sets the applicant itself (set_app_w); teardown withdraws
+-        app_ev_v_w[s] = !ctl_settle_i;
+-        app_ev_w[s]   = AE_LV_C;
+-      end else if ((decl_pend_r[s] != D_NOP_C) && !lvp_r[s]) begin
+-        // a request for the new stream_id waits while the old one is owed
+-        app_ev_v_w[s]   = 1'b1;
+-        app_ev_w[s]     = (decl_pend_r[s] == D_DECLARE_C) ? AE_NEW_C : AE_LV_C;
+-        decl_grant_w[s] = 1'b1;
++        // settle sets the applicant itself (set_app_w); a teardown applies
++        // nothing here: the group's Lv! or handover follows (owner_map)
++      end else if (op_w[s] && !ctl_acc_w) begin
++        // a group operation waits out a settle or a teardown of any sink,
++        // which may move the record of the sink it would hand over to
++        app_ev_v_w[s] = op_lv_w[s] || (op_new_w[s] && !op_mv_w[s]);
++        app_ev_w[s]   = op_lv_w[s] ? AE_LV_C : AE_NEW_C;
++        op_gnt_w[s]   = 1'b1;
++      end else if (quiet_w[s]) begin
++        // no applicant here: the active member takes the broadcasts
++        rla_grant_w[s] = 1'b1;
++        per_grant_w[s] = 1'b1;
++        if ((walk_r == W_EVAL) && (wsrc_r == SNK_W_C'(s))) walk_grant_w = 1'b1;
+       end else if (rla_pend_r[s] || la_rx_app_w) begin
+         app_ev_v_w[s]  = 1'b1;
+         app_ev_w[s]    = AE_RLA_C;
+@@ -540,9 +665,55 @@ module KL_srp_listener_fsm
+         app_ev_w[s]    = AE_PER_C;
+         per_grant_w[s] = 1'b1;
+       end else if ((walk_r == W_EVAL) && (wsrc_r == SNK_W_C'(s))) begin
+-        app_ev_v_w[s] = 1'b1;
++        // an applicant handed over from a slot already walked waits
++        app_ev_v_w[s] = !wdone_r[s];
+         app_ev_w[s]   = wtxla_r ? AE_TXLA_C : AE_TX_C;
+         walk_grant_w  = 1'b1;
++        walk_tx_w     = !wdone_r[s];
++      end
++    end
++  end
++
++  // ---- the handover (banner, issue #193) --------------------------------
++  // take_w[t]: slot t receives a group applicant this cycle, from slot
++  // take_src_w[t], with New! when take_new_w[t]. Two causes, never in one
++  // group in one cycle: the active member's op_mv_w, or an A15 settle of
++  // the member holding the applicant while its group has another member
++  // (hand_w): the next declarer takes it, else the lowest other member.
++  logic                                hand_w;
++  logic [N_SINKS_P-1:0]                hoth_w;    // the settle's other members
++  logic                                hoth_dcl_w;
++  logic                                hdst_v_w;  // the settle's taker found
++  logic [N_SINKS_P-1:0]                take_w;
++  logic [N_SINKS_P-1:0]                take_new_w;
++  logic [N_SINKS_P-1:0][SNK_W_C-1:0]   take_src_w;
++  always_comb begin : handover
++    hoth_dcl_w = 1'b0;
++    for (int unsigned t = 0; t < N_SINKS_P; t++) begin
++      hoth_w[t]  = (ctl_sink_i != SNK_W_C'(t)) && same_w[ctl_sink_i][t];
++      hoth_dcl_w = hoth_dcl_w | (hoth_w[t] && dcl_w[t]);
++    end
++    hand_w = ctl_acc_w && ctl_settle_i && nvo_w[ctl_sink_i] && (hoth_w != '0);
++    for (int unsigned t = 0; t < N_SINKS_P; t++) begin
++      take_w[t]     = 1'b0;
++      take_new_w[t] = 1'b0;
++      take_src_w[t] = ctl_sink_i;
++      for (int unsigned s = 0; s < N_SINKS_P; s++) begin
++        if ((s != t) && same_w[s][t] && own_w[t]
++            && op_gnt_w[s] && op_mv_w[s]) begin
++          take_w[t]     = 1'b1;
++          take_new_w[t] = op_new_w[s];
++          take_src_w[t] = SNK_W_C'(s);
++        end
++      end
++    end
++    hdst_v_w = 1'b0;
++    for (int unsigned t = 0; t < N_SINKS_P; t++) begin
++      if (hand_w && !hdst_v_w && hoth_w[t] && (dcl_w[t] || !hoth_dcl_w)) begin
++        hdst_v_w      = 1'b1;
++        take_w[t]     = 1'b1;
++        take_new_w[t] = 1'b0;
++        take_src_w[t] = ctl_sink_i;
+       end
+     end
+   end
+@@ -599,7 +770,9 @@ module KL_srp_listener_fsm
+   // still owes a message (LA sL, LO s) keeps the old stream_id parked
+   // unless the new one is the same value, whose applicant it already is.
+   // A sink with no record since reset holds no value, so it owes nothing,
+-  // whatever state a received LeaveAll left its applicant in.
++  // whatever state a received LeaveAll left its applicant in. A settle
++  // that hands its applicant to another member (hand_w, issue #193) owes
++  // nothing either: that member holds the stream_id on.
+   logic       set_same_w;
+   logic [3:0] set_lv_w;
+   logic       set_owes_w;
+@@ -608,7 +781,7 @@ module KL_srp_listener_fsm
+     set_same_w = rec_valid_r[ctl_sink_i] && (csid_w == ctl_stream_id_i);
+     set_lv_w   = rec_valid_r[ctl_sink_i]
+                ? app_next_f(app_r[ctl_sink_i], AE_LV_C, 1'b0, p2p_i) : A_VO_C;
+-    set_owes_w = set_lv_w inside {A_LA_C, A_LO_C};
++    set_owes_w = (set_lv_w inside {A_LA_C, A_LO_C}) && !hand_w;
+     set_app_w  = set_owes_w ? set_lv_w : A_VO_C;
+   end
+   assign lv_take_w = ctl_acc_w && ctl_settle_i && set_owes_w && !set_same_w;
+@@ -641,6 +814,9 @@ module KL_srp_listener_fsm
+       rla_pend_r   <= '0;
+       per_pend_r   <= '0;
+       lvp_r        <= '0;
++      dcl_r        <= '0;
++      eq_r         <= '0;
++      wdone_r      <= '0;
+       walk_r       <= W_IDLE;
+       wsrc_r       <= '0;
+       wtxla_r      <= 1'b0;
+@@ -668,8 +844,12 @@ module KL_srp_listener_fsm
+         end else if (decl_grant_w[s]) begin
+           decl_pend_r[s] <= D_NOP_C;
+         end
+-        if (decl_grant_w[s] && (decl_pend_r[s] == D_DECLARE_C)) begin
+-          fourpack_r[s] <= decl_fp_r[s];
++        if (decl_grant_w[s]) begin
++          dcl_r[s] <= (decl_pend_r[s] == D_DECLARE_C) ? decl_fp_r[s] : 2'd0;
++        end
++        // the group applicant declares the combined type (owner_map)
++        if (op_gnt_w[s] && op_new_w[s] && !op_mv_w[s]) begin
++          fourpack_r[s] <= cfp_w[s];
+         end
+         // deferred-broadcast bookkeeping
+         if (la_rx_app_w && !rla_grant_w[s]
+@@ -699,10 +879,21 @@ module KL_srp_listener_fsm
+           decl_pend_r[ctl_sink_i] <= D_NOP_C;
+           // an owed Lv/s carries the parameter declared (LA, LO only)
+           if (!set_owes_w) fourpack_r[ctl_sink_i] <= 2'd0;
++          // the pair compares of the group map: the settled stream_id
++          // against every other sink's
++          for (int unsigned a = 0; a < N_SINKS_P; a++) begin
++            for (int unsigned b = a + 1; b < N_SINKS_P; b++) begin
++              if (ctl_sink_i == SNK_W_C'(a)) eq_r[a][b] <= cset_w[b];
++              if (ctl_sink_i == SNK_W_C'(b)) eq_r[a][b] <= cset_w[a];
++            end
++          end
+         end else begin
+           armed_r[ctl_sink_i]     <= 1'b0;
+-          decl_pend_r[ctl_sink_i] <= D_NOP_C;   // Lv! applied via app_ev this cycle
++          decl_pend_r[ctl_sink_i] <= D_NOP_C;
+         end
++        // the sink no longer declares: its group withdraws (Lv!) or hands
++        // over, from the next cycle (owner_map)
++        dcl_r[ctl_sink_i] <= 2'd0;
+       end
+ 
+       // ---- own LeaveAll marks the next walk txLA! -----------------------
+@@ -716,6 +907,7 @@ module KL_srp_listener_fsm
+             wtxla_r      <= laown_pend_r || leaveall_own_i;
+             laown_pend_r <= 1'b0;
+             wsrc_r       <= '0;
++            wdone_r      <= '0;
+             walk_r       <= W_EVAL;
+           end
+         end
+@@ -723,13 +915,14 @@ module KL_srp_listener_fsm
+           if (join_tick_i) tick_pend_r <= 1'b1;
+           // the parked stream_id's tx! sends what it owes and leaves VO:
+           // the applicant takes the settled stream_id (txLA! keeps LO)
+-          if (walk_grant_w && lvp_r[wsrc_r]
++          if (walk_tx_w && lvp_r[wsrc_r]
+               && !(wnext_w inside {A_LA_C, A_LO_C})) begin
+             lvp_r[wsrc_r]      <= 1'b0;
+             fourpack_r[wsrc_r] <= 2'd0;
+           end
++          if (walk_tx_w) wdone_r[wsrc_r] <= 1'b1;
+           if (walk_grant_w) begin
+-            if (wmsg_w[3] && rec_valid_r[wsrc_r]) begin
++            if (walk_tx_w && wmsg_w[3] && rec_valid_r[wsrc_r]) begin
+               push_code_r <= wmsg_w[2:0];
+               push_fp_r   <= fourpack_r[wsrc_r];
+               push_val_r  <= wval_w;
+@@ -758,6 +951,34 @@ module KL_srp_listener_fsm
+           walk_r      <= W_IDLE;
+         end
+       endcase
++
++      // ---- the handover (banner, issue #193): the taker gets the state,
++      // its parameter, its deferred broadcasts and its walk mark, after
++      // every assignment above; the giver is left VO with nothing --------
++      for (int unsigned s = 0; s < N_SINKS_P; s++) begin
++        if (op_gnt_w[s] && op_mv_w[s]) begin
++          app_r[s]      <= A_VO_C;
++          fourpack_r[s] <= 2'd0;
++          rla_pend_r[s] <= 1'b0;
++          per_pend_r[s] <= 1'b0;
++        end
++      end
++      if (hand_w) begin
++        rla_pend_r[ctl_sink_i] <= 1'b0;
++        per_pend_r[ctl_sink_i] <= 1'b0;
++      end
++      for (int unsigned t = 0; t < N_SINKS_P; t++) begin
++        if (take_w[t]) begin
++          app_r[t]      <= take_new_w[t]
++                         ? app_next_f(app_r[take_src_w[t]], AE_NEW_C, 1'b0, p2p_i)
++                         : app_r[take_src_w[t]];
++          fourpack_r[t] <= take_new_w[t] ? cfp_w[take_src_w[t]]
++                                         : fourpack_r[take_src_w[t]];
++          rla_pend_r[t] <= rla_pend_r[take_src_w[t]] || la_rx_app_w;
++          per_pend_r[t] <= per_pend_r[take_src_w[t]] || periodic_tick_i;
++          wdone_r[t]    <= (walk_r != W_IDLE) && wdone_r[take_src_w[t]];
++        end
++      end
+     end
+   end
+ 
+@@ -952,9 +1173,9 @@ module KL_srp_listener_fsm
+       tk_reg_state_o[s] = (armed_r[s] && (reg_r[s] != R_MT_C))
+                         ? (rtype_r[s] ? 2'd2 : 2'd1)
+                         : 2'd0;
+-      lstn_decl_state_o[s] = (rec_valid_r[s] && app_declaring_f(app_r[s]))
+-                           ? fourpack_r[s]
+-                           : 2'd0;
++      // the sink's own type while its group's applicant declares; the
++      // combination goes on the wire only (banner, issue #193)
++      lstn_decl_state_o[s] = (rec_valid_r[s] && gdecl_w[s]) ? dcl_r[s] : 2'd0;
+       acc_latency_o[s] = lat_r[s];
+       msrp_fail_code_o[s]   = (tk_reg_state_o[s] == 2'd2) ? fcode_r[s] : 8'd0;
+       msrp_fail_bridge_o[s] = fsysid_r[s];   // ungated (port note)
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index b0e5e5c..f721653 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -2104,7 +2104,6 @@ module protocol_processor_top
+   //! unsolicited notification. Issue #69 owns the trigger SET; this is the
+   //! one trigger that only exists because START/STOP_STREAMING landed.
+   logic        lstn_act_strt_chg_w;
+-  logic        lstn_act_strt_cmd_chg_w;
+ 
+   // ---- the listener's boot-owned admission (issue #92, issue #93 S4) -----
+   //! KL_pp_acmp_lsn_admit owns the listener's four work faces from rst_n to
+@@ -2198,7 +2197,6 @@ module protocol_processor_top
+       .strm_started_o        (aecp_strm_started_o),
+       .dbg_strq_drop_o       (lstn_strq_drop_w),
+       .act_strt_chg_o        (lstn_act_strt_chg_w),
+-      .act_strt_cmd_chg_o    (lstn_act_strt_cmd_chg_w),
+       .pre_ready_o           (pre_ready_w),
+       .now_ms_i              (now_ms_w),
+       .tmr_arm_valid_o       (lstn_arm_valid_w),
+@@ -3567,19 +3565,25 @@ module protocol_processor_top
+   //! Milan Table 5.22, STREAM_INPUT: one term per GET_STREAM_INFO-visible
+   //! owner. The listener's committed record gives two: the pbsta/acmpsta
+   //! compare (bind, unbind, settle, teardown, double timeout, retry) and
+-  //! the started/stopped change, including a re-bind that flips
+-  //! STREAMING_WAIT while pbsta/acmpsta stay put (PWR -> PWR). Both are
+-  //! registered off the SAME X_WB record write, so a walk that moves both
+-  //! lands them in one cycle and the OR pushes one frame. SRP gives the
+-  //! registration events, the FailureInformation change and the committed
+-  //! accumulated_latency change. These register on the same attribute write.
++  //! the started/stopped change, whatever made it: START/STOP_STREAMING
++  //! (Milan 5.4.2.19, 5.4.2.20) or a re-bind that flips STREAMING_WAIT
++  //! while pbsta/acmpsta stay put (PWR -> PWR). The notification answers no
++  //! command, so it goes to every registered controller, a START/STOP's
++  //! requester included (Milan 5.4.5.1, issue #192); the command's own
++  //! unsolicited response, which skips the requester, is a separate job.
++  //! Both listener terms are registered off the SAME X_WB record write, so
++  //! a walk that moves both lands them in one cycle and the OR pushes one
++  //! frame. SRP gives the registration events, the FailureInformation
++  //! change and the committed accumulated_latency change. These register on
++  //! the same attribute write. Causes that meet before the input's round is
++  //! claimed share its one pending bit in KL_aecp_notify, so they leave as
++  //! one notification carrying the final state.
+   always_comb begin : stri_events
+     ntfy_stri_in_w  = '0;
+     ntfy_stri_out_w = '0;
+     for (int unsigned k = 0; k < N_STREAM_IN_P; k++) begin
+       ntfy_stri_in_w[k] =
+-          (32'(lstn_act_sink_w) == k
+-           && lstn_act_strt_chg_w && !lstn_act_strt_cmd_chg_w)
++          (32'(lstn_act_sink_w) == k && lstn_act_strt_chg_w)
+           || lstn_gsi_changed_r[k]
+           || srp_evt_tk_reg_w[k] || srp_evt_tk_unreg_w[k]
+           || srp_evt_tk_fail_chg_w[k] || srp_evt_tk_latency_chg_w[k];
+diff --git a/tb/acmp_nvm/acmp_nvm_wrap.sv b/tb/acmp_nvm/acmp_nvm_wrap.sv
+index f532d75..44dd121 100644
+--- a/tb/acmp_nvm/acmp_nvm_wrap.sv
++++ b/tb/acmp_nvm/acmp_nvm_wrap.sv
+@@ -519,7 +519,6 @@ module acmp_nvm_wrap
+       .dbg_busy_o           (lsn_busy_o),
+       .dbg_strq_drop_o      (),
+       .act_strt_chg_o       (),
+-      .act_strt_cmd_chg_o   (),
+       .dbg_recwr_o          (lsn_recwr_w),
+       .dbg_recwr_sink_o     (lsn_recwr_sink_w),
+       .dbg_recwr_rec_o      (lsn_recwr_rec_w)
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index d266715..1b210a9 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -468,6 +468,28 @@ the seven into the one canonical tally.
+   are stalled if requested, and a request counter must remain zero.
+   Existing section G still checks the unchanged STREAM_OUTPUT gather.
+ 
++  The started/stopped change by START/STOP_STREAMING (issue #192; Milan
++  Table 5.22, 5.4.2.19, 5.4.2.20, 5.4.5.1) is the last step, on a fresh boot:
++  sink 0 discovered, bound and settled, then a second controller B registered
++  beside A. **STOP-BY-A** and **START-BY-A**: a STOP_STREAMING and then a
++  START_STREAMING from A each give exactly one GET_STREAM_INFO for sink 0 at A,
++  the requester, and exactly one at B, byte-exact at each controller's own
++  sequence_id (counted from the wire) and carrying the new STREAMING_WAIT.
++  The notification answers no command, so the requester is not excluded; the
++  command's own unsolicited response reaches B once and A never (5.4.5.2),
++  nothing else is sent, and the solicited read agrees.
++  **STOP-WITH-REGISTRATION**: a STOP from A coinciding with sink 0's first
++  Talker registration (Failed, code 7) gives one notification at each
++  controller, carrying both changes. The engine takes no command while a
++  notification is pending, so the STOP always commits with the notify block
++  idle. The bench therefore raises the integrator's GET_AVB_INFO change on the
++  clock the engine takes the STOP (`dbg_aecp_cmd_o` moves): that round holds
++  the block until the STOP has answered, and both sink 0 causes pend before
++  the input's round is claimed. Premises check that order and the one
++  GET_AVB_INFO at each controller. Section G's G7f, which required the STOP
++  requester, its only registered controller, to receive nothing, now requires
++  the GET_STREAM_INFO, and G7g nothing else.
++
+   Latency-only Talker JoinIn refreshes (issue #113) are checked with sink 0
+   registering Advertise and sink 1 Failed. The harness folds the processor's
+   published per-sink accumulated latency into selector 3 with zero ingress
+@@ -528,6 +550,17 @@ the seven into the one canonical tally.
+   | FailureInformation change re-declares the Listener again | `GI FAILED-REFRESH wire: a changed FailureInformation sends no` |
+   | Index guard removed before narrowing | `GI INDEX-GUARD solicited: pbsta sink 9` |
+   | Bridge no longer gated on FAILED after the index mux | `GI ADVERTISE unsolicited: full failure bridge` |
++  | A START/STOP_STREAMING's own started/stopped change dropped, the re-bind's kept (issue #192 as reported) | `GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester` |
++  | Started/stopped change disconnected from `stri_events` (issue #192) | `GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester` |
++  | Premise control: the GET_AVB_INFO change disconnected, so no round holds the notify block | `GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at A, the requester` |
++
++  Since issue #193 a sink's declaration request only sets its own type, and the
++  shared applicant takes New! for a first declarer or a changed type sum
++  ([10 §6.4](../../docs/architecture/10_srp_engine.md#sec-10-shared-stream)). A
++  request of an unchanged type therefore no longer re-declares, and the old edit
++  of the re-declaration control (a FailureInformation change raising a request)
++  left the wire unchanged. The control now plants the same defect where the
++  New! is decided: a FailureInformation change forces the group's New!.
+ 
+ - **A** **READ_DESCRIPTOR end to end** (06 §6.1, 07 §3.3) — the seam this
+   suite used to stop at. A real AEM command on the MAC byte stream comes back
+diff --git a/tb/pp_top/gsi_internal.hpp b/tb/pp_top/gsi_internal.hpp
+index 953feec..ca0f61b 100644
+--- a/tb/pp_top/gsi_internal.hpp
++++ b/tb/pp_top/gsi_internal.hpp
+@@ -396,6 +396,213 @@ struct InternalStreamInfoPhase {
+           "VLAN168 unbind clears the full stored VLAN");
+   }
+ 
++  // ---- Table 5.22 started/stopped by START/STOP_STREAMING (issue #192) ----
++  // Milan 5.4.2.19 and 5.4.2.20: START/STOP_STREAMING change exactly the
++  // started state of a bound input, which Table 5.22 lists among the
++  // GET_STREAM_INFO causes. That notification answers no command, so every
++  // registered controller receives it, the requester included (5.4.5.1);
++  // the command's own unsolicited response reaches the others alone
++  // (5.4.5.2). A (CTLR) is the requester and B a second registered
++  // controller. Each controller's sequence_id is modelled from the wire: the
++  // count of unsolicited frames it was sent before.
++  static constexpr uint64_t B_MAC = 0x0202C2C2C2C2ull;
++  uint16_t b_unsolicited = 0;
++
++  struct Uns {
++    std::vector<uint8_t> f;
++    uint16_t seq;
++  };
++
++  // every AECP frame transmitted within `ms`, in order; none left queued
++  std::vector<std::vector<uint8_t>> drain_aecp(int ms) {
++    std::vector<std::vector<uint8_t>> got;
++    for (int t = 0; t <= ms; ++t) {
++      while (!io.q_aecp.empty()) {
++        got.push_back(io.q_aecp.front());
++        io.q_aecp.pop_front();
++      }
++      if (t < ms) io.run_ms(1);
++    }
++    return got;
++  }
++
++  // the unsolicited frames to `mac` in arrival order, each with the
++  // sequence_id it must carry: that controller's next one (5.4.5.1)
++  static std::vector<Uns> unsolicited_to(
++      const std::vector<std::vector<uint8_t>>& got, uint64_t mac,
++      uint16_t& next) {
++    std::vector<Uns> v;
++    for (const auto& f : got)
++      if (f.size() >= 42 && (f[36] & 0x80) && fv_u64(f, 0, 6) == mac)
++        v.push_back(Uns{f, next++});
++    return v;
++  }
++
++  static std::vector<Uns> stream_info_of(const std::vector<Uns>& v,
++                                         unsigned sink) {
++    std::vector<Uns> s;
++    for (const auto& u : v)
++      if ((fv_u64(u.f, 36, 2) & 0x7FFF) == 0x000F
++          && fv_u64(u.f, 38, 2) == 0x0005 && fv_u64(u.f, 40, 2) == sink)
++        s.push_back(u);
++    return s;
++  }
++
++  static size_t count_type(const std::vector<Uns>& v, uint16_t op) {
++    size_t n = 0;
++    for (const auto& u : v)
++      if ((fv_u64(u.f, 36, 2) & 0x7FFF) == op) ++n;
++    return n;
++  }
++
++  // the unsolicited GET_STREAM_INFO a settled (COMPLETED) sink owes `mac`
++  static std::vector<uint8_t> settled_info(uint64_t mac, uint64_t eid,
++                                           uint16_t seq, unsigned sink,
++                                           bool stopped, uint8_t code,
++                                           uint64_t bridge) {
++    auto body = StreamInfoPhase::gsi_body(0x0005, sink, true, 3 << 5);
++    putbe(&body[44], 2, 2);
++    body[34] = code;
++    putbe(&body[36], bridge, 8);
++    if (stopped) body[7] |= 0x08;                 // STREAMING_WAIT
++    auto want = aecp_frame(mac, OWN_MAC, 1, 0, EID, eid, seq, 0x000F, body);
++    want[36] |= 0x80;
++    return want;
++  }
++
++  void register_b() {
++    const auto seq = sequence++;
++    io.feed(aecp_frame(OWN_MAC, B_MAC, 0, 0, EID, CTLR2_EID, seq,
++                       0x0024, std::vector<uint8_t>(4, 0)));
++    auto f = io.wait_any(io.q_aecp, 500);
++    CHECK(f.size() >= 38 && fv_u64(f, 0, 6) == B_MAC
++          && fv_u64(f, 34, 2) == seq && ((f[16] >> 3) & 31) == 0,
++          "GI SN register: a second controller B registered");
++    b_unsolicited = 0;
++  }
++
++  // START_STREAMING (0x0022) or STOP_STREAMING (0x0023) from A
++  void streaming(uint16_t op, unsigned sink) {
++    std::vector<uint8_t> body(4, 0);
++    putbe(&body[0], 0x0005, 2);
++    putbe(&body[2], sink, 2);
++    io.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, sequence++,
++                       op, body));
++  }
++
++  // A's solicited answers to `n` commands from sequence_id `first` on
++  size_t answered(const std::vector<std::vector<uint8_t>>& got,
++                  uint16_t first, unsigned n) const {
++    size_t ok = 0;
++    for (const auto& f : got)
++      if (f.size() >= 38 && !(f[36] & 0x80) && fv_u64(f, 0, 6) == CTLR_MAC
++          && static_cast<uint16_t>(fv_u64(f, 34, 2) - first) < n
++          && ((f[16] >> 3) & 31) == 0)
++        ++ok;
++    return ok;
++  }
++
++  // exactly one GET_STREAM_INFO for `sink` among `v`, byte-exact at its
++  // controller's own sequence_id, carrying the final state
++  void one_info(const char* step, const char* who, const std::vector<Uns>& v,
++                uint64_t mac, uint64_t eid, unsigned sink, bool stopped,
++                uint8_t code = 0, uint64_t bridge = 0) {
++    const auto s = stream_info_of(v, sink);
++    CHECK(s.size() == 1, "GI %s: exactly one GET_STREAM_INFO for sink %u at "
++          "%s, got %zu", step, sink, who, s.size());
++    if (s.empty()) return;
++    const auto want = settled_info(mac, eid, s[0].seq, sink, stopped, code,
++                                   bridge);
++    CHECK(s[0].f == want, "GI %s: %s's sink %u notification is byte-exact: "
++          "u = 1, its DA, entity_id and sequence_id %u, STREAMING_WAIT %s",
++          step, who, sink, s[0].seq, stopped ? "set" : "clear");
++    if (s[0].f != want) { dump("GI got", s[0].f); dump("GI expected", want); }
++  }
++
++  // the solicited read after a step agrees with what was pushed
++  void read_back(const char* step, unsigned sink, bool stopped,
++                 uint8_t code = 0, uint64_t bridge = 0) {
++    const auto f = query(sink);
++    check_frame(f, step, sink, 3, 0, code, bridge, false, true, stopped);
++  }
++
++  // one START/STOP_STREAMING from A on sink 0, nothing else in flight
++  void started_step(const char* step, uint16_t op, bool stopped) {
++    const uint16_t first = sequence;
++    const bool was = (io.d->aecp_strm_started_o & 1) != 0;
++    streaming(op, 0);
++    const auto got = drain_aecp(150);
++    const auto at_a = unsolicited_to(got, CTLR_MAC, unsolicited_sequence);
++    const auto at_b = unsolicited_to(got, B_MAC, b_unsolicited);
++    CHECK(answered(got, first, 1) == 1
++          && was == stopped && ((io.d->aecp_strm_started_o & 1) != 0) != stopped,
++          "GI %s: A's command answered SUCCESS and moved sink 0's started "
++          "state (premise)", step);
++    one_info(step, "A, the requester", at_a, CTLR_MAC, CTLR_EID, 0, stopped);
++    one_info(step, "B", at_b, B_MAC, CTLR2_EID, 0, stopped);
++    CHECK(count_type(at_a, op) == 0 && count_type(at_b, op) == 1,
++          "GI %s: the command's own unsolicited response reaches B once and "
++          "A never (Milan 5.4.5.2)", step);
++    CHECK(got.size() == 4, "GI %s: nothing else is sent, got %zu frames",
++          step, got.size());
++    read_back(step, 0, stopped);
++  }
++
++  // STOP_STREAMING on sink 0 coinciding with sink 0's first Talker
++  // registration, another GET_STREAM_INFO cause. The engine takes no command
++  // while a notification is pending, so the STOP commits with the notify
++  // block idle and its round would be claimed at once. The integrator's
++  // GET_AVB_INFO change, raised on the clock the engine takes the STOP,
++  // holds the block with a round of its own until the STOP has answered, so
++  // the STOP's change and the registration both pend before sink 0's round
++  // is claimed: one notification each, carrying both changes.
++  void started_with_registration() {
++    const char* step = "STOP-WITH-REGISTRATION";
++    const uint16_t first = sequence;
++    const auto taken = io.d->dbg_aecp_cmd_o;
++    streaming(0x0023, 0);
++    for (long b = 50L * MS_CYC; b != 0 && io.d->dbg_aecp_cmd_o == taken; --b)
++      io.step();
++    const bool before = io.d->dbg_aecp_cmd_o != taken
++                        && (io.d->aecp_strm_started_o & 1) != 0;
++    io.d->gsi_avb_chg_i = 1;
++    io.step();
++    io.d->gsi_avb_chg_i = 0;
++    attribute(0, 7, BRIDGE0, true);
++    const auto got = drain_aecp(250);
++    const auto at_a = unsolicited_to(got, CTLR_MAC, unsolicited_sequence);
++    const auto at_b = unsolicited_to(got, B_MAC, b_unsolicited);
++    CHECK(before && answered(got, first, 1) == 1
++          && (io.d->aecp_strm_started_o & 1) == 0,
++          "GI %s: the GET_AVB_INFO change came after the engine took the STOP "
++          "and before it stopped sink 0, which it then did (premise)", step);
++    CHECK(count_type(at_a, 0x0027) == 1 && count_type(at_b, 0x0027) == 1,
++          "GI %s: the GET_AVB_INFO change reached A and B once each "
++          "(premise)", step);
++    one_info(step, "A, the requester", at_a, CTLR_MAC, CTLR_EID, 0, true, 7,
++             BRIDGE0);
++    one_info(step, "B", at_b, B_MAC, CTLR2_EID, 0, true, 7, BRIDGE0);
++    CHECK(got.size() == 6, "GI %s: nothing else is sent, got %zu frames",
++          step, got.size());
++    read_back(step, 0, true, 7, BRIDGE0);
++  }
++
++  void started_notify() {
++    io.dram = image(2);
++    boot();
++    register_controller();
++    discover(0);
++    binding(0, true);
++    pair("SN-BIND", 0, 2);
++    settle(0, probe(0));
++    register_b();
++    started_step("STOP-BY-A", 0x0023, true);
++    started_step("START-BY-A", 0x0022, false);
++    started_with_registration();
++    io.run_ms(100);
++    CHECK(io.q_aecp.empty(), "GI SN final: no late or duplicate notification");
++  }
++
+   void run() {
+     io.dram = image(2);
+     io.gsi_retired_stuck = true;
+@@ -480,5 +687,6 @@ struct InternalStreamInfoPhase {
+     CHECK(io.gsi_internal_leaks == 0,
+           "GI internal seam: selectors 5/7 never requested from integrator");
+     vlan_retention();
++    started_notify();
+   }
+ };
+diff --git a/tb/pp_top/gsi_mutants.py b/tb/pp_top/gsi_mutants.py
+index 22ed2c9..caf3e64 100644
+--- a/tb/pp_top/gsi_mutants.py
++++ b/tb/pp_top/gsi_mutants.py
+@@ -89,10 +89,11 @@ def mutations() -> list[tuple[str, str, str, str, int, str]]:
+          "if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;",
+          "if (1'b0) evt_tk_fail_chg_o[s]   <= 1'b1;", 1,
+          "GI FAILED-REFRESH unsolicited: complete Milan response"),
++        # issue #193: a declaration request of an unchanged type no longer
++        # re-declares, so the defect is planted where the group's New! is
+         ("failure-change-redeclares", srp,
+-         "&& ((reg_r[s] == R_MT_C) || (rtype_r[s] != rx_is_failed_w));",
+-         "&& ((reg_r[s] == R_MT_C) || (rtype_r[s] != rx_is_failed_w)"
+-         " || ind_fchg_w[s]);", 1,
++         "|| (fourpack_r[s] != cfp_w[s]));",
++         "|| (fourpack_r[s] != cfp_w[s]) || ind_fchg_w[s]);", 1,
+          "GI FAILED-REFRESH wire: a changed FailureInformation sends no"),
+         ("index-guard-removed", top,
+          "if (32'(gsi_desc_index_o) < N_STREAM_IN_P) begin",
+@@ -102,6 +103,26 @@ def mutations() -> list[tuple[str, str, str, str, int, str]]:
+          "if (srp_tk_reg_state_w[gsi_sink_w] == 2'd2) begin",
+          "if (1'b1) begin", 1,
+          "GI ADVERTISE unsolicited: full failure bridge"),
++        # issue #192: the defect as reported, a START/STOP_STREAMING's own
++        # change dropped while the re-bind's still notifies
++        ("command-started-change-dropped", lstn,
++         "act_strt_chg_o <= cellmut_r && bnd_was_r && rec_r.f_bound\n",
++         "act_strt_chg_o <= cellmut_r && bnd_was_r && rec_r.f_bound\n"
++         "                            && !src_strq_r\n", 1,
++         "GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester"),
++        # ...and the started/stopped change no longer drives stri_events at all
++        ("started-trigger-removed", top,
++         "          (32'(lstn_act_sink_w) == k && lstn_act_strt_chg_w)\n"
++         "          || lstn_gsi_changed_r[k]",
++         "          lstn_gsi_changed_r[k]", 1,
++         "GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester"),
++        # premise control: without the GET_AVB_INFO round that holds the
++        # notify block, the STOP's change is claimed alone and the
++        # registration takes a second round
++        ("coincidence-hold-removed", top,
++         " || (link_up_i != link_q_r) || gsi_avb_chg_i),",
++         " || (link_up_i != link_q_r)),", 1,
++         "GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at A, the requester"),
+     ]
+ 
+ 
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index c1954e6..10cd9c0 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -5390,7 +5390,7 @@ struct StreamInfoPhase {
+     g6_a_wedged_face_voids_honestly_then_recovers();
+     g7_a_bind_and_an_unbind_each_notify_once();
+     g7c_the_bind_pushes_exactly_one_notification();
+-    g7e_a_real_started_stopped_change_excludes_the_requester();
++    g7e_a_real_started_stopped_change_notifies_the_requester();
+     g7_leave_the_registration_table_clean();
+     g8_the_read_descriptor_regression();
+   }
+@@ -5496,9 +5496,7 @@ struct StreamInfoPhase {
+     if (!uns.empty() && uns != wantu) { dump("got", uns); dump("exp", wantu); }
+   }
+ 
+-  // ---- G7c: a bind/unbind pushes exactly one notification. A
+-  // STOP_STREAMING from the only registered controller excludes that
+-  // requester and therefore pushes none here. Milan Table 5.22
++  // ---- G7c: a bind/unbind pushes exactly one notification. Milan Table 5.22
+   // lists "Started/stopped state (Stream Input only)"; 5.3.8.7 calls the
+   // state undefined while unbound, so a bind and an unbind are NOT
+   // started/stopped changes and must not add a second frame beside the
+@@ -5525,8 +5523,11 @@ struct StreamInfoPhase {
+           "G7d2: the later double probe timeout reports ACTIVE/acmpsta 7");
+   }
+ 
+-  // now a real started/stopped change under a live binding
+-  void g7e_a_real_started_stopped_change_excludes_the_requester() {
++  // now a real started/stopped change under a live binding, by the only
++  // registered controller: Milan 5.4.5.2 keeps the command's own unsolicited
++  // response from the requester, but the Table 5.22 GET_STREAM_INFO answers
++  // no command and reaches it (5.4.5.1, issue #192)
++  void g7e_a_real_started_stopped_change_notifies_the_requester() {
+     h.q_aecp.clear();
+     std::vector<uint8_t> sti(4, 0);
+     putbe(&sti[0], 0x0005, 2); putbe(&sti[2], 1, 2);
+@@ -5536,8 +5537,12 @@ struct StreamInfoPhase {
+     CHECK(!rsp.empty() && ((rsp[16] >> 3) & 0x1F) == 0,
+           "G7e: STOP_STREAMING on the bound sink answered SUCCESS");
+     auto push = h.wait_any(h.q_aecp, 300);
+-    CHECK(push.empty(),
+-          "G7f: the STOP requester receives no unsolicited response");
++    CHECK(push.size() == 94 && (push[36] & 0x80) && fv_u64(push, 36, 2) == 0x800F
++          && fv_u64(push, 38, 2) == 0x0005 && fv_u64(push, 40, 2) == 1,
++          "G7f: the STOP requester receives the u=1 GET_STREAM_INFO for sink 1");
++    auto extra = h.wait_any(h.q_aecp, 300);
++    CHECK(extra.empty(),
++          "G7g: and nothing else, no unsolicited STOP_STREAMING among it");
+   }
+ 
+   // deregister: leave the table clean. The unbind below ALSO pushes its
+diff --git a/tb/srp_stream_fsms/README.md b/tb/srp_stream_fsms/README.md
+index 5e7b33c..e177570 100644
+--- a/tb/srp_stream_fsms/README.md
++++ b/tb/srp_stream_fsms/README.md
+@@ -5,7 +5,7 @@ Proves the per-stream SRP FSMs (`hdl/srp/KL_srp_talker_fsm.sv`, M = 8
+ sources, and `hdl/srp/KL_srp_listener_fsm.sv`, N = 8 sinks) against
+ [10 §4/§5/§6.3/§6.4/§6.5](../../docs/architecture/10_srp_engine.md) with the
+ 802.1Q-2018 §10.7 tables as the normative core: `make` = build + run,
+-exit 0 = PASS, 1361 checks. `make` first runs the walk-record arms at four
++exit 0 = PASS, 1403 checks. `make` first runs the walk-record arms at four
+ shapes ([below](#walk-records-at-both-elaboration-arms-issue-230)), then this
+ suite, whose tally is the last line.
+ 
+@@ -96,6 +96,35 @@ Covered:
+   its applicant from VO to LO, but its first settle owes nothing, so the
+   tick declares the new stream (New Ready) and sends no Empty. The
+   expectations come from the model's Table 10-3.
++- **SH — sinks on one stream share one declaring applicant** (issue #193,
++  802.1Q-2018 §10.7.7, §35.1.2.2, the §35.2.6 NOTE, Table 35-14;
++  [10 §6.4](../../docs/architecture/10_srp_engine.md#sec-10-shared-stream)).
++  Two, then three, sinks settled on one stream and registered Ready: every
++  tick sends what ONE model applicant sends, the owner (sink 0) holds it,
++  the riders are VO, each sink reports Ready (**SH1**, and the first check of
++  SH3-SH5, SH8 and SH9); a received LeaveAll then gets one re-join and no Empty
++  from a rider (**SH1**). **SH2** the owner unbinds first: the rider holds
++  the applicant in its state, the next tick sends no Lv and no New,
++  periodic! re-joins the declaration, and the rider's unbind then sends one
++  Lv. **SH3** the reverse order: the rider's unbind changes nothing, the
++  owner's sends one Lv. **SH4** three sinks: each unbind hands the
++  applicant to the next sink, with nothing sent, and the third sends one
++  Lv. **SH5** a rider unbinds and settles on another stream: the owner's
++  declaration goes on with no message, the rider declares the new stream,
++  and the owner's unbind then sends one Lv for the first stream only.
++  **SH6** Ready (sink 0) with AskingFailed (sink 1 on another VLAN, its
++  talker Failed): one New, ReadyFailed, each sink reporting its own type;
++  the Ready owner's unbind hands over with New, AskingFailed (the sum
++  changed); the last unbind sends one Lv, AskingFailed. **SH7** the owner
++  unbinds while the tx! walk is between it and the rider (sink 5): the
++  rider takes the applicant already walked, and the walk sends one New.
++  **SH8** the owner's A8 and its A15 onto another stream on consecutive
++  clocks: the settle hands the applicant to the rider instead of parking
++  it, so the first stream gets no Lv and no New, and the new stream New
++  Ready. **SH9** the owner's A8, then on the next clock the rider's A15
++  onto another stream: the handover waits out that settle, so the first
++  stream, wanted by no sink now, gets one Lv and the new stream New Ready.
++  The expectations are the model's Table 10-3 for one applicant.
+ - **Received LeaveAll per Attribute Type** (10 §6.5, 802.1Q-2014
+   §10.7.5.20 b)2)): `leaveall_rx_i` is one lane per MSRP type, as the
+   decoder strobes it. `la_rx()` drives every lane (a conformant peer's
+diff --git a/tb/srp_stream_fsms/sim_main.cpp b/tb/srp_stream_fsms/sim_main.cpp
+index 5f51ebd..272fb6f 100644
+--- a/tb/srp_stream_fsms/sim_main.cpp
++++ b/tb/srp_stream_fsms/sim_main.cpp
+@@ -12,6 +12,7 @@
+ #include <cstdint>
+ #include <cstdio>
+ #include <cstring>
++#include <string>
+ #include <vector>
+ #include "Vsrp_stream_fsms_wrap.h"
+ #include "verilated.h"
+@@ -433,6 +434,17 @@ class SrpStreamFsmsSuite {
+   void a_settle_while_parked_keeps_the_held_stream();
+   void a_parked_leave_survives_txla_and_received_values();
+   void a_sink_with_no_record_owes_nothing();
++  int shared_stream_goes_quiet(int n, const char* tag);
++  void tick_sends(const std::string& want, const char* what);
++  int ticks_follow_the_model(int m, int fp, int n, const char* what);
++  void owner_unbinds_first_then_the_rider();
++  void rider_unbinds_first_then_the_owner();
++  void three_sinks_hand_the_applicant_down_the_line();
++  void a_rider_rebinds_to_another_stream();
++  void a_handover_during_a_walk_keeps_one_tx();
++  void an_owner_rebind_on_the_next_clock_hands_over();
++  void a_rider_rebind_on_the_clock_after_the_owner_unbinds();
++  void ready_with_asking_failed_declares_ready_failed();
+ 
+   const milan::tb::Model<Vsrp_stream_fsms_wrap> model;
+   Vsrp_stream_fsms_wrap* const d = model.get();
+@@ -1293,6 +1305,321 @@ void SrpStreamFsmsSuite::a_sink_with_no_record_owes_nothing() {
+         h.l_push.size(), h.l_push.empty() ? -1 : h.l_push[0].code);
+ }
+ 
++// ==== sinks on one stream share one declaring applicant ==================
++// (issue #193; 802.1Q-2018 §10.7.7: one applicant per attribute value, the
++// §35.2.6 NOTE: at most one Listener declaration per StreamID per port,
++// §35.1.2.2: Lv only for a stream no longer wanted.) The owner, the
++// lowest-index sink declaring the stream, holds the applicant; a rider is
++// VO. Every expectation is the suite's Table 10-3 model of ONE applicant.
++//! the Listener messages one tick pushed for sid, as "code/fp" words
++std::string listener_words(const std::vector<Push>& pushes, uint64_t sid) {
++  std::string w;
++  for (const Push& p : pushes) {
++    uint64_t got = 0;
++    for (int i = 0; i < 8; ++i) got = (got << 8) | p.val[i];
++    if (p.type != 3 || got != sid) continue;
++    w += (w.empty() ? "" : " ") + std::to_string(p.code) + "/"
++         + std::to_string(p.fp);
++  }
++  return w;
++}
++//! the words one applicant's message gives: "" when it sends nothing
++std::string model_words(int msg, int fp) {
++  return msg < 0 ? "" : std::to_string(msg) + "/" + std::to_string(fp);
++}
++
++//! Sinks 0..n-1 settled on SID0, every talker registered Ready, ticked
++//! until the applicant is quiet (QA); each tick sends what ONE applicant
++//! sends. Returns the model state.
++int SrpStreamFsmsSuite::shared_stream_goes_quiet(int n, const char* tag) {
++  h.reset();
++  for (int s = 0; s < n; ++s) h.ctl(true, s, SID0, DA0, VID0);
++  h.inject(true, 1, SID0, DA0, VID0, 3 /*JoinMt*/, 0, 500);
++  int m = app_next(VO, eNew, false, true);
++  bool one = true;
++  std::string got;
++  for (int k = 0; k < 4; ++k) {
++    h.clear_logs();
++    h.tick();
++    const std::string want = model_words(app_msg(m, false, false), 2);
++    m = app_next(m, eTx, false, true);
++    if (listener_words(h.l_push, SID0) != want) {
++      one = false;
++      got = listener_words(h.l_push, SID0);
++    }
++  }
++  bool riders_vo = true;
++  bool decl = true;
++  for (int s = 0; s < n; ++s) {
++    if (s > 0 && h.l_app(s) != VO) riders_vo = false;
++    if (h.l_decl(s) != 2) decl = false;
++  }
++  CHECK(one && h.l_app(0) == m && m == QA && riders_vo && decl,
++        "%s: %d sinks on one stream: every tx! sends what ONE applicant sends, "
++        "the owner (sink 0) holds it, the riders are VO, each sink reports "
++        "Ready (one %d got '%s', app0 %s, riders VO %d, decl %d)", tag, n,
++        one, got.c_str(), SN[h.l_app(0)], riders_vo, decl);
++  return m;
++}
++
++//! one tick; CHECKs that it pushed exactly want for SID0 and nothing else
++void SrpStreamFsmsSuite::tick_sends(const std::string& want, const char* what) {
++  h.clear_logs();
++  h.tick();
++  const std::string got = listener_words(h.l_push, SID0);
++  CHECK(got == want && h.l_push.size() == (want.empty() ? 0u : 1u),
++        "%s (want '%s', got '%s', %zu pushes)", what, want.c_str(),
++        got.c_str(), h.l_push.size());
++}
++
++void SrpStreamFsmsSuite::owner_unbinds_first_then_the_rider() {
++  int m = shared_stream_goes_quiet(2, "SH1");
++  // a received LeaveAll: a rider's own applicant would answer it with an
++  // Empty (VO + rLA! is LO); quiet, only the owner's re-join goes out
++  h.la_rx();
++  m = app_next(m, eRLA, false, true);
++  m = ticks_follow_the_model(m, 2, 3,
++                             "SH1: a received LeaveAll: each tx! sends what ONE "
++                             "applicant sends");
++  // the owner's A8: the rider takes the applicant in QA, nothing is sent
++  h.ctl(false, 0, SID0, DA0, VID0);
++  CHECK(h.l_app(1) == m && h.l_app(0) == VO && h.l_decl(1) == 2
++        && h.l_decl(0) == 0,
++        "SH2: the owner unbinds: the rider holds the applicant in its state, "
++        "still Ready (app %s/%s, decl %d/%d)", SN[h.l_app(0)], SN[h.l_app(1)],
++        h.l_decl(0), h.l_decl(1));
++  tick_sends(model_words(app_msg(m, false, false), 2),
++             "SH2: the owner unbinds: the next tx! sends no Lv and no New");
++  m = app_next(m, eTx, false, true);
++  // the declaration goes on: periodic! re-joins it from the rider's slot
++  h.ptick();
++  m = app_next(m, ePer, false, true);
++  tick_sends(model_words(app_msg(m, false, false), 2),
++             "SH2: the declaration goes on: periodic! re-joins it, JoinMt Ready");
++  m = app_next(m, eTx, false, true);
++  // the last declarer's A8: one Lv
++  h.ctl(false, 1, SID0, DA0, VID0);
++  m = app_next(m, eLv, false, true);
++  tick_sends(model_words(app_msg(m, false, false), 2),
++             "SH2: the rider unbinds last: the next tx! sends one Lv, Ready");
++  m = app_next(m, eTx, false, true);
++  tick_sends("", "SH2: after the Lv nothing more is sent");
++}
++
++void SrpStreamFsmsSuite::rider_unbinds_first_then_the_owner() {
++  int m = shared_stream_goes_quiet(2, "SH3");
++  h.ctl(false, 1, SID0, DA0, VID0);
++  CHECK(h.l_app(0) == m && h.l_app(1) == VO && h.l_decl(0) == 2
++        && h.l_decl(1) == 0,
++        "SH3: the rider unbinds: the owner keeps the applicant (app %s/%s, "
++        "decl %d/%d)", SN[h.l_app(0)], SN[h.l_app(1)], h.l_decl(0),
++        h.l_decl(1));
++  tick_sends(model_words(app_msg(m, false, false), 2),
++             "SH3: the rider unbinds: the next tx! sends no Lv and no New");
++  m = app_next(m, eTx, false, true);
++  h.ptick();
++  m = app_next(m, ePer, false, true);
++  tick_sends(model_words(app_msg(m, false, false), 2),
++             "SH3: the declaration goes on: periodic! re-joins it, JoinMt Ready");
++  m = app_next(m, eTx, false, true);
++  h.ctl(false, 0, SID0, DA0, VID0);
++  m = app_next(m, eLv, false, true);
++  tick_sends(model_words(app_msg(m, false, false), 2),
++             "SH3: the owner unbinds last: the next tx! sends one Lv, Ready");
++  m = app_next(m, eTx, false, true);
++  tick_sends("", "SH3: after the Lv nothing more is sent");
++}
++
++void SrpStreamFsmsSuite::three_sinks_hand_the_applicant_down_the_line() {
++  int m = shared_stream_goes_quiet(3, "SH4");
++  for (int s = 0; s < 2; ++s) {
++    h.ctl(false, s, SID0, DA0, VID0);
++    const int next = s + 1;
++    bool others_vo = true;
++    for (int t = 0; t < 3; ++t) if (t != next && h.l_app(t) != VO) others_vo = false;
++    CHECK(h.l_app(next) == m && others_vo && h.l_decl(next) == 2,
++          "SH4: sink %d unbinds: sink %d, the lowest still declaring, holds the "
++          "applicant in its state, the others are VO (app %s %s %s)", s, next,
++          SN[h.l_app(0)], SN[h.l_app(1)], SN[h.l_app(2)]);
++    tick_sends(model_words(app_msg(m, false, false), 2),
++               "SH4: a handover sends no Lv and no New");
++    m = app_next(m, eTx, false, true);
++  }
++  h.ctl(false, 2, SID0, DA0, VID0);
++  m = app_next(m, eLv, false, true);
++  tick_sends(model_words(app_msg(m, false, false), 2),
++             "SH4: the third sink unbinds last: the next tx! sends one Lv, Ready");
++}
++
++void SrpStreamFsmsSuite::a_rider_rebinds_to_another_stream() {
++  constexpr uint64_t SIDB = 0x02AABBCCDDEE0002ull;
++  constexpr uint64_t DAB  = 0x91E0F0001235ull;
++  int m = shared_stream_goes_quiet(2, "SH5");
++  h.ctl(false, 1, SID0, DA0, VID0);
++  h.ctl(true, 1, SIDB, DAB, VID0);
++  h.inject(true, 1, SIDB, DAB, VID0, 3 /*JoinMt*/, 0, 500);
++  int mb = app_next(VO, eNew, false, true);
++  h.clear_logs();
++  h.tick();
++  std::string a = listener_words(h.l_push, SID0);
++  std::string b = listener_words(h.l_push, SIDB);
++  CHECK(a == model_words(app_msg(m, false, false), 2)
++        && b == model_words(app_msg(mb, false, false), 2)
++        && h.l_decl(0) == 2 && h.l_decl(1) == 2,
++        "SH5: a rider rebinds to another stream: the owner's declaration goes "
++        "on with no Lv and no New, the rider declares the new stream, New Ready "
++        "(first stream '%s', new stream '%s', decl %d/%d)", a.c_str(), b.c_str(),
++        h.l_decl(0), h.l_decl(1));
++  m = app_next(m, eTx, false, true);
++  mb = app_next(mb, eTx, false, true);
++  // the owner, now alone on the first stream, unbinds: one Lv for it
++  h.ctl(false, 0, SID0, DA0, VID0);
++  m = app_next(m, eLv, false, true);
++  h.clear_logs();
++  h.tick();
++  a = listener_words(h.l_push, SID0);
++  b = listener_words(h.l_push, SIDB);
++  CHECK(a == model_words(app_msg(m, false, false), 2)
++        && b == model_words(app_msg(mb, false, false), 2),
++        "SH5: the owner then unbinds: one Lv, Ready, for the first stream, and "
++        "the new stream goes on (first stream '%s', new stream '%s')", a.c_str(),
++        b.c_str());
++}
++
++// The owner unbinds after the walk has sent its New and before the walk
++// reaches the rider (sink 5): the rider takes the applicant already walked,
++// so this walk sends ONE New, as one applicant's one tx! does.
++void SrpStreamFsmsSuite::a_handover_during_a_walk_keeps_one_tx() {
++  h.reset();
++  h.ctl(true, 0, SID0, DA0, VID0);
++  h.ctl(true, 5, SID0, DA0, VID0);
++  h.inject(true, 1, SID0, DA0, VID0, 3 /*JoinMt*/, 0, 500);
++  const int m = app_next(VO, eNew, false, true);
++  h.clear_logs();
++  d->join_tick_i = 1;
++  bool unbound = false;
++  bool done = false;
++  for (int i = 0; i < kTxopPollSteps && !done; ++i) {
++    if (!unbound && !h.l_push.empty()) {     // the A8 lands on the next clock
++      d->ctl_valid_i = 1; d->ctl_settle_i = 0; d->ctl_sink_i = 0;
++      d->ctl_stream_id_i = SID0; d->ctl_da_i = DA0; d->ctl_vid_i = VID0;
++      unbound = true;
++    }
++    h.step();
++    done = d->l_txop_done_o != 0;
++  }
++  h.idle(2);
++  const std::string got = listener_words(h.l_push, SID0);
++  const int walked = app_next(m, eTx, false, true);
++  CHECK(unbound && done && got == model_words(app_msg(m, false, false), 2)
++        && h.l_app(5) == walked && h.l_app(0) == VO,
++        "SH7: the owner unbinds while the walk is between it and the rider: the "
++        "rider takes the walked applicant and the walk sends ONE New (got '%s', "
++        "app %s/%s)", got.c_str(), SN[h.l_app(0)], SN[h.l_app(5)]);
++}
++
++// The owner's A8 and its A15 onto another stream on consecutive clocks,
++// before the rider has taken the applicant: the settle hands it over
++// instead of parking it (banner), so the first stream gets no Lv and no
++// New, and the new stream is declared.
++void SrpStreamFsmsSuite::an_owner_rebind_on_the_next_clock_hands_over() {
++  constexpr uint64_t SIDB = 0x02AABBCCDDEE0002ull;
++  constexpr uint64_t DAB  = 0x91E0F0001235ull;
++  int m = shared_stream_goes_quiet(2, "SH8");
++  d->ctl_valid_i = 1; d->ctl_settle_i = 0; d->ctl_sink_i = 0;
++  d->ctl_stream_id_i = SID0; d->ctl_da_i = DA0; d->ctl_vid_i = VID0;
++  h.step();
++  d->ctl_valid_i = 1; d->ctl_settle_i = 1; d->ctl_sink_i = 0;
++  d->ctl_stream_id_i = SIDB; d->ctl_da_i = DAB; d->ctl_vid_i = VID0;
++  h.step();
++  h.idle(2);
++  const bool held = h.l_app(1) == m && h.l_app(0) == VO;
++  h.inject(true, 1, SIDB, DAB, VID0, 3 /*JoinMt*/, 0, 500);
++  const int mb = app_next(VO, eNew, false, true);
++  h.clear_logs();
++  h.tick();
++  const std::string a = listener_words(h.l_push, SID0);
++  const std::string b = listener_words(h.l_push, SIDB);
++  CHECK(held && a == model_words(app_msg(m, false, false), 2)
++        && b == model_words(app_msg(mb, false, false), 2) && h.l_decl(1) == 2,
++        "SH8: the owner rebinds on the clock after its A8: the rider holds the "
++        "applicant in its state, the first stream gets no Lv and no New, the new "
++        "stream New Ready (held %d, first stream '%s', new stream '%s')", held,
++        a.c_str(), b.c_str());
++}
++
++// The owner's A8, then on the next clock the rider's A15 onto another
++// stream: the rider leaves before it takes the applicant, so the first
++// stream, no longer wanted, gets one Lv, and the new stream is declared
++// only as its own talker registers.
++void SrpStreamFsmsSuite::a_rider_rebind_on_the_clock_after_the_owner_unbinds() {
++  constexpr uint64_t SIDB = 0x02AABBCCDDEE0002ull;
++  constexpr uint64_t DAB  = 0x91E0F0001235ull;
++  int m = shared_stream_goes_quiet(2, "SH9");
++  d->ctl_valid_i = 1; d->ctl_settle_i = 0; d->ctl_sink_i = 0;
++  d->ctl_stream_id_i = SID0; d->ctl_da_i = DA0; d->ctl_vid_i = VID0;
++  h.step();
++  d->ctl_valid_i = 1; d->ctl_settle_i = 1; d->ctl_sink_i = 1;
++  d->ctl_stream_id_i = SIDB; d->ctl_da_i = DAB; d->ctl_vid_i = VID0;
++  h.step();
++  h.idle(2);
++  m = app_next(m, eLv, false, true);
++  h.inject(true, 1, SIDB, DAB, VID0, 3 /*JoinMt*/, 0, 500);
++  const int mb = app_next(VO, eNew, false, true);
++  h.clear_logs();
++  h.tick();
++  const std::string a = listener_words(h.l_push, SID0);
++  const std::string b = listener_words(h.l_push, SIDB);
++  CHECK(a == model_words(app_msg(m, false, false), 2)
++        && b == model_words(app_msg(mb, false, false), 2),
++        "SH9: the rider rebinds on the clock after the owner's A8: the first "
++        "stream gets one Lv, Ready, the new stream New Ready (first stream '%s', "
++        "new stream '%s')", a.c_str(), b.c_str());
++}
++
++//! n ticks; each must send what the model applicant m sends with fp
++int SrpStreamFsmsSuite::ticks_follow_the_model(int m, int fp, int n,
++                                               const char* what) {
++  for (int k = 0; k < n; ++k) {
++    tick_sends(model_words(app_msg(m, false, false), fp), what);
++    m = app_next(m, eTx, false, true);
++  }
++  return m;
++}
++
++// Ready (sink 0, VLAN VID0) with AskingFailed (sink 1, another VLAN, its
++// talker Failed) on one stream_id: the one declaration is ReadyFailed
++// (802.1Q-2018 §35.2.6, §35.2.2.8.7; Milan v1.2 §4.2.7); each sink still
++// reports its own type. A change of the combination is New!.
++void SrpStreamFsmsSuite::ready_with_asking_failed_declares_ready_failed() {
++  constexpr uint16_t VID1 = 3;
++  constexpr int kAskFail = 1;
++  constexpr int kReadyFail = 3;
++  h.reset();
++  h.ctl(true, 0, SID0, DA0, VID0);
++  h.ctl(true, 1, SID0, DA0, VID1);
++  h.inject(true, 1, SID0, DA0, VID0, 3 /*JoinMt*/, 0, 500);
++  int m = app_next(VO, eNew, false, true);
++  m = ticks_follow_the_model(m, kDeclReady, 4, "SH6 precondition: Ready alone");
++  h.inject(true, 2, SID0, DA0, VID1, 3 /*JoinMt*/, 0, 500, 0xBB, 1);
++  CHECK(h.l_decl(0) == kDeclReady && h.l_decl(1) == kAskFail,
++        "SH6: each sink reports its own type, Ready and AskingFailed (decl %d/%d)",
++        h.l_decl(0), h.l_decl(1));
++  m = app_next(m, eNew, false, true);
++  m = ticks_follow_the_model(m, kReadyFail, 3,
++                             "SH6: Ready with AskingFailed: New, ReadyFailed");
++  // the Ready owner unbinds: the rider takes the applicant and, the
++  // combination now AskingFailed alone, New! declares it
++  h.ctl(false, 0, SID0, DA0, VID0);
++  m = app_next(m, eNew, false, true);
++  m = ticks_follow_the_model(m, kAskFail, 3,
++                             "SH6: the Ready owner unbinds: New, AskingFailed");
++  h.ctl(false, 1, SID0, DA0, VID1);
++  m = app_next(m, eLv, false, true);
++  (void)ticks_follow_the_model(m, kAskFail, 2,
++                               "SH6: the last sink unbinds: one Lv, AskingFailed");
++}
++
+ // SC1: independently compose Table 10-4's LV/leavetimer row with each
+ // received event at MT. New/JoinIn/JoinMt end IN; Lv/LA/In/Mt end MT.
+ // Exercise the real input strobes together, after the leave ARM has issued.
+@@ -1353,6 +1680,14 @@ int SrpStreamFsmsSuite::run() {
+   a_settle_while_parked_keeps_the_held_stream();
+   a_parked_leave_survives_txla_and_received_values();
+   a_sink_with_no_record_owes_nothing();
++  owner_unbinds_first_then_the_rider();
++  rider_unbinds_first_then_the_owner();
++  three_sinks_hand_the_applicant_down_the_line();
++  a_rider_rebinds_to_another_stream();
++  a_handover_during_a_walk_keeps_one_tx();
++  an_owner_rebind_on_the_next_clock_hands_over();
++  a_rider_rebind_on_the_clock_after_the_owner_unbinds();
++  ready_with_asking_failed_declares_ready_failed();
+ 
+   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+   return fails ? 1 : 0;
+diff --git a/tb/srp_top/README.md b/tb/srp_top/README.md
+index 59534aa..7ab5245 100644
+--- a/tb/srp_top/README.md
++++ b/tb/srp_top/README.md
+@@ -11,7 +11,7 @@ real `KL_pp_tx_slots` serialize face (the C++ side plays the 03 §8 TX
+ arbiter), cadence and registrar-leave timers run on a real
+ `KL_pp_timer_service` (time-compressed: 1 ms = 40 clk, 32 slots), and the
+ T-MRP-LEAVEALL draws come from a real `KL_pp_prng` (kind 3, 10–15 s).
+-`make` = build + run, exit 0 = PASS, **8656 checks**. `make` first runs the
++`make` = build + run, exit 0 = PASS, **8665 checks**. `make` first runs the
+ timer-arm FIFO arms at four shapes
+ ([below](#timer-arm-fifos-at-four-shapes-issue-230)), then this suite, whose
+ tally is the last line.
+@@ -248,7 +248,7 @@ when the P8 arm-delay sweep brought the complete run to 185,012,669); the
+ encoder and stream-FSM
+ walks use finite cycle bounds. Budget exits and missing tallies are unproven,
+ not kills. `RUN_ARGS=phases`, `edge`, `peer`, `congestion`, `guards`,
+-`armdelay`, `restart`, `timers`, `join`, `lvleave`, `lvcoll` or `domjoin` selects one group for a focused run,
++`armdelay`, `restart`, `timers`, `join`, `lvleave`, `lvcoll`, `domjoin` or `share` selects one group for a focused run,
+ `RUN_ARGS=storage` the timer-arm FIFO arms; plain `make` runs every existing and
+ new check. The stream-FSM suite independently walks every
+ applicant state with same-edge sLA/join acceptance.
+@@ -704,7 +704,8 @@ the same edit share one. The new arms carry no group of the suite above:
+ [walk-record arms](../srp_stream_fsms/README.md#walk-records-at-both-elaboration-arms-issue-230),
+ and the slope controls run the [admission suite](../srp_admission/README.md) at
+ its five shapes. The assertion-coverage check now also requires TF1-TF5 and
+-WK1-WK12, and RB1-RB9 ([issue #188](#issue-188-the-owed-listener-leave)).
++WK1-WK12, and RB1-RB9 ([issue #188](#issue-188-the-owed-listener-leave)), SH1-SH9 and
++SW1-SW3 ([issue #193](#issue-193-sinks-on-one-stream-share-one-declaration)).
+ 
+ Failing checks per shape, from the campaign's receipts. "n/e": the edited arm
+ is not elaborated at that shape. "equivalent": with one source or one sink the
+@@ -784,7 +785,7 @@ arms, in WK11 and WK12. One patch per arm, each required to fail its named check
+ | Control | Edit | Named failing checks |
+ |---|---|---|
+ | `listener-rebind-abandons-leave` | a settle on another stream forces the owing applicant to VO (the behaviour before the issue) | RB1 |
+-| `listener-declaration-not-held` | the new stream's declaration request is applied to the parked applicant | RB1 |
++| `listener-declaration-not-held` | the new stream's declaration request is granted while the old one is parked, so it reaches the parked applicant | RB1 |
+ | `listener-park-never-retires` | the parked applicant never takes the settled stream after its Lv | RB1 |
+ | `listener-reprobe-abandons-leave` | a settle on the same stream forces the owing applicant to VO | RB2 |
+ | `listener-reprobe-parks-own-stream` | a settle on the same stream parks it as if it were another | RB3 |
+@@ -822,3 +823,49 @@ with no record owes nothing (RB9).
+ 
+ The `tb/pp_top` AS7 leg grades the same behaviour end to end, with two controls of
+ `tb/pp_top/acmp_mutants.py`.
++
++## Issue #193: sinks on one stream share one declaration
++
++Two or more sinks settled on one stream_id share one Listener applicant, the owner's: the
++lowest-index sink declaring it ([10 §6.4](../../docs/architecture/10_srp_engine.md#sec-10-shared-stream);
++802.1Q-2018 §10.7.7, §35.1.2.2, the §35.2.6 NOTE, Table 35-14). `RUN_ARGS=share` runs
++the group, also part of the default run, on fresh models from reset, each before the
++first own LeaveAll. The frames are the wire bytes of the real slot pool.
++
++| Check | What it requires |
++|---|---|
++| SW1 | two sinks settled on one {stream_id, DA, VLAN} and registered by one Talker Advertise: the first Listener frame is the independent builder's one-declaration frame, byte-exact (one VectorAttribute, New, Ready), both sinks report Ready, and the next three frames carrying the value carry it once each |
++| SW2 | a Milan v1.2 §4.2.7.2.2 peer Registrar model, fed every MSRP frame since the Advertise (rLv! takes IN to MT at once; a LeaveAll takes IN to LV, which ends MT after 5000 ms unless the value registers again): after the owner's unbind it is still IN, never deregistered, no Lv went out, the declaration was re-joined and the rider still reports Ready; after the rider's unbind exactly one Lv went out and the Registrar deregistered once |
++| SW3 | Ready (sink 0, VLAN 2) with AskingFailed (sink 1, VLAN 3, its talker Failed) on one stream_id: one New, ReadyFailed (FourPacked 3), byte-exact; each sink reports its own type |
++
++The stream-FSM half is section SH of [that suite](../srp_stream_fsms/README.md): SH1-SH9
++check, tick by tick against the suite's Table 10-3 model of one applicant, the owner and
++the riders, both unbind orders, three sinks, a rider's rebind, the type sum, a handover in
++the middle of a tx! walk, an owner's A8 and A15 on consecutive clocks, and an owner's A8
++with the rider's A15 on the next clock. One patch per
++arm, each required to fail its named check:
++
++| Control | Edit | Suite, group | Named failing checks |
++|---|---|---|---|
++| `listener-settle-compare-dropped` | the settle never finds another sink on its stream_id, so every sink is a group of its own and declares the value itself (the behaviour before the issue, on the wire) | srp_top `share`; stream-FSM suite | SW1, SW2, SW3 (5); SH1-SH9 (26) |
++| `listener-rider-not-quiet` | a rider takes events: a received LeaveAll takes its VO to LO, which sends an Empty for the shared value | stream-FSM suite | SH1 (1) |
++| `listener-teardown-applies-lv` | an A8 applies Lv! to its own slot, as before the issue: the owner's unbind leaves LA, and the handover declares it again with New | stream-FSM suite | SH2, SH4, SH7, SH8 (9) |
++| `listener-handover-drops-state` | the handover gives the taker a VO applicant, which declares anew (New) | stream-FSM suite | SH2, SH4, SH7, SH8 (9) |
++| `listener-withdraw-ignores-riders` | a sink's group counts only its own declaration, so the owner's unbind withdraws the stream (Lv) while the rider still wants it | stream-FSM suite; srp_top `share` | SH2, SH4, SH6, SH7 (9); SW2 (2) |
++| `listener-teardown-keeps-declaring` | an A8 leaves the sink's own type set, so the last unbind never withdraws | stream-FSM suite; srp_top `share` | SH3 and the Table 10-3 walks that reach LA through an A8 (54); SW2 (1) |
++| `listener-group-order-reversed` | the election runs from the highest index: the highest-index declaring sink owns the applicant | stream-FSM suite | SH1, SH3, SH4, SH5, SH8, SH9 (7) |
++| `listener-rider-settle-hands-over` | any member's A15 hands over, a rider's VO included, so the owner's applicant becomes VO and declares anew | stream-FSM suite | SH5, SH9 (2) |
++| `listener-type-not-combined` | the declared type is the last declaring sink's, not the sum | stream-FSM suite; srp_top `share` | SH6 (6); SW3 (1) |
++| `listener-handover-forgets-walk-mark` | the handover drops the walk mark, so a handover in the middle of a tx! walk gives the applicant a second tx! (a second New) | stream-FSM suite | SH7 (1) |
++| `listener-settle-parks-shared-stream` | an A15 of the sink holding the applicant parks it, with its Lv owed, although a rider still declares | stream-FSM suite | SH8 (1) |
++| `listener-group-op-during-settle` | a group operation does not wait out a settle: the owner's applicant is handed to a rider in the clock that settles the rider on another stream | stream-FSM suite | SH9 (1) |
++
++The counts are failing checks per run. The assertion-coverage check requires SH1-SH9 and
++SW1-SW3. Issue #193 moved the context of nine issue #188 patches: `listener-lo-not-owed`,
++`listener-lost-txla`, `listener-park-never-retires`, `listener-park-retires-on-txla`,
++`listener-rebind-abandons-leave`, `listener-reprobe-abandons-leave`,
++`listener-reprobe-parks-own-stream` and `listener-unrecorded-applicant-owes` keep their
++edits (those of `listener-lo-not-owed` and `listener-park-retires-on-txla` on lines that now
++also carry the handover and walk-mark terms), and `listener-declaration-not-held` drops the
++park term of the declaration grant (a request no longer drives the applicant; granted while
++parked, it reaches the parked applicant as the group's New!). Each still fails its RB check.
+diff --git a/tb/srp_top/mutants.py b/tb/srp_top/mutants.py
+index 8a5e411..ed38f13 100644
+--- a/tb/srp_top/mutants.py
++++ b/tb/srp_top/mutants.py
+@@ -208,6 +208,30 @@ MUTANTS = [
+     ('top-domain-lv-unwired', 'srp_top', 'domjoin', 'DJ4:'),
+     ('top-domain-tx-every-clock', 'srp_top', 'domjoin', 'DJ3:'),
+     ('top-domain-tx-unwired', 'srp_top', 'domjoin', 'DJ3:'),
++    # issue #193: sinks on one stream_id share one declaring applicant, the
++    # owner's (802.1Q-2018 10.7.7, 35.1.2.2, 35.2.6; Milan v1.2 4.2.7.2.2):
++    # one declaration on the wire, the handover with its state and its walk
++    # mark, the last declarer's one Lv, the combined type
++    ('listener-settle-compare-dropped', 'srp_top', 'share', 'SW1:'),
++    ('listener-settle-compare-dropped', 'srp_stream_fsms', 'suite', 'SH1:'),
++    ('listener-rider-not-quiet', 'srp_stream_fsms', 'suite', 'SH1: a received LeaveAll'),
++    ('listener-teardown-applies-lv', 'srp_stream_fsms', 'suite',
++     'SH2: the owner unbinds: the next tx! sends no Lv and no New'),
++    ('listener-handover-drops-state', 'srp_stream_fsms', 'suite',
++     'SH2: the owner unbinds: the rider holds the applicant in its state'),
++    ('listener-withdraw-ignores-riders', 'srp_stream_fsms', 'suite',
++     'SH2: the owner unbinds: the next tx! sends no Lv and no New'),
++    ('listener-withdraw-ignores-riders', 'srp_top', 'share', 'SW2: the owner unbinds'),
++    ('listener-teardown-keeps-declaring', 'srp_stream_fsms', 'suite', 'SH3: the owner unbinds last'),
++    ('listener-teardown-keeps-declaring', 'srp_top', 'share', 'SW2: the rider unbinds last'),
++    ('listener-group-order-reversed', 'srp_stream_fsms', 'suite', 'SH4: 3 sinks on one stream'),
++    ('listener-rider-settle-hands-over', 'srp_stream_fsms', 'suite',
++     'SH5: a rider rebinds to another stream'),
++    ('listener-type-not-combined', 'srp_stream_fsms', 'suite', 'SH6: Ready with AskingFailed'),
++    ('listener-type-not-combined', 'srp_top', 'share', 'SW3:'),
++    ('listener-handover-forgets-walk-mark', 'srp_stream_fsms', 'suite', 'SH7:'),
++    ('listener-settle-parks-shared-stream', 'srp_stream_fsms', 'suite', 'SH8:'),
++    ('listener-group-op-during-settle', 'srp_stream_fsms', 'suite', 'SH9:'),
+ ]
+ 
+ 
+@@ -300,7 +324,8 @@ def main() -> int:
+     if not args.only:
+         expected = {f"{group}{i}" for group, count in
+                     [("K", 12), ("L", 4), ("M", 12), ("N", 13), ("O", 8), ("P", 8), ("Q", 4), ("R", 4),
+-                     ("S", 3), ("SC", 3), ("TF", 5), ("WK", 12), ("RB", 9), ("DJ", 4)]
++                     ("S", 3), ("SC", 3), ("TF", 5), ("WK", 12), ("RB", 9), ("DJ", 4),
++                     ("SH", 9), ("SW", 3)]
+                     for i in range(1, count + 1)}
+         missing = expected - covered
+         total += 1
+diff --git a/tb/srp_top/mutations/listener-declaration-not-held.patch b/tb/srp_top/mutations/listener-declaration-not-held.patch
+index def1c70..aa2e96b 100644
+--- a/tb/srp_top/mutations/listener-declaration-not-held.patch
++++ b/tb/srp_top/mutations/listener-declaration-not-held.patch
+@@ -1,11 +1,11 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -525,7 +525,7 @@
+-         // settle sets the applicant itself (set_app_w); teardown withdraws
+-         app_ev_v_w[s] = !ctl_settle_i;
+-         app_ev_w[s]   = AE_LV_C;
+--      end else if ((decl_pend_r[s] != D_NOP_C) && !lvp_r[s]) begin
+-+      end else if (decl_pend_r[s] != D_NOP_C) begin
+-         // a request for the new stream_id waits while the old one is owed
+-         app_ev_v_w[s]   = 1'b1;
+-         app_ev_w[s]     = (decl_pend_r[s] == D_DECLARE_C) ? AE_NEW_C : AE_LV_C;
++@@ -637,7 +637,7 @@
++       per_grant_w[s] = 1'b0;
++       // a request for the new stream_id waits while the old one is owed; a
++       // granted request only sets the sink's own type (dcl_r)
++-      decl_grant_w[s] = (decl_pend_r[s] != D_NOP_C) && !lvp_r[s]
+++      decl_grant_w[s] = (decl_pend_r[s] != D_NOP_C)
++                      && !(ctl_acc_w && (ctl_sink_i == SNK_W_C'(s)));
++       if (app_rx_hit_w[s] && !quiet_w[s]) begin
++         app_ev_v_w[s] = 1'b1;
+diff --git a/tb/srp_top/mutations/listener-group-op-during-settle.patch b/tb/srp_top/mutations/listener-group-op-during-settle.patch
+new file mode 100644
+index 0000000..c2220b1
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-group-op-during-settle.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -645,7 +645,7 @@
++       end else if (ctl_acc_w && (ctl_sink_i == SNK_W_C'(s))) begin
++         // settle sets the applicant itself (set_app_w); a teardown applies
++         // nothing here: the group's Lv! or handover follows (owner_map)
++-      end else if (op_w[s] && !ctl_acc_w) begin
+++      end else if (op_w[s]) begin
++         // a group operation waits out a settle or a teardown of any sink,
++         // which may move the record of the sink it would hand over to
++         app_ev_v_w[s] = op_lv_w[s] || (op_new_w[s] && !op_mv_w[s]);
+diff --git a/tb/srp_top/mutations/listener-group-order-reversed.patch b/tb/srp_top/mutations/listener-group-order-reversed.patch
+new file mode 100644
+index 0000000..2bf1c24
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-group-order-reversed.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -585,7 +585,7 @@
++       cfp_w[s]    = 2'd0;
++       for (int unsigned t = 0; t < N_SINKS_P; t++) begin
++         if (same_w[s][t]) begin
++-          if (t < s) begin
+++          if (t > s) begin
++             lo_dcl_w[s] = lo_dcl_w[s] | dcl_w[t];
++             lo_nvo_w[s] = lo_nvo_w[s] | nvo_w[t];
++             lo_mbr_w[s] = 1'b1;
+diff --git a/tb/srp_top/mutations/listener-handover-drops-state.patch b/tb/srp_top/mutations/listener-handover-drops-state.patch
+new file mode 100644
+index 0000000..a31b30e
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-handover-drops-state.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -971,7 +971,7 @@
++         if (take_w[t]) begin
++           app_r[t]      <= take_new_w[t]
++                          ? app_next_f(app_r[take_src_w[t]], AE_NEW_C, 1'b0, p2p_i)
++-                         : app_r[take_src_w[t]];
+++                         : A_VO_C;
++           fourpack_r[t] <= take_new_w[t] ? cfp_w[take_src_w[t]]
++                                          : fourpack_r[take_src_w[t]];
++           rla_pend_r[t] <= rla_pend_r[take_src_w[t]] || la_rx_app_w;
+diff --git a/tb/srp_top/mutations/listener-handover-forgets-walk-mark.patch b/tb/srp_top/mutations/listener-handover-forgets-walk-mark.patch
+new file mode 100644
+index 0000000..ff68255
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-handover-forgets-walk-mark.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -976,7 +976,7 @@
++                                          : fourpack_r[take_src_w[t]];
++           rla_pend_r[t] <= rla_pend_r[take_src_w[t]] || la_rx_app_w;
++           per_pend_r[t] <= per_pend_r[take_src_w[t]] || periodic_tick_i;
++-          wdone_r[t]    <= (walk_r != W_IDLE) && wdone_r[take_src_w[t]];
+++          wdone_r[t]    <= 1'b0;
++         end
++       end
++     end
+diff --git a/tb/srp_top/mutations/listener-lo-not-owed.patch b/tb/srp_top/mutations/listener-lo-not-owed.patch
+index f7018f1..eab48cd 100644
+--- a/tb/srp_top/mutations/listener-lo-not-owed.patch
++++ b/tb/srp_top/mutations/listener-lo-not-owed.patch
+@@ -1,11 +1,11 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -608,7 +608,7 @@
++@@ -781,7 +781,7 @@
+      set_same_w = rec_valid_r[ctl_sink_i] && (csid_w == ctl_stream_id_i);
+      set_lv_w   = rec_valid_r[ctl_sink_i]
+                 ? app_next_f(app_r[ctl_sink_i], AE_LV_C, 1'b0, p2p_i) : A_VO_C;
+--    set_owes_w = set_lv_w inside {A_LA_C, A_LO_C};
+-+    set_owes_w = (set_lv_w == A_LA_C);
++-    set_owes_w = (set_lv_w inside {A_LA_C, A_LO_C}) && !hand_w;
+++    set_owes_w = (set_lv_w == A_LA_C) && !hand_w;
+      set_app_w  = set_owes_w ? set_lv_w : A_VO_C;
+    end
+    assign lv_take_w = ctl_acc_w && ctl_settle_i && set_owes_w && !set_same_w;
+diff --git a/tb/srp_top/mutations/listener-lost-txla.patch b/tb/srp_top/mutations/listener-lost-txla.patch
+index dbd162e..8d6cdc3 100644
+--- a/tb/srp_top/mutations/listener-lost-txla.patch
++++ b/tb/srp_top/mutations/listener-lost-txla.patch
+@@ -1,6 +1,6 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -622,7 +622,7 @@
++@@ -904,7 +904,7 @@
+          W_IDLE: begin
+            if (join_tick_i || tick_pend_r) begin
+              tick_pend_r  <= 1'b0;
+@@ -8,4 +8,4 @@
+ +            wtxla_r      <= laown_pend_r;
+              laown_pend_r <= 1'b0;
+              wsrc_r       <= '0;
+-             walk_r       <= W_EVAL;
++             wdone_r      <= '0;
+diff --git a/tb/srp_top/mutations/listener-park-never-retires.patch b/tb/srp_top/mutations/listener-park-never-retires.patch
+index 7945868..7c4a18f 100644
+--- a/tb/srp_top/mutations/listener-park-never-retires.patch
++++ b/tb/srp_top/mutations/listener-park-never-retires.patch
+@@ -1,10 +1,10 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -721,7 +721,6 @@
++@@ -917,7 +917,6 @@
+            // the applicant takes the settled stream_id (txLA! keeps LO)
+-           if (walk_grant_w && lvp_r[wsrc_r]
++           if (walk_tx_w && lvp_r[wsrc_r]
+                && !(wnext_w inside {A_LA_C, A_LO_C})) begin
+ -            lvp_r[wsrc_r]      <= 1'b0;
+              fourpack_r[wsrc_r] <= 2'd0;
+            end
+-           if (walk_grant_w) begin
++           if (walk_tx_w) wdone_r[wsrc_r] <= 1'b1;
+diff --git a/tb/srp_top/mutations/listener-park-retires-on-txla.patch b/tb/srp_top/mutations/listener-park-retires-on-txla.patch
+index b15f251..7d17ec4 100644
+--- a/tb/srp_top/mutations/listener-park-retires-on-txla.patch
++++ b/tb/srp_top/mutations/listener-park-retires-on-txla.patch
+@@ -1,12 +1,12 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -723,8 +723,7 @@
++@@ -915,8 +915,7 @@
+            if (join_tick_i) tick_pend_r <= 1'b1;
+            // the parked stream_id's tx! sends what it owes and leaves VO:
+            // the applicant takes the settled stream_id (txLA! keeps LO)
+--          if (walk_grant_w && lvp_r[wsrc_r]
++-          if (walk_tx_w && lvp_r[wsrc_r]
+ -              && !(wnext_w inside {A_LA_C, A_LO_C})) begin
+-+          if (walk_grant_w && lvp_r[wsrc_r]) begin
+++          if (walk_tx_w && lvp_r[wsrc_r]) begin
+              lvp_r[wsrc_r]      <= 1'b0;
+              fourpack_r[wsrc_r] <= 2'd0;
+            end
+diff --git a/tb/srp_top/mutations/listener-rebind-abandons-leave.patch b/tb/srp_top/mutations/listener-rebind-abandons-leave.patch
+index 18b8540..eb16720 100644
+--- a/tb/srp_top/mutations/listener-rebind-abandons-leave.patch
++++ b/tb/srp_top/mutations/listener-rebind-abandons-leave.patch
+@@ -1,9 +1,9 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -609,7 +609,7 @@
++@@ -782,7 +782,7 @@
+      set_lv_w   = rec_valid_r[ctl_sink_i]
+                 ? app_next_f(app_r[ctl_sink_i], AE_LV_C, 1'b0, p2p_i) : A_VO_C;
+-     set_owes_w = set_lv_w inside {A_LA_C, A_LO_C};
++     set_owes_w = (set_lv_w inside {A_LA_C, A_LO_C}) && !hand_w;
+ -    set_app_w  = set_owes_w ? set_lv_w : A_VO_C;
+ +    set_app_w  = (set_owes_w && set_same_w) ? set_lv_w : A_VO_C;
+    end
+diff --git a/tb/srp_top/mutations/listener-reprobe-abandons-leave.patch b/tb/srp_top/mutations/listener-reprobe-abandons-leave.patch
+index 00c31cb..c3181c0 100644
+--- a/tb/srp_top/mutations/listener-reprobe-abandons-leave.patch
++++ b/tb/srp_top/mutations/listener-reprobe-abandons-leave.patch
+@@ -1,9 +1,9 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -609,7 +609,7 @@
++@@ -782,7 +782,7 @@
+      set_lv_w   = rec_valid_r[ctl_sink_i]
+                 ? app_next_f(app_r[ctl_sink_i], AE_LV_C, 1'b0, p2p_i) : A_VO_C;
+-     set_owes_w = set_lv_w inside {A_LA_C, A_LO_C};
++     set_owes_w = (set_lv_w inside {A_LA_C, A_LO_C}) && !hand_w;
+ -    set_app_w  = set_owes_w ? set_lv_w : A_VO_C;
+ +    set_app_w  = (set_owes_w && !set_same_w) ? set_lv_w : A_VO_C;
+    end
+diff --git a/tb/srp_top/mutations/listener-reprobe-parks-own-stream.patch b/tb/srp_top/mutations/listener-reprobe-parks-own-stream.patch
+index cdce533..4e7bf7a 100644
+--- a/tb/srp_top/mutations/listener-reprobe-parks-own-stream.patch
++++ b/tb/srp_top/mutations/listener-reprobe-parks-own-stream.patch
+@@ -1,6 +1,6 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -605,7 +605,7 @@
++@@ -778,7 +778,7 @@
+    logic       set_owes_w;
+    logic [3:0] set_app_w;
+    always_comb begin : settle_app
+@@ -8,4 +8,4 @@
+ +    set_same_w = 1'b0;
+      set_lv_w   = rec_valid_r[ctl_sink_i]
+                 ? app_next_f(app_r[ctl_sink_i], AE_LV_C, 1'b0, p2p_i) : A_VO_C;
+-     set_owes_w = set_lv_w inside {A_LA_C, A_LO_C};
++     set_owes_w = (set_lv_w inside {A_LA_C, A_LO_C}) && !hand_w;
+diff --git a/tb/srp_top/mutations/listener-rider-not-quiet.patch b/tb/srp_top/mutations/listener-rider-not-quiet.patch
+new file mode 100644
+index 0000000..b22e79c
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-rider-not-quiet.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -600,7 +600,7 @@
++       own_w[s]   = dcl_w[s] && !lo_dcl_w[s];
++       act_w[s]   = (nvo_w[s] && !lo_nvo_w[s])
++                 || (!anyh_w[s] && (own_w[s] || (!anyo_w[s] && !lo_mbr_w[s])));
++-      quiet_w[s] = mbr_w[s] && !act_w[s];
+++      quiet_w[s] = 1'b0;
++       // what the active member does to the group applicant: declare the
++       // combined type (none declared yet, or another combination), take it
++       // to the owner, or withdraw it after the last declarer
+diff --git a/tb/srp_top/mutations/listener-rider-settle-hands-over.patch b/tb/srp_top/mutations/listener-rider-settle-hands-over.patch
+new file mode 100644
+index 0000000..967b5c8
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-rider-settle-hands-over.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -693,7 +693,7 @@
++       hoth_w[t]  = (ctl_sink_i != SNK_W_C'(t)) && same_w[ctl_sink_i][t];
++       hoth_dcl_w = hoth_dcl_w | (hoth_w[t] && dcl_w[t]);
++     end
++-    hand_w = ctl_acc_w && ctl_settle_i && nvo_w[ctl_sink_i] && (hoth_w != '0);
+++    hand_w = ctl_acc_w && ctl_settle_i && (hoth_w != '0);
++     for (int unsigned t = 0; t < N_SINKS_P; t++) begin
++       take_w[t]     = 1'b0;
++       take_new_w[t] = 1'b0;
+diff --git a/tb/srp_top/mutations/listener-settle-compare-dropped.patch b/tb/srp_top/mutations/listener-settle-compare-dropped.patch
+new file mode 100644
+index 0000000..1d9eaf8
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-settle-compare-dropped.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -564,7 +564,7 @@
++   logic [N_SINKS_P-1:0]                op_w;
++   always_comb begin : owner_map
++     for (int unsigned s = 0; s < N_SINKS_P; s++) begin
++-      cset_w[s] = (ctl_stream_id_i == sid_r[s]);
+++      cset_w[s] = 1'b0;
++       mbr_w[s]  = rec_valid_r[s] && !lvp_r[s];
++       dcl_w[s]  = (dcl_r[s] != 2'd0);
++       nvo_w[s]  = mbr_w[s] && (app_r[s] != A_VO_C);
+diff --git a/tb/srp_top/mutations/listener-settle-parks-shared-stream.patch b/tb/srp_top/mutations/listener-settle-parks-shared-stream.patch
+new file mode 100644
+index 0000000..f6e4f66
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-settle-parks-shared-stream.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -693,7 +693,7 @@
++       hoth_w[t]  = (ctl_sink_i != SNK_W_C'(t)) && same_w[ctl_sink_i][t];
++       hoth_dcl_w = hoth_dcl_w | (hoth_w[t] && dcl_w[t]);
++     end
++-    hand_w = ctl_acc_w && ctl_settle_i && nvo_w[ctl_sink_i] && (hoth_w != '0);
+++    hand_w = 1'b0;
++     for (int unsigned t = 0; t < N_SINKS_P; t++) begin
++       take_w[t]     = 1'b0;
++       take_new_w[t] = 1'b0;
+diff --git a/tb/srp_top/mutations/listener-teardown-applies-lv.patch b/tb/srp_top/mutations/listener-teardown-applies-lv.patch
+new file mode 100644
+index 0000000..ea1c4f2
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-teardown-applies-lv.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -645,6 +645,8 @@
++       end else if (ctl_acc_w && (ctl_sink_i == SNK_W_C'(s))) begin
++         // settle sets the applicant itself (set_app_w); a teardown applies
++         // nothing here: the group's Lv! or handover follows (owner_map)
+++        app_ev_v_w[s] = !ctl_settle_i;
+++        app_ev_w[s]   = AE_LV_C;
++       end else if (op_w[s] && !ctl_acc_w) begin
++         // a group operation waits out a settle or a teardown of any sink,
++         // which may move the record of the sink it would hand over to
+diff --git a/tb/srp_top/mutations/listener-teardown-keeps-declaring.patch b/tb/srp_top/mutations/listener-teardown-keeps-declaring.patch
+new file mode 100644
+index 0000000..7294ebc
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-teardown-keeps-declaring.patch
+@@ -0,0 +1,10 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -893,7 +893,6 @@
++         end
++         // the sink no longer declares: its group withdraws (Lv!) or hands
++         // over, from the next cycle (owner_map)
++-        dcl_r[ctl_sink_i] <= 2'd0;
++       end
++ 
++       // ---- own LeaveAll marks the next walk txLA! -----------------------
+diff --git a/tb/srp_top/mutations/listener-type-not-combined.patch b/tb/srp_top/mutations/listener-type-not-combined.patch
+new file mode 100644
+index 0000000..b7e190e
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-type-not-combined.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -594,7 +594,7 @@
++           anyo_w[s] = anyo_w[s] | dcl_w[t];
++           gdecl_w[s] = gdecl_w[s] | (mbr_w[t] && app_declaring_f(app_r[t]));
++           // Ready with AskingFailed is ReadyFailed: the codes OR (srp_decl_e)
++-          cfp_w[s] = cfp_w[s] | dcl_r[t];
+++          cfp_w[s] = (dcl_r[t] != 2'd0) ? dcl_r[t] : cfp_w[s];
++         end
++       end
++       own_w[s]   = dcl_w[s] && !lo_dcl_w[s];
+diff --git a/tb/srp_top/mutations/listener-unrecorded-applicant-owes.patch b/tb/srp_top/mutations/listener-unrecorded-applicant-owes.patch
+index 06d28be..2dcb458 100644
+--- a/tb/srp_top/mutations/listener-unrecorded-applicant-owes.patch
++++ b/tb/srp_top/mutations/listener-unrecorded-applicant-owes.patch
+@@ -1,12 +1,12 @@
+ --- a/hdl/srp/KL_srp_listener_fsm.sv
+ +++ b/hdl/srp/KL_srp_listener_fsm.sv
+-@@ -606,8 +606,7 @@
++@@ -779,8 +779,7 @@
+    logic [3:0] set_app_w;
+    always_comb begin : settle_app
+      set_same_w = rec_valid_r[ctl_sink_i] && (csid_w == ctl_stream_id_i);
+ -    set_lv_w   = rec_valid_r[ctl_sink_i]
+ -               ? app_next_f(app_r[ctl_sink_i], AE_LV_C, 1'b0, p2p_i) : A_VO_C;
+ +    set_lv_w   = app_next_f(app_r[ctl_sink_i], AE_LV_C, 1'b0, p2p_i);
+-     set_owes_w = set_lv_w inside {A_LA_C, A_LO_C};
++     set_owes_w = (set_lv_w inside {A_LA_C, A_LO_C}) && !hand_w;
+      set_app_w  = set_owes_w ? set_lv_w : A_VO_C;
+    end
+diff --git a/tb/srp_top/mutations/listener-withdraw-ignores-riders.patch b/tb/srp_top/mutations/listener-withdraw-ignores-riders.patch
+new file mode 100644
+index 0000000..21f3aaa
+--- /dev/null
++++ b/tb/srp_top/mutations/listener-withdraw-ignores-riders.patch
+@@ -0,0 +1,11 @@
++--- a/hdl/srp/KL_srp_listener_fsm.sv
+++++ b/hdl/srp/KL_srp_listener_fsm.sv
++@@ -591,7 +591,7 @@
++             lo_mbr_w[s] = 1'b1;
++           end
++           anyh_w[s] = anyh_w[s] | nvo_w[t];
++-          anyo_w[s] = anyo_w[s] | dcl_w[t];
+++          anyo_w[s] = dcl_w[s];
++           gdecl_w[s] = gdecl_w[s] | (mbr_w[t] && app_declaring_f(app_r[t]));
++           // Ready with AskingFailed is ReadyFailed: the codes OR (srp_decl_e)
++           cfp_w[s] = cfp_w[s] | dcl_r[t];
+diff --git a/tb/srp_top/sim_main.cpp b/tb/srp_top/sim_main.cpp
+index 01419c6..4983ecd 100644
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -626,6 +626,10 @@ class SrpTopHarness {
+     if (!*group || !strcmp(group,"lvleave")) check_withdrawal_meets_an_lv_registrar();
+     if (!*group || !strcmp(group,"lvcoll")) check_leave_expiry_collisions();
+     if (!*group || !strcmp(group,"domjoin")) check_domain_rejoin_follows_the_peer();
++    if (!*group || !strcmp(group,"share")) {
++      check_sinks_on_one_stream_share_one_declaration();
++      check_ready_with_asking_failed_is_ready_failed_on_the_wire();
++    }
+ 
+     printf("TOTAL_CLOCKS %llu\n", static_cast<unsigned long long>(h.t));
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+@@ -2989,6 +2993,145 @@ class SrpTopHarness {
+           rejoin_ev(f));
+   }
+ 
++  // ==== SW. sinks on one stream share one Listener declaration (#193) =====
++  // 802.1Q-2018 §10.7.7 and the §35.2.6 NOTE: at most one Listener
++  // declaration per StreamID per port; §35.1.2.2: Lv only for a stream no
++  // longer wanted. Through the real decoder, listener FSMs, encoder and
++  // slot pool, on a fresh model, before the first own LeaveAll.
++  //! Listener values in frame f equal to sid, and the last one's event
++  static int listener_values(const std::vector<uint8_t>& f, uint64_t sid,
++                             int* ev = nullptr) {
++    int n = 0;
++    for (auto& v : parse_frame(f).vecs) {
++      if (v.type != 3) continue;
++      for (int j = 0; j < v.nov; j++) {
++        if (fv_u64(v.fv, 0, 8) + static_cast<uint64_t>(j) != sid) continue;
++        ++n;
++        if (ev) *ev = v.ev[j];
++      }
++    }
++    return n;
++  }
++  //! A Milan v1.2 §4.2.7.2.2 peer Registrar for one Listener value, fed the
++  //! DUT's MSRP frames in wire order: New/JoinIn/JoinMt register (IN), rLv!
++  //! takes IN to MT at once, a LeaveAll takes IN to LV, and LV ends MT after
++  //! T-MRP-LEAVE (5000 ms) unless re-registered.
++  struct PeerRegistrar {
++    static constexpr int kMt = 0;
++    static constexpr int kIn = 1;
++    static constexpr int kLv = 2;
++    int st = kMt;
++    uint32_t lv_ms = 0;
++    int deregs = 0;
++    int lvs = 0;
++    void frame(const std::vector<uint8_t>& f, uint32_t ms, uint64_t sid) {
++      if (st == kLv && ms - lv_ms >= 5000) { st = kMt; ++deregs; }
++      for (auto& v : parse_frame(f).vecs) {
++        if (v.type != 3) continue;
++        if (v.la && st == kIn) { st = kLv; lv_ms = ms; }
++        for (int j = 0; j < v.nov; j++) {
++          if (fv_u64(v.fv, 0, 8) + static_cast<uint64_t>(j) != sid) continue;
++          const int e = v.ev[j];
++          if (e == EV_NEW || e == EV_JOININ || e == EV_JOINMT) st = kIn;
++          if (e == EV_LV) {
++            ++lvs;
++            if (st == kIn) { st = kMt; ++deregs; }
++          }
++        }
++      }
++    }
++  };
++  //! feed the archive's MSRP frames [from, end) to the peer registrar
++  void peer_sees(PeerRegistrar& r, size_t& from) {
++    for (; from < h.archive.size(); ++from) {
++      const auto& f = h.archive[from];
++      if (f.size() > 13 && ((f[12] << 8) | f[13]) == 0x22EA)
++        r.frame(f, h.archive_ms[from], SIDX);
++    }
++  }
++  void sinks_settle_and_register(int n) {
++    h.reset();
++    d->link_up_i = 1; h.idle(10);
++    (void)h.wait_any(true, 1000);
++    for (int k = 0; k < n; k++) h.op(OP_DECL_LS, k, SIDX, DAX, 2, 0, 0, DECL_READY);
++    h.sync();
++    Msg adv{1, 25, false, {Vec{false, 1,
++            fv_talker(SIDX, DAX, 2, 0x0100, 1, 3, 1, 0x00012345),
++            {EV_JOININ}, {}}}};
++    h.feed(mrpdu_body(true, {adv}), true);
++    h.idle(10);
++  }
++  void check_sinks_on_one_stream_share_one_declaration() {
++    sinks_settle_and_register(2);
++    const size_t from0 = h.archive.size();
++    Msg one{3, 8, true, {Vec{false, 1, fv_sid(SIDX), {EV_NEW}, {DECL_READY}}}};
++    const auto exp = mrpdu_frame(true, {one});
++    auto has = [](const std::vector<uint8_t>& fr) { return listener_values(fr, SIDX) > 0; };
++    auto f = h.wait_frame(true, 800, has);
++    CHECK(h.ls_decl(0) == DECL_READY && h.ls_decl(1) == DECL_READY && f == exp,
++          "SW1: two sinks declaring one stream: the frame carries ONE Listener "
++          "VectorAttribute for it, New Ready, byte-exact (%zu B, %d values, decl %d/%d)",
++          f.size(), listener_values(f, SIDX), h.ls_decl(0), h.ls_decl(1));
++    if (f != exp) { dump("got", f); dump("exp", exp); }
++    int worst = 0;
++    for (int k = 0; k < 3; k++) {
++      auto g = h.wait_frame(true, 1200, has);
++      worst = std::max(worst, g.empty() ? 9 : listener_values(g, SIDX));
++    }
++    CHECK(worst == 1, "SW1: the next three frames carrying it carry it once each "
++          "(most %d)", worst);
++    // the owner unbinds, then the rider: a Milan peer Registrar fed every
++    // MSRP frame since the Advertise never deregisters while either wants it
++    PeerRegistrar peer;
++    size_t from = from0;
++    h.sync();
++    const size_t at_unbind = h.archive.size();
++    auto r0 = h.op(OP_WDRW_LS, 0);
++    h.run_ms(2500);
++    peer_sees(peer, from);
++    int rejoins = 0;
++    for (size_t i = at_unbind; i < h.archive.size(); i++) {
++      int ev = -1;
++      if (listener_values(h.archive[i], SIDX, &ev) > 0
++          && (ev == EV_JOININ || ev == EV_JOINMT)) ++rejoins;
++    }
++    CHECK(r0.got && peer.st == PeerRegistrar::kIn && peer.deregs == 0 && peer.lvs == 0
++          && rejoins > 0 && h.ls_decl(1) == DECL_READY,
++          "SW2: the owner unbinds: a Milan peer Registrar never deregisters, no Lv "
++          "is sent and the declaration goes on (state %d, deregs %d, Lv %d, "
++          "re-joins %d, decl %d)", peer.st, peer.deregs, peer.lvs, rejoins, h.ls_decl(1));
++    auto r1 = h.op(OP_WDRW_LS, 1);
++    h.run_ms(1500);
++    peer_sees(peer, from);
++    CHECK(r1.got && peer.st == PeerRegistrar::kMt && peer.deregs == 1 && peer.lvs == 1,
++          "SW2: the rider unbinds last: one Lv, and the peer Registrar deregisters "
++          "once (state %d, deregs %d, Lv %d)", peer.st, peer.deregs, peer.lvs);
++  }
++  // SW3: Ready (sink 0, VLAN 2) with AskingFailed (sink 1, VLAN 3, its
++  // talker Failed) on one stream_id is one ReadyFailed declaration
++  // (802.1Q-2018 §35.2.6, §35.2.2.8.7; Milan v1.2 §4.2.7)
++  void check_ready_with_asking_failed_is_ready_failed_on_the_wire() {
++    sinks_settle_and_register(1);
++    h.op(OP_DECL_LS, 1, SIDX, DAX, 3, 0, 0, DECL_READY);
++    h.run_ms(1500);
++    h.sync();
++    Msg fail{2, 34, false, {Vec{false, 1,
++             fv_failed(SIDX, DAX, 3, 0x0100, 1, 3, 1, 0x00012345, 0xBBBBCCCCDDDDULL, 7),
++             {EV_JOININ}, {}}}};
++    h.feed(mrpdu_body(true, {fail}), true);
++    h.idle(10);
++    Msg rf{3, 8, true, {Vec{false, 1, fv_sid(SIDX), {EV_NEW}, {DECL_READYFAIL}}}};
++    const auto exp = mrpdu_frame(true, {rf});
++    auto f = h.wait_frame(true, 800, [](const std::vector<uint8_t>& fr) {
++      return listener_values(fr, SIDX) > 0;
++    });
++    CHECK(h.ls_decl(0) == DECL_READY && h.ls_decl(1) == DECL_ASKFAIL && f == exp,
++          "SW3: Ready with AskingFailed on one stream: one New, ReadyFailed, "
++          "byte-exact; each sink reports its own type (%zu B, decl %d/%d)",
++          f.size(), h.ls_decl(0), h.ls_decl(1));
++    if (f != exp) { dump("got", f); dump("exp", exp); }
++  }
++
+   const milan::tb::Model<Vsrp_top_wrap> model;
+   Vsrp_top_wrap* const d;
+   H h;
+@@ -3007,6 +3150,6 @@ int main(int argc, char** argv) {
+       && strcmp(group,"peer") && strcmp(group,"congestion")
+       && strcmp(group,"guards") && strcmp(group,"restart")
+       && strcmp(group,"timers") && strcmp(group,"join") && strcmp(group,"lvleave") && strcmp(group,"lvcoll")
+-      && strcmp(group,"domjoin")) return 2;
++      && strcmp(group,"domjoin") && strcmp(group,"share")) return 2;
+   return harness.run(group);
+ }

@@ -1,0 +1,33 @@
+source 6ddfcda4c3170b8f463c8623833f7541ca8c1faf
+command ['/usr/bin/python3', '$REVIEWS/pp193-r680-1-packet/scratch/controls/tb/srp_top/mutants.py', '--jobs', '4', '--only', 'listener-settle-compare-dropped,listener-rider-not-quiet,listener-teardown-applies-lv,listener-handover-drops-state,listener-withdraw-ignores-riders,listener-teardown-keeps-declaring,listener-group-order-reversed,listener-rider-settle-hands-over,listener-type-not-combined,listener-handover-forgets-walk-mark,listener-settle-parks-shared-stream,listener-group-op-during-settle,listener-lo-not-owed,listener-lost-txla,listener-park-never-retires,listener-park-retires-on-txla,listener-rebind-abandons-leave,listener-reprobe-abandons-leave,listener-reprobe-parks-own-stream,listener-unrecorded-applicant-owes,listener-declaration-not-held', '--output', '$REVIEWS/pp193-r680-1-packet/controls']
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+control srp_top share: rc=0 PASS
+listener-lost-txla: rc=2 failures=12 KILLED tags=L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2
+listener-rebind-abandons-leave: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB8
+listener-declaration-not-held: rc=2 failures=5 KILLED tags=RB1,RB4,RB6,RB7
+listener-park-never-retires: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB7
+listener-reprobe-abandons-leave: rc=2 failures=1 KILLED tags=RB2
+listener-reprobe-parks-own-stream: rc=2 failures=2 KILLED tags=RB3,RB5
+listener-lo-not-owed: rc=2 failures=2 KILLED tags=RB6,RB8
+listener-park-retires-on-txla: rc=2 failures=1 KILLED tags=RB7
+listener-unrecorded-applicant-owes: rc=2 failures=1 KILLED tags=RB9
+listener-rebind-abandons-leave: rc=2 failures=11 KILLED tags=WK11,WK12
+listener-park-never-retires: rc=2 failures=17 KILLED tags=WK10,WK12,WK8
+listener-settle-compare-dropped: rc=2 failures=5 KILLED tags=SW1,SW2,SW3
+listener-settle-compare-dropped: rc=2 failures=26 KILLED tags=SH1,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-rider-not-quiet: rc=2 failures=1 KILLED tags=SH1
+listener-teardown-applies-lv: rc=2 failures=9 KILLED tags=SH2,SH4,SH7,SH8
+listener-handover-drops-state: rc=2 failures=9 KILLED tags=SH2,SH4,SH7,SH8
+listener-withdraw-ignores-riders: rc=2 failures=9 KILLED tags=SH2,SH4,SH6,SH7
+listener-withdraw-ignores-riders: rc=2 failures=2 KILLED tags=SW2
+listener-teardown-keeps-declaring: rc=2 failures=54 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,RB1,RB4,RB7,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-teardown-keeps-declaring: rc=2 failures=1 KILLED tags=SW2
+listener-group-order-reversed: rc=2 failures=7 KILLED tags=SH1,SH3,SH4,SH5,SH8,SH9
+listener-rider-settle-hands-over: rc=2 failures=2 KILLED tags=SH5,SH9
+listener-type-not-combined: rc=2 failures=6 KILLED tags=SH6
+listener-type-not-combined: rc=2 failures=1 KILLED tags=SW3
+listener-handover-forgets-walk-mark: rc=2 failures=1 KILLED tags=SH7
+listener-settle-parks-shared-stream: rc=2 failures=1 KILLED tags=SH8
+listener-group-op-during-settle: rc=2 failures=1 KILLED tags=SH9
+30 checks: 30 PASS, 0 FAIL
