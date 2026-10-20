@@ -1,0 +1,27 @@
+GI latency walks added: 5568 checks, 0 failures
+FAIL: GI REBIND-SW: exactly one unsolicited response for sink 0, got 2
+FAIL: GI REBIND-TIMEOUT unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 03 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 02 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 47 00 00 00
+FAIL: GI REBIND-UNBIND unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 03 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 00 00 01 00 00 00 00
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 05 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 40 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 04 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 40 00 00 00
+FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 47 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 05 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 47 00 00 00
+FAIL: GI PASSIVE unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 07 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 20 00 00 00
+FAIL: GI DISABLED unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 08 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 00 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 07 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 05 01 00 01 00 00 00 00
+FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 2
+FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 2
+FAIL: GI STOP-BY-A: nothing else is sent, got 6 frames
+FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 2
+FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 2
+FAIL: GI START-BY-A: nothing else is sent, got 6 frames
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6254 checks, 13 failures

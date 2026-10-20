@@ -1,0 +1,43 @@
+patch sha256 5ed1656c0733ed64a890000ddc2d73c9435a0373a991ab0436c04c6e2009c9ab (published at milan-fpga fca476ec review-evidence/pp192-r1/author/)
+applied to milan-fpga dev e26f1816e456dc8027924bc2e5d327a8aa6e46db (README.md, sim_nxn.cpp only)
+git apply --check: OK
+--- numstat
+1	1	tb/verilator/milan_dp/README.md
+8	4	tb/verilator/milan_dp/sim_nxn.cpp
+--- changed hunks (removed/added lines)
+@@ -654 +654 @@ The processor's response tests own isolated latency-change coverage.
+-| G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A gets nothing, nobody gets GET_STREAM_INFO |
++| G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A does not; A and B each get one GET_STREAM_INFO for sink 1, carrying STREAMING_WAIT (processor #192) |
+@@ -1758,2 +1758,4 @@ class NxnDatapathHarness {
+-    //    G9  STOP_STREAMING pushes its own response, never GET_STREAM_INFO,
+-    //        and never to the requester (Milan 5.4.5.2);
++    //    G9  STOP_STREAMING pushes its own response, never to the requester
++    //        (Milan 5.4.5.2), and its started/stopped change one
++    //        GET_STREAM_INFO to each controller, the requester included
++    //        (Table 5.22, 5.4.5.1; processor issue #192);
+@@ -2319 +2321 @@ class NxnDatapathHarness {
+-    // ---- G9: STOP_STREAMING owns its own push ------------------------------
++    // ---- G9: STOP_STREAMING's own push, and its started/stopped change ----
+@@ -2328 +2330,3 @@ class NxnDatapathHarness {
+-        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped (no GET_STREAM_INFO push)", 1, 0);
++        //! the GET_STREAM_INFO answers no command, so A, the requester,
++        //! receives it too (Milan 5.4.5.1, processor issue #192)
++        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped", 1, 1);
+--- G9 rows before/after
+1758:    //    G9  STOP_STREAMING pushes its own response, never GET_STREAM_INFO,
+2319:    // ---- G9: STOP_STREAMING owns its own push ------------------------------
+2324:        ck("[GSI] G9 STOP_STREAMING(sink 1) from A is SUCCESS", aecp_status(r), 0);
+2326:        ck("[GSI] G9 ...pushes STOP_STREAMING to B", notify_count(0x0023, &CTL_B, 0x0005, 1), 1);
+2327:        ck("[GSI] G9 ...and not to A, the requester", notify_count(0x0023, &CTL_A, 0x0005, 1), 0);
+2328:        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped (no GET_STREAM_INFO push)", 1, 0);
+2329:        ck("[GSI] G9 sink 1 stopped: STREAMING_WAIT", gsi_flag(g, 45, 0x08), 1);
+2330:        gsi_ck_state("[GSI] G9 sink 1 stopped", g, kPbCompleted, 0);
+
+1758:    //    G9  STOP_STREAMING pushes its own response, never to the requester
+2321:    // ---- G9: STOP_STREAMING's own push, and its started/stopped change ----
+2326:        ck("[GSI] G9 STOP_STREAMING(sink 1) from A is SUCCESS", aecp_status(r), 0);
+2328:        ck("[GSI] G9 ...pushes STOP_STREAMING to B", notify_count(0x0023, &CTL_B, 0x0005, 1), 1);
+2329:        ck("[GSI] G9 ...and not to A, the requester", notify_count(0x0023, &CTL_A, 0x0005, 1), 0);
+2332:        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped", 1, 1);
+2333:        ck("[GSI] G9 sink 1 stopped: STREAMING_WAIT", gsi_flag(g, 45, 0x08), 1);
+2334:        gsi_ck_state("[GSI] G9 sink 1 stopped", g, kPbCompleted, 0);
