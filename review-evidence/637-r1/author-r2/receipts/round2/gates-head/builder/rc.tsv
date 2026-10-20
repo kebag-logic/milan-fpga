@@ -1,0 +1,3 @@
+d0-04-gen_hdl_reference-build	0	2s	python3 scripts/gen_hdl_reference.py --output <scratch>/r2/hdlref
+d1-builder-leg0	0	850s	python3 scripts/ci_builder_legs.py run 0 --receipt <scratch>/r2/builder-leg-0.json -- python3 sw/builder/test_builder.py --require-rv32
+d2-builder-leg1	0	317s	python3 scripts/ci_builder_legs.py run 1 --receipt <scratch>/r2/builder-leg-1.json -- python3 sw/builder/test_builder.py --require-rv32

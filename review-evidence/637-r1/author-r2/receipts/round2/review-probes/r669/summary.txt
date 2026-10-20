@@ -1,0 +1,33 @@
+clean: rc 0, checks 589, failures 0: PASS
+no_putback: rc 1, checks 589, failures 3: CAUGHT
+    [FAIL] [MAPREC] put-back: SPI 0: number_of_mappings   got=0x0 exp=0x4
+    [FAIL] [MAPREC] put-back: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] put-back: render RAM keys 2..9 hold the input list got=0x4 exp=0x0
+no_hole_rule: rc 1, checks 589, failures 6: CAUGHT
+    [FAIL] [MAPREC] hole, input: SPI 0: number_of_mappings got=0x1 exp=0x8
+    [FAIL] [MAPREC] hole, input: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] hole, input: render RAM keys 2..9 hold the input list got=0x8 exp=0x0
+    [FAIL] [MAPREC] hole, output: SPO 0: number_of_mappings got=0x1 exp=0x8
+    [FAIL] [MAPREC] hole, output: SPO 0: the mappings are the expected list got=0x0 exp=0x1
+no_layout_id: rc 1, checks 589, failures 12: CAUGHT
+    [FAIL] [MAPREC] wrong layout, input: SPI 0: number_of_mappings got=0x3 exp=0x8
+    [FAIL] [MAPREC] wrong layout, input: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] wrong layout, input: render RAM keys 2..9 hold the input list got=0x8 exp=0x0
+    [FAIL] [MAPREC] wrong layout, output: SPO 0: number_of_mappings got=0x2 exp=0x8
+    [FAIL] [MAPREC] wrong layout, output: SPO 0: the mappings are the expected list got=0x0 exp=0x1
+no_range_refuse: rc 1, checks 589, failures 12: CAUGHT
+    [FAIL] [MAPREC] range, input stream channel: SPI 0: number_of_mappings got=0x1 exp=0x8
+    [FAIL] [MAPREC] range, input stream channel: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] range, input stream channel: render RAM keys 2..9 hold the input list got=0x8 exp=0x0
+    [FAIL] [MAPREC] range, input cluster: SPI 0: number_of_mappings got=0x1 exp=0x8
+    [FAIL] [MAPREC] range, input cluster: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+no_dup_cluster: rc 1, checks 589, failures 3: CAUGHT
+    [FAIL] [MAPREC] conflicting keys, input: SPI 0: number_of_mappings got=0x1 exp=0x8
+    [FAIL] [MAPREC] conflicting keys, input: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] conflicting keys, input: render RAM keys 2..9 hold the input list got=0x8 exp=0x0
+restore_on_pass0_defaults: rc 1, checks 589, failures 6: CAUGHT
+    [FAIL] [MAPREC] D3 pass-0 abort: SPI 0: number_of_mappings got=0x3 exp=0x8
+    [FAIL] [MAPREC] D3 pass-0 abort: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] D3 pass-0 abort: SPO 0: number_of_mappings got=0x2 exp=0x8
+    [FAIL] [MAPREC] D3 pass-0 abort: SPO 0: the mappings are the expected list got=0x0 exp=0x1
+    [FAIL] [MAPREC] D3 pass-0 abort: render RAM keys 2..9 hold the input list got=0x8 exp=0x0
