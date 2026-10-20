@@ -1565,7 +1565,7 @@ detector never compares against a particular interface's pins.
 
 | Source | Phase reference | Loop | Clause |
 |---|---|---|---|
-| CRF stream | its timing points: the timestamp of every accepted, consumed PDU (`KL_crf_rx` `ts_p_o`), on whole periods of its media clock by Equation (14) | the servo's phase term holds the domain event on them modulo Ps; `MCSRV_STAT[9]` reads settled inside +/-5 % of Ps for four windows running | IEEE 1722-2016 10.7, 10.8 Equation (15); Milan v1.2 7.6.1 |
+| CRF stream | its timing points: the timestamp of every accepted, consumed PDU (`KL_crf_rx` `ts_p_o`), on whole periods of its media clock by Equation (14) | the servo's phase term holds the domain event on them modulo Ps; `MCSRV_STAT[9]` reads settled once the window phase and every sample of it sit inside +/-5 % of Ps, four full windows running | IEEE 1722-2016 10.7, 10.8 Equation (15); Milan v1.2 7.6.1 |
 | AAF stream, the follow-on | its presentation times. An AAF talker that itself follows CRF stamps within +/-5 % of that CRF's timing points (10.8); one on its own clock has no clause bound on its phase, and its presentation offset need not be a whole number of periods | the rate loop alone: `ph_en_i` is low under an AAF source, so the phase stays where the pull-in left it, as before #632. A phase reference for it needs a decision on that offset | Milan v1.2 7.6.1; IEEE 1722-2016 4.3.5 |
 | INTERNAL | none | no servo; the domain's outputs still stamp one grid, so they stay whole periods apart | IEEE 1722-2016 4.3.5 |
 
@@ -1576,16 +1576,25 @@ detector never compares against a particular interface's pins.
    is not a whole number of nanoseconds, so the fold works in 1/3 ns: 3d mod
    62,500 by a restoring divider, moved into [-Ps/2, Ps/2). The fold is exact,
    because a CRF timestamp and a domain event both lie on whole periods.
-   Each sample folds to its own nearest whole period, so every pull is the
-   short way. The samples are summed over the servo's 512 ms window, and the
-   window phase Theta is that sum over the nominal 256 PDUs, a shift: a window
-   short of PDUs only pulls less. A window keeps at most 264 samples, the
-   nominal count plus 1/32, which no rate inside the authority reaches; a
-   talker sending faster than its declared interval then cannot carry Theta
-   past 33/32 of Ps/2, inside its 16 bits. A window counts with at least 64
-   PDUs and no hold inside it, and reads settled only when full. A phase within the sample
-   jitter of +/-Ps/2 straddles the fold and pulls in proportion to its distance
-   from it: an unstable point the loop leaves, never a stall.
+   The phase is circular, so each folded sample is then unwrapped against a
+   tracking reference before it is summed: the last counted window's phase,
+   or, until a window has counted, the first sample since the last hold. A
+   sample moves by whole periods to within Ps/2 of that reference, so samples
+   either side of +/-Ps/2 add as the one phase they are and never cancel.
+   Folded on their own, alternate samples of +/-10,416 ns summed to zero and
+   read settled (R678-1-F3). The samples are summed over the servo's 512 ms
+   window, and the window phase Theta is that sum over the nominal 256 PDUs,
+   a shift: a window short of PDUs only pulls less. Theta is re-folded once
+   into [-Ps/2, Ps/2), so every pull is the short way. A window keeps at most
+   264 samples, the nominal count plus 1/32, which no rate inside the
+   authority reaches; a talker sending faster than its declared interval then
+   cannot carry the sum past 264 unwrapped samples of up to Ps, inside its 26
+   bits. A window counts with at least 64 PDUs and no hold inside it. It reads
+   settled only full, with its phase and every one of its samples inside the
+   band, so no mean of out-of-band samples settles. A phase at +/-Ps/2 reads
+   as itself and pulls at the slew limit, so the loop leaves the fold within
+   a window or two; the engagements at the fold below are bounded like any
+   other.
 2. **Loop.** The window phase Theta enters the integrator one window late,
    clamped: integ += 3/128 of a trim unit per ns of Theta each window, beside
    the rate term e/2, with u = integ + e/4. The loop is therefore type 2
@@ -1598,8 +1607,12 @@ detector never compares against a particular interface's pins.
    followed stream, a broken reference history (a timestamp jump, a `tu` edge
    or a sequence gap: `ref_rate_valid_i` low), and a local PHC step (#539) or
    policy slew (#545), which move the timescale the domain event is stamped
-   in. A hold lets the term go at once and spoils the open window, so only a
-   clean window re-engages it. Since every sample folds on its own, a
+   in. A hold lets the term go at once, spoils the open window and restarts
+   the tracking reference, so only a clean window re-engages it. A correction
+   not yet started is dropped, and that includes a hold on the very edge
+   whose window closes: the snapshot reads the hold itself, not only the
+   valid flag the hold clears after it (R678-1-F4). A window that closed a
+   cycle before the hold commits its correction, as the rate update does. A
    re-acquisition pulls at most Ps/2, at the slew limit, whatever the event
    moved: a 27 us slew is re-acquired as the 6.2 us it folds to.
 
@@ -1608,7 +1621,7 @@ detector never compares against a particular interface's pins.
 | Phase gain | 3/128 trim unit per ns (`PH_GAIN_LSH_P = 1`) | phase pole 0.944 per window (time constant 17 windows, 8.9 s), rate pole 0.70 (2.8 windows, 1.4 s): six times apart, so the rate loop has settled before the phase moves. The phase loop's bandwidth is about 0.018 Hz against the rate loop's 0.11 Hz |
 | Slew limit | `PH_SLEW_NS_P = 256` ns of phase per window, 0.5 ppm: Theta clamped at +/-5,461 ns | the integrator settles at e = -2 x 3/128 x Theta, so a clamped Theta moves the phase 256 ns a window. The audio clock then moves at most 0.5 ppm through the fine phase shift: glitch-free, no slip, and inside the 2 ppm lock test, so the servo stays LOCKED |
 | Integrator fraction | 8 bits (`IF_C`) | carries `e / 2^KI_SHIFT_P` and the phase term exactly; an elaboration guard refuses a `KI_SHIFT_P` above it |
-| Settled | inside +/-5 % of Ps (1,041.7 ns) for 4 windows running (`PH_SETTLE_WIN_P`) | `MCSRV_STAT[9]`, read only; the phase word itself reaches no CSR |
+| Settled | the window phase and every sample of the window inside +/-5 % of Ps (1,041.7 ns), 4 full windows running (`PH_SETTLE_WIN_P`) | `MCSRV_STAT[9]`, read only; the phase word itself reaches no CSR. It falls at once on every hold and rises only after 4 clean full windows |
 | Pull-in from Ps/2 | about 41 windows at the slew limit, then the pole | inside the band 23 to 28 s after an engagement in simulation |
 
 #### Re-acquisition
@@ -1619,11 +1632,13 @@ Measured in `tb/verilator/media_phase` at the silicon 512 ms window:
 |---|---|---|---|
 | Engagement at +0.44 Ps | first LOCKED | 27.5 s | 723 ns |
 | Engagement at -0.36 Ps | first LOCKED | 23.4 s | 679 ns |
+| The phase put at +Ps/2 (2 ns inside it) and at -Ps/2, the reference's timestamps truncated to 8 ns and jittered +/-48 ns | reference history restart; re-engaged at -0.49 Ps | 26.4 s and 26.6 s, settled never read outside the band | 619 ns and 599 ns |
 | Reference phase step of 0.37 Ps | reference history restart (jump beyond 2,048 ns) | 21.7 s | 570 ns |
 | `mr` toggle with a 1.8 us jump | `mr`; the jump is inside the receiver's bound, so the rate loop takes most of it | 0.4 s | 145 ns |
 | 15 s holdover, the oscillator moved 0.5 ppm | HOLDOVER, ACQUIRE | 27.3 s from +0.48 Ps | 742 ns |
 | 15 s at INTERNAL | IDLE | 24.3 s from +0.24 Ps | 706 ns |
 | The local PHC slews 27 us at 200 ppm | the #545 slew level | 20.0 s from +0.30 Ps, the short way (27 us is 1.3 Ps) | 662 ns |
+| The local PHC steps +7 us, no slew level | the #539 step | 22.3 s from +0.34 Ps | 563 ns |
 | 4 ppm oscillator ramp over 80 s | none | held throughout | 643 ns |
 
 The restart signalling of #761 is unchanged: the phase term raises no `mr`, no
@@ -1650,11 +1665,20 @@ lands in the render and loopback rings after it, inside their bands.
   settles (10.8). This is the assignment's item 3 by its second option: the
   constant is folded out at the detector's own reference, and no aligner target
   moves.
-- **A condition.** The AAF talker adds its per-stream offset (SET_MAX_TRANSIT_TIME)
-  as set, while `KL_crf_tx` rounds its own up to whole periods by Equation (14).
-  An AAF offset that is not a whole number of periods moves that stream off the
-  grid by its fraction. Every whole millisecond is one (48 periods at 48 kHz),
-  and the 2 ms default is 96.
+- **Presentation offsets in whole periods.** Every stream output's offset
+  (SET_STREAM_INFO) is applied rounded up to a whole number of media clock
+  periods by `KL_crf_tx`'s own Equation (14) rule, `KL_mtt_round` serving the
+  AAF talkers, so every output of the domain stamps whole periods from its
+  grid (R678-1-F2): 2,010,000 ns, 96.48 periods at 48 kHz, applies as 97,
+  2,020,834 ns, where the raw value sat 0.48 Ps off the CRF timing points.
+  GET_STREAM_INFO reads back the applied value. `KL_crf_tx` takes its raw row
+  and rounds it the same way, so the CRF row read back is the one it stamps.
+  The rule is not idempotent in whole ns: a period count that is no multiple
+  of three has a ceiling (2,020,834 ns) that is above it, so writing back a
+  read value of that kind applies one period more. The values a controller
+  ordinarily sets, multiples of 62,500 ns (0.25, 0.5, 1 and 2 ms), are exact.
+  At 48 kHz an offset above 4,294,958,333 ns rounds past 2^32 and is stamped
+  and read back modulo 2^32, as an AVTP timestamp is.
 - **Sources outside the frame bank.** A talker channel mapped from the stereo
   I2S hold, the tone or the loopback carries no frame instant of its own: its
   column is stamped with the physical frame's.
@@ -1667,22 +1691,32 @@ adds its constants and a back-dating of its own marker (another
 `KL_media_domain_event` on its own closing pair, as `pin_wrap.sv` does), never
 a second loop.
 
-The closing pair is the last pair the capture crossbar keeps
-(`CMAP_TDM_FRAME_PAIRS_C`, at most four), less the I2S pair a blend puts at
-slot 0. On a bus wider than TDM8 it is an inner pair, so the marker latency is
-counted to that pair's last bit, never to the frame's end.
+The closing pair is the pair of a frame that reaches the capture crossbar
+last (`close_slot()`). On a TDM bus it is the last pair the crossbar keeps
+(`CMAP_TDM_FRAME_PAIRS_C`, at most four); on a bus wider than TDM8 that is an
+inner pair, so the marker latency is counted to that pair's last bit, never to
+the frame's end. On the I2S blend it is the I2S pair at merged slot 0: the I2S
+front end writes a pair when its frame ends, a whole frame after its instant,
+after the TDM pairs kept and before the next frame's first one. Closing on the
+TDM pair banked the I2S pair of an earlier frame under the TDM frame's instant
+(R677-1-F1). Measured with sample values at the pins, that frame was two
+periods older: `KL_aaf_capture_i2s` (and the flat `aaf_talker_i2s` it was
+split from) copied the crossing FIFO's registered read on the pop edge, so
+every strobe carried the pair before it. Both now alias that read as the TDM
+front ends do, so each I2S pair rides its own strobe, on the I2S-only shape
+too.
 
 | Interface | Closing pair | Marker latency: bits + write + read | Shipping value | Graded at the pins |
 |---|---|---|---|---|
 | AX7101 1x1, TDM8 x 32 master, data delay 1 (`KL_tdm_capture_master`) | 3 of 4, the frame's last | 256 bit periods at 12.288 MHz + 1 cycle at 24.576 MHz + 4.5 cycles at 50 MHz | 20,833 + 41 + 90 = 20,964 ns | yes: `capture_coherence` `[PIN]` through the whole datapath, and `media_phase` pins interface A |
 | AX7101 8x8, TDM32 x 32 master on 98.304 MHz | 3 of 16, a quarter of the frame in | 256 bit periods at 49.152 MHz + 1 cycle at 98.304 MHz + 4.5 at 50 MHz | 5,208 + 10 + 90 = 5,308 ns | the front end and its closing pair: `media_phase` pins interface C |
-| Arty 4x4 and 8ch, TDM8 master with the I2S pair blended at slot 0 | TDM pair 2: slot 3 of the merged stream | 192 bit periods at 12.288 MHz + 1 cycle at 24.576 MHz + 4.5 at 50 MHz | 15,625 + 41 + 90 = 15,756 ns | no: derived, the blend passes a TDM strobe through in its own cycle |
-| Arty current, I2S (`KL_aaf_capture_i2s`) | its one pair | 64 bit periods at 3.072 MHz + 5 cycles at 24.576 MHz + 4.5 at 50 MHz | 20,833 + 203 + 90 = 21,126 ns | no: derived |
+| Arty 4x4 and 8ch, TDM8 master with the I2S pair blended at slot 0 | the I2S pair: slot 0 of the merged stream, the last of its frame to arrive | 64 bit periods at 3.072 MHz + 5 cycles at 24.576 MHz + 4.5 at 50 MHz (the I2S front end's) | 20,833 + 203 + 90 = 21,126 ns; the TDM8 frame starts one audio clock cycle, 40.7 ns, after the I2S frame | yes: `media_phase` blend, both interfaces' pins through the capture crossbar's frame bank, six reset phases: the I2S pair -29 to -11 ns and every TDM pair +11 to +29 ns from the banked instant |
+| Arty current, I2S (`KL_aaf_capture_i2s`) | its one pair | 64 bit periods at 3.072 MHz + 5 cycles at 24.576 MHz + 4.5 at 50 MHz | 20,833 + 203 + 90 = 21,126 ns | the same front end and latency, graded in the blend |
 | A TDM slave (`KL_tdm_capture`), TDM8 | 3 of 4 | 256 bit periods + 1 bit period + 4.5 datapath cycles | 20,833 + 81 + 90 = 21,004 ns at 50 MHz | no shipping shape; derived |
 | Synthetic TDM4 x 32, data delay 0 (`pin_wrap.sv` B) | 1 of 2 | 127 bit periods at 6.144 MHz + 1 cycle at 24.576 MHz + 4.5 at 50 MHz | 20,671 + 41 + 90 = 20,802 ns | `media_phase` pins interface B |
 | Any TDM interface, slot k | | slot k's MSB after the frame instant: (k x word bits + data delay) bit periods | (32k + 1) x 81.4 ns on the 1x1 shape: 81.4 ns to 18,310.5 ns | subtracted by every pin grade above |
 
-#### The listener: not compensated, a decision is needed
+#### The listener: not compensated, a decision is needed (R678-1-F1)
 
 The first addendum reads the listener as "render latency equals the
 presentation time offset at the crossbar's input grid", with the post-grid pin
@@ -1712,6 +1746,33 @@ for that decision:
 the timestamp would measure it, or the aligner's lock target would have to be
 placed against the domain event to make it one.
 
+Round 2 ruled the compensation in (R678-1-F1: each sample at the pin at its
+presentation time). It needs a decision first, published with the hand-off,
+because no form of it fits this lane's gates or leaves the render law's other
+contracts alone:
+
+- **The storage.** Presenting at the timestamp holds each sample for the
+  presentation offset less its arrival lead, about 1.9 ms at the 2 ms default:
+  about 96 events, so 128 event rows per 8-channel stream where the stage keeps
+  32. Vivado out of context at the AX7101 1x1 parameters, the queue alone grows
+  from 456 to 1,006 LUTs (LUTRAM 128 to 512), against 469 LUTs and 20 slices of
+  route-1x1 headroom; in block RAM it adds two or three RAMB18 (the parity-split
+  rows need a write port each) against a RAMB tolerance of zero. The
+  depacketizer's frame FIFO, the other place a PDU could wait, is 2,048 bytes,
+  about eight PDUs of the shipping stream, under the fourteen a 2 ms hold needs.
+- **The law it replaces.** The #386 fill law (8 events after accept, the
+  rails, the recentres of #387 and #645) is what `render_setpoint`,
+  `milan_dp` (render law, settle recentre, aclk), `follow_ring`,
+  `milan_dp_gm_steps` and `milan_dp_render` grade; a timestamp law changes
+  each of them.
+- **Several interfaces.** One pop per stream feeds every interface through
+  one crossbar. Interfaces whose post-grid delays differ by a frame or more
+  (the Arty DAC's own 16-frame setpoint against a TDM render's adopt wait)
+  need a per-interface frame delay to land on one presentation time.
+- **The Arty DAC path.** `KL_i2s_playback` keeps its own fill law and elastic
+  crossing FIFO, fed by the raw render tap by default, so its delay is not
+  constant either.
+
 #### The measured -0.46 Ps
 
 #764 measured the DUT's AAF stream a constant -0.458 to -0.461 Ps from its own
@@ -1739,16 +1800,21 @@ target was chosen for it.
 
 | Check | Where | Planted defects that must fail it |
 |---|---|---|
-| An arbitrary engagement phase (+0.44 and -0.36 Ps): inside the band within 45 s, held, the pull at most 400 ns a window, the short way | `tb/verilator/media_phase` `engage`, `engage2` | the phase term removed; its sign flipped; the rate damping removed; the slew clamp removed; the fold not centred |
+| An arbitrary engagement phase (+0.44 and -0.36 Ps): inside the band within 45 s, held, the pull at most 400 ns a window, the short way | `tb/verilator/media_phase` `engage`, `engage2` | the phase term removed; its sign flipped; the rate damping removed; the slew clamp removed |
 | A reference phase step, an `mr` toggle, a 15 s holdover, 15 s at INTERNAL, a 4 ppm ramp: re-acquired and held | `media_phase` `step`, `mr`, `holdover`, `internal`, `ramp` | covered by the engagement defects above |
 | The phase term lets go at each event that holds it: the engaged bit (`phase_o[20]`) low within 10 ms of the step, 5 ms of the `mr` toggle, INTERNAL and the slew level, 200 ms of HOLDOVER | `media_phase` `step`, `mr`, `holdover`, `internal`, `slew` | the history hold removed (`step`); the `mr` hold removed (`mr`); the state and history holds removed (`holdover`, where either alone suffices); the state hold and the IDLE reset removed (`internal`); the slew level left out of the hold (`slew`) |
 | A talker sending 4 % faster than its declared interval for one window, its timestamps on its grid: the window keeps exactly 264 samples, the cap, and the phase is held | `media_phase` `burst` | the cap removed |
-| A 27 us policy slew of the local PHC: re-acquired the short way and held | `media_phase` `slew` | the short way is the fold's, which the fold not centred fails at `engage2`; the slew's hold is graded in the row above |
+| A 27 us policy slew of the local PHC: re-acquired the short way and held | `media_phase` `slew` | the short way is the window re-fold's, graded alone by det `cross`; the slew's hold is graded in the row above |
 | The integrator carries every odd error exactly, the phase term off | `media_phase` `carry` | the integrator floored |
 | Every DUT CRF timestamp is one of its own frame instants, and on the reference's grid | every `media_phase` case | the domain event not back-dated; the CRF output stamped 0.46 Ps off its grid |
 | Three interfaces of one domain, each stamp graded at every slot's MSB pin instant; every CRF timing point a frame instant of all three | `media_phase` pins | B's constant dropped; A's and B's swapped; C's counted to the frame's end instead of its closing pair |
 | The shipping talker's timestamps graded at the TDM8 pins through the whole datapath, INTERNAL and CRF, with the engagement placed across the walk's crossing; every domain event a frame's sync at the pins | `tb/verilator/capture_coherence` `[PIN]` | the live PHC at the walk; the time base latched at the tick (the engagement on the crossing); the marker latency's frame term dropped; its write term dropped |
 | The walk carries its frame's instant through the coincidence law and a queued tick | `tb/verilator/chmap_capture` `[F]`, `[Q]` | the instant latched at the snapshot instead of loaded with the frame |
+| The detector alone, every boundary placed exactly: samples either side of +/-Ps/2 (balanced, 129:127, 160:96, jittered) read the half-period phase and pull at the slew limit, never settled; a mean in band of samples out of it never settles; settled rises at the fourth full in-band window and not before, falls at every hold and at the first out-of-band window; a phase crossing +Ps/2 re-folds the short way; d = +/-(2^25 - 1) ns is sampled and +/-2^25 ns is not; each hold on, one cycle before and one after a window's closing edge commits no correction, none and the whole one | `media_phase` det (`sim_det.cpp`) | the tracking fold removed; the window's re-fold removed; settled from the mean alone; the snapshot reading only the valid flag; settled the engaged bit; the fold-range guard removed; the fold not centred |
+| Engagements at +/-Ps/2 under 8 ns timestamp truncation and +/-48 ns jitter; a local PHC step | `media_phase` `edge`, `edge2`, `phcstep` | the PHC step left out of the hold (`phcstep`) |
+| Every case: settled never reads 1 at a window whose true phase is outside the band, and `MCSRV_STAT[9]` mirrors `phase_o[21]` on every cycle | every `media_phase` loop case | settled the engaged bit (det) |
+| Four AAF outputs and the CRF output of one domain with offsets 0, 1, 20,833, 20,834, 62,500, 2,000,000, 2,010,000, 4,294,958,333 and 0xFFFFFFFF ns, set at reset and at run time: every row read back as applied, every timestamp a frame instant plus that row, every AAF output whole periods from the CRF timing points | `media_phase` ofs (`sim_ofs.cpp`); `milan_dp` nxn legs read a 2,010,000 ns row back through GET_STREAM_INFO | the offsets stamped as set |
+| The in-tree I2S + TDM8 blend: the I2S pair and every TDM pair of each frame the crossbar banks started at its pins within +/-5 % of Ps of the banked instant, unfolded, six reset phases | `media_phase` blend (`sim_blend.cpp`) | the frame closed on its TDM pair with the TDM latency; the I2S pair copied a pop late |
 
 `make -C tb/verilator/media_phase mutants` runs that suite's campaign as its own
 target; `capture_coherence`'s run in its default target. The bench proof, the

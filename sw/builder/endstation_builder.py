@@ -4745,7 +4745,7 @@ def _marks_media_clock(cfg):
                   "serial clock must be an integer divide of it, refused "
                   "here otherwise) and nothing else: _CRG builds the audio "
                   "clock from a fixed two-stage integer chain - 24.576 MHz "
-                  "by contract for KL_crf_tx /512, KL_i2s_playback and "
+                  "by contract for KL_i2s_playback and "
                   "KL_mmcm_drp_servo - so no argv flag carries this key and "
                   "re-rating the plan is item 6. What the key can no longer "
                   "do is disagree: a value other than the rate this fabric "

@@ -26,9 +26,10 @@
 #                   (docs/testing/TESTING.md records who runs it)
 #   make clean    - remove build artifacts
 #
-# WALL CLOCK. Each case simulates 35 to 100 s of a 3.125 MHz datapath clock
-# and a 768 kHz audio clock, one case per process; CASE_JOBS of them run at
-# once. Measured locally at 3 jobs: about 6 minutes for every case.
+# WALL CLOCK. Each loop case simulates 35 to 100 s of a 3.125 MHz datapath
+# clock and a 768 kHz audio clock, one case per process; CASE_JOBS of them run
+# at once. Measured locally at the default 3 jobs on a shared host, the whole
+# default target, its five builds included: 578 s.
 
 VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0

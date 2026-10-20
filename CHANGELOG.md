@@ -66,12 +66,22 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Once settled they sit within 5 % of a period.
 - That is IEEE 1722-2016 10.8 and 4.3.5.
 - `MCSRV_STAT[9]` now reads the phase settled.
+- Each phase sample is unwrapped against a tracking reference.
+- Samples either side of +/-Ps/2 no longer cancel.
+- Settled needs every sample of four full windows in band.
+- A hold on a window's closing edge drops its correction.
+- Every output's presentation offset applies in whole periods.
+- The rule is `KL_crf_tx`'s Equation 14; readback shows it.
+- The I2S blend's frame now closes on its I2S pair.
+- The I2S capture's pairs ride their own strobe again.
+- They carried the previous pair, a frame older.
 - No top-level port or other register field changes.
 - AAF following keeps the rate loop alone.
 - The listener's pin delay stays uncompensated, a decision pending.
 - VERSION is unchanged; the release step owns the bump.
-- `tb/verilator/media_phase` proves the loop and three interfaces.
-- Its `make mutants` target plants seventeen defects.
+- `tb/verilator/media_phase` proves the loop and the interfaces.
+- It grades the in-tree blend and four AAF offsets too.
+- Its `make mutants` target plants twenty-seven defects.
 - `capture_coherence` grades the talker's stamps at the TDM pins.
 - The bench proof follows after merge.
 

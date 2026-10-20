@@ -21625,7 +21625,7 @@ def _tdm_master_binding(soc, rtl, plat):
         "the AUDIO_IF_MASTER_P arm does not instantiate KL_tdm_capture_master "
         "- KL_tdm_capture is the SLAVE, whose bclk/fsync are tied to 0")
     # the clock it divides must be the DEDICATED one, not clk_audio_i: 24.576
-    # MHz is a contract (KL_crf_tx /512, KL_i2s_playback, the servo).
+    # MHz is a contract (KL_i2s_playback, the servo).
     assert re.search(r"\.clk_audio_i\s*\(\s*clk_tdm_i\s*\)", arm), (
         "the TDM master is not fed clk_tdm_i - re-rating clk_audio_i would "
         "silently move the CRF event rate, the DAC and the servo")
