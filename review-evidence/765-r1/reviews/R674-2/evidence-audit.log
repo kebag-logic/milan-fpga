@@ -1,0 +1,22 @@
+PASS 70 downloaded receipts retain their verified publication hashes
+PASS all four final receipt groups name exact head
+PASS final exit receipts; 34 static/docs rows rc 0
+KL_avtp_rx_monitor: 97 checks, 0 failures
+NxN RX stack: 147 checks, 0 failures
+== avtp_rxmon lockstep N=1: checks: 116   failures: 0 ==
+== avtp_rxmon lockstep N=8: checks: 119   failures: 0 ==
+14 checks: 14 PASS, 0 FAIL
+6 checks: 6 PASS, 0 FAIL
+grade_tx self-test: 54 checks: 54 PASS, 0 FAIL
+== AAF/AVTP stream field campaign (tsn-gen driven): 164 pass, 0 fail, 0 known gaps ==
+campaign artifact freshness (hdl/ieee1722/avtp/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+== gPTP/802.1AS field campaign (tsn-gen driven): 677 pass, 0 fail, 0 known gaps ==
+campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL
+PASS field oracle receipt names CI pin deca300c9eb4863fa13383b45ba6cb6fd0828671
+PASS generation provenance: campaign 164/0; precommit freshness correctly refuses old record (make rc 2); final-head freshness passes
+  [gate 11] SKIP: real report not on disk (<home>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+--require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 1 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+builder: 103 gates exactly once; requirements judged on the union
+PASS R674-1-RES1: no U+2014 in current PR body
+Publication authentication: {"verified": false, "reason": "unsigned", "signature": null, "payload": null, "verified_at": null}
