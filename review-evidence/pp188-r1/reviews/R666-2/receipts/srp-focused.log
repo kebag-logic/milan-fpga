@@ -1,0 +1,10 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+listener-csid-ram-ignores-park: rc=2 failures=2 KILLED tags=RB4,RB5
+listener-csid-ram-ignores-park: rc=2 failures=14 KILLED tags=WK12
+listener-rebind-back-keeps-park: rc=2 failures=1 KILLED tags=RB5
+listener-lo-not-owed: rc=2 failures=2 KILLED tags=RB6,RB8
+listener-park-retires-on-txla: rc=2 failures=1 KILLED tags=RB7
+listener-parked-applies-rx: rc=2 failures=1 KILLED tags=RB8
+listener-unrecorded-applicant-owes: rc=2 failures=1 KILLED tags=RB9
+9 checks: 9 PASS, 0 FAIL

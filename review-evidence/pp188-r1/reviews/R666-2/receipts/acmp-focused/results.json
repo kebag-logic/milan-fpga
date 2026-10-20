@@ -1,0 +1,32 @@
+[
+ {
+  "mutant": "golden-pp_top--acmp-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "tk_failed_first_payload@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5d: after the queue drains GET_RX_STATE follows the last swap",
+   "AS5e: after the queue drains GET_RX_STATE follows the last swap"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 1, decl 2, flags 0x0042, 6 answers, 6 ACMP frames)",
+   "AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0042)",
+   "AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 2, decl 1, flags 0x0002, 6 answers, 6 ACMP frames)",
+   "AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)"
+  ],
+  "verdict": "KILLED"
+ }
+]
