@@ -76,7 +76,7 @@ MUTANTS = (
        "                   !ref_rate_valid_i || ptp_jump_r;"),),
      "slew", "[slew] the pull went the short way"),
     ("domain_event_not_backdated", DOMEV,
-     (("  assign mark_ns_o = ptp_now_i - 64'(MARK_LAT_NS_P);", "  assign mark_ns_o = ptp_now_i;"),),
+     (("  assign mark_ns_o = ptp_ns_i - 64'(MARK_LAT_NS_P);", "  assign mark_ns_o = ptp_ns_i;"),),
      "engage", "[engage] every DUT CRF timestamp is a frame instant of its own grid"),
     ("crf_output_off_grid", CRFTX,
      (("        ts_r         <= evt_ns_r + 64'(mtt_ofs_r);",
