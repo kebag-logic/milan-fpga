@@ -1,0 +1,20 @@
+--- <lane>/hdl/milan/milan_datapath.sv	2026-10-19 04:46:15.731314835 +0200
++++ <scratch>/ppshadow-mutant/hdl/milan/milan_datapath.sv	2026-10-19 14:28:30.786431126 +0200
+@@ -5238,7 +5238,7 @@
+                        || (amr_st_r == AS_WWAIT);
+   wire amr_rs_w = amr_rs_hold_r;
+   wire amr_expire_w = amr_waiting_w && !amr_prog_w
+-      && ((32'(amr_wd_r) > (amr_rs_w ? AMR_RS_TMO_MS_P : AMR_MEM_TMO_MS_P))
++      && ((32'(amr_wd_r) > (amr_rs_w ? 32'h7FFF_FFFF : AMR_MEM_TMO_MS_P))
+           || (amr_rs_w && amr_agg_x_r));
+   //! one crc16 step, on the byte the restore reads or the writer frames
+   wire [15:0] amr_crc_nx_w = amr_crc16(amr_crc_r, (amr_st_r == AS_RRD)
+@@ -5246,7 +5246,7 @@
+ 
+   assign amr_rs_run_w = amr_rs_hold_r && (amr_st_r != AS_BOOT);
+   assign amr_wvalid_w = (amr_st_r == AS_WSTR);
+-  assign amr_rready_w = (amr_st_r == AS_RRD);
++  assign amr_rready_w = 1'b0;
+ 
+   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amr_deadlines
+     if (!axis_resetn) begin

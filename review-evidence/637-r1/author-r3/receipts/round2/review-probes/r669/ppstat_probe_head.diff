@@ -1,0 +1,20 @@
+--- r669/ppstat_probe.sh	2026-10-20 07:04:15.132921137 +0200
++++ r669/ppstat_probe_head.sh	2026-10-20 07:05:14.693093977 +0200
+@@ -19,7 +19,7 @@
+ p = sys.argv[1]
+ t = open(p).read()
+ pat = ("        for (int c = 0; c < 64; c++) step();\n"
+-       "        maprec_go_to_end = t_end;\n")
++       "        maprec_go_to_end = (t_end >= 0) ? t_end - t_go : -1;\n")
+ assert t.count(pat) == 1, "the anchor moved"
+ rep = pat + (
+     '        { const uint32_t s = axi_read(A_PP_STAT);\n'
+@@ -29,7 +29,7 @@
+ open(p, "w").write(t.replace(pat, rep))
+ EOF
+ set +e
+-make -s -j16 -C "$suite" -o ltn_rom.hex -o ucode.hex dynmap-build \
++make -s -j8 -C "$suite" -o ltn_rom.hex -o ucode.hex dynmap-build \
+   DYNMAP_MDIR="$out/obj_instr" VERILATOR="${VERILATOR:-verilator}" > "$out/instr.build.log" 2>&1
+ brc=$?
+ cp "$out/sim_nxn.cpp.orig" "$suite/sim_nxn.cpp"

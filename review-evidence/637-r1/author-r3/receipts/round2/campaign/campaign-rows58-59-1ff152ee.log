@@ -1,0 +1,6 @@
+[PASS] the unmutated gateware still passes the maprec8 leg
+[PASS] the unmutated gateware still passes the maprec4 leg
+[PASS] mutant caught: every output port writes and reads output port 0's record - breaks "[MAPREC] transfers, after the power cycle: port 7: the mappings are the expected list" (its tallies report 12 failure(s) across 219 checks)
+[PASS] mutant caught: every input port writes and reads input port 0's record - breaks "("[MAPREC] inputs: the window holds the codec's records and the pend has fallen", '[MAPREC] inputs, after the power cycle: port 0: the mappings are the expected list')" (its tallies report 8 failure(s) across 137 checks)
+
+4 checks: 4 PASS, 0 FAIL
