@@ -20,7 +20,7 @@
 #   make mutants  - THE MUTATION CAMPAIGN, explicit: one planted defect per
 #                   loop term and per interface constant, each required to
 #                   fail its named check (phase_mutants.py). It rebuilds per
-#                   mutant and runs about 11 minutes at MUTANT_JOBS=4, which
+#                   mutant and ran in 837 s at MUTANT_JOBS=4, which
 #                   does not fit this suite's sweep budget, so like the other
 #                   long campaigns it is a target of its own
 #                   (docs/testing/TESTING.md records who runs it)
