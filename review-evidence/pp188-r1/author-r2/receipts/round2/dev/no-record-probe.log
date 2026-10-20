@@ -1,0 +1,21 @@
+# Scratch probe (never committed), run on the pre-fix tree: block inserted after settle_keeps_the_owed_listener_leave() in tb/srp_stream_fsms/sim_main.cpp of a copy
+    // probe: a received LeaveAll before the first settle of sink 0
+    h.reset();
+    h.la_rx();
+    h.ctl(true, 0, SID0, DA0, VID0);
+    h.inject(true, 1, SID0, DA0, VID0, 3, 0, 500);
+    for (int i = 0; i < 3; ++i) {
+      h.clear_logs(); h.tick();
+      for (auto& p : h.l_push) {
+        uint64_t g = 0; for (int b = 0; b < 8; ++b) g = (g << 8) | p.val[b];
+        printf("PROBE tick %d: code %d fp %d sid %016llx\n", i, p.code, p.fp, (unsigned long long)g);
+      }
+      if (h.l_push.empty()) printf("PROBE tick %d: nothing\n", i);
+    }
+  }
+
+# its output (make RUN_ARGS=suite, rc 0)
+PROBE tick 0: code 4 fp 0 sid 02aabbccddee0002
+PROBE tick 1: code 0 fp 2 sid 02aabbccddee0001
+PROBE tick 2: code 0 fp 2 sid 02aabbccddee0001
+1360 checks: 1360 PASS, 0 FAIL

@@ -1,0 +1,48 @@
+--- base/srp_top
++++ head/srp_top
+@@ -1 +1 @@
+-168 checks: 168 PASS, 0 FAIL
++179 checks: 179 PASS, 0 FAIL
+@@ -4 +4 @@
+-assertion coverage: 94/94; missing=[]
++assertion coverage: 101/101; missing=[]
+@@ -59 +59,5 @@
+-listener-declaration-not-held: rc=2 failures=3 KILLED tags=RB1
++listener-aa-tx-stays-aa: rc=2 failures=4 KILLED tags=WK12 precondition
++listener-csid-flops-ignores-park: rc=2 failures=3 KILLED tags=WK12
++listener-csid-ram-ignores-park: rc=2 failures=14 KILLED tags=WK12
++listener-csid-ram-ignores-park: rc=2 failures=2 KILLED tags=RB4,RB5
++listener-declaration-not-held: rc=2 failures=9 KILLED tags=RB1,RB4,RB6,RB7
+@@ -60,0 +65 @@
++listener-lo-not-owed: rc=2 failures=2 KILLED tags=RB6,RB8
+@@ -65,2 +70,7 @@
+-listener-park-never-retires: rc=2 failures=1 KILLED tags=RB1
+-listener-rebind-abandons-leave: rc=2 failures=1 KILLED tags=RB1
++listener-park-never-retires: rc=2 failures=17 KILLED tags=WK10,WK12,WK8
++listener-park-never-retires: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB7
++listener-park-retires-on-txla: rc=2 failures=1 KILLED tags=RB7
++listener-parked-applies-rx: rc=2 failures=1 KILLED tags=RB8
++listener-rebind-abandons-leave: rc=2 failures=11 KILLED tags=WK11,WK12
++listener-rebind-abandons-leave: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB8
++listener-rebind-back-keeps-park: rc=2 failures=1 KILLED tags=RB5
+@@ -68 +78 @@
+-listener-reprobe-parks-own-stream: rc=2 failures=1 KILLED tags=RB3
++listener-reprobe-parks-own-stream: rc=2 failures=2 KILLED tags=RB3,RB5
+@@ -71,3 +81,4 @@
+-lsid-flops-read-sink-0: rc=2 failures=1 KILLED tags=WK11
+-lsid-ram-read-sink-0: rc=2 failures=12 KILLED tags=WK11
+-lsid-ram-written-with-new-stream: rc=2 failures=14 KILLED tags=WK11
++listener-unrecorded-applicant-owes: rc=2 failures=1 KILLED tags=RB9
++lsid-flops-read-sink-0: rc=2 failures=2 KILLED tags=WK11,WK12
++lsid-ram-read-sink-0: rc=2 failures=24 KILLED tags=WK11,WK12
++lsid-ram-written-with-new-stream: rc=2 failures=28 KILLED tags=WK11,WK12
+@@ -152 +163 @@
+-walk-ignores-leave-copy: rc=2 failures=17 KILLED tags=WK11
++walk-ignores-leave-copy: rc=2 failures=34 KILLED tags=WK11,WK12
+@@ -160,3 +171,3 @@
+-wsid-flops-of-control-sink: rc=2 failures=5 KILLED tags=WK10,WK6,WK8
+-wsid-flops-read-sink-0: rc=2 failures=6 KILLED tags=WK10,WK6,WK7,WK8
+-wsid-ram-first-settle-only: rc=2 failures=16 KILLED tags=WK10,WK8
++wsid-flops-of-control-sink: rc=2 failures=6 KILLED tags=WK10,WK12,WK6,WK8
++wsid-flops-read-sink-0: rc=2 failures=7 KILLED tags=WK10,WK12,WK6,WK7,WK8
++wsid-ram-first-settle-only: rc=2 failures=30 KILLED tags=WK10,WK12,WK8

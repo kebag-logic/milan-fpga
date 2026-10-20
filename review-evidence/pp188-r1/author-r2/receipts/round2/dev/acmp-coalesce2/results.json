@@ -1,0 +1,106 @@
+[
+ {
+  "mutant": "golden-pp_top--acmp-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "tk_failed_first_payload@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5d: after the queue drains GET_RX_STATE follows the last swap",
+   "AS5e: after the queue drains GET_RX_STATE follows the last swap"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 1, decl 2, flags 0x0042, 6 answers, 6 ACMP frames)",
+   "AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0042)",
+   "AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 2, decl 1, flags 0x0002, 6 answers, 6 ACMP frames)",
+   "AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "tk_failed_or_payload@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5d: after the queue drains GET_RX_STATE follows the last swap"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5d: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 0, byte-exact, with no arc: the queue held the six answers and nothing else (reg 1, decl 2, flags 0x0042, 6 answers, 6 ACMP frames)",
+   "AS5d: an unchanged refresh keeps it, byte-exact (flags 0x0042)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "router_coalesce_unflagged@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5d precondition: the listener took the two strobes",
+   "AS5e precondition: the listener took the two strobes"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5d precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 1, coalesced 0)",
+   "AS5e precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 1, coalesced 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "tk_type_unlatched@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5d precondition: with the four ordinary TX slots full",
+   "AS5e precondition: the start type taken alone"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5b: after the in-place swap to Talker Failed: FAILED registered, Asking Failed declared, and GET_RX_STATE carries REGISTERING_FAILED (Milan Table 5.39), byte-exact (reg 1, decl 1)",
+   "AS5c: after the swap back to Talker Advertise: ADVERTISE registered, Ready declared, and GET_RX_STATE clears REGISTERING_FAILED, byte-exact (reg 1, decl 1)",
+   "AS5d precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 1 then 1)",
+   "AS5d precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 1, coalesced 0)",
+   "AS5e precondition: the start type taken alone, GET_RX_STATE byte-exact (reg 1)",
+   "AS5e precondition: with the four ordinary TX slots full, both type changes register (free 1, reg 1 then 1)",
+   "AS5e precondition: the listener took the two strobes as one coalesced TK_ATTR_REGISTERED (taken 1, coalesced 0)",
+   "AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 1, decl 1, flags 0x0002, 6 answers, 6 ACMP frames)",
+   "AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)",
+   "AS6: the Listener attribute is withdrawn on the wire: Lv Ready, byte-exact"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "tk_failed_and_payload@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS5e: after the queue drains GET_RX_STATE follows the last swap"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS5e: after the queue drains GET_RX_STATE follows the last swap, REGISTERING_FAILED 1, byte-exact, with no arc: the queue held the six answers and nothing else (reg 2, decl 1, flags 0x0002, 6 answers, 6 ACMP frames)",
+   "AS5e: an unchanged refresh keeps it, byte-exact (flags 0x0002)"
+  ],
+  "verdict": "KILLED"
+ }
+]

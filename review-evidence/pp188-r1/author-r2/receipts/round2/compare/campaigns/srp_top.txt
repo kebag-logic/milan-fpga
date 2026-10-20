@@ -1,0 +1,116 @@
+DIFF listener-declaration-not-held.log
+   head only: FAIL: RB4: a second rebind while parked: the next tx! sends the held stream's Lv, Ready (1 pushes, code 0)
+   head only: FAIL: RB4: the tx! after it declares the third stream, New Ready (1 pushes)
+   head only: FAIL: RB6: an LO applicant settled on another stream: the next tx! sends the held stream's Empty (1 pushes, code 0)
+   head only: FAIL: RB6: the tx! after it declares the new stream, New Ready (1 pushes)
+   head only: FAIL: RB7: a txLA! walk while parked sends nothing and keeps the park: the tx! after it sends the held stream's Empty (quiet 0, 1 pushes, code 0)
+   head only: FAIL: RB7: the tx! after the Empty declares the new stream, New Ready (1 pushes)
+DIFF listener-park-never-retires.log
+   base only: FAIL: RB1: the tx! after it declares the new stream, New Ready (0 pushes, decl 0)
+   head only: FAIL: WK10: the listener walk pushes 1 stream_ids (got 0) [1/1]
+   head only: FAIL: WK10: the listener walk pushes 2 stream_ids (got 1) [2/2]
+   head only: FAIL: WK10: the listener walk pushes 5 stream_ids (got 4) [3/5]
+   head only: FAIL: WK10: the listener walk pushes 9 stream_ids (got 8) [9/9]
+   head only: FAIL: WK12: the listener walk pushes 1 stream_ids (got 0) [1/1]
+   head only: FAIL: WK12: the listener walk pushes 2 stream_ids (got 0) [2/2]
+   head only: FAIL: WK12: the listener walk pushes 5 stream_ids (got 0) [3/5]
+   head only: FAIL: WK12: the listener walk pushes 9 stream_ids (got 0) [9/9]
+   head only: FAIL: WK8: push 0 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..2017) [2/2]
+   head only: FAIL: WK8: push 0 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..2027) [3/5]
+   head only: FAIL: WK8: push 0 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..2047) [9/9]
+   head only: FAIL: WK8: the listener walk pushes 2 stream_ids (got 1) [2/2]
+   head only: FAIL: WK8: the listener walk pushes 5 stream_ids (got 1) [3/5]
+   head only: FAIL: WK8: the listener walk pushes 9 stream_ids (got 1) [9/9]
+   head only: FAIL: WK8: the re-settled sink declares Ready [2/2]
+   head only: FAIL: WK8: the re-settled sink declares Ready [3/5]
+   head only: FAIL: WK8: the re-settled sink declares Ready [9/9]
+DIFF listener-rebind-abandons-leave.log
+   base only: FAIL: RB1: the next tx! sends the old stream's Lv, Ready, and nothing else (0 pushes, code -1)
+   head only: FAIL: WK11: the listener walk sends 1 Leaves (got 0) [1/1]
+   head only: FAIL: WK11: the listener walk sends 1 Leaves (got 0) [2/2]
+   head only: FAIL: WK11: the listener walk sends 1 Leaves (got 0) [3/5]
+   head only: FAIL: WK11: the listener walk sends 1 Leaves (got 0) [9/9]
+   head only: FAIL: WK11: the listener walk sends 4 Leaves (got 0) [3/5]
+   head only: FAIL: WK11: the listener walk sends 8 Leaves (got 0) [9/9]
+   head only: FAIL: WK12: the listener walk sends 1 Leaves (got 0) [1/1]
+   head only: FAIL: WK12: the listener walk sends 2 Leaves (got 0) [2/2]
+   head only: FAIL: WK12: the listener walk sends 5 Leaves (got 0) [3/5]
+   head only: FAIL: WK12: the listener walk sends 9 Leaves (got 0) [9/9]
+DIFF listener-reprobe-parks-own-stream.log
+   head only: FAIL: RB5: a rebind back to the parked stream keeps its applicant: the next tx! sends New Ready on it, no Lv (1 pushes, code 5)
+DIFF lsid-flops-read-sink-0.log
+   head only: FAIL: WK12: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [2/2]
+DIFF lsid-ram-read-sink-0.log
+   head only: FAIL: WK12: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [3/5]
+   head only: FAIL: WK12: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [9/9]
+   head only: FAIL: WK12: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [3/5]
+   head only: FAIL: WK12: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [9/9]
+   head only: FAIL: WK12: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [3/5]
+   head only: FAIL: WK12: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [9/9]
+   head only: FAIL: WK12: Leave 4 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [3/5]
+   head only: FAIL: WK12: Leave 4 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [9/9]
+   head only: FAIL: WK12: Leave 5 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [9/9]
+   head only: FAIL: WK12: Leave 6 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [9/9]
+   head only: FAIL: WK12: Leave 7 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [9/9]
+   head only: FAIL: WK12: Leave 8 names the stream_id its sink held (type 3, fp 2, stream_id 0011..8007) [9/9]
+DIFF lsid-ram-written-with-new-stream.log
+   head only: FAIL: WK12: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a007) [3/5]
+   head only: FAIL: WK12: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a007) [9/9]
+   head only: FAIL: WK12: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a017) [3/5]
+   head only: FAIL: WK12: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a017) [9/9]
+   head only: FAIL: WK12: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a027) [3/5]
+   head only: FAIL: WK12: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a027) [9/9]
+   head only: FAIL: WK12: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a037) [3/5]
+   head only: FAIL: WK12: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a037) [9/9]
+   head only: FAIL: WK12: Leave 4 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a047) [3/5]
+   head only: FAIL: WK12: Leave 4 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a047) [9/9]
+   head only: FAIL: WK12: Leave 5 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a057) [9/9]
+   head only: FAIL: WK12: Leave 6 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a067) [9/9]
+   head only: FAIL: WK12: Leave 7 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a077) [9/9]
+   head only: FAIL: WK12: Leave 8 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a087) [9/9]
+DIFF walk-ignores-leave-copy.log
+   head only: FAIL: WK12: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a007) [1/1]
+   head only: FAIL: WK12: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a007) [2/2]
+   head only: FAIL: WK12: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a007) [3/5]
+   head only: FAIL: WK12: Leave 0 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a007) [9/9]
+   head only: FAIL: WK12: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a017) [2/2]
+   head only: FAIL: WK12: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a017) [3/5]
+   head only: FAIL: WK12: Leave 1 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a017) [9/9]
+   head only: FAIL: WK12: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a027) [3/5]
+   head only: FAIL: WK12: Leave 2 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a027) [9/9]
+   head only: FAIL: WK12: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a037) [3/5]
+   head only: FAIL: WK12: Leave 3 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a037) [9/9]
+   head only: FAIL: WK12: Leave 4 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a047) [3/5]
+   head only: FAIL: WK12: Leave 4 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a047) [9/9]
+   head only: FAIL: WK12: Leave 5 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a057) [9/9]
+   head only: FAIL: WK12: Leave 6 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a067) [9/9]
+   head only: FAIL: WK12: Leave 7 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a077) [9/9]
+   head only: FAIL: WK12: Leave 8 names the stream_id its sink held (type 3, fp 2, stream_id 0011..a087) [9/9]
+DIFF wsid-flops-of-control-sink.log
+   head only: FAIL: WK12: push 0 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..a017) [2/2]
+DIFF wsid-flops-read-sink-0.log
+   head only: FAIL: WK12: push 1 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..a007) [2/2]
+DIFF wsid-ram-first-settle-only.log
+   head only: FAIL: WK12: push 0 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8007) [3/5]
+   head only: FAIL: WK12: push 0 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8007) [9/9]
+   head only: FAIL: WK12: push 1 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8017) [3/5]
+   head only: FAIL: WK12: push 1 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8017) [9/9]
+   head only: FAIL: WK12: push 2 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8027) [3/5]
+   head only: FAIL: WK12: push 2 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8027) [9/9]
+   head only: FAIL: WK12: push 3 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8037) [3/5]
+   head only: FAIL: WK12: push 3 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8037) [9/9]
+   head only: FAIL: WK12: push 4 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8047) [3/5]
+   head only: FAIL: WK12: push 4 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8047) [9/9]
+   head only: FAIL: WK12: push 5 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8057) [9/9]
+   head only: FAIL: WK12: push 6 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8067) [9/9]
+   head only: FAIL: WK12: push 7 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8077) [9/9]
+   head only: FAIL: WK12: push 8 carries its sink's settled stream_id (type 3, fp 2, stream_id 0011..8087) [9/9]
+HEAD ONLY listener-aa-tx-stays-aa.log: 4 FAIL lines
+HEAD ONLY listener-csid-flops-ignores-park.log: 3 FAIL lines
+HEAD ONLY listener-csid-ram-ignores-park.log: 14 FAIL lines
+HEAD ONLY listener-lo-not-owed.log: 2 FAIL lines
+HEAD ONLY listener-park-retires-on-txla.log: 1 FAIL lines
+HEAD ONLY listener-parked-applies-rx.log: 1 FAIL lines
+HEAD ONLY listener-rebind-back-keeps-park.log: 1 FAIL lines
+HEAD ONLY listener-unrecorded-applicant-owes.log: 1 FAIL lines
+common logs: 144 identical FAIL sets, 11 differ
