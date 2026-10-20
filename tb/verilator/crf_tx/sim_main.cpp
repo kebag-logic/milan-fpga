@@ -4,8 +4,10 @@
 // KL_crf_tx module harness: event grid cadence, frame bytes, skip-on-busy,
 // enable gating, the SR class A 802.1Q C-TAG shape, the IEEE 1722-2016
 // 10.4.3 mr bit, and the 10.7 Equation 14 Max Transit Time rounding.
-// clk_audio == clk here (the dp TB does the same); the CDC structure is the
-// library cdc_pulse.
+// The clock domain's media event (KL_media_domain_event, #632) is modeled one
+// strobe per 512 cycles, its instant back-dated from the PHC by the shipping
+// marker latency, so a timestamp that took the PHC at the event instead of
+// the event's own instant reads 20,964 ns off.
 
 #include "VKL_crf_tx.h"
 #include "verilated.h"
@@ -34,6 +36,10 @@ constexpr long CAPTURE_MAX_STEPS = 300000;
 // event grid: 96 sample events x /512 = 49152 harness cycles, 10 ns each
 constexpr long     GRID_STEPS_C = 49152;
 constexpr int64_t  GRID_NS_C    = 49152LL * 10;
+//! one domain media event every 512 cycles (a 48 kHz frame at 24.576 MHz)
+constexpr long     EV_STEPS_C   = 512;
+//! the shipping 1x1 TDM8 marker latency: 20,833 + 41 + 90 ns
+constexpr uint64_t EV_BACKDATE_NS_C = 20964;
 
 namespace {
 
@@ -99,6 +105,16 @@ class CrfTxHarness {
     uint64_t ptp_ns = 1000000000ULL;
     long g_step = 0;                 // free-running harness cycle count
     long g_frame_start = -1;
+    long ev_div = 0;                 // cycles since the last domain event
+    uint64_t ev_count = 0;           // domain events since reset released
+    //! the instant of every 96th event since reset: the CRF timing points
+    std::vector<uint64_t> grid_ns;
+    //! is this timestamp, less the 2 ms offset, one of the timing points?
+    bool on_grid(uint64_t ts, uint64_t offset) const {
+        for (auto it = grid_ns.rbegin(); it != grid_ns.rend(); ++it)
+            if (*it + offset == ts) return true;
+        return false;
+    }
 };
 
 void CrfTxHarness::ck(const char* what, long got, long exp) {
@@ -115,10 +131,19 @@ void CrfTxHarness::ckd(const char* what, long long got, long long exp) {
 }
 
 void CrfTxHarness::step() {
-    dut->clk_i = 0; dut->clk_audio_i = 0; dut->eval();
-    dut->clk_i = 1; dut->clk_audio_i = 1;
+    dut->clk_i = 0; dut->eval();
+    dut->clk_i = 1;
     ptp_ns += 10;                       // 10 ns/cycle "PHC"
-    dut->ptp_ns_i = ptp_ns;
+    dut->ev_p_i = 0;
+    if (++ev_div == EV_STEPS_C) {
+        ev_div = 0;
+        dut->ev_p_i = 1;
+        dut->ev_ns_i = ptp_ns - EV_BACKDATE_NS_C;
+        if (dut->rst_n) {
+            if (ev_count % 96 == 95) grid_ns.push_back(ptp_ns - EV_BACKDATE_NS_C);
+            ev_count++;
+        }
+    }
     dut->eval();
     g_step++;
 }
@@ -249,10 +274,13 @@ void CrfTxHarness::grade_event_grid_cadence_and_frame_bytes() {
         ck("ts delta = event grid (491520 ns)", static_cast<long>(ts_of(1)-ts_of(0)), 49152*10);
         ck("ts delta stable", static_cast<long>(ts_of(2)-ts_of(1)), 49152*10);
         ck("inter-frame gap ~= 49152 cycles", (first_gap > 49000 && first_gap < 49300) ? 1 : 0, 1);
-        // Milan PTO: ts is future-dated by transit_ns at the event; by the
-        // time tlast leaves (CDC + 8 beats) the margin is PTO minus ~100 ns
+        // Milan PTO: ts is the 96th domain event's OWN instant plus transit_ns,
+        // exactly (#632): not the PHC when the event arrived, which is
+        // EV_BACKDATE_NS_C later
+        ck("ts = a 96th event's instant + PTO, exactly (frame 1)", on_grid(ts_of(0), 2000000) ? 1 : 0, 1);
+        ck("ts = a 96th event's instant + PTO, exactly (frame 3)", on_grid(ts_of(2), 2000000) ? 1 : 0, 1);
         long lead0 = static_cast<long>(ts_of(0) - ptp_at_last[0]);
-        ck("ts future-dated by ~PTO (Milan)", (lead0 > 1990000 && lead0 <= 2000000) ? 1 : 0, 1);
+        ck("ts future-dated by PTO less the event's age", (lead0 > 1970000 && lead0 <= 2000000) ? 1 : 0, 1);
     }
 }
 

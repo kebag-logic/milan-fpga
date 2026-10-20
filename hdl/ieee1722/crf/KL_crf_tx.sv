@@ -17,15 +17,21 @@
                 timestamp_interval 96 => one PDU per 96 media-clock events
                 = 500 PDUs/s.
 
-                The timestamp grid is the REAL media clock: a self-contained
-                /512 divider of clk_audio_i (24.576 MHz MMCM => 48.000 kHz
-                sample ticks, the same derivation as the I2S front-ends)
-                counts 96 sample events, and each 96th event crosses into
-                cd_milan (cdc_pulse) where ptp_ns_i is latched as that
-                event's gPTP time. The stream therefore carries the actual
-                audio-MMCM rate as seen by the PHC - a listener's KL_crf_rx
-                measures the true media-clock/gPTP ratio, not a synthetic
-                2 ms accumulator.
+                The timestamp grid is the REAL media clock, PHASED: the
+                clock domain's own media event (KL_media_domain_event, #632)
+                marks each frame of the domain's grid with the instant it
+                started at the media interface, and every 96th one is a CRF
+                timing point stamped with that instant. The stream therefore
+                carries the actual audio-MMCM rate as seen by the PHC - a
+                listener's KL_crf_rx measures the true media-clock/gPTP
+                ratio, not a synthetic 2 ms accumulator - AND the grid's
+                phase. This replaced a free /512 /96 divider of clk_audio_i
+                whose phase against the frame grid was whatever reset left
+                (#764 measured the DUT's AAF stream 0.46 Ps away from this
+                output): the AAF talkers stamp the same events, so both
+                outputs of the one clock domain now differ by whole periods
+                (IEEE 1722-2016 4.3.5), and the servo's phase term holds
+                them on the followed stream's timing points (10.8).
 
                 Milan applies the stream PRESENTATION TIME OFFSET to CRF
                 timestamps exactly as it does to media streams (USER
@@ -109,7 +115,8 @@
                 mid-frame layout change would emit a spliced frame.
 
   Spec refs   : Milan v1.2 7.3.1; IEEE 1722-2016 Clause 10 (10.4.3 mr,
-                10.4.5 tu, 10.7 Equation 14 + PICS Table F.16 CRF-3/5/19);
+                10.4.5 tu, 10.7 Equation 14 + PICS Table F.16 CRF-3/5/19,
+                10.8 Equation 15), 4.3.5;
                 IEEE 802.1Q C-TAG format + PCP encoding; SR class A
                 priority (default PCP 3)
   Company     : Kebag Logic
@@ -123,7 +130,11 @@
 module KL_crf_tx (
   input  wire         clk_i,             //! cd_milan datapath clock
   input  wire         rst_n,
-  input  wire         clk_audio_i,       //! clean MMCM audio clock (24.576 MHz)
+  //! the clock domain's media event (KL_media_domain_event): one strobe per
+  //! sample period, with the instant that frame started at the media
+  //! interface. Every 96th is a CRF timing point.
+  input  wire         ev_p_i,
+  input  wire [63:0]  ev_ns_i,
 
   //! control (CSR 0x750 group)
   input  wire         enable_i,
@@ -136,7 +147,6 @@ module KL_crf_tx (
   //! why this port may change at any time and the frame path never waits.
   input  wire [31:0]  transit_ns_i,
 
-  input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds (cd_milan)
   //! AVTP "tu" (timing uncertain), IEEE 1722-2016 10.4.5 - "behaves the same
   //! way as the tu field from the common stream header (4.4.4.7) except that
   //! it applies to the timestamps contained in the crf_data field". Our CRF
@@ -369,48 +379,34 @@ module KL_crf_tx (
   end : mtt_round
 
   // -----------------------------------------------------------------------
-  // Audio-domain event grid: /512 sample tick (48 kHz), /96 event pulse
-  // (2 ms). Independent divider, same clock as the I2S front-ends: equal
-  // long-term rate, arbitrary (constant) phase vs LRCK - CRF conveys the
-  // media CLOCK, media anchoring stays with the AAF presentation ts.
+  // The event grid: every 96th domain media event (2 ms at 48 kHz) is a CRF
+  // timing point (timestamp_interval 96, 10.4.12), stamped with that event's
+  // own instant - so every timestamp lies on the domain's grid, whole
+  // periods from the AAF talkers' (4.3.5).
   // -----------------------------------------------------------------------
-  logic [1:0] arst_n_r;                 //! audio-domain reset sync
-  always_ff @(posedge clk_audio_i) begin : a_rst
-    arst_n_r <= {arst_n_r[0], rst_n};
-  end : a_rst
-
-  logic [8:0] adiv_r;                   //! /512 -> 48 kHz sample grid
-  logic [6:0] aevt_cnt_r;               //! 0..95 sample events per CRF PDU
-  logic       aevt_p_r;                 //! 1-cycle pulse per 96th event
-  always_ff @(posedge clk_audio_i) begin : a_evt
-    if (!arst_n_r[1]) begin
-      adiv_r <= '0; aevt_cnt_r <= '0; aevt_p_r <= 1'b0;
+  logic [6:0]  evt_cnt_r;               //! 0..95 domain events per CRF PDU
+  logic        evt_p_r;                 //! this cycle is a CRF timing point
+  logic [63:0] evt_ns_r;                //! ...and its instant
+  always_ff @(posedge clk_i or negedge rst_n) begin : evt_grid
+    if (!rst_n) begin
+      evt_cnt_r <= '0;
+      evt_p_r   <= 1'b0;
+      evt_ns_r  <= '0;
     end
     else begin
-      aevt_p_r <= 1'b0;
-      adiv_r   <= adiv_r + 1'b1;
-      if (adiv_r == 9'h1FF) begin
-        if (aevt_cnt_r == 7'(CRF_IVAL_C - 1)) begin
-          aevt_cnt_r <= '0;
-          aevt_p_r   <= 1'b1;
+      evt_p_r <= 1'b0;
+      if (ev_p_i) begin
+        if (evt_cnt_r == 7'(CRF_IVAL_C - 1)) begin
+          evt_cnt_r <= '0;
+          evt_p_r   <= 1'b1;
+          evt_ns_r  <= ev_ns_i;
         end
         else begin
-          aevt_cnt_r <= aevt_cnt_r + 1'b1;
+          evt_cnt_r <= evt_cnt_r + 1'b1;
         end
       end
     end
-  end : a_evt
-
-  //! 2 ms spacing >> synchroniser round trip: cdc_pulse contract holds
-  wire evt_milan_w;
-  cdc_pulse u_evt_cdc (
-    .src_clk    (clk_audio_i),
-    .src_rst_n  (arst_n_r[1]),
-    .src_pulse  (aevt_p_r),
-    .dest_clk   (clk_i),
-    .dest_rst_n (rst_n),
-    .dest_pulse (evt_milan_w)
-  );
+  end : evt_grid
 
   // -----------------------------------------------------------------------
   // cd_milan: latch the event's gPTP time, then serialise one 60-byte PDU.
@@ -494,10 +490,10 @@ module KL_crf_tx (
       tx_count_o <= '0;
     end
     else begin
-      if (evt_milan_w && enable_i && !frame_pend_r && (st_r == IDLE_S)) begin
+      if (evt_p_r && enable_i && !frame_pend_r && (st_r == IDLE_S)) begin
         //! Equation 14: the ROUNDED offset, never the raw transit_ns_i. If a
         //! conversion is in flight this is still the previous whole answer.
-        ts_r         <= ptp_ns_i + 64'(mtt_ofs_r);
+        ts_r         <= evt_ns_r + 64'(mtt_ofs_r);
         tu_r         <= ts_uncertain_i;   //! same PHC, same verdict
         mr_r         <= mr_i;             //! 10.4.3 level frozen for this PDU
         vln_r        <= vlan_en_i;        //! shape frozen for this frame
