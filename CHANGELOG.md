@@ -71,7 +71,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The listener's pin delay stays uncompensated, a decision pending.
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/media_phase` proves the loop and three interfaces.
-- Its `make mutants` target plants sixteen defects.
+- Its `make mutants` target plants seventeen defects.
 - `capture_coherence` grades the talker's stamps at the TDM pins.
 - The bench proof follows after merge.
 

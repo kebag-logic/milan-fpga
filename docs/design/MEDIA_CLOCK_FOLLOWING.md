@@ -1579,8 +1579,11 @@ detector never compares against a particular interface's pins.
    Each sample folds to its own nearest whole period, so every pull is the
    short way. The samples are summed over the servo's 512 ms window, and the
    window phase Theta is that sum over the nominal 256 PDUs, a shift: a window
-   short of PDUs only pulls less. A window counts with at least 64 PDUs and no
-   hold inside it, and reads settled only when full. A phase within the sample
+   short of PDUs only pulls less. A window keeps at most 264 samples, the
+   nominal count plus 1/32, which no rate inside the authority reaches; a
+   talker sending faster than its declared interval then cannot carry Theta
+   past 33/32 of Ps/2, inside its 16 bits. A window counts with at least 64
+   PDUs and no hold inside it, and reads settled only when full. A phase within the sample
    jitter of +/-Ps/2 straddles the fold and pulls in proportion to its distance
    from it: an unstable point the loop leaves, never a stall.
 2. **Loop.** The window phase Theta enters the integrator one window late,
@@ -1739,6 +1742,7 @@ target was chosen for it.
 | An arbitrary engagement phase (+0.44 and -0.36 Ps): inside the band within 45 s, held, the pull at most 400 ns a window, the short way | `tb/verilator/media_phase` `engage`, `engage2` | the phase term removed; its sign flipped; the rate damping removed; the slew clamp removed; the fold not centred |
 | A reference phase step, an `mr` toggle, a 15 s holdover, 15 s at INTERNAL, a 4 ppm ramp: re-acquired and held | `media_phase` `step`, `mr`, `holdover`, `internal`, `ramp` | covered by the engagement defects above |
 | The phase term lets go at each event that holds it: the engaged bit (`phase_o[20]`) low within 10 ms of the step, 5 ms of the `mr` toggle, INTERNAL and the slew level, 200 ms of HOLDOVER | `media_phase` `step`, `mr`, `holdover`, `internal`, `slew` | the history hold removed (`step`); the `mr` hold removed (`mr`); the state and history holds removed (`holdover`, where either alone suffices); the state hold and the IDLE reset removed (`internal`); the slew level left out of the hold (`slew`) |
+| A talker sending 4 % faster than its declared interval for one window, its timestamps on its grid: the window keeps exactly 264 samples, the cap, and the phase is held | `media_phase` `burst` | the cap removed |
 | A 27 us policy slew of the local PHC: re-acquired the short way and held | `media_phase` `slew` | the short way is the fold's, which the fold not centred fails at `engage2`; the slew's hold is graded in the row above |
 | The integrator carries every odd error exactly, the phase term off | `media_phase` `carry` | the integrator floored |
 | Every DUT CRF timestamp is one of its own frame instants, and on the reference's grid | every `media_phase` case | the domain event not back-dated; the CRF output stamped 0.46 Ps off its grid |
