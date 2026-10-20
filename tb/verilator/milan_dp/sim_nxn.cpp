@@ -3057,6 +3057,7 @@ class NxnDatapathHarness {
         //! released, and nothing before this point has touched a map, so
         //! the first GET_AUDIO_MAP below reads the power-on maps.
         dynmap_power_on_and_adaptation_section();
+        stopped_input_law_on_the_shipping_geometry();
         printf("--------------------------------------------------------------\n");
         printf("checks: %ld   failures: %ld\n", checks, fails);
         printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
@@ -4582,6 +4583,65 @@ class NxnDatapathHarness {
                                       0x10000u | (ok - 1), slot, sweep);
         dynmap_roll_back_to_closed(fin, fout, in_n, out_n);
         dynmap_edit_meets_the_sweep(out_n);
+    }
+
+    //! #762 ON THE SHIPPING GEOMETRY. [762-DP] runs in every broad leg, and
+    //! none of them elaborates the AX7101 1x1 TDM8 shape this leg builds.
+    //! There N_STREAMS is 1, so the CRF Media Clock Input is ACMP sink 1 and
+    //! a stopped_i fed acmpl_stopped_v_w[N_STREAMS:1] reads the CRF sink's
+    //! level, where the broad legs read another AAF input's. So the case runs
+    //! here too, on a fresh boot after the [DYNMAP] arms: the elaborated
+    //! parameters first (dynmap_probes.vlt opens them), then the TRAP-1 bind,
+    //! the 5.3.8.7 discard and [762-DP], unchanged.
+    void stopped_input_law_on_the_shipping_geometry() {
+        using R = Vmilan_datapath___024root;
+        printf("-- [762-DP] the AX7101 1x1 TDM8 geometry: a stopped AAF "
+               "Stream Input counts no STREAM_INTERRUPTED --\n");
+        printf("  [i]    elaborated: N_STREAMS %u ADP_TALKER_SRC_C %u "
+               "ADP_LISTENER_SINK_C %u CRF_SNK_IDX_C %u MILAN_CLK_FREQ_HZ %u "
+               "GPTP_PLANE_EN_P %u\n",
+               R::milan_datapath__DOT__N_STREAMS, R::milan_datapath__DOT__ADP_TALKER_SRC_C,
+               R::milan_datapath__DOT__ADP_LISTENER_SINK_C,
+               R::milan_datapath__DOT__CRF_SNK_IDX_C,
+               R::milan_datapath__DOT__MILAN_CLK_FREQ_HZ,
+               static_cast<unsigned>(R::milan_datapath__DOT__GPTP_PLANE_EN_P));
+        printf("  [i]    elaborated: TALKER_WIRE_CHANS_P %u AUDIO_IF_SLOTS_P %u "
+               "AUDIO_IF_MASTER_P %u AUDIO_IF_RENDER_SLOTS_P %u "
+               "AUDIO_IF_I2S_PAIR_P %u AUDIO_IF_WORD_BITS_P %u AUDIO_IF_FS_HZ_P %u "
+               "AUDIO_IF_CLK_HZ_P %u LOOPBACK_P %u\n",
+               R::milan_datapath__DOT__TALKER_WIRE_CHANS_P,
+               R::milan_datapath__DOT__AUDIO_IF_SLOTS_P,
+               R::milan_datapath__DOT__AUDIO_IF_MASTER_P,
+               R::milan_datapath__DOT__AUDIO_IF_RENDER_SLOTS_P,
+               R::milan_datapath__DOT__AUDIO_IF_I2S_PAIR_P,
+               R::milan_datapath__DOT__AUDIO_IF_WORD_BITS_P,
+               R::milan_datapath__DOT__AUDIO_IF_FS_HZ_P,
+               R::milan_datapath__DOT__AUDIO_IF_CLK_HZ_P,
+               R::milan_datapath__DOT__LOOPBACK_P);
+        printf("  [i]    elaborated prunes: MCSERVO_P %u LTAP_P %u MAAP_P %u "
+               "I2SPB_P %u RXFILT_P %u LPF_P %u DPROBES_P %u\n",
+               R::milan_datapath__DOT__MCSERVO_P, R::milan_datapath__DOT__LTAP_P,
+               R::milan_datapath__DOT__MAAP_P, R::milan_datapath__DOT__I2SPB_P,
+               R::milan_datapath__DOT__RXFILT_P, R::milan_datapath__DOT__LPF_P,
+               R::milan_datapath__DOT__DPROBES_P);
+        ck("[762-DP] AX 1x1: one AAF Stream Input (N_STREAMS 1)",
+           R::milan_datapath__DOT__N_STREAMS, 1);
+        ck("[762-DP] AX 1x1: the CRF Media Clock Input is sink N_STREAMS, "
+           "the entity's last",
+           static_cast<unsigned long>(
+               R::milan_datapath__DOT__CRF_SNK_IDX_C == R::milan_datapath__DOT__N_STREAMS
+               && R::milan_datapath__DOT__ADP_LISTENER_SINK_C
+                      == R::milan_datapath__DOT__N_STREAMS + 1), 1);
+        bring_the_datapath_out_of_reset();
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        start_the_boot_restore_walk();
+        for (int c = 0; c < 400; c++) step();
+        const unsigned long armed_pre = aprb_armed();
+        bind_listener_zero_over_acmp_with_an_explicit_sid();
+        grade_the_bound_alias_verdict(armed_pre);
+        prove_a_stopped_stream_input_discards();
+        prove_a_stopped_stream_input_counts_no_interruption();
     }
     #endif
 
@@ -6459,6 +6519,7 @@ class NxnDatapathHarness {
         const unsigned long armed_bound =
             grade_the_bound_alias_verdict(armed_pre);
         prove_a_stopped_stream_input_discards();
+        prove_a_stopped_stream_input_counts_no_interruption();
         prove_a_stopped_crf_media_clock_input_never_locks();
         grade_the_stream_setters_end_to_end();
         prove_the_window_writes_leave_entry_zero_alone(armed_bound);
@@ -6673,6 +6734,84 @@ class NxnDatapathHarness {
         ck("5.3.8.7 Table 5.6: ...and counted the frame arriving while "
            "STOPPED (the clause says a stopped input RECEIVES)",
            static_cast<long>(frx_after > frx_before), 1);
+    }
+
+    // ---- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED ----
+    //! Milan v1.2 5.3.8.7 and 5.4.2.20: a stopped Stream Input discards its
+    //! AVTPDUs, so it has no playback to interrupt, and Table 5.6 (5.3.8.10)
+    //! counts STREAM_INTERRUPTED for neither its sequence gap nor its silence
+    //! (#762). tb/verilator/avtp_rxmon grades that law in the engine; this is
+    //! the grade of its one datapath input, the bound-and-stopped vector this
+    //! module hands KL_avtp_rx_monitor_ctx's stopped_i, read at the entity's
+    //! GET_COUNTERS face with STOP and START arriving over the wire:
+    //!   1 started, locked and settled: the baseline
+    //!   2 STOP, then a gap of two lost PDUs: SEQ_NUM_MISMATCH moves (the case
+    //!     is live) and STREAM_INTERRUPTED does not
+    //!   3 still stopped, the 100 ms silence expires: MEDIA_UNLOCKED moves and
+    //!     STREAM_INTERRUPTED does not
+    //!   4 START, relock past the 8-PDU settle window, then the same gap:
+    //!     STREAM_INTERRUPTED counts it once
+    //! A stopped_i tied to '0 or fed another sink's level fails 2 and 3; one
+    //! fed the bound level fails 4.
+    std::vector<uint8_t> sin0_ctrs(uint16_t sq) {
+        const std::vector<uint8_t> key = {0x00, 0x05, 0x00, 0x00};
+        return aecp_xact(0x0029, sq, key);
+    }
+
+    void prove_a_stopped_stream_input_counts_no_interruption() {
+        printf("-- [762-DP] a stopped AAF Stream Input counts no STREAM_INTERRUPTED --\n");
+        const std::vector<uint8_t> ti4 = {0x00, 0x05, 0x00, 0x00};
+        // one PDU per 256-cycle counter interval, so each interval flag
+        // (SEQ_NUM_MISMATCH) commits before the next PDU
+        auto pdu = [this](uint8_t seq) { inject(mkaaf(sid0, seq, 2, 0xC0), 400); };
+        // the discard section's last PDU was 0x22: carry on in order
+        for (uint8_t s = 0x23; s <= 0x2B; s++) pdu(s);
+        const std::vector<uint8_t> r1 = sin0_ctrs(0x9130);
+        ck("[762-DP] 1 started: GET_COUNTERS(STREAM_INPUT,0) answers SUCCESS",
+           aecp_status(r1), 0);
+        ck("[762-DP] 1 started: ...and the input reads locked",
+           dut->rootp->milan_datapath__DOT__avtp_rx_monitor__DOT__locked_sh_r & 1u, 1);
+
+        ck("[762-DP] 2 STOP_STREAMING answered SUCCESS",
+           aecp_status(aecp_xact(0x0023, 0x9131, ti4)), 0);
+        pdu(0x2E);                               // 0x2C expected: two lost
+        const std::vector<uint8_t> r2 = sin0_ctrs(0x9132);
+        ck("[762-DP] 2 stopped gap: SEQ_NUM_MISMATCH +1 (the gap was seen)",
+           ctr_word(r2, 3) - ctr_word(r1, 3), 1);
+        ck("[762-DP] 2 stopped gap: STREAM_INTERRUPTED +0",
+           ctr_word(r2, 2) - ctr_word(r1, 2), 0);
+
+        //! The silence is the monitor's own 1 ms-tick watchdog reaching 100.
+        //! Run whole it is 10,000,000 cycles of this 100 MHz fabric on every
+        //! leg, so the watchdog is advanced through the engine's hierarchy
+        //! to 3 ms short of its limit and the last ticks run for real, as the
+        //! [CTRS-CRF] silence does: only idle time is skipped.
+        static constexpr uint8_t kAafUnlockMs = 100;          // UNLOCK_MS_C
+        static constexpr uint32_t kFabricMsCyc = 100000;      // MILAN_CLK_FREQ_HZ / 1000
+        auto& sil_ms = dut->rootp->milan_datapath__DOT__avtp_rx_monitor__DOT__sil_ms_r[0];
+        ck("[762-DP] 3 the skip only shortens the silence (the watchdog was below it)",
+           static_cast<long>(sil_ms < kAafUnlockMs - 3), 1);
+        sil_ms = kAafUnlockMs - 3;
+        for (uint32_t c = 0; c < 4 * kFabricMsCyc; c++) step();
+        ck("[762-DP] 3 the stopped input's silence unlocked it",
+           dut->rootp->milan_datapath__DOT__avtp_rx_monitor__DOT__locked_sh_r & 1u, 0);
+        const std::vector<uint8_t> r3 = sin0_ctrs(0x9133);
+        ck("[762-DP] 3 stopped silence: MEDIA_UNLOCKED +1 (the silence was seen)",
+           ctr_word(r3, 1) - ctr_word(r2, 1), 1);
+        ck("[762-DP] 3 stopped silence: STREAM_INTERRUPTED +0",
+           ctr_word(r3, 2) - ctr_word(r2, 2), 0);
+
+        ck("[762-DP] 4 START_STREAMING answered SUCCESS",
+           aecp_status(aecp_xact(0x0022, 0x9134, ti4)), 0);
+        for (uint8_t s = 0x30; s <= 0x38; s++) pdu(s);   // lock + 8 settle
+        pdu(0x3B);                               // 0x39 expected: two lost
+        const std::vector<uint8_t> r4 = sin0_ctrs(0x9135);
+        ck("[762-DP] 4 started again: MEDIA_LOCKED +1 (relocked)",
+           ctr_word(r4, 0) - ctr_word(r3, 0), 1);
+        ck("[762-DP] 4 started gap: SEQ_NUM_MISMATCH +1",
+           ctr_word(r4, 3) - ctr_word(r3, 3), 1);
+        ck("[762-DP] 4 started gap: STREAM_INTERRUPTED +1",
+           ctr_word(r4, 2) - ctr_word(r3, 2), 1);
     }
 
     // ---- Milan 5.3.8.7 on the CRF Media Clock Input (issue #97) ----
