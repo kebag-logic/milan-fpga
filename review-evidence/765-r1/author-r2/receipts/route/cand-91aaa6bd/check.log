@@ -1,0 +1,26 @@
+endpoint route-1x1: <scratch>/route-cand/work/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              49613       50158       545  REGRESSION: grew by more than 500
+FF               52353       52312       -41  ok, below the baseline
+SLICE            15725       15609      -116  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              25          25         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.215       0.363     0.148  ok
+WHS_ns           0.036       0.015    -0.021  ok
+route status: complete, no unrouted net and no routing error
+re-baseline recommended: SLICE improved by more than the tolerance; record the accepted measurement so later growth is judged from it
+sub-block movements, not gated:
+  u_pp: LUT -98, FF -2
+  wrapper: LUT -97, FF -2
+  u_pp/u_aecp/u_store: LUT -35, FF +0
+  u_pp/u_aecp/u_d3: LUT +30, FF +0
+  u_pp/u_aecp/u_ucpu: LUT -18, FF +0
+  u_pp/u_srp: LUT -16, FF -2
+  u_pp/u_srp/u_talker: LUT -15, FF -2
+  u_pp/u_aecp/u_dyn: LUT +14, FF +0
+  u_pp/u_aecp: LUT -13, FF +0
+  u_pp/u_event_router: LUT -10, FF +0
+  u_pp/u_listener: LUT -10, FF +0
+  u_pp/u_scoreboard: LUT -7, FF +0
+RESULT: MATERIAL REGRESSION

@@ -1,0 +1,32 @@
+| LUT delta | depth | instance | module | LUT base -> cand | FF base -> cand |
+|---:|---:|---|---|---|---|
+| -250 | 5 | `csr` | `milan_csr` | 3227 -> 2977 | 2107 -> 2111 |
+| -183 | 3 | `milan_datapath` | `milan_datapath` | 43407 -> 43224 | 41372 -> 41262 |
+| +181 | 3 | `(alinx_ax7101)` | `(top)` | 5032 -> 5213 | 6031 -> 6035 |
+| +79 | 5 | `chan_map_render` | `KL_chan_map_render` | 121 -> 200 | 676 -> 676 |
+| -74 | 9 | `u_srp` | `KL_srp_top` | 3991 -> 3917 | 3842 -> 3841 |
+| -72 | 5 | `avtp_rx_monitor` | `KL_avtp_rx_monitor_ctx` | 822 -> 750 | 741 -> 742 |
+| -64 | 11 | `u_talker` | `KL_srp_talker_fsm` | 528 -> 464 | 604 -> 604 |
+| +49 | 9 | `u_talker` | `KL_acmp_talker` | 658 -> 707 | 517 -> 517 |
+| +47 | 11 | `u_d3` | `KL_aecp_nvm_writer` | 1975 -> 2022 | 582 -> 582 |
+| +46 | 5 | `aaf_packetizer` | `KL_aaf_packetizer` | 776 -> 822 | 1332 -> 1332 |
+| -42 | 11 | `(u_aecp)` | `KL_aecp_engine` | 1876 -> 1834 | 1098 -> 1098 |
+| +35 | 5 | `ptp_clock_validity` | `KL_ptp_clock_validity` | 15 -> 50 | 61 -> 125 |
+| +34 | 5 | `(milan_datapath)` | `milan_datapath` | 729 -> 763 | 3031 -> 2869 |
+| -34 | 5 | `aaf_rx_depkt` | `KL_aaf_rx_depacketizer` | 298 -> 264 | 142 -> 127 |
+| -32 | 5 | `pp_shadow` | `KL_pp_shadow` | 24205 -> 24173 | 18805 -> 18804 |
+| -32 | 7 | `u_pp` | `protocol_processor_top` | 23593 -> 23561 | 17975 -> 17974 |
+| +27 | 1 | `alinx_ax7101` | `(top)` | 52349 -> 52376 | 52549 -> 52443 |
+| +27 | 5 | `ctl_tx_mux` | `adp_tx_arbiter__parameterized0` | 53 -> 80 | 22 -> 22 |
+| +26 | 5 | `g_maap.maap_engine` | `KL_maap` | 459 -> 485 | 339 -> 339 |
+| -24 | 7 | `(g_gptp_plane.u_gptp_shadow)` | `KL_gptp_shadow` | 911 -> 887 | 969 -> 969 |
+| +23 | 3 | `KL_gptp_gmii_launch` | `KL_gptp_gmii_launch` | 192 -> 215 | 326 -> 326 |
+| +23 | 5 | `(KL_gptp_gmii_launch)` | `KL_gptp_gmii_launch` | 181 -> 204 | 202 -> 202 |
+| -23 | 5 | `g_gptp_plane.u_gptp_shadow` | `KL_gptp_shadow` | 5379 -> 5356 | 4750 -> 4750 |
+| -21 | 5 | `g_gptp_plane.gptp_ctl_mux` | `adp_tx_arbiter_0` | 79 -> 58 | 23 -> 23 |
+| -18 | 7 | `frame_fifo` | `axis_fifo__parameterized1` | 239 -> 221 | 32 -> 31 |
+| +16 | 5 | `(VexiiRiscvLitex_f5f08b170311db53220574624f819159)` | `VexiiRiscvLitex_f5f08b170311db53220574624f819159` | 682 -> 698 | 1807 -> 1807 |
+| -16 | 7 | `(aaf_rx_depkt)` | `KL_aaf_rx_depacketizer` | 59 -> 43 | 110 -> 96 |
+| -12 | 7 | `(peripheral_toAxiLite4_logic_bridge)` | `AxiLite4Bridge` | 338 -> 326 | 103 -> 103 |
+| -10 | 5 | `peripheral_toAxiLite4_logic_bridge` | `AxiLite4Bridge` | 529 -> 519 | 104 -> 104 |
+| +5 | 5 | `crf_rx` | `KL_crf_rx` | 278 -> 283 | 541 -> 541 |

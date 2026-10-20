@@ -1,0 +1,201 @@
+full log sha256 baba9331ef8e31125b070bddff2d5e5f2b48468f47d28fa749af90ccaa73e7c0 size 388152 bytes (kept in scratch, over 200 KB); last 200 lines:
+  [ok]   T66 ADD-input-full-page: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-full-page: cdl = 12 + the command's payload = 0x54
+  [ok]   T66 ADD-input-full-page: frame length matches its cdl = 0x6e
+  [ok]   T66 ADD-input-full-page: sequence_id echoed    = 0x4136
+  [ok]   T66 ADD-input-full-page: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-full-page: the command payload is ECHOED = 0x0
+  [ok]   T66: retired full input page ADD refuses (#259) = 0x7
+  [ok]   T66: retired input port answers NOT_IMPLEMENTED, zero maps = 0x1
+  [ok]   T66 REMOVE-input-full-page: ANSWERED (not silence) = 0x1
+  [ok]   T66 REMOVE-input-full-page: response status    = 0x7
+  [ok]   T66 REMOVE-input-full-page: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-input-full-page: cdl = 12 + the command's payload = 0x54
+  [ok]   T66 REMOVE-input-full-page: frame length matches its cdl = 0x6e
+  [ok]   T66 REMOVE-input-full-page: sequence_id echoed = 0x4138
+  [ok]   T66 REMOVE-input-full-page: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-input-full-page: the command payload is ECHOED = 0x0
+  [ok]   T66: retired full input page REMOVE refuses (#259) = 0x7
+  [ok]   T66 ADD-input-zero: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-input-zero: response status            = 0x7
+  [ok]   T66 ADD-input-zero: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-zero: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-input-zero: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-input-zero: sequence_id echoed         = 0x4139
+  [ok]   T66 ADD-input-zero: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-zero: the command payload is ECHOED = 0x0
+  [ok]   T66: retired input ADD on port 0 refuses (#259) = 0x7
+  [ok]   T66: refused input ADD does not touch physical RMAP = 0x0
+  [ok]   T66 ADD-input-high: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-input-high: response status            = 0x7
+  [ok]   T66 ADD-input-high: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-high: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-input-high: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-input-high: sequence_id echoed         = 0x413a
+  [ok]   T66 ADD-input-high: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-high: the command payload is ECHOED = 0x0
+  [ok]   T66: retired input ADD at port 7 cluster 7 refuses (#259) = 0x7
+  [ok]   T66: port 7 stays at the zero-map posture too  = 0x1
+  [ok]   T66 ADD-input-past: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-input-past: response status            = 0x7
+  [ok]   T66 ADD-input-past: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-input-past: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-input-past: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-input-past: sequence_id echoed         = 0x413c
+  [ok]   T66 ADD-input-past: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-input-past: the command payload is ECHOED = 0x0
+  [ok]   T66: input cluster one past port 7 is rejected = 0x7
+  [ok]   T66 REMOVE-input-high: ANSWERED (not silence)  = 0x1
+  [ok]   T66 REMOVE-input-high: response status         = 0x7
+  [ok]   T66 REMOVE-input-high: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-input-high: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-input-high: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-input-high: sequence_id echoed      = 0x413d
+  [ok]   T66 REMOVE-input-high: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-input-high: the command payload is ECHOED = 0x0
+  [ok]   T66: high input REMOVE refuses like its ADD (#259) = 0x7
+  [ok]   T66 REMOVE-input-zero: ANSWERED (not silence)  = 0x1
+  [ok]   T66 REMOVE-input-zero: response status         = 0x7
+  [ok]   T66 REMOVE-input-zero: message_type = command + 1 = 0x1
+  [ok]   T66 REMOVE-input-zero: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 REMOVE-input-zero: frame length matches its cdl = 0x3c
+  [ok]   T66 REMOVE-input-zero: sequence_id echoed      = 0x413e
+  [ok]   T66 REMOVE-input-zero: command_type echoed, u = 0 = 0x2d
+  [ok]   T66 REMOVE-input-zero: the command payload is ECHOED = 0x0
+  [ok]   T66: input zero REMOVE refuses like its ADD (#259) = 0x7
+  [ok]   B2: REGISTER_UNSOLICITED_NOTIFICATION answers SUCCESS = 0x0
+  [ok]   B2: ...2021 format, flags echoed (cdl 16)      = 0x1
+  [ok]   T66 ADD-lock-output: ANSWERED (not silence)    = 0x1
+  [ok]   T66 ADD-lock-output: response status           = 0x0
+  [ok]   T66 ADD-lock-output: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-lock-output: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-lock-output: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-lock-output: sequence_id echoed        = 0x4140
+  [ok]   T66 ADD-lock-output: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-lock-output: the command payload is ECHOED = 0x0
+  [ok]   B2: lock test output mapping setup succeeds    = 0x0
+  [ok]   T66 ADD-lock-input: ANSWERED (not silence)     = 0x1
+  [ok]   T66 ADD-lock-input: response status            = 0x7
+  [ok]   T66 ADD-lock-input: message_type = command + 1 = 0x1
+  [ok]   T66 ADD-lock-input: cdl = 12 + the command's payload = 0x1c
+  [ok]   T66 ADD-lock-input: frame length matches its cdl = 0x3c
+  [ok]   T66 ADD-lock-input: sequence_id echoed         = 0x4141
+  [ok]   T66 ADD-lock-input: command_type echoed, u = 0 = 0x2c
+  [ok]   T66 ADD-lock-input: the command payload is ECHOED = 0x0
+  [ok]   B2: retired input mapping setup refuses (#259) = 0x7
+  [ok]   B2: LOCK_ENTITY takes (SUCCESS)                = 0x0
+  [ok]   B2: ...locked_id = the taker                   = 0x1
+  [ok]   B2: legacy AECP_STAT0 exposes the live lock level = 0x1
+  [ok]   B2: locked CSR map writes are both refused     = 0x2
+  [ok]   B2: locked CSR write preserves physical output RAM = 0x1400
+  [ok]   B2: locked CSR write preserves output protocol ownership = 0x1
+  [ok]   B2: input ownership stays absent under lock (#259) = 0x0
+  [ok]   B2: UNLOCK releases (SUCCESS, locked_id 0)     = 0x1
+  [ok]   B2: legacy AECP_STAT0 clears after unlock      = 0x0
+  [ok]   B2: unlocked CSR write clears physical output RAM = 0x0
+  [ok]   B2: unlocked CSR write clears output protocol ownership = 0x0
+  [ok]   B2: input ownership still absent after unlock (#259) = 0x0
+  [ok]   B2: ACQUIRE_ENTITY refuses NOT_SUPPORTED(11)   = 0xb
+  [ok]   B2: GET_STREAM_INFO answers the Milan response (cdl 68) = 0x1
+  [ok]   B2: ...STREAM_FORMAT_VALID with the generated AAF format = 0x1
+  [ok]   B2: GET_AVB_INFO answers SUCCESS with one msrp mapping = 0x1
+  [ok]   B2: ...ownerless GM, pdelay, domain, and asCapable are zero = 0x1
+  [ok]   B2: GET_AS_PATH answers the empty ownerless path = 0x1
+  [ok]   B2: DEREGISTER answers SUCCESS                 = 0x0
+  [ok]   T66: tone landed at key 0 (RAM-side)           = 0x1400
+  [ok]   T66: tone landed at key 1 (RAM-side)           = 0x1400
+  [ok]   T66: CSR-mapped tone REACHES the wire (payload live) = 0x1
+  [ok]   T66: tone pair carries L == R (the TONE contract) = 0x1
+  [ok]   T66: the crossbar is left ARMED for T67        = 0x1
+-- [T67] media-grid cadence + avtp_timestamp PHC tracking --
+  [ok]   T67: the held audio clock disengaged the grid aligner (dead feed) = 0x0
+  [ok]   T67: PTP_INCR is a whole-ns rate (Q8.24 frac 0) = 0x0
+  [ok]   T67: talker 0 delivered 9 consecutive PDUs     = 0x9
+         span 8 epochs = 100000 cycles (nominal 100000, err 0)
+  [ok]   T67: PDU cadence = 48 kHz on MILAN_CLK within 50 ppm = 0x1
+  [ok]   T67: ts deltas = PHC elapsed per epoch (12500 x INCR ns) = 0x1
+  [ok]   T67: and NOT the t532 wire constant 123750     = 0x0
+  [ok]   T67: PTP_INCR rewrite moves the ts deltas (latch tracks PHC) = 0x1
+  [ok]   T67: cleanup cleared tone key 0 (RAM-side)     = 0x0
+  [ok]   T67: cleanup cleared tone key 1 (RAM-side)     = 0x0
+  [ok]   T67: crossbar disarmed again                   = 0x0
+-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the wire --
+  [ok]   [NOTIFY] GET_NAME(ENTITY,0) answers SUCCESS (the restore point) = 0x0
+  [ok]   [NOTIFY] REGISTER from controller A answers SUCCESS = 0x0
+  [ok]   [NOTIFY] REGISTER from controller B answers SUCCESS = 0x0
+  [ok]   [NOTIFY] ...B's response went to B (dst MAC + controller_entity_id) = 0x1
+  [ok]   [NOTIFY] SET_NAME from A (a real change) is SUCCESS = 0x0
+  [i]    command-to-push latency: 2374 cycles (SET_NAME injected to the unsolicited frame's last beat)
+  [ok]   [NOTIFY] exactly ONE unsolicited SET_NAME egressed = 0x1
+  [ok]   [NOTIFY] ...to controller B (dst MAC and controller_entity_id) = 0x1
+  [ok]   [NOTIFY] ...and none to A, the requester (5.4.5.2 'except') = 0x0
+  [ok]   [NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry) = 0x0
+  [ok]   [NOTIFY] ...target_entity_id is this entity    = 0x1
+  [ok]   [NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body = 0x1
+  [ok]   [NOTIFY] ...carrying the NEW name: current state, not history = 0x1
+  [ok]   [NOTIFY] SET_NAME of the value already held is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes NOTHING: no state was modified (5.4.5.2) = 0x0
+  [ok]   [NOTIFY] SET_NAME from B is SUCCESS            = 0x0
+  [ok]   [NOTIFY] B's change reaches A alone            = 0x1
+  [ok]   [NOTIFY] ...A's entry starts its own sequence at 0 = 0x0
+  [ok]   [NOTIFY] a second change from A is SUCCESS     = 0x0
+  [ok]   [NOTIFY] ...reaches B with sequence_id 1 (its entry advanced) = 0x1
+  [ok]   [NOTIFY] ...and A's entry did not move (independent per entry) = 0x0
+  [ok]   [NOTIFY] GET_NAME right after is byte-identical from the body on = 0x1
+  [ok]   [OWNERLESS] GM LO write is inert               = 0x0
+  [ok]   [OWNERLESS] GM HI write is inert               = 0x0
+  [ok]   [OWNERLESS] domain write is inert              = 0x0
+  [ok]   [OWNERLESS] pdelay write is inert              = 0x0
+  [ok]   [OWNERLESS] parent LO write is inert           = 0x0
+  [ok]   [OWNERLESS] parent HI write is inert           = 0x0
+  [ok]   [OWNERLESS] CLKV control write is inert        = 0x0
+  [ok]   [OWNERLESS] AS path LO write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path HI write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path command/write is inert     = 0x0
+  [ok]   [OWNERLESS] timestamp uncertainty is permanent = 0x1
+  [ok]   [OWNERLESS] sync_ok remains clear              = 0x0
+  [ok]   [OWNERLESS] retired no-lease bit remains clear = 0x0
+  [ok]   [OWNERLESS] software discontinuity cannot arm holdover = 0x0
+  [ok]   [OWNERLESS] retired lease count remains zero   = 0x0
+  [ok]   [OWNERLESS] asCapable remains clear            = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AVB_INFO notification = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AS_PATH notification = 0x0
+  [ok]   [OWNERLESS] writes emit no AVB_INTERFACE counter notification = 0x0
+  [ok]   [OWNERLESS] writes do not count a grandmaster change = 0x0
+  [ok]   [OWNERLESS] solicited GET_AVB_INFO succeeds    = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO grandmaster is zero   = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO propagation delay is zero = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO domain is zero        = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO asCapable flag is clear = 0x0
+  [ok]   [OWNERLESS] solicited GET_AS_PATH succeeds     = 0x0
+  [ok]   [OWNERLESS] GET_AS_PATH has the empty cdl      = 0x10
+  [ok]   [OWNERLESS] GET_AS_PATH count is zero          = 0x0
+  [ok]   [NOTIFY] DEREGISTER from B answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] a change from A with B gone is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes nothing: A is the requester, B is gone = 0x0
+  [ok]   [NOTIFY] DEREGISTER from A answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] the shipped entity_name is restored   = 0x1
+-- [T68] loop sequence fidelity vs a paced RAMP --
+  [ok]   T68: loop output collected against the paced ramp = 0x1
+         emitted 77 ch0 samples vs 60 sent: 0 dup, 0 skipped, 0 alien, 0 bad tail
+  [ok]   T68: every loop sample is one the listener received = 0x0
+  [ok]   T68: received order is preserved (no reordering) = 0x1
+  [ok]   T68: ZERO duplicated samples through the loop  = 0x0
+  [ok]   T68: ZERO skipped samples through the loop     = 0x0
+  [ok]   T68: the WHOLE ramp came through               = 0x3c
+  [ok]   T68: post-feed tail = the final sample repeated (bounded slip) = 0x0
+  [ok]   T68: queue skip counter delta 0 over the paced window = 0x0
+  [i]    media grid: 300 ticks in 625000 clocks (want 300 +/-1)
+  [i]    0x0041 grid: fsync-vs-grid ALIGNMENT is modelled and graded where the ratio exists: obj_aclk drives the true 391/1591 plan and proves the accepted INTERNAL drift AND the #74 aligned-under-CRF close (KL_media_grid_align). The silicon counterpart stays J11.8 against J11.9.
+  [ok]   0x0041 grid: media_tick_p actually ticks (vacuity guard) = 0x1
+  [ok]   0x0041 grid: rate is 48 kHz on the milan clock = 0x1
+  [i]    physical bucket: the slot-indexed feed pulsed 1220 times in 625000 cycles
+  [ok]   0x0042 phys: the slot-indexed capture bucket IS fed (was tied off) = 0x1
+  [ok]   0x0041 grid: the NCO's servo gate IS the live selection verdict = 0x0
+  [ok]   0x0041 grid: INTERNAL engages the grid aligner (#629 A2-a) = 0x1
+  [ok]   0x0041 grid: a disengaged aligner leaves no residual trim on the NCO port = 0x0
+--------------------------------------------------------------
+checks: 3752   failures: 2
+RESULT: FAIL
+make[1]: *** [Makefile:632: exec-nxn8] Error 1
+make: *** [Makefile:592: run-nxn8] Error 2

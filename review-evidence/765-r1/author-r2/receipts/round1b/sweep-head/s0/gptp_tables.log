@@ -1,0 +1,62 @@
+make: Entering directory '<lane>/tb/verilator/gptp_tables'
+python3 ../../../scripts/gen_one_valued_table.py --check
+README.md: the one-valued table is current
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 2 --top-module gptp_tables_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -Wno-PINMISSING -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I<lane>/tb/verilator/gptp_tables -Wall -Wextra" waivers.vlt gptp_tables_wrap.sv ../gptp_shadow/gptp_shadow_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_tables_sim
+make[1]: Entering directory '<lane>/tb/verilator/gptp_tables/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<lane>/tb/verilator/gptp_tables/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 2 threads; allocated 16.496 MB
+./obj_dir/Vgptp_tables_sim one_valued.tsv
+stimulus: 32100038 cycles, 90033 mixed and 209 peer frames, 10 pdelay answers
+rx_fifo: 44205 good, 33135 overflow, 12900 bad, lanes 0xff, 256 beats deep
+tx_fifo: 6333 frames, counts 0x114, 10809744 stalled cycles, 25 beats deep
+tx_fifo decode: counts 0 to 8 presented enables 00 01 03 07 0f 1f 3f 7f ff, 0 decoded wrong
+ledger: 18779434 compared, heads 0xff, 3 deep
+results: 7193 compared, heads 0xff, 2 deep, 111 written behind a waiting result
+timer: 41796 compared, slots 0x3f
+plane: flags 0xd, 3689 programs run, 112 tap drops, 915 parser drops, 33 event drops, 0 lost results, 0 barriers
+rx_fifo values: lane: 8 distinct: 0x0 0x1 0x2 0x3 0x4 0x5 0x6 0x7
+tx_fifo values: count: 3 distinct: 0x2 0x4 0x8
+ledger values: type: 6 distinct: 0x0 0x2 0x3 0x8 0xa 0xb
+ledger values: seq: 3125 distinct, 0x0 to 0xff05
+ledger values: tag: 1 distinct: 0x1, declared 0x1
+results values: ns: 6332 distinct, 0x18b7c to 0x1c977a64
+results values: seq: 3124 distinct, 0x0 to 0xff05
+results values: type: 6 distinct: 0x0 0x2 0x3 0x8 0xa 0xb
+results values: ok: 1 distinct: 0x1, declared 0x1
+results values: gen: 1 distinct: 0x1, declared 0x1
+timer values: deadline: 680 distinct, 0x4b0 to 0x34e4
+== gptp_tables: checks: 36   failures: 0 ==
+RESULT: PASS
+python3 mutants.py
+[ ok ] rx_fifo_wrong_depth: caught by "rx_fifo lockstep"
+[ ok ] rx_fifo_wrong_read_latency: caught by "rx_fifo lockstep"
+[ ok ] rx_fifo_lane_alias: caught by "rx_fifo lockstep"
+[ ok ] tx_fifo_wrong_depth: caught by "tx_fifo lockstep"
+[ ok ] tx_fifo_wrong_read_latency: caught by "tx_fifo lockstep"
+[ ok ] tx_fifo_count_alias: caught by "tx_fifo lockstep"
+[ ok ] tx_fifo_decode_odd_counts: caught by "tx_fifo decode"
+[ ok ] ledger_wrong_depth: caught by "ledger lockstep"
+[ ok ] ledger_wrong_read_latency: caught by "ledger lockstep"
+[ ok ] ledger_index_alias: caught by "ledger lockstep"
+[ ok ] results_wrong_depth: caught by "results lockstep"
+[ ok ] results_wrong_read_latency: caught by "results lockstep"
+[ ok ] results_index_alias: caught by "results lockstep"
+[ ok ] results_write_index: caught by "results lockstep"
+[ ok ] timer_wrong_depth: caught by "timer lockstep"
+[ ok ] timer_wrong_read_latency: caught by "timer lockstep"
+[ ok ] timer_index_alias: caught by "timer lockstep"
+[ ok ] rx_fifo_lane_stuck: caught by "rx_fifo values: lane"
+[ ok ] tx_fifo_count_stuck: caught by "tx_fifo values: count"
+[ ok ] ledger_type_stuck: caught by "ledger values: type"
+[ ok ] results_seq_stuck: caught by "results values: seq"
+[ ok ] timer_deadline_stuck: caught by "timer values: deadline"
+[ ok ] declaration_missing: caught by "ledger values: tag"
+[ ok ] declaration_wrong_value: caught by "ledger values: tag"
+[ ok ] declaration_many_valued: caught by "ledger values: type"
+[ ok ] declaration_stray: caught by "values: declarations that name no censused column"
+controls: 26   failures: 0
+RESULT: PASS
+make: Leaving directory '<lane>/tb/verilator/gptp_tables'

@@ -1,0 +1,38 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 114258, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/normal-orphan input [523]", "identities": {"114257": ["3103933", "S"], "114258": ["3103936", "S"]}, "pid": 114257}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 114463, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/cancel-selection-SIGINT input [523]", "identities": {"114459": ["3104230", "S"], "114463": ["3104232", "S"]}, "pid": 114459}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 114598, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/cancel-selection-SIGTERM input [523]", "identities": {"114597": ["3104472", "S"], "114598": ["3104475", "S"]}, "pid": 114597}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 114675, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/cancel-preflight-SIGINT input [523]", "identities": {"114674": ["3104719", "S"], "114675": ["3104722", "S"]}, "pid": 114674}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 114846, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/cancel-preflight-SIGTERM input [523]", "identities": {"114845": ["3104959", "S"], "114846": ["3104962", "S"]}, "pid": 114845}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 114903, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/cancel-command-SIGINT input [523]", "identities": {"114902": ["3105216", "S"], "114903": ["3105219", "S"]}, "pid": 114902}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 115032, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/cancel-command-SIGTERM input [523]", "identities": {"115031": ["3105472", "S"], "115032": ["3105475", "S"]}, "pid": 115031}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 115148, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/cancel-transition-SIGINT input [523]", "identities": {"115147": ["3105736", "S"], "115148": ["3105739", "S"]}, "pid": 115147}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 115213, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/cancel-transition-SIGTERM input [523]", "identities": {"115212": ["3105995", "S"], "115213": ["3105998", "S"]}, "pid": 115212}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-lock-wait-SIGINT: {"exit": 130, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+cancel-lock-wait-SIGTERM: {"exit": 143, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+unsafe-command-SIGTERM: {"exit": 1, "foreign_untouched": true, "handshake": {"child": 115587, "cwd": "<scratch>/tmp/suite-cancellation-0yad29e0/unsafe-command-SIGTERM input [523]", "identities": {"115578": ["3106317", "S"], "115587": ["3106319", "S"]}, "pid": 115578}, "next_suite": true, "phase": "command", "unsafe_control_detected": true}
+hard-KILL: {"exit": -9, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "<lane>/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<lane>/scripts/test_suite_cancellation.py", line 383, in main
+    hard_stop(parent, how)
+    ~~~~~~~~~^^^^^^^^^^^^^
+  File "<lane>/scripts/test_suite_cancellation.py", line 315, in hard_stop
+    status, at_death = probe.finish()
+                       ~~~~~~~~~~~~^^
+  File "<lane>/scripts/process_test_support.py", line 215, in finish
+    status = self.process.wait(timeout=12)
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['bash', '<scratch>/tmp/suite-cancellation-0yad29e0/hard-HUP input [523]/scripts/run_all_suites.sh', '<scratch>/tmp/suite-cancellation-0yad29e0/hard-HUP input [523]/logs']' timed out after 12 seconds
+ABORTING: sweep cancellation controls failed.
