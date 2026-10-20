@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // A SYNTHETIC clock domain with three media interfaces (#632, the owner's
-// multi-interface requirement): no in-tree shape frames several capture
-// buses on one domain, so this wrapper plays the integration. All three are
-// real KL_tdm_capture_master instances framing the same 48 kHz grid with
+// multi-interface requirement). The in-tree two-interface shape, the Arty
+// I2S + TDM8 blend, is graded at its pins by blend_wrap.sv; this wrapper adds
+// the geometry the blend lacks (three bit clocks, a data delay of 0, the
+// 8x8's TDM32 closing on an inner pair). All three are real
+// KL_tdm_capture_master instances framing the same 48 kHz grid with
 // different geometry, so their latencies differ:
 //   A  TDM8 x 32 bits, bit clock 12.288 MHz, slot-0 MSB one bit after the sync
 //      (data delay 1): the domain's frame-timing owner, the shipping AX7101
@@ -60,9 +62,9 @@ module pin_wrap #(
   localparam longint A_BIT_HZ_C = longint'(A_SLOTS_C) * 32 * FS_C;
   localparam longint B_BIT_HZ_C = longint'(B_SLOTS_C) * 32 * FS_C;
   localparam longint C_BIT_HZ_C = longint'(C_SLOTS_C) * 32 * FS_C;
-  localparam int A_CLOSE_C = close_pair((A_SLOTS_C / 2 < KEPT_C) ? A_SLOTS_C / 2 : KEPT_C, 0);
-  localparam int B_CLOSE_C = close_pair((B_SLOTS_C / 2 < KEPT_C) ? B_SLOTS_C / 2 : KEPT_C, 0);
-  localparam int C_CLOSE_C = close_pair((C_SLOTS_C / 2 < KEPT_C) ? C_SLOTS_C / 2 : KEPT_C, 0);
+  localparam int A_CLOSE_C = close_pair((A_SLOTS_C / 2 < KEPT_C) ? A_SLOTS_C / 2 : KEPT_C);
+  localparam int B_CLOSE_C = close_pair((B_SLOTS_C / 2 < KEPT_C) ? B_SLOTS_C / 2 : KEPT_C);
+  localparam int C_CLOSE_C = close_pair((C_SLOTS_C / 2 < KEPT_C) ? C_SLOTS_C / 2 : KEPT_C);
   //! each interface's constant, from its own parameters (one cycle of its
   //! write clock from the closing pair's last bit to its FIFO write, as
   //! KL_tdm_capture_master)

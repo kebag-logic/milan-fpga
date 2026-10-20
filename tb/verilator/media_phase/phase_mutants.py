@@ -30,21 +30,25 @@ SERVO = "KL_mmcm_drp_servo.sv"
 DOMEV = "KL_media_domain_event.sv"
 CRFTX = "KL_crf_tx.sv"
 MTTR = "KL_mtt_round.sv"
+LATPKG = "KL_media_if_latency_pkg.sv"
+I2SCAP = "KL_aaf_capture_i2s.sv"
 #: the synthetic three-interface shape's integration (the bench plays it)
 PINWRAP = "pin_wrap.sv"
 SOURCES = {SERVO: HDL / SERVO, DOMEV: HDL / DOMEV, CRFTX: HDL / CRFTX, MTTR: HDL / MTTR,
-           PINWRAP: HERE / PINWRAP}
+           LATPKG: HDL / LATPKG, I2SCAP: HDL / "../aaf" / I2SCAP, PINWRAP: HERE / PINWRAP}
 #: Makefile variable that names each mutable source
 MAKEVAR = {SERVO: "SERVO_RTL", DOMEV: "DOMEV_RTL", CRFTX: "CRFTX_RTL", MTTR: "MTTR_RTL",
-           PINWRAP: "PIN_WRAP"}
-#: the four harnesses: (build target, objdir variable, executable)
+           LATPKG: "LATPKG_RTL", I2SCAP: "I2SCAP_RTL", PINWRAP: "PIN_WRAP"}
+#: the five harnesses: (build target, objdir variable, executable)
 PINS = "pins"
+BLEND = "blend"
 OFS = "ofs"
 DET = "det"
 HARNESS = {"cases": ("build", "MDIR", "Vmedia_phase"), PINS: ("pins-build", "PIN_MDIR", "Vpin_wrap"),
+           BLEND: ("blend-build", "BLEND_MDIR", "Vblend_wrap"),
            OFS: ("ofs-build", "OFS_MDIR", "Vofs_wrap"), DET: ("det-build", "DET_MDIR", "Vdet")}
 #: the harnesses that are one case each
-SINGLE = (PINS, OFS)
+SINGLE = (PINS, BLEND, OFS)
 
 
 def harness_of(case: str) -> str:
@@ -164,6 +168,26 @@ MUTANTS = (
      (("        ts_r         <= ev_ns_i + 64'(mtt_ofs_r);",
        "        ts_r         <= ev_ns_i + 64'(mtt_ofs_r) + 64'd9583;"),),
      "engage", "[engage] every DUT CRF timestamp is a frame instant of its own grid"),
+    #: R677-1-F1: the blend's frame closed on its last TDM pair again, its
+    #: marker latency the TDM bus's: the I2S pair banked is a frame older
+    ("blend_closed_on_tdm_pair", LATPKG,
+     (("    return (blend != 0) ? 0 : close_pair(frame_pairs);",
+       "    return close_pair(frame_pairs);"),
+      ("    return (tdm_slots == 0) || (blend != 0);",
+       "    return (tdm_slots == 0);")),
+     BLEND, "[blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps"),
+    #: R677-1-F1: the I2S front end copying rdata on the pop edge again, so
+    #: every strobe carries the pair before it
+    ("i2s_pair_one_pop_late", I2SCAP,
+     (("  always_comb begin : t_pair_out\n"
+       "    pair_l_o = cap_pair_w[47:24];\n"
+       "    pair_r_o = cap_pair_w[23:0];\n"
+       "  end : t_pair_out",
+       "  always_ff @(posedge clk_i) begin : t_pair_out\n"
+       "    if (cap_ren_r) pair_l_o <= cap_pair_w[47:24];\n"
+       "    if (cap_ren_r) pair_r_o <= cap_pair_w[23:0];\n"
+       "  end : t_pair_out"),),
+     BLEND, "[blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps"),
     ("pins_b_constant_dropped", PINWRAP,
      (("    .MARK_LAT_NS_P (B_LAT_C),", "    .MARK_LAT_NS_P (0),"),),
      PINS, "[pins B] every stamped frame instant is each slot's MSB pin instant less its offset, "

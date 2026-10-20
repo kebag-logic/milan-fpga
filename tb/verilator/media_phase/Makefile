@@ -7,9 +7,11 @@
 # MMCM, a free-running local oscillator and a CRF talker on an exact 2 ms
 # grid. sim_main.cpp lists the cases; each runs in its own process.
 #
-#   make          - the three-interface pins, the offsets, the detector
-#                   cases, then every loop case (CASE_JOBS at once)
+#   make          - the three-interface pins, the blend, the offsets, the
+#                   detector cases, then every loop case (CASE_JOBS at once)
 #   make pins     - the synthetic three-interface shape graded at its pins
+#   make blend    - the in-tree I2S + TDM8 blend graded at both interfaces'
+#                   pins (sim_blend.cpp)
 #   make ofs      - several AAF outputs of one domain, each its own offset,
 #                   graded against the CRF timing points (sim_ofs.cpp)
 #   make det      - the phase detector alone, every boundary placed exactly
@@ -53,7 +55,7 @@ SRCS = $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
 # the synthetic three-interface shape (#632): pin_wrap.sv, sim_pins.cpp
 PIN_WRAP ?= pin_wrap.sv
 PIN_MDIR ?= obj_pins
-PIN_SRCS = $(RTL_DIR)/ieee1722/crf/KL_media_if_latency_pkg.sv \
+PIN_SRCS = $(LATPKG_RTL) \
            $(RTL_DIR)/common/cdc_pair_fifo.sv \
            $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
            $(DOMEV_RTL) $(CRFTX_RTL) $(PIN_WRAP)
@@ -66,13 +68,13 @@ DET_CASES = inband events meanin balanced unbal129 unbal160 jitter cross range s
 CASES = engage engage2 edge edge2 step ramp holdover internal mr slew phcstep burst carry
 OUT  ?= obj_logs
 
-.PHONY: all run build cases pins pins-build ofs ofs-build det det-build mutants clean
+.PHONY: all run build cases pins pins-build blend blend-build ofs ofs-build det det-build mutants clean
 all: run
 
 build:
 	$(VERILATOR) $(VFLAGS) --Mdir $(MDIR) --top-module $(TOP) $(SRCS) sim_main.cpp -o Vmedia_phase
 
-run: pins ofs det cases
+run: pins blend ofs det cases
 
 pins-build:
 	$(VERILATOR) $(VFLAGS) --Mdir $(PIN_MDIR) --top-module pin_wrap $(PIN_SRCS) sim_pins.cpp -o Vpin_wrap
@@ -99,6 +101,26 @@ ofs-build:
 ofs: ofs-build
 	@echo "======================================================================"
 	$(OFS_MDIR)/Vofs_wrap
+
+# the in-tree two-interface shape (#632, R677-1-F1): the Arty I2S + TDM8
+# capture through KL_pair_blend into the capture crossbar's frame bank,
+# graded at both interfaces' pins: blend_wrap.sv, sim_blend.cpp
+BLEND_WRAP ?= blend_wrap.sv
+BLEND_MDIR ?= obj_blend
+LATPKG_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_media_if_latency_pkg.sv
+CMAP_RTL   ?= $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv
+I2SCAP_RTL ?= $(RTL_DIR)/ieee1722/aaf/KL_aaf_capture_i2s.sv
+BLEND_SRCS = $(LATPKG_RTL) $(RTL_DIR)/common/cdc_pair_fifo.sv \
+             $(I2SCAP_RTL) \
+             $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
+             $(RTL_DIR)/ieee1722/aaf/KL_pair_blend.sv $(DOMEV_RTL) $(CMAP_RTL) $(BLEND_WRAP)
+
+blend-build:
+	$(VERILATOR) $(VFLAGS) --Mdir $(BLEND_MDIR) --top-module blend_wrap $(BLEND_SRCS) sim_blend.cpp -o Vblend_wrap
+
+blend: blend-build
+	@echo "======================================================================"
+	$(BLEND_MDIR)/Vblend_wrap
 
 # every detector case in its own process; the verdict is make's
 det: det-build
@@ -128,4 +150,4 @@ mutants:
 	python3 phase_mutants.py --jobs $(MUTANT_JOBS)
 
 clean:
-	rm -rf obj_dir obj_pins obj_det obj_ofs obj_logs __pycache__
+	rm -rf obj_dir obj_pins obj_blend obj_det obj_ofs obj_logs __pycache__
