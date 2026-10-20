@@ -3188,6 +3188,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  crf_locked_w falling IS the disruption: KL_crf_rx drops lock after
   //  100 ms of CRF silence or at an unbind (#653), and needs 8 clean PDUs
   //  to re-lock, so the edge is the debounced verdict, not a per-PDU twitch.
+  //  crf_locked_w RISING is the return (#761): the media clock moves from
+  //  holdover back onto the CRF, a change of its source that needs its own
+  //  restart (4.4.4.3), so either lock edge requests one.
   //
   //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
   //  an internal media clock there is no CRF stream to be disrupted, so
@@ -3195,7 +3198,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  re-base is not a restart request (#602, below).
   // --------------------------------------------------------------------------
   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
-  //! the selected media clock source. The clause's OTHER mandatory trigger, a
+  //! the selected media clock source, and the return pulse when it rises
+  //! again (#761). The clause's OTHER mandatory trigger, a
   //! change of the media clock SOURCE (PICS Table F.7 AAF-5, AAF:M), is
   //! detected INSIDE KL_media_clock_restart from clk_src_i, so all of 4.4.4.3
   //! lives in the one module.
@@ -3242,7 +3246,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! net, no port or register)
   wire mcr_restart_p_w /* verilator public_flat_rd */ =
        (crf_clk_selected_r
-        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p_w))
        | aafm_disrupt_p_w | aafm_mr_toggle_p_w;
 
   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
@@ -6300,6 +6304,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .bound_i        (strtbl_en_w),
     .bind_rise_i    (strtbl_bind_rise_w),
     .bind_fall_i    (strtbl_bind_fall_w),
+    //! #762: a stopped input's silence or sequence gap interrupts no playback (5.3.8.7)
+    .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
     .sid0_i         (acmpl_sid),
     .fmt0_i         (aecp_in0_fmt),
     .ptp_now_i      (ptp_now_w[31:0]),

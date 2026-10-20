@@ -870,6 +870,30 @@ descriptor (#529). FRAMES_RX counts every accepted AVTPDU, including routine
 healthy traffic, under IEEE 1722.1-2021 Table 7.157 and the #726 ruling.
 It resets on not-bound to bound and retains its value on unbind.
 The six anomaly counters keep their observation intervals.
+STREAM_INTERRUPTED counts an accepted PDU that shows two or more lost PDUs,
+and since #762 the 100 ms silence that unlocks a bound input (Milan v1.2
+5.3.8.10 Table 5.6). The AAF inputs' `KL_avtp_rx_monitor_ctx` and the CRF
+input's `KL_crf_rx` apply one rule, the
+[#762 scope ruling](https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6260976223)
+and its [extension to sequence gaps](https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6265746720):
+
+- a silence on a started input counts once;
+- a silence on a stopped input counts nothing, because a stopped input has no
+  playback to interrupt (5.3.8.7, and 5.4.2.20 makes STOP_STREAMING the change
+  to stopped); the lock still falls and MEDIA_UNLOCKED counts it;
+- STOP with live traffic counts nothing;
+- after START (5.4.2.19), a later silence counts again;
+- a sequence gap of two or more lost PDUs on a started input counts once;
+- a sequence gap on a stopped input counts nothing, for the same reason; it
+  still counts SEQ_NUM_MISMATCH and unlocks nothing;
+- after START, a sequence gap counts again;
+- a Controller Unbind never counts, as Table 5.6 excludes it.
+
+The silence's expiry is the one event boundary: an Unbind or a STOP that
+arrives after it leaves the silence counted, and one that arrives on or before
+it leaves none. A gap's boundary is its PDU's accept verdict: the gap counts
+when the input is started on that edge, and a STOP or a START after it changes
+nothing for that gap.
 
 | Quadlet (block offset) | Counter | `KL_crf_rx` output |
 |---|---|---|
