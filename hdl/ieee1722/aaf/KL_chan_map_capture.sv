@@ -72,9 +72,11 @@
                 the walk whole frames through three banks:
                   * STAGE tdm_stage_r: each pair strobe writes its own pair,
                     exactly as the old hold did.
-                  * FRAME tdm_frame_r: the strobe of pair TDM_FRAME_PAIRS_P-1,
-                    the frame's last, publishes that pair and the staged ones
-                    in one edge - the newest COMPLETE frame.
+                  * FRAME tdm_frame_r: the strobe of pair TDM_CLOSE_SLOT_P,
+                    the frame's last to arrive (TDM_FRAME_PAIRS_P-1 on a TDM
+                    bus, the I2S pair at slot 0 on the I2S blend), publishes
+                    that pair and the staged ones in one edge - the newest
+                    COMPLETE frame.
                   * WALK tdm_walk_r: loaded from FRAME in the media tick's own
                     cycle and held for the whole walk, so a frame closing
                     mid-walk waits for the next tick instead of tearing this
@@ -112,9 +114,9 @@
                 crossing, repeating and skipping frames while the counters
                 read static.
                 LATENCY. A walk reads the newest frame complete at its tick,
-                and no frame is complete before its last pair, so pair p is
-                published (TDM_FRAME_PAIRS_P-1-p) pair periods after it
-                arrived: what atomicity costs. Reading at the tick rather than
+                and no frame is complete before its last pair, so on a TDM
+                bus pair p is published (TDM_FRAME_PAIRS_P-1-p) pair periods
+                after it arrived: what atomicity costs. Reading at the tick rather than
                 at the walk's first inject costs LB_PAIRS_C + 1 cycles more,
                 the price of one crossing the aligner can guard. The slip
                 RATE is unchanged; a beat now slips one whole frame, counted
@@ -374,9 +376,14 @@ module KL_chan_map_capture #(
   parameter int unsigned N_SLOTS_P = 32,   //! TX pair slots (prefix-sum space)
   parameter int unsigned N_TDM_P   = 8,    //! TDM slots (pairs = N_TDM_P/2)
   //! TDM FRAME HANDOFF (#617): the pairs one front-end frame delivers into
-  //! the TDM bucket, pair 0 first. The strobe of pair TDM_FRAME_PAIRS_P-1
+  //! the TDM bucket, pair 0 first. The strobe of pair TDM_CLOSE_SLOT_P
   //! closes the frame and publishes it whole; 1..N_TDM_P/2.
   parameter int unsigned TDM_FRAME_PAIRS_P = (N_TDM_P < 2) ? 1 : N_TDM_P / 2,
+  //! the pair whose strobe closes the frame: the one of the frame that
+  //! arrives last. The last pair kept on a TDM bus; on the I2S blend the I2S
+  //! pair at slot 0, written a whole frame after its instant, after the TDM
+  //! pairs kept (#632, KL_media_if_latency_pkg close_slot())
+  parameter int unsigned TDM_CLOSE_SLOT_P = TDM_FRAME_PAIRS_P - 1,
   parameter int unsigned GAP_CYC_P = 24,   //! settle cycles between slot injects
   //! LOOP bucket sizing: the RX stream-channel space kept as pair queues
   //! (N_LB_STREAMS_P * N_LB_CH_P/2 pair queues x LB_QDEPTH_C x 48 b).
@@ -436,8 +443,9 @@ module KL_chan_map_capture #(
   //! the hold register behind it: a harness that leaves the codec data pins
   //! at zero writes the hold with zeros forever, so watching the hold for a
   //! CHANGE reports a dead feed as healthy (it did, first try).
-  //! The pairs of one frame arrive pair 0 first; the strobe of pair
-  //! TDM_FRAME_PAIRS_P-1 closes the frame (TDM FRAME HANDOFF).
+  //! The pairs of one frame arrive pair 0 first (on the blend the I2S pair
+  //! at slot 0 last); the strobe of pair TDM_CLOSE_SLOT_P closes the frame
+  //! (TDM FRAME HANDOFF).
   input  wire         tdm_pair_valid_i /* verilator public_flat_rd */,  //! latch pulse
   input  wire [3:0]   tdm_pair_slot_i,   //! TDM pair index (0..N_TDM_P/2-1)
   input  wire [23:0]  tdm_l_i,
@@ -602,12 +610,13 @@ module KL_chan_map_capture #(
     end
   end : map_read_port
 
-  //! a frame is closed by the strobe of its last pair, so that pair must be
-  //! one the bucket keeps
-  if (TDM_FRAME_PAIRS_P < 1 || TDM_FRAME_PAIRS_P > N_TDM_PAIRS_C)
+  //! a frame is closed by the strobe of its closing pair, so that pair must
+  //! be one the bucket keeps
+  if (TDM_FRAME_PAIRS_P < 1 || TDM_FRAME_PAIRS_P > N_TDM_PAIRS_C ||
+      TDM_CLOSE_SLOT_P >= TDM_FRAME_PAIRS_P)
   begin : g_tdm_frame_guard
-    $error("KL_chan_map_capture: TDM_FRAME_PAIRS_P=%0d must be 1..%0d (N_TDM_P/2). The strobe of a frame's last pair closes it, so that pair must be one the TDM bucket keeps.",
-           TDM_FRAME_PAIRS_P, N_TDM_PAIRS_C);
+    $error("KL_chan_map_capture: TDM_FRAME_PAIRS_P=%0d must be 1..%0d (N_TDM_P/2) and TDM_CLOSE_SLOT_P=%0d below it. The strobe of a frame's closing pair closes it, so that pair must be one the TDM bucket keeps.",
+           TDM_FRAME_PAIRS_P, N_TDM_PAIRS_C, TDM_CLOSE_SLOT_P);
   end : g_tdm_frame_guard
 
   // ---------------------------------------------------------------------- //
@@ -629,9 +638,9 @@ module KL_chan_map_capture #(
   wire [47:0] tdm_pair_w  = {tdm_l_i, tdm_r_i};
   wire        tdm_stage_w = tdm_pair_valid_i &&
                             (32'(tdm_pair_slot_i) < N_TDM_PAIRS_C);
-  //! the frame's last pair: its strobe closes and publishes the frame
+  //! the frame's closing pair: its strobe closes and publishes the frame
   wire        tdm_close_w = tdm_pair_valid_i &&
-                            (32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);
+                            (32'(tdm_pair_slot_i) == TDM_CLOSE_SLOT_P);
 
   always_ff @(posedge clk_i) begin : source_latch
     if (!rst_n) begin
@@ -649,8 +658,8 @@ module KL_chan_map_capture #(
       //! (the select is an elaboration constant per bank entry, no mux)
       if (tdm_close_w) begin
         for (int t = 0; t < N_TDM_PAIRS_C; t++)
-          tdm_frame_r[t] <= (t == int'(TDM_FRAME_PAIRS_P) - 1) ? tdm_pair_w
-                                                               : tdm_stage_r[t];
+          tdm_frame_r[t] <= (t == int'(TDM_CLOSE_SLOT_P)) ? tdm_pair_w
+                                                          : tdm_stage_r[t];
         tdm_frame_ns_r <= tdm_close_ns_i;
       end
     end

@@ -131,22 +131,29 @@ module KL_aaf_capture_i2s (
     .rempty_o(cap_rempty_w)
   );
 
-  //! clk_i side: pop one pair at a time; pair_valid pulses per pop
+  //! clk_i side: pop one pair at a time; pair_valid pulses per pop. The
+  //! FIFO registers rdata_o ON the ren edge, so the popped pair is live
+  //! during the following pair_valid cycle and the outputs alias rdata_o
+  //! (it holds until the next ren), as KL_tdm_capture and
+  //! KL_tdm_capture_master do. Copying rdata_o on the ren edge instead took
+  //! the PREVIOUS pop's pair: every strobe carried the pair before it, one
+  //! frame older than the frame its strobe closes, so a timestamp of that
+  //! frame named samples a period older (#632, R677-1-F1)
   always_ff @(posedge clk_i or negedge rst_n) begin : t_pop
     if (!rst_n) begin
-      pair_l_o <= '0; pair_r_o <= '0;
       pair_valid_o <= 1'b0; cap_ren_r <= 1'b0;
       pairs_captured_o <= '0;
     end else begin
       pair_valid_o <= cap_ren_r;        //! rdata registered: valid follows ren
-      if (cap_ren_r) begin
-        pair_l_o <= cap_pair_w[47:24];
-        pair_r_o <= cap_pair_w[23:0];
-      end
       cap_ren_r <= !cap_rempty_w && !cap_ren_r && !pair_valid_o;
       if (pair_valid_o) pairs_captured_o <= pairs_captured_o + 1'b1;
     end
   end : t_pop
+
+  always_comb begin : t_pair_out
+    pair_l_o = cap_pair_w[47:24];
+    pair_r_o = cap_pair_w[23:0];
+  end : t_pair_out
 
   assign pair_slot_o = 4'd0;            //! stereo I2S = talker stream 0
 

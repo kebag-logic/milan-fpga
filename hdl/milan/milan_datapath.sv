@@ -1241,6 +1241,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int CMAP_TDM_SLOTS_C       = 8;
   localparam int CMAP_TDM_FRAME_PAIRS_C = (AIF_PAIRS_C < CMAP_TDM_SLOTS_C / 2)
                                         ? AIF_PAIRS_C : CMAP_TDM_SLOTS_C / 2;
+  //! the pair slot whose strobe closes a frame at the crossbar: the frame's
+  //! last to arrive, the I2S pair on the blend (#632, R677-1-F1)
+  localparam int CMAP_TDM_CLOSE_SLOT_C = KL_media_if_latency_pkg::close_slot(
+      CMAP_TDM_FRAME_PAIRS_C, AUDIO_IF_I2S_PAIR_P);
   //! #632: the instant the frame closing on this cycle started at the media
   //! interface (the domain media event's back-dating, on the close's own
   //! cycle), and the instant of the frame the capture walk reads, which the
@@ -1252,6 +1256,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (CMAP_TDM_SLOTS_C),
     .TDM_FRAME_PAIRS_P (CMAP_TDM_FRAME_PAIRS_C),
+    //! the frame's last pair to arrive: the I2S pair on the blend (#632)
+    .TDM_CLOSE_SLOT_P  (CMAP_TDM_CLOSE_SLOT_C),
     //! ON: sized to exactly what the AEM declares - talker t's loopback pool
     //! is rx stream t's wire channels, so the bucket keeps every listener
     //! stream at the full rx wire width. Anything smaller would re-open the
@@ -6090,31 +6096,33 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  The marker latency is the owner's, derived from its parameters by
   //  KL_media_if_latency_pkg: to the last bit of the pair that closes the
   //  frame at the crossbar (the frame's last pair up to TDM8; pair 3 of 16 on
-  //  TDM32; one pair earlier on the I2S blend), then the front-end's FIFO
-  //  write and the FIFO's read side here. Every capture front-end of this
-  //  root is instantiated with a one-bit data delay, and writes its FIFO one
-  //  clk_tdm_i cycle (TDM master; KL_pair_blend passes its strobe through),
-  //  one bit period (TDM slave) or five clk_audio_i cycles (I2S master, 512 x
-  //  fs by its divider) after that pair's last bit.
+  //  TDM32; the I2S pair on the I2S blend and the I2S-only shape), then the
+  //  front-end's FIFO write and the FIFO's read side here. Every capture
+  //  front-end of this root is instantiated with a one-bit data delay, and
+  //  writes its FIFO one clk_tdm_i cycle (TDM master), one bit period (TDM
+  //  slave) or five clk_audio_i cycles (I2S master, 512 x fs by its divider;
+  //  KL_pair_blend passes its strobe through) after that pair's last bit.
   // ==========================================================================
-  localparam int     DOM_CLOSE_PAIR_C = KL_media_if_latency_pkg::close_pair(
-      CMAP_TDM_FRAME_PAIRS_C, AUDIO_IF_I2S_PAIR_P);
-  //! an I2S-only front end strobes one pair of two 32-bit words
-  localparam int     DOM_WORD_BITS_C  = (AUDIO_IF_SLOTS_P == 0) ? 32 : AIF_WORD_BITS_C;
+  localparam bit     DOM_I2S_CLOSE_C  = KL_media_if_latency_pkg::close_is_i2s(
+      AUDIO_IF_SLOTS_P, AUDIO_IF_I2S_PAIR_P);
+  localparam int     DOM_CLOSE_PAIR_C = DOM_I2S_CLOSE_C ? 0
+                                      : KL_media_if_latency_pkg::close_pair(CMAP_TDM_FRAME_PAIRS_C);
+  //! the I2S front end strobes one pair of two 32-bit words
+  localparam int     DOM_WORD_BITS_C  = DOM_I2S_CLOSE_C ? 32 : AIF_WORD_BITS_C;
   localparam longint DOM_MARK_BITS_C  = KL_media_if_latency_pkg::pair_end_bits(
       DOM_CLOSE_PAIR_C, DOM_WORD_BITS_C, 1);
-  localparam longint DOM_BIT_HZ_C = (AUDIO_IF_SLOTS_P == 0) ? 64'(64 * AUDIO_IF_FS_HZ_P)
-                                                            : 64'(AIF_BCLK_HZ_C);
-  localparam longint DOM_WR_HZ_C  = (AUDIO_IF_SLOTS_P == 0) ? 64'(512 * AUDIO_IF_FS_HZ_P)
+  localparam longint DOM_BIT_HZ_C = DOM_I2S_CLOSE_C ? 64'(64 * AUDIO_IF_FS_HZ_P)
+                                                    : 64'(AIF_BCLK_HZ_C);
+  localparam longint DOM_WR_HZ_C  = DOM_I2S_CLOSE_C ? 64'(512 * AUDIO_IF_FS_HZ_P)
                                   : (AUDIO_IF_MASTER_P != 0) ? 64'(AUDIO_IF_CLK_HZ_P)
                                                              : DOM_BIT_HZ_C;
-  localparam longint DOM_WR_CYC_C = (AUDIO_IF_SLOTS_P == 0) ? 64'd5 : 64'd1;
+  localparam longint DOM_WR_CYC_C = DOM_I2S_CLOSE_C ? 64'd5 : 64'd1;
   localparam int unsigned DOM_MARK_LAT_NS_C = 32'(KL_media_if_latency_pkg::mark_lat_ns(
       DOM_MARK_BITS_C, DOM_BIT_HZ_C, DOM_WR_HZ_C, DOM_WR_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
   //! the owner's frame marker: the strobe of the pair that closes the frame
-  //! at the crossbar, the last it keeps (#617; DOM_CLOSE_PAIR_C above)
+  //! at the crossbar, the frame's last to arrive (#617; CMAP_TDM_CLOSE_SLOT_C)
   wire        frame_mark_w = aafcap_pv_w &&
-                             (32'(aafcap_slot_w) == CMAP_TDM_FRAME_PAIRS_C - 1);
+                             (32'(aafcap_slot_w) == CMAP_TDM_CLOSE_SLOT_C);
   wire        dom_ev_p_w;
   wire [63:0] dom_ns_w /* verilator public_flat_rd */;
   wire        dom_live_w /* verilator public_flat_rd */;

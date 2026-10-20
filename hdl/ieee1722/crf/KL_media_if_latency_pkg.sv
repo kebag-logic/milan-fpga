@@ -27,13 +27,22 @@
                 of the frame was strobed) never reach the timestamp at all.
 
                 WHICH PAIR CLOSES. KL_chan_map_capture keeps at most four
-                pairs of a bus and closes its frame on the last pair it keeps
-                (milan_datapath CMAP_TDM_FRAME_PAIRS_C): the frame's last
-                pair up to TDM8, an INNER pair on a wider bus (pair 3 of 16
-                on TDM32, a quarter of the frame in), and on the I2S blend
-                one pair earlier again, because the I2S pair takes slot 0
-                (KL_pair_blend). close_pair() names it; the marker latency is
-                counted to ITS last bit, never to the frame's end.
+                pairs of a bus and closes its frame on the pair of that frame
+                that reaches it last (close_slot()). On a TDM bus that is the
+                last pair it keeps (milan_datapath CMAP_TDM_FRAME_PAIRS_C):
+                the frame's last pair up to TDM8, an INNER pair on a wider bus
+                (pair 3 of 16 on TDM32, a quarter of the frame in);
+                close_pair() names it, and the marker latency is counted to
+                ITS last bit, never to the frame's end. On the I2S blend
+                (KL_pair_blend: the I2S pair at merged slot 0, TDM pair k at
+                1 + k) it is the I2S pair: KL_aaf_capture_i2s writes a pair
+                when its frame ENDS, a whole frame after its instant, while
+                the TDM pairs kept (TDM pairs 0..2 of TDM8) are in by three
+                quarters of the frame and the next frame's first TDM pair
+                comes a quarter of a frame after it. Closing on a TDM pair
+                banked the I2S pair of the frame before, one sample older
+                than the instant stamped on it. The blend's marker latency
+                is therefore the I2S front end's (close_is_i2s()).
 
                 THE TERMS, each from the front-end's RTL:
                   bits    pair k's last bit (slot 2k+1's LSB) is sampled
@@ -84,11 +93,23 @@ package KL_media_if_latency_pkg;
     return (halves * NS_PER_S_C + hz) / (2 * hz);
   endfunction
 
-  //! The bus pair whose strobe closes a frame at the capture crossbar: the
-  //! last of the frame_pairs it keeps, less the I2S pair a blend puts at
-  //! slot 0 (KL_pair_blend: TDM pair k rides slot 1 + k)
-  function automatic int close_pair(input int frame_pairs, input int blend);
-    return frame_pairs - 1 - ((blend != 0) ? 1 : 0);
+  //! The TDM bus pair whose strobe closes a frame at the capture crossbar:
+  //! the last of the frame_pairs it keeps
+  function automatic int close_pair(input int frame_pairs);
+    return frame_pairs - 1;
+  endfunction
+
+  //! The crossbar's pair slot whose strobe closes a frame: the last kept TDM
+  //! pair, or on an I2S blend the I2S pair at merged slot 0, the last of its
+  //! frame to arrive (see WHICH PAIR CLOSES)
+  function automatic int close_slot(input int frame_pairs, input int blend);
+    return (blend != 0) ? 0 : close_pair(frame_pairs);
+  endfunction
+
+  //! The closing pair is the I2S front end's: an I2S-only shape (no TDM
+  //! slots) or an I2S blend
+  function automatic bit close_is_i2s(input int tdm_slots, input int blend);
+    return (tdm_slots == 0) || (blend != 0);
   endfunction
 
   //! Bit periods from the frame instant to the last bit of bus pair k (slots
