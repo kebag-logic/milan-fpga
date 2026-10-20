@@ -1,0 +1,18 @@
+[PASS] clean engage: rc=0
+[PASS] clean holdover: rc=0
+[PASS] clean internal: rc=0
+[PASS] slew_clamp_removed on engage: rc=1 -- [FAIL] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 436.1)
+[FAIL] state_hold_removed on holdover: rc=0 -- 
+67.58 s state=4 phase=    -65.1 ns (-0.0031 Ps) dut=    -43.3 ns eng=1 set=1 trim=-0.812 ppm
+  [ ok ] [holdover] phase held inside +/-5 % of Ps to the end (max 694.0 ns)
+  [ ok ] [holdover] the DUT's CRF output on the reference's grid (max 899.2 ns)
+  [ ok ] [holdover] the servo reports settled at the end
+  [ ok ] [holdover] still LOCKED at the end
+  [ ok ] [holdover] the phase term let go at HOLDOVER (within 200 ms)
+  [ ok ] [holdover] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [holdover] fine-PS protocol clean
+== media_phase holdover: checks: 14   failures: 0 ==
+RESULT: PASS
+
+[PASS] idle_hold_removed on internal: rc=1 -- [FAIL] [internal] the phase term let go at INTERNAL (within 5 ms)
+== media_phase mutants: checks: 6   failures: 1 ==
