@@ -1,0 +1,8 @@
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+make --no-print-directory exec-counters-1
+VERILATOR=<tools>/pinned-verilator-5.050/verilator python3 stream_counters.py --shape 1
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+1x1 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
