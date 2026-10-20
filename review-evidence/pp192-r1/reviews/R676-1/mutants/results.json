@@ -1,0 +1,43 @@
+[
+  {
+    "variant": "golden",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  },
+  {
+    "variant": "command-started-change-dropped",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "started-trigger-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "coincidence-hold-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 2"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "restored",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  }
+]

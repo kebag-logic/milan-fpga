@@ -1,0 +1,72 @@
+--- a/tb/pp_top/gsi_internal.hpp
++++ b/tb/pp_top/gsi_internal.hpp
+@@ -556,7 +556,7 @@
+   // holds the block with a round of its own until the STOP has answered, so
+   // the STOP's change and the registration both pend before sink 0's round
+   // is claimed: one notification each, carrying both changes.
+-  void started_with_registration() {
++  void started_with_registration(uint8_t code = 7, uint64_t bridge = BRIDGE0) {
+     const char* step = "STOP-WITH-REGISTRATION";
+     const uint16_t first = sequence;
+     const auto taken = io.d->dbg_aecp_cmd_o;
+@@ -568,7 +568,7 @@
+     io.d->gsi_avb_chg_i = 1;
+     io.step();
+     io.d->gsi_avb_chg_i = 0;
+-    attribute(0, 7, BRIDGE0, true);
++    attribute(0, code, bridge, code != 0);
+     const auto got = drain_aecp(250);
+     const auto at_a = unsolicited_to(got, CTLR_MAC, unsolicited_sequence);
+     const auto at_b = unsolicited_to(got, B_MAC, b_unsolicited);
+@@ -579,12 +579,12 @@
+     CHECK(count_type(at_a, 0x0027) == 1 && count_type(at_b, 0x0027) == 1,
+           "GI %s: the GET_AVB_INFO change reached A and B once each "
+           "(premise)", step);
+-    one_info(step, "A, the requester", at_a, CTLR_MAC, CTLR_EID, 0, true, 7,
+-             BRIDGE0);
+-    one_info(step, "B", at_b, B_MAC, CTLR2_EID, 0, true, 7, BRIDGE0);
++    one_info(step, "A, the requester", at_a, CTLR_MAC, CTLR_EID, 0, true, code,
++             bridge);
++    one_info(step, "B", at_b, B_MAC, CTLR2_EID, 0, true, code, bridge);
+     CHECK(got.size() == 6, "GI %s: nothing else is sent, got %zu frames",
+           step, got.size());
+-    read_back(step, 0, true, 7, BRIDGE0);
++    read_back(step, 0, true, code, bridge);
+   }
+ 
+   void started_notify() {
+@@ -599,6 +599,34 @@
+     started_step("STOP-BY-A", 0x0023, true);
+     started_step("START-BY-A", 0x0022, false);
+     started_with_registration();
++    for (const bool failed : {false, true}) {
++      streaming(0x0022, 0);
++      auto start_frames = drain_aecp(150);
++      auto start_a = unsolicited_to(start_frames, CTLR_MAC, unsolicited_sequence);
++      auto start_b = unsolicited_to(start_frames, B_MAC, b_unsolicited);
++      CHECK(start_frames.size() == 4 && stream_info_of(start_a, 0).size() == 1
++            && stream_info_of(start_b, 0).size() == 1,
++            "COMPOSITION: START restores state and notifies both once");
++      started_with_registration(failed ? 7 : 0, failed ? BRIDGE0 : 0);
++      CHECK((io.snap(12) & 3u) == (failed ? 2u : 1u),
++            "COMPOSITION: registrar premise is type %d", failed ? 2 : 1);
++      io.q_acmp.clear();
++      const uint16_t seq = sequence++;
++      io.feed(acmp_frame(CTLR_MAC, 10, 0, 0, CTLR_EID, 0, EID, 0, 0,
++                         0, 0, seq, 0, 0));
++      const auto rx = io.wait_frame(io.q_acmp, 500,
++          [seq](const std::vector<uint8_t>& r) {
++            return r.size() == 70 && (r[15] & 15) == 11
++                && fv_u64(r, 62, 2) == seq;
++          });
++      CHECK(!rx.empty() && ((fv_u64(rx, 64, 2) & 0x0040) != 0) == failed,
++            "COMPOSITION: GET_RX_STATE REGISTERING_FAILED follows final type %d", failed);
++      const uint16_t repeated = sequence;
++      streaming(0x0023, 0);
++      const auto noop = drain_aecp(150);
++      CHECK(noop.size() == 1 && answered(noop, repeated, 1) == 1,
++            "COMPOSITION: repeated STOP succeeds without either unsolicited kind");
++    }
+     io.run_ms(100);
+     CHECK(io.q_aecp.empty(), "GI SN final: no late or duplicate notification");
+   }
