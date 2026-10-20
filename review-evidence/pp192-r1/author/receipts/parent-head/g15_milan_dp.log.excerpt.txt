@@ -1,0 +1,35 @@
+834:RESULT: PASS
+839:RESULT: PASS
+848:182 checks: 182 PASS, 0 FAIL
+853:RESULT: PASS
+858:RESULT: PASS
+867:182 checks: 182 PASS, 0 FAIL
+6041:milan_datapath: 236 checks, 0 failures
+6415:  [ok]   [GSI] G9 STOP_STREAMING(sink 1) from A is SUCCESS = 0x0
+6416:  [ok]   [GSI] G9 ...pushes STOP_STREAMING to B         = 0x1
+6417:  [ok]   [GSI] G9 ...and not to A, the requester        = 0x0
+6418:  [FAIL] [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to A got=0x1 exp=0x0
+6419:  [FAIL] [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to B got=0x1 exp=0x0
+6420:  [ok]   [GSI] G9 sink 1 stopped: STREAMING_WAIT        = 0x1
+6421:  [ok]   [GSI] G9 sink 1 stopped: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+6422:  [ok]   [GSI] G9 sink 1 stopped: probing_status        = 0x3
+6423:  [ok]   [GSI] G9 sink 1 stopped: acmp_status           = 0x0
+6484:checks: 423   failures: 2
+6485:RESULT: FAIL
+6486:sim_pool: ./obj_notify/Vmilan_dp_notify exited with status 1
+7047:checks: 416   failures: 0
+7048:RESULT: PASS
+7268:checks: 162   failures: 0
+7269:RESULT: PASS
+9332:checks: 1967   failures: 0
+9333:RESULT: PASS
+11399:checks: 1969   failures: 0
+11400:RESULT: PASS
+11401:sim_pool: ./obj_nxn8/Vmilan_dp_nxn8 was not started after a child failure
+11402:sim_pool: ./obj_nxn4c/Vmilan_dp_nxn4c was not started after a child failure
+11403:sim_pool: ./obj_nolpf/Vmilan_dp_nolpf was not started after a child failure
+11404:sim_pool: ./obj_prune/Vmilan_dp_prune was not started after a child failure
+11405:sim_pool: ./obj_ax1x1/Vmilan_dp_ax1x1 was not started after a child failure
+11406:sim_pool: ./obj_aclk/Vmilan_dp_aclk was not started after a child failure
+11407:sim_pool: first leg in recipe order that did not pass: ./obj_notify/Vmilan_dp_notify
+11408:make: *** [Makefile:582: run] Error 1

@@ -1,0 +1,10 @@
+--- base/g17_xvlog.log
++++ head/g17_xvlog.log
+@@ -1,6 +1,6 @@
+ xvlog gate: 0 finding(s) across 0 module(s)
+   analysed: 81 tracked .sv/.v file(s) under hdl/ and 52 under the pinned processors (protocol-processor/hdl, gptp-processor/hdl)
+-  pinned at: protocol-processor@24c7f853; gptp-processor@e4869fd0 - the superproject gitlink, which each checkout was required to BE before anything was enumerated
++  pinned at: protocol-processor@21855f6c; gptp-processor@e4869fd0 - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+   NOT analysed: third_party/ and external/ (leaf IP this repo neither owns nor edits), and
+                 any defect only ELABORATION rejects - xvlog analyses; the split-initialiser
+                 class needs xelab, which nothing in this repo runs (#224)

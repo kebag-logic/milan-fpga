@@ -1,0 +1,19 @@
+# scratch parent commits (local branches, never pushed) and patch-id checks
+be4cd421a40b1c5964d799433aac62ea677e2c23 57465d43cd886b4711deb45616d01d21b95c9feb Scratch: protocol-processor at 21855f6c (head pass with the #192 milan_dp adoption)
+57465d43cd886b4711deb45616d01d21b95c9feb 13bf00e1118bf1ad4a81e95b76bf8ea0dfe301da Scratch: parent-adoption-milan_dp-gsi-g9.patch (processor #192)
+13bf00e1118bf1ad4a81e95b76bf8ea0dfe301da 0f5648a76325bbdf2525303830d9c0694a36c416 Scratch: parent-scratch-tspec-every-slot.patch (#190)
+0f5648a76325bbdf2525303830d9c0694a36c416 af16b7fc15a1cc8c75f8d51cb8dfe26df84e5b3d Scratch: parent-adoption-milan_dp-67.patch (#176)
+af16b7fc15a1cc8c75f8d51cb8dfe26df84e5b3d e26f1816e456dc8027924bc2e5d327a8aa6e46db Scratch: parent-evidence-classification.patch (#180)
+9d1dcf14407022a2fe78a10aa94adf544755a3e3 13bf00e1118bf1ad4a81e95b76bf8ea0dfe301da Scratch: protocol-processor at 21855f6c (head pass)
+625c0e5c3894b1ca24f1dbeb8b545a9aa74f4bbc 13bf00e1118bf1ad4a81e95b76bf8ea0dfe301da Scratch: protocol-processor at 24c7f853 (base pass)
+
+# commit, git patch-id --stable of the commit, of the patch file, patch sha256, bytes
+af16b7fc 7d283ff5bd25db076b97e6280297d2609d69c0a4 7d283ff5bd25db076b97e6280297d2609d69c0a4 EQUAL 7662517046007f77b0e3763814226a50af87e06d01261586bcaf32cd4a75495e 2689 parent-evidence-classification.patch
+0f5648a7 53c63685670e3c251b64576b4224d231f698b060 53c63685670e3c251b64576b4224d231f698b060 EQUAL e142e2e7d7aec88fdc0bb7b6443d296f671f06391712b214339a50b84acc66d3 1541 parent-adoption-milan_dp-67.patch
+13bf00e1 e12242b66ec1ff67f0531461c55a198c48414654 e12242b66ec1ff67f0531461c55a198c48414654 EQUAL 37d1b76ec95e1b0d7de12ace14d8ade032bf8bb96a70eb5df21d11c1363234a8 760 parent-scratch-tspec-every-slot.patch
+57465d43 d0517760212cdfddb609f7dd1090d4f4782592ed d0517760212cdfddb609f7dd1090d4f4782592ed EQUAL 5ed1656c0733ed64a890000ddc2d73c9435a0373a991ab0436c04c6e2009c9ab 3343 parent-adoption-milan_dp-gsi-g9.patch
+
+# gitlinks
+625c0e5c 160000 commit 24c7f85340437c7c5b9321c1f76e45c955324e2d	protocol-processor
+9d1dcf14 160000 commit 21855f6cce6d8771f5b1e84de3d875d7683e23f1	protocol-processor
+be4cd421 160000 commit 21855f6cce6d8771f5b1e84de3d875d7683e23f1	protocol-processor

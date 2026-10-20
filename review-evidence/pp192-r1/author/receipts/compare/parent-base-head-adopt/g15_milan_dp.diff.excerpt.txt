@@ -1,0 +1,22 @@
+11:+RESULT: PASS
+47:+RESULT: PASS
+81:-RESULT: PASS
+86:-RESULT: PASS
+91: RESULT: PASS
+98: RESULT: PASS
+606:   [ok]   [GSI] G9 STOP_STREAMING(sink 1) from A is SUCCESS = 0x0
+607:   [ok]   [GSI] G9 ...pushes STOP_STREAMING to B         = 0x1
+608:   [ok]   [GSI] G9 ...and not to A, the requester        = 0x0
+609:-  [ok]   [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+610:-  [ok]   [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+611:+  [ok]   [GSI] G9 sink 1 stopped: unsolicited GET_STREAM_INFO(sink 1) to A = 0x1
+612:+  [ok]   [GSI] G9 sink 1 stopped: unsolicited GET_STREAM_INFO(sink 1) to B = 0x1
+613:+  [ok]   [GSI] G9 sink 1 stopped: the push equals the solicited answer from the body on = 0x1
+614:   [ok]   [GSI] G9 sink 1 stopped: STREAMING_WAIT        = 0x1
+615:   [ok]   [GSI] G9 sink 1 stopped: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+616:   [ok]   [GSI] G9 sink 1 stopped: probing_status        = 0x3
+621:-checks: 423   failures: 0
+622:+checks: 424   failures: 0
+623: RESULT: PASS
+627: RESULT: PASS
+681: 6 checks: 6 PASS, 0 FAIL

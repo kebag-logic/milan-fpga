@@ -1,0 +1,111 @@
+HEAD ONLY coincidence-hold-removed-build.log: 0 FAIL lines
+HEAD ONLY coincidence-hold-removed-run.log: 3 FAIL lines
+    + FAIL: GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 2
+    + FAIL: GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at B, got 2
+    + FAIL: GI STOP-WITH-REGISTRATION: the GET_AVB_INFO change reached A and B once each (premise)
+HEAD ONLY command-started-change-dropped-build.log: 0 FAIL lines
+HEAD ONLY command-started-change-dropped-run.log: 6 FAIL lines
+    + FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0
+    + FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 0
+    + FAIL: GI START-BY-A: nothing else is sent, got 2 frames
+    + FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0
+    + FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 0
+    + FAIL: GI STOP-BY-A: nothing else is sent, got 2 frames
+DIFFER failure-bridge-zero-run.log: base 806, head 810 FAIL lines
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: byte-exact sink 0 response
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: full failure bridge sink 0
+    + FAIL: GI STOP-WITH-REGISTRATION: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 5, STREAMING_WAIT set
+    + FAIL: GI STOP-WITH-REGISTRATION: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 6, STREAMING_WAIT set
+DIFFER failure-code-zero-run.log: base 806, head 810 FAIL lines
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: byte-exact sink 0 response
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: failure code sink 0 = 7, got 0
+    + FAIL: GI STOP-WITH-REGISTRATION: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 5, STREAMING_WAIT set
+    + FAIL: GI STOP-WITH-REGISTRATION: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 6, STREAMING_WAIT set
+DIFFER integrator-path-run.log: base 1342, head 1357 FAIL lines
+    + FAIL: GI SN-BIND solicited: complete Milan response
+    + FAIL: GI SN-BIND unsolicited: complete Milan response
+    + FAIL: GI SN-BIND: solicited and unsolicited bodies agree for sink 0
+    + FAIL: GI START-BY-A solicited: complete Milan response
+    + FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0
+    + FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 0
+    + FAIL: GI STOP-BY-A solicited: complete Milan response
+    + FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0
+    + FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 0
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: complete Milan response
+    + FAIL: GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0
+    + FAIL: GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at B, got 0
+DIFFER pbsta-zero-run.log: base 1680, head 1700 FAIL lines
+    + FAIL: GI SN-BIND solicited: byte-exact sink 0 response
+    + FAIL: GI SN-BIND solicited: pbsta sink 0 = 2, got 0
+    + FAIL: GI SN-BIND unsolicited: byte-exact sink 0 response
+    + FAIL: GI SN-BIND unsolicited: pbsta sink 0 = 2, got 0
+    + FAIL: GI START-BY-A solicited: byte-exact sink 0 response
+    + FAIL: GI START-BY-A solicited: pbsta sink 0 = 3, got 0
+    + FAIL: GI START-BY-A: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 3, STREAMING_WAIT clear
+    + FAIL: GI START-BY-A: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 2, STREAMING_WAIT clear
+    + FAIL: GI STOP-BY-A solicited: byte-exact sink 0 response
+    + FAIL: GI STOP-BY-A solicited: pbsta sink 0 = 3, got 0
+    + FAIL: GI STOP-BY-A: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 2, STREAMING_WAIT set
+    + FAIL: GI STOP-BY-A: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 0, STREAMING_WAIT set
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: byte-exact sink 0 response
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: pbsta sink 0 = 3, got 0
+    + FAIL: GI STOP-WITH-REGISTRATION: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 5, STREAMING_WAIT set
+    + FAIL: GI STOP-WITH-REGISTRATION: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 6, STREAMING_WAIT set
+HEAD ONLY started-trigger-removed-build.log: 0 FAIL lines
+HEAD ONLY started-trigger-removed-run.log: 9 FAIL lines
+    + FAIL: GI REBIND-SW unsolicited: complete Milan response
+    + FAIL: GI REBIND-SW: exactly one unsolicited response for sink 0, got 0
+    + FAIL: GI REBIND-SW: solicited and unsolicited bodies agree
+    + FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0
+    + FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 0
+    + FAIL: GI START-BY-A: nothing else is sent, got 2 frames
+    + FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0
+    + FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 0
+    + FAIL: GI STOP-BY-A: nothing else is sent, got 2 frames
+DIFFER status-notification-zero-run.log: base 52, head 78 FAIL lines
+    + FAIL: GI COMPLETED solicited: acmpsta sink 0 = 0, got 7
+    + FAIL: GI COMPLETED solicited: byte-exact sink 0 response
+    + FAIL: GI COMPLETED solicited: pbsta sink 0 = 3, got 2
+    + FAIL: GI SN-BIND solicited: acmpsta sink 0 = 0, got 7
+    + FAIL: GI SN-BIND solicited: byte-exact sink 0 response
+    + FAIL: GI SN-BIND unsolicited: complete Milan response
+    + FAIL: GI SN-BIND: solicited and unsolicited bodies agree for sink 0
+    + FAIL: GI START-BY-A solicited: acmpsta sink 0 = 0, got 7
+    + FAIL: GI START-BY-A solicited: byte-exact sink 0 response
+    + FAIL: GI START-BY-A solicited: pbsta sink 0 = 3, got 2
+    + FAIL: GI START-BY-A: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 1, STREAMING_WAIT clear
+    + FAIL: GI START-BY-A: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 2, STREAMING_WAIT clear
+    + FAIL: GI STOP-BY-A solicited: acmpsta sink 0 = 0, got 7
+    + FAIL: GI STOP-BY-A solicited: byte-exact sink 0 response
+    + FAIL: GI STOP-BY-A solicited: pbsta sink 0 = 3, got 2
+    + FAIL: GI STOP-BY-A: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 0, STREAMING_WAIT set
+    + FAIL: GI STOP-BY-A: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 0, STREAMING_WAIT set
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: acmpsta sink 0 = 0, got 7
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: byte-exact sink 0 response
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: failure code sink 0 = 7, got 0
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: full failure bridge sink 0
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: pbsta sink 0 = 3, got 2
+    + FAIL: GI STOP-WITH-REGISTRATION: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 3, STREAMING_WAIT set
+    + FAIL: GI STOP-WITH-REGISTRATION: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 6, STREAMING_WAIT set
+DIFFER wrong-sink-run.log: base 2500, head 2522 FAIL lines
+    + FAIL: GI COMPLETED solicited: pbsta sink 0 = 3, got 0
+    + FAIL: GI COMPLETED unsolicited: pbsta sink 0 = 3, got 0
+    + FAIL: GI SN-BIND solicited: byte-exact sink 0 response
+    + FAIL: GI SN-BIND solicited: pbsta sink 0 = 2, got 0
+    + FAIL: GI SN-BIND unsolicited: byte-exact sink 0 response
+    + FAIL: GI SN-BIND unsolicited: pbsta sink 0 = 2, got 0
+    + FAIL: GI START-BY-A solicited: byte-exact sink 0 response
+    + FAIL: GI START-BY-A solicited: pbsta sink 0 = 3, got 0
+    + FAIL: GI START-BY-A: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 3, STREAMING_WAIT clear
+    + FAIL: GI START-BY-A: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 2, STREAMING_WAIT clear
+    + FAIL: GI STOP-BY-A solicited: byte-exact sink 0 response
+    + FAIL: GI STOP-BY-A solicited: pbsta sink 0 = 3, got 0
+    + FAIL: GI STOP-BY-A: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 2, STREAMING_WAIT set
+    + FAIL: GI STOP-BY-A: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 0, STREAMING_WAIT set
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: byte-exact sink 0 response
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: failure code sink 0 = 7, got 0
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: full failure bridge sink 0
+    + FAIL: GI STOP-WITH-REGISTRATION solicited: pbsta sink 0 = 3, got 0
+    + FAIL: GI STOP-WITH-REGISTRATION: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 5, STREAMING_WAIT set
+    + FAIL: GI STOP-WITH-REGISTRATION: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 6, STREAMING_WAIT set
+38 logs carry the same FAIL lines at base and head

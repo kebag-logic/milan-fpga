@@ -1,0 +1,14 @@
+make: Entering directory '<scratch>/tmpdir/adp-mutants-f64ixsu_/tb/pp_top'
+if guard 1: lints clean
+if guard 2: lints clean
+FAIL: if guard 0: must be refused: N_AVB_IF_P=0 is outside 1 to 2 (verilator rc 1)
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:395:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:480:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:485:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:491:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:492:9: Ascending bit range vector: left < right of bit range: [-1:0]
+    %Warning-ASCRANGE: ../../hdl/aecp/KL_aecp_notify.sv:694:9: Ascending bit range vector: left < right of bit range: [-1:0]
+if guard 3: refused: N_AVB_IF_P=3 is outside 1 to 2
+if guards: 4 checks, 1 failing
+make: *** [Makefile:236: if-guards] Error 1
+make: Leaving directory '<scratch>/tmpdir/adp-mutants-f64ixsu_/tb/pp_top'

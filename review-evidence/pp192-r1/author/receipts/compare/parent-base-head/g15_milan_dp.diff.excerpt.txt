@@ -1,0 +1,43 @@
+110:-RESULT: PASS
+120: RESULT: PASS
+129:+182 checks: 182 PASS, 0 FAIL
+134: RESULT: PASS
+139:+RESULT: PASS
+146: 182 checks: 182 PASS, 0 FAIL
+155:-182 checks: 182 PASS, 0 FAIL
+482:   [ok]   [GSI] G9 STOP_STREAMING(sink 1) from A is SUCCESS = 0x0
+483:   [ok]   [GSI] G9 ...pushes STOP_STREAMING to B         = 0x1
+484:   [ok]   [GSI] G9 ...and not to A, the requester        = 0x0
+485:-  [ok]   [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to A = 0x0
+486:-  [ok]   [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to B = 0x0
+487:+  [FAIL] [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to A got=0x1 exp=0x0
+488:+  [FAIL] [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited GET_STREAM_INFO(sink 1) to B got=0x1 exp=0x0
+489:   [ok]   [GSI] G9 sink 1 stopped: STREAMING_WAIT        = 0x1
+490:   [ok]   [GSI] G9 sink 1 stopped: GET_STREAM_INFO SUCCESS at cdl 68 = 0x1
+491:   [ok]   [GSI] G9 sink 1 stopped: probing_status        = 0x3
+496:-checks: 423   failures: 0
+497:-RESULT: PASS
+498:+checks: 423   failures: 2
+499:+RESULT: FAIL
+500:+sim_pool: ./obj_notify/Vmilan_dp_notify exited with status 1
+506: checks: 1969   failures: 0
+507: RESULT: PASS
+4479:-checks: 3751   failures: 0
+4480:-RESULT: PASS
+6544:-checks: 1967   failures: 0
+6545:-RESULT: PASS
+6820:-milan_datapath: 236 checks, 0 failures
+6868:-checks: 33   failures: 0
+6869:-RESULT: PASS
+7147:-milan_datapath: 233 checks, 0 failures
+7412:-media_aclk: 193 checks, 0 failures
+7413:-RESULT: PASS
+7445:-6 checks: 6 PASS, 0 FAIL
+7446:+sim_pool: ./obj_nxn8/Vmilan_dp_nxn8 was not started after a child failure
+7447:+sim_pool: ./obj_nxn4c/Vmilan_dp_nxn4c was not started after a child failure
+7448:+sim_pool: ./obj_nolpf/Vmilan_dp_nolpf was not started after a child failure
+7449:+sim_pool: ./obj_prune/Vmilan_dp_prune was not started after a child failure
+7450:+sim_pool: ./obj_ax1x1/Vmilan_dp_ax1x1 was not started after a child failure
+7451:+sim_pool: ./obj_aclk/Vmilan_dp_aclk was not started after a child failure
+7452:+sim_pool: first leg in recipe order that did not pass: ./obj_notify/Vmilan_dp_notify
+7453:+make: *** [Makefile:582: run] Error 1

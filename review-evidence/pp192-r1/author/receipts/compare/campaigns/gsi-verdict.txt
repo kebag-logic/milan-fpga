@@ -1,0 +1,9 @@
+# verdict log: base vs head 21855f6
+21a22,24
+> {"variant": "command-started-change-dropped", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0"], "passed": true}
+> {"variant": "started-trigger-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0"], "passed": true}
+> {"variant": "coincidence-hold-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 2"], "passed": true}
+23c26
+< GSI mutations: 20 detected by named checks; golden and restored PASS
+---
+> GSI mutations: 23 detected by named checks; golden and restored PASS

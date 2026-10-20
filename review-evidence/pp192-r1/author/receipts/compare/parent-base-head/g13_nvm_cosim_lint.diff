@@ -1,0 +1,18 @@
+--- base/g13_nvm_cosim_lint.log
++++ head/g13_nvm_cosim_lint.log
+@@ -5,7 +5,7 @@
+   -GN_NAME_P=99 -GT_HOLD_MS_P=50 -GCAP_ID_W_P=16 ../../../hdl/milan/KL_nvm_backend.sv
+ - V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+ - Verilator: Built from 0.081 MB sources in 2 modules, into 0.301 MB in 3 C++ files needing 0.000 MB
+-- Verilator: Walltime 0.116 s (elab=0.029, cvt=0.071, bld=0.000); cpu 0.115 s on 1 threads; allocated 23.434 MB
++- Verilator: Walltime 0.086 s (elab=0.020, cvt=0.053, bld=0.000); cpu 0.085 s on 1 threads; allocated 23.430 MB
+ verilator --lint-only -Wall -Wno-fatal -Werror-USERERROR --top-module cosim_top \
+   +define+NVM_CONTRACT_3 \
+   -GCLK_HZ_P=1000000 -GN_STREAM_IN_P=9 -GN_STREAM_OUT_P=9 \
+@@ -362,5 +362,5 @@
+                        ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+ - V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+ - Verilator: Built from 0.608 MB sources in 8 modules, into 0.489 MB in 3 C++ files needing 0.000 MB
+-- Verilator: Walltime 0.204 s (elab=0.046, cvt=0.118, bld=0.000); cpu 0.203 s on 1 threads; allocated 28.156 MB
++- Verilator: Walltime 0.152 s (elab=0.032, cvt=0.093, bld=0.000); cpu 0.151 s on 1 threads; allocated 28.152 MB
+ make: Leaving directory '<tree>/tb/verilator/nvm_cosim'

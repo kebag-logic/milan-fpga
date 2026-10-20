@@ -1,0 +1,21 @@
+GI latency walks added: 5568 checks, 0 failures
+  [dbg] da=0202deadbeef u=0 ct=0023 seq=31699 ti=0005:1 flags7=00 code=00
+  [dbg] da=0202deadbeef u=1 ct=000f seq=6 ti=0005:0 flags7=00 code=07
+  [dbg] da=0202c2c2c2c2 u=1 ct=000f seq=4 ti=0005:0 flags7=00 code=07
+  [dbg] da=0202c2c2c2c2 u=1 ct=0023 seq=5 ti=0005:1 flags7=00 code=00
+  [dbg] da=0202deadbeef u=1 ct=000f seq=7 ti=0005:1 flags7=09 code=00
+  [dbg] da=0202c2c2c2c2 u=1 ct=000f seq=6 ti=0005:1 flags7=09 code=00
+  [dbg] da=0202deadbeef u=0 ct=0023 seq=31700 ti=0005:0 flags7=00 code=00
+  [dbg] da=0202deadbeef u=1 ct=000f seq=8 ti=0005:0 flags7=08 code=07
+  [dbg] da=0202c2c2c2c2 u=1 ct=000f seq=7 ti=0005:0 flags7=08 code=07
+  [dbg] da=0202c2c2c2c2 u=1 ct=0023 seq=8 ti=0005:0 flags7=00 code=00
+FAIL: GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 2
+FAIL: GI STOP-WITH-REGISTRATION: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 6, STREAMING_WAIT set
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 06 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at B, got 2
+FAIL: GI STOP-WITH-REGISTRATION: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 4, STREAMING_WAIT set
+  GI got (94 B): 02 02 c2 c2 c2 c2 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 43 00 04 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 c2 c2 c2 c2 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 43 00 04 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI STOP-WITH-REGISTRATION: nothing else is sent, got 10 frames
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6285 checks, 5 failures

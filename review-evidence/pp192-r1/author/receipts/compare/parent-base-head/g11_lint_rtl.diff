@@ -1,0 +1,13 @@
+--- base/g11_lint_rtl.log
++++ head/g11_lint_rtl.log
+@@ -21,8 +21,8 @@
+   hdl/ieee1722/aaf/KL_chan_map_render.sv:207:39: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+   hdl/ieee1722/aaf/KL_chan_map_render.sv:208:39: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+   hdl/ieee1722/aaf/KL_chan_map_render.sv:256:23: WIDTHTRUNC  Bit extraction of array[0:0] requires 1 bit index, not 3 bits.
+-  hdl/ieee1722/aaf/KL_i2s_playback.sv:317:29: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 17 bits.
+-  hdl/ieee1722/aaf/KL_i2s_playback.sv:318:20: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 17 bits.
++  hdl/ieee1722/aaf/KL_i2s_playback.sv:317:29: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 16 bits.
++  hdl/ieee1722/aaf/KL_i2s_playback.sv:318:20: WIDTHEXPAND  Operator EQ expects 32 bits on the LHS, but LHS's VARREF 'ms_div_r' generates 16 bits.
+   hdl/ieee1722/aaf/KL_lat_history_ring.sv:210:54: WIDTHEXPAND  Operator SHIFTL expects 32 bits on the LHS, but LHS's REPLICATE generates 30 bits.
+   hdl/ieee1722/aaf/KL_pcm_lpf.sv:172:36: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.
+   hdl/ieee1722/aaf/KL_pcm_lpf.sv:186:41: WIDTHEXPAND  Operator NEGATE expects 44 bits on the LHS, but LHS's VARREF 'prod_w' generates 41 bits.

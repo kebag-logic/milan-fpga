@@ -1,0 +1,7 @@
+FAIL:  decode: GET_AVB_INFO: the table's entries name NOTIMPL, which the engine never dispatches AEM 0x0027 to (the fresh sweep)
+FAIL:  decode: GET_AVB_INFO: the engine dispatches AEM 0x0027 to NSUPPE, which is not one of the table's entries (the fresh sweep)
+FAIL:  decode: GET_AVB_INFO: NSUPPE answered NOT_SUPPORTED, which is not in the table's status set
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0027 NOTIMPL: observed nothing, recorded {"answers": {"1": "echo"}, "cdls": "16-100", "floor": 16} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0027 NSUPPE: observed {"answers": {"11": "echo"}, "cdls": "16-100", "floor": 16}, recorded nothing (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "2f9d3531a8cfc01ef7bbd3570530aa6fbd06e3c5be8daf8a76ed43fcf9a349e2", recorded "e5a16e882cb42094c84125ad0b579acd325811034e568a6a08e84d26c1bb7526" (make -C tb/aecp_cmds record)
+aecp_cmds: 617916 trials swept; 176 checks: 173 PASS, 3 FAIL

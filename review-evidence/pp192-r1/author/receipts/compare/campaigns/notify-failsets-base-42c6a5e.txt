@@ -1,0 +1,8 @@
+DIFFER entry_seq_not_advanced.log: base 13, head 13 FAIL lines
+    - FAIL: NP6 STOP_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 8, the response body (Milan 5.4.5.1, IEEE 7.5.2)
+    - FAIL: NP7 START_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 9, the response body (Milan 5.4.5.1, IEEE 7.5.2)
+    - FAIL: NP8 SET_CONTROL(IDENTIFY 255) from B: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 2, the response body (Milan 5.4.5.1, IEEE 7.5.2)
+    + FAIL: NP6 STOP_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 9, the response body (Milan 5.4.5.1, IEEE 7.5.2)
+    + FAIL: NP7 START_STREAMING: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 11, the response body (Milan 5.4.5.1, IEEE 7.5.2)
+    + FAIL: NP8 SET_CONTROL(IDENTIFY 255) from B: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 4, the response body (Milan 5.4.5.1, IEEE 7.5.2)
+149 logs carry the same FAIL lines at base and head

@@ -1,0 +1,204 @@
+[A660] GET_STREAM_INFO on every started/stopped change of a Stream Input, a START/STOP_STREAMING's requester included (#192)
+
+Refs #192
+
+Branch `192-started-notify` from main `24c7f853`, five commits; head `21855f6c`.
+
+## The defect
+
+A START_STREAMING or STOP_STREAMING that changed a Stream Input's started/stopped state
+pushed no GET_STREAM_INFO notification. `stri_events` in `protocol_processor_top` ANDed the
+listener's started/stopped change with `!lstn_act_strt_cmd_chg_w`, which the listener
+raised for a change made by START/STOP_STREAMING. A re-bind's change notified; a command's
+did not. The command's own unsolicited response (class 9, IEEE 1722.1-2021 §7.5.2) went to
+the other controllers, but it is a different notification.
+
+Milan v1.2 Table 5.22 lists "Started/stopped state (Stream Input only)" among the
+GET_STREAM_INFO causes, and §5.4.5.2's last paragraph sends them "asynchronously of any
+command when the state of the entity changes". §5.4.2.19 and §5.4.2.20 change exactly that
+state. The notification answers no command, so it has no requesting controller to exclude
+(§5.4.5.1, "except the requesting controller, if any"): every registered controller
+receives it, the START/STOP's requester included.
+
+## The change
+
+| Commit | Subject |
+|---|---|
+| `aa5d28f` | GET_STREAM_INFO on every started/stopped change of a Stream Input, a START/STOP_STREAMING's requester included (#192) |
+| `5398ef4` | Docs: the START/STOP_STREAMING started/stopped notification in 06 and 00, and the GI step and its GSI controls in tb/pp_top/README (#192) |
+| `6127c6b` | tb/pp_top: a GSI control for the defect as reported, a START/STOP_STREAMING's own started change dropped (#192) |
+| `42c6a5e` | F06.14: START/STOP_STREAMING's class 9 is its own unsolicited response, requester excluded; the started/stopped GET_STREAM_INFO is a separate event (#192) |
+| `21855f6` | Docs: 06 section 7 cites 5.4.5.2's last paragraph for 'asynchronously of any command' and 5.4.5.1's 'if any' for the requester (#192) |
+
+- `hdl/top/protocol_processor_top.sv` (`stri_events`): the started/stopped term is
+  `(32'(lstn_act_sink_w) == k && lstn_act_strt_chg_w)`. Every started/stopped change of a
+  bound input therefore feeds the per-input OR, whatever made it: START/STOP_STREAMING, the
+  §5.5.3.5.6 re-bind short-circuit, or a re-bind to another talker. The comment says why the
+  requester is not excluded. It also says that causes meeting before the input's round is
+  claimed share its one pending bit in `KL_aecp_notify`, so they leave as one notification
+  carrying the final state (#181's coalescing).
+- `hdl/acmp/KL_pp_acmp_listener.sv`: `act_strt_cmd_chg_o` existed only for the exclusion and
+  is removed, with its resets and assignment and the open connection in
+  `tb/acmp_nvm/acmp_nvm_wrap.sv`. The `act_strt_chg_o` comment no longer says the command's
+  own unsolicited response is unsent: the engine's command trigger sends it.
+- A state-changing START/STOP_STREAMING now gives two notifications of different kinds. Its
+  opcode-specific unsolicited response goes to every registered controller except the
+  requester (§5.4.5.2, unchanged). The GET_STREAM_INFO goes to every registered controller.
+- No top-level port, parameter or register-map change. The removed port belongs to a
+  submodule wired inside `protocol_processor_top`.
+
+## Tests and planted mutants
+
+`tb/pp_top` section GI gets a last step, `started_notify`, on a fresh boot. Sink 0 is
+discovered, bound and settled; A registers, then B. Each controller's sequence_id is
+modelled from the wire as the count of unsolicited frames it was sent before.
+
+- **STOP-BY-A**, **START-BY-A**: A's STOP_STREAMING, then its START_STREAMING, each gives
+  exactly one GET_STREAM_INFO for sink 0 at A, the requester, and exactly one at B. Each is
+  byte-exact at its controller's own sequence_id, with STREAMING_WAIT set after the STOP
+  and clear after the START. The command's own unsolicited response reaches B once and A
+  never. Nothing else is sent (4 frames), and the solicited read agrees. A premise checks
+  that the command answered SUCCESS and moved the state.
+- **STOP-WITH-REGISTRATION**: a STOP from A coincides with sink 0's first Talker
+  registration (Failed, code 7). Each controller gets exactly one notification, carrying
+  STREAMING_WAIT and the failure. The engine takes no command while a notification is
+  pending, so the bench raises the integrator's GET_AVB_INFO change on the clock the engine
+  takes the STOP. That round holds the notify block until the STOP has answered, so both
+  sink 0 causes pend before the input's round is claimed. Premises check that order and
+  the single GET_AVB_INFO at each controller.
+- **SN final**: no late or duplicate notification within 100 ms.
+- Section G: G7f now requires the STOP requester, its only registered controller, to
+  receive the u=1 GET_STREAM_INFO for sink 1; G7g requires nothing else.
+
+Three controls in `tb/pp_top/gsi_mutants.py`, each detected by its named check:
+
+| Control | Planted | Fails |
+|---|---|---|
+| `command-started-change-dropped` | the defect as reported: the listener does not drive a START/STOP's own change; the re-bind's still notifies | `GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0` |
+| `started-trigger-removed` | the event not driven: the started term deleted from `stri_events` | `GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0` |
+| `coincidence-hold-removed` | premise control: no round holds the notify block, so the STOP's change is claimed alone | `GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 2` |
+
+Docs: 06 F06.14 (regenerated from `aecp_commands.json`), F06.13, §7's STREAM_INPUT
+triggers and the START/STOP row; REQ-NOT-003 in 00; the GI step and the three GSI rows in
+`tb/pp_top/README.md`.
+
+## Gates
+
+Every processor gate and all 13 campaigns, each of which builds or reads a changed file,
+ran at base `24c7f853` and at head `21855f6c`, unpiped, all rc 0. The tools were Verilator
+5.050 (pinned), sv2v 0.0.12 and Yosys 0.33 as in CI, with Yosys 0.66 for a second
+synthesis record.
+
+| Gate | Base | Head | Comparison |
+|---|---|---|---|
+| scripts/run_suites.sh | rc 0, 1,030,205 checks, 0 failing | rc 0, 1,030,277 checks, 0 failing | pp_top 10,634 → 10,706 (+72: the GI step and G7f/G7g) and the total; every other suite line identical |
+| executed REQ-tag check | rc 0, 233 evidence lines | rc 0, 233 | identical but for 69 `sim_main.cpp` line numbers (+5) |
+| scripts/lint_hdl.sh, make check, scripts/gen_matrix.py --check | rc 0 | rc 0 | identical |
+| syn/yosys/run.sh (0.33 and 0.66) | rc 0 | rc 0 | eight memory warnings' all.v line numbers (−5) |
+| tb/elab_guards/guards.py --frontend yosys | rc 0 | rc 0 | identical with line numbers masked |
+
+| Campaign | Base | Head | Comparison |
+|---|---|---|---|
+| tb/pp_top/d3_mutants.py | 110 of 110 KILLED, goldens PASS | the same | identical |
+| tb/pp_top/notify_mutants.py | 135 of 135 KILLED, goldens PASS | the same (at `42c6a5e`, which differs from the head by one 06 §7 paragraph only) | identical, except that `entry_seq_not_advanced`'s NP6, NP7 and NP8 messages name sequence_ids one or two higher, the started/stopped GET_STREAM_INFO frames being counted; it fails the same 13 checks |
+| tb/pp_top/acmp_mutants.py | 54 of 54 KILLED, goldens PASS | the same | `armq_ring_of_three` fails G7g instead of G7f, still 12 checks; `gsi_vlan_external` also fails GI SN-BIND's two byte-exact rows |
+| tb/pp_top/gsi_mutants.py | 20 detected, golden and restored PASS | 23 detected, golden and restored PASS | the three controls above added; six earlier variants also fail rows of the new step, no base failure lost |
+| tb/pp_top/aecp_dispatch_mutants.py, aecp_mutants.py, ctr_mutants.py, name_wr_mutant.py | 73, 67, 18 checks PASS; decode killed | the same | byte-identical |
+| tb/name_state, tb/maap, tb/adp_engine, tb/aecp_cmds mutants | 16 KILLED; 32 and 62 checks PASS; 17 of 17 detected | the same | identical |
+| tb/elab_guards/mutants.py | 160 of 160 killed | the same | identical with line numbers masked |
+
+No README record moves: every count the READMEs give is the same at head.
+
+## Parent consumer gates
+
+These ran on a scratch milan-fpga at dev `e26f1816`, with the #180 evidence
+classification, #176 milan_dp-67 and #190 TSpec patches as local commits and the
+protocol-processor gitlink committed at base and at head. All 17 gates of the #196 bank
+ran: C++, Python and shell idiom, RTL source lists, pp_srcs, port contracts, naming, test
+evidence, docs, the builder tests, RTL lint, pp_shadow, nvm_cosim lint and quick, milan_dp,
+milan_dp_render and the xvlog gate.
+
+- At base, all 17 are rc 0.
+- At head on that stack, 16 are rc 0. `make -C tb/verilator/milan_dp` fails (rc 2) on the
+  notify leg's G9: `[FAIL] [GSI] G9 sink 1 stopped (no GET_STREAM_INFO push): unsolicited
+  GET_STREAM_INFO(sink 1) to A got=0x1 exp=0x0`, and the same row for B. G9 sends
+  STOP_STREAMING from A and requires that nobody gets GET_STREAM_INFO. That pins exactly
+  the behaviour this PR removes. G9's own STOP_STREAMING rows still pass: B gets one, A
+  does not.
+- With the parent change below as a fourth local commit, all 17 are rc 0 at head. The
+  milan_dp notify leg gains one row (423 → 424 checks), and every other leg's tally is
+  identical. The other gates differ from base only in the removed port (port contracts
+  1,765 → 1,764, naming), Python line counts, pin lines, temp names and seeds.
+
+The change belongs with the pin adoption, as #176's milan_dp-67 change did:
+
+```diff
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index aaded0dd..38b6f9f1 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -651,7 +651,7 @@ The processor's response tests own isolated latency-change coverage.
+ | G6 | the same Talker Failed, refreshed | no push |
+ | G7 | sink 1's FailureInformation changes | one push for sink 1, new values; sink 0 untouched |
+ | G8 | sink 0's Talker Failed is withdrawn | exactly two pushes per controller: registrar withdrawal, then settlement teardown; both PASSIVE with cleared failure fields; sink 1 quiet |
+-| G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A gets nothing, nobody gets GET_STREAM_INFO |
++| G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A does not; A and B each get one GET_STREAM_INFO for sink 1, carrying STREAMING_WAIT (processor #192) |
+ | G10 | a reset | both sinks DISABLED with nothing carried |
+ 
+ Each named change pushes one GET_STREAM_INFO to each controller.
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index 5d494619..199081c2 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -1755,8 +1755,10 @@ class NxnDatapathHarness {
+     //    G7  a changed FailureInformation changes that sink alone, once;
+     //    G8  withdrawal pushes twice per controller: registrar withdrawal,
+     //        then settlement teardown to PASSIVE, both with cleared failure;
+-    //    G9  STOP_STREAMING pushes its own response, never GET_STREAM_INFO,
+-    //        and never to the requester (Milan 5.4.5.2);
++    //    G9  STOP_STREAMING pushes its own response, never to the requester
++    //        (Milan 5.4.5.2), and its started/stopped change one
++    //        GET_STREAM_INFO to each controller, the requester included
++    //        (Table 5.22, 5.4.5.1; processor issue #192);
+     //    G10 a reset returns both sinks to DISABLED with nothing carried.
+     //  Each named change pushes once to both registered controllers; G8 has
+     //  two changes and grades both pushes to each controller. Its first push
+@@ -2316,7 +2318,7 @@ class NxnDatapathHarness {
+                        kGsiBridgeB, kGsiCodeB);
+     }
+ 
+-    // ---- G9: STOP_STREAMING owns its own push ------------------------------
++    // ---- G9: STOP_STREAMING's own push, and its started/stopped change ----
+     void gsi_g9_stop_streaming_excludes_the_requester() {
+         notify_clear();
+         const std::vector<uint8_t> key = {0x00, 0x05, 0x00, 0x01};
+@@ -2325,7 +2327,9 @@ class NxnDatapathHarness {
+         gsi_ms(kGsiWinMs);
+         ck("[GSI] G9 ...pushes STOP_STREAMING to B", notify_count(0x0023, &CTL_B, 0x0005, 1), 1);
+         ck("[GSI] G9 ...and not to A, the requester", notify_count(0x0023, &CTL_A, 0x0005, 1), 0);
+-        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped (no GET_STREAM_INFO push)", 1, 0);
++        //! the GET_STREAM_INFO answers no command, so A, the requester,
++        //! receives it too (Milan 5.4.5.1, processor issue #192)
++        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped", 1, 1);
+         ck("[GSI] G9 sink 1 stopped: STREAMING_WAIT", gsi_flag(g, 45, 0x08), 1);
+         gsi_ck_state("[GSI] G9 sink 1 stopped", g, kPbCompleted, 0);
+     }
+```
+
+## Acceptance
+
+- [x] Every started/stopped change of a Stream Input, by command or otherwise, queues one
+  GET_STREAM_INFO notification to every registered controller (STOP-BY-A, START-BY-A,
+  REBIND-SW, G7f).
+- [x] The requester is not excluded, because this is not the command's own response. The
+  command's own unsolicited response still skips it.
+- [x] A started/stopped change that coincides with another GET_STREAM_INFO cause gives one
+  notification carrying the final state (STOP-WITH-REGISTRATION).
+- [x] A suite case and a planted mutant cover it: the event-not-driven control
+  (`started-trigger-removed`) and the defect as reported (`command-started-change-dropped`)
+  are each detected by name.
+- [x] The AECP engine guide's GET_STREAM_INFO causes, the compliance review and the
+  notification campaign records are updated.
+- [x] The processor's suites pass.
+- [ ] The parent's consumer gates pass. This PR alone does not do it, so it says "Refs #192".
+  At this pin the parent needs the G9 change above; with it, every consumer gate is rc 0.

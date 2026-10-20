@@ -1,0 +1,7 @@
+DIFFER armq_ring_of_three@pp_top.log: base 12, head 12 FAIL lines
+    - FAIL: G7f: the STOP requester receives no unsolicited response
+    + FAIL: G7g: and nothing else, no unsolicited STOP_STREAMING among it
+DIFFER gsi_vlan_external@pp_top.log: base 50, head 52 FAIL lines
+    + FAIL: GI SN-BIND solicited: byte-exact sink 0 response
+    + FAIL: GI SN-BIND unsolicited: byte-exact sink 0 response
+59 logs carry the same FAIL lines at base and head

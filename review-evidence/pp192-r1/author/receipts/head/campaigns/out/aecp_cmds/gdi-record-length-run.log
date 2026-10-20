@@ -1,0 +1,5 @@
+FAIL:  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12, not SUCCESS with the record
+FAIL:  decode: GET_COUNTERS: inside GET_DYNAMIC_INFO its GCTRSNS record leaves the aggregate ENTITY_MISBEHAVING at aggregate cdl 12, not SUCCESS with the record
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: gdi members 0x0029: observed {"GCTRS": "10:aggregate cdl 12", "GCTRSNS": "10:aggregate cdl 12", "copied": "0:0, 0:2, 0:4"}, recorded {"GCTRS": "0:136", "GCTRSNS": "0:136", "copied": "0:0, 0:2, 0:4"} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "6d4b29564404deef60455b2da80abf85355a3b8f92b2a20e8ab5afac7c3d6be3", recorded "e5a16e882cb42094c84125ad0b579acd325811034e568a6a08e84d26c1bb7526" (make -C tb/aecp_cmds record)
+aecp_cmds: 617916 trials swept; 176 checks: 174 PASS, 2 FAIL
