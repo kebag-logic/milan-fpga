@@ -432,8 +432,9 @@ class AvtpRxMonitorHarness {
         printf("\n[27] FAMILY change while locked: unsupported counts, relock on match\n");
         // USER bug 6 repro, re-aimed at a FAMILY term (task #24: a channels-only
         // change does not mismatch in this flat instrument's family compare;
-        // the device listener rejects it, #765): the listener reconfigures to a 96 kHz format while the wire stays
-        // 48 kHz -> rate mismatch counts UNSUPPORTED; back to 48 kHz -> relock.
+        // the device listener rejects it, #765): the listener reconfigures to
+        // a 96 kHz format while the wire stays 48 kHz -> rate mismatch counts
+        // UNSUPPORTED; back to 48 kHz -> relock.
         dut->bound_i=0; cyc(3);
         dut->clk_src_i=0; dut->servo_conv_i=0;
         dut->bound_i=1; cyc(3);
