@@ -1,0 +1,10 @@
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -524,7 +524,6 @@
+                   (p_nsr_w     == f_nsr_w)     &&
+                   (p_depth_w   == f_depth_w)   &&
+                   (p_cpf_w     == f_cpf_w)     &&
+-                  (p_cpf_w     != 10'd0)       &&
+                   (p_sp_w      == 1'b0);
+ 
+   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;

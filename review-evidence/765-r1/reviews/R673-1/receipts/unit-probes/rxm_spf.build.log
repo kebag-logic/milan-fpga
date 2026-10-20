@@ -1,0 +1,264 @@
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:100:50: Instance has missing pin: 'bound_v_i'
+  100 |   KL_stream_table #(.N_LISTENERS_P(N_STREAMS_P)) u_tbl (
+      |                                                  ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:74:40: ... Location of port declaration
+   74 |   input  wire [N_LISTENERS_P-1:0]      bound_v_i,    
+      |                                        ^~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:100:50: Instance has missing pin: 'sid_v_i'
+  100 |   KL_stream_table #(.N_LISTENERS_P(N_STREAMS_P)) u_tbl (
+      |                                                  ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:75:40: ... Location of port declaration
+   75 |   input  wire [64*N_LISTENERS_P-1:0]   sid_v_i,      
+      |                                        ^~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:100:50: Instance has missing pin: 'bind_fall_o'
+  100 |   KL_stream_table #(.N_LISTENERS_P(N_STREAMS_P)) u_tbl (
+      |                                                  ^~~~~
+                     ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:87:39: ... Location of port declaration
+   87 |   output logic [N_LISTENERS_P-1:0]    bind_fall_o   
+      |                                       ^~~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:132:5: Instance has missing pin: 'bind_fall_i'
+  132 |   ) u_mon (
+      |     ^~~~~
+                     <packet>/receipts/unit-probes/rxm_spf.sv:148:35: ... Location of port declaration
+  148 |   input  wire [N_LISTENERS_P-1:0] bind_fall_i,   
+      |                                   ^~~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:132:5: Instance has missing pin: 'wire_chans_all_o'
+  132 |   ) u_mon (
+      |     ^~~~~
+                     <packet>/receipts/unit-probes/rxm_spf.sv:215:38: ... Location of port declaration
+  215 |   output logic [N_LISTENERS_P*4-1:0] wire_chans_all_o,
+      |                                      ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:132:5: Instance has missing pin: 'diag_idx_i'
+  132 |   ) u_mon (
+      |     ^~~~~
+                     <packet>/receipts/unit-probes/rxm_spf.sv:227:38: ... Location of port declaration
+  227 |   input  wire [3:0]                  diag_idx_i,
+      |                                      ^~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:132:5: Instance has missing pin: 'diag_col_i'
+  132 |   ) u_mon (
+      |     ^~~~~
+                     <packet>/receipts/unit-probes/rxm_spf.sv:228:38: ... Location of port declaration
+  228 |   input  wire [3:0]                  diag_col_i,   
+      |                                      ^~~~~~~~~~
+%Warning-PINMISSING: avtp_rxmon_nx_wrap.sv:132:5: Instance has missing pin: 'diag_q_o'
+  132 |   ) u_mon (
+      |     ^~~~~
+                     <packet>/receipts/unit-probes/rxm_spf.sv:229:38: ... Location of port declaration
+  229 |   output logic [31:0]                diag_q_o,     
+      |                                      ^~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:28:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   28 | package ethernet_packet_pkg;
+      |         ^~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv:24:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   24 | package avtp_subtype_pkg;
+      |         ^~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:57:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   57 | module avtp_stream_parser #(
+      |        ^~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/KL_stream_table.sv:57:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   57 | module KL_stream_table #(
+      |        ^~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: <packet>/receipts/unit-probes/rxm_spf.sv:118:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+  118 | module KL_avtp_rx_monitor_ctx #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv:63:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   63 | module KL_aaf_rx_depacketizer #(
+      |        ^~~~~~~~~~~~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-TIMESCALEMOD: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/aaf/KL_pcm_route.sv:31:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   31 | module KL_pcm_route #(
+      |        ^~~~~~~~~~~~
+                       ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:34:8: ... Location of module with timescale
+   34 | module axis_fifo #
+      |        ^~~~~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                        : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-VARHIDDEN: ../../../hdl/ieee1722/avtp/../../../hdl/ieee1722/avtp/avtp_stream_parser.sv:58:17: Declaration of signal hides declaration in upper scope: 'TDATA_WIDTH'
+   58 |   parameter int TDATA_WIDTH = 64,      
+      |                 ^~~~~~~~~~~
+                    ../../../hdl/ieee1722/avtp/../../../hdl/common/ethernet_packet_pkg.sv:39:15: ... Location of original declaration
+   39 | parameter int TDATA_WIDTH = 64;
+      |               ^~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/VARHIDDEN?v=5.050
+                    ... Use "/* verilator lint_off VARHIDDEN */" and lint_on around source to disable this message.
+%Warning-SELRANGE: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:238:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                      : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+  238 | wire [ID_WIDTH-1:0]    m_axis_tid_pipe    = ID_ENABLE   ? m_axis[ID_OFFSET +: ID_WIDTH] : {ID_WIDTH{1'b0}};
+      |                                                                 ^
+                   ... For warning description see https://verilator.org/warn/SELRANGE?v=5.050
+                   ... Use "/* verilator lint_off SELRANGE */" and lint_on around source to disable this message.
+%Warning-SELRANGE: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:239:65: Selection index out of range: 80:73 outside 73:0
+                                                                                                      : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+  239 | wire [DEST_WIDTH-1:0]  m_axis_tdest_pipe  = DEST_ENABLE ? m_axis[DEST_OFFSET +: DEST_WIDTH] : {DEST_WIDTH{1'b0}};
+      |                                                                 ^
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:187:46: Procedural assignment to declaration with initial value: 'wr_ptr_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  187 | reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:281:21: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  281 |                     wr_ptr_reg <= wr_ptr_commit_reg;
+      |                     ^~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:188:53: Procedural assignment to declaration with initial value: 'wr_ptr_commit_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  188 | reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                                     ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:298:25: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  298 |                         wr_ptr_commit_reg <= wr_ptr_reg + 1;
+      |                         ^~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:189:46: Procedural assignment to declaration with initial value: 'rd_ptr_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  189 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:397:13: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  397 |             rd_ptr_reg <= rd_ptr_reg + 1;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:197:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  197 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:378:9: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  378 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:206:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  206 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:268:9: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  268 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:208:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  208 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:278:17: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  278 |                 drop_frame_reg <= 1'b1;
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                         : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                         : ... note: In instance 'avtp_rxmon_nx_wrap.u_depkt.frame_fifo'
+                                                                                                         : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../hdl/ieee1722/avtp/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                        : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.915 MB sources in 11 modules, into 0.626 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 11.057 s (elab=0.022, cvt=0.216, bld=10.773); cpu 0.183 s on 16 threads; allocated 761.297 MB

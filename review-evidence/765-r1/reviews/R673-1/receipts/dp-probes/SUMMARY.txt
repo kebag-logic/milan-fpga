@@ -1,0 +1,13 @@
+dp6_stim2ch_dynmap rc=2 checks: 201   failures: 4
+  dp6_stim2ch_dynmap:   [FAIL] [762-DP] 2 stopped gap: SEQ_NUM_MISMATCH +1 (the gap was seen) got=0x0 exp=0x1
+  dp6_stim2ch_dynmap:   [FAIL] [762-DP] 4 started again: MEDIA_LOCKED +1 (relocked) got=0x0 exp=0x1
+  dp6_stim2ch_dynmap:   [FAIL] [762-DP] 4 started gap: SEQ_NUM_MISMATCH +1    got=0x0 exp=0x1
+  dp6_stim2ch_dynmap:   [FAIL] [762-DP] 4 started gap: STREAM_INTERRUPTED +1  got=0x0 exp=0x1
+dp6_stim2ch_nxn4c rc=2 checks: 1983   failures: 4
+  dp6_stim2ch_nxn4c:   [FAIL] [762-DP] 2 stopped gap: SEQ_NUM_MISMATCH +1 (the gap was seen) got=0x0 exp=0x1
+  dp6_stim2ch_nxn4c:   [FAIL] [762-DP] 4 started again: MEDIA_LOCKED +1 (relocked) got=0x0 exp=0x1
+  dp6_stim2ch_nxn4c:   [FAIL] [762-DP] 4 started gap: SEQ_NUM_MISMATCH +1    got=0x0 exp=0x1
+  dp6_stim2ch_nxn4c:   [FAIL] [762-DP] 4 started gap: STREAM_INTERRUPTED +1  got=0x0 exp=0x1
+dp7_tie0_dynmap rc=2 checks: 201   failures: 2
+  dp7_tie0_dynmap:   [FAIL] [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  got=0x1 exp=0x0
+  dp7_tie0_dynmap:   [FAIL] [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 got=0x1 exp=0x0

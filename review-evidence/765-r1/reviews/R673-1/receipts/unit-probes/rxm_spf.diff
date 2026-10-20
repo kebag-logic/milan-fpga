@@ -1,0 +1,11 @@
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -498,7 +498,7 @@
+   wire [3:0] f_nsr_w     = fmt_r[51:48];
+   wire [7:0] f_format_w  = fmt_r[47:40];
+   wire [7:0] f_depth_w   = fmt_r[39:32];
+-  wire [9:0] f_cpf_w     = fmt_r[31:22];   //! channels_per_frame
++  wire [9:0] f_cpf_w     = fmt_r[21:12];   //! channels_per_frame
+ 
+   //! received AAF fields from the format-specific header (wire layout)
+   wire [7:0] p_format_w = cur_w.fsh[63:56];

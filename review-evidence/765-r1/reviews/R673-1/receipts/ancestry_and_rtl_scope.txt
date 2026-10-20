@@ -1,0 +1,22 @@
+# head and ancestry
+75db4b57cff47bb614d14dead084649a4c2aa2a3
+f974f88ec16ad996db74419f368fd247f6883813
+7f84892a4389c824927093188884cd95847e77d8 parents=4605409b1f4f7388c6050af902d3af8b8c9c0e8c 78ca9bdf104819265588726bce4322696c38b8c2
+75db4b57cff47bb614d14dead084649a4c2aa2a3 parents=7f84892a4389c824927093188884cd95847e77d8
+dev 78ca9bdf is an ancestor of HEAD
+4191b098 is an ancestor of HEAD
+# live remote dev tip (read-only query)
+78ca9bdf104819265588726bce4322696c38b8c2
+# lane delta vs dev 78ca9bdf, RTL only
+ hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv | 31 ++++++++++++++++++-----------
+ hdl/ieee1722/crf/KL_crf_rx.sv               | 13 ++++++++----
+ 2 files changed, 28 insertions(+), 16 deletions(-)
+# milan_datapath.sv vs dev
+identical
+# submodule gitlinks
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit e4869fd0c42889b2ac806587cc5c78afb1c33461	gptp-processor
+160000 commit 2cbed0a987c1e68402658d69459ab7e5aa571adc	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis

@@ -1,0 +1,11 @@
+--- a/hdl/ieee1722/crf/KL_crf_rx.sv
++++ b/hdl/ieee1722/crf/KL_crf_rx.sv
+@@ -589,6 +589,8 @@
+           //! a malformed PDU breaks the settle run; the UNSUPPORTED_FORMAT
+           //! count itself commits at the interval tick (w_ev_uf_w above)
+           settle_r  <= '0;
++          exp_seq_r <= seq_i + 8'd1;
++          have_seq_r <= 1'b1;
+         end else begin
+           //! SEQ_NUM_MISMATCH commits at the interval tick; FRAMES_RX
+           //! counts this accepted PDU above. A discontinuity breaks the
