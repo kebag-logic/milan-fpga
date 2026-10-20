@@ -1,0 +1,13 @@
+--- r3-mutants/dp_stopped_mutants.sh (as published in round 3)
++++ r3-mutants/dp_stopped_mutants.sh (round 4)
+@@ -1,7 +1,8 @@
+ #!/usr/bin/env bash
+ # Plant each stopped_i wiring mutant in milan_datapath.sv of a disposable clean
+-# clone, rebuild the obj_nxn4c leg (the shipping Arty 4x4 shape) through the
+-# Makefile's own recipe, run it, and keep its log; then restore the file and
++# clone, rebuild the obj_nxn4c leg (endstation_arty_4x4, the retired Arty 4x4
++# entity at 4 wire channels; not a shipping shape) through the Makefile's own
++# recipe, run it, and keep its log; then restore the file and
+ # run the clean leg as the positive control. Each leg runs from its own
+ # directory, where it reads ucode.hex and ltn_rom.hex. Usage:
+ #   dp_stopped_mutants.sh <clone> <log-dir>

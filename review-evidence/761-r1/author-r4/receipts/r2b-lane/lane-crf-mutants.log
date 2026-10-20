@@ -1,0 +1,34 @@
+[PASS] clean: rc=0
+[PASS] validation_error_unlocks: rc=1
+  named rejection: validation error preserves established lock
+[PASS] validation_error_refreshes_timeout: rc=1
+  named rejection: reject stream cannot refresh the 100 ms timeout
+[PASS] tu_ignored: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] jump_removed: rc=1
+  named rejection: unmarked timestamp jump invalidates the rate
+[PASS] refill_short: rc=1
+  named rejection: all 255 crossing intervals are withheld
+[PASS] accept_edge_late: rc=1
+  named rejection: tu edge invalidates before the sampling edge
+[PASS] unit_clean: rc=0
+[PASS] silence_not_interrupted: rc=1
+  named rejection: [762-a] silence: STREAM_INTERRUPTED counts the silence once
+[PASS] gap_not_interrupted: rc=1
+  named rejection: [5t-e2] 3 gaps in ONE interval: +3 immediately (per-event)
+[PASS] unbind_interrupts: rc=1
+  named rejection: [UNB-a6] STREAM_INTERRUPTED does not count the unbind
+[PASS] unbind_edge_timeout_interrupts: rc=1
+  named rejection: [UNB-d5] ...and no STREAM_INTERRUPTED: the unbind wins the edge (#762)
+[PASS] stopped_silence_interrupts: rc=1
+  named rejection: [762-ST-b2] stopped silence: no STREAM_INTERRUPTED
+[PASS] stopped_gap_interrupts: rc=1
+  named rejection: [762-SG-b1] stopped gap: no STREAM_INTERRUPTED
+[PASS] sticky_stop_gap: rc=1
+  named rejection: [762-SG-c1] after START a gap counts STREAM_INTERRUPTED again
+[PASS] servo_clean: rc=0
+[PASS] servo_ignores_valid: rc=1
+  named rejection: [U13] invalid remote sample holds trim
+[PASS] servo_never_resumes: rc=1
+  named rejection: [U13] valid offset resumes PI trim
+== crf_rx mutants: checks: 18   failures: 0 ==

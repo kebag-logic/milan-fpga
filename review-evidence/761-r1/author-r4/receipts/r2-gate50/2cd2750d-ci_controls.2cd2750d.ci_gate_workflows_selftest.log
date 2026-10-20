@@ -1,0 +1,153 @@
+refused docs: missing inventory preparation in docs-gates-0
+refused docs: if preparation in docs-gates-0
+refused docs: continue-on-error preparation in docs-gates-0
+refused docs: missing inventory preparation in ci-manifest
+refused docs: if preparation in ci-manifest
+refused docs: continue-on-error preparation in ci-manifest
+refused elaborate: missing inventory preparation in ci-manifest
+refused elaborate: if preparation in ci-manifest
+refused elaborate: continue-on-error preparation in ci-manifest
+refused rtl: missing inventory preparation in verilator-shards
+refused rtl: if preparation in verilator-shards
+refused rtl: continue-on-error preparation in verilator-shards
+refused rtl: missing inventory preparation in verilator-suites
+refused rtl: if preparation in verilator-suites
+refused rtl: continue-on-error preparation in verilator-suites
+refused rtl: missing inventory preparation in union-milan_dp
+refused rtl: if preparation in union-milan_dp
+refused rtl: continue-on-error preparation in union-milan_dp
+refused rtl: missing inventory preparation in union-milan_dp_mclk
+refused rtl: if preparation in union-milan_dp_mclk
+refused rtl: continue-on-error preparation in union-milan_dp_mclk
+refused rtl: missing inventory preparation in union-capture_coherence
+refused rtl: if preparation in union-capture_coherence
+refused rtl: continue-on-error preparation in union-capture_coherence
+refused rtl: missing inventory preparation in union-maap
+refused rtl: if preparation in union-maap
+refused rtl: continue-on-error preparation in union-maap
+refused rtl: missing inventory preparation in union-milan_dp_render
+refused rtl: if preparation in union-milan_dp_render
+refused rtl: continue-on-error preparation in union-milan_dp_render
+refused rtl: missing inventory preparation in union-pp_shadow
+refused rtl: if preparation in union-pp_shadow
+refused rtl: continue-on-error preparation in union-pp_shadow
+refused rtl: missing inventory preparation in ci-manifest
+refused rtl: if preparation in ci-manifest
+refused rtl: continue-on-error preparation in ci-manifest
+refused rtl-fast: missing inventory preparation in ci-manifest
+refused rtl-fast: if preparation in ci-manifest
+refused rtl-fast: continue-on-error preparation in ci-manifest
+Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS
+Builder split refused the docs template with its driver in a preparation line
+Builder split refused the docs template with its last line not the driver
+Builder split refused the elaborate template with its driver in a preparation line
+Builder split refused the elaborate template with its last line not the driver
+Suite generator refused a template arm index other than its total: template ownership step lacks its dedicated milan_dp arm
+Suite generator refused a template --expect other than its total: template verifier lacks its worker-count expectation
+Suite generator refused a template total without its arm and --expect: template ownership step lacks its dedicated milan_dp arm
+Suite generator: 16 workers, no dedicated milan_dp arm, --expect 16 PASS
+Capture child recipes: 4 CPUs, 4 recipes consume 1 each
+Capture child recipes: 12 CPUs, 4 recipes consume 3 each
+Capture child recipes: 16 CPUs, 4 recipes consume 4 each
+Capture child control: unlimited compiler budget refused
+CPU budgets: 1 cores; 1 campaigns; nested builds bounded
+CPU budgets: 4 cores; 4 campaigns; nested builds bounded
+CPU budgets: 12 cores; 4 campaigns; nested builds bounded
+CPU budgets: 16 cores; 4 campaigns; nested builds bounded
+Census budget: act job container: 4 worker(s)
+Census budget: hosted runner without a cgroup limit: 4 worker(s)
+Census budget: host memory below its cgroup's: 2 worker(s)
+Census budget: a lower ancestor limit: 2 worker(s)
+Census budget: fewer CPUs than memory allows: 2 worker(s)
+Census budget: memory for less than one worker: 1 worker(s)
+Census budget: a cgroup without a memory controller: 16 worker(s)
+Census budget: a mode-000 limit: refused: unreadable memory limit in <cgroups>
+Census budget: a mode-000 ancestor limit: refused: unreadable memory limit in <cgroups>/a
+Census budget: a mode-000 ancestor cgroup: refused: unsearchable cgroup <cgroups>/a: its memory limit cannot be proved absent
+Census budget: a limit that is not a file: refused: unreadable memory limit in <cgroups>
+Census budget: an ancestor limit that is not a file: refused: unreadable memory limit in <cgroups>/a
+Census budget: a non-numeric limit: refused: non-numeric memory limit in <cgroups>: garbage
+Census budget: an empty limit: refused: non-numeric memory limit in <cgroups>: 
+Census budget: no MemTotal: refused: no MemTotal in kB
+Census budget: zero CPUs: refused: no CPUs: nproc printed 0
+Census budget: only publication-census sets CI_CENSUS_JOBS, before its census
+docs: refused dependent job failure
+docs: refused dependent job cancelled
+docs: refused dependent job skipped
+docs: refused dependent job None
+docs: refused missing dependent job
+docs: refused missing receipt
+docs: refused duplicated leg
+docs: refused changed head
+docs: refused changed tree
+docs: refused changed template_sha256
+docs: refused changed inventory
+docs: refused gate outcome failure
+docs: refused gate outcome cancelled
+docs: refused gate outcome skipped
+docs: refused gate outcome None
+docs: refused gate dropped from every leg and claimed inventory
+docs: refused executed builder division without builder receipts
+docs: refused executed builder division missing a leg receipt
+docs: refused builder legs run with the other workflow's requirement flags
+docs: 43 source gates retain their complete original steps
+--require-elaboration: every elaboration arm ran
+elaborate: refused dependent job failure
+elaborate: refused dependent job cancelled
+elaborate: refused dependent job skipped
+elaborate: refused dependent job None
+elaborate: refused missing dependent job
+elaborate: refused missing receipt
+elaborate: refused duplicated leg
+elaborate: refused changed head
+elaborate: refused changed tree
+elaborate: refused changed template_sha256
+elaborate: refused changed inventory
+elaborate: refused gate outcome failure
+elaborate: refused gate outcome cancelled
+elaborate: refused gate outcome skipped
+elaborate: refused gate outcome None
+elaborate: refused gate dropped from every leg and claimed inventory
+elaborate: refused executed builder division without builder receipts
+elaborate: refused executed builder division missing a leg receipt
+elaborate: refused builder legs run with the other workflow's requirement flags
+elaborate: refused individually valid mixed execution scopes
+elaborate: refused builder receipts from a skipped builder division
+elaborate: refused contradictory skip scope
+elaborate: 3 source gates retain their complete original steps
+Builder owners: 15 LiteX-consulting gates and 1 RV32 gate named
+--require-elaboration: every elaboration arm ran
+Builder union refused elaboration gate deleted from the inventory: --require-elaboration on the union: test_every_recipe_elaborates absent from the driver inventory
+Builder union refused elaboration leg lost: --require-elaboration on the union: test_soc_option_refusals, test_commercial_timing_grade, test_clock_crossing_constraints, test_gptp_plane_reaches_the_instanc
+Builder union refused elaboration gate skipped inside its leg: builder leg 1 did not run its selection exactly once: test_every_recipe_elaborates
+Builder union refused elaboration gate moved to a leg that never ran: --require-elaboration on the union: test_every_recipe_elaborates ran in no leg
+Builder union refused elaboration gates in a leg without --require-elaboration: --require-elaboration on the union: test_soc_option_refusals, test_commercial_timing_grade, test_clock_crossing_constraints, test_gptp_plane_reaches_the_instanc
+Builder union refused RV32 gate in a leg without --require-rv32: --require-rv32 on the union: test_baremetal_profile_contract ran only in a leg without the flag
+
+--require-elaboration: this run was asked to observe the argv -> Instance chain with the toolchain this repository describes, and could not:
+  - [gate 23g] stock VexiiRiscv
+Builder union refused toolchain skip under a passing leg verdict: --require-elaboration on the union: the ledger holds a toolchain skip
+Builder union refused leg whose own elaboration verdict failed: builder leg 1: its own --require-elaboration verdict did not pass
+Builder union refused failed gate verdict: builder leg 1: gate verdict rows differ from schema or did not pass
+Builder union refused changed selection: builder leg 0: selection differs from its measured leg
+Builder union refused duplicated leg: unknown or duplicated builder leg
+Builder union refused changed head: builder leg source identity differs from the run
+Builder union refused changed driver inventory: builder leg 0: driver inventory differs from the driver
+Builder union refused unknown requirement: builder leg 0: unknown requirement flags
+Builder partition refused a measured gate absent from the inventory
+--require-elaboration: every elaboration arm ran
+--require-elaboration: every elaboration arm ran
+Builder comparison refused a NOT RUN row the legs lack
+
+--require-elaboration: this run was asked to observe the argv -> Instance chain with the toolchain this repository describes, and could not:
+  - [gate 23g] no LiteX here
+Builder union refused toolchain skip under the elaboration command: --require-elaboration on the union: the ledger holds a toolchain skip
+Builder union refused docs RV32 gate in a leg without --require-rv32: --require-rv32 on the union: test_baremetal_profile_contract ran only in a leg without the flag
+Builder union refused docs leg without its command's --require-rv32: builder leg 1: requirement flags differ from its command
+Builder union refused docs leg with a requirement its command lacks: builder leg 1: requirement flags differ from its command
+Builder requirements refused a repeated flag: unknown or repeated builder requirement: --require-rv32 --require-rv32
+Builder requirements refused a unknown flag: unknown or repeated builder requirement: --require-anything
+Builder comparison refused a reference run with another command's requirements
+Builder legs: the docs union judges --require-rv32 alone
+Builder legs: union-level requirements and per-gate equality PASS
+gate workflow and union controls: PASS
