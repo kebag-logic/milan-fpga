@@ -1,0 +1,28 @@
+make: Entering directory '<scratch>/r3/cloneH/tb/verilator/tsn_fuzz'
+== AAF/AVTP stream field campaign (tsn-gen driven) ==
+
+[AVTP stream model inventory (tsn-gen)]
+
+[baseline: a good stream locks and reaches the depacketizer output]
+
+[per-field accept/reject verdicts (lock must survive)]
+
+[flat instrument family compare: channels_per_frame 1, 2, 3, 4, 8 accepted (the device listener rejects a count other than its current format's, #765)]
+
+[foreign stream_id and non-AAF subtypes are ignored]
+  ..... foreign stream_id moved: {'parser_parsed': 1}
+  ..... stream_id off by one moved: {'parser_parsed': 1}
+  ..... CVF subtype 0x03 moved: {'unsupported_fmt': 1, 'parser_parsed': 1, 'parser_matched': 1}
+
+[listener ACCEPT VERDICT: wire stream_id vs bound sid]
+
+[truncated / oversized stream PDUs]
+
+[tsn-gen constrained-random storm + lock stability]
+  ..... storm deltas: {'frames_rx': 25, 'stream_interrupted': 25, 'seq_mismatch': 25, 'ts_uncertain': 11, 'media_reset': 13, 'late_ts': 8, 'early_ts': 17, 'pcm_pdus': 25, 'last_ts': -2748385316, 'parser_parsed': 25, 'parser_matched': 25}
+
+results -> ../../../hdl/ieee1722/avtp/doc/TEST_RESULTS.md
+
+== AAF/AVTP stream field campaign (tsn-gen driven): 164 pass, 0 fail, 0 known gaps ==
+campaign artifact freshness (hdl/ieee1722/avtp/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+make: Leaving directory '<scratch>/r3/cloneH/tb/verilator/tsn_fuzz'

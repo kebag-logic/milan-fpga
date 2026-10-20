@@ -1,0 +1,201 @@
+full log sha256 5488f3211063e518a06075c8828a8c9309909b8a29e427df85b25c6f7cb9dafc size 727718 bytes (kept in scratch, over 200 KB); last 200 lines:
+Clock                              Waveform(ns)         Period(ns)      Frequency(MHz)
+-----                              ------------         ----------      --------------
+clk200_p                           {0.000 2.500}        5.000           200.000         
+  milansoc_crg_clkout0             {0.000 5.000}        10.000          100.000         
+    milansoc_crg_audio_ref_raw     {0.000 16.087}       32.174          31.081          
+      milansoc_crg_audio_mclk_raw  {0.000 20.345}       40.691          24.576          
+      milansoc_crg_mmcm_audio_fb   {0.000 16.087}       32.174          31.081          
+    milansoc_crg_pll_audio_fb      {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout1             {0.000 10.000}       20.000          50.000          
+  milansoc_crg_clkout2             {0.000 1.250}        2.500           400.000         
+  milansoc_crg_clkout3             {0.625 1.875}        2.500           400.000         
+  milansoc_crg_clkout4             {0.000 2.500}        5.000           200.000         
+  subfragments_pll_fb              {0.000 2.500}        5.000           200.000         
+eth_clocks0_rx                     {0.000 4.000}        8.000           125.000         
+
+
+------------------------------------------------------------------------------------------------
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock                                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----                                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk200_p                                 3.817        0.000                      0                    7        0.237        0.000                      0                    7        1.100        0.000                       0                    10  
+  milansoc_crg_clkout0                   0.137        0.000                      0                19240        0.048        0.000                      0                19240        3.000        0.000                       0                  7223  
+    milansoc_crg_audio_ref_raw                                                                                                                                                      11.087        0.000                       0                     3  
+      milansoc_crg_audio_mclk_raw       25.585        0.000                      0                 2016        0.079        0.000                      0                 2016       19.215        0.000                       0                   666  
+      milansoc_crg_mmcm_audio_fb                                                                                                                                                    30.925        0.000                       0                     2  
+    milansoc_crg_pll_audio_fb                                                                                                                                                       18.751        0.000                       0                     2  
+  milansoc_crg_clkout1                   0.313        0.000                      0               151200        0.024        0.000                      0               151200        7.500        0.000                       0                 50864  
+  milansoc_crg_clkout2                                                                                                                                                               0.908        0.000                       0                   128  
+  milansoc_crg_clkout3                                                                                                                                                               0.908        0.000                       0                     6  
+  milansoc_crg_clkout4                   1.391        0.000                      0                  186        0.105        0.000                      0                  186        0.264        0.000                       0                    78  
+  subfragments_pll_fb                                                                                                                                                                3.751        0.000                       0                     2  
+eth_clocks0_rx                           0.625        0.000                      0                 1665        0.035        0.000                      0                 1665        2.870        0.000                       0                   588  
+
+
+------------------------------------------------------------------------------------------------
+| Inter Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+eth_clocks0_rx        milansoc_crg_clkout0        5.445        0.000                      0                   13                                                                        
+milansoc_crg_clkout4  milansoc_crg_clkout1        2.871        0.000                      0                    3        0.167        0.000                      0                    3  
+eth_clocks0_rx        milansoc_crg_clkout1        6.323        0.000                      0                   50                                                                        
+milansoc_crg_clkout1  milansoc_crg_clkout4        0.986        0.000                      0                   17        0.172        0.000                      0                   17  
+milansoc_crg_clkout0  eth_clocks0_rx              6.802        0.000                      0                   12                                                                        
+milansoc_crg_clkout1  eth_clocks0_rx              6.768        0.000                      0                    6                                                                        
+
+
+------------------------------------------------------------------------------------------------
+| Other Path Groups Table
+| -----------------------
+------------------------------------------------------------------------------------------------
+
+Path Group            From Clock            To Clock                  WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------            ----------            --------                  -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+**async_default**     milansoc_crg_clkout0  milansoc_crg_clkout0        4.203        0.000                      0                  380        0.467        0.000                      0                  380  
+**async_default**     milansoc_crg_clkout1  milansoc_crg_clkout1       14.414        0.000                      0                 2864        0.426        0.000                      0                 2864  
+
+
+report_timing_summary: Time (s): cpu = 00:01:10 ; elapsed = 00:00:09 . Memory (MB): peak = 7553.273 ; gain = 0.000 ; free physical = 9399 ; free virtual = 83416
+# report_route_status -file alinx_ax7101_route_status.rpt
+# report_drc -file alinx_ax7101_drc.rpt
+Command: report_drc -file alinx_ax7101_drc.rpt
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '<home>/Xilinx/2026.1/data/ip'.
+INFO: [DRC 23-27] Running DRC with 32 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file <scratch>/round1c/route-head/work/ax7101/gateware/alinx_ax7101_drc.rpt.
+report_drc completed successfully
+# report_timing_summary -datasheet -max_paths 10 -file alinx_ax7101_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:21 ; elapsed = 00:00:09 . Memory (MB): peak = 7553.273 ; gain = 0.000 ; free physical = 11258 ; free virtual = 85108
+# report_power -file alinx_ax7101_power.rpt
+Command: report_power -file alinx_ax7101_power.rpt
+INFO: [Power 33-23] Power model is not available for STARTUPE2
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+WARNING: [Power 33-332] Found switching activity that implies high-fanout reset nets being asserted for excessive periods of time which may result in inaccurate power analysis.
+Resolution: To review and fix problems, please run Power Constraints Advisor in the GUI from Tools > Power Constraints Advisor or run report_power with the -advisory option to generate a text report.
+1 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:31 ; elapsed = 00:00:13 . Memory (MB): peak = 7841.742 ; gain = 288.469 ; free physical = 10609 ; free virtual = 84765
+# kl_timing_grade_reports alinx_ax7101_signoff
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:56 ; elapsed = 00:00:08 . Memory (MB): peak = 7841.742 ; gain = 0.000 ; free physical = 10797 ; free virtual = 85040
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:56 ; elapsed = 00:00:07 . Memory (MB): peak = 7841.742 ; gain = 0.000 ; free physical = 10691 ; free virtual = 84568
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:51 ; elapsed = 00:00:07 . Memory (MB): peak = 7841.742 ; gain = 0.000 ; free physical = 10196 ; free virtual = 83914
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:53 ; elapsed = 00:00:07 . Memory (MB): peak = 7841.742 ; gain = 0.000 ; free physical = 10643 ; free virtual = 84277
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -max_paths 100 -nworst 1 -delay_type min_max -sort_by slack.
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-72] No paths found.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:01:01 ; elapsed = 00:00:08 . Memory (MB): peak = 7841.742 ; gain = 0.000 ; free physical = 10868 ; free virtual = 84393
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-433] Consider using Xilinx recommended XPM_CDC modules to avoid Critical severities
+INFO: [Timing 38-314] The report_cdc command only analyzes and reports clock domain crossing paths where clocks have been defined on both source and destination sides. Ports with no input delay constraint are skipped. Please run check_timing to verify there are no missing clock definitions in your design, nor any unconstrained input port.
+# set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [current_design]
+# set_property CONFIG_MODE SPIx4 [current_design]
+# set_property BITSTREAM.CONFIG.CONFIGRATE 50 [current_design]
+# set_property CFGBVS VCCO [current_design]
+# set_property CONFIG_VOLTAGE 3.3 [current_design]
+# report_clock_interaction -delay_type min_max -file alinx_ax7101_clock_interaction.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+WARNING: [Timing 38-164] This design has multiple clocks. Inter clock paths are considered valid unless explicitly excluded by timing constraints such as set_clock_groups or set_false_path.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} and milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} in 1000 cycles.
+WARNING: [Timing 38-127] No common period was found between clocks milansoc_crg_audio_mclk_raw {rise@0ns fall@20.3453ns period=40.6905ns} and milansoc_crg_clkout1 {rise@0ns fall@10ns period=20ns} in 1000 cycles.
+# report_exceptions -file alinx_ax7101_exceptions.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+report_exceptions: Time (s): cpu = 00:00:47 ; elapsed = 00:00:07 . Memory (MB): peak = 7841.742 ; gain = 0.000 ; free physical = 9259 ; free virtual = 83062
+# report_utilization -hierarchical -hierarchical_depth 10 -hierarchical_min_primitive_count 0 -file baseline_hierarchy.rpt
+# report_utilization -file baseline_utilization.rpt
+# report_timing_summary -max_paths 10 -file baseline_timing.rpt
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+report_timing_summary: Time (s): cpu = 00:00:56 ; elapsed = 00:00:10 . Memory (MB): peak = 7841.742 ; gain = 0.000 ; free physical = 9929 ; free virtual = 84164
+# set pf [open baseline_cells.tsv w]
+# puts $pf "cell\tprimitive"
+# foreach c [get_cells -hier -filter {IS_PRIMITIVE == 1}] {
+#   puts $pf "$c\t[get_property REF_NAME $c]"
+# }
+# close $pf
+# set pp [get_cells -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] != 1} { error "Expected exactly one protocol wrapper" }
+# report_utilization -cells $pp -file baseline_pp_utilization.rpt
+# report_timing -through [get_pins -of_objects $pp] -max_paths 10 -file baseline_pp_boundary_timing.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-78] ReportTimingParams: -through_pins  -max_paths 10 -nworst 1 -delay_type max -sort_by slack.
+# set scope_root ""
+# set pp [get_cells -quiet -hier -filter {ORIG_REF_NAME == KL_pp_shadow || REF_NAME == KL_pp_shadow}]
+# if {[llength $pp] == 1} {
+#   set scope_root "$pp/"
+# } elseif {[llength $pp] == 0} {
+#   set core [get_cells -quiet u_pp]
+#   if {[llength $core] != 1 || [get_property ORIG_REF_NAME $core] ne "protocol_processor_top"} {
+#     error "Expected the standalone wrapper's processor instance"
+#   }
+# } else {
+#   error "Expected exactly one protocol wrapper"
+# }
+# set tf [open baseline_scope_timing.tsv w]
+# puts $tf "instance\tsequential_cells\tinternal_WNS_ns"
+# foreach relative {wrapper u_pp u_pp/u_aecp u_pp/u_srp u_pp/u_notify u_pp/u_listener u_pp/u_talker u_nvm} {
+#   set path "$scope_root$relative"
+#   if {$relative eq "wrapper"} {
+#     set path [string trimright $scope_root /]
+#   }
+#   if {$path eq ""} {
+#     set path KL_pp_shadow
+#     set regs [get_cells -hier -filter {IS_SEQUENTIAL == 1}]
+#   } else {
+#     set regs [get_cells -hier -filter [format {NAME =~ "%s/*" && IS_SEQUENTIAL == 1} $path]]
+#   }
+#   set worst [get_timing_paths -from $regs -to $regs -max_paths 1]
+#   if {[llength $worst] != 1} { error "No internal timing path for $path" }
+#   puts $tf "$path\t[llength $regs]\t[get_property SLACK $worst]"
+#   flush $tf
+# }
+# close $tf
+# quit
+INFO: [Common 17-206] Exiting Vivado at Tue Oct 20 19:18:02 2026...

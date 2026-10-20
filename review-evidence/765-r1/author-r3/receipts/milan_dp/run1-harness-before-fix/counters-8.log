@@ -1,0 +1,18 @@
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+make --no-print-directory exec-counters-8
+VERILATOR=<tools>/pinned-verilator-5.050/verilator python3 stream_counters.py --shape 8
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+ucode.hex: 2048 words, 89 programs
+Traceback (most recent call last):
+  File "<scratch>/cloneD/tb/verilator/milan_dp/stream_counters.py", line 256, in <module>
+    main()
+    ~~~~^^
+  File "<scratch>/cloneD/tb/verilator/milan_dp/stream_counters.py", line 252, in main
+    run(args.shape, args.variant, Path(work), verilator, condition)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/cloneD/tb/verilator/milan_dp/stream_counters.py", line 229, in run
+    raise RuntimeError(f"{variant}/{name}: rc={result.returncode}, {failures}")
+RuntimeError: clean/run.log: rc=1, ['  [FAIL] [726 RX] every received PDU counted            got=0x0 exp=0x1f4', '  [FAIL] [726 RX] batch crosses 65535 without loss      got=0x0 exp=0x10001']
+make[1]: *** [Makefile:739: exec-counters-8] Error 1
+make: *** [Makefile:592: run-counters-8] Error 2

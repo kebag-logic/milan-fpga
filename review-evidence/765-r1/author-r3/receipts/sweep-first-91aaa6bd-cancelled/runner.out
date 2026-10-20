@@ -1,0 +1,51 @@
+shard: 0/1   selected suites: 63
+PASS     aaf
+PASS     aaf_audio_loop
+PASS     aaf_clock_meter
+PASS     aaf_latency_tap_bank
+PASS     aaf_latency_taps
+PASS     adp_tx
+PASS     aes3
+PASS     avtp_parser
+PASS     avtp_rxmon
+PASS     avtp_stream
+PASS     capture_coherence
+PASS     cbs
+PASS     cdc
+PASS     chmap_capture
+PASS     chmap_render
+PASS     classifier
+PASS     clkvalid
+PASS     cls
+PASS     controller_rate
+PASS     crf_rx
+PASS     crf_tx
+PASS     csr
+PASS     datapath
+PASS     eth_tx_reset
+PASS     follow_ring
+PASS     fw_service_budget
+PASS     gptp_plane
+PASS     gptp_shadow
+PASS     gptp_tables
+PASS     gptp_txts
+PASS     i2spb
+PASS     ifg
+PASS     lat_history_ring
+PASS     link_guard
+PASS     maap
+PASS     mac_rmon
+PASS     mbx
+PASS     media_grid_align
+PASS     media_nco
+FAIL     milan_dp
+PASS     milan_dp_gm_steps
+PASS     milan_dp_mclk
+PASS     milan_dp_render
+PASS     mmcm_servo
+PASS     mmcm_servo_autorepair
+PASS     nvm_backend
+Terminated                 timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+CANCELLED: TERM; no completed sweep result
+partial logs: <scratch>/sweep4
+CANCELLED: signal 15; no completed sweep result

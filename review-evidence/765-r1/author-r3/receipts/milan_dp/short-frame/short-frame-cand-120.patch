@@ -1,0 +1,12 @@
+33a34
+> #include "Vmilan_datapath___024root.h"
+99,101c100
+< constexpr size_t kAafFrameBytes =
+<     kAafPduBytes < 14 + 24 + 8 * kAafEvents * 4 ? 14 + 24 + 8 * kAafEvents * 4
+<                                                 : kAafPduBytes;
+---
+> constexpr size_t kAafFrameBytes = 120;   // DEBUG variant;
+492a492,494
+>             printf("DBG frame=%zu in0_fmt=%016llx ERR=%08x FRX=%u PCMRX=%08x\n", kAafFrameBytes,
+>                    (unsigned long long)dut->rootp->milan_datapath__DOT__aecp_in0_fmt,
+>                    axi_read(0x6C0), axi_read(0x6BC), axi_read(A_PCMRX_CNT));
