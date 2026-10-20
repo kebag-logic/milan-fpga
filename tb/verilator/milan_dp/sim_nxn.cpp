@@ -3033,6 +3033,7 @@ class NxnDatapathHarness {
         //! released, and nothing before this point has touched a map, so
         //! the first GET_AUDIO_MAP below reads the power-on maps.
         dynmap_power_on_and_adaptation_section();
+        stopped_input_law_on_the_shipping_geometry();
         printf("--------------------------------------------------------------\n");
         printf("checks: %ld   failures: %ld\n", checks, fails);
         printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
@@ -4558,6 +4559,65 @@ class NxnDatapathHarness {
                                       0x10000u | (ok - 1), slot, sweep);
         dynmap_roll_back_to_closed(fin, fout, in_n, out_n);
         dynmap_edit_meets_the_sweep(out_n);
+    }
+
+    //! #762 ON THE SHIPPING GEOMETRY. [762-DP] runs in every broad leg, and
+    //! none of them elaborates the AX7101 1x1 TDM8 shape this leg builds.
+    //! There N_STREAMS is 1, so the CRF Media Clock Input is ACMP sink 1 and
+    //! a stopped_i fed acmpl_stopped_v_w[N_STREAMS:1] reads the CRF sink's
+    //! level, where the broad legs read another AAF input's. So the case runs
+    //! here too, on a fresh boot after the [DYNMAP] arms: the elaborated
+    //! parameters first (dynmap_probes.vlt opens them), then the TRAP-1 bind,
+    //! the 5.3.8.7 discard and [762-DP], unchanged.
+    void stopped_input_law_on_the_shipping_geometry() {
+        using R = Vmilan_datapath___024root;
+        printf("-- [762-DP] the AX7101 1x1 TDM8 geometry: a stopped AAF "
+               "Stream Input counts no STREAM_INTERRUPTED --\n");
+        printf("  [i]    elaborated: N_STREAMS %u ADP_TALKER_SRC_C %u "
+               "ADP_LISTENER_SINK_C %u CRF_SNK_IDX_C %u MILAN_CLK_FREQ_HZ %u "
+               "GPTP_PLANE_EN_P %u\n",
+               R::milan_datapath__DOT__N_STREAMS, R::milan_datapath__DOT__ADP_TALKER_SRC_C,
+               R::milan_datapath__DOT__ADP_LISTENER_SINK_C,
+               R::milan_datapath__DOT__CRF_SNK_IDX_C,
+               R::milan_datapath__DOT__MILAN_CLK_FREQ_HZ,
+               static_cast<unsigned>(R::milan_datapath__DOT__GPTP_PLANE_EN_P));
+        printf("  [i]    elaborated: TALKER_WIRE_CHANS_P %u AUDIO_IF_SLOTS_P %u "
+               "AUDIO_IF_MASTER_P %u AUDIO_IF_RENDER_SLOTS_P %u "
+               "AUDIO_IF_I2S_PAIR_P %u AUDIO_IF_WORD_BITS_P %u AUDIO_IF_FS_HZ_P %u "
+               "AUDIO_IF_CLK_HZ_P %u LOOPBACK_P %u\n",
+               R::milan_datapath__DOT__TALKER_WIRE_CHANS_P,
+               R::milan_datapath__DOT__AUDIO_IF_SLOTS_P,
+               R::milan_datapath__DOT__AUDIO_IF_MASTER_P,
+               R::milan_datapath__DOT__AUDIO_IF_RENDER_SLOTS_P,
+               R::milan_datapath__DOT__AUDIO_IF_I2S_PAIR_P,
+               R::milan_datapath__DOT__AUDIO_IF_WORD_BITS_P,
+               R::milan_datapath__DOT__AUDIO_IF_FS_HZ_P,
+               R::milan_datapath__DOT__AUDIO_IF_CLK_HZ_P,
+               R::milan_datapath__DOT__LOOPBACK_P);
+        printf("  [i]    elaborated prunes: MCSERVO_P %u LTAP_P %u MAAP_P %u "
+               "I2SPB_P %u RXFILT_P %u LPF_P %u DPROBES_P %u\n",
+               R::milan_datapath__DOT__MCSERVO_P, R::milan_datapath__DOT__LTAP_P,
+               R::milan_datapath__DOT__MAAP_P, R::milan_datapath__DOT__I2SPB_P,
+               R::milan_datapath__DOT__RXFILT_P, R::milan_datapath__DOT__LPF_P,
+               R::milan_datapath__DOT__DPROBES_P);
+        ck("[762-DP] AX 1x1: one AAF Stream Input (N_STREAMS 1)",
+           R::milan_datapath__DOT__N_STREAMS, 1);
+        ck("[762-DP] AX 1x1: the CRF Media Clock Input is sink N_STREAMS, "
+           "the entity's last",
+           static_cast<unsigned long>(
+               R::milan_datapath__DOT__CRF_SNK_IDX_C == R::milan_datapath__DOT__N_STREAMS
+               && R::milan_datapath__DOT__ADP_LISTENER_SINK_C
+                      == R::milan_datapath__DOT__N_STREAMS + 1), 1);
+        bring_the_datapath_out_of_reset();
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        start_the_boot_restore_walk();
+        for (int c = 0; c < 400; c++) step();
+        const unsigned long armed_pre = aprb_armed();
+        bind_listener_zero_over_acmp_with_an_explicit_sid();
+        grade_the_bound_alias_verdict(armed_pre);
+        prove_a_stopped_stream_input_discards();
+        prove_a_stopped_stream_input_counts_no_interruption();
     }
     #endif
 
