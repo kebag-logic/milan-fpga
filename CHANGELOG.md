@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - media clock phase](#unreleased---media-clock-phase)** -- Phase-locked to the followed CRF.
 - **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
 - **[Unreleased - power-on audio maps](#unreleased---power-on-audio-maps)** -- Identity from power-on.
 - **[Unreleased - processor pin ead80360](#unreleased---processor-pin-ead80360)** -- A silent NVM device is answered.
@@ -40,6 +41,39 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - media clock phase
+
+- Issues #632 and #764 phase the followed media clock.
+- Milan v1.2 7.6.1 asks for both.
+- The servo locked frequency only before.
+- Each engagement kept whatever phase its pull-in left.
+- The servo now phases the domain media event to CRF.
+- The phase term rides the servo's own integrator.
+- It is type 2, slew-limited to 0.5 ppm.
+- Its pole is 0.944 per window: 8.9 s.
+- The integrator now keeps eight fractional bits.
+- Flooring odd errors drifted up to 1.95 ns/s.
+- The domain media event is each frame's pin instant.
+- One event serves every interface of the clock domain.
+- Each interface derives its own latency constants.
+- The CRF output stamps every 96th domain event.
+- Its free-running divider is retired.
+- The AAF talkers stamp their frame's pin instant.
+- The capture crossbar banks that instant with the frame.
+- Capture age and pair offset leave the timestamp.
+- Both outputs stay whole periods apart (4.3.5).
+- Once settled they sit within 5 % of a period.
+- That is IEEE 1722-2016 10.8 and 4.3.5.
+- `MCSRV_STAT[9]` now reads the phase settled.
+- No top-level port or other register field changes.
+- AAF following keeps the rate loop alone.
+- The listener's pin delay stays uncompensated, a decision pending.
+- VERSION is unchanged; the release step owns the bump.
+- `tb/verilator/media_phase` proves the loop and three interfaces.
+- Its `make mutants` target plants thirteen defects.
+- `capture_coherence` grades the talker's stamps at the TDM pins.
+- The bench proof follows after merge.
 
 ## Unreleased - processor pin 2ad2f845
 

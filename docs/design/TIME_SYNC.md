@@ -184,6 +184,9 @@ flowchart LR
     AUDIO --> FSYNC[fsync frame marker]
     FSYNC --> ALIGN[Grid aligner]
     ALIGN --> TICK[Packet grid media_tick_p]
+    FSYNC --> DOMEV[Domain media event]
+    DOMEV -. phase .-> SERVO
+    CRF -. timing points .-> SERVO
 ```
 
 Each link has exactly one master.
@@ -195,6 +198,10 @@ Each link has exactly one master.
 | Packet-grid trim update | any cycle: one tick per period, never lost or doubled, no counter wrap; an update landing past a lowered end is a one-cycle phase step (#617) | `KL_media_nco` monotone terminal compare |
 | Plan offset | -10.64 ppm; one sample would slip every 1.9582 s, and the aligner removes it at every source since #629 (A2-a) | `KL_chan_map_capture` dup/skip counters, readable at `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) |
 | MMCM servo error | Differential rate, ns per 512 ms window | `KL_mmcm_drp_servo` |
+| Domain media event | Each frame's instant at the media interface: the closing pair's strobe, back-dated by the owner's derived marker latency (#632) | `KL_media_domain_event`, `KL_media_if_latency_pkg` |
+| MMCM servo phase term | Under a followed CRF stream: its timing points against the domain event, folded into +/-Ps/2 exactly, one window mean per 512 ms; type 2; pull slew-limited to 0.5 ppm; settled inside +/-5 % of Ps is `MCSRV_STAT[9]` | `KL_mmcm_drp_servo`, [phase alignment](MEDIA_CLOCK_FOLLOWING.md#phase-alignment) |
+| MMCM servo integrator | Eight fractional bits: no window error or phase term is floored (#764) | `KL_mmcm_drp_servo` |
+| CRF output timing points | Every 96th domain event, stamped with its own instant | `KL_crf_tx` |
 | MMCM servo command | PI; 1/16 ppm per LSB; positive speeds up | `KL_mmcm_drp_servo`, `MCSRV_STAT[31:16]` |
 | MMCM servo bounds | +/-100 ppm per window slew; +/-200 ppm authority | `KL_mmcm_drp_servo` |
 | CRF talker discontinuity | Discard crossing rate history; preserve servo lock and integrator (#546) | `KL_crf_rx.rate_valid_o`, `KL_mmcm_drp_servo.ref_rate_valid_i` |
@@ -218,7 +225,7 @@ The #539 step discard also restarts this streak.
 
 | Function | Implemented | Product effect |
 |---|---|---|
-| CRF transmit | Yes | Publishes internal media events |
+| CRF transmit | Yes | Publishes the domain media events, phased to a followed CRF stream |
 | CRF receive | Yes | Measures remote phase and rate |
 | Clock-source command | Yes | Stores a listed descriptor; refuses an unlisted index with `BAD_ARGUMENTS` |
 | Root clock selection | Yes | Decodes the stored index through the generated clock-source tables |
@@ -502,6 +509,14 @@ One recentre fires; every PDU returns to the setpoint.
 
 Digital proof: `tb/verilator/render_setpoint` and the `milan_dp` true-ratio leg.
 
+The post-grid pin delay is not compensated (#632).
+
+Rendering follows the fill, not the presentation time.
+
+So no presentation offset can absorb that delay.
+
+The [phase alignment](MEDIA_CLOCK_FOLLOWING.md#phase-alignment) design lists its constants.
+
 Silicon proof at the TDM frame pin rides #117.
 
 ### Talker capture handoff
@@ -514,7 +529,7 @@ After each enable, packetization waits for the first channel pair.
 
 Reset or disable clears that admission state for each talker.
 
-The first accepted pair captures sample time plus presentation offset.
+The first accepted pair captures its frame's instant plus offset.
 
 Partial sample frames cannot start an epoch with retained timestamps.
 
@@ -528,6 +543,7 @@ The [startup sweep](../../tb/verilator/aaf/sim_start.cpp) grades this boundary (
 | Published | on that strobe's edge, all pairs at once | `KL_chan_map_capture` `TDM_FRAME_PAIRS_P`, set by `milan_datapath` `CMAP_TDM_FRAME_PAIRS_C` |
 | Read | the walk snapshot, in the media tick's own cycle, held for the whole walk | a tick queued behind an overrunning walk snapshots when that walk starts (`chmap_capture` `[Q]`) |
 | Column | the frame the tick takes: the newest closed before the tick cycle, or one closing on it when none is pending | the junction counters' coincidence law (#74 item 2); IEEE 1722-2016 7.3.5 makes one event one instant |
+| Timestamp | the walk frame's instant at the pins, plus the presentation offset (#632) | `KL_chan_map_capture` `tdm_walk_ns_o` from `KL_media_domain_event` `mark_ns_o` |
 | Frame age at the tick, INTERNAL | 0 to 1042 axis cycles: one frame, uniform over a beat | MEASURED over one beat of the true plan, 1x1 TDM8 shape, 50 MHz |
 | Frame age at the tick, CRF | 256 to 785 axis cycles, fixed for a lock | the aligner holds the close 256 cycles off the crossing (below) |
 | Pair p | the frame's age plus (3 - p) pair periods of 5.208 us | the order the front end delivers pairs |
@@ -658,6 +674,14 @@ Removing any guard part reproduces slips (the mutation arm).
 
 The listener render law above is unchanged.
 
+Since #632 the timestamp is the walk frame's pin instant.
+
+Neither the frame age nor the pair offset reaches it.
+
+The crossbar banks each frame's instant beside the frame.
+
+The walk loads both together, so they cannot disagree.
+
 Digital proof: `tb/verilator/capture_coherence`, in INTERNAL and under CRF.
 
 The next #451 bench capture is the silicon proof.
@@ -768,6 +792,8 @@ The bench proof against a reference is not yet taken.
 | Clock validity | `KL_ptp_clock_validity.sv` | `make -C tb/verilator/clkvalid` |
 | Product wiring | `milan_datapath.sv` | `make -C tb/verilator/milan_dp` |
 | Grid alignment | `KL_media_grid_align.sv` | `make -C tb/verilator/media_grid_align` |
+| Media-clock phase | `KL_mmcm_drp_servo.sv`, `KL_media_domain_event.sv` | `make -C tb/verilator/media_phase` |
+| Talker stamps at the pins | `milan_datapath.sv`, `KL_chan_map_capture.sv` | `make -C tb/verilator/capture_coherence` |
 | Media status | Feature ledger | `python3 scripts/check_feature_status.py` |
 
 Register meanings remain in the [register map](../reference/REGISTER_MAP.md).
