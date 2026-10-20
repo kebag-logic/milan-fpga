@@ -59,9 +59,12 @@ MUTANTS = (
      (("  localparam int signed   PH_CLAMP_C = (PH_SLEW_NS_P * 128) >> PH_GAIN_LSH_P;",
        "  localparam int signed   PH_CLAMP_C = PH_HALF_C - 1;"),),
      "engage", "[engage] the pull is slew-limited"),
+    #: the fold left in [0, Ps): the phase gains the one bit that range needs,
+    #: or the upper half would wrap back to nearly the centred reading
     ("fold_not_centred", SERVO,
      (("      (dv_rem_r >= PH_RW_C'(PH_HALF_C)) ? PH_TW_C'($signed({1'b0, dv_rem_r}) - PS_U_C)",
-       "      1'b0 ? PH_TW_C'($signed({1'b0, dv_rem_r}) - PS_U_C)"),),
+       "      1'b0 ? PH_TW_C'($signed({1'b0, dv_rem_r}) - PS_U_C)"),
+      ("  localparam int unsigned PH_TW_C = 16; ", "  localparam int unsigned PH_TW_C = 17; ")),
      "engage2", "[engage2] the pull went the short way"),
     ("window_cap_removed", SERVO,
      (("      end else if (ph_acc_w && ph_cnt_r != PH_CW_C'(PH_CAP_C)) begin",
