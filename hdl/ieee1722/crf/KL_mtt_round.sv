@@ -34,21 +34,29 @@
                 AAF talkers and the GET_STREAM_INFO readback of every row, so
                 what a controller reads is what the wire carries.
 
+                NOT IDEMPOTENT, as Equation 14 is not in whole ns: a whole
+                number of periods that is no multiple of three (97 periods,
+                2,020,833.33 ns) is applied as its ceiling, 2,020,834 ns, and
+                that value set again is above 97 periods, so it applies as
+                98. Values a controller ordinarily sets, multiples of
+                62,500 ns (0.25, 0.5, 1 and 2 ms), are exact and idempotent.
+
                 SEQUENTIAL, ONE DIVIDER. The rows change at register rate
-                (SET_STREAM_INFO), so one restoring divider walks them in
-                turn: a row whose input moved since its last conversion is
-                converted (two passes of DIVW_C steps), every other row is
-                skipped in a cycle. Until a moved row's conversion completes,
-                its output keeps the previous rounded value, never a
-                half-converted one. Reset loads every row's output with the
-                rounding of RESET_NS_P, its factory value, computed at
-                elaboration, so no row reads 0 at power-on.
+                (SET_STREAM_INFO), so one restoring divider converts them in
+                turn, round and round (two passes of DIVW_C steps each, so a
+                row set by a controller is applied within N_P conversions,
+                about 75 cycles each). A row's output only ever moves to a
+                whole conversion, never a half-converted value. Reset loads
+                every row's output with the rounding of RESET_NS_P, its
+                factory value, computed at elaboration, so no row reads 0 at
+                power-on.
 
                 THE OUTPUT IS 32 BITS: the low half of the rounded value. An
                 AVTP timestamp is the low 32 bits of gPTP time, so a talker
-                adding it stamps exactly what the whole value would. An input
-                above 4,294,958,334 ns (the largest whole-period value under
-                2^32 at 48 kHz) rounds past 2^32 and reads back modulo 2^32.
+                adding it stamps exactly what the whole value would. At 48 kHz
+                an input above 4,294,958,333 ns (whose rounding, 206,158
+                periods or 4,294,958,334 ns, is the largest under 2^32) rounds
+                past 2^32 and reads back modulo 2^32.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -67,10 +75,10 @@ module KL_mtt_round #(
   //! each row's factory value, ns (row k = [32k +: 32])
   parameter logic [N_P*32-1:0] RESET_NS_P = {N_P{32'd2_000_000}}
 )(
-  input  wire              clk_i,
+  input  wire              clk_i,          //! datapath clock
   input  wire              rst_n,          //! active-low synchronous reset
-  input  wire [N_P*32-1:0] raw_i,          //! the rows as set, ns
-  output logic [N_P*32-1:0] ofs_o          //! the rows as applied, ns (low 32 bits)
+  input  wire [N_P*32-1:0] raw_ns_i,       //! the rows as set, ns
+  output logic [N_P*32-1:0] ofs_ns_o       //! the rows as applied, ns (low 32 bits)
 );
 
   //! P = NUM / DEN ns exactly, reduced as KL_crf_tx reduces it and checked
@@ -104,55 +112,44 @@ module KL_mtt_round #(
     round_c = 32'((per * 64'(NUM_C) + 64'(DEN_C) - 64'd1) / 64'(DEN_C));
   endfunction
 
-  logic [31:0]        seen_r [N_P];   //! the input each output was rounded from
-  logic [IW_C-1:0]    row_r;          //! the row the divider serves next / now
-  logic [31:0]        cur_r;          //! the input being converted
+  logic [IW_C-1:0]    row_r;          //! the row the divider converts
 
   logic [DIVW_C-1:0]  dv_num_r;
   logic [DIVW_C-1:0]  dv_quot_r;
   logic [REMW_C-1:0]  dv_rem_r;
-  logic [REMW_C-1:0]  dv_div_r;
   logic [STEPW_C-1:0] dv_step_r;
   logic               dv_busy_r;
   logic               dv_pass2_r;     //! 0 = TTmax -> periods, 1 = periods -> ns
 
+  //! each pass divides by its own constant: NUM, then DEN
+  wire [REMW_C-1:0] dv_div_w = dv_pass2_r ? REMW_C'(DEN_C) : REMW_C'(NUM_C);
   wire [REMW_C-1:0] dv_rsh_w = {dv_rem_r[REMW_C-2:0], dv_num_r[DIVW_C-1]};
-  wire              dv_ge_w  = (dv_rsh_w >= dv_div_r);
+  wire              dv_ge_w  = (dv_rsh_w >= dv_div_w);
   //! the served row's input, and the row after it
-  wire [31:0]       raw_row_w = raw_i[32*row_r +: 32];
+  wire [31:0]       raw_row_w = raw_ns_i[32*row_r +: 32];
   wire [IW_C-1:0]   row_nx_w  = (32'(row_r) == N_P - 1) ? '0 : row_r + 1'b1;
 
   always_ff @(posedge clk_i) begin : rounder
     if (!rst_n) begin
-      for (int unsigned k = 0; k < N_P; k++) begin
-        seen_r[k]        <= RESET_NS_P[32*k +: 32];
-        ofs_o[32*k +: 32] <= round_c(64'(RESET_NS_P[32*k +: 32]));
-      end
+      for (int unsigned k = 0; k < N_P; k++)
+        ofs_ns_o[32*k +: 32] <= round_c(64'(RESET_NS_P[32*k +: 32]));
       row_r      <= '0;
-      cur_r      <= '0;
       dv_num_r   <= '0;
       dv_quot_r  <= '0;
       dv_rem_r   <= '0;
-      dv_div_r   <= '0;
       dv_step_r  <= '0;
       dv_busy_r  <= 1'b0;
       dv_pass2_r <= 1'b0;
     end else if (!dv_busy_r) begin
-      //! a row whose input moved is converted; any other is passed in a cycle
-      if (raw_row_w != seen_r[row_r]) begin
-        cur_r      <= raw_row_w;
-        dv_num_r   <= DIVW_C'(raw_row_w) * DIVW_C'(DEN_C) + DIVW_C'(NUM_C - 1);
-        dv_div_r   <= REMW_C'(NUM_C);
-        dv_quot_r  <= '0;
-        dv_rem_r   <= '0;
-        dv_step_r  <= STEPW_C'(DIVW_C);
-        dv_pass2_r <= 1'b0;
-        dv_busy_r  <= 1'b1;
-      end else begin
-        row_r <= row_nx_w;
-      end
+      //! the next row's conversion: pass 1 answers ceil(TTmax * DEN / NUM)
+      dv_num_r   <= DIVW_C'(raw_row_w) * DIVW_C'(DEN_C) + DIVW_C'(NUM_C - 1);
+      dv_quot_r  <= '0;
+      dv_rem_r   <= '0;
+      dv_step_r  <= STEPW_C'(DIVW_C);
+      dv_pass2_r <= 1'b0;
+      dv_busy_r  <= 1'b1;
     end else if (dv_step_r != '0) begin
-      dv_rem_r  <= dv_ge_w ? (dv_rsh_w - dv_div_r) : dv_rsh_w;
+      dv_rem_r  <= dv_ge_w ? (dv_rsh_w - dv_div_w) : dv_rsh_w;
       dv_quot_r <= {dv_quot_r[DIVW_C-2:0], dv_ge_w};
       dv_num_r  <= {dv_num_r[DIVW_C-2:0], 1'b0};
       dv_step_r <= dv_step_r - 1'b1;
@@ -160,15 +157,13 @@ module KL_mtt_round #(
       //! pass 1 answered ceil(TTmax / P); pass 2 turns it back into ns,
       //! rounded up again
       dv_num_r   <= DIVW_C'(dv_quot_r[PERW_C-1:0]) * DIVW_C'(NUM_C) + DIVW_C'(DEN_C - 1);
-      dv_div_r   <= REMW_C'(DEN_C);
       dv_quot_r  <= '0;
       dv_rem_r   <= '0;
       dv_step_r  <= STEPW_C'(DIVW_C);
       dv_pass2_r <= 1'b1;
     end else begin
       //! only now does the row's output move, to the whole conversion
-      ofs_o[32*row_r +: 32] <= dv_quot_r[31:0];
-      seen_r[row_r]         <= cur_r;
+      ofs_ns_o[32*row_r +: 32] <= dv_quot_r[31:0];
       dv_busy_r             <= 1'b0;
       row_r                 <= row_nx_w;
     end

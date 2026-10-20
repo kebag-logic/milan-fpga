@@ -3449,8 +3449,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .RESET_NS_P (PRES_RESET_ROWS_C)
   ) pres_round (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .raw_i (aecp_pres_offset[ACMP_SRC_C*32-1:0]),
-    .ofs_o (pres_applied_rows_w)
+    .raw_ns_i (aecp_pres_offset[ACMP_SRC_C*32-1:0]),
+    .ofs_ns_o (pres_applied_rows_w)
   );
   //! rows past the shape's outputs hold the factory value, whole periods
   if (ACMP_SRC_C < 16) begin : g_pres_tail
@@ -6304,7 +6304,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //
   //  INTERNAL (#629 D4 = A2-a, owner decision 2026-10-01). The align loop is
   //  engaged at INTERNAL too, whenever the TDM feed is live, so the CRF
-  //  output (KL_crf_tx, which divides the physical audio clock), the AAF
+  //  output (KL_crf_tx, which stamps the domain's frame grid), the AAF
   //  streams (the packet grid) and the TDM I/O are one clock in every mode.
   //  This REVERSES the recorded "internal media clock = free-run, slips
   //  accepted" rule and #74's "preserve clean INTERNAL free-running" item:

@@ -46,7 +46,7 @@ module ofs_wrap #(
     .RESET_NS_P ({(N_AAF_P + 1){32'd2_000_000}})
   ) u_round (
     .clk_i (clk_i), .rst_n (rst_n),
-    .raw_i (raw_ns_i), .ofs_o (applied_ns_o)
+    .raw_ns_i (raw_ns_i), .ofs_ns_o (applied_ns_o)
   );
 
   KL_aaf_packetizer #(.N_TALKERS_P (N_AAF_P)) u_pkt (

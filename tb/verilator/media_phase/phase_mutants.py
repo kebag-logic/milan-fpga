@@ -158,8 +158,8 @@ MUTANTS = (
      "phcstep", "[phcstep] the phase term let go at the PHC step"),
     #: R678-1-F2: the offsets stamped as set, not in whole periods
     ("offset_rounding_bypassed", MTTR,
-     (("      ofs_o[32*row_r +: 32] <= dv_quot_r[31:0];",
-       "      ofs_o[32*row_r +: 32] <= cur_r;"),),
+     (("      ofs_ns_o[32*row_r +: 32] <= dv_quot_r[31:0];",
+       "      ofs_ns_o[32*row_r +: 32] <= raw_row_w;"),),
      OFS, "[ofs A] every AAF output stamps whole periods from the CRF timing points"),
     ("domain_event_not_backdated", DOMEV,
      (("  assign mark_ns_o = ptp_ns_i - 64'(MARK_LAT_NS_P);", "  assign mark_ns_o = ptp_ns_i;"),),

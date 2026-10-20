@@ -146,12 +146,11 @@ class DetHarness {
         sample_ = std::move(f);
         reset();
         *ever_settled = false;
-        for (unsigned w = 0; windows_ < static_cast<unsigned>(n);) {
+        while (windows_ < static_cast<unsigned>(n)) {
             const bool was = settled();
             step_cycle();
             if (settled()) *ever_settled = true;
             if (settled() && !was && settle_rise_full_ < 0) settle_rise_full_ = full_run_;
-            (void)w;
         }
     }
 
@@ -247,7 +246,7 @@ class DetHarness {
     void case_cross() {
         bool ever = false;
         bool crossed = false;
-        run_samples([&crossed](long) -> int64_t { return crossed ? -10317 : 10317; }, 4, &ever);
+        run_samples([&crossed](long) { return crossed ? -10317 : 10317; }, 4, &ever);
         const int before = theta();
         crossed = true;               // from this window boundary on
         windows(2);
@@ -264,7 +263,6 @@ class DetHarness {
         const struct { int64_t d; bool sampled; } pts[] = {
             {33554431, true}, {-33554431, true}, {33554432, false}, {-33554432, false}};
         for (const auto& p : pts) {
-            bool ever = false;
             unsigned most = 0;
             bool eng = false;
             sample_ = [p](long) { return p.d; };
@@ -274,7 +272,6 @@ class DetHarness {
                 if (wcount() > most) most = wcount();
                 if (engaged()) eng = true;
             }
-            (void)ever;
             char what[200];
             if (p.sampled) {
                 std::snprintf(what, sizeof what, "[det range] d = %lld ns, inside +/-2^25 ns, is sampled (%u a window)",

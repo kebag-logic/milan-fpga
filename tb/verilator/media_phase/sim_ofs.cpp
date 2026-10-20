@@ -27,6 +27,7 @@
 #include "verilated.h"
 #include "../../common/verilator_harness.hpp"
 
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -194,7 +195,7 @@ class OfsHarness {
         std::set<uint32_t> low;
         for (uint64_t f : frames_) low.insert(static_cast<uint32_t>(f));
         bool on = true;
-        int graded[kN] = {0, 0, 0, 0};
+        std::array<int, kN> graded{};
         for (const auto& a : aaf_) {
             if (a.at < from) continue;
             const uint32_t f = a.ts - d_->applied_ns_o[a.t];
