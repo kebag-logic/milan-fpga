@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 77 modules · 76 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 78 modules · 77 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -31,16 +31,16 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["ieee1722", "ieee17221", "ieee8021q", "ieee8021as", "common", "milan"]
-    y-axis "modules" 0 --> 39
+    y-axis "modules" 0 --> 40
+    bar [39, 1, 8, 9, 10, 11]
     bar [38, 1, 8, 9, 10, 11]
-    bar [37, 1, 8, 9, 10, 11]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
-| IEEE 1722 (AVTP) | 38 | 37 | 0 | 31 | 0 | 0 |
+| IEEE 1722 (AVTP) | 39 | 38 | 0 | 31 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 1 | 1 | 0 | 0 | 0 | 0 |
 | IEEE 802.1Q | 8 | 8 | 0 | 0 | 0 | 0 |
 | IEEE 802.1AS | 9 | 9 | 0 | 0 | 0 | 0 |
@@ -80,7 +80,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_render_setpoint` | `ieee1722/aaf/KL_render_setpoint.sv` | `follow_ring` · `milan_dp` · `render_setpoint` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `milan_dp` · `tdm` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
-| ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `capture_coherence` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+| ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `capture_coherence` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `milan_dp` · `tdm_render` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render_master` | `ieee1722/aaf/KL_tdm_render_master.sv` | `milan_dp` · `milan_dp_render` · ➰capture_coherence,milan_dp_mclk · 🔬`make aaf` | -- |
 | ✅ `KL_tone_gen` | `ieee1722/aaf/KL_tone_gen.sv` | `chmap_capture` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
@@ -94,11 +94,13 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | -- |
 | ✅ `KL_aaf_clock_meter` | `ieee1722/crf/KL_aaf_clock_meter.sv` | `aaf_clock_meter` · `follow_ring` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |
-| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `aaf_clock_meter` · `crf_rx` · `follow_ring` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
-| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `aaf_clock_meter` · `crf_rx` · `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `KL_media_domain_event` | `ieee1722/crf/KL_media_domain_event.sv` | `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_media_grid_align` | `ieee1722/crf/KL_media_grid_align.sv` | `capture_coherence` · `follow_ring` · `media_grid_align` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render | -- |
+| 📦 `KL_media_if_latency_pkg` | `ieee1722/crf/KL_media_if_latency_pkg.sv` | -- | -- |
 | ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `capture_coherence` · `follow_ring` · `media_grid_align` · `media_nco` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render | -- |
-| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `aaf_clock_meter` · `crf_rx` · `follow_ring` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `aaf_clock_meter` · `crf_rx` · `follow_ring` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `maap` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 
 ## IEEE 802.1Q
@@ -140,9 +142,9 @@ _CSR, CDC, RMON, utilities_
 |---|---|---|---|
 | ✅ `KL_link_guard` | `common/KL_link_guard.sv` | `gptp_shadow` · `gptp_tables` · `gptp_txts` · `link_guard` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `axis_mux_rr_2in_1out` | `common/axis_mux_rr_2in_1out.sv` | `ptp_ts` | -- |
-| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `aaf_clock_meter` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_tables` · `gptp_txts` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
-| ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `aes3` · `capture_coherence` · `i2spb` · `milan_dp` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_mclk,milan_dp_render | -- |
-| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aaf_clock_meter` · `aes3` · `cdc` · `crf_rx` · `crf_tx` · `follow_ring` · `gptp_shadow` · `gptp_tables` · `gptp_txts` · `i2spb` · `mac_rmon` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `cdc_handshake` | `common/cdc_handshake.sv` | `aaf_clock_meter` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_tables` · `gptp_txts` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `cdc_pair_fifo` | `common/cdc_pair_fifo.sv` | `aaf` · `aes3` · `capture_coherence` · `i2spb` · `media_phase` · `milan_dp` · `mmcm_servo` · `tdm` · `tdm_render` · ➰milan_dp_mclk,milan_dp_render | -- |
+| ✅ `cdc_pulse` | `common/cdc_pulse.sv` | `aaf_clock_meter` · `aes3` · `cdc` · `crf_rx` · `follow_ring` · `gptp_shadow` · `gptp_tables` · `gptp_txts` · `i2spb` · `mac_rmon` · `media_phase` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` · `ptp_ts` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | 📦 `ethernet_packet_pkg` | `common/ethernet_packet_pkg.sv` | -- | -- |
 | ✅ `tx_ifg_gasket` | `common/tx_ifg_gasket.sv` | `ifg` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `milan_csr` | `common/csr/milan_csr.sv` | `csr` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |
