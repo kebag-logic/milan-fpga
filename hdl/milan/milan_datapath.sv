@@ -1436,8 +1436,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                                    : SR_CLASS_A_PRIO_C[2:0]),
     .dom_ovr_i  (lwsrp_adopt_valid),
     //! per-talker slice of the AECP per-STREAM_OUTPUT offset file: talker
-    //! t stamps its avtp_timestamp with ITS OWN entry t
-    .transit_ns_i (aecp_pres_offset[N_STREAMS*32-1:0]),
+    //! t stamps its avtp_timestamp with ITS OWN entry t, as applied: whole
+    //! media clock periods (#632, pres_round below)
+    .transit_ns_i (aecp_pres_applied_w[N_STREAMS*32-1:0]),
     .ptp_ns_i (aaf_tbase_w),
     .ts_uncertain_i (clkv_tu_w),
     //! P12: TCTX window port <- the CSR 0x800 window (talker dir)
@@ -1680,6 +1681,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! entry k = talker k's transit offset; the CRF Media Clock Output's
   //! entry sits at CRF_TUID_C. Unbacked entries read the 2 ms default.
   logic [16*32-1:0]        aecp_pres_offset;
+  //! ...the same rows as applied: whole media clock periods (#632)
+  wire  [16*32-1:0]        aecp_pres_applied_w;
   //! SRP CSR bits (0x680). THE ENGINE THEY USED TO ENABLE IS DELETED and the
   //! processor's SRP engine has no enable - it runs whenever the entity does.
   //! What survives is their SECOND job, which is the one the fabric reads:
@@ -3417,6 +3420,37 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                                      : ADP_STROUT_PRES_NS_C[k];
     for (int k = ACMP_SRC_C; k < 16; k++)
       aecp_pres_offset[32*k +: 32] = ADP_STROUT_PRES_NS_C[0];
+  end
+  //! ...and every row as APPLIED (#632, R678-1-F2): rounded up to a whole
+  //! number of media clock periods by KL_crf_tx's own Equation (14) rule, so
+  //! every output of the clock domain stamps whole periods from its grid
+  //! (IEEE 1722-2016 4.3.5, 10.8 Eq. 15). A non-period offset (2,010,000 ns
+  //! at 48 kHz) would leave its stream 0.48 Ps off the CRF timing points.
+  //! The AAF talkers stamp these rows and GET_STREAM_INFO reads them back;
+  //! KL_crf_tx is fed its raw row and rounds it the same way itself (its
+  //! 48 kHz base is the domain rate on every shape, so the CRF row read
+  //! back is the one it stamps).
+  function automatic logic [ACMP_SRC_C*32-1:0] pres_reset_rows();
+    logic [ACMP_SRC_C*32-1:0] r;
+    for (int k = 0; k < ACMP_SRC_C; k++) r[32*k +: 32] = ADP_STROUT_PRES_NS_C[k];
+    return r;
+  endfunction
+  localparam logic [ACMP_SRC_C*32-1:0] PRES_RESET_ROWS_C = pres_reset_rows();
+  wire [ACMP_SRC_C*32-1:0] pres_applied_rows_w;
+  KL_mtt_round #(
+    .N_P        (ACMP_SRC_C),
+    .BASE_HZ_P  (AUDIO_IF_FS_HZ_P),
+    .RESET_NS_P (PRES_RESET_ROWS_C)
+  ) pres_round (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .raw_i (aecp_pres_offset[ACMP_SRC_C*32-1:0]),
+    .ofs_o (pres_applied_rows_w)
+  );
+  //! rows past the shape's outputs hold the factory value, whole periods
+  if (ACMP_SRC_C < 16) begin : g_pres_tail
+    assign aecp_pres_applied_w = {aecp_pres_offset[16*32-1:ACMP_SRC_C*32], pres_applied_rows_w};
+  end else begin : g_pres_full
+    assign aecp_pres_applied_w = pres_applied_rows_w;
   end
   //! (the media clock source is LIVE (#74) - see media_clk_resolve and the
   //!  media-clock banner at the top of this file. The CRF Media Clock Input
@@ -5187,15 +5221,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                       : 64'd0;
           4'd2: gsi_ans_raw_w = gsi_in_w  ? gsi_sid_w
                               : gsi_decl_w ? gsi_osid_w : 64'd0;
-          //! an output's accumulated latency reads the SAME folded transit
-          //! entry the framer stamps (SET_STREAM_INFO's landing point), so
-          //! the answer and the wire cannot disagree
+          //! an output's accumulated latency reads the SAME transit entry
+          //! the framer stamps, as applied (whole media clock periods, #632),
+          //! so the answer and the wire cannot disagree
           4'd3: gsi_ans_raw_w = gsi_in_w
                               ? {32'd0, gsi_reging_w
                                  ? pp_cd_srp_acc_latency_w[32*gsi_six_w +: 32]
                                  : 32'd0}
                               : {32'd0, gsi_out_w
-                                 ? aecp_pres_offset[32*gsi_oix_w +: 32]
+                                 ? aecp_pres_applied_w[32*gsi_oix_w +: 32]
                                  : 32'd0};
           //! an input's failure-code byte [15:8] is left zero: the
           //! processor replaces it from its SRP registrar (#508)
