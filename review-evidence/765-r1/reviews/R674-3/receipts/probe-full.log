@@ -1,0 +1,178 @@
+== KL_avtp_rx_monitor harness (scaled clk: 100 ms = 1000 cyc) ==
+
+[1] unbound: matched-sid frame counts nothing
+  [ ok ] frames_rx 0                              = 0
+  [ ok ] not locked                               = 0
+
+[2] bind resets and arms (Milan Table 5.6)
+  [ ok ] counters clear after bind                = 0
+
+[3] first valid PDU locks (seq seeded, settle armed)
+  [ ok ] MEDIA_LOCKED 1                           = 1
+  [ ok ] locked level                             = 1
+  [ ok ] FRAMES_RX 1                              = 1
+  [ ok ] last_ts captured                         = 1
+
+[4] settle window: a sequence step is absorbed, not counted
+  [ ok ] SEQ_NUM_MISMATCH 0 in settle             = 0
+  [ ok ] FRAMES_RX 4                              = 4
+
+[5] drain the settle window (8 post-lock PDUs)
+  [ ok ] still no mismatch                        = 0
+
+[6] single loss: mismatch, NOT interrupted (lost=1)
+  [ ok ] SEQ_NUM_MISMATCH 1                       = 1
+  [ ok ] STREAM_INTERRUPTED 0                     = 0
+
+[7] double loss: mismatch AND interrupted (lost=2)
+  [ ok ] SEQ_NUM_MISMATCH 2                       = 2
+  [ ok ] STREAM_INTERRUPTED 1                     = 1
+
+[8] duplicate: lost=255 counts as interruption (reference math)
+  [ ok ] SEQ_NUM_MISMATCH 3                       = 3
+  [ ok ] STREAM_INTERRUPTED 2                     = 2
+
+[9] tu bit counts TIMESTAMP_UNCERTAIN
+  [ ok ] TIMESTAMP_UNCERTAIN 1                    = 1
+
+[10] FAMILY mismatch counts UNSUPPORTED_FORMAT and nothing else
+  [ ok ] UNSUPPORTED_FORMAT 4                     = 4
+  [ ok ] FRAMES_RX unchanged                      = 13
+  [ ok ] no mismatch across bad-format PDUs       = 3
+
+[11] VLAN-tagged PDU parses identically
+  [ ok ] FRAMES_RX +2                             = 15
+  [ ok ] still locked                             = 1
+
+[12] 100 ms silence unlocks (MEDIA_UNLOCKED)
+  [ ok ] MEDIA_UNLOCKED 1                         = 1
+  [ ok ] unlocked level                           = 0
+
+[13] relock: MEDIA_LOCKED again, settle re-armed
+  [ ok ] MEDIA_LOCKED 2                           = 2
+  [ ok ] post-relock step absorbed                = 3
+
+[14] unbind -> rebind resets everything
+  [ ok ] unbind does NOT reset                    = 2
+  [ ok ] rebind resets MEDIA_LOCKED               = 0
+  [ ok ] rebind resets FRAMES_RX                  = 0
+  [ ok ] rebind resets mismatch                   = 0
+  [ ok ] rebind drops lock                        = 0
+
+[16] depacketizer: untagged payload byte-exact to the PCM port
+  [ ok ] PCM 64 bytes                             = 64
+  [ ok ] PCM tlast                                = 1
+  [ ok ] PCM payload byte-exact (rot-2)           = 1
+  [ ok ] depkt pdus counted                       = 1
+
+[17] depacketizer: tagged payload byte-exact (rot-6)
+  [ ok ] PCM 64 bytes (tagged)                    = 64
+  [ ok ] PCM payload byte-exact (rot-6)           = 1
+
+[18] depacketizer: rejected PDU emits nothing
+  [ ok ] no PCM for rejected PDU                  = 0
+
+[15] wrong stream_id never reaches the monitor
+  [ ok ] foreign sid: frames_rx unchanged         = 2
+
+[23] LATE/EARLY/MEDIA_RESET (task #20: real media-clock counters)
+  [ ok ] no late/early so far                     = 0
+  [ ok ] LATE counted                             = 1
+  [ ok ] EARLY counted                            = 1
+  [ ok ] on-time counts neither                   = 2
+  [ ok ] MEDIA_RESET counted                      = 1
+  [ ok ] bind clears media counters               = 0
+
+[19] depacketizer backpressure: FIFO drops whole frames, tap never stalls
+  [ ok ] drops counted                            = 1
+
+[20] tiny data_len=2: hold-only beat, zero-padded tail
+  [ ok ] one padded beat (8 B)                    = 8
+  [ ok ] payload bytes                            = 1
+  [ ok ] zero pad                                 = 1
+  [ ok ] tlast on padded beat                     = 1
+
+[21] truncated committed frame resyncs; next PDU clean
+  [ ok ] post-truncation PDU intact               = 64
+  [ ok ] post-truncation byte-exact               = 1
+
+[21b] pulse-after-tlast runt must NOT pre-approve the next PDU
+  [ ok ] stray pulse did not commit reject        = 0
+
+[22] exact-fit frame (payload ends at frame end)
+  [ ok ] exact-fit PCM 64 bytes                   = 64
+  [ ok ] exact-fit tlast                          = 1
+
+[26] MEDIA_LOCKED is source-agnostic and FREE-WHEELS (task #25,
+     Milan 5.3.8.10 + 4.4.2.3 + 1722-2016 E.2.1)
+  [ ok ] [26a] external+unconverged: LOCKS on the PDU = 1
+  [ ok ] [26b] lock counted once                  = 1
+  [ ok ] [26c] convergence lost: STAYS locked (free-wheel) = 1
+  [ ok ] [26d] no MEDIA_UNLOCKED for it           = 0
+  [ ok ] [26e] clock-source churn: STAYS locked   = 1
+  [ ok ] [26e2] ...and counts nothing             = 0
+  [ ok ] [26f] stream keeps flowing locked        = 1
+  [ ok ] [26g] internal: locks on first PDU w/o servo = 1
+
+[27] FAMILY change while locked: unsupported counts, relock on match
+  [ ok ] [27a] locked on 8ch stream               = 1
+  [ ok ] [27b] mismatch counts UNSUPPORTED        = 1
+  [ ok ] [27c] mismatched frames not counted as RX = 1
+  [ ok ] [27d] silence unlocks                    = 0
+  [ ok ] [27e] matching PDU relocks               = 1
+  [ ok ] [27f] RX counts again                    = 2
+
+[28] flat instrument FAMILY compare, kept on purpose: a channel
+     count whose low eight bits are nonzero is accepted here (this
+     instrument reads only channels_per_frame[7:0]). The device
+     listener KL_avtp_rx_monitor_ctx rejects a count other than the
+     current format's (#765; Milan v1.2 4.4.2.2, Table 5.6, Table 6.2)
+  [ ok ] [28a] 2ch-wire ACCEPTED under 8ch fmt    = 1
+  [ ok ] [28b] no UNSUPPORTED for adapted PDU     = 0
+  [ ok ] [28c] 8ch-wire accepted                  = 2
+  [ ok ] [28d] 0ch rejected                       = 1
+  [ ok ] [28e] 9ch-wire ACCEPTED over 8ch fmt (family compare) = 3
+  [ ok ] [28f] ...and no UNSUPPORTED for it       = 1
+PROBE cpf=256: frames_rx=3 unsupported=2
+PROBE cpf=257: frames_rx=4 unsupported=2
+
+[29] SPARSE stream (traceability AAF-2, IEEE 1722-2016 7.2.4 +
+     Milan 6.3: base formats are non-sparse). A sustained sp=1
+     stream is legal 1722 but off-profile here — the listener's
+     DELIBERATE behavior is reject-and-count (UNSUPPORTED_FORMAT
+     per PDU, no FRAMES_RX, no lock, no PCM), through the REAL
+     parser->monitor->depacketizer wiring.
+  [ ok ] [29a] 10 sparse PDUs all UNSUPPORTED     = 10
+  [ ok ] [29b] no FRAMES_RX from a sparse stream  = 0
+  [ ok ] [29c] sparse stream never locks          = 0
+  [ ok ] [29d] no PCM from a sparse stream        = 0
+  [ ok ] [29e] non-sparse resumes clean (locks)   = 1
+  [ ok ] [29f] FRAMES_RX resumes                  = 1
+
+[30] mr toggle + MEDIA_RESET gating (traceability AVTP-5 /
+     M-CNT-4, IEEE 1722-2016 4.4.4.3 + Milan Table 5.16).
+  [ ok ] [30a1] mr 0->1 toggle ticks MEDIA_RESET  = 1
+  [ ok ] [30a2] HELD mr counts nothing more       = 1
+  [ ok ] [30a3] mr 1->0 toggle ticks again        = 2
+  [ ok ] [30a] mr-toggled PDUs accepted           = 4
+  [ ok ] [30b] mr toggle breaks no lock/seq       = 0
+  [ ok ] [30c1] rejected PDU's mr counts no reset = 2
+  [ ok ] [30c2] the same toggle counts once it is ACCEPTED = 3
+  [ ok ] [30d] unbound mr toggle counts nothing   = 3
+  [ ok ] [30e] bind zeroes MEDIA_RESET            = 0
+  [ ok ] [30f] first PDU of an era SEEDS, never counts = 0
+  [ ok ] [30g] the next real toggle counts        = 1
+
+[31] non-zero AVTP version (traceability AVTP-3, IEEE 1722-2016
+     4.4.3.4: unsupported version -> "shall discard the AVTPDU").
+  [ ok ] [31a] version!=0 NOT counted (discarded whole) = 2
+
+[31b] lock + live seq tracking hold across interleaved
+      version!=0 PDUs carrying wild sequence numbers
+  [ ok ] [31b] lock holds across version!=0 PDUs  = 1
+  [ ok ] [31b] SEQ_NUM_MISMATCH stays frozen      = 0
+  [ ok ] [31b] STREAM_INTERRUPTED stays frozen    = 0
+  [ ok ] [31b] only the version-0 PDUs counted    = 13
+
+======================================================================
+KL_avtp_rx_monitor: 97 checks, 0 failures
