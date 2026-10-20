@@ -1,0 +1,16 @@
+--- $REVIEWS/pp188-r666-3-packet/public/author-r2/PR-BODY.md	2026-10-20 09:07:05.813521808 +0200
++++ $REVIEWS/pp188-r666-3-packet/pr-body.md	2026-10-20 09:06:20.257204551 +0200
+@@ -95,7 +95,7 @@
+   srp_stream_fsms 1,352 -> 1,361; every other suite identical). `scripts/lint_hdl.sh`,
+   `scripts/gen_matrix.py --check`, `syn/yosys/run.sh` and the Yosys elaboration guards
+   identical; `make check` identical but for the link and file counts of the eight new patches.
+-- `tb/srp_top` mutants: 168 -> 179 arms, all KILLED, assertion coverage 94/94 -> 101/101 (WK12,
++- `tb/srp_top`: 150 -> 161 mutation entries, all KILLED; 17 golden runs PASS at each revision, plus one passing assertion-coverage check (94/94 -> 101/101), giving 168 -> 179 total campaign checks (new: WK12,
+   RB4-RB9). `tb/pp_top/acmp_mutants.py`: 60 -> 65 of 65 KILLED. Every other campaign that
+   builds a changed file (srp_admission, maap, adp_engine, aecp, aecp-dispatch, ctr, gsi,
+   name_wr, notify, name_state, elab_guards, d3) identical.
+@@ -103,3 +103,4 @@
+   identical at base and head (two gates fail at both for the moved pin and an RTL lint ratchet
+   against main's merged TSpec ports, nothing this change touches); Yosys out-of-context
+   KL_pp_shadow LUT 56,701 -> 56,105, every other resource unchanged.
++

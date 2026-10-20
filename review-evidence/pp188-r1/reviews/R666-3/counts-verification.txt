@@ -1,0 +1,32 @@
+PASS live PR Records contains required corrected wording
+PASS base: 150 KILLED entries + 17 golden PASS + coverage 94/94 = 168 checks
+PASS base: ACMP 60 killed mutation entries
+PASS base: 36 suites, summed checks=1030051, pp_top=10533, srp_stream_fsms=1352
+PASS base: campaigns 14 final return codes all 0
+PASS base: gates 7 final return codes all 0
+PASS head: 161 KILLED entries + 17 golden PASS + coverage 101/101 = 179 checks
+PASS head: ACMP 65 killed mutation entries
+PASS head: 36 suites, summed checks=1030070, pp_top=10543, srp_stream_fsms=1361
+PASS head: campaigns 14 final return codes all 0
+PASS head: gates 7 final return codes all 0
+PASS identical consumer failure map: {"lint_rtl": "1", "submodule_docs": "1"}
+PASS only two suite counts changed: {"pp_top": [10533, 10543], "srp_stream_fsms": [1352, 1361]}
+PASS base: LUT=56701; other resource categories unchanged; LUT_TOT is LUT+LUTRAM
+PASS head: LUT=56105; other resource categories unchanged; LUT_TOT is LUT+LUTRAM
+PASS all numeric Records claims checked
+PASS adp: other campaign results identical after path normalization and ordering
+PASS aecp: other campaign results identical after path normalization and ordering
+PASS ctr: other campaign results identical after path normalization and ordering
+PASS d3: other campaign results identical after path normalization and ordering
+PASS dispatch: other campaign results identical after path normalization and ordering
+PASS elab_mutants: other campaign results identical after path normalization and ordering
+PASS gsi: other campaign results identical after path normalization and ordering
+PASS maap: other campaign results identical after path normalization and ordering
+PASS name_state: other campaign results identical after path normalization and ordering
+PASS name_wr: other campaign results identical after path normalization and ordering
+PASS notify: other campaign results identical after path normalization and ordering
+PASS srp_admission: other campaign results identical after path normalization and ordering
+PASS lint_hdl: raw gate log byte-identical
+PASS gen_matrix: raw gate log byte-identical
+PASS yosys_run: raw gate log byte-identical
+PASS elab_guards_yosys: raw gate log byte-identical
