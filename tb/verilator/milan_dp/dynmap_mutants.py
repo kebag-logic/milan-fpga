@@ -39,6 +39,12 @@ the maprec8 and maprec4 legs (the 8x8 shape's output ports, the 4x4 shape's
 input ports). A row may name several checks; it is caught only when every
 one of them fails.
 
+Three more remove one term each from the map restore's validated-record
+test, the one PP_STAT blank reads (D3 section 3 rule 7, 8.7): the crc16, the
+layout and id, and the magic and length. Each is caught by a window whose
+only record is a framed map record failing that term alone, which must read
+blank.
+
 The empty reset is also planted under the two end-to-end checks the ruling
 asks for, each in its own suite: the listener (tb/verilator/milan_dp_render,
 whose `T18 POWER-ON` decodes stream channel c at TDM8 serial slot c) and the
@@ -405,6 +411,17 @@ MUTATIONS = [
     ("maprec4", "the last input port's refused saved set is never put back",
      [(PB_REFUSED, "")],
      "[MAPREC] put-back, last port: port 3: number_of_mappings"),
+    # ---- #637: the validated-record test behind PP_STAT blank, a term each
+    ("dynmap", "the validated-record test ignores the crc16",
+     [(VALID, "          if (amr_hframe_r && amr_hid_r)\n")],
+     "[MAPREC] lone crc-bad input record: PP_STAT blank 1"),
+    ("dynmap", "the validated-record test ignores the layout and the id",
+     [(VALID, "          if (amr_hframe_r && (amr_hcrc_r == amr_crc_r))\n")],
+     ("[MAPREC] lone wrong-layout input record: PP_STAT blank 1",
+      "[MAPREC] lone wrong-id output record: PP_STAT blank 1")),
+    ("dynmap", "the validated-record test ignores the magic and the length",
+     [(VALID, "          if (amr_hid_r && (amr_hcrc_r == amr_crc_r))\n")],
+     "[MAPREC] lone wrong-magic output record: PP_STAT blank 1"),
 ]
 
 

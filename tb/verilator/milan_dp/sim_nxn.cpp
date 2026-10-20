@@ -5493,6 +5493,41 @@ class NxnDatapathHarness {
         maprec_grade_stat("D3 pass-0 abort", true, false);
     }
 
+    //! 11. A LONE MAP RECORD THAT IS NOT VALIDATED (D3 3 rule 7, 8.7): the
+    //! window's only record is a framed map record that fails the validated
+    //! test (magic and length, layout and id, crc16), so neither walk
+    //! validated a record and PP_STAT reads a blank restore that did not
+    //! fail, every port on its reset set. Record `rid`'s byte `edit_at` is
+    //! changed to `edit_to`: a header edit is re-sealed, so only its own
+    //! term fails; a payload edit is not, so only the crc16 fails
+    void maprec_lone_record_case(const char* tag, const MaprecCtx& x, uint32_t rid,
+                                 uint32_t edit_at, uint8_t edit_to) {
+        const std::string rec = (rid == 0x60)
+            ? map_record(0x60, x.in_saved, maprec_in_entries())
+            : map_record(0x70, x.out_saved, maprec_out_entries());
+        std::vector<uint8_t> area;
+        RecAt at;
+        const bool framed = maprec_codec_window({rec}, &area, &at);
+        char w[200];
+        snprintf(w, sizeof w, "[MAPREC] %s: the codec frames the record", tag);
+        ck(w, static_cast<unsigned long>(framed && at.count(rid) != 0), 1);
+        if (!framed || at.count(rid) == 0) return;
+        area[at[rid].first + edit_at] = edit_to;
+        if (edit_at < 8) maprec_reseal(&area, at[rid].first);
+        nmem = area;
+        maprec_power_cycle(tag, false);
+        maprec_grade_both(tag, x.in_id, x.out_id);
+        maprec_grade_stat(tag, false, true);
+    }
+
+    void maprec_lone_record_section(const MaprecCtx& x) {
+        //! the first mapping's cluster, 0 to 4, under the old crc16
+        maprec_lone_record_case("lone crc-bad input record", x, 0x60, 8 + 5, 0x04);
+        maprec_lone_record_case("lone wrong-layout input record", x, 0x60, 2, 0x03);
+        maprec_lone_record_case("lone wrong-id output record", x, 0x70, 3, 0x71);
+        maprec_lone_record_case("lone wrong-magic output record", x, 0x70, 0, 0x18);
+    }
+
     void dynmap_map_records_section() {
         printf("-- [MAPREC] #637: the channel-map records across a planted "
                "power cycle --\n");
@@ -5515,10 +5550,11 @@ class NxnDatapathHarness {
         maprec_deadline_section(x);
         maprec_value_arms_section(x);
         maprec_pass0_abort_section(x);
+        maprec_lone_record_section(x);
         //! every page above ran: a GET that never answered would otherwise
         //! leave its checks unrun rather than failed
         ck("[MAPREC] every page ran (vacuity guard)",
-           static_cast<unsigned long>(maprec_pages), 51);
+           static_cast<unsigned long>(maprec_pages), 59);
         bring_the_datapath_out_of_reset();
     }
     #endif
