@@ -1,0 +1,29 @@
+NOTE: in the first block below, the rc lines after check_em_dash, docs_check and lint_rtl are the rc of a tail pipe, not of the gate; the first check_em_dash run could not judge (no renderer) and the first lint_rtl run failed to import under -I. The authoritative rc for those three gates is in the final blocks.
+== git diff --check d4a27e633 87a2b77d1
+rc=0
+== U+2014 in added lines
+0
+== label/round/reviewer tokens in added lines
+rc=1
+== check_em_dash --base d4a27e633
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=0
+== docs_check
+docs_check: 0 finding(s) across 210 md files + 1399 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+== lint_rtl --check
+    from lint_rtl_policy import (ELAB_BLOCKERS, EXTRA_WARNINGS, LINT_EXCLUDE,
+                                 PRAGMA_WAIVERS, RULE_WAIVERS)
+ModuleNotFoundError: No module named 'lint_rtl_policy'
+rc=0
+== check_em_dash --base d4a27e633 (md-venv)
+check_em_dash: 0 finding(s) over 3 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d4a27e63..HEAD]
+rc=0
+== lint_rtl --check
+  hdl/milan/KL_pp_shadow.sv:257:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:453:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (90 violation(s) <= ratchet 90; 18 waived, 0 justified lint_off)
+rc=0
+== docs_check (rc captured directly)
+docs_check: 0 finding(s) across 210 md files + 1399 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
