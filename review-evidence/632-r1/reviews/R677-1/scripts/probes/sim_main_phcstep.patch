@@ -1,0 +1,60 @@
+--- a/tb/verilator/media_phase/sim_main.cpp
++++ b/tb/verilator/media_phase/sim_main.cpp
+@@ -141,9 +141,10 @@
+     //! instants (#545), zero before it
+     double phc_offset_ns() const {
+         const double t = now_s();
+-        if (t <= slew_t0_) return 0.0;
+-        if (t >= slew_t1_) return slew_ns_;
+-        return slew_ns_ * (t - slew_t0_) / (slew_t1_ - slew_t0_);
++        const double st = (t >= step_t_) ? step_ns_ : 0.0;
++        if (t <= slew_t0_) return st;
++        if (t >= slew_t1_) return st + slew_ns_;
++        return st + slew_ns_ * (t - slew_t0_) / (slew_t1_ - slew_t0_);
+     }
+ 
+     //! the oscillator: base offset plus a linear ramp between two instants
+@@ -492,6 +493,25 @@
+         common_checks("slew");
+     }
+ 
++    //! REVIEW PROBE: an instantaneous local PHC step (#539, the 20 us
++    //! link-up step of the #387 policy) with no slew level
++    void case_phcstep(double ns = 20000.0) {
++        start_settled();
++        watch_letgo(0.005);
++        step_ns_ = ns;
++        step_t_ = now_s();
++        std::printf("  info: [phcstep] the local PHC steps %+.0f ns at %.2f s\n", ns, now_s());
++        run_to(now_s() + 0.002);
++        have_eng_ = true;
++        eng_phase_ = true_phase();
++        max_after_eng_ = 0;
++        pull_watch_ = true;
++        std::printf("  info: [phcstep] phase %+.4f Ps after the step\n", eng_phase_ / kPsNs);
++        grade_reacquired("phcstep", step_t_, 40.0, 70.0);
++        check_letgo("phcstep", "the PHC step");
++        common_checks("phcstep");
++    }
++
+     //! a talker sending 4 % faster than its declared timestamp_interval, its
+     //! timestamps still 2 ms apart on its grid (so the phase each sample
+     //! reads is unchanged): about 266 PDUs land in a 512 ms window.
+@@ -576,6 +596,8 @@
+     double slew_t0_ = 1e9;
+     double slew_t1_ = 1e9;
+     double slew_ns_ = 0;
++    double step_t_ = 1e9;
++    double step_ns_ = 0;
+     double burst_t0_ = 1e9;
+     double burst_t1_ = 1e9;
+     std::vector<double> burst_sent_;
+@@ -628,6 +650,8 @@
+     else if (name == "slew") case_slew();
+     else if (name == "burst") case_burst();
+     else if (name == "carry") case_carry();
++    else if (name == "phcstep") case_phcstep();
++    else if (name == "phcstep7") case_phcstep(7000.0);
+     else check_.fail("unknown case");
+     return check_.report();
+ }

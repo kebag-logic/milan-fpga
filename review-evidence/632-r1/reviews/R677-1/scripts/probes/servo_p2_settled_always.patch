@@ -1,0 +1,12 @@
+--- a/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
++++ b/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+@@ -1305,8 +1305,7 @@
+   // ------------------------------------------------------------------ //
+   wire signed [15:0] trim_w = 16'(u_cmd_r >>> 5);  //! 1/16 ppm units
+   assign locked_o = (state_r == LOCKED_S);
+-  assign ph_settled_o = ph_theta_v_r &&
+-                        (ph_set_cnt_r == ($bits(ph_set_cnt_r))'(PH_SETTLE_WIN_P));
++  assign ph_settled_o = ph_theta_v_r;
+   //! the phase word: the window phase in 1/3 ns and its verdicts
+   assign phase_o = {ph_wcnt_r,                    //! [31:23] last window's PDUs
+                     ph_wvalid_r,                  //! [22]    that window valid

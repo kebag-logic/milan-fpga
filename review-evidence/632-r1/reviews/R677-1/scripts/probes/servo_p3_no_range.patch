@@ -1,0 +1,11 @@
+--- a/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
++++ b/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+@@ -779,7 +779,7 @@
+       //! is no timing point of this domain: neither is sampled.
+       if (ref_ts_p_i) begin
+         dom_fresh_r <= dom_ev_p_i;
+-        if (dom_fresh_r && ph_d_ok_w && !dv_busy_r) begin
++        if (dom_fresh_r && !dv_busy_r) begin
+           dv_busy_r <= 1'b1;
+           dv_num_r  <= PH_NW_C'(ph_num_w);
+           dv_rem_r  <= '0;

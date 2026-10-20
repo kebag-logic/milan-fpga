@@ -1,0 +1,11 @@
+--- a/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
++++ b/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+@@ -701,7 +701,7 @@
+   //! a local PHC step or policy slew moving the timescale the domain event
+   //! is stamped in (the window it overlaps is spoiled, as for the rate)
+   wire ph_hold_w = (state_r != LOCKED_S) || !ph_en_i || ref_restart_p_i ||
+-                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;
++                   !ref_rate_valid_i || phc_slew_q_r;
+ 
+   logic [31:0]                 dom_ns_r;     //! the latest domain event's instant
+   logic                        dom_fresh_r;  //! a domain event since the last PDU
