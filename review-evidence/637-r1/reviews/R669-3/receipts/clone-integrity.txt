@@ -1,0 +1,20 @@
+head 1e914414557874648ac5041aff88b96908e0e053 tree 033e6bc1fb66904e7faf7b57929d6c7a28d89732
+head matches
+index == HEAD tree (modes, ids, paths)
+entries with non-H flags (skip/assume): 0
+blob/mode differences: 0
+tracked blobs: 1422
+untracked/ignored entries: 0
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ e4869fd0c42889b2ac806587cc5c78afb1c33461 gptp-processor (e4869fd)
+ 2cbed0a987c1e68402658d69459ab7e5aa571adc protocol-processor (v2.0-695-g2cbed0a)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor e4869fd0c42889b2ac806587cc5c78afb1c33461 dirty=0
+protocol-processor 2cbed0a987c1e68402658d69459ab7e5aa571adc dirty=1
+!! hdl/aecp/desc/__pycache__/
+third_party/lwSRP 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 dirty=0
+third_party/tsn-c-stack 70936b77dc41981e192438388cd0aced69954f18 dirty=0
+third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty=0
+protocol-processor clean after removing build-time __pycache__ (created 2026-10-20 by the review's focused gate runs)

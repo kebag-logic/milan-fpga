@@ -1,0 +1,7 @@
+[PASS] the unmutated gateware still passes the dynmap leg
+[PASS] mutant caught: the validated-record test ignores the crc16 - breaks "[MAPREC] lone crc-bad input record: PP_STAT blank 1" (its tallies report 1 failure(s) across 649 checks)
+[PASS] mutant caught: the validated-record test ignores the layout and the id - breaks "('[MAPREC] lone wrong-layout input record: PP_STAT blank 1', '[MAPREC] lone wrong-id output record: PP_STAT blank 1')" (its tallies report 2 failure(s) across 649 checks)
+[PASS] mutant caught: the validated-record test ignores the magic and the length - breaks "[MAPREC] lone wrong-magic output record: PP_STAT blank 1" (its tallies report 1 failure(s) across 649 checks)
+[FAIL] mutant SURVIVED: reviewer probe: the record's length field is never compared. The leg does not prove "None".
+
+5 checks: 4 PASS, 1 FAIL
