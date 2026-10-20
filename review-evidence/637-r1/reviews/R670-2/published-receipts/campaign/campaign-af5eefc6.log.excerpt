@@ -1,0 +1,521 @@
+2026-10-20T05:38:25Z
+af5eefc6cd5bd44066eb00fdba71aaf0b0fe1c69
+Verilator 5.050 2026-07-01 rev v5.050
+Python 3.14.8
+make: Entering directory '<scratch>/r2/probes/r670/scratch/source/tb/verilator/milan_dp'
+<tools>/pinned-verilator-5.050/verilator dynmap_probes.vlt +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 2 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 --Mdir obj_dynmap -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 -GAMR_MS_CYC_P=100 -GAMR_RS_AGG_MS_P=300 -CFLAGS "-DNSTREAMS_TB=1 -DDYNMAP_DEFAULT_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra" ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_nxn.cpp -o Vmilan_dp_dynmap
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:881:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  881 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:885:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  885 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:888:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:928:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  928 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:932:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:979:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  979 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:982:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  982 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:985:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  985 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:988:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  988 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:994:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1668:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1668 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:209:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  209 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:197:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  197 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:200:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  200 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:132:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  132 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:546:10: Unnamed generate block 'genblk7' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  546 | end else begin
+      |          ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:62:32: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+   62 |         if (LSB_HIGH_PRIORITY) begin
+      |                                ^~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/priority_encoder.v:65:18: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+... 2016 lines omitted ...
+  189 | reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
+      |                                              ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:397:13: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  397 |             rd_ptr_reg <= rd_ptr_reg + 1;
+      |             ^~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:197:51: Procedural assignment to declaration with initial value: 'm_axis_tvalid_pipe_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  197 | reg [RAM_PIPELINE+1-1:0] m_axis_tvalid_pipe_reg = 0;
+      |                                                   ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:378:9: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  378 |         m_axis_tvalid_pipe_reg[RAM_PIPELINE+1-1] <= 1'b0;
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:206:19: Procedural assignment to declaration with initial value: 's_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  206 | reg s_frame_reg = 1'b0;
+      |                   ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:268:9: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  268 |         s_frame_reg <= !s_axis_tlast;
+      |         ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:208:22: Procedural assignment to declaration with initial value: 'drop_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  208 | reg drop_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:278:17: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  278 |                 drop_frame_reg <= 1'b1;
+      |                 ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:209:22: Procedural assignment to declaration with initial value: 'mark_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  209 | reg mark_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:318:25: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  318 |                         mark_frame_reg <= 1'b0;
+      |                         ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:210:22: Procedural assignment to declaration with initial value: 'send_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  210 | reg send_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:291:21: ... Location of variable process write
+                                                                                                                             : ... Perhaps should initialize instead using a reset in this process
+  291 |                     send_frame_reg <= !s_axis_tlast;
+      |                     ^~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:211:32: Procedural assignment to declaration with initial value: 'depth_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  211 | reg [ADDR_WIDTH:0] depth_reg = 0;
+      |                                ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:368:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  368 |     depth_reg <= wr_ptr_reg - rd_ptr_reg;
+      |     ^~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:212:39: Procedural assignment to declaration with initial value: 'depth_commit_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  212 | reg [ADDR_WIDTH:0] depth_commit_reg = 0;
+      |                                       ^
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:369:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  369 |     depth_commit_reg <= wr_ptr_commit_reg - rd_ptr_reg;
+      |     ^~~~~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:213:20: Procedural assignment to declaration with initial value: 'overflow_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  213 | reg overflow_reg = 1'b0;
+      |                    ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:262:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  262 |     overflow_reg <= 1'b0;
+      |     ^~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:214:21: Procedural assignment to declaration with initial value: 'bad_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  214 | reg bad_frame_reg = 1'b0;
+      |                     ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:263:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  263 |     bad_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:215:22: Procedural assignment to declaration with initial value: 'good_frame_reg'
+                                                                                                                             : ... note: In instance 'milan_datapath.aaf_rx_depkt.frame_fifo'
+                                                                                                                             : ... Location of variable initialization
+  215 | reg good_frame_reg = 1'b0;
+      |                      ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../third_party/verilog-axis/rtl/axis_fifo.v:264:5: ... Location of variable process write
+                                                                                                                            : ... Perhaps should initialize instead using a reset in this process
+  264 |     good_frame_reg <= 1'b0;
+      |     ^~~~~~~~~~~~~~
+%Warning-SYNCASYNCNET: ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:470:15: Signal flopped as both synchronous and async: 'axis_resetn'
+                       ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:3543:10: ... Location of async usage
+ 3543 |     if (!axis_resetn) begin
+      |          ^~~~~~~~~~~
+                       ../../../configs/generated/endstation_arty_4x4/../../../hdl/milan/milan_datapath.sv:790:10: ... Location of sync usage
+  790 |     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+      |          ^~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+make[1]: Entering directory '<scratch>/r2/probes/r670/scratch/source/tb/verilator/milan_dp/obj_maprec4'
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -Os  -c -o sim_nxn.o ../sim_nxn.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -c -o verilated.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+../sim_nxn.cpp: In member function ‘void {anonymous}::NxnDatapathHarness::mp_grade(const char*, const MpSets&, const std::vector<unsigned int>*)’:
+../sim_nxn.cpp:4867:41: warning: ‘%s’ directive output may be truncated writing up to 199 bytes into a region of size 191 [-Wformat-truncation=]
+ 4867 |         snprintf(w, sizeof w, "[MAPREC] %s: GET_AUDIO_MAP SUCCESS", tag);
+      |                                         ^~
+......
+ 5621 |             maprec_grade_page(t, kMpTy, want[p], static_cast<uint16_t>(p));
+      |                               ~          
+In member function ‘void {anonymous}::NxnDatapathHarness::maprec_grade_page(const char*, uint16_t, const MapSet&, uint16_t)’,
+    inlined from ‘void {anonymous}::NxnDatapathHarness::mp_grade(const char*, const MpSets&, const std::vector<unsigned int>*)’ at ../sim_nxn.cpp:5621:30:
+../sim_nxn.cpp:4867:17: note: ‘snprintf’ output between 33 and 232 bytes into a destination of size 200
+ 4867 |         snprintf(w, sizeof w, "[MAPREC] %s: GET_AUDIO_MAP SUCCESS", tag);
+      |         ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../sim_nxn.cpp: In member function ‘void {anonymous}::NxnDatapathHarness::mp_grade(const char*, const MpSets&, const std::vector<unsigned int>*)’:
+../sim_nxn.cpp:4869:41: warning: ‘%s’ directive output may be truncated writing up to 199 bytes into a region of size 191 [-Wformat-truncation=]
+ 4869 |         snprintf(w, sizeof w, "[MAPREC] %s: number_of_mappings", tag);
+      |                                         ^~
+......
+ 5621 |             maprec_grade_page(t, kMpTy, want[p], static_cast<uint16_t>(p));
+      |                               ~          
+In member function ‘void {anonymous}::NxnDatapathHarness::maprec_grade_page(const char*, uint16_t, const MapSet&, uint16_t)’,
+    inlined from ‘void {anonymous}::NxnDatapathHarness::mp_grade(const char*, const MpSets&, const std::vector<unsigned int>*)’ at ../sim_nxn.cpp:5621:30:
+../sim_nxn.cpp:4869:17: note: ‘snprintf’ output between 30 and 229 bytes into a destination of size 200
+ 4869 |         snprintf(w, sizeof w, "[MAPREC] %s: number_of_mappings", tag);
+      |         ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../sim_nxn.cpp: In member function ‘void {anonymous}::NxnDatapathHarness::mp_grade(const char*, const MpSets&, const std::vector<unsigned int>*)’:
+../sim_nxn.cpp:4872:41: warning: ‘%s’ directive output may be truncated writing up to 199 bytes into a region of size 191 [-Wformat-truncation=]
+ 4872 |         snprintf(w, sizeof w, "[MAPREC] %s: the mappings are the expected list", tag);
+      |                                         ^~
+......
+ 5621 |             maprec_grade_page(t, kMpTy, want[p], static_cast<uint16_t>(p));
+      |                               ~          
+In member function ‘void {anonymous}::NxnDatapathHarness::maprec_grade_page(const char*, uint16_t, const MapSet&, uint16_t)’,
+    inlined from ‘void {anonymous}::NxnDatapathHarness::mp_grade(const char*, const MpSets&, const std::vector<unsigned int>*)’ at ../sim_nxn.cpp:5621:30:
+../sim_nxn.cpp:4872:17: note: ‘snprintf’ output between 46 and 245 bytes into a destination of size 200
+ 4872 |         snprintf(w, sizeof w, "[MAPREC] %s: the mappings are the expected list", tag);
+      |         ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -c -o verilated_dpi.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -c -o verilated_threads.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.fast.gch
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -x c++-header Vmilan_datapath__pch.h -o Vmilan_datapath__pch.h.slow.gch
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_0.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath_vm_classes_1.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -include Vmilan_datapath__pch.h.fast -c Vmilan_datapath__Dpi.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_0.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_1.cpp
+g++   -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DNSTREAMS_TB=4 -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=100 -DAMR_AGG_MS_TB=300 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+g++    sim_nxn.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_maprec4
+rm Vmilan_datapath__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<scratch>/r2/probes/r670/scratch/source/tb/verilator/milan_dp/obj_maprec4'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 146.789 MB sources in 118 modules, into 16.148 MB in 25 C++ files needing 0.007 MB
+- Verilator: Walltime 48.550 s (elab=0.646, cvt=5.510, bld=41.793); cpu 6.955 s on 2 threads; allocated 660.371 MB
+<scratch>/r2/probes/r670/scratch/source/tb/verilator/milan_dp/obj_maprec4/Vmilan_dp_maprec4
+=== milan_datapath NxN integration (N_STREAMS=4, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 10728 bytes, 68 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 593 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +21 for STREAM_INPUT 1 (154 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [MAPREC] #637: the channel-map records across 4 dynamic input ports --
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] a first boot over an erased window    = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [i]    first boot: port 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 0: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 0: the mappings are the expected list = 0x1
+  [i]    first boot: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 1: the mappings are the expected list = 0x1
+  [i]    first boot: port 2: status 0, 4 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 2: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 2: the mappings are the expected list = 0x1
+  [i]    first boot: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first boot: every key's owner and cluster in the stores = 0x0
+  [i]    first boot: PP_STAT 5b000484
+  [ok]   [MAPREC] first boot: PP_STAT done 1, busy 0    = 0x1
+  [ok]   [MAPREC] first boot: PP_STAT fail 0            = 0x0
+  [ok]   [MAPREC] first boot: PP_STAT blank 1           = 0x1
+  [ok]   [MAPREC] inputs: port 0 REMOVE clusters 0 and 1 SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 0 ADD s3.c1 to cluster 0 SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 2 REMOVE every mapping SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 3 REMOVE cluster 3 SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 3 ADD s0.c0 to cluster 3 SUCCESS = 0x0
+  [i]    inputs, live: port 0: status 0, 3 mapping(s) s3.c1->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] inputs, live: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] inputs, live: port 0: the mappings are the expected list = 0x1
+  [i]    inputs, live: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] inputs, live: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, live: port 1: the mappings are the expected list = 0x1
+  [i]    inputs, live: port 2: status 0, 0 mapping(s)
+  [ok]   [MAPREC] inputs, live: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 2: number_of_mappings = 0x0
+  [ok]   [MAPREC] inputs, live: port 2: the mappings are the expected list = 0x1
+  [i]    inputs, live: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s0.c0->o3.c0
+  [ok]   [MAPREC] inputs, live: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, live: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] inputs, live: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] inputs: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] inputs: the restore reached its terminal and the map restore ended = 0x1
+  [i]    inputs: the map restore held the faces 604 clocks after restore_done, 4994 after PP_CTRL[1]
+  [i]    inputs, after the power cycle: port 0: status 0, 3 mapping(s) s3.c1->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 2: status 0, 0 mapping(s)
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: number_of_mappings = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s0.c0->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: the crossbar RAM routes as the reference = 0x0
+  [i]    inputs, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] put-back, last port: the codec frames the format alone = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back reference: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back reference: the map restore held the faces 619 clocks after restore_done, 5069 after PP_CTRL[1]
+  [ok]   [MAPREC] put-back, last port: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back, last port: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back, last port: the map restore held the faces 633 clocks after restore_done, 5083 after PP_CTRL[1]
+  [i]    put-back, last port: port 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 0: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 0: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 1: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 2: status 0, 4 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 2: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 2: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 3: status 0, 2 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0
+  [ok]   [MAPREC] put-back, last port: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 3: number_of_mappings = 0x2
+  [ok]   [MAPREC] put-back, last port: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] put-back, last port: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] put-back, last port: the crossbar RAM routes as the reference = 0x0
+  [i]    put-back, last port: PP_STAT 5b000404
+  [ok]   [MAPREC] put-back, last port: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] put-back, last port: PP_STAT fail 0   = 0x0
+  [ok]   [MAPREC] put-back, last port: PP_STAT blank 0  = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x10
+--------------------------------------------------------------
+checks: 137   failures: 0
+RESULT: PASS
+python3 dynmap_mutants.py --jobs 4
+[PASS] the unmutated gateware still passes the dynmap leg
+[FAIL] the unmutated gateware does NOT pass the listener leg (caught) - its mutant results are meaningless
+[PASS] the unmutated gateware still passes the talker leg
+[PASS] the unmutated gateware still passes the maprec8 leg
+[PASS] the unmutated gateware still passes the maprec4 leg
+[PASS] mutant caught: an empty reset: the power-on image holds no mapping - breaks "[DYNMAP] power-on SPI 0: number_of_mappings" (its tallies report 142 failure(s) across 589 checks)
+[PASS] mutant caught: no clip after the restore: the window ignores a restored input format - breaks "[DYNMAP] restored SPI 0: number_of_mappings" (its tallies report 14 failure(s) across 589 checks)
+[PASS] mutant caught: no output clip: the window ignores a STREAM_OUTPUT row - breaks "[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map" (its tallies report 2 failure(s) across 589 checks)
+[PASS] mutant caught: the boot writer never fills the crossbar RAMs - breaks "[DYNMAP] power-on: render RAM keys 2..9 hold the input map" (its tallies report 162 failure(s) across 589 checks)
+[PASS] mutant caught: the CSR writer is not held while the boot writer is busy - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 4 failure(s) across 589 checks)
+[PASS] mutant caught: the input store alone takes a CSR write while the writer is busy - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 2 failure(s) across 589 checks)
+[PASS] mutant caught: the output store alone takes a CSR write while the writer is busy - breaks "[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM" (its tallies report 2 failure(s) across 589 checks)
+[PASS] mutant caught: the boot window ignores the CLOSED terminal - breaks "[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended" (its tallies report 2 failure(s) across 589 checks)
+[PASS] mutant caught: no sweep after the restore's terminal - breaks "[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map" (its tallies report 6 failure(s) across 589 checks)
+[PASS] mutant caught: no drain clock: busy ends while the last boot write is in flight - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 4 failure(s) across 589 checks)
+[PASS] mutant caught: the edit face never waits for the boot writer - breaks "[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends" (its tallies report 2 failure(s) across 589 checks)
+[PASS] mutant caught: the map writer never marks a record dirty - breaks "[MAPREC] empty: the window holds the codec's records and the pend has fallen" (its tallies report 32 failure(s) across 589 checks)
+[PASS] mutant caught: an empty saved list reads as an erased record (#763) - breaks "[MAPREC] empty, after the power cycle: SPI 0: number_of_mappings" (its tallies report 17 failure(s) across 589 checks)
+[PASS] mutant caught: no first-dirty window: the change is written at the next tick - breaks "[MAPREC] empty: the write waited out the 500 ms first-dirty window" (its tallies report 2 failure(s) across 589 checks)
+[PASS] mutant caught: the restore refuses every framed record - breaks "[MAPREC] saved, after the power cycle: SPI 0: number_of_mappings" (its tallies report 83 failure(s) across 589 checks)
+[PASS] mutant caught: the restore ignores the record's crc16 - breaks "[MAPREC] torn input record: SPI 0: number_of_mappings" (its tallies report 3 failure(s) across 589 checks)
+[PASS] mutant caught: a failed walk rolls nothing back - breaks "[MAPREC] roll-back: SPI 0: number_of_mappings" (its tallies report 26 failure(s) across 589 checks)
+[PASS] mutant caught: the roll-back sweeps the RAMs and leaves the stores - breaks "[MAPREC] roll-back: SPI 0: number_of_mappings" (its tallies report 26 failure(s) across 589 checks)
+[PASS] mutant caught: the roll-back puts the stores back and never sweeps the RAMs - breaks "[MAPREC] roll-back: render RAM keys 2..9 hold the input list" (its tallies report 8 failure(s) across 589 checks)
+[PASS] mutant caught: the map restore runs over the D3 walk's roll-back - breaks "[MAPREC] D3 roll-back: SPI 0: number_of_mappings" (its tallies report 6 failure(s) across 589 checks)
+[PASS] mutant caught: GET_AUDIO_MAP does not wait for the map restore - breaks "[MAPREC] held GET: answered with the restored list" (its tallies report 91 failure(s) across 589 checks)
+[PASS] mutant caught: the format judge does not wait for the map restore - breaks "[MAPREC] held SET_STREAM_FORMAT: BAD_ARGUMENTS against the restored list" (its tallies report 4 failure(s) across 589 checks)
+[PASS] mutant caught: the entity enable does not wait for the map restore - breaks "[MAPREC] held GET: the entity enable waits for the map restore" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: every phase-5 beat marks its record, changed or not (DR2b) - breaks "[MAPREC] unchanged: no record write follows an unchanged edit" (its tallies report 4 failure(s) across 589 checks)
+[PASS] mutant caught: a restore write counts as a change - breaks "[MAPREC] saved: the restore itself writes no record" (its tallies report 4 failure(s) across 589 checks)
+[PASS] mutant caught: a change after the latch does not taint the write - breaks "[MAPREC] taint: the window ends on the final list" (its tallies report 5 failure(s) across 589 checks)
+[PASS] mutant caught: a fourth attempt follows the third failure - breaks "[MAPREC] failing writes: three attempts, then no more" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: no backoff between attempts - breaks "[MAPREC] failing writes: the attempts are at least 500 ms apart" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: the last failed attempt raises no alarm - breaks "[MAPREC] failing writes: PP_STAT[4], the alarm, is raised" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: the map restore has no per-wait deadline - breaks "[MAPREC] silent memory: the walk ends at its per-wait deadline" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: the map restore has no aggregate deadline - breaks "[MAPREC] slow memory: SPI 0: number_of_mappings" (its tallies report 8 failure(s) across 589 checks)
+[PASS] mutant caught: the arbiter does not drain a read the map writer abandoned - breaks "[MAPREC] silent memory, late answer: a later change reaches the window" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: the arbiter's selection moves while the backend serves a command - breaks "[MAPREC] shared face: both writers' records are in the window" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: the map writer's pending is not reported - breaks "[MAPREC] empty: PP_STAT pend rises with the accepted change" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: the map writer's alarm does not reach nvm_alarm - breaks "[MAPREC] failing writes: PP_STAT[4], the alarm, is raised" (its tallies report 1 failure(s) across 589 checks)
+[FAIL] mutant "an empty reset, under the listener's end-to-end check" failed, but not the named check ('T18 POWER-ON: with no map command since the reset, the lane renders injected events')
+[PASS] mutant caught: an empty reset, under the talker's end-to-end check - breaks "[V] every requested column was decoded" (its tallies report 20 failure(s) across 134 checks)
+[PASS] mutant caught: the map restore's roll-back is not composed into PP_STAT fail - breaks "('[MAPREC] roll-back: PP_STAT fail 1', '[MAPREC] first-record device error: PP_STAT fail 1', '[MAPREC] slow memory: PP_STAT fail 1', '[MAPREC] silent memory: PP_STAT fail 1')" (its tallies report 4 failure(s) across 589 checks)
+[PASS] mutant caught: PP_STAT blank ignores a validated map record - breaks "('[MAPREC] saved, after the power cycle: PP_STAT blank 0', '[MAPREC] empty, after the power cycle: PP_STAT blank 0')" (its tallies report 16 failure(s) across 589 checks)
+[PASS] mutant caught: PP_STAT blank ignores the map restore's failure - breaks "[MAPREC] first-record device error: PP_STAT blank 0" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: PP_STAT busy does not cover the map restore - breaks "[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: PP_STAT done does not wait for the map restore - breaks "[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: PP_STAT blank is published before the map restore ends - breaks "[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: the map restore takes every record it reads for a validated one - breaks "[MAPREC] first boot: PP_STAT blank 1" (its tallies report 1 failure(s) across 589 checks)
+[PASS] mutant caught: a saved set the ADD rule refuses is never put back - breaks "[MAPREC] put-back: SPI 0: number_of_mappings" (its tallies report 3 failure(s) across 589 checks)
+[PASS] mutant caught: an erased or refused record's port is never put back - breaks "[MAPREC] first boot: SPI 0: number_of_mappings" (its tallies report 88 failure(s) across 589 checks)
+[PASS] mutant caught: no hole rule: a mapping after an UNUSED entry is not refused - breaks "('[MAPREC] hole, input: SPI 0: number_of_mappings', '[MAPREC] hole, output: SPO 0: number_of_mappings')" (its tallies report 6 failure(s) across 589 checks)
+[PASS] mutant caught: the layout version is not judged - breaks "('[MAPREC] wrong layout, input: SPI 0: number_of_mappings', '[MAPREC] wrong layout, output: SPO 0: number_of_mappings')" (its tallies report 6 failure(s) across 589 checks)
+[PASS] mutant caught: the record id is not judged - breaks "('[MAPREC] wrong id, input: SPI 0: number_of_mappings', '[MAPREC] wrong id, output: SPO 0: number_of_mappings')" (its tallies report 6 failure(s) across 589 checks)
+[PASS] mutant caught: a field outside every ADD range is dropped, not refused - breaks "('[MAPREC] range, input stream channel: SPI 0: number_of_mappings', '[MAPREC] range, input cluster: SPI 0: number_of_mappings', '[MAPREC] range, output stream: SPO 0: number_of_mappings', '[MAPREC] range, output cluster: SPO 0: number_of_mappings')" (its tallies report 12 failure(s) across 589 checks)
+[PASS] mutant caught: one input cluster, two mappings: not refused - breaks "[MAPREC] conflicting keys, input: SPI 0: number_of_mappings" (its tallies report 3 failure(s) across 589 checks)
+[PASS] mutant caught: one output stream channel, two clusters: not refused - breaks "[MAPREC] conflicting keys, output: SPO 0: number_of_mappings" (its tallies report 3 failure(s) across 589 checks)
+[PASS] mutant caught: the map restore runs over a D3 abort in pass 0 - breaks "[MAPREC] D3 pass-0 abort: SPI 0: number_of_mappings" (its tallies report 6 failure(s) across 589 checks)
+[PASS] mutant caught: the round-1 ordering: a port's reset set comes down just before its saved set - breaks "[MAPREC] transfers, after the power cycle: port 0: the mappings are the expected list" (its tallies report 12 failure(s) across 219 checks)
+[PASS] mutant caught: a refused put-back does not roll back - breaks "[MAPREC] refused put-back: port 7: number_of_mappings" (its tallies report 7 failure(s) across 219 checks)
+[PASS] mutant caught: the map restore's roll-back is not composed into PP_STAT fail, 8x8 - breaks "[MAPREC] refused put-back: PP_STAT fail 1" (its tallies report 1 failure(s) across 219 checks)
+[PASS] mutant caught: an output port refused a key another port holds is never put back - breaks "[MAPREC] conflicting keys across ports: port 7: number_of_mappings" (its tallies report 4 failure(s) across 219 checks)
+[PASS] mutant caught: every output port writes and reads output port 0's record - breaks "[MAPREC] transfers, after the power cycle: port 7: the mappings are the expected list" (its tallies report 12 failure(s) across 219 checks)
+[PASS] mutant caught: every input port writes and reads input port 0's record - breaks "("[MAPREC] inputs: the window holds the codec's records and the pend has fallen", '[MAPREC] inputs, after the power cycle: port 0: the mappings are the expected list')" (its tallies report 8 failure(s) across 137 checks)
+[PASS] mutant caught: the last input port's refused saved set is never put back - breaks "[MAPREC] put-back, last port: port 3: number_of_mappings" (its tallies report 3 failure(s) across 137 checks)
+
+65 checks: 63 PASS, 2 FAIL
+make: *** [Makefile:576: dynmap-mutants] Error 1
+make: Leaving directory '<scratch>/r2/probes/r670/scratch/source/tb/verilator/milan_dp'
+CAMPAIGN rc=2
+2026-10-20T06:50:45Z
