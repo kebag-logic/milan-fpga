@@ -1,0 +1,13 @@
+Public HANDOFF.md at evidence commit 180fc3a8e01eb0022b77b504b4709c3e8a3194a4, lines 85-96:
+**Rerun at the head** (`af5eefc6`, whose `tb/` and `hdl/` equal `8000520c`'s), the same command from a fresh
+clone: 65 checks, 63 PASS, 2 FAIL (`campaign-af5eefc6.log.excerpt`, `.verdicts.txt`). Both FAILs are the
+listener leg, its clean run and row 36, and neither is a mutant result. The listener leg runs in
+`tb/verilator/milan_dp_render` and keeps that suite's generated inputs (`ltn_rom.hex`, `ucode.hex`,
+`tdm8r_aemi.bin`) unmade, taking them from the suite's clean build, as the driver's docstring says. A fresh clone
+has none, and the `dynmap-mutants` target builds only `milan_dp`'s legs. This is dev's arrangement (`e26f1816`'s
+driver has the same listener entry and its target the same prerequisites), and `887b6bf2`'s run passed only because
+its tree had been swept. After `make -C tb/verilator/milan_dp_render tdm8render-build`, row 36 through the driver:
+the clean listener leg passes, and the mutant is caught by its named check, 8 failures of 264
+(`campaign-row36-af5eefc6.log`). So at the head: 60 of 60 caught, all five clean legs pass. The PR body's
+validation steps now build the render suite before the campaign. Making the target do so itself is left as a
+proposal for the manager; this lane did not change it.

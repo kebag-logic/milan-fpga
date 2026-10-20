@@ -1,0 +1,31 @@
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.065        0.000                      0               178586        0.036        0.000                      0               178505        0.264        0.000                       0                 59890  
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+From Clock:  milansoc_crg_clkout1
+  To Clock:  milansoc_crg_clkout1
+
+Setup :            0  Failing Endpoints,  Worst Slack        0.065ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.036ns,  Total Violation        0.000ns
+PW    :            0  Failing Endpoints,  Worst Slack        7.500ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.065ns  (required time - arrival time)
+  Source:                 milan_datapath/pp_shadow/u_pp/u_notify/ctr_pend_r_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[3]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             milansoc_crg_clkout1
+  Path Type:              Setup (Max at Slow Process Corner)
