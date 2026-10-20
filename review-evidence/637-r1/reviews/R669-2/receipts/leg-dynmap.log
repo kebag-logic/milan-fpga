@@ -1,0 +1,751 @@
+=== milan_datapath NxN integration (N_STREAMS=1, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 7512 bytes, 42 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 463 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xa2
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xbc
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +20 for STREAM_INPUT 1 (146 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [DYNMAP] #658: the power-on maps, a format change under Milan 5.4.2.7, and a restored format --
+  [i]    STREAM_INPUT 0 0205022002006000 (8 ch), STREAM_OUTPUT 0 0205022002006000 (8 ch); clusters SPI 0 8, SPO 0 17
+  [ok]   [DYNMAP] the reset input format is 8 channels  = 0x8
+  [ok]   [DYNMAP] the image declares both ports' clusters = 0x1
+  [i]    power-on SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPI 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPI 0: records off the identity = 0x0
+  [i]    power-on SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] power-on SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] power-on SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] power-on SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] power-on SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] power-on SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] power-on: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] power-on: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: SET_STREAM_FORMAT BAD_ARGUMENTS (Milan 5.4.2.7) = 0x7
+  [ok]   [DYNMAP] 8->4 while 4..7 are mapped: GET_STREAM_FORMAT reads the unchanged format = 0x1
+  [i]    8->4 while 4..7 are mapped: STREAM_INPUT 0 format 0205022002006000
+  [i]    refused 8->4 SPI 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPI 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPI 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPI 0: records off the identity = 0x0
+  [i]    refused 8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_maps 1  = 0x1
+  [ok]   [DYNMAP] refused 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] refused 8->4 SPO 0: number_of_mappings = 0x8
+  [ok]   [DYNMAP] refused 8->4 SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] REMOVE_AUDIO_MAPPINGS of channels 4..7 SUCCESS = 0x0
+  [i]    after REMOVE 4..7 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] after REMOVE 4..7 SPI 0: records off the identity = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] after REMOVE 4..7: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] 8->4: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 8->4: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    8->4: STREAM_INPUT 0 format 0205022001006000
+  [i]    8->4 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 8->4 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 8->4 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 8->4 SPI 0: records off the identity  = 0x0
+  [i]    8->4 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 8->4 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 8->4 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 8->4 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 8->4 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: SET_STREAM_FORMAT SUCCESS       = 0x0
+  [ok]   [DYNMAP] 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] 4->8 SPI 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] 4->8 SPI 0: number_of_mappings        = 0x4
+  [ok]   [DYNMAP] 4->8 SPI 0: records off the identity  = 0x0
+  [i]    4->8 SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] 4->8 SPO 0: GET_AUDIO_MAP SUCCESS     = 0x0
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_maps 1          = 0x1
+  [ok]   [DYNMAP] 4->8 SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] 4->8 SPO 0: number_of_mappings        = 0x8
+  [ok]   [DYNMAP] 4->8 SPO 0: records off the identity  = 0x0
+  [ok]   [DYNMAP] 4->8: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] 4->8: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, output row invalid again: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [DYNMAP] restore: the saved-state window holds a 4 ch input format = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [DYNMAP] restore: the walk applied a record (fail 0, blank 0) = 0x0
+  [i]    restored STREAM_INPUT 0 format 0205022001006000 (4 ch)
+  [ok]   [DYNMAP] restore: GET_STREAM_FORMAT reads the saved 4 ch format = 0x1
+  [i]    restored SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPI 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored SPI 0: number_of_mappings    = 0x4
+  [ok]   [DYNMAP] restored SPI 0: records off the identity = 0x0
+  [i]    restored SPO 0: status 0, number_of_maps 1, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [DYNMAP] restored SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored SPO 0: number_of_maps 1      = 0x1
+  [ok]   [DYNMAP] restored SPO 0: cdl carries every counted record = 0x58
+  [ok]   [DYNMAP] restored SPO 0: number_of_mappings    = 0x8
+  [ok]   [DYNMAP] restored SPO 0: records off the identity = 0x0
+  [ok]   [DYNMAP] restored: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] restored: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] restored 4->8: SET_STREAM_FORMAT SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8: GET_STREAM_FORMAT reads the new format = 0x1
+  [i]    restored 4->8: STREAM_INPUT 0 format 0205022002006000
+  [i]    restored 4->8 SPI 0: status 0, number_of_maps 1, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_maps 1 = 0x1
+  [ok]   [DYNMAP] restored 4->8 SPI 0: cdl carries every counted record = 0x38
+  [ok]   [DYNMAP] restored 4->8 SPI 0: number_of_mappings = 0x4
+  [ok]   [DYNMAP] restored 4->8 SPI 0: records off the identity = 0x0
+  [i]    CSR hold, input: CSR commit at CLOSED-2: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED-1: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+0: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+1: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+2: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+3: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+4: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+5: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+6: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+7: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+8: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+9: store 0x00087, RAM 0x0087 (refused)
+  [i]    CSR hold, input: CSR commit at CLOSED+10: store 0x00083, RAM 0x0083 (landed)
+  [i]    CSR hold, input: CSR commit at CLOSED+11: store 0x00083, RAM 0x0083 (landed)
+  [i]    CSR hold, input: CSR commit at CLOSED+12: store 0x00083, RAM 0x0083 (landed)
+  [ok]   [DYNMAP] CSR hold, input: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+  [ok]   [DYNMAP] CSR hold, input: no CSR write splits the store from the RAM = 0x0
+  [ok]   [DYNMAP] CSR hold, input: CSR refused in the window and for one sweep after CLOSED = 0x0
+  [ok]   [DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended = 0x0
+  [i]    CSR hold, output: CSR commit at CLOSED-2: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED-1: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+0: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+1: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+2: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+3: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+4: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+5: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+6: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+7: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+8: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+9: store 0x10007, RAM 0x1a03 (refused)
+  [i]    CSR hold, output: CSR commit at CLOSED+10: store 0x10006, RAM 0x1203 (landed)
+  [i]    CSR hold, output: CSR commit at CLOSED+11: store 0x10006, RAM 0x1203 (landed)
+  [i]    CSR hold, output: CSR commit at CLOSED+12: store 0x10006, RAM 0x1203 (landed)
+  [ok]   [DYNMAP] CSR hold, output: the CSR commits ran from the window to past the sweep (vacuity guard) = 0x1
+  [ok]   [DYNMAP] CSR hold, output: no CSR write splits the store from the RAM = 0x0
+  [ok]   [DYNMAP] CSR hold, output: CSR refused in the window and for one sweep after CLOSED = 0x0
+  [ok]   [DYNMAP] CSR hold, output: CSR lands in both once the sweep after CLOSED has ended = 0x0
+  [ok]   [DYNMAP] window, both rows staged at 4 ch: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] window, both rows staged at 4 ch: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: both stores hold the whole image = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map = 0x0
+  [ok]   [DYNMAP] CLOSED on the roll-back's clock: capture RAM keys 0..7 hold the output map = 0x0
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [DYNMAP] edit meets the sweep: REMOVE of the top two output channels SUCCESS = 0x0
+  [i]    edit meets the sweep: ADD answered 1190 clocks into the wait, the sweep held for 1000
+  [ok]   [DYNMAP] edit meets the sweep: ADD of the moved channel SUCCESS = 0x0
+  [ok]   [DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends = 0x1
+  [ok]   [DYNMAP] edit meets the sweep: GET reads the moved channel on its new cluster = 0x1
+  [ok]   [DYNMAP] edit meets the sweep: the capture RAM keeps the ADD's word = 0x1203
+  [ok]   [DYNMAP] edit meets the sweep: the removed channel's capture key stays empty = 0x0
+  [ok]   [DYNMAP] every identity page ran (vacuity guard) = 0xc
+-- [MAPREC] #637: the channel-map records across a planted power cycle --
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] a first boot over an erased window    = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [i]    first boot: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first boot: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: SPI 0: the mappings are the expected list = 0x1
+  [i]    first boot: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first boot: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first boot: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] first boot: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    first boot: PP_STAT 5b000484
+  [ok]   [MAPREC] first boot: PP_STAT done 1, busy 0    = 0x1
+  [ok]   [MAPREC] first boot: PP_STAT fail 0            = 0x0
+  [ok]   [MAPREC] first boot: PP_STAT blank 1           = 0x1
+  [ok]   [MAPREC] first boot: STREAM_INPUT 0 reads 8 channels = 0x8
+  [ok]   [MAPREC] empty: REMOVE every SPI 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] empty: PP_STAT pend rises with the accepted change = 0x1
+  [ok]   [MAPREC] empty: REMOVE every SPO 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] empty: the codec frames both records  = 0x1
+  [i]    empty: the window held the codec's records 50000 clocks after the change
+  [ok]   [MAPREC] empty: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [MAPREC] empty: the write waited out the 500 ms first-dirty window = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] empty: the restore reached its terminal and the map restore ended = 0x1
+  [i]    empty: the map restore held the faces 598 clocks after restore_done, 3652 after PP_CTRL[1]
+  [i]    empty, after the power cycle: SPI 0: status 0, 0 mapping(s)
+  [ok]   [MAPREC] empty, after the power cycle: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: SPI 0: number_of_mappings = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: SPI 0: the mappings are the expected list = 0x1
+  [i]    empty, after the power cycle: SPO 0: status 0, 0 mapping(s)
+  [ok]   [MAPREC] empty, after the power cycle: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: SPO 0: number_of_mappings = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] empty, after the power cycle: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    empty, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] empty, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] empty, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] empty, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] saved: ADD the SPI 0 list SUCCESS     = 0x0
+  [ok]   [MAPREC] saved: ADD the SPO 0 list SUCCESS     = 0x0
+  [ok]   [MAPREC] saved: the codec frames both records  = 0x1
+  [i]    saved: the window held the codec's records 51000 clocks after the change
+  [ok]   [MAPREC] saved: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [MAPREC] saved: the write waited out the 500 ms first-dirty window = 0x1
+  [ok]   [MAPREC] unchanged: the same SPI 0 ADD again SUCCESS = 0x0
+  [ok]   [MAPREC] unchanged: no record write follows an unchanged edit = 0x0
+  [ok]   [MAPREC] unchanged: pend stays clear           = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] saved: the restore reached its terminal and the map restore ended = 0x1
+  [i]    saved: the map restore held the faces 650 clocks after restore_done, 3704 after PP_CTRL[1]
+  [i]    saved, after the power cycle: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] saved, after the power cycle: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] saved, after the power cycle: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] saved, after the power cycle: SPI 0: the mappings are the expected list = 0x1
+  [i]    saved, after the power cycle: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] saved, after the power cycle: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] saved, after the power cycle: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] saved, after the power cycle: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] saved, after the power cycle: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] saved, after the power cycle: capture RAM keys 0..7 hold the output list = 0x0
+  [ok]   [MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds = 0x2
+  [i]    saved, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] saved, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] saved, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] saved, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] saved: the restore itself writes no record = 0x0
+  [ok]   [MAPREC] saved: pend is clear after the restore = 0x0
+  [ok]   [MAPREC] saved: the map restore holds the faces under the AECP gather watchdog = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] torn input record: the restore reached its terminal and the map restore ended = 0x1
+  [i]    torn input record: the map restore held the faces 660 clocks after restore_done, 3714 after PP_CTRL[1]
+  [i]    torn input record: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] torn input record: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] torn input record: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] torn input record: SPI 0: the mappings are the expected list = 0x1
+  [i]    torn input record: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] torn input record: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] torn input record: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] torn input record: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] torn input record: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] torn input record: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    torn input record: PP_STAT 5b000404
+  [ok]   [MAPREC] torn input record: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] torn input record: PP_STAT fail 0     = 0x0
+  [ok]   [MAPREC] torn input record: PP_STAT blank 0    = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] roll-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    roll-back: the map restore held the faces 321 clocks after restore_done, 3375 after PP_CTRL[1]
+  [i]    roll-back: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] roll-back: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] roll-back: SPI 0: number_of_mappings  = 0x8
+  [ok]   [MAPREC] roll-back: SPI 0: the mappings are the expected list = 0x1
+  [i]    roll-back: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] roll-back: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] roll-back: SPO 0: number_of_mappings  = 0x8
+  [ok]   [MAPREC] roll-back: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] roll-back: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] roll-back: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    roll-back: PP_STAT 5b00040c
+  [ok]   [MAPREC] roll-back: PP_STAT done 1, busy 0     = 0x1
+  [ok]   [MAPREC] roll-back: PP_STAT fail 1             = 0x1
+  [ok]   [MAPREC] roll-back: PP_STAT blank 0            = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] first-record device error: the restore reached its terminal and the map restore ended = 0x1
+  [i]    first-record device error: the map restore held the faces 127 clocks after restore_done, 3181 after PP_CTRL[1]
+  [i]    first-record device error: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first-record device error: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first-record device error: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first-record device error: SPI 0: the mappings are the expected list = 0x1
+  [i]    first-record device error: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] first-record device error: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first-record device error: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] first-record device error: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first-record device error: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] first-record device error: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    first-record device error: PP_STAT 5b00040c
+  [ok]   [MAPREC] first-record device error: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] first-record device error: PP_STAT fail 1 = 0x1
+  [ok]   [MAPREC] first-record device error: PP_STAT blank 0 = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] D3 roll-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    D3 roll-back: the map restore held the faces 4 clocks after restore_done, 3058 after PP_CTRL[1]
+  [i]    D3 roll-back: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] D3 roll-back: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] D3 roll-back: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] D3 roll-back: SPI 0: the mappings are the expected list = 0x1
+  [i]    D3 roll-back: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] D3 roll-back: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] D3 roll-back: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] D3 roll-back: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] D3 roll-back: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] D3 roll-back: capture RAM keys 0..7 hold the output list = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] held GET: the entity enable waits for the map restore = 0x1
+  [ok]   [MAPREC] held GET: it reached the read face inside the map restore = 0x1
+  [ok]   [MAPREC] held GET: answered SUCCESS            = 0x0
+  [ok]   [MAPREC] held GET: answered with the restored list = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: its judge was asked inside the map restore = 0x1
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: ...while the input port held no mapping the format orphans = 0x1
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: BAD_ARGUMENTS against the restored list = 0x7
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: STREAM_INPUT 0 still reads 8 channels = 0x8
+  [i]    held SET_STREAM_FORMAT: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] held SET_STREAM_FORMAT: SPI 0: the mappings are the expected list = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] taint: the restore reached its terminal and the map restore ended = 0x1
+  [i]    taint: the map restore held the faces 650 clocks after restore_done, 3704 after PP_CTRL[1]
+  [ok]   [MAPREC] taint: REMOVE the first SPI 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] taint: REMOVE the second while the record is written SUCCESS = 0x0
+  [ok]   [MAPREC] taint: the second change landed after the latch = 0x1
+  [ok]   [MAPREC] taint: the codec frames both records  = 0x1
+  [ok]   [MAPREC] taint: the window ends on the final list = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] taint: the restore reached its terminal and the map restore ended = 0x1
+  [i]    taint: the map restore held the faces 646 clocks after restore_done, 3700 after PP_CTRL[1]
+  [i]    taint, after the power cycle: SPI 0: status 0, 1 mapping(s) s0.c1->o5.c0
+  [ok]   [MAPREC] taint, after the power cycle: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] taint, after the power cycle: SPI 0: number_of_mappings = 0x1
+  [ok]   [MAPREC] taint, after the power cycle: SPI 0: the mappings are the expected list = 0x1
+  [i]    taint, after the power cycle: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] taint, after the power cycle: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] taint, after the power cycle: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] taint, after the power cycle: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] taint, after the power cycle: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] taint, after the power cycle: capture RAM keys 0..7 hold the output list = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] shared face: the restore reached its terminal and the map restore ended = 0x1
+  [i]    shared face: the map restore held the faces 650 clocks after restore_done, 3704 after PP_CTRL[1]
+  [ok]   [MAPREC] shared face: the codec frames the three records = 0x1
+  [ok]   [MAPREC] shared face: SET_NAME of the entity SUCCESS = 0x0
+  [ok]   [MAPREC] shared face: the processor's commit of the name began = 0x1
+  [ok]   [MAPREC] shared face: REMOVE one SPI 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] shared face: the map writer asked while the processor's command held the device = 0x1
+  [ok]   [MAPREC] shared face: both writers' records are in the window = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] failing writes: the restore reached its terminal and the map restore ended = 0x1
+  [i]    failing writes: the map restore held the faces 650 clocks after restore_done, 3704 after PP_CTRL[1]
+  [ok]   [MAPREC] failing writes: REMOVE one SPI 0 mapping SUCCESS = 0x0
+  [i]    failing writes: 3 attempt(s) at clocks 50931917 50982016 51032116, PP_STAT 5b000c14
+  [ok]   [MAPREC] failing writes: three attempts, then no more = 0x3
+  [ok]   [MAPREC] failing writes: the attempts are at least 500 ms apart = 0x1
+  [ok]   [MAPREC] failing writes: PP_STAT[4], the alarm, is raised = 0x1
+  [ok]   [MAPREC] failing writes: the writer gives the record up = 0x0
+  [ok]   [MAPREC] failing writes: nvm_backed is revoked (PP_STAT[6]) = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] slow memory: the restore reached its terminal and the map restore ended = 0x1
+  [i]    slow memory: the map restore held the faces 23992 clocks after restore_done, 30046 after PP_CTRL[1]
+  [ok]   [MAPREC] slow memory: the walk ends at its aggregate bound = 0x1
+  [i]    slow memory: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] slow memory: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] slow memory: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] slow memory: SPI 0: the mappings are the expected list = 0x1
+  [i]    slow memory: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] slow memory: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] slow memory: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] slow memory: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] slow memory: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] slow memory: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    slow memory: PP_STAT 5b00040c
+  [ok]   [MAPREC] slow memory: PP_STAT done 1, busy 0   = 0x1
+  [ok]   [MAPREC] slow memory: PP_STAT fail 1           = 0x1
+  [ok]   [MAPREC] slow memory: PP_STAT blank 0          = 0x0
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] silent memory: the restore reached its terminal and the map restore ended = 0x1
+  [i]    silent memory: the map restore held the faces 2392 clocks after restore_done, 5446 after PP_CTRL[1]
+  [ok]   [MAPREC] silent memory: the walk ends at its per-wait deadline = 0x1
+  [i]    silent memory: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] silent memory: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] silent memory: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] silent memory: SPI 0: the mappings are the expected list = 0x1
+  [i]    silent memory: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] silent memory: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] silent memory: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] silent memory: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] silent memory: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] silent memory: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    silent memory: PP_STAT 5b00040c
+  [ok]   [MAPREC] silent memory: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] silent memory: PP_STAT fail 1         = 0x1
+  [ok]   [MAPREC] silent memory: PP_STAT blank 0        = 0x0
+  [ok]   [MAPREC] silent memory, late answer: REMOVE one SPI 0 mapping SUCCESS = 0x0
+  [ok]   [MAPREC] silent memory, late answer: a later change reaches the window = 0x1
+  [ok]   [MAPREC] hole, input: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] hole, input: the restore reached its terminal and the map restore ended = 0x1
+  [i]    hole, input: the map restore held the faces 660 clocks after restore_done, 3714 after PP_CTRL[1]
+  [i]    hole, input: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] hole, input: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] hole, input: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] hole, input: SPI 0: the mappings are the expected list = 0x1
+  [i]    hole, input: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] hole, input: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] hole, input: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] hole, input: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] hole, input: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] hole, input: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    hole, input: PP_STAT 5b000404
+  [ok]   [MAPREC] hole, input: PP_STAT done 1, busy 0   = 0x1
+  [ok]   [MAPREC] hole, input: PP_STAT fail 0           = 0x0
+  [ok]   [MAPREC] hole, input: PP_STAT blank 0          = 0x0
+  [ok]   [MAPREC] hole, output: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] hole, output: the restore reached its terminal and the map restore ended = 0x1
+  [i]    hole, output: the map restore held the faces 662 clocks after restore_done, 3716 after PP_CTRL[1]
+  [i]    hole, output: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] hole, output: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] hole, output: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] hole, output: SPI 0: the mappings are the expected list = 0x1
+  [i]    hole, output: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] hole, output: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] hole, output: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] hole, output: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] hole, output: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] hole, output: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    hole, output: PP_STAT 5b000404
+  [ok]   [MAPREC] hole, output: PP_STAT done 1, busy 0  = 0x1
+  [ok]   [MAPREC] hole, output: PP_STAT fail 0          = 0x0
+  [ok]   [MAPREC] hole, output: PP_STAT blank 0         = 0x0
+  [ok]   [MAPREC] range, input stream channel: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] range, input stream channel: the restore reached its terminal and the map restore ended = 0x1
+  [i]    range, input stream channel: the map restore held the faces 660 clocks after restore_done, 3714 after PP_CTRL[1]
+  [i]    range, input stream channel: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] range, input stream channel: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, input stream channel: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] range, input stream channel: SPI 0: the mappings are the expected list = 0x1
+  [i]    range, input stream channel: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] range, input stream channel: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, input stream channel: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] range, input stream channel: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] range, input stream channel: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] range, input stream channel: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    range, input stream channel: PP_STAT 5b000404
+  [ok]   [MAPREC] range, input stream channel: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] range, input stream channel: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] range, input stream channel: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] range, input cluster: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] range, input cluster: the restore reached its terminal and the map restore ended = 0x1
+  [i]    range, input cluster: the map restore held the faces 660 clocks after restore_done, 3714 after PP_CTRL[1]
+  [i]    range, input cluster: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] range, input cluster: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, input cluster: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] range, input cluster: SPI 0: the mappings are the expected list = 0x1
+  [i]    range, input cluster: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] range, input cluster: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, input cluster: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] range, input cluster: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] range, input cluster: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] range, input cluster: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    range, input cluster: PP_STAT 5b000404
+  [ok]   [MAPREC] range, input cluster: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] range, input cluster: PP_STAT fail 0  = 0x0
+  [ok]   [MAPREC] range, input cluster: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] range, output stream: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] range, output stream: the restore reached its terminal and the map restore ended = 0x1
+  [i]    range, output stream: the map restore held the faces 662 clocks after restore_done, 3716 after PP_CTRL[1]
+  [i]    range, output stream: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] range, output stream: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, output stream: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] range, output stream: SPI 0: the mappings are the expected list = 0x1
+  [i]    range, output stream: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] range, output stream: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, output stream: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] range, output stream: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] range, output stream: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] range, output stream: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    range, output stream: PP_STAT 5b000404
+  [ok]   [MAPREC] range, output stream: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] range, output stream: PP_STAT fail 0  = 0x0
+  [ok]   [MAPREC] range, output stream: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] range, output cluster: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] range, output cluster: the restore reached its terminal and the map restore ended = 0x1
+  [i]    range, output cluster: the map restore held the faces 662 clocks after restore_done, 3716 after PP_CTRL[1]
+  [i]    range, output cluster: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] range, output cluster: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, output cluster: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] range, output cluster: SPI 0: the mappings are the expected list = 0x1
+  [i]    range, output cluster: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] range, output cluster: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] range, output cluster: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] range, output cluster: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] range, output cluster: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] range, output cluster: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    range, output cluster: PP_STAT 5b000404
+  [ok]   [MAPREC] range, output cluster: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] range, output cluster: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] range, output cluster: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] conflicting keys, input: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] conflicting keys, input: the restore reached its terminal and the map restore ended = 0x1
+  [i]    conflicting keys, input: the map restore held the faces 660 clocks after restore_done, 3714 after PP_CTRL[1]
+  [i]    conflicting keys, input: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys, input: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys, input: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys, input: SPI 0: the mappings are the expected list = 0x1
+  [i]    conflicting keys, input: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] conflicting keys, input: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys, input: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] conflicting keys, input: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] conflicting keys, input: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] conflicting keys, input: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    conflicting keys, input: PP_STAT 5b000404
+  [ok]   [MAPREC] conflicting keys, input: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] conflicting keys, input: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] conflicting keys, input: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] conflicting keys, output: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] conflicting keys, output: the restore reached its terminal and the map restore ended = 0x1
+  [i]    conflicting keys, output: the map restore held the faces 662 clocks after restore_done, 3716 after PP_CTRL[1]
+  [i]    conflicting keys, output: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] conflicting keys, output: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys, output: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] conflicting keys, output: SPI 0: the mappings are the expected list = 0x1
+  [i]    conflicting keys, output: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys, output: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys, output: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys, output: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] conflicting keys, output: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] conflicting keys, output: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    conflicting keys, output: PP_STAT 5b000404
+  [ok]   [MAPREC] conflicting keys, output: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] conflicting keys, output: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] conflicting keys, output: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] wrong layout, input: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] wrong layout, input: the restore reached its terminal and the map restore ended = 0x1
+  [i]    wrong layout, input: the map restore held the faces 660 clocks after restore_done, 3714 after PP_CTRL[1]
+  [i]    wrong layout, input: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] wrong layout, input: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong layout, input: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] wrong layout, input: SPI 0: the mappings are the expected list = 0x1
+  [i]    wrong layout, input: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] wrong layout, input: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong layout, input: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] wrong layout, input: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] wrong layout, input: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] wrong layout, input: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    wrong layout, input: PP_STAT 5b000404
+  [ok]   [MAPREC] wrong layout, input: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] wrong layout, input: PP_STAT fail 0   = 0x0
+  [ok]   [MAPREC] wrong layout, input: PP_STAT blank 0  = 0x0
+  [ok]   [MAPREC] wrong layout, output: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] wrong layout, output: the restore reached its terminal and the map restore ended = 0x1
+  [i]    wrong layout, output: the map restore held the faces 662 clocks after restore_done, 3716 after PP_CTRL[1]
+  [i]    wrong layout, output: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] wrong layout, output: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong layout, output: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] wrong layout, output: SPI 0: the mappings are the expected list = 0x1
+  [i]    wrong layout, output: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] wrong layout, output: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong layout, output: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] wrong layout, output: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] wrong layout, output: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] wrong layout, output: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    wrong layout, output: PP_STAT 5b000404
+  [ok]   [MAPREC] wrong layout, output: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] wrong layout, output: PP_STAT fail 0  = 0x0
+  [ok]   [MAPREC] wrong layout, output: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] wrong id, input: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] wrong id, input: the restore reached its terminal and the map restore ended = 0x1
+  [i]    wrong id, input: the map restore held the faces 660 clocks after restore_done, 3714 after PP_CTRL[1]
+  [i]    wrong id, input: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] wrong id, input: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong id, input: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] wrong id, input: SPI 0: the mappings are the expected list = 0x1
+  [i]    wrong id, input: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] wrong id, input: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong id, input: SPO 0: number_of_mappings = 0x2
+  [ok]   [MAPREC] wrong id, input: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] wrong id, input: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] wrong id, input: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    wrong id, input: PP_STAT 5b000404
+  [ok]   [MAPREC] wrong id, input: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] wrong id, input: PP_STAT fail 0       = 0x0
+  [ok]   [MAPREC] wrong id, input: PP_STAT blank 0      = 0x0
+  [ok]   [MAPREC] wrong id, output: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] wrong id, output: the restore reached its terminal and the map restore ended = 0x1
+  [i]    wrong id, output: the map restore held the faces 662 clocks after restore_done, 3716 after PP_CTRL[1]
+  [i]    wrong id, output: SPI 0: status 0, 3 mapping(s) s0.c6->o0.c0 s0.c0->o3.c0 s0.c1->o5.c0
+  [ok]   [MAPREC] wrong id, output: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong id, output: SPI 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] wrong id, output: SPI 0: the mappings are the expected list = 0x1
+  [i]    wrong id, output: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] wrong id, output: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] wrong id, output: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] wrong id, output: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] wrong id, output: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] wrong id, output: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    wrong id, output: PP_STAT 5b000404
+  [ok]   [MAPREC] wrong id, output: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] wrong id, output: PP_STAT fail 0      = 0x0
+  [ok]   [MAPREC] wrong id, output: PP_STAT blank 0     = 0x0
+  [ok]   [MAPREC] legal maximum: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] legal maximum: the restore reached its terminal and the map restore ended = 0x1
+  [i]    legal maximum: the map restore held the faces 672 clocks after restore_done, 3726 after PP_CTRL[1]
+  [i]    legal maximum: SPI 0: status 0, 8 mapping(s) s0.c7->o0.c0 s0.c6->o1.c0 s0.c5->o2.c0 s0.c4->o3.c0 s0.c3->o4.c0 s0.c2->o5.c0 s0.c1->o6.c0 s0.c0->o7.c0
+  [ok]   [MAPREC] legal maximum: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] legal maximum: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] legal maximum: SPI 0: the mappings are the expected list = 0x1
+  [i]    legal maximum: SPO 0: status 0, 8 mapping(s) s0.c0->o7.c0 s0.c1->o6.c0 s0.c2->o5.c0 s0.c3->o4.c0 s0.c4->o3.c0 s0.c5->o2.c0 s0.c6->o1.c0 s0.c7->o0.c0
+  [ok]   [MAPREC] legal maximum: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] legal maximum: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] legal maximum: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] legal maximum: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] legal maximum: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    legal maximum: PP_STAT 5b000404
+  [ok]   [MAPREC] legal maximum: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] legal maximum: PP_STAT fail 0         = 0x0
+  [ok]   [MAPREC] legal maximum: PP_STAT blank 0        = 0x0
+  [ok]   [MAPREC] put-back: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back: the map restore held the faces 658 clocks after restore_done, 3772 after PP_CTRL[1]
+  [i]    put-back: SPI 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] put-back: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back: SPI 0: number_of_mappings   = 0x4
+  [ok]   [MAPREC] put-back: SPI 0: the mappings are the expected list = 0x1
+  [i]    put-back: SPO 0: status 0, 2 mapping(s) s0.c0->o7.c0 s0.c4->o2.c0
+  [ok]   [MAPREC] put-back: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back: SPO 0: number_of_mappings   = 0x2
+  [ok]   [MAPREC] put-back: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] put-back: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] put-back: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    put-back: PP_STAT 5b000404
+  [ok]   [MAPREC] put-back: PP_STAT done 1, busy 0      = 0x1
+  [ok]   [MAPREC] put-back: PP_STAT fail 0              = 0x0
+  [ok]   [MAPREC] put-back: PP_STAT blank 0             = 0x0
+  [ok]   [MAPREC] D3 pass-0 abort: the codec frames the records = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: no map record shares a faulted lane = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: the restore reached its terminal and the map restore ended = 0x1
+  [i]    D3 pass-0 abort: the map restore held the faces 4 clocks after restore_done, 837 after PP_CTRL[1]
+  [ok]   [MAPREC] D3 pass-0 abort: the D3 walk aborted (cause 2) and did not roll back = 0x1
+  [i]    D3 pass-0 abort: SPI 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] D3 pass-0 abort: SPI 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] D3 pass-0 abort: SPI 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] D3 pass-0 abort: SPI 0: the mappings are the expected list = 0x1
+  [i]    D3 pass-0 abort: SPO 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] D3 pass-0 abort: SPO 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] D3 pass-0 abort: SPO 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] D3 pass-0 abort: SPO 0: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: render RAM keys 2..9 hold the input list = 0x0
+  [ok]   [MAPREC] D3 pass-0 abort: capture RAM keys 0..7 hold the output list = 0x0
+  [i]    D3 pass-0 abort: PP_STAT 5b08040c
+  [ok]   [MAPREC] D3 pass-0 abort: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: PP_STAT fail 1       = 0x1
+  [ok]   [MAPREC] D3 pass-0 abort: PP_STAT blank 0      = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x33
+--------------------------------------------------------------
+checks: 589   failures: 0
+RESULT: PASS
