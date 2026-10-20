@@ -1,0 +1,15 @@
+--- <head>/tb/verilator/milan_dp/sim_nxn.cpp	2026-10-20 07:00:49.969084300 +0200
++++ <probe-tree>/tb/verilator/milan_dp/sim_nxn.cpp	2026-10-20 07:04:36.876632958 +0200
+@@ -3032,7 +3032,11 @@
+         //! THE #658 LEG ENDS HERE: the image is served and AECP is
+         //! released, and nothing before this point has touched a map, so
+         //! the first GET_AUDIO_MAP below reads the power-on maps.
+-        dynmap_power_on_and_adaptation_section();
++        { const unsigned long a0 = aprb_armed();
++          bind_listener_zero_over_acmp_with_an_explicit_sid();
++          grade_the_bound_alias_verdict(a0);
++          prove_a_stopped_stream_input_discards();
++          prove_a_stopped_stream_input_counts_no_interruption(); }
+         printf("--------------------------------------------------------------\n");
+         printf("checks: %ld   failures: %ld\n", checks, fails);
+         printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
