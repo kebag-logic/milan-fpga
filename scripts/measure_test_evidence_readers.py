@@ -74,9 +74,17 @@ DUT_READER_DISPOSITIONS = {
         "stimulus, never from the text",
     "tb/verilator/capture_coherence/mutants.py":
         "mutation campaign; it plants one TDM frame-handoff, snapshot, counter or grid-aligner "
-        "binding defect into a copy of the capture crossbar, the junction wrapper or the datapath, "
+        "binding defect, or a #632 time-base defect, into a copy of the capture crossbar, the "
+        "junction wrapper or the datapath, "
         "and requires a named failure from the junction, datapath or chmap_capture harness; no "
         "expected value is read from RTL",
+    "tb/verilator/media_phase/phase_mutants.py":
+        "mutation campaign; it plants one #632/#764 phase-loop defect (the phase term, its sign, "
+        "the rate damping, the integrator carry, the slew clamp, the fold, a re-fold) or one "
+        "per-interface latency defect into a copy of the servo, the domain event, the CRF output "
+        "or the synthetic three-interface wrapper, and requires the named check of its case to "
+        "fail; expected phases come from the harness's own clocks and pin decoders, never from "
+        "the text",
     "tb/verilator/crf_rx/mutants.py":
         "mutation campaign; copies the receiver and servo, requiring named failures "
         "for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, "

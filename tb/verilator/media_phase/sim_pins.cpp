@@ -75,7 +75,8 @@ struct Interface {
         int got = 0;
     };
     std::deque<Frame> frames;
-    long stamps = 0, slot_grades = 0;
+    long stamps = 0;
+    long slot_grades = 0;
     double max_err = 0;
 
     double slot_offset(int k) const { return (k * 32.0 + data_delay) * 1e9 / bit_hz; }
@@ -256,11 +257,16 @@ class PinHarness {
 
     Vpin_wrap* dut_;
     milan::tb::Checker& check_;
-    double t_fs_ = 0, next_i_ = kHalfIFs, next_a_ = kHalfAFs, next_c_ = kHalfCFs;
+    double t_fs_ = 0;
+    double next_i_ = kHalfIFs;
+    double next_a_ = kHalfAFs;
+    double next_c_ = kHalfCFs;
     Interface a_{"A", 8, 1, 8 * 32 * 48000.0, 24.576e6};
     Interface b_{"B", 4, 0, 4 * 32 * 48000.0, 24.576e6};
     Interface c_{"C", 32, 1, 32 * 32 * 48000.0, 98.304e6};
-    long a_events_ = 0, b_events_ = 0, c_events_ = 0;
+    long a_events_ = 0;
+    long b_events_ = 0;
+    long c_events_ = 0;
     std::deque<uint8_t> crf_bytes_;
     long crf_points_ = 0;
     std::array<double, 3> crf_max_{};

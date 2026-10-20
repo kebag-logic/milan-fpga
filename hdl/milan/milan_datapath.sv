@@ -6093,7 +6093,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .rst_n     (axis_resetn),
     .mark_i    (frame_mark_w),
     .alt_i     (media_tick_p),
-    .ptp_now_i (ptp_now_w),
+    .ptp_ns_i  (ptp_now_w),
     .ev_p_o    (dom_ev_p_w),
     .ev_ns_o   (dom_ns_w),
     .mark_ns_o (dom_mark_ns_w),

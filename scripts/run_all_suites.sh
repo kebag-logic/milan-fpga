@@ -37,8 +37,9 @@
 # Environment:
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
 #                        Defaults: 1800 s; capture_coherence gets 2400 s,
-#                        milan_dp_mclk 3600 s, milan_dp 4800 s and the
-#                        scheduled milan_dp_gptp 5400 s (suite_timeout below).
+#                        milan_dp_mclk 3600 s, milan_dp 4800 s, the
+#                        scheduled milan_dp_gptp 5400 s and media_phase
+#                        900 s (suite_timeout below).
 #                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
 #                        is the obj_* collision domain. Point every worktree at
@@ -245,6 +246,8 @@ acquire_lock() {
 #! milan_dp in 3509.562 s; milan_dp_mclk timed out at 1800.008 s.
 #! The new limits leave >=10% in each hosted shard's measured job envelope.
 #! CI_WORKFLOWS.md records the samples and per-shard arithmetic.
+#! #632: media_phase's 900 s is provisional (scripts/suite_shards.py) until
+#! its hosted window is measured; nine cases ran in 7.5 min at three jobs.
 suite_timeout() {
   case "$1" in
     capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;

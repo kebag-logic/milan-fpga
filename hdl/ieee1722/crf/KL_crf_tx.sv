@@ -130,11 +130,10 @@
 module KL_crf_tx (
   input  wire         clk_i,             //! cd_milan datapath clock
   input  wire         rst_n,
-  //! the clock domain's media event (KL_media_domain_event): one strobe per
-  //! sample period, with the instant that frame started at the media
-  //! interface. Every 96th is a CRF timing point.
-  input  wire         ev_p_i,
-  input  wire [63:0]  ev_ns_i,
+  //! the clock domain's media event (KL_media_domain_event); every 96th is
+  //! a CRF timing point
+  input  wire         ev_p_i,            //! one strobe per frame of the domain's grid
+  input  wire [63:0]  ev_ns_i,           //! that frame's start at the media interface, gPTP ns
 
   //! control (CSR 0x750 group)
   input  wire         enable_i,

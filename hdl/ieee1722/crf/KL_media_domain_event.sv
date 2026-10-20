@@ -67,10 +67,10 @@ module KL_media_domain_event #(
   input  wire         rst_n,       //! active-low synchronous reset
   input  wire         mark_i,      //! the frame-timing owner's frame marker
   input  wire         alt_i,       //! the packet-grid tick: the event while not live
-  input  wire  [63:0] ptp_now_i,   //! live PHC nanoseconds
+  input  wire  [63:0] ptp_ns_i,    //! live PHC nanoseconds
   output logic        ev_p_o,      //! one cycle per frame, one cycle after mark_i
   output logic [63:0] ev_ns_o,     //! that frame's start at the pins, gPTP ns
-  //! the start of the frame a marker on THIS cycle closes: ptp_now_i
+  //! the start of the frame a marker on THIS cycle closes: ptp_ns_i
   //! back-dated, combinational, for a consumer that banks the frame on the
   //! marker's own edge (KL_chan_map_capture's frame bank). ev_ns_o is this
   //! value registered, so the back-dating is derived once.
@@ -81,7 +81,7 @@ module KL_media_domain_event #(
   localparam int unsigned TOW_C = $clog2(TIMEOUT_CYC_P + 1);
   logic [TOW_C-1:0] quiet_r;
 
-  assign mark_ns_o = ptp_now_i - 64'(MARK_LAT_NS_P);
+  assign mark_ns_o = ptp_ns_i - 64'(MARK_LAT_NS_P);
 
   always_ff @(posedge clk_i) begin : domain_event
     if (!rst_n) begin
@@ -96,7 +96,7 @@ module KL_media_domain_event #(
         quiet_r <= '0;
         live_o  <= 1'b1;
       end else begin
-        if (alt_i && !live_o) ev_ns_o <= ptp_now_i;
+        if (alt_i && !live_o) ev_ns_o <= ptp_ns_i;
         if (quiet_r == TOW_C'(TIMEOUT_CYC_P)) live_o <= 1'b0;
         else                                  quiet_r <= quiet_r + 1'b1;
       end

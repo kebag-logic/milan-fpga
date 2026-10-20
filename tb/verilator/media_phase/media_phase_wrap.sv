@@ -94,7 +94,7 @@ module media_phase_wrap #(
     .TIMEOUT_CYC_P (4 * (CLK_FREQ_HZ_P / FS_HZ_P))
   ) u_dom (
     .clk_i (clk_i), .rst_n (rst_n), .mark_i (mark_w), .alt_i (1'b0),
-    .ptp_now_i (ptp_now_i),
+    .ptp_ns_i (ptp_now_i),
     .ev_p_o (ev_p_o), .ev_ns_o (ev_ns_o), .mark_ns_o (), .live_o (ev_live_o)
   );
 

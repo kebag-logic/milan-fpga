@@ -672,11 +672,12 @@ def runner_contract(text: str) -> list[str]:
     milan_dp)          printf '%s\\n' "${SUITE_TIMEOUT:-4800}" ;;
     milan_dp_gptp)     printf '%s\\n' "${SUITE_TIMEOUT:-5400}" ;;
     milan_dp_mclk)     printf '%s\\n' "${SUITE_TIMEOUT:-3600}" ;;
+    media_phase)       printf '%s\\n' "${SUITE_TIMEOUT:-900}" ;;
     *)                 printf '%s\\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
 }'''
     if budget not in text or 'TMO=$(suite_timeout "$suite")' not in text:
-        problems.append("the declared 1800/2400/3600/4800/5400-second suite budgets changed")
+        problems.append("the declared 900/1800/2400/3600/4800/5400-second suite budgets changed")
     selection = ('selector=(python3 "$ROOT/scripts/suite_shards.py"',
                  '--suite-root "$ROOT/tb/verilator" --shard "$SHARD")',
                  '[ "$PHYSICAL_GPTP" = 1 ] && selector+=(--physical-gptp)',

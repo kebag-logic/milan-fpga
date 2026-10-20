@@ -131,7 +131,7 @@ def run(binary: Path, case: str) -> tuple[int, str]:
     return result.returncode, result.stdout + result.stderr
 
 
-def one_mutant(work: Path, originals: dict[str, str], mutant) -> bool:
+def one_mutant(work: Path, originals: dict[str, str], mutant: tuple) -> bool:
     """Build and run one mutant; True only for its named rejection."""
     name, fname, subs, case, failure = mutant
     text = originals[fname]
@@ -166,6 +166,7 @@ def main() -> int:
     cases = sorted({m[3] for m in chosen})
 
     def interrupted(_signum: int, _frame: object) -> None:
+        """A TERM ends the campaign with the shell's 143, cleaning its temporary tree."""
         raise SystemExit(143)
 
     signal.signal(signal.SIGTERM, interrupted)

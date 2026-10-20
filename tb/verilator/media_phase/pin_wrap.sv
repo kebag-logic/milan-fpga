@@ -112,7 +112,7 @@ module pin_wrap #(
   ) u_dom (
     .clk_i (clk_i), .rst_n (rst_n),
     .mark_i (a_pv_w && (32'(a_slot_w) == A_CLOSE_C)), .alt_i (1'b0),
-    .ptp_now_i (ptp_now_i), .ev_p_o (a_ev_p_o), .ev_ns_o (a_ns_o),
+    .ptp_ns_i (ptp_now_i), .ev_p_o (a_ev_p_o), .ev_ns_o (a_ns_o),
     .mark_ns_o (), .live_o ()
   );
   //! interface B's own frame instant: its marker, back-dated by its constant
@@ -121,7 +121,7 @@ module pin_wrap #(
   ) u_b_time (
     .clk_i (clk_i), .rst_n (rst_n),
     .mark_i (b_pv_w && (32'(b_slot_w) == B_CLOSE_C)), .alt_i (1'b0),
-    .ptp_now_i (ptp_now_i), .ev_p_o (b_ev_p_o), .ev_ns_o (b_ns_o),
+    .ptp_ns_i (ptp_now_i), .ev_p_o (b_ev_p_o), .ev_ns_o (b_ns_o),
     .mark_ns_o (), .live_o ()
   );
   //! interface C's: its INNER closing pair, back-dated by its constant
@@ -130,7 +130,7 @@ module pin_wrap #(
   ) u_c_time (
     .clk_i (clk_i), .rst_n (rst_n),
     .mark_i (c_pv_w && (32'(c_slot_w) == C_CLOSE_C)), .alt_i (1'b0),
-    .ptp_now_i (ptp_now_i), .ev_p_o (c_ev_p_o), .ev_ns_o (c_ns_o),
+    .ptp_ns_i (ptp_now_i), .ev_p_o (c_ev_p_o), .ev_ns_o (c_ns_o),
     .mark_ns_o (), .live_o ()
   );
 
