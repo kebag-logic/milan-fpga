@@ -1,0 +1,68 @@
+git rev-parse HEAD HEAD^{tree}
+1e914414557874648ac5041aff88b96908e0e053
+033e6bc1fb66904e7faf7b57929d6c7a28d89732
+
+git log --format=%H %s 8000520c..HEAD
+1e914414557874648ac5041aff88b96908e0e053 Record the measured map campaign, 63 of 63 planted controls caught from one clean-clone run (#637)
+600565b434f09ee581508d5a5f3a02a3594afd55 Grade PP_STAT blank on a lone map record failing each validated-record term, with a control per term (#637)
+dc7dd727afe936f7aeb238f41a88e3338f7fe499 State that the map restore adds no cause of its own, the binding walk's cause kept (#637)
+
+git diff --stat e9cbb676..HEAD
+ docs/MILAN_V12_ROADMAP.md                     |    5 +-
+ docs/design/SAVED_STATE_FASTCONNECT.md        |   22 +-
+ docs/design/SAVED_STATE_MATERIALIZATION.md    |  210 +++-
+ docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md |   45 +-
+ docs/fpga/FPGA_DESIGN.md                      |    5 +-
+ docs/integration/BAREMETAL_FIRMWARE.md        |   10 +-
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md     |   10 +-
+ docs/reference/REGISTER_MAP.md                |   22 +-
+ docs/testing/TESTING.md                       |   12 +-
+ hdl/common/csr/milan_csr.sv                   |   13 +-
+ hdl/milan/KL_nvm_backend.sv                   |    9 +-
+ hdl/milan/KL_pp_shadow.sv                     |  197 +++-
+ hdl/milan/milan_datapath.sv                   | 1068 +++++++++++++++++++-
+ scripts/check_nvm_record_space.py             |   46 +
+ scripts/nvm_contract.py                       |    4 +
+ sw/firmware/ctrl/README.md                    |    2 +-
+ sw/firmware/ctrl/aecp/README.md               |   11 +-
+ sw/firmware/ctrl/test/aecp_arms.py            |    2 +-
+ sw/firmware/ctrl/test/aecp_mutants.py         |   17 +
+ sw/firmware/ctrl/test/test_aecp.cpp           |   38 +
+ tb/verilator/milan_dp/Makefile                |   81 +-
+ tb/verilator/milan_dp/README.md               |  215 +++-
+ tb/verilator/milan_dp/dynmap_mutants.py       |  410 +++++++-
+ tb/verilator/milan_dp/dynmap_probes.vlt       |   23 +
+ tb/verilator/milan_dp/sim_nxn.cpp             | 1334 ++++++++++++++++++++++++-
+ tb/verilator/milan_dp/test_sim_pool.py        |   10 +-
+ tb/verilator/pp_shadow/README.md              |    8 +-
+ tb/verilator/pp_shadow/sim_main.cpp           |   14 +
+ 28 files changed, 3544 insertions(+), 299 deletions(-)
+
+git diff --name-status 8000520c..HEAD
+M	docs/design/SAVED_STATE_MATERIALIZATION.md
+M	docs/reference/REGISTER_MAP.md
+M	docs/testing/TESTING.md
+M	tb/verilator/milan_dp/Makefile
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/dynmap_mutants.py
+M	tb/verilator/milan_dp/sim_nxn.cpp
+
+git diff 8000520c..HEAD -- hdl syn constraints
+
+git diff 600565b4..HEAD -- tb/verilator/milan_dp/Makefile
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index 1da22eafa..3381a047b 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -566,8 +566,8 @@ maprec4-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_4x4_F)
+ maprec4: maprec4-build
+ 	$(abspath $(MAPREC4_MDIR))/Vmilan_dp_maprec4
+ 
+-# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 60
+-# mutated elaborations, 51 of the dynmap leg, 5 of maprec8, 2 of maprec4 and
++# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 63
++# mutated elaborations, 54 of the dynmap leg, 5 of maprec8, 2 of maprec4 and
+ # one each of the two end-to-end legs it names (milan_dp_render's and
+ # capture_coherence's datapath leg), each leg with its clean control run.
+ # DYNMAP_MUTANT_JOBS mutants run at once (at most two of them building).
+

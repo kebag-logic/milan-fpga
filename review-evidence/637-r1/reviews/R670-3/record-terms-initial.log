@@ -1,0 +1,8 @@
+PASS crc: sole record 0x60, payload 64, failing term crc
+PASS layout: sole record 0x60, payload 64, failing term layout
+Traceback (most recent call last):
+  File "$REVIEWS/637-r670-3-packet/check_record_terms.py", line 33, in <module>
+    assert result.returncode == 0, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: FATAL: record 0x70 is not a 64-byte record of endstation_ax7101_1x1_tdm8.yaml (shape length 136)
+
