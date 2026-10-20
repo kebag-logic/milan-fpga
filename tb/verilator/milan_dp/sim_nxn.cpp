@@ -5043,10 +5043,13 @@ class NxnDatapathHarness {
             real_tu0[out]  = ctr_word(rr, 3);
             real_ftx0[out] = ctr_word(rr, 4);
         }
-        //! The CRF grid is one PDU per 96 audio samples, or 49,152
-        //! harness clocks. Wait past that real cadence instead of using
-        //! an AAF-only delay that could never observe a CRF completion.
-        constexpr int RealPduWait = 52000;
+        //! The CRF talker stamps every 96th domain event (#632): an audio
+        //! frame, clk_audio/512 on the I2S legs (49,152 harness clocks a
+        //! PDU), or, where no frame runs (nxn4c's TDM master is unclocked
+        //! here), the 48 kHz media tick (96 x 2083.3 = 200,000 clocks at
+        //! 100 MHz). Wait past the slower cadence instead of using an
+        //! AAF-only delay that could never observe a CRF completion.
+        constexpr int RealPduWait = CRF_PDU_MAX_CLK + 5000;
         tkd_dirty_seen = 0;
         for (int i = 0; i < RealPduWait; i++) step();
         long all_real_tu_ftx = 1;
@@ -7751,7 +7754,10 @@ class NxnDatapathHarness {
         }
         return false;
     }
-    static constexpr int CRF_BUDGET = 160000;   // > 2 event periods (49152 each)
+    //! the slower CRF cadence of these legs: 96 media ticks, where no audio
+    //! frame runs (see RealPduWait)
+    static constexpr int CRF_PDU_MAX_CLK = 200000;
+    static constexpr int CRF_BUDGET = 2 * CRF_PDU_MAX_CLK + 10000;   // > 2 PDU periods
 
     // ---- LEG 1 (the DEFAULT BUILD): class A bit clear -------------
     // lwSRP fully running, CRF talker running, CRFT_CTRL[1] = 0.
