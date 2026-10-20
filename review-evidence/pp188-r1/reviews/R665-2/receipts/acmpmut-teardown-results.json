@@ -1,0 +1,28 @@
+[
+ {
+  "mutant": "golden-pp_top--acmp-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "st_ls_teardown_as_declare@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS6: the sink's VLAN membership is released"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS6: the sink's VLAN membership is released: MVRP Lv of VID 2"
+  ],
+  "verdict": "KILLED"
+ }
+]
