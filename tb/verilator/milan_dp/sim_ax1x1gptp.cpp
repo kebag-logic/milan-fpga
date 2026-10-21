@@ -1150,7 +1150,9 @@ int Harness::run() {
         const auto initial_avb = query(0x27, 0x7010);
         check.dec("pre-acquisition GET_AVB_INFO length", initial_avb.size(), 62);
         check.dec("pre-acquisition GET_AVB_INFO SUCCESS", initial_avb.size() > 16 ? initial_avb[16] >> 3 : 255, 0);
-        check.hex("pre-acquisition GET_AVB_INFO has no selected GM", be(initial_avb, 42, 8), 0);
+        // Before any peer, this instance is its own grandmaster (IEEE 802.1AS-2020
+        // 10.3.13.2.4 b) and i)).
+        check.hex("pre-acquisition GET_AVB_INFO names thisClock as GM", be(initial_avb, 42, 8), kThisClock);
         run_cycles(kHz * 12 / 10);
         check.dec("first Pdelay response completed", pd_answers, 1);
         if (pd_answers == 1) {
@@ -1198,7 +1200,9 @@ int Harness::run() {
             loss_recovery(); completed[6] = true;
             printf("RESET: assert with audio and peer active, flush model in-flight packets\n");
             reset(); configure();
-            check.hex("reset clears complete public GM", read_identity(0x624), 0);
+            // A reset instance is its own grandmaster again (IEEE 802.1AS-2020
+            // 10.3.13.2.4 b) and i)); the parent identity stays clear.
+            check.hex("reset publishes thisClock as GM", read_identity(0x624), kThisClock);
             check.hex("reset clears complete public parent", read_identity(0x730), 0);
             audio_window("reset reacquisition", kHz * 3, -1, Until::Healthy);
             publication("reset recovered", true);

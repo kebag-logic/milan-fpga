@@ -814,9 +814,12 @@ class GptpPlaneHarness {
     axi_write(dut, 0x504, 8u << 24);       // 8.0 ns; matches sim_cyc model
 
     // The option is omitted from this elaboration: these are assertions about
-    // the RTL default.  Before any peer answers, the engine's committed bank is
-    // zero. Retained legacy addresses remain mapped for ABI stability, but every
-    // write is inert and cannot manufacture a publication or healthy CLKV claim.
+    // the RTL default.  Before any peer answers, the engine publishes thisClock
+    // as grandmaster (IEEE 802.1AS-2020 10.3.13.2.4 b) and i)); parent and pdelay
+    // are zero. That first grandmaster identity is a change, so it arms the
+    // Milan v1.2 Annex B.1.1 holdover. Retained legacy addresses remain mapped
+    // for ABI stability, but every write is inert and cannot manufacture a
+    // publication or healthy CLKV claim.
     expect("default-on VERSION", axi_read(dut, 0x004), 0x00020060);
     axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
     axi_write(dut, 0x6E4, 1234);
@@ -826,8 +829,10 @@ class GptpPlaneHarness {
     // (802.1AS 8.1), so this 5 must never surface on the CSR readback, the
     // GET_AVB_INFO gather below, or the MAC-bound Pdelay_Req scanned below.
     axi_write(dut, 0x62C, 5);
-    expect("fabric GM low overrides SW", axi_read(dut, 0x624), 0);
-    expect("fabric GM high overrides SW", axi_read(dut, 0x628), 0);
+    expect("fabric GM low overrides SW", axi_read(dut, 0x624),
+           static_cast<uint32_t>(THIS_CLOCK));
+    expect("fabric GM high overrides SW", axi_read(dut, 0x628),
+           static_cast<uint32_t>(THIS_CLOCK >> 32));
     expect("fabric pdelay overrides SW", axi_read(dut, 0x6E4), 0);
     expect("fabric parent low overrides SW", axi_read(dut, 0x730), 0);
     expect("fabric parent high overrides SW", axi_read(dut, 0x734), 0);
@@ -836,7 +841,8 @@ class GptpPlaneHarness {
     uint32_t clkv = axi_read(dut, 0x77C);
     expect("legacy write cannot clear tu", clkv & 1, 1);
     expect("legacy sync claim is inert", (clkv >> 1) & 1, 0);
-    expect("compatibility CLKV fields read zero", (clkv >> 2) & 0x3FFF, 0);
+    expect("reset publication of thisClock arms the holdover", (clkv >> 3) & 1, 1);
+    expect("compatibility CLKV fields read zero", (clkv >> 2) & 0x3FFD, 0);
     expect("legacy asCapable claim is inert", (clkv >> 16) & 1, 0);
   }
 
