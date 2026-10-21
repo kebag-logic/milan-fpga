@@ -1,0 +1,23 @@
+MATCH main 859b537b hdl/aecp/ucode/gen_ucode.py sha256=08d4977ff8d04c629248deedb3b45ac95a984db84864bccce3206713ee3a13c3
+MATCH main 859b537b hdl/aecp/ucode/aecp_commands.json sha256=83aba11dc03157e76477b18e4dff5a1c3c9a5cd780e77044655d6efe43dd623a
+MATCH main 859b537b tb/aecp_cmds/decode.json sha256=b91934cac9b89cfea102e121d09e3ec21b9aed7e58522d8986e09f24d9c28ff8
+MATCH main 859b537b tb/pp_top/notify_phases.hpp sha256=22e39084c82c788466c9ce79b16b1c1bee8e8365dceaeb4f2786815e13c8583c
+MATCH main 859b537b tb/pp_top/notify_mutants.py sha256=7bf083f314f6e1a5480f4c209fb1a4295c660451b8b2787062aafdeeca632d0f
+MATCH main 859b537b tb/pp_top/d3_phases.hpp sha256=ece4d61f25e3b12ed978a94ef84e40d5e586f2ab5738568462ff5689bdb514da
+MATCH main 859b537b tb/pp_top/sim_main.cpp sha256=af4b30c6d936854ef06415360873952537e0355598066420f149fc458ccb9107
+MATCH listener 65d39b0c -> exact head
+MATCH listener 324ac9a7 -> exact head
+MATCH module ports/parameters 21601694 -> exact head hdl/top/protocol_processor_top.sv
+MATCH module ports/parameters 7b424cdf -> exact head hdl/top/protocol_processor_top.sv
+MATCH module ports/parameters 859b537b -> exact head hdl/top/protocol_processor_top.sv
+MATCH module ports/parameters 21601694 -> exact head hdl/srp/KL_srp_listener_fsm.sv
+MATCH module ports/parameters 7b424cdf -> exact head hdl/srp/KL_srp_listener_fsm.sv
+MATCH module ports/parameters 859b537b -> exact head hdl/srp/KL_srp_listener_fsm.sv
+MATCH module ports/parameters 21601694 -> exact head hdl/srp/KL_srp_top.sv
+MATCH module ports/parameters 7b424cdf -> exact head hdl/srp/KL_srp_top.sv
+MATCH module ports/parameters 859b537b -> exact head hdl/srp/KL_srp_top.sv
+MATCH base 21601694 map/interface hdl/common/pp_pkg.sv
+MATCH base 21601694 map/interface docs/architecture/07_memory_maps.md
+MATCH base 21601694 map/interface docs/architecture/02_interfaces.md
+MATCH clean automatic merge tree 5ad76c02f6cfd8dbfa0b8d09e34b1cd22acec312
+MATCH complete generated ROM main/head sha256=1f78804e448c385d633ed4355b7d84100ec13b12c77305c3bc11986653a80a8e
