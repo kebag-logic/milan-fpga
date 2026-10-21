@@ -1,0 +1,50 @@
+======================================================================
+---- #632/#764 phase loop: one planted defect per loop term ----------
+python3 phase_mutants.py --jobs 4
+[PASS] clean blend: rc=0
+[PASS] clean burst: rc=0
+[PASS] clean carry: rc=0
+[PASS] clean det:balanced: rc=0
+[PASS] clean det:cross: rc=0
+[PASS] clean det:inband: rc=0
+[PASS] clean det:meanin: rc=0
+[PASS] clean det:range: rc=0
+[PASS] clean det:snap: rc=0
+[PASS] clean engage: rc=0
+[PASS] clean holdover: rc=0
+[PASS] clean internal: rc=0
+[PASS] clean mr: rc=0
+[PASS] clean ofs: rc=0
+[PASS] clean phcstep: rc=0
+[PASS] clean pins: rc=0
+[PASS] clean slew: rc=0
+[PASS] clean step: rc=0
+[PASS] integrator_floored on carry: rc=1 -- [FAIL] [carry] the integrator moved by exactly sum(e) / 2 (no LSB floored)
+[PASS] phase_term_removed on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[PASS] phase_sign_flipped on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[PASS] fold_not_centred on det:inband: rc=1 -- [FAIL] [det inband] engaged, the window phase inside the band (theta -31250)
+[PASS] tracking_fold_removed on det:balanced: rc=1 -- [FAIL] [det balanced] the window phase reads the half-period phase (theta 0, |theta| >= 28125)
+[PASS] rate_damping_removed on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[PASS] window_refold_removed on det:cross: rc=1 -- [FAIL] [det cross] past +Ps/2 the window phase re-folds to the short way, -Ps/2 + 100 ns (31549)
+[PASS] settled_on_mean_only on det:meanin: rc=1 -- [FAIL] [det meanin] settled never asserts with every sample outside the band
+[PASS] settled_is_engaged on det:inband: rc=1 -- [FAIL] [det inband] settled first reads 1 at the close of the fourth full in-band window (at 1)
+[PASS] snapshot_hold_ignored on det:snap: rc=1 -- [FAIL] [det snap] mr on the closing edge: committed phase contribution 3000/256 (want 0)
+[PASS] fold_range_guard_removed on det:range: rc=1 -- [FAIL] [det range] a timestamp 2^25 ns from the domain event is not sampled (d = 33554432 ns: 257 a window)
+[PASS] slew_clamp_removed on engage: rc=1 -- [FAIL] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 436.1)
+[PASS] window_cap_removed on burst: rc=1 -- [FAIL] [burst] the window the burst filled kept exactly 264 samples, the cap (max 267)
+[PASS] mr_hold_removed on mr: rc=1 -- [FAIL] [mr] the phase term let go at the mr toggle (within 5 ms)
+[PASS] history_hold_removed on step: rc=1 -- [FAIL] [step] the phase term let go at the reference's history restart (within 10 ms)
+[PASS] holdover_hold_removed on holdover: rc=1 -- [FAIL] [holdover] the phase term let go at HOLDOVER (within 200 ms)
+[PASS] offset_rounding_bypassed on ofs: rc=1 -- [FAIL] [ofs A] every row reads back as applied, rounded up to whole periods
+[PASS] crf_row_raw on ofs: rc=1 -- [FAIL] [ofs A] every CRF timing point is a frame instant plus the CRF row as read back (4)
+[PASS] slew_hold_removed on slew: rc=1 -- [FAIL] [slew] the phase term let go at the slew level (within 5 ms)
+[PASS] idle_hold_removed on internal: rc=1 -- [FAIL] [internal] the phase term let go at INTERNAL (within 5 ms)
+[PASS] step_hold_removed on phcstep: rc=1 -- [FAIL] [phcstep] the phase term let go at the PHC step (within 5 ms)
+[PASS] blend_closed_on_tdm_pair on blend: rc=1 -- [FAIL] [blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 15691.1 ns)
+[PASS] i2s_pair_one_pop_late on blend: rc=1 -- [FAIL] [blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 20862.5 ns)
+[PASS] pins_b_constant_dropped on pins: rc=1 -- [FAIL] [pins B] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 20831.5 ns)
+[PASS] pins_constants_swapped on pins: rc=1 -- [FAIL] [pins A] ...and inside the derivation, +/-40 ns (max 192.2 ns)
+[PASS] pins_c_closed_at_frame_end on pins: rc=1 -- [FAIL] [pins C] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 15614.7 ns)
+[PASS] domain_event_not_backdated on engage: rc=1 -- [FAIL] [engage] the DUT's CRF output on the reference's grid (max 1257.8 ns)
+[PASS] crf_output_off_grid on engage: rc=1 -- [FAIL] [engage] the DUT's CRF output on the reference's grid (max 10415.8 ns)
+== media_phase mutants: checks: 46   failures: 0 ==
