@@ -1693,9 +1693,17 @@ lands in the render and loopback rings after it, inside their bands.
   identical SET pushes nothing, and the write-back pushes once.
   `milan_dp`'s `[NOTIFY]` grades the four steps (the held 2,000,000 ns, a
   change to 2,010,000, the same again, the write-back of 2,020,834). The gate
-  is the processor's SET_STREAM_INFO program. At the pinned processor it
-  compares the commanded value with GET_STREAM_INFO's word, so steps 3 and 4
-  fail there until a processor whose gate reads the offset as set is pinned.
+  is the processor's SET_STREAM_INFO program. The processor stores no offset
+  until a controller or a restore sets one, so the gate compares the
+  commanded value with the stored offset once one is set, and before that
+  with GET_STREAM_INFO's word, the factory offset in force. A SET of 0 on an
+  output never set therefore pushes, as the offset in force moves from 2 ms
+  to 0. Before an output's first SET, a factory offset that is not whole
+  periods is compared as applied, so a SET of exactly that value pushes;
+  every factory offset this repository ships is 2 ms, whole periods. At the
+  pinned processor the gate compares with GET_STREAM_INFO's word on every
+  output, so steps 3 and 4 fail there until a processor pin carrying the
+  stored-offset compare is adopted.
 - **Past 2^32 ns.** The ceiling adds up to one period, so at 48 kHz an offset
   above 4,294,958,333 ns rounds past 2^32: 0xFFFFFFFF applies as 206,159
   periods, 4,294,979,167 ns, a 33-bit value. An AAF timestamp is the low 32
