@@ -48,7 +48,7 @@ level, CRF at -14 ppm. The plan alone is -10.64 ppm.
 |---|---|
 | A | AAF input 0 selected from INTERNAL, LOCKED, followed within 0.5 ppm; the CSR words; the echo; one PDU lost in every 0.3 s for 3 s; a 150 ms lock loss and return; the talker's `tu` set, then cleared, each edge one history restart and no request (IEEE 1722-2016 4.4.4.7) |
 | C | AAF input 0 LOCKED, then W2 onto the locked CRF input, LOCKED and followed within 0.5 ppm |
-| B | the CRF input selected and LOCKED; its lock loss and return; the switch sweep at 16 phases of the CRF output; one recentre per switch kind; a switch onto a silent talker; a switch onto a talker silent for 150 ms, past the meter's timeout, where the lock clears at the switch and the timeout raises no second request; an INTERNAL dwell; INTERNAL with the aligner engaged, the grids at one rate and no junction slip |
+| B | the CRF input selected and LOCKED; its lock loss and return; the switch sweep at 16 phases of the CRF output, never more than one #645 settle recentre per switch; each switch kind over 0.8 s gaps; a switch onto a silent talker; a switch onto a talker silent for 150 ms, past the meter's timeout, where the lock clears at the switch and the timeout raises no second request; an INTERNAL dwell; INTERNAL with the aligner engaged, the grids at one rate and no junction slip |
 
 Every leg grades the C1 invariant every millisecond: LOCKED equals UNLOCKED
 or UNLOCKED + 1. Leg C repeats A's AAF lock so the pool runs the two side by
@@ -98,8 +98,11 @@ and `--c` run the others.
 - The loss leg is 3 s, not the design's 60 s. One leg costs about 20 s of
   wall time per simulated second. A 60 s leg would take the suite past its
   guard, and its defect shows at the first lost PDU.
-- One recentre per switch is graded over 0.8 s gaps. At 4 MHz the settle band
-  is one fabric cycle, so a settle can take its 683 ms ceiling.
+- The 0.8 s switch row grades the request and the toggles, not a recentre.
+  Its one recentre per switch was #386's at-switch recentre, retired with
+  the setpoint stage (#632). #645's settle recentre waits 8 LOCKED servo
+  windows under following, past those gaps; `tb/verilator/follow_ring`'s
+  `[SW]` legs grade it once per switch.
 - INTERNAL is graded after a dwell, not from boot. At 4 MHz the aligner's
   keep-off is a quarter sample (20 cycles) rather than 256, and the TDM
   junction counts skips until the boot pull-in walks the lock clear of the
