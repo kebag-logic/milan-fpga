@@ -1,0 +1,67 @@
+# git diff --name-status 859b537 4743463 (head vs processor main #199)
+M	docs/architecture/10_srp_engine.md
+M	hdl/srp/KL_srp_listener_fsm.sv
+M	tb/pp_top/README.md
+M	tb/pp_top/gsi_mutants.py
+M	tb/srp_stream_fsms/README.md
+M	tb/srp_stream_fsms/sim_main.cpp
+M	tb/srp_top/README.md
+M	tb/srp_top/mutants.py
+M	tb/srp_top/mutations/listener-csid-flops-ignores-park.patch
+M	tb/srp_top/mutations/listener-declaration-not-held.patch
+A	tb/srp_top/mutations/listener-group-op-during-settle.patch
+A	tb/srp_top/mutations/listener-group-order-reversed.patch
+A	tb/srp_top/mutations/listener-handover-drops-state.patch
+A	tb/srp_top/mutations/listener-handover-forgets-walk-mark.patch
+M	tb/srp_top/mutations/listener-lo-not-owed.patch
+M	tb/srp_top/mutations/listener-lost-txla.patch
+A	tb/srp_top/mutations/listener-merge-keeps-park.patch
+A	tb/srp_top/mutations/listener-park-drops-matcher-pairs.patch
+M	tb/srp_top/mutations/listener-park-never-retires.patch
+M	tb/srp_top/mutations/listener-park-retires-on-txla.patch
+A	tb/srp_top/mutations/listener-parked-outside-groups.patch
+M	tb/srp_top/mutations/listener-rebind-abandons-leave.patch
+A	tb/srp_top/mutations/listener-repark-takes-matcher-pairs.patch
+M	tb/srp_top/mutations/listener-reprobe-abandons-leave.patch
+M	tb/srp_top/mutations/listener-reprobe-parks-own-stream.patch
+A	tb/srp_top/mutations/listener-retire-skips-group-mark.patch
+A	tb/srp_top/mutations/listener-rider-not-quiet.patch
+A	tb/srp_top/mutations/listener-rider-settle-hands-over.patch
+A	tb/srp_top/mutations/listener-settle-compare-dropped.patch
+A	tb/srp_top/mutations/listener-settle-parks-shared-stream.patch
+A	tb/srp_top/mutations/listener-settle-skips-leave-copies.patch
+A	tb/srp_top/mutations/listener-teardown-applies-lv.patch
+A	tb/srp_top/mutations/listener-teardown-keeps-declaring.patch
+A	tb/srp_top/mutations/listener-two-parks-grouped.patch
+A	tb/srp_top/mutations/listener-type-not-combined.patch
+M	tb/srp_top/mutations/listener-unrecorded-applicant-owes.patch
+A	tb/srp_top/mutations/listener-walk-ends-owing-a-transmit.patch
+A	tb/srp_top/mutations/listener-walk-marks-group-only-on-retire.patch
+A	tb/srp_top/mutations/listener-walk-marks-only-served-slots.patch
+A	tb/srp_top/mutations/listener-withdraw-ignores-riders.patch
+M	tb/srp_top/mutations/lsid-flops-read-sink-0.patch
+M	tb/srp_top/sim_main.cpp
+
+# merge delta vs main delta per main-side file (merge-base 08023123)
+docs/architecture/06_aecp_engine.md main=b48d55f05c94795fe077d415fa3f1eac600ca88b head=b48d55f05c94795fe077d415fa3f1eac600ca88b BYTE-IDENTICAL
+docs/architecture/09_verification.md main=50eb4cc27a11cd9525d1a5ae58d57082d87aae98 head=50eb4cc27a11cd9525d1a5ae58d57082d87aae98 BYTE-IDENTICAL
+hdl/aecp/ucode/gen_ucode.py main=d4bf99d11c28a9f7973929db311098a8aebd61c7 head=d4bf99d11c28a9f7973929db311098a8aebd61c7 BYTE-IDENTICAL
+tb/aecp_cmds/decode.json main=eedaaa11282450297d880e5b971d3f0447fa0044 head=eedaaa11282450297d880e5b971d3f0447fa0044 BYTE-IDENTICAL
+tb/pp_top/README.md main=169aacb5e9b521a716660eba35a58cdcf4cac856 head=d7836f41ce365bfbb114a15a5ad17ee9e5c49885 DIFFERS
+tb/pp_top/d3_phases.hpp main=c61ad66fec715b7529a7da2a237b0bdf88dbf99d head=c61ad66fec715b7529a7da2a237b0bdf88dbf99d BYTE-IDENTICAL
+tb/pp_top/notify_mutants.py main=0a1cc07b3221545074b1cc7d992d1610cda8f9b6 head=0a1cc07b3221545074b1cc7d992d1610cda8f9b6 BYTE-IDENTICAL
+tb/pp_top/notify_phases.hpp main=bc19898154a684fbb01ee3e8ef798099f8f47eaf head=bc19898154a684fbb01ee3e8ef798099f8f47eaf BYTE-IDENTICAL
+tb/pp_top/sim_main.cpp main=5bf3708340c3b92fe675a38e44570655ed0b71d3 head=5bf3708340c3b92fe675a38e44570655ed0b71d3 BYTE-IDENTICAL
+
+# hdl/aecp tree
+main 0237e79fe993885580bdedf97302523bb25aacba head 0237e79fe993885580bdedf97302523bb25aacba
+
+# listener module header sha256/16 (21601694 7b424cdf 859b537 HEAD)
+21601694 78f170a96c06654b
+7b424cdf 78f170a96c06654b
+859b537 78f170a96c06654b
+HEAD 78f170a96c06654b
+# protocol_processor_top.sv main vs head: f7216531c8f00e2ea39db6efefaf072659c06527 f7216531c8f00e2ea39db6efefaf072659c06527
+# docs 01/02/07 vs main:
+(empty = unchanged)
+# 65d39b0 vs HEAD listener blob: f61843cf83ce78ffb3a7d2737c56a0aecae8bae3 f61843cf83ce78ffb3a7d2737c56a0aecae8bae3
