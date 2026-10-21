@@ -113,10 +113,10 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
                  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(GPTP_MS_CYC) \
                  -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC) -DCLKV_QTICK_CYC_TB=$(GPTP_QTICK_CYC) -Wall -Wextra"
 
-# #386: the render setpoint stage and the datapath, overridable so the
+# #632: the render presentation stage and the datapath, overridable so the
 # render-law mutation arm (render_mutants.py) elaborates a MUTATED COPY of
 # either through this same recipe
-RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
+RQ_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_queue.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
 # #443: selector controls mutate only a disposable CSR source.
 CSR_SRC ?= $(RTL_DIR)/common/csr/milan_csr.sv
@@ -185,7 +185,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_pair_zero_fill.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv \
        $(TDMRM_SRC) \
-       $(RSP_SRC) \
+       $(RQ_SRC) \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_packetizer.sv \
@@ -253,8 +253,8 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_ax1x1 \
 endef
 
 # The true-ratio leg's recipe, stated ONCE: the sweep builds obj_aclk with
-# it, and render_mutants.py (#386) builds a MUTATED copy of the setpoint stage
-# or of the datapath through the same recipe (RSP_SRC or DP_SRC, and
+# it, and render_mutants.py (#632) builds a MUTATED copy of the presentation
+# stage or of the datapath through the same recipe (RQ_SRC or DP_SRC, and
 # ACLK_MDIR, overridden) so the negative controls elaborate exactly the
 # gateware the positive leg does.
 ACLK_MDIR ?= obj_aclk
@@ -383,7 +383,7 @@ exec-gptp:
 # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
 # model). The ../milan_dp_gm_steps suite runs it and then its negative
 # controls, ../milan_dp_gm_steps/gmstep_mutants.py, which build mutated copies
-# through this same recipe (GMSTEP_MDIR and DP_SRC, CLKV_SRC, RSP_SRC or
+# through this same recipe (GMSTEP_MDIR and DP_SRC, CLKV_SRC, RQ_SRC or
 # MCR_SRC overridden); the sweep plants the five controls the #387/#602
 # acceptances name, and that suite's gmstep-mutants target the whole
 # inventory. `run` here no longer runs the leg (#621): its #621 phase made it

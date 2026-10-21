@@ -1217,10 +1217,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! observable that makes "no sample slip" falsifiable at the root.
   wire [15:0] tdm_dup_cnt_w  /* verilator public_flat_rd */;
   wire [15:0] tdm_skip_cnt_w /* verilator public_flat_rd */;
-  //! #645: the settle recentre (g_settle_recentre, beside the #386 trigger
-  //! far below) re-centres the LOOP queues as well as the render stage, so
-  //! it is declared here, at its first use. public: follow_ring and the
-  //! render legs count it.
+  //! #645: the settle recentre (g_settle_recentre, far below) re-centres the
+  //! LOOP queues, so it is declared here, at its first use. public:
+  //! follow_ring and the render legs count it.
   logic settle_recentre_p_r /* verilator public_flat_rd */;
   //! #443: packed listener words, declared before the CSR consumer.
   wire [N_STREAMS*32-1:0] render_status_w;
@@ -3259,11 +3258,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! A PHC-only re-base changes presentation time, not the INTERNAL/CRF
   //! media-clock source. It keeps mr and MEDIA_RESET unchanged; tu and
   //! its holdover still signal the gPTP discontinuity (4.4.4.7/10.4.5).
-  //! Keep the re-base pulse for the render recentre below. Real source
-  //! changes and selected-CRF disruption/mr propagation still request a
-  //! restart (4.4.4.3/10.4.3), even alongside a PHC step. The restart
-  //! engine retains its per-stream eight-PDU hold and pending merge.
-  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;
+  //! The render stage takes no re-base either (#632): it places every PDU
+  //! by its own timestamp against the domain event, which steps with the
+  //! PHC, and its frame count does not step (KL_render_queue, STEP). Real
+  //! source changes and selected-CRF disruption/mr propagation still
+  //! request a restart (4.4.4.3/10.4.3), even alongside a PHC step. The
+  //! restart engine retains its per-stream eight-PDU hold and pending merge.
   //! #629: a followed AAF stream gains the same two triggers, from the AAF
   //! clock meter: aafm_disrupt_p_w when the meter's OWN 100 ms timeout drops
   //! its lock (never the raw lock-fall edge: a change of the followed
@@ -6315,8 +6315,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  The cost of the wider keep-off is at engagement only: a capture within
   //  256 cycles of the tick (half the phases at 50 MHz, a quarter at
   //  100 MHz) is pulled out to it, at up to 64 ppm of NCO trim, and the
-  //  #386 settled-grid trigger below waits for that pull as it waits for
-  //  any aligner movement. The lock itself is unchanged: bounded, slip-free.
+  //  #645 settle recentre below waits for that pull as it waits for any
+  //  aligner movement. The lock itself is unchanged: bounded, slip-free.
   //
   //  INTERNAL (#629 D4 = A2-a, owner decision 2026-10-01). The align loop is
   //  engaged at INTERNAL too, whenever the TDM feed is live, so the CRF
@@ -6537,7 +6537,16 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  the PDUs FRAMES_RX counts. Payload leaves as full 8-byte beats in wire
   //  order (S32BE interleaved) toward the render path.
   // ==========================================================================
-  KL_aaf_rx_depacketizer aaf_rx_depkt (
+  //! #632: the payload follows the header's timestamp by the cycles the
+  //! render stage takes to place the PDU (its divider: a quotient bit per
+  //! cycle; KL_render_queue refuses a shorter lead at elaboration)
+  localparam int RENDER_PAY_LEAD_C = 16;
+  wire        dpkt_hdr_p_w;
+  wire [31:0] dpkt_hdr_ts_w;
+  wire        dpkt_hdr_tv_w;
+  KL_aaf_rx_depacketizer #(
+    .PAY_LEAD_P (RENDER_PAY_LEAD_C)
+  ) aaf_rx_depkt (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! pre-filter tap - see avtp_rx_parser note
     .s_tdata_i  (rx_axis_from_mac.tdata),
@@ -6554,6 +6563,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_axis_tlast (dpkt_pcm_tlast_w),
     .m_axis_tuser (dpkt_pcm_tuser_w),
     .m_axis_tready(dpkt_pcm_tready_w),
+    .hdr_p_o  (dpkt_hdr_p_w),
+    .hdr_ts_o (dpkt_hdr_ts_w),
+    .hdr_tv_o (dpkt_hdr_tv_w),
     .pdus_o  (pcmrx_pdus),
     .drops_o (pcmrx_drops),
     .pdu_out_p_o (pcmrx_pdu_p_w), .pdu_out_idx_o (pcmrx_pdu_idx_w),
@@ -6669,10 +6681,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! walked back into its convergence band at the residual rate error.
   //! One pulse per GM-identity change re-centers it instead; the first
   //! fabric GM publication out of reset (0 -> id) is exempt
-  //! (prefill owns boot). Since #387 only the I2S playback FIFO below reads
-  //! it: the render stage re-centres on the PHC step itself
-  //! (render_recentre_p_w), and a shape that prunes the DAC leaves this
-  //! detector without a reader.
+  //! (prefill owns boot). Only the I2S playback FIFO below reads it: the
+  //! render stage places every sample by its timestamp and re-centres on
+  //! nothing (#632), and a shape that prunes the DAC leaves this detector
+  //! without a reader.
   logic [63:0] gm_recentre_q_r;
   logic        gm_recentre_p_r;
   always_ff @(posedge axis_clk) begin : g_gm_recentre
@@ -6685,80 +6697,36 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                          (gm_recentre_q_r != 64'd0);
     end
   end : g_gm_recentre
-  //! #386: a CLOCK-SOURCE CHANGE re-centres the render stage once the
-  //! grid has settled. Neither of the two things a source change does to
-  //! the fill is a GM or PHC event: under CRF the #74 aligner's pull-in
-  //! moves the packet grid by a fraction of a sample and a displacement
-  //! the fill carried into the lock (the INTERNAL walk, a talker phase
-  //! step) is kept once the grids align; back at INTERNAL the grid
-  //! settles from the change. SETTLED means, under a followed CRF or AAF
-  //! source (#629), the aligner
-  //! engaged with |err| inside SRC_SETTLE_ERR_C cycles (1/64 sample) for
-  //! SRC_SETTLE_TICKS_C media ticks running - the loop is overdamped, so
-  //! what is left of the error is what is left of the movement - or
-  //! engaged for SRC_SETTLE_CEIL_C ticks whatever the error (a feed too
-  //! jittery to rest inside the band still gets its one recentre); at
-  //! INTERNAL the same tick dwell from the change. One pending flag,
-  //! armed by a change of the selected index or by the aligner's
-  //! re-engagement (a physical feed that died and returned), cleared by
-  //! the one pulse it fires: repeated selections re-arm it, never queue.
+  //! The settle recentre's arming edges below: the selected source index
+  //! and the aligner's engagement, one cycle late. The #386 at-switch
+  //! recentre these once fed is retired with the setpoint stage (#632):
+  //! the render stage places each sample by its timestamp, so a source
+  //! change moves no fill. Its settling band and dwell stay, read by the
+  //! settle recentre at INTERNAL.
   localparam int unsigned SRC_SETTLE_ERR_C   = (MILAN_CLK_FREQ_HZ / 48_000) / 64;
   localparam int unsigned SRC_SETTLE_TICKS_C = 2048;
-  localparam int unsigned SRC_SETTLE_CEIL_C  = 32768;
   logic [15:0] src_recentre_q_r;   //! the selected index last seen
-  logic        src_pend_r;         //! a recentre awaits the settle
   logic        mga_engaged_q_r;
-  logic [15:0] src_band_ticks_r;   //! ticks with the grid inside the band
-  logic [15:0] src_eng_ticks_r;    //! ticks with the aligner engaged
-  //! public: the milan_dp true-ratio leg counts the pulse under a live
-  //! selection
-  logic        src_recentre_p_r /* verilator public_flat_rd */;
   wire signed [15:0] mga_err_abs_w = (mga_err_w < 16'sd0) ? -mga_err_w : mga_err_w;
-  wire src_grid_ok_w = !follow_sel_r ||
-                       (mga_engaged_w && (mga_err_abs_w <= 16'(signed'(SRC_SETTLE_ERR_C))));
-  wire src_settled_w = (32'(src_band_ticks_r) >= SRC_SETTLE_TICKS_C) ||
-                       (32'(src_eng_ticks_r)  >= SRC_SETTLE_CEIL_C);
-  always_ff @(posedge axis_clk) begin : g_src_recentre
+  always_ff @(posedge axis_clk) begin : g_src_edges
     if (!axis_resetn) begin
       src_recentre_q_r <= 16'd0;
-      src_pend_r       <= 1'b0;
       mga_engaged_q_r  <= 1'b0;
-      src_band_ticks_r <= 16'd0;
-      src_eng_ticks_r  <= 16'd0;
-      src_recentre_p_r <= 1'b0;
     end else begin
       src_recentre_q_r <= media_clk_src_r;
       mga_engaged_q_r  <= mga_engaged_w;
-      src_recentre_p_r <= 1'b0;
-      if ((media_clk_src_r != src_recentre_q_r) ||
-          (mga_engaged_w && !mga_engaged_q_r)) begin
-        src_pend_r       <= 1'b1;
-        src_band_ticks_r <= 16'd0;
-        src_eng_ticks_r  <= 16'd0;
-      end else if (src_pend_r) begin
-        if (media_tick_p) begin
-          src_band_ticks_r <= src_grid_ok_w ? src_band_ticks_r + 16'd1 : 16'd0;
-          src_eng_ticks_r  <= (follow_sel_r && mga_engaged_w)
-                              ? src_eng_ticks_r + 16'd1 : 16'd0;
-        end
-        if (src_settled_w) begin
-          src_pend_r       <= 1'b0;
-          src_recentre_p_r <= 1'b1;
-          src_band_ticks_r <= 16'd0;
-          src_eng_ticks_r  <= 16'd0;
-        end
-      end
     end
-  end : g_src_recentre
-  //! #645 / #647: THE SETTLE RECENTRE. The #386 trigger above stays the
-  //! at-switch render recentre, but it fires while the media plane is still
-  //! moving: under following the servo locks frequency only, so the phase
-  //! walk of its pull-in (1.4 ticks from INTERNAL at a 5.9 ppm offset) lands
-  //! in both listener rings after it, and an aligner pull-in at INTERNAL
-  //! arms nothing at all. This one recentre per transient fires once the
-  //! plane has settled and goes to both rings: the render stage and the
-  //! capture crossbar's LOOP queues (settle_recentre_p_r, declared at that
-  //! instance). Armed by a change of the selected index, by the aligner's
+  end : g_src_edges
+  //! #645 / #647: THE SETTLE RECENTRE. A recentre at the switch fires while
+  //! the media plane is still moving: under following the servo locks
+  //! frequency only, so the phase walk of its pull-in (1.4 ticks from
+  //! INTERNAL at a 5.9 ppm offset) lands in the ring after it, and an
+  //! aligner pull-in at INTERNAL arms nothing at all. This one recentre per
+  //! transient fires once the plane has settled and goes to the capture
+  //! crossbar's LOOP queues (settle_recentre_p_r, declared at that
+  //! instance). The render stage took it too until #632; it now places each
+  //! sample by its timestamp, so the pull-in's phase walk lands in its
+  //! snapping (a slip at most, counted) rather than in a fill. Armed by a change of the selected index, by the aligner's
   //! re-engagement, at INTERNAL by a listener bind's first PDU (below), and,
   //! outside recovery, by an aligner excursion past the quiet band (a
   //! pull-in under a running stream). SETTLED means:
@@ -6777,7 +6745,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! Reuse the pending dwell counter for that recovery qualification; a
   //! source change or re-engagement still arms immediately.
   //! Twice the quiet +/-1 axis-cycle quantisation, independent of the
-  //! clock-frequency-scaled #386 settling band.
+  //! clock-frequency-scaled settling band (SRC_SETTLE_ERR_C).
   localparam int unsigned SETTLE_EXC_ERR_C   = 2;
   localparam int unsigned SETTLE_LOCK_WIN_C  = 8;
   //! one servo window in media ticks: 2^MCSRV_WIN_LOG2_C ticks of 1 ms
@@ -6815,7 +6783,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     else settle_bind_wait_r <= (settle_bind_wait_r | strtbl_bind_rise_w[LB_STREAMS_C-1:0]) &
                                ~settle_bind_pdu_w & ~strtbl_bind_fall_w[LB_STREAMS_C-1:0];
   end : g_settle_bind_wait
-  //! the #386 block's registered copies give the change and re-engagement
+  //! g_src_edges' registered copies give the change and re-engagement
   wire settle_arm_w = (media_clk_src_r != src_recentre_q_r) ||
                       (mga_engaged_w && !mga_engaged_q_r) ||
                       settle_bind_arm_w ||
@@ -6868,20 +6836,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       end
     end
   end : g_settle_recentre
-  //! #386: the render stage re-centres on a PHC step (the #387 media
-  //! re-base above: the plane's step or CLKV software's adjtime when the
-  //! plane is off, and a software settime) and on a settled clock-source
-  //! change. A GM identity change is no longer a trigger of its own (#387):
-  //! a change that steps the PHC re-centres through that step, once, and a
-  //! change that only slews is no PHC discontinuity. KL_ptp_clock_validity
-  //! still raises tu on the identity change and the plane's pre-commit
-  //! publication events. #645: and on the settle recentre above, once the
-  //! plane has settled after a change or a pull-in, which the LOOP queues
-  //! take too. public: the milan_dp render-law and gmstep legs count it.
-  wire render_recentre_p_w /* verilator public_flat_rd */ =
-       media_rebase_p_w
-       | settle_recentre_p_r
-       | src_recentre_p_r;
 
   generate if (I2SPB_P != 0) begin : g_i2s_player
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
@@ -6954,105 +6908,123 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [CHMAP_PHYS_C-1:0]    chmap_mapped_mask_w;
 
   // --------------------------------------------------------------------------
-  //  THE RENDER SETPOINT STAGE (#386, option a). The crossbar used to latch
-  //  the latest sample of every (stream, wire channel) straight off the
-  //  clone and render whatever phase the latch held against the tick: no
-  //  setpoint, no band, no fill - the accept-to-render delay of the shipping
-  //  TDM path was undefined. KL_render_setpoint queues whole media EVENTS per
-  //  stream and pops exactly one per stream per media tick into the
-  //  crossbar, so its fill IS the latency and it runs at a constant:
+  //  THE RENDER PRESENTATION STAGE (#632; it replaces the #386 setpoint
+  //  stage). KL_render_queue places every event of every accepted PDU in the
+  //  row of the domain frame its presentation time names (IEEE 1722-2016
+  //  4.3.2, 7.5: the avtp_timestamp of the PDU's first sample, event k one
+  //  period per event later), against the domain's media event above, and
+  //  on each event hands the render crossbar the frame the TDM lane presents
+  //  RENDER_LEAD_C frames later: every sample reaches the pins at its
+  //  presentation time, slot k's MSB its slot offset after the frame instant
+  //  (docs/design/MEDIA_CLOCK_FOLLOWING.md, Listener presentation).
   //
-  //    RENDER_PDU_EVT_C      = AAF_SPF_C = 6 events per class-A PDU at 48 kHz
-  //                            (the talker's own constant, READ here)
-  //    RENDER_ALLOW_EVT_C    = 2 events: one media tick for the accept
-  //                            instant's phase against the grid, one for the
-  //                            monitor verdict + depacketizer drain + row
-  //                            assembly (all under a tick)
-  //    RENDER_SETPOINT_EVT_C = 6 + 2 = 8 events = 166.67 us at 48 kHz
-  //                            (8 x 8 = 64 samples on the shipping 8-channel
-  //                            stream; 8 x 2 = 16 samples on a stereo lane,
-  //                            the same figure the I2S path's (6*2)+4 states)
+  //    RENDER_PIPE_NS_C  the read-to-adoption path of the TDM lane,
+  //                      shortest and longest (out_pipe_ns: the queue's
+  //                      reads and tick, the crossbar, the slot adapter, the
+  //                      frame crossing into clk_tdm_i and the prefetch)
+  //    RENDER_LEAD_C     out_lead_frames(): the frames from the event's frame
+  //                      instant to the frame start that adopts the read
+  //                      (2 on the 1x1 TDM8: the event comes a frame and
+  //                      131 ns after its frame instant; 1 on the 8x8 TDM32,
+  //                      whose closing pair is a quarter of a frame in)
+  //    MAX_HOLD          Milan v1.2 4.4.2.1: the 2.126 ms a listener buffers
   //
-  //  The law is stated at the crossbar's INPUT grid, independent of the audio
-  //  interface: the first event of every accepted PDU renders SETPOINT media
-  //  ticks (+ the accept phase, under one tick) after its accept, event k of
-  //  the PDU k ticks later. The fixed delays from that grid to each interface
-  //  are documented in docs/design/TIME_SYNC.md. Bands: half a PDU keeps
-  //  convergence, a whole PDU is the reset rail, so a PDU one class-A
-  //  interval late never trips it. DERIVED from the frame shape, not a
-  //  mirrored literal; the I2S path keeps its own instance of the law.
+  //  The depth is the queue's own derivation from those (128 rows of a
+  //  stream at 48 kHz, two RAMB18 at 1x1). A PDU whose events are all
+  //  presented already is late, one beyond the depth early, one without tv
+  //  untimed: dropped and counted by the stage.
   // --------------------------------------------------------------------------
-  localparam int RENDER_PDU_EVT_C      = AAF_SPF_C;
-  localparam int RENDER_ALLOW_EVT_C    = 2;
-  localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + RENDER_ALLOW_EVT_C;
-  localparam int RENDER_CONV_EVT_C     = RENDER_PDU_EVT_C / 2;
-  localparam int RENDER_RESET_EVT_C    = 2 * RENDER_CONV_EVT_C;
-  //! 32 event rows per stream: TARGET 14 + the rail 6 + one bunched PDU 6
-  //! = 26 stay below the depth, so the rail always acts before an overrun
-  localparam int RENDER_DEPTH_LOG2_C   = 5;
+  localparam int RENDER_PAIRS_C   = (RX_WIRE_CHANS_C + 1) / 2;
+  localparam longint RENDER_PIPE_MIN_NS_C = KL_media_if_latency_pkg::out_pipe_ns(
+      0, N_STREAMS, RENDER_PAIRS_C, AUDIO_IF_RENDER_SLOTS_P, 64'(MILAN_CLK_FREQ_HZ),
+      64'(AUDIO_IF_CLK_HZ_P), 1'b0);
+  localparam longint RENDER_PIPE_NS_C = KL_media_if_latency_pkg::out_pipe_ns(
+      0, N_STREAMS, RENDER_PAIRS_C, AUDIO_IF_RENDER_SLOTS_P, 64'(MILAN_CLK_FREQ_HZ),
+      64'(AUDIO_IF_CLK_HZ_P), 1'b1);
+  localparam int RENDER_LEAD_C = KL_media_if_latency_pkg::out_lead_frames(
+      64'(DOM_MARK_LAT_NS_C), RENDER_PIPE_NS_C, 64'(AUDIO_IF_FS_HZ_P));
+  //! every pipeline delay from the shortest (the serializer's three-flop
+  //! crossing) to the longest names the same frame start, with a 50 ns
+  //! guard either side
+  if (!KL_media_if_latency_pkg::out_lead_ok(64'(DOM_MARK_LAT_NS_C), RENDER_PIPE_MIN_NS_C,
+                                            RENDER_PIPE_NS_C, 64'(AUDIO_IF_FS_HZ_P), 64'd50))
+  begin : g_render_lead_guard
+    $error("milan_datapath: the render read at the domain event (%0d ns after its frame instant) reaches the TDM lane %0d to %0d ns later, which straddles a frame start: the out-lead %0d is not one frame start for every delay",
+           DOM_MARK_LAT_NS_C, RENDER_PIPE_MIN_NS_C, RENDER_PIPE_NS_C, RENDER_LEAD_C);
+  end : g_render_lead_guard
 
-  //! public: the render-law leg decodes the popped event's identity off
-  //! the first beat (its samples name their PDU, event and channel)
-  wire [TDATA_WIDTH-1:0] rsp_tdata_w  /* verilator public_flat_rd */;
-  wire                   rsp_tvalid_w /* verilator public_flat_rd */;
-  wire                   rsp_tlast_w;
-  wire [3:0]             rsp_tuser_w;
-  wire [N_STREAMS*4-1:0] rsp_wire_chans_w;
-  wire                   rsp_render_tick_p_w;
-  //! #443: RENDER_STAT (0x8DC) mirrors fill/prefill/convergence and rails.
-  //! Public taps let milan_dp compare AXI-Lite reads with their sources.
-  wire [N_STREAMS-1:0]   rsp_pop_p_w      /* verilator public_flat_rd */;
-  wire [N_STREAMS*8-1:0] rsp_fill_w       /* verilator public_flat_rd */;
-  wire [N_STREAMS-1:0]   rsp_prefill_w    /* verilator public_flat_rd */;
-  wire [N_STREAMS-1:0]   rsp_converged_w  /* verilator public_flat_rd */;
-  wire [15:0]            rsp_underruns_w  /* verilator public_flat_rd */;
-  wire [15:0]            rsp_overruns_w   /* verilator public_flat_rd */;
-  wire [15:0]            rsp_rails_w      /* verilator public_flat_rd */;
-  wire [15:0]            rsp_recentres_w  /* verilator public_flat_rd */;
+  //! public: the render legs decode the presented event's identity off its
+  //! beats (its samples name their PDU, event and channel)
+  wire [TDATA_WIDTH-1:0] rq_tdata_w  /* verilator public_flat_rd */;
+  wire                   rq_tvalid_w /* verilator public_flat_rd */;
+  wire                   rq_tlast_w;
+  wire [3:0]             rq_tuser_w;
+  wire [N_STREAMS*4-1:0] rq_wire_chans_w;
+  wire                   rq_render_tick_p_w;
+  //! #443: RENDER_STAT (0x8DC) mirrors the stage's lead, presentation and
+  //! the refused PDUs. Public taps let milan_dp compare AXI-Lite reads with
+  //! their sources.
+  wire [N_STREAMS-1:0]   rq_pop_p_w      /* verilator public_flat_rd */;
+  wire [N_STREAMS*8-1:0] rq_lead_w       /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0]   rq_idle_w       /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0]   rq_converged_w  /* verilator public_flat_rd */;
+  wire [15:0]            rq_late_w       /* verilator public_flat_rd */;
+  wire [15:0]            rq_early_w      /* verilator public_flat_rd */;
+  wire [15:0]            rq_untimed_w    /* verilator public_flat_rd */;
+  wire [15:0]            rq_slips_w      /* verilator public_flat_rd */;
+  //! the PDUs refused at the stage's two limits, saturating
+  wire [16:0]            rq_refused_sum_w = 17'(rq_late_w) + 17'(rq_early_w);
+  wire [15:0]            rq_refused_w = rq_refused_sum_w[16] ? 16'hFFFF
+                                                             : rq_refused_sum_w[15:0];
 
   for (genvar s = 0; s < N_STREAMS; s++) begin : g_render_status
     assign render_status_w[s*32 +: 32] =
-        {rsp_rails_w, 6'd0, rsp_converged_w[s], rsp_prefill_w[s],
-         rsp_fill_w[s*8 +: 8]};
+        {rq_refused_w, 6'd0, rq_converged_w[s], rq_idle_w[s],
+         rq_lead_w[s*8 +: 8]};
   end : g_render_status
 
-  KL_render_setpoint #(
-    .N_STREAMS_P      (N_STREAMS),
-    .N_CH_P           (RX_WIRE_CHANS_C),
-    .DEPTH_LOG2_P     (RENDER_DEPTH_LOG2_C),
-    .PDU_EVENTS_P     (RENDER_PDU_EVT_C),
-    .SETPOINT_EVT_P   (RENDER_SETPOINT_EVT_C),
-    .CONV_BAND_EVT_P  (RENDER_CONV_EVT_C),
-    .RESET_BAND_EVT_P (RENDER_RESET_EVT_C),
-    .CLK_FREQ_HZ_P    (MILAN_CLK_FREQ_HZ)
-  ) render_setpoint (
+  KL_render_queue #(
+    .N_STREAMS_P   (N_STREAMS),
+    .N_CH_P        (RX_WIRE_CHANS_C),
+    .FS_HZ_P       (AUDIO_IF_FS_HZ_P),
+    .MAX_HOLD_NS_P (2_126_000),
+    .EV_LAT_NS_P   (DOM_MARK_LAT_NS_C),
+    .N_IF_P        (1),
+    .IF_LEAD_P     (32'(RENDER_LEAD_C)),
+    .PAY_LEAD_P    (RENDER_PAY_LEAD_C),
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ)
+  ) render_queue (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    //! the same clone the crossbar consumed directly before #386:
-    //! accepted beats, never backpressured
+    .hdr_p_i      (dpkt_hdr_p_w),
+    .hdr_ts_i     (dpkt_hdr_ts_w),
+    .hdr_tv_i     (dpkt_hdr_tv_w),
+    //! the clone the crossbar consumed directly before #386: accepted
+    //! beats, never backpressured
     .s_tdata_i    (dpkt_pcm_tdata_w),
     .s_tvalid_i   (dpkt_pcm_tvalid_w && dpkt_pcm_tready_w),
     .s_tlast_i    (dpkt_pcm_tlast_w),
     .s_tuser_i    (dpkt_pcm_tuser_w),
     .wire_chans_i (mon_wire_chans_all_w),
-    .tick_i       (media_tick_p),
-    .recentre_p_i (render_recentre_p_w),
+    //! the domain's media event: its frame count and its instant
+    .ev_p_i       (dom_ev_p_w),
+    .ev_ns_i      (dom_ns_w[31:0]),
     //! a sink's bind wipe (task #32 eviction pulse) empties its queue, so
     //! no stale event renders on a rebind - the LOOP bucket's discipline
     .flush_i      (strtbl_bind_fall_w),
-    .m_tdata_o    (rsp_tdata_w),
-    .m_tvalid_o   (rsp_tvalid_w),
-    .m_tlast_o    (rsp_tlast_w),
-    .m_tuser_o    (rsp_tuser_w),
-    .m_wire_chans_o  (rsp_wire_chans_w),
-    .render_tick_p_o (rsp_render_tick_p_w),
-    .pop_p_o      (rsp_pop_p_w),
-    .fill_o       (rsp_fill_w),
-    .prefill_o    (rsp_prefill_w),
-    .converged_o  (rsp_converged_w),
-    .underruns_o  (rsp_underruns_w),
-    .overruns_o   (rsp_overruns_w),
-    .rails_o      (rsp_rails_w),
-    .recentres_o  (rsp_recentres_w)
+    .m_tdata_o    (rq_tdata_w),
+    .m_tvalid_o   (rq_tvalid_w),
+    .m_tlast_o    (rq_tlast_w),
+    .m_tuser_o    (rq_tuser_w),
+    .m_wire_chans_o  (rq_wire_chans_w),
+    .render_tick_p_o (rq_render_tick_p_w),
+    .pop_p_o      (rq_pop_p_w),
+    .lead_o       (rq_lead_w),
+    .idle_o       (rq_idle_w),
+    .converged_o  (rq_converged_w),
+    .late_o       (rq_late_w),
+    .early_o      (rq_early_w),
+    .untimed_o    (rq_untimed_w),
+    .slips_o      (rq_slips_w)
   );
   //! the whole render map, exported for the GET_AUDIO_MAP page walk (the
   //! single map_rd_* readback port stays the CSR CHMAP_SNAP path's - two
@@ -7068,21 +7040,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .N_PHYS_P     (CHMAP_PHYS_C)
   ) chan_map_render (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    //! #386: the setpoint stage's event beats, one event per stream per
-    //! media tick, in the clone format (never backpressured)
-    .s_tdata_i  (rsp_tdata_w),
-    .s_tvalid_i (rsp_tvalid_w),
-    .s_tlast_i  (rsp_tlast_w),
-    .s_tuser_i  (rsp_tuser_w),
+    //! #632: the presentation stage's event beats, one event per stream per
+    //! domain event, in the clone format (never backpressured)
+    .s_tdata_i  (rq_tdata_w),
+    .s_tvalid_i (rq_tvalid_w),
+    .s_tlast_i  (rq_tlast_w),
+    .s_tuser_i  (rq_tuser_w),
     //! the stage presents every stream as 2 x ceil(N_CH_P / 2) lanes
     //! (the pad lane of an odd count carries zero), so the per-stream
     //! channel view is the stage's, not the LCTX wire truth the stage
     //! itself de-interleaves by
-    .wire_chans_i (rsp_wire_chans_w),
-    //! the media tick delayed past the stage's pop schedule, so the
-    //! crossbar renders the events it was just handed (ONE grid: the same
-    //! rate, a constant N_STREAMS x 4 + 2 cycles behind media_tick_p)
-    .tick_i (rsp_render_tick_p_w),
+    .wire_chans_i (rq_wire_chans_w),
+    //! the stage's tick after its events, so the crossbar renders the
+    //! events it was just handed (ONE grid: the domain event's, a constant
+    //! N_STREAMS x pairs + 3 cycles behind it)
+    .tick_i (rq_render_tick_p_w),
     //! write mux with the live AECP transaction leg and CSR 0x900 writer.
     //! The map key is the GLOBAL cluster index and the model may declare
     //! MORE input clusters than this board renders (8x8 = 64 keys against
@@ -7181,7 +7153,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  epoch is closed and the serial side renders digital silence after the
   //  frame in flight ends. Because the cut is here and in the serializer
   //  rather than inside the shared crossbar, no other destination, shape or
-  //  lane changes behavior; KL_chan_map_render and KL_render_setpoint are
+  //  lane changes behavior; KL_chan_map_render and KL_render_queue are
   //  untouched.
   // ==========================================================================
   //! public: the integration leg reads the lane's counters and its epoch
@@ -7223,18 +7195,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire tdmr_epoch_evt_w = |(strtbl_bind_fall_w & tdmr_lane_streams_w);
 
   //! POST-BIND FRESHNESS. The crossbar's retained selection is written from
-  //! the setpoint's OUTPUT beats, not from its queue occupancy, so "the queue
+  //! the stage's OUTPUT beats, not from its queue occupancy, so "the queue
   //! has refilled" is not the condition that makes it fresh again: the stage
-  //! must have POPPED a post-flush event. pop_p_o already excludes prefill
-  //! (KL_render_setpoint's pop_take_w carries the !prefill term), so one pulse
-  //! per lane stream after the flush is exactly the observable required.
+  //! must have PRESENTED a post-flush event. pop_p_o pulses only for an
+  //! event with a sample in it (KL_render_queue reads a flushed or empty
+  //! frame as silence and does not pulse), so one pulse per lane stream after
+  //! the flush is exactly the observable required.
   logic [N_STREAMS-1:0] tdmr_fresh_r;
   always_ff @(posedge axis_clk) begin : tdm_lane_freshness
     if (!axis_resetn) tdmr_fresh_r <= '0;
     else begin
       for (int s = 0; s < N_STREAMS; s++) begin
         if (strtbl_bind_fall_w[s])  tdmr_fresh_r[s] <= 1'b0;
-        else if (rsp_pop_p_w[s])    tdmr_fresh_r[s] <= 1'b1;
+        else if (rq_pop_p_w[s])     tdmr_fresh_r[s] <= 1'b1;
       end
     end
   end : tdm_lane_freshness

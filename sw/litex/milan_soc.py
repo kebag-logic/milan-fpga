@@ -617,9 +617,10 @@ _MILAN_DATAPATH_SOURCES = [
     # #447: the MASTER render serializer sibling, scheduled from
     # KL_tdm_capture_master's exported bit-clock enables
     "hdl/ieee1722/aaf/KL_tdm_render_master.sv",
-    # #386: the render setpoint stage in front of the crossbar (milan_datapath
-    # instantiates it unconditionally, so every consumer list carries it)
-    "hdl/ieee1722/aaf/KL_render_setpoint.sv",
+    # #632: the render presentation stage in front of the crossbar
+    # (milan_datapath instantiates it unconditionally, so every consumer list
+    # carries it)
+    "hdl/ieee1722/aaf/KL_render_queue.sv",
     "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
     "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv",
     "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",

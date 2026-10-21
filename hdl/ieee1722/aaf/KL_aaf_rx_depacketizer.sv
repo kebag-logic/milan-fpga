@@ -36,6 +36,15 @@
                 non-multiple data_len is zero-padded in the final beat and
                 the output advances by the padded length.
 
+                Presentation time (#632): the same header re-parse reads the
+                tv bit and avtp_timestamp (IEEE 1722-2016 4.4.4.9, 7.5) and
+                pulses hdr_p_o with them on the beat that completes the
+                timestamp, before the frame's payload. The payload's first
+                beat then waits until PAY_LEAD_P cycles after that pulse, so
+                a consumer can place the PDU by its timestamp before its
+                first sample arrives (KL_render_queue). PAY_LEAD_P = 0 adds
+                no wait.
+
   Company     : Kebag Logic
   Project     : Milan AVTP
 
@@ -61,7 +70,10 @@
 `default_nettype none
 
 module KL_aaf_rx_depacketizer #(
-  parameter int FIFO_DEPTH_BYTES = 2048   //! frame FIFO depth (BRAM)
+  parameter int FIFO_DEPTH_BYTES = 2048,  //! frame FIFO depth (BRAM)
+  parameter int PAY_LEAD_P       = 0      //! cycles from hdr_p_o to the
+                                          //! frame's first payload beat,
+                                          //! at least (0: no wait)
 )(
   input  wire         clk_i,              //! Global clock
   input  wire         rst_n,              //! Active-low synchronous reset
@@ -95,6 +107,14 @@ module KL_aaf_rx_depacketizer #(
                                           //! rides each buffered frame)
   // verilator coverage_on
   input  wire         m_axis_tready,
+
+  //! --- the frame's presentation time (#632) -------------------------------
+  output logic        hdr_p_o,            //! one cycle: the frame's tv and
+                                          //! avtp_timestamp are on the next
+                                          //! two outputs; its payload
+                                          //! follows (m_axis_tuser valid)
+  output logic [31:0] hdr_ts_o,           //! avtp_timestamp (with hdr_p_o)
+  output logic        hdr_tv_o,           //! tv (with hdr_p_o)
 
   //! --- observability ------------------------------------------------------
   output logic [15:0] pdus_o,             //! payloads emitted to fabric render
@@ -273,7 +293,9 @@ module KL_aaf_rx_depacketizer #(
 
   //! final beat needs no FIFO word when the tail fits inside the hold
   wire hold_only_w = (rstate_r == R_PAY_S) && (remain_r <= 16'(k_w));
-  wire emit_w      = (rstate_r == R_PAY_S) && (hold_only_w || ff_valid);
+  //! the payload waits out PAY_LEAD_P cycles from the timestamp's pulse
+  logic lead_ok_w;
+  wire emit_w      = (rstate_r == R_PAY_S) && lead_ok_w && (hold_only_w || ff_valid);
   wire last_beat_w = (remain_r <= 16'd8);
 
   //! assemble the output beat: hold bytes then FIFO lanes, zero-padded
@@ -295,9 +317,52 @@ module KL_aaf_rx_depacketizer #(
   //! payload beats when the emit is accepted; flush beats always)
   assign ff_ready = (rstate_r == R_HDR_S) ||
                     (rstate_r == R_FLUSH_S) ||
-                    (rstate_r == R_PAY_S && !hold_only_w && m_axis_tready);
+                    (rstate_r == R_PAY_S && lead_ok_w && !hold_only_w && m_axis_tready);
 
   wire pop_w = ff_valid && ff_ready;
+
+  // ------------------------------------------------------------------ //
+  // The presentation time (#632): tv and avtp_timestamp from the header //
+  // the read side re-parses. Untagged, the AVTP header starts at frame   //
+  // byte 14: tv is byte 15 bit 0 (beat 1), the timestamp bytes 26..29    //
+  // (beat 3). Tagged it starts at 18: tv byte 19 (beat 2), the timestamp //
+  // bytes 30..33 (beat 3 lanes 6..7, beat 4 lanes 0..1).                 //
+  // ------------------------------------------------------------------ //
+  logic        tv_r;                  //! the frame's tv bit
+  logic [15:0] ts_hi_r;               //! a tagged frame's timestamp high half
+  //! beat 1's own VLAN test (vlan_r lands on its edge)
+  wire vlan_b1_w = (fbyte(ff_data, 3'd4) == 8'h81) && (fbyte(ff_data, 3'd5) == 8'h00);
+  wire hdr_beat_w = (rstate_r == R_HDR_S) && pop_w &&
+                    (((rbeat_r == 3'd3) && !vlan_r) || ((rbeat_r == 3'd4) && vlan_r));
+  always_ff @(posedge clk_i) begin : hdr_fields
+    if (!rst_n) begin
+      tv_r    <= 1'b0;
+      ts_hi_r <= '0;
+    end else if ((rstate_r == R_HDR_S) && pop_w) begin
+      if (rbeat_r == 3'd1) tv_r <= !vlan_b1_w && ff_data[56];
+      if ((rbeat_r == 3'd2) && vlan_r) tv_r <= ff_data[24];
+      if (rbeat_r == 3'd3) ts_hi_r <= {fbyte(ff_data, 3'd6), fbyte(ff_data, 3'd7)};
+    end
+  end : hdr_fields
+  assign hdr_p_o  = hdr_beat_w;
+  assign hdr_tv_o = tv_r;
+  assign hdr_ts_o = vlan_r ? {ts_hi_r, fbyte(ff_data, 3'd0), fbyte(ff_data, 3'd1)}
+                           : {fbyte(ff_data, 3'd2), fbyte(ff_data, 3'd3),
+                              fbyte(ff_data, 3'd4), fbyte(ff_data, 3'd5)};
+
+  generate if (PAY_LEAD_P > 0) begin : g_lead
+    localparam int LW_C = $clog2(PAY_LEAD_P + 1);
+    logic [LW_C-1:0] lead_r;          //! cycles still to wait
+    always_ff @(posedge clk_i) begin : lead_count
+      if (!rst_n)            lead_r <= '0;
+      else if (hdr_beat_w)   lead_r <= LW_C'(PAY_LEAD_P - 1);
+      else if (lead_r != '0) lead_r <= lead_r - 1'b1;
+    end : lead_count
+    //! the pulse's own cycle counts as the first of the lead
+    assign lead_ok_w = (lead_r == '0) && !hdr_beat_w;
+  end else begin : g_no_lead
+    assign lead_ok_w = 1'b1;
+  end endgenerate
 
   always_ff @(posedge clk_i) begin : read_fsm
     if (!rst_n) begin

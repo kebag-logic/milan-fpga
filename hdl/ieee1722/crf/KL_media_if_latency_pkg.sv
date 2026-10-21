@@ -138,6 +138,44 @@ package KL_media_if_latency_pkg;
     return cyc_ns(longint'(k) * longint'(word_bits) + longint'(data_delay), bit_hz);
   endfunction
 
+  //! The read-to-adoption path of a TDM master render lane (#632), ns, read
+  //! as the render queue's interface `rank` (0-based): the queue's reads of
+  //! every stream for the interfaces before it and for itself, then its tick
+  //! ((rank + 1) x streams x pairs + 3 datapath cycles), the crossbar's
+  //! render (1) and the slot adapter's walk and commit (slots + 2), then the
+  //! frame crossing into the serializer's clock and its prefetch: three
+  //! serial cycles at the shortest; at the longest six, and one datapath
+  //! cycle more for the crossing's phase.
+  function automatic longint out_pipe_ns(input int rank, input int streams, input int pairs,
+                                         input int slots, input longint axis_hz,
+                                         input longint ser_hz, input bit longest);
+    return cyc_ns(longint'((rank + 1) * streams * pairs + 3 + 1 + slots + 2) +
+                  (longest ? 64'd1 : 64'd0), axis_hz) +
+           cyc_ns(longest ? 64'd6 : 64'd3, ser_hz);
+  endfunction
+
+  //! A render interface's OUT-LEAD, whole frames (#632): the domain event of
+  //! frame n pulses ev_lat_ns after that frame's instant; a read at that pulse
+  //! reaches the interface's serializer pipe_ns later at most, and the
+  //! serializer adopts it at the next frame start at its pins, so the frame
+  //! read is presented in frame n + out_lead_frames, at E_n plus that many
+  //! periods. The read must therefore take the samples presented then.
+  function automatic int out_lead_frames(input longint ev_lat_ns, input longint pipe_ns,
+                                         input longint fs_hz);
+    return int'(((ev_lat_ns + pipe_ns) * fs_hz + NS_PER_S_C - 1) / NS_PER_S_C);
+  endfunction
+
+  //! the out-lead holds for every pipeline delay from pipe_min_ns to
+  //! pipe_ns: the read reaches the serializer after the frame start before
+  //! the one it names and before that one, each by at least guard_ns
+  function automatic bit out_lead_ok(input longint ev_lat_ns, input longint pipe_min_ns,
+                                     input longint pipe_ns, input longint fs_hz,
+                                     input longint guard_ns);
+    longint k = longint'(out_lead_frames(ev_lat_ns, pipe_ns, fs_hz));
+    return ((ev_lat_ns + pipe_min_ns - guard_ns) * fs_hz >= (k - 1) * NS_PER_S_C) &&
+           ((ev_lat_ns + pipe_ns + guard_ns) * fs_hz <= k * NS_PER_S_C);
+  endfunction
+
 endpackage : KL_media_if_latency_pkg
 
 `default_nettype wire
