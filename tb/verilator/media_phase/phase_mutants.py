@@ -36,22 +36,28 @@ I2SCAP = "KL_aaf_capture_i2s.sv"
 PINWRAP = "pin_wrap.sv"
 #: the offsets harness's integration, milan_datapath's binding
 OFSWRAP = "ofs_wrap.sv"
+#: the listener's presentation stage and the two-render-interface shape
+RQUEUE = "KL_render_queue.sv"
+RENDWRAP = "render_wrap.sv"
 SOURCES = {SERVO: HDL / SERVO, DOMEV: HDL / DOMEV, CRFTX: HDL / CRFTX, MTTR: HDL / MTTR,
            LATPKG: HDL / LATPKG, I2SCAP: HDL / "../aaf" / I2SCAP, PINWRAP: HERE / PINWRAP,
-           OFSWRAP: HERE / OFSWRAP}
+           OFSWRAP: HERE / OFSWRAP, RQUEUE: HDL / "../aaf" / RQUEUE, RENDWRAP: HERE / RENDWRAP}
 #: Makefile variable that names each mutable source
 MAKEVAR = {SERVO: "SERVO_RTL", DOMEV: "DOMEV_RTL", CRFTX: "CRFTX_RTL", MTTR: "MTTR_RTL",
-           LATPKG: "LATPKG_RTL", I2SCAP: "I2SCAP_RTL", PINWRAP: "PIN_WRAP", OFSWRAP: "OFS_WRAP"}
-#: the five harnesses: (build target, objdir variable, executable)
+           LATPKG: "LATPKG_RTL", I2SCAP: "I2SCAP_RTL", PINWRAP: "PIN_WRAP", OFSWRAP: "OFS_WRAP",
+           RQUEUE: "RQUEUE_RTL", RENDWRAP: "REND_WRAP"}
+#: the six harnesses: (build target, objdir variable, executable)
 PINS = "pins"
+RENDER = "render"
 BLEND = "blend"
 OFS = "ofs"
 DET = "det"
 HARNESS = {"cases": ("build", "MDIR", "Vmedia_phase"), PINS: ("pins-build", "PIN_MDIR", "Vpin_wrap"),
+           RENDER: ("render-build", "REND_MDIR", "Vrender_wrap"),
            BLEND: ("blend-build", "BLEND_MDIR", "Vblend_wrap"),
            OFS: ("ofs-build", "OFS_MDIR", "Vofs_wrap"), DET: ("det-build", "DET_MDIR", "Vdet")}
 #: the harnesses that are one case each
-SINGLE = (PINS, BLEND, OFS)
+SINGLE = (PINS, RENDER, BLEND, OFS)
 
 
 def harness_of(case: str) -> str:
@@ -232,6 +238,48 @@ MUTANTS = (
       ("    .MARK_LAT_NS_P (B_LAT_C),", "    .MARK_LAT_NS_P (A_LAT_C),"),
       ("    .MARK_LAT_NS_P (SWAP_C),", "    .MARK_LAT_NS_P (B_LAT_C),")),
      PINS, "[pins A] ...and inside the derivation"),
+    #: #632: B's out-lead without its hold frame: B's read is A's, a frame
+    #: late at B's pins
+    ("render_b_lead_dropped", RENDWRAP,
+     (("  localparam int unsigned B_LEAD_C = 32'(out_lead_frames(A_LAT_C, B_PIPE_C, FS_C)) + B_HOLD_C;",
+       "  localparam int unsigned B_LEAD_C = 32'(out_lead_frames(A_LAT_C, B_PIPE_C, FS_C));"),),
+     RENDER, "[render B] every sample's slot-MSB pin instant, less its slot offset, is its presentation "
+             "time inside +/-5 % of Ps"),
+    #: #632: the queue places each PDU at the first frame every interface
+    #: still reads, its timestamp unread: the old fill law's shape
+    ("render_read_untimed", RQUEUE,
+     (("            f0_r  <= f0_r + FW_C'(q_r) + FW_C'({{(QW_C-1){1'b0}}, dge_w});",
+       "            f0_r  <= f0_r + FW_C'(KMAX_C + 1);"),),
+     RENDER, "[render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation "
+             "time inside +/-5 % of Ps"),
+    #: #632: every PDU's frame one past its timestamp's
+    ("render_frame_off_by_one", RQUEUE,
+     (("            f0_r  <= f0_r + FW_C'(q_r) + FW_C'({{(QW_C-1){1'b0}}, dge_w});",
+       "            f0_r  <= f0_r + FW_C'(q_r) + FW_C'({{(QW_C-1){1'b0}}, dge_w}) + 1'b1;"),),
+     RENDER, "[render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation "
+             "time inside +/-5 % of Ps"),
+    #: #632: a late event written as if in the window: it lands on the row a
+    #: lap later and is presented there
+    ("render_late_rule_removed", RQUEUE,
+     (("  wire        late0_w  = dr0_w[FW_C-1] || (dr0_w == '0);\n"
+       "  wire        late1_w  = dr1_w[FW_C-1] || (dr1_w == '0);\n"
+       "  wire        early0_w = !late0_w && (32'(dr0_w) >= ROWS_C);\n"
+       "  wire        early1_w = !late1_w && (32'(dr1_w) >= ROWS_C);",
+       "  wire        late0_w  = 1'b0;\n"
+       "  wire        late1_w  = 1'b0;\n"
+       "  wire        early0_w = !dr0_w[FW_C-1] && (32'(dr0_w) >= ROWS_C);\n"
+       "  wire        early1_w = !dr1_w[FW_C-1] && (32'(dr1_w) >= ROWS_C);"),),
+     RENDER, "[render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation "
+             "time inside +/-5 % of Ps"),
+    #: #632: an event past the window written: it lands on a row a lap
+    #: earlier, over that frame's sample
+    ("render_early_rule_removed", RQUEUE,
+     (("  wire        early0_w = !late0_w && (32'(dr0_w) >= ROWS_C);\n"
+       "  wire        early1_w = !late1_w && (32'(dr1_w) >= ROWS_C);",
+       "  wire        early0_w = 1'b0;\n"
+       "  wire        early1_w = 1'b0;"),),
+     RENDER, "[render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation "
+             "time inside +/-5 % of Ps"),
     ("pins_c_closed_at_frame_end", PINWRAP,
      (("  localparam int unsigned C_LAT_C = 32'(mark_lat_ns(pair_end_bits(C_CLOSE_C, 32, C_DD_C),",
        "  localparam int unsigned C_LAT_C = 32'(mark_lat_ns(pair_end_bits(C_SLOTS_C / 2 - 1, 32, C_DD_C),"),),

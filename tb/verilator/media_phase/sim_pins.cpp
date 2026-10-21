@@ -8,10 +8,10 @@
 // the true time). C is the shipping 8x8 front end, whose frame the capture
 // crossbar closes on an inner pair, a quarter of a frame in.
 //
-// A slot-MSB pin decoder per interface reads only that interface's bclk and
-// fsync pins: the rise that reads fsync high is the frame's sync instant, and
-// slot k's MSB is sampled (k x 32 + d) rises later, d the interface's data
-// delay. The harness derives each slot's offset and each interface's constant
+// A slot-MSB pin decoder per interface (slot_msb_decoder.hpp) reads only
+// that interface's bclk and fsync pins: the rise that reads fsync high is the
+// frame's sync instant, and slot k's MSB is sampled (k x 32 + d) rises later,
+// d the interface's data delay. The harness derives each slot's offset and each interface's constant
 // itself, independently of the RTL's KL_media_if_latency_pkg, and requires:
 //   [pins A|B|C] every frame instant the interface stamps (A: the domain
 //              event, B and C: their own back-dated markers) is the frame's
@@ -30,6 +30,7 @@
 #include "Vpin_wrap.h"
 #include "verilated.h"
 #include "../../common/verilator_harness.hpp"
+#include "slot_msb_decoder.hpp"
 
 #include <array>
 #include <cmath>
@@ -60,26 +61,21 @@ constexpr int kKeptPairs = 4;
 //! one interface's pin decoder and its graded stamps
 struct Interface {
     Interface(const char* n, int s, int dd, double hz, double wr_hz)
-        : name(n), slots(s), data_delay(dd), bit_hz(hz), write_hz(wr_hz) {}
+        : name(n), slots(s), data_delay(dd), bit_hz(hz), write_hz(wr_hz), dec(s, dd, hz) {}
     const char* name;
     int slots;
     int data_delay;
     double bit_hz;
     double write_hz;       //!< its FIFO write clock
-    int prev_bclk = 0;
-    long rise = -1;        //!< rises since the latest sync
     //! the latest frames' sync instants and slot-MSB instants, ns
-    struct Frame {
-        double sync = 0;
-        std::array<double, 32> msb{};
-        int got = 0;
-    };
-    std::deque<Frame> frames;
+    milan::tb::SlotMsbDecoder dec;
+    using Frame = milan::tb::SlotMsbDecoder::Frame;
+    std::deque<Frame>& frames = dec.frames;
     long stamps = 0;
     long slot_grades = 0;
     double max_err = 0;
 
-    double slot_offset(int k) const { return (k * 32.0 + data_delay) * 1e9 / bit_hz; }
+    double slot_offset(int k) const { return dec.slot_offset(k); }
 
     //! the marker latency, derived here: to the last bit of the pair that
     //! closes the frame (slot 2c+1's LSB, c the last kept pair), one write
@@ -91,24 +87,8 @@ struct Interface {
     }
 
     void on_edge(int bclk, int fsync, double t_ns) {
-        const bool r = bclk && !prev_bclk;
-        prev_bclk = bclk;
-        if (!r) return;
-        if (fsync) {
-            frames.push_back(Frame{t_ns, {}, 0});
-            if (frames.size() > 64) frames.pop_front();
-            rise = 0;
-        } else if (rise >= 0) {
-            ++rise;
-        }
-        if (rise < 0 || frames.empty()) return;
-        if (rise >= data_delay && (rise - data_delay) % 32 == 0) {
-            const long k = (rise - data_delay) / 32;
-            if (k < slots) {
-                frames.back().msb[static_cast<size_t>(k)] = t_ns;
-                frames.back().got++;
-            }
-        }
+        dec.on_edge(bclk, fsync, 0, t_ns);
+        dec.done.clear();
     }
 
     //! one stamped frame instant, against the frame it belongs to by the

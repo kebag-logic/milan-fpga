@@ -10,6 +10,8 @@
 #   make          - the three-interface pins, the blend, the offsets, the
 #                   detector cases, then every loop case (CASE_JOBS at once)
 #   make pins     - the synthetic three-interface shape graded at its pins
+#   make render   - two render interfaces a frame apart, one presentation
+#                   queue, graded at their pins (sim_render.cpp)
 #   make blend    - the in-tree I2S + TDM8 blend graded at both interfaces'
 #                   pins (sim_blend.cpp)
 #   make ofs      - several AAF outputs of one domain, each its own offset,
@@ -61,6 +63,17 @@ PIN_SRCS = $(LATPKG_RTL) \
            $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
            $(DOMEV_RTL) $(CRFTX_RTL) $(PIN_WRAP)
 
+# two render interfaces on one domain (#632): render_wrap.sv, sim_render.cpp
+REND_WRAP ?= render_wrap.sv
+REND_MDIR ?= obj_render
+RQUEUE_RTL ?= $(RTL_DIR)/ieee1722/aaf/KL_render_queue.sv
+REND_SRCS = $(LATPKG_RTL) \
+            $(RTL_DIR)/common/cdc_pair_fifo.sv \
+            $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
+            $(RTL_DIR)/ieee1722/aaf/KL_tdm_render_master.sv \
+            $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
+            $(DOMEV_RTL) $(RQUEUE_RTL) $(REND_WRAP)
+
 # the detector alone (#632): KL_mmcm_drp_servo with a 32-cycle tick, so a
 # window is 16,384 cycles
 DET_MDIR ?= obj_det
@@ -69,13 +82,13 @@ DET_CASES = inband events meanin balanced unbal129 unbal160 jitter cross afterho
 CASES = engage engage2 edge edge2 step ramp holdover internal mr slew phcstep burst carry
 OUT  ?= obj_logs
 
-.PHONY: all run build cases pins pins-build blend blend-build ofs ofs-build det det-build mutants clean
+.PHONY: all run build cases pins pins-build render render-build blend blend-build ofs ofs-build det det-build mutants clean
 all: run
 
 build:
 	$(VERILATOR) $(VFLAGS) --Mdir $(MDIR) --top-module $(TOP) $(SRCS) sim_main.cpp -o Vmedia_phase
 
-run: pins blend ofs det cases
+run: pins render blend ofs det cases
 
 pins-build:
 	$(VERILATOR) $(VFLAGS) --Mdir $(PIN_MDIR) --top-module pin_wrap $(PIN_SRCS) sim_pins.cpp -o Vpin_wrap
@@ -83,6 +96,13 @@ pins-build:
 pins: pins-build
 	@echo "======================================================================"
 	$(PIN_MDIR)/Vpin_wrap
+
+render-build:
+	$(VERILATOR) $(VFLAGS) --Mdir $(REND_MDIR) --top-module render_wrap $(REND_SRCS) sim_render.cpp -o Vrender_wrap
+
+render: render-build
+	@echo "======================================================================"
+	$(REND_MDIR)/Vrender_wrap
 
 det-build:
 	$(VERILATOR) $(VFLAGS) --Mdir $(DET_MDIR) --top-module KL_mmcm_drp_servo --prefix Vdet_servo \
@@ -151,4 +171,4 @@ mutants:
 	python3 phase_mutants.py --jobs $(MUTANT_JOBS)
 
 clean:
-	rm -rf obj_dir obj_pins obj_blend obj_det obj_ofs obj_logs __pycache__
+	rm -rf obj_dir obj_pins obj_render obj_blend obj_det obj_ofs obj_logs __pycache__
