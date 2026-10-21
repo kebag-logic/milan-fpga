@@ -1,0 +1,60 @@
+repository: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+branch: 193-shared-listener-leave
+base (PR head before this round): 6ddfcda4c3170b8f463c8623833f7541ca8c1faf
+head: 7b424cdfe111a426f00517ff471246b4b9650726
+head tree: 4142dcfe858d04687f3f37847a67f7c69d6ae0ea
+records: 57fb7dd21d316ce49c305c22812de5c16d6770f6 for every gate; 7b424cdf changes only tb/srp_top/README.md (the gates that read it ran again there)
+
+commits (oldest first):
+e38c535ffce21482b35552c46765fb87c50eb606 <author> <email>
+  Cite 35.1.2.2 and Table 35-14 for the Listener type sum in the two shared-stream test comments and drop their check labels (issue #193)
+  body lines: 
+acd65be7140bce2ed613d54bf94798fb2e6434ba <author> <email>
+  Keep a parked Listener applicant in the group of the stream_id it holds, so a sink declaring that stream takes it over instead of sending New beside its Lv (issue #193)
+  body lines: 
+c7c8825fd18237dd6cab2776f6e84cde5e550040 <author> <email>
+  Check a parked Listener Leave meeting a sink on its stream, per tick and byte-exact on the wire with a peer Registrar, each with a planted control (issue #193)
+  body lines: 
+57fb7dd21d316ce49c305c22812de5c16d6770f6 <author> <email>
+  Write the Listener leave copies kept for the settle's compares with one enable per sink, not at a variable index of the packed array (issue #193)
+  body lines: 
+7b424cdfe111a426f00517ff471246b4b9650726 <author> <email>
+  Count the new parked-Leave checks in the failing totals of three shared-stream controls in the srp_top README (issue #193)
+  body lines: 
+
+status (clean if empty):
+
+diff stat 6ddfcda4..head:
+ docs/architecture/10_srp_engine.md                 |  27 ++-
+ hdl/srp/KL_srp_listener_fsm.sv                     | 107 +++++++++--
+ tb/srp_stream_fsms/README.md                       |  21 +-
+ tb/srp_stream_fsms/sim_main.cpp                    | 214 ++++++++++++++++++++-
+ tb/srp_top/README.md                               |  34 ++--
+ tb/srp_top/mutants.py                              |  12 +-
+ .../mutations/listener-merge-keeps-park.patch      |  10 +
+ .../listener-park-drops-matcher-pairs.patch        |  11 ++
+ .../mutations/listener-parked-outside-groups.patch |  11 ++
+ .../listener-retire-skips-group-mark.patch         |  11 ++
+ .../listener-settle-compare-dropped.patch          |   4 +-
+ .../listener-settle-skips-leave-copies.patch       |  11 ++
+ tb/srp_top/sim_main.cpp                            |  69 ++++++-
+ 13 files changed, 502 insertions(+), 40 deletions(-)
+
+sha256 of every changed file at the head:
+a6f58712352224fc628a89c5ba827a42094fb115ff8ca92eb799a08167483f80  docs/architecture/10_srp_engine.md
+73a9e4c71699229cd9c34f79f456f524c8b7aa47253b48980fbe5cb7d52c3607  hdl/srp/KL_srp_listener_fsm.sv
+8b0b69172d6a9f31a3405ad8aa9654e79838ccfe9e8574c38f6f98e13b7c80a5  tb/srp_stream_fsms/README.md
+4b8a1adb99a1e7e4996aa0c965a390e03a14a2014c9a750438b258a6e93cfb09  tb/srp_stream_fsms/sim_main.cpp
+731291948f663dda4301a81c6a9448ec591dc09193ce9f90ef16a35b93dfbb5a  tb/srp_top/README.md
+8621b7329edd5570f8feec339d3a9e2056172a2d0a60d850a6f00acb9046ec8c  tb/srp_top/mutants.py
+10f8b8d6c1557b46aebf9ca5ef86038f19fc9d4a633efd285dabd782d470bb88  tb/srp_top/mutations/listener-merge-keeps-park.patch
+d1d7365833dffdae034fffa49d994b113c2dd5299363203b272b8572c273edba  tb/srp_top/mutations/listener-park-drops-matcher-pairs.patch
+1a429ddb53d9ceafe2efd63b60400b144e25ca5b97a9c1cd6b44ae496c921167  tb/srp_top/mutations/listener-parked-outside-groups.patch
+f46aee275dfe0edeb1c69735f92b1df69e5cf944472ce6c37b89da6326121f22  tb/srp_top/mutations/listener-retire-skips-group-mark.patch
+677251a65dfcfcd1d28cbeffb03482470d09acaec7912a76ed839fa3116c52a5  tb/srp_top/mutations/listener-settle-compare-dropped.patch
+7c54171636671f5fed50d7d27a44346564b754a75d3854c37fa8423f94b96593  tb/srp_top/mutations/listener-settle-skips-leave-copies.patch
+86406c1cfbdf55455b709272953c3621864652df3d805d60ad492b0de7e4afea  tb/srp_top/sim_main.cpp
+
+remote refs at 2026-10-21T07:30:53Z:
+6ddfcda4c3170b8f463c8623833f7541ca8c1faf	refs/heads/193-shared-listener-leave
+08023123ae2df5d802d20a9bb22cd063942845cd	refs/heads/main

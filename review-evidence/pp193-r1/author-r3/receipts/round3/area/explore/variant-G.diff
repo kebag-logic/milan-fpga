@@ -1,0 +1,88 @@
+--- <scratch>/r3/area/src/final/hdl/srp/KL_srp_listener_fsm.sv	2026-10-21 11:39:37.000000000 +0200
++++ <scratch>/r3/rec/listener-var-G.sv	2026-10-21 11:06:21.527535928 +0200
+@@ -106,18 +106,12 @@
+ //                declaration takes it over from the parked slot (LA or LO +
+ //                New! is VN, the re-probe rule above), so no Lv goes out
+ //                beside the new declaration; while no sink on the value
+-//                declares, the owed Lv (or s) goes out as before. Each
+-//                applicant has one transmit opportunity per walk, of the
+-//                walk's kind (tx! or txLA!), whichever slot holds it: the
+-//                walk marks every slot it passes and every member of a
+-//                group whose applicant it serves, a handover carries the
+-//                applicant's mark, and a walk ends only when every slot
+-//                holds the mark. One that has passed a slot holding an
+-//                applicant not yet served (handed over to it from a slot
+-//                the walk had not reached) goes round again, so that
+-//                applicant has the walk's tx! or txLA! in that walk. The
+-//                registrar, the matcher and the class-C/D outputs stay per
+-//                sink; lstn_decl_state reports the sink's own type.
++//                declares, the owed Lv (or s) goes out as before. The
++//                handover carries the applicant's walk mark, so it never
++//                gets two tx! in one walk; one to a slot the walk has
++//                passed waits for the next tx!. The registrar, the matcher
++//                and the class-C/D outputs stay per sink; lstn_decl_state
++//                reports the sink's own type.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+@@ -417,10 +411,8 @@
+   // eq_r[s][t], s < t only: sinks s and t hold the same matcher stream_id,
+   // written at the later of the two settles
+   logic [N_SINKS_P-1:0][N_SINKS_P-1:0] eq_r;
+-  // the walk mark: the walk has passed this slot, or the applicant in it
+-  // has had its tx!/txLA! in the current walk; a handover carries it with
+-  // the applicant, so an applicant never has two, and a walk ends only
+-  // when every slot holds it (banner)
++  // the applicant in this slot has had its tx!/txLA! in the current walk;
++  // a handover carries it with the applicant, so it never has two
+   logic [N_SINKS_P-1:0]        wdone_r;
+   // lq_r[p][t], p != t: sink p's leave copy equals sink t's matcher
+   // stream_id (read only while lvp_r[p]); written by p's park from the pair
+@@ -638,8 +630,7 @@
+         end
+       end
+       own_w[s]   = dcl_w[s] && !lo_dcl_w[s];
+-      act_w[s]   = (nvo_w[s] && !lo_nvo_w[s])
+-                || (!anyh_w[s] && (own_w[s] || (!anyo_w[s] && !lo_mbr_w[s])));
++      act_w[s]   = (nvo_w[s] && !lo_nvo_w[s]) || (!anyh_w[s] && !lo_mbr_w[s]);
+       quiet_w[s] = mbr_w[s] && !act_w[s];
+       // what the active member does to the group applicant: declare the
+       // combined type (none declared yet, or another combination), take it
+@@ -993,15 +984,11 @@
+             lvp_r[wsrc_r]      <= 1'b0;
+             fourpack_r[wsrc_r] <= 2'd0;
+           end
+-          // the walk mark of the slot it passes, and of every member of the
+-          // group whose applicant it serves: a member that holds the value's
+-          // applicant later in this walk (after a retired park, or a
+-          // declaration after the last declarer's Lv) has had its transmit.
+-          // A txLA! that leaves the applicant LO leaves it where it is,
+-          // parked or not; a handover from there carries the mark (issue
+-          // #193)
+-          if (walk_grant_w) wdone_r[wsrc_r] <= 1'b1;
+-          if (walk_tx_w && !(wnext_w inside {A_LA_C, A_LO_C})) begin
++          if (walk_tx_w) wdone_r[wsrc_r] <= 1'b1;
++          // that park, retired, leaves the held value's applicant, which
++          // has had this walk's tx!, to the sinks on it (issue #193)
++          if (walk_tx_w && lvp_r[wsrc_r]
++              && !(wnext_w inside {A_LA_C, A_LO_C})) begin
+             for (int unsigned t = 0; t < N_SINKS_P; t++) begin
+               if (same_w[wsrc_r][t]) wdone_r[t] <= 1'b1;
+             end
+@@ -1032,14 +1019,8 @@
+         end
+         default: begin   // W_DONE
+           if (join_tick_i) tick_pend_r <= 1'b1;
+-          // every slot has been passed, so one without the walk mark took an
+-          // applicant not yet served (from a slot the walk had not reached)
+-          // after the walk passed it: the walk goes round again from slot 0,
+-          // where every marked slot passes, so that applicant has this
+-          // walk's tx!/txLA! (banner, issue #193)
+-          wsrc_r      <= '0;
+-          walk_r      <= (&wdone_r) ? W_IDLE : W_EVAL;
+-          txop_done_o <= &wdone_r;
++          txop_done_o <= 1'b1;
++          walk_r      <= W_IDLE;
+         end
+       endcase
+ 

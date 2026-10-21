@@ -1,0 +1,27 @@
+--- <scratch>/r3/pkt/probes/run_reviewer_probes.sh	2026-10-21 10:22:46.396839776 +0200
++++ run_reviewer_probes.sh	2026-10-21 11:30:03.276367521 +0200
+@@ -21,11 +21,10 @@
+ python3 -I "$here/repark_probe.py" "$out/repark-mut/tb/srp_stream_fsms/sim_main.cpp"
+ (cd "$out/camp" && git init -q && python3 -I "$here/make_extra_mutants.py" "$out/camp")
+ for n in s2 repark repark-mut; do
+-  ( cd "$out/$n/tb/srp_stream_fsms" && make RUN_ARGS=suite > "$out/$n.log" 2>&1; echo $? > "$out/$n.rc" ) &
++  ( cd "$out/$n/tb/srp_stream_fsms" && make RUN_ARGS=suite > "$out/$n.log" 2>&1; echo $? > "$out/$n.rc" )
+ done
+-wait
+ ( cd "$out/camp" && sed -i "s/'srp_top', '', ':')/'srp_top', 'share', ':')/" tb/srp_top/mutants.py \
+-  && python3 -I tb/srp_top/mutants.py --output "$out/camp-out" --jobs 16 --only \
++  && python3 -I tb/srp_top/mutants.py --output "$out/camp-out" --jobs 1 --only \
+ listener-parked-outside-groups,listener-settle-skips-leave-copies,listener-merge-keeps-park,\
+ listener-retire-skips-group-mark,listener-park-drops-matcher-pairs,listener-settle-compare-dropped,\
+ rv-repark-overwrites-pairs,rv-both-parked-grouped,rv-leave-compare-copy-unwritten,\
+--- <scratch>/r3/pkt/probes/make_extra_mutants.py	2026-10-21 10:22:46.396436651 +0200
++++ make_extra_mutants.py	2026-10-21 11:30:03.276490015 +0200
+@@ -53,7 +53,7 @@
+     (tree / "tb/srp_top/mutations" / (name + ".patch")).write_text(diff)
+     entries += f"    ('{name}', 'srp_stream_fsms', 'suite', ':'),\n"
+     entries += f"    ('{name}', 'srp_top', '', ':'),\n"
+-anchor = "    ('listener-park-drops-matcher-pairs', 'srp_stream_fsms', 'suite', 'SH16:'),\n]"
++anchor = "    ('listener-walk-marks-group-only-on-retire', 'srp_stream_fsms', 'suite', 'SH21:'),\n]"
+ assert mp.count(anchor) == 1
+ mp = mp.replace(anchor, anchor[:-1] + entries + "]")
+ mut_py.write_text(mp)

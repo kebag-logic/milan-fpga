@@ -1,0 +1,132 @@
+--- <scratch>/r3/area/src/final/hdl/srp/KL_srp_listener_fsm.sv	2026-10-21 11:39:37.000000000 +0200
++++ <scratch>/r3/rec/listener-dev-E.sv	2026-10-21 10:58:57.970838234 +0200
+@@ -111,13 +111,12 @@
+ //                walk's kind (tx! or txLA!), whichever slot holds it: the
+ //                walk marks every slot it passes and every member of a
+ //                group whose applicant it serves, a handover carries the
+-//                applicant's mark, and a walk ends only when every slot
+-//                holds the mark. One that has passed a slot holding an
+-//                applicant not yet served (handed over to it from a slot
+-//                the walk had not reached) goes round again, so that
+-//                applicant has the walk's tx! or txLA! in that walk. The
+-//                registrar, the matcher and the class-C/D outputs stay per
+-//                sink; lstn_decl_state reports the sink's own type.
++//                applicant's mark, and a walk that has passed a slot
++//                holding an applicant not yet served (handed over to it
++//                from a slot the walk had not reached) goes back to that
++//                slot before it ends. The registrar, the matcher and the
++//                class-C/D outputs stay per sink; lstn_decl_state reports
++//                the sink's own type.
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+@@ -638,8 +637,7 @@
+         end
+       end
+       own_w[s]   = dcl_w[s] && !lo_dcl_w[s];
+-      act_w[s]   = (nvo_w[s] && !lo_nvo_w[s])
+-                || (!anyh_w[s] && (own_w[s] || (!anyo_w[s] && !lo_mbr_w[s])));
++      act_w[s]   = (nvo_w[s] && !lo_nvo_w[s]) || (!anyh_w[s] && !lo_mbr_w[s]);
+       quiet_w[s] = mbr_w[s] && !act_w[s];
+       // what the active member does to the group applicant: declare the
+       // combined type (none declared yet, or another combination), take it
+@@ -803,6 +801,10 @@
+     assign lsid_w = lsid_r[wsrc_r];
+     assign csid_w = lvp_r[ctl_sink_i] ? lsid_r[ctl_sink_i]
+                                       : sid_r[ctl_sink_i];
++    // two sinks: the settle's leave-copy compares read these flops (g_lcp_*)
++    if (N_SINKS_P == 2) begin : g_lcp_lsid
++      assign lcp_w = lsid_r;
++    end
+   end
+ 
+   // ---- A15 settle against the applicant (banner, issue #188) ------------
+@@ -829,9 +831,11 @@
+   // The leave copies again, in flops, so a settle compares its stream_id
+   // against every parked value at once (lcset_w, issue #193); written as
+   // the leave copy is, one enable per sink (a write at a variable index of
+-  // the packed array would synthesize as a shifter). One sink has no pair
+-  // to compare; for two sinks this repeats g_wsid_flops' lsid_r.
+-  if (N_SINKS_P > 1) begin : g_lcp_flops
++  // the packed array would synthesize as a shifter). From three sinks the
++  // leave copy is distributed RAM, read one sink at a time; at two it is
++  // flops already, g_wsid_flops' lsid_r, and the compares read it there.
++  // One sink has no pair to compare.
++  if (N_SINKS_P > 2) begin : g_lcp_flops
+     logic [N_SINKS_P-1:0][63:0] lcp_r;
+     always_ff @(posedge clk_i) begin : leave_cmp_write
+       for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+@@ -841,10 +845,26 @@
+       end
+     end
+     assign lcp_w = lcp_r;
+-  end else begin : g_lcp_none
++  end else if (N_SINKS_P == 1) begin : g_lcp_none
+     assign lcp_w = '0;
+   end
+ 
++  // The first slot without the walk mark. Once the walk has passed every
++  // slot, it is one that took an applicant from a slot the walk had not
++  // reached yet, after the walk passed it (a handover, issue #193).
++  logic               wback_v_w;
++  logic [SNK_W_C-1:0] wback_w;
++  always_comb begin : walk_back
++    wback_v_w = 1'b0;
++    wback_w   = '0;
++    for (int unsigned s = 0; s < N_SINKS_P; s++) begin
++      if (!wback_v_w && !wdone_r[s]) begin
++        wback_v_w = 1'b1;
++        wback_w   = SNK_W_C'(s);
++      end
++    end
++  end
++
+   // Listener FirstValue of the walk sink (F10.8: 8 B stream_id), the
+   // parked one while the walk sink owes it
+   logic [271:0] wval_w;
+@@ -993,15 +1013,12 @@
+             lvp_r[wsrc_r]      <= 1'b0;
+             fourpack_r[wsrc_r] <= 2'd0;
+           end
+-          // the walk mark of the slot it passes, and of every member of the
+-          // group whose applicant it serves: a member that holds the value's
+-          // applicant later in this walk (after a retired park, or a
+-          // declaration after the last declarer's Lv) has had its transmit.
+-          // A txLA! that leaves the applicant LO leaves it where it is,
+-          // parked or not; a handover from there carries the mark (issue
+-          // #193)
++          // the walk mark of the slot it passes (banner)
+           if (walk_grant_w) wdone_r[wsrc_r] <= 1'b1;
+-          if (walk_tx_w && !(wnext_w inside {A_LA_C, A_LO_C})) begin
++          // that park, retired, leaves the held value's applicant, which
++          // has had this walk's tx!, to the sinks on it (issue #193)
++          if (walk_tx_w && lvp_r[wsrc_r]
++              && !(wnext_w inside {A_LA_C, A_LO_C})) begin
+             for (int unsigned t = 0; t < N_SINKS_P; t++) begin
+               if (same_w[wsrc_r][t]) wdone_r[t] <= 1'b1;
+             end
+@@ -1032,14 +1049,16 @@
+         end
+         default: begin   // W_DONE
+           if (join_tick_i) tick_pend_r <= 1'b1;
+-          // every slot has been passed, so one without the walk mark took an
+-          // applicant not yet served (from a slot the walk had not reached)
+-          // after the walk passed it: the walk goes round again from slot 0,
+-          // where every marked slot passes, so that applicant has this
+-          // walk's tx!/txLA! (banner, issue #193)
+-          wsrc_r      <= '0;
+-          walk_r      <= (&wdone_r) ? W_IDLE : W_EVAL;
+-          txop_done_o <= &wdone_r;
++          // a slot without the walk mark took an applicant not yet served
++          // after the walk passed it: the walk goes back to the first such
++          // slot, so that applicant has this walk's tx!/txLA! (banner)
++          if (wback_v_w) begin
++            wsrc_r <= '0;
++            walk_r <= W_EVAL;
++          end else begin
++            txop_done_o <= 1'b1;
++            walk_r      <= W_IDLE;
++          end
+         end
+       endcase
+ 

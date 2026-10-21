@@ -1,0 +1,18 @@
+# base and head record (processor)
+origin: Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+branch: 193-shared-listener-leave
+base (processor main): 21601694880efdfc4be3028afa3525fbc8f29c03
+HEAD: 21601694880efdfc4be3028afa3525fbc8f29c03
+commits on branch over base: 0
+git status --porcelain (empty = clean):
+--- end status
+sha256 of the files the measurement exercises (at HEAD):
+d2a789adb39cdc985beac7fff0d0fda3a2b35487260daad117d22090119d66ab  hdl/srp/KL_srp_listener_fsm.sv
+4a0b6d76d3ceeb25f076b3c0ee62d9b258ca3e342e026a28187270fab13ca483  hdl/srp/KL_srp_encoder.sv
+6ee88cbea8dc3814ca29a3bf064a55045ffcbc2ba93341627a5a4c9d747ce584  hdl/srp/KL_srp_top.sv
+1a2d9937c1331cd1d0ec8b93ec3ebe0553cd98a2a4989ed490283844e9779a0d  tb/srp_top/sim_main.cpp
+2e2685afe017f6b16d060fc09605d416c6ee62c60268a256440edcedfd4eebd2  tb/srp_top/srp_top_wrap.sv
+553ad6b8f0c9c6d37fa35cb9cee5b8e4cc6a43307961ea6354f15ef99ac08d25  tb/srp_top/Makefile
+remote refs at 2026-10-20T11:37Z (git ls-remote origin refs/heads/main refs/heads/193-shared-listener-leave):
+21601694880efdfc4be3028afa3525fbc8f29c03	refs/heads/main
+(the lane branch is local only: never pushed)
