@@ -1,0 +1,32 @@
+2026-10-21T00:50:58Z
+4ff3642e8fe9a0bd48d28374350390cde553bc32
+Verilator 5.050 2026-07-01 rev v5.050
+Python 3.14.8
+shard: 3/4   selected suites: 15
+PASS     aaf_audio_loop
+PASS     cdc
+PASS     chmap_capture
+PASS     crf_tx
+PASS     gptp_plane
+PASS     ifg
+PASS     maap
+PASS     mac_rmon
+PASS     mbx
+PASS     milan_dp_render
+PASS     mmcm_servo
+PASS     pcmlpf
+PASS     ptp
+PASS     tdm
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 15   passed: 15   failed: 0   timed out: 0
+checks: 205626   in-suite failures: 0
+
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+logs: <scratch>/r3c/sweep-shards/logs-3
+SHARD 3/4 rc=0
+2026-10-21T01:41:49Z

@@ -1,0 +1,28 @@
+--- r670/probe_controls.py	2026-10-20 07:04:15.143349066 +0200
++++ r670/probe_controls_head.py	2026-10-20 07:05:14.693281459 +0200
+@@ -21,21 +21,16 @@
+         assert original.count(a) == 1
+         text = original.replace(a, b)
+     else:
+-        a = """          end else if ((amr_step_r == 2'd1) && !amr_ok_r) begin
+-            amr_step_r <= 2'd2;                  //! refused: the reset set back
+-            amr_src_r  <= 1'b1;
+-            amr_st_r   <= AS_ECNT;"""
+-        b = """          end else if ((amr_step_r == 2'd1) && !amr_ok_r) begin
+-            amr_r_r <= amr_r_r + AMR_RW_C'(1);
+-            amr_st_r <= AS_RNEXT;"""
++        a = "            if (!amr_ok_r) amr_pb_r <= amr_pb_r | amr_rmask_w;"
++        b = "            if (1'b0) amr_pb_r <= amr_pb_r | amr_rmask_w;"
+         assert original.count(a) == 1
+         text = original.replace(a, b)
+     rtl = p / 'scratch' / (name + '.sv')
+     rtl.write_text(text)
+     mdir = p / 'scratch' / ('obj-' + name)
+-    cmd = ['make', '-j16', '-C', 'tb/verilator/milan_dp', '-o', 'ltn_rom.hex',
++    cmd = ['make', '-j8', '-C', 'tb/verilator/milan_dp', '-o', 'ltn_rom.hex',
+            '-o', 'ucode.hex', 'dynmap-build', 'VERILATOR=' + compiler,
+-           'VERILATOR_JOBS=6', 'DP_SRC=' + str(rtl), 'DYNMAP_MDIR=' + str(mdir)]
++           'VERILATOR_JOBS=2', 'DP_SRC=' + str(rtl), 'DYNMAP_MDIR=' + str(mdir)]
+     with (p / 'receipts' / (name + '-build.log')).open('w') as f:
+         rc = subprocess.run(cmd, cwd=work, env=env, stdout=f,
+                             stderr=subprocess.STDOUT, check=False).returncode
