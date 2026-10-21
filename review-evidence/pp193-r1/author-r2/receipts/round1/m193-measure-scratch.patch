@@ -1,0 +1,86 @@
+--- a/tb/srp_top/sim_main.cpp
++++ b/tb/srp_top/sim_main.cpp
+@@ -626,6 +626,7 @@
+     if (!*group || !strcmp(group,"lvleave")) check_withdrawal_meets_an_lv_registrar();
+     if (!*group || !strcmp(group,"lvcoll")) check_leave_expiry_collisions();
+     if (!*group || !strcmp(group,"domjoin")) check_domain_rejoin_follows_the_peer();
++    if (!strcmp(group,"m193")) measure_two_sinks_one_stream();
+ 
+     printf("TOTAL_CLOCKS %llu\n", static_cast<unsigned long long>(h.t));
+     printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+@@ -2989,6 +2990,67 @@
+           rejoin_ev(f));
+   }
+ 
++  // ---- scratch measurement, issue #193 item 1 (not part of the suite) ----
++  // Listener values equal to sid in one frame, with their events/params
++  static int listener_values(const std::vector<uint8_t>& f, uint64_t sid,
++                             std::string& desc) {
++    auto p = parse_frame(f);
++    int n = 0;
++    for (auto& v : p.vecs) {
++      if (v.type != 3) continue;
++      uint64_t base = fv_u64(v.fv, 0, 8);
++      for (int j = 0; j < v.nov; j++) {
++        if (base + static_cast<uint64_t>(j) != sid) continue;
++        ++n;
++        char b[96];
++        std::snprintf(b, sizeof b, " [vec fv=%016llx nov=%d j=%d ev=%d fp=%d]",
++                      static_cast<unsigned long long>(base), v.nov, j, v.ev[j],
++                      v.fp[j]);
++        desc += b;
++      }
++    }
++    return n;
++  }
++  void measure_frames(const char* tag, int frames, int timeout_ms) {
++    for (int k = 0; k < frames; k++) {
++      auto f = h.wait_frame(true, timeout_ms, [&](const std::vector<uint8_t>& fr) {
++        std::string s;
++        return listener_values(fr, SIDX, s) > 0;
++      });
++      if (f.empty()) { printf("M193 %s frame %d: none within %d ms\n", tag, k, timeout_ms); return; }
++      std::string desc;
++      int n = listener_values(f, SIDX, desc);
++      printf("M193 %s frame %d @%u ms: %d Listener value(s) for %016llx:%s\n", tag, k,
++             d->now_ms_o, n, static_cast<unsigned long long>(SIDX), desc.c_str());
++      dump("bytes", f);
++    }
++  }
++  void measure_two_sinks_one_stream() {
++    h.reset();
++    d->link_up_i = 1; h.idle(10);
++    (void)h.wait_any(true, 1000);
++    auto r0 = h.op(OP_DECL_LS, 0, SIDX, DAX, 2, 0, 0, DECL_READY);
++    auto r1 = h.op(OP_DECL_LS, 1, SIDX, DAX, 2, 0, 0, DECL_READY);
++    printf("M193 settle sink0 got=%d status=%d, sink1 got=%d status=%d\n",
++           r0.got, r0.status, r1.got, r1.status);
++    h.sync();
++    Msg adv{1, 25, false, {Vec{false, 1,
++            fv_talker(SIDX, DAX, 2, 0x0100, 1, 3, 1, 0x00012345),
++            {EV_JOININ}, {}}}};
++    h.feed(mrpdu_body(true, {adv}), true);
++    h.idle(10);
++    printf("M193 after peer Advertise: tk_reg {%d,%d} ls_decl {%d,%d} registrar {%d,%d}\n",
++           h.tk_reg(0), h.tk_reg(1), h.ls_decl(0), h.ls_decl(1),
++           sink_reg(0), sink_reg(1));
++    Msg one{3, 8, true, {Vec{false, 1, fv_sid(SIDX), {EV_NEW}, {DECL_READY}}}};
++    dump("one-declaration reference (independent builder)", mrpdu_frame(true, {one}));
++    measure_frames("two-settled", 4, 1200);
++    h.sync();
++    auto rw = h.op(OP_WDRW_LS, 0);
++    printf("M193 unbind sink0 got=%d status=%d\n", rw.got, rw.status);
++    measure_frames("after-unbind-sink0", 3, 1200);
++  }
++
+   const milan::tb::Model<Vsrp_top_wrap> model;
+   Vsrp_top_wrap* const d;
+   H h;
+@@ -3007,6 +3069,6 @@
+       && strcmp(group,"peer") && strcmp(group,"congestion")
+       && strcmp(group,"guards") && strcmp(group,"restart")
+       && strcmp(group,"timers") && strcmp(group,"join") && strcmp(group,"lvleave") && strcmp(group,"lvcoll")
+-      && strcmp(group,"domjoin")) return 2;
++      && strcmp(group,"domjoin") && strcmp(group,"m193")) return 2;
+   return harness.run(group);
+ }

@@ -1,0 +1,12 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top share: rc=0 PASS
+listener-settle-compare-dropped: rc=2 failures=5 KILLED tags=SW1,SW2,SW3
+listener-settle-compare-dropped: rc=2 failures=27 KILLED tags=SH1,SH16,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-parked-outside-groups: rc=2 failures=7 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15,SH16
+listener-parked-outside-groups: rc=2 failures=4 KILLED tags=SW4,SW5,SW6,SW7
+listener-settle-skips-leave-copies: rc=2 failures=6 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15
+listener-settle-skips-leave-copies: rc=2 failures=4 KILLED tags=SW4,SW5,SW6,SW7
+listener-merge-keeps-park: rc=2 failures=4 KILLED tags=SH10,SH11,SH12,SH13
+listener-retire-skips-group-mark: rc=2 failures=1 KILLED tags=SH15
+listener-park-drops-matcher-pairs: rc=2 failures=1 KILLED tags=SH16
+11 checks: 11 PASS, 0 FAIL

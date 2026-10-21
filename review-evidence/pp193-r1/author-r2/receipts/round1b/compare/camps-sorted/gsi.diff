@@ -1,0 +1,23 @@
+1c1,10
+< GSI mutations: 20 detected by named checks; golden and restored PASS
+---
+>                      ~~~~^^
+>                 ~~~~~~^^^^^^^^^^^^^^^^
+>   File "<scratch>/head-pp-c2/tb/pp_top/gsi_mutants.py", line 158, in report
+>   File "<scratch>/head-pp-c2/tb/pp_top/gsi_mutants.py", line 186, in main
+>   File "<scratch>/head-pp-c2/tb/pp_top/gsi_mutants.py", line 194, in <module>
+>     raise RuntimeError(f"{result['variant']}: missing expected verdict; see {log}")
+>     raise SystemExit(main())
+>     records += [report(result, output) for result in results]
+> RuntimeError: failure-change-redeclares: missing expected verdict; see <rec>/work/gsi/failure-change-redeclares-run.log
+> Traceback (most recent call last):
+3d11
+< {"variant": "bridge-gate-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI ADVERTISE unsolicited: full failure bridge sink 0"], "passed": true}
+5c13
+< {"variant": "failure-change-redeclares", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI FAILED-REFRESH wire: a changed FailureInformation sends no Listener New"], "passed": true}
+---
+> {"variant": "failure-change-redeclares", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": false}
+9d16
+< {"variant": "index-guard-removed", "build_rc": 0, "run_rc": 1, "named_failures": ["FAIL: GI INDEX-GUARD solicited: pbsta sink 9 = 0, got 1"], "passed": true}
+21d27
+< {"variant": "restored", "build_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
