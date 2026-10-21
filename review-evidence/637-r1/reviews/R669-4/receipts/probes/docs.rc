@@ -1,0 +1,7 @@
+check_doc_paths.py rc=0
+check_doc_style.py rc=0
+check_em_dash.py --base 59740e3c9d0420e2e7fef185978954710448dc4a rc=2
+check_em_dash.py --base 78ca9bdf104819265588726bce4322696c38b8c2 rc=2
+gen_toc.py --verify-anchors rc=2
+gen_toc.py --check rc=2
+docs_check.py rc=0

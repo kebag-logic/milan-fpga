@@ -1,0 +1,7 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 35d98fff2..183b31422 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -7300 +7300 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+-    .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
++    .stopped_i      ('0),

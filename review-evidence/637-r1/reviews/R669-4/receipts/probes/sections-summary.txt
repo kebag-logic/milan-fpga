@@ -1,0 +1,51 @@
+== head
+section preamble: 52 checks, 0 failures
+section DYNMAP: 110 checks, 0 failures
+section 762-DP: 37 checks, 0 failures
+section MAPREC: 487 checks, 0 failures
+sum: 686/0; leg line: (686, 0)
+== dev78ca9bdf
+section preamble: 52 checks, 0 failures
+section DYNMAP: 110 checks, 0 failures
+section 762-DP: 37 checks, 0 failures
+section MAPREC: 0 checks, 0 failures
+sum: 199/0; leg line: (199, 0)
+== mut762wire
+section preamble: 52 checks, 0 failures
+section DYNMAP: 110 checks, 0 failures
+section 762-DP: 37 checks, 2 failures
+section MAPREC: 487 checks, 0 failures
+sum: 686/2; leg line: (686, 2)
+  762-DP: [FAIL] [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  got=0x1 exp=0x0
+  762-DP: [FAIL] [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 got=0x1 exp=0x0
+== mutrestore
+section preamble: 52 checks, 0 failures
+section DYNMAP: 110 checks, 0 failures
+section 762-DP: 37 checks, 0 failures
+section MAPREC: 487 checks, 83 failures
+sum: 686/83; leg line: (686, 83)
+  MAPREC: [FAIL] [MAPREC] empty, after the power cycle: SPI 0: number_of_mappings got=0x8 exp=0x0
+  MAPREC: [FAIL] [MAPREC] empty, after the power cycle: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+  MAPREC: [FAIL] [MAPREC] empty, after the power cycle: SPO 0: number_of_mappings got=0x8 exp=0x0
+  MAPREC: [FAIL] [MAPREC] empty, after the power cycle: SPO 0: the mappings are the expected list got=0x0 exp=0x1
+  MAPREC: [FAIL] [MAPREC] empty, after the power cycle: render RAM keys 2..9 hold the input list got=0x8 exp=0x0
+  MAPREC: [FAIL] [MAPREC] empty, after the power cycle: capture RAM keys 0..7 hold the output list got=0x8 exp=0x0
+  MAPREC: [FAIL] [MAPREC] saved: ADD the SPI 0 list SUCCESS     got=0x7 exp=0x0
+  MAPREC: [FAIL] [MAPREC] saved: ADD the SPO 0 list SUCCESS     got=0x7 exp=0x0
+  MAPREC: [FAIL] [MAPREC] saved: the window holds the codec's records and the pend has fallen got=0x0 exp=0x1
+  MAPREC: [FAIL] [MAPREC] saved: the write waited out the 500 ms first-dirty window got=0x0 exp=0x1
+  MAPREC: [FAIL] [MAPREC] unchanged: the same SPI 0 ADD again SUCCESS got=0x7 exp=0x0
+  MAPREC: [FAIL] [MAPREC] saved, after the power cycle: SPI 0: number_of_mappings got=0x8 exp=0x3
+  MAPREC: [FAIL] [MAPREC] saved, after the power cycle: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+  MAPREC: [FAIL] [MAPREC] saved, after the power cycle: SPO 0: number_of_mappings got=0x8 exp=0x2
+  MAPREC: [FAIL] [MAPREC] saved, after the power cycle: SPO 0: the mappings are the expected list got=0x0 exp=0x1
+  MAPREC: [FAIL] [MAPREC] saved, after the power cycle: render RAM keys 2..9 hold the input list got=0x8 exp=0x0
+  MAPREC: [FAIL] [MAPREC] saved, after the power cycle: capture RAM keys 0..7 hold the output list got=0x8 exp=0x0
+  MAPREC: [FAIL] [MAPREC] torn input record: SPO 0: number_of_mappings got=0x8 exp=0x2
+  MAPREC: [FAIL] [MAPREC] torn input record: SPO 0: the mappings are the expected list got=0x0 exp=0x1
+  MAPREC: [FAIL] [MAPREC] torn input record: capture RAM keys 0..7 hold the output list got=0x8 exp=0x0
+  MAPREC: [FAIL] [MAPREC] held GET: answered with the restored list got=0x0 exp=0x1
+  MAPREC: [FAIL] [MAPREC] held SET_STREAM_FORMAT: SPI 0: number_of_mappings got=0x8 exp=0x3
+  MAPREC: [FAIL] [MAPREC] held SET_STREAM_FORMAT: SPI 0: the mappings are the expected list got=0x0 exp=0x1
+  MAPREC: [FAIL] [MAPREC] taint: REMOVE the first SPI 0 mapping SUCCESS got=0x7 exp=0x0
+  MAPREC: [FAIL] [MAPREC] taint: REMOVE the second while the record is written SUCCESS got=0x7 exp=0x0
