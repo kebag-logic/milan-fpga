@@ -1326,7 +1326,10 @@ class NxnDatapathHarness {
         const std::vector<uint8_t> gB = aecp_xact_from(CTL_B, 0x0011, notify_sq++, name_key);
         ck("[NOTIFY] GET_NAME right after is byte-identical from the body on",
            static_cast<long>(gB.size() >= 110 && notify_same_from(nB2, gB, 38)), 1);
-        prove_set_stream_info_pushes_on_the_offset_stored();
+        //! the timed leg alone: no section before this one sets output 0's
+        //! offset there, so its first step is the factory offset held; the
+        //! other legs' whole-model walk leaves that row at 750,000 ns (#67)
+        if (timed) prove_set_stream_info_pushes_on_the_offset_stored();
         if (timed) prove_the_crf_input_counters_push_under_the_one_second_limit();
         prove_the_ownerless_publication_faces_stay_ownerless();
         if (timed) prove_the_departing_controller_monitor(fl0);
@@ -1441,7 +1444,8 @@ class NxnDatapathHarness {
     //!   3. 2,010,000 ns again: nothing modified, nothing pushed;
     //!   4. 2,020,834 ns, the value GET read back: the stored offset changes
     //!      (and the applied one, to 98 periods), so one push.
-    //! The outputs are stopped first: a streaming one refuses the SET.
+    //! The outputs are stopped first: a streaming one refuses the SET. The
+    //! timed leg runs it, where no controller has set the row yet.
     void prove_set_stream_info_pushes_on_the_offset_stored() {
         const uint32_t aaf = axi_read(A_AAF_CTRL), crf = axi_read(0x750);
         axi_write(A_AAF_CTRL, 0x00020000); axi_write(0x750, 0);
