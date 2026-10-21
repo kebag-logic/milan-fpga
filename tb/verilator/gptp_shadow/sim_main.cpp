@@ -888,7 +888,7 @@ class GptpShadowHarness {
     expect("adopted", dut->pub_flags_o & 3, FL_PRESENT);
     expect("pub gm id", dut->pub_gm_id_o, GMID);
     expect("pub parent id", dut->pub_parent_id_o, PEER_CID);
-    expect("published full path count", dut->pub_path_count_o, 3);
+    expect("published full path count", dut->pub_path_count_o, 4);
     expect("published path middle hop", dut->pub_path_tail0_o, PATH_HOP);
     expect("published path source tail", dut->pub_path_tail1_o, PEER_CID);
     {
@@ -926,8 +926,10 @@ class GptpShadowHarness {
 
       announce_one_path(14, 90, GMID_EMPTY);
       const uint8_t gen_one = static_cast<uint8_t>((gen_empty + 1u) & 0xFu);
-      expect("explicit one-entry PathTrace publishes count one",
-             dut->pub_path_count_o, 1);
+      expect("explicit one-entry PathTrace publishes count two",
+             dut->pub_path_count_o, 2);
+      expect("explicit one-entry PathTrace ends with thisClock",
+             dut->pub_path_tail0_o, OUR_CID);
       expect("absent to explicit GM spends one path generation",
              dut->pub_path_gen_o, gen_one);
 
@@ -940,7 +942,7 @@ class GptpShadowHarness {
 
       announce(16, 80, GMID);
       expect("present path restored for servo controls",
-             dut->pub_path_count_o, 3);
+             dut->pub_path_count_o, 4);
       expect("restored path returns original scalar GM", dut->pub_gm_id_o, GMID);
       expect("absent to restored path spends one generation",
              dut->pub_path_gen_o, (gen_empty_again + 1u) & 0xFu);
@@ -1000,7 +1002,7 @@ class GptpShadowHarness {
     const uint16_t disc_before = dut->disc_launch_count_o;
     announce(0x2F0, 70, GMID2, PEER2_CID);
     expect("better Announce selects the new GM", dut->pub_gm_id_o, GMID2);
-    expect("better Announce preserves full path count", dut->pub_path_count_o, 3);
+    expect("better Announce preserves full path count", dut->pub_path_count_o, 4);
     expect("better Announce preserves middle hop", dut->pub_path_tail0_o,
            PATH_HOP);
     expect("better Announce publishes new source tail", dut->pub_path_tail1_o,
