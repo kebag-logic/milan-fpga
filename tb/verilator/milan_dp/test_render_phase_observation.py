@@ -64,25 +64,22 @@ CONTROL_MODES = ("--live-only", "--render-only")
 
 #: the fixed logical case label of each mutation, in table order
 MUTANT_CASES = (
-    "prefill_target_three_events_high",
-    "recentre_pulse_ignored",
-    "recentre_counted_and_cleared_but_not_snapped",
-    "clock_source_trigger_dropped_from_the_recentre_set",
+    "each_PDU_placed_by_its_arrival_instead_of_its_timestamp",
+    "the_PDU_without_tv_placed_by_its_stale_timestamp",
+    "a_PHC_step_resets_the_stage",
+    "a_clock_source_change_flushes_the_stage",
 )
 
 #: the frozen identity of each mutation: (name, source key, mode, named check)
 MUTANT_IDENTITY = (
-    ("prefill target three events high", "stage", "--render-only",
-     "RENDER-INT: every PDU's first event inside the law band"),
-    ("recentre pulse ignored", "stage", "--render-only",
-     "RENDER-RC-INT: the recentre restored the law "
-     "(fill at accept = setpoint) (late)"),
-    ("recentre counted and cleared but not snapped", "stage", "--render-only",
-     "RENDER-RC-INT: the recentre restored the law "
-     "(fill at accept = setpoint) (early)"),
-    ("clock-source trigger dropped from the recentre set", "datapath",
-     "--live-only",
-     "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"),
+    ("each PDU placed by its arrival instead of its timestamp", "stage", "--render-only",
+     "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"),
+    ("the PDU without tv placed by its stale timestamp", "stage", "--render-only",
+     "RENDER-REFUSE: no refused PDU presented"),
+    ("a PHC step resets the stage", "datapath", "--render-only",
+     "RENDER-STEP-INT: every event presented once, in order"),
+    ("a clock-source change flushes the stage", "datapath", "--live-only",
+     "RENDER-LIVE-CRF: every event presented once, in order"),
 )
 
 #: what the driver prints when every control passes and every mutant is caught
@@ -91,17 +88,15 @@ CAUGHT_RUN_LINES = (
     "(--live-only)",
     "[PASS] the unmutated gateware still passes the render-law leg "
     "(--render-only)",
-    '[PASS] mutant caught (--render-only): prefill target three events high'
-    ' - breaks "RENDER-INT: every PDU\'s first event inside the law band"',
-    '[PASS] mutant caught (--render-only): recentre pulse ignored - breaks'
-    ' "RENDER-RC-INT: the recentre restored the law'
-    ' (fill at accept = setpoint) (late)"',
-    '[PASS] mutant caught (--render-only): recentre counted and cleared but'
-    ' not snapped - breaks "RENDER-RC-INT: the recentre restored the law'
-    ' (fill at accept = setpoint) (early)"',
-    '[PASS] mutant caught (--live-only): clock-source trigger dropped from'
-    ' the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the'
-    ' setpoint for every PDU"',
+    '[PASS] mutant caught (--render-only): each PDU placed by its arrival'
+    ' instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event'
+    ' presented at its presentation time (late)"',
+    '[PASS] mutant caught (--render-only): the PDU without tv placed by its'
+    ' stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"',
+    '[PASS] mutant caught (--render-only): a PHC step resets the stage -'
+    ' breaks "RENDER-STEP-INT: every event presented once, in order"',
+    '[PASS] mutant caught (--live-only): a clock-source change flushes the'
+    ' stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"',
     "",
     "6 checks: 6 PASS, 0 FAIL",
 )
@@ -573,7 +568,7 @@ def arm_baseline_reuse_and_fallback_are_distinguished() -> None:
     assert fell_back.records[1]["selected"] == "fallback-build", fell_back.records
     assert phase_shape(fell_back.records) == expected_shape(False)
     flag, rtl_path, _, planted = fell_back.builds[0]
-    assert (flag, rtl_path) == ("RSP_SRC", driver.STAGE_RTL), fell_back.builds[0]
+    assert (flag, rtl_path) == ("RQ_SRC", driver.STAGE_RTL), fell_back.builds[0]
     assert planted is None, planted
     assert fell_back.status == 0, fell_back.output
 
@@ -629,7 +624,7 @@ def arm_failures_are_reported_exactly_as_before() -> None:
     assert "a DUT abort is not a catch" in joined, joined
     assert "its pattern appears 2 time(s)" in joined, joined
     assert "did not compile; a mutant that cannot build proves nothing" in joined
-    assert "mutant SURVIVED: recentre counted and cleared" in joined, joined
+    assert "mutant SURVIVED: a PHC step resets the stage" in joined, joined
     ends = [rec for rec in run.records if rec["event"] == "end"]
     assert ends[2]["status"] == "no-executable", ends[2]
     assert ends[2]["returncode"] == 2, ends[2]
@@ -863,9 +858,9 @@ def arm_the_build_command_is_unchanged_and_its_status_recorded() -> None:
     #: (recipe status, leaves a leg, override, `status`, what build() prints):
     #: returning 0 with no leg, and returning 2, are the two failures `status`
     #: on its own reports identically
-    cases = ((0, True, "RSP_SRC", "built", ""),
+    cases = ((0, True, "RQ_SRC", "built", ""),
              (0, False, "DP_SRC", "no-executable", "out-tailerr-tail"),
-             (2, True, "RSP_SRC", "no-executable", "out-tailerr-tail"))
+             (2, True, "RQ_SRC", "no-executable", "out-tailerr-tail"))
     with tempfile.TemporaryDirectory(prefix="a115-fixture-") as td:
         root = Path(td)
         source = root / "stage_copy.sv"
@@ -926,7 +921,7 @@ def arm_the_six_case_inventory_is_frozen() -> None:
     assert sorted({m[4] for m in driver.MUTATIONS}) == sorted(CONTROL_MODES)
     assert len(driver.MUTATIONS) + len(CONTROL_MODES) == 6
     assert {key: flag for key, (_, flag) in driver.SOURCES.items()} == {
-        "stage": "RSP_SRC", "datapath": "DP_SRC"}
+        "stage": "RQ_SRC", "datapath": "DP_SRC"}
     for _, source, pattern, replacement, _, _ in driver.MUTATIONS:
         assert source in driver.SOURCES, source
         assert pattern and replacement and pattern != replacement, pattern

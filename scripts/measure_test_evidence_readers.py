@@ -162,12 +162,13 @@ DUT_READER_DISPOSITIONS = {
         "the datapath, and the empty image under the listener and talker end-to-end legs too, and "
         "requires a named failure. It is the explicit dynmap-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/render_csr_controls.py":
-        "mutation campaign; the explicit render-csr-controls target plants wrong-fill "
+        "mutation campaign; the explicit render-csr-controls target plants wrong-lead "
         "and bit-9 selector defects into copies and requires named failures. Its "
         "absent-stage control removes the instance and requires structural zero "
         "despite accepted ingress; no expected value is derived from source text",
     "tb/verilator/milan_dp/render_mutants.py":
-        "mutation campaign; it plants one of four render-law defects into a copy and requires a named failure",
+        "mutation campaign; it plants one of four presentation-law defects into a copy and requires "
+        "a named failure",
     "tb/verilator/milan_dp_gm_steps/gmstep_mutants.py":
         "mutation campaign; it plants #387 re-base and #545 slew-connection defects into a copy and requires a "
         "named failure on milan_dp's gmstep leg or, for five, its option-off leg. The milan_dp_gm_steps sweep "
@@ -204,7 +205,8 @@ DUT_READER_DISPOSITIONS = {
         "scratch copy and requires the named SVA property, or for one row the scoreboard, "
         "to fail; no expected value is read from the text",
     "tb/verilator/render_queue/mutants.py":
-        "mutation campaign; it plants one of eighteen presentation-stage defects into a copy and requires its named failure",
+        "mutation campaign; it plants one of eighteen presentation-stage defects into a copy "
+        "and requires its named failure",
     "tb/verilator/rx_filter/binding_mutant.py":
         "mutation campaign; it ties a real named binding low and requires failure",
     "tb/verilator/tcam/mutants.py":

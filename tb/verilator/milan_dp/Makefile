@@ -6,8 +6,8 @@
 # it over the AXI4-Lite CSR + MAC AXIS ports.
 #   make        - build and run the self-checking harness
 #   make ax1x1  - run only the eight-channel AX7101 option-OFF baseline
-#   make aclk   - run only the true-ratio leg (grid alignment + the #386
-#                 render law); its mutation arm is render_mutants.py
+#   make aclk   - run only the true-ratio leg (grid alignment + the #632
+#                 presentation law); its mutation arm is render_mutants.py
 #   make crflic - run only the #530 CRF talker licence leg (compressed time)
 #   make crflic-mutants - that leg's explicit mutation campaign
 #                 (crflic_mutants.py), outside the sweep's deadline
@@ -114,7 +114,7 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
                  -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC) -DCLKV_QTICK_CYC_TB=$(GPTP_QTICK_CYC) -Wall -Wextra"
 
 # #632: the render presentation stage and the datapath, overridable so the
-# render-law mutation arm (render_mutants.py) elaborates a MUTATED COPY of
+# presentation-law mutation arm (render_mutants.py) elaborates a MUTATED COPY of
 # either through this same recipe
 RQ_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_queue.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
@@ -479,7 +479,7 @@ ax1x1gptp-aemi:
 	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_ax1x1gptp/aem-build
 	python3 ../../../avdecc/gen_aemi_image.py --overlay obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o obj_ax1x1gptp/aemi.bin
 
-# the true-ratio leg alone (the render-law phases ride it), and its build
+# the true-ratio leg alone (the presentation-law phases ride it), and its build
 # alone for the mutation arm
 aclk: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(ACLK_BUILD)

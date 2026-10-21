@@ -60,57 +60,65 @@
 // 0.1 ppm resolution. The silicon counterpart is AX7101 J11.8 (tdm_fsync_o)
 // against J11.9 (media_lrclk_o) on a two-channel probe.
 //
-// THE RENDER LAW (#386), three more phases on the same instrumented clock:
+// THE PRESENTATION LAW (#632; it replaced #386's render setpoint), at the
+// render presentation stage's output, on the same instrumented clock:
 //
 //   [RENDER-INT] listener 0 is bound over ACMP (the sim_main ladder: BIND_RX,
 //   the harvested PROBE_TX, a played CONNECT_TX_RESPONSE) and fed 8-channel
-//   class-A AAF PDUs at EXACTLY the packet grid's cadence (12500 axis cycles
-//   at 100 MHz) with every sample naming its {pdu, event, channel}. The
-//   accept-to-render delay of each PDU is timed from the monitor's accept
-//   pulse to the setpoint stage's pop of that PDU's event 0 (the render
-//   crossbar's input grid), and the law is asserted PER PDU: the fill at
-//   accept is the setpoint, the delay is inside (SETPOINT, SETPOINT + 1]
-//   media ticks, and with the cadence locked the spread is a few cycles.
+//   class-A AAF PDUs at the physical grid's cadence (12500 + 52/391 axis
+//   cycles at 100 MHz) with every sample naming its {pdu, event, channel}.
+//   Every PDU carries its avtp_timestamp from a talker on the domain's
+//   clock: the feed's first event is stamped 92 frames past the domain's
+//   latest media event, every later one a period per event after it (IEEE
+//   1722-2016 7.5), so the stamps sit on the domain's frame grid.
+//   KL_render_queue reads frame n + 2 at domain event n (this shape's
+//   out-lead), so the event it hands the render crossbar there is presented
+//   at E_n + 2 Ps, E_n the domain's public instant tap. The law is asserted
+//   PER EVENT: every event of every PDU handed over once, in order, at its
+//   presentation time inside IEEE 1722-2016 10.8's +/-5 % of Ps; nothing
+//   refused, no slip, the stream converged, and RENDER_STAT (0x8DC)
+//   mirroring the stage's taps from reset through the queued lead to
+//   convergence.
 //
-//   [RENDER-CRF] the same, under CRF selection with the grids aligned, the
-//   cadence now locked to the PHYSICAL grid (12500 + 52/391 cycles: the
-//   fsync period times six). Same setpoint, same band: the constant does
-//   not depend on the selected clock source, only the sub-tick phase does.
+//   [RENDER-ARRIVE] at INTERNAL and again under CRF: the feed's cadence is
+//   shifted three media ticks later, then three earlier. The #386 law's
+//   fill moved with the arrival; the timestamps do not move, so neither does
+//   any presentation.
 //
-//   [RENDER-RC] at INTERNAL and again under CRF: the cadence is shifted three
-//   ticks later, which the instrument sees as a displaced fill (the negative
-//   control of the measurement itself), then a PHC adjtime through CLKV
-//   software (the plane is off in this leg, so PTP_CMD[1] IS the step) fires
-//   the recentre: the next PDU end restores the law, the recentre is counted
-//   ONCE, and a hundred more PDUs show neither a second recentre nor a drift
-//   back. Then the same three ticks EARLY, which reaches the recentre's other
-//   branch (a long queue snaps instead of re-entering prefill).
+//   [RENDER-STEP] at INTERNAL and again under CRF: a PHC adjtime of 65,536
+//   ns through CLKV software (the plane is off in this leg, so PTP_CMD[1] IS
+//   the step), the AAF talker's time moved with it (a gPTP step moves the
+//   domain's instants and the talkers' timestamps together). The frame count
+//   does not step and nothing re-centres: every event, queued before the step
+//   or stamped after it, presented at its time, no slip, nothing refused.
+//   [RENDER-SETTIME] the same for an absolute settime (the PHC to zero).
+//
+//   [RENDER-REFUSE] a PDU stamped ten frames in the past (late), one 200
+//   frames ahead (beyond the 128-row queue) and one without tv over a stamp
+//   the stream's frames hold (untimed), each between two of the running
+//   stream's: each counted once in its counter, the late and the too-early
+//   one in RENDER_STAT's refused field, none presented, the stream
+//   undisturbed.
 //
 //   [RENDER-LIVE] the clock source is changed UNDER THE RUNNING STREAM, the
-//   case a restarted feed never sees. The feed is first moved past a tick
-//   (the grid-moved-0.6-tick equivalent: the fill sits one event off the
-//   setpoint, the delay outside the band, no rail, converged) and the stream
-//   keeps running through the INTERNAL measurement and the CRF selection.
-//   On the FULL leg #390's ring phases run in between and the stream that
-//   reaches the selection is one event SHORT, not one event long: see run().
-//   The datapath's settled-grid trigger then fires ONE recentre once the
-//   aligner's error has rested inside its band, and every PDU of the aligned
-//   window is back at the setpoint. The deselect (back to INTERNAL) is the
-//   same arm the other way: the feed is moved past a tick the other way
-//   (fill one short), the source change fires one recentre after its dwell,
-//   and the law holds again.
+//   case a restarted feed never sees: the CRF selection, and the deselect
+//   back to INTERNAL inside the mr phase. The domain's media events follow
+//   the frame marker under both, so no presentation moves: no slip across
+//   either change and every event at its time.
 //
 //   render_mutants.py rebuilds this leg against mutated copies of the stage
-//   (a wrong prefill target; the recentre pulse ignored; the recentre counted
-//   but not snapped) and of the datapath (the clock-source trigger dropped
-//   from the recentre set) and requires the named checks to FAIL by their own
-//   verdict. --render-only and --live-only are the short legs it runs.
+//   (each PDU placed by its arrival rather than its timestamp; the PDU
+//   without tv placed by its stale stamp) and of the datapath (the out-lead
+//   one frame long; a PHC step that flushes the stage; a source change that
+//   does) and requires the named checks to FAIL by their own verdict.
+//   --render-only and --live-only are the short legs it runs.
 
 #include "../../common/verilator_harness.hpp"
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
 #include "verilated.h"
 
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <cstdint>
@@ -138,19 +146,29 @@ constexpr int kAafChans = 8;
 constexpr int kAafEvents = 6;
 constexpr size_t kAafPayloadBytes = static_cast<size_t>(kAafChans) * kAafEvents * 4;
 constexpr size_t kAafFrameBytes = 14 + 24 + kAafPayloadBytes;
-//! the render setpoint as milan_datapath derives it: one class-A PDU of
-//! events plus the two-tick allowance (RENDER_SETPOINT_EVT_C). Stated here
-//! as the LAW under test, not read back from the DUT.
-constexpr int kRenderSetpointEvt = kAafEvents + 2;
-//! registration slack on the band's upper edge: the accept pulse and the pop
-//! pulse are each one register behind their events
-constexpr long kBandSlackCycles = 64;
-//! PDUs skipped at the start of a window (prefill and lock) and at its end
-//! (the last PDUs have not rendered yet)
-constexpr int kLawSkipHead = 40;
-constexpr int kLawSkipTail = 4;
-//! a PHC adjtime of 65 536 ns: any nonzero step is the recentre trigger
+//! THE PRESENTATION LAW's constants (#632), stated here as the law under
+//! test, not read back from the DUT. The out-lead of this shape's one
+//! interface, the 1x1 TDM8 lane, as milan_datapath derives it
+//! (RENDER_LEAD_C, out_lead_frames): the read at domain event n is frame
+//! n + 2.
+constexpr int kRenderLeadFrames = 2;
+//! a feed's first event is stamped this many frames past the domain's latest
+//! media event: 1.917 ms, under Milan v1.2 4.4.2.1's 2.126 ms
+constexpr long kPresLeadFrames = 92;
+//! the stamps sit on the domain's own frame grid, so the band is IEEE
+//! 1722-2016 10.8's +/-5 % of Ps
+constexpr double kPresBandFrac = 0.05;
+//! PDUs a window leaves ungraded at its end, not yet presented: the lead's
+//! PDUs and two more
+constexpr int kLawSkipTail = static_cast<int>(kPresLeadFrames / kAafEvents) + 2;
+//! the PHC's reset increment at the 100 MHz model axis clock, ns per cycle
+constexpr double kPhcNsPerAxis = 10.0;
+//! a PHC adjtime of 65 536 ns
 constexpr uint32_t kPhcStepNs = 0x00010000;
+//! the refused PDUs' stamps: ten frames in the past at arrival, and 200
+//! frames ahead, past the queue's 128 rows
+constexpr double kLateFrames = 10.0;
+constexpr double kEarlyFrames = 200.0;
 //! The loopback-ring aim (#390, the banner inside the class): land the restart
 //! burst this far after a media tick, and accept it inside the band.
 constexpr double kRingAimPhase = 0.93;
@@ -229,47 +247,143 @@ class MediaGridAlignmentHarness {
         f_prev = dut->tdm_fsync_o;
     }
 
-    // ---- the render instrument: accept pulses, popped events, pulses ----
-    //! accept i belongs to the i-th AAF PDU injected since the feed started
-    //! (the depacketizer keeps order and this leg drops nothing). Records are
-    //! kept by injection SEQUENCE, not by the 12-bit wire id: the live feed
-    //! now runs through phases long enough for the id to wrap, and at most a
-    //! dozen PDUs are ever in flight, so the id of a popped event names the
-    //! latest sequence injected with it.
-    std::vector<long> aaf_injected;        //! sequence numbers, in injection order
-    size_t            accepts_seen = 0;
-    std::vector<long> accept_cycle;        //! by sequence
-    std::vector<int>  fill_at_accept;      //! the stage's fill at that instant
-    std::vector<long> render_cycle;        //! by sequence: event 0 popped
-    std::array<long, 4096> id_seq{};       //! wire id -> the latest sequence carrying it
-    long recentre_pulses = 0;              //! render_recentre_p_w edges
-    long src_recentre_pulses = 0;          //! the datapath's clock-source trigger pulses
+    // ---- THE PRESENTATION INSTRUMENT (#632) ---------------------------- //
+    //! The domain's media events are read off the datapath's public instant
+    //! tap (dom_ns_w, a timestamp source, never an expected value): a change
+    //! is an event. A PHC step the harness commands shows as one event spaced
+    //! a period plus the step; the steps are summed, so FREE time (an instant
+    //! less every step before it) runs unbroken across them. The talker's
+    //! timeline is kept in free time and every PDU is stamped with its first
+    //! event's free time plus the steps so far: a talker whose clock the
+    //! network's step moved too.
+    //!
+    //! The frame period in PHC ns is the leg's own clock plan: 512 serial
+    //! cycles of the audio clock, 1591/391 axis cycles each, at the PHC's
+    //! reset increment. The domain events' spacing, measured live, is
+    //! reported beside it.
+    const double ps_phc = 512.0 * static_cast<double>(AUD_DEN) / static_cast<double>(AUD_NUM)
+                        * kPhcNsPerAxis;
+    uint64_t dom_ns_last = 0;              //! the latest event's instant
+    long     dom_count = 0;                //! events seen
+    long     dom_c0 = -1;                  //! the measured spacing's baseline
+    uint64_t dom_ns0 = 0;
+    double   ps_meas = 0.0;
+    double   dom_steps_ns = 0.0;           //! the steps the instants took
+    bool     step_pending = false;         //! a commanded step not yet seen
 
-    void ensure_slot(long seq) {
-        while (static_cast<long>(accept_cycle.size()) <= seq) {
-            accept_cycle.push_back(-1); fill_at_accept.push_back(-1); render_cycle.push_back(-1);
-        }
+    //! the latest event's instant in free time. Signed: an instant taken a
+    //! marker latency before a settime to zero reads below zero
+    double e_free() const {
+        return static_cast<double>(static_cast<int64_t>(dom_ns_last)) - dom_steps_ns;
     }
 
+    void observe_domain() {
+        const uint64_t dn = dut->rootp->milan_datapath__DOT__dom_ns_w;
+        if (dn == dom_ns_last) return;
+        const double gap = static_cast<double>(static_cast<int64_t>(dn - dom_ns_last));
+        if (step_pending && dom_count > 0 && std::fabs(gap - ps_phc) > ps_phc / 4) {
+            dom_steps_ns += gap - ps_phc;
+            step_pending = false;
+            dom_c0 = -1;
+        }
+        dom_ns_last = dn;
+        ++dom_count;
+        //! the measured spacing, over live (marker) events only
+        if (!dut->rootp->milan_datapath__DOT__dom_live_w) { dom_c0 = -1; return; }
+        if (dom_c0 < 0) { dom_c0 = dom_count; dom_ns0 = dn; return; }
+        const long n = dom_count - dom_c0;
+        if (n >= 64) ps_meas = static_cast<double>(dn - dom_ns0) / static_cast<double>(n);
+    }
+
+    //! THE TALKER: one timeline of events, never reset. A PDU is stamped with
+    //! the timeline's next event, or a new timeline starts kPresLeadFrames
+    //! past the domain's latest event when there is none, or when the next
+    //! stamp has fallen under half that lead (a feed that stopped).
+    bool   tk_anchored = false;
+    long   tk_ev = 0;                      //! events stamped so far
+    long   tk_anchor_ev = 0;
+    double tk_anchor_free = 0.0;
+    std::vector<double> ev_pt;             //! per event: its presentation time, free
+    std::vector<int>    ev_shown;          //! ...times interface 0 was handed it
+    std::vector<double> ev_err;            //! ...presented less presentation time, ns
+    std::vector<long>   ev_at;             //! ...the order it was handed in
+    //! per PDU sequence: its first event, or -1 for a refused PDU
+    std::vector<long>   seq_ev;
+    std::array<long, 4096> id_seq{};       //! wire id -> the latest sequence carrying it
+
+    double stamp_next_pdu() {
+        const double floor_ns = e_free() + 0.5 * static_cast<double>(kPresLeadFrames) * ps_phc;
+        double pt = tk_anchor_free + static_cast<double>(tk_ev - tk_anchor_ev) * ps_phc;
+        if (!tk_anchored || pt < floor_ns) {
+            tk_anchored = true;
+            tk_anchor_ev = tk_ev;
+            tk_anchor_free = e_free() + static_cast<double>(kPresLeadFrames) * ps_phc;
+            pt = tk_anchor_free;
+        }
+        return pt;
+    }
+
+    //! a free time on the wire: the steps so far added, the low 32 bits
+    uint32_t wire_ts(double free_ns) const {
+        return static_cast<uint32_t>(static_cast<int64_t>(std::llround(free_ns + dom_steps_ns)));
+    }
+
+    //! what interface 0 was handed: every event of a read with a sample
+    long     injected = 0;                 //! PDUs injected, stream and refused
+    long     accepts = 0;                  //! the monitor's accept pulses
+    long     pres_n = 0;                   //! events interface 0 was handed
+    long     pres_unknown = 0;             //! ...naming no PDU this leg sent
+    long     pres_refused = 0;             //! ...of a refused PDU
+    uint32_t rq_first = 0;                 //! lane 0 of the read's first beat
+    bool     rq_valid_q = false;
+
     void observe_render() {
-        if (dut->rootp->milan_datapath__DOT__avtprx_accept_p && accepts_seen < aaf_injected.size()) {
-            const long seq = aaf_injected[accepts_seen++];
-            ensure_slot(seq);
-            accept_cycle[seq]   = axis_cycle;
-            fill_at_accept[seq] = dut->rootp->milan_datapath__DOT__rsp_fill_w & 0xFF;
+        observe_domain();
+        if (dut->rootp->milan_datapath__DOT__avtprx_accept_p) ++accepts;
+        //! a read is its pairs' beats back to back; the first carries lane 0
+        const bool v = (dut->rootp->milan_datapath__DOT__rq_tvalid_w & 1) != 0;
+        if (v && !rq_valid_q) {
+            const uint64_t d = dut->rootp->milan_datapath__DOT__rq_tdata_w;
+            rq_first = (static_cast<uint32_t>(d & 0xFF) << 16) |
+                       (static_cast<uint32_t>((d >> 8) & 0xFF) << 8) |
+                       static_cast<uint32_t>((d >> 16) & 0xFF);
         }
-        if (dut->rootp->milan_datapath__DOT__rsp_pop_p_w & 1) {
-            const uint64_t d = dut->rootp->milan_datapath__DOT__rsp_tdata_w;
-            const uint32_t s0 = (static_cast<uint32_t>(d & 0xFF) << 16) |
-                                (static_cast<uint32_t>((d >> 8) & 0xFF) << 8) |
-                                static_cast<uint32_t>((d >> 16) & 0xFF);
-            const int pdu = static_cast<int>((s0 >> 12) & 0xFFF);
-            const int event = static_cast<int>((s0 >> 8) & 0xF);
-            const long seq = id_seq[static_cast<size_t>(pdu)];
-            if (event == 0 && seq >= 0) { ensure_slot(seq); if (render_cycle[seq] < 0) render_cycle[seq] = axis_cycle; }
+        rq_valid_q = v;
+        //! the stage's pulse: interface 0's read of stream 0 had a sample
+        if (dut->rootp->milan_datapath__DOT__rq_pop_p_w & 1) present(rq_first);
+    }
+
+    //! the read at domain event n is frame n + K, presented at E_n + K Ps
+    void present(uint32_t s0) {
+        ++pres_n;
+        const long seq = id_seq[static_cast<size_t>((s0 >> 12) & 0xFFF)];
+        const long k = static_cast<long>((s0 >> 8) & 0xF);
+        if (seq < 0 || seq >= static_cast<long>(seq_ev.size()) || k >= kAafEvents) {
+            ++pres_unknown;
+            return;
         }
-        if (dut->rootp->milan_datapath__DOT__render_recentre_p_w) recentre_pulses++;
-        if (dut->rootp->milan_datapath__DOT__src_recentre_p_r) src_recentre_pulses++;
+        if (seq_ev[static_cast<size_t>(seq)] < 0) { ++pres_refused; return; }
+        const size_t ev = static_cast<size_t>(seq_ev[static_cast<size_t>(seq)] + k);
+        ++ev_shown[ev];
+        ev_at[ev] = pres_n;
+        ev_err[ev] = ev_pt[ev] - (e_free() + kRenderLeadFrames * ps_phc);
+    }
+
+    //! the stage's counters at one instant
+    struct RqCounts {
+        uint32_t late = 0;
+        uint32_t early = 0;
+        uint32_t untimed = 0;
+        uint32_t slips = 0;
+    };
+    RqCounts rq_counts() const {
+        const auto* root = dut->rootp;
+        RqCounts c;
+        c.late = root->milan_datapath__DOT__rq_late_w;
+        c.early = root->milan_datapath__DOT__rq_early_w;
+        c.untimed = root->milan_datapath__DOT__rq_untimed_w;
+        c.slips = root->milan_datapath__DOT__rq_slips_w;
+        return c;
     }
 
     //! THE PROBE SNIFFER (the sim_main ladder): the processor's listener
@@ -359,13 +473,18 @@ class MediaGridAlignmentHarness {
     }
 
     //! #443: sample the independent taps on the CSR live-mux capture edge,
-    //! one cycle after AR acceptance. Fill may change while R is stalled.
+    //! one cycle after AR acceptance. The lead may change while R is stalled.
+    //! RENDER_STAT (0x8DC): {refused [31:16], converged [9], idle [8],
+    //! lead [7:0]}, refused the late and too-early PDUs, saturating.
     uint32_t render_tap_word() const {
         const auto* root = dut->rootp;
-        return (uint32_t(root->milan_datapath__DOT__rsp_rails_w) << 16) |
-               (uint32_t(root->milan_datapath__DOT__rsp_converged_w & 1) << 9) |
-               (uint32_t(root->milan_datapath__DOT__rsp_prefill_w & 1) << 8) |
-               (root->milan_datapath__DOT__rsp_fill_w & 0xFF);
+        const uint32_t refused = std::min<uint32_t>(
+            0xFFFFu, static_cast<uint32_t>(root->milan_datapath__DOT__rq_late_w) +
+                     static_cast<uint32_t>(root->milan_datapath__DOT__rq_early_w));
+        return (refused << 16) |
+               (uint32_t(root->milan_datapath__DOT__rq_converged_w & 1) << 9) |
+               (uint32_t(root->milan_datapath__DOT__rq_idle_w & 1) << 8) |
+               (root->milan_datapath__DOT__rq_lead_w & 0xFF);
     }
 
     uint32_t check_render_csr(const char* phase) {
@@ -416,27 +535,12 @@ class MediaGridAlignmentHarness {
         check_render_csr("write ignored");
     }
 
-    void prove_render_csr_rail() {
-        //! Bunch two additional six-event PDUs while a converged stream
-        //! runs. The > TARGET+6 high rail must fire without an underrun.
-        const uint32_t before = dut->rootp->milan_datapath__DOT__rsp_rails_w;
-        run_to_a_fresh_slot();
-        send_aaf();
-        for (int g = 0; g < 256; ++g) step();
-        send_aaf();
-        for (int g = 0; g < 256; ++g) step();
-        const uint32_t word = check_render_csr("rail");
-        ck("RENDER-CSR: rail event reached the word", (word >> 16) > before, true);
-        ck("RENDER-CSR: rail cleared convergence", (word >> 9) & 1, 0);
-        check_render_csr_selection();
-    }
-
     int prove_render_csr_absent() {
         ck("RENDER-CSR-ABSENT: reset structural zero", check_render_csr("absent reset"), 0);
         bind_listener_zero_over_acmp();
         start_aaf_feed(0);
         run_fed(100000);
-        ck("RENDER-CSR-ABSENT: ingress accepted media", accepts_seen > 3, true);
+        ck("RENDER-CSR-ABSENT: ingress accepted media", accepts > 3, true);
         ck("RENDER-CSR-ABSENT: active ingress structural zero", check_render_csr("absent active"), 0);
         check_render_csr_selection();
         aaf_on = false;
@@ -503,7 +607,8 @@ class MediaGridAlignmentHarness {
     }
 
     // ---- the AAF stream into the bound listener: 8 channels x 6 events, --
-    //      every sample = {pdu[11:0], event[3:0], channel[7:0]} in S32BE --
+    //      every sample = {pdu[11:0], event[3:0], channel[7:0]} in S32BE,  --
+    //      every PDU stamped by the talker above                           --
     bool    aaf_on = false;
     long    aaf_next_at = 0;
     long    aaf_frac_acc = 0;
@@ -511,7 +616,7 @@ class MediaGridAlignmentHarness {
     uint8_t aaf_wire_seq = 0;           //! the AVTP sequence_num byte
     long    aaf_seq = 0;                //! the next injection sequence (its wire id is the low 12 bits)
 
-    void send_aaf() {
+    void inject_aaf(uint32_t ts, bool tv) {
         const int aaf_pdu = static_cast<int>(aaf_seq & 0xFFF);
         uint8_t f[kAafFrameBytes]; memset(f, 0, sizeof f);
         const uint8_t dmac[6] = {
@@ -522,12 +627,12 @@ class MediaGridAlignmentHarness {
         memcpy(f+6, src, 6);
         f[12]=0x22; f[13]=0xF0;
         f[14]=0x02;                               // AAF
-        f[15]=0x81;                               // sv, tv
+        f[15]=static_cast<uint8_t>(tv ? 0x81 : 0x80);   // sv, tv
         f[16]=aaf_wire_seq++;
         const uint8_t sid[8] = {
             0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x00};
         memcpy(f+18, sid, 8);
-        f[26]=0x00; f[27]=0x00; f[28]=0x10; f[29]=0x00;   // avtp_ts (not late/early)
+        for (int i = 0; i < 4; i++) f[26+i] = static_cast<uint8_t>(ts >> (8*(3-i)));   // avtp_timestamp
         f[30]=0x02;                               // format INT32
         f[31]=static_cast<uint8_t>(0x05 << 4);    // nsr = 48 kHz
         f[32]=static_cast<uint8_t>(kAafChans);
@@ -545,10 +650,30 @@ class MediaGridAlignmentHarness {
                 f[o+2] = static_cast<uint8_t>(v);
                 f[o+3] = 0;
             }
-        aaf_injected.push_back(aaf_seq);
         id_seq[static_cast<size_t>(aaf_pdu)] = aaf_seq;
         aaf_seq++;
+        injected++;
         inject(f, kAafFrameBytes);
+    }
+
+    //! the stream's next PDU, stamped by the talker, its events recorded
+    void send_aaf() {
+        const double pt = stamp_next_pdu();
+        seq_ev.push_back(tk_ev);
+        for (int k = 0; k < kAafEvents; k++) {
+            ev_pt.push_back(pt + k * ps_phc);
+            ev_shown.push_back(0);
+            ev_err.push_back(0.0);
+            ev_at.push_back(-1);
+        }
+        tk_ev += kAafEvents;
+        inject_aaf(wire_ts(pt), true);
+    }
+
+    //! a PDU off the timeline, stamped at `free_ns`: one the stage refuses
+    void send_refused_aaf(double free_ns, bool tv) {
+        seq_ev.push_back(-1);
+        inject_aaf(wire_ts(free_ns), tv);
     }
 
     //! the next AAF slot: an integer period plus a fraction on the physical grid
@@ -558,18 +683,9 @@ class MediaGridAlignmentHarness {
         if (aaf_frac_acc >= kAafPhysFracDen) { aaf_frac_acc -= kAafPhysFracDen; aaf_next_at += 1; }
     }
 
-    //! start the feed, or - under a running one - restart its RECORDS only:
-    //! the stream keeps its cadence, and the PDU in flight lands (is
-    //! accepted) before the books are cleared so no accept is misattributed
+    //! start the feed, or set a running one's cadence: the stream, its
+    //! timeline and its records run on
     void start_aaf_feed(long frac_num) {
-        if (aaf_on) {
-            run_to_a_fresh_slot();
-            for (int g = 0; g < 4000 && accepts_seen < aaf_injected.size(); g++) step();
-        }
-        aaf_injected.clear(); accepts_seen = 0;
-        accept_cycle.clear(); fill_at_accept.clear(); render_cycle.clear();
-        id_seq.fill(-1);
-        aaf_seq = 0;                         //! sequences restart with the records
         aaf_frac_num = frac_num; aaf_frac_acc = 0;
         if (!aaf_on) aaf_next_at = axis_cycle + 64;
         aaf_on = true;
@@ -593,11 +709,11 @@ class MediaGridAlignmentHarness {
     // step n cycles with the CRF stream kept alive at its 2 ms cadence (once
     // the sink is provisioned) and the AAF stream at its own (once bound)
     bool crf_on = false;
-    //! the live selection's records (set by the CRF phase, judged after it)
-    uint32_t live_rc0 = 0;
-    long     live_pulses0 = 0;
-    long     live_src0 = 0;
-    long     live_first_seq = 0;
+    //! the live selection's records (set by the CRF phase, judged after it):
+    //! the stage's counters and the next PDU at the selection, and the next
+    //! PDU at the aligned window's end
+    RqCounts live_c0{};
+    long     live_sel_seq = 0;
     long     live_last_seq = 0;
     void run_fed(long n) {
         const long stop = axis_cycle + n;
@@ -745,12 +861,11 @@ class MediaGridAlignmentHarness {
         // the CRF Media Clock Output, for the mr half below
         axi_write(A_CRFT_CTRL, 0x1);
 
-        //! the live stream's records around the selection: the trigger's
-        //! one pulse must land inside the pull-in wait, and the aligned
-        //! window's PDUs are the law's witnesses ([RENDER-LIVE-CRF])
-        live_rc0     = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
-        live_pulses0 = recentre_pulses;
-        live_src0    = src_recentre_pulses;
+        //! the live stream's records around the selection: every PDU from
+        //! it to the aligned window's end is the law's witness
+        //! ([RENDER-LIVE-CRF])
+        live_c0      = rq_counts();
+        live_sel_seq = aaf_seq;
         poke_clksrc(kCrfClksrcIx);
         //! a talker on the CRF grid: from here the feed's cadence is the
         //! physical grid's, the one the packet grid is about to follow
@@ -776,7 +891,6 @@ class MediaGridAlignmentHarness {
         long dup0  = dut->rootp->milan_datapath__DOT__tdm_dup_cnt_w;
         long skip0 = dut->rootp->milan_datapath__DOT__tdm_skip_cnt_w;
         obs_reset();
-        live_first_seq = aaf_seq;
         run_fed(15000000);                  // ~0.15 s aligned window
         live_last_seq = aaf_seq;
         const double ppm_crf = window_ppm();
@@ -1197,10 +1311,8 @@ class MediaGridAlignmentHarness {
 
         const long lvl1 = cap.empty() ? -1 : lvl_of(cap.back());
         //! the live stream's records around the deselect ([RENDER-LIVE-INT])
-        const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
-        const long pulses0 = recentre_pulses;
-        const long src0 = src_recentre_pulses;
-        const uint32_t rails0 = dut->rootp->milan_datapath__DOT__rsp_rails_w;
+        const RqCounts c0 = rq_counts();
+        const long sel_seq = aaf_seq;
         poke_clksrc(0);                      // back to INTERNAL
         ck("MR: deselect resolves back",
            dut->rootp->milan_datapath__DOT__crf_clk_selected_r, 0);
@@ -1219,23 +1331,14 @@ class MediaGridAlignmentHarness {
            dut->rootp->milan_datapath__DOT__mga_engaged_w, 1);
         if (!aaf_on) return;
         //! [RENDER-LIVE-INT] the deselect under the running stream: the
-        //! source change arms the settled-grid recentre, which at INTERNAL
-        //! fires after its tick dwell (2048 ticks, 43 ms) and restores the
-        //! law the [RENDER-LIVE] displacement broke the other way
-        printf("\n[RENDER-LIVE-INT] the deselect under the running stream: one recentre after the dwell\n");
+        //! domain's events follow the frame marker at INTERNAL as under CRF,
+        //! so no presentation moves across it
+        printf("\n[RENDER-LIVE-INT] the deselect under the running stream: no presentation moved\n");
         run_fed(6000000);
-        ck("RENDER-LIVE-INT: the source change fired the settled-grid trigger once",
-           src_recentre_pulses - src0, 1);
-        ck("RENDER-LIVE-INT: ...as one recentre pulse", recentre_pulses - pulses0, 1);
-        ck("RENDER-LIVE-INT: the recentre executed once",
-           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
-        const int first = static_cast<int>(aaf_seq);
-        run_fed(100 * kAafPduPeriodCycles);
-        const LawStats st = law_over(first, static_cast<int>(aaf_seq) - kLawSkipTail, kRenderSetpointEvt);
-        report_law("RENDER-LIVE-INT", st, 90, static_cast<long>(kTickCycles) + kBandSlackCycles);
-        ck("RENDER-LIVE-INT: no rail", dut->rootp->milan_datapath__DOT__rsp_rails_w - rails0, 0);
-        ck("RENDER-LIVE-INT: counted once, never again",
-           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
+        report_quiet("RENDER-LIVE-INT", "across the deselect", c0);
+        report_law("RENDER-LIVE-INT", "",
+                   law_over(sel_seq - kLawSkipTail, aaf_seq - kLawSkipTail), 600);
+        ck("RENDER-LIVE-INT: converged", dut->rootp->milan_datapath__DOT__rq_converged_w & 1, 1);
     }
 
     //! The boot restore walk, as the firmware's nvm_boot() starts it. Since
@@ -1346,136 +1449,143 @@ class MediaGridAlignmentHarness {
     }
 
     // =================================================================== //
-    //  The render law over one window of PDUs                             //
+    //  The presentation law over one window of PDUs                         //
     // =================================================================== //
     struct LawStats {
-        long n = 0;
-        long in_band = 0;
-        long fill_ok = 0;
-        long fill_is = 0;      //! PDUs whose fill at accept equals `fill_expect`
-        long dmin = 0;
-        long dmax = 0;
-        double dmean = 0.0;
+        long pdus = 0;
+        long events = 0;
+        long missing = 0;      //! never handed to interface 0
+        long repeated = 0;     //! handed more than once
+        long disorder = 0;     //! handed before an earlier event
+        double max_err = 0.0;  //! the largest |presented - presentation time|, ns
     };
 
-    //! the law over PDU ids [first, last): delay = pop of event 0 - accept
-    LawStats law_over(int first, int last, int fill_expect) const {
+    //! the law over the stream PDUs of sequences [first, last)
+    LawStats law_over(long first, long last) const {
         LawStats st;
-        const double lo = kRenderSetpointEvt * kTickCycles;
-        const double hi = (kRenderSetpointEvt + 1) * kTickCycles + kBandSlackCycles;
-        double sum = 0.0;
-        for (int pdu = first; pdu < last; pdu++) {
-            if (pdu >= static_cast<int>(accept_cycle.size())) break;
-            if (accept_cycle[pdu] < 0 || render_cycle[pdu] < 0) continue;
-            const long d = render_cycle[pdu] - accept_cycle[pdu];
-            if (st.n == 0 || d < st.dmin) st.dmin = d;
-            if (st.n == 0 || d > st.dmax) st.dmax = d;
-            if (static_cast<double>(d) > lo && static_cast<double>(d) <= hi) st.in_band++;
-            if (fill_at_accept[pdu] == kRenderSetpointEvt) st.fill_ok++;
-            if (fill_at_accept[pdu] == fill_expect) st.fill_is++;
-            sum += static_cast<double>(d);
-            st.n++;
+        long prev_at = -1;
+        const long end = std::min(last, static_cast<long>(seq_ev.size()));
+        for (long seq = std::max(first, 0L); seq < end; seq++) {
+            const long e0 = seq_ev[static_cast<size_t>(seq)];
+            if (e0 < 0) continue;
+            st.pdus++;
+            for (long k = 0; k < kAafEvents; k++) {
+                const size_t ev = static_cast<size_t>(e0 + k);
+                st.events++;
+                if (ev_shown[ev] == 0) { st.missing++; continue; }
+                if (ev_shown[ev] > 1) st.repeated++;
+                if (ev_at[ev] <= prev_at) st.disorder++;
+                prev_at = ev_at[ev];
+                st.max_err = std::max(st.max_err, std::fabs(ev_err[ev]));
+            }
         }
-        st.dmean = st.n ? sum / static_cast<double>(st.n) : 0.0;
         return st;
     }
 
-    //! the accept phase against the grid, in ticks, from a window's mean
-    //! first-event delay: what d / T carries above the setpoint
-    static double accept_phase_ticks(const LawStats& st) {
-        return st.dmean / kTickCycles - static_cast<double>(kRenderSetpointEvt);
+    double band() const { return kPresBandFrac * ps_phc; }
+
+    void report_law(const char* tag, const char* side, const LawStats& st, long expect_pdus) {
+        printf("  %s%s: %ld PDUs, %ld events: %ld never presented, %ld repeated, %ld out of order;"
+               " the largest |presented - presentation time| %.1f ns (+/-5 %% of Ps is %.1f ns)\n",
+               tag, side, st.pdus, st.events, st.missing, st.repeated, st.disorder,
+               st.max_err, band());
+        char w[160];
+        snprintf(w, sizeof w, "%s: PDUs graded%s", tag, side);
+        ck(w, st.pdus >= expect_pdus, 1);
+        snprintf(w, sizeof w, "%s: every event presented once, in order%s", tag, side);
+        ck(w, static_cast<unsigned long>(st.missing + st.repeated + st.disorder), 0);
+        snprintf(w, sizeof w, "%s: every event presented at its presentation time%s", tag, side);
+        ck(w, st.max_err < band(), 1);
     }
 
-    void report_law(const char* tag, const LawStats& st, long expect_n, long max_spread) {
-        printf("  %s: %ld PDUs, first-event delay min %ld max %ld mean %.1f cycles = %.3f..%.3f media ticks\n",
-               tag, st.n, st.dmin, st.dmax, st.dmean,
-               static_cast<double>(st.dmin) / kTickCycles, static_cast<double>(st.dmax) / kTickCycles);
-        printf("  %s: the law: %d < d/T <= %d (+%ld cycles of registration slack); setpoint %d events = %.2f us\n",
-               tag, kRenderSetpointEvt, kRenderSetpointEvt + 1, kBandSlackCycles,
-               kRenderSetpointEvt, kRenderSetpointEvt * 1e6 / 48000.0);
-        char w[128];
-        snprintf(w, sizeof w, "%s: PDUs measured in the window", tag);
-        ck(w, st.n >= expect_n, 1);
-        snprintf(w, sizeof w, "%s: every PDU's first event inside the law band", tag);
-        ck(w, st.in_band, st.n);
-        snprintf(w, sizeof w, "%s: the fill at accept is the setpoint for every PDU", tag);
-        ck(w, st.fill_ok, st.n);
-        snprintf(w, sizeof w, "%s: one constant: spread within %ld cycles", tag, max_spread);
-        ck(w, (st.dmax - st.dmin) <= max_spread, 1);
+    //! the stage's slip and refusal counters did not move since `c0`
+    void report_quiet(const char* tag, const char* across, const RqCounts& c0) {
+        const RqCounts c = rq_counts();
+        char w[160];
+        snprintf(w, sizeof w, "%s: no slip %s", tag, across);
+        ck(w, c.slips - c0.slips, 0);
+        snprintf(w, sizeof w, "%s: nothing refused %s", tag, across);
+        ck(w, (c.late - c0.late) + (c.early - c0.early) + (c.untimed - c0.untimed), 0);
     }
 
     // =================================================================== //
-    //  [RENDER-INT] the law at INTERNAL: the cadence IS the packet grid    //
+    //  [RENDER-INT] the law at INTERNAL, from the stream's first event     //
     // =================================================================== //
     void measure_the_render_law_at_internal() {
-        printf("\n[RENDER-INT] the render law at INTERNAL (A2-a: cadence = the physical grid the packet grid is held on)\n");
-        const uint32_t rails0 = dut->rootp->milan_datapath__DOT__rsp_rails_w;
-        const uint32_t under0 = dut->rootp->milan_datapath__DOT__rsp_underruns_w;
-        ck("RENDER-CSR: reset prefill", check_render_csr("prefill"), 0x100);
+        printf("\n[RENDER-INT] the presentation law at INTERNAL (A2-a: cadence = the physical grid the packet grid is held on)\n");
+        ck("RENDER-CSR: idle at reset, nothing queued", check_render_csr("reset"), 0x100);
+        const RqCounts c0 = rq_counts();
+        const long inj0 = injected;
+        const long acc0 = accepts;
+        const long first = aaf_seq;
         //! #629 A2-a: at INTERNAL too the packet grid is held on the physical
         //! grid, so a talker on this device's media clock runs at the
         //! physical cadence, as it does under CRF
         start_aaf_feed(kAafPhysFracNum);
-        //! ~0.12 s: 960 PDUs, and past the observer's 100-period dwell (100 ms
-        //! of the 100 MHz axis clock) once the prefill's three PDUs are out
+        //! ~0.12 s: 960 PDUs, past the observer's 100 ms dwell once the first
+        //! event is presented (92 frames, 1.9 ms, after the first PDU)
         const long RUN = 12000000;
         run_fed(10000);
-        const uint32_t filling = check_render_csr("filling");
-        ck("RENDER-CSR: fill nonzero during prefill", (filling & 0xFF) > 0, true);
-        ck("RENDER-CSR: prefill still held", (filling >> 8) & 1, 1);
+        const uint32_t queued = check_render_csr("queued");
+        ck("RENDER-CSR: frames queued ahead of the first presentation", (queued & 0xFF) > 0, true);
+        ck("RENDER-CSR: idle until the stream's first presentation time", (queued >> 8) & 1, 1);
         run_fed(RUN - 10000);
         const uint32_t converged = check_render_csr("converged");
         ck("RENDER-CSR: converged bit reached the word", (converged >> 9) & 1, 1);
-        ck("RENDER-CSR: prefill released", (converged >> 8) & 1, 0);
-        const long n = aaf_seq;              //! the next sequence = PDUs injected
+        ck("RENDER-CSR: presenting (idle clear)", (converged >> 8) & 1, 0);
         ck("RENDER-INT: every injected PDU was accepted",
-           static_cast<unsigned long>(accepts_seen), static_cast<unsigned long>(n));
-        const LawStats st = law_over(kLawSkipHead, static_cast<int>(n) - kLawSkipTail, kRenderSetpointEvt);
-        //! #629 A2-a: the align loop engaged at boot is still pulling the
-        //! packet grid onto the physical one in this window (up to the
-        //! keep-off, 256 cycles), so the sub-tick phase wanders as it does
-        //! under CRF: the integer fill and the band are the constant, and the
-        //! spread bound is the band width itself, RENDER-CRF's bound
-        report_law("RENDER-INT", st, 850, static_cast<long>(kTickCycles) + kBandSlackCycles);
-        ck("RENDER-INT: no rail inside the window",
-           dut->rootp->milan_datapath__DOT__rsp_rails_w - rails0, 0);
-        ck("RENDER-INT: no underrun inside the window",
-           dut->rootp->milan_datapath__DOT__rsp_underruns_w - under0, 0);
-        ck("RENDER-INT: converged", dut->rootp->milan_datapath__DOT__rsp_converged_w & 1, 1);
+           static_cast<unsigned long>(accepts - acc0), static_cast<unsigned long>(injected - inj0));
+        printf("  RENDER-INT: the frame period %.3f ns (the clock plan); the domain's events measured %.3f ns apart\n",
+               ps_phc, ps_meas);
+        report_law("RENDER-INT", "", law_over(first, aaf_seq - kLawSkipTail), 900);
+        report_quiet("RENDER-INT", "inside the window", c0);
+        ck("RENDER-INT: nothing handed over that no PDU of this leg carried", pres_unknown, 0);
+        ck("RENDER-INT: converged", dut->rootp->milan_datapath__DOT__rq_converged_w & 1, 1);
     }
 
     // =================================================================== //
     //  [RENDER-CRF] the law under CRF: cadence = the PHYSICAL grid         //
     // =================================================================== //
     void measure_the_render_law_under_crf() {
-        printf("\n[RENDER-CRF] the render law under CRF (cadence = the physical grid, 12500 + 52/391)\n");
-        //! the same stream, still running since the bind; only the records
-        //! restart here
-        start_aaf_feed(kAafPhysFracNum);
-        run_fed(2000000);                   // the observer's dwell
-        const uint32_t rails0 = dut->rootp->milan_datapath__DOT__rsp_rails_w;
-        const uint32_t under0 = dut->rootp->milan_datapath__DOT__rsp_underruns_w;
-        const int first = static_cast<int>(aaf_seq);   //! the first sequence of the window
+        printf("\n[RENDER-CRF] the presentation law under CRF (cadence = the physical grid, 12500 + 52/391)\n");
+        //! the same stream, running since the bind
+        const RqCounts c0 = rq_counts();
+        const long inj0 = injected;
+        const long acc0 = accepts;
+        const long first = aaf_seq;
         run_fed(15000000);                  // ~0.15 s: 1200 PDUs
-        const int n = static_cast<int>(aaf_seq);
         ck("RENDER-CRF: every injected PDU was accepted",
-           static_cast<unsigned long>(accepts_seen), static_cast<unsigned long>(n));
-        const LawStats st = law_over(first, n - kLawSkipTail, kRenderSetpointEvt);
-        //! the sub-tick phase may wander with the aligner's residual; the
-        //! integer fill and the band are the constant, so the spread bound
-        //! here is the band width itself
-        report_law("RENDER-CRF", st, 1100, static_cast<long>(kTickCycles) + kBandSlackCycles);
-        ck("RENDER-CRF: no rail inside the window",
-           dut->rootp->milan_datapath__DOT__rsp_rails_w - rails0, 0);
-        ck("RENDER-CRF: no underrun inside the window",
-           dut->rootp->milan_datapath__DOT__rsp_underruns_w - under0, 0);
+           static_cast<unsigned long>(accepts - acc0), static_cast<unsigned long>(injected - inj0));
+        report_law("RENDER-CRF", "", law_over(first - kLawSkipTail, aaf_seq - kLawSkipTail), 1150);
+        report_quiet("RENDER-CRF", "inside the window", c0);
         ck("RENDER-CRF: the aligner stayed engaged",
            dut->rootp->milan_datapath__DOT__mga_engaged_w, 1);
-        ck("RENDER-CRF: converged", dut->rootp->milan_datapath__DOT__rsp_converged_w & 1, 1);
+        ck("RENDER-CRF: converged", dut->rootp->milan_datapath__DOT__rq_converged_w & 1, 1);
     }
 
     // =================================================================== //
-    //  [RENDER-RC] a displaced fill, then ONE recentre on a PHC step       //
+    //  [RENDER-ARRIVE] the running feed arrives three ticks later, then    //
+    //  three earlier: the #386 law's fill moved with the arrival; the      //
+    //  timestamps, and so every presentation, do not                       //
+    // =================================================================== //
+    void prove_arrival_moves_nothing(const char* tag) {
+        printf("\n[%s] the running feed arrives three ticks later, then three earlier: no presentation moves\n", tag);
+        for (const int ticks : {+3, -3}) {
+            const char* side = ticks > 0 ? " (late)" : " (early)";
+            const RqCounts c0 = rq_counts();
+            shift_the_running_feed(static_cast<double>(ticks));
+            const long first = aaf_seq;
+            run_fed((25 + kLawSkipTail) * kAafPduPeriodCycles);
+            report_law(tag, side, law_over(first - kLawSkipTail, aaf_seq - kLawSkipTail), 40);
+            char across[48];
+            snprintf(across, sizeof across, "across the shift%s", side);
+            report_quiet(tag, across, c0);
+        }
+    }
+
+    // =================================================================== //
+    //  [RENDER-STEP] / [RENDER-SETTIME] a PHC step under the running       //
+    //  stream, the talker's time moved with it                             //
     // =================================================================== //
     //! one PHC adjtime through CLKV software (the plane-off step)
     void step_the_phc() {
@@ -1487,168 +1597,102 @@ class MediaGridAlignmentHarness {
         axi_write(A_PTP_CMD, 0x2);
     }
 
-    //! one displacement of `ticks` (late = positive: the fill falls short and
-    //! the recentre re-enters prefill; early = negative: the fill runs long
-    //! and the recentre SNAPS), then one PHC step, then the law again
-    void displace_then_step(const char* tag, int ticks, uint32_t rc0, long pulses0,
-                            uint32_t rails0, int recentres_so_far) {
-        char w[128];
-        const char* side = ticks > 0 ? "late" : "early";
-        // the displacement: every PDU from here on arrives `ticks` ticks later
-        shift_the_running_feed(static_cast<double>(ticks));
-        int first = static_cast<int>(aaf_seq);          //! windows are named by sequence
-        run_fed(25 * kAafPduPeriodCycles);
-        int n = static_cast<int>(aaf_seq);
-        LawStats st = law_over(first + 8, n - kLawSkipTail, kRenderSetpointEvt - ticks);
-        printf("  %s: displaced %d ticks %s: %ld PDUs, delay min %ld max %ld cycles = %.3f..%.3f ticks\n",
-               tag, ticks > 0 ? ticks : -ticks, side, st.n, st.dmin, st.dmax,
-               static_cast<double>(st.dmin) / kTickCycles, static_cast<double>(st.dmax) / kTickCycles);
-        snprintf(w, sizeof w, "%s: the instrument sees the %s displacement (fill at accept = setpoint %+d)",
-                 tag, side, -ticks);
-        ck(w, st.fill_is, st.n);
-        snprintf(w, sizeof w, "%s: ...and the delay left the law band (%s)", tag, side);
-        ck(w, st.in_band, 0);
-        snprintf(w, sizeof w, "%s: a three-tick displacement trips no rail (%s)", tag, side);
-        ck(w, dut->rootp->milan_datapath__DOT__rsp_rails_w - rails0, 0);
-        step_the_phc();
-        first = static_cast<int>(aaf_seq);
-        run_fed(25 * kAafPduPeriodCycles);
-        n = static_cast<int>(aaf_seq);
-        snprintf(w, sizeof w, "%s: the step reached the render stage as one pulse (%s)", tag, side);
-        ck(w, recentre_pulses - pulses0, recentres_so_far + 1);
-        snprintf(w, sizeof w, "%s: the recentre executed once (%s)", tag, side);
-        ck(w, dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, recentres_so_far + 1);
-        st = law_over(first + 8, n - kLawSkipTail, kRenderSetpointEvt);
-        snprintf(w, sizeof w, "%s: the recentre restored the law (fill at accept = setpoint) (%s)", tag, side);
-        ck(w, st.fill_ok, st.n);
-        snprintf(w, sizeof w, "%s: ...and the delay is back inside the band (%s)", tag, side);
-        ck(w, st.in_band, st.n);
-        // a hundred more PDUs: nothing drifts back, nothing recentres again
-        first = static_cast<int>(aaf_seq);
-        run_fed(100 * kAafPduPeriodCycles);
-        n = static_cast<int>(aaf_seq);
-        st = law_over(first, n - kLawSkipTail, kRenderSetpointEvt);
-        snprintf(w, sizeof w, "%s: counted once, never again (%s)", tag, side);
-        ck(w, dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, recentres_so_far + 1);
-        snprintf(w, sizeof w, "%s: no drift back: every later PDU at the setpoint (%s)", tag, side);
-        ck(w, st.fill_ok, st.n);
-        snprintf(w, sizeof w, "%s: no drift back: every later PDU inside the band (%s)", tag, side);
-        ck(w, st.in_band, st.n);
-        snprintf(w, sizeof w, "%s: the recentre is not a rail (%s)", tag, side);
-        ck(w, dut->rootp->milan_datapath__DOT__rsp_rails_w - rails0, 0);
-    }
-
-    void prove_the_recentre_is_one_shot(const char* tag) {
-        printf("\n[%s] shift the cadence three ticks late, then early; a PHC adjtime recentres ONCE each\n", tag);
-        const uint32_t rails0 = dut->rootp->milan_datapath__DOT__rsp_rails_w;
-        const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
-        const long pulses0 = recentre_pulses;
-        //! late: the queue at the PDU end is short, the recentre re-enters
-        //! prefill and the release snaps; early: the queue is long, the
-        //! recentre itself snaps (the branch a late shift never reaches)
-        displace_then_step(tag, +3, rc0, pulses0, rails0, 0);
-        displace_then_step(tag, -3, rc0, pulses0, rails0, 1);
-    }
-
-    //! A software settime is also one PHC re-base, through the live CSR path.
-    void prove_settime_recentres_once() {
+    //! A PDU has just gone out and its header is through when the step is
+    //! commanded, and the next domain event shows the step before the next
+    //! PDU is stamped: none is stamped in one time base and placed in the
+    //! other. PDUs queued before the step and stamped after it are graded
+    //! together; the frame count does not step and nothing re-centres.
+    void prove_the_step_moves_nothing(const char* tag, bool settime) {
         constexpr uint16_t A_PTP_CMD = 0x520;
-        const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
-        const long pulses0 = recentre_pulses;
-        // The reset load value is zero: command one absolute PHC settime.
-        axi_write(A_PTP_CMD, 0x1);
-        run_fed(25 * kAafPduPeriodCycles);
-        ck("RENDER-SETTIME: the settime reaches the stage as one pulse",
-           recentre_pulses - pulses0, 1);
-        ck("RENDER-SETTIME: the settime executes one render re-base",
-           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
-        run_fed(100 * kAafPduPeriodCycles);
-        ck("RENDER-SETTIME: no later re-base pulse",
-           recentre_pulses - pulses0, 1);
-        ck("RENDER-SETTIME: the render re-base remains counted once",
-           dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 1);
+        if (settime)
+            printf("\n[%s] a PHC settime (the reset load value, zero) under the running stream, the talker's time moved with it: no presentation moves\n", tag);
+        else
+            printf("\n[%s] a PHC adjtime of %u ns under the running stream, the talker's time moved with it: no presentation moves\n",
+                   tag, kPhcStepNs);
+        const RqCounts c0 = rq_counts();
+        const double steps0 = dom_steps_ns;
+        run_to_a_fresh_slot();
+        run_fed(256);
+        const double phc0 = static_cast<double>(dut->rootp->milan_datapath__DOT__ptp_now_w);
+        const long first = aaf_seq;
+        step_pending = true;
+        if (settime) axi_write(A_PTP_CMD, 0x1);
+        else         step_the_phc();
+        run_fed((25 + kLawSkipTail) * kAafPduPeriodCycles);
+        const double moved = dom_steps_ns - steps0;
+        //! the settime takes the PHC from its reading to zero
+        const double want = settime ? -phc0 : static_cast<double>(kPhcStepNs);
+        printf("  %s: the domain's instants moved %.0f ns (the command: %.0f ns)\n", tag, moved, want);
+        char w[160];
+        snprintf(w, sizeof w, "%s: the step reached the domain's instants", tag);
+        ck(w, !step_pending && std::fabs(moved - want) < 1000.0, 1);
+        report_law(tag, "", law_over(first - kLawSkipTail, aaf_seq - kLawSkipTail), 40);
+        report_quiet(tag, "across the step", c0);
+        snprintf(w, sizeof w, "%s: presenting throughout (converged)", tag);
+        ck(w, dut->rootp->milan_datapath__DOT__rq_converged_w & 1, 1);
     }
 
     // =================================================================== //
-    //  [RENDER-LIVE] the running feed is moved past a tick: the grid-moved  //
-    //  equivalent the review probed. `later` = the grid later (fill one     //
-    //  long, delay above the band); otherwise the grid earlier (fill one    //
-    //  short, delay below the band). No rail, converged, nothing recentres. //
+    //  [RENDER-REFUSE] a PDU for each rule, between two of the running     //
+    //  stream's: counted once each, never presented                        //
     // =================================================================== //
-    void move_the_running_feed_past_a_tick(const char* tag, bool later) {
-        printf("\n[%s] the running feed moved past a tick (the grid moved %s): one event off, no recovery\n",
-               tag, later ? "later" : "earlier");
-        char w[128];
-        const uint32_t rails0 = dut->rootp->milan_datapath__DOT__rsp_rails_w;
-        const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
-        const uint32_t conv0 = dut->rootp->milan_datapath__DOT__rsp_converged_w & 1;
-        // the phase the stream sits at now, from a short settled window
-        int first = static_cast<int>(aaf_seq);
-        run_fed(25 * kAafPduPeriodCycles);
-        LawStats st = law_over(first + 4, static_cast<int>(aaf_seq) - kLawSkipTail, kRenderSetpointEvt);
-        const double phase = accept_phase_ticks(st);
-        //! a grid moved later by d is the feed moved earlier by d: the delay
-        //! grows by d, and it leaves the band exactly when a tick crosses the
-        //! accept instant. Aim 0.3 tick past the boundary either way.
-        const double shift = later ? -(1.3 - phase) : (phase + 0.3);
-        printf("  %s: accept phase %.3f tick; the feed moves %.3f ticks %s\n",
-               tag, phase, shift < 0 ? -shift : shift, shift < 0 ? "earlier" : "later");
-        snprintf(w, sizeof w, "%s: the stream sat at the setpoint before the move", tag);
-        ck(w, st.fill_ok, st.n);
-        shift_the_running_feed(shift);
-        first = static_cast<int>(aaf_seq);
-        run_fed(25 * kAafPduPeriodCycles);
-        const int expect = later ? kRenderSetpointEvt + 1 : kRenderSetpointEvt - 1;
-        st = law_over(first + 8, static_cast<int>(aaf_seq) - kLawSkipTail, expect);
-        printf("  %s: moved: %ld PDUs, delay min %ld max %ld cycles = %.3f..%.3f ticks\n",
-               tag, st.n, st.dmin, st.dmax,
-               static_cast<double>(st.dmin) / kTickCycles, static_cast<double>(st.dmax) / kTickCycles);
-        snprintf(w, sizeof w, "%s: the fill at accept is one event %s for every PDU", tag,
-                 later ? "long" : "short");
-        ck(w, st.fill_is, st.n);
-        snprintf(w, sizeof w, "%s: ...and the delay left the law band", tag);
-        ck(w, st.in_band, 0);
-        snprintf(w, sizeof w, "%s: one event off trips no rail", tag);
-        ck(w, dut->rootp->milan_datapath__DOT__rsp_rails_w - rails0, 0);
-        snprintf(w, sizeof w, "%s: nothing recentred it", tag);
-        ck(w, dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0, 0);
-        //! one event off is inside the convergence band: the observer keeps
-        //! whatever it reported (a recentre just before this phase may have
-        //! restarted its dwell; the move itself clears nothing)
-        snprintf(w, sizeof w, "%s: the move left the convergence verdict as it was", tag);
-        ck(w, dut->rootp->milan_datapath__DOT__rsp_converged_w & 1, conv0);
+    void prove_refused_pdus() {
+        printf("\n[RENDER-REFUSE] a late PDU, a too-early one and one without tv, each between two of the running stream's: each counted once, none presented\n");
+        const RqCounts c0 = rq_counts();
+        const uint32_t word0 = check_render_csr("before the refused PDUs");
+        const long shown0 = pres_refused;
+        const long first = aaf_seq;
+        //! each a third of a period after one of the stream's PDUs.
+        //! IEEE 1722-2016 4.4.4.9: ten frames in the past at its arrival
+        run_to_a_fresh_slot();
+        run_fed(kAafPduPeriodCycles / 3);
+        send_refused_aaf(e_free() - kLateFrames * ps_phc, true);
+        //! 200 frames ahead: past the queue's rows
+        run_to_a_fresh_slot();
+        run_fed(kAafPduPeriodCycles / 3);
+        send_refused_aaf(e_free() + kEarlyFrames * ps_phc, true);
+        //! tv = 0 (4.4.4.7: the timestamp is not valid) over a stamp on
+        //! frames the stream holds: placed by it, it would overwrite them
+        run_to_a_fresh_slot();
+        run_fed(kAafPduPeriodCycles / 3);
+        send_refused_aaf(e_free() + 0.5 * static_cast<double>(kPresLeadFrames) * ps_phc, false);
+        run_fed((25 + kLawSkipTail) * kAafPduPeriodCycles);
+        const RqCounts c = rq_counts();
+        ck("RENDER-REFUSE: the late PDU counted once in late_o", c.late - c0.late, 1);
+        ck("RENDER-REFUSE: the too-early PDU counted once in early_o", c.early - c0.early, 1);
+        ck("RENDER-REFUSE: the PDU without tv counted once in untimed_o", c.untimed - c0.untimed, 1);
+        ck("RENDER-REFUSE: no refused PDU presented", static_cast<unsigned long>(pres_refused - shown0), 0);
+        ck("RENDER-REFUSE: no slip", c.slips - c0.slips, 0);
+        const uint32_t word = check_render_csr("refused");
+        ck("RENDER-REFUSE: RENDER_STAT's refused field counts the late and the too-early PDU",
+           (word >> 16) - (word0 >> 16), 2);
+        ck("RENDER-REFUSE: a refused PDU leaves the stream converged", (word >> 9) & 1, 1);
+        report_law("RENDER-REFUSE", "", law_over(first - kLawSkipTail, aaf_seq - kLawSkipTail), 40);
     }
 
     // =================================================================== //
     //  [RENDER-LIVE-CRF] judged after the CRF phase: the selection under    //
-    //  the running stream fired ONE settled-grid recentre during the        //
-    //  pull-in, and every PDU of the aligned window is at the setpoint.     //
+    //  the running stream moved no presentation                             //
     // =================================================================== //
-    void prove_the_live_selection_recentred_once(long expect_n) {
-        printf("\n[RENDER-LIVE-CRF] the CRF selection under the running stream: one recentre once the grid settled\n");
-        ck("RENDER-LIVE-CRF: the selection fired the settled-grid trigger once",
-           src_recentre_pulses - live_src0, 1);
-        ck("RENDER-LIVE-CRF: ...as one recentre pulse", recentre_pulses - live_pulses0, 1);
-        ck("RENDER-LIVE-CRF: the recentre executed once",
-           dut->rootp->milan_datapath__DOT__rsp_recentres_w - live_rc0, 1);
-        const LawStats st = law_over(static_cast<int>(live_first_seq),
-                                     static_cast<int>(live_last_seq) - kLawSkipTail, kRenderSetpointEvt);
-        report_law("RENDER-LIVE-CRF", st, expect_n, static_cast<long>(kTickCycles) + kBandSlackCycles);
-        ck("RENDER-LIVE-CRF: converged", dut->rootp->milan_datapath__DOT__rsp_converged_w & 1, 1);
+    void prove_the_live_selection_moved_nothing(long expect_n) {
+        printf("\n[RENDER-LIVE-CRF] the CRF selection under the running stream: no presentation moved\n");
+        report_quiet("RENDER-LIVE-CRF", "across the selection", live_c0);
+        report_law("RENDER-LIVE-CRF", "",
+                   law_over(live_sel_seq - kLawSkipTail, live_last_seq - kLawSkipTail), expect_n);
+        ck("RENDER-LIVE-CRF: converged", dut->rootp->milan_datapath__DOT__rq_converged_w & 1, 1);
     }
 
     // =================================================================== //
-    //  --live-only: the mutation arm's short leg for the datapath trigger.  //
-    //  Bind, lock, move the feed past a tick, select CRF under the stream,  //
-    //  wait out the settle, judge one window.                               //
+    //  --live-only: the mutation arm's short leg for the datapath's source  //
+    //  change. Bind, present, select CRF under the stream, wait out the     //
+    //  pull-in, judge every PDU since the selection.                        //
     // =================================================================== //
     int run_live_only() {
         bring_out_of_reset();
         bind_listener_zero_over_acmp();
-        printf("\n[RENDER-INT] a short lock (the --live-only leg)\n");
+        printf("\n[RENDER-INT] the stream presenting (the --live-only leg)\n");
         start_aaf_feed(kAafPhysFracNum);
         run_fed(3000000);
-        move_the_running_feed_past_a_tick("RENDER-LIVE", true);
         printf("\n[CRF] the stored selection goes to this shape's CRF index (%u),"
                " the feed running\n", static_cast<unsigned>(kCrfClksrcIx));
         constexpr uint16_t A_MAC_ALO = 0x108;
@@ -1662,25 +1706,21 @@ class MediaGridAlignmentHarness {
         axi_write(A_CRF_SIDLO, 0x00020001);
         axi_write(A_CRF_SIDHI, 0x02000000);
         axi_write(A_CRF_CTRL,  0x1);
-        live_rc0     = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
-        live_pulses0 = recentre_pulses;
-        live_src0    = src_recentre_pulses;
+        live_c0      = rq_counts();
+        live_sel_seq = aaf_seq;
         poke_clksrc(kCrfClksrcIx);
         aaf_frac_num = kAafPhysFracNum;
         next_pdu_at = axis_cycle;
         crf_on = true;
         run_fed(2000000);
         ck("CRF: sink locked (8 clean PDUs)", axi_read(A_CRF_CTRL) >> 31, 1);
-        //! the aligner engages within a frame and its error rests inside the
-        //! trigger's band once the proportional peak has passed; the dwell
-        //! is 2048 ticks (43 ms), so 12 M cycles cover the pull-in
+        //! the aligner engages within a frame; 12 M cycles cover its pull-in
         run_fed(12000000);
         ck("CRF: align loop engaged on the physical frame marker",
            dut->rootp->milan_datapath__DOT__mga_engaged_w, 1);
-        live_first_seq = aaf_seq;
         run_fed(3000000);
         live_last_seq = aaf_seq;
-        prove_the_live_selection_recentred_once(200);
+        prove_the_live_selection_moved_nothing(1300);
         aaf_on = false;
         return report();
     }
@@ -1696,6 +1736,7 @@ class MediaGridAlignmentHarness {
 int MediaGridAlignmentHarness::run() {
     const milan::tb::Model<Vmilan_datapath> model;
     dut = model.get();
+    id_seq.fill(-1);
 
     printf("======================================================================\n");
     printf("media-grid alignment at the TRUE ratio: clk_audio = axis * %ld/%ld\n",
@@ -1709,57 +1750,44 @@ int MediaGridAlignmentHarness::run() {
     bind_listener_zero_over_acmp();
     measure_the_render_law_at_internal();
     if (render_csr_only) {
-        prove_render_csr_rail();
+        prove_refused_pdus();
+        check_render_csr_selection();
         aaf_on = false;
         bring_out_of_reset();
-        ck("RENDER-CSR: reset clears rail and convergence", check_render_csr("reset again"), 0x100);
+        ck("RENDER-CSR: reset clears the word to idle", check_render_csr("reset again"), 0x100);
         return report();
     }
-    prove_the_recentre_is_one_shot("RENDER-RC-INT");
-    prove_settime_recentres_once();
-    //! --render-only: the mutation arm's leg - the law and the recentre at
-    //! INTERNAL are what the stage's mutants must break, and the grid phases
-    //! below are the expensive half of this binary
+    prove_arrival_moves_nothing("RENDER-ARRIVE-INT");
+    prove_the_step_moves_nothing("RENDER-STEP-INT", false);
+    prove_the_step_moves_nothing("RENDER-SETTIME", true);
+    prove_refused_pdus();
+    //! --render-only: the mutation arm's leg - the law, the arrival, the
+    //! steps and the refusals at INTERNAL are what the stage's mutants must
+    //! break, and the grid phases below are the expensive half of this
+    //! binary
     if (render_only) { aaf_on = false; return report(); }
 
-    //! the stream now stays LIVE through the grid phases: moved one event
-    //! off here, carried through the INTERNAL measurement, and judged after
-    //! the CRF selection re-centred it. #390's ring phases run AFTER the
-    //! move: they re-aim the feed and stimulate the audio clock, so the
-    //! move's own "sat at the setpoint before the move" window has to be
-    //! measured before they touch it, and the selection's recentre is what
-    //! restores the law afterwards (RENDER-LIVE-CRF grades that).
-    //! What that order COSTS, measured rather than assumed: the ring phases
-    //! drain and re-prime the feed and then let it drift a whole ring window
-    //! at INTERNAL, so the stream reaches the CRF selection one event SHORT
-    //! of the setpoint (fill 7 of 8 at accept over the last 40 PDUs), not the
-    //! one event LONG the move set up. RENDER-LIVE-CRF on this leg therefore
-    //! grades the recentre's prefill-re-entry branch; the long-queue snap
-    //! under a live selection is graded by --live-only, the short leg
-    //! render_mutants.py runs. Neither loses its teeth: the datapath mutant
-    //! that drops the clock-source trigger from the recentre set fails the
-    //! fill law on this leg. And the order is not free to reverse: with the
-    //! ring phases placed BEFORE the move, RENDER-LIVE's own "the stream sat
-    //! at the setpoint before the move" fails.
-    move_the_running_feed_past_a_tick("RENDER-LIVE", true);
+    //! the stream now stays LIVE through the grid phases: #390's ring phases
+    //! pause and re-aim it (its timeline runs on, a shorter lead after each
+    //! pause), and the CRF selection and the deselect inside the mr phase
+    //! are made under it, each judged across the change
     prove_the_loop_ring_rides_one_grid_at_internal();
     double ppm_int = 0.0;
     if (!measure_the_internal_alignment(ppm_int)) return 1;
     select_crf_and_prove_the_grids_align(ppm_int);
-    prove_the_live_selection_recentred_once(1100);
+    prove_the_live_selection_moved_nothing(4800);
     measure_the_render_law_under_crf();
-    prove_the_recentre_is_one_shot("RENDER-RC-CRF");
-    //! #390's CRF ring window: the grids are aligned and the render law has
-    //! just been measured on them, so the ring is graded before the feed is
-    //! moved off the setpoint again for the deselect below
+    prove_arrival_moves_nothing("RENDER-ARRIVE-CRF");
+    prove_the_step_moves_nothing("RENDER-STEP-CRF", false);
+    //! #390's CRF ring window: the grids are aligned and the presentation
+    //! law has just been measured on them
     prove_the_loop_ring_rides_one_grid_under_crf();
-    //! ...and the other way for the deselect inside the mr phase
-    move_the_running_feed_past_a_tick("RENDER-LIVE", false);
+    //! ...and the deselect inside the mr phase
     prove_the_mr_toggle_echoes_only_under_crf();
     //! #629 A2-a: the induced junction slips move the frame marker under an
     //! engaged loop, so they come last
     prove_the_slip_words_follow_their_taps();
-    prove_render_csr_rail();
+    check_render_csr_selection();
     aaf_on = false;
 
     return report();
