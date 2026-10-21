@@ -1821,8 +1821,10 @@ class NxnDatapathHarness {
     //    G7  a changed FailureInformation changes that sink alone, once;
     //    G8  withdrawal pushes twice per controller: registrar withdrawal,
     //        then settlement teardown to PASSIVE, both with cleared failure;
-    //    G9  STOP_STREAMING pushes its own response, never GET_STREAM_INFO,
-    //        and never to the requester (Milan 5.4.5.2);
+    //    G9  STOP_STREAMING pushes its own response, never to the requester
+    //        (Milan 5.4.5.2), and its started/stopped change one
+    //        GET_STREAM_INFO to each controller, the requester included
+    //        (Table 5.22, 5.4.5.1; processor issue #192);
     //    G10 a reset returns both sinks to DISABLED with nothing carried.
     //  Each named change pushes once to both registered controllers; G8 has
     //  two changes and grades both pushes to each controller. Its first push
@@ -2382,7 +2384,7 @@ class NxnDatapathHarness {
                        kGsiBridgeB, kGsiCodeB);
     }
 
-    // ---- G9: STOP_STREAMING owns its own push ------------------------------
+    // ---- G9: STOP_STREAMING's own push, and its started/stopped change ----
     void gsi_g9_stop_streaming_excludes_the_requester() {
         notify_clear();
         const std::vector<uint8_t> key = {0x00, 0x05, 0x00, 0x01};
@@ -2391,7 +2393,9 @@ class NxnDatapathHarness {
         gsi_ms(kGsiWinMs);
         ck("[GSI] G9 ...pushes STOP_STREAMING to B", notify_count(0x0023, &CTL_B, 0x0005, 1), 1);
         ck("[GSI] G9 ...and not to A, the requester", notify_count(0x0023, &CTL_A, 0x0005, 1), 0);
-        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped (no GET_STREAM_INFO push)", 1, 0);
+        //! the GET_STREAM_INFO answers no command, so A, the requester,
+        //! receives it too (Milan 5.4.5.1, processor issue #192)
+        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped", 1, 1);
         ck("[GSI] G9 sink 1 stopped: STREAMING_WAIT", gsi_flag(g, 45, 0x08), 1);
         gsi_ck_state("[GSI] G9 sink 1 stopped", g, kPbCompleted, 0);
     }

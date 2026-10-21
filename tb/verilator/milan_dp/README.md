@@ -655,7 +655,7 @@ The processor's response tests own isolated latency-change coverage.
 | G6 | the same Talker Failed, refreshed | no push |
 | G7 | sink 1's FailureInformation changes | one push for sink 1, new values; sink 0 untouched |
 | G8 | sink 0's Talker Failed is withdrawn | exactly two pushes per controller: registrar withdrawal, then settlement teardown; both PASSIVE with cleared failure fields; sink 1 quiet |
-| G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A gets nothing, nobody gets GET_STREAM_INFO |
+| G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A does not; A and B each get one GET_STREAM_INFO for sink 1, carrying STREAMING_WAIT (processor #192) |
 | G10 | a reset | both sinks DISABLED with nothing carried |
 
 Each named change pushes one GET_STREAM_INFO to each controller.
