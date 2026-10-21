@@ -24,7 +24,7 @@
 module render_wrap #(
   parameter int unsigned CLK_HZ_P   = 50_000_000,
   parameter int unsigned AUD_HZ_P   = 24_576_000,
-  parameter int unsigned PAY_LEAD_P = 16
+  parameter int unsigned PAY_LEAD_CYC_P = 16
 )(
   input  wire         clk_i,
   input  wire         rst_n,
@@ -32,7 +32,7 @@ module render_wrap #(
   input  wire  [63:0] ptp_now_i,
   //! the depacketizer read side the harness plays
   input  wire         hdr_p_i,
-  input  wire  [31:0] hdr_ts_i,
+  input  wire  [31:0] hdr_ts_ns_i,
   input  wire         hdr_tv_i,
   input  wire  [63:0] s_tdata_i,
   input  wire         s_tvalid_i,
@@ -130,10 +130,10 @@ module render_wrap #(
     .N_STREAMS_P (N_STREAMS_C), .N_CH_P (N_CH_C), .FS_HZ_P (FS_C),
     .MAX_HOLD_NS_P (2_126_000), .EV_LAT_NS_P (A_LAT_C), .N_IF_P (2),
     .IF_LEAD_P ({16'd0, 8'(B_LEAD_C), 8'(A_LEAD_C)}),
-    .PAY_LEAD_P (PAY_LEAD_P), .CLK_FREQ_HZ_P (CLK_HZ_P)
+    .PAY_LEAD_CYC_P (PAY_LEAD_CYC_P), .CLK_FREQ_HZ_P (CLK_HZ_P)
   ) u_q (
     .clk_i (clk_i), .rst_n (rst_n),
-    .hdr_p_i (hdr_p_i), .hdr_ts_i (hdr_ts_i), .hdr_tv_i (hdr_tv_i),
+    .hdr_p_i (hdr_p_i), .hdr_ts_ns_i (hdr_ts_ns_i), .hdr_tv_i (hdr_tv_i),
     .s_tdata_i (s_tdata_i), .s_tvalid_i (s_tvalid_i), .s_tlast_i (s_tlast_i),
     .s_tuser_i (s_tuser_i), .wire_chans_i ({N_STREAMS_C{4'd8}}),
     .ev_p_i (ev_p_w), .ev_ns_i (ev_ns_w[31:0]), .flush_i ('0),

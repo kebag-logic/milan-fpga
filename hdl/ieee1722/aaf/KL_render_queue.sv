@@ -98,7 +98,17 @@
                 together; frames already queued keep their rows (they were
                 placed by the old time base, and the frame count does not
                 step). A PDU stamped in one time base and placed in the other
-                lands late or early and is counted there. Nothing re-centres.
+                lands where its stamp says against the new one: late or too
+                early when the step reaches past the queue, counted there;
+                otherwise on frames off by the step, a gap or an overlap
+                counted in slips_o. Nothing re-centres.
+
+                HOLD. A hold of the frame grid (a stopped serial clock, a
+                media-clock holdover) delays the frames already queued by the
+                hold: their rows keep their frame numbers. The stream's later
+                PDUs, placed against the moved grid, take over within the
+                queue's lead, and the snapping leaves one gap or overlap,
+                counted in slips_o.
 
                 FLUSH (bind loss) and reset invalidate every row of the
                 stream (a walker on the write ports' idle cycles); its writes
@@ -150,7 +160,7 @@ module KL_render_queue #(
   parameter logic [31:0] IF_LEAD_P     = 32'h0000_0002, //! byte i: K_i,
                                               //! interface i's out-lead in
                                               //! frames (>= 1)
-  parameter int unsigned PAY_LEAD_P    = 16,  //! cycles the depacketizer
+  parameter int unsigned PAY_LEAD_CYC_P = 16, //! cycles the depacketizer
                                               //! guarantees from hdr_p_i
                                               //! to the PDU's first beat
   parameter int unsigned CLK_FREQ_HZ_P = 100_000_000 //! clk_i, Hz (the
@@ -165,7 +175,7 @@ module KL_render_queue #(
                                                  //! are on the next two
                                                  //! inputs; its payload
                                                  //! follows
-  input  wire [31:0]               hdr_ts_i,     //! avtp_timestamp, ns
+  input  wire [31:0]               hdr_ts_ns_i,  //! avtp_timestamp, ns
   input  wire                      hdr_tv_i,     //! tv
 
   //! --- depacketizer payload clone (accepted beats, never backpressured) --
@@ -296,8 +306,8 @@ module KL_render_queue #(
   end : g_chk_div
   //! the header's frame is known QW_C + 2 cycles after hdr_p_i: one to take
   //! d, one to triple it, one per quotient bit
-  if (PAY_LEAD_P < QW_C + 2) begin : g_chk_lead_cyc
-    $error("KL_render_queue: PAY_LEAD_P=%0d is under the %0d cycles the header's frame takes", PAY_LEAD_P, QW_C + 2);
+  if (PAY_LEAD_CYC_P < QW_C + 2) begin : g_chk_lead_cyc
+    $error("KL_render_queue: PAY_LEAD_CYC_P=%0d is under the %0d cycles the header's frame takes", PAY_LEAD_CYC_P, QW_C + 2);
   end : g_chk_lead_cyc
   if (CLK_FREQ_HZ_P < 2000) begin : g_chk_clk
     $error("KL_render_queue: CLK_FREQ_HZ_P=%0d cannot divide to a millisecond observer period", CLK_FREQ_HZ_P);
@@ -373,7 +383,7 @@ module KL_render_queue #(
   logic            tri_r;      //! rem_r still holds d, to be tripled
   logic [FW_C-1:0] f0_r;       //! the header's frame number, then F0
 
-  wire signed [31:0] d_w      = signed'(hdr_ts_i - ev_ns_i);
+  wire signed [31:0] d_w      = signed'(hdr_ts_ns_i - ev_ns_i);
   wire               d_late_w = d_w[31];
   wire               d_far_w  = !d_w[31] && (64'(unsigned'(d_w)) >= DEARLY_L);
   //! the constant of step k: Ps << k, in thirds of a nanosecond

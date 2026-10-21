@@ -40,9 +40,9 @@
                 tv bit and avtp_timestamp (IEEE 1722-2016 4.4.4.9, 7.5) and
                 pulses hdr_p_o with them on the beat that completes the
                 timestamp, before the frame's payload. The payload's first
-                beat then waits until PAY_LEAD_P cycles after that pulse, so
+                beat then waits until PAY_LEAD_CYC_P cycles after that pulse, so
                 a consumer can place the PDU by its timestamp before its
-                first sample arrives (KL_render_queue). PAY_LEAD_P = 0 adds
+                first sample arrives (KL_render_queue). PAY_LEAD_CYC_P = 0 adds
                 no wait.
 
   Company     : Kebag Logic
@@ -71,7 +71,7 @@
 
 module KL_aaf_rx_depacketizer #(
   parameter int FIFO_DEPTH_BYTES = 2048,  //! frame FIFO depth (BRAM)
-  parameter int PAY_LEAD_P       = 0      //! cycles from hdr_p_o to the
+  parameter int PAY_LEAD_CYC_P   = 0      //! cycles from hdr_p_o to the
                                           //! frame's first payload beat,
                                           //! at least (0: no wait)
 )(
@@ -293,7 +293,7 @@ module KL_aaf_rx_depacketizer #(
 
   //! final beat needs no FIFO word when the tail fits inside the hold
   wire hold_only_w = (rstate_r == R_PAY_S) && (remain_r <= 16'(k_w));
-  //! the payload waits out PAY_LEAD_P cycles from the timestamp's pulse
+  //! the payload waits out PAY_LEAD_CYC_P cycles from the timestamp's pulse
   logic lead_ok_w;
   wire emit_w      = (rstate_r == R_PAY_S) && lead_ok_w && (hold_only_w || ff_valid);
   wire last_beat_w = (remain_r <= 16'd8);
@@ -350,16 +350,18 @@ module KL_aaf_rx_depacketizer #(
                            : {fbyte(ff_data, 3'd2), fbyte(ff_data, 3'd3),
                               fbyte(ff_data, 3'd4), fbyte(ff_data, 3'd5)};
 
-  generate if (PAY_LEAD_P > 0) begin : g_lead
-    localparam int LW_C = $clog2(PAY_LEAD_P + 1);
+  generate if (PAY_LEAD_CYC_P > 0) begin : g_lead
+    localparam int LW_C = $clog2(PAY_LEAD_CYC_P + 1);
     logic [LW_C-1:0] lead_r;          //! cycles still to wait
     always_ff @(posedge clk_i) begin : lead_count
       if (!rst_n)            lead_r <= '0;
-      else if (hdr_beat_w)   lead_r <= LW_C'(PAY_LEAD_P - 1);
+      else if (hdr_beat_w)   lead_r <= LW_C'(PAY_LEAD_CYC_P - 1);
       else if (lead_r != '0) lead_r <= lead_r - 1'b1;
     end : lead_count
-    //! the pulse's own cycle counts as the first of the lead
-    assign lead_ok_w = (lead_r == '0) && !hdr_beat_w;
+    //! the pulse's own cycle counts as the first of the lead: the header
+    //! is still being read on it, so no payload beat can leave then, and
+    //! the gate reads the count alone (no path back through the pop)
+    assign lead_ok_w = (lead_r == '0);
   end else begin : g_no_lead
     assign lead_ok_w = 1'b1;
   end endgenerate

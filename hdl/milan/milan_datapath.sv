@@ -6545,7 +6545,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [31:0] dpkt_hdr_ts_w;
   wire        dpkt_hdr_tv_w;
   KL_aaf_rx_depacketizer #(
-    .PAY_LEAD_P (RENDER_PAY_LEAD_C)
+    .PAY_LEAD_CYC_P (RENDER_PAY_LEAD_C)
   ) aaf_rx_depkt (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! pre-filter tap - see avtp_rx_parser note
@@ -6984,19 +6984,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end : g_render_status
 
   KL_render_queue #(
-    .N_STREAMS_P   (N_STREAMS),
-    .N_CH_P        (RX_WIRE_CHANS_C),
-    .FS_HZ_P       (AUDIO_IF_FS_HZ_P),
-    .MAX_HOLD_NS_P (2_126_000),
-    .EV_LAT_NS_P   (DOM_MARK_LAT_NS_C),
-    .N_IF_P        (1),
-    .IF_LEAD_P     (32'(RENDER_LEAD_C)),
-    .PAY_LEAD_P    (RENDER_PAY_LEAD_C),
-    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ)
+    .N_STREAMS_P    (N_STREAMS),
+    .N_CH_P         (RX_WIRE_CHANS_C),
+    .FS_HZ_P        (AUDIO_IF_FS_HZ_P),
+    .MAX_HOLD_NS_P  (2_126_000),
+    .EV_LAT_NS_P    (DOM_MARK_LAT_NS_C),
+    .N_IF_P         (1),
+    .IF_LEAD_P      (32'(RENDER_LEAD_C)),
+    .PAY_LEAD_CYC_P (RENDER_PAY_LEAD_C),
+    .CLK_FREQ_HZ_P  (MILAN_CLK_FREQ_HZ)
   ) render_queue (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .hdr_p_i      (dpkt_hdr_p_w),
-    .hdr_ts_i     (dpkt_hdr_ts_w),
+    .hdr_ts_ns_i  (dpkt_hdr_ts_w),
     .hdr_tv_i     (dpkt_hdr_tv_w),
     //! the clone the crossbar consumed directly before #386: accepted
     //! beats, never backpressured

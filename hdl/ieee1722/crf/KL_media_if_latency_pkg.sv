@@ -149,8 +149,8 @@ package KL_media_if_latency_pkg;
   function automatic longint out_pipe_ns(input int rank, input int streams, input int pairs,
                                          input int slots, input longint axis_hz,
                                          input longint ser_hz, input bit longest);
-    return cyc_ns(longint'((rank + 1) * streams * pairs + 3 + 1 + slots + 2) +
-                  (longest ? 64'd1 : 64'd0), axis_hz) +
+    return cyc_ns((longint'(rank) + 64'd1) * longint'(streams) * longint'(pairs) + 64'd3 +
+                  64'd1 + longint'(slots) + 64'd2 + (longest ? 64'd1 : 64'd0), axis_hz) +
            cyc_ns(longest ? 64'd6 : 64'd3, ser_hz);
   endfunction
 

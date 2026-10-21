@@ -68,7 +68,7 @@ constexpr double kHalfAFs = 0.5 * 1e15 / kAudHz;
 constexpr double kPsActNs = 512.0 * 1e9 / kAudHz;
 //! the nearest-frame grade: the pin instant against the timestamp less phi
 constexpr double kSnapNs = 100.0;
-constexpr int kPayLead = 16;      //!< render_wrap's PAY_LEAD_P
+constexpr int kPayLead = 16;      //!< render_wrap's PAY_LEAD_CYC_P
 constexpr int kEvents = 6;
 constexpr int kChans = 8;
 
@@ -167,6 +167,26 @@ class RenderHarness {
         const double start = now_ns();
         // the first PDU presents 130 frames (2.7 ms) after now
         const long f0 = 130;
+        plan_the_two_streams(start, f0);
+        plan_the_lone_pdus(f0 + 10);
+        std::stable_sort(pdus_.begin(), pdus_.end(),
+                         [](const Pdu& x, const Pdu& y) { return x.send_ns < y.send_ns; });
+        // every sample's presentation time is its PDU's timestamp plus one
+        // period per event
+        for (const Pdu& p : pdus_) {
+            for (int k = 0; k < kEvents; k++) {
+                pt_[{p.stream, p.seq0 + k}] = p.ts_ns + k * kPsActNs;
+                phi_[{p.stream, p.seq0 + k}] = p.phi;
+            }
+        }
+        first_frame_ = f0;
+        std::printf("  info: %zu PDUs, frames %ld..%ld, A out-lead %d, B out-lead %d\n", pdus_.size(),
+                    first_frame_, last_frame_, dut_->a_lead_o, dut_->b_lead_o);
+    }
+
+    //! streams 0 and 1, from frame f0 on, through the phases of hold and of
+    //! phase
+    void plan_the_two_streams(double start, long f0) {
         //! hold: the PDU's first event's lead at its arrival; its last event
         //! is held five periods longer
         const double last = (kEvents - 1) * kPsNs;
@@ -181,8 +201,7 @@ class RenderHarness {
             {16, 0.1e6, 0.0},           // first event 0.1 ms ahead: the short end
         }};
         long frame = f0;
-        long seq[3] = {1, 1, 1};
-        double sent[2] = {start, start};
+        std::array<double, 2> sent{start, start};
         for (const Phase& ph : phases) {
             for (int j = 0; j < ph.pdus; j++) {
                 for (int s = 0; s < 2; s++) {
@@ -191,12 +210,13 @@ class RenderHarness {
                     p.frame = frame;
                     p.phi = ph.phi_ps * kPsNs;
                     p.ts_ns = grid_ns(frame) + p.phi;
-                    p.seq0 = seq[s];
-                    seq[s] += kEvents;
+                    p.seq0 = seq_next_[static_cast<size_t>(s)];
+                    seq_next_[static_cast<size_t>(s)] += kEvents;
                     //! a stream's PDUs leave in order, a microsecond apart at
                     //! least, stream 1 three microseconds after stream 0
-                    p.send_ns = std::max(p.ts_ns - ph.hold_ns + 3.0e3 * s, sent[s] + 1e3);
-                    sent[s] = p.send_ns;
+                    p.send_ns = std::max(p.ts_ns - ph.hold_ns + 3.0e3 * s,
+                                         sent[static_cast<size_t>(s)] + 1e3);
+                    sent[static_cast<size_t>(s)] = p.send_ns;
                     pdus_.push_back(p);
                     for (int k = 0; k < kEvents; k++) {
                         if (s == 0) exp_a_[{s, frame + k}] = p.seq0 + k;
@@ -207,11 +227,15 @@ class RenderHarness {
             }
         }
         last_frame_ = frame - 1;
-        // stream 2: one lone PDU per 150 frames, sent half a frame after the
-        // domain event of grid frame m (its pulse comes ev_lat after m's
-        // instant), its timestamp on grid frame m + delta. At that instant
-        // the latest event is m's and every interface has consumed frame
-        // m + K_A = m + 2, so event k names frame m + delta + k
+    }
+
+    //! stream 2 from grid frame m on: one lone PDU per 150 frames, sent half
+    //! a frame after the
+    //! domain event of grid frame m (its pulse comes ev_lat after m's
+    //! instant), its timestamp on grid frame m + delta. At that instant the
+    //! latest event is m's and every interface has consumed frame
+    //! m + K_A = m + 2, so event k names frame m + delta + k
+    void plan_the_lone_pdus(long m) {
         const double mid = ev_lat_ns() + 0.5 * kPsNs;
         struct Lone { Pdu::Fate fate; long delta; int first_a; };
         const std::array<Lone, 7> lone = {{
@@ -230,7 +254,6 @@ class RenderHarness {
             {Pdu::UNTIMED, 50, 6},      // no tv
             {Pdu::PRESENTED, 6, 0},     // 94 us ahead: all six at A
         }};
-        long m = f0 + 10;
         for (const Lone& l : lone) {
             Pdu p;
             p.stream = 2;
@@ -239,8 +262,8 @@ class RenderHarness {
             p.ts_ns = grid_ns(m + l.delta);
             p.tv = l.fate != Pdu::UNTIMED;
             p.frame = m + l.delta;
-            p.seq0 = seq[2];
-            seq[2] += kEvents;
+            p.seq0 = seq_next_[2];
+            seq_next_[2] += kEvents;
             pdus_.push_back(p);
             // which of its events A shows: from first_a on (a negative count
             // keeps that many from the end out), none for 6
@@ -254,19 +277,6 @@ class RenderHarness {
             m += 150;
         }
         last_frame_ = std::max(last_frame_, m);
-        std::stable_sort(pdus_.begin(), pdus_.end(),
-                         [](const Pdu& x, const Pdu& y) { return x.send_ns < y.send_ns; });
-        // every sample's presentation time is its PDU's timestamp plus one
-        // period per event
-        for (const Pdu& p : pdus_) {
-            for (int k = 0; k < kEvents; k++) {
-                pt_[{p.stream, p.seq0 + k}] = p.ts_ns + k * kPsActNs;
-                phi_[{p.stream, p.seq0 + k}] = p.phi;
-            }
-        }
-        first_frame_ = f0;
-        std::printf("  info: %zu PDUs, frames %ld..%ld, A out-lead %d, B out-lead %d\n", pdus_.size(),
-                    first_frame_, last_frame_, dut_->a_lead_o, dut_->b_lead_o);
     }
 
     // ------------------------------------------------------------------ //
@@ -277,27 +287,27 @@ class RenderHarness {
         dut_->s_tvalid_i = 0;
         dut_->s_tlast_i = 0;
         switch (state_) {
-        case IDLE:
+        case Feed::kIdle:
             if (next_pdu_ < pdus_.size() && now_ns() >= pdus_[next_pdu_].send_ns) {
                 const Pdu& p = pdus_[next_pdu_];
                 const double ts = p.ts_ns;
                 dut_->hdr_p_i = 1;
-                dut_->hdr_ts_i = static_cast<uint32_t>(static_cast<uint64_t>(std::llround(ts)));
+                dut_->hdr_ts_ns_i = static_cast<uint32_t>(static_cast<uint64_t>(std::llround(ts)));
                 dut_->hdr_tv_i = p.tv ? 1 : 0;
                 cur_ = next_pdu_++;
                 lead_ = kPayLead - 1;
-                state_ = LEAD;
+                state_ = Feed::kLead;
             }
             break;
-        case LEAD:
+        case Feed::kLead:
             if (lead_ > 0) {
                 --lead_;
                 break;
             }
-            state_ = BEATS;
+            state_ = Feed::kBeats;
             beat_ = 0;
             [[fallthrough]];
-        case BEATS: {
+        case Feed::kBeats: {
             const Pdu& p = pdus_[cur_];
             uint64_t d = 0;
             for (int h = 0; h < 2; h++) {
@@ -312,7 +322,7 @@ class RenderHarness {
             dut_->s_tuser_i = static_cast<uint8_t>(p.stream);
             if (++beat_ == kEvents * kChans / 2) {
                 dut_->s_tlast_i = 1;
-                state_ = IDLE;
+                state_ = Feed::kIdle;
             }
             break;
         }
@@ -371,7 +381,11 @@ class RenderHarness {
     }
 
     struct Grade {
-        long samples = 0, silent = 0, wrong_slot = 0, missing = 0, unexpected = 0;
+        long samples = 0;
+        long silent = 0;
+        long wrong_slot = 0;
+        long missing = 0;
+        long unexpected = 0;
         long in_band = 0;
         double max_err_small = 0;   //!< |err| at |phi| <= 4 %
         double max_snap = 0;        //!< |err + phi|, every phi
@@ -401,7 +415,7 @@ class RenderHarness {
                 g.samples++;
                 const auto pt = pt_.find({s, seq});
                 if (pt == pt_.end()) { g.unexpected++; continue; }
-                const double phi = phi_[{s, seq}];
+                const double phi = phi_[std::make_pair(s, seq)];
                 const double err = (f.msb[static_cast<size_t>(k)] - dec.slot_offset(k)) - pt->second;
                 g.max_err_any = std::max(g.max_err_any, std::fabs(err));
                 g.max_snap = std::max(g.max_snap, std::fabs(err + phi));
@@ -441,7 +455,8 @@ class RenderHarness {
     }
 
     void grade() {
-        long exp_a = 0, exp_b = 0;
+        long exp_a = 0;
+        long exp_b = 0;
         for (const auto& [key, seq] : exp_a_) {
             (void)seq;
             exp_a += key.first == 0 ? 6 : 2;
@@ -494,13 +509,19 @@ class RenderHarness {
     std::vector<Pdu> pdus_;
     size_t next_pdu_ = 0;
     size_t cur_ = 0;
-    enum { IDLE, LEAD, BEATS } state_ = IDLE;
+    //! the read side's state: between PDUs, the header's lead, the beats
+    enum class Feed { kIdle, kLead, kBeats };
+    Feed state_ = Feed::kIdle;
     int lead_ = 0;
     int beat_ = 0;
     //! what each interface must show: (stream, frame) -> the sample number
     std::map<std::pair<int, long>, long> exp_a_;
     std::map<std::pair<int, long>, long> exp_b_;
-    long refused_late_ = 0, refused_early_ = 0, refused_untimed_ = 0;
+    long refused_late_ = 0;
+    long refused_early_ = 0;
+    long refused_untimed_ = 0;
+    //! the next sample number of each stream
+    std::array<long, 3> seq_next_{1, 1, 1};
     std::map<std::pair<int, long>, double> pt_;
     std::map<std::pair<int, long>, double> phi_;
     long first_frame_ = 0;

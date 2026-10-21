@@ -67,8 +67,8 @@ MUTATIONS = [
        "            f0_r  <= f0_r + FW_C'(q_r);"),),
      "[place] every event presented to every interface is the frame the law names", ()),
     ("the timestamp difference taken on 31 bits (the 2^32 wrap misread)",
-     (("  wire signed [31:0] d_w      = signed'(hdr_ts_i - ev_ns_i);",
-       "  wire signed [31:0] d_w      = signed'({1'b0, hdr_ts_i[30:0]} - {1'b0, ev_ns_i[30:0]});"),),
+     (("  wire signed [31:0] d_w      = signed'(hdr_ts_ns_i - ev_ns_i);",
+       "  wire signed [31:0] d_w      = signed'({1'b0, hdr_ts_ns_i[30:0]} - {1'b0, ev_ns_i[30:0]});"),),
      "[wrap] every event presented to every interface is the frame the law names", ()),
     ("every interface reads the smallest out-lead",
      (("  wire [FW_C-1:0] rd_fr_w = sn_r + FW_C'(lead_rd_w);",
@@ -98,8 +98,10 @@ MUTATIONS = [
     ("a payload placed before its frame is known",
      (("  wire        place_w = sof_r ? (pst_r == P_OK_S) : pdu_ok_r;",
        "  wire        place_w = sof_r ? ((pst_r == P_OK_S) || (pst_r == P_DIV_S)) : pdu_ok_r;"),
-      ("  wire        b_untimed_w = sof_r ? !((pst_r == P_OK_S) || (pst_r == P_LATE_S) || (pst_r == P_EARLY_S))",
-       "  wire        b_untimed_w = sof_r ? !((pst_r == P_OK_S) || (pst_r == P_DIV_S) || (pst_r == P_LATE_S) || (pst_r == P_EARLY_S))")),
+      ("  wire        b_untimed_w = sof_r ? !((pst_r == P_OK_S) || (pst_r == P_LATE_S)"
+       " || (pst_r == P_EARLY_S))",
+       "  wire        b_untimed_w = sof_r ? !((pst_r == P_OK_S) || (pst_r == P_DIV_S)"
+       " || (pst_r == P_LATE_S) || (pst_r == P_EARLY_S))")),
      "[untimed] untimed PDUs counted once each", ()),
     ("the per-event late rule removed",
      (("  wire        late0_w  = dr0_w[FW_C-1] || (dr0_w == '0);\n"
@@ -139,7 +141,8 @@ MUTATIONS = [
        "          pop_p_o[s] <= 1'b1;"),),
      "[obs] stream 0: one pop per interface-0 read with a sample", ()),
     ("converged kept through a gap",
-     (("          if (!any_w) begin\n            conv_ms_r[s]   <= 7'd0;\n            converged_r[s] <= 1'b0;\n          end",
+     (("          if (!any_w) begin\n            conv_ms_r[s]   <= 7'd0;\n"
+       "            converged_r[s] <= 1'b0;\n          end",
        "          if (!any_w) begin\n            conv_ms_r[s]   <= 7'd0;\n          end"),),
      "[obs] converged after 110 ms of steady presentation, and cleared by the gap after it", ()),
     ("the pad lane of an odd count read as a channel",

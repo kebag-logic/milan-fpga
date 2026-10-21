@@ -54,6 +54,8 @@ constexpr int kPayLead = PAY_LEAD_TB;
 constexpr long kClkHz = CLK_HZ_TB;
 constexpr int kPairs = (kCh + 1) / 2;
 constexpr long kPs3 = 62'500;                // Ps in thirds of a ns at 48 kHz
+//! the frame whose instant the wrap phase puts 7 us before 2^32 ns
+constexpr long kWrapAt = 2600;
 constexpr long kTick = 100;                  // cycles per frame
 constexpr long kPushAt = 40;                 // a frame's push window opens here
 constexpr int kEvents = 6;
@@ -116,7 +118,10 @@ struct Model {
     std::array<bool, kStreams> lwv{};
     std::array<bool, kStreams> live{};
     std::array<long, kStreams> pops{};
-    long late = 0, early = 0, untimed = 0, slips = 0;
+    long late = 0;
+    long early = 0;
+    long untimed = 0;
+    long slips = 0;
 
     static std::array<int64_t, kCh> empty() {
         std::array<int64_t, kCh> e{};
@@ -180,7 +185,8 @@ class RenderQueueHarness {
         }
         const unsigned tv = dut_->m_tvalid_o;
         if (tv == 0) return;
-        int itf = -1, nset = 0;
+        int itf = -1;
+        int nset = 0;
         for (int i = 0; i < kIfs; i++)
             if ((tv >> i) & 1) { itf = i; nset++; }
         if (nset != 1) { mismatch("two interfaces strobed on one beat"); return; }
@@ -284,7 +290,7 @@ class RenderQueueHarness {
         const bool framed = p.tv && p.lead >= kPayLead;
         model_push(p, ts, framed);
         dut_->hdr_p_i = 1;
-        dut_->hdr_ts_i = static_cast<uint32_t>(ts);
+        dut_->hdr_ts_ns_i = static_cast<uint32_t>(ts);
         dut_->hdr_tv_i = p.tv ? 1 : 0;
         cycle();
         dut_->hdr_p_i = 0;
@@ -293,7 +299,8 @@ class RenderQueueHarness {
         const int total = p.events * p.chans;
         const int beats = (total + 1) / 2;
         for (int b = 0; b < beats; b++) {
-            const int i0 = 2 * b, i1 = 2 * b + 1;
+            const int i0 = 2 * b;
+            const int i1 = 2 * b + 1;
             const uint32_t s0 = sample_of(p.stream, p.pdu, i0 / p.chans, i0 % p.chans);
             const uint32_t s1 = i1 < total ? sample_of(p.stream, p.pdu, i1 / p.chans, i1 % p.chans) : 0;
             dut_->s_tdata_i = beat_of(s0, s1, 0xA5);
@@ -318,7 +325,8 @@ class RenderQueueHarness {
         const long long num = 3LL * d + kPs3 / 2;
         const long long q = num >= 0 ? num / kPs3 : -((-num + kPs3 - 1) / kPs3);
         const long f0 = m_.n + static_cast<long>(q);
-        bool late = false, early = false;
+        bool late = false;
+        bool early = false;
         const int s = p.stream;
         for (int k = 0; k < p.events; k++) {
             const long f = f0 + k;
@@ -360,8 +368,7 @@ class RenderQueueHarness {
 
     void phases() {
         // the wrap phase's frames straddle 2^32 ns
-        const long wrap_at = 2600;
-        e0_3_ = (4294967296LL - 7000) * 3 - static_cast<long long>(wrap_at) * kPs3;
+        e0_3_ = (4294967296LL - 7000) * 3 - static_cast<long long>(kWrapAt) * kPs3;
 
         phase_ = "boot";            // the reset walk: every read silent
         run_frames(20);
@@ -387,6 +394,12 @@ class RenderQueueHarness {
         for (int c : {6, 2, 1, 3, 12, 8}) steady(alt(), 2, 96, 0.0, c);
         run_frames(110);
 
+        refusal_phases();
+        stream_phases();
+    }
+
+    //! the late, too-early and untimed rules
+    void refusal_phases() {
         phase_ = "late";            // first two events on consumed frames; a timestamp 1 ms past
         {
             Pdu p;
@@ -423,6 +436,10 @@ class RenderQueueHarness {
             run_frames(110);
         }
 
+    }
+
+    //! a frame read once a lap, the flush, the slips, the wrap, the observer
+    void stream_phases() {
         phase_ = "lap";             // one PDU, then nothing for two laps: no replay
         {
             Pdu p;
@@ -463,7 +480,7 @@ class RenderQueueHarness {
         }
 
         phase_ = "wrap";            // the frame instants cross 2^32 ns
-        while (m_.n < wrap_at - 60) frame();
+        while (m_.n < kWrapAt - 60) frame();
         steady(0, 25, 96);
         run_frames(110);
 
@@ -534,7 +551,8 @@ class RenderQueueHarness {
     std::array<long, 4> last_beat_cyc_{};
     long tick_bad_ = 0;
     std::array<long, kStreams> pops_seen_{};
-    bool conv_after_steady_ = false, conv_after_stop_ = true;
+    bool conv_after_steady_ = false;
+    bool conv_after_stop_ = true;
     int shown_ = 0;
 };
 
