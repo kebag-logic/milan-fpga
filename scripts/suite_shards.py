@@ -125,7 +125,7 @@ SUITE_SECONDS = {
     "ptp_sync": 11,
     "ptp_ts": 127,
     "queues": 6,
-    "render_setpoint": 93,
+    "render_queue": 93,
     "rx_filter": 18,
     "shaper_core": 6,
     "tcam": 27,
