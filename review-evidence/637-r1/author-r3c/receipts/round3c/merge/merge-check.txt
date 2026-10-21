@@ -1,0 +1,34 @@
+merge d26fca65af68acae060480353200519c919ab55d
+ours (lane) 1e914414557874648ac5041aff88b96908e0e053
+theirs (dev) 78ca9bdf104819265588726bce4322696c38b8c2
+merge-base e26f1816e456dc8027924bc2e5d327a8aa6e46db
+subject: Merge dev 78ca9bdf into 637-map-records, [762-DP] and [MAPREC] both on the dynmap leg (#637)
+files both sides changed:
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+hdl/milan/milan_datapath.sv
+tb/verilator/milan_dp/dynmap_probes.vlt
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/sim_nxn.cpp
+gitlinks changed by dev: 0
+datapath: lines changed by dev (e26f1816e456dc8027924bc2e5d327a8aa6e46db..78ca9bdf104819265588726bce4322696c38b8c2) vs lines the merge adds over ours:
+  e1811353d93e871f  e1811353d93e871f  EQUAL
+datapath: lines changed by the lane (e26f1816e456dc8027924bc2e5d327a8aa6e46db..1e914414557874648ac5041aff88b96908e0e053) vs lines the merge adds over dev:
+  7981647952d89b3c  7981647952d89b3c  EQUAL
+stopped_i wiring at the merge:
+d26fca65:hdl/milan/milan_datapath.sv:6944:      .stopped_i     (acmpl_stopped_v_w[N_STREAMS-1:0]),
+d26fca65:hdl/milan/milan_datapath.sv:7300:    .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
+hdl/syn/constraints changed by the merge over ours:
+ hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv | 46 +++++++++++++++++++++++++----
+ hdl/ieee1722/avtp/KL_media_clock_restart.sv |  4 +--
+ hdl/ieee1722/crf/KL_crf_rx.sv               | 25 ++++++++++++----
+ hdl/milan/milan_datapath.sv                 | 10 +++++--
+ 4 files changed, 70 insertions(+), 15 deletions(-)
+hdl/syn/constraints changed by the merge over dev:
+ hdl/common/csr/milan_csr.sv |   13 +-
+ hdl/milan/KL_nvm_backend.sv |    9 +-
+ hdl/milan/KL_pp_shadow.sv   |  197 ++++++--
+ hdl/milan/milan_datapath.sv | 1068 +++++++++++++++++++++++++++++++++++++++++--
+ 4 files changed, 1213 insertions(+), 74 deletions(-)

@@ -1,0 +1,6 @@
+[PASS] m0 clean leg: rc 0, 686 checks, 0 failures
+[PASS] m1 port tied to '0: rc 1, 686 checks, 2 failures; failed: [FAIL] [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  got=0x1 exp=0x0; [FAIL] [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 got=0x1 exp=0x0
+[PASS] m2 wrong vector: sink 1's level (acmpl_stopped_v_w[N_STREAMS:1]): rc 1, 686 checks, 2 failures; failed: [FAIL] [762-DP] 2 stopped gap: STREAM_INTERRUPTED +0  got=0x1 exp=0x0; [FAIL] [762-DP] 3 stopped silence: STREAM_INTERRUPTED +0 got=0x1 exp=0x0
+[PASS] m3 wrong vector: the bound level (acmpl_bound_v_w[N_STREAMS-1:0]): rc 1, 686 checks, 1 failures; failed: [FAIL] [762-DP] 4 started gap: STREAM_INTERRUPTED +1  got=0x0 exp=0x1
+4 checks: 4 PASS, 0 FAIL
+WIRING rc=0

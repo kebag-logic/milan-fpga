@@ -1,0 +1,521 @@
+make: Entering directory '<scratch>/r3c/c-legs/tb/verilator/milan_dp'
+python3 -B ../../../sw/firmware/ctrl/test/ctrl_build.py --stack-pin ../../../third_party/tsn-c-stack
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 89 programs
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 1016 real (99.2%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@103 BECGATE@694 RFU@471 SYNCFU@336 SYNCTX@959 ANNTX@385 PDPOST@29 PDPAIR@839 PDEPOCH@59 SRTO@187 FUTO@249 SERVO@0 SLEW@159 SVRATE@673 RESUME@1016 PDREQ@900 TXLOST@651 TXT1OK@309
+python3 gen_divergent_shape.py
+divergent shape: row0 0x0205022001006000, row1 0x020702200100C000
+make --no-print-directory run-gptp run-gptp-lat run-counters-1 run-counters-8 run-counters-1-frames run-counters-8-frames
+<tools>/pinned-verilator-5.050/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 2 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GCLKV_QTICK_CYC_P=131072 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -CFLAGS "-DPP_MS_CYC_TB=100 -DCLKV_QTICK_CYC_TB=131072 -Wall -Wextra" --Mdir obj_gptp \
+  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+  ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_setpoint.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_gptp.cpp -o Vmilan_dp_gptp
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:881:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  881 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:885:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  885 |     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:888:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:928:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  928 |     $error("milan_datapath: AUDIO_IF_MASTER_P=1 with AUDIO_IF_SLOTS_P=0 asks for a TDM bus master on a build whose capture front-end is the stereo I2S one (KL_aaf_capture_i2s, which is already its own I2S clock master). Select a TDM slot count or leave the master off.");
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:932:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:979:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  979 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d is negative. It is a slot COUNT (0 prunes the render lane).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:982:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  982 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d asks for a TDM render lane on a build whose audio interface is the stereo I2S one (AUDIO_IF_SLOTS_P=0). The render lane serializes TDM slots of the bus the capture front-end frames; select a TDM slot count or leave the render lane pruned.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:985:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  985 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds AUDIO_IF_SLOTS_P=%0d. Both directions ride ONE frame of AUDIO_IF_SLOTS_P slots, so the render lane cannot be wider than it.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:988:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  988 |     $error("milan_datapath: AUDIO_IF_RENDER_SLOTS_P=%0d exceeds the render crossbar's TDM key lane CHMAP_RPHYS_TDM_N_C=%0d (keys %0d..%0d). A wider lane is refused rather than silently truncated onto the DAC keys.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:994:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:1668:5: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                      : ... Suggest assign a label with 'begin : gen_<label_name>'
+ 1668 |     $error("milan_datapath: entity definition declares ADP_TALKER_SRC_C=%0d, which is neither N_STREAMS (%0d) nor N_STREAMS+1. Point +incdir at the configs/generated/<config>/ whose shape matches this elaboration (it must come BEFORE hdl/common/csr on the include path), or rebuild the tracked include with endstation_builder.py --write-rtl.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                          : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv:113:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  113 |     $error("KL_pair_zero_fill: TOTAL_P=%0d outside 1..%0d (SLOT_W_P=%0d pair-slot bus).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:209:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                               : ... Suggest assign a label with 'begin : gen_<label_name>'
+  209 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:197:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  197 |     $error("KL_media_clock_restart: N_TALKERS_P=%0d outside 1..16 (4-bit idx).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv:200:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  200 |     $error("KL_media_clock_restart: HOLD_PDU_P=%0d below the 1722-2016 4.4.4.3 floor of 8.",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv:132:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  132 |     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                 : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:223:63: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  223 |     if (KEEP_ENABLE) assign s_axis[KEEP_OFFSET +: KEEP_WIDTH] = s_axis_tkeep;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:224:63: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  224 |     if (LAST_ENABLE) assign s_axis[LAST_OFFSET]               = s_axis_tlast | mark_frame_reg;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:225:63: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  225 |     if (ID_ENABLE)   assign s_axis[ID_OFFSET   +: ID_WIDTH]   = s_axis_tid;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:226:63: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  226 |     if (DEST_ENABLE) assign s_axis[DEST_OFFSET +: DEST_WIDTH] = s_axis_tdest;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:227:63: Unnamed generate block 'genblk5' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  227 |     if (USER_ENABLE) assign s_axis[USER_OFFSET +: USER_WIDTH] = mark_frame_reg ? USER_BAD_FRAME_VALUE : s_axis_tuser;
+      |                                                               ^
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../third_party/verilog-axis/rtl/axis_fifo.v:409:26: Unnamed generate block 'genblk6' (IEEE 1800-2023 27.6)
+                                                                                                                                   : ... Suggest assign a label with 'begin : gen_<label_name>'
+  409 | if (!OUTPUT_FIFO_ENABLE) begin
+      |                          ^~~~~
+... 19830 lines omitted ...
+  [i]    first boot: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 4: the mappings are the expected list = 0x1
+  [i]    first boot: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 5: the mappings are the expected list = 0x1
+  [i]    first boot: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 6: the mappings are the expected list = 0x1
+  [i]    first boot: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] first boot: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] first boot: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first boot: every key's owner and cluster in the stores = 0x0
+  [i]    first boot: PP_STAT 5b000484
+  [ok]   [MAPREC] first boot: PP_STAT done 1, busy 0    = 0x1
+  [ok]   [MAPREC] first boot: PP_STAT fail 0            = 0x0
+  [ok]   [MAPREC] first boot: PP_STAT blank 1           = 0x1
+  [ok]   [MAPREC] transfers: port 1 REMOVE s1.c0 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: port 0 ADD s1.c0 to cluster 8 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: port 0 REMOVE s0.c1 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: port 7 ADD s0.c1 to cluster 8 SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's REMOVE SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's REMOVE SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's REMOVE SUCCESS = 0x0
+  [ok]   [MAPREC] transfers: the cycle's ADD SUCCESS    = 0x0
+  [ok]   [MAPREC] transfers: the cycle's ADD SUCCESS    = 0x0
+  [ok]   [MAPREC] transfers: the cycle's ADD SUCCESS    = 0x0
+  [i]    transfers, live: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0 s1.c0->o8.c0
+  [ok]   [MAPREC] transfers, live: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 0: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 1: status 0, 7 mapping(s) s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 1: number_of_mappings = 0x7
+  [ok]   [MAPREC] transfers, live: port 1: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 2: status 0, 8 mapping(s) s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0 s3.c0->o0.c0
+  [ok]   [MAPREC] transfers, live: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 2: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 3: status 0, 8 mapping(s) s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0 s4.c0->o0.c0
+  [ok]   [MAPREC] transfers, live: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 3: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 4: status 0, 8 mapping(s) s2.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 4: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 5: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, live: port 6: the mappings are the expected list = 0x1
+  [i]    transfers, live: port 7: status 0, 9 mapping(s) s0.c1->o8.c0 s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] transfers, live: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, live: port 7: number_of_mappings = 0x9
+  [ok]   [MAPREC] transfers, live: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] transfers, live: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] transfers: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] transfers: the restore reached its terminal and the map restore ended = 0x1
+  [i]    transfers: the map restore held the faces 13703 clocks after restore_done, 21790 after PP_CTRL[1]
+  [i]    transfers, after the power cycle: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0 s1.c0->o8.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 0: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 1: status 0, 7 mapping(s) s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 1: number_of_mappings = 0x7
+  [ok]   [MAPREC] transfers, after the power cycle: port 1: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 2: status 0, 8 mapping(s) s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0 s3.c0->o0.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 2: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 3: status 0, 8 mapping(s) s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0 s4.c0->o0.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 3: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 4: status 0, 8 mapping(s) s2.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 4: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 5: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] transfers, after the power cycle: port 6: the mappings are the expected list = 0x1
+  [i]    transfers, after the power cycle: port 7: status 0, 9 mapping(s) s0.c1->o8.c0 s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: number_of_mappings = 0x9
+  [ok]   [MAPREC] transfers, after the power cycle: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] transfers, after the power cycle: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: the crossbar RAM routes as the reference = 0x0
+  [i]    transfers, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] transfers, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: the restore reached its terminal and the map restore ended = 0x1
+  [i]    conflicting keys across ports: the map restore held the faces 13773 clocks after restore_done, 21860 after PP_CTRL[1]
+  [i]    conflicting keys across ports: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 0: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 1: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 2: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 3: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 4: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 5: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 6: the mappings are the expected list = 0x1
+  [i]    conflicting keys across ports: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] conflicting keys across ports: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] conflicting keys across ports: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: the crossbar RAM routes as the reference = 0x0
+  [i]    conflicting keys across ports: PP_STAT 5b000404
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] conflicting keys across ports: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] refused put-back: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] refused put-back: the restore reached its terminal and the map restore ended = 0x1
+  [i]    refused put-back: the map restore held the faces 13618 clocks after restore_done, 21705 after PP_CTRL[1]
+  [i]    refused put-back: port 0: status 0, 8 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0 s0.c4->o4.c0 s0.c5->o5.c0 s0.c6->o6.c0 s0.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 0: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 0: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 1: status 0, 8 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0 s1.c4->o4.c0 s1.c5->o5.c0 s1.c6->o6.c0 s1.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 1: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 1: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 2: status 0, 8 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0 s2.c4->o4.c0 s2.c5->o5.c0 s2.c6->o6.c0 s2.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 2: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 2: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 3: status 0, 8 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0 s3.c4->o4.c0 s3.c5->o5.c0 s3.c6->o6.c0 s3.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 3: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 3: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 4: status 0, 8 mapping(s) s4.c0->o0.c0 s4.c1->o1.c0 s4.c2->o2.c0 s4.c3->o3.c0 s4.c4->o4.c0 s4.c5->o5.c0 s4.c6->o6.c0 s4.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 4: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 4: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 4: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 5: status 0, 8 mapping(s) s5.c0->o0.c0 s5.c1->o1.c0 s5.c2->o2.c0 s5.c3->o3.c0 s5.c4->o4.c0 s5.c5->o5.c0 s5.c6->o6.c0 s5.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 5: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 5: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 5: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 6: status 0, 8 mapping(s) s6.c0->o0.c0 s6.c1->o1.c0 s6.c2->o2.c0 s6.c3->o3.c0 s6.c4->o4.c0 s6.c5->o5.c0 s6.c6->o6.c0 s6.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 6: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 6: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 6: the mappings are the expected list = 0x1
+  [i]    refused put-back: port 7: status 0, 8 mapping(s) s7.c0->o0.c0 s7.c1->o1.c0 s7.c2->o2.c0 s7.c3->o3.c0 s7.c4->o4.c0 s7.c5->o5.c0 s7.c6->o6.c0 s7.c7->o7.c0
+  [ok]   [MAPREC] refused put-back: port 7: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] refused put-back: port 7: number_of_mappings = 0x8
+  [ok]   [MAPREC] refused put-back: port 7: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] refused put-back: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] refused put-back: the crossbar RAM routes as the reference = 0x0
+  [i]    refused put-back: PP_STAT 5b00040c
+  [ok]   [MAPREC] refused put-back: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] refused put-back: PP_STAT fail 1      = 0x1
+  [ok]   [MAPREC] refused put-back: PP_STAT blank 0     = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x28
+--------------------------------------------------------------
+checks: 219   failures: 0
+RESULT: PASS
+---- #637 the map records across the 4x4 shape's four input ports ----
+./obj_maprec4/Vmilan_dp_maprec4
+=== milan_datapath NxN integration (N_STREAMS=4, P12) ===
+  [ok]   ID == 'MILN'                                   = 0x4d494c4e
+  [ok]   VERSION 0x0060 originally widened pending to unflushed bindings and AECP marks; #502 now reports accepted live name/map writes, and carries 0x005F's saved-state snapshot ownership contract, 0x005E's applied gPTP timestamp latency corrections at 0x7F0, 0x005C's SRP status words read by code, 0x005B's SET_SAMPLING_RATE list-check pin, 0x005A's GET_TX_STATE Listener-code pin, 0x0059's PPS words, 0x0058's slip pair, ownerless option OFF and the 0x0055 notification work = 0x20060
+  [ok]   [AECP] before the restore READ_DESCRIPTOR is HELD, not answered = 0x1
+  [ok]   [AECP] ...a second one is DROPPED at the slot gate (word 37 +1) = 0x1
+  [ok]   [AECP] ...read over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] the shipped generator emitted an image = 0x1
+  [i]    image: 10728 bytes, 68 descriptors
+  [ok]   [AECP-IMG] ...beginning with the AEMI magic    = 0x41454d49
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [ok]   [AECP] ...and the held READ_DESCRIPTOR is answered at the release = 0x1
+  [ok]   [AECP-IMG] the snapshot window answers ('KLPP') = 0x4b4c5050
+  [ok]   [AECP-IMG] ...over a posted access that did not error = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] ENTITY,0: status SUCCESS(0)         = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: sequence_id echoed        = 0x4011
+  [ok]   [AECP-IMG] ENTITY,0: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] ENTITY,0: cdl = 12 + 4 + the descriptor = 0x148
+  [ok]   [AECP-IMG] ENTITY,0: the frame is as long as it claims = 0x162
+  [ok]   [AECP-IMG] ENTITY,0: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: reserved @26 is zero      = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_type field @28 = 0x0
+  [ok]   [AECP-IMG] ENTITY,0: descriptor_index field @30 = 0x0
+  [i]    desc-store word 34 = 0x00058801 after 6 burst(s), 593 beat(s)
+  [ok]   [AECP-IMG] the store FETCHED from descriptor memory = 0x1
+  [ok]   [AECP-IMG] the image VALIDATED (word 34 bit 0) = 0x1
+  [ok]   [AECP-IMG] ...with no store fault (word 34 [4:1]) = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the image HAS this descriptor = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: READ_DESCRIPTOR was ANSWERED = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-IMG] STREAM_INPUT,1: status SUCCESS(0)   = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: sequence_id echoed  = 0x4012
+  [ok]   [AECP-IMG] STREAM_INPUT,1: command_type echoed, u = 0 = 0x4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: cdl = 12 + 4 + the descriptor = 0xaa
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the frame is as long as it claims = 0xc4
+  [ok]   [AECP-IMG] STREAM_INPUT,1: configuration_index @24 echoed = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: reserved @26 is zero = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: the bytes ARE the image's, exactly = 0x0
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_type field @28 = 0x5
+  [ok]   [AECP-IMG] STREAM_INPUT,1: descriptor_index field @30 = 0x1
+  [i]    response-memory lane writes: +40 for ENTITY (312 B), +21 for STREAM_INPUT 1 (154 B)
+  [ok]   [AECP-IMG] the response memory COMMITTED the ENTITY lanes = 0x1
+  [ok]   [AECP-IMG] ...and committed STREAM_INPUT 1's as well = 0x1
+  [ok]   [AECP-IMG] no response was voided by the memory = 0x0
+  [ok]   [AECP-IMG] the response buffer reports no fault (word 36) = 0x0
+  [ok]   [AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER = 0x1
+  [ok]   [AECP-WTMO] ...still an AEM_RESPONSE (message_type 1) = 0x1
+  [ok]   [AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented degradation = 0xa
+  [ok]   [AECP-WTMO] ...carrying no payload it could not build (cdl = 12) = 0xc
+  [ok]   [AECP-WTMO] ...still padded to the 60-octet minimum = 0x3c
+  [ok]   [AECP-WTMO] ...and the response buffer reports its fault (word 36) = 0x1
+  [ok]   [AECP-WTMO] the station HEALS when the memory returns (no reset) = 0x1
+  [ok]   [AECP-WTMO] ...and the response buffer's fault clears (word 36) = 0x0
+-- [MAPREC] #637: the channel-map records across 4 dynamic input ports --
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] a first boot over an erased window    = 0x1
+  [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) = 0x4
+  [i]    first boot: port 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 0: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 0: the mappings are the expected list = 0x1
+  [i]    first boot: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 1: the mappings are the expected list = 0x1
+  [i]    first boot: port 2: status 0, 4 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 2: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 2: the mappings are the expected list = 0x1
+  [i]    first boot: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s3.c3->o3.c0
+  [ok]   [MAPREC] first boot: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] first boot: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] first boot: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] first boot: every key's owner and cluster in the stores = 0x0
+  [i]    first boot: PP_STAT 5b000484
+  [ok]   [MAPREC] first boot: PP_STAT done 1, busy 0    = 0x1
+  [ok]   [MAPREC] first boot: PP_STAT fail 0            = 0x0
+  [ok]   [MAPREC] first boot: PP_STAT blank 1           = 0x1
+  [ok]   [MAPREC] inputs: port 0 REMOVE clusters 0 and 1 SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 0 ADD s3.c1 to cluster 0 SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 2 REMOVE every mapping SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 3 REMOVE cluster 3 SUCCESS = 0x0
+  [ok]   [MAPREC] inputs: port 3 ADD s0.c0 to cluster 3 SUCCESS = 0x0
+  [i]    inputs, live: port 0: status 0, 3 mapping(s) s3.c1->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] inputs, live: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] inputs, live: port 0: the mappings are the expected list = 0x1
+  [i]    inputs, live: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] inputs, live: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, live: port 1: the mappings are the expected list = 0x1
+  [i]    inputs, live: port 2: status 0, 0 mapping(s)
+  [ok]   [MAPREC] inputs, live: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 2: number_of_mappings = 0x0
+  [ok]   [MAPREC] inputs, live: port 2: the mappings are the expected list = 0x1
+  [i]    inputs, live: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s0.c0->o3.c0
+  [ok]   [MAPREC] inputs, live: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, live: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, live: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] inputs, live: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] inputs: the window holds the codec's records and the pend has fallen = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] inputs: the restore reached its terminal and the map restore ended = 0x1
+  [i]    inputs: the map restore held the faces 604 clocks after restore_done, 4994 after PP_CTRL[1]
+  [i]    inputs, after the power cycle: port 0: status 0, 3 mapping(s) s3.c1->o0.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: number_of_mappings = 0x3
+  [ok]   [MAPREC] inputs, after the power cycle: port 0: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, after the power cycle: port 1: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 2: status 0, 0 mapping(s)
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: number_of_mappings = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s0.c0->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: the crossbar RAM routes as the reference = 0x0
+  [i]    inputs, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] put-back, last port: the codec frames the format alone = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back reference: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back reference: the map restore held the faces 619 clocks after restore_done, 5069 after PP_CTRL[1]
+  [ok]   [MAPREC] put-back, last port: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back, last port: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back, last port: the map restore held the faces 633 clocks after restore_done, 5083 after PP_CTRL[1]
+  [i]    put-back, last port: port 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 0: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 0: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 1: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 2: status 0, 4 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 2: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 2: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 3: status 0, 2 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0
+  [ok]   [MAPREC] put-back, last port: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 3: number_of_mappings = 0x2
+  [ok]   [MAPREC] put-back, last port: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] put-back, last port: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] put-back, last port: the crossbar RAM routes as the reference = 0x0
+  [i]    put-back, last port: PP_STAT 5b000404
+  [ok]   [MAPREC] put-back, last port: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] put-back, last port: PP_STAT fail 0   = 0x0
+  [ok]   [MAPREC] put-back, last port: PP_STAT blank 0  = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x10
+--------------------------------------------------------------
+checks: 137   failures: 0
+RESULT: PASS
+python3 render_mutants.py
+RENDER-PHASE {"seq": 1, "event": "origin", "t_s": 0.0, "clock": "monotonic", "unit": "s"}
+RENDER-PHASE {"seq": 2, "event": "baseline", "t_s": 0.002, "case": "control", "selected": "prebuilt"}
+RENDER-PHASE {"seq": 3, "event": "start", "t_s": 0.002, "case": "control", "phase": "simulation", "mode": "--live-only", "idle_s": 0.002}
+RENDER-PHASE {"seq": 4, "event": "end", "t_s": 73.99, "case": "control", "phase": "simulation", "mode": "--live-only", "elapsed_s": 73.988, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--live-only)
+RENDER-PHASE {"seq": 5, "event": "start", "t_s": 73.99, "case": "control", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 6, "event": "end", "t_s": 135.401, "case": "control", "phase": "simulation", "mode": "--render-only", "elapsed_s": 61.411, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--render-only)
+RENDER-PHASE {"seq": 7, "event": "start", "t_s": 135.403, "case": "prefill_target_three_events_high", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 8, "event": "end", "t_s": 172.587, "case": "prefill_target_three_events_high", "phase": "build", "mode": null, "elapsed_s": 37.184, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 9, "event": "start", "t_s": 172.587, "case": "prefill_target_three_events_high", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 232.243, "case": "prefill_target_three_events_high", "phase": "simulation", "mode": "--render-only", "elapsed_s": 59.656, "status": 1}
+[PASS] mutant caught (--render-only): prefill target three events high - breaks "RENDER-INT: every PDU's first event inside the law band"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 232.244, "case": "recentre_pulse_ignored", "phase": "build", "mode": null, "idle_s": 0.001}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 270.438, "case": "recentre_pulse_ignored", "phase": "build", "mode": null, "elapsed_s": 38.194, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 270.438, "case": "recentre_pulse_ignored", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 333.25, "case": "recentre_pulse_ignored", "phase": "simulation", "mode": "--render-only", "elapsed_s": 62.812, "status": 1}
+[PASS] mutant caught (--render-only): recentre pulse ignored - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late)"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 333.251, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "build", "mode": null, "idle_s": 0.001}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 369.433, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "build", "mode": null, "elapsed_s": 36.182, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 369.433, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 430.046, "case": "recentre_counted_and_cleared_but_not_snapped", "phase": "simulation", "mode": "--render-only", "elapsed_s": 60.613, "status": 1}
+[PASS] mutant caught (--render-only): recentre counted and cleared but not snapped - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early)"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 430.05, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "build", "mode": null, "idle_s": 0.004}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 466.106, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "build", "mode": null, "elapsed_s": 36.056, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 466.106, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 537.761, "case": "clock_source_trigger_dropped_from_the_recentre_set", "phase": "simulation", "mode": "--live-only", "elapsed_s": 71.655, "status": 1}
+[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 537.98, "state": "idle", "idle_s": 0.219}
+
+6 checks: 6 PASS, 0 FAIL
+make: Leaving directory '<scratch>/r3c/c-legs/tb/verilator/milan_dp'
+MILAN_DP rc=0

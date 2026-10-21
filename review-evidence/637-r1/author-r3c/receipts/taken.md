@@ -1,0 +1,15 @@
+[A656] TAKEN
+Branch: `637-map-records` from dev `e9cbb676d7fdd6539aa408e5dfe38870a4ae1a5f` (processor pin `2cbed0a9`)
+Authoritative references: assignment 6257168886 and scheduling 6257040284 on this issue; #763 STOP 6257029697 and ruling 6257040042; Milan v1.2 5.3.9.1, 5.3.10.1; `docs/design/SAVED_STATE_MATERIALIZATION.md` 3.1, 7.1, 8.3, 8.4, 8.6, 15 item 2 (amended), 15.1, 18.4; `docs/design/SAVED_STATE_FASTCONNECT.md` 4.2, 6.1; processor `docs/architecture/07_memory_maps.md` 5.1 at the pin.
+
+Step 0, MATERIALIZATION 18.4 lane 4's dependencies on dev `e9cbb676`:
+- Lane 1: done. Processor PR #132 (`d352bbaa`) is an ancestor of the pin.
+- Lane 2: done. PR #623 (merge `e4b771f9`, processor `b2db3a97`) is in dev.
+- Lane 3: NOT done in the parent. MATERIALIZATION.md:15-16 and `docs/reference/MILAN_COMPLIANCE_MATRIX.md:182` say so, and the name pending is still sticky in `KL_pp_shadow.sv`. It does not block this lane: names are records `0x80..`, written by the processor's D3 writer, and this lane changes no name path. The name half of the sticky pending stays until lane 3. This is a departure from DR6's lane order, which the release scheduling (6257040284) made.
+- DR3a: ratified (#70 comment 5873060660): 20 ms per wait, and a 1,000 ms aggregate from accepted `PP_CTRL[1]`.
+- DR4: ruled (#70 comment 5862405632). The maps stage ceiling is 1,250 LUT / 600 FF at 1x1 TDM8 (MATERIALIZATION.md:2380).
+
+Interpreted scope: in the parent only (no processor change), a map record writer for every dynamic Stream Port, input `0x60 + port` and output `0x70 + port`. The trigger is the accepted phase-5 change (`amap_edit_live_wr_p`), under the D3 writer's rules: 500 ms first-dirty debounce, latch then taint, the clear at the untainted WRITE's done, 3 attempts 500 ms apart, then a reset-sticky alarm. It reaches `KL_nvm_backend` through a parent device-face arbiter beside the processor's port. The restore runs after the processor's D3 terminal COMPLETE. It applies only a framed, well-formed record (magic, layout, id, length, crc16, the UNUSED-padding and hole rules) through the existing ADD/REMOVE validator, and keeps or puts back the reset set otherwise. A transport failure rolls every map back to the #658 reset set, and so does `restore_rb_o`. The map pending retires per record. The record format is unchanged, including the empty set as a framed record of UNUSED entries (8.3 V3g).
+
+Validation plan: the `milan_dp` dynmap leg gains a planted power cycle (the window kept across a reset). An EMPTY list in both directions and a non-empty non-default list must come back through GET_AUDIO_MAP and both crossbar RAMs, and a torn-record control must keep the default. Each new check gets a planted mutant. Then the affected suites (milan_dp, pp_shadow, nvm_backend, nvm_cosim), `scripts/check_nvm_record_space.py`, `scripts/check_nvm_capture.py`, lint, the docs gates and route-1x1 at base and head, all rc 0.
+Blockers: none. STOP on any processor register-map, top-level port or parameter change.

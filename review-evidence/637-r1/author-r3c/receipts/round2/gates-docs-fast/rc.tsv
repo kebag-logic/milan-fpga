@@ -1,0 +1,85 @@
+d0-04-gen_hdl_reference-selftest	0	0s	python3 scripts/gen_hdl_reference.py --selftest
+d0-04-gen_hdl_reference-build	0	2s	python3 scripts/gen_hdl_reference.py --output <scratch>/r2/hdlref
+d0-12-docs_check	0	6s	python3 scripts/docs_check.py
+d0-13-check_em_dash	0	2s	python3 scripts/check_em_dash.py --base e26f1816e456dc8027924bc2e5d327a8aa6e46db
+d0-14-check_doc_style	0	0s	python3 scripts/check_doc_style.py
+d0-14-check_doc_style-selftest	0	1s	python3 scripts/check_doc_style.py --selftest
+d0-14-check_gptp_docs	0	0s	python3 scripts/check_gptp_docs.py
+d0-14-check_gptp_docs-selftest	0	0s	python3 scripts/check_gptp_docs.py --selftest
+d0-15-doc_map-check	0	1s	python3 docs/DOC_MAP.gen.py --check
+d0-15-doc_map-selftest	0	0s	python3 docs/DOC_MAP.gen.py --selftest
+d0-15-timesync_chain-check	0	1s	python3 docs/diagrams/timesync_chain.gen.py --check
+d0-15-timesync_chain-selftest	0	0s	python3 docs/diagrams/timesync_chain.gen.py --selftest
+d0-16-check_solution_docs	0	0s	python3 scripts/check_solution_docs.py
+d0-16-check_solution_docs-selftest	0	3s	python3 scripts/check_solution_docs.py --selftest
+d0-17-submodule_boundaries-check	0	1s	python3 docs/diagrams/submodule_boundaries.gen.py --check
+d0-17-submodule_boundaries-selftest	0	1s	python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+d0-17-check_submodule_docs	0	0s	python3 scripts/check_submodule_docs.py
+d0-17-check_submodule_docs-selftest	0	0s	python3 scripts/check_submodule_docs.py --selftest
+d0-18-gen_wavedrom-selftest	0	0s	python3 scripts/gen_wavedrom.py --selftest
+d0-18-wd_axis_backpressure	0	1s	python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+d0-18-wd_cdc_handshake	0	0s	python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+d0-18-wd_gptp_pdelay	0	0s	python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+d0-19-check_diagram_pngs	0	1s	python3 scripts/check_diagram_pngs.py
+d0-19-check_diagram_pngs-selftest	0	13s	python3 scripts/check_diagram_pngs.py --selftest
+d0-20-check_feature_status-selftest	0	2s	python3 scripts/check_feature_status.py --self-test
+d0-21-gen_module_matrix-check	0	0s	python3 docs/traceability/gen_module_matrix.py --check
+d0-23-check_gptp_docs-with-submodule	0	1s	python3 scripts/check_gptp_docs.py --with-submodule
+d0-23-gptp-processor-docs	0	0s	make -C gptp-processor docs
+d0-24-measure_control_flow-selftest	0	0s	python3 scripts/measure_control_flow.py --selftest
+d0-24-measure_cohesion-selftest	0	0s	python3 scripts/measure_cohesion.py --selftest
+d0-27-check_baremetal_only	0	24s	python3 scripts/check_baremetal_only.py --check
+d0-27-check_baremetal_only-selftest	0	7s	python3 scripts/check_baremetal_only.py --selftest
+d0-29-ci_rv32_sdk-selftest	0	2s	python3 scripts/ci_rv32_sdk_selftest.py
+d0-29-ci_rv32_sdk-verify	0	1s	python3 scripts/ci_rv32_sdk.py --destination <scratch>/sdk --verify-only
+d0-30-firmware_compiler-selftest	0	2s	python3 sw/builder/test_firmware_compiler.py --selftest
+d0-30-firmware_compiler-absent	0	462s	python3 sw/builder/test_firmware_compiler.py --absent --audit <scratch>/r2/rv32-absent.jsonl
+d0-31-check_nvm_record_space	0	2s	python3 scripts/check_nvm_record_space.py
+d0-31-check_nvm_record_space-selftest	0	44s	python3 scripts/check_nvm_record_space.py --self-test
+d0-32-check_nvm_capture	0	1s	python3 scripts/check_nvm_capture.py
+d0-33-nvm_firmware-selftest	0	183s	python3 sw/firmware/nvm_hosttest/test_nvm_firmware.py --self-test
+d0-34-check_soc_sources	0	0s	python3 scripts/check_soc_sources.py
+d0-34-check_soc_sources-selftest	0	0s	python3 scripts/check_soc_sources.py --selftest
+d0-34-iob_pack-selftest	0	2s	python3 sw/litex/iob_pack_selftest.py
+d0-35-check_rtl_source_lists	0	2s	python3 scripts/check_rtl_source_lists.py
+d0-35-check_rtl_source_lists-selftest	0	3s	python3 scripts/check_rtl_source_lists.py --selftest
+d0-36-measure_naming	0	1s	python3 scripts/measure_naming.py --check
+d0-36-measure_naming-selftest	0	0s	python3 scripts/measure_naming.py --selftest
+d0-37-check_port_contracts	0	3s	python3 scripts/check_port_contracts.py
+d0-37-check_port_contracts-selftest	0	3s	python3 scripts/check_port_contracts.py --selftest
+d0-38-measure_fail_fast	0	2s	python3 scripts/measure_fail_fast.py --check
+d0-38-measure_fail_fast-selftest	0	2s	python3 scripts/measure_fail_fast.py --selftest
+d0-39-check_todo_ownership	0	1s	python3 scripts/check_todo_ownership.py
+d0-39-check_todo_ownership-selftest	0	2s	python3 scripts/check_todo_ownership.py --selftest
+d0-40-measure_test_evidence	0	11s	python3 scripts/measure_test_evidence.py --check
+d0-40-measure_test_evidence-selftest	0	11s	python3 scripts/measure_test_evidence.py --selftest
+d0-41-check_hygiene	0	1s	python3 scripts/check_hygiene.py --check
+d0-41-check_hygiene-selftest	0	0s	python3 scripts/check_hygiene.py --selftest
+d0-42-check_sv_idiom	0	1s	python3 scripts/check_sv_idiom.py
+d0-42-check_sv_idiom-selftest	0	0s	python3 scripts/check_sv_idiom.py --selftest
+d0-43-check_cpp_idiom	0	2s	python3 scripts/check_cpp_idiom.py
+d0-43-check_cpp_idiom-selftest	0	1s	python3 scripts/check_cpp_idiom.py --selftest
+d0-44-check_py_idiom	0	6s	python3 scripts/check_py_idiom.py
+d0-44-check_py_idiom-selftest	0	5s	python3 scripts/check_py_idiom.py --selftest
+d0-45-check_sh_idiom	0	0s	python3 scripts/check_sh_idiom.py
+d0-45-check_sh_idiom-selftest	0	1s	python3 scripts/check_sh_idiom.py --selftest
+d0-46-check_doc_paths	0	0s	python3 scripts/check_doc_paths.py
+d0-47-check_archive	0	0s	python3 scripts/check_archive.py
+d0-47-check_archive-selftest	0	0s	python3 scripts/check_archive.py --selftest
+d0-48-gen_toc-selftest	0	1s	python3 scripts/gen_toc.py --selftest
+d0-48-gen_toc-verify-anchors	0	4s	python3 scripts/gen_toc.py --verify-anchors
+d0-48-gen_toc-check	0	6s	python3 scripts/gen_toc.py --check
+d0-49-gen_aem_store-selftest	0	0s	python3 avdecc/gen_aem_store.py --self-test
+d0-50-check_sweep_shape-selftest	0	13s	python3 scripts/check_sweep_shape.py --self-test
+d0-51-check_deploy_shape-selftest	0	0s	python3 scripts/check_deploy_shape.py --self-test
+d0-52-check_entity_shape-selftest	0	50s	python3 scripts/check_entity_shape.py --self-test
+nogit-docs_check	0	6s	python3 scripts/docs_check.py
+nogit-check_feature_status	0	1s	python3 scripts/check_feature_status.py
+wire-check_wire_accountability-selftest	0	0s	python3 scripts/check_wire_accountability.py --self-test
+d2-ci_events-check	0	1s	python3 scripts/ci_events.py --check
+d2-ci_events-selftest	0	212s	python3 scripts/ci_events.py --selftest
+d2-act_ci-selftest	0	74s	python3 scripts/act_ci.py --selftest
+rf-ci_scope-selftest	0	23s	python3 scripts/ci_scope.py --selftest
+rf-lint_rtl	0	19s	python3 scripts/lint_rtl.py --check --self-test --jobs 4
+rf-pp_srcs	0	1s	python3 scripts/pp_srcs.py --check --selftest
+rf-bdd-behave	0	2s	behave --no-capture -f plain

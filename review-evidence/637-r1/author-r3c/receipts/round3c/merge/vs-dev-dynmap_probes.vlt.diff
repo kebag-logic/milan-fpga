@@ -1,0 +1,37 @@
+diff --git a/tb/verilator/milan_dp/dynmap_probes.vlt b/tb/verilator/milan_dp/dynmap_probes.vlt
+index 7fe8c61a8..72351aa4a 100644
+--- a/tb/verilator/milan_dp/dynmap_probes.vlt
++++ b/tb/verilator/milan_dp/dynmap_probes.vlt
+@@ -18,9 +18,32 @@ public_flat_rw -module "KL_aecp_nvm_writer" -var "closed_r"
+ public_flat_rd -module "milan_datapath" -var "amap_in_store_r"
+ public_flat_rd -module "milan_datapath" -var "amap_out_owner_v_r"
+ public_flat_rd -module "milan_datapath" -var "amap_out_cluster_r"
++// #637's multi-port legs (maprec8, maprec4) grade every output key's owner.
++public_flat_rd -module "milan_datapath" -var "amap_out_owner_r"
+ public_flat_rd -module "milan_datapath" -var "cfg_chmap_wr_en"
+ // The post-terminal sweep, held open so that an edit meets it.
+ public_flat_rw -module "milan_datapath" -var "amap_boot_last_r"
++// #637: the map restore's hold and verdict, the combined restore_done, the
++// read face's request (the held GET's premise), and the D3 walk's roll-back
++// terminal, planted so that the walk ends DEFAULTS over a window it could
++// restore.
++public_flat_rd -module "milan_datapath" -var "amr_rs_hold_r"
++public_flat_rd -module "milan_datapath" -var "amr_rs_fail_r"
++public_flat_rd -module "milan_datapath" -var "amr_dirty_r"
++public_flat_rd -module "milan_datapath" -var "pp_restore_done_w"
++public_flat_rd -module "milan_datapath" -var "pp_amap_req_w"
++public_flat_rw -module "KL_aecp_nvm_writer" -var "rb_r"
++public_flat_rd -module "milan_datapath" -var "amr_taint_r"
++public_flat_rd -module "milan_datapath" -var "amr_req_r"
++public_flat_rd -module "KL_pp_shadow" -var "da_map_r"
++public_flat_rd -module "KL_pp_shadow" -var "nvm_busy_w"
++public_flat_rd -module "KL_pp_shadow" -var "enable_i"
++public_flat_rd -module "milan_datapath" -var "pp_gsi_req_w"
++public_flat_rd -module "milan_datapath" -var "pp_gsi_kind_w"
++public_flat_rd -module "milan_datapath" -var "pp_gsi_sel_w"
++public_flat_rd -module "milan_datapath" -var "amr_stage_r"
++public_flat_rd -module "milan_datapath" -var "amr_st_r"
++public_flat_rd -module "milan_datapath" -var "amr_r_r"
+ // #762: the elaborated stream, audio and prune parameters, read back as
+ // constants so the leg's [762-DP] tail logs the geometry it ran on.
+ public_flat_rd -module "milan_datapath" -var "N_STREAMS"
