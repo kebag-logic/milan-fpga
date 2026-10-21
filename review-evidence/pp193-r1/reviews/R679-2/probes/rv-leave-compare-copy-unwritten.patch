@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -827,7 +827,7 @@
+     logic [N_SINKS_P-1:0][63:0] lcp_r;
+     always_ff @(posedge clk_i) begin : leave_cmp_write
+       for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+-        if (rst_n && lv_take_w && (ctl_sink_i == SNK_W_C'(s))) begin
++        if (1'b0) begin
+           lcp_r[s] <= csid_w;
+         end
+       end

@@ -1,0 +1,11 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -596,7 +596,7 @@
+       for (int unsigned t = 0; t < N_SINKS_P; t++) begin
+         if (s == t) begin
+           same_w[s][t] = 1'b1;
+-        end else if (!mbr_w[s] || !mbr_w[t] || (lvp_r[s] && lvp_r[t])) begin
++        end else if (!mbr_w[s] || !mbr_w[t]) begin
+           same_w[s][t] = 1'b0;
+         end else if (lvp_r[s]) begin
+           same_w[s][t] = lq_r[s][t];

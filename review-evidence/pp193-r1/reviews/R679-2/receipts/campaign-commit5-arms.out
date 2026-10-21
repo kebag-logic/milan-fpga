@@ -1,0 +1,8 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top share: rc=0 PASS
+listener-rider-not-quiet: rc=2 failures=2 KILLED tags=SH1,SH14
+listener-withdraw-ignores-riders: rc=2 failures=14 KILLED tags=SH10,SH11,SH12,SH13,SH16,SH2,SH4,SH6,SH7
+listener-withdraw-ignores-riders: rc=2 failures=6 KILLED tags=SW2,SW4,SW5,SW6,SW7
+listener-teardown-keeps-declaring: rc=2 failures=62 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,RB1,RB4,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-teardown-keeps-declaring: rc=2 failures=3 KILLED tags=SW2,SW4,SW6
+7 checks: 7 PASS, 0 FAIL
