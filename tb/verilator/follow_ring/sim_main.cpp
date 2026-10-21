@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// The media-clock plane and the two listener rings through a source change
+// The media-clock plane and the two listener paths through a source change
 // and through an INTERNAL aligner pull-in (#645, #647), on follow_ring_wrap.sv.
 //
 // THE BENCH IT REPEATS (docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md,
@@ -38,18 +38,28 @@
 //   full margin     time since a reused queue slot was freed, measured at
 //                   each push; the least across each PDU is its early-side
 //                   margin. Both margins must stay at least one tick;
-//   render fill     the render stage's fill at the PDU end (#643's grading
-//                   instant): the law is the setpoint plus the PDU, 14;
-//   render delay    the PDU's first event from its end to its pop, in ticks:
-//                   the law is (8, 9].
+//   presentation    the render presentation stage (#632) hands the TDM lane
+//                   the frame its read names, K = 2 frames after the domain
+//                   event it reads at; each event's sample names its ordinal,
+//                   and its presentation time is its PDU's avtp_timestamp
+//                   plus one talker period per event (IEEE 1722-2016 7.5).
+//                   Each presentation is graded against the instant the
+//                   domain event of its frame reports when it comes: the law
+//                   is every event once, in order, at the frame nearest its
+//                   presentation time (half a period, and the marker's two
+//                   clk_i cycles of quantisation). The talker is not phased
+//                   to the DUT's grid (the phase term is off here), so the
+//                   tighter +/-5 % band is not this bench's.
 //
-// WHAT IS GRADED (#645 / #647, the ruling on #645's stage-1 STOP). The
-// settle recentre is milan_datapath's own, copied by dp_glue.py: once per
+// WHAT IS GRADED (#645 / #647, the ruling on #645's stage-1 STOP, and #632).
+// The settle recentre is milan_datapath's own, copied by dp_glue.py: once per
 // source change or aligner pull-in, after the servo has read LOCKED for 8
 // windows (following) or the aligner has rested in its band (INTERNAL), to
-// both rings. From a switch to its settle recentre the rings may slip, up
-// to the declared bound; after it neither ring may move: no loopback slip,
-// the loopback ring centred, the render stage on its law.
+// the loopback ring. From a switch to its settle recentre the ring may slip,
+// up to the declared bound; after it the ring may not move: no loopback
+// slip, the loopback ring centred. The presentation stage takes no recentre:
+// it places every event by its timestamp, so after the settle it slips
+// nothing and every event is on the presentation law.
 //
 // THE BIND CASE (#645, bench lane B17, PR #741). At INTERNAL, with the peer
 // on the DUT's own clock (B17's delta was within 0.0017 ppm), each of B17's
@@ -61,7 +71,7 @@
 // us, since the dup moved the ring a tick off its empty edge and a 30.260 us
 // burst after it slipped nothing. Graded per bind: one settle recentre,
 // armed by the bind's first PDU and fired 2,048 ticks later (the INTERNAL
-// rule), executed once by the render stage, and no SLIP_LB change. At some
+// rule), and no SLIP_LB change. At some
 // first-PDU phases inside that window, finer than sweep-bind's 16, a bind
 // takes a one-pair dup before the ring acts; dev's datapath takes it too,
 // the arm does not remove it, and #743 owns it. --follow-binds then repeats
@@ -114,15 +124,27 @@ constexpr uint16_t kSrcAaf = 2;
 constexpr double kSettleAfterLockS = 8 * 0.512;
 //! ...give or take the tick the run is counted in and the pulse's register
 constexpr double kSettleSlackS = 2e-3;
-//! ...and the render stage executes it at the stream's next PDU end: within
-//! a PDU interval and a tick of the pulse
+//! ...and the loopback ring takes it at the stream's next PDU: within a PDU
+//! interval and a tick of the pulse
 constexpr double kActS = 1e-3;
 //! the loopback ring decides as the stream's first PDU after the pulse
 //! starts, and that PDU's own beats, through the skid, are the last a slip
 //! of the old phase can land in: from the arrival to its last commit
 constexpr double kPduEndS = static_cast<double>((kBeats + 3) * kBeatCyc) / kClkHz;
-//! the render law is graded from this long after the settle recentre
+//! the presentation law is graded from this long after the settle recentre
 constexpr double kLawAfterS = 0.05;
+//! THE PRESENTATION LAW UNDER TEST (#632), stated here, not read back: the
+//! stage reads frame n + 2 at domain event n (the wrapper's out-lead) ...
+constexpr uint64_t kRenderLeadFrames = 2;
+//! ...each event at the frame nearest its presentation time: half a period,
+//! and two clk_i cycles for the frame marker's crossing in this bench
+constexpr double kNearestNs = 0.5e9 / 48000.0 + 2.0e9 / kClkHz;
+//! a PDU's header reaches the stage this many clk_i cycles before its first
+//! payload beat (the wrapper's FR_PAY_LEAD_C, the depacketizer's lead)
+constexpr int kHdrLeadCyc = 16;
+//! a PDU is graded once its last event's frame has come: its presentation
+//! time, and a millisecond
+constexpr double kPresentedAfterS = kPresNs * 1e-9 + 1e-3;
 //! THE DECLARED TRANSIENT: frames the loopback ring may slip from a switch
 //! from INTERNAL to its settle recentre, at the bench's 5.92 ppm offset
 //! (MEDIA_CLOCK_FOLLOWING.md "The declared transient", measured across the
@@ -205,11 +227,8 @@ struct Options {
     double second_after_action_s = -1.0;         //! two-pull case, from the first action
     double second_hold_us = 52.0;
     bool second_inside_recovery = false;         //! declared residual, otherwise require the law
-    //! a sweep may meet a window it cannot grade (#643's ambiguity window);
-    //! a standing leg must not
-    bool allow_ungradable = false;
-    //! a planted control: one harness recentre pulse into the render stage,
-    //! this long after the hold (pullin) or after LOCKED (b8); < 0 = none
+    //! a planted control: one harness flush pulse into the presentation
+    //! stage, this long after the hold (pullin) or after LOCKED (b8); < 0 = none
     double inject_s = -1.0;
     //! bind: the B17 cycles replayed (1..10), the first PDU's arrival in a
     //! media tick, the unbound dwell, the later burst after the first, the
@@ -234,7 +253,7 @@ void usage() {
         "                            (with --switch-hold) AAF to CRF and CRF to AAF\n"
         "Vfollow_ring --case pullin  INTERNAL, a talker on the DUT's own clock (unless\n"
         "                            --peer-ppm names another), one\n"
-        "                            serial-clock hold, the render stage before and after\n"
+        "                            serial-clock hold, the presentation before and after\n"
         "Vfollow_ring --case bind    INTERNAL, a talker on the DUT's own clock, bench lane\n"
         "                            B17's bind cycles (--b17-cycles 1,5,...), each graded\n"
         "  --bind-phase F (0..1 of a media tick) --unbound-s S --later-after-s S\n"
@@ -244,9 +263,9 @@ void usage() {
         "  --peer-ppm P --dut-ppm D --latency-us L --jitter-us J --tail-us T --tail-p P\n"
         "  --seed N --start-s S\n"
         "  --dwell-s S --set-phase F (0..1 of one INTERNAL beat) --hold-s S\n"
-        "  --switch-hold-s S --hold-us U --after-s S --allow-ungradable\n"
+        "  --switch-hold-s S --hold-us U --after-s S\n"
         "  --second-after-action-s S --second-hold-us U --second-inside-recovery\n"
-        "  --inject-recentre-s S (a planted control)\n"
+        "  --inject-flush-s S (a planted control)\n"
         "  --trace FILE --servo-trace FILE --grid-trace FILE");
 }
 
@@ -276,8 +295,7 @@ bool parse(int argc, char** argv, Options& o) {
         else if (a == "--second-after-action-s" && has) num(o.second_after_action_s);
         else if (a == "--second-hold-us" && has) num(o.second_hold_us);
         else if (a == "--second-inside-recovery") o.second_inside_recovery = true;
-        else if (a == "--allow-ungradable") o.allow_ungradable = true;
-        else if (a == "--inject-recentre-s" && has) num(o.inject_s);
+        else if (a == "--inject-flush-s" && has) num(o.inject_s);
         else if (a == "--b17-cycles" && has) {
             o.b17_cycles.clear();
             for (const char* p = argv[++i]; *p;) {
@@ -307,14 +325,20 @@ bool parse(int argc, char** argv, Options& o) {
             o.follow_binds >= 0 && o.follow_binds <= static_cast<int>(o.b17_cycles.size()));
 }
 
-//! One PDU of the followed stream, from its arrival to its two ring readings.
+//! One PDU of the followed stream, from its arrival to its ring reading and
+//! its six presentations.
 struct PduRec {
     uint64_t n = 0;
     double arrive_s = 0.0;
     double margin_ticks = NAN;                    //! the loopback ring's m
     double full_margin_ticks = NAN;               //! earliest safe push clearance
-    int render_fill = -1;
-    double render_delay_ticks = NAN;
+    double pt0_ns = 0.0;                          //! its avtp_timestamp, on the wheel
+    double ev_space_ns = 0.0;                     //! one talker period per event
+    int shown = 0;                                //! events handed to the TDM lane
+    int resolved = 0;                             //! ...whose frame's instant came
+    int next_event = 0;                           //! the event expected next
+    bool disorder = false;                        //! an event out of its order
+    double err_max_ns = 0.0;                      //! the largest |frame - presentation time|
 };
 
 class Bench {
@@ -409,11 +433,11 @@ class Bench {
     int servo_state() const { return static_cast<int>(dut->servo_status_o & 7); }
     double trim_ppm() const { return static_cast<int16_t>(dut->servo_status_o >> 16) / 16.0; }
 
-    //! a planted control: one recentre pulse into the render stage
-    void inject_recentre() {
-        dut->tb_recentre_p_i = 1;
+    //! a planted control: one flush pulse into the presentation stage
+    void inject_flush() {
+        dut->tb_flush_p_i = 1;
         run_until(t_fs_ + 2.0 * kHalfClk + 1.0);
-        dut->tb_recentre_p_i = 0;
+        dut->tb_flush_p_i = 0;
     }
 
     //! the serial-clock hold, from now
@@ -434,9 +458,10 @@ class Bench {
     double first_locked_s = -1.0;
     std::vector<double> dup_times;                //! one per frame repeated (pair 0)
     std::vector<double> skip_times;               //! one per frame dropped (pair 0)
-    std::vector<double> recentre_times;           //! the render stage's executed recentres
     std::vector<double> settle_times;             //! milan_datapath's settle recentre pulses
-    uint32_t render_recentres() const { return dut->render_recentres_o; }
+    std::vector<double> render_slip_times;        //! the presentation stage's slips
+    uint64_t render_unknown = 0;                  //! presentations naming no PDU sent
+    uint32_t render_refused() const { return dut->render_refused_o; }
 
     //! the window and millisecond traces
     FILE* servo_trace = nullptr;
@@ -493,21 +518,20 @@ class Bench {
     uint16_t dup_q_ = 0;
     uint16_t skip_q_ = 0;
 
-    // the render stage
-    bool pend_end_ = false;
-    int end_wait_ = 0;
-    uint64_t end_pdu_ = 0;
-    double end_fs_ = 0.0;
-    uint64_t end_pops_ = 0;
-    uint64_t pop_total_ = 0;
-    //! PDUs whose first event has not popped yet: (pdu, that pop's number, end)
-    struct Want {
+    // the presentation stage
+    uint64_t hdr_for_ = ~uint64_t{0};             //! the PDU whose header went out
+    uint64_t dom_n_ = 0;                          //! domain events seen
+    uint32_t rq_first_ = 0;                       //! lane 0 of the read's first beat
+    bool rq_valid_q_ = false;
+    uint64_t last_ord_ = 0;                       //! the last event ordinal presented
+    uint16_t slips_q_ = 0;
+    //! presentations waiting for their frame's instant: (frame, pdu, event)
+    struct Pend {
+        uint64_t frame;
         uint64_t pdu;
-        uint64_t pop;
-        double end_fs;
+        int event;
     };
-    std::deque<Want> wants_;
-    uint16_t recentres_q_ = 0;
+    std::deque<Pend> pend_;
 
     // the servo windows
     uint8_t pp_seq_q_ = 0;
@@ -569,8 +593,15 @@ class Bench {
     }
 
     //! the inputs for this rising edge
+    //! a PDU's avtp_timestamp: the talker's media instant plus the
+    //! presentation offset, on the wheel's ns
+    uint32_t stamp(uint64_t n) const {
+        return static_cast<uint32_t>(static_cast<uint64_t>(std::floor(tx_ns(n) + kPresNs)));
+    }
+
     void before_rise() {
         dut->ptp_now_i = static_cast<uint64_t>(t_fs_ / 1e6);
+        dut->hdr_p_i = 0;
         dut->aaf_match_p_i = 0;
         dut->crf_frame_p_i = 0;
         dut->pcm_tvalid_i = 0;
@@ -580,16 +611,27 @@ class Bench {
         rise_req_ = false;
         fall_req_ = false;
         if (!talking_) return;
-        if (aaf_on_ && beat_ < 0 && t_fs_ >= next_arrival_fs_) {
+        //! the header, kHdrLeadCyc cycles ahead of the PDU's arrival: the
+        //! depacketizer's read side parses it before the payload leaves
+        const double lead_fs = 2.0 * kHalfClk * kHdrLeadCyc;
+        if (aaf_on_ && hdr_for_ != aaf_n_ && t_fs_ + lead_fs >= next_arrival_fs_) {
+            dut->hdr_p_i = 1;
+            dut->hdr_ts_ns_i = stamp(aaf_n_);
+            hdr_for_ = aaf_n_;
+            if (next_arrival_fs_ < t_fs_ + lead_fs) next_arrival_fs_ = t_fs_ + lead_fs;
+        } else if (aaf_on_ && beat_ < 0 && hdr_for_ == aaf_n_ && t_fs_ >= next_arrival_fs_) {
             const uint64_t n = aaf_n_++;
-            const double tx = tx_ns(n);
             dut->aaf_match_p_i = 1;
             dut->aaf_seq_i = static_cast<uint8_t>(n & 0xFF);
-            dut->aaf_ts_i = static_cast<uint32_t>(static_cast<uint64_t>(std::floor(tx + kPresNs)));
+            dut->aaf_ts_i = stamp(n);
             dut->aaf_mr_i = 0;
             PduRec r;
             r.n = n;
             r.arrive_s = t_fs_ * 1e-15;
+            //! the timestamp on the wheel's 64-bit ns: the wire carries its
+            //! low 32 bits, the domain's instants are graded whole
+            r.pt0_ns = std::floor(tx_ns(n) + kPresNs);
+            r.ev_space_ns = aaf_space_ns_ / 6.0;
             pdus.push_back(r);
             beat_ = 0;
             beat_gap_ = kBeatCyc;
@@ -611,11 +653,6 @@ class Bench {
                 dut->pcm_tvalid_i = 1;
                 dut->pcm_tlast_i = (beat_ == kBeats - 1);
                 if (beat_ == kBeats - 1) {
-                    pend_end_ = true;
-                    end_wait_ = 2;
-                    end_pdu_ = beat_pdu_;
-                    end_fs_ = t_fs_;
-                    end_pops_ = pop_total_;
                     beat_ = -1;
                 } else {
                     ++beat_;
@@ -659,23 +696,21 @@ class Bench {
                         r->follow_ring_wrap__DOT__settle_pend_r, r->follow_ring_wrap__DOT__settle_recover_r);
     }
 
-    //! every millisecond: the aligner's error and trim, and the #386 settle's
-    //! and the #645 settle's pending flags and runs (the recentre windows)
+    //! every millisecond: the aligner's error and trim, the #645 settle's
+    //! pending flag and run (the recentre window), and the render slips
     double next_grid_fs_ = 0.0;
     void watch_grid() {
         if (!grid_trace || t_fs_ < next_grid_fs_) return;
         next_grid_fs_ = t_fs_ + 1e12;
         auto* r = dut->rootp;
-        std::fprintf(grid_trace, "%.6f,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", now_s(),
+        std::fprintf(grid_trace, "%.6f,%d,%d,%d,%d,%d,%d,%d\n", now_s(),
                      static_cast<int>(r->follow_ring_wrap__DOT__mga_engaged_w),
                      static_cast<int>(static_cast<int16_t>(r->follow_ring_wrap__DOT__mga_err_w)),
                      static_cast<int>(static_cast<int16_t>(r->follow_ring_wrap__DOT__mnco_servo_trim_w)),
-                     static_cast<int>(r->follow_ring_wrap__DOT__src_pend_r),
-                     static_cast<int>(r->follow_ring_wrap__DOT__src_band_ticks_r),
                      static_cast<int>(r->follow_ring_wrap__DOT__settle_pend_r),
                      static_cast<int>(r->follow_ring_wrap__DOT__settle_run_ticks_r),
                      static_cast<int>(r->follow_ring_wrap__DOT__settle_recover_r),
-                     static_cast<int>(dut->render_fill_o));
+                     static_cast<int>(dut->render_slips_o));
     }
 
     //! The loopback ring's pair 0, from its own pointers: every write is one
@@ -732,36 +767,55 @@ class Bench {
         dup_q_ = dp;
     }
 
-    //! The render stage at the PDU end (#643's grading instant, the beat
-    //! with tlast): its fill there is the fill once the last row is in plus
-    //! any pop since the end, and the PDU's first event is the pop that many
-    //! pops, less the PDU's own six, after the end.
+    //! The presentation stage: every domain event's instant resolves the
+    //! presentations the read K events earlier made of that frame; every
+    //! read with a sample names, on lane 0, the ordinal of the event handed
+    //! to the TDM lane (its sample is {ordinal[19:0], channel}).
     void watch_render() {
-        if (dut->render_pop_p_o) {
-            ++pop_total_;
-            while (!wants_.empty() && wants_.front().pop <= pop_total_) {
-                const Want w = wants_.front();
-                wants_.pop_front();
-                if (w.pop == pop_total_ && w.pdu < pdus.size()) {
-                    //! less the pop pulse's one-cycle register (#643's band)
-                    pdus[w.pdu].render_delay_ticks = (t_fs_ - w.end_fs - 2.0 * kHalfClk) / kTickFs;
-                }
+        if (dut->dom_ev_p_o) {
+            ++dom_n_;
+            const double e_ns = static_cast<double>(static_cast<int64_t>(dut->dom_ns_o));
+            while (!pend_.empty() && pend_.front().frame <= dom_n_) {
+                const Pend q = pend_.front();
+                pend_.pop_front();
+                if (q.frame != dom_n_ || q.pdu >= pdus.size()) continue;
+                PduRec& r = pdus[q.pdu];
+                const double pt = r.pt0_ns + q.event * r.ev_space_ns;
+                r.err_max_ns = std::max(r.err_max_ns, std::fabs(pt - e_ns));
+                ++r.resolved;
             }
         }
-        if (pend_end_ && --end_wait_ <= 0) {
-            pend_end_ = false;
-            const int fill = static_cast<int>(dut->render_fill_o) +
-                             static_cast<int>(pop_total_ - end_pops_);
-            if (end_pdu_ < pdus.size()) pdus[end_pdu_].render_fill = fill;
-            const uint64_t first = end_pops_ + static_cast<uint64_t>(std::max(fill - 6, 0)) + 1;
-            if (!dut->render_prefill_o && fill >= 6 && first > pop_total_)
-                wants_.push_back(Want{end_pdu_, first, end_fs_});
+        const bool v = dut->render_tvalid_o;
+        if (v && !rq_valid_q_) {
+            const uint64_t d = dut->render_tdata_o;
+            rq_first_ = static_cast<uint32_t>(((d & 0xFF) << 16) | (((d >> 8) & 0xFF) << 8) |
+                                              ((d >> 16) & 0xFF));
         }
-        //! a prefill drops what was queued: those pops never come
-        if (dut->render_prefill_o) wants_.clear();
-        const uint16_t rc = dut->render_recentres_o;
-        if (rc != recentres_q_) recentre_times.push_back(now_s());
-        recentres_q_ = rc;
+        rq_valid_q_ = v;
+        if (dut->render_pop_p_o) presented(rq_first_ >> 4);
+        const uint16_t sl = dut->render_slips_o;
+        for (uint32_t i = slips_q_; i < sl; ++i) render_slip_times.push_back(now_s());
+        slips_q_ = sl;
+    }
+
+    //! one event handed to the TDM lane, by its 20-bit ordinal, unwrapped
+    //! against the last one
+    void presented(uint32_t ord20) {
+        uint64_t ord = (last_ord_ & ~uint64_t{0xFFFFF}) | ord20;
+        if (ord + 0x80000 < last_ord_) ord += 0x100000;
+        else if (ord > last_ord_ + 0x80000 && ord >= 0x100000) ord -= 0x100000;
+        last_ord_ = ord;
+        const uint64_t n = ord / 6;
+        const int k = static_cast<int>(ord % 6);
+        if (n >= pdus.size()) {
+            ++render_unknown;
+            return;
+        }
+        PduRec& r = pdus[n];
+        ++r.shown;
+        if (k != r.next_event) r.disorder = true;
+        r.next_event = k + 1;
+        pend_.push_back(Pend{dom_n_ + kRenderLeadFrames, n, k});
     }
 
     void watch_servo() {
@@ -796,10 +850,10 @@ void write_trace(const Bench& b, const std::string& path) {
     std::printf("RING-EVENTS: complete through %.9f s\n", b.now_s());
     FILE* f = std::fopen(path.c_str(), "w");
     if (!f) return;
-    std::fprintf(f, "pdu,arrive_s,ring_margin_ticks,full_margin_ticks,render_fill,render_delay_ticks\n");
+    std::fprintf(f, "pdu,arrive_s,ring_margin_ticks,full_margin_ticks,render_shown,render_err_max_ns\n");
     for (const auto& p : b.pdus) {
-        std::fprintf(f, "%llu,%.7f,%.4f,%.4f,%d,%.4f\n", static_cast<unsigned long long>(p.n),
-                     p.arrive_s, p.margin_ticks, p.full_margin_ticks, p.render_fill, p.render_delay_ticks);
+        std::fprintf(f, "%llu,%.7f,%.4f,%.4f,%d,%.1f\n", static_cast<unsigned long long>(p.n),
+                     p.arrive_s, p.margin_ticks, p.full_margin_ticks, p.shown, p.err_max_ns);
     }
     std::fclose(f);
 }
@@ -838,39 +892,29 @@ double first_at_or_after(const std::vector<double>& v, double a) {
     return -1.0;
 }
 
-//! #643's ambiguity window, in this harness's cycles: a PDU end whose nearest
-//! pop is closer than this reads its fill on either side of that pop, so a
-//! window holding one is not gradable
-constexpr double kAmbigTicks = 3.0 * 48000.0 / kClkHz;
-
-//! The render law over a window: fill 14 and delay (8, 9]. `clear` is the
-//! least distance from a PDU end to its nearest pop, in ticks: below
-//! kAmbigTicks the window is not gradable.
+//! The presentation law over the PDUs arriving in [a, e) whose last frame
+//! has come: every event handed to the TDM lane once, in order, at the frame
+//! nearest its presentation time; and the stage's slips in [a, e).
 struct Law {
     int n = 0;
-    int off_fill = 0;
-    int off_band = 0;
-    Range delay;
-    Range fill;
-    double clear = 1e9;
-    bool gradable() const { return clear >= kAmbigTicks; }
-    bool on_law() const { return n > 0 && off_fill == 0 && off_band == 0; }
-    const char* verdict() const { return !gradable() ? "not gradable" : on_law() ? "on the law" : "OFF THE LAW"; }
+    int off = 0;                                  //! PDUs not on the law
+    int slips = 0;
+    double err_max_ns = 0.0;
+    bool on_law() const { return n > 0 && off == 0 && slips == 0; }
+    const char* verdict() const { return on_law() ? "on the law" : "OFF THE LAW"; }
 };
 
 Law render_law(const Bench& b, double a, double e) {
     Law w;
+    const double ripe = b.now_s() - kPresentedAfterS;
     for (const auto& p : b.pdus) {
-        if (p.arrive_s < a || p.arrive_s >= e || p.render_fill < 0 || std::isnan(p.render_delay_ticks))
-            continue;
+        if (p.arrive_s < a || p.arrive_s >= e || p.arrive_s >= ripe) continue;
         ++w.n;
-        w.off_fill += (p.render_fill != 14) ? 1 : 0;
-        w.off_band += (p.render_delay_ticks <= 8.0 || p.render_delay_ticks > 9.0) ? 1 : 0;
-        w.delay.take(p.render_delay_ticks);
-        w.fill.take(static_cast<double>(p.render_fill));
-        const double off = p.render_delay_ticks - static_cast<double>(p.render_fill - 6);
-        w.clear = std::min(w.clear, std::min(std::fabs(off), std::fabs(1.0 - off)));
+        const bool ok = p.shown == 6 && p.resolved == 6 && !p.disorder && p.err_max_ns <= kNearestNs;
+        w.off += ok ? 0 : 1;
+        w.err_max_ns = std::max(w.err_max_ns, p.shown ? p.err_max_ns : 1e9);
     }
+    w.slips = count_in(b.render_slip_times, a, e);
     return w;
 }
 
@@ -910,17 +954,10 @@ void print_window(const Bench& b, const char* name, double a, double e) {
     const Range m = margin_range(b, a, e);
     const Law w = render_law(b, a, e);
     std::printf("  info: %-26s [%8.3f, %8.3f) s: ring slips %d+%d, margin %+.3f..%+.3f ticks; "
-                "render n %d fill %.0f..%.0f (off-law %d), delay %.3f..%.3f (out of band %d), "
-                "end-to-pop clearance %.3f ticks%s\n",
+                "presentation n %d (off-law %d), the largest |frame - presentation time| %.1f ns "
+                "(nearest frame: %.1f ns), render slips %d\n",
                 name, a, e, count_in(b.dup_times, a, e), count_in(b.skip_times, a, e), m.lo, m.hi, w.n,
-                w.fill.lo, w.fill.hi, w.off_fill, w.delay.lo, w.delay.hi, w.off_band, w.clear,
-                w.gradable() ? "" : " NOT GRADABLE");
-}
-
-//! The law graded after a settle recentre: on the law, or (a sweep only) a
-//! window #643's ambiguity window cannot grade.
-bool law_holds(const Law& w, const Options& o) {
-    return w.n > 0 && (w.gradable() ? w.on_law() : o.allow_ungradable);
+                w.off, w.err_max_ns, kNearestNs, w.slips);
 }
 
 //! What one transient left, from its start to its settle recentre and after.
@@ -933,12 +970,14 @@ struct Settle {
     //! the end of the stream's first PDU after the pulse: the loopback ring
     //! has decided, so a slip from here on is the recentre's own
     double t_act = -1.0;
-    int render_acts = 0;                          //! render recentres within kActS of it
-    int pre_slips = 0;                            //! frames slipped before the rings act
+    int pre_slips = 0;                            //! frames slipped before the ring acts
     int post_slips = 0;                           //! ...and after it
     Range margin_after;
     Range full_margin_after;
     Law law_after;
+    //! the PDUs queued across the pulse: where a recentre of the presentation
+    //! stage, which it takes none of, would show
+    Law law_across;
     //! the instant the rings have acted: the end of the PDU the loopback
     //! ring decided on, or (none fired) the one the law expected under
     //! following, so a missing recentre is graded on the window it should
@@ -958,7 +997,6 @@ Settle grade_settle(const Bench& b, double t_start, double t_lock, double t_end)
     s.pulses = count_in(b.settle_times, t_start, t_end);
     s.t_settle = first_at_or_after(b.settle_times, t_start);
     if (s.t_settle >= t_end) s.t_settle = -1.0;
-    if (s.t_settle > 0.0) s.render_acts = count_in(b.recentre_times, s.t_settle, s.t_settle + kActS);
     if (s.t_settle > 0.0) {
         for (const auto& p : b.pdus) {
             if (p.arrive_s > s.t_settle) {
@@ -981,16 +1019,17 @@ Settle grade_settle(const Bench& b, double t_start, double t_lock, double t_end)
     //! after the pull
     const bool timed = s.t_settle > 0.0 || s.t_lock > 0.0;
     s.law_after = render_law(b, timed ? act + kLawAfterS : t_end - 0.5, t_end);
+    if (s.t_settle > 0.0) s.law_across = render_law(b, s.t_settle - kPresentedAfterS, act + kLawAfterS);
     return s;
 }
 
 void print_settle(const char* tag, const Settle& s) {
-    std::printf("  info: %s: settle recentre %s (%d pulse(s), render recentre executed %d); "
+    std::printf("  info: %s: settle recentre %s (%d pulse(s)); "
                 "slips before it %d, after it %d; after it the loopback margin %+.3f..%+.3f ticks, "
-                "render fill %.0f..%.0f delay %.3f..%.3f, %s\n",
-                tag, s.t_settle > 0.0 ? "fired" : "DID NOT FIRE", s.pulses, s.render_acts, s.pre_slips,
-                s.post_slips, s.margin_after.lo, s.margin_after.hi, s.law_after.fill.lo, s.law_after.fill.hi,
-                s.law_after.delay.lo, s.law_after.delay.hi, s.law_after.verdict());
+                "presentation n %d, largest error %.1f ns, render slips %d, %s\n",
+                tag, s.t_settle > 0.0 ? "fired" : "DID NOT FIRE", s.pulses, s.pre_slips,
+                s.post_slips, s.margin_after.lo, s.margin_after.hi, s.law_after.n, s.law_after.err_max_ns,
+                s.law_after.slips, s.law_after.verdict());
     std::printf("MARGINS: %s empty %.6f full %.6f ticks\n", tag,
                 s.margin_after.lo, s.full_margin_after.lo);
     if (s.t_settle > 0.0) {
@@ -1011,8 +1050,6 @@ void check_settle(milan::tb::Checker& ck, const char* tag, const Settle& s, cons
         ck.that(w, s.t_settle > 0.0 && s.t_lock > 0.0 &&
                        std::fabs(s.t_settle - s.t_lock - kSettleAfterLockS) <= kSettleSlackS);
     }
-    std::snprintf(w, sizeof w, "%s the render stage executed the settle recentre", tag);
-    ck.dec(w, static_cast<uint64_t>(s.render_acts), 1);
     std::snprintf(w, sizeof w, "%s no loopback slip after the settle recentre", tag);
     ck.dec(w, static_cast<uint64_t>(s.post_slips), 0);
     std::snprintf(w, sizeof w, "%s the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)",
@@ -1023,18 +1060,13 @@ void check_settle(milan::tb::Checker& ck, const char* tag, const Settle& s, cons
     ck.that(w, s.margin_after.lo >= 1.0 && s.margin_after.lo < 1e9);
     std::snprintf(w, sizeof w, "%s full-side margin at least one tick", tag);
     ck.that(w, s.full_margin_after.lo >= 1.0 && s.full_margin_after.lo < 1e9);
-    //! the render law presumes on-time arrivals: its only jitter is the
-    //! accept phase (TIME_SYNC.md's law table), and a late PDU's own fill
-    //! and first-event delay leave it whatever the stage does. So the law is
-    //! graded on runs with no arrival lateness, and a lateness run grades the
-    //! loopback ring, the #645 half, alone.
-    if (o.jitter_us > 0.0 || o.tail_p > 0.0) {
-        std::printf("  info: %s render law not graded: the run's arrivals are late by up to %.1f us\n", tag,
-                    o.jitter_us + (o.tail_p > 0.0 ? o.tail_us : 0.0));
-        return;
-    }
-    std::snprintf(w, sizeof w, "%s the render stage is on its law after the settle recentre", tag);
-    ck.that(w, law_holds(s.law_after, o));
+    //! the presentation stage takes no recentre (#632): each PDU's timestamp
+    //! places it, so arrival lateness inside the supported range moves no
+    //! presentation and the law is graded on every run
+    std::snprintf(w, sizeof w, "%s the presentation stage is on its law after the settle recentre", tag);
+    ck.that(w, s.law_after.on_law());
+    std::snprintf(w, sizeof w, "%s the presentation stage presented every PDU across the settle recentre", tag);
+    ck.that(w, s.t_settle < 0.0 || s.law_across.on_law());
 }
 
 //! b8: the set at a chosen place in one INTERNAL beat: the next slip, then
@@ -1062,9 +1094,9 @@ void print_events(const Bench& b, double t_set, double t_lock) {
             std::printf("  info: slip (skip) at %.4f s after the set, %+.4f s from LOCKED\n", t - t_set, t - t_lock);
         }
     }
-    for (const double t : b.recentre_times) {
+    for (const double t : b.render_slip_times) {
         if (t >= t_set) {
-            std::printf("  info: render recentre at %.4f s after the set, %+.4f s from LOCKED\n", t - t_set,
+            std::printf("  info: render slip at %.4f s after the set, %+.4f s from LOCKED\n", t - t_set,
                         t - t_lock);
         }
     }
@@ -1091,7 +1123,7 @@ void run_switch(Bench& b, const Options& o, milan::tb::Checker& ck, uint16_t to,
     print_settle(tag, s);
     print_errors(b, tag, s.acted(), b.now_s(), &ck);
     std::printf("RESULT-645-SW: %s phase %.4f jitter %.1f us tail %.1f us p %.0e: LOCKED %.2f s, slips %d, "
-                "drift %+.3f ticks, settle %+.3f s after LOCKED, margin after %+.3f..%+.3f, render %s\n",
+                "drift %+.3f ticks, settle %+.3f s after LOCKED, margin after %+.3f..%+.3f, presentation %s\n",
                 tag, o.set_phase, o.jitter_us, o.tail_us, o.tail_p, t_lock - t_sw, s.pre_slips + s.post_slips,
                 ahead.hi - before.hi, s.t_settle > 0.0 ? s.t_settle - t_lock : -1.0, s.margin_after.lo,
                 s.margin_after.hi, s.law_after.verdict());
@@ -1119,7 +1151,7 @@ int run_b8(Bench& b, const Options& o, milan::tb::Checker& ck) {
     if (o.inject_s >= 0.0) {
         while (b.first_locked_s < 0.0 && b.now_s() < t_set + o.hold_s) b.run_for(1e-3);
         if (b.first_locked_s > 0.0) b.run_until((b.first_locked_s + o.inject_s) * 1e15);
-        b.inject_recentre();
+        b.inject_flush();
     }
     b.run_until((t_set + o.hold_s) * 1e15);
     const double t_lock = b.first_locked_s;
@@ -1138,12 +1170,12 @@ int run_b8(Bench& b, const Options& o, milan::tb::Checker& ck) {
     const Range at_lock = margin_range(b, t_lock, t_lock + 0.5);
     std::printf("RESULT-645: phase %.4f jitter %.1f us tail %.1f us p %.0e: slips set-to-settle %d (declared "
                 "bound %d), after the settle %d, margin at LOCKED %+.3f..%+.3f, after the settle %+.3f..%+.3f "
-                "ticks, LOCKED %.2f s, settle %+.3f s after LOCKED, render after the settle fill %.0f..%.0f "
-                "delay %.3f..%.3f (%s)\n",
+                "ticks, LOCKED %.2f s, settle %+.3f s after LOCKED, presentation after the settle: largest "
+                "error %.1f ns, render slips %d (%s)\n",
                 o.set_phase, o.jitter_us, o.tail_us, o.tail_p, s.pre_slips, kPreSettleSlips, s.post_slips,
                 at_lock.lo, at_lock.hi, s.margin_after.lo, s.margin_after.hi, t_lock - t_set,
-                s.t_settle > 0.0 ? s.t_settle - t_lock : -1.0, s.law_after.fill.lo, s.law_after.fill.hi,
-                s.law_after.delay.lo, s.law_after.delay.hi, s.law_after.verdict());
+                s.t_settle > 0.0 ? s.t_settle - t_lock : -1.0, s.law_after.err_max_ns, s.law_after.slips,
+                s.law_after.verdict());
     ck.that("[B8] the servo read LOCKED within 15 s of the INTERNAL-to-AAF set",
             t_lock > 0.0 && t_lock - t_set <= 15.0);
     ck.that("[B8] the loopback ring slipped no more than the declared transient before the settle recentre",
@@ -1176,8 +1208,10 @@ void run_second_pull(Bench& b, const Options& o, milan::tb::Checker& ck, double 
     print_settle("[SECOND-PULL]", second);
     if (o.second_inside_recovery) {
         ck.dec("[RESIDUAL] second pull in recovery adds no action", second.pulses, 0);
-        ck.that("[RESIDUAL] second pull leaves a gradable render-law shift",
-                second.law_after.gradable() && !second.law_after.on_law());
+        //! the residual is the loopback ring's alone: the presentation stage
+        //! needs no recentre, so it is on its law after the second pull too
+        ck.that("[RESIDUAL] the presentation stage is on its law after the second pull",
+                second.law_after.on_law());
     } else {
         check_settle(ck, "[SECOND-PULL]", second, o, false);
     }
@@ -1191,7 +1225,7 @@ int run_pullin(Bench& b, const Options& o, milan::tb::Checker& ck) {
     b.start_talkers(o.start_s);
     b.run_until((o.start_s + o.dwell_s) * 1e15);
     const double t_hold = b.now_s();
-    const uint32_t rc0 = b.render_recentres();
+    const uint32_t refused0 = b.render_refused();
     print_window(b, "before the hold, last 0.5 s", t_hold - 0.5, t_hold);
     b.frame_hold(o.hold_us);
     if (o.second_after_action_s >= 0.0) {
@@ -1202,7 +1236,7 @@ int run_pullin(Bench& b, const Options& o, milan::tb::Checker& ck) {
     }
     if (o.inject_s >= 0.0) {
         b.run_for(o.inject_s);
-        b.inject_recentre();
+        b.inject_flush();
         b.run_until((t_hold + o.after_s) * 1e15);
     } else {
         b.run_for(o.after_s);
@@ -1215,25 +1249,24 @@ int run_pullin(Bench& b, const Options& o, milan::tb::Checker& ck) {
     print_errors(b, "INTERNAL before hold", t_hold - 0.5, t_hold, &ck);
     print_errors(b, "INTERNAL after hold", t_hold, t_end);
     if (s.t_settle > 0.0) print_errors(b, "INTERNAL after settle", s.acted(), t_end, &ck);
-    const uint32_t rc1 = b.render_recentres();
-    const Law w0 = render_law(b, t_hold - 0.5, t_hold);
+    //! the PDUs presented before the hold: the frames queued at it present
+    //! the hold's length late, which is the hold's own transient
+    const Law w0 = render_law(b, t_hold - 0.5, t_hold - kPresentedAfterS);
     const Law& w1 = s.law_after;
-    const char* verdict = !w0.gradable() ? "BEFORE NOT GRADABLE"
-                        : !w0.on_law()   ? "OFF-LAW BEFORE"
-                        : !w1.gradable() ? "AFTER NOT GRADABLE"
-                        : !w1.on_law()   ? "LEFT THE LAW" : "ON THE LAW";
-    std::printf("RESULT-647: latency %.2f us hold %.1f us: delay %.3f..%.3f -> %.3f..%.3f ticks "
-                "(shift %+.3f), fill %.0f..%.0f -> %.0f..%.0f, clearance %.3f -> %.3f ticks, settle %+.3f s "
-                "after the hold, recentres %u, loopback slips %d before the settle and %d after: %s\n",
-                o.latency_us, o.hold_us, w0.delay.lo, w0.delay.hi, w1.delay.lo, w1.delay.hi,
-                0.5 * (w1.delay.lo + w1.delay.hi - w0.delay.lo - w0.delay.hi), w0.fill.lo, w0.fill.hi, w1.fill.lo,
-                w1.fill.hi, w0.clear, w1.clear, s.t_settle > 0.0 ? s.t_settle - t_hold : -1.0, rc1 - rc0,
+    const int hold_slips = count_in(b.render_slip_times, t_hold, s.acted() + kLawAfterS);
+    const char* verdict = !w0.on_law() ? "OFF-LAW BEFORE" : !w1.on_law() ? "LEFT THE LAW" : "ON THE LAW";
+    std::printf("RESULT-647: latency %.2f us hold %.1f us: largest |frame - presentation time| %.1f -> "
+                "%.1f ns (nearest frame %.1f ns), render slips %d across the hold and %d after, refused %u, "
+                "settle %+.3f s after the hold, loopback slips %d before the settle and %d after: %s\n",
+                o.latency_us, o.hold_us, w0.err_max_ns, w1.err_max_ns, kNearestNs, hold_slips, w1.slips,
+                b.render_refused() - refused0, s.t_settle > 0.0 ? s.t_settle - t_hold : -1.0,
                 s.pre_slips, s.post_slips, verdict);
-    ck.that("[PULLIN] the stream was on the render law, or not gradable, before the hold",
-            law_holds(w0, o));
+    ck.that("[PULLIN] the stream was on the presentation law before the hold", w0.on_law());
+    ck.dec("[PULLIN] the presentation stage refused nothing across the hold",
+           b.render_refused() - refused0, 0);
     if (o.hold_us == 0.0) {
         print_errors(b, "INTERNAL without a hold", t_hold, t_end, &ck);
-        ck.that("[STEADY] the running stream stays on its render law", law_holds(w1, o));
+        ck.that("[STEADY] the running stream stays on its presentation law", w1.on_law());
     } else {
         check_settle(ck, "[PULLIN]", s, o, false);
         b.recovery.check(ck, t_hold, t_end);
@@ -1251,7 +1284,6 @@ struct BindCycle {
     double t_arm = -1.0;
     int pulses = 0;
     double t_settle = -1.0;
-    int render_acts = 0;
     int dups = 0;                                 //! SLIP_LB's two counters, raw
     int skips = 0;
     double t_act = -1.0;                          //! the loopback ring has acted
@@ -1287,7 +1319,6 @@ BindCycle run_bind_cycle(Bench& b, const Options& o, const B17Cycle& c) {
     k.t_arm = first_at_or_after(b.recovery.arms, k.t_bind);
     k.pulses = count_in(b.settle_times, k.t_bind, k.t_end);
     k.t_settle = first_at_or_after(b.settle_times, k.t_bind);
-    k.render_acts = count_in(b.recentre_times, k.t_bind, k.t_end);
     k.dups = static_cast<int>(b.dut->lb_dup_o - dup0);
     k.skips = static_cast<int>(b.dut->lb_skip_o - skip0);
     if (k.t_settle > 0.0 && k.t_settle < k.t_end) {
@@ -1317,14 +1348,14 @@ BindCycle run_bind_cycle(Bench& b, const Options& o, const B17Cycle& c) {
                   k.primed.hi * kTickUs < kB17MarginHiUs;
     std::printf("RESULT-645-BIND: B17 cycle %d phase %.4f %s: first PDU %+.3f ms after the bind, primed margin "
                 "%.3f..%.3f us (%s B17's window), arms %d (%+.3f ms after the first PDU), settle recentres %d "
-                "(%.2f ticks after the arm), render recentres %d, SLIP_LB %+d dups %+d skips, slipped frames "
+                "(%.2f ticks after the arm), SLIP_LB %+d dups %+d skips, slipped frames "
                 "%d before the ring acts and %d after, first burst %.3f us at %+.4f s, later %.3f us, "
                 "margin after a recentre %+.3f..%+.3f ticks, full side %+.3f (1e9: no recentre)\n",
                 c.cycle, o.bind_phase, b.dut->clk_src_idx_i != kSrcInternal ? "under CRF following" : "at INTERNAL",
                 (k.t_first - k.t_bind) * 1e3, k.primed.lo * kTickUs, k.primed.hi * kTickUs,
                 k.in_window ? "inside" : "OUTSIDE", k.arms, k.t_arm > 0.0 ? (k.t_arm - k.t_first) * 1e3 : -1.0,
                 k.pulses, k.t_settle > 0.0 && k.t_arm > 0.0 ? (k.t_settle - k.t_arm) * 1e15 / kTickFs : -1.0,
-                k.render_acts, k.dups, k.skips, k.pre_slips, k.post_slips, c.burst_us, k.t_burst - k.t_first,
+                k.dups, k.skips, k.pre_slips, k.post_slips, c.burst_us, k.t_burst - k.t_first,
                 c.later_us, k.after.lo, k.after.hi, k.full_after.lo);
     //! each slipped frame against the first burst, as B17 timed them
     for (const auto* v : {&b.dup_times, &b.skip_times}) {
@@ -1358,8 +1389,13 @@ int run_bind(Bench& b, const Options& o, milan::tb::Checker& ck) {
         const double after_arm = (k.t_settle - k.t_arm) * 1e15 / kTickFs;
         ck.that(w, k.pulses == 1 && k.t_arm > 0.0 && after_arm > kInternalSettleTicks - 1.0 &&
                        after_arm <= kInternalSettleTicks + 1.0);
-        std::snprintf(w, sizeof w, "%s the render stage counted one recentre", tag);
-        ck.dec(w, static_cast<uint64_t>(k.render_acts), 1);
+        //! the bind's stream is presented by its timestamps from its first
+        //! PDU on, its bursts' lateness included (#632)
+        const Law law = render_law(b, k.t_first, k.t_end);
+        std::printf("  info: %s presentation n %d, off-law %d, largest error %.1f ns, render slips %d\n", tag,
+                    law.n, law.off, law.err_max_ns, law.slips);
+        std::snprintf(w, sizeof w, "%s the bind's stream is on the presentation law from its first PDU", tag);
+        ck.that(w, law.on_law());
         //! a phase B17's window excludes primes the ring closer to its edge than
         //! B17 saw, so its slips before the ring acts are reported (--any-phase);
         //! inside the window none is allowed, and after the action none anywhere
@@ -1430,8 +1466,8 @@ int main(int argc, char** argv) {
     if (!o.grid_trace.empty()) {
         gt = std::fopen(o.grid_trace.c_str(), "w");
         if (gt) {
-            std::fprintf(gt, "t_s,mga_engaged,mga_err_cyc,mga_trim_16th_ppm,src_pend,src_band_ticks,"
-                             "settle_pend,settle_run_ticks,settle_recover,render_fill\n");
+            std::fprintf(gt, "t_s,mga_engaged,mga_err_cyc,mga_trim_16th_ppm,"
+                             "settle_pend,settle_run_ticks,settle_recover,render_slips\n");
         }
     }
     b.grid_trace = gt;

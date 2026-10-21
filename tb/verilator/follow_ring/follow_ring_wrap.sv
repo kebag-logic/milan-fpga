@@ -4,26 +4,30 @@
 /*
 ------------------------------------------------------------------------------
   File        : follow_ring_wrap.sv
-  Description : The media-clock plane and the two listener rings it paces,
+  Description : The media-clock plane and the two listener paths it paces,
                 bound as milan_datapath binds them on the shipping AX7101 1x1
                 TDM8 shape, for #645 (the loopback ring slips one frame after
-                an INTERNAL-to-AAF set) and #647 (a running stream keeps a
-                render-latency shift after an INTERNAL aligner pull-in).
+                an INTERNAL-to-AAF set) and #647 (a running stream kept a
+                render-latency shift after an INTERNAL aligner pull-in, until
+                #632 placed every rendered sample by its timestamp).
 
                 Real RTL: the AAF clock meter, the CRF receiver, the MMCM
                 servo, the media NCO, the grid aligner, the capture crossbar's
-                LOOP bucket (KL_chan_map_capture: the ring SLIP_LB counts) and
-                the render setpoint stage (KL_render_setpoint: the ring the
-                #386 recentre re-centres). The datapath's own glue between
-                them - the clock-source decode, the servo's reference mux with
-                its W2 presentation, the A2-a aligner select with its keep-off
-                and one-cycle-late tick, the #386 settled-grid trigger, the
-                #645 settle recentre and the render stage's recentre set - is
-                copied verbatim out of milan_datapath.sv by dp_glue.py at
+                LOOP bucket (KL_chan_map_capture: the ring SLIP_LB counts),
+                the clock domain's media event (KL_media_domain_event) and
+                the render presentation stage (KL_render_queue, #632). The
+                datapath's own glue between them - the clock-source decode,
+                the servo's reference mux with its W2 presentation, the A2-a
+                aligner select with its keep-off and one-cycle-late tick, the
+                settle recentre's arming edges and the #645 settle recentre -
+                is copied verbatim out of milan_datapath.sv by dp_glue.py at
                 build time, never restated here. The bindings restated are
-                the settle pulse into the LOOP bucket's lb_recentre_i, and
-                the LOOP tap and bind edges the settle's bind arm reads, as
-                milan_datapath binds them on its one listener stream.
+                the settle pulse into the LOOP bucket's lb_recentre_i, the
+                LOOP tap and bind edges the settle's bind arm reads, the
+                domain event on this bench's frame grid, and the presentation
+                stage on the stream's header and payload clone with the bind
+                wipe as its only flush, as milan_datapath binds them on its
+                one listener stream. The presentation stage takes no recentre.
 
                 Scaled, and why (the harness header states the arithmetic):
                   * clk_i is CLK_HZ_P (6.25 MHz, an eighth of the shipping
@@ -34,7 +38,7 @@
                     and KI_LOG2_P are derived from the shipping 2 and 12 by
                     the clock ratio (2 + 3 and 12 - 3 at an eighth), which
                     keeps its loop in SAMPLE units the shipping one; its
-                    keep-off (a quarter sample) and the #386 settle band
+                    keep-off (a quarter sample) and the INTERNAL settle band
                     (1/64 sample) derive from the clock as the datapath
                     derives them;
                   * the audio clock is the shipping 24.576 MHz divided by 32
@@ -78,6 +82,10 @@ module follow_ring_wrap #(
   input  wire [7:0]   crf_seq_i,
   input  wire [63:0]  crf_ts_i,
   input  wire         crf_mr_i,
+  //! STREAM_INPUT 0's PDU header on the depacketizer read side: tv set,
+  //! its avtp_timestamp, at least FR_PAY_LEAD_C cycles before the payload
+  input  wire         hdr_p_i,
+  input  wire [31:0]  hdr_ts_ns_i,
   //! STREAM_INPUT 0's depacketizer payload clone (accepted beats)
   input  wire [63:0]  pcm_tdata_i,
   input  wire         pcm_tvalid_i,
@@ -85,9 +93,10 @@ module follow_ring_wrap #(
   input  wire [3:0]   pcm_chans_i,     //! the wire channels_per_frame
   input  wire         bind_rise_i,     //! STREAM_INPUT 0's not-bound to bound pulse
   input  wire         bind_fall_i,     //! STREAM_INPUT 0's bind wipe pulse
-  //! harness control only: an extra recentre pulse into the render stage,
-  //! ORed beside the datapath's own (a planted control, never a design path)
-  input  wire         tb_recentre_p_i,
+  //! harness control only: an extra flush pulse into the presentation
+  //! stage, ORed beside the bind wipe (a planted control, never a design
+  //! path)
+  input  wire         tb_flush_p_i,
   //! MMCME2_ADV model ports
   output wire [6:0]   drp_addr_o,
   output wire         drp_en_o,
@@ -104,13 +113,17 @@ module follow_ring_wrap #(
   output wire [31:0]  servo_status_o,
   output wire [15:0]  lb_dup_o,
   output wire [15:0]  lb_skip_o,
-  output wire [7:0]   render_fill_o,
-  output wire         render_prefill_o,
-  output wire [15:0]  render_rails_o,
-  output wire [15:0]  render_recentres_o,
-  output wire [15:0]  render_underruns_o,
+  //! the domain's media events: one pulse per frame, and its instant
+  output wire         dom_ev_p_o,
+  output wire [63:0]  dom_ns_o,
+  //! the presentation stage: interface 0's read beats, its pulse when the
+  //! read had a sample, its slips, and the PDUs it refused (late, too early
+  //! and untimed, summed)
+  output wire [63:0]  render_tdata_o,
+  output wire         render_tvalid_o,
   output wire         render_pop_p_o,
-  output wire         render_pdu_end_p_o
+  output wire [15:0]  render_slips_o,
+  output wire [17:0]  render_refused_o
 );
 
   // ---------------------------------------------------------------------- //
@@ -152,8 +165,6 @@ module follow_ring_wrap #(
   wire               mga_engaged_w /* verilator public_flat_rd */;
   wire signed [15:0] mga_err_w /* verilator public_flat_rd */;
   wire signed [15:0] mnco_servo_trim_w /* verilator public_flat_rd */;
-  //! no PHC step in this harness: the gPTP plane is ideal
-  wire               media_rebase_p_w = 1'b0;
   //! the servo's LOCKED, which the settle recentre counts
   wire               mcsrv_locked_w /* verilator public_flat_rd */;
   //! the settle recentre's pulse (milan_datapath declares it at the capture
@@ -302,13 +313,13 @@ module follow_ring_wrap #(
   );
 
   // ---------------------------------------------------------------------- //
-  // The two listener rings, both on STREAM_INPUT 0's payload clone          //
+  // The two listener paths, both on STREAM_INPUT 0's payload clone          //
   // ---------------------------------------------------------------------- //
   //! the loopback ring (SLIP_LB): the capture crossbar's LOOP bucket, with
   //! milan_datapath's settle recentre on its one stream
-`ifdef FR_MUT_RENDER_ONLY
-  //! mutation arm (mutants.py): the settle recentre reaches the render stage
-  //! only, so nothing re-centres the loopback ring after a source change
+`ifdef FR_MUT_LB_WITHHELD
+  //! mutation arm (mutants.py): the settle recentre is withheld from the
+  //! loopback ring, so nothing re-centres it after a source change
   wire lb_recentre_w = 1'b0;
 `else
   wire lb_recentre_w = settle_recentre_p_r;
@@ -334,28 +345,59 @@ module follow_ring_wrap #(
     .tdm_dup_cnt_o (), .tdm_skip_cnt_o (), .tdm_walk_ns_o ()
   );
 
-  //! the render ring: the #386 setpoint stage, bound as the datapath binds it
-  wire [7:0] rsp_fill_w;
-  KL_render_setpoint #(
-    .N_STREAMS_P (N_STREAMS), .N_CH_P (RX_CH_P), .DEPTH_LOG2_P (5),
-    .PDU_EVENTS_P (6), .SETPOINT_EVT_P (8), .CONV_BAND_EVT_P (3),
-    .RESET_BAND_EVT_P (6), .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ)
-  ) render_setpoint (
+  // ---------------------------------------------------------------------- //
+  // The domain's media event and the presentation stage                     //
+  // ---------------------------------------------------------------------- //
+  //! this bench's frame marker is the physical frame's crossing, three clk_i
+  //! flops after the audio-domain toggle that starts the frame
+  localparam int unsigned FR_MARK_LAT_NS_C = 3 * (1_000_000_000 / CLK_HZ_P);
+  wire        dom_ev_p_w;
+  wire [63:0] dom_ns_w;
+  KL_media_domain_event #(
+    .MARK_LAT_NS_P (FR_MARK_LAT_NS_C),
+    .TIMEOUT_CYC_P (4 * (MILAN_CLK_FREQ_HZ / 48_000))
+  ) media_domain_event (
     .clk_i (axis_clk), .rst_n (axis_resetn),
+    .mark_i (frame_ev_w), .alt_i (media_tick_p), .ptp_ns_i (ptp_now_i),
+    .ev_p_o (dom_ev_p_w), .ev_ns_o (dom_ns_w), .mark_ns_o (), .live_o ()
+  );
+  assign dom_ev_p_o = dom_ev_p_w;
+  assign dom_ns_o   = dom_ns_w;
+
+  //! the render path: the #632 presentation stage, bound as the datapath
+  //! binds it (one interface at the 1x1 TDM8 out-lead of two frames, the
+  //! depacketizer's 16-cycle payload lead, the bind wipe its only flush)
+  localparam int unsigned FR_PAY_LEAD_C = 16;
+  wire [15:0] rq_late_w, rq_early_w, rq_untimed_w;
+  wire [0:0]  rq_tvalid_w;
+  wire [0:0]  rq_pop_w;
+  KL_render_queue #(
+    .N_STREAMS_P (N_STREAMS), .N_CH_P (RX_CH_P), .FS_HZ_P (48_000),
+    .MAX_HOLD_NS_P (2_126_000), .EV_LAT_NS_P (FR_MARK_LAT_NS_C),
+    .N_IF_P (1), .IF_LEAD_P (32'd2), .PAY_LEAD_CYC_P (FR_PAY_LEAD_C),
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ)
+  ) render_queue (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .hdr_p_i (hdr_p_i), .hdr_ts_ns_i (hdr_ts_ns_i), .hdr_tv_i (1'b1),
     .s_tdata_i (pcm_tdata_i), .s_tvalid_i (pcm_tvalid_i),
     .s_tlast_i (pcm_tlast_i), .s_tuser_i (4'd0), .wire_chans_i (pcm_chans_i),
-    .tick_i (media_tick_p), .recentre_p_i (render_recentre_p_w | tb_recentre_p_i),
-    .flush_i (bind_fall_i),
-    .m_tdata_o (), .m_tvalid_o (), .m_tlast_o (), .m_tuser_o (),
-    .m_wire_chans_o (), .render_tick_p_o (),
-    .pop_p_o (render_pop_p_o), .fill_o (rsp_fill_w),
-    .prefill_o (render_prefill_o), .converged_o (),
-    .underruns_o (render_underruns_o), .overruns_o (), .rails_o (render_rails_o),
-    .recentres_o (render_recentres_o)
+    .ev_p_i (dom_ev_p_w), .ev_ns_i (dom_ns_w[31:0]),
+`ifdef FR_MUT_SETTLE_FLUSH
+    //! mutation arm (mutants.py): the settle recentre empties the
+    //! presentation stage too, the shape of the #386 recentre #632 retired
+    .flush_i (bind_fall_i | tb_flush_p_i | settle_recentre_p_r),
+`else
+    .flush_i (bind_fall_i | tb_flush_p_i),
+`endif
+    .m_tdata_o (render_tdata_o), .m_tvalid_o (rq_tvalid_w), .m_tlast_o (),
+    .m_tuser_o (), .m_wire_chans_o (), .render_tick_p_o (),
+    .pop_p_o (rq_pop_w), .lead_o (), .idle_o (), .converged_o (),
+    .late_o (rq_late_w), .early_o (rq_early_w), .untimed_o (rq_untimed_w),
+    .slips_o (render_slips_o)
   );
-  assign render_fill_o = rsp_fill_w;
-  //! the stage's grading instant (#643): the accepted beat with tlast
-  assign render_pdu_end_p_o = pcm_tvalid_i && pcm_tlast_i;
+  assign render_tvalid_o  = rq_tvalid_w[0];
+  assign render_pop_p_o   = rq_pop_w[0];
+  assign render_refused_o = 18'(rq_late_w) + 18'(rq_early_w) + 18'(rq_untimed_w);
 
 endmodule
 

@@ -28,8 +28,7 @@ before the ring acts (--any-phase).
 Every run grades the settle law (sim_main.cpp): one settle recentre per
 transient, after 8 LOCKED windows under following; slips before it within the
 declared bound; after it no loopback slip, the loopback ring centred and the
-render stage on its law. A window #643's ambiguity window cannot grade is
-reported, not failed (--allow-ungradable). The executable is
+presentation stage (#632) on its law. The executable is
 MDIR/Vfollow_ring (make build). Every run's own log lands in OUT/<name>.log
 beside the table OUT/<case>.md (its RESULT lines), and the exit status is 0
 only when every run completed and passed.
@@ -89,7 +88,7 @@ def main() -> int:
                               "--tail-us", f"{a.tail_us:g}", "--tail-p", f"{a.tail_p:g}",
                               "--hold-s", f"{a.hold_s:g}", "--switch-hold-s", f"{a.switch_hold_s:g}",
                               "--latency-us", f"{a.latency_us:g}", "--seed", str(645 + k),
-                              "--allow-ungradable", *a.extra]))
+                              *a.extra]))
     elif a.case == "bind":
         for jit in a.jitter_us:
             for k in range(a.phases):
@@ -103,7 +102,7 @@ def main() -> int:
                 runs.append((f"pullin_h{hold:g}_p{k:02d}",
                              ["--case", "pullin", "--peer-ppm", "-5.10", "--hold-us", f"{hold:g}",
                               "--latency-us", f"{lat:.4f}", "--after-s", f"{a.after_s:g}",
-                              "--allow-ungradable", *a.extra]))
+                              *a.extra]))
     rows = []
     with cf.ThreadPoolExecutor(max_workers=a.jobs) as pool:
         futs = [pool.submit(run, a.exe, a.out, n, args) for n, args in runs]

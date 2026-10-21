@@ -30,10 +30,10 @@ class TraceTableTests(unittest.TestCase):
                 log += "RING-EVENTS: complete through 2.000000000 s\n"
             (work / "run.log").write_text(log)
             (work / "pdu.csv").write_text(
-                "arrive_s,ring_margin_ticks,render_fill,render_delay_ticks\n" +
+                "arrive_s,ring_margin_ticks,render_shown,render_err_max_ns\n" +
                 (pdus if pdus is not None else
-                 "1.000,1.3,14,8.5\n1.599,1.3,14,8.5\n"
-                 "1.600,5.3,14,8.5\n1.900,5.3,14,8.5\n"))
+                 "1.000,1.3,6,120.5\n1.599,1.3,6,120.5\n"
+                 "1.600,5.3,6,120.5\n1.900,5.3,6,120.5\n"))
             (work / "servo.csv").write_text(
                 "t_s,state,pi_run,ew_ns,trim_ppm,meter_valid\n" +
                 (servo if servo is not None else "1.0,4,1,0,0.0,1\n"))
@@ -108,7 +108,7 @@ class TraceTableTests(unittest.TestCase):
                             f"RING-EVENT: {kind} {instant}\n",
                             options=("--origin-s", origin, "--from-s", start,
                                      "--to-s", end, "--step-s", ".1"),
-                            pdus=f"{instant},5.3,14,8.5\n")
+                            pdus=f"{instant},5.3,6,120.5\n")
                         self.assertEqual(tuple(r["t_s"] for r in rows), labels)
                         for i, row in enumerate(rows):
                             present = i == owner
@@ -117,8 +117,8 @@ class TraceTableTests(unittest.TestCase):
                                                     ("recentres", kind == "recentre")):
                                 self.assertEqual(row[column], str(int(present and counted)))
                             for column, value in (("ring_margin_ticks", "+5.300..+5.300"),
-                                                  ("render_fill", "14..14"),
-                                                  ("render_delay_ticks", "8.500..8.500")):
+                                                  ("render_shown", "6..6"),
+                                                  ("render_err_max_ns", "120.5")):
                                 self.assertEqual(row[column], value if present else "-")
                             self.assertEqual(row["event_trace"], "complete")
 
@@ -132,12 +132,12 @@ class TraceTableTests(unittest.TestCase):
                     rows = self.table(
                         f"RING-EVENT: {kind} {instant}\n",
                         options=("--from-s", "0", "--to-s", ".4", "--step-s", ".1"),
-                        pdus=f"{instant},5.3,14,8.5\n")
+                        pdus=f"{instant},5.3,6,120.5\n")
                     key = "recentres" if kind == "recentre" else "slips"
                     self.assertEqual([r[key] for r in rows],
                                      [str(int(i == owner)) for i in range(4)])
-                    self.assertEqual([r["render_fill"] for r in rows],
-                                     ["14..14" if i == owner else "-" for i in range(4)])
+                    self.assertEqual([r["render_shown"] for r in rows],
+                                     ["6..6" if i == owner else "-" for i in range(4)])
 
     def test_partial_last_bin_and_servo_timestamp(self) -> None:
         """A short final bin clips at the exact end; servo snapshots stay exact."""
@@ -145,7 +145,7 @@ class TraceTableTests(unittest.TestCase):
             "RING-EVENT: dup .299999999\nRING-EVENT: skip .3\n",
             options=("--origin-s", ".1", "--from-s", "0", "--to-s", ".2",
                      "--step-s", ".07"),
-            pdus=".299999999,5.3,14,8.5\n.3,99,99,99\n",
+            pdus=".299999999,5.3,6,120.5\n.3,99,99,99\n",
             servo=".1,1,0,10,0.0,0\n.24,4,1,20,0.0,1\n"
                   ".240000000000000000000000000001,5,0,30,0.0,0\n"
                   ".3,2,0,40,0.0,0\n.300000001,6,0,50,0.0,0\n")

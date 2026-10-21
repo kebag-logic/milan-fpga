@@ -13,15 +13,19 @@ KL_chan_map_capture.sv through CMAP_SRC: OVERSHOOT in follow_ring,
 SINGLE-DROP, HELD-DUP and STARVED-HELD-DUP in chmap_capture):
 
 NO-SETTLE: the settle recentre never pulses. An INTERNAL pull-in under a
-  running stream then keeps its shift (#647): the pull-in leg at a feed phase
-  the pull moves off the law must fail the law after the settle.
-RENDER-ONLY: the settle recentre reaches the render stage but not the
-  loopback ring (a define on the wrapper's one restated binding). After the
-  INTERNAL-to-AAF set at phase 0.0 the frequency-only servo leaves the ring
-  about half a tick from its empty edge, so it must fail centring.
+  running stream then leaves the loopback ring where the pull moved it: the
+  pull-in leg must fail its one settle recentre.
+LB-WITHHELD: the settle recentre is withheld from the loopback ring (a
+  define on the wrapper's one restated binding). After the INTERNAL-to-AAF
+  set at phase 0.0 the frequency-only servo leaves the ring about half a tick
+  from its empty edge, so it must fail centring.
 EARLY: under following the settle waits for the aligner's band, as at
   INTERNAL, and not for 8 LOCKED windows: it fires 43 ms after the set, before
-  the servo's pull-in walks 1.4 ticks, so the render stage must leave its law.
+  the servo's pull-in walks 1.4 ticks, so it must fail its LOCKED dwell.
+SETTLE-FLUSH: the settle recentre empties the presentation stage too, the
+  shape of the #386 render recentre #632 retired (a define on the wrapper).
+  The PDUs queued across it are lost, so the presentation across the settle
+  must fail.
 W1: a switch between two followed sources passes servo IDLE (the design's
   rejected W1, MEDIA_CLOCK_FOLLOWING.md "Switching sources"), so the trim
   restarts from the bare MMCM plan and the DUT reads 5.92 ppm fast while the
@@ -33,8 +37,8 @@ OVERSHOOT: the loopback ring's recentre aims one event past the depth (17
   catches the resulting drop without granting a post-decision grace period.
 
 NO-ARM: remove excursion arming under a running INTERNAL stream. The fine
-  hold (two samples plus 3/64 sample) crosses a gradable render-law boundary
-  while its peak error remains below the former four-band threshold.
+  hold (two samples plus 3/64 sample) then arms no settle recentre while its
+  peak error remains below the former four-band threshold.
 SINGLE-DROP: replace the full-side correction with one drop. The ten-event
   pre-PDU fill must then fail the LRC wire expectation for five drops.
 HELD-DUP: count every held pop as a loopback dup. The declared holds must
@@ -45,8 +49,8 @@ STARVED-HELD-DUP: count a held pop as a dup only where the pair is still
   commit reaches that state, so it and the LRC counter check must fail.
 NO-RECOVERY: let the excursion arm while recovering. The three-quantum hold
   then causes two actions, one from the aligner's own recovery swing.
-HIGH-ARM: raise the arm above the one-quantum pull's +9-cycle peak. Its
-  gradable render-law boundary is missed.
+HIGH-ARM: raise the arm above the one-quantum pull's +9-cycle peak. That
+  pull then arms no settle recentre.
 QUIET-ARM: set the quiet band to zero. Quantisation noise then arms a
   pending correction in an undisturbed running stream.
 
@@ -103,7 +107,7 @@ MUTANTS: tuple[Mutant, ...] = (
     ("NO-ARM", None,
      [("                      (settle_exc_w && !settle_pend_r && !settle_recover_r);\n",
        "                      1'b0;\n")], [],
-     SMALL_PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
+     SMALL_PULLIN, "[PULLIN] exactly one settle recentre from the transient to the hold's end"),
     ("NO-RECOVERY", None,
      [("                      (settle_exc_w && !settle_pend_r && !settle_recover_r);\n",
        "                      (settle_exc_w && !settle_pend_r);\n")], [],
@@ -113,7 +117,7 @@ MUTANTS: tuple[Mutant, ...] = (
      [("  localparam int unsigned SETTLE_EXC_ERR_C   = 2;\n",
        "  localparam int unsigned SETTLE_EXC_ERR_C   = 10;\n")], [],
      ["--case", "pullin", "--hold-us", "41.9921875", "--latency-us", "204.0", "--after-s", "1.5"],
-     "[PULLIN] the render stage is on its law after the settle recentre"),
+     "[PULLIN] exactly one settle recentre from the transient to the hold's end"),
     ("QUIET-ARM", None,
      [("  localparam int unsigned SETTLE_EXC_ERR_C   = 2;\n",
        "  localparam int unsigned SETTLE_EXC_ERR_C   = 0;\n")], [],
@@ -131,14 +135,16 @@ MUTANTS: tuple[Mutant, ...] = (
      (EARLY_HOLD, LRC_DUPS)),
     ("NO-SETTLE", None,
      [("          settle_recentre_p_r <= 1'b1;\n", "          settle_recentre_p_r <= 1'b0;\n")], [],
-     PULLIN, "[PULLIN] the render stage is on its law after the settle recentre"),
-    ("RENDER-ONLY", "FR_MUT_RENDER_ONLY", [], [],
+     PULLIN, "[PULLIN] exactly one settle recentre from the transient to the hold's end"),
+    ("LB-WITHHELD", "FR_MUT_LB_WITHHELD", [], [],
      B8, "[B8] the loopback ring is centred after the settle recentre (margin in (5, 6] ticks)"),
     ("EARLY", None,
      [("  wire settle_steady_w = follow_sel_r\n", "  wire settle_steady_w = 1'b0\n"),
       ("  wire [SETTLE_RUN_W_C-1:0] settle_need_w = follow_sel_r\n",
        "  wire [SETTLE_RUN_W_C-1:0] settle_need_w = 1'b0\n")], [],
-     B8, "[B8] the render stage is on its law after the settle recentre"),
+     B8, "[B8] the settle recentre came 8 servo windows after LOCKED"),
+    ("SETTLE-FLUSH", "FR_MUT_SETTLE_FLUSH", [], [],
+     B8, "[B8] the presentation stage presented every PDU across the settle recentre"),
     ("W1", "FR_MUT_W1", [], [],
      ["--case", "b8", "--dwell-s", "1.0", "--set-phase", "0.0", "--hold-s", "12", "--switch-hold-s", "9"],
      "[SW] AAF to CRF: the switch moved the loopback margin less than 0.1 tick before its settle"),

@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
-# The media-clock plane and the two listener rings it paces, through a source
+# The media-clock plane and the two listener paths it paces, through a source
 # change and through an INTERNAL aligner pull-in (#645, #647):
 # follow_ring_wrap.sv binds the real meter, CRF receiver, servo, NCO, aligner,
-# capture crossbar LOOP bucket and render setpoint stage, with
-# milan_datapath's own glue between them, the #645 settle recentre included,
-# copied verbatim by dp_glue.py.
+# capture crossbar LOOP bucket, domain media event and render presentation
+# stage (#632), with milan_datapath's own glue between them, the #645 settle
+# recentre included, copied verbatim by dp_glue.py.
 #   make         - the five standing legs (run)
 #   make build   - build the harness (MDIR, default obj_dir)
 #   make b8      - lane B8's INTERNAL-to-AAF set, then AAF to CRF and back,
@@ -70,7 +70,8 @@ SRCS = $(RTL_DIR)/ieee1722/avtp/avtp_subtype_pkg.sv \
        $(RTL_DIR)/ieee1722/crf/KL_media_nco.sv \
        $(RTL_DIR)/ieee1722/crf/KL_media_grid_align.sv \
        $(CMAP_SRC) \
-       $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv \
+       $(RTL_DIR)/ieee1722/crf/KL_media_domain_event.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_render_queue.sv \
        follow_ring_wrap.sv
 
 # --public-flat-rw: the harness reads the servo's window registers and the
@@ -96,11 +97,11 @@ build:
 	$(VERILATOR) $(VFLAGS) -Mdir $(MDIR) $(SRCS) sim_main.cpp -o Vfollow_ring
 
 # The standing legs. b8 sets AAF at the set phase (0.0) where the servo's
-# pull-in leaves the loopback ring half a tick from its empty edge and the
-# render stage a tick and a half off its law, and where every settle's
-# render window stays clear of #643's ambiguity window, so all three are
-# graded; each hold runs past its settle recentre. pullin feeds at the phase
-# the 52 us hold's pull moves off the law.
+# pull-in leaves the loopback ring half a tick from its empty edge; each hold
+# runs past its settle recentre, and the presentation stage is graded on its
+# law after each. pullin feeds at the latency whose 52 us hold moved the
+# retired setpoint stage off its law (#647), and the presentation stage must
+# hold its law across it.
 b8: build
 	$(abspath $(MDIR))/Vfollow_ring --case b8 --dwell-s 1.0 --set-phase 0.0 --hold-s 16 --switch-hold-s 15
 
@@ -117,8 +118,8 @@ bind: build
 	$(abspath $(MDIR))/Vfollow_ring --case bind --b17-cycles 5,4,9 --bind-phase 0.125 --jitter-us 5 \
 	  --dwell-s 0.5 --follow-binds 1
 
-# The review's sub-arm pull is gradable on both sides of the law boundary
-# at 25 MHz. Audio edges resolve 1/64 sample, with the real 1 ms servo tick.
+# The review's sub-arm pulls at 25 MHz: audio edges resolve 1/64 sample,
+# with the real 1 ms servo tick.
 small-pullin:
 	$(MAKE) build CLK_HZ=25000000 FRAME_DIV=64 MDIR=$(abspath $(MDIR))_fine
 	python3 small_pulls.py --exe $(abspath $(MDIR))_fine/Vfollow_ring \
