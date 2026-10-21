@@ -76,6 +76,10 @@ static_assert(kPeriodNs * kHz == 1000000000 && kDelayBoundNs == 28,
               "revisit the check labels, verify_abort.py and the audio ratio for this period");
 constexpr uint64_t kPeer = 0x0080E1FFFE112233ULL;
 constexpr uint64_t kGm = 0x00AACCFFFE010203ULL;
+//! thisClock of gptp_ax1x1_ucode.hex (--mac 0x020000000001). IEEE 802.1AS-2020
+//! 10.3.13.2.4 f) 5): a slave port's pathTrace is the received
+//! pathSequence with thisClock appended.
+constexpr uint64_t kThisClock = 0x020000FFFE000001ULL;
 constexpr uint64_t kSid = 0x0200000000020000ULL;
 constexpr uint64_t kPropagation = 320;
 constexpr uint64_t kResidence = 20000;
@@ -935,7 +939,7 @@ void Harness::publication(const char* arm, bool healthy) {
     if (healthy) {
         check.hex("selected GM matches independent Announce", gm, kGm);
         check.hex("selected parent matches peer identity", parent, kPeer);
-        check.hex("PathTrace has GM and parent", gen1 & 15, 2);
+        check.hex("PathTrace has GM, parent and thisClock", gen1 & 15, 3);
         check.hex("asCapable and Sync healthy, uncertainty cleared", stat & 0x10003, 0x10002);
         // Bound: kDelayBoundNs. No PHY allowance.
         if (pd_answers)
@@ -977,13 +981,13 @@ void Harness::wire_publication() {
     check.dec("GET_AVB_INFO delay equals CSR bank", be(avb, 50, 4), delay);
     check.that("GET_AVB_INFO asCapable agrees with CSR", avb.size() > 55 && (avb[55] & 1));
     const auto path = query(0x28, 0x7002);
-    check.dec("GET_AS_PATH Ethernet minimum length", path.size(), 60);
+    check.dec("GET_AS_PATH three-identity wire length", path.size(), 66);
     check.dec("GET_AS_PATH status SUCCESS", path.size() > 16 ? path[16] >> 3 : 255, 0);
-    check.dec("GET_AS_PATH control data length excludes padding", be(path, 16, 2) & 0x7FF, 32);
-    check.dec("GET_AS_PATH padding bytes are zero", be(path, 58, 2), 0);
-    check.dec("GET_AS_PATH two ordered identities", be(path, 38, 4), 2);
+    check.dec("GET_AS_PATH control data length", be(path, 16, 2) & 0x7FF, 40);
+    check.dec("GET_AS_PATH three ordered identities", be(path, 38, 4), 3);
     check.hex("GET_AS_PATH GM", be(path, 42, 8), kGm);
     check.hex("GET_AS_PATH parent", be(path, 50, 8), kPeer);
+    check.hex("GET_AS_PATH ends with thisClock", be(path, 58, 8), kThisClock);
 }
 
 void Harness::audio_window(const char* arm, uint64_t n, int tu, Until until) {
