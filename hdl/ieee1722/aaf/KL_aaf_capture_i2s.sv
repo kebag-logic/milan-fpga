@@ -138,7 +138,7 @@ module KL_aaf_capture_i2s (
   //! KL_tdm_capture_master do. Copying rdata_o on the ren edge instead took
   //! the PREVIOUS pop's pair: every strobe carried the pair before it, one
   //! frame older than the frame its strobe closes, so a timestamp of that
-  //! frame named samples a period older (#632, R677-1-F1)
+  //! frame named samples a period older (#632)
   always_ff @(posedge clk_i or negedge rst_n) begin : t_pop
     if (!rst_n) begin
       pair_valid_o <= 1'b0; cap_ren_r <= 1'b0;

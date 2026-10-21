@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// The in-tree two-interface shape graded at its pins (#632, R677-1-F1):
+// The in-tree two-interface shape graded at its pins (#632):
 // blend_wrap.sv, the Arty I2S + TDM8 capture bound as milan_datapath binds
 // it. Two codec models drive the pins: the I2S ADC writes every bit of frame
 // m with a word naming m, the TDM codec every slot of its frame m likewise,
@@ -12,7 +12,7 @@
 // banked: the I2S pair and every TDM pair of it must have started at their
 // pins within +/-5 % of Ps of that one instant, unfolded, so no whole sample
 // apart (IEEE 1722-2016 4.3.5, 10.8). Closing the frame on a TDM pair, as
-// before #632's R677-1-F1, banked the I2S pair of an earlier frame. Six reset
+// before the #632 frame-assembly correction, banked the I2S pair of an earlier frame. Six reset
 // phases of the audio clock against the datapath clock. Planted controls:
 // phase_mutants.py.
 

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// The IN-TREE two-interface shape (#632, R677-1-F1): the Arty 4x4 and 8ch
+// The IN-TREE two-interface shape (#632): the Arty 4x4 and 8ch
 // capture, AUDIO_IF_I2S_PAIR_P = 1. Two front ends share one clock domain,
 // the stereo I2S master (KL_aaf_capture_i2s) at merged pair slot 0 and the
 // TDM8 master (KL_tdm_capture_master) at slots 1..4, merged by KL_pair_blend
