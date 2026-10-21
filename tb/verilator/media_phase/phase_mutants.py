@@ -167,18 +167,18 @@ MUTANTS = (
      "phcstep", "[phcstep] the phase term let go at the PHC step"),
     #: #632: the offsets stamped as set, not in whole periods
     ("offset_rounding_bypassed", MTTR,
-     (("      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= dv_quot_r[32:0];",
-       "      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= {1'b0, raw_row_w};"),),
+     (("      ofs_ns_o[32*row_r +: 32] <= dv_quot_r[31:0];\n      ofs_c_o[row_r]        <= dv_quot_r[32];",
+       "      ofs_ns_o[32*row_r +: 32] <= raw_row_w;\n      ofs_c_o[row_r]        <= 1'b0;"),),
      OFS, "[ofs A] every AAF output stamps whole periods from the CRF timing points"),
     #: #632: a conversion past 2^32 - 1 ns loses its bit 32
     ("mtt_carry_dropped", MTTR,
-     (("      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= dv_quot_r[32:0];",
-       "      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= {1'b0, dv_quot_r[31:0]};"),),
+     (("      ofs_c_o[row_r]        <= dv_quot_r[32];",
+       "      ofs_c_o[row_r]        <= 1'b0;"),),
      OFS, "[ofs C] every row reads back as applied, rounded up to whole periods, all 33 bits"),
     #: #632: a factory row past 2^32 - 1 ns loads its low word alone
     ("mtt_reset_carry_dropped", MTTR,
-     (("        {ofs_c_o[k], ofs_ns_o[32*k +: 32]} <= round_c(64'(RESET_NS_P[32*k +: 32]));",
-       "        begin ofs_c_o[k] <= 1'b0; ofs_ns_o[32*k +: 32] <= 32'(round_c(64'(RESET_NS_P[32*k +: 32]))); end"),),
+     (("        ofs_c_o[k]           <= RESET_RND_C[33*k + 32];",
+       "        ofs_c_o[k]           <= 1'b0;"),),
      OFS, "[ofs A] in reset every row reads its factory value rounded up to whole periods, all 33 bits"),
     #: #632: GET_STREAM_INFO reads a row past 32 bits as its low word
     ("readback_saturation_dropped", MTTR,

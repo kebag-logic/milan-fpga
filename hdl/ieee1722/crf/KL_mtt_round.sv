@@ -137,6 +137,16 @@ module KL_mtt_round #(
     per = (t * 64'(DEN_C) + 64'(NUM_C) - 64'd1) / 64'(NUM_C);
     round_c = 33'((per * 64'(NUM_C) + 64'(DEN_C) - 64'd1) / 64'(DEN_C));
   endfunction
+  //! every factory row rounded, row k at [33k +: 33]: the low word and the
+  //! carry are written apart below (a concatenation as the target of an
+  //! indexed write is not portable synthesis input)
+  function automatic logic [N_P*33-1:0] round_rows_c();
+    logic [N_P*33-1:0] r;
+    for (int unsigned k = 0; k < N_P; k++)
+      r[33*k +: 33] = round_c(64'(RESET_NS_P[32*k +: 32]));
+    return r;
+  endfunction
+  localparam logic [N_P*33-1:0] RESET_RND_C = round_rows_c();
 
   logic [IW_C-1:0]    row_r;          //! the row the divider converts
 
@@ -173,8 +183,10 @@ module KL_mtt_round #(
 
   always_ff @(posedge clk_i) begin : rounder
     if (!rst_n) begin
-      for (int unsigned k = 0; k < N_P; k++)
-        {ofs_c_o[k], ofs_ns_o[32*k +: 32]} <= round_c(64'(RESET_NS_P[32*k +: 32]));
+      for (int unsigned k = 0; k < N_P; k++) begin
+        ofs_ns_o[32*k +: 32] <= RESET_RND_C[33*k +: 32];
+        ofs_c_o[k]           <= RESET_RND_C[33*k + 32];
+      end
       row_r      <= '0;
       dv_n1_r    <= '0;
       dv_num_r   <= '0;
@@ -207,7 +219,8 @@ module KL_mtt_round #(
       dv_pass2_r <= 1'b1;
     end else begin
       //! only now does the row's output move, to the whole conversion
-      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= dv_quot_r[32:0];
+      ofs_ns_o[32*row_r +: 32] <= dv_quot_r[31:0];
+      ofs_c_o[row_r]        <= dv_quot_r[32];
       dv_busy_r             <= 1'b0;
       row_r                 <= row_nx_w;
     end
