@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // Several AAF outputs of one clock domain with different presentation
-// offsets, graded against the domain's CRF timing points (#632, R678-1-F2):
+// offsets, graded against the domain's CRF timing points (#632):
 // ofs_wrap.sv binds KL_mtt_round, a four-talker KL_aaf_packetizer and
 // KL_crf_tx as milan_datapath binds them, on an exact 48 kHz frame grid of a
 // 50 MHz datapath clock. IEEE 1722-2016 4.3.5 and 10.8 Eq. 15: every output
@@ -11,17 +11,28 @@
 // would sit 10,000 ns (0.48 Ps) off them. Each row must also read back as
 // applied, and every timestamp be a frame instant plus its row as read back.
 //
-//   A  talkers 2,000,000 / 2,010,000 / 0 / 20,833 ns, the CRF row 2,010,000
-//   B  talkers 1 / 20,834 / 62,500 / 4,294,958,333 ns (the largest under
-//      2^32 once rounded), the CRF row 2,000,000
-//   C  at run time talker 1 moves to 1,999,999 ns and talker 3 to
-//      0xFFFFFFFF (rounded past 2^32: read back and stamped modulo 2^32)
-//   D  the CRF row at 0xFFFFFFFF beside talkers 2,000,000 / 2,010,000 / 0 / 1
+// Rounding up can pass 2^32 - 1 ns (KL_mtt_round's banner). An AAF timestamp
+// is the low 32 bits of gPTP time (IEEE 1722-2016 4.4.4.9, Eq. 6), so it is
+// graded on 32 bits; a CRF timestamp is all 64 (10.4.13.1, Eq. 13), so on 64,
+// against an independent Equation 14 result and against the frame grid, and
+// the AAF outputs against it on 64 bits too, each AAF stamp unwrapped about
+// the grid (rows under 2^31, the AVTP timestamp's own range).
+// GET_STREAM_INFO's readback is 32 bits: a row past 2^32 - 1 ns reads
+// 0xFFFFFFFF.
 //
-// The phase is graded for rows under 2^31, where the 32-bit AVTP timestamp
-// differences are unambiguous, so not at all in D, whose CRF reference lies
-// 4.29 s ahead; the larger rows are graded by readback and by their stamps.
-// Mutants: phase_mutants.py plants the raw offset.
+//   A  talkers 2,000,000 / 2,010,000 / 0 / 20,833 ns, the CRF row 2,010,000
+//   B  talkers 1 / 20,834 / 62,500 / 4,294,958,333 ns, the CRF row
+//      4,294,958,333 (both the largest that rounds under 2^32)
+//   C  at run time talker 1 moves to 1,999,999 ns, talker 3 to 0xFFFFFFFF and
+//      the CRF row to 4,294,958,334 (the first that rounds past 2^32)
+//   D  the CRF row at 0xFFFFFFFF beside talkers 2,000,000 / 2,010,000 / 0 / 1
+//   E  every row its factory value (ofs_wrap's RESET_NS_P, kReset), as a
+//      device no controller has set: graded in reset too, all 33 bits
+//   F  at run time from E: the CRF row down to 2,000,000 (its carry clears)
+//
+// Mutants: phase_mutants.py plants the raw offset, the CRF row as set, and
+// the carry dropped at the rounder's conversion, its reset load, its
+// readback and the CRF output's sum.
 
 #include "Vofs_wrap.h"
 #include "verilated.h"
@@ -44,6 +55,8 @@ constexpr double kPsNs = 1e9 / 48000.0;
 constexpr double kBandNs = 0.05 * kPsNs;
 constexpr uint64_t kT0Ns = 7000000000ULL;     //!< the PHC at the first cycle
 constexpr int kClkNs = 20;
+//! the factory rows, as ofs_wrap's RESET_NS_P declares them
+const std::vector<uint32_t> kReset = {2000000u, 2010000u, 4294958333u, 4294958334u, 0xFFFFFFFFu};
 
 double fold(double x) {
     double r = std::fmod(x, kPsNs);
@@ -80,10 +93,25 @@ class OfsHarness {
         for (int k = 0; k <= kN; k++) d_->raw_ns_i[k] = rows[k];
     }
 
-    void reset() {
+    //! the row as applied, all 33 bits
+    uint64_t applied(int k) const {
+        return (static_cast<uint64_t>((d_->applied_c_o >> k) & 1u) << 32) | d_->applied_ns_o[k];
+    }
+
+    //! GET_STREAM_INFO's word for a rounded value: 0xFFFFFFFF past 32 bits
+    static uint32_t readback(uint64_t r) { return r > 0xFFFFFFFFull ? 0xFFFFFFFFu : static_cast<uint32_t>(r); }
+
+    void reset(const char* tag) {
         d_->rst_n = 0;
         d_->ev_p_i = 0; d_->pair_valid_i = 0; d_->tctx_wr_en_i = 0;
         for (int i = 0; i < 8; i++) edge();
+        // in reset every row holds its factory value, rounded, all 33 bits
+        bool fac = true;
+        for (int k = 0; k <= kN; k++) fac = fac && applied(k) == rounded(kReset[k]);
+        char what[160];
+        std::snprintf(what, sizeof what,
+                      "[ofs %s] in reset every row reads its factory value rounded up to whole periods, all 33 bits", tag);
+        c_.that(what, fac);
         d_->rst_n = 1;
         for (int i = 0; i < 8; i++) edge();
         // talkers 1..3: enabled, stereo, UID = talker index
@@ -180,17 +208,25 @@ class OfsHarness {
     //! grade the PDUs emitted after frame `from`: readback, stamps, phase
     void grade(const char* tag, long from) {
         char what[240];
-        // the readback: every row as applied
+        // the rows as applied, all 33 bits, and GET_STREAM_INFO's word
         bool rb = true;
+        bool gsi = true;
         for (int k = 0; k <= kN; k++) {
-            const uint32_t want = static_cast<uint32_t>(rounded(rows_[k]));
-            const uint32_t got = d_->applied_ns_o[k];
-            std::printf("  info: [ofs %s] row %d set %u ns, applied %u ns (%.4f periods)\n", tag, k, rows_[k], got,
-                        static_cast<double>(rounded(rows_[k])) / kPsNs);
-            if (got != want) rb = false;
+            const uint64_t want = rounded(rows_[k]);
+            d_->rb_row_i = static_cast<uint8_t>(k);
+            d_->eval();
+            std::printf("  info: [ofs %s] row %d set %u ns, applied %llu ns (%.4f periods), GET_STREAM_INFO reads %u\n",
+                        tag, k, rows_[k], static_cast<unsigned long long>(applied(k)),
+                        static_cast<double>(want) / kPsNs, d_->rb_ns_o);
+            if (applied(k) != want) rb = false;
+            if (d_->rb_ns_o != readback(want)) gsi = false;
         }
-        std::snprintf(what, sizeof what, "[ofs %s] every row reads back as applied, rounded up to whole periods", tag);
+        std::snprintf(what, sizeof what,
+                      "[ofs %s] every row reads back as applied, rounded up to whole periods, all 33 bits", tag);
         c_.that(what, rb);
+        std::snprintf(what, sizeof what,
+                      "[ofs %s] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits", tag);
+        c_.that(what, gsi);
         // every AAF stamp is a frame instant plus its row as read back
         std::set<uint32_t> low;
         for (uint64_t f : frames_) low.insert(static_cast<uint32_t>(f));
@@ -207,30 +243,42 @@ class OfsHarness {
         std::snprintf(what, sizeof what, "[ofs %s] every AAF timestamp is a frame instant plus its row as read back (%d %d %d %d PDUs)",
                       tag, graded[0], graded[1], graded[2], graded[3]);
         c_.that(what, on && enough);
-        // the CRF timing points: frame instants plus the CRF row as read back
+        // the CRF timing points, all 64 bits: frame instants plus the CRF row
+        // as read back, and plus the independent Equation 14 result
         bool con = true;
+        bool eq14 = true;
         int ncrf = 0;
+        const uint64_t f0 = *frames_.begin();
+        double grid = 0;
         for (const auto& c : crf_) {
             if (c.at < from) continue;
             ncrf++;
-            if (!low.count(static_cast<uint32_t>(c.ts) - d_->applied_ns_o[kN])) con = false;
+            if (!frames_.count(c.ts - applied(kN))) con = false;
+            if (!frames_.count(c.ts - rounded(rows_[kN]))) eq14 = false;
+            grid = std::fmax(grid, std::fabs(fold(static_cast<double>(c.ts - f0))));
         }
         std::snprintf(what, sizeof what, "[ofs %s] every CRF timing point is a frame instant plus the CRF row as read back (%d)",
                       tag, ncrf);
         c_.that(what, con && ncrf >= 2);
-        // the phase: each AAF output against the CRF timing points, mod Ps
-        if (rows_[kN] >= 0x80000000u) {
-            std::printf("  info: [ofs %s] the CRF row lies past 2^31: phase not graded (readback and stamps only)\n", tag);
-            return;
-        }
+        std::snprintf(what, sizeof what,
+                      "[ofs %s] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14", tag);
+        c_.that(what, eq14 && ncrf >= 2);
+        std::snprintf(what, sizeof what,
+                      "[ofs %s] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 %% of Ps (max %.2f ns)",
+                      tag, grid);
+        c_.that(what, grid < kBandNs && ncrf >= 2);
+        // the phase: each AAF output against the CRF timing points, mod Ps,
+        // on 64 bits. An AAF stamp is unwrapped about the first frame (its
+        // row and the run lie well inside 2^31 ns of it)
         double worst = 0;
         int worst_t = -1;
         for (const auto& a : aaf_) {
             if (a.at < from || rows_[a.t] >= 0x80000000u) continue;
+            const int64_t a64 = static_cast<int64_t>(f0)
+                                + static_cast<int32_t>(a.ts - static_cast<uint32_t>(f0));
             for (const auto& c : crf_) {
                 if (c.at < from) continue;
-                const double dd = static_cast<double>(static_cast<int32_t>(a.ts - static_cast<uint32_t>(c.ts)));
-                const double p = std::fabs(fold(dd));
+                const double p = std::fabs(fold(static_cast<double>(a64 - static_cast<int64_t>(c.ts))));
                 if (p > worst) { worst = p; worst_t = static_cast<int>(a.t); }
             }
         }
@@ -258,25 +306,37 @@ class OfsHarness {
 int OfsHarness::run() {
     std::printf("[ofs] four AAF outputs and the CRF output of one domain, each its own offset\n");
     set_rows({2000000, 2010000, 0, 20833, 2010000});
-    reset();
+    reset("A");
     frames(400);
     grade("A", 12);
 
-    set_rows({1, 20834, 62500, 4294958333u, 2000000});
-    reset();
+    set_rows({1, 20834, 62500, 4294958333u, 4294958333u});
+    reset("B");
     frames(400);
     grade("B", 12);
 
-    // run time: the rows move while the streams run
+    // run time: the rows move while the streams run, the CRF row past 2^32
     long at = frame_n_;
-    set_rows({1, 1999999, 62500, 0xFFFFFFFFu, 2000000});
+    set_rows({1, 1999999, 62500, 0xFFFFFFFFu, 4294958334u});
     frames(400);
     grade("C", at + 12);
 
     set_rows({2000000, 2010000, 0, 1, 0xFFFFFFFFu});
-    reset();
+    reset("D");
     frames(400);
     grade("D", 12);
+
+    // power-on: no controller has set a row, every output its factory value
+    set_rows(kReset);
+    reset("E");
+    frames(400);
+    grade("E", 12);
+
+    // ...and at run time the CRF row comes down under 2^32 again
+    at = frame_n_;
+    set_rows({2000000, 2010000, 0, 20833, 2000000});
+    frames(400);
+    grade("F", at + 12);
     return c_.report();
 }
 

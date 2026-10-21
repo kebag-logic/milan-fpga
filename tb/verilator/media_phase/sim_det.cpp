@@ -29,6 +29,11 @@
 //   jitter     Ps/2 - 20 ns with +/-60 ns of uniform jitter: straddling
 //   cross      Ps/2 - 100 ns for three windows, then past +Ps/2 by 100 ns:
 //              the window phase re-folds to the short way
+//   afterhold  settled on +/-100 ns (the tracking reference near 0), then an
+//              mr restart mid-window and, from it on, the balanced +/-10,416
+//              ns: the hold restarts the reference, so the window phase reads
+//              the half-period phase and pulls at the slew limit, never the
+//              cancelling mean a reference kept from before the hold gives
 //   range      d = +/-(2^25 - 1) ns is sampled, d = +/-2^25 ns is not
 //   snap       a steady +500 ns phase; each hold condition (mr, the term
 //              disabled, a broken history, a state other than LOCKED, a
@@ -243,6 +248,46 @@ class DetHarness {
         c_.that(what, !ever);
     }
 
+    //! a hold restarts the tracking reference (KL_mmcm_drp_servo's hold): an
+    //! event that moves the phase onto the fold must not be unwrapped
+    //! against the reference of the era before it, which sat near 0
+    void case_afterhold() {
+        bool ever = false;
+        bool half = false;
+        run_samples([&half](long k) -> int64_t {
+            return half ? ((k & 1) ? -10416 : 10416) : ((k & 1) ? -100 : 100); }, 6, &ever);
+        char what[200];
+        std::snprintf(what, sizeof what, "[det afterhold] settled near 0 before the hold (theta %d)", theta());
+        c_.that(what, settled() && std::abs(theta()) < kBandU);
+        for (int i = 0; i < kWinCyc / 2; i++) step_cycle();
+        d_->ref_restart_p_i = 1;
+        half = true;                  // the event moved the phase onto the fold
+        step_cycle();
+        d_->ref_restart_p_i = 0;
+        bool after = false;
+        while (!(R(tick_p_w) && R(win_valid_r) && R(tick_cnt_r) == 511)) step_cycle();
+        step_cycle();                 // the spoiled window closes
+        for (unsigned w = windows_ + 3; windows_ < w;) {
+            step_cycle();
+            after = after || settled();
+        }
+        // the next committed correction, measured as half_period() does
+        for (int i = 0; i < 16; i++) step_cycle();
+        const int64_t i0 = integ();
+        windows(1);
+        for (int i = 0; i < 16; i++) step_cycle();
+        after = after || settled();
+        const int64_t di = integ() - i0 - static_cast<int64_t>(static_cast<int32_t>(R(ew_r))) * 128;
+        std::snprintf(what, sizeof what,
+                      "[det afterhold] after a hold, samples either side of +/-Ps/2 read the half-period phase "
+                      "(theta %d, |theta| >= %d)", theta(), kHalfU - kBandU);
+        c_.that(what, engaged() && std::abs(theta()) >= kHalfU - kBandU);
+        std::snprintf(what, sizeof what, "[det afterhold] ...and the committed correction is the slew limit's (%lld/256)",
+                      static_cast<long long>(di));
+        c_.that(what, std::llabs(di) == 2LL * kClampU);
+        c_.that("[det afterhold] settled never asserts after the hold", !after);
+    }
+
     void case_cross() {
         bool ever = false;
         bool crossed = false;
@@ -402,6 +447,7 @@ int DetHarness::run(const std::string& name) {
             return static_cast<int64_t>(std::llround(kPsNs / 2 - 20.0)) + j;
         });
     } else if (name == "cross") case_cross();
+    else if (name == "afterhold") case_afterhold();
     else if (name == "range") case_range();
     else if (name == "snap") case_snap();
     else c_.fail("unknown case");

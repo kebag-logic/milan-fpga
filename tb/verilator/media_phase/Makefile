@@ -64,7 +64,7 @@ PIN_SRCS = $(LATPKG_RTL) \
 # the detector alone (#632): KL_mmcm_drp_servo with a 32-cycle tick, so a
 # window is 16,384 cycles
 DET_MDIR ?= obj_det
-DET_CASES = inband events meanin balanced unbal129 unbal160 jitter cross range snap
+DET_CASES = inband events meanin balanced unbal129 unbal160 jitter cross afterhold range snap
 
 CASES = engage engage2 edge edge2 step ramp holdover internal mr slew phcstep burst carry
 OUT  ?= obj_logs
@@ -89,7 +89,7 @@ det-build:
 	  -GTICK_CYC_P=32 $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
 	  $(SERVO_RTL) sim_det.cpp -o Vdet
 
-# several AAF outputs of one domain with their own offsets (#632, R678-1-F2):
+# several AAF outputs of one domain with their own offsets (#632):
 # ofs_wrap.sv, sim_ofs.cpp
 OFS_WRAP ?= ofs_wrap.sv
 OFS_MDIR ?= obj_ofs
@@ -103,7 +103,7 @@ ofs: ofs-build
 	@echo "======================================================================"
 	$(OFS_MDIR)/Vofs_wrap
 
-# the in-tree two-interface shape (#632, R677-1-F1): the Arty I2S + TDM8
+# the in-tree two-interface shape (#632): the Arty I2S + TDM8
 # capture through KL_pair_blend into the capture crossbar's frame bank,
 # graded at both interfaces' pins: blend_wrap.sv, sim_blend.cpp
 BLEND_WRAP ?= blend_wrap.sv

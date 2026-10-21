@@ -91,12 +91,18 @@ MUTANTS = (
        "      1'b0 ? PH_TW_C'($signed({1'b0, dv_rem_r}) - PS_U_C)"),
       ("  localparam int unsigned PH_TW_C = 16; ", "  localparam int unsigned PH_TW_C = 17; ")),
      "det:inband", "[det inband] settled first reads 1 at the close of the fourth full in-band window"),
-    #: R678-1-F3: each sample summed as folded, no tracking reference, so
+    #: #632: each sample summed as folded, no tracking reference, so
     #: samples either side of +/-Ps/2 cancel towards zero
     ("tracking_fold_removed", SERVO,
      (("  wire                      ph_wrap_w   = ph_ref_v_r && (",
        "  wire                      ph_wrap_w   = 1'b0 && ("),),
      "det:balanced", "[det balanced] the window phase reads the half-period phase"),
+    #: #632: the hold keeps the tracking reference of the era before it, so
+    #: samples either side of +/-Ps/2 after an event cancel towards zero
+    ("hold_keeps_ref", SERVO,
+     (("        ph_set_cnt_r <= '0;\n        ph_ref_v_r   <= 1'b0;",
+       "        ph_set_cnt_r <= '0;"),),
+     "det:afterhold", "[det afterhold] after a hold, samples either side of +/-Ps/2 read the half-period phase"),
     #: the window phase left unwrapped: past +Ps/2 it pulls the long way
     ("window_refold_removed", SERVO,
      (("      (ph_wraw_w >= PH_UW_C'(PH_HALF_C))  ? PH_TW_C'(ph_wraw_w - PH_UW_C'(PS_U_C))",
@@ -104,24 +110,24 @@ MUTANTS = (
       ("    : (ph_wraw_w < -PH_UW_C'(PH_HALF_C))  ? PH_TW_C'(ph_wraw_w + PH_UW_C'(PS_U_C))",
        "    : 1'b0  ? PH_TW_C'(ph_wraw_w + PH_UW_C'(PS_U_C))")),
      "det:cross", "[det cross] past +Ps/2 the window phase re-folds to the short way"),
-    #: R678-1-F3: settled from the window mean alone
+    #: #632: settled from the window mean alone
     ("settled_on_mean_only", SERVO,
      (("  wire ph_inband_w    = (ph_wmean_w < PH_TW_C'(PH_BAND_C)) && (ph_wmean_w > -PH_TW_C'(PH_BAND_C))\n"
        "                        && ph_allin_r;",
        "  wire ph_inband_w    = (ph_wmean_w < PH_TW_C'(PH_BAND_C)) && (ph_wmean_w > -PH_TW_C'(PH_BAND_C));"),),
      "det:meanin", "[det meanin] settled never asserts with every sample outside the band"),
-    #: R678-1-F4: the snapshot reads only the valid flag the hold clears after it
+    #: #632: the snapshot reads only the valid flag the hold clears after it
     ("snapshot_hold_ignored", SERVO,
      (("            pp_ph_r     <= (!ph_theta_v_r || ph_hold_w) ? '0",
        "            pp_ph_r     <= !ph_theta_v_r ? '0"),),
      "det:snap", "[det snap] mr on the closing edge"),
-    #: R677-1-F3: settled is the engaged bit, no band and no four windows
+    #: #632: settled is the engaged bit, no band and no four windows
     ("settled_is_engaged", SERVO,
      (("  assign ph_settled_o = ph_theta_v_r &&\n"
        "                        (ph_set_cnt_r == ($bits(ph_set_cnt_r))'(PH_SETTLE_WIN_P));",
        "  assign ph_settled_o = ph_theta_v_r;"),),
      "det:inband", "[det inband] settled first reads 1 at the close of the fourth full in-band window"),
-    #: R677-1-F3: a timestamp outside the fold range sampled anyway
+    #: #632: a timestamp outside the fold range sampled anyway
     ("fold_range_guard_removed", SERVO,
      (("        if (dom_fresh_r && ph_d_ok_w && !dv_busy_r) begin",
        "        if (dom_fresh_r && !dv_busy_r) begin"),),
@@ -154,16 +160,37 @@ MUTANTS = (
      (("                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;",
        "                   !ref_rate_valid_i || ptp_jump_r;"),),
      "slew", "[slew] the phase term let go at the slew level"),
-    #: R677-1-F2: the local PHC step (#539) left out of the hold
+    #: #632: the local PHC step (#539) left out of the hold
     ("step_hold_removed", SERVO,
      (("                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;",
        "                   !ref_rate_valid_i || phc_slew_q_r;"),),
      "phcstep", "[phcstep] the phase term let go at the PHC step"),
-    #: R678-1-F2: the offsets stamped as set, not in whole periods
+    #: #632: the offsets stamped as set, not in whole periods
     ("offset_rounding_bypassed", MTTR,
-     (("      ofs_ns_o[32*row_r +: 32] <= dv_quot_r[31:0];",
-       "      ofs_ns_o[32*row_r +: 32] <= raw_row_w;"),),
+     (("      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= dv_quot_r[32:0];",
+       "      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= {1'b0, raw_row_w};"),),
      OFS, "[ofs A] every AAF output stamps whole periods from the CRF timing points"),
+    #: #632: a conversion past 2^32 - 1 ns loses its bit 32
+    ("mtt_carry_dropped", MTTR,
+     (("      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= dv_quot_r[32:0];",
+       "      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= {1'b0, dv_quot_r[31:0]};"),),
+     OFS, "[ofs C] every row reads back as applied, rounded up to whole periods, all 33 bits"),
+    #: #632: a factory row past 2^32 - 1 ns loads its low word alone
+    ("mtt_reset_carry_dropped", MTTR,
+     (("        {ofs_c_o[k], ofs_ns_o[32*k +: 32]} <= round_c(64'(RESET_NS_P[32*k +: 32]));",
+       "        begin ofs_c_o[k] <= 1'b0; ofs_ns_o[32*k +: 32] <= 32'(round_c(64'(RESET_NS_P[32*k +: 32]))); end"),),
+     OFS, "[ofs A] in reset every row reads its factory value rounded up to whole periods, all 33 bits"),
+    #: #632: GET_STREAM_INFO reads a row past 32 bits as its low word
+    ("readback_saturation_dropped", MTTR,
+     (("                 : ofs_c_o[rb_row_i] ? 32'hFFFF_FFFF : ofs_ns_o[32*rb_row_i +: 32];",
+       "                 : ofs_ns_o[32*rb_row_i +: 32];"),),
+     OFS, "[ofs C] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits"),
+    #: #632: the CRF output adds the rounded offset's low word alone, so it
+    #: stamps 2^32 ns early past 2^32 - 1 ns
+    ("crf_carry_dropped", CRFTX,
+     (("    else        mtt_ofs_r <= DIVW_C'({transit_c_i, transit_ns_i});",
+       "    else        mtt_ofs_r <= DIVW_C'(transit_ns_i);"),),
+     OFS, "[ofs C] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14"),
     #: the CRF output stamping its row as set while the readback shows it applied
     ("crf_row_raw", OFSWRAP,
      (("    .transit_ns_i (applied_ns_o[N_AAF_P*32 +: 32]),",
@@ -176,7 +203,7 @@ MUTANTS = (
      (("        ts_r         <= ev_ns_i + 64'(mtt_ofs_r);",
        "        ts_r         <= ev_ns_i + 64'(mtt_ofs_r) + 64'd9583;"),),
      "engage", "[engage] every DUT CRF timestamp is a frame instant of its own grid"),
-    #: R677-1-F1: the blend's frame closed on its last TDM pair again, its
+    #: #632: the blend's frame closed on its last TDM pair again, its
     #: marker latency the TDM bus's: the I2S pair banked is a frame older
     ("blend_closed_on_tdm_pair", LATPKG,
      (("    return (blend != 0) ? 0 : close_pair(frame_pairs);",
@@ -184,7 +211,7 @@ MUTANTS = (
       ("    return (tdm_slots == 0) || (blend != 0);",
        "    return (tdm_slots == 0);")),
      BLEND, "[blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps"),
-    #: R677-1-F1: the I2S front end copying rdata on the pop edge again, so
+    #: #632: the I2S front end copying rdata on the pop edge again, so
     #: every strobe carries the pair before it
     ("i2s_pair_one_pop_late", I2SCAP,
      (("  always_comb begin : t_pair_out\n"
