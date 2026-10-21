@@ -1,0 +1,19 @@
+KL_srp_listener_fsm alone: sv2v, then synth_xilinx -family xc7 -flatten (the parent's OOC recipe, Yosys 0.66), chparam N_SINKS_P
+rev N LUT FF RAM32M
+w-57fb7dd2-1 LUT=2798 FF=456 RAM32M=0
+w-57fb7dd2-2 LUT=4531 FF=933 RAM32M=0
+w-57fb7dd2-3 LUT=4635 FF=1160 RAM32M=32
+w-57fb7dd2-4 LUT=5763 FF=1514 RAM32M=32
+w-57fb7dd2-8 LUT=9750 FF=2963 RAM32M=32
+w-6ddfcda4-1 LUT=2729 FF=456 RAM32M=0
+w-6ddfcda4-2 LUT=4354 FF=803 RAM32M=0
+w-6ddfcda4-3 LUT=4420 FF=962 RAM32M=32
+w-6ddfcda4-4 LUT=5672 FF=1246 RAM32M=32
+w-6ddfcda4-8 LUT=9428 FF=2395 RAM32M=32
+w-c7c8825f-1 LUT=2798 FF=456 RAM32M=0
+w-c7c8825f-2 LUT=4715 FF=933 RAM32M=0
+w-c7c8825f-3 LUT=5875 FF=1160 RAM32M=32
+w-c7c8825f-8 LUT=11679 FF=2963 RAM32M=32
+variants of c7c8825f at N=8 (mutation patch applied):
+v-outside-8 LUT=10031 FF=2395
+v-skipcmp-8 LUT=9557 FF=2451

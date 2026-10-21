@@ -1,0 +1,51 @@
+1c1
+< 196 checks: 196 PASS, 0 FAIL
+---
+> 203 checks: 203 PASS, 0 FAIL
+4c4
+< assertion coverage: 113/113; missing=[]
+---
+> assertion coverage: 124/124; missing=[]
+64c64
+< listener-declaration-not-held: rc=2 failures=5 KILLED tags=RB1,RB4,RB6,RB7
+---
+> listener-declaration-not-held: rc=2 failures=13 KILLED tags=RB1,RB4,RB6,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16
+71a72
+> listener-merge-keeps-park: rc=2 failures=4 KILLED tags=SH10,SH11,SH12,SH13
+74a76
+> listener-park-drops-matcher-pairs: rc=2 failures=1 KILLED tags=SH16
+75a78,79
+> listener-parked-outside-groups: rc=2 failures=4 KILLED tags=SW4,SW5,SW6,SW7
+> listener-parked-outside-groups: rc=2 failures=7 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15,SH16
+77c81
+< listener-park-never-retires: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB7
+---
+> listener-park-never-retires: rc=2 failures=5 KILLED tags=RB1,RB4,RB6,RB7,SH16
+78a83
+> listener-rebind-abandons-leave: rc=2 failures=11 KILLED tags=RB1,RB4,RB6,RB8,SH10,SH11,SH12,SH13,SH14,SH15,SH16
+80d84
+< listener-rebind-abandons-leave: rc=2 failures=4 KILLED tags=RB1,RB4,RB6,RB8
+84c88,89
+< listener-rider-not-quiet: rc=2 failures=1 KILLED tags=SH1
+---
+> listener-retire-skips-group-mark: rc=2 failures=1 KILLED tags=SH15
+> listener-rider-not-quiet: rc=2 failures=2 KILLED tags=SH1,SH14
+86c91
+< listener-settle-compare-dropped: rc=2 failures=26 KILLED tags=SH1,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+---
+> listener-settle-compare-dropped: rc=2 failures=27 KILLED tags=SH1,SH16,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+88a94,95
+> listener-settle-skips-leave-copies: rc=2 failures=4 KILLED tags=SW4,SW5,SW6,SW7
+> listener-settle-skips-leave-copies: rc=2 failures=6 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15
+92,93c99,100
+< listener-teardown-keeps-declaring: rc=2 failures=1 KILLED tags=SW2
+< listener-teardown-keeps-declaring: rc=2 failures=54 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,RB1,RB4,RB7,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+---
+> listener-teardown-keeps-declaring: rc=2 failures=3 KILLED tags=SW2,SW4,SW6
+> listener-teardown-keeps-declaring: rc=2 failures=62 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,RB1,RB4,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+97,98c104,105
+< listener-withdraw-ignores-riders: rc=2 failures=2 KILLED tags=SW2
+< listener-withdraw-ignores-riders: rc=2 failures=9 KILLED tags=SH2,SH4,SH6,SH7
+---
+> listener-withdraw-ignores-riders: rc=2 failures=14 KILLED tags=SH10,SH11,SH12,SH13,SH16,SH2,SH4,SH6,SH7
+> listener-withdraw-ignores-riders: rc=2 failures=6 KILLED tags=SW2,SW4,SW5,SW6,SW7

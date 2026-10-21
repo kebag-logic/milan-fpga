@@ -1,0 +1,46 @@
+repository: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+branch: 193-shared-listener-leave
+base (PR head before this round): 474346357043218c4e6b728f4ab4b83a2a8579e1
+head: 4f57e22006ca727abace93a0cb8585484a377352
+head tree: 4fb74a342879c54b33e9da3d38cb267b53e7205e
+
+commits (oldest first):
+4d27f709b8dd98066d277eaf3a17a32533851b17 <author> <email>
+  Describe the group-mark control's edit in the srp_top README without naming a review round (issue #193)
+  body lines: 
+  trailers: 
+41795998cadc4f1749a15dddb7679182d5dff15e <author> <email>
+  State in the listener banner and 10 §6.4 that a walk transmit leaving the applicant LA or LO marks only its slot, a handover carrying the mark (issue #193)
+  body lines: 
+  trailers: 
+4f57e22006ca727abace93a0cb8585484a377352 <author> <email>
+  Check that a walk's Listener pushes all come before its done strobe with a taker at sink 4, with the control that strobes after the first pass, and that SH1's rider stays VO after a received LeaveAll (issue #193)
+  body lines: 
+  trailers: 
+
+status (clean if empty):
+
+
+diff stat 47434635..head:
+ docs/architecture/10_srp_engine.md                 |  3 +-
+ hdl/srp/KL_srp_listener_fsm.sv                     | 18 ++---
+ tb/srp_stream_fsms/README.md                       | 12 +++-
+ tb/srp_stream_fsms/sim_main.cpp                    | 76 +++++++++++++++++++++-
+ tb/srp_top/README.md                               | 34 +++++-----
+ tb/srp_top/mutants.py                              |  5 +-
+ .../listener-walk-done-before-second-pass.patch    | 11 ++++
+ 7 files changed, 130 insertions(+), 29 deletions(-)
+
+sha256 of every changed file at the head:
+b48dda34d8a7c8fd2b4231bb94cce46594ceace23ded4c1643c88132b02070b5  docs/architecture/10_srp_engine.md
+807cea7cb15d772ccd94315cf7937ccea9ae5e8a72e659d191f0685920005eb8  hdl/srp/KL_srp_listener_fsm.sv
+35a805c74f5a4c837379e8cedd9420400a520b08856acea0f1ddfcb340517de7  tb/srp_stream_fsms/README.md
+114bfd8a83e402ce9b1eedd55ec99231ecf5ec97649aaf0f1a65758ff084921b  tb/srp_stream_fsms/sim_main.cpp
+924c3ae7453c56c5f0a5f7bc5eb28698f69be3aac585adc21226e00eef12becb  tb/srp_top/README.md
+ad33a49ee536b46b2cd7d388f2fd47fb0e8b36b995677db5f496ee985480f781  tb/srp_top/mutants.py
+e67238bc3d639b95e54f8957d070acf27c512a56febb2f8423ced3f3eba0a18a  tb/srp_top/mutations/listener-walk-done-before-second-pass.patch
+
+remote refs at 2026-10-21T17:52:46Z:
+474346357043218c4e6b728f4ab4b83a2a8579e1	refs/heads/193-shared-listener-leave
+859b537b0bd3295db698be193d82972e8578c321	refs/heads/main
+474346357043218c4e6b728f4ab4b83a2a8579e1	refs/pull/198/head

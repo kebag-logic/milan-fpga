@@ -1,0 +1,18 @@
+# head pp_shadow: summary of pp_shadow.log (277279 bytes, sha256 39e98d8c807da6a0fc247edcb8d3fc998a0308f8433a43b0acdd2443c438f97c)
+[ok] lines: 0
+[PASS] lines: 2183
+[FAIL] lines: 0
+--- tally and result lines:
+      3   [PASS] T Asking Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000040 exp=0x00000040
+      3   [PASS] T Asking Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000040 exp=0x00000040
+      3   [PASS] T left: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+      3   [PASS] T left: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+      3   [PASS] T Ready Failed: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+      3   [PASS] T Ready Failed: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+      3   [PASS] T Ready: GET_STREAM_INFO REGISTERING_FAILED got=0x00000000 exp=0x00000000
+      3   [PASS] T Ready: GET_TX_STATE flags (REGISTERING_FAILED) got=0x00000000 exp=0x00000000
+      3   [PASS] ...with status TALKER_DEST_MAC_FAILED(3) — no DA to hand out got=0x00000003 exp=0x00000003
+      1 pp_shadow: 317 checks, 0 failures
+      2 pp_shadow: 609 checks, 0 failures
+      1 pp_shadow: 649 checks, 0 failures
+      4 RESULT: PASS

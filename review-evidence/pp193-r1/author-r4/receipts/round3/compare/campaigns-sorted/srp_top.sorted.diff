@@ -1,0 +1,46 @@
+--- base/srp_top.log
++++ head/srp_top.log
+@@ -1 +1 @@
+-203 checks: 203 PASS, 0 FAIL
++208 checks: 208 PASS, 0 FAIL
+@@ -4 +4 @@
+-assertion coverage: 124/124; missing=[]
++assertion coverage: 131/131; missing=[]
+@@ -63 +63 @@
+-listener-csid-ram-ignores-park: rc=2 failures=2 KILLED tags=RB4,RB5
++listener-csid-ram-ignores-park: rc=2 failures=3 KILLED tags=RB4,RB5,SH17
+@@ -66,2 +66,2 @@
+-listener-group-order-reversed: rc=2 failures=7 KILLED tags=SH1,SH3,SH4,SH5,SH8,SH9
+-listener-handover-drops-state: rc=2 failures=9 KILLED tags=SH2,SH4,SH7,SH8
++listener-group-order-reversed: rc=2 failures=10 KILLED tags=SH1,SH18,SH19,SH3,SH4,SH5,SH8,SH9
++listener-handover-drops-state: rc=2 failures=12 KILLED tags=SH18,SH19,SH2,SH4,SH7,SH8
+@@ -79 +79 @@
+-listener-park-retires-on-txla: rc=2 failures=1 KILLED tags=RB7
++listener-park-retires-on-txla: rc=2 failures=2 KILLED tags=RB7,SH23
+@@ -83 +82,0 @@
+-listener-rebind-abandons-leave: rc=2 failures=11 KILLED tags=RB1,RB4,RB6,RB8,SH10,SH11,SH12,SH13,SH14,SH15,SH16
+@@ -84,0 +84 @@
++listener-rebind-abandons-leave: rc=2 failures=12 KILLED tags=RB1,RB4,RB6,RB8,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH17
+@@ -85,0 +86 @@
++listener-repark-takes-matcher-pairs: rc=2 failures=1 KILLED tags=SH17
+@@ -88,2 +89,2 @@
+-listener-retire-skips-group-mark: rc=2 failures=1 KILLED tags=SH15
+-listener-rider-not-quiet: rc=2 failures=2 KILLED tags=SH1,SH14
++listener-retire-skips-group-mark: rc=2 failures=2 KILLED tags=SH15,SH21
++listener-rider-not-quiet: rc=2 failures=12 KILLED tags=SH14,SH18,SH19,SH2,SH21,SH4,SH6
+@@ -91 +92 @@
+-listener-settle-compare-dropped: rc=2 failures=27 KILLED tags=SH1,SH16,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
++listener-settle-compare-dropped: rc=2 failures=32 KILLED tags=SH1,SH16,SH18,SH19,SH2,SH20,SH21,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+@@ -93 +94 @@
+-listener-settle-parks-shared-stream: rc=2 failures=1 KILLED tags=SH8
++listener-settle-parks-shared-stream: rc=2 failures=2 KILLED tags=SH20,SH8
+@@ -100 +101,2 @@
+-listener-teardown-keeps-declaring: rc=2 failures=62 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,RB1,RB4,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9
++listener-teardown-keeps-declaring: rc=2 failures=65 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,RB1,RB4,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH17,SH2,SH21,SH23,SH3,SH4,SH5,SH6,SH7,SH8,SH9
++listener-two-parks-grouped: rc=2 failures=1 KILLED tags=SH23
+@@ -104 +106,4 @@
+-listener-withdraw-ignores-riders: rc=2 failures=14 KILLED tags=SH10,SH11,SH12,SH13,SH16,SH2,SH4,SH6,SH7
++listener-walk-ends-owing-a-transmit: rc=2 failures=5 KILLED tags=SH16,SH18,SH19,SH20
++listener-walk-marks-group-only-on-retire: rc=2 failures=1 KILLED tags=SH21
++listener-walk-marks-only-served-slots: rc=2 failures=1 KILLED tags=SH22
++listener-withdraw-ignores-riders: rc=2 failures=15 KILLED tags=SH10,SH11,SH12,SH13,SH16,SH2,SH4,SH6,SH7

@@ -1,0 +1,86 @@
+8,9c8,9
+<   [PASS] #400 diagnostic writes preserve Domain default got=0x00030x00017700 exp=0x00017700
+<   [PASS] #400 diagnostic writes preserve Domain default got=0x0003=== milan_datapath + the protocol processor AS the control plane ===
+---
+>   [PASS] #400 diagnostic writes preserve Domain default got=0x00030049 exp=0x00030049
+>   [PASS] #400 diagnostic writes preserve Domain default got=0x0003g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_shadow_sim
+56c56
+<   [PASS] #403 exact MAAP boot count readback        got=0x00000101 exp=0x0g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_VID=73 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__3__Slow.cpp
+---
+>   [PASS] #403 exact MAAP boot count readback        got=0x00000101 exp=0x00x00000028
+125c125
+<   [PASS] #606 source 1 startup allocation was refused no block was valid at acceptance
+---
+>   [PASS] #606 source 1 startup allocation was refused no block was valid ag++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath___024root__3__Slow.cpp
+262d261
+<   [PASS] K10 0049 exp=0x00030049
+277a277
+>   [PASS] K10 r Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+296c296
+<   [PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000002 exp=0x00030002
+---
+>   [PASS] K10 repeat sticky_pending_PP_STAT          got=0x00000 exp=0x00000000
+554a555
+>   [PASS] K12 remove input sticky_pendingaved got=0x00000000 exp=0x00000000
+562d562
+<   [PASS] K12 remove input sticky_pending response status       got=0x00000000 exp=0x00000000
+955c955
+<   [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+---
+>   [PASS] K command: response status                 got=0x00000000002 exp=0x00030002
+1240c1240
+<   [PASS] L2: control_data_length = 12 + payload     got=0x00000028 exp=0x00000028
+---
+>   [PASS] L2: control_data_length = 12 + payload     got=0x00000028 exp=tays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+1274d1273
+<   [PASS] L3: sequence_id echoed                     gg++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_VID=73 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_1.cpp
+1276c1275,1276
+<   [PASS] L3: sequence_id echoed                     gx00000026 exp=0x00000026
+---
+>   [PASS] L3: sequence_id echoed                     got=0x00000103 exp=0x00000103
+>   [PASS] L3: sequence_id echoed                     grm Vmilan_datapath__ALL.verilator_deplist.tmp
+1524,1525c1524,1525
+<   [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x000000010
+<   [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x00000001g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DDECLARATION_VID=73 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+---
+>   [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x00000001
+>   [PASS] L5e: number_of_mappings @8 counts the AVB entry only - the reserved-source cluster 1 is not a mapping got=0x00000001 exp=0x000000013
+1564c1564
+<   [PASS] L5e: unicast back to the requester         got=0x02112233 exp=0x02112233
+---
+>   [PASS] L5e: unicast back to the requester         got=0x02112233 exp=0x0211223g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_pending
+1580c1580
+<   [PASS] L5: frame length matches (60-octet min)    got=0x0000003C exp=0x0000003C
+---
+>   [PASS] L5: frame length matches (60-octet min)   g++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra -DPENDING_OUTPUT_DYNAMIC=1 -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath__Syms__Slow.cpp
+1664c1664
+<   [PASS] L6: command_type echoed, u = 0             got=0g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_vid73
+---
+>   [PASS] L6: command_type echoed, u = 0             got=0
+1731a1732
+>   [PASS] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
+1812c1813
+<   [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x0000000ot=0x00000103 exp=0x00000103
+---
+>   [PASS] no beat before tlast carried a partial tkeep got=0x00000000 exp=0x00000000
+1901,1902c1902,1903
+<   [PASS] PP_STAT[2] restore_done s
+<   [PASS] PP_STAT[2] restore_done s] L8: message_type = command + 1             got=0x00000001 exp=0x00000001
+---
+>   [PASS] PP_STAT[2] restore_done sg++   -I.  -MMD -I<toolroot>/usr/share/verilator/include -I<toolroot>/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -include Vmilan_datapath__pch.h.slow -c Vmilan_datapath_vm_classes_Slow_0.cpp
+>   [PASS] PP_STAT[2] restore_done st acceptance
+1934d1934
+<   [PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0x
+1936a1937
+>   [PASS] R1: GET_SAMPLING_RATE reads the image's current 48000 got=0x0000BB80 exp=0xr Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+1960c1961
+<   [PASS] R7: GET_SAMPLING_RATE reads 96000          got=r Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+---
+>   [PASS] R7: GET_SAMPLING_RATE reads 96000          got=0x00017700 exp=0x00017700
+2119a2121
+>   [PASS] T: source 0 declares Talke=== milan_datapath + the protocol processor AS the control plane ===
+2121,2122c2123
+<   [PASS] T: source 0 declares Talker Advertise (word 13 [17:16]) got=0x00000001 exp=0x00000001
+<   [PASS] T: source 0 declares Talketays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+---
+>   [PASS] T: source 0 declares Talkex00000026 exp=0x00000026

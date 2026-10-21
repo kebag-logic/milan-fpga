@@ -1,0 +1,10 @@
+arm runs: round-3 final (324ac9a7) 189, head 190
+listener-group-order-reversed: [(10, 'KILLED', 'SH1,SH18,SH19,SH3,SH4,SH5,SH8,SH9')] -> [(13, 'KILLED', 'SH1,SH18,SH19,SH24,SH3,SH4,SH5,SH8,SH9')]
+listener-handover-drops-state: [(12, 'KILLED', 'SH18,SH19,SH2,SH4,SH7,SH8')] -> [(14, 'KILLED', 'SH18,SH19,SH2,SH24,SH4,SH7,SH8')]
+listener-handover-forgets-walk-mark: [(1, 'KILLED', 'SH7')] -> [(3, 'KILLED', 'SH24,SH7')]
+listener-rider-not-quiet: [(12, 'KILLED', 'SH14,SH18,SH19,SH2,SH21,SH4,SH6')] -> [(15, 'KILLED', 'SH1,SH14,SH18,SH19,SH2,SH21,SH24,SH4,SH6')]
+listener-settle-compare-dropped: [(5, 'KILLED', 'SW1,SW2,SW3'), (32, 'KILLED', 'SH1,SH16,SH18,SH19,SH2,SH20,SH21,SH3,SH4,SH5,SH6,SH7,SH8,SH9')] -> [(5, 'KILLED', 'SW1,SW2,SW3'), (35, 'KILLED', 'SH1,SH16,SH18,SH19,SH2,SH20,SH21,SH24,SH3,SH4,SH5,SH6,SH7,SH8,SH9')]
+listener-walk-done-before-second-pass: None -> [(2, 'KILLED', 'SH24')]
+listener-walk-ends-owing-a-transmit: [(5, 'KILLED', 'SH16,SH18,SH19,SH20')] -> [(7, 'KILLED', 'SH16,SH18,SH19,SH20,SH24')]
+182 arm runs with the same failures, verdict and tags
+dev campaign vs head, the arms it ran: identical

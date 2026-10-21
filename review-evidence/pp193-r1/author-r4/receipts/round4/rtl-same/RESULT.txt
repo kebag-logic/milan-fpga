@@ -1,0 +1,10 @@
+git diff 47434635..HEAD -- hdl/srp/KL_srp_listener_fsm.sv: changed lines that are not // comment lines:
+(none if empty)
+
+sv2v 0.0.12 of hdl/srp/srp_pkg.sv + the listener at each revision:
+8f7f4e3bac7bae6e5e47b6b6cf4b21798cd7c3adc679c7774fe317cfc08bda54  base.sv2v.v
+8f7f4e3bac7bae6e5e47b6b6cf4b21798cd7c3adc679c7774fe317cfc08bda54  head.sv2v.v
+byte-identical
+commands: git show 47434635:hdl/srp/KL_srp_listener_fsm.sv > base.sv; sv2v -I hdl/srp hdl/srp/srp_pkg.sv base.sv > base.sv2v.v (and the same for the head's file)
+
+the listener inputs: base.sv sha256 ac0f3b5906320396ae74f52a3938fd2618dbaf98374c63cb2ca4a2472d83e05a (47434635), head.sv sha256 807cea7cb15d772ccd94315cf7937ccea9ae5e8a72e659d191f0685920005eb8 (4f57e220), each equal to git show <rev>:hdl/srp/KL_srp_listener_fsm.sv; the copies and the Verilog stay in scratch

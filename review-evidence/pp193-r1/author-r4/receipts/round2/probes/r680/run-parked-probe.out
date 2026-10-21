@@ -1,0 +1,13 @@
+probe exit 0
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.336 MB sources in 6 modules, into 2.717 MB in 9 C++ files needing 0.001 MB
+- Verilator: Walltime 7.807 s (elab=0.011, cvt=0.291, bld=7.464); cpu 0.369 s on 2 threads; allocated 238.332 MB
+./obj_dir/Vsrp_stream_fsms_sim
+old_sink=0 current_sink=1 current_decl=2
+  encoder_event stream=02aabbccddee0001 event=0 fourpacked=2 peer_IN=1
+PASS: one applicant for a reoccupied parked value: count=1 leaves=0 peer_IN=1
+old_sink=1 current_sink=0 current_decl=2
+  encoder_event stream=02aabbccddee0001 event=0 fourpacked=2 peer_IN=1
+PASS: one applicant for a reoccupied parked value: count=1 leaves=0 peer_IN=1
+2 checks: 2 PASS, 0 FAIL
+make: Leaving directory '<scratch>/r2/probes/r680/scratch/parked-probe/tb/srp_stream_fsms'

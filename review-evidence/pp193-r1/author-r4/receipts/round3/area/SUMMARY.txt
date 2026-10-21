@@ -1,0 +1,53 @@
+Round 3 area records (Yosys 0.66, synth_xilinx -family xc7 -flatten, the parent's OOC recipe)
+
+1. KL_pp_shadow at the module defaults (8 Stream Inputs, 8 Stream Outputs), scratch parent
+   dev 78ca9bdf with the four adoption patches, the processor gitlink committed at each pin
+   (ooc-*/STATE.txt), syn/yosys/ooc.sh KL_pp_shadow:
+
+   pin                               LUT     LUT_TOT  FF      LUTRAM  RAMB36  RAMB18  DSP  CARRY4
+   main 08023123 (ooc-main)          56,743  60,979   26,331  4,236   15      4       10   2,392
+   round-2 head 7b424cdf (round 2)   58,078  62,314   26,949  4,236   15      4       10   2,392
+   round-3 head 65d39b0c (ooc-final) 58,046  62,282   26,949  4,236   15      4       10   2,392
+
+   The whole PR against main: +1,303 LUT, +618 FF (accepted: +1,335 LUT / +618 FF, plus 64
+   LUT). Round 3 against 7b424cdf: -32 LUT, 0 FF. The main figure reproduces round 2's
+   exactly on this parent. (1969f946, the walk fix with S2, gave the same 58,046 / 26,949:
+   ooc-1969f946; at 8 sinks its listener elaborates as the head's.)
+
+2. S2 (the two-sink compares reading lsid_r, commit 2f95efe), KL_pp_shadow with
+   OOC_CHPARAM=N_STREAM_IN_P=2 (2 Stream Inputs, 8 Stream Outputs), the listener working tree
+   at the head with and without the S2 hunks:
+
+   with S2 (ooc-2in-s2)       LUT 49,156  FF 22,759  LUTRAM 4,060
+   without S2 (ooc-2in-nos2)  LUT 49,057  FF 22,887  LUTRAM 4,060
+   S2: +99 LUT, -128 FF. Not area-neutral in LUTs: commit 65d39b0c takes S2 out again.
+
+3. The listener FSM alone (listener-alone/: sv2v, then the same synth_xilinx, chparam
+   N_SINKS_P; LUT = LUT1-6, FF = FD*):
+
+   N  main 08023123   7b424cdf        65d39b0c (head)  1969f946 (with S2)
+   1  2,898 / 454     2,798 / 456     2,786 / 455      2,786 / 455
+   2  4,117 / 798     4,531 / 933     4,463 / 933      4,538 / 805
+   8  7,797 / 2,345   9,750 / 2,963   10,160 / 2,963   10,160 / 2,963
+
+   One sink, the PR against main: -112 LUT, +1 FF. (Round 2's own one-sink figure,
+   6ddfcda4 -> 57fb7dd2: 2,729 -> 2,798, +69 LUT, FF unchanged.) The listener alone moves by
+   hundreds of LUTs where the flattened KL_pp_shadow does not (and the other way round); the
+   KL_pp_shadow figure above is the area record.
+
+4. Exploration before the commits (explore/): each variant's KL_pp_shadow (8x8) log, and its
+   listener against the head's (variant-*.diff; the dev variants carry the S2 hunks, which do
+   not elaborate at 8 sinks). LUT / FF:
+
+   variant  what                                                              LUT     FF
+   B        go back to the first unmarked slot; mark the group on every tx    58,699  26,949
+   C        go back to the first unmarked slot; group mark as round 2         58,319  26,949
+   D        C, plus a VO group's applicant kept in its lowest member          58,403  26,949
+   E        D, the go-back from slot 0                                        58,315  26,961
+   DH       D, W_DONE written without the branch                              58,368  26,949
+   EH       E, W_DONE written without the branch                              58,301  26,949
+   G        7b424cdf plus the lowest-member rule alone                        58,591  26,949
+   H0       7b424cdf plus the walk marks and the go-back from slot 0 alone    58,032  26,949
+   W        H0, the group marked when the transmit leaves the applicant VO    58,555  26,949
+   W2       H0, the group marked unless the transmit leaves the applicant LO  58,046  26,949
+            (W2 is the committed design)
