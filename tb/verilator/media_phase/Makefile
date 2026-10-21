@@ -20,7 +20,7 @@
 #   make mutants  - THE MUTATION CAMPAIGN, explicit: one planted defect per
 #                   loop term and per interface constant, each required to
 #                   fail its named check (phase_mutants.py). It rebuilds per
-#                   mutant and ran in 751 s at MUTANT_JOBS=4, which
+#                   mutant and ran in 1,396 s at MUTANT_JOBS=2, which
 #                   does not fit this suite's sweep budget, so like the other
 #                   long campaigns it is a target of its own
 #                   (docs/testing/TESTING.md records who runs it)
@@ -29,7 +29,7 @@
 # WALL CLOCK. Each loop case simulates 35 to 100 s of a 3.125 MHz datapath
 # clock and a 768 kHz audio clock, one case per process; CASE_JOBS of them run
 # at once. Measured locally at the default 3 jobs on a shared host, the whole
-# default target, its five builds included: 578 s.
+# default target, its five builds included: 553 s.
 
 VERILATOR ?= verilator
 VERILATOR_JOBS ?= 0
