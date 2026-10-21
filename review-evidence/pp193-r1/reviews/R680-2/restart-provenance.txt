@@ -1,0 +1,32 @@
+Public source: kebag-logic/milan-fpga@cbc4bd9f9b7348d6298adbd5c505bf138e0012eb/review-evidence/pp193-r1/author-r2/HANDOFF.md
+
+### R2.6 Run notes
+
+- 21:52 started; read the assignment and both reviews in full; the reviewers' probes taken
+  from their archived packets (R679-1 `scripts/`, R680-1 `run-parked-*.py` and `*.cpp`).
+- The fix went through a scratch copy of the working tree first: the reviewers' probes, the
+  suites, a targeted campaign of the new and re-anchored arms (`receipts/round2/dev/`), the
+  S2 and collision probes. Then commits 1-3 (c7c8825).
+- Gates and campaigns ran from detached runners (`receipts/round2/scripts/chain*.sh`) in
+  clean clones, base and head side by side, each campaign driver at `--jobs 2`; the consumer
+  chain waited for the processor gates. A watcher sampled the unit's memory every 10 s,
+  trimmed page cache above 8 GB and logged every minute (`receipts/round2/memwatch.log`).
+  Anon peaked at 4.9 GB (01:22). MemoryCurrent went over 9 GB once: one logged sample read
+  10.1 GB at 22:27 with anon at 0.4 GB, so page cache, and the next read 6.3 GB.
+- At 03:05 the head OOC area showed +2,648 LUTs over the base for this round. The listener
+  alone, synthesized by sink count and with the mutation patches as probes, put the cost on
+  the variable-index write of the compare copy (section R2.5). Commit 4 fixed it. Every head
+  record at c7c8825 (gates, campaigns srp_top/acmp/notify, consumer gates, OOC, the extra
+  receipts and the probes) was set aside unused (`<scratch>/r2/rec/void-c7c8825f/`, not
+  copied here), and all of it was run again at 57fb7dd: the probes with identical results.
+- The head chain was restarted at 57fb7dd, then stopped once more a few minutes into its gates
+  to split the head campaigns over two runners (the second waited for the base chain). The
+  stop first picked the wrong process group, so the old chain started its srp_top campaign
+  beside the new one. It was found within a minute and stopped by its own group, its
+  partial records were set aside (`void-57fb-restart/`), and the campaign clone was cleaned
+  before the new runner used it. The records here are all from the second start.
+
+
+Qualification inputs used: gates/head, campaigns/head (RUNNER.txt assigns head-camps/head-camps2), head-extra, consumers/head, ooc/head; final documentation receipts at 7b424cdf.
+No qualification conclusion uses dev/, void-c7c8825f/, void-57fb-restart/, or the aborted duplicate campaign. Historical c7c8825f listener statistics are used ONLY to reproduce the removed shifter cost, not as passing head evidence.
+The published provenance and source equivalence support attribution; the reviewer did not observe the original runner processes.

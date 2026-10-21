@@ -1,0 +1,166 @@
+fsm: rc=0
+PROBE: parker 1 joiner 0 via_a8 0: parker QA -> LA, joiner decl 2, tick SID0 words '0/2' (1 VectorAttributes for SID0)
+PROBE:   next tick SID0 words '0/2', joiner app AA decl 2
+PROBE:   next tick SID0 words '3/2', joiner app QA decl 2
+PROBE: parker 0 joiner 1 via_a8 0: parker QA -> LA, joiner decl 2, tick SID0 words '0/2' (1 VectorAttributes for SID0)
+PROBE:   next tick SID0 words '0/2', joiner app AA decl 2
+PROBE:   next tick SID0 words '3/2', joiner app QA decl 2
+PROBE: parker 1 joiner 0 via_a8 1: parker QA -> LA, joiner decl 2, tick SID0 words '0/2' (1 VectorAttributes for SID0)
+PROBE:   next tick SID0 words '0/2', joiner app AA decl 2
+PROBE:   next tick SID0 words '3/2', joiner app QA decl 2
+PROBE: parker 0 joiner 1 via_a8 1: parker QA -> LA, joiner decl 2, tick SID0 words '0/2' (1 VectorAttributes for SID0)
+PROBE:   next tick SID0 words '0/2', joiner app AA decl 2
+PROBE:   next tick SID0 words '3/2', joiner app QA decl 2
+1414 checks: 1414 PASS, 0 FAIL
+wire: rc=0
+PROBE-W: parker 1 joiner 0 frame at 2402 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+PROBE-W: parker 1 joiner 0 frame at 2602 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+PROBE-W: parker 1 joiner 0 frame at 2802 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 6c 80 00 00 00 00
+PROBE-W: parker 1 joiner 0: peer before 1, after 1, deregs 0, Lv 0, joiner decl early 2 now 2
+PROBE-W: parker 0 joiner 1 frame at 2402 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+PROBE-W: parker 0 joiner 1 frame at 2602 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+PROBE-W: parker 0 joiner 1 frame at 2802 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 6c 80 00 00 00 00
+PROBE-W: parker 0 joiner 1: peer before 1, after 1, deregs 0, Lv 0, joiner decl early 2 now 2
+11 checks: 11 PASS, 0 FAIL
+parked-fsm: rc=0
+old_sink=0 current_sink=1 current_decl=2
+  encoder_event stream=02aabbccddee0001 event=0 fourpacked=2 peer_IN=1
+PASS: one applicant for a reoccupied parked value: count=1 leaves=0 peer_IN=1
+old_sink=1 current_sink=0 current_decl=2
+  encoder_event stream=02aabbccddee0001 event=0 fourpacked=2 peer_IN=1
+PASS: one applicant for a reoccupied parked value: count=1 leaves=0 peer_IN=1
+2 checks: 2 PASS, 0 FAIL
+parked-wire: rc=0
+old_sink=0 current_sink=1 declared=2
+  wire event=0 fourpacked=2 peer_IN=1
+PASS: one Listener value and no withdrawal while declared: values=1 Lv=0 peer_IN=1
+old_sink=1 current_sink=0 declared=2
+  wire event=0 fourpacked=2 peer_IN=1
+PASS: one Listener value and no withdrawal while declared: values=1 Lv=0 peer_IN=1
+2 checks: 2 PASS, 0 FAIL
+lower-index: rc=0
+PROBE: (a) owner 5 in AN, rider 0 settled; registration at clock 1
+PROBE:   walk with sink 0 registering at clock 1: SID0 '', app0 AN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2', '3/2'
+PASS: (a) registration at clock 1: '' '0/2' '3/2' (one tx! later)
+PROBE: (a) owner 5 in AN, rider 0 settled; registration at clock 2
+PROBE:   walk with sink 0 registering at clock 2: SID0 '', app0 AN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2', '3/2'
+PASS: (a) registration at clock 2: '' '0/2' '3/2' (one tx! later)
+PROBE: (a) owner 5 in AN, rider 0 settled; registration at clock 3
+PROBE:   walk with sink 0 registering at clock 3: SID0 '', app0 AN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2', '3/2'
+PASS: (a) registration at clock 3: '' '0/2' '3/2' (one tx! later)
+PROBE: (a) owner 5 in AN, rider 0 settled; registration at clock 4
+PROBE:   walk with sink 0 registering at clock 4: SID0 '', app0 AN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2', '3/2'
+PASS: (a) registration at clock 4: '' '0/2' '3/2' (one tx! later)
+PROBE: (a) owner 5 in AN, rider 0 settled; registration at clock 5
+PROBE:   walk with sink 0 registering at clock 5: SID0 '0/2', app0 AA app5 VO app7 VO, decl0 2
+PROBE:   then '3/2', ''
+PASS: (a) registration at clock 5: '0/2' '3/2' '' (in this walk)
+PROBE: (a) owner 5 in AN, rider 0 settled; registration at clock 6
+PROBE:   walk with sink 0 registering at clock 6: SID0 '0/2', app0 AA app5 VO app7 VO, decl0 2
+PROBE:   then '3/2', ''
+PASS: (a) registration at clock 6: '0/2' '3/2' '' (in this walk)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 1
+PROBE:   walk with sink 0 registering at clock 1: SID0 '', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 1: '' '0/2' (taken over, no Lv)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 2
+PROBE:   walk with sink 0 registering at clock 2: SID0 '', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 2: '' '0/2' (taken over, no Lv)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 3
+PROBE:   walk with sink 0 registering at clock 3: SID0 '', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 3: '' '0/2' (taken over, no Lv)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 4
+PROBE:   walk with sink 0 registering at clock 4: SID0 '', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 4: '' '0/2' (taken over, no Lv)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 5
+PROBE:   walk with sink 0 registering at clock 5: SID0 '', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 5: '' '0/2' (taken over, no Lv)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 6
+PROBE:   walk with sink 0 registering at clock 6: SID0 '', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 6: '' '0/2' (taken over, no Lv)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 7
+PROBE:   walk with sink 0 registering at clock 7: SID0 '5/2', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 7: '5/2' '0/2' (Lv sent, then New)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 8
+PROBE:   walk with sink 0 registering at clock 8: SID0 '5/2', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 8: '5/2' '0/2' (Lv sent, then New)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 9
+PROBE:   walk with sink 0 registering at clock 9: SID0 '5/2', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 9: '5/2' '0/2' (Lv sent, then New)
+PROBE: (b) parker 7 in LA, rider 0 settled; registration at clock 10
+PROBE:   walk with sink 0 registering at clock 10: SID0 '5/2', app0 VN app5 VO app7 VO, decl0 2
+PROBE:   then '0/2'
+PASS: (b) registration at clock 10: '5/2' '0/2' (Lv sent, then New)
+PROBE: (c) parker 0, re-binder 1: first tx! SID0 '5/2' SIDB '5/2', then SID0 '0/2', decl1 2
+PASS: (c) the parked Lv the walk reaches first goes out; the re-binder's New follows at the next tx!
+17 checks: 17 PASS, 0 FAIL
+collisions: rc=0
+PASS: (1) parker 0 joiner 1 broadcast 0 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 0 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2 Lv sent
+PASS: (1) parker 0 joiner 1 broadcast 0 join offset 0: '5/2 | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 0 join offset 0: '5/2 | 0/2 | 0/2 | 3/2', decl 2 Lv sent
+PASS: (1) parker 0 joiner 1 broadcast 0 join offset 1: '0/2 | 0/2 | 3/2 | ', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 0 join offset 1: '0/2 | 0/2 | 3/2 | ', decl 2 Lv none
+PASS: (1) parker 0 joiner 1 broadcast 1 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 1 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2 Lv sent
+PASS: (1) parker 0 joiner 1 broadcast 1 join offset 0: '5/2 | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 1 join offset 0: '5/2 | 0/2 | 0/2 | 3/2', decl 2 Lv sent
+PASS: (1) parker 0 joiner 1 broadcast 1 join offset 1: '0/2 | 0/2 | 3/2 | ', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 1 join offset 1: '0/2 | 0/2 | 3/2 | ', decl 2 Lv none
+PASS: (1) parker 0 joiner 1 broadcast 2 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 2 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2 Lv sent
+PASS: (1) parker 0 joiner 1 broadcast 2 join offset 0: '5/2 | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 2 join offset 0: '5/2 | 0/2 | 0/2 | 3/2', decl 2 Lv sent
+PASS: (1) parker 0 joiner 1 broadcast 2 join offset 1: '0/2 | 0/2 | 3/2 | ', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 2 join offset 1: '0/2 | 0/2 | 3/2 | ', decl 2 Lv none
+PASS: (1) parker 0 joiner 1 broadcast 3 join offset -1: '0/2 | 0/2 | 3/2 | ', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 3 join offset -1: '0/2 | 0/2 | 3/2 | ', decl 2 Lv none
+PASS: (1) parker 0 joiner 1 broadcast 3 join offset 0: '0/2 | 0/2 | 3/2 | ', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 3 join offset 0: '0/2 | 0/2 | 3/2 | ', decl 2 Lv none
+PASS: (1) parker 0 joiner 1 broadcast 3 join offset 1: '0/2 | 0/2 | 3/2 | ', decl 2
+PROBE: (1) parker 0 joiner 1 broadcast 3 join offset 1: '0/2 | 0/2 | 3/2 | ', decl 2 Lv none
+PASS: (1) parker 1 joiner 0 broadcast 0 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 0 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2 Lv sent
+PASS: (1) parker 1 joiner 0 broadcast 0 join offset 0: ' | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 0 join offset 0: ' | 0/2 | 0/2 | 3/2', decl 2 Lv none
+PASS: (1) parker 1 joiner 0 broadcast 0 join offset 1: ' | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 0 join offset 1: ' | 0/2 | 0/2 | 3/2', decl 2 Lv none
+PASS: (1) parker 1 joiner 0 broadcast 1 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 1 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2 Lv sent
+PASS: (1) parker 1 joiner 0 broadcast 1 join offset 0: ' | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 1 join offset 0: ' | 0/2 | 0/2 | 3/2', decl 2 Lv none
+PASS: (1) parker 1 joiner 0 broadcast 1 join offset 1: ' | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 1 join offset 1: ' | 0/2 | 0/2 | 3/2', decl 2 Lv none
+PASS: (1) parker 1 joiner 0 broadcast 2 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 2 join offset -1: '5/2 | 0/2 | 0/2 | 3/2', decl 2 Lv sent
+PASS: (1) parker 1 joiner 0 broadcast 2 join offset 0: ' | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 2 join offset 0: ' | 0/2 | 0/2 | 3/2', decl 2 Lv none
+PASS: (1) parker 1 joiner 0 broadcast 2 join offset 1: ' | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 2 join offset 1: ' | 0/2 | 0/2 | 3/2', decl 2 Lv none
+PASS: (1) parker 1 joiner 0 broadcast 3 join offset -1: ' | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 3 join offset -1: ' | 0/2 | 0/2 | 3/2', decl 2 Lv none
+PASS: (1) parker 1 joiner 0 broadcast 3 join offset 0: ' | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 3 join offset 0: ' | 0/2 | 0/2 | 3/2', decl 2 Lv none
+PASS: (1) parker 1 joiner 0 broadcast 3 join offset 1: ' | 0/2 | 0/2 | 3/2', decl 2
+PROBE: (1) parker 1 joiner 0 broadcast 3 join offset 1: ' | 0/2 | 0/2 | 3/2', decl 2 Lv none
+PASS: (2) parker 0 re-binds again, joiner 1 holds LA (parker VO): '5/2' then '0/2'
+PASS: (2) parker 1 re-binds again, joiner 0 holds LA (parker VO): '5/2' then '0/2'
+PASS: (3) parker 0, joiner 1 unbinds first: '5/2'
+PASS: (3) parker 1, joiner 0 unbinds first: '5/2'
+PASS: (4) parker 0, joiner 1 declares and withdraws: '5/2' then '', decl 0
+PASS: (4) parker 1, joiner 0 declares and withdraws: '5/2' then '', decl 0
+PASS: (5) LO parked by 0 (LO), joiner 1 declares: '0/2'
+PASS: (5) LO parked by 1 (LO), joiner 0 declares: '0/2'
+32 checks: 32 PASS, 0 FAIL

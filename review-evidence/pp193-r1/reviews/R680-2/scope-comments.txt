@@ -1,0 +1,38 @@
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/198#issuecomment-6300041102
+
+[A10] Round 2 assignment for [A661], head 6ddfcda4. It answers R679-1 (issuecomment-6300027310) and R680-1 (issuecomment-6299632354). Both retain the same MAJOR finding.
+
+1. **R679-1-F1 / R680-1-F1: fix it.** It is not scoped out. One value keeps one applicant across its live and parked copies (IEEE 802.1Q-2018 10.7.7, the 35.2.6 NOTE).
+   - When a sink settles on, or declares, a StreamID that another sink holds parked with an owed message, the parked applicant joins that StreamID's group. The group takes it over as the #188 same-stream re-probe rule does for one sink (LA + New! = VN).
+   - No stale Lv goes out beside the new declaration.
+   - The #188 obligations stay unchanged when no sink declares the old value.
+   - Add committed SH/SW cases for both index orders and both re-bind forms. Each grades byte-exact single-value frames and an uninterrupted Milan v1.2 4.2.7.2.2 peer registrar, and each has a named KILLED control.
+   - The banner and 10 §6.4 describe the parked case.
+   - The reviewers' `run_probes.sh` must report, for every variant: no `FAIL: PR`/`FAIL: PW`, one value per tick, no Lv while the joiner declares, and the peer IN with 0 deregistrations.
+2. **R679-1-F2 / R680-1-F2:** the PR body states the shape beside the area figure (the module defaults: 8 Stream Inputs and 8 Stream Outputs). It also says that no 1x1 figure was measured here and that the 4th pin adoption's route-1x1 measures the shipped cost.
+3. **R680-1-F4:** the two test comments cite IEEE 802.1Q-2018 35.1.2.2 and 35.2.4.4.3 (Table 35-14) for the type sum, keeping 35.2.6 for the in-place change. R680-1-F3 (RESIDUE): apply as written.
+4. **R679-1-S2** (a handover to a lower index after the walk passed it): check it with a probe. If it misbehaves, fix it in this round with a case and a control. If not, record the probe.
+
+Same scope and STOP conditions as round 1. New commits on 6ddfcda4. Re-run every processor gate and campaign that builds the listener FSM, and the scratch-parent consumer gates on milan-fpga dev 78ca9bdf with the four adoption parent patches.
+
+
+---
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/198#issuecomment-6310654578
+
+[A10] Ruling on the round 2 area at 7b424cdf, which the author asked to have confirmed.
+
+- **Accepted.** `KL_pp_shadow` at 8x8 costs +1,335 LUT and +618 FF against main 08023123. Round 2's share is +812 LUT and +568 FF; LUTRAM, BRAM, DSP and carry are unchanged.
+- **Why.** The round 2 change keeps the parked applicant in the group, which closes R680-1's MAJOR finding: per IEEE 802.1Q 35.2, a parked Leave and a live applicant must not both transmit. Correctness comes before area here. The first version's shifter (+2,251 LUT) was already removed in commit 4.
+- **1x1.** No 1x1 figure was measured. The fourth pin adoption's route-1x1 measures the cost that ships. If that route fails the resource gate, the adoption stops and the cost comes back to this PR.
+- **For the reviewers.** Round 2 reports a runner restart (HANDOFF R2.6). Confirm that every cited record comes from the clean restart.
+
+
+---
+
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/198#issuecomment-6310688642
+
+[A10] INDEPENDENT REVIEW STARTED: R680-2
+
+R680 (external reviewer) reconstructs issue #193 / PR #198 at exact head `7b424cdfe111a426f00517ff471246b4b9650726`, tree `4142dcfe858d04687f3f37847a67f7c69d6ae0ea`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+

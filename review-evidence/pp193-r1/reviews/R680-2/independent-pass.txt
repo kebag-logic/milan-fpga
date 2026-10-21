@@ -1,0 +1,17 @@
+[R680] POSITIVE - exact head 7b424cdfe111a426f00517ff471246b4b9650726
+
+Independent verdict and ledger recorded before reading prior review findings or reports. Final report will include reconciliation.
+
+lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head
+---|---|---|---|---
+Conformance | CLEAN | Issue acceptance, public rulings, #188, applicant grouping, SH10-SH16/SW4-SW7 | R680-2 delta | 7b424cdfe111a426f00517ff471246b4b9650726
+RTL | CLEAN | Full listener diff; five-commit delta; leave-copy map/write, handover, arbitration, walk marks; scope headers | R680-2 delta | 7b424cdfe111a426f00517ff471246b4b9650726
+Robustness | CLEAN | Four rebind forms; lower-index 17/17; collisions 32/32 | R680-2 delta | 7b424cdfe111a426f00517ff471246b4b9650726
+Tests | CLEAN | Probe-augmented suites 1414/1414 and 11/11; independent probes 2/2 each; published 203/203 campaign and named controls | R680-2 delta | 7b424cdfe111a426f00517ff471246b4b9650726
+Docs | CLEAN | docs/README, interfaces, SRP 5.1/6.4, suite READMEs, PR area disclosure, citation corrections | R680-2 delta | 7b424cdfe111a426f00517ff471246b4b9650726
+
+New RESIDUE: tb/srp_stream_fsms/sim_main.cpp:1587,1589 introduces RB/RB5 bench labels in comments. Remove '(RB)' and '(RB5)'; behavior and clause claims unchanged.
+
+Limits: 963 public files hash-verified, archive commit unsigned (no cryptographic signature asserted). Oversized original consumer logs not public; use published summaries/return codes. Known parent documentation-pin failure at base/head. No manager source bank; current-dev merge candidate, hosted acceptance, 1x1 route and physical calibration remain outside this review.
+
+R680-2 FINISHED

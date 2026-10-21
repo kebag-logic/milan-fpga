@@ -1,0 +1,209 @@
+[A661] SRP listener: sinks settled on one stream_id share one declaring Listener applicant, by owner election in the per-sink plane (#193)
+
+Closes #193
+
+Three commits on main 21601694 (round 1b), the merge of main 08023123, and five commits answering
+the two reviews (round 2, below). The round-1 measurement (on #193) found two Listener
+VectorAttributes with the same FirstValue in one MRPDU when two sinks were settled on one
+StreamID, and a Leave for the value when one of them unbound. The ruling on #193 asked for
+one declaring applicant per StreamID by owner election inside the existing per-sink plane;
+this PR implements it.
+
+## Behaviour
+
+IEEE 802.1Q-2018 10.7.7 gives each attribute value one Applicant, and the 35.2.6 NOTE allows
+at most one Listener Declaration per StreamID per port. The Listener attribute's value is the
+stream_id alone, so the sinks settled on one stream_id now share one applicant, kept in one
+of their existing per-sink slots:
+
+| Role | Which sink | Its applicant slot |
+|---|---|---|
+| Owner | the lowest-index sink declaring the stream_id (its talker registered) | holds the applicant; only it transmits |
+| Rider | every other sink settled on the stream_id | VO: no event (received value, LeaveAll, periodic!, tx!), no message, no Lv on its own teardown |
+
+- **Requests and the declared type.** A sink's declaration request (Ready, or Asking Failed on
+  a Talker Failed) sets only that sink's own type. The applicant declares the sum of the
+  declaring sinks' types: Ready with Asking Failed is Ready Failed (802.1Q-2018 35.1.2.2 a-c,
+  Table 35-14; Milan v1.2 4.2.7). New! is applied for the first declarer, and for a changed
+  sum, as a change in place (35.2.6).
+- **Handover.** When the owner stops declaring while another sink still declares, the next
+  of them takes the applicant with its state. The owner may stop by A8, by A15, or because its
+  talker withdrew. There is no Lv! and no New! unless the sum changed (35.1.2.2: Lv only for
+  streams no longer wanted). On an A15 of the sink holding the applicant, the applicant goes
+  to another sink whose record holds the stream_id, instead of being parked. The applicant
+  carries its walk mark, so a handover in the middle of a tx! walk never gives it two tx!.
+- **The last declarer.** Its withdrawal is Lv!, and the #188 rules (the owed Leave, the park,
+  the settle arms) apply to it unchanged.
+- **Unchanged per sink.** The matcher, the registrar (with the Milan 4.2.7.2.2 IN-to-MT rule),
+  the EVT_TK_* strobes and the per-sink outputs. `lstn_decl_state` reports the sink's own type
+  while its stream's applicant declares, so each sink's GET_RX_STATE is its own.
+- **A parked Leave (round 2).** A parked applicant (#188) stays the one applicant of the
+  value it holds and is in that value's group. A sink that settles on the parked stream_id is
+  a rider of it, and the group's first declaration takes the applicant over: LA or LO + New!
+  is VN, the #188 re-probe rule. So one New goes out and no Lv, and the parked sink's own new
+  stream is declared. While no sink on the value declares, the owed Lv goes out as before.
+
+The election runs from registered state: a request, a teardown or a handover reaches the
+applicant one clock after it is accepted. A group operation waits out any clock that accepts
+a settle or a teardown. A handover to a slot the tx! walk has already passed gives the
+applicant no tx! in that walk; its message goes one T-MRP-JOIN later. The cost per sink is two
+64-bit comparators (the settle against each sink's stream_id and against each leave copy), a
+64-bit flip-flop copy of the leave copy (from two sinks), three flip-flops (own type, walk
+mark) and the election logic, plus an N(N-1)/2-bit same-stream map and an N(N-1)-bit
+leave-copy map. No top-level port, parameter or register-map change: every RTL edit is inside
+`KL_srp_listener_fsm`, and its ports are unchanged.
+
+Area, in the parent's out-of-context synthesis of `KL_pp_shadow` at the module defaults (8
+Stream Inputs and 8 Stream Outputs), against processor main 08023123: LUT 56,743 -> 58,078
+(+1,335, about 2.4 %) and flip-flops 26,331 -> 26,949 (+618). Round 2's parked-Leave groups
+are 812 LUTs and 568 flip-flops of that (from 6ddfcda4). LUTRAM, block RAM, DSP and carry are
+unchanged. This was measured on parent dev 78ca9bdf with the four adoption patches; it
+replaces the round-1b figure (1,037 LUTs and 50 flip-flops, on dev e26f1816). No 1x1 figure
+was measured here; the 4th pin adoption's route-1x1 measures the shipped cost.
+
+Documented in the design banner and in `docs/architecture/10_srp_engine.md` §5.1 and §6.4
+("Sinks on one stream share one declaration").
+
+## Checks (each new check fails under a planted control)
+
+`tb/srp_stream_fsms`, section SH. Every expectation comes from the suite's Table 10-3 model of
+ONE applicant.
+
+| Check | Case |
+|---|---|
+| SH1 | two sinks on one stream: every tx! sends what one applicant sends; the owner holds it and the rider is VO; a received LeaveAll draws no Empty from the rider |
+| SH2 | unbind the owner first: the rider takes the applicant in its state, no Lv and no New, periodic! re-joins it; then unbind the rider: one Lv |
+| SH3 | the reverse order |
+| SH4 | three sinks, each unbind handing the applicant down; the last sends one Lv |
+| SH5 | a rider unbinds and settles on another stream: the owner's declaration goes on, the rider declares the new stream |
+| SH6 | Ready with Asking Failed: one New, Ready Failed; the Ready owner's unbind hands over with New, Asking Failed; the last unbind: one Lv |
+| SH7 | a handover in the middle of a tx! walk: one New in that walk |
+| SH8 | the owner's A8 and A15 on consecutive clocks: handed over, not parked |
+| SH9 | the owner's A8, then the rider's A15 on the next clock: the first stream gets one Lv |
+| SH10-SH13 | a sink alone on the stream re-binds (A15 at once, or A8 then A15) and parks its owed Lv; the other sink settles on the stream and declares before the next tx! (both index orders): it takes the parked applicant over (LA + New! = VN); three ticks each send one New or JoinMt and no Lv; the parker declares its new stream; a peer Registrar fed the pushes stays IN |
+| SH14 | the same park, no sink on the stream declaring, a LeaveAll received: the parked Lv goes out once and the rider sends nothing |
+| SH15 | the walk sends the parked Lv, then a sink on the stream declares before the walk reaches it: its New waits for the next tx! |
+| SH16 | a sink re-binds onto the stream while it owes its own Leave; the stream's declarer then parks the stream: after its own Lv, the sink declares and takes the parked applicant over, so no Lv goes out for the stream |
+
+`tb/srp_top`, group `share`, through the real decoder, encoder and slot pool:
+
+| Check | Case |
+|---|---|
+| SW1 | two sinks on one stream: the frame carries ONE Listener VectorAttribute, New Ready, byte-exact against the independent builder |
+| SW2 | a Milan v1.2 4.2.7.2.2 peer Registrar model fed every frame: it never deregisters while a sink wants the stream; the last unbind sends one Lv |
+| SW3 | Ready with Asking Failed: New with FourPacked Ready Failed, byte-exact; each sink reports its own type |
+| SW4-SW7 | the SH10-SH13 forms on the wire: the first frame is the builder's one-value frame (New Ready, no Lv), byte-exact; the next three carry the value once each; the peer Registrar stays IN with no deregistration and no Lv |
+
+Round 1b: twelve new controls in `tb/srp_top/mutants.py` (srp_top campaign), each required to
+fail its named check, and the coverage set extended to SH1-SH9 and SW1-SW3 (round 2 adds five
+controls and SH10-SH16, SW4-SW7, below). Nine issue #188 controls are
+re-anchored on the moved lines with their edits unchanged; `listener-declaration-not-held` now
+drops the park term of the declaration grant, which is where a new stream's request is held
+while a Leave is parked. Against the base RTL, 26 of the 42 round-1b stream-FSM checks and all 5
+wire checks fail.
+
+One existing control changes its edit (round 1b, commit 3). `gsi_mutants.py`'s
+`failure-change-redeclares` planted "a FailureInformation change raises a declaration request".
+A request now only sets the sink's own type, and New! is applied for a first declarer or a
+changed type sum, so that edit no longer changes the wire. The control now plants the same
+defect where the New! is decided (a FailureInformation change forces the group's New!), and it
+fails the same named check. The behaviour change behind it: a single sink's request of the type
+it already declares no longer re-sends New. That is reachable only when a withdrawal and a
+re-registration meet before the request is granted.
+
+## Records (round 1b)
+
+Base 21601694 and head 67b90c17 (commits 1-2). Commit 3 changes only `tb/pp_top/gsi_mutants.py`
+and `tb/pp_top/README.md`, and the gates that read either were run again at 788425db. The
+tools are at the versions the CI and the parent pin.
+
+| Processor gate | Base | Head |
+|---|---|---|
+| `scripts/run_suites.sh` | rc 0, 1,030,237 checks | rc 0, 1,030,284: only `srp_stream_fsms` 1,361 -> 1,403 and `srp_top` 8,660 -> 8,665 |
+| `check-req-tags.py --suites --evidence` | rc 0 | rc 0, identical |
+| `scripts/lint_hdl.sh`, `scripts/gen_matrix.py --check`, `make check` | rc 0 | rc 0 (also at 788425db); `make check` adds the new links and patch files |
+| the portability elaboration of every top, and the elaboration guards graded on it | rc 0 | rc 0, identical but for the converted netlist's line numbers |
+
+| Campaign | Base | Head |
+|---|---|---|
+| `tb/srp_top/mutants.py` | 179 of 179, coverage 101/101 | 196 of 196, coverage 113/113; the 161 common arm runs keep their verdicts and failing tags |
+| `acmp_mutants.py`, `notify_mutants.py`, `aecp_mutants.py`, `aecp_dispatch_mutants.py`, `ctr_mutants.py`, `name_wr_mutant.py`, `tb/name_state` and `tb/elab_guards` mutants | rc 0 | rc 0, identical |
+| `d3_mutants.py` | 110 of 110 | 110 of 110, identical |
+| `gsi_mutants.py` | 20 detected | 20 detected at 788425db, identical (at 67b90c17 the old edit survived: the reason for commit 3) |
+
+Processor main has since moved to 08023123 (#197), which also edits `tb/pp_top/gsi_mutants.py`
+and `tb/pp_top/README.md`; the branch merges with it without conflict, and on that merge
+`tb/pp_top` passes (10,721 checks) and the gsi campaign detects all 23 of its controls.
+
+Consumer gates on a scratch parent (milan-fpga dev e26f1816 with the three adoption patches,
+the processor gitlink at each pin): every gate is rc 0 at base and head except
+`check_submodule_docs`, which fails identically at both ("documented pin differs from Git").
+`milan_dp` keeps 10,465 `[ok]` and 1,127 `[PASS]`, 0 `[FAIL]`, with identical check lines;
+`pp_shadow` keeps 2,184 checks, 0 failures; the ROM digests are unchanged. The parent's resource
+gate that needs a place-and-route measurement was not run.
+
+## Round 2
+
+Five commits on 6ddfcda4, answering the two reviews of the round-1b head.
+
+- **A parked Leave and a new declarer of its stream (both reviews' F1).** A sink alone on a
+  stream re-binds away and parks its owed Lv (#188); another sink settles on that stream and
+  declares it before the next tx!. The parked applicant was in no group, so the new sink
+  created a second applicant for the value: one MRPDU carried New and Lv for it, and a Milan
+  4.2.7.2.2 peer registrar deregistered it while the sink wanted it. The parked applicant is now
+  in the group of the value it holds (by its leave copy). The new sink is a rider of that
+  group, and its first declaration takes the applicant over through the existing handover:
+  LA + New! = VN, the #188 re-probe rule. When no sink on the value declares, the owed Lv goes
+  out unchanged. When it has gone out in a walk, the sinks on the value take its walk mark,
+  so a declaration later in that walk waits for the next tx!. The banner and 10 §6.4 ("A
+  parked Leave") describe it.
+- **The area figure's shape (F2).** Stated above, beside the figure: the module defaults, 8
+  Stream Inputs and 8 Stream Outputs. No 1x1 figure was measured here; the 4th pin
+  adoption's route-1x1 measures the shipped cost.
+- **Citations and labels (F3, F4).** The two type-sum test comments cite 35.1.2.2 and
+  35.2.4.4.3 (Table 35-14), keeping 35.2.6 for the change in place, and the two new check
+  labels in source comments are gone.
+- **A handover to a slot the walk has passed (S2).** Probed: the applicant's message goes at
+  the next tx!; it is never lost and never sent twice. No change; the banner and 10 §6.4 now
+  say so.
+- **The leave-copy write (commit 4).** The first form wrote the compare copy at a variable
+  index of a packed array, which synthesized as a shifter. One enable per sink brings the
+  listener alone at 8 sinks from +2,251 to +322 LUTs over 6ddfcda4.
+- **README counts (commit 5).** The srp_top README's failing totals of three shared-stream
+  controls now count the new checks too.
+
+Both reviews' parked-Leave probes now pass on the head: every variant gives one value per
+tick, no Lv while the joiner declares, and the peer IN with no deregistration. On 6ddfcda4
+they fail as reported.
+
+New checks SH10-SH16 and SW4-SW7 (tables above) fail against the 6ddfcda4 RTL: all 7 and all 4.
+Five new controls in the srp_top campaign, each required to fail its named check:
+`listener-parked-outside-groups` (SH10-SH16, SW4-SW7), `listener-settle-skips-leave-copies`
+(SH10-SH15, SW4-SW7), `listener-merge-keeps-park` (SH10-SH13), `listener-retire-skips-group-mark`
+(SH15), and `listener-park-drops-matcher-pairs` (SH16). One control,
+`listener-settle-compare-dropped`, is re-anchored with its edit unchanged. The coverage set is
+now SH1-SH16 and SW1-SW7.
+
+Round 2 records: base 6ddfcda4, head 57fb7dd2 (commits 1-4). Commit 5 (7b424cdf) changes only
+`tb/srp_top/README.md`, and the gates that read it were run again there: all identical. The
+tools are at the versions the CI and the parent pin.
+
+| Processor gate | Base 6ddfcda4 | Head |
+|---|---|---|
+| `scripts/run_suites.sh` | rc 0, 1,030,356 checks | rc 0, 1,030,367: only `srp_stream_fsms` 1,403 -> 1,410 and `srp_top` 8,665 -> 8,669 |
+| `check-req-tags.py --suites --evidence` | rc 0 | rc 0, identical |
+| `scripts/lint_hdl.sh`, `scripts/gen_matrix.py --check`, `make check` | rc 0 | rc 0 at both heads; `make check` counts the five new patch files |
+| the portability elaboration of every top, and the elaboration guards graded on it | rc 0 | rc 0, identical |
+
+| Campaign | Base | Head |
+|---|---|---|
+| `tb/srp_top/mutants.py` | 196 of 196, coverage 113/113 | 203 of 203, coverage 124/124; every base arm keeps its verdict and tags (nine gain tags of the new checks) |
+| `acmp_mutants.py`, `notify_mutants.py`, `aecp_dispatch_mutants.py`, `ctr_mutants.py`, `gsi_mutants.py`, `name_wr_mutant.py`, `tb/name_state` and `tb/elab_guards` mutants | rc 0 | rc 0, identical |
+| `d3_mutants.py`, `aecp_mutants.py` | rc 0, 110 of 110; 67 | rc 0, 110 of 110; 67, identical |
+
+Consumer gates on a scratch parent (milan-fpga dev 78ca9bdf with the four adoption patches,
+the processor gitlink at each pin): every gate is rc 0 at the base and the head except
+`check_submodule_docs`, which fails identically at both ("documented pin differs from Git").
+`milan_dp` keeps 10,559 `[ok]` and 1,127 `[PASS]`, 0 `[FAIL]`, with identical check lines.
+`pp_shadow` keeps 2,184 checks with 0 failures, and the ROM digests are unchanged. The parent's
+place-and-route resource gate was not run.
