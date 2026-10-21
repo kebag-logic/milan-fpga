@@ -23,6 +23,16 @@ The submodule checkout is never edited: the processor half of a mutant is
 written into a copy of its hdl/ tree under a temporary directory, and the
 copy is what the recipe's derived source list points at.
 
+A microcode mutant ("uc", #632) edits the copy's gen_ucode.py instead. The
+processor reads its ROM at run time ($readmemh of ucode.hex in the working
+directory), so no rebuild is needed: the copy generates the mutated ROM into
+a run directory beside this one (the leg's own ../../../ paths still name the
+repository root), with the clean build's other ROM images, and the clean
+executable runs there. The [NOTIFY] SET_STREAM_INFO case is graded so: its
+push gate must compare the commanded presentation offset with the one the
+processor STORED (Milan v1.2 5.4.2.9, 5.4.5.2), and comparing it with the
+applied readback, GET_STREAM_INFO's whole periods (5.4.2.10.2), must fail.
+
 What bounds a run. This driver sets no host-time deadline (rule 8's
 wall-clock ratchet, scripts/test_evidence.budget item 4). The leg is
 cycle-bounded by construction: every phase runs to a fixed cycle target, an
@@ -52,6 +62,10 @@ DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
 PP_HDL = HERE / "../../../protocol-processor/hdl"
 #: the processor top, relative to its hdl/ tree
 PP_TOP = Path("top") / "protocol_processor_top.sv"
+#: the AECP microcode generator, relative to the same tree
+PP_UCODE = Path("aecp") / "ucode" / "gen_ucode.py"
+#: the ROM images the leg reads from its working directory
+RUN_ROMS = ("ucode.hex", "ltn_rom.hex", "gptp_ucode.hex")
 CLEAN_MDIR = HERE / "obj_notify"
 EXE_NAME = "Vmilan_dp_notify"
 sys.path.insert(0, str(HERE / "../../../scripts"))
@@ -93,9 +107,14 @@ PP_DUPLICATE_WITHDRAWAL = """  logic [N_STREAM_IN_P-1:0][12:0] duplicate_unreg_c
 
 """
 PP_UNREGISTER = "          || srp_evt_tk_reg_w[k] || srp_evt_tk_unreg_w[k]"
+#: SET_STREAM_INFO's push gate reads the offset stored (#632); the mutant
+#: reads GET_STREAM_INFO's applied word in its place, the gate before #632
+UC_SINFO_STORED = "    u('READ_ST', rd=6, imm=RGN_DYN + SEL_PTOFF), # the offset stored\n"
+UC_SINFO_APPLIED = "    u('GATHER_EXT', rd=6, **GSI(3)),             # the offset applied\n"
 
 # (name, [(file, the text it replaces, its replacement)], the check it must fail).
-# `file` is "pp" for the processor top or "dp" for milan_datapath.
+# `file` is "pp" for the processor top, "dp" for milan_datapath or "uc" for
+# the processor's microcode generator.
 MUTATIONS = [
     ("the processor ties a sink's failure bridge id to zero",
      [("pp", PP_SEL5, "        4'd5: aecp_gsi_data_w = 64'd0;")],
@@ -126,6 +145,9 @@ MUTATIONS = [
       ("pp", PP_UNREGISTER,
        PP_UNREGISTER + " || (duplicate_unreg_cyc_r[k] == 13'd1)")],
      "[GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A"),
+    ("SET_STREAM_INFO's push gate compares with the applied offset again",
+     [("uc", UC_SINFO_STORED, UC_SINFO_APPLIED)],
+     "[NOTIFY] SET_STREAM_INFO step 3: 2,010,000 ns again modifies nothing"),
 ]
 
 
@@ -147,12 +169,29 @@ def build(dp_path: Path, pp_dir: Path, mdir: Path) -> Path | None:
     return exe
 
 
-def run_leg(exe: Path) -> tuple[int, str]:
+def run_leg(exe: Path, cwd: Path = HERE) -> tuple[int, str]:
     """(rc, stdout) of one run of the leg, with no host deadline: the leg is
     cycle-bounded (module docstring)."""
-    out = subprocess.run([str(exe)], cwd=str(HERE), capture_output=True,
+    out = subprocess.run([str(exe)], cwd=str(cwd), capture_output=True,
                          text=True, check=False)
     return out.returncode, out.stdout + out.stderr
+
+
+def run_with_ucode(exe: Path, pp_dir: Path) -> tuple[int, str] | None:
+    """Run the leg with the ROM `pp_dir`'s microcode generator emits, in a
+    run directory beside this one; None when the generator failed."""
+    with tempfile.TemporaryDirectory(prefix=".gsi-uc-", dir=str(HERE.parent)) as rd:
+        run = Path(rd)
+        for rom in RUN_ROMS:
+            if (HERE / rom).is_file():
+                shutil.copy2(HERE / rom, run / rom)
+        gen = subprocess.run([sys.executable, str(pp_dir / PP_UCODE), "-o",
+                              str(run / "ucode.hex")],
+                             capture_output=True, text=True, check=False)
+        if gen.returncode != 0:
+            sys.stdout.write(gen.stdout[-2000:] + gen.stderr[-2000:])
+            return None
+        return run_leg(exe, run)
 
 
 def verdict(rc: int, out: str, must_fail: str | None) -> str:
@@ -176,12 +215,14 @@ def plant(name: str, edits: list[tuple[str, str, str]], work: Path,
           tag: str) -> tuple[Path, Path] | None:
     """Write the mutant's datapath and processor tree; None when a pattern
     no longer matches exactly once, so the mutant would mutate nothing."""
-    texts = {"dp": DP_RTL.read_text(), "pp": (PP_HDL / PP_TOP).read_text()}
+    texts = {"dp": DP_RTL.read_text(), "pp": (PP_HDL / PP_TOP).read_text(),
+             "uc": (PP_HDL / PP_UCODE).read_text()}
+    files = {"dp": "milan_datapath.sv", "pp": PP_TOP.name, "uc": PP_UCODE.name}
     for where, pattern, replacement in edits:
         count = texts[where].count(pattern)
         if count != 1:
             print(f"[FAIL] mutation {name!r}: a pattern appears {count} time(s) in "
-                  f"{'milan_datapath.sv' if where == 'dp' else PP_TOP.name}, expected "
+                  f"{files[where]}, expected "
                   f"exactly 1. The RTL moved and this mutant is no longer mutating "
                   f"anything - fix the pattern, do not delete the arm.")
             return None
@@ -191,6 +232,7 @@ def plant(name: str, edits: list[tuple[str, str, str]], work: Path,
     pp_dir = work / f"pp_hdl_{tag}"
     shutil.copytree(PP_HDL, pp_dir)
     (pp_dir / PP_TOP).write_text(texts["pp"])
+    (pp_dir / PP_UCODE).write_text(texts["uc"])
     return dp_path, pp_dir
 
 
@@ -201,12 +243,25 @@ def run_mutant(mutation: tuple[str, list[tuple[str, str, str]], str], work: Path
     planted = plant(name, edits, work, tag)
     if planted is None:
         return False
-    exe = build(planted[0], planted[1], work / f"obj_{tag}")
+    #! a microcode-only mutant runs the clean gateware with its own ROM
+    if all(where == "uc" for where, _, _ in edits):
+        exe = CLEAN_MDIR / EXE_NAME
+        if not exe.is_file():
+            exe = build(DP_RTL, PP_HDL, work / "obj_clean")
+    else:
+        exe = build(planted[0], planted[1], work / f"obj_{tag}")
     if exe is None:
         print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
               f"proves nothing about the leg")
         return False
-    rc, out = run_leg(exe)
+    if any(where == "uc" for where, _, _ in edits):
+        ran = run_with_ucode(exe, planted[1])
+        if ran is None:
+            print(f"[FAIL] mutation {name!r}: its microcode generator failed")
+            return False
+        rc, out = ran
+    else:
+        rc, out = run_leg(exe)
     answer = verdict(rc, out, breaks)
     if answer == "caught":
         print(f"[PASS] mutant caught: {name} - breaks \"{breaks}\" "

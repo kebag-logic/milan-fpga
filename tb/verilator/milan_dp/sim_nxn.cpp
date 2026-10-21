@@ -1326,6 +1326,7 @@ class NxnDatapathHarness {
         const std::vector<uint8_t> gB = aecp_xact_from(CTL_B, 0x0011, notify_sq++, name_key);
         ck("[NOTIFY] GET_NAME right after is byte-identical from the body on",
            static_cast<long>(gB.size() >= 110 && notify_same_from(nB2, gB, 38)), 1);
+        prove_set_stream_info_pushes_on_the_offset_stored();
         if (timed) prove_the_crf_input_counters_push_under_the_one_second_limit();
         prove_the_ownerless_publication_faces_stay_ownerless();
         if (timed) prove_the_departing_controller_monitor(fl0);
@@ -1425,6 +1426,61 @@ class NxnDatapathHarness {
         ck("[NOTIFY] ...and A's entry did not move (independent per entry)",
            notify_count(0x0010, &CTL_A), 0);
         return nB2;
+    }
+
+    // ---- (N6) SET_STREAM_INFO pushes on the offset STORED (#632) --------
+    //! Milan v1.2 5.4.2.9: the SET sets the presentation time offset to the
+    //! commanded value and the response echoes it. 5.4.2.10.2: GET_STREAM_INFO
+    //! reads the offset the talker currently uses, here rounded up to whole
+    //! media clock periods (IEEE 1722-2016 10.7 Eq. 14). 5.4.5.2 (IEEE
+    //! 1722.1-2021 7.5.2): a push follows a command that modifies the state,
+    //! so the gate compares the commanded value with the one stored, never
+    //! with the applied readback. Output 0 from A, counted at B:
+    //!   1. 2,000,000 ns, the offset held: nothing;
+    //!   2. 2,010,000 ns (96.48 periods, applied as 97): one push;
+    //!   3. 2,010,000 ns again: nothing modified, nothing pushed;
+    //!   4. 2,020,834 ns, the value GET read back: the stored offset changes
+    //!      (and the applied one, to 98 periods), so one push.
+    //! The outputs are stopped first: a streaming one refuses the SET.
+    void prove_set_stream_info_pushes_on_the_offset_stored() {
+        const uint32_t aaf = axi_read(A_AAF_CTRL), crf = axi_read(0x750);
+        axi_write(A_AAF_CTRL, 0x00020000); axi_write(0x750, 0);
+        drain_tx(20000);
+        struct Step { int n; uint32_t set; long pushes; unsigned long applied; const char* what; };
+        static constexpr Step kSteps[4] = {
+            {1, 2000000u, 0, 2000000ul, "2,000,000 ns, the offset held, pushes nothing"},
+            {2, 2010000u, 1, 2020834ul, "2,010,000 ns, a change, pushes once"},
+            {3, 2010000u, 0, 2020834ul, "2,010,000 ns again modifies nothing and pushes nothing (5.4.5.2)"},
+            {4, 2020834u, 1, 2041667ul, "2,020,834 ns, the value GET read, changes the stored offset and pushes once"},
+        };
+        char tag[160];
+        for (const Step& s : kSteps) {
+            notify_clear();
+            const std::vector<uint8_t> r = aecp_xact_from(
+                CTL_A, 0x000E, notify_sq++, si_pl(0x0006, 0, 0x20000000u, s.set));
+            snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO step %d is SUCCESS", s.n);
+            ck(tag, r.size() >= 38 ? aecp_status(r) : -1L, 0);
+            drain_tx(NOTIFY_WIN);
+            snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO step %d: %s", s.n, s.what);
+            ck(tag, notify_count(0x000E, &CTL_B, 0x0006, 0), s.pushes);
+            snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO step %d: none to A, the requester", s.n);
+            ck(tag, notify_count(0x000E, &CTL_A), 0);
+            if (s.pushes != 0) {
+                //! the push carries the response's content (5.4.5.1): the value set
+                const std::vector<uint8_t> n = notify_last(0x000E, CTL_B, 0x0006, 0);
+                snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO step %d: the push carries the value set", s.n);
+                ck(tag, static_cast<long>(lat_of(n)), static_cast<long>(s.set));
+            }
+            const std::vector<uint8_t> g = aecp_xact_from(CTL_A, 0x000F, notify_sq++,
+                                                          desc_key(0x0006, 0));
+            snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO step %d: GET_STREAM_INFO reads the offset applied", s.n);
+            ck(tag, static_cast<long>(lat_of(g)), static_cast<long>(s.applied));
+        }
+        // the factory offset again (a change, so it pushes), then quiet
+        aecp_xact_from(CTL_A, 0x000E, notify_sq++, si_pl(0x0006, 0, 0x20000000u, 2000000u));
+        drain_tx(NOTIFY_WIN); notify_clear();
+        axi_write(A_AAF_CTRL, aaf); axi_write(0x750, crf);
+        drain_tx(20000); notify_clear();
     }
 
     // ---- (N10) the CRF Media Clock Input's counters (#529) ------------
@@ -7214,7 +7270,7 @@ class NxnDatapathHarness {
             ck("#403 runtime factory value can be selected again", aecp_status(response), 0);
             expected[target] = 2000000;
         }
-        // #632 (R678-1-F2): an offset that is no whole number of media clock
+        // #632: an offset that is no whole number of media clock
         // periods is applied rounded up to one (IEEE 1722-2016 10.7 Eq. 14,
         // 4.3.5), on an AAF output and on the CRF output, and GET_STREAM_INFO
         // reads back the value applied: 2,010,000 ns is 96.48 periods at
