@@ -1,0 +1,9 @@
+# scratch measurement build/run record
+command (in the scratch copy's tb/srp_top): make run RUN_ARGS=m193
+rc: 0
+simulator: Verilator 5.052 2026-09-05 rev v5.052
+warnings in the build log: 1 (all PINCONNECTEMPTY on the unmodified srp_top_wrap.sv: 0 other)
+errors in the build log: 0
+full make log: 12746 bytes, sha256 af92e0d6e9621fe2346c597f6f409d764fd3d7dbe93e33c0d9d8991306feb897 (kept out of the output directory: it carries host paths)
+scratch sim_main.cpp sha256: 5803a67d2921f1775555a64f188bf91359dcbd897a9add8a57b97dfa2c539ffb
+scratch hdl/ and tb/common, tb/srp_top other files: identical to the lane HEAD (diff -r, no output)

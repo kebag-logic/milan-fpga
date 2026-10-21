@@ -1,0 +1,339 @@
+side,label,rc,failures,verdict,tags
+base,bad-listener-length,2,1,KILLED,K12
+base,repeated-action,2,5,KILLED,"N10,N12,N13,N4,N8"
+base,expiry-event,2,81,KILLED,"K1,K11,K12,K2,K4,K5,K9"
+base,before-slot,2,30,KILLED,"L1,L4"
+base,talker-no-own,2,25,KILLED,"K2,K4,K8"
+base,listener-no-own,2,13,KILLED,"K11,K6"
+base,talker-lost-txla,2,12,KILLED,"T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2"
+base,listener-lost-txla,2,12,KILLED,"L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2"
+base,talker-strict-lv,2,24,KILLED,"K2,K4"
+base,listener-strict-lv,2,13,KILLED,"K11,K6"
+base,listener-sid-ignored,2,33,KILLED,"K12,K3,K5,K8"
+base,talker-no-renewal,2,1,KILLED,K7
+base,listener-no-renewal,2,1,KILLED,K7
+base,talker-no-expiry,2,1,KILLED,K8
+base,listener-no-expiry,2,1,KILLED,K8
+base,pending-peer-ignored,2,26,KILLED,"M1,M10,M2,M3"
+base,encoder-peer-ignored,2,20,KILLED,"M1,M11,M12,M2,M3,M6,M7"
+base,mvrp-supersedes-msrp,2,8,KILLED,"M1,M2,M3,M4"
+base,reset-retains-intent,2,1,KILLED,K10
+base,full-drain-missing,2,7,KILLED,"N10,N13,N3,N4,N5,N6,N8"
+base,already-full-missed,2,1,KILLED,N10
+base,round-completion-lost,2,1,KILLED,N13
+base,own-flags-missing,2,4,KILLED,"N10,N12,N5,N6"
+base,expiry-congestion,2,5,KILLED,"N1,N11,N12,N2,N9"
+base,missing-registrar-edge,2,38,KILLED,"L2,L3"
+base,empty-canceled-pdu,2,1,KILLED,M11
+base,reserved-slot-not-reused,2,1,KILLED,M12
+base,renewal-congestion,2,1,KILLED,N7
+base,leaveall-expiry-lost,2,16,KILLED,"M1,M12,M2,M3,M5,M8,M9"
+base,expiry-outranks-peer,2,1,KILLED,M10
+base,repeated-expiry-queued,2,1,KILLED,N12
+base,receive-priority-lost,2,2,KILLED,L2
+base,action-omitted,2,6,KILLED,"N10,N12,N13,N3,N4,N8"
+base,preparation-before-slot,2,21,KILLED,"M1,M11,M12,M5,M6,M8"
+base,table-one-short,2,8,KILLED,"N10,N13,N3,N4,N5,N6,N8,N9"
+base,my-expiry-pulse,2,62,KILLED,"K11,K12,K2,K4,K5"
+base,my-join-edge-peer,2,2,KILLED,"O3,O4"
+base,my-cancel-eats-new-intent,2,1,KILLED,O2
+base,my-edge-cancel-lost,2,2,KILLED,"M6,M7"
+base,my-la-outranks-leave,2,2,KILLED,L2
+base,my-drop-join-during-wait,2,1,KILLED,O6
+base,my-no-walk-at-sLA,2,5,KILLED,"N10,N12,N13,N5,N6"
+base,my-reuse-flags-ignore-cancel,2,1,KILLED,O4
+base,r-expiry-pulse-restored,2,62,KILLED,"K11,K12,K2,K4,K5"
+base,r-cancel-latch-dropped,2,1,KILLED,O1
+base,r-cancel-consumes-new-intent,2,1,KILLED,O2
+base,r-join-start-guard-dropped,2,2,KILLED,"O3,O4"
+base,r-sink-receive-priority-lost,2,2,KILLED,O5
+base,r-join-coalesce-dropped,2,1,KILLED,O6
+base,r-la-only-emission-lost,2,1,KILLED,M12
+base,r-collect-blocks-pushes,2,4,KILLED,"N12,N13,N5,N6"
+base,r-accept-edge-drain-lost,2,1,KILLED,N10
+base,r-reuse-without-action,2,1,KILLED,M12
+base,r-mvrp-start-during-prepare,2,5,KILLED,"B1-vlan,O8"
+base,canceled-content-never-drains,2,1,KILLED,O7
+base,expiry-only-redraw,2,15,KILLED,"P1,P3"
+base,mvrp-expiry-only-redraw,2,17,KILLED,"P2,P3,P6"
+base,stale-expiry-honoured,2,7,KILLED,M10
+base,mvrp-stale-expiry-honoured,2,7,KILLED,P6
+base,mvrp-passive-lost,2,6,KILLED,"P4,P5,P6,P7"
+base,mvrp-flag-at-expiry,2,11,KILLED,"P4,P5,P6,P7"
+base,rearm-at-issue,2,8,KILLED,P8
+base,r-rearm-no-inflight,2,3,KILLED,M10
+base,r-rearm-no-inflight,2,6,KILLED,P6
+base,r-rearm-no-deadline,2,3,KILLED,M10
+base,r-rearm-no-deadline,2,8,KILLED,P8
+base,r-flag-ignores-edge-peer,2,1,KILLED,P7
+base,join-ms-400,2,2,KILLED,"Q1,Q2"
+base,periodic-ms-3000,2,1,KILLED,Q2
+base,draw-kind-0,2,6,KILLED,"Q1,Q2,Q3,Q4"
+base,licence-ignores-join,2,3,KILLED,"R1,R3"
+base,licence-ignores-join,2,3,KILLED,"T ACTIVE drops when the VID membership is gone,T not ACTIVE on another VID's transmitted join,T not ACTIVE while the VID's join is untransmitted"
+base,join-sent-at-handover,2,3,KILLED,"R1,R3"
+base,count-up-unsends,2,3,KILLED,"R2,R3"
+base,listener-lane-cut,2,3,KILLED,R4
+base,join-sent-at-handover,2,3,KILLED,"W2 New VID 7 handed over, not yet sent,W3 handed over, still not sent,W4 re-joined VID 7 waits for its New to leave"
+base,count-up-unsends,2,2,KILLED,"W4 a second user of VID 7 keeps it sent,W4 one user left"
+base,tx-strobe-any-app,2,1,KILLED,W1 no strobe for an MSRP MRPDU
+base,tf-heads-swapped,2,8,KILLED,"TF1,TF2"
+base,tf-head-at-write-pointer,2,8,KILLED,"TF1,TF4"
+base,tf-listener-push-dropped,2,4,KILLED,TF2
+base,tf-ls-written-at-tk-pointer,2,8,KILLED,"TF2,TF5"
+base,tf-tk-head-read-ahead,2,13,KILLED,"TF1,TF1 precondition,TF4"
+base,tf-ls-head-reads-tk-ram,2,17,KILLED,"TF1,TF2,TF3,TF4,TF5"
+base,tf-tk-write-at-rptr,2,8,KILLED,"TF1,TF4"
+base,tf-full-guard-31,2,4,KILLED,TF4
+base,tf-tk-write-ignores-full,2,4,KILLED,TF4
+base,tf-ls-write-ignores-full,2,4,KILLED,TF5
+base,walk-record-written-on-close,2,4,KILLED,WK3
+base,wtsp-first-open-only,2,38,KILLED,"WK2,WK3,WK4,WK9"
+base,wtsp-read-at-gate-source,2,69,KILLED,"WK1,WK2,WK4,WK9"
+base,wtsp-read-at-source-0,2,72,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+base,wtsp-latency-field-shifted,2,98,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+base,wtsp-latency-shifted,2,98,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+base,wtsp-rank-dropped,2,49,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+base,wtsp-prio-rank-swapped,2,87,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+base,wid-ram-first-open-only,2,28,KILLED,"WK2,WK3,WK4,WK9"
+base,wid-ram-read-at-gate-source,2,62,KILLED,"WK1,WK2,WK4,WK9"
+base,wid-ram-read-neighbour,2,76,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+base,wid-flops-da-of-gate-source,2,7,KILLED,"WK1,WK2,WK4,WK9"
+base,wid-flops-sid-of-source-0,2,8,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+base,wid-flops-vid-of-source-0,2,8,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+base,talker-vid-unreset,2,4,KILLED,WK5
+base,wsid-ram-first-settle-only,2,30,KILLED,"WK10,WK12,WK8"
+base,wsid-ram-written-on-teardown,2,2,KILLED,WK7
+base,wsid-flops-of-control-sink,2,6,KILLED,"WK10,WK12,WK6,WK8"
+base,wsid-flops-read-sink-0,2,7,KILLED,"WK10,WK12,WK6,WK7,WK8"
+base,wtsp-write-ignores-ready,2,4,KILLED,WK9
+base,wsid-write-ignores-ready,2,4,KILLED,"WK10,WK11"
+base,slope-stored-at-stage-2-index,2,1333,KILLED,"grant belongs to the current declaration after pipeline evaluation N=2,refused current TSpec never pulses a grant N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2"
+base,slope-stored-at-source-0,2,1521,KILLED,"cross-source precondition,freed capacity admits the refused source in a published round N=2,grant belongs to the current declaration after pipeline evaluation N=2,refused current TSpec never pulses a grant N=2,refused source never granted while a lower source re-declares N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2"
+base,slope-store-source-0-only,2,1201,KILLED,"cross-source precondition,freed capacity admits the refused source in a published round N=2,grant belongs to the current declaration after pipeline evaluation N=2,refused current TSpec never pulses a grant N=2,refused source never granted while a lower source re-declares N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2"
+base,slope-read-source-0,2,578,KILLED,"grant belongs to the current declaration after pipeline evaluation N=2,live granted sum stays within the ceiling N=2,refused current TSpec never pulses a grant N=2,round publishes coherent bounded sum N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2"
+base,lv-second-lv-ends,2,16,KILLED,"S1,S2"
+base,lv-never-ends,2,16,KILLED,"S2,S3"
+base,lv-expiry-masked,2,16,KILLED,SC2
+base,lv-expiry-masked,2,16,KILLED,SC1
+base,lv-expiry-last,2,48,KILLED,SC1
+base,lv-expiry-dropped,2,86,KILLED,"K leavetimer! -> MT,K one LISTENER_REG_CHANGE, got 0,K source 3 no longer ACTIVE,L expiry -> MT + unregistered,SC1,T reg"
+base,lv-sweep-misses-collision,2,16,KILLED,SC3
+base,listener-rebind-abandons-leave,2,4,KILLED,"RB1,RB4,RB6,RB8"
+base,listener-declaration-not-held,2,9,KILLED,"RB1,RB4,RB6,RB7"
+base,listener-park-never-retires,2,4,KILLED,"RB1,RB4,RB6,RB7"
+base,listener-reprobe-abandons-leave,2,1,KILLED,RB2
+base,listener-reprobe-parks-own-stream,2,2,KILLED,"RB3,RB5"
+base,walk-ignores-leave-copy,2,34,KILLED,"WK11,WK12"
+base,lsid-ram-read-sink-0,2,24,KILLED,"WK11,WK12"
+base,lsid-flops-read-sink-0,2,2,KILLED,"WK11,WK12"
+base,lsid-ram-written-with-new-stream,2,28,KILLED,"WK11,WK12"
+base,listener-csid-ram-ignores-park,2,2,KILLED,"RB4,RB5"
+base,listener-csid-ram-ignores-park,2,14,KILLED,WK12
+base,listener-csid-flops-ignores-park,2,3,KILLED,WK12
+base,listener-rebind-back-keeps-park,2,1,KILLED,RB5
+base,listener-lo-not-owed,2,2,KILLED,"RB6,RB8"
+base,listener-park-retires-on-txla,2,1,KILLED,RB7
+base,listener-parked-applies-rx,2,1,KILLED,RB8
+base,listener-unrecorded-applicant-owes,2,1,KILLED,RB9
+base,listener-rebind-abandons-leave,2,11,KILLED,"WK11,WK12"
+base,listener-park-never-retires,2,17,KILLED,"WK10,WK12,WK8"
+base,listener-aa-tx-stays-aa,2,4,KILLED,WK12 precondition
+base,domain-rejoin-always-joinin,2,10,KILLED,"B1-domain,D2 periodic JoinMt,D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR1 no peer,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR11 LINK_DOWN and LINK_UP clear the registration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR6 peer withdrawal (Lv)"
+base,domain-rejoin-always-joinin,2,2,KILLED,"DJ1,DJ4"
+base,domain-rejoin-always-joinin,2,1,KILLED,Q2
+base,domain-rejoin-always-joinmt,2,8,KILLED,"D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered"
+base,domain-rejoin-always-joinmt,2,8,KILLED,"D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered"
+base,domain-rejoin-always-joinmt,2,2,KILLED,"DJ2,DJ3"
+base,domain-rejoin-at-request,2,5,KILLED,"D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR3 a peer LeaveAll re-declared before tx!,DR3a a received LeaveAll's re-join waits for tx!,DR8 a registering event in the LeaveAll's clock keeps IN"
+base,domain-rx-leaveall-dropped,2,4,KILLED,"D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR3 a peer LeaveAll re-declared before tx!,DR8 a registering event in the LeaveAll's clock keeps IN"
+base,domain-rx-leaveall-dropped,2,1,KILLED,DJ3
+base,domain-leaveall-keeps-in,2,3,KILLED,"D8 re-joins carry the ADOPTED declaration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn"
+base,domain-lv-ignored,2,1,KILLED,DR6 peer withdrawal (Lv)
+base,domain-lv-ignored,2,1,KILLED,DJ4
+base,domain-lv-any-value,2,1,KILLED,DR7 an Lv of another Domain value leaves the registration IN
+base,domain-leaveall-after-receive,2,1,KILLED,DR8 a registering event in the LeaveAll's clock keeps IN
+base,domain-adoption-drops-registrar,2,3,KILLED,"D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR9 the adopted value is registered"
+base,domain-capture-unregistered,2,3,KILLED,"D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR9 the adopted value is registered"
+base,domain-pending-lv-ignored,2,1,KILLED,DR10 an adoption withdrawn before it applies re-joins JoinMt
+base,domain-link-keeps-registrar,2,2,KILLED,"B1-domain,DR11 LINK_DOWN and LINK_UP clear the registration"
+base,top-domain-lv-unwired,2,1,KILLED,DJ4
+base,top-domain-tx-every-clock,2,1,KILLED,DJ3
+base,top-domain-tx-unwired,2,1,KILLED,DJ3
+head,bad-listener-length,2,1,KILLED,K12
+head,repeated-action,2,5,KILLED,"N10,N12,N13,N4,N8"
+head,expiry-event,2,81,KILLED,"K1,K11,K12,K2,K4,K5,K9"
+head,before-slot,2,30,KILLED,"L1,L4"
+head,talker-no-own,2,25,KILLED,"K2,K4,K8"
+head,listener-no-own,2,13,KILLED,"K11,K6"
+head,talker-lost-txla,2,12,KILLED,"T AN x txLA!,T AO x txLA!,T LA txla=2,T LA x txLA!,T LO txla=2,T LO x txLA!,T QA txla=2,T QO x txLA!,T QP txla=2,T QP x txLA!,T VO x txLA!,T VP txla=2"
+head,listener-lost-txla,2,12,KILLED,"L AN x txLA!,L AO x txLA!,L LA txla=2,L LA x txLA!,L LO txla=2,L LO x txLA!,L QA txla=2,L QO x txLA!,L QP txla=2,L QP x txLA!,L VO x txLA!,L VP txla=2"
+head,talker-strict-lv,2,24,KILLED,"K2,K4"
+head,listener-strict-lv,2,13,KILLED,"K11,K6"
+head,listener-sid-ignored,2,33,KILLED,"K12,K3,K5,K8"
+head,talker-no-renewal,2,1,KILLED,K7
+head,listener-no-renewal,2,1,KILLED,K7
+head,talker-no-expiry,2,1,KILLED,K8
+head,listener-no-expiry,2,1,KILLED,K8
+head,pending-peer-ignored,2,26,KILLED,"M1,M10,M2,M3"
+head,encoder-peer-ignored,2,20,KILLED,"M1,M11,M12,M2,M3,M6,M7"
+head,mvrp-supersedes-msrp,2,8,KILLED,"M1,M2,M3,M4"
+head,reset-retains-intent,2,1,KILLED,K10
+head,full-drain-missing,2,7,KILLED,"N10,N13,N3,N4,N5,N6,N8"
+head,already-full-missed,2,1,KILLED,N10
+head,round-completion-lost,2,1,KILLED,N13
+head,own-flags-missing,2,4,KILLED,"N10,N12,N5,N6"
+head,expiry-congestion,2,5,KILLED,"N1,N11,N12,N2,N9"
+head,missing-registrar-edge,2,38,KILLED,"L2,L3"
+head,empty-canceled-pdu,2,1,KILLED,M11
+head,reserved-slot-not-reused,2,1,KILLED,M12
+head,renewal-congestion,2,1,KILLED,N7
+head,leaveall-expiry-lost,2,16,KILLED,"M1,M12,M2,M3,M5,M8,M9"
+head,expiry-outranks-peer,2,1,KILLED,M10
+head,repeated-expiry-queued,2,1,KILLED,N12
+head,receive-priority-lost,2,2,KILLED,L2
+head,action-omitted,2,6,KILLED,"N10,N12,N13,N3,N4,N8"
+head,preparation-before-slot,2,21,KILLED,"M1,M11,M12,M5,M6,M8"
+head,table-one-short,2,8,KILLED,"N10,N13,N3,N4,N5,N6,N8,N9"
+head,my-expiry-pulse,2,62,KILLED,"K11,K12,K2,K4,K5"
+head,my-join-edge-peer,2,2,KILLED,"O3,O4"
+head,my-cancel-eats-new-intent,2,1,KILLED,O2
+head,my-edge-cancel-lost,2,2,KILLED,"M6,M7"
+head,my-la-outranks-leave,2,2,KILLED,L2
+head,my-drop-join-during-wait,2,1,KILLED,O6
+head,my-no-walk-at-sLA,2,5,KILLED,"N10,N12,N13,N5,N6"
+head,my-reuse-flags-ignore-cancel,2,1,KILLED,O4
+head,r-expiry-pulse-restored,2,62,KILLED,"K11,K12,K2,K4,K5"
+head,r-cancel-latch-dropped,2,1,KILLED,O1
+head,r-cancel-consumes-new-intent,2,1,KILLED,O2
+head,r-join-start-guard-dropped,2,2,KILLED,"O3,O4"
+head,r-sink-receive-priority-lost,2,2,KILLED,O5
+head,r-join-coalesce-dropped,2,1,KILLED,O6
+head,r-la-only-emission-lost,2,1,KILLED,M12
+head,r-collect-blocks-pushes,2,4,KILLED,"N12,N13,N5,N6"
+head,r-accept-edge-drain-lost,2,1,KILLED,N10
+head,r-reuse-without-action,2,1,KILLED,M12
+head,r-mvrp-start-during-prepare,2,5,KILLED,"B1-vlan,O8"
+head,canceled-content-never-drains,2,1,KILLED,O7
+head,expiry-only-redraw,2,15,KILLED,"P1,P3"
+head,mvrp-expiry-only-redraw,2,17,KILLED,"P2,P3,P6"
+head,stale-expiry-honoured,2,7,KILLED,M10
+head,mvrp-stale-expiry-honoured,2,7,KILLED,P6
+head,mvrp-passive-lost,2,6,KILLED,"P4,P5,P6,P7"
+head,mvrp-flag-at-expiry,2,11,KILLED,"P4,P5,P6,P7"
+head,rearm-at-issue,2,8,KILLED,P8
+head,r-rearm-no-inflight,2,3,KILLED,M10
+head,r-rearm-no-inflight,2,6,KILLED,P6
+head,r-rearm-no-deadline,2,3,KILLED,M10
+head,r-rearm-no-deadline,2,8,KILLED,P8
+head,r-flag-ignores-edge-peer,2,1,KILLED,P7
+head,join-ms-400,2,2,KILLED,"Q1,Q2"
+head,periodic-ms-3000,2,1,KILLED,Q2
+head,draw-kind-0,2,6,KILLED,"Q1,Q2,Q3,Q4"
+head,licence-ignores-join,2,3,KILLED,"R1,R3"
+head,licence-ignores-join,2,3,KILLED,"T ACTIVE drops when the VID membership is gone,T not ACTIVE on another VID's transmitted join,T not ACTIVE while the VID's join is untransmitted"
+head,join-sent-at-handover,2,3,KILLED,"R1,R3"
+head,count-up-unsends,2,3,KILLED,"R2,R3"
+head,listener-lane-cut,2,3,KILLED,R4
+head,join-sent-at-handover,2,3,KILLED,"W2 New VID 7 handed over, not yet sent,W3 handed over, still not sent,W4 re-joined VID 7 waits for its New to leave"
+head,count-up-unsends,2,2,KILLED,"W4 a second user of VID 7 keeps it sent,W4 one user left"
+head,tx-strobe-any-app,2,1,KILLED,W1 no strobe for an MSRP MRPDU
+head,tf-heads-swapped,2,8,KILLED,"TF1,TF2"
+head,tf-head-at-write-pointer,2,8,KILLED,"TF1,TF4"
+head,tf-listener-push-dropped,2,4,KILLED,TF2
+head,tf-ls-written-at-tk-pointer,2,8,KILLED,"TF2,TF5"
+head,tf-tk-head-read-ahead,2,13,KILLED,"TF1,TF1 precondition,TF4"
+head,tf-ls-head-reads-tk-ram,2,17,KILLED,"TF1,TF2,TF3,TF4,TF5"
+head,tf-tk-write-at-rptr,2,8,KILLED,"TF1,TF4"
+head,tf-full-guard-31,2,4,KILLED,TF4
+head,tf-tk-write-ignores-full,2,4,KILLED,TF4
+head,tf-ls-write-ignores-full,2,4,KILLED,TF5
+head,walk-record-written-on-close,2,4,KILLED,WK3
+head,wtsp-first-open-only,2,38,KILLED,"WK2,WK3,WK4,WK9"
+head,wtsp-read-at-gate-source,2,69,KILLED,"WK1,WK2,WK4,WK9"
+head,wtsp-read-at-source-0,2,72,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+head,wtsp-latency-field-shifted,2,98,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+head,wtsp-latency-shifted,2,98,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+head,wtsp-rank-dropped,2,49,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+head,wtsp-prio-rank-swapped,2,87,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+head,wid-ram-first-open-only,2,28,KILLED,"WK2,WK3,WK4,WK9"
+head,wid-ram-read-at-gate-source,2,62,KILLED,"WK1,WK2,WK4,WK9"
+head,wid-ram-read-neighbour,2,76,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+head,wid-flops-da-of-gate-source,2,7,KILLED,"WK1,WK2,WK4,WK9"
+head,wid-flops-sid-of-source-0,2,8,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+head,wid-flops-vid-of-source-0,2,8,KILLED,"WK1,WK2,WK3,WK4,WK5,WK9"
+head,talker-vid-unreset,2,4,KILLED,WK5
+head,wsid-ram-first-settle-only,2,30,KILLED,"WK10,WK12,WK8"
+head,wsid-ram-written-on-teardown,2,2,KILLED,WK7
+head,wsid-flops-of-control-sink,2,6,KILLED,"WK10,WK12,WK6,WK8"
+head,wsid-flops-read-sink-0,2,7,KILLED,"WK10,WK12,WK6,WK7,WK8"
+head,wtsp-write-ignores-ready,2,4,KILLED,WK9
+head,wsid-write-ignores-ready,2,4,KILLED,"WK10,WK11"
+head,slope-stored-at-stage-2-index,2,1333,KILLED,"grant belongs to the current declaration after pipeline evaluation N=2,refused current TSpec never pulses a grant N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2"
+head,slope-stored-at-source-0,2,1521,KILLED,"cross-source precondition,freed capacity admits the refused source in a published round N=2,grant belongs to the current declaration after pipeline evaluation N=2,refused current TSpec never pulses a grant N=2,refused source never granted while a lower source re-declares N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2"
+head,slope-store-source-0-only,2,1201,KILLED,"cross-source precondition,freed capacity admits the refused source in a published round N=2,grant belongs to the current declaration after pipeline evaluation N=2,refused current TSpec never pulses a grant N=2,refused source never granted while a lower source re-declares N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2"
+head,slope-read-source-0,2,578,KILLED,"grant belongs to the current declaration after pipeline evaluation N=2,live granted sum stays within the ceiling N=2,refused current TSpec never pulses a grant N=2,round publishes coherent bounded sum N=2,round publishes the greedy walk over every current declaration N=2,settled ceiling refusal N=2,settled greedy grants N=2,settled sum of grants N=2"
+head,lv-second-lv-ends,2,16,KILLED,"S1,S2"
+head,lv-never-ends,2,16,KILLED,"S2,S3"
+head,lv-expiry-masked,2,16,KILLED,SC2
+head,lv-expiry-masked,2,16,KILLED,SC1
+head,lv-expiry-last,2,48,KILLED,SC1
+head,lv-expiry-dropped,2,86,KILLED,"K leavetimer! -> MT,K one LISTENER_REG_CHANGE, got 0,K source 3 no longer ACTIVE,L expiry -> MT + unregistered,SC1,T reg"
+head,lv-sweep-misses-collision,2,16,KILLED,SC3
+head,listener-rebind-abandons-leave,2,4,KILLED,"RB1,RB4,RB6,RB8"
+head,listener-declaration-not-held,2,5,KILLED,"RB1,RB4,RB6,RB7"
+head,listener-park-never-retires,2,4,KILLED,"RB1,RB4,RB6,RB7"
+head,listener-reprobe-abandons-leave,2,1,KILLED,RB2
+head,listener-reprobe-parks-own-stream,2,2,KILLED,"RB3,RB5"
+head,walk-ignores-leave-copy,2,34,KILLED,"WK11,WK12"
+head,lsid-ram-read-sink-0,2,24,KILLED,"WK11,WK12"
+head,lsid-flops-read-sink-0,2,2,KILLED,"WK11,WK12"
+head,lsid-ram-written-with-new-stream,2,28,KILLED,"WK11,WK12"
+head,listener-csid-ram-ignores-park,2,2,KILLED,"RB4,RB5"
+head,listener-csid-ram-ignores-park,2,14,KILLED,WK12
+head,listener-csid-flops-ignores-park,2,3,KILLED,WK12
+head,listener-rebind-back-keeps-park,2,1,KILLED,RB5
+head,listener-lo-not-owed,2,2,KILLED,"RB6,RB8"
+head,listener-park-retires-on-txla,2,1,KILLED,RB7
+head,listener-parked-applies-rx,2,1,KILLED,RB8
+head,listener-unrecorded-applicant-owes,2,1,KILLED,RB9
+head,listener-rebind-abandons-leave,2,11,KILLED,"WK11,WK12"
+head,listener-park-never-retires,2,17,KILLED,"WK10,WK12,WK8"
+head,listener-aa-tx-stays-aa,2,4,KILLED,WK12 precondition
+head,domain-rejoin-always-joinin,2,10,KILLED,"B1-domain,D2 periodic JoinMt,D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR1 no peer,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR11 LINK_DOWN and LINK_UP clear the registration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR6 peer withdrawal (Lv)"
+head,domain-rejoin-always-joinin,2,2,KILLED,"DJ1,DJ4"
+head,domain-rejoin-always-joinin,2,1,KILLED,Q2
+head,domain-rejoin-always-joinmt,2,8,KILLED,"D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered"
+head,domain-rejoin-always-joinmt,2,8,KILLED,"D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR2 peer declaring,DR3 a peer LeaveAll re-declared before tx!,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn,DR7 an Lv of another Domain value leaves the registration IN,DR8 a registering event in the LeaveAll's clock keeps IN,DR9 the adopted value is registered"
+head,domain-rejoin-always-joinmt,2,2,KILLED,"DJ2,DJ3"
+head,domain-rejoin-at-request,2,5,KILLED,"D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR3 a peer LeaveAll re-declared before tx!,DR3a a received LeaveAll's re-join waits for tx!,DR8 a registering event in the LeaveAll's clock keeps IN"
+head,domain-rx-leaveall-dropped,2,4,KILLED,"D3 LeaveAll re-join,D8 re-joins carry the ADOPTED declaration,DR3 a peer LeaveAll re-declared before tx!,DR8 a registering event in the LeaveAll's clock keeps IN"
+head,domain-rx-leaveall-dropped,2,1,KILLED,DJ3
+head,domain-leaveall-keeps-in,2,3,KILLED,"D8 re-joins carry the ADOPTED declaration,DR4 own LeaveAll,DR5 LV re-joins JoinMt until the peer re-declares, then JoinIn"
+head,domain-lv-ignored,2,1,KILLED,DR6 peer withdrawal (Lv)
+head,domain-lv-ignored,2,1,KILLED,DJ4
+head,domain-lv-any-value,2,1,KILLED,DR7 an Lv of another Domain value leaves the registration IN
+head,domain-leaveall-after-receive,2,1,KILLED,DR8 a registering event in the LeaveAll's clock keeps IN
+head,domain-adoption-drops-registrar,2,3,KILLED,"D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR9 the adopted value is registered"
+head,domain-capture-unregistered,2,3,KILLED,"D8 re-joins carry the ADOPTED declaration,DR10 an adoption withdrawn before it applies re-joins JoinMt,DR9 the adopted value is registered"
+head,domain-pending-lv-ignored,2,1,KILLED,DR10 an adoption withdrawn before it applies re-joins JoinMt
+head,domain-link-keeps-registrar,2,2,KILLED,"B1-domain,DR11 LINK_DOWN and LINK_UP clear the registration"
+head,top-domain-lv-unwired,2,1,KILLED,DJ4
+head,top-domain-tx-every-clock,2,1,KILLED,DJ3
+head,top-domain-tx-unwired,2,1,KILLED,DJ3
+head,listener-settle-compare-dropped,2,5,KILLED,"SW1,SW2,SW3"
+head,listener-settle-compare-dropped,2,26,KILLED,"SH1,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9"
+head,listener-rider-not-quiet,2,1,KILLED,SH1
+head,listener-teardown-applies-lv,2,9,KILLED,"SH2,SH4,SH7,SH8"
+head,listener-handover-drops-state,2,9,KILLED,"SH2,SH4,SH7,SH8"
+head,listener-withdraw-ignores-riders,2,9,KILLED,"SH2,SH4,SH6,SH7"
+head,listener-withdraw-ignores-riders,2,2,KILLED,SW2
+head,listener-teardown-keeps-declaring,2,54,KILLED,"L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,RB1,RB4,RB7,SH2,SH3,SH4,SH5,SH6,SH7,SH8,SH9"
+head,listener-teardown-keeps-declaring,2,1,KILLED,SW2
+head,listener-group-order-reversed,2,7,KILLED,"SH1,SH3,SH4,SH5,SH8,SH9"
+head,listener-rider-settle-hands-over,2,2,KILLED,"SH5,SH9"
+head,listener-type-not-combined,2,6,KILLED,SH6
+head,listener-type-not-combined,2,1,KILLED,SW3
+head,listener-handover-forgets-walk-mark,2,1,KILLED,SH7
+head,listener-settle-parks-shared-stream,2,1,KILLED,SH8
+head,listener-group-op-during-settle,2,1,KILLED,SH9
