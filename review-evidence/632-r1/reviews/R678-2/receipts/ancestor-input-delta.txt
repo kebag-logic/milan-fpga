@@ -1,0 +1,38 @@
+dd256343..HEAD relevant files:
+hdl/ieee1722/crf/KL_crf_tx.sv
+hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+hdl/ieee1722/crf/KL_mtt_round.sv
+hdl/milan/milan_datapath.sv
+
+f1643214..HEAD complete diff:
+diff --git a/docs/design/MEDIA_CLOCK_FOLLOWING.md b/docs/design/MEDIA_CLOCK_FOLLOWING.md
+index b339ecc3b..accf18a3d 100644
+--- a/docs/design/MEDIA_CLOCK_FOLLOWING.md
++++ b/docs/design/MEDIA_CLOCK_FOLLOWING.md
+@@ -1757,9 +1757,10 @@ contracts alone:
+   presentation offset less its arrival lead, about 1.9 ms at the 2 ms default:
+   about 96 events, so 128 event rows per 8-channel stream where the stage keeps
+   32. Vivado out of context at the AX7101 1x1 parameters, the queue alone grows
+-  from 456 to 1,006 LUTs (LUTRAM 128 to 512), against 469 LUTs and 20 slices of
+-  route-1x1 headroom; in block RAM it adds two or three RAMB18 (the parity-split
+-  rows need a write port each) against a RAMB tolerance of zero. The
++  from 456 to 1,006 LUTs (LUTRAM 128 to 512), against 404 LUTs and 8 slices of
++  route-1x1 headroom left at this lane's head; in block RAM it adds two or three
++  RAMB18 (the parity-split rows need a write port each) against a RAMB tolerance
++  of zero. The
+   depacketizer's frame FIFO, the other place a PDU could wait, is 2,048 bytes,
+   about eight PDUs of the shipping stream, under the fourteen a 2 ms hold needs.
+ - **The law it replaces.** The #386 fill law (8 events after accept, the
+diff --git a/tb/verilator/media_phase/Makefile b/tb/verilator/media_phase/Makefile
+index 36a26633c..f678bc86b 100644
+--- a/tb/verilator/media_phase/Makefile
++++ b/tb/verilator/media_phase/Makefile
+@@ -20,7 +20,7 @@
+ #   make mutants  - THE MUTATION CAMPAIGN, explicit: one planted defect per
+ #                   loop term and per interface constant, each required to
+ #                   fail its named check (phase_mutants.py). It rebuilds per
+-#                   mutant and ran in 837 s at MUTANT_JOBS=4, which
++#                   mutant and ran in 751 s at MUTANT_JOBS=4, which
+ #                   does not fit this suite's sweep budget, so like the other
+ #                   long campaigns it is a target of its own
+ #                   (docs/testing/TESTING.md records who runs it)

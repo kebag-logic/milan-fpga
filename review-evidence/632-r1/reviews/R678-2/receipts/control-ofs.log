@@ -1,0 +1,47 @@
+Command: make -j16 --no-print-directory VERILATOR=<compiler-root>/verilator VERILATOR_JOBS=4 ofs
+<compiler-root>/verilator --cc --exe --build -j 4 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_ofs --top-module ofs_wrap ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ofs_wrap.sv sim_ofs.cpp -o Vofs_wrap
+make[1]: Nothing to be done for 'default'.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 4 threads; allocated 16.496 MB
+======================================================================
+obj_ofs/Vofs_wrap
+[ofs] four AAF outputs and the CRF output of one domain, each its own offset
+  info: [ofs A] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  info: [ofs A] row 1 set 2010000 ns, applied 2020834 ns (97.0000 periods)
+  info: [ofs A] row 2 set 0 ns, applied 0 ns (0.0000 periods)
+  info: [ofs A] row 3 set 20833 ns, applied 20834 ns (1.0000 periods)
+  info: [ofs A] row 4 set 2010000 ns, applied 2020834 ns (97.0000 periods)
+  [ ok ] [ofs A] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs A] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs A] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs A] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 1.00 ns, talker 2)
+  info: [ofs B] row 0 set 1 ns, applied 20834 ns (1.0000 periods)
+  info: [ofs B] row 1 set 20834 ns, applied 41667 ns (2.0000 periods)
+  info: [ofs B] row 2 set 62500 ns, applied 62500 ns (3.0000 periods)
+  info: [ofs B] row 3 set 4294958333 ns, applied 4294958334 ns (206158.0000 periods)
+  info: [ofs B] row 4 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  [ ok ] [ofs B] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs B] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs B] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs B] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.33 ns, talker 2)
+  info: [ofs C] row 0 set 1 ns, applied 20834 ns (1.0000 periods)
+  info: [ofs C] row 1 set 1999999 ns, applied 2000000 ns (96.0000 periods)
+  info: [ofs C] row 2 set 62500 ns, applied 62500 ns (3.0000 periods)
+  info: [ofs C] row 3 set 4294967295 ns, applied 11871 ns (206159.0000 periods)
+  info: [ofs C] row 4 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  [ ok ] [ofs C] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs C] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs C] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs C] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.33 ns, talker 2)
+  info: [ofs D] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  info: [ofs D] row 1 set 2010000 ns, applied 2020834 ns (97.0000 periods)
+  info: [ofs D] row 2 set 0 ns, applied 0 ns (0.0000 periods)
+  info: [ofs D] row 3 set 1 ns, applied 20834 ns (1.0000 periods)
+  info: [ofs D] row 4 set 4294967295 ns, applied 11871 ns (206159.0000 periods)
+  [ ok ] [ofs D] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs D] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs D] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  info: [ofs D] the CRF row lies past 2^31: phase not graded (readback and stamps only)
+== media_phase ofs: checks: 15   failures: 0 ==
+RESULT: PASS

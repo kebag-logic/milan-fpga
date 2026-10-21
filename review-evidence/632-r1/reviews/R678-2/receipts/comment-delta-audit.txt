@@ -1,0 +1,21 @@
+hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:141:   //! frame named samples a period older (#632, R677-1-F1)
+hdl/ieee1722/crf/KL_mtt_round.sv:14:                 (#632, R678-1-F2).
+hdl/milan/milan_datapath.sv:1245:   //! last to arrive, the I2S pair on the blend (#632, R677-1-F1)
+hdl/milan/milan_datapath.sv:3430:   //! ...and every row as APPLIED (#632, R678-1-F2): rounded up to a whole
+tb/verilator/media_phase/Makefile:92: # several AAF outputs of one domain with their own offsets (#632, R678-1-F2):
+tb/verilator/media_phase/Makefile:106: # the in-tree two-interface shape (#632, R677-1-F1): the Arty I2S + TDM8
+tb/verilator/media_phase/blend_wrap.sv:4: // The IN-TREE two-interface shape (#632, R677-1-F1): the Arty 4x4 and 8ch
+tb/verilator/media_phase/ofs_wrap.sv:5: // own presentation offset (#632, R678-1-F2), bound as milan_datapath binds
+tb/verilator/media_phase/phase_mutants.py:94:     #: R678-1-F3: each sample summed as folded, no tracking reference, so
+tb/verilator/media_phase/phase_mutants.py:107:     #: R678-1-F3: settled from the window mean alone
+tb/verilator/media_phase/phase_mutants.py:113:     #: R678-1-F4: the snapshot reads only the valid flag the hold clears after it
+tb/verilator/media_phase/phase_mutants.py:118:     #: R677-1-F3: settled is the engaged bit, no band and no four windows
+tb/verilator/media_phase/phase_mutants.py:124:     #: R677-1-F3: a timestamp outside the fold range sampled anyway
+tb/verilator/media_phase/phase_mutants.py:157:     #: R677-1-F2: the local PHC step (#539) left out of the hold
+tb/verilator/media_phase/phase_mutants.py:162:     #: R678-1-F2: the offsets stamped as set, not in whole periods
+tb/verilator/media_phase/phase_mutants.py:179:     #: R677-1-F1: the blend's frame closed on its last TDM pair again, its
+tb/verilator/media_phase/phase_mutants.py:187:     #: R677-1-F1: the I2S front end copying rdata on the pop edge again, so
+tb/verilator/media_phase/sim_blend.cpp:4: // The in-tree two-interface shape graded at its pins (#632, R677-1-F1):
+tb/verilator/media_phase/sim_blend.cpp:15: // before #632's R677-1-F1, banked the I2S pair of an earlier frame. Six reset
+tb/verilator/media_phase/sim_ofs.cpp:5: // offsets, graded against the domain's CRF timing points (#632, R678-1-F2):
+tb/verilator/milan_dp/sim_nxn.cpp:7217:         // #632 (R678-1-F2): an offset that is no whole number of media clock

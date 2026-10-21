@@ -1,0 +1,100 @@
+Published source: author-r2/receipts/round2/sweep_2ff30f0d/shard1/media_phase.log
+33: == media_phase pins: checks: 11   failures: 0 ==
+34: RESULT: PASS
+97: == media_phase blend: checks: 24   failures: 0 ==
+98: RESULT: PASS
+158: == media_phase ofs: checks: 15   failures: 0 ==
+159: RESULT: PASS
+181: == media_phase det inband: checks: 3   failures: 0 ==
+182: RESULT: PASS
+190: == media_phase det events: checks: 5   failures: 0 ==
+191: RESULT: PASS
+196: == media_phase det meanin: checks: 2   failures: 0 ==
+197: RESULT: PASS
+203: == media_phase det balanced: checks: 3   failures: 0 ==
+204: RESULT: PASS
+210: == media_phase det unbal129: checks: 3   failures: 0 ==
+211: RESULT: PASS
+217: == media_phase det unbal160: checks: 3   failures: 0 ==
+218: RESULT: PASS
+224: == media_phase det jitter: checks: 3   failures: 0 ==
+225: RESULT: PASS
+230: == media_phase det cross: checks: 2   failures: 0 ==
+231: RESULT: PASS
+238: == media_phase det range: checks: 4   failures: 0 ==
+239: RESULT: PASS
+260: == media_phase det snap: checks: 18   failures: 0 ==
+261: RESULT: PASS
+291: == media_phase engage: checks: 12   failures: 0 ==
+292: RESULT: PASS
+308: == media_phase engage2: checks: 12   failures: 0 ==
+309: RESULT: PASS
+311: [edge] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+318:   info: [edge] the reference stepped to put the phase at +0.4999 Ps at 15.00 s
+319:   [ ok ] [edge] phase inside +/-5 % of Ps within 45 s of the event
+320:   info: [edge] inside the band 26.44 s after the event
+321:   [ ok ] [edge] phase held inside +/-5 % of Ps to the end (max 618.9 ns)
+322:   [ ok ] [edge] the DUT's CRF output on the reference's grid (max 827.3 ns)
+323:   [ ok ] [edge] the servo reports settled at the end
+324:   [ ok ] [edge] still LOCKED at the end
+325:   [ ok ] [edge] re-engaged at the fold (-0.4912 Ps from the reference's grid)
+326:   [ ok ] [edge] the pull is slew-limited: <= 400 ns of phase per window (max 337.3)
+327:   [ ok ] [edge] the phase term let go at the reference's history restart (within 10 ms)
+328:   [ ok ] [edge] the settled flag fell at the reference's history restart
+329:   [ ok ] [edge] every DUT CRF timestamp is a frame instant of its own grid (max 161.0 ns)
+330:   [ ok ] [edge] fine-PS protocol clean
+331:   [ ok ] [edge] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+332:   [ ok ] [edge] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+333: == media_phase edge: checks: 18   failures: 0 ==
+334: RESULT: PASS
+336: [edge2] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+343:   info: [edge2] the reference stepped to put the phase at +0.5000 Ps at 15.00 s
+344:   [ ok ] [edge2] phase inside +/-5 % of Ps within 45 s of the event
+345:   info: [edge2] inside the band 26.64 s after the event
+346:   [ ok ] [edge2] phase held inside +/-5 % of Ps to the end (max 598.7 ns)
+347:   [ ok ] [edge2] the DUT's CRF output on the reference's grid (max 811.3 ns)
+348:   [ ok ] [edge2] the servo reports settled at the end
+349:   [ ok ] [edge2] still LOCKED at the end
+350:   [ ok ] [edge2] re-engaged at the fold (-0.4913 Ps from the reference's grid)
+351:   [ ok ] [edge2] the pull is slew-limited: <= 400 ns of phase per window (max 329.9)
+352:   [ ok ] [edge2] the phase term let go at the reference's history restart (within 10 ms)
+353:   [ ok ] [edge2] the settled flag fell at the reference's history restart
+354:   [ ok ] [edge2] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+355:   [ ok ] [edge2] fine-PS protocol clean
+356:   [ ok ] [edge2] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+357:   [ ok ] [edge2] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+358: == media_phase edge2: checks: 18   failures: 0 ==
+359: RESULT: PASS
+381: == media_phase step: checks: 16   failures: 0 ==
+382: RESULT: PASS
+398: == media_phase ramp: checks: 12   failures: 0 ==
+399: RESULT: PASS
+422: == media_phase holdover: checks: 17   failures: 0 ==
+423: RESULT: PASS
+446: == media_phase internal: checks: 17   failures: 0 ==
+447: RESULT: PASS
+469: == media_phase mr: checks: 16   failures: 0 ==
+470: RESULT: PASS
+494: == media_phase slew: checks: 17   failures: 0 ==
+495: RESULT: PASS
+497: [phcstep] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+504:   info: [phcstep] the local PHC steps +7000 ns at 15.00 s
+505:   info: [phcstep] phase +0.3395 Ps after the step
+506:   [ ok ] [phcstep] phase inside +/-5 % of Ps within 40 s of the event
+507:   info: [phcstep] inside the band 22.27 s after the event
+508:   [ ok ] [phcstep] phase held inside +/-5 % of Ps to the end (max 562.7 ns)
+509:   [ ok ] [phcstep] the DUT's CRF output on the reference's grid (max 751.8 ns)
+510:   [ ok ] [phcstep] the servo reports settled at the end
+511:   [ ok ] [phcstep] still LOCKED at the end
+512:   [ ok ] [phcstep] the phase term let go at the PHC step (within 5 ms)
+513:   [ ok ] [phcstep] the settled flag fell at the PHC step
+514:   [ ok ] [phcstep] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+515:   [ ok ] [phcstep] fine-PS protocol clean
+516:   [ ok ] [phcstep] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+517:   [ ok ] [phcstep] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+518: == media_phase phcstep: checks: 16   failures: 0 ==
+519: RESULT: PASS
+541: == media_phase burst: checks: 16   failures: 0 ==
+542: RESULT: PASS
+554: == media_phase carry: checks: 8   failures: 0 ==
+555: RESULT: PASS

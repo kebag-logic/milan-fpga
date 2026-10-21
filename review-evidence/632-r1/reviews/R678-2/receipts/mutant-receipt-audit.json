@@ -1,0 +1,175 @@
+{
+  "head": "f16432140d9a59cfd46f789247ccab19b0a357d8",
+  "clean_controls": 18,
+  "mutants": [
+    {
+      "mutant": "phase_term_removed",
+      "case": "engage",
+      "required_failure": "[engage] phase inside +/-5 % of Ps within 45 s of the event",
+      "reported_killed": true
+    },
+    {
+      "mutant": "phase_sign_flipped",
+      "case": "engage",
+      "required_failure": "[engage] phase held inside +/-5 % of Ps to the end",
+      "reported_killed": true
+    },
+    {
+      "mutant": "rate_damping_removed",
+      "case": "engage",
+      "required_failure": "[engage] phase inside +/-5 % of Ps within 45 s of the event",
+      "reported_killed": true
+    },
+    {
+      "mutant": "integrator_floored",
+      "case": "carry",
+      "required_failure": "[carry] the integrator moved by exactly sum(e) / 2 (no LSB floored)",
+      "reported_killed": true
+    },
+    {
+      "mutant": "slew_clamp_removed",
+      "case": "engage",
+      "required_failure": "[engage] the pull is slew-limited",
+      "reported_killed": true
+    },
+    {
+      "mutant": "fold_not_centred",
+      "case": "det:inband",
+      "required_failure": "[det inband] settled first reads 1 at the close of the fourth full in-band window",
+      "reported_killed": true
+    },
+    {
+      "mutant": "tracking_fold_removed",
+      "case": "det:balanced",
+      "required_failure": "[det balanced] the window phase reads the half-period phase",
+      "reported_killed": true
+    },
+    {
+      "mutant": "window_refold_removed",
+      "case": "det:cross",
+      "required_failure": "[det cross] past +Ps/2 the window phase re-folds to the short way",
+      "reported_killed": true
+    },
+    {
+      "mutant": "settled_on_mean_only",
+      "case": "det:meanin",
+      "required_failure": "[det meanin] settled never asserts with every sample outside the band",
+      "reported_killed": true
+    },
+    {
+      "mutant": "snapshot_hold_ignored",
+      "case": "det:snap",
+      "required_failure": "[det snap] mr on the closing edge",
+      "reported_killed": true
+    },
+    {
+      "mutant": "settled_is_engaged",
+      "case": "det:inband",
+      "required_failure": "[det inband] settled first reads 1 at the close of the fourth full in-band window",
+      "reported_killed": true
+    },
+    {
+      "mutant": "fold_range_guard_removed",
+      "case": "det:range",
+      "required_failure": "[det range] a timestamp 2^25 ns from the domain event is not sampled",
+      "reported_killed": true
+    },
+    {
+      "mutant": "window_cap_removed",
+      "case": "burst",
+      "required_failure": "[burst] the window the burst filled kept exactly 264 samples, the cap",
+      "reported_killed": true
+    },
+    {
+      "mutant": "history_hold_removed",
+      "case": "step",
+      "required_failure": "[step] the phase term let go at the reference's history restart",
+      "reported_killed": true
+    },
+    {
+      "mutant": "mr_hold_removed",
+      "case": "mr",
+      "required_failure": "[mr] the phase term let go at the mr toggle",
+      "reported_killed": true
+    },
+    {
+      "mutant": "holdover_hold_removed",
+      "case": "holdover",
+      "required_failure": "[holdover] the phase term let go at HOLDOVER",
+      "reported_killed": true
+    },
+    {
+      "mutant": "idle_hold_removed",
+      "case": "internal",
+      "required_failure": "[internal] the phase term let go at INTERNAL",
+      "reported_killed": true
+    },
+    {
+      "mutant": "slew_hold_removed",
+      "case": "slew",
+      "required_failure": "[slew] the phase term let go at the slew level",
+      "reported_killed": true
+    },
+    {
+      "mutant": "step_hold_removed",
+      "case": "phcstep",
+      "required_failure": "[phcstep] the phase term let go at the PHC step",
+      "reported_killed": true
+    },
+    {
+      "mutant": "offset_rounding_bypassed",
+      "case": "ofs",
+      "required_failure": "[ofs A] every AAF output stamps whole periods from the CRF timing points",
+      "reported_killed": true
+    },
+    {
+      "mutant": "crf_row_raw",
+      "case": "ofs",
+      "required_failure": "[ofs A] every CRF timing point is a frame instant plus the CRF row as read back",
+      "reported_killed": true
+    },
+    {
+      "mutant": "domain_event_not_backdated",
+      "case": "engage",
+      "required_failure": "[engage] every DUT CRF timestamp is a frame instant of its own grid",
+      "reported_killed": true
+    },
+    {
+      "mutant": "crf_output_off_grid",
+      "case": "engage",
+      "required_failure": "[engage] every DUT CRF timestamp is a frame instant of its own grid",
+      "reported_killed": true
+    },
+    {
+      "mutant": "blend_closed_on_tdm_pair",
+      "case": "blend",
+      "required_failure": "[blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps",
+      "reported_killed": true
+    },
+    {
+      "mutant": "i2s_pair_one_pop_late",
+      "case": "blend",
+      "required_failure": "[blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps",
+      "reported_killed": true
+    },
+    {
+      "mutant": "pins_b_constant_dropped",
+      "case": "pins",
+      "required_failure": "[pins B] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps",
+      "reported_killed": true
+    },
+    {
+      "mutant": "pins_constants_swapped",
+      "case": "pins",
+      "required_failure": "[pins A] ...and inside the derivation",
+      "reported_killed": true
+    },
+    {
+      "mutant": "pins_c_closed_at_frame_end",
+      "case": "pins",
+      "required_failure": "[pins C] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps",
+      "reported_killed": true
+    }
+  ],
+  "gate_logic": "rc == 1 AND RESULT: FAIL AND exact required [FAIL] substring; the displayed failure may be an earlier failure"
+}

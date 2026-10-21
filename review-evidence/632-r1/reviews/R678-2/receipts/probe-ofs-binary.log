@@ -1,0 +1,51 @@
+[ofs] four AAF outputs and the CRF output of one domain, each its own offset
+  info: [ofs A] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  info: [ofs A] row 1 set 2010000 ns, applied 2020834 ns (97.0000 periods)
+  info: [ofs A] row 2 set 0 ns, applied 0 ns (0.0000 periods)
+  info: [ofs A] row 3 set 20833 ns, applied 20834 ns (1.0000 periods)
+  info: [ofs A] row 4 set 2010000 ns, applied 2020834 ns (97.0000 periods)
+  [ ok ] [ofs A] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs A] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs A] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  probe: [A] full offset 2020834 ns, applied low 2020834 ns, wrong full stamps 0, grid phase 1.000 ns
+  [ ok ] [probe A] full 64-bit CRF timestamp equals a frame instant plus full Equation (14) offset
+  [ ok ] [probe A] CRF timestamp stays within +/-5 % of its physical frame grid
+  [ ok ] [ofs A] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 1.00 ns, talker 2)
+  info: [ofs B] row 0 set 1 ns, applied 20834 ns (1.0000 periods)
+  info: [ofs B] row 1 set 20834 ns, applied 41667 ns (2.0000 periods)
+  info: [ofs B] row 2 set 62500 ns, applied 62500 ns (3.0000 periods)
+  info: [ofs B] row 3 set 4294958333 ns, applied 4294958334 ns (206158.0000 periods)
+  info: [ofs B] row 4 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  [ ok ] [ofs B] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs B] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs B] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  probe: [B] full offset 2000000 ns, applied low 2000000 ns, wrong full stamps 0, grid phase 0.333 ns
+  [ ok ] [probe B] full 64-bit CRF timestamp equals a frame instant plus full Equation (14) offset
+  [ ok ] [probe B] CRF timestamp stays within +/-5 % of its physical frame grid
+  [ ok ] [ofs B] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.33 ns, talker 2)
+  info: [ofs C] row 0 set 1 ns, applied 20834 ns (1.0000 periods)
+  info: [ofs C] row 1 set 1999999 ns, applied 2000000 ns (96.0000 periods)
+  info: [ofs C] row 2 set 62500 ns, applied 62500 ns (3.0000 periods)
+  info: [ofs C] row 3 set 4294967295 ns, applied 11871 ns (206159.0000 periods)
+  info: [ofs C] row 4 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  [ ok ] [ofs C] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs C] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs C] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  probe: [C] full offset 2000000 ns, applied low 2000000 ns, wrong full stamps 0, grid phase 0.333 ns
+  [ ok ] [probe C] full 64-bit CRF timestamp equals a frame instant plus full Equation (14) offset
+  [ ok ] [probe C] CRF timestamp stays within +/-5 % of its physical frame grid
+  [ ok ] [ofs C] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.33 ns, talker 2)
+  info: [ofs D] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  info: [ofs D] row 1 set 2010000 ns, applied 2020834 ns (97.0000 periods)
+  info: [ofs D] row 2 set 0 ns, applied 0 ns (0.0000 periods)
+  info: [ofs D] row 3 set 1 ns, applied 20834 ns (1.0000 periods)
+  info: [ofs D] row 4 set 4294967295 ns, applied 11871 ns (206159.0000 periods)
+  [ ok ] [ofs D] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs D] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs D] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  probe: [D] full offset 4294979167 ns, applied low 11871 ns, wrong full stamps 4, grid phase 8962.000 ns
+  [FAIL] [probe D] full 64-bit CRF timestamp equals a frame instant plus full Equation (14) offset
+  [FAIL] [probe D] CRF timestamp stays within +/-5 % of its physical frame grid
+  info: [ofs D] the CRF row lies past 2^31: phase not graded (readback and stamps only)
+== media_phase ofs: checks: 23   failures: 2 ==
+RESULT: FAIL

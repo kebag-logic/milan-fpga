@@ -1,0 +1,41 @@
+Command: make -j16 --no-print-directory VERILATOR=<compiler-root>/verilator VERILATOR_JOBS=4 blend
+<compiler-root>/verilator --cc --exe --build -j 4 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_blend --top-module blend_wrap ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv blend_wrap.sv sim_blend.cpp -o Vblend_wrap
+make[1]: Nothing to be done for 'default'.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.009 s (elab=0.000, cvt=0.000, bld=0.008); cpu 0.001 s on 4 threads; allocated 16.496 MB
+======================================================================
+obj_blend/Vblend_wrap
+[blend] the Arty I2S + TDM8 capture of one domain, graded at its pins
+  info: [blend 0] 144 banked frames; I2S frame start - banked instant -29.1 .. -15.8 ns, TDM frame start - banked instant 11.5 .. 24.9 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 0] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.1 ns)
+  [ ok ] [blend 0] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 24.9 ns)
+  [ ok ] [blend 0] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-29.1 .. -15.8 ns)
+  info: [blend 1] 144 banked frames; I2S frame start - banked instant -24.6 .. -11.3 ns, TDM frame start - banked instant 16.1 .. 29.4 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 1] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 1] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 24.6 ns)
+  [ ok ] [blend 1] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.4 ns)
+  [ ok ] [blend 1] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-24.6 .. -11.3 ns)
+  info: [blend 2] 144 banked frames; I2S frame start - banked instant -26.7 .. -13.4 ns, TDM frame start - banked instant 14.0 .. 27.3 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 2] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 2] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 26.7 ns)
+  [ ok ] [blend 2] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 27.3 ns)
+  [ ok ] [blend 2] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-26.7 .. -13.4 ns)
+  info: [blend 3] 144 banked frames; I2S frame start - banked instant -28.8 .. -15.5 ns, TDM frame start - banked instant 11.9 .. 25.2 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 3] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 3] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 28.8 ns)
+  [ ok ] [blend 3] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 25.2 ns)
+  [ ok ] [blend 3] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-28.8 .. -15.5 ns)
+  info: [blend 4] 144 banked frames; I2S frame start - banked instant -25.0 .. -11.6 ns, TDM frame start - banked instant 15.7 .. 29.1 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 4] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 4] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 25.0 ns)
+  [ ok ] [blend 4] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.1 ns)
+  [ ok ] [blend 4] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-25.0 .. -11.6 ns)
+  info: [blend 5] 144 banked frames; I2S frame start - banked instant -27.1 .. -13.7 ns, TDM frame start - banked instant 13.6 .. 26.9 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 5] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 5] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 27.1 ns)
+  [ ok ] [blend 5] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 26.9 ns)
+  [ ok ] [blend 5] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-27.1 .. -13.7 ns)
+== media_phase blend: checks: 24   failures: 0 ==
+RESULT: PASS
