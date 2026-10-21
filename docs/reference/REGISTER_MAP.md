@@ -1046,8 +1046,8 @@ seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
 | `0x618` | `ADP_TALKER` | **RO** | `{ADP_TALKER_CAPS_C, ADP_TALKER_SRC_C}` | `[15:0]` talker_stream_sources, `[31:16]` talker_capabilities. **Hardwired from the end-station config, writes ignored** (VERSION `0x0015`). The values live in [`hdl/common/gen/adp_shape_defaults.svh`](../../hdl/common/gen/adp_shape_defaults.svh), GENERATED from `configs/endstation_*.yaml` by [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py) in the same pass that emits this shape's AEM descriptor ROM. `ADP_TALKER_SRC_C` = the `STREAM_OUTPUT` descriptor count = the AAF talkers plus the CRF Media Clock Output when the config has one, and `milan_datapath` sizes its ACMP talker context array from **the same constant**, so the advertised range is the addressable range. `1` at 1×1, `N+1` at N×N. `ADP_TALKER_CAPS_C` = `IMPLEMENTED` \| `AUDIO_SOURCE` \| `MEDIA_CLOCK_SOURCE` **only when a CRF output exists** → `0x4001` at 1×1, `0x4801` at N×N |
 | `0x61C` | `ADP_LISTENER` | **RO** | `{ADP_LISTENER_CAPS_C, ADP_LISTENER_SINK_C}` | `[15:0]` listener_stream_sinks, `[31:16]` listener_capabilities. Same generated include, same rule: `ADP_LISTENER_SINK_C` = the `STREAM_INPUT` descriptor count = the AAF sinks plus the CRF sink → `2` at 1×1, `N+1` at N×N, and it sizes the ACMP listener context array. `ADP_LISTENER_CAPS_C` = `0x4801` wherever a CRF sink exists |
 | `0x620` | `ADP_CONTROLLER_CAPS` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — controller_capabilities. Stored and read back; never reaches the wire |
-| `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. Option OFF reads zero; writes are inert. |
-| `0x628` | `ADP_GPTP_GM_HI` | RO live | `0` | gptp_grandmaster_id `[63:32]`. Fabric mode is the other half of the coherent snapshot. Option OFF reads zero; writes are inert. |
+| `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. From reset release until a peer is elected, fabric mode reads thisClock, this instance's own clockIdentity (IEEE 802.1AS-2020 10.3.13.2.4 b), FPGA-gPTP #82). Option OFF reads zero; writes are inert. |
+| `0x628` | `ADP_GPTP_GM_HI` | RO live | `0` | gptp_grandmaster_id `[63:32]`. Fabric mode is the other half of the coherent snapshot, thisClock's high half before any peer. Option OFF reads zero; writes are inert. |
 | `0x62C` | `ADP_GPTP_DOMAIN` | RO live | `0` | `[7:0]` gptp_domain_number - ADPDU byte 48. At `VERSION=0x0002_0060` this is a structural domain `0` in both fabric mode and the ownerless verification-only option-OFF build. All writes are inert; no startup publication step owns this word. |
 | `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index the ADPDU carries until a SET_CONFIGURATION or D3 restore writes the processor's configuration row, and again after a D3 roll-back (from processor pin `631eeb34`), `[31:16]` identify_control_index |
 | `0x634` | `ADP_IDX1` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` interface_index. Stored and read back; never reaches the wire |
@@ -1469,6 +1469,11 @@ processor has no dynamic state.
 bounded PathTrace publication. IEEE 802.1AS-2020 10.3.11.2.1(d) makes the
 sequence empty when the selected Announce has no PathTrace TLV, so count zero
 is preserved even when a grandmaster identity is known separately.
+
+Otherwise the published sequence is the received pathSequence with thisClock
+appended (IEEE 802.1AS-2020 10.3.13.2.4 f) 5), FPGA-gPTP #85), so its count
+includes thisClock. Before any peer is elected, the sequence is `{thisClock}`,
+count one (10.3.13.2.4 i), FPGA-gPTP #82).
 
 The three addresses below remain allocated so the public map does not shift.
 The staging pair is always zero and all writes are discarded. `ASP_CMD` is a
