@@ -4,20 +4,22 @@
 """Negative controls for the #387/#602 gmstep and option-off checks.
 
 The #602 ruling excludes PHC-only causes from outgoing mr and MEDIA_RESET.
-The clean gmstep leg must still grade tu holdover, continuous transport and
-one counted render re-base. Real source changes and selected-CRF received
-mr must still propagate. Each control rebuilds the same harness against a
+The clean gmstep leg must still grade tu holdover, continuous transport and,
+since #632, a render presentation stage that takes no re-base: the PDUs
+stamped across the two steps are refused and counted, and every other PDU
+keeps its offset. Real source changes and selected-CRF received mr must
+still propagate. Each control rebuilds the same harness against a
 disposable source copy through the Makefile and must fail its named check.
 A compile error, crash or missing harness verdict is not a catch. The clean
 leg is rebuilt if older than its inputs and must pass first.
 
 The default inventory restores the PHC restart term, removes the source
-change or CRF propagation, adds an identity-driven render re-base, or removes
-the step-driven render re-base. Disabling re-base must fail the counted-event
-check: #387 ruling 5802264260 item 1 replaced the impossible drift claim for
-this accept-timed stage. The explicit --all campaign also grades the existing
-holdover, continuity, render-law and slew controls, and restores either PHC
-cause separately on the INTERNAL option-off leg.
+change or CRF propagation, or empties the render stage on the grandmaster's
+identity or on the step: #632 retired #387's counted render re-base, so what
+the two render controls now plant is that re-base's effect on the queue, and
+each must lose PDUs the clean leg presents, uncounted. The explicit --all campaign also
+grades the existing holdover, continuity, render-refusal and slew controls,
+and restores either PHC cause separately on the INTERNAL option-off leg.
 It also restores both PHC causes together and vetoes a genuine CRF request
 on the very cycle a software settime re-bases the PHC.
 Delayed adjtime causes at 16 and 256 cycles must fail only the adjtime check.
@@ -58,18 +60,20 @@ DP = HERE.parent / "milan_dp"
 SOURCES = {
     "datapath": HERE / "../../../hdl/milan/milan_datapath.sv",
     "clkv": HERE / "../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
-    "stage": HERE / "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv",
+    "stage": HERE / "../../../hdl/ieee1722/aaf/KL_render_queue.sv",
     "restart": HERE / "../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv",
 }
 #: the make variable that points the recipe at each source
-MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RSP_SRC", "restart": "MCR_SRC"}
+MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RQ_SRC", "restart": "MCR_SRC"}
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
-#: the render stage's re-base trigger, with #645's settle recentre between
-#: its two original terms; its last line is also the anchor the #386 and #447
-#: render runners plant their clock-source control on
-RENDER_TRIGGER = "       media_rebase_p_w\n       | settle_recentre_p_r\n       | src_recentre_p_r;"
+#: the render presentation stage's flush: the bind wipe, and nothing else
+#: (#632). The render controls OR a re-base cause into it.
+RENDER_FLUSH = "    .flush_i      (strtbl_bind_fall_w),"
+#: what #387's re-base pulse read, the PHC's two strobes (#632 retired the
+#: wire with the setpoint stage); the restart controls restore it as a term
+PHC_REBASE = "(eff_ptp_adjust_w | cfg_ptp_cmd_load)"
 #: the restart request's last line: a control that appends " | <cause>" to it
 #: ORs the cause into the whole request (#629 added the AAF meter's two terms
 #: after the CRF ones, so the request ends here)
@@ -150,7 +154,7 @@ CONTROLS = [
             "slew path: every staged sample covers the PHC tail", False),
     Control("the PHC re-base restart term is restored", "datapath",
             RESTART_TRIGGER,
-            RESTART_TRIGGER[:-1] + " | media_rebase_p_w;",
+            RESTART_TRIGGER[:-1] + " | " + PHC_REBASE + ";",
             "restart: a PHC-only step leaves outgoing mr unchanged", True),
     Control("the source-change term is removed", "restart",
             "src_change_w = (clk_src_q_r != clk_src_i);",
@@ -160,18 +164,18 @@ CONTROLS = [
             CRF_RESTART_TERMS,
             "        & (tkd_crflk_q_r & ~crf_locked_w))",
             "CRF control: selected CRF mr propagates exactly once", True),
-    Control("the grandmaster identity re-bases the render stage as well as the step",
-            "datapath", RENDER_TRIGGER,
-            "       gm_recentre_p_r | media_rebase_p_w\n       | settle_recentre_p_r\n       | src_recentre_p_r;",
-            "render: the GM change is one counted re-base event", True),
-    Control("the step does not re-centre the render stage", "datapath",
-            RENDER_TRIGGER,
-            "       1'b0\n       | settle_recentre_p_r\n       | src_recentre_p_r;",
-            "render: the GM change is one counted re-base event", True),
-    Control("the render re-base is keyed to the identity, not the step", "datapath",
-            RENDER_TRIGGER,
-            "       gm_recentre_p_r\n       | settle_recentre_p_r\n       | src_recentre_p_r;",
-            "render: every counted re-base lands at a PDU end right after the step", False),
+    Control("the grandmaster identity empties the render stage", "datapath",
+            RENDER_FLUSH,
+            "    .flush_i      (strtbl_bind_fall_w | {N_STREAMS{gm_recentre_p_r}}),",
+            "render: every PDU not presented was refused by the stage and counted once", True),
+    Control("the step empties the render stage", "datapath",
+            RENDER_FLUSH,
+            "    .flush_i      (strtbl_bind_fall_w | {N_STREAMS{eff_ptp_adjust_w}}),",
+            "render: every PDU not presented was refused by the stage and counted once", True),
+    Control("the refused PDUs are not counted", "stage",
+            "      if (c_early_w   && !(&early_o))   early_o   <= early_o + 16'd1;",
+            "      if (1'b0        && !(&early_o))   early_o   <= early_o + 16'd1;",
+            "render: every PDU not presented was refused by the stage and counted once", False),
     Control("tu reaches the talkers four cycles late", "clkv",
             "  assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w;",
             "  logic [3:0] tu_late_r;\n"
@@ -197,12 +201,10 @@ CONTROLS = [
             "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r"
             " & ~gm_stop_r;",
             "licence: the talker never pauses beyond four of its intervals", False),
-    Control("the step's re-centre snaps one event off the setpoint", "stage",
-            "                rptr_r[s]    <= snap_rptr_w;\n"
-            "                prefill_r[s] <= 1'b0;",
-            "                rptr_r[s]    <= prefill_r[s] ? snap_rptr_w : snap_rptr_w - 1'b1;\n"
-            "                prefill_r[s] <= 1'b0;",
-            "render: every PDU push leaves the target fill across the event", False),
+    Control("a gap in the presented frames leaves no counted slip", "stage",
+            "      if (rd0_end_w && !any_w && (32'(rs_r) == s) && live_r[s]) gap_w = 1'b1;",
+            "      if (rd0_end_w && !any_w && (32'(rs_r) == s) && live_r[s]) gap_w = 1'b0;",
+            "render: the refused PDUs' frames are one counted slip", False),
     Control("software settime is restored as an mr cause", "datapath",
             RESTART_TRIGGER,
             RESTART_TRIGGER[:-1] + " | cfg_ptp_cmd_load;",
@@ -215,7 +217,7 @@ CONTROLS = [
             "option-off", ("CLKV: the settime leaves mr unchanged (#602)",)),
     Control("both PHC restart causes are restored", "datapath",
             RESTART_TRIGGER,
-            RESTART_TRIGGER[:-1] + " | media_rebase_p_w;",
+            RESTART_TRIGGER[:-1] + " | " + PHC_REBASE + ";",
             "CLKV: the settime leaves mr unchanged (#602)", False, "option-off"),
     Control("PHC adjtime becomes an mr cause 16 cycles later", "datapath",
             RESTART_DECL,
@@ -242,7 +244,7 @@ CONTROLS = [
                            "CLKV: settime adds no MEDIA_RESET (#602)")),
     Control("a PHC step suppresses a coincident CRF restart", "datapath",
             CRF_RESTART_TERMS,
-            CRF_RESTART_TERMS[:-1] + " & ~media_rebase_p_w)",
+            CRF_RESTART_TERMS[:-1] + " & ~" + PHC_REBASE + ")",
             "coincident: a PHC step does not suppress the CRF restart", False),
 ]
 

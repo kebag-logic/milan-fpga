@@ -37,8 +37,12 @@ The five sweep controls name these checks, none of them in the #621 phase:
 | the PHC re-base restart term is restored | restart: a PHC-only step leaves outgoing mr unchanged | GM change |
 | the source-change term is removed | source control: a real source change toggles mr once | media |
 | selected CRF `mr` propagation is removed | CRF control: selected CRF mr propagates exactly once | selected CRF restart |
-| the grandmaster identity re-bases the render stage as well as the step | render: the GM change is one counted re-base event | GM change |
-| the step does not re-centre the render stage | render: the GM change is one counted re-base event | GM change |
+| the grandmaster identity empties the render stage | render: every PDU not presented was refused by the stage and counted once | GM change |
+| the step empties the render stage | render: every PDU not presented was refused by the stage and counted once | GM change |
+
+#632 replaced the two render controls: the presentation stage takes no
+re-base, so what they plant is the retired #387 re-base's effect on the queue,
+which loses PDUs the clean leg presents, uncounted.
 
 A separate profiled run at `83239549` spent 173 of its 222 CPU seconds there.
 Running it in every control cost five runs of it, plus the positive control's.

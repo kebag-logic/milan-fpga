@@ -859,9 +859,11 @@ probe P1).
 
 ## GM step re-base leg (#387)
 
-The true-ratio leg also commands an absolute software settime.
-`RENDER-SETTIME` requires one pulse and one counted render re-base.
-A further 100 PDUs must produce no second event.
+The true-ratio leg also commands an absolute software settime under the
+running stream. `RENDER-SETTIME` requires the domain's instants to move by the
+settime and every event, queued before it or stamped after it, to be
+presented at its presentation time with no slip and nothing refused: the
+presentation stage takes no re-base (#632).
 
 `make gmstep` builds `obj_gmstep` from `sim_gmstep.cpp` on the `gptp` leg's
 elaboration: the AX7101 1x1 TDM8 entity, fabric gPTP on, a 2 MHz fabric clock
@@ -873,8 +875,8 @@ CRF selection. The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issue
 |---|---|
 | Acquisition | Pdelay to asCapable, then GM A's Sync; the link-up pair steps once, above 20 us |
 | Media | SET_CLOCK_SOURCE to the CRF answers SUCCESS and the root resolves it; the CRF sink locks; the talker gate opens; the real source change toggles outgoing `mr` exactly once |
-| Baseline | every PDU push leaves the #386 target fill (setpoint 8 + one PDU = 14 events); the talker streams with `tu` clear |
-| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate, and no pause beyond four of its intervals up to the end of the window; the listener stays locked and its FRAMES_RX moves by the PDUs it accepted; one counted render re-base, no rail, every push on the target fill; outgoing `mr` stays unchanged; MEDIA_RESET adds zero |
+| Baseline | every PDU's six events presented once, in order, at one offset after its send, nothing refused and no slip at the presentation stage; the talker streams with `tu` clear |
+| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate, and no pause beyond four of its intervals up to the end of the window; the listener stays locked and its FRAMES_RX moves by the PDUs it accepted; the PDUs stamped in GM B's time and placed before this listener's step refused, each counted once, and their frames one counted slip; every other PDU presented once, in order, at the baseline's offset; outgoing `mr` stays unchanged; MEDIA_RESET adds zero |
 | Selected CRF restart | a received CRF `mr` toggle propagates exactly once; the sink stays locked; no PHC step supplies the restart |
 | Coincident restart | 32 delays between a received CRF toggle and software settime; at least one observed same-cycle overlap of the received pulse and PHC re-base pulse; every trial actually steps the PHC and emits exactly one outgoing toggle, with more than eight outgoing PDUs and the selected sink still locked |
 
@@ -882,21 +884,25 @@ The coincident check grades suppression of the CRF restart.
 An extra request inside its pending window merges with that restart.
 The isolated PHC-step checks grade the exclusion of an added request.
 
-**The counted event is the step's, not the commit's.** The render re-base
-must be counted at a PDU end within two AAF periods (500 cycles) after the
-plane's step pulse. Outgoing `mr` stays unchanged throughout the window.
+**The refused PDUs are the step's, not the commit's.** Every PDU the stage
+refuses must have been sent between the peer's step (at its first GM B Sync)
+and this listener's (the plane's step pulse), and the stage must count each.
+Outgoing `mr` stays unchanged throughout the window.
 The talker's counters are read before, between and after both events.
 MEDIA_RESET must not move in either interval.
-A re-base keyed to the grandmaster identity change therefore fails; in this
-scenario the identity change lands about 160000 cycles before the step.
+A stage emptied on the grandmaster identity change, which in this scenario
+lands about 160000 cycles before the step, or on the step itself loses PDUs
+the clean leg presents, uncounted, and fails.
 
-**The render law is graded where the stage states it.** `KL_render_setpoint`
-judges its bands on the fill right after each PDU's push, TARGET_C =
-setpoint + one PDU. The leg reads that fill as the peak of the registered fill
-between two accepts: pops only lower it after the push, and the next PDU
-pushes only after its own accept. The fill at the accept is printed, not
-graded: it depends on how many media ticks fall between the last push and the
-accept, so it moves with the feed's start phase (9 or 10 events here).
+**The presentation law is graded at the stage's output.** Every sample names
+its PDU's sequence number and event, and the event handed to the TDM lane at
+each media event is decoded off the stage's first beat. In this compressed
+model the stage counts one frame per media tick (41.7 cycles) but divides
+timestamp differences by the true 48 kHz period, so the peer's 2 ms
+presentation offset puts every PDU a fixed 96 frames after the frame it
+arrives in. The presentation instant is graded at the true clock ratio by the
+true-ratio leg and by `milan_dp_render`; here the leg grades that every PDU
+keeps that one offset across the event.
 
 **Start phase.** The binary's optional second argument, `GMSTEP_FEED_DELAY`
 through `make`, idles that many fabric cycles before the peer's media feed
@@ -913,7 +919,7 @@ That driver rebuilds through this suite's `gmstep-build` recipe.
 In the sweep it passes `--no-small-steps`, which leaves out only the #621 phase.
 No sweep control names a check in that phase; its README tabulates them.
 `GMSTEP_MDIR` selects a disposable build directory.
-`DP_SRC`, `CLKV_SRC`, `RSP_SRC` and `MCR_SRC` select mutated copies.
+`DP_SRC`, `CLKV_SRC`, `RQ_SRC` and `MCR_SRC` select mutated copies.
 Each control must fail its named check:
 
 | Control | Planted in | Named check it fails | Runs in |
@@ -921,14 +927,14 @@ Each control must fail its named check:
 | the PHC re-base restart term is restored | datapath | restart: a PHC-only step leaves outgoing mr unchanged | the sweep |
 | the source-change term is removed | restart engine | source control: a real source change toggles mr once | the sweep |
 | selected CRF `mr` propagation is removed | datapath | CRF control: selected CRF mr propagates exactly once | the sweep |
-| the grandmaster identity re-bases the render stage as well as the step | datapath | render: the GM change is one counted re-base event | the sweep |
-| the step does not re-centre the render stage (ruling 5802264260 item 1) | datapath | render: the GM change is one counted re-base event | the sweep |
-| the render re-base is keyed to the identity, not the step | datapath | render: every counted re-base lands at a PDU end right after the step | `gmstep-mutants` |
+| the grandmaster identity empties the render stage | datapath | render: every PDU not presented was refused by the stage and counted once | the sweep |
+| the step empties the render stage (the effect of #387's retired re-base on the queue) | datapath | render: every PDU not presented was refused by the stage and counted once | the sweep |
+| the refused PDUs are not counted | render stage | render: every PDU not presented was refused by the stage and counted once | `gmstep-mutants` |
 | `tu` reaches the talkers four cycles late | clock validity | tu: set in the first cycle the bank names GM B | `gmstep-mutants` |
 | the plane's step does not re-arm the holdover | datapath | tu: held at least the 0.25 s holdover after the step | `gmstep-mutants` |
 | `tu` stops the talker | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
 | the grandmaster change stops the talker for good | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
-| the step's re-centre snaps one event off the setpoint | render stage | render: every PDU push leaves the target fill across the event | `gmstep-mutants` |
+| a gap in the presented frames leaves no counted slip | render stage | render: the refused PDUs' frames are one counted slip | `gmstep-mutants` |
 | software settime is restored as an `mr` cause | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
 | PHC adjtime is restored as an `mr` cause | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
 | both PHC restart causes are restored | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
@@ -973,10 +979,11 @@ What the leg does not grade:
 The talker's cadence in this compressed model is not the product's, so its
 stream is graded against its own baseline rate.
 
-The disabled-re-base control fails the counted-event check.
-It does not induce fill drift in this accept-timed stage.
-[#387 ruling 5802264260](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5802264260) records that correction.
-Render re-base and media-clock restart remain separate events.
+#632 retired the counted render re-base with the setpoint stage: the
+presentation stage places every PDU by its own timestamp and takes none.
+Until then the disabled-re-base control failed the counted-event check, as
+[#387 ruling 5802264260](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5802264260) recorded.
+The render stage and the media-clock restart remain separate.
 
 ## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
 
@@ -1263,7 +1270,7 @@ the tie-off, the measurement behind "unreachable", and where the coverage went.
 Issue #443 adds `RENDER-CSR` checks to `obj_aclk`.
 They read `RENDER_STAT` (`0x8DC`) through AXI-Lite.
 The expected word samples independent taps at the capture edge.
-Checks cover prefill, nonzero fill, convergence, rails and backpressure.
+Checks cover reset (idle, nothing queued), the lead queued ahead of the first presentation, convergence, the refused PDUs and backpressure.
 Talker and invalid-listener selections return zero; writes are ignored.
 
 The additional control campaign is explicit:
@@ -1274,8 +1281,8 @@ make -C tb/verilator/milan_dp render-csr-controls
 
 | Control | Required result |
 |---|---|
-| Clean `--render-csr-only` | All checks pass, including reset after a rail |
-| Fill field tied zero | Fails `RENDER-CSR: filling mirrors taps` |
+| Clean `--render-csr-only` | All checks pass, including reset after the refused PDUs |
+| Lead field tied zero | Fails `RENDER-CSR: queued mirrors taps` |
 | Bit 9 forces listener 0 | Fails `RENDER-CSR: bit 9 preserves talker rejection` |
 | Stage instance removed, outputs tied zero | `--render-csr-absent` passes despite accepted ingress |
 
