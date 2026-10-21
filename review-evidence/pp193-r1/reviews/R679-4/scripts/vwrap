@@ -1,0 +1,14 @@
+#!/bin/sh
+# disposable: the pinned Verilator with --build -j 0 capped at -j 3
+a=""; for x in "$@"; do a="$a $x"; done
+out=""
+prev=""
+set -- "$@"
+n=$#; i=0
+for x in "$@"; do
+  i=$((i+1))
+  if [ "$prev" = "-j" ] && [ "$x" = "0" ]; then x=3; fi
+  set -- "$@" "$x"; prev="$x"
+done
+shift $n
+exec $VALIDATION_TOOLS/pinned-verilator-5.050/verilator "$@"
