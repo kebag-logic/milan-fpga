@@ -1,0 +1,21 @@
+planted rv3-done-before-rewalk
+planted rv3-group-mark-on-lo
+planted rv3-take-keeps-taker-mark
+planted rv3-rewalk-keeps-wsrc
+head-full                                        rc=0  1418 checks: 1418 PASS, 0 FAIL
+s2-head                                          rc=0  1418 checks: 1418 PASS, 0 FAIL
+s2-base                                          rc=0  1410 checks: 1410 PASS, 0 FAIL
+repark-head                                      rc=0  1418 checks: 1418 PASS, 0 FAIL
+repark-mut                                       rc=2  1418 checks: 1417 PASS, 1 FAIL
+chain-head                                       rc=0  1418 checks: 1418 PASS, 0 FAIL
+chain-base                                       rc=0  1410 checks: 1410 PASS, 0 FAIL
+tests-on-base                                    rc=2  1418 checks: 1412 PASS, 6 FAIL
+rv3-group-mark-on-lo                             rc=0  1418 checks: 1418 PASS, 0 FAIL
+rv3-done-before-rewalk                           rc=0  1418 checks: 1418 PASS, 0 FAIL
+rv3-rewalk-keeps-wsrc                            rc=2  1418 checks: 1413 PASS, 5 FAIL
+rv3-take-keeps-taker-mark                        rc=2  1418 checks: 1413 PASS, 5 FAIL
+ctl-listener-walk-ends-owing-a-transmit          rc=2  1418 checks: 1413 PASS, 5 FAIL
+ctl-listener-walk-marks-only-served-slots        rc=2  1418 checks: 1417 PASS, 1 FAIL
+ctl-listener-walk-marks-group-only-on-retire     rc=2  1418 checks: 1417 PASS, 1 FAIL
+ctl-listener-repark-takes-matcher-pairs          rc=2  1418 checks: 1417 PASS, 1 FAIL
+ctl-listener-two-parks-grouped                   rc=2  1418 checks: 1417 PASS, 1 FAIL

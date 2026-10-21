@@ -1,0 +1,14 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+listener-park-never-retires: rc=2 failures=5 KILLED tags=RB1,RB4,RB6,RB7,SH16
+lsid-flops-read-sink-0: rc=2 failures=2 KILLED tags=WK11,WK12
+listener-csid-flops-ignores-park: rc=2 failures=3 KILLED tags=WK12
+listener-park-never-retires: rc=2 failures=17 KILLED tags=WK10,WK12,WK8
+listener-rider-not-quiet: rc=2 failures=12 KILLED tags=SH14,SH18,SH19,SH2,SH21,SH4,SH6
+listener-retire-skips-group-mark: rc=2 failures=2 KILLED tags=SH15,SH21
+listener-repark-takes-matcher-pairs: rc=2 failures=1 KILLED tags=SH17
+listener-two-parks-grouped: rc=2 failures=1 KILLED tags=SH23
+listener-walk-ends-owing-a-transmit: rc=2 failures=5 KILLED tags=SH16,SH18,SH19,SH20
+listener-walk-marks-only-served-slots: rc=2 failures=1 KILLED tags=SH22
+listener-walk-marks-group-only-on-retire: rc=2 failures=1 KILLED tags=SH21
+13 checks: 13 PASS, 0 FAIL
