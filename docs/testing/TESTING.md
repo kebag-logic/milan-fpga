@@ -274,7 +274,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 | #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
 | #508 GET_STREAM_INFO seam, the eight field and notification mutants | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather, the GET_STREAM_INFO answer block of `milan_datapath.sv` or the `[GSI]` section of `sim_nxn.cpp` |
 | #653 unbind order and Table 5.6 pair, the five unbind mutants | `make -C tb/verilator/milan_dp unb-mutants` | the change's own validation, and every reviewer of a change that touches the unbind arm of `KL_crf_rx.sv`, the bind-fall unlock of `KL_avtp_rx_monitor_ctx.sv`, the processor's ACMP TX lane or bound-view debounce, or the `[UNB]` section of `sim_nxn.cpp` |
-| #658 power-on audio maps, the 13 planted controls (on the `dynmap` leg: an empty reset, no clip after the restore, no output clip, no crossbar writer, and the boot window's guard arms: the CSR hold at all four sites and at each store alone, the CLOSED terminal, the sweep after the terminal, its drain clock and the edit face's wait; the empty reset again under the listener and talker end-to-end legs) | `make -C tb/verilator/milan_dp dynmap-mutants` | the change's own validation, and every reviewer of a change that touches the map stores, their reset or the boot window in `milan_datapath.sv`, `gen_nvm_window.py` or the `[DYNMAP]` section of `sim_nxn.cpp` |
+| #658 power-on audio maps and #637 map records, the 63 planted controls (on the `dynmap` leg: an empty reset, no clip after the restore, no output clip, no crossbar writer, and the boot window's guard arms: the CSR hold at all four sites and at each store alone, the CLOSED terminal, the sweep after the terminal, its drain clock and the edit face's wait; the 43 `[MAPREC]` arms of the map record writer, its restore, PP_STAT's composition, each term of its validated-record test and the device-face arbiter; on the `maprec8` and `maprec4` legs, the seven arms that need several ports, the round-1 restore order among them; the empty reset again under the listener and talker end-to-end legs) | `make -C tb/verilator/milan_dp dynmap-mutants DYNMAP_MUTANT_JOBS=4` | the change's own validation, and every reviewer of a change that touches the map stores, their reset, the boot window or the map records in `milan_datapath.sv`, the device-face arbiter in `KL_pp_shadow.sv`, `gen_nvm_window.py` or the `[DYNMAP]` and `[MAPREC]` sections of `sim_nxn.cpp` |
 | #387/#602 GM step re-base and #545 slew coverage: fifteen gmstep controls and five option-off controls, each gmstep control on the whole leg, the #621 phase included | `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_setpoint.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, extra identity re-base and missing step re-base |
 | #545 servo slew: eight defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
 
@@ -401,13 +401,14 @@ of any kind; `controller_rate` is the gating regression born from the
 control-rate boundary; `cbs`/`ptp` check
 arithmetic against independent reference models (10⁴-10⁵ checks each).
 
-The `milan_dp` default `run` retains twelve ordinary commands in this order:
+The `milan_dp` default `run` retains fourteen ordinary commands in this order:
 `obj_dir`, `obj_notify`, `obj_crflic`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`,
-`obj_nxn8`, `obj_nxn4c`, `obj_nolpf`, `obj_prune`, `obj_ax1x1`, then `obj_aclk`.
+`obj_nxn8`, `obj_nxn4c`, `obj_nolpf`, `obj_prune`, `obj_ax1x1`, `obj_aclk`,
+then #637's `obj_maprec8` and `obj_maprec4`.
 All run through the two-child pool after their builds.
 `SIM_JOBS=1` runs that same inventory sequentially.
-The six `sim_nxn` legs write unique `milan_nxn_*` scratch directories.
-`obj_dynmap` also writes a unique `milan_nvm_*` window directory.
+The eight `sim_nxn` legs write unique `milan_nxn_*` scratch directories.
+`obj_dynmap`, `obj_maprec8` and `obj_maprec4` also write a unique `milan_nvm_*` window directory each.
 Each contains images, a generator log, and eleven builder files.
 The generated shape header stays inside that private directory.
 Timestamp and file-operation audits found no repository writes.
@@ -419,6 +420,7 @@ The #653 `[UNB]` unbind checks run there too.
 The #443 render CSR checks stay in `obj_aclk`.
 Their focused `notify`, `gsi-mutants`, `unb-mutants` and `render-csr-controls` targets remain available.
 The #658 `dynmap` leg runs in the pool; its focused `dynmap` and `dynmap-mutants` targets remain available.
+So do #637's `maprec8` and `maprec4` legs, with focused targets of the same names.
 The `gptp` and `gptp-lat` prerequisites run before the ordinary pool.
 The render-law mutation controls run after it succeeds.
 The `gmstep` leg and its default controls left `run` for wall clock (#621).

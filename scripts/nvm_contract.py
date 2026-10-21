@@ -234,6 +234,10 @@ class Seams:
         #: section 4.2 allocation table is read, the seam a stale-figure
         #: control plants a restated count through.
         self.ALLOCATION_PAGE_EDIT = None
+        #: #637: an edit applied to milan_datapath.sv's text before the
+        #: parent map writer's layout literal is read, the seam the
+        #: parent-layout control plants a wrong layout_version through.
+        self.PARENT_LAYOUT_EDIT = None
 
 
 SEAM = Seams()

@@ -20,7 +20,9 @@
 #   make dynmap - run only the #658 [DYNMAP] leg: the power-on audio maps,
 #                 a format change under Milan 5.4.2.7 and a restored format
 #   make dynmap-mutants - that leg's planted controls (dynmap_mutants.py),
-#                 outside the sweep's deadline
+#                 and the maprec legs', outside the sweep's deadline
+#   make maprec8 / maprec4 - run only a #637 multi-port leg: the map records
+#                 across the 8x8's output ports or the 4x4's input ports
 #   make gmstep - run only the #387 GM step re-base leg. The sweep runs it,
 #                 and its acceptance controls, in ../milan_dp_gm_steps, which
 #                 also holds its whole control inventory (gmstep-mutants)
@@ -162,8 +164,11 @@ PP_DERIVED := $(shell python3 $(CURDIR)/../../../scripts/pp_srcs.py --prefix $(P
 ifneq ($(.SHELLSTATUS),0)
 $(error scripts/pp_srcs.py failed; the protocol-processor submodule source list could not be derived)
 endif
+# SHADOW_SRC is overridable for the same reason DP_SRC is: dynmap_mutants.py
+# plants the device-face arbiter's controls in a copy of it (#637)
+SHADOW_SRC ?= $(RTL_DIR)/milan/KL_pp_shadow.sv
 PP_SRCS := $(PP_DERIVED) \
-       $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv \
+       $(SHADOW_SRC) $(RTL_DIR)/milan/KL_pp_maap_shim.sv \
        $(RTL_DIR)/milan/KL_nvm_backend.sv
 
 # the gPTP plane (issue #114): parsed by every leg (the instantiation
@@ -225,7 +230,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -331,13 +336,36 @@ endef
 # through this same recipe (DP_SRC and DYNMAP_MDIR overridden), so its planted
 # controls elaborate exactly the gateware the positive leg does.
 DYNMAP_MDIR ?= obj_dynmap
+# #637: the map writer's millisecond in this leg, so its 500 ms debounce and
+# retry backoff are 50,000 clocks; the processor's timebase is not compressed.
+# DYNMAP_AGG_MS is a TEST value of the map restore's aggregate (the product's
+# is DR3a's 1,000 ms): short enough for a slow-memory case to reach it
+DYNMAP_MS_CYC = 100
+DYNMAP_AGG_MS = 300
 define DYNMAP_BUILD
 $(VERILATOR) dynmap_probes.vlt $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir $(DYNMAP_MDIR) \
   -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
   -GAUDIO_IF_MASTER_P=1 \
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
-  -CFLAGS "-DNSTREAMS_TB=1 -DDYNMAP_DEFAULT_TB=1 -Wall -Wextra" \
+  -GAMR_MS_CYC_P=$(DYNMAP_MS_CYC) -GAMR_RS_AGG_MS_P=$(DYNMAP_AGG_MS) \
+  -CFLAGS "-DNSTREAMS_TB=1 -DDYNMAP_DEFAULT_TB=1 -DAMR_MS_CYC_TB=$(DYNMAP_MS_CYC) -DAMR_AGG_MS_TB=$(DYNMAP_AGG_MS) -Wall -Wextra" \
   $(SRCS) sim_nxn.cpp -o Vmilan_dp_dynmap
+endef
+
+# #637: the [MAPREC] section's multi-port half (MAPREC_MP_TB) on the shapes
+# whose dynamic ports are several: the 8x8's eight output ports (a stream
+# channel moved between ports, in both port orders and around a cycle) and
+# the 4x4's four input ports (the first and last ports' records). Same
+# compressed map-writer millisecond as the dynmap leg; each exits right after
+# its section. dynmap_mutants.py builds a MUTATED datapath through these
+# recipes too (DP_SRC and the objdir overridden).
+MAPREC8_MDIR ?= obj_maprec8
+MAPREC4_MDIR ?= obj_maprec4
+define MAPREC_MP_BUILD
+$(VERILATOR) dynmap_probes.vlt $(1) $(GPTP_OFF_VFLAGS) --Mdir $(2) -GN_STREAMS=$(3) \
+  -GAMR_MS_CYC_P=$(DYNMAP_MS_CYC) -GAMR_RS_AGG_MS_P=$(DYNMAP_AGG_MS) \
+  -CFLAGS "-DNSTREAMS_TB=$(3) -DMAPREC_MP_TB=1 -DAMR_MS_CYC_TB=$(DYNMAP_MS_CYC) -DAMR_AGG_MS_TB=$(DYNMAP_AGG_MS) -Wall -Wextra" \
+  $(SRCS) sim_nxn.cpp -o $(4)
 endef
 
 # #447: the shipping TDM8 render lane's two elaborations, its leg source and
@@ -534,12 +562,27 @@ dynmap-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 dynmap: dynmap-build
 	$(abspath $(DYNMAP_MDIR))/Vmilan_dp_dynmap
 
-# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 13
-# mutated elaborations, 11 of the dynmap leg and one each of the two
-# end-to-end legs it names (milan_dp_render's and capture_coherence's
-# datapath leg), each with its clean control run.
-dynmap-mutants: dynmap
-	python3 dynmap_mutants.py
+# #637 (see MAPREC_MP_BUILD); `run` builds and runs the same legs.
+maprec8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
+	$(call MAPREC_MP_BUILD,$(SHAPE_8x8),$(MAPREC8_MDIR),8,Vmilan_dp_maprec8)
+
+maprec8: maprec8-build
+	$(abspath $(MAPREC8_MDIR))/Vmilan_dp_maprec8
+
+maprec4-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_4x4_F)
+	$(call MAPREC_MP_BUILD,$(SHAPE_4x4),$(MAPREC4_MDIR),4,Vmilan_dp_maprec4)
+
+maprec4: maprec4-build
+	$(abspath $(MAPREC4_MDIR))/Vmilan_dp_maprec4
+
+# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 63
+# mutated elaborations, 54 of the dynmap leg, 5 of maprec8, 2 of maprec4 and
+# one each of the two end-to-end legs it names (milan_dp_render's and
+# capture_coherence's datapath leg), each leg with its clean control run.
+# DYNMAP_MUTANT_JOBS mutants run at once (at most two of them building).
+DYNMAP_MUTANT_JOBS ?= 1
+dynmap-mutants: dynmap maprec8 maprec4
+	python3 dynmap_mutants.py --jobs $(DYNMAP_MUTANT_JOBS)
 
 # Build once for the independent positive and failure-control runs.
 ax1x1gptp ax1x1gptp-build: VERILATOR_JOBS = 4
@@ -564,7 +607,7 @@ ax1x1gptp-extended: ax1x1gptp
 # One inventory owns default execution and CI selection.
 COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
 PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
-ORDINARY_CASES = base notify crflic dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk
+ORDINARY_CASES = base notify crflic dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
 SUFFIX_CASES = render-mutants
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
 $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
@@ -574,6 +617,8 @@ CASE_OPTIONS_base = ./obj_dir/Vmilan_dp_sim
 CASE_OPTIONS_notify = --banner "---- Milan 5.4.5 notifications and the \#508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" ./$(NOTIFY_MDIR)/Vmilan_dp_notify
 CASE_OPTIONS_crflic = --banner "---- \#530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" ./$(CRFLIC_MDIR)/Vmilan_dp_crflic
 CASE_OPTIONS_dynmap = --banner "---- \#658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----" ./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
+CASE_OPTIONS_maprec8 = --banner "---- \#637 the map records across the 8x8 shape's eight output ports ----" ./$(MAPREC8_MDIR)/Vmilan_dp_maprec8
+CASE_OPTIONS_maprec4 = --banner "---- \#637 the map records across the 4x4 shape's four input ports ----" ./$(MAPREC4_MDIR)/Vmilan_dp_maprec4
 CASE_OPTIONS_nxn = ./obj_nxn/Vmilan_dp_nxn
 CASE_OPTIONS_nxndv = --banner "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----" ./obj_nxndv/Vmilan_dp_nxndv
 CASE_OPTIONS_nxn8 = ./obj_nxn8/Vmilan_dp_nxn8
@@ -727,6 +772,18 @@ build-dynmap: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_
 exec-dynmap:
 	./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
 
+build-maprec8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	$(call MAPREC_MP_BUILD,$(SHAPE_8x8),$(MAPREC8_MDIR),8,Vmilan_dp_maprec8)
+
+exec-maprec8:
+	./$(MAPREC8_MDIR)/Vmilan_dp_maprec8
+
+build-maprec4: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	$(call MAPREC_MP_BUILD,$(SHAPE_4x4),$(MAPREC4_MDIR),4,Vmilan_dp_maprec4)
+
+exec-maprec4:
+	./$(MAPREC4_MDIR)/Vmilan_dp_maprec4
+
 build-render-mutants: build-aclk
 
 exec-render-mutants:
@@ -804,4 +861,4 @@ counters-mutants: | stack-pin
 	python3 stream_counter_f5.py --stack $(STACK_DIR) --variant fixed-grid
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep
+	rm -rf ltn_rom.hex ucode.hex gptp_ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_ax1x1 obj_aclk obj_nxndv obj_gptp obj_gptplat obj_notify obj_dynmap obj_maprec8 obj_maprec4 obj_crflic gen_divergent obj_ax1x1gptp gptp_ax1x1_ucode.hex obj_gmstep

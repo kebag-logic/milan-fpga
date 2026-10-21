@@ -2198,11 +2198,11 @@ term of the comparison removed each. A partial ownership fixture protects an ope
 The edge-crossing word-copy control must fail that fixture.
 What it cannot
 prove is the board: the real LiteSPI master, the real DRAM window and the
-processor writing records into it. The processor's binding records and, since
-pin `d352bbaa`, its D3 writer's scalar records reach the store; channel maps
-and user names have no record writer yet
-([D3 page](../design/SAVED_STATE_MATERIALIZATION.md)), so a commit on the bench
-carries those records and erased spans.
+processor writing records into it. The processor's binding records, since
+pin `d352bbaa` its D3 writer's scalar records, and since #637 the parent's
+channel-map records reach the store; the parent has not adopted the user names'
+writer yet ([D3 page](../design/SAVED_STATE_MATERIALIZATION.md)), so a commit
+on the bench carries those records and erased spans.
 
 ## Fabric gPTP option
 
