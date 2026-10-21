@@ -1,0 +1,34 @@
+make -k of the milan_dp cases after counters-8 at 33a460db: verdict lines
+make --no-print-directory exec-counters-8
+RESULT: PASS
+make --no-print-directory exec-counters-1-frames
+RESULT: PASS
+make --no-print-directory exec-counters-8-frames
+RESULT: PASS
+make --no-print-directory exec-base
+make --no-print-directory exec-notify
+RESULT: PASS
+make --no-print-directory exec-crflic
+RESULT: PASS
+make --no-print-directory exec-dynmap
+RESULT: PASS
+make --no-print-directory exec-nxn
+RESULT: PASS
+make --no-print-directory exec-nxndv
+RESULT: PASS
+make --no-print-directory exec-nxn8
+RESULT: PASS
+make --no-print-directory exec-nxn4c
+  [FAIL] [CTRS-OUT] real q3/q4 stimuli reach every AAF and CRF index got=0x0 exp=0x1
+  [FAIL] [CTRS-OUT] every real FRAMES_TX source raises dirty got=0xf exp=0x1f
+  [FAIL] class A off: a CRF PDU still reaches the MAC   got=0x0 exp=0x1
+RESULT: FAIL
+make[1]: *** [Makefile:652: exec-nxn4c] Error 1
+make: *** [Makefile:594: run-nxn4c] Error 2
+make --no-print-directory exec-nolpf
+make --no-print-directory exec-prune
+RESULT: PASS
+make --no-print-directory exec-ax1x1
+make --no-print-directory exec-aclk
+RESULT: PASS
+make --no-print-directory exec-render-mutants
