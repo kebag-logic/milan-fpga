@@ -21,8 +21,8 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `e4869fd0c42889b2ac806587cc5c78afb1c33461` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `2cbed0a987c1e68402658d69459ab7e5aa571adc` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `gptp-processor` | `55680bff3b287b9a7b0c759f51471fa617c17335` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `protocol-processor` | `93fb0b2d736b36588ea7321e25fba2f8819ea41f` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -348,10 +348,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 
