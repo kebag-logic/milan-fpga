@@ -1,0 +1,45 @@
+https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6306591168
+
+[A10] Round 3 assignment for #770, answering R678-2 (https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6306221938) and R677-2 (https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6306520485). New commits on 2ff30f0d. No rebase, no amend.
+
+**Ruling on R677-2-F1 (the SET_STREAM_INFO change gate)**
+
+The clauses split the three values:
+- Milan v1.2 5.4.2.9: the SET sets the Presentation Time offset to the commanded value, and the successful response echoes that value. The stored row is the state the command sets.
+- Milan v1.2 5.4.2.10.2: GET_STREAM_INFO's msrp_accumulated_latency is "the presentation time offset currently used by the talker". GET keeps serving the applied (rounded) row, as round 2 made it.
+- Milan v1.2 5.4.5.2 and IEEE 1722.1-2021 7.5.2: a notification follows a successful command that modifies the state. The notification carries the response's content (5.4.5.1), which is the commanded value.
+
+The gate therefore compares the commanded value with the **stored** row, like for like, not with GSI word 3. The processor already reads that row for the notification body (`READ_ST RGN_DYN + SEL_PTOFF` in E_SINFOUNS), so the fix is that read in E_SINFO in place of `GATHER_EXT GSI(3)`.
+
+This is a processor change. It goes in a separate processor PR off processor main 08023123, which relates to milan-fpga #632. It is consumed by the fourth pin adoption, and #770 merges after that adoption.
+
+Required in the processor PR:
+- the E_SINFO change;
+- a processor-level test: an identical SET pushes nothing, and a changed SET pushes once;
+- a planted defect that restores the GSI(3) compare and fails that test.
+
+Required in #770:
+- R677-2-F1's four-step `milan_dp` `[NOTIFY]` case, with the expected column as R677-2 gives it. In step 4 the stored offset changes, so exactly one notification is pushed.
+- Its planted control, restoring the present gate.
+- Measure it in your lane against the fixed processor, with the processor change applied uncommitted to the submodule checkout. Record that the case fails at the current pin.
+- Scope the "what a controller reads is what every output stamps" claim (`MEDIA_CLOCK_FOLLOWING.md`, `KL_mtt_round.sv` banner) to GET_STREAM_INFO. Document the SET echo against the applied readback, with the non-idempotent write-back, citing 5.4.2.9 and 5.4.2.10.2.
+- Out of scope, recorded only: an applied value that changes without a SET, for example at a media rate change. That is the 1722.1-2021 7.5.2 "normal operation" case. Record it as a follow-up in HANDOFF.md; do not implement it.
+
+**R678-2-F1 (MAJOR): accepted as written**
+- Carry the complete rounded offset into the CRF 64-bit timestamp sum, so the Eq. (14) carry above 0xFFFFFFFF ns survives. Keep the one shared rounder and the coherent readback.
+- Grade CRF timestamps at full width. That means fixing the grader's 32-bit cast (`sim_ofs.cpp`), with a planted truncation control that the fixed grader kills.
+- Correct the wrap claim in the PR body, the design doc and the module banner.
+
+**R677-2-F2 (MINOR): accepted as written**
+- A detector check in which a hold is followed by samples straddling ±Ps/2, while the pre-hold reference sat elsewhere. It must require the half-period reading and the slew-limited pull.
+- A `hold_keeps_ref` planted defect, killed at that check by `make -C tb/verilator/media_phase mutants`.
+- The closed-loop fold-straddling engagement is optional.
+
+**R677-2-F3 (MINOR): accepted as written.** The PR body reads 404 LUTs and 8 slices, and twenty-eight.
+
+Area and route: re-measure only if the RTL change moves the CRF datapath width. The route-1x1 headroom bar is unchanged.
+
+STOP conditions:
+- the full-width carry needs more than 64 LUT or any RAMB;
+- the processor fix needs more than the one gather change.
+

@@ -1,0 +1,391 @@
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index d7404a2..b48d55f 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -519,7 +519,7 @@ Consequently `SET_NAME`, `GET_NAME`, and `READ_DESCRIPTOR` expose one value.
+ 
+ | Command | Stream Input | Stream Output |
+ |---|---|---|
+-| SET_STREAM_INFO (**implemented**, Milan §5.4.2.9) | `NOT_SUPPORTED` whole, at the response's own length (params come from PROBE_TX_RESPONSE) | exactly two shapes are accepted: 1722.1-2021 Figure 7-40's COMPLETE 84-byte payload (cdl 96, the ip block included), which Milan v1.2 references, and the 1722.1-2013 Figure 7.46 48-byte payload (cdl 60), because the end station serves IEEE 1722.1 as well as Milan (issue #176). The 2013 payload is the 2021 payload's first 48 bytes (2021 turns its reserved word at @70 into ip_flags), so both take the same routes below with the same field semantics; every response, whichever shape the command had, is the 2021 form: a 2013 command's @24..@69 echoed and zeros from ip_flags to the end of the destination address (@70..@107). Any other length, shorter or longer (neither standard defines a body longer than Figure 7-40), is refused `BAD_ARGUMENTS` at the full 2021 response length with {type, index} over a zero body, and writes nothing. The one supported sub-command is **MSRP_ACC_LAT_VALID alone**: writes the presentation-time offset to the dynamic store's SEL_PTOFF row (0..0x7FFFFFFF ns; bit 31 set answers `BAD_ARGUMENTS`); **any other flag combination, including none, refuses the whole command `NOT_SUPPORTED`**; a STREAMING output refuses `STREAM_IS_RUNNING` before the sub-command is examined; success answers the command echo (for a 2013 command, lengthened to the 2021 form as above), which is exactly §5.4.2.9's required body (same flag, same latency; the ip fields are echoed, never interpreted). Every narrowing is an engine dispatch route off registered walk fields; the µprogram is CHECK_LOCK, locate, WRITE_ST, NVM mark, echo |
++| SET_STREAM_INFO (**implemented**, Milan §5.4.2.9) | `NOT_SUPPORTED` whole, at the response's own length (params come from PROBE_TX_RESPONSE) | exactly two shapes are accepted: 1722.1-2021 Figure 7-40's COMPLETE 84-byte payload (cdl 96, the ip block included), which Milan v1.2 references, and the 1722.1-2013 Figure 7.46 48-byte payload (cdl 60), because the end station serves IEEE 1722.1 as well as Milan (issue #176). The 2013 payload is the 2021 payload's first 48 bytes (2021 turns its reserved word at @70 into ip_flags), so both take the same routes below with the same field semantics; every response, whichever shape the command had, is the 2021 form: a 2013 command's @24..@69 echoed and zeros from ip_flags to the end of the destination address (@70..@107). Any other length, shorter or longer (neither standard defines a body longer than Figure 7-40), is refused `BAD_ARGUMENTS` at the full 2021 response length with {type, index} over a zero body, and writes nothing. The one supported sub-command is **MSRP_ACC_LAT_VALID alone**: writes the presentation-time offset to the dynamic store's SEL_PTOFF row (0..0x7FFFFFFF ns; bit 31 set answers `BAD_ARGUMENTS`); **any other flag combination, including none, refuses the whole command `NOT_SUPPORTED`**; a STREAMING output refuses `STREAM_IS_RUNNING` before the sub-command is examined; success answers the command echo (for a 2013 command, lengthened to the 2021 form as above), which is exactly §5.4.2.9's required body (same flag, same latency; the ip fields are echoed, never interpreted). Every narrowing is an engine dispatch route off registered walk fields; the µprogram is CHECK_LOCK, locate, the offset as set (the stored SEL_PTOFF row once a controller or a restore set it, `RGN_DYNV`; the integrator's GSI(3) factory word before), WRITE_ST, NVM mark, echo, then the notification only when the commanded offset differs from it (Milan §5.4.5.2: a command that "modifies the state"; milan-fpga #632). The compare is never against GSI(3) on a set row: that word is the offset in use (§5.4.2.10.2), which an integrator may round to whole media clock periods, so a repeated identical SET would notify and a SET writing the rounded value back would not. Before a row's first SET a factory value that is not whole periods compares as applied; `tb/pp_top` NS grades both arms |
+ | START/STOP_STREAMING | **implemented** (issues #78 and #97): a bound input changes state, while an unbound or repeated-state request is a confirmed no-op. The state lives only on the ACMP binding record. Success waits for the record write or no-op examination, and a bounded pending request fails safely if the record walker cannot start it | **implemented**: `NOT_SUPPORTED`, because a talker streams whenever reserved (Δ14) and Section 5.3.7.3 excludes stopping a Stream Output. Every non-input type takes the same arm |
+ 
+ ### 6.4 Validation chains (order matters; first failure responds)
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 3253f4c..50eb4cc 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -181,7 +181,7 @@ and `tb/dyn_state/sim_main.cpp` (lettered sections):
+ | sampling_rate | W5 (byte-exact image 96000); W9i (a rate the AUDIO_UNIT list does not hold is refused on the unset row carrying the image's 96000, GET still reads it) | W9/W9b/W9c (48000, GET and the GET_DYNAMIC_INFO member); the list check (issue #51) on a set row: W9j (refusal carries the stored rate), W9k (refusals of an unlisted, a pulled and a zero rate write, mark and notify nothing, graded at the effect strobes and a second registered controller; the accepted listed rate moves each once), W9l (count, entries and offset are the image's, patched in place), W9m (the lock outranks the list check) | mechanism-level: dyn_state C, D |
+ | clock_source | W6/W6b; W10i (a refusal on the unset row carries the image's index, GET still reads it) | W10/W10d; the accepted SET answers the index it stored, not the one it replaced, on the unset row (W10j7b, 0 to 1) and on a set row (W10b, 1 to 2); refusals write nothing: W10e-W10h; refusals mark and notify nothing, graded at the effect strobes and a second registered controller: W10j | mechanism-level: dyn_state C, D; a CLOCK_DOMAIN the image lacks is NO_SUCH_DESCRIPTOR with a zero body, moving nothing, and the lock still outranks the miss: `tb/pp_top` AX NSD1-NSD3 (issue #37) |
+ | stream formats (in/out) | W4 per type and index | W23a/W23a2 (SET, both the echo and the published row), W23b (GET_STREAM_FORMAT serves the setting through the fold), W23i (the output row); refusals write nothing: W23c-W23h, W25a | dyn_state C, D + the per-row face checks F |
+-| presentation offset | (no getter opcode; live face + GET_STREAM_INFO word 3) | W24a/W24a2 (SET + the published row), W24b (GET_STREAM_INFO serves it through the fold), W25d; the 1722.1-2013 body (cdl 60, issue #176): W24g/W24g1/W24g2; refusals write nothing: W24c-W24f, W24h-W24m, W25b, W25b3; so do bodies longer than the 2021 one (cdl 97 and 140): W24n/W24n1, W24o/W24o1 | dyn_state C + the per-row face checks F |
++| presentation offset | (no getter opcode; live face + GET_STREAM_INFO word 3); NS1, NS2 (an unset row: SET_STREAM_INFO's push compares with the integrator's factory word, milan-fpga #632) | W24a/W24a2 (SET + the published row), W24b (GET_STREAM_INFO serves it through the fold), W25d; NS4, NS5 (a set row: the push compares with the stored row, not GET's applied word, milan-fpga #632); the 1722.1-2013 body (cdl 60, issue #176): W24g/W24g1/W24g2; refusals write nothing: W24c-W24f, W24h-W24m, W25b, W25b3; so do bodies longer than the 2021 one (cdl 97 and 140): W24n/W24n1, W24o/W24o1 | dyn_state C + the per-row face checks F |
+ | Identify control | W12/W12b/W12c (pre-SET GET); AX RDC0, RDC5 (READ_DESCRIPTOR's `current[0]` is GET_CONTROL's reset 0 before any SET and after a power cycle, not the image's byte, issue #185) | W12d-W12h (SET/GET cycles), W13-W13d (step legality); AX LK3b/LK3c (the out-of-range refusal carries the 255 in force, IEEE §7.4.25.1); AX RDC1, RDC3b, RDC4 (READ_DESCRIPTOR carries the value after each SET_CONTROL, issue #185); volatility: dyn_state E | dyn_state E; AX RDC2, RDC3, RDC6 (a CONTROL not one octet wide and linear at 104, or ending inside lane 104..111, keeps its image bytes); AX RDC7 (a CONTROL whose `control_type` is not IDENTIFY keeps its image bytes) |
+ | started/stopped | NOT in this store: the ACMP binding record owns it and selector 6 is RETIRED (dyn_state F2) | listener suite + pp_top W21 | dyn_state F2 |
+ 
+@@ -315,6 +315,7 @@ notification block's:
+ | TIM | `tb/aecp_notify` FT (second build, `P-EN-IDENTIFY-NOTIFICATION` = 1) | the schedule's one-tick margins at the full timebase (the F01.5 default `P-CLK-HZ`; the pp_top bench's compressed tick cannot resolve them): a frame that leaves two clocks before a ms boundary is followed `T-IDENT-BURST` after that boundary, never a tick sooner; Figure 7-142's timeout counts from the boundary after the first frame left |
+ | DIR | ID0 (the default 0) | the button puts nothing on the wire |
+ | DIR | NP | every notifying command class pushes one byte-exact u = 1 response to a second registered controller, none to the requester, at the entry's own sequence_id |
++| DIR | NS (milan-fpga #632) | SET_STREAM_INFO pushes only when the offset as set changes, against a face whose GET word is the offset as applied (whole 48 kHz periods): the factory offset on a row never set pushes nothing, a SET of 0 on a row never set pushes once, a change pushes once, an identical SET pushes nothing, and a SET writing back the applied value pushes once |
+ | STORM | ST | one change fans out to all 16 rows byte-exact; GET_COUNTERS churned at 10 Hz on five descriptors emits at most once per descriptor per second; solicited AECP and ACMP answers stay inside `T-BUDGET-AECP-WC` / `T-BUDGET-ACMP-RESP` under the load |
+ | STORM | CS | ST's churn started at ST's phase and 30 and 95 clocks later (#148's shifted timing): every row's GET_COUNTERS rounds of each descriptor leave a second after its previous round's send, less the one tick the limiter reads, though a solicited answer delays a round's frames |
+ | DIR | DN | the Domain and link-edge terms of the GET_AVB_INFO trigger (#42): an adopted Class A Domain, the declaration that returns it to the default and each link edge send a registered controller exactly one u = 1 GET_AVB_INFO for AVB_INTERFACE 0, byte-exact, and no GET_AS_PATH; an identical re-declaration sends nothing |
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index 3b9899f..d4bf99d 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -2435,17 +2435,35 @@ place(E_SINFO, [
+     u('CHECK_LOCK', ra=15, imm=E_FAILSAFE),      # echo + ENTITY_LOCKED
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # miss -> NO_SUCH_DESCRIPTOR
+     u('BR_STATUS', cnd=0, imm=E_FAILSAFE),       # ...echoed at full length
+-    u('GATHER_EXT', rd=6, **GSI(3)),             # current presentation offset
++    #! Milan v1.2 5.4.5.2 notifies only when "the command modifies the state",
++    #! so the commanded offset is compared with the offset as SET, the state
++    #! 5.4.2.9 changes (milan-fpga #632). The integrator's GSI(3) word is the
++    #! offset in use (5.4.2.10.2), which milan-fpga rounds up to whole media
++    #! clock periods, so comparing with it pushed a repeated identical SET and
++    #! missed a SET that writes the rounded value back. The stored row is read
++    #! once a controller or a restore has set it (RGN_DYNV, E_SCFG's idiom,
++    #! issue #178). An unset row reads 0 while the offset in force is the
++    #! integrator's factory value, so the unset arm reads GSI(3); on that arm a
++    #! factory value that is not whole periods compares as applied, not as set.
++    u('READ_ST', rd=3, imm=RGN_DYNV + SEL_PTOFF),
++    u('COMPARE', ra=3, fmt=FMT_D, imm=0),
++    u('BR_STATUS', cnd=2, imm=E_SINFO + 8),      # z = unset -> the integrator
++    u('READ_ST', rd=6, imm=RGN_DYN + SEL_PTOFF), # the offset stored
++    u('BRANCH', imm=E_SINFO + 9),
++    u('GATHER_EXT', rd=6, **GSI(3)),             # E_SINFO + 8: the factory offset
+     u('WRITE_ST', ra=12, fmt=FMT_D, imm=RGN_DYN + SEL_PTOFF),
+     u('NVM_MARK', imm=1),                        # completion mark (the WRITE_ST persists)
+     u('SET_STATUS', imm=ST_OK),
+     u('BUILD_HDR', ra=15, rb=13),
+     u('SEND_RESP'),
+     u('COMPARE', ra=12, rb=6, fmt=FMT_D),
+-    u('BR_STATUS', cnd=2, imm=E_SINFO + 12),
++    u('BR_STATUS', cnd=2, imm=E_SINFO + 17),
+     u('NOTIFY_ENQ', imm=3),                      # SET_STREAM_INFO
+     u('END'),
+ ])
++assert rom[E_SINFO + 8] == u('GATHER_EXT', rd=6, **GSI(3))
++assert rom[E_SINFO + 9] == u('WRITE_ST', ra=12, fmt=FMT_D, imm=RGN_DYN + SEL_PTOFF)
++assert rom[E_SINFO + 17] == u('END')
+ 
+ # Neither 1722.1-2021 Figure 7-40 nor the 1722.1-2013 Figure 7.46 body, the
+ # only two lengths the engine accepts (issue #176, REQ-AEM-009): a shorter or a
+diff --git a/tb/aecp_cmds/decode.json b/tb/aecp_cmds/decode.json
+index 7c12b5c..eedaaa1 100644
+--- a/tb/aecp_cmds/decode.json
++++ b/tb/aecp_cmds/decode.json
+@@ -30,7 +30,7 @@
+       "hdl/aecp/desc/model_lint.py": "02152fa8ebccb03ff55f82e24ed04a62259c0f13ee5b19e550466b2451200476",
+       "hdl/aecp/desc/model_rules.py": "b5ccdc449c63ec4e24ec6390ceffdfaf1c9ed61a0cf3e0d123f045008b12abd9",
+       "tb/common/verilator_harness.hpp": "7366ad0590aa52af2d7a75b8448fc57ccc318ee6b3acc6810848d29b86766ec9",
+-      "ucode.hex (generated)": "a7b1af66b72cd4aed8d4db5a9cb02942dfd26a6be25ddff05e3681ddb5009bf8"
++      "ucode.hex (generated)": "1f78804e448c385d633ed4355b7d84100ec13b12c77305c3bc11986653a80a8e"
+     }
+   },
+   "decode": {
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 4f25a18..169aacb 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -68,8 +68,9 @@ the seven into the one canonical tally.
+   WRITE of the later value. **D3S4** a change while the WRITE is held at
+   the device taints it: a second WRITE carries the change. **D3S5** a
+   change accepted on the WRITE's done edge wins: the SET's latency to the
+-  store is measured, the device completion is placed so the two coincide
+-  (the premise is graded), and the record is rewritten. **D3S6** a done
++  store is measured on a row already set (E_SINFO's two arms reach the store
++  a cycle apart, milan-fpga #632), the device completion is placed so the two
++  coincide (the premise is graded), and the record is rewritten. **D3S6** a done
+   clears its own record only, by group and index: the other output offset
+   and the clock source (index 0 of another group) changed during 0x50's
+   WRITE are both written after it. **D3S7** SET_CONTROL on IDENTIFY raises
+@@ -2480,7 +2481,7 @@ spacing and latency are read off the wire. Every expectation is built from the
+ clause byte offsets; a per-entry `sequence_id` is modelled from the wire alone, as
+ the count of unsolicited frames that controller was sent before (Milan §5.4.5.1).
+ 
+-`--identify-only` runs ID0 (default build), `--notify-only` runs NP, ST and RN,
++`--identify-only` runs ID0 (default build), `--notify-only` runs NP, NS, ST and RN,
+ `--spacing-only` runs CS, `--domain-notify-only` runs DN and `--withdraw-only` (`make
+ withdraw`) runs WD; `make identify` builds and runs the third build and ID0, and
+ `make timer-defaults` the sixth build, which runs TD alone.
+@@ -2657,6 +2658,45 @@ Milan §5.4.2.10 replaces the format of the GET response alone. The job now runs
+ zeros elsewhere, the same bytes as the successful solicited answer
+ (`stream_info_get_body` in the record below puts the old mapping back).
+ 
++### Section NS: SET_STREAM_INFO's push judged on the offset as set (milan-fpga #632)
++
++Run under `--notify-only` after section NP, on its own model. The face answers a
++Stream Output's GET_STREAM_INFO latency word (selector 3) as milan-fpga's
++integrator does (`gsi_ptoff_applied`): the offset in use (Milan 5.4.2.10.2), the
++published row rounded up to whole 48 kHz periods (IEEE 1722-2016 10.7 Equation
++14) once a SET has written it, and the factory 2,000,000 ns, whole periods, before.
++Every other section keeps the settings fold, which serves the row as set, so
++there the two values never differ. A and B are registered (NS0). NS0b grades the
++premise that no row is set and GET reads 2,000,000 ns on both outputs.
++
++| Step | SET_STREAM_INFO from A | Expected at B |
++|---|---|---|
++| NS1 | output 1, 2,000,000 ns, the factory offset, row never set | nothing (and nothing at A) |
++| NS2 | output 0, 0 ns, row never set | one push, byte-exact, carrying 0 |
++| NS3 | output 0, 2,010,000 ns, a change | one push; NS3b: GET reads 2,020,834 ns (97 periods), not the value set |
++| NS4 | output 0, 2,010,000 ns again | nothing (and nothing at A) |
++| NS5 | output 0, 2,020,834 ns, the value GET read | one push |
++
++Every SET answers SUCCESS byte-exact. Milan 5.4.5.2 notifies only for a command
++that "modifies the state", and SET_STREAM_INFO modifies the offset as set
++(5.4.2.9), so E_SINFO compares the command with the stored row once a controller
++or a restore has set it (`RGN_DYNV`, E_SCFG's idiom), and with the integrator's
++GSI(3) word, the factory offset in force, before. NS1 and NS2 grade the unset
++arm, where the store reads 0. NS4 and NS5 grade the set arm against a face whose
++GET word differs from the value set.
++
++**Found by milan-fpga's datapath and fixed (milan-fpga #632).** On processor main
++`08023123` E_SINFO compared the command with GSI(3) on every row. With milan-fpga's
++integrator serving the offset as applied, a repeated SET of 2,010,000 ns pushed
++(NS4) and a SET writing back 2,020,834 ns pushed nothing (NS5)
++(`stream_info_compare_applied` in the record below puts that word back on the set
++arm). Reading the stored row on every row, the one-word alternative, pushes at
++NS1 and misses NS2, a SET of 0 that moves the offset in force from 2 ms to 0
++(`stream_info_unset_arm_dropped`). Residue: before a row's first SET, a factory
++offset that is not whole periods compares with its applied value, so a SET of
++that exact factory value would push. No configuration milan-fpga ships has such a
++row; every factory row is 2 ms.
++
+ ### Section ST: STORM (#80 acceptance 2)
+ 
+ - **ST1** sixteen controllers registered in three waves with a change after each
+@@ -2954,6 +2994,14 @@ old exclusion) on an expiry, a LOCK or an UNLOCK, and an op that does not see an
+ expiry owed in its cycle. Their rows below, and the four section-LF rows they move,
+ are from their own run at the round-2 head (goldens PASS, 14 of 14 KILLED).
+ 
++milan-fpga #632 adds `stream_info_compare_applied` and
++`stream_info_unset_arm_dropped` for 137, graded by section NS of `--notify-only`.
++The rows below of every `--notify-only` control are from one run at that head
++(goldens PASS, 22 of 22 KILLED). NS's pushes move four of them:
++`enq_dropped_stream_info` and `stream_info_get_body` also fail NS2, NS3 and NS5,
++`requester_not_excluded` NS2, NS3 and NS5, and `entry_seq_not_advanced` NS3 and
++NS5. The other eighteen fail the checks recorded before.
++
+ | Mutant | Planted in | Failing checks |
+ |---|---|---|
+ | `ident_two_frames` | a burst of two | 35, ID1 first |
+@@ -2978,12 +3026,14 @@ are from their own run at the round-2 head (goldens PASS, 14 of 14 KILLED).
+ | `ident_face_taken_mid_job` | the uns face taken while a registry job is presented | 3: ID5b, ID5c, ID5f |
+ | `ident_built_at_default` | the sequencer built at the default | 2: ID0, ID0b |
+ | `enq_dropped_configuration` | E_SCFG's NOTIFY_ENQ a NOP | 2: NP1, NP1b |
+-| `enq_dropped_stream_info` | E_SINFO's NOTIFY_ENQ a NOP | 1: NP3 |
++| `enq_dropped_stream_info` | E_SINFO's NOTIFY_ENQ a NOP | 4: NP3, NS2, NS3, NS5 |
+ | `class_4_mapped_to_rate` | class 4 to PP_UNS_SRATE_C (`KL_aecp_notify` pick) | 4: NP4, NP4b, NP8, RN |
+ | `class_9_mapped_to_control` | class 9 to PP_UNS_CTRL_C | 2: NP6, NP7 |
+-| `requester_not_excluded` | command pushes exclude nobody | 12, NP1 first |
+-| `entry_seq_not_advanced` | the row's sequence_id never moves | 13, NP1b first |
+-| `stream_info_get_body` | the landed SET_STREAM_INFO mapping | 1: NP3 |
++| `requester_not_excluded` | command pushes exclude nobody | 15, NP1 first |
++| `entry_seq_not_advanced` | the row's sequence_id never moves | 15, NP1b first |
++| `stream_info_get_body` | the landed SET_STREAM_INFO mapping | 4: NP3, NS2, NS3, NS5 |
++| `stream_info_compare_applied` | E_SINFO's set arm reading GSI(3), the offset as applied, in place of the stored row (processor main `08023123`, milan-fpga #632) | 2: NS4, NS5 |
++| `stream_info_unset_arm_dropped` | E_SINFO's unset-row branch (`BR_STATUS` to the GSI(3) arm) a NOP, so a row never set compares with the store's 0 | 2: NS1, NS2 |
+ | `configuration_compare_whole_lane` | E_SCFG's no-change `COMPARE` with r6 back in `rb`, taken whole (processor main `22c139a4`, issue #178) | 1: NP1a |
+ | `configuration_unchanged_notifies` | E_SCFG's no-change skip (`BR_STATUS` before NOTIFY_ENQ) a NOP | 2: NP1a, NP1c |
+ | `configuration_running_route_dropped` | the engine's SET_CONFIGURATION `STREAM_IS_RUNNING` dispatch route never taken (issue #179) | 1: NP10 |
+diff --git a/tb/pp_top/d3_phases.hpp b/tb/pp_top/d3_phases.hpp
+index 4febcc5..c61ad66 100644
+--- a/tb/pp_top/d3_phases.hpp
++++ b/tb/pp_top/d3_phases.hpp
+@@ -641,9 +641,13 @@ struct D3ServicePhase {
+   // to the store is measured first; the held WRITE's device completion is
+   // then placed so that the port's done and the store's accepting cycle
+   // coincide (the premise is graded), and the record is rewritten with the
+-  // newer value.
++  // newer value. E_SINFO reaches the store through a different arm before
++  // and after a row's first SET (the stored row once set, the integrator's
++  // word before: milan-fpga #632), a cycle apart, so the row is set first
++  // and the latency is measured on the arm the timed command takes.
+   void s5_a_change_on_the_done_edge_wins() {
+     power_up();
++    const bool primed = set_ok(AEM_SET_STREAM_INFO, pl_ptof(0, 3999999));
+     const long lw = write_latency(pl_ptof(0, 4000000));
+     const bool calm = settle(3 * WINDOW);
+     const size_t ops0 = x.nvm_ops.size();
+@@ -668,7 +672,7 @@ struct D3ServicePhase {
+       if (done < 0 && x.d->dbg_d3_mdone_o) done = at + 1;
+     }
+     x.nv_done_at = -1;
+-    CHECK(lw > 1 && calm && a && full && accept >= 0 && accept == done,
++    CHECK(primed && lw > 1 && calm && a && full && accept >= 0 && accept == done,
+           "D3S5 premise: the change accepted at %ld, the WRITE's done at %ld",
+           accept, done);
+     CHECK(settle(3 * WINDOW) && writes(ops0, 0x50) == 2
+diff --git a/tb/pp_top/notify_mutants.py b/tb/pp_top/notify_mutants.py
+index aa28627..0a1cc07 100644
+--- a/tb/pp_top/notify_mutants.py
++++ b/tb/pp_top/notify_mutants.py
+@@ -33,8 +33,9 @@ command queue's occupancy flop (issue #181: tb/aecp_notify sections CQ and OC),
+ flags of the LOCK_ENTITY notification (issue #186; REQ-AEM-003, REQ-NOT-001: tb/pp_top's
+ command-driven and automatic-unlock wire checks and its reserved-bit echo checks, and
+ tb/aecp_notify's pending-round coalescence checks), and the one cause each lock
+-notification carries (tb/aecp_notify's lock-cause checks). The suite READMEs carry the
+-matching mutation records.
++notification carries (tb/aecp_notify's lock-cause checks), and SET_STREAM_INFO's push
++judged on the offset as set (milan-fpga #632: tb/pp_top section NS). The suite READMEs
++carry the matching mutation records.
+ 
+ Usage: python3 tb/pp_top/notify_mutants.py --output DIR [--verilator V] [--jobs N]
+                                            [--only NAME ...]
+@@ -224,6 +225,22 @@ PUSHES = (
+         (ENGINE, "                            uns_upc_w = UPC_SINFOUNS_C; end\n",
+          "                            uns_upc_w = UPC_GSTRI_C;   end\n"),),
+         ("NP3 SET_STREAM_INFO: it is byte-exact",)),
++    # milan-fpga #632: E_SINFO's push gate back on the integrator's GSI(3)
++    # word, the offset as applied, on the set arm too (the processor main
++    # 08023123 compare), and the unset arm dropped, so a row never set
++    # compares with the store's 0 rather than the factory offset in force
++    Mutant("stream_info_compare_applied", NOTIFY, (
++        (UCODE, "    u('READ_ST', rd=6, imm=RGN_DYN + SEL_PTOFF), # the offset stored\n",
++         "    u('GATHER_EXT', rd=6, **GSI(3)),             # planted: the offset applied\n"),),
++        ("NS4 SET_STREAM_INFO(output 0, 2,010,000 ns) again: an unchanged offset",
++         "NS5 SET_STREAM_INFO(output 0, 2,020,834 ns), the value GET read, a change: "
++         "exactly one")),
++    Mutant("stream_info_unset_arm_dropped", NOTIFY, (
++        (UCODE, "    u('BR_STATUS', cnd=2, imm=E_SINFO + 8),      # z = unset -> the integrator\n",
++         nop_for("u('BR_STATUS', cnd=2, imm=E_SINFO + 8)")),),
++        ("NS1 SET_STREAM_INFO(output 1, 2,000,000 ns), the factory offset, on a row "
++         "never set: an unchanged offset",
++         "NS2 SET_STREAM_INFO(output 0, 0 ns) on a row never set: exactly one")),
+     # issue #178: E_SCFG's no-change compare back on the image arm's whole
+     # lane (the processor main 22c139a4 word), and the skip it feeds dropped
+     Mutant("configuration_compare_whole_lane", NOTIFY, (
+diff --git a/tb/pp_top/notify_phases.hpp b/tb/pp_top/notify_phases.hpp
+index 9c7ac6c..bc19898 100644
+--- a/tb/pp_top/notify_phases.hpp
++++ b/tb/pp_top/notify_phases.hpp
+@@ -1128,6 +1128,78 @@ struct PushPhase : NotifyBench {
+   }
+ };
+ 
++// ==== NS. SET_STREAM_INFO's push judged on the offset as set (milan-fpga #632)
++// Milan 5.4.5.2 pushes only for a command that "modifies the state", and the
++// state SET_STREAM_INFO modifies is the presentation time offset as set
++// (5.4.2.9). GET_STREAM_INFO reads the offset in use (5.4.2.10.2), which an
++// integrator may serve rounded: this section's face answers the way
++// milan-fpga's does, whole 48 kHz periods of the row once a SET wrote it
++// and the factory 2 ms before (H::gsi_ptoff_applied). E_SINFO compares the
++// command with the stored row once a controller set it and with the
++// integrator's factory word before, and each arm has its own steps: on a
++// row never set, the factory offset unchanged (NS1) and a SET of 0, which
++// moves the offset in force from 2 ms to 0 although the unset store reads 0
++// (NS2); on a set row, a change (NS3, NS5) and an identical SET whose
++// applied value differs from it (NS4). NS5 writes back the value GET read:
++// the stored offset changes, so it pushes.
++struct StreamInfoPushPhase : PushPhase {
++  using PushPhase::PushPhase;
++
++  //! the latency word @48 of a GET_STREAM_INFO(STREAM_OUTPUT ix) answer
++  uint32_t get_offset(uint16_t ix) {
++    const auto g = ask(CTLR_MAC, CTLR_EID, seq++, AEM_GET_STREAM_INFO, ti(0x0006, ix));
++    return (g.size() >= 66 && status_of(g) == AECP_SUCCESS) ? rd32(&g[62]) : 0xFFFFFFFFu;
++  }
++  //! a SET_STREAM_INFO from A that leaves the offset as set unchanged:
++  //! SUCCESS echoed byte-exact, and no push to either controller
++  void unchanged_offset_step(const char* tag, uint16_t ix, uint32_t ns) {
++    const size_t from = seen.size();
++    const uint16_t s = seq++;
++    const auto body = stream_info_body(ix, ns);
++    const auto r = ask(CTLR_MAC, CTLR_EID, s, AEM_SET_STREAM_INFO, body);
++    const auto w = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_SUCCESS, EID, CTLR_EID, s,
++                              AEM_SET_STREAM_INFO, body);
++    CHECK(r == w, "%s: the unchanged SET answers SUCCESS, byte-exact (premise)", tag);
++    if (!r.empty() && r != w) { dump("got", r); dump("exp", w); }
++    run_ms(200);
++    const size_t at_b = pushes(B_MAC, AEM_SET_STREAM_INFO, from).size();
++    const size_t at_a = pushes(CTLR_MAC, AEM_SET_STREAM_INFO, from).size();
++    REQ_TAG("REQ-NOT-002", "DIR", "an unchanged offset pushes nothing");
++    CHECK(at_b == 0 && at_a == 0, "%s: an unchanged offset pushes nothing (Milan "
++          "5.4.5.2), got %zu at the other controller and %zu at the requester",
++          tag, at_b, at_a);
++  }
++  void run() {
++    boot_to_idle(true);
++    io.gsi_ptoff_applied = true;
++    CHECK(register_controller(CTLR_MAC, CTLR_EID, seq++)
++              && register_controller(B_MAC, B_EID, seq++),
++          "NS0: the requester and a second controller registered");
++    const uint32_t g0 = get_offset(0);
++    const uint32_t g1 = get_offset(1);
++    CHECK(g0 == 2000000u && g1 == 2000000u && io.d->aecp_pt_offset_v_o == 0,
++          "NS0b: no row set, GET_STREAM_INFO reads the factory 2,000,000 ns on "
++          "both outputs (premise), got %u and %u, rows set 0x%x", g0, g1,
++          unsigned(io.d->aecp_pt_offset_v_o));
++    unchanged_offset_step("NS1 SET_STREAM_INFO(output 1, 2,000,000 ns), the factory "
++                          "offset, on a row never set", 1, 2000000u);
++    const auto zero = stream_info_body(0, 0u);
++    push_step("NS2 SET_STREAM_INFO(output 0, 0 ns) on a row never set",
++              AEM_SET_STREAM_INFO, zero, zero);
++    const auto change = stream_info_body(0, 2010000u);
++    push_step("NS3 SET_STREAM_INFO(output 0, 2,010,000 ns), a change",
++              AEM_SET_STREAM_INFO, change, change);
++    const uint32_t applied = get_offset(0);
++    CHECK(applied == 2020834u, "NS3b: GET_STREAM_INFO reads 2,010,000 ns as applied, "
++          "97 periods, 2,020,834 ns, not as set (premise), got %u", applied);
++    unchanged_offset_step("NS4 SET_STREAM_INFO(output 0, 2,010,000 ns) again", 0,
++                          2010000u);
++    const auto back = stream_info_body(0, 2020834u);
++    push_step("NS5 SET_STREAM_INFO(output 0, 2,020,834 ns), the value GET read, "
++              "a change", AEM_SET_STREAM_INFO, back, back);
++  }
++};
++
+ // ==== ST. STORM: the full registry and counter churn (issue #80) =========
+ // 09 section 3 STORM: fan-out to the full registry, counter churn at the rate
+ // limit, and no solicited deadline miss. Milan 5.3.4.2 sizes the list at 16;
+@@ -2275,6 +2347,10 @@ struct ParkedWithdrawPhase : WithdrawStagePhase {
+   const int fails0 = h.fails;
+   PushPhase{h}.run();
+   printf("NP: %d checks, %d failures\n", h.checks - checks0, h.fails - fails0);
++  const int checks1 = h.checks;
++  const int fails1 = h.fails;
++  StreamInfoPushPhase{h}.run();
++  printf("NS: %d checks, %d failures\n", h.checks - checks1, h.fails - fails1);
+ }
+ 
+ [[maybe_unused]] static void run_storm(H& h) {
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 10cd9c0..5bf3708 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -1283,6 +1283,20 @@ struct H {
+   //! stopped. Other sections keep the fixed flags word they grade against.
+   bool gsi_fold_sw = false;
+   bool gsi_fold_latency = false;
++  //! Section NS only: answer a Stream Output's GET_STREAM_INFO latency word
++  //! the way milan-fpga's integrator does (milan-fpga #632): the offset in
++  //! use (Milan v1.2 5.4.2.10.2), the published row rounded up to whole
++  //! 48 kHz periods (IEEE 1722-2016 10.7 Equation 14) once a SET has written
++  //! it, the factory 2 ms (whole periods) before. Other sections keep the
++  //! settings fold, which serves the row as set.
++  bool gsi_ptoff_applied = false;
++  static constexpr uint32_t GSI_PTOFF_FACTORY_NS = 2000000u;
++  //! ceil(ceil(ns * 48000 / 1e9) periods * 1e9 / 48000) ns: 2,010,000 ns is
++  //! 96.48 periods, applied as 97, 2,020,834 ns; 2,020,834 ns applies as 98
++  static uint64_t ptoff_applied(uint32_t ns) {
++    const uint64_t periods = (uint64_t(ns) * 48u + 999999u) / 1000000u;
++    return (periods * 1000000u + 47u) / 48u;
++  }
+   uint64_t ca_cancels = 0;
+   //! the two AECP effect strobes a response cannot show (06 section 8):
+   //! counted once per cycle so a refusal can be graded on what it did
+@@ -2001,6 +2015,10 @@ struct H {
+                    && (((gout ? d->aecp_fmt_out_v_o : d->aecp_fmt_in_v_o)
+                         >> gix) & 1)) {
+           d->gsi_data_i = fmt_row(gout, gix);          // the settings fold
++        } else if (gsi_ptoff_applied && gk == 0 && gs == 3 && gout && gix < 2) {
++          d->gsi_data_i = ((d->aecp_pt_offset_v_o >> gix) & 1)
++                              ? ptoff_applied(d->aecp_pt_offset_o.at(gix))
++                              : GSI_PTOFF_FACTORY_NS;
+         } else if (gk == 0 && gs == 3 && gout && gix < 2
+                    && ((d->aecp_pt_offset_v_o >> gix) & 1)) {
+           d->gsi_data_i = d->aecp_pt_offset_o.at(gix); // the settings fold

@@ -1,0 +1,16 @@
+https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6312625146
+
+[A10] Ruling on the round-3 processor-fix STOP recorded in [A659]'s hand-off. The question is option (a), one read as ruled, or option (b).
+
+**Option (b).** E_SINFO compares the commanded value with the stored row once a controller has set it (`RGN_DYNV` valid). It compares with the integrator's GSI(3) word while the row is still unset. This is the store's own idiom, as E_SCFG uses for #178.
+
+The measurement decides it. Option (a) compares with a never-written row, which reads as 0:
+- it pushes at step 1, where the expected count is 0;
+- it misses a SET of 0 on a never-set row, although the offset in force moves from 2 ms to 0, so it fails Milan v1.2 5.4.5.2 and IEEE 1722.1-2021 7.5.2.
+
+Option (b) compares like for like with the state in force in both arms: the stored offset once set, and the factory offset before that. Its notify leg reads 441 checks, 0 failures, and the planted control is killed at step 3.
+
+Its residue: before the first SET, a factory row that is not whole periods compares with its applied value. No shipping configuration has such a row, since every factory row is 2 ms. Record it in the PR body and HANDOFF; it is not a finding.
+
+The STOP condition "more than the one gather change" is waived for these five words. The processor PR carries option (b), its processor-level test and the planted defect, as ruled. The R677-2 four-step case stays as specified.
+

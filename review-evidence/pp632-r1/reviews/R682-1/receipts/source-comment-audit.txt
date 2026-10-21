@@ -1,0 +1,47 @@
+Added source-comment lines examined: 44
+New prohibited provenance labels: []
+
+    #! Milan v1.2 5.4.5.2 notifies only when "the command modifies the state",
+    #! so the commanded offset is compared with the offset as SET, the state
+    #! 5.4.2.9 changes (milan-fpga #632). The integrator's GSI(3) word is the
+    #! offset in use (5.4.2.10.2), which milan-fpga rounds up to whole media
+    #! clock periods, so comparing with it pushed a repeated identical SET and
+    #! missed a SET that writes the rounded value back. The stored row is read
+    #! once a controller or a restore has set it (RGN_DYNV, E_SCFG's idiom,
+    #! issue #178). An unset row reads 0 while the offset in force is the
+    #! integrator's factory value, so the unset arm reads GSI(3); on that arm a
+    #! factory value that is not whole periods compares as applied, not as set.
+### Section NS: SET_STREAM_INFO's push judged on the offset as set (milan-fpga #632)
+  // newer value. E_SINFO reaches the store through a different arm before
+  // and after a row's first SET (the stored row once set, the integrator's
+  // word before: milan-fpga #632), a cycle apart, so the row is set first
+  // and the latency is measured on the arm the timed command takes.
+    # milan-fpga #632: E_SINFO's push gate back on the integrator's GSI(3)
+    # word, the offset as applied, on the set arm too (the processor main
+    # 08023123 compare), and the unset arm dropped, so a row never set
+    # compares with the store's 0 rather than the factory offset in force
+// ==== NS. SET_STREAM_INFO's push judged on the offset as set (milan-fpga #632)
+// Milan 5.4.5.2 pushes only for a command that "modifies the state", and the
+// state SET_STREAM_INFO modifies is the presentation time offset as set
+// (5.4.2.9). GET_STREAM_INFO reads the offset in use (5.4.2.10.2), which an
+// integrator may serve rounded: this section's face answers the way
+// milan-fpga's does, whole 48 kHz periods of the row once a SET wrote it
+// and the factory 2 ms before (H::gsi_ptoff_applied). E_SINFO compares the
+// command with the stored row once a controller set it and with the
+// integrator's factory word before, and each arm has its own steps: on a
+// row never set, the factory offset unchanged (NS1) and a SET of 0, which
+// moves the offset in force from 2 ms to 0 although the unset store reads 0
+// (NS2); on a set row, a change (NS3, NS5) and an identical SET whose
+// applied value differs from it (NS4). NS5 writes back the value GET read:
+// the stored offset changes, so it pushes.
+  //! the latency word @48 of a GET_STREAM_INFO(STREAM_OUTPUT ix) answer
+  //! a SET_STREAM_INFO from A that leaves the offset as set unchanged:
+  //! SUCCESS echoed byte-exact, and no push to either controller
+  //! Section NS only: answer a Stream Output's GET_STREAM_INFO latency word
+  //! the way milan-fpga's integrator does (milan-fpga #632): the offset in
+  //! use (Milan v1.2 5.4.2.10.2), the published row rounded up to whole
+  //! 48 kHz periods (IEEE 1722-2016 10.7 Equation 14) once a SET has written
+  //! it, the factory 2 ms (whole periods) before. Other sections keep the
+  //! settings fold, which serves the row as set.
+  //! ceil(ceil(ns * 48000 / 1e9) periods * 1e9 / 48000) ns: 2,010,000 ns is
+  //! 96.48 periods, applied as 97, 2,020,834 ns; 2,020,834 ns applies as 98

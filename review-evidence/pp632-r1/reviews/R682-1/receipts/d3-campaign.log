@@ -1,0 +1,4 @@
+argv: ["python3", "-B", "tb/pp_top/d3_mutants.py", "--output", "<packet>/receipts/d3", "--verilator", "<packet>/scripts/limited-simulator.py", "--jobs", "2", "--only", "TRG_cfg", "TRG_rate", "TRG_clks", "TRG_fmti", "TRG_fmto", "TRG_ptof", "taint_ignored", "clear_wins_same_edge", "clear_by_group", "clear_by_index", "identify_is_a_change", "unchanged_compare_ignores_validity"]
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "TRG_cfg", "verdict": "KILLED", "missing": []}
+{"mutant": "TRG_rate", "verdict": "KILLED", "missing": []}
