@@ -72,11 +72,12 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - A hold on a window's closing edge drops its correction.
 - Every output's presentation offset applies in whole periods.
 - The rule is `KL_crf_tx`'s Equation 14; readback shows it.
-- GET_STREAM_INFO reads the offset applied (Milan 5.4.2.10.2).
+- GET_STREAM_INFO reads the offset applied (5.4.2.10.2).
 - SET_STREAM_INFO still echoes the value set (5.4.2.9).
-- A push follows a SET that changes the value set (5.4.5.2).
-- That gate is the processor's; its change is pending a pin.
-- A CRF offset rounding past 2^32 ns keeps its carry.
+- Pushes need a changed value set (5.4.5.2).
+- That gate is the processor's; a pin brings it.
+- An offset rounding past 2^32 ns keeps its carry.
+- The CRF timestamp adds it; AAF needs 32 bits.
 - GET_STREAM_INFO reads such a row as 0xFFFFFFFF.
 - The I2S blend's frame now closes on its I2S pair.
 - The I2S capture's pairs ride their own strobe again.

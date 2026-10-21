@@ -97,9 +97,9 @@ module KL_mtt_round #(
   input  wire [N_P*32-1:0] raw_ns_i,       //! the rows as set, ns
   output logic [N_P*32-1:0] ofs_ns_o,      //! the rows as applied, ns (low 32 bits)
   output logic [N_P-1:0]    ofs_c_o,       //! ...and each row's bit 32 (banner)
-  //! GET_STREAM_INFO's readback: the row it names, as applied, saturated at
-  //! 0xFFFFFFFF ns when the applied value passes 32 bits (banner)
+  //! GET_STREAM_INFO's readback: the row it reads...
   input  wire [((N_P > 1) ? $clog2(N_P) : 1)-1:0] rb_row_i,
+  //! ...as applied, ns, 0xFFFFFFFF when the applied value passes 32 bits
   output wire [31:0]        rb_ns_o
 );
 

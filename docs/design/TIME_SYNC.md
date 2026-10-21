@@ -516,7 +516,11 @@ Rendering follows the fill, not the presentation time.
 
 So no presentation offset can absorb that delay.
 
-Timestamp presentation is out of PR #770 and open under #632, pending an owner area decision; the listener keeps the fill law above at the crossbar grid.
+Timestamp presentation is out of PR #770.
+
+It stays open under #632, pending an owner area decision.
+
+The listener keeps the fill law above at the grid.
 
 A timestamp law would replace that fill law.
 
