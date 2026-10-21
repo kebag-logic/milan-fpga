@@ -1,0 +1,36 @@
+303,304c303,304
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: all.v:21862: ERROR: Can't resolve task name `$fatal'.
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: all.v:21863: ERROR: F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES).
+---
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: all.v:22049: ERROR: Can't resolve task name `$fatal'.
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_avb_if N_AVB_IF_P=3: not refused as a $fatal of this guard: all.v:22050: ERROR: F01.5: N_AVB_IF_P=%0d is outside 1 to 2 (P-N-AVB-INTERFACES).
+307,308c307,308
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: all.v:21880: ERROR: Can't resolve task name `$fatal'.
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: all.v:21881: ERROR: F08.4: owner tags OVERLAP at SI=%0d SO=%0d (
+---
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: all.v:22067: ERROR: Can't resolve task name `$fatal'.
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_owner_overlap N_STREAM_IN_P=16 N_STREAM_OUT_P=17: not refused as a $fatal of this guard: all.v:22068: ERROR: F08.4: owner tags OVERLAP at SI=%0d SO=%0d (
+313,314c313,314
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: all.v:21866: ERROR: F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d.
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: all.v:21867: ERROR: Can't resolve task name `$fatal'.
+---
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: all.v:22053: ERROR: F08.4: TMR_AW_C=%0d cannot index P-TIMER-SLOTS=%0d.
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_aw planted shape fixture: not refused as a $fatal of this guard: all.v:22054: ERROR: Can't resolve task name `$fatal'.
+317,318c317,318
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: all.v:21869: ERROR: F08.4: slot map ends at %0d but P-TIMER-SLOTS=%0d.
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: all.v:21870: ERROR: Can't resolve task name `$fatal'.
+---
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: all.v:22056: ERROR: F08.4: slot map ends at %0d but P-TIMER-SLOTS=%0d.
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_fit planted shape: not refused as a $fatal of this guard: all.v:22057: ERROR: Can't resolve task name `$fatal'.
+321,322c321,322
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: all.v:21872: ERROR: F08.4: timer-slot groups OVERLAP at SI=%0d SO=%0d.
+<     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: all.v:21873: ERROR: Can't resolve task name `$fatal'.
+---
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: all.v:22059: ERROR: F08.4: timer-slot groups OVERLAP at SI=%0d SO=%0d.
+>     FAIL: GUARD yosys protocol_processor_top.gen_g_tmr_overlap planted shape: not refused as a $fatal of this guard: all.v:22060: ERROR: Can't resolve task name `$fatal'.
+456,457c456,457
+< make: Entering directory '<scratch>/base-pp-c2/tb/elab_guards'
+< make: Leaving directory '<scratch>/base-pp-c2/tb/elab_guards'
+---
+> make: Entering directory '<scratch>/head-pp-c2/tb/elab_guards'
+> make: Leaving directory '<scratch>/head-pp-c2/tb/elab_guards'

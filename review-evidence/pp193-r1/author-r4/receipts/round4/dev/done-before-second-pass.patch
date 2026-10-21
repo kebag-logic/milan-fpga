@@ -1,0 +1,7 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -1040,3 +1040,3 @@
+           walk_r      <= (&wdone_r) ? W_IDLE : W_EVAL;
+-          txop_done_o <= &wdone_r;
++          txop_done_o <= 1'b1;
+         end
