@@ -1,0 +1,7 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 35d98fff2..a37156bc9 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -5494 +5494 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+-              || amr_malformed_r || amr_refuse_r) begin
++              || 1'b1) begin

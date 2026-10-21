@@ -1,0 +1,44 @@
+# merge d26fca65 composition check on hdl/milan/milan_datapath.sv
+dev change (e26f1816..78ca9bdf) e1811353d93e871f ; merge minus lane parent (1e914414..d26fca65) e1811353d93e871f
+EQUAL
+lane change (e26f1816..1e914414) ca4f8c789d968a84 ; merge minus dev parent (78ca9bdf..d26fca65) ca4f8c789d968a84
+EQUAL
+# 4ff3642e vs d26fca65 changed files:
+ tb/verilator/milan_dp/README.md | 108 ++++++++++++++++++++--------------------
+ 1 file changed, 54 insertions(+), 54 deletions(-)
+# whole-tree: files where merge differs from both parents:
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/reference/MILAN_COMPLIANCE_MATRIX.md
+docs/reference/REGISTER_MAP.md
+docs/testing/TESTING.md
+hdl/milan/milan_datapath.sv
+tb/verilator/milan_dp/dynmap_probes.vlt
+tb/verilator/milan_dp/README.md
+tb/verilator/milan_dp/sim_nxn.cpp
+# dev change to datapath:
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index dde2c4dd2..c5b1eda06 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -3190,2 +3190,5 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //  to re-lock, so the edge is the debounced verdict, not a per-PDU twitch.
++  //  crf_locked_w RISING is the return (#761): the media clock moves from
++  //  holdover back onto the CRF, a change of its source that needs its own
++  //  restart (4.4.4.3), so either lock edge requests one.
+   //
+@@ -3197,3 +3200,4 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
+-  //! the selected media clock source. The clause's OTHER mandatory trigger, a
++  //! the selected media clock source, and the return pulse when it rises
++  //! again (#761). The clause's OTHER mandatory trigger, a
+   //! change of the media clock SOURCE (PICS Table F.7 AAF-5, AAF:M), is
+@@ -3244,3 +3248,3 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+        (crf_clk_selected_r
+-        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
++        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p_w))
+        | aafm_disrupt_p_w | aafm_mr_toggle_p_w;
+@@ -6302,2 +6306,4 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .bind_fall_i    (strtbl_bind_fall_w),
++    //! #762: a stopped input's silence or sequence gap interrupts no playback (5.3.8.7)
++    .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
+     .sid0_i         (acmpl_sid),
