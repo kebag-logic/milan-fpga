@@ -31,7 +31,7 @@ def without_stage(source: str) -> str:
         "rq_tdata_w", "rq_tvalid_w", "rq_tlast_w", "rq_tuser_w",
         "rq_wire_chans_w", "rq_render_tick_p_w", "rq_pop_p_w",
         "rq_lead_w", "rq_idle_w", "rq_converged_w", "rq_late_w",
-        "rq_early_w", "rq_untimed_w", "rq_slips_w",
+        "rq_early_w", "rq_refused_w", "rq_untimed_w", "rq_slips_w",
     )
     ties = "".join(f"  assign {name} = '0;\n" for name in outputs)
     return source[:start] + ties + source[end:]

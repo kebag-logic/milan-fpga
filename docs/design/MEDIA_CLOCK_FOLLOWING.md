@@ -1784,7 +1784,10 @@ an AAF PDU is presented k media periods later (7.5). The domain's media event
 above counts the domain's frames: frame n starts at the pins at E_n. At each
 PDU's header the stage takes d = `avtp_timestamp` - E_n (32-bit wrap) and
 divides it by Ps exactly, in thirds of a nanosecond (Ps = 62,500 / 3 ns at 48
-kHz): the PDU's first event belongs to frame F0 = n + round(d / Ps), event k
+kHz; long division of 3d, one quotient bit per cycle, the remainder rounding
+to the nearest, so the frame is known 11 cycles after the header and the
+depacketizer holds the payload 16): the PDU's first event belongs to frame
+F0 = n + round(d / Ps), event k
 to F0 + k, and each sample is written into its frame's row. On every domain
 event n, interface i reads frame n + K_i. K_i is the interface's out-lead,
 `out_lead_frames()` in `KL_media_if_latency_pkg`: the whole frames from the
@@ -1830,8 +1833,8 @@ interface has read:
 
 | Rule | Condition | Action | Counter |
 |---|---|---|---|
-| late | an event's frame is at or before R: every interface has presented it | the event is dropped; the PDU counts once | `late_o`, and `RENDER_STAT[31:16]` |
-| too early | an event's frame is ROWS or more past R: beyond the queue | the event is dropped; the PDU counts once | `early_o`, and `RENDER_STAT[31:16]` |
+| late | an event's frame is at or before R: every interface has presented it | the event is dropped; the PDU counts once | `late_o`, and `refused_o` (`RENDER_STAT[31:16]`) |
+| too early | an event's frame is ROWS or more past R: beyond the queue | the event is dropped; the PDU counts once | `early_o`, and `refused_o` (`RENDER_STAT[31:16]`) |
 | untimed | `tv` clear (1722-2016 4.4.4.5: no valid timestamp), or the payload starts before its frame is known | not written; the PDU counts once | `untimed_o` |
 | slip | a presenting stream's read finds its frame empty (a gap), or a PDU's first event lands on a frame its stream already wrote (an overlap: the later sample wins) | as stated; counted once per run of empty frames and once per overlapping PDU | `slips_o` |
 

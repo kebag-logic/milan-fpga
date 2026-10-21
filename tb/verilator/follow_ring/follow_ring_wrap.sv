@@ -392,7 +392,7 @@ module follow_ring_wrap #(
     .m_tdata_o (render_tdata_o), .m_tvalid_o (rq_tvalid_w), .m_tlast_o (),
     .m_tuser_o (), .m_wire_chans_o (), .render_tick_p_o (),
     .pop_p_o (rq_pop_w), .lead_o (), .idle_o (), .converged_o (),
-    .late_o (rq_late_w), .early_o (rq_early_w), .untimed_o (rq_untimed_w),
+    .late_o (rq_late_w), .early_o (rq_early_w), .refused_o (), .untimed_o (rq_untimed_w),
     .slips_o (render_slips_o)
   );
   assign render_tvalid_o  = rq_tvalid_w[0];

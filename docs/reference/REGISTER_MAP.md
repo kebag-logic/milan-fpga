@@ -2045,7 +2045,7 @@ Diagnostic readers must coordinate access and restore the previous selection.
 | `[8]` | 1 | selected `idle_o` bit | Interface 0's last read of the stream found no sample: before the stream's first presentation time, after it ends, or in a gap; level, no counter | 1 |
 | `[9]` | 1 | selected `converged_o` bit | The stream has presented a sample on every read for 100 ms running; level, no counter | 0 |
 | `[15:10]` | 6 | constant | Reserved zero | 0 |
-| `[31:16]` | 16 | `late_o` + `early_o` | Global count of PDUs refused as late (every event at or before the frame every interface has read) or too early (beyond the queue); saturates at `0xFFFF`, never wraps | 0 |
+| `[31:16]` | 16 | `refused_o` | Global count of PDUs refused as late (every event at or before the frame every interface has read) or too early (beyond the queue); saturates at `0xFFFF`, never wraps | 0 |
 
 The widths preserve the stage's taps without truncation.
 The refused count aggregates every listener, including unselected streams.

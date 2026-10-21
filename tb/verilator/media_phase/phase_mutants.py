@@ -248,14 +248,14 @@ MUTANTS = (
     #: #632: the queue places each PDU at the first frame every interface
     #: still reads, its timestamp unread: the old fill law's shape
     ("render_read_untimed", RQUEUE,
-     (("            f0_r  <= f0_r + FW_C'(q_r) + FW_C'({{(QW_C-1){1'b0}}, dge_w});",
-       "            f0_r  <= f0_r + FW_C'(KMAX_C + 1);"),),
+     (("          f0_r  <= f0_r + FW_C'(ld_r[QW_C-1:0]) + FW_C'(rnd_w);",
+       "          f0_r  <= f0_r + FW_C'(KMAX_C + 1);"),),
      RENDER, "[render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation "
              "time inside +/-5 % of Ps"),
     #: #632: every PDU's frame one past its timestamp's
     ("render_frame_off_by_one", RQUEUE,
-     (("            f0_r  <= f0_r + FW_C'(q_r) + FW_C'({{(QW_C-1){1'b0}}, dge_w});",
-       "            f0_r  <= f0_r + FW_C'(q_r) + FW_C'({{(QW_C-1){1'b0}}, dge_w}) + 1'b1;"),),
+     (("          f0_r  <= f0_r + FW_C'(ld_r[QW_C-1:0]) + FW_C'(rnd_w);",
+       "          f0_r  <= f0_r + FW_C'(ld_r[QW_C-1:0]) + FW_C'(rnd_w) + 1'b1;"),),
      RENDER, "[render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation "
              "time inside +/-5 % of Ps"),
     #: #632: a late event written as if in the window: it lands on the row a

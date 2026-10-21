@@ -140,7 +140,8 @@ module render_wrap #(
     .m_tdata_o (q_tdata_w), .m_tvalid_o (q_tvalid_w), .m_tlast_o (q_tlast_w),
     .m_tuser_o (q_tuser_w), .m_wire_chans_o (q_chans_w), .render_tick_p_o (q_tick_w),
     .pop_p_o (), .lead_o (), .idle_o (), .converged_o (),
-    .late_o (late_o), .early_o (early_o), .untimed_o (untimed_o), .slips_o (slips_o)
+    .late_o (late_o), .early_o (early_o), .refused_o (), .untimed_o (untimed_o),
+    .slips_o (slips_o)
   );
 
   //! one crossbar per interface, on its own read's beats and tick

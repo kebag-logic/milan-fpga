@@ -33,7 +33,8 @@
                 at least PAY_LEAD cycles later) the stage takes
                 d = avtp_timestamp - E_n (32-bit wrap, 1722-2016 4.4.4.9)
                 and divides it by Ps exactly (in thirds of a nanosecond, Ps
-                = 3e9 / fs units, restoring, one quotient bit per cycle): the
+                = 3e9 / fs units: long division of 3d, one quotient bit per
+                cycle, the remainder rounding to the nearest): the
                 PDU's first event belongs to frame F0 = n + round(d / Ps),
                 event k to F0 + k. The payload's beats are walked by the
                 crossbar's position counter (wire channel = position mod the
@@ -67,10 +68,11 @@
                 THE RULES, per event of a PDU, against R at its write:
                   late   F <= R: every interface has presented frame F; the
                          event is dropped. A PDU with any late event counts
-                         once in late_o.
+                         once in late_o and once in refused_o.
                   early  F >= R + ROWS_C: beyond the queue, its row still
                          holds frame F - ROWS_C; the event is dropped. A PDU
-                         with any early event counts once in early_o.
+                         with any early event counts once in early_o and once
+                         in refused_o.
                   else   written. An interface whose read of frame F has
                          already happened presents that frame as silence.
                 A PDU with tv = 0, or whose payload starts before its frame
@@ -118,7 +120,10 @@
                 STORAGE. Two banks per stage, inferred, synchronous read,
                 block-RAM style, no device primitive. Word (s, row, lane)
                 lives in bank lane[0] ^ row[0] at {s, row, lane >> 1}, a
-                24-bit sample and its valid bit. Two consecutive wire-order
+                24-bit sample and its valid bit; an invalidated word is all
+                zero, and a read of a flushing stream resets the banks'
+                output register, so an empty lane reads zero with no mask.
+                Two consecutive wire-order
                 samples always land in different banks (the next lane of the
                 same row, or lane 0 of the next row after the last lane of an
                 odd count), so a beat's two samples are two writes on two
@@ -221,6 +226,7 @@ module KL_render_queue #(
                                                  //! for 100 ms running
   output logic [15:0]              late_o,       //! late PDUs (saturating)
   output logic [15:0]              early_o,      //! too-early PDUs
+  output logic [15:0]              refused_o,    //! late and too-early PDUs
   output logic [15:0]              untimed_o,    //! PDUs without a frame
   output logic [15:0]              slips_o       //! gaps and overlaps
 );
@@ -243,8 +249,10 @@ module KL_render_queue #(
   localparam int unsigned     DEPTH_C = N_STREAMS_P * SPAN_C2;
   localparam int unsigned     AW_C    = $clog2(DEPTH_C);      //! bank address
   //! frame numbers: wide enough that every difference the stage takes is
-  //! inside half the wrap
-  localparam int unsigned     FW_C    = RW_C + 3;
+  //! inside half the wrap. The widest is a header's frame against R: at
+  //! most QMAX_C + 7 (the PDU's last event) + 2 (an event the schedule has
+  //! not served yet) - K_min, under 2 x ROWS_C (g_chk_wrap)
+  localparam int unsigned     FW_C    = RW_C + 2;
 
   //! the interfaces' out-leads
   function automatic int unsigned if_lead(input int unsigned i);
@@ -268,6 +276,10 @@ module KL_render_queue #(
   localparam int unsigned     QW_C    = $clog2(QMAX_C + 1);
   localparam longint unsigned NMAX_L  = 64'(QMAX_C + 1) * PS3_L;
   localparam int unsigned     NW_C    = $clog2(NMAX_L);
+  //! the remainder's bits, and the rounding threshold: round(N / Ps) is the
+  //! quotient plus one when the remainder is at least Ps - floor(Ps / 2)
+  localparam int unsigned     PW_C    = $clog2(PS3_C);
+  localparam int unsigned     RND_C   = PS3_C - PS3_C / 2;
   //! d at or above this rounds past QMAX_C
   localparam longint unsigned DEARLY_L = (NMAX_L - PS3_L / 2 + 64'd2) / 64'd3;
   //! the observer's period and dwell
@@ -301,13 +313,16 @@ module KL_render_queue #(
   if (KMAX_C + 2 >= ROWS_C) begin : g_chk_window
     $error("KL_render_queue: the out-lead %0d leaves no window in %0d rows", KMAX_C, ROWS_C);
   end : g_chk_window
-  if (NW_C > 31 || DEARLY_L > 64'h7FFF_FFFF) begin : g_chk_div
+  if (ROWS_C + KMAX_C + 1 + 7 + 2 >= (1 << (FW_C - 1))) begin : g_chk_wrap
+    $error("KL_render_queue: %0d-bit frame numbers do not hold the window's differences at out-lead %0d", FW_C, KMAX_C);
+  end : g_chk_wrap
+  if (NW_C > 31 || DEARLY_L > 64'h7FFF_FFFF || PW_C + QW_C < NW_C) begin : g_chk_div
     $error("KL_render_queue: the divider's %0d-bit numerator does not fit the 32-bit timestamp difference", NW_C);
   end : g_chk_div
-  //! the header's frame is known QW_C + 2 cycles after hdr_p_i: one to take
-  //! d, one to triple it, one per quotient bit
-  if (PAY_LEAD_CYC_P < QW_C + 2) begin : g_chk_lead_cyc
-    $error("KL_render_queue: PAY_LEAD_CYC_P=%0d is under the %0d cycles the header's frame takes", PAY_LEAD_CYC_P, QW_C + 2);
+  //! the header's frame is known QW_C + 3 cycles after hdr_p_i: one to take
+  //! d, one to triple it, one per quotient bit, one to round
+  if (PAY_LEAD_CYC_P < QW_C + 3) begin : g_chk_lead_cyc
+    $error("KL_render_queue: PAY_LEAD_CYC_P=%0d is under the %0d cycles the header's frame takes", PAY_LEAD_CYC_P, QW_C + 3);
   end : g_chk_lead_cyc
   if (CLK_FREQ_HZ_P < 2000) begin : g_chk_clk
     $error("KL_render_queue: CLK_FREQ_HZ_P=%0d cannot divide to a millisecond observer period", CLK_FREQ_HZ_P);
@@ -336,18 +351,22 @@ module KL_render_queue #(
   logic [AW_C-1:0]   wa0_w, wa1_w, ra_w;
   logic [24:0]       wd0_w, wd1_w;
   logic [24:0]       rd0_r, rd1_r;
+  logic              fl_rd_w;      //! the stream read is flushing
 
   always_ff @(posedge clk_i) begin : bank0_write
     if (we0_w) bank0_r[wa0_w] <= wd0_w;
   end : bank0_write
+  //! a flushing stream's read resets the output register: silence
   always_ff @(posedge clk_i) begin : bank0_read
-    rd0_r <= bank0_r[ra_w];
+    if (fl_rd_w) rd0_r <= '0;
+    else         rd0_r <= bank0_r[ra_w];
   end : bank0_read
   always_ff @(posedge clk_i) begin : bank1_write
     if (we1_w) bank1_r[wa1_w] <= wd1_w;
   end : bank1_write
   always_ff @(posedge clk_i) begin : bank1_read
-    rd1_r <= bank1_r[ra_w];
+    if (fl_rd_w) rd1_r <= '0;
+    else         rd1_r <= bank1_r[ra_w];
   end : bank1_read
 
   // ------------------------------------------------------------------ //
@@ -377,18 +396,22 @@ module KL_render_queue #(
   } pstate_t;
   pstate_t pst_r;
 
-  logic [NW_C-1:0] rem_r;      //! the numerator, then the remainder
-  logic [QW_C-1:0] q_r;        //! the quotient
-  logic [$clog2(QW_C+1)-1:0] step_r; //! the bit being decided
-  logic            tri_r;      //! rem_r still holds d, to be tripled
+  //! d, then N = 3 d, then {the remainder, N's bits still to bring down,
+  //! the quotient's bits so far}
+  logic [PW_C+QW_C-1:0] ld_r;
+  logic [$clog2(QW_C+1)-1:0] step_r; //! quotient bits still to decide
+  logic            tri_r;      //! ld_r still holds d, to be tripled
   logic [FW_C-1:0] f0_r;       //! the header's frame number, then F0
 
   wire signed [31:0] d_w      = signed'(hdr_ts_ns_i - ev_ns_i);
   wire               d_late_w = d_w[31];
   wire               d_far_w  = !d_w[31] && (64'(unsigned'(d_w)) >= DEARLY_L);
-  //! the constant of step k: Ps << k, in thirds of a nanosecond
-  wire [NW_C:0]      dstep_w  = (NW_C+1)'(64'(PS3_L) << step_r);
-  wire               dge_w    = ({1'b0, rem_r} >= dstep_w);
+  //! one step: the remainder with N's next bit brought down, against Ps
+  wire [PW_C:0]      lt_w     = ld_r[PW_C+QW_C-1:QW_C-1];
+  wire               dge_w    = (lt_w >= (PW_C+1)'(PS3_C));
+  wire [PW_C-1:0]    lr_w     = dge_w ? PW_C'(lt_w - (PW_C+1)'(PS3_C)) : lt_w[PW_C-1:0];
+  //! after the last step: the remainder rounds the quotient to the nearest
+  wire               rnd_w    = (ld_r[PW_C+QW_C-1:QW_C] >= PW_C'(RND_C));
 
   // ------------------------------------------------------------------ //
   // Push: walk the clone, classify each sample's frame, write its lane   //
@@ -470,7 +493,8 @@ module KL_render_queue #(
   wire        b1_w  = ch1_w[0] ^ fr1_w[0];
   wire [AW_C-1:0] pa0_w = waddr(s_tuser_i, fr0_w[RW_C-1:0], {1'b0, ch0_w[3:1]});
   wire [AW_C-1:0] pa1_w = waddr(s_tuser_i, fr1_w[RW_C-1:0], {1'b0, ch1_w[3:1]});
-  //! the push's bank enables: the two samples never share a bank
+  //! the push's bank enables: the two samples never share a bank, so bank
+  //! 0 takes the sample whose bank bit is clear and bank 1 the other
   wire        pw0_w = (st0_w && !b0_w) || (st1_w && !b1_w);
   wire        pw1_w = (st0_w &&  b0_w) || (st1_w &&  b1_w);
 
@@ -550,26 +574,22 @@ module KL_render_queue #(
   wire  fl_last_w = (32'(fl_a_r) == SPAN_C2 - 1);
   wire  [AW_C-1:0] fl_addr_w = AW_C'(32'(fl_s_r) * SPAN_C2 + 32'(fl_a_r));
 
-  //! the write ports
+  //! the write ports: an invalidation writes an all-zero word to both banks
+  //! (both_free_w: no push that cycle), a push its sample and valid bit
+  wire        inval_w = scrub_go_w || fl_go_w;
   always_comb begin : write_ports
-    we0_w = 1'b0; wa0_w = '0; wd0_w = '0;
-    we1_w = 1'b0; wa1_w = '0; wd1_w = '0;
-    if (pw0_w) begin
-      we0_w = 1'b1;
-      wa0_w = (st0_w && !b0_w) ? pa0_w : pa1_w;
-      wd0_w = {1'b1, (st0_w && !b0_w) ? smp0_w : smp1_w};
-    end
-    if (pw1_w) begin
-      we1_w = 1'b1;
-      wa1_w = (st0_w && b0_w) ? pa0_w : pa1_w;
-      wd1_w = {1'b1, (st0_w && b0_w) ? smp0_w : smp1_w};
-    end
+    we0_w = pw0_w || inval_w;
+    we1_w = pw1_w || inval_w;
+    wa0_w = b0_w ? pa1_w : pa0_w;
+    wa1_w = b1_w ? pa1_w : pa0_w;
+    wd0_w = inval_w ? '0 : {1'b1, b0_w ? smp1_w : smp0_w};
+    wd1_w = inval_w ? '0 : {1'b1, b1_w ? smp1_w : smp0_w};
     if (scrub_go_w) begin
-      we0_w = 1'b1; wa0_w = waddr(slot_r, cons_w[RW_C-1:0], beat_r); wd0_w = '0;
-      we1_w = 1'b1; wa1_w = waddr(slot_r, cons_w[RW_C-1:0], beat_r); wd1_w = '0;
+      wa0_w = waddr(slot_r, cons_w[RW_C-1:0], beat_r);
+      wa1_w = waddr(slot_r, cons_w[RW_C-1:0], beat_r);
     end else if (fl_go_w) begin
-      we0_w = 1'b1; wa0_w = fl_addr_w; wd0_w = '0;
-      we1_w = 1'b1; wa1_w = fl_addr_w; wd1_w = '0;
+      wa0_w = fl_addr_w;
+      wa1_w = fl_addr_w;
     end
   end : write_ports
 
@@ -584,20 +604,16 @@ module KL_render_queue #(
   logic [3:0] rs_r;
   logic       rlast_r, rlastif_r;
   logic       rodd_r;          //! its row is odd: the even lane is bank 1
-  logic       rmask_r;         //! its stream is flushing: silence
   logic       rany_r;          //! a sample on an earlier beat of this event
 
+  //! an empty, invalidated or flushing lane reads all zero (the banks)
   wire  [24:0] even_w = rodd_r ? rd1_r : rd0_r;
   wire  [24:0] odd_w  = rodd_r ? rd0_r : rd1_r;
-  wire         ev_v_w = !rmask_r && even_w[24];
-  wire         od_v_w = !rmask_r && odd_w[24];
-  wire  [23:0] smp_e_w = ev_v_w ? even_w[23:0] : 24'd0;
-  wire  [23:0] smp_o_w = od_v_w ? odd_w[23:0]  : 24'd0;
   //! this event had a sample on some beat
-  wire         any_w  = rany_r || ev_v_w || od_v_w;
+  wire         any_w  = rany_r || rd0_r[24] || rd1_r[24];
 
-  assign m_tdata_o = {8'h00, smp_o_w[7:0], smp_o_w[15:8], smp_o_w[23:16],
-                      8'h00, smp_e_w[7:0], smp_e_w[15:8], smp_e_w[23:16]};
+  assign m_tdata_o = {8'h00, odd_w[7:0],  odd_w[15:8],  odd_w[23:16],
+                      8'h00, even_w[7:0], even_w[15:8], even_w[23:16]};
   assign m_tlast_o = rlast_r;
   assign m_tuser_o = rs_r;
   always_comb begin : tvalid_fan
@@ -605,7 +621,6 @@ module KL_render_queue #(
   end : tvalid_fan
 
   //! the stream being read is flushing: it presents silence
-  logic fl_rd_w;
   always_comb begin : fl_rd_lookup
     fl_rd_w = 1'b0;
     for (int unsigned s = 0; s < N_STREAMS_P; s++)
@@ -627,7 +642,6 @@ module KL_render_queue #(
       rlast_r  <= 1'b0;
       rlastif_r <= 1'b0;
       rodd_r   <= 1'b0;
-      rmask_r  <= 1'b0;
       rany_r   <= 1'b0;
       render_tick_p_o <= '0;
     end else begin
@@ -637,7 +651,6 @@ module KL_render_queue #(
       rlast_r   <= rd_go_w && last_beat_w;
       rlastif_r <= rd_go_w && last_beat_w && last_slot_w;
       rodd_r    <= rd_fr_w[0];
-      rmask_r   <= fl_rd_w;
       if (rv_r) rany_r <= rlast_r ? 1'b0 : any_w;
       //! an interface's render tick follows its last beat by one cycle, so
       //! its crossbar has registered that beat when it renders
@@ -703,38 +716,32 @@ module KL_render_queue #(
   always_ff @(posedge clk_i) begin : pdu_frame
     if (!rst_n) begin
       pst_r  <= P_NONE_S;
-      rem_r  <= '0;
-      q_r    <= '0;
+      ld_r   <= '0;
       step_r <= '0;
       tri_r  <= 1'b0;
       f0_r   <= '0;
     end else begin
       if (pst_r == P_DIV_S) begin
         if (tri_r) begin
-          //! N = 3 d + Ps3 / 2: round to the nearest frame
-          rem_r <= NW_C'({rem_r, 1'b0} + rem_r + NW_C'(PS3_C / 2));
+          //! N = 3 d, in thirds of a nanosecond
+          ld_r  <= (PW_C+QW_C)'({ld_r, 1'b0} + ld_r);
           tri_r <= 1'b0;
+        end else if (step_r != '0) begin
+          ld_r   <= {lr_w, ld_r[QW_C-2:0], dge_w};
+          step_r <= step_r - 1'b1;
         end else begin
-          if (dge_w) begin
-            rem_r <= rem_r - NW_C'(dstep_w);
-            q_r   <= q_r | (QW_C'(1) << step_r);
-          end
-          if (step_r == '0) begin
-            pst_r <= P_OK_S;
-            f0_r  <= f0_r + FW_C'(q_r) + FW_C'({{(QW_C-1){1'b0}}, dge_w});
-          end else begin
-            step_r <= step_r - 1'b1;
-          end
+          //! F0 = n + round(N / Ps)
+          pst_r <= P_OK_S;
+          f0_r  <= f0_r + FW_C'(ld_r[QW_C-1:0]) + FW_C'(rnd_w);
         end
       end
       //! the PDU's first beat ends the header's claim
       if (s_ok_w && sof_r) pst_r <= P_NONE_S;
       if (hdr_p_i) begin
-        q_r    <= '0;
-        step_r <= ($clog2(QW_C+1))'(QW_C - 1);
+        step_r <= ($clog2(QW_C+1))'(QW_C);
         tri_r  <= 1'b1;
         f0_r   <= n_now_w;
-        rem_r  <= NW_C'(unsigned'(d_w));
+        ld_r   <= (PW_C+QW_C)'(unsigned'(d_w));
         pst_r  <= !hdr_tv_i ? P_UNTIMED_S
                 : d_late_w  ? P_LATE_S
                 : d_far_w   ? P_EARLY_S
@@ -857,12 +864,15 @@ module KL_render_queue #(
       ms_div_r  <= '0;
       late_o    <= 16'd0;
       early_o   <= 16'd0;
+      refused_o <= 16'd0;
       untimed_o <= 16'd0;
       slips_o   <= 16'd0;
     end else begin
       ms_div_r <= ms_p_w ? '0 : ms_div_r + 1'b1;
       if (c_late_w    && !(&late_o))    late_o    <= late_o + 16'd1;
       if (c_early_w   && !(&early_o))   early_o   <= early_o + 16'd1;
+      //! a PDU is late or too early, never both
+      if ((c_late_w || c_early_w) && !(&refused_o)) refused_o <= refused_o + 16'd1;
       if (c_untimed_w && !(&untimed_o)) untimed_o <= untimed_o + 16'd1;
       //! a gap and an overlap can land on one cycle
       if ((gap_w || c_olap_w) && (slips_o < 16'hFFFE))
@@ -878,7 +888,8 @@ module KL_render_queue #(
   //! the pad byte of each S32BE lane is dropped by construction; a read
   //! frame's bits above the row index name its lap, which the row's
   //! invalidation already settles
-  wire _unused_ok = &{1'b0, s_tdata_i[63:56], s_tdata_i[31:24], rd_fr_w[FW_C-1:RW_C], 1'b0};
+  wire _unused_ok = &{1'b0, s_tdata_i[63:56], s_tdata_i[31:24], rd_fr_w[FW_C-1:RW_C],
+                      even_w[24], odd_w[24], 1'b0};
 
   always_comb begin : taps
     for (int unsigned s = 0; s < N_STREAMS_P; s++) begin

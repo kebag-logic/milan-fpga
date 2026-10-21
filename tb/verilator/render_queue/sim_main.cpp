@@ -511,6 +511,9 @@ class RenderQueueHarness {
         std::snprintf(what, sizeof what, "[early] too-early PDUs counted once each (%u, model %ld)", dut_->early_o,
                       m_.early);
         check_.that(what, dut_->early_o == static_cast<unsigned>(m_.early) && m_.early == 2);
+        std::snprintf(what, sizeof what, "[refused] late and too-early PDUs counted once each in refused_o (%u, model %ld)",
+                      dut_->refused_o, m_.late + m_.early);
+        check_.that(what, dut_->refused_o == static_cast<unsigned>(m_.late + m_.early));
         std::snprintf(what, sizeof what, "[untimed] untimed PDUs counted once each (%u, model %ld)",
                       dut_->untimed_o, m_.untimed);
         check_.that(what, dut_->untimed_o == static_cast<unsigned>(m_.untimed) && m_.untimed == 2);

@@ -6973,9 +6973,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [15:0]            rq_untimed_w    /* verilator public_flat_rd */;
   wire [15:0]            rq_slips_w      /* verilator public_flat_rd */;
   //! the PDUs refused at the stage's two limits, saturating
-  wire [16:0]            rq_refused_sum_w = 17'(rq_late_w) + 17'(rq_early_w);
-  wire [15:0]            rq_refused_w = rq_refused_sum_w[16] ? 16'hFFFF
-                                                             : rq_refused_sum_w[15:0];
+  wire [15:0]            rq_refused_w    /* verilator public_flat_rd */;
 
   for (genvar s = 0; s < N_STREAMS; s++) begin : g_render_status
     assign render_status_w[s*32 +: 32] =
@@ -7023,6 +7021,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .converged_o  (rq_converged_w),
     .late_o       (rq_late_w),
     .early_o      (rq_early_w),
+    .refused_o    (rq_refused_w),
     .untimed_o    (rq_untimed_w),
     .slips_o      (rq_slips_w)
   );

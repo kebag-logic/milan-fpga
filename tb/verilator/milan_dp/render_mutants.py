@@ -90,8 +90,8 @@ SOURCES = {
 #: defect must break)
 MUTATIONS = [
     ("each PDU placed by its arrival instead of its timestamp", "stage",
-     "        rem_r  <= NW_C'(unsigned'(d_w));",
-     "        rem_r  <= NW_C'(32'd1875000);",
+     "        ld_r   <= (PW_C+QW_C)'(unsigned'(d_w));",
+     "        ld_r   <= (PW_C+QW_C)'(32'd1875000);",
      "--render-only",
      "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"),
     ("the PDU without tv placed by its stale timestamp", "stage",
