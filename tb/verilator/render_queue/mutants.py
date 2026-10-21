@@ -134,6 +134,20 @@ MUTATIONS = [
        "          lwv_r[s] <= 1'b0;",
        "        if (1'b0)\n          lwv_r[s] <= 1'b0;"),),
      "[place] lead_o and idle_o follow the model at every frame end", ()),
+    ("a PDU's events past the eighth wrapped onto its first frames (a 3-bit event index)",
+     (("  wire        far_in_w = !sof_r && pdu_early_r;",
+       "  wire        far_in_w = !sof_r && pdu_early_r;\n  logic [2:0] mk_r;"),
+      ("      if (s_ok_w) f0_r <= fr1_w + FW_C'(cmpl1_w);",
+       "      if (s_ok_w) begin\n"
+       "        mk_r <= 3'((sof_r ? 3'd0 : mk_r) + 3'(cmpl0_w) + 3'(cmpl1_w));\n"
+       "        f0_r <= fr1_w + FW_C'(cmpl1_w)\n"
+       "                - ((4'(sof_r ? 3'd0 : mk_r) + 4'(cmpl0_w) + 4'(cmpl1_w) >= 4'd8) ? FW_C'(8) : '0);\n"
+       "      end")),
+     "[long] every event presented to every interface is the frame the law names", ()),
+    ("a long PDU's events not held past the queue once there (their frame numbers wrap to late)",
+     (("  wire        far_in_w = !sof_r && pdu_early_r;",
+       "  wire        far_in_w = 1'b0;"),),
+     "[late] late PDUs counted once each", ()),
     ("a too-early PDU not counted in refused_o",
      (("      if ((c_late_w || c_early_w) && !(&refused_o)) refused_o <= refused_o + 16'd1;",
        "      if (c_late_w && !(&refused_o)) refused_o <= refused_o + 16'd1;"),),

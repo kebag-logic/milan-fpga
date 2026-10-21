@@ -78,7 +78,10 @@
                 A PDU with tv = 0, or whose payload starts before its frame
                 is known (a header without the lead), carries no
                 presentation time here: not written, counted once in
-                untimed_o.
+                untimed_o. A PDU may carry any number of events: the walk
+                keeps each sample's frame (F0, one more per event), and
+                once an event lies past the queue the PDU's later events
+                are refused with it, before a frame number could wrap.
 
                 SUPPORTED RANGE. Written for every interface when, at its
                 arrival, max_i(K_i) x Ps - EV_LAT_NS_P + Ps/2 < PT - now
@@ -401,7 +404,8 @@ module KL_render_queue #(
   logic [PW_C+QW_C-1:0] ld_r;
   logic [$clog2(QW_C+1)-1:0] step_r; //! quotient bits still to decide
   logic            tri_r;      //! ld_r still holds d, to be tripled
-  logic [FW_C-1:0] f0_r;       //! the header's frame number, then F0
+  logic [FW_C-1:0] f0_r;       //! the header's frame number, then F0, then
+                               //! the walk's frame
 
   wire signed [31:0] d_w      = signed'(hdr_ts_ns_i - ev_ns_i);
   wire               d_late_w = d_w[31];
@@ -427,7 +431,6 @@ module KL_render_queue #(
   wire [3:0] c_in_w = (chans_in_raw_w == 4'd0) ? 4'd2 : chans_in_raw_w;
 
   logic [3:0] chpos_r;         //! wire channel of the beat's first sample
-  logic [2:0] k_r;             //! the event's index in the PDU
   logic       sof_r;           //! the next beat starts a PDU
   logic       pdu_ok_r;        //! this PDU's payload is placed by its frame
   logic       pdu_late_r, pdu_early_r, pdu_untimed_r, pdu_slip_r;
@@ -438,15 +441,16 @@ module KL_render_queue #(
   wire [23:0] smp1_w = {s_tdata_i[39:32], s_tdata_i[47:40], s_tdata_i[55:48]};
   wire [3:0]  ch0_w  = sof_r ? 4'd0 : chpos_r;
   wire [3:0]  ch1_w  = chwrap(ch0_w, c_in_w);
-  wire [2:0]  k0_w   = sof_r ? 3'd0 : k_r;
   wire        cmpl0_w = (ch0_w == 4'(c_in_w - 4'd1));
   wire        cmpl1_w = (ch1_w == 4'(c_in_w - 4'd1));
-  wire [2:0]  k1_w   = k0_w + 3'(cmpl0_w);
 
   //! the PDU is placed at its first beat if its frame is known by then
   wire        place_w = sof_r ? (pst_r == P_OK_S) : pdu_ok_r;
-  wire [FW_C-1:0] fr0_w = f0_r + FW_C'(k0_w);
-  wire [FW_C-1:0] fr1_w = f0_r + FW_C'(k1_w);
+  //! each sample's frame: the beat's first on f0_r (F0, then one more per
+  //! event walked, however many), the second on the next past the stream's
+  //! last lane
+  wire [FW_C-1:0] fr0_w = f0_r;
+  wire [FW_C-1:0] fr1_w = fr0_w + FW_C'(cmpl0_w);
   //! the frame against R: late at or below it, early ROWS_C or more past it
   wire [FW_C-1:0] dr0_w = fr0_w - r_r;
   wire [FW_C-1:0] dr1_w = fr1_w - r_r;
@@ -454,6 +458,10 @@ module KL_render_queue #(
   wire        late1_w  = dr1_w[FW_C-1] || (dr1_w == '0);
   wire        early0_w = !late0_w && (32'(dr0_w) >= ROWS_C);
   wire        early1_w = !late1_w && (32'(dr1_w) >= ROWS_C);
+  //! once an event of the PDU is past the queue its later events are too
+  //! (each a frame more): refused with it, before a long PDU's frame
+  //! numbers could wrap
+  wire        far_in_w = !sof_r && pdu_early_r;
 
   //! the stream's flush state (declared with the walker below)
   logic [N_STREAMS_P-1:0] flpend_r;
@@ -471,7 +479,7 @@ module KL_render_queue #(
   wire        sto0_w = place_w && (32'(ch0_w) < N_CH_P);
   wire        sto1_w = place_w && (32'(ch1_w) < N_CH_P);
   wire        b_late_w    = (sof_r ? (pst_r == P_LATE_S) : pdu_late_r) ||
-                            (sto0_w && late0_w) || (sto1_w && late1_w);
+                            (!far_in_w && ((sto0_w && late0_w) || (sto1_w && late1_w)));
   wire        b_early_w   = (sof_r ? (pst_r == P_EARLY_S) : pdu_early_r) ||
                             (sto0_w && early0_w) || (sto1_w && early1_w);
   wire        b_untimed_w = sof_r ? !((pst_r == P_OK_S) || (pst_r == P_LATE_S) || (pst_r == P_EARLY_S))
@@ -485,9 +493,9 @@ module KL_render_queue #(
   wire        c_olap_w    = pdu_end_w && b_slip_w;
 
   wire        st0_w = s_ok_w && place_w && !fl_in_w && (32'(ch0_w) < N_CH_P)
-                      && !late0_w && !early0_w;
+                      && !late0_w && !early0_w && !far_in_w;
   wire        st1_w = s_ok_w && place_w && !fl_in_w && (32'(ch1_w) < N_CH_P)
-                      && !late1_w && !early1_w;
+                      && !late1_w && !early1_w && !far_in_w;
   //! the bank of each sample: lane parity xor row parity
   wire        b0_w  = ch0_w[0] ^ fr0_w[0];
   wire        b1_w  = ch1_w[0] ^ fr1_w[0];
@@ -522,7 +530,7 @@ module KL_render_queue #(
   end : lw_lookup
   //! a PDU's first written event on a frame the stream already wrote: two
   //! PDUs share a frame (the later sample wins), one slip
-  wire        first_ev_w = st0_w && (k0_w == 3'd0) && (ch0_w == 4'd0);
+  wire        first_ev_w = st0_w && sof_r;
   wire [FW_C-1:0] olap_w = lw_in_w - fr0_w;
   wire        overlap_w  = first_ev_w && lwv_in_w && !olap_w[FW_C-1];
   assign b_slip_w = (!sof_r && pdu_slip_r) || overlap_w;
@@ -735,8 +743,10 @@ module KL_render_queue #(
           f0_r  <= f0_r + FW_C'(ld_r[QW_C-1:0]) + FW_C'(rnd_w);
         end
       end
-      //! the PDU's first beat ends the header's claim
+      //! the PDU's first beat ends the header's claim; each beat moves f0_r
+      //! to the frame of the next beat's first sample
       if (s_ok_w && sof_r) pst_r <= P_NONE_S;
+      if (s_ok_w) f0_r <= fr1_w + FW_C'(cmpl1_w);
       if (hdr_p_i) begin
         step_r <= ($clog2(QW_C+1))'(QW_C);
         tri_r  <= 1'b1;
@@ -753,7 +763,6 @@ module KL_render_queue #(
   always_ff @(posedge clk_i) begin : walker
     if (!rst_n) begin
       chpos_r       <= 4'd0;
-      k_r           <= 3'd0;
       sof_r         <= 1'b1;
       pdu_ok_r      <= 1'b0;
       pdu_late_r    <= 1'b0;
@@ -762,7 +771,6 @@ module KL_render_queue #(
       pdu_slip_r    <= 1'b0;
     end else if (s_ok_w) begin
       chpos_r <= chwrap(ch1_w, c_in_w);
-      k_r     <= k1_w + 3'(cmpl1_w);
       sof_r   <= s_tlast_i;
       if (sof_r) pdu_ok_r <= (pst_r == P_OK_S);
       pdu_late_r    <= b_late_w;

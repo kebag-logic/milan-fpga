@@ -1838,6 +1838,12 @@ interface has read:
 | untimed | `tv` clear (1722-2016 4.4.4.5: no valid timestamp), or the payload starts before its frame is known | not written; the PDU counts once | `untimed_o` |
 | slip | a presenting stream's read finds its frame empty (a gap), or a PDU's first event lands on a frame its stream already wrote (an overlap: the later sample wins) | as stated; counted once per run of empty frames and once per overlapping PDU | `slips_o` |
 
+The rules hold for a PDU of any length (a Milan 48 kHz PDU carries six events;
+the depacketizer bounds a PDU by its `data_len` alone): the walk keeps each
+sample's frame, F0 and one more per event, and once an event lies two frames
+past the queue the PDU's later events are refused with it, before a frame
+number could wrap.
+
 The listener's Milan STREAM_INPUT counters LATE_TIMESTAMP and EARLY_TIMESTAMP
 (1722.1-2021 Table 7-157) stay the RX monitor's, unchanged; the stage's
 counters are its own taps.

@@ -12,7 +12,8 @@
 // wire channel. A reference model states the law independently of the RTL:
 //
 //   * a PDU's event k belongs to frame n + round((ts - E_n) / Ps) + k, n the
-//     latest event at its header (IEEE 1722-2016 7.5);
+//     latest event at its header (IEEE 1722-2016 7.5), for a PDU of any
+//     length (the [long] phase: 40 and 300 events);
 //   * at event n each interface i is handed frame n + K_i, every stream in
 //     index order, ceil(N_CH / 2) beats each in the clone format, lanes
 //     without a sample zero, tlast on the last beat, its render tick one
@@ -78,8 +79,8 @@ static_assert(kRows == 128, "the [early] and [lap] phases place PDUs against 128
 
 //! one sample: stream, PDU, event and wire channel, never zero
 uint32_t sample_of(int s, int pdu, int k, int ch) {
-    return (static_cast<uint32_t>(s & 1) << 23) | (static_cast<uint32_t>(pdu & 0x3FF) << 13) |
-           (static_cast<uint32_t>(k & 7) << 10) | (static_cast<uint32_t>(ch & 0xF) << 6) | 0x20u;
+    return (static_cast<uint32_t>(s & 1) << 23) | (static_cast<uint32_t>(pdu & 0x3F) << 17) |
+           (static_cast<uint32_t>(k & 0x1FF) << 8) | (static_cast<uint32_t>(ch & 0xF) << 4) | 0x8u;
 }
 
 //! a wire-order S32BE beat, pad bytes as given
@@ -436,6 +437,17 @@ class RenderQueueHarness {
             run_frames(110);
         }
 
+        phase_ = "long";            // past eight events: 40 in stereo, the last ten past the queue; 300 mono
+        {
+            Pdu p;
+            p.stream = 0; p.pdu = ++pdu_id_; p.chans = 2; p.events = 40; p.frame_off = kKMin + kRows - 30;
+            frame({p});
+            run_frames(140);
+            Pdu q;                  // events 120 on past the queue, and its frame numbers past their wrap
+            q.stream = 0; q.pdu = ++pdu_id_; q.chans = 1; q.events = 300; q.frame_off = 10;
+            frame({q});
+            run_frames(140);
+        }
     }
 
     //! a frame read once a lap, the flush, the slips, the wrap, the observer
@@ -510,7 +522,7 @@ class RenderQueueHarness {
         check_.that(what, dut_->late_o == static_cast<unsigned>(m_.late) && m_.late == 2);
         std::snprintf(what, sizeof what, "[early] too-early PDUs counted once each (%u, model %ld)", dut_->early_o,
                       m_.early);
-        check_.that(what, dut_->early_o == static_cast<unsigned>(m_.early) && m_.early == 2);
+        check_.that(what, dut_->early_o == static_cast<unsigned>(m_.early) && m_.early == 4);
         std::snprintf(what, sizeof what, "[refused] late and too-early PDUs counted once each in refused_o (%u, model %ld)",
                       dut_->refused_o, m_.late + m_.early);
         check_.that(what, dut_->refused_o == static_cast<unsigned>(m_.late + m_.early));
