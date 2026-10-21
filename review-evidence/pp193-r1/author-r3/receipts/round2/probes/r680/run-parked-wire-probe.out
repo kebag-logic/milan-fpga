@@ -1,0 +1,13 @@
+probe exit 0
+- Verilator: Walltime 11.649 s (elab=0.024, cvt=0.387, bld=11.173); cpu 0.508 s on 2 threads; allocated 246.055 MB
+./obj_dir/Vsrp_top_sim share
+old_sink=0 current_sink=1 declared=2
+  wire event=0 fourpacked=2 peer_IN=1
+  wire (35 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+PASS: one Listener value and no withdrawal while declared: values=1 Lv=0 peer_IN=1
+old_sink=1 current_sink=0 declared=2
+  wire event=0 fourpacked=2 peer_IN=1
+  wire (35 B): 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+PASS: one Listener value and no withdrawal while declared: values=1 Lv=0 peer_IN=1
+2 checks: 2 PASS, 0 FAIL
+make: Leaving directory '<scratch>/r2/probes/r680/scratch/parked-wire-probe/tb/srp_top'

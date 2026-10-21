@@ -1,0 +1,12 @@
+campaign | base rc, seconds | head rc, seconds | sorted log lines differing after normalizing paths, timings and all.v:N | head tally
+srp_top | 0, 3238 | 0, 3456 | 29 | 203 checks: 203 PASS, 0 FAIL
+acmp | 0, 2950 | 0, 3218 | 0 | ACMP mutations: 65 of 65 KILLED by their named checks; goldens PASS
+notify | 0, 3372 | 0, 3442 | 0 | C6 notification mutations: 135 of 135 KILLED by their named checks; goldens PASS
+d3 | 0, 7754 | 0, 7745 | 0 | D3 mutations: 110 of 110 KILLED by their named checks; goldens PASS
+aecp | 0, 1858 | 0, 1672 | 0 | 67 checks: 67 PASS, 0 FAIL
+dispatch | 0, 2073 | 0, 1954 | 0 | 73 checks: 73 PASS, 0 FAIL
+ctr | 0, 495 | 0, 485 | 0 | 18 checks: 18 PASS, 0 FAIL
+gsi | 0, 1163 | 0, 1020 | 0 | GSI mutations: 23 detected by named checks; golden and restored PASS
+name_wr | 0, 142 | 0, 128 | 0 | Name-write mutation: decode killed; golden and restored PASS
+name_state | 0, 352 | 0, 328 | 2 | name_table_last_entry_dropped: KILLED
+elab_mutants | 0, 1261 | 0, 1166 | 2 | elab guard mutants: 160 of 160 killed

@@ -1,0 +1,30 @@
+probe inserted into <scratch>/r2/rec/r679-probes-base/tree-fsm/tb/srp_stream_fsms/sim_main.cpp
+wire probe inserted into <scratch>/r2/rec/r679-probes-base/tree-wire/tb/srp_top/sim_main.cpp
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE: parker 1 joiner 0 via_a8 0: parker QA -> LA, joiner decl 2, tick SID0 words '0/2 5/2' (2 VectorAttributes for SID0)
+<scratch>/r2/rec/r679-probes-base/fsm.log:FAIL: PR2: parker 1 joiner 0 via_a8 0: one VectorAttribute for SID0 per tick and no Lv while sink 0 wants it (got '0/2 5/2')
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE:   next tick SID0 words '0/2', joiner app AA decl 2
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE:   next tick SID0 words '3/2', joiner app QA decl 2
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE: parker 0 joiner 1 via_a8 0: parker QA -> LA, joiner decl 2, tick SID0 words '5/2 0/2' (2 VectorAttributes for SID0)
+<scratch>/r2/rec/r679-probes-base/fsm.log:FAIL: PR1: parker 0 joiner 1 via_a8 0: one VectorAttribute for SID0 per tick and no Lv while sink 1 wants it (got '5/2 0/2')
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE:   next tick SID0 words '0/2', joiner app AA decl 2
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE:   next tick SID0 words '3/2', joiner app QA decl 2
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE: parker 1 joiner 0 via_a8 1: parker QA -> LA, joiner decl 2, tick SID0 words '0/2 5/2' (2 VectorAttributes for SID0)
+<scratch>/r2/rec/r679-probes-base/fsm.log:FAIL: PR4: parker 1 joiner 0 via_a8 1: one VectorAttribute for SID0 per tick and no Lv while sink 0 wants it (got '0/2 5/2')
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE:   next tick SID0 words '0/2', joiner app AA decl 2
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE:   next tick SID0 words '3/2', joiner app QA decl 2
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE: parker 0 joiner 1 via_a8 1: parker QA -> LA, joiner decl 2, tick SID0 words '5/2 0/2' (2 VectorAttributes for SID0)
+<scratch>/r2/rec/r679-probes-base/fsm.log:FAIL: PR3: parker 0 joiner 1 via_a8 1: one VectorAttribute for SID0 per tick and no Lv while sink 1 wants it (got '5/2 0/2')
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE:   next tick SID0 words '0/2', joiner app AA decl 2
+<scratch>/r2/rec/r679-probes-base/fsm.log:PROBE:   next tick SID0 words '3/2', joiner app QA decl 2
+<scratch>/r2/rec/r679-probes-base/fsm.log:1407 checks: 1403 PASS, 4 FAIL
+<scratch>/r2/rec/r679-probes-base/wire.log:PROBE-W: parker 1 joiner 0 frame at 2403 ms, 2 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 1a 00 01 11 22 33 44 55 66 00 01 00 80 00 01 11 22 33 44 55 66 00 01 b4 80 00 00 00 00
+<scratch>/r2/rec/r679-probes-base/wire.log:PROBE-W: parker 1 joiner 0 frame at 2602 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+<scratch>/r2/rec/r679-probes-base/wire.log:PROBE-W: parker 1 joiner 0 frame at 2802 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 6c 80 00 00 00 00
+<scratch>/r2/rec/r679-probes-base/wire.log:PROBE-W: parker 1 joiner 0: peer before 1, after 1, deregs 1, Lv 1, joiner decl early 2 now 2
+<scratch>/r2/rec/r679-probes-base/wire.log:FAIL: PW2: parker 1 re-binds away, joiner 0 settles on the value before the next tx!: a Milan peer Registrar never deregisters it while the joiner wants it (before 1, after 1, deregs 1, Lv 1)
+<scratch>/r2/rec/r679-probes-base/wire.log:PROBE-W: parker 0 joiner 1 frame at 2403 ms, 2 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 1a 00 01 11 22 33 44 55 66 00 01 b4 80 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+<scratch>/r2/rec/r679-probes-base/wire.log:PROBE-W: parker 0 joiner 1 frame at 2602 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+<scratch>/r2/rec/r679-probes-base/wire.log:PROBE-W: parker 0 joiner 1 frame at 2802 ms, 1 values for SIDX: 01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e 00 01 11 22 33 44 55 66 00 01 6c 80 00 00 00 00
+<scratch>/r2/rec/r679-probes-base/wire.log:PROBE-W: parker 0 joiner 1: peer before 1, after 1, deregs 1, Lv 1, joiner decl early 2 now 2
+<scratch>/r2/rec/r679-probes-base/wire.log:FAIL: PW1: parker 0 re-binds away, joiner 1 settles on the value before the next tx!: a Milan peer Registrar never deregisters it while the joiner wants it (before 1, after 1, deregs 1, Lv 1)
+<scratch>/r2/rec/r679-probes-base/wire.log:7 checks: 5 PASS, 2 FAIL

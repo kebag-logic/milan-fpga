@@ -1,0 +1,20 @@
+13c13
+< head='6ddfcda4c3170b8f463c8623833f7541ca8c1faf'
+---
+> head='57fb7dd21d316ce49c305c22812de5c16d6770f6'
+23,24c23,24
+< mf.write_text(mf.read_text().replace('--build -j 0','--build -j 8').replace('CPP  = sim_main.cpp','CPP  = parked-probe.cpp'))
+< cmd=['make','-j16','-C',str(suite),'VERILATOR='+sim,'RUN_ARGS=suite']
+---
+> mf.write_text(mf.read_text().replace('--build -j 0','--build -j 2').replace('CPP  = sim_main.cpp','CPP  = parked-probe.cpp'))
+> cmd=['make','-j4','-C',str(suite),'VERILATOR='+sim,'RUN_ARGS=suite']
+13c13
+< head='6ddfcda4c3170b8f463c8623833f7541ca8c1faf'
+---
+> head='57fb7dd21d316ce49c305c22812de5c16d6770f6'
+23,24c23,24
+< mf.write_text(mf.read_text().replace('--build -j 0','--build -j 4').replace('CPP  = sim_main.cpp','CPP  = parked-wire-probe.cpp'))
+< cmd=['make','-j16','-C',str(suite),'VERILATOR='+sim,'RUN_ARGS=share']
+---
+> mf.write_text(mf.read_text().replace('--build -j 0','--build -j 2').replace('CPP  = sim_main.cpp','CPP  = parked-wire-probe.cpp'))
+> cmd=['make','-j4','-C',str(suite),'VERILATOR='+sim,'RUN_ARGS=share']
