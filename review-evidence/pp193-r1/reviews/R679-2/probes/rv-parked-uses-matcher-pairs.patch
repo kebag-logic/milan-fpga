@@ -1,0 +1,13 @@
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -598,10 +598,6 @@
+           same_w[s][t] = 1'b1;
+         end else if (!mbr_w[s] || !mbr_w[t] || (lvp_r[s] && lvp_r[t])) begin
+           same_w[s][t] = 1'b0;
+-        end else if (lvp_r[s]) begin
+-          same_w[s][t] = lq_r[s][t];
+-        end else if (lvp_r[t]) begin
+-          same_w[s][t] = lq_r[t][s];
+         end else begin
+           same_w[s][t] = (s < t) ? eq_r[s][t] : eq_r[t][s];
+         end

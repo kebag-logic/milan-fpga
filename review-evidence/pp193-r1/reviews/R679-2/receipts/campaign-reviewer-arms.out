@@ -1,0 +1,76 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top share: rc=0 PASS
+rv-repark-overwrites-pairs: rc=0 failures=0 UNPROVEN tags=
+srp_stream_fsms_wrap__pch.h.fast -c Vsrp_stream_fsms_wrap___024root__0.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_stream_fsms -Wall -Wextra   -include Vsrp_stream_fsms_wrap__pch.h.fast -c Vsrp_stream_fsms_wrap___024root__1.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_stream_fsms -Wall -Wextra   -include Vsrp_stream_fsms_wrap__pch.h.fast -c Vsrp_stream_fsms_wrap___024root__2.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vsrp_stream_fsms_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_stream_fsms_sim
+rm Vsrp_stream_fsms_wrap__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.336 MB sources in 6 modules, into 2.710 MB in 9 C++ files needing 0.001 MB
+- Verilator: Walltime 38.116 s (elab=0.011, cvt=0.522, bld=37.497); cpu 0.654 s on 16 threads; allocated 1098.586 MB
+./obj_dir/Vsrp_stream_fsms_sim
+1410 checks: 1410 PASS, 0 FAIL
+make: Leaving directory '<TMP>/srp-leaveall-X/tb/srp_stream_fsms'
+
+rv-repark-overwrites-pairs: rc=0 failures=0 UNPROVEN tags=
+mp/srp-leaveall-l_k0a34m/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__0__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__1__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_save.o verilated_threads.o Vsrp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_top_sim
+rm Vsrp_top_wrap__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.504 MB sources in 15 modules, into 3.116 MB in 9 C++ files needing 0.002 MB
+- Verilator: Walltime 37.984 s (elab=0.042, cvt=0.878, bld=36.880); cpu 0.939 s on 16 threads; allocated 402.195 MB
+./obj_dir/Vsrp_top_sim share
+TOTAL_CLOCKS 802655
+9 checks: 9 PASS, 0 FAIL
+make: Leaving directory '<TMP>/srp-leaveall-X/tb/srp_top'
+
+rv-both-parked-grouped: rc=0 failures=0 UNPROVEN tags=
+tream_fsms_wrap__pch.h.slow -c Vsrp_stream_fsms_wrap___024root__0__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_stream_fsms -Wall -Wextra   -include Vsrp_stream_fsms_wrap__pch.h.slow -c Vsrp_stream_fsms_wrap___024root__1__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_stream_fsms -Wall -Wextra   -include Vsrp_stream_fsms_wrap__pch.h.slow -c Vsrp_stream_fsms_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vsrp_stream_fsms_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_stream_fsms_sim
+rm Vsrp_stream_fsms_wrap__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.336 MB sources in 6 modules, into 2.719 MB in 9 C++ files needing 0.001 MB
+- Verilator: Walltime 38.255 s (elab=0.019, cvt=0.774, bld=37.288); cpu 0.860 s on 16 threads; allocated 1354.285 MB
+./obj_dir/Vsrp_stream_fsms_sim
+1410 checks: 1410 PASS, 0 FAIL
+make: Leaving directory '<TMP>/srp-leaveall-X/tb/srp_stream_fsms'
+
+rv-both-parked-grouped: rc=0 failures=0 UNPROVEN tags=
+-I<TMP>/srp-leaveall-X/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap___024root__0.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap___024root__1.cpp
+g++ -Os  -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.fast -c Vsrp_top_wrap___024root__2.cpp
+g++    sim_main.o verilated.o verilated_save.o verilated_threads.o Vsrp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_top_sim
+rm Vsrp_top_wrap__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.504 MB sources in 15 modules, into 3.129 MB in 9 C++ files needing 0.002 MB
+- Verilator: Walltime 38.806 s (elab=0.072, cvt=1.840, bld=36.523); cpu 1.331 s on 16 threads; allocated 1169.711 MB
+./obj_dir/Vsrp_top_sim share
+TOTAL_CLOCKS 802655
+9 checks: 9 PASS, 0 FAIL
+make: Leaving directory '<TMP>/srp-leaveall-X/tb/srp_top'
+
+rv-leave-compare-copy-unwritten: rc=2 failures=6 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15
+rv-leave-compare-copy-unwritten: rc=2 failures=4 KILLED tags=SW4,SW5,SW6,SW7
+rv-take-forgets-walk-mark: rc=2 failures=1 KILLED tags=SH7
+rv-take-forgets-walk-mark: rc=0 failures=0 UNPROVEN tags=
+p/srp-leaveall-a4u8by76/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__0__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap___024root__1__Slow.cpp
+g++   -I.  -MMD -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<HOME>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<TMP>/srp-leaveall-X/tb/srp_top -Wall -Wextra   -include Vsrp_top_wrap__pch.h.slow -c Vsrp_top_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_save.o verilated_threads.o Vsrp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vsrp_top_sim
+rm Vsrp_top_wrap__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.504 MB sources in 15 modules, into 3.119 MB in 9 C++ files needing 0.002 MB
+- Verilator: Walltime 38.572 s (elab=0.049, cvt=0.790, bld=37.528); cpu 0.988 s on 16 threads; allocated 1105.879 MB
+./obj_dir/Vsrp_top_sim share
+TOTAL_CLOCKS 802655
+9 checks: 9 PASS, 0 FAIL
+make: Leaving directory '<TMP>/srp-leaveall-X/tb/srp_top'
+
+rv-parked-uses-matcher-pairs: rc=2 failures=7 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15,SH16
+rv-parked-uses-matcher-pairs: rc=2 failures=4 KILLED tags=SW4,SW5,SW6,SW7
+12 checks: 7 PASS, 5 FAIL
