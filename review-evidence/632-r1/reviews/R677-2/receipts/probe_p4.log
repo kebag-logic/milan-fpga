@@ -1,0 +1,64 @@
+make: Entering directory '<disposable-copy>/tb/verilator/media_phase'
+<pinned-simulator-5.050> --cc --exe --build -j 2 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_ofs --top-module ofs_wrap ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ofs_wrap.sv sim_ofs.cpp -o Vofs_wrap
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:209:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  209 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+make[1]: Entering directory '<disposable-copy>/tb/verilator/media_phase/obj_ofs'
+rm Vofs_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<disposable-copy>/tb/verilator/media_phase/obj_ofs'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.245 MB sources in 5 modules, into 0.335 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 10.073 s (elab=0.014, cvt=0.038, bld=9.986); cpu 0.067 s on 2 threads; allocated 217.734 MB
+======================================================================
+obj_ofs/Vofs_wrap
+[ofs] four AAF outputs and the CRF output of one domain, each its own offset
+  info: [ofs A] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  info: [ofs A] row 1 set 2010000 ns, applied 2020833 ns (97.0000 periods)
+  info: [ofs A] row 2 set 0 ns, applied 0 ns (0.0000 periods)
+  info: [ofs A] row 3 set 20833 ns, applied 20833 ns (1.0000 periods)
+  info: [ofs A] row 4 set 2010000 ns, applied 2020833 ns (97.0000 periods)
+  [FAIL] [ofs A] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs A] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs A] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs A] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.33 ns, talker 3)
+  info: [ofs B] row 0 set 1 ns, applied 20833 ns (1.0000 periods)
+  info: [ofs B] row 1 set 20834 ns, applied 41666 ns (2.0000 periods)
+  info: [ofs B] row 2 set 62500 ns, applied 62500 ns (3.0000 periods)
+  info: [ofs B] row 3 set 4294958333 ns, applied 4294958333 ns (206158.0000 periods)
+  info: [ofs B] row 4 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  [FAIL] [ofs B] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs B] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs B] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs B] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 1.00 ns, talker 1)
+  info: [ofs C] row 0 set 1 ns, applied 20833 ns (1.0000 periods)
+  info: [ofs C] row 1 set 1999999 ns, applied 2000000 ns (96.0000 periods)
+  info: [ofs C] row 2 set 62500 ns, applied 62500 ns (3.0000 periods)
+  info: [ofs C] row 3 set 4294967295 ns, applied 11870 ns (206159.0000 periods)
+  info: [ofs C] row 4 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  [FAIL] [ofs C] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs C] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs C] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs C] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.67 ns, talker 0)
+  info: [ofs D] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods)
+  info: [ofs D] row 1 set 2010000 ns, applied 2020833 ns (97.0000 periods)
+  info: [ofs D] row 2 set 0 ns, applied 0 ns (0.0000 periods)
+  info: [ofs D] row 3 set 1 ns, applied 20833 ns (1.0000 periods)
+  info: [ofs D] row 4 set 4294967295 ns, applied 11870 ns (206159.0000 periods)
+  [FAIL] [ofs D] every row reads back as applied, rounded up to whole periods
+  [ ok ] [ofs D] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs D] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  info: [ofs D] the CRF row lies past 2^31: phase not graded (readback and stamps only)
+== media_phase ofs: checks: 15   failures: 4 ==
+RESULT: FAIL
+make: *** [Makefile:104: ofs] Error 1
+make: Leaving directory '<disposable-copy>/tb/verilator/media_phase'
+
+PROBE mtt_pass2_floor: make rc=2; CAUGHT
+    [FAIL] [ofs A] every row reads back as applied, rounded up to whole periods
+    [FAIL] [ofs B] every row reads back as applied, rounded up to whole periods
+    [FAIL] [ofs C] every row reads back as applied, rounded up to whole periods
+    [FAIL] [ofs D] every row reads back as applied, rounded up to whole periods
+  == media_phase ofs: checks: 15   failures: 4 ==

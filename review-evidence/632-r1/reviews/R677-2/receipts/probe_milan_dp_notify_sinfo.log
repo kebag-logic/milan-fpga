@@ -1,0 +1,39 @@
+-- [NOTIFY] Milan 5.4.5 unsolicited notifications on the wire (TIMED: one processor ms = 100 cycles) --
+  [ok]   [NOTIFY] GET_NAME(ENTITY,0) answers SUCCESS (the restore point) = 0x0
+  [ok]   [NOTIFY] REGISTER from controller A answers SUCCESS = 0x0
+  [ok]   [NOTIFY] REGISTER from controller B answers SUCCESS = 0x0
+  [ok]   [NOTIFY] ...B's response went to B (dst MAC + controller_entity_id) = 0x1
+  [ok]   [NOTIFY] SET_NAME from A (a real change) is SUCCESS = 0x0
+  [ok]   [NOTIFY] exactly ONE unsolicited SET_NAME egressed = 0x1
+  [ok]   [NOTIFY] ...to controller B (dst MAC and controller_entity_id) = 0x1
+  [ok]   [NOTIFY] ...and none to A, the requester (5.4.5.2 'except') = 0x0
+  [ok]   [NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry) = 0x0
+  [ok]   [NOTIFY] ...target_entity_id is this entity    = 0x1
+  [ok]   [NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body = 0x1
+  [ok]   [NOTIFY] ...carrying the NEW name: current state, not history = 0x1
+  [ok]   [NOTIFY] SET_NAME of the value already held is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes NOTHING: no state was modified (5.4.5.2) = 0x0
+  [PROBE] step 1: SET_STREAM_INFO(2000000 ns) from A status 0; unsolicited SET_STREAM_INFO to B: 0; GET_STREAM_INFO then reads 2000000 ns
+  [PROBE] step 2: SET_STREAM_INFO(2010000 ns) from A status 0; unsolicited SET_STREAM_INFO to B: 1; GET_STREAM_INFO then reads 2020834 ns
+  [PROBE] step 3: SET_STREAM_INFO(2010000 ns) from A status 0; unsolicited SET_STREAM_INFO to B: 1; GET_STREAM_INFO then reads 2020834 ns
+  [PROBE] step 4: SET_STREAM_INFO(2020834 ns) from A status 0; unsolicited SET_STREAM_INFO to B: 0; GET_STREAM_INFO then reads 2041667 ns
+  [ok]   [PROBE] a real change 2,000,000 -> 2,010,000 pushes once = 0x1
+  [ok]   [PROBE] GET_STREAM_INFO reads the applied 2,020,834 = 0x1ed5e2
+  [FAIL] [PROBE] the same 2,010,000 again modifies nothing and pushes nothing (5.4.5.2) got=0x1 exp=0x0
+  [FAIL] [PROBE] 2,020,834 changes the stored and applied offset and pushes once got=0x0 exp=0x1
+  [ok]   [PROBE] ...and the applied offset moved to 98 periods = 0x1f2743
+  [ok]   [NOTIFY] SET_NAME from B is SUCCESS            = 0x0
+  [ok]   [NOTIFY] B's change reaches A alone            = 0x1
+  [ok]   [NOTIFY] ...A's entry starts its own sequence at 0 = 0x0
+  [ok]   [NOTIFY] a second change from A is SUCCESS     = 0x0
+  [FAIL] [NOTIFY] ...reaches B with sequence_id 1 (its entry advanced) got=0x4 exp=0x1
+  [ok]   [NOTIFY] ...and A's entry did not move (independent per entry) = 0x0
+  [ok]   [NOTIFY] GET_NAME right after is byte-identical from the body on = 0x1
+  [ok]   [NOTIFY] DEREGISTER from B answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] a change from A with B gone is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes nothing: A is the requester, B is gone = 0x0
+  [ok]   [NOTIFY] DEREGISTER from A answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] the shipped entity_name is restored   = 0x1
+checks: 428   failures: 3
+RESULT: FAIL
+build+run wall 149 s

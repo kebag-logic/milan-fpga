@@ -1,0 +1,192 @@
+make: Entering directory '<disposable-copy>/tb/verilator/media_phase'
+<pinned-simulator-5.050> --cc --exe --build -j 2 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_dir --top-module media_phase_wrap ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv media_phase_wrap.sv sim_main.cpp -o Vmedia_phase
+make[1]: Entering directory '<disposable-copy>/tb/verilator/media_phase/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<disposable-copy>/tb/verilator/media_phase/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.012 s (elab=0.000, cvt=0.000, bld=0.011); cpu 0.001 s on 2 threads; allocated 16.496 MB
+======================================================================
+[engage] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [engage] phase inside +/-5 % of Ps within 45 s of the event
+  info: [engage] inside the band 27.46 s after the event
+  [ ok ] [engage] phase held inside +/-5 % of Ps to the end (max 723.3 ns)
+  [ ok ] [engage] the DUT's CRF output on the reference's grid (max 880.8 ns)
+  [ ok ] [engage] the servo reports settled at the end
+  [ ok ] [engage] still LOCKED at the end
+  [ ok ] [engage] engaged +0.4413 Ps from the reference's grid
+  [ ok ] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 304.7)
+  [ ok ] [engage] the pull went the short way (max |phase| 0.4413 Ps after engaging)
+  [ ok ] [engage] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [engage] fine-PS protocol clean
+  [ ok ] [engage] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [engage] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase engage: checks: 12   failures: 0 ==
+RESULT: PASS
+======================================================================
+[engage2] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [engage2] phase inside +/-5 % of Ps within 45 s of the event
+  info: [engage2] inside the band 23.36 s after the event
+  [ ok ] [engage2] phase held inside +/-5 % of Ps to the end (max 679.9 ns)
+  [ ok ] [engage2] the DUT's CRF output on the reference's grid (max 839.8 ns)
+  [ ok ] [engage2] the servo reports settled at the end
+  [ ok ] [engage2] still LOCKED at the end
+  [ ok ] [engage2] engaged -0.3587 Ps from the reference's grid
+  [ ok ] [engage2] the pull is slew-limited: <= 400 ns of phase per window (max 328.5)
+  [ ok ] [engage2] the pull went the short way (max |phase| 0.3587 Ps after engaging)
+  [ ok ] [engage2] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [engage2] fine-PS protocol clean
+  [ ok ] [engage2] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [engage2] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase engage2: checks: 12   failures: 0 ==
+RESULT: PASS
+======================================================================
+[edge] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 228.6 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 396.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [edge] the reference stepped to put the phase at +0.4999 Ps at 15.00 s
+  [ ok ] [edge] phase inside +/-5 % of Ps within 45 s of the event
+  info: [edge] inside the band 26.44 s after the event
+  [ ok ] [edge] phase held inside +/-5 % of Ps to the end (max 618.9 ns)
+  [ ok ] [edge] the DUT's CRF output on the reference's grid (max 827.3 ns)
+  [ ok ] [edge] the servo reports settled at the end
+  [ ok ] [edge] still LOCKED at the end
+  [ ok ] [edge] re-engaged at the fold (-0.4912 Ps from the reference's grid)
+  [ ok ] [edge] the pull is slew-limited: <= 400 ns of phase per window (max 337.3)
+  [ ok ] [edge] the phase term let go at the reference's history restart (within 10 ms)
+  [ ok ] [edge] the settled flag fell at the reference's history restart
+  [ ok ] [edge] every DUT CRF timestamp is a frame instant of its own grid (max 161.0 ns)
+  [ ok ] [edge] fine-PS protocol clean
+  [ ok ] [edge] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [edge] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase edge: checks: 18   failures: 0 ==
+RESULT: PASS
+======================================================================
+[mr] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [mr] mr toggled with a 1.8 us jump at 15.00 s
+  [ ok ] [mr] phase inside +/-5 % of Ps within 30 s of the event
+  info: [mr] inside the band 0.38 s after the event
+  [ ok ] [mr] phase held inside +/-5 % of Ps to the end (max 144.3 ns)
+  [ ok ] [mr] the DUT's CRF output on the reference's grid (max 303.2 ns)
+  [ ok ] [mr] the servo reports settled at the end
+  [ ok ] [mr] still LOCKED at the end
+  [ ok ] [mr] the phase term let go at the mr toggle (within 5 ms)
+  [ ok ] [mr] the settled flag fell at the mr toggle
+  [ ok ] [mr] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [mr] fine-PS protocol clean
+  [ ok ] [mr] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [mr] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase mr: checks: 16   failures: 0 ==
+RESULT: PASS
+======================================================================
+[holdover] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  [ ok ] [holdover] the servo holds over while the reference is silent
+  info: [holdover] the reference returns at 30.00 s, phase +0.4820 Ps
+  [ ok ] [holdover] phase inside +/-5 % of Ps within 40 s of the event
+  info: [holdover] inside the band 27.33 s after the event
+  [ ok ] [holdover] phase held inside +/-5 % of Ps to the end (max 741.5 ns)
+  [ ok ] [holdover] the DUT's CRF output on the reference's grid (max 906.2 ns)
+  [ ok ] [holdover] the servo reports settled at the end
+  [ ok ] [holdover] still LOCKED at the end
+  [ ok ] [holdover] the phase term let go at HOLDOVER (within 200 ms)
+  [ ok ] [holdover] the settled flag fell at HOLDOVER
+  [ ok ] [holdover] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [holdover] fine-PS protocol clean
+  [ ok ] [holdover] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [holdover] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase holdover: checks: 17   failures: 0 ==
+RESULT: PASS
+======================================================================
+[internal] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  [ ok ] [internal] INTERNAL idles the servo
+  info: [internal] CRF selected again at 30.00 s, phase +0.2448 Ps
+  [ ok ] [internal] phase inside +/-5 % of Ps within 45 s of the event
+  info: [internal] inside the band 24.32 s after the event
+  [ ok ] [internal] phase held inside +/-5 % of Ps to the end (max 706.1 ns)
+  [ ok ] [internal] the DUT's CRF output on the reference's grid (max 838.2 ns)
+  [ ok ] [internal] the servo reports settled at the end
+  [ ok ] [internal] still LOCKED at the end
+  [ ok ] [internal] the phase term let go at INTERNAL (within 5 ms)
+  [ ok ] [internal] the settled flag fell at INTERNAL
+  [ ok ] [internal] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [internal] fine-PS protocol clean
+  [ ok ] [internal] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [internal] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase internal: checks: 17   failures: 0 ==
+RESULT: PASS
+======================================================================
+[ramp] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  [ ok ] [ramp] phase held inside +/-5 % of Ps through a 4 ppm ramp (max 642.9 ns)
+  [ ok ] [ramp] the DUT's CRF output on the reference's grid (max 837.2 ns)
+  [ ok ] [ramp] still LOCKED
+  [ ok ] [ramp] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [ramp] fine-PS protocol clean
+  [ ok ] [ramp] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [ramp] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase ramp: checks: 12   failures: 0 ==
+RESULT: PASS
+======================================================================
+[burst] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [burst] the talker sends every 1.92 ms from 15.05 s for 0.6 s
+  [ ok ] [burst] phase inside +/-5 % of Ps within 30 s of the event
+  info: [burst] inside the band 0.06 s after the event
+  [ ok ] [burst] phase held inside +/-5 % of Ps to the end (max 142.0 ns)
+  [ ok ] [burst] the DUT's CRF output on the reference's grid (max 303.2 ns)
+  [ ok ] [burst] the servo reports settled at the end
+  [ ok ] [burst] still LOCKED at the end
+  [ ok ] [burst] the burst put more than 264 PDUs in some 512 ms (267)
+  [ ok ] [burst] the window the burst filled kept exactly 264 samples, the cap (max 264)
+  [ ok ] [burst] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [burst] fine-PS protocol clean
+  [ ok ] [burst] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [burst] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase burst: checks: 16   failures: 0 ==
+RESULT: PASS
+======================================================================
+[carry] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [carry] LOCKED on rate alone
+  info: [carry] 40 windows, 15 odd errors, sum(e) 255, integrator moved 32640/256
+  [ ok ] [carry] the window sample is wide enough to grade (odd errors seen)
+  [ ok ] [carry] the integrator moved by exactly sum(e) / 2 (no LSB floored)
+  [ ok ] [carry] the phase term stayed off (never engaged)
+  [ ok ] [carry] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [carry] fine-PS protocol clean
+  [ ok ] [carry] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [carry] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase carry: checks: 8   failures: 0 ==
+RESULT: PASS
+make: Leaving directory '<disposable-copy>/tb/verilator/media_phase'
