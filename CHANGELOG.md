@@ -72,16 +72,23 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - A hold on a window's closing edge drops its correction.
 - Every output's presentation offset applies in whole periods.
 - The rule is `KL_crf_tx`'s Equation 14; readback shows it.
+- GET_STREAM_INFO reads the offset applied (Milan 5.4.2.10.2).
+- SET_STREAM_INFO still echoes the value set (5.4.2.9).
+- A push follows a SET that changes the value set (5.4.5.2).
+- That gate is the processor's; its change is pending a pin.
+- A CRF offset rounding past 2^32 ns keeps its carry.
+- GET_STREAM_INFO reads such a row as 0xFFFFFFFF.
 - The I2S blend's frame now closes on its I2S pair.
 - The I2S capture's pairs ride their own strobe again.
 - They carried the previous pair, a frame older.
 - No top-level port or other register field changes.
 - AAF following keeps the rate loop alone.
-- The listener's pin delay stays uncompensated, a decision pending.
+- Listener presentation at the pin is outside PR #770.
+- It stays open under #632; the #386 grid law holds.
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/media_phase` proves the loop and the interfaces.
 - It grades the in-tree blend and four AAF offsets too.
-- Its `make mutants` target plants twenty-eight defects.
+- Its `make mutants` target plants thirty-three defects.
 - `capture_coherence` grades the talker's stamps at the TDM pins.
 - The bench proof follows after merge.
 

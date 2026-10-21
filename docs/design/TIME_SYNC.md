@@ -516,11 +516,9 @@ Rendering follows the fill, not the presentation time.
 
 So no presentation offset can absorb that delay.
 
-Timestamp presentation is ruled in (R678-1-F1).
+Timestamp presentation is out of PR #770 and open under #632, pending an owner area decision; the listener keeps the fill law above at the crossbar grid.
 
-A decision is pending: its queue exceeds route-1x1's gates.
-
-It also replaces the fill law above.
+A timestamp law would replace that fill law.
 
 The [phase alignment](MEDIA_CLOCK_FOLLOWING.md#phase-alignment) design lists the constants and the costs.
 

@@ -1667,20 +1667,53 @@ lands in the render and loopback rings after it, inside their bands.
   moves.
 - **Presentation offsets in whole periods.** Every stream output's offset
   (SET_STREAM_INFO) is applied rounded up to a whole number of media clock
-  periods by `KL_crf_tx`'s own Equation (14) rule, `KL_mtt_round` serving the
-  AAF talkers, so every output of the domain stamps whole periods from its
-  grid (R678-1-F2): 2,010,000 ns, 96.48 periods at 48 kHz, applies as 97,
+  periods by `KL_crf_tx`'s own Equation (14) rule, `KL_mtt_round` serving
+  every output of the domain, so each stamps whole periods from its grid
+  (R678-1-F2): 2,010,000 ns, 96.48 periods at 48 kHz, applies as 97,
   2,020,834 ns, where the raw value sat 0.48 Ps off the CRF timing points.
-  GET_STREAM_INFO reads back the applied value. The CRF output stamps its
-  applied row too (`KL_crf_tx` `ROUND_MTT_P = 0`, its own converter and its
-  multiplier block no longer elaborated), so one rounding serves every output
-  and what a controller reads is what every output stamps.
-  The rule is not idempotent in whole ns: a period count that is no multiple
-  of three has a ceiling (2,020,834 ns) that is above it, so writing back a
-  read value of that kind applies one period more. The values a controller
-  ordinarily sets, multiples of 62,500 ns (0.25, 0.5, 1 and 2 ms), are exact.
-  At 48 kHz an offset above 4,294,958,333 ns rounds past 2^32 and is stamped
-  and read back modulo 2^32, as an AVTP timestamp is.
+  The CRF output stamps its applied row too (`KL_crf_tx` `ROUND_MTT_P = 0`,
+  its own converter and its multiplier block no longer elaborated), so one
+  rounding serves every output.
+- **What a controller reads, and what a SET answers.** GET_STREAM_INFO's
+  `msrp_accumulated_latency` is "the presentation time offset currently used
+  by the talker" (Milan v1.2 5.4.2.10.2), so GET_STREAM_INFO reads the applied
+  value: what GET_STREAM_INFO reads is what every output stamps.
+  SET_STREAM_INFO is not a readback. It sets the offset to the commanded
+  value, and its successful response echoes that value (5.4.2.9), as the
+  notification after it does (5.4.5.1; IEEE 1722.1-2021 7.5.2). For an offset
+  that is not a whole number of periods the two differ: a SET of 2,010,000 ns
+  answers 2,010,000, and GET_STREAM_INFO then reads 2,020,834. The rule is not
+  idempotent in whole ns either: a period count that is no multiple of three
+  has a ceiling (2,020,834 ns for 97 periods) above it, so a controller that
+  writes back what GET_STREAM_INFO read sets a different value, which applies
+  one period more (98 periods, 2,041,667 ns). The values a controller
+  ordinarily sets, multiples of 62,500 ns (0.25, 0.5, 1 and 2 ms), are exact,
+  and idempotent. Whether a SET modified the state, so that the other
+  registered controllers are told (5.4.5.2), is judged on the value as set: an
+  identical SET pushes nothing, and the write-back pushes once.
+  `milan_dp`'s `[NOTIFY]` grades the four steps (the held 2,000,000 ns, a
+  change to 2,010,000, the same again, the write-back of 2,020,834). The gate
+  is the processor's SET_STREAM_INFO program. At the pinned processor it
+  compares the commanded value with GET_STREAM_INFO's word, so steps 3 and 4
+  fail there until a processor whose gate reads the offset as set is pinned.
+- **Past 2^32 ns.** The ceiling adds up to one period, so at 48 kHz an offset
+  above 4,294,958,333 ns rounds past 2^32: 0xFFFFFFFF applies as 206,159
+  periods, 4,294,979,167 ns, a 33-bit value. An AAF timestamp is the low 32
+  bits of gPTP time (IEEE 1722-2016 4.4.4.9, Equation (6)), so an AAF talker
+  adds the applied value's low word and stamps exactly what the whole value
+  would. A CRF timestamp is all 64 bits (10.4.13.1, Equation (13)), so the
+  CRF output adds bit 32 too: without it, it would stamp 2^32 ns early, about
+  8,962 ns off its grid modulo Ps. GET_STREAM_INFO's field is 32 bits, so it
+  reads such a row as 0xFFFFFFFF, the largest value it can carry, never as its
+  low word (11,871 ns for 0xFFFFFFFF). A controller cannot set such an offset
+  (5.4.2.9 bounds it at 0x7FFFFFFF, and the processor refuses bit 31), so only
+  a factory row reaches it. `media_phase`'s `ofs` grades every row on all 33
+  bits, GET_STREAM_INFO's word, and every CRF timestamp on all 64 bits against
+  an independent Equation (14) result and the frame grid, at the largest
+  input that rounds under 2^32 (4,294,958,333 ns), the first past it
+  (4,294,958,334 ns) and 0xFFFFFFFF, from factory rows in reset, from rows set
+  at reset and at run time, each with the carry dropped at its four places
+  planted.
 - **Sources outside the frame bank.** A talker channel mapped from the stereo
   I2S hold, the tone or the loopback carries no frame instant of its own: its
   column is stamped with the physical frame's.
@@ -1718,7 +1751,7 @@ too.
 | Synthetic TDM4 x 32, data delay 0 (`pin_wrap.sv` B) | 1 of 2 | 127 bit periods at 6.144 MHz + 1 cycle at 24.576 MHz + 4.5 at 50 MHz | 20,671 + 41 + 90 = 20,802 ns | `media_phase` pins interface B |
 | Any TDM interface, slot k | | slot k's MSB after the frame instant: (k x word bits + data delay) bit periods | (32k + 1) x 81.4 ns on the 1x1 shape: 81.4 ns to 18,310.5 ns | subtracted by every pin grade above |
 
-#### The listener: not compensated, a decision is needed (R678-1-F1)
+#### The listener: not compensated, out of this PR (#632)
 
 The first addendum reads the listener as "render latency equals the
 presentation time offset at the crossbar's input grid", with the post-grid pin
@@ -1748,17 +1781,19 @@ for that decision:
 the timestamp would measure it, or the aligner's lock target would have to be
 placed against the domain event to make it one.
 
-Round 2 ruled the compensation in (R678-1-F1: each sample at the pin at its
-presentation time). It needs a decision first, published with the hand-off,
-because no form of it fits this lane's gates or leaves the render law's other
-contracts alone:
+Presenting each sample at the pin was taken out of PR #770
+([ruling](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6306187740))
+and stays open under #632; it needs an owner area or RAMB budget. The listener
+keeps the #386 law at the crossbar grid, and its post-grid delays stay the
+documented constants of [TIME_SYNC.md](TIME_SYNC.md#listener-render-latency).
+The costs that decision weighs, as background:
 
 - **The storage.** Presenting at the timestamp holds each sample for the
   presentation offset less its arrival lead, about 1.9 ms at the 2 ms default:
   about 96 events, so 128 event rows per 8-channel stream where the stage keeps
   32. Vivado out of context at the AX7101 1x1 parameters, the queue alone grows
   from 456 to 1,006 LUTs (LUTRAM 128 to 512), against 404 LUTs and 8 slices of
-  route-1x1 headroom left at this lane's head; in block RAM it adds two or three
+  route-1x1 headroom left at `f1643214`; in block RAM it adds two or three
   RAMB18 (the parity-split rows need a write port each) against a RAMB tolerance
   of zero. The
   depacketizer's frame FIFO, the other place a PDU could wait, is 2,048 bytes,
