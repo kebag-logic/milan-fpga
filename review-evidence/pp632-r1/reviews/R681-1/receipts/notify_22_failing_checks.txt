@@ -1,0 +1,59 @@
+golden-pp_top-notify-only: PASS, 0 failing
+enq_dropped_stream_info: KILLED, 4 failing
+     NP3 SET_STREAM_INFO: exactly one unsolicited response of this command at the other registered controller, got 0
+     NS2 SET_STREAM_INFO(output 0, 0 ns) on a row never set: exactly one unsolicited response of this command at the other registered controller, got 0
+     NS3 SET_STREAM_INFO(output 0, 2,010,000 ns), a change: exactly one unsolicited response of this command at the other registered controller, got 0
+     NS5 SET_STREAM_INFO(output 0, 2,020,834 ns), the value GET read, a change: exactly one unsolicited response of this command at the other registered controller, got 0
+class_4_mapped_to_rate: KILLED, 4 failing
+     NP4 SET_CONTROL(IDENTIFY 255): exactly one unsolicited response of this command at the other registered controller, got 0
+     NP4b SET_CONTROL(IDENTIFY 0): exactly one unsolicited response of this command at the other registered controller, got 0
+     NP8 SET_CONTROL(IDENTIFY 255) from B: exactly one unsolicited response of this command at the other registered controller, got 0
+     RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (14 of 2211 frame comparisons diverged)
+enq_dropped_configuration: KILLED, 2 failing
+     NP1 SET_CONFIGURATION(1): exactly one unsolicited response of this command at the other registered controller, got 0
+     NP1b SET_CONFIGURATION(0): exactly one unsolicited response of this command at the other registered controller, got 0
+requester_not_excluded: KILLED, 15 failing
+class_9_mapped_to_control: KILLED, 2 failing
+     NP6 STOP_STREAMING: exactly one unsolicited response of this command at the other registered controller, got 0
+     NP7 START_STREAMING: exactly one unsolicited response of this command at the other registered controller, got 0
+entry_seq_not_advanced: KILLED, 15 failing
+stream_info_get_body: KILLED, 4 failing
+     NP3 SET_STREAM_INFO: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 3, the response body (Milan 5.4.5.1, IEEE 7.5.2)
+     NS2 SET_STREAM_INFO(output 0, 0 ns) on a row never set: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 0, the response body (Milan 5.4.5
+     NS3 SET_STREAM_INFO(output 0, 2,010,000 ns), a change: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 1, the response body (Milan 5.4.5.
+     NS5 SET_STREAM_INFO(output 0, 2,020,834 ns), the value GET read, a change: it is byte-exact: u = 1, that controller's DA and entity_id, its own sequence_id 2, the respons
+stream_info_compare_applied: KILLED, 2 failing
+     NS4 SET_STREAM_INFO(output 0, 2,010,000 ns) again: an unchanged offset pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester
+     NS5 SET_STREAM_INFO(output 0, 2,020,834 ns), the value GET read, a change: exactly one unsolicited response of this command at the other registered controller, got 0
+stream_info_unset_arm_dropped: KILLED, 2 failing
+     NS1 SET_STREAM_INFO(output 1, 2,000,000 ns), the factory offset, on a row never set: an unchanged offset pushes nothing (Milan 5.4.5.2), got 1 at the other controller and
+     NS2 SET_STREAM_INFO(output 0, 0 ns) on a row never set: exactly one unsolicited response of this command at the other registered controller, got 0
+configuration_unchanged_notifies: KILLED, 2 failing
+     NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester
+     NP1c SET_CONFIGURATION(0) on the stored configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester
+configuration_running_route_dropped: KILLED, 1 failing
+     NP10 SET_CONFIGURATION(2), no such configuration, sink 0 bound: STREAM_IS_RUNNING carrying 0, byte-exact (bound 1, status 2)
+configuration_compare_whole_lane: KILLED, 1 failing
+     NP1a SET_CONFIGURATION(0) on the image's configuration 0: an unchanged configuration pushes nothing (Milan 5.4.5.2), got 1 at the other controller and 0 at the requester
+configuration_success_reserved_dirty: KILLED, 4 failing
+     NP1a SET_CONFIGURATION(0) on the image's configuration 0: the unchanged SET answers SUCCESS, byte-exact
+     NP1 SET_CONFIGURATION(1): the solicited response is SUCCESS, byte-exact (premise)
+     NP1b SET_CONFIGURATION(0): the solicited response is SUCCESS, byte-exact (premise)
+     NP1c SET_CONFIGURATION(0) on the stored configuration 0: the unchanged SET answers SUCCESS, byte-exact
+configuration_refusal_notifies: KILLED, 1 failing
+     NP10b: the refused SET_CONFIGURATION pushes nothing
+counter_limit_500ms: KILLED, 7 failing
+fan_out_skips_row_0: KILLED, 9 failing
+refresh_resets_seq: KILLED, 1 failing
+     RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (31 of 2211 frame comparisons diverged)
+foreign_unlock_allowed: KILLED, 1 failing
+     RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (376 of 2233 frame comparisons diverged)
+lock_taker_notified: KILLED, 1 failing
+     RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (12 of 2211 frame comparisons diverged)
+deregister_keeps_row: KILLED, 1 failing
+     RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (70 of 2212 frame comparisons diverged)
+registry_holds_15: KILLED, 2 failing
+     ST1: 16 controllers registered in three waves, rows of each wave notified at different sequence_ids (15, 5, 10)
+     RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (28 of 2212 frame comparisons diverged)
+set_control_ignores_lock: KILLED, 1 failing
+     RN: 720 seeded steps from 20 controllers, zero divergence from the independent registry and lock model (395 of 2251 frame comparisons diverged)

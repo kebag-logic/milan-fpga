@@ -1,0 +1,9 @@
+aecp commands: wrote tb/aecp_cmds/decode.json from 617916 trials
+aecp_cmds: 617916 trials swept; 176 checks: 176 PASS, 0 FAIL
+make: Leaving directory '<packet>/scratch/c_chk/tb/aecp_cmds'
+record rc=0
+diff-after-record rc=0
+AECP COMMAND GATE: FAIL - a consumer disagrees with hdl/aecp/ucode/aecp_commands.json
+
+  decode: tb/aecp_cmds/decode.json was swept from another ucode.hex (generated) (sha256 a7b1af66b72c, this tree's is 1f78804e448c): sweep this engine with make -C tb/aecp_cmds record
+gate with main's decode.json rc=1

@@ -1,0 +1,42 @@
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index 00bb54a..9a8393e 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -2255,17 +2255,35 @@ place(E_SINFO, [
+     u('CHECK_LOCK', ra=15, imm=E_FAILSAFE),      # echo + ENTITY_LOCKED
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # miss -> NO_SUCH_DESCRIPTOR
+     u('BR_STATUS', cnd=0, imm=E_FAILSAFE),       # ...echoed at full length
+-    u('GATHER_EXT', rd=6, **GSI(3)),             # current presentation offset
++    #! Milan v1.2 5.4.5.2 notifies only when "the command modifies the state",
++    #! so the commanded offset is compared with the offset as SET, the state
++    #! 5.4.2.9 changes (milan-fpga #632). The integrator's GSI(3) word is the
++    #! offset in use (5.4.2.10.2), which milan-fpga rounds up to whole media
++    #! clock periods, so comparing with it pushed a repeated identical SET and
++    #! missed a SET that writes the rounded value back. The stored row is read
++    #! once a controller or a restore has set it (RGN_DYNV, E_SCFG's idiom,
++    #! issue #178). An unset row reads 0 while the offset in force is the
++    #! integrator's factory value, so the unset arm reads GSI(3); on that arm a
++    #! factory value that is not whole periods compares as applied, not as set.
++    u('READ_ST', rd=3, imm=RGN_DYNV + SEL_PTOFF),
++    u('COMPARE', ra=3, fmt=FMT_D, imm=0),
++    u('BR_STATUS', cnd=2, imm=E_SINFO + 8),      # z = unset -> the integrator
++    u('READ_ST', rd=6, imm=RGN_DYN + SEL_PTOFF), # the offset stored
++    u('BRANCH', imm=E_SINFO + 9),
++    u('GATHER_EXT', rd=6, **GSI(3)),             # E_SINFO + 8: the factory offset
+     u('WRITE_ST', ra=12, fmt=FMT_D, imm=RGN_DYN + SEL_PTOFF),
+     u('NVM_MARK', imm=1),                        # completion mark (the WRITE_ST persists)
+     u('SET_STATUS', imm=ST_OK),
+     u('BUILD_HDR', ra=15, rb=13),
+     u('SEND_RESP'),
+     u('COMPARE', ra=12, rb=6, fmt=FMT_D),
+-    u('BR_STATUS', cnd=2, imm=E_SINFO + 12),
++    u('BR_STATUS', cnd=2, imm=E_SINFO + 17),
+     u('NOTIFY_ENQ', imm=3),                      # SET_STREAM_INFO
+     u('END'),
+ ])
++assert rom[E_SINFO + 8] == u('GATHER_EXT', rd=6, **GSI(3))
++assert rom[E_SINFO + 9] == u('WRITE_ST', ra=12, fmt=FMT_D, imm=RGN_DYN + SEL_PTOFF)
++assert rom[E_SINFO + 17] == u('END')
+ 
+ # Too short for 1722.1-2021 Figure 7-40 - Milan v1.2 references the 2021
+ # edition, so the 2013 60-byte shape is itself a truncated command here. The

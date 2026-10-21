@@ -1,0 +1,51 @@
+1332a1333
+>         if (timed) probe_sinfo_factory_first();
+1431a1433,1480
+>     }
+> 
+>     // ---- reviewer probe: the first SET of a never-set row equals the factory offset
+>     void probe_sinfo_factory_first() {
+>         const uint32_t aaf = axi_read(A_AAF_CTRL), crf = axi_read(0x750);
+>         axi_write(A_AAF_CTRL, 0x00020000); axi_write(0x750, 0);
+>         drain_tx(20000);
+>         const unsigned ix = static_cast<unsigned>(kNstreamsTb);
+>         struct Q { int n; uint32_t set; long pushes; const char* what; };
+>         static constexpr Q kQ[4] = {
+>             {1, 2000000u, 0, "2,000,000 ns, the factory offset, on the never-set row pushes nothing"},
+>             {2, 0u,       1, "0 ns pushes once"},
+>             {3, 0u,       0, "0 ns again pushes nothing"},
+>             {4, 2000000u, 1, "2,000,000 ns back pushes once"},
+>         };
+>         char tag[200];
+>         const unsigned long g0 = lat_of(aecp_xact_from(CTL_A, 0x000F, notify_sq++,
+>                                                        desc_key(0x0006, ix)));
+>         printf("  [RPROBE] Q0: GET_STREAM_INFO(output %u) before any SET reads %lu ns\n", ix, g0);
+>         ck("[RPROBE] Q0 the never-set CRF row reads the factory 2,000,000 ns (premise)",
+>            static_cast<long>(g0), 2000000);
+>         for (const Q& q : kQ) {
+>             notify_clear();
+>             const std::vector<uint8_t> r = aecp_xact_from(CTL_A, 0x000E, notify_sq++,
+>                                                           si_pl(0x0006, ix, 0x20000000u, q.set));
+>             drain_tx(NOTIFY_WIN);
+>             const long pb = notify_count(0x000E, &CTL_B, 0x0006, static_cast<int>(ix));
+>             const long pa = notify_count(0x000E, &CTL_A);
+>             const unsigned long g = lat_of(aecp_xact_from(CTL_A, 0x000F, notify_sq++,
+>                                                           desc_key(0x0006, ix)));
+>             printf("  [RPROBE] Q%d: SET_STREAM_INFO(output %u, %u ns): status %ld, pushes to B %ld, "
+>                    "to A %ld; GET then reads %lu ns\n", q.n, ix, q.set,
+>                    r.size() >= 38 ? aecp_status(r) : -1L, pb, pa, g);
+>             snprintf(tag, sizeof tag, "[RPROBE] Q%d is SUCCESS", q.n);
+>             ck(tag, r.size() >= 38 ? aecp_status(r) : -1L, 0);
+>             snprintf(tag, sizeof tag, "[RPROBE] Q%d %s", q.n, q.what);
+>             ck(tag, pb, q.pushes);
+>             snprintf(tag, sizeof tag, "[RPROBE] Q%d none to A, the requester", q.n);
+>             ck(tag, pa, 0);
+>             if (q.pushes != 0) {
+>                 const std::vector<uint8_t> n = notify_last(0x000E, CTL_B, 0x0006, static_cast<int>(ix));
+>                 snprintf(tag, sizeof tag, "[RPROBE] Q%d the push carries the value set", q.n);
+>                 ck(tag, static_cast<long>(lat_of(n)), static_cast<long>(q.set));
+>             }
+>         }
+>         notify_clear();
+>         axi_write(A_AAF_CTRL, aaf); axi_write(0x750, crf);
+>         drain_tx(20000); notify_clear();

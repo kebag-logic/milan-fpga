@@ -1,0 +1,13 @@
+golden-pp_top: PASS, 0 failing: 
+taint_ignored: KILLED, 2 failing: D3S4 taint; D3N6 taint
+latch_ignores_program: KILLED, 3 failing: D3S5 same edge; D3S11; D3S9
+clear_wins_same_edge: KILLED, 1 failing: D3S5 same edge
+clear_by_group: KILLED, 18 failing: D3S1 fmti; D3S1 fmto; D3S1 ptof; D3S6 group; D3R1; D3R1 fmti; D3R1 fmto; D3R1 ptof; D3N1 ordinal 1; D3N1 ordinal 2; D3N1 ordinal 9; D3N1 ordinal 10; D3N3; D3N3 ordinal 1; D3N3 ordinal 2; D3N3 ordinal 9; D3N3 ordinal 10; D3N3
+clear_by_index: KILLED, 14 failing: D3S1 rate; D3S1 clks; D3S1 fmti; D3S1 fmto; D3S1 fmto; D3S1 ptof; D3S1 ptof; D3S6 index; D3R1; D3R1 rate; D3R1 clks; D3R1 fmti; D3R1 fmto; D3R1 ptof
+identify_is_a_change: KILLED, 2 failing: D3S7; D3R1
+unchanged_compare_ignores_validity: KILLED, 5 failing: D3S8 validity; D3K cfg cut at byte 0 of 10; D3K cfg cut at byte 8 of 10; D3K cfg cut at byte 9 of 10; D3K cfg cut at byte 7 of 10
+no_backoff_d3: KILLED, 2 failing: D3S10 timing; D3S10 backoff
+fourth_attempt: KILLED, 2 failing: D3S10 count; D3S10 count
+alarm_forgiven_by_success: KILLED, 1 failing: D3S10 revocation
+backoff_derivation: KILLED, 2 failing: D3S10 timing; D3S10 backoff
+backoff_holds_dispatch: KILLED, 1 failing: D3S10 backoff
