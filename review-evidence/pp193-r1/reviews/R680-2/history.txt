@@ -1,0 +1,16 @@
+7b424cd Count the new parked-Leave checks in the failing totals of three shared-stream controls in the srp_top README (issue #193)
+57fb7dd Write the Listener leave copies kept for the settle's compares with one enable per sink, not at a variable index of the packed array (issue #193)
+c7c8825 Check a parked Listener Leave meeting a sink on its stream, per tick and byte-exact on the wire with a peer Registrar, each with a planted control (issue #193)
+acd65be Keep a parked Listener applicant in the group of the stream_id it holds, so a sink declaring that stream takes it over instead of sending New beside its Lv (issue #193)
+e38c535 Cite 35.1.2.2 and Table 35-14 for the Listener type sum in the two shared-stream test comments and drop their check labels (issue #193)
+6ddfcda Merge processor main 08023123 (#192) into 193-shared-listener-leave
+0802312 Merge pull request #197 from Mister-M-alt/192-started-notify
+807b673 Merge processor main 21601694 (#188/#189) into 192-started-notify
+788425d Plant the FailureInformation re-declaration control where the shared applicant's New! is decided (issue #193)
+67b90c1 Check one Listener declaration per stream_id, the handover and the declared type sum, each with a planted control (issue #193)
+2b382b2 Share one declaring Listener applicant among the sinks settled on one stream_id, by owner election in the per-sink plane (issue #193)
+21855f6 Docs: 06 section 7 cites 5.4.5.2's last paragraph for 'asynchronously of any command' and 5.4.5.1's 'if any' for the requester (#192)
+42c6a5e F06.14: START/STOP_STREAMING's class 9 is its own unsolicited response, requester excluded; the started/stopped GET_STREAM_INFO is a separate event (#192)
+6127c6b tb/pp_top: a GSI control for the defect as reported, a START/STOP_STREAMING's own started change dropped (#192)
+5398ef4 Docs: the START/STOP_STREAMING started/stopped notification in 06 and 00, and the GI step and its GSI controls in tb/pp_top/README (#192)
+aa5d28f GET_STREAM_INFO on every started/stopped change of a Stream Input, a START/STOP_STREAMING's requester included (#192)

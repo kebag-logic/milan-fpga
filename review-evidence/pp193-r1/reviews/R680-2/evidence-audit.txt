@@ -1,0 +1,131 @@
+main: KL_pp_shadow                    56743     4236    60979    26331       15        4       10     2392
+base: KL_pp_shadow                    57266     4236    61502    26381       15        4       10     2392
+head: KL_pp_shadow                    58078     4236    62314    26949       15        4       10     2392
+PASS main->head +1335 LUT +618 FF; base->head +812 LUT +568 FF; LUTRAM/RAMB36/RAMB18/DSP/CARRY4 unchanged
+Listener 8 sinks 6ddfcda4: LUT=9428 FF=2395
+Listener 8 sinks c7c8825f: LUT=11679 FF=2963
+Listener 8 sinks 57fb7dd2: LUT=9750 FF=2963
+PASS commit-4 listener cost reduction: 2251 -> 322 incremental LUT (1929 removed); historical pre-fix characterization, not a passing head gate
+rc=0 gates/base/elab_guards_yosys.rc
+rc=0 gates/base/gen_matrix.rc
+rc=0 gates/base/lint_hdl.rc
+rc=0 gates/base/make_check.rc
+rc=0 gates/base/req_tags_executed.rc
+rc=0 gates/base/run_suites.rc
+rc=0 gates/base/yosys_run.rc
+rc=0 gates/final/gen_matrix.rc
+rc=0 gates/final/lint_hdl.rc
+rc=0 gates/final/make_check.rc
+rc=0 gates/head/elab_guards_yosys.rc
+rc=0 gates/head/gen_matrix.rc
+rc=0 gates/head/lint_hdl.rc
+rc=0 gates/head/make_check.rc
+rc=0 gates/head/req_tags_executed.rc
+rc=0 gates/head/run_suites.rc
+rc=0 gates/head/yosys_run.rc
+rc=0 campaigns/base/acmp.rc
+rc=0 campaigns/base/aecp.rc
+rc=0 campaigns/base/ctr.rc
+rc=0 campaigns/base/d3.rc
+rc=0 campaigns/base/dispatch.rc
+rc=0 campaigns/base/elab_mutants.rc
+rc=0 campaigns/base/gsi.rc
+rc=0 campaigns/base/name_state.rc
+rc=0 campaigns/base/name_wr.rc
+rc=0 campaigns/base/notify.rc
+rc=0 campaigns/base/srp_top.rc
+rc=0 campaigns/head/acmp.rc
+rc=0 campaigns/head/aecp.rc
+rc=0 campaigns/head/ctr.rc
+rc=0 campaigns/head/d3.rc
+rc=0 campaigns/head/dispatch.rc
+rc=0 campaigns/head/elab_mutants.rc
+rc=0 campaigns/head/gsi.rc
+rc=0 campaigns/head/name_state.rc
+rc=0 campaigns/head/name_wr.rc
+rc=0 campaigns/head/notify.rc
+rc=0 campaigns/head/srp_top.rc
+rc=0 consumers/base/baremetal_only.rc
+rc=0 consumers/base/bdd.rc
+rc=0 consumers/base/cpp_idiom.rc
+rc=0 consumers/base/docs_check.rc
+rc=0 consumers/base/hygiene.rc
+rc=0 consumers/base/lint_rtl.rc
+rc=0 consumers/base/measure_naming.rc
+rc=0 consumers/base/measure_test_evidence.rc
+rc=0 consumers/base/milan_dp.rc
+rc=0 consumers/base/milan_dp_render.rc
+rc=0 consumers/base/nvm_cosim_lint.rc
+rc=0 consumers/base/nvm_cosim_quick.rc
+rc=0 consumers/base/port_contracts.rc
+rc=0 consumers/base/pp_shadow.rc
+rc=0 consumers/base/pp_srcs.rc
+rc=0 consumers/base/py_idiom.rc
+rc=0 consumers/base/rtl_source_lists.rc
+rc=0 consumers/base/sh_idiom.rc
+rc=0 consumers/base/soc_sources.rc
+rc=1 consumers/base/submodule_docs.rc (known baseline pin-doc mismatch)
+rc=0 consumers/base/sv_idiom.rc
+rc=0 consumers/base/test_builder.rc
+rc=0 consumers/base/todo_ownership.rc
+rc=0 consumers/base/xvlog.rc
+rc=0 consumers/base/yosys_elaborate.rc
+rc=0 consumers/final/baremetal_only.rc
+rc=0 consumers/final/bdd.rc
+rc=0 consumers/final/cpp_idiom.rc
+rc=0 consumers/final/docs_check.rc
+rc=0 consumers/final/hygiene.rc
+rc=0 consumers/final/lint_rtl.rc
+rc=0 consumers/final/measure_naming.rc
+rc=0 consumers/final/measure_test_evidence.rc
+rc=0 consumers/final/port_contracts.rc
+rc=0 consumers/final/pp_srcs.rc
+rc=0 consumers/final/py_idiom.rc
+rc=0 consumers/final/rtl_source_lists.rc
+rc=0 consumers/final/sh_idiom.rc
+rc=0 consumers/final/soc_sources.rc
+rc=1 consumers/final/submodule_docs.rc (known baseline pin-doc mismatch)
+rc=0 consumers/final/sv_idiom.rc
+rc=0 consumers/final/todo_ownership.rc
+rc=0 consumers/head/baremetal_only.rc
+rc=0 consumers/head/bdd.rc
+rc=0 consumers/head/cpp_idiom.rc
+rc=0 consumers/head/docs_check.rc
+rc=0 consumers/head/hygiene.rc
+rc=0 consumers/head/lint_rtl.rc
+rc=0 consumers/head/measure_naming.rc
+rc=0 consumers/head/measure_test_evidence.rc
+rc=0 consumers/head/milan_dp.rc
+rc=0 consumers/head/milan_dp_render.rc
+rc=0 consumers/head/nvm_cosim_lint.rc
+rc=0 consumers/head/nvm_cosim_quick.rc
+rc=0 consumers/head/port_contracts.rc
+rc=0 consumers/head/pp_shadow.rc
+rc=0 consumers/head/pp_srcs.rc
+rc=0 consumers/head/py_idiom.rc
+rc=0 consumers/head/rtl_source_lists.rc
+rc=0 consumers/head/sh_idiom.rc
+rc=0 consumers/head/soc_sources.rc
+rc=1 consumers/head/submodule_docs.rc (known baseline pin-doc mismatch)
+rc=0 consumers/head/sv_idiom.rc
+rc=0 consumers/head/test_builder.rc
+rc=0 consumers/head/todo_ownership.rc
+rc=0 consumers/head/xvlog.rc
+rc=0 consumers/head/yosys_elaborate.rc
+rc=0 ooc/base/ooc_pp_shadow.rc
+rc=0 ooc/base/ooc_record_rom_digests.rc
+rc=0 ooc/base/ooc_selftest.rc
+rc=0 ooc/head/ooc_pp_shadow.rc
+rc=0 ooc/head/ooc_record_rom_digests.rc
+rc=0 ooc/head/ooc_selftest.rc
+rc=0 ooc/main/ooc_pp_shadow.rc
+rc=0 ooc/main/ooc_record_rom_digests.rc
+rc=0 ooc/main/ooc_selftest.rc
+listener-parked-outside-groups: rc=2 failures=7 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15,SH16
+listener-parked-outside-groups: rc=2 failures=4 KILLED tags=SW4,SW5,SW6,SW7
+listener-settle-skips-leave-copies: rc=2 failures=6 KILLED tags=SH10,SH11,SH12,SH13,SH14,SH15
+listener-settle-skips-leave-copies: rc=2 failures=4 KILLED tags=SW4,SW5,SW6,SW7
+listener-merge-keeps-park: rc=2 failures=4 KILLED tags=SH10,SH11,SH12,SH13
+listener-retire-skips-group-mark: rc=2 failures=1 KILLED tags=SH15
+listener-park-drops-matcher-pairs: rc=2 failures=1 KILLED tags=SH16
+PASS named controls cover every SH10-SH16 and SW4-SW7 check; 203/203, coverage 124/124
