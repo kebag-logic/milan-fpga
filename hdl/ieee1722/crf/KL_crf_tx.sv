@@ -153,6 +153,11 @@ module KL_crf_tx #(
   //! below, which is why this port may change at any time and the frame path
   //! never waits. Without it, it is the rounded offset, stamped as given.
   input  wire [31:0]  transit_ns_i,
+  //! ...and, without ROUND_MTT_P, the rounded offset's bit 32: rounding a
+  //! 32-bit Max Transit Time up can pass 2^32 - 1 ns (the NOTE below), and a
+  //! CRF timestamp is all 64 bits, so the carry is added too (#632).
+  //! Unused with ROUND_MTT_P, whose converter keeps its own.
+  input  wire         transit_c_i = 1'b0,
 
   //! AVTP "tu" (timing uncertain), IEEE 1722-2016 10.4.5 - "behaves the same
   //! way as the tu field from the common stream header (4.4.4.7) except that
@@ -299,6 +304,8 @@ module KL_crf_tx #(
   logic [DIVW_C-1:0]  mtt_ofs_r;    //! ceil(periods * P) ns - what launches stamp
 
   if (ROUND_MTT_P != 0) begin : g_round
+  //! the converter's own quotient carries bit 32
+  wire                _unused_c_ok = &{1'b0, transit_c_i, 1'b0};
   logic [31:0]        mtt_seen_r;   //! the transit_ns_i this offset belongs to
   logic               mtt_valid_r;  //! at least one conversion has completed
 
@@ -388,10 +395,10 @@ module KL_crf_tx #(
   end : mtt_round
   end : g_round
   else begin : g_applied
-  //! the offset as the integration rounded it, registered
+  //! the offset as the integration rounded it, all 33 bits, registered
   always_ff @(posedge clk_i or negedge rst_n) begin : mtt_take
     if (!rst_n) mtt_ofs_r <= '0;
-    else        mtt_ofs_r <= DIVW_C'(transit_ns_i);
+    else        mtt_ofs_r <= DIVW_C'({transit_c_i, transit_ns_i});
   end : mtt_take
   end : g_applied
 

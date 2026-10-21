@@ -11,7 +11,7 @@
   Date        : 2026-10-20
   Description : The presentation offsets of one clock domain's stream outputs,
                 each rounded UP to a whole number of media clock periods
-                (#632, R678-1-F2).
+                (#632).
 
                 IEEE 1722-2016 4.3.5 asks the streams generated from one media
                 clock to stay whole periods apart, and 10.8 Eq. 15 puts the
@@ -31,8 +31,12 @@
                 Max Transit Time. This module serves every output of the
                 domain, the AAF talkers and the CRF output (KL_crf_tx with
                 ROUND_MTT_P = 0, its own converter not elaborated), and the
-                GET_STREAM_INFO readback of every row, so what a controller
-                reads is what every output stamps.
+                GET_STREAM_INFO readback of every row (rb_ns_o), so what a
+                controller reads through GET_STREAM_INFO is what every output
+                stamps (Milan v1.2 5.4.2.10.2: the offset the talker
+                currently uses). SET_STREAM_INFO is another matter: its
+                response, and the notification after it, echo the value as
+                set (5.4.2.9), which a non-period offset is not.
 
                 NOT IDEMPOTENT, as Equation 14 is not in whole ns: a whole
                 number of periods that is no multiple of three (97 periods,
@@ -54,12 +58,22 @@
                 factory value, computed at elaboration, so no row reads 0 at
                 power-on.
 
-                THE OUTPUT IS 32 BITS: the low half of the rounded value. An
-                AVTP timestamp is the low 32 bits of gPTP time, so a talker
-                adding it stamps exactly what the whole value would. At 48 kHz
-                an input above 4,294,958,333 ns (whose rounding, 206,158
-                periods or 4,294,958,334 ns, is the largest under 2^32) rounds
-                past 2^32 and reads back modulo 2^32.
+                THE ROUNDED VALUE IS 33 BITS: the ceiling adds up to one
+                period, so at 48 kHz an input above 4,294,958,333 ns (whose
+                rounding, 206,158 periods or 4,294,958,334 ns, is the largest
+                under 2^32) rounds past 2^32: 0xFFFFFFFF applies as 206,159
+                periods, 4,294,979,167 ns. ofs_ns_o is each row's low 32 bits
+                and ofs_c_o its bit 32. An AAF timestamp is the low 32 bits of
+                gPTP time, so an AAF talker adds the low word alone and stamps
+                exactly what the whole value would. A CRF timestamp is all 64
+                bits (IEEE 1722-2016 10.4.13.1), so KL_crf_tx adds both: without
+                the carry it would stamp 2^32 ns early, about 8,962 ns off its
+                grid modulo Ps. GET_STREAM_INFO's msrp_accumulated_latency is
+                32 bits, so rb_ns_o reads a row whose applied value passes
+                2^32 - 1 ns as 0xFFFFFFFF, the nearest it can carry, never as
+                its low word (11,871 ns for 0xFFFFFFFF). A controller cannot
+                reach this (SET_STREAM_INFO refuses an offset with bit 31
+                set); a factory row can.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -81,7 +95,12 @@ module KL_mtt_round #(
   input  wire              clk_i,          //! datapath clock
   input  wire              rst_n,          //! active-low synchronous reset
   input  wire [N_P*32-1:0] raw_ns_i,       //! the rows as set, ns
-  output logic [N_P*32-1:0] ofs_ns_o       //! the rows as applied, ns (low 32 bits)
+  output logic [N_P*32-1:0] ofs_ns_o,      //! the rows as applied, ns (low 32 bits)
+  output logic [N_P-1:0]    ofs_c_o,       //! ...and each row's bit 32 (banner)
+  //! GET_STREAM_INFO's readback: the row it names, as applied, saturated at
+  //! 0xFFFFFFFF ns when the applied value passes 32 bits (banner)
+  input  wire [((N_P > 1) ? $clog2(N_P) : 1)-1:0] rb_row_i,
+  output wire [31:0]        rb_ns_o
 );
 
   //! P = NUM / DEN ns exactly, reduced as KL_crf_tx reduces it and checked
@@ -106,12 +125,17 @@ module KL_mtt_round #(
   localparam int unsigned REMW_C  = $clog2(NUM_C + 1) + 1;
   localparam int unsigned STEPW_C = $clog2(DIVW_C + 1);
   localparam int unsigned IW_C    = (N_P > 1) ? $clog2(N_P) : 1;
+  //! the rounded value is under 2^32 plus one period, so 33 bits hold it
+  if ((NUM2_MAX_C / 64'(DEN_C)) >= 64'h2_0000_0000 || DIVW_C < 33) begin : g_carry
+    $error("KL_mtt_round: the largest rounded offset (%0d ns) does not fit the 33 bits ofs_ns_o and ofs_c_o carry.",
+           NUM2_MAX_C / 64'(DEN_C));
+  end : g_carry
 
-  //! the rule at elaboration, for the factory values
-  function automatic logic [31:0] round_c(input longint unsigned t);
+  //! the rule at elaboration, for the factory values, all 33 bits
+  function automatic logic [32:0] round_c(input longint unsigned t);
     longint unsigned per;
     per = (t * 64'(DEN_C) + 64'(NUM_C) - 64'd1) / 64'(NUM_C);
-    round_c = 32'((per * 64'(NUM_C) + 64'(DEN_C) - 64'd1) / 64'(DEN_C));
+    round_c = 33'((per * 64'(NUM_C) + 64'(DEN_C) - 64'd1) / 64'(DEN_C));
   endfunction
 
   logic [IW_C-1:0]    row_r;          //! the row the divider converts
@@ -150,7 +174,7 @@ module KL_mtt_round #(
   always_ff @(posedge clk_i) begin : rounder
     if (!rst_n) begin
       for (int unsigned k = 0; k < N_P; k++)
-        ofs_ns_o[32*k +: 32] <= round_c(64'(RESET_NS_P[32*k +: 32]));
+        {ofs_c_o[k], ofs_ns_o[32*k +: 32]} <= round_c(64'(RESET_NS_P[32*k +: 32]));
       row_r      <= '0;
       dv_n1_r    <= '0;
       dv_num_r   <= '0;
@@ -183,14 +207,19 @@ module KL_mtt_round #(
       dv_pass2_r <= 1'b1;
     end else begin
       //! only now does the row's output move, to the whole conversion
-      ofs_ns_o[32*row_r +: 32] <= dv_quot_r[31:0];
+      {ofs_c_o[row_r], ofs_ns_o[32*row_r +: 32]} <= dv_quot_r[32:0];
       dv_busy_r             <= 1'b0;
       row_r                 <= row_nx_w;
     end
   end : rounder
 
-  //! the rounded value's bits above 32 are the modulo-2^32 wrap (banner)
-  wire _unused_ok = &{1'b0, dv_quot_r[DIVW_C-1:32], 1'b0};
+  //! the readback: a row past N_P (N_P no power of two) reads zero
+  wire rb_in_w = (32'(rb_row_i) < N_P);
+  assign rb_ns_o = !rb_in_w ? 32'd0
+                 : ofs_c_o[rb_row_i] ? 32'hFFFF_FFFF : ofs_ns_o[32*rb_row_i +: 32];
+
+  //! a quotient never reaches bit 33 (g_carry)
+  wire _unused_ok = &{1'b0, dv_quot_r[DIVW_C-1:33], 1'b0};
 
 endmodule
 

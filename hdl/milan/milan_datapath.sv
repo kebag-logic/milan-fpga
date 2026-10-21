@@ -1242,7 +1242,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   localparam int CMAP_TDM_FRAME_PAIRS_C = (AIF_PAIRS_C < CMAP_TDM_SLOTS_C / 2)
                                         ? AIF_PAIRS_C : CMAP_TDM_SLOTS_C / 2;
   //! the pair slot whose strobe closes a frame at the crossbar: the frame's
-  //! last to arrive, the I2S pair on the blend (#632, R677-1-F1)
+  //! last to arrive, the I2S pair on the blend (#632)
   localparam int CMAP_TDM_CLOSE_SLOT_C = KL_media_if_latency_pkg::close_slot(
       CMAP_TDM_FRAME_PAIRS_C, AUDIO_IF_I2S_PAIR_P);
   //! #632: the instant the frame closing on this cycle started at the media
@@ -1687,8 +1687,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! entry k = talker k's transit offset; the CRF Media Clock Output's
   //! entry sits at CRF_TUID_C. Unbacked entries read the 2 ms default.
   logic [16*32-1:0]        aecp_pres_offset;
-  //! ...the same rows as applied: whole media clock periods (#632)
+  //! ...the same rows as applied: whole media clock periods (#632), the
+  //! low 32 bits of each, and each one's bit 32 (KL_mtt_round's banner)
   wire  [16*32-1:0]        aecp_pres_applied_w;
+  wire  [15:0]             aecp_pres_applied_c_w;
   //! SRP CSR bits (0x680). THE ENGINE THEY USED TO ENABLE IS DELETED and the
   //! processor's SRP engine has no enable - it runs whenever the entity does.
   //! What survives is their SECOND job, which is the one the fabric reads:
@@ -3416,9 +3418,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! The CRF Media Clock Output consumes ITS OWN row through
   //! its transit entry (talker_unique_id CRF_TUID_C = N_STREAMS), so a
   //! controller can move the CRF presentation offset by the same command.
-  //! This fold is the ONE derivation point: GET_STREAM_INFO's latency word
-  //! serves these same entries below, so the wire the talker stamps and the
-  //! answer a controller reads cannot disagree.
+  //! This fold is the ONE derivation point of the rows as set;
+  //! GET_STREAM_INFO's latency word and every output serve them as applied
+  //! (pres_round below), so the wire and the answer cannot disagree.
   always_comb begin : pres_offset_fold
     for (int k = 0; k < ACMP_SRC_C; k++)
       aecp_pres_offset[32*k +: 32] = pp_aecp_pt_offset_v_w[k]
@@ -3427,13 +3429,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     for (int k = ACMP_SRC_C; k < 16; k++)
       aecp_pres_offset[32*k +: 32] = ADP_STROUT_PRES_NS_C[0];
   end
-  //! ...and every row as APPLIED (#632, R678-1-F2): rounded up to a whole
+  //! ...and every row as APPLIED (#632): rounded up to a whole
   //! number of media clock periods by KL_crf_tx's own Equation (14) rule, so
   //! every output of the clock domain stamps whole periods from its grid
   //! (IEEE 1722-2016 4.3.5, 10.8 Eq. 15). A non-period offset (2,010,000 ns
   //! at 48 kHz) would leave its stream 0.48 Ps off the CRF timing points.
-  //! The AAF talkers and the CRF output stamp these rows and GET_STREAM_INFO
-  //! reads them back, one rounding for every output of the domain.
+  //! The AAF talkers stamp the low 32 bits of these rows, the CRF output all
+  //! 33 (its timestamp is 64 bits), and GET_STREAM_INFO reads them back
+  //! (Milan v1.2 5.4.2.10.2), one rounding for every output of the domain.
+  //! SET_STREAM_INFO's response and notification echo the row as set
+  //! (5.4.2.9), so a controller writing back what GET read moves a
+  //! non-period offset up one more period, and a change gate must compare
+  //! the commanded value with the row as set, never with this readback
+  //! (5.4.5.2, #632).
   function automatic logic [ACMP_SRC_C*32-1:0] pres_reset_rows();
     logic [ACMP_SRC_C*32-1:0] r;
     for (int row = 0; row < ACMP_SRC_C; row++) r[32*row +: 32] = ADP_STROUT_PRES_NS_C[row];
@@ -3441,6 +3449,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   endfunction
   localparam logic [ACMP_SRC_C*32-1:0] PRES_RESET_ROWS_C = pres_reset_rows();
   wire [ACMP_SRC_C*32-1:0] pres_applied_rows_w;
+  wire [ACMP_SRC_C-1:0]    pres_applied_c_w;
+  //! GET_STREAM_INFO's output index (gsi_oix_w), and the row it reads
+  localparam int PRES_RBW_C = (ACMP_SRC_C > 1) ? $clog2(ACMP_SRC_C) : 1;
+  wire [PRES_RBW_C-1:0]    pres_rb_row_w;
+  wire [31:0]              pres_rb_ns_w;
   KL_mtt_round #(
     .N_P        (ACMP_SRC_C),
     .BASE_HZ_P  (AUDIO_IF_FS_HZ_P),
@@ -3448,13 +3461,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   ) pres_round (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .raw_ns_i (aecp_pres_offset[ACMP_SRC_C*32-1:0]),
-    .ofs_ns_o (pres_applied_rows_w)
+    .ofs_ns_o (pres_applied_rows_w),
+    .ofs_c_o  (pres_applied_c_w),
+    .rb_row_i (pres_rb_row_w),
+    .rb_ns_o  (pres_rb_ns_w)
   );
   //! rows past the shape's outputs hold the factory value, whole periods
   if (ACMP_SRC_C < 16) begin : g_pres_tail
     assign aecp_pres_applied_w = {aecp_pres_offset[16*32-1:ACMP_SRC_C*32], pres_applied_rows_w};
+    assign aecp_pres_applied_c_w = {{(16 - ACMP_SRC_C){1'b0}}, pres_applied_c_w};
   end else begin : g_pres_full
     assign aecp_pres_applied_w = pres_applied_rows_w;
+    assign aecp_pres_applied_c_w = pres_applied_c_w;
   end
   //! (the media clock source is LIVE (#74) - see media_clk_resolve and the
   //!  media-clock banner at the top of this file. The CRF Media Clock Input
@@ -4980,6 +4998,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end
 
   wire [GSI_SRC_W_C-1:0] gsi_oix_w = gsiq_index_r[GSI_SRC_W_C-1:0];
+  assign pres_rb_row_w = PRES_RBW_C'(gsi_oix_w);
   wire        gsi_in_w   = (gsiq_type_r == 16'h0005)
                            && (32'(gsiq_index_r) < ACMP_SINKS_C);
   wire        gsi_out_w  = (gsiq_type_r == 16'h0006)
@@ -5227,14 +5246,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                               : gsi_decl_w ? gsi_osid_w : 64'd0;
           //! an output's accumulated latency reads the SAME transit entry
           //! the framer stamps, as applied (whole media clock periods, #632),
-          //! so the answer and the wire cannot disagree
+          //! so the answer and the wire cannot disagree (Milan v1.2
+          //! 5.4.2.10.2); one past 32 bits reads 0xFFFFFFFF (pres_round)
           4'd3: gsi_ans_raw_w = gsi_in_w
                               ? {32'd0, gsi_reging_w
                                  ? pp_cd_srp_acc_latency_w[32*gsi_six_w +: 32]
                                  : 32'd0}
-                              : {32'd0, gsi_out_w
-                                 ? aecp_pres_applied_w[32*gsi_oix_w +: 32]
-                                 : 32'd0};
+                              : {32'd0, gsi_out_w ? pres_rb_ns_w : 32'd0};
           //! an input's failure-code byte [15:8] is left zero: the
           //! processor replaces it from its SRP registrar (#508)
           4'd4: gsi_ans_raw_w = gsi_setl_w
@@ -6373,6 +6391,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     //! periods (#632). Shapes without a CRF output leave the entry at its 2 ms
     //! default and cfg_crft_en low.
     .transit_ns_i  (aecp_pres_applied_w[32*CRF_TUID_C +: 32]),
+    //! ...all 33 bits: the CRF timestamp is 64 (KL_mtt_round's banner)
+    .transit_c_i   (aecp_pres_applied_c_w[CRF_TUID_C]),
     .ts_uncertain_i (clkv_tu_w),
     //! IEEE 1722-2016 10.4.3 mr: the level KL_media_clock_restart grants this
     //! Stream Output, and the level the last completed PDU carried going back
