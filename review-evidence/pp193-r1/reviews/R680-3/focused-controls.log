@@ -1,0 +1,8 @@
+control srp_stream_fsms suite: rc=0 PASS
+listener-handover-forgets-walk-mark: rc=2 failures=1 KILLED tags=SH7
+listener-repark-takes-matcher-pairs: rc=2 failures=1 KILLED tags=SH17
+listener-two-parks-grouped: rc=2 failures=1 KILLED tags=SH23
+listener-walk-ends-owing-a-transmit: rc=2 failures=5 KILLED tags=SH16,SH18,SH19,SH20
+listener-walk-marks-only-served-slots: rc=2 failures=1 KILLED tags=SH22
+listener-walk-marks-group-only-on-retire: rc=2 failures=1 KILLED tags=SH21
+7 checks: 7 PASS, 0 FAIL
