@@ -82,14 +82,24 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The I2S blend's frame now closes on its I2S pair.
 - The I2S capture's pairs ride their own strobe again.
 - They carried the previous pair, a frame older.
-- No top-level port or other register field changes.
+- No top-level port changes; `RENDER_STAT`'s fields change below.
 - AAF following keeps the rate loop alone.
-- Listener presentation at the pin is outside PR #770.
-- It stays open under #632; the #386 grid law holds.
+- The listener now presents every sample at its presentation time.
+- `KL_render_queue` replaces the #386 setpoint stage on the TDM path.
+- It places each event in the frame its timestamp names.
+- Each interface reads the frame its own out-lead names.
+- Two block RAMs per 8-channel stream hold 2.126 ms.
+- Late, too-early and untimed PDUs are dropped and counted.
+- No PHC step, identity or source change re-centres it.
+- The #386 recentres and #387's render re-base retire.
+- #645's settle recentre stays, for the LOOP queues only.
+- `RENDER_STAT` (`0x8DC`) reads lead, idle, convergence and refusals.
+- The Arty I2S DAC keeps its own fill law.
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/media_phase` proves the loop and the interfaces.
 - It grades the in-tree blend and four AAF offsets too.
-- Its `make mutants` target plants thirty-three defects.
+- Its `make mutants` target plants thirty-eight defects.
+- `render_queue` grades the stage byte-exact against a model.
 - `capture_coherence` grades the talker's stamps at the TDM pins.
 - The bench proof follows after merge.
 

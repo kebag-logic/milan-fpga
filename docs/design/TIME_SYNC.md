@@ -368,77 +368,72 @@ Silicon grid comparison remains open on issue #74.
 
 ### Listener render latency
 
-The render path holds one constant latency (#386).
+The listener presents every sample at its presentation time (#632).
 
-`KL_render_setpoint` queues whole media events per stream.
+Render latency equals the presentation time offset, at the pins.
 
-It pops one event per stream per media tick.
+`KL_render_queue` places each event by its `avtp_timestamp`.
 
-The crossbar's input grid is the reference point.
+It replaced the #386 setpoint stage on the TDM path.
 
-The constant is independent of the audio interface.
+The [design](MEDIA_CLOCK_FOLLOWING.md#the-listener-each-sample-at-its-presentation-time-632) states the law, its clauses and its proof.
 
 | Law term | Value | Derivation |
 |---|---|---|
-| Events per PDU | 6 | class A at 48 kHz: `AAF_SPF_C`, read, never copied |
-| Allowance | 2 events | one tick of accept phase, one of verdict plus drain |
-| Setpoint | 8 events = 166.67 us | fill just before every PDU push |
-| Shipping samples | 64 | 8 events of 8 channels; 16 on a stereo lane |
-| First-event delay | (8, 9] media ticks after accept | the accept phase is the only jitter |
-| Event k of a PDU | k ticks after event 0 | the talker's packetization |
-| Convergence band | +/-3 events at PDU ends, 100 ms | half a PDU |
-| Reset rail | +/-6 events at PDU ends | one PDU: a PDU one interval late never trips it; later than that trips the low rail |
-| Prefill | snap to setpoint + 6 at a PDU end | one bounded gap, no repeat storm |
-| Recentre | a PHC step (the plane's step, or CLKV adjtime with the plane off), a PHC settime, a settled clock-source change, the #645 settle recentre; a GM identity change alone is no trigger since #387 | once, at the next PDU end; a PHC-only re-base leaves `mr` and MEDIA_RESET unchanged ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)) |
-| Clock-source settle | the at-switch #386 recentre: under CRF or AAF following, the aligner engaged with its error inside 1/64 sample for 2048 ticks (43 ms), or engaged for 32768 ticks; at INTERNAL: 2048 ticks after the change | `milan_datapath` arms one recentre per change; repeated selections re-arm, never queue |
-| Settle recentre (#645, #647) | armed by a source change, an aligner re-engagement, at INTERNAL a listener bind's first PDU (bench lane B17), or an excursion past two axis cycles outside recovery; fires under following once the servo reads LOCKED for 8 windows (4.096 s), at INTERNAL after 2048 consecutive ticks engaged inside both the quiet and 1/64-sample bands, or 2048 consecutive ticks disengaged; ceiling 2^20 ticks (21.8 s). Excursion arming resumes after one full 2048-tick engaged quiet dwell; a second INTERNAL pull starting during recovery may retain a shift | one per transient, after the plane settles; to this stage and the loopback ring (11 events at a PDU end, depth 16) ([design](MEDIA_CLOCK_FOLLOWING.md#settle-recentre)) |
-| Pop | one event per stream per tick, decided at the stream's first beat | a rail, a recentre or a flush inside the pop window lands between events, never inside one |
+| Presentation time | the PDU's `avtp_timestamp` for event 0, one period more per event | IEEE 1722-2016 4.4.4.9, 7.5 |
+| Frame | F0 = n + round((`avtp_timestamp` - E_n) / Ps), at the PDU's header | E_n: the domain media event's instant |
+| Read | interface i reads frame n + K_i at domain event n | K_i: `out_lead_frames()`, derived per interface |
+| Out-lead, 1x1 TDM8 | K = 2 | event latency 20,964 ns at 50 MHz |
+| Out-lead, 8x8 TDM32 | K = 1 | event latency 5,308 ns |
+| Depth | 128 rows per stream at 48 kHz | Milan v1.2 4.4.2.1's 2.126 ms, plus the event latency and two frames |
+| Supported range | 31.1 us to 2.656 ms ahead at arrival (1x1) | one out-lead less the event latency, plus Ps / 2; to the depth |
+| Late | an event at or before the frame every interface has read | dropped; the PDU counts once in `late_o` |
+| Too early | an event a queue depth or more ahead | dropped; the PDU counts once in `early_o` |
+| Untimed | `tv` clear (4.4.4.5), or the payload before its frame | not written; counted in `untimed_o` |
+| Slips | a presenting stream's empty frame; two PDUs on one frame | counted in `slips_o` |
+| Tolerance | +/-5 % of Ps with timestamps on the domain grid; else the nearest frame | 10.8 |
+| Recentre | none: no fill exists to re-centre | each PDU carries its own presentation time |
+| Flush | a bind wipe, and reset | the stream's rows read empty after it |
 | Crossbar channel view | 2 x ceil(N_CH_P / 2) lanes per stream (8 on every in-tree shape) | the pad lane of an odd count is a virtual channel, never a wrap onto channel 0 |
-| Wire channel count change | the stream is flushed and re-prefilled | its queued rows carry the old lane layout |
+
+A fresh stream starts at its first presentation time.
+
+Its frames before that are silence, with no prefill.
+
+A gPTP step moves the instants and timestamps together.
+
+The frame count does not step, and nothing re-centres.
+
+A frame-grid hold delays the frames already queued.
+
+Later PDUs, placed on the moved grid, take over.
+
+#645's settle recentre stays, for the capture crossbar's LOOP queues only.
 
 The grids align at every source since #629 (A2-a).
 
-So the -10.64 ppm plan offset fires no rail.
+So the -10.64 ppm plan offset slips nothing.
 
 Before #629, INTERNAL free-ran.
 
-Its rail then re-centred every 11.75 s.
-
-Another talker's clock sets its own rail period.
-
 | Interface after the grid | Fixed delay | Shipped |
 |---|---|---|
-| Crossbar `phys_smp_o` | streams x 4 + 2 axis cycles: 6 at one stream, 18 at four, 34 at eight. Convert at the shape's own axis clock: 6 cycles are 60 ns at 100 MHz and 120 ns on the AX7101, whose `milan` domain is 50 MHz | every shape; the reference the rows below add to |
-| I2S DAC (the Arty shapes: `I2SPB_P = 1`, the DAC crossbar-fed) | + `KL_i2s_playback`: 16 pairs = 16 frames (333 us; `SETPOINT_P` counts pairs, its comment says samples) + 1 serializer frame; accept to DAC = 8 ticks + the accept phase + 17 frames = 25 to 26 frames (521 to 542 us) | the one clocked listener interface in tree; two setpoint stages in series, each constant |
-| TDM8 frame pin, slot k | + the bank walk and frame commit, MEASURED at 9 axis cycles, which is 180 ns on the shipping AX7101 (its `milan` axis clock is 50 MHz) and 90 ns on the leg's 100 MHz model axis clock, + the adopt wait `phi`, + (32k + 1) bit periods at 12.288 MHz (81.4 ns each, so slot k adds 2.6042 us and 8 slots make one 20.834 us frame). `phi` covers the frame CDC and the wait for the next serial frame start: one axis cycle plus serial-domain time, MEASURED at 0.219 to 21.049 us on the model axis clock and therefore 0.229 to 21.059 us as shipped. It is held constant per slot under CRF by #74's aligner, walks at `+10.6844` ppm at INTERNAL and steps by exactly one frame once per 1.958 s beat. That sign is the MEASURED one, the same the walk table below and the [channel map](../CHANNEL_MAP_64.md) carry: the instrument divides `(phi_last - phi_first)` by the elapsed time, so a positive walk is a LENGTHENING wait. It is not the audio clock's own free-running offset, which the loop table above states separately as -10.64 ppm; the two are different quantities | SHIPPED on the AX7101 1x1 TDM8 shape (#447): `KL_tdm_render_master` on `tdm.dout`, scheduled from the capture master's exported bit-clock enables. Every term above is measured by `make -C tb/verilator/milan_dp_render tdm8render`, not modelled. Silicon measurement of this path stays with #386 acceptance 4 and #117 |
+| Crossbar `phys_smp_o` | streams x 4 + 2 axis cycles: 6 at one stream, 18 at four, 34 at eight. Convert at the shape's own axis clock: 6 cycles are 60 ns at 100 MHz and 120 ns on the AX7101, whose `milan` domain is 50 MHz | every shape; part of the read-to-adoption path the out-lead derives from |
+| I2S DAC (the Arty shapes: `I2SPB_P = 1`, the DAC crossbar-fed) | + `KL_i2s_playback`: 16 pairs = 16 frames (333 us; `SETPOINT_P` counts pairs, its comment says samples) + 1 serializer frame | out of #632's scope: its own fill law, unchanged |
+| TDM8 frame pin, slot k | the read at event n reaches the pins in the frame starting at E_(n+2); slot k's MSB (32k + 1) bit periods at 12.288 MHz later (81.4 ns each) | SHIPPED on the AX7101 1x1 TDM8 shape: `KL_tdm_render_master` on `tdm.dout`. `make -C tb/verilator/milan_dp_render tdm8render` grades every slot at its presentation time |
 
-That row once charged a frame AND a tick-to-fsync phase. No separate
-deterministic frame exists.
+Until #632 the render path held one constant latency.
 
-The adopt wait IS that phase. It is one measured term.
+`KL_render_setpoint` (#386) kept 8 media events behind each accepted PDU.
 
-Which clock a term belongs to decides its nanoseconds. Serial terms are
-absolute: the audio clock ships unchanged.
+Its post-grid adopt wait `phi` walked between locks.
 
-Axis-cycle terms are not. The leg models 100 MHz; `milan` ships at 50.
+The out-lead now absorbs that path at elaboration.
 
-Every term above is measured, not modelled.
+The datapath refuses an out-lead its path bounds dispute.
 
-- The frame commit strobe is timestamped in `axis_clk`.
-- The crossbar's valid pulse is timestamped beside it.
-- An independent pin decoder timestamps each slot's MSB edge.
-- Drop-oldest accounting names the commit behind each frame.
-- The bank walk measured 9 axis cycles over 840 pairs.
-- Slot 0 measured 0.300 to 21.130 us.
-- Both of those are on the model axis clock.
-- That window covered 838 decoded frames.
-- Its spread stayed inside one serial frame.
-
-Recipe: the shipping shape, `AUDIO_IF_RENDER_SLOTS_P = 8`. Clocks: the true
-391/1591 plan, gPTP plane off.
-
-The `phi` walk is measured on both sources. One run, one instrument, one live
-selection.
+The `phi` walk below is measured on both sources. One run, one instrument, one
+live selection.
 
 The command is a real `SET_CLOCK_SOURCE` on `CLOCK_DOMAIN` 0.
 
@@ -454,69 +449,33 @@ The sign is `phi`'s own. Commits arrive one media tick apart.
 
 Frames start one serial frame apart. The wait lengthens by their difference.
 
-The settled-grid trigger fires once across the transition. The stage
-re-centres once.
-
-Each PDU end's fill is the setpoint plus that PDU. Every first event
-stays inside the law band.
-
-Both are graded at the PDU end.
-[The test plan](MEDIA_CLOCK_FOLLOWING.md#simulation) states its ambiguity window.
+Every slot is graded at its presentation time throughout.
 
 The deselect back to INTERNAL is the same.
 
-Software reads no delay register: the constants are this table.
+Software reads no delay register: the constants are derived.
 
 `I2SPB_TRIM[15:0]` (0x6E0) shows the I2S element's live fill.
 
-`RENDER_STAT` (`0x8DC`, #443) exposes the selected listener's fill.
+`RENDER_STAT` (`0x8DC`, #443) exposes the selected listener's presentation state.
 
-It also carries prefill, convergence and the global rail count.
+It carries the lead, idle, convergence and refusals.
 
-The [register map](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state) defines selection and field widths.
+The [register map](../reference/REGISTER_MAP.md#0x8dc-----render-presentation-state) defines selection and field widths.
 
 An absent stage reads **STRUCTURAL ZERO**, never measured health.
 
-Rail and underrun events do not raise `STREAM_INTERRUPTED`.
+Refused PDUs and slips do not raise `STREAM_INTERRUPTED`.
 
 On the Arty shapes the DAC is crossbar-fed.
-The I2S path therefore renders behind this stage.
 
-Its delay grew by the setpoint, 8 media ticks.
-It stays constant: two setpoint stages in series.
+Its I2S path keeps its own fill law.
 
-Its silicon figure predates the stage (matrix rows).
+Its silicon figure predates #386 (matrix rows).
+
 A re-measurement rides the #117 bench.
 
-The I2S element's own recentre re-bases its producer FIFO.
-Its CDC FIFO stays full: up to 16 frames more.
-
-A clock-source change arms one recentre.
-It fires once the grid has settled (table above).
-
-A settle recentre follows each change.
-Each pull-in starting outside a previous action's recovery gets one.
-
-It waits until the servo and aligner rest.
-A pull-in starting inside that recovery is the declared residual.
-
-Outside that declared residual, nothing moves the stage after it.
-
-At INTERNAL a listener bind's first PDU arms one too.
-Under following a bind arms nothing.
-
-The `milan_dp` leg selects CRF under a running stream.
-One recentre fires; every PDU returns to the setpoint.
-
-Digital proof: `tb/verilator/render_setpoint` and the `milan_dp` true-ratio leg.
-
-The post-grid pin delay is not compensated (#632).
-
-Rendering follows the fill, not the presentation time.
-
-So no presentation offset can absorb that delay.
-
-Timestamp presentation is out of PR #770.
+Digital proof: `tb/verilator/render_queue`, `media_phase` `render`, `milan_dp_render` and the `milan_dp` true-ratio leg.
 
 It stays open under #632, pending an owner area decision.
 
@@ -678,10 +637,9 @@ Removing any guard part reproduces slips (the mutation arm).
 |---|---|---|
 | Capture within 256 cycles of the tick | pulled out to 256 cycles, at up to 64 ppm of NCO trim | the aligner's proportional term, 4 cycles per ppm |
 | Share of engagements pulled | half at 50 MHz, a quarter at 100 MHz | 512 of 1041 or 2083 cycles |
-| #386 settled-grid trigger | waits for the pull, as for any aligner movement | its 32768-tick ceiling still bounds it |
-| Render path | unchanged; under CRF a lock's `phi` takes only the phases the keep-off leaves | `milan_dp_render` T30 and `milan_dp` aclk; #629 later grades INTERNAL aligned too |
+| Render path | each sample at its presentation time (#632); the out-lead holds under every phase the keep-off leaves | `milan_dp_render` T30 and `milan_dp` aclk; #629 later grades INTERNAL aligned too |
 
-The listener render law above is unchanged.
+The listener's presentation law above is unchanged by it.
 
 Since #632 the timestamp is the walk frame's pin instant.
 

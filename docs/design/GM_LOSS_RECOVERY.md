@@ -172,7 +172,7 @@ The project interprets that duration as a minimum.
 | Element | Decided reaction to one step | This tree |
 |---|---|---|
 | `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
-| Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes: `render_recentre_p_w` takes the step (`media_rebase_p_w`), and the stage re-centres at the next PDU end, counted in its recentre tally. A grandmaster identity change is no longer a trigger of its own. The gmstep leg counts one re-base, 132 cycles after the plane's step pulse at each of its 42 feed delays |
+| Render stage (#386, then #632) | Re-centres in "one bounded, counted event" (decision part b) | Met without a re-centre since #632: the presentation stage `KL_render_queue` places every PDU by its own timestamp against the domain's media event, which steps with the PHC, and its frame count does not step. The bounded, counted event is the PDUs stamped in one time base and placed in the other: each is refused and counted (`late_o`, `early_o`), and their frames are one counted slip. Neither a step nor a grandmaster identity change empties or re-centres it; the builder census pins its flush to the bind wipe. Until #632 the #386 setpoint stage re-centred once at the next PDU end, counted in its recentre tally |
 | Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); the receiver excludes talker-step rate samples (#546). The servo now excludes every local slew-overlapped window (#545 closed). By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
 | Packet NCO | Not named by the decision | No PHC or step input |
 | CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. The receiver invalidates rate history on tu transitions or timestamp jumps (#546). After 256 clean intervals, sampling resumes; lock and integrator hold meanwhile. Local policy-slew overlap also discards and counts each affected window, including its partial tail (#545 closed). Integrator, trim and LOCKED hold; clean windows resume directly |
@@ -181,13 +181,15 @@ The project interprets that duration as a minimum.
 | A step while an `mr` restart is pending | The PHC-only step adds no request ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)); the genuine restart continues | The engine still merges genuine requests until the first reported PDU carrying the adopted level. Its per-stream eight-PDU hold is unchanged. `tkdiag` T17 and T18 grade merging and the pending boundary |
 | Licensed streams | Keep streaming (REQ-PTP-08) | Yes: `tu` gates no emission |
 
-The render stage is timed from accept, not presentation time.
+The render stage presents each sample on time (#632).
 
-So a step leaves its fill where it was.
+A step moves instants and talkers' timestamps together.
 
-A grandmaster change that steps counts one re-base.
+So its queued frames keep their places, and nothing re-centres.
 
-It is the step's; the identity change adds none.
+A stepping grandmaster change refuses only the PDUs it splits.
+
+The identity change alone refuses none.
 
 Whether a restart is pending depends on one stream.
 
@@ -202,8 +204,8 @@ The `milan_dp` gmstep leg drives one 1.5 s grandmaster step.
 It grades these rows:
 
 - `tu`: set at the commit, held past the step's holdover.
-- Render stage: one re-base, counted right after the step.
-- Render law: every push leaves the #386 target fill.
+- Render stage: PDUs stamped across the steps refused, counted.
+- Render law: every other PDU presented once, at one offset.
 - `mr` and MEDIA_RESET: neither changes across the PHC-only step.
 - Source change and selected-CRF `mr`: each propagates one toggle.
 - Coincident settime and received CRF toggle: exactly one outgoing toggle.

@@ -94,27 +94,25 @@ flowchart LR
 * The final **I2S DAC playout** stage is FIFO-fill dominated (the CDC pair
   FIFO decouples PDUs from DAC frames), so it is characterised by the
   `I2SPB_STAT` fill/converged rails rather than a delta here.
-* **Since #386 the render crossbar is fed through `KL_render_setpoint`**, and
+* **Since #632 the render crossbar is fed through `KL_render_queue`**, and
   the chain above stops at that stage's input. From `FABRIC_RENDER` onward the
-  delay is not a measured envelope but a LAW: the first event of every accepted
-  PDU is popped into the crossbar 8 media ticks (166.67 us at 48 kHz, plus the
-  accept instant's sub-tick phase) after `ACCEPT`, event k of the PDU k ticks
-  later. The law holds under CRF selection with the grids aligned; at INTERNAL
-  the fill walks inside the +/-6 event band at the free-run offset (six events
-  per 11.75 s against a talker on the -10.64 ppm physical grid) and the rail
-  re-centres it; a clock-source change under a running stream, which can
-  leave the fill one event off, is re-centred once by the datapath's
-  settled-grid trigger. The setpoint is derived from the class-A frame shape
-  (6 events per PDU + 2), the bands and the one-shot recentre are stated in
-  [Listener render latency](design/TIME_SYNC.md#listener-render-latency), and
-  the fixed delay from the crossbar's grid to each interface (the I2S DAC on
-  the Arty shapes, which now renders behind this stage; the TDM frame pin,
-  clocked on the shipping TDM8 shape) is tabled there.
-  `RENDER_STAT` (`0x8DC`, #443) carries selected-listener fill, prefill and convergence.
-  Its upper half carries the global saturating rail count.
-  The [register map](reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state) defines selection and field widths.
+  delay is not a measured envelope but a LAW: every sample reaches the TDM
+  frame pin at its presentation time, the PDU's `avtp_timestamp` plus one
+  period per event (IEEE 1722-2016 4.4.4.9, 7.5), inside +/-5 % of Ps when the
+  timestamps sit on the domain's frame grid and at the nearest frame
+  otherwise. The stage places each event in the row of the frame its
+  timestamp names and each interface reads the frame its derived out-lead
+  puts at its pins on time; late, too-early and untimed PDUs are dropped and
+  counted. The law, its supported range and rules are stated in
+  [Listener render latency](design/TIME_SYNC.md#listener-render-latency).
+  Until #632, `KL_render_setpoint` (#386) held a constant 8 media ticks
+  after `ACCEPT` instead. The Arty shapes' I2S DAC keeps its own fill law
+  behind the crossbar, out of #632's scope.
+  `RENDER_STAT` (`0x8DC`, #443) carries the selected listener's queued lead, idle and convergence.
+  Its upper half carries the global saturating count of refused PDUs.
+  The [register map](reference/REGISTER_MAP.md#0x8dc-----render-presentation-state) defines selection and field widths.
   An absent stage reads **STRUCTURAL ZERO**, never measured health.
-  Rail and underrun events do not raise `STREAM_INTERRUPTED`. The silicon figure at the TDM frame pin (the inline tap's
+  Refused PDUs and slips do not raise `STREAM_INTERRUPTED`. The silicon figure at the TDM frame pin (the inline tap's
   capture record on the capture server, compared against these fabric taps)
   rides #117.
 

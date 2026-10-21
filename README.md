@@ -360,9 +360,10 @@ so treat them as ordering, not promises.
 ```
 
 The setpoint law's first landing was the I2S path in VERSION `0x0001_002F`
-(the listener latency became a setpoint, not a midpoint); #386 carries the
-same law onto the shipping TDM render path through `KL_render_setpoint`, with
-the constant stated at the render crossbar's input grid
+(the listener latency became a setpoint, not a midpoint); #386 carried the
+same law onto the shipping TDM render path, and #632 replaced it there with
+presentation at the timestamp: `KL_render_queue` puts every sample at its
+interface's pins at its `avtp_timestamp`
 ([TIME_SYNC.md](docs/design/TIME_SYNC.md#listener-render-latency)).
 
 Standing invariants across every phase: the ATDECC model stays authoritative

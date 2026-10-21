@@ -549,13 +549,13 @@ Register addresses, widths and reset values remain unchanged by M5.
 
 ### L9 Media context tables
 
-M6 owns listener/talker counters, channel-map capture and render set-point.
+M6 owns listener/talker counters, channel-map capture and the render stage (the set-point, since #632 the presentation stage).
 **Saving:** 600 LUTs (400-900), from the historical routed inventory
 and [#649](https://github.com/kebag-logic/milan-fpga/issues/649)'s per-stream OOC marginals of 208, 317 and 205.
 These datapath functions remain fabric-owned in the split.
 
 **Risk: medium.** Read-modify-write hazards can break coherent counters.
-**Verification:** `avtp_rxmon`, `tkdiag`, `chmap_capture`, `render_setpoint`,
+**Verification:** `avtp_rxmon`, `tkdiag`, `chmap_capture`, `render_queue`,
 `milan_dp`, GET_COUNTERS, wrap/reset and concurrent update cases.
 No M2 table credit overlaps these arrays.
 M6 measured 418 LUTs post-synthesis and no extra tile ([M6 intermediate measurement](#m6-intermediate-measurement)).

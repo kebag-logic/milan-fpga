@@ -159,8 +159,8 @@ flowchart TB
     ROUTE -->|RENDER| LPF["KL_pcm_lpf"]
     LPF --> FMUX["KL_i2s_feed_mux"]
     FMUX --> I2S["KL_i2s_playback → DAC"]
-    DEPKT -.->|"accepted-beat clone"| RSP["KL_render_setpoint<br/>one event per stream per tick"]
-    RSP --> RMAP["KL_chan_map_render"]
+    DEPKT -.->|"header and accepted-beat clone"| RQ["KL_render_queue<br/>each event in its presentation frame"]
+    RQ --> RMAP["KL_chan_map_render"]
     RMAP --> FMUX
     RMAP --> TDM["KL_tdm_render_master / KL_tdm_render"]
 ```

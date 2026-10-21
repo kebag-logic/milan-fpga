@@ -208,7 +208,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  reserved target-media compatibility words](#0x8c8-----reserved-target-media-compatibility-words) -- Three retired addresses that now read structural zero and ignore writes. They expose no media owner or liveness evidence.
   - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, static at every source since #629 aligns the grid at INTERNAL too, where before it counted one dup per fed pair per beat period (about 2 per second on the shipping four-pair lane); they are never cleared, so a pair that counted before the selection reads a static non-zero word, not a zero. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
-  - [0x8DC  -  render setpoint state](#0x8dc-----render-setpoint-state) -- Selected listener fill, prefill and convergence with global saturating rails.
+  - [0x8DC  -  render presentation state](#0x8dc-----render-presentation-state) -- Selected listener's queued lead, idle and convergence with the global saturating count of refused PDUs.
   - [0x8E0  -  AAF clock meter  (#629, KL_aaf_clock_meter)](#0x8e0-----aaf-clock-meter--629-kl_aaf_clock_meter) -- The selected AAF input's media clock: lock, rate validity, the followed listener, data-caused restarts, the largest deviation, and the rate in `CRF_RATE`'s units. A structural zero without an AAF clock source.
   - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Engaged by the live selection since #74.** The processor stores `SET_CLOCK_SOURCE`, the wrapper exports it, and the root's `media_clk_resolve` verdict gates this servo. The CRF sink at `0x738` or the AAF clock meter at `0x8E0` measures, and the selected one steers it; INTERNAL reads IDLE honestly.
   - [0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture) -- Diagnostic write port into the 64×64 render/capture map stores, disarmed at reset. It also holds the `0x910`/`0x914` **map-store readback**: what the fabric actually contains, not `0x908`'s shadow of the last diagnostic write, with `LOOP_SUSPECT` separating a working quiet loop source from one that was never fed. Its unarmed state is `0xDEADDEAD`, never `0`.
@@ -248,7 +248,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
 | `0x8C8` | Reserved target-media compatibility words (structural zero) |
 | `0x8D4` | Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`) |
-| `0x8DC` | `RENDER_STAT`: RO live selected-listener state and global rails; structural zero without the stage. VERSION minor remains `0x0060`; the release step owns the bump |
+| `0x8DC` | `RENDER_STAT`: RO live selected-listener presentation state and the global refused-PDU count; structural zero without the stage. VERSION minor remains `0x0060`; the release step owns the bump |
 | `0x8E0` | AAF clock meter (`AAFM_STAT` / `AAFM_RATE`, RO live, #629); structural zero on a shape without an AAF clock source. VERSION minor remains `0x0060`; the release step owns the bump |
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 | `0x900` | Channel-map fabric debug window (chmap64) — write port + bypass arm, and the `0x910`/`0x914` **map-RAM readback** |
@@ -2014,18 +2014,21 @@ models):
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
 | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
 
-### 0x8DC  -  render setpoint state
+### 0x8DC  -  render presentation state
 
 Issue #443 claims this previously unmapped debug-group word.
+Issue #632 re-defines its fields for the presentation stage, `KL_render_queue`,
+which replaced the #386 setpoint stage.
 
 VERSION remains `0x0002_0060` under [the recorded deferral](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5826779078).
 The release step owns the minor bump.
 Before that bump, VERSION alone cannot identify this addition.
-Verify the build's source revision includes #443's register decode.
+Verify the build's source revision includes #443's register decode, and #632's
+field meanings.
 
 | Offset | Name | Acc | Reset | Description |
 |---|---|---|---|---|
-| `0x8DC` | `RENDER_STAT` | RO live | `0x00000100` | Selected listener state and the global rail count |
+| `0x8DC` | `RENDER_STAT` | RO live | `0x00000100` | Selected listener's presentation state and the global refused-PDU count |
 
 `STRM_SEL[3:0]` selects the listener, with `STRM_SEL[8]=0`.
 Talker selections and indices outside `N_LISTENERS_P` read zero.
@@ -2038,16 +2041,15 @@ Diagnostic readers must coordinate access and restore the previous selection.
 
 | Bits | Width | Source | Meaning | Reset |
 |---|---|---|---|---|
-| `[7:0]` | 8 | selected `fill_o` byte | Queue occupancy in media events; bounded, never wraps | 0 |
-| `[8]` | 1 | selected `prefill_o` bit | Pops held while the queue prefills; level, no counter | 1 |
-| `[9]` | 1 | selected `converged_o` bit | Convergence dwell satisfied; level, no counter | 0 |
+| `[7:0]` | 8 | selected `lead_o` byte | Frames queued past the frame every interface has read: the newest frame the stream wrote, less that one; 0 with none queued; saturates at 255 (the queue is 128 frames deep at 48 kHz) | 0 |
+| `[8]` | 1 | selected `idle_o` bit | Interface 0's last read of the stream found no sample: before the stream's first presentation time, after it ends, or in a gap; level, no counter | 1 |
+| `[9]` | 1 | selected `converged_o` bit | The stream has presented a sample on every read for 100 ms running; level, no counter | 0 |
 | `[15:10]` | 6 | constant | Reserved zero | 0 |
-| `[31:16]` | 16 | `rails_o` | Global reset-band actions; saturates at `0xFFFF`, never wraps | 0 |
+| `[31:16]` | 16 | `late_o` + `early_o` | Global count of PDUs refused as late (every event at or before the frame every interface has read) or too early (beyond the queue); saturates at `0xFFFF`, never wraps | 0 |
 
 The widths preserve the stage's taps without truncation.
-The current queue holds at most 32 events per listener.
-The rail counter aggregates every listener, including unselected streams.
-Reset clears that counter; bind flushes do not.
+The refused count aggregates every listener, including unselected streams.
+Reset clears it; bind flushes do not.
 Neither reading nor writing clears it; writes are ignored.
 All fields are sampled together by the live CSR read.
 No snapshot arm or cross-clock transfer is involved.
@@ -2059,9 +2061,12 @@ The current datapath instantiates the stage unconditionally.
 Neither parked TDM pins nor disabled I2S imply its absence.
 Check the elaborated build before interpreting any zero.
 
-Rail and underrun events do not raise `STREAM_INTERRUPTED`.
-That is [#443's manager decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5789749713).
-Underrun, overrun and recentre counters remain separate verification taps.
+Refused PDUs and slips do not raise `STREAM_INTERRUPTED`.
+That is [#443's manager decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5789749713),
+kept by #632.
+The untimed-PDU and slip counters (`untimed_o`, `slips_o`) remain verification
+taps. The law, its rules and its counters are the
+[design's](../design/MEDIA_CLOCK_FOLLOWING.md#the-listener-each-sample-at-its-presentation-time-632).
 
 Proof: `make -C tb/verilator/milan_dp aclk` reads the taps.
 `make -C tb/verilator/milan_dp render-csr-controls` checks absence and mutation.

@@ -156,8 +156,9 @@ release while the clock keeps running) zeroes the active frame at FRAME STARTS
 only, so the frame in flight completes whole and every frame after it is
 digital silence until the epoch reopens. The serial side reopens at the first
 frame start after the request clears, with both FIFO pointers proven zero, and
-COMMITS resume later still: only once the bind is restored and the setpoint has
-popped a post-flush event for every stream the lane renders.
+COMMITS resume later still: only once the bind is restored and the
+presentation stage has handed over a post-flush event for every stream the
+lane renders.
 
 The handshake is strictly four-phase, and `epochs_o` counts one REOPENING per
 epoch event because of it. A request is raised only with the handshake free -
@@ -236,23 +237,23 @@ dithers across the frame boundary - measured on this head as 10 repeats against
 period. The drop-oldest law and the counted-skip accounting hold through it;
 what was too smooth was the description "one skip per beat", not the design.
 
-Since #386 the crossbar's clone input is `KL_render_setpoint`, a per-stream
-elastic queue of whole media events that pops exactly one event per stream on
-every media tick and hands the crossbar a render tick delayed past that pop
-schedule. The crossbar therefore renders, on every tick, the event the stage
-just handed it, and the accept-to-render delay of the shipping path is the
-stage's constant setpoint rather than whatever phase a latest-sample latch
-held. The law, its bands and the per-interface constants are in
+Since #632 the crossbar's clone input is `KL_render_queue`, a per-stream
+queue of media events indexed by presentation frame. On every domain media
+event it hands each interface's crossbar the frame that interface's out-lead
+puts at its pins at its presentation time, then a render tick. The crossbar
+therefore renders, on every tick, the event the stage just handed it, and
+every sample of the shipping path reaches its pin at its `avtp_timestamp`
+rather than whatever phase a latest-sample latch held (until #632,
+`KL_render_setpoint` held a constant 8-event fill instead, #386). The law,
+its rules and the per-interface out-leads are in
 [Listener render latency](design/TIME_SYNC.md#listener-render-latency). The
 stage presents every stream as an even lane count (2 x ceil(N_CH_P / 2): eight
-on every in-tree shape) with the lanes beyond the stream's channel count
-zeroed, so the crossbar's per-stream channel count is that lane count (the pad
-lane of an odd count is a virtual channel the walker never latches) and the
-wire truth is de-interleaved once, in the stage. Each event is presented
-atomically: the stage decides at a stream's first beat whether it presents
-this tick and which row, so a rail, a recentre or a flush inside the pop
-window lands between events and the crossbar's single walker never receives a
-partial or mixed event.
+on every in-tree shape) with the lanes without a sample zeroed, so the
+crossbar's per-stream channel count is that lane count (the pad lane of an
+odd count is a virtual channel the walker never latches) and the wire truth
+is de-interleaved once, in the stage. Each event is presented atomically: a
+read hands over one whole frame of one stream, its pairs back to back, so the
+crossbar's single walker never receives a partial or mixed event.
 
 ### 3.1.2 The shipping eight channels, every dimension at once
 

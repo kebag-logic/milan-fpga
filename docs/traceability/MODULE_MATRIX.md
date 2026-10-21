@@ -69,7 +69,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
 | ✅ `KL_chan_map_capture` | `ieee1722/aaf/KL_chan_map_capture.sv` | `capture_coherence` · `chmap_capture` · `follow_ring` · `media_grid_align` · `media_phase` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
-| ✅ `KL_chan_map_render` | `ieee1722/aaf/KL_chan_map_render.sv` | `chmap_render` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+| ✅ `KL_chan_map_render` | `ieee1722/aaf/KL_chan_map_render.sv` | `chmap_render` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_i2s_feed_mux` | `ieee1722/aaf/KL_i2s_feed_mux.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_i2s_playback` | `ieee1722/aaf/KL_i2s_playback.sv` | `i2spb` · `milan_dp` · `mmcm_servo` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_lat_history_ring` | `ieee1722/aaf/KL_lat_history_ring.sv` | `lat_history_ring` · 🔬`make aaf` | -- |
@@ -78,11 +78,11 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_pair_zero_fill` | `ieee1722/aaf/KL_pair_zero_fill.sv` | `milan_dp` · `pair_fill` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_pcm_lpf` | `ieee1722/aaf/KL_pcm_lpf.sv` | `milan_dp` · `pcmlpf` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
-| ✅ `KL_render_setpoint` | `ieee1722/aaf/KL_render_setpoint.sv` | `follow_ring` · `milan_dp` · `render_setpoint` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+| ✅ `KL_render_queue` | `ieee1722/aaf/KL_render_queue.sv` | `follow_ring` · `media_phase` · `milan_dp` · `render_queue` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `milan_dp` · `tdm` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `capture_coherence` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `milan_dp` · `tdm_render` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
-| ✅ `KL_tdm_render_master` | `ieee1722/aaf/KL_tdm_render_master.sv` | `milan_dp` · `milan_dp_render` · ➰capture_coherence,milan_dp_mclk · 🔬`make aaf` | -- |
+| ✅ `KL_tdm_render_master` | `ieee1722/aaf/KL_tdm_render_master.sv` | `media_phase` · `milan_dp` · `milan_dp_render` · ➰capture_coherence,milan_dp_mclk · 🔬`make aaf` | -- |
 | ✅ `KL_tone_gen` | `ieee1722/aaf/KL_tone_gen.sv` | `chmap_capture` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `aaf_talker_i2s` | `ieee1722/aaf/aaf_talker_i2s.sv` | `aaf` · `milan_dp` · 🔬`make aaf` | -- |
 | 🔬 `KL_avtp_common_parser` | `ieee1722/avtp/KL_avtp_common_parser.sv` | 🔬`make aaf` | -- |
@@ -96,7 +96,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_aaf_clock_meter` | `ieee1722/crf/KL_aaf_clock_meter.sv` | `aaf_clock_meter` · `follow_ring` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |
 | ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `aaf_clock_meter` · `crf_rx` · `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
-| ✅ `KL_media_domain_event` | `ieee1722/crf/KL_media_domain_event.sv` | `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+| ✅ `KL_media_domain_event` | `ieee1722/crf/KL_media_domain_event.sv` | `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_media_grid_align` | `ieee1722/crf/KL_media_grid_align.sv` | `capture_coherence` · `follow_ring` · `media_grid_align` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render | -- |
 | 📦 `KL_media_if_latency_pkg` | `ieee1722/crf/KL_media_if_latency_pkg.sv` | -- | -- |
 | ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `capture_coherence` · `follow_ring` · `media_grid_align` · `media_nco` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render | -- |
