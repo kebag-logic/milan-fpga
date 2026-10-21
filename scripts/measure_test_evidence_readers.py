@@ -40,6 +40,16 @@ DUT_READER_DISPOSITIONS = {
     "protocol-processor/tb/acmp_talker/retry_mutants.py":
         "mutation campaign; plants named defects in a scratch copy and requires named assertion "
         "failures from completed cycle-bounded simulations; reads no expected behavior from RTL",
+    "protocol-processor/tb/elab_guards/guards.py":
+        "elaboration-guard bench; inventories severity-task locations and compiles complete HDL trees "
+        "at independently fixed violating and passing boundary values; fixed scratch contexts expose "
+        "otherwise masked derived limits without changing guard conditions; verdicts use front-end "
+        "exit status, severity and the named guard location, never expected values read from RTL",
+    "protocol-processor/tb/elab_guards/mutants.py":
+        "mutation campaign; locates named guards and plants fixed severity, placement and one-unit "
+        "boundary defects in isolated HDL copies; requires the corresponding named refusal or "
+        "passing-side check to fail, with each boundary arm failed by every selected front end; "
+        "no expected boundary value is derived from source text",
     "protocol-processor/tb/desc_store/test_gen_desc_image.py":
         "unit test of the descriptor packer and its model lint; it imports the generator by path "
         "to call build() and its CLI on synthetic models and on the two models packaged beside it, "
@@ -106,6 +116,12 @@ DUT_READER_DISPOSITIONS = {
     "protocol-processor/tb/pp_top/gsi_mutants.py":
         "mutation campaign; it plants one GET_STREAM_INFO seam defect from its own table "
         "into an isolated copy and requires the named response check to fail",
+    "protocol-processor/tb/aecp_cmds/mutants.py":
+        "mutation campaign; it plants one decode, dispatch, length-floor, GET_DYNAMIC_INFO, "
+        "unsolicited-job or response-field defect from its own table into an isolated copy of "
+        "the engine or the generator, builds and sweeps it, and requires the named decode check "
+        "to fail in a completed run; the expected programs, floors and sizes are the AECP command "
+        "table's (hdl/aecp/ucode/aecp_commands.json), never read from RTL text",
     "protocol-processor/tb/srp_admission/mutants.py":
         "mutation campaign; it plants one admission defect into a temporary tree, "
         "requires the named check to fail, and runs clean controls first",
