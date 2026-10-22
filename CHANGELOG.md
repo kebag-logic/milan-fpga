@@ -71,7 +71,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - As grandmaster, sync is set and `tu` clear (gPTP #84).
 - A grandmaster change arms the Annex B.1.1 holdover.
 - The published path appends thisClock (gPTP #85).
-- So GET_AS_PATH gains one identity.
+- So GET_AS_PATH gains one identity, up to eight.
+- Eight or more received entries serve their first eight.
+- There the count stays 8, without thisClock (gPTP #86).
 - Eight parent patches adapt evidence, wrapper and harness rows.
 - The ROM ledger adds both pins' rows; two ROMs change.
 - The resource gate re-baselines under an owner exception.

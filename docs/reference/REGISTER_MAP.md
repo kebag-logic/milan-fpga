@@ -1475,6 +1475,12 @@ appended (IEEE 802.1AS-2020 10.3.13.2.4 f) 5), FPGA-gPTP #85), so its count
 includes thisClock. Before any peer is elected, the sequence is `{thisClock}`,
 count one (10.3.13.2.4 i), FPGA-gPTP #82).
 
+The publication holds eight identities, which bounds that append. At eight or
+more received entries the served sequence is the first eight received entries,
+the count stays 8 and thisClock is not appended (FPGA-gPTP #86; widening the
+publication would be a port change). Up to seven received entries always gain
+thisClock.
+
 The three addresses below remain allocated so the public map does not shift.
 The staging pair is always zero and all writes are discarded. `ASP_CMD` is a
 read-only view of the selected fabric owner's `{generation,count}` in product
