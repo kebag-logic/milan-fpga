@@ -90,7 +90,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - It places each event in the frame its timestamp names.
 - Each interface reads the frame its own out-lead names.
 - Two block RAMs per 8-channel stream hold 2.126 ms.
-- Late, too-early and untimed PDUs are dropped and counted.
+- Late and too-early events are dropped and counted.
+- Each event is judged on its own frame.
+- Untimed PDUs are dropped and counted.
 - No PHC step, identity or source change re-centres it.
 - The #386 recentres and #387's render re-base retire.
 - #645's settle recentre stays, for the LOOP queues only.
@@ -99,7 +101,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - VERSION is unchanged; the release step owns the bump.
 - `tb/verilator/media_phase` proves the loop and the interfaces.
 - It grades the in-tree blend and four AAF offsets too.
-- Its `make mutants` target plants thirty-eight defects.
+- Its `make mutants` target plants forty defects.
 - `render_queue` grades the stage byte-exact against a model.
 - `capture_coherence` grades the talker's stamps at the TDM pins.
 - The bench proof follows after merge.

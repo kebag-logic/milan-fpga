@@ -1336,7 +1336,13 @@ recentres the other running streams: a ring at its target moves nothing,
 and one that has drifted takes the declared step. The shipping 1x1 TDM8
 shape has one listener stream.
 
-**Measured in `follow_ring`.** The bind case replays B17's cycles: the first
+**Measured in `follow_ring`, before #632.** These figures are the
+measurement taken when the settle pulse also recentred the #386 render stage,
+kept as the record of the arm's effect on the ring; they are not re-taken.
+Since #632 the render stage takes no recentre, and the harness grades, per
+bind, one settle recentre on the LOOP queue, no loopback slip after it, and
+the presentation stage on its law across it (`sweep.py` `bind`). The bind
+case replays B17's cycles: the first
 PDU's delay after the bind, the first burst's time after that PDU and its
 peak, then the largest later burst. A burst's later PDUs each arrive
 1.538 us less late, the mean slope of B17's ten first bursts. `sweep-bind`
@@ -1352,7 +1358,8 @@ acts.
   one a frame and a pair.
 - **With it:** every one of the 320 binds gets one arm at its first PDU, one
   settle recentre 2,047.0 to 2,048.0 ticks later and one counted render
-  recentre, and no bind slips the ring after it acts. The 177 in-window binds
+  recentre (the #386 stage's, before #632), and no bind slips the ring after
+  it acts. The 177 in-window binds
   move neither `SLIP_LB` counter. After the recentre the ring's empty-side
   margin is at least 3.48 ticks and its full-side margin at least 4.88.
 - **The arming window.** For the 42.7 ms between the arm and the firing the
@@ -1814,10 +1821,16 @@ above counts the domain's frames: frame n starts at the pins at E_n. At each
 PDU's header the stage takes d = `avtp_timestamp` - E_n (32-bit wrap) and
 divides it by Ps exactly, in thirds of a nanosecond (Ps = 62,500 / 3 ns at 48
 kHz; long division of 3d, one quotient bit per cycle, the remainder rounding
-to the nearest, so the frame is known 11 cycles after the header and the
+to the nearest, so the frame is known 13 cycles after the header and the
 depacketizer holds the payload 16): the PDU's first event belongs to frame
 F0 = n + round(d / Ps), event k
-to F0 + k, and each sample is written into its frame's row. On every domain
+to F0 + k, and each sample is written into its frame's row. d is signed: a
+PDU stamped behind the latest domain event has F0 at or before n, and its
+events still ahead of the frames already read are written like any other.
+The divider takes d plus the late reach, 504 frames (10.5 ms at 48 kHz, a
+whole number of nanoseconds), so every d from that far behind to beyond the
+queue divides the same way; the wrapped difference is read from 2^31 ns plus
+the reach behind to 2^31 ns less the reach ahead. On every domain
 event n, interface i reads frame n + K_i. K_i is the interface's out-lead,
 `out_lead_frames()` in `KL_media_if_latency_pkg`: the whole frames from the
 event's frame instant (the event comes its marker latency after it) to the
@@ -1880,21 +1893,26 @@ the queue holds 2,656,119 ns (1x1) and 2,650,942 ns (8x8) ahead at arrival,
 so the declared limit is backed. The builder accepts a larger
 `buffer_length_ns`; the queue's depth does not grow with it.
 
-**The rules, per PDU, and their counters.** Against R, the frame every
-interface has read:
+**The rules, per event, and their counters.** Against R, the frame every
+interface has read, each event of a PDU on its own frame, whatever the PDU's
+timestamp:
 
 | Rule | Condition | Action | Counter |
 |---|---|---|---|
-| late | an event's frame is at or before R: every interface has presented it | the event is dropped; the PDU counts once | `late_o`, and `refused_o` (`RENDER_STAT[31:16]`) |
+| late | an event's frame is at or before R: every interface has presented it | the event is dropped, the PDU's events ahead of R written (a PDU stamped behind the latest domain event included); the PDU counts once | `late_o`, and `refused_o` (`RENDER_STAT[31:16]`) |
 | too early | an event's frame is ROWS or more past R: beyond the queue | the event is dropped; the PDU counts once | `early_o`, and `refused_o` (`RENDER_STAT[31:16]`) |
 | untimed | `tv` clear (1722-2016 4.4.4.5: no valid timestamp), or the payload starts before its frame is known | not written; the PDU counts once | `untimed_o` |
 | slip | a presenting stream's read finds its frame empty (a gap), or a PDU's first event lands on a frame its stream already wrote (an overlap: the later sample wins) | as stated; counted once per run of empty frames and once per overlapping PDU | `slips_o` |
 
-The rules hold for a PDU of any length (a Milan 48 kHz PDU carries six events;
-the depacketizer bounds a PDU by its `data_len` alone): the walk keeps each
-sample's frame, F0 and one more per event, and once an event lies two frames
-past the queue the PDU's later events are refused with it, before a frame
-number could wrap.
+The rules hold for a PDU of any length the depacketizer passes (a Milan
+48 kHz PDU carries six events; the depacketizer's 2048-byte frame FIFO drops a
+longer frame, so a PDU carries at most 252 payload beats, 504 one-channel
+events, the stage's `MAX_EV_P`): the walk keeps each sample's frame, F0 and
+one more per event, and once an event lies past the queue the PDU's later
+events are refused with it, before a frame number could wrap. A PDU stamped
+more than the late reach behind the latest domain event is late in every
+event: its last event is at most 503 frames after its first, so at or before
+that event's frame, which every interface has read.
 
 The listener's Milan STREAM_INPUT counters LATE_TIMESTAMP and EARLY_TIMESTAMP
 (1722.1-2021 Table 7-157) stay the RX monitor's, unchanged; the stage's
@@ -1936,9 +1954,12 @@ refuses a new reader of the PHC's adjtime and settime strobes.
 device primitive: word (s, row, lane) in bank `lane[0] ^ row[0]` at {s, row,
 lane >> 1}, a 24-bit sample and its valid bit, so a beat's two samples are
 two writes on two ports and a read takes one pair from each bank at one
-address. Vivado out of context: 2 RAMB18, 594 LUT, 231 FF and no LUTRAM at
-the 1x1 parameters (one 8-channel stream at 48 kHz); 6 RAMB36, 945 LUT, 395
-FF and no LUTRAM at 8x8.
+address. Vivado out of context (`AreaOptimized_high`, the stage alone), as
+of round 6 of PR #770 with the per-event late rule: 2 RAMB18, 531 LUT, 236 FF
+and no LUTRAM at the 1x1 parameters (one 8-channel stream at 48 kHz); 6
+RAMB36, 883 LUT, 402 FF and no LUTRAM at 8x8. Round 4's stage, which refused
+a PDU stamped behind the latest event whole, measured 553 LUT, 228 FF and 890
+LUT, 387 FF. These are the stage's own figures, not the routed image's.
 
 **Out of scope.** `KL_i2s_playback` (the Arty I2S DAC) keeps its own fill law
 and elastic crossing FIFO, fed by the raw render tap, unchanged.
@@ -1947,7 +1968,7 @@ and elastic crossing FIFO, fed by the raw render tap, unchanged.
 
 | Suite | What it proves |
 |---|---|
-| `tb/verilator/render_queue` | the stage, byte-exact against a model of the law on two shapes (two streams and two interfaces at 8 lanes; one stream at 7), every rule, the lap, the flush, the wrap; 18 planted defects |
+| `tb/verilator/render_queue` | the stage, byte-exact against a model of the law on two shapes (two streams and two interfaces at 8 lanes; one stream at 7), every rule, PDUs stamped behind the latest event (`[behind]`: a frame and 0.3 Ps behind, 250 and 500 frames behind with their last events ahead, at and past the late reach), the lap, the flush, the wrap; 26 planted defects |
 | `tb/verilator/media_phase` `render` | two interfaces a frame apart, at their pins with the slot-MSB decoder: every sample at its presentation time, the supported range, the rules; B's constant dropped, an untimed read, a frame off, the late and the early rule removed, each killed |
 | `tb/verilator/milan_dp_render` | the shipping 1x1 datapath at its pins: the first event, CRF and INTERNAL, eighteen feed phases, a source change and the serial-clock hold |
 | `tb/verilator/milan_dp` `aclk` | the queue's output on the shipping shape at the true clock ratio: the arrival moved, a PHC step and a settime under the stream, the three rules, the source changes, `RENDER_STAT` |

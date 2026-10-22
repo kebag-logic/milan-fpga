@@ -205,7 +205,7 @@ DUT_READER_DISPOSITIONS = {
         "scratch copy and requires the named SVA property, or for one row the scoreboard, "
         "to fail; no expected value is read from the text",
     "tb/verilator/render_queue/mutants.py":
-        "mutation campaign; it plants one of eighteen presentation-stage defects into a copy "
+        "mutation campaign; it plants one of twenty-six presentation-stage defects into a copy "
         "and requires its named failure",
     "tb/verilator/rx_filter/binding_mutant.py":
         "mutation campaign; it ties a real named binding low and requires failure",

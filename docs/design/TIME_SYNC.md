@@ -105,7 +105,9 @@ The offset is local time minus grandmaster time.
 - The CRF servo holds through the entire indicated correction.
 - One step is one `phc_step_we_o` pulse.
 - That pulse carries the measured offset, negated.
-- Each step is one counted [render re-base](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step).
+- A step re-bases no render queue (#632).
+- Queued samples keep their frames.
+- Presentation sees a step only as [queue refusals and slips](#listener-render-latency).
 
 | Source | Record |
 |---|---|
@@ -294,7 +296,15 @@ The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomm
 
 Only source changes and selected-CRF restart causes request `mr`.
 
-PHC steps retain `tu`, holdover and the counted render re-base.
+PHC steps retain `tu` and holdover.
+
+Presentation is the render queue's, separate from both.
+
+A step moves instants and talkers' timestamps together.
+
+The queue refuses and counts a PDU moved past it.
+
+A PDU moved within it is a counted slip.
 
 A coincident step never suppresses a required media-clock restart.
 
@@ -381,13 +391,14 @@ The [design](MEDIA_CLOCK_FOLLOWING.md#the-listener-each-sample-at-its-presentati
 | Law term | Value | Derivation |
 |---|---|---|
 | Presentation time | the PDU's `avtp_timestamp` for event 0, one period more per event | IEEE 1722-2016 4.4.4.9, 7.5 |
-| Frame | F0 = n + round((`avtp_timestamp` - E_n) / Ps), at the PDU's header | E_n: the domain media event's instant |
+| Frame | F0 = n + round((`avtp_timestamp` - E_n) / Ps), at the PDU's header, the difference signed | E_n: the domain media event's instant |
 | Read | interface i reads frame n + K_i at domain event n | K_i: `out_lead_frames()`, derived per interface |
 | Out-lead, 1x1 TDM8 | K = 2 | event latency 20,964 ns at 50 MHz |
 | Out-lead, 8x8 TDM32 | K = 1 | event latency 5,308 ns |
 | Depth | 128 rows per stream at 48 kHz | Milan v1.2 4.4.2.1's 2.126 ms, plus the event latency and two frames |
 | Supported range | 31,119 ns to 2,656,119 ns ahead at arrival (1x1); 25,942 ns to 2,650,942 ns (8x8); sized for the 2 ms default offset | one out-lead less the event latency, plus Ps / 2; to the depth |
-| Late | an event at or before the frame every interface has read | dropped; the PDU counts once in `late_o` |
+| Late | an event at or before the frame every interface has read, judged per event: a PDU stamped behind the latest event still presents its events ahead of that frame | dropped; the PDU counts once in `late_o` |
+| Late reach | a timestamp up to 504 frames (10.5 ms) behind divides exactly; one further behind is late in every event | the longest PDU the depacketizer passes: 504 one-channel events |
 | Too early | an event a queue depth or more ahead | dropped; the PDU counts once in `early_o` |
 | Untimed | `tv` clear (4.4.4.5), or the payload before its frame | not written; counted in `untimed_o` |
 | Slips | a presenting stream's empty frame; two PDUs on one frame | counted in `slips_o` |
@@ -477,13 +488,15 @@ A re-measurement rides the #117 bench.
 
 Digital proof: `tb/verilator/render_queue`, `media_phase` `render`, `milan_dp_render` and the `milan_dp` true-ratio leg.
 
-It stays open under #632, pending an owner area decision.
+The timestamp law above is implemented on the TDM path.
 
-The listener keeps the fill law above at the grid.
-
-A timestamp law would replace that fill law.
+The owner chose block RAM for it ([#632](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685)).
 
 The [phase alignment](MEDIA_CLOCK_FOLLOWING.md#phase-alignment) design lists the constants and the costs.
+
+The bench proof at the TDM frame pins remains open.
+
+It uses the #764 method.
 
 Silicon proof at the TDM frame pin rides #117.
 
