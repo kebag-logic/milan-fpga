@@ -31,7 +31,10 @@ repository root), with the clean build's other ROM images, and the clean
 executable runs there. The [NOTIFY] SET_STREAM_INFO case is graded so: its
 push gate must compare the commanded presentation offset with the one the
 processor STORED (Milan v1.2 5.4.2.9, 5.4.5.2), and comparing it with the
-applied readback, GET_STREAM_INFO's whole periods (5.4.2.10.2), must fail.
+readback (5.4.2.10.2) must fail. An AAF output reads back its offset as set,
+so there the two agree; the CRF output reads back its offset applied in
+whole periods (IEEE 1722-2016 10.7 Eq. 14), so its steps are where the
+readback gate fails.
 
 What bounds a run. This driver sets no host-time deadline (rule 8's
 wall-clock ratchet, scripts/test_evidence.budget item 4). The leg is
@@ -108,9 +111,25 @@ PP_DUPLICATE_WITHDRAWAL = """  logic [N_STREAM_IN_P-1:0][12:0] duplicate_unreg_c
 """
 PP_UNREGISTER = "          || srp_evt_tk_reg_w[k] || srp_evt_tk_unreg_w[k]"
 #: SET_STREAM_INFO's push gate reads the offset stored (#632); the mutant
-#: reads GET_STREAM_INFO's applied word in its place, the gate before #632
+#: reads GET_STREAM_INFO's word in its place, the gate before #632, which
+#: differs from the stored offset on the CRF output alone
 UC_SINFO_STORED = "    u('READ_ST', rd=6, imm=RGN_DYN + SEL_PTOFF), # the offset stored\n"
 UC_SINFO_APPLIED = "    u('GATHER_EXT', rd=6, **GSI(3)),             # the offset applied\n"
+#: GET_STREAM_INFO's presentation offset word (#632): an AAF output's row as
+#: set, the CRF output's through the Equation 14 rounder's readback
+DP_GSI_CRF = "                                        : gsi_crf_out_w ? pres_crf_rb_ns_w\n"
+DP_GSI_WORD = ("                              : {32'd0, !gsi_out_w ? 32'd0\n"
+               "                                        : gsi_crf_out_w ? pres_crf_rb_ns_w\n"
+               "                                        : aecp_pres_offset[32*gsi_oix_w +: 32]};\n")
+DP_GSI_CRF_OUT = "  wire        gsi_crf_out_w = gsi_out_w && (32'(gsiq_index_r) == CRF_TUID_C);\n"
+#: round 4's binding: every output's row through one rounder, read back so
+DP_ALL_ROWS_ROUNDER = (
+    "  wire [31:0] mut_rb_ns_w;\n"
+    "  KL_mtt_round #(.N_P (ACMP_SRC_C), .BASE_HZ_P (AUDIO_IF_FS_HZ_P)) mut_round (\n"
+    "    .clk_i (axis_clk), .rst_n (axis_resetn),\n"
+    "    .raw_ns_i (aecp_pres_offset[ACMP_SRC_C*32-1:0]), .ofs_ns_o (), .ofs_c_o (),\n"
+    "    .rb_row_i (gsi_oix_w[0 +: ((ACMP_SRC_C > 1) ? $clog2(ACMP_SRC_C) : 1)]),\n"
+    "    .rb_ns_o (mut_rb_ns_w));\n")
 
 # (name, [(file, the text it replaces, its replacement)], the check it must fail).
 # `file` is "pp" for the processor top, "dp" for milan_datapath or "uc" for
@@ -147,7 +166,15 @@ MUTATIONS = [
      "[GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A"),
     ("SET_STREAM_INFO's push gate compares with the applied offset again",
      [("uc", UC_SINFO_STORED, UC_SINFO_APPLIED)],
-     "[NOTIFY] SET_STREAM_INFO step 3: 2,010,000 ns again modifies nothing"),
+     "[NOTIFY] SET_STREAM_INFO CRF step 3: 2,010,000 ns again modifies nothing"),
+    ("GET_STREAM_INFO reads the CRF output's offset as set, not applied",
+     [("dp", DP_GSI_CRF,
+       "                                        : gsi_crf_out_w ? aecp_pres_offset[32*CRF_TUID_C +: 32]\n")],
+     "[NOTIFY] SET_STREAM_INFO CRF step 2: GET_STREAM_INFO reads the offset applied, whole periods"),
+    ("GET_STREAM_INFO reads every output's offset rounded by Equation 14 again",
+     [("dp", DP_GSI_CRF_OUT, DP_GSI_CRF_OUT + DP_ALL_ROWS_ROUNDER),
+      ("dp", DP_GSI_WORD, "                              : {32'd0, !gsi_out_w ? 32'd0 : mut_rb_ns_w};\n")],
+     "[NOTIFY] SET_STREAM_INFO step 2: GET_STREAM_INFO reads the offset as set"),
 ]
 
 
