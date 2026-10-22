@@ -1881,11 +1881,12 @@ PDU's transit (the talker's capture to this listener's depacketizer), so a
 talker offset is presented whole when the offset less that transit lies in
 the range: at the 2 ms default, any transit under 1,968,881 ns (1x1), and
 offsets up to 2,656,119 ns plus the transit. Outside the range nothing is
-re-centred: a PDU whose first event is too early is refused by the too-early
-rule and counted in `early_o` (`RENDER_STAT[31:16]`), one too late by the
-late rule in `late_o`. A talker of this device still accepts any offset from 0
-to 0x7FFFFFFF ns (Milan v1.2 5.4.2.9), since it cannot know its listeners'
-buffering. IEEE 1722.1-2021 7.4.77.1 bounds a controller's Max Transit Time by
+re-centred: a PDU's events past the queue are refused by the too-early rule,
+counted in `early_o`, and its events whose frames every interface has read by
+the late rule, counted in `late_o`, its other events presented either way
+(`RENDER_STAT[31:16]` counts each such PDU once). A talker of this device
+still accepts any offset from 0 to 0x7FFFFFFF ns (Milan v1.2 5.4.2.9), since
+it cannot know its listeners' buffering. IEEE 1722.1-2021 7.4.77.1 bounds a controller's Max Transit Time by
 the buffering of the stream's listeners, which each STREAM_INPUT declares in
 `buffer_length` (TTmax <= Tbuf - TUmax - PSTmax, its NOTE): every shipping
 shape declares 2,126,000 ns, the builder's floor (Milan v1.2 5.3.3.4), and
