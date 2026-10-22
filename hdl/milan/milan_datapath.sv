@@ -3461,6 +3461,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .raw_ns_i (aecp_pres_offset[32*CRF_TUID_C +: 32]),
       .ofs_ns_o (pres_crf_ns_w),
       .ofs_c_o  (pres_crf_c_w),
+      //! one row, the CRF output's: the readback always reads row 0
       .rb_row_i (1'b0),
       .rb_ns_o  (pres_crf_rb_ns_w)
     );
