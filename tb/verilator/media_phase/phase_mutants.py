@@ -270,7 +270,7 @@ MUTANTS = (
     #: still reads, its timestamp unread: the old fill law's shape
     ("render_read_untimed", RQUEUE,
      (("          f0_r  <= f0_r + FW_C'(ld_r[QW_C-1:0]) + FW_C'(rnd_w);",
-       "          f0_r  <= f0_r + FW_C'(KMAX_C + 1);"),),
+       "          f0_r  <= f0_r + FW_C'(LATE_C + KMAX_C + 1);"),),
      RENDER, "[render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation "
              "time inside +/-5 % of Ps"),
     #: #632: every PDU's frame one past its timestamp's
