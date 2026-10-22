@@ -1,0 +1,21 @@
+endpoint ooc-1x1: $WORKSPACE_HOME/litex-milan/work/a662-771/m1/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              23366       23828       462  REGRESSION: grew by more than 250
+FF               19823       20000       177  ok
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  wrapper: LUT +462, FF +177
+  u_pp: LUT +455, FF +179
+  u_pp/u_srp: LUT +290, FF +143
+  u_pp/u_srp/u_listener: LUT +225, FF +139
+  u_pp/u_srp/u_talker: LUT +262, FF +0
+  u_pp/u_srp/u_vlan: LUT -170, FF +0
+  u_pp/u_dispatch: LUT +98, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT +76, FF +0
+  u_pp/u_notify: LUT -40, FF +34
+  u_pp/u_aecp: LUT +60, FF -1
+  u_pp/u_aecp/u_ucpu: LUT +56, FF +0
+  u_pp/u_tx_arbiter: LUT +43, FF +0
+RESULT: MATERIAL REGRESSION
