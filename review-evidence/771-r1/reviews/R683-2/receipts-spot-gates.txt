@@ -1,0 +1,5 @@
+scripts/check_port_contracts.py rc=0 last:   review inventory: 93 open and 49 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 412 test-only hierarchical observation(s)
+scripts/lint_rtl.py --check rc=0 last: LINT GATE: PASS (90 violation(s) <= ratchet 90; 18 waived, 0 justified lint_off)
+scripts/check_submodule_docs.py rc=0 last: submodule documentation: OK (6 exact gitlinks)
+scripts/check_gptp_docs.py --with-submodule rc=0 last: gPTP documentation: OK (8 current pages, donor checkout verified)
+syn/ooc/pp_resource_gate.py check-baseline rc=0 last: baseline PASS: 3 endpoints

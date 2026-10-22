@@ -1,0 +1,26 @@
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+head-unplanted acmp rc=0 == ctrl ACMP core and adapter (fake ports and host model): checks: 130   failures: 0 ==
+head-unplanted acmpwalk rc=0 == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 0 ==
+acmp-kind-lost acmp rc=1 == ctrl ACMP core and adapter (fake ports and host model): checks: 130   failures: 1 ==
+    [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind change notifies once
+    [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind updates the reported view
+    [FAIL] AcmpCore.KindChangesOnlyTheSettledView: same kind is idempotent
+acmp-kind-lost acmpwalk rc=1 == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 1 ==
+    [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: notified exactly when a Table 5.22 item moved
+    [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: the talker's discovered and registered state
+acmp-kind-not-notified acmp rc=1 == ctrl ACMP core and adapter (fake ports and host model): checks: 130   failures: 1 ==
+    [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind change notifies once
+    [FAIL] AcmpCore.KindChangesOnlyTheSettledView: same kind is idempotent
+acmp-kind-not-notified acmpwalk rc=1 == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 1 ==
+    [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: notified exactly when a Table 5.22 item moved
+rev-kind-inverted acmp rc=1 == ctrl ACMP core and adapter (fake ports and host model): checks: 130   failures: 1 ==
+    [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind change notifies once
+    [FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind updates the reported view
+    [FAIL] AcmpCore.KindChangesOnlyTheSettledView: same kind is idempotent
+rev-kind-inverted acmpwalk rc=1 == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 1 ==
+    [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: notified exactly when a Table 5.22 item moved
+    [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: the talker's discovered and registered state
+rev-walk-drive-reverted acmp rc=0 == ctrl ACMP core and adapter (fake ports and host model): checks: 130   failures: 0 ==
+rev-walk-drive-reverted acmpwalk rc=0 == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 0 ==
+
+NOTE (reviewer): the rev-walk-drive-reverted rows above are void: the arms compile test sources from the checkout, not the planted copy, so that plant never reached the build. The valid test-side revert is receipts-walk-revert-probe.txt (applied to the checkout and restored).
