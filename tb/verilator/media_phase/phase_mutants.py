@@ -171,37 +171,58 @@ MUTANTS = (
      (("                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;",
        "                   !ref_rate_valid_i || phc_slew_q_r;"),),
      "phcstep", "[phcstep] the phase term let go at the PHC step"),
-    #: #632: the offsets stamped as set, not in whole periods
-    ("offset_rounding_bypassed", MTTR,
+    #: #632: the CRF output stamping its offset as set, not rounded by Eq. 14
+    ("crf_rounding_bypassed", MTTR,
      (("      ofs_ns_o[32*row_r +: 32] <= dv_quot_r[31:0];\n      ofs_c_o[row_r]        <= dv_quot_r[32];",
        "      ofs_ns_o[32*row_r +: 32] <= raw_row_w;\n      ofs_c_o[row_r]        <= 1'b0;"),),
-     OFS, "[ofs A] every AAF output stamps whole periods from the CRF timing points"),
+     OFS, "[ofs B] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14"),
     #: #632: a conversion past 2^32 - 1 ns loses its bit 32
     ("mtt_carry_dropped", MTTR,
      (("      ofs_c_o[row_r]        <= dv_quot_r[32];",
        "      ofs_c_o[row_r]        <= 1'b0;"),),
-     OFS, "[ofs C] every row reads back as applied, rounded up to whole periods, all 33 bits"),
+     OFS, "[ofs H] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits"),
     #: #632: a factory row past 2^32 - 1 ns loads its low word alone
     ("mtt_reset_carry_dropped", MTTR,
      (("        ofs_c_o[k]           <= RESET_RND_C[33*k + 32];",
        "        ofs_c_o[k]           <= 1'b0;"),),
-     OFS, "[ofs A] in reset every row reads its factory value rounded up to whole periods, all 33 bits"),
+     OFS, "[ofs A] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits"),
     #: #632: GET_STREAM_INFO reads a row past 32 bits as its low word
     ("readback_saturation_dropped", MTTR,
      (("                 : ofs_c_o[rb_row_i] ? 32'hFFFF_FFFF : ofs_ns_o[32*rb_row_i +: 32];",
        "                 : ofs_ns_o[32*rb_row_i +: 32];"),),
-     OFS, "[ofs C] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits"),
+     OFS, "[ofs H] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits"),
     #: #632: the CRF output adds the rounded offset's low word alone, so it
     #: stamps 2^32 ns early past 2^32 - 1 ns
     ("crf_carry_dropped", CRFTX,
      (("    else        mtt_ofs_r <= DIVW_C'({transit_c_i, transit_ns_i});",
        "    else        mtt_ofs_r <= DIVW_C'(transit_ns_i);"),),
-     OFS, "[ofs C] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14"),
+     OFS, "[ofs H] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14"),
     #: the CRF output stamping its row as set while the readback shows it applied
     ("crf_row_raw", OFSWRAP,
-     (("    .transit_ns_i (applied_ns_o[N_AAF_P*32 +: 32]),",
+     (("    .transit_ns_i (crf_applied_ns_o),",
        "    .transit_ns_i (raw_ns_i[N_AAF_P*32 +: 32]),"),),
-     OFS, "[ofs A] every CRF timing point is a frame instant plus the CRF row as read back"),
+     OFS, "[ofs B] every CRF timing point is a frame instant plus the CRF row as read back"),
+    #: #632 ruling: the AAF talkers stamping their rows rounded by Eq. 14
+    #: (round 2's binding, every row through the rounder) instead of as set
+    ("aaf_rows_rounded", OFSWRAP,
+     (("  KL_aaf_packetizer #(.N_TALKERS_P (N_AAF_P)) u_pkt (",
+       "  wire [N_AAF_P*32-1:0] aaf_rnd_w;\n"
+       "  KL_mtt_round #(.N_P (N_AAF_P), .BASE_HZ_P (48000)) u_aaf_round (\n"
+       "    .clk_i (clk_i), .rst_n (rst_n), .raw_ns_i (raw_ns_i[N_AAF_P*32-1:0]),\n"
+       "    .ofs_ns_o (aaf_rnd_w), .ofs_c_o (), .rb_row_i ('0), .rb_ns_o ());\n"
+       "  KL_aaf_packetizer #(.N_TALKERS_P (N_AAF_P)) u_pkt ("),
+      ("    .transit_ns_i (raw_ns_i[N_AAF_P*32-1:0]),", "    .transit_ns_i (aaf_rnd_w),")),
+     OFS, "[ofs A] every AAF timestamp is a frame instant plus its row as set, to the ns"),
+    #: #632 ruling: GET_STREAM_INFO reading an AAF row rounded by Eq. 14
+    ("aaf_readback_rounded", OFSWRAP,
+     (("  //! GET_STREAM_INFO word 3: an AAF row as set, the CRF row as applied",
+       "  wire [31:0] aaf_rb_w;\n"
+       "  KL_mtt_round #(.N_P (N_AAF_P), .BASE_HZ_P (48000)) u_aaf_round (\n"
+       "    .clk_i (clk_i), .rst_n (rst_n), .raw_ns_i (raw_ns_i[N_AAF_P*32-1:0]),\n"
+       "    .ofs_ns_o (), .ofs_c_o (), .rb_row_i (rb_row_i[1:0]), .rb_ns_o (aaf_rb_w));"),
+      ("                 : (32'(rb_row_i) < N_AAF_P) ? raw_ns_i[32*rb_row_i +: 32] : 32'd0;",
+       "                 : (32'(rb_row_i) < N_AAF_P) ? aaf_rb_w : 32'd0;")),
+     OFS, "[ofs A] GET_STREAM_INFO reads every AAF row as set"),
     ("domain_event_not_backdated", DOMEV,
      (("  assign mark_ns_o = ptp_ns_i - 64'(MARK_LAT_NS_P);", "  assign mark_ns_o = ptp_ns_i;"),),
      "engage", "[engage] every DUT CRF timestamp is a frame instant of its own grid"),

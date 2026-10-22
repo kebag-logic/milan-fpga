@@ -14,8 +14,9 @@
 #                   queue, graded at their pins (sim_render.cpp)
 #   make blend    - the in-tree I2S + TDM8 blend graded at both interfaces'
 #                   pins (sim_blend.cpp)
-#   make ofs      - several AAF outputs of one domain, each its own offset,
-#                   graded against the CRF timing points (sim_ofs.cpp)
+#   make ofs      - several AAF outputs of one domain, each stamping its
+#                   own offset as set, and the CRF output its offset rounded
+#                   by Eq. 14, graded against the frame grid (sim_ofs.cpp)
 #   make det      - the phase detector alone, every boundary placed exactly
 #                   (sim_det.cpp)
 #   make cases    - build and run every case
@@ -109,8 +110,8 @@ det-build:
 	  -GTICK_CYC_P=32 $(RTL_DIR)/common/cdc_pulse.sv $(RTL_DIR)/common/cdc_handshake.sv \
 	  $(SERVO_RTL) sim_det.cpp -o Vdet
 
-# several AAF outputs of one domain with their own offsets (#632):
-# ofs_wrap.sv, sim_ofs.cpp
+# several AAF outputs of one domain with their own offsets as set, and the
+# CRF output with its offset rounded (#632): ofs_wrap.sv, sim_ofs.cpp
 OFS_WRAP ?= ofs_wrap.sv
 OFS_MDIR ?= obj_ofs
 MTTR_RTL ?= $(RTL_DIR)/ieee1722/crf/KL_mtt_round.sv

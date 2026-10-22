@@ -3,29 +3,28 @@
 //
 // Several AAF outputs and the CRF output of one clock domain, each with its
 // own presentation offset (#632), bound as milan_datapath binds
-// them: the per-STREAM_OUTPUT rows go through KL_mtt_round, whose applied
-// rows the talkers stamp (the low 32 bits) and the CRF output stamps (all 33,
-// KL_crf_tx ROUND_MTT_P = 0), and whose readback GET_STREAM_INFO serves. The
-// factory rows sit at the 2^32 boundary, so reset loads a carry. The domain's
-// frame grid comes from the harness: an event per frame with its instant,
-// the time base of the pairs injected after it, as the capture walk hands
-// the talkers a frame and its instant together.
+// them: the AAF talkers stamp their rows as set (Milan v1.2 5.4.2.9), and
+// only the CRF output's row goes through KL_mtt_round, whose applied row it
+// stamps (all 33 bits, KL_crf_tx ROUND_MTT_P = 0). GET_STREAM_INFO reads an
+// AAF row as set and the CRF row through the rounder's readback (5.4.2.10.2).
+// The CRF row's factory value sits past the 2^32 boundary, so reset loads a
+// carry. The domain's frame grid comes from the harness: an event per frame
+// with its instant, the time base of the pairs injected after it, as the
+// capture walk hands the talkers a frame and its instant together.
 `default_nettype none
 module ofs_wrap #(
   parameter int unsigned N_AAF_P = 4,
-  //! the factory rows (sim_ofs.cpp's kReset): talkers 2,000,000 / 2,010,000
-  //! / 4,294,958,333 (the largest rounding under 2^32) / 4,294,958,334 (the
-  //! first past it), the CRF output 0xFFFFFFFF
-  parameter logic [(N_AAF_P+1)*32-1:0] RESET_NS_P =
-    {32'hFFFF_FFFF, 32'd4_294_958_334, 32'd4_294_958_333, 32'd2_010_000, 32'd2_000_000}
+  //! the CRF output's factory row (sim_ofs.cpp's kCrfReset), rounded past
+  //! 2^32: the AAF rows have none here, the harness drives them as set
+  parameter logic [31:0] CRF_RESET_NS_P = 32'hFFFF_FFFF
 )(
   input  wire                      clk_i,
   input  wire                      rst_n,
   //! the rows as set: AAF talkers 0..N_AAF_P-1, then the CRF output
   input  wire [(N_AAF_P+1)*32-1:0] raw_ns_i,
-  //! the rows as applied: the low 32 bits of each, and each one's bit 32
-  output wire [(N_AAF_P+1)*32-1:0] applied_ns_o,
-  output wire [N_AAF_P:0]          applied_c_o,
+  //! the CRF row as applied: its low 32 bits and its bit 32
+  output wire [31:0]               crf_applied_ns_o,
+  output wire                      crf_applied_c_o,
   //! GET_STREAM_INFO's readback of row rb_row_i
   input  wire [2:0]                rb_row_i,
   output wire [31:0]               rb_ns_o,
@@ -50,15 +49,21 @@ module ofs_wrap #(
   output wire                      crf_tvalid_o,
   output wire                      crf_tlast_o
 );
+  //! the CRF row alone is rounded (milan_datapath's g_pres_crf)
+  wire [31:0] crf_rb_w;
   KL_mtt_round #(
-    .N_P        (N_AAF_P + 1),
+    .N_P        (1),
     .BASE_HZ_P  (48000),
-    .RESET_NS_P (RESET_NS_P)
+    .RESET_NS_P (CRF_RESET_NS_P)
   ) u_round (
     .clk_i (clk_i), .rst_n (rst_n),
-    .raw_ns_i (raw_ns_i), .ofs_ns_o (applied_ns_o), .ofs_c_o (applied_c_o),
-    .rb_row_i (rb_row_i), .rb_ns_o (rb_ns_o)
+    .raw_ns_i (raw_ns_i[N_AAF_P*32 +: 32]),
+    .ofs_ns_o (crf_applied_ns_o), .ofs_c_o (crf_applied_c_o),
+    .rb_row_i (1'b0), .rb_ns_o (crf_rb_w)
   );
+  //! GET_STREAM_INFO word 3: an AAF row as set, the CRF row as applied
+  assign rb_ns_o = (32'(rb_row_i) == N_AAF_P) ? crf_rb_w
+                 : (32'(rb_row_i) < N_AAF_P) ? raw_ns_i[32*rb_row_i +: 32] : 32'd0;
 
   KL_aaf_packetizer #(.N_TALKERS_P (N_AAF_P)) u_pkt (
     .clk_i (clk_i), .rst_n (rst_n),
@@ -67,8 +72,8 @@ module ofs_wrap #(
     .stream_en_i ({N_AAF_P{1'b1}}),
     .dest_mac_i (48'h91E0_F000_FE01), .station_mac_i (48'h0011_2233_4455),
     .vlan_vid_i (12'd2), .vlan_pcp_i (3'd3), .dom_ovr_i (1'b0),
-    //! each talker stamps its OWN row as applied, as milan_datapath wires it
-    .transit_ns_i (applied_ns_o[N_AAF_P*32-1:0]),
+    //! each talker stamps its OWN row as set, as milan_datapath wires it
+    .transit_ns_i (raw_ns_i[N_AAF_P*32-1:0]),
     .ptp_ns_i (tbase_ns_i), .ts_uncertain_i (1'b0), .mr_i ('0),
     .tctx_wr_en_i (tctx_wr_en_i), .tctx_wr_addr_i (tctx_wr_addr_i),
     .tctx_wr_data_i (tctx_wr_data_i), .tctx_wr_rdy_o (tctx_wr_rdy_o),
@@ -85,8 +90,8 @@ module ofs_wrap #(
     .enable_i (1'b1), .sid_i (64'h0011_2233_4455_0009),
     .dest_mac_i (48'h91E0_F000_FE00), .station_mac_i (48'h0011_2233_4455),
     //! the applied row, all 33 bits, as milan_datapath wires it
-    .transit_ns_i (applied_ns_o[N_AAF_P*32 +: 32]),
-    .transit_c_i (applied_c_o[N_AAF_P]),
+    .transit_ns_i (crf_applied_ns_o),
+    .transit_c_i (crf_applied_c_o),
     .ts_uncertain_i (1'b0), .mr_i (1'b0),
     .tu_last_o (), .mr_last_o (), .vlan_en_i (1'b0), .vlan_pcp_i (3'd3),
     .vlan_vid_i (12'd2), .m_axis_tdata (crf_tdata_o), .m_axis_tkeep (),
