@@ -1,0 +1,13 @@
+[PASS] the unmutated gateware still passes the gmstep leg (--no-small-steps)
+[PASS] control caught: the PHC re-base restart term is restored - breaks "restart: a PHC-only step leaves outgoing mr unchanged"
+    it broke 2 check(s): restart: a PHC-only step leaves outgoing mr unchanged; restart: a PHC-only step adds no MEDIA_RESET
+[PASS] control caught: the source-change term is removed - breaks "source control: a real source change toggles mr once"
+    it broke 1 check(s): source control: a real source change toggles mr once
+[PASS] control caught: selected CRF mr propagation is removed - breaks "CRF control: selected CRF mr propagates exactly once"
+    it broke 2 check(s): CRF control: selected CRF mr propagates exactly once; coincident: a PHC step does not suppress the CRF restart
+[PASS] control caught: the grandmaster identity empties the render stage - breaks "render: every PDU not presented was refused by the stage and counted once"
+    it broke 2 check(s): render: ...and only those: every refused PDU was sent between the two steps; render: every PDU not presented was refused by the stage and counted once
+[PASS] control caught: the step empties the render stage - breaks "render: every PDU not presented was refused by the stage and counted once"
+    it broke 3 check(s): render: ...and only those: every refused PDU was sent between the two steps; render: every PDU not presented was refused by the stage and counted once; render: the refused PDUs' frames are one counted slip
+
+6 checks: 6 PASS, 0 FAIL

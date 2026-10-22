@@ -1,0 +1,21 @@
+[det snap] the phase detector alone, 256 PDUs a window
+  [ ok ] [det snap] mr one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [FAIL] [det snap] mr on the closing edge: committed phase contribution 3000/256 (want 0)
+  [ ok ] [det snap] mr one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] term disabled one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [FAIL] [det snap] term disabled on the closing edge: committed phase contribution 3000/256 (want 0)
+  [ ok ] [det snap] term disabled one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] broken history one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] broken history on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] broken history one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] not LOCKED one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [FAIL] [det snap] not LOCKED on the closing edge: committed phase contribution 3000/256 (want 0)
+  [ ok ] [det snap] not LOCKED one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] PHC step one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] PHC step on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] PHC step one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] slew level one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] slew level on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] slew level one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+== media_phase det snap: checks: 18   failures: 3 ==
+RESULT: FAIL

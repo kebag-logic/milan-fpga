@@ -1,0 +1,13 @@
+Slack (MET) :             0.282ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_tx_crc_cnt_reg[1]/C
+                            (rising edge-triggered cell FDSE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            KL_gptp_gmii_launch/delta_r_reg[2]/R
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (eth_clocks0_rx rise@8.000ns - eth_clocks0_rx rise@0.000ns)
+  Data Path Delay:        6.927ns  (logic 1.470ns (21.222%)  route 5.457ns (78.778%))
+  Logic Levels:           9  (LUT2=1 LUT5=2 LUT6=6)
+  Clock Path Skew:        -0.245ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.399ns = ( 12.399 - 8.000 ) 
+    Source Clock Delay      (SCD):    4.810ns

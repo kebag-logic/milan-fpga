@@ -1,0 +1,32 @@
+instance                                                                   LUT      FF   (candidate - base)
+   (alinx_ax7101)                                                          -53      -6
+   KL_gptp_gmii_launch                                                     -17      +0
+     (KL_gptp_gmii_launch)                                                 -17      +0
+     peripheral_toAxiLite4_logic_bridge                                    +15      +0
+   milan_datapath                                                         +172    +413
+     (milan_datapath)                                                      -34      +0
+     aaf_rx_depkt                                                          +17      +1
+     avtp_rx_monitor                                                       -54      -9
+     chan_map_capture                                                      -15     +64
+     crf_rx                                                                +24     +33
+     crf_tx                                                               -109    -142
+     g_gptp_plane.u_gptp_shadow                                           -209      +0
+       (g_gptp_plane.u_gptp_shadow)                                       +366      +0
+       u_engine                                                           -409      +0
+         u_parser                                                          -53      +0
+         u_ucpu                                                           -301      +0
+       u_txret                                                             -46      +0
+       u_txticket                                                          -15      +0
+     g_mmcm_servo.mmcm_servo                                              +382    +200
+       (g_mmcm_servo.mmcm_servo)                                          +323    +200
+       u_tick_cdc                                                          +59      +0
+     media_domain_event                                                     +6     +79
+         u_event_router                                                    -17      +0
+         u_notify                                                          +38      +0
+         u_srp                                                             -26      -2
+         u_talker                                                          +18      +0
+     pres_round                                                           +148    +190
+     talker_diag                                                           -60      +0
+     ts_counter                                                           +117      +0
+       (crf_tx)                                                           -309    -307   (absent in candidate)
+       rx_fifo                                                             -61     -33   (absent in candidate)

@@ -1,0 +1,64 @@
+verilator --cc --exe --build -j 2 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_blend --top-module blend_wrap ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv blend_wrap.sv sim_blend.cpp -o Vblend_wrap
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                    : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-SYNCASYNCNET: ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:42:25: Signal flopped as both synchronous and async: 'blend_wrap.u_i2s.rst_n'
+                       ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:143:10: ... Location of async usage
+  143 |     if (!rst_n) begin
+      |          ^~~~~
+                       ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:71:33: ... Location of sync usage
+   71 |     tarst_n_r <= {tarst_n_r[0], rst_n};
+      |                                 ^~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+make[1]: Entering directory '<host path>'
+g++  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_blend.o ../sim_blend.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o <host path>
+python3 <host path> -DVL_INCLUDE_OPT=include Vblend_wrap.cpp Vblend_wrap___024root__0.cpp Vblend_wrap__Dpi.cpp Vblend_wrap___024root__Slow.cpp Vblend_wrap___024root__0__Slow.cpp Vblend_wrap_KL_media_if_latency_pkg__Slow.cpp Vblend_wrap__Syms__Slow.cpp > Vblend_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vblend_wrap__ALL.o Vblend_wrap__ALL.cpp
+g++    sim_blend.o verilated.o verilated_dpi.o verilated_threads.o Vblend_wrap__ALL.a    -pthread -lpthread -latomic   -o Vblend_wrap
+rm Vblend_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<host path>'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.539 MB sources in 9 modules, into 0.501 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 5.765 s (elab=0.008, cvt=0.035, bld=5.696); cpu 0.065 s on 2 threads; allocated 283.012 MB
+======================================================================
+obj_blend/Vblend_wrap
+[blend] the Arty I2S + TDM8 capture of one domain, graded at its pins
+  info: [blend 0] 144 banked frames; I2S frame start - banked instant -29.1 .. -15.8 ns, TDM frame start - banked instant 11.5 .. 24.9 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 0] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.1 ns)
+  [ ok ] [blend 0] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 24.9 ns)
+  [ ok ] [blend 0] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-29.1 .. -15.8 ns)
+  info: [blend 1] 144 banked frames; I2S frame start - banked instant -24.6 .. -11.3 ns, TDM frame start - banked instant 16.1 .. 29.4 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 1] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 1] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 24.6 ns)
+  [ ok ] [blend 1] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.4 ns)
+  [ ok ] [blend 1] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-24.6 .. -11.3 ns)
+  info: [blend 2] 144 banked frames; I2S frame start - banked instant -26.7 .. -13.4 ns, TDM frame start - banked instant 14.0 .. 27.3 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 2] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 2] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 26.7 ns)
+  [ ok ] [blend 2] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 27.3 ns)
+  [ ok ] [blend 2] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-26.7 .. -13.4 ns)
+  info: [blend 3] 144 banked frames; I2S frame start - banked instant -28.8 .. -15.5 ns, TDM frame start - banked instant 11.9 .. 25.2 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 3] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 3] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 28.8 ns)
+  [ ok ] [blend 3] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 25.2 ns)
+  [ ok ] [blend 3] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-28.8 .. -15.5 ns)
+  info: [blend 4] 144 banked frames; I2S frame start - banked instant -25.0 .. -11.6 ns, TDM frame start - banked instant 15.7 .. 29.1 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 4] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 4] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 25.0 ns)
+  [ ok ] [blend 4] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.1 ns)
+  [ ok ] [blend 4] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-25.0 .. -11.6 ns)
+  info: [blend 5] 144 banked frames; I2S frame start - banked instant -27.1 .. -13.7 ns, TDM frame start - banked instant 13.6 .. 26.9 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 5] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 5] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 27.1 ns)
+  [ ok ] [blend 5] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 26.9 ns)
+  [ ok ] [blend 5] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-27.1 .. -13.7 ns)
+== media_phase blend: checks: 24   failures: 0 ==
+RESULT: PASS
