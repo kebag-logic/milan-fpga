@@ -1,0 +1,6 @@
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: the failure-code byte is left to the parent, which no longer supplies it - breaks "[GSI] G5 sink 1 Talker Failed: msrp_failure_code" (its tallies report 7 failure(s) across 459 checks)
+[PASS] mutant caught: the processor ties probing/ACMP status to zero - breaks "[GSI] G2 sink 0 two probes unanswered: acmp_status" (its tallies report 21 failure(s) across 459 checks)
+
+3 checks: 3 PASS, 0 FAIL
+401.13 s

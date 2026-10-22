@@ -1,0 +1,43 @@
+tb/verilator/milan_dp_render/tdm8_render_mutants.py : 20 inventory entries; 4 with named PASS execution receipts after queue replacement
+  MISSING  wrong physical base: the identity projection
+  MISSING  wrong slot order: the bank walk runs backwards
+  MISSING  shared identity corruption: one pdu bit of EVERY channel
+  MISSING  one-bit phase slip: the bit for position p, not p + 1
+  MISSING  drop NEWEST: the prefetch keeps the have-next guard
+  MISSING  the epoch request does not RETAIN across a reset
+  MISSING  ungated commit: a closed epoch admits frames anyway
+  MISSING  the serial reset rebuilt from two reconverged levels, with arrival skew
+  MISSING  the epoch request races the acknowledgement instead of waiting
+  MISSING  the epoch gate reaches the FIFO but not the adapter
+  MISSING  the graceful flush tears the frame in flight
+  RECORDED the render out-lead one frame long
+  RECORDED the domain event's instant not back-dated
+  MISSING  modelled bit-arrival skew, raw binary transport
+  MISSING  A2-a removed: the aligner is not engaged at INTERNAL
+  RECORDED the render out-lead one frame long, at every [LAW] phase
+  RECORDED the settle recentre never pulses
+  MISSING  the bind-fall mask is not stream qualified
+  MISSING  the lane's stream set ignores the mapping's stream field
+  MISSING  the CSR protocol-store mirror gated on the physical projection
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py : 20 inventory entries; 7 with named PASS execution receipts after queue replacement
+  MISSING  the policy level is tied low at the servo
+  MISSING  the policy level omits the applied-rate tail
+  MISSING  the policy level misses an extra addend stage
+  RECORDED the PHC re-base restart term is restored
+  RECORDED the source-change term is removed
+  RECORDED selected CRF mr propagation is removed
+  RECORDED the grandmaster identity empties the render stage
+  RECORDED the step empties the render stage
+  RECORDED the refused PDUs are not counted
+  MISSING  tu reaches the talkers four cycles late
+  MISSING  the plane's step does not re-arm the holdover
+  MISSING  tu stops the talker
+  MISSING  the grandmaster change stops the talker for good
+  RECORDED a gap in the presented frames leaves no counted slip
+  MISSING  software settime is restored as an mr cause
+  MISSING  PHC adjtime is restored as an mr cause
+  MISSING  both PHC restart causes are restored
+  MISSING  PHC adjtime becomes an mr cause 16 cycles later
+  MISSING  PHC adjtime becomes an mr cause 256 cycles later
+  MISSING  a PHC step suppresses a coincident CRF restart
+Shipping T647 PULLIN phases named in logs: {"round4/milan_dp_render_632_bb9a9200/tdm8_subset.log": ["+1562"]}

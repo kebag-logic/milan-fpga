@@ -1,0 +1,37 @@
+1:make: Entering directory '<host path>'
+13:make --no-print-directory run-gptp run-gptp-lat run-counters-1 run-counters-8 run-counters-1-frames run-counters-8-frames
+412:make --no-print-directory exec-gptp
+421:182 checks: 182 PASS, 0 FAIL
+823:make --no-print-directory exec-gptp-lat
+832:182 checks: 182 PASS, 0 FAIL
+835:make --no-print-directory exec-counters-1
+840:RESULT: PASS
+841:make --no-print-directory exec-counters-8
+846:RESULT: PASS
+847:make --no-print-directory exec-counters-1-frames
+852:RESULT: PASS
+853:make --no-print-directory exec-counters-8-frames
+858:RESULT: PASS
+859:make --no-print-directory build-base && make --no-print-directory build-notify && make --no-print-directory build-crflic && make --no-print-directory build-dynmap && make --no-print-directory build-nxn && make --no-print-directory build
+6032:milan_datapath: 236 checks, 0 failures
+6162:  [FAIL] [NOTIFY] SET_STREAM_INFO CRF step 3: 2,010,000 ns again modifies nothing and pushes nothing (5.4.5.2) got=0x1 exp=0x0
+6166:  [FAIL] [NOTIFY] SET_STREAM_INFO CRF step 4: 2,020,834 ns, the value GET read, changes the stored offset and pushes once got=0x0 exp=0x1
+6168:  [FAIL] [NOTIFY] SET_STREAM_INFO CRF step 4: the push carries the value set got=0xffffffff exp=0x1ed5e2
+6511:checks: 459   failures: 3
+6512:RESULT: FAIL
+7074:checks: 416   failures: 0
+7075:RESULT: PASS
+7295:checks: 162   failures: 0
+7296:RESULT: PASS
+9418:checks: 2009   failures: 0
+9419:RESULT: PASS
+11544:checks: 2011   failures: 0
+11545:RESULT: PASS
+11546:sim_pool: ./obj_nxn8/Vmilan_dp_nxn8 was not started after a child failure
+11547:sim_pool: ./obj_nxn4c/Vmilan_dp_nxn4c was not started after a child failure
+11548:sim_pool: ./obj_nolpf/Vmilan_dp_nolpf was not started after a child failure
+11549:sim_pool: ./obj_prune/Vmilan_dp_prune was not started after a child failure
+11550:sim_pool: ./obj_ax1x1/Vmilan_dp_ax1x1 was not started after a child failure
+11551:sim_pool: ./obj_aclk/Vmilan_dp_aclk was not started after a child failure
+11553:make: *** [Makefile:585: run] Error 1
+11554:make: Leaving directory '<host path>'

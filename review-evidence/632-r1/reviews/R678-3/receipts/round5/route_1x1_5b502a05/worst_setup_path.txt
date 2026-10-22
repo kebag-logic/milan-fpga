@@ -1,0 +1,13 @@
+Slack (MET) :             0.108ns  (required time - arrival time)
+  Source:                 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+                            (rising edge-triggered cell FDCE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.824ns  (logic 2.479ns (25.235%)  route 7.345ns (74.765%))
+  Logic Levels:           20  (LUT2=3 LUT3=4 LUT4=5 LUT5=2 LUT6=6)
+  Clock Path Skew:        -0.044ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.758ns = ( 16.758 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.188ns
