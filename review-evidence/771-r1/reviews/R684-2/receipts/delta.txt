@@ -1,0 +1,26 @@
+1098978f4a931a667e147b68a791520eb141c917 State the adopted AS_PATH count meaning in the parent contracts: count one is {thisClock} before a peer (gPTP #82) and an explicit one-entry PathTrace is count two (gPTP #85) (#771)
+bbdd24d00661007da6ae7c902402bd927e9fe814 Name the eight-identity bound on the appended path on the register map, the pin page and the changelog: at eight or more received entries the first eight are served, count 8, without thisClock (#771)
+b6fc1590ca63bb5f851a17b9bda7d15a9d790c4d Deliver the firmware ACMP walk's SETTLED_RSV_OK registration as acmp_tk_kind_changed, the swap processor #189 models, with its kind and notification controls (#771)
+
+ CHANGELOG.md                                |  4 +++-
+ README.md                                   |  5 ++++-
+ docs/reference/REGISTER_MAP.md              | 12 ++++++++++--
+ docs/reference/SUBMODULES.md                |  2 +-
+ hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv | 11 +++++++----
+ hdl/milan/KL_pp_shadow.sv                   |  7 +++++--
+ hdl/milan/milan_datapath.sv                 |  6 ++++--
+ sw/firmware/ctrl/test/acmp_mutants.py       | 10 +++++++++-
+ sw/firmware/ctrl/test/acmp_walk.cpp         |  9 ++++++++-
+ 9 files changed, 51 insertions(+), 15 deletions(-)
+
+RTL behavior bytes unchanged after removing whole-line comments: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+RTL behavior bytes unchanged after removing whole-line comments: hdl/milan/milan_datapath.sv
+RTL behavior bytes unchanged after removing whole-line comments: hdl/milan/KL_pp_shadow.sv
+Unchanged: protocol-processor
+Unchanged: gptp-processor
+Unchanged: third_party/tsn-c-stack
+Unchanged: sw/firmware/ctrl/app
+Unchanged: sw/firmware/ctrl/test/ctrl_reuse.py
+Shipping firmware SHA256: 497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed
+New source-comment provenance residue scan: none
+Whitespace check: PASS
