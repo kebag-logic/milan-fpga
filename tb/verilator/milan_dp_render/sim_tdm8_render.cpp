@@ -1444,6 +1444,7 @@ class TdmRenderHarness {
     void prove_a_stale_stream_repoint_is_bounded(int slot, int chan);
     void prove_the_lane_renders_a_second_stream(int slot, int chan);
     void prove_a_rendered_stream_loss_closes_the_epoch(int slot, int chan);
+    void prove_a_map_write_in_the_closed_epoch_reaches_no_slot();
     void prove_the_nonphysical_key_mirrors_without_reaching_a_pin();
     void phase_serial();
     void phase_csr();
@@ -3039,7 +3040,11 @@ void TdmRenderHarness::prove_a_rebind_carries_only_post_rebind_audio(
         uint64_t epochs_before, long events_at_loss) {
     // T26: rewrite the map while the bind is down. The re-seeded crossbar
     // value must not reach a slot, and the first nonzero frame after the
-    // rebind must be a POST-rebind event routed by the NEW map.
+    // rebind must be a POST-rebind event routed by the NEW map. On this one
+    // stream the render stage presents the flushed stream as silence (#632),
+    // so this is the end-to-end property, held by the stage's flush and the
+    // epoch together; the multi-stream leg's T26 re-seeds the crossbar with a
+    // live stream, where the epoch alone holds it, and grades the gate.
     std::vector<std::pair<int, int>> newrows;
     for (int co = 0; co < kSlots; co++)
         newrows.emplace_back((kPerm[static_cast<size_t>(co)] + 1) % kChans, co);
@@ -3927,6 +3932,56 @@ void TdmRenderHarness::prove_the_lane_renders_a_second_stream(int slot,
               "stream's", static_cast<uint64_t>(w.g.channel_field_failures), 0);
 }
 
+//! T26 ON TWO STREAMS: a map write inside the CLOSED epoch may not reach a
+//! slot, while the crossbar it re-seeds holds LIVE audio. Since #632 a bind
+//! fall or a reset also empties the render stage's queue for its stream, so
+//! on the one-stream shape the crossbar a closed epoch re-seeds holds silence
+//! and the ship leg's T26 grades the end-to-end property alone. Here stream
+//! 1's loss holds the epoch closed (its freshness waits for stream 1's
+//! post-flush event) while stream 0 keeps feeding, so the crossbar offers
+//! live samples the whole window, and a map write re-seeds a stream-0 key
+//! with another live channel: the epoch's commit gates are all that keep that
+//! value off the pins. The mapping is restored before the reopen, whose
+//! grades read the original map.
+void TdmRenderHarness::prove_a_map_write_in_the_closed_epoch_reaches_no_slot() {
+    const int slot = 0;
+    const int was = kPerm[static_cast<size_t>(slot)];
+    const int now = (was + 1) % kChans;
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: the stream-0 mapping of slot 0 "
+              "is removed while the epoch is closed",
+              static_cast<uint64_t>(map_cmd(kCmdRemoveMappings, {{was, slot}}, 0, 0)), 0);
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: ...and slot 0 re-mapped to "
+              "another live stream-0 channel",
+              static_cast<uint64_t>(map_cmd(kCmdAddMappings, {{now, slot}}, 0, 0)), 0);
+    const long pops_before = pops_by_stream[0];
+    decoder_reset();
+    collect = true;
+    run_fed(20 * kPduPeriodCycles);
+    collect = false;
+    long leaked = 0;
+    for (const DecodedFrame& fr : decoded)
+        for (int k = 0; k < kSlots; k++)
+            if (fr.slot[static_cast<size_t>(k)] != 0) ++leaked;
+    check.that("T26 MAP WRITE IN A CLOSED EPOCH: the crossbar held live audio "
+               "through the window: stream 0's events were presented",
+               pops_by_stream[0] - pops_before > 100);
+    check.that("T26 MAP WRITE IN A CLOSED EPOCH: the pins were decoded through "
+               "the window", !decoded.empty());
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value "
+              "never reaches a slot, though the other rendered stream still "
+              "feeds it", static_cast<uint64_t>(leaked), 0);
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: the adapter's commit gate stayed "
+              "closed", static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__tdmr_commit_en_w), 0);
+    std::printf("  [i]    T26 (two streams): %zu frame(s) decoded, %ld stream-0 "
+                "pop(s), %ld nonzero slot(s)\n", decoded.size(),
+                pops_by_stream[0] - pops_before, leaked);
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: slot 0's re-mapping is removed",
+              static_cast<uint64_t>(map_cmd(kCmdRemoveMappings, {{now, slot}}, 0, 0)), 0);
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: ...and its original mapping "
+              "restored", static_cast<uint64_t>(map_cmd(kCmdAddMappings, {{was, slot}}, 0, 0)), 0);
+}
+
 //! THE QUALIFICATION, half two: the same bind fall, on a stream the lane now
 //! DOES render, must close the epoch, flush to digital silence and reopen on
 //! a fresh post-flush event.
@@ -3963,6 +4018,7 @@ void TdmRenderHarness::prove_a_rendered_stream_loss_closes_the_epoch(int slot,
     check.that("M5 RENDERED LOSS: the lane reached digital silence", boundary);
     check.dec("M5 RENDERED LOSS: no frame after the boundary carries a "
               "pre-loss sample in any slot", static_cast<uint64_t>(carried), 0);
+    prove_a_map_write_in_the_closed_epoch_reaches_no_slot();
     //! #443: stream 1 is flushed while stream 0 still runs. These unequal
     //! states catch a CSR selector that silently aliases every index to 0.
     axi_write(0x800, 1);

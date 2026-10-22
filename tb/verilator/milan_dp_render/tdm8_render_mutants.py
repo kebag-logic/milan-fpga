@@ -206,15 +206,18 @@ MUTATIONS = [
     # ONE DEFECT, TWO PLACES again: the epoch gates commits at the adapter
     # (through commit_en_o) and again at the FIFO write itself, and either
     # alone stops a closed epoch admitting a frame. The defect is "a closed
-    # epoch does not gate commits".
+    # epoch does not gate commits". It runs on the MULTI-STREAM leg: since
+    # #632 a bind fall also empties the render stage's queue for its stream,
+    # so on the one-stream shape the crossbar a closed epoch could leak holds
+    # silence, while there the other rendered stream keeps it live.
     ("ungated commit: a closed epoch admits frames anyway", "render",
      [("  assign commit_en_o = commit_en_r;",
        "  assign commit_en_o = 1'b1;"),
       ("  wire fifo_wen_w = tick_i && commit_en_r && !wfull_w;",
        "  wire fifo_wen_w = tick_i && !wfull_w;")],
-     "ship", "--epoch-only",
+     "multi", None,
      "T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never "
-     "reaches a slot"),
+     "reaches a slot, though the other rendered stream still feeds it"),
     # THE EPOCH'S OWN CROSSING, rebuilt the way it must not be. The serial
     # side's flush and acknowledgement levels clear on the SAME clk_tdm_i edge
     # at a reopen, so a producer that reconstructs "flushed and never
