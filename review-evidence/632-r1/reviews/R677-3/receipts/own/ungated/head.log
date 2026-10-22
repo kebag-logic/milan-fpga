@@ -1,0 +1,9 @@
+mutant: ungated commit: a closed epoch admits frames anyway
+leg: ship --epoch-only
+rc: 1
+named check: T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never reaches a slot
+  [FAIL] T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening got=8 exp=0
+  [FAIL] T19 RESET IN FLIGHT: no frame was committed before that reopening got=8 exp=0
+  [FAIL] T23 BIND LOSS: the adapter commit gate is closed while the epoch is got=1 exp=0
+  [FAIL] T25 DOUBLE EVENT: ...and it closed the adapter's commit gate got=1 exp=0
+verdict: 

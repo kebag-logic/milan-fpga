@@ -1,0 +1,112 @@
+make: Entering directory '<clone>/tb/verilator/media_phase'
+<tools> --cc --exe --build -j 0 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_det --top-module KL_mmcm_drp_servo --prefix Vdet_servo \
+  -GTICK_CYC_P=32 ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv \
+  ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_det.cpp -o Vdet
+make[1]: Entering directory '<clone>/tb/verilator/media_phase/obj_det'
+g++  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_det.o ../sim_det.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o <host path>
+python3 <host path> -DVL_INCLUDE_OPT=include Vdet_servo.cpp Vdet_servo___024root__0.cpp Vdet_servo__Dpi.cpp Vdet_servo___024root__Slow.cpp Vdet_servo___024root__0__Slow.cpp Vdet_servo__Syms__Slow.cpp > Vdet_servo__ALL.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vdet_servo__ALL.o Vdet_servo__ALL.cpp
+g++    sim_det.o verilated.o verilated_dpi.o verilated_threads.o Vdet_servo__ALL.a    -pthread -lpthread -latomic   -o Vdet
+rm Vdet_servo__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<clone>/tb/verilator/media_phase/obj_det'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.146 MB sources in 4 modules, into 0.270 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 6.242 s (elab=0.004, cvt=0.021, bld=6.207); cpu 0.040 s on 16 threads; allocated 757.195 MB
+======================================================================
+[det inband] the phase detector alone, 256 PDUs a window
+  [ ok ] [det inband] engaged, the window phase inside the band (theta 0)
+  [ ok ] [det inband] settled first reads 1 at the close of the fourth full in-band window (at 4)
+  [ ok ] [det inband] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase det inband: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det events] the phase detector alone, 256 PDUs a window
+  [ ok ] [det events] settled before the restart
+  [ ok ] [det events] settled reads 0 on the cycle after an mr restart
+  [ ok ] [det events] after the restart settled rises only at the close of the fourth clean window (at 4)
+  [ ok ] [det events] settled falls at the first window with a sample out of the band and stays low
+  [ ok ] [det events] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase det events: checks: 5   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det meanin] the phase detector alone, 256 PDUs a window
+  [ ok ] [det meanin] the window phase is the samples' mean, inside the band (theta 0)
+  [ ok ] [det meanin] settled never asserts with every sample outside the band
+== media_phase det meanin: checks: 2   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det balanced] the phase detector alone, 256 PDUs a window
+  [ ok ] [det balanced] the window phase reads the half-period phase (theta -31250, |theta| >= 28125)
+  [ ok ] [det balanced] the committed correction is the slew limit's (-32768/256)
+  [ ok ] [det balanced] settled never asserts
+== media_phase det balanced: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det unbal129] the phase detector alone, 256 PDUs a window
+  [ ok ] [det unbal129] the window phase reads the half-period phase (theta 31249, |theta| >= 28125)
+  [ ok ] [det unbal129] the committed correction is the slew limit's (32768/256)
+  [ ok ] [det unbal129] settled never asserts
+== media_phase det unbal129: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det unbal160] the phase detector alone, 256 PDUs a window
+  [ ok ] [det unbal160] the window phase reads the half-period phase (theta 31249, |theta| >= 28125)
+  [ ok ] [det unbal160] the committed correction is the slew limit's (32768/256)
+  [ ok ] [det unbal160] settled never asserts
+== media_phase det unbal160: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det jitter] the phase detector alone, 256 PDUs a window
+  [ ok ] [det jitter] the window phase reads the half-period phase (theta 31186, |theta| >= 28125)
+  [ ok ] [det jitter] the committed correction is the slew limit's (32768/256)
+  [ ok ] [det jitter] settled never asserts
+== media_phase det jitter: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det cross] the phase detector alone, 256 PDUs a window
+  [ ok ] [det cross] before the crossing the window phase reads +Ps/2 - 100 ns (30951)
+  [ ok ] [det cross] past +Ps/2 the window phase re-folds to the short way, -Ps/2 + 100 ns (-30951)
+== media_phase det cross: checks: 2   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det afterhold] the phase detector alone, 256 PDUs a window
+  [ ok ] [det afterhold] settled near 0 before the hold (theta 0)
+  [ ok ] [det afterhold] after a hold, samples either side of +/-Ps/2 read the half-period phase (theta -31250, |theta| >= 28125)
+  [ ok ] [det afterhold] ...and the committed correction is the slew limit's (-32768/256)
+  [ ok ] [det afterhold] settled never asserts after the hold
+== media_phase det afterhold: checks: 4   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det range] the phase detector alone, 256 PDUs a window
+  [ ok ] [det range] d = 33554431 ns, inside +/-2^25 ns, is sampled (257 a window)
+  [ ok ] [det range] d = -33554431 ns, inside +/-2^25 ns, is sampled (257 a window)
+  [ ok ] [det range] a timestamp 2^25 ns from the domain event is not sampled (d = 33554432 ns: 0 a window)
+  [ ok ] [det range] a timestamp 2^25 ns from the domain event is not sampled (d = -33554432 ns: 0 a window)
+== media_phase det range: checks: 4   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det snap] the phase detector alone, 256 PDUs a window
+  [ ok ] [det snap] mr one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] mr on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] mr one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] term disabled one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] term disabled on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] term disabled one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] broken history one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] broken history on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] broken history one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] not LOCKED one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] not LOCKED on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] not LOCKED one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] PHC step one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] PHC step on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] PHC step one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] slew level one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] slew level on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] slew level one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+== media_phase det snap: checks: 18   failures: 0 ==
+RESULT: PASS
+make: Leaving directory '<clone>/tb/verilator/media_phase'
