@@ -1,0 +1,7 @@
+planted:  1 file changed, 2 deletions(-)
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+checkout-as-is acmp rc=0 == ctrl ACMP core and adapter (fake ports and host model): checks: 130   failures: 0 ==
+checkout-as-is acmpwalk rc=1 == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 1 ==
+    [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: notified exactly when a Table 5.22 item moved
+    [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: the talker's discovered and registered state
+restore: before=02afed8b75c807854240a634f6c21fa6bf066c99 after=02afed8b75c807854240a634f6c21fa6bf066c99 index=02afed8b75c807854240a634f6c21fa6bf066c99 head=02afed8b75c807854240a634f6c21fa6bf066c99
