@@ -243,6 +243,14 @@ Issue #771 adopts processor pin `93fb0b2d` and gPTP pin `55680bff`.
 | #84, the grandmaster role is synchronised | [86](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86) | While this station is grandmaster, sync-ok is set, so `tu` reads 0 once the holdover a grandmaster change arms has run |
 | #85, pathTrace | [86](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86) | The published path is the received pathSequence with thisClock appended (IEEE 802.1AS-2020 Section 10.3.13.2.4 f) 5)): each count gains one entry and each GET_AS_PATH response eight bytes |
 
+The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) is re-baselined under an [owner exception](https://github.com/kebag-logic/milan-fpga/issues/771#issuecomment-6333175429).
+
+This adoption adds 770 LUTs to dev's shipping route. Its tolerance is 500 LUTs.
+
+Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) addresses that growth.
+
+Its shipping route keeps +0.291 ns WNS.
+
 The processor top changes one port, the TSpec width.
 
 The gPTP engine's ports and parameters are unchanged.

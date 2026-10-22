@@ -74,6 +74,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - So GET_AS_PATH gains one identity.
 - Eight parent patches adapt evidence, wrapper and harness rows.
 - The ROM ledger adds both pins' rows; two ROMs change.
+- The resource gate re-baselines under an owner exception.
+- The route grows 770 LUTs over dev's own route.
+- Mark II (#640) addresses that growth.
 - VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - processor pin 2ad2f845
