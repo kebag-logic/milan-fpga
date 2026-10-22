@@ -1,0 +1,252 @@
+{
+  "tb/verilator/milan_dp_render/tdm8_render_mutants.py": [
+    {
+      "control": "wrong physical base: the identity projection",
+      "receipts": {}
+    },
+    {
+      "control": "wrong slot order: the bank walk runs backwards",
+      "receipts": {}
+    },
+    {
+      "control": "shared identity corruption: one pdu bit of EVERY channel",
+      "receipts": {}
+    },
+    {
+      "control": "one-bit phase slip: the bit for position p, not p + 1",
+      "receipts": {}
+    },
+    {
+      "control": "drop NEWEST: the prefetch keeps the have-next guard",
+      "receipts": {}
+    },
+    {
+      "control": "the epoch request does not RETAIN across a reset",
+      "receipts": {}
+    },
+    {
+      "control": "ungated commit: a closed epoch admits frames anyway",
+      "receipts": {}
+    },
+    {
+      "control": "the serial reset rebuilt from two reconverged levels, with arrival skew",
+      "receipts": {}
+    },
+    {
+      "control": "the epoch request races the acknowledgement instead of waiting",
+      "receipts": {}
+    },
+    {
+      "control": "the epoch gate reaches the FIFO but not the adapter",
+      "receipts": {}
+    },
+    {
+      "control": "the graceful flush tears the frame in flight",
+      "receipts": {}
+    },
+    {
+      "control": "the render out-lead one frame long",
+      "receipts": {
+        "round4/milan_dp_render_632_bb9a9200/tdm8_subset.log": [
+          "[PASS] mutant caught (ship --serial-only): the render out-lead one frame long - breaks \"T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps\" and 1 more",
+          "[PASS] mutant caught (ship --law-only): the render out-lead one frame long, at every [LAW] phase - breaks \"T30 INTERNAL LAW +0 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps\" and 17 more"
+        ]
+      }
+    },
+    {
+      "control": "the domain event's instant not back-dated",
+      "receipts": {
+        "round4/milan_dp_render_632_bb9a9200/tdm8_subset.log": [
+          "[PASS] mutant caught (ship --serial-only): the domain event's instant not back-dated - breaks \"T6 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps\""
+        ]
+      }
+    },
+    {
+      "control": "modelled bit-arrival skew, raw binary transport",
+      "receipts": {}
+    },
+    {
+      "control": "A2-a removed: the aligner is not engaged at INTERNAL",
+      "receipts": {}
+    },
+    {
+      "control": "the render out-lead one frame long, at every [LAW] phase",
+      "receipts": {
+        "round4/milan_dp_render_632_bb9a9200/tdm8_subset.log": [
+          "[PASS] mutant caught (ship --law-only): the render out-lead one frame long, at every [LAW] phase - breaks \"T30 INTERNAL LAW +0 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps\" and 17 more"
+        ]
+      }
+    },
+    {
+      "control": "the settle recentre never pulses",
+      "receipts": {
+        "round4/milan_dp_render_632_bb9a9200/tdm8_subset.log": [
+          "[PASS] mutant caught (ship --pullin): the settle recentre never pulses - breaks \"T647 PULLIN +1562: one settle recentre for the LOOP queues after the hold\""
+        ]
+      }
+    },
+    {
+      "control": "the bind-fall mask is not stream qualified",
+      "receipts": {}
+    },
+    {
+      "control": "the lane's stream set ignores the mapping's stream field",
+      "receipts": {}
+    },
+    {
+      "control": "the CSR protocol-store mirror gated on the physical projection",
+      "receipts": {}
+    }
+  ],
+  "tb/verilator/milan_dp_gm_steps/gmstep_mutants.py": [
+    {
+      "control": "the policy level is tied low at the servo",
+      "receipts": {}
+    },
+    {
+      "control": "the policy level omits the applied-rate tail",
+      "receipts": {}
+    },
+    {
+      "control": "the policy level misses an extra addend stage",
+      "receipts": {}
+    },
+    {
+      "control": "the PHC re-base restart term is restored",
+      "receipts": {
+        "round4/gm_steps/gmstep_mutants2.log": [
+          "[PASS] control caught: the PHC re-base restart term is restored - breaks \"restart: a PHC-only step leaves outgoing mr unchanged\""
+        ],
+        "round4/sweep_2389506/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: the PHC re-base restart term is restored - breaks \"restart: a PHC-only step leaves outgoing mr unchanged\""
+        ],
+        "round5/sweep_ee5ece60/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: the PHC re-base restart term is restored - breaks \"restart: a PHC-only step leaves outgoing mr unchanged\""
+        ]
+      }
+    },
+    {
+      "control": "the source-change term is removed",
+      "receipts": {
+        "round4/gm_steps/gmstep_mutants2.log": [
+          "[PASS] control caught: the source-change term is removed - breaks \"source control: a real source change toggles mr once\""
+        ],
+        "round4/sweep_2389506/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: the source-change term is removed - breaks \"source control: a real source change toggles mr once\""
+        ],
+        "round5/sweep_ee5ece60/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: the source-change term is removed - breaks \"source control: a real source change toggles mr once\""
+        ]
+      }
+    },
+    {
+      "control": "selected CRF mr propagation is removed",
+      "receipts": {
+        "round4/gm_steps/gmstep_mutants2.log": [
+          "[PASS] control caught: selected CRF mr propagation is removed - breaks \"CRF control: selected CRF mr propagates exactly once\""
+        ],
+        "round4/sweep_2389506/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: selected CRF mr propagation is removed - breaks \"CRF control: selected CRF mr propagates exactly once\""
+        ],
+        "round5/sweep_ee5ece60/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: selected CRF mr propagation is removed - breaks \"CRF control: selected CRF mr propagates exactly once\""
+        ]
+      }
+    },
+    {
+      "control": "the grandmaster identity empties the render stage",
+      "receipts": {
+        "round4/gm_steps/gmstep_mutants2.log": [
+          "[PASS] control caught: the grandmaster identity empties the render stage - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ],
+        "round4/sweep_2389506/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: the grandmaster identity empties the render stage - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ],
+        "round5/sweep_ee5ece60/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: the grandmaster identity empties the render stage - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ]
+      }
+    },
+    {
+      "control": "the step empties the render stage",
+      "receipts": {
+        "round4/gm_steps/gmstep_mutants2.log": [
+          "[PASS] control caught: the step empties the render stage - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ],
+        "round4/sweep_2389506/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: the step empties the render stage - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ],
+        "round5/sweep_ee5ece60/shard2/milan_dp_gm_steps.log": [
+          "[PASS] control caught: the step empties the render stage - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ]
+      }
+    },
+    {
+      "control": "the refused PDUs are not counted",
+      "receipts": {
+        "round4/gm_steps_bb9a9200/gmstep_subset.log": [
+          "[PASS] control caught: the refused PDUs are not counted - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ],
+        "round4/gm_steps/gmstep_subset.log": [
+          "[PASS] control caught: the refused PDUs are not counted - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ]
+      }
+    },
+    {
+      "control": "tu reaches the talkers four cycles late",
+      "receipts": {}
+    },
+    {
+      "control": "the plane's step does not re-arm the holdover",
+      "receipts": {}
+    },
+    {
+      "control": "tu stops the talker",
+      "receipts": {}
+    },
+    {
+      "control": "the grandmaster change stops the talker for good",
+      "receipts": {}
+    },
+    {
+      "control": "a gap in the presented frames leaves no counted slip",
+      "receipts": {
+        "round4/gm_steps_bb9a9200/gmstep_subset.log": [
+          "[PASS] control caught: a gap in the presented frames leaves no counted slip - breaks \"render: the refused PDUs' frames are one counted slip\""
+        ],
+        "round4/gm_steps/gmstep_subset.log": [
+          "[PASS] control caught: a gap in the presented frames leaves no counted slip - breaks \"render: the refused PDUs' frames are one counted slip\""
+        ]
+      }
+    },
+    {
+      "control": "software settime is restored as an mr cause",
+      "receipts": {}
+    },
+    {
+      "control": "PHC adjtime is restored as an mr cause",
+      "receipts": {}
+    },
+    {
+      "control": "both PHC restart causes are restored",
+      "receipts": {}
+    },
+    {
+      "control": "PHC adjtime becomes an mr cause 16 cycles later",
+      "receipts": {}
+    },
+    {
+      "control": "PHC adjtime becomes an mr cause 256 cycles later",
+      "receipts": {}
+    },
+    {
+      "control": "a PHC step suppresses a coincident CRF restart",
+      "receipts": {}
+    }
+  ],
+  "pullin_phases": {
+    "round4/milan_dp_render_632_bb9a9200/tdm8_subset.log": [
+      "+1562"
+    ]
+  }
+}

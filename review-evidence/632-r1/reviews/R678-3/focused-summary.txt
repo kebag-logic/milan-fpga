@@ -1,0 +1,2 @@
+{'name': 'phase-focused', 'command': ['python3', 'phase_mutants.py', '--jobs', '4', '--only', 'hold_keeps_ref,crf_carry_dropped,render_b_lead_dropped,render_read_untimed,render_frame_off_by_one,render_late_rule_removed,render_early_rule_removed'], 'returncode': 0, 'seconds': 40.19}
+{'name': 'queue-clean', 'command': ['make', '-j16', 'run', 'VERILATOR_JOBS=4'], 'returncode': 0, 'seconds': 5.27}

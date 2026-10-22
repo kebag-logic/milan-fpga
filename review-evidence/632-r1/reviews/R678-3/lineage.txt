@@ -1,0 +1,159 @@
+
+$ git rev-parse HEAD HEAD^{tree}
+ee5ece607816a1bfc834bd51734b703a8aab8e46
+5505182fe6e444e736f1f10b4388621342b820d5
+
+$ git rev-list --count 2ff30f0d..HEAD
+31
+
+$ git log --format=%h %s 2ff30f0d..HEAD
+ee5ece607 Document AAF offsets stamped as set and the CRF output's alone rounded, GET_STREAM_INFO's split, and the listener's supported range per shape
+d5b516f6a Grade every output's stamp as a domain event's instant plus the offset GET_STREAM_INFO reads, the AAF row as set and the CRF row applied, and the four SET_STREAM_INFO steps on both outputs
+5b502a056 Say the domain's outputs stamp one grid's instants each plus its own offset, the CRF output's alone in whole periods
+950bffecf Give the CRF rounder's tied readback row its reason
+ac3bb11a1 Grade every AAF timestamp as its frame instant plus its offset as set and the CRF output's by Equation 14 over the ruled offsets, with the AAF rows rounded and read back rounded planted
+133ef20f7 Stamp each AAF talker's presentation offset as set and read it back so, the Equation 14 rounder serving the CRF output's row alone
+2389506ac Stamp the base leg's I2S render PDU four media periods past the domain event: the presentation stage refuses mkaaf's fixed timestamp
+bb9a9200e Place a PDU of any length: the walk's frame follows each event from F0 instead of a 3-bit event index, and once an event is past the queue the PDU's later events are refused with it
+2d786e8b5 Shrink the presentation stage for the route's LUT bar: the frame by long division of 3d with the remainder rounding, the flush mask in the banks' read reset, the write data steered by the bank bit, one refused counter for RENDER_STAT, frame numbers two bits past the row
+6631b0b2d Document the listener's presentation at the timestamp: the law, its range, rules and counters, step and hold, what replaces the #386 and #387 recentres, RENDER_STAT's fields, and the suites that grade it
+e6756e6fe Count the settle recentre per switch in milan_dp_mclk, the #386 at-switch recentre it counted being retired
+43f06d178 Bind the presentation stage in follow_ring and grade it through the source changes, pull-ins and binds: every event at its nearest frame and no slip after each settle, with the settle recentre on the loopback ring alone
+baa9ea691 Census the PHC strobes without the retired media re-base reader and pin the presentation stage's flush to the bind wipe, with the builder's planted defects moved onto both
+1ab53ffc1 Grade the grandmaster change at the presentation stage: the PDUs stamped across the two steps refused and counted, their frames one slip, every other PDU at one offset, and the render controls planting the retired re-base's effect
+504ae8b34 Grade the presentation stage's output at the true clock ratio: every event at its time through an arrival shift, a PHC step, a settime, refused PDUs and both source changes, with RENDER_STAT's new fields and four planted defects
+7d7ffc096 Grade the shipping render lane at its pins against every sample's presentation time: the first event, eighteen feed phases, the source changes and the serial-clock hold
+4b2df8eae Name the payload lead in cycles and the header timestamp in ns, gate the depacketizer's payload on its lead count alone, state the queue's step and hold behaviour, and bring its unit and pin harnesses under the idiom ratchets
+25fae69f0 Grade the presentation stage byte-exact against a model of the law on two shapes, with eighteen planted defects, and retire the setpoint stage and its suite
+ae26a827b Grade two render interfaces a frame apart at their pins with the slot-MSB decoder, against every sample's presentation time, with the dropped constant, the untimed read, the frame off by one and the late and early rules planted
+111538670 Present every listener sample at its presentation time: a timestamp-snapped queue per stream in two inferred block-RAM banks, each interface reading the frame its derived out-lead puts at its pins
+3fdaea3d2 Record that SET_STREAM_INFO's push compares with the stored offset once set and with the factory offset in force before, as the processor gate ruled for #632
+32fb8fc26 Record that milan_dp's pool starts no leg after the notify leg while the processor pin's SET_STREAM_INFO gate reads the applied word
+28510858b Run the SET_STREAM_INFO push case on the timed leg alone, the one leg whose output 0 still holds its factory offset when the section starts
+62ee1a8cc Write each rounded row's low word and carry as two indexed writes, its reset value from an elaboration table, since Yosys drops an indexed concatenation target and kept no cell of the rounder
+aea19ce73 Record media_phase's default target at 553 s and its thirty-three-mutant campaign at 1,396 s on two jobs
+cf85a578b Document the rounder's readback row without a unit and hold the #632 changelog and render-latency lines to the style limits
+d790dd442 Document the offsets' carry past 2^32 and GET_STREAM_INFO's saturated word, the SET echo against the applied readback, the push judged on the value set, and the listener out of this PR (#632)
+45633bd1c Drop review labels from the #632 source comments
+fe3ff9999 Grade SET_STREAM_INFO's push against the offset as set in four steps on the wire, with the microcode gate's applied-readback compare planted
+f36177f9b Grade every offset row on all 33 bits and every CRF timestamp on 64 at the 2^32 boundary, in reset and at run time, and the detector after a hold onto the fold, each with a planted defect
+81f09d06f Carry each rounded offset's bit 32 into the CRF output's 64-bit timestamp, and read a row past 32 bits back through GET_STREAM_INFO as 0xFFFFFFFF
+
+$ git diff --stat e26f1816..HEAD
+ CHANGELOG.md                                       |   63 ++
+ README.md                                          |    7 +-
+ docs/AAF_LATENCY_TAPS.md                           |   36 +-
+ docs/CHANNEL_MAP_64.md                             |   35 +-
+ docs/design/GM_LOSS_RECOVERY.md                    |   16 +-
+ docs/design/MARK_II_AREA_PLAN.md                   |    4 +-
+ docs/design/MEDIA_CLOCK_FOLLOWING.md               |  696 +++++++++---
+ docs/design/TIME_SYNC.md                           |  169 ++-
+ docs/diagrams/cdc_census.drawio                    |   67 +-
+ docs/diagrams/cdc_census.png                       |  Bin 254500 -> 429152 bytes
+ docs/diagrams/cdc_census.svg                       |  156 +--
+ docs/findings/387_SOFTWARE_GM_STEP.md              |    2 +-
+ docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md   |    8 +-
+ docs/findings/B14_BENCH_5603C353.md                |    2 +-
+ docs/fpga/DATAPLANE_WALKTHROUGH.md                 |    4 +-
+ docs/integration/BAREMETAL_FIRMWARE.md             |    5 +-
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md          |    6 +-
+ docs/reference/REGISTER_MAP.md                     |   42 +-
+ docs/reference/REGISTER_MAP_CLASSES.md             |    2 +-
+ docs/testing/CI_WORKFLOWS.md                       |    1 +
+ docs/testing/TESTING.md                            |   22 +-
+ docs/traceability/MODULE_MATRIX.md                 |   41 +-
+ hdl/common/README-tests.md                         |    6 +-
+ hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv             |   19 +-
+ hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv         |   73 +-
+ hdl/ieee1722/aaf/KL_chan_map_capture.sv            |   69 +-
+ hdl/ieee1722/aaf/KL_render_queue.sv                |  915 ++++++++++++++++
+ hdl/ieee1722/aaf/KL_render_setpoint.sv             |  691 ------------
+ hdl/ieee1722/aaf/README-tests.md                   |   16 +-
+ hdl/ieee1722/aaf/aaf_talker_i2s.sv                 |   21 +-
+ hdl/ieee1722/crf/KL_crf_rx.sv                      |   13 +-
+ hdl/ieee1722/crf/KL_crf_tx.sv                      |  125 ++-
+ hdl/ieee1722/crf/KL_media_domain_event.sv          |  110 ++
+ hdl/ieee1722/crf/KL_media_if_latency_pkg.sv        |  181 ++++
+ hdl/ieee1722/crf/KL_mmcm_drp_servo.sv              |  439 +++++++-
+ hdl/ieee1722/crf/KL_mtt_round.sv                   |  234 ++++
+ hdl/ieee1722/crf/README-tests.md                   |    9 +-
+ hdl/milan/milan_datapath.sv                        |  596 ++++++----
+ scripts/lint.budget                                |    6 +-
+ scripts/measure_test_evidence.py                   |    3 +-
+ scripts/measure_test_evidence_readers.py           |   20 +-
+ scripts/run_all_suites.sh                          |    8 +-
+ scripts/suite_shards.py                            |    5 +-
+ sw/builder/endstation_builder.py                   |    2 +-
+ sw/builder/test_builder.py                         |  155 ++-
+ sw/litex/milan_soc.py                              |   28 +-
+ syn/yosys/ooc.sh                                   |    8 +-
+ syn/yosys/run.sh                                   |    8 +-
+ tb/verilator/aaf_clock_meter/meter_servo_wrap.sv   |    4 +
+ tb/verilator/aaf_clock_meter/meter_wrap.sv         |    2 +-
+ tb/verilator/capture_coherence/coherence_bench.hpp |   14 +
+ tb/verilator/capture_coherence/coherence_wrap.sv   |    3 +-
+ tb/verilator/capture_coherence/mutants.py          |   44 +-
+ tb/verilator/capture_coherence/sim_dp.cpp          |  152 ++-
+ tb/verilator/chmap_capture/chmap_lockstep_wrap.sv  |    3 +-
+ tb/verilator/chmap_capture/chmap_wrap.sv           |   12 +-
+ tb/verilator/chmap_capture/sim_main.cpp            |   42 +-
+ tb/verilator/crf_rx/crf_talker_wrap.sv             |    9 +-
+ tb/verilator/crf_tx/Makefile                       |    2 +-
+ tb/verilator/crf_tx/sim_main.cpp                   |   44 +-
+ tb/verilator/follow_ring/Makefile                  |   25 +-
+ tb/verilator/follow_ring/dp_glue.py                |   12 +-
+ tb/verilator/follow_ring/follow_ring_wrap.sv       |  147 ++-
+ tb/verilator/follow_ring/mutants.py                |   38 +-
+ tb/verilator/follow_ring/sim_main.cpp              |  396 +++----
+ tb/verilator/follow_ring/sweep.py                  |    7 +-
+ tb/verilator/follow_ring/test_trace_table.py       |   20 +-
+ tb/verilator/follow_ring/trace_table.py            |   28 +-
+ .../media_grid_align/media_grid_align_wrap.sv      |    3 +-
+ tb/verilator/media_phase/Makefile                  |  175 +++
+ tb/verilator/media_phase/blend_wrap.sv             |  117 ++
+ tb/verilator/media_phase/media_phase_wrap.sv       |  155 +++
+ tb/verilator/media_phase/ofs_wrap.sv               |  102 ++
+ tb/verilator/media_phase/phase_mutants.py          |  409 +++++++
+ tb/verilator/media_phase/pin_wrap.sv               |  150 +++
+ tb/verilator/media_phase/render_wrap.sv            |  254 +++++
+ tb/verilator/media_phase/sim_blend.cpp             |  231 ++++
+ tb/verilator/media_phase/sim_det.cpp               |  469 ++++++++
+ tb/verilator/media_phase/sim_main.cpp              |  752 +++++++++++++
+ tb/verilator/media_phase/sim_ofs.cpp               |  396 +++++++
+ tb/verilator/media_phase/sim_pins.cpp              |  265 +++++
+ tb/verilator/media_phase/sim_render.cpp            |  544 ++++++++++
+ tb/verilator/media_phase/slot_msb_decoder.hpp      |   76 ++
+ tb/verilator/milan_dp/Makefile                     |   23 +-
+ tb/verilator/milan_dp/README.md                    |   81 +-
+ tb/verilator/milan_dp/gsi_mutants.py               |   96 +-
+ tb/verilator/milan_dp/render_csr_controls.py       |   23 +-
+ tb/verilator/milan_dp/render_mutants.py            |   83 +-
+ tb/verilator/milan_dp/sim_aclk.cpp                 |  882 +++++++--------
+ tb/verilator/milan_dp/sim_gmstep.cpp               |  293 +++--
+ tb/verilator/milan_dp/sim_main.cpp                 |   14 +-
+ tb/verilator/milan_dp/sim_nxn.cpp                  |  165 ++-
+ tb/verilator/milan_dp/stream_counters.hpp          |    6 +-
+ tb/verilator/milan_dp/stream_counters.py           |    5 +-
+ .../milan_dp/test_render_phase_observation.py      |   57 +-
+ tb/verilator/milan_dp_gm_steps/README.md           |    8 +-
+ tb/verilator/milan_dp_gm_steps/gmstep_mutants.py   |   74 +-
+ tb/verilator/milan_dp_mclk/README.md               |    9 +-
+ tb/verilator/milan_dp_mclk/sim_mclk.cpp            |   34 +-
+ tb/verilator/milan_dp_render/Makefile              |   36 +-
+ tb/verilator/milan_dp_render/sim_tdm8_render.cpp   | 1136 ++++++++------------
+ .../milan_dp_render/tdm8_render_mutants.py         |  333 ++----
+ tb/verilator/mmcm_servo/rails_wrap.sv              |    3 +
+ tb/verilator/render_queue/Makefile                 |   87 ++
+ tb/verilator/render_queue/mutants.py               |  303 ++++++
+ tb/verilator/render_queue/sim_main.cpp             |  585 ++++++++++
+ tb/verilator/render_setpoint/Makefile              |   88 --
+ tb/verilator/render_setpoint/mutants.py            |  272 -----
+ tb/verilator/render_setpoint/sim_main.cpp          |  954 ----------------
+ 109 files changed, 10987 insertions(+), 4909 deletions(-)
+
+$ git diff --name-only bb9a9200..HEAD hdl/ieee1722/aaf/KL_render_queue.sv tb/verilator/render_queue
+
+$ git diff --name-only 5b502a05..HEAD hdl
+
+$ git diff --name-only d5b516f6..HEAD tb
+tb/verilator/milan_dp/README.md
