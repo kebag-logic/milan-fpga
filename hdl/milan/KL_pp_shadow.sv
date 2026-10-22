@@ -457,8 +457,11 @@ module KL_pp_shadow #(
     //! sole trigger: it MUST cover entry-0 grandmaster identity changes and
     //! active published tail/count changes, while suppressing only aliases of
     //! the selected owner. Option-off counts 0/1 alias under a stable GM;
-    //! fabric counts 0/1 are distinct empty/[GM] sequences. Every hidden tail
-    //! while GM=0 aliases to empty in either mode.
+    //! fabric counts 0/1 are the distinct empty and {thisClock} sequences:
+    //! count one is this station's own path before a peer (FPGA-gPTP #82),
+    //! and a received sequence gains thisClock, so an explicit one-entry [GM]
+    //! PathTrace is count two (FPGA-gPTP #85). Every hidden tail while GM=0
+    //! aliases to empty in either mode.
     //! milan_datapath drives it from one complete served-sequence comparator.
     input  wire         gsi_asp_chg_i,
 

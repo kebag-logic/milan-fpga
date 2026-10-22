@@ -634,10 +634,13 @@ module KL_gptp_shadow #(
 
   //! Canonical public sequence. A tail has no identity without a GM. With a
   //! GM, preserve the donor's raw distinction: count zero means the selected
-  //! Announce carried no PathTrace TLV, while count one is the explicit
-  //! one-entry `[GM]` sequence. Generation covers the COMPLETE sequence this
-  //! parent serves, so 0 <-> 1 is a real edge while GM A->B with both counts
-  //! zero is silent (the served sequence remains empty).
+  //! Announce carried no PathTrace TLV, while count one is `{thisClock}`, this
+  //! station's own path before a peer is elected (FPGA-gPTP #82). A received
+  //! sequence is published with thisClock appended, so an explicit one-entry
+  //! `[GM]` PathTrace publishes count two (FPGA-gPTP #85). Generation covers
+  //! the COMPLETE sequence this parent serves, so 0 <-> 1 is a real edge while
+  //! GM A->B with both counts zero is silent (the served sequence remains
+  //! empty).
   logic [3:0] pub_path_count_next_w;
   logic [7*64-1:0] pub_path_next_w;
   always_comb begin : canonical_public_path

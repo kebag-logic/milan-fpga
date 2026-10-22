@@ -332,8 +332,10 @@ Announce has no PathTrace TLV, and otherwise is the committed engine PathTrace
 (GM plus up to seven tail identities). The 0x7DC addresses are inert in both
 elaborations. The response snapshots the canonical selected path before
 gathering entries, so it stays on one coherent generation. Fabric count 0/1 is
-the meaningful empty/`[GM]` boundary. GM=0 publications and an identical
-publish are silent. The
+the meaningful empty/`{thisClock}` boundary: count one is this station's own
+path before a peer is elected (FPGA-gPTP #82), and a received sequence gains
+thisClock, so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP
+#85). GM=0 publications and an identical publish are silent. The
 `GPTP_GM_CHANGED` counter, and therefore the AVB_INTERFACE GET_COUNTERS push,
 move on the grandmaster identity edge alone. A write to 0x62C with a stable
 grandmaster is a GET_AVB_INFO trigger and an ADP re-advertise, and is neither
