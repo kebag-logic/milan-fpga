@@ -1,0 +1,15 @@
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index 50455d463..5e84f1eda 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -1158,7 +1158,9 @@ module KL_pp_shadow #(
+       .cfg_rank_i          (1'b1),
+       .cfg_acc_lat_ns_i    (cfg_acc_lat_ns_i),
+       .port_rate_bps_i     (port_rate_bps_i),
+-      .cfg_tspec_max_frame_i(cfg_tspec_max_frame_i),
++      //! scratch only: processor issue #190's per-source port, every slot
++      //! driven with the one value this wrapper still takes
++      .cfg_tspec_max_frame_i({N_STREAM_OUT_P{cfg_tspec_max_frame_i}}),
+ 
+       //! Which talker sources exist — straight from the port, which the
+       //! integrator derives from the entity shape (see the port's banner).
