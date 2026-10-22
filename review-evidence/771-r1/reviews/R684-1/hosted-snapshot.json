@@ -1,0 +1,364 @@
+{
+  "head": "a97aea01449492b1f640924f5a34726f602cabed",
+  "observed_at": "2026-10-22T12:47:03.302Z",
+  "note": "Read-only status snapshot; pending and cancelled jobs are not passes. No manager source-bank evidence asserted.",
+  "workflows": [
+    {
+      "workflow": "rtl-full",
+      "run_id": 39778640099,
+      "jobs": [
+        {
+          "id": 119823929375,
+          "name": "full-ci-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "failed_steps": []
+        },
+        {
+          "id": 119823929640,
+          "name": "Fail fast across this head",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        },
+        {
+          "id": 119824383656,
+          "name": "Prepare pinned Yosys",
+          "status": "completed",
+          "conclusion": "success",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384026,
+          "name": "Verilator shard 5/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384047,
+          "name": "Verilator shard 11/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384094,
+          "name": "Verilator shard 3/16",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        },
+        {
+          "id": 119824384099,
+          "name": "Verilator shard 4/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384103,
+          "name": "Verilator shard 2/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384107,
+          "name": "Verilator shard 1/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384116,
+          "name": "Verilator shard 13/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384151,
+          "name": "Verilator shard 14/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384155,
+          "name": "Verilator shard 12/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384159,
+          "name": "Verilator shard 10/16",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        },
+        {
+          "id": 119824384166,
+          "name": "Verilator shard 7/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384210,
+          "name": "Verilator shard 15/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384226,
+          "name": "Verilator shard 9/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384246,
+          "name": "Verilator shard 6/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384248,
+          "name": "Verilator shard 0/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824384251,
+          "name": "Verilator shard 8/16",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824385529,
+          "name": "Physical gPTP (nightly and manual)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "failed_steps": []
+        },
+        {
+          "id": 119824513499,
+          "name": "Yosys shard 3/4",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824513598,
+          "name": "Yosys shard 0/4",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824513670,
+          "name": "Yosys shard 1/4",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824513676,
+          "name": "Yosys shard 2/4",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        }
+      ]
+    },
+    {
+      "workflow": "elaborate",
+      "run_id": 39778639970,
+      "jobs": [
+        {
+          "id": 119823928127,
+          "name": "elaborate-gates-0",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        },
+        {
+          "id": 119823928259,
+          "name": "Fail fast across this head",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        },
+        {
+          "id": 119823928336,
+          "name": "elaborate-gates-1",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        }
+      ]
+    },
+    {
+      "workflow": "docs",
+      "run_id": 39778639751,
+      "jobs": [
+        {
+          "id": 119823926627,
+          "name": "docs-check-no-git",
+          "status": "completed",
+          "conclusion": "success",
+          "failed_steps": []
+        },
+        {
+          "id": 119823927024,
+          "name": "docs-gates-1",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119823927156,
+          "name": "wire-accountability",
+          "status": "completed",
+          "conclusion": "success",
+          "failed_steps": []
+        },
+        {
+          "id": 119823927162,
+          "name": "Fail fast across this head",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        },
+        {
+          "id": 119823927314,
+          "name": "docs-gates-2",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        },
+        {
+          "id": 119823927337,
+          "name": "docs-gates-0",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        }
+      ]
+    },
+    {
+      "workflow": "rtl-fast",
+      "run_id": 39778639977,
+      "jobs": [
+        {
+          "id": 119823929244,
+          "name": "Fail fast across this head",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": [
+            "Observe the first failed job"
+          ]
+        },
+        {
+          "id": 119823929399,
+          "name": "bdd-conformance",
+          "status": "completed",
+          "conclusion": "success",
+          "failed_steps": []
+        },
+        {
+          "id": 119823929574,
+          "name": "changes",
+          "status": "completed",
+          "conclusion": "success",
+          "failed_steps": []
+        },
+        {
+          "id": 119824279625,
+          "name": "verilator-lint",
+          "status": "completed",
+          "conclusion": "success",
+          "failed_steps": []
+        },
+        {
+          "id": 119824279718,
+          "name": "firmware-aecp-mutants",
+          "status": "completed",
+          "conclusion": "success",
+          "failed_steps": []
+        },
+        {
+          "id": 119824279725,
+          "name": "yosys-elaboration",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824279745,
+          "name": "firmware-verilator",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824279785,
+          "name": "publication-census",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824279844,
+          "name": "firmware-control-mutants",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824279848,
+          "name": "firmware-boundary",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119824279883,
+          "name": "firmware-unit",
+          "status": "completed",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Run the control-plane firmware suites and RV32 builds"
+          ]
+        },
+        {
+          "id": 119824279936,
+          "name": "firmware-srp-mutants",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 119829149650,
+          "name": "Collect CI manifest",
+          "status": "in_progress",
+          "conclusion": null,
+          "failed_steps": []
+        },
+        {
+          "id": 119829152007,
+          "name": "rtl-fast",
+          "status": "completed",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        }
+      ]
+    }
+  ]
+}

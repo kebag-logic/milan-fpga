@@ -1,0 +1,85 @@
+{
+  "resource-baseline": {
+    "command": [
+      "python3",
+      "syn/ooc/pp_resource_gate.py",
+      "check-baseline"
+    ],
+    "rc": 0
+  },
+  "submodule-records": {
+    "command": [
+      "python3",
+      "scripts/check_submodule_docs.py"
+    ],
+    "rc": 0
+  },
+  "gptp-records": {
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py",
+      "--with-submodule"
+    ],
+    "rc": 0
+  },
+  "boundary-generator": {
+    "command": [
+      "python3",
+      "docs/diagrams/submodule_boundaries.gen.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  "timesync-generator": {
+    "command": [
+      "python3",
+      "docs/diagrams/timesync_chain.gen.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  "diagram-pngs": {
+    "command": [
+      "python3",
+      "scripts/check_diagram_pngs.py"
+    ],
+    "rc": 0
+  },
+  "port-contracts": {
+    "command": [
+      "python3",
+      "scripts/check_port_contracts.py"
+    ],
+    "rc": 0
+  },
+  "naming": {
+    "command": [
+      "python3",
+      "scripts/measure_naming.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  "test-evidence": {
+    "command": [
+      "python3",
+      "scripts/measure_test_evidence.py",
+      "--check"
+    ],
+    "rc": 0
+  },
+  "capture": {
+    "command": [
+      "python3",
+      "scripts/check_nvm_capture.py"
+    ],
+    "rc": 0
+  },
+  "integrator-params": {
+    "command": [
+      "python3",
+      "protocol-processor/scripts/check-integrator-params.py"
+    ],
+    "rc": 0
+  }
+}

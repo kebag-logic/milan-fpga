@@ -1,0 +1,17 @@
+Source: https://github.com/kebag-logic/milan-fpga/actions/runs/39778639977/job/119824279883
+Exact head: a97aea01449492b1f640924f5a34726f602cabed
+Verbatim relevant log excerpt (timestamps retained):
+2026-10-22T12:37:59.8034798Z     RESULT: PASS
+2026-10-22T12:37:59.8035043Z     verdict: PASS (130 tests, 0 failures, exit 0)
+2026-10-22T12:37:59.8035345Z [FAIL] arm acmpwalk
+2026-10-22T12:37:59.8035554Z     Actual: false
+2026-10-22T12:37:59.8036008Z     [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: the talker's discovered and registered state
+2026-10-22T12:37:59.8036758Z     fk.count(Call::CHANGED) != 0u
+2026-10-22T12:37:59.8037015Z     Which is: false
+2026-10-22T12:37:59.8037239Z     !(items(w.before) == items(r))
+2026-10-22T12:37:59.8037493Z     Which is: true
+2026-10-22T12:37:59.8037922Z     [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: notified exactly when a Table 5.22 item moved
+2026-10-22T12:37:59.8038541Z     == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 1 ==
+2026-10-22T12:37:59.8038928Z     RESULT: FAIL
+2026-10-22T12:37:59.8039247Z     verdict: FAIL (its tallies report 1 failure(s) across 127 checks, exit 1)
+2026-10-22T12:37:59.8039619Z [ok] arm acmpnvm

@@ -1,0 +1,12 @@
+COMMAND bash syn/yosys/ooc.sh --record-rom-digests
+ooc.sh: recorded ROM content digests for protocol-processor pin 93fb0b2d736b36588ea7321e25fba2f8819ea41f and gptp-processor pin 55680bff3b287b9a7b0c759f51471fa617c17335 in syn/yosys/rom_digests.tsv
+RC 0
+COMMAND python3 scripts/check_port_contracts.py --write-budget
+wrote scripts/port_docs.budget
+RC 0
+COMMAND python3 scripts/measure_naming.py --write-budget
+wrote scripts/naming.budget: 95 candidate(s)
+RC 0
+COMMAND git diff --exit-code -- syn/yosys/rom_digests.tsv scripts/port_docs.budget scripts/naming.budget
+RC 0
+PASS: all three generated records are byte-identical
