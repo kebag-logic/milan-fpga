@@ -457,8 +457,11 @@ module KL_pp_shadow #(
     //! sole trigger: it MUST cover entry-0 grandmaster identity changes and
     //! active published tail/count changes, while suppressing only aliases of
     //! the selected owner. Option-off counts 0/1 alias under a stable GM;
-    //! fabric counts 0/1 are distinct empty/[GM] sequences. Every hidden tail
-    //! while GM=0 aliases to empty in either mode.
+    //! fabric counts 0/1 are the distinct empty and {thisClock} sequences:
+    //! count one is this station's own path before a peer (FPGA-gPTP #82),
+    //! and a received sequence gains thisClock, so an explicit one-entry [GM]
+    //! PathTrace is count two (FPGA-gPTP #85). Every hidden tail while GM=0
+    //! aliases to empty in either mode.
     //! milan_datapath drives it from one complete served-sequence comparator.
     input  wire         gsi_asp_chg_i,
 
@@ -1275,7 +1278,9 @@ module KL_pp_shadow #(
       .cfg_rank_i          (1'b1),
       .cfg_acc_lat_ns_i    (cfg_acc_lat_ns_i),
       .port_rate_bps_i     (port_rate_bps_i),
-      .cfg_tspec_max_frame_i(cfg_tspec_max_frame_i),
+      //! scratch only: processor issue #190's per-source port, every slot
+      //! driven with the one value this wrapper still takes
+      .cfg_tspec_max_frame_i({N_STREAM_OUT_P{cfg_tspec_max_frame_i}}),
 
       //! Which talker sources exist — straight from the port, which the
       //! integrator derives from the entity shape (see the port's banner).

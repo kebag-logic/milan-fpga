@@ -76,6 +76,10 @@ static_assert(kPeriodNs * kHz == 1000000000 && kDelayBoundNs == 28,
               "revisit the check labels, verify_abort.py and the audio ratio for this period");
 constexpr uint64_t kPeer = 0x0080E1FFFE112233ULL;
 constexpr uint64_t kGm = 0x00AACCFFFE010203ULL;
+//! thisClock of gptp_ax1x1_ucode.hex (--mac 0x020000000001). IEEE 802.1AS-2020
+//! 10.3.13.2.4 f) 5): a slave port's pathTrace is the received
+//! pathSequence with thisClock appended.
+constexpr uint64_t kThisClock = 0x020000FFFE000001ULL;
 constexpr uint64_t kSid = 0x0200000000020000ULL;
 constexpr uint64_t kPropagation = 320;
 constexpr uint64_t kResidence = 20000;
@@ -341,7 +345,7 @@ class Harness {
     void publication(const char* arm, bool healthy);
     std::vector<uint8_t> query(uint16_t command, uint16_t seq);
     void wire_publication();
-    enum class Until { Deadline, Healthy, SyncLost, PeerLost, StalledPtp };
+    enum class Until { Deadline, Healthy, SyncLost, PeerLost, StalledPtp, SelfGm, GmCertain };
     void audio_window(const char* arm, uint64_t n, int tu, Until until = Until::Deadline);
     void loss_recovery();
     void emit_every_gptp_tx_flag_type();
@@ -935,7 +939,7 @@ void Harness::publication(const char* arm, bool healthy) {
     if (healthy) {
         check.hex("selected GM matches independent Announce", gm, kGm);
         check.hex("selected parent matches peer identity", parent, kPeer);
-        check.hex("PathTrace has GM and parent", gen1 & 15, 2);
+        check.hex("PathTrace has GM, parent and thisClock", gen1 & 15, 3);
         check.hex("asCapable and Sync healthy, uncertainty cleared", stat & 0x10003, 0x10002);
         // Bound: kDelayBoundNs. No PHY allowance.
         if (pd_answers)
@@ -945,7 +949,8 @@ void Harness::publication(const char* arm, bool healthy) {
                     "(no accepted response in this reset epoch; uncounted)\n");
     } else {
         check.hex("loss clears asCapable", stat & 0x10000, 0);
-        check.hex("loss clears Sync and asserts uncertainty", stat & 3, 1);
+        check.hex("loss leaves this station grandmaster", gm, kThisClock);
+        check.hex("the grandmaster role is synchronised, uncertainty cleared", stat & 3, 2);
     }
 }
 
@@ -977,13 +982,13 @@ void Harness::wire_publication() {
     check.dec("GET_AVB_INFO delay equals CSR bank", be(avb, 50, 4), delay);
     check.that("GET_AVB_INFO asCapable agrees with CSR", avb.size() > 55 && (avb[55] & 1));
     const auto path = query(0x28, 0x7002);
-    check.dec("GET_AS_PATH Ethernet minimum length", path.size(), 60);
+    check.dec("GET_AS_PATH three-identity wire length", path.size(), 66);
     check.dec("GET_AS_PATH status SUCCESS", path.size() > 16 ? path[16] >> 3 : 255, 0);
-    check.dec("GET_AS_PATH control data length excludes padding", be(path, 16, 2) & 0x7FF, 32);
-    check.dec("GET_AS_PATH padding bytes are zero", be(path, 58, 2), 0);
-    check.dec("GET_AS_PATH two ordered identities", be(path, 38, 4), 2);
+    check.dec("GET_AS_PATH control data length", be(path, 16, 2) & 0x7FF, 40);
+    check.dec("GET_AS_PATH three ordered identities", be(path, 38, 4), 3);
     check.hex("GET_AS_PATH GM", be(path, 42, 8), kGm);
     check.hex("GET_AS_PATH parent", be(path, 50, 8), kPeer);
+    check.hex("GET_AS_PATH ends with thisClock", be(path, 58, 8), kThisClock);
 }
 
 void Harness::audio_window(const char* arm, uint64_t n, int tu, Until until) {
@@ -1012,11 +1017,15 @@ void Harness::audio_window(const char* arm, uint64_t n, int tu, Until until) {
             if (cyc - start < kHz / 100) continue;
             const uint32_t stat = read(0x77C);
             const bool reached =
+                // Healthy names the peer as GM: since FPGA-gPTP #84 this
+                // station's own grandmaster role also reads sync and no tu.
                 (until == Until::Healthy && (stat & 0x10003) == 0x10002
-                    && pd_answers >= 2)
+                    && pd_answers >= 2 && read_identity(0x624) == kGm)
                 || (until == Until::SyncLost && (stat & 3) == 1)
-                || (until == Until::PeerLost && (stat & 0x10003) == 1
+                || (until == Until::PeerLost && (stat & 0x10000) == 0
                     && pd_requests >= pd_answers + 5)
+                || (until == Until::SelfGm && read_identity(0x624) == kThisClock)
+                || (until == Until::GmCertain && (stat & 3) == 2)
                 || (until == Until::StalledPtp && stalled_ptp_frames > 0);
             if (reached) {
                 // Drain the in-flight Pdelay pair and publication crossing.
@@ -1052,9 +1061,26 @@ void Harness::loss_recovery() {
     check.hex("375 ms Sync timeout clears sync and asserts tu", read(0x77C) & 3, 1);
     // Keep the original total loss deadline (450 ms + 4.6 s). Ending the
     // Sync arm early must not shorten the fourth missed-response interval.
-    audio_window("peer loss, real fourth missed Pdelay",
-                 extended_ ? kHz * 46 / 10 : loss + kHz * 505 / 100 - cyc,
-                 1, Until::PeerLost);
+    // FPGA-gPTP #84: the Announce receipt timeout makes this station
+    // grandmaster, and a grandmaster's own time is the domain's time. tu
+    // stays set until the Milan v1.2 Annex B.1.1 holdover armed by that
+    // grandmaster change has run (two quarter-ticks), then reads clear.
+    if (extended_) {
+        audio_window("peer loss, real fourth missed Pdelay", kHz * 46 / 10, -1, Until::PeerLost);
+    } else {
+        const uint64_t loss_end = loss + kHz * 505 / 100;
+        audio_window("peer loss, before this station is grandmaster",
+                     loss_end - cyc, 1, Until::SelfGm);
+        const uint64_t self_gm = cyc;
+        audio_window("grandmaster change holdover", kHz * 6 / 10, -1, Until::GmCertain);
+        // Both edges are observed by the 1 ms public poll plus its 1 ms drain.
+        check.that("the grandmaster change holds tu for the 0.25 s holdover",
+                   cyc - self_gm >= kHz / 4 - kHz / 250);
+        check.that("tu clears within 0.5 s of the grandmaster change",
+                   (read(0x77C) & 3) == 2 && cyc - self_gm <= kHz / 2 + kHz / 250);
+        audio_window("peer loss, real fourth missed Pdelay",
+                     loss_end > cyc ? loss_end - cyc : 0, 0, Until::PeerLost);
+    }
     publication("lost", false);
     // A request is judged at the next request interval. Four unanswered
     // intervals therefore finish when the fifth unanswered request starts.
@@ -1146,7 +1172,9 @@ int Harness::run() {
         const auto initial_avb = query(0x27, 0x7010);
         check.dec("pre-acquisition GET_AVB_INFO length", initial_avb.size(), 62);
         check.dec("pre-acquisition GET_AVB_INFO SUCCESS", initial_avb.size() > 16 ? initial_avb[16] >> 3 : 255, 0);
-        check.hex("pre-acquisition GET_AVB_INFO has no selected GM", be(initial_avb, 42, 8), 0);
+        // Before any peer, this instance is its own grandmaster (IEEE 802.1AS-2020
+        // 10.3.13.2.4 b) and i)).
+        check.hex("pre-acquisition GET_AVB_INFO names thisClock as GM", be(initial_avb, 42, 8), kThisClock);
         run_cycles(kHz * 12 / 10);
         check.dec("first Pdelay response completed", pd_answers, 1);
         if (pd_answers == 1) {
@@ -1194,7 +1222,9 @@ int Harness::run() {
             loss_recovery(); completed[6] = true;
             printf("RESET: assert with audio and peer active, flush model in-flight packets\n");
             reset(); configure();
-            check.hex("reset clears complete public GM", read_identity(0x624), 0);
+            // A reset instance is its own grandmaster again (IEEE 802.1AS-2020
+            // 10.3.13.2.4 b) and i)); the parent identity stays clear.
+            check.hex("reset publishes thisClock as GM", read_identity(0x624), kThisClock);
             check.hex("reset clears complete public parent", read_identity(0x730), 0);
             audio_window("reset reacquisition", kHz * 3, -1, Until::Healthy);
             publication("reset recovered", true);

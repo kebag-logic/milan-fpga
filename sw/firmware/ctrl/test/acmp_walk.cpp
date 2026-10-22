@@ -34,7 +34,12 @@
 // firmware's ENTITY_AVAILABLE and ENTITY_DEPARTING through its discovery
 // machine, so the firmware raises them only on a discovery transition: a cell
 // whose row needs the talker discovered first (EVT_TK_DEPARTED) is reached
-// with an unchecked EVT_TK_DISCOVERED step in both. A timer row in a state
+// with an unchecked EVT_TK_DISCOVERED step in both. The model's
+// EVT_TK_REGISTERED is the firmware's acmp_tk_registered, but in
+// SETTLED_RSV_OK the talker is registered already and the row is the
+// in-place Advertise<->Failed swap (processor issue #189, Milan v1.2 Table
+// 5.39), which the firmware's SRP delivery (app/ctrl_app_srp.c) hands to
+// acmp_tk_kind_changed, and so does this walk. A timer row in a state
 // whose own timer is another is impossible by construction in both (the
 // state names its one timer) and is reported, not walked; in a state with no
 // timer the processor injects a spurious expiry and so does this walk.
@@ -251,6 +256,8 @@ class Lockstep {
             d.entity = a.sinks[k].binding.talker_entity_id;
             auto f = adpdu(d);
             acmp_adp_rx(&a, 0, f.data(), f.size());
+        } else if (s.tk_kind == 2u && a.sinks[k].state == ACMP_SETTLED_RSV_OK) {
+            acmp_tk_kind_changed(&a, static_cast<unsigned>(k), s.tk_fail);   // the swap, as ctrl_app_srp.c delivers it
         } else if (s.tk_kind == 2u) {
             acmp_tk_registered(&a, static_cast<unsigned>(k), s.tk_fail);
         } else {

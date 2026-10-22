@@ -2153,8 +2153,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! behind the grandmaster. The notification edge is
   //! derived below from the complete LIVE served sequence, not a raw CSR
   //! generation. Product fabric mode preserves the donor's raw distinction:
-  //! count zero is an absent PathTrace and count one is `[GM]`. The
-  //! option-off shape has no path owner. Every owner aliases to empty while no
+  //! count zero is an absent PathTrace and count one is `{thisClock}` before
+  //! a peer is elected (FPGA-gPTP #82); a received sequence gains thisClock,
+  //! so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP #85).
+  //! The option-off shape has no path owner. Every owner aliases to empty while no
   //! grandmaster exists.
   //! Slot count DERIVED from the port width (one source, as the CSR does).
   wire [7*64-1:0] asp_path_w /* verilator public_flat_rd */;

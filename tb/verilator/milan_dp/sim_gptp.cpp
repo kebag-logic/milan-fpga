@@ -47,6 +47,10 @@ constexpr uint64_t PATH_B3 = 0x001122FFFE000044ull;
 constexpr uint64_t PATH_B4 = 0x001122FFFE000055ull;
 constexpr uint64_t PATH_B5 = 0x001122FFFE000066ull;
 constexpr uint64_t PATH_B6 = 0x001122FFFE000077ull;
+//! thisClock of this leg's gptp_ucode.hex (the generator's default MAC
+//! 02:A1:B2:C3:D4:E5). IEEE 802.1AS-2020 10.3.13.2.4 f) 5): a slave port's
+//! pathTrace is the received pathSequence with thisClock appended.
+constexpr uint64_t THIS_CLOCK = 0x02A1B2FFFEC3D4E5ull;
 constexpr uint32_t PEER_CQ = 0xF8FE436A;
 
 //! Fabric cycles in one PROCESSOR millisecond. The Makefile derives it from
@@ -810,9 +814,12 @@ class GptpPlaneHarness {
     axi_write(dut, 0x504, 8u << 24);       // 8.0 ns; matches sim_cyc model
 
     // The option is omitted from this elaboration: these are assertions about
-    // the RTL default.  Before any peer answers, the engine's committed bank is
-    // zero. Retained legacy addresses remain mapped for ABI stability, but every
-    // write is inert and cannot manufacture a publication or healthy CLKV claim.
+    // the RTL default.  Before any peer answers, the engine publishes thisClock
+    // as grandmaster (IEEE 802.1AS-2020 10.3.13.2.4 b) and i)); parent and pdelay
+    // are zero. That first grandmaster identity is a change, so it arms the
+    // Milan v1.2 Annex B.1.1 holdover. Retained legacy addresses remain mapped
+    // for ABI stability, but every write is inert and cannot manufacture a
+    // publication or healthy CLKV claim.
     expect("default-on VERSION", axi_read(dut, 0x004), 0x00020060);
     axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
     axi_write(dut, 0x6E4, 1234);
@@ -822,8 +829,10 @@ class GptpPlaneHarness {
     // (802.1AS 8.1), so this 5 must never surface on the CSR readback, the
     // GET_AVB_INFO gather below, or the MAC-bound Pdelay_Req scanned below.
     axi_write(dut, 0x62C, 5);
-    expect("fabric GM low overrides SW", axi_read(dut, 0x624), 0);
-    expect("fabric GM high overrides SW", axi_read(dut, 0x628), 0);
+    expect("fabric GM low overrides SW", axi_read(dut, 0x624),
+           static_cast<uint32_t>(THIS_CLOCK));
+    expect("fabric GM high overrides SW", axi_read(dut, 0x628),
+           static_cast<uint32_t>(THIS_CLOCK >> 32));
     expect("fabric pdelay overrides SW", axi_read(dut, 0x6E4), 0);
     expect("fabric parent low overrides SW", axi_read(dut, 0x730), 0);
     expect("fabric parent high overrides SW", axi_read(dut, 0x734), 0);
@@ -832,7 +841,8 @@ class GptpPlaneHarness {
     uint32_t clkv = axi_read(dut, 0x77C);
     expect("legacy write cannot clear tu", clkv & 1, 1);
     expect("legacy sync claim is inert", (clkv >> 1) & 1, 0);
-    expect("compatibility CLKV fields read zero", (clkv >> 2) & 0x3FFF, 0);
+    expect("reset publication of thisClock arms the holdover", (clkv >> 3) & 1, 1);
+    expect("compatibility CLKV fields read zero", (clkv >> 2) & 0x3FFD, 0);
     expect("legacy asCapable claim is inert", (clkv >> 16) & 1, 0);
   }
 
@@ -981,7 +991,7 @@ class GptpPlaneHarness {
     expect("peer-driven GM reached live CSR", gm, GMID);
     expect("peer-driven parent reached live CSR", parent, PEER_CID);
     const uint32_t asp_live_a = axi_read(dut, 0x7E4);
-    expect("fabric live AS_PATH count is four", asp_live_a & 0xF, 4);
+    expect("fabric live AS_PATH count is five", asp_live_a & 0xF, 5);
     expect("fabric live AS_PATH generation advanced",
            ((asp_live_a >> 4) & 0xF) != 0, 1);
 
@@ -1041,12 +1051,12 @@ class GptpPlaneHarness {
 
     std::vector<uint8_t> path = aecp_xact(
         dut, 0x0028, 0x7102, {0x00, 0x00, 0x00, 0x00});
-    expect("GET_AS_PATH full-tail wire length", path.size(), 74);
+    expect("GET_AS_PATH full-tail wire length", path.size(), 82);
     expect("GET_AS_PATH SUCCESS", aecp_status(path), 0);
     expect("GET_AS_PATH cdl", path.size() >= 18
-           ? (((static_cast<unsigned>(path[16]) & 7) << 8) | path[17]) : 0, 48);
-    expect("GET_AS_PATH count four", path.size() >= 42
-           ? be32(path, 38) : 0, 4);
+           ? (((static_cast<unsigned>(path[16]) & 7) << 8) | path[17]) : 0, 56);
+    expect("GET_AS_PATH count five", path.size() >= 42
+           ? be32(path, 38) : 0, 5);
     expect("GET_AS_PATH ordered GM", path.size() >= 50
            ? be64(path, 42) : 0, GMID);
     expect("GET_AS_PATH ordered bridge one", path.size() >= 58
@@ -1055,6 +1065,8 @@ class GptpPlaneHarness {
            ? be64(path, 58) : 0, PATH_B2);
     expect("GET_AS_PATH ordered parent", path.size() >= 74
            ? be64(path, 66) : 0, PEER_CID);
+    expect("GET_AS_PATH ends with thisClock", path.size() >= 82
+           ? be64(path, 74) : 0, THIS_CLOCK);
   }
 
   // Both product talkers consume the same fabric-owner CLKV verdict. Before
@@ -1396,12 +1408,12 @@ class GptpPlaneHarness {
     const size_t one_first = tx_frames.size();
     announce(dut, 0x7007, one_path, GMID_EMPTY, GMID_EMPTY, 90);
     uint32_t asp_one = axi_read(dut, 0x7E4);
-    for (int n = 0; n < 64 && (asp_one & 0xF) != 1; n++) {
+    for (int n = 0; n < 64 && (asp_one & 0xF) != 2; n++) {
       run(dut, 1000);
       asp_one = axi_read(dut, 0x7E4);
     }
-    expect("explicit one-entry fabric PathTrace serves count one",
-           asp_one & 0xF, 1);
+    expect("explicit one-entry fabric PathTrace serves count two",
+           asp_one & 0xF, 2);
     expect("absent to explicit GM advances generation once",
            (asp_one >> 4) & 0xF, (gen_empty + 1) & 0xF);
     run(dut, 200000);
@@ -1412,11 +1424,13 @@ class GptpPlaneHarness {
     expect("explicit one-entry GET_AS_PATH minimum-Ethernet wire length",
            path_one.size(), 60);
     expect("explicit one-entry GET_AS_PATH cdl", path_one.size() >= 18
-           ? (((static_cast<unsigned>(path_one[16]) & 7) << 8) | path_one[17]) : 0, 24);
+           ? (((static_cast<unsigned>(path_one[16]) & 7) << 8) | path_one[17]) : 0, 32);
     expect("explicit one-entry GET_AS_PATH count", path_one.size() >= 42
-           ? be32(path_one, 38) : 0, 1);
+           ? be32(path_one, 38) : 0, 2);
     expect("explicit one-entry GET_AS_PATH head", path_one.size() >= 50
            ? be64(path_one, 42) : 0, GMID_EMPTY);
+    expect("explicit one-entry GET_AS_PATH ends with thisClock",
+           path_one.size() >= 58 ? be64(path_one, 50) : 0, THIS_CLOCK);
 
     const uint16_t cut_seq = 0x7107;
     const std::vector<uint8_t> cut_req = aecp_request(
@@ -1447,8 +1461,8 @@ class GptpPlaneHarness {
            withdrew_before_old_wire, 1);
     dut->m_axis_mac_tx_tready = 1;
     std::vector<uint8_t> cut_old = await_aecp(dut, cut_seq, 0x0028);
-    expect("in-flight response remains wholly old count one",
-           cut_old.size() >= 50 ? be32(cut_old, 38) : 0, 1);
+    expect("in-flight response remains wholly old count two",
+           cut_old.size() >= 50 ? be32(cut_old, 38) : 0, 2);
     expect("in-flight response remains wholly old GM",
            cut_old.size() >= 50 ? be64(cut_old, 42) : 0, GMID_EMPTY);
     uint32_t asp_withdrawn = axi_read(dut, 0x7E4);

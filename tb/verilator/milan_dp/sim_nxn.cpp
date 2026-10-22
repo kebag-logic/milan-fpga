@@ -1821,8 +1821,10 @@ class NxnDatapathHarness {
     //    G7  a changed FailureInformation changes that sink alone, once;
     //    G8  withdrawal pushes twice per controller: registrar withdrawal,
     //        then settlement teardown to PASSIVE, both with cleared failure;
-    //    G9  STOP_STREAMING pushes its own response, never GET_STREAM_INFO,
-    //        and never to the requester (Milan 5.4.5.2);
+    //    G9  STOP_STREAMING pushes its own response, never to the requester
+    //        (Milan 5.4.5.2), and its started/stopped change one
+    //        GET_STREAM_INFO to each controller, the requester included
+    //        (Table 5.22, 5.4.5.1; processor issue #192);
     //    G10 a reset returns both sinks to DISABLED with nothing carried.
     //  Each named change pushes once to both registered controllers; G8 has
     //  two changes and grades both pushes to each controller. Its first push
@@ -2382,7 +2384,7 @@ class NxnDatapathHarness {
                        kGsiBridgeB, kGsiCodeB);
     }
 
-    // ---- G9: STOP_STREAMING owns its own push ------------------------------
+    // ---- G9: STOP_STREAMING's own push, and its started/stopped change ----
     void gsi_g9_stop_streaming_excludes_the_requester() {
         notify_clear();
         const std::vector<uint8_t> key = {0x00, 0x05, 0x00, 0x01};
@@ -2391,7 +2393,9 @@ class NxnDatapathHarness {
         gsi_ms(kGsiWinMs);
         ck("[GSI] G9 ...pushes STOP_STREAMING to B", notify_count(0x0023, &CTL_B, 0x0005, 1), 1);
         ck("[GSI] G9 ...and not to A, the requester", notify_count(0x0023, &CTL_A, 0x0005, 1), 0);
-        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped (no GET_STREAM_INFO push)", 1, 0);
+        //! the GET_STREAM_INFO answers no command, so A, the requester,
+        //! receives it too (Milan 5.4.5.1, processor issue #192)
+        const std::vector<uint8_t> g = gsi_ck_pushes("[GSI] G9 sink 1 stopped", 1, 1);
         ck("[GSI] G9 sink 1 stopped: STREAMING_WAIT", gsi_flag(g, 45, 0x08), 1);
         gsi_ck_state("[GSI] G9 sink 1 stopped", g, kPbCompleted, 0);
     }
@@ -8683,13 +8687,17 @@ class NxnDatapathHarness {
                        si_pl(0x0006, 0, 0x20000000u, 0x80000001u));
         ck("#67 a bit-31 offset is BAD_ARGUMENTS", aecp_status(r2), 7);
         {
-            // the 2013-complete 48-byte shape IS the truncated case
-            // under the 2021 reference - the review ruling, pinned
+            // the IEEE 1722.1-2013 48-byte body (cdl 60) is accepted beside
+            // the 2021 one and answered in the 2021 form (processor issue
+            // #176); it carries the offset already stored, so the row below
+            // still reads 750000
             std::vector<uint8_t> shortp(48, 0);
             shortp[1] = 0x06; shortp[4] = 0x20;
+            for (int i = 0; i < 4; i++)
+                shortp[24 + i] = static_cast<uint8_t>(750000u >> (8 * (3 - i)));
             r2 = aecp_xact(0x000E, setter_sq++, shortp);
-            ck("#67 the 2013-length SET_STREAM_INFO refuses at cdl 96",
-               static_cast<long>(aecp_status(r2) == 7 && cdl_of(r2) == 96), 1);
+            ck("#67 the 2013-length SET_STREAM_INFO is SUCCESS at cdl 96",
+               static_cast<long>(aecp_status(r2) == 0 && cdl_of(r2) == 96), 1);
         }
         g2 = aecp_xact(0x000F, setter_sq++, desc_key(0x0006, 0));
         ck("#67 no refusal moved the stored offset", lat_of(g2),
