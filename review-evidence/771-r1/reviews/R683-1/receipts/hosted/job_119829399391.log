@@ -1,0 +1,386 @@
+Union milan_dp	Set up job	﻿2026-10-22T12:40:21.5185910Z Current runner version: '2.338.0'
+Union milan_dp	Set up job	2026-10-22T12:40:21.5212405Z ##[group]Runner Image Provisioner
+Union milan_dp	Set up job	2026-10-22T12:40:21.5213672Z Hosted Compute Agent
+Union milan_dp	Set up job	2026-10-22T12:40:21.5214310Z Version: 20261012.601
+Union milan_dp	Set up job	2026-10-22T12:40:21.5214957Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+Union milan_dp	Set up job	2026-10-22T12:40:21.5215768Z Build Date: 2026-10-12T17:48:21Z
+Union milan_dp	Set up job	2026-10-22T12:40:21.5216459Z Worker ID: {27370609-7b58-4df4-8e2e-98420381b667}
+Union milan_dp	Set up job	2026-10-22T12:40:21.5217238Z Region: westcentralus
+Union milan_dp	Set up job	2026-10-22T12:40:21.5217896Z Cloud: Azure
+Union milan_dp	Set up job	2026-10-22T12:40:21.5218476Z ##[endgroup]
+Union milan_dp	Set up job	2026-10-22T12:40:21.5220096Z ##[group]Operating System
+Union milan_dp	Set up job	2026-10-22T12:40:21.5220797Z Ubuntu
+Union milan_dp	Set up job	2026-10-22T12:40:21.5221387Z 24.04.5
+Union milan_dp	Set up job	2026-10-22T12:40:21.5221957Z LTS
+Union milan_dp	Set up job	2026-10-22T12:40:21.5222476Z ##[endgroup]
+Union milan_dp	Set up job	2026-10-22T12:40:21.5223315Z ##[group]Runner Image
+Union milan_dp	Set up job	2026-10-22T12:40:21.5223956Z Image: ubuntu-24.04
+Union milan_dp	Set up job	2026-10-22T12:40:21.5224545Z Version: 20261012.334.1
+Union milan_dp	Set up job	2026-10-22T12:40:21.5225702Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+Union milan_dp	Set up job	2026-10-22T12:40:21.5227515Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+Union milan_dp	Set up job	2026-10-22T12:40:21.5228512Z ##[endgroup]
+Union milan_dp	Set up job	2026-10-22T12:40:21.5229810Z ##[group]GITHUB_TOKEN Permissions
+Union milan_dp	Set up job	2026-10-22T12:40:21.5231975Z Contents: read
+Union milan_dp	Set up job	2026-10-22T12:40:21.5232615Z Metadata: read
+Union milan_dp	Set up job	2026-10-22T12:40:21.5233551Z Packages: read
+Union milan_dp	Set up job	2026-10-22T12:40:21.5234181Z ##[endgroup]
+Union milan_dp	Set up job	2026-10-22T12:40:21.5237161Z Secret source: Actions
+Union milan_dp	Set up job	2026-10-22T12:40:21.5238499Z Cache mode: write
+Union milan_dp	Set up job	2026-10-22T12:40:21.5239734Z Prepare workflow directory
+Union milan_dp	Set up job	2026-10-22T12:40:21.5657268Z Prepare all required actions
+Union milan_dp	Set up job	2026-10-22T12:40:21.5706270Z Getting action download info
+Union milan_dp	Set up job	2026-10-22T12:40:21.8995568Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+Union milan_dp	Set up job	2026-10-22T12:40:22.0170136Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+Union milan_dp	Set up job	2026-10-22T12:40:22.8501875Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+Union milan_dp	Set up job	2026-10-22T12:40:23.0661146Z Complete job name: Union milan_dp
+Union milan_dp	Run actions/checkout@v4	﻿2026-10-22T12:40:23.1522149Z ##[group]Run actions/checkout@v4
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1523400Z with:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1523929Z   repository: kebag-logic/milan-fpga
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1528234Z   token: ***
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1528719Z   ssh-strict: true
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1529193Z   ssh-user: git
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1529674Z   persist-credentials: true
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1530213Z   clean: true
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1530696Z   sparse-checkout-cone-mode: true
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1531262Z   fetch-depth: 1
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1531739Z   fetch-tags: false
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1532230Z   show-progress: true
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1532733Z   lfs: false
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1533434Z   submodules: false
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1533936Z   set-safe-directory: true
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1534507Z   allow-unsafe-pr-checkout: false
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1535351Z env:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1535837Z   VERILATOR_VERSION: v5.050
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1536414Z   YOSYS_VERSION: v0.66
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1537009Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.1537716Z ##[endgroup]
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2611184Z Syncing repository: kebag-logic/milan-fpga
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2614728Z ##[group]Getting Git version info
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2615643Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2616796Z [command]/usr/bin/git version
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2720013Z git version 2.55.0
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2741715Z ##[endgroup]
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2758163Z Temporarily overriding HOME='<home-path>/work/_temp/948f74c4-d863-4753-9f79-3d6b6e72ac9e' before making global git config changes
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2760911Z Adding repository directory to the temporary git global config as a safe directory
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2764702Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2824373Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2828320Z ##[group]Initializing the repository
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2832321Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2986986Z hint: Using 'master' as the name for the initial branch. This default branch name
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2989125Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2990256Z hint: to use in all of your new repositories, which will suppress this warning,
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2991107Z hint: call:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2991566Z hint:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2992138Z hint: 	git config --global init.defaultBranch <name>
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2992828Z hint:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2995981Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2998044Z hint: 'development'. The just-created branch can be renamed via this command:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.2999583Z hint:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3000543Z hint: 	git branch -m <name>
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3001624Z hint:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3003147Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3005282Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3014701Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3073525Z ##[endgroup]
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3075104Z ##[group]Disabling automatic garbage collection
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3077319Z [command]/usr/bin/git config --local gc.auto 0
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3141017Z ##[endgroup]
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3143567Z ##[group]Setting up auth
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3145347Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3175044Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3604277Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3645095Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3883607Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.3925977Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.4162825Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.4279229Z ##[endgroup]
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.4281686Z ##[group]Fetching the repository
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:23.4284196Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +686875c8729192f78287fda4545f3c4bc2224c8a:refs/remotes/pull/772/merge
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:25.8352325Z From https://github.com/kebag-logic/milan-fpga
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:25.8357730Z  * [new ref]         686875c8729192f78287fda4545f3c4bc2224c8a -> pull/772/merge
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:25.8361692Z ##[endgroup]
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:25.8363986Z ##[group]Determining the checkout info
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:25.8366384Z ##[endgroup]
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:25.8367712Z [command]/usr/bin/git sparse-checkout disable
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:25.8433303Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:25.8465903Z ##[group]Checking out the ref
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:25.8469492Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/772/merge
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0652217Z Note: switching to 'refs/remotes/pull/772/merge'.
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0653215Z 
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0653956Z You are in 'detached HEAD' state. You can look around, make experimental
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0655405Z changes and commit them, and you can discard any commits you make in this
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0656832Z state without impacting any branches by switching back to a branch.
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0657479Z 
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0658003Z If you want to create a new branch to retain commits you create, you may
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0659035Z do so (now or later) by using -c with the switch command. Example:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0659627Z 
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0659998Z   git switch -c <new-branch-name>
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0660483Z 
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0660959Z Or undo this operation with:
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0661497Z 
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0661904Z   git switch -
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0662392Z 
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0663318Z Turn off this advice by setting config variable advice.detachedHead to false
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0664124Z 
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0664944Z HEAD is now at 686875c Merge a97aea01449492b1f640924f5a34726f602cabed into d77a8afdbc960d70d1ceeee9af1163624f102b16
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0675503Z ##[endgroup]
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0719306Z [command]/usr/bin/git log -1 --format=%H
+Union milan_dp	Run actions/checkout@v4	2026-10-22T12:40:26.0748027Z 686875c8729192f78287fda4545f3c4bc2224c8a
+Union milan_dp	Set CPU-derived job budgets	﻿2026-10-22T12:40:26.1112788Z ##[group]Run set -euo pipefail
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1114033Z ^[[36;1mset -euo pipefail^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1114879Z ^[[36;1mcpus="$(nproc)"^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1115706Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1116568Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1117504Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1118438Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1119333Z ^[[36;1m{^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1120118Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1121099Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1122090Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1123235Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1124189Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1125181Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1126159Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1432144Z shell: /usr/bin/bash -e {0}
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1433488Z env:
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1434321Z   VERILATOR_VERSION: v5.050
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1435236Z   YOSYS_VERSION: v0.66
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1436184Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Union milan_dp	Set CPU-derived job budgets	2026-10-22T12:40:26.1437176Z ##[endgroup]
+Union milan_dp	Fetch inventory dependencies	﻿2026-10-22T12:40:26.1705430Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1707156Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack^[[0m
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1776058Z shell: /usr/bin/bash -e {0}
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1776846Z env:
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1777535Z   VERILATOR_VERSION: v5.050
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1778293Z   YOSYS_VERSION: v0.66
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1779096Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1779976Z   CI_BUILD_JOBS: 4
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1780685Z   CI_TOOL_BUILD_JOBS: 4
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1781400Z   CI_CAMPAIGN_JOBS: 4
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1782115Z   VERILATOR_JOBS: 4
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1782801Z   SIM_JOBS: 4
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1783867Z   MAKEFLAGS: -j1 --no-print-directory
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.1784673Z ##[endgroup]
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.2121917Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.2127017Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.2132175Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.2137659Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:26.2163859Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:27.1595180Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:29.2392232Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:30.7127474Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:31.5536717Z Submodule path 'gptp-processor': checked out '55680bff3b287b9a7b0c759f51471fa617c17335'
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:31.6401874Z Submodule path 'protocol-processor': checked out '93fb0b2d736b36588ea7321e25fba2f8819ea41f'
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:31.6580408Z Submodule path 'third_party/tsn-c-stack': checked out '70936b77dc41981e192438388cd0aced69954f18'
+Union milan_dp	Fetch inventory dependencies	2026-10-22T12:40:31.6784383Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+Union milan_dp	Download executed case evidence	﻿2026-10-22T12:40:31.6895962Z ##[group]Run actions/download-artifact@v4
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6896314Z with:
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6896525Z   pattern: suite-logs-*
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6896803Z   path: <home-path>/work/_temp/piece-logs
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6897095Z   merge-multiple: false
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6897337Z   repository: kebag-logic/milan-fpga
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6897595Z   run-id: 39778640099
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6897806Z env:
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6897995Z   VERILATOR_VERSION: v5.050
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6898227Z   YOSYS_VERSION: v0.66
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6898490Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6898800Z   CI_BUILD_JOBS: 4
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6899005Z   CI_TOOL_BUILD_JOBS: 4
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6899219Z   CI_CAMPAIGN_JOBS: 4
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6899433Z   VERILATOR_JOBS: 4
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6899636Z   SIM_JOBS: 4
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6899858Z   MAKEFLAGS: -j1 --no-print-directory
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.6900125Z ##[endgroup]
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.8608920Z (node:2464) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:31.8610344Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.0822212Z Found 14 artifact(s)
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.0823384Z Filtering artifacts by pattern 'suite-logs-*'
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.0845560Z Preparing to download the following artifacts:
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.0846674Z - suite-logs-11 (ID: 12427175002, Size: 43860, Expected Digest: sha256:c385b9fa2e53f4eeb70c1a8eda6fa3a831d440168e07ebb941953652a9afd27b)
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.0848058Z - suite-logs-10 (ID: 12426955610, Size: 70017, Expected Digest: sha256:8767b9b82753cdf90224cafc978b6fe8ec7648a364df34f9e3d9e55904f5332b)
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.0849452Z - suite-logs-5 (ID: 12426655788, Size: 36094, Expected Digest: sha256:318b441196aec0af8e991568bf9134f257e3056ea96e66e17e61e891fd6d15bb)
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.0850796Z - suite-logs-3 (ID: 12425878640, Size: 100116, Expected Digest: sha256:b8da8a1e8df31081a7c3c1e2c5d4b09bf3644fc4fc7933ae26971b3e7001974a)
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.0852153Z - suite-logs-13 (ID: 12425309438, Size: 12461, Expected Digest: sha256:834dcd4719aaf71b400559fc6a52a8ab364cc9d5c4e1dafcb48b49b7dede380b)
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.2913134Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/a6a3bafd-7dc4-87cf-ba2d-e29ae545ef45/workflow-job-run-fbef49cf-a9d6-551b-b468-83b6e39cc61a/artifacts/d9db277387ccf3d9262a342f59a0ca8a354046efe3a18417fcc1104332436e52.zip
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.2915396Z Starting download of artifact to: <home-path>/work/_temp/piece-logs/suite-logs-11
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.3793561Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/a6a3bafd-7dc4-87cf-ba2d-e29ae545ef45/workflow-job-run-a48ba7a0-8d88-5784-a163-b18b1f0ea650/artifacts/b8f6da81831be42f93e114c3115af43aabb977f811771eaa892971c9f573eb2f.zip
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.3795563Z Starting download of artifact to: <home-path>/work/_temp/piece-logs/suite-logs-10
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.3815719Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/a6a3bafd-7dc4-87cf-ba2d-e29ae545ef45/workflow-job-run-8ed6b26f-f541-5906-b898-e4ee1ea43487/artifacts/f2116aa2f94a9400a425b2130b426a9b9abb07be761c5043ed4fb94070ee083e.zip
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.3818175Z Starting download of artifact to: <home-path>/work/_temp/piece-logs/suite-logs-3
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.4040508Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/a6a3bafd-7dc4-87cf-ba2d-e29ae545ef45/workflow-job-run-deb935bd-b0d1-57d8-83f2-b548278a61c8/artifacts/80a3897bcef618f932fdf99b8fbb37d47006003a3cfc3e148b3b36a0fa5d7779.zip
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.4044227Z Starting download of artifact to: <home-path>/work/_temp/piece-logs/suite-logs-13
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.4250490Z Redirecting to blob download url: https://productionresultssa12.blob.core.windows.net/actions-results/a6a3bafd-7dc4-87cf-ba2d-e29ae545ef45/workflow-job-run-736962ff-2217-5a4a-98e1-3606b0eaf1ef/artifacts/d5d456249b0f094a5f13b139df32def8557412cf73358b6c497c8c96860b4199.zip
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.4254762Z Starting download of artifact to: <home-path>/work/_temp/piece-logs/suite-logs-5
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.4913468Z (node:2464) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.5484950Z SHA256 digest of downloaded artifact is c385b9fa2e53f4eeb70c1a8eda6fa3a831d440168e07ebb941953652a9afd27b
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.5486669Z Artifact download completed successfully.
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.5949221Z SHA256 digest of downloaded artifact is 834dcd4719aaf71b400559fc6a52a8ab364cc9d5c4e1dafcb48b49b7dede380b
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.5949881Z Artifact download completed successfully.
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.6607648Z SHA256 digest of downloaded artifact is 8767b9b82753cdf90224cafc978b6fe8ec7648a364df34f9e3d9e55904f5332b
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.6608617Z Artifact download completed successfully.
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.6639018Z SHA256 digest of downloaded artifact is b8da8a1e8df31081a7c3c1e2c5d4b09bf3644fc4fc7933ae26971b3e7001974a
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.6640320Z Artifact download completed successfully.
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.6829791Z SHA256 digest of downloaded artifact is 318b441196aec0af8e991568bf9134f257e3056ea96e66e17e61e891fd6d15bb
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.6830728Z Artifact download completed successfully.
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.6831335Z Total of 5 artifact(s) downloaded
+Union milan_dp	Download executed case evidence	2026-10-22T12:40:32.6837057Z Download artifact has finished successfully
+Union milan_dp	Require successful owners and every case exactly once	﻿2026-10-22T12:40:32.9476453Z ##[group]Run python3 - <<'PY'
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9476986Z ^[[36;1mpython3 - <<'PY'^[[0m
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9477402Z ^[[36;1mimport json, os^[[0m
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9478059Z ^[[36;1mneeds = json.loads(os.environ['CASE_NEEDS'])^[[0m
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9478788Z ^[[36;1massert all(row['result'] == 'success' for row in needs.values()), needs^[[0m
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9479379Z ^[[36;1mPY^[[0m
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9480246Z ^[[36;1mpython3 scripts/ci_suite_pieces.py union milan_dp   --head "$GITHUB_SHA" --tree "$(git rev-parse 'HEAD^{tree}')"   --output "$RUNNER_TEMP/union" "$RUNNER_TEMP"/piece-logs/suite-logs-*^[[0m
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9543337Z shell: /usr/bin/bash -e {0}
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9543698Z env:
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9543987Z   VERILATOR_VERSION: v5.050
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9544332Z   YOSYS_VERSION: v0.66
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9544719Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9545161Z   CI_BUILD_JOBS: 4
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9545462Z   CI_TOOL_BUILD_JOBS: 4
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9545783Z   CI_CAMPAIGN_JOBS: 4
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9546155Z   VERILATOR_JOBS: 4
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9546444Z   SIM_JOBS: 4
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9546757Z   MAKEFLAGS: -j1 --no-print-directory
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9548005Z   CASE_NEEDS: {
+Union milan_dp	Require successful owners and every case exactly once	  "full-ci-gate": {
+Union milan_dp	Require successful owners and every case exactly once	    "result": "success",
+Union milan_dp	Require successful owners and every case exactly once	    "outputs": {
+Union milan_dp	Require successful owners and every case exactly once	      "run_full": "true",
+Union milan_dp	Require successful owners and every case exactly once	      "rtl": "true",
+Union milan_dp	Require successful owners and every case exactly once	      "target_sha": "686875c8729192f78287fda4545f3c4bc2224c8a"
+Union milan_dp	Require successful owners and every case exactly once	    }
+Union milan_dp	Require successful owners and every case exactly once	  },
+Union milan_dp	Require successful owners and every case exactly once	  "verilator-shards": {
+Union milan_dp	Require successful owners and every case exactly once	    "result": "cancelled",
+Union milan_dp	Require successful owners and every case exactly once	    "outputs": {}
+Union milan_dp	Require successful owners and every case exactly once	  }
+Union milan_dp	Require successful owners and every case exactly once	}
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:32.9549229Z ##[endgroup]
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:33.6953321Z Traceback (most recent call last):
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:33.6953939Z   File "<stdin>", line 3, in <module>
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:33.6955317Z AssertionError: {'full-ci-gate': {'result': 'success', 'outputs': {'run_full': 'true', 'rtl': 'true', 'target_sha': '686875c8729192f78287fda4545f3c4bc2224c8a'}}, 'verilator-shards': {'result': 'cancelled', 'outputs': {}}}
+Union milan_dp	Require successful owners and every case exactly once	2026-10-22T12:40:33.7108605Z ##[error]Process completed with exit code 1.
+Union milan_dp	Record actual job execution	﻿2026-10-22T12:40:33.7171735Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job union-milan_dp --output "$RUNNER_TEMP/job-evidence.json"
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7173410Z ^[[36;1mpython3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job union-milan_dp --output "$RUNNER_TEMP/job-evidence.json"^[[0m
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7235140Z shell: /usr/bin/bash -e {0}
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7235482Z env:
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7235752Z   VERILATOR_VERSION: v5.050
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7236078Z   YOSYS_VERSION: v0.66
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7236458Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7236862Z   CI_BUILD_JOBS: 4
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7237142Z   CI_TOOL_BUILD_JOBS: 4
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7237432Z   CI_CAMPAIGN_JOBS: 4
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7237714Z   VERILATOR_JOBS: 4
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7237985Z   SIM_JOBS: 4
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7238270Z   MAKEFLAGS: -j1 --no-print-directory
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7240941Z   CI_STEP_RESULTS: {
+Union milan_dp	Record actual job execution	  "ci_step_0": {
+Union milan_dp	Record actual job execution	    "outputs": {
+Union milan_dp	Record actual job execution	      "commit": "686875c8729192f78287fda4545f3c4bc2224c8a",
+Union milan_dp	Record actual job execution	      "ref": "refs/pull/772/merge"
+Union milan_dp	Record actual job execution	    },
+Union milan_dp	Record actual job execution	    "outcome": "success",
+Union milan_dp	Record actual job execution	    "conclusion": "success"
+Union milan_dp	Record actual job execution	  },
+Union milan_dp	Record actual job execution	  "ci_step_1": {
+Union milan_dp	Record actual job execution	    "outputs": {},
+Union milan_dp	Record actual job execution	    "outcome": "success",
+Union milan_dp	Record actual job execution	    "conclusion": "success"
+Union milan_dp	Record actual job execution	  },
+Union milan_dp	Record actual job execution	  "ci_step_2": {
+Union milan_dp	Record actual job execution	    "outputs": {},
+Union milan_dp	Record actual job execution	    "outcome": "success",
+Union milan_dp	Record actual job execution	    "conclusion": "success"
+Union milan_dp	Record actual job execution	  },
+Union milan_dp	Record actual job execution	  "ci_step_3": {
+Union milan_dp	Record actual job execution	    "outputs": {
+Union milan_dp	Record actual job execution	      "download-path": "<home-path>/work/_temp/piece-logs"
+Union milan_dp	Record actual job execution	    },
+Union milan_dp	Record actual job execution	    "outcome": "success",
+Union milan_dp	Record actual job execution	    "conclusion": "success"
+Union milan_dp	Record actual job execution	  },
+Union milan_dp	Record actual job execution	  "ci_step_4": {
+Union milan_dp	Record actual job execution	    "outputs": {},
+Union milan_dp	Record actual job execution	    "outcome": "failure",
+Union milan_dp	Record actual job execution	    "conclusion": "failure"
+Union milan_dp	Record actual job execution	  },
+Union milan_dp	Record actual job execution	  "ci_step_5": {
+Union milan_dp	Record actual job execution	    "outputs": {},
+Union milan_dp	Record actual job execution	    "outcome": "skipped",
+Union milan_dp	Record actual job execution	    "conclusion": "skipped"
+Union milan_dp	Record actual job execution	  }
+Union milan_dp	Record actual job execution	}
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7243850Z   CI_JOB_RESULT: failure
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7244152Z   CI_MATRIX: null
+Union milan_dp	Record actual job execution	2026-10-22T12:40:33.7244411Z ##[endgroup]
+Union milan_dp	Upload actual job execution	﻿2026-10-22T12:40:36.4159585Z ##[group]Run actions/upload-artifact@v4
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4159934Z with:
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4160308Z   name: job-evidence-rtl-union-milan_dp-0-686875c8729192f78287fda4545f3c4bc2224c8a
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4160791Z   path: <home-path>/work/_temp/job-evidence.json
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4161129Z   if-no-files-found: error
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4161395Z   retention-days: 3
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4161644Z   compression-level: 6
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4161892Z   overwrite: false
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4162135Z   include-hidden-files: false
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4162403Z env:
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4162625Z   VERILATOR_VERSION: v5.050
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4163078Z   YOSYS_VERSION: v0.66
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4163603Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4163966Z   CI_BUILD_JOBS: 4
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4164201Z   CI_TOOL_BUILD_JOBS: 4
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4164442Z   CI_CAMPAIGN_JOBS: 4
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4164677Z   VERILATOR_JOBS: 4
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4164899Z   SIM_JOBS: 4
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4165190Z   MAKEFLAGS: -j1 --no-print-directory
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.4165477Z ##[endgroup]
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.5857850Z (node:2490) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.5859590Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.5914638Z With the provided path, there will be 1 file uploaded
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.5920626Z Artifact name is valid!
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.5922092Z Root directory input is valid!
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.8928409Z Beginning upload of artifact content to blob storage
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:36.9131291Z (node:2490) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:37.1722078Z Uploaded bytes 753
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:37.2416225Z Finished uploading artifact content to blob storage!
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:37.2420459Z SHA256 digest of uploaded artifact zip is dbf5330625b823fd30b7103eedf86113dd3eb48ce529796b83964ccdf7c7f0e9
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:37.2421785Z Finalizing artifact upload
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:37.7358645Z Artifact job-evidence-rtl-union-milan_dp-0-686875c8729192f78287fda4545f3c4bc2224c8a.zip successfully finalized. Artifact ID 12425679980
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:37.7360425Z Artifact job-evidence-rtl-union-milan_dp-0-686875c8729192f78287fda4545f3c4bc2224c8a has been successfully uploaded! Final size is 753 bytes. Artifact ID is 12425679980
+Union milan_dp	Upload actual job execution	2026-10-22T12:40:37.7364629Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/39778640099/artifacts/12425679980
+Union milan_dp	Post Run actions/checkout@v4	﻿2026-10-22T12:40:37.7558307Z Post job cleanup.
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8426509Z [command]/usr/bin/git version
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8474548Z git version 2.55.0
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8518486Z Temporarily overriding HOME='<home-path>/work/_temp/09caf7cd-eb23-4656-afc8-7763f71ef350' before making global git config changes
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8520148Z Adding repository directory to the temporary git global config as a safe directory
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8525125Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8569257Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8609200Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8860479Z Entering 'gptp-processor'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8917475Z Entering 'protocol-processor'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.8963661Z Entering 'third_party/tsn-c-stack'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9022068Z Entering 'third_party/verilog-axis'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9124910Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9152857Z http.https://github.com/.extraheader
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9183178Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9241101Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9534842Z Entering 'gptp-processor'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9578972Z Entering 'protocol-processor'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9624032Z Entering 'third_party/tsn-c-stack'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9667809Z Entering 'third_party/verilog-axis'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9729647Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:37.9768211Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0019916Z Entering 'gptp-processor'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0042154Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0061095Z Entering 'protocol-processor'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0081419Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0101403Z Entering 'third_party/tsn-c-stack'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0122127Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0141150Z Entering 'third_party/verilog-axis'
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0161582Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0198395Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0236577Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0270300Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+Union milan_dp	Post Run actions/checkout@v4	2026-10-22T12:40:38.0303959Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+Union milan_dp	Complete job	﻿2026-10-22T12:40:38.0477017Z Cleaning up orphan processes
+Union milan_dp	Complete job	2026-10-22T12:40:38.0866375Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,58 @@
+Adopt protocol-processor main 93fb0b2d and FPGA-gPTP main 55680bff (fourth pin adoption) OPEN
+[A10] The parent's fourth pin adoption. The processor program's and the gPTP program's in-flight issues are now in each donor's `main`.
+
+## Scope
+
+Move two gitlinks.
+
+**`protocol-processor`:** from `2cbed0a9` (#170) to processor `main` `93fb0b2d`. That brings in:
+- #72 (PR #173): traceability;
+- #73 (PR #174): the command model;
+- #151 (PR #175): the elaboration guards;
+- #178/#179 (PR #180): the SET_CONFIGURATION refusals;
+- #177 (PR #182): GET_AVB_INFO NOT_IMPLEMENTED;
+- #176 (PR #183): the SET_STREAM_INFO 2013 body;
+- #181 (PR #187): the notify-router cut;
+- #184 (PR #191): the MSRP Domain JoinMt;
+- #190 (PR #194): the per-source TSpec;
+- #185/#186 (PR #196): the control unlock;
+- #188/#189 (PR #195): the Listener registration;
+- #192 (PR #197): the started/stopped notification;
+- the processor half of #632's R677-2-F1 (PR #199): SET_STREAM_INFO compares with the stored offset;
+- #193 (PR #198): one Listener declaration per StreamID.
+
+**`gptp-processor`:** from `e4869fd0` to FPGA-gPTP `main` `55680bff`. That brings in:
+- #640 M7 (PR #78);
+- #82 (PR #83): boot as grandmaster, this-clock;
+- #84/#85 (PR #86): TU and path trace.
+
+## Parent adaptations owed
+
+Each was validated in its lane's consumer bank. The four processor patches were validated together, at parent dev `d77a8afd`, in the #198 and #199 banks (17/17):
+- evidence classification (#178);
+- the milan_dp-67 adoption (#176);
+- the scratch TSpec on every slot (#190);
+- the milan_dp GET_STREAM_INFO g9 adoption (#192).
+
+The four FPGA-gPTP companions were validated in the #86 consumer bank (15/15):
+- gptp_shadow-85;
+- milan_dp-85;
+- milan_dp-82;
+- milan_dp_gptp-84.
+
+Every pin-derived record is re-recorded through its generator: the ROM digests, the submodule pin page, the boundary diagram, and the port-contract and naming records.
+
+## Acceptance
+
+1. Both gitlinks are at the SHAs above, with the adaptations above and no other donor change.
+2. #638's resource gate is re-baselined at the adopted image, as the re-baseline rule requires. route-1x1 is within the gate. The 1x1 cost of #198 (accepted at 8x8: +1,335 LUT / +618 FF) is measured and recorded here. STOP if route-1x1 fails the resource or timing gate.
+3. The saved-state capture is re-measured if the firmware digest moves (`check_nvm_capture.py`; the 8x8 maximum stays at or under 24.5 ms).
+4. Every parent gate and suite passes, including the three-directive image build. Its best seed has WNS >= +0.03 ns and WHS >= 0 at every corner (BUILDING.md section 5). The milan_dp gptp, gptp-lat, milan_dp_gptp and milan_dp_gm_steps legs run.
+5. After the merge, the manager closes the donor issues that wait for this adoption: processor #176, #190 and #192, and FPGA-gPTP #82, #84 and #85. The manager then flashes the image and runs the bench:
+   - the DUT identity gate;
+   - #637's cold power cycle of the audio maps;
+   - soak all streams and counters.
+   The release qualification (#76) runs after #770 lands on this adoption.
+
+Relates to #632, #637, #76.
+

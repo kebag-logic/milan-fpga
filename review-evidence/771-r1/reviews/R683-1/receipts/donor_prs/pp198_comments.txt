@@ -1,0 +1,1290 @@
+=== 6299287962 Mister-M-alt
+[A10] INDEPENDENT REVIEW STARTED: R679-1
+
+R679 (internal reviewer) reconstructs issue #193 / PR #198 at exact head `6ddfcda4c3170b8f463c8623833f7541ca8c1faf`, tree `45faa5d3bd449cc0d8f8bee77f186d5e0c73022c`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+=== 6299299222 Mister-M-alt
+[A10] INDEPENDENT REVIEW STARTED: R680-1
+
+R680 (external reviewer) reconstructs issue #193 / PR #198 at exact head `6ddfcda4c3170b8f463c8623833f7541ca8c1faf`, tree `45faa5d3bd449cc0d8f8bee77f186d5e0c73022c`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+=== 6299632354 Mister-M-alt
+[R680] NEGATIVE - exact head 6ddfcda4c3170b8f463c8623833f7541ca8c1faf
+
+The ordinary shared-stream cases pass, but the fix does not maintain one applicant identity when a parked Leave's StreamID becomes wanted by another sink. A complete SRP datapath probe emits two VectorAttributes for that value, including Lv while the current sink declares Ready. One index order leaves the peer unregistered. F1 is MAJOR; F2 and F4 are MINOR documentation findings. F3 is wording-only RESIDUE. All five lenses were applied independently.
+
+Reviewed tree: `45faa5d3bd449cc0d8f8bee77f186d5e0c73022c`. Base: `21601694880efdfc4be3028afa3525fbc8f29c03`. The three author commits end at `788425db609204234282ea655be2452649622cba`; the reviewed merge also contains processor main `08023123ae2df5d802d20a9bb22cd063942845cd` (#192). No source fixes, commits, GitHub writes, or other checkout edits were made.
+
+Reconstruction followed the supplied AGENTS instruction, absence of repository AGENTS.md/CONTRIBUTING.md, `docs/README.md`, the frozen issue body and public decisions, architecture/interface authorities, full diff/history, then public executable evidence. The [assignment](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/193#issuecomment-6289596705), [STOP ruling](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/193#issuecomment-6290012163), and [manager answers](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/193#issuecomment-6299223806) were read in full. Supporting authorities included issues #188/#189, `docs/00_MILAN_COMPLIANCE_REVIEW.md` (REQ-ACMP-018/022 and REQ-SRP-001…006), architecture 02/07/10, and `hdl/README.md`.
+
+**F1 — MAJOR — Conformance, RTL, Robustness, Tests. Parked and live applicants can transmit the same value independently.**
+
+- Location: `hdl/srp/KL_srp_listener_fsm.sv:568`, `:574`, `:784`, `:925`; uncovered intersection of the #188 and #193 tests.
+- Cause: `mbr_w` excludes every parked applicant, and `same_w` groups only matcher StreamIDs. A pending applicant for a parked StreamID is therefore invisible to another sink that declares that value. Both remain eligible for the transmit walk.
+- Reproduction: register stream A on sink 1 and let its applicant reach QA; withdraw sink 1 and settle it on B before the next transmission, parking A's owed Leave; settle sink 0 on A and register its Talker Advertise before that transmission. Sink 0 reports Ready and its Talker registered. The next MRPDU carries New Ready for A followed by Lv Ready for A. Reversing the two indices carries Lv followed by New instead; it still violates uniqueness and causes a deregistration during processing.
+- Raw wire, higher-index parked slot (47 bytes):
+
+```
+01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00
+03 08 00 1a
+00 01 11 22 33 44 55 66 00 01 00 80
+00 01 11 22 33 44 55 66 00 01 b4 80
+00 00 00 00
+```
+
+The repeated FirstValue is `1122334455660001`; `00 80` encodes New/Ready and `b4 80` Lv/Ready. The independent parser sees two values, one Lv, and a final peer state of MT, while the current sink's declaration remains Ready. Both the FSM-interface probe and the decoder/FSM/encoder/slot-pool probe fail in both index orders: [FSM receipt](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/parked-probe.log), [wire receipt](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/parked-wire-probe.log). Inputs use ordinary public control/receive faces; no internal-state forcing or RTL edit is involved.
+
+Authority: IEEE 802.1Q-2018 §10.7.7, the §35.2.6 NOTE, and §35.1.2.2; the frozen owner-election ruling; Milan §4.2.7.2.2's immediate deregistration on Lv. This is an incomplete fix of the one-applicant invariant, not a claim that the parked-value problem first appeared in these commits.
+
+Impact: a newly wanted stream can lose reservation until its next declaration, and one MRPDU contains conflicting declarations for one attribute value.
+
+Required outcome: preserve a single applicant identity across live and parked values. Renewed demand for the parked value must not coexist with a stale outgoing Lv. Preserve the genuine last-declarer #188 obligations when no other sink declares the old value. Add committed coverage of both index orders, byte-exact uniqueness and uninterrupted peer registration, with named KILLED controls.
+
+Verification: run `run-parked-probe.py` and `run-parked-wire-probe.py` against the candidate after adapting their explicit revision guard; require one value, zero Lv, peer IN while the new sink declares. Retain passing normal handover, type-sum, and owed-Leave controls.
+
+**F2 — MINOR — Docs. The PR's accepted area result omits its measured sink count.**
+
+Artifact: [PR #198 body](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/198), Behaviour paragraph beginning “In the parent's out-of-context synthesis”. The manager answer explicitly requires the OOC figure **with its sink count**, plus a 1x1 figure only if measured.
+
+The numerical delta is accurate: public OOC receipts give 56,501 → 57,538 LUT and 26,332 → 26,382 FF; LUTRAM/RAM/DSP/carry are unchanged. The published invocation is `KL_pp_shadow` without a shape override; its public defaults are `N_STREAM_IN_P=8`, `N_STREAM_OUT_P=8` (`public-KL_pp_shadow.sv:195`, `public-run_ooc.sh:23`, `public-env-parent.sh`). The PR does not state that measured shape.
+
+Impact: readers cannot distinguish the accepted eight-sink cost from the shipped 1x1 cost. Required outcome: add the verified input/output shape beside the measurement and say the 1x1 figure was not measured in this packet. No new synthesis is required for this finding. Verification: compare the corrected PR wording against the invocation/defaults and both OOC receipts. This is measurement provenance, so it is not wording-only RESIDUE.
+
+**F3 — RESIDUE — Docs. New source comments contain bench labels.**
+
+Locations: `tb/srp_top/sim_main.cpp:2996` (`SW.`) and `:3110` (`SW3:`). These are new instances in the reviewed delta, contrary to the owner's 2026-10-15 source-comment rule. Existing labels, including the already-present `G7c` label, are not newly attributed here.
+
+Exact fix: replace `// ==== SW. sinks on one stream share one Listener declaration (#193) =====` with `// Sinks on one stream share one Listener declaration (issue #193).`; remove the `SW3: ` prefix from the comment at line 3110. Keep test assertion identifiers and findings-page labels unchanged. Impact is wording-only; verification is a diff scan of new source comments. This does not make any lens unclean and belongs on the residue checklist.
+
+**F4 — MINOR — Docs, Conformance. Two new test comments cite FailureInformation as authority for the Listener type sum.**
+
+Locations: `tb/srp_stream_fsms/sim_main.cpp:1592` and `tb/srp_top/sim_main.cpp:3112`. Both attach §35.2.2.8.7 to the Ready + AskingFailed = ReadyFailed claim. That clause concerns FailureInformation, as documented in [IEEE maintenance material](https://www.ieee802.org/1/files/public/docs2015/cc-cgunther-maint-150-0315-v03.pdf). The frozen acceptance and the correctly updated architecture at `docs/architecture/10_srp_engine.md:631` instead identify §35.1.2.2 and Table 35-14 of §35.2.4.4.3.
+
+Impact: the new tests' conformance rationale points to the wrong authority even though their expected FourPacked value is correct. Required outcome: replace `§35.2.2.8.7` in these two comments with `§35.1.2.2; §35.2.4.4.3, Table 35-14`, retaining §35.2.6 for the in-place change. Verification: inspect the corrected citations against the frozen requirement and architecture. The correction changes a clause claim, so the owner's definition excludes RESIDUE. See [authority notes](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/clause-authorities.txt).
+
+**Reviewer-owned lens ledger**
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN — F1, F4 | #193 frozen body/rulings; #188/#189; REQ-ACMP-018/022, REQ-SRP-005; architecture 10 §6.4; normal and parked-value packet traces; type-sum citations | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| RTL | UNCLEAN — F1 | full diff/history; listener owner_map, app_arb, handover, park and walk; encoder repeated-value handling; per-sink registrar/output paths; merged #192 wiring | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| Robustness | UNCLEAN — F1 | both unbind orders, three sinks, rider rebind, mid-walk handover, consecutive controls; 12 additional broadcast/control/tx collisions; parked-value reuse in both index orders | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| Tests | UNCLEAN — F1 | independent table model, wire builder/parser and peer registrar; 1,403 + 5 focused checks; 21 selected mutation controls; new failure reproductions; public merged notification receipts | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| Docs | UNCLEAN — F2, F4 | docs/README conventions; architecture 02/07/10; test READMEs; PR body; public area receipts and measured-shape provenance; source-comment delta | R680-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+
+**Positive evidence and its limits**
+
+| Check | Evidence and result |
+|---|---|
+| Normal ownership, quiet riders, both teardown orders, three sinks, rebind, type sum, walk mark | Exact-head `srp_stream_fsms`: 1,403 PASS, 0 FAIL; [receipt](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/srp_stream_fsms-suite.log). Tests use an independent Table 10-3 model. |
+| Normal one-vector wire encoding, peer registration, ReadyFailed | Exact-head `srp_top share`: 5 PASS, 0 FAIL; [receipt](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/srp_top-share.log). The test compares complete frames against its independent builder; [35-byte Ready and ReadyFailed captures](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/wire-witness.log) preserve the passing bytes. |
+| Same-clock control/handover with periodic, received Listener LeaveAll, and tx opportunity | [Additional probe](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/handover-pairs.log): 12 PASS. A disposable fault drops transferred deferred broadcasts: [control](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/handover-control.log), 9 named failures, KILLED. A second [Join-message fault](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/handover-join-control.log) kills all 12 checks. |
+| New controls and re-anchored #188 controls | [Scoped campaign](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/controls.log): 3 positive runs plus 27 arm trials, 30/30 PASS; all 21 distinct selected controls KILLED, including all 12 new controls and all 9 re-anchored controls. Walk arms cover 1x1, 2x2, 3x5, 9x9. |
+| Registrar, EVT_TK_* and GET_RX_STATE remain per sink | Registrar plane unchanged in the author delta; own `dcl_r` is exported per sink while only the wire uses the OR sum. Existing per-sink matcher/registration checks pass. ACMP/event-router read paths were inspected; no independent full processor run is claimed. |
+| No interface/register-map expansion | Listener and processor-top port/parameter declaration tokens match base; architecture 07 unchanged. See [scope receipt](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/scope-integrity.txt). The #192 merge removes an internal notification signal, not a processor-top port. |
+| Published broader source validation | Public receipts at 67b90c17 report 1,030,284 suite checks and 196/196 SRP campaign checks, coverage 113/113. SRP RTL and both SRP test directories are byte-identical from that revision to this exact head. At 788425db the relocated FailureInformation control is detected; public scratch-merge receipts report 10,721 processor-top checks and all 23 notification controls detected. These are author receipts, with their recorded revisions, not a manager source bank. |
+
+The [public evidence tree](https://github.com/kebag-logic/milan-fpga/tree/f4be75344d6ea8267f5fcd02e3644cd403066c04/review-evidence/pp193-r1) supplied executable receipts only; no private author handoff or other reviewer's report was used. All 103 selected downloaded receipts match their published Git blobs ([audit](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/evidence-integrity.txt)). The earlier equivalent FailureInformation mutant at 67b90c17 is explicitly superseded by the relocated control at 788425db and its passing scratch-merge campaign.
+
+The independent verdict and five-lens ledger were written before the prior-findings audit. The subsequent public query found two review-start comments, zero submitted reviews, and zero inline review comments; therefore no prior public FINDINGS were available to retain or resolve ([audit](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/prior-findings-audit.txt)).
+
+Exact-head hosted execution was inspected separately. At the recorded snapshot, both workflow runs had completed successful documentation and portability jobs, while suite jobs were still in progress. No skipped or pending context is counted as executed proof; no overall hosted acceptance is claimed. See [timestamped status](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/hosted-summary.txt). The manager owns hosted/act acceptance.
+
+**Limits, integrity, and pending manager duties**
+
+This review ran focused SRP suites and disposable probes only. No full processor/parent/gPTP/portability/builder bank, hardware, physical calibration, or routing run was executed. Physical calibration is NOT RUN; field skips are not hardware proof. The full IEEE/Milan publication corpus was not independently re-audited: the frozen public requirements and repository interface authorities govern this review, with public IEEE material used to check the citation defect.
+
+All disposable trees and builds are under `scratch/`, excluded from publication. Independent builds ran concurrently with separate logs/return-code receipts, using at most 16 build workers; every command remained foreground-owned and was reaped before completion. No heavy physical-design build was run.
+
+The isolated source checkout never needed restoration: all probes used archived copies. Final byte/mode/index verification checks all 692 tracked blobs, the exact HEAD/tree, and a clean working tree. This processor tree contains zero gitlinks, so there are no nested required submodule pins to restore. See [integrity receipt](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/source-integrity.txt) and [tracked inventory](https://github.com/kebag-logic/milan-fpga/blob/9c9ee38678b1f5bcca55c20e0eaead0ad1696fb6/review-evidence/pp193-r1/reviews/R680-1/tracked-blobs.txt).
+
+The manager must obtain fixes and independent re-review for open findings, carry F3 on the residue checklist, and validate the final current-dev merge candidate with the builder and native banks at the merge turn. Source base 21601694 and live dev `78ca9bdf104819265588726bce4322696c38b8c2` are distinct contexts. No manager source bank exists at this exact head and none is inferred. Publish the final candidate receipts on the PR; check the shipped route-1x1 resource result at adoption. Accepted OOC area is not reopened by this review.
+
+Collection scripts record the child build/test return code in the corresponding `.rc` file; expected failing probes are not passing tests. Portable entry scripts accept the isolated clone path as their first argument and keep output beside themselves. `MANIFEST.sha256` lists every publishable receipt, script, probe source and supporting artifact with paths relative to this packet. `scratch/` is never published.
+
+R680-1 FINISHED
+
+=== 6300027310 Mister-M-alt
+[R679] NEGATIVE - exact head 6ddfcda4c3170b8f463c8623833f7541ca8c1faf
+
+# R679-1: independent review of processor PR #198 (Closes #193)
+
+- Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan, PR #198, round R679-1.
+- Exact head `6ddfcda4c3170b8f463c8623833f7541ca8c1faf`, tree `45faa5d3bd449cc0d8f8bee77f186d5e0c73022c`.
+- Source base `21601694880efdfc4be3028afa3525fbc8f29c03`. The three author commits are `2b382b2`, `67b90c1` and `788425d`. The manager merge `6ddfcda` brings in processor main `08023123` (#192).
+- The merge is exactly the clean merge. `git merge-tree --write-tree 788425d 0802312` gives tree `45faa5d3…`, which is the head tree. No conflict-resolution bytes are added.
+
+The ordinary shared-stream behaviour is correct, byte-exact and well controlled: owner, quiet riders, both unbind orders, three sinks, rider rebind, the Ready + AskingFailed = ReadyFailed sum, mid-walk handover and consecutive-clock A8/A15 pairs. All 12 new controls and the 9 re-anchored #188 controls are KILLED.
+
+The PR still leaves one path with two applicants for one StreamID:
+
+- A sink alone on a StreamID re-binds away and parks its owed Leave (#188).
+- Another sink then settles on that StreamID and declares it before the owed Leave is sent.
+- One MRPDU then carries two Listener VectorAttributes for the value, New and Lv.
+- The suite's own Milan v1.2 §4.2.7.2.2 peer Registrar model deregisters the stream while the new sink declares it.
+
+That is finding F1 (MAJOR), so the verdict is NEGATIVE.
+
+## Reconstruction
+
+1. **Repository rules.** The repository has no `AGENTS.md` or `CONTRIBUTING.md`. I read `README.md` and `docs/README.md` (conventions, single-source rules, citation rules).
+2. **Issue #193.**
+   - The frozen body and its "Done when" list.
+   - The assignment (issuecomment-6289596705), the STOP (issuecomment-6289991979), the STOP ruling (issuecomment-6290012163) and the answers (issuecomment-6299223806), all in full.
+   - The author's REVIEW READY report (issuecomment-6299186889) and the PR body.
+3. **Authorities.**
+   - `docs/architecture/10_srp_engine.md` §5.1 and §6.4.
+   - The design banner of `hdl/srp/KL_srp_listener_fsm.sv`, its Table 10-3/10-4 transcription and the #188 park rules.
+   - The `lstn_decl_state` consumers in `protocol_processor_top.sv` and `KL_srp_top.sv`.
+   - Parent issue #746, for the comment rule.
+   - The IEEE/Milan PDFs are not in the repository and were not re-read (see Limits).
+4. **Diff and history.**
+   - `git diff 21601694..6ddfcda`, split into the author delta (`0802312..6ddfcda`: one RTL file, docs 10, two suites, two campaign drivers and 21 patches) and the #192 content (already reviewed under PR #197).
+   - The full head text of `KL_srp_listener_fsm.sv`, read line by line.
+5. **Public executable evidence.**
+   - `kebag-logic/milan-fpga@f4be7534:review-evidence/pp193-r1`: the OOC receipts (`author/receipts/round1b/ooc/{base,head}/ooc_pp_shadow.log`) and the tree listing.
+   - Parent dev `e26f1816`: `hdl/milan/KL_pp_shadow.sv` and `syn/yosys/run.sh`, read for the measured shape.
+
+## Findings
+
+### F1 — MAJOR — Conformance, RTL, Robustness, Tests, Docs: a parked owed Leave and a new group's declaration of the same StreamID both transmit
+
+**Where.**
+- `hdl/srp/KL_srp_listener_fsm.sv:568`: `mbr_w = rec_valid_r && !lvp_r` puts every parked applicant outside every group.
+- `:574`: `same_w` groups by the matcher stream_id only, never by the parked leave copy `lsid_r`.
+- `:696`: `hand_w` merges only members that exist at the parking sink's own A15.
+- `:640-641`: a new sink's request is held only by its own `lvp_r`.
+- `:918-929`: both slots are pushed in the same walk.
+- Claim text: the banner at `:84-106`, and `docs/architecture/10_srp_engine.md:616-650`, where §6.4 says the value has "one applicant" and "The value's single applicant lives in one of the sinks' … slots".
+
+**Reproduction.** Ordinary control and receive faces only. No internal forcing, no RTL edit.
+1. Sink P is alone on stream A, registered Ready, and its applicant is ticked to QA.
+2. P re-binds to stream B, by a direct A15 or by A8 then A15. Its applicant goes LA, owes Lv for A and is parked (#188 rule).
+3. Before the next tx!, sink J settles on A and the talker's next Advertise registers it. J reports Ready.
+4. The next walk pushes both J's New for A and P's owed Lv for A.
+
+**Evidence: interface level** (`receipts/probe-parked-leave-head.log`). All four variants fail: P above or below J, each with and without an A8 first.
+- J below P: `0/2 5/2`, meaning New Ready then Lv Ready for one value in one tick.
+- J above P: `5/2 0/2`.
+
+**Evidence: wire level** (`receipts/probe-parked-leave-wire-head.log`). This runs through the real decoder, listener FSMs, encoder and slot pool, with the PR's own `PeerRegistrar` model fed every DUT MSRP frame. J = 0 and P = 1 give one 47-byte frame at 2403 ms:
+
+```
+01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 1a
+00 01 11 22 33 44 55 66 00 01 00 80   <- FirstValue 1122334455660001, New, Ready
+00 01 11 22 33 44 55 66 00 01 b4 80   <- same FirstValue, Lv, Ready
+00 00 00 00
+```
+
+The peer Registrar ends that frame in MT (deregs 1, Lv 1) while sink 0 declares Ready. It re-registers only on the next frame, about 200 ms later. The reverse indices give `…b4 80 … 00 80`, which is a deregistration and re-registration inside one frame (deregs 1). Both cases fail the probe check `PW1`/`PW2`.
+
+**Evidence: base comparison** (`receipts/probe-parked-leave-baseRTL.log`). With the base RTL and the head benches, the probe gives the same words. The parked case therefore predates these commits. This is not a regression; it is the part of #193's acceptance that the fix leaves open.
+
+**Authority.**
+- IEEE 802.1Q-2018 §10.7.7 (one Applicant per attribute value).
+- The §35.2.6 NOTE (at most one Listener declaration per StreamID per port).
+- §35.1.2.2 (Lv only for streams no longer wanted).
+- Milan v1.2 §4.2.7.2.2 (the registrar deregisters at once on Lv).
+- The frozen ruling (issuecomment-6290012163): "exactly one sink is the declaration owner … Only the owner's applicant transmits".
+- The focus criteria: "exactly one VectorAttribute per value goes on the wire" and "a Milan 4.2.7.2.2 peer registrar never deregisters while a sink wants the stream".
+
+**Impact.**
+- A stream that one sink hands to another, for example a controller moving a stream between Stream Inputs, can lose its reservation at the peer. This is the symptom #193 reports.
+- One MRPDU carries conflicting events for one attribute value.
+- The window is from the re-bind to the next tx! (one T-MRP-JOIN), and needs a talker frame inside it. That is narrow, but it is reached by an ordinary ACMP sequence.
+
+**Required outcome.**
+- The value keeps one applicant across live and parked copies. When a sink settles on, or declares, a stream_id that another sink holds parked with an owed message, the parked applicant joins that stream's group. For example, the group takes the parked applicant over as the #188 same-stream re-probe rule does for one sink (LA + New! = VN), instead of letting a stale Lv go out beside the new declaration.
+- The #188 obligations stay unchanged when no sink declares the old value.
+- Committed SH/SW cases for both index orders and both re-bind forms, byte-exact single-value frames and an uninterrupted peer Registrar, each with a named KILLED control.
+- Banner and §6.4 text that describe the parked case.
+- Alternatively, a manager ruling that scopes this path out, with a tracking issue.
+
+**Verification.** `scripts/run_probes.sh <clone> <candidate> <outdir>` must report, for every variant:
+- no `FAIL: PR`/`FAIL: PW` lines;
+- one value per tick;
+- no Lv while the joiner declares;
+- the peer IN with 0 deregistrations.
+
+The existing SH1-SH9, SW1-SW3 and RB checks, and the 196-check campaign, must still pass.
+
+### F2 — MINOR — Docs: the PR body's area figure does not state its measured sink count
+
+**Where.** The PR #198 body, under Behaviour, in the sentence beginning "In the parent's out-of-context synthesis of `KL_pp_shadow` the election costs 1,037 LUTs…".
+
+**Evidence.**
+- The numbers are accurate. The public receipts `ooc/{base,head}/ooc_pp_shadow.log` give LUT 56,501 → 57,538 (+1,037) and FF 26,332 → 26,382 (+50). LUTRAM 4,236, RAMB36 15, RAMB18 4, DSP 10 and CARRY4 2,392 are unchanged. The "about 1.8 %" is 1,037 / 56,501 = 1.84 %.
+- The measured shape is not stated. The run is `synth_xilinx -family xc7 -flatten` over `KL_pp_shadow` with no parameter override in `syn/yosys/run.sh` at parent dev `e26f1816`, so it uses the module defaults `N_STREAM_IN_P = 8` and `N_STREAM_OUT_P = 8` (`hdl/milan/KL_pp_shadow.sv:195-196`).
+- The manager's answer (issuecomment-6299223806, item 1) requires "the out-of-context figure with its sink count, and the 1x1 figure if one is measured".
+
+**Impact.** A reader cannot tell the accepted 8-sink cost from the shipped 1x1 cost. This is measurement provenance, so it is MINOR rather than RESIDUE.
+
+**Required outcome.** State the shape beside the figure, for example "(the module defaults, 8 Stream Inputs and 8 Stream Outputs)". Also say that no 1x1 figure was measured, and that the 4th pin adoption's route-1x1 measures the shipped cost.
+
+**Verification.** Compare the edited PR body with the two OOC receipts and `KL_pp_shadow.sv:195-196`.
+
+### S1 — SUGGESTION — Docs: the type-sum clause in two test comments
+
+`tb/srp_stream_fsms/sim_main.cpp:1592` and `tb/srp_top/sim_main.cpp:3112` cite "§35.2.6, §35.2.2.8.7" for Ready + AskingFailed = ReadyFailed. Elsewhere this repository uses §35.2.2.8.7 for FailureInformation (`KL_srp_decoder.sv:96`, `KL_srp_talker_fsm.sv:36`). The type-sum authority used by the banner and by `10_srp_engine.md:631-632` is §35.1.2.2 with Table 35-14.
+
+The two comments copy the frozen ruling's own citation (issuecomment-6290012163, item 3), so this is not counted against the author. Suggested fix: cite "§35.1.2.2, Table 35-14; §35.2.6" there, and let the manager decide whether to correct the ruling's citation.
+
+### S2 — SUGGESTION — RTL (from reading the code; not probed): a handover to a lower index after the walk has passed it
+
+`KL_srp_listener_fsm.sv:979` copies the giver's walk mark. Suppose the applicant moves by `op_mv_w` to an owner whose slot the current walk has already passed, and the giver has not been walked yet. Then the applicant gets no tx! in that walk, and its message goes one T-MRP-JOIN later.
+
+This never causes two tx!, which is what the banner claims, and Table 10-3 allows it. A sentence in §6.4 noting the possible one-tick delay would complete the description.
+
+## Prior public findings on this PR, resolved at this head
+
+Before writing my verdict and ledger I had read no other review (`receipts/draft-verdict-before-prior-findings.txt`). The query afterwards (`receipts/prior-findings-audit.txt`) found two review-start notices, one concurrent public review (R680-1, issuecomment-6299632354, NEGATIVE), zero submitted reviews and zero inline comments.
+
+| R680-1 finding | Resolution at 6ddfcda4 |
+|---|---|
+| F1 MAJOR, parked and live applicants for one value | **Retained.** It is the same defect as my F1, reached independently with my own probes and receipts. |
+| F2 MINOR, area figure without its sink count | **Retained** as my F2, MINOR. My first draft had this as RESIDUE. I raised it because the manager's answer makes the sink count a condition of the accepted figure. |
+| F3 RESIDUE, `SW.`/`SW3:` labels in new source comments | **Not retained.** Parent issue #746, which records the owner's 2026-10-15 rule, names the forbidden labels as bench lanes ("bench lane B17"), lane names, review rounds, reviewer IDs and issue-comment IDs. It also says that "identifiers such as `B10` to `B13` … are behaviour IDs, not bench lanes, and stay". `SW1-SW3` are the suite's check IDs: the campaign's named failing assertions in `tb/srp_top/mutants.py`. The `// ==== SW.` header follows the file's existing group headers (`A.` to `J.`, `DJ.` at `:2061-2951`). I scanned the author delta for lane, reviewer, round and comment-ID residue and found nothing. |
+| F4 MINOR, §35.2.2.8.7 cited for the type sum | **Not retained at MINOR.** Recorded as S1 (SUGGESTION), because the comments reproduce the frozen ruling's own citation; see S1. |
+
+## The focus checks
+
+| Requirement | Result | Evidence |
+|---|---|---|
+| Several settled sinks on one StreamID give exactly one VectorAttribute per value, byte-exact | **Holds for settled sinks; fails when a parked Leave meets them (F1)** | srp_top `share` SW1 byte-exact against the independent builder, then three more frames with one value each (`receipts/suite-srp_top-head.log`, 8,665 PASS); probes for F1 |
+| Owner is the lowest-index declaring sink; riders send nothing | Holds | `own_w`/`act_w`/`quiet_w` (`:600-603`); SH1, SH4; `listener-group-order-reversed` and `listener-rider-not-quiet` KILLED |
+| Handover carries the state: no Lv!, no New! unless the sum changes; both orders, three sinks, rider rebind, mid-walk, consecutive-clock pairs | Holds | SH2, SH3, SH4, SH5, SH7, SH8, SH9 (`receipts/suite-srp_stream_fsms-head.log`, 1,403 PASS); seven controls KILLED (drops-state, teardown-applies-lv, withdraw-ignores-riders, forgets-walk-mark, settle-parks-shared-stream, rider-settle-hands-over, group-op-during-settle). An ACMP op and a decoder event cannot share a clock (`ctl_ready_o = !evt_valid_i`, `:626`). |
+| Declared type is the sum (Ready + AskingFailed = ReadyFailed) | Holds | `cfp_w` OR of `dcl_r` (`:597`; codes 1/2/3); SH6 and SW3 byte-exact FourPacked 3; `listener-type-not-combined` KILLED in both suites |
+| Last declarer keeps the #188 owed-Leave rules | **Holds for its own slot; the parked slot is not merged with later demand (F1)** | `op_lv_w` (`:610`); the settle arm still parks when `hand_w` is 0 (`:784-787`); RB1-RB9, WK and the Table 10-3 walks pass; the 9 re-anchored #188 controls are KILLED with unchanged edits (my diff of the edit lines: only the anchor context, plus the documented `listener-declaration-not-held` move to the grant term) |
+| A Milan 4.2.7.2.2 peer registrar never deregisters while a sink wants the stream | **Holds in SW2; fails on the F1 path** | SW2 PASS; `receipts/probe-parked-leave-wire-head.log` deregs 1 |
+| Registrar, EVT_TK_* and GET_RX_STATE stay per sink | Holds | The author delta does not touch `reg_plane`/`reg_ind`. `lstn_decl_state_o` is the sink's own `dcl_r` while its group declares (`:1178`); consumers: the top's status port and side-port snapshot only. SH6/SW3 check each sink's own type. |
+| Every new check has a KILLED control; re-anchored #188 controls still KILLED | Holds | `receipts/campaign-head.log`: 196/196 PASS, coverage 113/113, 0 UNPROVEN; the changed gsi control `failure-change-redeclares` KILLED with golden and restored PASS (`receipts/gsi-head.log`, `gsi-head/results.json`) |
+| No port, parameter or register-map change | Holds | `receipts/scope-ports.txt`: listener module header identical to main, top header identical to base; the author delta touches only `KL_srp_listener_fsm.sv` under `hdl/`; 07/02 unchanged |
+| The area figure is recorded accurately | Numbers accurate; sink count missing (F2) | OOC receipts as quoted in F2 |
+| Comment rule (no lane, round, reviewer or comment IDs in new source comments) | Holds | scan of the added lines of `21601694..6ddfcda`: no match |
+| PR claims re-checked | Hold | base RTL with head benches fails exactly 26 SH checks (`probe-parked-leave-baseRTL.log`: 30 FAIL = 26 SH + 4 probe); suite tallies 1,403 and 8,665 equal the READMEs; lint, `gen_matrix --check` and `make check` rc 0 at head |
+
+## Reviewer-owned ledger
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN (F1) | #193 body, assignment, STOP, ruling, answers; 802.1Q §10.7.7, §35.2.6 NOTE, §35.1.2.2, Table 35-14 and Milan §4.2.7.2.2 as cited by the ruling; wire frames from SW1/SW3 and from the F1 probe; peer Registrar outcomes | R679-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| RTL | UNCLEAN (F1) | the full head `KL_srp_listener_fsm.sv` (owner_map, app_arb, handover, settle_app, app_plane, walk, status_map); the merge-tree identity; the module headers of listener and top; the `lstn_decl_state` consumers; lint rc 0 | R679-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| Robustness | UNCLEAN (F1) | both unbind orders, three sinks, rider rebind, mid-walk and consecutive-clock pairs (suite); four parked-Leave variants (interface level) and two (wire level), at head and at base RTL; same-clock grant/op/ctl interplay by code reading (S2) | R679-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| Tests | UNCLEAN (F1: no case or control for a parked Leave meeting a new declarer of the value) | `srp_stream_fsms` 1,403 PASS; `srp_top` 8,665 PASS; the full srp_top campaign 196/196 with coverage 113/113; the gsi control; all 12 new and 9 re-anchored patches read | R679-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+| Docs | UNCLEAN (F1 claim text, F2) | banner, `10_srp_engine.md` §5.1/§6.4, `tb/srp_stream_fsms/README.md`, `tb/srp_top/README.md`, `tb/pp_top/README.md` (#193 paragraph), PR body, OOC receipts and the parent shape; `make check` rc 0 | R679-1 | 6ddfcda4c3170b8f463c8623833f7541ca8c1faf |
+
+## Receipts and how they were produced
+
+All commands ran on disposable `git archive` exports or a scratch clone under `scratch/`, never in the review clone.
+
+- **Simulator.** The scoped wrapper reports version 5.050 rev v5.050, which matches the CI pin `VERILATOR_VERSION: v5.050` in `.github/workflows/hdl.yml`.
+- **Parallelism.** At most 14 jobs ran at once: the campaign with `--jobs 10`, two suites, the gsi run with `--jobs 3` and one probe.
+- **Paths.** Local absolute paths in the logs are replaced by `<SIM_ROOT>`, `<PACKET>` and `<HOME>`.
+
+| Receipt | What | rc |
+|---|---|---|
+| `receipts/suite-srp_stream_fsms-head.log` | `make` in tb/srp_stream_fsms (walk arms 1x1/2x2/3x5/9x9 and the suite) | 0, 1403 PASS |
+| `receipts/suite-srp_top-head.log` | `make` in tb/srp_top (storage arms and every group) | 0, 8665 PASS |
+| `receipts/campaign-head.log`, `receipts/campaign-head/` | `tb/srp_top/mutants.py --jobs 10` (full) | 0, 196/196, coverage 113/113 |
+| `receipts/gsi-head.log`, `receipts/gsi-head/` | `tb/pp_top/gsi_mutants.py --only failure-change-redeclares --jobs 3` | 0, detected, golden and restored PASS |
+| `receipts/lint_hdl-head.log`, `gen_matrix-head.log`, `make_check-head.log` | `scripts/lint_hdl.sh`, `scripts/gen_matrix.py --check`, `make check` (scratch clone at the head) | 0, 0, 0 |
+| `receipts/probe-parked-leave-head.log` | `scripts/probe_parked_leave.py` then `make RUN_ARGS=suite` | 2 (expected: 4 PR failures, 1403 suite checks PASS) |
+| `receipts/probe-parked-leave-wire-head.log` | `scripts/probe_parked_leave_wire.py` then `make RUN_ARGS=share` | 2 (expected: PW1, PW2 fail; SW1-SW3 PASS) |
+| `receipts/probe-parked-leave-baseRTL.log` | the same FSM probe with base `hdl/` and head `tb/` | 2 (26 SH + 4 PR failures) |
+| `receipts/scope-ports.txt` | module-header and scope comparison | n/a |
+| `receipts/source-integrity.txt` | `scripts/verify_clone.py` on the review clone | 0 |
+| `receipts/hosted-checks.txt` | exact-head check runs at 19:46Z | n/a |
+| `receipts/draft-verdict-before-prior-findings.txt`, `receipts/prior-findings-audit.txt` | order of the independent verdict and the prior-findings read | n/a |
+
+`scripts/run_probes.sh <clone> <revision> <outdir>` re-runs both probes on any candidate.
+
+## Limits and pending manager duties
+
+- **Not run.** No full processor, parent, gPTP, Yosys or builder bank. No pp_top suite. Only the one changed gsi control of the gsi campaign. No acmp, notify, aecp, d3 or elab campaigns. No parent consumer gates. No synthesis.
+  - For those I rely on the author's published receipts, with their recorded revisions, and claim no manager source bank.
+  - No manager source bank exists at this exact head.
+  - The source base `21601694` and the live dev `78ca9bdf104819265588726bce4322696c38b8c2` of the final candidate are different contexts.
+- **Physical calibration NOT RUN.** No hardware. Field skips are not hardware proof.
+- **Hosted CI at 19:46Z.**
+  - Executed: `docs-gates` and `portability` completed successfully in both workflow runs.
+  - Still running: `suites` in both runs, so not counted.
+  - The manager owns hosted/act acceptance.
+- **Standards.** The IEEE 802.1Q-2018 and Milan v1.2 texts are not in the repository. Clause and table numbers are checked against the frozen ruling and the repository's own usage, not re-read from the standards.
+- **S2** comes from reading the code and was not probed.
+- **Manager duties.**
+  - Obtain a fix for F1 and F2, then an independent re-review.
+  - Validate the current-dev merge candidate with the builder and native banks at the merge turn, and link those receipts on the PR.
+  - Check the shipped cost against the resource gate with the route-1x1 measurement at the 4th pin adoption.
+- **Clone integrity.** The review clone was never modified. The exact HEAD and tree, a clean status (ignored files included), index equal to HEAD, and the bytes and executable bits of all 692 tracked files were all verified. The tree has zero gitlinks, so there are no submodule pins to restore.
+
+R679-1 FINISHED
+
+=== 6300041102 Mister-M-alt
+[A10] Round 2 assignment for [A661], head 6ddfcda4. It answers R679-1 (issuecomment-6300027310) and R680-1 (issuecomment-6299632354). Both retain the same MAJOR finding.
+
+1. **R679-1-F1 / R680-1-F1: fix it.** It is not scoped out. One value keeps one applicant across its live and parked copies (IEEE 802.1Q-2018 10.7.7, the 35.2.6 NOTE).
+   - When a sink settles on, or declares, a StreamID that another sink holds parked with an owed message, the parked applicant joins that StreamID's group. The group takes it over as the #188 same-stream re-probe rule does for one sink (LA + New! = VN).
+   - No stale Lv goes out beside the new declaration.
+   - The #188 obligations stay unchanged when no sink declares the old value.
+   - Add committed SH/SW cases for both index orders and both re-bind forms. Each grades byte-exact single-value frames and an uninterrupted Milan v1.2 4.2.7.2.2 peer registrar, and each has a named KILLED control.
+   - The banner and 10 §6.4 describe the parked case.
+   - The reviewers' `run_probes.sh` must report, for every variant: no `FAIL: PR`/`FAIL: PW`, one value per tick, no Lv while the joiner declares, and the peer IN with 0 deregistrations.
+2. **R679-1-F2 / R680-1-F2:** the PR body states the shape beside the area figure (the module defaults: 8 Stream Inputs and 8 Stream Outputs). It also says that no 1x1 figure was measured here and that the 4th pin adoption's route-1x1 measures the shipped cost.
+3. **R680-1-F4:** the two test comments cite IEEE 802.1Q-2018 35.1.2.2 and 35.2.4.4.3 (Table 35-14) for the type sum, keeping 35.2.6 for the in-place change. R680-1-F3 (RESIDUE): apply as written.
+4. **R679-1-S2** (a handover to a lower index after the walk passed it): check it with a probe. If it misbehaves, fix it in this round with a case and a control. If not, record the probe.
+
+Same scope and STOP conditions as round 1. New commits on 6ddfcda4. Re-run every processor gate and campaign that builds the listener FSM, and the scratch-parent consumer gates on milan-fpga dev 78ca9bdf with the four adoption parent patches.
+
+=== 6310654578 Mister-M-alt
+[A10] Ruling on the round 2 area at 7b424cdf, which the author asked to have confirmed.
+
+- **Accepted.** `KL_pp_shadow` at 8x8 costs +1,335 LUT and +618 FF against main 08023123. Round 2's share is +812 LUT and +568 FF; LUTRAM, BRAM, DSP and carry are unchanged.
+- **Why.** The round 2 change keeps the parked applicant in the group, which closes R680-1's MAJOR finding: per IEEE 802.1Q 35.2, a parked Leave and a live applicant must not both transmit. Correctness comes before area here. The first version's shifter (+2,251 LUT) was already removed in commit 4.
+- **1x1.** No 1x1 figure was measured. The fourth pin adoption's route-1x1 measures the cost that ships. If that route fails the resource gate, the adoption stops and the cost comes back to this PR.
+- **For the reviewers.** Round 2 reports a runner restart (HANDOFF R2.6). Confirm that every cited record comes from the clean restart.
+
+=== 6310681053 Mister-M-alt
+[A10] INDEPENDENT REVIEW STARTED: R679-2
+
+R679 (internal reviewer) reconstructs issue #193 / PR #198 at exact head `7b424cdfe111a426f00517ff471246b4b9650726`, tree `4142dcfe858d04687f3f37847a67f7c69d6ae0ea`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+=== 6310688642 Mister-M-alt
+[A10] INDEPENDENT REVIEW STARTED: R680-2
+
+R680 (external reviewer) reconstructs issue #193 / PR #198 at exact head `7b424cdfe111a426f00517ff471246b4b9650726`, tree `4142dcfe858d04687f3f37847a67f7c69d6ae0ea`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+=== 6310901034 Mister-M-alt
+[R680] POSITIVE - exact head 7b424cdfe111a426f00517ff471246b4b9650726
+
+The round-2 delta closes the parked-applicant defect. A sink declaring a parked StreamID takes over its applicant through New!, without a stale Lv beside its declaration. All named prior findings are resolved. No BLOCKER, MAJOR or MINOR remains in this review. One optional wording suggestion is recorded below; no new RESIDUE is retained.
+
+Reviewed tree: `4142dcfe858d04687f3f37847a67f7c69d6ae0ea`. Source base: `21601694880efdfc4be3028afa3525fbc8f29c03`. Delta base: previously reviewed `6ddfcda4c3170b8f463c8623833f7541ca8c1faf`. The five commits are `e38c535`, `acd65be`, `c7c8825`, `57fb7dd`, `7b424cd`. Unchanged behavior keeps its previous coverage; dependencies affected by parked grouping, arbitration and handover were examined again. The merged #192 changes are inherited, not attributed to this round.
+
+The independent verdict and five-lens ledger were written in [independent-pass.txt](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/independent-pass.txt) before reading either prior public review. [prior-findings-audit.txt](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/prior-findings-audit.txt) records the subsequent reconciliation, including the one classification correction described below. No private author material, private management material or other current-round report was read. No source changes, commits, pushes, GitHub writes or other-checkout edits were made.
+
+**Scope and authorities examined**
+
+The supplied AGENTS instruction and its referenced command convention were read; no repository AGENTS.md or CONTRIBUTING.md exists. Repository authorities examined include `docs/README.md`, the root and HDL READMEs, the REQ-ACMP-018/022 and REQ-SRP-001…006 matrix rows, architecture 02's SRP operations/status contract, architecture 10 §5.1/§6.4, and the unchanged interface and memory-map documents. The full base-to-head diff/history was separated from the five-commit delta, with unrelated merged code retaining prior coverage.
+
+The public acceptance sources are [issue #193](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/193), its [owner-election ruling](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/193#issuecomment-6290012163), the [manager answers](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/193#issuecomment-6299223806), the exact [round-2 assignment](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/198#issuecomment-6300041102), and the exact [area/restart ruling](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/198#issuecomment-6310654578). Issues [#188](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/188) and [#189](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/189) supply the preserved owed-Leave and per-sink registered-type obligations. The accepted single-sink unchanged-type request behavior remains unchanged.
+
+Normative basis: IEEE 802.1Q-2018 §10.7.7, Table 10-3, §35.1.2.2, §35.2.4.4.3 Table 35-14 and the §35.2.6 NOTE/in-place-change rule; Milan v1.2 §4.2.7.2.2. The full copyrighted standards were not independently re-audited; this delta review uses the frozen public requirements and repository authorities.
+
+**Prior findings, resolved at this head**
+
+| Prior ID | Disposition and verification |
+|---|---|
+| R679-1-F1 / R680-1-F1 — MAJOR | Resolved at the cause. `hdl/srp/KL_srp_listener_fsm.sv:587` includes parked recorded sinks; `:594-608` selects leave-copy pairs for parked members; `:942-954` updates those pairs; `:1038` releases the giver's park. Existing handover applies LA/LO + New! = VN. SH10–SH13/SW4–SW7 cover both orders and both rebind forms. Exact-head probes have no FAIL PR/PW, one value per tick, no stale Lv and uninterrupted peer registration. SH14–SH16 preserve owed messages without demand and the one-transmission walk rule. Banner `:103-114` and architecture 10 `:648-660` describe the parked case. All attributable lenses are clean. |
+| R679-1-F2 / R680-1-F2 — MINOR | Resolved. The current [PR body](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/pr-body.txt) states module-default 8 Stream Inputs × 8 Stream Outputs beside the area result, explicitly says no 1×1 figure was measured, and assigns shipped cost to the fourth adoption's route-1x1. Public parent defaults and OOC invocation agree. Revised deltas reproduce below. Docs clean. |
+| R680-1-F3 — RESIDUE | Applied exactly: `tb/srp_top/sim_main.cpp:3000` uses the plain behavior heading and `:3170` has no SW3 prefix. No outstanding residue from this finding. |
+| R680-1-F4 — MINOR; R679-1-S1 — SUGGESTION | Resolved. `tb/srp_stream_fsms/sim_main.cpp:1794-1796` and `tb/srp_top/sim_main.cpp:3172-3173` cite §35.1.2.2 and §35.2.4.4.3 Table 35-14 for the type sum, retaining §35.2.6 for the in-place change. Docs and Conformance clean. |
+| R679-1-S2 — SUGGESTION | Resolved by recorded probe and documentation. Independently rerun at this head: 17/17 PASS. Transfer to a lower slot already passed by the walk postpones its message to the next tx!; nothing is lost or duplicated. Banner `:111-112` and architecture 10 `:644-645` state the delay. |
+
+The two prior public reports were issue comments 6299632354 and 6300027310. The later audit found zero submitted reviews and zero inline review comments. Their differing initial treatment of the citation and SW wording does not leave an unresolved item: the explicit round-2 assignment is implemented.
+
+**Independent executable evidence**
+
+All runs use disposable exports of the exact head, ordinary control/receive faces and unchanged RTL. [run-probes.py](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/run-probes.py) reproduces them with the clone path as its argument. It verifies the scoped simulator identity before building, records each child return code, and bounds concurrent compilation to 16 workers. [probe-summary.txt](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/probe-summary.txt) indexes the raw receipts.
+
+| Exact-head run | Result and evidence |
+|---|---|
+| Four parked-value variants at the FSM interface | [fsm.log](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/fsm.log): 1,414/1,414 PASS, including the committed 1,410 checks and four PR probes. Both index orders, direct A15 and A8+A15, produce `0/2`, `0/2`, `3/2` over successive ticks: one value, no Lv while declaring. All existing SH and #188 checks in this suite pass. |
+| Wire probes plus committed share group | [wire.log](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/wire.log): 11/11 PASS: nine committed checks plus two PW probes. Committed SW4–SW7 cover both index orders and both rebind forms, compare the complete first frame byte-for-byte, count later values, and feed every MSRP frame to the peer registrar. PW probes print 35-byte single-value frames, peer IN before/after, zero deregistrations and zero Lv. No FAIL PR/PW appears. |
+| Separate withdrawal-then-settle reproductions | [parked-fsm.log](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/parked-fsm.log) and [parked-wire.log](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/parked-wire.log): 2/2 PASS each, one value, zero Lv, peer IN in both index orders. |
+| Lower-index handover timing | [lower-index.log](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/lower-index.log): 17/17 PASS. Live transfer at clocks 1–4 waits one tick; clocks 5–6 carry the already-issued walk mark. Parked cases distinguish takeover before the old Lv from registration after that Lv was legitimately sent. |
+| Broadcast/control/transmit collisions | [collisions.log](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/collisions.log): 32/32 PASS. Both index orders, periodic/received LeaveAll/join timing, repeated rebind, rider withdrawal, withdrawal before tx!, and LO takeover. At most one value per tick. Lv followed by later New occurs only where the old applicant was walked before a new declaration became effective. |
+
+A representative first frame is:
+
+```
+01 80 c2 00 00 0e 0a 0b 0c 0d 0e 0f 22 ea 00 03 08 00 0e
+00 01 11 22 33 44 55 66 00 01 00 80 00 00 00 00
+```
+
+It contains one Listener value `1122334455660001`, New/Ready. The previous 47-byte New-plus-Lv failure is absent.
+
+RTL inspection independently checks the reasons those runs pass. A parked slot belongs to its held value, not its new matcher value. Nondeclaring riders remain quiet; declaration requests wait for their own park to clear. A transfer clears the giver's park and retains applicant state, parameter, pending broadcasts and walk mark. Retiring a parked message marks its old group (`:989-996`), preventing a later declaration in that walk from transmitting twice. The new unreset compare copies are meaningful only through valid parked membership; the single-sink generate branch has no cross-sink comparison. Per-sink registrar logic, notification strobes and interface definitions are unchanged by this delta.
+
+**Published controls, broader gates and provenance**
+
+The [public packet](https://github.com/kebag-logic/milan-fpga/tree/cbc4bd9f9b7348d6298adbd5c505bf138e0012eb/review-evidence/pp193-r1) supplies author execution evidence. [fetch-evidence.py](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/fetch-evidence.py) checked 963 round-2 public files against `published_sha256`; [evidence-hashes.txt](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/evidence-hashes.txt) records every match. Redacted published bytes are checked against published hashes, not original private-file hashes. The archive commit is unsigned: [archive-authenticity.txt](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/archive-authenticity.txt). No cryptographic signature is claimed.
+
+[audit-evidence.py](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/audit-evidence.py) recomputes the figures and audits the return codes and named controls; [evidence-audit.txt](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/evidence-audit.txt) and [public-receipts/](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/public-receipts/) preserve the results and selected raw public receipts.
+
+| Control | Named checks KILLED in the published clean head campaign |
+|---|---|
+| `listener-parked-outside-groups` | SH10–SH16; SW4–SW7 |
+| `listener-settle-skips-leave-copies` | SH10–SH15; SW4–SW7 |
+| `listener-merge-keeps-park` | SH10–SH13 |
+| `listener-retire-skips-group-mark` | SH15 |
+| `listener-park-drops-matcher-pairs` | SH16 |
+
+The campaign reports 203/203 PASS, assertion coverage 124/124. Raw failure receipts reproduce duplicate values and peer deregistration under the relevant controls. The re-anchored settle-compare control retains the same edit; the remaining earlier controls keep their verdicts and required tags. Dual-suite controls' additional FSM receipts are in `head-extra`, not inferred from an overwritten wire log.
+
+The public broad suite tally changes from 1,030,356 to 1,030,367, exactly seven added FSM checks and four added wire checks. All recorded processor gate and campaign return codes are zero. The other ten affected campaigns retain their passing results. These are published source receipts, not independently rerun full banks.
+
+HANDOFF R2.6 was read exactly. [restart-provenance.txt](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/restart-provenance.txt), `campaigns/head/RUNNER.txt`, the two replacement runner scripts, head gate identity, consumer STATE records and final rerun identity consistently identify the clean replacement runs. Passing head conclusions use `57fb7dd21d316ce49c305c22812de5c16d6770f6` receipts plus final documentation reruns at `7b424cdf`. Independently verified: the final commit changes only six README lines; every executable input is identical. No passing-head conclusion uses the pre-commit `dev` campaign, the aborted duplicate campaign or either void directory. Original runner processes were not observed independently; attribution rests on the public provenance, receipt set and source equivalence. The intermediate `c7c8825f` area statistics below are historical cost evidence only.
+
+Scratch-parent source validation is recorded on dev `78ca9bdf104819265588726bce4322696c38b8c2` with the four adoption patches: evidence classification, milan_dp-67, per-slot TSpec and milan_dp-gsi-g9. Consumer STATE records identify the committed processor pins, unchanged other gitlinks and empty working-tree diff. Consumer return codes are zero except `check_submodule_docs`, which is 1 at base, head and final for the same documented-pin/diagram mismatch. This known adoption-doc exception is retained, not represented as a green gate.
+
+The public milan_dp summary gives 10,559 `[ok]`, 1,127 `[PASS]`, zero `[FAIL]`, identical sorted check lines. pp_shadow returns zero at both pins; the author reports 609+609+649+317 = 2,184 checks. Its parallel output interleaves: the public line extractor counts 2,182/2,183, so that extractor is not an independent 2,184-check proof. Oversized original logs are listed by size/hash in EXTERNAL-RECORDS.csv and were not accessed. The builder receipt says “ALL GATES PASS EXCEPT 1 NOT RUN”; its physical-report gate 11 is not executed evidence. ROM digest rows are unchanged.
+
+**Area, reproduced from receipts**
+
+The public parent module defaults are 8×8; the OOC invocation has no shape override. [public-parent-defaults.sv](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/public-parent-defaults.sv), [public-parent-run.sh](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/public-parent-run.sh) and the published `run_ooc.sh` establish that measurement context.
+
+| Processor pin, same scratch parent | LUT | FF |
+|---|---:|---:|
+| main `08023123` | 56,743 | 26,331 |
+| round-2 base `6ddfcda4` | 57,266 | 26,381 |
+| head executable inputs `57fb7dd2` | 58,078 | 26,949 |
+| Entire PR delta | +1,335 | +618 |
+| Round-2 share | +812 | +568 |
+
+LUTRAM 4,236, RAMB36 15, RAMB18 4, DSP 10 and CARRY4 2,392 are unchanged. Summing LUT1–LUT6 in the standalone listener statistics gives 9,428 at base, 11,679 before commit 4 and 9,750 after it: +2,251 becomes +322, removing 1,929 LUT. The indexed packed-array write is replaced by a constant-index write with a per-sink enable (`hdl/srp/KL_srp_listener_fsm.sv:827-831`). These figures are reproduced by arithmetic over receipts, not by a new synthesis run. The manager's accepted area ruling is not reopened. No 1×1 parent OOC figure was measured; the separate single-listener characterization is not that figure.
+
+**New suggestion**
+
+R680-2-S1 — SUGGESTION — Docs. Artifact: `tb/srp_stream_fsms/sim_main.cpp:1587,1589`. The new explanatory comment refers to `(RB)` and `(RB5)`. For consistency with the requested plain-behavior SW comments, optionally remove those two parentheticals: “Leave. A sink …” and “as one sink's re-probe. So …”. Keep assertion IDs, expectations and requirement citations unchanged. Impact is editorial only; no required correction for acceptance. Verification is a comment-only diff, with no changed code, check, measurement or clause claim.
+
+The independent snapshot initially classified this as RESIDUE. The subsequent public [#746 rule](https://github.com/kebag-logic/milan-fpga/issues/746) expressly distinguishes behavior IDs from workflow/bench-lane labels. RB/RB5 identify behavior checks here, so the final classification is SUGGESTION. The earlier specifically assigned SW edits remain applied; no new forbidden lane, review-round, reviewer or issue-comment label was found in the reviewed source delta.
+
+**Reviewer-owned lens ledger**
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Frozen #193/#188/#189 obligations; parked grouping and LA/LO+New! transfer; SH10–SH16/SW4–SW7; exact-head frame/peer receipts; corrected type-sum citations | R680-2 delta and prior-finding closure; unchanged coverage inherited from R680-1 | 7b424cdfe111a426f00517ff471246b4b9650726 |
+| RTL | CLEAN | Listener owner_map/app_arb/handover/settle/walk; lq/lcp writes and validity; constant-index commit-4 write; preserved registrar and interface headers | R680-2 delta and dependencies; R680-1 unchanged coverage retained | 7b424cdfe111a426f00517ff471246b4b9650726 |
+| Robustness | CLEAN | Both index orders and rebind forms; no-declarer owed Leave; 17 timing probes; 32 collision cases; LO and repeated-settle behavior | R680-2 exact-head probes and prior retained cases | 7b424cdfe111a426f00517ff471246b4b9650726 |
+| Tests | CLEAN | Independent table model and wire builder/parser; exact-head 1414/11/2/2/17/32 passing runs; named KILLED controls; public 203/203 and gate/consumer receipts with stated exceptions | R680-2; earlier unchanged tests retain prior verdict | 7b424cdfe111a426f00517ff471246b4b9650726 |
+| Docs | CLEAN | Banner; architecture 10 §5.1/§6.4; suite READMEs and counts; PR 8×8 provenance; area arithmetic; corrected citations/comments; S1 optional | R680-2 and resolution of R680-1-F2/F3/F4 | 7b424cdfe111a426f00517ff471246b4b9650726 |
+
+**Limits, integrity and pending manager duties**
+
+No full processor, parent, gPTP, portability or builder bank was run by this review. No synthesis, routing, hardware, privileged action or shared install was performed. Physical calibration is NOT RUN; field skips are not hardware proof. No hosted acceptance is asserted and no skipped context is counted as execution. No manager source bank exists at this exact head and none is inferred.
+
+The manager owns final current-dev candidate validation with builder/native banks, publication of those receipts on the PR, hosted/act acceptance, adoption documentation, and the fourth adoption's route-1x1 resource result. Source base `21601694`, historical consumer dev `78ca9bdf`, and live dev `d77a8afdbc960d70d1ceeee9af1163624f102b16` are distinct. If the shipped route fails its resource gate, adoption stops and area returns to this PR under the public ruling.
+
+[verify-source.py](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/verify-source.py) confirms all 697 tracked blob bytes and executable modes, HEAD/tree, index and clean status including ignored files. There are zero nested gitlinks in this processor tree. [source-integrity.txt](https://github.com/kebag-logic/milan-fpga/blob/b3af9f0422810ea5d5636faa7cecbc8f3dd6ff43/review-evidence/pp193-r1/reviews/R680-2/source-integrity.txt) also confirms unchanged listener/SRP-top/processor-top port and parameter headers and unchanged architecture 02/07, against both source base and round-2 base. The source clone never required restoration because all probe modifications were confined to disposable exports.
+
+Every process was foreground-owned and completed. Disposable exports, downloaded evidence and builds are under `scratch/`, excluded from publication. `MANIFEST.sha256` lists every publishable file with packet-relative paths. Reproduction: run `fetch-evidence.py`, `audit-evidence.py`, `run-probes.py <isolated-clone>`, and `verify-source.py <isolated-clone>`; the probe runner accepts the exact reviewed head only.
+
+R680-2 FINISHED
+
+=== 6311425623 Mister-M-alt
+[R679] NEGATIVE - exact head 7b424cdfe111a426f00517ff471246b4b9650726
+
+# R679-2: independent round-2 review of processor PR #198 (Closes #193)
+
+- Repository: Mister-M-alt/protocol-processor-control-plane-avb-milan, PR #198, round R679-2.
+- Exact head `7b424cdfe111a426f00517ff471246b4b9650726`, tree `4142dcfe858d04687f3f37847a67f7c69d6ae0ea`.
+- Previously reviewed head `6ddfcda4` (R679-1, R680-1). Round-2 delta: five author commits `e38c535`, `acd65be`, `c7c8825`, `57fb7dd`, `7b424cd`. Source base `21601694`.
+
+Round 2 closes both reviews' MAJOR finding. A parked Listener applicant is now in the group of the StreamID it holds, and a sink that declares that StreamID takes it over (LA + New! = VN). One value goes out per tick, with no Lv beside the declaration, and the peer registrar stays IN. This holds in every variant of both prior reviews' probes, in the new SH10-SH16 and SW4-SW7 checks, and under all five new controls, each KILLED as claimed. The area figures reproduce exactly from the receipts. The PR body states the 8x8 shape, and the citation and label fixes are applied.
+
+The verdict is NEGATIVE for one reason. Item 4 of the assignment (R679-1-S2) required a probe of a handover to a slot the walk has already passed, and a fix with a case and a control if it misbehaves. The author's probe found no misbehaviour, but it covered only a holder in AN during a plain tx! walk. In an own-LeaveAll (txLA!) walk, a QA applicant handed to an already-walked slot loses its post-LeaveAll re-declaration. Nothing goes out for the stream until the next periodic!, where the one-applicant model sends JoinMt in the LeaveAll frame. This is F1 (MINOR). A second MINOR (F2) is a reachable round-2 guard that no check exercises. One RESIDUE and three SUGGESTIONS complete the report.
+
+## Reconstruction (order followed)
+
+1. **Repository rules.** The repository has no `AGENTS.md` or `CONTRIBUTING.md`. I read `docs/README.md` (conventions, single-source rules, `make check`).
+2. **Issue #193.**
+   - The frozen body ("Done when").
+   - The assignment (issuecomment-6289596705), the STOP (6289991979), the STOP ruling (6290012163), the round-1b REVIEW READY (6299186889) and the manager's answers (6299223806).
+   - The round-2 REVIEW READY (6310615005).
+3. **PR #198.**
+   - The body at this head.
+   - The round-2 assignment (issuecomment-6300041102) and the manager's area ruling (issuecomment-6310654578), read exactly.
+4. **Authorities.**
+   - The design banner and full head text of `hdl/srp/KL_srp_listener_fsm.sv`, including the Table 10-3 functions.
+   - `docs/architecture/10_srp_engine.md` §5.1 and §6.4.
+   - The two test READMEs.
+   - The IEEE/Milan texts are not in the repository. Clause numbers are checked against the frozen ruling and the repository's own usage.
+5. **Diff and history.**
+   - `git diff 21601694..7b424cdf`, with the round-2 delta `6ddfcda..7b424cdf` read hunk by hunk.
+   - `57fb7dd..7b424cd` changes only `tb/srp_top/README.md` (3 lines).
+6. **Public executable evidence.** `kebag-logic/milan-fpga@cbc4bd9f:review-evidence/pp193-r1/author-r2/`, read by section:
+   - the HANDOFF (Round 2, R2.1-R2.8);
+   - the round-2 receipts: campaigns, gates, consumers, ooc, area-listener, probes and scripts;
+   - the R679-1 and R680-1 probe scripts.
+
+The prior public findings (R679-1 issuecomment-6300027310, R680-1 issuecomment-6299632354) were read only after my own pass over the delta, the probes and the controls. Their resolution is below.
+
+## Findings
+
+### R679-2-F1 — MINOR — Conformance, RTL, Robustness, Tests, Docs: a handover into a slot the txLA! walk has passed loses the applicant's LeaveAll re-declaration (R679-1-S2 misbehaves)
+
+**Where.**
+- `hdl/srp/KL_srp_listener_fsm.sv:1054`: the taker gets `wdone_r <= (walk_r != W_IDLE) && wdone_r[src]`.
+- `:700-704`: a taker slot that the walk has already passed is never walked again in that walk.
+- `wtxla_r` is per walk, so the applicant's next transmit opportunity is a plain tx!.
+
+**Claim text.**
+- Banner `:111-112`: "one to a slot the walk has passed waits for the next tx!".
+- `docs/architecture/10_srp_engine.md:644-645`: "its message goes at the next tx!, one T-MRP-JOIN later".
+- PR body, Behaviour: "its message goes one T-MRP-JOIN later". Round 2, S2: "it is never lost and never sent twice".
+- Author HANDOFF R2.2 item 4: "no misbehaviour, so no change".
+
+**Reproduction.** Ordinary inputs only, through `probes/s2_probe.py`:
+1. Sink 0 (VLAN 3) and sink 5 or 7 (VLAN 0) are settled on one StreamID.
+2. The higher sink declares alone and is ticked to QA.
+3. An own LeaveAll marks the next walk txLA!.
+4. Clock 1, 2 or 3 into that walk, after the walk has passed sink 0 and before it reaches the holder, sink 0's talker registers. Sink 0 becomes the owner and takes the QA applicant (no sum change, so no New!).
+
+**Evidence** (`receipts/s2_probe_head.log`):
+
+| Walk | Handover | RTL sends | One-applicant model |
+|---|---|---|---|
+| txLA! | into a passed slot (6 cases) | `''` in the LeaveAll walk and `'' '' ''` in the next three ticks | `'3/2'`, JoinMt Ready, in the LeaveAll walk |
+| txLA! | before the walk (control) | `'3/2'` | `'3/2'` |
+| txLA! | none (control) | `'3/2'` | `'3/2'` |
+| plain tx! | into a passed slot (all cases) | matches the model | as the author recorded: the QA case owes no message, and an AN/VN case is one tick late |
+
+- Only the periodic! that follows (QA → AA) brings the JoinMt back.
+- Base `6ddfcda4` gives the same words (`receipts/s2_probe_base.log`). The cause is the round-1 handover; round 2 did not change it.
+- The author's S2 probe (HANDOFF R2.2 (a)) used a holder in AN. AN sends New on tx! and on txLA! alike, so it cannot show this.
+
+**Authority.**
+- IEEE 802.1Q-2018 Table 10-3: QA on txLA! is sJ, and QA on tx! sends nothing.
+- 10.7.7: one Applicant per attribute value. A handed-over applicant must see the transmit opportunity the single applicant would have seen.
+- 35.1.2.2: the stream is still wanted.
+- The ruling (issuecomment-6290012163, item 2): "the declaration continues uninterrupted".
+- The round-2 assignment, item 4: "If it misbehaves, fix it in this round with a case and a control."
+
+**Impact.**
+- The peer's registrar for the Listener value goes to LV on the DUT's own LeaveAll, and receives no re-join until the next periodic! and its tick.
+- A peer whose LeaveTime expires first deregisters the stream while sinks still want it. That is the symptom class of #193.
+- Likelihood is low. It needs a lower-index sink's first registration on a shared StreamID inside the few clocks of a txLA! walk. Control-plane handovers (A8 or A15 of the owner) go to a higher index and are not affected.
+- The documentation and the PR describe the case as a one-tick delay.
+
+**Severity.** MINOR. The window is narrow and periodic! recovers. It is still an open item of the round-2 assignment and a false behaviour claim.
+
+**Required outcome.**
+- A handed-over applicant gets exactly one transmit opportunity of the kind the walk carries (tx! or txLA!), whatever the taker's index. For example, a handover into a passed slot carries an owed txLA!, or the walk serves the taker at the giver's slot.
+- Add a committed SH case: a txLA! walk, a handover into a passed slot, and the JoinMt expected in that LeaveAll walk or the next. Plant a named control that is KILLED.
+- Correct the banner, §6.4 and the PR text.
+
+**Verification.**
+- `probes/s2_probe.py` (via `probes/run_reviewer_probes.sh`) gives MATCH in every row.
+- The plain-tx! rows stay MATCH and both controls stay MATCH.
+- SH1-SH16, SW1-SW7 and the srp_top campaign keep passing.
+
+### R679-2-F2 — MINOR — Tests: the round-2 "a sink parked again keeps its own" guard has no check that fails without it
+
+**Where.** `hdl/srp/KL_srp_listener_fsm.sv:944` and `:949`: `lv_take_w && !lvp_r[a]`.
+
+**Evidence.**
+- A disposable control, `probes/rv-repark-overwrites-pairs.patch`, drops `&& !lvp_r[a]`. It survives the whole stream-FSM suite (1,410 PASS) and srp_top `share` (9 PASS) (`receipts/campaign-reviewer-arms.out`).
+- The guard does protect a reachable path. `probes/repark_probe.py` covers it with ordinary inputs:
+  1. Sink 1 declares SIDP.
+  2. Sink 0, alone on SID0 in QA, re-binds to SIDP, which parks SID0's Lv.
+  3. Before any tx!, sink 0 re-binds again, to SIDQ.
+- At the head the next tx! sends SID0 `'5/2'` (Lv) and nothing for SIDP, as the model expects (`receipts/repark_probe_head.log`, MATCH).
+- Under the control, SID0's owed Lv is lost (`''`) and SIDP gets a spurious New (`'0/2'`) (`receipts/repark_probe_mut.log`, DIFF). Meanwhile all 1,410 suite checks still pass.
+- The author's parked-pairs probe covers a re-park with a joiner on the parked value, which goes through `hand_w`. It does not cover this path.
+
+**Authority.**
+- The #188 obligation (the owed Lv) that the round-2 assignment requires unchanged when no sink declares the old value.
+- IEEE 802.1Q-2018 10.7.7.
+- The lane's own bar: each new behaviour carries a check with a planted KILLED control.
+
+**Impact.** A later edit can silently drop a parked Lv and re-declare an unrelated stream.
+
+**Required outcome.** A committed SH case for "parked, then re-bound again while another sink declares the interim stream", with a named control (this edit) that is KILLED.
+
+**Verification.** Run the campaign with the new arm: KILLED on the new check.
+
+### R679-2-R1 — RESIDUE — Docs: one srp_top README control row names fewer failing checks than fail
+
+**Where.** `tb/srp_top/README.md:860`, the row for `listener-teardown-keeps-declaring`.
+
+**Evidence.**
+- The count (62) is right.
+- The named list "SH3, SH10-SH16 and the Table 10-3 walks…" omits SH2, SH4-SH9, RB1, RB4 and RB7, which also fail. See the author's `campaigns/head/srp_top.log:187` and my `receipts/campaign-commit5-arms.out`.
+- The base row had the same omission. Commit 5 extended it.
+
+**Exact fix.** Replace "SH3, SH10-SH16 and the Table 10-3 walks that reach LA through an A8 (62)" with "SH2-SH16, RB1, RB4, RB7 and the Table 10-3 walks that reach LA through an A8 (62)".
+
+### R679-2-S1 — SUGGESTION — Tests: the both-parked exclusion in `same_w` has no killing check
+
+`probes/rv-both-parked-grouped.patch` drops `|| (lvp_r[s] && lvp_r[t])` at `KL_srp_listener_fsm.sv:599`. It survives the stream-FSM suite and srp_top `share`.
+
+Without the exclusion the relation becomes asymmetric in SH16's state. The higher-index parked holder would see the lower one as a member and could go quiet while that one is still parked. SH16 hides this, because the lower sink's own Lv retires first in the same walk.
+
+A case where the lower sink's park outlives the walk (for example, LO kept through txLA!) would pin it.
+
+### R679-2-S2 — SUGGESTION — RTL (area): at two sinks `g_lcp_flops` duplicates `lsid_r`
+
+The comment at `:821-825` says so. At N = 2, `lcp_w` could alias `g_wsid_flops.lsid_r` and save 128 flip-flops. The listener-alone receipts show 803 → 933 FF at two sinks.
+
+### R679-2-S3 — SUGGESTION — Docs: state the measured listener-alone one-sink delta beside "no 1x1 figure"
+
+The author's `area-listener/SUMMARY.txt` measured the listener alone at one sink: 2,729 → 2,798 LUT (+69), FF unchanged. The PR body's "No 1x1 figure was measured here" is true of `KL_pp_shadow`. Adding the listener-alone one-sink figure, labelled as such, would help the route-1x1 reader.
+
+## Prior public findings on this PR, at this head
+
+| Finding | Resolution at 7b424cdf | Evidence |
+|---|---|---|
+| R679-1-F1 / R680-1-F1, MAJOR: parked and live applicants for one value | **Resolved** | See the breakdown below this table. |
+| R679-1-F2 / R680-1-F2, MINOR: area without its shape | **Resolved** | The PR body states "the module defaults (8 Stream Inputs and 8 Stream Outputs)" beside the figure, that no 1x1 figure was measured here, and that the 4th pin adoption's route-1x1 measures the shipped cost. The figures reproduce from the published OOC receipts: main 56,743 LUT / 26,331 FF, base 57,266 / 26,381, head 58,078 / 26,949. That is +1,335 / +618 against main and +812 / +568 for round 2. LUTRAM 4,236, RAMB36 15, RAMB18 4, DSP 10 and CARRY4 2,392 are unchanged. The listener alone at 8 sinks is 9,428 → 9,750 (+322), against 11,679 at `c7c8825` (+2,251). The shifter fix of commit 4 is confirmed. |
+| R680-1-F4, MINOR (and R679-1-S1): §35.2.2.8.7 cited for the type sum | **Resolved** | `tb/srp_stream_fsms/sim_main.cpp:1794` and `tb/srp_top/sim_main.cpp:3172` cite "§35.1.2.2; §35.2.4.4.3, Table 35-14", with §35.2.6 kept for the change in place. |
+| R680-1-F3, RESIDUE: labels in new source comments | **Applied as written** | `tb/srp_top/sim_main.cpp:3000` is the given heading, and the `SW3: ` prefix is gone. |
+| R679-1-S2, SUGGESTION: handover to a lower index after the walk passed it | **Not resolved: misbehaves in the txLA! form** | The plain tx! form behaves as recorded, but the txLA! form loses the LeaveAll re-declaration; see R679-2-F1. |
+
+How R679-1-F1 / R680-1-F1 is resolved:
+- **R679-1's `run_probes.sh`** (with the same one-line anchor adaptation the author made; identical bytes) on 7b424cdf, every variant:
+  - no `FAIL: PR`/`FAIL: PW`;
+  - one value per tick (`'0/2'`, `'0/2'`, `'3/2'`);
+  - the wire frames carry the value once (35 B), with no Lv;
+  - peer before 1, after 1, deregs 0, Lv 0;
+  - 1,414 and 11 PASS (`receipts/prior-r679-1-*.log`).
+- **R680-1's two probes** (revision guard set to the head): 2/2 PASS each, count 1, leaves 0, peer IN (`receipts/prior-r680-1-*.log`).
+- **SH10-SH16 and SW4-SW7** pass (1,410 and 8,669 PASS).
+- **The five new controls** are KILLED with the claimed tags, and `listener-settle-compare-dropped` (re-anchored, edit unchanged) is still KILLED (`receipts/campaign-round2-arms.out`).
+- **The #188 obligations with no declarer:** SH14 and the RB checks pass.
+- **The banner** (`:103-112`) and **10 §6.4** ("A parked Leave") describe the parked case.
+
+## The assignment's checks
+
+| # | Requirement | Result | Evidence |
+|---|---|---|---|
+| 1 | A parked applicant joins the group of the StreamID another sink settles on or declares (LA + New! = VN); no stale Lv; #188 unchanged with no declarer | Holds | See R679-1-F1 above. RTL: `mbr_w = rec_valid_r` and `same_w` read `lq_r` while parked (`:587-608`); the takeover clears the giver's park (`:1037-1038`); the retirement marks the group's walk (`:989-996`). |
+| 1 | SH/SW cases for both index orders and both re-bind forms, byte-exact frames and an uninterrupted peer registrar, each with a named KILLED control | Holds | SH10-SH13 and SW4-SW7 (orders 1/0 and 0/1, with A15 at once or A8 then A15). SW compares the whole frame (`f == exp`) and counts values over the next three frames. The peer model counts deregistrations and Lv. Controls: `listener-parked-outside-groups` (SH10-SH16; SW4-SW7), `listener-settle-skips-leave-copies` (SH10-SH15; SW4-SW7), `listener-merge-keeps-park` (SH10-SH13), `listener-retire-skips-group-mark` (SH15), `listener-park-drops-matcher-pairs` (SH16): all KILLED in my run. |
+| 1 | The reviewers' probes, every variant: no FAIL PR/PW, one value per tick, no Lv while the joiner declares, peer IN with 0 deregistrations | Holds | See R679-1-F1 above. |
+| 1 | Banner and 10 §6.4 describe the parked case | Holds | Banner `:103-112`; `10_srp_engine.md` §6.4 "A parked Leave" and the §5.1 rows. |
+| 2 | PR body shape and area | Holds | See R679-1-F2 above. |
+| 3 | F4 citations and F3 residue | Holds | See above. |
+| 4 | S2 probe recorded, or a fix with a case and a control | **Not met** | R679-2-F1 |
+| 5 | Every cited record from the clean runner restart (HANDOFF R2.6) | Consistent; no counter-evidence | See the notes below this table. |
+| 6 | Consumer gates at dev 78ca9bdf with four adoption patches pass at this head; no port, parameter or register-map change | Author receipts consistent; scope verified | See the notes below this table. |
+
+Notes on check 5 (the clean runner restart):
+- The published head campaign record is complete and internally consistent. `campaigns/head/srp_top.{log,rc,sec}`: rc 0, 203/203, coverage 124/124, 18 controls PASS, 0 UNPROVEN, 3,456 s. A duplicate that was stopped within a minute cannot have produced it.
+- `RUNNER.txt` names the head runners (`head-camps`, `head-camps2`).
+- No published receipt refers to the set-aside `void-*` records.
+- The `c7c8825f` rows in `area-listener/SUMMARY.txt` are the shifter diagnosis, not head records.
+- Gate and consumer records are at 57fb7dd2, plus a final consumer run at 7b424cdf. Their `STATE.txt` files carry gitlinks 57fb7dd2 and 7b424cdf.
+- My own re-runs of nine srp_top arms reproduce the head record's failing tags exactly.
+- Limit: run times are not independently timestamped.
+
+Notes on check 6 (consumer gates and scope):
+- `consumers/{base,head,final}`: every gate rc 0 except `check_submodule_docs` rc 1, identical at base and head.
+- `milan_dp` and the other head records are rc 0. `final` (gitlink 7b424cdf) runs the static gates: all rc 0 but `submodule_docs`.
+- The parent base dev 78ca9bdf and the fourth patch (`parent-evidence-classification`) are stated by the author. Three of the four apply commits are visible in `STATE.txt`.
+- Scope: the module headers of `KL_srp_listener_fsm`, `KL_srp_top` and `protocol_processor_top` are byte-identical at 21601694, 6ddfcda and the head (`receipts/scope-headers.txt`). Under `hdl/` the round 2 delta touches only the listener. Docs 02 and 07 are unchanged.
+
+### Other round-2 RTL checks (reviewer's own)
+
+- **Leave-copy compare write.** `g_lcp_flops` writes `lcp_r[s]` under the same enable as the leave copy, one enable per sink, and is unreset. It is read only through `lq_r`, and only while `lvp_r`. A park writes the row in the same clock that it writes `lcp_r`, so no unwritten value is ever read.
+- **Disposable controls.** Each of these is KILLED:
+  - `rv-leave-compare-copy-unwritten`: SH10-SH15, SW4-SW7;
+  - `rv-parked-uses-matcher-pairs`: SH10-SH16, SW4-SW7;
+  - `rv-take-forgets-walk-mark`: SH7.
+- **The two-parked invariant** ("two parked applicants never hold one value") holds on every path I traced. A takeover or `hand_w` always clears the first park before a second could form. Its exclusion is untested (S1).
+- **Comment rule.** The added source lines contain no lane label, lane name, review round, reviewer ID or issue-comment ID. The new test comment cites `RB`/`RB5`, which are suite check IDs (behaviour IDs under parent #746), so this is not residue.
+
+## Reviewer-owned ledger
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN (F1) | Table 10-3 rows for LA/LO + New!, QA on tx!/txLA!; 10.7.7, the 35.2.6 NOTE, 35.1.2.2, Table 35-14, Milan 4.2.7.2.2 as cited by the ruling; wire frames from SW4-SW7 and the prior probes; S2 probe in both walk kinds at head and base | R679-2 | 7b424cdfe111a426f00517ff471246b4b9650726 |
+| RTL | UNCLEAN (F1) | round-2 delta of `KL_srp_listener_fsm.sv` hunk by hunk (owner_map `same_w`/`lq_r`, settle pair writes, `g_lcp_flops`, walk retirement mark, takeover park clear) in the context of the full head file; module headers; lint rc 0 | R679-2 | 7b424cdfe111a426f00517ff471246b4b9650726 |
+| Robustness | UNCLEAN (F1) | prior probes (four FSM variants, two wire variants, two R680-1 probes); S2 handover at walk clocks 1-3 for two holder indices, tx! and txLA!, with controls; re-park while another sink declares the interim stream; five disposable mutants | R679-2 | 7b424cdfe111a426f00517ff471246b4b9650726 |
+| Tests | UNCLEAN (F1, F2) | stream-FSM suite 1,410 PASS and srp_top 8,669 PASS at head (1,403 and 8,665 at base); the six round-2 controls and three commit-5 re-counted controls re-run with tags; five reviewer controls (three KILLED, two surviving: F2, S1); SH10-SH16 and SW4-SW7 source read | R679-2 | 7b424cdfe111a426f00517ff471246b4b9650726 |
+| Docs | UNCLEAN (F1 claim text) | banner, `10_srp_engine.md` §5.1/§6.4, both test READMEs (counts verified; R1), PR body (shape, figures, S2 text), author HANDOFF Round 2 and its receipts; `make check` and `gen_matrix --check` rc 0 | R679-2 | 7b424cdfe111a426f00517ff471246b4b9650726 |
+
+## Receipts
+
+Every run below used an archived copy or a scratch clone under `scratch/` (never the review clone), with the pinned simulator 5.050 (it reports `rev v5.050`, the CI pin). At most 16 jobs ran at once. Host paths are replaced by `<PACKET>`, `<CLONE>`, `<REVIEWS>`, `<TOOLS>`, `<HOME>` and `<TMP>`.
+
+| Receipt | What | rc |
+|---|---|---|
+| `receipts/suite-srp_stream_fsms-{head,base}.log` | `make` in tb/srp_stream_fsms at head and at 6ddfcda | 0, 1410 PASS / 0, 1403 PASS |
+| `receipts/suite-srp_top-{head,base}.log` | `make` in tb/srp_top | 0, 8669 PASS / 0, 8665 PASS |
+| `receipts/campaign-round2-arms.out`, `campaign-round2-arms/` | head `tb/srp_top/mutants.py --only` with the six round-2 controls (and the reviewer arms), `--jobs 16` | 124: the run hit the 585 s limit inside a full-srp_top reviewer arm. All six round-2 control lines printed before that, each KILLED. |
+| `receipts/campaign-reviewer-arms.out`, `campaign-reviewer-arms/` | five reviewer arms on the stream suite and srp_top `share` | 1 (expected: two arms survive, F2 and S1) |
+| `receipts/campaign-commit5-arms.out`, `campaign-commit5-arms/` | `listener-rider-not-quiet`, `-withdraw-ignores-riders`, `-teardown-keeps-declaring` | 0, 7/7 |
+| `receipts/s2_probe_{head,base}.log` | `probes/s2_probe.py` | 0 (probe lines show DIFF in the txLA! rows) |
+| `receipts/repark_probe_{head,mut}.log` | `probes/repark_probe.py` at head, and with `rv-repark-overwrites-pairs` | 0 / 0 (MATCH / DIFF) |
+| `receipts/prior-r679-1-{fsm,wire}.log`, `prior-r679-1-run_probes.out` | R679-1 `run_probes.sh` at 7b424cdf (`probes/prior-r679-1/`, anchor adapted) | 0, 0 |
+| `receipts/prior-r680-1-parked{,-wire}-probe.log` | R680-1 probes, guard set to 7b424cdf (`probes/prior-r680-1/`) | 0, 0 |
+| `receipts/gate-{lint_hdl,gen_matrix,make_check}.log` | `scripts/lint_hdl.sh`, `scripts/gen_matrix.py --check`, `make check` at head | 0, 0, 0 |
+| `receipts/scope-headers.txt` | module-header digests at 21601694, 6ddfcda and head; `hdl/` diff stat | n/a |
+| `receipts/hosted-checks.txt` | exact-head check runs at 08:14Z | n/a |
+| `receipts/source-integrity.txt` | `probes/verify_clone.sh` on the review clone | 0 |
+
+`probes/run_reviewer_probes.sh <clone> <revision> <outdir>` re-runs the S2 probe, the re-park probe (plain and mutated) and the controls campaign on any candidate.
+
+## Limits and pending manager duties
+
+- **Not run.**
+  - No full processor, parent, gPTP, Yosys or builder bank.
+  - No `run_suites.sh`, no pp_top campaigns and no parent consumer gates.
+  - No OOC synthesis and no full srp_top campaign: only nine of its control labels (the six round-2 controls and three commit-5 re-counts), plus the five reviewer arms.
+  - For all of these I rely on the author's published round-2 receipts, with their recorded revisions (57fb7dd2 for the records, 7b424cdf for the README-reading gates and the final static consumer gates).
+  - No manager source bank exists at this exact head, and none is claimed or inferred.
+- **Contexts.** Source base `21601694`, review base `6ddfcda4`, and the live dev `d77a8afdbc960d70d1ceeee9af1163624f102b16` of the final candidate are distinct contexts.
+- **Hosted CI at 08:14Z.**
+  - Executed: `docs-gates` and `portability` succeeded in both workflow runs.
+  - `suites`: still in progress in both runs, so not counted.
+  - The manager owns hosted/act acceptance.
+- **Physical calibration NOT RUN.** No hardware; field skips are not hardware proof.
+- **Standards.** The IEEE 802.1Q-2018 and Milan v1.2 texts were not re-read. Table 10-3 behaviour is taken from the repository's transcription (`app_next_f`, `app_msg_f`) and the suite's independent model.
+- **Manager duties.**
+  - Obtain fixes for F1 and F2, then an independent re-review.
+  - Carry R1 to the residue checklist.
+  - Validate the current-dev merge candidate with the builder and native banks at the merge turn, and link those receipts on the PR.
+  - Check the shipped cost with the route-1x1 measurement at the 4th pin adoption, per the area ruling.
+- **Clone integrity.** The review clone was never modified. Verified:
+  - HEAD `7b424cdf…`, tree `4142dcfe…`;
+  - status clean, ignored files included;
+  - index equal to HEAD;
+  - the bytes and modes of all 697 tracked entries;
+  - zero gitlinks, so there are no submodule pins to restore.
+
+R679-2 FINISHED
+
+=== 6311435371 Mister-M-alt
+[A10] Round 3 assignment for [A661]. Head 7b424cdf; new commits on it. This round answers:
+- R679-2 (issuecomment-6311425623, NEGATIVE);
+- R680-2 (issuecomment-6310901034, POSITIVE).
+
+1. **R679-2-F1: fix it as required.** A handed-over applicant gets exactly one transmit opportunity of the kind the walk carries, tx! or txLA!, whatever the taker's index (IEEE 802.1Q-2018 Table 10-3, 10.7.7; the ownership ruling issuecomment-6290012163 item 2: "the declaration continues uninterrupted").
+   - Choose the mechanism and say why. Either carry an owed txLA! into a passed slot, or serve the taker at the giver's slot.
+   - Add a committed SH case: a txLA! walk, a handover into a passed slot, and the JoinMt in that LeaveAll walk or the next. It needs a named KILLED control.
+   - Correct the banner, 10 §6.4 and the PR text: no "one T-MRP-JOIN later" claim for the txLA! case.
+   - The reviewer's `probes/s2_probe.py` must report MATCH in every row, with the plain-tx! rows and both controls still MATCH.
+2. **R679-2-F2:** add a committed SH case: parked, then re-bound again while another sink declares the interim stream. Its control is the edit the finding names, and it must be KILLED.
+3. **R679-2-R1:** RESIDUE. Apply it as written.
+4. **R679-2-S3:** state the measured listener-alone one-sink delta beside "no 1x1 figure".
+5. **Optional:** R679-2-S1 and S2, and R680-2-S1. Apply S2 only if it is area-neutral or better, with the figure.
+
+Area: report the 8x8 `KL_pp_shadow` delta against main again. It must stay within the accepted +1,335 LUT / +618 FF plus 64 LUT. STOP and report if the fix needs more.
+
+Re-run every processor gate and campaign that builds the listener FSM. The manager re-runs the consumer gates.
+
+=== 6319730921 Mister-M-alt
+[A10] INDEPENDENT REVIEW STARTED: R679-3
+
+R679 (internal reviewer) reconstructs issue #193 / PR #198 at exact head `474346357043218c4e6b728f4ab4b83a2a8579e1`, tree `5ad76c02f6cfd8dbfa0b8d09e34b1cd22acec312`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+=== 6319740070 Mister-M-alt
+[A10] INDEPENDENT REVIEW STARTED: R680-3
+
+R680 (external reviewer) reconstructs issue #193 / PR #198 at exact head `474346357043218c4e6b728f4ab4b83a2a8579e1`, tree `5ad76c02f6cfd8dbfa0b8d09e34b1cd22acec312`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+=== 6320117620 Mister-M-alt
+[R680] POSITIVE - exact head 474346357043218c4e6b728f4ab4b83a2a8579e1
+
+All five lenses are CLEAN for this delta and the named prior findings. No BLOCKER, MAJOR or MINOR remains. The re-walk supplies the missing transmit opportunity without duplicating served applicants; SH17 closes the re-park coverage gap. One PR-wording RESIDUE is recorded below.
+
+Reviewed tree: `5ad76c02f6cfd8dbfa0b8d09e34b1cd22acec312`. Original source base: `21601694880efdfc4be3028afa3525fbc8f29c03`. Round-3 base: `7b424cdfe111a426f00517ff471246b4b9650726`. The six author commits are `70dd531`, `2f95efe`, `8f16338`, `1969f94`, `65d39b0`, `324ac9a`; the manager merge adds main `859b537b` through `47434635`.
+
+The review reconstructed the supplied repository instructions, absence of repository AGENTS.md/CONTRIBUTING.md, docs/README and HDL conventions, the frozen issue acceptance and public scope decisions, requirements/interfaces, base diff and history, and public executable evidence. The [round-3 assignment](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/198#issuecomment-6311435371) and [ownership ruling, including item 2](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/193#issuecomment-6290012163) were read exactly. Authorities include issue #188's owed Leave, #189's per-sink registration reporting, REQ-ACMP-018/022, REQ-SRP-005, architecture 02 §4.1, 07 and 10 §6.4, IEEE 802.1Q-2018 Table 10-3/10.7.7/35.1.2.2/35.2.6, and Milan 4.2.7.2.2 as specified by those public requirements.
+
+The independent verdict and ledger were written in `independent-pass.md` before opening earlier review findings. Their reconciliation follows. Untouched code retains the earlier covering verdict; scheduling and group-mark dependencies affected by this delta were examined again. No private author material, other checkout, private management tree, or concurrent review report was used.
+
+**Mechanism and conformance**
+
+At `hdl/srp/KL_srp_listener_fsm.sv:1003`, every passed slot receives the walk mark, including a quiet rider. At `:1072`, the taker receives its applicant's mark after the other assignments. A not-yet-served applicant moved behind the cursor therefore clears that destination's passed-slot mark. At `:1040`, W_DONE restarts at zero unless all marks are set. The restart neither resets marks nor changes `wtxla_r`, so it delivers the same walk's tx! or txLA!. At `:711`, a marked active slot does not receive another transmit event. Group operations and control acceptance have priority over a transmit from the giving slot (`:683`); a transfer cannot simultaneously advance that applicant through the walk at its old slot.
+
+This is a conforming implementation of the assignment's required outcome even though the assignment offered two other possible mechanisms. The declaration remains one applicant per attribute value. QA receives sJ/JoinMt on txLA!, not a later plain tx! that would send nothing; LA receives txLA! to LO, followed by Empty at the next tx!. The state and parameter remain carried rather than being reset. No extra per-sink flip-flop was introduced by this round. The one-sink parameter arm and interfaces are preserved.
+
+Other applicants are not postponed into a later walk: completion is withheld until every slot is marked, while already served applicants are suppressed on subsequent passes. My collateral probe places two unrelated declaring streams beside the transferred one. In all 12 combinations (holders 5/7, clocks 1–3, tx!/txLA!), the walk finishes with exactly three pushes and the expected next states, one push per stream. The mark-loss control still fails SH7, independently checking suppression of a second transmit. Finite input activity and eventual output acceptance remain the existing progress assumptions; this is not an absolute latency guarantee under permanent backpressure or continuous higher-priority events. `KL_srp_top.sv:1163` waits for both stream walks before the normal drain; its existing high-water interim drain remains unchanged.
+
+The additional last-Lv fix is real at the round-3 base. `published/newchecks-at-base/log` records SH21 producing `5/2 0/2` for one StreamID in one walk: Lv Ready followed by New Ready. In a one-applicant Table 10-3 sequence, LA consumes that walk's tx!, becomes VO, then New! becomes VN and must await another tx!. It must not gain an additional opportunity by changing slots. Section 35.2.6's single declaration per value and the assignment's one-applicant rule support that ordering. Marking the served group at `:1004` prevents this; the reverting `listener-walk-marks-group-only-on-retire` control reproduces exactly the Lv/New failure. When txLA! leaves LO, the holder stays in place and its carried mark provides the same protection. SH21's assertion and oracle are unchanged by the control.
+
+**Every named prior item at this head**
+
+| Item | Disposition and artifact-specific evidence |
+|---|---|
+| R679-2-F1 — MINOR, all five lenses | Resolved at the scheduling cause above. My execution of the unmodified published `s2_probe.py` gives MATCH in all 20 rows: both holders, both walk kinds, clocks 1–3, registration-before-walk and no-registration controls. SH18–SH20 pass in the 1,418-check golden. `listener-walk-ends-owing-a-transmit` is KILLED by SH16, both SH18 checks, SH19 and SH20. The banner, architecture 10:645 and PR now describe same-walk service, not a one-T-MRP-JOIN delay. |
+| R679-2-F2 — MINOR, Tests | Resolved. SH17 at `tb/srp_stream_fsms/sim_main.cpp:1799` exercises a second rebind while another sink declares the interim stream. Its exact named edit removes `&& !lvp_r[a]` at listener `:957`. `listener-repark-takes-matcher-pairs` is KILLED by SH17. My unmodified re-park probe also gives MATCH: owed SID0 Lv retained, no spurious SIDP New. |
+| R679-2-R1 — RESIDUE, Docs | Applied and extended correctly. `tb/srp_top/README.md:868` now lists SH2–SH17, SH21, SH23, RB1, RB4, RB7 and the LA table walks, with 65 failures. The published final campaign has exactly those tags and 65 failures, plus the three wire failures in the separate arm. |
+| R679-2-S1 — SUGGESTION, Tests | Applied. SH23 holds two independent parks through txLA!: both become LO and each sends Empty, not Lv, next. `listener-two-parks-grouped` removes the both-parked exclusion at listener `:607` and is KILLED by SH23. |
+| R679-2-S2 — SUGGESTION, RTL/area | Measured and deliberately not retained, as the assignment permits only an area-neutral improvement. Two-input/eight-output KL_pp_shadow was +99 LUT / −128 FF with the aliasing change. Commit 65d39b0 restores the existing second copy. The final two-sink elaboration arm has no S2 change. |
+| R679-2-S3 — SUGGESTION, Docs | Applied. The PR labels the separate one-sink Listener-only measurement: main 2,898 LUT / 454 FF, head 2,786 / 455, delta −112 / +1, beside the statement that KL_pp_shadow 1×1 was not measured. The earlier round-only +69 LUT figure is also distinguished. |
+| R680-2-S1 — SUGGESTION, Docs | Applied exactly: the two RB/RB5 parentheticals are removed at stream-FSM `:1596`; behavior and clause citations are unchanged. |
+| R679-1-F1 / R680-1-F1 — MAJOR, Conformance/RTL/Robustness/Tests and related Docs | Remain resolved at the cause. Recorded parks belong to their held StreamID via `same_w/lq_r` (`:595`), takeover clears the park (`:1056`), and the applicant state is carried. SH10–SH16 pass in the exact-head golden; the changed SH16 now correctly expects its New in this walk. Public SW4–SW7 and the full SRP campaign remain passing; their test sources are unchanged from the author validation. The original uniqueness and peer-registration coverage is retained. |
+| R679-1-F2 / R680-1-F2 — MINOR, Docs | Remain resolved: PR area figures explicitly say eight inputs/eight outputs and distinguish absent whole-wrapper 1×1 measurement. See area provenance below. |
+| R680-1-F3 — RESIDUE, Docs | The specifically assigned SW heading/prefix removal remains applied at `tb/srp_top/sim_main.cpp:3000,3170`. |
+| R680-1-F4 — MINOR, Docs/Conformance; R679-1-S1 — SUGGESTION | Remain resolved: stream-FSM `:2094` and srp_top `:3171` cite 35.1.2.2 and 35.2.4.4.3/Table 35-14 for the type sum, retaining 35.2.6 for the in-place change. |
+| R679-1-S2 and R680-2's earlier delay conclusion | Superseded by the required same-walk fix and R679-2-F1 resolution. The earlier conclusion that nothing was lost is not inherited for the txLA! case. |
+
+The earlier public reviews were issue comments 6299632354, 6300027310, 6310901034 and 6311425623. The public review and inline-comment APIs returned zero additional entries. The source-comment audit found no newly introduced workflow/lane/reviewer/round/comment-ID label. The initial snapshot's concern about NS/NS1–NS5 is withdrawn: [public rule #746](https://github.com/kebag-logic/milan-fpga/issues/746) explicitly permits behavior identifiers. These identify checks, not bench lanes. No source-comment correction is required for them.
+
+**Exact-head execution and public receipts**
+
+| Evidence | Result |
+|---|---|
+| `focused-controls.log`, `controls/` | Golden 1,418 PASS; six selected mutations KILLED, campaign 7/7. SH7 mark loss; SH17 re-park; SH23 two parks; SH16/18/19/20 premature walk end; SH22 unmarked quiet-slot nontermination; SH21 group marking. Each fails its named behavioral assertion, not a compile failure. |
+| `s2.log` | 20/20 MATCH, both controls retained; suite 1,418 PASS. The runner explicitly checks MATCH/DIFF lines because the original probe's process exit code alone does not grade them. |
+| `repark.log` | MATCH; suite 1,418 PASS. |
+| `collateral.log` | 12/12 MATCH; suite 1,430 PASS. All three applicants finish service before walk completion, with no duplicate push. |
+| `merged-pp-default.log` | rc 0; default build 10,186 checks, 0 failures. NS 20, NP 53, D3 319 and GSI latency walks 5,568 checks all report 0 failures. |
+| Author gate receipts under `published/gates/` | 1,030,375 suite checks, 0 failing at 65d39b0; lint, documentation, matrix, requirement-tag and portability/guard gates rc 0. Final documentation-reading gates at 324ac9a also rc 0. These are author pre-merge runs, not a manager source bank or a claimed full exact-merge sweep. |
+| Author campaigns under `published/campaigns/final/` | SRP 208/208, assertion coverage 131/131; ACMP 65 killed; notifications 135 killed; D3 110 killed; AECP 67/67; dispatch 73/73; counters 18/18; GSI 23 detected; name-write/name-state/elaboration-guard records rc 0. The final RUNNER record identifies two clean clones at 324ac9a. The stopped earlier campaign is not used as completion evidence. |
+
+The [published archive](https://github.com/kebag-logic/milan-fpga/tree/d530fd828739992dbbe15270c54be18ebf8f585c/review-evidence/pp193-r1) was sampled by section. All 84 downloaded receipts match its published SHA-256 manifest (`published-hash-check.txt`, `published-manifest-subset.json`). All 15 files changed by the six author commits remain byte-identical through the manager merge (`author-delta-identity.txt`). The executable source in the final author campaigns and the changed Listener implementation therefore maps directly to this head. No private originals were used. Seven oversized logs listed in the public EXTERNAL-RECORDS index were not downloaded; the visible summary and selected complete raw controls are the evidence used here.
+
+Signature limitation: no detached signature or verification key was supplied in the referenced public archive, and the commit API reports `unsigned` (`archive-provenance.json`). Published content hashes were verified; cryptographic packet-signature verification is not claimed.
+
+**Main merge, interfaces and area**
+
+`git merge-tree --write-tree 324ac9a7 859b537b` reproduces the exact reviewed tree, with no manual conflict-resolution bytes. E_SINFO's complete generator, command model, decode.json, notify section, notify controls, D3 timing premise and pp_top driver are byte-identical to main 859b537b. Independently generated complete ROMs match, SHA-256 `1f78804e448c385d633ed4355b7d84100ec13b12c77305c3bc11986653a80a8e`, also the decode record's ROM digest. The merged pp_top README retains both the #193 unchanged-type/FailureInformation-control explanation and #199's NS and D3 timing descriptions. Its GSI control still plants the fault at the new shared-applicant decision. The exact-head default execution covers the resulting composition; this does not assert all seven build variants were locally rerun.
+
+The Listener, SRP top and processor-top port/parameter declarations match the original source base, round-3 base and merged main. `pp_pkg.sv`, architecture interfaces 02 and memory maps 07 are unchanged from 21601694. No top-level port, parameter or register-map change. The inherited #192 change removes an internal signal only. `merge-identity.txt` records these checks.
+
+| Published 8×8 KL_pp_shadow measurement | LUT | FF |
+|---|---:|---:|
+| Main 08023123 | 56,743 | 26,331 |
+| Round-2 head 7b424cdf | 58,078 | 26,949 |
+| Round-3 implementation 65d39b0 | 58,046 | 26,949 |
+| Round-3 implementation minus main | +1,303 | +618 |
+| Round-3 minus round-2 | −32 | 0 |
+
+This is within the [accepted +1,335 LUT / +618 FF](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/198#issuecomment-6310654578), and within the assignment's additional 64-LUT allowance (96 LUT below that ceiling). LUTRAM 4,236, RAMB36 15, RAMB18 4, DSP 10 and CARRY4 2,392 are unchanged. Raw OOC logs and STATE records identify parent dev 78ca9bdf with the adoption patches and each processor gitlink. The measurement predates the manager's main merge; it is the accepted issue-implementation delta, not a newly measured full 47434635 netlist. No independent synthesis was run. The main-merge ROM composition and shipped route-1x1 validation are separate from that historical area comparison.
+
+**R680-3-R1 — RESIDUE — Docs: qualify the PR's implementation-scope sentence**
+
+Artifact: PR #198 body, Behaviour, “every RTL edit is inside `KL_srp_listener_fsm`”. That accurately describes the issue #193 implementation, but the published branch also includes the explicitly documented main merges. The full base-to-head diff contains the inherited #192 top/ACMP changes and #199 generation changes. Impact is wording only: the actual implementation scope, unchanged interface, measurements, tests and conformance conclusions do not change.
+
+Exact fix: replace that sentence with “The issue #193 implementation changes RTL only inside `KL_srp_listener_fsm`, whose ports are unchanged; the branch also includes the main merges for #192 and #199.” Add the final main-859b537b merge to the opening commit chronology. Required outcome: a reader can distinguish issue-specific edits from inherited main content. Verification: compare the revised text with the two-parent history and `merge-identity.txt`; no code or measurement change. Carry this to the residue checklist; it does not leave Docs unclean.
+
+**Reviewer-owned ledger**
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | frozen ownership/round-3 rulings; #188/#189; Table 10-3 state/message expectations; SH17–SH23; S2 and three-applicant traces; inherited uniqueness/type-sum and peer checks | R680-3 delta and prior-item reconciliation; untouched scope retains R680-2 | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+| RTL | CLEAN | listener arbitration, mark write/transfer, W_DONE and group lifetime; full base diff/history; main/ROM/tree identity; interface/map byte checks | R680-3; inherited #192/#199 main content checked for composition | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+| Robustness | CLEAN | backward handover both kinds/holders/timings, A15 withdrawal, second park, two parks, rider late settle, duplicate suppression, unrelated applicants; progress/backpressure analysis; area provenance | R680-3 plus preserved earlier parked-value coverage | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+| Tests | CLEAN | 1,418-check golden, six exact-head KILLED controls, 20+1+12 probe rows, merged pp_top execution, 84 verified receipts, campaign coverage and named tags | R680-3; author gates at stated pre-merge revisions | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+| Docs | CLEAN | conventions; banner; 10 §6.4; SRP/pp_top READMEs; corrected prior citations/counts; measured-shape and single-sink qualifications; PR scope wording R1 | R680-3 and retained resolved R680-1/R679-2 items | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+
+**Limits and pending manager duties**
+
+At 2026-10-21 15:43 UTC, exact-head hosted run 39625824487 had executed successful docs-gates and portability jobs; suites remained queued (`hosted-jobs.json`). No queued, skipped or pending context is treated as executed proof. Hosted/act acceptance remains the manager's duty.
+
+No full processor/parent/gPTP/portability/builder bank, source fix, commit, push, GitHub write, merge, container execution, shared install or hardware operation was performed. The reviewed clone was never edited; disposable exports and generated files stay under packet `scratch/`. The focused builds ran concurrently in foreground-owned drivers, with independent logs/return codes and at most 16 compiler workers; no heavy physical-design build ran. The pinned compiler identity was verified before use. The complete IEEE/Milan texts were not independently reread: this later-round review used the frozen public clauses, existing independent table transcription and unchanged prior conformance coverage. Physical calibration is NOT RUN; field skips are not hardware proof.
+
+`source-integrity.txt` and `tracked-blobs.txt` verify all 702 tracked blobs' bytes and modes, index equality to HEAD, clean status including ignored files, the exact head/tree, and zero nested gitlinks. Nothing needs restoration. The historical parent STATE gitlinks are receipt provenance, not a current-dev checkout or candidate build.
+
+There is no manager source bank at this exact head, and none is inferred. The manager must obtain the independent review pair, carry R1, validate the final current-dev merge candidate with the builder and native banks at merge turn, and publish its receipts on the PR. Source base 21601694 and live dev `d77a8afdbc960d70d1ceeee9af1163624f102b16` are distinct contexts. Check the shipped route-1x1 resource result at adoption; the OOC figures and simulation checks are not hardware acceptance.
+
+Reproduction: `run_focused.py --source <clone> --packet <packet>` builds the exact-head focused controls and merged default suite in scratch exports; `run_probes.py --source <clone> --packet <packet>` runs the unchanged S2/re-park probes and the additional collateral probe, explicitly grading their output. `audit.py --source <clone> --packet <packet>` checks source/merge/ROM and published hashes. `MANIFEST.sha256` lists only publishable receipts and scripts with packet-relative paths. Local execution receipts retain their complete stdout/stderr with host paths normalized; `receipt-redactions.json` records original and published hashes. Scratch exports, prior-review reading copies and the reference-only historical runner are excluded.
+
+R680-3 FINISHED
+
+=== 6320531866 Mister-M-alt
+[R679] NEGATIVE - exact head 474346357043218c4e6b728f4ab4b83a2a8579e1
+
+# R679-3: independent round-3 review of processor PR #198 (Closes #193)
+
+- Exact head `474346357043218c4e6b728f4ab4b83a2a8579e1`, tree `5ad76c02f6cfd8dbfa0b8d09e34b1cd22acec312`. The clone was verified byte-exact after all probes (`receipts/verify_clone.txt`: 702 tracked entries, 0 byte or mode mismatches, index equal to HEAD, no gitlinks in this repository).
+- Round-3 delta reviewed: six author commits on `7b424cdf` (`70dd531`, `2f95efe`, `8f16338`, `1969f94`, `65d39b0`, `324ac9a`), plus the manager merge of processor main `859b537b` (#199).
+- Summary:
+  - The walk fix is correct and conformant at the head. My own S2 probe gives MATCH in 20 of 20 rows. A new two-handover sweep gives MATCH in 626 of 626 rows. All five new controls are KILLED on their named checks.
+  - The extra fix (SH21) is a real defect at the base and is conformant.
+  - Area is inside the accepted bound. The merge composes, and no port, parameter or register-map change is made.
+- One MINOR remains, in the Tests lens: R679-3-F1. The round-3 term that holds the walk's done strobe until the second pass has served its slot has no check that fails without it. A mutant that strobes at the end of the first pass passes all 1,418 stream-FSM checks and all 8,669 srp_top checks. Under that mutant the second pass's message falls into the next tick, beside that tick's own message for the same StreamID.
+
+## Reconstruction (order followed)
+
+1. **Contributor rules.** The processor repository has no AGENTS.md or CONTRIBUTING.md. I read `docs/README.md` (conventions, single-source rules, what `make check` enforces). The comment rule comes from the owner text in the assignment.
+2. **Frozen scope.** Issue #193 body; the A10 assignment (issuecomment-6289596705); the A661 STOP (…6289991979); the ownership ruling (…6290012163: owner election, handover "continues uninterrupted", combined type, suite cases); the area answers (…6299223806); the round-2 assignment (…6300041102); the round-2 area ruling (…6310654578: +1,335 LUT / +618 FF accepted); the round-3 assignment, read exactly (…6311435371); the author's round-3 REVIEW READY (…6319348032); the review start (…6319730921).
+3. **Authorities.**
+   - IEEE 802.1Q-2018 Table 10-3, as transcribed independently in `tb/srp_stream_fsms/sim_main.cpp:28-112`: QA on txLA! is sJ; QA on tx! sends nothing; LA on tx! is sL then VO; LA on txLA! is LO with no message; LO on tx! is s; New! takes VO to VN.
+   - IEEE 802.1Q-2018 10.7.7 (one Applicant per attribute value), the 35.2.6 NOTE, 35.1.2.2 (Lv only for a stream no longer wanted), Milan v1.2 4.2.7.2.2 (a peer registrar deregisters at once on Lv).
+   - The `txop_done_o` port contract, `hdl/srp/KL_srp_listener_fsm.sv:172`: "one-cycle strobe: tick walk finished, pushes accepted".
+   - The `KL_srp_top` drain contract, `hdl/srp/KL_srp_top.sv:46-50` and `:1164-1169`.
+4. **Diff and history.** `git diff 21601694..4743463`, `git diff 7b424cdf..324ac9a` (RTL, docs, tests, READMEs, mutants and patches, read in full), and `git diff 859b537..4743463`.
+5. **Public evidence.** The milan-fpga evidence packet `d530fd82…/review-evidence/pp193-r1/author-r3` was sparse-cloned at the pinned commit. All 2,547 files match `MANIFEST.json` `published_sha256`: 0 missing, 0 mismatched, 0 unlisted (`receipts/evidence-manifest-check.txt`). The GitHub API reports the commit as unsigned, so integrity rests on the manifest, not on a signature. From that packet I read the round-3 `INDEX.md` header, `area/SUMMARY.txt` with the `ooc-final` and `ooc-main` logs and STATE, `scope-ports.txt`, `gates/head/run_suites.log`, every gate and campaign `.rc` (21 of 21 are 0), `campaigns/RUNNER.txt` and `campaigns/final/srp_top.log`.
+6. **Prior findings.** Read only after my own pass over the diff and my probes: R679-2 (issuecomment-6311425623) and R680-2 (issuecomment-6310901034). I did not read the concurrent round-3 external review.
+
+## Findings
+
+### R679-3-F1 — MINOR — Tests: the done strobe's wait for the second pass has no killing check
+
+**Where.**
+- `hdl/srp/KL_srp_listener_fsm.sv:1036-1042`, W_DONE: `walk_r <= (&wdone_r) ? W_IDLE : W_EVAL; txop_done_o <= &wdone_r;`. This is a round-3 term: the strobe now waits until every slot holds the walk mark.
+- The new checks drive and grade the walk through `tick_with_input_at` (`tb/srp_stream_fsms/sim_main.cpp:1853`).
+  - That helper stops at the first `l_txop_done_o`, then idles 2 clocks.
+  - Every SH16 and SH18-SH20 taker is sink 0, so the second pass pushes within those 2 clocks.
+  - No check requires that a walk's pushes come before its strobe.
+
+**Evidence** (reviewer probes; disposable arm `rv3-done-before-rewalk` in `probes/make_r3_mutants.py` changes only `txop_done_o <= &wdone_r` to `txop_done_o <= 1'b1`, keeping the second pass):
+
+| Run | Result | Receipt |
+|---|---|---|
+| stream-FSM suite with the arm | 1,418 PASS, 0 FAIL | `receipts/phase1/rv3-done-before-rewalk.log` |
+| srp_top suite (every group, real encoder and slot pool) with the arm | 8,669 PASS, 0 FAIL (head: 8,669 PASS) | `receipts/phase3/top-mut.log`, `top-head.log` |
+| `probes/order_probe.py` at head: takers 0, 2, 4; tx! and txLA!; handover at clocks 1-12 | 72 rows, 0 pushes after the strobe | `receipts/phase2/order-head.log` |
+| the same with the arm | 32 of 72 rows push after the strobe, e.g. "taker=0 walk=tx! inject@1: done at clock 9, pushes before 0, after 1" | `receipts/phase2/order-mut.log` |
+| `probes/chain_probe.py` with the arm | 50 of 626 rows DIFF, e.g. "walk=tx! A=2: walk '' (model '0/2'); next '0/2 3/2'" | `receipts/phase2/chain-mut.log` |
+
+In the chain row above, the second pass's New, pushed after the strobe, lands in the next tick together with that tick's JoinMt. That is two messages for one StreamID in one tick, the #193 symptom class.
+
+**Authority.**
+- The port contract at `:172` ("tick walk finished, pushes accepted").
+- `KL_srp_top` drains the encoder on the two strobes (`KL_srp_top.sv:1164-1169`, "the cadence's messages ride its MRPDU"), and the encoder snapshots its pending count when a drain starts (`KL_srp_encoder.sv:561`, `drain_n_r`). A push after the strobe therefore misses that cadence's MRPDU. I infer this from the RTL; no srp_top bench exercises a handover behind the walk, which is why the arm survives there too.
+- The round-3 assignment item 1 and the ruling's item 2 ("the declaration continues uninterrupted"). The banner, §6.4 and the PR all claim "the walk's tx! or txLA! in that walk".
+- The lane's bar, which R679-2-F2 applied in the previous round: each new behaviour carries a check with a planted control that is KILLED.
+
+**Impact.**
+- The head RTL behaves correctly: 0 late pushes in 72 rows, and 626 of 626 chain rows MATCH.
+- But a later edit that strobes before the second pass would reintroduce R679-2-F1 on the wire, undetected. The txLA! JoinMt would leave the LeaveAll MRPDU, and a tx! New would ride beside the next walk's message for the same value.
+
+**Required outcome.**
+- Add a committed check that grades a walk's Listener pushes against its done strobe. Either form works:
+  - make `tick_with_input_at` (or a new SH case) count any Listener push between the strobe and the next join tick and require none, with a taker above sink 0 (for example sink 4 with holder 7) so that the second pass takes more than 2 clocks;
+  - or add an srp_top case that requires the second pass's message in that cadence's MRPDU.
+- Add the named control `txop_done_o <= 1'b1` in W_DONE, with the second pass kept. It must be KILLED on the new check.
+
+**Verification.**
+- The campaign reports the new control KILLED on its named check.
+- `probes/order_probe.py` still reports LATE 0 at head, and LATE above 0 with the control planted.
+
+### R679-3-R1 — RESIDUE — Docs: a review round named in repository prose
+
+- **Where.** `tb/srp_top/README.md:884`, the `listener-walk-marks-group-only-on-retire` row: "the walk marks a group only when a park retires (round 2's form)". This is new in `8f16338`/`324ac9a`. Repository documentation describes behaviour and should not name review rounds.
+- **Exact fix.** Replace "(round 2's form)" with "(the form before this change)".
+
+### R679-3-R2 — RESIDUE — PR text: the S2 bullet credits the wrong finder
+
+- **Where.** PR #198 body, section Round 2, bullet "A handover to a slot the walk has passed (S2)": "Round 3 found that in a txLA! walk the LeaveAll re-declaration was lost instead". R679-2 found it (R679-2-F1), and round 3 fixed it.
+- **Exact fix.** Replace "Round 3 found that" with "R679-2 (F1) found that".
+
+### R679-3-S1 — SUGGESTION — Docs/RTL: state the LA/LO exception of the group mark where the mechanism is described
+
+- `KL_srp_listener_fsm.sv:1004` skips the group mark when the transmit leaves the applicant LA or LO. The in-code comment at `:996-1002` says so.
+- The banner (`:110-120`), §6.4 (`docs/architecture/10_srp_engine.md:645`) and the PR body describe the group mark without the exception.
+- My arm `rv3-group-mark-on-lo` drops the exception and passes all 1,418 checks (`receipts/phase1/rv3-group-mark-on-lo.log`).
+  - That fits my reading: the LA/LO applicant stays in its slot, which the walk has marked, and a handover from there carries the mark.
+  - The author's `area/SUMMARY.txt` shows that the exception is the cheaper form: W2, 58,046 LUTs, against W, 58,555.
+- Suggestion: add a short clause to the banner and §6.4, for example "unless the transmit leaves it LA or LO, where a handover carries the mark instead".
+
+### R679-3-S2 — SUGGESTION — Tests: SH1 no longer sees a rider that is not quiet
+
+- With `listener-rider-not-quiet`, SH1's rider above the owner still goes to LO on the received LeaveAll. The group mark now holds its Empty to the next walk, which SH1 does not tick (`tb/srp_top/README.md:899-904`). The control is still KILLED (12 checks, SH14 named), so no coverage is lost.
+- Suggestion: extend SH1's received-LeaveAll check by one tick, so that it again grades the rule with the rider above the owner.
+
+## Prior public findings on this PR, at this head
+
+| Finding | Status | Evidence at this head |
+|---|---|---|
+| R679-2-F1, MINOR: a handover into a slot the txLA! walk passed loses the LeaveAll re-declaration | **Resolved** (cause fixed); the strobe-order test gap of the new mechanism is new: R679-3-F1 | `probes/s2_probe.py`: 20/20 MATCH at head (both holders, tx! and txLA!, clocks 1-3, both controls); at `7b424cdf` the six txLA! handover rows read DIFF (`receipts/phase1/s2-head.log`, `s2-base.log`). Chain sweep 626/626 MATCH at head, 326 DIFF at `7b424cdf`. SH16, SH18 (x2), SH19 and SH20 fail on the `7b424cdf` RTL (`tests-on-base.log`); `listener-walk-ends-owing-a-transmit` KILLED on SH16, SH18-SH20. Banner `:106-120`, §6.4 `:643-651` and the PR text no longer claim a delay. |
+| R679-2-F2, MINOR: no check fails without the re-park guard | **Resolved** | SH17 (`sim_main.cpp:1799`). Its control `listener-repark-takes-matcher-pairs` is byte-for-byte the edit I named (`rv-repark-overwrites-pairs`) and is KILLED on SH17 (`receipts/phase1/ctl-listener-repark-takes-matcher-pairs.log`, `phase2/camp-out`). `repark_probe.py`: MATCH at head, DIFF with the edit. |
+| R679-2-R1, RESIDUE: README row names fewer failing checks | **Applied**, then extended | `tb/srp_top/README.md:868`: "SH2-SH17, SH21, SH23, RB1, RB4, RB7 … (65); SW2, SW4, SW6 (3)". This matches `campaigns/final/srp_top.log:187-188` tag for tag. The other six re-counted rows (`settle-compare-dropped` 32, `rider-not-quiet` 12, `handover-drops-state` 12, `withdraw-ignores-riders` 15, `group-order-reversed` 10, `settle-parks-shared-stream` 2) and `retire-skips-group-mark` 2 also match that log. |
+| R679-2-S1, SUGGESTION: no killing check for the both-parked exclusion | **Applied** | SH23 (`sim_main.cpp:2047`). Its control `listener-two-parks-grouped` is the `rv-both-parked-grouped` edit and is KILLED on SH23. |
+| R679-2-S2, SUGGESTION: two-sink `lcp` aliasing | **Measured, not kept**, as the assignment allowed | +99 LUT / -128 FF at 2 Stream Inputs (`area/SUMMARY.txt` item 2). It is not area-neutral, so commit 5 removed it. RTL at 8 sinks unchanged. |
+| R679-2-S3, SUGGESTION: state the listener-alone one-sink delta | **Applied** | The PR body, beside "No 1x1 figure", gives main 2,898 LUT / 454 FF and head 2,786 / 455. That matches `area/SUMMARY.txt` item 3. |
+| R680-2-S1, SUGGESTION: two check IDs in a test comment | **Applied** | The "(RB)" and "(RB5)" parentheticals are gone (`sim_main.cpp`, SH10-SH13 comment). |
+| R679-1 / R680-1 findings | Resolved at round 2 (per R679-2) and **still resolved** | The delta leaves the parked-group terms unchanged apart from the walk marks. SH10-SH16 and SW4-SW7 pass at head, and their controls stay KILLED (`campaigns/final/srp_top.log`, my spot-check `receipts/phase2/camp.log`). |
+
+## The round-3 assignment's checks
+
+| # | Item | Verdict | Evidence |
+|---|---|---|---|
+| 1 | F1 mechanism, against Table 10-3, 10.7.7 and ruling item 2 | **Met** (RTL, Conformance); test gap R679-3-F1 | See "Mechanism review" below. s2 20/20 MATCH with both controls. SH18-SH20 pass, and `listener-walk-ends-owing-a-transmit` is KILLED. |
+| 2 | Extra fix: New beside the last declarer's Lv in one walk | **Real at base, conformant, covered** | On the `7b424cdf` RTL, SH21 fails with "this walk '5/2 0/2'": Lv and New for one StreamID in one walk (`tests-on-base.log`). At head the New waits for the next tx!, as one applicant's New! after sL must (Table 10-3: LA, tx!, sL, VO; New! gives VN, sent at the next tx!; 10.7.7). `listener-walk-marks-group-only-on-retire` is KILLED on SH21. |
+| 3 | F2 (SH17 with the named edit), R1, S1 (SH23 and control), S3, R680-2-S1 | **Met** | See the table above. |
+| 4 | Area within +1,335 LUT / +618 FF plus 64 LUT | **Met** (on receipts) | `ooc-main` 56,743 / 26,331; `ooc-final` at `65d39b0c` 58,046 / 26,949; so +1,303 / +618. LUTRAM 4,236, RAMB36 15, RAMB18 4, DSP 10 and CARRY4 2,392 are unchanged. The `65d39b0c` listener blob equals the head's (`f61843cf…`). Pins are checked in each STATE.txt. The receipts are manifest-verified; I did not re-synthesize. |
+| 5 | The manager merge of main composes | **Met** | Every main-side file of #199 is byte-identical to `859b537` at the head, `hdl/aecp` tree included (`0237e79f…`), and `gen_ucode.py`, `decode.json`, the notify, d3 and sim sources and docs 06/09 are equal. Only `tb/pp_top/README.md` touches both sides, in disjoint hunks, and its merge delta equals main's delta line for line (`receipts/scope-and-merge.txt`). At the merged head: `tb/pp_top` 10,741 PASS, `tb/aecp_cmds` 176 PASS (617,916 trials) (`receipts/phase4`). The `gsi_mutants.py` anchor of the PR still occurs once in the RTL. |
+| 6 | No top-level port, parameter or register-map change | **Met** | Against main `859b537` the only HDL change is `KL_srp_listener_fsm.sv`. Its module header hashes identically at 21601694, 7b424cdf, 859b537 and the head. `protocol_processor_top.sv` equals main's. Docs 01, 02 and 07 are unchanged against main. |
+
+### Mechanism review (RTL, Conformance, Robustness)
+
+- **One transmit, never two.**
+  - `wdone_r[t]` means "the walk passed this slot or served the applicant in it" (`:1003`), and every member of a served group is marked (`:1004-1008`).
+  - A handover copies the giver's mark onto the taker, after every other assignment (`:1072`).
+  - A taker that the walk passed and whose giver it had not reached is the only kind of slot left unmarked at W_DONE. The second pass serves it in the same walk, with the walk's `wtxla_r`.
+  - A taker of an already served applicant inherits the mark, so it is not served again.
+  - My arm `rv3-take-keeps-taker-mark` (the taker keeps its own mark) fails SH16, SH18 (x2), SH19 and SH20. `rv3-rewalk-keeps-wsrc` (the second pass does not restart at slot 0) fails the same five.
+- **No delay for other applicants.**
+  - A walk with no unmarked slot ends exactly as before.
+  - In a second pass, marked slots pass in one clock each and push nothing. Slots already served are never sent again.
+  - The pass lengthens the walk by at most about N clocks per handover, with `join_tick_i` latched into `tick_pend_r`. Every applicant's transmit stays in the same walk.
+- **Termination.**
+  - Every slot passed is marked, quiet riders included (`walk_grant_w`). The author's control `listener-walk-marks-only-served-slots` shows that without this a walk never ends (SH22).
+  - My chain sweep puts a second handover into the second pass: walks of 29-30 clocks, 3 passes. Every one of its 626 rows ends, with exactly the one-applicant message.
+  - Further passes need further external handovers, so a walk always ends once its inputs stop.
+- **Group mark on a VO or parked group.**
+  - A later New! on a member of a group whose (VO) transmit already passed waits for the next tx!. That is one applicant's behaviour.
+  - Parked applicants stay in the group of their held value, and two parks are never grouped (SH23). A retired park's slot that later takes another group's applicant from an unreached slot gets that slot's unmarked state and is served (SH16).
+
+## Reviewer-owned ledger
+
+| Lens | CLEAN/UNCLEAN | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Table 10-3 transcription against the RTL walk; SH16-SH23 expectations; s2 (20 rows) and chain (626 rows) against the one-applicant model; SH21 at base; 10.7.7, the 35.2.6 NOTE, 35.1.2.2, ruling item 2 | R679-3 (delta); unchanged terms keep R679-2's verdict | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+| RTL | CLEAN | `KL_srp_listener_fsm.sv` round-3 delta (`:106-120`, `:420-424`, `:996-1008`, `:1032-1043`, `:1072`) in the context of `owner_map`, `app_arb`, `handover` and `walk_msg`; four reviewer arms; module-header and scope diff; area receipts | R679-3 | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+| Robustness | CLEAN | Walk termination (SH22 control, chain walks of 3 passes); second-pass bound; handover in the W_DONE and W_IDLE cycles (`(walk_r != W_IDLE)` guard); strobe order at head (order probe, 0 late) | R679-3 | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+| Tests | **UNCLEAN** (R679-3-F1) | SH16-SH23 source; five new controls KILLED (own runs and campaign spot-check of 10 arms); suite at head 1,418 PASS, walk arms PASS; head tests on base RTL (6 named failures); srp_top 8,669 PASS; surviving arm `rv3-done-before-rewalk`; `rv3-group-mark-on-lo` equivalent | R679-3 | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+| Docs | CLEAN (residue R679-3-R1, R2 carried) | Banner, 10 §6.4, both READMEs (counts checked against the final campaign), PR body; comment-rule scan of the delta's added lines (no lane, reviewer, round or comment ID in source comments; one round name in a README, R1) | R679-3 | 474346357043218c4e6b728f4ab4b83a2a8579e1 |
+
+## Receipts (all under this packet; listed in MANIFEST.sha256)
+
+- `probes/`:
+  - `s2_probe.py` and `repark_probe.py` (round-2 reviewer probes, unchanged), plus the `rv-repark-overwrites-pairs.patch` they use;
+  - `chain_probe.py`, `order_probe.py` and `make_r3_mutants.py` (four arms);
+  - `run_r3_probes.sh`, `run_r3_phase2.sh`, `run_r3_phase3.sh` and `run_r3_phase4.sh`;
+  - `verify_clone.sh` and `verify_evidence.py`.
+- `receipts/phase1/`: head full stream-FSM `make` (walk arms and suite); s2, repark and chain at head and base; head tests on base RTL; four reviewer arms; five author controls applied with `git apply`. `SUMMARY.txt` is the run table.
+- `receipts/phase2/`: order probe at head and with the arm; chain probe with the arm; srp_top `mutants.py --only` (10 round-3 arms, `camp-out/`).
+- `receipts/phase3/`: srp_top `make` at head and with `rv3-done-before-rewalk`.
+- `receipts/phase4/`: `tb/pp_top` and `tb/aecp_cmds` at the merged head.
+- `receipts/gates/`: `scripts/lint_hdl.sh` and `make check` at head (rc 0 both).
+- `receipts/scope-and-merge.txt`, `receipts/evidence-manifest-check.txt`, `receipts/verify_clone.txt`, `receipts/tools.txt` (Verilator 5.050 through the pinned wrapper, with its sha256).
+- In the build logs, the local install root of the pinned Verilator is redacted to `<pinned-verilator-5.050>`. Nothing else in the logs is edited.
+
+## Real limits
+
+- No area re-synthesis by this review. Item 4 rests on the manifest-verified author receipts (`area/`). That measurement is at `65d39b0c` against main `08023123` on a scratch parent. No figure exists at the merged head; the merge changes only main-side AECP files, so the PR's delta is the listener blob, which is identical.
+- The wire-level impact in R679-3-F1 is inferred from `KL_srp_top` and `KL_srp_encoder` RTL (drain on the strobes, pending-count snapshot). It is shown executed at the FSM interface (late pushes, a two-message tick), not through an srp_top frame.
+- The evidence commit `d530fd82` is unsigned according to the GitHub API. Integrity was checked against `MANIFEST.json` only.
+- Not run here: the full processor and parent banks, the consumer gates, the gPTP and Yosys banks, hosted or act CI, and hardware. Physical calibration was NOT RUN, and field skips are not hardware proof. No manager source bank runs at this exact head, and none is claimed or inferred here.
+
+## Pending manager duties
+
+- Validate the current-dev merge candidate (source base 21601694; live dev d77a8afdbc960d70d1ceeee9af1163624f102b16) with the builder and native banks, and link the receipts.
+- Re-run the consumer gates, as the round-3 assignment assigns.
+- Own hosted/act acceptance and the 4th pin adoption's route-1x1 resource gate.
+- Carry R679-3-R1 and R679-3-R2 to the residue checklist.
+
+R679-3 FINISHED
+
+=== 6320539946 Mister-M-alt
+[A10] Round 4 assignment for [A661], head 47434635, new commits on it. It answers R679-3 (issuecomment-6320531866, NEGATIVE) and R680-3 (issuecomment-6320117620, POSITIVE). This is a tests-and-docs round. The RTL stays unchanged unless the new check exposes a defect; if it does, STOP and report it.
+
+1. **R679-3-F1: fix it as required.**
+   - Add a committed check that a walk's Listener pushes all come before its done strobe. Use a taker above sink 0, for example sink 4 with holder 7, so the second pass takes more than 2 clocks.
+   - The named control is `txop_done_o <= 1'b1` in W_DONE, with the second pass kept. It must be KILLED on that check.
+   - The reviewer's `probes/order_probe.py` must report LATE 0 at the head and LATE above 0 with the control planted.
+2. **R679-3-R1 and R2:** RESIDUE. Apply them as written.
+3. **R679-3-S1 and S2:** apply them. S2 only needs a check, with no RTL change.
+4. **R680-3's RESIDUE:** apply it as written.
+
+Re-run the stream-FSM suite, srp_top and their campaigns. The manager re-runs the banks.
+
+=== 6323634488 Mister-M-alt
+[A10] INDEPENDENT REVIEW STARTED: R679-4
+
+R679 (internal reviewer) reconstructs issue #193 / PR #198 at exact head `4f57e22006ca727abace93a0cb8585484a377352`, tree `4fb74a342879c54b33e9da3d38cb267b53e7205e`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.
+
+=== 6323855283 Mister-M-alt
+[R679] POSITIVE - exact head 4f57e22006ca727abace93a0cb8585484a377352
+
+# R679-4: independent round-4 review of processor PR #198 (Closes #193)
+
+Head `4f57e22006ca727abace93a0cb8585484a377352`, tree `4fb74a342879c54b33e9da3d38cb267b53e7205e`. The branch and `refs/pull/198/head` both resolve to this commit (`receipts/env/clone-state.txt`). The round-4 delta is three commits on `47434635` (`4d27f70`, `4179599`, `4f57e22`). It changes tests and docs, plus comment lines in one RTL file.
+
+**Summary.**
+- All five lenses are CLEAN. No BLOCKER, MAJOR or MINOR finding is open.
+- **R679-3-F1 is resolved.**
+  - SH24 requires every Listener push of a walk to come before that walk's done strobe.
+  - Its named control, `listener-walk-done-before-second-pass`, is KILLED on SH24.
+  - My order probe reports LATE 0 of 72 at the head and LATE 32 of 72 with the control planted.
+- **R679-3-S2 was applied in a different form, and the author's explanation holds.**
+  - My R679-3-S2 suggestion rested on a wrong premise: that the rider's Empty would only be held back to the next walk. In fact, while the owner declares, the owner's transmit marks the rider in every walk, so the Empty never goes out.
+  - With the extra tick alone, the control passes SH1. I reproduced this.
+  - The committed VO check fails under the control. The head's rider behaviour is correct.
+- **The remaining prior findings are applied:** R679-3-R1, R2 and S1, and R680-3-R1. The RTL change is comments only: 0 non-comment lines changed, and the listener converts to byte-identical Verilog.
+- **Records for the residue checklist:** two RESIDUE items (PR text) and three SUGGESTIONs.
+
+## Reconstruction (order followed)
+
+1. **Repository instructions.**
+   - This repository has no `AGENTS.md` or `CONTRIBUTING.md`.
+   - I read `docs/README.md`, the listener banner, 10 §6.4 and both bench READMEs.
+2. **Scope.**
+   - Issue #193 body, the frozen acceptance: one declaring applicant per StreamID, a teardown withdraws only when no other settled sink declares, suite cases with planted mutants, and the suites and consumer gates passing.
+   - The maintainer ruling on #193: owner election inside the per-sink plane.
+   - The round-4 assignment `issuecomment-6320539946`, read exactly. Its items: (1) R679-3-F1 as required, with the named control and the order probe; (2) R679-3-R1 and R2 as written; (3) R679-3-S1 and S2, where S2 needs only a check; (4) R680-3-R1 as written. The RTL may not change unless the new check exposes a defect.
+   - The author's REVIEW READY `issuecomment-6323586227`.
+3. **Authorities.**
+   - IEEE 802.1Q-2018 10.7.7 (one Applicant per attribute value), Table 10-3 (rLA!, tx!, txLA!), the 35.2.6 NOTE and 35.1.2.2.
+   - Milan v1.2 4.2.7.2.2 (a peer registrar deregisters on Leave).
+   - The interface authority is the `txop_done_o` port contract, `KL_srp_listener_fsm.sv:174`: "tick walk finished, pushes accepted". `KL_srp_top.sv:1164-1169` drains the encoder on the two strobes.
+4. **Diff and history.**
+   - I read `git diff 47434635..4f57e220` in full. `git diff 21601694..4f57e220` gives the PR context: 57 files.
+   - I read the three commit messages, and the PR body as published at the head.
+5. **Published evidence.**
+   - `kebag-logic/milan-fpga@cb2f05c9`, `review-evidence/pp193-r1/author-r4`, checked against `MANIFEST.json`.
+   - I read the prior public findings (R679-3, R680-3) only after my own pass and my own runs.
+
+## Evidence integrity
+
+- **Evidence archive.** Commit `cb2f05c92d46be00b95b29fafa609e38a1510bd2` carries no signature (`%G?` = N). Integrity therefore rests on `MANIFEST.json`. All 2,880 `author-r4` files are listed, and all 2,880 match their `published_sha256`: 0 bad, 0 missing, 0 unlisted (`receipts/env/evidence-check.txt`, `scripts/verify_evidence.py`).
+- **Author's repo record.** The sha256 of every changed file in the author's `repo-record.txt` equals my clone's bytes (`receipts/env/clone-state.txt`). Its listener sv2v hash, `8f7f4e3b…`, equals mine.
+- **Spot-checked author receipts.**
+  - srp_top campaign rc 0: 209/209, coverage 132/132.
+  - `compare/srp_top-arms.txt`: 182 arm runs unchanged, and seven rows changed as the README states.
+  - Order probes: head LATE 0, control LATE 32, R679-3 arm LATE 32.
+  - All seven round-4 head gate rc files are 0.
+  - My own runs agree with each of these figures.
+
+## Findings
+
+### R679-4-R1 — RESIDUE — Docs (PR text): R679-3-R2's exact fix left a sentence whose subject is the reviewer
+
+- **Where.** PR #198 body, Round 2 section, bullet "A handover to a slot the walk has passed (S2)". It reads: "R679-2 (F1) found that in a txLA! walk the LeaveAll re-declaration was lost instead, and corrects it (below)".
+- **Cause.** The author applied my R679-3-R2 fix as written. The fix changed the subject of "corrects" from "Round 3" to the reviewer. The fix is in that wording, not in the author's application of it.
+- **Impact.** Wording only. The text attributes the correction to the reviewer, while round 3 made it.
+- **Exact fix.** Replace ", and corrects it (below)" with "; round 3 corrects it (below)".
+- **Verification.** Read the revised sentence. No code, test or measurement changes.
+
+### R679-4-R2 — RESIDUE — Docs (PR text): the Behaviour bullet on one transmit per walk omits the group mark's LA/LO exception
+
+- **Where.** PR #198 body, Behaviour, "One transmit per walk (round 3)": "The walk marks every slot it passes and every member of a group whose applicant it serves, and a handover carries the applicant's mark…".
+- **State of the other descriptions.**
+  - The banner (`KL_srp_listener_fsm.sv:110-116`) and 10 §6.4 (`docs/architecture/10_srp_engine.md:644-647`) now state the exception (R679-3-S1).
+  - The PR's Round 3 section states it only for txLA! → LO.
+  - The RTL skips the group mark when the transmit leaves the applicant LA or LO (`KL_srp_listener_fsm.sv:1006`).
+- **Impact.** Wording only. R679-3 found the exception suite-equivalent. The figures, tests and conformance claims are unchanged.
+- **Exact fix.** After "every member of a group whose applicant it serves", insert ", unless the transmit leaves the applicant LA or LO, where a handover carries the mark instead". The bullet then matches the banner and §6.4.
+
+### R679-4-S1 — SUGGESTION — Docs/RTL comment: the new clause and the old one state "a handover carries the mark" twice in one sentence
+
+- **Where.** Banner `KL_srp_listener_fsm.sv:112-116` and 10 §6.4 `docs/architecture/10_srp_engine.md:645-648`.
+  - The text reads: "…unless the transmit leaves it LA or LO, where a handover carries the mark instead; a handover carries the applicant's mark, and…".
+  - This is my R679-3-S1 wording placed in front of the existing clause.
+- **Accuracy.** The text is accurate. It matches `:1005-1010` (only the passed slot is marked) and `:1074` (the taker gets the giver's mark).
+- **Optional tightening.** "…unless the transmit leaves the applicant LA or LO, where it marks only that slot. A handover carries the applicant's mark, so a handover during a walk never gives it two."
+
+### R679-4-S2 — SUGGESTION — Docs: overlong line in the stream-FSM README
+
+- **Where.** `tb/srp_stream_fsms/README.md:106`, 109 columns. The surrounding paragraph wraps near 76.
+- **Optional fix.** Rewrap the SH1/SH2 sentences. The rendered output does not change.
+
+### R679-4-S3 — SUGGESTION — Docs (PR text): the Round 3 section keeps the superseded premise about SH1's rider
+
+- **Where.** PR #198 body, Round 3 section, the `listener-rider-not-quiet` paragraph: "its Empty cannot go out in that walk, … it fails 12 checks in all".
+- **What round 4 established.** The Empty never goes out while the owner declares, not just "in that walk". The control now fails 15 checks.
+- **Current state.** The Round 4 section already says so, and the README paragraph (`tb/srp_top/README.md:902-908`) is correct.
+- **Optional fix.** Append "(superseded: see Round 4)" to that paragraph, so a reader of the history is not misled.
+
+## Prior public findings on this PR, at this head
+
+| Finding | Status | Evidence at this head |
+|---|---|---|
+| R679-3-F1, MINOR, Tests: the done strobe's wait for the second pass had no killing check | **Resolved** | **The check.** SH24 (`tb/srp_stream_fsms/sim_main.cpp:2101-2154`): taker sink 4, holder 7, handover at clocks 1-12 of a tx! walk (AN) and an own-LeaveAll txLA! walk (QA). It requires one message for SID0, equal to the model's, before the strobe; no push in the 60 clocks after it; and the taker holding the model state.<br>**The harness.** `step()` clears `join_tick_i`/`evt_valid_i` after each edge (`:238-241`), so no second walk starts in the window. Pushes are harvested before the edge and the strobe is read after it, so the before/after split is exact. `kTxopPollSteps` = 300 covers strobe + 60.<br>**The control.** `listener-walk-done-before-second-pass` is exactly `txop_done_o <= 1'b1` in W_DONE with `walk_r <= (&wdone_r) ? W_IDLE : W_EVAL` kept. It is registered in `mutants.py:257` with the named check `SH24:`. My campaign spot-check lists it KILLED, failures=2, tags=SH24 (`receipts/runs/camp.log`). My own planted suite run gives 1,420 PASS, 2 FAIL, both SH24: "tx! walk, clock 3: strobe at clock 9, before it '', after it '0/2'" and the txLA! row with '3/2' (`receipts/runs/ctl-order.log:27-28`).<br>**The order probe** (`probes/order_probe.py`, the R679-3 probe, unchanged; takers 0, 2 and 4, both walk kinds, clocks 1-12): head **LATE 0 of 72** (`receipts/runs/head-order.log`); control **LATE 32 of 72** (`receipts/runs/ctl-order.log`). For taker 4, the LATE rows are handovers at clocks 3-6, the second-pass window. That window lies inside SH24's range. |
+| R679-3-R1, RESIDUE: review round named in README | **Applied as written** | `tb/srp_top/README.md:887`: "(the form before this change)". |
+| R679-3-R2, RESIDUE: S2 finder in the PR text | **Applied as written** | PR body Round 2 section: "R679-2 (F1) found that…". The follow-on wording is R679-4-R1. |
+| R679-3-S1, SUGGESTION: state the LA/LO exception | **Applied** (banner and §6.4, as the suggestion named) | Banner `:112-116` and §6.4 `:645-647`. The PR Behaviour bullet does not state it yet: R679-4-R2. The wording repeats itself: R679-4-S1. The change is comment-only; see the RTL lens. |
+| R679-3-S2, SUGGESTION: SH1 no longer sees a non-quiet rider | **Applied in a corrected form**; the suggestion's premise was wrong | See "Assignment item 2" below. |
+| R680-3-R1, RESIDUE: qualify the implementation-scope sentence | **Applied as written** | PR Behaviour: "The issue #193 implementation changes RTL only inside `KL_srp_listener_fsm`, whose ports are unchanged; the branch also includes the main merges for #192 and #199." The opening lists the merge of main 859b537b. |
+| Earlier rounds (R679-1/2, R680-1/2/3 findings) | **Still resolved** | The delta changes no RTL logic (sv2v byte-identical). All 1,422 suite checks pass at the head, including SH10-SH23 and the walk-record arms (`receipts/runs/head-full.log`). Every control in my spot-check is KILLED with the README's counts. |
+
+## The round-4 assignment's checks
+
+### Item 1 — R679-3-F1 (Tests, Robustness): met
+
+See the first row of the table above.
+
+- SH24 also passes with the handover ahead of the walk, at clocks 1-2: the message goes from sink 4 in the first pass. It passes with the handover after the walk has ended, at clocks 11-12, with the strobe at clock 10. So the check is not limited to the second-pass case.
+- `done_at >= 0` is required, so a walk that never ends fails it.
+
+### Item 2 — R679-3-S2 and the rider (Tests, Conformance): the author's explanation is correct, and the committed check is sound
+
+**Reproduced.** `probes/drop_sh1_vo_check.py` removes only the new VO check and keeps SH1's 4-tick `ticks_follow_the_model`. With `listener-rider-not-quiet` planted, the suite then gives 14 FAIL and **no SH1 failure**; the control is still killed on SH14 (`receipts/runs/rider-novo-mut.log`). With the committed check, the same control fails 15 checks, including "SH1: … still VO (rider LO)" (`receipts/runs/rider-mut.log:27`).
+
+**Measured with the control** (`probes/rider_probe.py`, `receipts/runs/rider-probe-mut.log:42-53`):
+- The rider goes VO → LO on rLA! and stays LO for all 8 ticks.
+- Every tick sends exactly the one-applicant model's messages: '3/2', '3/2', then nothing.
+- After the rider's own A8, three more ticks send nothing either.
+- Summary: wire-diffs 0, rider-not-VO-ticks 8.
+- The owner's non-LA/LO transmit marks the whole group (`:1006-1010`), so the rider's slot never gets its own tx! while the owner declares.
+
+**Why no wire check can see it.** In SH1's geometry the control's LO is unobservable on the wire. A state check of the documented rider invariant is therefore the only check that can see it there:
+- Banner `:89-90`: "every other sink on the stream_id is a rider, its slot VO, taking no event".
+- §6.4 Role table: "VO: it takes no event".
+- SH14 keeps the wire-level grade, with the rider below the parked holder.
+
+**At the head the rider behaviour is correct, not a defect.** `receipts/runs/rider-probe-head.log`: rider VO in every row, wire-diffs 0.
+- **802.1Q-2018 10.7.7:** one Applicant per attribute value. The received LeaveAll is applied once, to the single (owner) applicant.
+- **Table 10-3:** rLA! takes AA/QA to VP, and the next two tx! send JoinMt, '3/2' twice. This matches the model row for row.
+- **Milan v1.2 4.2.7.2.2:** the rider sends no Empty and no Leave, so nothing can make the peer registrar deregister the still-wanted stream.
+
+A rider that processed rLA! (the control) would be a second applicant state for one value. That is exactly what 10.7.7 excludes.
+
+### Item 3 — R679-3-R1, R2, S1 and R680-3-R1 applied; S1 is comments only
+
+- See the table above.
+- S1 is the only RTL-file edit of the round.
+  - Raw diff of `hdl/`: 18 changed lines, all `//` comments, 0 others.
+  - The listener converts to byte-identical Verilog at `47434635` and at the head: `8f7f4e3b…` (`receipts/sv2v/RESULT.txt`).
+  - The netlist input is therefore unchanged, and area carries from round 3: +1,303 LUT / +618 FF at 8x8, as accepted. I did not re-synthesize.
+
+### Item 4 — no RTL, port, parameter or register-map change: met
+
+- The only file changed under `hdl/` is `KL_srp_listener_fsm.sv`, with comments only.
+- `docs/architecture/02*` and `07*` are untouched.
+- The author's `scope-ports.txt` module-header hashes are identical for the top, the listener and `KL_srp_top`. This agrees with my 0-non-comment-line count.
+
+### Comment rule
+
+I scanned the delta's added lines for lane labels, review rounds, reviewer IDs and comment IDs.
+- None appear in source comments: the banner, `sim_main.cpp` and `mutants.py`.
+- The README's round name was removed (R679-3-R1).
+- The PR body names reviewers and rounds, which the rule allows.
+- The only hit is "goes round again", which is ordinary prose.
+
+## Reviewer runs (all on disposable `git archive` copies of the head; `scripts/r4_runs.sh`)
+
+| Run | Result | Receipt |
+|---|---|---|
+| Stream-FSM `make`, head: walk-record arms plus the suite | rc 0. Walk arms 43/57/87/155 PASS; suite **1,422 PASS, 0 FAIL** | `receipts/runs/head-full.log` |
+| Head + order probe | 1,422 PASS; PROBE ORDER rows 72 **LATE 0** | `receipts/runs/head-order.log` |
+| Control + order probe | 1,420 PASS, 2 FAIL (SH24 x2); rows 72 **LATE 32** | `receipts/runs/ctl-order.log` |
+| `listener-rider-not-quiet` | 15 FAIL: SH1, SH14, SH2 x2, SH4, SH6 x4, SH18 x2, SH19, SH21, SH24 x2 | `receipts/runs/rider-mut.log` |
+| The same control, with SH1's VO check removed | 14 FAIL, no SH1 | `receipts/runs/rider-novo-mut.log` |
+| Rider probe, head / control | wire-diffs 0 / 0; rider-not-VO ticks 0 / 8 | `receipts/runs/rider-probe-head.log`, `rider-probe-mut.log` |
+| srp_top `mutants.py --only` the eight arms whose rows changed, with both positive controls | **11/11 PASS**. Kill counts: settle-compare-dropped 5 + 35, rider-not-quiet 15, handover-drops-state 14, group-order-reversed 13, handover-forgets-walk-mark 3, walk-ends-owing-a-transmit 7, walk-marks-group-only-on-retire 1, walk-done-before-second-pass 2. Each equals its README row, tag for tag. | `receipts/runs/camp.log`, `receipts/runs/camp-out/` |
+| sv2v of the listener at `47434635` and at the head | byte-identical | `receipts/sv2v/RESULT.txt` |
+
+Tool identity: Verilator 5.050, pinned wrapper (`receipts/env/tools.txt`). The compile job count was capped through `scripts/vwrap`, which changes only `-j 0` to `-j 3`. After the runs the clone is at the exact head:
+- HEAD and tree are as above, and `write-tree` equals the head tree.
+- Status, including ignored files, is empty.
+- The tree has no gitlinks: this repository has no submodules.
+
+In the published logs, absolute paths under the operator's home directory are replaced by `<home-path>`; nothing else was edited (`receipts/REDACTION.txt`). Every published receipt is listed in `MANIFEST.sha256`.
+
+## Reviewer-owned ledger
+
+| Lens | CLEAN/UNCLEAN | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | SH24 and SH1 expectations against the one-applicant model (Table 10-3 rLA!/tx!/txLA!); the head rider behaviour against 10.7.7, the 35.2.6 NOTE and Milan 4.2.7.2.2 (rider probe, head and control); one message per StreamID per walk before the strobe (SH24, order probe 72 rows). The delta changes no behaviour; the round-3 conformance verdict carries. | R679-4 | 4f57e22006ca727abace93a0cb8585484a377352 |
+| RTL | CLEAN | Raw `hdl/` diff (comment lines only); listener sv2v byte-identical; W_DONE (`:1035-1045`), group mark (`:1005-1010`) and handover mark (`:1074`) against the new comments; `txop_done_o` contract (`:174`) and `KL_srp_top.sv:1164-1169`; no port, parameter or register-map change | R679-4 | 4f57e22006ca727abace93a0cb8585484a377352 |
+| Robustness | CLEAN | Strobe ordering at the head for takers 0, 2 and 4, both walk kinds, handover at clocks 1-12 (LATE 0/72); walk termination required by SH24 (`done_at >= 0`); the harness's one-shot input clearing, so no second walk falls in the window | R679-4 | 4f57e22006ca727abace93a0cb8585484a377352 |
+| Tests | CLEAN | SH24 and the SH1 VO check (source and runs); the new control KILLED on SH24 (own suite run and campaign); S2 extension-only variant (no SH1 kill, reproduced); seven changed control rows re-run with counts and tags equal to the README; suite 1,422 PASS plus the walk arms; author campaign 209/209, coverage 132/132 (receipt verified) | R679-4 | 4f57e22006ca727abace93a0cb8585484a377352 |
+| Docs | CLEAN (RESIDUE R679-4-R1, R2 carried; S1-S3 optional) | Banner `:84-122`; 10 §6.4 `:625-660`; stream-FSM README (SH1, SH24, count 1,422); srp_top README (rows, coverage SH1-SH24, rider paragraph); `mutants.py` comment; PR body (Behaviour, Round 2-4 sections); commit messages; comment-rule scan of the delta | R679-4 | 4f57e22006ca727abace93a0cb8585484a377352 |
+
+## Real limits
+
+- **No source bank at this head.** No manager source bank ran here, and I claim none. I did not run the full suite bank (`run_suites`), the full srp_top campaign, the pp_top, name_state or elab-guard campaigns, the consumer gates, Yosys or synthesis. For those, source-head execution evidence is the author's published gate receipts, which I verified by hash and spot-checked.
+- **Area** is carried from round 3 on the basis of byte-identical sv2v output. I did not re-measure it.
+- **The wire-level consequence of a late push** is inferred from the `KL_srp_top` drain-on-strobe RTL, as in R679-3. SH24 and the probe grade it at the FSM interface, not through an srp_top MRPDU.
+- **Hosted checks at the head**, when I checked: docs-gates and portability completed with success (push and pull_request runs); both suites jobs were still in progress (`receipts/env/hosted-checks.txt`). The manager owns hosted and act acceptance.
+- **Physical calibration** NOT RUN; field skips are not hardware proof.
+- **The evidence archive commit is unsigned.** Its integrity rests on `MANIFEST.json` hashes. The redacted paths in two documents (`path_redacted`) were not checked against their originals.
+
+## Pending manager duties
+
+- Build and validate the current-dev merge candidate (source base 21601694, live dev d77a8afdbc960d70d1ceeee9af1163624f102b16) with the builder and native banks at the merge turn, and link those receipts on the PR.
+- Confirm the hosted `suites` jobs at the head, and hosted/act acceptance.
+- Carry R679-4-R1 and R679-4-R2 to the residue checklist. S1-S3 are optional.
+- Merge still requires two independent positive reviews and the full completion bar.
+
+R679-4 FINISHED
+
+=== 6325054270 Mister-M-alt
+[A10] Merge bar met at head 4f57e220. The head contains the author commits of rounds 1-4 and the manager merges of processor main 08023123 and 859b537b; current main is 859b537b.
+
+- **Reviews:**
+  - R679-4 POSITIVE at this head (issuecomment-6323855283).
+  - R680-3 POSITIVE at ancestor 47434635 (issuecomment-6320117620). The later delta (4d27f70, 4179599, 4f57e22) is tests, docs and comment lines only, with the listener's sv2v output byte-identical, and R679-4 re-covered it at this head.
+- **Donor bank** at this head: 9/9 rc 0.
+- **Parent consumer bank:** milan-fpga dev d77a8afd with this head as the gitlink and the four adoption parent patches, consumer head e72e4ab8: 17/17 rc 0.
+- **Area (accepted, issuecomment-6310654578):** `KL_pp_shadow` at 8x8 +1,335 LUT / +618 FF against main 08023123. The 1x1 shipped cost is measured by the fourth pin adoption's route-1x1.
+- **Residue:** R680-3's and R679-4's wording items go to milan-fpga #495.
+- **Issue:** #193 closes with this merge.
+

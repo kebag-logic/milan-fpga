@@ -1,0 +1,130 @@
+=== 6325107889 Mister-M-alt 2026-10-21T19:51:10Z
+[A10] Assignment for [A662]: issue #771 in full, from dev d77a8afd, branch `771-pin4-93fb0b2d-55680bff`.
+
+**Steps, in this order:**
+1. Move the two gitlinks only:
+   - `protocol-processor` to `93fb0b2d`;
+   - `gptp-processor` to `55680bff`.
+2. Apply the eight parent adaptations, each as its own commit. Each one applies alone at d77a8afd. Where two touch the same file, compose them so that each patch's checks still hold, and record in HANDOFF which hunks composed.
+3. Re-record every pin-derived record through its generator.
+4. Re-baseline #638 at the adopted image.
+5. Run route-1x1 and the three-directive image build.
+6. Re-measure the saved-state capture if the firmware digest moved.
+7. Run the full parent sweep.
+
+**Report:**
+- the 1x1 cost of each donor change you can separate from the others;
+- at least the #198 listener, using `KL_pp_shadow` out-of-context synthesis at 1x1 against the old pin.
+
+**STOP and report if any of these happen:**
+- a patch needs a design change to compose;
+- route-1x1 fails the resource or timing gate;
+- a parent gate fails for a reason a patch does not cover;
+- an interface between donor and parent changes beyond what the patches carry.
+
+**Not in this PR:** #770's content. It lands on top of this adoption.
+
+
+=== 6325150563 Mister-M-alt 2026-10-21T19:53:24Z
+[A662] TAKEN
+Branch: `771-pin4-93fb0b2d-55680bff` from dev `d77a8afd`
+Authoritative references: #771 and its [assignment](https://github.com/kebag-logic/milan-fpga/issues/771#issuecomment-6325107889); processor PRs #173, #174, #175, #180, #182, #183, #187, #191, #194, #195, #196, #197, #198, #199; FPGA-gPTP PRs #78, #83, #86; #638 and its re-baseline rule (`docs/findings/234_PP_SHADOW_AREA_BASELINE.md`, `docs/testing/PP_SHADOW_BASELINE_RECIPE.md`); #682's PR #692 for the method; CONTRIBUTING.md, AGENTS.md, `docs/reference/SUBMODULES.md`, BUILDING.md section 5.
+Interpreted scope: move only the `protocol-processor` gitlink (2cbed0a9 -> 93fb0b2d) and the `gptp-processor` gitlink (e4869fd0 -> 55680bff); apply the eight supplied parent adaptations, one commit each, composing any shared-file hunks so each patch's checks still hold; re-record the ROM digests, submodule pin page, boundary diagram, port-contract and naming records through their generators; re-baseline #638 at the adopted image; route-1x1 and the three-directive image build; re-measure the saved-state capture if the firmware digest moves; full parent sweep; report the separable 1x1 cost of each donor change, at least #198's listener through `KL_pp_shadow` out-of-context synthesis against the old pin. Not #770's content.
+Validation plan: record generators' `--check` forms; `syn/ooc/pp_resource_gate.py check-baseline`; route-1x1 resource and timing gate; three-directive image build (WNS >= +0.03 ns, WHS >= 0 at every corner); `scripts/check_nvm_capture.py`; `scripts/run_all_suites.sh` with `suite_tally.py` (including the milan_dp gptp, gptp-lat, milan_dp_gptp and milan_dp_gm_steps legs); lint ratchet, Yosys, xvlog gate; hosted docs-check steps under GNU make 4.3. Pinned Verilator 5.050.
+Blockers: none. STOP on any of the assignment's four conditions.
+
+
+=== 6331294661 Mister-M-alt 2026-10-22T02:34:38Z
+[A662] STOP
+Head: `d664cf54fd57ed06e8896e7c5de1e1511c2ded0c` (branch `771-pin4-93fb0b2d-55680bff`, not pushed)
+Condition: route-1x1 fails the resource gate (assignment STOP 2).
+
+**Gate verdicts** (`pp_resource_gate.py check`, recipe with `--single-thread-synthesis`, Vivado 2026.1, one run at a time under the lock):
+
+| Endpoint | vs #708's record | vs dev `d77a8afd` measured the same way (this adoption alone) | Tolerance |
+|---|---|---|---|
+| `route-1x1` LUT | 49,613 -> 50,759, **+1,146, rc 1** | 49,989 -> 50,759, **+770, rc 1** | +500 |
+| `ooc-1x1` LUT | 23,314 -> 23,828, **+514, rc 1** | 23,366 -> 23,828, **+462, rc 1** | +250 |
+
+Dev's own route and standalone pass against the record (+376 and +52 LUT), so the excess is this adoption's. Everything else is within policy: route FF +210, slices -58 vs dev (15,728, 122 free), RAMB36/RAMB18/DSP unchanged, fully routed, IOB packing PASS, WNS +0.291 / WHS +0.036 ns, with every corner at or above WNS +0.03 / WHS 0. In the routed image the +770 splits into the gPTP plane +415 and the processor wrapper +353.
+
+**1x1 cost per separable donor change** (`KL_pp_shadow` / `KL_gptp_shadow` standalone at the 1x1 shape, one point per first-parent merge, each with its own generated ROMs; the processor rows sum exactly to +462):
+- processor #198 (#193): **+102 LUT / +8 FF** (accepted 8x8: +1,335 / +618)
+- processor #195 (#188/#189) +190 / +140; #194 (#190, every slot driven) +117 / +2; #197 (#192) +54 / -8; #196 (#185/#186) +34 / +33; #183 (#176) +34 / +5; #187 +7 / +5; #191 -25 / -3; #182 -51 / -5; #173, #175, #174, #180, #199: 0
+- FPGA-gPTP #82 (PR #83) +278 / +7; #84/#85 (PR #86) +32 / -2; #78: 0 (its merge tree is the old pin's)
+
+**Done:** step 1 (both gitlinks only); step 2 (all eight patches, one commit each; each applies alone at `d77a8afd`; the composed files compose without a design change, and the hunks are recorded); step 3 (ROM ledger, pin page, boundary and time-sync diagrams, gPTP donor links, port census header, all through their generators; the parent-visible list on the pin page, two register-map notes, changelog). Step 6: no re-measurement, because the product firmware digest is unchanged and `check_nvm_capture.py` passes (8x8 maximum 13.863 ms). Hosted docs-check steps run literally under GNU Make 4.3 at the head: 44/44 rc 0, two skipped by rule (the no-git job deletes `.git`; the act-runner step runs the candidate's runner on the host). xvlog gate 0 findings; lint, port, naming, evidence and integrator-parameter gates all rc 0.
+
+**Not done because of the STOP:** `record --write` (the baseline is unchanged), the 8x8 standalone, the three-directive image build, Yosys, and the parent sweep. So the composed patches have not yet run on this combined tree.
+
+**Also open, outside the supplied patches:** processor PR #194 states that #190's first item, the CRF slot's own MaxFrameSize, needs a parent part 2 that this lane does not carry. Two parent RTL comments still describe the pre-#85 PathTrace count (`KL_gptp_shadow.sv:635-638`, `milan_datapath.sv:2152-2157`).
+
+Accepting this growth is a reviewed re-baseline decision. HANDOFF.md and PR-BODY.md in the lane packet carry the measurements, receipts, input digests and the per-merge tables.
+
+
+=== 6333175429 Mister-M-alt 2026-10-22T05:04:49Z
+[A10] Owner decision, 2026-10-22, on the [A662] STOP (issuecomment-6331294661): **the adoption's area is accepted for now, and Mark II (#640) addresses it.**
+
+- **Re-baseline.** #638's resource gate is re-baselined at the adopted image under this owner exception. The record cites this comment and carries A662's per-donor 1x1 ledger as its justification:
+  - FPGA-gPTP #82: +278 LUT;
+  - processor #195: +190;
+  - processor #194: +117;
+  - processor #198: +102;
+  - processor #197: +54;
+  - processor #196 and #183: +34 each.
+- **The cost being accepted** (route-1x1 against dev's own route): +770 LUT, where the tolerance is +500. For ooc-1x1 it is +462, where the tolerance is +250.
+- **Finish the assignment from the STOP point:**
+  1. the baseline record write, through the recipe;
+  2. the 8x8 standalone;
+  3. the three-directive image build (best seed WNS >= +0.03 ns, WHS >= 0 at every corner);
+  4. Yosys;
+  5. the full parent sweep, including the milan_dp gptp, gptp-lat, milan_dp_gptp and milan_dp_gm_steps legs.
+- **Remaining STOP conditions:** the eight patches failing together, timing, or an interface change.
+
+
+=== 6340721641 Mister-M-alt 2026-10-22T12:27:26Z
+[A662] REVIEW READY
+Commit: `a97aea01449492b1f640924f5a34726f602cabed` (branch `771-pin4-93fb0b2d-55680bff`, not pushed; three new commits on `d664cf54`, no rebase or amend)
+
+**Changed** (round 1b, under the owner decision issuecomment-6333175429):
+- `76b01906`: `route-1x1` and `ooc-1x1` re-recorded with `pp_resource_gate.py record --write`. `0ad70eab`: `ooc-8x8` measured, then re-recorded. Each `measured` note cites the decision and the per-donor 1x1 ledger (FPGA-gPTP #82 +278; processor #195 +190, #194 +117, #198 +102, #197 +54, #196 +34, #183 +34). Tolerances, floors and ceilings are unchanged; `check-baseline` rc 0.
+- `a97aea01`: findings section "Re-baseline of 2026-10-22, processor 93fb0b2d and FPGA-gPTP 55680bff". Also the AREA_BUDGET headroom table and record paragraphs (the 0.25 ns fall limit now binds before the +0.030 ns floor), the MARK_II plan, the pin page and the changelog.
+
+**Validation** (at the head, physical `/data` path, GNU Make 4.3, Verilator 5.050):
+
+| Endpoint | Recorded LUT / FF | vs #708's record | vs dev `d77a8afd` measured the same way | Tolerance |
+|---|---:|---:|---:|---:|
+| `route-1x1` | 50,759 / 52,832 | +1,146 / +479 | **+770** / +210 | 500 / 600 |
+| `ooc-1x1` | 23,828 / 20,000 | +514 / +179 | **+462** / +177 | 250 / 250 |
+| `ooc-8x8` | 32,467 / 28,220 | +2,256 / +769 | **+2,185** / **+769** | 316 / 339 |
+
+Dev's own runs pass against #708's record at all three endpoints (8x8: 30,282 / 27,451, rc 0).
+
+Three-directive image build (`build.sh ax7101 --sweep` launch lines, one at a time under the lock). Every corner meets WNS >= +0.03 ns and WHS >= 0; all nets routed, 0 errors; IOB 21 PASS / 0 FAIL; `deploy.sh check-images` (offline) OK for all three:
+
+| Directive | Slow WNS / WHS | Fast WNS / WHS | Slices |
+|---|---:|---:|---:|
+| ExtraPostPlacementOpt, **selected** | +0.291 / +0.102 | +1.660 / +0.036 | 15,728 |
+| AltSpreadLogic_high | +0.083 / +0.004 | +1.633 / +0.011 | 15,783 |
+| ExtraTimingOpt | +0.297 / +0.004 | +1.633 / +0.008 | 15,783 |
+
+Selected bitstream: 3,825,992 B, `d785871ca41f9a8aecd23150c525949624be848cc19d5d29e9234b8bc63c9deb`.
+
+- `syn/yosys/run.sh`: rc 0; 58 / 58 tops; 0 unjustified tied inputs; tap-purity PASS.
+- `scripts/run_all_suites.sh` + `suite_tally.py`: rc 0 / 0; **63 / 63 suites, 2,189,520 checks, 0 in-suite failures, 0 timed out**. tsn-gen is built at `TSN_GEN_REV`, so no field campaign skips. `milan_dp` includes the gptp and gptp-lat legs (12,910 checks); `milan_dp_gm_steps` 196.
+- `--physical-gptp` (milan_dp_gptp): rc 0 / 0, 209 checks, 0 failures.
+- behave: 14 features, 406 scenarios, 1,977 steps passed.
+- Hosted docs-check steps, literal, at the head: 42 of 42 run steps rc 0 and 2 skipped by rule; builder leg 1 rerun with the LiteX interpreter rc 0.
+- xvlog gate: 0 findings. Also rc 0: lint, port contracts, naming, test evidence, pp_srcs, submodule and gPTP docs, both diagrams, the ROM ledger (regenerates byte-identically), integrator params, `check_nvm_capture`.
+
+**Acceptance criteria:** assignment steps 1 to 7 are done. The eight patches pass together: the composed suites `milan_dp`, `gptp_shadow` and `milan_dp_gptp` report 0 failures, and no interface changes beyond the patches. Capture: no re-measurement, since the firmware digest is unchanged and the capture check passes. The 1x1 cost per separable donor change is in the findings section and HANDOFF; #198 alone at 1x1 is +102 LUT / +8 FF.
+
+**Open risks/questions:**
+1. The 8x8 standalone share (+2,185 LUT / +769 FF over dev) exceeds both 8x8 tolerances. The decision quotes only the 1x1 figures. I recorded it under the same exception ("the adoption's area"), and the record note and findings state it. Please confirm.
+2. The image build ran with `--vivado-max-threads` 2, then 1, instead of 32. At 32, synthesis forked seven ~2 GB processes and hit the 12 GB service cap; that launch was stopped after five minutes. ExtraPostPlacementOpt at 2 threads reproduces the recipe's route-1x1 figures exactly.
+3. Correction to the round-1 STOP: the docs replica there was also 42 of 42 run steps plus 2 skipped, not "44/44".
+4. Still open, outside the supplied patches: processor PR #194's #190 part 2 (the CRF slot's own MaxFrameSize), and two stale pre-#85 PathTrace comments (`KL_gptp_shadow.sv:635-638`, `milan_datapath.sv:2152-2157`).
+
+HANDOFF.md and PR-BODY.md (with receipts) are in the lane packet.
+
+

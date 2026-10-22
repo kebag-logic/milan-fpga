@@ -1,0 +1,28 @@
+route-1x1: policy_unchanged=True head_record_equals_receipt=True identity_same_base_head_dev=True
+   LUT     record708=49613 dev=49989 head=50759  head-dev=+770 head-708=+1146 dev-708=+376 tol=500  OVER
+   FF      record708=52353 dev=52622 head=52832  head-dev=+210 head-708=+479 dev-708=+269 tol=600
+   SLICE   record708=15725 dev=15786 head=15728  head-dev=-58 head-708=+3 dev-708=+61 tol=80
+   RAMB36  record708=74 dev=74 head=74  head-dev=+0 head-708=+0 dev-708=+0 tol=0
+   RAMB18  record708=25 dev=25 head=25  head-dev=+0 head-708=+0 dev-708=+0 tol=0
+   DSP     record708=14 dev=14 head=14  head-dev=+0 head-708=+0 dev-708=+0 tol=0
+   WNS_ns  record708=0.215 dev=0.268 head=0.291  head-dev=+0.023 head-708=+0.076 dev-708=+0.053 tol=0.25
+   WHS_ns  record708=0.036 dev=0.015 head=0.036  head-dev=+0.021 head-708=+0.0 dev-708=-0.021 tol=0.25
+   floor {'WNS_ns': 0.03, 'WHS_ns': 0.0} ceiling {'BRAM_TILE': 121.5}
+ooc-1x1: policy_unchanged=True head_record_equals_receipt=True identity_same_base_head_dev=True
+   LUT     record708=23314 dev=23366 head=23828  head-dev=+462 head-708=+514 dev-708=+52 tol=250  OVER
+   FF      record708=19821 dev=19823 head=20000  head-dev=+177 head-708=+179 dev-708=+2 tol=250
+   RAMB36  record708=16 dev=16 head=16  head-dev=+0 head-708=+0 dev-708=+0 tol=0
+   RAMB18  record708=3 dev=3 head=3  head-dev=+0 head-708=+0 dev-708=+0 tol=0
+   DSP     record708=8 dev=8 head=8  head-dev=+0 head-708=+0 dev-708=+0 tol=0
+   WNS_ns  record708=3.884 dev=3.884 head=3.337  head-dev=-0.547 head-708=-0.547 dev-708=+0.0 tol=None
+   WHS_ns  record708=0.159 dev=0.159 head=0.159  head-dev=+0.0 head-708=+0.0 dev-708=+0.0 tol=None
+   floor None ceiling None
+ooc-8x8: policy_unchanged=True head_record_equals_receipt=True identity_same_base_head_dev=True
+   LUT     record708=30211 dev=30282 head=32467  head-dev=+2185 head-708=+2256 dev-708=+71 tol=316  OVER
+   FF      record708=27451 dev=27451 head=28220  head-dev=+769 head-708=+769 dev-708=+0 tol=339  OVER
+   RAMB36  record708=21 dev=21 head=21  head-dev=+0 head-708=+0 dev-708=+0 tol=0
+   RAMB18  record708=5 dev=5 head=5  head-dev=+0 head-708=+0 dev-708=+0 tol=0
+   DSP     record708=8 dev=8 head=8  head-dev=+0 head-708=+0 dev-708=+0 tol=0
+   WNS_ns  record708=-1.942 dev=-1.942 head=1.139  head-dev=+3.081 head-708=+3.081 dev-708=+0.0 tol=None
+   WHS_ns  record708=0.159 dev=0.159 head=0.159  head-dev=+0.0 head-708=+0.0 dev-708=+0.0 tol=None
+   floor None ceiling None

@@ -1,0 +1,648 @@
+elaborate	Set up job	﻿2026-10-22T12:40:18.8292418Z Current runner version: '2.338.0'
+elaborate	Set up job	2026-10-22T12:40:18.8309617Z ##[group]Runner Image Provisioner
+elaborate	Set up job	2026-10-22T12:40:18.8310173Z Hosted Compute Agent
+elaborate	Set up job	2026-10-22T12:40:18.8310613Z Version: 20261015.610
+elaborate	Set up job	2026-10-22T12:40:18.8311048Z Commit: 267fdb4e8bbec4ab5ea31367f3a00d5c480c7656
+elaborate	Set up job	2026-10-22T12:40:18.8311528Z Build Date: 2026-10-14T17:06:54Z
+elaborate	Set up job	2026-10-22T12:40:18.8311997Z Worker ID: {12701b44-505d-4357-8e28-3d6844e4468a}
+elaborate	Set up job	2026-10-22T12:40:18.8312432Z Region: centralus
+elaborate	Set up job	2026-10-22T12:40:18.8312817Z Cloud: Azure
+elaborate	Set up job	2026-10-22T12:40:18.8313168Z ##[endgroup]
+elaborate	Set up job	2026-10-22T12:40:18.8313914Z ##[group]Operating System
+elaborate	Set up job	2026-10-22T12:40:18.8314377Z Ubuntu
+elaborate	Set up job	2026-10-22T12:40:18.8314716Z 24.04.5
+elaborate	Set up job	2026-10-22T12:40:18.8315069Z LTS
+elaborate	Set up job	2026-10-22T12:40:18.8315442Z ##[endgroup]
+elaborate	Set up job	2026-10-22T12:40:18.8315777Z ##[group]Runner Image
+elaborate	Set up job	2026-10-22T12:40:18.8316235Z Image: ubuntu-24.04
+elaborate	Set up job	2026-10-22T12:40:18.8316784Z Version: 20261018.339.1
+elaborate	Set up job	2026-10-22T12:40:18.8317445Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261018.339/images/ubuntu/Ubuntu2404-Readme.md
+elaborate	Set up job	2026-10-22T12:40:18.8318496Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261018.339
+elaborate	Set up job	2026-10-22T12:40:18.8319155Z ##[endgroup]
+elaborate	Set up job	2026-10-22T12:40:18.8319863Z ##[group]GITHUB_TOKEN Permissions
+elaborate	Set up job	2026-10-22T12:40:18.8321252Z Contents: read
+elaborate	Set up job	2026-10-22T12:40:18.8321628Z Metadata: read
+elaborate	Set up job	2026-10-22T12:40:18.8322021Z Packages: read
+elaborate	Set up job	2026-10-22T12:40:18.8322427Z ##[endgroup]
+elaborate	Set up job	2026-10-22T12:40:18.8323707Z Secret source: Actions
+elaborate	Set up job	2026-10-22T12:40:18.8324340Z Cache mode: write
+elaborate	Set up job	2026-10-22T12:40:18.8324755Z Prepare workflow directory
+elaborate	Set up job	2026-10-22T12:40:18.8740536Z Prepare all required actions
+elaborate	Set up job	2026-10-22T12:40:18.8772898Z Getting action download info
+elaborate	Set up job	2026-10-22T12:40:19.1204831Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+elaborate	Set up job	2026-10-22T12:40:19.2122603Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+elaborate	Set up job	2026-10-22T12:40:19.3812411Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+elaborate	Set up job	2026-10-22T12:40:19.7814346Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+elaborate	Set up job	2026-10-22T12:40:19.9992627Z Complete job name: elaborate
+elaborate	Run actions/checkout@v4	﻿2026-10-22T12:40:20.0792886Z ##[group]Run actions/checkout@v4
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0793335Z with:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0793583Z   fetch-depth: 0
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0793858Z   repository: kebag-logic/milan-fpga
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0795995Z   token: ***
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0796240Z   ssh-strict: true
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0796494Z   ssh-user: git
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0796887Z   persist-credentials: true
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0797172Z   clean: true
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0797432Z   sparse-checkout-cone-mode: true
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0797733Z   fetch-tags: false
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0797992Z   show-progress: true
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0862350Z   lfs: false
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0862626Z   submodules: false
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0862894Z   set-safe-directory: true
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0863247Z   allow-unsafe-pr-checkout: false
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0864657Z env:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0864911Z   VERILATOR_VERSION: v5.050
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0865334Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.0865778Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1562902Z Syncing repository: kebag-logic/milan-fpga
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1564513Z ##[group]Getting Git version info
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1565172Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1566132Z [command]/usr/bin/git version
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1622038Z git version 2.55.0
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1635003Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1645175Z Temporarily overriding HOME='<home-path>/work/_temp/1c148383-d158-4429-ae00-45666481ffbb' before making global git config changes
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1646531Z Adding repository directory to the temporary git global config as a safe directory
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1648608Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1697813Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1700534Z ##[group]Initializing the repository
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1703988Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1810838Z hint: Using 'master' as the name for the initial branch. This default branch name
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1812271Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1813185Z hint: to use in all of your new repositories, which will suppress this warning,
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1813903Z hint: call:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1814310Z hint:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1814807Z hint: 	git config --global init.defaultBranch <name>
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1815405Z hint:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1815963Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1816978Z hint: 'development'. The just-created branch can be renamed via this command:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1817765Z hint:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1818434Z hint: 	git branch -m <name>
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1819235Z hint:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1819950Z hint: Disable this message with "git config set advice.defaultBranchName false"
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1821105Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1823908Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1870138Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1870855Z ##[group]Disabling automatic garbage collection
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1873612Z [command]/usr/bin/git config --local gc.auto 0
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1903379Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1904057Z ##[group]Setting up auth
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1908859Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.1942911Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.2260021Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.2298716Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.2490110Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.2526118Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.2715184Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.2756433Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.2757053Z ##[group]Fetching the repository
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:20.2763124Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +686875c8729192f78287fda4545f3c4bc2224c8a:refs/remotes/pull/772/merge
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5171804Z From https://github.com/kebag-logic/milan-fpga
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5172832Z  * [new branch]          116-gptp-default-on-retire-software      -> origin/116-gptp-default-on-retire-software
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5173587Z  * [new branch]          117-alinx-board-bringup                  -> origin/117-alinx-board-bringup
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5174196Z  * [new branch]          117-b19-review-evidence                  -> origin/117-b19-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5174741Z  * [new branch]          117-b21-review-evidence                  -> origin/117-b21-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5175102Z  * [new branch]          117-hive-review-evidence                 -> origin/117-hive-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5175468Z  * [new branch]          117-review-evidence                      -> origin/117-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5176077Z  * [new branch]          117-silicon-evidence                     -> origin/117-silicon-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5176425Z  * [new branch]          120-sound-card-option                    -> origin/120-sound-card-option
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5177016Z  * [new branch]          129-boot-gate-whole-firmware             -> origin/129-boot-gate-whole-firmware
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5177487Z  * [new branch]          129-correct-baremetal-ptp-aem-contract   -> origin/129-correct-baremetal-ptp-aem-contract
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5177903Z  * [new branch]          130-prune-behavioural                    -> origin/130-prune-behavioural
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5178283Z  * [new branch]          145-rebased-on-170                       -> origin/145-rebased-on-170
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5179192Z  * [new branch]          154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven -> origin/154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5180386Z  * [new branch]          159-restore-documentation-gates-and-workflow-hygiene -> origin/159-restore-documentation-gates-and-workflow-hygiene
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5181279Z  * [new branch]          159-restore-workflow-documentation-gates -> origin/159-restore-workflow-documentation-gates
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5181984Z  * [new branch]          163-complete-workflow-hygiene-follow-on  -> origin/163-complete-workflow-hygiene-follow-on
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5182555Z  * [new branch]          211-phc-ns-consumer                      -> origin/211-phc-ns-consumer
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5183052Z  * [new branch]          231-review-evidence                      -> origin/231-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5183556Z  * [new branch]          234-review-evidence                      -> origin/234-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5184769Z  * [new branch]          246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0 -> origin/246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5186177Z  * [new branch]          358-alinx-gptp-compliance                -> origin/358-alinx-gptp-compliance
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5187031Z  * [new branch]          372-review-evidence                      -> origin/372-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5187899Z  * [new branch]          387-review-evidence                      -> origin/387-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5188488Z  * [new branch]          387b-review-evidence                     -> origin/387b-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5189060Z  * [new branch]          394-387-review-evidence                  -> origin/394-387-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5189694Z  * [new branch]          394_510_511-review-evidence              -> origin/394_510_511-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5190867Z  * [new branch]          395-review-evidence                      -> origin/395-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5191541Z  * [new branch]          396-review-evidence                      -> origin/396-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5192327Z  * [new branch]          397-review-evidence                      -> origin/397-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5192957Z  * [new branch]          400-403-review-evidence                  -> origin/400-403-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5193535Z  * [new branch]          407-ac5-probe                            -> origin/407-ac5-probe
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5194015Z  * [new branch]          408-review-evidence                      -> origin/408-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5194587Z  * [new branch]          418-investigate-commit-ack-clearing-a-newer-persistent-record-change -> origin/418-investigate-commit-ack-clearing-a-newer-persistent-record-change
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5195155Z  * [new branch]          419-design-evidence                      -> origin/419-design-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5195526Z  * [new branch]          423-readiness-evidence                   -> origin/423-readiness-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5196046Z  * [new branch]          423-review-evidence                      -> origin/423-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5196448Z  * [new branch]          437-container-paragraph-scopes           -> origin/437-container-paragraph-scopes
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5197294Z  * [new branch]          437-review-evidence                      -> origin/437-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5197801Z  * [new branch]          439-review-evidence                      -> origin/439-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5198188Z  * [new branch]          440-review-evidence                      -> origin/440-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5198507Z  * [new branch]          443-review-evidence                      -> origin/443-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5198882Z  * [new branch]          451-review-evidence                      -> origin/451-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5199384Z  * [new branch]          464-review-evidence                      -> origin/464-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5199941Z  * [new branch]          478-review-evidence                      -> origin/478-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5200448Z  * [new branch]          495b-review-evidence                     -> origin/495b-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5200974Z  * [new branch]          498-review-evidence                      -> origin/498-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5201484Z  * [new branch]          500-design-evidence                      -> origin/500-design-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5202013Z  * [new branch]          501-review-evidence                      -> origin/501-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5202539Z  * [new branch]          502-review-evidence                      -> origin/502-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5203054Z  * [new branch]          503-review-evidence                      -> origin/503-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5203572Z  * [new branch]          504-readiness-evidence                   -> origin/504-readiness-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5204094Z  * [new branch]          504-review-evidence                      -> origin/504-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5204610Z  * [new branch]          505-review-evidence                      -> origin/505-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5205121Z  * [new branch]          508-review-evidence                      -> origin/508-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5205823Z  * [new branch]          509-review-evidence                      -> origin/509-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5206329Z  * [new branch]          514-review-evidence                      -> origin/514-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5206922Z  * [new branch]          517-review-evidence                      -> origin/517-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5207435Z  * [new branch]          520-review-evidence                      -> origin/520-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5207991Z  * [new branch]          523-review-evidence                      -> origin/523-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5208506Z  * [new branch]          529-review-evidence                      -> origin/529-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5209030Z  * [new branch]          530-review-evidence                      -> origin/530-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5209558Z  * [new branch]          532-review-evidence                      -> origin/532-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5210092Z  * [new branch]          532b-review-evidence                     -> origin/532b-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5210763Z  * [new branch]          536-review-evidence                      -> origin/536-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5211202Z  * [new branch]          539-review-evidence                      -> origin/539-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5211728Z  * [new branch]          541-review-evidence                      -> origin/541-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5212237Z  * [new branch]          542-review-evidence                      -> origin/542-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5212734Z  * [new branch]          544-review-evidence                      -> origin/544-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5213382Z  * [new branch]          545-review-evidence                      -> origin/545-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5213904Z  * [new branch]          546-review-evidence                      -> origin/546-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5214399Z  * [new branch]          548-review-evidence                      -> origin/548-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5214923Z  * [new branch]          551-review-evidence                      -> origin/551-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5215426Z  * [new branch]          559-review-evidence                      -> origin/559-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5215931Z  * [new branch]          565-review-evidence                      -> origin/565-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5216424Z  * [new branch]          567-review-evidence                      -> origin/567-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5217073Z  * [new branch]          571-review-evidence                      -> origin/571-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5217576Z  * [new branch]          573-review-evidence                      -> origin/573-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5218080Z  * [new branch]          577-review-evidence                      -> origin/577-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5218594Z  * [new branch]          580-review-evidence                      -> origin/580-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5219101Z  * [new branch]          582-review-evidence                      -> origin/582-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5219601Z  * [new branch]          587-review-evidence                      -> origin/587-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5220099Z  * [new branch]          590-review-evidence                      -> origin/590-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5220597Z  * [new branch]          593-review-evidence                      -> origin/593-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5221095Z  * [new branch]          595-review-evidence                      -> origin/595-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5221597Z  * [new branch]          602-review-evidence                      -> origin/602-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5222110Z  * [new branch]          606-608-review-evidence                  -> origin/606-608-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5222770Z  * [new branch]          607-review-evidence                      -> origin/607-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5223284Z  * [new branch]          608-b14-review-evidence                  -> origin/608-b14-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5223808Z  * [new branch]          617-review-evidence                      -> origin/617-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5224306Z  * [new branch]          621-review-evidence                      -> origin/621-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5224834Z  * [new branch]          629-b16-review-evidence                  -> origin/629-b16-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5225377Z  * [new branch]          629-b7-review-evidence                   -> origin/629-b7-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5225926Z  * [new branch]          629-b8-review-evidence                   -> origin/629-b8-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5226839Z  * [new branch]          629-m2-review-evidence                   -> origin/629-m2-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5227235Z  * [new branch]          629-review-evidence                      -> origin/629-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5227601Z  * [new branch]          629-tone-review-evidence                 -> origin/629-tone-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5227940Z  * [new branch]          632-764-media-phase                      -> origin/632-764-media-phase
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5228261Z  * [new branch]          632-review-evidence                      -> origin/632-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5228580Z  * [new branch]          635-review-evidence                      -> origin/635-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5228896Z  * [new branch]          637-review-evidence                      -> origin/637-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5229349Z  * [new branch]          640-m0s-review-evidence                  -> origin/640-m0s-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5229686Z  * [new branch]          640-m2-review-evidence                   -> origin/640-m2-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5230018Z  * [new branch]          640-m5-review-evidence                   -> origin/640-m5-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5230351Z  * [new branch]          640-m6-review-evidence                   -> origin/640-m6-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5230677Z  * [new branch]          640-m7-review-evidence                   -> origin/640-m7-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5231010Z  * [new branch]          640-m8a-review-evidence                  -> origin/640-m8a-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5231340Z  * [new branch]          640-review-evidence                      -> origin/640-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5231661Z  * [new branch]          641-review-evidence                      -> origin/641-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5231982Z  * [new branch]          643-review-evidence                      -> origin/643-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5232309Z  * [new branch]          645-b17-review-evidence                  -> origin/645-b17-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5232646Z  * [new branch]          645-b18-review-evidence                  -> origin/645-b18-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5232985Z  * [new branch]          645-rc-review-evidence                   -> origin/645-rc-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5233311Z  * [new branch]          645-review-evidence                      -> origin/645-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5233632Z  * [new branch]          649-review-evidence                      -> origin/649-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5233952Z  * [new branch]          652-review-evidence                      -> origin/652-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5234279Z  * [new branch]          653-b11-review-evidence                  -> origin/653-b11-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5234613Z  * [new branch]          653-b12-review-evidence                  -> origin/653-b12-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5234943Z  * [new branch]          653-review-evidence                      -> origin/653-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5235266Z  * [new branch]          654-review-evidence                      -> origin/654-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5235691Z  * [new branch]          656-review-evidence                      -> origin/656-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5236009Z  * [new branch]          657-review-evidence                      -> origin/657-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5236327Z  * [new branch]          658-review-evidence                      -> origin/658-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5236810Z  * [new branch]          661-review-evidence                      -> origin/661-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5237163Z  * [new branch]          664-review-evidence                      -> origin/664-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5237631Z  * [new branch]          665f0-review-evidence                    -> origin/665f0-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5238154Z  * [new branch]          665f1-review-evidence                    -> origin/665f1-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5238670Z  * [new branch]          665f2-review-evidence                    -> origin/665f2-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5239203Z  * [new branch]          665f3-review-evidence                    -> origin/665f3-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5239642Z  * [new branch]          665f3b-review-evidence                   -> origin/665f3b-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5239974Z  * [new branch]          665f4-review-evidence                    -> origin/665f4-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5240299Z  * [new branch]          665f5-review-evidence                    -> origin/665f5-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5240624Z  * [new branch]          665fc-review-evidence                    -> origin/665fc-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5240949Z  * [new branch]          665ft-review-evidence                    -> origin/665ft-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5241406Z  * [new branch]          665int-review-evidence                   -> origin/665int-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5241744Z  * [new branch]          667-b13-review-evidence                  -> origin/667-b13-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5242078Z  * [new branch]          667-review-evidence                      -> origin/667-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5242504Z  * [new branch]          671-review-evidence                      -> origin/671-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5242980Z  * [new branch]          673-review-evidence                      -> origin/673-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5243452Z  * [new branch]          677-review-evidence                      -> origin/677-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5243925Z  * [new branch]          679-review-evidence                      -> origin/679-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5244345Z  * [new branch]          682-review-evidence                      -> origin/682-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5244665Z  * [new branch]          686-review-evidence                      -> origin/686-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5245025Z  * [new branch]          69-aecp-notification-triggers            -> origin/69-aecp-notification-triggers
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5245379Z  * [new branch]          691-review-evidence                      -> origin/691-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5245698Z  * [new branch]          696-review-evidence                      -> origin/696-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5246016Z  * [new branch]          697-review-evidence                      -> origin/697-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5246365Z  * [new branch]          697c-review-evidence                     -> origin/697c-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5246843Z  * [new branch]          70-lane2-pin-d352                        -> origin/70-lane2-pin-d352
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5247167Z  * [new branch]          70-nvm-persistence                       -> origin/70-nvm-persistence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5247491Z  * [new branch]          70-review-evidence                       -> origin/70-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5247808Z  * [new branch]          708-review-evidence                      -> origin/708-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5248281Z  * [new branch]          70L2-review-evidence                     -> origin/70L2-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5248607Z  * [new branch]          711-review-evidence                      -> origin/711-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5248926Z  * [new branch]          716-review-evidence                      -> origin/716-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5249240Z  * [new branch]          726-review-evidence                      -> origin/726-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5249554Z  * [new branch]          727-review-evidence                      -> origin/727-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5249871Z  * [new branch]          730-review-evidence                      -> origin/730-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5250188Z  * [new branch]          734-review-evidence                      -> origin/734-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5250524Z  * [new branch]          737-image-review-evidence                -> origin/737-image-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5250862Z  * [new branch]          737-review-evidence                      -> origin/737-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5251182Z  * [new branch]          74-review-evidence                       -> origin/74-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5251495Z  * [new branch]          744-review-evidence                      -> origin/744-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5251807Z  * [new branch]          748-review-evidence                      -> origin/748-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5252121Z  * [new branch]          75-review-evidence                       -> origin/75-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5252437Z  * [new branch]          752-review-evidence                      -> origin/752-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5252834Z  * [new branch]          761-review-evidence                      -> origin/761-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5253148Z  * [new branch]          763-review-evidence                      -> origin/763-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5253465Z  * [new branch]          765-review-evidence                      -> origin/765-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5253803Z  * [new branch]          771-pin4-93fb0b2d-55680bff               -> origin/771-pin4-93fb0b2d-55680bff
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5254139Z  * [new branch]          771-review-evidence                      -> origin/771-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5254438Z  * [new branch]          a1e9839e                                 -> origin/a1e9839e
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5254736Z  * [new branch]          b1-review-evidence                       -> origin/b1-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5255055Z  * [new branch]          b2-review-evidence                       -> origin/b2-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5255370Z  * [new branch]          b3-review-evidence                       -> origin/b3-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5255688Z  * [new branch]          b4-review-evidence                       -> origin/b4-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5256002Z  * [new branch]          b5-review-evidence                       -> origin/b5-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5256318Z  * [new branch]          b6-review-evidence                       -> origin/b6-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5256768Z  * [new branch]          dev                                      -> origin/dev
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5257062Z  * [new branch]          g35-review-evidence                      -> origin/g35-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5257384Z  * [new branch]          g48-review-evidence                      -> origin/g48-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5257704Z  * [new branch]          g70-review-evidence                      -> origin/g70-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5258043Z  * [new branch]          gptp68-review-evidence                   -> origin/gptp68-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5258389Z  * [new branch]          gptp75-review-evidence                   -> origin/gptp75-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5258727Z  * [new branch]          gptp82-review-evidence                   -> origin/gptp82-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5259164Z  * [new branch]          gptp84-review-evidence                   -> origin/gptp84-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5259505Z  * [new branch]          lwsrp17-review-evidence                  -> origin/lwsrp17-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5259852Z  * [new branch]          lwsrp4-review-evidence                   -> origin/lwsrp4-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5260209Z  * [new branch]          lwsrpdoc-review-evidence                 -> origin/lwsrpdoc-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5260568Z  * [new branch]          lwsrplic-review-evidence                 -> origin/lwsrplic-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5260931Z  * [new branch]          lwsrplicfix-review-evidence              -> origin/lwsrplicfix-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5261294Z  * [new branch]          lwsrpm2-review-evidence                  -> origin/lwsrpm2-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5261654Z  * [new branch]          lwsrpnotes-review-evidence               -> origin/lwsrpnotes-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5262031Z  * [new branch]          lwsrptest-review-evidence                -> origin/lwsrptest-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5262341Z  * [new branch]          main                                     -> origin/main
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5262640Z  * [new branch]          pp102-review-evidence                    -> origin/pp102-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5262973Z  * [new branch]          pp104-review-evidence                    -> origin/pp104-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5263298Z  * [new branch]          pp106-review-evidence                    -> origin/pp106-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5263628Z  * [new branch]          pp112-review-evidence                    -> origin/pp112-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5264083Z  * [new branch]          pp113-review-evidence                    -> origin/pp113-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5264409Z  * [new branch]          pp116-review-evidence                    -> origin/pp116-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5264917Z  * [new branch]          pp120-review-evidence                    -> origin/pp120-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5265441Z  * [new branch]          pp123-review-evidence                    -> origin/pp123-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5265979Z  * [new branch]          pp125-review-evidence                    -> origin/pp125-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5266496Z  * [new branch]          pp127-review-evidence                    -> origin/pp127-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5267165Z  * [new branch]          pp128-review-evidence                    -> origin/pp128-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5267671Z  * [new branch]          pp131-review-evidence                    -> origin/pp131-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5268182Z  * [new branch]          pp134-review-evidence                    -> origin/pp134-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5268693Z  * [new branch]          pp141-review-evidence                    -> origin/pp141-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5269230Z  * [new branch]          pp143-review-evidence                    -> origin/pp143-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5269839Z  * [new branch]          pp148-review-evidence                    -> origin/pp148-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5270391Z  * [new branch]          pp151-review-evidence                    -> origin/pp151-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5270946Z  * [new branch]          pp158-review-evidence                    -> origin/pp158-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5271471Z  * [new branch]          pp163-review-evidence                    -> origin/pp163-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5272019Z  * [new branch]          pp167-review-evidence                    -> origin/pp167-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5272572Z  * [new branch]          pp168-review-evidence                    -> origin/pp168-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5273107Z  * [new branch]          pp170-review-evidence                    -> origin/pp170-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5273820Z  * [new branch]          pp176-review-evidence                    -> origin/pp176-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5274351Z  * [new branch]          pp177-review-evidence                    -> origin/pp177-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5274886Z  * [new branch]          pp178-review-evidence                    -> origin/pp178-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5275407Z  * [new branch]          pp181-review-evidence                    -> origin/pp181-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5275927Z  * [new branch]          pp184-review-evidence                    -> origin/pp184-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5276444Z  * [new branch]          pp185-review-evidence                    -> origin/pp185-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5277188Z  * [new branch]          pp188-review-evidence                    -> origin/pp188-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5277714Z  * [new branch]          pp190-review-evidence                    -> origin/pp190-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5278238Z  * [new branch]          pp192-review-evidence                    -> origin/pp192-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5278757Z  * [new branch]          pp193-review-evidence                    -> origin/pp193-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5279282Z  * [new branch]          pp22-review-evidence                     -> origin/pp22-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5279801Z  * [new branch]          pp230-review-evidence                    -> origin/pp230-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5280322Z  * [new branch]          pp232-review-evidence                    -> origin/pp232-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5280846Z  * [new branch]          pp42-review-evidence                     -> origin/pp42-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5281486Z  * [new branch]          pp43-review-evidence                     -> origin/pp43-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5282007Z  * [new branch]          pp510-review-evidence                    -> origin/pp510-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5282548Z  * [new branch]          pp632-review-evidence                    -> origin/pp632-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5283068Z  * [new branch]          pp639-review-evidence                    -> origin/pp639-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5283611Z  * [new branch]          pp69-review-evidence                     -> origin/pp69-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5284139Z  * [new branch]          pp72-review-evidence                     -> origin/pp72-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5284791Z  * [new branch]          pp73-review-evidence                     -> origin/pp73-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5285395Z  * [new branch]          pp81-review-evidence                     -> origin/pp81-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5285914Z  * [new branch]          pp85-review-evidence                     -> origin/pp85-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5286274Z  * [new branch]          pp92-review-evidence                     -> origin/pp92-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5286740Z  * [new branch]          pp94-review-evidence                     -> origin/pp94-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5287123Z  * [new branch]          pp99-review-evidence                     -> origin/pp99-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5287451Z  * [new branch]          ppC1-review-evidence                     -> origin/ppC1-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5287783Z  * [new branch]          ppC10-review-evidence                    -> origin/ppC10-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5288115Z  * [new branch]          ppC11-review-evidence                    -> origin/ppC11-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5288444Z  * [new branch]          ppC2-review-evidence                     -> origin/ppC2-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5288777Z  * [new branch]          ppC3-review-evidence                     -> origin/ppC3-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5289103Z  * [new branch]          ppC4-review-evidence                     -> origin/ppC4-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5289438Z  * [new branch]          ppC5a-review-evidence                    -> origin/ppC5a-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5289877Z  * [new branch]          ppC5b-review-evidence                    -> origin/ppC5b-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5290208Z  * [new branch]          ppC6-review-evidence                     -> origin/ppC6-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5290531Z  * [new branch]          ppC7-review-evidence                     -> origin/ppC7-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5290859Z  * [new branch]          ppC8-review-evidence                     -> origin/ppC8-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5291191Z  * [new branch]          ppP1-review-evidence                     -> origin/ppP1-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5291517Z  * [new branch]          ppP2-review-evidence                     -> origin/ppP2-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5291862Z  * [new branch]          shape-include-ambiguity                  -> origin/shape-include-ambiguity
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5292208Z  * [new branch]          tsn24-review-evidence                    -> origin/tsn24-review-evidence
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5292554Z  * [new branch]          validation/478-candidate2                -> origin/validation/478-candidate2
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5292879Z  * [new ref]             686875c8729192f78287fda4545f3c4bc2224c8a -> pull/772/merge
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5294029Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5294295Z ##[group]Determining the checkout info
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5294575Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5294830Z [command]/usr/bin/git sparse-checkout disable
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5295579Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5309185Z ##[group]Checking out the ref
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.5312367Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/772/merge
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7109340Z Note: switching to 'refs/remotes/pull/772/merge'.
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7109916Z 
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7110125Z You are in 'detached HEAD' state. You can look around, make experimental
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7110691Z changes and commit them, and you can discard any commits you make in this
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7111144Z state without impacting any branches by switching back to a branch.
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7111392Z 
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7111578Z If you want to create a new branch to retain commits you create, you may
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7112014Z do so (now or later) by using -c with the switch command. Example:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7112261Z 
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7112379Z   git switch -c <new-branch-name>
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7112555Z 
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7112664Z Or undo this operation with:
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7112827Z 
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7112925Z   git switch -
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7113057Z 
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7113262Z Turn off this advice by setting config variable advice.detachedHead to false
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7113573Z 
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7113908Z HEAD is now at 686875c87 Merge a97aea01449492b1f640924f5a34726f602cabed into d77a8afdbc960d70d1ceeee9af1163624f102b16
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7140862Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7190849Z [command]/usr/bin/git log -1 --format=%H
+elaborate	Run actions/checkout@v4	2026-10-22T12:40:35.7223951Z 686875c8729192f78287fda4545f3c4bc2224c8a
+elaborate	Set CPU-derived job budgets	﻿2026-10-22T12:40:35.7451420Z ##[group]Run set -euo pipefail
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7451711Z ^[[36;1mset -euo pipefail^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7451885Z ^[[36;1mcpus="$(nproc)"^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7452048Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7452231Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7452444Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7452654Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7452837Z ^[[36;1m{^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7452995Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7453238Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7453470Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7453681Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7453887Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7454111Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7454317Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7602805Z shell: /usr/bin/bash -e {0}
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7603006Z env:
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7603156Z   VERILATOR_VERSION: v5.050
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7603408Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Set CPU-derived job budgets	2026-10-22T12:40:35.7603669Z ##[endgroup]
+elaborate	Cache exact Python downloads	﻿2026-10-22T12:40:35.8726235Z ##[group]Run actions/cache@v4
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8726488Z with:
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8726795Z   path: ~/.cache/pip
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8727247Z   key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-4cbf38d554f73ce1ad858dfabb720d353142fd74e847326a919cbf9c72118f49-Linux
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8727736Z   enableCrossOsArchive: false
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8727908Z   fail-on-cache-miss: false
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8728072Z   lookup-only: false
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8728223Z   save-always: false
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8728371Z env:
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8728513Z   VERILATOR_VERSION: v5.050
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8728757Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8729010Z   CI_BUILD_JOBS: 4
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8729160Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8729311Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8729460Z   VERILATOR_JOBS: 4
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8729601Z   SIM_JOBS: 4
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8729811Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.8730041Z ##[endgroup]
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.9424316Z (node:2222) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Cache exact Python downloads	2026-10-22T12:40:35.9425544Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Cache exact Python downloads	2026-10-22T12:40:36.1306841Z Cache hit for: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-4cbf38d554f73ce1ad858dfabb720d353142fd74e847326a919cbf9c72118f49-Linux
+elaborate	Cache exact Python downloads	2026-10-22T12:40:36.1401823Z (node:2222) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+elaborate	Cache exact Python downloads	2026-10-22T12:40:36.5288370Z Received 327634 of 327634 (100.0%), 1.3 MBs/sec
+elaborate	Cache exact Python downloads	2026-10-22T12:40:36.5288887Z Cache Size: ~0 MB (327634 B)
+elaborate	Cache exact Python downloads	2026-10-22T12:40:36.5303922Z [command]/usr/bin/tar -xf <home-path>/work/_temp/2e36a8ae-526f-4a0f-9425-0340977b270f/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+elaborate	Cache exact Python downloads	2026-10-22T12:40:36.5378117Z Cache restored successfully
+elaborate	Cache exact Python downloads	2026-10-22T12:40:36.5429414Z Cache restored from key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-4cbf38d554f73ce1ad858dfabb720d353142fd74e847326a919cbf9c72118f49-Linux
+elaborate	Cache pinned evidence reader downloads	﻿2026-10-22T12:40:36.6001597Z ##[group]Run actions/cache@v4
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6001810Z with:
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6001959Z   path: ~/.cache/pip
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6002375Z   key: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-dea95317c8889129c27fe33c625f4b02ddd9d336744e45e8c19ea0e063320c31-Linux
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6002828Z   enableCrossOsArchive: false
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6003013Z   fail-on-cache-miss: false
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6003187Z   lookup-only: false
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6003345Z   save-always: false
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6003511Z env:
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6003660Z   VERILATOR_VERSION: v5.050
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6003935Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6004199Z   CI_BUILD_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6004355Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6004514Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6004687Z   VERILATOR_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6004837Z   SIM_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6004999Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6005219Z ##[endgroup]
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6693243Z (node:2251) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.6693893Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.8222985Z Cache hit for: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-dea95317c8889129c27fe33c625f4b02ddd9d336744e45e8c19ea0e063320c31-Linux
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:36.8287823Z (node:2251) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:37.2739138Z Received 1093903 of 1093903 (100.0%), 3.7 MBs/sec
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:37.2739694Z Cache Size: ~1 MB (1093903 B)
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:37.2756833Z [command]/usr/bin/tar -xf <home-path>/work/_temp/bde15d1e-71fb-4133-93f2-a78398daa9cc/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:37.2828480Z Cache restored successfully
+elaborate	Cache pinned evidence reader downloads	2026-10-22T12:40:37.2880655Z Cache restored from key: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-dea95317c8889129c27fe33c625f4b02ddd9d336744e45e8c19ea0e063320c31-Linux
+elaborate	Install the pinned evidence reader	﻿2026-10-22T12:40:37.2970415Z ##[group]Run python3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.2970866Z ^[[36;1mpython3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt^[[0m
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3016083Z shell: /usr/bin/bash -e {0}
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3016246Z env:
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3016373Z   VERILATOR_VERSION: v5.050
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3016727Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3016965Z   CI_BUILD_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3017260Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3017398Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3017634Z   VERILATOR_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3017768Z   SIM_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3017906Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Install the pinned evidence reader	2026-10-22T12:40:37.3018067Z ##[endgroup]
+elaborate	Download executed gate outcomes	﻿2026-10-22T12:40:39.2385068Z ##[group]Run actions/download-artifact@v4
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2385265Z with:
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2385442Z   pattern: gate-elaborate-*-686875c8729192f78287fda4545f3c4bc2224c8a
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2385670Z   path: <home-path>/work/_temp/gate-results
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2385844Z   merge-multiple: false
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2385997Z   repository: kebag-logic/milan-fpga
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2386150Z   run-id: 39778639970
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2386275Z env:
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2386392Z   VERILATOR_VERSION: v5.050
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2386828Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2387087Z   CI_BUILD_JOBS: 4
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2387228Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2387363Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2387488Z   VERILATOR_JOBS: 4
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2387610Z   SIM_JOBS: 4
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2387749Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.2387906Z ##[endgroup]
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.3497675Z (node:2293) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.3498484Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.5253492Z Found 5 artifact(s)
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.5254502Z Filtering artifacts by pattern 'gate-elaborate-*-686875c8729192f78287fda4545f3c4bc2224c8a'
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.5273682Z Preparing to download the following artifacts:
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.5274314Z - gate-elaborate-1-686875c8729192f78287fda4545f3c4bc2224c8a (ID: 12425684819, Size: 457, Expected Digest: sha256:cdad742462ce2a85dfb77275cc8c615354e0db9cf94b7d3a412cd967873e18f5)
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.5275164Z - gate-elaborate-0-686875c8729192f78287fda4545f3c4bc2224c8a (ID: 12425279546, Size: 413, Expected Digest: sha256:d36f74cb1f08843c0e7ed962c91257038f93a8cfc3b3a510b225157ed6afe23f)
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.7527508Z Redirecting to blob download url: https://productionresultssa15.blob.core.windows.net/actions-results/d38cdb62-2920-80f3-a3e5-be193b50f809/workflow-job-run-7b0ab32f-0397-5d22-8ab6-0307e37f3751/artifacts/45e88b2e4f81950f4b8f47d0a519eed12fe3e353d37ddfdd270b487a78164bc6.zip
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.7528518Z Starting download of artifact to: <home-path>/work/_temp/gate-results/gate-elaborate-1-686875c8729192f78287fda4545f3c4bc2224c8a
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.8101990Z Redirecting to blob download url: https://productionresultssa15.blob.core.windows.net/actions-results/d38cdb62-2920-80f3-a3e5-be193b50f809/workflow-job-run-44b4caaf-e7ea-5662-b48b-36c314b41657/artifacts/5ec1baa37be61d978120a95a50ed5aaf3923f216efd4ec6cc09ffb1ddc7b3ef8.zip
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.8103358Z Starting download of artifact to: <home-path>/work/_temp/gate-results/gate-elaborate-0-686875c8729192f78287fda4545f3c4bc2224c8a
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.9220223Z (node:2293) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.9256440Z SHA256 digest of downloaded artifact is cdad742462ce2a85dfb77275cc8c615354e0db9cf94b7d3a412cd967873e18f5
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.9257076Z Artifact download completed successfully.
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.9649762Z SHA256 digest of downloaded artifact is d36f74cb1f08843c0e7ed962c91257038f93a8cfc3b3a510b225157ed6afe23f
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.9650261Z Artifact download completed successfully.
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.9650546Z Total of 2 artifact(s) downloaded
+elaborate	Download executed gate outcomes	2026-10-22T12:40:39.9654904Z Download artifact has finished successfully
+elaborate	Require every gate exactly once	﻿2026-10-22T12:40:39.9827942Z ##[group]Run python3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9828752Z ^[[36;1mpython3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"^[[0m
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9872525Z shell: /usr/bin/bash -e {0}
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9872684Z env:
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9872816Z   VERILATOR_VERSION: v5.050
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9873060Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9873301Z   CI_BUILD_JOBS: 4
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9873438Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9873581Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9873715Z   VERILATOR_JOBS: 4
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9873845Z   SIM_JOBS: 4
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9873985Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9874354Z   CI_GATE_NEEDS: {
+elaborate	Require every gate exactly once	  "elaborate-gates-0": {
+elaborate	Require every gate exactly once	    "result": "cancelled",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  },
+elaborate	Require every gate exactly once	  "elaborate-gates-1": {
+elaborate	Require every gate exactly once	    "result": "cancelled",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  }
+elaborate	Require every gate exactly once	}
+elaborate	Require every gate exactly once	2026-10-22T12:40:39.9874729Z ##[endgroup]
+elaborate	Require every gate exactly once	2026-10-22T12:40:40.1192576Z gate evidence refused: elaborate-gates-0: dependent job failed, cancelled or skipped
+elaborate	Require every gate exactly once	2026-10-22T12:40:40.1291520Z ##[error]Process completed with exit code 1.
+elaborate	Record actual job execution	﻿2026-10-22T12:40:40.1333812Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job elaborate --output "$RUNNER_TEMP/job-evidence.json"
+elaborate	Record actual job execution	2026-10-22T12:40:40.1334469Z ^[[36;1mpython3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job elaborate --output "$RUNNER_TEMP/job-evidence.json"^[[0m
+elaborate	Record actual job execution	2026-10-22T12:40:40.1377636Z shell: /usr/bin/bash -e {0}
+elaborate	Record actual job execution	2026-10-22T12:40:40.1377797Z env:
+elaborate	Record actual job execution	2026-10-22T12:40:40.1377930Z   VERILATOR_VERSION: v5.050
+elaborate	Record actual job execution	2026-10-22T12:40:40.1378178Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Record actual job execution	2026-10-22T12:40:40.1378425Z   CI_BUILD_JOBS: 4
+elaborate	Record actual job execution	2026-10-22T12:40:40.1378562Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Record actual job execution	2026-10-22T12:40:40.1378709Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Record actual job execution	2026-10-22T12:40:40.1378846Z   VERILATOR_JOBS: 4
+elaborate	Record actual job execution	2026-10-22T12:40:40.1378998Z   SIM_JOBS: 4
+elaborate	Record actual job execution	2026-10-22T12:40:40.1379143Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Record actual job execution	2026-10-22T12:40:40.1380639Z   CI_STEP_RESULTS: {
+elaborate	Record actual job execution	  "ci_step_0": {
+elaborate	Record actual job execution	    "outputs": {
+elaborate	Record actual job execution	      "commit": "686875c8729192f78287fda4545f3c4bc2224c8a",
+elaborate	Record actual job execution	      "ref": "refs/pull/772/merge"
+elaborate	Record actual job execution	    },
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_1": {
+elaborate	Record actual job execution	    "outputs": {},
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_2": {
+elaborate	Record actual job execution	    "outputs": {
+elaborate	Record actual job execution	      "cache-hit": "true"
+elaborate	Record actual job execution	    },
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_3": {
+elaborate	Record actual job execution	    "outputs": {
+elaborate	Record actual job execution	      "cache-hit": "true"
+elaborate	Record actual job execution	    },
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_4": {
+elaborate	Record actual job execution	    "outputs": {},
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_5": {
+elaborate	Record actual job execution	    "outputs": {
+elaborate	Record actual job execution	      "download-path": "<home-path>/work/_temp/gate-results"
+elaborate	Record actual job execution	    },
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_6": {
+elaborate	Record actual job execution	    "outputs": {},
+elaborate	Record actual job execution	    "outcome": "failure",
+elaborate	Record actual job execution	    "conclusion": "failure"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_7": {
+elaborate	Record actual job execution	    "outputs": {},
+elaborate	Record actual job execution	    "outcome": "skipped",
+elaborate	Record actual job execution	    "conclusion": "skipped"
+elaborate	Record actual job execution	  }
+elaborate	Record actual job execution	}
+elaborate	Record actual job execution	2026-10-22T12:40:40.1382151Z   CI_JOB_RESULT: failure
+elaborate	Record actual job execution	2026-10-22T12:40:40.1382301Z   CI_MATRIX: null
+elaborate	Record actual job execution	2026-10-22T12:40:40.1382440Z ##[endgroup]
+elaborate	Upload actual job execution	﻿2026-10-22T12:40:41.5686450Z ##[group]Run actions/upload-artifact@v4
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5686810Z with:
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5687054Z   name: job-evidence-elaborate-elaborate-0-686875c8729192f78287fda4545f3c4bc2224c8a
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5687320Z   path: <home-path>/work/_temp/job-evidence.json
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5687496Z   if-no-files-found: error
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5687633Z   retention-days: 3
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5687756Z   compression-level: 6
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5687886Z   overwrite: false
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5688015Z   include-hidden-files: false
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5688154Z env:
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5688268Z   VERILATOR_VERSION: v5.050
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5688484Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5688846Z   CI_BUILD_JOBS: 4
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5688968Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5689098Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5689222Z   VERILATOR_JOBS: 4
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5689343Z   SIM_JOBS: 4
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5689474Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Upload actual job execution	2026-10-22T12:40:41.5689649Z ##[endgroup]
+elaborate	Upload actual job execution	2026-10-22T12:40:41.6694740Z (node:2321) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Upload actual job execution	2026-10-22T12:40:41.6695279Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Upload actual job execution	2026-10-22T12:40:41.6722573Z With the provided path, there will be 1 file uploaded
+elaborate	Upload actual job execution	2026-10-22T12:40:41.6725904Z Artifact name is valid!
+elaborate	Upload actual job execution	2026-10-22T12:40:41.6726448Z Root directory input is valid!
+elaborate	Upload actual job execution	2026-10-22T12:40:41.9419736Z Beginning upload of artifact content to blob storage
+elaborate	Upload actual job execution	2026-10-22T12:40:41.9526273Z (node:2321) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+elaborate	Upload actual job execution	2026-10-22T12:40:42.0929391Z Uploaded bytes 767
+elaborate	Upload actual job execution	2026-10-22T12:40:42.1371705Z Finished uploading artifact content to blob storage!
+elaborate	Upload actual job execution	2026-10-22T12:40:42.1372259Z SHA256 digest of uploaded artifact zip is 98973b48940600c426e4db5ef1009342de3f5d88cdd06ba099d1a1257a92aaea
+elaborate	Upload actual job execution	2026-10-22T12:40:42.1373934Z Finalizing artifact upload
+elaborate	Upload actual job execution	2026-10-22T12:40:42.6233841Z Artifact job-evidence-elaborate-elaborate-0-686875c8729192f78287fda4545f3c4bc2224c8a.zip successfully finalized. Artifact ID 12427035468
+elaborate	Upload actual job execution	2026-10-22T12:40:42.6234795Z Artifact job-evidence-elaborate-elaborate-0-686875c8729192f78287fda4545f3c4bc2224c8a has been successfully uploaded! Final size is 767 bytes. Artifact ID is 12427035468
+elaborate	Upload actual job execution	2026-10-22T12:40:42.6238771Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/39778639970/artifacts/12427035468
+elaborate	Post Run actions/checkout@v4	﻿2026-10-22T12:40:42.6407610Z Post job cleanup.
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.6962108Z [command]/usr/bin/git version
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.6995593Z git version 2.55.0
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7020226Z Temporarily overriding HOME='<home-path>/work/_temp/6d2a6225-0510-42de-b79c-9ff057eff9c6' before making global git config changes
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7020999Z Adding repository directory to the temporary git global config as a safe directory
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7023793Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7056815Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7087384Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7303615Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7322265Z http.https://github.com/.extraheader
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7332105Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7366178Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7581576Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+elaborate	Post Run actions/checkout@v4	2026-10-22T12:40:42.7620589Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+elaborate	Complete job	﻿2026-10-22T12:40:42.7964754Z Cleaning up orphan processes
+elaborate	Complete job	2026-10-22T12:40:42.8164102Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

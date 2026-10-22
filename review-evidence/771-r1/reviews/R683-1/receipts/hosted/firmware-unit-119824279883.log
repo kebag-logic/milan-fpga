@@ -1,0 +1,816 @@
+firmware-unit	Run the control-plane firmware suites and RV32 builds	﻿2026-10-22T12:32:26.0444633Z ##[group]Run set -euo pipefail
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0445008Z ^[[36;1mset -euo pipefail^[[0m
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0445376Z ^[[36;1mpython3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32^[[0m
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0446084Z ^[[36;1mpython3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs "$CI_CAMPAIGN_JOBS" --shard 0/4^[[0m
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0508350Z shell: /usr/bin/bash -e {0}
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0508819Z env:
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0509176Z   VERILATOR_VERSION: v5.050
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0509600Z   YOSYS_VERSION: v0.66
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0510231Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0510928Z   CI_BUILD_JOBS: 4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0511283Z   CI_TOOL_BUILD_JOBS: 4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0511668Z   CI_CAMPAIGN_JOBS: 4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0512029Z   VERILATOR_JOBS: 4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0512371Z   SIM_JOBS: 4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0512728Z   MAKEFLAGS: -j1 --no-print-directory
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:26.0513180Z ##[endgroup]
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9645911Z PASS: explicit absent compiler is refused without fallback
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9647354Z PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9648419Z PASS: caught hosted headers restored
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9649090Z PASS: caught freestanding disabled
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9649695Z PASS: caught RV64 object
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9650072Z PASS: caught hard-float object
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9650770Z PASS: caught compressed ISA object
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9651172Z PASS: caught multiply ISA object
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9651628Z PASS: caught malformed object and dynamic stack report
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9652108Z PASS: ctrl rejects malloc
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9652479Z PASS: ctrl rejects __unexpected_service
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9653083Z PASS: ctrl rejects __unexpected_service despite a same-name static definition
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9653684Z PASS: ctrl_nvm rejects malloc
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9654078Z PASS: ctrl_nvm rejects __unexpected_service
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9654707Z PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9655402Z PASS: ctrl_nvm rejects restored stack-protector dependency
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:32:33.9655909Z RV32 build self-test: 17 checks PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7914114Z PASS: shard inventory rejects planted missing suite
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7915189Z PASS: shard inventory rejects planted duplicate suite
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7916480Z PASS: a newly discovered suite is assigned without an ownership list
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7917612Z PASS: 940 live invocations in exactly one shard; shard sizes [61, 521, 79, 279]
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7918833Z PASS: nine invalid shard combinations refuse; failed normal suites still stop mutations
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7920828Z toolchain: {'cc': 'gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'cxx': 'g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gcov': 'gcov (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7922552Z tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7923904Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7925670Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7927568Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7929042Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7930471Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7931928Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-debug-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7933330Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7954644Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7956106Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7959103Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7960627Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7962085Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7963551Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7964788Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7965641Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7967085Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7968112Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7969205Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_latency-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7970024Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7970807Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7971588Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_walk-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7972362Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_arty_4x4/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7973112Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_arty_4x4/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7973846Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_arty_4x4/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7974596Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7975294Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7975998Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7977037Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_arty_8ch/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7977775Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_arty_8ch/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7978508Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_arty_8ch/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7979241Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7979946Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7980641Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7981398Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_arty_current/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7982167Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_arty_current/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7983107Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_arty_current/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7983881Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7984606Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7985376Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7986151Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7987358Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7988175Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7988960Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7989716Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7990460Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7991226Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7992239Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7993209Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-srp_shape-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7993967Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7994681Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7995412Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7996380Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7997352Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7998147Z wrote /tmp/ctrl-fw-l7g_a8hl/checkout/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7998876Z [ok] arm service_bounds
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7999146Z     == ctrl service bounds: checks: 47   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7999450Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7999662Z [ok] arm model
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.7999968Z     == mbx (host model): checks: 24   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8000301Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8000545Z     verdict: PASS (24 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8000838Z [ok] arm port
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8001142Z     == ctrl port, driver and loop (host model): checks: 31   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8001513Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8001751Z     verdict: PASS (31 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8002040Z [ok] arm adp
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8002330Z     C0 LINK_UP -> TMR_DELAY armed                 11 accesses (bound 11)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8002809Z     C1 TMR_DELAY -> ENTITY_AVAILABLE, TMR_ADVERTISE  39 accesses (bound 39)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8003373Z     C2 RCV_ADP_DISCOVER -> TMR_DELAY armed        31 accesses (bound 31)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8003980Z     C3 TMR_ADVERTISE -> TMR_DELAY armed           11 accesses (bound 11)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8004403Z     C4 GM_CHANGE -> TMR_DELAY armed               11 accesses (bound 11)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8004822Z     C5 LINK_DOWN -> timer cancelled                9 accesses (bound 11)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8005261Z     C6 SHUTDOWN -> ENTITY_DEPARTING committed     29 accesses (bound 29)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8005890Z     backlog: 16 event records, 30 centiseconds, 28 receive records
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8006995Z     passes: events by 2, ENTITY_AVAILABLE in 2 (171 accesses), receive ring by 14 (453 accesses), idle at 15; worst pass 101 accesses
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8007655Z     F5 the costliest pass of the backlog         101 accesses (bound 407)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8008206Z     E5 1 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  63 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8008928Z     E5 1 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  69 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8009543Z     E5 2 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8010156Z     E5 2 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8010770Z     E5 64 SHUTDOWNs, expiry taken before the room: room to ENTITY_AVAILABLE  93 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8011392Z     E5 64 SHUTDOWNs, expiry taken after the room: room to ENTITY_AVAILABLE  99 accesses (bound 1628)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8011940Z     == ctrl ADP slice (fake ports and host model): checks: 54   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8012318Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8012565Z     verdict: PASS (54 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8013023Z [ok] arm unit
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8013337Z     == ctrl units on the HAL and port-layer mocks: checks: 25   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8013718Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8013956Z     verdict: PASS (25 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8014331Z     == ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8014665Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8014892Z     verdict: PASS (2 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8015179Z [ok] arm walk
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8015580Z     walked 36 cells of the processor's ADV table (N 10, I 16, S 4, C 6); 9 draw-in-flight cells not applicable
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8016401Z     == ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8016852Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8017089Z     verdict: PASS (41 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8017376Z [ok] arm acmp
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8017773Z     C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   77 accesses (bound 77)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8018396Z     C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8018970Z     C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8019576Z     C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     50 accesses (bound 50)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8020177Z     C4 talker command -> response, interface 0                                 48 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8020747Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8021313Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8021875Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8022466Z     C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8023075Z     C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8023652Z     C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8024219Z     C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8024782Z     C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8025725Z     C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8026622Z     C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8027293Z     C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8027975Z     C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8028614Z     C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8029202Z     E2 0 owed ahead: room to response                                          25 accesses (bound 9270)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8029735Z     E2 3 owed ahead: room to response                                         100 accesses (bound 9270)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8030268Z     E2 7 owed ahead: room to response                                         200 accesses (bound 9270)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8030796Z     backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 193 accesses
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8031326Z     F3 the worst pass of the backlog                                          193 accesses (bound 1030)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8031872Z     adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8032612Z     F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22660)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8033234Z     three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 231 accesses
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8033808Z     F6 the worst pass of the three-way backlog                                231 accesses (bound 1783)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8034378Z     == ctrl ACMP core and adapter (fake ports and host model): checks: 130   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8034796Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8035037Z     verdict: PASS (130 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8035343Z [FAIL] arm acmpwalk
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8035552Z     Actual: false
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8036000Z     [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: the talker's discovered and registered state
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8036755Z     fk.count(Call::CHANGED) != 0u
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8037013Z     Which is: false
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8037237Z     !(items(w.before) == items(r))
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8037491Z     Which is: true
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8037919Z     [FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: notified exactly when a Table 5.22 item moved
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8038539Z     == ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 1 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8038926Z     RESULT: FAIL
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8039244Z     verdict: FAIL (its tallies report 1 failure(s) across 127 checks, exit 1)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8039617Z [ok] arm acmpnvm
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8039964Z     == ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8040383Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8040613Z     verdict: PASS (7 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8040902Z [ok] arm acmpif2
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8041297Z     C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   77 accesses (bound 77)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8041900Z     C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8042489Z     C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8043205Z     C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     50 accesses (bound 50)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8043811Z     C4 talker command -> response, interface 0                                 48 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8044376Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8045078Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8045643Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8046426Z     C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8047182Z     C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 1   77 accesses (bound 77)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8047787Z     C1 GET_RX_STATE -> response, interface 1                                   47 accesses (bound 47)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8048358Z     C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 1                       32 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8048963Z     C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 1     50 accesses (bound 50)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8049553Z     C4 talker command -> response, interface 1                                 48 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8050126Z     C4 talker command -> response, interface 1                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8050687Z     C4 talker command -> response, interface 1                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8051256Z     C4 talker command -> response, interface 1                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8051837Z     C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 1              28 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8052612Z     C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8053199Z     C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8053759Z     C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8054328Z     C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8054890Z     C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8055463Z     C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8056047Z     C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 1             35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8056948Z     C6 TMR_NO_RESP -> TMR_RETRY armed, interface 1                             12 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8057516Z     C7 TMR_RETRY -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8058077Z     C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 1                         35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8058639Z     C9 TMR_NO_TK -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8059193Z     C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 1         14 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8059836Z     C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8060508Z     C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8061161Z     C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 1   35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8061816Z     C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 1   29 accesses (bound 30)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8062450Z     C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8063072Z     C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 1   12 accesses (bound 12)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8063651Z     E2 0 owed ahead: room to response                                          25 accesses (bound 9549)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8064191Z     E2 3 owed ahead: room to response                                         100 accesses (bound 9549)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8064846Z     E2 7 owed ahead: room to response                                         200 accesses (bound 9549)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8065379Z     backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 195 accesses
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8065909Z     F3 the worst pass of the backlog                                          195 accesses (bound 1061)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8066800Z     adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8067456Z     F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 23342)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8068115Z     three-way backlog: 14 event records, 12 acmp and 7 maap records; worst pass 233 accesses
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8068734Z     F6 the worst pass of the three-way backlog                                233 accesses (bound 1879)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8069361Z     == ctrl ACMP adapter on the two-interface contract (host model): checks: 29   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8069813Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8070054Z     verdict: PASS (29 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8070352Z [ok] arm entity
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8070668Z     == ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8071053Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8071459Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8071863Z     == ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8072244Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8072479Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8072893Z     == ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8073293Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8073518Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8073939Z     == ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8074343Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8074564Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8074965Z     == ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8075339Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8075562Z     verdict: PASS (9 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8075841Z [ok] arm rv32
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8076456Z     riscv32-linux-gcc -march=rv32i -mabi=ilp32 -ffreestanding -fno-stack-protector: 15 objects
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8076967Z     size (text data bss dec): 37404 0 178 37582
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8077316Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8077786Z     undefined: __lshrdi3, __mulsi3, __udivsi3, __umodsi3, memcpy, memset, vsnprintf
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8078262Z     == ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8078589Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8078792Z [ok] arm maap
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8079035Z     == ctrl MAAP Annex B: checks: 37   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8079327Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8079564Z     verdict: PASS (37 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8079956Z     H-MAAP timer 0: 30 accesses, 8400 ns from original deadline (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8080413Z     H-MAAP timer 1: 30 accesses, 11400 ns from original deadline (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8080861Z     H-MAAP timer 2: 57 accesses, 16700 ns from original deadline (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8081295Z     H-MAAP timer 3: 30 accesses, 20100 ns from original deadline (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8081709Z     H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8082079Z     H-MAAP wake interface 0: 4800 ns from RX_HEAD (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8082434Z     == ctrl H-MAAP mailbox: checks: 21   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8082744Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8082977Z     verdict: PASS (21 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8083424Z [ok] arm maap_debug
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8083709Z     == ctrl MAAP debug port contract: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8084039Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8084279Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8084563Z [ok] arm maap_if2
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8084894Z     H-MAAP timer 0: 30 accesses, 12500 ns from original deadline (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8085340Z     H-MAAP timer 1: 30 accesses, 15500 ns from original deadline (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8085775Z     H-MAAP timer 2: 57 accesses, 20800 ns from original deadline (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8086364Z     H-MAAP timer 3: 30 accesses, 24200 ns from original deadline (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8086780Z     H-MAAP DEFEND: 40 accesses, 3900 ns from RX_HEAD (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8087151Z     H-MAAP wake interface 0: 4800 ns from RX_HEAD (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8087500Z     H-MAAP wake interface 1: 4800 ns from RX_HEAD (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8087865Z     H-MAAP interface 1 stall: 5004400 ns from RX_HEAD (model)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8088245Z     == ctrl H-MAAP mailbox: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8088545Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8088780Z     verdict: PASS (22 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8089078Z [ok] arm reentry_debug
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8089335Z     == ADP debug re-entry: checks: 122   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8089631Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8089999Z     verdict: PASS (122 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8090301Z [ok] arm reentry_release
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8090576Z     == ADP release re-entry: checks: 122   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8090879Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8091109Z     verdict: PASS (122 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8091396Z [ok] arm srpcmp
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8091936Z     srp_wire_compare.py --self-test: controls five_value_vector, frame_grouping, packing_only, within_opportunity_order, zero_padding PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8094114Z     18 planted defects caught: swapped-opportunities, collapsed-opportunities, plus-k-off-by-one, wrong-AttributeEvent, wrong-FourPackedEvent, dropped-declaration, extra-declaration, duplicated-declaration, LeaveAll-wrong-attribute-type, malformed-PDU-EndMark, malformed-list-EndMark, wrong-ProtocolVersion, wrong-AttributeLength, wrong-AttributeListLength, reserved-ThreePackedEvents, reserved-LeaveAllEvent, truncated-PDU-EndMark, oversized-frame
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8095999Z     named controls and plants missing: none
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8096424Z [ok] arm lwsrp
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8096672Z     lwSRP at 08ee86e812a0eb5e1dc6cd61b494d8baf3491348
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8097044Z     pool class 0: 64-byte stride, high-water 1 of 32 blocks
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8097426Z     pool class 1: 256-byte stride, high-water 3 of 16 blocks
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8097795Z     pool class 2: 1024-byte stride, high-water 0 of 4 blocks
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8098284Z     == ctrl lwSRP port (lwSRP core on the static pool and the mailbox): checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8098728Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8098974Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8099510Z [ok] arm srp-srp_mbx-if1-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8099862Z     == ctrl SRP mailbox: checks: 59   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8100169Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8100404Z     verdict: PASS (59 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8100738Z [ok] arm srp-debug-if1-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8101085Z     == ctrl SRP debug guard: checks: 3   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8101381Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8101611Z     verdict: PASS (3 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8101954Z [ok] arm srp-srp_rx_retry-if1-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8102327Z     == ctrl SRP receive recovery: checks: 17   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8102652Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8102881Z     verdict: PASS (17 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8103364Z [ok] arm srp-srp_app-if1-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8103690Z     SRP event bound: 6 accesses, bound 6
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8103996Z     SRP refused receive bound: 2 accesses, bound 2
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8104355Z     SRP retained receive poll bound: 3 accesses, bound 810
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8104719Z     SRP transmitting poll bound: 46 accesses, bound 810
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8105069Z     SRP maximum TX record bound: 383 accesses, bound 383
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8105425Z     SRP maximum RX record bound: 383 accesses, bound 383
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8105764Z     SRP complete pass bound: 388 accesses, bound 1676
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8106410Z     SRP poll terms: fixed 4, calls 2, real send accesses 766, envelope 770/810
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8107025Z     SRP publication terms: reset 5, adoption 3, licence change 1, term 40
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8107482Z     SRP pass terms: event 96, receive 770, poll 810, envelope 1676/1676
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8107905Z     == ctrl ADP MAAP SRP composition: checks: 6   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8108236Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8108468Z     verdict: PASS (6 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8108810Z [ok] arm srp-test_acmp_mbx-if1-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8109314Z     C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   77 accesses (bound 77)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8109924Z     C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8110661Z     C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8111270Z     C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     50 accesses (bound 50)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8111864Z     C4 talker command -> response, interface 0                                 48 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8112428Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8112998Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8113557Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8114139Z     C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8114761Z     C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8115372Z     C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8115968Z     C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8116937Z     C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8117534Z     C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8118141Z     C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8118776Z     C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8119450Z     C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8120093Z     C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8120678Z     E2 0 owed ahead: room to response                                          25 accesses (bound 9270)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8121223Z     E2 3 owed ahead: room to response                                         100 accesses (bound 9270)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8121754Z     E2 7 owed ahead: room to response                                         200 accesses (bound 9270)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8122283Z     backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 193 accesses
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8122973Z     F3 the worst pass of the backlog                                          193 accesses (bound 1030)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8123511Z     adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8124124Z     F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 22660)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8124745Z     three-way backlog: 15 event records, 12 acmp and 7 maap records; worst pass 265 accesses
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8125325Z     F6 the worst pass of the four-way backlog                                 265 accesses (bound 3523)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8125828Z     == ctrl ADP ACMP MAAP SRP composition: checks: 60   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8126182Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8126554Z     verdict: PASS (60 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8126904Z [ok] arm srp-srp_latency-if1-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8127286Z     == ctrl SRP service latency: checks: 5   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8127602Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8127842Z     verdict: PASS (5 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8128185Z [ok] arm srp-srp_walk-if1-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8128583Z     == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8128940Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8129312Z     verdict: PASS (5 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8129648Z [ok] arm srp-srp_mbx-if2-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8129996Z     == ctrl SRP mailbox: checks: 59   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8130288Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8130526Z     verdict: PASS (59 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8130862Z [ok] arm srp-debug-if2-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8131202Z     == ctrl SRP debug guard: checks: 3   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8131510Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8131746Z     verdict: PASS (3 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8132096Z [ok] arm srp-srp_rx_retry-if2-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8132480Z     == ctrl SRP receive recovery: checks: 17   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8132805Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8133042Z     verdict: PASS (17 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8133372Z [ok] arm srp-srp_app-if2-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8133701Z     SRP event bound: 6 accesses, bound 6
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8134016Z     SRP refused receive bound: 2 accesses, bound 2
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8134371Z     SRP retained receive poll bound: 4 accesses, bound 1620
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8134745Z     SRP transmitting poll bound: 89 accesses, bound 1620
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8135112Z     SRP maximum TX record bound: 383 accesses, bound 383
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8135458Z     SRP maximum RX record bound: 383 accesses, bound 383
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8135808Z     SRP complete pass bound: 389 accesses, bound 2486
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8136380Z     SRP poll terms: fixed 8, calls 4, real send accesses 1532, envelope 1540/1620
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8136876Z     SRP publication terms: reset 5, adoption 3, licence change 1, term 40
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8137339Z     SRP pass terms: event 96, receive 770, poll 1620, envelope 2486/2486
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8137761Z     == ctrl ADP MAAP SRP composition: checks: 6   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8138092Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8138329Z     verdict: PASS (6 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8138673Z [ok] arm srp-test_acmp_mbx-if2-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8139187Z     C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 0   77 accesses (bound 77)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8139796Z     C1 GET_RX_STATE -> response, interface 0                                   47 accesses (bound 47)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8140380Z     C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 0                       32 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8140986Z     C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 0     50 accesses (bound 50)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8141726Z     C4 talker command -> response, interface 0                                 48 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8142303Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8142871Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8143451Z     C4 talker command -> response, interface 0                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8144039Z     C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 0              28 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8144668Z     C0 BIND_RX -> response, PROBE_TX, TMR_NO_RESP, talker admitted, interface 1   77 accesses (bound 77)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8145262Z     C1 GET_RX_STATE -> response, interface 1                                   47 accesses (bound 47)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8145838Z     C2 PROBE_TX_RESPONSE -> TMR_NO_TK armed, interface 1                       32 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8146688Z     C3 UNBIND_RX -> response, timer stopped, talker withdrawn, interface 1     50 accesses (bound 50)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8147351Z     C4 talker command -> response, interface 1                                 48 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8147925Z     C4 talker command -> response, interface 1                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8148672Z     C4 talker command -> response, interface 1                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8149240Z     C4 talker command -> response, interface 1                                 47 accesses (bound 48)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8149826Z     C2 PROBE_TX_RESPONSE (failed) -> TMR_RETRY armed, interface 1              28 accesses (bound 32)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8150431Z     C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 0             35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8151030Z     C6 TMR_NO_RESP -> TMR_RETRY armed, interface 0                             12 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8151596Z     C7 TMR_RETRY -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8152171Z     C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 0                         35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8152741Z     C9 TMR_NO_TK -> TMR_DELAY armed, interface 0                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8153315Z     C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 0         14 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8153903Z     C5 TMR_NO_RESP -> duplicate PROBE_TX, TMR_NO_RESP, interface 1             35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8154484Z     C6 TMR_NO_RESP -> TMR_RETRY armed, interface 1                             12 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8155056Z     C7 TMR_RETRY -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8155628Z     C8 TMR_DELAY -> PROBE_TX, TMR_NO_RESP, interface 1                         35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8156411Z     C9 TMR_NO_TK -> TMR_DELAY armed, interface 1                               13 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8157041Z     C9 TMR_NO_TK, the run's first draw -> TMR_DELAY armed, interface 1         14 accesses (bound 14)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8157680Z     C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 0   35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8158339Z     C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 0   29 accesses (bound 30)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8158992Z     C10 ENTITY_AVAILABLE from its RX_HEAD -> TMR_DELAY armed (H-DISC), interface 1   35 accesses (bound 35)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8159647Z     C11 ENTITY_DEPARTING from its RX_HEAD -> timer stopped (H-DISC), interface 1   29 accesses (bound 30)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8160282Z     C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 0   12 accesses (bound 12)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8161083Z     C12 TMR_NO_ADP -> TK_NOT_DISCOVERED, timer re-armed (H-DISC), interface 1   12 accesses (bound 12)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8161662Z     E2 0 owed ahead: room to response                                          25 accesses (bound 9549)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8162209Z     E2 3 owed ahead: room to response                                         100 accesses (bound 9549)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8162746Z     E2 7 owed ahead: room to response                                         200 accesses (bound 9549)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8163272Z     backlog: 16 event records, 12 acmp records of 70 bytes; worst pass 195 accesses
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8163810Z     F3 the worst pass of the backlog                                          195 accesses (bound 1061)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8164346Z     adp backlog: 26 records through the filter, the ENTITY_AVAILABLE served in pass 13
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8164950Z     F5 ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC)     333 accesses (bound 23342)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8165568Z     three-way backlog: 14 event records, 12 acmp and 7 maap records; worst pass 260 accesses
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8166147Z     F6 the worst pass of the four-way backlog                                 260 accesses (bound 4429)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8166798Z     == ctrl ADP ACMP MAAP SRP composition: checks: 60   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8167293Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8167538Z     verdict: PASS (60 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8167893Z [ok] arm srp-srp_latency-if2-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8168265Z     == ctrl SRP service latency: checks: 5   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8168583Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8168813Z     verdict: PASS (5 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8169153Z [ok] arm srp-srp_walk-if2-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8169555Z     == ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8169919Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8170160Z     verdict: PASS (5 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8170485Z [ok] arm srp-srp_shape-if1-endstation_arty_4x4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8170859Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8171202Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8171436Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8171762Z [ok] arm srp-rv32-if1-endstation_arty_4x4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8172114Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8172740Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8173344Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8173859Z     4460	      0	     26	   4486	   1186	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8174565Z     1636	      0	      0	   1636	    664	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8175260Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8175955Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8176767Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8177424Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8178076Z     1168	      0	      0	   1168	    490	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8178729Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8179548Z     2412	      0	      0	   2412	    96c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8180218Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8180884Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8181562Z     1340	      0	      0	   1340	    53c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8182230Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8182898Z     1144	      0	      0	   1144	    478	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8183558Z     9768	     20	      4	   9792	   2640	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8184264Z     1968	      0	      0	   1968	    7b0	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8185004Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8185688Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8186755Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8187490Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8188159Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8188839Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_4x4/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8189394Z     68801	    160	    186	  69147	  10e1b	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8189732Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8190058Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8190306Z [ok] arm srp-srp_shape-if2-endstation_arty_4x4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8190683Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8191034Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8191268Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8191593Z [ok] arm srp-rv32-if2-endstation_arty_4x4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8191940Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8192562Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8193160Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8193647Z     4732	      0	     26	   4758	   1296	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8194334Z     1656	      0	      0	   1656	    678	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8195026Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8195713Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8196673Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8197359Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8198019Z     1548	      0	      0	   1548	    60c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8198667Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8199515Z     2924	      0	      0	   2924	    b6c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8200187Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8200851Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8201520Z     1400	      0	      0	   1400	    578	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8202183Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8202848Z     1160	      0	      0	   1160	    488	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8203516Z     10316	     20	      4	  10340	   2864	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8204220Z     1968	      0	      0	   1968	    7b0	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8204915Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8205741Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8206541Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8207199Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8207866Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8208549Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_4x4/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8209060Z     70609	    160	    186	  70955	  1152b	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8209498Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8209834Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8210079Z [ok] arm srp-srp_shape-if1-endstation_arty_8ch
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8210460Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8210804Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8211036Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8211350Z [ok] arm srp-rv32-if1-endstation_arty_8ch
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8211706Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8212323Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8212917Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8213413Z     4460	      0	     26	   4486	   1186	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8214096Z     1636	      0	      0	   1636	    664	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8214787Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8215480Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8216170Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8216964Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8217625Z     1168	      0	      0	   1168	    490	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8218464Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8219148Z     2412	      0	      0	   2412	    96c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8219828Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8220497Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8221175Z     1340	      0	      0	   1340	    53c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8221841Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8222505Z     1144	      0	      0	   1144	    478	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8223174Z     9768	     20	      4	   9792	   2640	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8223869Z     1968	      0	      0	   1968	    7b0	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8224569Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8225392Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8226051Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8227040Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8227714Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8228400Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_8ch/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8228913Z     68801	    160	    186	  69147	  10e1b	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8229249Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8229569Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8229820Z [ok] arm srp-srp_shape-if2-endstation_arty_8ch
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8230192Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8230537Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8230771Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8231090Z [ok] arm srp-rv32-if2-endstation_arty_8ch
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8231442Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8232070Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8232674Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8233154Z     4732	      0	     26	   4758	   1296	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8233830Z     1656	      0	      0	   1656	    678	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8234539Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8235229Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8235918Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8236835Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8237659Z     1548	      0	      0	   1548	    60c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8238322Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8239000Z     2924	      0	      0	   2924	    b6c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8239689Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8240354Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8241032Z     1400	      0	      0	   1400	    578	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8241702Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8242380Z     1160	      0	      0	   1160	    488	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8243052Z     10316	     20	      4	  10340	   2864	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8243750Z     1968	      0	      0	   1968	    7b0	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8244600Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8245284Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8245944Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8246733Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8247406Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8248084Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_8ch/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8248596Z     70609	    160	    186	  70955	  1152b	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8248935Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8249245Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8249499Z [ok] arm srp-srp_shape-if1-endstation_arty_current
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8249880Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8250221Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8250456Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8250781Z [ok] arm srp-rv32-if1-endstation_arty_current
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8251145Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8251776Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8252365Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8252863Z     4460	      0	     26	   4486	   1186	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8253564Z     1636	      0	      0	   1636	    664	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8254297Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8255020Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8255736Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8256713Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8257407Z     1168	      0	      0	   1168	    490	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8258097Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8258797Z     2412	      0	      0	   2412	    96c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8259518Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8260220Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8260929Z     1340	      0	      0	   1340	    53c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8261637Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8262336Z     1144	      0	      0	   1144	    478	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8263033Z     9300	     20	      4	   9324	   246c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8263885Z     1944	      0	      0	   1944	    798	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8264618Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8265335Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8266029Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8267055Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8267761Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8268468Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_arty_current/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8268994Z     68309	    160	    186	  68655	  10c2f	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8269320Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8269629Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8269879Z [ok] arm srp-srp_shape-if2-endstation_arty_current
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8270261Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8270591Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8270831Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8271154Z [ok] arm srp-rv32-if2-endstation_arty_current
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8271512Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8272139Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8272720Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8273237Z     4732	      0	     26	   4758	   1296	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8273943Z     1656	      0	      0	   1656	    678	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8274666Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8275378Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8276507Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8277202Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8278317Z     1548	      0	      0	   1548	    60c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8279663Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8280990Z     2924	      0	      0	   2924	    b6c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8282308Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8283608Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8285021Z     1400	      0	      0	   1400	    578	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8286630Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8298854Z     1160	      0	      0	   1160	    488	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8300320Z     9748	     20	      4	   9772	   262c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8301666Z     1944	      0	      0	   1944	    798	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8302986Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8304322Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8305607Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8307032Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8308384Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8309673Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_arty_current/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8310623Z     70017	    160	    186	  70363	  112db	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8311239Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8311767Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8312203Z [ok] arm srp-srp_shape-if1-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8312941Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8313564Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8313979Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8314540Z [ok] arm srp-rv32-if1-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8315224Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8316547Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8317614Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8318545Z     4460	      0	     26	   4486	   1186	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8319822Z     1636	      0	      0	   1636	    664	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8321130Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8322769Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8324120Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8325451Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8327009Z     1168	      0	      0	   1168	    490	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8328204Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8329504Z     2412	      0	      0	   2412	    96c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8330788Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8332081Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8333334Z     1340	      0	      0	   1340	    53c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8334897Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8336118Z     1144	      0	      0	   1144	    478	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8337693Z     9748	     20	      4	   9772	   262c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8339049Z     1952	      0	      0	   1952	    7a0	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8340445Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8341764Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8343026Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8344356Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8345667Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8347287Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_1x1_tdm8/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8348288Z     68765	    160	    186	  69111	  10df7	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8348912Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8349470Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8349935Z [ok] arm srp-srp_shape-if2-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8350655Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8351265Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8351725Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8352323Z [ok] arm srp-rv32-if2-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8352977Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8354081Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8355130Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8356047Z     4732	      0	     26	   4758	   1296	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8357826Z     1656	      0	      0	   1656	    678	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8359117Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8360405Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8361668Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8362907Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8364112Z     1548	      0	      0	   1548	    60c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8365342Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8366762Z     2924	      0	      0	   2924	    b6c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8368000Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8369384Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8370520Z     1400	      0	      0	   1400	    578	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8371849Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8373087Z     1160	      0	      0	   1160	    488	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8374353Z     10200	     20	      4	  10224	   27f0	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8375629Z     1952	      0	      0	   1952	    7a0	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8377041Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8378231Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8379433Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8380687Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8381992Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8383211Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_1x1_tdm8/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8384129Z     70477	    160	    186	  70823	  114a7	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8384753Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8385395Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8385827Z [ok] arm srp-srp_shape-if1-endstation_ax7101_8x8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8386736Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8387107Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8387438Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8388025Z [ok] arm srp-rv32-if1-endstation_ax7101_8x8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8388657Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8389780Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8391105Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8391970Z     4460	      0	     26	   4486	   1186	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8393195Z     1636	      0	      0	   1636	    664	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8394531Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8395818Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8397247Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8398521Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8399753Z     1168	      0	      0	   1168	    490	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8400943Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8402166Z     2412	      0	      0	   2412	    96c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8403661Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8404866Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8406131Z     1340	      0	      0	   1340	    53c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8407653Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8408943Z     1144	      0	      0	   1144	    478	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8410187Z     9796	     20	      4	   9820	   265c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8411472Z     1984	      0	      0	   1984	    7c0	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8412749Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8413958Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8415138Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8416592Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8417812Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8419054Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if1-endstation_ax7101_8x8/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8419932Z     68845	    160	    186	  69191	  10e47	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8420499Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8421015Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8421406Z [ok] arm srp-srp_shape-if2-endstation_ax7101_8x8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8422051Z     == ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8422601Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8422953Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8423442Z [ok] arm srp-rv32-if2-endstation_ax7101_8x8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8423995Z     largest static frame: 256 bytes (not a call-chain bound)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8425399Z     runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivsi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8426711Z     text	   data	    bss	    dec	    hex	filename
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8427572Z     4732	      0	     26	   4758	   1296	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/mbx_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8428794Z     1656	      0	      0	   1656	    678	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/loop_ctrl_loop.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8429552Z     1836	      0	      0	   1836	    72c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/port_ctrl_pool.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8430282Z     332	      0	    140	    472	    1d8	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/port_ctrl_debug.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8430977Z     336	      0	      4	    340	    154	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/port_shlan_port.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8431668Z     3640	      0	      8	   3648	    e40	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/src_adp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8432332Z     1548	      0	      0	   1548	    60c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/adp_adp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8432995Z     4524	      0	      0	   4524	   11ac	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/src_maap.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8433885Z     2924	      0	      0	   2924	    b6c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/maap_maap_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8434569Z     972	      0	      0	    972	    3cc	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/maap_maap_csr.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8435244Z     12936	      0	      0	  12936	   3288	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/src_acmp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8435915Z     1400	      0	      0	   1400	    578	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/acmp_acmp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8436940Z     552	      0	      0	    552	    228	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/acmp_acmp_nvm.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8437629Z     1160	      0	      0	   1160	    488	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/app_ctrl_app.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8438308Z     10320	     20	      4	  10344	   2868	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/srp_srp_mbx.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8439024Z     1984	      0	      0	   1984	    7c0	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/app_ctrl_app_srp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8439732Z     13309	    140	      0	  13449	   3489	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/core_mrp_mad.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8440428Z     1812	      0	      0	   1812	    714	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/core_mrp_pdu.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8441101Z     328	      0	      4	    332	    14c	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/ports_timer.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8441792Z     3242	      0	      0	   3242	    caa	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/modules_msrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8442460Z     970	      0	      0	    970	    3ca	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/modules_mvrp.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8443158Z     116	      0	      0	    116	     74	/tmp/ctrl-fw-l7g_a8hl/checkout/srp-rv32-if2-endstation_ax7101_8x8/plat_mbx_plat_mmio.o
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:37:59.8443671Z     70629	    160	    186	  70975	  1153f	(TOTALS)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2613737Z     == SRP RV32 object checks: checks: 22   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2614553Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2614968Z [ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if1
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2615481Z     == AECP core: checks: 74   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2615928Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2616631Z     verdict: PASS (74 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2617553Z [ok] arm aecp-mailbox-endstation_ax7101_1x1_tdm8-if2
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2618051Z     == AECP core: checks: 74   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2618463Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2618811Z     verdict: PASS (74 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2619278Z [ok] arm aecp-image-endstation_arty_4x4
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2619765Z     == AECP descriptor image: checks: 3   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2620229Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2620570Z     verdict: PASS (3 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2621034Z [ok] arm aecp-image-endstation_arty_8ch
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2621504Z     == AECP descriptor image: checks: 3   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2621952Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2622296Z     verdict: PASS (3 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2622759Z [ok] arm aecp-image-endstation_arty_current
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2623260Z     == AECP descriptor image: checks: 3   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2623712Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2624049Z     verdict: PASS (3 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2624521Z [ok] arm aecp-image-endstation_ax7101_1x1_tdm8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2625021Z     == AECP descriptor image: checks: 3   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2625418Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2625683Z     verdict: PASS (3 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2626390Z [ok] arm aecp-image-endstation_ax7101_8x8
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2626768Z     == AECP descriptor image: checks: 3   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2627111Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2627371Z     verdict: PASS (3 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2627741Z [ok] arm aecp-core-endstation_ax7101_1x1_tdm8-if1
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2628153Z     == AECP debug callback contract: checks: 1   failures: 0 ==
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2628528Z     RESULT: PASS
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2628806Z     verdict: PASS (1 tests, 0 failures, exit 0)
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.2629147Z test_ctrl_firmware: FAIL
+firmware-unit	Run the control-plane firmware suites and RV32 builds	2026-10-22T12:38:00.3047841Z ##[error]Process completed with exit code 1.

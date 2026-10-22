@@ -1,0 +1,18 @@
+protocol_processor_top: 256 -> 256 header items; DIFFERS
+--- old
++++ new
+@@ -65 +65 @@
+-input wire [15:0] cfg_tspec_max_frame_i
++input wire [N_STREAM_OUT_P*16-1:0] cfg_tspec_max_frame_i
+  KL_gptp_engine
+                KL_gptp_txret
+  KL_gptp_txret
+  KL_gptp_txticket
+KL_gptp_engine: 45 -> 45 header items; IDENTICAL
+KL_gptp_engine: 45 -> 45 header items; IDENTICAL
+protocol_processor_top: 256 -> 256 header items; DIFFERS
+--- old
++++ new
+@@ -65 +65 @@
+-input wire [15:0] cfg_tspec_max_frame_i
++input wire [N_STREAM_OUT_P*16-1:0] cfg_tspec_max_frame_i
