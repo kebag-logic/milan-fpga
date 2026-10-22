@@ -6108,10 +6108,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  event is that marker back-dated by the owner's derived latency. The servo
   //  phases this event to the followed CRF stream (it never compares against a
   //  particular interface's pins), KL_crf_tx stamps every 96th one, and the AAF
-  //  talkers stamp the frame they capture with it, so both outputs lie on one
-  //  grid (IEEE 1722-2016 4.3.5) and on the followed stream's timing points
-  //  (10.8). Adding an interface adds its own constants against this event,
-  //  never a second loop.
+  //  talkers stamp the frame they capture with it, so both outputs stamp one
+  //  grid's instants (IEEE 1722-2016 4.3.5), each plus its own offset, and
+  //  those sit on the followed stream's timing points (10.8). Adding an
+  //  interface adds its own constants against this event, never a second
+  //  loop.
   //
   //  The marker latency is the owner's, derived from its parameters by
   //  KL_media_if_latency_pkg: to the last bit of the pair that closes the

@@ -29,9 +29,11 @@
                 whose phase against the frame grid was whatever reset left
                 (#764 measured the DUT's AAF stream 0.46 Ps away from this
                 output): the AAF talkers stamp the same events, so both
-                outputs of the one clock domain now differ by whole periods
-                (IEEE 1722-2016 4.3.5), and the servo's phase term holds
-                them on the followed stream's timing points (10.8).
+                outputs of the one clock domain stamp one grid's instants
+                (IEEE 1722-2016 4.3.5), each plus its own offset (this one
+                in whole periods, an AAF talker's as set, #632), and the
+                servo's phase term holds them on the followed stream's
+                timing points (10.8).
 
                 Milan applies the stream PRESENTATION TIME OFFSET to CRF
                 timestamps exactly as it does to media streams (USER
@@ -406,8 +408,8 @@ module KL_crf_tx #(
   // -----------------------------------------------------------------------
   // The event grid: every 96th domain media event (2 ms at 48 kHz) is a CRF
   // timing point (timestamp_interval 96, 10.4.12), stamped with that event's
-  // own instant - so every timestamp lies on the domain's grid, whole
-  // periods from the AAF talkers' (4.3.5).
+  // own instant - so every timestamp is an instant of the domain's grid, the
+  // grid the AAF talkers stamp too (4.3.5), plus this output's offset.
   // -----------------------------------------------------------------------
   logic [6:0]  evt_cnt_r;               //! 0..95 domain events per CRF PDU
   //! this event is a CRF timing point; the engine takes its instant directly

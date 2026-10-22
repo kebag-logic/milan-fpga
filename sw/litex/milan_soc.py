@@ -635,7 +635,7 @@ _MILAN_DATAPATH_SOURCES = [
     # and the per-interface latency derivation the datapath elaborates with
     "hdl/ieee1722/crf/KL_media_domain_event.sv",
     "hdl/ieee1722/crf/KL_media_if_latency_pkg.sv",
-    # the stream outputs' presentation offsets in whole media clock periods
+    # the CRF output's presentation offset in whole media clock periods
     "hdl/ieee1722/crf/KL_mtt_round.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
     # RMON pulse synthesiser at the SoC's MAC boundary (MilanMAC instantiates it;
