@@ -200,7 +200,7 @@ Each link has exactly one master.
 | MMCM servo error | Differential rate, ns per 512 ms window | `KL_mmcm_drp_servo` |
 | Domain media event | Each frame's instant at the media interface: the closing pair's strobe, back-dated by the owner's derived marker latency (#632) | `KL_media_domain_event`, `KL_media_if_latency_pkg` |
 | MMCM servo phase term | Under a followed CRF stream: its timing points against the domain event, each folded into +/-Ps/2 exactly and unwrapped against a tracking reference, one window sum over the nominal 256 PDUs per 512 ms, re-folded; type 2; pull slew-limited to 0.5 ppm; the window phase and every sample inside +/-5 % of Ps for four full windows is `MCSRV_STAT[9]` | `KL_mmcm_drp_servo`, [phase alignment](MEDIA_CLOCK_FOLLOWING.md#phase-alignment) |
-| Stream output offsets | Every output's presentation offset applied rounded up to whole media clock periods (IEEE 1722-2016 10.7 Equation 14, `KL_crf_tx`'s rule) and read back as applied by GET_STREAM_INFO | `KL_mtt_round`, `KL_crf_tx` |
+| Stream output offsets | An AAF talker stamps its presentation offset exactly as set (Milan v1.2 5.4.2.9); the CRF output's alone is applied rounded up to whole media clock periods (IEEE 1722-2016 10.7 Equation 14, `KL_crf_tx`'s rule). GET_STREAM_INFO reads each as its output uses it: an AAF row as set, the CRF row as applied (5.4.2.10.2) | `KL_aaf_packetizer`, `KL_mtt_round`, `KL_crf_tx` |
 | MMCM servo integrator | Eight fractional bits: no window error or phase term is floored (#764) | `KL_mmcm_drp_servo` |
 | CRF output timing points | Every 96th domain event, stamped with its own instant | `KL_crf_tx` |
 | MMCM servo command | PI; 1/16 ppm per LSB; positive speeds up | `KL_mmcm_drp_servo`, `MCSRV_STAT[31:16]` |
@@ -386,7 +386,7 @@ The [design](MEDIA_CLOCK_FOLLOWING.md#the-listener-each-sample-at-its-presentati
 | Out-lead, 1x1 TDM8 | K = 2 | event latency 20,964 ns at 50 MHz |
 | Out-lead, 8x8 TDM32 | K = 1 | event latency 5,308 ns |
 | Depth | 128 rows per stream at 48 kHz | Milan v1.2 4.4.2.1's 2.126 ms, plus the event latency and two frames |
-| Supported range | 31.1 us to 2.656 ms ahead at arrival (1x1) | one out-lead less the event latency, plus Ps / 2; to the depth |
+| Supported range | 31,119 ns to 2,656,119 ns ahead at arrival (1x1); 25,942 ns to 2,650,942 ns (8x8); sized for the 2 ms default offset | one out-lead less the event latency, plus Ps / 2; to the depth |
 | Late | an event at or before the frame every interface has read | dropped; the PDU counts once in `late_o` |
 | Too early | an event a queue depth or more ahead | dropped; the PDU counts once in `early_o` |
 | Untimed | `tv` clear (4.4.4.5), or the payload before its frame | not written; counted in `untimed_o` |

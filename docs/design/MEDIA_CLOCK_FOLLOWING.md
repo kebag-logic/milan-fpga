@@ -1571,7 +1571,7 @@ detector never compares against a particular interface's pins.
 |---|---|---|---|
 | CRF stream | its timing points: the timestamp of every accepted, consumed PDU (`KL_crf_rx` `ts_p_o`), on whole periods of its media clock by Equation (14) | the servo's phase term holds the domain event on them modulo Ps; `MCSRV_STAT[9]` reads settled once the window phase and every sample of it sit inside +/-5 % of Ps, four full windows running | IEEE 1722-2016 10.7, 10.8 Equation (15); Milan v1.2 7.6.1 |
 | AAF stream, the follow-on | its presentation times. An AAF talker that itself follows CRF stamps within +/-5 % of that CRF's timing points (10.8); one on its own clock has no clause bound on its phase, and its presentation offset need not be a whole number of periods | the rate loop alone: `ph_en_i` is low under an AAF source, so the phase stays where the pull-in left it, as before #632. A phase reference for it needs a decision on that offset | Milan v1.2 7.6.1; IEEE 1722-2016 4.3.5 |
-| INTERNAL | none | no servo; the domain's outputs still stamp one grid, so they stay whole periods apart | IEEE 1722-2016 4.3.5 |
+| INTERNAL | none | no servo; the domain's outputs still stamp one grid, so with offsets of whole periods they stay whole periods apart | IEEE 1722-2016 4.3.5 |
 
 #### Detector and loop
 
@@ -1664,68 +1664,97 @@ lands in the render and loopback rings after it, inside their bands.
   base latched at the tick instead named the frame before whenever a frame
   closed on the tick's own cycle: a whole sample off, which `capture_coherence`
   caught at the engagement placed on the walk's crossing.
-- Both outputs therefore stay whole periods apart whatever the packet grid's
-  phase (4.3.5), and sit on the followed stream's timing points once the phase
-  settles (10.8). This is the assignment's item 3 by its second option: the
-  constant is folded out at the detector's own reference, and no aligner target
-  moves.
-- **Presentation offsets in whole periods.** Every stream output's offset
-  (SET_STREAM_INFO) is applied rounded up to a whole number of media clock
-  periods by `KL_crf_tx`'s own Equation (14) rule, `KL_mtt_round` serving
-  every output of the domain, so each stamps whole periods from its grid
-  (R678-1-F2): 2,010,000 ns, 96.48 periods at 48 kHz, applies as 97,
-  2,020,834 ns, where the raw value sat 0.48 Ps off the CRF timing points.
-  The CRF output stamps its applied row too (`KL_crf_tx` `ROUND_MTT_P = 0`,
-  its own converter and its multiplier block no longer elaborated), so one
-  rounding serves every output.
+- Both outputs therefore stamp the same frame instants whatever the packet
+  grid's phase (4.3.5), and those instants sit on the followed stream's timing
+  points once the phase settles (10.8). Each output adds its own offset: the
+  CRF output whole periods, an AAF talker its offset as set (next bullet), so
+  with offsets of whole periods, as the factory 2 ms is, the outputs stay
+  whole periods apart. This is the assignment's item 3 by its second option:
+  the constant is folded out at the detector's own reference, and no aligner
+  target moves.
+- **Presentation offsets: AAF as set, CRF in whole periods.** An AAF talker
+  applies its offset (SET_STREAM_INFO) exactly as set: Milan v1.2 5.4.2.9 sets
+  the offset to the commanded value, and no clause of Milan v1.2, IEEE
+  1722.1-2021 or IEEE 1722-2016 puts AAF timestamps on whole media clock
+  periods. Each AAF timestamp is its frame's instant plus the offset as set,
+  to the ns. The one round-up rule is IEEE 1722-2016 10.7 Equation (14) (PICS
+  CRF-19), and it is the CRF output's: `KL_mtt_round` rounds the CRF output's
+  row alone up to a whole number of media clock periods, and `KL_crf_tx`
+  stamps it (`ROUND_MTT_P = 0`, its own converter and multiplier block not
+  elaborated). A listener presents each sample at its own presentation time
+  (the listener section below; `render_queue`'s `[round]` phase places
+  timestamps up to 0.49 of a period off the frame grid on the nearest frame),
+  so an AAF offset that is no whole number of periods costs a receiver
+  nothing. 4.3.5's whole periods between the outputs, and 10.8 Equation
+  (15)'s +/-5 % of a period from a followed stream's timing points, hold for
+  AAF offsets of whole periods, the factory 2 ms among them. With any other
+  offset the stream sits the offset's fraction of a period off the CRF timing
+  points (2,010,000 ns at 48 kHz is 96.48 periods: 10,000 ns, 0.48 Ps, modulo
+  Ps), outside Equation (15)'s band when it follows a CRF stream; the #632
+  ruling of 2026-10-21 takes the offset as set (5.4.2.9) there too. The
+  reference talker reads back what is set as well: a SET of 2,010,000 ns
+  reads back 2,010,000. An earlier revision of #632 rounded every output's
+  row; that ruling kept the rounding for the CRF output alone.
 - **What a controller reads, and what a SET answers.** GET_STREAM_INFO's
   `msrp_accumulated_latency` is "the presentation time offset currently used
-  by the talker" (Milan v1.2 5.4.2.10.2), so GET_STREAM_INFO reads the applied
-  value: what GET_STREAM_INFO reads is what every output stamps.
-  SET_STREAM_INFO is not a readback. It sets the offset to the commanded
-  value, and its successful response echoes that value (5.4.2.9), as the
-  notification after it does (5.4.5.1; IEEE 1722.1-2021 7.5.2). For an offset
-  that is not a whole number of periods the two differ: a SET of 2,010,000 ns
-  answers 2,010,000, and GET_STREAM_INFO then reads 2,020,834. The rule is not
-  idempotent in whole ns either: a period count that is no multiple of three
-  has a ceiling (2,020,834 ns for 97 periods) above it, so a controller that
-  writes back what GET_STREAM_INFO read sets a different value, which applies
-  one period more (98 periods, 2,041,667 ns). The values a controller
-  ordinarily sets, multiples of 62,500 ns (0.25, 0.5, 1 and 2 ms), are exact,
-  and idempotent. Whether a SET modified the state, so that the other
-  registered controllers are told (5.4.5.2), is judged on the value as set: an
-  identical SET pushes nothing, and the write-back pushes once.
-  `milan_dp`'s `[NOTIFY]` grades the four steps (the held 2,000,000 ns, a
-  change to 2,010,000, the same again, the write-back of 2,020,834). The gate
-  is the processor's SET_STREAM_INFO program. The processor stores no offset
-  until a controller or a restore sets one, so the gate compares the
-  commanded value with the stored offset once one is set, and before that
-  with GET_STREAM_INFO's word, the factory offset in force. A SET of 0 on an
-  output never set therefore pushes, as the offset in force moves from 2 ms
-  to 0. Before an output's first SET, a factory offset that is not whole
-  periods is compared as applied, so a SET of exactly that value pushes;
-  every factory offset this repository ships is 2 ms, whole periods. At the
-  pinned processor the gate compares with GET_STREAM_INFO's word on every
-  output, so steps 3 and 4 fail there until a processor pin carrying the
-  stored-offset compare is adopted.
-- **Past 2^32 ns.** The ceiling adds up to one period, so at 48 kHz an offset
-  above 4,294,958,333 ns rounds past 2^32: 0xFFFFFFFF applies as 206,159
-  periods, 4,294,979,167 ns, a 33-bit value. An AAF timestamp is the low 32
-  bits of gPTP time (IEEE 1722-2016 4.4.4.9, Equation (6)), so an AAF talker
-  adds the applied value's low word and stamps exactly what the whole value
-  would. A CRF timestamp is all 64 bits (10.4.13.1, Equation (13)), so the
-  CRF output adds bit 32 too: without it, it would stamp 2^32 ns early, about
-  8,962 ns off its grid modulo Ps. GET_STREAM_INFO's field is 32 bits, so it
-  reads such a row as 0xFFFFFFFF, the largest value it can carry, never as its
-  low word (11,871 ns for 0xFFFFFFFF). A controller cannot set such an offset
-  (5.4.2.9 bounds it at 0x7FFFFFFF, and the processor refuses bit 31), so only
-  a factory row reaches it. `media_phase`'s `ofs` grades every row on all 33
-  bits, GET_STREAM_INFO's word, and every CRF timestamp on all 64 bits against
-  an independent Equation (14) result and the frame grid, at the largest
-  input that rounds under 2^32 (4,294,958,333 ns), the first past it
-  (4,294,958,334 ns) and 0xFFFFFFFF, from factory rows in reset, from rows set
-  at reset and at run time, each with the carry dropped at its four places
-  planted.
+  by the talker" (Milan v1.2 5.4.2.10.2), so it reads each row as its output
+  uses it: an AAF output's as set, the CRF output's as applied. What
+  GET_STREAM_INFO reads is what each output stamps. SET_STREAM_INFO is not a
+  readback. It sets the offset to the commanded value, and its successful
+  response echoes that value (5.4.2.9), as the notification after it does
+  (5.4.5.1; IEEE 1722.1-2021 7.5.2). On an AAF output the two agree. On the
+  CRF output they differ for an offset that is not a whole number of periods:
+  a SET of 2,010,000 ns answers 2,010,000, and GET_STREAM_INFO then reads
+  2,020,834. The CRF rule is not idempotent in whole ns either: a period count
+  that is no multiple of three has a ceiling (2,020,834 ns for 97 periods)
+  above it, so a controller that writes back what GET_STREAM_INFO read for
+  the CRF output sets a different value, which applies one period more (98
+  periods, 2,041,667 ns). The values a controller ordinarily sets, multiples
+  of 62,500 ns (0.25, 0.5, 1 and 2 ms), are exact, and idempotent. Whether a
+  SET modified the state, so that the other registered controllers are told
+  (5.4.5.2), is judged on the value as set: an identical SET pushes nothing,
+  and a changed one pushes once. `milan_dp`'s `[NOTIFY]` grades four steps on
+  AAF output 0 (the held 2,000,000 ns, a change to 2,010,000, the same again,
+  a change to 2,020,834; GET_STREAM_INFO reads each as set) and the same four
+  on the CRF output (GET_STREAM_INFO reads 2,020,834 after steps 2 and 3, and
+  step 4 is the write-back, read as 2,041,667). The gate is the processor's
+  SET_STREAM_INFO program. The processor stores no offset until a controller
+  or a restore sets one, so the gate compares the commanded value with the
+  stored offset once one is set, and before that with GET_STREAM_INFO's word,
+  the factory offset in force. A SET of 0 on an output never set therefore
+  pushes, as the offset in force moves from 2 ms to 0. Before the CRF
+  output's first SET, a factory CRF offset that is not whole periods is
+  compared as applied, so a SET of exactly that value pushes; every factory
+  offset this repository ships is 2 ms, whole periods. At the pinned
+  processor the gate compares with GET_STREAM_INFO's word on every output:
+  on an AAF output that is the stored value, so its four steps pass, and on
+  the CRF output it is not, so the CRF steps 3 and 4 fail there until a
+  processor pin carrying the stored-offset compare is adopted.
+- **Past 2^32 ns.** The ceiling adds up to one period, so at 48 kHz a CRF
+  offset above 4,294,958,333 ns rounds past 2^32: 0xFFFFFFFF applies as
+  206,159 periods, 4,294,979,167 ns, a 33-bit value. A CRF timestamp is all 64
+  bits (10.4.13.1, Equation (13)), so the CRF output adds bit 32 too: without
+  it, it would stamp 2^32 ns early, about 8,962 ns off its grid modulo Ps.
+  GET_STREAM_INFO's field is 32 bits, so it reads such a row as 0xFFFFFFFF,
+  the largest value it can carry, never as its low word (11,871 ns for
+  0xFFFFFFFF). An AAF offset is never rounded, so it stays 32 bits, and an AAF
+  timestamp is the low 32 bits of gPTP time (IEEE 1722-2016 4.4.4.9, Equation
+  (6)): the frame's instant plus the offset, modulo 2^32. A controller cannot
+  set an offset from 2^31 on (5.4.2.9 bounds it at 0x7FFFFFFF, and the
+  processor refuses bit 31), so only a factory row reaches one.
+  `media_phase`'s `ofs` grades 0, 1, 20,833, 20,834, 62,500, 2,000,000,
+  2,010,000 and 0xFFFFFFFF ns on AAF rows and on the CRF row (and on the CRF
+  row 4,294,958,333 and 4,294,958,334, the largest whose rounding fits 32 bits
+  and the first whose does not), from the CRF row's factory value in reset,
+  from rows set at reset and at run time: every AAF timestamp a frame instant
+  plus its row as set, to the ns; GET_STREAM_INFO's word for every row; the
+  CRF row on all 33 bits and every CRF timestamp on all 64 against an
+  independent Equation (14) result and the frame grid. Its planted defects are
+  the AAF rows stamped rounded and read back rounded (round 2's binding), the
+  CRF row stamped as set, and the carry dropped at its four places.
+  `milan_dp`'s output walk requires every stamp, on every output of the 4x4
+  and 8x8 shapes, to be a domain media event's instant plus the offset
+  GET_STREAM_INFO reads, at 2 ms, 1 ms and 2,010,000 ns.
 - **Sources outside the frame bank.** A talker channel mapped from the stereo
   I2S hold, the tone or the loopback carries no frame instant of its own: its
   column is stamped with the physical frame's.
@@ -1820,13 +1849,36 @@ other phase (INTERNAL against a foreign talker, a grid after a hold) every
 sample is at the frame instant nearest its presentation time, within Ps / 2.
 
 **The supported range** is the queue's depth, derived from the longest hold
-it must keep: Milan v1.2 4.4.2.1's 2.126 ms. ROWS = 2^ceil(log2(ceil((2.126
-ms + event latency) / Ps) + 2)) rows per stream: 128 at 48 kHz. A sample is
+it must keep: Milan v1.2 4.4.2.1's 2.126 ms, so the queue is sized for the
+2 ms presentation time offset, Milan v1.2 5.3.7.6's default, and no deeper
+option is built. ROWS = 2^ceil(log2(ceil((2.126 ms + event latency) / Ps) +
+2)) rows per stream: 128 at 48 kHz on both shipping shapes. A sample is
 written for every interface when, at its arrival, its presentation time is
 more than K_max x Ps - event latency + Ps / 2 ahead (it must arrive before its
-frame is read: 31.1 us on the 1x1 shape), and for at least the last reader up
-to (K_min + ROWS - 1.5) x Ps - event latency ahead: 2.656 ms on the 1x1
-shape, above 2.126 ms.
+frame is read), and for at least the last reader up to (K_min + ROWS - 1.5) x
+Ps - event latency ahead:
+
+| Shape | K | Event latency | Ahead of its presentation time at arrival |
+|---|---|---|---|
+| 1x1 TDM8 | 2 | 20,964 ns | 31,119 ns to 2,656,119 ns |
+| 8x8 TDM32 | 1 | 5,308 ns | 25,942 ns to 2,650,942 ns |
+
+A PDU's lead at arrival is the talker's presentation time offset less the
+PDU's transit (the talker's capture to this listener's depacketizer), so a
+talker offset is presented whole when the offset less that transit lies in
+the range: at the 2 ms default, any transit under 1,968,881 ns (1x1), and
+offsets up to 2,656,119 ns plus the transit. Outside the range nothing is
+re-centred: a PDU whose first event is too early is refused by the too-early
+rule and counted in `early_o` (`RENDER_STAT[31:16]`), one too late by the
+late rule in `late_o`. A talker of this device still accepts any offset from 0
+to 0x7FFFFFFF ns (Milan v1.2 5.4.2.9), since it cannot know its listeners'
+buffering. IEEE 1722.1-2021 7.4.77.1 bounds a controller's Max Transit Time by
+the buffering of the stream's listeners, which each STREAM_INPUT declares in
+`buffer_length` (TTmax <= Tbuf - TUmax - PSTmax, its NOTE): every shipping
+shape declares 2,126,000 ns, the builder's floor (Milan v1.2 5.3.3.4), and
+the queue holds 2,656,119 ns (1x1) and 2,650,942 ns (8x8) ahead at arrival,
+so the declared limit is backed. The builder accepts a larger
+`buffer_length_ns`; the queue's depth does not grow with it.
 
 **The rules, per PDU, and their counters.** Against R, the frame every
 interface has read:
@@ -1942,7 +1994,7 @@ target was chosen for it.
 | The detector alone, every boundary placed exactly: samples either side of +/-Ps/2 (balanced, 129:127, 160:96, jittered) read the half-period phase and pull at the slew limit, never settled; a mean in band of samples out of it never settles; settled rises at the fourth full in-band window and not before, falls at every hold and at the first out-of-band window; a phase crossing +Ps/2 re-folds the short way; d = +/-(2^25 - 1) ns is sampled and +/-2^25 ns is not; each hold on, one cycle before and one after a window's closing edge commits no correction, none and the whole one | `media_phase` det (`sim_det.cpp`) | the tracking fold removed; the window's re-fold removed; settled from the mean alone; the snapshot reading only the valid flag; settled the engaged bit; the fold-range guard removed; the fold not centred |
 | Engagements at +/-Ps/2 under 8 ns timestamp truncation and +/-48 ns jitter; a local PHC step | `media_phase` `edge`, `edge2`, `phcstep` | the PHC step left out of the hold (`phcstep`) |
 | Every case: settled never reads 1 at a window whose true phase is outside the band, and `MCSRV_STAT[9]` mirrors `phase_o[21]` on every cycle | every `media_phase` loop case | settled the engaged bit (det) |
-| Four AAF outputs and the CRF output of one domain with offsets 0, 1, 20,833, 20,834, 62,500, 2,000,000, 2,010,000, 4,294,958,333 and 0xFFFFFFFF ns, set at reset and at run time: every row read back as applied, every AAF timestamp and every CRF timing point a frame instant plus its row, every AAF output whole periods from the CRF timing points | `media_phase` ofs (`sim_ofs.cpp`); `milan_dp` nxn legs read a 2,010,000 ns row back through GET_STREAM_INFO | the offsets stamped as set; the CRF output stamping its row as set |
+| Four AAF outputs and the CRF output of one domain with offsets 0, 1, 20,833, 20,834, 62,500, 2,000,000, 2,010,000 and 0xFFFFFFFF ns on both (and 4,294,958,333 and 4,294,958,334 on the CRF row), set at reset and at run time: every AAF timestamp a frame instant plus its row as set, to the ns; every CRF timing point a frame instant plus its row rounded by Equation (14), all 64 bits; GET_STREAM_INFO reading an AAF row as set and the CRF row as applied | `media_phase` ofs (`sim_ofs.cpp`); on the shipping datapath, `milan_dp`'s nxn legs (4x4, 8x8) grade every stamp of every output against the domain events at 2 ms, 1 ms and 2,010,000 ns, and `[NOTIFY]` the four SET_STREAM_INFO steps on an AAF output and on the CRF output | the AAF rows stamped rounded and read back rounded; the CRF output stamping its row as set; the carry dropped at its four places; on the datapath, GET_STREAM_INFO reading the CRF row as set or every row rounded (`gsi_mutants.py`); the CRF output stamping its row as set and the AAF talkers stamping theirs rounded were planted once on the nxn leg for PR #770, each failing its exact-stamp check |
 | The in-tree I2S + TDM8 blend: the I2S pair and every TDM pair of each frame the crossbar banks started at its pins within +/-5 % of Ps of the banked instant, unfolded, six reset phases | `media_phase` blend (`sim_blend.cpp`) | the frame closed on its TDM pair with the TDM latency; the I2S pair copied a pop late |
 
 `make -C tb/verilator/media_phase mutants` runs that suite's campaign as its own

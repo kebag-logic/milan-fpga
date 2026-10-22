@@ -62,21 +62,22 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The AAF talkers stamp their frame's pin instant.
 - The capture crossbar banks that instant with the frame.
 - Capture age and pair offset leave the timestamp.
-- Both outputs stay whole periods apart (4.3.5).
-- Once settled they sit within 5 % of a period.
+- Both outputs stamp the same frame instants (4.3.5).
+- Once settled those sit within 5 % of a period.
 - That is IEEE 1722-2016 10.8 and 4.3.5.
 - `MCSRV_STAT[9]` now reads the phase settled.
 - Each phase sample is unwrapped against a tracking reference.
 - Samples either side of +/-Ps/2 no longer cancel.
 - Settled needs every sample of four full windows in band.
 - A hold on a window's closing edge drops its correction.
-- Every output's presentation offset applies in whole periods.
-- The rule is `KL_crf_tx`'s Equation 14; readback shows it.
-- GET_STREAM_INFO reads the offset applied (5.4.2.10.2).
+- AAF stamps the offset as set (5.4.2.9).
+- Only CRF rounds it, by Equation 14.
+- GET_STREAM_INFO reads AAF as set (5.4.2.10.2).
+- It reads the CRF offset as applied.
 - SET_STREAM_INFO still echoes the value set (5.4.2.9).
 - Pushes need a changed value set (5.4.5.2).
 - That gate is the processor's; a pin brings it.
-- An offset rounding past 2^32 ns keeps its carry.
+- Rounding past 2^32 ns keeps its carry.
 - The CRF timestamp adds it; AAF needs 32 bits.
 - GET_STREAM_INFO reads such a row as 0xFFFFFFFF.
 - The I2S blend's frame now closes on its I2S pair.

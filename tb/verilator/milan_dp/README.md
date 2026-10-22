@@ -688,6 +688,20 @@ Measured on 2026-09-25 UTC: the clean leg passes 380/380 checks.
 The duplicate also fails the exact count to B.
 It replays `srp_evt_tk_unreg_w` after the legitimate pushes drain.
 A simultaneous duplicate would coalesce, providing no extra push.
+
+The #632 rows grade the presentation offset (Milan v1.2 5.4.2.9, 5.4.2.10.2).
+An AAF output reads back its offset as set; the CRF output reads it applied.
+Measured on 2026-10-22 UTC with the processor's stored-offset gate spliced in.
+The clean leg then passes 459/459 checks.
+
+| Mutant | Named check that fails | Failures |
+|---|---|---|
+| the push gate compares with GET_STREAM_INFO's word again | `[NOTIFY]` SET_STREAM_INFO CRF step 3 | 3 of 459 |
+| GET_STREAM_INFO reads the CRF output's offset as set | `[NOTIFY]` SET_STREAM_INFO CRF step 2, the offset applied | 3 of 459 |
+| GET_STREAM_INFO reads every output's offset rounded | `[NOTIFY]` SET_STREAM_INFO step 2, the offset as set | 3 of 459 |
+
+At the pinned processor the gate still compares with GET_STREAM_INFO's word.
+So the clean leg fails CRF steps 3 and 4 there until a pin carries the fix.
 The mutant's two extra responses receive the same content checks.
 That adds sixteen checks to its run.
 The campaign runs explicitly: eight mutant elaborations and nine runs.
