@@ -131,8 +131,9 @@ module KL_crf_tx #(
   //! 1: transit_ns_i is the Max Transit Time as set, rounded up to whole
   //! media clock periods here (Equation 14, the converter below). 0: it is
   //! already the offset to stamp, whole periods, rounded by the integration
-  //! with the same rule for every output of the domain (milan_datapath's
-  //! KL_mtt_round, #632), and no converter is elaborated
+  //! with the same rule (milan_datapath's KL_mtt_round, which rounds this
+  //! output's row alone: the AAF talkers stamp theirs as set, #632), and no
+  //! converter is elaborated
   parameter bit ROUND_MTT_P = 1'b1
 )(
   input  wire         clk_i,             //! cd_milan datapath clock

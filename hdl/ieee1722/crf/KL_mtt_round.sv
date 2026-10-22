@@ -9,41 +9,38 @@
   Author      : Kebag Logic
 
   Date        : 2026-10-20
-  Description : The presentation offsets of one clock domain's stream outputs,
-                each rounded UP to a whole number of media clock periods
-                (#632).
+  Description : The CRF Media Clock Output's presentation offset, rounded
+                UP to a whole number of media clock periods (#632).
 
-                IEEE 1722-2016 4.3.5 asks the streams generated from one media
-                clock to stay whole periods apart, and 10.8 Eq. 15 puts the
-                timestamps of a talker that follows CRF within +/-5 % of a
-                period of the CRF timing points. The domain's outputs all stamp
-                one grid of frame instants (KL_media_domain_event), so each
-                output's offset must itself be whole periods: a raw 2,010,000
-                ns at 48 kHz leaves 10,000 ns modulo Ps, 0.48 Ps off the grid.
-
-                THE RULE IS KL_crf_tx's, 10.7 Equation (14), applied to every
-                row:
+                THE RULE IS IEEE 1722-2016 10.7 Equation (14) (PICS CRF-19),
+                KL_crf_tx's own:
                   periods   = ceil(TTmax / P)   = ceil(TTmax * DEN / NUM)
                   offset_ns = ceil(periods * P) = ceil(periods * NUM / DEN)
                 with P = NUM / DEN ns exactly (62500 / 3 at 48 kHz). The
                 ceiling leaves offset_ns at most 1 ns above periods * P, five
-                orders of magnitude inside the 10.8 band, and never below the
-                Max Transit Time. This module serves every output of the
-                domain, the AAF talkers and the CRF output (KL_crf_tx with
-                ROUND_MTT_P = 0, its own converter not elaborated), and the
-                GET_STREAM_INFO readback of every row (rb_ns_o), so what a
-                controller reads through GET_STREAM_INFO is what every output
-                stamps (Milan v1.2 5.4.2.10.2: the offset the talker
-                currently uses). SET_STREAM_INFO is another matter: its
-                response, and the notification after it, echo the value as
-                set (5.4.2.9), which a non-period offset is not.
+                orders of magnitude inside 10.8 Eq. 15's +/-5 % band, and
+                never below the Max Transit Time. milan_datapath binds one
+                row, the CRF output's (KL_crf_tx with ROUND_MTT_P = 0, its own
+                converter not elaborated), and serves GET_STREAM_INFO's
+                readback of that row from rb_ns_o, so what a controller reads
+                is what the CRF output stamps (Milan v1.2 5.4.2.10.2: the
+                offset the talker currently uses).
+
+                NOT THE AAF TALKERS'. They apply their offsets exactly as set
+                (Milan v1.2 5.4.2.9): no clause puts AAF timestamps on whole
+                periods, and a listener presents each sample at its own
+                timestamp, so an AAF offset that is no whole number of
+                periods costs a receiver nothing. Equation (14) is a CRF rule.
 
                 NOT IDEMPOTENT, as Equation 14 is not in whole ns: a whole
                 number of periods that is no multiple of three (97 periods,
                 2,020,833.33 ns) is applied as its ceiling, 2,020,834 ns, and
                 that value set again is above 97 periods, so it applies as
-                98. Values a controller ordinarily sets, multiples of
-                62,500 ns (0.25, 0.5, 1 and 2 ms), are exact and idempotent.
+                98. SET_STREAM_INFO's response echoes the value as set
+                (5.4.2.9), so a controller writing back what GET read moves a
+                non-period CRF offset up one more period. Values a controller
+                ordinarily sets, multiples of 62,500 ns (0.25, 0.5, 1 and
+                2 ms), are exact and idempotent.
 
                 SEQUENTIAL, ONE DIVIDER, NO MULTIPLIER. The rows change at
                 register rate (SET_STREAM_INFO), so one restoring divider
@@ -56,18 +53,16 @@
                 whole conversion, never a half-converted value. Reset loads
                 every row's output with the rounding of RESET_NS_P, its
                 factory value, computed at elaboration, so no row reads 0 at
-                power-on.
+                power-on. N_P rows share the divider; the datapath binds 1.
 
                 THE ROUNDED VALUE IS 33 BITS: the ceiling adds up to one
                 period, so at 48 kHz an input above 4,294,958,333 ns (whose
                 rounding, 206,158 periods or 4,294,958,334 ns, is the largest
                 under 2^32) rounds past 2^32: 0xFFFFFFFF applies as 206,159
                 periods, 4,294,979,167 ns. ofs_ns_o is each row's low 32 bits
-                and ofs_c_o its bit 32. An AAF timestamp is the low 32 bits of
-                gPTP time, so an AAF talker adds the low word alone and stamps
-                exactly what the whole value would. A CRF timestamp is all 64
-                bits (IEEE 1722-2016 10.4.13.1), so KL_crf_tx adds both: without
-                the carry it would stamp 2^32 ns early, about 8,962 ns off its
+                and ofs_c_o its bit 32. A CRF timestamp is all 64 bits (IEEE
+                1722-2016 10.4.13.1), so KL_crf_tx adds both: without the
+                carry it would stamp 2^32 ns early, about 8,962 ns off its
                 grid modulo Ps. GET_STREAM_INFO's msrp_accumulated_latency is
                 32 bits, so rb_ns_o reads a row whose applied value passes
                 2^32 - 1 ns as 0xFFFFFFFF, the nearest it can carry, never as
@@ -80,9 +75,9 @@
 ------------------------------------------------------------------------------
 */
 
-//! Presentation offsets rounded up to whole media clock periods (IEEE
-//! 1722-2016 10.7 Eq. 14, 4.3.5, 10.8 Eq. 15), one shared sequential divider,
-//! factory values rounded at elaboration.
+//! The CRF output's presentation offset rounded up to whole media clock
+//! periods (IEEE 1722-2016 10.7 Eq. 14, 10.8 Eq. 15), one shared sequential
+//! divider, factory values rounded at elaboration.
 
 `default_nettype none
 
