@@ -77,7 +77,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - It reads the CRF offset as applied.
 - SET_STREAM_INFO still echoes the value set (5.4.2.9).
 - Pushes need a changed value set (5.4.5.2).
-- That gate is the processor's; a pin brings it.
+- That gate is the processor's; pin `93fb0b2d` carries it.
 - Rounding past 2^32 ns keeps its carry.
 - The CRF timestamp adds it; AAF needs 32 bits.
 - GET_STREAM_INFO reads such a row as 0xFFFFFFFF.
