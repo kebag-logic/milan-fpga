@@ -1,0 +1,69 @@
+toolchain {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+stack pin 70936b77dc41981e192438388cd0aced69954f18
+processor pin ('93fb0b2d736b36588ea7321e25fba2f8819ea41f', 'f7166adddf7195dbcc01c2bb2e76d350e56cad8f')
+{
+  "acmp-kind-lost": {
+    "path": "tsn-c-stack/src/acmp.c",
+    "old": "\ta->sinks[sink].tk_failed = failed;",
+    "new": "\t(void)failed;",
+    "kills": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.KindChangesOnlyTheSettledView",
+        "needle": "kind updates the reported view",
+        "rc": 1,
+        "caught": true,
+        "fails": [
+          "[FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind updates the reported view",
+          "[FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind change notifies once",
+          "[FAIL] AcmpCore.KindChangesOnlyTheSettledView: same kind is idempotent",
+          "[FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind change notifies once",
+          "[FAIL] AcmpCore.KindChangesOnlyTheSettledView: same kind is idempotent"
+        ]
+      },
+      {
+        "arm": "acmpwalk",
+        "test": "Table530/ListenerWalk.Graded/TK_REG_SOK",
+        "needle": "registered state",
+        "rc": 1,
+        "caught": true,
+        "fails": [
+          "[FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: the talker's discovered and registered state",
+          "[FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: notified exactly when a Table 5.22 item moved"
+        ]
+      }
+    ],
+    "killed": true
+  },
+  "acmp-kind-not-notified": {
+    "path": "tsn-c-stack/src/acmp.c",
+    "old": "\ta->sinks[sink].tk_failed = failed;\n\tfinish(a);",
+    "new": "\ta->sinks[sink].tk_failed = failed;\n\tview_of(&a->sinks[sink], &a->sinks[sink].reported);\n\tfinish(a);",
+    "kills": [
+      {
+        "arm": "acmp",
+        "test": "AcmpCore.KindChangesOnlyTheSettledView",
+        "needle": "kind change notifies once",
+        "rc": 1,
+        "caught": true,
+        "fails": [
+          "[FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind change notifies once",
+          "[FAIL] AcmpCore.KindChangesOnlyTheSettledView: same kind is idempotent",
+          "[FAIL] AcmpCore.KindChangesOnlyTheSettledView: kind change notifies once",
+          "[FAIL] AcmpCore.KindChangesOnlyTheSettledView: same kind is idempotent"
+        ]
+      },
+      {
+        "arm": "acmpwalk",
+        "test": "Table530/ListenerWalk.Graded/TK_REG_SOK",
+        "needle": "notified exactly when a Table 5.22 item moved",
+        "rc": 1,
+        "caught": true,
+        "fails": [
+          "[FAIL] Table530/ListenerWalk.Graded/TK_REG_SOK: LW TK_REG x SOK: notified exactly when a Table 5.22 item moved"
+        ]
+      }
+    ],
+    "killed": true
+  }
+}

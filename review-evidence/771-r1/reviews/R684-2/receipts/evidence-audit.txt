@@ -1,0 +1,21 @@
+Public archive: b6d9eaa187cb2c43548e22e7adae21b35b539107
+Published SHA-256 receipts verified: {"author": 44, "author-r2": 196}
+Original hashes are not substituted for hashes of redacted publication bytes.
+Text firmware log: 316446 bytes; sha256 0316e30263902dbfa140a4e1e9a209f9fdc79f509800581b6b0b9c15e08b8b86
+Firmware arm tallies: 66 checks: 1593 failures: 0
+[ok] mutant acmp-kind-lost (acmp, acmpwalk): 7 check(s) failed
+[ok] mutant acmp-kind-not-notified (acmp, acmpwalk): 5 check(s) failed
+mutants: 521 of 521 caught
+test_ctrl_firmware: PASS
+fw_rv32_selftest rc=0
+tally_selftest_mutants rc=0
+ctrl_firmware rc=0
+ctrl_firmware_shards rc=0
+ctrl_nvm rc=0
+fw_coverage_selftest rc=0
+fw_coverage_check rc=0
+ctrl_boundary_litex rc=0
+Disclosed earlier/non-assigned run: ctrl_boundary rc=2
+Disclosed earlier/non-assigned run: firmware_census rc=1
+Census head/base archived outputs byte-identical.
+Archive commit signature header present: False
