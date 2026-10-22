@@ -36,8 +36,15 @@
                 = 3e9 / fs units: long division of 3d, one quotient bit per
                 cycle, the remainder rounding to the nearest): the
                 PDU's first event belongs to frame F0 = n + round(d / Ps),
-                event k to F0 + k. The payload's beats are walked by the
-                crossbar's position counter (wire channel = position mod the
+                event k to F0 + k. d may be negative, a timestamp behind
+                the latest event: the divider takes d + LATE_C x Ps (LATE_C
+                frames, the late reach, a whole number of ns) and F0 is
+                taken LATE_C lower, so every d from LATE_C frames behind to
+                beyond the queue divides the same way (the wrapped
+                difference is read from 2^31 ns + LATE_C x Ps behind to
+                2^31 ns - LATE_C x Ps ahead). The payload's beats are
+                walked by the crossbar's position counter (wire channel =
+                position mod the
                 stream's channel count, restart at tlast) and each sample is
                 written into its frame's row, lane = wire channel, with a
                 valid bit. Wire channels beyond N_CH_P are walked, never
@@ -68,20 +75,27 @@
                 THE RULES, per event of a PDU, against R at its write:
                   late   F <= R: every interface has presented frame F; the
                          event is dropped. A PDU with any late event counts
-                         once in late_o and once in refused_o.
+                         once in late_o. A PDU whose
+                         timestamp is behind the latest event is judged so
+                         too: its events still ahead of R are written. One
+                         timestamped more than LATE_C frames behind is late
+                         in every event, as no PDU walks more than MAX_EV_P
+                         events (LATE_C >= MAX_EV_P - 1, R >= n).
                   early  F >= R + ROWS_C: beyond the queue, its row still
                          holds frame F - ROWS_C; the event is dropped. A PDU
-                         with any early event counts once in early_o and once
-                         in refused_o.
+                         with any early event counts once in early_o.
                   else   written. An interface whose read of frame F has
                          already happened presents that frame as silence.
+                A PDU with a late or an early event counts once in
+                refused_o (one longer than the queue can have both).
                 A PDU with tv = 0, or whose payload starts before its frame
                 is known (a header without the lead), carries no
                 presentation time here: not written, counted once in
-                untimed_o. A PDU may carry any number of events: the walk
-                keeps each sample's frame (F0, one more per event), and
-                once an event lies past the queue the PDU's later events
-                are refused with it, before a frame number could wrap.
+                untimed_o. A PDU may carry up to MAX_EV_P events (the
+                depacketizer's frame FIFO bounds it): the walk keeps each
+                sample's frame (F0, one more per event), and once an event
+                lies past the queue the PDU's later events are refused with
+                it, before a frame number could wrap.
 
                 SUPPORTED RANGE. Written for every interface when, at its
                 arrival, max_i(K_i) x Ps - EV_LAT_NS_P + Ps/2 < PT - now
@@ -171,6 +185,9 @@ module KL_render_queue #(
   parameter int unsigned PAY_LEAD_CYC_P = 16, //! cycles the depacketizer
                                               //! guarantees from hdr_p_i
                                               //! to the PDU's first beat
+  parameter int unsigned MAX_EV_P      = 504, //! the most events one PDU
+                                              //! walks (two per payload
+                                              //! beat, one channel)
   parameter int unsigned CLK_FREQ_HZ_P = 100_000_000 //! clk_i, Hz (the
                                               //! observer's millisecond)
 )(
@@ -229,7 +246,8 @@ module KL_render_queue #(
                                                  //! for 100 ms running
   output logic [15:0]              late_o,       //! late PDUs (saturating)
   output logic [15:0]              early_o,      //! too-early PDUs
-  output logic [15:0]              refused_o,    //! late and too-early PDUs
+  output logic [15:0]              refused_o,    //! PDUs with a late or a
+                                                 //! too-early event
   output logic [15:0]              untimed_o,    //! PDUs without a frame
   output logic [15:0]              slips_o       //! gaps and overlaps
 );
@@ -251,11 +269,6 @@ module KL_render_queue #(
   localparam int unsigned     SPAN_C2 = ROWS_C * PST_C;       //! words per stream
   localparam int unsigned     DEPTH_C = N_STREAMS_P * SPAN_C2;
   localparam int unsigned     AW_C    = $clog2(DEPTH_C);      //! bank address
-  //! frame numbers: wide enough that every difference the stage takes is
-  //! inside half the wrap. The widest is a header's frame against R: at
-  //! most QMAX_C + 7 (the PDU's last event) + 2 (an event the schedule has
-  //! not served yet) - K_min, under 2 x ROWS_C (g_chk_wrap)
-  localparam int unsigned     FW_C    = RW_C + 2;
 
   //! the interfaces' out-leads
   function automatic int unsigned if_lead(input int unsigned i);
@@ -274,17 +287,33 @@ module KL_render_queue #(
   localparam int unsigned KMIN_C = lead_min();
   localparam int unsigned KMAX_C = lead_max();
 
-  //! the divider: quotients above QMAX_C are early whatever their value
+  //! the late reach: a timestamp up to LATE_C frames behind the latest
+  //! event is divided exactly, each of its events then judged on its own
+  //! frame. One further behind is late in every event: no PDU walks more
+  //! than MAX_EV_P events, so its last lies at or before the latest event's
+  //! frame, at or before R. A multiple of three, so LATE_C x Ps is whole ns.
+  localparam int unsigned     LATE_C  = 3 * ((MAX_EV_P + 1) / 3);
+  localparam longint unsigned BIAS_L  = 64'(LATE_C) * PS3_L / 64'd3;
+  //! the divider takes d + LATE_C x Ps: quotients above LATE_C + QMAX_C are
+  //! early whatever their value
   localparam int unsigned     QMAX_C  = ROWS_C + KMAX_C + 1;
-  localparam int unsigned     QW_C    = $clog2(QMAX_C + 1);
-  localparam longint unsigned NMAX_L  = 64'(QMAX_C + 1) * PS3_L;
+  localparam int unsigned     QW_C    = $clog2(LATE_C + QMAX_C + 1);
+  localparam longint unsigned NMAX_L  = (64'(LATE_C) + 64'(QMAX_C) + 64'd1) * PS3_L;
   localparam int unsigned     NW_C    = $clog2(NMAX_L);
   //! the remainder's bits, and the rounding threshold: round(N / Ps) is the
   //! quotient plus one when the remainder is at least Ps - floor(Ps / 2)
   localparam int unsigned     PW_C    = $clog2(PS3_C);
   localparam int unsigned     RND_C   = PS3_C - PS3_C / 2;
-  //! d at or above this rounds past QMAX_C
+  //! d + LATE_C x Ps at or above this rounds past LATE_C + QMAX_C
   localparam longint unsigned DEARLY_L = (NMAX_L - PS3_L / 2 + 64'd2) / 64'd3;
+  //! frame numbers: wide enough that every difference the stage takes is
+  //! inside half the wrap. The widest are a walked event's frame against R:
+  //! as far behind as the late reach, K_max and two events the schedule has
+  //! not served yet; ahead, QMAX_C + 7 + 2 before the past-the-queue hold
+  //! (g_chk_wrap)
+  localparam int unsigned     DMAX_C  = (LATE_C + KMAX_C + 2 > QMAX_C + 9) ? LATE_C + KMAX_C + 2
+                                                                         : QMAX_C + 9;
+  localparam int unsigned     FW_C    = $clog2(DMAX_C + 1) + 1;
   //! the observer's period and dwell
   localparam int unsigned     MS_DIV_C     = CLK_FREQ_HZ_P / 1000;
   localparam int unsigned     CONV_DWELL_C = 100;
@@ -316,7 +345,7 @@ module KL_render_queue #(
   if (KMAX_C + 2 >= ROWS_C) begin : g_chk_window
     $error("KL_render_queue: the out-lead %0d leaves no window in %0d rows", KMAX_C, ROWS_C);
   end : g_chk_window
-  if (ROWS_C + KMAX_C + 1 + 7 + 2 >= (1 << (FW_C - 1))) begin : g_chk_wrap
+  if (DMAX_C >= (1 << (FW_C - 1))) begin : g_chk_wrap
     $error("KL_render_queue: %0d-bit frame numbers do not hold the window's differences at out-lead %0d", FW_C, KMAX_C);
   end : g_chk_wrap
   if (NW_C > 31 || DEARLY_L > 64'h7FFF_FFFF || PW_C + QW_C < NW_C) begin : g_chk_div
@@ -327,6 +356,9 @@ module KL_render_queue #(
   if (PAY_LEAD_CYC_P < QW_C + 3) begin : g_chk_lead_cyc
     $error("KL_render_queue: PAY_LEAD_CYC_P=%0d is under the %0d cycles the header's frame takes", PAY_LEAD_CYC_P, QW_C + 3);
   end : g_chk_lead_cyc
+  if (MAX_EV_P < 1) begin : g_chk_max_ev
+    $error("KL_render_queue: MAX_EV_P=%0d: a PDU walks at least one event", MAX_EV_P);
+  end : g_chk_max_ev
   if (CLK_FREQ_HZ_P < 2000) begin : g_chk_clk
     $error("KL_render_queue: CLK_FREQ_HZ_P=%0d cannot divide to a millisecond observer period", CLK_FREQ_HZ_P);
   end : g_chk_clk
@@ -393,23 +425,26 @@ module KL_render_queue #(
     P_NONE_S,     //! no header since the last PDU
     P_DIV_S,      //! dividing
     P_OK_S,       //! the frame is known
-    P_LATE_S,     //! the whole PDU is late
+    P_LATE_S,     //! every event late: past the late reach
     P_EARLY_S,    //! the whole PDU is beyond the queue
     P_UNTIMED_S   //! tv = 0
   } pstate_t;
   pstate_t pst_r;
 
-  //! d, then N = 3 d, then {the remainder, N's bits still to bring down,
-  //! the quotient's bits so far}
+  //! d + LATE_C x Ps, then N = 3 (d + LATE_C x Ps), then {the remainder,
+  //! N's bits still to bring down, the quotient's bits so far}
   logic [PW_C+QW_C-1:0] ld_r;
   logic [$clog2(QW_C+1)-1:0] step_r; //! quotient bits still to decide
   logic            tri_r;      //! ld_r still holds d, to be tripled
-  logic [FW_C-1:0] f0_r;       //! the header's frame number, then F0, then
-                               //! the walk's frame
+  logic [FW_C-1:0] f0_r;       //! the header's frame number less the late
+                               //! reach, then F0, then the walk's frame
 
-  wire signed [31:0] d_w      = signed'(hdr_ts_ns_i - ev_ns_i);
-  wire               d_late_w = d_w[31];
-  wire               d_far_w  = !d_w[31] && (64'(unsigned'(d_w)) >= DEARLY_L);
+  //! d + LATE_C x Ps: the timestamp against the latest event's instant
+  //! (32-bit wrap, 1722-2016 4.4.4.9), read in [-2^31, 2^31) less the late
+  //! reach. Negative: more than the reach behind, every event late
+  wire        [31:0] db_w     = hdr_ts_ns_i - ev_ns_i + 32'(BIAS_L);
+  wire               d_late_w = db_w[31];
+  wire               d_far_w  = !db_w[31] && (64'(db_w) >= DEARLY_L);
   //! one step: the remainder with N's next bit brought down, against Ps
   wire [PW_C:0]      lt_w     = ld_r[PW_C+QW_C-1:QW_C-1];
   wire               dge_w    = (lt_w >= (PW_C+1)'(PS3_C));
@@ -731,14 +766,14 @@ module KL_render_queue #(
     end else begin
       if (pst_r == P_DIV_S) begin
         if (tri_r) begin
-          //! N = 3 d, in thirds of a nanosecond
+          //! N = 3 (d + LATE_C x Ps), in thirds of a nanosecond
           ld_r  <= (PW_C+QW_C)'({ld_r, 1'b0} + ld_r);
           tri_r <= 1'b0;
         end else if (step_r != '0) begin
           ld_r   <= {lr_w, ld_r[QW_C-2:0], dge_w};
           step_r <= step_r - 1'b1;
         end else begin
-          //! F0 = n + round(N / Ps)
+          //! F0 = n - LATE_C + round(N / Ps)
           pst_r <= P_OK_S;
           f0_r  <= f0_r + FW_C'(ld_r[QW_C-1:0]) + FW_C'(rnd_w);
         end
@@ -750,8 +785,8 @@ module KL_render_queue #(
       if (hdr_p_i) begin
         step_r <= ($clog2(QW_C+1))'(QW_C);
         tri_r  <= 1'b1;
-        f0_r   <= n_now_w;
-        ld_r   <= (PW_C+QW_C)'(unsigned'(d_w));
+        f0_r   <= n_now_w - FW_C'(LATE_C);
+        ld_r   <= (PW_C+QW_C)'(db_w);
         pst_r  <= !hdr_tv_i ? P_UNTIMED_S
                 : d_late_w  ? P_LATE_S
                 : d_far_w   ? P_EARLY_S
@@ -879,7 +914,8 @@ module KL_render_queue #(
       ms_div_r <= ms_p_w ? '0 : ms_div_r + 1'b1;
       if (c_late_w    && !(&late_o))    late_o    <= late_o + 16'd1;
       if (c_early_w   && !(&early_o))   early_o   <= early_o + 16'd1;
-      //! a PDU is late or too early, never both
+      //! once per PDU with a late or a too-early event (one longer than the
+      //! queue can have both)
       if ((c_late_w || c_early_w) && !(&refused_o)) refused_o <= refused_o + 16'd1;
       if (c_untimed_w && !(&untimed_o)) untimed_o <= untimed_o + 16'd1;
       //! a gap and an overlap can land on one cycle

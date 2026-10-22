@@ -6547,11 +6547,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! render stage takes to place the PDU (its divider: a quotient bit per
   //! cycle; KL_render_queue refuses a shorter lead at elaboration)
   localparam int RENDER_PAY_LEAD_C = 16;
+  //! #632: the longest PDU the render stage walks. The frame FIFO drops a
+  //! frame over its depth, so a payload is at most the depth less the
+  //! 38-byte untagged header: 252 beats of two samples, 504 one-channel
+  //! events (the stage's late reach covers it)
+  localparam int DPKT_FIFO_BYTES_C = 2048;
+  localparam int RENDER_MAX_EV_C   = 2 * ((DPKT_FIFO_BYTES_C - 38 + 7) / 8);
   wire        dpkt_hdr_p_w;
   wire [31:0] dpkt_hdr_ts_w;
   wire        dpkt_hdr_tv_w;
   KL_aaf_rx_depacketizer #(
-    .PAY_LEAD_CYC_P (RENDER_PAY_LEAD_C)
+    .FIFO_DEPTH_BYTES (DPKT_FIFO_BYTES_C),
+    .PAY_LEAD_CYC_P   (RENDER_PAY_LEAD_C)
   ) aaf_rx_depkt (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! pre-filter tap - see avtp_rx_parser note
@@ -6936,9 +6943,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //    MAX_HOLD          Milan v1.2 4.4.2.1: the 2.126 ms a listener buffers
   //
   //  The depth is the queue's own derivation from those (128 rows of a
-  //  stream at 48 kHz, two RAMB18 at 1x1). A PDU whose events are all
-  //  presented already is late, one beyond the depth early, one without tv
-  //  untimed: dropped and counted by the stage.
+  //  stream at 48 kHz, two RAMB18 at 1x1). Each event of a PDU is judged
+  //  on its own frame, the PDU's timestamp behind the latest event or not:
+  //  one already presented is late, one beyond the depth early, both
+  //  dropped while the PDU's other events are written; a PDU without tv is
+  //  untimed, none of it written. A PDU with a late event counts once as
+  //  late, one with an early event once as early, an untimed one once.
   // --------------------------------------------------------------------------
   localparam int RENDER_PAIRS_C   = (RX_WIRE_CHANS_C + 1) / 2;
   localparam longint RENDER_PIPE_MIN_NS_C = KL_media_if_latency_pkg::out_pipe_ns(
@@ -6996,6 +7006,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .N_IF_P         (1),
     .IF_LEAD_P      (32'(RENDER_LEAD_C)),
     .PAY_LEAD_CYC_P (RENDER_PAY_LEAD_C),
+    .MAX_EV_P       (RENDER_MAX_EV_C),
     .CLK_FREQ_HZ_P  (MILAN_CLK_FREQ_HZ)
   ) render_queue (
     .clk_i (axis_clk), .rst_n (axis_resetn),
