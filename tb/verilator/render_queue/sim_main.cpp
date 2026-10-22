@@ -19,9 +19,13 @@
 //     without a sample zero, tlast on the last beat, its render tick one
 //     cycle after its last beat; frame n + K_min is then consumed;
 //   * late: an event whose frame is consumed is dropped, a PDU with any
-//     counted once; early: an event 128 frames or more past the consumed one
-//     is dropped, counted likewise; untimed: tv = 0, or the payload before
-//     the frame is known, counted once, nothing written;
+//     counted once, whatever its timestamp: a PDU stamped behind the latest
+//     event still presents its events ahead of the consumed frame (the
+//     [behind] phase, up to the longest PDU, 504 one-channel events); early:
+//     an event 128 frames or more past the consumed one is dropped, counted
+//     likewise; a PDU with either counted once as refused; untimed: tv = 0,
+//     or the payload before the frame is known, counted once, nothing
+//     written;
 //   * a consumed frame's row reads silence a lap later; a flush empties the
 //     stream; a gap in a presenting stream and a PDU starting on a frame its
 //     stream already wrote are slips;
@@ -52,11 +56,12 @@ constexpr int kCh = N_CH_TB;
 constexpr int kIfs = N_IF_TB;
 constexpr std::array<int, 2> kLead = {LEAD0_TB, LEAD1_TB};
 constexpr int kPayLead = PAY_LEAD_TB;
+constexpr int kMaxEv = MAX_EV_TB;            // the most events one PDU walks
 constexpr long kClkHz = CLK_HZ_TB;
 constexpr int kPairs = (kCh + 1) / 2;
 constexpr long kPs3 = 62'500;                // Ps in thirds of a ns at 48 kHz
 //! the frame whose instant the wrap phase puts 7 us before 2^32 ns
-constexpr long kWrapAt = 2600;
+constexpr long kWrapAt = 3200;
 constexpr long kTick = 100;                  // cycles per frame
 constexpr long kPushAt = 40;                 // a frame's push window opens here
 constexpr int kEvents = 6;
@@ -76,6 +81,11 @@ constexpr int pow2ceil(long v) {
 }
 constexpr int kRows = pow2ceil(span());
 static_assert(kRows == 128, "the [early] and [lap] phases place PDUs against 128 rows");
+//! the stage's late reach in frames: the timestamp difference is read from
+//! 2^31 ns + kLate frames behind to 2^31 ns - kLate frames ahead
+constexpr long kLate = 3 * ((kMaxEv + 1) / 3);
+constexpr long long kBiasNs = kLate * kPs3 / 3;
+static_assert(kMaxEv == 504 && kLate == 504, "the [behind] phase places PDUs against a 504-frame late reach");
 
 //! one sample: stream, PDU, event and wire channel, never zero
 uint32_t sample_of(int s, int pdu, int k, int ch) {
@@ -108,6 +118,8 @@ struct Pdu {
     long ts_abs = -1;        //!< or this timestamp outright (ns, 64-bit)
     bool tv = true;
     int lead = kPayLead;     //!< cycles from its header to its first beat
+    //! the refusal the phase builds it for, counted against late_o / early_o
+    enum class Refusal { kNone, kLate, kEarly, kBoth } refusal = Refusal::kNone;
 };
 
 //! the model: the law stated on frames, one map entry per (stream, frame)
@@ -121,6 +133,7 @@ struct Model {
     std::array<long, kStreams> pops{};
     long late = 0;
     long early = 0;
+    long refused = 0;
     long untimed = 0;
     long slips = 0;
 
@@ -289,6 +302,9 @@ class RenderQueueHarness {
     long push(const Pdu& p) {
         const long long ts = p.ts_abs >= 0 ? p.ts_abs : ts_of(m_.n, p.frame_off, p.phi);
         const bool framed = p.tv && p.lead >= kPayLead;
+        if (p.refusal == Pdu::Refusal::kLate || p.refusal == Pdu::Refusal::kBoth) declared_late_++;
+        if (p.refusal == Pdu::Refusal::kEarly || p.refusal == Pdu::Refusal::kBoth) declared_early_++;
+        if (p.refusal != Pdu::Refusal::kNone) declared_refused_++;
         model_push(p, ts, framed);
         dut_->hdr_p_i = 1;
         dut_->hdr_ts_ns_i = static_cast<uint32_t>(ts);
@@ -321,7 +337,10 @@ class RenderQueueHarness {
 
     void model_push(const Pdu& p, long long ts, bool framed) {
         if (!framed) { m_.untimed++; return; }
-        const int32_t d = static_cast<int32_t>(static_cast<uint32_t>(ts) - static_cast<uint32_t>(e_ns(m_.n)));
+        // the 32-bit difference, read in the stage's window
+        const long long d = static_cast<long long>(static_cast<int32_t>(
+                                static_cast<uint32_t>(ts) - static_cast<uint32_t>(e_ns(m_.n)) +
+                                static_cast<uint32_t>(kBiasNs))) - kBiasNs;
         // round(3d / Ps3), half up, on the signed difference
         const long long num = 3LL * d + kPs3 / 2;
         const long long q = num >= 0 ? num / kPs3 : -((-num + kPs3 - 1) / kPs3);
@@ -344,6 +363,7 @@ class RenderQueueHarness {
         }
         m_.late += late;
         m_.early += early;
+        m_.refused += late || early;
     }
 
     // ------------------------------------------------------------------ //
@@ -404,23 +424,25 @@ class RenderQueueHarness {
         phase_ = "late";            // first two events on consumed frames; a timestamp 1 ms past
         {
             Pdu p;
-            p.stream = 0; p.pdu = ++pdu_id_; p.frame_off = kKMin - 1;
+            p.stream = 0; p.pdu = ++pdu_id_; p.frame_off = kKMin - 1; p.refusal = Pdu::Refusal::kLate;
             frame({p});
             run_frames(20);
             Pdu q;
-            q.stream = 0; q.pdu = ++pdu_id_; q.frame_off = -48;
+            q.stream = 0; q.pdu = ++pdu_id_; q.frame_off = -48; q.refusal = Pdu::Refusal::kLate;
             frame({q});
             run_frames(140);
         }
 
+        behind_phase();
+
         phase_ = "early";           // last three events past the queue; 3 ms ahead
         {
             Pdu p;
-            p.stream = 0; p.pdu = ++pdu_id_; p.frame_off = kKMin + kRows - 3;
+            p.stream = 0; p.pdu = ++pdu_id_; p.frame_off = kKMin + kRows - 3; p.refusal = Pdu::Refusal::kEarly;
             frame({p});
             run_frames(140);
             Pdu q;
-            q.stream = 0; q.pdu = ++pdu_id_; q.frame_off = 145;
+            q.stream = 0; q.pdu = ++pdu_id_; q.frame_off = 145; q.refusal = Pdu::Refusal::kEarly;
             frame({q});
             run_frames(160);
         }
@@ -437,17 +459,64 @@ class RenderQueueHarness {
             run_frames(110);
         }
 
-        phase_ = "long";            // past eight events: 40 in stereo, the last ten past the queue; 300 mono
+        phase_ = "long";            // past eight events: 40 in stereo, the last ten past the queue; 300 and 504 mono
         {
             Pdu p;
             p.stream = 0; p.pdu = ++pdu_id_; p.chans = 2; p.events = 40; p.frame_off = kKMin + kRows - 30;
+            p.refusal = Pdu::Refusal::kEarly;
             frame({p});
             run_frames(140);
             Pdu q;                  // events 120 on past the queue, and its frame numbers past their wrap
             q.stream = 0; q.pdu = ++pdu_id_; q.chans = 1; q.events = 300; q.frame_off = 10;
+            q.refusal = Pdu::Refusal::kEarly;
             frame({q});
             run_frames(140);
+            Pdu r;                  // the longest PDU, ten events in the queue: its frame numbers would pass
+            r.stream = 0; r.pdu = ++pdu_id_; r.chans = 1; r.events = kMaxEv; r.frame_off = kKMin + kRows - 10;
+            r.refusal = Pdu::Refusal::kEarly;   // half their wrap, misread late, without the hold
+            frame({r});
+            run_frames(140);
         }
+    }
+
+    //! PDUs stamped behind the latest event: each event judged on its own
+    //! frame, the ones still ahead of the consumed frame presented
+    void behind_phase() {
+        phase_ = "behind";
+        //! (frame offset, phase in Ps, events, channels, refusal): a frame
+        //! behind; 0.3 Ps behind; its control 0.3 Ps ahead (d >= 0, the same
+        //! frames late); 250 frames behind, its last 47 events ahead; the
+        //! longest PDU 200 behind, late, presented and past the queue in turn;
+        //! the longest 500 behind, its last event ahead; the longest at the
+        //! late reach and one frame past it, every event late
+        using R = Pdu::Refusal;
+        struct Shape {
+            long off;
+            double phi;
+            int events;
+            int chans;
+            R refusal;
+            long after;
+        };
+        const std::array<Shape, 7> shapes = {{{-1, 0.0, kEvents, kCh, R::kLate, 20},
+                                              {0, -0.3, kEvents, kCh, R::kLate, 20},
+                                              {0, 0.3, kEvents, kCh, R::kLate, 20},
+                                              {-250, 0.0, 300, 1, R::kLate, 70},
+                                              {-200, 0.0, kMaxEv, 1, R::kBoth, 140},
+                                              {-500, 0.0, kMaxEv, 1, R::kLate, 20},
+                                              {-kLate, 0.0, kMaxEv, 1, R::kLate, 20}}};
+        for (const Shape& sh : shapes) {
+            Pdu p;
+            p.stream = 0; p.pdu = ++pdu_id_; p.frame_off = sh.off; p.phi = sh.phi;
+            p.events = sh.events; p.chans = sh.chans; p.refusal = sh.refusal;
+            frame({p});
+            run_frames(sh.after);
+        }
+        Pdu q;                      // past the late reach: refused whole, every event late
+        q.stream = 0; q.pdu = ++pdu_id_; q.frame_off = -kLate - 1; q.events = kMaxEv; q.chans = 1;
+        q.refusal = Pdu::Refusal::kLate;
+        frame({q});
+        run_frames(140);
     }
 
     //! a frame read once a lap, the flush, the slips, the wrap, the observer
@@ -492,6 +561,7 @@ class RenderQueueHarness {
         }
 
         phase_ = "wrap";            // the frame instants cross 2^32 ns
+        wrap_ahead_ = m_.n < kWrapAt - 60;
         while (m_.n < kWrapAt - 60) frame();
         steady(0, 25, 96);
         run_frames(110);
@@ -518,14 +588,16 @@ class RenderQueueHarness {
             check_.that(what, tb == 0);
         }
         char what[200];
-        std::snprintf(what, sizeof what, "[late] late PDUs counted once each (%u, model %ld)", dut_->late_o, m_.late);
-        check_.that(what, dut_->late_o == static_cast<unsigned>(m_.late) && m_.late == 2);
-        std::snprintf(what, sizeof what, "[early] too-early PDUs counted once each (%u, model %ld)", dut_->early_o,
-                      m_.early);
-        check_.that(what, dut_->early_o == static_cast<unsigned>(m_.early) && m_.early == 4);
-        std::snprintf(what, sizeof what, "[refused] late and too-early PDUs counted once each in refused_o (%u, model %ld)",
-                      dut_->refused_o, m_.late + m_.early);
-        check_.that(what, dut_->refused_o == static_cast<unsigned>(m_.late + m_.early));
+        std::snprintf(what, sizeof what, "[late] late PDUs counted once each (%u, model %ld, phases %ld)",
+                      dut_->late_o, m_.late, declared_late_);
+        check_.that(what, dut_->late_o == static_cast<unsigned>(m_.late) && m_.late == declared_late_);
+        std::snprintf(what, sizeof what, "[early] too-early PDUs counted once each (%u, model %ld, phases %ld)",
+                      dut_->early_o, m_.early, declared_early_);
+        check_.that(what, dut_->early_o == static_cast<unsigned>(m_.early) && m_.early == declared_early_);
+        std::snprintf(what, sizeof what,
+                      "[refused] PDUs with a late or too-early event counted once each in refused_o (%u, model %ld, "
+                      "phases %ld)", dut_->refused_o, m_.refused, declared_refused_);
+        check_.that(what, dut_->refused_o == static_cast<unsigned>(m_.refused) && m_.refused == declared_refused_);
         std::snprintf(what, sizeof what, "[untimed] untimed PDUs counted once each (%u, model %ld)",
                       dut_->untimed_o, m_.untimed);
         check_.that(what, dut_->untimed_o == static_cast<unsigned>(m_.untimed) && m_.untimed == 2);
@@ -538,6 +610,8 @@ class RenderQueueHarness {
         }
         check_.that("[obs] converged after 110 ms of steady presentation, and cleared by the gap after it",
                     conv_after_steady_ && !conv_after_stop_);
+        check_.that("[wrap] the phase starts before its frame instants cross 2^32 ns, so its PDUs straddle the wrap",
+                    wrap_ahead_);
         std::snprintf(what, sizeof what,
                       "[if] each interface's render tick comes one cycle after its last beat, once per event (%ld off)",
                       tick_bad_);
@@ -559,6 +633,9 @@ class RenderQueueHarness {
     long long e0_3_ = 0;
     Model m_;
     int pdu_id_ = 0;
+    long declared_late_ = 0;
+    long declared_early_ = 0;
+    long declared_refused_ = 0;
     std::string phase_ = "boot";
     std::vector<Beat> expect_;
     std::map<std::string, long> reads_, bad_, tap_bad_;
@@ -567,6 +644,7 @@ class RenderQueueHarness {
     long tick_bad_ = 0;
     std::array<long, kStreams> pops_seen_{};
     bool conv_after_steady_ = false;
+    bool wrap_ahead_ = false;
     bool conv_after_stop_ = true;
     int shown_ = 0;
 };

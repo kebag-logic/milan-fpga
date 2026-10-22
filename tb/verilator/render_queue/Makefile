@@ -7,9 +7,10 @@
 # frame grid, and grades every event the stage presents to every interface,
 # byte-exact, against a reference model of the law: each event in the frame
 # its timestamp names (rounded to the nearest), each interface reading the
-# frame its out-lead names, the late, too-early and untimed rules with their
-# counters, a frame read once a lap, a flush, the slips, the 32-bit timestamp
-# wrap, the observability taps, and channel counts of 8, 6, 3, 2, 1 and 12 -
+# frame its out-lead names, the late (per event, a PDU stamped behind the
+# latest event included), too-early and untimed rules with their counters, a
+# frame read once a lap, a flush, the slips, the 32-bit timestamp wrap, the
+# observability taps, and channel counts of 8, 6, 3, 2, 1 and 12 -
 # run once on a two-stream, two-interface, 8-lane shape and once on the
 # shipping one-stream, one-interface shape at 7 lanes (an odd N_CH_P: the pad
 # lane must be a virtual channel).
@@ -32,16 +33,20 @@ LEAD1     = 3
 EV_LAT    = 20964
 MAX_HOLD  = 2126000
 PAY_LEAD  = 16
+# the longest PDU: the depacketizer's 2048-byte frame FIFO passes at most 252
+# payload beats, 504 one-channel events
+MAX_EV    = 504
 # the observer's clock: 1 MHz makes one observer period 1,000 cycles, so the
 # 100-period convergence dwell is 1,000 frames of the harness's 100 cycles
 CLK_HZ    = 1000000
 
 GFLAGS = -GN_STREAMS_P=$(N_STREAMS) -GN_CH_P=$(N_CH) -GN_IF_P=$(N_IF) \
          -GIF_LEAD_P=$$(( $(LEAD0) + 256 * $(LEAD1) )) -GEV_LAT_NS_P=$(EV_LAT) \
-         -GMAX_HOLD_NS_P=$(MAX_HOLD) -GPAY_LEAD_CYC_P=$(PAY_LEAD) -GCLK_FREQ_HZ_P=$(CLK_HZ)
+         -GMAX_HOLD_NS_P=$(MAX_HOLD) -GPAY_LEAD_CYC_P=$(PAY_LEAD) -GMAX_EV_P=$(MAX_EV) \
+         -GCLK_FREQ_HZ_P=$(CLK_HZ)
 DFLAGS = -DN_STREAMS_TB=$(N_STREAMS) -DN_CH_TB=$(N_CH) -DN_IF_TB=$(N_IF) \
          -DLEAD0_TB=$(LEAD0) -DLEAD1_TB=$(LEAD1) -DEV_LAT_TB=$(EV_LAT) \
-         -DMAX_HOLD_TB=$(MAX_HOLD) -DPAY_LEAD_TB=$(PAY_LEAD) -DCLK_HZ_TB=$(CLK_HZ)
+         -DMAX_HOLD_TB=$(MAX_HOLD) -DPAY_LEAD_TB=$(PAY_LEAD) -DMAX_EV_TB=$(MAX_EV) -DCLK_HZ_TB=$(CLK_HZ)
 
 VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) --top-module $(TOP) $(GFLAGS) \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
