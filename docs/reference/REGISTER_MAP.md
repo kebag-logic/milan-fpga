@@ -332,8 +332,10 @@ Announce has no PathTrace TLV, and otherwise is the committed engine PathTrace
 (GM plus up to seven tail identities). The 0x7DC addresses are inert in both
 elaborations. The response snapshots the canonical selected path before
 gathering entries, so it stays on one coherent generation. Fabric count 0/1 is
-the meaningful empty/`[GM]` boundary. GM=0 publications and an identical
-publish are silent. The
+the meaningful empty/`{thisClock}` boundary: count one is this station's own
+path before a peer is elected (FPGA-gPTP #82), and a received sequence gains
+thisClock, so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP
+#85). GM=0 publications and an identical publish are silent. The
 `GPTP_GM_CHANGED` counter, and therefore the AVB_INTERFACE GET_COUNTERS push,
 move on the grandmaster identity edge alone. A write to 0x62C with a stable
 grandmaster is a GET_AVB_INFO trigger and an ADP re-advertise, and is neither
@@ -858,7 +860,7 @@ bind-restore group notes that this sink re-arms via `0x738`.
 | `0x740` | `CRF_SIDHI` | RW | `0` | stream_id `[63:32]` |
 | `0x744` | `CRF_DELTA` | RO | `0` | signed `crf_ts - ptp_now` (ns) at each accepted PDU — phase, same signed-delta contract as `AVTPRX_TSD` (0x6EC); carries the talker+transit constant, deliberately NOT a servo input |
 | `0x748` | `CRF_RATE` | RO | `0` | The talker's media clock measured against gPTP, the servo frequency input. Signed ns error per 512 ms window (256-PDU ring); 1 ppm = 512 units. Holds the last clean value during discontinuity refill. Internal validity gates servo sampling; this CSR does not expose validity |
-| `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
+| `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (subtype, #765, and the 7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
 
 Those three are the only CRF input counters exported into the local CSR plane,
 and only as the documented truncated slices. AECP carries all ten Table 5.16
@@ -870,6 +872,30 @@ descriptor (#529). FRAMES_RX counts every accepted AVTPDU, including routine
 healthy traffic, under IEEE 1722.1-2021 Table 7.157 and the #726 ruling.
 It resets on not-bound to bound and retains its value on unbind.
 The six anomaly counters keep their observation intervals.
+STREAM_INTERRUPTED counts an accepted PDU that shows two or more lost PDUs,
+and since #762 the 100 ms silence that unlocks a bound input (Milan v1.2
+5.3.8.10 Table 5.6). The AAF inputs' `KL_avtp_rx_monitor_ctx` and the CRF
+input's `KL_crf_rx` apply one rule, the
+[#762 scope ruling](https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6260976223)
+and its [extension to sequence gaps](https://github.com/kebag-logic/milan-fpga/issues/762#issuecomment-6265746720):
+
+- a silence on a started input counts once;
+- a silence on a stopped input counts nothing, because a stopped input has no
+  playback to interrupt (5.3.8.7, and 5.4.2.20 makes STOP_STREAMING the change
+  to stopped); the lock still falls and MEDIA_UNLOCKED counts it;
+- STOP with live traffic counts nothing;
+- after START (5.4.2.19), a later silence counts again;
+- a sequence gap of two or more lost PDUs on a started input counts once;
+- a sequence gap on a stopped input counts nothing, for the same reason; it
+  still counts SEQ_NUM_MISMATCH and unlocks nothing;
+- after START, a sequence gap counts again;
+- a Controller Unbind never counts, as Table 5.6 excludes it.
+
+The silence's expiry is the one event boundary: an Unbind or a STOP that
+arrives after it leaves the silence counted, and one that arrives on or before
+it leaves none. A gap's boundary is its PDU's accept verdict: the gap counts
+when the input is started on that edge, and a STOP or a START after it changes
+nothing for that gap.
 
 | Quadlet (block offset) | Counter | `KL_crf_rx` output |
 |---|---|---|
@@ -1022,8 +1048,8 @@ seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
 | `0x618` | `ADP_TALKER` | **RO** | `{ADP_TALKER_CAPS_C, ADP_TALKER_SRC_C}` | `[15:0]` talker_stream_sources, `[31:16]` talker_capabilities. **Hardwired from the end-station config, writes ignored** (VERSION `0x0015`). The values live in [`hdl/common/gen/adp_shape_defaults.svh`](../../hdl/common/gen/adp_shape_defaults.svh), GENERATED from `configs/endstation_*.yaml` by [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py) in the same pass that emits this shape's AEM descriptor ROM. `ADP_TALKER_SRC_C` = the `STREAM_OUTPUT` descriptor count = the AAF talkers plus the CRF Media Clock Output when the config has one, and `milan_datapath` sizes its ACMP talker context array from **the same constant**, so the advertised range is the addressable range. `1` at 1×1, `N+1` at N×N. `ADP_TALKER_CAPS_C` = `IMPLEMENTED` \| `AUDIO_SOURCE` \| `MEDIA_CLOCK_SOURCE` **only when a CRF output exists** → `0x4001` at 1×1, `0x4801` at N×N |
 | `0x61C` | `ADP_LISTENER` | **RO** | `{ADP_LISTENER_CAPS_C, ADP_LISTENER_SINK_C}` | `[15:0]` listener_stream_sinks, `[31:16]` listener_capabilities. Same generated include, same rule: `ADP_LISTENER_SINK_C` = the `STREAM_INPUT` descriptor count = the AAF sinks plus the CRF sink → `2` at 1×1, `N+1` at N×N, and it sizes the ACMP listener context array. `ADP_LISTENER_CAPS_C` = `0x4801` wherever a CRF sink exists |
 | `0x620` | `ADP_CONTROLLER_CAPS` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — controller_capabilities. Stored and read back; never reaches the wire |
-| `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. Option OFF reads zero; writes are inert. |
-| `0x628` | `ADP_GPTP_GM_HI` | RO live | `0` | gptp_grandmaster_id `[63:32]`. Fabric mode is the other half of the coherent snapshot. Option OFF reads zero; writes are inert. |
+| `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. From reset release until a peer is elected, fabric mode reads thisClock, this instance's own clockIdentity (IEEE 802.1AS-2020 10.3.13.2.4 b), FPGA-gPTP #82). Option OFF reads zero; writes are inert. |
+| `0x628` | `ADP_GPTP_GM_HI` | RO live | `0` | gptp_grandmaster_id `[63:32]`. Fabric mode is the other half of the coherent snapshot, thisClock's high half before any peer. Option OFF reads zero; writes are inert. |
 | `0x62C` | `ADP_GPTP_DOMAIN` | RO live | `0` | `[7:0]` gptp_domain_number - ADPDU byte 48. At `VERSION=0x0002_0060` this is a structural domain `0` in both fabric mode and the ownerless verification-only option-OFF build. All writes are inert; no startup publication step owns this word. |
 | `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index the ADPDU carries until a SET_CONFIGURATION or D3 restore writes the processor's configuration row, and again after a D3 roll-back (from processor pin `631eeb34`), `[31:16]` identify_control_index |
 | `0x634` | `ADP_IDX1` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` interface_index. Stored and read back; never reaches the wire |
@@ -1445,6 +1471,17 @@ processor has no dynamic state.
 bounded PathTrace publication. IEEE 802.1AS-2020 10.3.11.2.1(d) makes the
 sequence empty when the selected Announce has no PathTrace TLV, so count zero
 is preserved even when a grandmaster identity is known separately.
+
+Otherwise the published sequence is the received pathSequence with thisClock
+appended (IEEE 802.1AS-2020 10.3.13.2.4 f) 5), FPGA-gPTP #85), so its count
+includes thisClock. Before any peer is elected, the sequence is `{thisClock}`,
+count one (10.3.13.2.4 i), FPGA-gPTP #82).
+
+The publication holds eight identities, which bounds that append. At eight or
+more received entries the served sequence is the first eight received entries,
+the count stays 8 and thisClock is not appended (FPGA-gPTP #86; widening the
+publication would be a port change). Up to seven received entries always gain
+thisClock.
 
 The three addresses below remain allocated so the public map does not shift.
 The staging pair is always zero and all writes are discarded. `ASP_CMD` is a
@@ -2178,8 +2215,10 @@ map stores and the authoritative protocol ownership state from non-ATDECC edits.
 On a shape with dynamic maps, each dynamic direction's store and crossbar hold
 the #658 power-on map from boot: stream channel c on the port's cluster c. The
 parent's boot writer fills the crossbars from reset until one sweep after the
-restore's terminal (`PP_STAT` done or CLOSED). The CSR writer is refused for
-that long, as it is during a transaction. `CHMAP_STAT` cannot see either
+restore's terminal (`PP_STAT` done or CLOSED). After a COMPLETE terminal the
+parent's map restore (#637) then puts back the saved lists, and holds the maps
+until it ends. The CSR writer is refused for that long, as it is during a
+transaction. `CHMAP_STAT` cannot see either
 refusal: it counts such a write in `[15:0]` as a commit.
 
 | Offset | Name | Acc | Reset | Description |
@@ -2376,6 +2415,18 @@ could not be proven, or a pass-1 roll-back could not prove it again. It is
 fail and never done, and AECP stays held and ADP stays dark until reset.
 `[17]` says a pass-1 abort rolled the stores back to DEFAULTS, and `[20:18]`
 and `[22:21]` carry the D3 walk's and the binding walk's first abort causes.
+
+**Since #637 the parent's map restore follows the D3 walk**, and these bits
+cover it too ([D3 page](../design/SAVED_STATE_MATERIALIZATION.md) sections
+5.2 and 18.4). It restores the channel-map records `0x60`/`0x70` after a
+COMPLETE terminal, in one read pass, while the map faces and the entity
+enable wait. `restore_busy` `[1]` stays up until it ends and `restore_done`
+`[2]` rises only then. `restore_fail` `[3]` also reads 1 when it rolled every
+map back to its reset set. It adds no cause of its own: `[20:18]` reads `0`,
+since it runs only after a D3 walk that ended with none, and `[22:21]` keeps
+the binding walk's. `nvm_blank` `[7]` also
+needs it to have read no framed, crc-clean map record. So saved maps lost to
+a device error read fail, and restored maps never read blank.
 AECP is held from reset until the D3 terminal; while it is held one AECP
 command waits in the ingress and every further one is dropped and counted in
 side-port snapshot word 37 (host word `0x20025`, `[15:0]`), so ACMP, ADP and
@@ -2396,13 +2447,13 @@ another.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing. **Set it on every boot** (processor pin `a8f8ce81`, its issue 92): the processor holds its ACMP listener from reset until the walk ends, so a boot that never sets it never answers an ACMP listener command. Since processor pin `d352bbaa` it also holds AECP until the D3 walk's terminal, and that walk proves the AEM image first: **load and CRC-check the AEM image before this bit**, or the restore ends CLOSED (`PP_STAT[16]`) and AECP stays held until reset. Every restore wait is bounded by `NVM_RS_TMO_CYC_P` (20 ms) and the whole restore by `NVM_RS_AGG_CYC_P` (1,000 ms from this bit), both derived from the clock, so a device face that never answers ends the walks with `restore_fail` set; wait for `restore_done` OR `PP_STAT[16]`, since CLOSED never raises done |
-| `0x924` | `PP_STAT` | RO | `0x5B00_0000` | `[0]` `sp_busy`, a side-port access is outstanding, `[1]` `restore_busy`, either walk is running, `[2]` `restore_done`, both boot walks **sequenced** to COMPLETE or DEFAULTS, which is not the same as succeeded (never after CLOSED), `[3]` `restore_fail`, either walk failed, or a walk ran blind, `[4]` `nvm_alarm`, a record producer (the binding manager or the D3 writer) exhausted its three write attempts; reset-sticky, `[5]` `sp_err`, the last side-port access returned an error, `[6]` `nvm_backed`, **live fabric evidence, never a knob**: a writer heartbeat or completed transaction answered within `T-NVM-WRITER-ALIVE` (2000 ms) and no unrevoked failure is outstanding (design page 9.2), `[7]` `nvm_blank`, the completed restore validated **zero** records and neither walk failed; beside `[3]` only for a blind walk, `[8]` `nvm_dirty`, the image holds committed changes no flash slot yet holds, `[9]` `nvm_stale`, `nvm_backed` was true since reset and is now false and the loss has not been made good, `[10]` `nvm_img_valid`, firmware validated the image in the window, `[11]` `nvm_pend`, **accepted work that no verified slot holds and `nvm_dirty` does not report**: a change a producer still holds (a binding, a scalar record the D3 writer has not yet written, an accepted name or map write), a record whose logical write has not completed, or -- from reset until the boot window load is accepted -- every record, because none is known yet. The durable reading of design page 9.3 is therefore `(backed 1, dirty 0, stale 0)` **and this bit `0`** (snapshot-ownership page 6.1), `[15:12]` `nvm_verdict`, the section 6.2 verdict code of the last image offered, `[16]` `restore_closed`, the D3 walk ended CLOSED: fail, never done, AECP held until reset, `[17]` `restore_rb`, a pass-1 abort rolled the stores back to DEFAULTS, `[20:18]` `rs_cause`, the D3 walk's first abort cause, valid with `[3]` (`1` torn, `2` device error, `3` deadline, `5` the two passes disagree, `6` descriptor fault, `7` image not proven), `[22:21]` `restore_cause`, the binding walk's (`1` torn, `2` device error, `3` deadline), `[23]` reserved `0`, `[31:24]` **constant presence tag `0x5B`**. A read of `0` here means the gateware predates the group |
+| `0x924` | `PP_STAT` | RO | `0x5B00_0000` | `[0]` `sp_busy`, a side-port access is outstanding, `[1]` `restore_busy`, either walk is running, or the parent's map restore that follows the D3 terminal (#637), `[2]` `restore_done`, both boot walks **sequenced** to COMPLETE or DEFAULTS and the parent's map restore ended, which is not the same as succeeded (never after CLOSED), `[3]` `restore_fail`, either walk failed, or a walk ran blind, or the parent's map restore rolled every map back to its reset set (a device error, a short read, a deadline, or a port that refused to give up or take back its reset set; it adds no cause of its own: `[20:18]` then reads 0, since it runs only after a D3 walk that ended with none, and `[22:21]` keeps the binding walk's) (#637), `[4]` `nvm_alarm`, a record producer (the binding manager, the D3 writer, or the parent map writer of records `0x60`/`0x70` (#637)) exhausted its three write attempts, 500 ms apart; reset-sticky, `[5]` `sp_err`, the last side-port access returned an error, `[6]` `nvm_backed`, **live fabric evidence, never a knob**: a writer heartbeat or completed transaction answered within `T-NVM-WRITER-ALIVE` (2000 ms) and no unrevoked failure is outstanding (design page 9.2), `[7]` `nvm_blank`, the completed restore validated **zero** records (neither walk nor the parent's map restore read a framed, crc-clean record) and none of them failed; beside `[3]` only for a blind walk, `[8]` `nvm_dirty`, the image holds committed changes no flash slot yet holds, `[9]` `nvm_stale`, `nvm_backed` was true since reset and is now false and the loss has not been made good, `[10]` `nvm_img_valid`, firmware validated the image in the window, `[11]` `nvm_pend`, **accepted work that no verified slot holds and `nvm_dirty` does not report**: a change a producer still holds (a binding, a scalar record the D3 writer has not yet written, a map record the parent's map writer has not yet written (#637), an accepted name write), a record whose logical write has not completed, or -- from reset until the boot window load is accepted -- every record, because none is known yet. The durable reading of design page 9.3 is therefore `(backed 1, dirty 0, stale 0)` **and this bit `0`** (snapshot-ownership page 6.1), `[15:12]` `nvm_verdict`, the section 6.2 verdict code of the last image offered, `[16]` `restore_closed`, the D3 walk ended CLOSED: fail, never done, AECP held until reset, `[17]` `restore_rb`, a pass-1 abort rolled the stores back to DEFAULTS, `[20:18]` `rs_cause`, the D3 walk's first abort cause, valid with `[3]` (`1` torn, `2` device error, `3` deadline, `5` the two passes disagree, `6` descriptor fault, `7` image not proven), `[22:21]` `restore_cause`, the binding walk's (`1` torn, `2` device error, `3` deadline), `[23]` reserved `0`, `[31:24]` **constant presence tag `0x5B`**. A read of `0` here means the gateware predates the group |
 | `0x928` | `PP_SPADDR` | RW | `0` | `[19:0]` side-port **word** address. **A write here POSTS A READ** at that address (ignored while `sp_busy`); the answer lands in `PP_SPDATA`. Readback = the armed address. Snapshot word 37, `0x20025`, `[15:0]` counts the AECP frames dropped at the ingress slot gate while the D3 writer holds AECP |
 | `0x92C` | `PP_SPDATA` | RW | `0` | **Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`) |
 | `0x930` | `PP_DIAG` | RO | `0` | Shadow evidence, and the only frame accounting the control plane now publishes: `[31:16]` control frames transmitted, `[15:8]` **RX drops** — control frames lost to a full ingress FIFO, counted rather than silently absorbed, `[7:0]` control frames received. This replaces the per-plane PDU counters at `0x648`, `0x69C` and `0x6B0`, all of which are structural zeros |
 | `0x934` | `PP_NVM_SEL` | RW | `0` | `[5:0]` the backing store's word index that the next `PP_NVM_DATA` access names (design page section 8.2: a control tuple, never a data window). `0` image base, the byte address of the KLJ2 record image in main memory, 8-byte aligned; `1` image length in bytes, `0` = unconfigured, which is the blank-flash behaviour (a write to word `0` or `1` clears `img_valid`); `2` the sequence number of the image in the window, firmware's to keep; `3` status/verdict, write `[3:0]` verdict and `[4]` `img_valid`; `4` the strobe word, write-only, `[0]` heartbeat, `[1]` commit acknowledged with the capture identity in `[31:16]`, `[2]` commit started, `[3]` **ARM** a capture, `[4]` **ATTEST** it, `[5]` **RELEASE** it, `[6]` **RELOAD** the window (snapshot-ownership page 5.1); `5` the **capture identity**, 16 bits, advanced only by an accepted ARM, so it names captures and not attempts; `8`-`15` the **record ownership vector**, one bit per allocated record id, word `8 + k` holding ids `32k` to `32k + 31`, `1` = OPEN, the record's logical write has not completed and its last verified bytes stand; `0x20`+port the INPUT channel-map table, `0x30`+port the OUTPUT one, each entry `{framed length[31:16], byte prefix inside the group[15:0]}` for that STREAM_PORT. Readback = the index |
 | `0x938` | `PP_NVM_DATA` | RW | `0` | the word `PP_NVM_SEL` names. Words `0`-`3` and both tables read back what was written; word `4` reads `0` (strobes have no state to read); words `5` and `8`-`15` are read-only fabric state |
-| `0x93C` | `PP_NVM_STAT` | R / W1P | `0` | **Read** the backing store's status word. `[31:24]` **contract tag `0xC3`**, the register to read first here: `0` means the gateware predates the snapshot-ownership contract and a writer of that contract must disable itself rather than acknowledge under an older rule. `[23]` `unres`, at least one record is open (diagnostic; the ids are words `8`-`15`), `[22]` `nvm_pend`, the pending bit itself -- the same wire `PP_STAT[11]` carries, `[21]` **arm refused**, the last ARM was not accepted (a capture already open, an unconfigured or unvalidated image, a mutating request this backend already deferred still waiting, or no RELOAD accepted since reset), `[20]` **ack refused**, `[19]` **attested**, `[18]` **valid**, no mutating grant since the arm, `[17]` **hold**, mutating requests are being deferred, `[16]` **open**, a capture is open. `[15:12]` verdict (`0` `VD_OK` to `10` `VD_INCOMPLETE` are the section 6.2 codes of the last slot the firmware judged; `11` `VD_ERASE`, `12` `VD_PROGRAM` and `13` `VD_VERIFY` are the writer's transaction verdicts, published when a commit fails at that stage and left unacknowledged; a reported one **revokes `nvm_backed` when it is reported**, not eight seconds later at the commit deadline), `[11]` **reload refused**, the last RELOAD strobe was refused, `[10]` `commit_busy`, a commit is inside its `T-NVM-COMMIT-TIMEOUT` (8000 ms) bracket, `[9]` `nvm_stale`, `[8]` `nvm_dirty`, now the **committable** image work that drives a commit, `[7]` `img_valid`, `[6]` `nvm_backed`, `[5]` `img_cfg`, an image length is set, `[4]` `dev_busy`, the processor has a record operation in flight, `[3]` **load pending**, a boot window load MAY STILL BE ACCEPTED -- read it as that, not as "no RELOAD has been accepted": it falls both on an accepted RELOAD and the first time the window goes live, and `[2]` tells the two apart, `[2]` **load accepted**, a RELOAD HAS been accepted since reset; **while it is `0` the backend arms no capture**, so nothing in that boot can be captured, committed or retired. **Write** the strobe word (word `4`): `[0]` heartbeat re-arms `T-NVM-WRITER-ALIVE`, `[1]` commit acknowledged, whose `[31:16]` must quote the capture identity of word `5` and which retires only that capture's work, `[2]` commit started opens the bracket, `[3]` ARM, `[4]` ATTEST, `[5]` RELEASE, `[6]` RELOAD. A loss in the same cycle as a heartbeat wins, a completion in the same cycle as an acknowledgement stays owned (design page 9.2, snapshot-ownership page 5 and 6) |
+| `0x93C` | `PP_NVM_STAT` | R / W1P | `0` | **Read** the backing store's status word. `[31:24]` **contract tag `0xC3`**, the register to read first here: `0` means the gateware predates the snapshot-ownership contract and a writer of that contract must disable itself rather than acknowledge under an older rule. `[23]` `unres`, at least one record is open (diagnostic; the ids are words `8`-`15`), `[22]` `nvm_pend`, the pending bit itself -- the same wire `PP_STAT[11]` carries, `[21]` **arm refused**, the last ARM was not accepted (a capture already open, an unconfigured or unvalidated image, a mutating request this backend already deferred still waiting, or no RELOAD accepted since reset), `[20]` **ack refused**, `[19]` **attested**, `[18]` **valid**, no mutating grant since the arm, `[17]` **hold**, mutating requests are being deferred, `[16]` **open**, a capture is open. `[15:12]` verdict (`0` `VD_OK` to `10` `VD_INCOMPLETE` are the section 6.2 codes of the last slot the firmware judged; `11` `VD_ERASE`, `12` `VD_PROGRAM` and `13` `VD_VERIFY` are the writer's transaction verdicts, published when a commit fails at that stage and left unacknowledged; a reported one **revokes `nvm_backed` when it is reported**, not eight seconds later at the commit deadline), `[11]` **reload refused**, the last RELOAD strobe was refused, `[10]` `commit_busy`, a commit is inside its `T-NVM-COMMIT-TIMEOUT` (8000 ms) bracket, `[9]` `nvm_stale`, `[8]` `nvm_dirty`, now the **committable** image work that drives a commit, `[7]` `img_valid`, `[6]` `nvm_backed`, `[5]` `img_cfg`, an image length is set, `[4]` `dev_busy`, a record operation is in flight on the device face, the processor's or, since #637, the parent map writer's (its restore reads records `0x60`/`0x70` right after the D3 terminal), `[3]` **load pending**, a boot window load MAY STILL BE ACCEPTED -- read it as that, not as "no RELOAD has been accepted": it falls both on an accepted RELOAD and the first time the window goes live, and `[2]` tells the two apart, `[2]` **load accepted**, a RELOAD HAS been accepted since reset; **while it is `0` the backend arms no capture**, so nothing in that boot can be captured, committed or retired. **Write** the strobe word (word `4`): `[0]` heartbeat re-arms `T-NVM-WRITER-ALIVE`, `[1]` commit acknowledged, whose `[31:16]` must quote the capture identity of word `5` and which retires only that capture's work, `[2]` commit started opens the bracket, `[3]` ARM, `[4]` ATTEST, `[5]` RELEASE, `[6]` RELOAD. A loss in the same cycle as a heartbeat wins, a completion in the same cycle as an acknowledgement stays owned (design page 9.2, snapshot-ownership page 5 and 6) |
 
 **Why an RX drop counter exists here at all.** `protocol_processor_top` eats a
 1 byte/clk stream, which at 100 MHz is 100 MB/s against gigabit's 125 MB/s: a

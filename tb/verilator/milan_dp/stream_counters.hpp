@@ -7,9 +7,13 @@
 // Grade every consecutive gap from the first captured notification onward.
 // Issue #726 ruling 6134121887 fixes refresh at 1000 ms + 25 ms service.
 // Measured dirty-and-eligible to final-recipient service is descriptive only.
+    // #765: an AAF PDU carries its input's current channel count
+    // (counter_state.rx_chans, read once by counter_setup) and six samples
+    // per channel.
     void counter_feed(int s,uint8_t seq) {
         const uint64_t ts=phc_now_ns()+2000000;
-        std::vector<uint8_t> f(s<kNstreamsTb ? 86 : 64,0);
+        const unsigned ch=s<kNstreamsTb ? counter_state.rx_chans[s] : 0;
+        std::vector<uint8_t> f(s<kNstreamsTb ? 38+24*ch : 64,0);
         gsi_put(f,0,0x91E0F0002A02ull,6);
         gsi_put(f,6,0x021122334455ull,6);
         gsi_put(f,12,0x22F0,2);
@@ -18,8 +22,8 @@
         if(s<kNstreamsTb) {
             f[14]=2;f[15]=0x81;
             gsi_put(f,26,ts & 0xffffffffu,4);
-            f[30]=2;f[31]=0x50;f[32]=2;f[33]=32;
-            gsi_put(f,34,48,2);
+            f[30]=2;f[31]=0x50;f[32]=static_cast<uint8_t>(ch);f[33]=32;
+            gsi_put(f,34,24*ch,2);
         } else {
             f[14]=4;f[15]=0x80;f[17]=1;
             gsi_put(f,26,48000,4);gsi_put(f,30,8,2);
@@ -38,6 +42,7 @@
         std::array<long,ncounter> service_max{};
         long measurement_end_cyc=0;
         bool counter_watch_on=false;
+        std::array<uint8_t,kNstreamsTb> rx_chans{};
     } counter_state;
     void counter_check(const char* group,const char* what,unsigned long got,unsigned long expected) {
         if(counter_state.omitted_check && std::strcmp(counter_state.omitted_check,group)==0) return;
@@ -116,6 +121,7 @@
             axi_write(A_SW_FMT_LO, FMT_LO);
             axi_write(A_SW_FMT_HI, FMT_HI);
             axi_write(A_SW_CTRL, 1);
+            counter_state.rx_chans[s] = rx_chans(s);
         }
         axi_write(A_CRF_SIDLO_L, 0x100u + kNstreamsTb);
         axi_write(A_CRF_SIDHI_L, 0x02112233);

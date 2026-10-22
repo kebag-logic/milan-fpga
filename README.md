@@ -168,7 +168,10 @@ it. The verification-only option-OFF elaboration is deliberately ownerless:
 its GM, parent, path and peer-delay publications are zero, sync/asCapable are
 zero, and `tu` is one. Writes to the retained address-map slots are inert and
 cannot manufacture live state. In the product build, fabric count 0 and 1 are
-distinct empty and `[GM]` sequences, so either transition notifies; a GM change
+distinct empty and `{thisClock}` sequences, so either transition notifies.
+Count one is this station's own path before a peer is elected (FPGA-gPTP #82),
+and a received sequence gains thisClock, so an explicit one-entry `[GM]`
+PathTrace is count two (FPGA-gPTP #85). A GM change
 while both fabric counts are zero is silent for AS_PATH but remains live for
 AVB/GM duties. GM=0 publications, inactive tail bytes, and identical
 republishes are silent. The response snapshots its selected path before

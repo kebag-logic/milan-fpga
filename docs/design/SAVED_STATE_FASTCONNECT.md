@@ -117,7 +117,7 @@ Implementation and historical evidence remain explicitly distinguished below.
 |---|---|---|
 | The flash map reserves the media | **Landed** | `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py`: `journal` at `0xEE_0000`, 128 KiB, and `user` at `0xF0_0000`, 1 MiB |
 | The processor frames and streams two record classes | **Landed** (submodule) | At processor `16be6768`, `KL_acmp_nvm_shadow` owned BINDING records through manager 0 of `KL_pp_nvm_mgr_arb` and manager 1 was tied idle. Since processor `d352bbaa` ([PR #132](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/132), adopted by #70 lane 2) manager 1 is the D3 writer, `KL_aecp_nvm_writer`, which writes and restores the scalar records: configuration index, sampling rates, clock sources, both stream formats and presentation offsets |
-| A manager for every other persisted item | **ABSENT** for names and maps | Nothing serializes the user names, the channel maps or the SUID; the D3 page's stages 2 and 3 own the first two |
+| A manager for every other persisted item | **Landed** for the maps (#637); names not adopted by the parent; SUID none | The parent's map writer in `hdl/milan/milan_datapath.sv` writes and restores records `0x60`/`0x70` through the device-face arbiter of `KL_pp_shadow.sv` (D3 section 18.4); the processor writes names since pin `ead80360`, and the parent's lane 3 has not adopted them; nothing serializes the SUID |
 | The processor emits commit marks | **Historical: landed, unobserved at `44489453`** | **eight** `NVM_MARK` sites across seven programs, section 12.1; every one terminates at `aecp_eff_nvm_stb_nc_w` / `aecp_eff_nvm_mark_nc_w` in `protocol_processor_top.sv` lines 2777, 2778, 3051 and 3052 |
 | A device behind the port | **Landed** (2026-09-05) | `hdl/milan/KL_nvm_backend.sv`, instantiated by `KL_pp_shadow` behind the processor's device face; the third main-memory master in `sw/litex/milan_soc.py`; the control face `PP_NVM_SEL`/`PP_NVM_DATA`/`PP_NVM_STAT` at `0x934`-`0x93C` and the section 9 bits in `PP_STAT`. `nvm_backed` is live fabric evidence now, and still never a knob |
 | A write path on the shipping profile | **Landed** (2026-09-06) | `sw/firmware/milan_baremetal/milan_baremetal.c`: boot validation of both slots, the staged container, the control tuple, the restore walk, the heartbeat, the debounced A/B commit through the LiteSPI command master with erase, page program and read-back; `sw/firmware/nvm_hosttest/test_nvm_firmware.py` grades it per shape against `scripts/nvm_klj2.py` |
@@ -378,11 +378,11 @@ Firmware loads the grown per-port lengths through existing backend tables.
 A wrong output-length table fails that integration suite.
 The host test alone does not detect that defect.
 The backend RTL and its storage widths need no change.
-The processor writer remains donor work:
-[processor #61](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/61)
-and [processor #83](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/83).
-Their output buffer, framing and replay must consume this allocation.
-This parent change does not implement that writer.
+The map writer is the parent's, by the ruling on
+[processor #83](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/83)
+(D3 section 15 item 2, amended).
+#637 implements it in `hdl/milan/milan_datapath.sv`, at this capacity.
+Its records keep this format, the empty set included (D3 section 18.4).
 
 ### 4.3 Why the donor contract was going to change, and why it no longer does
 
@@ -1455,7 +1455,8 @@ Scope D2 subsequently exported them to the parent.
 Issue #502 uses accepted name writes for pending reporting.
 Maps use the parent's actual phase-5 write enable.
 Unchanged maps raise nothing; marks remain command-completion triggers.
-Neither group has a record writer yet.
+The maps have the parent's record writer since #637.
+The processor writes names, and the parent has not adopted that yet.
 The [ownership contract](SAVED_STATE_SNAPSHOT_OWNERSHIP.md#61-the-pending-bit-owner-decision)
 defines the current pending sources.
 
@@ -1469,10 +1470,11 @@ D3 remains unimplemented; contract adoption supplies no persistence evidence.
 - **Physical proof remains partial.** The dated result covers bind/unbind survival.
   Complete saved-set, cut-during-commit and fast-connect campaigns remain open.
   [D3 lane 5](SAVED_STATE_MATERIALIZATION.md#185-lane-5-complete-fault-campaign-and-release-bench) defines their remaining scope.
-- **Only binding records reach the store.** Other groups need materialization.
-  Their accepted writer contract is
+- **Not every record reaches the store yet.** Bindings, the scalar groups
+  and, since #637, both map directions do.
+  The names' parent adoption is lane 3 of
   [Saved-state materialization](SAVED_STATE_MATERIALIZATION.md).
-  Until implementation, accepted images contain bindings and erased spans.
+  SUID and MCR spans stay erased by design.
   The erased-record rule makes those images legal.
 - **Persistence depends on firmware liveness.** A fabric-owned master would not.
   This is the price of re-using the controller, and section 9 is what keeps that

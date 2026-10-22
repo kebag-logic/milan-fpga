@@ -314,6 +314,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! control plane (the legacy 1722.1/SRP plane is deleted, USER 2026-08-13).
   parameter int PP_TIM_DIV_US_P = MILAN_CLK_FREQ_HZ / 1_000_000,
   parameter int PP_TIM_DIV_MS_P = 1000,
+  //! ---- #637: the channel-map record writer and restore ------------------
+  //! Clocks per millisecond of the map writer's timers: its debounce (DR2a,
+  //! 500 ms), its retry backoff (DR2c, 500 ms) and its deadlines (DR3a's
+  //! 20 ms per wait and 1,000 ms aggregate, the port's 1,000 ms). Real time
+  //! by default, as the processor's own timebase derives it; a harness may
+  //! compress it alone.
+  parameter int AMR_MS_CYC_P = PP_TIM_DIV_US_P * PP_TIM_DIV_MS_P,
+  //! the deadlines, in those milliseconds: DR3a's ratified 20 ms per restore
+  //! wait and 1,000 ms for the whole restore from PP_CTRL[1] (the
+  //! processor's NVM_RS_AGG_CYC_P counts from the same start, so the map
+  //! restore keeps what the D3 walk left of it), and the port's
+  //! T-NVM-PORT-DEADLINE, 1,000 ms, per record-write wait in service. A wait
+  //! expires one tick past its bound, so it never ends early. Product builds
+  //! keep these values.
+  parameter int AMR_RS_TMO_MS_P  = 20,
+  parameter int AMR_RS_AGG_MS_P  = 1000,
+  parameter int AMR_MEM_TMO_MS_P = 1000,
   //! ACMP listener transition-ROM image. The processor $readmemh's it by this
   //! name, and Vivado resolves a RELATIVE name against its own run directory -
   //! so the integration hands over an ABSOLUTE path and the build stops
@@ -2174,8 +2191,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! behind the grandmaster. The notification edge is
   //! derived below from the complete LIVE served sequence, not a raw CSR
   //! generation. Product fabric mode preserves the donor's raw distinction:
-  //! count zero is an absent PathTrace and count one is `[GM]`. The
-  //! option-off shape has no path owner. Every owner aliases to empty while no
+  //! count zero is an absent PathTrace and count one is `{thisClock}` before
+  //! a peer is elected (FPGA-gPTP #82); a received sequence gains thisClock,
+  //! so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP #85).
+  //! The option-off shape has no path owner. Every owner aliases to empty while no
   //! grandmaster exists.
   //! Slot count DERIVED from the port width (one source, as the CSR does).
   wire [7*64-1:0] asp_path_w /* verilator public_flat_rd */;
@@ -2349,6 +2368,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the two levels that keep the saved-state verdict honest: a walk that
   //! validated nothing, and whether any persistent media exists at all
   logic        pp_restore_blank_w, pp_nvm_backed_w;
+  //! PP_STAT[1], [2], [3] and [7]: the processor's verdicts composed with
+  //! the #637 map restore's (assigned beside amr_fsm)
+  logic        pp_stat_busy_w, pp_stat_done_w, pp_stat_fail_w, pp_stat_blank_w;
   logic        pp_nvm_alarm_w;
   //! the D3 walk's CLOSED and roll-back terminals and both walks' causes
   //! (SAVED_STATE_MATERIALIZATION.md 5.2), published at PP_STAT[22:16]
@@ -2852,11 +2874,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_pp_rdata         (pp_rdata_w),
     .i_pp_ack           (pp_ack_w),
     .i_pp_err           (pp_err_w),
-    .i_pp_restore_busy  (pp_restore_busy_w),
-    .i_pp_restore_done  (pp_restore_done_w),
-    .i_pp_restore_fail  (pp_restore_fail_w),
+    .i_pp_restore_busy  (pp_stat_busy_w),
+    .i_pp_restore_done  (pp_stat_done_w),
+    .i_pp_restore_fail  (pp_stat_fail_w),
     .i_pp_nvm_backed    (pp_nvm_backed_w),
-    .i_pp_nvm_blank     (pp_restore_blank_w),
+    .i_pp_nvm_blank     (pp_stat_blank_w),
     .i_pp_restore_closed(pp_restore_closed_w),
     .i_pp_restore_rb    (pp_restore_rb_w),
     .i_pp_rs_cause      (pp_rs_cause_w),
@@ -3172,7 +3194,19 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire  [7:0] pp_amap_rec_w;
   logic [63:0] pp_amap_data_w;
   wire        pp_amap_wait_w;
-  //! ADD/REMOVE_AUDIO_MAPPINGS transaction face
+  //! ADD/REMOVE_AUDIO_MAPPINGS transaction face. The processor drives the
+  //! ppo_* nets; the transaction server below reads the pp_* ones, which are
+  //! the processor's beats except while the #637 map restore owns the face
+  //! (amr_own_r): the restore then applies a saved set through the same
+  //! validation and commit a controller's ADD/REMOVE takes (D3 15 item 7,
+  //! value-rule parity by reuse), while the processor's beats wait.
+  wire        ppo_amap_edit_req_w;
+  wire  [2:0] ppo_amap_edit_phase_w;
+  wire        ppo_amap_edit_remove_w;
+  wire [15:0] ppo_amap_edit_desc_type_w, ppo_amap_edit_desc_index_w;
+  wire [15:0] ppo_amap_edit_count_w;
+  wire  [7:0] ppo_amap_edit_rec_w;
+  wire [63:0] ppo_amap_edit_record_w;
   wire        pp_amap_edit_req_w;
   wire  [2:0] pp_amap_edit_phase_w;
   wire        pp_amap_edit_remove_w;
@@ -3182,6 +3216,30 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [63:0] pp_amap_edit_record_w, pp_amap_edit_value_w;
   logic [63:0] pp_amap_edit_data_w;
   wire        pp_amap_edit_wait_w;
+  //! the map restore's beats (block amr_fsm), registered
+  logic        amr_own_r;
+  //! 1 from reset to the map restore's end (amap_boot_busy_w, the faces'
+  //! waits, the entity enable); amr_rs_run_w the part after the D3 terminal;
+  //! amr_rb_r the one-clock roll-back of every map to its reset set
+  logic        amr_rs_hold_r;
+  logic        amr_rs_run_w;
+  logic        amr_rb_r;
+  logic        amr_ed_req_r;
+  logic  [2:0] amr_ed_phase_r;
+  logic        amr_ed_remove_r;
+  logic [15:0] amr_ed_type_r, amr_ed_index_r, amr_ed_count_r;
+  logic  [7:0] amr_ed_rec_r;
+  logic [63:0] amr_ed_record_r;
+  assign pp_amap_edit_req_w    = amr_own_r ? amr_ed_req_r : ppo_amap_edit_req_w;
+  assign pp_amap_edit_phase_w  = amr_own_r ? amr_ed_phase_r : ppo_amap_edit_phase_w;
+  assign pp_amap_edit_remove_w = amr_own_r ? amr_ed_remove_r : ppo_amap_edit_remove_w;
+  assign pp_amap_edit_desc_type_w  = amr_own_r ? amr_ed_type_r
+                                               : ppo_amap_edit_desc_type_w;
+  assign pp_amap_edit_desc_index_w = amr_own_r ? amr_ed_index_r
+                                               : ppo_amap_edit_desc_index_w;
+  assign pp_amap_edit_count_w  = amr_own_r ? amr_ed_count_r : ppo_amap_edit_count_w;
+  assign pp_amap_edit_rec_w    = amr_own_r ? amr_ed_rec_r : ppo_amap_edit_rec_w;
+  assign pp_amap_edit_record_w = amr_own_r ? amr_ed_record_r : ppo_amap_edit_record_w;
   // Milan-info gather face (GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH)
   wire        pp_gsi_req_w;
   wire  [1:0] pp_gsi_kind_w;
@@ -3226,6 +3284,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  crf_locked_w falling IS the disruption: KL_crf_rx drops lock after
   //  100 ms of CRF silence or at an unbind (#653), and needs 8 clean PDUs
   //  to re-lock, so the edge is the debounced verdict, not a per-PDU twitch.
+  //  crf_locked_w RISING is the return (#761): the media clock moves from
+  //  holdover back onto the CRF, a change of its source that needs its own
+  //  restart (4.4.4.3), so either lock edge requests one.
   //
   //  The CRF requests are IGNORED unless the CRF clock is the one in use: on
   //  an internal media clock there is no CRF stream to be disrupted, so
@@ -3233,7 +3294,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  re-base is not a restart request (#602, below).
   // --------------------------------------------------------------------------
   //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
-  //! the selected media clock source. The clause's OTHER mandatory trigger, a
+  //! the selected media clock source, and the return pulse when it rises
+  //! again (#761). The clause's OTHER mandatory trigger, a
   //! change of the media clock SOURCE (PICS Table F.7 AAF-5, AAF:M), is
   //! detected INSIDE KL_media_clock_restart from clk_src_i, so all of 4.4.4.3
   //! lives in the one module.
@@ -3281,7 +3343,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! net, no port or register)
   wire mcr_restart_p_w /* verilator public_flat_rd */ =
        (crf_clk_selected_r
-        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w))
+        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p_w))
        | aafm_disrupt_p_w | aafm_mr_toggle_p_w;
 
   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
@@ -4187,7 +4249,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   //! HOLD, not a ready - combinational flops again, never held
   assign pp_amap_data_w = amap_data_r;
-  assign pp_amap_wait_w = pp_amap_req_w && !(amap_srv_r && amap_sel_match_w);  //! live-match: see the counters face
+  //! live-match: see the counters face. While the #637 map restore holds
+  //! the maps a GET waits (the processor's 07 §5.1: held on the face's
+  //! wait within the AECP watchdog), so it never reads a half-restored port.
+  assign pp_amap_wait_w = pp_amap_req_w
+                          && (amr_rs_hold_r || !(amap_srv_r && amap_sel_match_w));
 
   //! ======================================================================
   //! ADD/REMOVE_AUDIO_MAPPINGS transaction server
@@ -4202,10 +4268,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! This freezes the live baseline between the validation and commit passes,
   //! so a concurrent CSR write cannot create a time-of-check/time-of-use partial edit.
   //! Phase 1 rechecks that baseline and reserves the complete commit. This
-  //! root asserts wait only while the #658 boot map writer is busy, which
-  //! ends for good one sweep after the restore's terminal, so a transaction
-  //! meets it at phase 0 at the latest and phases 5 and 2 still complete
-  //! without a timeout point between live writes.
+  //! root asserts wait only while the #658 boot map writer is busy or the
+  //! #637 map restore holds the maps, which both end for good after the
+  //! restore's terminal, so a transaction meets it at phase 0 at the latest
+  //! and phases 5 and 2 still complete without a timeout point between live
+  //! writes.
   logic        amap_edit_seen_r;
   logic  [2:0] amap_edit_seen_phase_r;
   logic  [7:0] amap_edit_seen_rec_r;
@@ -4480,7 +4547,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                   || (amap_edit_out_cluster_w
                       != amap_edit_oclaim_cluster_r[
                            amap_edit_out_key_w*16 +: 16]))));
-  assign amap_edit_live_wr_p = axis_resetn && amap_edit_beat_w
+  //! A restore write is never a change (D3 3.1): the map restore's own
+  //! phase-5 beats (amr_own_r) raise no live write and no record work.
+  assign amap_edit_live_wr_p = axis_resetn && amap_edit_beat_w && !amr_own_r
       && (pp_amap_edit_phase_w == 3'd5) && amap_edit_context_w
       && (amap_edit_in_change_w || amap_edit_out_change_w);
 
@@ -4529,9 +4598,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! face waits and the CSR window is held out, so the RAMs and the stores
   //! agree before any edit validates against them. A writer through the
   //! existing legs is smaller than reset images in the two leaves, which
-  //! would still need it for the clip. #70 stage 3, whose map restore drives
-  //! the edit face inside the window, takes the window over for the ports it
-  //! restores.
+  //! would still need it for the clip. The #637 map restore (block amr_fsm)
+  //! runs after the window's terminal, on the stores the sweep has left equal
+  //! to the RAMs, and holds the edit face and the CSR window until it ends
+  //! (amap_boot_busy_w).
 
   //! a stream's declared default channel count, the one its
   //! GET_STREAM_FORMAT serves while no format is set; 0 past the rows
@@ -4657,7 +4727,13 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   logic [AMAP_BOOT_KW_C-1:0] amap_boot_k_r;
   wire amap_boot_wrap_w = (32'(amap_boot_k_r) == AMAP_BOOT_KEYS_C - 1);
   wire amap_boot_wr_w   = amap_boot_r || amap_boot_last_r;
-  assign amap_boot_busy_w = amap_boot_wr_w || amap_boot_drain_r;
+  //! the sweep itself, and the hold the #637 map restore adds after the
+  //! terminal: amr_rs_hold_r is 1 from reset to the map restore's end, so
+  //! the edit face, the CSR writer's four sites and the boot writer's
+  //! callers see one window. It falls on the clock amap_boot_r falls when
+  //! there is nothing to restore (CLOSED, DEFAULTS, a failed D3 walk).
+  wire amap_sweep_busy_w = amap_boot_wr_w || amap_boot_drain_r;
+  assign amap_boot_busy_w = amap_sweep_busy_w || amr_rs_hold_r;
 
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_boot_walk
     if (!axis_resetn) begin
@@ -4671,6 +4747,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         amap_boot_r      <= 1'b0;
         amap_boot_last_r <= 1'b1;
         amap_boot_k_r    <= '0;
+      end else if (amr_rb_r) begin
+        //! #637 roll-back: the stores take the clipped image on this clock
+        //! (amap_edit_commit), so one more sweep from key 0 carries it into
+        //! both crossbar RAMs
+        amap_boot_k_r    <= '0;
+        amap_boot_last_r <= amr_rb_r;
       end else if (amap_boot_wr_w) begin
         amap_boot_k_r <= amap_boot_wrap_w ? '0
                                           : amap_boot_k_r + AMAP_BOOT_KW_C'(1);
@@ -4858,8 +4940,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
           <= {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
               cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]};
       end
-      //! #658 boot clip: the window holds the stores at the clipped image
-      if (amap_boot_r) begin
+      //! #658 boot clip: the window holds the stores at the clipped image.
+      //! The #637 map restore's roll-back puts the same image back once, on
+      //! a transport failure inside its walk (D3 8.6): every port returns to
+      //! its reset set, whatever the walk had applied.
+      if (amap_boot_r || amr_rb_r) begin
         amap_in_store_r <= amap_in_boot_w;
         amap_out_owner_v_r <= amap_out_boot_w;
         amap_out_owner_r <= amap_out_owner_of(amap_out_boot_w);
@@ -4867,6 +4952,911 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       end
     end
   end : amap_edit_commit
+
+  //! ==== #637: the channel-map records ====================================
+  //! THE OWNER (the processor's ruling on its issue 83, 2026-10-03; D3 15
+  //! item 2, amended; the processor's 07 §5.1). The map plane is this
+  //! parent's, so its records are too: 0x60 + p for STREAM_PORT_INPUT p and
+  //! 0x70 + p for STREAM_PORT_OUTPUT p, written and restored here through
+  //! KL_pp_shadow's record face (the backend's device face, shared with the
+  //! processor's NVM port). Milan v1.2 5.3.9.1 and 5.3.10.1: each Stream
+  //! Port's dynamic mapping list is saved in non-volatile memory and
+  //! restored after a power cycle, the EMPTY list included. Only a dynamic
+  //! port's record is ever written; a static port's stays erased, and its
+  //! map is its descriptor's.
+  //!
+  //! THE RECORD (FASTCONNECT 4.2 and 6.1, D3 8.3; #637 changes neither).
+  //! F07.8 framing {magic 0x1722, layout_version, record_id,
+  //! payload_length, crc16 CCITT-FALSE over the header without its crc and
+  //! the payload}, big-endian. The payload is the port's set as 8-byte
+  //! mappings {stream_index, stream_channel, cluster_offset,
+  //! cluster_channel} in GET_AUDIO_MAP order, then UNUSED entries of exactly
+  //! eight 0xFF bytes up to the capacity: the port's cluster count for an
+  //! input, max(clusters, STREAM_OUTPUT * 8) for a dynamic output (#501).
+  //! The empty set is a framed record of UNUSED entries (V3g), never an
+  //! erased span, so empty and erased stay apart.
+  //!
+  //! THE WRITER (D3 3 rules 2 to 4, 6.1, 7.1; DR2a to DR2c). One dirty bit
+  //! per record, set by the accepted phase-5 change (amap_edit_live_wr_p,
+  //! which an unchanged mapping never raises: DR2b) and reported to pend
+  //! from that edge (KL_pp_shadow). A first-dirty window of 500 ms arms one
+  //! burst that drains every dirty record in round-robin order. A record is
+  //! LATCHED in one clock with no edit transaction open, so the latched set
+  //! is one a completed command left; a change from that clock on TAINTS the
+  //! write, whose done then clears nothing, and a change on the done edge
+  //! wins. The write is one whole-record WRITE: the backend overwrites the
+  //! record's span in place and closes it at the done. An attempt that errs
+  //! or misses its deadline waits 500 ms and relatches; the third failure
+  //! gives the record up with the reset-sticky alarm.
+  //!
+  //! THE RESTORE (D3 8.3, 8.4, 8.6, 8.8, 18.4; the processor's 07 §5.1). It
+  //! runs after the D3 walk's COMPLETE terminal only: DEFAULTS, a D3 abort
+  //! and CLOSED keep every reset set. It is one transaction over the map
+  //! records alone, in three stages through the transaction server above:
+  //!   0. every dynamic port's reset set (the #658 image clipped to the
+  //!      formats the D3 walk restored) is REMOVEd;
+  //!   1. each dynamic port's record is read whole, once. A well-formed
+  //!      one's set is ADDed, judged by the ADD rule against those formats.
+  //!      An erased or unframed record (magic, length), a framed one whose
+  //!      layout, id, crc16, padding (UNUSED is eight 0xFF bytes, and nothing
+  //!      but UNUSED follows one) or field ranges fail, and a set the ADD
+  //!      rule refuses, each mark the port;
+  //!   2. every marked port's reset set is ADDed back.
+  //! So a saved set never meets another port's reset set: a key one port
+  //! gave up and another took is free when the taker's set is ADDed,
+  //! whatever the port order (Milan v1.2 5.3.10.1; #637 ruling, PR #768
+  //! comment 6269988820). A failure of the walk (a device error, a short
+  //! read, a wait past AMR_RS_TMO_MS_P, the aggregate AMR_RS_AGG_MS_P from
+  //! PP_CTRL[1], a refused REMOVE, or a refused put-back) ROLLS BACK every
+  //! map to its reset set, so no partial restore survives. One read pass is
+  //! enough (the same ruling): this roll-back reaches every map, and the
+  //! faces wait meanwhile (amap_boot_busy_w, pp_amap_wait_w, the format
+  //! judge) and the entity enable is held, so no command edits or reads a
+  //! map, and no ADPDU leaves, before the restore has ended. PP_STAT
+  //! composes its verdicts with the processor's (pp_stat_*_w).
+  localparam int AMR_NI_C = AMAP_IN_PORTS_C;
+  localparam int AMR_NO_C = AMAP_OUT_PORTS_C;
+  localparam int AMR_NR_C = AMR_NI_C + AMR_NO_C;
+  //! wide enough to hold AMR_NR_C itself, the end of the walk
+  localparam int AMR_RW_C = $clog2(AMR_NR_C + 1);
+  //! KL_acmp_nvm_shadow's LAYOUT_VER_P, which the D3 writer shares; the
+  //! record-space gate compares this literal with the donor's
+  //! (scripts/check_nvm_record_space.py, check 15)
+  localparam logic [7:0] AMR_LAYOUT_C = 8'h02;
+
+  function automatic int amr_icl_max();
+    int m;
+    m = 1;
+    for (int p = 0; p < AMR_NI_C; p++)
+      if (32'(ADP_DMAP_IN_PCLS_C[p]) > m) m = 32'(ADP_DMAP_IN_PCLS_C[p]);
+    return m;
+  endfunction
+  function automatic int amr_ocl_max();
+    int m;
+    m = 2;
+    for (int p = 0; p < AMR_NO_C; p++)
+      if (32'(ADP_DMAP_OUT_PCLS_C[p]) > m) m = 32'(ADP_DMAP_OUT_PCLS_C[p]);
+    return m;
+  endfunction
+  //! the latch: an input port's clusters as {v, stream[2:0], channel[2:0]},
+  //! an output's stream-channel keys as {v, cluster}
+  localparam int AMR_ICL_C = amr_icl_max();
+  localparam int AMR_OCW_C = $clog2(amr_ocl_max());
+  localparam int AMR_OK_C  = AMAP_OUT_KEYS_C;
+  //! an output key's owner register only ever holds a value below
+  //! max(N_STREAMS, ports): a phase-5 commit writes an index below the port
+  //! count (commit_ok), the CSR writer and the image a stream index. So its
+  //! low AMR_PW_C bits name it, and on a one-port, one-stream shape no bit
+  //! does and every owned key is the port's.
+  localparam int AMR_PW_C  = $clog2((N_STREAMS > AMR_NO_C) ? N_STREAMS : AMR_NO_C);
+  localparam int AMR_PWX_C = (AMR_PW_C > 0) ? AMR_PW_C : 1;
+  function automatic logic amr_owned(input logic [15:0] owner_i,
+                                     input logic [7:0] port_i);
+    return (AMR_PW_C == 0)
+           || (owner_i[AMR_PWX_C-1:0] == port_i[AMR_PWX_C-1:0]);
+  endfunction
+
+  //! The set always fits its record, so the over-capacity skip of D3 rule 9
+  //! has no case here: an input store holds one mapping per cluster and the
+  //! record one entry per cluster; an output store one per stream-channel
+  //! key, N_STREAMS * 8, and the record max(clusters, STREAM_OUTPUT * 8).
+  //! The cursors are eight bits wide.
+  if ((AMR_ICL_C > 127) || (AMR_OK_C > 127) || (AMR_NO_C > 127)
+      || (ADP_TALKER_SRC_C < N_STREAMS) || (AMR_RS_TMO_MS_P > 2000)
+      || (AMR_RS_AGG_MS_P > 2000) || (AMR_MEM_TMO_MS_P > 2000)) begin : g_amr_shape_check
+    $error("milan_datapath: a channel-map set this shape allows would not fit its record or the map writer's cursors, or a map writer deadline exceeds its 11-bit millisecond count");
+  end
+
+  //! ---- the record in hand: its port, id, length and key range ---------
+  logic [AMR_RW_C-1:0] amr_r_r;
+  logic        amr_out_w, amr_dyn_w;
+  logic  [7:0] amr_port_w, amr_rid_w, amr_pcls_w, amr_keys_w;
+  logic [15:0] amr_plen_w;
+  always_comb begin : amr_rec_shape
+    amr_out_w  = 1'b0;
+    amr_dyn_w  = 1'b0;
+    amr_port_w = 8'd0;
+    amr_rid_w  = 8'd0;
+    amr_pcls_w = 8'd0;
+    amr_keys_w = 8'd1;
+    amr_plen_w = 16'd0;
+    for (int p = 0; p < AMR_NI_C; p++)
+      if (32'(amr_r_r) == p) begin
+        amr_dyn_w  = (p < 64) && ADP_DMAP_IN_MASK_C[6'(p)];
+        amr_port_w = 8'(p);
+        amr_rid_w  = 8'h60 + 8'(p);
+        amr_pcls_w = 8'(ADP_DMAP_IN_PCLS_C[p]);
+        amr_keys_w = 8'(AMR_ICL_C);
+        amr_plen_w = 16'(32'(ADP_DMAP_IN_PCLS_C[p]) * 8);
+      end
+    for (int p = 0; p < AMR_NO_C; p++)
+      if (32'(amr_r_r) == AMR_NI_C + p) begin
+        amr_out_w  = 1'b1;
+        amr_dyn_w  = (p < 64) && ADP_DMAP_OUT_MASK_C[6'(p)];
+        amr_port_w = 8'(p);
+        amr_rid_w  = 8'h70 + 8'(p);
+        amr_pcls_w = 8'(ADP_DMAP_OUT_PCLS_C[p]);
+        amr_keys_w = 8'(AMR_OK_C);
+        amr_plen_w = 16'(((32'(ADP_DMAP_OUT_PCLS_C[p]) > ADP_TALKER_SRC_C * 8)
+                          ? 32'(ADP_DMAP_OUT_PCLS_C[p])
+                          : ADP_TALKER_SRC_C * 8) * 8);
+      end
+  end : amr_rec_shape
+
+  //! ---- one mapping at the cursor, from the latch or the clip (amr_src_r
+  //! 0 or 1): the set the record holds, or the port's reset set, the #658
+  //! image clipped to the current formats. The clip is every port's live
+  //! set when stage 0 starts: the boot window held the stores at it to the
+  //! terminal, and since then the edit face, the CSR writer and the format
+  //! judge have all waited, so no store or format has moved. A REMOVE of a
+  //! set the stores do not hold is refused, and the walk rolls back.
+  logic [AMR_ICL_C*7-1:0]          amr_li_r;
+  logic [AMR_OK_C*(1+AMR_OCW_C)-1:0] amr_lo_r;
+  logic        amr_src_r;
+  logic  [7:0] amr_k_r;
+  logic        amr_sv_w;
+  logic [63:0] amr_srec_w;
+  always_comb begin : amr_src_slot
+    logic [7:0] w_c;
+    amr_sv_w   = 1'b0;
+    amr_srec_w = 64'd0;
+    w_c        = 8'd0;
+    if (!amr_out_w) begin
+      for (int p = 0; p < AMR_NI_C; p++)
+        if (32'(amr_port_w) == p)
+          for (int c = 0; c < AMR_ICL_C; c++)
+            if ((32'(amr_k_r) == c) && (c < 32'(ADP_DMAP_IN_PCLS_C[p]))
+                && ((32'(ADP_DMAP_IN_PBASE_C[p]) + c) < AMAP_IN_KEYS_C)) begin
+              w_c = amr_src_r
+                  ? amap_in_boot_w[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 8]
+                  : {amr_li_r[c*7 + 6], 1'b0, amr_li_r[c*7 +: 6]};
+              amr_sv_w   = w_c[7] && !w_c[6];
+              amr_srec_w = {13'd0, w_c[5:3], 13'd0, w_c[2:0], 16'(c), 16'd0};
+            end
+    end else begin
+      for (int k = 0; k < AMR_OK_C; k++)
+        if (32'(amr_k_r) == k) begin
+          if (amr_src_r) begin
+            amr_sv_w   = amap_out_boot_w[k] && ((k / 8) == 32'(amr_port_w));
+            amr_srec_w = {16'(k / 8), 16'(k % 8), 16'(k % 8), 16'd0};
+          end else begin
+            amr_sv_w   = amr_lo_r[k*(1+AMR_OCW_C) + AMR_OCW_C];
+            amr_srec_w = {16'(k / 8), 16'(k % 8),
+                          16'(amr_lo_r[k*(1+AMR_OCW_C) +: AMR_OCW_C]), 16'd0};
+          end
+        end
+    end
+  end : amr_src_slot
+
+  //! ---- the payload generator: the latch's mappings in key order, then
+  //! UNUSED. amr_gk_r is where the next search starts, amr_ek_r the entry's
+  //! key and amr_eu_r an UNUSED entry; the byte is amr_pbyte_w.
+  logic  [7:0] amr_gk_r, amr_ek_r;
+  logic        amr_eu_r;
+  logic        amr_nxt_v_w;
+  logic  [7:0] amr_nxt_k_w;
+  logic [63:0] amr_erec_w;
+  always_comb begin : amr_gen_next
+    amr_nxt_v_w = 1'b0;
+    amr_nxt_k_w = 8'd0;
+    if (!amr_out_w) begin
+      for (int c = AMR_ICL_C - 1; c >= 0; c--)
+        if ((32'(amr_gk_r) <= c) && amr_li_r[c*7 + 6]) begin
+          amr_nxt_v_w = 1'b1;
+          amr_nxt_k_w = 8'(c);
+        end
+    end else begin
+      for (int k = AMR_OK_C - 1; k >= 0; k--)
+        if ((32'(amr_gk_r) <= k) && amr_lo_r[k*(1+AMR_OCW_C) + AMR_OCW_C]) begin
+          amr_nxt_v_w = 1'b1;
+          amr_nxt_k_w = 8'(k);
+        end
+    end
+  end : amr_gen_next
+  always_comb begin : amr_gen_entry
+    amr_erec_w = 64'd0;
+    if (!amr_out_w) begin
+      for (int c = 0; c < AMR_ICL_C; c++)
+        if (32'(amr_ek_r) == c)
+          amr_erec_w = {13'd0, amr_li_r[c*7 + 3 +: 3], 13'd0, amr_li_r[c*7 +: 3],
+                        16'(c), 16'd0};
+    end else begin
+      for (int k = 0; k < AMR_OK_C; k++)
+        if (32'(amr_ek_r) == k)
+          amr_erec_w = {16'(k / 8), 16'(k % 8),
+                        16'(amr_lo_r[k*(1+AMR_OCW_C) +: AMR_OCW_C]), 16'd0};
+    end
+  end : amr_gen_entry
+
+  //! the framed record's byte bi: the header, then the generated payload
+  //! the record's byte counter: a record is at most 8 + 127 * 8 bytes
+  logic [10:0] amr_bi_r;
+  logic [15:0] amr_crc_r;
+  wire  [10:0] amr_plen_b_w = amr_plen_w[10:0];
+  logic  [7:0] amr_fbyte_w;
+  always_comb begin : amr_frame_byte
+    unique case (amr_bi_r)
+      11'd0:   amr_fbyte_w = 8'h17;
+      11'd1:   amr_fbyte_w = 8'h22;
+      11'd2:   amr_fbyte_w = AMR_LAYOUT_C;
+      11'd3:   amr_fbyte_w = amr_rid_w;
+      11'd4:   amr_fbyte_w = amr_plen_w[15:8];
+      11'd5:   amr_fbyte_w = amr_plen_w[7:0];
+      11'd6:   amr_fbyte_w = amr_crc_r[15:8];
+      11'd7:   amr_fbyte_w = amr_crc_r[7:0];
+      default: amr_fbyte_w = amr_eu_r ? 8'hFF
+                                      : amr_erec_w[63 - 8*32'(amr_bi_r[2:0]) -: 8];
+    endcase
+  end : amr_frame_byte
+
+  //! crc16 CCITT-FALSE, the byte step KL_aecp_nvm_writer and
+  //! KL_acmp_nvm_shadow take (07 §5.2)
+  function automatic logic [15:0] amr_crc16(input logic [15:0] c,
+                                            input logic [7:0] d);
+    logic [15:0] x;
+    x = c ^ {d, 8'h00};
+    for (int unsigned i = 0; i < 8; i++)
+      x = x[15] ? ((x << 1) ^ 16'h1021) : (x << 1);
+    return x;
+  endfunction
+
+  //! ---- the latch: the port's live set, in one clock ---------------------
+  logic [AMR_ICL_C*7-1:0]            amr_li_live_w;
+  logic [AMR_OK_C*(1+AMR_OCW_C)-1:0] amr_lo_live_w;
+  always_comb begin : amr_latch_live
+    amr_li_live_w = '0;
+    amr_lo_live_w = '0;
+    for (int p = 0; p < AMR_NI_C; p++)
+      if (!amr_out_w && (32'(amr_port_w) == p))
+        for (int c = 0; c < AMR_ICL_C; c++)
+          if ((c < 32'(ADP_DMAP_IN_PCLS_C[p]))
+              && ((32'(ADP_DMAP_IN_PBASE_C[p]) + c) < AMAP_IN_KEYS_C))
+            amr_li_live_w[c*7 +: 7] =
+                {amap_in_store_r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 + 7]
+                   && !amap_in_store_r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 + 6],
+                 amap_in_store_r[(32'(ADP_DMAP_IN_PBASE_C[p]) + c)*8 +: 6]};
+    if (amr_out_w)
+      for (int k = 0; k < AMR_OK_C; k++)
+        amr_lo_live_w[k*(1+AMR_OCW_C) +: (1+AMR_OCW_C)] =
+            {amap_out_owner_v_r[k]
+               && amr_owned(amap_out_owner_r[k*16 +: 16], amr_port_w),
+             amap_out_cluster_r[k*16 +: AMR_OCW_C]};
+  end : amr_latch_live
+
+  //! ---- the live change that names a record (D3 3.1: group AND index) ---
+  logic [AMR_NR_C-1:0] amr_set_w;
+  always_comb begin : amr_set_decode
+    amr_set_w = '0;
+    for (int p = 0; p < AMR_NI_C; p++)
+      if (amap_edit_live_wr_p && (amap_edit_type_r == DESC_STREAM_PORT_IN_C)
+          && (amap_edit_index_r == 16'(p)))
+        amr_set_w[p] = 1'b1;
+    for (int p = 0; p < AMR_NO_C; p++)
+      if (amap_edit_live_wr_p && (amap_edit_type_r == DESC_STREAM_PORT_OUT_C)
+          && (amap_edit_index_r == 16'(p)))
+        amr_set_w[AMR_NI_C + p] = 1'b1;
+  end : amr_set_decode
+  //! the record in hand as a one-hot mask, and a change that names it
+  wire [AMR_NR_C-1:0] amr_rmask_w = AMR_NR_C'(1) << amr_r_r;
+  wire amr_set_r_w = |(amr_set_w & amr_rmask_w);
+
+  //! ---- the record face (KL_pp_shadow mrec_*) ----------------------------
+  logic        amr_req_r, amr_we_r, amr_abort_r;
+  logic        amr_wvalid_w, amr_rready_w;
+  logic        mrec_gnt_w, mrec_wready_w, mrec_rvalid_w;
+  logic        mrec_done_w, mrec_err_w;
+  logic  [7:0] mrec_rdata_w;
+
+  //! ---- the millisecond tick of the debounce and the backoff -------------
+  localparam int AMR_MSW_C = (AMR_MS_CYC_P <= 2) ? 1 : $clog2(AMR_MS_CYC_P);
+  logic [AMR_MSW_C-1:0] amr_ms_r;
+  logic                 amr_tick_r;
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : amr_ms_tick
+    if (!axis_resetn) begin
+      amr_ms_r   <= '0;
+      amr_tick_r <= 1'b0;
+    end else begin
+      amr_tick_r <= (32'(amr_ms_r) == AMR_MS_CYC_P - 1);
+      amr_ms_r   <= (32'(amr_ms_r) == AMR_MS_CYC_P - 1) ? '0
+                                                         : amr_ms_r + AMR_MSW_C'(1);
+    end
+  end : amr_ms_tick
+
+  //! ---- deadlines, in milliseconds: the wait in hand, and the restore's
+  //! aggregate from the accepted PP_CTRL[1]
+  logic [10:0] amr_wd_r, amr_agg_r;
+  logic        amr_go_r, amr_agg_x_r;
+
+  typedef enum logic [4:0] {
+    AS_BOOT, AS_RNEXT, AS_RREQ, AS_RRD, AS_RJDG,
+    AS_ECNT, AS_EP0, AS_EP0W, AS_ESCAN, AS_EBW, AS_EP1, AS_EP1W, AS_EP2,
+    AS_EP3, AS_EEND, AS_RB, AS_RB2,
+    AS_SVC, AS_WLAT, AS_WCRC, AS_WREQ, AS_WSTR, AS_WWAIT, AS_WBACK, AS_WBWAIT
+  } amr_st_e;
+  amr_st_e amr_st_r;
+
+  //! the restore's read: the header judged as it streams (magic and length
+  //! frame the record, layout and id name it), its crc, and the entry
+  //! being parsed
+  logic        amr_hframe_r, amr_hid_r;
+  logic [15:0] amr_hcrc_r;
+  logic        amr_e_ff_r, amr_e_z_r;
+  logic  [7:0] amr_e_b1_r, amr_e_b3_r, amr_e_b5_r;
+  logic        amr_unused_r, amr_malformed_r, amr_refuse_r;
+  //! the walk's stage (0 take every reset set down, 1 read and apply the
+  //! records, 2 put reset sets back) and the ports stage 2 serves
+  logic  [1:0] amr_stage_r;
+  logic [AMR_NR_C-1:0] amr_pb_r;
+  //! the transaction in hand: its step (0 REMOVE the live set, 1 ADD the
+  //! saved set, 2 ADD the reset set back), phase, ordinal and count
+  logic  [1:0] amr_step_r;
+  logic        amr_ph5_r;
+  logic  [7:0] amr_idx_r;
+  logic        amr_ok_r;
+  //! the writer: dirty bits, the record's taint, attempts, the alarm, the
+  //! debounce window and the round-robin scan
+  logic [AMR_NR_C-1:0] amr_dirty_r;
+  logic        amr_taint_r, amr_alarm_r, amr_armed_r, amr_deb_r;
+  logic  [1:0] amr_fails_r;
+  logic  [9:0] amr_mscnt_r;
+  logic [AMR_RW_C:0] amr_scan_r;
+  //! the restore's verdicts, which PP_STAT composes with the processor's
+  //! (pp_stat_*_w): it rolled every map back; it read a framed, crc-clean
+  //! record, the processor's own test for a validated one
+  logic        amr_rs_fail_r, amr_rs_valid_r;
+
+  //! the running count of a transaction's mappings (AS_ECNT)
+  wire [7:0] amr_cnt_w = amr_idx_r + {7'd0, amr_sv_w};
+  //! the walk's event of this cycle: what restarts its wait count
+  wire amr_prog_w = mrec_gnt_w || mrec_done_w || mrec_err_w
+                    || (mrec_rvalid_w && amr_rready_w)
+                    || (amr_wvalid_w && mrec_wready_w);
+  wire amr_waiting_w = (amr_st_r == AS_RREQ) || (amr_st_r == AS_RRD)
+                       || (amr_st_r == AS_WREQ) || (amr_st_r == AS_WSTR)
+                       || (amr_st_r == AS_WWAIT);
+  wire amr_rs_w = amr_rs_hold_r;
+  wire amr_expire_w = amr_waiting_w && !amr_prog_w
+      && ((32'(amr_wd_r) > (amr_rs_w ? AMR_RS_TMO_MS_P : AMR_MEM_TMO_MS_P))
+          || (amr_rs_w && amr_agg_x_r));
+  //! one crc16 step, on the byte the restore reads or the writer frames
+  wire [15:0] amr_crc_nx_w = amr_crc16(amr_crc_r, (amr_st_r == AS_RRD)
+                                                  ? mrec_rdata_w : amr_fbyte_w);
+
+  assign amr_rs_run_w = amr_rs_hold_r && (amr_st_r != AS_BOOT);
+  assign amr_wvalid_w = (amr_st_r == AS_WSTR);
+  assign amr_rready_w = (amr_st_r == AS_RRD);
+
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : amr_deadlines
+    if (!axis_resetn) begin
+      amr_wd_r    <= '0;
+      amr_agg_r   <= '0;
+      amr_go_r    <= 1'b0;
+      amr_agg_x_r <= 1'b0;
+    end else begin
+      if (!amr_waiting_w || amr_prog_w) amr_wd_r <= '0;
+      else if (amr_tick_r && (amr_wd_r != 11'h7FF)) amr_wd_r <= amr_wd_r + 11'd1;
+      //! the aggregate counts from the accepted restore start, as the
+      //! processor's NVM_RS_AGG_CYC_P does, and holds once past its bound
+      if (pp_restore_go_w) amr_go_r <= 1'b1;
+      if (amr_go_r && !amr_agg_x_r && amr_tick_r) begin
+        if (32'(amr_agg_r) >= AMR_RS_AGG_MS_P) amr_agg_x_r <= 1'b1;
+        else amr_agg_r <= amr_agg_r + 11'd1;
+      end
+    end
+  end : amr_deadlines
+
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : amr_fsm
+    if (!axis_resetn) begin
+      amr_st_r        <= AS_BOOT;
+      amr_rs_hold_r   <= 1'b1;
+      amr_rs_fail_r   <= 1'b0;
+      amr_rs_valid_r  <= 1'b0;
+      amr_stage_r     <= 2'd0;
+      amr_pb_r        <= '0;
+      amr_rb_r        <= 1'b0;
+      amr_own_r       <= 1'b0;
+      amr_r_r         <= '0;
+      amr_src_r       <= 1'b0;
+      amr_k_r         <= 8'd0;
+      amr_li_r        <= '0;
+      amr_lo_r        <= '0;
+      amr_gk_r        <= 8'd0;
+      amr_ek_r        <= 8'd0;
+      amr_eu_r        <= 1'b1;
+      amr_bi_r        <= 11'd0;
+      amr_crc_r       <= 16'hFFFF;
+      amr_req_r       <= 1'b0;
+      amr_we_r        <= 1'b0;
+      amr_abort_r     <= 1'b0;
+      amr_hframe_r    <= 1'b0;
+      amr_hid_r       <= 1'b0;
+      amr_hcrc_r      <= 16'd0;
+      amr_e_ff_r      <= 1'b1;
+      amr_e_z_r       <= 1'b1;
+      amr_e_b1_r      <= 8'd0;
+      amr_e_b3_r      <= 8'd0;
+      amr_e_b5_r      <= 8'd0;
+      amr_unused_r    <= 1'b0;
+      amr_malformed_r <= 1'b0;
+      amr_refuse_r    <= 1'b0;
+      amr_step_r      <= 2'd0;
+      amr_ph5_r       <= 1'b0;
+      amr_idx_r       <= 8'd0;
+      amr_ok_r        <= 1'b0;
+      amr_ed_req_r    <= 1'b0;
+      amr_ed_phase_r  <= 3'd0;
+      amr_ed_remove_r <= 1'b0;
+      amr_ed_type_r   <= 16'd0;
+      amr_ed_index_r  <= 16'd0;
+      amr_ed_count_r  <= 16'd0;
+      amr_ed_rec_r    <= 8'd0;
+      amr_ed_record_r <= 64'd0;
+      amr_dirty_r     <= '0;
+      amr_taint_r     <= 1'b0;
+      amr_alarm_r     <= 1'b0;
+      amr_armed_r     <= 1'b0;
+      amr_deb_r       <= 1'b0;
+      amr_fails_r     <= 2'd0;
+      amr_mscnt_r     <= 10'd0;
+      amr_scan_r      <= '0;
+    end else begin
+      amr_rb_r    <= 1'b0;
+      amr_abort_r <= 1'b0;
+      //! every accepted change marks its record; only a done or the last
+      //! attempt clears it, and a change on that edge wins (below)
+      amr_dirty_r <= amr_dirty_r | amr_set_w;
+      if (amr_set_r_w) amr_taint_r <= 1'b1;
+
+      unique case (amr_st_r)
+        //! ---- the restore ----------------------------------------------
+        AS_BOOT: begin
+          if (pp_restore_closed_w
+              || (pp_restore_done_w && (pp_restore_rb_w || (pp_rs_cause_w != 3'd0)))) begin
+            //! nothing to restore: the reset sets stand, released on the
+            //! clock the boot window ends
+            amr_rs_hold_r <= 1'b0;
+            amr_st_r      <= AS_SVC;
+          end else if (pp_restore_done_w) begin
+            //! the walk owns the edit face from here: the processor's beats
+            //! wait (amap_boot_busy_w) and the server sees none of them
+            amr_own_r   <= 1'b1;
+            amr_r_r     <= '0;
+            amr_stage_r <= 2'd0;
+            amr_pb_r    <= '0;
+            amr_st_r    <= AS_RNEXT;
+          end
+        end
+        AS_RNEXT: begin
+          if (32'(amr_r_r) >= AMR_NR_C) begin
+            amr_r_r <= '0;
+            if (amr_stage_r == 2'd2) begin
+              amr_own_r     <= 1'b0;
+              amr_rs_hold_r <= 1'b0;
+              amr_st_r      <= AS_SVC;
+            end else begin
+              amr_stage_r <= amr_stage_r + 2'd1;
+            end
+          end else if (!amr_dyn_w
+                       || ((amr_stage_r == 2'd2) && !(|(amr_pb_r & amr_rmask_w)))) begin
+            amr_r_r <= amr_r_r + AMR_RW_C'(1);
+          end else if (amr_stage_r != 2'd1) begin
+            //! stage 0 REMOVEs the port's reset set, stage 2 ADDs it back,
+            //! once the sweep after the terminal has left the crossbar RAMs
+            //! equal to the stores
+            if (!amap_sweep_busy_w) begin
+              amr_step_r <= (amr_stage_r == 2'd0) ? 2'd0 : 2'd2;
+              amr_src_r  <= 1'b1;
+              amr_k_r    <= 8'd0;
+              amr_idx_r  <= 8'd0;
+              amr_st_r   <= AS_ECNT;
+            end
+          end else begin
+            amr_req_r       <= 1'b1;
+            amr_we_r        <= 1'b0;
+            amr_bi_r        <= 11'd0;
+            amr_crc_r       <= 16'hFFFF;
+            amr_li_r        <= '0;
+            amr_lo_r        <= '0;
+            amr_e_ff_r      <= 1'b1;
+            amr_e_z_r       <= 1'b1;
+            amr_unused_r    <= 1'b0;
+            amr_malformed_r <= 1'b0;
+            amr_refuse_r    <= 1'b0;
+            amr_st_r        <= AS_RREQ;
+          end
+        end
+        AS_RREQ: begin
+          if (mrec_gnt_w) begin
+            amr_req_r <= 1'b0;
+            amr_st_r  <= AS_RRD;
+          end else if (amr_expire_w) begin
+            amr_req_r   <= 1'b0;
+            amr_abort_r <= 1'b1;
+            amr_st_r    <= AS_RB;
+          end
+        end
+        AS_RRD: begin
+          if (mrec_rvalid_w) begin
+            amr_bi_r <= amr_bi_r + 11'd1;
+            if ((amr_bi_r < 11'd6) || (amr_bi_r >= 11'd8))
+              amr_crc_r <= amr_crc_nx_w;
+            unique case (amr_bi_r)
+              11'd0: amr_hframe_r <= (mrec_rdata_w == 8'h17);
+              11'd1: amr_hframe_r <= amr_hframe_r && (mrec_rdata_w == 8'h22);
+              11'd2: amr_hid_r    <= (mrec_rdata_w == AMR_LAYOUT_C);
+              11'd3: amr_hid_r    <= amr_hid_r && (mrec_rdata_w == amr_rid_w);
+              11'd4: amr_hframe_r <= amr_hframe_r && (mrec_rdata_w == amr_plen_w[15:8]);
+              11'd5: amr_hframe_r <= amr_hframe_r && (mrec_rdata_w == amr_plen_w[7:0]);
+              11'd6: amr_hcrc_r[15:8] <= mrec_rdata_w;
+              11'd7: amr_hcrc_r[7:0]  <= mrec_rdata_w;
+              default: begin
+                //! one byte of entry (bi - 8) / 8
+                if (amr_bi_r[2:0] != 3'd7) begin
+                  amr_e_ff_r <= amr_e_ff_r && (mrec_rdata_w == 8'hFF);
+                  if (!amr_bi_r[0])
+                    amr_e_z_r <= amr_e_z_r && (mrec_rdata_w == 8'd0);
+                  if (amr_bi_r[2:0] == 3'd1) amr_e_b1_r <= mrec_rdata_w;
+                  if (amr_bi_r[2:0] == 3'd3) amr_e_b3_r <= mrec_rdata_w;
+                  if (amr_bi_r[2:0] == 3'd5) amr_e_b5_r <= mrec_rdata_w;
+                end else begin
+                  //! the entry's last byte: UNUSED, a hole, or a mapping
+                  amr_e_ff_r <= 1'b1;
+                  amr_e_z_r  <= 1'b1;
+                  if (amr_e_ff_r && (mrec_rdata_w == 8'hFF)) begin
+                    amr_unused_r <= 1'b1;
+                  end else if (amr_unused_r) begin
+                    amr_malformed_r <= 1'b1;
+                  end else if (!amr_e_z_r || (mrec_rdata_w != 8'd0)
+                               || (amr_e_b3_r >= 8'd8)
+                               || (amr_e_b5_r >= amr_pcls_w)
+                               || (!amr_out_w && (amr_e_b1_r >= 8'd8))
+                               || (amr_out_w && (32'(amr_e_b1_r) >= N_STREAMS))) begin
+                    //! outside every range an ADD accepts
+                    amr_refuse_r <= 1'b1;
+                  end else if (!amr_out_w) begin
+                    for (int c = 0; c < AMR_ICL_C; c++)
+                      if (32'(amr_e_b5_r) == c) begin
+                        if (amr_li_r[c*7 + 6]
+                            && (amr_li_r[c*7 +: 6] != {amr_e_b1_r[2:0], amr_e_b3_r[2:0]}))
+                          amr_refuse_r <= 1'b1;   //! one cluster, two mappings
+                        else
+                          amr_li_r[c*7 +: 7] <= {1'b1, amr_e_b1_r[2:0], amr_e_b3_r[2:0]};
+                      end
+                  end else begin
+                    for (int k = 0; k < AMR_OK_C; k++)
+                      if ((32'(amr_e_b1_r) * 8 + 32'(amr_e_b3_r)) == k) begin
+                        if (amr_lo_r[k*(1+AMR_OCW_C) + AMR_OCW_C]
+                            && (amr_lo_r[k*(1+AMR_OCW_C) +: AMR_OCW_C]
+                                != amr_e_b5_r[AMR_OCW_C-1:0]))
+                          amr_refuse_r <= 1'b1;   //! one stream channel, two clusters
+                        else
+                          amr_lo_r[k*(1+AMR_OCW_C) +: (1+AMR_OCW_C)]
+                            <= {1'b1, amr_e_b5_r[AMR_OCW_C-1:0]};
+                      end
+                  end
+                end
+              end
+            endcase
+          end
+          if (mrec_err_w || (mrec_done_w && (amr_bi_r != amr_plen_b_w + 11'd8))
+              || amr_expire_w) begin
+            //! a device error, a short read or a deadline: roll back
+            amr_abort_r <= amr_expire_w;
+            amr_st_r    <= AS_RB;
+          end else if (mrec_done_w) begin
+            amr_st_r <= AS_RJDG;
+          end
+        end
+        AS_RJDG: begin
+          //! a framed, crc-clean record is a validated one (D3 8.7), whatever
+          //! its value rule then says
+          if (amr_hframe_r && amr_hid_r && (amr_hcrc_r == amr_crc_r))
+            amr_rs_valid_r <= 1'b1;
+          if (!amr_hframe_r || !amr_hid_r || (amr_hcrc_r != amr_crc_r)
+              || amr_malformed_r || amr_refuse_r) begin
+            //! erased, unframed, or refused before the port is touched: the
+            //! port's reset set comes back in stage 2
+            amr_pb_r <= amr_pb_r | amr_rmask_w;
+            amr_r_r  <= amr_r_r + AMR_RW_C'(1);
+            amr_st_r <= AS_RNEXT;
+          end else begin
+            //! well formed: ADD the saved set to the port stage 0 emptied
+            amr_step_r <= 2'd1;
+            amr_src_r  <= 1'b0;
+            amr_k_r    <= 8'd0;
+            amr_idx_r  <= 8'd0;
+            amr_st_r   <= AS_ECNT;
+          end
+        end
+
+        //! ---- one transaction through the server above -----------------
+        AS_ECNT: begin
+          //! count the source's mappings: phase 0 carries the count
+          amr_idx_r <= amr_cnt_w;
+          if (amr_k_r == amr_keys_w - 8'd1) begin
+            amr_k_r <= 8'd0;
+            if (amr_cnt_w == 8'd0) begin
+              amr_ok_r <= 1'b1;
+              amr_st_r <= AS_EEND;       //! nothing to move: done
+            end else begin
+              amr_ed_count_r <= {8'd0, amr_cnt_w};
+              amr_st_r       <= AS_EP0;
+            end
+          end else begin
+            amr_k_r <= amr_k_r + 8'd1;
+          end
+        end
+        AS_EP0: begin
+          amr_ed_req_r    <= 1'b1;
+          amr_ed_phase_r  <= 3'd0;
+          amr_ed_remove_r <= (amr_step_r == 2'd0);
+          amr_ed_type_r   <= amr_out_w ? DESC_STREAM_PORT_OUT_C : DESC_STREAM_PORT_IN_C;
+          amr_ed_index_r  <= 16'(amr_port_w);
+          amr_ed_rec_r    <= 8'd0;
+          amr_ed_record_r <= 64'd0;
+          amr_st_r        <= AS_EP0W;
+        end
+        AS_EP0W: begin
+          amr_k_r   <= 8'd0;
+          amr_idx_r <= 8'd0;
+          amr_ph5_r <= 1'b0;
+          amr_st_r  <= pp_amap_edit_data_w[0] ? AS_ESCAN : AS_EP3;
+        end
+        AS_ESCAN: begin
+          if (amr_sv_w) begin
+            amr_ed_phase_r  <= amr_ph5_r ? 3'd5 : 3'd4;
+            amr_ed_rec_r    <= amr_idx_r;
+            amr_ed_record_r <= amr_srec_w;
+            amr_st_r        <= AS_EBW;
+          end else if (amr_k_r == amr_keys_w - 8'd1) begin
+            amr_st_r <= amr_ph5_r ? AS_EP2 : AS_EP1;
+          end else begin
+            amr_k_r <= amr_k_r + 8'd1;
+          end
+        end
+        AS_EBW: begin
+          //! the beat is on the face this clock; a validation reads its verdict
+          if (!amr_ph5_r && !pp_amap_edit_data_w[0]) begin
+            amr_st_r <= AS_EP3;
+          end else begin
+            amr_idx_r <= amr_idx_r + 8'd1;
+            if (amr_k_r == amr_keys_w - 8'd1) begin
+              amr_st_r <= amr_ph5_r ? AS_EP2 : AS_EP1;
+            end else begin
+              amr_k_r  <= amr_k_r + 8'd1;
+              amr_st_r <= AS_ESCAN;
+            end
+          end
+        end
+        AS_EP1: begin
+          amr_ed_phase_r  <= 3'd1;
+          amr_ed_rec_r    <= 8'd0;
+          amr_ed_record_r <= 64'd0;
+          amr_st_r        <= AS_EP1W;
+        end
+        AS_EP1W: begin
+          amr_k_r   <= 8'd0;
+          amr_idx_r <= 8'd0;
+          amr_ph5_r <= 1'b1;
+          amr_st_r  <= pp_amap_edit_data_w[0] ? AS_ESCAN : AS_EP3;
+        end
+        AS_EP2: begin
+          amr_ed_phase_r <= 3'd2;
+          amr_ed_rec_r   <= 8'd0;
+          amr_ok_r       <= 1'b1;
+          amr_st_r       <= AS_EEND;
+        end
+        AS_EP3: begin
+          amr_ed_phase_r <= 3'd3;
+          amr_ed_rec_r   <= 8'd0;
+          amr_ok_r       <= 1'b0;
+          amr_st_r       <= AS_EEND;
+        end
+        AS_EEND: begin
+          //! the finish or abort beat is on the face this clock; then the
+          //! face is idle for at least one clock before the next opens
+          amr_ed_req_r <= 1'b0;
+          amr_k_r      <= 8'd0;
+          amr_idx_r    <= 8'd0;
+          if (amr_ok_r || (amr_step_r == 2'd1)) begin
+            //! taken down, applied or put back; a refused saved set marks
+            //! its port for stage 2
+            if (!amr_ok_r) amr_pb_r <= amr_pb_r | amr_rmask_w;
+            amr_r_r  <= amr_r_r + AMR_RW_C'(1);
+            amr_st_r <= AS_RNEXT;
+          end else begin
+            amr_st_r <= AS_RB;   //! a refused take-down or put-back
+          end
+        end
+        AS_RB: begin
+          //! the walk failed: every map back to its reset set. amr_rb_r takes
+          //! the stores on the next clock and starts a sweep of the crossbar
+          //! RAMs from it, and the hold falls on that same clock, so the
+          //! sweep's busy follows it with no clock between
+          amr_rb_r      <= 1'b1;
+          amr_rs_fail_r <= 1'b1;
+          amr_ed_req_r  <= 1'b0;
+          amr_st_r      <= AS_RB2;
+        end
+        AS_RB2: begin
+          amr_own_r     <= 1'b0;
+          amr_rs_hold_r <= 1'b0;
+          amr_r_r       <= '0;
+          amr_st_r      <= AS_SVC;
+        end
+
+        //! ---- the writer -----------------------------------------------
+        AS_SVC: begin
+          //! the first dirty record opens the window, its close arms one
+          //! burst, and a lap that finds nothing dirty disarms it
+          if (!amr_armed_r && !amr_deb_r && (|amr_dirty_r)) begin
+            amr_deb_r   <= 1'b1;
+            amr_mscnt_r <= 10'd0;
+          end else if (amr_deb_r && amr_tick_r) begin
+            if (amr_mscnt_r == 10'd500) begin
+              amr_deb_r   <= 1'b0;
+              amr_armed_r <= 1'b1;
+              amr_scan_r  <= '0;
+            end else begin
+              amr_mscnt_r <= amr_mscnt_r + 10'd1;
+            end
+          end
+          if (amr_armed_r) begin
+            if (32'(amr_scan_r) >= AMR_NR_C) begin
+              amr_armed_r <= 1'b0;
+            end else if (|(amr_dirty_r & amr_rmask_w)) begin
+              amr_fails_r <= 2'd0;
+              amr_scan_r  <= '0;
+              amr_st_r    <= AS_WLAT;
+            end else begin
+              amr_scan_r <= amr_scan_r + 1'b1;
+              amr_r_r    <= (32'(amr_r_r) >= AMR_NR_C - 1) ? '0 : amr_r_r + AMR_RW_C'(1);
+            end
+          end
+        end
+        AS_WLAT: begin
+          //! one clock with no edit transaction open: the set a completed
+          //! command left; a change on this clock taints it (above)
+          if (!amap_edit_txn_active_r && !pp_amap_edit_req_w) begin
+            amr_li_r    <= amr_li_live_w;
+            amr_lo_r    <= amr_lo_live_w;
+            amr_taint_r <= amr_set_r_w;
+            amr_gk_r    <= 8'd0;
+            amr_eu_r    <= 1'b1;
+            amr_bi_r    <= 11'd0;
+            amr_crc_r   <= 16'hFFFF;
+            amr_st_r    <= AS_WCRC;
+          end
+        end
+        AS_WCRC: begin
+          //! the crc over the header without its crc and the payload
+          amr_crc_r <= amr_crc_nx_w;
+          if (amr_bi_r == 11'd5) begin
+            amr_bi_r <= 11'd8;
+          end else if (amr_bi_r == amr_plen_b_w + 11'd7) begin
+            amr_bi_r <= 11'd0;
+            amr_req_r <= 1'b1;
+            amr_we_r  <= 1'b1;
+            amr_st_r  <= AS_WREQ;
+          end else begin
+            amr_bi_r <= amr_bi_r + 11'd1;
+          end
+          if ((amr_bi_r == 11'd5) || ((amr_bi_r >= 11'd8) && (amr_bi_r[2:0] == 3'd7))) begin
+            //! the next entry: the next mapping in key order, else UNUSED
+            amr_ek_r <= amr_nxt_k_w;
+            amr_eu_r <= !amr_nxt_v_w;
+            if (amr_nxt_v_w) amr_gk_r <= amr_nxt_k_w + 8'd1;
+            else             amr_gk_r <= amr_keys_w;
+          end
+          if (amr_bi_r == amr_plen_b_w + 11'd7) begin
+            amr_gk_r <= 8'd0;
+            amr_eu_r <= 1'b1;
+          end
+        end
+        AS_WREQ: begin
+          if (mrec_gnt_w) begin
+            amr_req_r <= 1'b0;
+            amr_st_r  <= AS_WSTR;
+          end else if (amr_expire_w) begin
+            amr_req_r   <= 1'b0;
+            amr_abort_r <= 1'b1;
+            amr_st_r    <= AS_WBACK;
+          end
+        end
+        AS_WSTR: begin
+          if (mrec_wready_w) begin
+            amr_bi_r <= amr_bi_r + 11'd1;
+            if ((amr_bi_r == 11'd7) || ((amr_bi_r >= 11'd8) && (amr_bi_r[2:0] == 3'd7))) begin
+              amr_ek_r <= amr_nxt_k_w;
+              amr_eu_r <= !amr_nxt_v_w;
+              if (amr_nxt_v_w) amr_gk_r <= amr_nxt_k_w + 8'd1;
+              else             amr_gk_r <= amr_keys_w;
+            end
+            if (amr_bi_r == amr_plen_b_w + 11'd7) amr_st_r <= AS_WWAIT;
+          end
+          if (mrec_err_w || amr_expire_w) begin
+            amr_abort_r <= amr_expire_w;
+            amr_st_r    <= AS_WBACK;
+          end
+        end
+        AS_WWAIT: begin
+          if (mrec_done_w) begin
+            //! the backend holds the record from this done (D3 7.1); an
+            //! untainted write clears it, a change on this edge wins
+            if (!amr_taint_r && !amr_set_r_w)
+              amr_dirty_r <= (amr_dirty_r | amr_set_w) & ~amr_rmask_w;
+            amr_r_r  <= (32'(amr_r_r) >= AMR_NR_C - 1) ? '0 : amr_r_r + AMR_RW_C'(1);
+            amr_st_r <= AS_SVC;
+          end else if (mrec_err_w || amr_expire_w) begin
+            amr_abort_r <= amr_expire_w;
+            amr_st_r    <= AS_WBACK;
+          end
+        end
+        AS_WBACK: begin
+          //! a failed attempt (DR2c): the third gives the record up with
+          //! the alarm, the first two wait 500 ms and relatch
+          if (amr_fails_r == 2'd2) begin
+            if (!amr_set_r_w)
+              amr_dirty_r <= (amr_dirty_r | amr_set_w) & ~amr_rmask_w;
+            amr_alarm_r <= 1'b1;
+            amr_r_r  <= (32'(amr_r_r) >= AMR_NR_C - 1) ? '0 : amr_r_r + AMR_RW_C'(1);
+            amr_st_r <= AS_SVC;
+          end else begin
+            amr_fails_r <= amr_fails_r + 2'd1;
+            amr_mscnt_r <= 10'd0;
+            amr_st_r    <= AS_WBWAIT;
+          end
+        end
+        AS_WBWAIT: begin
+          //! at least 500 ms after the failure, holding neither the face nor
+          //! the port, then a fresh latch
+          if (amr_tick_r) begin
+            if (amr_mscnt_r == 10'd500) amr_st_r <= AS_WLAT;
+            else amr_mscnt_r <= amr_mscnt_r + 10'd1;
+          end
+        end
+        default: amr_st_r <= AS_SVC;
+      endcase
+    end
+  end : amr_fsm
+
+  //! ---- PP_STAT's restore verdicts, both restores composed (D3 3 rule 7,
+  //! 5.2, 8.7; #637). The processor's interface is unchanged: its levels
+  //! keep sequencing this block and the boot window, and only the register
+  //! reads the composition. busy covers the map restore from the D3
+  //! terminal to its end, and done waits for that end, so no host reads a
+  //! verdict the map restore can still change. fail adds the map restore's
+  //! roll-back (a device error, a short read, a deadline, a refused
+  //! take-down or put-back); its causes stay the processor's, so a fail
+  //! with both causes 0 on a walk that did not run blind is the map
+  //! restore's. blank needs both restores done, neither failed, and no
+  //! framed, crc-clean record read by either, so saved maps lost to a
+  //! device error never read as a clean first boot (H8)
+  assign pp_stat_busy_w  = pp_restore_busy_w || (pp_restore_done_w && amr_rs_hold_r);
+  assign pp_stat_done_w  = pp_restore_done_w && !amr_rs_hold_r;
+  assign pp_stat_fail_w  = pp_restore_fail_w || amr_rs_fail_r;
+  assign pp_stat_blank_w = pp_restore_blank_w && !amr_rs_hold_r
+                           && !amr_rs_fail_r && !amr_rs_valid_r;
 
   //! ==== the Milan-info answer block (06 SS6.2/SS6.10) ====================
   //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
@@ -5314,7 +6304,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     endcase
   end : gsi_answer
   assign pp_gsi_data_w = gsi_data_r;
-  assign pp_gsi_wait_w = pp_gsi_req_w && !(gsi_srv2_r && gsi_sel_match_w);  //! live-match: see the counters face
+  //! live-match: see the counters face. The format judge (kind 0, selector
+  //! 15) also waits while the #637 map restore runs (after the D3 terminal
+  //! only, so the D3 walk's own judge is never held): a SET_STREAM_FORMAT
+  //! dispatched at the terminal is judged against the restored maps, never
+  //! between a port's saved set and its reset set (D3 8.4).
+  assign pp_gsi_wait_w = pp_gsi_req_w
+                         && (!(gsi_srv2_r && gsi_sel_match_w)
+                             || (amr_rs_run_w && (pp_gsi_kind_w == 2'd0)
+                                 && (pp_gsi_sel_w == 4'd15)));
 
   //! ---- the Table 5.22 trigger pins this fabric owns -------------------
   //! ONE effective source per served GET_AVB_INFO field, and the SAME wire
@@ -6478,6 +7476,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .bound_i        (strtbl_en_w),
     .bind_rise_i    (strtbl_bind_rise_w),
     .bind_fall_i    (strtbl_bind_fall_w),
+    //! #762: a stopped input's silence or sequence gap interrupts no playback (5.3.8.7)
+    .stopped_i      (acmpl_stopped_v_w[N_STREAMS-1:0]),
     .sid0_i         (acmpl_sid),
     .fmt0_i         (aecp_in0_fmt),
     .ptp_now_i      (ptp_now_w[31:0]),
@@ -8304,18 +9304,37 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .amap_rec_o        (pp_amap_rec_w),
       .amap_data_i       (pp_amap_data_w),
       .amap_wait_i       (pp_amap_wait_w),
-      .amap_edit_req_o   (pp_amap_edit_req_w),
-      .amap_edit_phase_o (pp_amap_edit_phase_w),
-      .amap_edit_remove_o(pp_amap_edit_remove_w),
-      .amap_edit_desc_type_o(pp_amap_edit_desc_type_w),
-      .amap_edit_desc_index_o(pp_amap_edit_desc_index_w),
-      .amap_edit_count_o (pp_amap_edit_count_w),
-      .amap_edit_rec_o   (pp_amap_edit_rec_w),
-      .amap_edit_record_o(pp_amap_edit_record_w),
+      .amap_edit_req_o   (ppo_amap_edit_req_w),
+      .amap_edit_phase_o (ppo_amap_edit_phase_w),
+      .amap_edit_remove_o(ppo_amap_edit_remove_w),
+      .amap_edit_desc_type_o(ppo_amap_edit_desc_type_w),
+      .amap_edit_desc_index_o(ppo_amap_edit_desc_index_w),
+      .amap_edit_count_o (ppo_amap_edit_count_w),
+      .amap_edit_rec_o   (ppo_amap_edit_rec_w),
+      .amap_edit_record_o(ppo_amap_edit_record_w),
       .amap_edit_value_o (pp_amap_edit_value_w),
       .amap_edit_data_i  (pp_amap_edit_data_w),
       .amap_edit_wait_i  (pp_amap_edit_wait_w),
       .amap_live_wr_i    (amap_edit_live_wr_p),
+      //! #637: the map record writer and restore (block amr_fsm) on the
+      //! backend's device face, its pending and its alarm
+      .mrec_req_i        (amr_req_r),
+      .mrec_gnt_o        (mrec_gnt_w),
+      .mrec_op_i         (amr_we_r ? 2'd1 : 2'd0),
+      .mrec_region_i     (amr_rid_w),
+      .mrec_offset_i     (16'd0),   // whole-record commands: each starts at byte 0
+      .mrec_len_i        (amr_plen_w + 16'd8),
+      .mrec_wvalid_i     (amr_wvalid_w),
+      .mrec_wready_o     (mrec_wready_w),
+      .mrec_wdata_i      (amr_fbyte_w),
+      .mrec_rvalid_o     (mrec_rvalid_w),
+      .mrec_rdata_o      (mrec_rdata_w),
+      .mrec_rready_i     (amr_rready_w),
+      .mrec_done_o       (mrec_done_w),
+      .mrec_err_o        (mrec_err_w),
+      .mrec_abort_i      (amr_abort_r),
+      .amap_unflushed_i  (|amr_dirty_r),
+      .amap_alarm_i      (amr_alarm_r),
       //! the Milan-info face: GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH
       //! answered from the gsi_answer block above
       .gsi_req_o         (pp_gsi_req_w),
@@ -8375,7 +9394,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! now, so demanding both would strand every existing script and having
       //! only the new one would silently ignore the old bit: either enables
       //! the entity, and REGISTER_MAP records that.
-      .enable_i          (pp_enable_w | cfg_adp_enable),
+      //! ...and only once the #637 map restore has ended (the processor's
+      //! 07 §5.1: the integrator applies the saved sets before it requests
+      //! the entity's enable), so no ADPDU precedes the restored maps.
+      .enable_i          ((pp_enable_w | cfg_adp_enable) && !amr_rs_hold_r),
       .restore_go_i      (pp_restore_go_w),
       .link_up_i         (eff_link_w),
       //! GM_CHANGE: an edge on the committed grandmaster pair (CSR 0x624/8 +

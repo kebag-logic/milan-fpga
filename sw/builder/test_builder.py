@@ -11369,13 +11369,14 @@ def test_baremetal_profile_contract() -> None:
         #: refuses any new reader.
         #: #629: a followed AAF stream adds the AAF clock meter's two pulses,
         #: its own timeout and the followed stream's received toggle; the
-        #: meter's enable is their selection gate
+        #: meter's enable is their selection gate. #761: the selected CRF's
+        #: lock requests on either edge, its loss and its return
         direct_initializer(
             datapath, r"wire[ \t]+mcr_restart_p_w",
             "mcr_restart_p_w",
-            "(crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) "
+            "(crf_clk_selected_r & ((tkd_crflk_q_r ^ crf_locked_w) "
             "| crf_mr_toggle_p_w)) | aafm_disrupt_p_w | aafm_mr_toggle_p_w",
-            "media restart pulse must read only selected CRF disruption "
+            "media restart pulse must read only selected CRF lock edges "
             "and received mr propagation")
         restart_reason = (
             "media restart engine must consume mcr_restart_p_w directly")
@@ -15931,7 +15932,7 @@ def test_baremetal_profile_contract() -> None:
          MutantFiles(datapath=settle_recentre_lb_withheld)),
         ("ADP term spliced into the media restart pulse", firmware_source,
          docs_source, csr_source,
-         "media restart pulse must read only selected CRF disruption "
+         "media restart pulse must read only selected CRF lock edges "
          "and received mr propagation",
          MutantFiles(datapath=mcr_restart_adp_term)),
         ("media restart engine port gated by ADP", firmware_source,
@@ -17509,7 +17510,7 @@ def test_baremetal_profile_contract() -> None:
           "settime: the render presentation stage is emptied by a bind wipe "
           "alone, never a PHC step, GM identity or source change, and the "
           "#645 settle recentre reaches the LOOP queues; "
-          "restart takes only selected CRF disruption and "
+          "restart takes only selected CRF lock edges and "
           "received mr propagation, feeding its engine port directly; "
           "external MAC RX "
           "traverses the pre-filter tap, both RXFILT_P arms and the "

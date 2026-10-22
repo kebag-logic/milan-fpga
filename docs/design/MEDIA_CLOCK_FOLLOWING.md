@@ -312,7 +312,7 @@ packet grid.
 | CLOCK_DOMAIN LOCKED and UNLOCKED count edges of the gPTP clock-validity verdict that `tu` also carries, by a recorded rule | `hdl/milan/milan_datapath.sv:3469-3475`, `:3492` |
 | The RX parser hands every matched AVTPDU's listener index, timestamp, `tv`, `tu`, `mr`, sequence number and format header to the fabric | `hdl/milan/milan_datapath.sv:5418-5446` |
 | The format header holds AAF's format, `nsr`, `channels_per_frame`, `bit_depth`, `stream_data_length` and `sp`; the common-header `tu` is byte o+3 bit 0 | `hdl/ieee1722/avtp/avtp_stream_parser.sv:165-177` |
-| The AAF listener's format check is a family compare (subtype, format, `nsr`, depth, a nonzero channel count, `sp` clear), with no samples-per-PDU check | `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:465-491` |
+| The AAF listener's format check compares the current format's subtype, format, `nsr`, depth and channel count, with `sp` clear (#765), and no samples-per-PDU check | `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:497-528` |
 | The RX monitor's media-lock ports for an external clock are wired but unused | `hdl/milan/milan_datapath.sv:5858-5865` (#74 ledger item 3) |
 | `PCMRX_TS` (`0x6C8`) is stream 0's last accepted timestamp, a CSR snapshot | `hdl/milan/milan_datapath.sv:2576`, `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:218`, `hdl/common/csr/milan_csr.sv:396` |
 | CSR words at or above `0x800` read zero unless the read window claims them | `hdl/common/csr/milan_csr.sv:2562-2581` |
@@ -463,8 +463,8 @@ AAF carries no samples-per-PDU field. The meter derives it from the PDU's own
 fields: `stream_data_length` must equal 6 x 4 x `channels_per_frame` octets,
 with `channels_per_frame` nonzero (IEEE 1722-2016 7.3.3, 7.3.5). Every PDU of a
 stream carries the same number of samples (7.3.5), so the check is stable for
-a stream. The RX monitor's family compare does not check the sample count
-(`hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:486-491`), so the meter must.
+a stream. The RX monitor's format compare does not check the sample count
+(`hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv:512-528`), so the meter must.
 The bound input's current format agrees on every shipping shape, because every
 advertised input format has 6 samples per PDU
 (`avdecc/aem_descriptors.py:133`). The meter therefore keeps no second check.
@@ -1413,15 +1413,19 @@ The same rules apply to either kind of followed source.
    rate is valid 512 ms later for CRF and 4.096 s later for AAF under E8. The
    servo re-enters ACQUIRE with its two-window
    skip, and reads LOCKED after four windows within 2 ppm
-   (`KL_mmcm_drp_servo.sv:232-233`). The return itself raises no second toggle.
-   Each disruption toggles once.
+   (`KL_mmcm_drp_servo.sv:232-233`). Each disruption toggles once. The
+   return of a followed AAF stream raises no second toggle. The return of a
+   followed CRF stream raises one at the sink's re-lock (#761), because the
+   media clock's source changes from holdover back to the CRF (4.4.4.3).
 
 ### `mr`
 
 - **A source change** toggles every output's `mr` once, through the existing
   edge on the stored index (`KL_media_clock_restart.sv:236`). That includes the
   CRF output, which is a CRF talker for 10.4.3.
-- **A followed CRF stream** keeps today's two triggers.
+- **A followed CRF stream** keeps its disruption and received-toggle triggers,
+  and since #761 the sink's re-lock requests one restart too: the media clock
+  moves from holdover back onto the CRF, a change of its source (4.4.4.3).
 - **A followed AAF stream** gains the same two, from the meter: `disrupt_p`,
   when its own 100 ms timeout drops its lock, and `mr_toggle_p`, a toggle of
   its received `mr`. A source that is not followed is ignored (4.4.4.3 and
@@ -2138,7 +2142,7 @@ pass.
 | `tb/verilator/milan_dp`, true-ratio leg | INTERNAL, an AAF source and the CRF source selected in turn, with an AAF talker and a CRF talker both present at different planted offsets (for example +20 and -15 ppm) | The media clock follows the selected talker's offset within 0.5 ppm with zero junction slips; at INTERNAL the aligner stays engaged and `SLIP_TDM` stays static (D4 = A2-a) | The decode kept as the CRF-only compare: AAF selection leaves the grid free-running. Separately, the reference mux stuck on `KL_crf_rx`: AAF selected, the clock lands on the CRF talker's offset. Separately, the aligner left disengaged at INTERNAL (no A2-a): `SLIP_TDM` moves at INTERNAL |
 | Same | W2 at the root: following AAF input 0 with the servo LOCKED, a switch to a CRF stream already locked | `MCSRV_STAT` shows HOLDOVER, then ACQUIRE with the lock count cleared and the integrator kept, then LOCKED | The one-cycle unlocked presentation removed: the servo stays LOCKED across the switch |
 | Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1, with the two AAF talkers at opposite `mr` levels: (i) both talkers streaming, each switch repeated at 16 phases across one CRF output period; (ii) AAF input 0 to input 1 with input 1's talker silent at the switch and starting 5 ms after it; (iii) an INTERNAL dwell with AAF talker 0 toggling its `mr` | At a `public_flat_rd` tap on the restart request: no pulse at any switch, one per disruption. On the wire: exactly one toggle per output per switch, held 8 PDUs, at every phase of (i) and in (ii); none in (iii). Each output's MEDIA_RESET moves once per switch; never more than one #645 settle recentre per switch (until #632: one #386 recentre); aligner engaged throughout; `SLIP_TDM` static | No re-seed on a change of the followed listener: a request pulse at every switch onto the other talker, and in (ii) a second toggle on every output. Separately, the meter's raw lock-fall edge wired as the disruption, as the CRF term is: a request pulse at every switch. Separately, the meter's enable tied high: requests and toggles in (iii) |
-| Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption, none on return; the index unchanged; LOCKED again after the return | `disrupt_p` not ORed into the request: no toggle at the AAF loss |
+| Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption; none on the AAF return, one on the CRF return (#761); the index unchanged; LOCKED again after the return | `disrupt_p` not ORed into the request: no toggle at the AAF loss. Separately, either edge of the selected CRF's lock dropped from the request: no toggle at that edge |
 | Same | The followed AAF stream toggles its own `mr`; an unfollowed one does | Echoed once when followed, ignored otherwise | Echo ungated |
 | Same | CLOCK_DOMAIN counters across a holdover, a return, a switch, and 60 s with one PDU lost in every 0.3 s | C1, as ruled: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again; neither moves during the PDU-loss leg. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | C0's level (`~tu` only): no UNLOCKED at the loss. Separately, C2's level (the reference lock): LOCKED counted 8 PDUs after the return, before the servo reads LOCKED. Separately, the meter's held lock cleared on a sequence gap: the servo enters HOLDOVER at the leg's first lost PDU, so UNLOCKED moves there, and each later loss, 0.3 s on, returns it to HOLDOVER before its two-window skip ends, so LOCKED moves only after the leg: 2.6 s after it ends in the round-5 desk model. The loss leg grades this mutant alone: under C0's level, C2's level or restart on any loss neither counter moves in it |
 | Same | The two meter words read over the CSR bus | Each field equals the meter's: lock, rate validity, followed listener, restart count, largest deviation, rate | The read-window term missing: both words read zero |

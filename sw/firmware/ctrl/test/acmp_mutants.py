@@ -371,7 +371,15 @@ MUTANTS = (
            (("acmpwalk", "Table530/ListenerWalk.Graded/TK_UNREG_SNR", "state, probing and ACMP status"),)),
     Mutant("acmp-kind-lost", ACMP_C, "\ta->sinks[sink].tk_failed = failed;",
            "\t(void)failed;", "acmp", "AcmpCore.KindChangesOnlyTheSettledView",
-           "kind updates the reported view"),
+           "kind updates the reported view",
+           (("acmpwalk", "Table530/ListenerWalk.Graded/TK_REG_SOK", "registered state"),)),
+    # the swap's notification alone: its view is marked reported before finish compares it (processor #189)
+    Mutant("acmp-kind-not-notified", ACMP_C, "\ta->sinks[sink].tk_failed = failed;\n\tfinish(a);",
+           "\ta->sinks[sink].tk_failed = failed;\n\tview_of(&a->sinks[sink], &a->sinks[sink].reported);\n"
+           "\tfinish(a);",
+           "acmp", "AcmpCore.KindChangesOnlyTheSettledView", "kind change notifies once",
+           (("acmpwalk", "Table530/ListenerWalk.Graded/TK_REG_SOK",
+             "notified exactly when a Table 5.22 item moved"),)),
     Mutant("acmp-kind-any-state", ACMP_C,
            "\tif (sink >= a->cfg.n_sinks || a->sinks[sink].state != ACMP_SETTLED_RSV_OK) {\n\t\ta->impossible++;\n",
            "\tif (sink >= a->cfg.n_sinks) {\n\t\ta->impossible++;\n",

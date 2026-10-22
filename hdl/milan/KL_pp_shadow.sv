@@ -42,9 +42,10 @@
 
                 WHAT IS STILL OPEN, and is a compliance gap rather than a
                 design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
-                saved-state persistence of the names and the channel maps
-                (the bindings and, since processor pin d352bbaa, the scalar
-                records persist).
+                and the parent's adoption of the names' saved state (the
+                bindings, the scalar records since processor pin d352bbaa,
+                and the channel maps since #637, written and restored by
+                milan_datapath through the record face below, persist).
                 The unsolicited-notification trigger set and the
                 departing-controller monitor are SERVED since VERSION
                 0x0055: the four trigger pins above carry the edges only
@@ -398,6 +399,39 @@ module KL_pp_shadow #(
     //! No pulse for unchanged/refused records or repeated held beats.
     input  wire         amap_live_wr_i,
 
+    //! ---- channel-map record face (#637) ---------------------------------
+    //! The channel maps are this parent's to persist (the processor's 07
+    //! §5.1, the ruling on its issue 83; SAVED_STATE_MATERIALIZATION.md 15
+    //! item 2, amended): milan_datapath's map record writer and restore reach
+    //! KL_nvm_backend through this face. It is the backend's device face,
+    //! with the same contract the processor's NVM port meets (request held
+    //! until the grant, one byte per handshake, one done or err per
+    //! command), shared with that port by the arbiter below. mrec_abort_i
+    //! abandons the granted command: the arbiter drains a READ's bytes and
+    //! never pads a WRITE (the processor port's containment rule).
+    input  wire         mrec_req_i,       //! command request, held until mrec_gnt_o
+    output logic        mrec_gnt_o,       //! the backend accepted the command
+    input  wire  [1:0]  mrec_op_i,        //! READ 0 / WRITE 1
+    input  wire  [7:0]  mrec_region_i,    //! record id
+    input  wire  [15:0] mrec_offset_i,    //! byte offset in the record
+    input  wire  [15:0] mrec_len_i,       //! byte count
+    input  wire         mrec_wvalid_i,    //! write byte present
+    output logic        mrec_wready_o,    //! the backend takes the write byte
+    input  wire  [7:0]  mrec_wdata_i,     //! write byte
+    output logic        mrec_rvalid_o,    //! read byte present
+    output logic [7:0]  mrec_rdata_o,     //! read byte
+    input  wire         mrec_rready_i,    //! the writer takes the read byte
+    output logic        mrec_done_o,      //! one-cycle pulse: command complete
+    output logic        mrec_err_o,       //! one-cycle pulse: command failed
+    input  wire         mrec_abort_i,     //! one-cycle pulse: the command is abandoned
+    //! a map record holds an accepted change the window does not hold yet:
+    //! its dirty bit, retired at the done of the record's untainted WRITE
+    //! (D3 7.1). Same clk_i/rst_n.
+    input  wire         amap_unflushed_i,
+    //! the map writer gave a record up after its last attempt (DR2c):
+    //! reset-sticky, ORed into the backend's alarm and nvm_alarm_o
+    input  wire         amap_alarm_i,
+
     //! ---- Milan-info gather face (06 SS6.2/SS6.10) ----
     //! Straight through to protocol_processor_top: GET_STREAM_INFO /
     //! GET_AVB_INFO / GET_AS_PATH ask one word at a time and milan_datapath
@@ -423,8 +457,11 @@ module KL_pp_shadow #(
     //! sole trigger: it MUST cover entry-0 grandmaster identity changes and
     //! active published tail/count changes, while suppressing only aliases of
     //! the selected owner. Option-off counts 0/1 alias under a stable GM;
-    //! fabric counts 0/1 are distinct empty/[GM] sequences. Every hidden tail
-    //! while GM=0 aliases to empty in either mode.
+    //! fabric counts 0/1 are the distinct empty and {thisClock} sequences:
+    //! count one is this station's own path before a peer (FPGA-gPTP #82),
+    //! and a received sequence gains thisClock, so an explicit one-entry [GM]
+    //! PathTrace is count two (FPGA-gPTP #85). Every hidden tail while GM=0
+    //! aliases to empty in either mode.
     //! milan_datapath drives it from one complete served-sequence comparator.
     input  wire         gsi_asp_chg_i,
 
@@ -922,14 +959,14 @@ module KL_pp_shadow #(
   //!
   //!   * pend: the backend's pend_i is a LEVEL (snapshot-ownership section
   //!     6.1), 1 while the producer holds accepted work it has not yet
-  //!     written through the device face. Its producers are the processor's
-  //!     two record writers: the binding manager's unflushed sinks and the D3
-  //!     writer's unflushed scalar records (configuration, sampling rate,
-  //!     clock source, both stream formats, presentation offset), each
-  //!     retired at the done of the whole-record window write
+  //!     written through the device face. Its producers are the record
+  //!     writers: the binding manager's unflushed sinks, the D3 writer's
+  //!     unflushed scalar and name records, and since #637 the parent's map
+  //!     writer (amap_unflushed_i), each retired at the done of the
+  //!     whole-record window write
   //!     (docs/design/SAVED_STATE_MATERIALIZATION.md 5.2 and 7.1). The
-  //!     accepted live name/map writes are held sticky beside them because
-  //!     neither group has a record writer yet (stage 3 retires them).
+  //!     accepted live name writes are still held sticky beside them, because
+  //!     the parent has not adopted the name stage (D3 18.3).
   //!     aecp_dyn_dirty_o LEFT pend_i with the D3 writer: it is set by any
   //!     persisted-row write since reset, a restore write included, and never
   //!     clears, so it would hold pend at 1 over every durable scalar. It stays
@@ -946,16 +983,18 @@ module KL_pp_shadow #(
   logic        nvm_backed_w, nvm_img_valid_w, nvm_pend_w, nvm_alarm_w;
   logic        restore_busy_q, walk_blind_r;
 
-  //! Binding and scalar changes stay pending until their record completes or
-  //! alarms. Names and maps have no record writer yet, so their source clears
-  //! only at reset. The later class-6/7 marks still delimit command completion;
-  //! waiting for those marks would claim durability over a live change.
+  //! Binding, scalar and map changes stay pending until their record
+  //! completes or alarms. The parent has not adopted the name stage, so the
+  //! accepted name writes keep their sticky source, cleared only at reset.
+  //! The later class-6/7 marks still delimit command completion; waiting for
+  //! those marks would claim durability over a live change.
   //!
-  //! All three events and the backend use clk_i and the shared rst_n. No
-  //! CDC is introduced. Map phase 5 cannot stall after accepted phase 1.
-  //! Feed the accepting pulse as well as its sticky history to pend_i:
-  //! the backend registers that input on the SAME edge as the live write.
-  //! The parent shares its actual write enable; unchanged maps raise nothing.
+  //! All events and the backend use clk_i and the shared rst_n. No CDC is
+  //! introduced. Map phase 5 cannot stall after accepted phase 1. The
+  //! accepting map pulse still feeds pend_i directly, because the backend
+  //! registers that input on the SAME edge as the live write and the map
+  //! writer's dirty bit reads 1 only from the next cycle (#637). The parent
+  //! shares its actual write enable; unchanged maps raise nothing.
   logic [N_STREAM_IN_P-1:0] nvm_unflushed_w;
   logic                     d3_unflushed_w;
   logic                     aecp_name_wr_w;
@@ -970,16 +1009,97 @@ module KL_pp_shadow #(
   assign aecp_live_wr_w = aecp_name_wr_w
                         | amap_live_wr_i;
 
+  //! names only: the map writer's dirty bits own the map changes (#637)
   always_ff @(posedge clk_i) begin : latch_live_pending
     if (!rst_n) begin
       aecp_live_pend_r <= 1'b0;
-    end else if (aecp_live_wr_w) begin
+    end else if (aecp_name_wr_w) begin
       aecp_live_pend_r <= 1'b1;
     end
   end : latch_live_pending
 
   assign nvm_pend_w = (|nvm_unflushed_w) | d3_unflushed_w
+                    | amap_unflushed_i
                     | aecp_live_wr_w | aecp_live_pend_r;
+
+  //! ---- the device face, shared (#637) ------------------------------------
+  //! KL_nvm_backend has ONE device face and two initiators now: the
+  //! processor's NVM port (its binding manager and D3 writer behind
+  //! KL_pp_nvm_mgr_arb) and the parent's map record writer. The backend
+  //! serves one command at a time and names none of its bytes, so the
+  //! command it has accepted belongs to the side selected when it accepted
+  //! it, until its done or err:
+  //!   * the selection (da_map_r) moves only while the backend is idle with
+  //!     no grant, done or err in the cycle, no drain, and the selected side
+  //!     not requesting; then it goes to the other side if that one asks.
+  //!     A side that keeps asking is never preempted, so the backend's
+  //!     capture hold defers it without handing its grant away, and the
+  //!     processor port's ERASE then WRITE stays one run. A tie goes to the
+  //!     processor, as the selection resets to it;
+  //!   * the processor port's grant contract holds: a grant comes at most
+  //!     one cycle after the edge that sampled its request, from the
+  //!     backend's own registered grant, because a request is presented only
+  //!     while its side is selected;
+  //!   * the map writer's abandon: a command the backend took for it (busy or
+  //!     granted in the abort's cycle) is DRAINED here until the backend ends
+  //!     it. A READ's bytes are swallowed; a WRITE gets no byte, so the
+  //!     backend holds it open, as the processor port contains an abandoned
+  //!     write, and every later request waits for that terminal or a reset
+  //!     (D3 6.4, the drain; section 15 item 4, amended).
+  logic        pp_dev_req_w, pp_dev_gnt_w, pp_dev_wvalid_w, pp_dev_wready_w;
+  logic        pp_dev_rvalid_w, pp_dev_rready_w, pp_dev_busy_w;
+  logic        pp_dev_done_w, pp_dev_err_w;
+  logic [1:0]  pp_dev_op_w;
+  logic [7:0]  pp_dev_region_w, pp_dev_wdata_w;
+  logic [15:0] pp_dev_offset_w, pp_dev_len_w;
+  logic        da_map_r, da_drain_r;
+  logic        da_free_w;
+
+  assign da_free_w = !nvm_busy_w && !nvm_gnt_w && !nvm_done_w && !nvm_err_w
+                   && !da_drain_r
+                   && !(da_map_r ? mrec_req_i : pp_dev_req_w);
+
+  always_ff @(posedge clk_i) begin : dev_face_arb
+    if (!rst_n) begin
+      da_map_r   <= 1'b0;
+      da_drain_r <= 1'b0;
+    end else begin
+      if (nvm_done_w || nvm_err_w)
+        da_drain_r <= 1'b0;
+      else if (mrec_abort_i && da_map_r && (nvm_busy_w || nvm_gnt_w))
+        da_drain_r <= 1'b1;
+      if (da_free_w) begin
+        if (da_map_r && pp_dev_req_w)     da_map_r <= 1'b0;
+        else if (!da_map_r && mrec_req_i) da_map_r <= 1'b1;
+      end
+    end
+  end : dev_face_arb
+
+  assign nvm_req_w    = da_map_r ? (mrec_req_i && !da_drain_r) : pp_dev_req_w;
+  assign nvm_op_w     = da_map_r ? mrec_op_i     : pp_dev_op_w;
+  assign nvm_region_w = da_map_r ? mrec_region_i : pp_dev_region_w;
+  assign nvm_offset_w = da_map_r ? mrec_offset_i : pp_dev_offset_w;
+  assign nvm_len_w    = da_map_r ? mrec_len_i    : pp_dev_len_w;
+  assign nvm_wvalid_w = da_map_r ? (mrec_wvalid_i && !da_drain_r)
+                                 : pp_dev_wvalid_w;
+  assign nvm_wdata_w  = da_map_r ? mrec_wdata_i  : pp_dev_wdata_w;
+  assign nvm_rready_w = da_map_r ? (mrec_rready_i || da_drain_r)
+                                 : pp_dev_rready_w;
+
+  assign pp_dev_gnt_w    = !da_map_r && nvm_gnt_w;
+  assign pp_dev_wready_w = !da_map_r && nvm_wready_w;
+  assign pp_dev_rvalid_w = !da_map_r && nvm_rvalid_w;
+  //! informational at the port (its banner): done and err delimit
+  assign pp_dev_busy_w   = nvm_busy_w || da_map_r;
+  assign pp_dev_done_w   = !da_map_r && nvm_done_w;
+  assign pp_dev_err_w    = !da_map_r && nvm_err_w;
+
+  assign mrec_gnt_o    = da_map_r && !da_drain_r && nvm_gnt_w;
+  assign mrec_wready_o = da_map_r && !da_drain_r && nvm_wready_w;
+  assign mrec_rvalid_o = da_map_r && !da_drain_r && nvm_rvalid_w;
+  assign mrec_rdata_o  = nvm_rdata_w;
+  assign mrec_done_o   = da_map_r && !da_drain_r && nvm_done_w;
+  assign mrec_err_o    = da_map_r && !da_drain_r && nvm_err_w;
 
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
@@ -1045,7 +1165,7 @@ module KL_pp_shadow #(
       .csr_wdata_i     (nvm_csr_wdata_i),
       .csr_rdata_o     (nvm_csr_rdata_o),
       .pend_i          (nvm_pend_w),
-      .alarm_i         (nvm_alarm_w),
+      .alarm_i         (nvm_alarm_w | amap_alarm_i),
       .nvm_backed_o    (nvm_backed_w),
       .nvm_dirty_o     (nvm_dirty_o),
       .nvm_stale_o     (nvm_stale_o),
@@ -1060,7 +1180,7 @@ module KL_pp_shadow #(
   );
 
   assign nvm_img_valid_o = nvm_img_valid_w;
-  assign nvm_alarm_o     = nvm_alarm_w;
+  assign nvm_alarm_o     = nvm_alarm_w | amap_alarm_i;
 
   // ======================================================================= //
   //  The processor                                                          //
@@ -1158,7 +1278,9 @@ module KL_pp_shadow #(
       .cfg_rank_i          (1'b1),
       .cfg_acc_lat_ns_i    (cfg_acc_lat_ns_i),
       .port_rate_bps_i     (port_rate_bps_i),
-      .cfg_tspec_max_frame_i(cfg_tspec_max_frame_i),
+      //! scratch only: processor issue #190's per-source port, every slot
+      //! driven with the one value this wrapper still takes
+      .cfg_tspec_max_frame_i({N_STREAM_OUT_P{cfg_tspec_max_frame_i}}),
 
       //! Which talker sources exist — straight from the port, which the
       //! integrator derives from the entity shape (see the port's banner).
@@ -1250,26 +1372,28 @@ module KL_pp_shadow #(
       .restore_rb_o        (restore_rb_o),
       .rs_cause_o          (rs_cause_o),
       .restore_cause_o     (restore_cause_o),
-      //! either record producer's reset-sticky alarm, straight to alarm_i
+      //! either processor record producer's reset-sticky alarm; alarm_i and
+      //! nvm_alarm_o OR in the map writer's (#637)
       .nvm_alarm_o         (nvm_alarm_w),
       .nvm_unflushed_o     (nvm_unflushed_w),
       .d3_unflushed_o      (d3_unflushed_w),
 
-      .nvm_dev_req_o       (nvm_req_w),
-      .nvm_dev_gnt_i       (nvm_gnt_w),
-      .nvm_dev_op_o        (nvm_op_w),
-      .nvm_dev_region_o    (nvm_region_w),
-      .nvm_dev_offset_o    (nvm_offset_w),
-      .nvm_dev_len_o       (nvm_len_w),
-      .nvm_dev_wvalid_o    (nvm_wvalid_w),
-      .nvm_dev_wready_i    (nvm_wready_w),
-      .nvm_dev_wdata_o     (nvm_wdata_w),
-      .nvm_dev_rvalid_i    (nvm_rvalid_w),
+      //! through the device-face arbiter above (#637)
+      .nvm_dev_req_o       (pp_dev_req_w),
+      .nvm_dev_gnt_i       (pp_dev_gnt_w),
+      .nvm_dev_op_o        (pp_dev_op_w),
+      .nvm_dev_region_o    (pp_dev_region_w),
+      .nvm_dev_offset_o    (pp_dev_offset_w),
+      .nvm_dev_len_o       (pp_dev_len_w),
+      .nvm_dev_wvalid_o    (pp_dev_wvalid_w),
+      .nvm_dev_wready_i    (pp_dev_wready_w),
+      .nvm_dev_wdata_o     (pp_dev_wdata_w),
+      .nvm_dev_rvalid_i    (pp_dev_rvalid_w),
       .nvm_dev_rdata_i     (nvm_rdata_w),
-      .nvm_dev_rready_o    (nvm_rready_w),
-      .nvm_dev_busy_i      (nvm_busy_w),
-      .nvm_dev_done_i      (nvm_done_w),
-      .nvm_dev_err_i       (nvm_err_w),
+      .nvm_dev_rready_o    (pp_dev_rready_w),
+      .nvm_dev_busy_i      (pp_dev_busy_w),
+      .nvm_dev_done_i      (pp_dev_done_w),
+      .nvm_dev_err_i       (pp_dev_err_w),
 
       .host_req_valid_i    (hb_pend_r),
       .host_we_i           (hb_we_r),
@@ -1500,7 +1624,9 @@ module KL_pp_shadow #(
   // ======================================================================= //
   //! done stays the SEQUENCING level the processor publishes: both walks ran
   //! to a COMPLETE or DEFAULTS terminal (CLOSED is fail and never done).
-  //! Everything below is what the walk is allowed to CLAIM.
+  //! Everything below is what the walk is allowed to CLAIM. milan_datapath
+  //! sequences its #637 map restore from these levels and composes PP_STAT's
+  //! busy, done, fail and blank with that restore's (pp_stat_*_w).
   assign restore_done_o  = pp_restore_done_w;
   assign nvm_backed_o    = nvm_backed_w;
   //! the processor's combined blank: both walks sequenced, neither failed and

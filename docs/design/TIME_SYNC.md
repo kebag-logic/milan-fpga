@@ -114,7 +114,7 @@ The offset is local time minus grandmaster time.
 | Step-threshold decision, 2026-09-23 | [#387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5794731090) |
 | PHC-only restart exclusion, 2026-09-27 | [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355); supersedes the step-only `mr` and MEDIA_RESET obligation |
 | Link-up ruling | [FPGA-gPTP #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5798089412) |
-| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md#step-versus-slew-policy) |
+| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/INTEGRATION.md#step-versus-slew-policy) |
 
 The [coupling decision](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5816509317) requires discarding slew-overlapped windows.
 

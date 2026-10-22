@@ -60,6 +60,11 @@
 #ifndef AIF_I2S_PAIR_TB
 #define AIF_I2S_PAIR_TB 0       // milan_datapath AUDIO_IF_I2S_PAIR_P default
 #endif
+//! #765: STREAM_INPUT 0's DECLARED format, read by the Makefile out of the
+//! shape header this build includes. It has no RTL default to fall back on.
+#ifndef IN0_FMT_TB
+#error "IN0_FMT_TB is unset: build through tb/verilator/milan_dp/Makefile"
+#endif
 //! Is the TONE_CTRL pilot override wired into the CAPTURE FRONT END on this
 //! build? It is an I2S-bench feature and lives in KL_aaf_capture_i2s alone:
 //! the two TDM front-ends (KL_tdm_capture, KL_tdm_capture_master) have no
@@ -74,6 +79,12 @@
 //! C++ reads goes through these (ES.31, Enum.1).
 constexpr size_t kWireChansTb = WIRE_CHANS_TB;
 constexpr int kNstreamsTb = NSTREAMS_TB;
+//! channels_per_frame of STREAM_INPUT 0's declared format ([31:22], IEEE
+//! 1722-2016 I.2.4.1). The receive monitor compares it with every PDU on
+//! stream 0 (Milan v1.2 4.4.2.2, #765), so a PDU this harness means to be
+//! accepted carries it.
+constexpr uint8_t kIn0ChansTb =
+    static_cast<uint8_t>((static_cast<uint64_t>(IN0_FMT_TB) >> 22) & 0x3FF);
 
 //! channels_per_frame the framer emits (IEEE 1722-2016 7.3.3)
 constexpr size_t WCH = kWireChansTb;
@@ -1215,7 +1226,10 @@ class MilanDatapathHarness {
     }
 
     // AAF PDU on the bound stream_id {02:00:00:00:00:02, uid 0} with the
-    // default format's fields (48 kHz / INT32 / depth 32 / 8 ch)
+    // declared format's fields (48 kHz / INT32 / depth 32 / its channels).
+    // The 48-byte payload is six samples at two channels; at more channels
+    // it holds fewer, which no check here reads (no PDU field carries a
+    // sample count, and the monitor compares none)
     uint8_t* mkaaf(uint8_t seq, uint8_t nsr) {
         static uint8_t f[120];
         memset(f, 0, sizeof f);
@@ -1235,7 +1249,7 @@ class MilanDatapathHarness {
         f[26]=0xAA; f[27]=0xBB; f[28]=0xCC; f[29]=0xDD;   // avtp_ts
         f[30]=0x02;                                          // format INT32
         f[31]=static_cast<uint8_t>(nsr << 4);                           // nsr
-        f[32]=2;                                             // channels (talker truth)
+        f[32]=kIn0ChansTb;                                   // channels (#765)
         f[33]=32;                                            // bit depth
         f[34]=0x00; f[35]=0x30;                              // data_len 48
         for (int i = 0; i < 48; i++) f[38+i] = static_cast<uint8_t>(0x30+i); // payload

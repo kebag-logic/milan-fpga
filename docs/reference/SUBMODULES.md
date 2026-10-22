@@ -21,8 +21,8 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `e4869fd0c42889b2ac806587cc5c78afb1c33461` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `2cbed0a987c1e68402658d69459ab7e5aa571adc` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `gptp-processor` | `55680bff3b287b9a7b0c759f51471fa617c17335` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `protocol-processor` | `93fb0b2d736b36588ea7321e25fba2f8819ea41f` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -217,6 +217,46 @@ The parent's selector-6 input VLAN halfword is no longer used.
 
 The parent's `acmp_bound_vlan_o` keeps 12 bits per sink.
 
+Issue #771 adopts processor pin `93fb0b2d` and gPTP pin `55680bff`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #72, traceability | [173](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/173) | Tests and documentation only; the parent's gates that read processor files count three more files |
+| #151, elaboration guards | [175](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/175) | Every guard is a `$fatal`, so a violating parameter stops Verilator, sv2v with Yosys, and xvlog; the parent's test-evidence readers classify the guard bench and its campaign |
+| #73, AECP command model | [174](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/174) | `protocol-processor/hdl/aecp/ucode/aecp_commands.json` and `aecp_fields.json` generate F06.14 and the microcode's dispatch data; the test-evidence readers classify the command campaign |
+| #178 and #179, SET_CONFIGURATION | [180](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/180) | An unchanged configuration index pushes no notification (Milan v1.2 Section 5.4.5.2); a missing index answers NO_SUCH_DESCRIPTOR (IEEE 1722.1-2021 Table 7-141) |
+| #177, GET_AVB_INFO | [182](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/182) | A descriptor other than AVB_INTERFACE answers NOT_IMPLEMENTED with the command echoed, where it answered NOT_SUPPORTED |
+| #176, SET_STREAM_INFO body | [183](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/183) | The IEEE 1722.1-2013 48-byte body (cdl 60) is accepted beside the 2021 body and answered in the 2021 form; any other length is BAD_ARGUMENTS; the milan_dp #67 rows expect SUCCESS |
+| #181, notification-router cut | [187](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/187) | The notification queue's occupancy is a register, and the event router's scan reads registers only; no port, parameter or cycle change |
+| #184, MSRP Domain re-declaration | [191](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/191) | JoinIn only while a peer Domain is registered, JoinMt otherwise (IEEE 802.1Q-2018 Section 10.7.6.3) |
+| #190, per-source TSpec | [194](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/194) | `cfg_tspec_max_frame_i` widens to `[N_STREAM_OUT_P*16-1:0]`, one MaxFrameSize per source; `KL_pp_shadow` drives every slot with its one 16-bit value, so every declaration is unchanged; the CRF slot's own value is not part of this adoption |
+| #185 and #186, CONTROL and UNLOCK | [196](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/196) | READ_DESCRIPTOR CONTROL serves the IDENTIFY control's current value; both unlock notifications carry flags UNLOCK |
+| #188 and #189, Listener registration | [195](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/195) | A rebind keeps the owed Listener Leave; GET_RX_STATE REGISTERING_FAILED follows the registered type on every change |
+| #192, started/stopped notification | [197](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/197) | Every started/stopped change of a Stream Input pushes GET_STREAM_INFO to every registered controller, a START/STOP_STREAMING requester included (Milan v1.2 Section 5.4.5.1); the milan_dp G9 rows expect it |
+| milan-fpga #632, SET_STREAM_INFO change gate | [199](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/199) | The notification compare reads the stored offset once a controller set it, the integrator's factory word before |
+| #193, one Listener declaration per StreamID | [198](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/198) | Sinks settled on one `stream_id` share one declaring applicant (IEEE 802.1Q-2018 Section 10.7.7 and the Section 35.2.6 NOTE); no port, parameter or register change |
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #640 M7, timer deadlines | [78](https://github.com/Mister-M-alt/FPGA-gPTP/pull/78) | None in this adoption: the merge's tree is the previous pin's |
+| #82, boot grandmaster | [83](https://github.com/Mister-M-alt/FPGA-gPTP/pull/83) | From reset release the engine publishes thisClock as grandmaster and `{thisClock}` as the path (IEEE 802.1AS-2020 Section 10.3.13.2.4 b) and i)); `0x624`/`0x628` and GET_AVB_INFO read thisClock before any peer, and that first identity arms the Milan v1.2 Annex B.1.1 holdover |
+| #84, the grandmaster role is synchronised | [86](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86) | While this station is grandmaster, sync-ok is set, so `tu` reads 0 once the holdover a grandmaster change arms has run |
+| #85, pathTrace | [86](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86) | The published path is the received pathSequence with thisClock appended (IEEE 802.1AS-2020 Section 10.3.13.2.4 f) 5)): up to seven received entries, each count gains one entry and each GET_AS_PATH response eight bytes. The eight-identity publication bounds the append: at eight or more received entries the path is the first eight received entries, the count stays 8 and thisClock is not appended (widening it would be a port change) |
+
+The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) is re-baselined under an [owner exception](https://github.com/kebag-logic/milan-fpga/issues/771#issuecomment-6333175429).
+
+This adoption adds 770 LUTs to dev's shipping route. Its tolerance is 500 LUTs.
+
+Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) addresses that growth.
+
+Its shipping route keeps +0.291 ns WNS.
+
+The processor top changes one port, the TSpec width.
+
+The gPTP engine's ports and parameters are unchanged.
+
+`ucode.hex` and `gptp_ucode.hex` change; `ltn_rom.hex` does not.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
@@ -348,10 +388,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/e4869fd0c42889b2ac806587cc5c78afb1c33461/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

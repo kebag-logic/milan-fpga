@@ -83,9 +83,15 @@
                   recovery and the clause's own example is the trigger: an
                   accepted PDU whose sequence_num shows >= 2 lost PDUs
                   (INTR_MIN_LOST_C, the KL_avtp_rx_monitor law verbatim).
-                  A Controller Unbind drops en_i, so no PDU is accepted and
-                  the counter cannot move - the clause's exclusion holds
-                  structurally.
+                  The 100 ms silence timeout of a started, bound, locked
+                  sink is the other trigger (#762): the first PDU after it
+                  re-seeds the sequence, so the silence is counted at its
+                  own unlock, once. A Controller Unbind drops en_i, so no
+                  PDU is accepted and its unlock counts nothing - the
+                  clause's exclusion holds structurally. A STOPPED sink's
+                  timeout unlocks without counting it, and its sequence
+                  gaps count SEQ_NUM_MISMATCH but not it: a stopped input
+                  has no playback to interrupt (5.3.8.7, #762).
                 * MEDIA_RESET "the 'mr' bit was toggled in any of the
                   received Stream Data AVTPDUs" - the RECEIVED bit of the
                   CRF PDU (mr_i, frame byte O+1 bit 3; IEEE 1722-2016
@@ -321,10 +327,15 @@ module KL_crf_rx #(
   localparam logic [31:0] EARLY_LIMIT_C = 32'(MAXTT_NS_P)
                                         + 32'(EARLY_MARGIN_NS_P);
 
-  wire w_hit = frame_p_i && en_i && (subtype_i == CRF_SUBTYPE_C)
-             && (sid_frame_i == sid_i);
+  //! a Stream Data AVTPDU on this input's stream_id is received on it,
+  //! whatever its subtype (the parser pulses stream subtypes only). The
+  //! subtype is part of the format: Milan v1.2 Table 5.6 counts a PDU whose
+  //! format does not match the input's current format, and 4.4.2.2
+  //! discards it, so an AAF PDU here is a format reject (#765)
+  wire w_hit = frame_p_i && en_i && (sid_frame_i == sid_i);
 
-  wire w_fmt_ok = (type_i == CRF_TYPE_AS_C)
+  wire w_fmt_ok = (subtype_i == CRF_SUBTYPE_C)
+               && (type_i == CRF_TYPE_AS_C)
                && (pullbase_i[31:29] == 3'd0)
                && (pullbase_i[28:0]  == CRF_BASEHZ_C)
                && (fsh_i[63:48] == CRF_DLEN_C)
@@ -397,8 +408,9 @@ module KL_crf_rx #(
   wire w_ev_lt_w = w_acc && w_late_w;
   wire w_ev_et_w = w_acc && w_early_w;
   //! STREAM_INTERRUPTED is PER-EVENT (no interval flag): an accepted PDU
-  //! whose sequence_num shows >= INTR_MIN_LOST_C lost AVTPDUs
-  wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C));
+  //! whose sequence_num shows >= INTR_MIN_LOST_C lost AVTPDUs, while the
+  //! sink is started (#762: a stopped input has no playback to interrupt)
+  wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;
   //! not-bound -> bound: the mr level belongs to the PREVIOUS era
   wire w_bind_rise_w = en_i && !en_q;
   //! bound -> not bound: a Controller Unbind of this Stream Input (#653)
@@ -556,6 +568,11 @@ module KL_crf_rx #(
           locked_o       <= 1'b0;
           cnt_unlocked_o <= cnt_unlocked_o + 32'd1;
           dirty_p_o      <= 1'b1;
+          //! #762: a silence of a started, bound sink interrupts its
+          //! playback (Milan v1.2 Table 5.6). An unbind in this same cycle
+          //! has already dropped en_i. Started, no PDU was accepted this
+          //! cycle, so w_ev_si_w cannot write the counter beside this
+          if (en_i && !stop_i) cnt_intr_o <= cnt_intr_o + 32'd1;
         end
         settle_r <= '0;
         //! the silence reset SPLITS on the stopped state. Stopped, the
@@ -636,7 +653,8 @@ module KL_crf_rx #(
       //! up to 100 ms (#653). Nothing is reset here (5.3.8.10's asymmetry).
       //! The timeout then finds locked_o low and scores nothing, and one in
       //! this same cycle writes the same +1, so the event counts once.
-      //! STREAM_INTERRUPTED cannot move: en_i low accepts no PDU. The pulse
+      //! STREAM_INTERRUPTED cannot move: en_i low accepts no PDU, and the
+      //! timeout counts it only while en_i is high (#762). The pulse
       //! arms the Table 5.22 push of the changed pair.
       if (w_bind_fall_w && locked_o) begin
         locked_o       <= 1'b0;

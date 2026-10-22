@@ -13,7 +13,7 @@ restart request and CLOCK_DOMAIN counters.
 
 - **[The elaboration](#the-elaboration)** -- The two-stream shape, the 4 MHz fabric and true-ratio audio clocks, the modelled MMCM fine phase shift and the `tu` test double.
 - **[The legs](#the-legs)** -- The planted talker offsets and which rows legs A, B and C run.
-- **[Mutants](#mutants)** -- The sixteen named defects, planted once as mutant schemata, each with its short leg and the check it must fail.
+- **[Mutants](#mutants)** -- The eighteen named defects, planted once as mutant schemata, each with its short leg and the check it must fail.
 - **[Running](#running)** -- The default target, the pool width and the single legs.
 - **[Limits](#limits)** -- Where this suite departs from the design's test plan, and why.
 
@@ -48,7 +48,7 @@ level, CRF at -14 ppm. The plan alone is -10.64 ppm.
 |---|---|
 | A | AAF input 0 selected from INTERNAL, LOCKED, followed within 0.5 ppm; the CSR words; the echo; one PDU lost in every 0.3 s for 3 s; a 150 ms lock loss and return; the talker's `tu` set, then cleared, each edge one history restart and no request (IEEE 1722-2016 4.4.4.7) |
 | C | AAF input 0 LOCKED, then W2 onto the locked CRF input, LOCKED and followed within 0.5 ppm |
-| B | the CRF input selected and LOCKED; its lock loss and return; the switch sweep at 16 phases of the CRF output, never more than one #645 settle recentre per switch; each switch kind over 0.8 s gaps; a switch onto a silent talker; a switch onto a talker silent for 150 ms, past the meter's timeout, where the lock clears at the switch and the timeout raises no second request; an INTERNAL dwell; INTERNAL with the aligner engaged, the grids at one rate and no junction slip |
+| B | the CRF input selected and LOCKED; its lock loss and return, each one request and one `mr` toggle per output (#761); the switch sweep at 16 phases of the CRF output, never more than one #645 settle recentre per switch; each switch kind over 0.8 s gaps; a switch onto a silent talker; a switch onto a talker silent for 150 ms, past the meter's timeout, where the lock clears at the switch and the timeout raises no second request; an INTERNAL dwell; INTERNAL with the aligner engaged, the grids at one rate and no junction slip |
 
 Every leg grades the C1 invariant every millisecond: LOCKED equals UNLOCKED
 or UNLOCKED + 1. Leg C repeats A's AAF lock so the pool runs the two side by
@@ -81,6 +81,8 @@ pass every short leg.
 | 14 | the decode table one source short | `--switch` | switch: AAF1 decodes as listener 1 and the meter follows it |
 | 15 | `tu` taken from the `tv` net (the CRF wiring) | `--tu` | tu: the followed talker's tu edge restarts the meter's history |
 | 16 | a change of the followed listener keeping a held lock | `--silent` | switch (iv): the meter's lock clears at the switch |
+| 17 | the selected CRF's lock-gain edge dropped (#761) | `--crfloss` | CRF return: one request at the sink's re-lock |
+| 18 | the selected CRF's lock-loss edge dropped | `--crfloss` | CRF loss: one request at the sink's timeout |
 
 ## Running
 

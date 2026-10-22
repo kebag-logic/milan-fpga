@@ -1608,7 +1608,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | `o_ptp_enable` is driven directly by `ptp_ctrl[0]`, the `milan_csr` instance binds it directly to `cfg_ptp_enable`, and the `ptp_csr_sync`/`ts_counter` pair directly consumes that net with ungated clocks, resets, increment/adjust/TOD controls and readback | PHC startup is independent of AEM/ADP from the CSR register through the actual PHC consumer; the CSR harness separately proves writes to `ADP_CTRL` cannot force or gate the module output |
 | `cfg_ptp_cmd_load` has exactly four references; `eff_ptp_adjust_w` has two | #632 retired their extra reader, #387's media re-base pulse, with the render setpoint stage: the presentation stage places every PDU by its own timestamp and takes no re-base, and no restart cause reads them ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)). Another reader is refused. Every other PHC-net census count stays unchanged |
 | The `KL_render_queue` instance's `flush_i` is exactly `strtbl_bind_fall_w` | The presentation stage is emptied by a bind wipe alone (#632). An ADP or GM-identity term there preserves every census count, so this pin refuses it; a PHC step there moves the census above |
-| `mcr_restart_p_w` is exactly `crf_clk_selected_r & ((tkd_crflk_q_r & ~crf_locked_w) \| crf_mr_toggle_p_w)` | The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes the PHC-step term. Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
+| `mcr_restart_p_w` is exactly `(crf_clk_selected_r & ((tkd_crflk_q_r ^ crf_locked_w) \| crf_mr_toggle_p_w)) \| aafm_disrupt_p_w \| aafm_mr_toggle_p_w` | The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes the PHC-step term. Either edge of the selected CRF's lock requests a restart (#761). Exactly two references admit its initializer and direct `media_clock_restart.restart_p_i` connection |
 | External RX, the pre-filter tap, both enabled and bypass `RXFILT_P` arms, the filter's reset-time policy/programming seams, fabric-gPTP shadow RX/TX and timestamp feedback, `gptp_ctl_mux`, MAC-boundary arbitration and external TX handshakes use direct data, clock and reset connections | checking only an endpoint or data port misses an internal/downstream valid, policy or reset gate that makes the plane externally silent before AEM succeeds |
 | CSR and datapath structural checks ignore comments, census every backtick token at any column and require each checked item to be direct in its inspected generate arm | inactive comment, preprocessor or static-generate text must not stand in for a live gated connection; a future directive or nested generate requires an elaborated checker or an explicit update to this bounded model |
 | `milan_reg()` is exactly base plus its argument and `milan_read()` directly dereferences that result | every call-site claim depends on those helpers preserving the register address and loaded value; helper-body refactors must update the model and its mutations |
@@ -2197,11 +2197,11 @@ term of the comparison removed each. A partial ownership fixture protects an ope
 The edge-crossing word-copy control must fail that fixture.
 What it cannot
 prove is the board: the real LiteSPI master, the real DRAM window and the
-processor writing records into it. The processor's binding records and, since
-pin `d352bbaa`, its D3 writer's scalar records reach the store; channel maps
-and user names have no record writer yet
-([D3 page](../design/SAVED_STATE_MATERIALIZATION.md)), so a commit on the bench
-carries those records and erased spans.
+processor writing records into it. The processor's binding records, since
+pin `d352bbaa` its D3 writer's scalar records, and since #637 the parent's
+channel-map records reach the store; the parent has not adopted the user names'
+writer yet ([D3 page](../design/SAVED_STATE_MATERIALIZATION.md)), so a commit
+on the bench carries those records and erased spans.
 
 ## Fabric gPTP option
 

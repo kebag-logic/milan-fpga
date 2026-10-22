@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - media clock phase](#unreleased---media-clock-phase)** -- Phase-locked to the followed CRF.
+- **[Unreleased - pins 93fb0b2d and 55680bff](#unreleased---pins-93fb0b2d-and-55680bff)** -- Two donor pins move.
 - **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
 - **[Unreleased - power-on audio maps](#unreleased---power-on-audio-maps)** -- Identity from power-on.
 - **[Unreleased - processor pin ead80360](#unreleased---processor-pin-ead80360)** -- A silent NVM device is answered.
@@ -105,6 +106,45 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `render_queue` grades the stage byte-exact against a model.
 - `capture_coherence` grades the talker's stamps at the TDM pins.
 - The bench proof follows after merge.
+
+## Unreleased - pins 93fb0b2d and 55680bff
+
+- Issue #771 adopts processor `93fb0b2d` and gPTP `55680bff`.
+- The processor pin carries PRs #173 to #175 and #180.
+- It also carries #182, #183, #187 and #191.
+- It also carries #194 to #199.
+- Every processor elaboration guard is now a `$fatal` (#151).
+- One command model generates the AECP dispatch data (#73).
+- An unchanged SET_CONFIGURATION index pushes no notification (#178).
+- A missing configuration index answers NO_SUCH_DESCRIPTOR (#179).
+- GET_AVB_INFO on another descriptor answers NOT_IMPLEMENTED (#177).
+- SET_STREAM_INFO also accepts the 2013 48-byte body (#176).
+- The notification router's select reads registers only (#181).
+- Without a peer Domain, the MSRP Domain re-joins JoinMt (#184).
+- The TSpec MaxFrameSize port is now per source (#190).
+- The wrapper drives every slot with its one value.
+- READ_DESCRIPTOR CONTROL serves the IDENTIFY value (#185).
+- Both unlock notifications carry flags UNLOCK (#186).
+- A rebind keeps the owed Listener Leave (#188).
+- REGISTERING_FAILED follows the registered type (#189).
+- Started/stopped changes notify every controller, the requester included (#192).
+- SET_STREAM_INFO's notification compares the stored offset (#632).
+- Sinks on one StreamID share one Listener declaration (#193).
+- gPTP #78 adds nothing: its tree is the previous pin.
+- From reset, this station is its own grandmaster (gPTP #82).
+- Its path is `{thisClock}` until a peer is elected.
+- As grandmaster, sync is set and `tu` clear (gPTP #84).
+- A grandmaster change arms the Annex B.1.1 holdover.
+- The published path appends thisClock (gPTP #85).
+- So GET_AS_PATH gains one identity, up to eight.
+- Eight or more received entries serve their first eight.
+- There the count stays 8, without thisClock (gPTP #86).
+- Eight parent patches adapt evidence, wrapper and harness rows.
+- The ROM ledger adds both pins' rows; two ROMs change.
+- The resource gate re-baselines under an owner exception.
+- The route grows 770 LUTs over dev's own route.
+- Mark II (#640) addresses that growth.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - processor pin 2ad2f845
 

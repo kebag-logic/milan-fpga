@@ -137,6 +137,7 @@ module avtp_rxmon_nx_wrap #(
     .media_restart_i (mr_w),
     .avtp_ts_i (ts_w), .fsh_i (fsh_w),
     .bound_i (tbl_en_w), .bind_rise_i (bind_rise_w),
+    .stopped_i ('0),                   //! every stack input started
     .sid0_i (sid0_i), .fmt0_i (fmt0_i),
     .ptp_now_i (ptp_now_i), .pres_ofs_i (pres_ofs_i),
     .clk_src_i (clk_src_i), .servo_conv_i (servo_conv_i),

@@ -887,14 +887,17 @@ void MclkHarness::row_crf_loss() {
        rp->milan_datapath__DOT__pp_aecp_clk_src_index_w == kSrcCrf &&
        rp->milan_datapath__DOT__crf_clk_selected_r == 1);
     ckv("C1: UNLOCKED moves at the CRF loss", ctr_unlocked() - un0, 1);
+    //! #761: the return onto the CRF is a change of the media clock's
+    //! source (IEEE 1722-2016 4.4.4.3), so the sink's re-lock requests one
+    //! restart of its own, after the loss toggle has held its 8 PDUs
     crfk.muted = false;
     rq0 = restart_pulses;
     at0 = aaf_out.toggles;
     ct0 = crf_out.toggles;
     run_for_ns(100'000'000);
-    ckv("CRF return: no request on return", static_cast<uint64_t>(restart_pulses - rq0), 0);
-    ckv("CRF return: no further mr toggle",
-        static_cast<uint64_t>(aaf_out.toggles - at0 + crf_out.toggles - ct0), 0);
+    ckv("CRF return: one request at the sink's re-lock", static_cast<uint64_t>(restart_pulses - rq0), 1);
+    ckv("CRF return: one mr toggle on the AAF output", static_cast<uint64_t>(aaf_out.toggles - at0), 1);
+    ckv("CRF return: one mr toggle on the CRF output", static_cast<uint64_t>(crf_out.toggles - ct0), 1);
     follow_to_locked("CRF return", lk0);
 }
 
@@ -1141,6 +1144,7 @@ int MclkHarness::run(const std::string& mode) {
     else if (mode == "echo") { row_select_aaf0(); row_echo(); }
     else if (mode == "aafloss") { row_select_aaf0(); row_aaf_loss(false); }
     else if (mode == "w2") { row_select_aaf0(); row_w2_switch_to_crf(false); }
+    else if (mode == "crfloss") { row_select_crf(); row_crf_loss(); }
     else if (mode == "loss") {
         const uint32_t lk0 = ctr_locked();
         row_select_aaf0();

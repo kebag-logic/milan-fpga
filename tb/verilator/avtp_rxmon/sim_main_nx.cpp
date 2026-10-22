@@ -54,6 +54,8 @@ constexpr int IVAL = 2000;
 
 // STREAM_INPUT current format: AAF 48 kHz / INT32 / depth 32 / 8 ch
 constexpr uint64_t FMT  = 0x0205022002006000ULL;
+// the same Base format with 2 channels (Milan v1.2 Table 6.2)
+constexpr uint64_t FMT2 = 0x0205022000806000ULL;
 constexpr uint64_t SID0 = 0x020000FFFE010000ULL;
 constexpr uint64_t SID1 = 0x020000FFFE020000ULL;
 
@@ -66,6 +68,7 @@ struct AafCfg {
     bool     mr       = false;  // b1 bit 3 (media clock restart, 4.4.4.3)
     uint8_t  nsr      = 0x05;
     uint8_t  chans    = 8;
+    uint8_t  chans_hi = 0;      // channels_per_frame[9:8] (byte O+17 [1:0])
     uint8_t  depth    = 32;
 };
 
@@ -123,6 +126,7 @@ class NxnRxStackHarness {
         media_lock_counters_are_per_event_and_pairwise_legal();
         back_to_back_pdus_beat_every_drain_phase();
         per_context_dirty_vector();
+        current_format_channel_count();
 
         printf("\n======================================================================\n");
         printf("NxN RX stack: %ld checks, %ld failures\nRESULT: %s\n",
@@ -189,7 +193,7 @@ class NxnRxStackHarness {
         for(int i=0;i<8;i++) f[o+4+i]=static_cast<uint8_t>(c.sid>>(8*(7-i)));
         f[o+12]=0xA5; f[o+13]=0x5A; f[o+14]=0xC3; f[o+15]=0x3C;
         f[o+16]=0x02;                       // format INT32
-        f[o+17]=static_cast<uint8_t>(c.nsr<<4);
+        f[o+17]=static_cast<uint8_t>((c.nsr<<4)|(c.chans_hi&0x3));
         f[o+18]=c.chans; f[o+19]=c.depth;
         f[o+20]=0x00; f[o+21]=0x40;         // data_len = 64
         f[o+22]=0x00;
@@ -330,8 +334,7 @@ class NxnRxStackHarness {
         long frx=dut->cnt_frames_rx_o;
         align_iv();                 // both rejects inside ONE interval
         { AafCfg c; c.seq=64; c.nsr=0x07; feed(build_aaf(stim, c)); }
-        //! depth, not channels: channel count left the family compare with
-        //! the Milan BAF Section 4 law (task #24)
+        //! a bit-depth reject; the channel count is graded by [UF] (#765)
         { AafCfg c; c.seq=64; c.depth=24; feed(build_aaf(stim, c)); }
         flush_iv();
         //! two bad-format PDUs in one interval = ONE tick (Milan Table 5.6);
@@ -346,11 +349,18 @@ class NxnRxStackHarness {
 
     void silence_unlocks_on_the_ms_grid(){
         printf("\n[G6] P2 golden: 100 ms silence unlocks (ms-grid watchdog)\n");
+        const long si=dut->cnt_stream_interrupted_o;
         cyc(12000);
         ck("MEDIA_UNLOCKED 1", dut->cnt_media_unlocked_o, 1);
         ck("unlocked level", dut->media_locked_o, 0);
+        //! #762 (Milan v1.2 Table 5.6): the silence interrupted a bound
+        //! stream, and the resume below re-seeds rather than counting again
+        ck("[G6-762] the silence counts STREAM_INTERRUPTED once",
+           dut->cnt_stream_interrupted_o, si+1);
         { AafCfg c; c.seq=200; feed(build_aaf(stim, c)); }
         ck("relock: MEDIA_LOCKED 2", dut->cnt_media_locked_o, 2);
+        ck("[G6-762] the resume's sequence jump counts nothing more",
+           dut->cnt_stream_interrupted_o, si+1);
     }
 
     void unbind_keeps_rebind_resets(){
@@ -482,10 +492,17 @@ class NxnRxStackHarness {
         routewr(0, 0 /*NULL*/);                       // s0 leaves RENDER
         ck("render_sel moves to 1", dut->render_sel_o, 1);
         rend_users.clear();
+        //! s1's current format moves to 2 channels first, as a controller's
+        //! SET_STREAM_FORMAT would: a 2-channel PDU against the 8-channel
+        //! format is UNSUPPORTED_FORMAT (#765)
+        lctx_wr(1, 2, static_cast<uint32_t>(FMT2 & 0xFFFFFFFF));
+        lctx_wr(1, 3, static_cast<uint32_t>(FMT2 >> 32));
         { AafCfg c; c.sid=SID1; c.seq=4; c.chans=2; feed(build_aaf(stim, c)); }
         { AafCfg c; c.seq=6; feed(build_aaf(stim, c)); }        // s0 now NULL
         ck("render tap follows s1", rend_users.size()==1 && rend_users[0]==1, 1);
         ck("wire_chans follows the RENDER stream", dut->wire_chans_o, 2);
+        lctx_wr(1, 2, static_cast<uint32_t>(FMT & 0xFFFFFFFF));
+        lctx_wr(1, 3, static_cast<uint32_t>(FMT >> 32));
         routewr(0, 2); routewr(1, 0);                 // restore defaults
     }
 
@@ -855,6 +872,117 @@ class NxnRxStackHarness {
             ck("[DV5b] healthy s0 traffic and frame commit pulse",
                g_dirty[0] >= 6, 1);
         }
+    }
+
+    //! accept verdicts seen for stream `s` so far
+    long accepts(int s) const {
+        long n = 0;
+        for (int i : acc_idx) if (i == s) n++;
+        return n;
+    }
+
+    //! Feed one PDU and report what became of it: its accept verdicts on
+    //! stream `s` and the payloads the depacketizer emitted. Milan v1.2
+    //! 4.4.2.2's discard is read here: no verdict, nothing emitted.
+    void feed_and_count(const AafCfg& c, int s, long& acc, long& emitted){
+        const long a0 = accepts(s);
+        const long p0 = dut->pcm_pdus_o;
+        feed(build_aaf(stim, c));
+        acc = accepts(s) - a0;
+        emitted = static_cast<long>(dut->pcm_pdus_o) - p0;
+    }
+
+    // ---------------------------------------------------------------- //
+    // [UF] #765: a PDU against its Stream Input's CURRENT format. Milan //
+    // v1.2 Table 5.6 counts UNSUPPORTED_FORMAT for a PDU whose format  //
+    // does not match the current format and 4.4.2.2 discards it; the   //
+    // channel count is part of the format (Table 6.2). Stream 3 reads  //
+    // its format from LCTX, stream 0 from fmt0_i: both paths are graded.//
+    // ---------------------------------------------------------------- //
+    void current_format_channel_count(){
+        printf("\n[UF] #765: the channel count is part of the current format\n");
+        constexpr uint64_t SU3 = 0x020000FFFE090000ULL;
+        tblwr(3, SU3, false); cyc(10); tblwr(3, SU3, true); cyc(60);
+        lctx_wr(3, 2, static_cast<uint32_t>(FMT & 0xFFFFFFFF));
+        lctx_wr(3, 3, static_cast<uint32_t>(FMT >> 32));
+        uint8_t q = 0;
+        //! lock and drain the settle window
+        for (int k = 0; k < 9; k++){ AafCfg c; c.sid=SU3; c.seq=q++; feed(build_aaf(stim, c)); }
+        flush_iv();
+        const long uf0 = lctx_rd(3, W_UF);
+        const long sm0 = lctx_rd(3, W_SM);
+        long acc = 0;
+        long out = 0;
+
+        long frx = lctx_rd(3, W_FRX);
+        align_iv();
+        { AafCfg c; c.sid=SU3; c.seq=q++; feed_and_count(c, 3, acc, out); }
+        ck("[UF1a] a matching 8-channel PDU is accepted", acc, 1);
+        ck("[UF1b] ...and its payload is emitted", out, 1);
+        flush_iv();
+        ck("[UF1c] ...and counts no UNSUPPORTED_FORMAT", lctx_rd(3, W_UF), uf0);
+        ck("[UF1d] ...and counts in FRAMES_RX", lctx_rd(3, W_FRX), frx + 1);
+
+        frx = lctx_rd(3, W_FRX);
+        align_iv();
+        { AafCfg c; c.sid=SU3; c.seq=q; c.chans=2; feed_and_count(c, 3, acc, out); }
+        ck("[UF2a] a 2-channel PDU against 8 channels has no accept verdict", acc, 0);
+        ck("[UF2b] ...and is discarded (no payload emitted)", out, 0);
+        flush_iv();
+        ck("[UF2c] ...and counts UNSUPPORTED_FORMAT once", lctx_rd(3, W_UF), uf0 + 1);
+        ck("[UF2d] ...and not in FRAMES_RX", lctx_rd(3, W_FRX), frx);
+        ck("[UF2e] ...and leaves wire_chans at 8", (lctx_rd(3, 8) >> 14) & 0xFF, 8);
+        //! the reject did not advance the sequence: the next matching PDU
+        //! carries the sequence_num the 2-channel PDU carried
+        align_iv();
+        { AafCfg c; c.sid=SU3; c.seq=q++; feed_and_count(c, 3, acc, out); }
+        flush_iv();
+        ck("[UF2f] the next matching PDU is accepted", acc, 1);
+        ck("[UF2g] ...with no SEQ_NUM_MISMATCH", lctx_rd(3, W_SM), sm0);
+
+        //! 264 channels: channels_per_frame[9:8] = 1 and the low byte is 8,
+        //! so a compare of the low byte alone would accept it
+        align_iv();
+        { AafCfg c; c.sid=SU3; c.seq=q; c.chans_hi=1; feed_and_count(c, 3, acc, out); }
+        ck("[UF3a] a 264-channel PDU against 8 channels has no accept verdict", acc, 0);
+        ck("[UF3b] ...and is discarded", out, 0);
+        flush_iv();
+        ck("[UF3c] ...and counts UNSUPPORTED_FORMAT", lctx_rd(3, W_UF), uf0 + 2);
+
+        //! the compare follows the current format, as SET_STREAM_FORMAT moves it
+        lctx_wr(3, 2, static_cast<uint32_t>(FMT2 & 0xFFFFFFFF));
+        lctx_wr(3, 3, static_cast<uint32_t>(FMT2 >> 32));
+        frx = lctx_rd(3, W_FRX);
+        align_iv();
+        { AafCfg c; c.sid=SU3; c.seq=q++; c.chans=2; feed_and_count(c, 3, acc, out); }
+        ck("[UF4a] with a 2-channel current format, a 2-channel PDU is accepted", acc, 1);
+        ck("[UF4b] ...and emitted", out, 1);
+        { AafCfg c; c.sid=SU3; c.seq=q; feed_and_count(c, 3, acc, out); }
+        ck("[UF4c] ...and an 8-channel PDU is not", acc, 0);
+        ck("[UF4d] ...and is discarded", out, 0);
+        flush_iv();
+        ck("[UF4e] UNSUPPORTED_FORMAT +1 for the interval", lctx_rd(3, W_UF), uf0 + 3);
+        ck("[UF4f] FRAMES_RX +1 for the accepted PDU", lctx_rd(3, W_FRX), frx + 1);
+        ck("[UF4g] wire_chans follows the accepted PDU", (lctx_rd(3, 8) >> 14) & 0xFF, 2);
+        lctx_wr(3, 2, static_cast<uint32_t>(FMT & 0xFFFFFFFF));
+        lctx_wr(3, 3, static_cast<uint32_t>(FMT >> 32));
+
+        //! stream 0: the current format arrives on fmt0_i, not from LCTX
+        const long uf_s0 = dut->cnt_unsupported_fmt_o;
+        align_iv();
+        { AafCfg c; c.seq=200; c.chans=2; feed_and_count(c, 0, acc, out); }
+        ck("[UF5a] stream 0: a 2-channel PDU against fmt0_i's 8 has no verdict", acc, 0);
+        ck("[UF5b] ...and is discarded", out, 0);
+        flush_iv();
+        ck("[UF5c] ...and counts UNSUPPORTED_FORMAT", dut->cnt_unsupported_fmt_o, uf_s0 + 1);
+        dut->fmt0_i = FMT2;
+        align_iv();
+        { AafCfg c; c.seq=201; c.chans=2; feed_and_count(c, 0, acc, out); }
+        ck("[UF5d] stream 0 at a 2-channel fmt0_i accepts a 2-channel PDU", acc, 1);
+        flush_iv();
+        ck("[UF5e] ...and counts no UNSUPPORTED_FORMAT", dut->cnt_unsupported_fmt_o,
+           uf_s0 + 1);
+        dut->fmt0_i = FMT;
     }
 
     //! Stream 2 carries the [IV] interval-semantics set on a fresh context.

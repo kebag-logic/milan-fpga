@@ -10,7 +10,7 @@ left in obj_mclk) must pass, and each mutant must make its short leg FAIL by
 its OWN verdict, with the named check among the failures. A crash, an abort or
 a failure of some other check is not a catch.
 
-ONE ELABORATION FOR SIXTEEN MUTANTS (mutant schemata). Sixteen rebuilds of
+ONE ELABORATION FOR EIGHTEEN MUTANTS (mutant schemata). Eighteen rebuilds of
 the whole datapath do not fit the suite's 1800 s guard beside the leg itself.
 So every mutation is planted once, into copies of milan_datapath.sv,
 KL_aaf_clock_meter.sv and milan_csr.sv, each guarded by a selector the run
@@ -114,6 +114,10 @@ EDITS = [
          "  logic aafm_lk_q_r;\n"
          "  always_ff @(posedge axis_clk) aafm_lk_q_r <= aafm_locked_w;\n"
          "  wire mcr_restart_p_w /* verilator public_flat_rd */ =\n"),
+    Edit("dp", "        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p_w))",
+         "        & (((mclk_mut_r == 17) ? (tkd_crflk_q_r & ~crf_locked_w)"
+         " : (mclk_mut_r == 18) ? (~tkd_crflk_q_r & crf_locked_w)"
+         " : (tkd_crflk_q_r ^ crf_locked_w)) | crf_mr_toggle_p_w))"),
     Edit("dp", "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;",
          "       | ((mclk_mut_r == 6) ? (aafm_lk_q_r & ~aafm_locked_w)"
          " : (aafm_disrupt_p_w & (mclk_mut_r != 8))) | aafm_mr_toggle_p_w;"),
@@ -174,12 +178,16 @@ MUTANTS = [
            "tu: the followed talker's tu edge restarts the meter's history"),
     Mutant(16, "a change of the followed listener keeping a held lock", "silent",
            "switch (iv): the meter's lock clears at the switch"),
+    Mutant(17, "the selected CRF's lock-gain edge dropped (#761)", "crfloss",
+           "CRF return: one request at the sink's re-lock"),
+    Mutant(18, "the selected CRF's lock-loss edge dropped", "crfloss",
+           "CRF loss: one request at the sink's timeout"),
 ]
 
 
 #: simulated seconds each short leg runs, so the pool starts the long ones
 #: first and the short ones fill in behind them
-MODE_SECONDS = {"loss": 9.0, "internal": 4.1, "refmux": 3.2, "aafloss": 0.4,
+MODE_SECONDS = {"loss": 9.0, "crfloss": 6.2, "internal": 4.1, "refmux": 3.2, "aafloss": 0.4,
                 "switch": 0.4, "silent": 0.3, "echo": 0.2, "dwell": 0.2, "tu": 0.1}
 
 
