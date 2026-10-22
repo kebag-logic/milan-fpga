@@ -1,0 +1,25 @@
+endpoint route-1x1: $WORKSPACE_HOME/litex-milan/work/a662-771/m1/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              49989       50759       770  REGRESSION: grew by more than 500
+FF               52622       52832       210  ok
+SLICE            15786       15728       -58  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              25          25         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.268       0.291     0.023  ok
+WHS_ns           0.015       0.036     0.021  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT +379, FF +163
+  wrapper: LUT +353, FF +161
+  u_pp/u_srp: LUT +274, FF +135
+  u_pp/u_srp/u_listener: LUT +216, FF +139
+  u_pp/u_srp/u_talker: LUT +139, FF +0
+  u_pp/u_srp/u_vlan: LUT -108, FF +0
+  u_pp/u_talker: LUT -87, FF +0
+  u_pp/u_dispatch: LUT +68, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT +64, FF +0
+  u_pp/u_aecp: LUT +57, FF -2
+  u_pp/u_aecp/u_ucpu: LUT +48, FF +0
+  u_pp/u_aecp/u_dyn: LUT -42, FF +0
+RESULT: MATERIAL REGRESSION

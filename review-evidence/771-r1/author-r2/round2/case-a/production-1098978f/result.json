@@ -1,0 +1,106 @@
+{
+  "clean-if1": {
+    "rc": 0,
+    "tally": [
+      "== ctrl ADP ACMP MAAP SRP composition: checks: 19   failures: 0 =="
+    ],
+    "fails": []
+  },
+  "clean-if2": {
+    "rc": 0,
+    "tally": [
+      "== ctrl ADP ACMP MAAP SRP composition: checks: 19   failures: 0 =="
+    ],
+    "fails": []
+  },
+  "glue-lost-if1": {
+    "rc": 1,
+    "tally": [
+      "== ctrl ADP ACMP MAAP SRP composition: checks: 19   failures: 4 =="
+    ],
+    "fails": [
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: PROBE the swap to Failed notified through the composed app",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: PROBE the swap to Failed notified through the composed app",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: PROBE the swap to Advertise notified through the composed app",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: PROBE the swap to Advertise notified through the composed app",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal: Expected: true",
+      "[FAIL] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder: kind precedes withdrawal",
+      "[FAIL] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder: kind precedes withdrawal"
+    ]
+  },
+  "glue-lost-if2": {
+    "rc": 1,
+    "tally": [
+      "== ctrl ADP ACMP MAAP SRP composition: checks: 19   failures: 4 =="
+    ],
+    "fails": [
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: PROBE the swap to Failed notified through the composed app",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: PROBE the swap to Failed notified through the composed app",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: PROBE the swap to Advertise notified through the composed app",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: PROBE the swap to Advertise notified through the composed app",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: current kind reaches ACMP",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: wire reports current kind",
+      "[FAIL] SrpFeedback.BothKindsFailedLeaveInsideOnePduIsNotAWithdrawal: Expected: true",
+      "[FAIL] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder: kind precedes withdrawal",
+      "[FAIL] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder: kind precedes withdrawal"
+    ]
+  },
+  "stack-mute-if1": {
+    "rc": 1,
+    "tally": [
+      "== ctrl ADP ACMP MAAP SRP composition: checks: 19   failures: 3 =="
+    ],
+    "fails": [
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: PROBE the swap to Failed notified through the composed app",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: PROBE the swap to Failed notified through the composed app",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: PROBE the swap to Advertise notified through the composed app",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: PROBE the swap to Advertise notified through the composed app",
+      "[FAIL] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder: kind precedes withdrawal",
+      "[FAIL] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder: kind precedes withdrawal"
+    ]
+  },
+  "stack-mute-if2": {
+    "rc": 1,
+    "tally": [
+      "== ctrl ADP ACMP MAAP SRP composition: checks: 19   failures: 3 =="
+    ],
+    "fails": [
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: PROBE the swap to Failed notified through the composed app",
+      "[FAIL] SrpFeedback.AdvertiseToFailedUpdatesTheSettledWireView: PROBE the swap to Failed notified through the composed app",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: PROBE the swap to Advertise notified through the composed app",
+      "[FAIL] SrpFeedback.FailedToAdvertiseUpdatesTheSettledWireView: PROBE the swap to Advertise notified through the composed app",
+      "[FAIL] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder: kind precedes withdrawal",
+      "[FAIL] SrpFeedback.KindThenWithdrawalIsDeliveredInOrder: kind precedes withdrawal"
+    ]
+  }
+}

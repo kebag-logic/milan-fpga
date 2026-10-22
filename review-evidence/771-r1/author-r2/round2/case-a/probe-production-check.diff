@@ -1,0 +1,22 @@
+diff --git a/sw/firmware/ctrl/test/srp_feedback.hpp b/sw/firmware/ctrl/test/srp_feedback.hpp
+index 23390bc66..feb4f794b 100644
+--- a/sw/firmware/ctrl/test/srp_feedback.hpp
++++ b/sw/firmware/ctrl/test/srp_feedback.hpp
+@@ -90,6 +90,7 @@ TEST_F(SrpFeedback, AdvertiseToFailedUpdatesTheSettledWireView) {
+         fk.hook_kind=Call::CHANGED;
+         fk.hook=[&] { EXPECT_FALSE(srp_adapter.busy); EXPECT_TRUE(core()->in_port); };
+         settle();
++        EXPECT_FALSE(static_cast<bool>(fk.hook)) << "PROBE the swap to Failed notified through the composed app";
+         current_kind(k,true);
+         registration(k,false,5,k); // Failed remains: this is not total withdrawal.
+         registration(k,true,1,k);
+@@ -101,7 +102,9 @@ TEST_F(SrpFeedback, AdvertiseToFailedUpdatesTheSettledWireView) {
+ TEST_F(SrpFeedback, FailedToAdvertiseUpdatesTheSettledWireView) {
+     for (unsigned k=0;k<2u;++k) { bind(k); response(k,k); registration(k,true,0,k); }
+     for (unsigned k=0;k<2u;++k) {
++        fk.hook_kind=Call::CHANGED; fk.hook=[] {};
+         registration(k,false,1,k); // Atomic JoinIn replacement: no false withdrawal.
++        EXPECT_FALSE(static_cast<bool>(fk.hook)) << "PROBE the swap to Advertise notified through the composed app";
+         current_kind(k,false);
+         registration(k,false,1,k);
+         current_kind(k,false);

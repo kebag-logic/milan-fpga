@@ -1,0 +1,102 @@
+Parent companion for FPGA-gPTP #82 (merged; reset publication) in the milan_dp
+suite. The five changed expectations below (three in sim_gptp.cpp, two in
+sim_ax1x1gptp.cpp) fail at gptp-processor 43acfbcc (the base
+of #84/#85), before this lane's change, and at every later head: they assert
+the pre-#82 boot state (grandmaster 0). It rides the same gptp-processor pin
+adoption. Apply after parent-adoption-milan_dp-85.patch (it uses that patch's
+THIS_CLOCK / kThisClock constants):
+git apply parent-adoption-milan_dp-82.patch
+
+Before any peer, a PTP Instance with no port priority vector is its own
+grandmaster and its pathTrace is {thisClock} (IEEE 802.1AS-2020 10.3.13.2.4
+b) and i)). That first real grandmaster identity is a change, so the parent's
+clock validity arms its Milan v1.2 Annex B.1.1 holdover
+(KL_ptp_clock_validity: "the active owner's first publication of a real
+grandmaster id IS a change and arms the holdover").
+
+tb/verilator/milan_dp/sim_gptp.cpp (legs gptp and gptp-lat):
+
+| Line | Expectation | Was | Now |
+|---|---|---:|---:|
+| 817-819 | comment: the committed bank is zero before any peer | zero | thisClock is grandmaster; parent and pdelay zero; holdover armed |
+| 825 | fabric GM low overrides SW | 0 | low word of THIS_CLOCK |
+| 826 | fabric GM high overrides SW | 0 | high word of THIS_CLOCK |
+| new | reset publication of thisClock arms the holdover (CLKV_STAT bit 3) | - | 1 |
+| 835 | compatibility CLKV fields read zero (bits 2..15, now except bit 3, the holdover) | mask 0x3FFF | mask 0x3FFD |
+
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp (physical-rate leg, tb/verilator/milan_dp_gptp):
+
+| Line | Expectation | Was | Now |
+|---|---|---:|---:|
+| 1149 | pre-acquisition GET_AVB_INFO grandmaster | 0 ("has no selected GM") | kThisClock ("names thisClock as GM") |
+| 1197 | public GM right after a reset | 0 ("reset clears complete public GM") | kThisClock ("reset publishes thisClock as GM") |
+
+diff --git a/tb/verilator/milan_dp/sim_ax1x1gptp.cpp b/tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+index c41099158..ed6b31299 100644
+--- a/tb/verilator/milan_dp/sim_ax1x1gptp.cpp
++++ b/tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+@@ -1150,7 +1150,9 @@ int Harness::run() {
+         const auto initial_avb = query(0x27, 0x7010);
+         check.dec("pre-acquisition GET_AVB_INFO length", initial_avb.size(), 62);
+         check.dec("pre-acquisition GET_AVB_INFO SUCCESS", initial_avb.size() > 16 ? initial_avb[16] >> 3 : 255, 0);
+-        check.hex("pre-acquisition GET_AVB_INFO has no selected GM", be(initial_avb, 42, 8), 0);
++        // Before any peer, this instance is its own grandmaster (IEEE 802.1AS-2020
++        // 10.3.13.2.4 b) and i)).
++        check.hex("pre-acquisition GET_AVB_INFO names thisClock as GM", be(initial_avb, 42, 8), kThisClock);
+         run_cycles(kHz * 12 / 10);
+         check.dec("first Pdelay response completed", pd_answers, 1);
+         if (pd_answers == 1) {
+@@ -1198,7 +1200,9 @@ int Harness::run() {
+             loss_recovery(); completed[6] = true;
+             printf("RESET: assert with audio and peer active, flush model in-flight packets\n");
+             reset(); configure();
+-            check.hex("reset clears complete public GM", read_identity(0x624), 0);
++            // A reset instance is its own grandmaster again (IEEE 802.1AS-2020
++            // 10.3.13.2.4 b) and i)); the parent identity stays clear.
++            check.hex("reset publishes thisClock as GM", read_identity(0x624), kThisClock);
+             check.hex("reset clears complete public parent", read_identity(0x730), 0);
+             audio_window("reset reacquisition", kHz * 3, -1, Until::Healthy);
+             publication("reset recovered", true);
+diff --git a/tb/verilator/milan_dp/sim_gptp.cpp b/tb/verilator/milan_dp/sim_gptp.cpp
+index faa2f1e4c..b4df1babe 100644
+--- a/tb/verilator/milan_dp/sim_gptp.cpp
++++ b/tb/verilator/milan_dp/sim_gptp.cpp
+@@ -814,9 +814,12 @@ class GptpPlaneHarness {
+     axi_write(dut, 0x504, 8u << 24);       // 8.0 ns; matches sim_cyc model
+ 
+     // The option is omitted from this elaboration: these are assertions about
+-    // the RTL default.  Before any peer answers, the engine's committed bank is
+-    // zero. Retained legacy addresses remain mapped for ABI stability, but every
+-    // write is inert and cannot manufacture a publication or healthy CLKV claim.
++    // the RTL default.  Before any peer answers, the engine publishes thisClock
++    // as grandmaster (IEEE 802.1AS-2020 10.3.13.2.4 b) and i)); parent and pdelay
++    // are zero. That first grandmaster identity is a change, so it arms the
++    // Milan v1.2 Annex B.1.1 holdover. Retained legacy addresses remain mapped
++    // for ABI stability, but every write is inert and cannot manufacture a
++    // publication or healthy CLKV claim.
+     expect("default-on VERSION", axi_read(dut, 0x004), 0x00020060);
+     axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
+     axi_write(dut, 0x6E4, 1234);
+@@ -826,8 +829,10 @@ class GptpPlaneHarness {
+     // (802.1AS 8.1), so this 5 must never surface on the CSR readback, the
+     // GET_AVB_INFO gather below, or the MAC-bound Pdelay_Req scanned below.
+     axi_write(dut, 0x62C, 5);
+-    expect("fabric GM low overrides SW", axi_read(dut, 0x624), 0);
+-    expect("fabric GM high overrides SW", axi_read(dut, 0x628), 0);
++    expect("fabric GM low overrides SW", axi_read(dut, 0x624),
++           static_cast<uint32_t>(THIS_CLOCK));
++    expect("fabric GM high overrides SW", axi_read(dut, 0x628),
++           static_cast<uint32_t>(THIS_CLOCK >> 32));
+     expect("fabric pdelay overrides SW", axi_read(dut, 0x6E4), 0);
+     expect("fabric parent low overrides SW", axi_read(dut, 0x730), 0);
+     expect("fabric parent high overrides SW", axi_read(dut, 0x734), 0);
+@@ -836,7 +841,8 @@ class GptpPlaneHarness {
+     uint32_t clkv = axi_read(dut, 0x77C);
+     expect("legacy write cannot clear tu", clkv & 1, 1);
+     expect("legacy sync claim is inert", (clkv >> 1) & 1, 0);
+-    expect("compatibility CLKV fields read zero", (clkv >> 2) & 0x3FFF, 0);
++    expect("reset publication of thisClock arms the holdover", (clkv >> 3) & 1, 1);
++    expect("compatibility CLKV fields read zero", (clkv >> 2) & 0x3FFD, 0);
+     expect("legacy asCapable claim is inert", (clkv >> 16) & 1, 0);
+   }
+ 

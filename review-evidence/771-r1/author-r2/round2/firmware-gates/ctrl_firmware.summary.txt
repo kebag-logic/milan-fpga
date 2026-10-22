@@ -1,0 +1,85 @@
+# Extract of firmware-gates/ctrl_firmware.log (sha256 0316e30263902dbfa140a4e1e9a209f9fdc79f509800581b6b0b9c15e08b8b86, 316446 bytes; the full log is ctrl_firmware.log.gz)
+
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.14.0', 'gmock': '1.14.0'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+
+## Arm tallies (suites phase)
+== ctrl service bounds: checks: 47   failures: 0 ==
+== mbx (host model): checks: 24   failures: 0 ==
+== ctrl port, driver and loop (host model): checks: 31   failures: 0 ==
+== ctrl ADP slice (fake ports and host model): checks: 54   failures: 0 ==
+== ctrl units on the HAL and port-layer mocks: checks: 25   failures: 0 ==
+== ctrl MMIO platform (host window): checks: 2   failures: 0 ==
+== ctrl ADP walk (processor stimulus, host model): checks: 41   failures: 0 ==
+== ctrl ACMP core and adapter (fake ports and host model): checks: 130   failures: 0 ==
+== ctrl ACMP walk (processor stimulus and models): checks: 127   failures: 0 ==
+== ctrl ACMP bindings on the saved-state store (1x1 shape): checks: 7   failures: 0 ==
+== ctrl ACMP adapter on the two-interface contract (host model): checks: 29   failures: 0 ==
+== ctrl ADP entity fields (endstation_arty_4x4): checks: 9   failures: 0 ==
+== ctrl ADP entity fields (endstation_arty_8ch): checks: 9   failures: 0 ==
+== ctrl ADP entity fields (endstation_arty_current): checks: 9   failures: 0 ==
+== ctrl ADP entity fields (endstation_ax7101_1x1_tdm8): checks: 9   failures: 0 ==
+== ctrl ADP entity fields (endstation_ax7101_8x8): checks: 9   failures: 0 ==
+== ctrl RV32I freestanding build: checks: 1   failures: 0 ==
+== ctrl MAAP Annex B: checks: 37   failures: 0 ==
+== ctrl H-MAAP mailbox: checks: 21   failures: 0 ==
+== ctrl MAAP debug port contract: checks: 1   failures: 0 ==
+== ctrl H-MAAP mailbox: checks: 22   failures: 0 ==
+== ADP debug re-entry: checks: 122   failures: 0 ==
+== ADP release re-entry: checks: 122   failures: 0 ==
+== ctrl lwSRP port (lwSRP core on the static pool and the mailbox): checks: 1   failures: 0 ==
+== ctrl SRP mailbox: checks: 59   failures: 0 ==
+== ctrl SRP debug guard: checks: 3   failures: 0 ==
+== ctrl SRP receive recovery: checks: 17   failures: 0 ==
+== ctrl ADP MAAP SRP composition: checks: 6   failures: 0 ==
+== ctrl ADP ACMP MAAP SRP composition: checks: 60   failures: 0 ==
+== ctrl SRP service latency: checks: 5   failures: 0 ==
+== ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+== ctrl SRP mailbox: checks: 59   failures: 0 ==
+== ctrl SRP debug guard: checks: 3   failures: 0 ==
+== ctrl SRP receive recovery: checks: 17   failures: 0 ==
+== ctrl ADP MAAP SRP composition: checks: 6   failures: 0 ==
+== ctrl ADP ACMP MAAP SRP composition: checks: 60   failures: 0 ==
+== ctrl SRP service latency: checks: 5   failures: 0 ==
+== ctrl SRP processor wire differential: checks: 5   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== ctrl SRP generated entity shape: checks: 1   failures: 0 ==
+== SRP RV32 object checks: checks: 22   failures: 0 ==
+== AECP core: checks: 74   failures: 0 ==
+== AECP core: checks: 74   failures: 0 ==
+== AECP descriptor image: checks: 3   failures: 0 ==
+== AECP descriptor image: checks: 3   failures: 0 ==
+== AECP descriptor image: checks: 3   failures: 0 ==
+== AECP descriptor image: checks: 3   failures: 0 ==
+== AECP descriptor image: checks: 3   failures: 0 ==
+== AECP debug callback contract: checks: 1   failures: 0 ==
+-- 66 tallies, 1593 checks, 0 failures
+
+## The ACMP kind controls in the control campaign
+[ok] mutant acmp-kind-lost (acmp, acmpwalk): 7 check(s) failed
+[ok] mutant acmp-kind-not-notified (acmp, acmpwalk): 5 check(s) failed
+[ok] mutant acmp-kind-any-state (acmp): 15 check(s) failed
+
+## Campaign totals
+mutants: 521 of 521 caught
+[ok] lines after the control campaign (AECP, SRP if1/if2, lwSRP pin controls): 358
+[ok] lines in all: 940; ESCAPED lines: 0
+
+test_ctrl_firmware: PASS

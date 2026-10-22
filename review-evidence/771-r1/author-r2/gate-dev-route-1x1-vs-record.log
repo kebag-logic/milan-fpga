@@ -1,0 +1,26 @@
+endpoint route-1x1: $WORKSPACE_HOME/litex-milan/work/a662-771/dev/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              49613       49989       376  ok
+FF               52353       52622       269  ok
+SLICE            15725       15786        61  ok
+RAMB36              74          74         0  ok
+RAMB18              25          25         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.215       0.268     0.053  ok
+WHS_ns           0.036       0.015    -0.021  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT +322, FF -2
+  u_pp/u_aecp: LUT +184, FF -2
+  u_nvm: LUT +165, FF +0
+  u_pp: LUT +158, FF -4
+  u_pp/u_aecp/u_dyn: LUT +142, FF +0
+  u_pp/u_srp: LUT -59, FF -2
+  u_pp/u_srp/u_talker: LUT -31, FF -2
+  u_pp/u_talker: LUT +33, FF +0
+  u_pp/u_nvm_port: LUT +32, FF +0
+  u_pp/u_aecp/u_store: LUT -31, FF +0
+  u_pp/u_srp/u_vlan: LUT +20, FF +0
+  u_pp/u_aecp/u_d3: LUT +15, FF -2
+RESULT: PASS
+rc=0

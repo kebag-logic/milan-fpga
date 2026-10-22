@@ -1,0 +1,26 @@
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index 6d76e76a5..5d494619b 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -7240,13 +7240,17 @@ class NxnDatapathHarness {
+                        si_pl(0x0006, 0, 0x20000000u, 0x80000001u));
+         ck("#67 a bit-31 offset is BAD_ARGUMENTS", aecp_status(r2), 7);
+         {
+-            // the 2013-complete 48-byte shape IS the truncated case
+-            // under the 2021 reference - the review ruling, pinned
++            // the IEEE 1722.1-2013 48-byte body (cdl 60) is accepted beside
++            // the 2021 one and answered in the 2021 form (processor issue
++            // #176); it carries the offset already stored, so the row below
++            // still reads 750000
+             std::vector<uint8_t> shortp(48, 0);
+             shortp[1] = 0x06; shortp[4] = 0x20;
++            for (int i = 0; i < 4; i++)
++                shortp[24 + i] = static_cast<uint8_t>(750000u >> (8 * (3 - i)));
+             r2 = aecp_xact(0x000E, setter_sq++, shortp);
+-            ck("#67 the 2013-length SET_STREAM_INFO refuses at cdl 96",
+-               static_cast<long>(aecp_status(r2) == 7 && cdl_of(r2) == 96), 1);
++            ck("#67 the 2013-length SET_STREAM_INFO is SUCCESS at cdl 96",
++               static_cast<long>(aecp_status(r2) == 0 && cdl_of(r2) == 96), 1);
+         }
+         g2 = aecp_xact(0x000F, setter_sq++, desc_key(0x0006, 0));
+         ck("#67 no refusal moved the stored offset", lat_of(g2),

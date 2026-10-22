@@ -1,0 +1,18 @@
+2026-10-22T16:16:03+02:00 start fw_rv32_selftest: python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+2026-10-22T16:16:10+02:00 end fw_rv32_selftest rc=0 7s
+2026-10-22T16:16:10+02:00 start tally_selftest_mutants: python3 sw/firmware/gtest/tally_selftest.py --mutants
+2026-10-22T16:17:03+02:00 end tally_selftest_mutants rc=0 53s
+2026-10-22T16:17:03+02:00 start ctrl_firmware: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp $LANES/771-pin4/third_party/lwSRP --jobs 4
+2026-10-22T16:53:16+02:00 end ctrl_firmware rc=0 2173s
+2026-10-22T16:53:16+02:00 start ctrl_firmware_shards: python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+2026-10-22T16:53:16+02:00 end ctrl_firmware_shards rc=0 0s
+2026-10-22T16:53:16+02:00 start firmware_census: python3 scripts/ci_events.py --firmware-census
+2026-10-22T16:53:16+02:00 end firmware_census rc=1 0s
+2026-10-22T16:53:16+02:00 start ctrl_nvm: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 4
+2026-10-22T17:22:28+02:00 end ctrl_nvm rc=0 1752s
+2026-10-22T17:22:28+02:00 start fw_coverage_selftest: python3 sw/firmware/gtest/fw_coverage.py --selftest
+2026-10-22T17:22:28+02:00 end fw_coverage_selftest rc=0 0s
+2026-10-22T17:22:28+02:00 start fw_coverage_check: python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp $LANES/771-pin4/third_party/lwSRP --jobs 4
+2026-10-22T17:26:20+02:00 end fw_coverage_check rc=0 232s
+2026-10-22T17:26:20+02:00 start ctrl_boundary: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+2026-10-22T17:37:12+02:00 end ctrl_boundary rc=2 652s
