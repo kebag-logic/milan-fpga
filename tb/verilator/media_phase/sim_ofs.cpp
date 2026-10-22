@@ -32,9 +32,9 @@
 // kCrfReset, graded in reset, all 33 bits) or moves them while the streams
 // run (kCases).
 //
-// Mutants: phase_mutants.py plants the AAF rows rounded (round 2's binding),
-// their readback rounded, the CRF row as set, and the carry dropped at the
-// rounder's conversion, its reset load, its readback and the CRF output's sum.
+// Mutants: phase_mutants.py plants the AAF rows rounded, their readback
+// rounded, the CRF row as set, and the carry dropped at the rounder's
+// conversion, its reset load, its readback and the CRF output's sum.
 
 #include "Vofs_wrap.h"
 #include "verilated.h"

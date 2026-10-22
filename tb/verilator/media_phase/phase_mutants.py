@@ -203,7 +203,7 @@ MUTANTS = (
        "    .transit_ns_i (raw_ns_i[N_AAF_P*32 +: 32]),"),),
      OFS, "[ofs B] every CRF timing point is a frame instant plus the CRF row as read back"),
     #: #632 ruling: the AAF talkers stamping their rows rounded by Eq. 14
-    #: (round 2's binding, every row through the rounder) instead of as set
+    #: (every row through the rounder) instead of as set
     ("aaf_rows_rounded", OFSWRAP,
      (("  KL_aaf_packetizer #(.N_TALKERS_P (N_AAF_P)) u_pkt (",
        "  wire [N_AAF_P*32-1:0] aaf_rnd_w;\n"

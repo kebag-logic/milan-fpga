@@ -122,7 +122,7 @@ DP_GSI_WORD = ("                              : {32'd0, !gsi_out_w ? 32'd0\n"
                "                                        : gsi_crf_out_w ? pres_crf_rb_ns_w\n"
                "                                        : aecp_pres_offset[32*gsi_oix_w +: 32]};\n")
 DP_GSI_CRF_OUT = "  wire        gsi_crf_out_w = gsi_out_w && (32'(gsiq_index_r) == CRF_TUID_C);\n"
-#: round 4's binding: every output's row through one rounder, read back so
+#: #632: every output's row through one rounder, read back so
 DP_ALL_ROWS_ROUNDER = (
     "  wire [31:0] mut_rb_ns_w;\n"
     "  KL_mtt_round #(.N_P (ACMP_SRC_C), .BASE_HZ_P (AUDIO_IF_FS_HZ_P)) mut_round (\n"
