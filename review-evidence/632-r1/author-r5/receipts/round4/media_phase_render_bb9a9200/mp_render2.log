@@ -1,0 +1,36 @@
+verilator --cc --exe --build -j 2 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_render --top-module render_wrap ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv render_wrap.sv sim_render.cpp -o Vrender_wrap
+make[1]: Entering directory '<host path>'
+g++  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_render.o ../sim_render.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o <host path>
+python3 <host path> -DVL_INCLUDE_OPT=include Vrender_wrap.cpp Vrender_wrap___024root__0.cpp Vrender_wrap__Dpi.cpp Vrender_wrap__ConstPool__0__Slow.cpp Vrender_wrap___024root__Slow.cpp Vrender_wrap___024root__0__Slow.cpp Vrender_wrap_KL_media_if_latency_pkg__Slow.cpp Vrender_wrap__Syms__Slow.cpp > Vrender_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vrender_wrap__ALL.o Vrender_wrap__ALL.cpp
+g++    sim_render.o verilated.o verilated_dpi.o verilated_threads.o Vrender_wrap__ALL.a    -pthread -lpthread -latomic   -o Vrender_wrap
+rm Vrender_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<host path>'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.615 MB sources in 9 modules, into 0.934 MB in 8 C++ files needing 0.001 MB
+- Verilator: Walltime 7.637 s (elab=0.012, cvt=0.060, bld=7.534); cpu 0.102 s on 2 threads; allocated 286.039 MB
+======================================================================
+obj_render/Vrender_wrap
+[render] two render interfaces on one clock domain, post-grid delays a frame apart, graded at their pins
+  info: 231 PDUs, frames 130..1190, A out-lead 2, B out-lead 3
+  info: [render A] 4072 samples (3208 at |phi| <= 4 %), 4472 silent slots, max |pin - PT| 833.5 ns at |phi| <= 4 %, 9375.1 ns at any phi, max |pin - (PT - phi)| 0.2 ns
+  [ ok ] [render A] every slot of every frame carries its mapped stream and channel or silence (0 misplaced)
+  [ ok ] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 833.5 ns over 3208 samples)
+  [ ok ] [render A] ...and is the frame instant nearest its presentation time at every phase up to +/-0.45 Ps, inside 100 ns (max 0.2 ns)
+  [ ok ] [render A] every sample a presented PDU carries reaches the pins, at holds of 0.1 to 2.6 ms, and nothing else does (4072 of 4072, 0 missing, 0 unexpected)
+  info: [render B] 2688 samples (2112 at |phi| <= 4 %), 1584 silent slots, max |pin - PT| 874.2 ns at |phi| <= 4 %, 9415.9 ns at any phi, max |pin - (PT - phi)| 40.9 ns
+  [ ok ] [render B] every slot of every frame carries its mapped stream and channel or silence (0 misplaced)
+  [ ok ] [render B] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 874.2 ns over 2112 samples)
+  [ ok ] [render B] ...and is the frame instant nearest its presentation time at every phase up to +/-0.45 Ps, inside 100 ns (max 40.9 ns)
+  [ ok ] [render B] every sample a presented PDU carries reaches the pins, at holds of 0.1 to 2.6 ms, and nothing else does (2688 of 2688, 0 missing, 0 unexpected)
+  info: [render] late 2, early 2, untimed 1, slips 6 (runs 6)
+  [ ok ] [render late] each late PDU (its first two events consumed; its timestamp 1 ms past) is counted once (2 of 2)
+  [ ok ] [render early] each too-early PDU (its last two events past the queue; 3 ms ahead) is counted once (2 of 2)
+  [ ok ] [render untimed] the PDU without tv is counted once (1 of 1)
+  [ ok ] [render] slips_o counts every run of presented frames that ends (6 of 6)
+  [ ok ] [render] B's out-lead (3) is at least a frame past A's (2): post-grid delays a frame apart
+== media_phase render: checks: 13   failures: 0 ==
+RESULT: PASS

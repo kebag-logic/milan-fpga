@@ -1,0 +1,6 @@
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: GET_STREAM_INFO reads the CRF output's offset as set, not applied - breaks "[NOTIFY] SET_STREAM_INFO CRF step 2: GET_STREAM_INFO reads the offset applied, whole periods" (its tallies report 3 failure(s) across 459 checks)
+[PASS] mutant caught: GET_STREAM_INFO reads every output's offset rounded by Equation 14 again - breaks "[NOTIFY] SET_STREAM_INFO step 2: GET_STREAM_INFO reads the offset as set" (its tallies report 3 failure(s) across 459 checks)
+
+3 checks: 3 PASS, 0 FAIL
+398.70 s
