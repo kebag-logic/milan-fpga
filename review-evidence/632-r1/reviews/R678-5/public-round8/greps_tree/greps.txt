@@ -1,0 +1,8 @@
+$ git grep -n "late and too-early PDUs are dropped\|late, too-early and untimed PDUs are dropped" -- . ":!docs/history"
+rc=1
+$ git grep -n "until the pin moves"
+rc=1
+$ git grep -n "20 in .gmstep-mutants"
+rc=1
+$ git grep -n "round 2:\|round 1.s order" -- tb/verilator/milan_dp/dynmap_mutants.py
+rc=1
