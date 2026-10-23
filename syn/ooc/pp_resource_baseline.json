@@ -24,30 +24,30 @@
      ],
      "standalone_clock_ns": []
     },
-    "inputs_sha256": "4a26ec65ba57a50610e5cd4d6c03261d6dcfc8efe2158f74be59da172611eff7",
+    "inputs_sha256": "e67f9619f8dcec5397f8777a6f7548f9a70549afbd915be1224369934cbd8650",
     "figures": {
-     "LUT": 50759,
-     "FF": 52832,
-     "SLICE": 15728,
-     "BRAM_TILE": 86.5,
+     "LUT": 51259,
+     "FF": 53208,
+     "SLICE": 15835,
+     "BRAM_TILE": 87.5,
      "RAMB36": 74,
-     "RAMB18": 25,
-     "DSP": 14,
-     "WNS_ns": 0.291,
-     "WHS_ns": 0.036,
-     "CARRY4": 3452
+     "RAMB18": 27,
+     "DSP": 13,
+     "WNS_ns": 0.236,
+     "WHS_ns": 0.028,
+     "CARRY4": 3584
     },
     "scopes": {
      "wrapper": {
-      "LUT": 23789,
-      "FF": 18961,
+      "LUT": 23776,
+      "FF": 18971,
       "RAMB36": 16,
       "RAMB18": 3,
       "DSP": 8,
-      "CARRY4": 1470
+      "CARRY4": 1457
      },
      "ctl_fifo": {
-      "LUT": 70,
+      "LUT": 71,
       "FF": 33,
       "RAMB36": 1,
       "RAMB18": 1,
@@ -55,7 +55,7 @@
       "CARRY4": 3
      },
      "u_nvm": {
-      "LUT": 652,
+      "LUT": 646,
       "FF": 476,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -63,12 +63,12 @@
       "CARRY4": 45
      },
      "u_pp": {
-      "LUT": 23075,
-      "FF": 18131,
+      "LUT": 23064,
+      "FF": 18141,
       "RAMB36": 15,
       "RAMB18": 2,
       "DSP": 4,
-      "CARRY4": 1416
+      "CARRY4": 1403
      },
      "u_pp/g_rx_pool[0].u_rx_slots": {
       "LUT": 38,
@@ -79,7 +79,7 @@
       "CARRY4": 7
      },
      "u_pp/g_rx_pool[1].u_rx_slots": {
-      "LUT": 30,
+      "LUT": 31,
       "FF": 22,
       "RAMB36": 1,
       "RAMB18": 0,
@@ -103,7 +103,7 @@
       "CARRY4": 3
      },
      "u_pp/g_rx_pool[5].u_rx_slots": {
-      "LUT": 101,
+      "LUT": 100,
       "FF": 62,
       "RAMB36": 1,
       "RAMB18": 0,
@@ -111,7 +111,7 @@
       "CARRY4": 4
      },
      "u_pp/u_adp": {
-      "LUT": 377,
+      "LUT": 379,
       "FF": 471,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -119,15 +119,15 @@
       "CARRY4": 32
      },
      "u_pp/u_aecp": {
-      "LUT": 8084,
+      "LUT": 8032,
       "FF": 3592,
       "RAMB36": 6,
       "RAMB18": 0,
       "DSP": 1,
-      "CARRY4": 462
+      "CARRY4": 449
      },
      "u_pp/u_aecp/u_d3": {
-      "LUT": 1883,
+      "LUT": 1878,
       "FF": 580,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -135,15 +135,15 @@
       "CARRY4": 103
      },
      "u_pp/u_aecp/u_dyn": {
-      "LUT": 1276,
+      "LUT": 1206,
       "FF": 467,
       "RAMB36": 0,
       "RAMB18": 0,
       "DSP": 0,
-      "CARRY4": 59
+      "CARRY4": 46
      },
      "u_pp/u_aecp/u_resp": {
-      "LUT": 339,
+      "LUT": 341,
       "FF": 260,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -151,7 +151,7 @@
       "CARRY4": 16
      },
      "u_pp/u_aecp/u_store": {
-      "LUT": 974,
+      "LUT": 975,
       "FF": 694,
       "RAMB36": 2,
       "RAMB18": 0,
@@ -159,7 +159,7 @@
       "CARRY4": 106
      },
      "u_pp/u_aecp/u_ucpu": {
-      "LUT": 1795,
+      "LUT": 1823,
       "FF": 495,
       "RAMB36": 3,
       "RAMB18": 0,
@@ -167,7 +167,7 @@
       "CARRY4": 72
      },
      "u_pp/u_ca_builder": {
-      "LUT": 142,
+      "LUT": 141,
       "FF": 152,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -183,7 +183,7 @@
       "CARRY4": 0
      },
      "u_pp/u_dispatch": {
-      "LUT": 744,
+      "LUT": 749,
       "FF": 635,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -191,7 +191,7 @@
       "CARRY4": 12
      },
      "u_pp/u_dispatch/u_acmp_q": {
-      "LUT": 297,
+      "LUT": 301,
       "FF": 204,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -207,7 +207,7 @@
       "CARRY4": 0
      },
      "u_pp/u_dispatch/u_aecp_q": {
-      "LUT": 341,
+      "LUT": 342,
       "FF": 287,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -231,7 +231,7 @@
       "CARRY4": 0
      },
      "u_pp/u_listener": {
-      "LUT": 1533,
+      "LUT": 1529,
       "FF": 1064,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -239,7 +239,7 @@
       "CARRY4": 32
      },
      "u_pp/u_lsn_admit": {
-      "LUT": 8,
+      "LUT": 15,
       "FF": 1,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -255,7 +255,7 @@
       "CARRY4": 17
      },
      "u_pp/u_normalizer": {
-      "LUT": 72,
+      "LUT": 73,
       "FF": 307,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -263,7 +263,7 @@
       "CARRY4": 6
      },
      "u_pp/u_notify": {
-      "LUT": 2191,
+      "LUT": 2196,
       "FF": 1307,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -287,7 +287,7 @@
       "CARRY4": 73
      },
      "u_pp/u_nvm_shadow": {
-      "LUT": 784,
+      "LUT": 786,
       "FF": 1118,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -295,7 +295,7 @@
       "CARRY4": 51
      },
      "u_pp/u_originator": {
-      "LUT": 646,
+      "LUT": 642,
       "FF": 885,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -303,7 +303,7 @@
       "CARRY4": 53
      },
      "u_pp/u_prng": {
-      "LUT": 135,
+      "LUT": 134,
       "FF": 150,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -327,7 +327,7 @@
       "CARRY4": 29
      },
      "u_pp/u_scoreboard": {
-      "LUT": 138,
+      "LUT": 141,
       "FF": 169,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -343,15 +343,15 @@
       "CARRY4": 0
      },
      "u_pp/u_srp": {
-      "LUT": 3860,
-      "FF": 3972,
+      "LUT": 3858,
+      "FF": 3982,
       "RAMB36": 0,
       "RAMB18": 1,
       "DSP": 2,
       "CARRY4": 269
      },
      "u_pp/u_srp/u_admission": {
-      "LUT": 239,
+      "LUT": 241,
       "FF": 143,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -359,7 +359,7 @@
       "CARRY4": 16
      },
      "u_pp/u_srp/u_decoder": {
-      "LUT": 592,
+      "LUT": 595,
       "FF": 630,
       "RAMB36": 0,
       "RAMB18": 1,
@@ -375,15 +375,15 @@
       "CARRY4": 4
      },
      "u_pp/u_srp/u_encoder": {
-      "LUT": 1291,
-      "FF": 1054,
+      "LUT": 1288,
+      "FF": 1062,
       "RAMB36": 0,
       "RAMB18": 0,
       "DSP": 0,
       "CARRY4": 98
      },
      "u_pp/u_srp/u_listener": {
-      "LUT": 703,
+      "LUT": 696,
       "FF": 806,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -391,15 +391,15 @@
       "CARRY4": 55
      },
      "u_pp/u_srp/u_talker": {
-      "LUT": 585,
-      "FF": 602,
+      "LUT": 587,
+      "FF": 604,
       "RAMB36": 0,
       "RAMB18": 0,
       "DSP": 0,
       "CARRY4": 24
      },
      "u_pp/u_srp/u_vlan": {
-      "LUT": 137,
+      "LUT": 138,
       "FF": 126,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -407,7 +407,7 @@
       "CARRY4": 9
      },
      "u_pp/u_talker": {
-      "LUT": 621,
+      "LUT": 643,
       "FF": 517,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -415,7 +415,7 @@
       "CARRY4": 11
      },
      "u_pp/u_timer": {
-      "LUT": 899,
+      "LUT": 898,
       "FF": 179,
       "RAMB36": 1,
       "RAMB18": 0,
@@ -431,7 +431,7 @@
       "CARRY4": 4
      },
      "u_pp/u_tx_arbiter": {
-      "LUT": 218,
+      "LUT": 219,
       "FF": 182,
       "RAMB36": 0,
       "RAMB18": 0,
@@ -448,7 +448,7 @@
      }
     }
    },
-   "measured": "2026-10-22, issue #771: RTL inputs at lane head 8de4b80ba84967e04da38e0eaed68c0b6b5256e0 (the input digest reproduces at d664cf54fd57ed06e8896e7c5de1e1511c2ded0c), which is dev d77a8afdbc960d70d1ceeee9af1163624f102b16 with processor 93fb0b2d736b36588ea7321e25fba2f8819ea41f, FPGA-gPTP 55680bff3b287b9a7b0c759f51471fa617c17335 and the eight parent adaptations. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. Owner exception: against the preceding #708 record at 435af429dc313465954c8bb59892f8bcc08ccf45 the route LUT moved by +1,146 (tolerance +500) and the ooc-1x1 LUT by +514 (tolerance +250); this adoption's own share, against dev d77a8afd measured the same way, is +770 and +462. The owner accepted the growth for now, with Mark II (#640) to address it, in https://github.com/kebag-logic/milan-fpga/issues/771#issuecomment-6333175429 (2026-10-22). Per-donor 1x1 ledger (KL_pp_shadow and KL_gptp_shadow standalone, one point per donor merge): FPGA-gPTP #82 +278 LUT, processor #195 +190, #194 +117, #198 +102, #197 +54, #196 +34, #183 +34. Every other figure passed; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records, this delta and the ledger.",
+   "measured": "2026-10-23, issues #632 and #764 (PR #770): RTL inputs at lane head 5282b8b68983b3b5f7d9be4635c8847dbe6c38a1, the lane's merge of dev e5b480a385841f19420570bbba7c46da101d1303 (merge commit dc9cda7dfcb4be6e58f11d9c6d1594d81b44c0a6) plus documentation, with processor 93fb0b2d736b36588ea7321e25fba2f8819ea41f and FPGA-gPTP 55680bff3b287b9a7b0c759f51471fa617c17335; the input digest reproduces at dc9cda7d. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. The preceding #771 record at 8de4b80ba84967e04da38e0eaed68c0b6b5256e0 measures dev e5b480a3's design (their synthesis inputs differ only in comment lines). Owner exceptions: against it the route moved by +500 LUT (tolerance +500), +376 FF (+600), +107 slices (tolerance +80) and +2 RAMB18 (tolerance 0), with DSP -1 and WNS -0.055 ns. The owner chose block RAM for the render queue in https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685 and accepted this change's LUT, FF and slice growth for now, with Mark II (#640) to recover the area, in https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062 (2026-10-23); 15 of 15,850 slices remain, so the next growth needs its own owner decision. Every other figure passed. Every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
    "tolerance": {
     "LUT": 500,
     "FF": 600,
@@ -485,7 +485,7 @@
       "20.000"
      ]
     },
-    "inputs_sha256": "9388010b698451b45c64016c6e4ab796280b0cdf6abae3f36a7f35496667ec03",
+    "inputs_sha256": "13a8056fa6f891c45618f2d8977af332cd0fe885bbe363c3adc674d22237b230",
     "figures": {
      "LUT": 23828,
      "FF": 20000,
@@ -916,7 +916,7 @@
      }
     }
    },
-   "measured": "2026-10-22, issue #771: RTL inputs at lane head 8de4b80ba84967e04da38e0eaed68c0b6b5256e0 (the input digest reproduces at d664cf54fd57ed06e8896e7c5de1e1511c2ded0c), which is dev d77a8afdbc960d70d1ceeee9af1163624f102b16 with processor 93fb0b2d736b36588ea7321e25fba2f8819ea41f, FPGA-gPTP 55680bff3b287b9a7b0c759f51471fa617c17335 and the eight parent adaptations. Explicit synth.maxThreads 1, general.maxThreads 32, synthesis and implementation in one process. Owner exception: against the preceding #708 record at 435af429dc313465954c8bb59892f8bcc08ccf45 the route LUT moved by +1,146 (tolerance +500) and the ooc-1x1 LUT by +514 (tolerance +250); this adoption's own share, against dev d77a8afd measured the same way, is +770 and +462. The owner accepted the growth for now, with Mark II (#640) to address it, in https://github.com/kebag-logic/milan-fpga/issues/771#issuecomment-6333175429 (2026-10-22). Per-donor 1x1 ledger (KL_pp_shadow and KL_gptp_shadow standalone, one point per donor merge): FPGA-gPTP #82 +278 LUT, processor #195 +190, #194 +117, #198 +102, #197 +54, #196 +34, #183 +34. Every other figure passed; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records, this delta and the ledger.",
+   "measured": "2026-10-23, issues #632 and #764 (PR #770): RTL inputs at lane head 5282b8b68983b3b5f7d9be4635c8847dbe6c38a1, the lane's merge of dev e5b480a385841f19420570bbba7c46da101d1303 (merge commit dc9cda7dfcb4be6e58f11d9c6d1594d81b44c0a6) plus documentation, with processor 93fb0b2d736b36588ea7321e25fba2f8819ea41f and FPGA-gPTP 55680bff3b287b9a7b0c759f51471fa617c17335; the input digest reproduces at dc9cda7d. Explicit synth.maxThreads 1, general.maxThreads 32; the shipping 20 ns clock. The preceding #771 record at 8de4b80ba84967e04da38e0eaed68c0b6b5256e0 measures dev e5b480a3's design (their synthesis inputs differ only in comment lines). Every figure equals it; the input digest moves because the standalone script reads the shipping export's whole source list, which carries this change's datapath sources, while the wrapper's own sources are unchanged. Recorded with the route under the same two owner exceptions, https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685 and https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062. Every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
    "tolerance": {
     "LUT": 250,
     "FF": 250,
@@ -943,7 +943,7 @@
       "20.000"
      ]
     },
-    "inputs_sha256": "8c12fce203505ac8f70d3f3f4be71a5b24068d5e2e92811c2bf82f1ec5fb4e66",
+    "inputs_sha256": "abff4d25c0a9b14919f8bdabf08edd26e59f804b48f3ef80bf3c395f7bfaf277",
     "figures": {
      "LUT": 32467,
      "FF": 28220,
@@ -1374,7 +1374,7 @@
      }
     }
    },
-   "measured": "2026-10-22, issue #771: RTL inputs at lane head 8de4b80ba84967e04da38e0eaed68c0b6b5256e0, measured at d664cf54fd57ed06e8896e7c5de1e1511c2ded0c, whose synthesis inputs are identical; that is dev d77a8afdbc960d70d1ceeee9af1163624f102b16 with processor 93fb0b2d736b36588ea7321e25fba2f8819ea41f, FPGA-gPTP 55680bff3b287b9a7b0c759f51471fa617c17335 and the eight parent adaptations. Explicit synth.maxThreads 1, general.maxThreads 32; an RTL elaboration supplies the bound parameters; the shipping 20 ns clock. Owner exception: against the preceding #708 record at 435af429dc313465954c8bb59892f8bcc08ccf45 the LUT moved by +2,256 (tolerance +316) and the FF by +769 (tolerance +339); this adoption's own share, against dev d77a8afd measured the same way (30,282 LUTs and 27,451 FFs, which pass against the preceding record), is +2,185 and +769, most of it in u_pp/u_srp/u_listener. The owner accepted the adoption's growth for now, with Mark II (#640) to address it, in https://github.com/kebag-logic/milan-fpga/issues/771#issuecomment-6333175429 (2026-10-22). Per-donor 1x1 ledger (KL_pp_shadow and KL_gptp_shadow standalone, one point per donor merge): FPGA-gPTP #82 +278 LUT, processor #195 +190, #194 +117, #198 +102, #197 +54, #196 +34, #183 +34. RAMB36, RAMB18 and DSP passed; every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records, this delta and the ledger.",
+   "measured": "2026-10-23, issues #632 and #764 (PR #770): RTL inputs at lane head 5282b8b68983b3b5f7d9be4635c8847dbe6c38a1, the lane's merge of dev e5b480a385841f19420570bbba7c46da101d1303 (merge commit dc9cda7dfcb4be6e58f11d9c6d1594d81b44c0a6) plus documentation, with processor 93fb0b2d736b36588ea7321e25fba2f8819ea41f and FPGA-gPTP 55680bff3b287b9a7b0c759f51471fa617c17335; the input digest reproduces at dc9cda7d. Explicit synth.maxThreads 1, general.maxThreads 32; an RTL elaboration supplies the bound parameters; the shipping 20 ns clock. The preceding #771 record at 8de4b80ba84967e04da38e0eaed68c0b6b5256e0 measures dev e5b480a3's design (their synthesis inputs differ only in comment lines). Every figure equals it; the input digest moves because the standalone script reads the shipping export's whole source list, which carries this change's datapath sources, while the wrapper's own sources are unchanged. Recorded with the route under the same two owner exceptions, https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685 and https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062. Every tolerance, floor and ceiling unchanged. docs/findings/234_PP_SHADOW_AREA_BASELINE.md retains the earlier records and this delta.",
    "tolerance": {
     "LUT": 316,
     "FF": 339,
