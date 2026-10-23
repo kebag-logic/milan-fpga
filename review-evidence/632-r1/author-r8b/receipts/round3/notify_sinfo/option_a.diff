@@ -1,0 +1,11 @@
+--- gen_ucode.py at the pin 2cbed0a9
++++ option (a): the one read
+@@ -2255,7 +2255,7 @@
+     u('CHECK_LOCK', ra=15, imm=E_FAILSAFE),      # echo + ENTITY_LOCKED
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # miss -> NO_SUCH_DESCRIPTOR
+     u('BR_STATUS', cnd=0, imm=E_FAILSAFE),       # ...echoed at full length
+-    u('GATHER_EXT', rd=6, **GSI(3)),             # current presentation offset
++    u('READ_ST', rd=6, imm=RGN_DYN + SEL_PTOFF), # the offset stored
+     u('WRITE_ST', ra=12, fmt=FMT_D, imm=RGN_DYN + SEL_PTOFF),
+     u('NVM_MARK', imm=1),                        # completion mark (the WRITE_ST persists)
+     u('SET_STATUS', imm=ST_OK),

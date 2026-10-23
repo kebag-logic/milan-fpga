@@ -1,0 +1,19 @@
+[PASS] clean carry: rc=0
+[PASS] clean det:afterhold: rc=0
+[PASS] clean det:balanced: rc=0
+[PASS] clean det:cross: rc=0
+[PASS] clean det:inband: rc=0
+[PASS] clean det:meanin: rc=0
+[PASS] clean engage: rc=0
+[PASS] phase_sign_flipped on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[PASS] phase_term_removed on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[PASS] integrator_floored on carry: rc=1 -- [FAIL] [carry] the integrator moved by exactly sum(e) / 2 (no LSB floored)
+[PASS] rate_damping_removed on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[PASS] fold_not_centred on det:inband: rc=1 -- [FAIL] [det inband] engaged, the window phase inside the band (theta -31250)
+[PASS] tracking_fold_removed on det:balanced: rc=1 -- [FAIL] [det balanced] the window phase reads the half-period phase (theta 0, |theta| >= 28125)
+[PASS] hold_keeps_ref on det:afterhold: rc=1 -- [FAIL] [det afterhold] after a hold, samples either side of +/-Ps/2 read the half-period phase (theta 0, |theta| >= 28125)
+[PASS] window_refold_removed on det:cross: rc=1 -- [FAIL] [det cross] past +Ps/2 the window phase re-folds to the short way, -Ps/2 + 100 ns (31549)
+[PASS] settled_on_mean_only on det:meanin: rc=1 -- [FAIL] [det meanin] settled never asserts with every sample outside the band
+[PASS] slew_clamp_removed on engage: rc=1 -- [FAIL] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 436.1)
+== media_phase mutants: checks: 17   failures: 0 ==
+381.78 s

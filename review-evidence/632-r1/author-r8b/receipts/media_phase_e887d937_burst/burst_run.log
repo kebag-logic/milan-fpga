@@ -1,0 +1,21 @@
+tree: e887d937 (the RTL and harness committed there, run before the commit)
+[burst] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [burst] the talker sends every 1.92 ms from 15.05 s for 0.6 s
+  [ ok ] [burst] phase inside +/-5 % of Ps within 30 s of the event
+  info: [burst] inside the band 0.06 s after the event
+  [ ok ] [burst] phase held inside +/-5 % of Ps to the end (max 142.0 ns)
+  [ ok ] [burst] the DUT's CRF output on the reference's grid (max 303.2 ns)
+  [ ok ] [burst] the servo reports settled at the end
+  [ ok ] [burst] still LOCKED at the end
+  [ ok ] [burst] the burst put more than 264 PDUs in some 512 ms (267)
+  [ ok ] [burst] the window the burst filled kept exactly 264 samples, the cap (max 264)
+  [ ok ] [burst] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [burst] fine-PS protocol clean
+== media_phase burst: checks: 14   failures: 0 ==
+RESULT: PASS

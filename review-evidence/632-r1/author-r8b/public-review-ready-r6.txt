@@ -1,0 +1,27 @@
+[A659] REVIEW READY
+Commit: d40e2ee8e12d6f701f4bb9607221059d30335b47 (PR #770, branch 632-764-media-phase; seven commits on ee5ece60, no rebase, no amend; not pushed)
+Assignment: the [A10] round 6 comment on PR #770, issuecomment-6341411985 (R677-3, R678-3).
+
+Changed:
+- R677-3-F1 (RTL): KL_render_queue judges every event of a PDU on its own frame, including a PDU stamped before the latest domain event: its events still ahead are presented, only the past ones refused and counted. The divider takes the signed difference plus a late reach of 504 frames (10.5 ms, whole ns), the header's frame taken 504 lower; a PDU stamped further behind is late in every event, exact for every PDU the depacketizer passes (its 2048-byte frame FIFO bounds a PDU to 504 one-channel events; the datapath derives MAX_EV_P from the FIFO depth). Quotient and frame numbers 10 bits, sized at elaboration; the frame is known 13 cycles after the header (payload lead 16). The banner, design page rule table, TIME_SYNC, REGISTER_MAP RENDER_STAT[31:16], the datapath comment and the harness model state that one rule; refused_o counts once per PDU with a late or early event (a PDU longer than the queue can have both).
+- Check: render_queue [behind] on both shapes (the reviewer's three probe PDUs; 250 and 500 frames behind with their tails ahead; a 504-event PDU late, presented and early at once; at the reach; past it), refusal counts declared per PDU (R677-3-S3). Planted and killed: the whole-PDU refusal (both shapes), the short reach, the double-counted refusal. The [wrap] phase now checks it straddles 2^32 (the longer phases had moved the crossing out of it); [long] gains a 504-event PDU so the past-the-queue hold control stays live. 26 defects, all caught.
+- R677-3-F3 / R678-3-F3: T26 can fail again: on the two-stream leg, stream 1's loss holds the epoch closed while stream 0 keeps the crossbar live and a map write re-seeds a slot; ungated commit runs there and is killed by T26. The ship leg's T26 is kept as the end-to-end property, with its reason.
+- R678-3-F1: TIME_SYNC (a PHC step re-bases no queue; tu/holdover separate from the queue's refusal and slip accounting; the pending-decision passage replaced by the implemented law and the remaining bench proof), GM_LOSS_RECOVERY (the actual queue-flush controls and the 20-control inventory), MEDIA_CLOCK_FOLLOWING (the bind measurement marked as taken before #632), compliance 4.4.4.3.
+- R678-3-F2 / R677-3-F2: the stage's OOC figures re-measured with provenance; 26 queue defects; follow_ring sixteen; "past the queue"; CHANGELOG forty.
+- R678-3-R1: the three comments, R678-3's exact wording.
+
+Validation (receipts under receipts/round6/, index generated from the files present):
+- tdm8render-mutants at 2700584e: exit 0, 31 of 31 (five clean modes, three leg defects, three clean controls, all 20 mutations caught by name).
+- tdm8render-pullin recipe at 2700584e: 18 phases at 28 checks and the history leg at 272, every leg exit 0, 0 failures.
+- gmstep-mutants at 2700584e: exit 0, 22 of 22 (clean gmstep leg with the #621 small-step phase, option-off leg, 20 controls each on the whole leg).
+- The R678-3 campaign audit script, pointed at these receipts: 20/20, 3/3, 3/3, 20/20 and every pull-in phase.
+- follow_ring mutants 16 of 16; milan_dp every leg 0 failures (base 236 ... aclk 182), render_mutants 6 of 6, render-csr-controls exit 0, notify 459/3 at the pin (CRF steps 3/4, as ruled); render_queue 39/0, 38/0, 28 of 28; media_phase render 13/0 and its five controls; the reviewer's probe 0 mismatched beats on the head (32/20 reproduced on ee5ece60).
+- route-1x1 at 0ffcd7f0 (RTL as head): LUT -26, FF +389, slices +72 vs the record (round 5: +309, +343, +68), RAMB18 +2 budgeted (gate exit 1 on it alone), DSP 13, WNS +0.163 ns, WHS +0.017 ns, route complete. The fix takes 4 of the 12 slices round 5 left. Stage alone (clocked OOC, both RTLs, same script): -11 LUT, +8 FF.
+- Full sweep at d40e2ee8: 63 of 64 suites pass and the 64th is milan_dp, failing only the three ruled notify checks at the processor pin (shard 0: 47,447 checks; shard 1: 331,526; shard 2: 262,027 with capture_coherence stopped by the runner's 2,400 s wall clock under host load, then run again uncontended: exit 0, 20,832 + 447 checks, its campaign 35 of 35; shard 3: 1,540,273); 0 failures outside the notify leg.
+- Yosys changed tops pass; lint 89 <= 89; docs gates 49/49; builder bank exit 0 (gate 11 not run, its Arty build tree absent).
+- Not re-run, their inputs unchanged this round: the notify leg and gsi_mutants with the processor gate spliced (round 5: 459/0, 11 of 11), and the full media_phase campaign (round 5: 40 of 40; its five queue controls re-run here).
+
+Acceptance criteria: round 6 items 1-5 done; no STOP condition reached (area inside the 12 slices). #632's simulation items met; the bench proof (#764 method) follows after merge, so the PR stays "Relates to".
+Open risks/questions:
+- A timestamp 2.137-2.147 s ahead now counts as late rather than too early (the 32-bit window moves by the reach); refused either way, documented.
+- For the manager: R677-3-S2 (ci/image/command-table.json still names the retired stage) is the #737 lane's; R677-3-S1 (a builder bound on buffer_length_ns) is not done here. The fourth processor pin adoption remains the merge prerequisite for the notify leg.

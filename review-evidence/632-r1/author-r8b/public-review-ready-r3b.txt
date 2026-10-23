@@ -1,0 +1,39 @@
+[A659] REVIEW READY
+
+milan-fpga head: 3fdaea3d2adee05c41629363bffbf32cff5b0656 (branch 632-764-media-phase, PR #770; not pushed; one docs commit on 32fb8fc2, no rebase, no amend)
+Processor head: 51f88c7e14e7e2527c09ff9a23b93dd6b857fd50 (branch 632-sinfo-notify-stored, three commits on processor main 08023123; not pushed; its PR body is prepared and reads "Relates to kebag-logic/milan-fpga#632")
+Ruling applied: option (b), https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6312625146. R677-2's four-step case is unchanged.
+
+**Processor (632-sinfo-notify-stored):**
+- `175a5a15` E_SINFO compares the commanded offset with the stored row once a controller or a restore has set it (`READ_ST RGN_DYNV + SEL_PTOFF`, COMPARE, BR_STATUS, as E_SCFG does for #178). While the row is unset it compares with GSI(3), the factory offset in force. This adds five words through the repository's own `gen_ucode.py`; the ROM differs from main's at words 1859..1873 only.
+- The processor-level test is `tb/pp_top` section NS, run against a face that answers GET_STREAM_INFO the way milan-fpga's integrator does (whole 48 kHz periods once set, 2 ms before). Its four steps:
+  - an identical SET pushes nothing (NS4);
+  - a changed SET pushes once (NS3, NS5);
+  - a SET of 0 on a never-set row pushes once (NS2);
+  - a first SET equal to the factory value pushes nothing (NS1).
+- Planted defect `stream_info_compare_applied` (the GSI(3) compare restored) fails NS4 and NS5. The never-set arm control `stream_info_unset_arm_dropped` fails NS1 and NS2.
+- `0b097464` re-records `tb/aecp_cmds/decode.json`, whose ROM digest `make check` holds.
+- `51f88c7e` fixes D3S5's premise. The sweep found it measured the store latency on the never-set arm and timed its SET on the set arm, one cycle apart.
+
+**milan-fpga (measured with the processor's E_SINFO at 0b097464, whose hdl/ is identical at 51f88c7e, applied uncommitted to the submodule at its pin 2cbed0a9, then restored clean):**
+- The notify leg passes: 441 checks, 0 failures. Pushes over steps 1..4 are 0, 1, 0, 1.
+- The planted control (`gsi_mutants.py 9`) is caught at step 3.
+- A disposable probe, SET 0 on the CRF output's never-set row, pushes once.
+- The ROM is byte-identical to round 3's option (b) ROM.
+- `3fdaea3d` puts both arms and the residue in the design doc.
+
+**Gates:**
+- Processor at 51f88c7e, each run from a clean clone:
+  - `make check`, lint and every suite pass (1,030,329 checks, 0 failing; pp_top 10,741 across its seven builds), and so does the executed traceability gate.
+  - Notify controls: 22 of 22 killed.
+  - D3 controls graded by section S: 12 of 12 killed, each at its recorded count.
+  - aecp_cmds controls: 17 of 17.
+  - Dispatch controls: 69 of 69.
+  - Deadline/hazard controls: 61 of 61.
+- milan-fpga: the 49 docs gates pass at the head. Nothing else changed since 32fb8fc2, whose gates stand.
+
+**Residue (recorded by the ruling, not a finding):** before a row's first SET, a factory row that is not whole periods compares with its applied value. Every factory row shipped is 2 ms.
+
+**Open:**
+- The processor PR is a prerequisite, consumed by the fourth pin adoption. PR #770 merges after that pin.
+- The listener render queue was not started (next round).

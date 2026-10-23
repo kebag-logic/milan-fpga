@@ -1,0 +1,38 @@
+# Per-instance LUT/FF movement, post-place: this merge's route (dc9cda7d) minus the #771 record's own route report (50,759 LUTs).
+# base report sha256 6e3000d9df495d8a50961ee4e096baba6faad0c342a49805d7a6ce266eb72089, candidate report sha256 b3282b5f91fca73f66c370c973459e8351a59119dba03ce847fcc7f1b2fbee4f; scripts/hier_delta.py, |delta| >= 20
+instance                                                                   LUT      FF   (candidate - base)
+   (alinx_ax7101)                                                          -66      -5
+   KL_gptp_gmii_launch                                                     +25      +0
+     (KL_gptp_gmii_launch)                                                 +24      +0
+   VexiiRiscvLitex_f5f08b170311db53220574624f819159                        +41      +2
+     (VexiiRiscvLitex_f5f08b170311db53220574624f819159)                    +26      +0
+   milan_datapath                                                         +516    +379
+     (milan_datapath)                                                      -46     -93
+     aaf_latency_tap_bank                                                  -58      -1
+       g_ltap.aaf_latency_taps                                             -57      +0
+         tx_chain                                                          -25      +0
+         rx_chain                                                          -33      +0
+     aaf_rx_depkt                                                           -5     +20
+       (aaf_rx_depkt)                                                       -1     +20
+     avtp_rx_monitor                                                       +30      +0
+     avtp_rx_parser                                                        +37      +0
+     chan_map_capture                                                      -19     +64
+     chan_map_render                                                       +32      +0
+     crf_rx                                                                 +0     +33
+     crf_tx                                                                -59    -141
+     csr                                                                  +102      -1
+     g_gptp_plane.u_gptp_shadow                                            -79      +0
+       (g_gptp_plane.u_gptp_shadow)                                        -31      +0
+       u_txret                                                             -36      +0
+     g_mmcm_servo.mmcm_servo                                              +380    +200
+       (g_mmcm_servo.mmcm_servo)                                          +322    +200
+       u_tick_cdc                                                          +59      +0
+     g_pres_crf.pres_round                                                +130    +159
+     media_domain_event                                                     +6     +79
+         u_aecp                                                            -52      +0
+         u_talker                                                          +22      +0
+     render_queue                                                         +345    +170
+     talker_diag                                                           +35      +0
+     ts_counter                                                            +76      +0
+       (crf_tx)                                                           -311    -307   (absent in candidate)
+     render_setpoint                                                      -381    -137   (absent in candidate)

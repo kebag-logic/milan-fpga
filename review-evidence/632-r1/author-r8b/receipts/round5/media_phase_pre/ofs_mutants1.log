@@ -1,0 +1,10 @@
+[PASS] clean ofs: rc=0
+[PASS] crf_rounding_bypassed on ofs: rc=1 -- [FAIL] [ofs B] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+[PASS] mtt_carry_dropped on ofs: rc=1 -- [FAIL] [ofs H] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+[PASS] mtt_reset_carry_dropped on ofs: rc=1 -- [FAIL] [ofs A] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+[PASS] readback_saturation_dropped on ofs: rc=1 -- [FAIL] [ofs H] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+[PASS] crf_carry_dropped on ofs: rc=1 -- [FAIL] [ofs H] every CRF timing point is a frame instant plus the CRF row as read back (4)
+[PASS] crf_row_raw on ofs: rc=1 -- [FAIL] [ofs B] every CRF timing point is a frame instant plus the CRF row as read back (4)
+[PASS] aaf_rows_rounded on ofs: rc=1 -- [FAIL] [ofs A] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+[PASS] aaf_readback_rounded on ofs: rc=1 -- [FAIL] [ofs A] GET_STREAM_INFO reads every AAF row as set
+== media_phase mutants: checks: 9   failures: 0 ==

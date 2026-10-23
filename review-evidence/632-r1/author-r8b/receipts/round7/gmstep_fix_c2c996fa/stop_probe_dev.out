@@ -1,0 +1,35 @@
+anchor count 1
+built True
+rc 1
+verdict caught
+named check 'licence: the talker never pauses beyond four of its intervals'
+failed checks (12):
+    tu: talker PDUs graded inside the hold
+    tu: talker PDUs graded after tu clears
+    licence: the talker never pauses beyond four of its intervals
+    licence: the talker keeps its baseline rate within 1%
+    licence: the talker sent PDUs across the event
+    licence: the talker sent PDUs across the event
+    licence: the talker sent PDUs across the event
+    licence: the talker sent PDUs across the event
+    CRF control: outgoing PDUs bracket the received toggle
+    CRF control: selected CRF mr propagates exactly once
+    coincident: PDUs bracket every trial and complete the hold
+    coincident: a PHC step does not suppress the CRF restart
+lines naming the licence or the talker's pauses:
+    [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+    [ ok ] licence: no talker sequence gap across the event got=0 exp=0
+    TALKER: 0 PDUs over 825871 cycles to the window end (baseline rate: 1286), longest pause 825871, last PDU 825871 cycles before the end
+    [FAIL] licence: the talker never pauses beyond four of its intervals
+    [FAIL] licence: the talker keeps its baseline rate within 1%
+    [ ok ] licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX got=0x802 exp=0x802
+    [ ok ] licence: FRAMES_RX advances by the PDUs the listener accepted
+    [ ok ] licence: the listener stays locked (MEDIA_UNLOCKED unchanged) got=0 exp=0
+    [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+    [FAIL] licence: the talker sent PDUs across the event
+    [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+    [FAIL] licence: the talker sent PDUs across the event
+    [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+    [FAIL] licence: the talker sent PDUs across the event
+    [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+    [FAIL] licence: the talker sent PDUs across the event
