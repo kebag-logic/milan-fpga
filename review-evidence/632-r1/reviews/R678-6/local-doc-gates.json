@@ -1,0 +1,60 @@
+[
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "log": "check_doc_style.log",
+    "tail": "documentation style: OK (23 current documents)\n"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_gptp_docs.py"
+    ],
+    "rc": 0,
+    "log": "check_gptp_docs.log",
+    "tail": "gPTP documentation: OK (8 current pages)\n"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "log": "check_doc_paths.log",
+    "tail": "doc path gate: OK (1062 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)\n"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "24a292a0"
+    ],
+    "rc": 2,
+    "log": "check_em_dash.log",
+    "tail": "check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt\n"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 2,
+    "log": "gen_toc.log",
+    "tail": "gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt\n"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 2,
+    "log": "gen_toc-anchors.log",
+    "tail": "gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt\n"
+  }
+]

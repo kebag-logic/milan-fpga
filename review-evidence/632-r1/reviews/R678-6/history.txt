@@ -1,0 +1,146 @@
+cf1ca87529b4c1a9d6ba7acbf691b626e15bae9e State that the count-zero pathTrace publication follows IEEE 802.1AS-2020 and departs from the 2011 edition, open in FPGA-gPTP #87
+24a292a0321df6f3516f25cb6e92e24fb1988e65 Drop the review-round labels from the dynmap campaign's comments
+546412d8628de07f7787b70853abf619b0c16b20 Cite the boot grandmaster and pathTrace rules from IEEE 802.1AS-2011 10.3.12.1.4 and 10.3.10.2.1, the edition Milan v1.2 profiles
+bfa348a668189634bf5eebe909fa8bb80d9b1203 State the per-event late rule in the compliance matrix and the latency taps, the 21 gmstep controls and the current gmstep leg, and the notify case passing at the adopted processor pin
+417ec52864efc09f1e3ecd0f755cb0daa7604426 Cite the gPTP grandmaster-change rule from IEEE 802.1AS-2011, the edition Milan v1.2 profiles
+c2c996faabce038ab23b69343ddef36e3647193a Key the gmstep talker-stop control on the GM A to GM B event and record the boot grandmaster's detector pulse with a control that must fail it
+d835ba12dbd7bdf65c09d5398ac8c6d31ca39725 Document the eleventh resource record, the media phase alignment on dev e5b480a3 under two owner exceptions, with 15 slices left
+17280d2d833601f657fc3430c0363bae280b7197 Re-record route-1x1, ooc-1x1 and ooc-8x8 at the media phase merge under the owner's block-RAM exception and its LUT, FF and slice extension
+5282b8b68983b3b5f7d9be4635c8847dbe6c38a1 State that processor pin 93fb0b2d carries the stored-offset gate, so the SET_STREAM_INFO notify case passes, and give the CRF restart term both lock edges in the test plan
+dc9cda7dfcb4be6e58f11d9c6d1594d81b44c0a6 Merge dev e5b480a3, the fourth pin adoption (#771), into the media phase lane
+e5b480a385841f19420570bbba7c46da101d1303 Merge PR #772: Adopt protocol-processor main 93fb0b2d and FPGA-gPTP main 55680bff (fourth pin adoption, #771)
+d40e2ee8e12d6f701f4bb9607221059d30335b47 Say a refused PDU's other events are presented, outside the supported range too
+1098978f4a931a667e147b68a791520eb141c917 State the adopted AS_PATH count meaning in the parent contracts: count one is {thisClock} before a peer (gPTP #82) and an explicit one-entry PathTrace is count two (gPTP #85) (#771)
+bbdd24d00661007da6ae7c902402bd927e9fe814 Name the eight-identity bound on the appended path on the register map, the pin page and the changelog: at eight or more received entries the first eight are served, count 8, without thisClock (#771)
+b6fc1590ca63bb5f851a17b9bda7d15a9d790c4d Deliver the firmware ACMP walk's SETTLED_RSV_OK registration as acmp_tk_kind_changed, the swap processor #189 models, with its kind and notification controls (#771)
+2700584ee2e77f0b442675f3a4ea15c1e3dcec96 Keep the arrival-placed and untimed-read controls placing what they did, through the late reach's bias
+0ffcd7f0bea3cb08a0f735b03651bffe3a29d90d Name the former offset bindings by behaviour in three test comments
+2362f1db96be140fffa84bb80032fd19cfd27e02 State the per-event late rule and the late reach, retire the render re-base from the time and recovery pages, and correct the queue's figures and campaign counts
+1d61e5c471acdb281754eb307ecef20419b6d96a Grade a map write in a closed epoch on two streams, where the other stream keeps the crossbar live, and plant the ungated commit there
+05e3292981f3c2c03972f59fd0af4629904255ef Grade PDUs stamped behind the latest event on both queue shapes, to the late reach and past it, with the whole-PDU refusal and the short reach planted
+f98d00dddefe6b054909bded0e193a96b98fdeb3 Judge every event of a PDU stamped behind the latest domain event on its own frame, presenting the ones still ahead and refusing only the ones past
+a97aea01449492b1f640924f5a34726f602cabed Document the processor 93fb0b2d and FPGA-gPTP 55680bff re-baseline under the #771 owner exception: findings section, headroom table and the pages that quote the record
+0ad70eab33288e7fd4ef0ecd57cc08b42a438075 Re-record ooc-8x8 at processor 93fb0b2d and FPGA-gPTP 55680bff under the #771 owner exception
+ee5ece607816a1bfc834bd51734b703a8aab8e46 Document AAF offsets stamped as set and the CRF output's alone rounded, GET_STREAM_INFO's split, and the listener's supported range per shape
+76b01906f3fac2ebffa6ca42edbebfa76aa110fd Re-record route-1x1 and ooc-1x1 at processor 93fb0b2d and FPGA-gPTP 55680bff under the #771 owner exception
+d5b516f6ab3738e3ad9901af136385293ccedcef Grade every output's stamp as a domain event's instant plus the offset GET_STREAM_INFO reads, the AAF row as set and the CRF row applied, and the four SET_STREAM_INFO steps on both outputs
+5b502a056a7810aa2d26c57704dd49bf84c6f129 Say the domain's outputs stamp one grid's instants each plus its own offset, the CRF output's alone in whole periods
+950bffecfc60c363eb8372a00efdf455cc44be8d Give the CRF rounder's tied readback row its reason
+ac3bb11a13658b2f96bac721a0616074157ac4c2 Grade every AAF timestamp as its frame instant plus its offset as set and the CRF output's by Equation 14 over the ruled offsets, with the AAF rows rounded and read back rounded planted
+133ef20f76de89d2b96265007ef4b6979847fe09 Stamp each AAF talker's presentation offset as set and read it back so, the Equation 14 rounder serving the CRF output's row alone
+d664cf54fd57ed06e8896e7c5de1e1511c2ded0c Cite the processor's AECP command model by its submodule path on the pin page (#771)
+2389506ac50467987c4714555851de2539a4e8f3 Stamp the base leg's I2S render PDU four media periods past the domain event: the presentation stage refuses mkaaf's fixed timestamp
+8de4b80ba84967e04da38e0eaed68c0b6b5256e0 Record the parent-visible changes of processor 93fb0b2d and FPGA-gPTP 55680bff on the pin page, the register map and the changelog (#771)
+dddff259e2473b14dfbbbabe965a04bf61637b12 Re-record the pin-derived records at processor 93fb0b2d and FPGA-gPTP 55680bff: ROM digests, pin table, boundary and time-sync diagrams, gPTP donor links and the port census
+0e4d10b256efc2b21202aab50880edc033dd5c9a Grade the physical-rate peer loss through this station's grandmaster role and holdover (FPGA-gPTP #84, #771)
+7d9d730c6728b0db6331c2cba591ab4d1f35637e Expect thisClock as grandmaster from reset in the milan_dp gPTP legs (FPGA-gPTP #82, #771)
+d255806ce0b53dda3c83339d752bd2cad53281b1 Expect thisClock at the end of the milan_dp path counts and GET_AS_PATH responses (FPGA-gPTP #85, #771)
+1e305876b09001be80d823c6615dff96abe5fd89 Expect the gPTP shadow's published path to end with thisClock (FPGA-gPTP #85, #771)
+300911eaf02aa421211f4c6047ee01bc3ddeaade Expect G9's started/stopped GET_STREAM_INFO push to both controllers, the requester included (processor #192, #771)
+c6afca8ce777fd9614c26db1bd0b63dd8b772f53 Drive every slot of the processor's per-source TSpec MaxFrameSize port with the wrapper's one value (processor #190, #771)
+2dc612fbd83e616d0bdfbd08547fdcd94ae1ba98 Grade the IEEE 1722.1-2013 48-byte SET_STREAM_INFO body as SUCCESS in the milan_dp #67 rows (processor #176, #771)
+8144d28857e443c0cc3176b8b35095e3b9917a3d Classify the processor's elaboration-guard bench and campaign and its AECP command campaign as test-evidence readers (#771)
+eec12fa62d6cabf477a2978330af688bb477e00f Adopt FPGA-gPTP main 55680bff for issue 771
+8f5e961f7deef77b6ee4b9109f10413f113de81f Adopt protocol-processor main 93fb0b2d for issue 771
+bb9a9200e73e9e7051c8aca5cfccd765186b95c6 Place a PDU of any length: the walk's frame follows each event from F0 instead of a 3-bit event index, and once an event is past the queue the PDU's later events are refused with it
+2d786e8b5a38c332e758bc29bd771800469cfe81 Shrink the presentation stage for the route's LUT bar: the frame by long division of 3d with the remainder rounding, the flush mask in the banks' read reset, the write data steered by the bank bit, one refused counter for RENDER_STAT, frame numbers two bits past the row
+6631b0b2d99160762116b2038173c79e59d151cb Document the listener's presentation at the timestamp: the law, its range, rules and counters, step and hold, what replaces the #386 and #387 recentres, RENDER_STAT's fields, and the suites that grade it
+e6756e6fef23d8427769526af370b82589839da4 Count the settle recentre per switch in milan_dp_mclk, the #386 at-switch recentre it counted being retired
+43f06d178bd868957582f7b52fcb9edc3feb0013 Bind the presentation stage in follow_ring and grade it through the source changes, pull-ins and binds: every event at its nearest frame and no slip after each settle, with the settle recentre on the loopback ring alone
+baa9ea691a735d4a17b1bf0bb6dee7aa5eb1ba11 Census the PHC strobes without the retired media re-base reader and pin the presentation stage's flush to the bind wipe, with the builder's planted defects moved onto both
+1ab53ffc101d9dba7c95df90ef90e229e29fe5e9 Grade the grandmaster change at the presentation stage: the PDUs stamped across the two steps refused and counted, their frames one slip, every other PDU at one offset, and the render controls planting the retired re-base's effect
+504ae8b34bea12c7c8df3769cf6b4f0e635d111a Grade the presentation stage's output at the true clock ratio: every event at its time through an arrival shift, a PHC step, a settime, refused PDUs and both source changes, with RENDER_STAT's new fields and four planted defects
+7d7ffc0964acbd570fa8b3bceb470f6093a2969f Grade the shipping render lane at its pins against every sample's presentation time: the first event, eighteen feed phases, the source changes and the serial-clock hold
+4b2df8eaea240eaea66603d405ee083d47e52594 Name the payload lead in cycles and the header timestamp in ns, gate the depacketizer's payload on its lead count alone, state the queue's step and hold behaviour, and bring its unit and pin harnesses under the idiom ratchets
+25fae69f08debfcef231dd8865344ae8a3cb87c3 Grade the presentation stage byte-exact against a model of the law on two shapes, with eighteen planted defects, and retire the setpoint stage and its suite
+ae26a827b3f90f774e0bd6b67b31f42e32b1c719 Grade two render interfaces a frame apart at their pins with the slot-MSB decoder, against every sample's presentation time, with the dropped constant, the untimed read, the frame off by one and the late and early rules planted
+111538670c60ff0dfd5b3f6c1fdd5fa63d002a92 Present every listener sample at its presentation time: a timestamp-snapped queue per stream in two inferred block-RAM banks, each interface reading the frame its derived out-lead puts at its pins
+3fdaea3d2adee05c41629363bffbf32cff5b0656 Record that SET_STREAM_INFO's push compares with the stored offset once set and with the factory offset in force before, as the processor gate ruled for #632
+32fb8fc26acf7dedc507512d7a455898a26afd84 Record that milan_dp's pool starts no leg after the notify leg while the processor pin's SET_STREAM_INFO gate reads the applied word
+28510858ba8508947d5372a10e9dd4966f7670e1 Run the SET_STREAM_INFO push case on the timed leg alone, the one leg whose output 0 still holds its factory offset when the section starts
+d77a8afdbc960d70d1ceeee9af1163624f102b16 Merge PR #768: Save and restore each Stream Port's audio maps across a power cycle (#637)
+62ee1a8cc1d79f13eacca06c3060c51fb5fb51e9 Write each rounded row's low word and carry as two indexed writes, its reset value from an elaboration table, since Yosys drops an indexed concatenation target and kept no cell of the rounder
+aea19ce734c0d4b25360acee6be638cc93ff7cd8 Record media_phase's default target at 553 s and its thirty-three-mutant campaign at 1,396 s on two jobs
+cf85a578b0310d640ad7590af1324387e2dbf5b6 Document the rounder's readback row without a unit and hold the #632 changelog and render-latency lines to the style limits
+d790dd44298d29bff7630d802c1e8b2cb4867bff Document the offsets' carry past 2^32 and GET_STREAM_INFO's saturated word, the SET echo against the applied readback, the push judged on the value set, and the listener out of this PR (#632)
+45633bd1ce6ef2f4c0e05d7c8a5963a41b3b7580 Drop review labels from the #632 source comments
+fe3ff9999bbcc897a22cd306b213c7581e1091b1 Grade SET_STREAM_INFO's push against the offset as set in four steps on the wire, with the microcode gate's applied-readback compare planted
+f36177f9b850d42069911cd63fd41cf98916c30d Grade every offset row on all 33 bits and every CRF timestamp on 64 at the 2^32 boundary, in reset and at run time, and the detector after a hold onto the fold, each with a planted defect
+81f09d06f8e27dfaed53690f26aafab80a6e131a Carry each rounded offset's bit 32 into the CRF output's 64-bit timestamp, and read a row past 32 bits back through GET_STREAM_INFO as 0xFFFFFFFF
+2ff30f0dc5e89be46f8103272883885e8553f4b8 Record the campaign's 751 s at the head and the route-1x1 headroom the listener decision is measured against
+59740e3c9d0420e2e7fef185978954710448dc4a Merge PR #769: Count a PDU that differs from the current format as UNSUPPORTED_FORMAT and discard it (#765)
+f16432140d9a59cfd46f789247ccab19b0a357d8 Unwrap each phase sample with one compare and one whole period on the reference's side, the same representative the difference form chose, in about half its logic
+44508dd893385d4576ab705c4a93eb2af1b20359 Round every output's offset in one multiplier-free rounder, the CRF output stamping its applied row with its own converter no longer elaborated, and plant its raw row
+814695e3ab00689535c2c327cbcdc415ad2e7aff Name the factory-row loop for its row, so the fold's own default binding stays the one the builder's binding controls plant
+61c2b468e0ba7e0928965cdcc34a4a77815a17b1 Record the media_phase campaign's measured 837 s at four jobs
+dd2563439e5a2b09fb7301a09192477a00fd5969 Document the tracking fold, the every-sample settle, the snapshot hold, offsets in whole periods, the blend's I2S close and the listener decision with its measured cost, and record media_phase's fresh timing (#632, #764)
+133d1a1e03cda3a78535372d2ed0b93c8108e9c8 Convert the offset rows round and round with one divider and no per-row copy, name the rounder's ports for their unit, and hold the new harnesses to the C++ rules
+07c7eeaf48563c674c0b7222c550e668c3cec886 Grade the in-tree I2S and TDM8 blend at both interfaces' pins through the capture crossbar's frame bank, with the old closing pair and the late I2S pop planted
+07f774252802b81e81aa0ad7ee8036b4ae9daf01 Close the I2S blend's frame on its I2S pair, the last of the frame to arrive, back-dated by the I2S front end's latency, and present each I2S pair on its own strobe instead of the next
+4ff3642e8fe9a0bd48d28374350390cde553bc32 Re-measure the dynmap campaign table at the dev merge, the leg's 686 checks (#637)
+920e7e93b7d761600d83630c0f81c852b08de116 Grade the detector's fold boundary, settled flag, range guard and snapshot holds alone, engagements at the fold and a local PHC step in the loop, and four AAF offsets against the CRF timing points, with a planted defect for each
+1c58fd9d62ac103c0e4be7492a761227474b137a Apply every stream output's presentation offset in whole media clock periods by the CRF transmitter's Equation 14 rule, and read the applied rows back through GET_STREAM_INFO
+b23e9e31ebb623ee83ae23beb7ed024954dc7b06 Aggregate the phase circularly against a tracking reference, settle only with every sample of four full windows in band, and drop a correction whose hold lands on its own snapshot edge
+87a2b77d1ed49f634c616f2d27b6aa9b9f5d786d Say the flat instrument accepts a channel count whose low eight bits are nonzero, name the AAF campaign's probed counts, and regenerate its record (#765)
+d26fca65af68acae060480353200519c919ab55d Merge dev 78ca9bdf into 637-map-records, [762-DP] and [MAPREC] both on the dynmap leg (#637)
+d4a27e6334118c9eef1023aa27e9fd2b7de9f076 Rewrap the [27] case comment in the flat avtp_rxmon harness (#765)
+11119970cf2ad60e0f51a25c1ca79c557a05399d Say the flat instrument keeps the family compare on purpose while the device listener rejects another channel count, and regenerate the AAF campaign record (#765)
+059ecec1eccbb761f4c9bae35675ec9f2caca526 State the lockstep reference's current-format compare, channel count included, in its own comment (#765)
+1e914414557874648ac5041aff88b96908e0e053 Record the measured map campaign, 63 of 63 planted controls caught from one clean-clone run (#637)
+600565b434f09ee581508d5a5f3a02a3594afd55 Grade PP_STAT blank on a lone map record failing each validated-record term, with a control per term (#637)
+dc7dd727afe936f7aeb238f41a88e3338f7fe499 State that the map restore adds no cause of its own, the binding walk's cause kept (#637)
+f1fda3f1f87c64801e436e129326b5bd5952bf20 Wait out the CRF talker's slower cadence in the nxn legs: with no audio frame running it stamps every 96th media tick, 200,000 clocks at 100 MHz
+33a460dba511a12c9c95cc9418970de4daaf9e26 Size the #726 TX wrap run in TDM frames: the CRF talker now stamps every 96th domain event, and the counters fixture clocks the TDM bus with axis_clk
+e85df0917effb5cd6b88557a50d5d9e6588ac590 Give the uncentred-fold mutant the one phase bit its range needs, so it plants a fold into [0, Ps) rather than one that wraps back to the centred reading
+75db4b57cff47bb614d14dead084649a4c2aa2a3 Feed the [762-DP] case STREAM_INPUT 0's current format, as the other milan_dp cases are since the channel count is compared (#765)
+7f84892a4389c824927093188884cd95847e77d8 Merge dev 78ca9bdf (PR #767 merged, with PR #766), keeping #762's stopped-input rules and its [762-DP] case beside the #765 current-format compare
+78ca9bdf104819265588726bce4322696c38b8c2 Merge PR #767: Media clock restart on the CRF's return; STREAM_INTERRUPTED counts a silence (#761, #762)
+a6ae20f9124ad58cb7492b8c7364da68bd19031b Document the phase window's sample cap and its burst case (#632)
+e887d937f69a3b22afc546ea0f78acb1de9c8b72 Cap the phase window at the nominal count plus 1/32 so a talker sending faster than it declares cannot wrap the window phase, and grade the cap with a burst case
+5537cc41d38a7f96c4b0fa19c255c7cf3616acf9 Document the per-sample fold, the window sum and the hold conditions with their let-go mutants (#632)
+6f4a2b468a64817776186e8701914422d61aef73 Fold each phase sample to its own nearest period, take the window phase as its sum over the nominal PDU count on the low 32 bits of each instant, and grade the phase term's let-go at every hold
+974f17df2fd5cf2220c4d7b7bafe1df22bc7852d Follow the domain event's renamed PHC port in the phase campaign's back-dating anchor
+f49851da3f92c6c12f07623fd486689fbce2409e Regenerate the module matrix and the CDC census for the domain event and the retired CRF divider crossing, and record the media_phase budget
+0ee46622cefe60d1d36fda949ebbb7bc1a87f2d9 Name the new event ports by their unit, split the phase harness's multi-declarators, and register the media_phase budget and mutation reader with the test-evidence gate
+e96f392848efa3f50bca550e0cd48f76aab5c623 Document the phase contract per source, the domain event and per-interface constants, the listener decision and the -0.46 Ps accounting (#632, #764)
+9ca025c9d7f17c37eb67bed470e1c996d3697ef0 Carry each frame's instant through the capture crossbar, count the marker latency to the frame's closing pair, re-fold the phase on a PHC slew, and grade three interfaces at their pins
+dac4ce37d3a04cee3ccf221340189f3d8ef45b97 Grade the shipping talker's timestamps against its TDM pins in the coherence datapath leg
+5081c7b21a6f70185130a5e0c05ee1e0942c7a74 Grade the phase loop at the silicon window and two interfaces at their pins, with a planted defect per loop term
+b7d3ad20d5232ecd72bf04e57bacde0c5d869056 Stamp the CRF output and the AAF talkers from the clock domain's media event, back-dated by each interface's derived latency
+cd39fea074c5672e1dea4534f93350d882cd18aa Phase the media servo to the followed CRF stream: an exact fold, a type-2 term under a slew limit, and an integrator that carries its odd errors
+8000520cc12ec5d107a2a67f8ba3d6134b87d2b5 State the firmware boundary's 165 pin controls, the two map legs' build and run targets among them (#637)
+f3fef856dbf7f8e559fa9066f6fc9af1ea091c9d Describe the [762-DP] tail of the shipping AX 1x1 TDM8 dynmap leg in the milan_dp README (#762)
+16358b62734706dd7adf8bb07e72c7f973f36abd Grade a stopped AAF input's gap and silence by count on the shipping AX 1x1 TDM8 dynmap leg, logging its elaborated parameters (#762)
+4605409b1f4f7388c6050af902d3af8b8c9c0e8c Point the #765 format-check references at their lines after the merge, and name the [FMT] case rather than its old place in the crf_rx run
+d30a208d44d5868cc356e6a8b7abc89b062ca9bd Describe the [762-DP] datapath grade of the stopped_i wiring in the milan_dp README (#762)
+336a6f6aa635c149166f58dba16d640e7466973e Grade a stopped AAF input's gap and silence by count through the datapath's stopped_i wiring (#762)
+cb65d9d7d7b1a4adc2f12f8e41d8c4e3af1622e5 Name the sequence gap beside the silence in the two stopped_i port comments (#762)
+2f33a9ce31d2a799b7448854359a4ec4a0609221 Merge PR #767's round-2b head eef90b42, keeping #762's stopped-input rules beside the #765 current-format compare
+af5eefc6cd5bd44066eb00fdba71aaf0b0fe1c69 State the measured healthy map-restore hold, 598 to 672 clocks (#637)
+556959bd419dcf3ff9a7688611feb028c2807ac3 Record the measured map campaign, 60 of 60 planted controls caught, and the legal-maximum case (#637)
+1ff152ee008b3668e95504562b3f6cf3b3073de6 Name the checks that catch the multi-port record-id controls (#637)
+887b6bf2d0874af3682a6b8de9176f174a95ec21 Grade the map record's layout and id in both directions and a legal-maximum record (#637)
+a48c6a16d799bd13d05e7d8159857bb73c175334 Amend D3 to the one-pass map transaction and document PP_STAT's composed verdicts and the multi-port legs (#637)
+0227104733f0fef6804fcb15e10db21f265794c2 Run the two multi-port map legs last among the ordinary milan_dp legs (#637)
+df284d1d9cb7667252aa237d9d7578c6653c2631 Restore the channel maps in three stages across ports, compose PP_STAT with the map restore, and grade every restore arm (#637)
+8a7e6bebfaba7bb170e91359d531338aa60ce324 Merge commit 'e26f1816' into 637-map-records
+eef90b4238b6c19b679b44adc6f09362809be153 Count no STREAM_INTERRUPTED for a sequence gap on a stopped input, in both engines (#762)
+cc71db3a557bb6160c81e69a52fd3ceed6622dc5 Feed each milan_dp Stream Input PDUs in its current format, now that the channel count is compared (#765)
+63a187e1579474bca562d85304b9a91466877c33 Name the parent map writer among PP_NVM_STAT[4]'s operations (#637)
+cf5c0c23769427a818028142f8f527e05be3209b Let pp_shadow's P2 grade the map restore's blank reads ending before the idle device face (#637)
+2cd2750d0a07b8516328de7c0b57773ed0000f45 Grade each #762 boundary trial in its own function, inside the C++ length rule
+492207f71eafcbafd25ba8d2b1f361b8a9dbf9c3 Count a silence once its watchdog expires, whatever Unbind follows, and never on a stopped input (#762)
+ba9ac06a156e9ba21f11a399cd0b3cabcd76512d Derive the over-shard receipt control from the mclk driver's real case count
+91aaa6bd478c4f44a5fea9b0432bbbec2bc05f27 Record the current-format compare of #765 in FR-STR-03, the compliance matrix and the test index
+31903ec1fa410ea024f0c9a58584501ddd0d5e2f Count a PDU whose channel count or subtype differs from the Stream Input's current format as UNSUPPORTED_FORMAT and discard it (#765)
+edbd11a0e96ef8eac3f80020b894a0fed9b66ca8 Record the measured dynmap campaign: 37 of 37 planted controls caught (#637)
+79f8aa890e602c172ceffd5b1e9d821594586cf6 Ask the held SET_STREAM_FORMAT's judge while the input port still holds its reset set (#637)
+e3105d213ccc6fc35b5b22fa0dd8014a85ad6c98 Plant the map restore's two deadline arms and follow the reworked seams in the dynmap campaign (#637)
+90b1536653d4c9db6fd8624dfe3ff3bb818aba3f Cut the map writer's area: millisecond deadlines, one crc step, owner bits that can differ, the clip as the REMOVE source, and grade the aggregate bound (#637)
+4cf7f4b95c7e7dc14503d5c7bcae816a6274ace6 State the map writer's share of the pending composition and of PP_STAT[11] (#637)
+5537211f5b06a1af1e6350b42ce4676e11810ebc Grade the map restore's holds, the taint, the shared device face, DR2b and a late memory answer in the [MAPREC] leg (#637)
+bdff750c915d6e5761472e2db75733f3e23e17f5 Record the parent's channel-map writer and restore in the saved-state pages, the references and the harness READMEs (#637)
+bbc6690b8aa60b5f911ec0ecc5ab081828b652cb Hold the parent map writer's layout literal to the donor's (check 15) and plant the #637 controls in the dynmap campaign
+6ab044412ae7cd3e9c192fd55c7e46546809002c Write and restore the channel-map records 0x60/0x70 in the parent, with a planted power-cycle leg (#637)
+4191b0987d1313abc86c747ad6a9c3c0963f17da Count a silence that unlocks a bound Stream Input as STREAM_INTERRUPTED, never an unbind (#762)
+f443ed9befd924015ceda9eff226e99a213ab99d Request a media clock restart on the selected CRF's return as on its loss (#761)

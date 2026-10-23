@@ -1,0 +1,11 @@
+R678-6 direct standards inspection; paraphrases only.
+PDF identities: standard-identities.json. Licensed texts remain in scratch.
+IEEE 802.1AS-2011 10.3.10.2.1 d), PDF page 96: a qualified Announce carrying a path trace TLV updates pathTrace on a SlavePort by copying pathSequence and appending thisClock. No no-TLV assignment exists in this function.
+IEEE 802.1AS-2011 10.3.12.1.1, PDF page 99: initialization sets pathTrace to thisClock alone. This establishes an initial value, not a general no-TLV reset action. Later no-TLV Announce reception leaves the existing path unchanged.
+IEEE 802.1AS-2011 10.3.12.1.4 i), including Cor1-2013: own-GM selection sets the singleton path. Cor1 does not add a no-TLV receive reset. Cor2 changes Figure 11-8, not these clauses.
+IEEE 802.1AS-2020 10.3.11.2.1 d), PDF page 116: no path trace TLV makes per-port receivedPathTrace empty.
+IEEE 802.1AS-2020 10.3.13.2.4 f) 5), PDF page 121: selected slave port receivedPathTrace is copied to instance pathTrace; thisClock is appended only if that copied array is nonempty. Together these clauses justify count-zero publication.
+Milan v1.2 4.2.6 and normative references: the product profile selects IEEE 802.1AS-2011, Cor1-2013 and Cor2-2015. The 2020 behavior is therefore an explicit departure in this case.
+REGISTER_MAP.md:1475-1479 states both 2020 operations and the 2011 difference, with edition labels. The 10.3.12.1.1 citation supplies initialization context; it is not itself a no-TLV procedure.
+The PR body open question and known limitation agree. FPGA-gPTP #87 is open and has no owner decision comment. Its existence is not evidence that the engine has been changed.
+The paragraph names FPGA-gPTP #87 but contains no clickable URL: navigation residue R678-6-R1.

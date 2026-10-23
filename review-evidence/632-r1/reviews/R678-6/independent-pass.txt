@@ -1,0 +1,44 @@
+[R678] POSITIVE - exact head cf1ca87529b4c1a9d6ba7acbf691b626e15bae9e
+
+Independent delta assessment written before consulting prior reviewer reports.
+All five lenses applied to the one-commit delta from
+24a292a0321df6f3516f25cb6e92e24fb1988e65. Prior-finding reconciliation
+and final receipt packaging follow this independent assessment.
+
+The tree is e4d84bf05d153298aeec0b15dc887aa16efef744.
+Only docs/reference/REGISTER_MAP.md changes. All other blob IDs, modes,
+and gitlinks match round 5. Raw checkout and index verification passed for
+1,441 parent blobs and the four required submodules.
+
+The 2011 and 2020 texts support the corrected paragraph. In 2011,
+10.3.10.2.1 d) updates pathTrace when a TLV is present on the slave
+port; it specifies no no-TLV replacement. 10.3.12.1.1 supplies the
+initial singleton. In 2020, 10.3.11.2.1 d) clears receivedPathTrace,
+and 10.3.13.2.4 f) 5) propagates that empty array without appending
+thisClock. Milan v1.2 4.2.6 selects 2011 with its corrigenda.
+The paragraph and PR body now explicitly acknowledge the departure.
+FPGA-gPTP #87 remains an open engine-owner decision.
+
+R678-6-R1, RESIDUE, Docs: docs/reference/REGISTER_MAP.md:1480 names
+FPGA-gPTP #87 in plain text, rather than linking it. Replace
+`in FPGA-gPTP #87.` with
+`in [FPGA-gPTP #87](https://github.com/Mister-M-alt/FPGA-gPTP/issues/87).`
+This is navigation-only residue; it changes no conformance statement.
+
+| Lens | CLEAN/UNCLEAN | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | REQUIREMENTS.md:114; REGISTER_MAP.md:1470-1480; both IEEE editions' cited clauses; Milan v1.2 4.2.6; PR body; FPGA-gPTP #87 | R678-6 delta, R678-5 unchanged scope | cf1ca87529b4c1a9d6ba7acbf691b626e15bae9e |
+| RTL | CLEAN | delta.patch; checkout-initial.json; gptp-processor/hdl/top/KL_gptp_engine.sv:721,981; unchanged parent and submodule trees | R678-6 carry-forward verification, R678-5 | cf1ca87529b4c1a9d6ba7acbf691b626e15bae9e |
+| Robustness | CLEAN | REGISTER_MAP.md:1470-1491; engine empty/nonempty/eight-entry branch; unchanged tests and RTL | R678-6 carry-forward verification, R678-5 | cf1ca87529b4c1a9d6ba7acbf691b626e15bae9e |
+| Tests | CLEAN | receipt-verification.json; 18 public receipts; local-doc-gates.json; docs-check.log; complete delta | R678-6 delta, R678-5 unchanged executable coverage | cf1ca87529b4c1a9d6ba7acbf691b626e15bae9e |
+| Docs | CLEAN | REGISTER_MAP.md:1470-1480; PR open question; manager fix note; FPGA-gPTP #87 | R678-6 | cf1ca87529b4c1a9d6ba7acbf691b626e15bae9e |
+
+The evidence commit is unsigned according to the public commit API;
+manifest blob identity and 18 selected receipt SHA-256 values verified.
+No cryptographic signature verification is claimed.
+Three local Markdown gates initially refused due to missing renderer
+dependencies; published manager receipts record their success.
+No source bank or hardware execution was performed. Candidate validation,
+hosted/act acceptance, bench proof and containment remain manager duties.
+
+R678-6 FINISHED

@@ -1,0 +1,62 @@
+[
+  {
+    "command": [
+      "python",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "log": "docs_check.final.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "log": "check_doc_style.final.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/check_gptp_docs.py"
+    ],
+    "rc": 0,
+    "log": "check_gptp_docs.final.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "log": "check_doc_paths.final.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "24a292a0"
+    ],
+    "rc": 0,
+    "log": "check_em_dash.final.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "log": "gen_toc.final.log"
+  },
+  {
+    "command": [
+      "python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "log": "gen_toc-anchors.final.log"
+  }
+]

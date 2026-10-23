@@ -1,0 +1,7 @@
+rc=0 scripts/check_doc_style.py
+rc=0 scripts/check_gptp_docs.py
+rc=0 scripts/docs_check.py
+rc=0 scripts/check_em_dash.py --base 24a292a0
+rc=0 scripts/check_doc_paths.py
+rc=0 scripts/gen_toc.py --verify-anchors
+rc=0 scripts/gen_toc.py --check
