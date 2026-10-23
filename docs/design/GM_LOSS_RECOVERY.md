@@ -318,7 +318,7 @@ Legacy writes remain acknowledged and ineffective.
 | `gptp_shadow` | Atomic state and immediate discontinuity |
 | `clkvalid` | Holdover, steps, and option-off values |
 | `milan_dp` | Public CSR and protocol consumers |
-| `milan_dp_gm_steps`, the `milan_dp` gmstep leg | One 1.5 s grandmaster step under CRF selection: `tu`, the render queue (the PDUs stamped across the steps refused and counted, their frames one counted slip, every other PDU at one offset, no flush), stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep, 20 in `gmstep-mutants` |
+| `milan_dp_gm_steps`, the `milan_dp` gmstep leg | One 1.5 s grandmaster step under CRF selection: `tu`, the render queue (the PDUs stamped across the steps refused and counted, their frames one counted slip, every other PDU at one offset, no flush), stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep; `gmstep-mutants` runs 21 controls plus two clean legs, 23 checks |
 | `crf_rx` talker_step | Connected receiver and servo: +/-150 us talker-only steps and steps at both ends. The 600 ms listener lag and talker-only cases require a boundary inside crossing history; the 100 ms lag checks guard interaction. Sampled validity, continuous LOCKED state, held integrator and fresh rate recovery; quiet traffic cannot satisfy withholding |
 | `crf_rx` discontinuity | Both tu edges, unmarked steps, refill boundaries and isolated detector mutants |
 | `tkdiag` | A restart request on a pending one merges: one toggle, never a cancellation (T17). Pending ends at the first PDU at the adopted level (T18) |

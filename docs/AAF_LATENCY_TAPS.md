@@ -102,8 +102,11 @@ flowchart LR
   timestamps sit on the domain's frame grid and at the nearest frame
   otherwise. The stage places each event in the row of the frame its
   timestamp names and each interface reads the frame its derived out-lead
-  puts at its pins on time; late, too-early and untimed PDUs are dropped and
-  counted. The law, its supported range and rules are stated in
+  puts at its pins on time. Each event is judged on its own frame: a late or
+  too-early event is refused and the PDU's other eligible events are
+  presented, and a PDU with such an event is counted once. An untimed PDU is
+  not presented and is counted once. The law, its supported range and rules
+  are stated in
   [Listener render latency](design/TIME_SYNC.md#listener-render-latency).
   Until #632, `KL_render_setpoint` (#386) held a constant 8 media ticks
   after `ACCEPT` instead. The Arty shapes' I2S DAC keeps its own fill law
