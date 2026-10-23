@@ -35,9 +35,69 @@
                           loop quantity is the differential rate.
 
                   PI      u <- clamp(integ + e>>KP_SHIFT_P), with
-                          integ <- integ + e>>KI_SHIFT_P, per window;
-                          bounded step (|du| <= SLEW_MAX_P per window)
-                          and bounded authority (|u| <= U_MAX_P).
+                          integ <- integ + e/2^KI_SHIFT_P + phase term,
+                          per window; bounded step (|du| <= SLEW_MAX_P per
+                          window) and bounded authority (|u| <= U_MAX_P).
+                          The integrator keeps IF_C fractional bits, so an
+                          odd error is carried, not floored (#764: the
+                          floor held mean(e) at P(e odd), a steady drift of
+                          up to one unit, 1.95 ns/s, that no term saw).
+
+                  PHASE (#632, #764; Milan v1.2 7.6.1 "frequency and
+                          phase"; IEEE 1722-2016 10.8 Eq. 15 and 4.3.5).
+                          The rate loop alone leaves each engagement at
+                          whatever phase its pull-in ended on. The phase
+                          detector compares the followed stream's CRF
+                          timing points with the domain's own media event
+                          (dom_ev_p_i/dom_ns_i: the instant a frame of the
+                          domain's grid starts at the media interface, one
+                          per clock domain, docs/design/MEDIA_CLOCK_FOLLOWING
+                          .md Phase alignment). Per accepted PDU it takes
+                          d = dom_ns - crf_ts and folds it EXACTLY into
+                          [-Ps/2, Ps/2): Ps = 62500/3 ns is not a whole
+                          number of ns, so the fold works in 1/3 ns units
+                          (3d mod 62500, a restoring divider), the CRF
+                          timestamps lying on whole periods by Eq. 14.
+                          The phase is circular, so each folded sample is
+                          then unwrapped against a tracking reference (the
+                          last counted window's phase, or the era's first
+                          sample until one counts) before it is summed:
+                          samples either side of +/-Ps/2 add as the one
+                          phase they are and never cancel. The window
+                          phase Theta, the sum over the window's nominal
+                          256 PDUs (a shift: a short window only pulls
+                          less, and never counts towards settled; a window
+                          keeps at most 264 samples, so a talker sending
+                          faster than it declares cannot overflow it),
+                          re-folded once into [-Ps/2, Ps/2) so every pull
+                          is the short way, enters the integrator, clamped,
+                          one window late:
+                            integ += (3 * 2^PH_GAIN_LSH_P / 128) / 2 * Theta
+                          which makes the loop type 2 against phase with
+                          the rate error as its damping. At the default the
+                          phase pole is 0.944 per window (tau 17 windows,
+                          8.9 s) and the rate pole 0.70 (tau 2.8 windows,
+                          1.4 s): the phase loop is six times slower than
+                          the rate loop it rides on. The clamp bounds the
+                          phase-driven pull to PH_SLEW_NS_P per window
+                          (0.5 ppm): the integrator settles at e = -pull,
+                          so the phase moves at most that fast, glitch-free
+                          through the fine phase shift below.
+                          The phase term runs only in LOCKED, with the
+                          domain event live, a valid reference history and
+                          ph_en_i. Every other state, an mr toggle of the
+                          followed stream (ref_restart_p_i), a broken
+                          reference history, and a local PHC step (#539)
+                          or policy slew (#545), which move the timescale
+                          the domain event is stamped in, HOLD it: the
+                          term lets go, a correction not yet started is
+                          dropped (a hold on the window's own closing edge
+                          included), the open window is spoiled and the
+                          tracking reference restarts, so only a clean
+                          window re-engages it. A re-acquisition pulls at
+                          most Ps/2, at the bounded slew; a phase at
+                          +/-Ps/2 reads as itself and pulls at that slew,
+                          so it is left within a window or two.
 
                   step guard (2026-07-23 silicon): a local ptp_now
                           step/slew (GM reboot -> the active gPTP plane adjusting the
@@ -168,6 +228,15 @@
                 for what DRP is actually for (divider reprogramming,
                 verified/sequenced), fully implemented and TB-proven.
 
+                phase_o: [19:0] the last window's signed phase in 1/3 ns
+                (Ps = 62500), [20] engaged (the term will act on it), [21]
+                settled (the window phase and every sample of the window
+                inside +/-5 % of Ps, the 10.8 bound, for PH_SETTLE_WIN_P
+                full windows running), [22] that window was
+                valid, [31:23] its samples (at most 264). The settled flag
+                is also status_o[9] (A_MCSRV_STAT); the word itself reaches
+                no CSR.
+
                 States (status_o[2:0]): IDLE (no stream source followed:
                 no DRP access, no PS steps, u = 0), VERIFY, REPAIR,
                 ACQUIRE, LOCKED (|e| < LOCK_THR_P for LOCK_WIN_P windows),
@@ -208,7 +277,8 @@
                 (10.6 + 100) ppm with >2x margin). Batches cross
                 clk_i -> ps_clk_i through the library cdc_handshake.
 
-  Spec refs   : Milan v1.2 7.3.2-7.3.4; IEEE 1722-2016 Clause 10;
+  Spec refs   : Milan v1.2 7.3.2-7.3.4, 7.6.1; IEEE 1722-2016 Clause 10
+                (10.7 Eq. 14, 10.8 Eq. 15), 4.3.5;
                 Xilinx UG472 (v1.13) ch.3 "Interpolated Fine Phase Shift
                 / Dynamic Phase Shift Interface in the MMCM",
                 "Frequency Synthesis Using Fractional Divide";
@@ -256,7 +326,20 @@ module KL_mmcm_drp_servo #(
   parameter logic [15:0] CFG_C0R1_P       = 16'h0595,
   parameter logic [15:0] CFG_C0R1_MASK_P  = 16'hEFFF,
   parameter logic [15:0] CFG_C0R2_P       = 16'h0080,
-  parameter logic [15:0] CFG_C0R2_MASK_P  = 16'h7FFF
+  parameter logic [15:0] CFG_C0R2_MASK_P  = 16'h7FFF,
+  //! the followed CRF stream's base frequency (KL_crf_rx accepts 48 kHz only):
+  //! the sample period Ps the phase is folded into
+  parameter int unsigned FS_HZ_P          = 48_000,
+  //! phase integral gain: integ += (3 * 2^PH_GAIN_LSH_P / 128) / 2 * Theta_ns
+  //! per window (1 = phase pole 0.944 per window, six times slower than the
+  //! rate loop)
+  parameter int unsigned PH_GAIN_LSH_P    = 1,
+  //! slew limit: the largest phase-driven pull, ns per window (256 = 0.5 ppm)
+  parameter int unsigned PH_SLEW_NS_P     = 256,
+  //! fewest followed PDUs in a window for its phase to count (256 nominal)
+  parameter int unsigned PH_MIN_PDU_P     = 64,
+  //! windows inside +/-5 % of Ps (IEEE 1722-2016 10.8) that read settled
+  parameter int unsigned PH_SETTLE_WIN_P  = 4
 ) (
   input  wire         clk_i,          //! datapath clock (= MMCM DCLK domain)
   input  wire         rst_n,          //! active-low reset (clk_i)
@@ -278,6 +361,24 @@ module KL_mmcm_drp_servo #(
   input  wire         ref_locked_i,
   input  wire         ref_rate_valid_i, //! reference history spans one era
   input  wire signed [31:0] ref_rate_ns_i, //! reference rate (ns / 512 ms)
+
+  //! ---- phase (#632, #764) ---------------------------------------------
+  //! 1 = the followed reference carries timing points this loop may phase
+  //! to (a followed CRF stream; AAF following is the follow-on). 0 holds the
+  //! phase term off, leaving the rate loop exactly as before.
+  input  wire         ph_en_i,
+  //! the domain's media event: one strobe per sample period, with the
+  //! instant that frame of the domain's grid starts at the media
+  //! interface. Every interface of the clock domain frames on that grid.
+  //! The low 32 bits of each instant suffice: the detector needs only its
+  //! difference from a CRF timestamp, which lies within 2^PH_DLIM_LOG2_C ns.
+  input  wire         dom_ev_p_i,
+  input  wire [31:0]  dom_ns_i,           //! gPTP ns, low 32 bits
+  //! an accepted, consumed PDU of the followed CRF stream and its timestamp
+  input  wire         ref_ts_p_i,
+  input  wire [31:0]  ref_ts_ns_i,        //! gPTP ns, low 32 bits
+  //! the followed stream restarted its media clock (an mr toggle): hold
+  input  wire         ref_restart_p_i,
 
   input  wire         auto_repair_i,  //! 1 = DRP REPAIR allowed on mismatch
   input  wire         ps_invert_i,    //! flip the PS direction mapping (bench
@@ -304,9 +405,14 @@ module KL_mmcm_drp_servo #(
   input  wire         ps_done_i,      //! PSDONE (12 PSCLK cycles after PSEN)
 
   output logic [31:0] status_o,       //! A_MCSRV_STAT (0x8F8) readback
+  output logic [31:0] phase_o,        //! the phase word (see the banner)
   //! the servo is in LOCKED (the CLOCK_DOMAIN LOCKED/UNLOCKED level's
   //! following half, #629 decision D5 = C1)
-  output wire         locked_o
+  output wire         locked_o,
+  //! the phase term is engaged, and the window phase and every sample of
+  //! the window sit inside +/-5 % of Ps (IEEE 1722-2016 10.8) for
+  //! PH_SETTLE_WIN_P full windows running
+  output wire         ph_settled_o
 );
 
   // ------------------------------------------------------------------ //
@@ -336,6 +442,90 @@ module KL_mmcm_drp_servo #(
   //! (#387 owner step policy). 4096 ns sits 10.7x above the one and 4.9x
   //! below the other.
   localparam logic [31:0] STEP_DET_NS_C = 32'd4096;
+
+  //! integrator fractional bits: e / 2^KI_SHIFT_P and the phase term are
+  //! carried below the integer trim instead of floored (#764)
+  localparam int unsigned IF_C = 8;
+  if (KI_SHIFT_P > IF_C) begin : g_ki_guard
+    $error("KL_mmcm_drp_servo: KI_SHIFT_P=%0d exceeds the integrator's %0d fractional bits, so e / 2^KI_SHIFT_P would be floored again (#764).",
+           KI_SHIFT_P, IF_C);
+  end : g_ki_guard
+
+  //! Ps as the exact rational PS_U_C / PH_DEN_C ns (62500 / 3 at 48 kHz),
+  //! reduced by the KL_crf_tx factor, checked rather than trusted. The phase
+  //! works in 1/PH_DEN_C ns, where Ps is the whole number PS_U_C.
+  localparam int unsigned PH_RED_C  = 16_000;
+  localparam int unsigned PS_U_C    = 1_000_000_000 / PH_RED_C;
+  localparam int unsigned PH_DEN_C  = FS_HZ_P / PH_RED_C;
+  if ((1_000_000_000 % PH_RED_C) != 0 || (FS_HZ_P % PH_RED_C) != 0 ||
+      PH_DEN_C == 0) begin : g_ps_guard
+    $error("KL_mmcm_drp_servo: PH_RED_C=%0d does not divide both 1e9 and FS_HZ_P=%0d, so PS_U_C/PH_DEN_C is not the sample period.",
+           PH_RED_C, FS_HZ_P);
+  end : g_ps_guard
+  //! a CRF timestamp more than 2^PH_DLIM_LOG2_C ns (33.5 ms) from the domain
+  //! event is not folded (a Max Transit Time is 2 ms by default, and
+  //! KL_crf_rx already calls 12 ms ahead EARLY); the fold numerator
+  //! PH_DEN_C * d + PS_U_C * 2^PH_OFS_LOG2_C is then positive and congruent
+  //! to PH_DEN_C * d mod PS_U_C
+  localparam int unsigned PH_DLIM_LOG2_C = 25;
+  localparam int unsigned PH_OFS_LOG2_C  = 11;
+  localparam longint unsigned PH_OFS_C   = longint'(PS_U_C) << PH_OFS_LOG2_C;
+  if (PH_OFS_C <= (longint'(PH_DEN_C) << PH_DLIM_LOG2_C)) begin : g_ofs_guard
+    $error("KL_mmcm_drp_servo: the fold offset %0d does not cover PH_DEN_C * 2^%0d.",
+           PH_OFS_C, PH_DLIM_LOG2_C);
+  end : g_ofs_guard
+  localparam int unsigned PH_NW_C = $clog2(PH_OFS_C + (longint'(PH_DEN_C) << PH_DLIM_LOG2_C));
+  localparam int unsigned PH_RW_C = $clog2(PS_U_C) + 2;   //! partial remainder
+  localparam int unsigned PH_TW_C = 16;                    //! phase, signed: +/-Ps/2
+  //! a sample unwrapped against the tracking reference lies within Ps/2 of
+  //! it, so inside +/-Ps: two bits more than a folded phase
+  localparam int unsigned PH_UW_C = PH_TW_C + 2;
+  localparam int unsigned PH_CW_C = 10;                    //! window count
+  localparam int unsigned PH_SW_C = PH_TW_C + PH_CW_C;     //! window sum
+  localparam int signed   PH_HALF_C  = PS_U_C / 2;
+  //! IEEE 1722-2016 10.8 Eq. 15: +/-5 % of Ps
+  localparam int signed   PH_BAND_C  = PS_U_C / 20;
+  //! the slew limit as a phase clamp: a clamped Theta pulls PH_SLEW_NS_P per
+  //! window (Theta * 2^PH_GAIN_LSH_P / 128 ns; the integrator settles at e =
+  //! -pull, see the PHASE banner)
+  localparam int signed   PH_CLAMP_C = (PH_SLEW_NS_P * 128) >> PH_GAIN_LSH_P;
+  //! the window's nominal PDU count: one CRF timestamp per PDU every
+  //! timestamp_interval samples (Milan v1.2 7.3.2: 96, 2 ms at 48 kHz), 256
+  //! in the 512 ms window. The window phase is its sum over this count, a
+  //! shift: a window short of PDUs reads proportionally smaller, which only
+  //! lowers that window's pull, and it never counts towards settled.
+  localparam int unsigned  PH_CRF_IVAL_C = 96;
+  localparam longint unsigned PH_PDU_NS_C = (longint'(PH_CRF_IVAL_C) * 64'd1_000_000_000) / longint'(FS_HZ_P);
+  localparam int unsigned  PH_NOM_PDU_C  = int'(NOM_WIN_NS_P / PH_PDU_NS_C);
+  localparam int unsigned  PH_NOM_LOG2_C = $clog2(PH_NOM_PDU_C);
+  if ((NOM_WIN_NS_P % PH_PDU_NS_C) != 0 || (1 << PH_NOM_LOG2_C) != PH_NOM_PDU_C ||
+      PH_NOM_PDU_C >= (1 << PH_CW_C) || PH_NOM_LOG2_C == 0) begin : g_nom_guard
+    $error("KL_mmcm_drp_servo: a %0d ns window holds %0d ns CRF PDUs, not a power of two under 2^%0d, so its phase is no shift of its sum.",
+           NOM_WIN_NS_P, PH_PDU_NS_C, PH_CW_C);
+  end : g_nom_guard
+  //! the window keeps at most PH_CAP_C samples, the nominal count plus 1/32,
+  //! which a window at any rate inside the authority never reaches. A talker
+  //! sending faster than its declared interval then cannot carry the window
+  //! sum past PH_CAP_C unwrapped samples of up to Ps each, nor its sum over the
+  //! nominal count past 33/32 of Ps: inside the sum and the PH_UW_C-bit
+  //! unwrapped phase whatever it sends
+  localparam int unsigned  PH_CAP_C = PH_NOM_PDU_C + PH_NOM_PDU_C / 32;
+  if ((longint'(PH_CAP_C) * PS_U_C) >= (longint'(1) << (PH_SW_C - 1)) ||
+      ((longint'(PH_CAP_C) * PS_U_C) >> PH_NOM_LOG2_C) >= (longint'(1) << (PH_UW_C - 1)) ||
+      PH_CAP_C >= (1 << PH_CW_C)) begin : g_cap_guard
+    $error("KL_mmcm_drp_servo: %0d samples of up to Ps = %0d over %0d leave the %0d-bit window sum or the %0d-bit unwrapped phase.",
+           PH_CAP_C, PS_U_C, PH_NOM_PDU_C, PH_SW_C, PH_UW_C);
+  end : g_cap_guard
+  //! the window phase, re-folded once, lands inside the PH_TW_C-bit phase
+  if (PS_U_C >= (1 << PH_TW_C) || ((longint'(PH_CAP_C) * PS_U_C) >> PH_NOM_LOG2_C) >=
+      longint'(PS_U_C) + longint'(PH_HALF_C)) begin : g_refold_guard
+    $error("KL_mmcm_drp_servo: one re-fold by Ps = %0d does not bring the window phase inside %0d bits.",
+           PS_U_C, PH_TW_C);
+  end : g_refold_guard
+  if (PH_CLAMP_C <= 0 || PH_CLAMP_C >= PH_HALF_C) begin : g_clamp_guard
+    $error("KL_mmcm_drp_servo: PH_SLEW_NS_P=%0d at PH_GAIN_LSH_P=%0d gives a phase clamp of %0d, outside (0, Ps/2 = %0d).",
+           PH_SLEW_NS_P, PH_GAIN_LSH_P, PH_CLAMP_C, PH_HALF_C);
+  end : g_clamp_guard
 
   // ------------------------------------------------------------------ //
   //  Audio-domain tick divider (TICK_CYC_P cycles -> 1 pulse)           //
@@ -431,6 +621,8 @@ module KL_mmcm_drp_servo #(
 
   //! PI
   logic signed [23:0]       integ_r, u_cmd_r;
+  //! the integrator's fraction below integ_r (#764: carried, not floored)
+  logic [IF_C-1:0]          integ_frac_r;
   logic [$clog2(LOCK_WIN_P+1)-1:0] lock_cnt_r;
 
   //! PI micro-sequence registers (see header: mf51 one-cycle-cone fix;
@@ -441,9 +633,12 @@ module KL_mmcm_drp_servo #(
   logic signed [63:0]       pp_spann_r;   //! S1: span - nominal, normalized
   logic signed [31:0]       pp_locerr_r;  //! S2: ECLAMP-bounded local error
   logic signed [31:0]       pp_rate_r;    //! T0: ref_rate_ns_i boundary snapshot
-  logic signed [31:0]       pp_isum_r;    //! S4: integ + e>>KI (pre-clamp)
+  logic signed [31:0]       pp_isum_r;    //! S4: integ + e/2^KI + phase (pre-clamp)
+  logic [IF_C-1:0]          pp_ifr_r;     //! S4: its fraction
+  logic signed [PH_TW_C-1:0] pp_ph_r;     //! T0: the clamped window phase, or 0
   logic                     pp_thr_r;     //! S4: |e| < LOCK_THR_P
   logic signed [23:0]       pp_ig_r;      //! S5: clamped next integrator
+  logic [IF_C-1:0]          pp_igf_r;     //! S5: its fraction (0 once clamped)
   logic signed [31:0]       pp_un_r;      //! S5: ig + e>>KP (pre-clamp)
   logic signed [23:0]       pp_ut_r;      //! S6: clamped PI output
   logic signed [31:0]       pp_du_r;      //! S6: ut - u_cmd (pre-slew)
@@ -515,6 +710,207 @@ module KL_mmcm_drp_servo #(
     else                        return 24'(v);
   endfunction
 
+  // ------------------------------------------------------------------ //
+  //  Phase detector (#632, #764; see the PHASE banner paragraph)        //
+  // ------------------------------------------------------------------ //
+  //! the window that closes on this cycle (the T0 boundary below)
+  wire win_close_w = (state_r inside {ACQUIRE_S, LOCKED_S, HOLDOVER_S}) &&
+                     tick_p_w && win_valid_r &&
+                     (tick_cnt_r == (WIN_LOG2_P+1)'(WIN_TICKS_C - 1));
+  //! hold: outside LOCKED, the term off, the followed stream's media clock
+  //! restarted, its timestamp history broken (a jump, a tu edge, a gap), or
+  //! a local PHC step or policy slew moving the timescale the domain event
+  //! is stamped in (the window it overlaps is spoiled, as for the rate)
+  wire ph_hold_w = (state_r != LOCKED_S) || !ph_en_i || ref_restart_p_i ||
+                   !ref_rate_valid_i || ptp_jump_r || phc_slew_q_r;
+
+  logic [31:0]                 dom_ns_r;     //! the latest domain event's instant
+  logic                        dom_fresh_r;  //! a domain event since the last PDU
+  //! the per-PDU fold: a restoring divider by the constant Ps whose remainder
+  //! is the phase. It takes PH_NW_C + 1 cycles and consecutive PDUs are 2 ms
+  //! apart, so a PDU arriving while it runs is simply not sampled.
+  logic                        dv_busy_r;
+  logic [PH_NW_C-1:0]          dv_num_r;
+  logic [PH_RW_C-1:0]          dv_rem_r;
+  logic [$clog2(PH_NW_C+1)-1:0] dv_cnt_r;
+  //! the tracking reference: the last counted window's phase, or the era's
+  //! first sample until a window has counted. Each sample is unwrapped
+  //! against it before it is summed, so samples either side of +/-Ps/2 add as
+  //! the one phase they are, never cancel
+  logic signed [PH_TW_C-1:0]   ph_ref_r;
+  logic                        ph_ref_v_r;
+  //! the open window's accumulation
+  logic signed [PH_SW_C-1:0]   ph_sum_r;
+  logic [PH_CW_C-1:0]          ph_cnt_r;
+  logic                        ph_wok_r;     //! no hold since the window opened
+  logic                        ph_allin_r;   //! every sample so far inside the band
+  //! the last closed window's phase and verdicts
+  logic signed [PH_TW_C-1:0]   ph_theta_r /* verilator public_flat_rd */;
+  logic                        ph_theta_v_r /* verilator public_flat_rd */;
+  logic                        ph_wvalid_r;
+  logic [8:0]                  ph_wcnt_r;
+  logic [$clog2(PH_SETTLE_WIN_P+1)-1:0] ph_set_cnt_r;
+
+  //! d = domain event - CRF timestamp, folded only inside +/-2^PH_DLIM_LOG2_C
+  //! (the low 32 bits of both instants: their difference is exact while it
+  //! lies within 2^31 ns, far beyond the fold range)
+  wire signed [31:0] ph_d_w = $signed(dom_ns_r - ref_ts_ns_i);
+  wire ph_d_ok_w = (ph_d_w <  (32'sd1 <<< PH_DLIM_LOG2_C)) &&
+                   (ph_d_w > -(32'sd1 <<< PH_DLIM_LOG2_C));
+  //! modulo 2^(PH_NW_C+2): for a d inside the range the true value is
+  //! positive and under 2^PH_NW_C, so the low bits are exact
+  wire [PH_NW_C+1:0] ph_num_w = (PH_NW_C+2)'(ph_d_w) * (PH_NW_C+2)'(PH_DEN_C)
+                              + (PH_NW_C+2)'(PH_OFS_C);
+
+  //! one restoring step by the constant Ps (outside the clocked block, the
+  //! KL_crf_tx form)
+  wire [PH_RW_C-1:0] dv_rsh_w = {dv_rem_r[PH_RW_C-2:0], dv_num_r[PH_NW_C-1]};
+  wire               dv_ge_w  = (dv_rsh_w >= PH_RW_C'(PS_U_C));
+  wire               dv_done_w = dv_busy_r && (dv_cnt_r == '0);
+
+  //! the fold: the remainder in [0, Ps) moved into [-Ps/2, Ps/2), the
+  //! sample's own nearest whole period
+  wire signed [PH_TW_C-1:0] ph_fold_w =
+      (dv_rem_r >= PH_RW_C'(PH_HALF_C)) ? PH_TW_C'($signed({1'b0, dv_rem_r}) - PS_U_C)
+                                        : PH_TW_C'($signed({1'b0, dv_rem_r}));
+  wire ph_acc_w = dv_done_w;
+  //! the sample inside the 10.8 band on its own
+  wire ph_s_in_w = (ph_fold_w < PH_TW_C'(PH_BAND_C)) && (ph_fold_w > -PH_TW_C'(PH_BAND_C));
+
+  //! the tracking fold: the sample moved by whole periods to within Ps/2 of
+  //! the reference, so it lies in [ref - Ps/2, ref + Ps/2). A phase at
+  //! +/-Ps/2 whose samples straddle the fold then sums as itself, about Ps/2,
+  //! and pulls at the slew limit; folded on their own the two sides cancel
+  //! towards zero. With no reference yet the sample is its own. Sample and
+  //! reference both lie in [-Ps/2, Ps/2), so at most one period moves the
+  //! sample, on the reference's side: up by Ps below ref - Ps/2 for a
+  //! reference at or above zero, down by Ps at or above ref + Ps/2 for one
+  //! below it
+  wire                      ph_ref_up_w = !ph_ref_r[PH_TW_C-1];
+  wire signed [PH_TW_C:0]   ph_edge_w   = ph_ref_up_w ? (PH_TW_C+1)'(ph_ref_r) - (PH_TW_C+1)'(PH_HALF_C)
+                                                      : (PH_TW_C+1)'(ph_ref_r) + (PH_TW_C+1)'(PH_HALF_C);
+  wire                      ph_wrap_w   = ph_ref_v_r && (ph_ref_up_w ? ((PH_TW_C+1)'(ph_fold_w) <  ph_edge_w)
+                                                                     : ((PH_TW_C+1)'(ph_fold_w) >= ph_edge_w));
+  wire signed [PH_UW_C-1:0] ph_unw_w    = !ph_wrap_w  ? PH_UW_C'(ph_fold_w)
+                                        : ph_ref_up_w ? PH_UW_C'(ph_fold_w) + PH_UW_C'(PS_U_C)
+                                                      : PH_UW_C'(ph_fold_w) - PH_UW_C'(PS_U_C);
+
+  //! the closing window's phase: its sum over the nominal count (floored:
+  //! a bias under one unit, 1/3 ns), within 33/32 of Ps, re-folded once into
+  //! [-Ps/2, Ps/2) so the pull it makes is the short way
+  wire signed [PH_UW_C-1:0] ph_wraw_w  = PH_UW_C'(ph_sum_r >>> PH_NOM_LOG2_C);
+  wire signed [PH_TW_C-1:0] ph_wmean_w =
+      (ph_wraw_w >= PH_UW_C'(PH_HALF_C))  ? PH_TW_C'(ph_wraw_w - PH_UW_C'(PS_U_C))
+    : (ph_wraw_w < -PH_UW_C'(PH_HALF_C))  ? PH_TW_C'(ph_wraw_w + PH_UW_C'(PS_U_C))
+                                          : PH_TW_C'(ph_wraw_w);
+  //! its verdicts: it counts with PH_MIN_PDU_P PDUs and no hold inside
+  //! it; it settles inside the 10.8 band only full (the nominal count less
+  //! one for a PDU on the boundary) and with every one of its samples inside
+  //! the band, so no mean of out-of-band samples can read settled
+  wire ph_wok_close_w = ph_wok_r && !ph_hold_w && (ph_cnt_r >= PH_CW_C'(PH_MIN_PDU_P));
+  wire ph_wfull_w     = (ph_cnt_r >= PH_CW_C'(PH_NOM_PDU_C - 1));
+  wire ph_inband_w    = (ph_wmean_w < PH_TW_C'(PH_BAND_C)) && (ph_wmean_w > -PH_TW_C'(PH_BAND_C))
+                        && ph_allin_r;
+
+  always_ff @(posedge clk_i) begin : phase_det
+    if (!rst_n || state_r == IDLE_S) begin
+      dom_ns_r    <= '0;  dom_fresh_r <= 1'b0;
+      dv_busy_r   <= 1'b0; dv_num_r <= '0;   dv_rem_r <= '0;   dv_cnt_r <= '0;
+      ph_ref_r    <= '0;   ph_ref_v_r <= 1'b0;
+      ph_sum_r    <= '0;   ph_cnt_r  <= '0;   ph_wok_r <= 1'b0;  ph_allin_r <= 1'b0;
+      ph_theta_r  <= '0;   ph_theta_v_r <= 1'b0;
+      ph_wvalid_r <= 1'b0; ph_wcnt_r <= '0;   ph_set_cnt_r <= '0;
+    end else begin
+      //! the domain's grid: its latest frame instant
+      if (dom_ev_p_i) begin
+        dom_ns_r    <= dom_ns_i;
+        dom_fresh_r <= 1'b1;
+      end
+
+      //! a followed PDU: fold it. A grid that produced no event since the
+      //! previous PDU is not running, and a timestamp outside the fold range
+      //! is no timing point of this domain: neither is sampled.
+      if (ref_ts_p_i) begin
+        dom_fresh_r <= dom_ev_p_i;
+        if (dom_fresh_r && ph_d_ok_w && !dv_busy_r) begin
+          dv_busy_r <= 1'b1;
+          dv_num_r  <= PH_NW_C'(ph_num_w);
+          dv_rem_r  <= '0;
+          dv_cnt_r  <= ($bits(dv_cnt_r))'(PH_NW_C);
+        end
+      end
+
+      if (dv_busy_r) begin
+        if (dv_cnt_r != '0) begin
+          dv_rem_r <= dv_ge_w ? (dv_rsh_w - PH_RW_C'(PS_U_C)) : dv_rsh_w;
+          dv_num_r <= {dv_num_r[PH_NW_C-2:0], 1'b0};
+          dv_cnt_r <= dv_cnt_r - 1'b1;
+        end else begin
+          dv_busy_r <= 1'b0;
+        end
+      end
+
+      //! the window: accumulate unwrapped samples; at its close take its
+      //! phase and verdicts, track it, and open the next one clean. A sample
+      //! whose fold completes on the closing cycle belongs to the next window
+      //! (unwrapped against the reference the closing window replaces).
+      //! Every sample counts towards the band, kept or past the cap.
+      if (win_close_w) begin
+        ph_wcnt_r    <= 9'(ph_cnt_r);             //! at most PH_CAP_C
+        ph_wvalid_r  <= ph_wok_close_w;
+        ph_theta_v_r <= ph_wok_close_w;
+        if (ph_wok_close_w) begin
+          ph_theta_r <= ph_wmean_w;
+          ph_ref_r   <= ph_wmean_w;
+          ph_ref_v_r <= 1'b1;
+        end else if (ph_acc_w && !ph_ref_v_r) begin
+          ph_ref_r   <= ph_fold_w;
+          ph_ref_v_r <= 1'b1;
+        end
+        if (ph_wok_close_w && ph_wfull_w && ph_inband_w) begin
+          if (ph_set_cnt_r != ($bits(ph_set_cnt_r))'(PH_SETTLE_WIN_P))
+            ph_set_cnt_r <= ph_set_cnt_r + 1'b1;
+        end else begin
+          ph_set_cnt_r <= '0;
+        end
+        ph_sum_r   <= ph_acc_w ? PH_SW_C'(ph_unw_w) : '0;
+        ph_cnt_r   <= ph_acc_w ? PH_CW_C'(1) : '0;
+        ph_allin_r <= ph_acc_w ? ph_s_in_w : 1'b1;
+        ph_wok_r   <= 1'b1;
+      end else if (ph_acc_w) begin
+        if (ph_cnt_r != PH_CW_C'(PH_CAP_C)) begin
+          ph_sum_r <= ph_sum_r + PH_SW_C'(ph_unw_w);
+          ph_cnt_r <= ph_cnt_r + 1'b1;
+        end
+        if (!ph_s_in_w) ph_allin_r <= 1'b0;
+        //! the era's first sample is its own reference until a window counts
+        if (!ph_ref_v_r) begin
+          ph_ref_r   <= ph_fold_w;
+          ph_ref_v_r <= 1'b1;
+        end
+      end
+
+      //! hold: the open window is spoiled and the last window's phase is no
+      //! longer applicable, so the term lets go until a clean window closes,
+      //! and the next sample seeds a new era's reference. Last writer, so it
+      //! wins.
+      if (ph_hold_w) begin
+        ph_wok_r     <= 1'b0;
+        ph_theta_v_r <= 1'b0;
+        ph_set_cnt_r <= '0;
+        ph_ref_v_r   <= 1'b0;
+      end
+    end
+  end : phase_det
+
+  //! S4's operand: {integ, fraction} + e * 2^(IF_C - KI) + the phase term,
+  //! Theta * 2^PH_GAIN_LSH_P in the fraction's units (the PHASE banner)
+  //! (40 bits hold e * 2^(IF_C - KI) for any 32-bit e without overflow)
+  wire signed [39:0] pi_isum_x_w =
+      40'(signed'({integ_r, integ_frac_r}))
+    + (40'(ew_r) <<< (IF_C - KI_SHIFT_P))
+    + (40'(pp_ph_r) <<< PH_GAIN_LSH_P);
+
   always_ff @(posedge clk_i) begin : servo_engine
     if (!rst_n) begin
       state_r  <= IDLE_S;   dstate_r <= D_IDLE_S;
@@ -523,6 +919,7 @@ module KL_mmcm_drp_servo #(
       win_slew_r <= 1'b0;
       disc_run_r <= '0;     disc_cnt_r <= '0;
       ew_r <= '0;           integ_r <= '0;      u_cmd_r <= '0;
+      integ_frac_r <= '0;
       lock_cnt_r <= '0;     acc_r <= '0;
       hs_send_r <= 1'b0;    hs_data_r <= '0;    ps_hold_r <= 1'b0;
       drp_addr_o <= '0;     drp_en_o <= 1'b0;   drp_we_o <= 1'b0;
@@ -533,6 +930,7 @@ module KL_mmcm_drp_servo #(
       pp_seq_r <= '0;       pp_run_r <= 1'b0;
       pp_d_r <= '0;         pp_spann_r <= '0;   pp_locerr_r <= '0;
       pp_rate_r <= '0;      pp_isum_r <= '0;    pp_thr_r <= 1'b0;
+      pp_ifr_r <= '0;       pp_ph_r <= '0;      pp_igf_r <= '0;
       pp_ig_r <= '0;        pp_un_r <= '0;      pp_ut_r <= '0;
       pp_du_r <= '0;        u_gain_r <= '0;
     end else begin
@@ -547,6 +945,7 @@ module KL_mmcm_drp_servo #(
       unique case (state_r)
         IDLE_S: begin
           u_cmd_r <= '0; integ_r <= '0; acc_r <= '0;
+          integ_frac_r <= '0;
           win_valid_r <= 1'b0; lock_cnt_r <= '0;
           disc_run_r <= '0; disc_cnt_r <= '0;
           verified_r <= 1'b0; mismatch_r <= 1'b0; drp_fault_r <= 1'b0;
@@ -617,6 +1016,14 @@ module KL_mmcm_drp_servo #(
             win_start_r <= ptp_q_r;
             pp_d_r      <= $signed(ptp_q_r - win_start_r);
             pp_rate_r   <= ref_rate_ns_i;
+            //! the last closed window's phase, clamped to the slew limit.
+            //! Its valid flag carries every hold up to the cycle before; a
+            //! hold on this edge clears that flag only after it, so it is
+            //! read here too, and a restarted era starts from no correction
+            pp_ph_r     <= (!ph_theta_v_r || ph_hold_w) ? '0
+                         : (ph_theta_r >  PH_TW_C'(PH_CLAMP_C)) ?  PH_TW_C'(PH_CLAMP_C)
+                         : (ph_theta_r < -PH_TW_C'(PH_CLAMP_C)) ? -PH_TW_C'(PH_CLAMP_C)
+                                                                 :  ph_theta_r;
             win_slew_r  <= phc_slew_q_r;
             //! Invalid remote history holds PI and lock; local step/slew
             //! guards retain their own independent window policy.
@@ -654,7 +1061,10 @@ module KL_mmcm_drp_servo #(
             pp_seq_r <= 3'd4;
           end : pi_err_S
           3'd4: begin : pi_isum_S
-            pp_isum_r <= 32'(integ_r) + (ew_r >>> KI_SHIFT_P);
+            //! fixed point: the fraction below the trim carries e / 2^KI
+            //! and the phase term exactly (#764, #632)
+            pp_isum_r <= 32'(pi_isum_x_w >>> IF_C);
+            pp_ifr_r  <= pi_isum_x_w[IF_C-1:0];
             pp_thr_r  <= (ew_r < LOCK_THR_P) && (ew_r > -LOCK_THR_P);
             //! step guard: an implausible window error (|e| > 1024 ppm
             //! equivalent - a local PHC step, not the plant) is squashed
@@ -676,6 +1086,8 @@ module KL_mmcm_drp_servo #(
           end : pi_isum_S
           3'd5: begin : pi_pterm_S
             pp_ig_r  <= clamp_u(pp_isum_r);
+            //! a clamped integrator carries no fraction past its rail
+            pp_igf_r <= (32'(clamp_u(pp_isum_r)) == pp_isum_r) ? pp_ifr_r : '0;
             pp_un_r  <= 32'(clamp_u(pp_isum_r)) + (ew_r >>> KP_SHIFT_P);
             pp_seq_r <= 3'd6;
           end : pi_pterm_S
@@ -695,6 +1107,7 @@ module KL_mmcm_drp_servo #(
               else
                 u_cmd_r <= pp_ut_r;
               integ_r <= pp_ig_r;
+              integ_frac_r <= pp_igf_r;
               //! frequency-lock qualification
               if (pp_thr_r) begin
                 if (lock_cnt_r != ($bits(lock_cnt_r))'(LOCK_WIN_P))
@@ -967,9 +1380,17 @@ module KL_mmcm_drp_servo #(
   // ------------------------------------------------------------------ //
   wire signed [15:0] trim_w = 16'(u_cmd_r >>> 5);  //! 1/16 ppm units
   assign locked_o = (state_r == LOCKED_S);
+  assign ph_settled_o = ph_theta_v_r &&
+                        (ph_set_cnt_r == ($bits(ph_set_cnt_r))'(PH_SETTLE_WIN_P));
+  //! the phase word: the window phase in 1/3 ns and its verdicts
+  assign phase_o = {ph_wcnt_r,                    //! [31:23] last window's PDUs
+                    ph_wvalid_r,                  //! [22]    that window valid
+                    ph_settled_o,                 //! [21]    settled (10.8 band)
+                    ph_theta_v_r,                 //! [20]    engaged
+                    20'(ph_theta_r)};             //! [19:0]  signed phase, 1/3 ns
   assign status_o = {trim_w,                       //! [31:16] signed trim
                      disc_cnt_r,                   //! [15:10] guard + step + slew discards
-                     1'b0,                         //! [9]     reserved
+                     ph_settled_o,                 //! [9]     phase settled (#632)
                      drp_fault_r,                  //! [8]
                      ps_fault_s_w,                 //! [7]
                      (ps_busy_s_w | hs_send_r),    //! [6]

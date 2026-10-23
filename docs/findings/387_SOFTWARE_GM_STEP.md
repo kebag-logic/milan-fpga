@@ -113,7 +113,7 @@ Two things would make it observable on a bench.
 - An AAF stream bound into the DUT's render stage and running across each step.
 - The stage's recentre count published on a register or console command.
 
-Today that count is a [verification tap](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state) that only simulation reads.
+Today that count is a [verification tap](../reference/REGISTER_MAP.md#0x8dc-----render-presentation-state) that only simulation reads.
 
 One console sample in run 4 came back 2.7 ms late, at 97.8 s.
 

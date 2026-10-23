@@ -1459,14 +1459,14 @@ receive path is observed instead through four records:
   (`0x8D8`, in [the media-boundary slip counters](../reference/REGISTER_MAP.md#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture));
 - `RENDER_STAT`'s prefill and converged bits and its rail count for
   STREAM_INPUT 0, the render stage that carries the #386 recentre
-  ([0x8DC](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state));
+  ([0x8DC](../reference/REGISTER_MAP.md#0x8dc-----render-presentation-state));
 - the DUT's two Stream Inputs' GET_COUNTERS.
 
 The recentre count is a simulation tap, not a register, so the bench cannot
 count recentres. A recentre on a short queue re-enters prefill and clears the
 converged bit until the fill has stayed in band for 100 ms; on a full queue it
 moves the read pointer and leaves no trace
-(`hdl/ieee1722/aaf/KL_render_setpoint.sv`). A rail would raise the rail count.
+(`KL_render_setpoint`, retired by #632; its source stays in Git history). A rail would raise the rail count.
 
 **The poll.** One console poll per case reads the servo, the AAF meter, the
 CRF sink's lock and rate, `SLIP_LB`, `SLIP_TDM` and `RENDER_STAT` every 0.5 s,
@@ -4717,7 +4717,7 @@ stage's `recentres_o` reaches no CSR. `RENDER_STAT` carries rails, converged,
 prefill and fill only (`hdl/milan/milan_datapath.sv:6810-6812` at dev
 `f6260253`; the same assignment at `:6797-6799` in `5603c353`), and the
 register map keeps recentre counters as verification taps
-([register map, `RENDER_STAT`](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state)).
+([register map, `RENDER_STAT`](../reference/REGISTER_MAP.md#0x8dc-----render-presentation-state)).
 The grid aligner's engaged state and the settle recentre's pending state have no CSR either. The poll reads
 every word that bears on them: `RENDER_STAT`, and `MCSRV_STAT`, which is the
 servo, not the aligner.
@@ -5118,7 +5118,7 @@ stated. No change occurred, so the rule was not exercised.
 
 **What no CSR exposes.** As on B17's image, the render recentre count and the
 settle recentre's pending state reach no CSR
-([register map, `RENDER_STAT`](../reference/REGISTER_MAP.md#0x8dc-----render-setpoint-state)).
+([register map, `RENDER_STAT`](../reference/REGISTER_MAP.md#0x8dc-----render-presentation-state)).
 So the lane cannot see the bind's settle recentre fire. The firing time
 quoted below is the design's earliest firing time: 2,048 ticks, 42.7 ms
 after the first PDU.

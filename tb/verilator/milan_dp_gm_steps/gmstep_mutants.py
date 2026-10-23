@@ -4,22 +4,25 @@
 """Negative controls for the #387/#602 gmstep and option-off checks.
 
 The #602 ruling excludes PHC-only causes from outgoing mr and MEDIA_RESET.
-The clean gmstep leg must still grade tu holdover, continuous transport and
-one counted render re-base. Real source changes and selected-CRF received
-mr must still propagate. Each control rebuilds the same harness against a
+The clean gmstep leg must still grade tu holdover, continuous transport and,
+since #632, a render presentation stage that takes no re-base: the PDUs
+stamped across the two steps are refused and counted, and every other PDU
+keeps its offset. Real source changes and selected-CRF received mr must
+still propagate. Each control rebuilds the same harness against a
 disposable source copy through the Makefile and must fail its named check.
 A compile error, crash or missing harness verdict is not a catch. The clean
 leg is rebuilt if older than its inputs and must pass first.
 
 The default inventory restores the PHC restart term, removes the source
-change or CRF propagation, adds an identity-driven render re-base, or removes
-the step-driven render re-base. Disabling re-base must fail the counted-event
-check: #387 ruling 5802264260 item 1 replaced the impossible drift claim for
-this accept-timed stage. The explicit --all campaign also grades the existing
-holdover, continuity, render-law and slew controls, and restores either PHC
-cause separately on the INTERNAL option-off leg.
+change or CRF propagation, or empties the render stage on the grandmaster's
+identity or on the step: #632 retired #387's counted render re-base, so what
+the two render controls now plant is that re-base's effect on the queue, and
+each must lose PDUs the clean leg presents, uncounted. The explicit --all campaign also
+grades the existing holdover, continuity, render-refusal and slew controls,
+and restores either PHC cause separately on the INTERNAL option-off leg.
 It also restores both PHC causes together and vetoes a genuine CRF request
-on the very cycle a software settime re-bases the PHC.
+on the very cycle a software settime re-bases the PHC, and exempts this
+station's own boot identity from the grandmaster-change detector.
 Delayed adjtime causes at 16 and 256 cycles must fail only the adjtime check.
 
 The recipe, the harness and the generated images the legs read belong to
@@ -58,18 +61,20 @@ DP = HERE.parent / "milan_dp"
 SOURCES = {
     "datapath": HERE / "../../../hdl/milan/milan_datapath.sv",
     "clkv": HERE / "../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
-    "stage": HERE / "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv",
+    "stage": HERE / "../../../hdl/ieee1722/aaf/KL_render_queue.sv",
     "restart": HERE / "../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv",
 }
 #: the make variable that points the recipe at each source
-MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RSP_SRC", "restart": "MCR_SRC"}
+MAKE_VAR = {"datapath": "DP_SRC", "clkv": "CLKV_SRC", "stage": "RQ_SRC", "restart": "MCR_SRC"}
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
-#: the render stage's re-base trigger, with #645's settle recentre between
-#: its two original terms; its last line is also the anchor the #386 and #447
-#: render runners plant their clock-source control on
-RENDER_TRIGGER = "       media_rebase_p_w\n       | settle_recentre_p_r\n       | src_recentre_p_r;"
+#: the render presentation stage's flush: the bind wipe, and nothing else
+#: (#632). The render controls OR a re-base cause into it.
+RENDER_FLUSH = "    .flush_i      (strtbl_bind_fall_w),"
+#: what #387's re-base pulse read, the PHC's two strobes (#632 retired the
+#: wire with the setpoint stage); the restart controls restore it as a term
+PHC_REBASE = "(eff_ptp_adjust_w | cfg_ptp_cmd_load)"
 #: the restart request's last line: a control that appends " | <cause>" to it
 #: ORs the cause into the whole request (#629 added the AAF meter's two terms
 #: after the CRF ones, so the request ends here)
@@ -81,6 +86,11 @@ CRF_RESTART_TERMS = "        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p
 RESTART_DECL = ("  wire mcr_restart_p_w /* verilator public_flat_rd */ =\n"
                 "       (crf_clk_selected_r\n" + CRF_RESTART_TERMS + "\n" + RESTART_TRIGGER)
 TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
+#: the GM-change detector's exemption: only the first publication out of
+#: reset (0 -> id) is acquisition
+GM_DETECT_EXEMPT = "                         (gm_recentre_q_r != 64'd0);"
+#: thisClock of the leg's gptp_ucode.hex (sim_gmstep.cpp kThisClock)
+THIS_CLOCK = "64'h02A1B2FFFEC3D4E5"
 
 
 class Leg(NamedTuple):
@@ -93,11 +103,13 @@ class Leg(NamedTuple):
     harness: str                #: its C++ harness, an input of the recipe
     takes_aem: bool             #: it reads the AEM image beside its binary
     short_flag: str = ""        #: what --no-small-steps passes it, if anything
+    probes: tuple[str, ...] = ()  #: its Verilator probe files, inputs of the recipe
 
 
 LEGS = {
     "gmstep": Leg("gmstep-build", "GMSTEP_MDIR", DP / "obj_gmstep",
-                  "Vmilan_dp_gmstep", "sim_gmstep.cpp", True, "--no-small-steps"),
+                  "Vmilan_dp_gmstep", "sim_gmstep.cpp", True, "--no-small-steps",
+                  ("gmstep_probes.vlt",)),
     "option-off": Leg("option-off-build", "OPTOFF_MDIR", DP / "obj_dir",
                       "Vmilan_dp_sim", "sim_main.cpp", False),
 }
@@ -150,7 +162,7 @@ CONTROLS = [
             "slew path: every staged sample covers the PHC tail", False),
     Control("the PHC re-base restart term is restored", "datapath",
             RESTART_TRIGGER,
-            RESTART_TRIGGER[:-1] + " | media_rebase_p_w;",
+            RESTART_TRIGGER[:-1] + " | " + PHC_REBASE + ";",
             "restart: a PHC-only step leaves outgoing mr unchanged", True),
     Control("the source-change term is removed", "restart",
             "src_change_w = (clk_src_q_r != clk_src_i);",
@@ -160,18 +172,18 @@ CONTROLS = [
             CRF_RESTART_TERMS,
             "        & (tkd_crflk_q_r ^ crf_locked_w))",
             "CRF control: selected CRF mr propagates exactly once", True),
-    Control("the grandmaster identity re-bases the render stage as well as the step",
-            "datapath", RENDER_TRIGGER,
-            "       gm_recentre_p_r | media_rebase_p_w\n       | settle_recentre_p_r\n       | src_recentre_p_r;",
-            "render: the GM change is one counted re-base event", True),
-    Control("the step does not re-centre the render stage", "datapath",
-            RENDER_TRIGGER,
-            "       1'b0\n       | settle_recentre_p_r\n       | src_recentre_p_r;",
-            "render: the GM change is one counted re-base event", True),
-    Control("the render re-base is keyed to the identity, not the step", "datapath",
-            RENDER_TRIGGER,
-            "       gm_recentre_p_r\n       | settle_recentre_p_r\n       | src_recentre_p_r;",
-            "render: every counted re-base lands at a PDU end right after the step", False),
+    Control("the grandmaster identity empties the render stage", "datapath",
+            RENDER_FLUSH,
+            "    .flush_i      (strtbl_bind_fall_w | {N_STREAMS{gm_recentre_p_r}}),",
+            "render: every PDU not presented was refused by the stage and counted once", True),
+    Control("the step empties the render stage", "datapath",
+            RENDER_FLUSH,
+            "    .flush_i      (strtbl_bind_fall_w | {N_STREAMS{eff_ptp_adjust_w}}),",
+            "render: every PDU not presented was refused by the stage and counted once", True),
+    Control("the refused PDUs are not counted", "stage",
+            "      if (c_early_w   && !(&early_o))   early_o   <= early_o + 16'd1;",
+            "      if (1'b0        && !(&early_o))   early_o   <= early_o + 16'd1;",
+            "render: every PDU not presented was refused by the stage and counted once", False),
     Control("tu reaches the talkers four cycles late", "clkv",
             "  assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w;",
             "  logic [3:0] tu_late_r;\n"
@@ -188,21 +200,25 @@ CONTROLS = [
             "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r"
             " & ~clkv_tu_w;",
             "licence: the talker never pauses beyond four of its intervals", False),
+    # Keyed on the leg's own GM A -> GM B event: the first detector pulse
+    # while the talker's gate is open. Since FPGA-gPTP #82 the detector also
+    # pulses at the boot identity -> GM A step, before the talker opens, so a
+    # stop on any pulse halts the talker before its baseline and never
+    # reaches the named check; a pulse count would break again if the boot
+    # sequence changed.
     Control("the grandmaster change stops the talker for good", "datapath", TALKER_GATE,
             "  logic gm_stop_r;\n"
             "  always_ff @(posedge axis_clk) begin : p_gm_stop\n"
             "    if (!axis_resetn) gm_stop_r <= 1'b0;\n"
-            "    else if (gm_recentre_p_r) gm_stop_r <= 1'b1;\n"
+            "    else if (gm_recentre_p_r && (|aaf_stream_en_raw_w)) gm_stop_r <= 1'b1;\n"
             "  end : p_gm_stop\n"
             "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r"
             " & ~gm_stop_r;",
             "licence: the talker never pauses beyond four of its intervals", False),
-    Control("the step's re-centre snaps one event off the setpoint", "stage",
-            "                rptr_r[s]    <= snap_rptr_w;\n"
-            "                prefill_r[s] <= 1'b0;",
-            "                rptr_r[s]    <= prefill_r[s] ? snap_rptr_w : snap_rptr_w - 1'b1;\n"
-            "                prefill_r[s] <= 1'b0;",
-            "render: every PDU push leaves the target fill across the event", False),
+    Control("a gap in the presented frames leaves no counted slip", "stage",
+            "      if (rd0_end_w && !any_w && (32'(rs_r) == s) && live_r[s]) gap_w = 1'b1;",
+            "      if (rd0_end_w && !any_w && (32'(rs_r) == s) && live_r[s]) gap_w = 1'b0;",
+            "render: the refused PDUs' frames are one counted slip", False),
     Control("software settime is restored as an mr cause", "datapath",
             RESTART_TRIGGER,
             RESTART_TRIGGER[:-1] + " | cfg_ptp_cmd_load;",
@@ -215,7 +231,7 @@ CONTROLS = [
             "option-off", ("CLKV: the settime leaves mr unchanged (#602)",)),
     Control("both PHC restart causes are restored", "datapath",
             RESTART_TRIGGER,
-            RESTART_TRIGGER[:-1] + " | media_rebase_p_w;",
+            RESTART_TRIGGER[:-1] + " | " + PHC_REBASE + ";",
             "CLKV: the settime leaves mr unchanged (#602)", False, "option-off"),
     Control("PHC adjtime becomes an mr cause 16 cycles later", "datapath",
             RESTART_DECL,
@@ -242,8 +258,17 @@ CONTROLS = [
                            "CLKV: settime adds no MEDIA_RESET (#602)")),
     Control("a PHC step suppresses a coincident CRF restart", "datapath",
             CRF_RESTART_TERMS,
-            CRF_RESTART_TERMS[:-1] + " & ~media_rebase_p_w)",
+            CRF_RESTART_TERMS[:-1] + " & ~" + PHC_REBASE + ")",
             "coincident: a PHC step does not suppress the CRF restart", False),
+    # IEEE 802.1AS-2011 9.6.2.1 and 10.2.3.13: the station's own identity is
+    # the current grandmaster's, so leaving it for GM A is a change. A
+    # detector that treats it as acquisition must fail the clean leg's record.
+    Control("the detector exempts this station's own boot identity", "datapath",
+            GM_DETECT_EXEMPT,
+            GM_DETECT_EXEMPT[:-1] + " &&\n"
+            "                         (gm_recentre_q_r != " + THIS_CLOCK + ");",
+            "boot grandmaster: the detector pulsed once, at this station's own identity -> GM A",
+            False, stays_clean=("baseline: the talker streams",)),
 ]
 
 
@@ -272,7 +297,7 @@ def is_fresh(leg: Leg, exe: Path) -> bool:
     if out.returncode != 0 or not exe.is_file():
         return False
     inputs = [DP / name for name in out.stdout.split()]
-    inputs += [DP / leg.harness, DP / "Makefile"]
+    inputs += [DP / leg.harness, DP / "Makefile"] + [DP / name for name in leg.probes]
     built = exe.stat().st_mtime
     return all(src.is_file() and src.stat().st_mtime <= built for src in inputs)
 
@@ -333,8 +358,8 @@ def run_control(control: Control, work: Path, tag: int, short: bool) -> bool:
         return False
     rc, out = run_leg(leg, exe, short)
     answer = verdict(rc, out, control.breaks)
+    broke = failed_checks(out)
     if answer == "caught":
-        broke = failed_checks(out)
         if any(clean in failure for clean in control.stays_clean for failure in broke):
             print(f"[FAIL] control {control.name!r} also broke an unrelated event check: {broke}")
             return False
@@ -346,6 +371,7 @@ def run_control(control: Control, work: Path, tag: int, short: bool) -> bool:
               f"\"{control.breaks}\".")
     else:
         print(f"[FAIL] control {control.name!r} {answer}")
+    print(f"    it broke {len(broke)} check(s): {'; '.join(broke) or 'none'}")
     return False
 
 
@@ -377,8 +403,12 @@ def main() -> int:
                 print(f"[INFO] {exe.relative_to(DP)} is missing or older than its "
                       f"sources: the positive control is rebuilt")
                 exe = build(leg, {}, work / f"obj_clean_{leg.target}")
-            answer = (verdict(*run_leg(leg, exe, args.no_small_steps), None) if exe
-                      else "did not compile")
+            out = ""
+            if exe:
+                rc, out = run_leg(leg, exe, args.no_small_steps)
+                answer = verdict(rc, out, None)
+            else:
+                answer = "did not compile"
             mode = f" ({leg.short_flag})" if args.no_small_steps and leg.short_flag else ""
             if answer == "pass":
                 passes += 1
@@ -387,6 +417,8 @@ def main() -> int:
                 fails += 1
                 print(f"[FAIL] the unmutated gateware does NOT pass the {key} leg{mode} "
                       f"({answer}) - every control result on it is meaningless")
+                broke = failed_checks(out)
+                print(f"    it broke {len(broke)} check(s): {'; '.join(broke) or 'none'}")
         for tag, control in enumerate(selected):
             if run_control(control, work, tag, args.no_small_steps):
                 passes += 1

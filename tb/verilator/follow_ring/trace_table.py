@@ -15,8 +15,9 @@ One row per step of S seconds, times relative to the first CLOCK_SOURCE set
   recentres    declared settle pulses, counted separately from slips
   event_trace  complete when the log covers the whole bin; partial at its
                end; unavailable on older logs without RING-EVENTS records
-  render       the render stage's fill range at PDU ends and first-event
-               delay range, in ticks (the law: 14, and (8, 9])
+  render       the presentation stage's events presented per PDU (the law:
+               6) and the largest |frame instant - presentation time| of
+               the step's PDUs, in ns (the law: the nearest frame)
   servo        the last window's state, PI run flag, error (ns per 512 ms),
                trim (ppm) and the meter's rate validity before the step's end
 RING-EVENT lines carry absolute times from the harness's counter and pulse
@@ -85,8 +86,7 @@ def main() -> int:
         ap.error("the time range must be finite and increasing")
     nbin = max(1, int(math.ceil((t1 - t0) / a.step_s)))
     bins = [{"mlo": math.inf, "mhi": -math.inf, "slips": 0, "skips": 0, "recentres": 0,
-             "flo": 99, "fhi": -1,
-             "dlo": math.inf, "dhi": -math.inf} for _ in range(nbin)]
+             "slo": 99, "shi": -1, "emax": -math.inf} for _ in range(nbin)]
     for kind in ("dup", "skip", "recentre"):
         for t in marks[kind]:
             if t0 <= t < t1:
@@ -106,14 +106,12 @@ def main() -> int:
             if not math.isnan(m):
                 b["mlo"] = min(b["mlo"], m)
                 b["mhi"] = max(b["mhi"], m)
-            f = int(r["render_fill"])
-            d = float(r["render_delay_ticks"])
-            if f >= 0:
-                b["flo"] = min(b["flo"], f)
-                b["fhi"] = max(b["fhi"], f)
-            if not math.isnan(d):
-                b["dlo"] = min(b["dlo"], d)
-                b["dhi"] = max(b["dhi"], d)
+            n = int(r["render_shown"])
+            e = float(r["render_err_max_ns"])
+            b["slo"] = min(b["slo"], n)
+            b["shi"] = max(b["shi"], n)
+            if not math.isnan(e):
+                b["emax"] = max(b["emax"], e)
     windows = []
     with a.servo.open() as fh:
         for r in csv.DictReader(fh):
@@ -121,7 +119,7 @@ def main() -> int:
                             float(r["trim_ppm"]), int(r["meter_valid"])))
     rows = []
     hdr = ("t_s", "ring_margin_ticks", "slips", "skips", "recentres", "event_trace",
-           "render_fill", "render_delay_ticks", "servo",
+           "render_shown", "render_err_max_ns", "servo",
            "pi", "e_ns", "trim_ppm", "rate_valid")
     for i, b in enumerate(bins):
         te = min(t1, t0 + (i + 1) * a.step_s)
@@ -133,8 +131,8 @@ def main() -> int:
         rows.append((f"{float(te - origin):+.2f}",
                      f"{b['mlo']:+.3f}..{b['mhi']:+.3f}" if b["mhi"] > -math.inf else "-",
                      str(b["slips"]), str(b["skips"]), str(b["recentres"]), coverage,
-                     f"{b['flo']}..{b['fhi']}" if b["fhi"] >= 0 else "-",
-                     f"{b['dlo']:.3f}..{b['dhi']:.3f}" if b["dhi"] > -math.inf else "-",
+                     f"{b['slo']}..{b['shi']}" if b["shi"] >= 0 else "-",
+                     f"{b['emax']:.1f}" if b["emax"] > -math.inf else "-",
                      STATES.get(w[1], str(w[1])), str(w[2]), str(w[3]), f"{w[4]:+.3f}", str(w[5])))
     print("| " + " | ".join(hdr) + " |")
     print("|" + "---|" * len(hdr))

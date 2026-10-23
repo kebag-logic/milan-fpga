@@ -177,15 +177,16 @@ def run(shape: int, variant: str, work: Path, verilator: str, output_condition: 
              if not f.startswith(("-GDIAG_TICK", "-GLDIAG_IVAL"))]
     flags[flags.index("-j") + 1] = "2"
     config = "endstation_ax7101_1x1_tdm8" if shape == 1 else "endstation_ax7101_8x8"
+    slots = 8 if shape == 1 else 32
     flags.insert(0, "+incdir+" + str(ROOT / "configs/generated" / config))
     flags += ["-GDIAG_TICK_CYC_P=1000000", "-GLDIAG_IVAL_CYC_P=1000000",
               "-GMILAN_CLK_FREQ_HZ=50000000", "-GPP_TIM_DIV_US_P=1",
               "-GPP_TIM_DIV_MS_P=1000", f"-GN_STREAMS={shape}",
               "-GTALKER_WIRE_CHANS_P=8", "-GAUDIO_IF_MASTER_P=1",
-              f"-GAUDIO_IF_SLOTS_P={8 if shape == 1 else 32}",
+              f"-GAUDIO_IF_SLOTS_P={slots}",
               f"-GAUDIO_IF_CLK_HZ_P={24576000 if shape == 1 else 98304000}",
               "-GI2SPB_P=0", "-GLPF_P=0", "-CFLAGS",
-              f"-DNSTREAMS_TB={shape} -DMS_CYC_TB=1000 -DSTREAM_COUNTERS_TB=1 "
+              f"-DNSTREAMS_TB={shape} -DTDM_SLOTS_TB={slots} -DMS_CYC_TB=1000 -DSTREAM_COUNTERS_TB=1 "
               f"-DCOUNTERS_FRAMES_ONLY_TB={int(output_condition == 'frames-only')}",
               "--Mdir", str(work / "obj")]
     sources = shlex.split(subprocess.check_output(

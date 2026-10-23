@@ -4,8 +4,8 @@
 // sim_tdm8_render - the shipping AX7101 TDM8 render lane, from the dynamic
 // AUDIO_MAP command to the DECODED SERIAL OUTPUT (issue #447).
 //
-// WHY THIS IS ITS OWN BINARY. sim_aclk is the #386 render-law instrument and
-// carries its own mutation arm; adding the AECP map face, the CSR diagnostic
+// WHY THIS IS ITS OWN BINARY. sim_aclk is the milan_dp render-law instrument
+// and carries its own mutation arm; adding the AECP map face, the CSR diagnostic
 // window and a serial decoder to it would enlarge the blast radius of every
 // future render-law change for no gain. Same reason the tree already keeps
 // sim_aclk separate from sim_nxn.
@@ -99,30 +99,41 @@
 // both listeners and grades the two halves of the qualification against each
 // other at the pins.
 //
+// THE PRESENTATION LAW (#632). The render stage (KL_render_queue) places
+// every event by its PDU's avtp_timestamp against the domain's media event
+// and reads on that event, so every sample reaches these pins at its
+// presentation time. This leg stamps every PDU as a talker on the domain's
+// clock would: one timeline per feed, a lead of 92 frames, from the domain
+// event's public instant tap (a timestamp source). The pin decoder takes the
+// PHC at every slot-MSB sampling edge, and every graded window requires each
+// event's pin instant, less its slot offset, at its presentation time inside
+// IEEE 1722-2016 10.8's +/-5 % of Ps; the feed's first event is graded in
+// the frame its timestamp names.
+//
 // THE INTERNAL LAW AFTER SETTLE (#643). T30's INTERNAL window opens while
-// the aligner is still pulling the grid in after T14's hold, so the #386 law
-// is not graded there. The [LAW] phase waits for the aligner's settled report
-// and grades it on fresh streams at eighteen feed phases against the grid, at
-// the render stage's own reference: the PDU end. A phase whose PDU ends meet
-// a pop inside the measured ambiguity window is not gradable, and every
-// standing phase is required to be gradable.
+// the aligner is still pulling the grid in after T14's hold. The [LAW] phase
+// waits for the aligner's settled report and grades fresh streams at
+// eighteen feed phases against the grid: each one's first event at its
+// presentation time, then every event once, in order, each at its own.
 //
 // THE PULL-IN UNDER A RUNNING STREAM (#647, #645). [PULLIN] runs a fresh
-// stream at a [LAW] feed phase through T14's serial-clock hold and grades the
-// law again after milan_datapath's settle recentre, which the aligner's
-// excursion arms and its return to the settle band fires. --with-pullin
-// retains its standing phase after the full leg's serial/CRF/LAW history;
-// --pullin=PHASES runs after boot. The explicit tdm8render-pullin target
-// runs both histories. The default leg leaves this long phase to that target.
+// stream at a [LAW] feed phase through T14's serial-clock hold. The hold
+// moves the bus's frames against a talker that goes on stamping its own
+// timeline; after one queue depth every event is rendered once, in order, at
+// the frame nearest its presentation time, and milan_datapath's settle
+// recentre fires once, for the LOOP queues (the render stage takes none).
+// --with-pullin retains its standing phase after the full leg's
+// serial/CRF/LAW history; --pullin=PHASES runs after boot. The explicit
+// tdm8render-pullin target runs both histories. The default leg leaves this
+// long phase to that target.
 //
 // Modes: no argument runs every phase except [PULLIN]. --with-pullin adds
 // that phase to the full leg. --serial-only, --epoch-only,
 // --crf-only, --law-only and --pullin are the short legs
 // tdm8_render_mutants.py runs, and --defect-stopped-clock, --defect-one-sample
 // and --defect-internal-select are its three leg-side defect arms.
-// --law-boundary[=PHASES] is the boundary-band diagnostic the same runner's
-// --law-boundary drives, and --pullin=PHASES the pull-in campaign. The
-// multi-stream build takes no mode: its one phase IS its leg.
+// --pullin=PHASES is the pull-in campaign. The multi-stream build takes no
+// mode: its one phase IS its leg.
 
 #include "../../common/verilator_harness.hpp"
 #include "Vmilan_datapath.h"
@@ -170,45 +181,17 @@ constexpr double kModelNsPerAxis = 1e9 / kModelAxisHz;
 constexpr double kShipNsPerAxis = 1e9 / kShipAxisHz;
 //! one media tick on the packet grid, in axis cycles (100 MHz / 48 kHz)
 constexpr double kTickCycles = kModelAxisHz / 48000.0;
-//! #386's render setpoint as milan_datapath derives it: one class-A PDU of
-//! events plus the two-tick allowance. Stated here as the LAW under test,
-//! never read back from the DUT.
-constexpr int kRenderSetpointEvt = kEvents + 2;
-//! THE PRESERVED PREFILL SNAP, as a derivation rather than a search. The
-//! render stage holds every pop until a PDU END finds its queue at or above
-//! TARGET = setpoint + one PDU of events, then snaps the read pointer to
-//! wptr - TARGET and DROPS the oldest excess. This leg pushes kEvents per
-//! PDU, so the first PDU end at or above the target is the third (18 events
-//! pushed, 14 kept) and the first event the lane may ever render is ordinal
-//! 18 - 14 = 4. Stated here as the LAW under test: a stage that discarded a
-//! different count would leave a different ordinal at the head, and T6
-//! PREFILL asserts the equality rather than searching for whatever came out.
-constexpr int kPrefillTargetEvt = kRenderSetpointEvt + kEvents;
-constexpr long kPrefillPdus =
-    (kPrefillTargetEvt + kEvents - 1) / kEvents;
-constexpr long kFirstEligibleEvent =
-    kPrefillPdus * kEvents - kPrefillTargetEvt;
-//! registration slack on the band's upper edge: the pop pulse is one register
-//! behind its event. Nothing else is allowed for: a window is graded only
-//! when no PDU end has a pop inside the ambiguity window below, so a graded
-//! first event lands more than that window inside both edges (#643).
-constexpr long kBandSlackCycles = 1;
-//! THE AMBIGUITY WINDOW (#643), stated here as a MEASUREMENT of this model and
-//! never read back from the DUT. A pop the stage takes in the cycle of a PDU's
-//! last beat is counted in that end's fill and one taken a cycle later is not,
-//! so a pop that coincides with a PDU end is physically ambiguous at the
-//! grading instant. After settle, the offset from a PDU end to its nearest
-//! pop walks within one graded window, and where it sits at a given feed
-//! phase depends on the run's history. The walk is that offset's range over
-//! the window's steady ends (EndOffsets::walk). Measured at both processor
-//! pins (docs/design/MEDIA_CLOCK_FOLLOWING.md): at most 3 cycles in a [LAW]
-//! phase, in every history, and 5 across T30's CRF window at dev's pin, so
-//! the walk is stated as 5 and a guard of 4 makes the window 9. A window with
-//! a PDU end whose nearest pop is within kLawAmbiguityCycles of that boundary
-//! is NOT GRADABLE.
-constexpr long kLawWalkCycles = 5;
-constexpr long kLawGuardCycles = 4;
-constexpr long kLawAmbiguityCycles = kLawWalkCycles + kLawGuardCycles;
+//! THE PRESENTATION LAW (#632), stated here as the LAW under test and never
+//! read back from the DUT: every sample reaches the pins in the frame whose
+//! instant is nearest its presentation time, so a slot's MSB sampling edge,
+//! less its slot offset, is that time. This leg stamps every PDU on the
+//! domain's own frame grid (read from the domain event's public instant tap,
+//! a timestamp source), so the band is IEEE 1722-2016 10.8's +/-5 % of Ps.
+constexpr double kPresBandFrac = 0.05;
+//! the lead a stream's first event is stamped at when its feed starts: 92
+//! frames past the domain's latest event, so the first PDU's last event is
+//! presented 97 frames (2.02 ms) after it, the 2 ms default offset
+constexpr long kLeadFrames = 92;
 //! THE ALIGNER'S SETTLED REPORT (#643), stated here as the LAW under test and
 //! never read back from the DUT: engaged, with its error inside 1/64 sample,
 //! for 2048 media ticks running, reached within the 32768-tick ceiling. These
@@ -227,23 +210,20 @@ constexpr long kSettleCeilTicks = 32768;
 constexpr std::array<long, 18> kLawPhases = {
     0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172, 1302, 1432,
     1562, 1693, 1823, 1953};
-//! ...and each phase's stream: a gap of four PDU slots, which drains the
-//! stage into prefill, then 16 PDUs of prefill (the snap is at the third PDU
-//! end), then 128 graded PDUs, of which the last four are left ungraded so
-//! that every graded first event has popped before the feed stops
-constexpr long kLawGapPdus = 4;
+//! ...and each phase's stream: a gap that drains the stage (the lead's PDU
+//! slots, the frames a stream still has queued when its feed stops, and four
+//! more), then 16 PDUs and 128 more, every event graded at the pins
+constexpr long kLawGapPdus = kLeadFrames / kEvents + 4;
 constexpr long kLawPrefillPdus = 16;
 constexpr long kLawGradedPdus = 128;
-constexpr long kLawUngradedTailPdus = 4;
 //! THE #647 PULL-IN ([PULLIN]): T14's own serial-clock hold, two and a half
 //! frames, which the aligner folds to half a sample, under a RUNNING stream
-//! at INTERNAL. Until #645's settle recentre nothing re-centred the stream
-//! after the pull; now one settle recentre fires once the aligner rests in
-//! its band again, and the law must hold after it. Each phase: the [LAW]
-//! gap and prefill, kPullinBeforePdus on the law, the hold, the wait for the
-//! settle recentre (at most kPullinMaxWaitPdus, the instrument's record
-//! renewed between PDUs every kPullinWaitPdus while the stream runs on), and
-//! kPullinAfterPdus graded after it on a fresh instrument record.
+//! at INTERNAL. Each phase: the [LAW] gap and 16 PDUs, kPullinBeforePdus
+//! graded at their presentation times, the hold, one queue depth, the wait
+//! for the LOOP queues' settle recentre (at most kPullinMaxWaitPdus, the
+//! instrument's record renewed on its timeline every kPullinWaitPdus while
+//! the stream runs on), and kPullinAfterPdus graded after it on a fresh
+//! record.
 constexpr long kPullinHoldCycles = 5200;
 constexpr long kPullinBeforePdus = 64;
 constexpr long kPullinWaitPdus = 3200;
@@ -252,14 +232,8 @@ constexpr long kPullinWaitPdus = 3200;
 //! too; the trace below measures the actual wait in either history.
 constexpr long kPullinMaxWaitPdus = 16000;
 constexpr long kPullinAfterPdus = 128;
-//! the standing phase --with-pullin and --pullin run: the half-sample pull
-//! carries its first pop back across the PDU end, so with nothing re-centring it the
-//! stream would leave the law (the NO-SETTLE arm of tdm8_render_mutants.py),
-//! and after the settle recentre its window is clear of the ambiguity window
+//! the standing phase --with-pullin and --pullin run, #647's
 constexpr long kPullinStandingPhase = 1562;
-//! --law-boundary: the one-cycle scan's half width around the feed phase at
-//! which a PDU end meets a pop
-constexpr long kLawBoundaryHalfBand = 40;
 //! this shape's CRF CLOCK_SOURCE index. Not trusted: the SET_CLOCK_SOURCE
 //! below is graded SUCCESS and the media plane's own registered resolve is
 //! then required to read CRF, so a wrong index fails rather than passes.
@@ -330,13 +304,14 @@ struct DecodedFrame {
     std::array<uint32_t, kSlots> slot{};
     long half_step = 0;                 //! of slot 0's MSB sampling edge
     std::array<long, kSlots> msb_half{};//! ...and of every slot's MSB edge
+    std::array<double, kSlots> msb_phc{};//! ...and the PHC there, ns (#632)
     uint64_t frames_at = 0;             //! lane counters at publication
     uint64_t unders_at = 0;
     uint64_t skips_at = 0;
 };
 
-//! --law-boundary=PHASES: feed phases in axis cycles, comma separated, each
-//! a number or a LO..HI run taken one cycle apart in the order written (so
+//! --pullin=PHASES: feed phases in axis cycles, comma separated, each a
+//! number or a LO..HI run taken one cycle apart in the order written (so
 //! HI..LO scans downward). False, with nothing appended, on anything else.
 bool parse_the_phase_list(const std::string& text, std::vector<long>& out) {
     std::vector<long> phases;
@@ -375,18 +350,10 @@ class TdmRenderHarness {
     bool epoch_only = false;
     bool crf_only = false;
     bool law_only = false;
-    //! --law-boundary: the [LAW] phases at and around the boundary, where a
-    //! window may be NOT GRADABLE without failing the leg. Every other leg's
-    //! law windows are STANDING: each must be gradable. Empty phases: the
-    //! leg locates the boundary itself
-    bool law_boundary = false;
-    std::vector<long> law_boundary_phases;
     //! --pullin: the [PULLIN] standing phase alone. --pullin=PHASES: the #647
-    //! campaign at those feed phases, where (as under --law-boundary) a
-    //! window may be NOT GRADABLE without failing the leg
+    //! campaign at those feed phases
     bool pullin_only = false;
     bool with_pullin = false;
-    bool pullin_sweep = false;
     std::vector<long> pullin_phases;
     bool defect_stopped_clock = false;
     bool defect_one_sample = false;
@@ -541,7 +508,12 @@ class TdmRenderHarness {
         }
     }
     bool load_descriptor_image(const char* path);
-    void step() { lo(); hi(); }
+    //! One axis cycle, the running streams served first (#632): a talker
+    //! does not pause while this leg issues commands, and under presentation
+    //! by timestamp a paused one would restart on a later timeline, a gap at
+    //! the pins. An injection steps the clock through lo()/hi() and serves
+    //! nothing inside it.
+    void step();
     void steps(long n) { while (n--) step(); }
 
     // ---------------------------------------------------------------- //
@@ -562,6 +534,7 @@ class TdmRenderHarness {
     long fsync_rises = 0;
     std::array<uint32_t, kSlots> word{};
     std::array<long, kSlots> msb_half{};
+    std::array<double, kSlots> msb_phc{};
     long frame_msb_half = 0;
     std::vector<DecodedFrame> decoded;
     long framing_faults = 0;             //! q != 0 at a one-rise expiry
@@ -598,7 +571,11 @@ class TdmRenderHarness {
         if (!framed) return;
         const int slot = q / kSlotBits;
         const int bit = q % kSlotBits;
-        if (bit == 0) msb_half[static_cast<size_t>(slot)] = half_step;
+        if (bit == 0) {
+            msb_half[static_cast<size_t>(slot)] = half_step;
+            msb_phc[static_cast<size_t>(slot)] =
+                static_cast<double>(dut->rootp->milan_datapath__DOT__ptp_now_w);
+        }
         if (slot == 0 && bit == 0) frame_msb_half = half_step;
         word[static_cast<size_t>(slot)] =
             (word[static_cast<size_t>(slot)] << 1) | static_cast<uint32_t>(d);
@@ -606,6 +583,7 @@ class TdmRenderHarness {
             DecodedFrame fr;
             fr.slot = word;
             fr.msb_half = msb_half;
+            fr.msb_phc = msb_phc;
             fr.half_step = frame_msb_half;
             fr.frames_at = lane_frames();
             fr.unders_at = lane_unders();
@@ -694,102 +672,85 @@ class TdmRenderHarness {
     long counter_worst_lead = 0;
 
     // ---------------------------------------------------------------- //
-    //  THE #386 LAW INSTRUMENT, the one sim_aclk uses, kept here so the  //
-    //  setpoint law is observed in the SAME run that decodes the pins.   //
-    //  Records are kept by the PDU's own 12-bit wire id; the accept      //
-    //  pulse carries no id, so accepts are matched to injections in      //
-    //  order, which the depacketizer keeps and this leg never breaks.    //
-    //                                                                    //
-    //  THE INSTANT IS THE STAGE'S OWN (#643): the PDU END, the cycle     //
-    //  KL_render_setpoint takes a PDU's last beat. Its pdu_end_w is the  //
-    //  accepted clone beat with tlast, and the lb_tap strobes are that   //
-    //  same accepted clone (LOOPBACK_P = 1 on this leg), so the end is   //
-    //  read there and belongs to the PDU last accepted, 28 to 48 cycles  //
-    //  earlier. The fill is read one cycle after the end beat, once it   //
-    //  is in: the stage's fill_end_w, the value it snaps and judges its  //
-    //  bands against, with a pop taken in the end beat's cycle counted.  //
+    //  THE PRESENTATION INSTRUMENT (#632). The domain's media events are  //
+    //  read off the datapath's public instant tap (dom_ns_w, a TIMESTAMP  //
+    //  source, never an expected value): a change is an event, and their  //
+    //  instants give the frame period in PHC nanoseconds. A stream's PDUs //
+    //  are stamped on one timeline per feed, a talker on the domain's     //
+    //  clock (stamp_the_event), every event's presentation time is kept  //
+    //  as sent, and the pin decoder takes the PHC at every slot-MSB edge. //
     // ---------------------------------------------------------------- //
-    static constexpr size_t kIdSpace = 4096;
-    std::vector<int> sent_ids;              //! wire ids, in injection order
-    size_t accepts_seen = 0;
-    std::array<long, kIdSpace> end_at{};    //! axis cycle of the PDU-end beat
-    std::array<int, kIdSpace> fill_end{};   //! the stage's fill once it is in
-    std::array<long, kIdSpace> pop_at{};    //! ...and of its event 0's pop
-    //! THE AMBIGUITY WINDOW's evidence: the cycle the stage took every
-    //! stream-0 pop in, ascending. Its pulse is registered, so it is seen one
-    //! cycle later; a pop taken in an end beat's cycle is in that end's fill
-    std::vector<long> pop_take;
-    long last_accept_id = -1;               //! the PDU an end beat belongs to
-    long end_fill_due = -1;                 //! ...whose fill is read next
-    long recentre_pulses = 0;               //! render_recentre_p_w edges
-    long src_recentre_pulses = 0;           //! the clock-source trigger's own
-    long settle_pulses = 0;                 //! #645's settle recentre
-    //! ...and, for the multi-stream arm, the two per-stream observations that
-    //! stop "the second stream is live" from being an assumption: how many
-    //! PDUs the monitor ACCEPTED for each stream, and how many events the
-    //! render stage POPPED for each.
+    long dom_count = 0;                     //! domain events seen
+    uint64_t dom_ns_last = 0;               //! the latest one's instant
+    long dom_c0 = -1;                       //! the measured period's baseline
+    uint64_t dom_ns0 = 0;
+    //! the frame period in PHC ns, the model's own clock plan (512 serial
+    //! cycles of axis_clk x 391/1591, the PHC at PTP_INCR's 10 ns reset), so
+    //! the clock games later phases play move no stamp; the domain events'
+    //! own spacing, measured live, is reported beside it
+    const double ps_phc = 512.0 * static_cast<double>(kAudDen) / static_cast<double>(kAudNum)
+                        * kModelNsPerAxis;
+    double ps_meas = 0.0;
+    std::array<bool, 2> anchored{};         //! a stream's feed has a timeline
+    std::array<double, 2> anchor_ns{};      //! ...its anchor event's time
+    std::array<long, 2> anchor_ord{};       //! ...and that event's ordinal
+    std::array<std::vector<double>, 2> pt_ns;  //! every event's presentation time
+    //! PDUs the monitor accepted and events the stage handed interface 0,
+    //! per stream, and #645's settle recentre (the LOOP queues')
     std::array<long, 2> accepts_by_stream{};
     std::array<long, 2> pops_by_stream{};
+    long settle_pulses = 0;
+
+    void observe_domain() {
+        const uint64_t dn = dut->rootp->milan_datapath__DOT__dom_ns_w;
+        if (dn == dom_ns_last) return;
+        dom_ns_last = dn;
+        ++dom_count;
+        //! the measured spacing, over live (marker) events only
+        if (!dut->rootp->milan_datapath__DOT__dom_live_w) { dom_c0 = -1; return; }
+        if (dom_c0 < 0) {
+            dom_c0 = dom_count;
+            dom_ns0 = dn;
+            return;
+        }
+        const long n = dom_count - dom_c0;
+        if (n >= 64) ps_meas = static_cast<double>(dn - dom_ns0) / static_cast<double>(n);
+    }
+
+    //! A talker on the domain's clock: a feed's first event is stamped
+    //! kLeadFrames past the domain's latest event, every later one a period
+    //! per event after it. A feed that stopped and restarts, whose next
+    //! stamp would be under half that lead, starts a new timeline.
+    double stamp_the_event(int s, long ord) {
+        const size_t i = static_cast<size_t>(s);
+        double pt = anchor_ns[i] + static_cast<double>(ord - anchor_ord[i]) * ps_phc;
+        const double floor_ns = static_cast<double>(dom_ns_last) + 0.5 * kLeadFrames * ps_phc;
+        if (!anchored[i] || pt < floor_ns) {
+            anchored[i] = true;
+            anchor_ord[i] = ord;
+            anchor_ns[i] = static_cast<double>(dom_ns_last) + kLeadFrames * ps_phc;
+            pt = anchor_ns[i];
+        }
+        return pt;
+    }
+    void record_pt(int s, long ord, double pt) {
+        auto& v = pt_ns[static_cast<size_t>(s)];
+        if (static_cast<long>(v.size()) <= ord) v.resize(static_cast<size_t>(ord) + 1, -1.0);
+        v[static_cast<size_t>(ord)] = pt;
+    }
+    double pt_of(int s, long ord) const {
+        const auto& v = pt_ns[static_cast<size_t>(s)];
+        return (ord >= 0 && ord < static_cast<long>(v.size())) ? v[static_cast<size_t>(ord)] : -1.0;
+    }
+    //! slot k's MSB after its frame's instant: (32 k + 1) bit periods
+    double slot_offset_phc(int k) const {
+        return (32.0 * k + 1.0) * ps_phc / static_cast<double>(kFrameBclks);
+    }
+    double pres_band() const { return kPresBandFrac * ps_phc; }
 
     void law_reset() {
-        sent_ids.clear();
-        accepts_seen = 0;
-        end_at.fill(-1);
-        fill_end.fill(-1);
-        pop_at.fill(-1);
-        pop_take.clear();
-        last_accept_id = -1;
-        end_fill_due = -1;
-    }
-
-    //! the PDU-end half of the law instrument: the fill of the PDU whose last
-    //! beat the stage took last cycle, then this cycle's end beat, then the
-    //! take cycle of a stream-0 pop whose pulse is seen this cycle
-    void observe_pdu_end() {
-        if (end_fill_due >= 0) {
-            fill_end[static_cast<size_t>(end_fill_due)] =
-                static_cast<int>(dut->rootp->milan_datapath__DOT__rsp_fill_w & 0xFF);
-            end_fill_due = -1;
-        }
-        if (dut->rootp->milan_datapath__DOT__lb_tap_tvalid_w &&
-            dut->rootp->milan_datapath__DOT__lb_tap_tlast_w &&
-            dut->rootp->milan_datapath__DOT__lb_tap_tuser_w == 0 &&
-            last_accept_id >= 0) {
-            end_at[static_cast<size_t>(last_accept_id)] = axis_cycle;
-            end_fill_due = last_accept_id;
-        }
-        if (dut->rootp->milan_datapath__DOT__rsp_pop_p_w & 1)
-            pop_take.push_back(axis_cycle - 1);
-    }
-
-    //! The stream-0 pop nearest the boundary a PDU end's fill reads across:
-    //! its offset `delta`, the cycle it was taken in minus the end beat's (0
-    //! or less is counted in that end's fill, 1 or more is not), and its
-    //! `clear`ance, the whole cycles between it and that boundary (0 for a pop
-    //! taken with the end beat or one cycle after it). `next` is the offset of
-    //! the first pop taken after the end, whichever is nearer, and `steady`
-    //! says a pop was taken within two ticks on BOTH sides: not so at the
-    //! snap, whose earlier pops prefill held, nor at an end in prefill.
-    struct PopNear {
-        long next = 0;
-        long delta = 0;
-        long clear = std::numeric_limits<long>::max();
-        bool steady = false;
-    };
-    PopNear pop_nearest_the_end(long end) const {
-        PopNear p;
-        const auto after = std::upper_bound(pop_take.begin(), pop_take.end(), end);
-        const bool next = after != pop_take.end();
-        const bool prev = after != pop_take.begin();
-        if (next) p = {*after - end, *after - end, *after - end - 1, false};
-        if (prev && end - *(after - 1) < p.clear) {
-            p.delta = *(after - 1) - end;
-            p.clear = end - *(after - 1);
-        }
-        p.steady = next && prev &&
-                   static_cast<double>(*after - end) < 2 * kTickCycles &&
-                   static_cast<double>(end - *(after - 1)) < 2 * kTickCycles;
-        return p;
+        anchored[0] = false;
+        pt_ns[0].clear();
     }
 
     void observe_law() {
@@ -799,24 +760,10 @@ class TdmRenderHarness {
             ++accepts_by_stream[s];
         }
         for (size_t s = 0; s < pops_by_stream.size(); s++)
-            if ((dut->rootp->milan_datapath__DOT__rsp_pop_p_w >> s) & 1)
+            if ((dut->rootp->milan_datapath__DOT__rq_pop_p_w >> s) & 1)
                 ++pops_by_stream[s];
-        observe_pdu_end();
-        if (dut->rootp->milan_datapath__DOT__avtprx_accept_p &&
-            accepts_seen < sent_ids.size())
-            last_accept_id = sent_ids[accepts_seen++];
-        if (dut->rootp->milan_datapath__DOT__rsp_pop_p_w & 1) {
-            const uint64_t d = dut->rootp->milan_datapath__DOT__rsp_tdata_w;
-            const uint32_t s0 = (static_cast<uint32_t>(d & 0xFF) << 16) |
-                                (static_cast<uint32_t>((d >> 8) & 0xFF) << 8) |
-                                static_cast<uint32_t>((d >> 16) & 0xFF);
-            const size_t id = (s0 >> 12) & 0xFFF;
-            if (((s0 >> 8) & 0xF) == 0 && pop_at[id] < 0)
-                pop_at[id] = axis_cycle;
-        }
-        if (dut->rootp->milan_datapath__DOT__render_recentre_p_w) ++recentre_pulses;
-        if (dut->rootp->milan_datapath__DOT__src_recentre_p_r) ++src_recentre_pulses;
         if (dut->rootp->milan_datapath__DOT__settle_recentre_p_r) ++settle_pulses;
+        observe_domain();
     }
 
     //! THE ALIGNER'S SETTLED REPORT (#643), followed at every media tick from
@@ -1057,14 +1004,20 @@ class TdmRenderHarness {
         f[15] = 0x81;                               // sv, tv
         f[16] = (stream == 0) ? wire_seq++ : wire_seq1++;
         memcpy(f + 18, kSid[stream], 8);
-        f[26] = 0x00; f[27] = 0x00; f[28] = 0x10; f[29] = 0x00;
+        //! #632: the PDU's presentation time, its first event's (IEEE
+        //! 1722-2016 7.5), on the stream's timeline
+        const long base = (stream == 0) ? injected_events : injected1_events;
+        const double ts = stamp_the_event(stream, base);
+        const uint32_t ts32 = static_cast<uint32_t>(static_cast<uint64_t>(std::llround(ts)));
+        f[26] = static_cast<uint8_t>(ts32 >> 24); f[27] = static_cast<uint8_t>(ts32 >> 16);
+        f[28] = static_cast<uint8_t>(ts32 >> 8);  f[29] = static_cast<uint8_t>(ts32);
+        for (int k = 0; k < kEvents; k++) record_pt(stream, base + k, ts + k * ps_phc);
         f[30] = 0x02;                               // INT32
         f[31] = static_cast<uint8_t>(0x05 << 4);    // 48 kHz
         f[32] = static_cast<uint8_t>(kChans);
         f[33] = 32;
         f[34] = static_cast<uint8_t>(kPayloadBytes >> 8);
         f[35] = static_cast<uint8_t>(kPayloadBytes & 0xFF);
-        const long base = (stream == 0) ? injected_events : injected1_events;
         for (int k = 0; k < kEvents; k++) {
             const size_t e = static_cast<size_t>(base) + static_cast<size_t>(k);
             if (stream == 0 && e >= inj.size()) break;
@@ -1086,10 +1039,6 @@ class TdmRenderHarness {
             }
         }
         if (stream == 0) {
-            //! the #386 law instrument follows stream 0's accepts in order;
-            //! it is read only by the single-stream [CRF] phase
-            sent_ids.push_back(
-                static_cast<int>(injected_events / kEvents) & 0xFFF);
             injected_events += kEvents;
             ++pdu_cursor;
         } else {
@@ -1153,35 +1102,37 @@ class TdmRenderHarness {
         inject(f, 64);
     }
 
-    //! #658's power-on proofs insert commands into this leg's timeline. A law
-    //! window is graded only where no PDU end meets a pop (#643), and where
-    //! they meet depends on the ABSOLUTE timeline: the CRF timestamps are PHC
-    //! time while every phase starts its feeds relative to its own start. So
-    //! an inserted segment is padded to a whole CRF PDU period (2 ms, which is
-    //! 32 x 3 media frames), and every later phase meets the CRF and media
-    //! grids where it met them before (the physical TDM grid, 96 frames to
-    //! 200 002.1 cycles, moves by 2.1 cycles per period).
+    //! #658's power-on proofs insert commands into this leg's timeline, and
+    //! the CRF timestamps are PHC time while every phase starts its feeds
+    //! relative to its own start. So an inserted segment is padded to a whole
+    //! CRF PDU period (2 ms, which is 32 x 3 media frames), and every later
+    //! phase meets the CRF and media grids where it met them before (the
+    //! physical TDM grid, 96 frames to 200 002.1 cycles, moves by 2.1 cycles
+    //! per period).
     void pad_to_a_whole_crf_period(long since) {
         while ((axis_cycle - since) % kCrfPduPeriodCycles != 0) step();
     }
 
+    bool serve_feeds() {
+        if (crf_on && axis_cycle >= crf_next_at) {
+            send_crf();
+            crf_next_at += kCrfPduPeriodCycles;
+        } else if (feed_on && axis_cycle >= next_pdu_at &&
+                   static_cast<size_t>(injected_events) + kEvents <= inj.size()) {
+            send_pdu(0);
+            advance_pdu_slot();
+        } else if (feed1_on && axis_cycle >= next_pdu1_at) {
+            send_pdu(1);
+            next_pdu1_at += kPduPeriodCycles;
+        } else {
+            return false;
+        }
+        return true;
+    }
+
     void run_fed(long n) {
         const long stop = axis_cycle + n;
-        while (axis_cycle < stop) {
-            if (crf_on && axis_cycle >= crf_next_at) {
-                send_crf();
-                crf_next_at += kCrfPduPeriodCycles;
-            } else if (feed_on && axis_cycle >= next_pdu_at &&
-                       static_cast<size_t>(injected_events) + kEvents <= inj.size()) {
-                send_pdu(0);
-                advance_pdu_slot();
-            } else if (feed1_on && axis_cycle >= next_pdu1_at) {
-                send_pdu(1);
-                next_pdu1_at += kPduPeriodCycles;
-            } else {
-                step();
-            }
-        }
+        while (axis_cycle < stop) step();
     }
 
     // ---------------------------------------------------------------- //
@@ -1493,6 +1444,7 @@ class TdmRenderHarness {
     void prove_a_stale_stream_repoint_is_bounded(int slot, int chan);
     void prove_the_lane_renders_a_second_stream(int slot, int chan);
     void prove_a_rendered_stream_loss_closes_the_epoch(int slot, int chan);
+    void prove_a_map_write_in_the_closed_epoch_reaches_no_slot();
     void prove_the_nonphysical_key_mirrors_without_reaching_a_pin();
     void phase_serial();
     void phase_csr();
@@ -1503,44 +1455,15 @@ class TdmRenderHarness {
     long get_clock_source();
     void provision_the_crf_sink();
     void select_crf_under_the_running_stream();
-    //! the offsets of the pops nearest the PDU ends of a span: the least
-    //! clearance and the PDU it was at, and the offsets' ranges across the
-    //! steady ends, the nearest pop's (d) and the first pop after's (n). The
-    //! WALK is the nearest pop's range, the measure the ambiguity window is
-    //! stated in. That range wraps only where the ends sit half a tick from
-    //! the grid and the nearest pop changes side; there, and only there, the
-    //! walk is the first pop after's range, which wraps only at the boundary.
-    struct EndOffsets {
-        long ends = 0;
-        long dmin = 0;
-        long dmax = 0;
-        long nmin = 0;
-        long nmax = 0;
-        long clear = std::numeric_limits<long>::max();
-        long clear_id = -1;
-        long clear_delta = 0;
-        bool walk_wraps() const {
-            return 2.0 * static_cast<double>(dmax - dmin) > kTickCycles;
-        }
-        long walk() const { return walk_wraps() ? nmax - nmin : dmax - dmin; }
-    };
-    EndOffsets offsets_at_pdu_ends(long from_id, long to_id) const;
-    void print_the_offset_histogram(long from_id, long to_id, const char* tag) const;
-    bool the_window_is_gradable(long span_first, long last_id, const char* tag);
-    bool prove_the_setpoint_law_still_holds(long span_first, long first_id,
-                                            long last_id, const char* tag,
-                                            long expect_n);
     void deselect_back_to_internal(uint64_t epochs_before);
     void wait_for_the_settled_report();
     void phase_internal_law();
-    void phase_law_boundary();
-    long locate_the_law_boundary();
     void grade_the_law_at_a_feed_phase(long phase);
     void phase_pullin(const std::vector<long>& phases);
     bool parse_the_modes(int argc, char** argv);
     void pull_in_at_a_feed_phase(long phase);
     long wait_for_the_settle_recentre(const char* tag, long settle0);
-    void rebase_the_record_between_pdus(long pdus);
+    void rebase_the_record_on_its_timeline(long pdus);
 
     //! THE GRADING RULE. Every published frame is matched against the
     //! injection record at some advance a in 0..kMaxAdvance; the smallest a
@@ -1562,17 +1485,24 @@ class TdmRenderHarness {
         long uncounted_skips = 0;
         long pending_skips = 0;
         long cursor = 0;
+        //! #632: each event's slot-MSB pin instants, less the slot offsets,
+        //! against its presentation time: the largest error, and how many
+        double pres_max = 0.0;
+        long pres_n = 0;
         //! the advance each decoded frame took, so a later measurement can
         //! walk the COMMIT cursor beside the event cursor
         std::vector<long> advances;
     };
     Grade grade_frames(long first_event, const char* tag);
+    //! #632: a window's presentation verdict, by the leg's own law, and a
+    //! fresh stream's frames from its first rendered one to its last
+    void prove_the_window_is_presented(const Grade& g, const char* tag, long min_n);
+    Grade grade_a_fresh_stream(const char* tag, long* first_ordinal);
 
     //! Where in the IMMUTABLE injection record one decoded frame sits, or -1
-    //! when no ordinal matches it. Searched, never assumed: the preserved
-    //! prefill snap and the epoch admission decide which event renders first,
-    //! and a slot fed from another stream carries its own ordinal and takes
-    //! no part in the match.
+    //! when no ordinal matches it. Searched, never assumed: the epoch
+    //! admission decides which event renders first, and a slot fed from
+    //! another stream carries its own ordinal and takes no part in the match.
     long find_the_ordinal(const DecodedFrame& fr) const {
         return find_the_ordinal_raw(fr.slot, /*slip=*/false);
     }
@@ -1641,7 +1571,7 @@ class TdmRenderHarness {
 
     //! The arms phase_serial and the two epoch phases run, each named for what
     //! it proves rather than for the order it happens to sit in.
-    void prove_the_first_rendered_event_is_the_derived_one();
+    void prove_the_first_rendered_event_is_the_feeds_first();
     void prove_the_late_attribution_reading_is_one_bit_late();
     void grade_the_decoded_window(long first_event, uint64_t skips_before,
                                   uint64_t unders_before);
@@ -1678,6 +1608,12 @@ class TdmRenderHarness {
 };
 
 // ====================================================================== //
+
+void TdmRenderHarness::step() {
+    if (serve_feeds()) return;
+    lo();
+    hi();
+}
 
 bool TdmRenderHarness::load_descriptor_image(const char* path) {
     std::FILE* f = std::fopen(path, "rb");
@@ -1865,6 +1801,17 @@ TdmRenderHarness::Grade TdmRenderHarness::grade_frames(long first_event,
         }
         g.pending_skips = static_cast<long>(fr.skips_at - skips0) - skips_accounted;
         unders_prev = fr.unders_at;
+        //! #632: the frame's pins against its event's presentation time; a
+        //! repeat is its event a frame late, and is graded so
+        {
+            const double pt = pt_of(0, g.cursor + advance);
+            for (int k = 0; k < kSlots && pt >= 0.0; k++) {
+                if (stream_of_slot(k) != 0 || src_of_slot(k) < 0) continue;
+                const double err = fr.msb_phc[static_cast<size_t>(k)] - slot_offset_phc(k) - pt;
+                g.pres_max = std::max(g.pres_max, std::fabs(err));
+                ++g.pres_n;
+            }
+        }
         g.cursor += advance;
         ++g.frames;
         first = false;
@@ -2008,18 +1955,17 @@ void TdmRenderHarness::phase_serial() {
                     "serial window\n");
         tdm_frozen = true;
     }
-    // PREFILL AND LOCK, WITH THE DECODER ALREADY OPEN. The setpoint's own
-    // 18-to-14 snap happens here, and the first ELIGIBLE event is decided by
-    // it, not by the first injection: the window below opens before the snap,
-    // so the first event that ever reaches the pins is observed rather than
-    // searched for, and it is graded against the derived ordinal.
+    // THE FIRST EVENT, WITH THE DECODER ALREADY OPEN (#632). The feed's first
+    // event is stamped kLeadFrames ahead, so the lane renders digital
+    // silence until its presentation time and then that event: the window
+    // opens with the feed and holds both.
     decoder_reset();
     taps_reset();
     collect = true;
-    run_fed(10 * kPduPeriodCycles);
+    run_fed(25 * kPduPeriodCycles);
     collect = false;
-    prove_the_first_rendered_event_is_the_derived_one();
-    run_fed(50 * kPduPeriodCycles);
+    prove_the_first_rendered_event_is_the_feeds_first();
+    run_fed(35 * kPduPeriodCycles);
     decoder_reset();
     taps_reset();
     collect = true;
@@ -2071,16 +2017,15 @@ void TdmRenderHarness::prove_the_late_attribution_reading_is_one_bit_late() {
               static_cast<uint64_t>(late_frames.size()));
 }
 
-//! T6 PREFILL: the FIRST event this lane ever renders, DERIVED and then
-//! observed. The window this runs on opened before the prefill snap, so the
-//! lane is watched from digital silence through its first audio frame. The
-//! expected ordinal is kFirstEligibleEvent, computed from the preserved
-//! prefill rule and this leg's own feed rate; the only law allowed to move it
-//! is drop-oldest, which counts every frame it overwrites, so the ordinal is
-//! corrected by the lane's OWN counted skips and the remainder is an equality.
-void TdmRenderHarness::prove_the_first_rendered_event_is_the_derived_one() {
-    check.that("T6 PREFILL: the window opened at prefill decoded whole frames",
-               decoded.size() > 4);
+//! T6 FIRST EVENT (#632): the FIRST event this lane ever renders, observed
+//! from digital silence. The presentation law leaves nothing to search for:
+//! the first event at the pins is the feed's first, ordinal 0, in the frame
+//! its timestamp names, and nothing before it is dropped. The only law that
+//! may move the ordinal is drop-oldest, which counts every frame it
+//! overwrites, so the ordinal is corrected by the lane's OWN counted skips.
+void TdmRenderHarness::prove_the_first_rendered_event_is_the_feeds_first() {
+    check.that("T6 FIRST EVENT: the window opened with the feed decoded whole "
+               "frames", decoded.size() > 4);
     long first_nz = -1;
     for (size_t i = 0; i < decoded.size() && first_nz < 0; i++)
         for (int k = 0; k < kSlots; k++)
@@ -2088,25 +2033,42 @@ void TdmRenderHarness::prove_the_first_rendered_event_is_the_derived_one() {
                 first_nz = static_cast<long>(i);
                 break;
             }
-    check.that("T6 PREFILL: the lane rendered digital silence before its "
-               "first eligible event, and then rendered one", first_nz > 0);
+    check.that("T6 FIRST EVENT: the lane rendered digital silence before the "
+               "feed's first presentation time, and then rendered it", first_nz > 0);
     if (first_nz <= 0) return;
     const DecodedFrame& fr = decoded[static_cast<size_t>(first_nz)];
     const long ordinal = find_the_ordinal(fr);
     const long skips = static_cast<long>(fr.skips_at - decoded.front().skips_at);
-    std::printf("  [i]    T6 PREFILL: silence for %ld frame(s), then ordinal "
-                "%ld with %ld counted skip(s); derived first eligible ordinal "
-                "%ld (%ld events pushed at the snap, %d kept)\n",
-                first_nz, ordinal, skips, kFirstEligibleEvent,
-                kPrefillPdus * kEvents, kPrefillTargetEvt);
-    check.that("T6 PREFILL: the first rendered frame is an injected media "
+    const double err = ordinal >= 0
+        ? fr.msb_phc[0] - slot_offset_phc(0) - pt_of(0, ordinal) : 0.0;
+    std::printf("  [i]    T6 FIRST EVENT: silence for %ld frame(s), then ordinal "
+                "%ld with %ld counted skip(s), its slot 0 at %+.1f ns from its "
+                "presentation time (the frame period %.3f ns; the domain events "
+                "measured %.3f ns apart)\n",
+                first_nz, ordinal, skips, err, ps_phc, ps_meas);
+    check.that("T6 FIRST EVENT: the first rendered frame is an injected media "
                "event", ordinal >= 0);
     if (ordinal < 0) return;
-    check.dec("T6 PREFILL: the first event the lane renders is the one the "
-              "preserved prefill snap leaves at the head, plus its own "
-              "counted skips",
-              static_cast<uint64_t>(ordinal - skips),
-              static_cast<uint64_t>(kFirstEligibleEvent));
+    check.dec("T6 FIRST EVENT: the first event the lane renders is the feed's "
+              "first, plus its own counted skips",
+              static_cast<uint64_t>(ordinal - skips), 0);
+    check.that("T6 FIRST EVENT: ...in the frame its timestamp names, inside "
+               "+/-5 % of Ps", std::fabs(err) < pres_band());
+}
+
+//! #632: a window's presentation, by the law the leg states: every graded
+//! event's slot-MSB pin instants, less their slot offsets, at its
+//! presentation time inside the band, over at least min_n slot grades.
+void TdmRenderHarness::prove_the_window_is_presented(const Grade& g, const char* tag,
+                                                      long min_n) {
+    char what[200];
+    std::printf("  [i]    %s PRESENTATION: %ld slot grades, the largest |pin - "
+                "presentation time| %.1f ns (+/-5 %% of Ps is %.1f ns)\n",
+                tag, g.pres_n, g.pres_max, pres_band());
+    std::snprintf(what, sizeof what,
+                  "%s PRESENTATION: every event's slot-MSB pin instant, less its "
+                  "slot offset, is its presentation time inside +/-5 %% of Ps", tag);
+    check.that(what, g.pres_n >= min_n && g.pres_max < pres_band());
 }
 
 //! The decoded window, graded against the immutable injection record: the
@@ -2116,12 +2078,12 @@ void TdmRenderHarness::grade_the_decoded_window(long first_event,
                                                 uint64_t skips_before,
                                                 uint64_t unders_before) {
     // WHERE THIS WINDOW STARTS. This window opens in mid-stream, long after
-    // the prefill snap T6 PREFILL derived and graded, so its first ordinal is
+    // the first event T6 FIRST EVENT graded, so its first ordinal is
     // whichever event the lane had reached - SEARCHED for in the injection
     // record rather than assumed, with the grading then requiring every later
-    // frame to follow from it by a permitted advance. The DERIVED claim about
-    // the first eligible event is the one above; this is the cursor for the
-    // identity and order grading below.
+    // frame to follow from it by a permitted advance. The claim about the
+    // first event is the one above; this is the cursor for the identity and
+    // order grading below.
     const DecodedFrame& f0 = decoded.front();
     const long start = find_the_ordinal(f0);
     check.that("T6 IDENTITY: the first decoded frame is an injected media "
@@ -2162,6 +2124,7 @@ void TdmRenderHarness::grade_the_decoded_window(long first_event,
     std::printf("  [i]    %ld frames graded, %ld repeat(s), %ld skipped "
                 "event(s), %ld counted skip(s) still pending adoption\n",
                 g.frames, g.repeats, g.skipped, g.pending_skips);
+    prove_the_window_is_presented(g, "T6", 1000);
 
     prove_the_lane_counters_are_coherent(skips_before, unders_before);
     measure_the_commit_to_pin_terms(g);
@@ -2368,18 +2331,23 @@ void TdmRenderHarness::prove_each_slot_sits_at_its_own_position(
               static_cast<uint64_t>(slot_pos_faults), 0);
 }
 
-//! #657: a nominal feed never starved the serializer, so T6's repeat
-//! counter assertion was vacuous. For two PDU periods, double only the
-//! physical audio/serial clock while the packet grid feeds the real path.
-//! This forces fresh-frame underruns; pausing AAF instead can repeat samples
-//! upstream while still committing fresh serializer frames.
+//! #657 under #632: a faster serial clock. For two PDU periods only the
+//! physical audio/serial clock doubles while the packet grid feeds the real
+//! path. Until #632 the render stage read on the packet grid, so the faster
+//! serializer starved and repeated frames, each a counted underrun. The
+//! stage now reads on the domain's media event, the bus's own frame marker,
+//! so its reads and the serializer's frames move together: the doubled
+//! frames carry the queued events one each, in order, at the doubled rate,
+//! and the serializer never starves. A stimulus that starves it no longer
+//! exists in the integration; its underrun counter is graded zero here.
 void TdmRenderHarness::prove_serial_underruns_are_counted() {
     build_injection_record(64);
     feed_on = true;
     pdu_frac_num = 0;
     pdu_frac_acc = 0;
     next_pdu_at = axis_cycle + 64;
-    run_fed(10 * kPduPeriodCycles);
+    run_fed(25 * kPduPeriodCycles);
+    const uint64_t unders0 = lane_unders();
     decoder_reset();
     collect = true;
     tdm_double_rate = true;
@@ -2388,28 +2356,28 @@ void TdmRenderHarness::prove_serial_underruns_are_counted() {
     collect = false;
     feed_on = false;
 
-    check.that("T6 UNDERRUN: routed slots make the identity check nontrivial",
+    check.that("T6 FASTER CLOCK: routed slots make the identity check nontrivial",
                routed_slots() > 0);
-    check.that("T6 UNDERRUN: the faster serial clock decoded whole frames",
-               decoded.size() > 8);
+    check.that("T6 FASTER CLOCK: the faster serial clock decoded whole frames",
+               decoded.size() > 16);
     const long first = decoded.empty() ? -1 : find_the_ordinal(decoded.front());
-    check.that("T6 UNDERRUN: the first frame is an injected media event",
+    check.that("T6 FASTER CLOCK: the first frame is an injected media event",
                first >= 0);
     if (first < 0) return;
-    const Grade g = grade_frames(first, "T6 UNDERRUN");
-    check.dec("T6 UNDERRUN: every frame retains its complete sample identity",
+    const Grade g = grade_frames(first, "T6 FASTER CLOCK");
+    check.dec("T6 FASTER CLOCK: every frame retains its complete sample identity",
               static_cast<uint64_t>(g.identity_failures), 0);
-    check.dec("T6 UNDERRUN: every slot retains zero padding",
+    check.dec("T6 FASTER CLOCK: every slot retains zero padding",
               static_cast<uint64_t>(g.pad_failures), 0);
-    check.that("T6 UNDERRUN: the faster serial clock forced repeated frames",
-               g.repeats > 0);
-    check.dec("T6 UNDERRUN: every forced repeat is a counted underrun",
-              static_cast<uint64_t>(g.uncounted_repeats), 0);
-    check.dec("T6 UNDERRUN: the faster consumer skipped no source event",
+    check.dec("T6 FASTER CLOCK: the reads followed the faster frames: no repeat",
+              static_cast<uint64_t>(g.repeats), 0);
+    check.dec("T6 FASTER CLOCK: ...and no skipped event",
               static_cast<uint64_t>(g.skipped), 0);
-    std::printf("  [i]    T6 UNDERRUN: %ld frames, %ld forced repeats, %ld "
-                "uncounted repeats, %ld skipped events\n",
-                g.frames, g.repeats, g.uncounted_repeats, g.skipped);
+    check.dec("T6 FASTER CLOCK: the serializer never starved: no counted underrun",
+              static_cast<uint64_t>(lane_unders() - unders0), 0);
+    std::printf("  [i]    T6 FASTER CLOCK: %ld frames, %ld repeats, %ld skipped "
+                "events, underruns %llu\n", g.frames, g.repeats, g.skipped,
+                static_cast<unsigned long long>(lane_unders() - unders0));
 }
 
 void TdmRenderHarness::prove_the_surplus_is_drop_oldest() {
@@ -2427,13 +2395,15 @@ void TdmRenderHarness::prove_the_surplus_is_drop_oldest() {
         next_pdu_at = axis_cycle + 64;
         run_fed(10 * kPduPeriodCycles);
         tdm_frozen = true;
-        // Two and a half frame intervals: enough that two producer commits
-        // land inside one frame interval, and inside the CDC's four entries
-        // so nothing is lost as an OVERRUN. A hold longer than the CDC is
-        // depth-limited whatever the surplus policy is - the consumer cannot
-        // drain a clock that is not running - so it would discriminate
+        // Six frame intervals. The producer commits on the domain's media
+        // event (#632), which stops with the serial clock: after the domain
+        // event's four-frame timeout the packet-grid tick stands in for it,
+        // so two producer commits land inside the hold, inside the CDC's four
+        // entries so nothing is lost as an OVERRUN. A hold longer than the
+        // CDC is depth-limited whatever the surplus policy is - the consumer
+        // cannot drain a clock that is not running - so it would discriminate
         // nothing; that limit is recorded in docs/CHANNEL_MAP_64.md.
-        run_fed(5200);
+        run_fed(12500);
         tdm_frozen = false;
         run_fed(10 * kPduPeriodCycles);
         check.that("T14 SKIP LAW: the forced surplus was COUNTED as skips",
@@ -2486,9 +2456,13 @@ void TdmRenderHarness::prove_the_surplus_is_drop_oldest() {
 }
 
 void TdmRenderHarness::prove_a_removal_silences_only_its_own_slots() {
-    // T8 REMOVE: two of the eight, and nothing else moves
+    // T8 REMOVE: two of the eight, and nothing else moves. The stream runs
+    // through it: the render stage presents silence for a frame with no
+    // sample (#632), where the crossbar once held the last event it had.
     const int drop_a = 2;
     const int drop_b = 5;
+    feed_on = true;
+    next_pdu_at = axis_cycle + 64;
     check.dec("T8 REMOVE: two mappings removed",
               static_cast<uint64_t>(map_cmd(kCmdRemoveMappings,
                                             {{kPerm[drop_a], drop_a},
@@ -2514,11 +2488,14 @@ void TdmRenderHarness::prove_a_removal_silences_only_its_own_slots() {
     // d352bbaa the boot restore also runs the D3 walk, which moves this leg's
     // arrival here against the frame grid; nothing in the removal changed.
     run_fed(static_cast<long>(kFrameAxis + kCdcFloorAxis + kBitAxis) + 1);
+    //! ...and a restarted feed is presented a lead after its first PDU
+    run_fed((kLeadFrames / kEvents + 2) * kPduPeriodCycles);
     decoder_reset();
     taps_reset();
     collect = true;
     run_fed(40 * kPduPeriodCycles);
     collect = false;
+    feed_on = false;
     long silent = 0;
     for (const DecodedFrame& fr : decoded) {
         if ((fr.slot[static_cast<size_t>(drop_a)] == 0) &&
@@ -3063,7 +3040,11 @@ void TdmRenderHarness::prove_a_rebind_carries_only_post_rebind_audio(
         uint64_t epochs_before, long events_at_loss) {
     // T26: rewrite the map while the bind is down. The re-seeded crossbar
     // value must not reach a slot, and the first nonzero frame after the
-    // rebind must be a POST-rebind event routed by the NEW map.
+    // rebind must be a POST-rebind event routed by the NEW map. On this one
+    // stream the render stage presents the flushed stream as silence (#632),
+    // so this is the end-to-end property, held by the stage's flush and the
+    // epoch together; the multi-stream leg's T26 re-seeds the crossbar with a
+    // live stream, where the epoch alone holds it, and grades the gate.
     std::vector<std::pair<int, int>> newrows;
     for (int co = 0; co < kSlots; co++)
         newrows.emplace_back((kPerm[static_cast<size_t>(co)] + 1) % kChans, co);
@@ -3344,6 +3325,8 @@ void TdmRenderHarness::prove_the_aligned_window_is_the_acceptance_state(
               "CRF", static_cast<uint64_t>(crf.g.uncounted_skips), 0);
     check.that("T30 CRF: the aligned window decoded whole frames",
                crf.g.frames > 200 && crf.start >= 0);
+    prove_the_window_is_presented(intr.g, "T30 INTERNAL", 1000);
+    prove_the_window_is_presented(crf.g, "T30 CRF", 1000);
     // the acceptance state itself
     check.dec("T30 CRF ALIGNED: the aligned window costs the lane NO counted "
               "skip", crf.skips, 0);
@@ -3383,170 +3366,11 @@ void TdmRenderHarness::prove_the_aligned_window_is_the_acceptance_state(
                 plan_ppm, intr.walk_ppm, crf.walk_ppm);
 }
 
-//! The pops nearest the PDU ends of ids [from_id, to_id). Every end counts
-//! toward the clearance, the snap's included; only the steady ends, a pop
-//! within two ticks on each side, count toward the walk, because prefill held
-//! the pops before the snap and so hides where the snap sat against the grid.
-TdmRenderHarness::EndOffsets
-TdmRenderHarness::offsets_at_pdu_ends(long from_id, long to_id) const {
-    EndOffsets o;
-    for (long id = std::max(from_id, 0L);
-         id < to_id && id < static_cast<long>(kIdSpace); id++) {
-        const long end = end_at[static_cast<size_t>(id)];
-        if (end < 0) continue;
-        const PopNear p = pop_nearest_the_end(end);
-        if (p.clear < o.clear) {
-            o.clear = p.clear;
-            o.clear_id = id;
-            o.clear_delta = p.delta;
-        }
-        if (!p.steady) continue;
-        if (o.ends == 0 || p.delta < o.dmin) o.dmin = p.delta;
-        if (o.ends == 0 || p.delta > o.dmax) o.dmax = p.delta;
-        if (o.ends == 0 || p.next < o.nmin) o.nmin = p.next;
-        if (o.ends == 0 || p.next > o.nmax) o.nmax = p.next;
-        ++o.ends;
-    }
-    return o;
-}
-
-//! --law-boundary's record of a window: how many of its steady PDU ends had
-//! their nearest pop at each offset, the scan the ambiguity window is
-//! measured by
-void TdmRenderHarness::print_the_offset_histogram(long from_id, long to_id,
-                                                  const char* tag) const {
-    std::vector<std::array<long, 2>> hist;
-    for (long id = std::max(from_id, 0L);
-         id < to_id && id < static_cast<long>(kIdSpace); id++) {
-        const long end = end_at[static_cast<size_t>(id)];
-        if (end < 0) continue;
-        const PopNear p = pop_nearest_the_end(end);
-        if (!p.steady) continue;
-        auto at = std::find_if(hist.begin(), hist.end(),
-                               [&](const auto& h) { return h[0] == p.delta; });
-        if (at == hist.end()) hist.push_back({p.delta, 1});
-        else ++(*at)[1];
-    }
-    std::sort(hist.begin(), hist.end());
-    std::string line;
-    for (const auto& h : hist)
-        line += " " + std::to_string(h[0]) + ":" + std::to_string(h[1]);
-    std::printf("  [i]    %s: PDU ends per nearest-pop offset (offset:ends):%s\n",
-                tag, line.c_str());
-}
-
-//! THE AMBIGUITY WINDOW, applied (#643). A window is graded only when every
-//! PDU end in [span_first, last_id) has its nearest pop more than
-//! kLawAmbiguityCycles from the boundary its fill reads across; otherwise it
-//! is reported NOT GRADABLE, by PDU and offset, and its law checks are
-//! neither passed nor failed. A STANDING window must be gradable, so there
-//! the margin is a check of its own; only --law-boundary may leave one out.
-bool TdmRenderHarness::the_window_is_gradable(long span_first, long last_id,
-                                              const char* tag) {
-    const EndOffsets o = offsets_at_pdu_ends(span_first, last_id);
-    const bool gradable = o.clear > kLawAmbiguityCycles;
-    std::printf("  [i]    %s: over %ld steady PDU ends the first pop after "
-                "the end is taken %+ld..%+ld cycles from it and the pop nearest "
-                "the boundary %+ld..%+ld (walk %ld); the least clearance is %ld "
-                "cycles, at PDU %ld (offset %+ld), against the %ld-cycle "
-                "ambiguity window: margin %ld%s\n",
-                tag, o.ends, o.nmin, o.nmax, o.dmin, o.dmax, o.walk(), o.clear,
-                o.clear_id, o.clear_delta, kLawAmbiguityCycles,
-                o.clear - kLawAmbiguityCycles,
-                o.walk_wraps() ? "; the nearest pop changes side half a tick "
-                                 "from the grid, so the walk is the first pop "
-                                 "after's range" : "");
-    if (law_boundary) print_the_offset_histogram(span_first, last_id, tag);
-    if (!gradable)
-        std::printf("  [NOT GRADABLE] %s: PDU %ld's end has a pop taken %+ld "
-                    "cycles from it, inside the %ld-cycle ambiguity window; "
-                    "the law is neither passed nor failed here\n",
-                    tag, o.clear_id, o.clear_delta, kLawAmbiguityCycles);
-    if (!law_boundary && !pullin_sweep) {
-        char what[160];
-        std::snprintf(what, sizeof what,
-                      "%s: gradable, every PDU end clear of a pop by more "
-                      "than the ambiguity window", tag);
-        check.that(what, gradable);
-    }
-    return gradable;
-}
-
-//! #386's law, measured in THIS run rather than cited from another, at the
-//! render stage's OWN reference (#643): at every PDU end the fill is the
-//! setpoint plus the PDU just pushed (TARGET, 14 events), and that PDU's first
-//! event pops inside (SETPOINT, SETPOINT + 1] media ticks of the end, with the
-//! pulse's register on the upper edge. KL_render_setpoint states its
-//! setpoint as the fill just BEFORE every push and snaps and judges its bands
-//! at PDU ends. Until #643 this read the fill at the RX accept pulse, 28 to 48
-//! cycles before the push, so a pop between the two moved the reading with the
-//! feed's phase and not with the law. Graded only when the window is gradable
-//! (the_window_is_gradable): then every fill must be TARGET exactly. Returns
-//! whether it was graded. expect_n is the window's exact PDU count, or 0 for
-//! "at least 100".
-bool TdmRenderHarness::prove_the_setpoint_law_still_holds(long span_first,
-                                                          long first_id,
-                                                          long last_id,
-                                                          const char* tag,
-                                                          long expect_n) {
-    if (!the_window_is_gradable(span_first, last_id, tag)) return false;
-    const double lo = kRenderSetpointEvt * kTickCycles;
-    const double hi = (kRenderSetpointEvt + 1) * kTickCycles
-                    + static_cast<double>(kBandSlackCycles);
-    long n = 0;
-    long in_band = 0;
-    long fill_ok = 0;
-    long dmin = 0;
-    long dmax = 0;
-    int fmin = 0;
-    int fmax = 0;
-    for (long id = first_id; id < last_id && id < static_cast<long>(kIdSpace);
-         id++) {
-        const size_t i = static_cast<size_t>(id);
-        if (end_at[i] < 0 || fill_end[i] < 0 || pop_at[i] < 0) continue;
-        const long d = pop_at[i] - end_at[i];
-        const int f = fill_end[i];
-        if (n == 0 || d < dmin) dmin = d;
-        if (n == 0 || d > dmax) dmax = d;
-        if (n == 0 || f < fmin) fmin = f;
-        if (n == 0 || f > fmax) fmax = f;
-        if (static_cast<double>(d) > lo && static_cast<double>(d) <= hi)
-            ++in_band;
-        if (f == kPrefillTargetEvt) ++fill_ok;
-        ++n;
-    }
-    std::printf("  [i]    %s: %ld PDUs, fill at the PDU end %d..%d, first-event "
-                "delay from it %ld..%ld cycles = %.3f..%.3f media ticks; the "
-                "law is fill %d and %d < d/T <= %d (+%ld cycle of the pulse's "
-                "register)\n",
-                tag, n, fmin, fmax, dmin, dmax,
-                static_cast<double>(dmin) / kTickCycles,
-                static_cast<double>(dmax) / kTickCycles, kPrefillTargetEvt,
-                kRenderSetpointEvt, kRenderSetpointEvt + 1, kBandSlackCycles);
-    char what[160];
-    std::snprintf(what, sizeof what,
-                  "%s: PDUs measured for the #386 law in this window", tag);
-    if (expect_n > 0)
-        check.dec(what, static_cast<uint64_t>(n), static_cast<uint64_t>(expect_n));
-    else
-        check.that(what, n >= 100);
-    std::snprintf(what, sizeof what,
-                  "%s: the fill at every PDU end is the setpoint plus that "
-                  "PDU, 14 events", tag);
-    check.dec(what, static_cast<uint64_t>(fill_ok), static_cast<uint64_t>(n));
-    std::snprintf(what, sizeof what,
-                  "%s: every PDU's first event is inside the law band from its "
-                  "PDU end", tag);
-    check.dec(what, static_cast<uint64_t>(in_band), static_cast<uint64_t>(n));
-    return true;
-}
-
 //! ...and the transition the OTHER way, still under the running stream. The
-//! deselect is the same law: one settled-grid recentre, and the lane keeps
-//! rendering the record.
+//! deselect is the same law: the lane keeps rendering the record, every
+//! event at its presentation time, with nothing re-centred (#632).
 void TdmRenderHarness::deselect_back_to_internal(uint64_t epochs_before) {
-    const long src0 = src_recentre_pulses;
-    const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
+    const uint32_t slips0 = dut->rootp->milan_datapath__DOT__rq_slips_w;
     check.dec("T31 DESELECT: SET_CLOCK_SOURCE(INTERNAL) answers SUCCESS",
               static_cast<uint64_t>(set_clock_source(0)), 0);
     check.dec("T31 DESELECT: the registered resolve falls back to INTERNAL",
@@ -3557,11 +3381,6 @@ void TdmRenderHarness::deselect_back_to_internal(uint64_t epochs_before) {
     crf_on = false;
     //! the dwell at INTERNAL is the same 2048 media ticks from the change
     run_fed(6000000);
-    check.dec("T31 DESELECT: the deselect fired the settled-grid trigger ONCE",
-              static_cast<uint64_t>(src_recentre_pulses - src0), 1);
-    check.dec("T31 DESELECT: ...and the stage executed exactly one recentre",
-              static_cast<uint64_t>(
-                  dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0), 1);
     const Window back = decode_and_grade_a_window(40 * kPduPeriodCycles,
                                                   "T31");
     report_a_window(back, "T31 back at INTERNAL");
@@ -3581,6 +3400,9 @@ void TdmRenderHarness::deselect_back_to_internal(uint64_t epochs_before) {
                "the deselect", back.start >= 0 && back.g.frames > 100);
     check.dec("T31 DESELECT: identity holds across the second live transition",
               static_cast<uint64_t>(back.g.identity_failures), 0);
+    prove_the_window_is_presented(back.g, "T31", 500);
+    check.dec("T31 DESELECT: the render stage counted no slip across the deselect",
+              static_cast<uint64_t>(dut->rootp->milan_datapath__DOT__rq_slips_w - slips0), 0);
     check.dec("T31 DESELECT: no render epoch closed across either transition",
               lane_epochs(), epochs_before);
 }
@@ -3593,48 +3415,34 @@ void TdmRenderHarness::phase_crf() {
     pdu_frac_num = 0;
     pdu_frac_acc = 0;
     next_pdu_at = axis_cycle + 64;
-    run_fed(40 * kPduPeriodCycles);         // prefill, lock, epoch admission
+    run_fed(40 * kPduPeriodCycles);         // the lead, lock, epoch admission
     const uint64_t epochs_before = lane_epochs();
 
     // the INTERNAL window, on the same pins and the same oracle (aligned
     // since #629's A2-a; see prove_the_aligned_window_is_the_acceptance_state).
     // It opens while the aligner is still pulling the grid in after T14's
-    // hold, so the #386 law is graded at INTERNAL by [LAW], once settled.
+    // hold; [LAW] grades fresh streams at INTERNAL once it has settled.
     const Window intr = decode_and_grade_a_window(300 * kPduPeriodCycles,
                                                   "T30 INTERNAL");
     report_a_window(intr, "T30 INTERNAL");
 
     provision_the_crf_sink();
-    const long src0 = src_recentre_pulses;
-    const long pulses0 = recentre_pulses;
-    const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
+    const uint32_t slips0 = dut->rootp->milan_datapath__DOT__rq_slips_w;
     select_crf_under_the_running_stream();
-    //! the aligner engages within a frame and its error rests inside the
-    //! trigger's band once the proportional peak has passed; the dwell is
-    //! 2048 media ticks (43 ms), so 12 M cycles cover the pull-in
+    //! the aligner engages within a frame and its error rests inside its
+    //! band once the proportional peak has passed: 12 M cycles cover the
+    //! pull-in
     run_fed(12000000);
-    check.dec("T30 CRF: the selection under the running stream fired the "
-              "settled-grid trigger ONCE",
-              static_cast<uint64_t>(src_recentre_pulses - src0), 1);
-    check.dec("T30 CRF: ...as exactly one render recentre pulse",
-              static_cast<uint64_t>(recentre_pulses - pulses0), 1);
-    check.dec("T30 CRF: ...and the stage executed exactly one recentre",
-              static_cast<uint64_t>(
-                  dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0), 1);
+    //! #632: the render stage reads on the domain's media event, the bus's
+    //! frame, which the selection does not move; it re-centres on nothing
+    check.dec("T30 CRF: the selection under the running stream moved no event "
+              "off its frame: the render stage counted no slip",
+              static_cast<uint64_t>(dut->rootp->milan_datapath__DOT__rq_slips_w - slips0), 0);
 
-    const long crf_first = injected_events / kEvents;
     const Window crf = decode_and_grade_a_window(300 * kPduPeriodCycles,
                                                  "T30 CRF");
     report_a_window(crf, "T30 CRF aligned");
     prove_the_aligned_window_is_the_acceptance_state(intr, crf);
-    //! unlike a [LAW] phase's span, this one does not hold the end that set
-    //! its fill reference: the settled recentre's re-snap, at a PDU end in
-    //! the dwell above, so that end's clearance is not measured
-    prove_the_setpoint_law_still_holds(crf_first + 4, crf_first + 4,
-                                       injected_events / kEvents - 4,
-                                       "T30 CRF LAW", 0);
-    check.dec("T30 CRF: no second recentre followed the settled one",
-              static_cast<uint64_t>(src_recentre_pulses - src0), 1);
 
     deselect_back_to_internal(epochs_before);
     //! ...and the margin the whole phase stands on, checked rather than
@@ -3649,24 +3457,21 @@ void TdmRenderHarness::phase_crf() {
 }
 
 // ====================================================================== //
-//  [LAW] T30's INTERNAL law, graded once the aligner reports settled      //
+//  [LAW] the presentation law at INTERNAL, fresh streams at every phase   //
 // ====================================================================== //
-//! #643. Since #629's A2-a the INTERNAL grid is the aligner's. T14 stops the
-//! serial clock for less than the aligner's watchdog, so the aligner stays
-//! engaged and then pulls the grid back for about 150 ms, and T30's INTERNAL
-//! window lies inside that pull: graded there, the law passed or failed with
-//! the feed's phase against a moving grid. The law is a steady-state law, so
-//! this phase waits for the aligner's settled report, bounded by the declared
-//! ceiling, and grades it at every phase of kLawPhases, each a FRESH stream
-//! and each a STANDING window: it must be gradable (the ambiguity window).
-//! A stream already running when a pull began kept the displacement the pull
-//! gave it, because nothing re-centred it (#647); since #645 the settle
-//! recentre does, once the aligner rests in its band again, and [PULLIN]
-//! grades that on a running stream.
+//! #643's sweep, re-graded under #632. Each phase is a FRESH stream whose
+//! first PDU leaves `phase` axis cycles after an observed media tick, so the
+//! feed meets the grid at eighteen phases. Until #632 the render stage's fill
+//! law was graded there, with an ambiguity window where a PDU end met a pop.
+//! The presentation law has no such boundary: the stage places every event
+//! by its timestamp, so at every phase the fresh stream's first event is
+//! rendered at its presentation time, then every event once, in order, each
+//! at its own. The aligner's settled report is still waited for: the phases
+//! were designed on a quiet media plane, and are kept on one.
 void TdmRenderHarness::phase_internal_law() {
-    std::printf("\n[LAW] T30's INTERNAL law once the aligner reports settled, "
-                "on fresh streams at %zu feed phases against the grid\n",
-                kLawPhases.size());
+    std::printf("\n[LAW] the presentation law at INTERNAL, once the aligner "
+                "reports settled, on fresh streams at %zu feed phases against "
+                "the grid\n", kLawPhases.size());
     wait_for_the_settled_report();
     for (const long phase : kLawPhases) grade_the_law_at_a_feed_phase(phase);
     //! the leg's later phases feed at the nominal cadence they always had
@@ -3674,8 +3479,8 @@ void TdmRenderHarness::phase_internal_law() {
     pdu_frac_acc = 0;
 }
 
-//! The law's precondition, shared by [LAW] and --law-boundary: the media
-//! plane at INTERNAL, and the aligner's settled report inside its ceiling.
+//! The phases' precondition: the media plane at INTERNAL, and the aligner's
+//! settled report inside its ceiling.
 void TdmRenderHarness::wait_for_the_settled_report() {
     feed_on = false;
     check.dec("T30 INTERNAL LAW: the media plane's registered resolve reads "
@@ -3699,131 +3504,132 @@ void TdmRenderHarness::wait_for_the_settled_report() {
                settle_run >= kSettleTicks);
 }
 
-//! --law-boundary: the boundary-band diagnostic. The same settled wait and
-//! the same fresh-stream phases as [LAW], one cycle apart across the feed
-//! phases where a PDU end meets a pop, so a window may come out NOT GRADABLE
-//! there without failing the leg; a graded one is graded exactly as a
-//! standing one is. Given no phases, the leg locates the boundary from a
-//! standing phase's own offsets, so the scan follows the boundary wherever a
-//! model change moves it. tdm8_render_mutants.py --law-boundary reads the
-//! [BOUNDARY] lines.
-void TdmRenderHarness::phase_law_boundary() {
-    std::printf("\n[LAW-BOUNDARY] T30's INTERNAL law at the feed phases where "
-                "a PDU end meets a pop (the ambiguity window is %ld cycles: a "
-                "walk of %ld plus a guard of %ld)\n",
-                kLawAmbiguityCycles, kLawWalkCycles, kLawGuardCycles);
-    wait_for_the_settled_report();
-    std::vector<long> phases = law_boundary_phases;
-    if (phases.empty()) {
-        const long b = locate_the_law_boundary();
-        for (long p = b - kLawBoundaryHalfBand; p <= b + kLawBoundaryHalfBand; p++)
-            phases.push_back(p);
+//! A fresh stream's frames as the pins showed them: from its first rendered
+//! frame to its last, every one graded against the record from that first
+//! frame's ordinal, which is returned. Digital silence either side is the
+//! stream not yet presented and the stream ended.
+TdmRenderHarness::Grade TdmRenderHarness::grade_a_fresh_stream(const char* tag,
+                                                                long* first_ordinal) {
+    size_t i0 = decoded.size(), i1 = 0;
+    for (size_t i = 0; i < decoded.size(); i++) {
+        bool any = false;
+        for (int k = 0; k < kSlots; k++) any = any || decoded[i].slot[static_cast<size_t>(k)] != 0;
+        if (!any) continue;
+        if (i0 == decoded.size()) i0 = i;
+        i1 = i;
     }
-    for (const long phase : phases) grade_the_law_at_a_feed_phase(phase);
-    pdu_frac_num = 0;
-    pdu_frac_acc = 0;
-}
-
-//! A feed phase p moves every PDU end p cycles later against the grid, so
-//! the first pop after an end comes p cycles sooner: an end meets a pop at
-//! about the offset that pop has at +0. Measured on a +0 phase, graded as
-//! any other.
-long TdmRenderHarness::locate_the_law_boundary() {
-    grade_the_law_at_a_feed_phase(0);
-    const EndOffsets o = offsets_at_pdu_ends(
-        kLawPrefillPdus, injected_events / kEvents - kLawUngradedTailPdus);
-    long b = (o.nmin + o.nmax) / 2;
-    if (b < kLawBoundaryHalfBand) b += std::lround(kTickCycles);
-    std::printf("  [i]    LAW-BOUNDARY: at +0 the first pop after a PDU end is "
-                "taken %ld..%ld cycles after it, so an end meets a pop near "
-                "+%ld; scanning +%ld..+%ld one cycle apart\n",
-                o.nmin, o.nmax, b, b - kLawBoundaryHalfBand,
-                b + kLawBoundaryHalfBand);
-    return b;
+    *first_ordinal = -1;
+    if (i0 == decoded.size()) return Grade{};
+    std::vector<DecodedFrame> all;
+    all.swap(decoded);
+    decoded.assign(all.begin() + static_cast<long>(i0), all.begin() + static_cast<long>(i1) + 1);
+    *first_ordinal = find_the_ordinal(decoded.front());
+    const Grade g = grade_frames(*first_ordinal >= 0 ? *first_ordinal : 0, tag);
+    decoded.swap(all);
+    return g;
 }
 
 //! One phase: a fresh stream whose first PDU leaves `phase` axis cycles after
 //! an observed media tick, at the INTERNAL grid's own cadence. Under A2-a the
 //! aligner holds that grid on the physical frame grid, so this is the
 //! physical cadence the [CRF] phase's talker takes: a talker on the same
-//! clock. The aligner must hold its settled report through the whole phase,
-//! gap and prefill included, or the law was graded on a grid that moved.
-//! Every PDU end of the stream, the snap included, decides whether it is
-//! gradable.
+//! clock. The aligner must hold its settled report through the whole phase.
 void TdmRenderHarness::grade_the_law_at_a_feed_phase(long phase) {
     char tag[48];
     std::snprintf(tag, sizeof tag, "T30 INTERNAL LAW +%ld", phase);
-    const uint64_t failures0 = check.failures();
     unsettled_ticks = 0;
     const long ticks0 = media_ticks;
     feed_on = false;
     steps(kLawGapPdus * kPduPeriodCycles);
+    //! counted from the drained stage: the slip of the previous stream's end
+    //! is that stream's
+    const uint32_t slips0 = dut->rootp->milan_datapath__DOT__rq_slips_w;
     build_injection_record(kLawPrefillPdus + kLawGradedPdus);
     //! the anchor: the next media tick, waited for at most one PDU period
     long guard = kPduPeriodCycles;
     do {
         step();
     } while (!dut->rootp->milan_datapath__DOT__media_tick_p && --guard > 0);
+    decoder_reset();
+    collect = true;
     next_pdu_at = axis_cycle + phase;
     pdu_frac_num = kPduPhysFracNum;
     pdu_frac_acc = 0;
     feed_on = true;
-    run_fed(phase + kLawPrefillPdus * kPduPeriodCycles);
-    const long first = injected_events / kEvents;
-    run_fed(kLawGradedPdus * kPduPeriodCycles);
+    run_fed(phase + (kLawPrefillPdus + kLawGradedPdus) * kPduPeriodCycles);
     feed_on = false;
-    const bool graded = prove_the_setpoint_law_still_holds(
-        0, first, injected_events / kEvents - kLawUngradedTailPdus, tag,
-        kLawGradedPdus - kLawUngradedTailPdus);
+    //! the stream's last events are presented a lead after they are sent
+    run_fed((kLeadFrames / kEvents + 4) * kPduPeriodCycles);
+    collect = false;
+    const long events = injected_events;
+    long first = -1;
+    const Grade g = grade_a_fresh_stream(tag, &first);
+    std::printf("  [i]    %s: %ld events sent, %ld frames rendered from ordinal "
+                "%ld, %ld repeat(s), %ld skipped\n", tag, events, g.frames, first,
+                g.repeats, g.skipped);
+    char what[200];
+    std::snprintf(what, sizeof what, "%s: the fresh stream's first rendered event "
+                  "is its first", tag);
+    check.dec(what, static_cast<uint64_t>(first), 0);
+    std::snprintf(what, sizeof what, "%s: every event rendered once, in order, "
+                  "none lost", tag);
+    check.that(what, g.frames == events && g.identity_failures == 0 &&
+                     g.repeats == 0 && g.skipped == 0);
+    prove_the_window_is_presented(g, tag, 4 * events);
+    std::snprintf(what, sizeof what, "%s: the render stage counted the one slip of "
+                  "the stream's end and no other", tag);
+    check.dec(what, static_cast<uint64_t>(dut->rootp->milan_datapath__DOT__rq_slips_w - slips0), 1);
     //! held, and over a grid that really ticked: a stopped grid would leave
     //! nothing outside the band because it left nothing at all
     const long ticks = media_ticks - ticks0;
     std::printf("  [i]    %s: %ld media ticks in the phase, %ld of them outside "
                 "the settle band\n", tag, ticks, unsettled_ticks);
-    char what[160];
     std::snprintf(what, sizeof what,
                   "%s: the aligner held its settled report through the phase",
                   tag);
     check.that(what, unsettled_ticks == 0 &&
                      ticks >= kEvents * (kLawPrefillPdus + kLawGradedPdus));
-    const uint64_t failed = check.failures() - failures0;
-    if (law_boundary)
-        std::printf("  [BOUNDARY] +%ld: %s, %llu check(s) failed\n", phase,
-                    !graded ? "NOT GRADABLE" : failed ? "graded FAIL"
-                                                      : "graded PASS",
-                    static_cast<unsigned long long>(failed));
 }
 
 // ====================================================================== //
-//  [PULLIN] #647: a running stream through an INTERNAL aligner pull-in,   //
-//  graded on the law after #645's settle recentre                         //
+//  [PULLIN] #647: a running stream through an INTERNAL aligner pull-in    //
 // ====================================================================== //
-//! T14 stops the serial clock for less than the aligner's watchdog, so the
-//! aligner stays engaged, folds the step to half a sample and pulls the grid
-//! back. Under a stream already running, nothing re-centred the render
-//! stage after that pull until #645: the stream kept the displacement, one
-//! event at some phases (#647). Now an excursion past the quiet band outside
-//! recovery arms milan_datapath's settle recentre, which fires once the aligner
-//! has rested inside that band for 2,048 ticks. Each phase is a fresh stream
-//! at a [LAW] feed phase, on the law before the hold; after the settle
-//! recentre the same stream must be on the law again, the recentre the only
-//! one since the hold, and the loopback ring's counters static from it on.
+//! T14's hold stops the serial clock for less than the aligner's watchdog,
+//! so the aligner stays engaged, folds the step to half a sample and pulls
+//! the grid back, and an excursion past the quiet band arms milan_datapath's
+//! settle recentre for the LOOP queues (#645). Until #632 the render stage
+//! took that recentre too; it now takes none. The hold moves the bus's frames
+//! two and a half periods later against a talker that goes on stamping its
+//! own timeline, so after it each event belongs to the frame nearest its
+//! presentation time, half a period off: the events the stage placed before
+//! the hold play out a little over two frames late while the new ones take
+//! their frames, and from one queue's depth after the hold every event is
+//! rendered once, in order, at the frame nearest its presentation time. Each
+//! phase is a fresh stream at a [LAW] feed phase, presented before the hold.
 void TdmRenderHarness::phase_pullin(const std::vector<long>& phases) {
     std::printf("\n[PULLIN] #647: a running stream through T14's serial-clock "
-                "hold at INTERNAL, graded after its settle recentre, at %zu "
-                "feed phase(s)\n", phases.size());
+                "hold at INTERNAL, graded after it, at %zu feed phase(s)\n",
+                phases.size());
     wait_for_the_settled_report();
     for (const long phase : phases) pull_in_at_a_feed_phase(phase);
     pdu_frac_num = 0;
     pdu_frac_acc = 0;
 }
 
-//! The instrument's record, renewed between two PDUs of the running stream:
-//! run to just before the next one is due, so none is in flight between its
-//! send and its accept, then a fresh record whose PDUs continue the cadence.
-void TdmRenderHarness::rebase_the_record_between_pdus(long pdus) {
+//! A fresh record between two PDUs of the running stream (its 12-bit PDU
+//! identity would wrap past 4,096), on the SAME timeline: the talker goes on
+//! stamping where it was, the new record's first event a period after the
+//! old record's last.
+void TdmRenderHarness::rebase_the_record_on_its_timeline(long pdus) {
     if (next_pdu_at > axis_cycle + 16) run_fed(next_pdu_at - axis_cycle - 16);
+    const bool had = anchored[0];
+    const double next_pt = anchor_ns[0] + static_cast<double>(injected_events - anchor_ord[0]) * ps_phc;
     build_injection_record(pdus);
+    if (had) {
+        anchored[0] = true;
+        anchor_ns[0] = next_pt;
+        anchor_ord[0] = 0;
+    }
 }
 
 //! The wait for the settle recentre after the hold, at most
@@ -3836,7 +3642,7 @@ long TdmRenderHarness::wait_for_the_settle_recentre(const char* tag, long settle
     int err_hi = 0;
     for (long slots = 0; settle_pulses == settle0 && slots < kPullinMaxWaitPdus;) {
         if (static_cast<size_t>(injected_events) + 2 * kEvents > inj.size())
-            rebase_the_record_between_pdus(kPullinWaitPdus);
+            rebase_the_record_on_its_timeline(kPullinWaitPdus);
         run_fed(kPduPeriodCycles);
         const int err = static_cast<int16_t>(dut->rootp->milan_datapath__DOT__mga_err_w);
         err_lo = (slots % 512 == 0) ? err : std::min(err_lo, err);
@@ -3859,59 +3665,84 @@ void TdmRenderHarness::pull_in_at_a_feed_phase(long phase) {
     std::snprintf(tag, sizeof tag, "T647 PULLIN +%ld", phase);
     feed_on = false;
     steps(kLawGapPdus * kPduPeriodCycles);
+    //! the talker's timeline runs unbroken across the hold and every renewal
+    //! of the record
     build_injection_record(kLawPrefillPdus + kPullinBeforePdus + kPullinWaitPdus);
     long guard = kPduPeriodCycles;
     do {
         step();
     } while (!dut->rootp->milan_datapath__DOT__media_tick_p && --guard > 0);
+    decoder_reset();
+    collect = true;
     next_pdu_at = axis_cycle + phase;
     pdu_frac_num = kPduPhysFracNum;
     pdu_frac_acc = 0;
     feed_on = true;
-    run_fed(phase + kLawPrefillPdus * kPduPeriodCycles);
-    const long first = injected_events / kEvents;
-    run_fed(kPullinBeforePdus * kPduPeriodCycles);
-    char before[64];
-    std::snprintf(before, sizeof before, "%s before the hold", tag);
-    prove_the_setpoint_law_still_holds(0, first,
-                                       injected_events / kEvents - kLawUngradedTailPdus,
-                                       before, kPullinBeforePdus - kLawUngradedTailPdus);
-    //! the hold, then the wait for the settle recentre while the record lasts
+    run_fed(phase + (kLawPrefillPdus + kPullinBeforePdus) * kPduPeriodCycles);
+    collect = false;
+    //! before the hold: presented, the frames the decoder holds so far
+    long first = -1;
+    const Grade before = grade_a_fresh_stream(tag, &first);
+    char btag[64];
+    std::snprintf(btag, sizeof btag, "%s before the hold", tag);
+    prove_the_window_is_presented(before, btag, 1000);
+    //! the hold, then the wait for the LOOP queues' settle recentre while
+    //! the record lasts
     const long settle0 = settle_pulses;
-    const long pulses0 = recentre_pulses;
-    const uint32_t rc0 = dut->rootp->milan_datapath__DOT__rsp_recentres_w;
+    const uint32_t slips0 = dut->rootp->milan_datapath__DOT__rq_slips_w;
     const uint32_t lb0 = static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) +
                          static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w);
     tdm_frozen = true;
     run_fed(kPullinHoldCycles);
     tdm_frozen = false;
+    //! one queue's depth (128 frames, 22 PDU periods) and a margin: the events
+    //! placed before the hold have all played out
+    run_fed(24 * kPduPeriodCycles);
+    const uint32_t slips1 = dut->rootp->milan_datapath__DOT__rq_slips_w;
     const long waited = wait_for_the_settle_recentre(tag, settle0);
-    //! the stage acts at the next PDU end; then a fresh instrument record
     run_fed(2 * kPduPeriodCycles);
     const uint32_t lb1 = static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) +
                          static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w);
-    rebase_the_record_between_pdus(kPullinAfterPdus);
+    //! a fresh record for the graded window, past its lead: the frames the
+    //! pins carry are then all this record's
+    rebase_the_record_on_its_timeline(kPullinAfterPdus + kLeadFrames / kEvents + 8);
+    run_fed((kLeadFrames / kEvents + 4) * kPduPeriodCycles);
+    decoder_reset();
+    collect = true;
     run_fed(kPullinAfterPdus * kPduPeriodCycles);
-    feed_on = false;
+    collect = false;
     const uint32_t lb2 = static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_dup_cnt_w) +
                          static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__lb_skip_cnt_w);
+    const uint32_t slips2 = dut->rootp->milan_datapath__DOT__rq_slips_w;
+    feed_on = false;
     std::printf("  [i]    %s: the settle recentre came %ld axis cycles (%.1f ms) after "
-                "the hold; loopback slips %u during the pull, %u after the settle\n",
+                "the queue's depth; loopback slips %u during the pull, %u after the "
+                "settle; render slips %u in the hold's queue depth, %u after it\n",
                 tag, waited, static_cast<double>(waited) / (kModelAxisHz / 1000.0), lb1 - lb0,
-                lb2 - lb1);
-    std::snprintf(what, sizeof what, "%s: one settle recentre after the hold, within %ld "
-                  "PDU slots", tag, kPullinMaxWaitPdus);
+                lb2 - lb1, slips1 - slips0, slips2 - slips1);
+    std::snprintf(what, sizeof what, "%s: one settle recentre for the LOOP queues "
+                  "after the hold", tag);
     check.dec(what, static_cast<uint64_t>(settle_pulses - settle0), 1);
-    std::snprintf(what, sizeof what, "%s: ...the one render recentre pulse since the hold", tag);
-    check.dec(what, static_cast<uint64_t>(recentre_pulses - pulses0), 1);
-    std::snprintf(what, sizeof what, "%s: ...and the stage executed exactly one recentre", tag);
-    check.dec(what, static_cast<uint64_t>(dut->rootp->milan_datapath__DOT__rsp_recentres_w - rc0), 1);
     std::snprintf(what, sizeof what, "%s: SLIP_LB static from the settle recentre on", tag);
     check.dec(what, static_cast<uint64_t>(lb2 - lb1), 0);
-    char after[64];
-    std::snprintf(after, sizeof after, "%s after the settle", tag);
-    prove_the_setpoint_law_still_holds(0, 0, injected_events / kEvents - kLawUngradedTailPdus,
-                                       after, kPullinAfterPdus - kLawUngradedTailPdus);
+    std::snprintf(what, sizeof what, "%s: the render stage counted the hold's "
+                  "transient as slips, within one queue depth", tag);
+    check.that(what, slips1 > slips0);
+    std::snprintf(what, sizeof what, "%s: ...and no slip after it", tag);
+    check.dec(what, static_cast<uint64_t>(slips2 - slips1), 0);
+    //! after: every event once, in order, each at the frame nearest its
+    //! presentation time (the hold left the grid half a period off it)
+    const long start = decoded.empty() ? -1 : find_the_ordinal(decoded.front());
+    const Grade after = grade_frames(start >= 0 ? start : 0, tag);
+    std::printf("  [i]    %s after: %ld frames from ordinal %ld, %ld repeat(s), %ld "
+                "skipped, the largest |pin - presentation time| %.1f ns\n", tag,
+                after.frames, start, after.repeats, after.skipped, after.pres_max);
+    std::snprintf(what, sizeof what, "%s after: every event once, in order", tag);
+    check.that(what, start >= 0 && after.frames > 500 && after.identity_failures == 0 &&
+                     after.repeats == 0 && after.skipped == 0);
+    std::snprintf(what, sizeof what, "%s after: every event at the frame nearest "
+                  "its presentation time, inside half a period and the derivation", tag);
+    check.that(what, after.pres_n > 1000 && after.pres_max <= 0.5 * ps_phc + 100.0);
 }
 
 // ====================================================================== //
@@ -4075,10 +3906,11 @@ void TdmRenderHarness::prove_the_lane_renders_a_second_stream(int slot,
               static_cast<uint64_t>(
                   dut->rootp->milan_datapath__DOT__tdmr_lane_streams_w), 0x3);
     //! the remap takes effect at the crossbar's next media tick, so the frame
-    //! straddling it is neither the old mapping's nor the new one's. The
-    //! window opens AFTER that boundary rather than being allowed to carry an
-    //! ungraded frame inside it.
-    run_fed(10 * kPduPeriodCycles);
+    //! straddling it is neither the old mapping's nor the new one's, and
+    //! stream 1's restarted feed is presented a lead after its first PDU. The
+    //! window opens AFTER both rather than being allowed to carry an ungraded
+    //! frame inside it.
+    run_fed((kLeadFrames / kEvents + 4) * kPduPeriodCycles);
     const Window w = decode_and_grade_a_window(60 * kPduPeriodCycles, "M4");
     report_a_window(w, "M4 with one slot fed from stream 1");
     long wrong_stream = 0;
@@ -4098,6 +3930,56 @@ void TdmRenderHarness::prove_the_lane_renders_a_second_stream(int slot,
               static_cast<uint64_t>(w.g.identity_failures), 0);
     check.dec("M4 SECOND STREAM: ...and every slot's channel field is its own "
               "stream's", static_cast<uint64_t>(w.g.channel_field_failures), 0);
+}
+
+//! T26 ON TWO STREAMS: a map write inside the CLOSED epoch may not reach a
+//! slot, while the crossbar it re-seeds holds LIVE audio. Since #632 a bind
+//! fall or a reset also empties the render stage's queue for its stream, so
+//! on the one-stream shape the crossbar a closed epoch re-seeds holds silence
+//! and the ship leg's T26 grades the end-to-end property alone. Here stream
+//! 1's loss holds the epoch closed (its freshness waits for stream 1's
+//! post-flush event) while stream 0 keeps feeding, so the crossbar offers
+//! live samples the whole window, and a map write re-seeds a stream-0 key
+//! with another live channel: the epoch's commit gates are all that keep that
+//! value off the pins. The mapping is restored before the reopen, whose
+//! grades read the original map.
+void TdmRenderHarness::prove_a_map_write_in_the_closed_epoch_reaches_no_slot() {
+    const int slot = 0;
+    const int was = kPerm[static_cast<size_t>(slot)];
+    const int now = (was + 1) % kChans;
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: the stream-0 mapping of slot 0 "
+              "is removed while the epoch is closed",
+              static_cast<uint64_t>(map_cmd(kCmdRemoveMappings, {{was, slot}}, 0, 0)), 0);
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: ...and slot 0 re-mapped to "
+              "another live stream-0 channel",
+              static_cast<uint64_t>(map_cmd(kCmdAddMappings, {{now, slot}}, 0, 0)), 0);
+    const long pops_before = pops_by_stream[0];
+    decoder_reset();
+    collect = true;
+    run_fed(20 * kPduPeriodCycles);
+    collect = false;
+    long leaked = 0;
+    for (const DecodedFrame& fr : decoded)
+        for (int k = 0; k < kSlots; k++)
+            if (fr.slot[static_cast<size_t>(k)] != 0) ++leaked;
+    check.that("T26 MAP WRITE IN A CLOSED EPOCH: the crossbar held live audio "
+               "through the window: stream 0's events were presented",
+               pops_by_stream[0] - pops_before > 100);
+    check.that("T26 MAP WRITE IN A CLOSED EPOCH: the pins were decoded through "
+               "the window", !decoded.empty());
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value "
+              "never reaches a slot, though the other rendered stream still "
+              "feeds it", static_cast<uint64_t>(leaked), 0);
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: the adapter's commit gate stayed "
+              "closed", static_cast<uint64_t>(
+                  dut->rootp->milan_datapath__DOT__tdmr_commit_en_w), 0);
+    std::printf("  [i]    T26 (two streams): %zu frame(s) decoded, %ld stream-0 "
+                "pop(s), %ld nonzero slot(s)\n", decoded.size(),
+                pops_by_stream[0] - pops_before, leaked);
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: slot 0's re-mapping is removed",
+              static_cast<uint64_t>(map_cmd(kCmdRemoveMappings, {{now, slot}}, 0, 0)), 0);
+    check.dec("T26 MAP WRITE IN A CLOSED EPOCH: ...and its original mapping "
+              "restored", static_cast<uint64_t>(map_cmd(kCmdAddMappings, {{was, slot}}, 0, 0)), 0);
 }
 
 //! THE QUALIFICATION, half two: the same bind fall, on a stream the lane now
@@ -4136,19 +4018,23 @@ void TdmRenderHarness::prove_a_rendered_stream_loss_closes_the_epoch(int slot,
     check.that("M5 RENDERED LOSS: the lane reached digital silence", boundary);
     check.dec("M5 RENDERED LOSS: no frame after the boundary carries a "
               "pre-loss sample in any slot", static_cast<uint64_t>(carried), 0);
+    prove_a_map_write_in_the_closed_epoch_reaches_no_slot();
     //! #443: stream 1 is flushed while stream 0 still runs. These unequal
     //! states catch a CSR selector that silently aliases every index to 0.
     axi_write(0x800, 1);
     const uint32_t second = axi_read(0x8DC);
-    check.dec("RENDER-CSR-MULTI: flushed listener 1 has empty prefill",
+    //! #632: [7:0] the frames queued past the consumed one, [8] the last
+    //! read found no sample, [31:16] the PDUs refused late or too early
+    check.dec("RENDER-CSR-MULTI: flushed listener 1 has nothing queued and is idle",
               second & 0xFFFF, 0x100);
-    check.dec("RENDER-CSR-MULTI: listener 1 retains the global rail count",
-              second >> 16, dut->rootp->milan_datapath__DOT__rsp_rails_w);
+    check.dec("RENDER-CSR-MULTI: listener 1 retains the global refused-PDU count",
+              second >> 16, static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__rq_late_w) +
+                            static_cast<uint32_t>(dut->rootp->milan_datapath__DOT__rq_early_w));
     axi_write(0x800, 0);
     const uint32_t first = axi_read(0x8DC);
     check.that("RENDER-CSR-MULTI: listener 0 still has queued events",
                (first & 0xFF) != 0);
-    check.dec("RENDER-CSR-MULTI: listener 0 is not in prefill",
+    check.dec("RENDER-CSR-MULTI: listener 0 is presenting",
               (first >> 8) & 1, 0);
     axi_write(0x800, 2);
     check.dec("RENDER-CSR-MULTI: first absent index reads zero",
@@ -4353,20 +4239,10 @@ bool TdmRenderHarness::parse_the_modes(int argc, char** argv) {
         else if (a == "--epoch-only") epoch_only = true;
         else if (a == "--crf-only") crf_only = true;
         else if (a == "--law-only") law_only = true;
-        else if (a == "--law-boundary") law_boundary = true;
-        else if (a.rfind("--law-boundary=", 0) == 0) {
-            law_boundary = true;
-            if (!parse_the_phase_list(a.substr(15), law_boundary_phases)) {
-                check.fail("--law-boundary=PHASES: non-negative feed phases, "
-                           "comma separated, each a number or a LO..HI run");
-                return false;
-            }
-        }
         else if (a == "--pullin") pullin_only = true;
         else if (a == "--with-pullin") with_pullin = true;
         else if (a.rfind("--pullin=", 0) == 0) {
             pullin_only = true;
-            pullin_sweep = true;
             if (!parse_the_phase_list(a.substr(9), pullin_phases)) {
                 check.fail("--pullin=PHASES: non-negative feed phases, "
                            "comma separated, each a number or a LO..HI run");
@@ -4419,12 +4295,6 @@ int TdmRenderHarness::run(int argc, char** argv) {
         phase_internal_law();
         return check.report();
     }
-    if (law_boundary) {
-        //! ...and its boundary-band diagnostic, after the same dwell
-        run_fed(kBootPullInCycles);
-        phase_law_boundary();
-        return check.report();
-    }
     if (pullin_only) {
         //! #647: the [PULLIN] phase alone, after the same dwell
         run_fed(kBootPullInCycles);
@@ -4435,9 +4305,9 @@ int TdmRenderHarness::run(int argc, char** argv) {
     if (crf_only) {
         //! #629 A2-a: the aligner engages at INTERNAL from boot, and a CRF
         //! selection keeps it engaged rather than re-seating its target, so
-        //! the #386 settle after the selection needs the boot pull-in done.
-        //! The full leg's serial phase gives it that time; this short leg
-        //! dwells the same way before its CRF phase.
+        //! the aligned window after the selection needs the boot pull-in
+        //! done. The full leg's serial phase gives it that time; this short
+        //! leg dwells the same way before its CRF phase.
         run_fed(kBootPullInCycles);
         std::printf("  [i]    --crf-only: %ld axis cycles at INTERNAL before the "
                     "CRF phase (the aligner's boot pull-in, A2-a)\n",
@@ -4446,7 +4316,7 @@ int TdmRenderHarness::run(int argc, char** argv) {
         return check.report();
     }
     //! #657: epoch-only omits SERIAL, so it needs the same boot pull-in
-    //! dwell as crf-only before grading the unchanged #386 recentre law.
+    //! dwell as crf-only before its CRF phase.
     if (epoch_only) run_fed(kBootPullInCycles);
     if (!epoch_only) phase_serial();
     if (!serial_only) {

@@ -429,6 +429,7 @@ margin sets each named entry:
 | `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |
 | `milan_dp` | 4800 s | hosted PASS 3509.562 s; 1290.438 s remains (26.9%) |
 | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+| `media_phase` | 900 s | #632's new suite, provisional in `scripts/suite_shards.py` until its hosted window is measured: its whole default target (the pins, the blend, the offsets, eleven detector cases and thirteen loop cases, its five builds included) ran in 553 s locally at the default three case jobs on a shared host; the planted-defect campaign is the explicit `mutants` target |
 
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285)
 authorizes those three increases within existing shard envelopes.

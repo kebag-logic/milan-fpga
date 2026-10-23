@@ -303,7 +303,11 @@
             const uint32_t seed=UINT32_MAX-5u;
             if(phase) for(int s=0;s<=kNstreamsTb;++s)
                 dut->rootp->milan_datapath__DOT__talker_diag__DOT__ftx_r[s]=seed;
-            for(int t=0;t<400000;++t)gsi_tick();
+            // The CRF talker stamps every 96th domain event, one per TDM frame
+            // (#632), and clk_tdm_i toggles with axis_clk here: a frame is
+            // 2 x TDM_SLOTS_TB x 32 cycles, so the run scales with the bus to
+            // carry every talker past the six-PDU wrap seed.
+            for(int t=0;t<400000*TDM_SLOTS_TB/8;++t)gsi_tick();
             axi_write(A_AAF_CTRL,0x00020002);axi_write(A_CRFT_CTRL,0);
             for(int t=0;t<5000;++t)gsi_tick();
             for(int s=0;s<=kNstreamsTb;++s) {

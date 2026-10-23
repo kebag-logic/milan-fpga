@@ -59,6 +59,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <unistd.h>
 #include <cstdio>
 #ifdef DIVERGENT_TB
@@ -1392,6 +1393,11 @@ class NxnDatapathHarness {
         const std::vector<uint8_t> gB = aecp_xact_from(CTL_B, 0x0011, notify_sq++, name_key);
         ck("[NOTIFY] GET_NAME right after is byte-identical from the body on",
            static_cast<long>(gB.size() >= 110 && notify_same_from(nB2, gB, 38)), 1);
+        //! the timed leg alone: no section before this one sets output 0's
+        //! or the CRF output's offset there, so each first step is the
+        //! factory offset held; the other legs' whole-model walk leaves
+        //! output 0's row at 750,000 ns (#67)
+        if (timed) prove_set_stream_info_pushes_on_the_offset_stored();
         if (timed) prove_the_crf_input_counters_push_under_the_one_second_limit();
         prove_the_ownerless_publication_faces_stay_ownerless();
         if (timed) prove_the_departing_controller_monitor(fl0);
@@ -1491,6 +1497,82 @@ class NxnDatapathHarness {
         ck("[NOTIFY] ...and A's entry did not move (independent per entry)",
            notify_count(0x0010, &CTL_A), 0);
         return nB2;
+    }
+
+    // ---- (N6) SET_STREAM_INFO pushes on the offset STORED (#632) --------
+    //! Milan v1.2 5.4.2.9: the SET sets the presentation time offset to the
+    //! commanded value and the response echoes it. 5.4.2.10.2: GET_STREAM_INFO
+    //! reads the offset the talker currently uses: an AAF output's as set,
+    //! the CRF output's rounded up to whole media clock periods (IEEE
+    //! 1722-2016 10.7 Eq. 14). 5.4.5.2 (IEEE 1722.1-2021 7.5.2): a push
+    //! follows a command that modifies the state, so the gate compares the
+    //! commanded value with the one stored, never with the readback. Each
+    //! output from A, counted at B:
+    //!   1. 2,000,000 ns, the offset held: nothing;
+    //!   2. 2,010,000 ns (96.48 periods): one push;
+    //!   3. 2,010,000 ns again: nothing modified, nothing pushed;
+    //!   4. 2,020,834 ns: the stored offset changes, so one push.
+    //! On AAF output 0 GET reads each value as set, and step 4 is a plain
+    //! change of value. On the CRF output GET reads 2,010,000 applied as 97
+    //! periods, 2,020,834 ns, so step 4 writes back the value GET read, and
+    //! it applies as 98 (2,041,667 ns): only there do the stored and the
+    //! applied offsets differ, so only there can a gate that compares with
+    //! the readback push on step 3 and stay silent on step 4.
+    //! The outputs are stopped first: a streaming one refuses the SET. The
+    //! timed leg runs it, where no controller has set the rows yet.
+    struct OffsetStep { int n; uint32_t set; long pushes; unsigned long reads; const char* what; };
+    void set_stream_info_offset_steps(uint16_t out, const char* who, const char* reads,
+                                      const std::array<OffsetStep, 4>& steps) {
+        char tag[200];
+        for (const OffsetStep& s : steps) {
+            notify_clear();
+            const std::vector<uint8_t> r = aecp_xact_from(
+                CTL_A, 0x000E, notify_sq++, si_pl(0x0006, out, 0x20000000u, s.set));
+            snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO %sstep %d is SUCCESS", who, s.n);
+            ck(tag, r.size() >= 38 ? aecp_status(r) : -1L, 0);
+            drain_tx(NOTIFY_WIN);
+            snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO %sstep %d: %s", who, s.n, s.what);
+            ck(tag, notify_count(0x000E, &CTL_B, 0x0006, out), s.pushes);
+            snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO %sstep %d: none to A, the requester", who, s.n);
+            ck(tag, notify_count(0x000E, &CTL_A), 0);
+            if (s.pushes != 0) {
+                //! the push carries the response's content (5.4.5.1): the value set
+                const std::vector<uint8_t> n = notify_last(0x000E, CTL_B, 0x0006, out);
+                snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO %sstep %d: the push carries the value set", who,
+                         s.n);
+                ck(tag, static_cast<long>(lat_of(n)), static_cast<long>(s.set));
+            }
+            const std::vector<uint8_t> g = aecp_xact_from(CTL_A, 0x000F, notify_sq++,
+                                                          desc_key(0x0006, out));
+            snprintf(tag, sizeof tag, "[NOTIFY] SET_STREAM_INFO %sstep %d: GET_STREAM_INFO reads the offset %s", who,
+                     s.n, reads);
+            ck(tag, static_cast<long>(lat_of(g)), static_cast<long>(s.reads));
+        }
+        // the factory offset again (a change, so it pushes), then quiet
+        aecp_xact_from(CTL_A, 0x000E, notify_sq++, si_pl(0x0006, out, 0x20000000u, 2000000u));
+        drain_tx(NOTIFY_WIN); notify_clear();
+    }
+    void prove_set_stream_info_pushes_on_the_offset_stored() {
+        const uint32_t aaf = axi_read(A_AAF_CTRL), crf = axi_read(0x750);
+        axi_write(A_AAF_CTRL, 0x00020000); axi_write(0x750, 0);
+        drain_tx(20000);
+        static constexpr std::array<OffsetStep, 4> kAafSteps = {{
+            {1, 2000000u, 0, 2000000ul, "2,000,000 ns, the offset held, pushes nothing"},
+            {2, 2010000u, 1, 2010000ul, "2,010,000 ns, a change, pushes once"},
+            {3, 2010000u, 0, 2010000ul, "2,010,000 ns again modifies nothing and pushes nothing (5.4.5.2)"},
+            {4, 2020834u, 1, 2020834ul, "2,020,834 ns, a plain change of value, pushes once"},
+        }};
+        set_stream_info_offset_steps(0, "", "as set", kAafSteps);
+        static constexpr std::array<OffsetStep, 4> kCrfSteps = {{
+            {1, 2000000u, 0, 2000000ul, "2,000,000 ns, the offset held, pushes nothing"},
+            {2, 2010000u, 1, 2020834ul, "2,010,000 ns, a change, pushes once"},
+            {3, 2010000u, 0, 2020834ul, "2,010,000 ns again modifies nothing and pushes nothing (5.4.5.2)"},
+            {4, 2020834u, 1, 2041667ul, "2,020,834 ns, the value GET read, changes the stored offset and pushes once"},
+        }};
+        set_stream_info_offset_steps(static_cast<uint16_t>(kNstreamsTb), "CRF ", "applied, whole periods",
+                                     kCrfSteps);
+        axi_write(A_AAF_CTRL, aaf); axi_write(0x750, crf);
+        drain_tx(20000); notify_clear();
     }
 
     // ---- (N10) the CRF Media Clock Input's counters (#529) ------------
@@ -6400,10 +6482,13 @@ class NxnDatapathHarness {
             real_tu0[out]  = ctr_word(rr, 3);
             real_ftx0[out] = ctr_word(rr, 4);
         }
-        //! The CRF grid is one PDU per 96 audio samples, or 49,152
-        //! harness clocks. Wait past that real cadence instead of using
-        //! an AAF-only delay that could never observe a CRF completion.
-        constexpr int RealPduWait = 52000;
+        //! The CRF talker stamps every 96th domain event (#632): an audio
+        //! frame, clk_audio/512 on the I2S legs (49,152 harness clocks a
+        //! PDU), or, where no frame runs (nxn4c's TDM master is unclocked
+        //! here), the 48 kHz media tick (96 x 2083.3 = 200,000 clocks at
+        //! 100 MHz). Wait past the slower cadence instead of using an
+        //! AAF-only delay that could never observe a CRF completion.
+        constexpr int RealPduWait = CRF_PDU_MAX_CLK + 5000;
         tkd_dirty_seen = 0;
         for (int i = 0; i < RealPduWait; i++) step();
         long all_real_tu_ftx = 1;
@@ -8574,12 +8659,34 @@ class NxnDatapathHarness {
         // precedes egress by at most one six-sample epoch plus serialization;
         // CRF rounds its transit offset upward to one media-clock period.
         // These are observation bounds, never listener acceptance policy.
+        // #632, exactly: every output stamps a domain media event's instant
+        // (an AAF talker the frame it captured, the CRF output every 96th)
+        // plus its offset as GET_STREAM_INFO reads it: an AAF output's as
+        // set, the CRF output's as applied. The leg records every event's
+        // instant (dom_ns_w, a timestamp source, never an expected value),
+        // the low 32 bits for an AAF stamp, all 64 for a CRF stamp.
         axi_write(A_LWSRP_CTRL, 0);
         axi_write(A_MAAP_CTRL, 0);
         axi_write(A_AAF_CTRL, 0x00020003);
         axi_write(0x750, 1);  // diagnostic CRF free-run, also exercises its row
-        for (int c = 0; c < 400000; ++c) step(); // drain old packet epochs
+        std::set<uint32_t> dom_lo;
+        std::set<uint64_t> dom_64;
+        uint64_t dom_prev = 0;
+        long dom_dead = 0;
+        const auto note_dom = [&](bool graded) {
+            const uint64_t d = dut->rootp->milan_datapath__DOT__dom_ns_w;
+            if (graded && !dut->rootp->milan_datapath__DOT__dom_live_w) ++dom_dead;
+            if (d == dom_prev) return;
+            dom_lo.insert(static_cast<uint32_t>(d));
+            dom_64.insert(d);
+            dom_prev = d;
+        };
+        for (int c = 0; c < 400000; ++c) { step(); note_dom(false); } // drain old packet epochs
         std::vector<unsigned> seen(offsets.size(), 0);
+        long exact_aaf = 0;
+        long exact_crf = 0;
+        long off_aaf = 0;
+        long off_crf = 0;
         std::vector<uint8_t> frame;
         dut->m_axis_mac_tx_tready = 1;
         for (int cycle = 0; cycle < 600000; ++cycle) {
@@ -8605,6 +8712,12 @@ class NxnDatapathHarness {
                             printf("  timestamp output=%u stamp=%u phc=%u offset=%u residual=%d ns\n",
                                    index, stamp, now, offsets[index], error);
                             ck(label, error >= -200000 && error <= 30000, 1);
+                            if (subtype == 2) {
+                                (dom_lo.count(stamp - offsets[index]) ? exact_aaf : off_aaf)++;
+                            } else {
+                                const uint64_t stamp64 = be(frame, 34 + tag, 8);
+                                (dom_64.count(stamp64 - offsets[index]) ? exact_crf : off_crf)++;
+                            }
                             ++seen[index];
                         }
                     }
@@ -8612,10 +8725,18 @@ class NxnDatapathHarness {
                 }
             }
             hi();
+            note_dom(true);
             bool complete = true;
             for (unsigned count : seen) complete &= count >= 2;
             if (complete) break;
         }
+        printf("  #632 exact stamps: AAF %ld on, %ld off; CRF %ld on, %ld off; %zu domain events, "
+               "%ld graded cycles not live\n", exact_aaf, off_aaf, exact_crf, off_crf, dom_64.size(), dom_dead);
+        ck("#632 the domain's frame grid is live while the stamps are graded", dom_dead, 0);
+        ck("#632 every AAF timestamp is a domain media event's instant plus its offset as set, to the ns",
+           static_cast<long>(off_aaf == 0 && exact_aaf >= 2 * kNstreamsTb), 1);
+        ck("#632 every CRF timestamp, all 64 bits, is a domain media event's instant plus its offset applied",
+           static_cast<long>(off_crf == 0 && exact_crf >= 2), 1);
         for (size_t index = 0; index < seen.size(); ++index) {
             char label[80];
             snprintf(label, sizeof label, "#403 output %zu produced two timestamp observations", index);
@@ -8656,6 +8777,35 @@ class NxnDatapathHarness {
             response = aecp_xact(0x000E, setter_sq++,
                                  si_pl(0x0006, target, 0x20000000u, 2000000));
             ck("#403 runtime factory value can be selected again", aecp_status(response), 0);
+            expected[target] = 2000000;
+        }
+        // #632: an offset that is no whole number of media clock periods
+        // (2,010,000 ns is 96.48 periods at 48 kHz) is stamped AS SET by an
+        // AAF output (Milan v1.2 5.4.2.9) and read back so (5.4.2.10.2); the
+        // CRF output alone applies it rounded up to whole periods (IEEE
+        // 1722-2016 10.7 Eq. 14), 97 periods or 2,020,834 ns, and reads back
+        // that value. grade_output_timestamps then requires every stamp to
+        // be a domain media event's instant plus exactly these offsets.
+        struct NonPeriod { unsigned target; unsigned long reads; const char* what; };
+        const std::array<NonPeriod, 2> non_period = {{
+            {1u, 2010000ul, "#632 GET_STREAM_INFO reads an AAF output's offset as set"},
+            {static_cast<unsigned>(kNstreamsTb), 2020834ul,
+             "#632 GET_STREAM_INFO reads the CRF output's offset applied, whole periods"},
+        }};
+        for (const NonPeriod& row : non_period) {
+            auto response = aecp_xact(0x000E, setter_sq++,
+                                      si_pl(0x0006, row.target, 0x20000000u, 2010000));
+            ck("#632 a non-period offset is accepted", aecp_status(response), 0);
+            for (int c = 0; c < 2000; ++c) step();   // the CRF row's conversion
+            response = aecp_xact(0x000F, setter_sq++, desc_key(0x0006, row.target));
+            ck(row.what, lat_of(response), row.reads);
+            expected[row.target] = static_cast<uint32_t>(row.reads);
+        }
+        grade_output_timestamps(expected);
+        for (unsigned target : {1u, static_cast<unsigned>(kNstreamsTb)}) {
+            auto response = aecp_xact(0x000E, setter_sq++,
+                                      si_pl(0x0006, target, 0x20000000u, 2000000));
+            ck("#632 the factory offset is selected again", aecp_status(response), 0);
             expected[target] = 2000000;
         }
         axi_write(A_STRM_SEL, 0x101); axi_write(A_SW_DMAC_HI, source1);
@@ -9202,7 +9352,10 @@ class NxnDatapathHarness {
         }
         return false;
     }
-    static constexpr int CRF_BUDGET = 160000;   // > 2 event periods (49152 each)
+    //! the slower CRF cadence of these legs: 96 media ticks, where no audio
+    //! frame runs (see RealPduWait)
+    static constexpr int CRF_PDU_MAX_CLK = 200000;
+    static constexpr int CRF_BUDGET = 2 * CRF_PDU_MAX_CLK + 10000;   // > 2 PDU periods
 
     // ---- LEG 1 (the DEFAULT BUILD): class A bit clear -------------
     // lwSRP fully running, CRF talker running, CRFT_CTRL[1] = 0.

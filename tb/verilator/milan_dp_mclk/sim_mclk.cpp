@@ -168,7 +168,7 @@ class MclkHarness {
 
     // what the run observed, sampled every fabric cycle
     long restart_pulses = 0;             //! mcr_restart_p_w
-    long src_recentres = 0;              //! the #386 clock-source trigger
+    long settle_recentres = 0;           //! #645's settle recentre (the LOOP queues')
     long holdover_entries = 0;
     int last_state = 0;
 
@@ -446,7 +446,7 @@ void MclkHarness::sniff_tx() {
 void MclkHarness::observe() {
     auto* rp = dut->rootp;
     if (rp->milan_datapath__DOT__mcr_restart_p_w) restart_pulses++;
-    if (rp->milan_datapath__DOT__src_recentre_p_r) src_recentres++;
+    if (rp->milan_datapath__DOT__settle_recentre_p_r) settle_recentres++;
     const int st = static_cast<int>(rp->milan_datapath__DOT__mcsrv_stat_w & 7u);
     if (st == kStHoldover && last_state != kStHoldover) holdover_entries++;
     last_state = st;
@@ -904,7 +904,7 @@ void MclkHarness::row_crf_loss() {
 //! the CRF Media Clock Output's talker-diag context: after the AAF talkers
 constexpr unsigned kCrfCtx = 2;
 //! the gap after a switch: 30 CRF output PDUs, past the 8-PDU hold, and
-//! past the #386 settle's 2048-tick dwell (43 ms)
+//! past the INTERNAL settle dwell of 2048 ticks (43 ms)
 constexpr int64_t kSwitchGapNs = 60'000'000;
 
 MclkHarness::SwitchDelta MclkHarness::switch_once(uint16_t to, int64_t gap_ns) {
@@ -914,7 +914,7 @@ MclkHarness::SwitchDelta MclkHarness::switch_once(uint16_t to, int64_t gap_ns) {
     const long ct0 = crf_out.toggles;
     const uint32_t ma0 = mreset(0);
     const uint32_t mc0 = mreset(kCrfCtx);
-    const long rc0 = src_recentres;
+    const long rc0 = settle_recentres;
     select(to);
     run_for_ns(gap_ns);
     d.pulses = restart_pulses - rq0;
@@ -922,7 +922,7 @@ MclkHarness::SwitchDelta MclkHarness::switch_once(uint16_t to, int64_t gap_ns) {
     d.crf_toggles = crf_out.toggles - ct0;
     d.aaf_mreset = mreset(0) - ma0;
     d.crf_mreset = mreset(kCrfCtx) - mc0;
-    d.recentres = src_recentres - rc0;
+    d.recentres = settle_recentres - rc0;
     return d;
 }
 
@@ -965,7 +965,7 @@ void MclkHarness::row_switch_sweep(int phases, bool grade_slips) {
     ckv("switch: no request pulse at any switch", static_cast<uint64_t>(bad_pulse), 0);
     ckv("switch: exactly one mr toggle per output per switch", static_cast<uint64_t>(bad_toggle), 0);
     ckv("switch: each output's MEDIA_RESET moves once per switch", static_cast<uint64_t>(bad_mreset), 0);
-    ckv("switch: never more than one #386 recentre per switch (re-armed, never queued)",
+    ckv("switch: never more than one #645 settle recentre per switch (re-armed, never queued)",
         static_cast<uint64_t>(bad_recentre), 0);
     ckv("switch: AAF1 decodes as listener 1 and the meter follows it", static_cast<uint64_t>(bad_aaf1), 0);
     ckv("switch: the aligner stays engaged", static_cast<uint64_t>(bad_engaged), 0);
@@ -974,25 +974,25 @@ void MclkHarness::row_switch_sweep(int phases, bool grade_slips) {
     ck("switch: every toggle held at least 8 PDUs on the CRF output", crf_out.min_hold >= 8);
 }
 
-//! The #386 recentre of each switch kind, given the settle's own time. On
-//! this 4 MHz elaboration the settle band, 1/64 sample, is one fabric cycle,
-//! so while the servo re-acquires the band can miss and the settle takes its
-//! 32768-tick ceiling (683 ms): one recentre per switch is graded over a gap
-//! past that ceiling, and the sweep above grades that none is ever queued.
+//! Each switch kind over 0.8 s gaps. Until #632 this row graded one #386
+//! at-switch recentre per switch, which settled within 2,048 ticks; #632
+//! retired it with the setpoint stage (the presentation stage places every
+//! sample by its timestamp). #645's settle recentre, which the LOOP queues
+//! keep, waits 8 LOCKED servo windows (4.1 s) under following, past these
+//! gaps: its one recentre per switch is graded by tb/verilator/follow_ring's
+//! [SW] legs, the sweep above grades that none is ever queued, and the count
+//! here is reported.
 void MclkHarness::row_switch_recentres() {
-    std::printf("\n[SWITCH-RECENTRE] one #386 recentre per switch, over 0.8 s gaps\n");
+    std::printf("\n[SWITCH-SLOW] each switch kind over 0.8 s gaps\n");
     const std::array<uint16_t, 4> order = {kSrcCrf, kSrcAaf0, kSrcAaf1, kSrcAaf0};
-    long bad = 0;
     long bad_other = 0;
     for (uint16_t to : order) {
         const SwitchDelta d = switch_once(to, 800'000'000);
-        std::printf("  -> source %u: %ld recentre(s), %ld request(s), toggles %ld/%ld\n",
+        std::printf("  -> source %u: %ld settle recentre(s), %ld request(s), toggles %ld/%ld\n",
                     to, d.recentres, d.pulses, d.aaf_toggles, d.crf_toggles);
-        if (d.recentres != 1) bad++;
         if (d.pulses != 0 || d.aaf_toggles != 1 || d.crf_toggles != 1) bad_other++;
     }
-    ckv("switch: one #386 recentre per switch", static_cast<uint64_t>(bad), 0);
-    ckv("switch: ...with no request pulse and one toggle per output", static_cast<uint64_t>(bad_other), 0);
+    ckv("switch: over 0.8 s gaps, no request pulse and one toggle per output", static_cast<uint64_t>(bad_other), 0);
 }
 
 //! Row (ii): onto AAF input 1 while its talker is silent; it starts 5 ms on.

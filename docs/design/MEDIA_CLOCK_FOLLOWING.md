@@ -53,7 +53,7 @@ builder, model, configuration or processor change; lane M2 made them.
 - **[Baseline](#baseline)** -- What bench lane B6 measured on the shipping image: CRF following works, AAF following is absent, and the two outputs disagree at INTERNAL.
 - **[Clause findings](#clause-findings)** -- The clause reading by question: a source per AAF input, a stopped stream, the `mr` rules, and what the current reading gets wrong.
 - **[Current state](#current-state)** -- The builder, entity model, processor and fabric as they are at dev `d4dd7426`, each fact with its `path:line`.
-- **[Design](#design)** -- The chain, the source order, the AAF clock meter with its rate estimator and loss rule, selection, switching, the settle recentre, holdover, `mr`, A2, the domain counters, the phase gap and the area, with options.
+- **[Design](#design)** -- The chain, the source order, the AAF clock meter with its rate estimator and loss rule, selection, switching, the settle recentre, holdover, `mr`, A2, the domain counters, phase alignment to a followed CRF stream with its per-interface constants, and the area, with options.
 - **[Parent-visible changes](#parent-visible-changes)** -- Every requirement, configuration, builder, model, RTL, register, gate and document change in this repository.
 - **[Protocol-processor changes](#protocol-processor-changes)** -- The cross-repository plan under protocol-processor #141: no processor RTL change, its documentation and tests.
 - **[Test plan](#test-plan)** -- Simulation cases each with a failing mutant, and the bench cases by the B6 method.
@@ -186,7 +186,7 @@ They do not describe a stopped stream, so this page uses them under (c) only.
   sample period of the CRF timing points, modulo whole periods (+/-1,041.7 ns at
   48 kHz). 4.3.5: streams generated from a recovered stream differ from it in
   presentation time by a whole number of nominal periods. See
-  [Phase alignment is a separate gap](#phase-alignment-is-a-separate-gap).
+  [Phase alignment](#phase-alignment).
 
 ### (d) Where the current reading is wrong
 
@@ -308,7 +308,7 @@ packet grid.
 | `mr` CRF triggers (disruption, received toggle) are gated on `crf_clk_selected_r` | `hdl/milan/milan_datapath.sv:3108-3156` |
 | `mr` source-change trigger: any change of the stored index, every output including the CRF output | `hdl/milan/milan_datapath.sv:3180-3203`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv:211-213`, `:230` |
 | A second restart request merges only until the output's first PDU at the adopted level | `hdl/ieee1722/avtp/KL_media_clock_restart.sv:236-246`, `:252`, `:261` |
-| #386 render recentre after a settled source change | `hdl/milan/milan_datapath.sv:6079-6126` |
+| #386 render recentre after a settled source change (retired with the setpoint stage by #632) | `hdl/milan/milan_datapath.sv:6079-6126` |
 | CLOCK_DOMAIN LOCKED and UNLOCKED count edges of the gPTP clock-validity verdict that `tu` also carries, by a recorded rule | `hdl/milan/milan_datapath.sv:3469-3475`, `:3492` |
 | The RX parser hands every matched AVTPDU's listener index, timestamp, `tv`, `tu`, `mr`, sequence number and format header to the fabric | `hdl/milan/milan_datapath.sv:5418-5446` |
 | The format header holds AAF's format, `nsr`, `channels_per_frame`, `bit_depth`, `stream_data_length` and `sp`; the common-header `tu` is byte o+3 bit 0 | `hdl/ieee1722/avtp/avtp_stream_parser.sv:165-177` |
@@ -327,7 +327,9 @@ physical audio clock: 47,999.4893 Hz on the fixed MMCM plan. The AAF talker
 stamps on the packet grid, an exact 48,000.0000 Hz at INTERNAL
 ([Talker capture handoff](TIME_SYNC.md#talker-capture-handoff)). Under CRF
 selection the aligner holds the packet grid on the physical grid, so the two
-agree. At INTERNAL they are 10.64 ppm apart. That is A2.
+agree. At INTERNAL they are 10.64 ppm apart. That is A2. Since #632 the
+divider is retired: `KL_crf_tx` stamps every 96th domain media event, the
+instant the AAF talkers stamp too ([Phase alignment](#phase-alignment)).
 
 ## Design
 
@@ -344,12 +346,18 @@ flowchart LR
     SERVO --> AUDIO[clk_audio and TDM frame grid]
     AUDIO --> ALIGN[KL_media_grid_align]
     ALIGN --> TICK[packet grid]
-    AUDIO --> CRFTX[CRF output]
-    TICK --> AAFTX[AAF talkers]
+    AUDIO --> DOMEV[domain media event]
+    DOMEV --> CRFTX[CRF output]
+    DOMEV --> AAFTX[AAF talkers]
+    TICK --> AAFTX
+    DOMEV -. phase .-> SERVO
+    CRFRX -. timing points .-> SERVO
 ```
 
 One master per link still holds: exactly one measurement drives the servo, the
-one the selection names.
+one the selection names. Since #632 the servo also phases the domain media
+event to a followed CRF stream's timing points, and both outputs stamp that
+event ([Phase alignment](#phase-alignment)).
 
 ### Source list and order
 
@@ -1024,7 +1032,7 @@ An index without a table entry decodes as no source to follow, as the
 | Servo reference (`:5610-5612`) | `KL_crf_rx` | `KL_crf_rx` under CRF, the meter under AAF, through one registered mux |
 | Servo reference lock | `crf_locked_w` | the selected measurement's lock, held low for one cycle on every change of the followed source (W2) |
 | Aligner `sel_i` and NCO enable (`:5740`, `:5748`) | `crf_clk_selected_r` | `follow_sel_r` |
-| #386 settle (`:6091-6092`, `:6115`) | `crf_clk_selected_r` | `follow_sel_r` |
+| #386 settle (`:6091-6092`, `:6115`; retired by #632) | `crf_clk_selected_r` | `follow_sel_r` |
 | I2S playback `servo_en_i` (`:6153`) | `crf_clk_selected_r` | `follow_sel_r` |
 | `mr` CRF triggers (`:3155-3156`) | `crf_clk_selected_r` | unchanged |
 | `mr` AAF triggers | none | the meter's `disrupt_p` and `mr_toggle_p`, ORed into the restart request beside the CRF terms; the meter's enable, `aaf_clk_selected_r`, is their one gate (see [`mr`](#mr)) |
@@ -1042,8 +1050,8 @@ Decision D3 is ruled W2.
 | W1 | Every switch passes through servo IDLE | No servo change beyond the select | IDLE clears the trim (`KL_mmcm_drp_servo.sv:538-551`): each switch between two streams steps the audio clock back to the bare MMCM plan, then re-runs VERIFY and acquisition from zero |
 | **W2, ruled** | A switch between two followed sources keeps `follow_sel_r` high. On every change of the followed source the root presents the reference as unlocked for at least one cycle, so the servo always passes HOLDOVER, trim frozen, into ACQUIRE with its two-window skip and its lock count cleared (`:571-579`) | The existing HOLDOVER path; no trim step; the aligner stays engaged, so the packet grid never re-engages | A switch onto a CRF input that is already locked would otherwise keep LOCKED across the change; the one-cycle presentation is what prevents it, so a test grades it |
 
-Under W2 a switch between two streams is declared by one `mr` toggle, one #386
-recentre once the grid settles, a few seconds of HOLDOVER and ACQUIRE (about
+Under W2 a switch between two streams is declared by one `mr` toggle, a few
+seconds of HOLDOVER and ACQUIRE (about
 3 s onto a CRF input, and about 6 s onto an AAF input under E8), and one
 [settle recentre](#settle-recentre) 8 servo windows after LOCKED. A
 switch onto an AAF input also starts a new meter era: the meter re-locks after
@@ -1073,17 +1081,19 @@ switch from INTERNAL starts from the INTERNAL-to-source offset, the meter's
 E8 rate is valid only 4.1 s after the set, and so the phase of every running
 stream walks about 0.24 tick per ppm of that offset before LOCKED (1.43 ticks
 at the bench's 5.92 ppm) and a few hundredths after it. The #386 recentre
-fires 43 ms after the set, before that walk, and reaches the render stage
-alone. The capture crossbar's loopback ring, the one `SLIP_LB` counts, had no
+fired 43 ms after the set, before that walk, and reached the render stage
+alone (#632 retired both). The capture crossbar's loopback ring, the one
+`SLIP_LB` counts, had no
 recentre at all: the beat at INTERNAL parks it within a tick of its empty
 edge, and the walk then left it anywhere in (0, 1) tick at LOCKED, where a
 late PDU slipped it seconds to tens of seconds later (#645). An aligner
 pull-in at INTERNAL, a held serial clock, moved a running stream by the
 folded phase step and armed no recentre at all (#647).
 
-**What.** One more recentre per transient, beside the #386 one, which stays
-the at-switch render recentre exactly as it was (`milan_datapath.sv`
-`g_src_recentre`):
+**What.** One more recentre per transient. Until #632 it ran beside #386's
+at-switch render recentre; #632 retired that one with the setpoint stage,
+whose presentation stage places every sample by its timestamp and takes no
+recentre ([The listener](#the-listener-each-sample-at-its-presentation-time-632)):
 
 | Term | Value |
 |---|---|
@@ -1091,15 +1101,15 @@ the at-switch render recentre exactly as it was (`milan_datapath.sv`
 | Fires under following | once the servo has read LOCKED for 8 of its 512 ms windows running (196,608 media ticks, 4.096 s, from the servo's own window constant `MCSRV_WIN_LOG2_C`). The PI's phase tail falls about 0.64 a window, so 3 % of what was left at LOCKED is left at the recentre. A build with the servo pruned (`MCSERVO_P` = 0) never reads LOCKED, so there the ceiling fires it |
 | Fires at INTERNAL | once the engaged aligner has rested inside both its 1/64-sample settle band and the two-axis-cycle quiet band for 2,048 ticks running, or has remained disengaged for the same 2,048 ticks (no pull to wait out). An excursion while the recentre is pending restarts that run |
 | Ceiling | 2^20 media ticks (21.8 s) from the arming, whatever the loops do |
-| Reaches | the render stage, at its next PDU end (`render_recentre_p_w`), and the loopback ring of every stream the capture crossbar keeps (`KL_chan_map_capture` `lb_recentre_i`) |
+| Reaches | the loopback ring of every stream the capture crossbar keeps (`KL_chan_map_capture` `lb_recentre_i`). Until #632 it also reached the render stage at its next PDU end |
 | Loopback target | 11 events at a class-A PDU end in a 16-entry ring: five events of the previous PDU still queued when the next one's first event lands, so that event pops 5 to 6 ticks after it lands. Decided as the stream's next PDU starts, on what its first pair has left: fewer than five holds the missing number of pops, one per walk; five does nothing; more than five drops exactly the excess above five from every pair before its next pop. All pairs act in the same walks, so they stay in lockstep |
-| Counted | the render stage counts it in `recentres_o`, as every recentre. On the loopback ring neither `SLIP_LB` counter moves: the recentre is the declared discontinuity, not a slip |
+| Counted | on the loopback ring neither `SLIP_LB` counter moves: the recentre is the declared discontinuity, not a slip |
 
 **Quiet band and recovery.** The
 [recovery ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-6010634115)
 replaces the former four-settle-band arm. The arm threshold is two axis
-cycles: twice the quiet +/-1-cycle excursion. Unlike the #386 settling band,
-it does not scale with the clock frequency. The absolute-error comparator
+cycles: twice the quiet +/-1-cycle excursion. Unlike the 1/64-sample
+settling band, it does not scale with the clock frequency. The absolute-error comparator
 arms strictly above that threshold. All 128 campaign phases, both offset
 signs crossed with four arrival envelopes, must contribute their complete
 signed quiet distributions before this choice is accepted; the standing
@@ -1134,10 +1144,10 @@ gradable render-law boundary, while a no-hold leg must never arm.
 
 **Recovery-window residual.** A second INTERNAL pull beginning after the
 previous settle action but before this recovery qualification completes is
-not guaranteed another recentre. Its resulting render shift may persist.
-This exception applies only to that second pull; an isolated pull gets
-exactly one action and a pull starting after re-arm must restore the normal
-render law. The window is state-qualified, not a fixed timeout: continuing
+not guaranteed another recentre. Its resulting loopback shift may persist
+(the presentation stage needs no recentre, #632). This exception applies only
+to that second pull; an isolated pull gets exactly one action and a pull
+starting after re-arm must re-centre the loopback ring. The window is state-qualified, not a fixed timeout: continuing
 noise or further pulls can extend it. The evidence records the largest
 observed window over the declared stimulus set, not a finite bound for an
 arbitrarily disturbed input. The worst observed isolated-pull window is
@@ -1164,8 +1174,8 @@ after AAF to CRF and 9.96 s after CRF to AAF, each 4.096 s after LOCKED.
 After a 52 us serial-clock hold at INTERNAL it fires once the aligner rests
 in its band: 0.85 s after the hold at that suite's 6.25 MHz axis clock. A
 switch to INTERNAL arms it too: when the aligner never left the quiet band it
-fires in the #386 dwell's own cycle, so the render stage executes one
-recentre (`milan_dp_render` T31).
+fires once the 2,048-tick INTERNAL dwell ends, and the presentation stage,
+which takes none, presents across it (`milan_dp_render` T31).
 
 **Storage and arrival envelope.** The ring holds one class-A PDU plus ten
 events of margin. At 1x1 it uses 64 words of 48 bits, up from 32;
@@ -1182,17 +1192,18 @@ reusing it for a new push, over every event of each PDU.
 ring's first event 5 to 6 ticks after its PDU lands, three ticks (62.5 us)
 later than the former 8-event target. That cost falls on the capture
 crossbar's diagnostic loopback, a received stream's channels re-sent by
-the DUT's talker. The declared AAF presentation path, listener render law,
-and rule that render latency equals the presentation time offset are
-unchanged. A bind primes the ring where its first PDU lands; at INTERNAL the
+the DUT's talker. The declared AAF presentation path and the listener's
+presentation at the timestamp (#632) are unchanged by it. A bind primes the ring where its first PDU lands; at INTERNAL the
 bind's settle recentre centres it ([A bind at INTERNAL](#a-bind-at-internal)).
 
 #### The declared transient
 
 From a switch to its settle recentre the rings may move, and that is
 declared as part of the source switch, as #629's fabric item allows: the
-at-switch #386 render recentre, the servo's pull-in walk in both rings, and
-loopback slips within this bound. Measured in `tb/verilator/follow_ring` at
+servo's pull-in walk (in the loopback ring, and, where it carries a stream's
+timestamps across half a period of the frame grid, one counted presentation
+slip; until #632 also the at-switch #386 render recentre and the walk in the
+render ring), and loopback slips within this bound. Measured in `tb/verilator/follow_ring` at
 the bench's 5.92 ppm between the DUT's INTERNAL clock and the followed
 talker, with the talker slow or fast, across 16 set phases over one
 INTERNAL beat and four arrival lateness models (none, 0 to 5 us uniform,
@@ -1217,8 +1228,9 @@ pulse before grading the running stream. Its measured latency is retained
 in each run's log: the two-cycle quiet band is narrower in time at that
 clock rate, and the recovery trajectory also depends on prior activity.
 
-After an isolated transient's settle recentre nothing moves either ring:
-no loopback slip, the loopback ring centred, the render stage on its law.
+After an isolated transient's settle recentre nothing moves: no loopback
+slip, the loopback ring centred, and the presentation stage on its law,
+every sample at its nearest frame with no slip (#632).
 The follow_ring campaigns grade this at every phase. A further INTERNAL
 pull starting inside recovery has only the narrow residual declared above;
 it does not grant a slip allowance to a quiet running stream.
@@ -1316,15 +1328,21 @@ CRF following, B17's cycle-5 burst slips such a ring one frame, as a bind at
 INTERNAL did before this arm. This is a limit of the ruled scope, stated
 here; it is not declared as bounded behaviour.
 
-**Every stream takes it.** The settle recentre is one pulse to the render
-stage and to every stream's loopback queues. On a shape with more than one
+**Every stream takes it.** The settle recentre is one pulse to every
+stream's loopback queues (and, until #632, to the render stage). On a shape
+with more than one
 listener stream and the loopback lane, a bind at INTERNAL therefore also
 recentres the other running streams: a ring at its target moves nothing,
-and one that has drifted takes the declared step. The render stage counts
-one recentre per stream at its next PDU end. The shipping 1x1 TDM8 shape has
-one listener stream.
+and one that has drifted takes the declared step. The shipping 1x1 TDM8
+shape has one listener stream.
 
-**Measured in `follow_ring`.** The bind case replays B17's cycles: the first
+**Measured in `follow_ring`, before #632.** These figures are the
+measurement taken when the settle pulse also recentred the #386 render stage,
+kept as the record of the arm's effect on the ring; they are not re-taken.
+Since #632 the render stage takes no recentre, and the harness grades, per
+bind, one settle recentre on the LOOP queue, no loopback slip after it, and
+the presentation stage on its law across it (`sweep.py` `bind`). The bind
+case replays B17's cycles: the first
 PDU's delay after the bind, the first burst's time after that PDU and its
 peak, then the largest later burst. A burst's later PDUs each arrive
 1.538 us less late, the mean slope of B17's ten first bursts. `sweep-bind`
@@ -1340,7 +1358,8 @@ acts.
   one a frame and a pair.
 - **With it:** every one of the 320 binds gets one arm at its first PDU, one
   settle recentre 2,047.0 to 2,048.0 ticks later and one counted render
-  recentre, and no bind slips the ring after it acts. The 177 in-window binds
+  recentre (the #386 stage's, before #632), and no bind slips the ring after
+  it acts. The 177 in-window binds
   move neither `SLIP_LB` counter. After the recentre the ring's empty-side
   margin is at least 3.48 ticks and its full-side margin at least 4.88.
 - **The arming window.** For the 42.7 ms between the arm and the firing the
@@ -1449,7 +1468,9 @@ the physical clock and the aligner holds the packet grid on it. The CRF output
 and the AAF streams are then one clock. B6's case B CRF shows it for CRF:
 `SLIP_TDM` stayed static. AAF following inherits the same chain. On a dead TDM
 feed the aligner disengages (`KL_media_grid_align.sv:95-100`) and the packet
-grid free-runs, as at INTERNAL today.
+grid free-runs, as at INTERNAL today. Since #632 both outputs stamp the domain
+media event, so they are one grid as well as one clock, whatever the packet
+grid's phase ([Phase alignment](#phase-alignment)).
 
 **At INTERNAL, the owner decided A2-a** (D4,
 [decision](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5937643550)).
@@ -1519,18 +1540,494 @@ lock, which would send the servo to HOLDOVER and count an UNLOCKED; the
 counter row's loss leg grades that. The Stream Input's MEDIA_UNLOCKED counts
 the loss of the stream under every option.
 
-### Phase alignment is a separate gap
+### Phase alignment
 
-The servo locks frequency only (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:27-30`).
-Nothing aligns the DUT's talker presentation times with the followed stream's
-timing points, so IEEE 1722-2016 10.8 (+/-5 % of a sample period, for a talker
-following CRF) and 4.3.5 (whole periods, for streams generated from a recovered
-stream) hold only by chance. That is true of the CRF path today, and AAF
-following would inherit it. It is outside #629's acceptance and is filed as
-[#632](https://github.com/kebag-logic/milan-fpga/issues/632) (D7). Closing it
-needs a phase term in the chain, for example the CRF delta or the AAF
-timestamp against the local grid, feeding the aligner's lock target rather than
-a second master.
+**Implemented for a followed CRF stream** by
+[#632](https://github.com/kebag-logic/milan-fpga/issues/632) and
+[#764](https://github.com/kebag-logic/milan-fpga/issues/764), under the
+[assignment](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6284510903)
+and its two addenda ([in/out latencies](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6284578201),
+[one reference per clock domain](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6284659263),
+which replaces the first addendum's item 1). D7 filed the gap. Before it the
+servo locked frequency only, so IEEE 1722-2016 10.8 (+/-5 % of a sample
+period, for a talker following CRF) and 4.3.5 (whole periods between a
+recovered stream and a stream generated from it) held only by chance. #764
+measured nine engagements settling anywhere in the period, five of them past a
+quarter sample, with gPTP two orders of magnitude better. Milan v1.2 7.6.1
+asks a follower for "frequency and phase". AAF following keeps the rate loop
+alone; it is the follow-on below.
+
+The servo stays the domain's single master: the phase term is a term of its own
+integrator, not a second loop (the assignment's mechanism ruling). The packet
+grid and the aligner are unchanged.
+
+#### One reference per clock domain
+
+Several media interfaces may share one media clock: a Milan v1.2 CLOCK_DOMAIN
+is one domain, one clock source, any number of streams and interfaces. So the
+phase has one reference point per domain, the **domain media event**, and the
+detector never compares against a particular interface's pins.
+
+| Fact | Value | Where |
+|---|---|---|
+| The event | the instant, in gPTP ns, at which each frame of the domain's frame grid starts at the media interface | `hdl/ieee1722/crf/KL_media_domain_event.sv` |
+| What it observes | the frame-timing owner's frame marker: the strobe of the pair that closes the frame at the capture crossbar, the marker the grid aligner follows (#617) | `hdl/milan/milan_datapath.sv` `frame_mark_w` |
+| Back-dating | the owner's marker latency, derived from its parameters: the closing pair's last bit, the front end's FIFO write, and 4.5 datapath cycles of read side | `hdl/ieee1722/crf/KL_media_if_latency_pkg.sv`; `milan_datapath` `DOM_MARK_LAT_NS_C` |
+| Liveness | four frames with no marker read the grid dead: the servo holds its phase term off, and the packet-grid tick, stamped with the live PHC, stands in, so the domain's outputs still share one grid | `KL_media_domain_event` `live_o` |
+| Consumers | the servo's phase detector; `KL_crf_tx`, whose every 96th event is a timing point; and the AAF talkers, through the capture crossbar, which banks each frame's instant with the frame | `milan_datapath` |
+
+#### The per-source contract
+
+| Source | Phase reference | Loop | Clause |
+|---|---|---|---|
+| CRF stream | its timing points: the timestamp of every accepted, consumed PDU (`KL_crf_rx` `ts_p_o`), on whole periods of its media clock by Equation (14) | the servo's phase term holds the domain event on them modulo Ps; `MCSRV_STAT[9]` reads settled once the window phase and every sample of it sit inside +/-5 % of Ps, four full windows running | IEEE 1722-2016 10.7, 10.8 Equation (15); Milan v1.2 7.6.1 |
+| AAF stream, the follow-on | its presentation times. An AAF talker that itself follows CRF stamps within +/-5 % of that CRF's timing points (10.8); one on its own clock has no clause bound on its phase, and its presentation offset need not be a whole number of periods | the rate loop alone: `ph_en_i` is low under an AAF source, so the phase stays where the pull-in left it, as before #632. A phase reference for it needs a decision on that offset | Milan v1.2 7.6.1; IEEE 1722-2016 4.3.5 |
+| INTERNAL | none | no servo; the domain's outputs still stamp one grid, so with offsets of whole periods they stay whole periods apart | IEEE 1722-2016 4.3.5 |
+
+#### Detector and loop
+
+1. **Detector.** Per accepted, consumed PDU of the followed stream, d = (the
+   latest domain event's instant) - (the PDU's CRF timestamp). Ps = 62,500/3 ns
+   is not a whole number of nanoseconds, so the fold works in 1/3 ns: 3d mod
+   62,500 by a restoring divider, moved into [-Ps/2, Ps/2). The fold is exact,
+   because a CRF timestamp and a domain event both lie on whole periods.
+   The phase is circular, so each folded sample is then unwrapped against a
+   tracking reference before it is summed: the last counted window's phase,
+   or, until a window has counted, the first sample since the last hold. A
+   sample moves by whole periods to within Ps/2 of that reference, so samples
+   either side of +/-Ps/2 add as the one phase they are and never cancel.
+   Folded on their own, alternate samples of +/-10,416 ns summed to zero and
+   read settled (R678-1-F3). The samples are summed over the servo's 512 ms
+   window, and the window phase Theta is that sum over the nominal 256 PDUs,
+   a shift: a window short of PDUs only pulls less. Theta is re-folded once
+   into [-Ps/2, Ps/2), so every pull is the short way. A window keeps at most
+   264 samples, the nominal count plus 1/32, which no rate inside the
+   authority reaches; a talker sending faster than its declared interval then
+   cannot carry the sum past 264 unwrapped samples of up to Ps, inside its 26
+   bits. A window counts with at least 64 PDUs and no hold inside it. It reads
+   settled only full, with its phase and every one of its samples inside the
+   band, so no mean of out-of-band samples settles. A phase at +/-Ps/2 reads
+   as itself and pulls at the slew limit, so the loop leaves the fold within
+   a window or two; the engagements at the fold below are bounded like any
+   other.
+2. **Loop.** The window phase Theta enters the integrator one window late,
+   clamped: integ += 3/128 of a trim unit per ns of Theta each window, beside
+   the rate term e/2, with u = integ + e/4. The loop is therefore type 2
+   against phase, with the rate loop as its damping. The integrator now keeps
+   8 fractional bits, so neither term is floored: the floored `e >>> 1` held
+   mean(e) at P(e odd), a drift of up to 1.95 ns/s that no term saw (#764).
+3. **Where it runs.** Only in LOCKED, with the domain event live, a valid
+   reference history and a followed CRF stream. Each of these holds it:
+   leaving LOCKED (HOLDOVER, ACQUIRE, IDLE at INTERNAL), an `mr` toggle of the
+   followed stream, a broken reference history (a timestamp jump, a `tu` edge
+   or a sequence gap: `ref_rate_valid_i` low), and a local PHC step (#539) or
+   policy slew (#545), which move the timescale the domain event is stamped
+   in. A hold lets the term go at once, spoils the open window and restarts
+   the tracking reference, so only a clean window re-engages it. A correction
+   not yet started is dropped, and that includes a hold on the very edge
+   whose window closes: the snapshot reads the hold itself, not only the
+   valid flag the hold clears after it (R678-1-F4). A window that closed a
+   cycle before the hold commits its correction, as the rate update does. A
+   re-acquisition pulls at most Ps/2, at the slew limit, whatever the event
+   moved: a 27 us slew is re-acquired as the 6.2 us it folds to.
+
+| Term | Value | Why |
+|---|---|---|
+| Phase gain | 3/128 trim unit per ns (`PH_GAIN_LSH_P = 1`) | phase pole 0.944 per window (time constant 17 windows, 8.9 s), rate pole 0.70 (2.8 windows, 1.4 s): six times apart, so the rate loop has settled before the phase moves. The phase loop's bandwidth is about 0.018 Hz against the rate loop's 0.11 Hz |
+| Slew limit | `PH_SLEW_NS_P = 256` ns of phase per window, 0.5 ppm: Theta clamped at +/-5,461 ns | the integrator settles at e = -2 x 3/128 x Theta, so a clamped Theta moves the phase 256 ns a window. The audio clock then moves at most 0.5 ppm through the fine phase shift: glitch-free, no slip, and inside the 2 ppm lock test, so the servo stays LOCKED |
+| Integrator fraction | 8 bits (`IF_C`) | carries `e / 2^KI_SHIFT_P` and the phase term exactly; an elaboration guard refuses a `KI_SHIFT_P` above it |
+| Settled | the window phase and every sample of the window inside +/-5 % of Ps (1,041.7 ns), 4 full windows running (`PH_SETTLE_WIN_P`) | `MCSRV_STAT[9]`, read only; the phase word itself reaches no CSR. It falls at once on every hold and rises only after 4 clean full windows |
+| Pull-in from Ps/2 | about 41 windows at the slew limit, then the pole | inside the band 23 to 28 s after an engagement in simulation |
+
+#### Re-acquisition
+
+Measured in `tb/verilator/media_phase` at the silicon 512 ms window:
+
+| Event | Held by | Inside +/-5 % of Ps after | Held to the end, largest phase |
+|---|---|---|---|
+| Engagement at +0.44 Ps | first LOCKED | 27.5 s | 723 ns |
+| Engagement at -0.36 Ps | first LOCKED | 23.4 s | 679 ns |
+| The phase put at +Ps/2 (2 ns inside it) and at -Ps/2, the reference's timestamps truncated to 8 ns and jittered +/-48 ns | reference history restart; re-engaged at -0.49 Ps | 26.4 s and 26.6 s, settled never read outside the band | 619 ns and 599 ns |
+| Reference phase step of 0.37 Ps | reference history restart (jump beyond 2,048 ns) | 21.7 s | 570 ns |
+| `mr` toggle with a 1.8 us jump | `mr`; the jump is inside the receiver's bound, so the rate loop takes most of it | 0.4 s | 145 ns |
+| 15 s holdover, the oscillator moved 0.5 ppm | HOLDOVER, ACQUIRE | 27.3 s from +0.48 Ps | 742 ns |
+| 15 s at INTERNAL | IDLE | 24.3 s from +0.24 Ps | 706 ns |
+| The local PHC slews 27 us at 200 ppm | the #545 slew level | 20.0 s from +0.30 Ps, the short way (27 us is 1.3 Ps) | 662 ns |
+| The local PHC steps +7 us, no slew level | the #539 step | 22.3 s from +0.34 Ps | 563 ns |
+| 4 ppm oscillator ramp over 80 s | none | held throughout | 643 ns |
+
+The restart signalling of #761 is unchanged: the phase term raises no `mr`, no
+MEDIA_RESET and no CLOCK_DOMAIN count. A settle recentre (#645) fires once the
+servo has read LOCKED for 8 windows, so up to half a tick of a later phase pull
+lands in the render and loopback rings after it, inside their bands.
+
+#### The domain's outputs
+
+- **CRF output.** `KL_crf_tx` counts 96 domain events per PDU and stamps the
+  96th's instant plus the Equation (14) offset. Its own /512 /96 divider of
+  `clk_audio_i` and its clock crossing are retired.
+- **AAF talkers.** The time base is the instant of the frame the capture walk
+  reads. `KL_chan_map_capture` banks each frame's instant
+  (`KL_media_domain_event` `mark_ns_o`) beside the frame and loads it into the
+  walk with it, so the coincidence law and a queued tick give the frame and its
+  instant together. The capture age (256 to 785 axis cycles under CRF) and the
+  pair offset ((3 - p) pair periods on TDM8) never reach the timestamp. A time
+  base latched at the tick instead named the frame before whenever a frame
+  closed on the tick's own cycle: a whole sample off, which `capture_coherence`
+  caught at the engagement placed on the walk's crossing.
+- Both outputs therefore stamp the same frame instants whatever the packet
+  grid's phase (4.3.5), and those instants sit on the followed stream's timing
+  points once the phase settles (10.8). Each output adds its own offset: the
+  CRF output whole periods, an AAF talker its offset as set (next bullet), so
+  with offsets of whole periods, as the factory 2 ms is, the outputs stay
+  whole periods apart. This is the assignment's item 3 by its second option:
+  the constant is folded out at the detector's own reference, and no aligner
+  target moves.
+- **Presentation offsets: AAF as set, CRF in whole periods.** An AAF talker
+  applies its offset (SET_STREAM_INFO) exactly as set: Milan v1.2 5.4.2.9 sets
+  the offset to the commanded value, and no clause of Milan v1.2, IEEE
+  1722.1-2021 or IEEE 1722-2016 puts AAF timestamps on whole media clock
+  periods. Each AAF timestamp is its frame's instant plus the offset as set,
+  to the ns. The one round-up rule is IEEE 1722-2016 10.7 Equation (14) (PICS
+  CRF-19), and it is the CRF output's: `KL_mtt_round` rounds the CRF output's
+  row alone up to a whole number of media clock periods, and `KL_crf_tx`
+  stamps it (`ROUND_MTT_P = 0`, its own converter and multiplier block not
+  elaborated). A listener presents each sample at its own presentation time
+  (the listener section below; `render_queue`'s `[round]` phase places
+  timestamps up to 0.49 of a period off the frame grid on the nearest frame),
+  so an AAF offset that is no whole number of periods costs a receiver
+  nothing. 4.3.5's whole periods between the outputs, and 10.8 Equation
+  (15)'s +/-5 % of a period from a followed stream's timing points, hold for
+  AAF offsets of whole periods, the factory 2 ms among them. With any other
+  offset the stream sits the offset's fraction of a period off the CRF timing
+  points (2,010,000 ns at 48 kHz is 96.48 periods: 10,000 ns, 0.48 Ps, modulo
+  Ps), outside Equation (15)'s band when it follows a CRF stream; the #632
+  ruling of 2026-10-21 takes the offset as set (5.4.2.9) there too. The
+  reference talker reads back what is set as well: a SET of 2,010,000 ns
+  reads back 2,010,000. An earlier revision of #632 rounded every output's
+  row; that ruling kept the rounding for the CRF output alone.
+- **What a controller reads, and what a SET answers.** GET_STREAM_INFO's
+  `msrp_accumulated_latency` is "the presentation time offset currently used
+  by the talker" (Milan v1.2 5.4.2.10.2), so it reads each row as its output
+  uses it: an AAF output's as set, the CRF output's as applied. What
+  GET_STREAM_INFO reads is what each output stamps. SET_STREAM_INFO is not a
+  readback. It sets the offset to the commanded value, and its successful
+  response echoes that value (5.4.2.9), as the notification after it does
+  (5.4.5.1; IEEE 1722.1-2021 7.5.2). On an AAF output the two agree. On the
+  CRF output they differ for an offset that is not a whole number of periods:
+  a SET of 2,010,000 ns answers 2,010,000, and GET_STREAM_INFO then reads
+  2,020,834. The CRF rule is not idempotent in whole ns either: a period count
+  that is no multiple of three has a ceiling (2,020,834 ns for 97 periods)
+  above it, so a controller that writes back what GET_STREAM_INFO read for
+  the CRF output sets a different value, which applies one period more (98
+  periods, 2,041,667 ns). The values a controller ordinarily sets, multiples
+  of 62,500 ns (0.25, 0.5, 1 and 2 ms), are exact, and idempotent. Whether a
+  SET modified the state, so that the other registered controllers are told
+  (5.4.5.2), is judged on the value as set: an identical SET pushes nothing,
+  and a changed one pushes once. `milan_dp`'s `[NOTIFY]` grades four steps on
+  AAF output 0 (the held 2,000,000 ns, a change to 2,010,000, the same again,
+  a change to 2,020,834; GET_STREAM_INFO reads each as set) and the same four
+  on the CRF output (GET_STREAM_INFO reads 2,020,834 after steps 2 and 3, and
+  step 4 is the write-back, read as 2,041,667). The gate is the processor's
+  SET_STREAM_INFO program. The processor stores no offset until a controller
+  or a restore sets one, so the gate compares the commanded value with the
+  stored offset once one is set, and before that with GET_STREAM_INFO's word,
+  the factory offset in force. A SET of 0 on an output never set therefore
+  pushes, as the offset in force moves from 2 ms to 0. Before the CRF
+  output's first SET, a factory CRF offset that is not whole periods is
+  compared as applied, so a SET of exactly that value pushes; every factory
+  offset this repository ships is 2 ms, whole periods. The processor pin
+  `93fb0b2d` carries that gate (processor PR #199, adopted by #771), so all
+  eight steps pass on the pinned processor. A gate that compares with
+  GET_STREAM_INFO's word instead passes the four AAF steps, where that word
+  is the stored value, and fails CRF steps 3 and 4: `gsi_mutants.py` plants
+  it.
+- **Past 2^32 ns.** The ceiling adds up to one period, so at 48 kHz a CRF
+  offset above 4,294,958,333 ns rounds past 2^32: 0xFFFFFFFF applies as
+  206,159 periods, 4,294,979,167 ns, a 33-bit value. A CRF timestamp is all 64
+  bits (10.4.13.1, Equation (13)), so the CRF output adds bit 32 too: without
+  it, it would stamp 2^32 ns early, about 8,962 ns off its grid modulo Ps.
+  GET_STREAM_INFO's field is 32 bits, so it reads such a row as 0xFFFFFFFF,
+  the largest value it can carry, never as its low word (11,871 ns for
+  0xFFFFFFFF). An AAF offset is never rounded, so it stays 32 bits, and an AAF
+  timestamp is the low 32 bits of gPTP time (IEEE 1722-2016 4.4.4.9, Equation
+  (6)): the frame's instant plus the offset, modulo 2^32. A controller cannot
+  set an offset from 2^31 on (5.4.2.9 bounds it at 0x7FFFFFFF, and the
+  processor refuses bit 31), so only a factory row reaches one.
+  `media_phase`'s `ofs` grades 0, 1, 20,833, 20,834, 62,500, 2,000,000,
+  2,010,000 and 0xFFFFFFFF ns on AAF rows and on the CRF row (and on the CRF
+  row 4,294,958,333 and 4,294,958,334, the largest whose rounding fits 32 bits
+  and the first whose does not), from the CRF row's factory value in reset,
+  from rows set at reset and at run time: every AAF timestamp a frame instant
+  plus its row as set, to the ns; GET_STREAM_INFO's word for every row; the
+  CRF row on all 33 bits and every CRF timestamp on all 64 against an
+  independent Equation (14) result and the frame grid. Its planted defects are
+  the AAF rows stamped rounded and read back rounded (round 2's binding), the
+  CRF row stamped as set, and the carry dropped at its four places.
+  `milan_dp`'s output walk requires every stamp, on every output of the 4x4
+  and 8x8 shapes, to be a domain media event's instant plus the offset
+  GET_STREAM_INFO reads, at 2 ms, 1 ms and 2,010,000 ns.
+- **Sources outside the frame bank.** A talker channel mapped from the stereo
+  I2S hold, the tone or the loopback carries no frame instant of its own: its
+  column is stamped with the physical frame's.
+
+#### Per-interface constants
+
+Each interface's constants are derived from its own parameters by
+`KL_media_if_latency_pkg`, relative to the domain event. Adding an interface
+adds its constants and a back-dating of its own marker (another
+`KL_media_domain_event` on its own closing pair, as `pin_wrap.sv` does), never
+a second loop.
+
+The closing pair is the pair of a frame that reaches the capture crossbar
+last (`close_slot()`). On a TDM bus it is the last pair the crossbar keeps
+(`CMAP_TDM_FRAME_PAIRS_C`, at most four); on a bus wider than TDM8 that is an
+inner pair, so the marker latency is counted to that pair's last bit, never to
+the frame's end. On the I2S blend it is the I2S pair at merged slot 0: the I2S
+front end writes a pair when its frame ends, a whole frame after its instant,
+after the TDM pairs kept and before the next frame's first one. Closing on the
+TDM pair banked the I2S pair of an earlier frame under the TDM frame's instant
+(R677-1-F1). Measured with sample values at the pins, that frame was two
+periods older: `KL_aaf_capture_i2s` (and the flat `aaf_talker_i2s` it was
+split from) copied the crossing FIFO's registered read on the pop edge, so
+every strobe carried the pair before it. Both now alias that read as the TDM
+front ends do, so each I2S pair rides its own strobe, on the I2S-only shape
+too.
+
+| Interface | Closing pair | Marker latency: bits + write + read | Shipping value | Graded at the pins |
+|---|---|---|---|---|
+| AX7101 1x1, TDM8 x 32 master, data delay 1 (`KL_tdm_capture_master`) | 3 of 4, the frame's last | 256 bit periods at 12.288 MHz + 1 cycle at 24.576 MHz + 4.5 cycles at 50 MHz | 20,833 + 41 + 90 = 20,964 ns | yes: `capture_coherence` `[PIN]` through the whole datapath, and `media_phase` pins interface A |
+| AX7101 8x8, TDM32 x 32 master on 98.304 MHz | 3 of 16, a quarter of the frame in | 256 bit periods at 49.152 MHz + 1 cycle at 98.304 MHz + 4.5 at 50 MHz | 5,208 + 10 + 90 = 5,308 ns | the front end and its closing pair: `media_phase` pins interface C |
+| Arty 4x4 and 8ch, TDM8 master with the I2S pair blended at slot 0 | the I2S pair: slot 0 of the merged stream, the last of its frame to arrive | 64 bit periods at 3.072 MHz + 5 cycles at 24.576 MHz + 4.5 at 50 MHz (the I2S front end's) | 20,833 + 203 + 90 = 21,126 ns; the TDM8 frame starts one audio clock cycle, 40.7 ns, after the I2S frame | yes: `media_phase` blend, both interfaces' pins through the capture crossbar's frame bank, six reset phases: the I2S pair -29 to -11 ns and every TDM pair +11 to +29 ns from the banked instant |
+| Arty current, I2S (`KL_aaf_capture_i2s`) | its one pair | 64 bit periods at 3.072 MHz + 5 cycles at 24.576 MHz + 4.5 at 50 MHz | 20,833 + 203 + 90 = 21,126 ns | the same front end and latency, graded in the blend |
+| A TDM slave (`KL_tdm_capture`), TDM8 | 3 of 4 | 256 bit periods + 1 bit period + 4.5 datapath cycles | 20,833 + 81 + 90 = 21,004 ns at 50 MHz | no shipping shape; derived |
+| Synthetic TDM4 x 32, data delay 0 (`pin_wrap.sv` B) | 1 of 2 | 127 bit periods at 6.144 MHz + 1 cycle at 24.576 MHz + 4.5 at 50 MHz | 20,671 + 41 + 90 = 20,802 ns | `media_phase` pins interface B |
+| Any TDM interface, slot k | | slot k's MSB after the frame instant: (k x word bits + data delay) bit periods | (32k + 1) x 81.4 ns on the 1x1 shape: 81.4 ns to 18,310.5 ns | subtracted by every pin grade above |
+
+#### The listener: each sample at its presentation time (#632)
+
+The first addendum reads the listener as "render latency equals the
+presentation time offset", with the post-grid pin delay counted against that
+offset, and the second asks for each interface's constants to be applied "to
+the presentation of the streams that interface carries". Round 4 of PR #770
+([assignment](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6316458183),
+owner decisions on #632,
+[6309219099](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309219099) and
+[6309313685](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685))
+does that on the TDM listener path: `KL_render_queue` replaces the #386 setpoint
+stage between the depacketizer and the render crossbar, and every sample reaches
+every interface's pins at its presentation time. Review finding R678-1-F1 (the
+listener at the pin) is done by it.
+
+**The law.** A PDU's `avtp_timestamp` is the presentation time of its first
+sample, gPTP nanoseconds modulo 2^32 (IEEE 1722-2016 4.4.4.9), and event k of
+an AAF PDU is presented k media periods later (7.5). The domain's media event
+above counts the domain's frames: frame n starts at the pins at E_n. At each
+PDU's header the stage takes d = `avtp_timestamp` - E_n (32-bit wrap) and
+divides it by Ps exactly, in thirds of a nanosecond (Ps = 62,500 / 3 ns at 48
+kHz; long division of 3d, one quotient bit per cycle, the remainder rounding
+to the nearest, so the frame is known 13 cycles after the header and the
+depacketizer holds the payload 16): the PDU's first event belongs to frame
+F0 = n + round(d / Ps), event k
+to F0 + k, and each sample is written into its frame's row. d is signed: a
+PDU stamped behind the latest domain event has F0 at or before n, and its
+events still ahead of the frames already read are written like any other.
+The divider takes d plus the late reach, 504 frames (10.5 ms at 48 kHz, a
+whole number of nanoseconds), so every d from that far behind to beyond the
+queue divides the same way; the wrapped difference is read from 2^31 ns plus
+the reach behind to 2^31 ns less the reach ahead. On every domain
+event n, interface i reads frame n + K_i. K_i is the interface's out-lead,
+`out_lead_frames()` in `KL_media_if_latency_pkg`: the whole frames from the
+event's frame instant (the event comes its marker latency after it) to the
+frame start at that interface's pins that adopts what a read at the event
+commits, through its read-to-adoption path (`out_pipe_ns()`: the stage's
+reads, the crossbar, the slot adapter, the frame crossing into the interface's
+clock and its prefetch). Every sample of frame F so reaches every interface's
+pins in the frame that starts at E_F, slot k's MSB its slot offset later. The
+datapath refuses, at elaboration, an out-lead that the shortest and the
+longest of those paths would put on different frame starts (a 50 ns guard
+either side).
+
+| Interface | Event latency | Read-to-adoption path | K |
+|---|---|---|---|
+| AX7101 1x1, TDM8 master at 50 MHz | 20,964 ns | 3 serial cycles to 2 frames | 2 |
+| AX7101 8x8, TDM32 master | 5,308 ns | the same terms on the 98.304 MHz bus | 1 |
+
+Each interface carries its own out-lead against the one domain event, so two
+interfaces whose post-grid delays differ by a frame or more read different
+frames at the same event and still present the same sample at the same time
+(`tb/verilator/media_phase` `render`: K = 2 and 3, a frame-long output hold on
+the second).
+
+**Tolerance.** When the timestamps sit on the domain's frame grid (a talker
+on this media clock, or a followed stream once the servo's phase term holds
+the grid on its timing points, 10.8 Eq. 15), every sample is at its
+presentation time inside 10.8's +/-5 % of Ps (1,042 ns at 48 kHz). At any
+other phase (INTERNAL against a foreign talker, a grid after a hold) every
+sample is at the frame instant nearest its presentation time, within Ps / 2.
+
+**The supported range** is the queue's depth, derived from the longest hold
+it must keep: Milan v1.2 4.4.2.1's 2.126 ms, so the queue is sized for the
+2 ms presentation time offset, Milan v1.2 5.3.7.6's default, and no deeper
+option is built. ROWS = 2^ceil(log2(ceil((2.126 ms + event latency) / Ps) +
+2)) rows per stream: 128 at 48 kHz on both shipping shapes. A sample is
+written for every interface when, at its arrival, its presentation time is
+more than K_max x Ps - event latency + Ps / 2 ahead (it must arrive before its
+frame is read), and for at least the last reader up to (K_min + ROWS - 1.5) x
+Ps - event latency ahead:
+
+| Shape | K | Event latency | Ahead of its presentation time at arrival |
+|---|---|---|---|
+| 1x1 TDM8 | 2 | 20,964 ns | 31,119 ns to 2,656,119 ns |
+| 8x8 TDM32 | 1 | 5,308 ns | 25,942 ns to 2,650,942 ns |
+
+A PDU's lead at arrival is the talker's presentation time offset less the
+PDU's transit (the talker's capture to this listener's depacketizer), so a
+talker offset is presented whole when the offset less that transit lies in
+the range: at the 2 ms default, any transit under 1,968,881 ns (1x1), and
+offsets up to 2,656,119 ns plus the transit. Outside the range nothing is
+re-centred: a PDU's events past the queue are refused by the too-early rule,
+counted in `early_o`, and its events whose frames every interface has read by
+the late rule, counted in `late_o`, its other events presented either way
+(`RENDER_STAT[31:16]` counts each such PDU once). A talker of this device
+still accepts any offset from 0 to 0x7FFFFFFF ns (Milan v1.2 5.4.2.9), since
+it cannot know its listeners' buffering. IEEE 1722.1-2021 7.4.77.1 bounds a controller's Max Transit Time by
+the buffering of the stream's listeners, which each STREAM_INPUT declares in
+`buffer_length` (TTmax <= Tbuf - TUmax - PSTmax, its NOTE): every shipping
+shape declares 2,126,000 ns, the builder's floor (Milan v1.2 5.3.3.4), and
+the queue holds 2,656,119 ns (1x1) and 2,650,942 ns (8x8) ahead at arrival,
+so the declared limit is backed. The builder accepts a larger
+`buffer_length_ns`; the queue's depth does not grow with it.
+
+**The rules, per event, and their counters.** Against R, the frame every
+interface has read, each event of a PDU on its own frame, whatever the PDU's
+timestamp:
+
+| Rule | Condition | Action | Counter |
+|---|---|---|---|
+| late | an event's frame is at or before R: every interface has presented it | the event is dropped, the PDU's events ahead of R written (a PDU stamped behind the latest domain event included); the PDU counts once | `late_o`, and `refused_o` (`RENDER_STAT[31:16]`) |
+| too early | an event's frame is ROWS or more past R: beyond the queue | the event is dropped; the PDU counts once | `early_o`, and `refused_o` (`RENDER_STAT[31:16]`) |
+| untimed | `tv` clear (1722-2016 4.4.4.5: no valid timestamp), or the payload starts before its frame is known | not written; the PDU counts once | `untimed_o` |
+| slip | a presenting stream's read finds its frame empty (a gap), or a PDU's first event lands on a frame its stream already wrote (an overlap: the later sample wins) | as stated; counted once per run of empty frames and once per overlapping PDU | `slips_o` |
+
+The rules hold for a PDU of any length the depacketizer passes (a Milan
+48 kHz PDU carries six events; the depacketizer's 2048-byte frame FIFO drops a
+longer frame, so a PDU carries at most 252 payload beats, 504 one-channel
+events, the stage's `MAX_EV_P`): the walk keeps each sample's frame, F0 and
+one more per event, and once an event lies past the queue the PDU's later
+events are refused with it, before a frame number could wrap. A PDU stamped
+more than the late reach behind the latest domain event is late in every
+event: its last event is at most 503 frames after its first, so at or before
+that event's frame, which every interface has read.
+
+The listener's Milan STREAM_INPUT counters LATE_TIMESTAMP and EARLY_TIMESTAMP
+(1722.1-2021 Table 7-157) stay the RX monitor's, unchanged; the stage's
+counters are its own taps.
+
+**At stream start** a fresh stream's first sample is presented at its
+presentation time. Its frames before that read empty: digital silence, with no
+prefill and no slip. A bind wipe empties the stream's rows (`flush_i`, the
+task #32 eviction pulse), as reset does.
+
+**After a gPTP step** E_n and the talkers' timestamps step together. Frames
+already queued keep their rows: they were placed in the old time base and the
+frame count does not step. A PDU stamped in one time base and placed in the
+other lands where its stamp says against the new one: late or too early when
+the step reaches past the queue, and counted there; otherwise on frames off
+by the step, one gap or overlap, counted in `slips_o`. Nothing re-centres
+(`milan_dp_gm_steps`: across a 1.5 s grandmaster change the two PDUs the
+talker stamped in the new time before this listener stepped are refused as
+too early, their frames are one slip, and every other PDU keeps one offset).
+
+**After a hold of the media clock** (a held serial clock, a servo HOLDOVER
+that moves the frame grid) the frames already queued keep their frame numbers,
+so they reach the pins the hold's length late: the interface's clock did not
+run. The stream's later PDUs, placed against the moved grid, take over within
+the queue's lead; the snapping leaves one gap or overlap, counted in
+`slips_o`, and every later sample is at its nearest frame
+(`milan_dp_render` `[PULLIN]`: within Ps / 2 + 100 ns).
+
+**What replaces #386's recentres.** The #386 prefill, rails and at-switch
+recentre, and #387's PHC re-base of the render stage, are retired with the
+setpoint stage: every PDU is placed by its own timestamp against the domain
+event, which steps with the PHC and follows the frame grid through every
+source change, so no fill exists to re-centre. #645's settle recentre stays,
+for the capture crossbar's LOOP queues only (`settle_recentre_p_r`). The
+datapath's builder census pins the stage's flush to the bind wipe alone, and
+refuses a new reader of the PHC's adjtime and settime strobes.
+
+**The storage.** Two inferred block-RAM banks per stage, synchronous read, no
+device primitive: word (s, row, lane) in bank `lane[0] ^ row[0]` at {s, row,
+lane >> 1}, a 24-bit sample and its valid bit, so a beat's two samples are
+two writes on two ports and a read takes one pair from each bank at one
+address. Vivado out of context (`AreaOptimized_high`, the stage alone), as
+of round 6 of PR #770 with the per-event late rule: 2 RAMB18, 531 LUT, 236 FF
+and no LUTRAM at the 1x1 parameters (one 8-channel stream at 48 kHz); 6
+RAMB36, 883 LUT, 402 FF and no LUTRAM at 8x8. Round 4's stage, which refused
+a PDU stamped behind the latest event whole, measured 553 LUT, 228 FF and 890
+LUT, 387 FF. These are the stage's own figures, not the routed image's.
+
+**Out of scope.** `KL_i2s_playback` (the Arty I2S DAC) keeps its own fill law
+and elastic crossing FIFO, fed by the raw render tap, unchanged.
+
+**Where it is graded.**
+
+| Suite | What it proves |
+|---|---|
+| `tb/verilator/render_queue` | the stage, byte-exact against a model of the law on two shapes (two streams and two interfaces at 8 lanes; one stream at 7), every rule, PDUs stamped behind the latest event (`[behind]`: a frame and 0.3 Ps behind, 250 and 500 frames behind with their last events ahead, at and past the late reach), the lap, the flush, the wrap; 26 planted defects |
+| `tb/verilator/media_phase` `render` | two interfaces a frame apart, at their pins with the slot-MSB decoder: every sample at its presentation time, the supported range, the rules; B's constant dropped, an untimed read, a frame off, the late and the early rule removed, each killed |
+| `tb/verilator/milan_dp_render` | the shipping 1x1 datapath at its pins: the first event, CRF and INTERNAL, eighteen feed phases, a source change and the serial-clock hold |
+| `tb/verilator/milan_dp` `aclk` | the queue's output on the shipping shape at the true clock ratio: the arrival moved, a PHC step and a settime under the stream, the three rules, the source changes, `RENDER_STAT` |
+| `tb/verilator/milan_dp_gm_steps` | the grandmaster change |
+| `tb/verilator/follow_ring` | the source changes, the aligner's pull-ins and the binds of #645 and #647, with the settle recentre on the LOOP queue only |
+
+#### The measured -0.46 Ps
+
+#764 measured the DUT's AAF stream a constant -0.458 to -0.461 Ps from its own
+CRF output, on 9 engagements, two images and two cold boots. These terms
+explain all of it:
+
+- The retired CRF divider sat on the frame grid. A simulation of the base RTL
+  (`KL_crf_tx` at dev `e26f1816` beside the TDM8 master, one audio clock and
+  reset, three reset phases) puts its events +40 to +60 ns after the frame
+  sync at the pins: +0.002 to +0.003 Ps.
+- So the constant is the old AAF stamp's distance from its own frame: the
+  marker latency (one frame plus 131 ns, +0.006 Ps folded) plus the frame's
+  age at the tick, until the walk latched the first pair.
+- -0.46 Ps folds to +0.54 Ps. Less the marker's +0.006 Ps and plus the
+  divider's +0.003 Ps, that leaves 0.536 Ps, 11.2 us, or about 559 axis cycles
+  of age at 50 MHz. That lies inside the 256 to 785 cycles
+  [recorded](TIME_SYNC.md#talker-capture-handoff) for a CRF lock, which a lock
+  fixes, and it is the only solution in that band. The bench data cannot split
+  it further, since no CSR publishes the age.
+
+Both outputs now stamp the frame instant, so the age leaves both, and no aligner
+target was chosen for it.
+
+#### Proof
+
+| Check | Where | Planted defects that must fail it |
+|---|---|---|
+| An arbitrary engagement phase (+0.44 and -0.36 Ps): inside the band within 45 s, held, the pull at most 400 ns a window, the short way | `tb/verilator/media_phase` `engage`, `engage2` | the phase term removed; its sign flipped; the rate damping removed; the slew clamp removed |
+| A reference phase step, an `mr` toggle, a 15 s holdover, 15 s at INTERNAL, a 4 ppm ramp: re-acquired and held | `media_phase` `step`, `mr`, `holdover`, `internal`, `ramp` | covered by the engagement defects above |
+| The phase term lets go at each event that holds it: the engaged bit (`phase_o[20]`) low within 10 ms of the step, 5 ms of the `mr` toggle, INTERNAL and the slew level, 200 ms of HOLDOVER | `media_phase` `step`, `mr`, `holdover`, `internal`, `slew` | the history hold removed (`step`); the `mr` hold removed (`mr`); the state and history holds removed (`holdover`, where either alone suffices); the state hold and the IDLE reset removed (`internal`); the slew level left out of the hold (`slew`) |
+| A talker sending 4 % faster than its declared interval for one window, its timestamps on its grid: the window keeps exactly 264 samples, the cap, and the phase is held | `media_phase` `burst` | the cap removed |
+| A 27 us policy slew of the local PHC: re-acquired the short way and held | `media_phase` `slew` | the short way is the window re-fold's, graded alone by det `cross`; the slew's hold is graded in the row above |
+| The integrator carries every odd error exactly, the phase term off | `media_phase` `carry` | the integrator floored |
+| Every DUT CRF timestamp is one of its own frame instants, and on the reference's grid | every `media_phase` case | the domain event not back-dated; the CRF output stamped 0.46 Ps off its grid |
+| Three interfaces of one domain, each stamp graded at every slot's MSB pin instant; every CRF timing point a frame instant of all three | `media_phase` pins | B's constant dropped; A's and B's swapped; C's counted to the frame's end instead of its closing pair |
+| The shipping talker's timestamps graded at the TDM8 pins through the whole datapath, INTERNAL and CRF, with the engagement placed across the walk's crossing; every domain event a frame's sync at the pins | `tb/verilator/capture_coherence` `[PIN]` | the live PHC at the walk; the time base latched at the tick (the engagement on the crossing); the marker latency's frame term dropped; its write term dropped |
+| The walk carries its frame's instant through the coincidence law and a queued tick | `tb/verilator/chmap_capture` `[F]`, `[Q]` | the instant latched at the snapshot instead of loaded with the frame |
+| The detector alone, every boundary placed exactly: samples either side of +/-Ps/2 (balanced, 129:127, 160:96, jittered) read the half-period phase and pull at the slew limit, never settled; a mean in band of samples out of it never settles; settled rises at the fourth full in-band window and not before, falls at every hold and at the first out-of-band window; a phase crossing +Ps/2 re-folds the short way; d = +/-(2^25 - 1) ns is sampled and +/-2^25 ns is not; each hold on, one cycle before and one after a window's closing edge commits no correction, none and the whole one | `media_phase` det (`sim_det.cpp`) | the tracking fold removed; the window's re-fold removed; settled from the mean alone; the snapshot reading only the valid flag; settled the engaged bit; the fold-range guard removed; the fold not centred |
+| Engagements at +/-Ps/2 under 8 ns timestamp truncation and +/-48 ns jitter; a local PHC step | `media_phase` `edge`, `edge2`, `phcstep` | the PHC step left out of the hold (`phcstep`) |
+| Every case: settled never reads 1 at a window whose true phase is outside the band, and `MCSRV_STAT[9]` mirrors `phase_o[21]` on every cycle | every `media_phase` loop case | settled the engaged bit (det) |
+| Four AAF outputs and the CRF output of one domain with offsets 0, 1, 20,833, 20,834, 62,500, 2,000,000, 2,010,000 and 0xFFFFFFFF ns on both (and 4,294,958,333 and 4,294,958,334 on the CRF row), set at reset and at run time: every AAF timestamp a frame instant plus its row as set, to the ns; every CRF timing point a frame instant plus its row rounded by Equation (14), all 64 bits; GET_STREAM_INFO reading an AAF row as set and the CRF row as applied | `media_phase` ofs (`sim_ofs.cpp`); on the shipping datapath, `milan_dp`'s nxn legs (4x4, 8x8) grade every stamp of every output against the domain events at 2 ms, 1 ms and 2,010,000 ns, and `[NOTIFY]` the four SET_STREAM_INFO steps on an AAF output and on the CRF output | the AAF rows stamped rounded and read back rounded; the CRF output stamping its row as set; the carry dropped at its four places; on the datapath, GET_STREAM_INFO reading the CRF row as set or every row rounded (`gsi_mutants.py`); the CRF output stamping its row as set and the AAF talkers stamping theirs rounded were planted once on the nxn leg for PR #770, each failing its exact-stamp check |
+| The in-tree I2S + TDM8 blend: the I2S pair and every TDM pair of each frame the crossbar banks started at its pins within +/-5 % of Ps of the banked instant, unfolded, six reset phases | `media_phase` blend (`sim_blend.cpp`) | the frame closed on its TDM pair with the TDM latency; the I2S pair copied a pop late |
+
+`make -C tb/verilator/media_phase mutants` runs that suite's campaign as its own
+target; `capture_coherence`'s run in its default target. The bench proof, the
+#764 method over 10 minutes with the INTERNAL and unbind re-engagements, follows
+after merge.
 
 ### Area estimate
 
@@ -1645,16 +2142,15 @@ pass.
 | Same, with the meter driving the servo's reference ports | A synthetic AAF talker at +20 ppm with +/-1,426 ns of timestamp error, 60 s in the worst-case shape, then 60 s with a random sign per group, then 60 s with independent error, one PDU lost in every 0.3 s and the talker stepped to +24 ppm at the leg's start | LOCKED within 10 s of the first PDU and never left; every window's `\|e\|` under 1,024 ns after the first LOCKED; by the end of the loss leg the servo's trim has followed the 4 ppm step within 0.5 ppm | Rate over 512 ms (E1): LOCKED is left, or never reached. Separately, restart on any loss: the rate never validates in the loss leg, so the trim stays 4 ppm off. LOCKED is held, so only the trim check fails. Separately, the meter's held lock cleared on a sequence gap: LOCKED is left at the loss leg's first lost PDU for HOLDOVER and not regained in the leg, and the trim stays 4 ppm off |
 | `tb/verilator/milan_dp`, true-ratio leg | INTERNAL, an AAF source and the CRF source selected in turn, with an AAF talker and a CRF talker both present at different planted offsets (for example +20 and -15 ppm) | The media clock follows the selected talker's offset within 0.5 ppm with zero junction slips; at INTERNAL the aligner stays engaged and `SLIP_TDM` stays static (D4 = A2-a) | The decode kept as the CRF-only compare: AAF selection leaves the grid free-running. Separately, the reference mux stuck on `KL_crf_rx`: AAF selected, the clock lands on the CRF talker's offset. Separately, the aligner left disengaged at INTERNAL (no A2-a): `SLIP_TDM` moves at INTERNAL |
 | Same | W2 at the root: following AAF input 0 with the servo LOCKED, a switch to a CRF stream already locked | `MCSRV_STAT` shows HOLDOVER, then ACQUIRE with the lock count cleared and the integrator kept, then LOCKED | The one-cycle unlocked presentation removed: the servo stays LOCKED across the switch |
-| Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1, with the two AAF talkers at opposite `mr` levels: (i) both talkers streaming, each switch repeated at 16 phases across one CRF output period; (ii) AAF input 0 to input 1 with input 1's talker silent at the switch and starting 5 ms after it; (iii) an INTERNAL dwell with AAF talker 0 toggling its `mr` | At a `public_flat_rd` tap on the restart request: no pulse at any switch, one per disruption. On the wire: exactly one toggle per output per switch, held 8 PDUs, at every phase of (i) and in (ii); none in (iii). Each output's MEDIA_RESET moves once per switch; one #386 recentre; aligner engaged throughout; `SLIP_TDM` static | No re-seed on a change of the followed listener: a request pulse at every switch onto the other talker, and in (ii) a second toggle on every output. Separately, the meter's raw lock-fall edge wired as the disruption, as the CRF term is: a request pulse at every switch. Separately, the meter's enable tied high: requests and toggles in (iii) |
+| Same | Switches AAF to CRF to AAF, and AAF input 0 to input 1, with the two AAF talkers at opposite `mr` levels: (i) both talkers streaming, each switch repeated at 16 phases across one CRF output period; (ii) AAF input 0 to input 1 with input 1's talker silent at the switch and starting 5 ms after it; (iii) an INTERNAL dwell with AAF talker 0 toggling its `mr` | At a `public_flat_rd` tap on the restart request: no pulse at any switch, one per disruption. On the wire: exactly one toggle per output per switch, held 8 PDUs, at every phase of (i) and in (ii); none in (iii). Each output's MEDIA_RESET moves once per switch; never more than one #645 settle recentre per switch (until #632: one #386 recentre); aligner engaged throughout; `SLIP_TDM` static | No re-seed on a change of the followed listener: a request pulse at every switch onto the other talker, and in (ii) a second toggle on every output. Separately, the meter's raw lock-fall edge wired as the disruption, as the CRF term takes its raw lock edges: a request pulse at every switch. Separately, the meter's enable tied high: requests and toggles in (iii) |
 | Same | Lock loss of the selected AAF and of the selected CRF stream, then return | HOLDOVER; one toggle per disruption; none on the AAF return, one on the CRF return (#761); the index unchanged; LOCKED again after the return | `disrupt_p` not ORed into the request: no toggle at the AAF loss. Separately, either edge of the selected CRF's lock dropped from the request: no toggle at that edge |
 | Same | The followed AAF stream toggles its own `mr`; an unfollowed one does | Echoed once when followed, ignored otherwise | Echo ungated |
 | Same | CLOCK_DOMAIN counters across a holdover, a return, a switch, and 60 s with one PDU lost in every 0.3 s | C1, as ruled: UNLOCKED moves at the loss and at the switch, LOCKED when the servo reads LOCKED again; neither moves during the PDU-loss leg. LOCKED equals UNLOCKED or UNLOCKED + 1 at every sample | C0's level (`~tu` only): no UNLOCKED at the loss. Separately, C2's level (the reference lock): LOCKED counted 8 PDUs after the return, before the servo reads LOCKED. Separately, the meter's held lock cleared on a sequence gap: the servo enters HOLDOVER at the leg's first lost PDU, so UNLOCKED moves there, and each later loss, 0.3 s on, returns it to HOLDOVER before its two-window skip ends, so LOCKED moves only after the leg: 2.6 s after it ends in the round-5 desk model. The loss leg grades this mutant alone: under C0's level, C2's level or restart on any loss neither counter moves in it |
 | Same | The two meter words read over the CSR bus | Each field equals the meter's: lock, rate validity, followed listener, restart count, largest deviation, rate | The read-window term missing: both words read zero |
 | Same, AECP model walk | The regenerated source set | `[AECP-MODEL]` walks every descriptor; SET_CLOCK_SOURCE accepts each listed index, reads back, and the decode follows it (the servo leaves IDLE for every stream source); `count` answers BAD_ARGUMENTS with the current index | The decode table generated from the previous shape: the last AAF index is accepted and reads back, but decodes as no source, so the follow check fails |
-| `tb/verilator/milan_dp_render`, `[LAW]` (#643) | INTERNAL with the aligner engaged (A2-a), after its settled report: engaged with the error inside 1/64 sample for 2,048 ticks, within the 32,768-tick ceiling. Then a fresh stream at the INTERNAL grid's own cadence at each of 18 feed phases, a phase being a fixed delay after an observed media tick: 16 over one tick, plus +927 and +1,156 | The report arrives within the ceiling, counted from the start of `[LAW]`'s own wait, and holds through every phase. Every phase is gradable: no PDU end has a pop within the ambiguity window below, and that margin is a check. At every PDU end the fill is exactly the setpoint plus that PDU, 14 events; every first event pops inside (8, 9] ticks of its PDU end, plus the pop pulse's one-cycle register | A2-a removed (`mga_sel_w` without `int_clk_selected_r`): the aligner is never engaged at INTERNAL, so all 18 phases fail their settled check. Separately, the render setpoint one event low, and one event high: all 18 phases fail both the fill and the band check |
-| Same, `tdm8render-law-boundary` | The same phases one cycle apart over +/-40 cycles of the feed phase where a PDU end meets a pop, located from the +0 phase's own offsets, in three histories: the leg's own ascending scan, the band descending, and each phase within 12 cycles of it alone | Every phase is graded and passes, or is not gradable and fails nothing; each scan holds both kinds. Every window's nearest-pop range and walk is printed, and the largest walk beside the one the suite states | The render setpoint one event low, and one event high: no graded phase passes, and every graded phase fails both law checks |
-| Same, `[PULLIN]` (#647, the [settle recentre](#settle-recentre)) and `tdm8render-pullin` | INTERNAL after the settled report, a fresh stream at a `[LAW]` feed phase on the law, then T14's serial-clock hold (5,200 cycles, folded to half a sample) under the running stream, and up to 2 s of it for the settle recentre, the aligner traced every 64 ms. The explicit `tdm8render-pullin` target runs the standing phase, +1,562, after the full serial/CRF/LAW history (`--with-pullin`), plus all 18 `[LAW]` phases after boot, one leg each. The default target omits `[PULLIN]` | On the law before the hold; exactly one settle recentre after it, the one render recentre pulse since the hold and the one the stage executed; `SLIP_LB` static from it on; on the law again after it, at every phase the ambiguity window can grade (the standing phase must be gradable) | The settle recentre never pulses: the standing phase leaves the law after the hold |
-| `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring and render stage, with `milan_datapath`'s decode, reference mux, A2-a select, #386 trigger, settle recentre and render recentre set copied verbatim. Lane B8 uses both peer offsets, -11.02 and +0.82 ppm against the DUT's -5.1 ppm INTERNAL clock. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock; `bind`: bench lane B17's cycles 5, 4 and 9 at INTERNAL as measured, with uniform 0 to 5 us of lateness, then cycle 5 under CRF following ([A bind at INTERNAL](#a-bind-at-internal)). `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us, 2 us plus a 1e-4 tail of 0 to 24 us, and 0 to 60 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us; `sweep-bind`: all ten B17 cycles at 16 first-PDU phases over one tick, without lateness and with 0 to 5 us. `small_pulls.py` adds fine holds, a no-hold leg and two pulls on each side of recovery; `quiet_distributions.py` requires all 128 phases and complete signed histograms; `settle_control.py` checks the controller at all four axis rates | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred (nominal margin in (5, 6] ticks), with at least one tick on both the empty and full sides, the render stage on its law at every gradable phase. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre. At INTERNAL each bind's first PDU arms one settle recentre, which fires 2,048 ticks later and the render stage counts once; no `SLIP_LB` change through B17's bursts for a bind priming inside B17's window (9.427 to 24.565 us) at the leg's and `sweep-bind`'s phases; the ring centred after it. Finer phase grids find an in-window one-pair dup before the ring acts, pre-existing on dev and not removed by the arm ([#743](https://github.com/kebag-logic/milan-fpga/issues/743); [A bind at INTERNAL](#a-bind-at-internal)). Under following a bind arms nothing. | `mutants.py`: the settle recentre never pulses (the pull-in leaves the law); it reaches the render stage only (the loopback ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (the render stage leaves its law after the set); W1, a switch through servo IDLE (the ring moves more than 0.1 tick); OVERSHOOT, the loopback target one past the depth (a drop a PDU after the decision, which a 1 ms grace would have hidden); SINGLE-DROP, an incomplete full-side action; HELD-DUP, every held pop counted as a dup (the walk before a pair's first commit, the `[LRC]` counter check and the span counter check fail); STARVED-HELD-DUP, a held pop counted only on a still-empty pair (that walk and the `[LRC]` counter check fail); NO-ARM, a missed fine boundary; NO-RECOVERY, two actions from one hold; HIGH-ARM, a missed +9-cycle peak; QUIET-ARM, pending correction without a hold; NO-BIND-ARM, the bind arm removed (every bind slips at B17's first burst); BIND-RISE, the arm at the bind's rise (cycles 4 and 9, whose first PDUs come after the 42.7 ms recentre, slip); FOLLOWING-ARM, the arm ungated under following (a bind under CRF following arms) |
+| `tb/verilator/milan_dp_render`, `[LAW]` (#643) | INTERNAL with the aligner engaged (A2-a), after its settled report: engaged with the error inside 1/64 sample for 2,048 ticks, within the 32,768-tick ceiling. Then a fresh stream at the INTERNAL grid's own cadence at each of 18 feed phases, a phase being a fixed delay after an observed media tick: 16 over one tick, plus +927 and +1,156 | The report arrives within the ceiling, counted from the start of `[LAW]`'s own wait, and holds through every phase. Since #632, at every phase the fresh stream's first event is the first rendered, every event is rendered once, in order, each slot's MSB at its presentation time inside +/-5 % of Ps, and the stage counts one slip, the stream's end (until #632: the #386 fill law, 14 events at every PDU end and the first event inside (8, 9] ticks) | A2-a removed (`mga_sel_w` without `int_clk_selected_r`): the aligner is never engaged at INTERNAL, so all 18 phases fail their settled check. Separately, the presentation law planted wrong at every `[LAW]` phase (`tdm8_render_mutants.py`) |
+| Same, `[PULLIN]` (#647, the [settle recentre](#settle-recentre)) and `tdm8render-pullin` | INTERNAL after the settled report, a fresh stream at a `[LAW]` feed phase on the law, then T14's serial-clock hold (5,200 cycles, folded to half a sample) under the running stream, and up to 2 s of it for the settle recentre, the aligner traced every 64 ms. The explicit `tdm8render-pullin` target runs the standing phase, +1,562, after the full serial/CRF/LAW history (`--with-pullin`), plus all 18 `[LAW]` phases after boot, one leg each. The default target omits `[PULLIN]` | Presented at the timestamp before the hold; exactly one settle recentre after it (#645, for the LOOP queues), with `SLIP_LB` static from it on; the presentation stage counts the hold's slips during the transient and none after it, and every event after the window is at the frame nearest its presentation time, within Ps / 2 + 100 ns (#632; until #632 the render stage executed the settle recentre and was graded back on its fill law) | The settle recentre never pulses: no recentre after the hold |
+| `tb/verilator/follow_ring` (#645, #647) | The real meter, CRF receiver, servo (its silicon loop, 512 ms windows), NCO, aligner, loopback ring, domain media event and presentation stage (#632), with `milan_datapath`'s decode, reference mux, A2-a select, the settle recentre's arming edges and the settle recentre copied verbatim. Lane B8 uses both peer offsets, -11.02 and +0.82 ppm against the DUT's -5.1 ppm INTERNAL clock. `b8`: the INTERNAL-to-AAF set, then AAF to CRF and CRF to AAF; `pullin`: a 52 us serial-clock hold at INTERNAL under a stream on the DUT's own clock; `bind`: bench lane B17's cycles 5, 4 and 9 at INTERNAL as measured, with uniform 0 to 5 us of lateness, then cycle 5 under CRF following ([A bind at INTERNAL](#a-bind-at-internal)). `sweep-b8` and the tail run: 16 set phases over one INTERNAL beat at no lateness, 0 to 5 us, 2 us plus a 1e-4 tail of 0 to 24 us, and 0 to 60 us; `sweep-pullin`: 16 feed phases over one tick at holds of 52 and 56 us; `sweep-bind`: all ten B17 cycles at 16 first-PDU phases over one tick, without lateness and with 0 to 5 us. `small_pulls.py` adds fine holds, a no-hold leg and two pulls on each side of recovery; `quiet_distributions.py` requires all 128 phases and complete signed histograms; `settle_control.py` checks the controller at all four axis rates | One settle recentre per transient, 4.096 s after LOCKED under following; at most the declared transient's slips before it; after it, from the end of the PDU the loopback ring decided on, no loopback slip, the loopback ring centred (nominal margin in (5, 6] ticks), with at least one tick on both the empty and full sides; the presentation stage on its law (every event once, in order, at the frame nearest its presentation time, and no slip) after it and across it. A stream-to-stream switch slips nothing and moves the ring under 0.1 tick before its settle recentre. At INTERNAL each bind's first PDU arms one settle recentre, which fires 2,048 ticks later, and the bind's stream is on the presentation law from its first PDU; no `SLIP_LB` change through B17's bursts for a bind priming inside B17's window (9.427 to 24.565 us) at the leg's and `sweep-bind`'s phases; the ring centred after it. Finer phase grids find an in-window one-pair dup before the ring acts, pre-existing on dev and not removed by the arm ([#743](https://github.com/kebag-logic/milan-fpga/issues/743); [A bind at INTERNAL](#a-bind-at-internal)). Under following a bind arms nothing. | `mutants.py`: the settle recentre never pulses (no recentre after the pull-in); it is withheld from the loopback ring (the ring is not centred); under following it waits for the aligner's band, not 8 LOCKED windows (it fires before the LOCKED dwell); it empties the presentation stage too, the shape of the retired #386 recentre (the PDUs queued across it are lost); W1, a switch through servo IDLE (the ring moves more than 0.1 tick); OVERSHOOT, the loopback target one past the depth (a drop a PDU after the decision, which a 1 ms grace would have hidden); SINGLE-DROP, an incomplete full-side action; HELD-DUP, every held pop counted as a dup (the walk before a pair's first commit, the `[LRC]` counter check and the span counter check fail); STARVED-HELD-DUP, a held pop counted only on a still-empty pair (that walk and the `[LRC]` counter check fail); NO-ARM, a fine hold that arms no recentre; NO-RECOVERY, two actions from one hold; HIGH-ARM, a +9-cycle peak that arms no recentre; QUIET-ARM, pending correction without a hold; NO-BIND-ARM, the bind arm removed (every bind slips at B17's first burst); BIND-RISE, the arm at the bind's rise (cycles 4 and 9, whose first PDUs come after the 42.7 ms recentre, slip); FOLLOWING-ARM, the arm ungated under following (a bind under CRF following arms) |
 | `tb/verilator/chmap_capture`, `[LRC]` | One 4-channel stream of the LOOP bucket, its six-event PDUs at one beat per cycle, `lb_recentre_i` pulsed before a PDU starting with none, four, five, six or ten events of the previous PDU left; none left with a walk between the PDU's first beat and the second pair's first commit, and the same stimulus without the pulse; unprimed; flushed after the pulse; the pulse on a PDU's first beat | None left holds five pops, four holds one pop, five moves nothing, six drops one and ten drops five, on both pairs in lockstep; the following PDU proves the action occurs once; an unprimed stream ignores the pulse, a flush cancels it, a pulse on a PDU's first beat acts at the next PDU; neither slip counter moves, including for a held walk on a pair still empty because its first commit of the PDU has not landed, where the same walk without the pulse counts one dup | (the module's own leg; the integration's planted controls are follow_ring's) |
 | `sw/builder` tests | `input_stream` accepted; the class order on every shipping shape and on a listener-only shape without INTERNAL (CRF at 0); the servo prune refusal; the shape tables; `entity_model_id` moves | All pass | A planted overlay in L2 order fails the order check |
 
@@ -1681,79 +2177,24 @@ ports and at the request tap, where every one of its mutants fails at every
 switch. The request tap is a harness probe on a net, as `crf_clk_selected_r`
 already is (`hdl/milan/milan_datapath.sv:705`); it adds no port or register.
 
-**The render law's grading instant (#643).** The law table in
-[TIME_SYNC.md](TIME_SYNC.md#listener-render-latency) states the first-event
-delay "after accept". The suite grades it at the render stage's own
-reference, the PDU end: the cycle `KL_render_setpoint` takes the PDU's last
-beat. The stage snaps and judges its bands there, and its setpoint, "the fill
-just BEFORE every PDU push", reads there as the setpoint plus that PDU. The RX
-accept pulse lands 28 to 48 cycles before the push, so a pop between the two
-moved a reading taken at the pulse with the feed's phase, not with the law.
-The [ruling on #643](https://github.com/kebag-logic/milan-fpga/issues/643#issuecomment-5973450039)
-accepts this as a test correction, not a change to the law.
+**The render law's grading instant (#643), retired.** Until #632 the suite
+graded #386's fill law at the setpoint stage's own reference, the PDU end,
+with an ambiguity window where a pop met a PDU end
+([ruling](https://github.com/kebag-logic/milan-fpga/issues/643#issuecomment-5973450039),
+[round 2](https://github.com/kebag-logic/milan-fpga/issues/643#issuecomment-5974715857)).
+The presentation law has no such boundary: the stage places every event by its
+timestamp, so `[LAW]` grades each event at the pins against its presentation
+time, and the `tdm8render-law-boundary` scan, which measured that window's
+walk, is retired with it.
 
-- **The ambiguity window.** A pop the stage takes in the cycle of a PDU's
-  last beat is counted in that end's fill; one taken a cycle later is not. A
-  pop that coincides with a PDU end is therefore physically ambiguous at the
-  grading instant. After settle, the offset from a PDU end to its nearest pop
-  is not fixed: within one graded window it walks by up to 5 cycles, and
-  where it sits at a given feed phase depends on the run's history. The
-  [round-2 ruling](https://github.com/kebag-logic/milan-fpga/issues/643#issuecomment-5974715857)
-  withdrew the earlier tie rule, whose one-cycle premise review measured to
-  be false, and replaced it with this window.
-  - **The walk** is the range of that offset over a window's steady PDU
-    ends, those with a pop within two ticks on each side. The suite prints
-    it for every window beside the nearest-pop range it is taken from. Where
-    the ends sit half a tick from the grid the nearest pop changes side, and
-    only there the walk is taken from the first pop after each end instead;
-    no window measured so far sits there.
-  - **Measured.** `--law-boundary` scanned +2,026 +/-40 cycles one cycle
-    apart, across the feed phase where a PDU end meets a pop, at dev's
-    processor pin `631eeb34` and at processor `c4cb84ff`, in three histories
-    each: ascending, descending, and every phase alone. The walk was at most
-    3 cycles in every `[LAW]` phase and history, identically at both pins.
-    T30's CRF window, 292 PDUs under CRF, walked 5 at dev's pin, its nearest
-    pop at -592..-587 cycles, and 4 at `c4cb84ff`, at +336..+340. The
-    window is stated against the larger: a walk of 5.
-  - **The window** is the walk plus a guard of 4 cycles: 9 cycles. A window
-    with a PDU end whose nearest pop is within 9 cycles of the boundary
-    between the end beat's cycle and the next is not gradable. The suite
-    names the phase, the PDU and the offset, and counts its law neither as a
-    pass nor as a fail.
-  - **Every standing window must be gradable.** Each of the 18 `[LAW]`
-    phases, and T30's CRF window, carries a check that it is and prints its
-    margin from the window. The nearest standing phase is +0, whose PDU ends
-    clear the boundary by 56 cycles in `--law-only` and 57 in the full leg: a
-    margin of 47 and 48. T30's CRF window clears it by 587 cycles at dev's
-    pin and 335 at `c4cb84ff`. Its span starts four PDUs into the window, so
-    unlike a `[LAW]` phase's it does not hold the PDU end that set its fill
-    reference, the settled recentre's re-snap; that end's clearance is not
-    measured.
-  - **If T30's CRF window is not gradable.** Its place against the grid is
-    not a chosen phase: it moves with the processor's content and the run's
-    history. Its nearest pop is at -587 cycles at dev's pin and at +336 at
-    `c4cb84ff` in the full leg; under `--crf-only` it is at -1,018 and at
-    -91. A later pin can therefore put it inside the window. The suite then
-    fails "T30 CRF LAW: gradable" by name, prints `[NOT GRADABLE]` with the
-    PDU and the offset, and runs none of that window's law checks. That is
-    the test's placement, not a design defect, and it is fixed in the test:
-    move the window's feed phase clear of the boundary, as the `[LAW]` phases
-    are placed, and re-measure the walk. Narrowing the window or dropping the
-    check would hide it instead.
-  - **What a graded window grades.** The fill at every PDU end is exactly 14
-    events, with no allowance. Every first event pops inside (8, 9] ticks of
-    its PDU end, plus the pop pulse's one-cycle register. The 64 cycles of
-    slack the tie rule needed are gone: in every graded window measured the
-    first event landed at least 10 cycles inside both edges. So a setpoint
-    one event off fails both checks at every graded phase.
-- **What is not graded.** T30's own INTERNAL window opens while the aligner
-  is still pulling the grid in after T14's serial-clock hold. It keeps its pin
-  and A2-a checks and no longer grades the law. A stream already running
-  through such a pull-in kept the displacement the pull gave it, one event
-  at some phases, because nothing re-centred it
-  ([#647](https://github.com/kebag-logic/milan-fpga/issues/647)). The
-  [settle recentre](#settle-recentre) now does, once the aligner rests in
-  its band again, and `[PULLIN]` grades it on a running stream.
+- **What is graded through a pull-in.** T30's INTERNAL window opens while the
+  aligner is still pulling the grid in after T14's serial-clock hold. Its
+  pins are graded at their presentation times, with the hold's slips counted
+  during the transient. Until #632 a stream running through such a pull-in
+  kept the displacement the pull gave it
+  ([#647](https://github.com/kebag-logic/milan-fpga/issues/647)), and the
+  [settle recentre](#settle-recentre) moved it back; the presentation stage
+  needs no recentre, and `[PULLIN]` grades it on a running stream.
 - **The boot pull-in.** From boot, at the model's 100 MHz, the aligner's
   error swings from about -200 cycles through zero to about +49 and then
   decays over some 10,000 ticks. The swing through zero spends just over
@@ -1764,11 +2205,10 @@ accepts this as a test correction, not a change to the law.
   overshoot is measured at the INTERNAL boot pull-in only.
 - **The shortened epoch history (#657).** `--epoch-only` skips `[SERIAL]`.
   It therefore takes `--crf-only`'s existing boot pull-in dwell.
-  Its old 120 ms post-selection wait started during boot.
-  All four #386 recentre checks consequently observed zero actions.
-  The correction preserves their exact one-action expectations.
-  This measures #386's source-change trigger, unchanged by #645.
-  The later settle recentre remains a separately tested action.
+  Its old 120 ms post-selection wait started during boot, and its four #386
+  recentre checks observed zero actions. #632 retired those checks with the
+  #386 source-change trigger; the epoch's selections are graded at the pins
+  with no slip, and the settle recentre remains a separately tested action.
 
 ### Bench
 
@@ -1800,7 +2240,7 @@ listener and read back, and a full restore with read-back.
 | D4 | A2 at INTERNAL | A2-a, A2-b, A2-c, A2-0 | **A2-a**: the aligner engaged at INTERNAL too, in this issue's fabric lane. It reverses the recorded INTERNAL free-run rule. Its INTERNAL accuracy is a known risk ([Limits](#limits)) | The owner: [D4 = A2-a](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5937643550); [the known risk](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5937848189) |
 | D5 | CLOCK_DOMAIN LOCKED and UNLOCKED | C0, C1, C2, C3 | **C1, with E8**: unlocked while a followed source's servo is not LOCKED. It reverses the recorded LOCKED-equals-`~tu` rule while following, for the reason given above. Under E8 and the loss rule the counters move only at a loss of the stream, a return and a switch | [Rulings on round 3](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5937449258) |
 | D6 | Shipping configurations | all five, or the AX7101 1x1 TDM8 first | **All five**, in one regeneration, because each moves `entity_model_id` once. Every unit loses its saved state at that update | [Rulings on round 1](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5935520588) |
-| D7 | Phase alignment (IEEE 1722-2016 10.8, 4.3.5) | in #629, or a new issue | **A new issue**: [#632](https://github.com/kebag-logic/milan-fpga/issues/632) | [Rulings on round 1](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5935520588) |
+| D7 | Phase alignment (IEEE 1722-2016 10.8, 4.3.5) | in #629, or a new issue | **A new issue**: [#632](https://github.com/kebag-logic/milan-fpga/issues/632), since implemented for a followed CRF stream ([Phase alignment](#phase-alignment)) | [Rulings on round 1](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5935520588) |
 | D8 | The AAF meter's rate estimator | E1, LS1, E4, E8, L | **E8**: a two-point difference over 4.096 s from an 8-entry snapshot ring. It is the only option that meets the servo's lock test under every error shape of 10.8 size without changing the servo: 753 ns worst case in closed loop at +/-1,426 ns. One RAMB18 fewer than round 2's meter; the rate is valid 4.096 s after a history restart instead of 512 ms. Round 4 adds the loss rule, so a lost PDU no longer restarts it ([Lost PDUs](#lost-pdus)) | [Rulings on round 3](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5937449258): E8. [Round 4 assignment](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5938156583): the loss rule, option (b) |
 
 The `mr` treatment of a followed AAF stream (a toggle on its loss and an echo
@@ -1890,16 +2330,23 @@ written, the implementation and the place it is recorded are:
 | Servo row with the meter in front: suite `tb/verilator/mmcm_servo` | In `tb/verilator/aaf_clock_meter` (`sim_servo.cpp`, 180 s): that suite builds the meter, and `mmcm_servo`'s default target already runs its clean checks close to the 1800 s guard (#545) | the `aaf_clock_meter` row of [`TESTING.md`](../testing/TESTING.md) |
 | Counter row: "60 s with one PDU lost in every 0.3 s" | 3 s at the root: 60 s costs about 20 minutes there, past the suite guard, and the leg's mutant fails at the first lost PDU. The 60 s loss leg with the meter in front of the servo runs in the meter suite | `tb/verilator/milan_dp_mclk`, `tb/verilator/aaf_clock_meter/sim_servo.cpp` |
 | Counter row at the root | The ownerless elaboration holds `tu` at 1, so a test double of `KL_ptp_clock_validity` supplies a valid `tu` in that suite only | `tb/verilator/milan_dp_mclk/clkv_double.sv` |
-| Switch row: "one #386 recentre" per switch | Graded over 0.8 s gaps: at the suite's 4 MHz fabric clock the settle band is one cycle, so a settle can take its 683 ms ceiling; the 16-phase sweep grades that no recentre is queued | `tb/verilator/milan_dp_mclk` |
+| Switch row: "one #386 recentre" per switch | Graded over 0.8 s gaps until #632 retired the #386 recentre with the setpoint stage. Since then the 16-phase sweep grades never more than one #645 settle recentre per switch (none queued), the 0.8 s row the request and the toggles, and `follow_ring`'s `[SW]` legs one settle recentre per switch, 8 LOCKED windows after LOCKED | `tb/verilator/milan_dp_mclk`, `tb/verilator/follow_ring` |
 | Area: the meter at 270 to 420 FF | 636 FF out of context: the per-PDU and group-end pipelines register their 32-bit operands. LUT, 574, is inside the estimate | `syn/yosys/ooc.sh KL_aaf_clock_meter` (Yosys out of context: 574 LUT including 16 LUTRAM, 636 FF, 0 RAMB18, 0 DSP); [#629 STOP, item 8](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5946475441) |
 | AECP walk mutant: "the decode table generated from the previous shape" | Planted as the decode table one source short in the root suite's schemata, where the last AAF index then decodes as no source | `tb/verilator/milan_dp_mclk/mclk_mutants.py` id 14 |
 | History restarts row: "`tu` taken from the `tv` net (the CRF wiring): the `tu` case fails" | The meter takes `tu` as a port, so this wiring mutant is planted where the wire is: the root suite binds the meter's `tu_i` to `avtprx_tv_bit`, and its leg A row, the followed talker's `tu` set and then cleared, must fail | `tb/verilator/milan_dp_mclk/mclk_mutants.py` id 15 |
 
 After M2, #645 and #647 added the [settle recentre](#settle-recentre)
 ([ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5982568394)):
-the "one #386 recentre" of a switch above is still the at-switch one, and
-the settle recentre follows it once the plane has settled. Its suites are
+the "one #386 recentre" of a switch above was the at-switch one, and the
+settle recentre followed it once the plane had settled; #632 retired the
+at-switch one with the setpoint stage. Its suites are
 the `follow_ring`, `[PULLIN]` and `[LRC]` rows of the
 [simulation plan](#simulation). #645's bind round then added the arm at a
 listener bind's first PDU at INTERNAL ([A bind at INTERNAL](#a-bind-at-internal)),
 graded by `follow_ring`'s `bind` leg and `settle_control.py`.
+
+#632 and #764 then added [phase alignment](#phase-alignment) for a followed
+CRF stream: the servo's phase term against the domain media event, the CRF
+output and the AAF talkers stamping that event, and the per-interface
+constants. The `media_phase`, `capture_coherence` `[PIN]` and `chmap_capture`
+rows of that section's proof table grade it.

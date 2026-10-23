@@ -147,6 +147,10 @@ Each step of the [step policy](TIME_SYNC.md#step-policy) is one counted event.
 
 Issue #387 decided its render re-base and continuity behavior.
 
+Since #632 the render stage takes no re-base.
+
+The table below states what meets the decision now.
+
 The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) supersedes its PHC-step restart obligation.
 
 A PHC-only re-base preserves the INTERNAL/CRF media-clock source.
@@ -172,7 +176,7 @@ The project interprets that duration as a minimum.
 | Element | Decided reaction to one step | This tree |
 |---|---|---|
 | `tu` | Rises on the step; clears after at least 0.25 s of holdover | Yes: `KL_ptp_clock_validity` takes the plane's step pulse |
-| Render setpoint stage (#386) | Re-centres in "one bounded, counted event" (decision part b) | Yes: `render_recentre_p_w` takes the step (`media_rebase_p_w`), and the stage re-centres at the next PDU end, counted in its recentre tally. A grandmaster identity change is no longer a trigger of its own. The gmstep leg counts one re-base, 132 cycles after the plane's step pulse at each of its 42 feed delays |
+| Render stage (#386, then #632) | Re-centres in "one bounded, counted event" (decision part b) | Met without a re-centre since #632: the presentation stage `KL_render_queue` places every PDU by its own timestamp against the domain's media event, which steps with the PHC, and its frame count does not step. The bounded, counted event is the PDUs stamped in one time base and placed in the other: each is refused and counted (`late_o`, `early_o`), and their frames are one counted slip. Neither a step nor a grandmaster identity change empties or re-centres it; the builder census pins its flush to the bind wipe. Until #632 the #386 setpoint stage re-centred once at the next PDU end, counted in its recentre tally |
 | Media grid aligner's phase reference | "the render elastic stage (#386) and the media grid aligner's phase reference re-centre in one bounded, counted event" (decision part b) | No re-centre: `KL_media_grid_align.sv` has no PHC or step input. Under CRF selection a step reaches it only through the CRF-steered grid. The CRF servo discards the window a local PHC step lands in (#539); the receiver excludes talker-step rate samples (#546). The servo now excludes every local slew-overlapped window (#545 closed). By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) the aligner gets no re-centre of its own: part b is met by keeping the step out of its reference, #539 isolating it at the servo and #545 and #546 closing the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path |
 | Packet NCO | Not named by the decision | No PHC or step input |
 | CRF servo | Keeps its window guard | Yes: `KL_mmcm_drp_servo` discards the window a local PHC step lands in, trim and integrator held, and counts it in `MCSRV_STAT[15:10]` (#539). It still discards a window above 1024 ppm. The receiver invalidates rate history on tu transitions or timestamp jumps (#546). After 256 clean intervals, sampling resumes; lock and integrator hold meanwhile. Local policy-slew overlap also discards and counts each affected window, including its partial tail (#545 closed). Integrator, trim and LOCKED hold; clean windows resume directly |
@@ -181,13 +185,15 @@ The project interprets that duration as a minimum.
 | A step while an `mr` restart is pending | The PHC-only step adds no request ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)); the genuine restart continues | The engine still merges genuine requests until the first reported PDU carrying the adopted level. Its per-stream eight-PDU hold is unchanged. `tkdiag` T17 and T18 grade merging and the pending boundary |
 | Licensed streams | Keep streaming (REQ-PTP-08) | Yes: `tu` gates no emission |
 
-The render stage is timed from accept, not presentation time.
+The render stage presents each sample on time (#632).
 
-So a step leaves its fill where it was.
+A step moves instants and talkers' timestamps together.
 
-A grandmaster change that steps counts one re-base.
+So its queued frames keep their places, and nothing re-centres.
 
-It is the step's; the identity change adds none.
+A stepping grandmaster change refuses only the PDUs it splits.
+
+The identity change alone refuses none.
 
 Whether a restart is pending depends on one stream.
 
@@ -202,8 +208,8 @@ The `milan_dp` gmstep leg drives one 1.5 s grandmaster step.
 It grades these rows:
 
 - `tu`: set at the commit, held past the step's holdover.
-- Render stage: one re-base, counted right after the step.
-- Render law: every push leaves the #386 target fill.
+- Render stage: PDUs stamped across the steps refused, counted.
+- Render law: every other PDU presented once, at one offset.
 - `mr` and MEDIA_RESET: neither changes across the PHC-only step.
 - Source change and selected-CRF `mr`: each propagates one toggle.
 - Coincident settime and received CRF toggle: exactly one outgoing toggle.
@@ -222,21 +228,55 @@ Five negative controls join it in the default sweep:
 - the PHC re-base restart term restored;
 - the source-change term removed;
 - selected-CRF `mr` propagation removed;
-- a second render re-base on the identity change;
-- no render re-base on the step.
+- the grandmaster's identity change empties the render queue;
+- the step empties the render queue.
 
 Each fails a named check of the leg.
 
 The `milan_dp_gm_steps` suite runs the leg and these controls.
 They run the leg without its #621 phase.
 
-Disabling render re-base fails its counted-event check.
+The two render controls empty the queue instead.
 
-The accept-timed buffer cannot exhibit PHC-step-induced fill drift.
+That is what #387's re-base would do now.
 
-[#387's correction](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5802264260) records that acceptance interpretation.
+Each loses PDUs the clean leg presents, uncounted.
 
-`make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` plants the whole inventory.
+Each fails `render: every PDU not presented was refused by the stage and counted once`.
+
+No fill exists for a step to drift.
+
+The queue places every PDU by its own timestamp.
+
+[#387's correction](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5802264260) covers the retired #386 stage.
+
+`make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` plants all 21 controls.
+
+Each runs on the whole leg.
+
+Three slew-path controls break the policy level.
+
+They tie it low, drop its tail, or delay it.
+
+Two more render-queue controls drop a count.
+
+One leaves refusals uncounted; one leaves a gap uncounted.
+
+Four controls break `tu` or the licence.
+
+`tu` comes four cycles late, or the holdover is not re-armed.
+
+`tu` stops the talker, or the grandmaster change stops it.
+
+That stop waits for the talker's open gate.
+
+So it lands at the change to GM B.
+
+Since FPGA-gPTP #82 the detector also pulses at boot.
+
+The station's own identity then gives way to GM A.
+
+That pulse comes before the talker opens.
 
 Five controls restore PHC-only causes on the INTERNAL option-off leg.
 
@@ -247,6 +287,12 @@ Two delay the adjtime cause by 16 and 256 cycles.
 Another control suppresses a genuine restart during a PHC re-base.
 
 The coincidence phase must reject that suppression at run time.
+
+The last control exempts the boot identity from the detector.
+
+It must fail the baseline's record of that pulse.
+
+IEEE 802.1AS-2011 makes it a grandmaster change.
 
 ## Option-off behavior
 
@@ -272,7 +318,7 @@ Legacy writes remain acknowledged and ineffective.
 | `gptp_shadow` | Atomic state and immediate discontinuity |
 | `clkvalid` | Holdover, steps, and option-off values |
 | `milan_dp` | Public CSR and protocol consumers |
-| `milan_dp_gm_steps`, the `milan_dp` gmstep leg | One 1.5 s grandmaster step under CRF selection: `tu`, the render re-base and law, stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep |
+| `milan_dp_gm_steps`, the `milan_dp` gmstep leg | One 1.5 s grandmaster step under CRF selection: `tu`, the render queue (the PDUs stamped across the steps refused and counted, their frames one counted slip, every other PDU at one offset, no flush), stable `mr` and MEDIA_RESET, stream continuity; five negative controls in the sweep; `gmstep-mutants` runs 21 controls plus two clean legs, 23 checks |
 | `crf_rx` talker_step | Connected receiver and servo: +/-150 us talker-only steps and steps at both ends. The 600 ms listener lag and talker-only cases require a boundary inside crossing history; the 100 ms lag checks guard interaction. Sampled validity, continuous LOCKED state, held integrator and fresh rate recovery; quiet traffic cannot satisfy withholding |
 | `crf_rx` discontinuity | Both tu edges, unmarked steps, refill boundaries and isolated detector mutants |
 | `tkdiag` | A restart request on a pending one merges: one toggle, never a cancellation (T17). Pending ends at the first PDU at the adopted level (T18) |

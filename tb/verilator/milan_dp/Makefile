@@ -6,8 +6,8 @@
 # it over the AXI4-Lite CSR + MAC AXIS ports.
 #   make        - build and run the self-checking harness
 #   make ax1x1  - run only the eight-channel AX7101 option-OFF baseline
-#   make aclk   - run only the true-ratio leg (grid alignment + the #386
-#                 render law); its mutation arm is render_mutants.py
+#   make aclk   - run only the true-ratio leg (grid alignment + the #632
+#                 presentation law); its mutation arm is render_mutants.py
 #   make crflic - run only the #530 CRF talker licence leg (compressed time)
 #   make crflic-mutants - that leg's explicit mutation campaign
 #                 (crflic_mutants.py), outside the sweep's deadline
@@ -123,10 +123,10 @@ GPTP_ON_VFLAGS = $(filter-out -GCLKV_QTICK_CYC_P=4096,$(VFLAGS)) \
                  -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=$(GPTP_MS_CYC) \
                  -CFLAGS "-DPP_MS_CYC_TB=$(GPTP_MS_CYC) -DCLKV_QTICK_CYC_TB=$(GPTP_QTICK_CYC) -Wall -Wextra"
 
-# #386: the render setpoint stage and the datapath, overridable so the
-# render-law mutation arm (render_mutants.py) elaborates a MUTATED COPY of
+# #632: the render presentation stage and the datapath, overridable so the
+# presentation-law mutation arm (render_mutants.py) elaborates a MUTATED COPY of
 # either through this same recipe
-RSP_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_setpoint.sv
+RQ_SRC ?= $(RTL_DIR)/ieee1722/aaf/KL_render_queue.sv
 DP_SRC  ?= $(RTL_DIR)/milan/milan_datapath.sv
 # #443: selector controls mutate only a disposable CSR source.
 CSR_SRC ?= $(RTL_DIR)/common/csr/milan_csr.sv
@@ -198,12 +198,13 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(RTL_DIR)/ieee1722/aaf/KL_pair_zero_fill.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv \
        $(TDMRM_SRC) \
-       $(RSP_SRC) \
+       $(RQ_SRC) \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_packetizer.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
        $(RTL_DIR)/ieee1722/avtp/avtp_subtype_pkg.sv \
+       $(RTL_DIR)/ieee1722/crf/KL_media_if_latency_pkg.sv \
        $(RTL_DIR)/ieee1722/avtp/avtp_stream_parser.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_stream_table.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor.sv \
@@ -216,6 +217,8 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
 	$(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_media_nco.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_media_grid_align.sv \
+	$(RTL_DIR)/ieee1722/crf/KL_media_domain_event.sv \
+	$(RTL_DIR)/ieee1722/crf/KL_mtt_round.sv \
        $(RTL_DIR)/ieee1722/maap/KL_maap.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_i2s_playback.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_i2s_feed_mux.sv \
@@ -264,8 +267,8 @@ $(VERILATOR) $(SHAPE_AX1x1) $(GPTP_OFF_VFLAGS) --Mdir obj_ax1x1 \
 endef
 
 # The true-ratio leg's recipe, stated ONCE: the sweep builds obj_aclk with
-# it, and render_mutants.py (#386) builds a MUTATED copy of the setpoint stage
-# or of the datapath through the same recipe (RSP_SRC or DP_SRC, and
+# it, and render_mutants.py (#632) builds a MUTATED copy of the presentation
+# stage or of the datapath through the same recipe (RQ_SRC or DP_SRC, and
 # ACLK_MDIR, overridden) so the negative controls elaborate exactly the
 # gateware the positive leg does.
 ACLK_MDIR ?= obj_aclk
@@ -417,14 +420,15 @@ exec-gptp:
 # bound and locked under CRF selection (sim_gmstep.cpp's banner has the
 # model). The ../milan_dp_gm_steps suite runs it and then its negative
 # controls, ../milan_dp_gm_steps/gmstep_mutants.py, which build mutated copies
-# through this same recipe (GMSTEP_MDIR and DP_SRC, CLKV_SRC, RSP_SRC or
+# through this same recipe (GMSTEP_MDIR and DP_SRC, CLKV_SRC, RQ_SRC or
 # MCR_SRC overridden); the sweep plants the five controls the #387/#602
 # acceptances name, and that suite's gmstep-mutants target the whole
 # inventory. `run` here no longer runs the leg (#621): its #621 phase made it
 # the costliest leg on this suite's worker. The AEM image is the shipping
 # config's. GMSTEP_FEED_DELAY idles that many fabric cycles before the peer's
 # media feed starts, which moves the accept phase against the media tick; the
-# leg must pass at every delay.
+# leg must pass at every delay. gmstep_probes.vlt opens the GM-change
+# detector's pulse and register to the harness, read only.
 GMSTEP_MDIR ?= obj_gmstep
 GMSTEP_FEED_DELAY ?= 0
 gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
@@ -432,7 +436,7 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	python3 ../../../avdecc/gen_aemi_image.py --overlay $(GMSTEP_MDIR)/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $(GMSTEP_MDIR)/aemi.bin
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir $(GMSTEP_MDIR) \
 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
-	  $(SRCS) sim_gmstep.cpp -o Vmilan_dp_gmstep
+	  gmstep_probes.vlt $(SRCS) sim_gmstep.cpp -o Vmilan_dp_gmstep
 
 gmstep: gmstep-build
 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
@@ -513,7 +517,7 @@ ax1x1gptp-aemi:
 	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_ax1x1gptp/aem-build
 	python3 ../../../avdecc/gen_aemi_image.py --overlay obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o obj_ax1x1gptp/aemi.bin
 
-# the true-ratio leg alone (the render-law phases ride it), and its build
+# the true-ratio leg alone (the presentation-law phases ride it), and its build
 # alone for the mutation arm
 aclk: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(ACLK_BUILD)

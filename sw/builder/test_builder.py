@@ -11301,9 +11301,10 @@ def test_baremetal_profile_contract() -> None:
                 "cfg_ptp_tod_wr": 3,
                 "cfg_ptp_offset": 3,
                 #: settime strobe: declaration, CLKV observer port, milan_csr
-                #: port, ptp_sync port, plus the #387 media re-base OR term
-                #: (a read-only consumer, pinned below; no driver).
-                "cfg_ptp_cmd_load": 5,
+                #: port and ptp_sync port. #632 retired the #387 media re-base
+                #: OR term with the render setpoint stage: nothing else reads
+                #: it, and nothing drives it.
+                "cfg_ptp_cmd_load": 4,
                 "cfg_ptp_cmd_adjust": 4,
                 "cfg_ptp_cmd_snapshot": 3,
                 #: cfg_ptp_ingress_lat/cfg_ptp_egress_lat left the datapath
@@ -11312,12 +11313,9 @@ def test_baremetal_profile_contract() -> None:
                 "ptp_tod_rd_valid": 3,
                 "eff_ptp_adj_w": 2,
                 "eff_ptp_offset_w": 2,
-                #: effective adjtime strobe: initializer and ptp_sync port,
-                #: plus the same #387 media re-base OR term.
-                "eff_ptp_adjust_w": 3,
-                #: #602: initializer plus exactly the render reader.
-                #: PHC re-base no longer contributes to a restart request.
-                "media_rebase_p_w": 2,
+                #: effective adjtime strobe: initializer and ptp_sync port.
+                #: #632: no render re-base reads it; #602: no restart either.
+                "eff_ptp_adjust_w": 2,
                 "mcr_restart_p_w": 2,
                 "gptp_adj_w": 4,
                 # The engine step strobe has its original declaration,
@@ -11364,14 +11362,11 @@ def test_baremetal_profile_contract() -> None:
             "cfg_ptp_cmd_adjust",
             "effective PHC adjust strobe must select only gPTP or CSR "
             "control")
-        #: #387: media re-base is the one extra reader of the PHC strobes.
-        #: #602 keeps only its render consumer; restart has separate causes.
-        #: GM identity alone no longer re-centres the render stage; a step
-        #: does so once, alongside the settled clock-source change (#386).
-        direct_initializer(
-            datapath, r"wire[ \t]+media_rebase_p_w",
-            "media_rebase_p_w", "eff_ptp_adjust_w | cfg_ptp_cmd_load",
-            "media re-base pulse must read only adjtime and settime")
+        #: #632: the PHC strobes have no media reader. The render
+        #: presentation stage places every PDU by its own timestamp against
+        #: the domain event, which steps with the PHC, so it takes no re-base
+        #: (#387's) and no restart cause reads them (#602); the census above
+        #: refuses any new reader.
         #: #629: a followed AAF stream adds the AAF clock meter's two pulses,
         #: its own timeout and the followed stream's received toggle; the
         #: meter's enable is their selection gate. #761: the selected CRF's
@@ -11390,19 +11385,20 @@ def test_baremetal_profile_contract() -> None:
             restart_reason)
         direct_port(restart_ports, "restart_p_i", "mcr_restart_p_w",
                     restart_reason)
-        #: #645 adds the settle recentre: once per source change or aligner
-        #: pull-in, after the plane has settled; still no GM identity term
-        direct_initializer(
-            datapath, r"wire[ \t]+render_recentre_p_w",
-            "render_recentre_p_w",
-            "media_rebase_p_w | settle_recentre_p_r | src_recentre_p_r",
-            "render recentre pulse must read only the media re-base "
-            "and settled clock-source discontinuities")
-        #: ...and the same settle recentre reaches the capture crossbar's
-        #: LOOP queues, on every stream the bucket keeps
+        #: #632: the render presentation stage is emptied by a bind wipe and
+        #: nothing else: no PHC step, GM identity, source change or settle
+        #: recentre empties or re-centres it
+        rq_flush_reason = (
+            "render presentation stage must be emptied only by a bind wipe")
+        rq_ports = instance_ports(
+            datapath, "KL_render_queue", "render_queue", rq_flush_reason)
+        direct_port(rq_ports, "flush_i", "strtbl_bind_fall_w",
+                    rq_flush_reason)
+        #: #645 / #647: the settle recentre, once per source change or
+        #: aligner pull-in after the plane has settled, reaches the capture
+        #: crossbar's LOOP queues, on every stream the bucket keeps
         settle_lb_reason = (
-            "settle recentre must reach the LOOP queues beside the render "
-            "stage")
+            "settle recentre must reach the LOOP queues")
         cmap_ports = instance_ports(
             datapath, "KL_chan_map_capture", "chan_map_capture",
             settle_lb_reason)
@@ -13065,38 +13061,30 @@ def test_baremetal_profile_contract() -> None:
         "  wand        cfg_ptp_enable;\n"
         "  and (cfg_ptp_enable, cfg_adp_enable, 1'b1);",
         "ADP-controlled second PHC-enable driver")
-    #: #387 keeps #386's ADP control on the decided render expression.
-    #: Adding an ADP or GM-identity term preserves every PHC census count,
-    #: so the exact recentre pin must refuse each.
-    render_recentre_adp_term = replace_once(
+    #: #632 empties the render presentation stage on a bind wipe alone.
+    #: An ADP or GM-identity term on its flush preserves every PHC census
+    #: count, so the exact port pin must refuse each; a PHC step there is
+    #: refused by the census itself.
+    render_flush_adp_term = replace_once(
         datapath_source,
-        "       media_rebase_p_w\n"
-        "       | settle_recentre_p_r\n"
-        "       | src_recentre_p_r;",
-        "       media_rebase_p_w\n"
-        "       | settle_recentre_p_r\n"
-        "       | src_recentre_p_r | cfg_adp_enable;",
-        "ADP-controlled render recentre term")
-    render_recentre_gm_term = replace_once(
+        "    .flush_i      (strtbl_bind_fall_w),",
+        "    .flush_i      (strtbl_bind_fall_w | {N_STREAMS{cfg_adp_enable}}),",
+        "ADP-controlled render queue flush term")
+    render_flush_gm_term = replace_once(
         datapath_source,
-        "       media_rebase_p_w\n"
-        "       | settle_recentre_p_r\n"
-        "       | src_recentre_p_r;",
-        "       gm_recentre_p_r | media_rebase_p_w\n"
-        "       | settle_recentre_p_r\n"
-        "       | src_recentre_p_r;",
-        "GM identity restored as a render recentre term")
+        "    .flush_i      (strtbl_bind_fall_w),",
+        "    .flush_i      (strtbl_bind_fall_w | {N_STREAMS{gm_recentre_p_r}}),",
+        "GM identity spliced into the render queue flush")
+    render_flush_step_term = replace_once(
+        datapath_source,
+        "    .flush_i      (strtbl_bind_fall_w),",
+        "    .flush_i      (strtbl_bind_fall_w | {N_STREAMS{eff_ptp_adjust_w}}),",
+        "PHC step spliced into the render queue flush")
     settle_recentre_lb_withheld = replace_once(
         datapath_source,
         ".lb_recentre_i ({LB_STREAMS_C{settle_recentre_p_r}}),",
         ".lb_recentre_i ('0),",
         "settle recentre withheld from the LOOP queues")
-    media_rebase_adp_term = replace_once(
-        datapath_source,
-        "wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;",
-        "wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load "
-        "| cfg_adp_enable;",
-        "ADP-controlled media re-base term")
     mcr_restart_adp_term = replace_once(
         datapath_source,
         "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;",
@@ -13109,16 +13097,16 @@ def test_baremetal_profile_contract() -> None:
     #: additional readers. These aliases are valid RTL, refused by census.
     phc_crossing_extra_reader = replace_once(
         datapath_source,
-        "  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;",
-        "  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;\n"
-        "  wire extra_phc_reader_w = phc_load_ts_w;",
+        "                               ? gptp_step_we_w          : cfg_ptp_cmd_adjust;\n",
+        "                               ? gptp_step_we_w          : cfg_ptp_cmd_adjust;\n"
+        "  wire extra_phc_reader_w = phc_load_ts_w;\n",
         "additional PHC crossing reader")
-    media_rebase_extra_reader = replace_once(
+    phc_adjust_extra_reader = replace_once(
         datapath_source,
-        "  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;",
-        "  wire media_rebase_p_w = eff_ptp_adjust_w | cfg_ptp_cmd_load;\n"
-        "  wire extra_media_reader_w = media_rebase_p_w;",
-        "additional media re-base reader")
+        "                               ? gptp_step_we_w          : cfg_ptp_cmd_adjust;\n",
+        "                               ? gptp_step_we_w          : cfg_ptp_cmd_adjust;\n"
+        "  wire extra_adjust_reader_w = eff_ptp_adjust_w;\n",
+        "additional effective adjtime reader")
     mcr_restart_extra_reader = replace_once(
         datapath_source,
         "       | aafm_disrupt_p_w | aafm_mr_toggle_p_w;",
@@ -15926,25 +15914,22 @@ def test_baremetal_profile_contract() -> None:
          docs_source, csr_source,
          "datapath PHC nets must retain sole-driver reference ownership",
          MutantFiles(datapath=phc_wand_second_driver)),
-        ("ADP term spliced into the render recentre pulse", firmware_source,
+        ("ADP term spliced into the render queue flush", firmware_source,
          docs_source, csr_source,
-         "render recentre pulse must read only the media re-base "
-         "and settled clock-source discontinuities",
-         MutantFiles(datapath=render_recentre_adp_term)),
-        ("GM identity restored as a render recentre term", firmware_source,
+         "render presentation stage must be emptied only by a bind wipe",
+         MutantFiles(datapath=render_flush_adp_term)),
+        ("GM identity spliced into the render queue flush", firmware_source,
          docs_source, csr_source,
-         "render recentre pulse must read only the media re-base "
-         "and settled clock-source discontinuities",
-         MutantFiles(datapath=render_recentre_gm_term)),
+         "render presentation stage must be emptied only by a bind wipe",
+         MutantFiles(datapath=render_flush_gm_term)),
+        ("PHC step spliced into the render queue flush", firmware_source,
+         docs_source, csr_source,
+         "eff_ptp_adjust_w must have exactly 2 live references, found 3",
+         MutantFiles(datapath=render_flush_step_term)),
         ("settle recentre withheld from the LOOP queues", firmware_source,
          docs_source, csr_source,
-         "settle recentre must reach the LOOP queues beside the render "
-         "stage",
+         "settle recentre must reach the LOOP queues",
          MutantFiles(datapath=settle_recentre_lb_withheld)),
-        ("ADP term spliced into the media re-base pulse", firmware_source,
-         docs_source, csr_source,
-         "media re-base pulse must read only adjtime and settime",
-         MutantFiles(datapath=media_rebase_adp_term)),
         ("ADP term spliced into the media restart pulse", firmware_source,
          docs_source, csr_source,
          "media restart pulse must read only selected CRF lock edges "
@@ -15958,10 +15943,10 @@ def test_baremetal_profile_contract() -> None:
          docs_source, csr_source,
          "phc_load_ts_w must have exactly 4 live references, found 5",
          MutantFiles(datapath=phc_crossing_extra_reader)),
-        ("additional media re-base reader", firmware_source,
+        ("additional effective adjtime reader", firmware_source,
          docs_source, csr_source,
-         "media_rebase_p_w must have exactly 2 live references, found 3",
-         MutantFiles(datapath=media_rebase_extra_reader)),
+         "eff_ptp_adjust_w must have exactly 2 live references, found 3",
+         MutantFiles(datapath=phc_adjust_extra_reader)),
         ("additional media restart reader", firmware_source,
          docs_source, csr_source,
          "mcr_restart_p_w must have exactly 2 live references, found 3",
@@ -17521,11 +17506,11 @@ def test_baremetal_profile_contract() -> None:
           "the ptp_csr_sync/ts_counter pair consumes that net with direct "
           "clocks, resets, PHC "
           "controls and readback; "
-          "the exact PHC-net census admits media_rebase_p_w as the shared "
-          "adjtime/settime read, feeding only render_recentre_p_w. "
-          "Render combines it with the settled source change and the "
-          "#645 settle recentre, never GM "
-          "identity; restart takes only selected CRF lock edges and "
+          "the exact PHC-net census admits no media reader of adjtime or "
+          "settime: the render presentation stage is emptied by a bind wipe "
+          "alone, never a PHC step, GM identity or source change, and the "
+          "#645 settle recentre reaches the LOOP queues; "
+          "restart takes only selected CRF lock edges and "
           "received mr propagation, feeding its engine port directly; "
           "external MAC RX "
           "traverses the pre-filter tap, both RXFILT_P arms and the "
@@ -21626,7 +21611,7 @@ def _tdm_master_binding(soc, rtl, plat):
         "the AUDIO_IF_MASTER_P arm does not instantiate KL_tdm_capture_master "
         "- KL_tdm_capture is the SLAVE, whose bclk/fsync are tied to 0")
     # the clock it divides must be the DEDICATED one, not clk_audio_i: 24.576
-    # MHz is a contract (KL_crf_tx /512, KL_i2s_playback, the servo).
+    # MHz is a contract (KL_i2s_playback, the servo).
     assert re.search(r"\.clk_audio_i\s*\(\s*clk_tdm_i\s*\)", arm), (
         "the TDM master is not fed clk_tdm_i - re-rating clk_audio_i would "
         "silently move the CRF event rate, the DAC and the servo")

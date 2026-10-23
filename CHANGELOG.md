@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - media clock phase](#unreleased---media-clock-phase)** -- Phase-locked to the followed CRF.
 - **[Unreleased - pins 93fb0b2d and 55680bff](#unreleased---pins-93fb0b2d-and-55680bff)** -- Two donor pins move.
 - **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
 - **[Unreleased - power-on audio maps](#unreleased---power-on-audio-maps)** -- Identity from power-on.
@@ -41,6 +42,78 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - media clock phase
+
+- Issues #632 and #764 phase the followed media clock.
+- Milan v1.2 7.6.1 asks for both.
+- The servo locked frequency only before.
+- Each engagement kept whatever phase its pull-in left.
+- The servo now phases the domain media event to CRF.
+- The phase term rides the servo's own integrator.
+- It is type 2, slew-limited to 0.5 ppm.
+- Its pole is 0.944 per window: 8.9 s.
+- The integrator now keeps eight fractional bits.
+- Flooring odd errors drifted up to 1.95 ns/s.
+- The domain media event is each frame's pin instant.
+- One event serves every interface of the clock domain.
+- Each interface derives its own latency constants.
+- The CRF output stamps every 96th domain event.
+- Its free-running divider is retired.
+- The AAF talkers stamp their frame's pin instant.
+- The capture crossbar banks that instant with the frame.
+- Capture age and pair offset leave the timestamp.
+- Both outputs stamp the same frame instants (4.3.5).
+- Once settled those sit within 5 % of a period.
+- That is IEEE 1722-2016 10.8 and 4.3.5.
+- `MCSRV_STAT[9]` now reads the phase settled.
+- Each phase sample is unwrapped against a tracking reference.
+- Samples either side of +/-Ps/2 no longer cancel.
+- Settled needs every sample of four full windows in band.
+- A hold on a window's closing edge drops its correction.
+- AAF stamps the offset as set (5.4.2.9).
+- Only CRF rounds it, by Equation 14.
+- GET_STREAM_INFO reads AAF as set (5.4.2.10.2).
+- It reads the CRF offset as applied.
+- SET_STREAM_INFO still echoes the value set (5.4.2.9).
+- Pushes need a changed value set (5.4.5.2).
+- That gate is the processor's; pin `93fb0b2d` carries it.
+- Rounding past 2^32 ns keeps its carry.
+- The CRF timestamp adds it; AAF needs 32 bits.
+- GET_STREAM_INFO reads such a row as 0xFFFFFFFF.
+- The I2S blend's frame now closes on its I2S pair.
+- The I2S capture's pairs ride their own strobe again.
+- They carried the previous pair, a frame older.
+- No top-level port changes; `RENDER_STAT`'s fields change below.
+- AAF following keeps the rate loop alone.
+- The listener now presents every sample at its presentation time.
+- `KL_render_queue` replaces the #386 setpoint stage on the TDM path.
+- It places each event in the frame its timestamp names.
+- Each interface reads the frame its own out-lead names.
+- Two block RAMs per 8-channel stream hold 2.126 ms.
+- Late and too-early events are dropped and counted.
+- Each event is judged on its own frame.
+- Untimed PDUs are dropped and counted.
+- No PHC step, identity or source change re-centres it.
+- The #386 recentres and #387's render re-base retire.
+- #645's settle recentre stays, for the LOOP queues only.
+- `RENDER_STAT` (`0x8DC`) reads lead, idle, convergence and refusals.
+- The Arty I2S DAC keeps its own fill law.
+- VERSION is unchanged; the release step owns the bump.
+- `tb/verilator/media_phase` proves the loop and the interfaces.
+- It grades the in-tree blend and four AAF offsets too.
+- Its `make mutants` target plants forty defects.
+- `render_queue` grades the stage byte-exact against a model.
+- `capture_coherence` grades the talker's stamps at the TDM pins.
+- The bench proof follows after merge.
+- The resource gate re-baselines under two owner exceptions.
+- The route grows 500 LUTs, 107 slices and 2 RAMB18.
+- 15 slices stay free; Mark II (#640) recovers the area.
+- A gmstep control now stops the talker at GM B.
+- FPGA-gPTP #82's boot pulse had stopped it first.
+- Dev's own campaign failed the same way.
+- The gmstep leg now records that boot pulse.
+- A new control removing the pulse must fail.
 
 ## Unreleased - pins 93fb0b2d and 55680bff
 

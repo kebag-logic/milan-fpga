@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Mutation arm for the #386 render law in milan_dp: prove the checks can fail.
+"""Mutation arm for the #632 presentation law in milan_dp: prove the checks can fail.
 
-sim_aclk.cpp asserts, on the elaborated shipping shape, that every accepted
-PDU's first event renders SETPOINT media ticks after its accept, that a PHC
-step recentres the fill once (from a short queue and from a long one), and
-that a clock-source change under the running stream recentres it once the
-grid has settled. Issue #386's acceptance asks for the negative controls by
-name: a deliberately wrong prefill must fail the law check, and a disabled
-recentre must fail the recentre check; the round-5 review added the recentre
-that counts but does not snap, and the clock-source trigger. So the real
-KL_render_setpoint, or the real milan_datapath, is mutated, one defect at a
-time, and the SAME leg is rebuilt through the Makefile's own recipe (`make
-aclk-build` with RSP_SRC or DP_SRC, and ACLK_MDIR, overridden) and run in
-the short mode that holds the check: `--render-only` for the stage's
-defects, `--live-only` for the datapath's trigger. Each mutant must make the
-leg FAIL by its OWN verdict (a `[FAIL]` line or a tally with failures, read
-by scripts/suite_tally.py), and the named check must be among the failures;
-a crash or an abort is not a catch. The positive control is the clean leg
-the sweep just ran (obj_aclk): it is re-run here in both short modes so the
+sim_aclk.cpp asserts, on the elaborated shipping shape, that every event of
+every accepted PDU is handed to the TDM lane's crossbar at the read that
+presents it at its presentation time (IEEE 1722-2016 7.5, inside 10.8's
++/-5 % of Ps), through an arrival shift, a PHC step and a settime under the
+running stream and beside refused PDUs, and that a clock-source change under
+the stream moves no presentation. So the real KL_render_queue, or the real
+milan_datapath, is mutated, one defect at a time: each PDU placed by its
+arrival rather than its timestamp, the PDU without tv placed by its stale
+timestamp, a PHC step that resets the stage (the shape of the #387 re-base
+this law retired), and a source change that flushes it. The SAME leg is
+rebuilt through the Makefile's own recipe (`make aclk-build` with RQ_SRC or
+DP_SRC, and ACLK_MDIR, overridden) and run in the short mode that holds the
+check: `--render-only` for the stage's defects and the step,
+`--live-only` for the source change. Each mutant must make the leg FAIL by
+its OWN verdict (a `[FAIL]` line or a tally with failures, read by
+scripts/suite_tally.py), and the named check must be among the failures; a
+crash or an abort is not a catch. The positive control is the clean leg the
+sweep just ran (obj_aclk): it is re-run here in both short modes so the
 verdicts come from the same binary shape.
 
 What bounds a livelocking mutant. This driver sets no host-time deadline
@@ -73,7 +74,7 @@ from pathlib import Path
 from typing import TextIO
 
 HERE = Path(__file__).resolve().parent
-STAGE_RTL = HERE / "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv"
+STAGE_RTL = HERE / "../../../hdl/ieee1722/aaf/KL_render_queue.sv"
 DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
 CLEAN_EXE = HERE / "obj_aclk/Vmilan_dp_aclk"
 sys.path.insert(0, str(HERE / "../../../scripts"))
@@ -81,39 +82,33 @@ from suite_tally import log_reports_failure  # noqa: E402
 
 #: the two sources a mutant may plant into: (path, the Makefile override)
 SOURCES = {
-    "stage": (STAGE_RTL, "RSP_SRC"),
+    "stage": (STAGE_RTL, "RQ_SRC"),
     "datapath": (DP_RTL, "DP_SRC"),
 }
 
 #: (name, source, pattern, replacement, the leg's short mode, the check this
 #: defect must break)
 MUTATIONS = [
-    ("prefill target three events high", "stage",
-     "localparam int unsigned TARGET_C = SETPOINT_EVT_P + PDU_EVENTS_P;",
-     "localparam int unsigned TARGET_C = SETPOINT_EVT_P + PDU_EVENTS_P + 3;",
+    ("each PDU placed by its arrival instead of its timestamp", "stage",
+     "        ld_r   <= (PW_C+QW_C)'(db_w);",
+     "        ld_r   <= (PW_C+QW_C)'(32'd1875000 + 32'(BIAS_L));",
      "--render-only",
-     "RENDER-INT: every PDU's first event inside the law band"),
-    ("recentre pulse ignored", "stage",
-     "if (recentre_p_i && !prefill_r[s]) pend_r[s] <= 1'b1;",
-     "if (1'b0 && !prefill_r[s]) pend_r[s] <= 1'b1;",
+     "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"),
+    ("the PDU without tv placed by its stale timestamp", "stage",
+     "        pst_r  <= !hdr_tv_i ? P_UNTIMED_S",
+     "        pst_r  <= 1'b0      ? P_UNTIMED_S",
      "--render-only",
-     "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late)"),
-    ("recentre counted and cleared but not snapped", "stage",
-     "              if (enough_w) begin\n"
-     "                rptr_r[s]    <= snap_rptr_w;\n"
-     "                prefill_r[s] <= 1'b0;\n"
-     "                pend_r[s]    <= 1'b0;\n",
-     "              if (enough_w) begin\n"
-     "                rptr_r[s]    <= prefill_r[s] ? snap_rptr_w : rptr_r[s];\n"
-     "                prefill_r[s] <= 1'b0;\n"
-     "                pend_r[s]    <= 1'b0;\n",
+     "RENDER-REFUSE: no refused PDU presented"),
+    ("a PHC step resets the stage", "datapath",
+     "  ) render_queue (\n    .clk_i (axis_clk), .rst_n (axis_resetn),\n",
+     "  ) render_queue (\n    .clk_i (axis_clk), .rst_n (axis_resetn && !eff_ptp_adjust_w),\n",
      "--render-only",
-     "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early)"),
-    ("clock-source trigger dropped from the recentre set", "datapath",
-     "       | src_recentre_p_r;",
-     "       | 1'b0;",
+     "RENDER-STEP-INT: every event presented once, in order"),
+    ("a clock-source change flushes the stage", "datapath",
+     "    .flush_i      (strtbl_bind_fall_w),",
+     "    .flush_i      (strtbl_bind_fall_w | {N_STREAMS{media_clk_src_r != src_recentre_q_r}}),",
      "--live-only",
-     "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"),
+     "RENDER-LIVE-CRF: every event presented once, in order"),
 ]
 
 
@@ -355,7 +350,7 @@ def main(log: PhaseLog | None = None) -> int:
         reused = CLEAN_EXE.is_file()
         log.baseline("prebuilt" if reused else "fallback-build")
         exe = CLEAN_EXE if reused else timed_build(
-            log, "control", "RSP_SRC", STAGE_RTL, work / "obj_clean")
+            log, "control", "RQ_SRC", STAGE_RTL, work / "obj_clean")
         for mode in sorted({m[4] for m in MUTATIONS}):
             answer = (verdict(*timed_leg(log, "control", exe, mode), None)
                       if exe else "did not compile")

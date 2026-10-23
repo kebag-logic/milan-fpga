@@ -5,8 +5,11 @@
 // one second while an AAF stream is bound and locked under CRF selection.
 // The #602 ruling (5859297355) keeps mr and MEDIA_RESET unchanged for this
 // PHC-only event. tu rises on the commit edge and clears after the step's
-// holdover, transport and listener lock continue, and the render stage
-// re-centres once at a PDU end just after the plane's step pulse.
+// holdover, transport and listener lock continue, and the render
+// presentation stage takes no re-base: the PDUs the peer stamped in GM B's
+// time and this listener placed before its own step are refused, counted once
+// each, their frames are one counted slip, and every other PDU keeps its
+// presentation offset across the event (#632).
 // Independent controls require a real source change and selected-CRF mr
 // propagation to toggle outgoing mr. gmstep_mutants.py proves these checks
 // reject restored PHC restart coupling and missing legitimate triggers.
@@ -45,14 +48,19 @@
 // The TDM clocks are held: the grid aligner has no PHC input and stays
 // disengaged on a dead feed, which keeps the packet grid exactly nominal.
 //
-// The render law is graded where KL_render_setpoint states it and judges its
-// bands: the fill right after each PDU's push is TARGET_C = setpoint + one
-// PDU = 14 events. The harness reads it as the peak of the registered fill
-// between two accepts: pops only lower it after the push, and the next PDU
-// pushes only after its own accept (the depacketizer commits a frame at its
-// tlast, after the monitor's accept at byte 48). The fill AT the accept is not
-// graded: it depends on how many media ticks fall between the last push and
-// the accept, which moves with the feed's start phase (9 or 10 events here).
+// The presentation law (#632) is graded at KL_render_queue's output: every
+// sample names its PDU's sequence number, event and channel, and the event
+// handed to the TDM lane's crossbar at each media event is decoded off the
+// stage's first beat. In this compressed model the stage counts one frame per
+// media tick (41.7 cycles) but divides timestamp differences by the true 48
+// kHz period, so the peer's 2 ms presentation offset puts every PDU a fixed
+// 96 frames after the frame it arrives in: the presentation INSTANT is graded
+// at the true clock ratio by milan_dp's aclk leg and by milan_dp_render, and
+// here what is graded is that every PDU keeps that one offset across the
+// event. Between the peer's step (at its first GM B Sync) and this listener's
+// (when it consumes the pair) the peer's PDUs carry GM B's time while the PHC
+// still reads GM A's: each lands 1.5 s ahead and is refused as too early
+// (KL_render_queue, STEP), counted once; their frames are one gap, one slip.
 // The talker's own cadence in this compressed model is not the product's, so
 // its stream is graded against its own baseline: no sequence gap, the same
 // rate, no pause beyond four of its intervals, counting the silence from its
@@ -62,6 +70,11 @@
 // +10 ms and -10 ms under CRF and then INTERNAL selection, and grades
 // asCapable, the published link delay, tu, the public counters and media
 // continuity across several Pdelay intervals of each step.
+//
+// FPGA-gPTP #82: the station is its own grandmaster from boot, so GM A is a
+// grandmaster change, not an acquisition. The baseline records that the
+// datapath's GM-change detector pulses once, at this station's own identity
+// -> GM A, and that the talker, opened after it, still streams.
 //
 // Usage: Vmilan_dp_gmstep <aem image> [feed delay] [--no-small-steps]. The
 // optional feed delay (fabric cycles, default 0) idles before the peer's
@@ -98,6 +111,10 @@ namespace {
 constexpr uint64_t kPeer = 0x0080E1FFFE112233ULL;
 constexpr uint64_t kGmA = 0x00AACCFFFE010203ULL;
 constexpr uint64_t kGmB = 0x00BBDDFFFE040506ULL;
+//! thisClock of this leg's gptp_ucode.hex (the generator's default MAC
+//! 02:A1:B2:C3:D4:E5). Since FPGA-gPTP #82 the station is its own
+//! grandmaster from boot and publishes this identity until a peer wins.
+constexpr uint64_t kThisClock = 0x02A1B2FFFEC3D4E5ULL;
 constexpr uint8_t kPriorityA = 100;
 constexpr uint8_t kPriorityB = 50;             //! better: the change is real
 constexpr uint64_t kClkHz = 2000000;
@@ -115,16 +132,17 @@ constexpr uint64_t kAnnouncePeriodCyc = kClkHz;
 //! holdover re-armed by the step
 constexpr uint64_t kGmSyncDelayCyc = 160000;
 constexpr uint64_t kQtickCyc = CLKV_QTICK_CYC_TB;
-//! #386 render law under test: one class-A PDU of events plus two is the
-//! setpoint, and the fill right after every PDU push is one PDU above it
+//! #632 presentation law under test: a class-A PDU of six events, every one
+//! presented once, in order, all of a PDU's within this many cycles of its
+//! send (the 96-frame offset is 4000 cycles here; a wire sequence number
+//! repeats only after 256 PDUs, 64,000 cycles)
 constexpr unsigned kRenderPduEvt = 6;
-constexpr unsigned kRenderSetpointEvt = kRenderPduEvt + 2;
-constexpr unsigned kRenderTargetEvt = kRenderSetpointEvt + kRenderPduEvt;
+constexpr uint64_t kPresentWindowCyc = 8000;
+//! every presented PDU's send-to-presentation offset inside two media ticks
+//! of every other's: one offset, kept across the event
+constexpr uint64_t kOffsetSpreadCyc = 2 * kClkHz / 48000;
 //! a running talker never pauses longer than this many of its own intervals
 constexpr uint64_t kTalkerPauseIntervals = 4;
-//! the step's counted re-base lands at a PDU end this soon after the plane's
-//! step pulse: the next PDU end, with one PDU of slack
-constexpr uint64_t kRebaseWindowCyc = 2 * kAafPeriodCyc;
 constexpr uint16_t kCrfClockSource = 1;        //! AX 1x1: INTERNAL 0, CRF 1
 //! the Stream Input counters_valid bits this leg reads: MEDIA_UNLOCKED (1)
 //! and FRAMES_RX (11), Milan Table 5.6
@@ -188,7 +206,10 @@ Frame aaf_pdu(uint8_t seq, uint64_t gm_ns) {
     f.u64(0x0200000000020000ULL);
     f.u32(static_cast<uint32_t>(gm_ns + kPresentationNs));
     f.u8(0x02); f.u8(0x50); f.u8(8); f.u8(32); f.u16(192); f.u16(0);
-    for (unsigned i = 0; i < 48; ++i) f.u32(0);
+    //! every sample names its PDU and event: {1, seq[7:0], event, channel},
+    //! S32BE with the pad byte zero (the marker bit keeps it non-zero)
+    for (unsigned i = 0; i < 48; ++i)
+        f.u32((0x800000u | (uint32_t{seq} << 8) | ((i / 8) << 4) | (i % 8)) << 8);
     return f;
 }
 
@@ -252,8 +273,46 @@ struct Trace {
     uint64_t incapable_cycles = 0;
     uint64_t bad_delay_cycles = 0;
     uint64_t servo_locked_cycles = 0;
-    uint64_t render_triggers = 0;       //! render_recentre_p_w pulses
-    std::vector<uint64_t> recentre_cycs;  //! cycles the counted tally moved
+};
+
+//! One pulse of the datapath's GM-change detector (milan_datapath.sv
+//! g_gm_recentre): its cycle, the identity it left and the one it names.
+struct GmPulse {
+    uint64_t cyc = 0;
+    uint64_t from = 0;
+    uint64_t to = 0;
+};
+
+//! One AAF PDU the peer sent: its cycle and wire sequence number.
+struct SentPdu {
+    uint64_t cyc = 0;
+    uint8_t seq = 0;
+};
+
+//! One event the render stage handed the TDM lane: its cycle and identity.
+struct Presented {
+    uint64_t cyc = 0;
+    uint8_t seq = 0;
+    uint8_t event = 0;
+};
+
+//! The render stage's refusal and slip counters at one instant.
+struct RenderCounts {
+    uint32_t refused = 0;               //! late, too early and untimed
+    uint32_t slips = 0;
+};
+
+//! What a window of sent PDUs looked like at the render stage's output.
+struct RenderGrade {
+    size_t graded = 0;                  //! PDUs graded
+    size_t presented = 0;               //! ...whose six events were presented once, in order
+    size_t refused = 0;                 //! ...none of whose events was presented
+    size_t partial = 0;                 //! ...presented in part, out of order or twice
+    size_t disorder = 0;                //! PDUs presented before the one sent before them
+    uint64_t offset_lo = ~uint64_t{0};  //! send-to-presentation, presented PDUs
+    uint64_t offset_hi = 0;
+    uint64_t refused_lo = ~uint64_t{0}; //! the refused PDUs' send cycles
+    uint64_t refused_hi = 0;
 };
 
 //! The AXI4-Lite handshakes of one cycle, sampled before its edge.
@@ -297,6 +356,7 @@ class GmStepHarness {
     unsigned slew_falls_ = 0;
     bool slew_previous_ = false;
     bool media_follows_sync_ = false;          //! steps with the next Sync
+    uint64_t media_step_cyc_ = 0;              //! the peer's media time last stepped
     double talker_interval_ = 0;               //! baseline cycles per PDU
     uint64_t gm_id_ = kGmA;
     uint8_t gm_priority_ = kPriorityA;
@@ -333,15 +393,18 @@ class GmStepHarness {
 
     // what the observers saw
     Trace trace_;
-    uint64_t recentres_seen_ = 0;              //! the counted tally, last sample
-    //! (accept cycle, fill right after that PDU's push), closed at the next
-    //! accept; the open window's accept and running peak
-    std::vector<std::pair<uint64_t, unsigned>> pushes_;
-    uint64_t window_cyc_ = 0;
-    unsigned window_peak_ = 0;
-    bool window_open_ = false;
-    //! (accept cycle, fill at that accept): the fill is printed, never graded
-    std::vector<std::pair<uint64_t, unsigned>> accepts_;
+    //! every GM-change detector pulse from reset, and the identity the
+    //! detector holds and the one it held before (kept across acquire())
+    std::vector<GmPulse> gm_pulses_;
+    uint64_t gm_held_ = 0;
+    uint64_t gm_left_ = 0;
+    //! the listener monitor's accept pulses, by cycle
+    std::vector<uint64_t> accepts_;
+    //! the AAF PDUs sent, and the events the render stage presented
+    std::vector<SentPdu> sent_;
+    std::vector<Presented> presented_;
+    uint32_t rq_first_ = 0;                    //! lane 0 of the read's first beat
+    bool rq_valid_q_ = false;
     //! accepts seen before and after each Stream Input GET_COUNTERS
     std::pair<size_t, size_t> sin0_accepts_{0, 0};
     std::pair<size_t, size_t> sin1_accepts_{0, 0};
@@ -396,11 +459,14 @@ class GmStepHarness {
     void observe_slew_alignment(bool raw, uint64_t increment);
     void grade_the_event(const std::vector<uint8_t>& sout0, const std::vector<uint8_t>& sout_mid,
                          uint64_t mid_cyc, const std::vector<uint8_t>& sin0,
-                         uint64_t recentres0, uint64_t rails0, size_t talker0);
+                         const RenderCounts& render0, size_t sent0, size_t talker0);
     void grade_uncertainty(size_t talker0);
     void grade_the_licence(size_t talker0, const std::vector<uint8_t>& sin0,
                            const std::vector<uint8_t>& sin1);
-    void grade_the_render(uint64_t recentres0, uint64_t rails0, uint64_t event_cyc);
+    RenderCounts render_counts() const;
+    RenderGrade grade_presentation(size_t first, size_t last) const;
+    void report_presentation(const char* tag, const RenderGrade& g) const;
+    void grade_the_render(const RenderCounts& render0, size_t sent0);
     void grade_the_restart(size_t talker0, const std::vector<uint8_t>& sout0,
                            const std::vector<uint8_t>& sout_mid,
                            const std::vector<uint8_t>& sout1);
@@ -491,6 +557,13 @@ void GmStepHarness::observe() {
         trace_.tu_at_identity = tu;
     }
     trace_.tu_prev = tu;
+    //! the detector's own register and pulse (gmstep_probes.vlt): both
+    //! change on the same edge, so the identity it left is the one held
+    //! before this sample
+    const uint64_t gm_held = root->milan_datapath__DOT__gm_recentre_q_r;
+    if (gm_held != gm_held_) { gm_left_ = gm_held_; gm_held_ = gm_held; }
+    if (root->milan_datapath__DOT__gm_recentre_p_r)
+        gm_pulses_.push_back({cyc_, gm_left_, gm_held});
     if (!(root->milan_datapath__DOT__gptp_pub_flags_w & 4)) ++trace_.incapable_cycles;
     trace_.servo_locked_cycles += (root->milan_datapath__DOT__mcsrv_stat_w & 7) == 4;
     const uint32_t delay = root->milan_datapath__DOT__gptp_pub_pdelay_w;
@@ -499,23 +572,21 @@ void GmStepHarness::observe() {
         ++trace_.step_pulses;
         trace_.step_pulse_cyc = cyc_;
     }
-    if (root->milan_datapath__DOT__render_recentre_p_w) ++trace_.render_triggers;
-    const uint64_t recentres = root->milan_datapath__DOT__rsp_recentres_w;
-    if (recentres != recentres_seen_) {
-        trace_.recentre_cycs.push_back(cyc_);
-        recentres_seen_ = recentres;
+    if (root->milan_datapath__DOT__avtprx_accept_p) accepts_.push_back(cyc_);
+    //! the render stage's read is its pairs' beats back to back, lane 0 on
+    //! the first; its pulse says interface 0 was handed an event with a
+    //! sample
+    const bool v = (root->milan_datapath__DOT__rq_tvalid_w & 1) != 0;
+    if (v && !rq_valid_q_) {
+        const uint64_t d = root->milan_datapath__DOT__rq_tdata_w;
+        rq_first_ = (static_cast<uint32_t>(d & 0xFF) << 16) |
+                    (static_cast<uint32_t>((d >> 8) & 0xFF) << 8) |
+                    static_cast<uint32_t>((d >> 16) & 0xFF);
     }
-    //! the fill right after a PDU's push is the peak between its accept and
-    //! the next one (the banner has why)
-    const unsigned fill = root->milan_datapath__DOT__rsp_fill_w & 0xFF;
-    if (root->milan_datapath__DOT__avtprx_accept_p) {
-        if (window_open_) pushes_.emplace_back(window_cyc_, window_peak_);
-        accepts_.emplace_back(cyc_, fill);
-        window_cyc_ = cyc_;
-        window_peak_ = fill;
-        window_open_ = true;
-    }
-    window_peak_ = std::max(window_peak_, fill);
+    rq_valid_q_ = v;
+    if (root->milan_datapath__DOT__rq_pop_p_w & 1)
+        presented_.push_back({cyc_, static_cast<uint8_t>(rq_first_ >> 8),
+                              static_cast<uint8_t>((rq_first_ >> 4) & 0xF)});
 }
 
 void GmStepHarness::memory_drive() {
@@ -598,6 +669,7 @@ void GmStepHarness::schedule() {
     }
     if (rx_busy_) return;
     if (media_on_ && cyc_ >= next_aaf_) {
+        sent_.push_back({cyc_, aaf_seq_});
         start_frame({Kind::Aaf, aaf_seq_++, 0, {}, 0, 0});
         next_aaf_ += kAafPeriodCyc;
         return;
@@ -631,6 +703,7 @@ void GmStepHarness::start_frame(Outgoing what) {
     if (what.kind == Kind::Sync && media_follows_sync_) {
         media_epoch_ = gm_epoch_;
         media_follows_sync_ = false;
+        media_step_cyc_ = cyc_;
     }
     rx_ = build(what);
     rx_what_ = std::move(what);
@@ -881,40 +954,45 @@ void GmStepHarness::provision_media() {
 }
 
 void GmStepHarness::baseline() {
-    const size_t pushes0 = pushes_.size();
     const size_t accepts0 = accepts_.size();
+    const size_t sent0 = sent_.size();
     const size_t talker0 = talker_.size();
-    const uint64_t recentres0 = dut_->rootp->milan_datapath__DOT__rsp_recentres_w;
+    const RenderCounts render0 = render_counts();
     run_cycles(kClkHz / 5);
-    check_.that("baseline: the listener accepted PDUs", pushes_.size() - pushes0 > 100);
-    size_t off_target = 0;
-    unsigned lo = 255;
-    unsigned hi = 0;
-    for (size_t i = pushes0; i < pushes_.size(); ++i) {
-        if (pushes_[i].second != kRenderTargetEvt) ++off_target;
-        lo = std::min(lo, pushes_[i].second);
-        hi = std::max(hi, pushes_[i].second);
-    }
-    unsigned at_lo = 255;
-    unsigned at_hi = 0;
-    for (size_t i = accepts0; i < accepts_.size(); ++i) {
-        at_lo = std::min(at_lo, accepts_[i].second);
-        at_hi = std::max(at_hi, accepts_[i].second);
-    }
-    printf("RENDER: fill after each push %u..%u events (target %u = setpoint %u + %u); "
-           "fill at accept %u..%u (the accept phase, not graded)\n",
-           lo, hi, kRenderTargetEvt, kRenderSetpointEvt, kRenderPduEvt, at_lo, at_hi);
-    check_.dec("baseline: every PDU push leaves the #386 target fill", off_target, 0);
+    check_.that("baseline: the listener accepted PDUs", accepts_.size() - accepts0 > 100);
+    const RenderGrade g = grade_presentation(sent0, sent_.size());
+    report_presentation("baseline", g);
+    const RenderCounts render1 = render_counts();
+    check_.that("baseline: PDUs graded at the render stage's output", g.graded > 100);
+    check_.dec("baseline: every PDU's six events presented once, in order",
+               g.graded - g.presented + g.disorder, 0);
+    check_.that("baseline: every PDU presented one offset after its send",
+                g.offset_hi - g.offset_lo <= kOffsetSpreadCyc);
+    check_.dec("baseline: the render stage refused nothing", render1.refused - render0.refused, 0);
+    check_.dec("baseline: the render stage slipped nothing", render1.slips - render0.slips, 0);
     size_t uncertain = 0;
     for (size_t i = talker0; i < talker_.size(); ++i) uncertain += talker_[i].tu;
     check_.that("baseline: the talker streams", talker_.size() - talker0 > 100);
+    //! FPGA-gPTP #82: the station is its own grandmaster from boot, so the
+    //! step from its own identity to GM A is a grandmaster change (IEEE
+    //! 802.1AS-2011 9.6.2.1: gmIdentity is the current grandmaster's whenever
+    //! gmPresent, 10.2.3.13, is TRUE). The detector pulses once there; only
+    //! 0 -> id is exempt. The talker opens after it and still streams.
+    for (const GmPulse& p : gm_pulses_)
+        printf("GMDET: pulse at cycle %llu, %016llx -> %016llx\n",
+               static_cast<unsigned long long>(p.cyc),
+               static_cast<unsigned long long>(p.from),
+               static_cast<unsigned long long>(p.to));
+    check_.that("boot grandmaster: the detector pulsed once, at this station's own identity -> GM A, "
+                "and the baseline talker streams after it",
+                gm_pulses_.size() == 1 && gm_pulses_[0].from == kThisClock &&
+                gm_pulses_[0].to == kGmA && talker_.size() - talker0 > 100 &&
+                talker_[talker0].cyc > gm_pulses_[0].cyc);
     if (talker_.size() > talker0 + 1)
         talker_interval_ = double(talker_.back().cyc - talker_[talker0].cyc)
                          / double(talker_.size() - talker0 - 1);
     printf("TALKER: baseline interval %.1f cycles\n", talker_interval_);
     check_.dec("baseline: no talker PDU carries tu", uncertain, 0);
-    check_.dec("baseline: no render recentre",
-               dut_->rootp->milan_datapath__DOT__rsp_recentres_w - recentres0, 0);
 }
 
 //! GM B, 1.5 s ahead of GM A, is announced through the same parent and its
@@ -927,8 +1005,8 @@ void GmStepHarness::change_grandmaster() {
     sin0_accepts_.first = accepts_.size();
     const auto sin0 = counters(0x7311, 0x0005);
     sin0_accepts_.second = accepts_.size();
-    const uint64_t recentres0 = dut_->rootp->milan_datapath__DOT__rsp_recentres_w;
-    const uint64_t rails0 = dut_->rootp->milan_datapath__DOT__rsp_rails_w;
+    const RenderCounts render0 = render_counts();
+    const size_t sent0 = sent_.size();
     const size_t talker0 = talker_.size();
     trace_ = Trace{};
     trace_.tu_prev = dut_->rootp->milan_datapath__DOT__clkv_tu_w;
@@ -944,7 +1022,7 @@ void GmStepHarness::change_grandmaster() {
     const uint64_t mid_cyc = cyc_;
     const uint64_t end = announced + kGmSyncDelayCyc + 5 * kQtickCyc;
     if (cyc_ < end) run_cycles(end - cyc_);
-    grade_the_event(sout0, sout_mid, mid_cyc, sin0, recentres0, rails0, talker0);
+    grade_the_event(sout0, sout_mid, mid_cyc, sin0, render0, sent0, talker0);
 }
 
 //! Issue #621: observe several complete Pdelay intervals after both signs.
@@ -1009,8 +1087,8 @@ void GmStepHarness::check_small_grandmaster_steps() {
 
 void GmStepHarness::grade_the_event(const std::vector<uint8_t>& sout0,
                                     const std::vector<uint8_t>& sout_mid, uint64_t mid_cyc,
-                                    const std::vector<uint8_t>& sin0, uint64_t recentres0,
-                                    uint64_t rails0, size_t talker0) {
+                                    const std::vector<uint8_t>& sin0,
+                                    const RenderCounts& render0, size_t sent0, size_t talker0) {
     printf("EVENT: identity %llu, counters read %llu, step pulse %llu, step %llu (%lld ns), "
            "tu rise %llu fall %llu\n",
            static_cast<unsigned long long>(trace_.identity_cyc),
@@ -1035,7 +1113,7 @@ void GmStepHarness::grade_the_event(const std::vector<uint8_t>& sout0,
     const auto sin1 = counters(0x7313, 0x0005);
     sin1_accepts_.second = accepts_.size();
     grade_the_licence(talker0, sin0, sin1);
-    grade_the_render(recentres0, rails0, trace_.identity_cyc);
+    grade_the_render(render0, sent0);
     grade_the_restart(talker0, sout0, sout_mid, sout1);
 }
 
@@ -1117,34 +1195,87 @@ void GmStepHarness::grade_the_licence(size_t talker0, const std::vector<uint8_t>
                counter_word(sin1, 1) - counter_word(sin0, 1), 0);
 }
 
-//! The #386 stage re-centres once, for the step, and holds its law throughout.
-void GmStepHarness::grade_the_render(uint64_t recentres0, uint64_t rails0, uint64_t event_cyc) {
-    const uint64_t recentres = dut_->rootp->milan_datapath__DOT__rsp_recentres_w - recentres0;
-    size_t outside = 0;
-    for (uint64_t at : trace_.recentre_cycs) {
-        printf("RENDER: counted recentre at cycle %llu (step pulse %+lld)\n",
-               static_cast<unsigned long long>(at),
-               static_cast<long long>(at) - static_cast<long long>(trace_.step_pulse_cyc));
-        if (at <= trace_.step_pulse_cyc || at > trace_.step_pulse_cyc + kRebaseWindowCyc)
-            ++outside;
+RenderCounts GmStepHarness::render_counts() const {
+    const auto* root = dut_->rootp;
+    RenderCounts c;
+    c.refused = static_cast<uint32_t>(root->milan_datapath__DOT__rq_late_w) +
+                static_cast<uint32_t>(root->milan_datapath__DOT__rq_early_w) +
+                static_cast<uint32_t>(root->milan_datapath__DOT__rq_untimed_w);
+    c.slips = root->milan_datapath__DOT__rq_slips_w;
+    return c;
+}
+
+//! The PDUs sent [first, last), less those sent within kPresentWindowCyc of
+//! now (their events may not be presented yet): each one's events are found
+//! by its sequence number among those presented inside kPresentWindowCyc of
+//! its send.
+RenderGrade GmStepHarness::grade_presentation(size_t first, size_t last) const {
+    RenderGrade g;
+    uint64_t prev_last = 0;
+    for (size_t j = first; j < last && j < sent_.size(); ++j) {
+        const SentPdu& p = sent_[j];
+        if (p.cyc + kPresentWindowCyc > cyc_) break;
+        ++g.graded;
+        const auto from = std::lower_bound(
+            presented_.begin(), presented_.end(), p.cyc,
+            [](const Presented& e, uint64_t c) { return e.cyc < c; });
+        std::vector<const Presented*> mine;
+        for (auto it = from; it != presented_.end() && it->cyc < p.cyc + kPresentWindowCyc; ++it)
+            if (it->seq == p.seq) mine.push_back(&*it);
+        if (mine.empty()) {
+            ++g.refused;
+            g.refused_lo = std::min(g.refused_lo, p.cyc);
+            g.refused_hi = std::max(g.refused_hi, p.cyc);
+            continue;
+        }
+        bool in_order = mine.size() == kRenderPduEvt;
+        for (size_t k = 0; in_order && k < mine.size(); ++k) in_order = mine[k]->event == k;
+        if (!in_order) { ++g.partial; continue; }
+        ++g.presented;
+        if (mine.front()->cyc <= prev_last) ++g.disorder;
+        prev_last = mine.back()->cyc;
+        const uint64_t offset = mine.front()->cyc - p.cyc;
+        g.offset_lo = std::min(g.offset_lo, offset);
+        g.offset_hi = std::max(g.offset_hi, offset);
     }
-    printf("RENDER: %llu counted recentres from %llu trigger pulses\n",
-           static_cast<unsigned long long>(recentres),
-           static_cast<unsigned long long>(trace_.render_triggers));
-    check_.dec("render: the GM change is one counted re-base event", recentres, 1);
-    check_.dec("render: every counted re-base lands at a PDU end right after the step",
-               outside, 0);
-    check_.dec("render: no reset rail across the event",
-               dut_->rootp->milan_datapath__DOT__rsp_rails_w - rails0, 0);
-    size_t off_target = 0;
-    size_t graded = 0;
-    for (const auto& [at, fill] : pushes_) {
-        if (at < event_cyc) continue;
-        ++graded;
-        if (fill != kRenderTargetEvt) ++off_target;
-    }
-    check_.that("render: PDUs accepted across the event", graded > 100);
-    check_.dec("render: every PDU push leaves the target fill across the event", off_target, 0);
+    return g;
+}
+
+void GmStepHarness::report_presentation(const char* tag, const RenderGrade& g) const {
+    printf("RENDER: %s: %zu PDUs graded, %zu presented once in order, %zu refused, %zu in part,"
+           " %zu out of order; send-to-presentation %llu..%llu cycles\n",
+           tag, g.graded, g.presented, g.refused, g.partial, g.disorder,
+           static_cast<unsigned long long>(g.presented ? g.offset_lo : 0),
+           static_cast<unsigned long long>(g.offset_hi));
+}
+
+//! The presentation stage takes no re-base (#632): the PDUs stamped in GM B's
+//! time and placed before this listener's step are refused and counted, their
+//! frames one slip, and every other PDU keeps the baseline's one offset.
+void GmStepHarness::grade_the_render(const RenderCounts& render0, size_t sent0) {
+    const RenderGrade g = grade_presentation(sent0, sent_.size());
+    report_presentation("across the event", g);
+    const RenderCounts render1 = render_counts();
+    printf("RENDER: the peer's media step at cycle %llu, the PHC's at %llu; refused PDUs sent "
+           "%llu..%llu; the stage counted %u refused, %u slips\n",
+           static_cast<unsigned long long>(media_step_cyc_),
+           static_cast<unsigned long long>(trace_.step_cyc),
+           static_cast<unsigned long long>(g.refused ? g.refused_lo : 0),
+           static_cast<unsigned long long>(g.refused_hi),
+           render1.refused - render0.refused, render1.slips - render0.slips);
+    check_.that("render: PDUs graded across the event", g.graded > 100);
+    check_.that("render: PDUs stamped in GM B's time before this listener's step were refused",
+                g.refused >= 1);
+    check_.that("render: ...and only those: every refused PDU was sent between the two steps",
+                g.refused == 0 || (g.refused_lo >= media_step_cyc_ && g.refused_hi < trace_.step_cyc));
+    check_.dec("render: every PDU not presented was refused by the stage and counted once",
+               render1.refused - render0.refused, g.refused);
+    check_.dec("render: every other PDU's six events presented once, in order",
+               g.partial + g.disorder, 0);
+    check_.dec("render: the refused PDUs' frames are one counted slip",
+               render1.slips - render0.slips, 1);
+    check_.that("render: nothing re-centres: every presented PDU keeps one offset across the event",
+                g.offset_hi - g.offset_lo <= kOffsetSpreadCyc);
 }
 
 //! Count wire transitions including the first PDU after the stimulus.

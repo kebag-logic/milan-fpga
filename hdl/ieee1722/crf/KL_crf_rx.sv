@@ -275,7 +275,14 @@ module KL_crf_rx #(
   //! REJECTED PDU is never accepted - so a new talker's level, a resuming
   //! stream, or a malformed flip can never fire a phantom restart (gh #62
   //! H2a)
-  output logic        mr_toggle_p_o
+  output logic        mr_toggle_p_o,
+  //! the timing point itself (#632): one cycle per CONSUMED accepted PDU of
+  //! this stream, with its CRF timestamp - the operand the servo's phase
+  //! detector compares the domain's media event against (IEEE 1722-2016
+  //! 10.8). A stopped sink's PDUs are observed, never consumed, so they
+  //! never reach clock recovery here either.
+  output logic        ts_p_o,
+  output logic [63:0] ts_o
 );
 
   //! Milan 7.3.2 constants
@@ -466,6 +473,7 @@ module KL_crf_rx #(
       cnt_intr_o <= '0;
       dirty_p_o <= 1'b0;
       mr_toggle_p_o <= 1'b0;
+      ts_p_o <= 1'b0; ts_o <= '0;
       hidx_r <= '0; hfill_r <= '0;
       exp_seq_r <= '0; have_seq_r <= 1'b0;
       settle_r <= '0; tout_r <= '0;
@@ -488,6 +496,9 @@ module KL_crf_rx #(
       //! restart of an outgoing stream is a media effect, and 5.3.8.7's
       //! discard rule ends this frame's influence at the counters.
       mr_toggle_p_o <= w_ev_mr_w & ~w_bind_rise_w & ~stop_i;
+      //! the consumed timing point (#632)
+      ts_p_o <= w_acc_run_w;
+      if (w_acc_run_w) ts_o <= w_crf_ts;
       //! Table 5.6 interval commit: +1 per flagged counter at the tick,
       //! then the flags restart clean. An event landing in the tick cycle
       //! itself is harvested INTO the closing interval (the

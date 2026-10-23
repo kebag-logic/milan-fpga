@@ -208,7 +208,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  reserved target-media compatibility words](#0x8c8-----reserved-target-media-compatibility-words) -- Three retired addresses that now read structural zero and ignore writes. They expose no media owner or liveness evidence.
   - [0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)](#0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture) -- Two live RO words, `SLIP_LB`/`SLIP_TDM`: the loopback ring's and the TDM junction's dup/skip counters from `KL_chan_map_capture`, static at every source since #629 aligns the grid at INTERNAL too, where before it counted one dup per fed pair per beat period (about 2 per second on the shipping four-pair lane); they are never cleared, so a pair that counted before the selection reads a static non-zero word, not a zero. Saturating at `0xFFFF`: a starved fed pair counts every tick, so a pegged half is spent, not static. Read twice for a rate below the ceiling; `SLIP_LB` is a structural zero without the loopback lane, so establish the lane from the build before reading it.
-  - [0x8DC  -  render setpoint state](#0x8dc-----render-setpoint-state) -- Selected listener fill, prefill and convergence with global saturating rails.
+  - [0x8DC  -  render presentation state](#0x8dc-----render-presentation-state) -- Selected listener's queued lead, idle and convergence with the global saturating count of refused PDUs.
   - [0x8E0  -  AAF clock meter  (#629, KL_aaf_clock_meter)](#0x8e0-----aaf-clock-meter--629-kl_aaf_clock_meter) -- The selected AAF input's media clock: lock, rate validity, the followed listener, data-caused restarts, the largest deviation, and the rate in `CRF_RATE`'s units. A structural zero without an AAF clock source.
   - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Engaged by the live selection since #74.** The processor stores `SET_CLOCK_SOURCE`, the wrapper exports it, and the root's `media_clk_resolve` verdict gates this servo. The CRF sink at `0x738` or the AAF clock meter at `0x8E0` measures, and the selected one steers it; INTERNAL reads IDLE honestly.
   - [0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture) -- Diagnostic write port into the 64×64 render/capture map stores, disarmed at reset. It also holds the `0x910`/`0x914` **map-store readback**: what the fabric actually contains, not `0x908`'s shadow of the last diagnostic write, with `LOOP_SUSPECT` separating a working quiet loop source from one that was never fed. Its unarmed state is `0xDEADDEAD`, never `0`.
@@ -248,7 +248,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
 | `0x8C8` | Reserved target-media compatibility words (structural zero) |
 | `0x8D4` | Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`) |
-| `0x8DC` | `RENDER_STAT`: RO live selected-listener state and global rails; structural zero without the stage. VERSION minor remains `0x0060`; the release step owns the bump |
+| `0x8DC` | `RENDER_STAT`: RO live selected-listener presentation state and the global refused-PDU count; structural zero without the stage. VERSION minor remains `0x0060`; the release step owns the bump |
 | `0x8E0` | AAF clock meter (`AAFM_STAT` / `AAFM_RATE`, RO live, #629); structural zero on a shape without an AAF clock source. VERSION minor remains `0x0060`; the release step owns the bump |
 | `0x8F8` | MMCM-DRP media-clock servo (Milan v1.2 7.3.4) |
 | `0x900` | Channel-map fabric debug window (chmap64) — write port + bypass arm, and the `0x910`/`0x914` **map-RAM readback** |
@@ -1048,7 +1048,7 @@ seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
 | `0x618` | `ADP_TALKER` | **RO** | `{ADP_TALKER_CAPS_C, ADP_TALKER_SRC_C}` | `[15:0]` talker_stream_sources, `[31:16]` talker_capabilities. **Hardwired from the end-station config, writes ignored** (VERSION `0x0015`). The values live in [`hdl/common/gen/adp_shape_defaults.svh`](../../hdl/common/gen/adp_shape_defaults.svh), GENERATED from `configs/endstation_*.yaml` by [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py) in the same pass that emits this shape's AEM descriptor ROM. `ADP_TALKER_SRC_C` = the `STREAM_OUTPUT` descriptor count = the AAF talkers plus the CRF Media Clock Output when the config has one, and `milan_datapath` sizes its ACMP talker context array from **the same constant**, so the advertised range is the addressable range. `1` at 1×1, `N+1` at N×N. `ADP_TALKER_CAPS_C` = `IMPLEMENTED` \| `AUDIO_SOURCE` \| `MEDIA_CLOCK_SOURCE` **only when a CRF output exists** → `0x4001` at 1×1, `0x4801` at N×N |
 | `0x61C` | `ADP_LISTENER` | **RO** | `{ADP_LISTENER_CAPS_C, ADP_LISTENER_SINK_C}` | `[15:0]` listener_stream_sinks, `[31:16]` listener_capabilities. Same generated include, same rule: `ADP_LISTENER_SINK_C` = the `STREAM_INPUT` descriptor count = the AAF sinks plus the CRF sink → `2` at 1×1, `N+1` at N×N, and it sizes the ACMP listener context array. `ADP_LISTENER_CAPS_C` = `0x4801` wherever a CRF sink exists |
 | `0x620` | `ADP_CONTROLLER_CAPS` | RW | `0` | 🟡 **WRITE-ONLY SCRATCH** — controller_capabilities. Stored and read back; never reaches the wire |
-| `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. From reset release until a peer is elected, fabric mode reads thisClock, this instance's own clockIdentity (IEEE 802.1AS-2020 10.3.13.2.4 b), FPGA-gPTP #82). Option OFF reads zero; writes are inert. |
+| `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. From reset release until a peer is elected, fabric mode reads thisClock, this instance's own clockIdentity (IEEE 802.1AS-2011 10.3.12.1.4 b), with Cor1-2013, FPGA-gPTP #82). Option OFF reads zero; writes are inert. |
 | `0x628` | `ADP_GPTP_GM_HI` | RO live | `0` | gptp_grandmaster_id `[63:32]`. Fabric mode is the other half of the coherent snapshot, thisClock's high half before any peer. Option OFF reads zero; writes are inert. |
 | `0x62C` | `ADP_GPTP_DOMAIN` | RO live | `0` | `[7:0]` gptp_domain_number - ADPDU byte 48. At `VERSION=0x0002_0060` this is a structural domain `0` in both fabric mode and the ownerless verification-only option-OFF build. All writes are inert; no startup publication step owns this word. |
 | `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index the ADPDU carries until a SET_CONFIGURATION or D3 restore writes the processor's configuration row, and again after a D3 roll-back (from processor pin `631eeb34`), `[31:16]` identify_control_index |
@@ -1468,14 +1468,21 @@ processor has no dynamic state.
 ### 0x7DC  -  retired AS_PATH compatibility addresses
 
 `GET_AS_PATH` (IEEE 1722.1-2021 7.4.41.2) returns the fabric engine's atomic,
-bounded PathTrace publication. IEEE 802.1AS-2020 10.3.11.2.1(d) makes the
-sequence empty when the selected Announce has no PathTrace TLV, so count zero
-is preserved even when a grandmaster identity is known separately.
+bounded PathTrace publication. IEEE 802.1AS-2011 10.3.10.2.1 d) writes
+pathTrace only from a received PathTrace TLV. When the selected Announce
+carries none, the engine publishes the empty sequence, so count zero is
+preserved even when a grandmaster identity is known separately. That is the
+IEEE 802.1AS-2020 rule: 10.3.11.2.1 d) empties the port's receivedPathTrace,
+and 10.3.13.2.4 f) 5) copies it to pathTrace, appending thisClock only when it
+is not empty. IEEE 802.1AS-2011 has no such rule: without a TLV, pathTrace
+keeps its previous value (10.3.10.2.1 d), 10.3.12.1.1). So the count-zero
+publication departs from the edition Milan v1.2 profiles. The decision is open
+in FPGA-gPTP #87.
 
 Otherwise the published sequence is the received pathSequence with thisClock
-appended (IEEE 802.1AS-2020 10.3.13.2.4 f) 5), FPGA-gPTP #85), so its count
+appended (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #85), so its count
 includes thisClock. Before any peer is elected, the sequence is `{thisClock}`,
-count one (10.3.13.2.4 i), FPGA-gPTP #82).
+count one (IEEE 802.1AS-2011 10.3.12.1.4 i), with Cor1-2013, FPGA-gPTP #82).
 
 The publication holds eight identities, which bounds that append. At eight or
 more received entries the served sequence is the first eight received entries,
@@ -2051,18 +2058,21 @@ models):
 | climbing | static | our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source |
 | `0xFFFF` in either half | any | the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word |
 
-### 0x8DC  -  render setpoint state
+### 0x8DC  -  render presentation state
 
 Issue #443 claims this previously unmapped debug-group word.
+Issue #632 re-defines its fields for the presentation stage, `KL_render_queue`,
+which replaced the #386 setpoint stage.
 
 VERSION remains `0x0002_0060` under [the recorded deferral](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5826779078).
 The release step owns the minor bump.
 Before that bump, VERSION alone cannot identify this addition.
-Verify the build's source revision includes #443's register decode.
+Verify the build's source revision includes #443's register decode, and #632's
+field meanings.
 
 | Offset | Name | Acc | Reset | Description |
 |---|---|---|---|---|
-| `0x8DC` | `RENDER_STAT` | RO live | `0x00000100` | Selected listener state and the global rail count |
+| `0x8DC` | `RENDER_STAT` | RO live | `0x00000100` | Selected listener's presentation state and the global refused-PDU count |
 
 `STRM_SEL[3:0]` selects the listener, with `STRM_SEL[8]=0`.
 Talker selections and indices outside `N_LISTENERS_P` read zero.
@@ -2075,16 +2085,15 @@ Diagnostic readers must coordinate access and restore the previous selection.
 
 | Bits | Width | Source | Meaning | Reset |
 |---|---|---|---|---|
-| `[7:0]` | 8 | selected `fill_o` byte | Queue occupancy in media events; bounded, never wraps | 0 |
-| `[8]` | 1 | selected `prefill_o` bit | Pops held while the queue prefills; level, no counter | 1 |
-| `[9]` | 1 | selected `converged_o` bit | Convergence dwell satisfied; level, no counter | 0 |
+| `[7:0]` | 8 | selected `lead_o` byte | Frames queued past the frame every interface has read: the newest frame the stream wrote, less that one; 0 with none queued; saturates at 255 (the queue is 128 frames deep at 48 kHz) | 0 |
+| `[8]` | 1 | selected `idle_o` bit | Interface 0's last read of the stream found no sample: before the stream's first presentation time, after it ends, or in a gap; level, no counter | 1 |
+| `[9]` | 1 | selected `converged_o` bit | The stream has presented a sample on every read for 100 ms running; level, no counter | 0 |
 | `[15:10]` | 6 | constant | Reserved zero | 0 |
-| `[31:16]` | 16 | `rails_o` | Global reset-band actions; saturates at `0xFFFF`, never wraps | 0 |
+| `[31:16]` | 16 | `refused_o` | Global count of PDUs with a refused event, once per PDU: late (an event at or before the frame every interface has read) or too early (an event beyond the queue). Each event is judged on its own frame, so a counted PDU's other events may still be presented; saturates at `0xFFFF`, never wraps | 0 |
 
 The widths preserve the stage's taps without truncation.
-The current queue holds at most 32 events per listener.
-The rail counter aggregates every listener, including unselected streams.
-Reset clears that counter; bind flushes do not.
+The refused count aggregates every listener, including unselected streams.
+Reset clears it; bind flushes do not.
 Neither reading nor writing clears it; writes are ignored.
 All fields are sampled together by the live CSR read.
 No snapshot arm or cross-clock transfer is involved.
@@ -2096,9 +2105,12 @@ The current datapath instantiates the stage unconditionally.
 Neither parked TDM pins nor disabled I2S imply its absence.
 Check the elaborated build before interpreting any zero.
 
-Rail and underrun events do not raise `STREAM_INTERRUPTED`.
-That is [#443's manager decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5789749713).
-Underrun, overrun and recentre counters remain separate verification taps.
+Refused PDUs and slips do not raise `STREAM_INTERRUPTED`.
+That is [#443's manager decision](https://github.com/kebag-logic/milan-fpga/issues/443#issuecomment-5789749713),
+kept by #632.
+The untimed-PDU and slip counters (`untimed_o`, `slips_o`) remain verification
+taps. The law, its rules and its counters are the
+[design's](../design/MEDIA_CLOCK_FOLLOWING.md#the-listener-each-sample-at-its-presentation-time-632).
 
 Proof: `make -C tb/verilator/milan_dp aclk` reads the taps.
 `make -C tb/verilator/milan_dp render-csr-controls` checks absence and mutation.
@@ -2168,6 +2180,11 @@ The root CSR read is graded in `tb/verilator/milan_dp_mclk`.
 > which is what actually removes the -10.64 ppm divider drift a mirrored
 > command could never close.
 >
+> Since #632 the servo also holds the domain's media event on a followed CRF
+> stream's timing points: a type-2 phase term in its integrator, slew-limited
+> to 0.5 ppm. `[9]` reads the phase settled; the phase word itself reaches no
+> CSR ([phase alignment](../design/MEDIA_CLOCK_FOLLOWING.md#phase-alignment)).
+>
 > An IDLE reading still has two possible causes - the servo pruned at
 > elaboration (`MCSERVO_P = 0`), or built with INTERNAL selected. Only the
 > build plan distinguishes the first.
@@ -2181,7 +2198,7 @@ on merge; `0x8FC` next to it holds the servo control knobs.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[9]` reserved 0, `[15:10]` discarded rate windows, saturating at 63: a window whose error exceeds 1024 ppm, one a PHC step landed in (#539), or one overlapping the policy-slew level (#545; cleared in IDLE). Slew overlap counts once at the boundary, including the partial tail; a coincident step counts that same window once, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor or an AAF INPUT_STREAM descriptor (the generated `AEM_CLKSRC_KIND_C` table); a change between two followed sources passes HOLDOVER into ACQUIRE with the trim kept; at INTERNAL this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
+| `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[9]` phase settled (#632): under a followed CRF stream the servo's phase term is engaged, and the window phase and every sample of the window (each timing point against the domain media event, folded) have sat inside +/-5 % of a sample period (IEEE 1722-2016 10.8) for four full windows running; 0 at INTERNAL, under an AAF source, from any hold of the phase term until four clean full windows, and while re-acquiring ([phase alignment](../design/MEDIA_CLOCK_FOLLOWING.md#phase-alignment)), `[15:10]` discarded rate windows, saturating at 63: a window whose error exceeds 1024 ppm, one a PHC step landed in (#539), or one overlapping the policy-slew level (#545; cleared in IDLE). Slew overlap counts once at the boundary, including the partial tail; a coincident step counts that same window once, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only when the stored `clock_source` selects this shape's CRF descriptor or an AAF INPUT_STREAM descriptor (the generated `AEM_CLKSRC_KIND_C` table); a change between two followed sources passes HOLDOVER into ACQUIRE with the trim kept; at INTERNAL this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
 | `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default); `[1]` auto_repair: 1 = allow the DRP divider repair path (a `[4]` mismatch triggers the full reset-sequenced read-modify-write reprogram), default 0 = verify-only (bench-gated). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
 
 ### 0x900  -  channel-map fabric  `([Section 6 of docs/CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md#6-csr-window-0x900-0x97f-debug-and-override), KL_chan_map_render / KL_chan_map_capture)`

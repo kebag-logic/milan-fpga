@@ -67,27 +67,29 @@ clean modes they are the negative of. That is what this suite's default
 target carries, so the sweep still holds an executable negative arm that
 proves these assertions can fail, inside its own wall clock.
 
-`--law-boundary [--jobs N]` runs only #643's boundary-band diagnostic (see
-LAW_BOUNDARY_HALF below): the [LAW] phases at the feed phases where a PDU end
-meets a pop, on the unmutated gateware and on the two setpoint defects, N
-legs at a time. It prints every window's nearest-pop range and walk, and the
-largest walk against the one the leg states. It is its own explicit target,
-tdm8render-law-boundary.
+THE PRESENTATION LAW (#632). The render stage places every event by its
+timestamp and reads on the domain's media event, so the arms planted against
+the #386 fill law (its setpoint, its preserved prefill snap, its at-switch
+recentre) and #643's boundary-band diagnostic of that law have no subject
+left and are retired. Two defects of the new law take their place: the
+render out-lead one frame long, and the domain event's instant not
+back-dated; each moves every sample a frame off its presentation time at the
+pins, at every [LAW] phase. The underrun counter's arm is retired too: the
+reads now follow the bus's own frames, so no stimulus in this integration
+starves the serializer, and the leg grades that counter at zero under a
+doubled serial clock instead (T6 FASTER CLOCK).
 
-Usage: python3 tdm8_render_mutants.py [--leg-defects | --law-boundary
-                                       [--jobs N]]
+Usage: python3 tdm8_render_mutants.py [--leg-defects]
                                        (run from tb/verilator/milan_dp_render)
    or: make -C tb/verilator/milan_dp_render tdm8render-mutants
 Exit 0 = every mutant was caught, and every clean control still passes.
 """
 
 import os
-import re
 import signal
 import subprocess
 import sys
 import tempfile
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -129,23 +131,13 @@ LAW_PHASES = (0, 130, 260, 391, 521, 651, 781, 911, 927, 1042, 1156, 1172,
 #: ...and the per-phase check the planted A2-a defect must fail, at EVERY one
 LAW_SETTLED = tuple(f"T30 INTERNAL LAW +{p}: the aligner held its settled "
                     "report through the phase" for p in LAW_PHASES)
-#: ...and the two law checks a setpoint one event off must fail at every one:
-#: a graded window reads TARGET exactly and puts the first event more than
-#: the ambiguity window inside both band edges, so either check alone sees it
-LAW_FILL = tuple(f"T30 INTERNAL LAW +{p}: the fill at every PDU end is the "
-                 "setpoint plus that PDU, 14 events" for p in LAW_PHASES)
-LAW_BAND = tuple(f"T30 INTERNAL LAW +{p}: every PDU's first event is inside "
-                 "the law band from its PDU end" for p in LAW_PHASES)
-#: #643's setpoint defects: milan_datapath's render setpoint one event off
-#: the law, which the stage then holds exactly as it holds the right one
-SETPOINT_LINE = ("  localparam int RENDER_SETPOINT_EVT_C = RENDER_PDU_EVT_C + "
-                 "RENDER_ALLOW_EVT_C;")
-SETPOINT_DEFECTS = [
-    ("the render setpoint one event low",
-     [(SETPOINT_LINE, SETPOINT_LINE.replace(";", " - 1;"))]),
-    ("the render setpoint one event high",
-     [(SETPOINT_LINE, SETPOINT_LINE.replace(";", " + 1;"))]),
-]
+#: ...and the presentation check every phase must fail when a defect moves
+#: every sample off its presentation time (#632)
+LAW_PRESENTED = tuple(f"T30 INTERNAL LAW +{p} PRESENTATION: every event's slot-MSB "
+                      "pin instant, less its slot offset, is its presentation time "
+                      "inside +/-5 % of Ps" for p in LAW_PHASES)
+#: the render out-lead, as milan_datapath derives it
+LEAD_LINE = "      64'(DOM_MARK_LAT_NS_C), RENDER_PIPE_NS_C, 64'(AUDIO_IF_FS_HZ_P));"
 
 #: (name, source, [(pattern, replacement), ...], leg, mode, the check it must
 #: break). A mutation is a list of edits because some defects are not
@@ -171,8 +163,8 @@ MUTATIONS = [
      "T6 IDENTITY: every decoded frame is a complete 24-bit match against "
      "the injection record"),
     ("shared identity corruption: one pdu bit of EVERY channel", "datapath",
-     [("    .s_tdata_i  (rsp_tdata_w),",
-       "    .s_tdata_i  (rsp_tdata_w ^ 64'h0000_0001_0000_0001),")],
+     [("    .s_tdata_i  (rq_tdata_w),",
+       "    .s_tdata_i  (rq_tdata_w ^ 64'h0000_0001_0000_0001),")],
      "ship", "--serial-only",
      "T6 IDENTITY: every decoded frame is a complete 24-bit match against "
      "the injection record"),
@@ -189,11 +181,6 @@ MUTATIONS = [
        "  wire [SBW_C-1:0] bit_idx_w  = mut_pos_w[SBW_C-1 : 0];")],
      "ship", "--serial-only",
      "T6 PADDING: the eight pad bits of every slot are zero"),
-    ("uncounted repeat: the underrun counter never increments", "render",
-     [("          else unders_b_r <= (&unders_b_r) ? unders_b_r : unders_b_r + 16'd1;",
-       "          else unders_b_r <= unders_b_r;")],
-     "ship", "--serial-only",
-     "T6 UNDERRUN: every forced repeat is a counted underrun"),
     ("drop NEWEST: the prefetch keeps the have-next guard", "render",
      [("      if (!ser_flush_r && !ren_r && !fetch_v_r && !rempty_w) ren_r <= 1'b1;",
        "      if (!ser_flush_r && !have_next_r && !ren_r && !fetch_v_r && !rempty_w) ren_r <= 1'b1;")],
@@ -219,15 +206,18 @@ MUTATIONS = [
     # ONE DEFECT, TWO PLACES again: the epoch gates commits at the adapter
     # (through commit_en_o) and again at the FIFO write itself, and either
     # alone stops a closed epoch admitting a frame. The defect is "a closed
-    # epoch does not gate commits".
+    # epoch does not gate commits". It runs on the MULTI-STREAM leg: since
+    # #632 a bind fall also empties the render stage's queue for its stream,
+    # so on the one-stream shape the crossbar a closed epoch could leak holds
+    # silence, while there the other rendered stream keeps it live.
     ("ungated commit: a closed epoch admits frames anyway", "render",
      [("  assign commit_en_o = commit_en_r;",
        "  assign commit_en_o = 1'b1;"),
       ("  wire fifo_wen_w = tick_i && commit_en_r && !wfull_w;",
        "  wire fifo_wen_w = tick_i && !wfull_w;")],
-     "ship", "--epoch-only",
+     "multi", None,
      "T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never "
-     "reaches a slot"),
+     "reaches a slot, though the other rendered stream still feeds it"),
     # THE EPOCH'S OWN CROSSING, rebuilt the way it must not be. The serial
     # side's flush and acknowledgement levels clear on the SAME clk_tdm_i edge
     # at a reopen, so a producer that reconstructs "flushed and never
@@ -292,16 +282,24 @@ MUTATIONS = [
      "ship", "--epoch-only",
      "T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE media "
      "event's identity"),
-    # The PRESERVED prefill snap decides which injected event is the first one
-    # this lane may ever render, and T6 PREFILL derives that ordinal from the
-    # rule rather than searching for whatever came out. Move the target by one
-    # event and the derived ordinal no longer matches the pins.
-    ("the preserved prefill snap keeps a different fill", "datapath",
-     [("  localparam int RENDER_ALLOW_EVT_C    = 2;",
-       "  localparam int RENDER_ALLOW_EVT_C    = 3;")],
+    # #632: the render out-lead one frame long: every read takes the frame
+    # after the one its interface presents, so the feed's first event and
+    # every later one reach the pins a frame early
+    ("the render out-lead one frame long", "datapath",
+     [(LEAD_LINE, LEAD_LINE.replace(";", " + 1;"))],
      "ship", "--serial-only",
-     "T6 PREFILL: the first event the lane renders is the one the preserved "
-     "prefill snap leaves at the head, plus its own counted skips"),
+     ("T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps",
+      "T6 PRESENTATION: every event's slot-MSB pin instant, less its slot "
+      "offset, is its presentation time inside +/-5 % of Ps")),
+    # #632: the domain event's instant left at its marker, a frame and its
+    # capture pipeline after the frame started at the pins: every timestamp
+    # then names a frame one early against the grid the stage reads on
+    ("the domain event's instant not back-dated", "datapath",
+     [("    .MARK_LAT_NS_P (DOM_MARK_LAT_NS_C),",
+       "    .MARK_LAT_NS_P (0),")],
+     "ship", "--serial-only",
+     "T6 PRESENTATION: every event's slot-MSB pin instant, less its slot "
+     "offset, is its presentation time inside +/-5 % of Ps"),
     ("modelled bit-arrival skew, raw binary transport", "render",
      [("  logic [15:0] fr_1_r, fr_2_r, un_1_r, un_2_r;",
        "  logic [15:0] fr_1_r, fr_2_r, un_1_r, un_2_r, fr_d_r;"),
@@ -319,13 +317,8 @@ MUTATIONS = [
      "ship", "--serial-only",
      "T28 COUNTERS: no sampled frame count ran ahead of the frames the pins "
      "delivered"),
-    # ---- the #447 continuation's four: CRF, the stream-qualified epoch mask
-    #      in both directions, and the nonphysical in-range CSR mirror.
-    ("the clock-source trigger dropped from the recentre set", "datapath",
-     [("       | src_recentre_p_r;",
-       "       | 1'b0;")],
-     "ship", "--crf-only",
-     "T30 CRF: ...as exactly one render recentre pulse"),
+    # ---- the #447 continuation: the stream-qualified epoch mask in both
+    #      directions, and the nonphysical in-range CSR mirror.
     # #643's planted defect: #629's A2-a undone, the aligner engaged under a
     # followed source only. At INTERNAL the grid then free-runs and the
     # aligner never reports settled, so the [LAW] phase must fail at every
@@ -335,20 +328,19 @@ MUTATIONS = [
      [("  wire        mga_sel_w = int_clk_selected_r | follow_sel_r;",
        "  wire        mga_sel_w = follow_sel_r;")],
      "ship", "--law-only", LAW_SETTLED),
-    # ...and the law's own defect, which the settled gate cannot see: every
-    # standing phase is gradable, so each must fail both law checks there.
-    # --law-boundary runs the same two across the boundary band.
-    *[(name, "datapath", edits, "ship", "--law-only", LAW_FILL + LAW_BAND)
-      for name, edits in SETPOINT_DEFECTS],
-    # #645/#647's planted defect: the settle recentre never pulses, so a
-    # stream that ran through T14's pull-in keeps the shift the pull gave it,
-    # and [PULLIN]'s standing phase must leave the law after the hold.
+    # ...and the presentation law's own defect at every phase, which the
+    # settled gate cannot see
+    ("the render out-lead one frame long, at every [LAW] phase", "datapath",
+     [(LEAD_LINE, LEAD_LINE.replace(";", " + 1;"))],
+     "ship", "--law-only", LAW_PRESENTED),
+    # #645/#647's planted defect: the settle recentre never pulses, so the
+    # LOOP queues keep the shift the pull gave them; the render stage takes
+    # no recentre since #632, so [PULLIN] grades the pulse itself
     ("the settle recentre never pulses", "datapath",
      [("          settle_recentre_p_r <= 1'b1;",
        "          settle_recentre_p_r <= 1'b0;")],
      "ship", "--pullin",
-     "T647 PULLIN +1562 after the settle: every PDU's first event is inside "
-     "the law band from its PDU end"),
+     "T647 PULLIN +1562: one settle recentre for the LOOP queues after the hold"),
     # The mask exists so that a fall on a stream the lane does not render
     # leaves the lane alone. Take the qualification away and the lane flushes
     # on somebody else's unbind - which is the defect the mask was added for.
@@ -463,35 +455,6 @@ LEG_DEFECTS = [
 #: its CRF phase, so these two modes are exactly what must pass beside them.
 LEG_DEFECT_CONTROLS = (("ship", "--serial-only"), ("ship", "--crf-only"))
 
-#: --law-boundary (#643), the boundary-band diagnostic. The unmutated
-#: gateware and the two setpoint defects each run the leg's --law-boundary
-#: mode in three histories: the leg's own scan, which locates the feed phase
-#: where a PDU end meets a pop and climbs across LAW_BOUNDARY_HALF cycles
-#: either side of it one cycle at a time; the same band descending; and every
-#: phase within LAW_ALONE_HALF cycles of it ALONE, after nothing but the
-#: settled wait. Every phase must come out graded or NOT GRADABLE; a graded
-#: one must pass on the sound design and fail both law checks on a defect; a
-#: NOT GRADABLE one must fail nothing. Each scan must hold both kinds, or it
-#: never reached the boundary. Every window's nearest-pop range and walk is
-#: printed under its run's verdict, so the output re-measures the walk.
-LAW_BOUNDARY_HALF = 40
-LAW_ALONE_HALF = 12
-LAW_CHECK_STEMS = ("the fill at every PDU end is the setpoint plus that PDU, "
-                   "14 events",
-                   "every PDU's first event is inside the law band from its "
-                   "PDU end")
-BOUNDARY_LINE = re.compile(r"\[BOUNDARY\] \+(\d+): (graded PASS|graded FAIL|"
-                           r"NOT GRADABLE), (\d+) check")
-LOCATED_LINE = re.compile(r"an end meets a pop near \+(\d+);")
-#: each window's offsets as the leg prints them: the pop nearest the boundary
-#: over its steady PDU ends, the walk, and the least clearance; and the walk
-#: the leg states, so the diagnostic's output re-measures it
-OFFSETS_LINE = re.compile(r"T30 INTERNAL LAW \+(\d+): over \d+ steady PDU ends "
-                          r".*? the pop nearest the boundary ([+-]\d+)\.\.([+-]\d+) "
-                          r"\(walk (\d+)\); the least clearance is (\d+) cycles")
-STATED_WALK_LINE = re.compile(r"the ambiguity window is \d+ cycles: a walk of (\d+)")
-
-
 def build(leg: str, overrides: dict[str, str], mdir: Path) -> Path | None:
     """Build one ELABORATION through the suite's own recipe, `overrides`
     applied. `leg` selects the Makefile target, its object-directory variable
@@ -577,29 +540,17 @@ def plant(source: str, edits: list[tuple[str, str]], work: Path,
     return str(out), ""
 
 
-def parse_args(argv: list[str]) -> tuple[str, int]:
-    """The round asked for - 'full', '--leg-defects' (only the LEG-SIDE defect
-    arms) or '--law-boundary' (only the boundary-band diagnostic) - and how
-    many legs --law-boundary runs at once (--jobs N, default 1). An
-    unrecognised argument is a refusal rather than a silently full or silently
-    empty run."""
-    rest = list(argv)
-    jobs = 1
-    if "--jobs" in rest:
-        at = rest.index("--jobs")
-        value = rest[at + 1] if at + 1 < len(rest) else ""
-        jobs = int(value) if value.isdigit() and int(value) > 0 else 0
-        del rest[at:at + 2]
-    modes = [a for a in rest if a in ("--leg-defects", "--law-boundary")]
-    rest = [a for a in rest if a not in modes]
-    if rest or jobs == 0 or len(modes) > 1 or (
-            "--jobs" in argv and modes != ["--law-boundary"]):
+def parse_args(argv: list[str]) -> str:
+    """The round asked for - 'full' or '--leg-defects' (only the LEG-SIDE
+    defect arms). An unrecognised argument is a refusal rather than a silently
+    full or silently empty run."""
+    modes = [a for a in argv if a == "--leg-defects"]
+    if len(modes) != len(argv) or len(modes) > 1:
         print(f"unknown or conflicting argument(s): {' '.join(argv)}",
               file=sys.stderr)
-        print("usage: tdm8_render_mutants.py [--leg-defects | --law-boundary "
-              "[--jobs N]]", file=sys.stderr)
+        print("usage: tdm8_render_mutants.py [--leg-defects]", file=sys.stderr)
         raise SystemExit(2)
-    return (modes[0] if modes else "full"), jobs
+    return modes[0] if modes else "full"
 
 
 #: (passes, fails) of one round of arms, so every caller adds the same way
@@ -710,154 +661,6 @@ def run_mutations(work: Path) -> Tally:
     return passes, fails
 
 
-def boundary_problems(out: str, sound: bool,
-                      phases: list[int]) -> tuple[list[str], dict[int, str]]:
-    """Why one --law-boundary run is not the evidence it must be (nothing when
-    it is), and the outcome it gave each phase. `phases` are the ones the run
-    was asked for; the leg's own scan adds its locating +0."""
-    outcomes = {int(m[1]): m[2] for m in BOUNDARY_LINE.finditer(out)}
-    failed = {int(m[1]): int(m[3]) for m in BOUNDARY_LINE.finditer(out)}
-    fails = [line.strip() for line in out.splitlines()
-             if line.strip().startswith("[FAIL]")]
-    problems = [f"+{p} has no [BOUNDARY] verdict" for p in phases
-                if p not in outcomes]
-    if "RESULT:" not in out:
-        problems.append("no harness verdict - a crash is not evidence")
-    for phase, outcome in sorted(outcomes.items()):
-        mine = [f for f in fails if f"T30 INTERNAL LAW +{phase}: " in f]
-        if outcome == "NOT GRADABLE" and failed[phase]:
-            problems.append(f"+{phase} is NOT GRADABLE yet failed a check")
-        elif outcome != "NOT GRADABLE" and sound and outcome != "graded PASS":
-            problems.append(f"+{phase} graded FAIL on the sound design")
-        elif outcome != "NOT GRADABLE" and not sound:
-            missing = [s for s in LAW_CHECK_STEMS
-                       if not any(s in f for f in mine)]
-            if missing:
-                problems.append(f"+{phase} {outcome} on a setpoint defect, "
-                                f"{missing[0]!r} not failing")
-    allowed = [f"T30 INTERNAL LAW +{p}: {s}" for p, o in outcomes.items()
-               if o == "graded FAIL" and not sound for s in LAW_CHECK_STEMS]
-    stray = [f for f in fails if not any(a in f for a in allowed)]
-    if stray:
-        problems.append(f"a check outside the graded law failed: {stray[0]}")
-    return problems, outcomes
-
-
-def phase_runs(phases: list[int]) -> str:
-    """'+a..+b, +c' for a list of feed phases, so a table row stays short."""
-    runs: list[list[int]] = []
-    for p in sorted(phases):
-        if runs and p == runs[-1][1] + 1:
-            runs[-1][1] = p
-        else:
-            runs.append([p, p])
-    return ", ".join(f"+{a}" if a == b else f"+{a}..+{b}" for a, b in runs) or "none"
-
-
-def law_boundary_designs(work: Path) -> list[tuple[str, Path | None, bool]]:
-    """(name, executable, sound) for the unmutated gateware and each setpoint
-    defect, built through the suite's own recipe; None where a build failed."""
-    _, _, _, on_disk = LEGS["ship"]
-    designs = [("the unmutated gateware",
-                on_disk if on_disk.is_file()
-                else build("ship", {}, work / "obj_clean_ship"), True)]
-    for name, edits in SETPOINT_DEFECTS:
-        tag = name.replace(" ", "_")
-        value, why = plant("datapath", edits, work, tag)
-        if value is None:
-            print(f"  [i] law boundary: {name!r} could not be planted: {why}")
-        designs.append((name, value and build(
-            "ship", {SOURCES["datapath"][1]: value}, work / f"obj_{tag}"), False))
-    return designs
-
-
-def window_walks(out: str) -> list[tuple[int, int, int, int, int]]:
-    """(phase, nearest-pop offset low, high, walk, least clearance) of every
-    window one --law-boundary run printed, in the order it ran them."""
-    return [(int(m[1]), int(m[2]), int(m[3]), int(m[4]), int(m[5]))
-            for m in OFFSETS_LINE.finditer(out)]
-
-
-def print_the_largest_walk(runs: list[tuple[str, str, bool, list[int], bool]],
-                           results: list[tuple[int, str]]) -> None:
-    """The largest walk over every window of the diagnostic, where it was, and
-    the walk the leg states, so the output itself re-measures the window."""
-    walks = [(walk, design, history, phase)
-             for (design, history, *_), (_, out) in zip(runs, results)
-             for phase, _, _, walk, _ in window_walks(out)]
-    stated = [m[1] for _, out in results for m in STATED_WALK_LINE.finditer(out)]
-    if walks:
-        walk, design, history, phase = max(walks)
-        print(f"  [i] law boundary: the largest walk over {len(walks)} windows "
-              f"is {walk} cycles ({design}, {history}, +{phase}); the leg "
-              f"states a walk of {stated[0] if stated else 'nothing'}")
-
-
-def judge_boundary_rounds(runs: list[tuple[str, str, bool, list[int], bool]],
-                          results: list[tuple[int, str]]) -> Tally:
-    """Grade every (design, history) run of the diagnostic: one line each, the
-    phases left NOT GRADABLE named, and a scan without both kinds refused.
-    Under it, each window's nearest-pop range, walk and least clearance."""
-    passes = fails = 0
-    for (design, history, sound, phases, scan), (_, out) in zip(runs, results):
-        problems, outcomes = boundary_problems(out, sound, phases)
-        left = [p for p, o in outcomes.items() if o == "NOT GRADABLE"]
-        if scan and (not left or len(left) == len(outcomes)):
-            problems.append("the scan did not hold both a graded and a NOT "
-                            "GRADABLE phase, so it never reached the boundary")
-        graded = len(outcomes) - len(left)
-        line = (f"law boundary, {design}, {history}: {graded} graded, NOT "
-                f"GRADABLE at {phase_runs(left)}")
-        if problems:
-            fails += 1
-            print(f"[FAIL] {line} - {problems[0]}"
-                  + (f" (and {len(problems) - 1} more)" if len(problems) > 1 else ""))
-        else:
-            passes += 1
-            print(f"[PASS] {line}")
-        for phase, low, high, walk, clear in window_walks(out):
-            print(f"  [i]   +{phase}: {outcomes.get(phase, 'no verdict')}; the pop "
-                  f"nearest the boundary {low:+d}..{high:+d} (walk {walk}), "
-                  f"least clearance {clear}")
-    print_the_largest_walk(runs, results)
-    return passes, fails
-
-
-def run_law_boundary(work: Path, jobs: int) -> Tally:
-    """The boundary-band diagnostic: each design's own located scan first,
-    then, about the boundary the sound design located, the descending scan
-    and every phase near it alone, `jobs` legs at a time."""
-    designs = law_boundary_designs(work)
-    broken = [name for name, exe, _ in designs if exe is None]
-    if broken:
-        print(f"[FAIL] law boundary: {broken[0]!r} did not build")
-        return 0, 1
-    with ThreadPoolExecutor(max_workers=jobs) as pool:
-        own = list(pool.map(lambda d: run_leg(d[1], "--law-boundary"), designs))
-        located = [LOCATED_LINE.search(out) for _, out in own]
-        if any(found is None for found in located):
-            print("[FAIL] law boundary: a leg's own scan located no boundary")
-            return 0, 1
-        bands = [list(range(int(f[1]) - LAW_BOUNDARY_HALF,
-                            int(f[1]) + LAW_BOUNDARY_HALF + 1)) for f in located]
-        runs = [(name, f"the leg's own scan, ascending from +{band[0]}", sound,
-                 band, True) for (name, _, sound), band in zip(designs, bands)]
-        b = int(located[0][1])
-        band = bands[0]
-        later = []
-        for name, exe, sound in designs:
-            later.append((exe, f"--law-boundary={band[-1]}..{band[0]}",
-                          (name, "descending", sound, band, True)))
-            later += [(exe, f"--law-boundary={p}",
-                       (name, f"+{p} alone", sound, [p], False))
-                      for p in range(b - LAW_ALONE_HALF, b + LAW_ALONE_HALF + 1)]
-        rest = list(pool.map(lambda r: run_leg(r[0], r[1]), later))
-    print(f"  [i] law boundary: the unmutated leg located an end meeting a pop "
-          f"near +{b}; scans +{band[0]}..+{band[-1]}, alone "
-          f"+{b - LAW_ALONE_HALF}..+{b + LAW_ALONE_HALF}")
-    return judge_boundary_rounds(runs + [r[2] for r in later], own + rest)
-
-
 def clean_legs(work: Path, leg_defects_only: bool) -> dict[str, Path | None]:
     """The positive control per elaboration: the clean build the suite left on
     disk, or a fresh one when this runner is invoked alone. A --leg-defects
@@ -887,19 +690,16 @@ def main() -> int:
         a TIMEOUT, so a killed mutation round is never a pass or a fail."""
         sys.exit(143)
 
-    mode, jobs = parse_args(sys.argv[1:])
+    mode = parse_args(sys.argv[1:])
     leg_defects_only = mode == "--leg-defects"
     signal.signal(signal.SIGTERM, on_sigterm)
     rounds = []
     with tempfile.TemporaryDirectory(prefix="tdm8-render-mutants-") as td:
         work = Path(td)
-        if mode == "--law-boundary":
-            rounds.append(run_law_boundary(work, jobs))
-        else:
-            clean = clean_legs(work, leg_defects_only)
-            rounds.append(run_positive_controls(
-                clean, control_modes(leg_defects_only)))
-            rounds.append(run_leg_defects(clean))
+        clean = clean_legs(work, leg_defects_only)
+        rounds.append(run_positive_controls(
+            clean, control_modes(leg_defects_only)))
+        rounds.append(run_leg_defects(clean))
         if mode == "full":
             rounds.append(run_clean_controls(work))
             rounds.append(run_mutations(work))
@@ -907,9 +707,7 @@ def main() -> int:
     fails = sum(f for _, f in rounds)
     scope = {"--leg-defects": " (--leg-defects: the arms that need no "
                               "elaboration; the gateware and shape mutants are "
-                              "the tdm8render-mutants target)",
-             "--law-boundary": " (--law-boundary: the #643 boundary-band "
-                               "diagnostic alone)"}.get(mode, "")
+                              "the tdm8render-mutants target)"}.get(mode, "")
     print(f"\n{passes + fails} checks: {passes} PASS, {fails} FAIL{scope}")
     return 1 if fails else 0
 

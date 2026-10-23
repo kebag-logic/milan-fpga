@@ -159,21 +159,24 @@ module aaf_talker_i2s #(
     .rempty_o(cap_rempty_w)
   );
 
-  //! clk_i side: pop one pair at a time; pair_valid_r pulses per pop
-  logic [23:0] sample_l_r, sample_r_r;
+  //! clk_i side: pop one pair at a time; pair_valid_r pulses per pop. The
+  //! FIFO registers rdata_o ON the ren edge, so the popped pair is live
+  //! during the following pair_valid_r cycle and the samples alias rdata_o
+  //! (KL_aaf_capture_i2s, split from this module, is the same: copying
+  //! rdata_o on the ren edge took the previous pop's pair, #632)
+  logic [23:0] sample_l_w, sample_r_w;
   logic        pair_valid_r;
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
-      sample_l_r <= '0; sample_r_r <= '0;
       pair_valid_r <= 1'b0; cap_ren_r <= 1'b0;
     end else begin
       pair_valid_r <= cap_ren_r;        //! rdata registered: valid follows ren
-      if (cap_ren_r) begin
-        sample_l_r <= cap_pair_w[47:24];
-        sample_r_r <= cap_pair_w[23:0];
-      end
       cap_ren_r <= !cap_rempty_w && !cap_ren_r && !pair_valid_r;
     end
+  end
+  always_comb begin
+    sample_l_w = cap_pair_w[47:24];
+    sample_r_w = cap_pair_w[23:0];
   end
 
   // -----------------------------------------------------------------------
@@ -250,8 +253,8 @@ module aaf_talker_i2s #(
       if (pair_valid_r) pairs_captured_o <= pairs_captured_o + 1'b1; //! counts even while pending (I2S is alive?)
       // accumulate pairs (drop if a frame is still pending — MVP backpressure)
       if (enable_i && pair_valid_r && !frame_pend_r) begin
-        buf_l[nsamp_r] <= sample_l_r;
-        buf_r[nsamp_r] <= sample_r_r;
+        buf_l[nsamp_r] <= sample_l_w;
+        buf_r[nsamp_r] <= sample_r_w;
         if (nsamp_r == 0)
           ts_r <= ptp_ns_i[31:0] + transit_ns_i;
         if (nsamp_r == SAMPLES_PER_FRAME-1) begin

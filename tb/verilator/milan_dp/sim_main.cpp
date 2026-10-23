@@ -1564,8 +1564,18 @@ class MilanDatapathHarness {
         #endif
             // the first PDU's pairs can serialize before this decoder starts
             // (they sit ~1 audio frame in the CDC); inject a fresh PDU so
-            // the decode window provably contains samples
-            inject(mkaaf(6, 0x05), 120);
+            // the decode window provably contains samples. #632: the
+            // presentation stage plays a PDU at its timestamp against the
+            // domain's media event and refuses mkaaf's fixed stamp, so this
+            // one is stamped four media periods past the latest event's
+            // instant (the 1x1's supported range opens at 31.1 us): its
+            // first event is presented four frames on
+            constexpr uint32_t kLeadNs = 83'333;
+            uint8_t* pdu = mkaaf(6, 0x05);
+            const uint32_t pt = static_cast<uint32_t>(
+                dut->rootp->milan_datapath__DOT__dom_ns_w) + kLeadNs;
+            for (int b = 0; b < 4; b++) pdu[26 + b] = static_cast<uint8_t>(pt >> (24 - 8 * b));
+            inject(pdu, 120);
         #if !I2SPB_TB
             // The AX7101 ships --no-i2s-playback: there is no DAC serializer
             // in this gateware, so there are no pins to decode. Not deleted,

@@ -122,8 +122,9 @@ AUDIO_IF_FS_HZ_DEFAULT     = 48000
 # The audio MMCM's CONTRACT rate in Hz. NOT a knob: _CRG produces it from a
 # fixed two-stage integer chain whose error (-0.66 ppm on the TDM-master plan,
 # -10.64 ppm otherwise) is the achievable optimum from a 100 MHz reference,
-# and KL_crf_tx divides it /512 for the 48 kHz CRF event, KL_i2s_playback
-# /2 /8 /512 for the DAC and KL_mmcm_drp_servo measures it. Named here so the
+# and KL_i2s_playback divides it /2 /8 /512 for the DAC and
+# KL_mmcm_drp_servo measures it (KL_crf_tx stamps the domain's frame grid
+# since #632, not a divider of its own). Named here so the
 # end-station builder can REFUSE a clocking.audio_pll_hz this fabric does not
 # produce (#399) by reading the rate rather than restating it.
 AUDIO_CLK_HZ = 24_576_000
@@ -315,9 +316,9 @@ class _CRG(LiteXModule):
             #   TDM32 x 32 @ 48k -> 49.152 MHz -> clk_tdm 98.304 MHz
             # (the master toggles a divider, so its clock is 2 x bclk). The
             # 24.576 MHz cd_audio CANNOT be re-rated to reach those: it is
-            # 24.576 MHz BY CONTRACT - KL_crf_tx divides it /512 for the 48 kHz
-            # CRF event, KL_i2s_playback /2 /8 /512 for the DAC, and
-            # KL_mmcm_drp_servo measures it. So the master gets its OWN MMCM
+            # 24.576 MHz BY CONTRACT - KL_i2s_playback divides it /2 /8 /512
+            # for the DAC, and KL_mmcm_drp_servo measures it. So the master
+            # gets its OWN MMCM
             # OUTPUT off the SAME VCO, and the two-stage integer chain is
             # re-derived so one VCO serves both:
             #   pre-PLL : 100 MHz /2 x23      -> VCO 1150 MHz (UNCHANGED),
@@ -616,9 +617,10 @@ _MILAN_DATAPATH_SOURCES = [
     # #447: the MASTER render serializer sibling, scheduled from
     # KL_tdm_capture_master's exported bit-clock enables
     "hdl/ieee1722/aaf/KL_tdm_render_master.sv",
-    # #386: the render setpoint stage in front of the crossbar (milan_datapath
-    # instantiates it unconditionally, so every consumer list carries it)
-    "hdl/ieee1722/aaf/KL_render_setpoint.sv",
+    # #632: the render presentation stage in front of the crossbar
+    # (milan_datapath instantiates it unconditionally, so every consumer list
+    # carries it)
+    "hdl/ieee1722/aaf/KL_render_queue.sv",
     "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv",
     "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv",
     "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
@@ -629,6 +631,12 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/crf/KL_aaf_clock_meter.sv",
     "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/crf/KL_media_nco.sv",
     "hdl/ieee1722/crf/KL_media_grid_align.sv", "hdl/ieee1722/maap/KL_maap.sv",
+    # #632: the clock domain's media event (frame instant) beside the aligner,
+    # and the per-interface latency derivation the datapath elaborates with
+    "hdl/ieee1722/crf/KL_media_domain_event.sv",
+    "hdl/ieee1722/crf/KL_media_if_latency_pkg.sv",
+    # the CRF output's presentation offset in whole media clock periods
+    "hdl/ieee1722/crf/KL_mtt_round.sv",
     "hdl/common/eth_event_counter/ethernet_events.sv", "hdl/common/eth_event_counter/event_counter.sv",
     # RMON pulse synthesiser at the SoC's MAC boundary (MilanMAC instantiates it;
     # listed here because add_milan_datapath is the one place RTL sources are
@@ -4099,8 +4107,8 @@ def main() -> None:
                 "%s %d needs --audio-interface tdmN --audio-interface-master: "
                 "only a TDM bus MASTER generates a frame, so only it has a "
                 "rate and a slot width to set. Every other build runs the "
-                "24.576 MHz audio clock by contract (KL_crf_tx /512, "
-                "KL_i2s_playback /2 /8 /512) at %d Hz in %d-bclk slots, and "
+                "24.576 MHz audio clock by contract (KL_i2s_playback "
+                "/2 /8 /512) at %d Hz in %d-bclk slots, and "
                 "accepting this flag there would record an intent the "
                 "gateware does not carry."
                 % (_flag, _val, AUDIO_IF_FS_HZ_DEFAULT,

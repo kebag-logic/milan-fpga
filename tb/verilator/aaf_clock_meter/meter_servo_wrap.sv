@@ -86,6 +86,10 @@ module meter_servo_wrap #(
     .ps_clk_i (ps_clk_i), .ptp_now_i (ptp_now_i), .phc_slew_active_i (1'b0),
     .sel_i (1'b1), .ref_locked_i (meter_locked_o),
     .ref_rate_valid_i (meter_rate_valid_o), .ref_rate_ns_i (meter_rate_o),
+    //! an AAF source: the phase term (#632) stays off (its follow-on)
+    .ph_en_i (1'b0), .dom_ev_p_i (1'b0), .dom_ns_i (32'd0),
+    .ref_ts_p_i (1'b0), .ref_ts_ns_i (32'd0), .ref_restart_p_i (1'b0),
+    .phase_o (), .ph_settled_o (),
     .auto_repair_i (1'b0), .ps_invert_i (1'b0),
     .drp_addr_o (drp_addr_o), .drp_en_o (drp_en_o), .drp_we_o (drp_we_o),
     .drp_di_o (drp_di_o), .drp_do_i (drp_do_i), .drp_rdy_i (drp_rdy_i),

@@ -77,7 +77,7 @@ module meter_wrap #(
     .delta_o (), .pdu_count_o (), .fmt_err_o (), .seq_err_o (),
     .mr_cnt_o (), .tu_cnt_o (), .late_cnt_o (), .early_cnt_o (),
     .locked_o (), .cnt_locked_o (), .cnt_unlocked_o (), .cnt_intr_o (),
-    .dirty_p_o (), .mr_toggle_p_o ()
+    .dirty_p_o (), .mr_toggle_p_o (), .ts_p_o (), .ts_o ()
   );
 
 endmodule

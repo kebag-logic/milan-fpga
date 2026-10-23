@@ -199,7 +199,8 @@ module coherence_wrap #(
     .pair_valid_o (walk_pv_w), .pair_slot_o (walk_slot_w),
     .pair_l_o (walk_l_w), .pair_r_o (walk_r_w),
     .lb_dup_cnt_o (), .lb_skip_cnt_o (),
-    .tdm_dup_cnt_o (tdm_dup_cnt_o), .tdm_skip_cnt_o (tdm_skip_cnt_o)
+    .tdm_dup_cnt_o (tdm_dup_cnt_o), .tdm_skip_cnt_o (tdm_skip_cnt_o),
+    .tdm_walk_ns_o ()
   );
 
   assign walk_pv_o   = walk_pv_w;

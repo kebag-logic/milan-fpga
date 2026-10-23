@@ -43,6 +43,18 @@
 //                 frames (#617 round 2). This leg is the only one that sees
 //                 that binding - the marker, the delayed tick, the keep-off.
 //
+// [PIN] (#632, #764): the talker's timestamps graded at the pins. The AAF
+// talker stamps the frame it captures with the clock domain's media event,
+// the instant that frame started at the media interface (milan_datapath's
+// KL_media_domain_event). The leg reads, off the bus pins, the PHC instant of
+// every frame's sync rise and of each slot's MSB-sampling rise, and requires
+// every PDU's avtp_timestamp, less the 2 ms presentation offset, to be its
+// first column's frame instant: each slot's MSB instant less that slot's
+// derived offset ((32k + 1) bit periods), inside IEEE 1722-2016 10.8's +/-5 %
+// of Ps and inside the marker latency's own derivation. The domain event
+// itself must be each frame's sync instant. A negative control grades the
+// same stamps without the per-slot constant and must be refused.
+//
 // THE CHECKS are the column bench's ([A], [C], [V]; under CRF the CRF law:
 // slips only in an engagement's first columns, netting zero), plus, from the
 // pins and the root's public taps: the INTERNAL drift visited every
@@ -76,6 +88,23 @@ constexpr std::uint16_t kCrfClksrcIx = 1;
 //! phase bins for the sweep-coverage vacuity check
 constexpr int kPhaseBins = 16;
 constexpr std::uint32_t kFirstFrame = 0x0100;
+//! [PIN]: the per-STREAM_OUTPUT presentation offset at reset, ns
+constexpr std::uint32_t kPtoNs = 2'000'000;
+//! IEEE 1722-2016 10.8 Eq. 15: +/-5 % of the sample period
+constexpr double kBandNs = 0.05 * 1e9 / 48000.0;
+//! the marker latency's derivation, at this leg's clocks: its read side
+//! rounds half a 20 ns cycle and the PHC is read at the axis edge, so a
+//! stamp sits within two axis cycles of the pin instant it describes
+constexpr double kDerivNs = 2.0 * 1e9 / static_cast<double>(kAxisHz);
+//! ns per oscillator step, for interpolating the PHC between axis edges
+constexpr std::int64_t kStepNs = static_cast<std::int64_t>(1'000'000'000 / kStepHz);
+//! slot k's MSB after the frame instant at the pins: (32k + 1) bit periods,
+//! the one-bit data delay of the shape's master, derived here independently
+//! of the RTL's KL_media_if_latency_pkg
+double slot_msb_ns(int k) {
+    const double bit_hz = static_cast<double>(kTdmSlots) * kWordBits * 48000.0;
+    return (static_cast<double>(k) * kWordBits + 1.0) * 1e9 / bit_hz;
+}
 
 //! One run from reset.
 struct Scenario {
@@ -119,6 +148,27 @@ class DatapathHarness {
     bool engage_seen_ = false;
     std::vector<long> placed_landed_;
     std::map<std::string, long> unheld_;  //! calibrations, by plan name
+    //! [PIN]: the PHC at each frame's sync rise and slot-MSB rises, by the
+    //! 16-bit ordinal the pattern carries
+    struct FramePins {
+        long n = -1;
+        std::int64_t sync = 0;
+        std::array<std::int64_t, kTdmSlots> msb{};
+        int got = 0;
+    };
+    std::vector<FramePins> pins_ = std::vector<FramePins>(65536);
+    long pin_frame_ = -1;
+    int pin_rise_ = 0;
+    int bclk_pin_prev_ = 0;
+    long steps_ = 0;
+    long step_at_edge_ = 0;
+    std::int64_t phc_edge_ = 0;
+    std::array<std::int64_t, 2> sync_last_{};
+    std::uint64_t dom_prev_ = 0;
+    long dom_events_ = 0;
+    double dom_max_ = 0;
+    void note_pins();
+    void grade_pins(const std::string& n);
 
     void restart(const Scenario& sc);
     void step();
@@ -144,6 +194,13 @@ void DatapathHarness::restart(const Scenario& sc) {
     bank_prev_ = 0;
     engage_seen_ = false;
     osc_.restart(sc.plan, 0);
+    for (FramePins& f : pins_) f = FramePins{};
+    pin_frame_ = -1;
+    pin_rise_ = 0;
+    sync_last_.fill(0);
+    dom_prev_ = 0;
+    dom_events_ = 0;
+    dom_max_ = 0;
     dut_->axis_resetn = 0;
     dut_->gtx_resetn = 0;
     dut_->m_axis_mac_tx_tready = 1;
@@ -162,16 +219,53 @@ void DatapathHarness::restart(const Scenario& sc) {
 //! axis_clk (the PHC contract); clk_audio_i is clk_tdm_i on this shape.
 void DatapathHarness::step() {
     const Edges e = osc_.step();
+    ++steps_;
     if (!e.axis && !e.tdm) return;
     dut_->axis_clk = osc_.axis();
     dut_->gtx_clk = osc_.axis();
     dut_->clk_tdm_i = osc_.tdm();
     dut_->clk_audio_i = osc_.tdm();
     dut_->eval();
-    if (e.tdm && osc_.tdm()) dut_->tdm_data_i = soc_.on_tdm_edge(dut_->tdm_bclk_o, dut_->tdm_fsync_o);
+    if (e.axis && osc_.axis()) {
+        phc_edge_ = static_cast<std::int64_t>(dut_->rootp->milan_datapath__DOT__ptp_now_w);
+        step_at_edge_ = steps_;
+    }
+    if (e.tdm && osc_.tdm()) {
+        dut_->tdm_data_i = soc_.on_tdm_edge(dut_->tdm_bclk_o, dut_->tdm_fsync_o);
+        note_pins();
+    }
     if (e.axis && osc_.axis()) {
         ++cycle_;
         observe();
+    }
+}
+
+//! [PIN]: a bit-clock rise at the pins, its PHC instant interpolated from the
+//! last axis edge (the PHC advances its nominal increment, 1:1 in ns, with the
+//! gPTP plane off). The rise that reads fsync high is the frame's sync instant;
+//! the (32k + 1)th after it samples slot k's MSB.
+void DatapathHarness::note_pins() {
+    const int bclk = dut_->tdm_bclk_o;
+    const bool rise = bclk && !bclk_pin_prev_;
+    bclk_pin_prev_ = bclk;
+    if (!rise) return;
+    const std::int64_t phc = phc_edge_ + (steps_ - step_at_edge_) * kStepNs;
+    if (dut_->tdm_fsync_o) {
+        pin_frame_ = static_cast<long>(soc_.frames_sent()) - 1;
+        pin_rise_ = 0;
+        FramePins& f = pins_[static_cast<size_t>(pin_frame_ & 0xFFFF)];
+        f = FramePins{};
+        f.n = pin_frame_;
+        f.sync = phc;
+        sync_last_ = {sync_last_[1], phc};
+        return;
+    }
+    if (pin_frame_ < 0) return;
+    ++pin_rise_;
+    if ((pin_rise_ - 1) % kWordBits == 0 && (pin_rise_ - 1) / kWordBits < kTdmSlots) {
+        FramePins& f = pins_[static_cast<size_t>(pin_frame_ & 0xFFFF)];
+        f.msb[static_cast<size_t>((pin_rise_ - 1) / kWordBits)] = phc;
+        f.got++;
     }
 }
 
@@ -205,6 +299,17 @@ void DatapathHarness::observe() {
         engage_seen_ = true;
     }
     bank_prev_ = bank;
+    //! [PIN]: every new domain event is one frame's sync instant at the pins
+    //! (it lands just after the next frame's sync rise, so the nearer of the
+    //! last two)
+    const std::uint64_t dom = dut_->rootp->milan_datapath__DOT__dom_ns_w;
+    if (dom != dom_prev_ && dut_->rootp->milan_datapath__DOT__dom_live_w && sync_last_[0] != 0) {
+        const double e0 = std::fabs(static_cast<double>(static_cast<std::int64_t>(dom) - sync_last_[0]));
+        const double e1 = std::fabs(static_cast<double>(static_cast<std::int64_t>(dom) - sync_last_[1]));
+        dom_max_ = std::max(dom_max_, std::min(e0, e1));
+        dom_events_++;
+    }
+    dom_prev_ = dom;
     if (dut_->m_axis_mac_tx_tvalid && dut_->m_axis_mac_tx_tready) {
         bench_.beat(dut_->m_axis_mac_tx_tdata, dut_->m_axis_mac_tx_tkeep, dut_->m_axis_mac_tx_tlast != 0);
     }
@@ -314,6 +419,51 @@ void DatapathHarness::grade(const Scenario& sc) {
         check_.that((n + "[C] the drift crossed at least one beat").c_str(), bench_.tally().clusters >= 1);
     }
     if (sc.crf) grade_crf(sc, n);
+    grade_pins(n);
+}
+
+//! [PIN]: every stamp against the pins of the frame its first column carries.
+void DatapathHarness::grade_pins(const std::string& n) {
+    long graded = 0;
+    double max_err = 0;
+    double max_ctrl = 0;
+    for (const ColumnBench::Stamp& s : bench_.stamps) {
+        const FramePins& f = pins_[s.ord16];
+        if (f.n < 0 || (static_cast<std::uint32_t>(f.n) & 0xFFFFu) != s.ord16 || f.got != kTdmSlots) continue;
+        for (int k = 0; k < kTdmSlots; k++) {
+            const std::int64_t msb = f.msb[static_cast<size_t>(k)];
+            const double inst = static_cast<double>(msb) - slot_msb_ns(k);
+            const auto stamp = static_cast<std::int32_t>(s.ts - kPtoNs);
+            const double err = static_cast<double>(stamp) -
+                               static_cast<double>(static_cast<std::int32_t>(static_cast<std::uint32_t>(
+                                   static_cast<std::int64_t>(std::llround(inst)))));
+            const double ctrl = static_cast<double>(stamp) -
+                                static_cast<double>(static_cast<std::int32_t>(static_cast<std::uint32_t>(msb)));
+            max_err = std::max(max_err, std::fabs(err));
+            max_ctrl = std::max(max_ctrl, std::fabs(ctrl));
+            graded++;
+        }
+    }
+    std::printf("  [i]  %s[PIN] %ld slots: stamp to pin instant max %.1f ns (without the slot constant %.0f ns); "
+                "%ld domain events, max %.1f ns from a sync rise\n", n.c_str(), graded, max_err, max_ctrl,
+                dom_events_, dom_max_);
+    char what[200];
+    std::snprintf(what, sizeof what, "%s[PIN] slots graded against their AAF timestamps (%ld)", n.c_str(), graded);
+    check_.that(what, graded >= 8 * 100);
+    std::snprintf(what, sizeof what,
+                  "%s[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the "
+                  "presentation offset, inside +/-5 %% of Ps (max %.1f ns)", n.c_str(), max_err);
+    check_.that(what, graded > 0 && max_err < kBandNs);
+    std::snprintf(what, sizeof what, "%s[PIN] ...and inside the marker latency's derivation, +/-%.0f ns (max %.1f ns)",
+                  n.c_str(), kDerivNs, max_err);
+    check_.that(what, graded > 0 && max_err <= kDerivNs);
+    std::snprintf(what, sizeof what,
+                  "%s[PIN] control: the same stamps graded without the per-slot constant are refused (max %.0f ns)",
+                  n.c_str(), max_ctrl);
+    check_.that(what, max_ctrl > kBandNs);
+    std::snprintf(what, sizeof what, "%s[PIN] every domain event is a frame's sync instant at the pins "
+                  "(%ld events, max %.1f ns)", n.c_str(), dom_events_, dom_max_);
+    check_.that(what, dom_events_ > 1000 && dom_max_ <= kDerivNs);
 }
 
 //! CRF: the aligner engaged where it was placed, the tail held its phase

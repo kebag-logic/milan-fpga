@@ -7,16 +7,18 @@ Issues #645 and #647 [re-recorded them](#re-baseline-of-2026-10-08-issues-645-an
 Issue #696 [re-recorded them](#re-baseline-of-2026-10-10-issue-696) with its `KL_maap` corrections on its merge of dev `8b61b709`.
 Its [next record](#re-baseline-of-2026-10-10-issue-696-first-draw) added #696's first-draw change on its merge of dev `e8454e27`.
 Issue #708's [record](#re-baseline-of-2026-10-16-processor-2cbed0a9) adopted processor `2cbed0a9` on its merge of dev `734eb780`.
-The [current record](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff) adopts processor `93fb0b2d` and FPGA-gPTP `55680bff` for #771, under an owner exception.
+Its [next record](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff) adopted processor `93fb0b2d` and FPGA-gPTP `55680bff` for #771, under an owner exception.
+The [current record](#re-baseline-of-2026-10-23-issues-632-and-764) adds the media clock phase alignment of #632 and #764 on its merge of dev `e5b480a3`, under two owner exceptions.
 The later sections preserve combinations A through F as history.
 Those earlier records cover the processor adoption and parent AAF packetizer change.
-The current record moves the processor pin from `2cbed0a9` to `93fb0b2d` and the gPTP pin from `e4869fd0` to `55680bff`.
+The #771 record moved the processor pin from `2cbed0a9` to `93fb0b2d` and the gPTP pin from `e4869fd0` to `55680bff`; the current record keeps both pins.
 No processor source is edited.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
 
 ## Contents
 
-- **[Re-baseline of 2026-10-22, processor 93fb0b2d and FPGA-gPTP 55680bff](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff)** -- The current record, under an owner exception: both pins adopted on dev `d77a8afd`, remeasured at three endpoints, with this adoption's share against dev's own measurement, the per-donor 1x1 ledger, route-corner timing and input receipts.
+- **[Re-baseline of 2026-10-23, issues #632 and #764](#re-baseline-of-2026-10-23-issues-632-and-764)** -- The current record, under two owner exceptions: the media clock phase alignment on its merge of dev `e5b480a3`, remeasured at three endpoints, its share against dev's own route, the per-instance attribution, route-corner timing and input receipts.
+- **[Re-baseline of 2026-10-22, processor 93fb0b2d and FPGA-gPTP 55680bff](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff)** -- The preceding record, under an owner exception: both pins adopted on dev `d77a8afd`, remeasured at three endpoints, with this adoption's share against dev's own measurement, the per-donor 1x1 ledger, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-16, processor 2cbed0a9](#re-baseline-of-2026-10-16-processor-2cbed0a9)** -- Processor `2cbed0a9` adopted on #708's merge of dev `734eb780`, remeasured at three endpoints, with its input difference from dev, unchanged policy, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-10, issue #696 first draw](#re-baseline-of-2026-10-10-issue-696-first-draw)** -- #696's first-draw change after its dev merge, remeasured at three endpoints, with unchanged policy, route-corner timing, MAAP slack and input receipts.
 - **[Re-baseline of 2026-10-10, issue #696](#re-baseline-of-2026-10-10-issue-696)** -- The MAAP correction lane's merge with dev remeasured at three endpoints, with unchanged policy, route-corner timing, MAAP slack and input receipts.
@@ -34,6 +36,104 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Yosys reconciliation](#yosys-reconciliation)** -- The flattened Yosys mapping of the same geometry, and the three contributions that explain its gap to Vivado.
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+
+## Re-baseline of 2026-10-23, issues #632 and #764
+
+This re-baseline records the media clock phase alignment of [#632](https://github.com/kebag-logic/milan-fpga/issues/632) and [#764](https://github.com/kebag-logic/milan-fpga/issues/764), PR [#770](https://github.com/kebag-logic/milan-fpga/pull/770).
+It measures lane head `5282b8b68983b3b5f7d9be4635c8847dbe6c38a1`, the lane's merge of dev `e5b480a385841f19420570bbba7c46da101d1303` (merge commit `dc9cda7dfcb4be6e58f11d9c6d1594d81b44c0a6`) plus documentation, with processor `93fb0b2d` and FPGA-gPTP `55680bff`.
+Its synthesis inputs equal the merge's, and the commit that writes this record changes none of them.
+Dev `e5b480a3`'s synthesis inputs differ from the [preceding record](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff)'s, measured at `d664cf54`, only in comment lines of `KL_gptp_shadow.sv`, `KL_pp_shadow.sv` and [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), the AS_PATH count notes.
+So the preceding record measures dev's own design, and every difference below is this change's.
+
+**Owner exceptions.** Against the preceding record the gate refused `route-1x1` with exit 1, for slices, +107 against a +80 tolerance, and RAMB18, +2 against zero.
+The two RAMB18 are the render queue's block RAM, which the [owner chose](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685) for #632.
+The [owner decision of 2026-10-23](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062) extends that exception to this change's measured LUT, FF and slice growth: +500 LUTs, +376 FFs and +107 slices; Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+This record is written under both exceptions.
+It leaves 15 of the device's 15,850 slices free, so the next growth on the shipping image has no slice room and needs its own owner decision.
+Every tolerance, floor and ceiling stays unchanged, and every other gated figure passed.
+
+All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`.
+The route keeps the shipping directives, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
+The resource gate reports matching measurement identities against the preceding record.
+The same three endpoints, measured at the merge `dc9cda7d` the day before, gave the same figures in every field.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 51,259 | 53,208 | 15,835 | 74 / 27 | 13 | 3,584 | +0.236 | +0.028 |
+| `ooc-1x1` | 23,828 | 20,000 | - | 16 / 3 | 8 | 1,537 | +3.337 | +0.159 |
+| `ooc-8x8` | 32,467 | 28,220 | - | 21 / 5 | 8 | 2,016 | +1.139 | +0.159 |
+
+| Difference from the preceding record | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | +500 | +376 | **+107** | 0 / **+2** | -1 | -0.055 | -0.008 |
+| Tolerance | 500 | 600 | 80 | 0 / 0 | 0 | 0.25 | 0.25 |
+| `ooc-1x1` | 0 | 0 | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| `ooc-8x8` | 0 | 0 | - | 0 / 0 | 0 | 0.000 | 0.000 |
+
+Both standalone scripts read the shipping export's whole source list, so this change's datapath sources move their input digests.
+The wrapper's own sources are unchanged, and every standalone figure equals the preceding record.
+
+The route's growth is in the datapath, measured post-place against the preceding record's own route report.
+`milan_datapath` moved by +516 LUTs and +379 FFs.
+Parent rows include their descendants; the rows below are the changed blocks.
+
+| Block | LUT | FF | Change |
+|---|---:|---:|---|
+| `g_mmcm_servo.mmcm_servo` | +380 | +200 | the phase loop on the servo's integrator; its tick crossing `u_tick_cdc` +59 LUTs |
+| `render_queue` | +345 | +170 | new: the listener's presentation stage, with the two RAMB18 |
+| `render_setpoint` | -381 | -137 | retired: the #386 setpoint stage the queue replaces |
+| `g_pres_crf.pres_round` | +130 | +159 | new: the CRF output's IEEE 1722-2016 10.7 Equation (14) rounder |
+| `media_domain_event` | +6 | +79 | new: the clock domain's media event |
+| `crf_tx` | -59 | -141 | its free-running divider retired, and with it the block's one DSP |
+| `chan_map_capture` | -19 | +64 | the capture crossbar banks each frame's pin instant |
+| `crf_rx` | 0 | +33 | |
+| `aaf_rx_depkt` | -5 | +20 | |
+
+Blocks this change does not touch moved by up to about 100 LUTs between the two routes: `csr` +102, `ts_counter` +76, `g_gptp_plane.u_gptp_shadow` -79 and `aaf_latency_tap_bank` -58.
+Outside the datapath the top moved by -66 LUTs and the CPU by +41.
+The DSP fall is `crf_tx`'s; the gate prints it as an improvement.
+
+The shipping route uses 87.5 RAM tiles and leaves 15 slices free.
+Its route-status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS fell by 0.055 ns and is 0.206 ns above its +0.030 ns floor; WHS is 0.028 ns above zero.
+Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.236 | +0.055 |
+| `Slow_85C` | +0.236 | +0.055 |
+| `Fast_0C` | +1.509 | +0.028 |
+| `Fast_85C` | +1.509 | +0.028 |
+
+The worst setup path has 13 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+It runs from `milansoc_write_w_buffer_level0_reg[0]` to `storage_13_dat1_reg[6]`.
+Its data delay is 9.471 ns: 1.754 ns of logic and 7.717 ns of routing.
+The worst hold path is in the datapath's TDM render block, from `g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[1][17]` to its crossing memory `u_fcdc/mem_r_reg_0`, at +0.028 ns.
+The rebuilt datapath uses 42,764 LUTs, of which the wrapper uses 23,776 and `KL_maap` 489.
+
+Each endpoint was written with `record --write` after its `check`: `route-1x1` returned 1 and both standalone endpoints 0.
+`check-baseline` passes, and `check` returns 0 at all three endpoints against the new record.
+The endpoint notes identify the measured lane head and cite both owner decisions.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `e67f9619f8dcec5397f8777a6f7548f9a70549afbd915be1224369934cbd8650` |
+| `ooc-1x1` | `13a8056fa6f891c45618f2d8977af332cd0fe885bbe363c3adc674d22237b230` |
+| `ooc-8x8` | `abff4d25c0a9b14919f8bdabf08edd26e59f804b48f3ef80bf3c395f7bfaf277` |
+
+All 18 recorded memory-image entries were rehashed after measurement and match.
+No completed measurement log contains a `Synth 8-4445` diagnostic.
+Each log's one `Synth 8-6901` is the parent's `crft_emit_en_w`.
+Runs were serial under the exclusive lock.
+The largest Vivado memory peak was 8,406 MB, in the route.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---|---:|---|---:|
+| `route-1x1` | 0 | 41.9 | `9885862042ffe424feef627f6f53d5f7f879a5ec7130601b83a568f1d916e82e` | 890,033 |
+| `ooc-1x1` | 0 | 12.6 | `fbeed3ae1d6c5820696ac460f7f87914fdbe137c30cdab006360e3f95e46ae55` | 322,749 |
+| `rtl-8x8` | 0 | 1.2 | `36665ebe2463e93f10986a7b8dd8b7d9cb984d5b3a6da41562979b5a683e21e4` | 219,937 |
+| `ooc-8x8` | 0 | 24.7 | `69dfc35eac97d025473acca5fccb0269f33bcaf852173af11f23a8b538b4c570` | 330,874 |
 
 ## Re-baseline of 2026-10-22, processor 93fb0b2d and FPGA-gPTP 55680bff
 

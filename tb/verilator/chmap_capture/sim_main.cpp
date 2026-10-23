@@ -45,8 +45,11 @@
 //     frame is pending and the next walk's when one is (the junction
 //     counters' coincidence law, which the walk follows). A tick queued
 //     behind a running walk takes its frame when its own walk starts, never
-//     at the tick and never under the running walk. Every other lane A arm
-//     delivers whole frames, pair 0 first, as a front end does.
+//     at the tick and never under the running walk. In the tick-cycle and
+//     queued-tick PDUs every column's walk must also carry the instant its
+//     own frame closed with (#632: the AAF talkers' time base), at each of
+//     its 32 injects. Every other lane A arm delivers whole frames, pair 0
+//     first, as a front end does.
 //     tb/verilator/capture_coherence is the drift-level proof.
 //   [G] tone ONE-GRID contract (task #59): clk_audio drifts against clk at
 //     an incommensurate ratio; both tone shapes are sampled at the media-
@@ -159,6 +162,9 @@ class ChanMapCaptureHarness {
   Frame bcur;
   uint32_t lb_chans_word = 0;
   long a_injects = 0;   //! lane A crossbar injects since reset
+  //! #632: the instant lane A's walk carried at each of those injects
+  std::vector<uint32_t> a_walk_ns;
+  void ck_walk_instants(const char* tag, long inj0, const std::array<int, 6>& want);
 };
 
 void ChanMapCaptureHarness::ck(const char* t, long got, long exp) {
@@ -168,7 +174,7 @@ void ChanMapCaptureHarness::ck(const char* t, long got, long exp) {
 }
 
 void ChanMapCaptureHarness::sample() {
-  if (dut->a_pv_o) a_injects++;
+  if (dut->a_pv_o) { a_injects++; a_walk_ns.push_back(dut->a_walk_ns_o); }
   if (dut->a_tvalid_o && dut->a_tready_i) {
     for (int i = 0; i < 8; i++) if ((dut->a_tkeep_o >> i) & 1)
       acur.push_back((dut->a_tdata_o >> (8 * i)) & 0xFF);
@@ -368,6 +374,8 @@ uint32_t TDM_R(int p) { return 0x2BB000 | (p << 4); }
 //! [F]'s frames: frame `tag`, pair p, each half distinct
 uint32_t TDMF_L(int tag, int p) { return 0x300001 | (tag << 12) | (p << 4); }
 uint32_t TDMF_R(int tag, int p) { return 0x300002 | (tag << 12) | (p << 4); }
+//! ...and its instant at the media interface (#632), distinct per frame
+uint32_t TDMF_NS(int tag) { return 0x63200000u | static_cast<uint32_t>(tag); }
 //! [F1]'s one-pair frames on lane B: values no whole frame ever carried
 uint32_t ONE_L(int frame) { return 0x5A1000 | (frame << 4); }
 uint32_t ONE_R(int frame) { return 0x5A2000 | (frame << 4); }
@@ -378,7 +386,25 @@ void ChanMapCaptureHarness::drv_tdm_frame() {
   for (int p = 0; p < 4; p++) drv_tdm(p, TDM_L(p), TDM_R(p)); }
 //! Pairs first_pair..last_pair of [F]'s frame `tag`.
 void ChanMapCaptureHarness::drv_tdm_frame_tagged(int tag, int first_pair, int last_pair) {
+  dut->tdm_close_ns_i = TDMF_NS(tag);
   for (int p = first_pair; p <= last_pair; p++) drv_tdm(p, TDMF_L(tag, p), TDMF_R(tag, p)); }
+
+//! #632: each column's walk carries the instant of the frame it reads, at
+//! every one of its 32 injects: the frame bank and its instant load together
+void ChanMapCaptureHarness::ck_walk_instants(const char* tag, long inj0, const std::array<int, 6>& want) {
+  const long base = static_cast<long>(a_walk_ns.size()) - (a_injects - inj0);
+  for (int col = 0; col < 6; col++) {
+    uint32_t got = TDMF_NS(want[col]);
+    for (int k = 0; k < 32; k++) {
+      const long at = base + col * 32 + k;
+      const uint32_t v = (at >= 0 && at < static_cast<long>(a_walk_ns.size())) ? a_walk_ns[at] : 0;
+      if (v != TDMF_NS(want[col])) { got = v; break; }
+    }
+    char what[72];
+    std::snprintf(what, sizeof what, "%s: col %d walk instant is frame %d's", tag, col, want[col]);
+    ck(what, got, TDMF_NS(want[col]));
+  }
+}
 
 void ChanMapCaptureHarness::reset_and_idle_every_input() {
   dut->rst_n = 0;
@@ -386,7 +412,7 @@ void ChanMapCaptureHarness::reset_and_idle_every_input() {
   dut->a_tready_i = 1; dut->b_tready_i = 1;
   dut->dest_mac_i = 0x91E0F000FE01ULL; dut->station_mac_i = 0x020000000002ULL;
   dut->vlan_vid_i = 2; dut->ptp_ns_i = 0x11223344; dut->transit_ns_i = 2000000;
-  dut->i2s_pair_valid_i = 0; dut->tdm_pair_valid_i = 0;
+  dut->i2s_pair_valid_i = 0; dut->tdm_pair_valid_i = 0; dut->tdm_close_ns_i = 0;
   dut->tone_smp_i = 0;
   dut->lb_tdata_i = 0; dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0;
   dut->lb_tuser_i = 0; dut->lb_wire_chans_i = 0;
@@ -1524,6 +1550,7 @@ void ChanMapCaptureHarness::pin_close_on_the_tick_cycle() {
   // ====================================================================== //
   printf("\n[F] a close on the tick cycle: the walk takes what the tick takes\n");
   const auto close_on_the_tick = [this](int tag) {
+    dut->tdm_close_ns_i = TDMF_NS(tag);
     dut->tdm_pair_valid_i = 1; dut->tdm_pair_slot_i = 3;
     dut->tdm_l_i = TDMF_L(tag, 3); dut->tdm_r_i = TDMF_R(tag, 3);
     dut->a_tick_i = 1; cyc();
@@ -1531,6 +1558,7 @@ void ChanMapCaptureHarness::pin_close_on_the_tick_cycle() {
   };
   const long dup0 = dut->a_tdm_dup_cnt_o;
   const long skip0 = dut->a_tdm_skip_cnt_o;
+  const long wn0 = a_injects;
   afr.clear();
   drv_tdm_frame_tagged(1, 0, 3);
   a_tick();                                                     // col 0
@@ -1561,6 +1589,9 @@ void ChanMapCaptureHarness::pin_close_on_the_tick_cycle() {
       ck(what, be(afr[f], at + 4, 3), TDMF_R(col + 1, p));
     }
   }
+  //! #632: the talkers' time base names the frame each column carries; a
+  //! latch at the tick would name frame 1 again in col 1
+  ck_walk_instants("F: tick-cycle", wn0, {1, 2, 3, 4, 5, 6});
 }
 
 void ChanMapCaptureHarness::pin_queued_tick_snapshots_at_its_walk() {
@@ -1584,6 +1615,7 @@ void ChanMapCaptureHarness::pin_queued_tick_snapshots_at_its_walk() {
   printf("\n[Q] a tick queued behind a running walk snapshots when its walk starts\n");
   const long dup0 = dut->a_tdm_dup_cnt_o;
   const long skip0 = dut->a_tdm_skip_cnt_o;
+  const long wn0 = a_injects;
   afr.clear();
   drv_tdm_frame_tagged(1, 0, 3);
   a_tick();                                                     // col 0
@@ -1622,6 +1654,8 @@ void ChanMapCaptureHarness::pin_queued_tick_snapshots_at_its_walk() {
       ck(what, be(afr[f], at + 4, 3), TDMF_R(want[col], p));
     }
   }
+  //! #632: the queued walk's instant is frame 4's, the frame it reads
+  ck_walk_instants("Q", wn0, want);
 }
 
 void ChanMapCaptureHarness::pin_one_pair_frame_publishes_on_pair_0() {

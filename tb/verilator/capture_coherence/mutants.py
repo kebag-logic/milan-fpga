@@ -118,6 +118,10 @@ from ci_case_receipts import Receipt, canonical, partition  # noqa: E402
 TORN = "[A] AAF columns mixing two TDM frames"
 MISCOUNT = "[C] walks whose repeat or skip the junction counters did not count"
 LOCK_SLIP = "[C] slips while the CRF lock held"
+#: the datapath leg's pin grade of the talker's timestamps (#632)
+PIN_BAND = ("[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the "
+            "presentation offset, inside +/-5 % of Ps")
+PIN_DERIV = "[PIN] ...and inside the marker latency's derivation"
 
 #: every build's MAKEFLAGS: nothing inherited from the make that started this
 #: driver. GNU make 4.3 hands a `make -C` recipe MAKEFLAGS=w, which reached
@@ -168,6 +172,8 @@ WRAP_MARKER = ("    .frame_ev_i (cap_pv_w && (32'(cap_slot_w) == TDM_SLOTS_P / 2
 #: rounds 2 and 3)
 SNAP = "  wire tdm_snap_w = (st_r == CM_IDLE_S) && (tick_pend_r ? tick_late_r : tick_i);"
 NCO_EQ = (("    else if (32'(cnt_r) >= end_w) begin", "    else if (32'(cnt_r) == end_w) begin"),)
+#: the AAF talkers' time base in milan_datapath: the crossbar's walk instant (#632)
+TBASE = "  assign aaf_tbase_w = dom_live_w ? {ptp_now_w[63:32], cmap_walk_ns_w} : ptp_now_w;"
 
 #: (leg, name, ((pattern, replacement), ...), the check(s) this defect must
 #: break, spelled as the harness prints them)
@@ -181,15 +187,15 @@ MUTATIONS = [
        "      {cand_w[CAND_TDM_C + 2*p], cand_w[CAND_TDM_C + 2*p + 1]} = tdm_frame_r[p];"),),
      TORN),
     ("junction", "the frame is closed by its first pair",
-     (("(32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);",
+     (("(32'(tdm_pair_slot_i) == TDM_CLOSE_SLOT_P);",
        "(32'(tdm_pair_slot_i) == 0);"),
-      ("(t == int'(TDM_FRAME_PAIRS_P) - 1) ? tdm_pair_w",
+      ("(t == int'(TDM_CLOSE_SLOT_P)) ? tdm_pair_w",
        "(t == 0) ? tdm_pair_w")),
      TORN),
     ("junction", "the frame is published whole but one pair late (at the next frame's first pair)",
-     (("(32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);",
+     (("(32'(tdm_pair_slot_i) == TDM_CLOSE_SLOT_P);",
        "(32'(tdm_pair_slot_i) == 0);"),
-      ("(t == int'(TDM_FRAME_PAIRS_P) - 1) ? tdm_pair_w",
+      ("(t == int'(TDM_CLOSE_SLOT_P)) ? tdm_pair_w",
        "1'b0 ? tdm_pair_w")),
      "[W] walks older than the frame their tick takes"),
     ("junction", "the stage is never written (only the closing pair reaches the frame)",
@@ -227,12 +233,29 @@ MUTATIONS = [
     ("dp-band", "milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off",
      (("    .FS_HZ_P            (48_000),\n    .LOCK_KEEPOFF_CYC_P (MGA_KEEPOFF_CYC_C)",
        "    .FS_HZ_P            (48_000)"),
-      ("    .frame_ev_i (aafcap_pv_w &&\n"
-       "                 (32'(aafcap_slot_w) == CMAP_TDM_FRAME_PAIRS_C - 1)),\n"
+      ("    .frame_ev_i (frame_mark_w),\n"
        "    .tick_i     (media_tick_q_r),",
        "    .frame_ev_i (aafcap_pv_w && (aafcap_slot_w == 4'd0)),\n"
        "    .tick_i     (media_tick_p),")),
      LOCK_SLIP),
+    ("dp", "the AAF talkers stamp the live PHC at the walk again: the capture age and the pair offset "
+           "back in the timestamp (#632)",
+     ((TBASE, "  assign aaf_tbase_w = ptp_now_w;"),),
+     PIN_BAND),
+    ("dp-band", "the time base latched at the media tick instead of banked with the frame: a close on the "
+                "tick's own cycle stamps the frame before, a sample early (#632)",
+     ((TBASE, "  logic [63:0] tick_tbase_r;\n"
+               "  always_ff @(posedge axis_clk) if (media_tick_p) tick_tbase_r <= dom_ns_w;\n"
+               "  assign aaf_tbase_w = dom_live_w ? tick_tbase_r : ptp_now_w;"),),
+     PIN_BAND),
+    ("dp", "the domain event's marker latency drops its frame term: every stamp a sample period late (#632)",
+     (("    .MARK_LAT_NS_P (DOM_MARK_LAT_NS_C),",
+       "    .MARK_LAT_NS_P (DOM_MARK_LAT_NS_C - 32'(KL_media_if_latency_pkg::cyc_ns(1, 64'(AUDIO_IF_FS_HZ_P)))),"),),
+     PIN_BAND),
+    ("dp", "the marker latency drops the front-end's FIFO write term (one clk_tdm_i cycle, #632)",
+     (("  localparam longint DOM_WR_CYC_C = DOM_I2S_CLOSE_C ? 64'd5 : 64'd1;",
+       "  localparam longint DOM_WR_CYC_C = 64'd0;"),),
+     PIN_DERIV),
     ("chmap", "RM7: a tick queued behind a running walk takes no snapshot when its walk starts",
      ((SNAP, "  wire tdm_snap_w = (st_r == CM_IDLE_S) && !tick_pend_r && tick_i;"),),
      "Q: col 2 pair 0 L is frame 4"),
@@ -255,11 +278,16 @@ MUTATIONS = [
      NCO_EQ,
      "[C] CRF slips net zero"),
     ("chmap", "the frame closes on the bucket's last pair whatever the frame length",
-     (("(32'(tdm_pair_slot_i) == TDM_FRAME_PAIRS_P - 1);",
+     (("(32'(tdm_pair_slot_i) == TDM_CLOSE_SLOT_P);",
        "(32'(tdm_pair_slot_i) == N_TDM_PAIRS_C - 1);"),
-      ("(t == int'(TDM_FRAME_PAIRS_P) - 1) ? tdm_pair_w",
+      ("(t == int'(TDM_CLOSE_SLOT_P)) ? tdm_pair_w",
        "(t == int'(N_TDM_PAIRS_C) - 1) ? tdm_pair_w")),
      "F1: col 0 carries its own pair-0 frame (L)"),
+    ("chmap", "the walk's instant latched at the snapshot, not loaded with its frame: a close on the tick "
+              "cycle with none pending names the frame before (#632)",
+     (("        tdm_walk_ns_o <= tdm_frame_ns_r;\n      end",
+       "      end\n      if (tdm_snap_w) tdm_walk_ns_o <= tdm_frame_ns_r;"),),
+     "F: tick-cycle: col 1 walk instant is frame 2's"),
 ]
 
 
