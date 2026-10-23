@@ -1,0 +1,24 @@
+--- gen_ucode.py at the pin 2cbed0a9
++++ option (b): stored once set, the integrator before
+@@ -2255,14 +2255,19 @@
+     u('CHECK_LOCK', ra=15, imm=E_FAILSAFE),      # echo + ENTITY_LOCKED
+     u('DESC_ADDR', ra=14, imm=RGN_LOCATE),       # miss -> NO_SUCH_DESCRIPTOR
+     u('BR_STATUS', cnd=0, imm=E_FAILSAFE),       # ...echoed at full length
+-    u('GATHER_EXT', rd=6, **GSI(3)),             # current presentation offset
++    u('READ_ST', rd=3, imm=RGN_DYNV + SEL_PTOFF),
++    u('COMPARE', ra=3, fmt=FMT_D, imm=0),
++    u('BR_STATUS', cnd=2, imm=E_SINFO + 8),
++    u('READ_ST', rd=6, imm=RGN_DYN + SEL_PTOFF), # the offset stored
++    u('BRANCH', imm=E_SINFO + 9),
++    u('GATHER_EXT', rd=6, **GSI(3)),             # unset: the integrator's
+     u('WRITE_ST', ra=12, fmt=FMT_D, imm=RGN_DYN + SEL_PTOFF),
+     u('NVM_MARK', imm=1),                        # completion mark (the WRITE_ST persists)
+     u('SET_STATUS', imm=ST_OK),
+     u('BUILD_HDR', ra=15, rb=13),
+     u('SEND_RESP'),
+     u('COMPARE', ra=12, rb=6, fmt=FMT_D),
+-    u('BR_STATUS', cnd=2, imm=E_SINFO + 12),
++    u('BR_STATUS', cnd=2, imm=E_SINFO + 17),
+     u('NOTIFY_ENQ', imm=3),                      # SET_STREAM_INFO
+     u('END'),
+ ])

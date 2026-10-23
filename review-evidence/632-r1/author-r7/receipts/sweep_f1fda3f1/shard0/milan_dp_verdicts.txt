@@ -1,0 +1,36 @@
+verdict lines of shard0/milan_dp.log at f1fda3f1 (the full log: large_logs.sha256)
+make --no-print-directory run-gptp run-gptp-lat run-counters-1 run-counters-8 run-counters-1-frames run-counters-8-frames
+make --no-print-directory exec-gptp
+182 checks: 182 PASS, 0 FAIL
+make --no-print-directory exec-gptp-lat
+182 checks: 182 PASS, 0 FAIL
+make --no-print-directory exec-counters-1
+1x1 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+make --no-print-directory exec-counters-8
+8x8 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+make --no-print-directory exec-counters-1-frames
+1x1 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+make --no-print-directory exec-counters-8-frames
+8x8 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+checks: 423   failures: 0
+RESULT: PASS
+checks: 416   failures: 0
+RESULT: PASS
+checks: 162   failures: 0
+RESULT: PASS
+checks: 1967   failures: 0
+RESULT: PASS
+checks: 1969   failures: 0
+RESULT: PASS
+checks: 3751   failures: 0
+RESULT: PASS
+checks: 1967   failures: 0
+RESULT: PASS
+checks: 33   failures: 0
+RESULT: PASS
+RESULT: PASS
+6 checks: 6 PASS, 0 FAIL

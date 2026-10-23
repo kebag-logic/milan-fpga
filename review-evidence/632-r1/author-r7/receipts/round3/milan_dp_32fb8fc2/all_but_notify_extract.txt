@@ -1,0 +1,50 @@
+182 checks: 182 PASS, 0 FAIL
+182 checks: 182 PASS, 0 FAIL
+1x1 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+8x8 clean uncertain run.log: rc=0, failures=0
+RESULT: PASS
+1x1 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+8x8 clean frames-only run.log: rc=0, failures=0
+RESULT: PASS
+=== milan_datapath integration harness (§A.9 wrapper) ===
+---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----
+=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = 100 cycles ===
+checks: 416   failures: 0
+RESULT: PASS
+---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----
+=== milan_datapath NxN integration (N_STREAMS=1, P12) ===
+checks: 162   failures: 0
+RESULT: PASS
+=== milan_datapath NxN integration (N_STREAMS=4, P12) ===
+checks: 1988   failures: 0
+RESULT: PASS
+---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----
+=== milan_datapath NxN integration (N_STREAMS=4, P12) ===
+checks: 1990   failures: 0
+RESULT: PASS
+=== milan_datapath NxN integration (N_STREAMS=8, P12) ===
+checks: 3784   failures: 0
+RESULT: PASS
+---- the shipping Arty shape: 4 streams x 4 wire channels ----
+=== milan_datapath NxN integration (N_STREAMS=4, P12) ===
+checks: 1988   failures: 0
+RESULT: PASS
+---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----
+=== milan_datapath integration harness (§A.9 wrapper) ===
+---- all six tier-1 blocks pruned ----
+=== milan_datapath PRUNED shape (MCSERVO_P=LTAP_P=MAAP_P=I2SPB_P=RXFILT_P=LPF_P=0) ===
+checks: 33   failures: 0
+RESULT: PASS
+---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----
+=== milan_datapath integration harness (§A.9 wrapper) ===
+---- the same shape at the TRUE clk_audio ratio (391/1591) ----
+media_aclk: 193 checks, 0 failures
+RESULT: PASS
+[PASS] mutant caught (--render-only): prefill target three events high - breaks "RENDER-INT: every PDU's first event inside the law band"
+[PASS] mutant caught (--render-only): recentre pulse ignored - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (late)"
+[PASS] mutant caught (--render-only): recentre counted and cleared but not snapped - breaks "RENDER-RC-INT: the recentre restored the law (fill at accept = setpoint) (early)"
+[PASS] mutant caught (--live-only): clock-source trigger dropped from the recentre set - breaks "RENDER-LIVE-CRF: the fill at accept is the setpoint for every PDU"
+6 checks: 6 PASS, 0 FAIL
+wall 2414.63 s

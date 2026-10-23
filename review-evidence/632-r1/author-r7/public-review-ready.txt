@@ -1,0 +1,28 @@
+[A659] REVIEW READY
+Branch: `632-764-media-phase` (from dev `e26f1816`; not pushed from this lane)
+Commit: f1fda3f1f87c64801e436e129326b5bd5952bf20
+
+Changed:
+- `KL_mmcm_drp_servo`: a phase term inside the one media-clock master. Per accepted CRF PDU, the domain media event less the CRF timestamp, folded exactly into +/-Ps/2 in 1/3 ns (Ps = 62,500/3 ns). The window phase is the sample sum over the nominal 256 PDUs, capped at 264 samples. It enters the integrator one window late, clamped, so the loop is type 2 against phase with the rate loop as damping (phase pole 0.944 per window, 8.9 s; rate pole 0.70), and the pull is slew-limited to 0.5 ppm. The integrator keeps 8 fractional bits (the #764 floor leak). Outside LOCKED, at an `mr` toggle, a broken reference history, or a PHC step or slew, the term lets go. `MCSRV_STAT[9]` (reserved, read-only) reads settled inside +/-5 % of Ps.
+- `KL_media_domain_event` (new): one phase reference per clock domain, the frame-timing owner's closing-pair strobe back-dated by its derived marker latency. `KL_media_if_latency_pkg` (new) derives each interface's constants from its own parameters.
+- `KL_crf_tx` stamps every 96th domain event (its /512 divider and crossing are retired). The AAF talkers stamp the instant the capture crossbar banks with each frame (`KL_chan_map_capture`), so capture age and pair offset leave the timestamp. `KL_crf_rx` publishes its consumed timing point.
+- Two `milan_dp` fixtures re-timed for the CRF talker's domain-event cadence, their checks unchanged: the #726 counters TX wrap leg runs `400000 x slots / 8` cycles, and the nxn legs wait 200,000 clocks for a CRF PDU (the media-tick fallback on nxn4c, whose TDM master that fixture leaves unclocked).
+- Docs: `docs/design/MEDIA_CLOCK_FOLLOWING.md` Phase alignment (per-source contract, constants per interface, the -0.46 Ps accounting, the proof table), `docs/design/TIME_SYNC.md`, `docs/testing/TESTING.md`, CHANGELOG.
+No top-level port and no register-map layout change.
+
+Validation (at the commit above unless noted):
+- `make -C tb/verilator/media_phase`: three interfaces of one domain graded at every slot's MSB pin, and ten cases (engagement from +0.44 and -0.36 Ps, a 0.37 Ps reference step, a 4 ppm ramp, a 15 s holdover, 15 s at INTERNAL, an `mr` toggle, a 27 us PHC slew, a talker 4 % faster than it declares, the integrator carry), each pulled into +/-5 % of Ps within its bound and held: pass.
+- `make -C tb/verilator/media_phase mutants MUTANT_JOBS=4` at `e85df091` (no media_phase or RTL file changed since): 27 checks, 0 failures; 17 of 17 planted defects fail their named checks.
+- Full sweep, `scripts/run_all_suites.sh`, shards 0-3: 64 of 64 suites pass. Shard 0: 15/15, 52,903 checks, `milan_dp` included; `tsn_fuzz` with tsn-gen at the workflow's pin (164 + 677 field checks). Shard 1, at `e85df091`: 16/16, 331,441 checks; the later commits change three `milan_dp` fixture files that no shard-1 suite compiles. Shard 2: 16/17 under the runner, 262,022 checks; `capture_coherence` (the `[PIN]` leg and its 25-mutant campaign) hit the 2,400 s wall clock on the two CPUs that keep its campaign at two builds, and was re-run alone inside the same budget: pass, campaign 35 of 35. Shard 3: 16/16, 1,540,268 checks.
+- `python3 scripts/lint_rtl.py --check`: PASS, 89 <= ratchet 89. `syn/yosys/run.sh`: 59 of 59 tops pass. The 49 docs-workflow gates: all pass.
+- route-1x1 under `docs/testing/PP_SHADOW_BASELINE_RECIPE.md` at `a6ae20f9` (RTL identical to the commit above), `pp_resource_gate.py check`: exit 0. LUT 49,644 (+31 of +500), FF 52,641 (+288 of +600), slice 15,785 (+60 of +80), RAMB36/RAMB18/DSP +0, WNS +0.276 ns, WHS +0.032 ns, route complete.
+
+Acceptance criteria:
+- Simulation: a reference phase step pulled into +/-5 % of Ps and held, graded by failing mutants: met (`media_phase` `step`; the assignment's five cases and the addenda's pin and two-interface proofs likewise).
+- Bench: not met in this lane (no bench access); the #764 method follows after merge. So the PR body says "Relates to #632" and "Relates to #764".
+
+Open risks/questions:
+1. Decision needed, the listener: its post-grid pin delay cannot be counted against the presentation time offset, because the render path presents by fill (8 events after accept, #386), not at the timestamp. Its constants are derived and documented; a timestamp-driven render is a listener-datapath change outside the media-clock chain.
+2. Decision for the merge: the area budget asks an image-moving merge to re-record its resource endpoints on the merge result. That record and its budget text lie outside the media-clock chain, so this lane did not write them.
+3. AAF following keeps the rate loop alone; a phase reference for it needs a decision on presentation offsets that are not whole periods.
+4. Four builder and configuration comments still name the retired `KL_crf_tx` /512 divider; outside the chain, proposed as a follow-up.

@@ -1,0 +1,130 @@
+
+[MAP] the dynamic AUDIO_MAP command path and its projection
+  [i]    5 descriptor burst(s) served from the 7512-byte generated image
+
+[SERIAL] the pins, decoded, against the injection record
+  [i]    T6 FIRST EVENT: silence for 90 frame(s), then ordinal 0 with 0 counted skip(s), its slot 0 at +0.6 ns from its presentation time (the frame period 20833.555 ns; the domain events measured 20833.560 ns apart)
+  [i]    first decoded ordinal 270; 360 events had been injected when collection opened
+  [i]    839 frames graded, 0 repeat(s), 0 skipped event(s), 0 counted skip(s) still pending adoption
+  [i]    T6 PRESENTATION: 6712 slot grades, the largest |pin - presentation time| 7.7 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    worst observed frames_o lead over decoded frame boundaries: 0
+  [i]    lane counters: frames 1302 underruns 0 skips 0 overruns 0 epochs 1 (skips before the window 0, underruns before 0)
+  [i]    T7 bank walk and commit: 9..9 axis cycles (90.0..90.0 ns at this leg's 100 MHz model axis clock; 180.0..180.0 ns at the shipping 50 MHz milan clock) over 840 pairs
+  [i]    T7 frame commit to slot 0 MSB sampling edge: 2064..2065 axis cycles (20.640..20.650 us) over 838 frames, 1 past the window's end; one frame = 20.834 us, one bit period = 0.0814 us, CDC floor = 24.4 cycles
+  [i]    T7 published terms, measured: bank walk and commit 9..9 axis cycles = 90.0..90.0 ns at the model axis clock, 180.0..180.0 ns at the shipping milan clock; adopt wait phi 20.559..20.569 us (the measured interval less slot 0's one bit period of serial position) = 1 axis cycle + 20.549..20.559 us of serial-domain wait, so 20.569..20.579 us on the shipping image; slot k adds 2.6042 us
+  [i]    T14: skips 0 -> 3, overruns 0 -> 0 across a two-and-a-half-frame serial-clock hold
+  [i]    T14: commit-to-pin after the hold = 2064 axis cycles (20.640 us)
+
+[CRF] the CRF clock source selected under the running stream, and the same pins decoded again
+  [i]    T30 INTERNAL: 1799 frames decoded from ordinal 150, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 2064..2065 axis cycles (20.640..20.650 us) over 1798 frames, spread 1 of one frame = 2083
+  [i]    T30 INTERNAL: the commit-to-pin interval WALKS at -0.2671 ppm over 3743789 axis cycles, which is one whole frame of phi - one counted skip - every 77.9964 s
+  [i]    T30 CRF aligned: 1799 frames decoded from ordinal 8671, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 2064..2065 axis cycles (20.640..20.650 us) over 1798 frames, spread 1 of one frame = 2083
+  [i]    T30 CRF aligned: the commit-to-pin interval WALKS at +0.0000 ppm over 3743790 axis cycles, which is one whole frame of phi - one counted skip - every 0.0000 s
+  [i]    T30 INTERNAL PRESENTATION: 14392 slot grades, the largest |pin - presentation time| 14.6 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 CRF PRESENTATION: 14392 slot grades, the largest |pin - presentation time| 14.6 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30: the divider plan's closed form is +10.6394 ppm; measured -0.2671 ppm at INTERNAL and +0.0000 ppm under CRF
+  [i]    T31 back at INTERNAL: 239 frames decoded from ordinal 13351, 0 repeat(s), 0 skipped event(s); lane deltas skips 0 underruns 0 epochs 0; commit-to-pin 2064..2065 axis cycles (20.640..20.650 us) over 238 frames, spread 1 of one frame = 2083
+  [i]    T31 back at INTERNAL: the commit-to-pin interval WALKS at +0.0000 ppm over 493755 axis cycles, which is one whole frame of phi - one counted skip - every 0.0000 s
+  [i]    T31 PRESENTATION: 1912 slot grades, the largest |pin - presentation time| 14.6 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T31: 13686 of the record's 14400 events were injected
+
+[LAW] the presentation law at INTERNAL, once the aligner reports settled, on fresh streams at 18 feed phases against the grid
+  [i]    LAW: waited 0 media ticks for the settled report (2524 running inside +/-32 cycles; the ceiling is 32768)
+  [i]    T30 INTERNAL LAW +0: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +0 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 13.5 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +0: 1092 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +130: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +130 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 11.5 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +130: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +260: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +260 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 5.9 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +260: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +391: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +391 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 6.7 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +391: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +521: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +521 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 11.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +521: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +651: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +651 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 5.5 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +651: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +781: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +781 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 9.9 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +781: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +911: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +911 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 14.3 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +911: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +927: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +927 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 8.7 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +927: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1042: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +1042 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +1042: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1156: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +1156 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 7.5 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +1156: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1172: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +1172 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 11.9 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +1172: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1302: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +1302 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 6.3 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +1302: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1432: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +1432 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 10.7 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +1432: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1562: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +1562 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 15.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +1562: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1693: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +1693 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 9.5 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +1693: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1823: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +1823 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 13.9 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +1823: 1093 media ticks in the phase, 0 of them outside the settle band
+  [i]    T30 INTERNAL LAW +1953: 864 events sent, 864 frames rendered from ordinal 0, 0 repeat(s), 0 skipped
+  [i]    T30 INTERNAL LAW +1953 PRESENTATION: 6912 slot grades, the largest |pin - presentation time| 8.3 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T30 INTERNAL LAW +1953: 1093 media ticks in the phase, 0 of them outside the settle band
+
+[PULLIN] #647: a running stream through T14's serial-clock hold at INTERNAL, graded after it, at 1 feed phase(s)
+  [i]    LAW: waited 0 media ticks for the settled report (22197 running inside +/-32 cycles; the ceiling is 32768)
+  [i]    T647 PULLIN +1562 before the hold PRESENTATION: 3112 slot grades, the largest |pin - presentation time| 12.7 ns (+/-5 % of Ps is 1041.7 ns)
+  [i]    T647 PULLIN +1562 pull: +64 ms aligner err 177..981 cycles, engaged 1, trim -1109, settle run 0
+  [i]    T647 PULLIN +1562 pull: +128 ms aligner err -18..177 cycles, engaged 1, trim -371, settle run 0
+  [i]    T647 PULLIN +1562 pull: +192 ms aligner err -55..-18 cycles, engaged 1, trim -196, settle run 0
+  [i]    T647 PULLIN +1562 pull: +256 ms aligner err -57..-54 cycles, engaged 1, trim -154, settle run 0
+  [i]    T647 PULLIN +1562 pull: +320 ms aligner err -54..-46 cycles, engaged 1, trim -148, settle run 0
+  [i]    T647 PULLIN +1562 pull: +384 ms aligner err -46..-37 cycles, engaged 1, trim -149, settle run 0
+  [i]    T647 PULLIN +1562 pull: +448 ms aligner err -38..-30 cycles, engaged 1, trim -156, settle run 0
+  [i]    T647 PULLIN +1562 pull: +512 ms aligner err -31..-24 cycles, engaged 1, trim -159, settle run 0
+  [i]    T647 PULLIN +1562 pull: +576 ms aligner err -25..-19 cycles, engaged 1, trim -159, settle run 0
+  [i]    T647 PULLIN +1562 pull: +640 ms aligner err -20..-15 cycles, engaged 1, trim -165, settle run 0
+  [i]    T647 PULLIN +1562 pull: +704 ms aligner err -16..-12 cycles, engaged 1, trim -167, settle run 0
+  [i]    T647 PULLIN +1562 pull: +768 ms aligner err -13..-10 cycles, engaged 1, trim -166, settle run 0
+  [i]    T647 PULLIN +1562 pull: +832 ms aligner err -11..-8 cycles, engaged 1, trim -163, settle run 0
+  [i]    T647 PULLIN +1562 pull: +896 ms aligner err -9..-6 cycles, engaged 1, trim -165, settle run 0
+  [i]    T647 PULLIN +1562 pull: +960 ms aligner err -7..-5 cycles, engaged 1, trim -165, settle run 0
+  [i]    T647 PULLIN +1562 pull: +1024 ms aligner err -6..-4 cycles, engaged 1, trim -165, settle run 0
+  [i]    T647 PULLIN +1562 pull: +1088 ms aligner err -5..-3 cycles, engaged 1, trim -166, settle run 0
+  [i]    T647 PULLIN +1562 pull: +1152 ms aligner err -4..-2 cycles, engaged 1, trim -168, settle run 0
+  [i]    T647 PULLIN +1562 pull: +1216 ms aligner err -3..-2 cycles, engaged 1, trim -170, settle run 0
+  [i]    T647 PULLIN +1562 pull: +1280 ms aligner err -3..-1 cycles, engaged 1, trim -168, settle run 1474
+  [i]    T647 PULLIN +1562: the settle recentre came 129208570 axis cycles (1292.1 ms) after the queue's depth; loopback slips 0 during the pull, 0 after the settle; render slips 1 in the hold's queue depth, 0 after it
+  [i]    T647 PULLIN +1562 after: 767 frames from ordinal 24, 0 repeat(s), 0 skipped, the largest |pin - presentation time| 10330.2 ns
+
+[CSR] the diagnostic write window, by CLUSTER key
+  [i]    T11: a suppressed CSR write is a CSR behaviour; no AECP status is asserted for it. The in-range PROJECTED mirror is T11b below; the in-range NONPHYSICAL one is the multi-stream leg's M6.
+
+[RESET] the four-phase render epoch over reset and a stopped serial clock
+  [i]    epochs 1 -> 2 across the stopped-clock reset
+  [i]    T21: 8 crossbar offer(s) and 0 commit(s) between the reset release and the counted reopening
+  [i]    T22: the reset landed 11 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T20: the reset landed 0 bclk rise(s) into the frame; the decoder re-armed, saw its first boundary 257 bclk rise(s) later and 5 in all, and decoded 4 frame(s)
+  [i]    T19: 8 crossbar offer(s) and 0 commit(s) while the round trip was outstanding; epochs 1 -> 2
+  [i]    T6 FASTER CLOCK: 23 frames, 0 repeats, 0 skipped events, underruns 0
+
+[BIND] the render epoch over a bind loss and a rebind
+  [i]    T27: boundary at decoded frame 24 of 42; the last non-silent frame is ordinal 413 with 8 routed slot(s), 0 of them zeroed
+  [i]    events injected before the loss: 480; epochs 2 -> 3
+  [i]    T25: epochs 3 -> 5 across two bind falls inside one round trip
+== tdm8_render: checks: 272   failures: 0 ==
+RESULT: PASS

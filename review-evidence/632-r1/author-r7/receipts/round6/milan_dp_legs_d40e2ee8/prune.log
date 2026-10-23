@@ -1,0 +1,47 @@
+./obj_prune/Vmilan_dp_prune
+=== milan_datapath PRUNED shape (MCSERVO_P=LTAP_P=MAAP_P=I2SPB_P=RXFILT_P=LPF_P=0) ===
+[identity] the CSR contract is unchanged by pruning
+  [ok]   ID == 'MILN'                                       = 0x4d494c4e
+  [ok]   VERSION unchanged by the prunes                    = 0x20060
+  [ok]   CAP.ADP bit12 still set                            = 0x1
+  [ok]   CAP.TCAM bit13 still set                           = 0x1
+[MCSERVO_P=0] servo pruned: status 0, MMCM pins parked
+  [ok]   MCSRV_STAT 0x8F8 reads 0 (structural)              = 0x0
+  [ok]   MCSRV_CTRL reads 0 at reset                        = 0x0
+  [ok]   MCSRV_CTRL still RW (ps_invert|auto_repair)        = 0x3
+[LTAP_P=0] taps pruned: the whole 0x870 window is a hard zero
+  [ok]   LTAP_CTRL = enable bit only, no status             = 0x2
+  [ok]   all 16 LTAP RO words read 0                        = 0x0
+[MAAP_P=0] engine pruned: claim never completes, no PDU
+  [ok]   MAAP_STAT0 reads 0                                 = 0x0
+  [ok]   MAAP_STAT1 reads 0 (state INITIAL, addr_valid 0)   = 0x0
+[I2SPB_P=0] DAC serializer pruned: counters 0
+  [ok]   I2SPB_STAT reads 0                                 = 0x0
+  [ok]   I2SPB_TRIM reads 0                                 = 0x0
+  [ok]   I2SPB_DBG  reads 0                                 = 0x0
+[LPF_P=0] filter pruned: LPF_CTRL survives as a plain register
+  [ok]   LPF_CTRL reset = 1 (enable, default)               = 0x1
+  [ok]   LPF_CTRL still RW with no filter behind it         = 0x0
+[RXFILT_P=0] filter pruned: MAC ingress remains live
+  [ok]   TCAM_CTRL still stores (window intact)             = 0x2
+  [ok]   TCAM-drop dmac is accepted at MAC ingress          = 0x8
+  [ok]   foreign unicast is accepted at MAC ingress         = 0x8
+[durability] the inert values hold under live traffic
+  [ok]   LTAP words STILL 0 after traffic                   = 0x0
+  [ok]   LTAP_CTRL STILL 0x2 after traffic                  = 0x2
+  [ok]   MCSRV_STAT STILL 0 after traffic                   = 0x0
+  [ok]   listener 0 accepted the fed AAF PDUs (PCMRX_CNT pdus) = 0x10
+  [ok]   SLIP_LB 0x8D4 STILL 0 fed then starved (structural: LOOPBACK_P=0) = 0x0
+  [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison = 0x0
+  [ok]   CHMAP_SNAP valid: a snapshot completed behind that word = 0x1
+  [ok]   CHMAP_LOOP {mask_valid, valid, fed}: no lane       = 0x6
+  [ok]   MAAP_STAT1 STILL 0 with MAAP_CTRL.en=1             = 0x0
+  [ok]   MAAP_STAT0 STILL 0 with MAAP_CTRL.en=1             = 0x0
+  [ok]   I2SPB_STAT STILL 0 after traffic                   = 0x0
+  [ok]   no MMCM pin ever moved                             = 0x0
+  [ok]   no DAC pin ever moved                              = 0x0
+[unaffected] the mandatory control path still runs
+  [ok]   RST_EPOCH live (no shadow lie)                     = 0x1
+--------------------------------------------------------------
+checks: 33   failures: 0
+RESULT: PASS

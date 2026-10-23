@@ -1,0 +1,25 @@
+--- base/tb/verilator/render_queue/sim_main.cpp	2026-10-22 12:51:02.667041474 +0200
++++ probe/tb/verilator/render_queue/sim_main.cpp	2026-10-22 12:51:02.684163919 +0200
+@@ -413,6 +413,22 @@
+             run_frames(140);
+         }
+ 
++        phase_ = "latepart";        // PROBE: first event's timestamp before the latest event (d < 0), later events on time
++        {
++            Pdu p;
++            p.stream = 0; p.pdu = ++pdu_id_; p.frame_off = -1;
++            frame({p});
++            run_frames(20);
++            Pdu q;
++            q.stream = 0; q.pdu = ++pdu_id_; q.frame_off = 0; q.phi = -0.3;
++            frame({q});
++            run_frames(20);
++            Pdu r;                  // control: d >= 0, the same frames late as q
++            r.stream = 0; r.pdu = ++pdu_id_; r.frame_off = 0; r.phi = 0.3;
++            frame({r});
++            run_frames(140);
++        }
++
+         phase_ = "early";           // last three events past the queue; 3 ms ahead
+         {
+             Pdu p;

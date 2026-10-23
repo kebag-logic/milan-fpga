@@ -1,0 +1,4 @@
+Run on the lane's working tree at bb9a9200, one leg at a time (build-<leg>, exec-<leg>), after the sweep at
+bb9a9200 stopped its pool on the base leg. The base leg's sim_main.cpp change (committed as 2389506a) was made
+while this chain ran: crflic, dynmap and the four nxn legs (sim_nxn.cpp) do not compile it; nolpf, prune and ax1x1
+were built after it. The exact-head record of every leg is the post-sweep `make run` at 2389506a.

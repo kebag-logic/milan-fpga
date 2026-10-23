@@ -1,0 +1,40 @@
+[A659] STOP
+
+milan-fpga head: 5282b8b68983b3b5f7d9be4635c8847dbe6c38a1 (branch 632-764-media-phase, PR #770; not pushed). On d40e2ee8 it carries the merge of dev e5b480a3, `dc9cda7d` (a merge commit, parents d40e2ee8 and e5b480a3), then one documentation commit; no rebase, no amend. The submodules are at the merge's gitlinks, protocol-processor 93fb0b2d and gptp-processor 55680bff, both clean.
+STOP condition hit (round 7 assignment, https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6351804497, item 3): "STOP if the LUT/FF/slice deltas against the new record exceed the tolerances. Only the RAMB18 growth is excepted."
+
+**Measured.** The three endpoints went through the recipe at the merge `dc9cda7d`: single-thread synthesis, the shipping directives and the shipping 20 ns standalone clock, one Vivado run at a time. `pp_resource_gate.py check` judged each against #771's record:
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS / WHS ns | Gate |
+|---|---:|---:|---:|---:|---:|---:|---|
+| route-1x1 | 51,259 (+500; tolerance 500) | 53,208 (+376; 600) | **15,835 (+107; 80)** | 74 / 27 (+2, excepted) | 13 (-1) | +0.236 / +0.028 | exit 1: SLICE and RAMB18 |
+| ooc-1x1 | 23,828 (0) | 20,000 (0) | - | 16 / 3 | 8 | +3.337 / +0.159 | exit 0 |
+| ooc-8x8 | 32,467 (0) | 28,220 (0) | - | 21 / 5 | 8 | +1.139 / +0.159 | exit 0 |
+
+dev e5b480a3's synthesis inputs differ from the record's measured commit `d664cf54` by one comment block in `milan_datapath.sv`. So the record is dev's own route, and these deltas are this PR's share on the current dev. The route is complete, with no unrouted net. Its worst setup path is in the SoC, outside the datapath. The image uses 15,835 of the device's 15,850 slices: 15 are left, where the record leaves 122.
+
+**Where it comes from** (LUT / FF, from the post-place hierarchy against the record's own route):
+- `milan_datapath` moves by +516 / +379.
+- The media servo's phase loop accounts for +380 / +200.
+- The CRF row's Equation (14) rounder, new, accounts for +130 / +159.
+- The presentation stage, +345 / +170, against the retired setpoint stage, -381 / -137: net -36 / +33.
+- `crf_tx`: -59 / -141.
+- Blocks this PR leaves unchanged move by up to about 100.
+
+Round 6's +72 slices compared with #708's record, which was not dev's own route at this lane's base. Against dev's own route the share is about 500 LUTs larger.
+
+**Decision needed:**
+- (a) Extend the owner exception to this PR's slice growth (+107 against +80, leaving 15 slices on the shipping image). Then re-record the three endpoints with the RAMB18 exception and finish item 4.
+- (b) Bring the growth within +80 slices first. The servo's phase loop and the CRF rounder are the two largest pieces, and a change to either re-runs their campaigns and their review.
+
+Recommendation: (a). The growth is the phase loop and the CRF rounding that #632 and its rulings require, and LUT, FF and timing pass. Its cost is that the next growth has no room on the shipping image until Mark II (#640) frees area.
+
+**Done at 5282b8b6:**
+- Item 1, the merge `dc9cda7d`. Seven files conflicted, 12 hunks, and each hunk was resolved from the three versions. Dev's facts are kept: #761's per-output CRF request and `mr` wording, `mcr_restart_p_w` on both edges of the selected CRF's lock, #637's map-record rows and #771's records. So are this PR's: the retired #386/#387 render re-base, the queue's bind-wipe-only flush and the presentation law. Every hunk is recorded in the hand-off.
+- Item 2, the `[NOTIFY]` SET_STREAM_INFO case. It passes at the merged head: 461 checks, 0 failures, all eight steps. `gsi_mutants.py` catches 11 of 11, each #632 control failing 3 checks of 461. The "fails at the current pin" statements are gone from the design page, the `milan_dp` README, the CHANGELOG and the PR body.
+- Item 3: measured as above, and not re-recorded.
+- Item 4, partly run:
+  - The builder bank exits 0 at the merge (every gate but gate 11, not run for its recorded reason), so the resolved PHC-net census rows match the RTL.
+  - Lint passes, 89 <= 89.
+  - The docs workflow's gate steps under GNU Make 4.3 and CPython 3.12.3 pass at the head: all 42 that run, both builder legs among them. Two are skipped by rule: gate 42 runs the candidate's act runner on the host, and the no-git step deletes `.git`; that step's two gates pass on an archive export.
+  - Not run, because the STOP comes first: the full sweep, Yosys, the firmware gate set and the three campaigns. The merge changed their inputs (the datapath and both pins), so all three campaigns need re-running.

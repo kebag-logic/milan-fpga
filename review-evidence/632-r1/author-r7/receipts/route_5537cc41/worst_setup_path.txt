@@ -1,0 +1,13 @@
+Slack (MET) :             0.418ns  (required time - arrival time)
+  Source:                 FSM_onehot_socbushandler0_axilite2wishbone_state_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_spiflash_phy_cnt_reg[8]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.515ns  (logic 3.296ns (34.641%)  route 6.219ns (65.360%))
+  Logic Levels:           17  (CARRY4=3 LUT2=3 LUT3=5 LUT4=1 LUT5=1 LUT6=4)
+  Clock Path Skew:        -0.041ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.764ns = ( 16.764 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.191ns
