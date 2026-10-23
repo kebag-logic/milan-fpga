@@ -1,0 +1,23 @@
+checks: 688   failures: 0
+checks: 219   failures: 0
+checks: 137   failures: 0
+[PASS] the unmutated gateware still passes the dynmap leg
+[FAIL] the unmutated gateware does NOT pass the listener leg (caught) - its mutant results are meaningless
+[PASS] the unmutated gateware still passes the talker leg
+[PASS] the unmutated gateware still passes the maprec8 leg
+[PASS] the unmutated gateware still passes the maprec4 leg
+[PASS] mutant caught: an empty reset: the power-on image holds no mapping - breaks "[DYNMAP] power-on SPI 0: number_of_mappings" (its tallies report 166 failure(s) across 688 checks)
+[PASS] mutant caught: no clip after the restore: the window ignores a restored input format - breaks "[DYNMAP] restored SPI 0: number_of_mappings" (its tallies report 14 failure(s) across 688 checks)
+[PASS] mutant caught: no output clip: the window ignores a STREAM_OUTPUT row - breaks "[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map" (its tallies report 2 failure(s) across 688 checks)
+[PASS] mutant caught: the boot writer never fills the crossbar RAMs - breaks "[DYNMAP] power-on: render RAM keys 2..9 hold the input map" (its tallies report 178 failure(s) across 688 checks)
+[PASS] mutant caught: the CSR writer is not held while the boot writer is busy - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 4 failure(s) across 688 checks)
+[PASS] mutant caught: the input store alone takes a CSR write while the writer is busy - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 2 failure(s) across 688 checks)
+[PASS] mutant caught: the output store alone takes a CSR write while the writer is busy - breaks "[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM" (its tallies report 2 failure(s) across 688 checks)
+[PASS] mutant caught: the boot window ignores the CLOSED terminal - breaks "[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended" (its tallies report 2 failure(s) across 688 checks)
+[PASS] mutant caught: no sweep after the restore's terminal - breaks "[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map" (its tallies report 6 failure(s) across 688 checks)
+[PASS] mutant caught: no drain clock: busy ends while the last boot write is in flight - breaks "[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM" (its tallies report 4 failure(s) across 688 checks)
+[PASS] mutant caught: the edit face never waits for the boot writer - breaks "[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends" (its tallies report 2 failure(s) across 688 checks)
+[PASS] mutant caught: the map writer never marks a record dirty - breaks "[MAPREC] empty: the window holds the codec's records and the pend has fallen" (its tallies report 32 failure(s) across 688 checks)
+[PASS] mutant caught: an empty saved list reads as an erased record (#763) - breaks "[MAPREC] empty, after the power cycle: SPI 0: number_of_mappings" (its tallies report 17 failure(s) across 688 checks)
+[PASS] mutant caught: no first-dirty window: the change is written at the next tick - breaks "[MAPREC] empty: the write waited out the 500 ms first-dirty window" (its tallies report 2 failure(s) across 688 checks)
+[PASS] mutant caught: the restore refuses every framed record - breaks "[MAPREC] saved, after the power cycle: SPI 0: number_of_mappings" (its tallies report 83 failure(s) across 688 checks)

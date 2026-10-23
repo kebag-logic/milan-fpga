@@ -1,0 +1,101 @@
+verilator --cc --exe --build -j 2 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_ofs --top-module ofs_wrap ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ofs_wrap.sv sim_ofs.cpp -o Vofs_wrap
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:209:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  209 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+make[1]: Entering directory '<host path>'
+g++  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_ofs.o ../sim_ofs.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o <host path>
+python3 <host path> -DVL_INCLUDE_OPT=include Vofs_wrap.cpp Vofs_wrap___024root__0.cpp Vofs_wrap__Dpi.cpp Vofs_wrap___024root__Slow.cpp Vofs_wrap___024root__0__Slow.cpp Vofs_wrap__Syms__Slow.cpp > Vofs_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vofs_wrap__ALL.o Vofs_wrap__ALL.cpp
+g++    sim_ofs.o verilated.o verilated_dpi.o verilated_threads.o Vofs_wrap__ALL.a    -pthread -lpthread -latomic   -o Vofs_wrap
+rm Vofs_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<host path>'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.251 MB sources in 5 modules, into 0.347 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.034 s (elab=0.006, cvt=0.034, bld=4.984); cpu 0.045 s on 2 threads; allocated 217.875 MB
+======================================================================
+obj_ofs/Vofs_wrap
+[ofs] four AAF outputs and the CRF output of one domain, each its own offset
+  [ ok ] [ofs A] in reset every row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs A] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods), GET_STREAM_INFO reads 2000000
+  info: [ofs A] row 1 set 2010000 ns, applied 2020834 ns (97.0000 periods), GET_STREAM_INFO reads 2020834
+  info: [ofs A] row 2 set 0 ns, applied 0 ns (0.0000 periods), GET_STREAM_INFO reads 0
+  info: [ofs A] row 3 set 20833 ns, applied 20834 ns (1.0000 periods), GET_STREAM_INFO reads 20834
+  info: [ofs A] row 4 set 2010000 ns, applied 2020834 ns (97.0000 periods), GET_STREAM_INFO reads 2020834
+  [ ok ] [ofs A] every row reads back as applied, rounded up to whole periods, all 33 bits
+  [ ok ] [ofs A] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs A] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs A] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs A] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs A] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs A] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 1.00 ns, talker 2)
+  [ ok ] [ofs B] in reset every row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs B] row 0 set 1 ns, applied 20834 ns (1.0000 periods), GET_STREAM_INFO reads 20834
+  info: [ofs B] row 1 set 20834 ns, applied 41667 ns (2.0000 periods), GET_STREAM_INFO reads 41667
+  info: [ofs B] row 2 set 62500 ns, applied 62500 ns (3.0000 periods), GET_STREAM_INFO reads 62500
+  info: [ofs B] row 3 set 4294958333 ns, applied 4294958334 ns (206158.0000 periods), GET_STREAM_INFO reads 4294958334
+  info: [ofs B] row 4 set 4294958333 ns, applied 4294958334 ns (206158.0000 periods), GET_STREAM_INFO reads 4294958334
+  [ ok ] [ofs B] every row reads back as applied, rounded up to whole periods, all 33 bits
+  [ ok ] [ofs B] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs B] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs B] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs B] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs B] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs B] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 1.00 ns, talker 2)
+  info: [ofs C] row 0 set 1 ns, applied 20834 ns (1.0000 periods), GET_STREAM_INFO reads 20834
+  info: [ofs C] row 1 set 1999999 ns, applied 2000000 ns (96.0000 periods), GET_STREAM_INFO reads 2000000
+  info: [ofs C] row 2 set 62500 ns, applied 62500 ns (3.0000 periods), GET_STREAM_INFO reads 62500
+  info: [ofs C] row 3 set 4294967295 ns, applied 4294979167 ns (206159.0000 periods), GET_STREAM_INFO reads 4294967295
+  info: [ofs C] row 4 set 4294958334 ns, applied 4294979167 ns (206159.0000 periods), GET_STREAM_INFO reads 4294967295
+  [ ok ] [ofs C] every row reads back as applied, rounded up to whole periods, all 33 bits
+  [ ok ] [ofs C] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs C] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs C] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs C] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs C] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.67 ns)
+  [ ok ] [ofs C] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.67 ns, talker 2)
+  [ ok ] [ofs D] in reset every row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs D] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods), GET_STREAM_INFO reads 2000000
+  info: [ofs D] row 1 set 2010000 ns, applied 2020834 ns (97.0000 periods), GET_STREAM_INFO reads 2020834
+  info: [ofs D] row 2 set 0 ns, applied 0 ns (0.0000 periods), GET_STREAM_INFO reads 0
+  info: [ofs D] row 3 set 1 ns, applied 20834 ns (1.0000 periods), GET_STREAM_INFO reads 20834
+  info: [ofs D] row 4 set 4294967295 ns, applied 4294979167 ns (206159.0000 periods), GET_STREAM_INFO reads 4294967295
+  [ ok ] [ofs D] every row reads back as applied, rounded up to whole periods, all 33 bits
+  [ ok ] [ofs D] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs D] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs D] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs D] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs D] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.67 ns)
+  [ ok ] [ofs D] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.67 ns, talker 2)
+  [ ok ] [ofs E] in reset every row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs E] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods), GET_STREAM_INFO reads 2000000
+  info: [ofs E] row 1 set 2010000 ns, applied 2020834 ns (97.0000 periods), GET_STREAM_INFO reads 2020834
+  info: [ofs E] row 2 set 4294958333 ns, applied 4294958334 ns (206158.0000 periods), GET_STREAM_INFO reads 4294958334
+  info: [ofs E] row 3 set 4294958334 ns, applied 4294979167 ns (206159.0000 periods), GET_STREAM_INFO reads 4294967295
+  info: [ofs E] row 4 set 4294967295 ns, applied 4294979167 ns (206159.0000 periods), GET_STREAM_INFO reads 4294967295
+  [ ok ] [ofs E] every row reads back as applied, rounded up to whole periods, all 33 bits
+  [ ok ] [ofs E] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs E] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs E] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs E] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs E] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.67 ns)
+  [ ok ] [ofs E] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.67 ns, talker 0)
+  info: [ofs F] row 0 set 2000000 ns, applied 2000000 ns (96.0000 periods), GET_STREAM_INFO reads 2000000
+  info: [ofs F] row 1 set 2010000 ns, applied 2020834 ns (97.0000 periods), GET_STREAM_INFO reads 2020834
+  info: [ofs F] row 2 set 0 ns, applied 0 ns (0.0000 periods), GET_STREAM_INFO reads 0
+  info: [ofs F] row 3 set 20833 ns, applied 20834 ns (1.0000 periods), GET_STREAM_INFO reads 20834
+  info: [ofs F] row 4 set 2000000 ns, applied 2000000 ns (96.0000 periods), GET_STREAM_INFO reads 2000000
+  [ ok ] [ofs F] every row reads back as applied, rounded up to whole periods, all 33 bits
+  [ ok ] [ofs F] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs F] every AAF timestamp is a frame instant plus its row as read back (65 65 65 65 PDUs)
+  [ ok ] [ofs F] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs F] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs F] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.33 ns)
+  [ ok ] [ofs F] every AAF output stamps whole periods from the CRF timing points, inside +/-5 % of Ps (max 0.33 ns, talker 2)
+== media_phase ofs: checks: 46   failures: 0 ==
+RESULT: PASS

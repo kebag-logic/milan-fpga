@@ -1,0 +1,2 @@
+make render VERILATOR_JOBS=2
+python3 phase_mutants.py --jobs 2 --only render_b_lead_dropped,render_read_untimed,render_frame_off_by_one,render_late_rule_removed,render_early_rule_removed

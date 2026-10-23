@@ -1,0 +1,28 @@
+======================================================================
+media-grid alignment at the TRUE ratio: clk_audio = axis * 391/1591
+======================================================================
+
+[RENDER-BIND] listener 0 bound over ACMP for the render-law phases
+  [ok]   [RENDER-BIND] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) = 1
+  [ok]   [RENDER-BIND] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) = 7
+  [ok]   RENDER-BIND: the listener launched a PROBE_TX at the named talker = 1
+  [ok]   RENDER-BIND: listener bound (0x6A4[3], the class-D record) = 1
+
+[RENDER-INT] the stream presenting (the --live-only leg)
+
+[CRF] the stored selection goes to this shape's CRF index (1), the feed running
+  [ok]   CRF: sink locked (8 clean PDUs)                            = 1
+  [ok]   CRF: align loop engaged on the physical frame marker       = 1
+
+[RENDER-LIVE-CRF] the CRF selection under the running stream: no presentation moved
+  [ok]   RENDER-LIVE-CRF: no slip across the selection              = 0
+  [ok]   RENDER-LIVE-CRF: nothing refused across the selection      = 0
+  RENDER-LIVE-CRF: 1360 PDUs, 8160 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.8 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-LIVE-CRF: PDUs graded                               = 1
+  [ok]   RENDER-LIVE-CRF: every event presented once, in order      = 0
+  [ok]   RENDER-LIVE-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-LIVE-CRF: converged                                 = 1
+
+----------------------------------------------------------------------
+media_aclk: 12 checks, 0 failures
+RESULT: PASS

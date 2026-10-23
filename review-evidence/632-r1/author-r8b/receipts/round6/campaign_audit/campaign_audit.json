@@ -1,0 +1,624 @@
+{
+  "tb/verilator/milan_dp_render/tdm8_render_mutants.py:MUTATIONS": [
+    {
+      "entry": "wrong physical base: the identity projection",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --serial-only): wrong physical base: the identity projection - breaks \"T4 PROJECTION: physical keys 2..9 hold the routed sources\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "wrong slot order: the bank walk runs backwards",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --serial-only): wrong slot order: the bank walk runs backwards - breaks \"T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "shared identity corruption: one pdu bit of EVERY channel",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --serial-only): shared identity corruption: one pdu bit of EVERY channel - breaks \"T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "one-bit phase slip: the bit for position p, not p + 1",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --serial-only): one-bit phase slip: the bit for position p, not p + 1 - breaks \"T6 PADDING: the eight pad bits of every slot are zero\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "drop NEWEST: the prefetch keeps the have-next guard",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --serial-only): drop NEWEST: the prefetch keeps the have-next guard - breaks \"T14 SKIP LAW: the forced surplus was COUNTED as skips\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the epoch request does not RETAIN across a reset",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --epoch-only): the epoch request does not RETAIN across a reset - breaks \"T18 RESET: the reset epoch reopened EXACTLY once\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "ungated commit: a closed epoch admits frames anyway",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (multi whole): ungated commit: a closed epoch admits frames anyway - breaks \"T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never reaches a slot, though the other rendered stream still feeds it\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the serial reset rebuilt from two reconverged levels, with arrival skew",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --epoch-only): the serial reset rebuilt from two reconverged levels, with arrival skew - breaks \"T18 RESET: the reset epoch reopened EXACTLY once\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the epoch request races the acknowledgement instead of waiting",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --epoch-only): the epoch request races the acknowledgement instead of waiting - breaks \"T25 DOUBLE EVENT: two bind falls inside one round trip are TWO counted reopenings, not one\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the epoch gate reaches the FIFO but not the adapter",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --epoch-only): the epoch gate reaches the FIFO but not the adapter - breaks \"T21 COMMIT AROUND RELEASE: the adapter committed no frame between the reset release and the epoch reopening\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the graceful flush tears the frame in flight",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --epoch-only): the graceful flush tears the frame in flight - breaks \"T27 FLUSH BOUNDARY: ...and every routed slot of it carries ONE media event's identity\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the render out-lead one frame long",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --serial-only): the render out-lead one frame long - breaks \"T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps\" and 1 more",
+          "[PASS] mutant caught (ship --law-only): the render out-lead one frame long, at every [LAW] phase - breaks \"T30 INTERNAL LAW +0 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps\" and 17 more"
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the domain event's instant not back-dated",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --serial-only): the domain event's instant not back-dated - breaks \"T6 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "modelled bit-arrival skew, raw binary transport",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --serial-only): modelled bit-arrival skew, raw binary transport - breaks \"T28 COUNTERS: no sampled frame count ran ahead of the frames the pins delivered\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "A2-a removed: the aligner is not engaged at INTERNAL",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --law-only): A2-a removed: the aligner is not engaged at INTERNAL - breaks \"T30 INTERNAL LAW +0: the aligner held its settled report through the phase\" and 17 more"
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the render out-lead one frame long, at every [LAW] phase",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --law-only): the render out-lead one frame long, at every [LAW] phase - breaks \"T30 INTERNAL LAW +0 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps\" and 17 more"
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the settle recentre never pulses",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (ship --pullin): the settle recentre never pulses - breaks \"T647 PULLIN +1562: one settle recentre for the LOOP queues after the hold\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the bind-fall mask is not stream qualified",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (multi whole): the bind-fall mask is not stream qualified - breaks \"M3 UNRELATED LOSS: the adapter's commit gate never closed, not for one cycle\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the lane's stream set ignores the mapping's stream field",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (multi whole): the lane's stream set ignores the mapping's stream field - breaks \"M5 RENDERED LOSS: the adapter's commit gate CLOSED, which the unrelated loss never did\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the CSR protocol-store mirror gated on the physical projection",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] mutant caught (multi whole): the CSR protocol-store mirror gated on the physical projection - breaks \"M6 NONPHYSICAL: ...and the SAME write is still mirrored into the AECP protocol store, read back through GET_AUDIO_MAP\""
+        ]
+      },
+      "fail_lines": {}
+    }
+  ],
+  "tb/verilator/milan_dp_render/tdm8_render_mutants.py:CLEAN_CONTROLS": [
+    {
+      "entry": "modelled arrival skew, one extra cycle on the acknowledgement level",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] clean control still passes (ship --epoch-only): modelled arrival skew, one extra cycle on the acknowledgement level"
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "modelled arrival skew, one extra cycle on the serial-reset level",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] clean control still passes (ship --epoch-only): modelled arrival skew, one extra cycle on the serial-reset level"
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "modelled bit-arrival skew, gray retained",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] clean control still passes (ship --serial-only): modelled bit-arrival skew, gray retained"
+        ]
+      },
+      "fail_lines": {}
+    }
+  ],
+  "tb/verilator/milan_dp_render/tdm8_render_mutants.py:LEG_DEFECTS": [
+    {
+      "entry": "stopped render clock",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks \"T5 FRAMING: the window decoded whole frames\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "a single changed sample",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks \"T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the clock-source selection names INTERNAL",
+      "pass_lines": {
+        "tdm8render_mutants_2700584e/campaign.log": [
+          "[PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks \"T30 CRF: the media plane's one registered resolve reads CRF\""
+        ]
+      },
+      "fail_lines": {}
+    }
+  ],
+  "tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:CONTROLS": [
+    {
+      "entry": "the policy level is tied low at the servo",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the policy level is tied low at the servo - breaks \"slew path: the actual servo receives the level\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the policy level omits the applied-rate tail",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the policy level omits the applied-rate tail - breaks \"slew path: every staged sample covers the PHC tail\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the policy level misses an extra addend stage",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the policy level misses an extra addend stage - breaks \"slew path: every staged sample covers the PHC tail\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the PHC re-base restart term is restored",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the PHC re-base restart term is restored - breaks \"restart: a PHC-only step leaves outgoing mr unchanged\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the source-change term is removed",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the source-change term is removed - breaks \"source control: a real source change toggles mr once\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "selected CRF mr propagation is removed",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: selected CRF mr propagation is removed - breaks \"CRF control: selected CRF mr propagates exactly once\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the grandmaster identity empties the render stage",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the grandmaster identity empties the render stage - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the step empties the render stage",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the step empties the render stage - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the refused PDUs are not counted",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the refused PDUs are not counted - breaks \"render: every PDU not presented was refused by the stage and counted once\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "tu reaches the talkers four cycles late",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: tu reaches the talkers four cycles late - breaks \"tu: set in the first cycle the bank names GM B\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the plane's step does not re-arm the holdover",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the plane's step does not re-arm the holdover - breaks \"tu: held at least the 0.25 s holdover after the step\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "tu stops the talker",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: tu stops the talker - breaks \"licence: the talker never pauses beyond four of its intervals\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "the grandmaster change stops the talker for good",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: the grandmaster change stops the talker for good - breaks \"licence: the talker never pauses beyond four of its intervals\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "a gap in the presented frames leaves no counted slip",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: a gap in the presented frames leaves no counted slip - breaks \"render: the refused PDUs' frames are one counted slip\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "software settime is restored as an mr cause",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: software settime is restored as an mr cause - breaks \"CLKV: the settime leaves mr unchanged (#602)\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "PHC adjtime is restored as an mr cause",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: PHC adjtime is restored as an mr cause - breaks \"CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "both PHC restart causes are restored",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: both PHC restart causes are restored - breaks \"CLKV: the settime leaves mr unchanged (#602)\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "PHC adjtime becomes an mr cause 16 cycles later",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: PHC adjtime becomes an mr cause 16 cycles later - breaks \"CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "PHC adjtime becomes an mr cause 256 cycles later",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: PHC adjtime becomes an mr cause 256 cycles later - breaks \"CLKV: PHC-only steps leave INTERNAL mr unchanged (#602)\""
+        ]
+      },
+      "fail_lines": {}
+    },
+    {
+      "entry": "a PHC step suppresses a coincident CRF restart",
+      "pass_lines": {
+        "gmstep_mutants_2700584e/campaign.log": [
+          "[PASS] control caught: a PHC step suppresses a coincident CRF restart - breaks \"coincident: a PHC step does not suppress the CRF restart\""
+        ]
+      },
+      "fail_lines": {}
+    }
+  ],
+  "pullin": {
+    "tdm8render_mutants_2700584e/campaign.log": {
+      "phases": [
+        "+1562"
+      ],
+      "result": null,
+      "tally": null
+    },
+    "pullin_2700584e/pullin_1432.log": {
+      "phases": [
+        "+1432"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_260.log": {
+      "phases": [
+        "+260"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_927.log": {
+      "phases": [
+        "+927"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_781.log": {
+      "phases": [
+        "+781"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_391.log": {
+      "phases": [
+        "+391"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_0.log": {
+      "phases": [
+        "+0"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_521.log": {
+      "phases": [
+        "+521"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_1953.log": {
+      "phases": [
+        "+1953"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_1693.log": {
+      "phases": [
+        "+1693"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_1042.log": {
+      "phases": [
+        "+1042"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_1156.log": {
+      "phases": [
+        "+1156"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_911.log": {
+      "phases": [
+        "+911"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_1172.log": {
+      "phases": [
+        "+1172"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_1302.log": {
+      "phases": [
+        "+1302"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_130.log": {
+      "phases": [
+        "+130"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_651.log": {
+      "phases": [
+        "+651"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_1562.log": {
+      "phases": [
+        "+1562"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_history.log": {
+      "phases": [
+        "+1562"
+      ],
+      "result": "PASS",
+      "tally": [
+        "272",
+        "0"
+      ]
+    },
+    "pullin_2700584e/pullin_1823.log": {
+      "phases": [
+        "+1823"
+      ],
+      "result": "PASS",
+      "tally": [
+        "28",
+        "0"
+      ]
+    }
+  }
+}

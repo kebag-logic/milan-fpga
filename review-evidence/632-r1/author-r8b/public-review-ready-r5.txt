@@ -1,0 +1,79 @@
+[A659] REVIEW READY
+
+Commit: ee5ece607816a1bfc834bd51734b703a8aab8e46 (milan-fpga, branch 632-764-media-phase, PR #770; not pushed; six commits on 2389506a, no rebase, no amend)
+Processor: PR #199 is merged at 51f88c7e; milan-fpga dev still pins 2cbed0a9, so that pin adoption stays the prerequisite.
+Assignment: https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6320617745, with the owner decision https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6320453361.
+
+**Changed:**
+- AAF talkers stamp their presentation offset exactly as set (Milan v1.2 5.4.2.9). `aecp_pres_offset` goes straight into the packetizer (`milan_datapath.sv:1447`).
+- `KL_mtt_round` now rounds the CRF output's row alone, up to whole media clock periods by IEEE 1722-2016 10.7 Eq. (14), keeping the round-3 33-bit carry into the 64-bit CRF timestamp (`g_pres_crf`, `:3454`, N_P = 1). A shape without a CRF output builds no rounder. It was removed from the AAF path, not given an identity mode, because an identity mode keeps the AAF rows' output registers.
+- GET_STREAM_INFO word 3 reads an AAF output's row as set and the CRF output's row as applied, 0xFFFFFFFF past 32 bits (5.4.2.10.2; `:5005`, `:5258`).
+- Docs:
+  - MEDIA_CLOCK_FOLLOWING: AAF as set, CRF in whole periods; the 5.4.2.10.2 split; the non-idempotent write-back for CRF only; the supported range per shape with the 7.4.77.1 limit.
+  - TIME_SYNC, the compliance matrix's 4.3.5/10.8 row, TESTING, CHANGELOG and the milan_dp README.
+- Banners and comments of `KL_mtt_round`, `KL_crf_tx` and `KL_media_domain_event` no longer say the outputs stay whole periods apart for any offset.
+
+**Re-graded (exact AAF expectations):**
+- `media_phase ofs` runs four AAF outputs and the CRF output through eleven cases: 93 checks, 0 failures.
+  - Offsets 0, 1, 20,833, 20,834, 62,500, 2,000,000, 2,010,000 and 0xFFFFFFFF ns each on AAF rows and on the CRF row, plus 4,294,958,333 and 4,294,958,334 on the CRF row. Rows are set at reset and at run time.
+  - Every AAF timestamp is a frame instant plus its row as set, to the ns.
+  - GET_STREAM_INFO reads each AAF row as set and the CRF row as applied.
+  - The CRF row is checked on all 33 bits, and every CRF timestamp on all 64, against an independent Eq. (14) result and the frame grid.
+- On the shipping datapath, `milan_dp`'s output walk (nxn legs, 4x4 and 8x8) requires every stamp of every output to be a domain media event's instant plus the offset GET_STREAM_INFO reads, at 2 ms, 1 ms and 2,010,000 ns.
+- The four-step notify case keeps its expected column (pushes 0, 1, 0, 1) on AAF output 0. GET_STREAM_INFO now reads each value as set, and step 4 (2,020,834) is a plain change.
+
+**Planted defects, each failing its named check:**
+- AAF rows stamped rounded: `[ofs A] every AAF timestamp is a frame instant plus its row as set, to the ns`.
+- AAF rows read back rounded: `[ofs A] GET_STREAM_INFO reads every AAF row as set`.
+- CRF row stamped as set: caught (`[ofs B]`).
+- The carry dropped at each of its four places: caught (`[ofs H]`, `[ofs A]`).
+- GET_STREAM_INFO reads the CRF row as set: `[NOTIFY] SET_STREAM_INFO CRF step 2: GET_STREAM_INFO reads the offset applied, whole periods`.
+- GET_STREAM_INFO reads every row rounded: `[NOTIFY] SET_STREAM_INFO step 2: GET_STREAM_INFO reads the offset as set`.
+- Planted once on the nxn leg: the CRF output stamping its row as set, and the AAF talkers stamping theirs rounded. Each is caught by its exact-stamp check.
+
+**Area and timing:**
+- route-1x1 at 5b502a05 (the last RTL change), against the unchanged record:
+  - LUT 49,922 (+309), FF 52,696 (+343), SLICE 15,793 (+68, twelve left) against bars of +500, +600 and +80.
+  - RAMB36 0; RAMB18 +2, as budgeted. DSP 13.
+  - WNS +0.108 ns, WHS +0.015 ns; route complete. `pp_resource_gate.py check` exits 1 on RAMB18 alone.
+  - Against round 4: LUT -155, FF -79, SLICE -8.
+- The rounder itself:
+  - Post-place: 149 LUT / 193 FF before, 131 / 159 now.
+  - Out of context: 215/193 at two rows, 386/427 at nine (the 8x8), 182/159 at one.
+
+**Validation (exact commands, results):**
+- Full sweep, `scripts/run_all_suites.sh`, four shards at ee5ece60: 63 of 64 suites.
+  - Shard 0: 14 of 15, `milan_dp` failing only the CRF-output notify steps 3 and 4 at the current processor pin (3 checks). Its pool then started no later leg; those legs are below.
+  - Shards 1 to 3: 331,516 / 262,062 / 1,540,265 checks, 0 failures (`media_phase` ofs 93/0).
+- `make -C tb/verilator/media_phase mutants`, run as `--only` chunks at ee5ece60: every clean case passes, and 40 of 40 planted defects are caught.
+- Every milan_dp leg, built and run one by one at d5b516f6 (the last test change), 0 failures in each:
+  - base 236, crflic 416, dynmap 162, nxn 2,009, nxndv 2,011, nxn8 3,817;
+  - nxn4c 2,009, nolpf 236, prune 33, ax1x1 233, aclk 182;
+  - `render_mutants.py` 4 of 4.
+- The notify leg at the current processor pin: 459 checks, 3 failures, the CRF output's steps 3 and 4.
+- With the processor's E_SINFO spliced into a scratch clone's submodule: `make notify` gives 459 checks and 0 failures, and `gsi_mutants.py` 1 to 11 are all caught.
+- `python3 scripts/lint_rtl.py --check`: 89 <= 89.
+- `syn/yosys/run.sh --top KL_mtt_round --top KL_crf_tx --top milan_datapath`: PASS (`milan_datapath` 1,770,334 cells); tied-input and tap-purity PASS.
+- The docs workflow's 49 gates pass at ee5ece60.
+
+**Acceptance criteria (the ruling's items):**
+- AAF rows as set: met.
+- `KL_mtt_round` serves CRF only, with the area figure: met.
+- The GSI split, documented: met.
+- Offset cases re-graded with exact AAF expectations: met.
+- The 33-bit CRF carry: kept.
+- The notify expected column: kept.
+- The AAF write-back text: dropped, kept for CRF.
+- The owner decision's supported range, stated exactly (MEDIA_CLOCK_FOLLOWING):
+  - 31,119 to 2,656,119 ns ahead at arrival on the 1x1; 25,942 to 2,650,942 ns on the 8x8;
+  - the too-early rule and its counter beyond it;
+  - a talker accepts 0 to 0x7FFFFFFF ns;
+  - every shipping STREAM_INPUT declares buffer_length 2,126,000 ns, which the queue backs (IEEE 1722.1-2021 7.4.77.1).
+- No STOP condition reached. #632 and #764 stay "Relates to".
+
+**Open risks/questions:**
+- The notify CRF steps fail at the pin, and stay that way until the pin is adopted. On an AAF output the readback now equals the stored value. So the processor gate's planted control (compare with GET_STREAM_INFO's word) had nothing left to catch there, and the pinned processor passes the AAF steps. To keep the gate graded, the old four-step table now also runs on the CRF output, the one output whose readback differs. At the pin that fails CRF steps 3 and 4 (3 checks); with the gate spliced it passes, and the control is caught at CRF step 3.
+- IEEE 1722-2016 10.8 Eq. (15) and 4.3.5 hold only for AAF offsets of whole periods, the factory 2 ms among them. With any other offset, a CRF-following AAF stream sits that offset's fraction of a period off the CRF timing points (2,010,000 ns: 0.48 Ps). The design page and the compliance row now say this; the ruling takes 5.4.2.9 there. I am recording it, not re-opening it.
+- Processor PR #199's harness models the integrator as rounding every Stream Output's GET_STREAM_INFO offset; that now holds for the CRF output alone. The PR's gate test stays valid (it needs one row whose readback differs from the stored value). I did not change it.
+- The builder accepts a buffer_length_ns above 2,126,000 ns, but the queue's depth does not follow it. No shipped shape declares more; documented. A builder check would be new work.
+- The route-1x1 record still reads RAMB18 25 (not edited, as instructed).

@@ -1,0 +1,257 @@
+./obj_aclk/Vmilan_dp_aclk
+======================================================================
+media-grid alignment at the TRUE ratio: clk_audio = axis * 391/1591
+======================================================================
+
+[RENDER-BIND] listener 0 bound over ACMP for the render-law phases
+  [ok]   [RENDER-BIND] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) = 1
+  [ok]   [RENDER-BIND] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) = 7
+  [ok]   RENDER-BIND: the listener launched a PROBE_TX at the named talker = 1
+  [ok]   RENDER-BIND: listener bound (0x6A4[3], the class-D record) = 1
+
+[RENDER-INT] the presentation law at INTERNAL (A2-a: cadence = the physical grid the packet grid is held on)
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: reset mirrors taps                             = 256
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 256
+  [ok]   RENDER-CSR: idle at reset, nothing queued                  = 256
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: queued mirrors taps                            = 346
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 346
+  [ok]   RENDER-CSR: frames queued ahead of the first presentation  = 1
+  [ok]   RENDER-CSR: idle until the stream's first presentation time = 1
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: converged mirrors taps                         = 601
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 601
+  [ok]   RENDER-CSR: converged bit reached the word                 = 1
+  [ok]   RENDER-CSR: presenting (idle clear)                        = 0
+  [ok]   RENDER-INT: every injected PDU was accepted                = 960
+  RENDER-INT: the frame period 20833.555 ns (the clock plan); the domain's events measured 20833.554 ns apart
+  RENDER-INT: 943 PDUs, 5658 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.8 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-INT: PDUs graded                                    = 1
+  [ok]   RENDER-INT: every event presented once, in order           = 0
+  [ok]   RENDER-INT: every event presented at its presentation time = 1
+  [ok]   RENDER-INT: no slip inside the window                      = 0
+  [ok]   RENDER-INT: nothing refused inside the window              = 0
+  [ok]   RENDER-INT: nothing handed over that no PDU of this leg carried = 0
+  [ok]   RENDER-INT: converged                                      = 1
+
+[RENDER-ARRIVE-INT] the running feed arrives three ticks later, then three earlier: no presentation moves
+  RENDER-ARRIVE-INT (late): 41 PDUs, 246 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.8 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-INT: PDUs graded (late)                      = 1
+  [ok]   RENDER-ARRIVE-INT: every event presented once, in order (late) = 0
+  [ok]   RENDER-ARRIVE-INT: every event presented at its presentation time (late) = 1
+  [ok]   RENDER-ARRIVE-INT: no slip across the shift (late)         = 0
+  [ok]   RENDER-ARRIVE-INT: nothing refused across the shift (late) = 0
+  RENDER-ARRIVE-INT (early): 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.8 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-INT: PDUs graded (early)                     = 1
+  [ok]   RENDER-ARRIVE-INT: every event presented once, in order (early) = 0
+  [ok]   RENDER-ARRIVE-INT: every event presented at its presentation time (early) = 1
+  [ok]   RENDER-ARRIVE-INT: no slip across the shift (early)        = 0
+  [ok]   RENDER-ARRIVE-INT: nothing refused across the shift (early) = 0
+
+[RENDER-STEP-INT] a PHC adjtime of 65536 ns under the running stream, the talker's time moved with it: no presentation moves
+  RENDER-STEP-INT: the domain's instants moved 65542 ns (the command: 65536 ns)
+  [ok]   RENDER-STEP-INT: the step reached the domain's instants    = 1
+  RENDER-STEP-INT: 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 8.0 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-STEP-INT: PDUs graded                               = 1
+  [ok]   RENDER-STEP-INT: every event presented once, in order      = 0
+  [ok]   RENDER-STEP-INT: every event presented at its presentation time = 1
+  [ok]   RENDER-STEP-INT: no slip across the step                   = 0
+  [ok]   RENDER-STEP-INT: nothing refused across the step           = 0
+  [ok]   RENDER-STEP-INT: presenting throughout (converged)         = 1
+
+[RENDER-SETTIME] a PHC settime (the reset load value, zero) under the running stream, the talker's time moved with it: no presentation moves
+  RENDER-SETTIME: the domain's instants moved -136202000 ns (the command: -136201946 ns)
+  [ok]   RENDER-SETTIME: the step reached the domain's instants     = 1
+  RENDER-SETTIME: 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-SETTIME: PDUs graded                                = 1
+  [ok]   RENDER-SETTIME: every event presented once, in order       = 0
+  [ok]   RENDER-SETTIME: every event presented at its presentation time = 1
+  [ok]   RENDER-SETTIME: no slip across the step                    = 0
+  [ok]   RENDER-SETTIME: nothing refused across the step            = 0
+  [ok]   RENDER-SETTIME: presenting throughout (converged)          = 1
+
+[RENDER-REFUSE] a late PDU, a too-early one and one without tv, each between two of the running stream's: each counted once, none presented
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: before the refused PDUs mirrors taps           = 607
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 607
+  [ok]   RENDER-REFUSE: the late PDU counted once in late_o         = 1
+  [ok]   RENDER-REFUSE: the too-early PDU counted once in early_o   = 1
+  [ok]   RENDER-REFUSE: the PDU without tv counted once in untimed_o = 1
+  [ok]   RENDER-REFUSE: no refused PDU presented                    = 0
+  [ok]   RENDER-REFUSE: no slip                                     = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: refused mirrors taps                           = 131677
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131677
+  [ok]   RENDER-REFUSE: RENDER_STAT's refused field counts the late and the too-early PDU = 2
+  [ok]   RENDER-REFUSE: a refused PDU leaves the stream converged   = 1
+  RENDER-REFUSE: 45 PDUs, 270 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.0 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-REFUSE: PDUs graded                                 = 1
+  [ok]   RENDER-REFUSE: every event presented once, in order        = 0
+  [ok]   RENDER-REFUSE: every event presented at its presentation time = 1
+
+[RING-INT] the loopback ring at INTERNAL (A2-a): pushed on the physical grid, popped on the packet grid held on it
+  [ok]   RING-INT: the priming PDU reached the loop tap             = 1
+  loop-tap landing latency: 73 cycles after the inject slot
+  [ok]   RING-INT: the priming PDU's loop-tap latency is inside one AAF period = 1
+  restart PDU landed 1937 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-INT: the restart PDU landed inside the aimed band     = 1
+  the PDU spans 23 cycles at the loop tap: its first beat landed 1914 cycles after the tick
+  the -10.64 ppm plan would dup first after 1273 PDUs = 15915705 cycles (0.159 s); window 23873557 cycles
+  ring over the window: 0 dup, 0 skip (first dup at -1); TDM junction 0 dup, 0 skip
+  [ok]   RING-INT: zero ring dups over the window that would expose -10.64 ppm (A2-a) = 0
+  [ok]   RING-INT: zero ring skips                                  = 0
+  [ok]   RING-INT: zero TDM junction slips over the same window     = 0
+  [ok]   RING-INT: the align loop is engaged at INTERNAL (A2-a)     = 1
+  [ok]   RING-INT: SLIP_LB 0x8D4 carries the ring's {skip, dup}     = 2883624
+
+[INTERNAL] clock_source INTERNAL (A2-a): the packet grid held on the physical one
+  media_tick_p : 4800 ticks, first 38637711 last 48635742
+  tdm_fsync_o  : 4799 frames, first 38637983 last 48633922
+  [ok]   media grid ticked                                          = 1
+  [ok]   TDM master framed                                          = 1
+  MEASURED     :   +0.8646 ppm   (closed form  -10.6393 ppm)
+  one sample of slip every 24.0949 s
+  [ok]   INTERNAL: the grids hold one rate within 5 ppm (the plan's -10.64 ppm drift gone) = 1
+  [ok]   INTERNAL: phase error bounded well inside a sample (<300 cycles) = 1
+  [ok]   INTERNAL: zero junction dups over the window               = 0
+  [ok]   INTERNAL: zero junction skips over the window              = 0
+  [ok]   INTERNAL: align loop engaged (A2-a)                        = 1
+  [ok]   INTERNAL: NCO servo gate live (A2-a)                       = 1
+
+[CRF] the stored selection goes to this shape's CRF index (1)
+  [ok]   CRF: the root resolve sees the selection                   = 1
+  [ok]   CRF: the NCO servo gate is live                            = 1
+  [ok]   CRF: sink locked (8 clean PDUs)                            = 1
+  [ok]   CRF: align loop engaged on the physical frame marker       = 1
+  MEASURED     :   +0.1334 ppm with CRF selected (was   +0.8646)
+  [ok]   CRF: the grids are ALIGNED (|ppm| < 0.5 - the #74 close)   = 1
+  [ok]   CRF: zero junction dups over the aligned window            = 0
+  [ok]   CRF: zero junction skips over the aligned window           = 0
+  [ok]   CRF: phase error bounded well inside a sample (<300 cycles) = 1
+  A_MCSRV_STAT : 0x00000033
+  [ok]   CRF: the MMCM servo tracks through the live select (ACQUIRE) = 3
+
+[RENDER-LIVE-CRF] the CRF selection under the running stream: no presentation moved
+  [ok]   RENDER-LIVE-CRF: no slip across the selection              = 0
+  [ok]   RENDER-LIVE-CRF: nothing refused across the selection      = 0
+  RENDER-LIVE-CRF: 4960 PDUs, 29760 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-LIVE-CRF: PDUs graded                               = 1
+  [ok]   RENDER-LIVE-CRF: every event presented once, in order      = 0
+  [ok]   RENDER-LIVE-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-LIVE-CRF: converged                                 = 1
+
+[RENDER-CRF] the presentation law under CRF (cadence = the physical grid, 12500 + 52/391)
+  [ok]   RENDER-CRF: every injected PDU was accepted                = 1200
+  RENDER-CRF: 1200 PDUs, 7200 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-CRF: PDUs graded                                    = 1
+  [ok]   RENDER-CRF: every event presented once, in order           = 0
+  [ok]   RENDER-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-CRF: no slip inside the window                      = 0
+  [ok]   RENDER-CRF: nothing refused inside the window              = 0
+  [ok]   RENDER-CRF: the aligner stayed engaged                     = 1
+  [ok]   RENDER-CRF: converged                                      = 1
+
+[RENDER-ARRIVE-CRF] the running feed arrives three ticks later, then three earlier: no presentation moves
+  RENDER-ARRIVE-CRF (late): 41 PDUs, 246 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-CRF: PDUs graded (late)                      = 1
+  [ok]   RENDER-ARRIVE-CRF: every event presented once, in order (late) = 0
+  [ok]   RENDER-ARRIVE-CRF: every event presented at its presentation time (late) = 1
+  [ok]   RENDER-ARRIVE-CRF: no slip across the shift (late)         = 0
+  [ok]   RENDER-ARRIVE-CRF: nothing refused across the shift (late) = 0
+  RENDER-ARRIVE-CRF (early): 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 13.1 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-ARRIVE-CRF: PDUs graded (early)                     = 1
+  [ok]   RENDER-ARRIVE-CRF: every event presented once, in order (early) = 0
+  [ok]   RENDER-ARRIVE-CRF: every event presented at its presentation time (early) = 1
+  [ok]   RENDER-ARRIVE-CRF: no slip across the shift (early)        = 0
+  [ok]   RENDER-ARRIVE-CRF: nothing refused across the shift (early) = 0
+
+[RENDER-STEP-CRF] a PHC adjtime of 65536 ns under the running stream, the talker's time moved with it: no presentation moves
+  RENDER-STEP-CRF: the domain's instants moved 65532 ns (the command: 65536 ns)
+  [ok]   RENDER-STEP-CRF: the step reached the domain's instants    = 1
+  RENDER-STEP-CRF: 42 PDUs, 252 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 12.6 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-STEP-CRF: PDUs graded                               = 1
+  [ok]   RENDER-STEP-CRF: every event presented once, in order      = 0
+  [ok]   RENDER-STEP-CRF: every event presented at its presentation time = 1
+  [ok]   RENDER-STEP-CRF: no slip across the step                   = 0
+  [ok]   RENDER-STEP-CRF: nothing refused across the step           = 0
+  [ok]   RENDER-STEP-CRF: presenting throughout (converged)         = 1
+
+[RING-CRF] under CRF the ring's push (the physical grid) and pop (the aligned packet grid) are one grid
+  [ok]   RING-CRF: the align loop is engaged                        = 1
+  restart PDU landed 1937 cycles after a tick (aim 1938, band 1875..2000)
+  [ok]   RING-CRF: the restart PDU landed inside the aimed band     = 1
+  ring over the same 23873557-cycle window: 0 dup, 0 skip (first dup at -1); TDM junction 0 dup, 0 skip
+  align-loop phase error at the window's end: 0 cycles
+  [ok]   RING-CRF: zero ring dups over the window that exposed -10.64 ppm at INTERNAL = 0
+  [ok]   RING-CRF: zero ring skips                                  = 0
+  [ok]   RING-CRF: zero TDM junction slips over the same window     = 0
+  [ok]   RING-CRF: the align loop stayed engaged                    = 1
+  [ok]   RING-CRF: SLIP_LB still reads its tap under lock           = 2883664
+  [ok]   RING-CRF: SLIP_TDM still reads its tap under lock          = 0
+  [ok]   CHMAP_LOOP is a measurement, not the 0xDEADDEAD poison     = 0
+  [ok]   CHMAP_SNAP valid: a snapshot completed behind that word    = 1
+  [ok]   RING-CRF: CHMAP_LOOP {mask_valid, valid, fed}              = 7
+
+[MR] the received mr toggle reaches our streams - only under CRF
+  [ok]   MR baseline: our CRF output is emitting                    = 2
+  [ok]   MR: our outgoing mr FLIPPED on the received toggle (CRF selected) = 0
+  [ok]   MR: deselect resolves back                                 = 0
+  [ok]   MR: the source change itself toggles mr (4.4.4.3)          = 1
+  [ok]   MR: the received toggle does NOT echo at INTERNAL (10.4.3) = 1
+  [ok]   MR: align loop stays engaged back at INTERNAL (A2-a)       = 1
+
+[RENDER-LIVE-INT] the deselect under the running stream: no presentation moved
+  [ok]   RENDER-LIVE-INT: no slip across the deselect               = 0
+  [ok]   RENDER-LIVE-INT: nothing refused across the deselect       = 0
+  RENDER-LIVE-INT: 720 PDUs, 4320 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.5 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-LIVE-INT: PDUs graded                               = 1
+  [ok]   RENDER-LIVE-INT: every event presented once, in order      = 0
+  [ok]   RENDER-LIVE-INT: every event presented at its presentation time = 1
+  [ok]   RENDER-LIVE-INT: converged                                 = 1
+
+[SLIP-CSR] SLIP_LB 0x8D4 / SLIP_TDM 0x8D8 carry the junction counters
+  [ok]   SLIP-CSR: one held frame = one TDM junction dup            = 1
+  TDM junction: +1 dup after the held frame, +2 skip after the doubled frames
+  [ok]   SLIP-CSR: doubled frames = TDM junction skips              = 1
+  SLIP_TDM 0x00020001 (tap 0x00020001)
+  [ok]   SLIP-CSR: SLIP_TDM carries the junction's {skip, dup}      = 131073
+  SLIP_LB  0x002C0050 (tap 0x002C0050)
+  [ok]   SLIP-CSR: SLIP_LB carries the ring's {skip, dup}           = 2883664
+  [ok]   SLIP-CSR: both words are non-zero after the induced slips  = 1
+  [ok]   SLIP-CSR: SLIP_LB ignores writes                           = 2883664
+  [ok]   SLIP-CSR: SLIP_TDM ignores writes                          = 131073
+  [ok]   RENDER-CSR: talker selection reads zero                    = 0
+  [ok]   RENDER-CSR: bit 9 preserves talker rejection               = 0
+  [ok]   RENDER-CSR: out-of-range listener reads zero               = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: bit 9 with listener 0 mirrors taps             = 131648
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131648
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: write ignored mirrors taps                     = 131647
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131647
+
+----------------------------------------------------------------------
+media_aclk: 182 checks, 0 failures
+RESULT: PASS

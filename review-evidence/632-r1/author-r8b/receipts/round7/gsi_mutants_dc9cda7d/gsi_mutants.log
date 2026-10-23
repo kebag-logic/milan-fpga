@@ -1,0 +1,14 @@
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: the processor ties a sink's failure bridge id to zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id" (its tallies report 7 failure(s) across 461 checks)
+[PASS] mutant caught: selector 5 goes back to the parent, whose input answer is zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id" (its tallies report 7 failure(s) across 461 checks)
+[PASS] mutant caught: the processor ties a sink's failure code to zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_code" (its tallies report 7 failure(s) across 461 checks)
+[PASS] mutant caught: the failure-code byte is left to the parent, which no longer supplies it - breaks "[GSI] G5 sink 1 Talker Failed: msrp_failure_code" (its tallies report 7 failure(s) across 461 checks)
+[PASS] mutant caught: the processor ties probing/ACMP status to zero - breaks "[GSI] G2 sink 0 two probes unanswered: acmp_status" (its tallies report 21 failure(s) across 461 checks)
+[PASS] mutant caught: the processor reads the other sink's owners - breaks "[GSI] G5 sink 0 beside the other sink's failure: msrp_failure_bridge_id" (its tallies report 42 failure(s) across 461 checks)
+[PASS] mutant caught: the parent's bound/settled approximation answers selector 7 again - breaks "[GSI] G1 sink 0 bound: probing_status" (its tallies report 14 failure(s) across 461 checks)
+[PASS] mutant caught: the processor duplicates the withdrawal push after 4096 cycles - breaks "[GSI] G8 sink 0 withdrawn: unsolicited GET_STREAM_INFO(sink 0) to A" (its tallies report 2 failure(s) across 477 checks)
+[PASS] mutant caught: SET_STREAM_INFO's push gate compares with the applied offset again - breaks "[NOTIFY] SET_STREAM_INFO CRF step 3: 2,010,000 ns again modifies nothing" (its tallies report 3 failure(s) across 461 checks)
+[PASS] mutant caught: GET_STREAM_INFO reads the CRF output's offset as set, not applied - breaks "[NOTIFY] SET_STREAM_INFO CRF step 2: GET_STREAM_INFO reads the offset applied, whole periods" (its tallies report 3 failure(s) across 461 checks)
+[PASS] mutant caught: GET_STREAM_INFO reads every output's offset rounded by Equation 14 again - breaks "[NOTIFY] SET_STREAM_INFO step 2: GET_STREAM_INFO reads the offset as set" (its tallies report 3 failure(s) across 461 checks)
+
+12 checks: 12 PASS, 0 FAIL

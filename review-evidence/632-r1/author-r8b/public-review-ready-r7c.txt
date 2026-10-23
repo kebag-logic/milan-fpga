@@ -1,0 +1,22 @@
+[A659] REVIEW READY
+Commit: c2c996faabce038ab23b69343ddef36e3647193a (PR #770, branch 632-764-media-phase; one commit on d835ba12, no rebase, no amend; not pushed)
+Assignment: the [A10] round 7c ruling on PR #770, issuecomment-6360257772 (ruling (c): the detector stays unchanged; ruling (a): a test-only fix in this PR).
+
+Changed (test and docs only; git diff --stat d835ba12 c2c996fa -- hdl syn configs is empty):
+- gmstep_mutants.py, the control "the grandmaster change stops the talker for good": the planted stop now latches on gm_recentre_p_r && (|aaf_stream_en_raw_w), the first detector pulse while the talker's gate is open. That is the leg's own GM A -> GM B event: the leg opens the gate after acquisition, so the boot own-identity -> GM A pulse cannot latch it. No pulse count is involved. Its meaning and its named check are unchanged.
+- The driver prints the failed check names for every control and for a failing clean leg.
+- The clean gmstep leg records the adopted behaviour (IEEE 802.1AS-2020 9.6.2.2, 10.2.4.13): "boot grandmaster: the detector pulsed once, at this station's own identity -> GM A, and the baseline talker streams after it". The detector's pulse and register reach the harness through a read-only probe file (tb/verilator/milan_dp/gmstep_probes.vlt) on the gmstep recipe.
+- A new --all control, "the detector exempts this station's own boot identity" (the behaviour ruling (c) rejects), must fail that check. Inventory docs (milan_dp README, TESTING, GM_LOSS_RECOVERY) and CHANGELOG are updated. This PR repairs dev's gmstep-mutants campaign.
+
+Validation (receipts under receipts/round7/, index generated from the files present):
+- The fixed control planted alone (the driver's own plant, build and run, whole leg), at the head's test files and on a clean dev e5b480a3 clone with only the test fix applied: caught at both. "baseline: the talker streams" passes and 12 checks fail, "licence: the talker never pauses beyond four of its intervals" among them; the same 12 on both.
+- The new control planted alone, at both: caught, exactly one failed check (the boot record).
+- gmstep-mutants (--all) at c2c996fa: exit 0, 23 checks, 23 PASS (both clean legs; the gmstep leg 196 checks, 0 failures; 21 controls). The R678-3 campaign audit records gmstep 21 of 21.
+- Firmware boundary gate (ctrl_boundary.py --require-rv32 --selftest): exit 0, PASS.
+- Full sweep at c2c996fa: 63 of 64 suites, 2,190,061 checks, 0 failures (shards 15/15, 16/16, 16 of 17, 16/16). In shard 2 the runner's 2,400 s wall clock stopped capture_coherence (result unknown, not a failure). Run again alone, the runner's own invocation on the same two CPUs: exit 0 in 2,402 s, 20,832 + 447 checks, 0 failures, campaign 35 of 35, tally verdict clean.
+- Docs workflow gate steps: 42 of 44 run and pass, 2 skipped by rule; the LiteX builder leg, the markdown gates on 3.12.3 and the no-git pair also pass. Lint PASS 89 <= 89. pp_resource_gate.py check-baseline: "baseline PASS: 3 endpoints". The re-recorded resource record stands (no RTL change).
+- Not re-run because c2c996fa changes none of their inputs: the Vivado bank, Yosys, tdm8render-mutants (31/31), the pull-in (19/19), the builder bank and the rest of the firmware set (round 7b, at d835ba12 / 5282b8b6).
+
+Acceptance criteria: round 7c items 1-3 done; no STOP condition reached (no gate failed, no RTL change). #632's simulation items are met. The bench proof (#764 method) follows after merge, so the PR stays "Relates to".
+Open risks/questions:
+- capture_coherence needs about the whole 2,400 s runner budget on two CPUs, so it times out in this host's sweep layout (rounds 1 and 6 too). It passes alone.
