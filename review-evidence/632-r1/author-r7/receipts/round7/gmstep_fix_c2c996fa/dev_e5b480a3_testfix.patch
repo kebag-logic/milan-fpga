@@ -1,0 +1,253 @@
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index fb64dfb14..b8b710b2e 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -424,7 +424,8 @@ exec-gptp:
+ # the costliest leg on this suite's worker. The AEM image is the shipping
+ # config's. GMSTEP_FEED_DELAY idles that many fabric cycles before the peer's
+ # media feed starts, which moves the accept phase against the media tick; the
+-# leg must pass at every delay.
++# leg must pass at every delay. gmstep_probes.vlt opens the GM-change
++# detector's pulse and register to the harness, read only.
+ GMSTEP_MDIR ?= obj_gmstep
+ GMSTEP_FEED_DELAY ?= 0
+ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+@@ -432,7 +433,7 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
+ 	python3 ../../../avdecc/gen_aemi_image.py --overlay $(GMSTEP_MDIR)/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $(GMSTEP_MDIR)/aemi.bin
+ 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir $(GMSTEP_MDIR) \
+ 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
+-	  $(SRCS) sim_gmstep.cpp -o Vmilan_dp_gmstep
++	  gmstep_probes.vlt $(SRCS) sim_gmstep.cpp -o Vmilan_dp_gmstep
+ 
+ gmstep: gmstep-build
+ 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)
+diff --git a/tb/verilator/milan_dp/sim_gmstep.cpp b/tb/verilator/milan_dp/sim_gmstep.cpp
+index 18963132f..8c8f74e9f 100644
+--- a/tb/verilator/milan_dp/sim_gmstep.cpp
++++ b/tb/verilator/milan_dp/sim_gmstep.cpp
+@@ -63,6 +63,11 @@
+ // asCapable, the published link delay, tu, the public counters and media
+ // continuity across several Pdelay intervals of each step.
+ //
++// FPGA-gPTP #82: the station is its own grandmaster from boot, so GM A is a
++// grandmaster change, not an acquisition. The baseline records that the
++// datapath's GM-change detector pulses once, at this station's own identity
++// -> GM A, and that the talker, opened after it, still streams.
++//
+ // Usage: Vmilan_dp_gmstep <aem image> [feed delay] [--no-small-steps]. The
+ // optional feed delay (fabric cycles, default 0) idles before the peer's
+ // media feed starts, which moves the accept phase against the media tick; a
+@@ -98,6 +103,10 @@ namespace {
+ constexpr uint64_t kPeer = 0x0080E1FFFE112233ULL;
+ constexpr uint64_t kGmA = 0x00AACCFFFE010203ULL;
+ constexpr uint64_t kGmB = 0x00BBDDFFFE040506ULL;
++//! thisClock of this leg's gptp_ucode.hex (the generator's default MAC
++//! 02:A1:B2:C3:D4:E5). Since FPGA-gPTP #82 the station is its own
++//! grandmaster from boot and publishes this identity until a peer wins.
++constexpr uint64_t kThisClock = 0x02A1B2FFFEC3D4E5ULL;
+ constexpr uint8_t kPriorityA = 100;
+ constexpr uint8_t kPriorityB = 50;             //! better: the change is real
+ constexpr uint64_t kClkHz = 2000000;
+@@ -257,6 +266,14 @@ struct Trace {
+ };
+ 
+ //! The AXI4-Lite handshakes of one cycle, sampled before its edge.
++//! One pulse of the datapath's GM-change detector (milan_datapath.sv
++//! g_gm_recentre): its cycle, the identity it left and the one it names.
++struct GmPulse {
++    uint64_t cyc = 0;
++    uint64_t from = 0;
++    uint64_t to = 0;
++};
++
+ struct AxiFires {
+     bool aw = false;
+     bool w = false;
+@@ -333,6 +350,11 @@ class GmStepHarness {
+ 
+     // what the observers saw
+     Trace trace_;
++    //! every GM-change detector pulse from reset, and the identity the
++    //! detector holds and the one it held before (kept across acquire())
++    std::vector<GmPulse> gm_pulses_;
++    uint64_t gm_held_ = 0;
++    uint64_t gm_left_ = 0;
+     uint64_t recentres_seen_ = 0;              //! the counted tally, last sample
+     //! (accept cycle, fill right after that PDU's push), closed at the next
+     //! accept; the open window's accept and running peak
+@@ -491,6 +513,13 @@ void GmStepHarness::observe() {
+         trace_.tu_at_identity = tu;
+     }
+     trace_.tu_prev = tu;
++    //! the detector's own register and pulse (gmstep_probes.vlt): both
++    //! change on the same edge, so the identity it left is the one held
++    //! before this sample
++    const uint64_t gm_held = root->milan_datapath__DOT__gm_recentre_q_r;
++    if (gm_held != gm_held_) { gm_left_ = gm_held_; gm_held_ = gm_held; }
++    if (root->milan_datapath__DOT__gm_recentre_p_r)
++        gm_pulses_.push_back({cyc_, gm_left_, gm_held});
+     if (!(root->milan_datapath__DOT__gptp_pub_flags_w & 4)) ++trace_.incapable_cycles;
+     trace_.servo_locked_cycles += (root->milan_datapath__DOT__mcsrv_stat_w & 7) == 4;
+     const uint32_t delay = root->milan_datapath__DOT__gptp_pub_pdelay_w;
+@@ -908,6 +937,21 @@ void GmStepHarness::baseline() {
+     size_t uncertain = 0;
+     for (size_t i = talker0; i < talker_.size(); ++i) uncertain += talker_[i].tu;
+     check_.that("baseline: the talker streams", talker_.size() - talker0 > 100);
++    //! FPGA-gPTP #82: the station is its own grandmaster from boot, so the
++    //! step from its own identity to GM A is a grandmaster change (IEEE
++    //! 802.1AS-2020 9.6.2.2: gmIdentity is the current grandmaster's whenever
++    //! gmPresent, 10.2.4.13, is TRUE). The detector pulses once there; only
++    //! 0 -> id is exempt. The talker opens after it and still streams.
++    for (const GmPulse& p : gm_pulses_)
++        printf("GMDET: pulse at cycle %llu, %016llx -> %016llx\n",
++               static_cast<unsigned long long>(p.cyc),
++               static_cast<unsigned long long>(p.from),
++               static_cast<unsigned long long>(p.to));
++    check_.that("boot grandmaster: the detector pulsed once, at this station's own identity -> GM A, "
++                "and the baseline talker streams after it",
++                gm_pulses_.size() == 1 && gm_pulses_[0].from == kThisClock &&
++                gm_pulses_[0].to == kGmA && talker_.size() - talker0 > 100 &&
++                talker_[talker0].cyc > gm_pulses_[0].cyc);
+     if (talker_.size() > talker0 + 1)
+         talker_interval_ = double(talker_.back().cyc - talker_[talker0].cyc)
+                          / double(talker_.size() - talker0 - 1);
+diff --git a/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py b/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
+index ab7ec1cd3..cb0e01952 100755
+--- a/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
++++ b/tb/verilator/milan_dp_gm_steps/gmstep_mutants.py
+@@ -19,7 +19,8 @@ this accept-timed stage. The explicit --all campaign also grades the existing
+ holdover, continuity, render-law and slew controls, and restores either PHC
+ cause separately on the INTERNAL option-off leg.
+ It also restores both PHC causes together and vetoes a genuine CRF request
+-on the very cycle a software settime re-bases the PHC.
++on the very cycle a software settime re-bases the PHC, and exempts this
++station's own boot identity from the grandmaster-change detector.
+ Delayed adjtime causes at 16 and 256 cycles must fail only the adjtime check.
+ 
+ The recipe, the harness and the generated images the legs read belong to
+@@ -81,6 +82,11 @@ CRF_RESTART_TERMS = "        & ((tkd_crflk_q_r ^ crf_locked_w) | crf_mr_toggle_p
+ RESTART_DECL = ("  wire mcr_restart_p_w /* verilator public_flat_rd */ =\n"
+                 "       (crf_clk_selected_r\n" + CRF_RESTART_TERMS + "\n" + RESTART_TRIGGER)
+ TALKER_GATE = "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;"
++#: the GM-change detector's exemption: only the first publication out of
++#: reset (0 -> id) is acquisition
++GM_DETECT_EXEMPT = "                         (gm_recentre_q_r != 64'd0);"
++#: thisClock of the leg's gptp_ucode.hex (sim_gmstep.cpp kThisClock)
++THIS_CLOCK = "64'h02A1B2FFFEC3D4E5"
+ 
+ 
+ class Leg(NamedTuple):
+@@ -93,11 +99,13 @@ class Leg(NamedTuple):
+     harness: str                #: its C++ harness, an input of the recipe
+     takes_aem: bool             #: it reads the AEM image beside its binary
+     short_flag: str = ""        #: what --no-small-steps passes it, if anything
++    probes: tuple[str, ...] = ()  #: its Verilator probe files, inputs of the recipe
+ 
+ 
+ LEGS = {
+     "gmstep": Leg("gmstep-build", "GMSTEP_MDIR", DP / "obj_gmstep",
+-                  "Vmilan_dp_gmstep", "sim_gmstep.cpp", True, "--no-small-steps"),
++                  "Vmilan_dp_gmstep", "sim_gmstep.cpp", True, "--no-small-steps",
++                  ("gmstep_probes.vlt",)),
+     "option-off": Leg("option-off-build", "OPTOFF_MDIR", DP / "obj_dir",
+                       "Vmilan_dp_sim", "sim_main.cpp", False),
+ }
+@@ -188,11 +196,17 @@ CONTROLS = [
+             "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r"
+             " & ~clkv_tu_w;",
+             "licence: the talker never pauses beyond four of its intervals", False),
++    # Keyed on the leg's own GM A -> GM B event: the first detector pulse
++    # while the talker's gate is open. Since FPGA-gPTP #82 the detector also
++    # pulses at the boot identity -> GM A step, before the talker opens, so a
++    # stop on any pulse halts the talker before its baseline and never
++    # reaches the named check; a pulse count would break again if the boot
++    # sequence changed.
+     Control("the grandmaster change stops the talker for good", "datapath", TALKER_GATE,
+             "  logic gm_stop_r;\n"
+             "  always_ff @(posedge axis_clk) begin : p_gm_stop\n"
+             "    if (!axis_resetn) gm_stop_r <= 1'b0;\n"
+-            "    else if (gm_recentre_p_r) gm_stop_r <= 1'b1;\n"
++            "    else if (gm_recentre_p_r && (|aaf_stream_en_raw_w)) gm_stop_r <= 1'b1;\n"
+             "  end : p_gm_stop\n"
+             "  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r"
+             " & ~gm_stop_r;",
+@@ -244,6 +258,15 @@ CONTROLS = [
+             CRF_RESTART_TERMS,
+             CRF_RESTART_TERMS[:-1] + " & ~media_rebase_p_w)",
+             "coincident: a PHC step does not suppress the CRF restart", False),
++    # IEEE 802.1AS-2020 9.6.2.2 and 10.2.4.13: the station's own identity is
++    # the current grandmaster's, so leaving it for GM A is a change. A
++    # detector that treats it as acquisition must fail the clean leg's record.
++    Control("the detector exempts this station's own boot identity", "datapath",
++            GM_DETECT_EXEMPT,
++            GM_DETECT_EXEMPT[:-1] + " &&\n"
++            "                         (gm_recentre_q_r != " + THIS_CLOCK + ");",
++            "boot grandmaster: the detector pulsed once, at this station's own identity -> GM A",
++            False, stays_clean=("baseline: the talker streams",)),
+ ]
+ 
+ 
+@@ -272,7 +295,7 @@ def is_fresh(leg: Leg, exe: Path) -> bool:
+     if out.returncode != 0 or not exe.is_file():
+         return False
+     inputs = [DP / name for name in out.stdout.split()]
+-    inputs += [DP / leg.harness, DP / "Makefile"]
++    inputs += [DP / leg.harness, DP / "Makefile"] + [DP / name for name in leg.probes]
+     built = exe.stat().st_mtime
+     return all(src.is_file() and src.stat().st_mtime <= built for src in inputs)
+ 
+@@ -333,8 +356,8 @@ def run_control(control: Control, work: Path, tag: int, short: bool) -> bool:
+         return False
+     rc, out = run_leg(leg, exe, short)
+     answer = verdict(rc, out, control.breaks)
++    broke = failed_checks(out)
+     if answer == "caught":
+-        broke = failed_checks(out)
+         if any(clean in failure for clean in control.stays_clean for failure in broke):
+             print(f"[FAIL] control {control.name!r} also broke an unrelated event check: {broke}")
+             return False
+@@ -346,6 +369,7 @@ def run_control(control: Control, work: Path, tag: int, short: bool) -> bool:
+               f"\"{control.breaks}\".")
+     else:
+         print(f"[FAIL] control {control.name!r} {answer}")
++    print(f"    it broke {len(broke)} check(s): {'; '.join(broke) or 'none'}")
+     return False
+ 
+ 
+@@ -377,8 +401,12 @@ def main() -> int:
+                 print(f"[INFO] {exe.relative_to(DP)} is missing or older than its "
+                       f"sources: the positive control is rebuilt")
+                 exe = build(leg, {}, work / f"obj_clean_{leg.target}")
+-            answer = (verdict(*run_leg(leg, exe, args.no_small_steps), None) if exe
+-                      else "did not compile")
++            out = ""
++            if exe:
++                rc, out = run_leg(leg, exe, args.no_small_steps)
++                answer = verdict(rc, out, None)
++            else:
++                answer = "did not compile"
+             mode = f" ({leg.short_flag})" if args.no_small_steps and leg.short_flag else ""
+             if answer == "pass":
+                 passes += 1
+@@ -387,6 +415,8 @@ def main() -> int:
+                 fails += 1
+                 print(f"[FAIL] the unmutated gateware does NOT pass the {key} leg{mode} "
+                       f"({answer}) - every control result on it is meaningless")
++                broke = failed_checks(out)
++                print(f"    it broke {len(broke)} check(s): {'; '.join(broke) or 'none'}")
+         for tag, control in enumerate(selected):
+             if run_control(control, work, tag, args.no_small_steps):
+                 passes += 1
+diff --git a/tb/verilator/milan_dp/gmstep_probes.vlt b/tb/verilator/milan_dp/gmstep_probes.vlt
+new file mode 100644
+index 000000000..fd1f9b923
+--- /dev/null
++++ b/tb/verilator/milan_dp/gmstep_probes.vlt
+@@ -0,0 +1,7 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// Read-only GM-change detector observations for sim_gmstep.cpp (FPGA-gPTP
++// #82's boot grandmaster): the pulse and the identity it compares.
++`verilator_config
++public_flat_rd -module "milan_datapath" -var "gm_recentre_p_r"
++public_flat_rd -module "milan_datapath" -var "gm_recentre_q_r"

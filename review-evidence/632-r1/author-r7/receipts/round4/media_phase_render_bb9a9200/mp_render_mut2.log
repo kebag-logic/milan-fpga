@@ -1,0 +1,7 @@
+[PASS] clean render: rc=0
+[PASS] render_read_untimed on render: rc=1 -- [FAIL] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 2541693.5 ns over 2634 samples)
+[PASS] render_b_lead_dropped on render: rc=1 -- [FAIL] [render B] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 21707.7 ns over 2112 samples)
+[PASS] render_frame_off_by_one on render: rc=1 -- [FAIL] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 21667.0 ns over 3208 samples)
+[PASS] render_late_rule_removed on render: rc=1 -- [FAIL] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 2666695.2 ns over 3212 samples)
+[PASS] render_early_rule_removed on render: rc=1 -- [FAIL] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 2666694.9 ns over 3212 samples)
+== media_phase mutants: checks: 6   failures: 0 ==

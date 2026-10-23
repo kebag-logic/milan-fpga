@@ -1,0 +1,8 @@
+6399c6399
+<     .transit_ns_i  (pres_crf_ns_w),
+---
+>     .transit_ns_i  (aecp_pres_offset[32*CRF_TUID_C +: 32]),
+6401c6401
+<     .transit_c_i   (pres_crf_c_w),
+---
+>     .transit_c_i   (1'b0),

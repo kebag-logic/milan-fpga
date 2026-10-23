@@ -1,0 +1,29 @@
+RESULT: PASS
+RESULT: PASS
+RESULT: PASS
+RESULT: PASS
+  [FAIL] [NOTIFY] SET_STREAM_INFO step 3: 2,010,000 ns again modifies nothing and pushes nothing (5.4.5.2) got=0x1 exp=0x0
+  [FAIL] [NOTIFY] SET_STREAM_INFO step 4: 2,020,834 ns, the value GET read, changes the stored offset and pushes once got=0x0 exp=0x1
+  [FAIL] [NOTIFY] SET_STREAM_INFO step 4: the push carries the value set got=0xffffffff exp=0x1ed5e2
+checks: 441   failures: 3
+RESULT: FAIL
+sim_pool: ./obj_notify/Vmilan_dp_notify exited with status 1
+checks: 416   failures: 0
+RESULT: PASS
+checks: 162   failures: 0
+RESULT: PASS
+  [FAIL] [NOTIFY] SET_STREAM_INFO step 1: 2,000,000 ns, the offset held, pushes nothing got=0x1 exp=0x0
+  [FAIL] [NOTIFY] SET_STREAM_INFO step 3: 2,010,000 ns again modifies nothing and pushes nothing (5.4.5.2) got=0x1 exp=0x0
+  [FAIL] [NOTIFY] SET_STREAM_INFO step 4: 2,020,834 ns, the value GET read, changes the stored offset and pushes once got=0x0 exp=0x1
+  [FAIL] [NOTIFY] SET_STREAM_INFO step 4: the push carries the value set got=0xffffffff exp=0x1ed5e2
+checks: 2006   failures: 4
+RESULT: FAIL
+sim_pool: ./obj_nxn/Vmilan_dp_nxn exited with status 1
+sim_pool: ./obj_nxndv/Vmilan_dp_nxndv was not started after a child failure
+sim_pool: ./obj_nxn8/Vmilan_dp_nxn8 was not started after a child failure
+sim_pool: ./obj_nxn4c/Vmilan_dp_nxn4c was not started after a child failure
+sim_pool: ./obj_nolpf/Vmilan_dp_nolpf was not started after a child failure
+sim_pool: ./obj_prune/Vmilan_dp_prune was not started after a child failure
+sim_pool: ./obj_ax1x1/Vmilan_dp_ax1x1 was not started after a child failure
+sim_pool: ./obj_aclk/Vmilan_dp_aclk was not started after a child failure
+sim_pool: first leg in recipe order that did not pass: ./obj_notify/Vmilan_dp_notify

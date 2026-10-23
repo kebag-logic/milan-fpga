@@ -1,0 +1,13 @@
+Slack (MET) :             0.276ns  (required time - arrival time)
+  Source:                 FDPE_3/C
+                            (rising edge-triggered cell FDPE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout4  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             milansoc_crg_clkout4
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            5.000ns  (milansoc_crg_clkout4 rise@5.000ns - milansoc_crg_clkout1 rise@0.000ns)
+  Data Path Delay:        4.428ns  (logic 0.630ns (14.227%)  route 3.798ns (85.773%))
+  Logic Levels:           1  (LUT1=1)
+  Clock Path Skew:        -0.088ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.762ns = ( 11.762 - 5.000 ) 
+    Source Clock Delay      (SCD):    7.091ns

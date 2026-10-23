@@ -1,0 +1,9 @@
+mutant: ungated commit: a closed epoch admits frames anyway
+leg: multi None
+rc: 1
+named check: T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never reaches a slot, though the other rendered stream still feeds it
+  [FAIL] M5 RENDERED LOSS: the adapter's commit gate CLOSED, which the unrelated loss never did
+  [FAIL] T26 MAP WRITE IN A CLOSED EPOCH: the re-seeded crossbar value never reaches a slot, though the other rendered stream still feeds it got=833 exp=0
+  [FAIL] T26 MAP WRITE IN A CLOSED EPOCH: the adapter's commit gate stayed closed got=1 exp=0
+  [i]    T26 (two streams): 119 frame(s) decoded, 120 stream-0 pop(s), 833 nonzero slot(s)
+verdict: 

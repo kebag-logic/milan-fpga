@@ -1,0 +1,33 @@
+verilator --cc --exe --build -j 2 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_pins --top-module pin_wrap ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv pin_wrap.sv sim_pins.cpp -o Vpin_wrap
+make[1]: Entering directory '<host path>'
+g++  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_pins.o ../sim_pins.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o <host path>
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o <host path>
+python3 <host path> -DVL_INCLUDE_OPT=include Vpin_wrap.cpp Vpin_wrap___024root__0.cpp Vpin_wrap__Dpi.cpp Vpin_wrap___024root__Slow.cpp Vpin_wrap___024root__0__Slow.cpp Vpin_wrap_KL_media_if_latency_pkg__Slow.cpp Vpin_wrap__Syms__Slow.cpp > Vpin_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I<host path> -I<host path> -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vpin_wrap__ALL.o Vpin_wrap__ALL.cpp
+g++    sim_pins.o verilated.o verilated_dpi.o verilated_threads.o Vpin_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpin_wrap
+rm Vpin_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<host path>'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.330 MB sources in 7 modules, into 0.346 MB in 7 C++ files needing 0.000 MB
+- Verilator: Walltime 5.241 s (elab=0.005, cvt=0.025, bld=5.191); cpu 0.044 s on 2 threads; allocated 281.566 MB
+======================================================================
+obj_pins/Vpin_wrap
+[pins] three interfaces on one clock domain: A TDM8 owner, B TDM4, C TDM32, graded at their pins
+  info: [pins A] 1435 stamps, 11480 slot grades, max |stamp - (slot MSB - offset)| 30.2 ns
+  [ ok ] [pins A] stamps graded at every slot (11480)
+  [ ok ] [pins A] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 30.2 ns)
+  [ ok ] [pins A] ...and inside the derivation, +/-40 ns (max 30.2 ns)
+  info: [pins B] 1435 stamps, 5740 slot grades, max |stamp - (slot MSB - offset)| 29.5 ns
+  [ ok ] [pins B] stamps graded at every slot (5740)
+  [ ok ] [pins B] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 29.5 ns)
+  [ ok ] [pins B] ...and inside the derivation, +/-40 ns (max 29.5 ns)
+  info: [pins C] 1435 stamps, 45920 slot grades, max |stamp - (slot MSB - offset)| 30.6 ns
+  [ ok ] [pins C] stamps graded at every slot (45920)
+  [ ok ] [pins C] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 30.6 ns)
+  [ ok ] [pins C] ...and inside the derivation, +/-40 ns (max 30.6 ns)
+  [ ok ] [pins] every CRF timing point is a frame instant of ALL three interfaces' pins, inside +/-5 % of Ps (14 points, max A 29.7 ns, B 15.8 ns, C 95.8 ns)
+  [ ok ] [pins] the interfaces' constants differ (A 20964.0 ns, B 20801.3 ns, C 5308.5 ns): at least 162.8 ns apart, beyond the derivation band, so a swap cannot pass
+== media_phase pins: checks: 11   failures: 0 ==
+RESULT: PASS

@@ -1,0 +1,7 @@
+python3 scripts/suite_tally.py <dir holding all_but_notify.log as milan_dp.log>
+suite                        checks   failures  tallies
+milan_dp                        11629          0       14
+
+checks: 11629   in-suite failures: 0
+python3 scripts/suite_tally.py --verdict all_but_notify.log -> rc 0
+python3 scripts/suite_tally.py --verdict notify_leg.log -> rc 1 (3 failures of 441: steps 3 and 4 at the pin)

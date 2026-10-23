@@ -1,0 +1,26 @@
+endpoint route-1x1: <work>/gateware
+figure        baseline   candidate     delta  verdict
+LUT              49613       49709        96  ok
+FF               52353       52760       407  ok
+SLICE            15725       15797        72  ok
+RAMB36              74          74         0  ok
+RAMB18              25          25         0  ok
+DSP                 14          13        -1  ok, below the baseline
+WNS_ns           0.215       0.305      0.09  ok
+WHS_ns           0.036       0.036       0.0  ok
+route status: complete, no unrouted net and no routing error
+re-baseline recommended: DSP improved by more than the tolerance; record the accepted measurement so later growth is judged from it
+sub-block movements, not gated:
+  u_pp/u_aecp/u_ucpu: LUT -43, FF +0
+  u_pp/u_notify: LUT +38, FF +0
+  u_pp/u_aecp/u_d3: LUT +30, FF +0
+  u_pp/u_aecp/u_store: LUT -29, FF +0
+  u_pp/u_srp: LUT -26, FF -2
+  u_pp/u_talker: LUT +18, FF +0
+  u_pp/u_event_router: LUT -17, FF +0
+  u_pp: LUT -12, FF -2
+  u_pp/u_srp/u_vlan: LUT +10, FF +0
+  u_pp/u_scoreboard: LUT -9, FF +0
+  u_pp/u_srp/u_listener: LUT -9, FF +0
+  u_pp/u_srp/u_talker: LUT -7, FF -2
+RESULT: PASS

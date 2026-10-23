@@ -1,0 +1,25 @@
+endpoint route-1x1: <work>/gateware
+figure        baseline   candidate     delta  verdict
+LUT              49613       50329       716  REGRESSION: grew by more than 500
+FF               52353       53072       719  REGRESSION: grew by more than 600
+SLICE            15725       15802        77  ok
+RAMB36              74          74         0  ok
+RAMB18              25          25         0  ok
+DSP                 14          14         0  ok
+WNS_ns           0.215       0.048    -0.167  ok
+WHS_ns           0.036       0.033    -0.003  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp/u_aecp: LUT +485, FF -1
+  u_pp/u_aecp/u_dyn: LUT +431, FF +0
+  wrapper: LUT +384, FF -3
+  u_pp: LUT +379, FF -3
+  u_pp/u_srp: LUT -78, FF -2
+  u_pp/u_srp/u_talker: LUT -47, FF -2
+  u_pp/u_aecp/u_store: LUT -29, FF +0
+  u_pp/u_aecp/u_ucpu: LUT -22, FF +0
+  u_pp/u_srp/u_vlan: LUT +17, FF +0
+  u_pp/u_aecp/u_d3: LUT +16, FF +0
+  u_pp/u_event_router: LUT -13, FF +0
+  u_pp/u_srp/u_listener: LUT -13, FF +0
+RESULT: MATERIAL REGRESSION
