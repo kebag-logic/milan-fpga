@@ -260,7 +260,7 @@ CONTROLS = [
             CRF_RESTART_TERMS,
             CRF_RESTART_TERMS[:-1] + " & ~" + PHC_REBASE + ")",
             "coincident: a PHC step does not suppress the CRF restart", False),
-    # IEEE 802.1AS-2020 9.6.2.2 and 10.2.4.13: the station's own identity is
+    # IEEE 802.1AS-2011 9.6.2.1 and 10.2.3.13: the station's own identity is
     # the current grandmaster's, so leaving it for GM A is a change. A
     # detector that treats it as acquisition must fail the clean leg's record.
     Control("the detector exempts this station's own boot identity", "datapath",

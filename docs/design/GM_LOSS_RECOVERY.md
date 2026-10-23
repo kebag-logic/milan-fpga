@@ -292,7 +292,7 @@ The last control exempts the boot identity from the detector.
 
 It must fail the baseline's record of that pulse.
 
-IEEE 802.1AS-2020 makes it a grandmaster change.
+IEEE 802.1AS-2011 makes it a grandmaster change.
 
 ## Option-off behavior
 

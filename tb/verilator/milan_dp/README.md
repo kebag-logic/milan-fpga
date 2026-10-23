@@ -1063,7 +1063,7 @@ CRF selection. The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issue
 
 **The boot grandmaster is a grandmaster change.** Since FPGA-gPTP #82 the
 station is its own grandmaster from boot and publishes its own identity until
-a peer wins (IEEE 802.1AS-2020 9.6.2.2, 10.2.4.13). The step to GM A is
+a peer wins (IEEE 802.1AS-2011 9.6.2.1, 10.2.3.13). The step to GM A is
 therefore a change, and the datapath's detector (`g_gm_recentre`) pulses there;
 only the first publication out of reset, 0 -> id, is exempt. The baseline
 records that pulse and that the talker, opened after it, still streams.

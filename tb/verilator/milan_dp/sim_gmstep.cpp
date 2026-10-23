@@ -975,8 +975,8 @@ void GmStepHarness::baseline() {
     check_.that("baseline: the talker streams", talker_.size() - talker0 > 100);
     //! FPGA-gPTP #82: the station is its own grandmaster from boot, so the
     //! step from its own identity to GM A is a grandmaster change (IEEE
-    //! 802.1AS-2020 9.6.2.2: gmIdentity is the current grandmaster's whenever
-    //! gmPresent, 10.2.4.13, is TRUE). The detector pulses once there; only
+    //! 802.1AS-2011 9.6.2.1: gmIdentity is the current grandmaster's whenever
+    //! gmPresent, 10.2.3.13, is TRUE). The detector pulses once there; only
     //! 0 -> id is exempt. The talker opens after it and still streams.
     for (const GmPulse& p : gm_pulses_)
         printf("GMDET: pulse at cycle %llu, %016llx -> %016llx\n",
