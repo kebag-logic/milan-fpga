@@ -1,0 +1,100 @@
+make: Entering directory '<packet>/scratch/probe/tree/tb/verilator/render_queue'
+$VALIDATION_TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 6 --top-module KL_render_queue -GN_STREAMS_P=2 -GN_CH_P=8 -GN_IF_P=2 -GIF_LEAD_P=$(( 2 + 256 * 3 )) -GEV_LAT_NS_P=20964 -GMAX_HOLD_NS_P=2126000 -GPAY_LEAD_CYC_P=16 -GMAX_EV_P=504 -GCLK_FREQ_HZ_P=1000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DN_IF_TB=2 -DLEAD0_TB=2 -DLEAD1_TB=3 -DEV_LAT_TB=20964 -DMAX_HOLD_TB=2126000 -DPAY_LEAD_TB=16 -DMAX_EV_TB=504 -DCLK_HZ_TB=1000000" --Mdir obj_dir ../../../hdl/ieee1722/aaf/KL_render_queue.sv sim_main.cpp -o VKL_render_queue_sim
+make[1]: Entering directory '<packet>/scratch/probe/tree/tb/verilator/render_queue/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<packet>/scratch/probe/tree/tb/verilator/render_queue/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 6 threads; allocated 16.496 MB
+======================================================================
+./obj_dir/VKL_render_queue_sim
+== KL_render_queue: 2 streams x 8 lanes, 2 interfaces (out-leads 2, 3), 128 rows ==
+  [ ok ] [behind] every event presented to every interface is the frame the law names, byte-exact (916 reads, 0 mismatched beats)
+  [ ok ] [behind] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [boot] every event presented to every interface is the frame the law names, byte-exact (40 reads, 0 mismatched beats)
+  [ ok ] [boot] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [chans] every event presented to every interface is the frame the law names, byte-exact (364 reads, 0 mismatched beats)
+  [ ok ] [chans] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [early] every event presented to every interface is the frame the law names, byte-exact (604 reads, 0 mismatched beats)
+  [ ok ] [early] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [flush] every event presented to every interface is the frame the law names, byte-exact (318 reads, 0 mismatched beats)
+  [ ok ] [flush] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [lap] every event presented to every interface is the frame the law names, byte-exact (554 reads, 0 mismatched beats)
+  [ ok ] [lap] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [late] every event presented to every interface is the frame the law names, byte-exact (324 reads, 0 mismatched beats)
+  [ ok ] [late] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [long] every event presented to every interface is the frame the law names, byte-exact (846 reads, 0 mismatched beats)
+  [ ok ] [long] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [obs] every event presented to every interface is the frame the law names, byte-exact (2446 reads, 0 mismatched beats)
+  [ ok ] [obs] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [place] every event presented to every interface is the frame the law names, byte-exact (580 reads, 0 mismatched beats)
+  [ ok ] [place] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [round] every event presented to every interface is the frame the law names, byte-exact (412 reads, 0 mismatched beats)
+  [ ok ] [round] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [slip] every event presented to every interface is the frame the law names, byte-exact (234 reads, 0 mismatched beats)
+  [ ok ] [slip] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [untimed] every event presented to every interface is the frame the law names, byte-exact (244 reads, 0 mismatched beats)
+  [ ok ] [untimed] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [wrap] every event presented to every interface is the frame the law names, byte-exact (1364 reads, 0 mismatched beats)
+  [ ok ] [wrap] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [late] late PDUs counted once each (10, model 10, phases 10)
+  [ ok ] [early] too-early PDUs counted once each (6, model 6, phases 6)
+  [ ok ] [refused] PDUs with a late or too-early event counted once each in refused_o (15, model 15, phases 15)
+  [ ok ] [untimed] untimed PDUs counted once each (2, model 2)
+  [ ok ] [slip] gaps and overlaps counted (22, model 22)
+  [ ok ] [obs] stream 0: one pop per interface-0 read with a sample (1903, model 1903)
+  [ ok ] [obs] stream 1: one pop per interface-0 read with a sample (276, model 276)
+  [ ok ] [obs] converged after 110 ms of steady presentation, and cleared by the gap after it
+  [ ok ] [wrap] the phase starts before its frame instants cross 2^32 ns, so its PDUs straddle the wrap
+  [ ok ] [if] each interface's render tick comes one cycle after its last beat, once per event (0 off)
+  [ ok ] [if] every stream presents 2 x ceil(N_CH / 2) = 8 lanes to its crossbar, the pad lane of an odd count a channel never latched
+== render_queue: checks: 39   failures: 0 ==
+RESULT: PASS
+======================================================================
+make -s run N_STREAMS=1 N_CH=7 N_IF=1 LEAD1=0 MDIR=obj_odd
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.007 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 6 threads; allocated 16.496 MB
+======================================================================
+== KL_render_queue: 1 streams x 7 lanes, 1 interfaces (out-leads 2, 0), 128 rows ==
+  [ ok ] [behind] every event presented to every interface is the frame the law names, byte-exact (458 reads, 0 mismatched beats)
+  [ ok ] [behind] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [boot] every event presented to every interface is the frame the law names, byte-exact (20 reads, 0 mismatched beats)
+  [ ok ] [boot] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [chans] every event presented to every interface is the frame the law names, byte-exact (182 reads, 0 mismatched beats)
+  [ ok ] [chans] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [early] every event presented to every interface is the frame the law names, byte-exact (302 reads, 0 mismatched beats)
+  [ ok ] [early] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [flush] every event presented to every interface is the frame the law names, byte-exact (159 reads, 0 mismatched beats)
+  [ ok ] [flush] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [lap] every event presented to every interface is the frame the law names, byte-exact (277 reads, 0 mismatched beats)
+  [ ok ] [lap] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [late] every event presented to every interface is the frame the law names, byte-exact (162 reads, 0 mismatched beats)
+  [ ok ] [late] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [long] every event presented to every interface is the frame the law names, byte-exact (423 reads, 0 mismatched beats)
+  [ ok ] [long] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [obs] every event presented to every interface is the frame the law names, byte-exact (1223 reads, 0 mismatched beats)
+  [ ok ] [obs] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [place] every event presented to every interface is the frame the law names, byte-exact (290 reads, 0 mismatched beats)
+  [ ok ] [place] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [round] every event presented to every interface is the frame the law names, byte-exact (206 reads, 0 mismatched beats)
+  [ ok ] [round] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [slip] every event presented to every interface is the frame the law names, byte-exact (117 reads, 0 mismatched beats)
+  [ ok ] [slip] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [untimed] every event presented to every interface is the frame the law names, byte-exact (122 reads, 0 mismatched beats)
+  [ ok ] [untimed] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [wrap] every event presented to every interface is the frame the law names, byte-exact (682 reads, 0 mismatched beats)
+  [ ok ] [wrap] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [late] late PDUs counted once each (10, model 10, phases 10)
+  [ ok ] [early] too-early PDUs counted once each (6, model 6, phases 6)
+  [ ok ] [refused] PDUs with a late or too-early event counted once each in refused_o (15, model 15, phases 15)
+  [ ok ] [untimed] untimed PDUs counted once each (2, model 2)
+  [ ok ] [slip] gaps and overlaps counted (21, model 21)
+  [ ok ] [obs] stream 0: one pop per interface-0 read with a sample (1999, model 1999)
+  [ ok ] [obs] converged after 110 ms of steady presentation, and cleared by the gap after it
+  [ ok ] [wrap] the phase starts before its frame instants cross 2^32 ns, so its PDUs straddle the wrap
+  [ ok ] [if] each interface's render tick comes one cycle after its last beat, once per event (0 off)
+  [ ok ] [if] every stream presents 2 x ceil(N_CH / 2) = 8 lanes to its crossbar, the pad lane of an odd count a channel never latched
+== render_queue: checks: 38   failures: 0 ==
+RESULT: PASS
+make: Leaving directory '<packet>/scratch/probe/tree/tb/verilator/render_queue'

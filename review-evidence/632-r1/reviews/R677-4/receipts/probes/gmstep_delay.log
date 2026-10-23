@@ -1,0 +1,9 @@
+clean feed-delay 777: rc 0, verdict pass, failed []
+GMDET: pulse at cycle 6001430, 02a1b2fffec3d4e5 -> 00aaccfffe010203
+  [ ok ] boot grandmaster: the detector pulsed once, at this station's own identity -> GM A, and the baseline talker streams after it
+anchor count 1
+planted feed-delay 777: rc 1, verdict caught
+named check 'licence: the talker never pauses beyond four of its intervals'
+failed checks: ['tu: talker PDUs graded inside the hold', 'tu: talker PDUs graded after tu clears', 'licence: the talker never pauses beyond four of its intervals', 'licence: the talker keeps its baseline rate within 1%', 'licence: the talker sent PDUs across the event', 'licence: the talker sent PDUs across the event', 'licence: the talker sent PDUs across the event', 'licence: the talker sent PDUs across the event', 'CRF control: outgoing PDUs bracket the received toggle', 'CRF control: selected CRF mr propagates exactly once', 'coincident: PDUs bracket every trial and complete the hold', 'coincident: a PHC step does not suppress the CRF restart']
+  [ ok ] baseline: the talker streams
+GMDET: pulse at cycle 6001430, 02a1b2fffec3d4e5 -> 00aaccfffe010203

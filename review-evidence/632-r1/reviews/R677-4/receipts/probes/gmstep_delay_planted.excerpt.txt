@@ -1,0 +1,18 @@
+  [ ok ] baseline: the talker streams
+GMDET: pulse at cycle 6001430, 02a1b2fffec3d4e5 -> 00aaccfffe010203
+  [ ok ] boot grandmaster: the detector pulsed once, at this station's own identity -> GM A, and the baseline talker streams after it
+TALKER: baseline interval 642.0 cycles
+  [FAIL] tu: talker PDUs graded inside the hold
+  [FAIL] tu: talker PDUs graded after tu clears
+TALKER: 0 PDUs over 826006 cycles to the window end (baseline rate: 1287), longest pause 826006, last PDU 826006 cycles before the end
+  [FAIL] licence: the talker never pauses beyond four of its intervals
+  [FAIL] licence: the talker keeps its baseline rate within 1%
+  [FAIL] licence: the talker sent PDUs across the event
+  [FAIL] licence: the talker sent PDUs across the event
+  [FAIL] licence: the talker sent PDUs across the event
+  [FAIL] licence: the talker sent PDUs across the event
+  [FAIL] CRF control: outgoing PDUs bracket the received toggle
+  [FAIL] CRF control: selected CRF mr propagates exactly once got=0 exp=1
+  [FAIL] coincident: PDUs bracket every trial and complete the hold got=32 exp=0
+  [FAIL] coincident: a PHC step does not suppress the CRF restart got=32 exp=0
+== gmstep: checks: 176   failures: 12 ==
