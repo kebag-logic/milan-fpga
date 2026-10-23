@@ -1,0 +1,15 @@
+[PASS] clean blend: rc=0
+[PASS] clean pins: rc=0
+[PASS] clean render: rc=0
+[PASS] blend_closed_on_tdm_pair on blend: rc=1 -- [FAIL] [blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 15691.1 ns)
+[PASS] i2s_pair_one_pop_late on blend: rc=1 -- [FAIL] [blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 20862.5 ns)
+[PASS] pins_b_constant_dropped on pins: rc=1 -- [FAIL] [pins B] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 20831.5 ns)
+[PASS] pins_constants_swapped on pins: rc=1 -- [FAIL] [pins A] ...and inside the derivation, +/-40 ns (max 192.2 ns)
+[PASS] render_read_untimed on render: rc=1 -- [FAIL] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 2541693.5 ns over 2634 samples)
+[PASS] render_b_lead_dropped on render: rc=1 -- [FAIL] [render B] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 21707.7 ns over 2112 samples)
+[PASS] render_frame_off_by_one on render: rc=1 -- [FAIL] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 21667.0 ns over 3208 samples)
+[PASS] render_late_rule_removed on render: rc=1 -- [FAIL] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 2666695.2 ns over 3212 samples)
+[PASS] pins_c_closed_at_frame_end on pins: rc=1 -- [FAIL] [pins C] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 15614.7 ns)
+[PASS] render_early_rule_removed on render: rc=1 -- [FAIL] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 2666694.9 ns over 3212 samples)
+== media_phase mutants: checks: 13   failures: 0 ==
+59.89 s

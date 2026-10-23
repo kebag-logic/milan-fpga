@@ -1,0 +1,7 @@
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: the processor ties a sink's failure bridge id to zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id" (its tallies report 7 failure(s) across 459 checks)
+[PASS] mutant caught: selector 5 goes back to the parent, whose input answer is zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_bridge_id" (its tallies report 7 failure(s) across 459 checks)
+[PASS] mutant caught: the processor ties a sink's failure code to zero - breaks "[GSI] G5 sink 0 Talker Failed: msrp_failure_code" (its tallies report 7 failure(s) across 459 checks)
+
+4 checks: 4 PASS, 0 FAIL
+545.02 s

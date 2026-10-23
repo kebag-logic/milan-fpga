@@ -1,0 +1,21 @@
+======================================================================
+---- #632/#764 phase loop: one planted defect per loop term ----------
+python3 phase_mutants.py --jobs 4
+[PASS] clean carry: rc=0
+[PASS] clean engage: rc=0
+[PASS] clean engage2: rc=0
+[PASS] clean internal: rc=0
+[PASS] clean pins: rc=0
+[PASS] integrator_floored on carry: rc=1 -- [FAIL] [carry] the integrator moved by exactly sum(e) / 2 (no LSB floored)
+[PASS] phase_term_removed on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[PASS] phase_sign_flipped on engage: rc=1 -- [FAIL] [engage] phase held inside +/-5 % of Ps to the end (max 10375.0 ns)
+[PASS] rate_damping_removed on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[PASS] slew_clamp_removed on engage: rc=1 -- [FAIL] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 436.1)
+[PASS] fold_not_centred on engage2: rc=1 -- [FAIL] [engage2] the pull went the short way (max |phase| 0.4969 Ps after engaging)
+[PASS] pins_b_constant_dropped on pins: rc=1 -- [FAIL] [pins B] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 20831.5 ns)
+[PASS] domain_event_not_backdated on engage: rc=1 -- [FAIL] [engage] the DUT's CRF output on the reference's grid (max 1257.8 ns)
+[PASS] pins_constants_swapped on pins: rc=1 -- [FAIL] [pins A] ...and inside the derivation, +/-40 ns (max 193.2 ns)
+[PASS] refold_removed on internal: rc=1 -- [FAIL] [internal] phase held inside +/-5 % of Ps to the end (max 10305.3 ns)
+[PASS] crf_output_off_grid on engage: rc=1 -- [FAIL] [engage] the DUT's CRF output on the reference's grid (max 10415.8 ns)
+== media_phase mutants: checks: 16   failures: 0 ==
+rc=0

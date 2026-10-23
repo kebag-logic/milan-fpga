@@ -1,0 +1,24 @@
+[A659] REVIEW READY
+Commit: 24a292a0321df6f3516f25cb6e92e24fb1988e65 (PR #770, branch 632-764-media-phase; three commits on 417ec528, no rebase, no amend; not pushed)
+Assignment: the [A10] round 8 assignment on PR #770, issuecomment-6369825862, answering R677-4 (issuecomment-6369812473) and R678-4 (issuecomment-6369815554).
+
+Changed (documentation and comments only; git diff --stat 417ec528..24a292a0 -- hdl syn configs is empty):
+- 1. R677-4-F1, R678-4-F1 (bfa348a6): MILAN_COMPLIANCE_MATRIX.md:221 (the 4.4.4.5/.9 row) and AAF_LATENCY_TAPS.md:105-109 state the per-event rule (IEEE 1722-2016 4.4.4.9, the round-6 ruling). A late or too-early event is refused, and the PDU's other eligible events are presented. A PDU with such an event is counted once. An untimed PDU is not presented and is counted once. The physical-evidence limits are kept.
+- 2. R677-4-F2, R678-4-F2 (bfa348a6): GM_LOSS_RECOVERY.md:321 reads "five negative controls in the sweep; gmstep-mutants runs 21 controls plus two clean legs, 23 checks". The milan_dp README's obj_gmstep row (:90) describes the current leg: tu, and the presentation stage refusing and counting the PDUs stamped across the step, with no render re-base. Every page that states a GM-step count agrees with CONTROLS (21).
+- 3. R677-4-F3 (bfa348a6): TESTING.md:647 says the [NOTIFY] case passes at the adopted processor pin. A gate that compares with GET_STREAM_INFO's word fails CRF steps 3 and 4, and make gsi-mutants plants that gate. The "until the pin moves" workaround is gone.
+- 4. R678-4-F3 (546412d8): the nine citations now cite IEEE 802.1AS-2011 clauses, each looked up in the 2011 text and its corrigenda: REGISTER_MAP.md:1051 and :1478, SUBMODULES.md:242 and :244, sim_ax1x1gptp.cpp:79, :1175 and :1225, and sim_gptp.cpp:51 and :818. The boot and reset own-grandmaster sites cite 10.3.12.1.4 b) and i), with Cor1-2013 (2020's 10.3.13.2.4 b) and i)). The pathTrace append sites cite 10.3.10.2.1 d) (2020's 10.3.13.2.4 f) 5)). Cor2-2015 changes only 11.2.15.3 and applies to none of them. REGISTER_MAP.md:1480 named 2020's 10.3.13.2.4 i) with no edition and now cites 2011 10.3.12.1.4 i).
+- 4, the neighbour REGISTER_MAP.md:1471, reviewed: 2011 writes pathTrace only from a received path trace TLV (10.3.10.2.1 d)). The engine's empty sequence for an Announce without one is now named as the rule IEEE 802.1AS-2020 10.3.11.2.1 d) states, an explicit cross-edition statement, and is no longer attributed to 2011. A scan of every line this PR adds against e26f1816 finds 1 802.1AS-2020 citation, this one, against 9 at 417ec528.
+- 5. R678-4-R1 (24a292a0): dynmap_mutants.py:154, :316, :345 and :386 read "#637:"; :168 reads "The former restore order (#637):".
+
+Validation at 24a292a0 (receipts under receipts/round8/, index generated from the files present):
+- Docs workflow gate steps under GNU Make 4.3 and CPython 3.12.3: 42 of 44 run and pass, 2 skipped by rule; the LiteX builder leg, the markdown gates on 3.12.3 and the no-git pair pass.
+- Lint PASS 89 <= 89. pp_resource_gate.py check-baseline: "baseline PASS: 3 endpoints". py_compile of dynmap_mutants.py: ok.
+- milan_dp gptp leg: exit 0, 185 checks, 185 PASS. ax1x1gptp leg: exit 0, 155 checks, 0 failures.
+- dynmap-mutants (DYNMAP_MUTANT_JOBS=4): exit 0, 68 checks, 68 PASS (5 clean legs, 63 controls caught).
+- git grep for the retired wordings (the whole-PDU rule outside docs/history, "until the pin moves", "20 in gmstep-mutants", the dynmap round labels): all empty.
+- Not re-run because round 8 changes none of their inputs: the full sweep, Vivado, Yosys, and the other campaigns and firmware gates (round 7c at c2c996fa).
+
+Acceptance criteria: round 8 items 1-5 done. No STOP condition was reached: no fix needed an executable change. #632's simulation items are met. The bench proof (#764 method) follows after merge, so the PR stays "Relates to".
+Open risks/questions:
+- pathTrace across editions: read literally, 2011 keeps pathTrace at {thisClock} (10.3.12.1.1) when the slave port's qualified Announce carries no path trace TLV. The pinned gPTP engine publishes count zero, 2020's rule. This is a question for the gPTP owner; this PR changes no engine behaviour.
+- dynmap-mutants needs milan_dp_render's generated inputs on disk. The driver builds the listener's clean leg with -o on tdm8r_aemi.bin, ltn_rom.hex and ucode.hex, so in a fresh clone that clean control fails ("the generated entity image is on disk"). That run was stopped, the inputs were made with that suite's own targets, and the campaign was run again. Dev carries the same precondition, and TESTING.md does not state it: a dev follow-up.

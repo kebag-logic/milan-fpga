@@ -1,0 +1,95 @@
+======================================================================
+media-grid alignment at the TRUE ratio: clk_audio = axis * 391/1591
+======================================================================
+
+[RENDER-BIND] listener 0 bound over ACMP for the render-law phases
+  [ok]   [RENDER-BIND] PP_STAT the restore walk ended CLOSED (no AEM image: busy 0, done 0, fail 1) = 1
+  [ok]   [RENDER-BIND] PP_STAT[20:18] ...on the D3 cause of an unproven image (7) = 7
+  [ok]   RENDER-BIND: the listener launched a PROBE_TX at the named talker = 1
+  [ok]   RENDER-BIND: listener bound (0x6A4[3], the class-D record) = 1
+
+[RENDER-INT] the presentation law at INTERNAL (A2-a: cadence = the physical grid the packet grid is held on)
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: reset mirrors taps                             = 256
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 256
+  [ok]   RENDER-CSR: idle at reset, nothing queued                  = 256
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: queued mirrors taps                            = 346
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 346
+  [ok]   RENDER-CSR: frames queued ahead of the first presentation  = 1
+  [ok]   RENDER-CSR: idle until the stream's first presentation time = 1
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: converged mirrors taps                         = 601
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 601
+  [ok]   RENDER-CSR: converged bit reached the word                 = 1
+  [ok]   RENDER-CSR: presenting (idle clear)                        = 0
+  [ok]   RENDER-INT: every injected PDU was accepted                = 960
+  RENDER-INT: the frame period 20833.555 ns (the clock plan); the domain's events measured 20833.554 ns apart
+  RENDER-INT: 943 PDUs, 5658 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.8 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-INT: PDUs graded                                    = 1
+  [ok]   RENDER-INT: every event presented once, in order           = 0
+  [ok]   RENDER-INT: every event presented at its presentation time = 1
+  [ok]   RENDER-INT: no slip inside the window                      = 0
+  [ok]   RENDER-INT: nothing refused inside the window              = 0
+  [ok]   RENDER-INT: nothing handed over that no PDU of this leg carried = 0
+  [ok]   RENDER-INT: converged                                      = 1
+
+[RENDER-REFUSE] a late PDU, a too-early one and one without tv, each between two of the running stream's: each counted once, none presented
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: before the refused PDUs mirrors taps           = 601
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 601
+  [ok]   RENDER-REFUSE: the late PDU counted once in late_o         = 1
+  [ok]   RENDER-REFUSE: the too-early PDU counted once in early_o   = 1
+  [ok]   RENDER-REFUSE: the PDU without tv counted once in untimed_o = 1
+  [ok]   RENDER-REFUSE: no refused PDU presented                    = 0
+  [ok]   RENDER-REFUSE: no slip                                     = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: refused mirrors taps                           = 131677
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131677
+  [ok]   RENDER-REFUSE: RENDER_STAT's refused field counts the late and the too-early PDU = 2
+  [ok]   RENDER-REFUSE: a refused PDU leaves the stream converged   = 1
+  RENDER-REFUSE: 45 PDUs, 270 events: 0 never presented, 0 repeated, 0 out of order; the largest |presented - presentation time| 9.8 ns (+/-5 % of Ps is 1041.7 ns)
+  [ok]   RENDER-REFUSE: PDUs graded                                 = 1
+  [ok]   RENDER-REFUSE: every event presented once, in order        = 0
+  [ok]   RENDER-REFUSE: every event presented at its presentation time = 1
+  [ok]   RENDER-CSR: talker selection reads zero                    = 0
+  [ok]   RENDER-CSR: bit 9 preserves talker rejection               = 0
+  [ok]   RENDER-CSR: out-of-range listener reads zero               = 0
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: bit 9 with listener 0 mirrors taps             = 131677
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131677
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: write ignored mirrors taps                     = 131677
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 131677
+  [ok]   RENDER-CSR: AR handshake                                   = 1
+  [ok]   RENDER-CSR: R response                                     = 1
+  [ok]   RENDER-CSR: OKAY response                                  = 0
+  [ok]   RENDER-CSR: reset again mirrors taps                       = 256
+  [ok]   RENDER-CSR: RVALID held under backpressure                 = 1
+  [ok]   RENDER-CSR: sampled word held under backpressure           = 256
+  [ok]   RENDER-CSR: reset clears the word to idle                  = 256
+
+----------------------------------------------------------------------
+media_aclk: 79 checks, 0 failures
+RESULT: PASS

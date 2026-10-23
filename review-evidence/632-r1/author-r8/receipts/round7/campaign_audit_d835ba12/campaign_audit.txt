@@ -1,0 +1,71 @@
+tb/verilator/milan_dp_render/tdm8_render_mutants.py:MUTATIONS: 20 entries; 20 with a [PASS] line and no [FAIL] line
+  RECORDED wrong physical base: the identity projection
+  RECORDED wrong slot order: the bank walk runs backwards
+  RECORDED shared identity corruption: one pdu bit of EVERY channel
+  RECORDED one-bit phase slip: the bit for position p, not p + 1
+  RECORDED drop NEWEST: the prefetch keeps the have-next guard
+  RECORDED the epoch request does not RETAIN across a reset
+  RECORDED ungated commit: a closed epoch admits frames anyway
+  RECORDED the serial reset rebuilt from two reconverged levels, with arrival skew
+  RECORDED the epoch request races the acknowledgement instead of waiting
+  RECORDED the epoch gate reaches the FIFO but not the adapter
+  RECORDED the graceful flush tears the frame in flight
+  RECORDED the render out-lead one frame long
+  RECORDED the domain event's instant not back-dated
+  RECORDED modelled bit-arrival skew, raw binary transport
+  RECORDED A2-a removed: the aligner is not engaged at INTERNAL
+  RECORDED the render out-lead one frame long, at every [LAW] phase
+  RECORDED the settle recentre never pulses
+  RECORDED the bind-fall mask is not stream qualified
+  RECORDED the lane's stream set ignores the mapping's stream field
+  RECORDED the CSR protocol-store mirror gated on the physical projection
+tb/verilator/milan_dp_render/tdm8_render_mutants.py:CLEAN_CONTROLS: 3 entries; 3 with a [PASS] line and no [FAIL] line
+  RECORDED modelled arrival skew, one extra cycle on the acknowledgement level
+  RECORDED modelled arrival skew, one extra cycle on the serial-reset level
+  RECORDED modelled bit-arrival skew, gray retained
+tb/verilator/milan_dp_render/tdm8_render_mutants.py:LEG_DEFECTS: 3 entries; 3 with a [PASS] line and no [FAIL] line
+  RECORDED stopped render clock
+  RECORDED a single changed sample
+  RECORDED the clock-source selection names INTERNAL
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:CONTROLS: 20 entries; 19 with a [PASS] line and no [FAIL] line
+  RECORDED the policy level is tied low at the servo
+  RECORDED the policy level omits the applied-rate tail
+  RECORDED the policy level misses an extra addend stage
+  RECORDED the PHC re-base restart term is restored
+  RECORDED the source-change term is removed
+  RECORDED selected CRF mr propagation is removed
+  RECORDED the grandmaster identity empties the render stage
+  RECORDED the step empties the render stage
+  RECORDED the refused PDUs are not counted
+  RECORDED tu reaches the talkers four cycles late
+  RECORDED the plane's step does not re-arm the holdover
+  RECORDED tu stops the talker
+  MISSING  the grandmaster change stops the talker for good
+  RECORDED a gap in the presented frames leaves no counted slip
+  RECORDED software settime is restored as an mr cause
+  RECORDED PHC adjtime is restored as an mr cause
+  RECORDED both PHC restart causes are restored
+  RECORDED PHC adjtime becomes an mr cause 16 cycles later
+  RECORDED PHC adjtime becomes an mr cause 256 cycles later
+  RECORDED a PHC step suppresses a coincident CRF restart
+T647 PULLIN phases named per log:
+  pullin_d835ba12/pullin_0.log: {'phases': ['+0'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_1042.log: {'phases': ['+1042'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_1156.log: {'phases': ['+1156'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_1172.log: {'phases': ['+1172'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_130.log: {'phases': ['+130'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_1302.log: {'phases': ['+1302'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_1432.log: {'phases': ['+1432'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_1562.log: {'phases': ['+1562'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_1693.log: {'phases': ['+1693'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_1823.log: {'phases': ['+1823'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_1953.log: {'phases': ['+1953'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_260.log: {'phases': ['+260'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_391.log: {'phases': ['+391'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_521.log: {'phases': ['+521'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_651.log: {'phases': ['+651'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_781.log: {'phases': ['+781'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_911.log: {'phases': ['+911'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_927.log: {'phases': ['+927'], 'result': 'PASS', 'tally': ('28', '0')}
+  pullin_d835ba12/pullin_history.log: {'phases': ['+1562'], 'result': 'PASS', 'tally': ('272', '0')}
+  tdm8render_mutants_d835ba12/tdm8render-campaign.log: {'phases': ['+1562'], 'result': None, 'tally': None}

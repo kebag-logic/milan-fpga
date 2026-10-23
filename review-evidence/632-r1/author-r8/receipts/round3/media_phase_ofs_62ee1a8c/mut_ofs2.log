@@ -1,0 +1,7 @@
+[PASS] clean ofs: rc=0
+[PASS] offset_rounding_bypassed on ofs: rc=1 -- [FAIL] [ofs A] every row reads back as applied, rounded up to whole periods, all 33 bits
+[PASS] mtt_carry_dropped on ofs: rc=1 -- [FAIL] [ofs C] every row reads back as applied, rounded up to whole periods, all 33 bits
+[PASS] mtt_reset_carry_dropped on ofs: rc=1 -- [FAIL] [ofs A] in reset every row reads its factory value rounded up to whole periods, all 33 bits
+[PASS] readback_saturation_dropped on ofs: rc=1 -- [FAIL] [ofs C] GET_STREAM_INFO reads every row as applied, 0xFFFFFFFF past 32 bits
+[PASS] crf_carry_dropped on ofs: rc=1 -- [FAIL] [ofs C] every CRF timing point is a frame instant plus the CRF row as read back (4)
+== media_phase mutants: checks: 6   failures: 0 ==

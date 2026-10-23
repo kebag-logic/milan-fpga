@@ -1,0 +1,5 @@
+[PASS] clean det:afterhold: rc=0
+[PASS] clean det:balanced: rc=0
+[PASS] tracking_fold_removed on det:balanced: rc=1 -- [FAIL] [det balanced] the window phase reads the half-period phase (theta 0, |theta| >= 28125)
+[PASS] hold_keeps_ref on det:afterhold: rc=1 -- [FAIL] [det afterhold] after a hold, samples either side of +/-Ps/2 read the half-period phase (theta 0, |theta| >= 28125)
+== media_phase mutants: checks: 4   failures: 0 ==

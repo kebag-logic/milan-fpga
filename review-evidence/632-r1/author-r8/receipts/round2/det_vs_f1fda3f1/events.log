@@ -1,0 +1,8 @@
+[det events] the phase detector alone, 256 PDUs a window
+  [ ok ] [det events] settled before the restart
+  [ ok ] [det events] settled reads 0 on the cycle after an mr restart
+  [ ok ] [det events] after the restart settled rises only at the close of the fourth clean window (at 4)
+  [ ok ] [det events] settled falls at the first window with a sample out of the band and stays low
+  [ ok ] [det events] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase det events: checks: 5   failures: 0 ==
+RESULT: PASS

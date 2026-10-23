@@ -1,0 +1,44 @@
+[A659] STOP
+
+milan-fpga head: d835ba12dbd7bdf65c09d5398ac8c6d31ca39725 (branch 632-764-media-phase, PR #770; not pushed). On 5282b8b6 it adds two commits, `17280d2d` (the resource record) and `d835ba12` (its documentation); no rebase, no amend. protocol-processor is at 93fb0b2d and gptp-processor at 55680bff, both clean.
+STOP condition hit (round 7b assignment, https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062): "STOP if any gate or campaign fails". `gmstep-mutants` fails at the head, and dev e5b480a3's own tree fails it the same way.
+
+**The failure.** `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` (`--all`) exits 2 at d835ba12: 22 checks, 21 PASS, 1 FAIL. The control "the grandmaster change stops the talker for good" fails the leg, but not its named check, "licence: the talker never pauses beyond four of its intervals". The control is dev's (`gmstep_mutants.py:195-203`, since 2026-10-10). It latches a stop on the datapath's GM-change detector `gm_recentre_p_r` (`milan_datapath.sv:7701-7711`).
+
+**Why.** The driver does not print which checks broke in this case, so the control was planted alone, the driver's own way, on a disposable copy:
+- At d835ba12 it fails 14 checks, among them "baseline: the talker streams". The talker never sends a PDU, so the pause check has nothing to measure.
+- On a clean clone of dev e5b480a3 it fails the same 14 checks with the same verdict. So the failure predates this PR. Round 6, on the old gPTP pin e4869fd0, caught this control (22 of 22).
+- A display on the detector's input on the clean leg shows the published grandmaster going 0 -> `02a1b2fffec3d4e5` (this station's own identity: FPGA-gPTP #82's boot grandmaster, adopted by #771) -> `00aaccfffe010203` (GM A, at acquisition). The detector exempts only 0 -> id. So it now pulses at acquisition, before the baseline, as well as at the leg's GM A -> GM B event, and the planted stop halts the talker from acquisition on.
+
+The control's named check no longer fits the adopted pin. The control is left as it is: a test is not changed to obtain a pass without a ruling.
+
+**Decision needed:**
+- (a) A test-only fix in this PR that keeps the control's meaning: the planted stop takes effect at the leg's grandmaster event after the baseline (for example on the detector's second pulse), so the named pause check is the one that fails. Then the boundary gate, gmstep and the full sweep at the new head.
+- (b) The same fix on dev in its own Issue first (dev's campaign fails at e5b480a3 today), then a merge of dev into this branch and the same gates.
+- (c) A ruling on whether the detector should pulse on the boot change from the station's own identity to the first peer grandmaster. That is an RTL behaviour change: in this PR the detector's only reader is `KL_i2s_playback`'s re-centre, while on dev it also drives the #387 render re-base, which therefore re-bases at acquisition too.
+
+Recommendation: (b) if dev's own campaign must be green before this PR builds on it, otherwise (a). (c) is a behaviour question for the owner and can follow separately.
+
+**Done at d835ba12:**
+- Item 1, the re-record. The three endpoints were measured at 5282b8b6 with the recipe unchanged, one Vivado run at a time under the lock. Each printed record equals round 7's at the merge dc9cda7d in every field: figures, input digest, identity and every sub-block scope. So the route-difference STOP does not apply. `record --write` wrote all three, with notes citing both exceptions (#632 issuecomment-6309313685 and PR #770 issuecomment-6357449062). `check` then exits 0 at all three against the new record, and `check-baseline` passes.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS / WHS ns | Against #771's record |
+|---|---:|---:|---:|---:|---:|---:|---|
+| route-1x1 | 51,259 | 53,208 | 15,835 (15 free) | 74 / 27 | 13 | +0.236 / +0.028 | +500, +376, +107, 0 / +2, -1 |
+| ooc-1x1 | 23,828 | 20,000 | - | 16 / 3 | 8 | +3.337 / +0.159 | equal |
+| ooc-8x8 | 32,467 | 28,220 | - | 21 / 5 | 8 | +1.139 / +0.159 | equal |
+
+`d835ba12` documents the eleventh record, following #771's pattern: the area budget's headroom table and history, the Mark II plan's anchor, a new section on the #234 findings page, the findings index and the CHANGELOG. One correction to round 7's STOP: dev e5b480a3 differs from the record's measured commit in comment lines of three files (the AS_PATH count notes), not one block of one file. The record still measures dev's own design.
+
+- Item 2, the gates at d835ba12, all passing but gmstep:
+  - Lint passes, 89 <= 89.
+  - `syn/yosys/run.sh`: 60 of 60 tops; the tied-input and tap-purity gates pass.
+  - The docs workflow's gate steps under GNU Make 4.3 and CPython 3.12.3: all 42 that run pass, both builder legs among them; the two skipped by rule are as in round 7.
+  - The builder bank exits 0: every gate passes but gate 11, not run for its recorded reason.
+  - The firmware gate set, `--jobs 4`: seven of its eight commands exit 0 (the RV32 harness self-test, the tally mutants, the control firmware's RV32 self-test against the pinned lwSRP, the shard check, the NVM firmware's self-test, and the coverage self-test and check).
+  - `tdm8render-mutants`: 31 of 31.
+  - `tdm8render-pullin`: 19 of 19 legs, 0 failures.
+  - `gmstep-mutants`: 21 of 22, above.
+  - The R678-3 campaign audit records tdm8 20 of 20, 3 of 3 and 3 of 3, gmstep 19 of 20 (the failing control), and the 19 pull-in logs passing.
+  - Not run, because the STOP comes first: the firmware boundary gate (`ctrl_boundary.py`, which builds Verilator models and was queued after the campaigns) and the full sweep.
+- Item 3: the PR body and the hand-off carry the Round 7 section with the exception citation, the re-recorded figures, the gate table and this STOP.

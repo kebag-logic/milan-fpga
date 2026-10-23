@@ -1,0 +1,85 @@
+[PASS] clean carry: rc=0
+[PASS] clean engage: rc=0
+[PASS] clean engage2: rc=0
+[PASS] clean internal: rc=0
+[PASS] integrator_floored on carry: rc=1 -- [FAIL] [carry] the integrator moved by exactly sum(e) / 2 (no LSB floored)
+[PASS] phase_term_removed on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[FAIL] phase_sign_flipped on engage: rc=1 -- [FAIL] [engage] phase held inside +/-5 % of Ps to the end (max 10375.0 ns)
+0415.0 ns eng=1 set=0 trim=-0.875 ppm
+  t=  48.64 s state=4 phase=  10210.2 ns (+0.4901 Ps) dut=  30748.3 ns eng=1 set=0 trim=-0.812 ppm
+  t=  49.15 s state=4 phase= -10375.0 ns (-0.4980 Ps) dut=  31014.3 ns eng=1 set=0 trim=-0.812 ppm
+  t=  49.66 s state=4 phase= -10145.8 ns (-0.4870 Ps) dut=  31262.3 ns eng=1 set=0 trim=-0.750 ppm
+  t=  50.18 s state=4 phase=  -9935.5 ns (-0.4769 Ps) dut=  31493.7 ns eng=1 set=0 trim=-0.750 ppm
+  t=  50.69 s state=4 phase=  -9599.8 ns (-0.4608 Ps) dut=  31707.0 ns eng=1 set=0 trim=-1.188 ppm
+  t=  51.20 s state=4 phase=  -9382.3 ns (-0.4503 Ps) dut=  32023.0 ns eng=1 set=0 trim=-0.500 ppm
+  t=  51.71 s state=4 phase=  -9116.4 ns (-0.4376 Ps) dut=  32276.0 ns eng=1 set=0 trim=-1.062 ppm
+  t=  52.22 s state=4 phase=  -8936.7 ns (-0.4290 Ps) dut=  32501.0 ns eng=1 set=0 trim=-0.438 ppm
+  t=  52.74 s state=4 phase=  -8708.7 ns (-0.4180 Ps) dut=  32722.7 ns eng=1 set=0 trim=-1.000 ppm
+  t=  53.25 s state=4 phase=  -8422.7 ns (-0.4043 Ps) dut=  32923.3 ns eng=1 set=0 trim=-0.812 ppm
+  t=  53.76 s state=4 phase=  -8187.5 ns (-0.3930 Ps) dut=  33214.3 ns eng=1 set=0 trim=-0.750 ppm
+  t=  54.27 s state=4 phase=  -7971.2 ns (-0.3826 Ps) dut=  33454.0 ns eng=1 set=0 trim=-0.750 ppm
+  t=  54.78 s state=4 phase=  -7629.0 ns (-0.3662 Ps) dut=  33676.0 ns eng=1 set=0 trim=-1.188 ppm
+  t=  55.30 s state=4 phase=  -7404.5 ns (-0.3554 Ps) dut=  33988.0 ns eng=1 set=0 trim=-0.500 ppm
+  t=  55.81 s state=4 phase=  -7132.2 ns (-0.3423 Ps) dut=  34257.3 ns eng=1 set=0 trim=-1.125 ppm
+  t=  56.32 s state=4 phase=  -6801.7 ns (-0.3265 Ps) dut=  34489.3 ns eng=1 set=0 trim=-0.875 ppm
+  t=  56.83 s state=4 phase=  -6521.6 ns (-0.3130 Ps) dut=  34833.7 ns eng=1 set=0 trim=-0.875 ppm
+  t=  57.34 s state=4 phase=  -6260.5 ns (-0.3005 Ps) dut=  35116.7 ns eng=1 set=0 trim=-0.812 ppm
+  t=  57.86 s state=4 phase=  -6018.3 ns (-0.2889 Ps) dut=  35381.0 ns eng=1 set=0 trim=-0.812 ppm
+  t=  58.37 s state=4 phase=  -5795.6 ns (-0.2782 Ps) dut=  35619.3 ns eng=1 set=0 trim=-0.750 ppm
+  t=  58.88 s state=4 phase=  -5592.3 ns (-0.2684 Ps) dut=  35843.7 ns eng=1 set=0 trim=-0.688 ppm
+  t=  59.39 s state=4 phase=  -5263.0 ns (-0.2526 Ps) dut=  36053.0 ns eng=1 set=0 trim=-1.125 ppm
+  t=  59.90 s state=4 phase=  -5051.5 ns (-0.2425 Ps) dut=  36357.3 ns eng=1 set=0 trim=-0.500 ppm
+  [FAIL] [engage] phase held inside +/-5 % of Ps to the end (max 10375.0 ns)
+  [FAIL] [engage] the DUT's CRF output on the reference's grid (max 10416.5 ns)
+  [FAIL] [engage] the servo reports settled at the end
+  [ ok ] [engage] still LOCKED at the end
+  [ ok ] [engage] engaged +0.4413 Ps from the reference's grid
+  [ ok ] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 342.2)
+  [FAIL] [engage] the pull went the short way (max |phase| 0.4996 Ps after engaging)
+  [ ok ] [engage] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [engage] fine-PS protocol clean
+== media_phase engage: checks: 10   failures: 4 ==
+RESULT: FAIL
+
+[PASS] rate_damping_removed on engage: rc=1 -- [FAIL] [engage] phase inside +/-5 % of Ps within 45 s of the event
+[PASS] slew_clamp_removed on engage: rc=1 -- [FAIL] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 436.1)
+[PASS] fold_not_centred on engage2: rc=1 -- [FAIL] [engage2] the pull went the short way (max |phase| 0.4969 Ps after engaging)
+[PASS] domain_event_not_backdated on engage: rc=1 -- [FAIL] [engage] the DUT's CRF output on the reference's grid (max 1257.8 ns)
+[FAIL] refold_removed on internal: rc=1 -- [FAIL] [internal] phase held inside +/-5 % of Ps to the end (max 10305.3 ns)
+s (-0.4789 Ps) dut=-114387.0 ns eng=1 set=0 trim=-8.188 ppm
+  t=  72.70 s state=4 phase=  -9780.8 ns (-0.4695 Ps) dut=-114140.0 ns eng=1 set=0 trim=-8.812 ppm
+  t=  73.22 s state=4 phase=  -9444.6 ns (-0.4533 Ps) dut=-113908.0 ns eng=1 set=0 trim=-8.562 ppm
+  t=  73.73 s state=4 phase=  -9175.0 ns (-0.4404 Ps) dut=-113590.0 ns eng=1 set=0 trim=-8.562 ppm
+  t=  74.24 s state=4 phase=  -8924.3 ns (-0.4284 Ps) dut=-113325.3 ns eng=1 set=0 trim=-8.500 ppm
+  t=  74.75 s state=4 phase=  -8693.0 ns (-0.4173 Ps) dut=-113069.7 ns eng=1 set=0 trim=-8.500 ppm
+  t=  75.26 s state=4 phase=  -8481.2 ns (-0.4071 Ps) dut=-112836.7 ns eng=1 set=0 trim=-8.438 ppm
+  t=  75.78 s state=4 phase=  -8192.1 ns (-0.3932 Ps) dut=-112623.3 ns eng=1 set=0 trim=-8.875 ppm
+  t=  76.29 s state=4 phase=  -7907.3 ns (-0.3795 Ps) dut=-112326.3 ns eng=1 set=0 trim=-8.188 ppm
+  t=  76.80 s state=4 phase=  -7703.7 ns (-0.3698 Ps) dut=-112063.3 ns eng=1 set=0 trim=-8.812 ppm
+  t=  77.31 s state=4 phase=  -7360.9 ns (-0.3533 Ps) dut=-111830.0 ns eng=1 set=0 trim=-8.625 ppm
+  t=  77.82 s state=4 phase=  -7085.3 ns (-0.3401 Ps) dut=-111500.7 ns eng=1 set=0 trim=-8.562 ppm
+  t=  78.34 s state=4 phase=  -6828.7 ns (-0.3278 Ps) dut=-111228.7 ns eng=1 set=0 trim=-8.500 ppm
+  t=  78.85 s state=4 phase=  -6591.0 ns (-0.3164 Ps) dut=-110974.3 ns eng=1 set=0 trim=-8.500 ppm
+  t=  79.36 s state=4 phase=  -6372.2 ns (-0.3059 Ps) dut=-110738.7 ns eng=1 set=0 trim=-8.438 ppm
+  t=  79.87 s state=4 phase=  -6172.8 ns (-0.2963 Ps) dut=-110518.0 ns eng=1 set=0 trim=-8.438 ppm
+  t=  80.38 s state=4 phase=  -5896.7 ns (-0.2830 Ps) dut=-110315.0 ns eng=1 set=0 trim=-8.875 ppm
+  t=  80.90 s state=4 phase=  -5624.8 ns (-0.2700 Ps) dut=-110030.7 ns eng=1 set=0 trim=-8.188 ppm
+  t=  81.41 s state=4 phase=  -5434.2 ns (-0.2608 Ps) dut=-109785.0 ns eng=1 set=0 trim=-8.750 ppm
+  t=  81.92 s state=4 phase=  -5104.0 ns (-0.2450 Ps) dut=-109563.0 ns eng=1 set=0 trim=-8.562 ppm
+  t=  82.43 s state=4 phase=  -4840.3 ns (-0.2323 Ps) dut=-109247.3 ns eng=1 set=0 trim=-8.562 ppm
+  t=  82.94 s state=4 phase=  -4596.1 ns (-0.2206 Ps) dut=-108985.3 ns eng=1 set=0 trim=-8.500 ppm
+  t=  83.46 s state=4 phase=  -4371.3 ns (-0.2098 Ps) dut=-108741.0 ns eng=1 set=0 trim=-8.438 ppm
+  t=  83.97 s state=4 phase=  -4165.5 ns (-0.1999 Ps) dut=-108514.0 ns eng=1 set=0 trim=-8.438 ppm
+  t=  84.48 s state=4 phase=  -3882.4 ns (-0.1864 Ps) dut=-108312.3 ns eng=1 set=0 trim=-8.875 ppm
+  t=  84.99 s state=4 phase=  -3603.5 ns (-0.1730 Ps) dut=-108013.0 ns eng=1 set=0 trim=-8.188 ppm
+  [FAIL] [internal] phase held inside +/-5 % of Ps to the end (max 10305.3 ns)
+  [FAIL] [internal] the DUT's CRF output on the reference's grid (max 10416.5 ns)
+  [FAIL] [internal] the servo reports settled at the end
+  [ ok ] [internal] still LOCKED at the end
+  [ ok ] [internal] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [internal] fine-PS protocol clean
+== media_phase internal: checks: 13   failures: 3 ==
+RESULT: FAIL
+
+[PASS] crf_output_off_grid on engage: rc=1 -- [FAIL] [engage] the DUT's CRF output on the reference's grid (max 10415.8 ns)
+== media_phase mutants: checks: 13   failures: 2 ==

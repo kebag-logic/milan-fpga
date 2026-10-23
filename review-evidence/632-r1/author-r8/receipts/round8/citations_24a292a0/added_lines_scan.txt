@@ -1,0 +1,68 @@
+# Lines this PR adds against e26f1816 (git diff -U0 e26f1816 HEAD, docs/history excluded) that cite 802.1AS or name thisClock, gmPresent, gmIdentity or pathTrace, or carry a four-level clause number
+CHANGELOG.md:143: - Its path is `{thisClock}` until a peer is elected.
+CHANGELOG.md:146: - The published path appends thisClock (gPTP #85).
+CHANGELOG.md:149: - There the count stays 8, without thisClock (gPTP #86).
+README.md:171: distinct empty and `{thisClock}` sequences, so either transition notifies.
+README.md:173: and a received sequence gains thisClock, so an explicit one-entry `[GM]`
+README.md:174: PathTrace is count two (FPGA-gPTP #85). A GM change
+docs/design/GM_LOSS_RECOVERY.md:295: IEEE 802.1AS-2011 makes it a grandmaster change.
+docs/design/MEDIA_CLOCK_FOLLOWING.md:1748:   bits (10.4.13.1, Equation (13)), so the CRF output adds bit 32 too: without
+docs/diagrams/submodule_boundaries.drawio:1: <mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1210" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1210" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified su
+docs/diagrams/timesync_chain.drawio:1: <mxfile host="app.diagrams.net"><diagram name="fabric-time"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="Fabric time ownership
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:185: | FPGA-gPTP #84 and #85, grandmaster sync and pathTrace (PR #86) | +32 | -2 |
+docs/reference/REGISTER_MAP.md:335: the meaningful empty/`{thisClock}` boundary: count one is this station's own
+docs/reference/REGISTER_MAP.md:337: thisClock, so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP
+docs/reference/REGISTER_MAP.md:1051: | `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and holds it through the complementary half, in either order. From reset release until a peer is elected, fabric mode reads thisClock, this inst
+docs/reference/REGISTER_MAP.md:1052: | `0x628` | `ADP_GPTP_GM_HI` | RO live | `0` | gptp_grandmaster_id `[63:32]`. Fabric mode is the other half of the coherent snapshot, thisClock's high half before any peer. Option OFF reads zero; writes are inert. |
+docs/reference/REGISTER_MAP.md:1471: bounded PathTrace publication. IEEE 802.1AS-2011 10.3.10.2.1 d) writes
+docs/reference/REGISTER_MAP.md:1472: pathTrace only from a received PathTrace TLV. When the selected Announce
+docs/reference/REGISTER_MAP.md:1474: 802.1AS-2020 10.3.11.2.1 d) states, so count zero is preserved even when a
+docs/reference/REGISTER_MAP.md:1477: Otherwise the published sequence is the received pathSequence with thisClock
+docs/reference/REGISTER_MAP.md:1478: appended (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #85), so its count
+docs/reference/REGISTER_MAP.md:1479: includes thisClock. Before any peer is elected, the sequence is `{thisClock}`,
+docs/reference/REGISTER_MAP.md:1480: count one (IEEE 802.1AS-2011 10.3.12.1.4 i), with Cor1-2013, FPGA-gPTP #82).
+docs/reference/REGISTER_MAP.md:1484: the count stays 8 and thisClock is not appended (FPGA-gPTP #86; widening the
+docs/reference/REGISTER_MAP.md:1486: thisClock.
+docs/reference/SUBMODULES.md:231: | #184, MSRP Domain re-declaration | [191](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/191) | JoinIn only while a peer Domain is registered, JoinMt otherwise (IEEE 802.1Q-2018 Section 10.7.6.3) |
+docs/reference/SUBMODULES.md:242: | #82, boot grandmaster | [83](https://github.com/Mister-M-alt/FPGA-gPTP/pull/83) | From reset release the engine publishes thisClock as grandmaster and `{thisClock}` as the path (IEEE 802.1AS-2011 Section 10.3.12.1.4 b) and i), with Cor1-2013); `0x624`/`0x628` and GET_AVB_INFO read thisClock before
+docs/reference/SUBMODULES.md:244: | #85, pathTrace | [86](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86) | The published path is the received pathSequence with thisClock appended (IEEE 802.1AS-2011 Section 10.3.10.2.1 d)): up to seven received entries, each count gains one entry and each GET_AS_PATH response eight bytes. The eig
+hdl/ieee1722/crf/KL_mtt_round.sv:64:                 1722-2016 10.4.13.1), so KL_crf_tx adds both: without the
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:637:   //! Announce carried no PathTrace TLV, while count one is `{thisClock}`, this
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:639:   //! sequence is published with thisClock appended, so an explicit one-entry
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:640:   //! `[GM]` PathTrace publishes count two (FPGA-gPTP #85). Generation covers
+hdl/milan/KL_pp_shadow.sv:460:     //! fabric counts 0/1 are the distinct empty and {thisClock} sequences:
+hdl/milan/KL_pp_shadow.sv:462:     //! and a received sequence gains thisClock, so an explicit one-entry [GM]
+hdl/milan/KL_pp_shadow.sv:463:     //! PathTrace is count two (FPGA-gPTP #85). Every hidden tail while GM=0
+hdl/milan/milan_datapath.sv:2194:   //! count zero is an absent PathTrace and count one is `{thisClock}` before
+hdl/milan/milan_datapath.sv:2195:   //! a peer is elected (FPGA-gPTP #82); a received sequence gains thisClock,
+hdl/milan/milan_datapath.sv:2196:   //! so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP #85).
+hdl/milan/milan_datapath.sv:3505:   //! of media clock periods, all 33 bits (its timestamp is 64, 10.4.13.1).
+tb/verilator/gptp_shadow/sim_main.cpp:929:       expect("explicit one-entry PathTrace publishes count two",
+tb/verilator/gptp_shadow/sim_main.cpp:931:       expect("explicit one-entry PathTrace ends with thisClock",
+tb/verilator/media_phase/sim_ofs.cpp:22: // and every CRF timestamp, all 64 bits (10.4.13.1, Eq. 13), must be a frame
+tb/verilator/milan_dp/README.md:1066: a peer wins (IEEE 802.1AS-2011 9.6.2.1, 10.2.3.13). The step to GM A is
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:79: //! thisClock of gptp_ax1x1_ucode.hex (--mac 0x020000000001). IEEE 802.1AS-2011
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:80: //! 10.3.10.2.1 d): a slave port's pathTrace is the received
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:81: //! pathSequence with thisClock appended.
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:942:         check.hex("PathTrace has GM, parent and thisClock", gen1 & 15, 3);
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:991:     check.hex("GET_AS_PATH ends with thisClock", be(path, 58, 8), kThisClock);
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1175:         // Before any peer, this instance is its own grandmaster (IEEE 802.1AS-2011
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1176:         // 10.3.12.1.4 b) and i), with Cor1-2013).
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1177:         check.hex("pre-acquisition GET_AVB_INFO names thisClock as GM", be(initial_avb, 42, 8), kThisClock);
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1225:             // A reset instance is its own grandmaster again (IEEE 802.1AS-2011
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1226:             // 10.3.12.1.4 b) and i), with Cor1-2013); the parent identity
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1228:             check.hex("reset publishes thisClock as GM", read_identity(0x624), kThisClock);
+tb/verilator/milan_dp/sim_gmstep.cpp:114: //! thisClock of this leg's gptp_ucode.hex (the generator's default MAC
+tb/verilator/milan_dp/sim_gmstep.cpp:978:     //! 802.1AS-2011 9.6.2.1: gmIdentity is the current grandmaster's whenever
+tb/verilator/milan_dp/sim_gmstep.cpp:979:     //! gmPresent, 10.2.3.13, is TRUE). The detector pulses once there; only
+tb/verilator/milan_dp/sim_gptp.cpp:50: //! thisClock of this leg's gptp_ucode.hex (the generator's default MAC
+tb/verilator/milan_dp/sim_gptp.cpp:51: //! 02:A1:B2:C3:D4:E5). IEEE 802.1AS-2011 10.3.10.2.1 d): a slave port's
+tb/verilator/milan_dp/sim_gptp.cpp:52: //! pathTrace is the received pathSequence with thisClock appended.
+tb/verilator/milan_dp/sim_gptp.cpp:817:     // the RTL default.  Before any peer answers, the engine publishes thisClock
+tb/verilator/milan_dp/sim_gptp.cpp:818:     // as grandmaster (IEEE 802.1AS-2011 10.3.12.1.4 b) and i), with
+tb/verilator/milan_dp/sim_gptp.cpp:844:     expect("reset publication of thisClock arms the holdover", (clkv >> 3) & 1, 1);
+tb/verilator/milan_dp/sim_gptp.cpp:1068:     expect("GET_AS_PATH ends with thisClock", path.size() >= 82
+tb/verilator/milan_dp/sim_gptp.cpp:1415:     expect("explicit one-entry fabric PathTrace serves count two",
+tb/verilator/milan_dp/sim_gptp.cpp:1432:     expect("explicit one-entry GET_AS_PATH ends with thisClock",
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:92: #: thisClock of the leg's gptp_ucode.hex (sim_gmstep.cpp kThisClock)
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:263:     # IEEE 802.1AS-2011 9.6.2.1 and 10.2.3.13: the station's own identity is

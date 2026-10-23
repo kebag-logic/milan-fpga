@@ -1,0 +1,56 @@
+[PASS] clean burst: rc=0
+[PASS] clean det:inband: rc=0
+[PASS] clean det:range: rc=0
+[PASS] clean det:snap: rc=0
+[PASS] clean holdover: rc=0
+[PASS] clean internal: rc=0
+[PASS] clean mr: rc=0
+[PASS] clean phcstep: rc=0
+[PASS] clean slew: rc=0
+[PASS] clean step: rc=0
+[PASS] settled_is_engaged on det:inband: rc=1 -- [FAIL] [det inband] settled first reads 1 at the close of the fourth full in-band window (at 1)
+[PASS] snapshot_hold_ignored on det:snap: rc=1 -- [FAIL] [det snap] mr on the closing edge: committed phase contribution 3000/256 (want 0)
+[PASS] fold_range_guard_removed on det:range: rc=1 -- [FAIL] [det range] a timestamp 2^25 ns from the domain event is not sampled (d = 33554432 ns: 257 a window)
+[PASS] window_cap_removed on burst: rc=1 -- [FAIL] [burst] the window the burst filled kept exactly 264 samples, the cap (max 267)
+[PASS] history_hold_removed on step: rc=1 -- [FAIL] [step] the phase term let go at the reference's history restart (within 10 ms)
+[FAIL] holdover_hold_removed on holdover: rc=-15 -- 
+
+[FAIL] mr_hold_removed on mr: rc=-15 -- 
+s state=4 phase=   -125.0 ns (-0.0060 Ps) dut=   -144.3 ns eng=1 set=0 trim=-0.125 ppm
+  t=   5.63 s state=4 phase=   -183.0 ns (-0.0088 Ps) dut=   -112.3 ns eng=1 set=1 trim=-0.312 ppm
+  t=   6.14 s state=4 phase=   -194.3 ns (-0.0093 Ps) dut=   -180.3 ns eng=1 set=1 trim=-0.312 ppm
+  t=   6.66 s state=4 phase=   -188.7 ns (-0.0091 Ps) dut=   -192.3 ns eng=1 set=1 trim=-0.375 ppm
+  t=   7.17 s state=4 phase=   -165.9 ns (-0.0080 Ps) dut=   -191.7 ns eng=1 set=1 trim=-0.375 ppm
+  t=   7.68 s state=4 phase=   -126.0 ns (-0.0060 Ps) dut=   -174.7 ns eng=1 set=1 trim=-0.438 ppm
+  t=   8.19 s state=4 phase=    -69.3 ns (-0.0033 Ps) dut=   -134.0 ns eng=1 set=1 trim=-0.438 ppm
+  t=   8.70 s state=4 phase=   -141.0 ns (-0.0068 Ps) dut=    -74.7 ns eng=1 set=1 trim=+0.000 ppm
+  t=   9.22 s state=4 phase=    -98.3 ns (-0.0047 Ps) dut=   -124.0 ns eng=1 set=1 trim=-0.688 ppm
+  t=   9.73 s state=4 phase=   -106.9 ns (-0.0051 Ps) dut=   -112.0 ns eng=1 set=1 trim=-0.062 ppm
+  t=  10.24 s state=4 phase=   -177.7 ns (-0.0085 Ps) dut=   -100.3 ns eng=1 set=1 trim=-0.250 ppm
+  t=  10.75 s state=4 phase=   -202.1 ns (-0.0097 Ps) dut=   -174.7 ns eng=1 set=1 trim=-0.312 ppm
+  t=  11.26 s state=4 phase=   -210.4 ns (-0.0101 Ps) dut=   -200.0 ns eng=1 set=1 trim=-0.312 ppm
+  t=  11.78 s state=4 phase=   -201.7 ns (-0.0097 Ps) dut=   -209.3 ns eng=1 set=1 trim=-0.375 ppm
+  t=  12.29 s state=4 phase=   -175.4 ns (-0.0084 Ps) dut=   -202.7 ns eng=1 set=1 trim=-0.375 ppm
+  t=  12.80 s state=4 phase=   -131.8 ns (-0.0063 Ps) dut=   -177.0 ns eng=1 set=1 trim=-0.438 ppm
+  t=  13.31 s state=4 phase=    -70.6 ns (-0.0034 Ps) dut=   -142.7 ns eng=1 set=1 trim=-0.438 ppm
+  t=  13.82 s state=4 phase=      7.3 ns (+0.0003 Ps) dut=    -81.0 ns eng=1 set=1 trim=-0.500 ppm
+  t=  14.34 s state=4 phase=    -45.0 ns (-0.0022 Ps) dut=      1.0 ns eng=1 set=1 trim=-0.062 ppm
+  t=  14.85 s state=4 phase=     14.9 ns (+0.0007 Ps) dut=    -35.7 ns eng=1 set=1 trim=-0.688 ppm
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [mr] mr toggled with a 1.8 us jump at 15.00 s
+  t=  15.36 s state=3 phase=   -964.0 ns (-0.0463 Ps) dut=   -172.7 ns eng=0 set=0 trim=-2.750 ppm
+  t=  15.87 s state=3 phase=   -527.3 ns (-0.0253 Ps) dut=   -172.7 ns eng=0 set=0 trim=-0.188 ppm
+  t=  16.38 s state=3 phase=   -407.6 ns (-0.0196 Ps) dut=   -172.7 ns eng=0 set=0 trim=-0.812 ppm
+  t=  16.90 s state=3 phase=   -294.5 ns (-0.0141 Ps) dut=   -172.7 ns eng=0 set=0 trim=-0.375 ppm
+  t=  17.41 s state=3 phase=   -215.0 ns (-0.0103 Ps) dut=   -172.7 ns eng=0 set=0 trim=-0.562 ppm
+  t=  17.92 s state=4 phase=    -91.1 ns (-0.0044 Ps) dut=   -172.7 ns eng=0 set=0 trim=-0.562 ppm
+  t=  18.43 s state=4 phase=    -99.1 ns (-0.0048 Ps) dut=   -172.7 ns eng=0 set=0 trim=-0.125 ppm
+  t=  18.94 s state=4 phase=   -140.2 ns (-0.00
+[PASS] slew_hold_removed on slew: rc=1 -- [FAIL] [slew] the phase term let go at the slew level (within 5 ms)
+[PASS] idle_hold_removed on internal: rc=1 -- [FAIL] [internal] the phase term let go at INTERNAL (within 5 ms)
+[PASS] step_hold_removed on phcstep: rc=1 -- [FAIL] [phcstep] the phase term let go at the PHC step (within 5 ms)
+Command exited with non-zero status 124
+841.49 s

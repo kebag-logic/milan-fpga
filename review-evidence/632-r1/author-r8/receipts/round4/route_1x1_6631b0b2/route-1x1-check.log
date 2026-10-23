@@ -1,0 +1,26 @@
+endpoint route-1x1: <work>/gateware
+figure        baseline   candidate     delta  verdict
+LUT              49613       50195       582  REGRESSION: grew by more than 500
+FF               52353       52892       539  ok
+SLICE            15725       15758        33  ok
+RAMB36              74          74         0  ok
+RAMB18              25          27         2  REGRESSION: grew by more than 0
+DSP                 14          13        -1  ok, below the baseline
+WNS_ns           0.215       0.179    -0.036  ok
+WHS_ns           0.036       0.033    -0.003  ok
+route status: complete, no unrouted net and no routing error
+re-baseline recommended: DSP improved by more than the tolerance; record the accepted measurement so later growth is judged from it
+sub-block movements, not gated:
+  u_pp/u_aecp: LUT +167, FF -1
+  u_pp/u_aecp/u_dyn: LUT +154, FF +0
+  wrapper: LUT +106, FF -1
+  u_pp: LUT +99, FF -1
+  u_pp/u_srp: LUT -36, FF +0
+  u_pp/u_aecp/u_store: LUT -27, FF +0
+  u_pp/u_srp/u_talker: LUT -26, FF +0
+  u_pp/u_talker: LUT -21, FF +0
+  u_pp/u_aecp/u_ucpu: LUT -20, FF +0
+  u_pp/u_aecp/u_d3: LUT +13, FF +0
+  u_pp/u_aecp/u_resp: LUT +10, FF +0
+  u_pp/u_srp/u_listener: LUT -7, FF +0
+RESULT: MATERIAL REGRESSION
