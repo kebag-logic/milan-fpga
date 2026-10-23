@@ -1,0 +1,32 @@
+## PR #770 body lines 566-567 (0-based), fetched at head cf1ca875
+| 4. R678-4-F3 | `546412d8` | The nine gPTP behaviour citations, at `REGISTER_MAP.md:1051` and `:1478`, `SUBMODULES.md:242` and `:244`, `sim_ax1x1gptp.cpp:79`, `:1175` and `:1225`, and `sim_gptp.cpp:51` and `:818`, cite IEEE 802.1AS-2011. The own-grandmaster boot and reset sites cite 10.3.12.1.4 b) and i), with Cor1-2013. The pathTrace append sites cite 10.3.10.2.1 d). `REGISTER_MAP.md:1480` named 2020's `10.3.13.2.4 i)` with no edition and now reads 2011 10.3.12.1.4 i) |
+| 4, the neighbour at `REGISTER_MAP.md:1471` | `546412d8` | 2011 writes pathTrace only from a received path trace TLV (10.3.10.2.1 d)). When the selected Announce carries none, the engine publishes the empty sequence. The page names that as the rule IEEE 802.1AS-2020 10.3.11.2.1 d) states, an explicit cross-edition statement, and no longer attributes it to 2011 |
+## PR #770 body lines 572-577 (0-based), fetched at head cf1ca875
+
+| 2020 (as cited) | 2011 | Corrigenda |
+|---|---|---|
+| 10.3.13.2.4 updtStatesTree() b), i) | 10.3.12.1.4 updtRolesTree() b), i) | Cor1-2013 restates 10.3.12.1.4. It changes only "higher" to "better" in f) 7) and 8) and a spelling in i), so these sites cite "with Cor1-2013" |
+| 10.3.13.2.4 f) 5) (the slave port's pathTrace) | 10.3.10.2.1 qualifyAnnounce() d): a qualified Announce with a path trace TLV, on a SlavePort, copies pathSequence and appends thisClock | not changed |
+| 10.3.11.2.1 d) (receivedPathTrace emptied without a TLV) | no counterpart | -- |
+## PR #770 body lines 581-591 (0-based), fetched at head cf1ca875
+
+**The scan of every line this PR adds** (`git diff -U0 e26f1816 24a292a0`, `docs/history` excluded) finds one
+802.1AS-2020 citation, against nine at `417ec528`. It is the cross-edition statement above. No other behavioural
+802.1AS-2020 citation is on an added line. The tree's other 802.1AS-2020 citations are dev's and are not on lines
+this PR adds. Some are explicitly not the edition of record (`GPTP_PLANE.md:109`, `:460`), and
+`REQUIREMENTS.md:115` gives timestamp-assist context. They stay as dev has them.
+
+**Open question (published as FPGA-gPTP #87, not decided here).** Read literally, 2011 keeps pathTrace at its previous value when the
+slave port's qualified Announce carries no path trace TLV. After initialisation (10.3.12.1.1) that value is
+`{thisClock}`, which is count one. The pinned engine publishes count zero, 2020's rule. Whether the engine should
+follow 2011 there is a question for the gPTP owner. This PR makes no engine change, and the register map now names
+## PR #770 body lines 780-785 (0-based), fetched at head cf1ca875
+- **Bench proof.** The #764 method on the bench, after merge; this lane had no bench access.
+- **pathTrace with no TLV, across editions.** The pinned gPTP engine publishes the empty sequence when the selected
+  Announce carries no path trace TLV, which is the IEEE 802.1AS-2020 rule (10.3.11.2.1 d) with 10.3.13.2.4 f) 5)).
+  2011, the edition Milan v1.2 profiles, writes pathTrace only from a received TLV (10.3.10.2.1 d)), so pathTrace keeps
+  its previous value (10.3.12.1.1), and the count-zero publication departs from it. The decision is open in FPGA-gPTP
+  #87 (R677-5-F1); this PR changes no engine behaviour.
+## PR #770 body lines 815-816 (0-based), fetched at head cf1ca875
+- [x] New or changed behavior has self-checking tests
+- [x] Required local verification bar passes (round 8 at `24a292a0`, documentation and comments only: the docs gates, lint, the gptp and ax1x1gptp legs and `dynmap-mutants`; round 7c at `c2c996fa`: `gmstep-mutants` 23 of 23 after the test-only repair, the boundary gate, the docs gates, lint, the full sweep (the sweep's 64th suite, `capture_coherence`, passing when run alone after the runner's wall clock stopped it))
