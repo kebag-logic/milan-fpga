@@ -1,0 +1,42 @@
+[
+  {
+    "pattern": "late and too-early PDUs are dropped",
+    "matches": 0,
+    "scope": "tracked files outside docs/history"
+  },
+  {
+    "pattern": "late, too-early and untimed PDUs are dropped",
+    "matches": 0,
+    "scope": "tracked files outside docs/history"
+  },
+  {
+    "pattern": "until the pin moves",
+    "matches": 0,
+    "scope": "tracked files outside docs/history"
+  },
+  {
+    "added_source_lines": [
+      "#: #637: PP_STAT's composition of the map restore (milan_datapath)",
+      "#: The former restore order (#637): stage 0 takes nothing down, and stage 1",
+      "#: REMOVEs a well-formed record's port just before ADDing its saved set",
+      "    # ---- #637: PP_STAT's composition (D3 3 rule 7, 8.7) ------------------",
+      "    # ---- #637: the restore's value and recovery arms (D3 8.3, 18.4)",
+      "    # ---- #637: across ports (the maprec8 and maprec4 legs) ---------------",
+      "//! thisClock of gptp_ax1x1_ucode.hex (--mac 0x020000000001). IEEE 802.1AS-2011",
+      "//! 10.3.10.2.1 d): a slave port's pathTrace is the received",
+      "        // Before any peer, this instance is its own grandmaster (IEEE 802.1AS-2011",
+      "        // 10.3.12.1.4 b) and i), with Cor1-2013).",
+      "            // A reset instance is its own grandmaster again (IEEE 802.1AS-2011",
+      "            // 10.3.12.1.4 b) and i), with Cor1-2013); the parent identity",
+      "            // stays clear.",
+      "//! 02:A1:B2:C3:D4:E5). IEEE 802.1AS-2011 10.3.10.2.1 d): a slave port's",
+      "    // as grandmaster (IEEE 802.1AS-2011 10.3.12.1.4 b) and i), with",
+      "    // Cor1-2013); parent and pdelay are zero. That first grandmaster identity",
+      "    // is a change, so it arms the Milan v1.2 Annex B.1.1 holdover. Retained",
+      "    // legacy addresses remain mapped for ABI stability, but every write is",
+      "    // inert and cannot manufacture a publication or healthy CLKV claim."
+    ],
+    "review_round_or_lane_labels": 0,
+    "manual_comment_check": "all added lines are behavior/reason comments; issue identifiers retained"
+  }
+]

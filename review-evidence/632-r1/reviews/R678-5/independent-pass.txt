@@ -1,0 +1,12 @@
+[R678] POSITIVE - exact head 24a292a0321df6f3516f25cb6e92e24fb1988e65
+Independent delta assessment recorded before reading the two named prior review reports.
+The final report will reconcile their findings and complete evidence checks.
+
+lens | status | examined artifacts | covering round | exact head
+Conformance | CLEAN | REQUIREMENTS.md:114,154-170; IEEE 802.1AS-2011 9.6.2.1,10.2.3.13,10.3.10.2.1 d),10.3.12.1.4 b)/i); Cor1 10.3.12.1.4; Cor2 11.2.15.3; REGISTER_MAP.md:1051,1470-1482; SUBMODULES.md:242,244 | R678-5 delta | 24a292a0321df6f3516f25cb6e92e24fb1988e65
+RTL | CLEAN | delta-audit.json: no hdl/syn/configs changes or executable-token changes; all tracked bytes, modes, index and four required submodules verified | R678-5 delta | 24a292a0321df6f3516f25cb6e92e24fb1988e65
+Robustness | CLEAN | KL_render_queue.sv:485-533,908-920; TIME_SYNC.md:379-403; AAF_LATENCY_TAPS.md:99-119; sim_ax1x1gptp.cpp:1172,1222 reset and acquisition comments; retained physical exclusions | R678-5 delta | 24a292a0321df6f3516f25cb6e92e24fb1988e65
+Tests | CLEAN | public-round8 exact-head logs: gptp 185/185, ax1x1gptp 155/155, dynmap 68/68; lint 89/89; docs 42 executed, two declared skips, five markdown reruns on required interpreter, no-git pair; CONTROLS AST length 21 | R678-5 delta | 24a292a0321df6f3516f25cb6e92e24fb1988e65
+Docs | CLEAN | all ten paths in round5.diff; published round-8 acceptance and evidence; 108 files verified against published manifest; no extra 2020 added-line citation | R678-5 delta | 24a292a0321df6f3516f25cb6e92e24fb1988e65
+
+Limits: publication commit is unsigned (API verified=false, reason=unsigned), so hashes establish public byte identity, not a signature. No manager source bank asserted. Final current-dev candidate, hosted/local workflow acceptance and physical proof remain manager duties. Prior-report reconciliation pending.

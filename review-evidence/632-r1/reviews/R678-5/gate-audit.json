@@ -1,0 +1,54 @@
+{
+  "docs": {
+    "head": "24a292a0321df6f3516f25cb6e92e24fb1988e65",
+    "executed_pass": 42,
+    "skipped": [
+      {
+        "job": "docs-gates-2",
+        "id": "gate_42",
+        "name": "Local act runner contract gate",
+        "rc": null,
+        "skipped": "executes the candidate act_ci.py on the host; AGENTS.md section 5 allows the candidate copy only inside the disposable CI job"
+      },
+      {
+        "job": "docs-check-no-git",
+        "id": "ci_step_3",
+        "name": "Strip git metadata, then run the docs gate",
+        "rc": null,
+        "skipped": "its body runs rm -rf .git, which would delete this worktree's git link; its two gates run in place below"
+      }
+    ]
+  },
+  "docs-md312": {
+    "head": "24a292a0321df6f3516f25cb6e92e24fb1988e65",
+    "executed_pass": 5,
+    "skipped": []
+  },
+  "docs-leg1-litex": {
+    "head": "24a292a0321df6f3516f25cb6e92e24fb1988e65",
+    "executed_pass": 1,
+    "skipped": []
+  },
+  "gptp": "185 checks: 185 PASS, 0 FAIL",
+  "ax1x1gptp": "== ax1x1gptp physical: checks: 155   failures: 0 ==",
+  "dynmap": {
+    "controls_caught": 63,
+    "clean_legs": [
+      "dynmap",
+      "listener",
+      "maprec4",
+      "maprec8",
+      "talker"
+    ],
+    "total": 68,
+    "all_named_results_present": true
+  },
+  "gmstep": {
+    "current_controls": 21,
+    "clean_legs": 2,
+    "total": 23,
+    "execution": "unchanged round-4 coverage carried forward"
+  },
+  "lint": "89 violations <= ratchet 89; rc 0",
+  "no_git": "both archive-export checks rc 0"
+}

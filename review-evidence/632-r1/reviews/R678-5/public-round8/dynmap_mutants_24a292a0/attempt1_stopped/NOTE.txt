@@ -1,0 +1,9 @@
+Attempt 1 of dynmap-mutants at 24a292a0 in a fresh clone, stopped by hand at 17:28 UTC.
+The driver's clean control for the "listener" leg failed: the leg's clean build (made by the
+driver through make -C ../milan_dp_render tdm8render-build with -o ltn_rom.hex -o ucode.hex
+-o tdm8r_aemi.bin) found no generated entity image in milan_dp_render, which a fresh clone has
+not made: "[FAIL] the generated entity image is on disk (make tdm8r_aemi.bin)", 1 check, 1
+failure (listener_clean_probe.log). The driver keeps those inputs unmade by design, so the campaign
+expects milan_dp_render's own generated inputs to exist (as after that suite's run). They were
+then made through that suite's own targets (render_inputs.log) and the campaign was run again
+whole as dynmap-24a292a0.
