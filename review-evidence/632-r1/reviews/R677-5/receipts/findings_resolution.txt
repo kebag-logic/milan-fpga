@@ -1,0 +1,54 @@
+head 24a292a0321df6f3516f25cb6e92e24fb1988e65
+== F1: retired whole-PDU wording (outside docs/history)
+(none)
+== F1: broader scan for PDU-level late/early drop
+== F2: gmstep counts
+docs/design/GM_LOSS_RECOVERY.md:253:`make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` plants all 21 controls.
+docs/design/GM_LOSS_RECOVERY.md:321:| `milan_dp_gm_steps`, the `milan_dp` gmstep leg | One 1.5 s grandmaster step under CRF selection: `tu`, the render queue (the PDUs stamped across the steps refused and counted, their frames one counted slip, every other PDU
+docs/design/SAVED_STATE_MATERIALIZATION.md:2687:Reconcile #18/#19/#21's existing controls before adding missing cases.
+docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md:4521:come first, their code unchanged. Each of the 20 new controls appends to a
+== CONTROLS count (AST)
+CONTROLS entries: 21
+== F2: re-base in gmstep descriptions
+docs/design/GM_LOSS_RECOVERY.md:144:### Media re-base on a PHC step
+docs/design/GM_LOSS_RECOVERY.md:148:Issue #387 decided its render re-base and continuity behavior.
+docs/design/GM_LOSS_RECOVERY.md:150:Since #632 the render stage takes no re-base.
+docs/design/GM_LOSS_RECOVERY.md:156:A PHC-only re-base preserves the INTERNAL/CRF media-clock source.
+docs/design/GM_LOSS_RECOVERY.md:224:- The physical re-base: the #117 bench measures it.
+docs/design/GM_LOSS_RECOVERY.md:228:- the PHC re-base restart term restored;
+docs/design/GM_LOSS_RECOVERY.md:241:That is what #387's re-base would do now.
+docs/design/GM_LOSS_RECOVERY.md:287:Another control suppresses a genuine restart during a PHC re-base.
+tb/verilator/milan_dp/README.md:90:| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602/#632: a 1.5 s PHC step under CRF selection asserts `tu`, and the presentation 
+tb/verilator/milan_dp/README.md:106:- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+tb/verilator/milan_dp/README.md:815:  does: re-base, fill, RELOAD, publish. Then it starts the restore walk. GET
+tb/verilator/milan_dp/README.md:937:it: re-base, RELOAD, publish, and the restore walk. The window stands in for
+tb/verilator/milan_dp/README.md:1041:## GM step re-base leg (#387)
+tb/verilator/milan_dp/README.md:1047:presentation stage takes no re-base (#632).
+tb/verilator/milan_dp/README.md:1062:| Coincident restart | 32 delays between a received CRF toggle and software settime; at least one observed same-cycle overlap of the received pulse and PHC re-base pulse; every trial actually steps the PHC and emits exactly
+tb/verilator/milan_dp/README.md:1117:| the PHC re-base restart term is restored | datapath | restart: a PHC-only step leaves outgoing mr unchanged | the sweep |
+tb/verilator/milan_dp/README.md:1121:| the step empties the render stage (the effect of #387's retired re-base on the queue) | datapath | render: every PDU not presented was refused by the stage and counted once | the sweep |
+tb/verilator/milan_dp/README.md:1168:- The physical re-base. The #117 bench measures it.
+tb/verilator/milan_dp/README.md:1173:#632 retired the counted render re-base with the setpoint stage: the
+tb/verilator/milan_dp/README.md:1175:Until then the disabled-re-base control failed the counted-event check, as
+tb/verilator/milan_dp_gm_steps/README.md:25:The [`milan_dp` README](../milan_dp/README.md#gm-step-re-base-leg-387) describes
+tb/verilator/milan_dp_gm_steps/README.md:37:| the PHC re-base restart term is restored | restart: a PHC-only step leaves outgoing mr unchanged | GM change |
+tb/verilator/milan_dp_gm_steps/README.md:44:re-base, so what they plant is the retired #387 re-base's effect on the queue,
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:8:since #632, a render presentation stage that takes no re-base: the PDUs
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:18:identity or on the step: #632 retired #387's counted render re-base, so what
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:19:the two render controls now plant is that re-base's effect on the queue, and
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:24:on the very cycle a software settime re-bases the PHC, and exempts this
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:73:#: (#632). The render controls OR a re-base cause into it.
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:75:#: what #387's re-base pulse read, the PHC's two strobes (#632 retired the
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:163:    Control("the PHC re-base restart term is restored", "datapath",
+== F3
+(none)
+tb/verilator/milan_dp/Makefile:16:#   make gsi-mutants - the [GSI] section's explicit mutation campaign
+tb/verilator/milan_dp/Makefile:236:.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
+tb/verilator/milan_dp/Makefile:554:gsi-mutants: notify
+tb/verilator/milan_dp/Makefile:582:# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 63
+== R1: round labels in dynmap_mutants.py
+tb/verilator/milan_dp/dynmap_mutants.py:29:The #637 round-2 controls follow (reviews R669-1 and R670-1): seven that
+tb/verilator/milan_dp/dynmap_mutants.py:35:id of each port), and the round-1 ordering, which REMOVEs a port's reset set
+tb/verilator/milan_dp/dynmap_mutants.py:170:ROUND1_ORDER = [
+tb/verilator/milan_dp/dynmap_mutants.py:387:    ("maprec8", "the round-1 ordering: a port's reset set comes down just before its saved set",
+tb/verilator/milan_dp/dynmap_mutants.py:388:     ROUND1_ORDER,

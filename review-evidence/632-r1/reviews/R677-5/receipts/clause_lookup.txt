@@ -1,0 +1,41 @@
+Clause lookup for the round-8 IEEE 802.1AS citations (R677-5)
+Texts: local licensed copies, extracted to text with pdftotext -layout (extractions are not published).
+  802.1AS-2011.pdf              sha256 a07215b346fe0019b719b445abd4acb96d687f822b85c55ee1030d7195298ae3
+  802.1AS-2011_Cor1-2013.pdf    sha256 e704e89c636e7b1e94db3af7afab619c9f8d137ba12211c99d55abeac370f31a
+  802.1AS-2011_Cor_2-2015.pdf   sha256 dbe16669ca5e647c8a6d5cf2ed5356eb258beefd7b9c12ec9d260727e65a0080
+  802.1AS-2020.pdf              sha256 762d15eb65b4401b251255c11e3bde7cabdda71b8d5d9e8703292714b0f02dcb
+Only clause numbers and short quotations are recorded here.
+
+2011 10.3.10.2.1 qualifyAnnounce() d)
+  "If a path trace TLV is present and the portRole of the port is SlavePort, the pathSequence array
+  field of the TLV is copied to the global array pathTrace, and thisClock is appended to pathTrace"
+  -> supports REGISTER_MAP.md:1471 and :1478, SUBMODULES.md:244, sim_ax1x1gptp.cpp:79-80, sim_gptp.cpp:51.
+  The 2011 text has no rule for a qualified Announce WITHOUT a path trace TLV: pathTrace is not written
+  there and keeps its previous value.
+  Cor1-2013: does not change 10.3.10.2.1 (cited only from the PICS). Cor2-2015: changes only Figure 11-8
+  (11.2.15.3, MDPdelayReq).
+
+2011 10.3.12.1.4 updtRolesTree() b), i) (restated by Cor1-2013, b) and i) unchanged in substance, i) spelling fixed)
+  b) gmPriority "chosen as the best of the set consisting of the systemPriorityVector ... and the
+     gmPathPriorityVector for each port" -> with no peer, this system is grandmaster.
+  i) "if the current time-aware system is the grandmaster, the pathTrace array is set to contain the
+     single element thisClock"
+  -> supports REGISTER_MAP.md:1051 (b) and :1480 (i), SUBMODULES.md:242, sim_ax1x1gptp.cpp:1175-1176,
+     :1225-1227, sim_gptp.cpp:818-819. "with Cor1-2013" is applicable (Cor1 restates the clause).
+  2011 10.3.12.1.1 updtRoleDisabledTree() also sets pathTrace to {thisClock} at initialisation.
+
+2011 9.6.2.1 gmIdentity, 10.2.3.13 gmPresent: confirmed (carried from round 4, README.md:1066,
+  gmstep_mutants.py:263).
+
+2020 10.3.11.2.1 qualifyAnnounce() d)
+  "If a path trace TLV is not present, the per port global variable receivedPathTrace is set to the
+  empty array."  (It sets receivedPathTrace, not pathTrace.)
+2020 10.3.13.2.4 updtStatesTree() f) 5)
+  "The per port global variable receivedPathTrace, for this port, is copied to the per PTP Instance
+  global array pathTrace, and, if it is not empty, thisClock is appended to pathTrace."
+  -> In 2020 the EMPTY published pathTrace for an Announce without a TLV follows from d) TOGETHER with
+     f) 5)'s "if it is not empty". d) alone empties receivedPathTrace; without f) 5) the published
+     sequence would be {thisClock}. REGISTER_MAP.md:1472-1474 cites d) alone (finding R677-5-F1).
+
+Added-line scan (git diff -U0 e26f1816..24a292a0, every file): one 802.1AS-2020 citation,
+REGISTER_MAP.md:1474 (the cross-edition statement). No bare 2020-numbered gPTP clause on an added line.
