@@ -1,0 +1,41 @@
+# capture_coherence.log (sha256 in large_logs.sha256): its tally lines, [FAIL] lines and the campaign's verdict lines
+1487:== capture_coherence: checks: 20832   failures: 0 ==
+1488:RESULT: PASS
+1589:== capture_coherence_dp: checks: 447   failures: 0 ==
+1590:RESULT: PASS
+1594:[PASS] the dp recipe builds under an inherited MAKEFLAGS=w
+1595:[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: <tmp path>:8572:15: syntax error, unexpected break, expecting ',' or ';'
+1596:[PASS] the unmutated source still passes the junction harness
+1597:[PASS] the unmutated source still passes the band harness
+1598:[PASS] the unmutated source still passes the band50 harness
+1599:[PASS] the unmutated source still passes the fine harness
+1600:[PASS] the unmutated source still passes the dp harness
+1601:[PASS] the unmutated source still passes the dp-band harness
+1602:[PASS] the unmutated source still passes the chmap harness
+1603:[PASS] the unmutated source still passes the nco harness
+1604:[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+1605:[PASS] mutant caught (junction): no walk snapshot: the walk reads the frame bank live - breaks "[A] AAF columns mixing two TDM frames"
+1606:[PASS] mutant caught (junction): the frame is closed by its first pair - breaks "[A] AAF columns mixing two TDM frames"
+1607:[PASS] mutant caught (junction): the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the frame their tick takes"
+1608:[PASS] mutant caught (junction): the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+1609:[PASS] mutant caught (junction): the walk ignores the coincidence law: a close on the tick cycle always waits - breaks "[C] walks whose repeat or skip the junction counters did not count" and "[W] walks older than the frame their tick takes"
+1610:[PASS] mutant caught (junction): the walk snapshot back on the pre-walk's last cycle (the round-1 instant) - breaks "[W] walks newer than the frame their tick takes"
+1611:[PASS] mutant caught (junction): the junction counters keyed on the slot-0 write against the tick (the round-1 law) - breaks "[C] walks whose repeat or skip the junction counters did not count"
+1612:[PASS] mutant caught (band): the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off - breaks "[C] slips while the CRF lock held"
+1613:[PASS] mutant caught (band): the aligner's keep-off back to its 1/128-sample default - breaks "[C] slips while the CRF lock held"
+1614:[PASS] mutant caught (band): the aligner sees the tick itself, one cycle before the walk's crossing - breaks "[C] CRF slips net zero"
+1615:[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+1616:[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks "[C] slips while the CRF lock held"
+1617:[PASS] mutant caught (dp): the AAF talkers stamp the live PHC at the walk again: the capture age and the pair offset back in the timestamp (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset, inside +/-5 % of Ps"
+1618:[PASS] mutant caught (dp-band): the time base latched at the media tick instead of banked with the frame: a close on the tick's own cycle stamps the frame before, a sample early (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset, inside +/-5 % of Ps"
+1619:[PASS] mutant caught (dp): the domain event's marker latency drops its frame term: every stamp a sample period late (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset, inside +/-5 % of Ps"
+1620:[PASS] mutant caught (dp): the marker latency drops the front-end's FIFO write term (one clk_tdm_i cycle, #632) - breaks "[PIN] ...and inside the marker latency's derivation"
+1621:[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks "Q: col 2 pair 0 L is frame 4"
+1622:[PASS] mutant caught (chmap): RM8: a queued tick snapshots at the tick itself, reloading the walk still running - breaks "Q: col 1 pair 2 L is frame 2" and "Q: col 2 pair 0 L is frame 4"
+1623:[PASS] mutant caught (band50): RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement - breaks "[C] slips while the CRF lock held"
+1624:[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+1625:[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks "update landing at old end +0: one tick, in a period the old or the new trim sets"
+1626:[PASS] mutant caught (fine): the terminal compare back to == (377d1ac3), under the aligner's trim updates - breaks "[C] CRF slips net zero"
+1627:[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks "F1: col 0 carries its own pair-0 frame (L)"
+1628:[PASS] mutant caught (chmap): the walk's instant latched at the snapshot, not loaded with its frame: a close on the tick cycle with none pending names the frame before (#632) - breaks "F: tick-cycle: col 1 walk instant is frame 2's"
+1630:35 checks: 35 PASS, 0 FAIL

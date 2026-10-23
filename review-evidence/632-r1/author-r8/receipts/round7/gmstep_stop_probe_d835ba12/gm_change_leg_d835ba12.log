@@ -1,0 +1,266 @@
+gmstep: feed delay 0 cycles
+gmstep: 2 MHz fabric, 8 ns PHC, quarter tick 131072 cycles
+GMPROBE change from 0000000000000000 to 02a1b2fffec3d4e5
+GMPROBE change from 02a1b2fffec3d4e5 to 00aaccfffe010203
+GMPROBE detector pulse (now 00aaccfffe010203)
+  [ ok ] acquisition: CLKV healthy (asCapable, sync, tu clear) got=0x10002 exp=0x10002
+  [ ok ] acquisition: the link-up pair stepped the PHC once got=1 exp=1
+  [ ok ] acquisition: the counter saw exactly that step got=1 exp=1
+  [ ok ] acquisition: that step exceeds the 20 us link-up threshold
+  [ ok ] acquisition: the published grandmaster is GM A got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) got=0x4 exp=0x4
+  [ ok ] media: SET_CLOCK_SOURCE to the CRF answers SUCCESS got=0 exp=0
+  [ ok ] source control: PDUs bracket the source change
+  [ ok ] source control: a real source change toggles mr once got=1 exp=1
+  [ ok ] media: the root resolves the CRF selection got=1 exp=1
+  [ ok ] media: the CRF sink is locked            got=1 exp=1
+  [ ok ] media: the talker gate is open           got=0x8 exp=0x8
+  [ ok ] baseline: the listener accepted PDUs
+RENDER: baseline: 1568 PDUs graded, 1568 presented once in order, 0 refused, 0 in part, 0 out of order; send-to-presentation 3928..3928 cycles
+  [ ok ] baseline: PDUs graded at the render stage's output
+  [ ok ] baseline: every PDU's six events presented once, in order got=0 exp=0
+  [ ok ] baseline: every PDU presented one offset after its send
+  [ ok ] baseline: the render stage refused nothing got=0 exp=0
+  [ ok ] baseline: the render stage slipped nothing got=0 exp=0
+  [ ok ] baseline: the talker streams
+TALKER: baseline interval 642.0 cycles
+  [ ok ] baseline: no talker PDU carries tu       got=0 exp=0
+  [ ok ] event: tu is clear before the change     got=0 exp=0
+EVENT: GM B announced at cycle 7218689
+GMPROBE change from 00aaccfffe010203 to 00bbddfffe040506
+GMPROBE detector pulse (now 00bbddfffe040506)
+EVENT: identity 7219145, counters read 7224528, step pulse 7379274, step 7379279 (1500000000 ns), tu rise 7219144 fall 7602192
+  [ ok ] event: the published grandmaster became GM B
+  [ ok ] event: the plane stepped the PHC exactly once got=1 exp=1
+  [ ok ] event: the counter saw exactly that step got=1 exp=1
+  [ ok ] event: the step is the 1.5 s between the grandmasters, within 1 us
+  [ ok ] event: the step follows the commit
+  [ ok ] event: the counters were read between the commit and the step
+  [ ok ] tu: set in the first cycle the bank names GM B got=1 exp=1
+  [ ok ] tu: cleared after the step
+TU: held 222913 cycles after the step (quarter tick 131072)
+  [ ok ] tu: held at least the 0.25 s holdover after the step
+  [ ok ] tu: cleared within the holdover's bound
+  [ ok ] tu: clear at the end of the window       got=0 exp=0
+  [ ok ] tu: talker PDUs graded inside the hold
+  [ ok ] tu: talker PDUs graded after tu clears
+  [ ok ] tu: every talker PDU carries the verdict of its instant got=0 exp=0
+  [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+  [ ok ] licence: no talker sequence gap across the event got=0 exp=0
+TALKER: 1286 PDUs over 825871 cycles to the window end (baseline rate: 1286), longest pause 664, last PDU 259 cycles before the end
+  [ ok ] licence: the talker never pauses beyond four of its intervals
+  [ ok ] licence: the talker keeps its baseline rate within 1%
+LISTENER: counters valid 0xfff / 0xfff, EARLY_TIMESTAMP +2, LATE_TIMESTAMP +0, FRAMES_RX +3304 (accepts seen 3283..3325)
+  [ ok ] licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX got=0x802 exp=0x802
+  [ ok ] licence: FRAMES_RX advances by the PDUs the listener accepted
+  [ ok ] licence: the listener stays locked (MEDIA_UNLOCKED unchanged) got=0 exp=0
+RENDER: across the event: 3272 PDUs graded, 3270 presented once in order, 2 refused, 0 in part, 0 out of order; send-to-presentation 3928..3928 cycles
+RENDER: the peer's media step at cycle 7378689, the PHC's at 7379279; refused PDUs sent 7378846..7379096; the stage counted 2 refused, 1 slips
+  [ ok ] render: PDUs graded across the event
+  [ ok ] render: PDUs stamped in GM B's time before this listener's step were refused
+  [ ok ] render: ...and only those: every refused PDU was sent between the two steps
+  [ ok ] render: every PDU not presented was refused by the stage and counted once got=2 exp=2
+  [ ok ] render: every other PDU's six events presented once, in order got=0 exp=0
+  [ ok ] render: the refused PDUs' frames are one counted slip got=1 exp=1
+  [ ok ] render: nothing re-centres: every presented PDU keeps one offset across the event
+  [ ok ] restart: a PHC-only step leaves outgoing mr unchanged got=0 exp=0
+  [ ok ] restart: the Stream Output counters are valid before the change got=0x1f exp=0x1f
+  [ ok ] restart: the Stream Output counters are valid between commit and step got=0x1f exp=0x1f
+  [ ok ] restart: the Stream Output counters are valid after the event got=0x1f exp=0x1f
+  [ ok ] restart: MEDIA_RESET does not move between the commit and the step got=0 exp=0
+  [ ok ] restart: a PHC-only step adds no MEDIA_RESET got=0 exp=0
+  [ ok ] 621: clock selection succeeds            got=0 exp=0
+  [ ok ] 621: root resolves selected clock source got=1 exp=1
+  [ ok ] 621: tu clear before the step            got=0 exp=0
+GMPROBE change from 00bbddfffe040506 to 00bbddfffe040507
+GMPROBE detector pulse (now 00bbddfffe040507)
+621: CRF signed step 10000000, tu episodes 1
+  [ ok ] 621: exactly one step                    got=1 exp=1
+  [ ok ] 621: signed 10 ms PHC step
+  [ ok ] 621: asCapable held every cycle          got=0 exp=0
+  [ ok ] 621: valid link delay every cycle        got=0 exp=0
+  [ ok ] 621: one tu episode                      got=1 exp=1
+  [ ok ] 621: tu clears again                     got=0 exp=0
+  [ ok ] 621: one GPTP_GM_CHANGED                 got=1 exp=1
+  [ ok ] 621: CRF servo remains unlocked throughout got=0 exp=0
+  [ ok ] 621: CLOCK_DOMAIN UNLOCKED delta         got=0 exp=0
+  [ ok ] 621: CLOCK_DOMAIN LOCKED delta           got=0 exp=0
+  [ ok ] 621: no outgoing mr change               got=0 exp=0
+  [ ok ] 621: no MEDIA_RESET                      got=0 exp=0
+  [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+  [ ok ] licence: no talker sequence gap across the event got=0 exp=0
+TALKER: 12493 PDUs over 8020753 cycles to the window end (baseline rate: 12493), longest pause 713, last PDU 247 cycles before the end
+  [ ok ] licence: the talker never pauses beyond four of its intervals
+  [ ok ] licence: the talker keeps its baseline rate within 1%
+LISTENER: counters valid 0xfff / 0xfff, EARLY_TIMESTAMP +0, LATE_TIMESTAMP +0, FRAMES_RX +32084 (accepts seen 32063..32105)
+  [ ok ] licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX got=0x802 exp=0x802
+  [ ok ] licence: FRAMES_RX advances by the PDUs the listener accepted
+  [ ok ] licence: the listener stays locked (MEDIA_UNLOCKED unchanged) got=0 exp=0
+  [ ok ] 621: tu clear before the step            got=0 exp=0
+GMPROBE change from 00bbddfffe040507 to 00bbddfffe040508
+GMPROBE detector pulse (now 00bbddfffe040508)
+621: CRF signed step -10000000, tu episodes 1
+  [ ok ] 621: exactly one step                    got=1 exp=1
+  [ ok ] 621: signed 10 ms PHC step
+  [ ok ] 621: asCapable held every cycle          got=0 exp=0
+  [ ok ] 621: valid link delay every cycle        got=0 exp=0
+  [ ok ] 621: one tu episode                      got=1 exp=1
+  [ ok ] 621: tu clears again                     got=0 exp=0
+  [ ok ] 621: one GPTP_GM_CHANGED                 got=1 exp=1
+  [ ok ] 621: CRF servo remains unlocked throughout got=0 exp=0
+  [ ok ] 621: CLOCK_DOMAIN UNLOCKED delta         got=0 exp=0
+  [ ok ] 621: CLOCK_DOMAIN LOCKED delta           got=0 exp=0
+  [ ok ] 621: no outgoing mr change               got=0 exp=0
+  [ ok ] 621: no MEDIA_RESET                      got=0 exp=0
+  [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+  [ ok ] licence: no talker sequence gap across the event got=0 exp=0
+TALKER: 12493 PDUs over 8021094 cycles to the window end (baseline rate: 12494), longest pause 799, last PDU 588 cycles before the end
+  [ ok ] licence: the talker never pauses beyond four of its intervals
+  [ ok ] licence: the talker keeps its baseline rate within 1%
+LISTENER: counters valid 0xfff / 0xfff, EARLY_TIMESTAMP +0, LATE_TIMESTAMP +2, FRAMES_RX +32085 (accepts seen 32064..32107)
+  [ ok ] licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX got=0x802 exp=0x802
+  [ ok ] licence: FRAMES_RX advances by the PDUs the listener accepted
+  [ ok ] licence: the listener stays locked (MEDIA_UNLOCKED unchanged) got=0 exp=0
+  [ ok ] 621: clock selection succeeds            got=0 exp=0
+  [ ok ] 621: root resolves selected clock source got=0 exp=0
+  [ ok ] 621: tu clear before the step            got=0 exp=0
+GMPROBE change from 00bbddfffe040508 to 00bbddfffe040509
+GMPROBE detector pulse (now 00bbddfffe040509)
+621: INTERNAL signed step 10000000, tu episodes 1
+  [ ok ] 621: exactly one step                    got=1 exp=1
+  [ ok ] 621: signed 10 ms PHC step
+  [ ok ] 621: asCapable held every cycle          got=0 exp=0
+  [ ok ] 621: valid link delay every cycle        got=0 exp=0
+  [ ok ] 621: one tu episode                      got=1 exp=1
+  [ ok ] 621: tu clears again                     got=0 exp=0
+  [ ok ] 621: one GPTP_GM_CHANGED                 got=1 exp=1
+  [ ok ] 621: CRF servo remains unlocked throughout got=0 exp=0
+  [ ok ] 621: CLOCK_DOMAIN UNLOCKED delta         got=1 exp=1
+  [ ok ] 621: CLOCK_DOMAIN LOCKED delta           got=1 exp=1
+  [ ok ] 621: no outgoing mr change               got=0 exp=0
+  [ ok ] 621: no MEDIA_RESET                      got=0 exp=0
+  [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+  [ ok ] licence: no talker sequence gap across the event got=0 exp=0
+TALKER: 12493 PDUs over 8020958 cycles to the window end (baseline rate: 12494), longest pause 683, last PDU 452 cycles before the end
+  [ ok ] licence: the talker never pauses beyond four of its intervals
+  [ ok ] licence: the talker keeps its baseline rate within 1%
+LISTENER: counters valid 0xfff / 0xfff, EARLY_TIMESTAMP +0, LATE_TIMESTAMP +0, FRAMES_RX +32085 (accepts seen 32064..32107)
+  [ ok ] licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX got=0x802 exp=0x802
+  [ ok ] licence: FRAMES_RX advances by the PDUs the listener accepted
+  [ ok ] licence: the listener stays locked (MEDIA_UNLOCKED unchanged) got=0 exp=0
+  [ ok ] 621: tu clear before the step            got=0 exp=0
+GMPROBE change from 00bbddfffe040509 to 00bbddfffe04050a
+GMPROBE detector pulse (now 00bbddfffe04050a)
+621: INTERNAL signed step -10000000, tu episodes 1
+  [ ok ] 621: exactly one step                    got=1 exp=1
+  [ ok ] 621: signed 10 ms PHC step
+  [ ok ] 621: asCapable held every cycle          got=0 exp=0
+  [ ok ] 621: valid link delay every cycle        got=0 exp=0
+  [ ok ] 621: one tu episode                      got=1 exp=1
+  [ ok ] 621: tu clears again                     got=0 exp=0
+  [ ok ] 621: one GPTP_GM_CHANGED                 got=1 exp=1
+  [ ok ] 621: CRF servo remains unlocked throughout got=0 exp=0
+  [ ok ] 621: CLOCK_DOMAIN UNLOCKED delta         got=1 exp=1
+  [ ok ] 621: CLOCK_DOMAIN LOCKED delta           got=1 exp=1
+  [ ok ] 621: no outgoing mr change               got=0 exp=0
+  [ ok ] 621: no MEDIA_RESET                      got=0 exp=0
+  [ ok ] licence: the talker gate is open after the event got=0x8 exp=0x8
+  [ ok ] licence: no talker sequence gap across the event got=0 exp=0
+TALKER: 12493 PDUs over 8021299 cycles to the window end (baseline rate: 12494), longest pause 793, last PDU 793 cycles before the end
+  [ ok ] licence: the talker never pauses beyond four of its intervals
+  [ ok ] licence: the talker keeps its baseline rate within 1%
+LISTENER: counters valid 0xfff / 0xfff, EARLY_TIMESTAMP +0, LATE_TIMESTAMP +2, FRAMES_RX +32086 (accepts seen 32064..32106)
+  [ ok ] licence: both Stream Input answers carry MEDIA_UNLOCKED and FRAMES_RX got=0x802 exp=0x802
+  [ ok ] licence: FRAMES_RX advances by the PDUs the listener accepted
+  [ ok ] licence: the listener stays locked (MEDIA_UNLOCKED unchanged) got=0 exp=0
+  [ ok ] 621: restore CRF selection succeeds      got=0 exp=0
+  [ ok ] 621: CRF source restored                 got=1 exp=1
+  [ ok ] CRF control: the selected sink starts locked got=1 exp=1
+  [ ok ] CRF control: outgoing PDUs bracket the received toggle
+  [ ok ] CRF control: selected CRF mr propagates exactly once got=1 exp=1
+  [ ok ] CRF control: the sink stays locked       got=1 exp=1
+  [ ok ] CRF control: no PHC step supplies the restart got=0 exp=0
+  [ ok ] slew path: in-band pairs clear the plane level got=0 exp=0
+  [ ok ] slew path: consumed offset is between 80 and 100 us
+  [ ok ] slew path: the plane raises its level    got=1 exp=1
+  [ ok ] slew path: the actual servo receives the level
+  [ ok ] slew path: measured completion lowers the level got=0 exp=0
+  [ ok ] slew path: completion happened once      got=1 exp=1
+  [ ok ] slew path: PHC advances witness the release tail
+  [ ok ] slew path: every staged sample covers the PHC tail got=0 exp=0
+  [ ok ] slew path: servo clears after the PHC tail got=0 exp=0
+  [ ok ] slew path: a policy slew never steps the PHC got=0 exp=0
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 0, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 1, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 2, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 3, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 4, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 5, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 6, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 7, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 8, overlap 1, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 9, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 10, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 11, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 12, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 13, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 14, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 15, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 16, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 17, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 18, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 19, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 20, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 21, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 22, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 23, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 24, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 25, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 26, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 27, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 28, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 29, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 30, overlap 0, outgoing toggles 1
+  [ ok ] coincident: the toggled CRF PDU starts within its bound
+COINCIDENT: delay 31, overlap 0, outgoing toggles 1
+  [ ok ] coincident: every trial consumes one received CRF toggle got=32 exp=32
+  [ ok ] coincident: every trial issues one software settime got=32 exp=32
+  [ ok ] coincident: every settime actually steps the PHC got=32 exp=32
+  [ ok ] coincident: received CRF mr overlaps the PHC re-base pulse
+  [ ok ] coincident: PDUs bracket every trial and complete the hold got=0 exp=0
+  [ ok ] coincident: the selected CRF sink stays locked got=0 exp=0
+  [ ok ] coincident: a PHC step does not suppress the CRF restart got=0 exp=0
+simulated_cycles=54891194
+== gmstep: checks: 195   failures: 0 ==
+RESULT: PASS

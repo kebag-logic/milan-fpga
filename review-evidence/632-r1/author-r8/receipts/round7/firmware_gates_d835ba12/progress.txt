@@ -1,0 +1,14 @@
+2026-10-23T07:57:14+02:00 start fw_rv32_selftest: python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+2026-10-23T07:57:21+02:00 end fw_rv32_selftest rc=0 7s
+2026-10-23T07:57:21+02:00 start tally_selftest_mutants: python3 sw/firmware/gtest/tally_selftest.py --mutants
+2026-10-23T07:58:13+02:00 end tally_selftest_mutants rc=0 52s
+2026-10-23T07:58:13+02:00 start ctrl_firmware: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp <host path> --jobs 4
+2026-10-23T08:49:32+02:00 end ctrl_firmware rc=0 3079s
+2026-10-23T08:49:32+02:00 start ctrl_firmware_shards: python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+2026-10-23T08:49:32+02:00 end ctrl_firmware_shards rc=0 0s
+2026-10-23T08:49:32+02:00 start ctrl_nvm: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 4
+2026-10-23T09:19:28+02:00 end ctrl_nvm rc=0 1796s
+2026-10-23T09:19:28+02:00 start fw_coverage_selftest: python3 sw/firmware/gtest/fw_coverage.py --selftest
+2026-10-23T09:19:29+02:00 end fw_coverage_selftest rc=0 1s
+2026-10-23T09:19:29+02:00 start fw_coverage_check: python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp <host path> --jobs 4
+2026-10-23T09:23:23+02:00 end fw_coverage_check rc=0 234s

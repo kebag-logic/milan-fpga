@@ -1,0 +1,12 @@
+[PASS] the unmutated gateware still passes the render lane leg (ship --law-only)
+[PASS] the unmutated gateware still passes the render lane leg (ship --pullin)
+[PASS] the unmutated gateware still passes the render lane leg (ship --serial-only)
+[PASS] leg defect caught (ship --defect-stopped-clock): stopped render clock - breaks "T5 FRAMING: the window decoded whole frames"
+[PASS] leg defect caught (ship --defect-one-sample): a single changed sample - breaks "T6 IDENTITY: every decoded frame is a complete 24-bit match against the injection record"
+[PASS] leg defect caught (ship --defect-internal-select): the clock-source selection names INTERNAL - breaks "T30 CRF: the media plane's one registered resolve reads CRF"
+[PASS] mutant caught (ship --serial-only): the render out-lead one frame long - breaks "T6 FIRST EVENT: ...in the frame its timestamp names, inside +/-5 % of Ps" and 1 more
+[PASS] mutant caught (ship --serial-only): the domain event's instant not back-dated - breaks "T6 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps"
+[PASS] mutant caught (ship --law-only): the render out-lead one frame long, at every [LAW] phase - breaks "T30 INTERNAL LAW +0 PRESENTATION: every event's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps" and 17 more
+[PASS] mutant caught (ship --pullin): the settle recentre never pulses - breaks "T647 PULLIN +1562: one settle recentre for the LOOP queues after the hold"
+
+10 checks: 10 PASS, 0 FAIL

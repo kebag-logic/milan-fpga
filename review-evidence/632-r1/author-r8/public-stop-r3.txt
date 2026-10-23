@@ -1,0 +1,52 @@
+[A659] STOP
+
+milan-fpga head: 32fb8fc26acf7dedc507512d7a455898a26afd84 (branch 632-764-media-phase, PR #770; not pushed; ten commits on 2ff30f0d, no rebase, no amend)
+Processor head: none. Branch 632-sinfo-notify-stored stays at processor main 08023123: no processor commit until the ruling below.
+STOP condition hit (round 3 assignment, https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6306591168): "the processor fix needs more than the one gather change".
+
+**What fails.** The fix as ruled replaces E_SINFO's `GATHER_EXT rd=6, GSI(3)` with `READ_ST rd=6, RGN_DYN + SEL_PTOFF`. The processor's dynamic store reads a row no controller has written as 0, with its valid bit clear (`KL_aecp_dyn_state`: `ptoff_r` resets to 0, `ptoff_v_r` to 0). Meanwhile the integrator serves the factory 2 ms. Two consequences:
+- A SET of the factory value on a never-set row compares 2,000,000 with 0 and pushes.
+- A SET of 0 compares 0 with 0 and pushes nothing, although the offset in force moves from 2 ms to 0. The pin and the base both push here.
+
+The `[NOTIFY]` notify leg sets no row before the section, so R677-2's step 1 runs on a never-set row.
+
+**Measured.** The committed `milan_dp` `[NOTIFY]` SET_STREAM_INFO case, 1x1 notify leg, real datapath and processor. Each microcode was applied uncommitted to the submodule at its pin `2cbed0a9`, which was then restored clean:
+
+| Processor | step 1 (2,000,000, held) | step 2 (2,010,000) | step 3 (2,010,000 again) | step 4 (2,020,834) | SET 0 on a never-set row (disposable probe) | leg |
+|---|---|---|---|---|---|---|
+| current pin (gate reads GET_STREAM_INFO word 3) | 0 | 1 | **1** | **0** | 1 | 444 checks, 3 failures |
+| (a) as ruled: one read of the stored row | **1** | 1 | 0 | 1 | **0** | 444 checks, 2 failures |
+| (b) the stored row once a controller set it (`RGN_DYNV` read), GET_STREAM_INFO word 3 before | 0 | 1 | 0 | 1 | 1 | 444 checks, 0 failures |
+| expected (R677-2's column; the probe by 5.4.5.2) | 0 | 1 | 0 | 1 | 1 | |
+
+Option (b) is the store's own idiom, as E_SCFG uses it for #178: a valid read, a COMPARE and a BR_STATUS. It adds five microcode words and keeps the gather on the never-set arm. With (b) at 32fb8fc2:
+- the notify leg passes, 441 checks, 0 failures;
+- the planted control (the gate comparing with the applied readback again) is caught at "[NOTIFY] SET_STREAM_INFO step 3".
+
+At the current pin the case fails steps 3 and 4, as recorded. (b) leaves one residue: before its first SET, a factory row that is not a whole number of periods compares with its applied value. No shipping config has one; every factory row is 2 ms.
+
+**Decision needed:**
+- (a) as ruled, with R677-2's step 1 re-specified and the never-set SET 0 recorded as a follow-up; or
+- (b) as above.
+
+The processor PR, its test (an identical SET pushes nothing, a changed SET pushes once) and its planted defect then follow the ruling.
+
+**Done at 32fb8fc2:**
+- R678-2-F1: every rounded offset keeps bit 32. The CRF output adds it into its 64-bit timestamp. GET_STREAM_INFO reads a row past 32 bits as 0xFFFFFFFF. The grader works at full width (33-bit rows, 64-bit CRF timestamps against Equation 14 and the grid) at 4,294,958,333 / 4,294,958,334 / 0xFFFFFFFF, in reset and at run time. Four carry mutants, the truncation among them, are each killed at a named check. The wrap claim is corrected in the banner, the design doc and the PR body.
+- R677-2-F2: `det afterhold` and `hold_keeps_ref`.
+- R677-2-F3, and the residues R677-2-R1..R5 and R678-2-R1..R2.
+- The "what a controller reads" claim is scoped to GET_STREAM_INFO. The SET echo against the applied readback is documented (5.4.2.9, 5.4.2.10.2).
+- The applied-value-changes-without-a-SET case is recorded as a follow-up.
+
+**Found on the way, fixed:**
+- The carry's first form, one indexed concatenation target, synthesized to 0 cells in Yosys. The open-synthesis gate still printed PASS. Now two indexed writes, 1,215 cells. A gate that accepts a zero-cell top is a follow-up.
+- The case's step 1 premise ("the offset held") holds only on the timed notify leg. The other legs set output 0 to 750,000 ns first, so the case now runs on the timed leg alone.
+
+**Gates at 32fb8fc2** (or at the ancestor named, where nothing later touches that gate's inputs):
+- `milan_dp`, run leg by leg: every leg except notify gives 14 tallies, 11,629 checks, 0 failures. At this pin `sim_pool.py` starts no leg after the designed notify failure, so each leg runs on its own.
+- The notify leg: 441 checks, 3 failures, the case's steps 3 and 4, by design until the pin carries the fix.
+- Full sweep at 62ee1a8c: shards 1, 2 and 3 pass 49 of 49 suites (2,133,963 checks), `capture_coherence` included with its campaign 35 of 35. Shard 0 passes 14 of 15; `milan_dp` is covered by the leg-by-leg run above.
+- `media_phase`: 326 checks, 0 failures. Its campaign: 19 clean controls, then 33 of 33 planted defects fail their named checks.
+- route-1x1 at 62ee1a8c: gate exit 0. LUT +120, FF +412, slice +79 of +80 (one left), RAMB +0, DSP -1, WNS +0.282 ns, WHS +0.016 ns. The carry costs about 10 LUTs and no RAMB, so STOP condition 1 is not hit.
+- Yosys on the four changed tops, lint (89 <= 89), the 49 docs gates and the builder bank pass. The builder has one gate not run for its recorded reason.
+- The submodule stays at its pin `2cbed0a9`, clean.
