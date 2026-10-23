@@ -1,0 +1,1 @@
+Campaign audit (R678-3 script, scripts/round7/campaign_audit.py) over this round's gmstep campaign log at c2c996fa and round 7b's tdm8render and pull-in logs at d835ba12 (whose inputs c2c996fa leaves unchanged: git diff --stat d835ba12 c2c996fa -- hdl syn configs tb/verilator/milan_dp_render is empty).
