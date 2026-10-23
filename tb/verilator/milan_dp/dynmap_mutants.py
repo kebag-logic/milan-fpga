@@ -151,7 +151,7 @@ SWEEP = "        amap_boot_last_r <= 1'b1;\n"
 DRAIN = "      amap_boot_drain_r <= amap_boot_last_r && amap_boot_wrap_w;"
 WAIT = "  assign pp_amap_edit_wait_w = amap_boot_busy_w;"
 
-#: #637 round 2: PP_STAT's composition of the map restore (milan_datapath)
+#: #637: PP_STAT's composition of the map restore (milan_datapath)
 STAT_BUSY = "  assign pp_stat_busy_w  = pp_restore_busy_w || (pp_restore_done_w && amr_rs_hold_r);"
 STAT_DONE = "  assign pp_stat_done_w  = pp_restore_done_w && !amr_rs_hold_r;"
 STAT_FAIL = "  assign pp_stat_fail_w  = pp_restore_fail_w || amr_rs_fail_r;"
@@ -165,8 +165,8 @@ VALID = "          if (amr_hframe_r && amr_hid_r && (amr_hcrc_r == amr_crc_r))\n
 PB_REFUSED = "            if (!amr_ok_r) amr_pb_r <= amr_pb_r | amr_rmask_w;\n"
 PB_RECORD = ("            //! port's reset set comes back in stage 2\n"
              "            amr_pb_r <= amr_pb_r | amr_rmask_w;\n")
-#: round 1's order: stage 0 takes nothing down, and stage 1 REMOVEs a
-#: well-formed record's port just before ADDing its saved set
+#: The former restore order (#637): stage 0 takes nothing down, and stage 1
+#: REMOVEs a well-formed record's port just before ADDing its saved set
 ROUND1_ORDER = [
     ("                       || ((amr_stage_r == 2'd2) && !(|(amr_pb_r & amr_rmask_w)))) begin",
      "                       || (amr_stage_r == 2'd0)\n"
@@ -313,7 +313,7 @@ MUTATIONS = [
      "injected events"),
     ("talker", "an empty reset, under the talker's end-to-end check", EMPTY,
      "[V] every requested column was decoded"),
-    # ---- #637 round 2: PP_STAT's composition (D3 3 rule 7, 8.7) ----------
+    # ---- #637: PP_STAT's composition (D3 3 rule 7, 8.7) ------------------
     ("dynmap", "the map restore's roll-back is not composed into PP_STAT fail",
      [(STAT_FAIL, "  assign pp_stat_fail_w  = pp_restore_fail_w;")],
      ("[MAPREC] roll-back: PP_STAT fail 1",
@@ -342,7 +342,7 @@ MUTATIONS = [
     ("dynmap", "the map restore takes every record it reads for a validated one",
      [(VALID, "          if (1'b1)\n")],
      "[MAPREC] first boot: PP_STAT blank 1"),
-    # ---- #637 round 2: the restore's value and recovery arms (D3 8.3, 18.4)
+    # ---- #637: the restore's value and recovery arms (D3 8.3, 18.4)
     ("dynmap", "a saved set the ADD rule refuses is never put back",
      [(PB_REFUSED, "")],
      "[MAPREC] put-back: SPI 0: number_of_mappings"),
@@ -383,7 +383,7 @@ MUTATIONS = [
     ("dynmap", "the map restore runs over a D3 abort in pass 0",
      [("(pp_restore_rb_w || (pp_rs_cause_w != 3'd0))", "(pp_restore_rb_w)")],
      "[MAPREC] D3 pass-0 abort: SPI 0: number_of_mappings"),
-    # ---- #637 round 2: across ports (the maprec8 and maprec4 legs) -------
+    # ---- #637: across ports (the maprec8 and maprec4 legs) ---------------
     ("maprec8", "the round-1 ordering: a port's reset set comes down just before its saved set",
      ROUND1_ORDER,
      "[MAPREC] transfers, after the power cycle: port 0: the mappings are the "
