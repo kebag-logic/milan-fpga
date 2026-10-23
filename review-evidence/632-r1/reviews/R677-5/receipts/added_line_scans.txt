@@ -1,0 +1,23 @@
+added lines e26f1816..24a292a0: 17529
+== 802.1AS-2020 citations on added lines
+docs/reference/REGISTER_MAP.md:1474:802.1AS-2020 10.3.11.2.1 d) states, so count zero is preserved even when a
+== 802.1AS clause numbers on added lines (gPTP context)
+docs/reference/REGISTER_MAP.md:1051:| `0x624` | `ADP_GPTP_GM_LO` | RO live | `0` | gptp_grandmaster_id `[31:0]`. Fabric mode snapshots the complete live 64-bit identity on the first half read and hold
+docs/reference/REGISTER_MAP.md:1471:bounded PathTrace publication. IEEE 802.1AS-2011 10.3.10.2.1 d) writes
+docs/reference/REGISTER_MAP.md:1474:802.1AS-2020 10.3.11.2.1 d) states, so count zero is preserved even when a
+docs/reference/REGISTER_MAP.md:1478:appended (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #85), so its count
+docs/reference/REGISTER_MAP.md:1480:count one (IEEE 802.1AS-2011 10.3.12.1.4 i), with Cor1-2013, FPGA-gPTP #82).
+docs/reference/SUBMODULES.md:242:| #82, boot grandmaster | [83](https://github.com/Mister-M-alt/FPGA-gPTP/pull/83) | From reset release the engine publishes thisClock as grandmaster and `{thisClock}` 
+docs/reference/SUBMODULES.md:244:| #85, pathTrace | [86](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86) | The published path is the received pathSequence with thisClock appended (IEEE 802.1AS-2011
+tb/verilator/media_phase/sim_ofs.cpp:22:// and every CRF timestamp, all 64 bits (10.4.13.1, Eq. 13), must be a frame
+tb/verilator/milan_dp/README.md:1066:a peer wins (IEEE 802.1AS-2011 9.6.2.1, 10.2.3.13). The step to GM A is
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:80://! 10.3.10.2.1 d): a slave port's pathTrace is the received
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1176:        // 10.3.12.1.4 b) and i), with Cor1-2013).
+tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1226:            // 10.3.12.1.4 b) and i), with Cor1-2013); the parent identity
+tb/verilator/milan_dp/sim_gmstep.cpp:978:    //! 802.1AS-2011 9.6.2.1: gmIdentity is the current grandmaster's whenever
+tb/verilator/milan_dp/sim_gptp.cpp:51://! 02:A1:B2:C3:D4:E5). IEEE 802.1AS-2011 10.3.10.2.1 d): a slave port's
+tb/verilator/milan_dp/sim_gptp.cpp:818:    // as grandmaster (IEEE 802.1AS-2011 10.3.12.1.4 b) and i), with
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:263:    # IEEE 802.1AS-2011 9.6.2.1 and 10.2.3.13: the station's own identity is
+== round-8 delta: comment-rule scan of added source lines (tb, hdl, sw, scripts)
++//! 02:A1:B2:C3:D4:E5). IEEE 802.1AS-2011 10.3.10.2.1 d): a slave port's
+note: the one hit above is a false positive (the MAC byte B2 in 02:A1:B2:C3:D4:E5 matches the bench-label pattern); no lane label, round, reviewer ID or comment ID is on an added source line of the round-8 delta.

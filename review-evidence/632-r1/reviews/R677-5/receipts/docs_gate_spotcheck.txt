@@ -1,0 +1,7 @@
+head 24a292a0321df6f3516f25cb6e92e24fb1988e65; Python 3.14.8; GNU Make 4.4.1 (gates run directly, not via make)
+rc=0 python3 scripts/docs_check.py :: docs_check: 0 finding(s) across 210 md files + 1417 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files] 
+rc=0 python3 scripts/check_doc_paths.py :: doc path gate: OK (1062 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file) 
+rc=0 python3 scripts/check_doc_style.py :: documentation style: OK (23 current documents) 
+rc=0 python3 scripts/check_gptp_docs.py :: gPTP documentation: OK (8 current pages) 
+rc=0 python3 scripts/check_submodule_docs.py :: submodule documentation: OK (6 exact gitlinks) 
+rc=2 python3 scripts/check_em_dash.py --base e5b480a385841f19420570bbba7c46da101d1303 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt 
