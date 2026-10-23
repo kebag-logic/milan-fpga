@@ -106,6 +106,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `render_queue` grades the stage byte-exact against a model.
 - `capture_coherence` grades the talker's stamps at the TDM pins.
 - The bench proof follows after merge.
+- The resource gate re-baselines under two owner exceptions.
+- The route grows 500 LUTs, 107 slices and 2 RAMB18.
+- 15 slices stay free; Mark II (#640) recovers the area.
 
 ## Unreleased - pins 93fb0b2d and 55680bff
 
