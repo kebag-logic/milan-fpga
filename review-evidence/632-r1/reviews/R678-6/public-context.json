@@ -1,0 +1,75 @@
+{
+  "pr": {
+    "url": "https://github.com/kebag-logic/milan-fpga/pull/770",
+    "head": "cf1ca87529b4c1a9d6ba7acbf691b626e15bae9e",
+    "updated_at": "2026-10-23T19:09:58Z",
+    "excerpts": [
+      {
+        "line": 567,
+        "text": "| 3. R677-4-F3 | `bfa348a6` | `docs/testing/TESTING.md:647`, the `milan_dp` row: the `[NOTIFY]` case passes at the adopted processor pin. A gate that compares with GET_STREAM_INFO's word fails the case's CRF steps 3 and 4, and `make gsi-mutants` plants that gate. The \"until the pin moves\" workaround is gone |\n| 4. R678-4-F3 | `546412d8` | The nine gPTP behaviour citations, at `REGISTER_MAP.md:1051` and `:1478`, `SUBMODULES.md:242` and `:244`, `sim_ax1x1gptp.cpp:79`, `:1175` and `:1225`, and `sim_gptp.cpp:51` and `:818`, cite IEEE 802.1AS-2011. The own-grandmaster boot and reset sites cite 10.3.12.1.4 b) and i), with Cor1-2013. The pathTrace append sites cite 10.3.10.2.1 d). `REGISTER_MAP.md:1480` named 2020's `10.3.13.2.4 i)` with no edition and now reads 2011 10.3.12.1.4 i) |\n| 4, the neighbour at `REGISTER_MAP.md:1471` | `546412d8` | 2011 writes pathTrace only from a received path trace TLV (10.3.10.2.1 d)). When the selected Announce carries none, the engine publishes the empty sequence. The page names that as the rule IEEE 802.1AS-2020 10.3.11.2.1 d) states, an explicit cross-edition statement, and no longer attributes it to 2011 |\n| 5. R678-4-R1 | `24a292a0` | `tb/verilator/milan_dp/dynmap_mutants.py:154`, `:316`, `:345`, `:386`: \"#637 round 2:\" -> \"#637:\"; `:168`: \"round 1's order:\" -> \"The former restore order (#637):\" |\n\n**The clause lookup.** Each clause was looked up in the 2011 text and its two corrigenda, not just given a new year,\nbecause the numbering differs between editions.\n\n| 2020 (as cited) | 2011 | Corrigenda |\n|---|---|---|"
+      },
+      {
+        "line": 568,
+        "text": "| 4. R678-4-F3 | `546412d8` | The nine gPTP behaviour citations, at `REGISTER_MAP.md:1051` and `:1478`, `SUBMODULES.md:242` and `:244`, `sim_ax1x1gptp.cpp:79`, `:1175` and `:1225`, and `sim_gptp.cpp:51` and `:818`, cite IEEE 802.1AS-2011. The own-grandmaster boot and reset sites cite 10.3.12.1.4 b) and i), with Cor1-2013. The pathTrace append sites cite 10.3.10.2.1 d). `REGISTER_MAP.md:1480` named 2020's `10.3.13.2.4 i)` with no edition and now reads 2011 10.3.12.1.4 i) |\n| 4, the neighbour at `REGISTER_MAP.md:1471` | `546412d8` | 2011 writes pathTrace only from a received path trace TLV (10.3.10.2.1 d)). When the selected Announce carries none, the engine publishes the empty sequence. The page names that as the rule IEEE 802.1AS-2020 10.3.11.2.1 d) states, an explicit cross-edition statement, and no longer attributes it to 2011 |\n| 5. R678-4-R1 | `24a292a0` | `tb/verilator/milan_dp/dynmap_mutants.py:154`, `:316`, `:345`, `:386`: \"#637 round 2:\" -> \"#637:\"; `:168`: \"round 1's order:\" -> \"The former restore order (#637):\" |\n\n**The clause lookup.** Each clause was looked up in the 2011 text and its two corrigenda, not just given a new year,\nbecause the numbering differs between editions.\n\n| 2020 (as cited) | 2011 | Corrigenda |\n|---|---|---|\n| 10.3.13.2.4 updtStatesTree() b), i) | 10.3.12.1.4 updtRolesTree() b), i) | Cor1-2013 restates 10.3.12.1.4. It changes only \"higher\" to \"better\" in f) 7) and 8) and a spelling in i), so these sites cite \"with Cor1-2013\" |"
+      },
+      {
+        "line": 576,
+        "text": "|---|---|---|\n| 10.3.13.2.4 updtStatesTree() b), i) | 10.3.12.1.4 updtRolesTree() b), i) | Cor1-2013 restates 10.3.12.1.4. It changes only \"higher\" to \"better\" in f) 7) and 8) and a spelling in i), so these sites cite \"with Cor1-2013\" |\n| 10.3.13.2.4 f) 5) (the slave port's pathTrace) | 10.3.10.2.1 qualifyAnnounce() d): a qualified Announce with a path trace TLV, on a SlavePort, copies pathSequence and appends thisClock | not changed |\n| 10.3.11.2.1 d) (receivedPathTrace emptied without a TLV) | no counterpart | -- |\n\nCor2-2015 changes only 11.2.15.3 (the MDPdelayReq diagram), so it applies to none of these. gmIdentity (9.6.2.1),\ngmPresent (10.2.3.13) and thisClock (10.2.3.22) were confirmed in the 2011 text.\n\n**The scan of every line this PR adds** (`git diff -U0 e26f1816 24a292a0`, `docs/history` excluded) finds one\n802.1AS-2020 citation, against nine at `417ec528`. It is the cross-edition statement above. No other behavioural"
+      },
+      {
+        "line": 577,
+        "text": "| 10.3.13.2.4 updtStatesTree() b), i) | 10.3.12.1.4 updtRolesTree() b), i) | Cor1-2013 restates 10.3.12.1.4. It changes only \"higher\" to \"better\" in f) 7) and 8) and a spelling in i), so these sites cite \"with Cor1-2013\" |\n| 10.3.13.2.4 f) 5) (the slave port's pathTrace) | 10.3.10.2.1 qualifyAnnounce() d): a qualified Announce with a path trace TLV, on a SlavePort, copies pathSequence and appends thisClock | not changed |\n| 10.3.11.2.1 d) (receivedPathTrace emptied without a TLV) | no counterpart | -- |\n\nCor2-2015 changes only 11.2.15.3 (the MDPdelayReq diagram), so it applies to none of these. gmIdentity (9.6.2.1),\ngmPresent (10.2.3.13) and thisClock (10.2.3.22) were confirmed in the 2011 text.\n\n**The scan of every line this PR adds** (`git diff -U0 e26f1816 24a292a0`, `docs/history` excluded) finds one\n802.1AS-2020 citation, against nine at `417ec528`. It is the cross-edition statement above. No other behavioural\n802.1AS-2020 citation is on an added line. The tree's other 802.1AS-2020 citations are dev's and are not on lines"
+      },
+      {
+        "line": 578,
+        "text": "| 10.3.13.2.4 f) 5) (the slave port's pathTrace) | 10.3.10.2.1 qualifyAnnounce() d): a qualified Announce with a path trace TLV, on a SlavePort, copies pathSequence and appends thisClock | not changed |\n| 10.3.11.2.1 d) (receivedPathTrace emptied without a TLV) | no counterpart | -- |\n\nCor2-2015 changes only 11.2.15.3 (the MDPdelayReq diagram), so it applies to none of these. gmIdentity (9.6.2.1),\ngmPresent (10.2.3.13) and thisClock (10.2.3.22) were confirmed in the 2011 text.\n\n**The scan of every line this PR adds** (`git diff -U0 e26f1816 24a292a0`, `docs/history` excluded) finds one\n802.1AS-2020 citation, against nine at `417ec528`. It is the cross-edition statement above. No other behavioural\n802.1AS-2020 citation is on an added line. The tree's other 802.1AS-2020 citations are dev's and are not on lines\nthis PR adds. Some are explicitly not the edition of record (`GPTP_PLANE.md:109`, `:460`), and"
+      },
+      {
+        "line": 584,
+        "text": "**The scan of every line this PR adds** (`git diff -U0 e26f1816 24a292a0`, `docs/history` excluded) finds one\n802.1AS-2020 citation, against nine at `417ec528`. It is the cross-edition statement above. No other behavioural\n802.1AS-2020 citation is on an added line. The tree's other 802.1AS-2020 citations are dev's and are not on lines\nthis PR adds. Some are explicitly not the edition of record (`GPTP_PLANE.md:109`, `:460`), and\n`REQUIREMENTS.md:115` gives timestamp-assist context. They stay as dev has them.\n\n**Open question (published as FPGA-gPTP #87, not decided here).** Read literally, 2011 keeps pathTrace at its previous value when the\nslave port's qualified Announce carries no path trace TLV. After initialisation (10.3.12.1.1) that value is\n`{thisClock}`, which is count one. The pinned engine publishes count zero, 2020's rule. Whether the engine should\nfollow 2011 there is a question for the gPTP owner. This PR makes no engine change, and the register map now names"
+      },
+      {
+        "line": 589,
+        "text": "\n**Open question (published as FPGA-gPTP #87, not decided here).** Read literally, 2011 keeps pathTrace at its previous value when the\nslave port's qualified Announce carries no path trace TLV. After initialisation (10.3.12.1.1) that value is\n`{thisClock}`, which is count one. The pinned engine publishes count zero, 2020's rule. Whether the engine should\nfollow 2011 there is a question for the gPTP owner. This PR makes no engine change, and the register map now names\nboth editions.\n\n## Authoritative references\n\n- Milan v1.2 7.6.1 (media clock: frequency and phase), 7.3.2 (CRF timestamp interval), 4.4.2.1 (the presentation"
+      },
+      {
+        "line": 782,
+        "text": "- **Bench proof.** The #764 method on the bench, after merge; this lane had no bench access.\n- **pathTrace with no TLV, across editions.** The pinned gPTP engine publishes the empty sequence when the selected\n  Announce carries no path trace TLV, which is the IEEE 802.1AS-2020 rule (10.3.11.2.1 d) with 10.3.13.2.4 f) 5)).\n  2011, the edition Milan v1.2 profiles, writes pathTrace only from a received TLV (10.3.10.2.1 d)), so pathTrace keeps\n  its previous value (10.3.12.1.1), and the count-zero publication departs from it. The decision is open in FPGA-gPTP\n  #87 (R677-5-F1); this PR changes no engine behaviour.\n- **AAF following** keeps the rate loop alone (`ph_en_i` low under an AAF source).\n- **The CRF output's offset is not idempotent in whole ns.** Equation (14) rounds up to whole periods; a period\n  count that is no multiple of three has a ceiling above it in whole ns, so a controller writing back what\n  GET_STREAM_INFO read for the CRF output sets a different value, which applies one period more. SET_STREAM_INFO's"
+      },
+      {
+        "line": 783,
+        "text": "- **pathTrace with no TLV, across editions.** The pinned gPTP engine publishes the empty sequence when the selected\n  Announce carries no path trace TLV, which is the IEEE 802.1AS-2020 rule (10.3.11.2.1 d) with 10.3.13.2.4 f) 5)).\n  2011, the edition Milan v1.2 profiles, writes pathTrace only from a received TLV (10.3.10.2.1 d)), so pathTrace keeps\n  its previous value (10.3.12.1.1), and the count-zero publication departs from it. The decision is open in FPGA-gPTP\n  #87 (R677-5-F1); this PR changes no engine behaviour.\n- **AAF following** keeps the rate loop alone (`ph_en_i` low under an AAF source).\n- **The CRF output's offset is not idempotent in whole ns.** Equation (14) rounds up to whole periods; a period\n  count that is no multiple of three has a ceiling above it in whole ns, so a controller writing back what\n  GET_STREAM_INFO read for the CRF output sets a different value, which applies one period more. SET_STREAM_INFO's\n  response echoes the value set (Milan v1.2 5.4.2.9) and GET_STREAM_INFO reads the value applied (5.4.2.10.2). The"
+      }
+    ]
+  },
+  "fix": [
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6372658718",
+      "body": "[A10] Manager fix for R677-5-F1 (issuecomment-6372618017), head cf1ca875, one documentation commit on 24a292a0. R678-5 was POSITIVE at 24a292a0 (issuecomment-6372621514).\n- **The fix.** `REGISTER_MAP.md` 0x7DC now attributes the count-zero publication to IEEE 802.1AS-2020 10.3.11.2.1 d) together with 10.3.13.2.4 f) 5), labelled 2020. It states that IEEE 802.1AS-2011 has no such rule, because pathTrace keeps its previous value (10.3.10.2.1 d), 10.3.12.1.1). So the count-zero publication departs from the edition Milan v1.2 profiles.\n- **The gPTP owner's decision** is filed as https://github.com/Mister-M-alt/FPGA-gPTP/issues/87, and the paragraph links it.\n- **No engine change.** `git diff 24a292a0..cf1ca875` touches only `docs/reference/REGISTER_MAP.md`. The PR body's open question now names FPGA-gPTP #87.\n- **Gates pass at cf1ca875:** doc style, gPTP docs, the docs check, em-dash, doc paths and the TOC anchors and check. Both reviewers are re-covered at the new exact head."
+    }
+  ],
+  "donor": {
+    "url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/87",
+    "title": "pathTrace with no path trace TLV: the engine publishes the empty sequence (802.1AS-2020); 2011 keeps the previous pathTrace",
+    "issue_number": 87,
+    "body": "**Question.** When the slave port's qualified Announce carries no path trace TLV, which pathTrace does the engine publish? It currently publishes the empty sequence (count zero).\n\n**IEEE 802.1AS-2011 (+Cor1-2013, Cor2-2015)**, the edition Milan v1.2 profiles:\n- 10.3.10.2.1 d) writes pathTrace only when a path trace TLV is present: it copies pathSequence and appends thisClock.\n- With no TLV there is no rule, so pathTrace keeps its previous value. That is `{thisClock}` after 10.3.12.1.1 or 10.3.12.1.4 i), or else the last trace derived from a TLV.\n\n**IEEE 802.1AS-2020** produces the empty sequence the engine publishes today:\n- 10.3.11.2.1 d) sets the port's receivedPathTrace to the empty array when no TLV is present.\n- 10.3.13.2.4 f) 5) copies receivedPathTrace to pathTrace and appends thisClock only if it is not empty.\n\nThe engine therefore departs from the adopted edition in this one case. Through GET_AS_PATH (IEEE 1722.1-2021 7.4.41.2) a controller sees count 0 where the 2011 reading gives count 1 (`{thisClock}`) or the previous trace.\n\n**Decision needed (gPTP owner):** either align the engine to the 2011 behaviour (keep the previous pathTrace), or keep the 2020 behaviour and record why. Possible reasons: interoperability, or that the TLV is optional under 2011 and peers always send it in practice.\n\nFound in milan-fpga PR #770 review R677-5 (issuecomment-6372618017). The behaviour is described as a cross-edition statement in milan-fpga `docs/reference/REGISTER_MAP.md` (0x7DC section). Related: #82, #85. milan-fpga #770 changes no engine behaviour.\n",
+    "state": "open",
+    "user": {
+      "login": "Mister-M-alt",
+      "name": "Mister-M-alt",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "id": 161579364
+    },
+    "assignees": null,
+    "labels": null,
+    "milestone": null,
+    "state_reason": null,
+    "comments": 0,
+    "created_at": "2026-10-23T19:06:00Z",
+    "updated_at": "2026-10-23T19:06:00Z",
+    "closed_at": null,
+    "display_url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/87",
+    "display_title": "pathTrace with no path trace TLV: the engine publishes the empty sequence (802.1AS-2020); 2011 keeps the previous pathTrace"
+  }
+}

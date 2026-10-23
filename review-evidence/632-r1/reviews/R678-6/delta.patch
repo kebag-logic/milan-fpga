@@ -1,0 +1,22 @@
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 497127146..e62320702 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -1470,9 +1470,14 @@ processor has no dynamic state.
+ `GET_AS_PATH` (IEEE 1722.1-2021 7.4.41.2) returns the fabric engine's atomic,
+ bounded PathTrace publication. IEEE 802.1AS-2011 10.3.10.2.1 d) writes
+ pathTrace only from a received PathTrace TLV. When the selected Announce
+-carries none, the engine publishes the empty sequence, the rule IEEE
+-802.1AS-2020 10.3.11.2.1 d) states, so count zero is preserved even when a
+-grandmaster identity is known separately.
++carries none, the engine publishes the empty sequence, so count zero is
++preserved even when a grandmaster identity is known separately. That is the
++IEEE 802.1AS-2020 rule: 10.3.11.2.1 d) empties the port's receivedPathTrace,
++and 10.3.13.2.4 f) 5) copies it to pathTrace, appending thisClock only when it
++is not empty. IEEE 802.1AS-2011 has no such rule: without a TLV, pathTrace
++keeps its previous value (10.3.10.2.1 d), 10.3.12.1.1). So the count-zero
++publication departs from the edition Milan v1.2 profiles. The decision is open
++in FPGA-gPTP #87.
+ 
+ Otherwise the published sequence is the received pathSequence with thisClock
+ appended (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #85), so its count
