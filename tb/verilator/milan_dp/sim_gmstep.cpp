@@ -71,6 +71,11 @@
 // asCapable, the published link delay, tu, the public counters and media
 // continuity across several Pdelay intervals of each step.
 //
+// FPGA-gPTP #82: the station is its own grandmaster from boot, so GM A is a
+// grandmaster change, not an acquisition. The baseline records that the
+// datapath's GM-change detector pulses once, at this station's own identity
+// -> GM A, and that the talker, opened after it, still streams.
+//
 // Usage: Vmilan_dp_gmstep <aem image> [feed delay] [--no-small-steps]. The
 // optional feed delay (fabric cycles, default 0) idles before the peer's
 // media feed starts, which moves the accept phase against the media tick; a
@@ -106,6 +111,10 @@ namespace {
 constexpr uint64_t kPeer = 0x0080E1FFFE112233ULL;
 constexpr uint64_t kGmA = 0x00AACCFFFE010203ULL;
 constexpr uint64_t kGmB = 0x00BBDDFFFE040506ULL;
+//! thisClock of this leg's gptp_ucode.hex (the generator's default MAC
+//! 02:A1:B2:C3:D4:E5). Since FPGA-gPTP #82 the station is its own
+//! grandmaster from boot and publishes this identity until a peer wins.
+constexpr uint64_t kThisClock = 0x02A1B2FFFEC3D4E5ULL;
 constexpr uint8_t kPriorityA = 100;
 constexpr uint8_t kPriorityB = 50;             //! better: the change is real
 constexpr uint64_t kClkHz = 2000000;
@@ -266,6 +275,14 @@ struct Trace {
     uint64_t servo_locked_cycles = 0;
 };
 
+//! One pulse of the datapath's GM-change detector (milan_datapath.sv
+//! g_gm_recentre): its cycle, the identity it left and the one it names.
+struct GmPulse {
+    uint64_t cyc = 0;
+    uint64_t from = 0;
+    uint64_t to = 0;
+};
+
 //! One AAF PDU the peer sent: its cycle and wire sequence number.
 struct SentPdu {
     uint64_t cyc = 0;
@@ -376,6 +393,11 @@ class GmStepHarness {
 
     // what the observers saw
     Trace trace_;
+    //! every GM-change detector pulse from reset, and the identity the
+    //! detector holds and the one it held before (kept across acquire())
+    std::vector<GmPulse> gm_pulses_;
+    uint64_t gm_held_ = 0;
+    uint64_t gm_left_ = 0;
     //! the listener monitor's accept pulses, by cycle
     std::vector<uint64_t> accepts_;
     //! the AAF PDUs sent, and the events the render stage presented
@@ -535,6 +557,13 @@ void GmStepHarness::observe() {
         trace_.tu_at_identity = tu;
     }
     trace_.tu_prev = tu;
+    //! the detector's own register and pulse (gmstep_probes.vlt): both
+    //! change on the same edge, so the identity it left is the one held
+    //! before this sample
+    const uint64_t gm_held = root->milan_datapath__DOT__gm_recentre_q_r;
+    if (gm_held != gm_held_) { gm_left_ = gm_held_; gm_held_ = gm_held; }
+    if (root->milan_datapath__DOT__gm_recentre_p_r)
+        gm_pulses_.push_back({cyc_, gm_left_, gm_held});
     if (!(root->milan_datapath__DOT__gptp_pub_flags_w & 4)) ++trace_.incapable_cycles;
     trace_.servo_locked_cycles += (root->milan_datapath__DOT__mcsrv_stat_w & 7) == 4;
     const uint32_t delay = root->milan_datapath__DOT__gptp_pub_pdelay_w;
@@ -944,6 +973,21 @@ void GmStepHarness::baseline() {
     size_t uncertain = 0;
     for (size_t i = talker0; i < talker_.size(); ++i) uncertain += talker_[i].tu;
     check_.that("baseline: the talker streams", talker_.size() - talker0 > 100);
+    //! FPGA-gPTP #82: the station is its own grandmaster from boot, so the
+    //! step from its own identity to GM A is a grandmaster change (IEEE
+    //! 802.1AS-2020 9.6.2.2: gmIdentity is the current grandmaster's whenever
+    //! gmPresent, 10.2.4.13, is TRUE). The detector pulses once there; only
+    //! 0 -> id is exempt. The talker opens after it and still streams.
+    for (const GmPulse& p : gm_pulses_)
+        printf("GMDET: pulse at cycle %llu, %016llx -> %016llx\n",
+               static_cast<unsigned long long>(p.cyc),
+               static_cast<unsigned long long>(p.from),
+               static_cast<unsigned long long>(p.to));
+    check_.that("boot grandmaster: the detector pulsed once, at this station's own identity -> GM A, "
+                "and the baseline talker streams after it",
+                gm_pulses_.size() == 1 && gm_pulses_[0].from == kThisClock &&
+                gm_pulses_[0].to == kGmA && talker_.size() - talker0 > 100 &&
+                talker_[talker0].cyc > gm_pulses_[0].cyc);
     if (talker_.size() > talker0 + 1)
         talker_interval_ = double(talker_.back().cyc - talker_[talker0].cyc)
                          / double(talker_.size() - talker0 - 1);

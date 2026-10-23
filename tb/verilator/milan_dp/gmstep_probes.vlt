@@ -1,0 +1,7 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// Read-only GM-change detector observations for sim_gmstep.cpp (FPGA-gPTP
+// #82's boot grandmaster): the pulse and the identity it compares.
+`verilator_config
+public_flat_rd -module "milan_datapath" -var "gm_recentre_p_r"
+public_flat_rd -module "milan_datapath" -var "gm_recentre_q_r"

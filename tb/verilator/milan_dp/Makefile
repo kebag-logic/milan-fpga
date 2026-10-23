@@ -427,7 +427,8 @@ exec-gptp:
 # the costliest leg on this suite's worker. The AEM image is the shipping
 # config's. GMSTEP_FEED_DELAY idles that many fabric cycles before the peer's
 # media feed starts, which moves the accept phase against the media tick; the
-# leg must pass at every delay.
+# leg must pass at every delay. gmstep_probes.vlt opens the GM-change
+# detector's pulse and register to the harness, read only.
 GMSTEP_MDIR ?= obj_gmstep
 GMSTEP_FEED_DELAY ?= 0
 gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
@@ -435,7 +436,7 @@ gmstep-build: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL)
 	python3 ../../../avdecc/gen_aemi_image.py --overlay $(GMSTEP_MDIR)/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o $(GMSTEP_MDIR)/aemi.bin
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir $(GMSTEP_MDIR) \
 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
-	  $(SRCS) sim_gmstep.cpp -o Vmilan_dp_gmstep
+	  gmstep_probes.vlt $(SRCS) sim_gmstep.cpp -o Vmilan_dp_gmstep
 
 gmstep: gmstep-build
 	./$(GMSTEP_MDIR)/Vmilan_dp_gmstep $(GMSTEP_MDIR)/aemi.bin $(GMSTEP_FEED_DELAY)

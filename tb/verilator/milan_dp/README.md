@@ -1054,12 +1054,21 @@ CRF selection. The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issue
 
 | Phase | What it grades |
 |---|---|
-| Acquisition | Pdelay to asCapable, then GM A's Sync; the link-up pair steps once, above 20 us |
+| Acquisition | Pdelay to asCapable, then GM A's Sync; the link-up pair steps once, above 20 us; the published grandmaster is GM A |
 | Media | SET_CLOCK_SOURCE to the CRF answers SUCCESS and the root resolves it; the CRF sink locks; the talker gate opens; the real source change toggles outgoing `mr` exactly once |
-| Baseline | every PDU's six events presented once, in order, at one offset after its send, nothing refused and no slip at the presentation stage; the talker streams with `tu` clear |
+| Baseline | every PDU's six events presented once, in order, at one offset after its send, nothing refused and no slip at the presentation stage; the talker streams with `tu` clear; the GM-change detector pulsed once from reset, at this station's own identity -> GM A, before the talker's first baseline PDU |
 | GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate, and no pause beyond four of its intervals up to the end of the window; the listener stays locked and its FRAMES_RX moves by the PDUs it accepted; the PDUs stamped in GM B's time and placed before this listener's step refused, each counted once, and their frames one counted slip; every other PDU presented once, in order, at the baseline's offset; outgoing `mr` stays unchanged; MEDIA_RESET adds zero |
 | Selected CRF restart | a received CRF `mr` toggle propagates exactly once; the sink stays locked; no PHC step supplies the restart |
 | Coincident restart | 32 delays between a received CRF toggle and software settime; at least one observed same-cycle overlap of the received pulse and PHC re-base pulse; every trial actually steps the PHC and emits exactly one outgoing toggle, with more than eight outgoing PDUs and the selected sink still locked |
+
+**The boot grandmaster is a grandmaster change.** Since FPGA-gPTP #82 the
+station is its own grandmaster from boot and publishes its own identity until
+a peer wins (IEEE 802.1AS-2020 9.6.2.2, 10.2.4.13). The step to GM A is
+therefore a change, and the datapath's detector (`g_gm_recentre`) pulses there;
+only the first publication out of reset, 0 -> id, is exempt. The baseline
+records that pulse and that the talker, opened after it, still streams.
+`gmstep_probes.vlt` opens the detector's pulse and register to the harness,
+read only.
 
 The coincident check grades suppression of the CRF restart.
 An extra request inside its pending window merges with that restart.
@@ -1114,7 +1123,7 @@ Each control must fail its named check:
 | `tu` reaches the talkers four cycles late | clock validity | tu: set in the first cycle the bank names GM B | `gmstep-mutants` |
 | the plane's step does not re-arm the holdover | datapath | tu: held at least the 0.25 s holdover after the step | `gmstep-mutants` |
 | `tu` stops the talker | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
-| the grandmaster change stops the talker for good | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
+| the grandmaster change stops the talker for good (the first detector pulse while the talker's gate is open: the GM A -> GM B event, not the boot pulse) | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
 | a gap in the presented frames leaves no counted slip | render stage | render: the refused PDUs' frames are one counted slip | `gmstep-mutants` |
 | software settime is restored as an `mr` cause | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
 | PHC adjtime is restored as an `mr` cause | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
@@ -1122,15 +1131,16 @@ Each control must fail its named check:
 | PHC adjtime becomes an `mr` cause 16 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
 | PHC adjtime becomes an `mr` cause 256 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
 | a PHC step suppresses a coincident CRF restart | datapath | coincident: a PHC step does not suppress the CRF restart | `gmstep-mutants` |
+| the detector exempts this station's own boot identity | datapath | boot grandmaster: the detector pulsed once, at this station's own identity -> GM A | `gmstep-mutants` |
 
 Each control costs one datapath elaboration.
 The sweep carries five controls named by the two acceptances.
 
-The explicit `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` target runs all twenty controls.
+The explicit `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` target runs all twenty-one controls.
 Each runs on the whole leg, the #621 phase included.
 The `CONTROLS` list in [`gmstep_mutants.py`](../milan_dp_gm_steps/gmstep_mutants.py) defines that inventory.
 
-It includes the seventeen tabulated above, plus three #545 controls.
+It includes the eighteen tabulated above, plus three #545 controls.
 The additions cover the policy level and applied-rate tail.
 
 See the [explicit-campaign rule](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression).
@@ -1441,7 +1451,7 @@ Its controls now total twenty, five in the default sweep.
 | `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** (2026-09-24 UTC) | the old 31 was already stale at #294's merge (issue #314 measured 28 there); #390 adds the `SLIP_LB` structural zero, read behind listener 0 bound, fed and then starved, plus the `CHMAP_LOOP` lane-establishment read that makes the zero a measurement, whole word against the `0xDEADDEAD` poison and `CHMAP_SNAP[1]` valid before the projection (5 checks) | **33 / 0** |
 | `obj_ax1x1` (`sim_main`) | 273 / 73 | **228 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape | **230 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `mr` stability and zero step-caused MEDIA_RESET |
 | `obj_aclk` (`sim_aclk`) | 5 / 0 | **140 / 0** (2026-09-24 UTC) | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added; #390 adds the loopback-ring beat at INTERNAL, the zero-slip window under CRF, the SLIP CSR pair and the `CHMAP_LOOP` lane-establishment read behind its whole-word poison and `CHMAP_SNAP[1]` grades, and the priming PDU's loop-tap transit, which is what grades the drain that separates this phase's own priming PDU from one the render-law phases left in flight (25 checks); the balance is the #386 render law, which landed in this same leg with PR #435 | **139 / 0** |
-| `obj_gmstep` (`sim_gmstep`) | not in the old table | not in #508 round 1 | #387/#602; five controls in the sweep, twenty in `gmstep-mutants` (five option-off); 32 coincident-event delays | **103 / 0** (#602, 2026-09-27 UTC) |
+| `obj_gmstep` (`sim_gmstep`) | not in the old table | not in #508 round 1 | #387/#602; five controls in the sweep, twenty-one in `gmstep-mutants` (five option-off); 32 coincident-event delays | **103 / 0** (#602, 2026-09-27 UTC) |
 | `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in | same |
 
 Earlier re-measurement had stopped because the `protocol-processor` submodule

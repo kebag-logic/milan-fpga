@@ -109,6 +109,11 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The resource gate re-baselines under two owner exceptions.
 - The route grows 500 LUTs, 107 slices and 2 RAMB18.
 - 15 slices stay free; Mark II (#640) recovers the area.
+- A gmstep control now stops the talker at GM B.
+- FPGA-gPTP #82's boot pulse had stopped it first.
+- Dev's own campaign failed the same way.
+- The gmstep leg now records that boot pulse.
+- A new control removing the pulse must fail.
 
 ## Unreleased - pins 93fb0b2d and 55680bff
 

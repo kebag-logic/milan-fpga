@@ -250,7 +250,7 @@ The queue places every PDU by its own timestamp.
 
 [#387's correction](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5802264260) covers the retired #386 stage.
 
-`make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` plants all 20 controls.
+`make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` plants all 21 controls.
 
 Each runs on the whole leg.
 
@@ -268,6 +268,16 @@ Four controls break `tu` or the licence.
 
 `tu` stops the talker, or the grandmaster change stops it.
 
+That stop waits for the talker's open gate.
+
+So it lands at the change to GM B.
+
+Since FPGA-gPTP #82 the detector also pulses at boot.
+
+The station's own identity then gives way to GM A.
+
+That pulse comes before the talker opens.
+
 Five controls restore PHC-only causes on the INTERNAL option-off leg.
 
 They restore settime, adjtime, or both together.
@@ -277,6 +287,12 @@ Two delay the adjtime cause by 16 and 256 cycles.
 Another control suppresses a genuine restart during a PHC re-base.
 
 The coincidence phase must reject that suppression at run time.
+
+The last control exempts the boot identity from the detector.
+
+It must fail the baseline's record of that pulse.
+
+IEEE 802.1AS-2020 makes it a grandmaster change.
 
 ## Option-off behavior
 
