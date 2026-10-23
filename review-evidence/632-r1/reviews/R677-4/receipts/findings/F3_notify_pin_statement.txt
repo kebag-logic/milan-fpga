@@ -1,0 +1,4 @@
+docs/testing/TESTING.md:647:| [`tb/verilator/milan_dp`](../../tb/verilator/milan
+Its `[NOTIFY]` SET_STREAM_INFO case (#632, the timed leg) needs a processor whose push gate compares the commanded offset with the one stored; at a processor pin whose gate reads GET_STREAM_INFO's word it fails its steps 3 and 4, and `sim_pool.py` then starts no later leg, so each is run by its own `run-<case>` target until the pin moves |
+614:ORDINARY_CASES = base notify crflic dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
+160000 commit 93fb0b2d736b36588ea7321e25fba2f8819ea41f	protocol-processor

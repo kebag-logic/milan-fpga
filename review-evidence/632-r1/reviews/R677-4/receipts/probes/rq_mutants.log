@@ -1,0 +1,34 @@
+make: Entering directory '<packet>/scratch/probe/tree/tb/verilator/render_queue'
+======================================================================
+python3 mutants.py
+[PASS] the unmutated RTL still passes the harness on the default shape
+[PASS] the unmutated RTL still passes the harness on N_STREAMS=1 N_CH=7 N_IF=1 LEAD1=0
+[PASS] mutant caught: a timestamp's frame truncated, not rounded to the nearest - breaks "[round] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: the divider's last quotient bit dropped - breaks "[round] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a step's quotient bit kept with the remainder not reduced - breaks "[place] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: the timestamp difference taken on 31 bits (the 2^32 wrap misread) - breaks "[wrap] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a PDU stamped behind the latest event refused whole, its events ahead lost - breaks "[behind] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a PDU stamped behind the latest event refused whole, on the shipping shape - breaks "[behind] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: the late reach short of the longest PDU - breaks "[behind] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: every interface reads the smallest out-lead - breaks "[place] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: banked by lane parity alone: a straddling beat's two lanes share a bank - breaks "[chans] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a consumed frame's rows left valid (no invalidation) - breaks "[lap] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a bind wipe ignored - breaks "[flush] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: tv ignored - breaks "[untimed] every event presented to every interface is the frame the law names" and "[untimed] untimed PDUs counted once each"
+[PASS] mutant caught: a payload placed before its frame is known - breaks "[untimed] untimed PDUs counted once each"
+[PASS] mutant caught: the per-event late rule removed - breaks "[late] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: the per-event early rule removed - breaks "[early] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a gap in a presenting stream not counted - breaks "[slip] gaps and overlaps counted"
+[PASS] mutant caught: a PDU on a frame its stream wrote not counted - breaks "[slip] gaps and overlaps counted"
+[PASS] mutant caught: lead_o kept after the stream drains - breaks "[place] lead_o and idle_o follow the model at every frame end"
+[PASS] mutant caught: a PDU's events past the eighth wrapped onto its first frames (a 3-bit event index) - breaks "[long] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a long PDU's events not held past the queue once there (their frame numbers wrap to late) - breaks "[late] late PDUs counted once each"
+[PASS] mutant caught: a too-early PDU not counted in refused_o - breaks "[refused] PDUs with a late or too-early event counted once each in refused_o"
+[PASS] mutant caught: a PDU with both a late and a too-early event counted twice in refused_o - breaks "[refused] PDUs with a late or too-early event counted once each in refused_o"
+[PASS] mutant caught: each render tick after the first stream's last beat - breaks "[if] each interface's render tick comes one cycle after its last beat, once per event"
+[PASS] mutant caught: a pop for an event without a sample - breaks "[obs] stream 0: one pop per interface-0 read with a sample"
+[PASS] mutant caught: converged kept through a gap - breaks "[obs] converged after 110 ms of steady presentation, and cleared by the gap after it"
+[PASS] mutant caught: the pad lane of an odd count read as a channel - breaks "[if] every stream presents 2 x ceil(N_CH / 2)"
+
+28 checks: 28 PASS, 0 FAIL
+make: Leaving directory '<packet>/scratch/probe/tree/tb/verilator/render_queue'

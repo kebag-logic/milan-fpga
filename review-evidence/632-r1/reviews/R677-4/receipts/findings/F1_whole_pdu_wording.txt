@@ -1,0 +1,7 @@
+== whole-PDU late wording at 417ec528
+docs/AAF_LATENCY_TAPS.md:105:  puts at its pins on time; late, too-early and untimed PDUs are dropped and
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:221:| 4.4.4.5 / .9 | tv + avtp_timestamp (mod-2³² gPTP ns) | implemented -- RTL avtp_stream, aaf; since #632 the TDM listener path presents every sample at its `avtp_timestamp` (`KL_render_queue`: a clear `tv` is untimed and not presented; late and too-early PDUs are dropped and counted), digital-proven at the pins in `tb/verilator/media_phase` (two interfaces a frame apart) and `tb/verilator/milan_dp_render` (the shipping AX7101 1x1 TDM8 shape), and at the stage's output in `tb/verilator/milan_dp` (the true-ratio leg); SILICON latency = presentation offset was measured on the I2S shape before #386, whose DAC keeps its own fill law (out of #632's scope), so that figure predates the shipped gateware and a re-measurement rides #117's bench; [TDM8 first light](../findings/451_TDM8_FIRST_LIGHT.md) (#451) decoded the TDM lane's eight slots in order; its silicon figure rides #117 |
+== per-event rule pages
+docs/design/TIME_SYNC.md:400:| Late | an event at or before the frame every interface has read, judged per event: a PDU stamped behind the latest event still presents its events ahead of that frame | dropped; the PDU counts once in `late_o` |
+== RTL rule
+hdl/ieee1722/aaf/KL_render_queue.sv:80:                         too: its events still ahead of R are written. One

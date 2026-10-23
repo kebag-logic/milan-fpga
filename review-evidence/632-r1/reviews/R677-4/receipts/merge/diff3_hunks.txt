@@ -1,0 +1,112 @@
+=== CHANGELOG.md hunk 1 (diff3 line 11)
+ base->ours:
+  insert: -[] +[- **[Unreleased - media clock phase](#unreleased---media-clock-phase)** -- Phase-locked to the followed CRF.]
+ base->theirs:
+  insert: -[] +[- **[Unreleased - pins 93fb0b2d and 55680bff](#unreleased---pins-93fb0b2d-and-55680bff)** -- Two donor pins move.]
+=== CHANGELOG.md hunk 2 (diff3 line 50)
+ base->ours:
+  insert: -[] +[## Unreleased - media clock phase - Issues #632 and #764 phase the followed media clock. - Milan v1.2 7.6.1 asks for both. - The servo locked frequency only before. - Each engagement kept whatever phase its pull-in left. - The servo now phases the domain media event to CRF. - The phase term rides th]
+ base->theirs:
+  insert: -[] +[## Unreleased - pins 93fb0b2d and 55680bff - Issue #771 adopts processor `93fb0b2d` and gPTP `55680bff`. - The processor pin carries PRs #173 to #175 and #180. - It also carries #182, #183, #187 and #191. - It also carries #194 to #199. - Every processor elaboration guard is now a `$fatal` (#151). -]
+=== docs/design/MEDIA_CLOCK_FOLLOWING.md hunk 1 (diff3 line 2144)
+ base->ours:
+  insert: -[] +[never more than one #645 settle recentre per switch (until #632:]
+  replace: -[recentre;] +[recentre);]
+ base->theirs:
+  replace: -[disruption,] +[disruption;]
+  replace: -[return;] +[the AAF return, one on the CRF return (#761);]
+  replace: -[loss] +[loss. Separately, either edge of the selected CRF's lock dropped from the request: no toggle at that edge]
+=== docs/integration/BAREMETAL_FIRMWARE.md hunk 1 (diff3 line 1609)
+ base->ours:
+  replace: -[five] +[four]
+  replace: -[three] +[two]
+  replace: -[Their] +[#632 retired their]
+  insert: -[] +[reader, #387's media re-base pulse, with the render setpoint stage: the presentation stage places every PDU by its own timestamp and takes no re-base, and no restart cause reads them ([#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355)). Another]
+  replace: -[now `media_rebase_p_w` (#387). Its initializer is exactly `eff_ptp_adjust_w \| cfg_ptp_cmd_load`.] +[refused.]
+  replace: -[`media_rebase_p_w` has exactly two references | Its initializer and sole reader, `render_recentre_p_w`, under the [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355). Another reader or driver is refused | | `render_recentre_p_w`] +[The `KL_render_queue` instance's `flush_i`]
+  replace: -[`media_rebase_p_w \| src_recentre_p_r`] +[`strtbl_bind_fall_w`]
+  replace: -[render] +[presentation]
+  replace: -[receives] +[is emptied by a bind wipe alone (#632). An ADP or GM-identity term there preserves every census count, so this pin refuses it; a PHC step there moves]
+  replace: -[step and settled source change. GM identity alone contributes no second re-centre] +[census above]
+ base->theirs:
+  replace: -[`crf_clk_selected_r] +[`(crf_clk_selected_r]
+  replace: -[& ~crf_locked_w)] +[^ crf_locked_w)]
+  replace: -[crf_mr_toggle_p_w)`] +[crf_mr_toggle_p_w)) \| aafm_disrupt_p_w \| aafm_mr_toggle_p_w`]
+  insert: -[] +[Either edge of the selected CRF's lock requests a restart (#761).]
+=== docs/reference/MILAN_COMPLIANCE_MATRIX.md hunk 1 (diff3 line 220)
+ base->ours:
+  insert: -[] +[remains independent,]
+  insert: -[] +[the]
+  insert: -[] +[queue takes no]
+  replace: -[remain independent] +[since #632]
+  insert: -[] +[since #632 the TDM listener path presents every sample at its `avtp_timestamp` (`KL_render_queue`: a clear `tv` is untimed and not presented; late and too-early PDUs are dropped and counted), digital-proven at the pins in `tb/verilator/media_phase` (two interfaces a frame apart) and `tb/verilator/mi]
+  replace: -[BEFORE #386: every in-tree I2S shape now renders] +[before #386, whose DAC keeps]
+  replace: -[DAC through the render setpoint stage (8 media ticks more, constant),] +[own fill law (out of #632's scope),]
+  delete: -[the accept-to-render constant is digital-proven in `tb/verilator/milan_dp` (the true-ratio leg, #386); the TDM render lane is clocked on the shipping AX7101 1x1 TDM8 shape (#447), and] +[]
+  replace: -[its] +[the TDM lane's]
+ base->theirs:
+  insert: -[] +[Since #761 the selected CRF's return (its sink's re-lock) requests a restart as its loss does, graded in `tb/verilator/milan_dp_mclk` with a mutant per edge.]
+=== docs/testing/TESTING.md hunk 1 (diff3 line 277)
+ base->ours:
+  replace: -[(`media_rebase_p_w`, `mcr_restart_p_w`, `render_recentre_p_w`,] +[(`mcr_restart_p_w`, the presentation stage's flush,]
+  replace: -[`KL_render_setpoint.sv`,] +[`KL_render_queue.sv`,]
+  replace: -[extra] +[and the render stage emptied on the grandmaster's]
+  insert: -[] +[or on the step, each losing PDUs uncounted (#632 retired the counted]
+  insert: -[] +[those two once planted) | | #632/#764 media phase: one planted defect per loop term, per hold condition, per detector behaviour, per interface constant, for the window cap, the CRF offset's rounding, its carry past 32 bits]
+  replace: -[missing step re-base] +[its wiring, the AAF offsets stamped and read back rounded instead of as set, the blend's frame assembly, and the listener's presentation (an interface's out-lead dropped, the queue read untimed, a frame off, the late and the early rule removed), forty, each required to fail its named check, after th]
+  insert: -[] +[`make -C tb/verilator/media_phase mutants MUTANT_JOBS=4` | the change's own validation, and every reviewer of a change that touches the phase path of `KL_mmcm_drp_servo.sv`, `KL_media_domain_event.sv`, `KL_media_if_latency_pkg.sv`, `KL_crf_tx.sv`'s event grid, `KL_mtt_round.sv`, `KL_aaf_capture_i2s.]
+ base->theirs:
+  replace: -[maps,] +[maps and #637 map records,]
+  replace: -[13] +[63]
+  insert: -[] +[43 `[MAPREC]` arms of the map record writer, its restore, PP_STAT's composition, each term of its validated-record test and the device-face arbiter; on the `maprec8` and `maprec4` legs, the seven arms that need several ports, the round-1 restore order among them; the]
+  replace: -[dynmap-mutants`] +[dynmap-mutants DYNMAP_MUTANT_JOBS=4`]
+  replace: -[reset or] +[reset,]
+  insert: -[] +[or the map records]
+  insert: -[] +[the device-face arbiter in `KL_pp_shadow.sv`,]
+  replace: -[section] +[and `[MAPREC]` sections]
+=== docs/testing/TESTING.md hunk 2 (diff3 line 657)
+ base->ours:
+  replace: -[AAF] +[AAF, every PDU stamped on the domain's frame grid,]
+  replace: -[acceptance/depacketizer/setpoint/crossbar] +[acceptance/depacketizer/presentation-stage/crossbar]
+  replace: -[derives the] +[requires a fresh feed's]
+  replace: -[eligible media] +[presented]
+  replace: -[from the preserved prefill rule instead of searching for it.] +[to be its first (`T6 FIRST EVENT`), every slot at its presentation time.]
+  insert: -[] +[every slot stays at its presentation time and]
+  replace: -[settled-grid recentre fires exactly once,] +[stage slips nothing across]
+  replace: -[setpoint law holds under CRF,] +[selection,]
+  delete: -[since #643] +[]
+  replace: -[setpoint] +[presentation]
+  insert: -[] +[also]
+  replace: -[read a fill of exactly 14 events (the setpoint plus that PDU) at every PDU end and pop every] +[render the fresh stream's]
+  insert: -[] +[first, every event once, in order, every slot at its presentation time]
+  replace: -[(8, 9] ticks] +[+/-5 %]
+  replace: -[it, plus] +[Ps, and count one slip,]
+  replace: -[pop pulse's one-cycle register. Each phase must also be gradable,] +[stream's end (until #632, #386's fill law]
+  replace: -[no PDU end within the 9-cycle] +[#643's]
+  replace: -[window of a pop, and that margin is a check. Both laws are graded at the render stage's own reference, the PDU end, under the ambiguity window the [media-clock following test plan](../design/MEDIA_CLOCK_FOLLOWING.md#simulation) measures and states.] +[window).]
+  delete: -[recentre, the stage's one] +[]
+  replace: -[since the hold,] +[(the LOOP queue's),]
+  insert: -[] +[the stage's slips during the transient]
+  insert: -[] +[none after it, and every event after]
+  replace: -[law.] +[window at the frame nearest its presentation time.]
+ base->theirs:
+  replace: -[sixteen] +[eighteen]
+  insert: -[] +[and either edge of the selected CRF's lock dropped from the restart request (#761)]
+=== sw/builder/test_builder.py hunk 1 (diff3 line 17509)
+ base->ours:
+  replace: -[media_rebase_p_w as] +[no media reader of adjtime or " "settime:]
+  replace: -[shared] +[render presentation stage is emptied by a bind wipe]
+  replace: -["adjtime/settime read, feeding only render_recentre_p_w. " "Render combines it with the settled] +["alone, never a PHC step, GM identity or]
+  replace: -[change] +[change,]
+  replace: -[recentre, never GM] +[recentre reaches the LOOP queues;]
+  replace: -["identity; restart] +["restart]
+ base->theirs:
+  replace: -[disruption] +[lock edges]
+=== tb/verilator/milan_dp_mclk/README.md hunk 1 (diff3 line 51)
+ base->ours:
+  replace: -[output;] +[output, never more than]
+  insert: -[] +[#645 settle]
+  insert: -[] +[switch; each]
+  replace: -[kind;] +[kind over 0.8 s gaps;]
+ base->theirs:
+  replace: -[return;] +[return, each one request and one `mr` toggle per output (#761);]
