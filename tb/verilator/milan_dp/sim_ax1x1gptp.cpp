@@ -76,8 +76,8 @@ static_assert(kPeriodNs * kHz == 1000000000 && kDelayBoundNs == 28,
               "revisit the check labels, verify_abort.py and the audio ratio for this period");
 constexpr uint64_t kPeer = 0x0080E1FFFE112233ULL;
 constexpr uint64_t kGm = 0x00AACCFFFE010203ULL;
-//! thisClock of gptp_ax1x1_ucode.hex (--mac 0x020000000001). IEEE 802.1AS-2020
-//! 10.3.13.2.4 f) 5): a slave port's pathTrace is the received
+//! thisClock of gptp_ax1x1_ucode.hex (--mac 0x020000000001). IEEE 802.1AS-2011
+//! 10.3.10.2.1 d): a slave port's pathTrace is the received
 //! pathSequence with thisClock appended.
 constexpr uint64_t kThisClock = 0x020000FFFE000001ULL;
 constexpr uint64_t kSid = 0x0200000000020000ULL;
@@ -1172,8 +1172,8 @@ int Harness::run() {
         const auto initial_avb = query(0x27, 0x7010);
         check.dec("pre-acquisition GET_AVB_INFO length", initial_avb.size(), 62);
         check.dec("pre-acquisition GET_AVB_INFO SUCCESS", initial_avb.size() > 16 ? initial_avb[16] >> 3 : 255, 0);
-        // Before any peer, this instance is its own grandmaster (IEEE 802.1AS-2020
-        // 10.3.13.2.4 b) and i)).
+        // Before any peer, this instance is its own grandmaster (IEEE 802.1AS-2011
+        // 10.3.12.1.4 b) and i), with Cor1-2013).
         check.hex("pre-acquisition GET_AVB_INFO names thisClock as GM", be(initial_avb, 42, 8), kThisClock);
         run_cycles(kHz * 12 / 10);
         check.dec("first Pdelay response completed", pd_answers, 1);
@@ -1222,8 +1222,9 @@ int Harness::run() {
             loss_recovery(); completed[6] = true;
             printf("RESET: assert with audio and peer active, flush model in-flight packets\n");
             reset(); configure();
-            // A reset instance is its own grandmaster again (IEEE 802.1AS-2020
-            // 10.3.13.2.4 b) and i)); the parent identity stays clear.
+            // A reset instance is its own grandmaster again (IEEE 802.1AS-2011
+            // 10.3.12.1.4 b) and i), with Cor1-2013); the parent identity
+            // stays clear.
             check.hex("reset publishes thisClock as GM", read_identity(0x624), kThisClock);
             check.hex("reset clears complete public parent", read_identity(0x730), 0);
             audio_window("reset reacquisition", kHz * 3, -1, Until::Healthy);

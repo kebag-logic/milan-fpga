@@ -48,7 +48,7 @@ constexpr uint64_t PATH_B4 = 0x001122FFFE000055ull;
 constexpr uint64_t PATH_B5 = 0x001122FFFE000066ull;
 constexpr uint64_t PATH_B6 = 0x001122FFFE000077ull;
 //! thisClock of this leg's gptp_ucode.hex (the generator's default MAC
-//! 02:A1:B2:C3:D4:E5). IEEE 802.1AS-2020 10.3.13.2.4 f) 5): a slave port's
+//! 02:A1:B2:C3:D4:E5). IEEE 802.1AS-2011 10.3.10.2.1 d): a slave port's
 //! pathTrace is the received pathSequence with thisClock appended.
 constexpr uint64_t THIS_CLOCK = 0x02A1B2FFFEC3D4E5ull;
 constexpr uint32_t PEER_CQ = 0xF8FE436A;
@@ -815,11 +815,11 @@ class GptpPlaneHarness {
 
     // The option is omitted from this elaboration: these are assertions about
     // the RTL default.  Before any peer answers, the engine publishes thisClock
-    // as grandmaster (IEEE 802.1AS-2020 10.3.13.2.4 b) and i)); parent and pdelay
-    // are zero. That first grandmaster identity is a change, so it arms the
-    // Milan v1.2 Annex B.1.1 holdover. Retained legacy addresses remain mapped
-    // for ABI stability, but every write is inert and cannot manufacture a
-    // publication or healthy CLKV claim.
+    // as grandmaster (IEEE 802.1AS-2011 10.3.12.1.4 b) and i), with
+    // Cor1-2013); parent and pdelay are zero. That first grandmaster identity
+    // is a change, so it arms the Milan v1.2 Annex B.1.1 holdover. Retained
+    // legacy addresses remain mapped for ABI stability, but every write is
+    // inert and cannot manufacture a publication or healthy CLKV claim.
     expect("default-on VERSION", axi_read(dut, 0x004), 0x00020060);
     axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
     axi_write(dut, 0x6E4, 1234);
