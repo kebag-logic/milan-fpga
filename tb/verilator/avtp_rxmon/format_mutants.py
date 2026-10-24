@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Mutation arm for the #765 current-format compare: prove the [UF] checks can fail.
+"""Mutation arm for #765's format compare and #775's sequence advance: [UF], [SQ] can fail.
 
 sim_main_nx.cpp's [UF] phase grades KL_avtp_rx_monitor_ctx's format compare
 against the Stream Input's CURRENT format (Milan v1.2 Table 5.6 and 4.4.2.2;
 the channel count is part of the format, Table 6.2): a matching PDU is
 accepted, a PDU with another channel count counts UNSUPPORTED_FORMAT and is
 discarded, the full 10-bit channels_per_frame is compared, the compare follows
-the format a controller sets, and stream 0 reads its format from fmt0_i. Each
-defect below is the one its check exists for. The real engine is mutated one
-defect at a time and the SAME harness is rebuilt through the Makefile's own
-recipe (`make nx-build` with RXMON_SRC and NX_MDIR overridden). Each mutant
-must make the harness FAIL by its own verdict, with the named check among the
-failures; a crash or an abort is not a catch. The positive control is the
-unmutated engine, rebuilt here.
+the format a controller sets, and stream 0 reads its format from fmt0_i. The
+[SQ] phase grades #775: a discarded off-format PDU was still received (Milan
+v1.2 Table 5.6), so its sequence_num advances prev_seq, and it changes nothing
+else (no mr reference, no lock or settle, no timestamp word). Each defect below
+is the one its check exists for. The real engine is mutated one defect at a
+time and the SAME harness is rebuilt through the Makefile's own recipe (`make
+nx-build` with RXMON_SRC and NX_MDIR overridden). Each mutant must make the
+harness FAIL by its own verdict, with the named check among the failures; a
+crash or an abort is not a catch. The positive control is the unmutated
+engine, rebuilt here.
 
 What bounds a run: the harness is cycle-bounded by construction, as the
 lockstep arm's docstring states, and the host-time bound is the sweep's
@@ -59,6 +62,18 @@ MUTATIONS = [
      "              fmt_r <= fmt0_i;              //! stream-0 format alias",
      "              fmt_r <= {fmt0_i[63:32], fmt_r[31:0]};",
      "[UF5a] stream 0: a 2-channel PDU against fmt0_i's 8 has no verdict"),
+    ("no advance: a discarded PDU leaves prev_seq (the defect #775 fixes)",
+     "            monst_r <= {ram_q_r[31:8], cur_w.seq};",
+     "            monst_r <= ram_q_r;",
+     "[SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence"),
+    ("whole state: a discarded PDU writes an accepted PDU's MON_STATE",
+     "            monst_r <= {ram_q_r[31:8], cur_w.seq};",
+     "            monst_r <= monst_next_w;",
+     "[SQ2d] MEDIA_RESET unchanged"),
+    ("accepted walk: a discarded PDU also writes the timestamp words",
+     "            mst_r   <= M_PSEQ_S;",
+     "            mst_r   <= M_PWR_S;",
+     "[SQ1d] ...and it writes no timestamp word (LAST_TSD)"),
 ]
 
 
