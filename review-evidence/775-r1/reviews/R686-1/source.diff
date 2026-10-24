@@ -1,0 +1,765 @@
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index 8cdf7faee..509e9ca80 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -268,7 +268,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
+ |----|-------------|-----|-----|
+ | FR-STR-01 | The talker MUST encapsulate `P_CH`-channel AAF PCM (48 kHz, 32-bit, 6 samples/frame, Class A) with a valid AVTP presentation time = capture time + offset. | M | T |
+ | FR-STR-02 | The listener MUST de-encapsulate AAF, validate `avtp_timestamp`, de-jitter to presentation time, and render at the media clock. | M | T |
+-| FR-STR-03 | The **listener MUST be format-adaptive**: STREAM_INPUT MUST advertise every supported format (the Milan Base Audio Formats, `number_of_formats > 1`) and set its `current_format` to the **connected talker's** format via `SET_STREAM_FORMAT` at connection  -  it MUST NOT be fixed. A received AAF AVTPDU MUST match the adapted `current_format` (subtype/format/nsr/bit-depth/channels/sparse); mismatches MUST count `UNSUPPORTED_FORMAT` and MUST be discarded. Milan v1.2 4.4.2.2 and Table 5.6 govern; Table 6.2 makes the channel count part of the format. A PDU on the CRF Media Clock Input's stream_id with another subtype is a mismatch too. | M | T |
++| FR-STR-03 | The **listener MUST be format-adaptive**: STREAM_INPUT MUST advertise every supported format (the Milan Base Audio Formats, `number_of_formats > 1`) and set its `current_format` to the **connected talker's** format via `SET_STREAM_FORMAT` at connection  -  it MUST NOT be fixed. A received AAF AVTPDU MUST match the adapted `current_format` (subtype/format/nsr/bit-depth/channels/sparse); mismatches MUST count `UNSUPPORTED_FORMAT` and MUST be discarded. A discarded PDU was still received, so its sequence_num MUST advance the input's sequence state, and it MUST count nothing else (#775). Milan v1.2 4.4.2.2 and Table 5.6 govern; Table 6.2 makes the channel count part of the format. A PDU on the CRF Media Clock Input's stream_id with another subtype is a mismatch too. | M | T |
+ | FR-STR-03a | The **talker** sources a **fixed** format (this device: stereo/2 ch); "stereo" is a talker property only. A talker with multiple producible formats MAY list them, but the transmitted format is fixed per connection. | M | I,T |
+ | FR-STR-03b | When adapting to a talker with more channels than the device renders, the listener MUST render the mapped subset (AUDIO_MAP) and MUST still lock/validate the full advertised format. | M | T |
+ | FR-STR-04 | The listener MUST maintain the STREAM_INPUT counters (MEDIA_LOCKED/UNLOCKED, LATE/EARLY_TIMESTAMP, SEQ_NUM_MISMATCH, UNSUPPORTED_FORMAT, …) and recover from stream faults (MEDIA_RESET) per Milan. | M | T |
+diff --git a/docs/reference/MILAN_COMPLIANCE_MATRIX.md b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+index 24e763d8e..658cc3843 100644
+--- a/docs/reference/MILAN_COMPLIANCE_MATRIX.md
++++ b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+@@ -189,7 +189,7 @@ processor's writer, which the parent has not adopted (#70 lane 3).
+ |---|---|---|
+ | 6.2–6.5 | Base Formats: AAF/PCM 32-bit, {48/96/192 kHz} × {1,2,4,6,8} ch, SR class A | partial — full family declared per configuration (gate: `check_wire_accountability.py`); fabric proven at 48 kHz (RTL aaf; SILICON audio E2E); 96/192 kHz unproven on silicon |
+ | 5.3.7.6 / 4.4.2.1 | 2 ms default presentation-time offset, settable via SET_STREAM_INFO | implemented |
+-| 4.4.2.2 / 5.3.8.10 Table 5.6 | a Listener discards a PDU outside its Stream Input's current format, and UNSUPPORTED_FORMAT counts it | implemented -- since #765 the channel count is compared (Table 6.2), and the CRF input rejects a non-CRF subtype. RTL `avtp_rxmon` `[UF]` and `crf_rx` `[FMT]`, each with planted mutants. This closes the v1 record of a family compare (task #24). Inputs above 0 read their format from the LCTX window only |
++| 4.4.2.2 / 5.3.8.10 Table 5.6 | a Listener discards a PDU outside its Stream Input's current format, and UNSUPPORTED_FORMAT counts it | implemented -- since #765 the channel count is compared (Table 6.2), and the CRF input rejects a non-CRF subtype. RTL `avtp_rxmon` `[UF]` and `crf_rx` `[FMT]`, each with planted mutants. This closes the v1 record of a family compare (task #24). Inputs above 0 read their format from the LCTX window only. A discarded PDU was still received, so its sequence_num advances the input's sequence state and the next in-order PDU counts no SEQ_NUM_MISMATCH, on both inputs (#775; `avtp_rxmon` `[SQ]` and `crf_rx` `[SQ]`, each with planted mutants) |
+ | 5.3.7.3 | talker transmit licence (bound listener + reservation) | partial: the admission composition is graded (BDD `milan_streaming_licence.feature`), and since #551 every gate requires the processor's ACTIVE AND the per-source real grant. `milan_dp` `obj_crflic` grades both terms every cycle for AAF and CRF. The default leg checks refused re-declarations with identical and changed TSpecs: no licence pulse, counter pair, reset or PDU. The grant waits for the current TSpec ([processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112)); the writable debug bypass `AAF_CTRL[1]` can still defeat it (audit B9) |
+ | 7.2.2 | media clock inputs -- the CRF sink can drive the media clock | implemented -- #74: the stored selection arms `KL_mmcm_drp_servo` (rate half) and `KL_media_grid_align` holds the packet grid on the physical fsync grid (sim proof at the true 391/1591 ratio, milan_dp obj_aclk `[CRF]`); the silicon probe (J11.8 vs J11.9) stays open on issue #74. 7.2.2 requires the CRF input and restricts no other source: since #629 an AAF Stream Input can drive the media clock too, measured by `KL_aaf_clock_meter` from its presentation times (IEEE 1722-2016 4.3.2; tb/verilator/aaf_clock_meter, the bench probe open) |
+ | 7.2.3 / 7.3.2–7.3.4 | CRF Media Clock Output, Pro Audio CRF format (48 kHz base, SR class A) | implemented -- RTL crf_tx; format fields byte-verified. The output and the AAF streams are one media clock in every mode since #629 (A2-a: the grid aligner runs at INTERNAL too), as IEEE 1722.1-2021 7.2.32 and Table 7-8 ask of two outputs naming CLOCK_DOMAIN 0 |
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 0d770f2dd..c0c9b26ec 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -614,7 +614,7 @@ verdicts and for check counts.
+ | [`tb/verilator/adp_tx`](../../tb/verilator/adp_tx) | `adp_tx_arbiter` — the generic 2-in-1-out AXIS arbiter, which SURVIVED the control-plane deletion because the data lane uses it too |
+ | [`tb/verilator/aes3`](../../tb/verilator/aes3) | the AES3/S-PDIF ser/des family |
+ | [`tb/verilator/avtp_parser`](../../tb/verilator/avtp_parser) | the listener ACCEPT VERDICT at every shipping shape; carries the entry-0 blocker guard (T6) |
+-| [`tb/verilator/avtp_rxmon`](../../tb/verilator/avtp_rxmon) | the flat `KL_avtp_rx_monitor` and the N=4 `KL_avtp_rx_monitor_ctx` stack, then the #640 M6 lockstep leg: the context engine beside its pre-change reference (`reference/`, the module of dev `e8454e27` with its name changed and #762's silence interruption and stop rule, and #765's channel-count compare, applied in the engine's own lines) at N=1 and N=8. Every output and one GET_COUNTERS read are compared in every cycle, and four read-modify-write hazards carry their own oracles: same-stream back-to-back updates, an update colliding with a read, wrap, and a reset during an update. Its `[SI]` cases grade #762's STREAM_INTERRUPTED rules by count, never against the reference: a silence that unlocks a bound, started stream counts once, a sequence gap counts once, an unbind counts nothing, a stopped stream's silence counts nothing, STOP with live traffic counts nothing and a silence after START counts again; a stopped stream's sequence gap counts nothing (its SEQ_NUM_MISMATCH still counts), a started stream's gap counts once, after START a gap counts again, and at N=8 another stream's STOP leaves the gap counted. Its boundary sweep lands an unbind, and a STOP, on every cycle from 12 before to 24 after the silence's expiry edge, which the harness derives from its own reset, the 1 ms grid and the observed last accept, on an idle engine and on one held or yielding to PDU traffic: after the expiry the silence counts once, on or before it never. A second sweep lands a STOP, and a START, on every cycle from 4 before to 20 after a gap PDU's pulse, idle and with the walker occupied: the gap counts once exactly when the stream is started on the edge its accept verdict rises. `lockstep_mutants.py` requires a lost increment, a torn read, a wrong stream index, a missed reset, an uncounted silence, an uncounted gap, a counted unbind, an unbind that erases an expired silence, a counted stopped silence, a STOP read at the walk, a counted stopped gap, a STOP that disarms the gap until the next bind and a gap's stopped state read one cycle late each to fail its named check; each #762 defect is planted in the engine and the reference alike. Its `[UF]` cases grade #765's current-format compare: a matching PDU is accepted, while another channel count, or a high channels_per_frame bit, counts UNSUPPORTED_FORMAT and is discarded. The compare follows the format a controller sets, on stream 0 and on an LCTX-configured stream. `format_mutants.py` requires five compare defects each to fail its named check |
++| [`tb/verilator/avtp_rxmon`](../../tb/verilator/avtp_rxmon) | the flat `KL_avtp_rx_monitor` and the N=4 `KL_avtp_rx_monitor_ctx` stack, then the #640 M6 lockstep leg: the context engine beside its pre-change reference (`reference/`, the module of dev `e8454e27` with its name changed and #762's silence interruption and stop rule, and #765's channel-count compare and #775's sequence advance on a discarded PDU, applied in the engine's own lines) at N=1 and N=8. Every output and one GET_COUNTERS read are compared in every cycle, and four read-modify-write hazards carry their own oracles: same-stream back-to-back updates, an update colliding with a read, wrap, and a reset during an update. Its `[SI]` cases grade #762's STREAM_INTERRUPTED rules by count, never against the reference: a silence that unlocks a bound, started stream counts once, a sequence gap counts once, an unbind counts nothing, a stopped stream's silence counts nothing, STOP with live traffic counts nothing and a silence after START counts again; a stopped stream's sequence gap counts nothing (its SEQ_NUM_MISMATCH still counts), a started stream's gap counts once, after START a gap counts again, and at N=8 another stream's STOP leaves the gap counted. Its boundary sweep lands an unbind, and a STOP, on every cycle from 12 before to 24 after the silence's expiry edge, which the harness derives from its own reset, the 1 ms grid and the observed last accept, on an idle engine and on one held or yielding to PDU traffic: after the expiry the silence counts once, on or before it never. A second sweep lands a STOP, and a START, on every cycle from 4 before to 20 after a gap PDU's pulse, idle and with the walker occupied: the gap counts once exactly when the stream is started on the edge its accept verdict rises. `lockstep_mutants.py` requires a lost increment, a torn read, a wrong stream index, a missed reset, an uncounted silence, an uncounted gap, a counted unbind, an unbind that erases an expired silence, a counted stopped silence, a STOP read at the walk, a counted stopped gap, a STOP that disarms the gap until the next bind and a gap's stopped state read one cycle late each to fail its named check; each #762 defect is planted in the engine and the reference alike. Its `[UF]` cases grade #765's current-format compare: a matching PDU is accepted, while another channel count, or a high channels_per_frame bit, counts UNSUPPORTED_FORMAT and is discarded. The compare follows the format a controller sets, on stream 0 and on an LCTX-configured stream. Its `[SQ]` cases grade #775: one PDU of another channel count mid-stream, carrying a toggled mr, tu and a late timestamp, counts UNSUPPORTED_FORMAT +1, presents nothing and writes only prev_seq, so over the following observation intervals SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE_TIMESTAMP, EARLY_TIMESTAMP and STREAM_INTERRUPTED hold; a gap of one after an off-format PDU counts SEQ_NUM_MISMATCH and no STREAM_INTERRUPTED, so it is measured from the off-format PDU's sequence_num. `format_mutants.py` requires five compare defects and three #775 defects (no advance, an accepted PDU's whole MON_STATE, the timestamp-word walk) each to fail its named check |
+ | [`tb/verilator/avtp_stream`](../../tb/verilator/avtp_stream) | — |
+ | [`tb/verilator/capture_coherence`](../../tb/verilator/capture_coherence) | **#617, every Talker AAF column carries one TDM frame.** The junction leg binds the real TDM8 master, media NCO, grid aligner, `KL_chan_map_capture` and packetizer at the shipping 1x1 TDM8 shape and a 50 MHz axis clock, shifts the #451 pattern into the TDM data pin off the master's own bclk and fsync, and decodes every AAF column: one whole beat of the true 391/1591 plan and several of +/-1000 ppm plans at INTERNAL, then CRF: locks at sixteen phases on the true plan and at four on +/-50 ppm plans, and the aligner's engagement PLACED against the walk's crossing (calibrated per plan) every cycle across +/-32 of it and every 16 round the frame on the true plan, every 4 across the +/-50 ppm acquisition band, every quarter cycle at 64 sub-step phases across the crossing at -50 ppm (where the aligner's trim updates land on the NCO's terminal count), and the approach to the settled lock at +/-80 and +/-100 ppm (the converged lock is recorded in longer runs). The wrapper binds `milan_datapath`'s own keep-off declaration, copied out of the datapath source at build time, and the build refuses a datapath whose aligner instance binds anything else. It grades the columns, each walk's frame against the frame its tick takes (no added sample of latency), continuity, beat crossings and the CRF law (slips only while an engagement acquires, net zero, none in the lock; the engagement window derived from the relative rate), the junction counters against each walk's own repeat or skip, and prints the #451 torn-state table and each pair's sample age. The `dp` leg runs the same bench through the whole `milan_datapath` on the shipping shape, reading the frames at the MAC, with its own placed band, and since #632 grades every AAF timestamp at the TDM pins (`[PIN]`): each slot's MSB pin instant less its slot offset is the stamp less the presentation offset, inside +/-5 % of Ps and inside the marker latency's derivation, and every domain media event is a frame's sync instant. `mutants.py` then builds in parallel, one build per CPU, and requires twenty-five defects each to fail a named check: the per-pair hold law of `ce550952`, an unsnapshotted walk, a first-pair close, a late publish, an unwritten stage, a walk ignoring the coincidence law, the round-1 snapshot instant, the round-1 counter law, the round-1 aligner binding (in the wrapper and in `milan_datapath`), the default keep-off, an undelayed aligner tick, `milan_datapath`'s keep-off halved to 128 cycles (the +/-50 ppm bands), a literal keep-off bound to `milan_datapath`'s aligner (refused by the build), the NCO's `==` terminal compare (in `media_nco` check 10 and under the sub-cycle sweep), a one-pair frame length in `milan_datapath`, a close that ignores the frame length (`chmap_capture` [F1]), and a queued tick that snapshots never or at the tick (`chmap_capture` [Q]); and for #632 the live PHC at the walk, the time base latched at the tick (caught at the engagement placed on the walk's crossing), the marker latency's frame and write terms each dropped, and the walk's instant latched at the snapshot instead of loaded with its frame (`chmap_capture` [F]). The dp recipe must also build under an inherited `MAKEFLAGS=w`, and a planted syntax error must print its compiler error: a failed build prints the tail of its own make and compiler output |
+ | [`tb/verilator/cbs`](../../tb/verilator/cbs) | CBS arithmetic vs a fixed-point replica and an ideal 802.1Qav model |
+@@ -625,7 +625,7 @@ verdicts and for check counts.
+ | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
+ | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
+ | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
+-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. Locked-sink validation errors retain lock but cannot extend the 100 ms timeout. The default gate includes `validation_error_unlocks`, `validation_error_refreshes_timeout`, tu, jump, refill, sample-edge and servo-validity mutants, and #762's STREAM_INTERRUPTED mutants run on the counter harness: an uncounted silence, an uncounted gap, a counted unbind, an unbind on the timeout edge and a counted stopped silence (`[762-ST]`, the stopped-input ruling). `[762-SG]` grades the ruling's extension to sequence gaps by count: a stopped sink's gap counts nothing (one SEQ_NUM_MISMATCH interval still counts), a started sink's gap counts once, after START a gap counts again, and a STOP or START on the gap's own edge decides it while one an edge later does not; its two mutants, a counted stopped gap and a STOP that disarms the gap until the next bind, are planted in the engine and in the harness's replica alike. Its `[FMT]` cases grade #765: an AAF PDU on the input's stream_id counts UNSUPPORTED_FORMAT and is discarded, and a matching CRF PDU is accepted, each with a planted mutant |
++| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | CRF input counters and rate history; talker-only and both-end GM steps, including a 600 ms listener lag. Locked-sink validation errors retain lock but cannot extend the 100 ms timeout. The default gate includes `validation_error_unlocks`, `validation_error_refreshes_timeout`, tu, jump, refill, sample-edge and servo-validity mutants, and #762's STREAM_INTERRUPTED mutants run on the counter harness: an uncounted silence, an uncounted gap, a counted unbind, an unbind on the timeout edge and a counted stopped silence (`[762-ST]`, the stopped-input ruling). `[762-SG]` grades the ruling's extension to sequence gaps by count: a stopped sink's gap counts nothing (one SEQ_NUM_MISMATCH interval still counts), a started sink's gap counts once, after START a gap counts again, and a STOP or START on the gap's own edge decides it while one an edge later does not; its two mutants, a counted stopped gap and a STOP that disarms the gap until the next bind, are planted in the engine and in the harness's replica alike. Its `[FMT]` cases grade #765: an AAF PDU on the input's stream_id counts UNSUPPORTED_FORMAT and is discarded, and a matching CRF PDU is accepted, each with a planted mutant. Its `[SQ]` cases grade #775: an AAF PDU mid-stream, carrying a toggled mr, tu and a late or early reference timestamp, counts UNSUPPORTED_FORMAT +1, presents no timing point and advances the sequence cursor, so over the following observation intervals SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE_TIMESTAMP, EARLY_TIMESTAMP and STREAM_INTERRUPTED hold; a gap of one after it counts SEQ_NUM_MISMATCH and no STREAM_INTERRUPTED; and an AAF PDU first in an era seeds nothing. Its two mutants are a reject that does not advance the cursor and one that seeds it |
+ | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
+ | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** - that leg drove the old control-plane windows live. The `obj_pps` leg re-runs the same harness with `PPS_P=1` (#260): the 0x548 block decodes in every build, but `PTP_PPS_CTRL[0]`, its RO built bit `[16]` and `PTP_PPS_WIDTH` are gated, so the default leg grades the **UNSUPPORTED** arm (a structural zero at `o_pps_enable` whatever software writes) and this one grades the supported arm, from one set of expectations rather than two that drift |
+ | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
+diff --git a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+index aec0a15d5..9bf0e7c02 100644
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -17,7 +17,8 @@
+                 8-PDU settle / mismatch detect + interrupt(lost>=2) /
+                 100 ms silence unlock + interrupt (#762) / per-PDU format
+                 compare (a rejected
+-                PDU affects nothing else) / counter reset ONLY on that
++                PDU advances the sequence state and affects nothing
++                else, #775) / counter reset ONLY on that
+                 stream's not-bound->bound edge [M-5.3.8.10].
+ 
+                 COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly:
+@@ -287,7 +288,8 @@ module KL_avtp_rx_monitor_ctx #(
+     M_INC_S,       //! serial RMW loop (counters / w11 / silence / bind-zero)
+     M_BRD_S,       //! BIND: MON_STATE read issued
+     M_BDEC_S,      //! BIND: preserved-field w8 write + CFG words
+-    M_EXTRD_S      //! window read turnaround
++    M_EXTRD_S,     //! window read turnaround
++    M_PSEQ_S       //! PDU: w8 prev_seq write (discarded off-format PDU, #775)
+   } mstate_t;
+ 
+   mstate_t           mst_r;
+@@ -632,6 +634,12 @@ module KL_avtp_rx_monitor_ctx #(
+           end
+         endcase
+       end
++      //! a discarded off-format PDU writes back only its prev_seq (#775)
++      M_PSEQ_S : begin
++        eng_we_w    = 1'b1;
++        eng_waddr_w = laddr(ev_s_r, W_MONST_C);
++        eng_wdata_w = monst_r;
++      end
+       M_INC_S : begin
+         if (w11_mode_r) begin
+           if (inc_rd_q_r) begin
+@@ -1002,8 +1010,14 @@ module KL_avtp_rx_monitor_ctx #(
+           if (!fmt_ok_w) begin
+             //! counts nothing else (reference early-return); UNSUPPORTED_
+             //! FORMAT is an interval counter now - iv_events raised the
+-            //! flag this cycle, so there is nothing to walk
+-            mst_r <= M_IDLE_S;
++            //! flag this cycle, so there is nothing to walk. The PDU was
++            //! still received (Milan v1.2 Table 5.6), so its sequence_num
++            //! advances prev_seq as an accepted PDU's does, and the next
++            //! in-order PDU is no SEQ_NUM_MISMATCH (#775). Lock, settle,
++            //! wire_chans and the mr reference keep their values, and no
++            //! timestamp word is written.
++            monst_r <= {ram_q_r[31:8], cur_w.seq};
++            mst_r   <= M_PSEQ_S;
+           end
+           else begin
+             pdu_accept_p_o     <= 1'b1;
+@@ -1044,6 +1058,8 @@ module KL_avtp_rx_monitor_ctx #(
+           else wrph_r <= wrph_r + 4'd1;
+         end
+ 
++        M_PSEQ_S : mst_r <= M_IDLE_S;
++
+         M_INC_S : begin
+           if (w11_mode_r) begin
+             if (!inc_rd_q_r) inc_rd_q_r <= 1'b1;
+diff --git a/hdl/ieee1722/crf/KL_crf_rx.sv b/hdl/ieee1722/crf/KL_crf_rx.sv
+index 00a343b81..3b0ca93bc 100644
+--- a/hdl/ieee1722/crf/KL_crf_rx.sv
++++ b/hdl/ieee1722/crf/KL_crf_rx.sv
+@@ -600,6 +600,11 @@ module KL_crf_rx #(
+           //! a malformed PDU breaks the settle run; the UNSUPPORTED_FORMAT
+           //! count itself commits at the interval tick (w_ev_uf_w above)
+           settle_r  <= '0;
++          //! it was still received (Milan v1.2 Table 5.6), so its
++          //! sequence_num advances the cursor as an accepted PDU's does and
++          //! the next in-order PDU is no SEQ_NUM_MISMATCH (#775). have_seq_r
++          //! is left alone: only an accepted PDU seeds the sequence
++          exp_seq_r <= seq_i + 8'd1;
+         end else begin
+           //! SEQ_NUM_MISMATCH commits at the interval tick; FRAMES_RX
+           //! counts this accepted PDU above. A discontinuity breaks the
+diff --git a/tb/verilator/avtp_rxmon/format_mutants.py b/tb/verilator/avtp_rxmon/format_mutants.py
+index 9a69b8c02..24fada354 100644
+--- a/tb/verilator/avtp_rxmon/format_mutants.py
++++ b/tb/verilator/avtp_rxmon/format_mutants.py
+@@ -1,20 +1,23 @@
+ #!/usr/bin/env python3
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""Mutation arm for the #765 current-format compare: prove the [UF] checks can fail.
++"""Mutation arm for #765's format compare and #775's sequence advance: [UF], [SQ] can fail.
+ 
+ sim_main_nx.cpp's [UF] phase grades KL_avtp_rx_monitor_ctx's format compare
+ against the Stream Input's CURRENT format (Milan v1.2 Table 5.6 and 4.4.2.2;
+ the channel count is part of the format, Table 6.2): a matching PDU is
+ accepted, a PDU with another channel count counts UNSUPPORTED_FORMAT and is
+ discarded, the full 10-bit channels_per_frame is compared, the compare follows
+-the format a controller sets, and stream 0 reads its format from fmt0_i. Each
+-defect below is the one its check exists for. The real engine is mutated one
+-defect at a time and the SAME harness is rebuilt through the Makefile's own
+-recipe (`make nx-build` with RXMON_SRC and NX_MDIR overridden). Each mutant
+-must make the harness FAIL by its own verdict, with the named check among the
+-failures; a crash or an abort is not a catch. The positive control is the
+-unmutated engine, rebuilt here.
++the format a controller sets, and stream 0 reads its format from fmt0_i. The
++[SQ] phase grades #775: a discarded off-format PDU was still received (Milan
++v1.2 Table 5.6), so its sequence_num advances prev_seq, and it changes nothing
++else (no mr reference, no lock or settle, no timestamp word). Each defect below
++is the one its check exists for. The real engine is mutated one defect at a
++time and the SAME harness is rebuilt through the Makefile's own recipe (`make
++nx-build` with RXMON_SRC and NX_MDIR overridden). Each mutant must make the
++harness FAIL by its own verdict, with the named check among the failures; a
++crash or an abort is not a catch. The positive control is the unmutated
++engine, rebuilt here.
+ 
+ What bounds a run: the harness is cycle-bounded by construction, as the
+ lockstep arm's docstring states, and the host-time bound is the sweep's
+@@ -59,6 +62,18 @@ MUTATIONS = [
+      "              fmt_r <= fmt0_i;              //! stream-0 format alias",
+      "              fmt_r <= {fmt0_i[63:32], fmt_r[31:0]};",
+      "[UF5a] stream 0: a 2-channel PDU against fmt0_i's 8 has no verdict"),
++    ("no advance: a discarded PDU leaves prev_seq (the defect #775 fixes)",
++     "            monst_r <= {ram_q_r[31:8], cur_w.seq};",
++     "            monst_r <= ram_q_r;",
++     "[SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence"),
++    ("whole state: a discarded PDU writes an accepted PDU's MON_STATE",
++     "            monst_r <= {ram_q_r[31:8], cur_w.seq};",
++     "            monst_r <= monst_next_w;",
++     "[SQ2d] MEDIA_RESET unchanged"),
++    ("accepted walk: a discarded PDU also writes the timestamp words",
++     "            mst_r   <= M_PSEQ_S;",
++     "            mst_r   <= M_PWR_S;",
++     "[SQ1d] ...and it writes no timestamp word (LAST_TSD)"),
+ ]
+ 
+ 
+diff --git a/tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv b/tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv
+index 766d1866c..5aea9aadd 100644
+--- a/tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv
++++ b/tb/verilator/avtp_rxmon/reference/KL_avtp_rx_monitor_ctx_ref.sv
+@@ -12,6 +12,8 @@
+ //! this copy: lockstep_mutants.py plants each #762 defect in BOTH modules.
+ //! #765's channel-count compare (f_cpf_w/p_cpf_w) is applied the same way;
+ //! it is graded by sim_main_nx.cpp's [UF] cases, never against this copy.
++//! #775's sequence advance on a discarded off-format PDU (M_PSEQ_S) is
++//! applied the same way; sim_main_nx.cpp's [SQ] cases grade it.
+ 
+ /*
+ ------------------------------------------------------------------------------
+@@ -286,7 +288,8 @@ module KL_avtp_rx_monitor_ctx_ref #(
+     M_INC_S,       //! serial RMW loop (counters / w11 / silence / bind-zero)
+     M_BRD_S,       //! BIND: MON_STATE read issued
+     M_BDEC_S,      //! BIND: preserved-field w8 write + CFG words
+-    M_EXTRD_S      //! window read turnaround
++    M_EXTRD_S,     //! window read turnaround
++    M_PSEQ_S       //! PDU: w8 prev_seq write (discarded off-format PDU, #775)
+   } mstate_t;
+ 
+   mstate_t           mst_r;
+@@ -613,6 +616,11 @@ module KL_avtp_rx_monitor_ctx_ref #(
+           end
+         endcase
+       end
++      M_PSEQ_S : begin
++        eng_we_w    = 1'b1;
++        eng_waddr_w = laddr(ev_s_r, W_MONST_C);
++        eng_wdata_w = monst_r;
++      end
+       M_INC_S : begin
+         if (w11_mode_r) begin
+           if (inc_rd_q_r) begin
+@@ -979,8 +987,10 @@ module KL_avtp_rx_monitor_ctx_ref #(
+           if (!fmt_ok_w) begin
+             //! counts nothing else (reference early-return); UNSUPPORTED_
+             //! FORMAT is an interval counter now - iv_events raised the
+-            //! flag this cycle, so there is nothing to walk
+-            mst_r <= M_IDLE_S;
++            //! flag this cycle, so there is nothing to walk. #775: its
++            //! sequence_num still advances prev_seq, nothing else
++            monst_r <= {ram_q_r[31:8], cur_r.seq};
++            mst_r   <= M_PSEQ_S;
+           end
+           else begin
+             pdu_accept_p_o     <= 1'b1;
+@@ -1032,6 +1042,8 @@ module KL_avtp_rx_monitor_ctx_ref #(
+           else wrph_r <= wrph_r + 4'd1;
+         end
+ 
++        M_PSEQ_S : mst_r <= M_IDLE_S;
++
+         M_INC_S : begin
+           if (w11_mode_r) begin
+             if (!inc_rd_q_r) inc_rd_q_r <= 1'b1;
+diff --git a/tb/verilator/avtp_rxmon/sim_main_nx.cpp b/tb/verilator/avtp_rxmon/sim_main_nx.cpp
+index 5076b115b..a8aedfb42 100644
+--- a/tb/verilator/avtp_rxmon/sim_main_nx.cpp
++++ b/tb/verilator/avtp_rxmon/sim_main_nx.cpp
+@@ -127,6 +127,7 @@ class NxnRxStackHarness {
+         back_to_back_pdus_beat_every_drain_phase();
+         per_context_dirty_vector();
+         current_format_channel_count();
++        offformat_pdu_advances_the_sequence();
+ 
+         printf("\n======================================================================\n");
+         printf("NxN RX stack: %ld checks, %ld failures\nRESULT: %s\n",
+@@ -335,14 +336,16 @@ class NxnRxStackHarness {
+         align_iv();                 // both rejects inside ONE interval
+         { AafCfg c; c.seq=64; c.nsr=0x07; feed(build_aaf(stim, c)); }
+         //! a bit-depth reject; the channel count is graded by [UF] (#765)
+-        { AafCfg c; c.seq=64; c.depth=24; feed(build_aaf(stim, c)); }
++        { AafCfg c; c.seq=65; c.depth=24; feed(build_aaf(stim, c)); }
+         flush_iv();
+         //! two bad-format PDUs in one interval = ONE tick (Milan Table 5.6);
+         //! the old per-frame reading counted 2 here
+         ck("UNSUPPORTED_FORMAT 1 for a 2-reject interval",
+            dut->cnt_unsupported_fmt_o, 1);
+         ck("FRAMES_RX unchanged by rejects", dut->cnt_frames_rx_o, frx);
+-        { AafCfg c; c.seq=64; feed(build_aaf(stim, c)); }
++        //! #775: each reject was received, so its sequence_num advanced the
++        //! sequence and 66 is the next in order
++        { AafCfg c; c.seq=66; feed(build_aaf(stim, c)); }
+         flush_iv();
+         ck("no mismatch across bad-format PDUs", dut->cnt_seq_mismatch_o, 2);
+     }
+@@ -925,15 +928,15 @@ class NxnRxStackHarness {
+ 
+         frx = lctx_rd(3, W_FRX);
+         align_iv();
+-        { AafCfg c; c.sid=SU3; c.seq=q; c.chans=2; feed_and_count(c, 3, acc, out); }
++        { AafCfg c; c.sid=SU3; c.seq=q++; c.chans=2; feed_and_count(c, 3, acc, out); }
+         ck("[UF2a] a 2-channel PDU against 8 channels has no accept verdict", acc, 0);
+         ck("[UF2b] ...and is discarded (no payload emitted)", out, 0);
+         flush_iv();
+         ck("[UF2c] ...and counts UNSUPPORTED_FORMAT once", lctx_rd(3, W_UF), uf0 + 1);
+         ck("[UF2d] ...and not in FRAMES_RX", lctx_rd(3, W_FRX), frx);
+         ck("[UF2e] ...and leaves wire_chans at 8", (lctx_rd(3, 8) >> 14) & 0xFF, 8);
+-        //! the reject did not advance the sequence: the next matching PDU
+-        //! carries the sequence_num the 2-channel PDU carried
++        //! the reject still advanced the sequence (#775): the next matching
++        //! PDU carries the sequence_num after the 2-channel PDU's
+         align_iv();
+         { AafCfg c; c.sid=SU3; c.seq=q++; feed_and_count(c, 3, acc, out); }
+         flush_iv();
+@@ -943,7 +946,7 @@ class NxnRxStackHarness {
+         //! 264 channels: channels_per_frame[9:8] = 1 and the low byte is 8,
+         //! so a compare of the low byte alone would accept it
+         align_iv();
+-        { AafCfg c; c.sid=SU3; c.seq=q; c.chans_hi=1; feed_and_count(c, 3, acc, out); }
++        { AafCfg c; c.sid=SU3; c.seq=q++; c.chans_hi=1; feed_and_count(c, 3, acc, out); }
+         ck("[UF3a] a 264-channel PDU against 8 channels has no accept verdict", acc, 0);
+         ck("[UF3b] ...and is discarded", out, 0);
+         flush_iv();
+@@ -957,7 +960,7 @@ class NxnRxStackHarness {
+         { AafCfg c; c.sid=SU3; c.seq=q++; c.chans=2; feed_and_count(c, 3, acc, out); }
+         ck("[UF4a] with a 2-channel current format, a 2-channel PDU is accepted", acc, 1);
+         ck("[UF4b] ...and emitted", out, 1);
+-        { AafCfg c; c.sid=SU3; c.seq=q; feed_and_count(c, 3, acc, out); }
++        { AafCfg c; c.sid=SU3; c.seq=q++; feed_and_count(c, 3, acc, out); }
+         ck("[UF4c] ...and an 8-channel PDU is not", acc, 0);
+         ck("[UF4d] ...and is discarded", out, 0);
+         flush_iv();
+@@ -985,6 +988,92 @@ class NxnRxStackHarness {
+         dut->fmt0_i = FMT;
+     }
+ 
++    // ---------------------------------------------------------------- //
++    // [SQ] #775: a discarded off-format PDU was still received (Milan  //
++    // v1.2 Table 5.6), so its sequence_num advances the input's        //
++    // sequence state, while it counts UNSUPPORTED_FORMAT only and      //
++    // presents nothing. One PDU of another channel count takes a slot  //
++    // of an in-order stream. It carries a toggled mr, tu, and a late   //
++    // (or early) timestamp, so a reject that reached any other verdict //
++    // would count there.                                               //
++    // ---------------------------------------------------------------- //
++    void offformat_pdu_advances_the_sequence(){
++        printf("\n[SQ] #775: an off-format PDU advances the sequence state\n");
++        constexpr uint64_t SU3 = 0x020000FFFE090000ULL;
++        constexpr uint32_t ON_TIME = 0xA55AC33CUL - 1000000;   // neither late nor early
++        tblwr(3, SU3, false); cyc(10); tblwr(3, SU3, true); cyc(60);
++        lctx_wr(3, 2, static_cast<uint32_t>(FMT & 0xFFFFFFFF));
++        lctx_wr(3, 3, static_cast<uint32_t>(FMT >> 32));
++        dut->ptp_now_i = ON_TIME;
++        uint8_t q = 40;
++        long acc = 0;
++        long out = 0;
++        //! `n` in-order PDUs, then one whole observation interval; the accept
++        //! verdicts are summed into `accepted`
++        auto in_order = [&](int n, long& accepted){
++            for (int k = 0; k < n; k++){
++                AafCfg c; c.sid=SU3; c.seq=q++; feed_and_count(c, 3, acc, out);
++                accepted += acc;
++            }
++            flush_iv();
++        };
++        //! the off-format PDU: 2 channels against the current format's 8
++        auto off_format = [&](uint32_t now){
++            dut->ptp_now_i = now;
++            AafCfg c; c.sid=SU3; c.seq=q++; c.chans=2; c.mr=true; c.tu=true;
++            feed_and_count(c, 3, acc, out);
++            dut->ptp_now_i = ON_TIME;
++        };
++        long locked_n = 0;
++        in_order(9, locked_n);                  // lock and drain the settle window
++        ck("[SQ0] precondition: stream 3 is locked", (lctx_rd(3, 8) >> 12) & 1, 1);
++
++        long t0[W_FRX + 1];
++        for (int w = W_ML; w <= W_FRX; w++) t0[w] = lctx_rd(3, w);
++        const long tsd0 = lctx_rd(3, 10);
++        align_iv();
++        off_format(0xA55AC33CUL + 1000);        // its timestamp already past
++        ck("[SQ1a] a 2-channel PDU mid-stream has no accept verdict", acc, 0);
++        ck("[SQ1b] ...and presents nothing (no payload emitted)", out, 0);
++        ck("[SQ1c] ...and its sequence_num is prev_seq", lctx_rd(3, 8) & 0xFF, q - 1);
++        ck("[SQ1d] ...and it writes no timestamp word (LAST_TSD)", lctx_rd(3, 10), tsd0);
++        ck("[SQ1e] ...and wire_chans stays 8", (lctx_rd(3, 8) >> 14) & 0xFF, 8);
++        long accepted = 0;
++        in_order(3, accepted);                  // the following two intervals
++        in_order(3, accepted);
++        ck("[SQ2a] the next in-order PDUs are accepted", accepted, 6);
++        ck("[SQ2b] UNSUPPORTED_FORMAT +1", lctx_rd(3, W_UF) - t0[W_UF], 1);
++        ck("[SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence",
++           lctx_rd(3, W_SM) - t0[W_SM], 0);
++        ck("[SQ2d] MEDIA_RESET unchanged", lctx_rd(3, W_MR) - t0[W_MR], 0);
++        ck("[SQ2e] TIMESTAMP_UNCERTAIN unchanged", lctx_rd(3, W_TU) - t0[W_TU], 0);
++        ck("[SQ2f] LATE_TIMESTAMP unchanged", lctx_rd(3, W_LT) - t0[W_LT], 0);
++        ck("[SQ2g] EARLY_TIMESTAMP unchanged", lctx_rd(3, W_ET) - t0[W_ET], 0);
++        ck("[SQ2h] STREAM_INTERRUPTED unchanged", lctx_rd(3, W_SI) - t0[W_SI], 0);
++        ck("[SQ2i] MEDIA_UNLOCKED unchanged", lctx_rd(3, W_MU) - t0[W_MU], 0);
++        ck("[SQ2j] FRAMES_RX counts the six accepted PDUs only",
++           lctx_rd(3, W_FRX) - t0[W_FRX], 6);
++
++        //! one PDU lost after an off-format PDU: a gap of one, counted from
++        //! the off-format PDU's sequence_num (two, were it not advanced)
++        long t1[W_FRX + 1];
++        for (int w = W_ML; w <= W_FRX; w++) t1[w] = lctx_rd(3, w);
++        align_iv();
++        off_format(0xA55AC33CUL - 50000000);    // far ahead: early, were it read
++        q++;                                    // the lost PDU
++        accepted = 0;
++        in_order(4, accepted);
++        ck("[SQ3a] the PDUs after the gap are accepted", accepted, 4);
++        ck("[SQ3b] a gap after an off-format PDU counts SEQ_NUM_MISMATCH +1",
++           lctx_rd(3, W_SM) - t1[W_SM], 1);
++        ck("[SQ3c] ...one PDU lost from the off-format PDU's: no STREAM_INTERRUPTED",
++           lctx_rd(3, W_SI) - t1[W_SI], 0);
++        ck("[SQ3d] ...and UNSUPPORTED_FORMAT +1", lctx_rd(3, W_UF) - t1[W_UF], 1);
++        ck("[SQ3e] ...and EARLY_TIMESTAMP unchanged", lctx_rd(3, W_ET) - t1[W_ET], 0);
++        ck("[SQ3f] ...and MEDIA_RESET and TIMESTAMP_UNCERTAIN unchanged",
++           (lctx_rd(3, W_MR) - t1[W_MR]) + (lctx_rd(3, W_TU) - t1[W_TU]), 0);
++    }
++
+     //! Stream 2 carries the [IV] interval-semantics set on a fresh context.
+     static constexpr uint64_t SID2 = 0x020000FFFE030000ULL;
+ 
+diff --git a/tb/verilator/crf_rx/mutants.py b/tb/verilator/crf_rx/mutants.py
+index 114293d52..480112688 100644
+--- a/tb/verilator/crf_rx/mutants.py
++++ b/tb/verilator/crf_rx/mutants.py
+@@ -5,13 +5,14 @@
+ 
+ The discontinuity mutants run sim_discontinuity.cpp; the #762 STREAM_INTERRUPTED
+ mutants (a silence, a sequence gap, an unbind and a stopped input's silence,
+-each the cause its check names) and the #765 subtype mutants (an AAF PDU on
+-this stream_id ignored or accepted, and a matching CRF PDU rejected) run the
+-counter harness, sim_main.cpp, through `make unit-build`. The stopped-gap
+-mutants (a stopped sink's gap counted, and a STOP that disarms the gap until
+-the next bind) are planted in the engine AND in the harness's replica, so the
+-per-PDU replica compare cannot see them and only the named count check can
+-fail.
++each the cause its check names), the #765 subtype mutants (an AAF PDU on
++this stream_id ignored or accepted, and a matching CRF PDU rejected) and the
++#775 sequence mutants (an off-format PDU that does not advance the sequence
++cursor, and one that seeds it) run the counter harness, sim_main.cpp, through
++`make unit-build`. The stopped-gap mutants (a stopped sink's gap counted, and
++a STOP that disarms the gap until the next bind) are planted in the engine AND
++in the harness's replica, so the per-PDU replica compare cannot see them and
++only the named count check can fail.
+ 
+ No checkout is edited. Every executable, including the positive control,
+ is rebuilt from this invocation's source. The harness has bounded loops.
+@@ -79,6 +80,16 @@ UNIT_MUTANTS = (
+      "  wire w_fmt_ok = (subtype_i == CRF_SUBTYPE_C)",
+      "  wire w_fmt_ok = (subtype_i != CRF_SUBTYPE_C)",
+      "[FMT-a1] a matching CRF PDU is accepted"),
++    #: #775: a discarded off-format PDU advances the sequence cursor, and only
++    #: an accepted PDU seeds it
++    ("offformat_no_advance",
++     "          exp_seq_r <= seq_i + 8'd1;\n        end else begin",
++     "        end else begin",
++     "[SQ-b2] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence"),
++    ("offformat_seeds_sequence",
++     "          exp_seq_r <= seq_i + 8'd1;\n        end else begin",
++     "          exp_seq_r <= seq_i + 8'd1;\n          have_seq_r <= 1'b1;\n        end else begin",
++     "[SQ-d1] an AAF PDU first in an era seeds no SEQ_NUM_MISMATCH"),
+ )
+ #: the gap's stopped-state gate, in the engine and in the replica
+ GAP_RTL = "(w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;"
+diff --git a/tb/verilator/crf_rx/sim_discontinuity.cpp b/tb/verilator/crf_rx/sim_discontinuity.cpp
+index 85ef4ed6f..deb1b7b5e 100644
+--- a/tb/verilator/crf_rx/sim_discontinuity.cpp
++++ b/tb/verilator/crf_rx/sim_discontinuity.cpp
+@@ -135,6 +135,7 @@ class DiscontinuityHarness {
+         dut->type_i = 0;
+         fields(); dut->frame_p_i = 1; tick();
+         dut->frame_p_i = 0; tick();
++        ++seq;  // #775: a received reject's sequence_num advances the cursor
+         check.that("malformed marker cannot invalidate", dut->rate_valid_o);
+         dut->type_i = 1; dut->sid_frame_i = kSid + 1;
+         dut->frame_p_i = 1; tick(); dut->frame_p_i = 0; tick();
+@@ -194,7 +195,7 @@ class DiscontinuityHarness {
+         // Matching SID and subtype, but not the required CRF_AUDIO_SAMPLE.
+         dut->type_i = 0;
+         fields(); dut->frame_p_i = 1; tick();
+-        dut->frame_p_i = 0;
++        dut->frame_p_i = 0; ++seq;  // #775: the reject advances the cursor
+         check.that("validation error preserves established lock", dut->locked_o);
+         bool stayed_locked = dut->locked_o;
+         for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) {
+diff --git a/tb/verilator/crf_rx/sim_main.cpp b/tb/verilator/crf_rx/sim_main.cpp
+index 95b52a7e9..bfa6a293d 100644
+--- a/tb/verilator/crf_rx/sim_main.cpp
++++ b/tb/verilator/crf_rx/sim_main.cpp
+@@ -188,8 +188,12 @@ struct Model {
+         hist[hidx] = ts;
+         hidx = (hidx + 1) & (DEPTH - 1);
+     }
+-    void bad_pdu() {                     // format-invalid, matched stream
++    // format-invalid, matched stream. #775: it was still received (Milan
++    // v1.2 Table 5.6), so its sequence_num advances the cursor; only an
++    // accepted PDU seeds it (have_seq)
++    void bad_pdu(uint8_t seq) {
+         settle = 0;                      // the UF count commits via cycle()
++        exp_seq = static_cast<uint8_t>(seq + 1);
+     }
+     // 100 ms without a CONSUMED PDU. #762: a started, bound sink's
+     // silence is also a STREAM_INTERRUPTED; an unbind on the same edge
+@@ -268,6 +272,7 @@ class CrfRxHarness {
+         pin_stopped_sink();
+         pin_unbind_scores_one_unlock();
+         pin_aaf_pdu_on_the_crf_input();
++        pin_offformat_pdu_advances_the_sequence();
+         pin_stopped_silence_is_no_interruption();
+         pin_stopped_gap_is_no_interruption();
+ 
+@@ -302,6 +307,8 @@ class CrfRxHarness {
+     long g_mrtog_cnt = 0;
+     long g_mrtog_wide = 0;
+     long g_mrtog_run = 0;
++    // consumed timing points observed (ts_p_o, a 1-cycle strobe, #632)
++    long g_tsp_cnt = 0;
+ 
+     // header-flag levels held across PDUs, exactly as the wire holds them:
+     // mr is a LEVEL the talker toggles (1722-2016 10.4.3), tu a per-PDU flag
+@@ -334,6 +341,7 @@ class CrfRxHarness {
+         dut->clk_i = 0; dut->eval();
+         dut->clk_i = 1; dut->eval();
+         if (dut->dirty_p_o) g_dirty_cnt++;
++        if (dut->ts_p_o) g_tsp_cnt++;
+         if (dut->mr_toggle_p_o) {
+             g_mrtog_cnt++;
+             if (++g_mrtog_run > 1) g_mrtog_wide++;
+@@ -489,7 +497,7 @@ class CrfRxHarness {
+             }
+             g_ev_uf = true;
+             pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-            m.bad_pdu();
++            m.bad_pdu(0);
+         }
+         ck("5 malformed: no commit before the tick", dut->fmt_err_o, 0);
+         for (int i = 0; i < kIvalCyc + 2; i++) tick();
+@@ -676,7 +684,7 @@ class CrfRxHarness {
+             dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
+             g_ev_uf = true;
+             pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-            m.bad_pdu();
++            m.bad_pdu(seq++);
+         }
+         for (int i = 0; i < kIvalCyc + 2; i++) tick();
+         ck("3 discontinuities: SEQ_NUM_MISMATCH +1", dut->seq_err_o,
+@@ -772,7 +780,7 @@ class CrfRxHarness {
+         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);  // bad ival
+         g_ev_uf = true;
+         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-        m.bad_pdu();
++        m.bad_pdu(seq++);
+         for (int i = 0; i < kIvalCyc + 2; i++) tick();
+         ck("[5t-b5] rejected PDU: MEDIA_RESET untouched", dut->mr_cnt_o, mrb);
+         ck("[5t-b6] rejected PDU: UNSUPPORTED_FORMAT +1 (and only it)",
+@@ -798,7 +806,7 @@ class CrfRxHarness {
+         dut->ptp_now_i = ts + 4000000;   // and a LATE reference timestamp
+         g_ev_uf = true;
+         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-        m.bad_pdu();
++        m.bad_pdu(seq++);
+         // a second reject, this one EARLY
+         drive_fields(ts, seq);
+         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
+@@ -806,7 +814,7 @@ class CrfRxHarness {
+             ts - static_cast<uint64_t>(EARLY_LIMIT_C) - 5000000ULL;
+         g_ev_uf = true;
+         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-        m.bad_pdu();
++        m.bad_pdu(seq++);
+         g_tu = false;
+         dut->ptp_now_i = ptp;
+         for (int i = 0; i < kIvalCyc + 2; i++) tick();
+@@ -1032,7 +1040,7 @@ class CrfRxHarness {
+         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
+         g_ev_uf = true;
+         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-        m.bad_pdu();
++        m.bad_pdu(seq++);
+         for (int i = 0; i < kIvalCyc + 2; i++) tick();
+     }
+ 
+@@ -1295,7 +1303,7 @@ class CrfRxHarness {
+             dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
+             g_ev_uf = true;
+             pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-            m.bad_pdu();
++            m.bad_pdu(seq++);
+             ck("[H2a-c1] a format-rejected flip NEVER pulses", g_mrtog_cnt, 0);
+             // and the level it carried left no trace: the next ACCEPTED PDU
+             // at the era's real level is still a no-op
+@@ -1407,7 +1415,7 @@ class CrfRxHarness {
+         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);  // bad ival
+         g_ev_uf = true;
+         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-        m.bad_pdu();
++        m.bad_pdu(seq++);
+         for (int i = 0; i < kIvalCyc + 2; i++) tick();
+         ck("[G1-b1] 254 + 1 = 255 (still counting)", dut->fmt_err_o, 255);
+         align_interval();
+@@ -1415,7 +1423,7 @@ class CrfRxHarness {
+         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
+         g_ev_uf = true;
+         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-        m.bad_pdu();
++        m.bad_pdu(seq++);
+         for (int i = 0; i < kIvalCyc + 2; i++) tick();
+         ck("[G1-b2] UNSUPPORTED_FORMAT passes 255 - peg dropped (256)",
+            dut->fmt_err_o, 256);
+@@ -1512,7 +1520,8 @@ class CrfRxHarness {
+     //! UNSUPPORTED_FORMAT for a PDU whose format does not match the input's
+     //! current format and 4.4.2.2 discards it, so an AAF PDU here is a reject
+     //! like any other profile error: one interval count, nothing accepted,
+-    //! the sequence cursor unmoved, and an established lock retained.
++    //! the sequence cursor advanced by its sequence_num (#775), and an
++    //! established lock retained.
+     void pin_aaf_pdu_on_the_crf_input() {
+         printf("\n[FMT] #765: an AAF PDU on the CRF input is UNSUPPORTED_FORMAT\n");
+         for (int n = 0; n < 10; n++) {
+@@ -1539,7 +1548,7 @@ class CrfRxHarness {
+         dut->subtype_i = 0x02;
+         g_ev_uf = true;
+         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+-        m.bad_pdu();
++        m.bad_pdu(seq++);
+         dut->subtype_i = 0x04;
+         ck("[FMT-b1] an AAF PDU on the CRF stream_id is not accepted",
+            dut->pdu_count_o, p0);
+@@ -1548,7 +1557,8 @@ class CrfRxHarness {
+         ck("[FMT-b3] ...and counts UNSUPPORTED_FORMAT once", dut->fmt_err_o, f0 + 1);
+         compare(g_pdu_no);
+ 
+-        // the AAF PDU advanced nothing: the next CRF PDU continues the sequence
++        // the AAF PDU advanced only the sequence cursor (#775): the next CRF
++        // PDU continues the sequence
+         align_interval();
+         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+         for (int i = 0; i < kIvalCyc + 2; i++) tick();
+@@ -1557,6 +1567,123 @@ class CrfRxHarness {
+         ck("[FMT-c2] ...and no second UNSUPPORTED_FORMAT", dut->fmt_err_o, f0 + 1);
+     }
+ 
++    //-----------------------------------------------------------------------
++    // [SQ] #775: an off-format PDU on the CRF input was still received
++    // (Milan v1.2 Table 5.6), so its sequence_num advances the sequence
++    // cursor, while it counts UNSUPPORTED_FORMAT only and presents nothing.
++    // One AAF PDU takes a CRF PDU's slot in an in-order stream. It carries a
++    // toggled mr, tu, and a reference timestamp already past (or too far
++    // ahead), so a reject that reached any other verdict would count there.
++    // (a)-(b) the stream continues in order: over the following observation
++    // intervals SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
++    // LATE_TIMESTAMP, EARLY_TIMESTAMP and STREAM_INTERRUPTED hold.
++    // (c) a real gap after an off-format PDU still counts, measured from that
++    // PDU's sequence_num. (d) only an accepted PDU seeds an era's sequence.
++    //-----------------------------------------------------------------------
++    struct Tallies {
++        uint32_t uf;
++        uint32_t sm;
++        uint32_t mr;
++        uint32_t tu;
++        uint32_t lt;
++        uint32_t et;
++        uint32_t si;
++        uint32_t unl;
++    };
++    Tallies tallies() const {
++        return Tallies{dut->fmt_err_o, dut->seq_err_o, dut->mr_cnt_o, dut->tu_cnt_o,
++                       dut->late_cnt_o, dut->early_cnt_o, dut->cnt_intr_o,
++                       dut->cnt_unlocked_o};
++    }
++
++    //! one AAF PDU in the next CRF PDU's slot, carrying the next sequence_num
++    void send_offformat_pdu(bool late) {
++        ts += 2000200; ptp += 2000000;
++        drive_fields(ts, seq);
++        dut->subtype_i = 0x02;
++        dut->mr_i = !g_mr;                       // a toggle, were it read
++        dut->tu_i = 1;
++        dut->ptp_now_i = late ? ts + 4000000
++                              : ts - static_cast<uint64_t>(EARLY_LIMIT_C) - 5000000ULL;
++        g_ev_uf = true;
++        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
++        m.bad_pdu(seq++);
++        dut->subtype_i = 0x04;
++        dut->ptp_now_i = ptp;
++    }
++
++    //! `n` in-order CRF PDUs, then one whole observation interval
++    void send_in_order_then_commit(int n) {
++        for (int k = 0; k < n; k++) {
++            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
++        }
++        for (int i = 0; i < kIvalCyc + 2; i++) tick();
++    }
++
++    void pin_offformat_pdu_advances_the_sequence() {
++        printf("\n[SQ] #775: an off-format PDU on the CRF input advances the sequence\n");
++        send_in_order_then_commit(10);
++        align_interval();
++        ck("[SQ-0] precondition: bound and locked", dut->locked_o, 1);
++
++        // (a) the AAF PDU itself
++        const Tallies t0 = tallies();
++        const uint32_t p0 = dut->pdu_count_o;
++        const long tsp0 = g_tsp_cnt;
++        const int32_t d0 = static_cast<int32_t>(dut->delta_o);
++        send_offformat_pdu(true);
++        ck("[SQ-a1] an AAF PDU mid-stream is not accepted", dut->pdu_count_o, p0);
++        ck("[SQ-a2] ...presents no timing point", g_tsp_cnt - tsp0, 0);
++        ck("[SQ-a3] ...leaves delta_o", static_cast<int32_t>(dut->delta_o), d0);
++        ck("[SQ-a4] ...and keeps the lock", dut->locked_o, 1);
++
++        // (b) the stream continues in order over the following two intervals
++        send_in_order_then_commit(3);
++        send_in_order_then_commit(3);
++        const Tallies t1 = tallies();
++        ck("[SQ-b1] UNSUPPORTED_FORMAT +1", t1.uf - t0.uf, 1);
++        ck("[SQ-b2] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence",
++           t1.sm - t0.sm, 0);
++        ck("[SQ-b3] MEDIA_RESET unchanged", t1.mr - t0.mr, 0);
++        ck("[SQ-b4] TIMESTAMP_UNCERTAIN unchanged", t1.tu - t0.tu, 0);
++        ck("[SQ-b5] LATE_TIMESTAMP unchanged", t1.lt - t0.lt, 0);
++        ck("[SQ-b6] EARLY_TIMESTAMP unchanged", t1.et - t0.et, 0);
++        ck("[SQ-b7] STREAM_INTERRUPTED unchanged", t1.si - t0.si, 0);
++        ck("[SQ-b8] MEDIA_UNLOCKED unchanged", t1.unl - t0.unl, 0);
++        ck("[SQ-b9] FRAMES_RX counts the six accepted PDUs only",
++           dut->pdu_count_o - p0, 6);
++
++        // (c) one PDU lost after an off-format PDU: a gap of one, counted
++        // from the off-format PDU's sequence_num (two, were it not advanced)
++        align_interval();
++        send_offformat_pdu(false);
++        seq++; ts += 2000200; ptp += 2000000;    // the lost CRF PDU
++        send_in_order_then_commit(4);
++        const Tallies t2 = tallies();
++        ck("[SQ-c1] a gap after an AAF PDU counts SEQ_NUM_MISMATCH +1", t2.sm - t1.sm, 1);
++        ck("[SQ-c2] ...one PDU lost from the AAF PDU's: no STREAM_INTERRUPTED",
++           t2.si - t1.si, 0);
++        ck("[SQ-c3] ...and UNSUPPORTED_FORMAT +1", t2.uf - t1.uf, 1);
++        ck("[SQ-c4] ...and EARLY_TIMESTAMP unchanged", t2.et - t1.et, 0);
++        ck("[SQ-c5] ...and MEDIA_RESET and TIMESTAMP_UNCERTAIN unchanged",
++           (t2.mr - t1.mr) + (t2.tu - t1.tu), 0);
++
++        // (d) an era's first PDU off-format: only an accepted PDU seeds the
++        // cursor, so the first accepted PDU counts nothing, whatever it carries
++        dut->en_i = 0; for (int i = 0; i < 4; i++) tick();
++        dut->en_i = 1; m.bind_zero();
++        for (int i = 0; i < 4; i++) tick();
++        align_interval();
++        send_offformat_pdu(true);
++        seq = static_cast<uint8_t>(seq + 5);
++        send_in_order_then_commit(4);
++        ck("[SQ-d1] an AAF PDU first in an era seeds no SEQ_NUM_MISMATCH",
++           dut->seq_err_o, 0);
++        ck("[SQ-d2] ...nor a STREAM_INTERRUPTED", dut->cnt_intr_o, 0);
++        ck("[SQ-d3] ...and counts UNSUPPORTED_FORMAT +1", dut->fmt_err_o, 1);
++        ck("[SQ-d4] ...and the first accepted PDU counts in FRAMES_RX", dut->pdu_count_o, 4);
++    }
++
+     void pin_unbind_scores_one_unlock() {
+         printf("\n[UNB] #653 the unbind of a locked input scores one unlock\n");
+ 
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index 8a1e1e6f9..542d50c4b 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -7044,6 +7044,7 @@ class NxnDatapathHarness {
+     //! against the leg's 256-cycle LDIAG_IVAL_CYC_P), in a fresh era:
+     //!   P1         accepted: seeds the sequence cursor and the mr level
+     //!   7 rejects  type 2 at the followed sid     UNSUPPORTED_FORMAT   7
++    //!              (each advances the cursor, #775)
+     //!   P2, P3     2 and 3 PDUs lost              STREAM_INTERRUPTED   2
+     //!   P4, P5     1 PDU lost, below the >= 2     SEQ_NUM_MISMATCH     4
+     //!   P6..P13    eight clean in order: a lock   MEDIA_LOCKED         1
+@@ -7061,8 +7062,9 @@ class NxnDatapathHarness {
+         crf_lever(false);
+         crf_lever(true);                        // a fresh era: the ten wiped
+         send_crf_event_pdu(1, false, false);
+-        for (int k = 0; k < 7; k++)             // rejected: the cursor holds
+-            send_crf_pdu(phc_now_ns() + 1000000u, cseq, 0x80, 0x02);
++        //! rejected, yet received: each one advances the cursor (#775)
++        for (int k = 0; k < 7; k++)
++            send_crf_pdu(phc_now_ns() + 1000000u, cseq++, 0x80, 0x02);
+         cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(2, false, false);
+         cseq = static_cast<uint8_t>(cseq + 3); send_crf_event_pdu(3, false, false);
+         cseq = static_cast<uint8_t>(cseq + 1); send_crf_event_pdu(4, false, false);
