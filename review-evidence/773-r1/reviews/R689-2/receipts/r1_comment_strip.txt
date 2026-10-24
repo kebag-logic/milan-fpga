@@ -1,0 +1,16 @@
+13d8f1e84920aac1dc3e76fb6406c44a744d8145 raw 68147e763267900b stripped 44402151923313a6
+1b47a3dcff0cb65cb5cebe1f86327429a76f775d raw 2c1ce862e30c1d4f stripped 44402151923313a6
+raw DIFFERENT; comments stripped IDENTICAL
+rc=0
+$ git diff --stat 13d8f1e8 1b47a3dc -- hdl tb sw scripts configs
+ hdl/ieee1722/crf/KL_media_domain_event.sv | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+$ git diff 13d8f1e8 1b47a3dc -- hdl (all changed lines)
+-                holds the phase (10.8 Eq. 15): the CRF output adds its offset
+-                rounded to whole periods (10.7 Eq. 14), an AAF talker its
+-                offset as set (Milan v1.2 5.4.2.9, #632).
++                holds the phase (10.8 Eq. 15): the CRF output adds Equation
++                (14)'s TC and its offset rounded to whole periods (10.7 Eq.
++                14), an AAF talker its crossing estimate and fixed delay
++                (whole periods, #773) and its offset as set (Milan v1.2
++                5.4.2.9, #632).
