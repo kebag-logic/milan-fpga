@@ -1,0 +1,86 @@
+CLEAN           C0-unmutated
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CLEAN           C1-media_phase-1498-both-sides
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M1-overhead-table-left-at-16
+    rc=1 scripts/suite_shards.py --selftest ::   FAIL head: WORKER_OVERHEAD_SECONDS describes 16 workers; rtl.yml runs 17 | selftest: 1 FAILURE(S)
+    rc=1 scripts/ci_gate_workflows.py --check :: .github/workflows/rtl.yml: regenerate the gate jobs
+    rc=1 scripts/ci_events.py --check ::   FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps,
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M2-overhead-16-and-rtl.yml-regenerated
+    rc=1 scripts/suite_shards.py --selftest ::   FAIL head worker 0/16 predicted 1640 s (27.3 min), bound 1620 s |   FAIL head worker 1/16 predicted 1639 s (27.3 min), bound 1620 s
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M3-SUITE_SECONDS-left-at-900
+    rc=1 scripts/suite_shards.py --selftest ::   FAIL head: media_phase: provisional figure 900 s is not the 1400 s that run_all_suites.sh's suite_timeout gives it | selftest: 1 FAILURE(S)
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M4-suite_timeout-left-at-900
+    rc=1 scripts/suite_shards.py --selftest ::   FAIL head: media_phase: provisional figure 1400 s is not the 900 s that run_all_suites.sh's suite_timeout gives it | selftest: 1 FAILURE(S)
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=1 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept | runner evidence contract: FAIL
+CAUGHT          M5-contract-copy-left-at-900
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=1 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept | runner evidence contract: FAIL
+CAUGHT          M6-media_phase-1499-both-sides
+    rc=1 scripts/suite_shards.py --selftest ::   FAIL head worker 0/17 predicted 1621 s (27.0 min), bound 1620 s | selftest: 2 FAILURE(S)
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+ESCAPED         M7-media_phase-dropped-from-PROVISIONAL
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M8-rtl.yml-60min-arm-at-15
+    rc=1 scripts/suite_shards.py --selftest ::   FAIL head worker 16/17 predicted 2032 s (33.9 min), bound 1620 s | selftest: 1 FAILURE(S)
+    rc=1 scripts/ci_gate_workflows.py --check :: .github/workflows/rtl.yml: regenerate the gate jobs
+    rc=1 scripts/ci_events.py --check ::   FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps,
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M9-rtl.yml-expect-16
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=1 scripts/ci_gate_workflows.py --check :: .github/workflows/rtl.yml: regenerate the gate jobs
+    rc=1 scripts/ci_events.py --check ::   FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps,
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M10-rtl.yml-total-16
+    rc=1 scripts/suite_shards.py --selftest ::   FAIL head: worker timeout expression has an invalid index or limit | selftest: 1 FAILURE(S)
+    rc=1 scripts/ci_gate_workflows.py --check :: .github/workflows/rtl.yml: regenerate the gate jobs
+    rc=1 scripts/ci_events.py --check ::   FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps,
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M11-rtl.yml-shard-16-dropped
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=1 scripts/ci_gate_workflows.py --check :: .github/workflows/rtl.yml: regenerate the gate jobs
+    rc=1 scripts/ci_events.py --check ::   FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps,
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M12-rtl.yml-fail-fast-list-missing-16-of-17
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=1 scripts/ci_gate_workflows.py --check :: .github/workflows/rtl.yml: regenerate the gate jobs
+    rc=1 scripts/ci_events.py --check ::   FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps,
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+ESCAPED         M13-docs-target-sha-expect-16
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+ESCAPED         M14-overhead-18-and-regenerated
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+ESCAPED         M15-docs-worker-table-row4-1540
+    rc=0 scripts/suite_shards.py --selftest :: selftest: PASS
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept
+CAUGHT          M16-media_phase-1400-only-SUITE_SECONDS-1300
+    rc=1 scripts/suite_shards.py --selftest ::   FAIL head: media_phase: provisional figure 1300 s is not the 1400 s that run_all_suites.sh's suite_timeout gives it | selftest: 1 FAILURE(S)
+    rc=0 scripts/ci_gate_workflows.py --check :: 
+    rc=0 scripts/ci_events.py --check :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+    rc=0 scripts/measure_test_evidence.py --check ::    tb/verilator/crf_rx/mutants.py: mutation campaign; copies the receiver and servo, requiring named failures for validation_error_unlocks, validation_error_refreshes_timeout, tu, jump, refill, accept

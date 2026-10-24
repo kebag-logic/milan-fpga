@@ -1,0 +1,20 @@
+ci-pieces units=81 distinct=81 owned=81 dup={} missing=[] extra=[]
+0 milan_dp__1
+1 capture_coherence__0 clkvalid cls csr gptp_shadow tdm tsn_fuzz
+2 milan_dp_mclk__1
+3 maap__2 milan_dp__0 chmap_capture gptp_tables
+4 controller_rate datapath fw_service_budget media_phase
+5 milan_dp_mclk__2 lat_history_ring ptp_sync
+6 milan_dp__3 aaf_latency_tap_bank aes3 follow_ring pair_fill
+7 milan_dp__2 pp_shadow__1 cbs media_nco pcmlpf
+8 pp_shadow__2 chmap_render mmcm_servo shaper_core tcam
+9 maap__3 milan_dp_render__1 aaf_clock_meter crf_tx mac_rmon tdm_render
+10 maap__0 eth_tx_reset gptp_txts mbx milan_dp_gm_steps
+11 capture_coherence__2 milan_dp_mclk__3 avtp_rxmon avtp_stream classifier ptp_ts tcam_csr tkdiag
+12 pp_shadow__3 aaf cdc crf_rx nvm_backend ptp queues render_queue
+13 capture_coherence__3 milan_dp_render__0 gptp_plane i2spb link_guard rx_filter
+14 maap__1 aaf_audio_loop adp_tx ifg media_grid_align nvm_cosim
+15 capture_coherence__1 milan_dp_render__2 pp_shadow__0 aaf_latency_taps avtp_parser mmcm_servo_autorepair
+16 milan_dp_mclk__0
+media_phase owner: [4]  milan_dp_mclk__0 owner: [16]
+OWNERSHIP: PASS
