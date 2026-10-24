@@ -1,0 +1,310 @@
++- **[Unreleased - per-source TSpec](#unreleased---per-source-tspec)** -- The CRF output declares 29.
++## Unreleased - per-source TSpec
++- Issue #774 declares each source's own TSpec.
++- Milan v1.2 Table 4.4 sets it per format.
++- The CRF output declared the AAF value, 217.
++- Table 4.4 gives CRF with one timestamp 28 + 1.
++- `KL_pp_shadow` now takes one MaxFrameSize per source.
++- Each AAF talker declares 24*N + 24 + 1 as before.
++- The CRF output declares 29 from `KL_crf_tx`'s PDU.
++- `tb/verilator/milan_dp` grades it in `[TSPEC]`.
++- `obj_crflic` runs it on the 1x1, `obj_tspec8` on the 8x8.
++- `make crflic-mutants` plants talker 0's value everywhere.
++| 4.3.3 | talker attribute declaration + Table 4.4 bandwidth | implemented: TSpec derived per source from real frame geometry (`milan_datapath`: AAF 24·N + 24 + 1, CRF 28 + 1, #774), declared by the processor; RTL milan_dp `[TSPEC]` on the AX 1x1 and 8x8 shapes |
++| `0x690` | `LWSRP_TSPEC` | RW | `0x0001_00E0` | 🟡 **WRITE-ONLY SCRATCH**: `[15:0]` MaxFrameSize, `[31:16]` MaxIntervalFrames. The applicant that read them is deleted. The processor declares each source's Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize as the fabric derives it from that source's framer (an AAF talker's wire width, the CRF output's PDU shape, #774), so the declaration and the frame cannot disagree, and it derives its interval from the SR class. Writing this changes nothing observable |
++| #190, per-source TSpec | [194](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/194) | `cfg_tspec_max_frame_i` widens to `[N_STREAM_OUT_P*16-1:0]`, one MaxFrameSize per source; `KL_pp_shadow` drove every slot with its one 16-bit value at this adoption, so every declaration was unchanged; since #774 it takes one value per source and the CRF slot declares its own |
++| #530 streaming licence, the three gate mutants, and the #774 per-source TSpec control on the 1x1 and 8x8 shapes | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`), the per-source TSpec (`pp_src_maxf_w`, `tctx_maxf_w`, `KL_crf_tx`'s `tspec_max_frame_o`, `KL_pp_shadow`'s `cfg_tspec_max_frame_i`) or `sim_crf_licence.cpp` |
++The `milan_dp` default `run` retains fifteen ordinary commands in this order:
++`obj_dir`, `obj_notify`, `obj_crflic`, #774's `obj_tspec8`, `obj_dynmap`,
++`obj_nxn`, `obj_nxndv`, `obj_nxn8`, `obj_nxn4c`, `obj_nolpf`, `obj_prune`,
++`obj_ax1x1`, `obj_aclk`, then #637's `obj_maprec8` and `obj_maprec4`.
++| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 1.2, 35.2.2.8.4, 802.3 |
++| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 1.2, 35.2.2.8.4, 802.3 |
++| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_mclk` · `milan_dp_render` | 1.2, 34.4, 35.2.2.8.4, 35.2.7 |
++| SRP-10 | 35.2.2.8.4 a) | TSpec MaxFrameSize, verbatim: *"It represents the maximum frame size that the Talker **will produce**, excluding any overhead for media-specific framing (e.g., preamble, IEEE 802.3 header, Priority/VID tag, CRC, interframe gap)"* -- the WIRE, never the declaration | the MaxFrameSize derivation SURVIVES in [`milan_datapath`](../../hdl/milan/milan_datapath.sv) -- header + the Milan step-1 extra octet + samples×channels, from the same constant that resets `KL_aaf_packetizer`'s chans field -- and is handed to the processor as `cfg_tspec_max_frame_i`, one slot per source (#774): each AAF talker its own 24·N + 24 + 1, the CRF Media Clock Output `KL_crf_tx`'s 28 + 1 from its own PDU shape (Milan v1.2 4.3.3.2 Table 4.4) | ✅ builder gates still green on every shape, and the tie is now SHORTER: the value goes straight from the framer geometry into the declaring engine with no attribute-row table in between. RTL `milan_dp` `[TSPEC]` (#774) decodes every Talker Advertise the DUT sends, on the AX 1x1 TDM8 (`obj_crflic`, against the emitted AVTPDUs too) and AX 8x8 (`obj_tspec8`) shapes, and `make crflic-mutants` fails talker 0's value on every slot on both. The 2026-07-28 lesson keeps its teeth -- a TSpec of a frame nobody sent is a silent over-reservation the bridge dutifully honours | The 2026-07-28 bench measured a TSpec of a frame nobody sent: declared-8ch MaxFrameSize announced while the wire carried the 2ch 72-byte MSDU -- a ~3× over-reservation the bridge dutifully honoured. |
++| ✅ `KL_aaf_packetizer` | `KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 1.2, 35.2.2.8.4, 802.3 |
++  output logic [31:0] tx_count_o,        //! CRF PDUs completed on the wire side
++  //! TSpec MaxFrameSize of this stream (IEEE 802.1Q-2018 35.2.2.8.4 a)), a
++  //! constant of the PDU shape built below: Milan v1.2 4.3.3.2 Table 4.4
++  //! "CRF, 1 ts/pdu" = 28 + 1, the AVTPDU plus the table's one octet. The
++  //! integrator declares it for this Stream Output (#774), so the declaration
++  //! follows the frame this module emits rather than a second copy of it.
++  output logic [15:0] tspec_max_frame_o
++  //! crf_data_length (IEEE 1722-2016 10.4.11): one 64-bit timestamp per PDU
++  //! CRF AVTPDU header ahead of crf_data, pdu[0..19] below (IEEE 1722-2016
++  //! 10.4: subtype through timestamp_interval)
++  localparam int CRF_HDR_C   = 20;
++  localparam int CRF_PDU_C   = CRF_HDR_C + int'(CRF_DLEN_C);   //! AVTPDU octets, 28
++  //! The TSpec MaxFrameSize is the AVTPDU plus one octet (Milan v1.2 Table
++  //! 4.4), not the padded MSDU: the table's bandwidth rule raises F =
++  //! MaxFrameSize + 22 to the 68-octet minimum tagged frame, which is where
++  //! the pad is paid for.
++  assign tspec_max_frame_o = 16'(CRF_PDU_C + 1);
++| ✅ `KL_crf_tx` | `KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 1.2, 35.2.2.8.4, 802.3 |
++    //! per-source TSpec MaxFrameSize for the engine-driven DECLARE_TALKER
++    //! (IEEE 802.1Q-2018 35.2.2.8.4 a)), flat [16*s +: 16] like
++    //! cfg_stream_id_i. Milan v1.2 4.3.3.2 Table 4.4 makes it a function of
++    //! each source's FORMAT: an AAF talker's channel count (24*C + 24 + 1), the
++    //! CRF Media Clock Output's PDU (28 + 1). The integrator derives both for
++    //! the framers, so they arrive here rather than being re-derived. One
++    //! value for every source declared the AAF number for the CRF stream
++    //! (#774). On the wire a zero MaxFrameSize is a reservation for zero
++    //! bandwidth, which a bridge grants and a stream then overruns.
++    input  wire [N_STREAM_OUT_P*16-1:0] cfg_tspec_max_frame_i,
++      //! source s declares slot s (processor #190)
++      .cfg_tspec_max_frame_i(cfg_tspec_max_frame_i),
++| ✅ `milan_datapath` | `milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_mclk` · `milan_dp_render` | 1.2, 34.4, 35.2.2.8.4, 35.2.7 |
++  //! the CRF output's TSpec MaxFrameSize, from the PDU shape KL_crf_tx builds
++  //! (Milan v1.2 Table 4.4 "CRF, 1 ts/pdu", #774)
++  wire [15:0] crft_maxf_w;
++  //! ...and the per-source TSpec MaxFrameSize it declares (g_pp_maxf)
++  wire [ACMP_SRC_C*16-1:0]  pp_src_maxf_w;
++  //! it is the Milan Table 4.4 MaxFrameSize the processor declares with for
++  //! each AAF talker (g_pp_maxf; the CRF output's comes from KL_crf_tx).
++    .tx_count_o (crft_count_w),
++    .tspec_max_frame_o (crft_maxf_w)
++  //! THE TSPEC LAW, one MaxFrameSize per talker source (#774; Milan v1.2
++  //! 4.3.3.2 Table 4.4, IEEE 802.1Q-2018 35.2.2.8.4 a)), each from the framer
++  //! that source's frames come out of: AAF talker t from its own TSpec
++  //! geometry (tctx_maxf_w[t], 24*N + 24 + 1), the CRF Media Clock Output
++  //! from KL_crf_tx's PDU shape (28 + 1). Talker 0's value on every slot
++  //! declared the 8-channel AAF number, 217, for the CRF stream.
++  generate
++    for (genvar gmf = 0; gmf < ACMP_SRC_C; gmf++) begin : g_pp_maxf
++      if (gmf == CRF_TUID_C) begin : g_maxf_crf
++        assign pp_src_maxf_w[16*gmf +: 16] = crft_maxf_w;
++      end else begin : g_maxf_aaf
++        assign pp_src_maxf_w[16*gmf +: 16] = tctx_maxf_w[gmf];
++      end
++    end
++  endgenerate
++      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize per source, DERIVED from
++      //! the framer each source's frames come out of (pp_src_maxf_w) - never
++      //! an independent constant, or the declaration and the frame disagree.
++      .cfg_tspec_max_frame_i (pp_src_maxf_w),
++#                 (crflic_mutants.py), outside the sweep's deadline, and the
++#                 #774 TSpec control on both of its shapes
++#   make tspec8 - run only the #774 per-source TSpec leg on the AX 8x8 shape
++.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
++  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -DWIRE_CHANS_TB=$(AX_CHANS) -Wall -Wextra" \
++# #774: sim_crf_licence.cpp's [TSPEC] grading alone (TSPEC_ONLY_TB) on the AX
++# 8x8 shape, TSPEC8_STREAMS AAF talkers of AX_CHANS wire channels plus the CRF
++# Media Clock Output, on the crflic grid: every source probed, MAAP grants,
++# and each Talker Advertise must carry its own format's Milan v1.2 Table 4.4
++# TSpec. The source count the harness grades is the same make variable the
++# -G builds, plus the CRF output, and its boot checks it against ADP_TALKER.
++# crflic_mutants.py builds a MUTATED datapath through this recipe too
++# (DP_SRC and TSPEC8_MDIR overridden).
++TSPEC8_MDIR ?= obj_tspec8
++TSPEC8_STREAMS = 8
++define TSPEC8_BUILD
++$(VERILATOR) crflic_probes.vlt $(SHAPE_8x8) $(CRFLIC_FLAGS) --Mdir $(TSPEC8_MDIR) \
++  -GN_STREAMS=$(TSPEC8_STREAMS) \
++  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
++  -GAUDIO_IF_MASTER_P=1 \
++  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
++  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -DWIRE_CHANS_TB=$(AX_CHANS) -DSOURCES_TB=$(shell echo $$(($(TSPEC8_STREAMS) + 1))) -DTSPEC_ONLY_TB=1 -Wall -Wextra" \
++  $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_tspec8
++endef
++tspec8: tspec8-build
++	./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
++tspec8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
++	$(TSPEC8_BUILD)
++# consumer, and two more (#774) give every source talker 0's TSpec, one per
++# shape. Their cost is outside the default sweep's stated margin.
++crflic-mutants: crflic tspec8
++ORDINARY_CASES = base notify crflic tspec8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
++CASE_OPTIONS_tspec8 = --banner "---- \#774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----" ./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
++build-tspec8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
++	$(TSPEC8_BUILD)
++exec-tspec8:
++	./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
++`make` builds **fifteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
++| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; and `[TSPEC]` (#774) grades every Talker Advertise the DUT declares against its own source's Milan v1.2 Table 4.4 TSpec and the AVTPDU that source emits; its mutation campaign is `make crflic-mutants` |
++| `obj_tspec8` | `sim_crf_licence.cpp` (`TSPEC_ONLY_TB`) | `endstation_ax7101_8x8`, eight AAF talkers of 8 wire channels and the CRF Media Clock Output, the `obj_crflic` compressed grid | #774: `[TSPEC]` alone on the largest shape. Every source is probed once, MAAP grants nine addresses, and each of the nine sources' Talker Advertise values must carry its own format's Table 4.4 TSpec: 217 for each AAF talker, 29 for the CRF output, MaxIntervalFrames 1. Its planted control is in `make crflic-mutants` |
++The `milan_dp` default retains its fifteen legs.
++| `[TSPEC]` | #774, after `[E]` and before the staged TSpecs of `[G]`: every Talker Advertise value the DUT sent for each source carries that source's Milan v1.2 4.3.3.2 Table 4.4 TSpec (IEEE 802.1Q-2018 35.2.2.8.4): 24 x 8 + 24 + 1 = 217 for the AAF talker, 28 + 1 = 29 for the CRF output, MaxIntervalFrames 1. A packed vector's value n carries FirstValue's TSpec, since incrementing touches only the Unique ID and the destination address (35.2.2.8). Each MaxFrameSize is also the longest AVTPDU that source emitted plus one octet. |
++`[TSPEC]` reads no declaration from `[G]` on, so these staged TSpecs are not graded as the source's own.
++| talker 0's TSpec on every source (#774) | Same command: `KL_pp_shadow` gets `{ACMP_SRC_C{tctx_maxf_w[0]}}`, the integration before #774, built once as `obj_crflic` and once as `obj_tspec8` | On both shapes "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1" must fail; each clean leg must pass. |
++#774 adds one control on two legs: every talker source given talker 0's
++TSpec MaxFrameSize, the integration before #774, which declared the AAF
++number for the CRF Media Clock Output. It must fail the [TSPEC] grading on
++obj_crflic (AX 1x1 TDM8) and on obj_tspec8 (AX 8x8, `make tspec8-build`
++with TSPEC8_MDIR overridden), each beside its own clean control.
++Exit 0 = every mutant was caught and both clean legs still pass.
++import re
++#: leg -> (its build target, the objdir variable, the clean objdir, the executable)
++LEGS = {
++    "crflic": ("crflic-build", "CRFLIC_MDIR", HERE / "obj_crflic", "Vmilan_dp_crflic"),
++    "tspec8": ("tspec8-build", "TSPEC8_MDIR", HERE / "obj_tspec8", "Vmilan_dp_tspec8"),
++}
++#: #774: (name, fragment, replacement, the check it must fail, the leg)
++TALKER0_TSPEC = (
++    "      .cfg_tspec_max_frame_i (pp_src_maxf_w),",
++    "      .cfg_tspec_max_frame_i ({ACMP_SRC_C{tctx_maxf_w[0]}}),",
++    "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1")
++TSPEC_MUTATIONS = [
++    ("every source declares talker 0's TSpec on the 1x1", *TALKER0_TSPEC, "crflic"),
++    ("every source declares talker 0's TSpec on the 8x8", *TALKER0_TSPEC, "tspec8"),
++]
++def build(rtl_path: Path, mdir: Path, leg: str = "crflic") -> Path | None:
++    """Build `leg` against `rtl_path` through the suite's own recipe; the
++    target, mdir_var, _, exe_name = LEGS[leg]
++        ["make", "-s", "-C", str(HERE), target, f"DP_SRC={rtl_path}",
++         f"{mdir_var}={mdir}"],
++    exe = mdir / exe_name
++def run_mutant(src: str, mutation: tuple[str, ...], work: Path) -> bool:
++    """Plant one mutation, build and run its leg; True when it was caught."""
++    name, pattern, replacement, breaks = mutation[:4]
++    leg = mutation[4] if len(mutation) > 4 else "crflic"
++    tag = re.sub(r"[^A-Za-z0-9]+", "_", name)
++    exe = build(mpath, work / f"obj_{tag}", leg)
++        for leg, (_, _, clean_mdir, exe_name) in LEGS.items():
++            clean = clean_mdir / exe_name
++            exe = clean if clean.is_file() else build(DP_RTL, work / f"obj_clean_{leg}", leg)
++            answer = verdict(*run_leg(exe), None) if exe else "did not compile"
++            if answer == "pass":
++                passes += 1
++                print(f"[PASS] the unmutated gateware still passes the obj_{leg} leg")
++            else:
++                fails += 1
++                print(f"[FAIL] the unmutated gateware does NOT pass obj_{leg} ({answer}) - "
++                      f"every mutant result on it is meaningless")
++        for mutation in MUTATIONS + TSPEC_MUTATIONS:
++//   [TSPEC] #774: every Talker Advertise the DUT puts on the wire carries its
++//          OWN source's Milan v1.2 4.3.3.2 Table 4.4 TSpec (IEEE 802.1Q-2018
++//          35.2.2.8.4): AAF PCM32 48 kHz N channels 24*N + 24 + 1, CRF one
++//          timestamp per PDU 28 + 1, MaxIntervalFrames 1. After [B] each
++//          declared MaxFrameSize is also the AVTPDU that source emits plus
++//          the table's one octet.
++//
++// TSPEC_ONLY_TB builds the [TSPEC] grading alone on another shape
++// (SOURCES_TB talker sources, the last one the CRF Media Clock Output): boot,
++// every source probed until MAAP grants and the DUT declares, then [TSPEC]
++// without the wire half, since no Listener Ready opens a stream.
++#ifndef WIRE_CHANS_TB
++#error "WIRE_CHANS_TB must be the AAF talkers' channels_per_frame (TALKER_WIRE_CHANS_P)"
++#endif
++#ifndef SOURCES_TB
++#define SOURCES_TB 2
++#endif
++#ifndef TSPEC_ONLY_TB
++#define TSPEC_ONLY_TB 0
++#endif
++constexpr uint64_t kWireChans = WIRE_CHANS_TB;
++//! The TSpec (IEEE 802.1Q-2018 35.2.2.8.4, FirstValue octets 16..19, Figure
++//! 35-2) of the DUT's own Talker Advertise attributes for one source. A
++//! vector's value n carries FirstValue's TSpec: incrementing FirstValue adds 1
++//! to the Unique ID and to the destination_address and to nothing else
++//! (35.2.2.8 a) and b)), so sources the DUT packs into one vector declare one
++//! TSpec, and a source whose TSpec differs needs a vector of its own.
++struct TspecSeen {
++    long values = 0;               // Talker Advertise values naming this source
++    long off_table = 0;            // ...whose TSpec is not this source's
++    uint64_t max_frame = kNever;   // the latest MaxFrameSize
++    uint64_t interval_frames = kNever;
++};
++    static constexpr int kSources = SOURCES_TB;
++    //! the CRF Media Clock Output is the last source (CRF_TUID_C = N_STREAMS)
++    static constexpr int kUidCrf = kSources - 1;
++    static constexpr uint16_t A_ADP_TALKER = 0x618;
++    std::array<uint64_t, kSources> listener_event{};
++    //! the longest AVTPDU of each kind on the wire: the header plus its
++    //! crf_data_length or stream_data_length (IEEE 1722-2016 10.4, 7.2)
++    uint64_t crf_avtpdu_max = 0;
++    uint64_t aaf_avtpdu_max = 0;
++    TspecSeen tspec[kSources];
++    static uint64_t table44_max_frame(int uid);
++    void on_dut_tspec(int uid, const std::vector<uint8_t>& first_value);
++    void phase_tspec_open();
++    void grade_tspec(bool wire);
++    if (subtype == 0x04 && f.size() >= avtp + 20) {
++        const uint64_t n = 20 + get_be(f, avtp + 16, 2);    // + crf_data_length
++        if (n > crf_avtpdu_max) crf_avtpdu_max = n;
++    } else if (subtype == 0x02 && f.size() >= avtp + 24) {
++        const uint64_t n = 24 + get_be(f, avtp + 20, 2);    // + stream_data_length
++        if (n > aaf_avtpdu_max) aaf_avtpdu_max = n;
++    }
++                if (sid >= kSidBase && sid < kSidBase + kSources) {
++                    on_dut_tspec(static_cast<int>(sid - kSidBase), v.first_value);
++                }
++    ck("ADP_TALKER[15:0] talker_stream_sources is this leg's source count",
++       axi_read(A_ADP_TALKER) & 0xFFFFu, kSources);
++    axi_write(A_MAAP_CTRL, (static_cast<uint32_t>(kSources) << 8) | 1u);   // MAAP on, one address per source
++// ============================================================================
++//  [TSPEC] #774: each source declares its own format's Table 4.4 TSpec
++// ============================================================================
++//! Milan v1.2 4.3.3.2 Table 4.4, the rows this device's formats are: "AAF
++//! PCM32, 48kHz, N channels" 24*N + 24 + 1 and "CRF, 1 ts/pdu" 28 + 1. The
++//! numbers are the table's, not the gateware's.
++uint64_t CrfLicenceHarness::table44_max_frame(int uid) {
++    return (uid == kUidCrf) ? 28 + 1 : 24 * kWireChans + 24 + 1;
++}
++void CrfLicenceHarness::on_dut_tspec(int uid, const std::vector<uint8_t>& first_value) {
++    if (corner_phase || first_value.size() < 20) return;   // [G]-[J] stage their own TSpecs
++    TspecSeen& t = tspec[uid];
++    t.values++;
++    t.max_frame = get_be(first_value, 16, 2);
++    t.interval_frames = get_be(first_value, 18, 2);
++    if (t.max_frame != table44_max_frame(uid) || t.interval_frames != 1) t.off_table++;
++}
++//! TSPEC_ONLY_TB's opening: every source probed once while KL_maap is still
++//! probing, so MAAP's grant opens each DA gate and the DUT declares; no
++//! listener retries and no switch Listener Ready, so nothing streams.
++void CrfLicenceHarness::phase_tspec_open() {
++    printf("[A] every source probed: MAAP grants and the DUT declares each one\n");
++    const uint64_t t0 = cyc;
++    for (int s = 0; s < kSources; s++) probe(s);
++    run_until(t0 + ms(3900));
++    ck("KL_maap reached ANNOUNCE (a block of one address per source is claimed)",
++       (axi_read(A_MAAP_STAT1) >> 2) & 1u, 1);
++    for (int s = 0; s < kSources; s++) {
++        printf("  -- source uid %d (%s)\n", s, s == kUidCrf ? "CRF Media Clock Output" : "AAF");
++        ck_true("...MAAP's grant opens the DA gate", declaring[s].first_rise != kNever);
++        ck_true("the DUT declares Talker Advertise on the wire", peer[s].ta_on_wire != kNever);
++    }
++}
++//! `wire`: the run carried this shape's streams, so each declaration is also
++//! graded against the AVTPDU on the wire (IEEE 802.1Q-2018 35.2.2.8.4 a):
++//! "the maximum frame size that the Talker will produce").
++void CrfLicenceHarness::grade_tspec(bool wire) {
++    printf("[TSPEC] #774: every source's Talker Advertise carries its own format's "
++           "Milan v1.2 Table 4.4 TSpec\n");
++    for (int s = 0; s < kSources; s++) {
++        const TspecSeen& t = tspec[s];
++        printf("  -- source uid %d (%s), %ld Talker Advertise values\n", s,
++               s == kUidCrf ? "CRF Media Clock Output, 1 ts/pdu" : "AAF PCM32 48 kHz",
++               t.values);
++        ck_true("a Talker Advertise value names this source", t.values > 0);
++        ck(s == kUidCrf ? "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
++                        : "AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1",
++           t.max_frame, table44_max_frame(s));
++        ck("TSpec MaxIntervalFrames is Table 4.4's 1", t.interval_frames, 1);
++        ck("every Talker Advertise for it carried that TSpec", static_cast<uint64_t>(t.off_table), 0);
++    }
++    if (!wire) return;
++    printf("  -- against the wire\n");
++    ck("the CRF MaxFrameSize is the emitted CRF AVTPDU plus one octet",
++       tspec[kUidCrf].max_frame, crf_avtpdu_max + 1);
++    ck("the AAF MaxFrameSize is the emitted AAF AVTPDU plus one octet",
++       tspec[kUidAaf].max_frame, aaf_avtpdu_max + 1);
++}
++    listener_event.fill(kNever);
++#if TSPEC_ONLY_TB
++    printf("=== #774 TSpec per source, %d talker sources, %llu wire channels, 1 ms = %llu cycles ===\n",
++           kSources, static_cast<unsigned long long>(kWireChans), static_cast<unsigned long long>(kMsCyc));
++    do_reset();
++    boot();
++    phase_tspec_open();
++    grade_tspec(false);
++    printf("[INV] over the whole run\n");
++    ck("no malformed DUT MRPDU", static_cast<uint64_t>(dut_malformed), 0);
++#else
++    grade_tspec(true);
++#endif
++* the Makefile hands the runner the fifteen legs of the recipe, in the recipe's
++#: the #658 leg dev 30e3c018 (PR #670) added, #637's two multi-port legs, and
++#: #774's per-source TSpec leg on the 8x8 shape.
++    ("---- #774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----",
++     "./obj_tspec8/Vmilan_dp_tspec8"),
++    """`make -n run`: the runner gets exactly the recipe's fifteen legs, in its
