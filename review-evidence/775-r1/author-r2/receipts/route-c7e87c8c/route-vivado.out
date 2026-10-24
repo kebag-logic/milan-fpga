@@ -1,0 +1,31 @@
+== LOCKED 2026-10-24T06:34:00Z MemAvailable 48334548 kB
+c7e87c8c87494f3444000b46954648ba1a94dcb8
+== VIVADO-START 2026-10-24T06:34:00Z MemAvailable 48263180 kB
+== VIVADO-END rc=0 2026-10-24T07:23:43Z MemAvailable 57592504 kB
+GATE route-1x1 rc=0
+endpoint route-1x1: <scratch>/route-c7e87c8c/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              51259       51313        54  ok
+FF               53208       53218        10  ok
+SLICE            15835       15833        -2  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns           0.236       0.141    -0.095  ok
+WHS_ns           0.028       0.019    -0.009  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT +112, FF +0
+  u_pp/u_aecp: LUT +109, FF +0
+  u_pp: LUT +102, FF +0
+  u_pp/u_aecp/u_dyn: LUT +60, FF +0
+  u_pp/u_srp/u_listener: LUT +35, FF +0
+  u_pp/u_srp: LUT +33, FF +0
+  u_pp/u_aecp/u_d3: LUT +31, FF +0
+  u_pp/u_listener: LUT -19, FF +0
+  u_pp/u_talker: LUT +19, FF +0
+  u_pp/u_notify: LUT -17, FF +0
+  u_nvm: LUT +14, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +8, FF +0
+RESULT: PASS
+== ROUTE-DONE 2026-10-24T07:23:43Z MemAvailable 57548936 kB

@@ -1,0 +1,5 @@
+  [FAIL] no mismatch across bad-format PDUs             got=3 exp=2
+  [FAIL] [UF2g] ...with no SEQ_NUM_MISMATCH             got=1 exp=0
+  [FAIL] [SQ1c] ...and its sequence_num is prev_seq     got=48 exp=49
+  [FAIL] [SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence got=1 exp=0
+  [FAIL] [SQ3c] ...one PDU lost from the off-format PDU's: no STREAM_INTERRUPTED got=1 exp=0
