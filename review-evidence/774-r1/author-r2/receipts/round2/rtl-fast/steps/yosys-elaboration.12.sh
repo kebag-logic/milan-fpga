@@ -1,0 +1,1 @@
+python3 syn/yosys/ooc_selftest.py

@@ -1,0 +1,1 @@
+behave --no-capture -f plain

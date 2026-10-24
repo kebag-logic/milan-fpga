@@ -1,0 +1,18 @@
+{
+ "cwd": "<lanes>/774-a665-shard1",
+ "head": "5f0d5bf931c87f3e6e3b813e042c64a61f9cb13e",
+ "base": "a032c6d6e3775f145349d5a495c1e1ad12294936",
+ "commands": [
+  [
+   "env",
+   "PATH=<tmp>/771-candidate-0923/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR_ROOT=<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<sweep>/shard-1/logs",
+   "--wait",
+   "--shard",
+   "1/4"
+  ]
+ ]
+}
