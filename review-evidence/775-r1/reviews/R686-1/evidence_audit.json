@@ -1,0 +1,45 @@
+{
+  "evidence_commit": "976fb2d33b358f41bbff082a69f76fba6b749a77",
+  "verified_published_receipts": 323,
+  "shards": [
+    {
+      "shard": 0,
+      "suites": 15,
+      "checks": 54074,
+      "rc": 0
+    },
+    {
+      "shard": 1,
+      "suites": 16,
+      "checks": 331530,
+      "rc": 0
+    },
+    {
+      "shard": 2,
+      "suites": 17,
+      "checks": 262066,
+      "rc": 0
+    },
+    {
+      "shard": 3,
+      "suites": 16,
+      "checks": 1541945,
+      "rc": 0
+    }
+  ],
+  "suites": 64,
+  "checks": 2189615,
+  "docs_initial_failed": [
+    "('docs-gates-1', 'gate_25_0')",
+    "('docs-gates-2', 'gate_25_1')"
+  ],
+  "docs_final_executed": 42,
+  "docs_final_rcs": [
+    0
+  ],
+  "docs_skips": [
+    "candidate host runner contract",
+    "strip git metadata step"
+  ],
+  "note": "Published hashes account for path redaction; original hash fields are not hashes of redacted bytes."
+}

@@ -1,0 +1,19 @@
+['make', '-j16', '-C', '$REVIEWS/r686-1-775/tb/verilator/avtp_rxmon', 'lockstep-build', 'LS_MDIR=$REVIEWS/775-r686-1-packet/scratch/lockstep', 'VERILATOR=$REVIEWS/775-r686-1-packet/scratch/bounded_simulator.py']
+make: Entering directory '$REVIEWS/r686-1-775/tb/verilator/avtp_rxmon'
+$REVIEWS/775-r686-1-packet/scratch/bounded_simulator.py --cc --exe --build -j 0 --top-module avtp_rxmon_lockstep_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir $REVIEWS/775-r686-1-packet/scratch/lockstep1 -GN_LISTENERS_P=1 \
+  -CFLAGS "-DN_TB=1 -Wall -Wextra" reference/KL_avtp_rx_monitor_ctx_ref.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv avtp_rxmon_lockstep_wrap.sv sim_lockstep.cpp -o Vavtp_rxmon_lockstep
+make[1]: Entering directory '$REVIEWS/775-r686-1-packet/scratch/lockstep1'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/775-r686-1-packet/scratch/lockstep1'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.014 s (elab=0.000, cvt=0.000, bld=0.013); cpu 0.001 s on 1 threads; allocated 16.496 MB
+$REVIEWS/775-r686-1-packet/scratch/bounded_simulator.py --cc --exe --build -j 0 --top-module avtp_rxmon_lockstep_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-CASEINCOMPLETE -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir $REVIEWS/775-r686-1-packet/scratch/lockstep8 -GN_LISTENERS_P=8 \
+  -CFLAGS "-DN_TB=8 -Wall -Wextra" reference/KL_avtp_rx_monitor_ctx_ref.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv avtp_rxmon_lockstep_wrap.sv sim_lockstep.cpp -o Vavtp_rxmon_lockstep
+make[1]: Entering directory '$REVIEWS/775-r686-1-packet/scratch/lockstep8'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/775-r686-1-packet/scratch/lockstep8'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.011 s (elab=0.000, cvt=0.000, bld=0.010); cpu 0.001 s on 1 threads; allocated 16.496 MB
+make: Leaving directory '$REVIEWS/r686-1-775/tb/verilator/avtp_rxmon'
