@@ -228,9 +228,11 @@ module KL_crf_tx #(
   localparam [15:0] CRF_IVAL_C   = 16'd96;
 
   //! CRF AVTPDU header ahead of crf_data, pdu[0..19] below (IEEE 1722-2016
-  //! 10.4: subtype through timestamp_interval)
+  //! 10.4: subtype through timestamp_interval). CRF_PDU_C widens
+  //! crf_data_length with a size cast, the form the BDD frame-size steps
+  //! resolve as plain arithmetic (#774).
   localparam int CRF_HDR_C   = 20;
-  localparam int CRF_PDU_C   = CRF_HDR_C + int'(CRF_DLEN_C);   //! AVTPDU octets, 28
+  localparam int CRF_PDU_C   = CRF_HDR_C + 32'(CRF_DLEN_C);    //! AVTPDU octets, 28
   localparam int ETH_HDR_C   = 14;                      //! DA + SA + EtherType
   localparam int VTAG_C      = 4;                        //! 802.1Q C-TAG (9.5)
   //! ONE frame length for BOTH shapes: the 802.3 minimum (60 + FCS = 64).
