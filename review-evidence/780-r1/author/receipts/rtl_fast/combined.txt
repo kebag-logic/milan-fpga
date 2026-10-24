@@ -1,0 +1,14 @@
+head 25f05752f7e50e3cf7e27008e434ffde930b4b6f; changes rtl=true (run 1: true)
+success  changes                    run 2  2 steps run,    19.4 s
+success  verilator-lint             run 1  4 steps run,    21.0 s
+success  bdd-conformance            run 1  4 steps run,     2.5 s
+success  yosys-elaboration          run 1  7 steps run,   692.7 s
+success  publication-census         run 1  4 steps run,   775.3 s
+success  firmware-unit              run 2  8 steps run,   625.3 s
+success  firmware-control-mutants   run 2  5 steps run,   948.6 s
+success  firmware-aecp-mutants      run 2  5 steps run,   202.7 s
+success  firmware-srp-mutants       run 2  5 steps run,   725.5 s
+success  firmware-boundary          run 2  5 steps run,   898.0 s
+success  firmware-verilator         run 2  6 steps run,   576.1 s
+rtl-fast needs: 11 jobs, 11 success, failed: none
+rc=0

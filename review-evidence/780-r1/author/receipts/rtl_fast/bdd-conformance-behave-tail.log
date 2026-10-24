@@ -1,0 +1,26 @@
+er checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "listener-declaration-present" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about dmac -- @1.1 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire dmac differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-dmac-matches-wire" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about vid -- @1.2 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire vid differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-vid-matches-wire" ... passed in 0.000s
+
+  Scenario: a capture with no MRP frames says the tap is what is missing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire with no MRP frames captured at all ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+14 features passed, 0 failed, 0 skipped
+406 scenarios passed, 0 failed, 0 skipped
+1977 steps passed, 0 failed, 0 skipped
+Took 0min 1.179s
