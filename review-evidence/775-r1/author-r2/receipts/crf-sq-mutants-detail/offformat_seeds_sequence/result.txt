@@ -1,0 +1,9 @@
+build rc=0 run rc=1
+named check required: [SQ-d1] an AAF PDU first in an era seeds no SEQ_NUM_MISMATCH
+named check failed: True
+4 named failures, 1972 per-PDU replica-compare failures
+[FAIL] seq skip: ONE interval tick                    got=2 exp=1
+[FAIL] clean resume: seq_err holds at 1               got=2 exp=1
+[FAIL] [SQ-d1] an AAF PDU first in an era seeds no SEQ_NUM_MISMATCH got=1 exp=0
+[FAIL] [SQ-d2] ...nor a STREAM_INTERRUPTED            got=1 exp=0
+KL_crf_rx: 15714 checks, 1976 failures (1190 accepted PDUs pinned)

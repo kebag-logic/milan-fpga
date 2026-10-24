@@ -1,0 +1,6 @@
+[A666] TAKEN
+Branch: 775-offformat-seq-advance (from dev a032c6d6)
+Authoritative references: Milan v1.2 Table 5.6 (SEQ_NUM_MISMATCH, UNSUPPORTED_FORMAT), 4.4.2.2; #765 / PR #769; the [A10] assignment on this issue.
+Interpreted scope: a discarded off-format Stream Data AVTPDU advances the input's sequence state exactly as an accepted PDU would, and nothing else: on an AAF input (KL_avtp_rx_monitor_ctx.sv, the !fmt_ok_w branch) prev_seq takes the PDU's sequence_num, with no lock, settle, mr, timestamp or presentation effect; on the CRF input (KL_crf_rx.sv, the rejected branch) exp_seq_r becomes sequence_num + 1, with have_seq_r (first-PDU seeding) unchanged. Self-checking tests plant one off-format PDU mid-stream on each input (another channel count on AAF, an AAF PDU on the CRF input) and assert UNSUPPORTED_FORMAT +1 and SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE_TIMESTAMP, EARLY_TIMESTAMP unchanged over the following observation intervals; a real gap after the off-format PDU still counts; a planted control that drops the advance fails.
+Validation plan: avtp_rxmon and crf_rx suites with their mutant drivers; full sweep as 4 shards; Yosys; lint; docs gates under make 4.3; route-1x1 against the current record (STOP above +5 slices).
+Blockers: none
