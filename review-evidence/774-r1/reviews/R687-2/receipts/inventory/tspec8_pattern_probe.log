@@ -1,0 +1,9 @@
+Vmilan_dp_crflic forms: 1 words: [123]
+Vmilan_dp_tspec8 forms: 1 words: [124]
+== crflic -> tspec8 word diff
+  replace ['+incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8'] -> ['+incdir+../../../configs/generated/endstation_ax7101_8x8']
+  replace ['obj_crflic'] -> ['obj_tspec8', '-GN_STREAMS=8']
+  replace ['-DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -DWIRE_CHANS_TB=8 -Wall -Wextra'] -> ['<runtime>']
+  replace ['Vmilan_dp_crflic'] -> ['Vmilan_dp_tspec8']
+Makefile SRCS words (unexpanded): 61
+rc=0
