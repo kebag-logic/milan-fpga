@@ -1,0 +1,19 @@
+{
+  "standards": [
+    {
+      "file": "1722-2016.pdf",
+      "sha256": "ba20762d444e6f7795ffc000bcaf6144e9618eff81cadd867863ed58000f8a8c"
+    },
+    {
+      "file": "Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf",
+      "sha256": "6bb902be1c1de8c44f4c4c583a645b0b37e0b2dac27870486ce229e68ce3bba8"
+    }
+  ],
+  "clauses": [
+    "IEEE 1722-2016 4.3.3, Equation (1), ownership transfer to network interface, Tsamples=0 for first sample",
+    "IEEE 1722-2016 10.7, Equation (14), whole-period round-up and TC",
+    "Milan v1.2 5.3.7.6, crossing estimate, fixed delay 0..125 us, configured offset",
+    "Milan v1.2 4.4.2.1, received-sample buffering 2.126 ms"
+  ],
+  "conclusion": "The derived MAC egress corner does not establish a violation at ownership transfer. Network transit after ownership transfer remains in the stream latency budget; arbitrary backpressure that prevents ownership transfer is not exempt."
+}

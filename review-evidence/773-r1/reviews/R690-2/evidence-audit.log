@@ -1,0 +1,22 @@
+Published evidence commit: 1faf10a1331f93451a6aa4e43956a51de6ab4da3
+Git signature status: N (N means unsigned)
+Verified published SHA-256 hashes: 46
+Hashes verify published bytes, including declared path redactions; no signer attestation is asserted.
+Shard 0: head/tree bound, command --shard 0/4, rc 0, 15/15, 55301 checks; tracked changes: 2
+Shard 1: head/tree bound, command --shard 1/4, rc 0, 16/16, 331530 checks; tracked changes: 0
+Shard 2: head/tree bound, command --shard 2/4, rc 0, 17/17, 262473 checks; tracked changes: 0
+Shard 3: head/tree bound, command --shard 3/4, rc 0, 16/16, 1541583 checks; tracked changes: 0
+PASS: 64/64 unique suites equal current --list; 2190887 checks, zero reported in-suite failures
+Shard 0 post-run count is 2. The driver documents regeneration of two TEST_RESULTS files; the receipt does not identify its changed paths. This is a provenance limit, not evidence of an RTL change.
+PASS: behave 406/406 and lint rc 0 at the requested head
+Docs receipt rc distribution: {'0': 41, '128': 1, 'None': 2}
+Docs initial gate_8 rc 128 is explicitly superseded by the direct-base receipt:
+head 1b47a3dcff0cb65cb5cebe1f86327429a76f775d; base = merge-base HEAD origin/dev = a032c6d6e3775f145349d5a495c1e1ad12294936 (the docs workflow's gate_8 body computes merge-base HEAD FETCH_HEAD after git fetch origin dev; a clone of the lane has no dev branch to fetch, so the check runs here directly with that base)
+Python 3.12.13
+$ python3 scripts/check_em_dash.py --base a032c6d6e3775f145349d5a495c1e1ad12294936   (python3 = the CPython 3.12.13 venv with tools/markdown/requirements.txt)
+check_em_dash: 0 finding(s) over 198 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [a032c6d6..HEAD]
+rc=0
+
+PASS: three named docs gates rc 0; GNU Make 4.3 recorded
+PASS: exact comment-stripped equality; only two documentation pages and that comment changed
+Non-comment SHA-256: ed9cf292a2d8796e83ba635c56b0b5fe90de484afa926f5fede1cbab9b148dba

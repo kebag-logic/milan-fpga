@@ -1,0 +1,12 @@
+head 1b47a3dcff0cb65cb5cebe1f86327429a76f775d tree f608aefd73bbc007624782653182d0a6f85c8825
+Python 3.12.13
+GNU Make 4.3
+$ python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 210 md files + 1418 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+$ python3 scripts/check_doc_style.py
+documentation style: OK (23 current documents)
+rc=0
+$ python3 scripts/gen_toc.py --check
+TOC gate: OK (149 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0

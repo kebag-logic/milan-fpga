@@ -1,0 +1,23 @@
+Parent reviewed head: 13d8f1e84920aac1dc3e76fb6406c44a744d8145
+Requested head: 1b47a3dcff0cb65cb5cebe1f86327429a76f775d
+Executable-source delta contains only the domain-event header comment.
+No bench-lane labels, reviewer IDs, review-round identifiers, or issue-comment IDs occur in these added source-comment lines.
+diff --git a/hdl/ieee1722/crf/KL_media_domain_event.sv b/hdl/ieee1722/crf/KL_media_domain_event.sv
+index beaad8f41..ca5782595 100644
+--- a/hdl/ieee1722/crf/KL_media_domain_event.sv
++++ b/hdl/ieee1722/crf/KL_media_domain_event.sv
+@@ -26,9 +26,11 @@
+                 with the frame itself), so both
+                 outputs are stamped from one grid's instants (IEEE 1722-2016
+                 4.3.5), on the followed stream's timing points once the servo
+-                holds the phase (10.8 Eq. 15): the CRF output adds its offset
+-                rounded to whole periods (10.7 Eq. 14), an AAF talker its
+-                offset as set (Milan v1.2 5.4.2.9, #632).
++                holds the phase (10.8 Eq. 15): the CRF output adds Equation
++                (14)'s TC and its offset rounded to whole periods (10.7 Eq.
++                14), an AAF talker its crossing estimate and fixed delay
++                (whole periods, #773) and its offset as set (Milan v1.2
++                5.4.2.9, #632).
+ 
+                 WHAT IT OBSERVES. The domain's frame-timing owner closes each
+                 frame with a marker in this clock domain: the strobe of the
