@@ -1,0 +1,21 @@
+endpoint ooc-1x1: <scratch>/viv-e70a99ba/w1/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              23828       23847        19  ok
+FF               20000       20000         0  ok
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp/u_aecp/u_d3: LUT +142, FF +0
+  u_pp/u_adp: LUT +22, FF +0
+  u_pp: LUT +19, FF +0
+  wrapper: LUT +19, FF +0
+  u_pp/u_dispatch: LUT -18, FF +0
+  u_pp/u_talker: LUT +16, FF +0
+  u_pp/u_tx_arbiter: LUT -16, FF +0
+  u_pp/u_aecp/u_resp: LUT -12, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT -11, FF +0
+  u_pp/u_tx_slots: LUT +9, FF +0
+  u_pp/u_aecp: LUT +7, FF +0
+  u_pp/u_aecp/u_ucpu: LUT -7, FF +0
+RESULT: PASS

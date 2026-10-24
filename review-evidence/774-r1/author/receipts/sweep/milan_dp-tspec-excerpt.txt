@@ -1,0 +1,64 @@
+8125: === obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = 100 cycles ===
+8263: [TSPEC] #774: every source's Talker Advertise carries its own format's Milan v1.2 Table 4.4 TSpec
+8264:   -- source uid 0 (AAF PCM32 48 kHz), 27 Talker Advertise values
+8265:   [PASS] a Talker Advertise value names this source
+8266:   [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+8267:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8268:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8269:   -- source uid 1 (CRF Media Clock Output, 1 ts/pdu), 102 Talker Advertise values
+8270:   [PASS] a Talker Advertise value names this source
+8271:   [PASS] CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1            got=29 exp=29
+8272:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8273:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8274:   -- against the wire
+8275:   [PASS] the CRF MaxFrameSize is the emitted CRF AVTPDU plus one octet      got=29 exp=29
+8276:   [PASS] the AAF MaxFrameSize is the emitted AAF AVTPDU plus one octet      got=217 exp=217
+8700: ---- #774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----
+8702: === #774 TSpec per source, 9 talker sources, 8 wire channels, 1 ms = 100 cycles ===
+8759: [TSPEC] #774: every source's Talker Advertise carries its own format's Milan v1.2 Table 4.4 TSpec
+8760:   -- source uid 0 (AAF PCM32 48 kHz), 4 Talker Advertise values
+8761:   [PASS] a Talker Advertise value names this source
+8762:   [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+8763:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8764:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8765:   -- source uid 1 (AAF PCM32 48 kHz), 4 Talker Advertise values
+8766:   [PASS] a Talker Advertise value names this source
+8767:   [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+8768:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8769:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8770:   -- source uid 2 (AAF PCM32 48 kHz), 4 Talker Advertise values
+8771:   [PASS] a Talker Advertise value names this source
+8772:   [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+8773:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8774:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8775:   -- source uid 3 (AAF PCM32 48 kHz), 4 Talker Advertise values
+8776:   [PASS] a Talker Advertise value names this source
+8777:   [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+8778:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8779:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8780:   -- source uid 4 (AAF PCM32 48 kHz), 4 Talker Advertise values
+8781:   [PASS] a Talker Advertise value names this source
+8782:   [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+8783:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8784:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8785:   -- source uid 5 (AAF PCM32 48 kHz), 4 Talker Advertise values
+8786:   [PASS] a Talker Advertise value names this source
+8787:   [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+8788:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8789:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8790:   -- source uid 6 (AAF PCM32 48 kHz), 4 Talker Advertise values
+8791:   [PASS] a Talker Advertise value names this source
+8792:   [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+8793:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8794:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8795:   -- source uid 7 (AAF PCM32 48 kHz), 4 Talker Advertise values
+8796:   [PASS] a Talker Advertise value names this source
+8797:   [PASS] AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1     got=217 exp=217
+8798:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8799:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8800:   -- source uid 8 (CRF Media Clock Output, 1 ts/pdu), 4 Talker Advertise values
+8801:   [PASS] a Talker Advertise value names this source
+8802:   [PASS] CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1            got=29 exp=29
+8803:   [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+8804:   [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+8701: ./obj_tspec8/Vmilan_dp_tspec8

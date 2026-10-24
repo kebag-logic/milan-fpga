@@ -1,0 +1,6 @@
+[A665] TAKEN
+Branch: 774-crf-tspec-max-frame (from dev a032c6d6)
+Authoritative references: Milan v1.2 4.3.3.2 Table 4.4 (AAF PCM32 48 kHz 24*N + 24 + 1; CRF 1 ts/pdu 28 + 1); IEEE 802.1Q-2018 35.2.2.8.4 a); protocol-processor PR #194 per-source `cfg_tspec_max_frame_i[N_STREAM_OUT_P*16-1:0]` (pin 93fb0b2d); assignment https://github.com/kebag-logic/milan-fpga/issues/774#issuecomment-6379902807
+Interpreted scope: widen `KL_pp_shadow.cfg_tspec_max_frame_i` to one 16-bit MaxFrameSize per stream output and pass it straight to the processor; in `milan_datapath.sv` drive AAF slot t from that talker's own TSpec geometry (24 x channels + 24 + 1, the existing tctx_maxf_w derivation) and the CRF Media Clock Output slot from the CRF framer's PDU shape (20-octet CRF header + 8 x timestamps per PDU + 1 = 29), no literal; drop the "scratch only" comment. Prove the declared MaxFrameSize of every source on the DUT's own MSRP Talker Advertise in milan_dp at the AX 1x1 TDM8 and AX 8x8 shapes, with a planted control that copies talker 0's value to every slot and must fail.
+Validation plan: the touched milan_dp legs and their planted control; the full sweep as 4 shard units; Yosys; lint; the docs gates under make 4.3; route-1x1, ooc-1x1 and ooc-8x8 checked against the eleventh record, one Vivado run at a time.
+Blockers: none
