@@ -32,7 +32,8 @@ planted engine beside the planted reference (`make lockstep-build` with
 RXMON_SRC, REF_SRC and LS_MDIR overridden). The arm is caught when the N=4
 stack fails its named [SQ] check. The lockstep compare cannot see a defect
 in both copies, so its result on the pair is printed as measured and does
-not decide the arm.
+not decide the arm; it is printed as checks/failures pairs, which the sweep's
+tally does not count as checks of the shipping tree.
 
 What bounds a run: the harness is cycle-bounded by construction, as the
 lockstep arm's docstring states, and the host-time bound is the sweep's
@@ -42,6 +43,7 @@ Usage: make -C tb/verilator/avtp_rxmon   (or python3 format_mutants.py from ther
 Exit 0 = every mutant was caught and the clean harness still passes.
 """
 
+import re
 import signal
 import subprocess
 import sys
@@ -98,6 +100,8 @@ MUTATIONS = [
 #: BUNDLE stands for each one's PDU bundle (cur_w, cur_r)
 REJECT_WB = "            monst_r <= {ram_q_r[31:8], BUNDLE.seq};"
 BUNDLES = ("cur_w", "cur_r")
+#: the lockstep harness's own tally line, one per shape
+LS_TALLY = re.compile(r"lockstep N=(\d+): checks:\s*(\d+)\s+failures:\s*(\d+)")
 
 # (name, the reject write-back's replacement, the check it must fail): the
 # defect in both copies
@@ -208,9 +212,12 @@ def run_pair(src: str, ref: str, mutation: tuple[str, str, str], work: Path) -> 
         print("    lockstep on the planted pair, as measured: did not compile")
         return False
     rc, out = run_lockstep(exes)
-    tallies = [line.strip() for line in out.splitlines() if "checks:" in line]
-    print(f"    lockstep on the planted pair, as measured: rc {rc}, "
-          f"{verdict(rc, out, None)}; {'; '.join(tallies)}")
+    # Restated as checks/failures pairs: the sweep's tally (scripts/suite_tally.py)
+    # reads a harness tally on any line of this log, and a mutant pair's run is
+    # neither a check of the shipping tree nor a verdict on this arm.
+    shapes = ", ".join(f"N={n} {c}/{f}" for n, c, f in LS_TALLY.findall(out)) or "no tally"
+    print(f"    lockstep on the planted pair, as measured and not graded: rc {rc}, "
+          f"{shapes} (checks/failures)")
     return caught
 
 
