@@ -17,9 +17,10 @@
                 8-PDU settle / mismatch detect + interrupt(lost>=2) /
                 100 ms silence unlock + interrupt (#762) / per-PDU format
                 compare (a rejected
-                PDU advances the sequence state and affects nothing
-                else, #775) / counter reset ONLY on that
-                stream's not-bound->bound edge [M-5.3.8.10].
+                PDU affects nothing else) / counter reset ONLY on that
+                stream's not-bound->bound edge [M-5.3.8.10]. Here, unlike
+                there, a rejected PDU advances the sequence state and
+                affects nothing else (#775).
 
                 COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly:
 
@@ -93,9 +94,10 @@
                 flat instrument counts FRAMES (the flat module keeps the
                 1722.1 per-frame reading on purpose - TBs use it as a
                 frame-accurate loop-integrity probe); the flat module does
-                not count a silence as STREAM_INTERRUPTED (#762), and it
-                does not compare the channel count with the current format
-                (#765). Wire bytes are unchanged, and so are the accept
+                not count a silence as STREAM_INTERRUPTED (#762), it does
+                not compare the channel count with the current format
+                (#765), and its format reject does not advance prev_seq
+                (#775). Wire bytes are unchanged, and so are the accept
                 verdicts for a PDU carrying the current format's count.
 
   Company     : Kebag Logic
