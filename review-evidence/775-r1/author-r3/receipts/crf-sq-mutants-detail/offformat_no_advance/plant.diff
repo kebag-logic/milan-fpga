@@ -1,0 +1,10 @@
+--- <clone>-gates/hdl/ieee1722/crf/KL_crf_rx.sv	2026-10-24 07:07:18.355893804 +0200
++++ <out>/receipts/crf-sq-mutants-detail/offformat_no_advance/offformat_no_advance.sv	2026-10-24 08:14:37.660830363 +0200
+@@ -604,7 +604,6 @@
+           //! sequence_num advances the cursor as an accepted PDU's does and
+           //! the next in-order PDU is no SEQ_NUM_MISMATCH (#775). have_seq_r
+           //! is left alone: only an accepted PDU seeds the sequence
+-          exp_seq_r <= seq_i + 8'd1;
+         end else begin
+           //! SEQ_NUM_MISMATCH commits at the interval tick; FRAMES_RX
+           //! counts this accepted PDU above. A discontinuity breaks the

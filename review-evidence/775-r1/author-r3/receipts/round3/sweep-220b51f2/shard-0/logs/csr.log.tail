@@ -1,0 +1,200 @@
+  [ok]   CRFT_SIDLO readback        = 0x10001
+  [ok]   CRFT_SIDHI readback        = 0x2000000
+  [ok]   CRFT_DMLO readback         = 0xf0002a07
+  [ok]   CRFT_DMHI readback         = 0x91e0
+  [ok]   o_crft_en                  = 0x1
+  [ok]   o_crft_sid                 = 0x200000000010001
+  [ok]   o_crft_dest_mac            = 0x91e0f0002a07
+  [ok]   CRFT_COUNT live            = 0x4d2
+-- ACMP bind-restore group (0x7A0, E1) --
+  [ok]   REST_TKLO probe pattern    = 0xa5c35a3c
+  [ok]   REST_TKHI rw               = 0x2000000
+  [ok]   REST_META rw               = 0x20005
+  [ok]   REST_CTLO rw               = 0xfe0000aa
+  [ok]   REST_CTHI rw               = 0x68050000
+  [ok]   REST_CMD idle              = 0x0
+  [ok]   rest req held              = 0x1
+  [ok]   rest idx                   = 0x0
+  [ok]   rest talker                = 0x2000000fe000001
+  [ok]   rest tuid (META[15:0])     = 0x5
+  [ok]   rest ctlr                  = 0x68050000fe0000aa
+  [ok]   rest flags (CMD[23:8])     = 0x8
+  [ok]   CMD busy readback          = 0x1
+  [ok]   rest req dropped           = 0x0
+  [ok]   CMD done                   = 0x1
+  [ok]   CMD not busy               = 0x0
+  [ok]   CMD status 0 (injected)    = 0x0
+  [ok]   CMD refused status 1       = 0x1
+  [ok]   CMD done after refusal     = 0x1
+  [ok]   no-commit write inert      = 0x0
+-- 0x800 window: SEL decode + out-of-range rule (N=1) --
+  [ok]   SEL reset                  = 0x0
+  [ok]   SEL stores {dir,idx} only  = 0x10f
+  [ok]   oor CTRL reads 0           = 0x0
+  [ok]   oor SID_LO reads 0         = 0x0
+  [ok]   oor SRP reads 0            = 0x0
+  [ok]   oor write left AAF_CTRL alone = 0x0
+  [ok]   oor SNAP busy clears       = 0x0
+  [ok]   oor SNAP CNT0 zero         = 0x0
+-- window idx0 dir=talker: hard aliases of the flat AAF regs --
+  [ok]   win CTRL == AAF_CTRL[0]    = 0x1
+  [ok]   win DMAC_LO == AAF_DMLO    = 0xf000fe01
+  [ok]   win DMAC_HI == AAF_DMHI[15:0] = 0x91e0
+  [ok]   win CTRL wrote AAF_CTRL[0]=0 = 0x20002
+  [ok]   o_aaf_enable follows       = 0x0
+  [ok]   CTRL merge keeps VID/bypass = 0x20003
+  [ok]   win DMAC_LO write -> flat 0x658 = 0xf000ab01
+  [ok]   o_aaf_dest_mac follows     = 0x91e0f000ab01
+  [ok]   win SID_HI = mac[47:16]    = 0x112233
+  [ok]   win SID_LO = {mac[15:0],0} = 0x44550000
+-- window idx0 talker SNAP: PDUS/STATE flat latch --
+  [ok]   SNAP busy clears           = 0x0
+  [ok]   talker PDUS = AAF_FRAMES   = 0xcafe0001
+  [ok]   talker STATE pack          = 0xff80009
+  [ok]   talker CNT0 poison (not-backed rule 2026-07-26) = 0xdeaddead
+  [ok]   PDUS frozen until next SNAP = 0xcafe0001
+-- window idx0 dir=listener: FULL-WIDTH Table 7-157 counters --
+  [ok]   CNT0 MEDIA_LOCKED          = 0x103
+  [ok]   CNT1 MEDIA_UNLOCKED        = 0x1204
+  [ok]   CNT2 STREAM_INTERRUPTED    = 0x34005
+  [ok]   CNT3 SEQ_NUM_MISMATCH      = 0x1c943
+  [ok]   CNT4 MEDIA_RESET           = 0x42
+  [ok]   CNT5 TIMESTAMP_UNCERTAIN   = 0x903
+  [ok]   CNT6 UNSUPPORTED_FORMAT    = 0x2002
+  [ok]   CNT7 LATE_TS               = 0x77
+  [ok]   CNT8 EARLY_TS              = 0x88
+  [ok]   CNT9 FRAMES_RX = 0x6BC     = 0x1e240
+  [ok]   window CNT3 exceeds the 16-bit packed field = 0x1
+  [ok]   PDUS = PCMRX_CNT (0x6C4)   = 0x20064
+  [ok]   listener STATE pack        = 0xaa804f6
+  [ok]   win CNT9 == flat 0x6BC     = 0x1e240
+  [ok]   win PDUS == flat 0x6C4     = 0x20064
+  [ok]   win SRP  == flat 0x694     = 0x155
+  [ok]   listener SID_LO 0 (tbl tied) = 0x0
+  [ok]   listener DMAC_LO 0 (tbl tied) = 0x0
+  [ok]   listener CTRL 0 (LCTX tied) = 0x0
+  [ok]   listener FMT_LO 0 (LCTX tied) = 0x0
+-- RX parser probe (0x8B4-0x8C4) --
+  [ok]   APRB frames parsed 0x8B4   = 0x1234
+  [ok]   APRB frames matched 0x8B8  = 0xfe
+  [ok]   APRB last SID_LO 0x8BC     = 0x20000
+  [ok]   APRB last SID_HI 0x8C0     = 0x2000000
+  [ok]   APRB info 0x8C4            = 0x8021a
+  [ok]   APRB word 0 live           = 0xa5a50000
+  [ok]   APRB word 4 live           = 0xa5a50004
+-- reserved inert CSR gap (0x8C8-0x8D0) --
+  [ok]   reserved gap 0x8C8 reads 0 = 0x0
+  [ok]   reserved gap 0x8CC reads 0 = 0x0
+  [ok]   reserved gap 0x8D0 reads 0 = 0x0
+  [ok]   0x8E8 above AAFM_RATE is unmapped, reads 0 = 0x0
+  [ok]   0x8F4 below the servo is unmapped, reads 0 = 0x0
+  [ok]   reserved gap 0x8C8 ignores writes = 0x0
+  [ok]   reserved gap 0x8CC ignores writes = 0x0
+  [ok]   reserved gap 0x8D0 ignores writes = 0x0
+-- media-boundary slip counters (0x8D4/0x8D8) --
+  [ok]   SLIP_LB reads 0 with no slips (taps at zero) = 0x0
+  [ok]   SLIP_TDM reads 0 with no slips (taps at zero) = 0x0
+  [ok]   SLIP_LB follows its tap {skip16, dup16} = 0x30001
+  [ok]   SLIP_TDM follows its tap {skip16, dup16} = 0x20004
+  [ok]   SLIP_LB saturated tap reads back = 0xffffffff
+  [ok]   SLIP_TDM unaffected by the other word = 0x20004
+  [ok]   SLIP_LB ignores writes     = 0xffffffff
+  [ok]   SLIP_TDM ignores writes    = 0x20004
+  [ok]   SLIP_LB back to 0 with the tap = 0x0
+-- RENDER_STAT (0x8DC) --
+  [ok]   RENDER_STAT explicit absent-source tie reads zero = 0x0
+  [ok]   RENDER_STAT driven prefill reset word = 0x100
+  [ok]   RENDER_STAT selected listener preserves all fields = 0xa5c30216
+  [ok]   RENDER_STAT ignores writes = 0xa5c30216
+  [ok]   RENDER_STAT talker selection reads zero = 0x0
+  [ok]   RENDER_STAT out-of-range listener reads zero = 0x0
+  [ok]   RENDER_STAT full-width saturated rails stay live = 0xffff0100
+  [ok]   RENDER_STAT restored absent-source tie reads zero = 0x0
+-- AAFM_STAT / AAFM_RATE (0x8E0 / 0x8E4) --
+  [ok]   AAFM_STAT absent-meter tie reads zero = 0x0
+  [ok]   AAFM_RATE absent-meter tie reads zero = 0x0
+  [ok]   AAFM_STAT reads every field of its input = 0xfa02317
+  [ok]   AAFM_RATE reads its signed input = 0xffffea00
+  [ok]   AAFM_STAT ignores writes   = 0xfa02317
+  [ok]   AAFM_RATE ignores writes   = 0xffffea00
+  [ok]   0x8E8 above the pair ignores writes = 0x0
+  [ok]   AAFM_STAT follows its input live = 0x0
+  [ok]   mac03 auto: speed=1000 -> is_1g = 0x1
+  [ok]   mac03 auto: speed=100 -> !is_1g = 0x0
+  [ok]   mac03 auto: speed=10 -> !is_1g = 0x0
+  [ok]   mac03 MAC_STATUS speed tracks = 0x1
+  [ok]   mac03 manual=1,is_1g=1 beats speed=100 = 0x1
+  [ok]   mac03 manual=1,is_1g=0 beats speed=1000 = 0x0
+  [ok]   mac03 auto ignores MAC_CTRL[4]=1 = 0x0
+  [ok]   mac03 auto ignores MAC_CTRL[4]=0 = 0x1
+  [PASS] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)
+-- chmap readback NEGATIVE control: no port in this build --
+  [ok]   CHMAP_LOOP un-armed is POISON not 0 = 0xdeaddead
+  [ok]   CHMAP_SNAP tag 0xC5 (feature probe) = 0xc5
+  [ok]   CHMAP_SNAP cap = 0 (port absent) = 0x0
+  [ok]   CHMAP_SNAP armed = 0 at reset = 0x0
+  [ok]   CHMAP_SNAP busy = 0 at reset = 0x0
+  [ok]   CHMAP_SNAP valid = 0 at reset = 0x0
+  [ok]   0x918 still reserved-reads-0 = 0x0
+  [ok]   refused arm: unsup = 1     = 0x1
+  [ok]   refused arm: valid = 0     = 0x0
+  [ok]   refused arm: busy = 0      = 0x0
+  [ok]   refused arm: timeout = 0   = 0x0
+  [ok]   refused arm: armed = 1     = 0x1
+  [ok]   refused arm latched {side,idx} = 0x45
+  [ok]   no fabric request was issued = 0x0
+  [ok]   CHMAP_LOOP still POISON after a refused arm = 0xdeaddead
+  [PASS] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0
+-- 0x7DC AS_PATH addresses are inert without a fabric owner --
+  [ok]   ASP LO reset zero          = 0x0
+  [ok]   ASP HI reset zero          = 0x0
+  [ok]   ASP {gen,count} reset zero = 0x0
+  [ok]   ASP public count reset zero = 0x0
+  [ok]   ASP public generation reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP LO write reads zero    = 0x0
+  [ok]   ASP HI write reads zero    = 0x0
+  [ok]   ASP CMD write reads zero   = 0x0
+  [ok]   ASP writes cannot publish a count = 0x0
+  [ok]   ASP writes cannot spend a generation = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [PASS] #116: software writes cannot manufacture an AS_PATH owner
+--------------------------------------------------------------
+  [ok]   0x7E8 plane-OFF zero       = 0x0
+  [ok]   0x7EC plane-OFF zero       = 0x0
+  [ok]   0x7F0 plane-OFF zero       = 0x0
+  [ok]   0x7F0 write is inert       = 0x0
+checks: 408   failures: 0
+RESULT: PASS
+make[1]: Leaving directory '<clone>-shard0/tb/verilator/csr'
+python3 lock_mutants.py
+[PASS] the unmutated block still passes the lockstep leg
+[PASS] mutant caught (lock1): wrong address decode: IRQ_RAW's live word answers at IRQ_MASK - fails "decode"
+    it failed reset-values, decode, lockstep
+[PASS] mutant caught (lock1): torn snapshot: window CNT3 reads its live counter, not the SNAP word - fails "snapshot-coherence"
+    it failed snapshot-coherence, lockstep
+[PASS] mutant caught (lock1): stale snapshot: a listener SNAP after a talker SNAP keeps the POISON kind - fails "snapshot-freshness"
+    it failed decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock8): stale snapshot: an extra listener's burst word keeps its previous kind - fails "snapshot-freshness"
+    it failed decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock1): reset-value drift: the CNT kinds reset to POISON instead of zero - fails "reset-values"
+    it failed reset-values, lockstep
+[PASS] mutant caught (lock1): stage 1: the shadow word is not zeroed under a live or window claim - fails "decode"
+    it failed reset-values, decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock1): stage 1: the window's range leaf answers 0 instead of the window's word - fails "decode"
+    it failed reset-values, decode, snapshot-coherence, snapshot-freshness, lockstep
+
+8 checks: 8 PASS, 0 FAIL
+make: Leaving directory '<clone>-shard0/tb/verilator/csr'

@@ -1,0 +1,6 @@
+Reviewer probe scripts run in round 2, from the archived packet: branch 775-review-evidence at 0fae932be93f98ebc4dfebe706ad7f99b6008871, review-evidence/775-r1/reviews/R685-1/scripts/
+c6924f68f9cdee46aa10f5c29c665bb15041bf34569f1415d6b3e6484d70071a  probe_lock_settle.py
+85486c476d910901bdd5a2500e81a7b97ee844cefb2d7502390f496523a3f488  probe_mutants.py
+run as: python3 -I <packet>/scripts/probe_lock_settle.py <clone at c2a080ae> <work> <out>
+        python3 -I <packet>/scripts/probe_mutants.py <clone at c2a080ae> <work> <out> 8
+with the pinned Verilator 5.050 first on PATH; the clone's git status --porcelain was empty after both

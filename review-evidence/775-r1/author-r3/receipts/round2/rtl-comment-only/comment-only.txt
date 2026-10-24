@@ -1,0 +1,45 @@
+file: hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+c7e87c8c blob 9bf0e7c02ee8f49a810f052841c2202ece71255e
+c2a080ae blob 7281eea68ff850fb333d853371b0a761dd1887d8
+verilator: Verilator 5.050 2026-07-01 rev v5.050
+command: verilator -E -P <file> | grep -v '^\s*$'   (comments stripped, blank lines dropped)
+before.pp sha256 026a45f41d0e12df857d1a12ea1e4333945cf6d291777731d1d06321815dc700 lines 804
+after.pp  sha256 026a45f41d0e12df857d1a12ea1e4333945cf6d291777731d1d06321815dc700 lines 804
+RESULT: identical after comment stripping
+
+git diff --stat c7e87c8c c2a080ae -- hdl/ syn/ configs/ third_party/ sw/:
+ hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+index 9bf0e7c02..7281eea68 100644
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -17,9 +17,10 @@
+                 8-PDU settle / mismatch detect + interrupt(lost>=2) /
+                 100 ms silence unlock + interrupt (#762) / per-PDU format
+                 compare (a rejected
+-                PDU advances the sequence state and affects nothing
+-                else, #775) / counter reset ONLY on that
+-                stream's not-bound->bound edge [M-5.3.8.10].
++                PDU affects nothing else) / counter reset ONLY on that
++                stream's not-bound->bound edge [M-5.3.8.10]. Here, unlike
++                there, a rejected PDU advances the sequence state and
++                affects nothing else (#775).
+ 
+                 COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly:
+ 
+@@ -93,9 +94,10 @@
+                 flat instrument counts FRAMES (the flat module keeps the
+                 1722.1 per-frame reading on purpose - TBs use it as a
+                 frame-accurate loop-integrity probe); the flat module does
+-                not count a silence as STREAM_INTERRUPTED (#762), and it
+-                does not compare the channel count with the current format
+-                (#765). Wire bytes are unchanged, and so are the accept
++                not count a silence as STREAM_INTERRUPTED (#762), it does
++                not compare the channel count with the current format
++                (#765), and its format reject does not advance prev_seq
++                (#775). Wire bytes are unchanged, and so are the accept
+                 verdicts for a PDU carrying the current format's count.
+ 
+   Company     : Kebag Logic

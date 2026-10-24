@@ -1,0 +1,36 @@
+c2a080aef7cd9a4ee2cd1bb4f8214b529bfd8c83 verilator -E -P: 804 lines sha256 026a45f41d0e12df857d1a12ea1e4333945cf6d291777731d1d06321815dc700
+c2a080aef7cd9a4ee2cd1bb4f8214b529bfd8c83 strip_sv_comments.py: 804 lines sha256 7c7446423ec3bfbb1b04f5b01f1017a5e484d00770158def9386a92ced60f046
+220b51f2eb50c32f830e0b5a8ee1ce138b218bb6 verilator -E -P: 804 lines sha256 026a45f41d0e12df857d1a12ea1e4333945cf6d291777731d1d06321815dc700
+220b51f2eb50c32f830e0b5a8ee1ce138b218bb6 strip_sv_comments.py: 804 lines sha256 7c7446423ec3bfbb1b04f5b01f1017a5e484d00770158def9386a92ced60f046
+--- git diff c2a080ae 220b51f2 -- hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+diff --git a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+index 7281eea68..a2186a79d 100644
+--- a/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
++++ b/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+@@ -16,11 +16,10 @@
+                 (the module-avb-extracted engine): lock on first valid PDU /
+                 8-PDU settle / mismatch detect + interrupt(lost>=2) /
+                 100 ms silence unlock + interrupt (#762) / per-PDU format
+-                compare (a rejected
+-                PDU affects nothing else) / counter reset ONLY on that
+-                stream's not-bound->bound edge [M-5.3.8.10]. Here, unlike
+-                there, a rejected PDU advances the sequence state and
+-                affects nothing else (#775).
++                compare (a rejected PDU affects nothing else) / counter
++                reset ONLY on that stream's not-bound->bound edge
++                [M-5.3.8.10]. Here, unlike there, a rejected PDU advances
++                the sequence state and affects nothing else (#775).
+ 
+                 COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly:
+ 
+--- paths changed c2a080ae..220b51f2
+ docs/testing/TESTING.md                     |   2 +-
+ hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv |   9 +-
+ tb/verilator/avtp_rxmon/Makefile            |   3 +-
+ tb/verilator/avtp_rxmon/format_mutants.py   | 126 +++++++++++++++++++---------
+ tb/verilator/avtp_rxmon/sim_main_nx.cpp     |  73 ++++++++++++++--
+ 5 files changed, 163 insertions(+), 50 deletions(-)
+--- hdl/ syn/ configs/ sw/ and gitlinks changed
+hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv
+verilator -E -P: IDENTICAL
+strip_sv_comments.py: IDENTICAL

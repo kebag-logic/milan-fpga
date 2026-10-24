@@ -1,0 +1,14 @@
+python3 scripts/ci_gate_workflows.py --check
+python3 scripts/ci_gate_workflows_selftest.py
+python3 scripts/ci_case_receipts_selftest.py
+python3 scripts/ci_make_cases_selftest.py
+python3 scripts/ci_maap_cases_selftest.py
+python3 scripts/ci_capture_cases_selftest.py
+python3 scripts/ci_suite_pieces_selftest.py
+python3 scripts/ci_suite_collect_selftest.py
+python3 scripts/ci_fail_fast_selftest.py
+python3 scripts/ci_runtime_evidence_selftest.py
+python3 scripts/ci_install_cache_selftest.py
+python3 scripts/generate_ci_evidence_pins.py --check
+python3 scripts/ci_workflow_plan_selftest.py
+python3 scripts/ci_manifest_selftest.py
