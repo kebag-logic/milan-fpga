@@ -1,0 +1,42 @@
+settle_restart [engine+reference]: {ram_q_r[31:12], 4'd8, cur.seq};
+  nx rc=1 NxN RX stack: 194 checks, 3 failures
+    [FAIL] [SQ3b] a gap after an off-format PDU counts SEQ_NUM_MISMATCH +1 got=0 exp=1
+    [FAIL] [SQ5d] the next gap counts SEQ_NUM_MISMATCH +1: the off-format PDU did not restart the window got=0 exp=1
+    [FAIL] [SQ5g] SEQ_NUM_MISMATCH +1 in all: the in-order PDUs count nothing got=0 exp=1
+  lockstep N=1 rc=0 RESULT: PASS
+  lockstep N=8 rc=0 RESULT: PASS
+lock_clear [engine+reference]: {ram_q_r[31:13], 1'b0, ram_q_r[11:8], cur.seq};
+  nx rc=1 NxN RX stack: 194 checks, 7 failures
+    [FAIL] lock invariant SUSTAINED 128 cyc: ML=2 MU=0
+    [FAIL] relock: MEDIA_LOCKED 2                         got=3 exp=2
+    [FAIL] unbind does NOT reset                          got=3 exp=2
+    [FAIL] [IV9g] the 'at any time' invariant never breached for good got=1 exp=0
+    [FAIL] [SQ3b] a gap after an off-format PDU counts SEQ_NUM_MISMATCH +1 got=0 exp=1
+    [FAIL] [SQ5d] the next gap counts SEQ_NUM_MISMATCH +1: the off-format PDU did not restart the window got=0 exp=1
+    [FAIL] [SQ5f] MEDIA_LOCKED +1, at the lock PDU only   got=2 exp=1
+    [FAIL] [SQ5g] SEQ_NUM_MISMATCH +1 in all: the in-order PDUs count nothing got=0 exp=1
+  lockstep N=1 rc=0 RESULT: PASS
+  lockstep N=8 rc=0 RESULT: PASS
+mr_seed_clear [engine+reference]: {ram_q_r[31:24], 1'b0, ram_q_r[22:8], cur.seq};
+  nx rc=0 NxN RX stack: 194 checks, 0 failures
+  lockstep N=1 rc=0 RESULT: PASS
+  lockstep N=8 rc=0 RESULT: PASS
+mr_seed_set [engine+reference]: {ram_q_r[31:24], 1'b1, ram_q_r[22:8], cur.seq};
+  nx rc=0 NxN RX stack: 194 checks, 0 failures
+  lockstep N=1 rc=0 RESULT: PASS
+  lockstep N=8 rc=0 RESULT: PASS
+mr_prev_from_reject [engine+reference]: {ram_q_r[31:23], cur.mr, ram_q_r[21:8], cur.seq};
+  nx rc=1 NxN RX stack: 194 checks, 3 failures
+    [FAIL] [SQ2d] MEDIA_RESET unchanged                   got=1 exp=0
+    [FAIL] [SQ3f] ...and MEDIA_RESET and TIMESTAMP_UNCERTAIN unchanged got=1 exp=0
+    [FAIL] [SQ5i] ...MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged got=1 exp=0
+  lockstep N=1 rc=0 RESULT: PASS
+  lockstep N=8 rc=0 RESULT: PASS
+mr_seed_and_ref_from_reject [engine+reference]: {ram_q_r[31:24], 1'b1, cur.mr, ram_q_r[21:8], cur.seq};
+  nx rc=1 NxN RX stack: 194 checks, 4 failures
+    [FAIL] [SQ2d] MEDIA_RESET unchanged                   got=1 exp=0
+    [FAIL] [SQ3f] ...and MEDIA_RESET and TIMESTAMP_UNCERTAIN unchanged got=1 exp=0
+    [FAIL] [SQ4j] ...MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged got=1 exp=0
+    [FAIL] [SQ5i] ...MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged got=1 exp=0
+  lockstep N=1 rc=0 RESULT: PASS
+  lockstep N=8 rc=0 RESULT: PASS
