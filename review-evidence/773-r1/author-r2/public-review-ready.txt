@@ -1,0 +1,27 @@
+[A664] REVIEW READY
+Commit: 13d8f1e84920aac1dc3e76fb6406c44a744d8145 (branch 773-aaf-capture-to-wire-latency, six commits on dev a032c6d6; not pushed, for the manager to push)
+Changed:
+- `KL_aaf_packetizer` (`LEAD_P`): the AAF stamp is the frame instant M plus the crossing estimate (the PDU's six-sample span, `SAMPLES_PER_FRAME_C` periods) plus Milan v1.2 5.3.7.6's fixed delay (the fewest whole periods covering the worst hand-over after that estimate) plus the offset as set. The constant sits in the existing stamp adder. A fixed delay above 125 us refuses to build (`g_lead_delay`).
+- `KL_crf_tx` (`TC_P`): IEEE 1722-2016 10.7 Equation (14)'s TC, the fewest whole periods covering the timing point's path to the MAC, is a constant in the existing `ts_r` adder. The round-up of the offset and GET_STREAM_INFO (the offset alone, Milan v1.2 5.4.2.10.2) are unchanged.
+- `milan_datapath` binds both, with the terms it owns (`TLK_*`: span end to close, capture age, capture walk). `KL_media_if_latency_pkg` gains `walk_pair_cyc()` and `age_max_cyc()`.
+- Derived: 1x1 TDM8 fixed delay 2 periods (hand-over at most 23,851 ns after the estimate), 8x8 TDM32 2 periods (22,755 ns). The stamp is M + 166,667 ns + the offset. The end-to-end latency is the offset + 166,667 ns. CRF TC is 2 periods (41,667 ns) at 1x1 and 1 (20,834 ns) at 8x8. All whole periods, so both outputs still stamp one grid (4.3.5).
+- One finding along the way: with the transmit arbiters' wait for a frame ahead counted as a term, the 2 MHz `milan_dp` gmstep test shape was refused by the new guard and the 4 MHz `milan_dp_mclk` would have been. `041b7922` counts the hand-over with no frame ahead, as the ruling's 23.8/22.7 us do. The spare (17,816 / 18,912 ns AAF, 20,503 / 15,326 ns CRF) covers one frame ahead (3,960 / 4,400 ns) at both shipping shapes.
+- Tests: `capture_coherence`'s dp leg runs the CRF output beside the talker, at 2 ms and 125 us, with `[WIRE]` (hand-over at or before the timestamp less the offset, and after it less 125 us: IEEE 1722-2016 4.3.3 Equation (1)), `[GRID]` (each stamp less its offset and periods is a domain media event's instant), `[HOLD]` (at most 2.126 ms ahead, Milan v1.2 4.4.2.1) and `[PIN]` less 8 periods. There are 7 planted controls. `milan_dp`'s output walk: Equation (1)'s window and one whole number of periods per output at 2 ms, 1 ms, 2,010,000 ns and 125 us.
+- Docs: `MEDIA_CLOCK_FOLLOWING.md` ("The talkers' capture-to-wire latency"), the compliance matrix, `TESTING.md`, `CHANGELOG.md`.
+
+Validation (each in a clean clone of the lane):
+- Full sweep, 4 shard units, at bf2d96f9: 63 of 64 suites, 2,190,818 checks, 0 in-suite failures. `aaf` failed on its own startup arm's planting pattern ("offset omitted: expected one planting site"). 13d8f1e8 fixes the pattern, and `make -C tb/verilator/aaf` alone at 13d8f1e8 passes: rc 0, startup mutants 8/8. bf2d96f9 and 13d8f1e8 differ only in that file.
+- capture_coherence in the sweep: junction 20,832/0, dp 847/0, mutation arm 42/42, including the 7 new controls (lead dropped, delay 7 Ps, AAF stamp 125 us late, TC dropped, TC 1 Ps, CRF stamp 125 us late; a delay past 125 us refused by the build).
+- Measured at 1x1 (31 runs): AAF margin 17,823 to 59,807 ns, CRF 20,503 ns, every stamp on the grid, at most 2,059,807 ns ahead at 2 ms.
+- Yosys at bf2d96f9: 60/60. lint 89 <= 89, xvlog 0 findings at 13d8f1e8.
+- Docs gates at bf2d96f9: 44 steps, 41 rc 0, 2 skipped by rule, and gate_8 run directly (a lane clone has no `dev`): 0 findings. At 13d8f1e8 the Python idiom gate and `docs_check.py` pass.
+- Campaigns at bf2d96f9: tdm8render-mutants 31/31, pull-in 19 legs 0 failures, gmstep-mutants 23/23.
+- Vivado at 13d8f1e8, against the eleventh record, one run at a time under the lock: route-1x1 LUT +102, FF +7, SLICE -11, RAM and DSP 0, WNS +0.040 ns, WHS +0.021 ns: PASS. The critical path is the SoC's AXI-Lite-to-Wishbone bridge to the SPI-flash PHY counter, outside the datapath. ooc-1x1 and ooc-8x8: every figure equal: PASS.
+- No STOP condition met: SLICE -11 (STOP above +10). The render queue holds the 2 ms default with 513.3 us (1x1) and 492.4 us (8x8) to spare; every proof passes.
+Acceptance criteria:
+- 4.3.5 alignment kept: met ([GRID], [PIN]).
+- Stamp = instant + the derived per-shape fixed delay (with the crossing estimate, ruling (b)) + the offset: met. Nothing is mirrored; it is refused above 125 us.
+- End-to-end latency and bound stated, refusal named: met (offset + 166,667 ns; `g_lead_delay`).
+- Hand-over at or before the timestamp less the offset, at 125 us and 2 ms, at the pins and on the wire, presentation unchanged in phase against the CRF timing points: met at 1x1. 8x8 TDM32 is derived only, as the ruling allows: no harness runs that shape at its clocks. The 8x8 entity leg of `milan_dp` (100 MHz, audio 1:1) passes at both offsets.
+- CRF's Equation (14) round-up does not cover its path (round 1); TC is added: met.
+Open risks/questions: 8x8 measured proof (derived only). The MAC's own line-rate backpressure is outside the datapath's hand-over. Bench prediction at 125 us, not measured: avtp_timestamp minus the wire time moves from -15.9..-10.2 us to about +150.8..+156.5 us.

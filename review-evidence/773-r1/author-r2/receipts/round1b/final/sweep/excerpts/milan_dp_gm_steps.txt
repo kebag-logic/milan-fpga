@@ -1,0 +1,9 @@
+shard 2; full log 106977 bytes sha256 775dcd3b146fbf05f4156bf4e66adbf2a89af7e0d681370e53d6f3f537bd1741
+== gmstep: checks: 196   failures: 0 ==
+RESULT: PASS
+[PASS] control caught: the PHC re-base restart term is restored - breaks "restart: a PHC-only step leaves outgoing mr unchanged"
+[PASS] control caught: the source-change term is removed - breaks "source control: a real source change toggles mr once"
+[PASS] control caught: selected CRF mr propagation is removed - breaks "CRF control: selected CRF mr propagates exactly once"
+[PASS] control caught: the grandmaster identity empties the render stage - breaks "render: every PDU not presented was refused by the stage and counted once"
+[PASS] control caught: the step empties the render stage - breaks "render: every PDU not presented was refused by the stage and counted once"
+6 checks: 6 PASS, 0 FAIL
