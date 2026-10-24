@@ -1,0 +1,51 @@
+PASS published hashes for 109 executable receipt files at 3e0d0e08ac6adcb2aa0f43316d800073f2492e6a
+PASS sweep: 64 unique suites, 2190096 checks, four rc=0 exact-head shards
+PASS fast-gate receipts: latest execution for each of 11 jobs succeeds; initial SDK refusal retained
+JOB changes executed 2 skipped 3
+JOB verilator-lint executed 4 skipped 7
+JOB bdd-conformance executed 4 skipped 4
+JOB yosys-elaboration executed 7 skipped 10
+JOB publication-census executed 4 skipped 11
+JOB firmware-unit executed 8 skipped 7
+JOB firmware-control-mutants executed 5 skipped 7
+JOB firmware-aecp-mutants executed 5 skipped 7
+JOB firmware-srp-mutants executed 5 skipped 7
+JOB firmware-boundary executed 5 skipped 7
+JOB firmware-verilator executed 6 skipped 11
+PASS docs: latest published step receipts have no nonzero rc; skips are not execution
+DOC SKIP ('docs-gates-2', 'gate_42') {'job': 'docs-gates-2', 'id': 'gate_42', 'name': 'Local act runner contract gate', 'rc': None, 'skipped': 'executes the candidate act_ci.py on the host; AGENTS.md section 5 allows the candidate copy only inside the disposable CI job'}
+DOC SKIP ('docs-check-no-git', 'ci_step_3') {'job': 'docs-check-no-git', 'id': 'ci_step_3', 'name': 'Strip git metadata, then run the docs gate', 'rc': None, 'skipped': "its body runs rm -rf .git, which would delete this worktree's git link; its two gates run in place below"}
+Builder retry: same script hash on both successful leg-1 receipts; initial failure retained
+docs_gates/leg1-ci312-receipts.json b17972a73531d9723e98d76bf68fa694d91fea3a9ca62cf97dfd3e0259a0aaf3 0
+docs_gates/leg1-litex-receipts.json b17972a73531d9723e98d76bf68fa694d91fea3a9ca62cf97dfd3e0259a0aaf3 0
+PASS firmware table: 8 commands rc=0
+PASS pin table: 11 commands rc=0
+vivado/route-1x1-check.log
+endpoint route-1x1: <scratch>/viv-head/w1/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              51259       51182       -77  ok, below the baseline
+FF               53208       53208         0  ok
+SLICE            15835       15825       -10  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns           0.236       0.165    -0.071  ok
+WHS_ns           0.028       0.036     0.008  ok
+route status: complete, no unrouted net and no routing error
+vivado/ooc-1x1-check.log
+endpoint ooc-1x1: <scratch>/viv-head/w1/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              23828       23845        17  ok
+FF               20000       20002         2  ok
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+vivado/ooc-8x8-check.log
+endpoint ooc-8x8: <scratch>/viv-head/w8/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              32467       32450       -17  ok, below the baseline
+FF               28220       28218        -2  ok, below the baseline
+RAMB36              21          21         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+Limits: this audits published receipts, not raw omitted build logs or a new full-bank run.

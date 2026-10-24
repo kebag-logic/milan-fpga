@@ -1,0 +1,208 @@
+COMMAND ['make', '-j16', '-C', 'tb/verilator/pp_shadow', 'run-base', 'VERILATOR=<simulator>', 'VERILATOR_JOBS=8']
+make: Entering directory '<packet>/scratch/probe-tree/tb/verilator/pp_shadow'
+<simulator> +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 8 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall waivers.vlt pending_probes.vlt recovery_probes.vlt -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GGPTP_PLANE_EN_P=0 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -GMAAP_CLK_HZ_P=100000 -CFLAGS "-std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra" --Mdir obj_dir ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_main.cpp -o Vpp_shadow_sim
+make[1]: Entering directory '<packet>/scratch/probe-tree/tb/verilator/pp_shadow/obj_dir'
+g++  -I.  -MMD -I<simulator-root>/include -I<simulator-root>/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -DPP_MS_CYCLES=100 -DMAAP_MS_CYCLES=100 -DPP_ADP_ENTITY_CAPS_C=0x0000C588u -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vpp_shadow_sim
+make[1]: Leaving directory '<packet>/scratch/probe-tree/tb/verilator/pp_shadow/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.501 s (elab=0.000, cvt=0.000, bld=1.499); cpu 0.002 s on 8 threads; allocated 16.633 MB
+make --no-print-directory exec-base
+obj_dir/Vpp_shadow_sim 
+=== milan_datapath + the protocol processor AS the control plane ===
+  [PASS] #403 AAF reset readback is neutral         got=0x00000000 exp=0x00000000
+  [PASS] #403 MAAP reset readback is neutral        got=0x00000000 exp=0x00000000
+  [PASS] #403 reset TCAM bypass is explicit         got=0x00000001 exp=0x00000001
+  [PASS] #403 reset destination 0 post-filter frame got=0x00000001 exp=0x00000001
+  [PASS] #403 reset destination 0 post-filter frame got=0x00000001 exp=0x00000001
+  [PASS] #403 reset destination 1 post-filter frame got=0x00000001 exp=0x00000001
+  [PASS] #403 reset destination 1 post-filter frame got=0x00000001 exp=0x00000001
+  [PASS] #403 reset destination 2 post-filter frame got=0x00000001 exp=0x00000001
+  [PASS] #403 reset destination 2 post-filter frame got=0x00000001 exp=0x00000001
+  [PASS] #403 reset destination 3 post-filter frame got=0x00000001 exp=0x00000001
+  [PASS] #403 reset destination 3 post-filter frame got=0x00000001 exp=0x00000001
+  [PASS] #403 boot destination 0 post-filter frame  got=0x00000001 exp=0x00000001
+  [PASS] #403 boot destination 0 post-filter frame  got=0x00000001 exp=0x00000001
+  [PASS] #403 boot destination 1 post-filter frame  got=0x00000001 exp=0x00000001
+  [PASS] #403 boot destination 1 post-filter frame  got=0x00000001 exp=0x00000001
+  [PASS] #403 boot destination 2 post-filter frame  got=0x00000001 exp=0x00000001
+  [PASS] #403 boot destination 2 post-filter frame  got=0x00000001 exp=0x00000001
+  [PASS] #403 boot destination 3 post-filter frame  got=0x00000001 exp=0x00000001
+  [PASS] #403 boot destination 3 post-filter frame  got=0x00000001 exp=0x00000001
+[A] presence + CSR window
+  [PASS] ID == 'MILN'                               got=0x4D494C4E exp=0x4D494C4E
+  [PASS] PP_STAT tag == 0x5B (plane present)        got=0x0000005B exp=0x0000005B
+  [PASS] PP_DIAG clean at reset                     got=0x00000000 exp=0x00000000
+  [PASS] TXARB_DIAG tag == 0xA7 (window decodes)    got=0x000000A7 exp=0x000000A7
+  [PASS] TXARB_DIAG lanes 7:4 are a structural zero got=0x00000000 exp=0x00000000
+[P] saved state: an absent backend must not report a restore
+  [i]    PP_STAT 0x924 = 0x5B00088C (backed 0 blank 1 alarm 0 fail 1 done 1)
+  [PASS] the restore walk terminates                restore_done set
+  [PASS] a build with NO backend does not report a successful restore reported not-successful
+  [PASS] PP_STAT[6] nvm_backed == 0 (no writer has answered behind the device face) got=0x00000000 exp=0x00000000
+  [PASS] PP_STAT[7] nvm_blank == 1 (the walk validated zero records) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[3] restore_fail == 1 (an absent backend is not a success) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[4] nvm_alarm == 0 (nothing was committed, so nothing retried) got=0x00000000 exp=0x00000000
+  [PASS] the presence tag is unchanged by the verdict bits got=0x0000005B exp=0x0000005B
+  [PASS] PP_STAT[8] nvm_dirty == 0 (no change was accepted) got=0x00000000 exp=0x00000000
+  [PASS] PP_STAT[9] nvm_stale == 0 (never backed is not stale) got=0x00000000 exp=0x00000000
+  [PASS] PP_STAT[10] nvm_img_valid == 0 (no image was validated) got=0x00000000 exp=0x00000000
+  [PASS] PP_STAT[15:12] nvm_verdict == 0 (no image was offered) got=0x00000000 exp=0x00000000
+[P2] saved state: the control face answers, liveness heals no walk
+  [PASS] PP_NVM_SEL reads back the index            got=0x00000002 exp=0x00000002
+  [PASS] PP_NVM_DATA reads back the backend's word 2 (sequence) got=0xA5C30001 exp=0xA5C30001
+  [PASS] PP_NVM_STAT[4]: the map restore's blank reads end within 2,000 clocks the device face went idle
+  [PASS] PP_NVM_STAT: not configured, not backed, no operation in flight got=0x00000000 exp=0x00000000
+  [i]    PP_STAT 0x924 = 0x5B0008CC after a heartbeat
+  [PASS] PP_STAT[6] nvm_backed == 1 after a firmware heartbeat (live evidence) got=0x00000001 exp=0x00000001
+  [PASS] PP_NVM_STAT[6] agrees with PP_STAT[6]      got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[3] restore_fail STAYS 1: a blind walk is not healed by liveness got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[7] nvm_blank stays 1 (the walk still validated zero records) got=0x00000001 exp=0x00000001
+  [PASS] PP_STAT[2] restore_done stays 1 (the walk did complete) got=0x00000001 exp=0x00000001
+  [PASS] PP_CTRL reads back                         got=0x00000001 exp=0x00000001
+[E] side-port bridge -> the processor's snapshot window
+  [PASS] side-port access completed                 ack seen
+  [PASS] snapshot[0] magic == 'KLPP'                got=0x4B4C5050 exp=0x4B4C5050
+  [PASS] snapshot[1] shape non-zero                 shape word present
+[B] RX classify -> FIFO -> serializer -> the processor's validator
+  [PASS] ADP DISCOVER accepted (rx_frames +1)       got=0x00000001 exp=0x00000001
+  [PASS] no frame lost to a full FIFO               got=0x00000000 exp=0x00000000
+[C] the filter that keeps a 1 B/clk serializer ahead of the wire
+  [PASS] 8 IPv4 frames REJECTED (rx_frames flat)    got=0x00000000 exp=0x00000000
+  [PASS] and none of them was counted as a drop     got=0x00000000 exp=0x00000000
+[D] substitution — the processor transmits AND the wire carries it
+  [PASS] the processor SENT (tx_frames > 0)         its TX lanes produced frames
+  [PASS] MAC TX CARRIED them (the drain is off)     2 frame(s) egressed at the MAC boundary
+  [PASS] every frame in the window was a processor control PDU got=0x00000000 exp=0x00000000
+[G] class-D fabric face — reachable, and it MOVES
+  [PASS] adp_next_avail_index read 0 before any advertisement got=0x00000000 exp=0x00000000
+  [PASS] adp_next_avail_index CHANGED (the engine drives it) index advanced with the first ENTITY_AVAILABLE
+[F] the ENTITY_AVAILABLE the processor emits, decoded byte-exact
+  [PASS] an ADP frame reached the MAC TX boundary   1 ADPDU(s) at the MAC boundary of 2 frames
+  [PASS] ADPDU is 82 octets on the wire             got=0x00000052 exp=0x00000052
+  [PASS] ADPDU DA == 91:E0:F0:01:00:00              got=0x91E0F001 exp=0x91E0F001
+  [PASS] ADPDU EtherType 0x22F0 + subtype 0xFA      got=0x0022F0FA exp=0x0022F0FA
+  [PASS] ADPDU sv=0 version=0 message_type=ENTITY_AVAILABLE got=0x00000000 exp=0x00000000
+  [PASS] ADPDU control_data_length == 56            got=0x00000038 exp=0x00000038
+  [PASS] ADPDU entity_id == the 0x604/0x608 pair    got=0x001BC50C exp=0x001BC50C
+  [PASS] ADPDU entity_id low half                   got=0xAC000001 exp=0xAC000001
+  [PASS] ADPDU entity_model_id == the 0x60C/0x610 pair got=0x001BC544 exp=0x001BC544
+  [PASS] ADPDU talker_stream_sources == 0x618       got=0x00000001 exp=0x00000001
+  [PASS] ADPDU talker_capabilities == 0x618         got=0x00004001 exp=0x00004001
+  [PASS] ADPDU listener_stream_sinks == 0x61C       got=0x00000002 exp=0x00000002
+  [PASS] ADPDU listener_capabilities == 0x61C       got=0x00004801 exp=0x00004801
+  [PASS] ADPDU is byte-exact against the CSR identity group 0 differing octet(s); first at wire byte -1
+  [PASS] available_index strictly increases across ADPDUs got=0x00000000 exp=0x00000000
+  [PASS] class-D available_index >= the last one on the wire the published index tracks the wire
+[H] maap adapter with NO allocator: refuse, never wedge
+  [PASS] KL_maap holds no block (MAAP_STAT1.addr_valid = 0) got=0x00000000 exp=0x00000000
+  [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+  [PASS] the processor ASKED and the shim ACCEPTED  ALLOC_DA taken
+  [PASS] every accepted request was ANSWERED        accepted == answered
+  [PASS] and every answer refused (ok = 0)          got=0x00000000 exp=0x00000000
+  [PASS] the DA gate stayed SHUT (acmp_declaring = 0) got=0x00000000 exp=0x00000000
+  [PASS] the ACMP PROBE_TX still reached the processor got=0x00000001 exp=0x00000001
+  [PASS] the plane KEEPS SERVING (side port still answers 'KLPP') got=0x4B4C5050 exp=0x4B4C5050
+  [PASS] a CONNECT_TX_RESPONSE came back            response on the wire
+  [PASS] ...with status TALKER_DEST_MAC_FAILED(3) — no DA to hand out got=0x00000003 exp=0x00000003
+[I] maap adapter with a claimed block: grant + first probe
+  [PASS] #403 declared output count                 got=0x00000001 exp=0x00000001
+  [PASS] #606 source 0 startup allocation was refused no block was valid at acceptance
+  [PASS] #403 exact MAAP boot count readback        got=0x00000101 exp=0x00000101
+  [PASS] KL_maap reached ANNOUNCE (a block is claimed) addr_valid asserted
+  [PASS] MAAP response finishes within four clocks  got=0x00000000 exp=0x00000000
+  [PASS] every accepted request was ANSWERED        got=0x00000012 exp=0x00000012
+  [PASS] every response has its accepted source     got=0x00000000 exp=0x00000000
+  [PASS] #606 source 0 auto-acquired before first probe got=0x00000001 exp=0x00000001
+  [PASS] [I] source 0 grant equals MAAP base plus index accepted request identifies the response
+  [PASS] #606 first probe response arrived          bounded command service
+  [PASS] #606 first probe after acquisition bound succeeds got=0x00000000 exp=0x00000000
+  [PASS] #606 first probe names the source SID      station MAC and source UID
+  [PASS] #606 first probe names the acquired destination real MAAP base plus source
+  [PASS] #606 first probe names the configured VID  got=0x00000002 exp=0x00000002
+  [PASS] #606 first probe needs no new allocation   got=0x00000001 exp=0x00000001
+FIRST_PROBE source=0 status=0 DA=91e0f000e8c4
+  [PASS] the per-source DA GATE is OPEN (acmp_declaring = 1) got=0x00000001 exp=0x00000001
+  [PASS] and it was held, not a one-cycle blip      gate held
+  [PASS] #403 boundary ACMP response status         got=0x00000000 exp=0x00000000
+  [PASS] #403 highest valid source gets base + index wire destination checked against allocator base
+  [PASS] #403 boundary ACMP response status         got=0x00000002 exp=0x00000002
+  [PASS] #403 first invalid source makes no allocator request got=0x00000000 exp=0x00000000
+ADOPTION type=0000 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0001 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0002 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0005 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0006 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0008 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=000a index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0024 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0024 index=65535 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0109 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=8009 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=ffff index=65535 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0024 index=0 cdl=20 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0024 index=0 cdl=76 expected=11 actual=11 bytes=102
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0000 index=0 cdl=12 expected=7 actual=7 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x00000007 exp=0x00000007
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0000 index=0 cdl=13 expected=7 actual=7 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x00000007 exp=0x00000007
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0109 index=0 cdl=15 expected=7 actual=7 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x00000007 exp=0x00000007
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+ADOPTION type=0009 index=65535 cdl=16 expected=2 actual=2 bytes=62
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x00000002 exp=0x00000002
+ADOPTION type=0024 index=0 cdl=16 expected=11 actual=11 bytes=60
+  [PASS] adoption matching response                 got=0x00000001 exp=0x00000001
+  [PASS] adoption status                            got=0x0000000B exp=0x0000000B
+  [PASS] adoption byte-exact command echo           got=0x00000001 exp=0x00000001
+adoption probe: 160 checks, 0 failures
+make: Leaving directory '<packet>/scratch/probe-tree/tb/verilator/pp_shadow'
