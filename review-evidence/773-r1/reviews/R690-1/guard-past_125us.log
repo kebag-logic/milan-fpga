@@ -1,0 +1,6 @@
+%Error-USERERROR: <review-clone>/hdl/ieee1722/aaf/KL_aaf_packetizer.sv:263:5: KL_aaf_packetizer: the fixed delay this talker needs, 7 periods of 48000 Hz for a hand-over up to 125001 ns after its crossing estimate, exceeds the 0 to 125 us Milan v1.2 5.3.7.6 allows: refused.
+                                                                                                       : ... note: In instance 'KL_aaf_packetizer'
+  263 |     $error("KL_aaf_packetizer: the fixed delay this talker needs, %0d periods of %0d Hz for a hand-over up to %0d ns after its crossing estimate, exceeds the 0 to 125 us Milan v1.2 5.3.7.6 allows: refused.",
+      |     ^~~~~~
+                  ... For error description see https://verilator.org/warn/USERERROR?v=5.050
+%Error: Exiting due to 1 error(s)

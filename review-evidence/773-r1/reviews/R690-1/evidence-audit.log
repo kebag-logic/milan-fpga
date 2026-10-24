@@ -1,0 +1,54 @@
+Public evidence commit: 8f1028e5a0fb979b3c6c33496655dd15059825eb
+Verified published receipt hashes: 148
+sweep/shard-0/results.json head=bf2d96f98a27fb1ec7143673ad714e51ab9b3862 returncodes=[0]
+sweep/shard-1/results.json head=bf2d96f98a27fb1ec7143673ad714e51ab9b3862 returncodes=[0]
+sweep/shard-2/results.json head=bf2d96f98a27fb1ec7143673ad714e51ab9b3862 returncodes=[1]
+sweep/shard-3/results.json head=bf2d96f98a27fb1ec7143673ad714e51ab9b3862 returncodes=[0]
+sweep/aaf_alone_13d8f1e8/HEAD.txt 13d8f1e84920aac1dc3e76fb6406c44a744d8145
+sweep/aaf_alone_13d8f1e8/rc 0
+yosys/HEAD.txt bf2d96f98a27fb1ec7143673ad714e51ab9b3862
+yosys/rc 0
+xvlog/HEAD.txt 13d8f1e84920aac1dc3e76fb6406c44a744d8145
+xvlog/rc 0
+docs/nogit_summary.txt docs_check rc=0
+feature_status rc=0
+Only change between sweep head and reviewed head:
+ tb/verilator/aaf/start_mutants.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+ARTIFACT: campaigns/tdm8render_mutants/log.txt
+31 checks: 31 PASS, 0 FAIL
+ARTIFACT: campaigns/gmstep/log.txt
+== gmstep: checks: 196   failures: 0 ==
+RESULT: PASS
+23 checks: 23 PASS, 0 FAIL
+ARTIFACT: campaigns/pullin/legs.txt
+0 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+history == tdm8_render: checks: 272   failures: 0 == 0 FAIL-lines
+130 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+260 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+391 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+521 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+651 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+781 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+911 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+927 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+1042 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+1156 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+1172 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+1302 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+1432 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+1562 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+1693 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+1823 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+1953 == tdm8_render: checks: 28   failures: 0 == 0 FAIL-lines
+ARTIFACT: vivado/route-1x1/gate_check.log
+SLICE            15835       15824       -11  ok, below the baseline
+WNS_ns           0.236        0.04    -0.196  ok
+WHS_ns           0.028       0.021    -0.007  ok
+RESULT: PASS
+ARTIFACT: vivado/ooc-1x1/gate_check.log
+RESULT: PASS
+ARTIFACT: vivado/ooc-8x8/gate_check.log
+RESULT: PASS
+New source-comment prohibited provenance matches: 0
