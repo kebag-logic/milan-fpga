@@ -1362,7 +1362,7 @@ validates one tree. The workflow makes that explicit and machine-checked
   reads it;
 - both aggregates run `scripts/ci_events.py --require-target-sha` over the
   downloaded shards before they tally anything, passing `--expect` the
-  worker matrix size (`--expect 16` for Verilator, `--expect 4` for Yosys)
+  worker matrix size (`--expect 17` for Verilator, `--expect 4` for Yosys)
   and exactly three sources, `--sha gate="$GATE_SHA"`
   (the gate's `target_sha` through the step env), `--sha run="$GITHUB_SHA"`
   and `--sha checkout="$(git rev-parse HEAD)"`, and print the SHA in their
