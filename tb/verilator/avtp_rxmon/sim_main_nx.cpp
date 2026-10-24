@@ -25,8 +25,10 @@
 #include "Vavtp_rxmon_nx_wrap.h"
 #include "verilated.h"
 #include "../../common/verilator_harness.hpp"
+#include <array>
 #include <cstdio>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 namespace {
@@ -91,6 +93,9 @@ constexpr int W_FRX = 25;
 constexpr int W_TV  = 26;
 constexpr int W_TNV = 27;
 
+//! one stream's counter words, indexed by their LCTX offset (W_ML..W_FRX used)
+using SqCounters = std::array<long, W_FRX + 1>;
+
 //! The whole harness: the model, the counters, the sampling BFM and every
 //! phase that proves one row of the NxN matrix. What used to be file-scope
 //! `static` state and free functions are members, so the call sites inside
@@ -127,6 +132,7 @@ class NxnRxStackHarness {
         back_to_back_pdus_beat_every_drain_phase();
         per_context_dirty_vector();
         current_format_channel_count();
+        offformat_pdu_advances_the_sequence();
 
         printf("\n======================================================================\n");
         printf("NxN RX stack: %ld checks, %ld failures\nRESULT: %s\n",
@@ -335,14 +341,16 @@ class NxnRxStackHarness {
         align_iv();                 // both rejects inside ONE interval
         { AafCfg c; c.seq=64; c.nsr=0x07; feed(build_aaf(stim, c)); }
         //! a bit-depth reject; the channel count is graded by [UF] (#765)
-        { AafCfg c; c.seq=64; c.depth=24; feed(build_aaf(stim, c)); }
+        { AafCfg c; c.seq=65; c.depth=24; feed(build_aaf(stim, c)); }
         flush_iv();
         //! two bad-format PDUs in one interval = ONE tick (Milan Table 5.6);
         //! the old per-frame reading counted 2 here
         ck("UNSUPPORTED_FORMAT 1 for a 2-reject interval",
            dut->cnt_unsupported_fmt_o, 1);
         ck("FRAMES_RX unchanged by rejects", dut->cnt_frames_rx_o, frx);
-        { AafCfg c; c.seq=64; feed(build_aaf(stim, c)); }
+        //! #775: each reject was received, so its sequence_num advanced the
+        //! sequence and 66 is the next in order
+        { AafCfg c; c.seq=66; feed(build_aaf(stim, c)); }
         flush_iv();
         ck("no mismatch across bad-format PDUs", dut->cnt_seq_mismatch_o, 2);
     }
@@ -925,15 +933,15 @@ class NxnRxStackHarness {
 
         frx = lctx_rd(3, W_FRX);
         align_iv();
-        { AafCfg c; c.sid=SU3; c.seq=q; c.chans=2; feed_and_count(c, 3, acc, out); }
+        { AafCfg c; c.sid=SU3; c.seq=q++; c.chans=2; feed_and_count(c, 3, acc, out); }
         ck("[UF2a] a 2-channel PDU against 8 channels has no accept verdict", acc, 0);
         ck("[UF2b] ...and is discarded (no payload emitted)", out, 0);
         flush_iv();
         ck("[UF2c] ...and counts UNSUPPORTED_FORMAT once", lctx_rd(3, W_UF), uf0 + 1);
         ck("[UF2d] ...and not in FRAMES_RX", lctx_rd(3, W_FRX), frx);
         ck("[UF2e] ...and leaves wire_chans at 8", (lctx_rd(3, 8) >> 14) & 0xFF, 8);
-        //! the reject did not advance the sequence: the next matching PDU
-        //! carries the sequence_num the 2-channel PDU carried
+        //! the reject still advanced the sequence (#775): the next matching
+        //! PDU carries the sequence_num after the 2-channel PDU's
         align_iv();
         { AafCfg c; c.sid=SU3; c.seq=q++; feed_and_count(c, 3, acc, out); }
         flush_iv();
@@ -943,7 +951,7 @@ class NxnRxStackHarness {
         //! 264 channels: channels_per_frame[9:8] = 1 and the low byte is 8,
         //! so a compare of the low byte alone would accept it
         align_iv();
-        { AafCfg c; c.sid=SU3; c.seq=q; c.chans_hi=1; feed_and_count(c, 3, acc, out); }
+        { AafCfg c; c.sid=SU3; c.seq=q++; c.chans_hi=1; feed_and_count(c, 3, acc, out); }
         ck("[UF3a] a 264-channel PDU against 8 channels has no accept verdict", acc, 0);
         ck("[UF3b] ...and is discarded", out, 0);
         flush_iv();
@@ -957,7 +965,7 @@ class NxnRxStackHarness {
         { AafCfg c; c.sid=SU3; c.seq=q++; c.chans=2; feed_and_count(c, 3, acc, out); }
         ck("[UF4a] with a 2-channel current format, a 2-channel PDU is accepted", acc, 1);
         ck("[UF4b] ...and emitted", out, 1);
-        { AafCfg c; c.sid=SU3; c.seq=q; feed_and_count(c, 3, acc, out); }
+        { AafCfg c; c.sid=SU3; c.seq=q++; feed_and_count(c, 3, acc, out); }
         ck("[UF4c] ...and an 8-channel PDU is not", acc, 0);
         ck("[UF4d] ...and is discarded", out, 0);
         flush_iv();
@@ -984,6 +992,254 @@ class NxnRxStackHarness {
            uf_s0 + 1);
         dut->fmt0_i = FMT;
     }
+
+    // ---------------------------------------------------------------- //
+    // [SQ] #775: a discarded off-format PDU was still received (Milan  //
+    // v1.2 Table 5.6), so its sequence_num advances the input's        //
+    // sequence state, while it counts UNSUPPORTED_FORMAT only and      //
+    // presents nothing. One PDU of another channel count takes a slot  //
+    // of an in-order stream. It carries a toggled mr, tu, and a late   //
+    // (or early) timestamp, so a reject that reached any other verdict //
+    // would count there. It is graded on a locked, settled stream      //
+    // ([SQ1]-[SQ3]), first in a fresh era on an unlocked stream        //
+    // ([SQ4]), inside the settle window ([SQ5]), and on each side of   //
+    // the mr seed: unseeded in a fresh era ([SQ6]) and seeded ([SQ7]). //
+    // ---------------------------------------------------------------- //
+    void offformat_pdu_advances_the_sequence(){
+        printf("\n[SQ] #775: an off-format PDU advances the sequence state\n");
+        sq_rebind();
+        dut->ptp_now_i = SQ_ON_TIME;
+        sq_in_order(9);                         // lock and drain the settle window
+        ck("[SQ0] precondition: stream 3 is locked", (lctx_rd(3, 8) >> 12) & 1, 1);
+        sq_on_a_settled_stream();
+        sq_first_in_a_fresh_era();
+        sq_inside_the_settle_window();
+        sq_before_the_mr_seed();
+        sq_after_the_mr_seed();
+    }
+
+    //! [SQ1]-[SQ3] the off-format PDU mid-stream on a locked, settled stream
+    void sq_on_a_settled_stream(){
+        const SqCounters t0 = sq_snap();
+        const long tsd0 = lctx_rd(3, 10);
+        align_iv();
+        sq_off_format(0xA55AC33CUL + 1000);     // its timestamp already past
+        ck("[SQ1a] a 2-channel PDU mid-stream has no accept verdict", sq_acc, 0);
+        ck("[SQ1b] ...and presents nothing (no payload emitted)", sq_out, 0);
+        ck("[SQ1c] ...and its sequence_num is prev_seq", lctx_rd(3, 8) & 0xFF,
+           static_cast<uint8_t>(sq_seq - 1));
+        ck("[SQ1d] ...and it writes no timestamp word (LAST_TSD)", lctx_rd(3, 10), tsd0);
+        ck("[SQ1e] ...and wire_chans stays 8", (lctx_rd(3, 8) >> 14) & 0xFF, 8);
+        long accepted = sq_in_order(3);         // the following two intervals
+        accepted += sq_in_order(3);
+        ck("[SQ2a] the next in-order PDUs are accepted", accepted, 6);
+        ck("[SQ2b] UNSUPPORTED_FORMAT +1", lctx_rd(3, W_UF) - t0[W_UF], 1);
+        ck("[SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence",
+           lctx_rd(3, W_SM) - t0[W_SM], 0);
+        ck("[SQ2d] MEDIA_RESET unchanged", lctx_rd(3, W_MR) - t0[W_MR], 0);
+        ck("[SQ2e] TIMESTAMP_UNCERTAIN unchanged", lctx_rd(3, W_TU) - t0[W_TU], 0);
+        ck("[SQ2f] LATE_TIMESTAMP unchanged", lctx_rd(3, W_LT) - t0[W_LT], 0);
+        ck("[SQ2g] EARLY_TIMESTAMP unchanged", lctx_rd(3, W_ET) - t0[W_ET], 0);
+        ck("[SQ2h] STREAM_INTERRUPTED unchanged", lctx_rd(3, W_SI) - t0[W_SI], 0);
+        ck("[SQ2i] MEDIA_UNLOCKED unchanged", lctx_rd(3, W_MU) - t0[W_MU], 0);
+        ck("[SQ2j] FRAMES_RX counts the six accepted PDUs only",
+           lctx_rd(3, W_FRX) - t0[W_FRX], 6);
+
+        //! one PDU lost after an off-format PDU: a gap of one, counted from
+        //! the off-format PDU's sequence_num (two, were it not advanced)
+        const SqCounters t1 = sq_snap();
+        align_iv();
+        sq_off_format(0xA55AC33CUL - 50000000); // far ahead: early, were it read
+        sq_seq++;                               // the lost PDU
+        accepted = sq_in_order(4);
+        ck("[SQ3a] the PDUs after the gap are accepted", accepted, 4);
+        ck("[SQ3b] a gap after an off-format PDU counts SEQ_NUM_MISMATCH +1",
+           lctx_rd(3, W_SM) - t1[W_SM], 1);
+        ck("[SQ3c] ...one PDU lost from the off-format PDU's: no STREAM_INTERRUPTED",
+           lctx_rd(3, W_SI) - t1[W_SI], 0);
+        ck("[SQ3d] ...and UNSUPPORTED_FORMAT +1", lctx_rd(3, W_UF) - t1[W_UF], 1);
+        ck("[SQ3e] ...and EARLY_TIMESTAMP unchanged", lctx_rd(3, W_ET) - t1[W_ET], 0);
+        ck("[SQ3f] ...and MEDIA_RESET and TIMESTAMP_UNCERTAIN unchanged",
+           (lctx_rd(3, W_MR) - t1[W_MR]) + (lctx_rd(3, W_TU) - t1[W_TU]), 0);
+    }
+
+    //! [SQ4] the off-format PDU first in a fresh era, on an unlocked stream:
+    //! the stream locks, and MEDIA_LOCKED counts, at the first accepted PDU
+    //! after it, not at the reject
+    void sq_first_in_a_fresh_era(){
+        sq_rebind();
+        const SqCounters t = sq_snap();
+        ck("[SQ4-0] precondition: stream 3 is unlocked in its fresh era",
+           (lctx_rd(3, 8) >> 12) & 1, 0);
+        align_iv();
+        sq_off_format(0xA55AC33CUL + 1000);
+        ck("[SQ4a] an off-format PDU first in an era has no accept verdict", sq_acc, 0);
+        ck("[SQ4b] ...and presents nothing (no payload emitted)", sq_out, 0);
+        ck("[SQ4c] ...and leaves the stream unlocked", (lctx_rd(3, 8) >> 12) & 1, 0);
+        ck("[SQ4d] ...and counts no MEDIA_LOCKED", lctx_rd(3, W_ML) - t[W_ML], 0);
+        long accepted = sq_in_order(1);
+        ck("[SQ4e] the first in-order PDU after it is accepted", accepted, 1);
+        ck("[SQ4f] MEDIA_LOCKED +1 at the first accepted PDU", lctx_rd(3, W_ML) - t[W_ML], 1);
+        ck("[SQ4g] ...which locks the stream", (lctx_rd(3, 8) >> 12) & 1, 1);
+        accepted += sq_in_order(9);
+        ck("[SQ4h] SEQ_NUM_MISMATCH unchanged across the era's first PDUs",
+           lctx_rd(3, W_SM) - t[W_SM], 0);
+        sq_untouched("SQ4", 'i', t, 10);
+    }
+
+    //! [SQ5] the off-format PDU inside the settle window. The lock PDU opens
+    //! an 8-PDU window in which a sequence gap counts nothing; after seven
+    //! more PDUs one PDU of it is left. The reject must neither take that PDU
+    //! (a gap at it would count) nor restart the window (the gap after it
+    //! would not).
+    void sq_inside_the_settle_window(){
+        sq_rebind();
+        const SqCounters t = sq_snap();
+        long accepted = sq_in_order(1);         // the lock PDU
+        accepted += sq_in_order(7);
+        ck("[SQ5-0] precondition: one PDU of the settle window is left",
+           (lctx_rd(3, 8) >> 8) & 0x1F, 0x11);  // media_locked, settle 1
+        align_iv();
+        sq_off_format(0xA55AC33CUL + 1000);
+        ck("[SQ5a] an off-format PDU in the settle window has no accept verdict", sq_acc, 0);
+        ck("[SQ5b] ...and presents nothing (no payload emitted)", sq_out, 0);
+        sq_seq++;                               // a PDU lost
+        accepted += sq_in_order(1);
+        ck("[SQ5c] a gap at the window's last PDU counts no SEQ_NUM_MISMATCH: "
+           "the off-format PDU did not shorten the window",
+           lctx_rd(3, W_SM) - t[W_SM], 0);
+        sq_seq++;                               // another PDU lost
+        accepted += sq_in_order(1);
+        ck("[SQ5d] the next gap counts SEQ_NUM_MISMATCH +1: "
+           "the off-format PDU did not restart the window",
+           lctx_rd(3, W_SM) - t[W_SM], 1);
+        accepted += sq_in_order(3);
+        ck("[SQ5e] every in-order and gap PDU is accepted", accepted, 13);
+        ck("[SQ5f] MEDIA_LOCKED +1, at the lock PDU only", lctx_rd(3, W_ML) - t[W_ML], 1);
+        ck("[SQ5g] SEQ_NUM_MISMATCH +1 in all: the in-order PDUs count nothing",
+           lctx_rd(3, W_SM) - t[W_SM], 1);
+        sq_untouched("SQ5", 'h', t, 13);
+    }
+
+    //! [SQ6] the off-format PDU first in a fresh era, before the mr seed.
+    //! The era's first accepted PDU only seeds the mr reference, so with
+    //! mr = 1 it counts no MEDIA_RESET. A reject that set the seed would
+    //! score that PDU as a toggle from the cleared reference.
+    void sq_before_the_mr_seed(){
+        sq_rebind();
+        const SqCounters t = sq_snap();
+        ck("[SQ6-0] precondition: the mr seed is clear in the fresh era",
+           (lctx_rd(3, 8) >> 22) & 3, 0);
+        align_iv();
+        sq_off_format(0xA55AC33CUL + 1000);     // it carries mr = 1
+        ck("[SQ6a] an off-format PDU before the mr seed has no accept verdict", sq_acc, 0);
+        ck("[SQ6b] ...and presents nothing (no payload emitted)", sq_out, 0);
+        ck("[SQ6c] ...and leaves the mr seed and reference clear",
+           (lctx_rd(3, 8) >> 22) & 3, 0);
+        long accepted = sq_in_order(1, true);
+        ck("[SQ6d] the era's first accepted PDU, mr = 1, is accepted", accepted, 1);
+        ck("[SQ6e] ...and counts no MEDIA_RESET: it seeds the reference",
+           lctx_rd(3, W_MR) - t[W_MR], 0);
+        ck("[SQ6f] ...which is now seeded with mr = 1", (lctx_rd(3, 8) >> 22) & 3, 3);
+        accepted += sq_in_order(9, true);
+        ck("[SQ6g] SEQ_NUM_MISMATCH unchanged across the era's first PDUs",
+           lctx_rd(3, W_SM) - t[W_SM], 0);
+        sq_untouched("SQ6", 'h', t, 10);
+    }
+
+    //! [SQ7] the off-format PDU on a seeded stream, its mr reference 0. A
+    //! reject that cleared the seed would make the next toggle only seed
+    //! the reference again, and MEDIA_RESET would miss it.
+    void sq_after_the_mr_seed(){
+        sq_rebind();
+        const SqCounters t = sq_snap();
+        long accepted = sq_in_order(9);         // mr = 0: lock, settle, seed
+        ck("[SQ7-0] precondition: the mr seed is set, its reference 0",
+           (lctx_rd(3, 8) >> 22) & 3, 2);
+        align_iv();
+        sq_off_format(0xA55AC33CUL + 1000);     // it carries mr = 1
+        ck("[SQ7a] an off-format PDU after the mr seed has no accept verdict", sq_acc, 0);
+        ck("[SQ7b] ...and presents nothing (no payload emitted)", sq_out, 0);
+        ck("[SQ7c] ...and leaves the mr seed set, its reference 0",
+           (lctx_rd(3, 8) >> 22) & 3, 2);
+        accepted += sq_in_order(1, true);
+        ck("[SQ7d] MEDIA_RESET +1 at the toggled PDU after the reject",
+           lctx_rd(3, W_MR) - t[W_MR], 1);
+        accepted += sq_in_order(3, true);
+        ck("[SQ7e] MEDIA_RESET +1 in all: a held mr counts nothing more",
+           lctx_rd(3, W_MR) - t[W_MR], 1);
+        ck("[SQ7f] every in-order PDU is accepted", accepted, 13);
+        ck("[SQ7g] SEQ_NUM_MISMATCH unchanged", lctx_rd(3, W_SM) - t[W_SM], 0);
+        ck("[SQ7h] ...UNSUPPORTED_FORMAT +1", lctx_rd(3, W_UF) - t[W_UF], 1);
+        ck("[SQ7i] ...TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged",
+           (lctx_rd(3, W_TU) - t[W_TU]) + (lctx_rd(3, W_LT) - t[W_LT])
+         + (lctx_rd(3, W_ET) - t[W_ET]), 0);
+        ck("[SQ7j] ...STREAM_INTERRUPTED and MEDIA_UNLOCKED unchanged",
+           (lctx_rd(3, W_SI) - t[W_SI]) + (lctx_rd(3, W_MU) - t[W_MU]), 0);
+        ck("[SQ7k] ...FRAMES_RX counts the accepted PDUs only",
+           lctx_rd(3, W_FRX) - t[W_FRX], 13);
+    }
+
+    //! a fresh binding era for stream 3: the bind clears lock, settle and
+    //! the mr seed, and the current format is set again
+    void sq_rebind(){
+        tblwr(3, SQ_SID, false); cyc(10); tblwr(3, SQ_SID, true); cyc(60);
+        lctx_wr(3, 2, static_cast<uint32_t>(FMT & 0xFFFFFFFF));
+        lctx_wr(3, 3, static_cast<uint32_t>(FMT >> 32));
+    }
+
+    //! stream 3's Table 5.6 counter words, W_ML to W_FRX
+    SqCounters sq_snap(){
+        SqCounters t{};
+        for (int w = W_ML; w <= W_FRX; w++) t[w] = lctx_rd(3, w);
+        return t;
+    }
+
+    //! `n` in-order PDUs carrying the mr level `mr`, then one whole
+    //! observation interval; the number of accept verdicts
+    long sq_in_order(int n, bool mr = false){
+        long accepted = 0;
+        for (int k = 0; k < n; k++){
+            AafCfg c; c.sid=SQ_SID; c.seq=sq_seq++; c.mr=mr;
+            feed_and_count(c, 3, sq_acc, sq_out);
+            accepted += sq_acc;
+        }
+        flush_iv();
+        return accepted;
+    }
+
+    //! the off-format PDU: 2 channels against the current format's 8, with
+    //! a toggled mr, tu set and the timestamp read at `now`
+    void sq_off_format(uint32_t now){
+        dut->ptp_now_i = now;
+        AafCfg c; c.sid=SQ_SID; c.seq=sq_seq++; c.chans=2; c.mr=true; c.tu=true;
+        feed_and_count(c, 3, sq_acc, sq_out);
+        dut->ptp_now_i = SQ_ON_TIME;
+    }
+
+    //! the counters an off-format PDU must leave alone, as deltas from `t`,
+    //! after one off-format PDU and `frames` accepted PDUs. The checks are
+    //! named `arm` followed by four letters from `first`.
+    void sq_untouched(const std::string& arm, char first, const SqCounters& t, long frames){
+        auto id = [&](int k, const char* what){
+            return "[" + arm + static_cast<char>(first + k) + "] ..." + what;
+        };
+        ck(id(0, "UNSUPPORTED_FORMAT +1").c_str(), lctx_rd(3, W_UF) - t[W_UF], 1);
+        ck(id(1, "MEDIA_RESET, TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged").c_str(),
+           (lctx_rd(3, W_MR) - t[W_MR]) + (lctx_rd(3, W_TU) - t[W_TU])
+         + (lctx_rd(3, W_LT) - t[W_LT]) + (lctx_rd(3, W_ET) - t[W_ET]), 0);
+        ck(id(2, "STREAM_INTERRUPTED and MEDIA_UNLOCKED unchanged").c_str(),
+           (lctx_rd(3, W_SI) - t[W_SI]) + (lctx_rd(3, W_MU) - t[W_MU]), 0);
+        ck(id(3, "FRAMES_RX counts the accepted PDUs only").c_str(),
+           lctx_rd(3, W_FRX) - t[W_FRX], frames);
+    }
+
+    //! the [SQ] stream: stream 3, re-bound to its own id
+    static constexpr uint64_t SQ_SID = 0x020000FFFE090000ULL;
+    static constexpr uint32_t SQ_ON_TIME = 0xA55AC33CUL - 1000000;  // neither late nor early
+    uint8_t sq_seq = 40;    // the next [SQ] sequence_num
+    long sq_acc = 0;        // accept verdicts of the last [SQ] PDU
+    long sq_out = 0;        // payloads emitted for the last [SQ] PDU
 
     //! Stream 2 carries the [IV] interval-semantics set on a fresh context.
     static constexpr uint64_t SID2 = 0x020000FFFE030000ULL;

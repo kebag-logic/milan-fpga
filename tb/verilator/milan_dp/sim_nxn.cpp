@@ -7044,6 +7044,7 @@ class NxnDatapathHarness {
     //! against the leg's 256-cycle LDIAG_IVAL_CYC_P), in a fresh era:
     //!   P1         accepted: seeds the sequence cursor and the mr level
     //!   7 rejects  type 2 at the followed sid     UNSUPPORTED_FORMAT   7
+    //!              (each advances the cursor, #775)
     //!   P2, P3     2 and 3 PDUs lost              STREAM_INTERRUPTED   2
     //!   P4, P5     1 PDU lost, below the >= 2     SEQ_NUM_MISMATCH     4
     //!   P6..P13    eight clean in order: a lock   MEDIA_LOCKED         1
@@ -7061,8 +7062,9 @@ class NxnDatapathHarness {
         crf_lever(false);
         crf_lever(true);                        // a fresh era: the ten wiped
         send_crf_event_pdu(1, false, false);
-        for (int k = 0; k < 7; k++)             // rejected: the cursor holds
-            send_crf_pdu(phc_now_ns() + 1000000u, cseq, 0x80, 0x02);
+        //! rejected, yet received: each one advances the cursor (#775)
+        for (int k = 0; k < 7; k++)
+            send_crf_pdu(phc_now_ns() + 1000000u, cseq++, 0x80, 0x02);
         cseq = static_cast<uint8_t>(cseq + 2); send_crf_event_pdu(2, false, false);
         cseq = static_cast<uint8_t>(cseq + 3); send_crf_event_pdu(3, false, false);
         cseq = static_cast<uint8_t>(cseq + 1); send_crf_event_pdu(4, false, false);

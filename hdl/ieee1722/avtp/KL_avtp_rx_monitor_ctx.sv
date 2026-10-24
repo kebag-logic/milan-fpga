@@ -16,9 +16,10 @@
                 (the module-avb-extracted engine): lock on first valid PDU /
                 8-PDU settle / mismatch detect + interrupt(lost>=2) /
                 100 ms silence unlock + interrupt (#762) / per-PDU format
-                compare (a rejected
-                PDU affects nothing else) / counter reset ONLY on that
-                stream's not-bound->bound edge [M-5.3.8.10].
+                compare (a rejected PDU affects nothing else) / counter
+                reset ONLY on that stream's not-bound->bound edge
+                [M-5.3.8.10]. Here, unlike there, a rejected PDU advances
+                the sequence state and affects nothing else (#775).
 
                 COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly:
 
@@ -92,9 +93,10 @@
                 flat instrument counts FRAMES (the flat module keeps the
                 1722.1 per-frame reading on purpose - TBs use it as a
                 frame-accurate loop-integrity probe); the flat module does
-                not count a silence as STREAM_INTERRUPTED (#762), and it
-                does not compare the channel count with the current format
-                (#765). Wire bytes are unchanged, and so are the accept
+                not count a silence as STREAM_INTERRUPTED (#762), it does
+                not compare the channel count with the current format
+                (#765), and its format reject does not advance prev_seq
+                (#775). Wire bytes are unchanged, and so are the accept
                 verdicts for a PDU carrying the current format's count.
 
   Company     : Kebag Logic
@@ -287,7 +289,8 @@ module KL_avtp_rx_monitor_ctx #(
     M_INC_S,       //! serial RMW loop (counters / w11 / silence / bind-zero)
     M_BRD_S,       //! BIND: MON_STATE read issued
     M_BDEC_S,      //! BIND: preserved-field w8 write + CFG words
-    M_EXTRD_S      //! window read turnaround
+    M_EXTRD_S,     //! window read turnaround
+    M_PSEQ_S       //! PDU: w8 prev_seq write (discarded off-format PDU, #775)
   } mstate_t;
 
   mstate_t           mst_r;
@@ -631,6 +634,12 @@ module KL_avtp_rx_monitor_ctx #(
             eng_wdata_w = cur_w.tsd;
           end
         endcase
+      end
+      //! a discarded off-format PDU writes back only its prev_seq (#775)
+      M_PSEQ_S : begin
+        eng_we_w    = 1'b1;
+        eng_waddr_w = laddr(ev_s_r, W_MONST_C);
+        eng_wdata_w = monst_r;
       end
       M_INC_S : begin
         if (w11_mode_r) begin
@@ -1002,8 +1011,14 @@ module KL_avtp_rx_monitor_ctx #(
           if (!fmt_ok_w) begin
             //! counts nothing else (reference early-return); UNSUPPORTED_
             //! FORMAT is an interval counter now - iv_events raised the
-            //! flag this cycle, so there is nothing to walk
-            mst_r <= M_IDLE_S;
+            //! flag this cycle, so there is nothing to walk. The PDU was
+            //! still received (Milan v1.2 Table 5.6), so its sequence_num
+            //! advances prev_seq as an accepted PDU's does, and the next
+            //! in-order PDU is no SEQ_NUM_MISMATCH (#775). Lock, settle,
+            //! wire_chans and the mr reference keep their values, and no
+            //! timestamp word is written.
+            monst_r <= {ram_q_r[31:8], cur_w.seq};
+            mst_r   <= M_PSEQ_S;
           end
           else begin
             pdu_accept_p_o     <= 1'b1;
@@ -1043,6 +1058,8 @@ module KL_avtp_rx_monitor_ctx #(
           end
           else wrph_r <= wrph_r + 4'd1;
         end
+
+        M_PSEQ_S : mst_r <= M_IDLE_S;
 
         M_INC_S : begin
           if (w11_mode_r) begin

@@ -135,6 +135,7 @@ class DiscontinuityHarness {
         dut->type_i = 0;
         fields(); dut->frame_p_i = 1; tick();
         dut->frame_p_i = 0; tick();
+        ++seq;  // #775: a received reject's sequence_num advances the cursor
         check.that("malformed marker cannot invalidate", dut->rate_valid_o);
         dut->type_i = 1; dut->sid_frame_i = kSid + 1;
         dut->frame_p_i = 1; tick(); dut->frame_p_i = 0; tick();
@@ -194,7 +195,7 @@ class DiscontinuityHarness {
         // Matching SID and subtype, but not the required CRF_AUDIO_SAMPLE.
         dut->type_i = 0;
         fields(); dut->frame_p_i = 1; tick();
-        dut->frame_p_i = 0;
+        dut->frame_p_i = 0; ++seq;  // #775: the reject advances the cursor
         check.that("validation error preserves established lock", dut->locked_o);
         bool stayed_locked = dut->locked_o;
         for (unsigned n = 0; n < IVAL_CYC_C + 2; ++n) {
