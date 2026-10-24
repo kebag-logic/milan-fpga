@@ -64,7 +64,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_aaf_capture_i2s` | `ieee1722/aaf/KL_aaf_capture_i2s.sv` | `aaf` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aaf_latency_tap_bank` | `ieee1722/aaf/KL_aaf_latency_tap_bank.sv` | `aaf_latency_tap_bank` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aaf_latency_chain` | `ieee1722/aaf/KL_aaf_latency_taps.sv` | `aaf_latency_tap_bank` · `aaf_latency_taps` · `milan_dp` · 🔬`make aaf` | -- |
-| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 1.2, 35.2.2.8.4, 802.3 |
+| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
 | ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
@@ -95,7 +95,7 @@ _AAF / CRF / MAAP / AVTP common_
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | -- |
 | ✅ `KL_aaf_clock_meter` | `ieee1722/crf/KL_aaf_clock_meter.sv` | `aaf_clock_meter` · `follow_ring` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |
 | ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `aaf_clock_meter` · `crf_rx` · `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
-| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 1.2, 35.2.2.8.4, 802.3 |
+| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 35.2.2.8.4, 4.3.3.2, 802.3 |
 | ✅ `KL_media_domain_event` | `ieee1722/crf/KL_media_domain_event.sv` | `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_media_grid_align` | `ieee1722/crf/KL_media_grid_align.sv` | `capture_coherence` · `follow_ring` · `media_grid_align` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render | -- |
 | 📦 `KL_media_if_latency_pkg` | `ieee1722/crf/KL_media_if_latency_pkg.sv` | -- | -- |
@@ -170,5 +170,5 @@ _datapath + top wrappers_
 | ✅ `KL_nvm_backend` | `milan/KL_nvm_backend.sv` | `milan_dp` · `nvm_backend` · `nvm_cosim` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_pp_maap_shim` | `milan/KL_pp_maap_shim.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
 | ✅ `KL_pp_shadow` | `milan/KL_pp_shadow.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 34.3, 34.4 |
-| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_mclk` · `milan_dp_render` | 1.2, 34.4, 35.2.2.8.4, 35.2.7 |
+| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_mclk` · `milan_dp_render` | 34.4, 35.2.2.8.4, 35.2.7, 4.3.3.2 |
 
