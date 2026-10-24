@@ -1,0 +1,91 @@
+control aecp-dispatch: rc=0 PASS
+m9-guard-get-avb-info: rc=2 failures=14 named=1 KILLED
+    FAIL: M9: mt=2 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: ...and every echoed byte survives (mt=2 word 0027, 8-byte payload)
+    FAIL: M9: mt=4 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: ...and every echoed byte survives (mt=4 word 0027, 8-byte payload)
+    FAIL: M9: mt=6 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: ...and every echoed byte survives (mt=6 word 0027, 8-byte payload)
+    FAIL: M9: mt=8 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: ...and every echoed byte survives (mt=8 word 0027, 8-byte payload)
+    FAIL: M9: mt=10 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: ...and every echoed byte survives (mt=10 word 0027, 8-byte payload)
+    FAIL: M9: mt=12 word 0027 must be NOT_IMPLEMENTED with the command echoed WHOLE (non-AEM message carrying an AEM opcode)
+    FAIL: M9: ...and every echoed byte survives (mt=12 word 0027, 8-byte payload)
+gavb-other-type-not-implemented: rc=2 failures=13 named=1 KILLED
+    FAIL: V5 GET_AVB_INFO on ENTITY 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CONFIGURATION 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on AUDIO_UNIT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_INPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_OUTPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on JACK_OUTPUT 0, the type below AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_SOURCE 0, the type above AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 5 (absent): NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0x0109: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0x8009: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0xFFFF: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+gavb-other-type-header-only: rc=2 failures=13 named=1 KILLED
+    FAIL: V5 GET_AVB_INFO on ENTITY 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CONFIGURATION 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on AUDIO_UNIT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_INPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_OUTPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on JACK_OUTPUT 0, the type below AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_SOURCE 0, the type above AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 5 (absent): NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0x0109: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0x8009: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0xFFFF: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+gavb-other-type-full-body: rc=2 failures=13 named=1 KILLED
+    FAIL: V5 GET_AVB_INFO on ENTITY 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CONFIGURATION 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on AUDIO_UNIT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_INPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_OUTPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on JACK_OUTPUT 0, the type below AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_SOURCE 0, the type above AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 5 (absent): NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0x0109: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0x8009: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0xFFFF: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+gavb-type-gate-dropped: rc=2 failures=13 named=1 KILLED
+    FAIL: V5 GET_AVB_INFO on ENTITY 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CONFIGURATION 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on AUDIO_UNIT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_INPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_OUTPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on JACK_OUTPUT 0, the type below AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_SOURCE 0, the type above AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 5 (absent): NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0x0109: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0x8009: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0xFFFF: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+gavb-type-low-byte: rc=2 failures=2 named=1 KILLED
+    FAIL: V5 GET_AVB_INFO on type 0x0109: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on type 0x8009: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+gavb-interface-not-supported: rc=2 failures=16 named=1 KILLED
+    FAIL: V1: GET_AVB_INFO byte-exact, both mappings in order
+    FAIL: V1b: GET_AVB_INFO padded to cdl 20 answers V1's SUCCESS, byte-exact
+    FAIL: V3: GET_AVB_INFO on a missing interface refuses NO_SUCH_DESCRIPTOR
+    FAIL: V5 GET_AVB_INFO on ENTITY 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CONFIGURATION 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on AUDIO_UNIT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_INPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on STREAM_OUTPUT 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on JACK_OUTPUT 0, the type below AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_SOURCE 0, the type above AVB_INTERFACE: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 0: NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 5 (absent): NOT_SUPPORTED, the command echoed at cdl 16, byte-exact
+gavb-locate-miss-ignored: rc=2 failures=1 named=1 KILLED
+    FAIL: V3: GET_AVB_INFO on a missing interface refuses NO_SUCH_DESCRIPTOR
+gavb-padded-refused: rc=2 failures=2 named=1 KILLED
+    FAIL: V1b: GET_AVB_INFO padded to cdl 20 answers V1's SUCCESS, byte-exact
+    FAIL: V5 GET_AVB_INFO on CLOCK_DOMAIN 0 padded: NOT_SUPPORTED, the command echoed at cdl 20, byte-exact
+gavb-floor-14: rc=2 failures=1 named=1 KILLED
+    FAIL: V4: short GET_AVB_INFO answers BAD_ARGUMENTS
+11 checks: 11 PASS, 0 FAIL
+rc=0
