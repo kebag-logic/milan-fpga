@@ -1,0 +1,25 @@
+clone head 41f4a53cc0b12f143fa3e61a5339a11e79806ce9
+clean control: python3 scripts/suite_shards.py --selftest rc=0
+clean control: python3 scripts/ci_gate_workflows.py --check rc=0
+clean control: python3 -c import sys; sys.path.insert(0, 'scripts'); import measure_test_evidence as m; p = m.runner_contract(open('scripts/run_all_suites.sh').read()); print(p); sys.exit(1 if p else 0) rc=0
+CAUGHT  R1 provisional comparison disabled while nothing is pending (the planted arm must still refuse it): rcs=[1] words={"ESCAPED a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused": True}
+    | ESCAPED a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+CAUGHT  R2 the hosted 582 s recorded as the figure while media_phase stays provisional: rcs=[1] words={'provisional figure 582 s is not the 1400 s': True}
+    | FAIL head: media_phase: provisional figure 582 s is not the 1400 s that run_all_suites.sh's suite_timeout gives it
+CAUGHT  R3 PROVISIONAL_SUITES names a suite with no figure (misspelt media_phase): rcs=[1] words={'media_phse: PROVISIONAL_SUITES names a suite with no figure in SUITE_SECONDS': True}
+    | FAIL head: media_phse: PROVISIONAL_SUITES names a suite with no figure in SUITE_SECONDS
+CAUGHT  R4 driver suite_timeout media_phase back at 900 s: rcs=[1] words={'suite budgets changed': True}
+    | ['the declared 1400/1800/2400/3600/4800/5400-second suite budgets changed']
+CAUGHT  R5 (round 1b M1) overhead table back at 16 workers, workflow not regenerated: rcs=[1, 1] words={'WORKER_OVERHEAD_SECONDS describes 16 workers; rtl.yml runs 17': True, 'regenerate the gate jobs': True}
+    | FAIL head: WORKER_OVERHEAD_SECONDS describes 16 workers; rtl.yml runs 17
+    | .github/workflows/rtl.yml: regenerate the gate jobs
+CAUGHT  R6 (round 1b M2) 16 workers regenerated through the generator, media_phase still 1400 s: rcs=[1] words={'FAIL head worker 0/16 predicted 1640 s (27.3 min), bound 1620 s': True}
+    | FAIL head worker 0/16 predicted 1640 s (27.3 min), bound 1620 s
+CAUGHT  R7 (round 1b M5) rtl.yml hand-edited: 60-minute index left at 15 with 17 workers: rcs=[1, 1] words={'FAIL head worker 16/17 predicted 2032 s (33.9 min), bound 1620 s': True, 'regenerate the gate jobs': True}
+    | FAIL head worker 16/17 predicted 2032 s (33.9 min), bound 1620 s
+    | .github/workflows/rtl.yml: regenerate the gate jobs
+CAUGHT  R8 (round 1b M8) media_phase grown to 1499 s, the first figure no regular worker accepts: rcs=[1] words={'FAIL head worker 0/17 predicted 1621 s (27.0 min), bound 1620 s': True}
+    | FAIL head worker 0/17 predicted 1621 s (27.0 min), bound 1620 s
+PASSES (expected) X1 expected escape: SUITE_SECONDS media_phase lowered to the hosted 582 s, not provisional, driver kept 1400 s: rcs=[0] words={'selftest: PASS': True}
+    | selftest: PASS
+mutants: 8 expected caught, 1 expected escape; departures from expectation: 0

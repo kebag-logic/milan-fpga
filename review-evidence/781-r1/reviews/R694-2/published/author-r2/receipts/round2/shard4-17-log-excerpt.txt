@@ -1,0 +1,22 @@
+2026-10-24T20:50:36.6843316Z   ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+2026-10-24T20:50:36.6843647Z   ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+2026-10-24T20:50:36.6844043Z   ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+2026-10-24T20:50:36.6844487Z   ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+2026-10-24T20:50:36.6844920Z   ok   head provisional figures {'media_phase': 1400} are what run_all_suites.sh's suite_timeout gives
+2026-10-24T20:50:36.6845205Z   ok   head worker 0/17 predicted 1605 s (26.8 min), bound 1620 s
+2026-10-24T20:50:36.7743346Z Shard 4 owns:
+2026-10-24T20:50:36.7754946Z   controller_rate
+2026-10-24T20:50:36.7755143Z   datapath
+2026-10-24T20:50:36.7755312Z   fw_service_budget
+2026-10-24T20:50:36.7755493Z   media_phase
+2026-10-24T20:50:36.7821933Z ##[group]Run scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" \
+2026-10-24T20:50:36.7875084Z ##[endgroup]
+2026-10-24T20:51:40.2566832Z shard: 4/17   selected suites: 4
+2026-10-24T20:51:45.1170965Z PASS     controller_rate
+2026-10-24T20:51:48.8951413Z PASS     datapath
+2026-10-24T20:51:49.9660890Z PASS     fw_service_budget
+2026-10-24T21:01:31.7124752Z PASS     media_phase
+2026-10-24T21:01:31.7125069Z ----------------------------------------------------------------
+2026-10-24T21:01:31.7125312Z suites: 4   passed: 4   failed: 0   timed out: 0
+2026-10-24T21:01:31.7499849Z checks: 24996   in-suite failures: 0
+2026-10-24T21:01:32.8561130Z   CI_JOB_RESULT: success
