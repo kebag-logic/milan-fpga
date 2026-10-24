@@ -1,0 +1,83 @@
+$ python3 -I scripts/round2_bounds.py <shard-2 clone at 1b47a3dc> <sweep>/shard-2/logs/capture_coherence.log
+1x1 grid-live earliest hand-over = 127,991  (5 Ps + marker 20964 + (86 + 57) cycles)
+1x1 grid-live lead = 2,038,676  (offset + 8 Ps - earliest hand-over)
+1x1 grid-live last event = 2,142,843  (+ 5 Ps)
+1x1 grid-live margin = 513,276  (queue - last event)
+1x1 pre-773 grid-live last event = 1,976,176  (stamp M + offset, + 5 Ps)
+1x1 range floor = 31,119  (K x Ps - event latency + Ps / 2)
+1x1 transit bound = 2,135,548  (offset + 8 Ps - floor)
+1x1 offset bound = 2,489,452  (queue - 8 Ps (first event))
+1x1 whole-PDU offset bound = 2,385,285  (queue - 8 Ps - 5 Ps)
+8x8 grid-live earliest hand-over = 112,275  (5 Ps + marker 5308 + (83 + 57) cycles)
+8x8 grid-live lead = 2,054,392  (offset + 8 Ps - earliest hand-over)
+8x8 grid-live last event = 2,158,559  (+ 5 Ps)
+8x8 grid-live margin = 492,383  (queue - last event)
+8x8 pre-773 grid-live last event = 1,991,892  (stamp M + offset, + 5 Ps)
+8x8 range floor = 25,942  (K x Ps - event latency + Ps / 2)
+8x8 transit bound = 2,140,725  (offset + 8 Ps - floor)
+8x8 offset bound = 2,484,275  (queue - 8 Ps (first event))
+8x8 whole-PDU offset bound = 2,380,108  (queue - 8 Ps - 5 Ps)
+start-up earliest hand-over = 106,860  ((5208 + 78 + 57) cycles)
+start-up lead = 2,059,807  (offset + 8 Ps - hand-over)
+start-up lead at 125 us = 184,807  ()
+start-up last event = 2,163,974  (+ 5 Ps)
+1x1 start-up margin = 492,145  (queue - last event)
+8x8 start-up margin = 486,968  (queue - last event)
+Eq. (1) lead ceiling = 231,860  (earliest hand-over + TUmax)
+max frame on the wire = 12,336  (1,542 octets)
+AAF 1x1 after one frame ahead = 5,480  (spare - 12,336)
+AAF 8x8 after one frame ahead = 6,576  (spare - 12,336)
+CRF 1x1 after one frame ahead = 8,167  (spare - 12,336)
+CRF 8x8 after one frame ahead = 2,990  (spare - 12,336)
+AAF egress past uncontended = 16,208  (F 190 beats, F wire, CRF PDU wire, less the AAF 30 beats)
+CRF egress past uncontended = 18,040  (F 190 beats, F wire, AAF PDU wire, less the CRF 8 beats)
+AAF 1x1 after the arbitrated frame = 1,608  (spare - egress delay)
+AAF 8x8 after the arbitrated frame = 2,704  (spare - egress delay)
+CRF 1x1 after the arbitrated frame = 2,463  (spare - egress delay)
+CRF 8x8 after the arbitrated frame = -2,714  (spare - egress delay)
+max frame at 100 Mb/s = 123,360  ()
+
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,038,676" stated, derived 2,038,676
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,054,392" stated, derived 2,054,392
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,059,807" stated, derived 2,059,807
+PASS MEDIA_CLOCK_FOLLOWING.md: "184,807" stated, derived 184,807
+PASS MEDIA_CLOCK_FOLLOWING.md: "106,860" stated, derived 106,860
+PASS MEDIA_CLOCK_FOLLOWING.md: "5,343" stated, derived 5,343
+PASS MEDIA_CLOCK_FOLLOWING.md: "5,208" stated, derived 5,208
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,163,974" stated, derived 2,163,974
+PASS MEDIA_CLOCK_FOLLOWING.md: "492.1 us" stated, derived 492.1
+PASS MEDIA_CLOCK_FOLLOWING.md: "487.0 us" stated, derived 487.0
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,142,843" stated, derived 2,142,843
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,158,559" stated, derived 2,158,559
+PASS MEDIA_CLOCK_FOLLOWING.md: "513.3" stated, derived 513.3
+PASS MEDIA_CLOCK_FOLLOWING.md: "492.4" stated, derived 492.4
+PASS MEDIA_CLOCK_FOLLOWING.md: "1,976,176" stated, derived 1,976,176
+PASS MEDIA_CLOCK_FOLLOWING.md: "1,991,892" stated, derived 1,991,892
+PASS MEDIA_CLOCK_FOLLOWING.md: "231.8 us" stated, derived 231.8
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,135,548" stated, derived 2,135,548
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,140,725" stated, derived 2,140,725
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,489,452" stated, derived 2,489,452
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,484,275" stated, derived 2,484,275
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,385,285" stated, derived 2,385,285
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,380,108" stated, derived 2,380,108
+PASS MEDIA_CLOCK_FOLLOWING.md: "12,336" stated, derived 12,336
+PASS MEDIA_CLOCK_FOLLOWING.md: "5,480" stated, derived 5,480
+PASS MEDIA_CLOCK_FOLLOWING.md: "6,576" stated, derived 6,576
+PASS MEDIA_CLOCK_FOLLOWING.md: "8,167" stated, derived 8,167
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,990" stated, derived 2,990
+PASS MEDIA_CLOCK_FOLLOWING.md: "16,208" stated, derived 16,208
+PASS MEDIA_CLOCK_FOLLOWING.md: "18,040" stated, derived 18,040
+PASS MEDIA_CLOCK_FOLLOWING.md: "1,608" stated, derived 1,608
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,704" stated, derived 2,704
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,463" stated, derived 2,463
+PASS MEDIA_CLOCK_FOLLOWING.md: "2,714" stated, derived 2,714
+PASS MEDIA_CLOCK_FOLLOWING.md: "123,360" stated, derived 123,360
+PASS MEDIA_CLOCK_FOLLOWING.md: "127,991" stated, derived 127,991
+PASS MEDIA_CLOCK_FOLLOWING.md: "112,275" stated, derived 112,275
+PASS MILAN_COMPLIANCE_MATRIX.md: "2,054,392" stated, derived 2,054,392
+PASS MILAN_COMPLIANCE_MATRIX.md: "2,038,676" stated, derived 2,038,676
+PASS MILAN_COMPLIANCE_MATRIX.md: "2,059,807" stated, derived 2,059,807
+PASS capture_coherence.log: 23 2 ms [HOLD] maxima, largest 2,059,807 <= stated start-up bound 2,059,807
+
+PASS: 0 failure(s)
+rc=0

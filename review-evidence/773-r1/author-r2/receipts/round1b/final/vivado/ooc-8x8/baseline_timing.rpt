@@ -1,0 +1,1831 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sat Oct 24 12:09:42 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing_summary -max_paths 10 -file baseline_timing.rpt
+| Design       : KL_pp_shadow
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Summary Report
+
+------------------------------------------------------------------------------------------------
+| Timer Settings
+| --------------
+------------------------------------------------------------------------------------------------
+
+  Enable Multi Corner Analysis               :  Yes
+  Enable Pessimism Removal                   :  Yes
+  Pessimism Removal Resolution               :  Nearest Common Node
+  Enable Input Delay Default Clock           :  No
+  Enable Preset / Clear Arcs                 :  No
+  Disable Flight Delays                      :  No
+  Ignore I/O Paths                           :  No
+  Timing Early Launch at Borrowing Latches   :  No
+  Borrow Time for Max Delay Exceptions       :  Yes
+  Merge Timing Exceptions                    :  Yes
+  Inter-SLR Compensation                     :  Conservative
+
+  Corner  Analyze    Analyze    
+  Name    Max Paths  Min Paths  
+  ------  ---------  ---------  
+  Slow    Yes        Yes        
+  Fast    Yes        Yes        
+
+
+------------------------------------------------------------------------------------------------
+| Report Methodology
+| ------------------
+------------------------------------------------------------------------------------------------
+
+No report available as report_methodology has not been run prior. Run report_methodology on the current design for the summary of methodology violations.
+
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (1796)
+6. checking no_output_delay (5432)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (1796)
+---------------------------------
+ There are 1796 input ports with no input delay specified. (HIGH)
+
+ There are 0 input ports with no input delay but user has a false path constraint.
+
+
+6. checking no_output_delay (5432)
+----------------------------------
+ There are 5432 ports with no output delay specified. (HIGH)
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+
+
+------------------------------------------------------------------------------------------------
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      1.139        0.000                      0                84583        0.159        0.000                      0                84583        8.870        0.000                       0                 33129  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+| Clock Summary
+| -------------
+------------------------------------------------------------------------------------------------
+
+Clock  Waveform(ns)       Period(ns)      Frequency(MHz)
+-----  ------------       ----------      --------------
+clk    {0.000 10.000}     20.000          50.000          
+
+
+------------------------------------------------------------------------------------------------
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----             -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+clk                 1.139        0.000                      0                84583        0.159        0.000                      0                84583        8.870        0.000                       0                 33129  
+
+
+------------------------------------------------------------------------------------------------
+| Inter Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------    --------          -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+
+
+------------------------------------------------------------------------------------------------
+| Other Path Groups Table
+| -----------------------
+------------------------------------------------------------------------------------------------
+
+Path Group    From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------    ----------    --------          -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+
+
+------------------------------------------------------------------------------------------------
+| Timing Details
+| --------------
+------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------
+From Clock:  clk
+  To Clock:  clk
+
+Setup :            0  Failing Endpoints,  Worst Slack        1.139ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.159ns,  Total Violation        0.000ns
+PW    :            0  Failing Endpoints,  Worst Slack        8.870ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             1.139ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/ss_r_reg[0]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.621ns  (logic 4.449ns (23.892%)  route 14.172ns (76.108%))
+  Logic Levels:           37  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=3)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/ss_r[3]_i_3/O
+                         net (fo=1, unplaced)         0.347    18.913    u_pp/u_aecp/u_d3/ss_r[3]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    19.018 r  u_pp/u_aecp/u_d3/ss_r[3]_i_1/O
+                         net (fo=4, unplaced)         0.390    19.408    u_pp/u_aecp/u_d3/ss_r[3]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/ss_r_reg[0]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/ss_r_reg[0]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/ss_r_reg[0]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.408    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.139    <hidden>
+
+Slack (MET) :             1.139ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/ss_r_reg[1]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.621ns  (logic 4.449ns (23.892%)  route 14.172ns (76.108%))
+  Logic Levels:           37  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=3)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/ss_r[3]_i_3/O
+                         net (fo=1, unplaced)         0.347    18.913    u_pp/u_aecp/u_d3/ss_r[3]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    19.018 r  u_pp/u_aecp/u_d3/ss_r[3]_i_1/O
+                         net (fo=4, unplaced)         0.390    19.408    u_pp/u_aecp/u_d3/ss_r[3]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/ss_r_reg[1]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/ss_r_reg[1]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/ss_r_reg[1]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.408    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.139    <hidden>
+
+Slack (MET) :             1.139ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/ss_r_reg[2]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.621ns  (logic 4.449ns (23.892%)  route 14.172ns (76.108%))
+  Logic Levels:           37  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=3)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/ss_r[3]_i_3/O
+                         net (fo=1, unplaced)         0.347    18.913    u_pp/u_aecp/u_d3/ss_r[3]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    19.018 r  u_pp/u_aecp/u_d3/ss_r[3]_i_1/O
+                         net (fo=4, unplaced)         0.390    19.408    u_pp/u_aecp/u_d3/ss_r[3]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/ss_r_reg[2]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/ss_r_reg[2]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/ss_r_reg[2]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.408    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.139    <hidden>
+
+Slack (MET) :             1.139ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/ss_r_reg[3]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.621ns  (logic 4.449ns (23.892%)  route 14.172ns (76.108%))
+  Logic Levels:           37  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=3)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/ss_r[3]_i_3/O
+                         net (fo=1, unplaced)         0.347    18.913    u_pp/u_aecp/u_d3/ss_r[3]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    19.018 r  u_pp/u_aecp/u_d3/ss_r[3]_i_1/O
+                         net (fo=4, unplaced)         0.390    19.408    u_pp/u_aecp/u_d3/ss_r[3]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/ss_r_reg[3]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/ss_r_reg[3]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/ss_r_reg[3]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.408    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.139    <hidden>
+
+Slack (MET) :             1.544ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/attempts_r_reg[0]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.216ns  (logic 4.344ns (23.847%)  route 13.872ns (76.153%))
+  Logic Levels:           36  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=2)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_1/O
+                         net (fo=32, unplaced)        0.437    19.003    u_pp/u_aecp/u_d3/attempts_r[31]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[0]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[0]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/attempts_r_reg[0]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.003    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.544    <hidden>
+
+Slack (MET) :             1.544ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/attempts_r_reg[10]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.216ns  (logic 4.344ns (23.847%)  route 13.872ns (76.153%))
+  Logic Levels:           36  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=2)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_1/O
+                         net (fo=32, unplaced)        0.437    19.003    u_pp/u_aecp/u_d3/attempts_r[31]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[10]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[10]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/attempts_r_reg[10]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.003    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.544    <hidden>
+
+Slack (MET) :             1.544ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/attempts_r_reg[11]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.216ns  (logic 4.344ns (23.847%)  route 13.872ns (76.153%))
+  Logic Levels:           36  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=2)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_1/O
+                         net (fo=32, unplaced)        0.437    19.003    u_pp/u_aecp/u_d3/attempts_r[31]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[11]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[11]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/attempts_r_reg[11]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.003    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.544    <hidden>
+
+Slack (MET) :             1.544ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/attempts_r_reg[12]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.216ns  (logic 4.344ns (23.847%)  route 13.872ns (76.153%))
+  Logic Levels:           36  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=2)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_1/O
+                         net (fo=32, unplaced)        0.437    19.003    u_pp/u_aecp/u_d3/attempts_r[31]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[12]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[12]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/attempts_r_reg[12]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.003    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.544    <hidden>
+
+Slack (MET) :             1.544ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/attempts_r_reg[13]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.216ns  (logic 4.344ns (23.847%)  route 13.872ns (76.153%))
+  Logic Levels:           36  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=2)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_1/O
+                         net (fo=32, unplaced)        0.437    19.003    u_pp/u_aecp/u_d3/attempts_r[31]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[13]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[13]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/attempts_r_reg[13]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.003    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.544    <hidden>
+
+Slack (MET) :             1.544ns  (required time - arrival time)
+  Source:                 u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/u_aecp/u_d3/attempts_r_reg[14]/CE
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (clk rise@20.000ns - clk rise@0.000ns)
+  Data Path Delay:        18.216ns  (logic 4.344ns (23.847%)  route 13.872ns (76.153%))
+  Logic Levels:           36  (LUT2=15 LUT3=5 LUT4=7 LUT5=7 LUT6=2)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.787     0.787    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.397     1.184 r  u_pp/u_aecp/u_d3/dirty_r_reg[12]/Q
+                         net (fo=5, unplaced)         0.653     1.837    u_pp/u_aecp/u_d3/p_0_in75_in
+                         LUT4 (Prop_lut4_I1_O)        0.252     2.089 r  u_pp/u_aecp/u_d3/hand_r[4]_i_59/O
+                         net (fo=2, unplaced)         0.339     2.428    u_pp/u_aecp/u_d3/hand_r[4]_i_59_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.125     2.553 f  u_pp/u_aecp/u_d3/hand_r[4]_i_51/O
+                         net (fo=3, unplaced)         0.365     2.918    u_pp/u_aecp/u_d3/hand_r[4]_i_51_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     3.023 r  u_pp/u_aecp/u_d3/hand_r[4]_i_32/O
+                         net (fo=3, unplaced)         0.365     3.388    u_pp/u_aecp/u_d3/hand_r[4]_i_32_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     3.493 f  u_pp/u_aecp/u_d3/hand_r[5]_i_31/O
+                         net (fo=5, unplaced)         0.375     3.868    u_pp/u_aecp/u_d3/hand_r[5]_i_31_n_0
+                         LUT6 (Prop_lut6_I1_O)        0.105     3.973 r  u_pp/u_aecp/u_d3/hand_r[5]_i_10/O
+                         net (fo=3, unplaced)         0.365     4.338    u_pp/u_aecp/u_d3/hand_r[5]_i_10_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105     4.443 r  u_pp/u_aecp/u_d3/hand_r[5]_i_33/O
+                         net (fo=2, unplaced)         0.358     4.801    u_pp/u_aecp/u_d3/hand_r[5]_i_33_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     4.906 r  u_pp/u_aecp/u_d3/hand_r[5]_i_90/O
+                         net (fo=2, unplaced)         0.358     5.264    u_pp/u_aecp/u_d3/hand_r[5]_i_90_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     5.369 f  u_pp/u_aecp/u_d3/hand_r[5]_i_79/O
+                         net (fo=3, unplaced)         0.365     5.734    u_pp/u_aecp/u_d3/hand_r[5]_i_79_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     5.839 f  u_pp/u_aecp/u_d3/hand_r[5]_i_60/O
+                         net (fo=4, unplaced)         0.371     6.210    u_pp/u_aecp/u_d3/hand_r[5]_i_60_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     6.315 f  u_pp/u_aecp/u_d3/hand_r[5]_i_28/O
+                         net (fo=3, unplaced)         0.365     6.680    u_pp/u_aecp/u_d3/hand_r[5]_i_28_n_0
+                         LUT3 (Prop_lut3_I2_O)        0.105     6.785 f  u_pp/u_aecp/u_d3/hand_r[5]_i_34/O
+                         net (fo=3, unplaced)         0.365     7.150    u_pp/u_aecp/u_d3/hand_r[5]_i_34_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     7.255 r  u_pp/u_aecp/u_d3/hand_r[5]_i_12/O
+                         net (fo=3, unplaced)         0.365     7.620    u_pp/u_aecp/u_d3/hand_r[5]_i_12_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105     7.725 f  u_pp/u_aecp/u_d3/hand_r[5]_i_38/O
+                         net (fo=5, unplaced)         0.375     8.100    u_pp/u_aecp/u_d3/hand_r[5]_i_38_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     8.205 f  u_pp/u_aecp/u_d3/hand_r[6]_i_50/O
+                         net (fo=3, unplaced)         0.365     8.570    u_pp/u_aecp/u_d3/hand_r[6]_i_50_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105     8.675 f  u_pp/u_aecp/u_d3/hand_r[6]_i_18/O
+                         net (fo=4, unplaced)         0.371     9.046    u_pp/u_aecp/u_d3/hand_r[6]_i_18_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105     9.151 f  u_pp/u_aecp/u_d3/hand_r[6]_i_87/O
+                         net (fo=3, unplaced)         0.365     9.516    u_pp/u_aecp/u_d3/hand_r[6]_i_87_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105     9.621 f  u_pp/u_aecp/u_d3/hand_r[6]_i_52/O
+                         net (fo=4, unplaced)         0.371     9.992    u_pp/u_aecp/u_d3/hand_r[6]_i_52_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    10.097 f  u_pp/u_aecp/u_d3/hand_r[4]_i_11/O
+                         net (fo=5, unplaced)         0.375    10.472    u_pp/u_aecp/u_d3/hand_r[4]_i_11_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    10.577 r  u_pp/u_aecp/u_d3/hand_r[6]_i_64/O
+                         net (fo=2, unplaced)         0.358    10.935    u_pp/u_aecp/u_d3/hand_r[6]_i_64_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    11.040 r  u_pp/u_aecp/u_d3/hand_r[6]_i_88/O
+                         net (fo=3, unplaced)         0.365    11.405    u_pp/u_aecp/u_d3/hand_r[6]_i_88_n_0
+                         LUT4 (Prop_lut4_I2_O)        0.105    11.510 r  u_pp/u_aecp/u_d3/hand_r[6]_i_57/O
+                         net (fo=4, unplaced)         0.371    11.881    u_pp/u_aecp/u_d3/hand_r[6]_i_57_n_0
+                         LUT6 (Prop_lut6_I0_O)        0.105    11.986 f  u_pp/u_aecp/u_d3/hand_r[6]_i_24/O
+                         net (fo=3, unplaced)         0.365    12.351    u_pp/u_aecp/u_d3/hand_r[6]_i_24_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.456 f  u_pp/u_aecp/u_d3/hand_r[6]_i_89/O
+                         net (fo=2, unplaced)         0.358    12.814    u_pp/u_aecp/u_d3/hand_r[6]_i_89_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    12.919 f  u_pp/u_aecp/u_d3/hand_r[6]_i_62/O
+                         net (fo=3, unplaced)         0.365    13.284    u_pp/u_aecp/u_d3/hand_r[6]_i_62_n_0
+                         LUT4 (Prop_lut4_I3_O)        0.105    13.389 r  u_pp/u_aecp/u_d3/hand_r[2]_i_23/O
+                         net (fo=2, unplaced)         0.358    13.747    u_pp/u_aecp/u_d3/hand_r[2]_i_23_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    13.852 f  u_pp/u_aecp/u_d3/hand_r[2]_i_16/O
+                         net (fo=3, unplaced)         0.365    14.217    u_pp/u_aecp/u_d3/hand_r[2]_i_16_n_0
+                         LUT5 (Prop_lut5_I4_O)        0.105    14.322 f  u_pp/u_aecp/u_d3/hand_r[6]_i_59/O
+                         net (fo=3, unplaced)         0.365    14.687    u_pp/u_aecp/u_d3/hand_r[6]_i_59_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    14.792 r  u_pp/u_aecp/u_d3/hand_r[1]_i_9/O
+                         net (fo=2, unplaced)         0.358    15.150    u_pp/u_aecp/u_d3/hand_r[1]_i_9_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    15.255 f  u_pp/u_aecp/u_d3/hand_r[6]_i_56/O
+                         net (fo=5, unplaced)         0.375    15.630    u_pp/u_aecp/u_d3/hand_r[6]_i_56_n_0
+                         LUT2 (Prop_lut2_I0_O)        0.105    15.735 f  u_pp/u_aecp/u_d3/hand_r[7]_i_16/O
+                         net (fo=3, unplaced)         0.365    16.100    u_pp/u_aecp/u_d3/hand_r[7]_i_16_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.205 f  u_pp/u_aecp/u_d3/hand_r[2]_i_6/O
+                         net (fo=4, unplaced)         0.371    16.576    u_pp/u_aecp/u_d3/hand_r[2]_i_6_n_0
+                         LUT4 (Prop_lut4_I0_O)        0.105    16.681 r  u_pp/u_aecp/u_d3/hand_r[1]_i_3/O
+                         net (fo=3, unplaced)         0.365    17.046    u_pp/u_aecp/u_d3/hand_r[1]_i_3_n_0
+                         LUT2 (Prop_lut2_I1_O)        0.105    17.151 r  u_pp/u_aecp/u_d3/pend_r_i_6/O
+                         net (fo=4, unplaced)         0.371    17.522    u_pp/u_aecp/u_d3/pend_r_i_6_n_0
+                         LUT3 (Prop_lut3_I1_O)        0.105    17.627 r  u_pp/u_aecp/u_d3/pend_r_i_3/O
+                         net (fo=4, unplaced)         0.371    17.998    u_pp/u_aecp/u_d3/d3_unflushed_w
+                         LUT3 (Prop_lut3_I1_O)        0.105    18.103 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_3/O
+                         net (fo=2, unplaced)         0.358    18.461    u_pp/u_aecp/u_d3/attempts_r[31]_i_3_n_0
+                         LUT5 (Prop_lut5_I0_O)        0.105    18.566 r  u_pp/u_aecp/u_d3/attempts_r[31]_i_1/O
+                         net (fo=32, unplaced)        0.437    19.003    u_pp/u_aecp/u_d3/attempts_r[31]_i_1_n_0
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[14]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)       20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  clk_i
+                         net (fo=33130, unset)        0.748    20.748    u_pp/u_aecp/u_d3/clk_i
+                         FDRE                                         r  u_pp/u_aecp/u_d3/attempts_r_reg[14]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+                         FDRE (Setup_fdre_C_CE)      -0.165    20.547    u_pp/u_aecp/u_d3/attempts_r_reg[14]
+  -------------------------------------------------------------------
+                         required time                         20.547    <hidden>
+                         arrival time                         -19.003    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  1.544    <hidden>
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_listener/tmr_arm_deadline_ms_o_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_listener/clk_i
+                         FDRE                                         r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[0]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[0].mem_r_reg_0_3_0_5/DIA0
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[0].mem_r_reg_0_3_0_5/WCLK
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_listener/tmr_arm_deadline_ms_o_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[0].mem_r_reg_0_3_12_17/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_listener/clk_i
+                         FDRE                                         r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[12]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[0].mem_r_reg_0_3_12_17/DIA0
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_12_17/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[0].mem_r_reg_0_3_12_17/WCLK
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_12_17/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[0].mem_r_reg_0_3_12_17/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_listener/tmr_arm_deadline_ms_o_reg[18]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[0].mem_r_reg_0_3_18_23/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_listener/clk_i
+                         FDRE                                         r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[18]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[18]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[0].mem_r_reg_0_3_18_23/DIA0
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_18_23/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[0].mem_r_reg_0_3_18_23/WCLK
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_18_23/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[0].mem_r_reg_0_3_18_23/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_listener/tmr_arm_deadline_ms_o_reg[24]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[0].mem_r_reg_0_3_24_29/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_listener/clk_i
+                         FDRE                                         r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[24]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[24]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[0].mem_r_reg_0_3_24_29/DIA0
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_24_29/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[0].mem_r_reg_0_3_24_29/WCLK
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_24_29/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[0].mem_r_reg_0_3_24_29/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_listener/tmr_arm_deadline_ms_o_reg[30]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[0].mem_r_reg_0_3_30_35/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_listener/clk_i
+                         FDRE                                         r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[30]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[30]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[0].mem_r_reg_0_3_30_35/DIA0
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_30_35/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[0].mem_r_reg_0_3_30_35/WCLK
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_30_35/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[0].mem_r_reg_0_3_30_35/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_listener/tmr_arm_slot_o_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[0].mem_r_reg_0_3_42_47/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_listener/clk_i
+                         FDRE                                         r  u_pp/u_listener/tmr_arm_slot_o_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_listener/tmr_arm_slot_o_reg[2]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[0].mem_r_reg_0_3_42_47/DIA0
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_42_47/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[0].mem_r_reg_0_3_42_47/WCLK
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_42_47/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[0].mem_r_reg_0_3_42_47/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_listener/tmr_arm_deadline_ms_o_reg[6]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[0].mem_r_reg_0_3_6_11/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_listener/clk_i
+                         FDRE                                         r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[6]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_listener/tmr_arm_deadline_ms_o_reg[6]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[0].mem_r_reg_0_3_6_11/DIA0
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_6_11/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[0].mem_r_reg_0_3_6_11/WCLK
+                         RAMD32                                       r  u_pp/g_armq[0].mem_r_reg_0_3_6_11/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[0].mem_r_reg_0_3_6_11/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_srp/arm_deadline_ms_o_reg[0]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[3].mem_r_reg_0_3_0_5/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_srp/clk_i
+                         FDRE                                         r  u_pp/u_srp/arm_deadline_ms_o_reg[0]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_srp/arm_deadline_ms_o_reg[0]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[3].mem_r_reg_0_3_0_5/DIA0
+                         RAMD32                                       r  u_pp/g_armq[3].mem_r_reg_0_3_0_5/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[3].mem_r_reg_0_3_0_5/WCLK
+                         RAMD32                                       r  u_pp/g_armq[3].mem_r_reg_0_3_0_5/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[3].mem_r_reg_0_3_0_5/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_srp/arm_deadline_ms_o_reg[12]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[3].mem_r_reg_0_3_12_17/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_srp/clk_i
+                         FDRE                                         r  u_pp/u_srp/arm_deadline_ms_o_reg[12]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_srp/arm_deadline_ms_o_reg[12]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[3].mem_r_reg_0_3_12_17/DIA0
+                         RAMD32                                       r  u_pp/g_armq[3].mem_r_reg_0_3_12_17/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[3].mem_r_reg_0_3_12_17/WCLK
+                         RAMD32                                       r  u_pp/g_armq[3].mem_r_reg_0_3_12_17/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[3].mem_r_reg_0_3_12_17/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+Slack (MET) :             0.159ns  (arrival time - required time)
+  Source:                 u_pp/u_srp/arm_deadline_ms_o_reg[18]/C
+                            (rising edge-triggered cell FDRE clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            u_pp/g_armq[3].mem_r_reg_0_3_18_23/RAMA/I
+                            (rising edge-triggered cell RAMD32 clocked by clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (clk rise@0.000ns - clk rise@0.000ns)
+  Data Path Delay:        0.274ns  (logic 0.147ns (53.659%)  route 0.127ns (46.341%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.390     0.390    u_pp/u_srp/clk_i
+                         FDRE                                         r  u_pp/u_srp/arm_deadline_ms_o_reg[18]/C
+  -------------------------------------------------------------------    -------------------
+                         FDRE (Prop_fdre_C_Q)         0.147     0.537 r  u_pp/u_srp/arm_deadline_ms_o_reg[18]/Q
+                         net (fo=1, unplaced)         0.127     0.664    u_pp/g_armq[3].mem_r_reg_0_3_18_23/DIA0
+                         RAMD32                                       r  u_pp/g_armq[3].mem_r_reg_0_3_18_23/RAMA/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk rise edge)        0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  clk_i
+                         net (fo=33130, unset)        0.411     0.411    u_pp/g_armq[3].mem_r_reg_0_3_18_23/WCLK
+                         RAMD32                                       r  u_pp/g_armq[3].mem_r_reg_0_3_18_23/RAMA/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+                         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.094     0.505    u_pp/g_armq[3].mem_r_reg_0_3_18_23/RAMA
+  -------------------------------------------------------------------
+                         required time                         -0.505    <hidden>
+                         arrival time                           0.664    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.159    <hidden>
+
+
+
+
+
+Pulse Width Checks
+--------------------------------------------------------------------------------------
+Clock Name:         clk
+Waveform(ns):       { 0.000 10.000 }
+Period(ns):         20.000
+Sources:            { clk_i }
+
+Check Type        Corner  Lib Pin             Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location  Pin
+Min Period        n/a     DSP48E1/CLK         n/a            3.272         20.000      16.728               u_pp/u_aecp/u_store/desc_off_r_reg/CLK
+Min Period        n/a     DSP48E1/CLK         n/a            3.272         20.000      16.728               u_pp/u_srp/u_admission/iv_bytes_r_reg/CLK
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            2.472         20.000      17.528               ctl_fifo/mem_reg_0/CLKARDCLK
+Min Period        n/a     RAMB36E1/CLKBWRCLK  n/a            2.472         20.000      17.528               ctl_fifo/mem_reg_0/CLKBWRCLK
+Min Period        n/a     RAMB18E1/CLKARDCLK  n/a            2.472         20.000      17.528               ctl_fifo/mem_reg_1/CLKARDCLK
+Min Period        n/a     RAMB18E1/CLKBWRCLK  n/a            2.472         20.000      17.528               ctl_fifo/mem_reg_1/CLKBWRCLK
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            2.472         20.000      17.528               u_pp/g_rx_pool[0].u_rx_slots/mem_r_reg/CLKARDCLK
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            2.472         20.000      17.528               u_pp/g_rx_pool[1].u_rx_slots/mem_r_reg/CLKARDCLK
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            2.472         20.000      17.528               u_pp/g_rx_pool[2].u_rx_slots/mem_r_reg/CLKARDCLK
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            2.472         20.000      17.528               u_pp/g_rx_pool[4].u_rx_slots/mem_r_reg/CLKARDCLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA/CLK
+Low Pulse Width   Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA/CLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA_D1/CLK
+Low Pulse Width   Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA_D1/CLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMB/CLK
+Low Pulse Width   Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMB/CLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMB_D1/CLK
+Low Pulse Width   Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMB_D1/CLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMC/CLK
+Low Pulse Width   Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMC/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA/CLK
+High Pulse Width  Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA_D1/CLK
+High Pulse Width  Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMA_D1/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMB/CLK
+High Pulse Width  Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMB/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMB_D1/CLK
+High Pulse Width  Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMB_D1/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMC/CLK
+High Pulse Width  Fast    RAMD32/CLK          n/a            1.130         10.000      8.870                u_pp/g_armq[0].mem_r_reg_0_3_0_5/RAMC/CLK
+
+
+

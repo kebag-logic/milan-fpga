@@ -1,0 +1,38 @@
+shard 2; full log 367552 bytes sha256 15edda3cb47b11e4537d03c31126e51e685e4563a8eeea9275361b0db5fd434a
+== capture_coherence: checks: 20832   failures: 0 ==
+RESULT: PASS
+== capture_coherence_dp: checks: 847   failures: 0 ==
+RESULT: PASS
+[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+[PASS] mutant caught (junction): no walk snapshot: the walk reads the frame bank live - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is closed by its first pair - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+[PASS] mutant caught (junction): the walk ignores the coincidence law: a close on the tick cycle always waits - breaks "[C] walks whose repeat or skip the junction counters did not count" and "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the walk snapshot back on the pre-walk's last cycle (the round-1 instant) - breaks "[W] walks newer than the frame their tick takes"
+[PASS] mutant caught (junction): the junction counters keyed on the slot-0 write against the tick (the round-1 law) - breaks "[C] walks whose repeat or skip the junction counters did not count"
+[PASS] mutant caught (band): the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner's keep-off back to its 1/128-sample default - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner sees the tick itself, one cycle before the walk's crossing - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (dp): the AAF talkers stamp the live PHC at the walk again: the capture age and the pair offset back in the timestamp (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp-band): the time base latched at the media tick instead of banked with the frame: a close on the tick's own cycle stamps the frame before, a sample early (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the domain event's marker latency drops its frame term: every stamp a sample period late (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the marker latency drops the front-end's FIFO write term (one clk_tdm_i cycle, #632) - breaks "[PIN] ...and inside the marker latency's derivation"
+[PASS] mutant caught (dp): the AAF talkers stamp without their lead: the frame instant plus the offset, #770's stamp (#773) - breaks "[WIRE] every AAF PDU's hand-over is at or before its avtp_timestamp less the presentation offset" and "[GRID] every AAF stamp less its offset and 8 periods is a domain media event's instant" and "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the AAF fixed delay one period short: the instant plus 7 periods (#773) - breaks "[WIRE] every AAF PDU's hand-over is at or before its avtp_timestamp less the presentation offset" and "[GRID] every AAF stamp less its offset and 8 periods is a domain media event's instant"
+[PASS] mutant caught (dp): the AAF stamps 125 us late: past IEEE 1722-2016 Equation (1)'s lower bound (#773) - breaks "[WIRE] ...and every AAF PDU's after it less TUmax, 125 us" and "[HOLD] no AAF stamp is more than 2.126 ms after its hand-over"
+[PASS] mutant caught (dp): the CRF output stamps without its Equation (14) TC (#773) - breaks "[WIRE] every CRF PDU's hand-over is at or before its timestamp less the offset as applied" and "[GRID] every CRF stamp less its offset applied and TC, 2 periods, is a domain media event's instant"
+[PASS] mutant caught (dp): the CRF output's TC one period short: 1 period at 1x1 (#773) - breaks "[WIRE] every CRF PDU's hand-over is at or before its timestamp less the offset as applied" and "[GRID] every CRF stamp less its offset applied and TC, 2 periods, is a domain media event's instant"
+[PASS] mutant caught (dp): the CRF stamps 125 us late: past Equation (1)'s lower bound (#773) - breaks "[WIRE] ...and every CRF PDU's after it less TUmax, 125 us"
+[PASS] mutant caught (dp): the AAF talkers' terms grow by 125 us: a fixed delay past Milan v1.2 5.3.7.6's 125 us (#773) - its build refuses it: "exceeds the 0 to 125 us Milan v1.2 5.3.7.6 allows: refused"
+[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (chmap): RM8: a queued tick snapshots at the tick itself, reloading the walk still running - breaks "Q: col 1 pair 2 L is frame 2" and "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (band50): RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks "update landing at old end +0: one tick, in a period the old or the new trim sets"
+[PASS] mutant caught (fine): the terminal compare back to == (377d1ac3), under the aligner's trim updates - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks "F1: col 0 carries its own pair-0 frame (L)"
+[PASS] mutant caught (chmap): the walk's instant latched at the snapshot, not loaded with its frame: a close on the tick cycle with none pending names the frame before (#632) - breaks "F: tick-cycle: col 1 walk instant is frame 2's"
+42 checks: 42 PASS, 0 FAIL

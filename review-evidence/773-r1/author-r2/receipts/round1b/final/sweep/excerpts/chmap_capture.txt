@@ -1,0 +1,11 @@
+shard 2; full log 139286 bytes sha256 ff7d92ca2ddef0088bca9810daf321e5ce90ba8def1f7567472cd52863de4a72
+RESULT: PASS
+RESULT: PASS
+== chmap_capture lockstep 4 slots: checks: 19   failures: 0 ==
+RESULT: PASS
+== chmap_capture lockstep 32 slots: checks: 19   failures: 0 ==
+RESULT: PASS
+[PASS] mutant caught: wrong row decode: a TDM entry ignores its half - breaks "[ST] every channel entry resolves to its own source sample"
+[PASS] mutant caught: beat slot reused: the beat bank's write slot never advances - breaks "[SK] mono wire, two commits per beat: every event replayed once, in order"
+[PASS] mutant caught: commit form swapped: a lone even channel commits the beat's first sample - breaks "[SK] three-channel wire, stashed and lone channels: every event replayed once, in order"
+4 checks: 4 PASS, 0 FAIL

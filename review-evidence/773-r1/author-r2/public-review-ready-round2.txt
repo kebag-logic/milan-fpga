@@ -1,0 +1,41 @@
+[A664] REVIEW READY
+Commit: 1b47a3dcff0cb65cb5cebe1f86327429a76f775d (tree f608aefd73bbc007624782653182d0a6f85c8825; branch 773-aaf-capture-to-wire-latency, PR #779). It adds two commits on 13d8f1e8 (no rebase, no amend) and is not pushed; the manager pushes it. It answers the round 2 assignment (PR #779 issuecomment-6383506324) for R689-1 and R690-1.
+Changed:
+- R689-1-F1 and R690-1-F1, in `MEDIA_CLOCK_FOLLOWING.md`, "The listener's buffer":
+  - The grid-live bound and the start-up bound are now separate.
+  - Grid live, at 2 ms with zero transit: a PDU arrives at most 2,038,676 ns (1x1) or 2,054,392 ns (8x8) before its timestamp.
+  - Start-up: a PDU whose first pair came before the grid was live is stamped from the live PHC at that pair (`aaf_tbase_w`). It is handed over at least 5,343 cycles (106,860 ns) after that base: five tick spacings, the walk to its last pair, and 57 packetizer cycles for talker 0. So it arrives at most 2,059,807 ns ahead at both shapes, and 184,807 ns ahead at 125 us. 2,059,807 ns is the `[HOLD]` maximum in every 2 ms run.
+  - The render-queue margin that follows is 492.1 us (1x1) and 487.0 us (8x8). The grid-live margin stays 513.3 / 492.4 us.
+  - Correction to my earlier REVIEW READY (issuecomment-6382945476): its "513.3 us (1x1) and 492.4 us (8x8) to spare" holds only for grid-live PDUs. With the start-up PDU the margin is 492.1 / 487.0 us. Both still hold the 2 ms default.
+  - The same omission was in Equation (1)'s lead ceiling. With the start-up PDU's 106.9 us as the earliest hand-over, the ceiling is now 231.8 us (it read 237 us). The lead is 166.7 us.
+  - The supported-range paragraph now counts this talker's 8 Ps. At the 2 ms default:
+    - transit under 2,135,548 ns (1x1) or 2,140,725 ns (8x8);
+    - offsets up to 2,489,452 / 2,484,275 ns plus the transit for a PDU's first event;
+    - 2,385,285 / 2,380,108 ns plus the transit for a whole six-event PDU (the range is per event).
+  - `MILAN_COMPLIANCE_MATRIX.md` row 5.3.7.6 / 4.4.2.1 states both bounds.
+- R689-1-R1: `KL_media_domain_event.sv`'s header now carries the exact wording given. It is a comment only: the file is identical to 13d8f1e8 once comments are stripped.
+- R689-1-S2: the MAC-level figures at 1 Gb/s sit beside "The MAC's own backpressure is outside the datapath". They are derived, not measured:
+  - A maximum tagged frame takes 12,336 ns on the wire.
+  - One such frame ahead at the MAC uses 12.3 us of the spare. That leaves 5,480 / 6,576 ns for AAF (1x1 / 8x8) and 8,167 / 2,990 ns for CRF.
+  - The MAC's transmit FIFO sends a frame only once it holds it whole. So when the same frame takes the arbiters first, with the other output's PDU between them, the PDU's egress moves 16,208 ns (AAF) or 18,040 ns (CRF) past its uncontended egress. That leaves 1,608 / 2,704 ns for AAF and 2,463 ns for the 1x1 CRF, and puts the 8x8 CRF PDU up to 2,714 ns late.
+  - Not covered: more than one maximum frame ahead, the MAC's own crossing, and 100 Mb/s (123,360 ns a frame).
+- S1 and S3 (optional) are not taken. No RTL line changed, so no route ran. The route-1x1, ooc-1x1 and ooc-8x8 results at 13d8f1e8 stand.
+Validation, at 1b47a3dc unless named; each ran in a clean clone, rc 0, unpiped:
+- Full sweep in 4 shard units: every shard runner rc 0. 64 of 64 suites pass, each run once; the union equals `scripts/run_all_suites.sh --list`. None timed out. 2,190,887 checks, 0 in-suite failures.
+  - capture_coherence: junction 20,832/0, dp leg 847/0, mutation arm 42/42.
+  - aaf: aaf-start 34,020/0, startup mutants 8/8.
+  - milan_dp: every leg 0 failures.
+- `cd tests && behave --no-capture -f plain`: 14 features, 406 scenarios, 1,977 steps passed.
+- lint: 89 <= 89.
+- Docs, under GNU Make 4.3:
+  - `docs_check.py`, `check_doc_style.py` and `gen_toc.py --check`: rc 0 each.
+  - The docs workflow's 44 gate steps: 41 rc 0, 2 skipped by rule. The em-dash gate, which needs `dev` and so cannot run in a clone, ran directly against a032c6d6: 0 findings over 198 added lines.
+- Every stated figure was recomputed (40 of 40 equal), with R690-1's check_bounds.py method extended to both bounds, the margins, the range and the MAC cases. All 23 2 ms `[HOLD]` maxima in this sweep's capture_coherence log are at or below the stated 2,059,807 ns. Planted control: the same check on the two pages as they stood at 13d8f1e8 fails with 30 failures.
+- Not re-run at this head: Yosys 60/60 at bf2d96f9; Vivado front end 0 findings at 13d8f1e8; tdm8render-mutants 31/31, pull-in 19 legs and gmstep-mutants 23/23 at bf2d96f9; route-1x1 and both ooc runs at 13d8f1e8. Since 13d8f1e8 only two documentation pages and a comment changed.
+- No STOP condition met: every bound, the start-up PDU's included, fits the 2 ms default.
+Acceptance criteria: unchanged from my round 1b REVIEW READY, all met at 1x1. The 8x8 TDM32 proof is derived only, as ruling (b) allows. So the PR says "Relates to #773".
+Open risks/questions:
+- 8x8 CRF at the MAC. By derivation, one maximum frame that takes the arbiters just ahead of an 8x8 CRF PDU, with an AAF PDU between them, puts that PDU's egress up to 2,714 ns after its timestamp less the applied offset. The cause is the MAC's store-and-forward FIFO. It lies outside the hand-over boundary the ruling counts, and it does not affect the 2 ms fit. The page states it as not covered. A second TC period at 8x8 would cover it. That is a design choice for a new Issue and is not made here.
+- More than one maximum frame ahead at the MAC is not bounded: the control gasket's 10.24 us is shorter than one maximum frame's 12.3 us on the wire. Derived only.
+- The whole-PDU offset bound in the supported range is a precision statement I added beside the figures the assignment gives. It changes no behaviour.
+- 8x8 measured proof (derived only). Bench prediction unchanged and not measured.

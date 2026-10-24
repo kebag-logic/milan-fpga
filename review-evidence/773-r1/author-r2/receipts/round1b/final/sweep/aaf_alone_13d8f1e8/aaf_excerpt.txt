@@ -1,0 +1,16 @@
+full log 577612 bytes sha256 110d9675cf55a30afe712c9b34206784e460700bfb2a94b144ef6e5c4fe19c49
+== aaf-start: checks: 34020   failures: 0 ==
+RESULT: PASS
+[PASS] stale admission restored: startup step equals steady; rc=1
+[PASS] reset keeps the previous start: startup step equals steady; rc=1
+[PASS] offset omitted: sample plus offset; rc=1
+[PASS] disable keeps the previous start: startup step equals steady; rc=1
+[PASS] normal timestamp marked invalid: valid normal timestamp; rc=1
+[PASS] sequence held: consecutive sequence; rc=1
+[PASS] bank never published: bounded first ten; rc=1
+[PASS] left samples corrupt: complete sample rows; rc=1
+startup mutants: 8/8 caught
+aaf: 27 checks, 0 failures
+RESULT: PASS
+NxN talker lane: 42 checks, 0 failures
+RESULT: PASS
