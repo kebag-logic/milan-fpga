@@ -1,0 +1,12 @@
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index aa68066..8ffa353 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3455,7 +3455,6 @@ module KL_aecp_engine
+               if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
+               else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
+                 upc_r  <= UPC_NSUPPE_C;
+-                echo_r <= 1'b1;
+               end else begin
+                 upc_r  <= UPC_GAVB_C;
+                 echo_r <= 1'b0;

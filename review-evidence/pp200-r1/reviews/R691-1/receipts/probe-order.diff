@@ -1,0 +1,19 @@
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index aa68066..7fe8855 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -3452,11 +3452,11 @@ module KL_aecp_engine
+             //! E_NSUPPE runs no gathers, so the gsi routing it selects is
+             //! never consulted.
+             if (gavb_r) begin
+-              if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_BADARG_C;
+-              else if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
++              if (cfg_ix_r != DT_AVB_INTERFACE_C) begin
+                 upc_r  <= UPC_NSUPPE_C;
+                 echo_r <= 1'b1;
+-              end else begin
++              end else if (cmd_r.cdl < 11'd16)        upc_r <= UPC_BADARG_C;
++              else begin
+                 upc_r  <= UPC_GAVB_C;
+                 echo_r <= 1'b0;
+               end
