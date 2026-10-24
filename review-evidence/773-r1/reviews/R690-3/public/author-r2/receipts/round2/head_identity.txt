@@ -1,0 +1,15 @@
+branch 773-aaf-capture-to-wire-latency
+head 1b47a3dcff0cb65cb5cebe1f86327429a76f775d tree f608aefd73bbc007624782653182d0a6f85c8825
+parent of the round: 13d8f1e84920aac1dc3e76fb6406c44a744d8145; base dev a032c6d6e3775f145349d5a495c1e1ad12294936 (merge-base a032c6d6e3775f145349d5a495c1e1ad12294936)
+
+$ git log --format="%H %s" 13d8f1e8..HEAD
+1b47a3dcff0cb65cb5cebe1f86327429a76f775d Name the outputs' whole-period capture-to-wire terms in the domain event's header comment (#773)
+e85f86a2a74f80661eff12286fba156b840bef8e State the listener-buffer and Equation (1) bounds for the start-up PDU stamped from the live PHC, this talker's 8 periods in the supported range, and the MAC-level figures (#773)
+
+$ git diff --stat 13d8f1e8..HEAD
+ docs/design/MEDIA_CLOCK_FOLLOWING.md      | 72 +++++++++++++++++++++++++------
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md |  2 +-
+ hdl/ieee1722/crf/KL_media_domain_event.sv |  8 ++--
+ 3 files changed, 64 insertions(+), 18 deletions(-)
+
+$ git status --short

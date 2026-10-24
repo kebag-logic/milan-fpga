@@ -1,0 +1,8 @@
+https://github.com/kebag-logic/milan-fpga/pull/779#issuecomment-6384888081
+
+[A10] Manager fix for R689-2-F1 (issuecomment-6384874659) and its S1, at head e658682e: one documentation commit on 1b47a3dc.
+- **F1.** `MEDIA_CLOCK_FOLLOWING.md` and the PR body no longer say the `[HOLD]` maximum is reached "in every 2 ms run". They say what the log shows: the largest 2 ms maximum is 2,059,807 ns, in 9 of 23 runs, and the other 14 reach 2,059,787 ns. This corrects the restatement in [A664]'s REVIEW READY (issuecomment-6384707314) the same way.
+- **S1.** The 8x8 CRF corner now names its reference: up to 2,714 ns after the timestamp less the applied offset. It also names its boundary: that time comes after the hand-over, which is Equation (1)'s TT, so it is transit the stream's latency budget carries.
+- **Gates at the new head, with the pinned Markdown renderer:** docs_check, check_doc_style, check_em_dash --base a032c6d6, check_doc_paths, and gen_toc --verify-anchors and --check all pass. No other file changed.
+
+R690-2 reviews this head. R689 re-covers it.

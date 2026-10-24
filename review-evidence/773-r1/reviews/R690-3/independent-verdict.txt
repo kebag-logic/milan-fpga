@@ -1,0 +1,17 @@
+[R690] POSITIVE - exact head e658682ed451ba46885225e5b3fc16841f61a5ca
+
+Independent R690-3 assessment before reading other reviewers' report bodies.
+Tree: 5023d9f2e8c37399701a6afc62f39e3054dd0f15.
+The single documentation commit on 1b47a3dc corrects the measurement statement and names the CRF egress reference and post-transfer boundary. No new finding. Prior own R690-2 coverage of unchanged files carries by exact tree-entry equality.
+
+| Lens | CLEAN/UNCLEAN | Examined artifacts | Covering round | Exact head |
+|---|---|---|---|---|
+| Conformance | CLEAN | Ruling (b), design:1858-1860,1887-1890; MAC boundary at integration:74 and milan_soc.py:1748-1807; bounds.log | R690-3 delta; R690-2 unchanged artifacts carried | e658682ed451ba46885225e5b3fc16841f61a5ca |
+| RTL | CLEAN | delta.diff; packetizer:238-266,779-785; CRF:299-318,540-546; datapath:1459-1531,7438-7446; no RTL or interface delta | R690-3 identity check; R690-2 carried | e658682ed451ba46885225e5b3fc16841f61a5ca |
+| Robustness | CLEAN | design:1861-1900; sim_dp.cpp:548-643; startup/fallback, both offsets and bounded MAC transit; numerical margins in bounds.log | R690-3 delta; R690-2 carried | e658682ed451ba46885225e5b3fc16841f61a5ca |
+| Tests | CLEAN | unchanged check_bounds.py, bounds.log, prior-sentence-control.log; 23-run distribution; evidence-audit.log and unchanged test blobs | R690-3 focused checks; R690-2 carried | e658682ed451ba46885225e5b3fc16841f61a5ca |
+| Docs | CLEAN | design:1858-1860,1887-1890; live PR roles and measurement sentence; delta-check.log and six successful documentation gates | R690-3 | e658682ed451ba46885225e5b3fc16841f61a5ca |
+
+Physical calibration NOT RUN. True-clock 8x8 remains derived only. Source-head receipts are author evidence at their named earlier heads, with unchanged executable artifacts; no manager source bank is claimed. Hosted/local replica acceptance and the current-dev candidate builder/native banks remain manager duties. No merge authorization.
+
+R690-3 FINISHED
