@@ -1,0 +1,58 @@
+{
+  "reviewed_head": "13d8f1e84920aac1dc3e76fb6406c44a744d8145",
+  "reviews": [],
+  "review_threads": [],
+  "comments": [
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/779#issuecomment-6383117536",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R689-1"
+    },
+    {
+      "url": "https://github.com/kebag-logic/milan-fpga/pull/779#issuecomment-6383195849",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R690-1"
+    }
+  ],
+  "hosted": [
+    {
+      "id": 40085023174,
+      "name": "rtl-full",
+      "status": "queued",
+      "conclusion": null,
+      "run_number": 1968,
+      "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40085023174/jobs",
+      "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40085023174/logs",
+      "workflow_id": 320750503
+    },
+    {
+      "id": 40085023212,
+      "name": "elaborate",
+      "status": "in_progress",
+      "conclusion": null,
+      "run_number": 1418,
+      "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40085023212/jobs",
+      "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40085023212/logs",
+      "workflow_id": 339283801
+    },
+    {
+      "id": 40085023193,
+      "name": "docs",
+      "status": "queued",
+      "conclusion": null,
+      "run_number": 1793,
+      "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40085023193/jobs",
+      "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40085023193/logs",
+      "workflow_id": 320168027
+    },
+    {
+      "id": 40085023151,
+      "name": "rtl-fast",
+      "status": "queued",
+      "conclusion": null,
+      "run_number": 1541,
+      "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40085023151/jobs",
+      "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40085023151/logs",
+      "workflow_id": 339150340
+    }
+  ],
+  "pr_status": "[A664]\n\n## Contents\n\n- **[Status](#status)** — Gates, head and branch.\n- **[Linked Issue / roles](#linked-issue--roles)** — #773, executor and reviewers.\n- **[Description](#description)** — The crossing estimate, the fixed delay and the CRF TC, each derived and in whole periods, and what they change.\n- **[Authoritative references](#authoritative-references)** — IEEE 1722-2016 and Milan v1.2 clauses.\n- **[How to get into the same state](#how-to-get-into-the-same-state)** — Checkout.\n- **[How to validate](#how-to-validate)** — The legs that prove it and the gates.\n- **[Known limitations / out of scope](#known-limitations--out-of-scope)** — What is derived only, and why.\n- **[Definition of Done](#definition-of-done)** — The merge bar.\n\n## Status\n\nREADY FOR REVIEW: every gate passes at the head `13d8f1e8` (six commits on dev `a032c6d6`), `773-aaf-capture-to-wire-latency` -> `dev`.\n\n| Gate | Head | Result |\n|---|---|---|\n| Full Verilator sweep, 4 shards | `bf2d96f9` | 63 of 64 suites, 2,190,818 checks, 0 in-suite failures. `aaf` failed on its own arm's planting pattern; `13d8f1e8` fixes it and `aaf` alone passes there (startup arm 8/8). The two heads differ only in that file |\n| capture_coherence | `bf2d96f9` | junction 20,832/0, dp leg 847/0, mutation arm 42/42 |\n| Yosys | `bf2d96f9` | 60/60 tops |\n| lint, Vivado front end | `13d8f1e8` | 89 <= 89; 0 findings |\n| docs gates (GNU Make 4.3) | `bf2d96f9`, Python idiom and `docs_check.py` at `13d8f1e8` | pass (gate_8 run directly: 0 findings) |\n| tdm8render-mutants, pull-in, gmstep-mutants | `bf2d96f9` | 31/31; 19 legs, 0 failures; 23/23 |\n| route-1x1 against the eleventh record | `13d8f1e8` | LUT +102, FF +7, SLICE -11, RAM and DSP 0, WNS +0.040 ns (from +0.236), WHS +0.021 ns: PASS |\n| ooc-1x1 | `13d8f1e8` | every figure equal: PASS |\n| ooc-8x8 | `13d8f1e8` | every figure equal: PASS |\n\n"
+}
