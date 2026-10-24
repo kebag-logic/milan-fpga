@@ -1,0 +1,17 @@
+== probe: CRF_DLEN_C 16'd8 -> 16'd12 (frame grows to 64)
+ hdl/ieee1722/crf/KL_crf_tx.sv | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+  Scenario: The tag replaces pad, it does not resize the frame
+ASSERT FAILED: FRAME_BYTES is not 60
+Failing scenarios:
+  features/crf_sr_class_a.feature:48  The tag replaces pad, it does not resize the frame
+2 scenarios passed, 1 failed, 0 skipped
+== probe: CRF_HDR_C 20 -> 20 + VTAG_C via literal (tag grows frame)
+ hdl/ieee1722/crf/KL_crf_tx.sv | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+  Scenario: The tag replaces pad, it does not resize the frame
+ASSERT FAILED: FRAME_BYTES is not 60
+Failing scenarios:
+  features/crf_sr_class_a.feature:48  The tag replaces pad, it does not resize the frame
+2 scenarios passed, 1 failed, 0 skipped
+== restored: 0 dirty
