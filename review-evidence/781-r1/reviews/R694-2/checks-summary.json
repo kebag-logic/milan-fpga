@@ -1,0 +1,40 @@
+{
+  "head": "41f4a53cc0b12f143fa3e61a5339a11e79806ce9",
+  "independent_checks": [
+    {
+      "command": "python3 scripts/suite_shards.py --selftest",
+      "returncode": 0,
+      "receipt": "suite-shards-selftest.log"
+    },
+    {
+      "command": "python3 scripts/ci_gate_workflows.py --check",
+      "returncode": 0,
+      "receipt": "ci-gate-workflows.log"
+    },
+    {
+      "command": "python3 scripts/ci_events.py --check",
+      "returncode": 0,
+      "receipt": "ci-events.log"
+    },
+    {
+      "command": "python3 focused_probes.py <source-clone>",
+      "returncode": 0,
+      "receipts": [
+        "ownership-verification.json",
+        "measured-582.log",
+        "disabled-provisional-guard.log"
+      ]
+    },
+    {
+      "command": "python3 verify_tree.py <source-clone>",
+      "returncode": 0,
+      "receipt": "tree-verification.json"
+    },
+    {
+      "command": "Verilator --version (scoped executable supplied by assignment)",
+      "returncode": 0,
+      "output": "Verilator 5.050 2026-07-01 rev v5.050"
+    }
+  ],
+  "published_evidence": "Author gates inspected and hash-verified; no manager source bank claimed."
+}

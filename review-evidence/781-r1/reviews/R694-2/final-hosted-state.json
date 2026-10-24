@@ -1,0 +1,1358 @@
+{
+  "observed_at": "2026-10-24 22:52:21 UTC",
+  "runs": {
+    "workflow_runs": [
+      {
+        "id": 40139677908,
+        "name": "elaborate",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 1425,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40139677908/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40139677908/logs",
+        "workflow_id": 339283801
+      },
+      {
+        "id": 40139677909,
+        "name": "docs",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 1800,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40139677909/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40139677909/logs",
+        "workflow_id": 320168027
+      },
+      {
+        "id": 40139678153,
+        "name": "rtl-fast",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 1548,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40139678153/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40139678153/logs",
+        "workflow_id": 339150340
+      },
+      {
+        "id": 40139678015,
+        "name": "rtl-full",
+        "status": "queued",
+        "conclusion": null,
+        "run_number": 1975,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40139678015/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40139678015/logs",
+        "workflow_id": 320750503
+      }
+    ]
+  },
+  "jobs": {
+    "jobs": [
+      {
+        "id": 121008571441,
+        "name": "full-ci-gate",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Cache exact Python downloads",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Print the event and pin the one SHA this run validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Assert the repository default branch is dev",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Hold every workflow file to its contract",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Decide whether this exact head needs the exhaustive gates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Post Cache exact Python downloads",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          }
+        ]
+      },
+      {
+        "id": 121008571483,
+        "name": "Fail fast across this head",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Observe the first failed job",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 4
+          },
+          {
+            "name": "Cancel this run and sibling workflows",
+            "status": "pending",
+            "conclusion": null,
+            "number": 5
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 6
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 14
+          }
+        ]
+      },
+      {
+        "id": 121008732793,
+        "name": "Prepare pinned Yosys",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Resolve exact package downloads 2",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 5
+          },
+          {
+            "name": "Cache exact package downloads 2",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 6
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Package the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Upload the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Cache the pinned Yosys build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 121008732918,
+        "name": "Verilator shard 5/17",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Resolve exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Cache exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12
+          },
+          {
+            "name": "Resolve exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13
+          },
+          {
+            "name": "Cache exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 14
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 15
+          },
+          {
+            "name": "Resolve exact package downloads 9",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 16
+          },
+          {
+            "name": "Cache exact package downloads 9",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 17
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 18
+          },
+          {
+            "name": "Cache verified sv2v archive",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 19
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 20
+          },
+          {
+            "name": "Cache pinned field oracle build",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 21
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 22
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 23
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 24
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 25
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 26
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 51
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 52
+          }
+        ]
+      },
+      {
+        "id": 121008732925,
+        "name": "Verilator shard 0/17",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Resolve exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Cache exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12
+          },
+          {
+            "name": "Resolve exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13
+          },
+          {
+            "name": "Cache exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 14
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 15
+          },
+          {
+            "name": "Resolve exact package downloads 9",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 16
+          },
+          {
+            "name": "Cache exact package downloads 9",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 17
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 18
+          },
+          {
+            "name": "Cache verified sv2v archive",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 19
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 20
+          },
+          {
+            "name": "Cache pinned field oracle build",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 21
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 22
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 23
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 24
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 25
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 26
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 51
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 52
+          }
+        ]
+      },
+      {
+        "id": 121008732937,
+        "name": "Verilator shard 9/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008732941,
+        "name": "Verilator shard 7/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008732943,
+        "name": "Verilator shard 13/17",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Resolve exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Cache exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12
+          },
+          {
+            "name": "Resolve exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13
+          },
+          {
+            "name": "Cache exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 14
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 15
+          },
+          {
+            "name": "Resolve exact package downloads 9",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 16
+          },
+          {
+            "name": "Cache exact package downloads 9",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 17
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 18
+          },
+          {
+            "name": "Cache verified sv2v archive",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 19
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 20
+          },
+          {
+            "name": "Cache pinned field oracle build",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 21
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 22
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 23
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 24
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 25
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 26
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 51
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 52
+          }
+        ]
+      },
+      {
+        "id": 121008732952,
+        "name": "Verilator shard 3/17",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Resolve exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Cache exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Resolve exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13
+          },
+          {
+            "name": "Cache exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 14
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 15
+          },
+          {
+            "name": "Resolve exact package downloads 9",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Cache exact package downloads 9",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Cache verified sv2v archive",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Cache pinned field oracle build",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 21
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 22
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 23
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 24
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 25
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 26
+          },
+          {
+            "name": "Post Cache verified sv2v archive",
+            "status": "pending",
+            "conclusion": null,
+            "number": 48
+          },
+          {
+            "name": "Post Cache exact package downloads 9",
+            "status": "pending",
+            "conclusion": null,
+            "number": 49
+          },
+          {
+            "name": "Post Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "pending",
+            "conclusion": null,
+            "number": 50
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 51
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 52
+          }
+        ]
+      },
+      {
+        "id": 121008732955,
+        "name": "Verilator shard 6/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008732969,
+        "name": "Verilator shard 4/17",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Fetch RTL dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Record the tree this worker validates",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Cache the pinned Verilator build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Resolve exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 7
+          },
+          {
+            "name": "Cache exact package downloads 4",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 8
+          },
+          {
+            "name": "Build Verilator from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9
+          },
+          {
+            "name": "Put Verilator on PATH and prove the version",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Prove specialized suite ownership",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12
+          },
+          {
+            "name": "Resolve exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 13
+          },
+          {
+            "name": "Cache exact package downloads 8",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 14
+          },
+          {
+            "name": "Build Yosys from source on cache miss",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 15
+          },
+          {
+            "name": "Resolve exact package downloads 9",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 16
+          },
+          {
+            "name": "Cache exact package downloads 9",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 17
+          },
+          {
+            "name": "Install the pinned Yosys and prove the version",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 18
+          },
+          {
+            "name": "Cache verified sv2v archive",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 19
+          },
+          {
+            "name": "Install sv2v for the netlist-level suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 20
+          },
+          {
+            "name": "Cache pinned field oracle build",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 21
+          },
+          {
+            "name": "Build the pinned tsn-gen field oracle on its suite owner",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 22
+          },
+          {
+            "name": "Run this exhaustive suite shard",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 23
+          },
+          {
+            "name": "Upload this shard's suite logs",
+            "status": "pending",
+            "conclusion": null,
+            "number": 24
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 25
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 26
+          },
+          {
+            "name": "Post Cache the pinned Verilator build",
+            "status": "pending",
+            "conclusion": null,
+            "number": 51
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 52
+          }
+        ]
+      },
+      {
+        "id": 121008732981,
+        "name": "Verilator shard 1/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008732989,
+        "name": "Verilator shard 2/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008732996,
+        "name": "Verilator shard 14/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008733014,
+        "name": "Verilator shard 11/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008733018,
+        "name": "Verilator shard 16/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008733042,
+        "name": "Verilator shard 12/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008733046,
+        "name": "Verilator shard 8/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008733060,
+        "name": "Verilator shard 15/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008733074,
+        "name": "Verilator shard 10/17",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008733969,
+        "name": "Physical gPTP (nightly and manual)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008773738,
+        "name": "Yosys shard 2/4",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008773755,
+        "name": "Yosys shard 3/4",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008773759,
+        "name": "Yosys shard 1/4",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 121008773930,
+        "name": "Yosys shard 0/4",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40139678015,
+        "logs_url": null,
+        "steps": null
+      }
+    ]
+  },
+  "reviews": {
+    "reviews": []
+  },
+  "review_threads": {
+    "review_threads": []
+  }
+}
