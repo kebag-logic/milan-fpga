@@ -1855,7 +1855,9 @@ derived, not measured. A maximum tagged frame holds the wire for 12,336 ns
   arbiters just ahead of the PDU, with the other output's PDU between them,
   puts the PDU's egress 16,208 ns (AAF) or 18,040 ns (CRF) past its
   uncontended egress. That leaves 1,608 or 2,704 ns for AAF and 2,463 ns for
-  the 1x1 CRF output. The 8x8 CRF output's PDU leaves up to 2,714 ns late.
+  the 1x1 CRF output. The 8x8 CRF output's PDU leaves up to 2,714 ns after
+  its timestamp less the applied offset. That is after the hand-over, which is
+  Equation (1)'s TT, so it is transit that the stream's latency budget carries.
 - **Not covered.** More than one maximum frame ahead: the control lane's gasket
   (512 cycles, 10.24 us) is shorter than one such frame on the wire. The MAC's
   own crossing and pipeline. 100 Mb/s, where one maximum frame holds the wire
@@ -1883,7 +1885,9 @@ with zero transit. There are two bounds, one for each base the stamp can have:
   packetizer (57 cycles for talker 0, 60 for the others) later: at least 5,343
   cycles, 106,860 ns, at both shapes. It arrives at most 2,059,807 ns before
   its timestamp (184,807 ns at 125 us). `capture_coherence`'s datapath leg
-  measures that `[HOLD]` maximum in every 2 ms run.
+  reaches that bound: its largest 2 ms `[HOLD]` maximum is 2,059,807 ns, in 9
+  of its 23 runs; the other 14 reach 2,059,787 ns, where the five tick
+  spacings take one cycle more.
 
 Both are inside Milan v1.2 4.4.2.1's 2.126 ms. A PDU's last event is presented
 five periods after its first, so a start-up PDU's last event is at most
