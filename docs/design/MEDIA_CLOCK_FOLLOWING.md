@@ -1841,21 +1841,59 @@ maximum frame (30 + 190 beats, 4,400 ns). The spare covers that at both
 shipping shapes. A test shape whose fabric clock is compressed (`milan_dp_mclk`
 at 4 MHz, five periods) has no such cover. With that wait counted as a term,
 its derivation would pass 125 us and refuse to build, although it grades no
-stamp. The MAC's own backpressure is outside the datapath.
+stamp.
+
+The MAC's own backpressure is outside the datapath. Its figures at 1 Gb/s are
+derived, not measured. A maximum tagged frame holds the wire for 12,336 ns
+(1,542 octets with its preamble and gap):
+
+- **One frame ahead at the MAC.** It uses 12.3 us of the spare. That leaves
+  5,480 ns (1x1) or 6,576 ns (8x8) for an AAF PDU, and 8,167 or 2,990 ns for a
+  CRF PDU.
+- **The same frame through the arbiters first.** The MAC's transmit FIFO sends
+  a frame only once it holds it whole. So a maximum frame that took the
+  arbiters just ahead of the PDU, with the other output's PDU between them,
+  puts the PDU's egress 16,208 ns (AAF) or 18,040 ns (CRF) past its
+  uncontended egress. That leaves 1,608 or 2,704 ns for AAF and 2,463 ns for
+  the 1x1 CRF output. The 8x8 CRF output's PDU leaves up to 2,714 ns late.
+- **Not covered.** More than one maximum frame ahead: the control lane's gasket
+  (512 cycles, 10.24 us) is shorter than one such frame on the wire. The MAC's
+  own crossing and pipeline. 100 Mb/s, where one maximum frame holds the wire
+  for 123,360 ns, more than any spare.
 
 Equation (1)'s lower bound puts the hand-over after the timestamp less the
 offset less TUmax. With TUmax at the 125 us timing uncertainty Milan v1.2
 5.3.7.6 supposes, that holds for any lead up to the earliest hand-over plus
-125 us. The earliest is 112.3 us after the instant (8x8 talker 0 at age 0), so
-any lead up to 237 us holds, and the lead is 166.7 us.
+125 us. The earliest hand-over is 106.9 us after the stamp's base, for a
+start-up PDU stamped from the live PHC (below; 112.3 us for a grid-live PDU,
+8x8 talker 0 at age 0). So any lead up to 231.8 us holds, and the lead is
+166.7 us.
 
 **The listener's buffer.** Take this device's own talker at the 2 ms default
-with zero transit. A PDU arrives at most 2,038,676 ns (1x1) or 2,054,392 ns
-(8x8) before its timestamp, inside Milan v1.2 4.4.2.1's 2.126 ms. Its last
-event is presented five periods later, at most 2,142,843 or 2,158,559 ns after
-arrival. That is 513.3 or 492.4 us inside the render queue's
-2,656,119 or 2,650,942 ns ([supported range](#the-listener-each-sample-at-its-presentation-time-632)).
-Before #773 those were 1,976,176 and 1,991,892 ns.
+with zero transit. There are two bounds, one for each base the stamp can have:
+
+- **Grid live.** A PDU stamped from the domain's frame grid is handed over at
+  least 127,991 ns (1x1) or 112,275 ns (8x8, talker 0 at age 0) after its
+  frame's instant. It arrives at most 2,038,676 or 2,054,392 ns before its
+  timestamp.
+- **Start-up.** A PDU whose first pair came before the grid was live (at
+  start-up, or once four frames pass without a marker) is stamped from the
+  live PHC at that pair (`aaf_tbase_w`). It is handed over five tick spacings
+  (5,208 cycles at least), the walk on to its last pair (78 cycles) and the
+  packetizer (57 cycles for talker 0, 60 for the others) later: at least 5,343
+  cycles, 106,860 ns, at both shapes. It arrives at most 2,059,807 ns before
+  its timestamp (184,807 ns at 125 us). `capture_coherence`'s datapath leg
+  measures that `[HOLD]` maximum in every 2 ms run.
+
+Both are inside Milan v1.2 4.4.2.1's 2.126 ms. A PDU's last event is presented
+five periods after its first, so a start-up PDU's last event is at most
+2,163,974 ns after arrival. That is 492.1 us (1x1) or 487.0 us (8x8) inside
+the render queue's 2,656,119 or 2,650,942 ns
+([supported range](#the-listener-each-sample-at-its-presentation-time-632)).
+A grid-live PDU's is at most 2,142,843 or 2,158,559 ns, 513.3 or 492.4 us
+inside; before #773 it was 1,976,176 or 1,991,892 ns. These are at the nominal
+frame rate. A media clock fast by a fraction d shortens the five periods
+before each hand-over by 104,167 d ns (104 ns at 1,000 ppm).
 
 **Proof.** `capture_coherence`'s datapath leg runs the shipping 1x1 shape with
 the CRF output on, at 2 ms and at 125 us (`DP-CRF125-0..7`, both outputs).
@@ -1997,11 +2035,17 @@ Ps - event latency ahead:
 | 1x1 TDM8 | 2 | 20,964 ns | 31,119 ns to 2,656,119 ns |
 | 8x8 TDM32 | 1 | 5,308 ns | 25,942 ns to 2,650,942 ns |
 
-A PDU's lead at arrival is the talker's presentation time offset less the
-PDU's transit (the talker's capture to this listener's depacketizer), so a
-talker offset is presented whole when the offset less that transit lies in
-the range: at the 2 ms default, any transit under 1,968,881 ns (1x1), and
-offsets up to 2,656,119 ns plus the transit. Outside the range nothing is
+A PDU's lead at arrival is its timestamp less its arrival. For a talker that
+stamps its capture instant plus its presentation time offset, that is the
+offset less the PDU's transit (the talker's capture to this listener's
+depacketizer). This device's own talker stamps its frame's instant plus 8 Ps
+plus the offset ([the talkers' capture-to-wire latency](#the-talkers-capture-to-wire-latency)),
+so its lead is the offset plus 166,667 ns less the transit. Its PDU's first
+event lies in the range at the 2 ms default for any transit under 2,135,548 ns
+(1x1) or 2,140,725 ns (8x8), and for offsets up to 2,489,452 ns (1x1) or
+2,484,275 ns (8x8) plus the transit. A six-event PDU's last event is five
+periods further ahead, so the whole PDU lies in the range for offsets up to
+2,385,285 or 2,380,108 ns plus the transit. Outside the range nothing is
 re-centred: a PDU's events past the queue are refused by the too-early rule,
 counted in `early_o`, and its events whose frames every interface has read by
 the late rule, counted in `late_o`, its other events presented either way
