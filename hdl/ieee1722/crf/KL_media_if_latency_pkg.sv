@@ -71,7 +71,19 @@
                 the frame instant the timestamp describes; it is here so the
                 two cannot be derived twice.
 
-  Spec refs   : IEEE 1722-2016 4.3.5, 10.8 Eq. 15; Milan v1.2 7.6.1
+                THE TALKERS' CAPTURE-TO-WIRE TERMS (#773). An AAF talker
+                stamps the instant of its PDU's first frame, which is long
+                before the PDU can leave: its later frames, the marker
+                latency, the capture age (age_max_cyc) and the capture walk
+                (walk_pair_cyc) come first. The integration hands these to
+                the talkers, which add their own pipelines and derive Milan
+                v1.2 5.3.7.6's fixed delay (KL_aaf_packetizer LEAD_P) and the
+                CRF output's Equation (14) TC (KL_crf_tx TC_P) in whole media
+                clock periods, so both outputs keep stamping one grid's
+                instants (4.3.5).
+
+  Spec refs   : IEEE 1722-2016 4.3.3, 4.3.5, 10.7 Eq. 14, 10.8 Eq. 15;
+                Milan v1.2 5.3.7.6, 7.6.1
   Company     : Kebag Logic
   Project     : Milan AVB endstation
 ------------------------------------------------------------------------------
@@ -136,6 +148,25 @@ package KL_media_if_latency_pkg;
   function automatic longint slot_msb_ns(input int k, input int word_bits,
                                          input int data_delay, input longint bit_hz);
     return cyc_ns(longint'(k) * longint'(word_bits) + longint'(data_delay), bit_hz);
+  endfunction
+
+  //! The capture walk (#773), in datapath cycles from the media tick to the
+  //! strobe of pair slot k (KL_chan_map_capture CM_IDLE_S..CM_GAP_S): the
+  //! tick's pend flop, the walk's start in CM_IDLE_S, the LOOP pre-walk
+  //! (lb_pairs + 1 cycles in CM_POP_S) and the strobe's register, then
+  //! gap_cyc + 2 cycles a slot (CM_STEP_S, then CM_GAP_S counting gap_cyc
+  //! down to zero). capture_coherence measures it to the cycle at 1x1.
+  function automatic longint walk_pair_cyc(input int lb_pairs, input int gap_cyc, input int k);
+    return 64'd4 + longint'(lb_pairs) + (longint'(gap_cyc) + 64'd2) * longint'(k);
+  endfunction
+
+  //! The capture age (#773), datapath cycles: a frame closed at the crossbar
+  //! is walked at the next media tick's snapshot, at most one tick spacing
+  //! later (a close on the snapshot's own cycle behind a pending frame waits
+  //! the whole spacing: KL_chan_map_capture's coincidence law), so the
+  //! spacing rounded up and one cycle for its phase
+  function automatic longint age_max_cyc(input longint axis_hz, input longint fs_hz);
+    return (axis_hz + fs_hz - 1) / fs_hz + 64'd1;
   endfunction
 
   //! The read-to-adoption path of a TDM master render lane (#632), ns, read

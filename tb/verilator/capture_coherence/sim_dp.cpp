@@ -55,6 +55,23 @@
 // itself must be each frame's sync instant. A negative control grades the
 // same stamps without the per-slot constant and must be refused.
 //
+// [WIRE] (#773): the talkers' capture-to-wire latency against their stamps.
+// The leg runs the CRF Media Clock Output beside the talker and reads, at the
+// MAC transmit port, every PDU's hand-over: the PHC on the cycle its last beat
+// is accepted. IEEE 1722-2016 4.3.3 Equation (1) puts that at or before the
+// avtp_timestamp less the presentation offset (the Max Transit Time), and after
+// that less TUmax, the 125 us timing uncertainty Milan v1.2 5.3.7.6 supposes;
+// 10.7 Equation (14) puts a CRF PDU's at or before its timestamp less the
+// offset as applied. Both hold for every PDU at the factory 2 ms and at
+// 125 us. [GRID]: every AAF stamp, less its offset and this shape's eight
+// whole periods (the crossing estimate, the PDU's six-sample span, and
+// Milan's fixed delay of two), and every CRF stamp, less its offset and
+// Equation (14)'s TC of two periods, is a domain media event's instant: both
+// outputs still stamp one grid's instants (4.3.5), so the listener presents
+// on the same frame grid, eight periods later. [HOLD]: no AAF stamp is more
+// than Milan v1.2 4.4.2.1's 2.126 ms after its hand-over, the buffering a
+// listener owes.
+//
 // THE CHECKS are the column bench's ([A], [C], [V]; under CRF the CRF law:
 // slips only in an engagement's first columns, netting zero), plus, from the
 // pins and the root's public taps: the INTERNAL drift visited every
@@ -70,6 +87,7 @@
 
 #include <cstdlib>
 #include <map>
+#include <set>
 
 namespace {
 
@@ -88,8 +106,36 @@ constexpr std::uint16_t kCrfClksrcIx = 1;
 //! phase bins for the sweep-coverage vacuity check
 constexpr int kPhaseBins = 16;
 constexpr std::uint32_t kFirstFrame = 0x0100;
-//! [PIN]: the per-STREAM_OUTPUT presentation offset at reset, ns
+//! [PIN]: the per-STREAM_OUTPUT presentation offset at reset, ns, and the
+//! one the 125 us scenarios set on both outputs (#773)
 constexpr std::uint32_t kPtoNs = 2'000'000;
+constexpr std::uint32_t kPto125Ns = 125'000;
+//! #773: n media clock periods at 48 kHz, ns, rounded up
+constexpr std::int64_t periods_ns(std::int64_t n) { return (n * 1'000'000'000 + 47'999) / 48'000; }
+//! this shape's whole-period terms as #773's ruling states them, stated here
+//! independently of the RTL's derivation: the AAF talker's crossing estimate
+//! (its PDU's kEvents-sample span) and Milan v1.2 5.3.7.6's fixed delay, and
+//! the CRF output's IEEE 1722-2016 10.7 Equation (14) TC
+constexpr std::int64_t kAafDelayPeriods = 2;
+constexpr std::int64_t kCrfTcPeriods = 2;
+constexpr std::int64_t kAafLeadNs = periods_ns(kEvents + kAafDelayPeriods);
+constexpr std::int64_t kCrfTcNs = periods_ns(kCrfTcPeriods);
+//! IEEE 1722-2016 4.3.3 Equation (1)'s TUmax: the timing uncertainty Milan
+//! v1.2 5.3.7.6 supposes
+constexpr std::int64_t kTuMaxNs = 125'000;
+//! Milan v1.2 4.4.2.1: a listener buffers received samples for up to 2.126 ms
+constexpr std::int64_t kListenerHoldNs = 2'126'000;
+//! the CRF output's offset as applied, IEEE 1722-2016 10.7 Equation (14):
+//! up to whole periods, then up to whole ns
+std::int64_t crf_applied_ns(std::uint32_t pto) {
+    const std::int64_t periods = (static_cast<std::int64_t>(pto) * 3 + 62'499) / 62'500;
+    return (periods * 62'500 + 2) / 3;
+}
+//! CRFT_CTRL (docs/reference/REGISTER_MAP.md): [0] the CRF talker on, untagged
+constexpr std::uint16_t kCrftCtrl = 0x750;
+//! [GRID]: frames the grid has been live before an AAF PDU's hand-over for
+//! its stamp to be graded against the domain events
+constexpr long kGridLiveFrames = 9;
 //! IEEE 1722-2016 10.8 Eq. 15: +/-5 % of the sample period
 constexpr double kBandNs = 0.05 * 1e9 / 48000.0;
 //! the marker latency's derivation, at this leg's clocks: its read side
@@ -116,6 +162,7 @@ struct Scenario {
     bool sweep = false;         //! INTERNAL: the tick must cross the frame
     bool brief = false;         //! one [i] line unless a check fails
     long placed = kUnplaced;    //! engagement close offset from the crossing
+    std::uint32_t pto = kPtoNs; //! both outputs' presentation offset (#773)
 };
 
 //! The harness: the datapath, the oscillator, the SoC and the column bench.
@@ -169,6 +216,25 @@ class DatapathHarness {
     double dom_max_ = 0;
     void note_pins();
     void grade_pins(const std::string& n);
+    //! [WIRE], [GRID] (#773): every PDU at the MAC port, its stamp and the
+    //! PHC on its last beat's cycle; every domain event's instant
+    struct Handover {
+        std::uint64_t ts;   //! the AAF avtp_timestamp, or the CRF timestamp
+        std::int64_t phc;   //! the hand-over
+        bool crf;
+        long live_age;      //! cycles the frame grid had been live, -1 if not
+    };
+    std::vector<std::uint8_t> frame_;
+    std::vector<Handover> handovers_;
+    std::set<std::uint64_t> dom_seen_;
+    std::uint32_t pto_ = kPtoNs;
+    //! the cycle the frame grid last went live (dom_live_w), -1 while it is not
+    long live_since_ = -1;
+    void set_offsets(std::uint32_t pto);
+    //! cycles the frame grid has been live, -1 while it is not
+    long live_age() const { return live_since_ < 0 ? -1 : cycle_ - live_since_; }
+    void note_frame();
+    void grade_wire(const std::string& n);
 
     void restart(const Scenario& sc);
     void step();
@@ -201,6 +267,11 @@ void DatapathHarness::restart(const Scenario& sc) {
     dom_prev_ = 0;
     dom_events_ = 0;
     dom_max_ = 0;
+    frame_.clear();
+    handovers_.clear();
+    dom_seen_.clear();
+    pto_ = sc.pto;
+    live_since_ = -1;
     dut_->axis_resetn = 0;
     dut_->gtx_resetn = 0;
     dut_->m_axis_mac_tx_tready = 1;
@@ -212,7 +283,21 @@ void DatapathHarness::restart(const Scenario& sc) {
     osc_.restart(sc.plan, sc.start_delay_steps);
     soc_.restart(kFirstFrame, dut_->tdm_bclk_o);
     fsync_prev_ = dut_->tdm_fsync_o;
+    if (sc.pto != kPtoNs) set_offsets(sc.pto);
     cycle(512);
+}
+
+//! #773: both outputs' presentation offsets, poked into the processor's
+//! stored rows (KL_aecp_dyn_state ptoff_r/ptoff_v_r, made public for this leg
+//! by ptoff_public.vlt), the AAF output's row 0 and the CRF output's row 1, one
+//! hop upstream of the SET_STREAM_INFO command chain milan_dp's output walk
+//! proves. The CRF row takes its Equation (14) rounding before the first CRF
+//! PDU (KL_mtt_round converts within a few hundred cycles).
+void DatapathHarness::set_offsets(std::uint32_t pto) {
+    auto* const dyn = dut_->rootp;
+    dyn->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__ptoff_r[0] = pto;
+    dyn->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__ptoff_r[1] = pto;
+    dyn->milan_datapath__DOT__pp_shadow__DOT__u_pp__DOT__u_aecp__DOT__u_dyn__DOT__ptoff_v_r |= 0x3u;
 }
 
 //! One 5 ns step: evaluate only when a clock edge lands on it. gtx_clk is
@@ -303,6 +388,9 @@ void DatapathHarness::observe() {
     //! (it lands just after the next frame's sync rise, so the nearer of the
     //! last two)
     const std::uint64_t dom = dut_->rootp->milan_datapath__DOT__dom_ns_w;
+    if (dom != dom_prev_) dom_seen_.insert(dom);
+    if (!dut_->rootp->milan_datapath__DOT__dom_live_w) live_since_ = -1;
+    else if (live_since_ < 0) live_since_ = cycle_;
     if (dom != dom_prev_ && dut_->rootp->milan_datapath__DOT__dom_live_w && sync_last_[0] != 0) {
         const double e0 = std::fabs(static_cast<double>(static_cast<std::int64_t>(dom) - sync_last_[0]));
         const double e1 = std::fabs(static_cast<double>(static_cast<std::int64_t>(dom) - sync_last_[1]));
@@ -311,8 +399,35 @@ void DatapathHarness::observe() {
     }
     dom_prev_ = dom;
     if (dut_->m_axis_mac_tx_tvalid && dut_->m_axis_mac_tx_tready) {
+        for (int b = 0; b < 8; b++) {
+            if ((dut_->m_axis_mac_tx_tkeep >> b) & 1u) {
+                frame_.push_back(static_cast<std::uint8_t>((dut_->m_axis_mac_tx_tdata >> (8 * b)) & 0xFFu));
+            }
+        }
+        const size_t stamps = bench_.stamps.size();
         bench_.beat(dut_->m_axis_mac_tx_tdata, dut_->m_axis_mac_tx_tkeep, dut_->m_axis_mac_tx_tlast != 0);
+        if (dut_->m_axis_mac_tx_tlast) {
+            if (bench_.stamps.size() > stamps) {
+                handovers_.push_back({bench_.stamps.back().ts, phc_edge_, false, live_age()});
+            }
+            note_frame();
+            frame_.clear();
+        }
     }
+}
+
+//! [WIRE] (#773): a CRF PDU (subtype 0x04 behind the 0x22F0 ethertype, tagged
+//! or not) and its first timestamp, crf_data's first 64 bits (IEEE 1722-2016
+//! 10.4.13), with the hand-over: this cycle's PHC, its last beat's
+void DatapathHarness::note_frame() {
+    const size_t tag = frame_.size() > 18 && frame_[12] == 0x81 ? 4 : 0;
+    if (frame_.size() < 42 + tag || frame_[12 + tag] != 0x22 || frame_[13 + tag] != 0xF0 ||
+        frame_[14 + tag] != 0x04) {
+        return;
+    }
+    std::uint64_t ts = 0;
+    for (size_t k = 0; k < 8; k++) ts = (ts << 8) | frame_[14 + tag + 20 + k];
+    handovers_.push_back({ts, phc_edge_, true, live_age()});
 }
 
 //! The tick's phase after the latest fsync edge at the pin: the sweep's bins
@@ -362,6 +477,9 @@ void DatapathHarness::axi_write(std::uint16_t addr, std::uint32_t data) {
 //! The talker's enable alone: its channels are the power-on map's (#658).
 void DatapathHarness::program_the_talker() {
     axi_write(kAafCtrl, kAafCtrlRun);
+    //! #773: the CRF Media Clock Output beside it, licensed by AAF_CTRL's
+    //! diagnostic bypass (crft_emit_en_w)
+    axi_write(kCrftCtrl, 1);
 }
 
 //! The stored CLOCK_SOURCE row, poked to this shape's CRF index.
@@ -420,6 +538,92 @@ void DatapathHarness::grade(const Scenario& sc) {
     }
     if (sc.crf) grade_crf(sc, n);
     grade_pins(n);
+    grade_wire(n);
+}
+
+//! [WIRE], [GRID], [HOLD] (#773): every PDU's hand-over against its stamp.
+//! An AAF PDU whose first pair came before the frame grid went live is
+//! stamped from the live PHC (aaf_tbase_w), so [GRID] grades the AAF PDUs
+//! handed over at least kGridLiveFrames frames after the grid went live (a
+//! PDU's first pair is stamped under 7.2 frames before its hand-over);
+//! [WIRE] and [HOLD] grade every PDU.
+void DatapathHarness::grade_wire(const std::string& n) {
+    const std::int64_t crf_ofs = crf_applied_ns(pto_);
+    long aaf = 0, crf = 0, aaf_late = 0, crf_late = 0, aaf_early = 0, crf_early = 0;
+    long aaf_off = 0, crf_off = 0, aaf_on = 0, crf_on = 0, held = 0;
+    std::int64_t aaf_min = INT64_MAX, aaf_max = INT64_MIN, crf_min = INT64_MAX, crf_max = INT64_MIN;
+    std::int64_t hold_max = INT64_MIN;
+    std::set<std::uint32_t> dom_lo;
+    for (const std::uint64_t d : dom_seen_) dom_lo.insert(static_cast<std::uint32_t>(d));
+    for (const Handover& h : handovers_) {
+        if (!h.crf) {
+            //! the 32-bit avtp_timestamp against the PHC's low word (4.4.4.9)
+            const std::int64_t margin = static_cast<std::int32_t>(
+                static_cast<std::uint32_t>(h.ts) - pto_ - static_cast<std::uint32_t>(h.phc));
+            const std::int64_t hold = static_cast<std::int32_t>(
+                static_cast<std::uint32_t>(h.ts) - static_cast<std::uint32_t>(h.phc));
+            aaf++;
+            aaf_min = std::min(aaf_min, margin);
+            aaf_max = std::max(aaf_max, margin);
+            hold_max = std::max(hold_max, hold);
+            if (margin < 0) aaf_late++;
+            if (margin >= kTuMaxNs) aaf_early++;
+            if (hold > kListenerHoldNs) held++;
+            if (h.live_age >= static_cast<long>(kGridLiveFrames * kTickCycles)) {
+                const auto base = static_cast<std::uint32_t>(h.ts - pto_ - static_cast<std::uint64_t>(kAafLeadNs));
+                (dom_lo.count(base) ? aaf_on : aaf_off)++;
+            }
+            continue;
+        }
+        const std::int64_t margin = static_cast<std::int64_t>(h.ts) - crf_ofs - h.phc;
+        crf++;
+        crf_min = std::min(crf_min, margin);
+        crf_max = std::max(crf_max, margin);
+        if (margin < 0) crf_late++;
+        if (margin >= kTuMaxNs) crf_early++;
+        const std::uint64_t base = h.ts - static_cast<std::uint64_t>(crf_ofs + kCrfTcNs);
+        (dom_seen_.count(base) ? crf_on : crf_off)++;
+    }
+    std::printf("  [i]  %s[WIRE] offset %u ns: %ld AAF PDUs, avtp_timestamp - offset - hand-over %lld..%lld ns; "
+                "%ld CRF PDUs, timestamp - %lld ns applied - hand-over %lld..%lld ns; [GRID] AAF %ld on, %ld off, "
+                "CRF %ld on, %ld off; [HOLD] avtp_timestamp - hand-over max %lld ns\n", n.c_str(), pto_, aaf,
+                (long long)(aaf ? aaf_min : 0), (long long)(aaf ? aaf_max : 0), crf, (long long)crf_ofs,
+                (long long)(crf ? crf_min : 0), (long long)(crf ? crf_max : 0), aaf_on, aaf_off, crf_on, crf_off,
+                (long long)(aaf ? hold_max : 0));
+    char what[240];
+    std::snprintf(what, sizeof what, "%s[WIRE] AAF and CRF PDUs graded at the MAC port (%ld, %ld)", n.c_str(), aaf,
+                  crf);
+    check_.that(what, aaf >= 100 && crf >= 5);
+    std::snprintf(what, sizeof what,
+                  "%s[WIRE] every AAF PDU's hand-over is at or before its avtp_timestamp less the presentation offset "
+                  "(IEEE 1722-2016 4.3.3 Eq. (1); %ld after it, least margin %lld ns)", n.c_str(), aaf_late,
+                  (long long)(aaf ? aaf_min : 0));
+    check_.that(what, aaf > 0 && aaf_late == 0);
+    std::snprintf(what, sizeof what,
+                  "%s[WIRE] ...and every AAF PDU's after it less TUmax, 125 us (Eq. (1)'s lower bound; %ld before "
+                  "it)", n.c_str(), aaf_early);
+    check_.that(what, aaf > 0 && aaf_early == 0);
+    std::snprintf(what, sizeof what,
+                  "%s[WIRE] every CRF PDU's hand-over is at or before its timestamp less the offset as applied "
+                  "(IEEE 1722-2016 10.7 Eq. (14); %ld after it, least margin %lld ns)", n.c_str(), crf_late,
+                  (long long)(crf ? crf_min : 0));
+    check_.that(what, crf > 0 && crf_late == 0);
+    std::snprintf(what, sizeof what,
+                  "%s[WIRE] ...and every CRF PDU's after it less TUmax, 125 us (%ld before it)", n.c_str(),
+                  crf_early);
+    check_.that(what, crf > 0 && crf_early == 0);
+    std::snprintf(what, sizeof what,
+                  "%s[GRID] every AAF stamp less its offset and 8 periods is a domain media event's instant "
+                  "(IEEE 1722-2016 4.3.5; %ld off)", n.c_str(), aaf_off);
+    check_.that(what, aaf_on > 0 && aaf_off == 0);
+    std::snprintf(what, sizeof what,
+                  "%s[GRID] every CRF stamp less its offset applied and TC, 2 periods, is a domain media event's "
+                  "instant, all 64 bits (%ld off)", n.c_str(), crf_off);
+    check_.that(what, crf_on > 0 && crf_off == 0);
+    std::snprintf(what, sizeof what,
+                  "%s[HOLD] no AAF stamp is more than 2.126 ms after its hand-over (Milan v1.2 4.4.2.1; %ld, "
+                  "max %lld ns)", n.c_str(), held, (long long)(aaf ? hold_max : 0));
+    check_.that(what, aaf > 0 && held == 0);
 }
 
 //! [PIN]: every stamp against the pins of the frame its first column carries.
@@ -433,7 +637,7 @@ void DatapathHarness::grade_pins(const std::string& n) {
         for (int k = 0; k < kTdmSlots; k++) {
             const std::int64_t msb = f.msb[static_cast<size_t>(k)];
             const double inst = static_cast<double>(msb) - slot_msb_ns(k);
-            const auto stamp = static_cast<std::int32_t>(s.ts - kPtoNs);
+            const auto stamp = static_cast<std::int32_t>(s.ts - pto_ - static_cast<std::uint32_t>(kAafLeadNs));
             const double err = static_cast<double>(stamp) -
                                static_cast<double>(static_cast<std::int32_t>(static_cast<std::uint32_t>(
                                    static_cast<std::int64_t>(std::llround(inst)))));
@@ -452,7 +656,7 @@ void DatapathHarness::grade_pins(const std::string& n) {
     check_.that(what, graded >= 8 * 100);
     std::snprintf(what, sizeof what,
                   "%s[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the "
-                  "presentation offset, inside +/-5 %% of Ps (max %.1f ns)", n.c_str(), max_err);
+                  "presentation offset and 8 periods, inside +/-5 %% of Ps (max %.1f ns)", n.c_str(), max_err);
     check_.that(what, graded > 0 && max_err < kBandNs);
     std::snprintf(what, sizeof what, "%s[PIN] ...and inside the marker latency's derivation, +/-%.0f ns (max %.1f ns)",
                   n.c_str(), kDerivNs, max_err);
@@ -538,6 +742,13 @@ std::vector<Scenario> scenarios() {
         char name[24];
         std::snprintf(name, sizeof name, "DP-CRF-%d", k);
         list.push_back({name, true_plan(), true, k * 4167L / 8, 1'500, false, false, kUnplaced});
+    }
+    //! #773: the same lock phases with both outputs at a 125 us offset, the
+    //! one #773 measured late on the bench
+    for (int k = 0; k < 8; k++) {
+        char name[24];
+        std::snprintf(name, sizeof name, "DP-CRF125-%d", k);
+        list.push_back({name, true_plan(), true, k * 4167L / 8, 1'500, false, false, kUnplaced, kPto125Ns});
     }
     return list;
 }
