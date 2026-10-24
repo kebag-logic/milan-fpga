@@ -1,0 +1,9 @@
+Portable replay, from the assigned initialized clone:
+python3 <packet>/verify_evidence.py . <packet>
+python3 <packet>/check_bounds.py . <packet>/public/author-r2/receipts/round2/sweep/excerpts/capture_coherence.txt
+python3 scripts/check_doc_style.py
+python3 <packet>/audit_tree.py .
+
+Expected return codes: evidence audit 0; bounds 1 at the assigned head for the false measurement sentence; documentation style 0; tree audit 0.
+The evidence audit reads commit 1faf10a1331f93451a6aa4e43956a51de6ab4da3 from the clone object database. It was retrieved using git fetch --no-tags origin <commit>.
+No background work, compiler builds, full banks or source mutations were used in this round.
