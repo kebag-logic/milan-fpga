@@ -1,0 +1,92 @@
+[
+  {
+    "name": "bounds",
+    "command": [
+      "pinned-python",
+      "<packet>/check_bounds.py",
+      "<repo>",
+      "<packet>/public/author-r2/receipts/round2/sweep/excerpts/capture_coherence.txt"
+    ],
+    "rc": 0,
+    "seconds": 0.031
+  },
+  {
+    "name": "evidence-audit",
+    "command": [
+      "pinned-python",
+      "<packet>/verify_evidence.py",
+      "<repo>",
+      "<packet>"
+    ],
+    "rc": 0,
+    "seconds": 0.309
+  },
+  {
+    "name": "tree-audit",
+    "command": [
+      "pinned-python",
+      "<packet>/audit_tree.py",
+      "<repo>"
+    ],
+    "rc": 0,
+    "seconds": 0.216
+  },
+  {
+    "name": "em-dash",
+    "command": [
+      "pinned-python",
+      "scripts/check_em_dash.py",
+      "--base",
+      "a032c6d6"
+    ],
+    "rc": 0,
+    "seconds": 2.865
+  },
+  {
+    "name": "toc-anchors",
+    "command": [
+      "pinned-python",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "rc": 0,
+    "seconds": 3.948
+  },
+  {
+    "name": "toc-check",
+    "command": [
+      "pinned-python",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "seconds": 5.557
+  },
+  {
+    "name": "docs-check",
+    "command": [
+      "pinned-python",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "seconds": 6.921
+  },
+  {
+    "name": "doc-style",
+    "command": [
+      "pinned-python",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "seconds": 0.052
+  },
+  {
+    "name": "doc-paths",
+    "command": [
+      "pinned-python",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "seconds": 0.08
+  }
+]
