@@ -1,0 +1,24 @@
+review clone: exact head 13d8f1e84920aac1dc3e76fb6406c44a744d8145, tree c4df5628be0a6d6823915aa2421e1a96d724e55b
+git status --porcelain=v2 --untracked-files=all: 0 lines
+index (mode blob path) sha256: 27f4361fecadd9e523e4fe1be6b4c6980d2fb0dd93e4cca41ba742852c02d450
+HEAD tree (mode blob path) sha256: 27f4361fecadd9e523e4fe1be6b4c6980d2fb0dd93e4cca41ba742852c02d450
+gitlinks at HEAD:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 55680bff3b287b9a7b0c759f51471fa617c17335	gptp-processor
+160000 commit 93fb0b2d736b36588ea7321e25fba2f8819ea41f	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+checked-out submodules:
+protocol-processor 93fb0b2d736b36588ea7321e25fba2f8819ea41f dirty-lines=0
+gptp-processor 55680bff3b287b9a7b0c759f51471fa617c17335 dirty-lines=0
+third_party/verilog-axis 48ff7a7e2ef782cf778d47910cf85835c64b1bce dirty-lines=0
+third_party/lwSRP 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 dirty-lines=0
+third_party/tsn-c-stack 70936b77dc41981e192438388cd0aced69954f18 dirty-lines=0
+bf2d96f9..13d8f1e8 changed files:
+tb/verilator/aaf/start_mutants.py
+readers of tb/verilator/aaf/start_mutants.py (git grep):
+ci/image/command-table.json
+ci/image/tool-inventory.json
+scripts/measure_test_evidence_readers.py
+tb/verilator/aaf/Makefile
