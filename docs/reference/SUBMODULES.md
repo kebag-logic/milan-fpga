@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `55680bff3b287b9a7b0c759f51471fa617c17335` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `93fb0b2d736b36588ea7321e25fba2f8819ea41f` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `ed2118035e4cec76fb1b59cfbf8a053aeacc8af8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -256,6 +256,22 @@ The processor top changes one port, the TSpec width.
 The gPTP engine's ports and parameters are unchanged.
 
 `ucode.hex` and `gptp_ucode.hex` change; `ltn_rom.hex` does not.
+
+Issue #780 adopts processor pin `ed211803`.
+
+FPGA-gPTP stays at `55680bff`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #200, GET_AVB_INFO status | [201](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/201) | A descriptor other than AVB_INTERFACE answers NOT_SUPPORTED (IEEE 1722.1-2021 Table 7-141 status 11, the command is implemented but its target is not supported) with the command echoed at its own length, where #177 answered NOT_IMPLEMENTED (status 1); an absent AVB_INTERFACE index still answers NO_SUCH_DESCRIPTOR and a command under cdl 16 BAD_ARGUMENTS |
+
+The engine change is one dispatch constant.
+
+No port, parameter or register changes.
+
+`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `93fb0b2d` rows.
+
+No parent test, model or document expected status 1 here.
 
 The ROM ledger records current and earlier pins.
 

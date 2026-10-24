@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
 - **[Unreleased - media clock phase](#unreleased---media-clock-phase)** -- Phase-locked to the followed CRF.
 - **[Unreleased - pins 93fb0b2d and 55680bff](#unreleased---pins-93fb0b2d-and-55680bff)** -- Two donor pins move.
 - **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
@@ -42,6 +43,20 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin ed211803
+
+- Issue #780 adopts processor `ed211803` (PR #201, issue #200).
+- GET_AVB_INFO on another descriptor answers NOT_SUPPORTED (11).
+- It answered NOT_IMPLEMENTED (1) since #177.
+- IEEE 1722.1-2021 Table 7-141: 11 is an unsupported target.
+- Only its target, a type other than AVB_INTERFACE, is unsupported.
+- The command is echoed at its own length, as before.
+- An absent AVB_INTERFACE index still answers NO_SUCH_DESCRIPTOR.
+- A command under cdl 16 still answers BAD_ARGUMENTS.
+- No parent test, model or document expected status 1 here.
+- Both processor ROM digests match the `93fb0b2d` rows.
+- No port, parameter or register changes.
 
 ## Unreleased - media clock phase
 
