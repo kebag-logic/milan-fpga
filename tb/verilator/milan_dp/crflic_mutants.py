@@ -17,6 +17,12 @@ among the failures; a crash or an abort is not a catch. The positive control
 is the clean leg (obj_crflic, which `make crflic-mutants` builds and runs
 first), re-run here.
 
+#774 adds one control on two legs: every talker source given talker 0's
+TSpec MaxFrameSize, the integration before #774, which declared the AAF
+number for the CRF Media Clock Output. It must fail the [TSPEC] grading on
+obj_crflic (AX 1x1 TDM8) and on obj_tspec8 (AX 8x8, `make tspec8-build`
+with TSPEC8_MDIR overridden), each beside its own clean control.
+
 The other half of #530's failing arms, the protocol processor at its previous
 pin 424c688f, needs a second processor checkout and is not run here; the
 leg's README records how it was run and what it reported.
@@ -33,9 +39,10 @@ temporary directory.
 
 Usage: make -C tb/verilator/milan_dp crflic-mutants
        (or python3 crflic_mutants.py from tb/verilator/milan_dp)
-Exit 0 = every mutant was caught and the clean leg still passes.
+Exit 0 = every mutant was caught and both clean legs still pass.
 """
 
+import re
 import signal
 import subprocess
 import sys
@@ -44,8 +51,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
-CLEAN_MDIR = HERE / "obj_crflic"
-EXE_NAME = "Vmilan_dp_crflic"
+#: leg -> (its build target, the objdir variable, the clean objdir, the executable)
+LEGS = {
+    "crflic": ("crflic-build", "CRFLIC_MDIR", HERE / "obj_crflic", "Vmilan_dp_crflic"),
+    "tspec8": ("tspec8-build", "TSPEC8_MDIR", HERE / "obj_tspec8", "Vmilan_dp_tspec8"),
+}
 sys.path.insert(0, str(HERE / "../../../scripts"))
 from suite_tally import log_reports_failure  # noqa: E402
 
@@ -79,15 +89,26 @@ MUTATIONS = [
      "refused AAF gate never opened"),
 ]
 
+#: #774: (name, fragment, replacement, the check it must fail, the leg)
+TALKER0_TSPEC = (
+    "      .cfg_tspec_max_frame_i (pp_src_maxf_w),",
+    "      .cfg_tspec_max_frame_i ({ACMP_SRC_C{tctx_maxf_w[0]}}),",
+    "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1")
+TSPEC_MUTATIONS = [
+    ("every source declares talker 0's TSpec on the 1x1", *TALKER0_TSPEC, "crflic"),
+    ("every source declares talker 0's TSpec on the 8x8", *TALKER0_TSPEC, "tspec8"),
+]
 
-def build(rtl_path: Path, mdir: Path) -> Path | None:
-    """Build the leg against `rtl_path` through the suite's own recipe; the
+
+def build(rtl_path: Path, mdir: Path, leg: str = "crflic") -> Path | None:
+    """Build `leg` against `rtl_path` through the suite's own recipe; the
     executable, or None when the recipe failed or left none."""
+    target, mdir_var, _, exe_name = LEGS[leg]
     out = subprocess.run(
-        ["make", "-s", "-C", str(HERE), "crflic-build", f"DP_SRC={rtl_path}",
-         f"CRFLIC_MDIR={mdir}"],
+        ["make", "-s", "-C", str(HERE), target, f"DP_SRC={rtl_path}",
+         f"{mdir_var}={mdir}"],
         capture_output=True, text=True, check=False)
-    exe = mdir / EXE_NAME
+    exe = mdir / exe_name
     if out.returncode != 0 or not exe.is_file():
         sys.stdout.write(out.stdout[-2000:])
         sys.stdout.write(out.stderr[-2000:])
@@ -120,18 +141,19 @@ def verdict(rc: int, out: str, must_fail: str | None) -> str:
     return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
 
 
-def run_mutant(src: str, mutation: tuple[str, str, str, str], work: Path) -> bool:
-    """Plant one mutation, build and run the leg; True when it was caught."""
-    name, pattern, replacement, breaks = mutation
+def run_mutant(src: str, mutation: tuple[str, ...], work: Path) -> bool:
+    """Plant one mutation, build and run its leg; True when it was caught."""
+    name, pattern, replacement, breaks = mutation[:4]
+    leg = mutation[4] if len(mutation) > 4 else "crflic"
     if src.count(pattern) != 1:
         print(f"[FAIL] mutation {name!r}: its pattern appears {src.count(pattern)} "
               f"time(s) in {DP_RTL.name}, expected exactly 1. The RTL moved and this "
               f"mutant is no longer mutating anything - fix the pattern, do not delete the arm.")
         return False
-    tag = name.replace(" ", "_")
+    tag = re.sub(r"[^A-Za-z0-9]+", "_", name)
     mpath = work / f"milan_datapath_{tag}.sv"
     mpath.write_text(src.replace(pattern, replacement))
-    exe = build(mpath, work / f"obj_{tag}")
+    exe = build(mpath, work / f"obj_{tag}", leg)
     if exe is None:
         print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
               f"proves nothing about the leg")
@@ -159,17 +181,18 @@ def main() -> int:
     fails = 0
     with tempfile.TemporaryDirectory(prefix="crflic-mutants-") as td:
         work = Path(td)
-        clean = CLEAN_MDIR / EXE_NAME
-        exe = clean if clean.is_file() else build(DP_RTL, work / "obj_clean")
-        answer = verdict(*run_leg(exe), None) if exe else "did not compile"
-        if answer == "pass":
-            passes += 1
-            print("[PASS] the unmutated gateware still passes the obj_crflic leg")
-        else:
-            fails += 1
-            print(f"[FAIL] the unmutated gateware does NOT pass ({answer}) - every "
-                  f"mutant result is meaningless")
-        for mutation in MUTATIONS:
+        for leg, (_, _, clean_mdir, exe_name) in LEGS.items():
+            clean = clean_mdir / exe_name
+            exe = clean if clean.is_file() else build(DP_RTL, work / f"obj_clean_{leg}", leg)
+            answer = verdict(*run_leg(exe), None) if exe else "did not compile"
+            if answer == "pass":
+                passes += 1
+                print(f"[PASS] the unmutated gateware still passes the obj_{leg} leg")
+            else:
+                fails += 1
+                print(f"[FAIL] the unmutated gateware does NOT pass obj_{leg} ({answer}) - "
+                      f"every mutant result on it is meaningless")
+        for mutation in MUTATIONS + TSPEC_MUTATIONS:
             if run_mutant(src, mutation, work):
                 passes += 1
             else:

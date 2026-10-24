@@ -13,7 +13,7 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | ✅ `KL_aaf_capture_i2s` | `KL_aaf_capture_i2s.sv` | `aaf` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aaf_latency_tap_bank` | `KL_aaf_latency_tap_bank.sv` | `aaf_latency_tap_bank` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aaf_latency_chain` | `KL_aaf_latency_taps.sv` | `aaf_latency_tap_bank` · `aaf_latency_taps` · `milan_dp` · 🔬`make aaf` | -- |
-| ✅ `KL_aaf_packetizer` | `KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 802.3 |
+| ✅ `KL_aaf_packetizer` | `KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
 | ✅ `KL_aaf_rx_depacketizer` | `KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_rx` | `KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
 | ✅ `KL_aes3_tx` | `KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |

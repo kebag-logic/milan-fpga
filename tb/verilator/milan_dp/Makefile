@@ -10,7 +10,9 @@
 #                 presentation law); its mutation arm is render_mutants.py
 #   make crflic - run only the #530 CRF talker licence leg (compressed time)
 #   make crflic-mutants - that leg's explicit mutation campaign
-#                 (crflic_mutants.py), outside the sweep's deadline
+#                 (crflic_mutants.py), outside the sweep's deadline, and the
+#                 #774 TSpec control on both of its shapes
+#   make tspec8 - run only the #774 per-source TSpec leg on the AX 8x8 shape
 #   make notify - run only the timed leg: the Milan 5.4.5 notifications and
 #                 the #508 GET_STREAM_INFO seam ([GSI]) at compressed time
 #   make gsi-mutants - the [GSI] section's explicit mutation campaign
@@ -233,7 +235,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -304,8 +306,28 @@ $(VERILATOR) crflic_probes.vlt $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(CRFLIC_MD
   -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
   -GAUDIO_IF_MASTER_P=1 \
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
-  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -Wall -Wextra" \
+  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -DWIRE_CHANS_TB=$(AX_CHANS) -Wall -Wextra" \
   $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_crflic
+endef
+
+# #774: sim_crf_licence.cpp's [TSPEC] grading alone (TSPEC_ONLY_TB) on the AX
+# 8x8 shape, TSPEC8_STREAMS AAF talkers of AX_CHANS wire channels plus the CRF
+# Media Clock Output, on the crflic grid: every source probed, MAAP grants,
+# and each Talker Advertise must carry its own format's Milan v1.2 Table 4.4
+# TSpec. The source count the harness grades is the same make variable the
+# -G builds, plus the CRF output, and its boot checks it against ADP_TALKER.
+# crflic_mutants.py builds a MUTATED datapath through this recipe too
+# (DP_SRC and TSPEC8_MDIR overridden).
+TSPEC8_MDIR ?= obj_tspec8
+TSPEC8_STREAMS = 8
+define TSPEC8_BUILD
+$(VERILATOR) crflic_probes.vlt $(SHAPE_8x8) $(CRFLIC_FLAGS) --Mdir $(TSPEC8_MDIR) \
+  -GN_STREAMS=$(TSPEC8_STREAMS) \
+  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+  -GAUDIO_IF_MASTER_P=1 \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -DWIRE_CHANS_TB=$(AX_CHANS) -DSOURCES_TB=$(shell echo $$(($(TSPEC8_STREAMS) + 1))) -DTSPEC_ONLY_TB=1 -Wall -Wextra" \
+  $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_tspec8
 endef
 
 # Milan 5.4.5 TIMED (issue #69) and the #508 GET_STREAM_INFO seam: the
@@ -537,10 +559,17 @@ crflic: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 crflic-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
 	$(CRFLIC_BUILD)
 
+tspec8: tspec8-build
+	./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
+
+tspec8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
+	$(TSPEC8_BUILD)
+
 # An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
 # Six additional elaborations remove ACTIVE or the real grant at each
-# consumer. Their cost is outside the default sweep's stated margin.
-crflic-mutants: crflic
+# consumer, and two more (#774) give every source talker 0's TSpec, one per
+# shape. Their cost is outside the default sweep's stated margin.
+crflic-mutants: crflic tspec8
 	python3 crflic_mutants.py
 
 notify-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
@@ -611,7 +640,7 @@ ax1x1gptp-extended: ax1x1gptp
 # One inventory owns default execution and CI selection.
 COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
 PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
-ORDINARY_CASES = base notify crflic dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
+ORDINARY_CASES = base notify crflic tspec8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
 SUFFIX_CASES = render-mutants
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
 $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
@@ -620,6 +649,7 @@ RUN_CASES = $(PREFIX_CASES) $(ORDINARY_CASES) $(SUFFIX_CASES)
 CASE_OPTIONS_base = ./obj_dir/Vmilan_dp_sim
 CASE_OPTIONS_notify = --banner "---- Milan 5.4.5 notifications and the \#508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" ./$(NOTIFY_MDIR)/Vmilan_dp_notify
 CASE_OPTIONS_crflic = --banner "---- \#530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" ./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+CASE_OPTIONS_tspec8 = --banner "---- \#774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----" ./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
 CASE_OPTIONS_dynmap = --banner "---- \#658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----" ./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
 CASE_OPTIONS_maprec8 = --banner "---- \#637 the map records across the 8x8 shape's eight output ports ----" ./$(MAPREC8_MDIR)/Vmilan_dp_maprec8
 CASE_OPTIONS_maprec4 = --banner "---- \#637 the map records across the 4x4 shape's four input ports ----" ./$(MAPREC4_MDIR)/Vmilan_dp_maprec4
@@ -769,6 +799,12 @@ build-crflic: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_
 
 exec-crflic:
 	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+
+build-tspec8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	$(TSPEC8_BUILD)
+
+exec-tspec8:
+	./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
 
 build-dynmap: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(DYNMAP_BUILD)
