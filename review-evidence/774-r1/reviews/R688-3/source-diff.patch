@@ -1,0 +1,1137 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index f2a64a818..ae9427e07 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - per-source TSpec](#unreleased---per-source-tspec)** -- The CRF output declares 29.
+ - **[Unreleased - media clock phase](#unreleased---media-clock-phase)** -- Phase-locked to the followed CRF.
+ - **[Unreleased - pins 93fb0b2d and 55680bff](#unreleased---pins-93fb0b2d-and-55680bff)** -- Two donor pins move.
+ - **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
+@@ -43,6 +44,19 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - per-source TSpec
++
++- Issue #774 declares each source's own TSpec.
++- Milan v1.2 Table 4.4 sets it per format.
++- The CRF output declared the AAF value, 217.
++- Table 4.4 gives CRF with one timestamp 28 + 1.
++- `KL_pp_shadow` now takes one MaxFrameSize per source.
++- Each AAF talker declares 24*N + 24 + 1 as before.
++- The CRF output declares 29 from `KL_crf_tx`'s PDU.
++- `tb/verilator/milan_dp` grades it in `[TSPEC]`.
++- `obj_crflic` runs it on the 1x1, `obj_tspec8` on the 8x8.
++- `make crflic-mutants` plants talker 0's value everywhere.
++
+ ## Unreleased - media clock phase
+ 
+ - Issues #632 and #764 phase the followed media clock.
+diff --git a/ci/image/command-table.json b/ci/image/command-table.json
+index fa62d6bf1..d07d47f30 100644
+--- a/ci/image/command-table.json
++++ b/ci/image/command-table.json
+@@ -964,6 +964,17 @@
+       ],
+       "reason": "Execute the locally compiled test binary."
+     },
++    "Vmilan_dp_tspec8": {
++      "class": "non-installing",
++      "executables": [
++        "./obj_tspec8/Vmilan_dp_tspec8",
++        "Vmilan_dp_tspec8"
++      ],
++      "patterns": [
++        []
++      ],
++      "reason": "Execute the locally compiled test binary."
++    },
+     "Vmux_sva": {
+       "class": "non-installing",
+       "executables": [
+@@ -12903,7 +12914,7 @@
+           "-GI2SPB_P=0",
+           "-GLPF_P=0",
+           "-CFLAGS",
+-          "-DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -Wall -Wextra",
++          "-DMS_CYC_TB=100 -DDIAG_TICK_MS_TB=2000 -DWIRE_CHANS_TB=8 -Wall -Wextra",
+           "<runtime>",
+           "../../../hdl/milan/KL_pp_shadow.sv",
+           "../../../hdl/milan/KL_pp_maap_shim.sv",
+@@ -12977,6 +12988,132 @@
+           "-o",
+           "Vmilan_dp_crflic"
+         ],
++        [
++          "crflic_probes.vlt",
++          "+incdir+../../../configs/generated/endstation_ax7101_8x8",
++          "--cc",
++          "--exe",
++          "--build",
++          "-j",
++          "0",
++          "--top-module",
++          "milan_datapath",
++          "+incdir+../../../hdl/common",
++          "+incdir+../../../hdl/common/csr",
++          "+incdir+../../../hdl/common/eth_event_counter",
++          "+incdir+../../../hdl/ieee17221/adp",
++          "+incdir+../../../hdl/ieee8021q/ts",
++          "+incdir+../../../hdl/ieee8021as/ptp_timestamp",
++          "+incdir+../../../third_party/verilog-axis/rtl",
++          "-Wall",
++          "-Wno-fatal",
++          "-Werror-USERERROR",
++          "-Werror-UNDRIVEN",
++          "-Wno-DECLFILENAME",
++          "-Wno-UNUSEDSIGNAL",
++          "-Wno-WIDTHEXPAND",
++          "-Wno-WIDTHTRUNC",
++          "-Wno-UNUSEDPARAM",
++          "-Wno-PINCONNECTEMPTY",
++          "-Wno-IMPORTSTAR",
++          "-Wno-CASEINCOMPLETE",
++          "-Wno-EOFNEWLINE",
++          "-Wno-PINMISSING",
++          "-Wno-SELRANGE",
++          "-Wno-TIMESCALEMOD",
++          "-GCLKV_QTICK_CYC_P=4096",
++          "-GLDIAG_IVAL_CYC_P=256",
++          "-CFLAGS",
++          "-std=c++17 -O2 -Wall -Wextra",
++          "-GGPTP_PLANE_EN_P=0",
++          "-GPP_TIM_DIV_US_P=1",
++          "-GPP_TIM_DIV_MS_P=100",
++          "-GMAAP_CLK_HZ_P=100000",
++          "<runtime>",
++          "--Mdir",
++          "obj_tspec8",
++          "-GN_STREAMS=8",
++          "-GTALKER_WIRE_CHANS_P=8",
++          "-GAUDIO_IF_SLOTS_P=8",
++          "-GAUDIO_IF_MASTER_P=1",
++          "-GLOOPBACK_P=1",
++          "-GI2SPB_P=0",
++          "-GLPF_P=0",
++          "-CFLAGS",
++          "<runtime>",
++          "<runtime>",
++          "../../../hdl/milan/KL_pp_shadow.sv",
++          "../../../hdl/milan/KL_pp_maap_shim.sv",
++          "../../../hdl/milan/KL_nvm_backend.sv",
++          "../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv",
++          "../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
++          "../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
++          "../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
++          "../../../gptp-processor/hdl/common/KL_gptp_timer.sv",
++          "../../../gptp-processor/hdl/top/KL_gptp_engine.sv",
++          "../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv",
++          "../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv",
++          "../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
++          "../../../hdl/common/ethernet_packet_pkg.sv",
++          "../../../hdl/common/axi_stream_if.sv",
++          "../../../third_party/verilog-axis/rtl/axis_fifo.v",
++          "../../../third_party/verilog-axis/rtl/axis_arb_mux.v",
++          "../../../third_party/verilog-axis/rtl/arbiter.v",
++          "../../../third_party/verilog-axis/rtl/priority_encoder.v",
++          "../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
++          "../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv",
++          "../../../hdl/common/cdc_pulse.sv",
++          "../../../hdl/common/cdc_handshake.sv",
++          "../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
++          "../../../hdl/ieee8021q/filtering/tcam.sv",
++          "../../../hdl/ieee8021q/filtering/rx_mac_filter.sv",
++          "../../../hdl/common/tx_ifg_gasket.sv",
++          "../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv",
++          "../../../hdl/ieee1722/aaf/KL_pcm_route.sv",
++          "../../../hdl/common/KL_link_guard.sv",
++          "../../../hdl/ieee17221/adp/adp_tx_arbiter.sv",
++          "../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv",
++          "../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv",
++          "../../../hdl/ieee1722/aaf/KL_tdm_capture.sv",
++          "../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv",
++          "../../../hdl/ieee1722/aaf/KL_pair_blend.sv",
++          "../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv",
++          "../../../hdl/ieee1722/aaf/KL_tdm_render.sv",
++          "../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv",
++          "../../../hdl/ieee1722/aaf/KL_render_setpoint.sv",
++          "../../../hdl/ieee1722/aaf/KL_chan_map_render.sv",
++          "../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv",
++          "../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv",
++          "../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
++          "../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv",
++          "../../../hdl/ieee1722/avtp/avtp_stream_parser.sv",
++          "../../../hdl/ieee1722/avtp/KL_stream_table.sv",
++          "../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
++          "../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
++          "../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv",
++          "../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv",
++          "../../../hdl/ieee1722/crf/KL_crf_rx.sv",
++          "../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv",
++          "../../../hdl/ieee1722/crf/KL_crf_tx.sv",
++          "../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv",
++          "../../../hdl/ieee1722/crf/KL_media_nco.sv",
++          "../../../hdl/ieee1722/crf/KL_media_grid_align.sv",
++          "../../../hdl/ieee1722/maap/KL_maap.sv",
++          "../../../hdl/ieee1722/aaf/KL_i2s_playback.sv",
++          "../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv",
++          "../../../hdl/ieee1722/aaf/KL_tone_gen.sv",
++          "../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv",
++          "../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv",
++          "../../../hdl/ieee1722/aaf/KL_media_adv.sv",
++          "../../../hdl/common/cdc_pair_fifo.sv",
++          "../../../hdl/common/eth_event_counter/ethernet_events.sv",
++          "../../../hdl/common/eth_event_counter/event_counter.sv",
++          "../../../hdl/common/csr/milan_csr.sv",
++          "../../../hdl/milan/milan_datapath.sv",
++          "sim_crf_licence.cpp",
++          "-o",
++          "Vmilan_dp_tspec8"
++        ],
+         [
+           "dynmap_probes.vlt",
+           "+incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8",
+@@ -13942,7 +14079,7 @@
+     "tb/verilator/milan_dp/crflic_mutants.py": {
+       "class": "reviewed non-installing",
+       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+-      "sha256": "ce4c4ff18e0c577797bf2353a95b253e51c1f4757d908bfdf7026697d7619fb2"
++      "sha256": "baec486af9e8cbd0ed8b5d5c0bdfa08c868a30e93e43cba8890551803c0015d2"
+     },
+     "tb/verilator/milan_dp/dynmap_mutants.py": {
+       "class": "reviewed non-installing",
+diff --git a/docs/reference/MILAN_COMPLIANCE_MATRIX.md b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+index 24e763d8e..1dc47ccb1 100644
+--- a/docs/reference/MILAN_COMPLIANCE_MATRIX.md
++++ b/docs/reference/MILAN_COMPLIANCE_MATRIX.md
+@@ -96,7 +96,7 @@ decision record for the one deliberate 2011-vs-2020 wire difference
+ | 4.2.7.2.1 | Domain: SR class A, priority 3, VID 2 | implemented — PP srp_top; SILICON reservation against a real bridge; the adopted {priority, VID} pair tags every emitted frame |
+ | 4.2.7.2.2 | instantaneous IN→MT registrar transition | implemented — PP srp_stream_fsms |
+ | 4.2.7.3 / 4.4.1 | MVRP (talker + listener) | implemented -- PP srp suites; SILICON join; since processor pin `b2db3a97` the talker licence waits for the stream VID's MVRP join to leave (4.3.2), graded by the PP srp_top suite, R1-R4 |
+-| 4.3.3 | talker attribute declaration + Table 4.4 bandwidth | implemented — TSpec derived from real frame geometry (`milan_datapath`), declared by the processor; RTL milan_dp |
++| 4.3.3 | talker attribute declaration + Table 4.4 bandwidth | implemented: TSpec derived per source from real frame geometry (`milan_datapath`: AAF 24·N + 24 + 1, CRF 28 + 1, #774), declared by the processor; RTL milan_dp `[TSPEC]` on the AX 1x1 and 8x8 shapes |
+ 
+ ### 1.3 AECP AEM command set (Section 5.4.2)
+ 
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index e62320702..41f4fddc6 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -1223,7 +1223,7 @@ admits frames. **When those two disagree, the bypass is engaged** — on
+ | `0x684` | `LWSRP_VID` | RW | `2` | Software-owned diagnostic/default VID. Startup reset and firmware share `srp.vid=2` with the generated processor default parameter. Manual writes do not program that elaboration parameter; operational Domain adoption is published at `0x788`. |
+ | `0x688` | `LWSRP_DMAC_LO` | RW | `0xF000_FE01` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[31:0]` (same packing as `AAF_DM*`). The applicant that read it is deleted; the processor takes its destination address from MAAP |
+ | `0x68C` | `LWSRP_DMAC_HI` | RW | `0x91E0` | 🟡 **WRITE-ONLY SCRATCH** — stream dest MAC `[47:32]` |
+-| `0x690` | `LWSRP_TSPEC` | RW | `0x0001_00E0` | 🟡 **WRITE-ONLY SCRATCH** — `[15:0]` MaxFrameSize, `[31:16]` MaxIntervalFrames. The applicant that read them is deleted. The processor DERIVES its Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize from the wire width the framer was elaborated with, so the declaration and the frame cannot disagree, and it derives its interval from the SR class. Writing this changes nothing observable |
++| `0x690` | `LWSRP_TSPEC` | RW | `0x0001_00E0` | 🟡 **WRITE-ONLY SCRATCH**: `[15:0]` MaxFrameSize, `[31:16]` MaxIntervalFrames. The applicant that read them is deleted. The processor declares each source's Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize as the fabric derives it from that source's framer (an AAF talker's wire width, the CRF output's PDU shape, #774), so the declaration and the frame cannot disagree, and it derives its interval from the SR class. Writing this changes nothing observable |
+ | `0x694` | `LWSRP_STATUS` | RO | `0` | Mixed. 🟢 **LIVE, REPOINTED** from the processor's class-D face. **`[3:0]` describes ONE subject: the Listener attribute REGISTERED on talker SOURCE 0** (the processor's `lstn_reg_state[0]`), which is the subject it had before the control plane was substituted and the subject it has again since VERSION `0x005C`. `[1:0]` is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed); `[2]` listener registered = the value is not 0, **asking-failed INCLUDED** (the field answers "does anyone want this stream", and an asking-failed Listener does: it must still see our TalkerAdvertise or it can never become Ready); `[3]` listener ready = the value is ready or ready-failed, the Milan v1.2 5.3.7.3 pair. From the substitution to VERSION `0x005B` this nibble mixed two subjects and misread both: `[1:0]` carried sink 0's OWN Listener declaration, `[2]` read bit 1 of the registered value (so a registered asking-failed Listener reported 0) and `[3]` compared the sink's declaration against the asking-failed code (so it read 1 while this station declared asking-failed and 0 while it declared ready). `[4]` talker declared, `[5]` domain ok, `[6]` reservation ACTIVE ORed over sources, the CRF output included, `[7]` **over the 75 % gate**, `[8]` stream gate open: source 0's ACTIVE AND real grant (#551), `[9]` the processor's raw admission verdict, ORed over sources: status only, since no shaper is instantiated to read it; raw ACTIVE can lead it during optimism, but licences require the real grant (#551), `[10]` TalkerFailed seen, `[23:16]` MSRP failure code. 🔴 **STRUCTURAL ZERO**: `[11]` attribute-row shortfall (there is no attribute-row table in this fabric any more) and `[31:24]` ingress FIFO frame drops (that ingress path is deleted; the protocol processor's own control-frame FIFO drop counter lives at `PP_DIAG` `0x930[15:8]`). `[15:12]` reserved 0 |
+ | `0x698` | `LWSRP_SLOPE` | RO | `0` | 🟢 **LIVE, REPOINTED**: the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000`. Status only: no shaper is instantiated to consume it, licences require ACTIVE AND the real grant (#551) |
+ | `0x69C` | `LWSRP_CNT` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[31:16]` MRPDUs received / `[15:0]` MRPDUs sent. The serialiser and ingress path that counted them are deleted; the processor exchanges MRPDUs and publishes no PDU counters. Reservations still form — read `LWSRP_STATUS` and `LWSRP_DOM`, not this |
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index edc65acbe..06b8f297c 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -229,7 +229,7 @@ Issue #771 adopts processor pin `93fb0b2d` and gPTP pin `55680bff`.
+ | #176, SET_STREAM_INFO body | [183](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/183) | The IEEE 1722.1-2013 48-byte body (cdl 60) is accepted beside the 2021 body and answered in the 2021 form; any other length is BAD_ARGUMENTS; the milan_dp #67 rows expect SUCCESS |
+ | #181, notification-router cut | [187](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/187) | The notification queue's occupancy is a register, and the event router's scan reads registers only; no port, parameter or cycle change |
+ | #184, MSRP Domain re-declaration | [191](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/191) | JoinIn only while a peer Domain is registered, JoinMt otherwise (IEEE 802.1Q-2018 Section 10.7.6.3) |
+-| #190, per-source TSpec | [194](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/194) | `cfg_tspec_max_frame_i` widens to `[N_STREAM_OUT_P*16-1:0]`, one MaxFrameSize per source; `KL_pp_shadow` drives every slot with its one 16-bit value, so every declaration is unchanged; the CRF slot's own value is not part of this adoption |
++| #190, per-source TSpec | [194](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/194) | `cfg_tspec_max_frame_i` widens to `[N_STREAM_OUT_P*16-1:0]`, one MaxFrameSize per source; `KL_pp_shadow` drove every slot with its one 16-bit value at this adoption, so every declaration was unchanged; since #774 it takes one value per source and the CRF slot declares its own |
+ | #185 and #186, CONTROL and UNLOCK | [196](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/196) | READ_DESCRIPTOR CONTROL serves the IDENTIFY control's current value; both unlock notifications carry flags UNLOCK |
+ | #188 and #189, Listener registration | [195](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/195) | A rebind keeps the owed Listener Leave; GET_RX_STATE REGISTERING_FAILED follows the registered type on every change |
+ | #192, started/stopped notification | [197](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/197) | Every started/stopped change of a Stream Input pushes GET_STREAM_INFO to every registered controller, a START/STOP_STREAMING requester included (Milan v1.2 Section 5.4.5.1); the milan_dp G9 rows expect it |
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 0d770f2dd..9ec037700 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -271,7 +271,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
+ | #645/#647 settle recentre, sixteen rebuilt controls | `make -C tb/verilator/follow_ring mutants SWEEP_JOBS=4` | Manager merge bank; authors and reviewers changing the media-clock plane, capture ring or this harness |
+ | #647 render pull-in, eighteen boot phases and the standing phase after serial/CRF/LAW | `cd tb/verilator/milan_dp_render && make tdm8render-pullin PULLIN_JOBS=6` | Manager merge bank; authors and reviewers changing the settle recentre, render path or this harness |
+ | #447/#657 TDM8 render lane, the full mutant/control inventory | `make -C tb/verilator/milan_dp_render tdm8render-mutants` | Manager merge bank; authors and reviewers changing `KL_tdm_render_master.sv`, the render half of `milan_datapath.sv`, the generated TDM8 shape header, `sim_tdm8_render.cpp` or this campaign |
+-| #530 streaming licence, the three gate mutants | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`) or `sim_crf_licence.cpp` |
++| #530 streaming licence, the three gate mutants, and the #774 per-source TSpec control on the 1x1 and 8x8 shapes | `make -C tb/verilator/milan_dp crflic-mutants` | the change's own validation, and every reviewer of a change that touches a talker gate in `milan_datapath.sv` (`lwsrp_stream_gate`, `aaf_gate`, `aaf_stream_en_raw_w`, `crft_emit_en_w`), the per-source TSpec (`pp_src_maxf_w`, `tctx_maxf_w`, `KL_crf_tx`'s `tspec_max_frame_o`, `KL_pp_shadow`'s `cfg_tspec_max_frame_i`) or `sim_crf_licence.cpp` |
+ | #508 GET_STREAM_INFO seam, the eight field and notification mutants, the #632 SET_STREAM_INFO push gate compared with the readback (caught on the CRF output, whose readback is applied in whole periods), and GET_STREAM_INFO's offset word reading the CRF output's row as set or every output's row rounded (#632), planted in a copy of the processor's microcode and run on the clean build with its own ROM | `make -C tb/verilator/milan_dp gsi-mutants` | the change's own validation, and every reviewer of a change that touches the processor's STREAM_INPUT gather or SET_STREAM_INFO program, the GET_STREAM_INFO answer block of `milan_datapath.sv`, or the `[GSI]` section or `[NOTIFY]` SET_STREAM_INFO case of `sim_nxn.cpp` |
+ | #653 unbind order and Table 5.6 pair, the five unbind mutants | `make -C tb/verilator/milan_dp unb-mutants` | the change's own validation, and every reviewer of a change that touches the unbind arm of `KL_crf_rx.sv`, the bind-fall unlock of `KL_avtp_rx_monitor_ctx.sv`, the processor's ACMP TX lane or bound-view debounce, or the `[UNB]` section of `sim_nxn.cpp` |
+ | #658 power-on audio maps and #637 map records, the 63 planted controls (on the `dynmap` leg: an empty reset, no clip after the restore, no output clip, no crossbar writer, and the boot window's guard arms: the CSR hold at all four sites and at each store alone, the CLOSED terminal, the sweep after the terminal, its drain clock and the edit face's wait; the 43 `[MAPREC]` arms of the map record writer, its restore, PP_STAT's composition, each term of its validated-record test and the device-face arbiter; on the `maprec8` and `maprec4` legs, the seven arms that need several ports, the round-1 restore order among them; the empty reset again under the listener and talker end-to-end legs) | `make -C tb/verilator/milan_dp dynmap-mutants DYNMAP_MUTANT_JOBS=4` | the change's own validation, and every reviewer of a change that touches the map stores, their reset, the boot window or the map records in `milan_datapath.sv`, the device-face arbiter in `KL_pp_shadow.sv`, `gen_nvm_window.py` or the `[DYNMAP]` and `[MAPREC]` sections of `sim_nxn.cpp` |
+@@ -402,10 +402,10 @@ of any kind; `controller_rate` is the gating regression born from the
+ control-rate boundary; `cbs`/`ptp` check
+ arithmetic against independent reference models (10⁴-10⁵ checks each).
+ 
+-The `milan_dp` default `run` retains fourteen ordinary commands in this order:
+-`obj_dir`, `obj_notify`, `obj_crflic`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`,
+-`obj_nxn8`, `obj_nxn4c`, `obj_nolpf`, `obj_prune`, `obj_ax1x1`, `obj_aclk`,
+-then #637's `obj_maprec8` and `obj_maprec4`.
++The `milan_dp` default `run` retains fifteen ordinary commands in this order:
++`obj_dir`, `obj_notify`, `obj_crflic`, #774's `obj_tspec8`, `obj_dynmap`,
++`obj_nxn`, `obj_nxndv`, `obj_nxn8`, `obj_nxn4c`, `obj_nolpf`, `obj_prune`,
++`obj_ax1x1`, `obj_aclk`, then #637's `obj_maprec8` and `obj_maprec4`.
+ All run through the two-child pool after their builds.
+ `SIM_JOBS=1` runs that same inventory sequentially.
+ The eight `sim_nxn` legs write unique `milan_nxn_*` scratch directories.
+diff --git a/docs/traceability/MODULE_MATRIX.md b/docs/traceability/MODULE_MATRIX.md
+index 4ce4eef62..a00699fa6 100644
+--- a/docs/traceability/MODULE_MATRIX.md
++++ b/docs/traceability/MODULE_MATRIX.md
+@@ -64,7 +64,7 @@ _AAF / CRF / MAAP / AVTP common_
+ | ✅ `KL_aaf_capture_i2s` | `ieee1722/aaf/KL_aaf_capture_i2s.sv` | `aaf` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_latency_tap_bank` | `ieee1722/aaf/KL_aaf_latency_tap_bank.sv` | `aaf_latency_tap_bank` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_latency_chain` | `ieee1722/aaf/KL_aaf_latency_taps.sv` | `aaf_latency_tap_bank` · `aaf_latency_taps` · `milan_dp` · 🔬`make aaf` | -- |
+-| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 802.3 |
++| ✅ `KL_aaf_packetizer` | `ieee1722/aaf/KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
+ | ✅ `KL_aaf_rx_depacketizer` | `ieee1722/aaf/KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_rx` | `ieee1722/aaf/KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_tx` | `ieee1722/aaf/KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
+@@ -95,7 +95,7 @@ _AAF / CRF / MAAP / AVTP common_
+ | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_clock_meter` | `ieee1722/crf/KL_aaf_clock_meter.sv` | `aaf_clock_meter` · `follow_ring` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |
+ | ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `aaf_clock_meter` · `crf_rx` · `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+-| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
++| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 35.2.2.8.4, 4.3.3.2, 802.3 |
+ | ✅ `KL_media_domain_event` | `ieee1722/crf/KL_media_domain_event.sv` | `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+ | ✅ `KL_media_grid_align` | `ieee1722/crf/KL_media_grid_align.sv` | `capture_coherence` · `follow_ring` · `media_grid_align` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render | -- |
+ | 📦 `KL_media_if_latency_pkg` | `ieee1722/crf/KL_media_if_latency_pkg.sv` | -- | -- |
+@@ -170,5 +170,5 @@ _datapath + top wrappers_
+ | ✅ `KL_nvm_backend` | `milan/KL_nvm_backend.sv` | `milan_dp` · `nvm_backend` · `nvm_cosim` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+ | ✅ `KL_pp_maap_shim` | `milan/KL_pp_maap_shim.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+ | ✅ `KL_pp_shadow` | `milan/KL_pp_shadow.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 34.3, 34.4 |
+-| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_mclk` · `milan_dp_render` | 34.4, 35.2.2.8.4, 35.2.7, 802.1 |
++| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_mclk` · `milan_dp_render` | 34.4, 35.2.2.8.4, 35.2.7, 4.3.3.2 |
+ 
+diff --git a/docs/traceability/ieee8021q.md b/docs/traceability/ieee8021q.md
+index e25437712..e9887a620 100644
+--- a/docs/traceability/ieee8021q.md
++++ b/docs/traceability/ieee8021q.md
+@@ -100,7 +100,7 @@ the processor's face.
+ | Q-7 | 8.6.8.1 / 34.6.2 | Strict priority transmission selection among non-shaped queues | traffic_shaping_core | ✅ RTL shaper_core (61 k vs independent model: SP order, unshaped bypass) | 8.6.8.1 is the default algorithm; inversion starves the control plane under media load. |
+ | Q-8 | 8.6.8.2 / 34.6.1 | Credit-based shaper: idleSlope accrual, sendSlope drain, hiCredit/loCredit clamp, credit-reset rules, no transmit while credit < 0 | credit_based_shaper (CSR 0x400) | ✅ RTL cbs (87 k: bit-exact vs fixed-point replica + bounded vs ideal continuous model; accrual under back-pressure; live reconfig hiCredit clamp) | 34.6.1's math is the AVB latency guarantee itself; the TB's dual-model approach is the reference for any shaper change. |
+ | Q-9 | 34.3 | Bandwidth availability: SR classes limited to 75 % (deltaBandwidth defaults) | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → parent ACTIVE AND per-source real-grant licence; status at `LWSRP_STATUS[7]`/`[9]` and `LWSRP_SLOPE` `0x698` | 🔵 PROCESSOR - the 75 % TSpec-refusal scenario went with the deleted `lwsrp` suite. `milan_dp crflic` checks oversized re-declarations with identical and changed TSpecs: no licence, counter edges, resets or PDUs. It does not test the 75 % boundary. `crflic-mutants` catches missing grant terms. The current-TSpec grant stays low on refusal (processor #112, above). No shaper consumes the sum. | 34.3: exceeding 75 % legally starves best-effort, and the bridge will reject what we would declare anyway. |
+-| Q-10 | 34.4 | Actual bandwidth derived from TSpec MSDU size including per-frame overheads → idleSlope | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → `LWSRP_SLOPE` `0x698`, status only | 🔵 PROCESSOR - the derived slope has no shaper to program in the shipping datapath. #551 requires ACTIVE AND the real per-source grant; the grant waits for the current TSpec (processor #112, above). A future shaper must prove slope/gate ordering. MaxFrameSize still derives from real AAF geometry in [`milan_datapath`](../../hdl/milan/milan_datapath.sv), passed as `cfg_tspec_max_frame_i`. | 34.4: forgetting the 42-byte per-frame overhead undersizes idleSlope and the shaper throttles in-contract media. |
++| Q-10 | 34.4 | Actual bandwidth derived from TSpec MSDU size including per-frame overheads → idleSlope | protocol processor `KL_srp_admission` (behind `KL_pp_shadow`) → `LWSRP_SLOPE` `0x698`, status only | 🔵 PROCESSOR - the derived slope has no shaper to program in the shipping datapath. #551 requires ACTIVE AND the real per-source grant; the grant waits for the current TSpec (processor #112, above). A future shaper must prove slope/gate ordering. MaxFrameSize still derives from real frame geometry in [`milan_datapath`](../../hdl/milan/milan_datapath.sv), one slot per source: each AAF talker's channel count and the CRF output's PDU shape (#774), passed as `cfg_tspec_max_frame_i`. | 34.4: forgetting the 42-byte per-frame overhead undersizes idleSlope and the shaper throttles in-contract media. |
+ | Q-11 | 34.5 | Default SR class config: class A = PCP 3, SR_PVID default = VID 2 | processor SRP encoder for the declaration; `cfg_lwsrp_vid` (reset word 0x684 = 2) for this fabric's default, and the ADOPTED pair from the class-D face once a Domain has been seen | 🔵 PROCESSOR for the Domain bytes; ✅ RTL crf_tx TCI golden 0x6002 for the tag. The property that survives intact is the ONE-SOURCE rule: the AAF and CRF C-TAGs mux off exactly the pair the processor publishes (`srp_class_a_prio_o` / `srp_class_a_vid_o`), so frame and declaration cannot name different values. Historic: BENCH item 1.2; SILICON MSRP Domain = VID 2 | 34.5: the bench-measured truth — Domain misparse as 638 cost a debugging round; the defaults are load-bearing for interop. |
+ | Q-12 | 34.2 | SRP domain detection: talker uses the boundary-port rules (Domain attribute) to pick class priority | processor SRP registrar (`srp_domain_adopted_o`) | 🔵 PROCESSOR — the boundary case was pinned by the deleted `lwsrp_rx` suite. The fabric reads only the adopted verdict | 34.2: transmitting class-A-tagged frames on a non-SRP boundary port is undefined behavior for the bridge. |
+ | Q-13 | 8.6.1–8.6.5, 8.8, 8.13 | Bridge relay: forwarding, filtering DB, egress rules | — | ➖ N/A — end station (the bench bridge provides these; its pruning behavior is documented in findings) | Bridge-only obligations. |
+@@ -151,7 +151,7 @@ old deviations from the full 10.7 state tables went with it.
+ | SRP-6 | 35.2.4.3(b)-ish rank/latency | AccumulatedLatency propagation and MSRP_ACC_LAT exposure through AECP GET_STREAM_INFO | processor SRP decoder → `srp_acc_latency_o` on the class-D face → root GET_STREAM_INFO gather and CSR | 🟡 SPLIT: GET_STREAM_INFO is implemented and publishes the current per-stream AccumulatedLatency to controllers. Processor `pp_top` group G grades the byte-exact Milan response, and root `milan_dp` B2 grades the integrated 80-byte response. SET_STREAM_INFO's MSRP_ACC_LAT sub-command is served since 0x0053, so a controller can both read the value and set the presentation offset the framers stamp; the folded transit entry is the shared source. Historic: ✅ RTL aecp [25] (a changing acc-latency followed into GET_STREAM_INFO, 137042 → 250000 → dereg 0) | 35.2.2: AccumulatedLatency is the number controllers use to align presentation offsets across listeners. |
+ | SRP-7 | Clause 11 (11.2.1–11.2.3) | MVRP: declare the SR VID (2) so the bridge adds port membership | processor SRP encoder (MVRP) | 🔵 PROCESSOR — the byte-exact MVRP PDU golden is deleted. The SILICON lesson stands and is expensive to relearn: no MVRP join means the bridge drops our tagged frames at ingress | 11.2.1: VLAN membership is dynamic on AVB bridges; skipping MVRP is why early talker frames vanished at the first hop. |
+ | SRP-8 | 35.x class B | SR class B (PCP 2, 250 µs interval) declarations and domain | processor `KL_srp_decoder` (RX handling only) | 🔵 PROCESSOR — the packed B-first NoV=2 vectors, the derived class-A extraction and the stale-event defect this repo found and fixed were all pinned by the deleted `lwsrp_rx` suite. Milan's verdict is unchanged and still bounds the obligation: 4.2.7.2.1's Domain *shall* is Class A only, so class-B DECLARING is not a compliance blocker and HANDLING is the whole duty | 35.1.4: a second SR class is mandatory-to-*handle* (Domain PDUs for B arrive from the bridge today and must at least not confuse the walker). **Milan verdict (4.2.7.2.1, read 2026-07-28):** the Domain *shall* is **for Class A only** — *"a PAAD shall use SR Class Priority 3 and Default VLAN ID 2 for Class A, and send MSRPDUs declaring an MSRP Domain for Class A"* — and the GET_STREAM_INFO CLASS_B flag is "Not defined by this specification", so class-B DECLARING is not a Milan-compliance blocker; the handling half above is the whole obligation. |
+-| SRP-10 | 35.2.2.8.4 a) | TSpec MaxFrameSize, verbatim: *"It represents the maximum frame size that the Talker **will produce**, excluding any overhead for media-specific framing (e.g., preamble, IEEE 802.3 header, Priority/VID tag, CRC, interframe gap)"* — the WIRE, never the declaration | the MaxFrameSize derivation SURVIVES in [`milan_datapath`](../../hdl/milan/milan_datapath.sv) — header + the Milan step-1 extra octet + samples×channels, from the same constant that resets `KL_aaf_packetizer`'s chans field — and is handed to the processor as `cfg_tspec_max_frame_i` | ✅ builder gates still green on every shape, and the tie is now SHORTER: the value goes straight from the framer geometry into the declaring engine with no attribute-row table in between. The 2026-07-28 lesson keeps its teeth — a TSpec of a frame nobody sent is a silent over-reservation the bridge dutifully honours | The 2026-07-28 bench measured a TSpec of a frame nobody sent: declared-8ch MaxFrameSize announced while the wire carried the 2ch 72-byte MSDU — a ~3× over-reservation the bridge dutifully honoured. |
++| SRP-10 | 35.2.2.8.4 a) | TSpec MaxFrameSize, verbatim: *"It represents the maximum frame size that the Talker **will produce**, excluding any overhead for media-specific framing (e.g., preamble, IEEE 802.3 header, Priority/VID tag, CRC, interframe gap)"* -- the WIRE, never the declaration | the MaxFrameSize derivation SURVIVES in [`milan_datapath`](../../hdl/milan/milan_datapath.sv) -- header + the Milan step-1 extra octet + samples×channels, from the same constant that resets `KL_aaf_packetizer`'s chans field -- and is handed to the processor as `cfg_tspec_max_frame_i`, one slot per source (#774): each AAF talker its own 24·N + 24 + 1, the CRF Media Clock Output `KL_crf_tx`'s 28 + 1 from its own PDU shape (Milan 4.3.3.2 Table 4.4) | ✅ builder gates still green on every shape, and the tie is now SHORTER: the value goes straight from the framer geometry into the declaring engine with no attribute-row table in between. RTL `milan_dp` `[TSPEC]` (#774) decodes every Talker Advertise the DUT sends, on the AX 1x1 TDM8 (`obj_crflic`, against the emitted AVTPDUs too) and AX 8x8 (`obj_tspec8`) shapes, and `make crflic-mutants` fails talker 0's value on every slot on both. The 2026-07-28 lesson keeps its teeth -- a TSpec of a frame nobody sent is a silent over-reservation the bridge dutifully honours | The 2026-07-28 bench measured a TSpec of a frame nobody sent: declared-8ch MaxFrameSize announced while the wire carried the 2ch 72-byte MSDU -- a ~3× over-reservation the bridge dutifully honoured. |
+ | SRP-9 | 802.1Qat historical / 35 general | Multiple simultaneous reservations (per-stream attribute instances) | processor per-source and per-sink SRP state (`N_STREAM_OUT_P` / `N_STREAM_IN_P` arrays) | 🔵 PROCESSOR — the single-attribute limitation this row recorded was the deleted applicant's. The processor carries per-source and per-sink state by construction and publishes it as per-index vectors on the class-D face; the 16-row `ctx_idx` ceiling and its elaboration assert went with the context table. Whether every index really declares is UNVERIFIED here | 35.2.7: attribute value support requirements assume per-stream instances. **2026-07-28:** the CRF stream no longer rides untagged best-effort - it owns a TALKER attribute row of its own (`N_TALKERS_P` = N+1, ctx row `2N-1`), fabric-provisioned so its StreamID/DMAC are derived rather than restated. At 8x8 that is EXACTLY 16 rows = the whole 4-bit `ctx_idx`, guarded by a `milan_datapath` elaboration assert and a builder ConfigError. |
+ 
+ **tsn_gen status: ❌ NO 802.1Q MODELS AT ALL** — and the case for authoring them is now
+diff --git a/hdl/ieee1722/aaf/README-tests.md b/hdl/ieee1722/aaf/README-tests.md
+index 0e891efc6..f848cfc6c 100644
+--- a/hdl/ieee1722/aaf/README-tests.md
++++ b/hdl/ieee1722/aaf/README-tests.md
+@@ -13,7 +13,7 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
+ | ✅ `KL_aaf_capture_i2s` | `KL_aaf_capture_i2s.sv` | `aaf` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_latency_tap_bank` | `KL_aaf_latency_tap_bank.sv` | `aaf_latency_tap_bank` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aaf_latency_chain` | `KL_aaf_latency_taps.sv` | `aaf_latency_tap_bank` · `aaf_latency_taps` · `milan_dp` · 🔬`make aaf` | -- |
+-| ✅ `KL_aaf_packetizer` | `KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 802.3 |
++| ✅ `KL_aaf_packetizer` | `KL_aaf_packetizer.sv` | `aaf` · `aaf_audio_loop` · `capture_coherence` · `chmap_capture` · `media_phase` · `milan_dp` · `tdm` · ➰milan_dp_mclk,milan_dp_render · 🔬`make aaf` | 35.2.2.8.4, 4.3.3.2, 802.3 |
+ | ✅ `KL_aaf_rx_depacketizer` | `KL_aaf_rx_depacketizer.sv` | `aaf_audio_loop` · `avtp_rxmon` · `milan_dp` · `tsn_fuzz` · ➰capture_coherence,milan_dp_mclk,milan_dp_render · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_rx` | `KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | -- |
+ | ✅ `KL_aes3_tx` | `KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | -- |
+diff --git a/hdl/ieee1722/crf/KL_crf_tx.sv b/hdl/ieee1722/crf/KL_crf_tx.sv
+index 6e20be757..0319f7438 100644
+--- a/hdl/ieee1722/crf/KL_crf_tx.sv
++++ b/hdl/ieee1722/crf/KL_crf_tx.sv
+@@ -211,15 +211,28 @@ module KL_crf_tx #(
+   output logic        m_axis_tlast,
+   input  wire         m_axis_tready,
+ 
+-  output logic [31:0] tx_count_o         //! CRF PDUs completed on the wire side
++  output logic [31:0] tx_count_o,        //! CRF PDUs completed on the wire side
++
++  //! TSpec MaxFrameSize of this stream (IEEE 802.1Q-2018 35.2.2.8.4 a)), a
++  //! constant of the PDU shape built below: Milan v1.2 4.3.3.2 Table 4.4
++  //! "CRF, 1 ts/pdu" = 28 + 1, the AVTPDU plus the table's one octet. The
++  //! integrator declares it for this Stream Output (#774), so the declaration
++  //! follows the frame this module emits rather than a second copy of it.
++  output logic [15:0] tspec_max_frame_o
+ );
+ 
+   //! Milan 7.3.1 constants (mirror KL_crf_rx)
+   localparam [28:0] CRF_BASEHZ_C = 29'd48000;
++  //! crf_data_length (IEEE 1722-2016 10.4.11): one 64-bit timestamp per PDU
+   localparam [15:0] CRF_DLEN_C   = 16'd8;
+   localparam [15:0] CRF_IVAL_C   = 16'd96;
+ 
+-  localparam int CRF_PDU_C   = 28;                      //! CRF AVTPDU octets
++  //! CRF AVTPDU header ahead of crf_data, pdu[0..19] below (IEEE 1722-2016
++  //! 10.4: subtype through timestamp_interval). CRF_PDU_C widens
++  //! crf_data_length with a size cast, the form the BDD frame-size steps
++  //! resolve as plain arithmetic (#774).
++  localparam int CRF_HDR_C   = 20;
++  localparam int CRF_PDU_C   = CRF_HDR_C + 32'(CRF_DLEN_C);    //! AVTPDU octets, 28
+   localparam int ETH_HDR_C   = 14;                      //! DA + SA + EtherType
+   localparam int VTAG_C      = 4;                        //! 802.1Q C-TAG (9.5)
+   //! ONE frame length for BOTH shapes: the 802.3 minimum (60 + FCS = 64).
+@@ -228,12 +241,11 @@ module KL_crf_tx #(
+   localparam int FRAME_BYTES = ETH_HDR_C + CRF_PDU_C + 18;     //! 60
+   localparam int NUM_BEATS   = (FRAME_BYTES + 7) / 8;   //! 8
+   localparam int LAST_KEEP   = FRAME_BYTES - (NUM_BEATS-1)*8;  //! 4
+-  //! The MSRP TSpec MaxFrameSize the integration must declare for this
+-  //! stream is FRAME_BYTES - (ETH_HDR_C + VTAG_C) = 42: the PADDED MSDU,
+-  //! not the 28-octet AVTPDU (802.1Q 35.2.2.4 TSpec; the engine's idleSlope
+-  //! adds the fixed 42 = preamble 8 + eth 14 + tag 4 + FCS 4 + IPG 12, so
+-  //! 42 + 42 = the 84-octet wire slot this frame really occupies).
+-  //! milan_datapath's CRF_SRP_MAXF_C carries that number.
++  //! The TSpec MaxFrameSize is the AVTPDU plus one octet (Milan v1.2 Table
++  //! 4.4), not the padded MSDU: the table's bandwidth rule raises F =
++  //! MaxFrameSize + 22 to the 68-octet minimum tagged frame, which is where
++  //! the pad is paid for.
++  assign tspec_max_frame_o = 16'(CRF_PDU_C + 1);
+ 
+   // =========================================================================
+   //  IEEE 1722-2016 10.7, Equation (14): the Max Transit Time offset
+diff --git a/hdl/ieee1722/crf/README-tests.md b/hdl/ieee1722/crf/README-tests.md
+index f02df3ba1..192f336c1 100644
+--- a/hdl/ieee1722/crf/README-tests.md
++++ b/hdl/ieee1722/crf/README-tests.md
+@@ -12,7 +12,7 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
+ |---|---|---|---|
+ | ✅ `KL_aaf_clock_meter` | `KL_aaf_clock_meter.sv` | `aaf_clock_meter` · `follow_ring` · `milan_dp` · `milan_dp_mclk` · ➰capture_coherence,milan_dp_render | -- |
+ | ✅ `KL_crf_rx` | `KL_crf_rx.sv` | `aaf_clock_meter` · `crf_rx` · `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+-| ✅ `KL_crf_tx` | `KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
++| ✅ `KL_crf_tx` | `KL_crf_tx.sv` | `crf_tx` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 35.2.2.8.4, 4.3.3.2, 802.3 |
+ | ✅ `KL_media_domain_event` | `KL_media_domain_event.sv` | `follow_ring` · `media_phase` · `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+ | ✅ `KL_media_grid_align` | `KL_media_grid_align.sv` | `capture_coherence` · `follow_ring` · `media_grid_align` · `milan_dp` · ➰milan_dp_mclk,milan_dp_render | -- |
+ | 📦 `KL_media_if_latency_pkg` | `KL_media_if_latency_pkg.sv` | -- | -- |
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index 81abd51f1..53a60d1fc 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -291,14 +291,16 @@ module KL_pp_shadow #(
+     //! same 64 bits onto the wire), so the integrator computes it once and
+     //! hands it here rather than this wrapper inventing a second copy.
+     input  wire [N_STREAM_OUT_P*64-1:0] cfg_stream_id_i,
+-    //! TSpec MaxFrameSize for the engine-driven DECLARE_TALKER (802.1Q
+-    //! 35.2.2.4). Milan v1.2 4.3.3.2 Table 4.4 makes it a FUNCTION of the
+-    //! channel count (24*C + 24 + 1), which the integrator already derives
+-    //! for the framer - so it arrives here rather than being re-derived. It
+-    //! was tied 16'd0 in shadow mode, where a declaration nobody sends can
+-    //! carry any number; on the wire a zero MaxFrameSize is a reservation for
+-    //! zero bandwidth, which a bridge grants and a stream then overruns.
+-    input  wire [15:0]                  cfg_tspec_max_frame_i,
++    //! per-source TSpec MaxFrameSize for the engine-driven DECLARE_TALKER
++    //! (IEEE 802.1Q-2018 35.2.2.8.4 a)), flat [16*s +: 16] like
++    //! cfg_stream_id_i. Milan v1.2 4.3.3.2 Table 4.4 makes it a function of
++    //! each source's FORMAT: an AAF talker's channel count (24*C + 24 + 1), the
++    //! CRF Media Clock Output's PDU (28 + 1). The integrator derives both for
++    //! the framers, so they arrive here rather than being re-derived. One
++    //! value for every source declared the AAF number for the CRF stream
++    //! (#774). On the wire a zero MaxFrameSize is a reservation for zero
++    //! bandwidth, which a bridge grants and a stream then overruns.
++    input  wire [N_STREAM_OUT_P*16-1:0] cfg_tspec_max_frame_i,
+     //! initial accumulated_latency for the Listener direction (802.1Q
+     //! 35.2.2.8.4). Same story: tied 0 in shadow mode.
+     input  wire [31:0]                  cfg_acc_lat_ns_i,
+@@ -1278,9 +1280,8 @@ module KL_pp_shadow #(
+       .cfg_rank_i          (1'b1),
+       .cfg_acc_lat_ns_i    (cfg_acc_lat_ns_i),
+       .port_rate_bps_i     (port_rate_bps_i),
+-      //! scratch only: processor issue #190's per-source port, every slot
+-      //! driven with the one value this wrapper still takes
+-      .cfg_tspec_max_frame_i({N_STREAM_OUT_P{cfg_tspec_max_frame_i}}),
++      //! source s declares slot s (processor #190)
++      .cfg_tspec_max_frame_i(cfg_tspec_max_frame_i),
+ 
+       //! Which talker sources exist — straight from the port, which the
+       //! integrator derives from the entity shape (see the port's banner).
+diff --git a/hdl/milan/README-tests.md b/hdl/milan/README-tests.md
+index e9422ff1d..5407f681f 100644
+--- a/hdl/milan/README-tests.md
++++ b/hdl/milan/README-tests.md
+@@ -13,4 +13,4 @@ hand-edit. Part of the Milan integration family; rolled up in
+ | ✅ `KL_nvm_backend` | `KL_nvm_backend.sv` | `milan_dp` · `nvm_backend` · `nvm_cosim` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+ | ✅ `KL_pp_maap_shim` | `KL_pp_maap_shim.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | -- |
+ | ✅ `KL_pp_shadow` | `KL_pp_shadow.sv` | `milan_dp` · ➰capture_coherence,milan_dp_mclk,milan_dp_render | 34.3, 34.4 |
+-| ✅ `milan_datapath` | `milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_mclk` · `milan_dp_render` | 34.4, 35.2.2.8.4, 35.2.7, 802.1 |
++| ✅ `milan_datapath` | `milan_datapath.sv` | `capture_coherence` · `milan_dp` · `milan_dp_mclk` · `milan_dp_render` | 34.4, 35.2.2.8.4, 35.2.7, 4.3.3.2 |
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 652f418ca..c4aeb9fa3 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1956,6 +1956,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! the 10.4.3 mr level the CRF Media Clock Output stamps, and the level its
+   //! last COMPLETED PDU carried (gh #62 H2b)
+   wire        crft_mr_w, crft_tu_last_w, crft_mr_last_w;
++  //! the CRF output's TSpec MaxFrameSize, from the PDU shape KL_crf_tx builds
++  //! (Milan v1.2 Table 4.4 "CRF, 1 ts/pdu", #774)
++  wire [15:0] crft_maxf_w;
+   wire [TDATA_WIDTH-1:0]   crft_tx_tdata;
+   wire [TDATA_WIDTH/8-1:0] crft_tx_tkeep;
+   wire                     crft_tx_tvalid, crft_tx_tlast, crft_tx_tready;
+@@ -2398,6 +2401,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! CRF engine applies it (eff_crft_sid_w) so the answer and the stream can
+   //! never disagree. Derive, never mirror.
+   wire [ACMP_SRC_C*64-1:0]  pp_src_sid_w;
++  //! ...and the per-source TSpec MaxFrameSize it declares (g_pp_maxf)
++  wire [ACMP_SRC_C*16-1:0]  pp_src_maxf_w;
+   //! 1722.1-2021 6.2.6 GM_CHANGE: an edge on the committed grandmaster pair
+   //! (id OR domain - both are ADPDU fields a re-advertise has to carry) and,
+   //! separately, an edge on the grandmaster IDENTITY alone. The two are not
+@@ -6755,7 +6760,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! does any longer, so nothing here mirrors it.
+   //!
+   //! The tctx_maxf_w derivation above SURVIVES and is now consumed directly:
+-  //! it is the Milan Table 4.4 MaxFrameSize the processor declares with.
++  //! it is the Milan Table 4.4 MaxFrameSize the processor declares with for
++  //! each AAF talker (g_pp_maxf; the CRF output's comes from KL_crf_tx).
+ 
+   //! THE INTERLOCK, repointed. Frames are tagged only while THIS STREAM's
+   //! MSRP Talker Advertise is on the wire - otherwise 802.1Q 35.1.2 prunes a
+@@ -7417,7 +7423,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
+     .m_axis_tvalid(crft_tx_tvalid), .m_axis_tlast (crft_tx_tlast),
+     .m_axis_tready(crft_tx_tready),
+-    .tx_count_o (crft_count_w)
++    .tx_count_o (crft_count_w),
++    .tspec_max_frame_o (crft_maxf_w)
+   );
+ 
+   //! wire-truth channel count (USER 1-to-1 rule): the RENDER path follows
+@@ -9036,6 +9043,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     end
+   endgenerate
+ 
++  //! THE TSPEC LAW, one MaxFrameSize per talker source (#774; Milan v1.2
++  //! 4.3.3.2 Table 4.4, IEEE 802.1Q-2018 35.2.2.8.4 a)), each from the framer
++  //! that source's frames come out of: AAF talker t from its own TSpec
++  //! geometry (tctx_maxf_w[t], 24*N + 24 + 1), the CRF Media Clock Output
++  //! from KL_crf_tx's PDU shape (28 + 1). Talker 0's value on every slot
++  //! declared the 8-channel AAF number, 217, for the CRF stream.
++  generate
++    for (genvar gmf = 0; gmf < ACMP_SRC_C; gmf++) begin : g_pp_maxf
++      if (gmf == CRF_TUID_C) begin : g_maxf_crf
++        assign pp_src_maxf_w[16*gmf +: 16] = crft_maxf_w;
++      end else begin : g_maxf_aaf
++        assign pp_src_maxf_w[16*gmf +: 16] = tctx_maxf_w[gmf];
++      end
++    end
++  endgenerate
++
+   // ==========================================================================
+   //  protocol-processor CONTROL plane — THE control plane, unconditional
+   // ==========================================================================
+@@ -9378,11 +9401,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       //! with. Tied '0 (the shadow value) ACMP would answer, and SRP would
+       //! declare, stream_id 0 for every source.
+       .cfg_stream_id_i   (pp_src_sid_w),
+-      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize, DERIVED from the wire
+-      //! width the framer was elaborated with (tctx_maxf_w) - never an
+-      //! independent constant, or the declaration and the frame disagree.
+-      //! Talker 0's value: every AAF talker in a build shares one width.
+-      .cfg_tspec_max_frame_i (tctx_maxf_w[0]),
++      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize per source, DERIVED from
++      //! the framer each source's frames come out of (pp_src_maxf_w) - never
++      //! an independent constant, or the declaration and the frame disagree.
++      .cfg_tspec_max_frame_i (pp_src_maxf_w),
+       .cfg_acc_lat_ns_i  (cfg_lwsrp_latency),
+       //! the SRP admission ceiling follows the negotiated link rate
+       .port_rate_bps_i   (cfg_mac_is_1g ? 32'd1_000_000_000 : 32'd100_000_000),
+diff --git a/sw/firmware/ctrl/README.md b/sw/firmware/ctrl/README.md
+index 3bf229b97..5863fd479 100644
+--- a/sw/firmware/ctrl/README.md
++++ b/sw/firmware/ctrl/README.md
+@@ -252,7 +252,7 @@ The datapath counter targets also require it before their recipes.
+ The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
+ In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
+ [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
+-165 pin controls follow the boundary controls.
++167 pin controls follow the boundary controls.
+ A clean clone passes the check.
+ An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
+ An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index 77a249667..c26d98394 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -10,7 +10,9 @@
+ #                 presentation law); its mutation arm is render_mutants.py
+ #   make crflic - run only the #530 CRF talker licence leg (compressed time)
+ #   make crflic-mutants - that leg's explicit mutation campaign
+-#                 (crflic_mutants.py), outside the sweep's deadline
++#                 (crflic_mutants.py), outside the sweep's deadline, and the
++#                 #774 TSpec control on both of its shapes
++#   make tspec8 - run only the #774 per-source TSpec leg on the AX 8x8 shape
+ #   make notify - run only the timed leg: the Milan 5.4.5 notifications and
+ #                 the #508 GET_STREAM_INFO seam ([GSI]) at compressed time
+ #   make gsi-mutants - the [GSI] section's explicit mutation campaign
+@@ -233,7 +235,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
+        $(DP_SRC)
+ CPP  = sim_main.cpp
+ 
+-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
++.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
+ all: run
+ 
+ # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
+@@ -304,10 +306,30 @@ $(VERILATOR) crflic_probes.vlt $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(CRFLIC_MD
+   -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+   -GAUDIO_IF_MASTER_P=1 \
+   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+-  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -Wall -Wextra" \
++  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -DWIRE_CHANS_TB=$(AX_CHANS) -Wall -Wextra" \
+   $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_crflic
+ endef
+ 
++# #774: sim_crf_licence.cpp's [TSPEC] grading alone (TSPEC_ONLY_TB) on the AX
++# 8x8 shape, TSPEC8_STREAMS AAF talkers of AX_CHANS wire channels plus the CRF
++# Media Clock Output, on the crflic grid: every source probed, MAAP grants,
++# and each Talker Advertise must carry its own format's Milan v1.2 Table 4.4
++# TSpec. The source count the harness grades is the same make variable the
++# -G builds, plus the CRF output, and its boot checks it against ADP_TALKER.
++# crflic_mutants.py builds a MUTATED datapath through this recipe too
++# (DP_SRC and TSPEC8_MDIR overridden).
++TSPEC8_MDIR ?= obj_tspec8
++TSPEC8_STREAMS = 8
++define TSPEC8_BUILD
++$(VERILATOR) crflic_probes.vlt $(SHAPE_8x8) $(CRFLIC_FLAGS) --Mdir $(TSPEC8_MDIR) \
++  -GN_STREAMS=$(TSPEC8_STREAMS) \
++  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
++  -GAUDIO_IF_MASTER_P=1 \
++  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
++  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -DWIRE_CHANS_TB=$(AX_CHANS) -DSOURCES_TB=$(shell echo $$(($(TSPEC8_STREAMS) + 1))) -DTSPEC_ONLY_TB=1 -Wall -Wextra" \
++  $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_tspec8
++endef
++
+ # Milan 5.4.5 TIMED (issue #69) and the #508 GET_STREAM_INFO seam: the
+ # processor's timebase compressed 1000x through its own override parameters
+ # (PP_TIM_DIV_US_P = 1 clock per microsecond tick, PP_TIM_DIV_MS_P = 100
+@@ -537,10 +559,17 @@ crflic: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+ crflic-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+ 	$(CRFLIC_BUILD)
+ 
++tspec8: tspec8-build
++	./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
++
++tspec8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
++	$(TSPEC8_BUILD)
++
+ # An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
+ # Six additional elaborations remove ACTIVE or the real grant at each
+-# consumer. Their cost is outside the default sweep's stated margin.
+-crflic-mutants: crflic
++# consumer, and two more (#774) give every source talker 0's TSpec, one per
++# shape. Their cost is outside the default sweep's stated margin.
++crflic-mutants: crflic tspec8
+ 	python3 crflic_mutants.py
+ 
+ notify-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+@@ -611,7 +640,7 @@ ax1x1gptp-extended: ax1x1gptp
+ # One inventory owns default execution and CI selection.
+ COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
+ PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
+-ORDINARY_CASES = base notify crflic dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
++ORDINARY_CASES = base notify crflic tspec8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
+ SUFFIX_CASES = render-mutants
+ CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
+ $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
+@@ -620,6 +649,7 @@ RUN_CASES = $(PREFIX_CASES) $(ORDINARY_CASES) $(SUFFIX_CASES)
+ CASE_OPTIONS_base = ./obj_dir/Vmilan_dp_sim
+ CASE_OPTIONS_notify = --banner "---- Milan 5.4.5 notifications and the \#508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" ./$(NOTIFY_MDIR)/Vmilan_dp_notify
+ CASE_OPTIONS_crflic = --banner "---- \#530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" ./$(CRFLIC_MDIR)/Vmilan_dp_crflic
++CASE_OPTIONS_tspec8 = --banner "---- \#774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----" ./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
+ CASE_OPTIONS_dynmap = --banner "---- \#658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----" ./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
+ CASE_OPTIONS_maprec8 = --banner "---- \#637 the map records across the 8x8 shape's eight output ports ----" ./$(MAPREC8_MDIR)/Vmilan_dp_maprec8
+ CASE_OPTIONS_maprec4 = --banner "---- \#637 the map records across the 4x4 shape's four input ports ----" ./$(MAPREC4_MDIR)/Vmilan_dp_maprec4
+@@ -770,6 +800,12 @@ build-crflic: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_
+ exec-crflic:
+ 	./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+ 
++build-tspec8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
++	$(TSPEC8_BUILD)
++
++exec-tspec8:
++	./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
++
+ build-dynmap: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+ 	$(DYNMAP_BUILD)
+ 
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index c38a63568..7562a6a63 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -1,7 +1,7 @@
+ <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+ # milan_dp — the `milan_datapath` integration suite
+ 
+-`make` builds **fourteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
++`make` builds **fifteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
+ Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
+ against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
+ never on grepping the log — a compile error prints no `FAIL` line at all.
+@@ -84,7 +84,8 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
+ | `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`), `dynmap_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF | `[DYNMAP]` (#658): the power-on audio maps on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0, over the wire and in both crossbar RAMs; SET_STREAM_FORMAT under Milan 5.4.2.7; the output clip in the boot window; a restored 4-channel input format; the boot window's guard arms, each staged on its own clock. Then, on a fresh boot, `[762-DP]` (#762) on this shipping geometry, with the elaborated parameters logged. Then `[MAPREC]` (#637): the channel-map records written and restored across a planted power cycle, the EMPTY list in both directions included. Its planted controls are `make dynmap-mutants`; see [the section below](#the-658-power-on-audio-maps-obj_dynmap) |
+ | `obj_maprec8` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_ax7101_8x8`, eight dynamic output ports, direct option OFF | `[MAPREC]` (#637) across ports: a stream channel moved between output ports in both port orders and around a cycle, saved by the writer and restored, graded on GET_AUDIO_MAP, every key's owner and cluster, and the capture RAM; keys two records claim; a refused put-back that rolls every map back; PP_STAT's composed verdicts |
+ | `obj_maprec4` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_arty_4x4`, four dynamic input ports, direct option OFF | `[MAPREC]` (#637) across ports: the first and last input ports' records and an emptied port between them, saved and restored, graded on GET_AUDIO_MAP, the stores and the render RAM; the last port's put-back under a restored 2-channel format |
+-| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
++| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; and `[TSPEC]` (#774) grades every Talker Advertise the DUT declares against its own source's Milan v1.2 Table 4.4 TSpec and the AVTPDU that source emits; its mutation campaign is `make crflic-mutants` |
++| `obj_tspec8` | `sim_crf_licence.cpp` (`TSPEC_ONLY_TB`) | `endstation_ax7101_8x8`, eight AAF talkers of 8 wire channels and the CRF Media Clock Output, the `obj_crflic` compressed grid | #774: `[TSPEC]` alone on the largest shape. Every source is probed once, MAAP grants nine addresses, and each of the nine sources' Talker Advertise values must carry its own format's Table 4.4 TSpec: 217 for each AAF talker, 29 for the CRF output, MaxIntervalFrames 1. Its planted control is in `make crflic-mutants` |
+ | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
+ | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
+ | `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602/#632: a 1.5 s PHC step under CRF selection asserts `tu`, and the presentation stage refuses and counts the PDUs stamped across the step, with no render re-base and unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; the [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs it: its `gmstep_mutants.py` plants five controls in the sweep and its `make gmstep-mutants` the whole inventory |
+@@ -443,7 +444,7 @@ Each phase has a bounded simulated deadline.
+ Transport timeout aborts print the remaining unexecuted scope.
+ 
+ The explicit physical driver runs this leg once through `milan_dp_gptp`.
+-The `milan_dp` default retains its fourteen legs.
++The `milan_dp` default retains its fifteen legs.
+ `suite_tally.py` reads its separate physical-rate summary.
+ It also counts 40 setup, audio and missing-response accounting checks.
+ `suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
+@@ -512,6 +513,7 @@ Advertise state are sampled on every cycle.
+ | `[H]` | Matching admitted re-declarations stream and reset the per-run counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
+ | `[I]` | A refused 20,000-byte TSpec follows an admissible 224-byte TSpec. Both sources and phases require no licence, counter pair, reset or PDU. This is a required default pass with processor #112. |
+ | `[J]` | The reverse TSpec change admits 224 bytes after 20,000 bytes. Both sources and phases must stream; logs re-measure ACTIVE-to-licence latency. |
++| `[TSPEC]` | #774, after `[E]` and before the staged TSpecs of `[G]`: every Talker Advertise value the DUT sent for each source carries that source's Milan v1.2 4.3.3.2 Table 4.4 TSpec (IEEE 802.1Q-2018 35.2.2.8.4): 24 x 8 + 24 + 1 = 217 for the AAF talker, 28 + 1 = 29 for the CRF output, MaxIntervalFrames 1. A packed vector's value n carries FirstValue's TSpec, since incrementing touches only the Unique ID and the destination address (35.2.2.8). Each MaxFrameSize is also the longest AVTPDU that source emitted plus one octet. |
+ | `[INV]` | Every cycle: CRF equals ACTIVE AND its real grant. AAF never opens without both terms. |
+ 
+ **Refused re-declaration fixture (#551).**
+@@ -526,6 +528,7 @@ The replay must reproduce that timing and raise optimistic ACTIVE.
+ An oversized 20,000-byte TSpec exceeds the real admission ceiling.
+ Cases `[G]` and `[H]` preload the graded TSpec.
+ Cases `[I]` and `[J]` change it; all four run by default.
++`[TSPEC]` reads no declaration from `[G]` on, so these staged TSpecs are not graded as the source's own.
+ Withdrawal clears its grant before each case starts.
+ Both source indexes run at both phases of the two-cycle round.
+ Nonzero counter seeds distinguish preservation from an unnoticed reset.
+@@ -579,6 +582,7 @@ The #551 campaign additionally removes each real-grant term.
+ |---|---|---|
+ | the licence mutants | `make crflic-mutants`: each consumer reads raw admission, removing ACTIVE | Three named checks must fail; the clean leg must pass. |
+ | the real-grant mutants (#551) | Same command: every gate, CRF alone, or AAF source 0 alone reads ACTIVE without its real grant | Each refused-source licence check must fail. |
++| talker 0's TSpec on every source (#774) | Same command: `KL_pp_shadow` gets `{ACMP_SRC_C{tctx_maxf_w[0]}}`, the integration before #774, built once as `obj_crflic` and once as `obj_tspec8` | On both shapes "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1" must fail; each clean leg must pass. |
+ | the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore the pin of record | 34 failures total: 28 `[I]` assertions and 6 `[J]` admitted-case timing checks. In `[I]`, both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passed at `990f9652`, the measurement pin. |
+ | the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer at 1772.00 ms; the first CRF PDU leaves at 1966.30 ms, 3.85 s before the first Listener Ready; and the licence never closes again, through Asking Failed and the unbind |
+ | processor pin `424c688f` | by hand, one of the two arms that need a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
+diff --git a/tb/verilator/milan_dp/crflic_mutants.py b/tb/verilator/milan_dp/crflic_mutants.py
+index 46f4765a7..c70b5df10 100644
+--- a/tb/verilator/milan_dp/crflic_mutants.py
++++ b/tb/verilator/milan_dp/crflic_mutants.py
+@@ -17,6 +17,12 @@ among the failures; a crash or an abort is not a catch. The positive control
+ is the clean leg (obj_crflic, which `make crflic-mutants` builds and runs
+ first), re-run here.
+ 
++#774 adds one control on two legs: every talker source given talker 0's
++TSpec MaxFrameSize, the integration before #774, which declared the AAF
++number for the CRF Media Clock Output. It must fail the [TSPEC] grading on
++obj_crflic (AX 1x1 TDM8) and on obj_tspec8 (AX 8x8, `make tspec8-build`
++with TSPEC8_MDIR overridden), each beside its own clean control.
++
+ The other half of #530's failing arms, the protocol processor at its previous
+ pin 424c688f, needs a second processor checkout and is not run here; the
+ leg's README records how it was run and what it reported.
+@@ -33,9 +39,10 @@ temporary directory.
+ 
+ Usage: make -C tb/verilator/milan_dp crflic-mutants
+        (or python3 crflic_mutants.py from tb/verilator/milan_dp)
+-Exit 0 = every mutant was caught and the clean leg still passes.
++Exit 0 = every mutant was caught and both clean legs still pass.
+ """
+ 
++import re
+ import signal
+ import subprocess
+ import sys
+@@ -44,8 +51,11 @@ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+ DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
+-CLEAN_MDIR = HERE / "obj_crflic"
+-EXE_NAME = "Vmilan_dp_crflic"
++#: leg -> (its build target, the objdir variable, the clean objdir, the executable)
++LEGS = {
++    "crflic": ("crflic-build", "CRFLIC_MDIR", HERE / "obj_crflic", "Vmilan_dp_crflic"),
++    "tspec8": ("tspec8-build", "TSPEC8_MDIR", HERE / "obj_tspec8", "Vmilan_dp_tspec8"),
++}
+ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import log_reports_failure  # noqa: E402
+ 
+@@ -79,15 +89,26 @@ MUTATIONS = [
+      "refused AAF gate never opened"),
+ ]
+ 
++#: #774: (name, fragment, replacement, the check it must fail, the leg)
++TALKER0_TSPEC = (
++    "      .cfg_tspec_max_frame_i (pp_src_maxf_w),",
++    "      .cfg_tspec_max_frame_i ({ACMP_SRC_C{tctx_maxf_w[0]}}),",
++    "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1")
++TSPEC_MUTATIONS = [
++    ("every source declares talker 0's TSpec on the 1x1", *TALKER0_TSPEC, "crflic"),
++    ("every source declares talker 0's TSpec on the 8x8", *TALKER0_TSPEC, "tspec8"),
++]
++
+ 
+-def build(rtl_path: Path, mdir: Path) -> Path | None:
+-    """Build the leg against `rtl_path` through the suite's own recipe; the
++def build(rtl_path: Path, mdir: Path, leg: str = "crflic") -> Path | None:
++    """Build `leg` against `rtl_path` through the suite's own recipe; the
+     executable, or None when the recipe failed or left none."""
++    target, mdir_var, _, exe_name = LEGS[leg]
+     out = subprocess.run(
+-        ["make", "-s", "-C", str(HERE), "crflic-build", f"DP_SRC={rtl_path}",
+-         f"CRFLIC_MDIR={mdir}"],
++        ["make", "-s", "-C", str(HERE), target, f"DP_SRC={rtl_path}",
++         f"{mdir_var}={mdir}"],
+         capture_output=True, text=True, check=False)
+-    exe = mdir / EXE_NAME
++    exe = mdir / exe_name
+     if out.returncode != 0 or not exe.is_file():
+         sys.stdout.write(out.stdout[-2000:])
+         sys.stdout.write(out.stderr[-2000:])
+@@ -120,18 +141,19 @@ def verdict(rc: int, out: str, must_fail: str | None) -> str:
+     return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
+ 
+ 
+-def run_mutant(src: str, mutation: tuple[str, str, str, str], work: Path) -> bool:
+-    """Plant one mutation, build and run the leg; True when it was caught."""
+-    name, pattern, replacement, breaks = mutation
++def run_mutant(src: str, mutation: tuple[str, ...], work: Path) -> bool:
++    """Plant one mutation, build and run its leg; True when it was caught."""
++    name, pattern, replacement, breaks = mutation[:4]
++    leg = mutation[4] if len(mutation) > 4 else "crflic"
+     if src.count(pattern) != 1:
+         print(f"[FAIL] mutation {name!r}: its pattern appears {src.count(pattern)} "
+               f"time(s) in {DP_RTL.name}, expected exactly 1. The RTL moved and this "
+               f"mutant is no longer mutating anything - fix the pattern, do not delete the arm.")
+         return False
+-    tag = name.replace(" ", "_")
++    tag = re.sub(r"[^A-Za-z0-9]+", "_", name)
+     mpath = work / f"milan_datapath_{tag}.sv"
+     mpath.write_text(src.replace(pattern, replacement))
+-    exe = build(mpath, work / f"obj_{tag}")
++    exe = build(mpath, work / f"obj_{tag}", leg)
+     if exe is None:
+         print(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
+               f"proves nothing about the leg")
+@@ -159,17 +181,18 @@ def main() -> int:
+     fails = 0
+     with tempfile.TemporaryDirectory(prefix="crflic-mutants-") as td:
+         work = Path(td)
+-        clean = CLEAN_MDIR / EXE_NAME
+-        exe = clean if clean.is_file() else build(DP_RTL, work / "obj_clean")
+-        answer = verdict(*run_leg(exe), None) if exe else "did not compile"
+-        if answer == "pass":
+-            passes += 1
+-            print("[PASS] the unmutated gateware still passes the obj_crflic leg")
+-        else:
+-            fails += 1
+-            print(f"[FAIL] the unmutated gateware does NOT pass ({answer}) - every "
+-                  f"mutant result is meaningless")
+-        for mutation in MUTATIONS:
++        for leg, (_, _, clean_mdir, exe_name) in LEGS.items():
++            clean = clean_mdir / exe_name
++            exe = clean if clean.is_file() else build(DP_RTL, work / f"obj_clean_{leg}", leg)
++            answer = verdict(*run_leg(exe), None) if exe else "did not compile"
++            if answer == "pass":
++                passes += 1
++                print(f"[PASS] the unmutated gateware still passes the obj_{leg} leg")
++            else:
++                fails += 1
++                print(f"[FAIL] the unmutated gateware does NOT pass obj_{leg} ({answer}) - "
++                      f"every mutant result on it is meaningless")
++        for mutation in MUTATIONS + TSPEC_MUTATIONS:
+             if run_mutant(src, mutation, work):
+                 passes += 1
+             else:
+diff --git a/tb/verilator/milan_dp/sim_crf_licence.cpp b/tb/verilator/milan_dp/sim_crf_licence.cpp
+index 8be701183..9d0b59e99 100644
+--- a/tb/verilator/milan_dp/sim_crf_licence.cpp
++++ b/tb/verilator/milan_dp/sim_crf_licence.cpp
+@@ -63,6 +63,17 @@
+ //          current-TSpec grant stays low: no licence, counter pair, reset or
+ //          PDU. Required by default after adopting processor issue #112.
+ //   [J]    the reverse TSpec change admits; re-measure start latency.
++//   [TSPEC] #774: every Talker Advertise the DUT puts on the wire carries its
++//          OWN source's Milan v1.2 4.3.3.2 Table 4.4 TSpec (IEEE 802.1Q-2018
++//          35.2.2.8.4): AAF PCM32 48 kHz N channels 24*N + 24 + 1, CRF one
++//          timestamp per PDU 28 + 1, MaxIntervalFrames 1. After [B] each
++//          declared MaxFrameSize is also the AVTPDU that source emits plus
++//          the table's one octet.
++//
++// TSPEC_ONLY_TB builds the [TSPEC] grading alone on another shape
++// (SOURCES_TB talker sources, the last one the CRF Media Clock Output): boot,
++// every source probed until MAAP grants and the DUT declares, then [TSPEC]
++// without the wire half, since no Listener Ready opens a stream.
+ 
+ #include "Vmilan_datapath.h"
+ #include "Vmilan_datapath___024root.h"
+@@ -82,10 +93,20 @@
+ #ifndef DIAG_TICK_MS_TB
+ #error "DIAG_TICK_MS_TB must be the Table 5.4 observation interval, in ms"
+ #endif
++#ifndef WIRE_CHANS_TB
++#error "WIRE_CHANS_TB must be the AAF talkers' channels_per_frame (TALKER_WIRE_CHANS_P)"
++#endif
++#ifndef SOURCES_TB
++#define SOURCES_TB 2
++#endif
++#ifndef TSPEC_ONLY_TB
++#define TSPEC_ONLY_TB 0
++#endif
+ 
+ namespace {
+ 
+ constexpr uint64_t kMsCyc = MS_CYC_TB;
++constexpr uint64_t kWireChans = WIRE_CHANS_TB;
+ constexpr uint64_t kDiagTickMs = DIAG_TICK_MS_TB;
+ constexpr uint64_t kNever = ~0ull;
+ 
+@@ -152,6 +173,19 @@ struct Peer {
+     uint64_t ta_on_wire = kNever;
+ };
+ 
++//! The TSpec (IEEE 802.1Q-2018 35.2.2.8.4, FirstValue octets 16..19, Figure
++//! 35-2) of the DUT's own Talker Advertise attributes for one source. A
++//! vector's value n carries FirstValue's TSpec: incrementing FirstValue adds 1
++//! to the Unique ID and to the destination_address and to nothing else
++//! (35.2.2.8 a) and b)), so sources the DUT packs into one vector declare one
++//! TSpec, and a source whose TSpec differs needs a vector of its own.
++struct TspecSeen {
++    long values = 0;               // Talker Advertise values naming this source
++    long off_table = 0;            // ...whose TSpec is not this source's
++    uint64_t max_frame = kNever;   // the latest MaxFrameSize
++    uint64_t interval_frames = kNever;
++};
++
+ class CrfLicenceHarness {
+  public:
+     int run();
+@@ -170,8 +204,9 @@ class CrfLicenceHarness {
+     //! Run B capture carried for the CRF output (uid 1)
+     static constexpr uint64_t kSidBase = 0x0200000000010000ull;
+     static constexpr int kUidAaf = 0;
+-    static constexpr int kUidCrf = 1;
+-    static constexpr int kSources = 2;
++    static constexpr int kSources = SOURCES_TB;
++    //! the CRF Media Clock Output is the last source (CRF_TUID_C = N_STREAMS)
++    static constexpr int kUidCrf = kSources - 1;
+     static constexpr uint64_t kMaapPoolBase = 0x91E0F0000000ull;
+ 
+     // ---- the CSR window ----------------------------------------------------
+@@ -180,6 +215,7 @@ class CrfLicenceHarness {
+     static constexpr uint16_t A_MAC_AHI = 0x10C;
+     static constexpr uint16_t A_ADP_EIDLO = 0x604;
+     static constexpr uint16_t A_ADP_EIDHI = 0x608;
++    static constexpr uint16_t A_ADP_TALKER = 0x618;
+     static constexpr uint16_t A_AAF_CTRL = 0x654;
+     static constexpr uint16_t A_LWSRP_CTRL = 0x680;
+     static constexpr uint16_t A_LWSRP_STATUS = 0x694;
+@@ -199,7 +235,7 @@ class CrfLicenceHarness {
+     Level aaf_gate;                // aaf_stream_en_w[0]
+     long licence_ne_active = 0;    // cycles CRF differs from ACTIVE AND real grant
+     long aaf_without_active = 0;   // cycles AAF opens without ACTIVE AND real grant
+-    std::array<uint64_t, kSources> listener_event{kNever, kNever};
++    std::array<uint64_t, kSources> listener_event{};
+     bool corner_phase = false;
+ 
+     // ---- the MAC ports -----------------------------------------------------
+@@ -209,6 +245,11 @@ class CrfLicenceHarness {
+     std::vector<uint8_t> tx_cur;
+     std::vector<StreamPdu> crf_pdus;
+     std::vector<StreamPdu> aaf_pdus;
++    //! the longest AVTPDU of each kind on the wire: the header plus its
++    //! crf_data_length or stream_data_length (IEEE 1722-2016 10.4, 7.2)
++    uint64_t crf_avtpdu_max = 0;
++    uint64_t aaf_avtpdu_max = 0;
++    TspecSeen tspec[kSources];
+ 
+     // ---- the scripted peers -------------------------------------------------
+     std::multimap<uint64_t, std::function<void()>> sched;
+@@ -291,6 +332,10 @@ class CrfLicenceHarness {
+     void stage_declaration(int uid, uint16_t max_frame, bool open);
+     uint64_t listener_decode_delay(int uid);
+     void phase_real_grant();
++    static uint64_t table44_max_frame(int uid);
++    void on_dut_tspec(int uid, const std::vector<uint8_t>& first_value);
++    void phase_tspec_open();
++    void grade_tspec(bool wire);
+     void grant_case(int uid, bool refuse, unsigned round_phase, uint64_t decode_delay,
+                     bool unwarmed = false);
+ };
+@@ -649,6 +694,13 @@ void CrfLicenceHarness::on_stream_pdu(const std::vector<uint8_t>& f, size_t avtp
+     }
+     p.sid = get_be(f, avtp + 4, 8);
+     p.da = get_be(f, 0, 6);
++    if (subtype == 0x04 && f.size() >= avtp + 20) {
++        const uint64_t n = 20 + get_be(f, avtp + 16, 2);    // + crf_data_length
++        if (n > crf_avtpdu_max) crf_avtpdu_max = n;
++    } else if (subtype == 0x02 && f.size() >= avtp + 24) {
++        const uint64_t n = 24 + get_be(f, avtp + 20, 2);    // + stream_data_length
++        if (n > aaf_avtpdu_max) aaf_avtpdu_max = n;
++    }
+     std::vector<StreamPdu>& v = (subtype == 0x04) ? crf_pdus : aaf_pdus;
+     if (v.empty()) note(subtype == 0x04 ? "first CRF PDU on the wire" : "first AAF PDU on the wire", -1, -1);
+     v.push_back(p);
+@@ -689,8 +741,10 @@ void CrfLicenceHarness::on_mrpdu(const std::vector<uint8_t>& f) {
+             const uint64_t sid0 = get_be(v.first_value, 0, 8);
+             for (int k = 0; k < v.n && k < static_cast<int>(v.events.size()); k++) {
+                 const uint64_t sid = sid0 + static_cast<uint64_t>(k);   // 802.1Q 35.2.2.8.x +k
+-                if (sid >= kSidBase && sid < kSidBase + kSources)
++                if (sid >= kSidBase && sid < kSidBase + kSources) {
+                     on_dut_talker_event(static_cast<int>(sid - kSidBase), v.events[static_cast<size_t>(k)]);
++                    on_dut_tspec(static_cast<int>(sid - kSidBase), v.first_value);
++                }
+             }
+         }
+     }
+@@ -832,13 +886,15 @@ unsigned CrfLicenceHarness::lstn_reg(int uid) const {
+ void CrfLicenceHarness::boot() {
+     printf("[BOOT] identity, the firmware boot values, the MAAP claim started\n");
+     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4Eu);
++    ck("ADP_TALKER[15:0] talker_stream_sources is this leg's source count",
++       axi_read(A_ADP_TALKER) & 0xFFFFu, kSources);
+     axi_write(A_MAC_ALO, kStaMacLo);
+     axi_write(A_MAC_AHI, kStaMacHi);
+     axi_write(A_ADP_EIDLO, static_cast<uint32_t>(kTestEid & 0xFFFFFFFFu));
+     axi_write(A_ADP_EIDHI, static_cast<uint32_t>(kTestEid >> 32));
+     axi_write(A_AAF_CTRL, 0x00020001u);    // AAF talker on, bypass CLEAR, VID 2
+     axi_write(A_LWSRP_CTRL, 0x13u);        // SRP policing: engine + talker on
+-    axi_write(A_MAAP_CTRL, 0x201u);        // MAAP on, two addresses
++    axi_write(A_MAAP_CTRL, (static_cast<uint32_t>(kSources) << 8) | 1u);   // MAAP on, one address per source
+     axi_write(A_CRFT_CTRL, 0x3u);          // CRF output on, class A
+     axi_write(A_PP_CTRL, 0x1u);            // entity enable
+     rx_q.push_back(msrp_frame(domain_msg(0, 1)));   // the switch's Domain
+@@ -1205,6 +1261,68 @@ void CrfLicenceHarness::phase_real_grant() {
+     }
+ }
+ 
++// ============================================================================
++//  [TSPEC] #774: each source declares its own format's Table 4.4 TSpec
++// ============================================================================
++//! Milan v1.2 4.3.3.2 Table 4.4, the rows this device's formats are: "AAF
++//! PCM32, 48kHz, N channels" 24*N + 24 + 1 and "CRF, 1 ts/pdu" 28 + 1. The
++//! numbers are the table's, not the gateware's.
++uint64_t CrfLicenceHarness::table44_max_frame(int uid) {
++    return (uid == kUidCrf) ? 28 + 1 : 24 * kWireChans + 24 + 1;
++}
++
++void CrfLicenceHarness::on_dut_tspec(int uid, const std::vector<uint8_t>& first_value) {
++    if (corner_phase || first_value.size() < 20) return;   // [G]-[J] stage their own TSpecs
++    TspecSeen& t = tspec[uid];
++    t.values++;
++    t.max_frame = get_be(first_value, 16, 2);
++    t.interval_frames = get_be(first_value, 18, 2);
++    if (t.max_frame != table44_max_frame(uid) || t.interval_frames != 1) t.off_table++;
++}
++
++//! TSPEC_ONLY_TB's opening: every source probed once while KL_maap is still
++//! probing, so MAAP's grant opens each DA gate and the DUT declares; no
++//! listener retries and no switch Listener Ready, so nothing streams.
++void CrfLicenceHarness::phase_tspec_open() {
++    printf("[A] every source probed: MAAP grants and the DUT declares each one\n");
++    const uint64_t t0 = cyc;
++    for (int s = 0; s < kSources; s++) probe(s);
++    run_until(t0 + ms(3900));
++    ck("KL_maap reached ANNOUNCE (a block of one address per source is claimed)",
++       (axi_read(A_MAAP_STAT1) >> 2) & 1u, 1);
++    for (int s = 0; s < kSources; s++) {
++        printf("  -- source uid %d (%s)\n", s, s == kUidCrf ? "CRF Media Clock Output" : "AAF");
++        ck_true("...MAAP's grant opens the DA gate", declaring[s].first_rise != kNever);
++        ck_true("the DUT declares Talker Advertise on the wire", peer[s].ta_on_wire != kNever);
++    }
++}
++
++//! `wire`: the run carried this shape's streams, so each declaration is also
++//! graded against the AVTPDU on the wire (IEEE 802.1Q-2018 35.2.2.8.4 a):
++//! "the maximum frame size that the Talker will produce").
++void CrfLicenceHarness::grade_tspec(bool wire) {
++    printf("[TSPEC] #774: every source's Talker Advertise carries its own format's "
++           "Milan v1.2 Table 4.4 TSpec\n");
++    for (int s = 0; s < kSources; s++) {
++        const TspecSeen& t = tspec[s];
++        printf("  -- source uid %d (%s), %ld Talker Advertise values\n", s,
++               s == kUidCrf ? "CRF Media Clock Output, 1 ts/pdu" : "AAF PCM32 48 kHz",
++               t.values);
++        ck_true("a Talker Advertise value names this source", t.values > 0);
++        ck(s == kUidCrf ? "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
++                        : "AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1",
++           t.max_frame, table44_max_frame(s));
++        ck("TSpec MaxIntervalFrames is Table 4.4's 1", t.interval_frames, 1);
++        ck("every Talker Advertise for it carried that TSpec", static_cast<uint64_t>(t.off_table), 0);
++    }
++    if (!wire) return;
++    printf("  -- against the wire\n");
++    ck("the CRF MaxFrameSize is the emitted CRF AVTPDU plus one octet",
++       tspec[kUidCrf].max_frame, crf_avtpdu_max + 1);
++    ck("the AAF MaxFrameSize is the emitted AAF AVTPDU plus one octet",
++       tspec[kUidAaf].max_frame, aaf_avtpdu_max + 1);
++}
++
+ void CrfLicenceHarness::grade_invariants() {
+     printf("[INV] over the whole run, every cycle\n");
+     ck("the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing)",
+@@ -1216,6 +1334,17 @@ void CrfLicenceHarness::grade_invariants() {
+ int CrfLicenceHarness::run() {
+     const milan::tb::Model<Vmilan_datapath> model;
+     dut = model.get();
++    listener_event.fill(kNever);
++#if TSPEC_ONLY_TB
++    printf("=== #774 TSpec per source, %d talker sources, %llu wire channels, 1 ms = %llu cycles ===\n",
++           kSources, static_cast<unsigned long long>(kWireChans), static_cast<unsigned long long>(kMsCyc));
++    do_reset();
++    boot();
++    phase_tspec_open();
++    grade_tspec(false);
++    printf("[INV] over the whole run\n");
++    ck("no malformed DUT MRPDU", static_cast<uint64_t>(dut_malformed), 0);
++#else
+     printf("=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = %llu cycles ===\n",
+            static_cast<unsigned long long>(kMsCyc));
+     do_reset();
+@@ -1227,8 +1356,10 @@ int CrfLicenceHarness::run() {
+     phase_f_after_c(licence.first_rise);
+     phase_d();
+     phase_e();
++    grade_tspec(true);
+     phase_real_grant();
+     grade_invariants();
++#endif
+     printf("--------------------------------------------------------------\n");
+     printf("simulated %.2f ms (%llu cycles)\n", t_ms(cyc), static_cast<unsigned long long>(cyc));
+     printf("checks: %ld   failures: %ld\n", checks, fails);
+diff --git a/tb/verilator/milan_dp/test_sim_pool.py b/tb/verilator/milan_dp/test_sim_pool.py
+index 4f87fd12d..df5a46f57 100644
+--- a/tb/verilator/milan_dp/test_sim_pool.py
++++ b/tb/verilator/milan_dp/test_sim_pool.py
+@@ -34,7 +34,7 @@ What the arms hold, and why each one is here:
+   order, the dump file ends with the last writer's bytes, and an empty name
+   fails at the first writer as the sequential recipe did;
+ * the runner's own lines add no check and no failure to the suite's tally;
+-* the Makefile hands the runner the fourteen legs of the recipe, in the recipe's
++* the Makefile hands the runner the fifteen legs of the recipe, in the recipe's
+   order and with its banners, at two workers unless SIM_JOBS says one; then
+   render_mutants.py is the recipe's last step, and nothing of the #387 GM step
+   leg is built or run (#621 moved it to ../milan_dp_gm_steps).
+@@ -70,7 +70,8 @@ sys.path.insert(0, str(HERE / "../../../scripts"))
+ from suite_tally import FAIL_MARKER, log_reports_failure, scan  # noqa: E402
+ 
+ #: The ordinary legs and banners at dev 5c78ce2e, including #508 and #530,
+-#: the #658 leg dev 30e3c018 (PR #670) added, and #637's two multi-port legs.
++#: the #658 leg dev 30e3c018 (PR #670) added, #637's two multi-port legs, and
++#: #774's per-source TSpec leg on the 8x8 shape.
+ #: The rebase retains this full inventory and each existing execution phase.
+ LEGACY_LEGS = (
+     (None, "./obj_dir/Vmilan_dp_sim"),
+@@ -79,6 +80,8 @@ LEGACY_LEGS = (
+      "./obj_notify/Vmilan_dp_notify"),
+     ("---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----",
+      "./obj_crflic/Vmilan_dp_crflic"),
++    ("---- #774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----",
++     "./obj_tspec8/Vmilan_dp_tspec8"),
+     ("---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----",
+      "./obj_dynmap/Vmilan_dp_dynmap"),
+     (None, "./obj_nxn/Vmilan_dp_nxn"),
+@@ -865,7 +868,7 @@ def logical_lines(text: str) -> list[str]:
+ 
+ 
+ def arm_the_makefile_hands_the_runner_the_recipes_ordinary_legs() -> None:
+-    """`make -n run`: the runner gets exactly the recipe's fourteen legs, in its
++    """`make -n run`: the runner gets exactly the recipe's fifteen legs, in its
+     order and with its banners, two workers unless SIM_JOBS=1 and whatever
+     -j says, after all ordinary builds and before render_mutants.py, on a line
+     whose errors make does not ignore. render_mutants.py is the last step, and
