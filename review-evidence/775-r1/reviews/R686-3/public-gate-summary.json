@@ -1,0 +1,64 @@
+{
+  "head": "220b51f2eb50c32f830e0b5a8ee1ce138b218bb6",
+  "attribution": "author source-head executions; no manager source bank",
+  "shards": [
+    {
+      "shard": 0,
+      "suites": 15,
+      "checks": 54074,
+      "rc": 0,
+      "skips": [
+        "SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)",
+        "SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))",
+        "SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)",
+        "SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))"
+      ]
+    },
+    {
+      "shard": 1,
+      "suites": 16,
+      "checks": 331530,
+      "rc": 0,
+      "skips": []
+    },
+    {
+      "shard": 2,
+      "suites": 17,
+      "checks": 262066,
+      "rc": 0,
+      "skips": []
+    },
+    {
+      "shard": 3,
+      "suites": 16,
+      "checks": 1541998,
+      "rc": 0,
+      "skips": []
+    }
+  ],
+  "suites_total": 64,
+  "checks_total": 2189668,
+  "failures": 0,
+  "docs_executed": 42,
+  "docs_skipped": [
+    {
+      "job": "docs-gates-2",
+      "id": "gate_42",
+      "name": "Local act runner contract gate",
+      "rc": null,
+      "skipped": "executes the candidate act_ci.py on the host; AGENTS.md section 5 allows the candidate copy only inside the disposable CI job"
+    },
+    {
+      "job": "docs-check-no-git",
+      "id": "ci_step_3",
+      "name": "Strip git metadata, then run the docs gate",
+      "rc": null,
+      "skipped": "its body runs rm -rf .git, which would delete this worktree's git link; its two gates run in place below"
+    }
+  ],
+  "static_gates": 30,
+  "lint": "89 <= 89",
+  "behave": "14 features, 406 scenarios, 1977 steps; zero failures/skips",
+  "avtp_rxmon": "97+218+116+119+14+13 = 577 checks; zero failures",
+  "selected_published_receipts": 96
+}

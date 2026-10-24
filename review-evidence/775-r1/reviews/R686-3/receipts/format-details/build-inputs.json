@@ -1,0 +1,230 @@
+[
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx.sv",
+        "sha256": "a91de85118a60a255f7f52d411b2d694cbb570f2a5ceb75205f0ac92f9237c90",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_family_compare.sv",
+        "sha256": "3b745c954b7ddea6bb9f70d86b944f81d60f70f47df8389844119529c65ff007",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_low_byte.sv",
+        "sha256": "cc51c8292a1a091250a25a564b7539a4fbb233a05c0ec2e5a833df74382155d4",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_inverted.sv",
+        "sha256": "d55781f0dab1b7dcf9e745c28e10d44dd44c855cc3d4bdf1545806e09ac52c56",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_fixed_count.sv",
+        "sha256": "0f00c4a951359518d6427b2b5bdee8cd45da30a3dc4403e23e281c88e141cb96",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_stream_0.sv",
+        "sha256": "72e81c169c4702535cfba13ead857028fd208449fc86e6e66f66b8239ba381fc",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_no_advance.sv",
+        "sha256": "5e2054c7974d1d6e22ba7fff3009e4c99bafe99c56e2ea760540e88ec9002f07",
+        "reject_writes": []
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_whole_state.sv",
+        "sha256": "8c02bdbbec93a905c2650f5d450ad94de2930a01e2ef628c4f10c71c79cbd33f",
+        "reject_writes": []
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_accepted_walk.sv",
+        "sha256": "5628b49782fd15a13a3c1f4508f7cbc549a1775a54c8cd526fc50d36692a2717",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_lock_set.sv",
+        "sha256": "49f4cc2b98e63eef644264f41a4e9e45734440436c3ff974c084970e6a55c945",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:13], 1'b1, ram_q_r[11:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "lockstep N=1,N=8",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_lock_set.sv",
+        "sha256": "49f4cc2b98e63eef644264f41a4e9e45734440436c3ff974c084970e6a55c945",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:13], 1'b1, ram_q_r[11:8], cur_w.seq};"
+        ]
+      },
+      {
+        "file": "KL_avtp_rx_monitor_ctx_ref_lock_set.sv",
+        "sha256": "5e78e170cc2720ed0df2fbaecd2c94d0a1da0ab7785406050dd3fa9623889093",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:13], 1'b1, ram_q_r[11:8], cur_r.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_settle_step.sv",
+        "sha256": "51b57ea9340f14e1342d8e916fa65b6518dd83df626c4f618ba780dc2cbacb30",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:12], (ram_q_r[11:8] == 4'd0) ? 4'd0 : (ram_q_r[11:8] - 4'd1), cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "lockstep N=1,N=8",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_settle_step.sv",
+        "sha256": "51b57ea9340f14e1342d8e916fa65b6518dd83df626c4f618ba780dc2cbacb30",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:12], (ram_q_r[11:8] == 4'd0) ? 4'd0 : (ram_q_r[11:8] - 4'd1), cur_w.seq};"
+        ]
+      },
+      {
+        "file": "KL_avtp_rx_monitor_ctx_ref_settle_step.sv",
+        "sha256": "628f280f20bd69d51f93474093cbbf5f17459d3479877d901505728dc724037a",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:12], (ram_q_r[11:8] == 4'd0) ? 4'd0 : (ram_q_r[11:8] - 4'd1), cur_r.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_mr_seed_set.sv",
+        "sha256": "1999af2d700bed0f8eaf37685baf265277b1bfeee0a1b6cce78da8625af6bd31",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:24], 1'b1, ram_q_r[22:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "lockstep N=1,N=8",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_mr_seed_set.sv",
+        "sha256": "1999af2d700bed0f8eaf37685baf265277b1bfeee0a1b6cce78da8625af6bd31",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:24], 1'b1, ram_q_r[22:8], cur_w.seq};"
+        ]
+      },
+      {
+        "file": "KL_avtp_rx_monitor_ctx_ref_mr_seed_set.sv",
+        "sha256": "39cb2b6e1f3427159165782cf11e0956316e23deab5512d8022a08bbec484673",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:24], 1'b1, ram_q_r[22:8], cur_r.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "NX",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_mr_seed_clear.sv",
+        "sha256": "2c9eb8382f5d623dab6a5608d38f6fbda1b67d62a4463c443f6da16ccb0721a9",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:24], 1'b0, ram_q_r[22:8], cur_w.seq};"
+        ]
+      }
+    ]
+  },
+  {
+    "leg": "lockstep N=1,N=8",
+    "inputs": [
+      {
+        "file": "KL_avtp_rx_monitor_ctx_mr_seed_clear.sv",
+        "sha256": "2c9eb8382f5d623dab6a5608d38f6fbda1b67d62a4463c443f6da16ccb0721a9",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:24], 1'b0, ram_q_r[22:8], cur_w.seq};"
+        ]
+      },
+      {
+        "file": "KL_avtp_rx_monitor_ctx_ref_mr_seed_clear.sv",
+        "sha256": "a13e341e475a612ffbdeed000cd73e9beb52f3f3539bb6302c11937a41d3567d",
+        "reject_writes": [
+          "monst_r <= {ram_q_r[31:24], 1'b0, ram_q_r[22:8], cur_r.seq};"
+        ]
+      }
+    ]
+  }
+]

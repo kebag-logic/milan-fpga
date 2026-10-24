@@ -1,0 +1,30 @@
+lint_rtl	0	python scripts/lint_rtl.py --check
+measure_test_evidence	0	python scripts/measure_test_evidence.py --check
+check_py_idiom	0	python scripts/check_py_idiom.py
+check_cpp_idiom	0	python scripts/check_cpp_idiom.py
+check_sv_idiom	0	python scripts/check_sv_idiom.py
+check_sh_idiom	0	python scripts/check_sh_idiom.py
+check_hygiene	0	python scripts/check_hygiene.py --check
+check_port_contracts	0	python scripts/check_port_contracts.py
+check_rtl_source_lists	0	python scripts/check_rtl_source_lists.py
+check_todo_ownership	0	python scripts/check_todo_ownership.py
+check_em_dash	0	python scripts/check_em_dash.py --base a032c6d6e3775f145349d5a495c1e1ad12294936
+check_doc_style	0	python scripts/check_doc_style.py
+check_doc_paths	0	python scripts/check_doc_paths.py
+check_archive	0	python scripts/check_archive.py
+check_feature_status	0	python scripts/check_feature_status.py
+check_solution_docs	0	python scripts/check_solution_docs.py
+check_submodule_docs	0	python scripts/check_submodule_docs.py
+check_gptp_docs	0	python scripts/check_gptp_docs.py
+check_diagram_pngs	0	python scripts/check_diagram_pngs.py
+check_baremetal_only	0	python scripts/check_baremetal_only.py --check
+check_soc_sources	0	python scripts/check_soc_sources.py
+check_nvm_capture	0	python scripts/check_nvm_capture.py
+check_nvm_record_space	0	python scripts/check_nvm_record_space.py
+ci_events	0	python scripts/ci_events.py --check
+ci_gate_workflows	0	python scripts/ci_gate_workflows.py --check
+gen_module_matrix_check	0	python docs/traceability/gen_module_matrix.py --check
+pp_resource_gate_selftest	0	python syn/ooc/pp_resource_gate.py --selftest
+pp_resource_gate_check_baseline	0	python syn/ooc/pp_resource_gate.py check-baseline
+git_diff_check	0	git diff --check a032c6d6e3775f145349d5a495c1e1ad12294936 HEAD
+docs_check	0	python scripts/docs_check.py
