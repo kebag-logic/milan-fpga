@@ -1,0 +1,10 @@
+build rc=0 run rc=1
+named check required: [SQ-b2] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence
+named check failed: True
+5 named failures, 170 per-PDU replica-compare failures
+[FAIL] [5t-a5] clean stream: STREAM_INTERRUPTED still got=5 exp=4
+[FAIL] [ST-c3] no phantom STREAM_INTERRUPTED: the cursor survived got=1 exp=0
+[FAIL] [FMT-c1] the next CRF PDU is accepted with no SEQ_NUM_MISMATCH got=1 exp=0
+[FAIL] [SQ-b2] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence got=1 exp=0
+[FAIL] [SQ-c2] ...one PDU lost from the AAF PDU's: no STREAM_INTERRUPTED got=1 exp=0
+KL_crf_rx: 15714 checks, 175 failures (1190 accepted PDUs pinned)
