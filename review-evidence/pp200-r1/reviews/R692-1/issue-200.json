@@ -1,0 +1,39 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Action completed."
+    }
+  ],
+  "structuredContent": {
+    "issue": {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200",
+      "title": "GET_AVB_INFO on a non-AVB_INTERFACE descriptor must answer NOT_SUPPORTED (Table 7-141 status 11), not NOT_IMPLEMENTED (revert #182's status)",
+      "issue_number": 200,
+      "body": "**GET_AVB_INFO on a descriptor other than AVB_INTERFACE must answer NOT_SUPPORTED, not NOT_IMPLEMENTED.** This reverses the status choice of PR #182 (#177).\n\n**Clauses:**\n- IEEE 1722.1-2021 Table 7-141 defines status 1, NOT_IMPLEMENTED, as \"The ATDECC Entity does not support the command type\". Status 11, NOT_SUPPORTED, is \"The command is implemented but the target of the command is not supported\".\n- Milan v1.2 5.4.2.23 requires the PAAD-AE to implement GET_AVB_INFO. The command type is therefore implemented, and only the target (descriptor_type other than AVB_INTERFACE, 7.4.40.1) is unsupported.\n- IEEE 1722.1-2021 9.3.5.3.3 (\"Any command that is received and not implemented shall be responded to with ... NOT_IMPLEMENTED\") applies to command types the entity does not implement. It does not apply to an implemented command aimed at the wrong descriptor type.\n- Milan v1.2 uses NOT_SUPPORTED the same way for implemented commands on unsupported targets: 5.4.2.2 (LOCK_ENTITY on a descriptor other than ENTITY) and 5.4.2.9 (SET_STREAM_INFO on a Stream Input).\n\n**Required:**\n- The wrong-type GET_AVB_INFO answers NOT_SUPPORTED, echoed at its own length.\n- An AVB_INTERFACE index that does not exist still answers NO_SUCH_DESCRIPTOR, and a short command still answers BAD_ARGUMENTS.\n- Update the command model, F06.14, `tb/aecp_cmds/decode.json` and the compliance review entry (section 8, item 12), with the V5 rows expecting status 11.\n\nFound by the manager's ruling on a bench run of the adopted image (milan-fpga dev a032c6d6, processor 93fb0b2d).\n",
+      "state": "open",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "assignees": null,
+      "labels": null,
+      "milestone": null,
+      "state_reason": null,
+      "comments": 3,
+      "created_at": "2026-10-24T04:37:16Z",
+      "updated_at": "2026-10-24T14:16:59Z",
+      "closed_at": null,
+      "display_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200",
+      "display_title": "GET_AVB_INFO on a non-AVB_INTERFACE descriptor must answer NOT_SUPPORTED (Table 7-141 status 11), not NOT_IMPLEMENTED (revert #182's status)"
+    },
+    "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200",
+    "title": "GET_AVB_INFO on a non-AVB_INTERFACE descriptor must answer NOT_SUPPORTED (Table 7-141 status 11), not NOT_IMPLEMENTED (revert #182's status)",
+    "display_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200",
+    "display_title": "GET_AVB_INFO on a non-AVB_INTERFACE descriptor must answer NOT_SUPPORTED (Table 7-141 status 11), not NOT_IMPLEMENTED (revert #182's status)"
+  },
+  "isError": false
+}

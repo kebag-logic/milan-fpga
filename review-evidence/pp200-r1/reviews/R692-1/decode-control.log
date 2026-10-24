@@ -1,0 +1,5 @@
+{"command": ["python3", "-B", "tb/aecp_cmds/mutants.py", "--jobs", "1", "--only", "gavb-other-type-not-implemented", "--verilator", "$REVIEWS/pp200-r692-1-packet/scratch/bounded-simulator.py", "--output", "$REVIEWS/pp200-r692-1-packet/decode-control"], "head": "33d3010cea8e053b1d2e83bcd9fa02f3f57d3f33", "start": "2026-10-24T14:22:47.617994+00:00"}
+{"variant": "golden", "build_rc": 0, "sweep_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+{"variant": "gavb-other-type-not-implemented", "build_rc": 0, "sweep_rc": 0, "run_rc": 1, "named_failures": ["FAIL:  decode: GET_AVB_INFO: the table's entries name NSUPPE, which the engine never dispatches AEM 0x0027 to (the fresh sweep)"], "passed": true}
+{"variant": "restored", "build_rc": 0, "sweep_rc": 0, "run_rc": 0, "named_failures": [], "passed": true}
+AECP command decode controls: 1 of 1 detected by their named failures; golden and restored PASS

@@ -1,0 +1,32 @@
+== pp200-parent
+50e6c0b2c Scratch only: ROM digests at protocol-processor 33d3010c, never pushed
+c9fe2f841 Scratch only: protocol-processor gitlink at 33d3010c (issue #200 head), never pushed
+a032c6d6e Merge PR #770: phase-align the recovered media clock to the followed CRF at the domain media event (#632, #764)
+cf1ca8752 State that the count-zero pathTrace publication follows IEEE 802.1AS-2020 and departs from the 2011 edition, open in FPGA-gPTP #87
+24a292a03 Drop the review-round labels from the dynmap campaign's comments
+546412d86 Cite the boot grandmaster and pathTrace rules from IEEE 802.1AS-2011 10.3.12.1.4 and 10.3.10.2.1, the edition Milan v1.2 profiles
+bfa348a66 State the per-event late rule in the compliance matrix and the latency taps, the 21 gmstep controls and the current gmstep leg, and the notify case passing at the adopted processor pin
+ efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external (heads/main)
+ 55680bff3b287b9a7b0c759f51471fa617c17335 gptp-processor (heads/main)
+ 33d3010cea8e053b1d2e83bcd9fa02f3f57d3f33 protocol-processor (v2.0-813-g33d3010)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (remotes/origin/lwsrp17-group-1-g08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+origin	<LANES>/… (fetch)
+origin	no-push-scratch-only (push)
+== pp200-parent-ctl
+a032c6d6e Merge PR #770: phase-align the recovered media clock to the followed CRF at the domain media event (#632, #764)
+cf1ca8752 State that the count-zero pathTrace publication follows IEEE 802.1AS-2020 and departs from the 2011 edition, open in FPGA-gPTP #87
+24a292a03 Drop the review-round labels from the dynmap campaign's comments
+546412d86 Cite the boot grandmaster and pathTrace rules from IEEE 802.1AS-2011 10.3.12.1.4 and 10.3.10.2.1, the edition Milan v1.2 profiles
+bfa348a66 State the per-event late rule in the compliance matrix and the latency taps, the 21 gmstep controls and the current gmstep leg, and the notify case passing at the adopted processor pin
+417ec5286 Cite the gPTP grandmaster-change rule from IEEE 802.1AS-2011, the edition Milan v1.2 profiles
+c2c996faa Key the gmstep talker-stop control on the GM A to GM B event and record the boot grandmaster's detector pulse with a control that must fail it
+ efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external (heads/main)
+ 55680bff3b287b9a7b0c759f51471fa617c17335 gptp-processor (heads/main)
+ 93fb0b2d736b36588ea7321e25fba2f8819ea41f protocol-processor (v2.0-812-g93fb0b2)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+origin	<PARENT> (fetch)
+origin	no-push-scratch-only (push)

@@ -1,0 +1,83 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Action completed."
+    }
+  ],
+  "structuredContent": {
+    "comments": [
+      {
+        "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200#issuecomment-6379943177",
+        "body": "[A10] Assignment for [A668] on #200. Lane from processor main 93fb0b2d.\n\nDo exactly what the issue requires:\n- The wrong-type GET_AVB_INFO answers NOT_SUPPORTED (status 11), echoed at its own length.\n- An AVB_INTERFACE index that does not exist still answers NO_SUCH_DESCRIPTOR, and a command shorter than cdl 16 still answers BAD_ARGUMENTS. Keep the order: length, then type, then existence.\n- Update the command model, F06.14 (through its generator), `tb/aecp_cmds/decode.json` (re-recorded by its recorder), the compliance review section 8 item 12 with the clauses in the issue, and the V5 rows of `tb/pp_top`.\n- The microcode ROM must stay byte-identical, or the change must be explained.\n\nRun the gates the change touches, plus the repository's full `make check`. Then run the parent consumer gate: a committed local scratch clone of milan-fpga dev a032c6d6 with this head as the protocol-processor gitlink, never pushed, running milan_dp. Report the area delta of `protocol_processor_top`, which should be about 0.\n\nSTOP if any gate fails for a reason other than the status change. Post TAKEN, then REVIEW READY or STOP, on #200.\n",
+        "user": {
+          "login": "Mister-M-alt",
+          "name": "Mister-M-alt",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+          "id": 161579364
+        },
+        "id": 6379943177,
+        "pull_request_review_id": null,
+        "in_reply_to_id": null,
+        "created_at": null,
+        "updated_at": null,
+        "review": null,
+        "side": null,
+        "line": null,
+        "start_line": null,
+        "path": null,
+        "body_html": "<p dir=\"auto\">[A10] Assignment for [A668] on <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"6009375635\" data-permission-text=\"Title is private\" data-url=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200\" data-hovercard-type=\"issue\" data-hovercard-url=\"/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200/hovercard\" href=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200\">#200</a>. Lane from processor main <a class=\"commit-link\" data-hovercard-type=\"commit\" data-hovercard-url=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/commit/93fb0b2d736b36588ea7321e25fba2f8819ea41f/hovercard\" href=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/commit/93fb0b2d736b36588ea7321e25fba2f8819ea41f\"><tt>93fb0b2</tt></a>.</p>\n<p dir=\"auto\">Do exactly what the issue requires:</p>\n<ul dir=\"auto\">\n<li>The wrong-type GET_AVB_INFO answers NOT_SUPPORTED (status 11), echoed at its own length.</li>\n<li>An AVB_INTERFACE index that does not exist still answers NO_SUCH_DESCRIPTOR, and a command shorter than cdl 16 still answers BAD_ARGUMENTS. Keep the order: length, then type, then existence.</li>\n<li>Update the command model, F06.14 (through its generator), <code class=\"notranslate\">tb/aecp_cmds/decode.json</code> (re-recorded by its recorder), the compliance review section 8 item 12 with the clauses in the issue, and the V5 rows of <code class=\"notranslate\">tb/pp_top</code>.</li>\n<li>The microcode ROM must stay byte-identical, or the change must be explained.</li>\n</ul>\n<p dir=\"auto\">Run the gates the change touches, plus the repository's full <code class=\"notranslate\">make check</code>. Then run the parent consumer gate: a committed local scratch clone of milan-fpga dev a032c6d6 with this head as the protocol-processor gitlink, never pushed, running milan_dp. Report the area delta of <code class=\"notranslate\">protocol_processor_top</code>, which should be about 0.</p>\n<p dir=\"auto\">STOP if any gate fails for a reason other than the status change. Post TAKEN, then REVIEW READY or STOP, on <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"6009375635\" data-permission-text=\"Title is private\" data-url=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200\" data-hovercard-type=\"issue\" data-hovercard-url=\"/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200/hovercard\" href=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200\">#200</a>.</p>"
+      },
+      {
+        "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200#issuecomment-6379949872",
+        "body": "[A668] TAKEN",
+        "user": {
+          "login": "Mister-M-alt",
+          "name": "Mister-M-alt",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+          "id": 161579364
+        },
+        "id": 6379949872,
+        "pull_request_review_id": null,
+        "in_reply_to_id": null,
+        "created_at": null,
+        "updated_at": null,
+        "review": null,
+        "side": null,
+        "line": null,
+        "start_line": null,
+        "path": null,
+        "body_html": "<p dir=\"auto\">[A668] TAKEN</p>"
+      },
+      {
+        "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200#issuecomment-6385280946",
+        "body": "[A668] REVIEW READY — head 33d3010cea8e053b1d2e83bcd9fa02f3f57d3f33 (branch 200-avb-info-not-supported)",
+        "user": {
+          "login": "Mister-M-alt",
+          "name": "Mister-M-alt",
+          "email": null,
+          "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+          "id": 161579364
+        },
+        "id": 6385280946,
+        "pull_request_review_id": null,
+        "in_reply_to_id": null,
+        "created_at": null,
+        "updated_at": null,
+        "review": null,
+        "side": null,
+        "line": null,
+        "start_line": null,
+        "path": null,
+        "body_html": "<p dir=\"auto\">[A668] REVIEW READY — head <a class=\"commit-link\" data-hovercard-type=\"commit\" data-hovercard-url=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/commit/33d3010cea8e053b1d2e83bcd9fa02f3f57d3f33/hovercard\" href=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/commit/33d3010cea8e053b1d2e83bcd9fa02f3f57d3f33\"><tt>33d3010</tt></a> (branch 200-avb-info-not-supported)</p>"
+      }
+    ],
+    "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200",
+    "title": "Mister-M-alt/protocol-processor-control-plane-avb-milan Issue #200 comments",
+    "display_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200",
+    "display_title": "Mister-M-alt/protocol-processor-control-plane-avb-milan Issue #200 comments"
+  },
+  "isError": false
+}

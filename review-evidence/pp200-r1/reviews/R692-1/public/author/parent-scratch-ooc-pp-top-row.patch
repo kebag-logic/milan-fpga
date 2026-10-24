@@ -1,0 +1,12 @@
+diff --git a/syn/yosys/ooc.sh b/syn/yosys/ooc.sh
+index 13f3a8dac..3853fa647 100755
+--- a/syn/yosys/ooc.sh
++++ b/syn/yosys/ooc.sh
+@@ -145,6 +145,7 @@ tops=(
+   # #629: the AAF clock meter, at its module defaults (one listener)
+   "KL_aaf_clock_meter|$R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/crf/KL_aaf_clock_meter.sv"
+   "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"
++  "protocol_processor_top|$PP_DERIVED"
+   # docs/design/AREA_BUDGET.md tier-1 optional blocks, each measured ALONE so
+   # its prune parameter can be priced against a standalone figure as well as
+   # against the milan_datapath delta. Standalone OOC is the UPPER bound for a

@@ -1,0 +1,47 @@
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -5615,6 +5615,7 @@
+     v3_existence_still_rules();
+     v4_truncated_commands_are_bad_arguments();
+     v5_get_avb_info_on_any_other_type_is_not_supported();
++    review_boundaries();
+     v6_a_grandmaster_change_notifies_both_kinds();
+     v6d_a_path_trace_tail_publish_sends_only_get_as_path();
+     v6f_an_avb_word_change_sends_only_get_avb_info();
+@@ -5633,6 +5634,36 @@
+     v3_existence_still_rules();
+     v4_truncated_commands_are_bad_arguments();
+     v5_get_avb_info_on_any_other_type_is_not_supported();
++    review_boundaries();
++  }
++
++  void review_boundaries() {
++    uint16_t seq = 0x7900;
++    for (uint16_t ty : {uint16_t(0x0009), uint16_t(0xffff)}) {
++      for (size_t bytes = 0; bytes < 4; ++bytes) {
++        std::vector<uint8_t> p(bytes, 0xff);
++        if (bytes) p[0] = uint8_t(ty >> 8);
++        if (bytes > 1) p[1] = uint8_t(ty);
++        h.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, seq, 0x0027, p));
++        auto got = h.wait_any(h.q_aecp, 3000);
++        auto want = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_BAD_ARGUMENTS, EID, CTLR_EID, seq, 0x0027, p);
++        CHECK(!got.empty() && got == want, "review short type %04X cdl %zu: BAD_ARGUMENTS echo", ty, bytes+12);
++        ++seq;
++      }
++    }
++    for (uint16_t ty : {uint16_t(0x0109), uint16_t(0xffff)}) {
++      for (size_t cdl : {16u,17u,18u,19u,20u,100u,255u,256u,257u,511u,523u,524u}) {
++        std::vector<uint8_t> p(cdl-12);
++        for (size_t i=0;i<p.size();++i) p[i]=uint8_t(37*i+13);
++        putbe(&p[0],ty,2);putbe(&p[2],0xffff,2);
++        h.feed(aecp_frame(OWN_MAC, CTLR_MAC, 0, 0, EID, CTLR_EID, seq, 0x0027, p));
++        auto got = h.wait_any(h.q_aecp, 3000);
++        auto want = aecp_frame(CTLR_MAC, OWN_MAC, 1, AECP_NOT_SUPPORTED, EID, CTLR_EID, seq, 0x0027, p);
++        CHECK(!got.empty() && got == want, "review wrong type %04X absent index cdl %zu: NOT_SUPPORTED echo", ty, cdl);
++        if (!got.empty() && got != want) { dump("got",got);dump("expected",want); }
++        ++seq;
++      }
++    }
+   }
+ 
+   //! the face's AVB_INTERFACE 0 answer (gsi_value kind 1)
