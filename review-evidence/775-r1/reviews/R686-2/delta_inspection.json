@@ -1,0 +1,33 @@
+{
+  "preprocessor_equivalence": {
+    "c7e87c8c87494f3444000b46954648ba1a94dcb8": {
+      "sha256": "026a45f41d0e12df857d1a12ea1e4333945cf6d291777731d1d06321815dc700",
+      "lines": 804
+    },
+    "c2a080aef7cd9a4ee2cd1bb4f8214b529bfd8c83": {
+      "sha256": "026a45f41d0e12df857d1a12ea1e4333945cf6d291777731d1d06321815dc700",
+      "lines": 804
+    }
+  },
+  "mutation_build_entry_observations": [
+    {
+      "build_source": "KL_avtp_rx_monitor_ctx_lock_set.sv",
+      "generated_sources": [
+        "KL_avtp_rx_monitor_ctx_lock_set.sv"
+      ],
+      "engine_text": "\n            //! counts nothing else (reference early-return); UNSUPPORTED_\n            //! FORMAT is an interval counter now - iv_events raised the\n            //! flag this cycle, so there is nothing to walk. The PDU was\n            //! still received (Milan v1.2 Table 5.6), so its sequence_num\n            //! advances prev_seq as an accepted PDU's does, and the next\n            //! in-order PDU is no SEQ_NUM_MISMATCH (#775). Lock, settle,\n            //! wire_chans and the mr reference keep their values, and no\n            //! timestamp word is written.\n            monst_r <= {ram_q_r[31:13], 1'b1, ram_q_r[11:8], cur_w.seq};\n            mst_r   <= M_PSEQ_S;\n          ",
+      "arm": "lock set: a discarded PDU sets media_locked",
+      "reference_source_unchanged": true
+    },
+    {
+      "build_source": "KL_avtp_rx_monitor_ctx_settle_step.sv",
+      "generated_sources": [
+        "KL_avtp_rx_monitor_ctx_settle_step.sv"
+      ],
+      "engine_text": "\n            //! counts nothing else (reference early-return); UNSUPPORTED_\n            //! FORMAT is an interval counter now - iv_events raised the\n            //! flag this cycle, so there is nothing to walk. The PDU was\n            //! still received (Milan v1.2 Table 5.6), so its sequence_num\n            //! advances prev_seq as an accepted PDU's does, and the next\n            //! in-order PDU is no SEQ_NUM_MISMATCH (#775). Lock, settle,\n            //! wire_chans and the mr reference keep their values, and no\n            //! timestamp word is written.\n            monst_r <= {ram_q_r[31:12], (ram_q_r[11:8] == 4'd0) ? 4'd0 : (ram_q_r[11:8] - 4'd1), cur_w.seq};\n            mst_r   <= M_PSEQ_S;\n          ",
+      "arm": "settle step: a discarded PDU steps the settle count",
+      "reference_source_unchanged": true
+    }
+  ],
+  "observation_limit": "Build intercepted before execution; this proves construction only. Real simulation results are separate receipts."
+}
