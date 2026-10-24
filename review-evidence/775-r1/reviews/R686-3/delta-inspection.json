@@ -1,0 +1,109 @@
+{
+  "stripped": {
+    "c2a080ae": {
+      "sha256": "7c7446423ec3bfbb1b04f5b01f1017a5e484d00770158def9386a92ced60f046",
+      "lines": 804
+    },
+    "220b51f2": {
+      "sha256": "7c7446423ec3bfbb1b04f5b01f1017a5e484d00770158def9386a92ced60f046",
+      "lines": 804
+    }
+  },
+  "preprocessed": {
+    "c2a080ae": {
+      "sha256": "7c7446423ec3bfbb1b04f5b01f1017a5e484d00770158def9386a92ced60f046",
+      "lines": 804
+    },
+    "220b51f2": {
+      "sha256": "7c7446423ec3bfbb1b04f5b01f1017a5e484d00770158def9386a92ced60f046",
+      "lines": 804
+    }
+  },
+  "seed_mutations_byte_equal": {
+    "mr_seed_set": true,
+    "mr_seed_clear": true
+  },
+  "mutant_tally_controls": [
+    {
+      "line": "    lockstep on the planted pair, as measured and not graded: rc 0, N=1 116/0, N=8 119/0 (checks/failures)",
+      "scan": [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      "failure_verdict": [
+        "no failure reported",
+        false
+      ]
+    },
+    {
+      "line": "    lockstep on the planted pair, as measured and not graded: rc 1, N=1 116/3, N=8 119/3 (checks/failures)",
+      "scan": [
+        0,
+        0,
+        [],
+        [],
+        []
+      ],
+      "failure_verdict": [
+        "no failure reported",
+        false
+      ]
+    }
+  ],
+  "published_suite_tally": [
+    577,
+    0,
+    [
+      [
+        "n-checks-m-failures",
+        97,
+        0,
+        "KL_avtp_rx_monitor: 97 checks, 0 failures"
+      ],
+      [
+        "n-checks-m-failures",
+        218,
+        0,
+        "NxN RX stack: 218 checks, 0 failures"
+      ],
+      [
+        "checks-colon-failures-colon",
+        116,
+        0,
+        "== avtp_rxmon lockstep N=1: checks: 116   failures: 0 =="
+      ],
+      [
+        "checks-colon-failures-colon",
+        119,
+        0,
+        "== avtp_rxmon lockstep N=8: checks: 119   failures: 0 =="
+      ],
+      [
+        "n-checks-pass-fail",
+        14,
+        0,
+        "14 checks: 14 PASS, 0 FAIL"
+      ],
+      [
+        "n-checks-pass-fail",
+        13,
+        0,
+        "13 checks: 13 PASS, 0 FAIL"
+      ]
+    ],
+    [],
+    []
+  ],
+  "delta_files": [
+    "docs/testing/TESTING.md",
+    "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv",
+    "tb/verilator/avtp_rxmon/Makefile",
+    "tb/verilator/avtp_rxmon/format_mutants.py",
+    "tb/verilator/avtp_rxmon/sim_main_nx.cpp"
+  ],
+  "unchanged_reference_and_crf": true,
+  "diff_check_rc": 0
+}

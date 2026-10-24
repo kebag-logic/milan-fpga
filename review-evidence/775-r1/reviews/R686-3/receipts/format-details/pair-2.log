@@ -1,0 +1,296 @@
+  [ ok ] [LS] setup: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] setup: every GET_COUNTERS read identical to the reference got=0 exp=0
+[GC] per-sink signatures
+  [ ok ] [GC] the window granted every signature write
+  [ ok ] [GC] every sink answers its own row and column (seeded signatures) got=0 exp=0
+  [ ok ] [LS] GC: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] GC: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H1] same-stream back-to-back updates
+  [ ok ] [H1] the bursts accepted PDUs on consecutive cycles (the case is live)
+  [ ok ] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=46 exp=46
+  [ ok ] [LS] H1: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H1: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H2] an update colliding with a read
+  [ ok ] [H2] the window granted the seed write
+  [ ok ] [H2] the held read starts at the seed    got=0xffff exp=0xffff
+  [ ok ] [H2] the held read moved exactly once across the update got=1 exp=1
+  [ ok ] [H2] ... from the seed to the seed + 1, carry included got=0x10000 exp=0x10000
+  [ ok ] [H2] GET_COUNTERS read identical to the reference in every cycle of the update window got=0 exp=0
+  [ ok ] [LS] H2: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H2: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H3] wrap
+  [ ok ] [H3] the window granted every seed write
+  [ ok ] [H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two got=0x0 exp=0x0
+  [ ok ] [H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [H3] FRAMES_RX adds eleven packets across 32-bit wrap (0xFFFFFFFA + 11) got=0x5 exp=0x5
+  [ ok ] [H3] the window answered the depacketizer word
+  [ ok ] [H3] the depacketizer word's halves wrap separately ({0xFFFE+2, 0xFFFF+3}) got=0x2 exp=0x2
+  [ ok ] [H3] MEDIA_UNLOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [H3] ...and that silence counts STREAM_INTERRUPTED on from the wrap (#762) got=0x1 exp=0x1
+  [ ok ] [LS] H3: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H3: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H4] reset during update
+  [ ok ] [H4] no bundle queued before a reset is served after it got=0 exp=0
+  [ ok ] [LS] H4: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H4: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] #762 silence, gap and unbind
+  [ ok ] [SI] a silence unlocks the bound stream once (MEDIA_UNLOCKED) got=1 exp=1
+  [ ok ] [SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once got=1 exp=1
+  [ ok ] [SI] the resume after the silence adds nothing (its first PDU re-seeds) got=1 exp=1
+  [ ok ] [SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once got=1 exp=1
+  [ ok ] [SI] ...and unlocks nothing              got=0 exp=0
+  [ ok ] [SI] an unbind of a locked stream unlocks it once got=1 exp=1
+  [ ok ] [SI] an unbind of a locked stream counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] ...nor does the silence after the unbind got=0 exp=0
+  [ ok ] [SI] ...which unlocks nothing more       got=1 exp=1
+  [ ok ] [LS] SI: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] #762 stopped and started inputs
+  [ ok ] [SI] a stopped input's silence unlocks it (MEDIA_UNLOCKED) got=1 exp=1
+  [ ok ] [SI] a stopped input's silence unlocks it but counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] START: the resumed stream relocks (MEDIA_LOCKED) got=1 exp=1
+  [ ok ] [SI] START: ...and the resume counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] after START a silence counts STREAM_INTERRUPTED again got=1 exp=1
+  [ ok ] [SI] STOP with live traffic unlocks nothing got=0 exp=0
+  [ ok ] [SI] STOP with live traffic counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] START after stopped live traffic: the next silence counts once got=1 exp=1
+  [ ok ] [SI] an unbind of a stopped, locked input unlocks it once got=1 exp=1
+  [ ok ] [SI] ...and counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [LS] SI stop: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI stop: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] #762 a sequence gap on started and stopped inputs
+  [ ok ] [SI] a started input's sequence gap counts STREAM_INTERRUPTED once got=1 exp=1
+  [ ok ] [SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] ...nor does a second stopped gap    got=0 exp=0
+  [ ok ] [SI] ...and the stopped gaps unlock nothing got=0 exp=0
+  [ ok ] [SI] the stopped gaps were seen: SEQ_NUM_MISMATCH moved (the case is live)
+  [ ok ] [SI] after START a sequence gap counts STREAM_INTERRUPTED again got=1 exp=1
+  [ ok ] [LS] SI gap: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] boundary: an unbind across the silence expiry, idle engine
+  sampled before the expiry 15, while the walk was pending 3, between its two writes 4, after it 19; longest expiry-to-unlock 3 cycles; interruption writes that yielded to a PDU walk 0
+  [ ok ] [SI] boundary (an unbind, idle): the stream unlocked exactly once at every offset got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, idle): after the expiry the silence counts once, on or before it never got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, idle): a full timeout later nothing more has moved got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, idle): sampled before the expiry, during the walk, between its two writes and after it (the sweep is live)
+  [ ok ] [LS] SI unbind boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI unbind boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] boundary: a STOP across the silence expiry, idle engine
+  sampled before the expiry 15, while the walk was pending 3, between its two writes 4, after it 19; longest expiry-to-unlock 3 cycles; interruption writes that yielded to a PDU walk 0
+  [ ok ] [SI] boundary (a STOP, idle): the stream unlocked exactly once at every offset got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, idle): after the expiry the silence counts once, on or before it never got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, idle): a full timeout later nothing more has moved got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, idle): sampled before the expiry, during the walk, between its two writes and after it (the sweep is live)
+  [ ok ] [LS] SI stop boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI stop boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] boundary: an unbind across the silence expiry, busy engine
+  sampled before the expiry 15, while the walk was pending 3, between its two writes 4, after it 19; longest expiry-to-unlock 5 cycles; interruption writes that yielded to a PDU walk 0
+  [ ok ] [SI] boundary (an unbind, busy): the stream unlocked exactly once at every offset got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, busy): after the expiry the silence counts once, on or before it never got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, busy): a full timeout later nothing more has moved got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, busy): the load held the unlock walk longer than an idle engine does
+  [ ok ] [SI] boundary (an unbind, busy): sampled before the expiry, while the walk was held, and after it
+  [ ok ] [LS] SI unbind boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI unbind boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] boundary: a STOP across the silence expiry, busy engine
+  sampled before the expiry 15, while the walk was pending 3, between its two writes 4, after it 19; longest expiry-to-unlock 5 cycles; interruption writes that yielded to a PDU walk 0
+  [ ok ] [SI] boundary (a STOP, busy): the stream unlocked exactly once at every offset got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, busy): after the expiry the silence counts once, on or before it never got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, busy): a full timeout later nothing more has moved got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, busy): the load held the unlock walk longer than an idle engine does
+  [ ok ] [SI] boundary (a STOP, busy): sampled before the expiry, while the walk was held, and after it
+  [ ok ] [LS] SI stop boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI stop boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] gap boundary: a STOP across the verdict, idle engine
+  landed before the pulse 4, before the verdict 2, on it 1, after it 18; longest pulse-to-verdict 2 cycles
+  [ ok ] [SI] gap boundary (a STOP, idle): every gap PDU reached its verdict got=0 exp=0
+  [ ok ] [SI] gap boundary (a STOP, idle): the gap counts once when started at its verdict, never when stopped got=0 exp=0
+  [ ok ] [SI] gap boundary (a STOP, idle): landed before the pulse, before the verdict, on it and after it (the sweep is live)
+  [ ok ] [LS] SI gap STOP boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap STOP boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] gap boundary: a START across the verdict, idle engine
+  landed before the pulse 4, before the verdict 2, on it 1, after it 18; longest pulse-to-verdict 2 cycles
+  [ ok ] [SI] gap boundary (a START, idle): every gap PDU reached its verdict got=0 exp=0
+  [ ok ] [SI] gap boundary (a START, idle): the gap counts once when started at its verdict, never when stopped got=0 exp=0
+  [ ok ] [SI] gap boundary (a START, idle): landed before the pulse, before the verdict, on it and after it (the sweep is live)
+  [ ok ] [LS] SI gap START boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap START boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] gap boundary: a STOP across the verdict, busy engine
+  landed before the pulse 4, before the verdict 4, on it 1, after it 16; longest pulse-to-verdict 4 cycles
+  [ ok ] [SI] gap boundary (a STOP, busy): every gap PDU reached its verdict got=0 exp=0
+  [ ok ] [SI] gap boundary (a STOP, busy): the gap counts once when started at its verdict, never when stopped got=0 exp=0
+  [ ok ] [SI] gap boundary (a STOP, busy): landed before the pulse, before the verdict, on it and after it (the sweep is live)
+  [ ok ] [SI] gap boundary (a STOP, busy): the load held the verdict longer than an idle engine does
+  [ ok ] [LS] SI gap STOP boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap STOP boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] gap boundary: a START across the verdict, busy engine
+  landed before the pulse 4, before the verdict 4, on it 1, after it 16; longest pulse-to-verdict 4 cycles
+  [ ok ] [SI] gap boundary (a START, busy): every gap PDU reached its verdict got=0 exp=0
+  [ ok ] [SI] gap boundary (a START, busy): the gap counts once when started at its verdict, never when stopped got=0 exp=0
+  [ ok ] [SI] gap boundary (a START, busy): landed before the pulse, before the verdict, on it and after it (the sweep is live)
+  [ ok ] [SI] gap boundary (a START, busy): the load held the verdict longer than an idle engine does
+  [ ok ] [LS] SI gap START boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap START boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SO] random soak, seed 25607, 300000 cycles
+  soak exercised: 12867 accepts, 3869 dirty cycles, 2132 window writes, 2197 window reads, 77 resets, 159101 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  [ ok ] [LS] SO: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SO: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SO] random soak, seed 11400714819323198485, 300000 cycles
+  soak exercised: 12677 accepts, 3810 dirty cycles, 2145 window writes, 2136 window reads, 68 resets, 162787 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  [ ok ] [LS] SO: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SO: every GET_COUNTERS read identical to the reference got=0 exp=0
+  [ ok ] [GC] the reads covered every sink and column many times
+== avtp_rxmon lockstep N=1: checks: 116   failures: 0 ==
+RESULT: PASS
+
+  [ ok ] [LS] setup: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] setup: every GET_COUNTERS read identical to the reference got=0 exp=0
+[GC] per-sink signatures
+  [ ok ] [GC] the window granted every signature write
+  [ ok ] [GC] every sink answers its own row and column (seeded signatures) got=0 exp=0
+  [ ok ] [LS] GC: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] GC: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H1] same-stream back-to-back updates
+  [ ok ] [H1] the bursts accepted PDUs on consecutive cycles (the case is live)
+  [ ok ] [H1] STREAM_INTERRUPTED moved by exactly one per accepted gap PDU got=46 exp=46
+  [ ok ] [LS] H1: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H1: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H2] an update colliding with a read
+  [ ok ] [H2] the window granted the seed write
+  [ ok ] [H2] the held read starts at the seed    got=0xffff exp=0xffff
+  [ ok ] [H2] the held read moved exactly once across the update got=1 exp=1
+  [ ok ] [H2] ... from the seed to the seed + 1, carry included got=0x10000 exp=0x10000
+  [ ok ] [H2] GET_COUNTERS read identical to the reference in every cycle of the update window got=0 exp=0
+  [ ok ] [LS] H2: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H2: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H3] wrap
+  [ ok ] [H3] the window granted every seed write
+  [ ok ] [H3] STREAM_INTERRUPTED wraps 0xFFFFFFFE -> 0x00000000 after two got=0x0 exp=0x0
+  [ ok ] [H3] MEDIA_LOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [H3] FRAMES_RX adds eleven packets across 32-bit wrap (0xFFFFFFFA + 11) got=0x5 exp=0x5
+  [ ok ] [H3] the window answered the depacketizer word
+  [ ok ] [H3] the depacketizer word's halves wrap separately ({0xFFFE+2, 0xFFFF+3}) got=0x2 exp=0x2
+  [ ok ] [H3] MEDIA_UNLOCKED wraps 0xFFFFFFFF -> 0x00000000 got=0x0 exp=0x0
+  [ ok ] [H3] ...and that silence counts STREAM_INTERRUPTED on from the wrap (#762) got=0x1 exp=0x1
+  [ ok ] [LS] H3: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H3: every GET_COUNTERS read identical to the reference got=0 exp=0
+[H4] reset during update
+  [ ok ] [H4] no bundle queued before a reset is served after it got=0 exp=0
+  [ ok ] [LS] H4: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] H4: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] #762 silence, gap and unbind
+  [ ok ] [SI] a silence unlocks the bound stream once (MEDIA_UNLOCKED) got=1 exp=1
+  [ ok ] [SI] a silence that unlocks a bound stream counts STREAM_INTERRUPTED once got=1 exp=1
+  [ ok ] [SI] the resume after the silence adds nothing (its first PDU re-seeds) got=1 exp=1
+  [ ok ] [SI] a sequence gap of two lost PDUs counts STREAM_INTERRUPTED once got=1 exp=1
+  [ ok ] [SI] ...and unlocks nothing              got=0 exp=0
+  [ ok ] [SI] an unbind of a locked stream unlocks it once got=1 exp=1
+  [ ok ] [SI] an unbind of a locked stream counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] ...nor does the silence after the unbind got=0 exp=0
+  [ ok ] [SI] ...which unlocks nothing more       got=1 exp=1
+  [ ok ] [LS] SI: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] #762 stopped and started inputs
+  [ ok ] [SI] a stopped input's silence unlocks it (MEDIA_UNLOCKED) got=1 exp=1
+  [ ok ] [SI] a stopped input's silence unlocks it but counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] START: the resumed stream relocks (MEDIA_LOCKED) got=1 exp=1
+  [ ok ] [SI] START: ...and the resume counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] after START a silence counts STREAM_INTERRUPTED again got=1 exp=1
+  [ ok ] [SI] STOP with live traffic unlocks nothing got=0 exp=0
+  [ ok ] [SI] STOP with live traffic counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] START after stopped live traffic: the next silence counts once got=1 exp=1
+  [ ok ] [SI] an unbind of a stopped, locked input unlocks it once got=1 exp=1
+  [ ok ] [SI] ...and counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [LS] SI stop: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI stop: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] #762 a sequence gap on started and stopped inputs
+  [ ok ] [SI] a started input's sequence gap counts STREAM_INTERRUPTED once got=1 exp=1
+  [ ok ] [SI] a stopped input's sequence gap counts no STREAM_INTERRUPTED got=0 exp=0
+  [ ok ] [SI] ...nor does a second stopped gap    got=0 exp=0
+  [ ok ] [SI] ...and the stopped gaps unlock nothing got=0 exp=0
+  [ ok ] [SI] the stopped gaps were seen: SEQ_NUM_MISMATCH moved (the case is live)
+  [ ok ] [SI] after START a sequence gap counts STREAM_INTERRUPTED again got=1 exp=1
+  [ ok ] [SI] another input's STOP leaves this input's gap counted got=2 exp=2
+  [ ok ] [LS] SI gap: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] boundary: an unbind across the silence expiry, idle engine
+  sampled before the expiry 15, while the walk was pending 3, between its two writes 4, after it 19; longest expiry-to-unlock 3 cycles; interruption writes that yielded to a PDU walk 0
+  [ ok ] [SI] boundary (an unbind, idle): the stream unlocked exactly once at every offset got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, idle): after the expiry the silence counts once, on or before it never got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, idle): a full timeout later nothing more has moved got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, idle): sampled before the expiry, during the walk, between its two writes and after it (the sweep is live)
+  [ ok ] [LS] SI unbind boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI unbind boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] boundary: a STOP across the silence expiry, idle engine
+  sampled before the expiry 15, while the walk was pending 3, between its two writes 4, after it 19; longest expiry-to-unlock 3 cycles; interruption writes that yielded to a PDU walk 0
+  [ ok ] [SI] boundary (a STOP, idle): the stream unlocked exactly once at every offset got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, idle): after the expiry the silence counts once, on or before it never got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, idle): a full timeout later nothing more has moved got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, idle): sampled before the expiry, during the walk, between its two writes and after it (the sweep is live)
+  [ ok ] [LS] SI stop boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI stop boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] boundary: an unbind across the silence expiry, busy engine
+  sampled before the expiry 15, while the walk was pending 19, between its two writes 2, after it 5; longest expiry-to-unlock 136 cycles; interruption writes that yielded to a PDU walk 6
+  [ ok ] [SI] boundary (an unbind, busy): the stream unlocked exactly once at every offset got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, busy): after the expiry the silence counts once, on or before it never got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, busy): a full timeout later nothing more has moved got=0 exp=0
+  [ ok ] [SI] boundary (an unbind, busy): the load held the unlock walk longer than an idle engine does
+  [ ok ] [SI] boundary (an unbind, busy): sampled before the expiry, while the walk was held, and after it
+  [ ok ] [SI] boundary (an unbind, busy): some interruption write yielded to a PDU walk
+  [ ok ] [LS] SI unbind boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI unbind boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] boundary: a STOP across the silence expiry, busy engine
+  sampled before the expiry 15, while the walk was pending 19, between its two writes 1, after it 6; longest expiry-to-unlock 136 cycles; interruption writes that yielded to a PDU walk 5
+  [ ok ] [SI] boundary (a STOP, busy): the stream unlocked exactly once at every offset got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, busy): after the expiry the silence counts once, on or before it never got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, busy): a full timeout later nothing more has moved got=0 exp=0
+  [ ok ] [SI] boundary (a STOP, busy): the load held the unlock walk longer than an idle engine does
+  [ ok ] [SI] boundary (a STOP, busy): sampled before the expiry, while the walk was held, and after it
+  [ ok ] [SI] boundary (a STOP, busy): some interruption write yielded to a PDU walk
+  [ ok ] [LS] SI stop boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI stop boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] gap boundary: a STOP across the verdict, idle engine
+  landed before the pulse 4, before the verdict 3, on it 1, after it 17; longest pulse-to-verdict 3 cycles
+  [ ok ] [SI] gap boundary (a STOP, idle): every gap PDU reached its verdict got=0 exp=0
+  [ ok ] [SI] gap boundary (a STOP, idle): the gap counts once when started at its verdict, never when stopped got=0 exp=0
+  [ ok ] [SI] gap boundary (a STOP, idle): landed before the pulse, before the verdict, on it and after it (the sweep is live)
+  [ ok ] [LS] SI gap STOP boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap STOP boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] gap boundary: a START across the verdict, idle engine
+  landed before the pulse 4, before the verdict 3, on it 1, after it 17; longest pulse-to-verdict 3 cycles
+  [ ok ] [SI] gap boundary (a START, idle): every gap PDU reached its verdict got=0 exp=0
+  [ ok ] [SI] gap boundary (a START, idle): the gap counts once when started at its verdict, never when stopped got=0 exp=0
+  [ ok ] [SI] gap boundary (a START, idle): landed before the pulse, before the verdict, on it and after it (the sweep is live)
+  [ ok ] [LS] SI gap START boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap START boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] gap boundary: a STOP across the verdict, busy engine
+  landed before the pulse 4, before the verdict 15, on it 1, after it 5; longest pulse-to-verdict 15 cycles
+  [ ok ] [SI] gap boundary (a STOP, busy): every gap PDU reached its verdict got=0 exp=0
+  [ ok ] [SI] gap boundary (a STOP, busy): the gap counts once when started at its verdict, never when stopped got=0 exp=0
+  [ ok ] [SI] gap boundary (a STOP, busy): landed before the pulse, before the verdict, on it and after it (the sweep is live)
+  [ ok ] [SI] gap boundary (a STOP, busy): the load held the verdict longer than an idle engine does
+  [ ok ] [LS] SI gap STOP boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap STOP boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SI] gap boundary: a START across the verdict, busy engine
+  landed before the pulse 4, before the verdict 15, on it 1, after it 5; longest pulse-to-verdict 15 cycles
+  [ ok ] [SI] gap boundary (a START, busy): every gap PDU reached its verdict got=0 exp=0
+  [ ok ] [SI] gap boundary (a START, busy): the gap counts once when started at its verdict, never when stopped got=0 exp=0
+  [ ok ] [SI] gap boundary (a START, busy): landed before the pulse, before the verdict, on it and after it (the sweep is live)
+  [ ok ] [SI] gap boundary (a START, busy): the load held the verdict longer than an idle engine does
+  [ ok ] [LS] SI gap START boundary: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SI gap START boundary: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SO] random soak, seed 25614, 300000 cycles
+  soak exercised: 11793 accepts, 4437 dirty cycles, 1726 window writes, 1645 window reads, 67 resets, 170811 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  [ ok ] [LS] SO: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SO: every GET_COUNTERS read identical to the reference got=0 exp=0
+[SO] random soak, seed 11400714819323198485, 300000 cycles
+  soak exercised: 11166 accepts, 4108 dirty cycles, 1826 window writes, 1713 window reads, 76 resets, 163197 nonzero GET_COUNTERS reads
+  [ ok ] [SO] the soak accepted PDUs, raised dirty pulses, used the window and reset (live)
+  [ ok ] [LS] SO: unchanged outputs match and historical dirty pulses remain got=0 exp=0
+  [ ok ] [GC] SO: every GET_COUNTERS read identical to the reference got=0 exp=0
+  [ ok ] [GC] the reads covered every sink and column many times
+== avtp_rxmon lockstep N=8: checks: 119   failures: 0 ==
+RESULT: PASS
