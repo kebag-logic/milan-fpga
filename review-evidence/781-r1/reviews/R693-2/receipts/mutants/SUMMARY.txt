@@ -1,0 +1,12 @@
+ok   control                  expected ESCAPE got ESCAPE      rc=0  unmodified head
+ok   m1_figure_582            expected ESCAPE got ESCAPE      rc=0  measured suite's figure lowered to its 582 s window (the stated open risk)
+ok   m2_figure_1401           expected ESCAPE got ESCAPE      rc=0  figure one second above its own 1400 s deadline
+ok   m3_prov_582              expected CAUGHT got CAUGHT      rc=1  582 s left provisional
+ok   m4_prov_1400             expected ESCAPE got ESCAPE      rc=0  media_phase still provisional at 1400 s (round-1 state; self-consistent)
+ok   m5_prov_misspelt         expected CAUGHT got CAUGHT      rc=1  misspelt provisional name
+ok   m6_compare_disabled      expected CAUGHT got CAUGHT      rc=1  provisional comparison disabled while nothing is pending
+MISS m7_head_count_dropped    expected CAUGHT got ESCAPE      rc=0  head arm stops counting a provisional mismatch
+ok   m8_figure_1499           expected CAUGHT got CAUGHT      rc=1  figure at 1499 s, over a regular worker's 1498 s
+ok   m9_driver_582            expected CAUGHT got CAUGHT      rc=2  driver deadline lowered to 582 s
+ok   m10_driver_900           expected CAUGHT got CAUGHT      rc=2  driver deadline back at 900 s
+mutants: 11  as expected: 10
