@@ -102,17 +102,17 @@ module KL_aaf_packetizer #(
   //! listener). Even 2..8, clamped like any TCTX write. Default 2 = the
   //! byte-identical shipping shape.
   parameter int unsigned WIRE_CHANS_P = 2,
-  //! THE STAMP'S LEAD (#773; Milan v1.2 5.3.7.6, IEEE 1722-2016 4.3.3).
-  //! 0: avtp_timestamp = ptp_ns_i at the first pair + the offset, as before.
-  //! 1: ptp_ns_i is the media-interface instant of the PDU's first frame
-  //! (milan_datapath's domain media event), long before the PDU can leave,
-  //! so the stamp adds Milan's two terms first, each whole periods of
-  //! FS_HZ_P (4.3.5): the Ingress Time Reference Plane crossing estimated as
-  //! the end of the PDU's sample span, SAMPLES_PER_FRAME_C periods, and the
-  //! fixed delay for that estimate's uncertainty, the fewest periods
-  //! covering the worst hand-over after it (LATE_NS_C). The offset as set
-  //! follows (5.4.2.9). A fixed delay past 125 us is refused at elaboration.
-  parameter bit          LEAD_P   = 1'b0,
+  // THE STAMP'S LEAD (#773; Milan v1.2 5.3.7.6, IEEE 1722-2016 4.3.3).
+  // Off: avtp_timestamp = ptp_ns_i at the first pair + the offset, as before.
+  // On: ptp_ns_i is the media-interface instant of the PDU's first frame
+  // (milan_datapath's domain media event), long before the PDU can leave,
+  // so the stamp adds Milan's two terms first, each whole periods of
+  // FS_HZ_P (4.3.5): the Ingress Time Reference Plane crossing estimated as
+  // the end of the PDU's sample span, SAMPLES_PER_FRAME_C periods, and the
+  // fixed delay for that estimate's uncertainty, the fewest periods
+  // covering the worst hand-over after it (LATE_NS_C). The offset as set
+  // follows (5.4.2.9). A fixed delay past 125 us is refused at elaboration.
+  parameter bit          LEAD_P   = 1'b0,        //! the stamp's lead on (#773)
   parameter int unsigned FS_HZ_P  = 48_000,      //! the media clock (Ps)
   parameter int unsigned CLK_HZ_P = 50_000_000,  //! clk_i, for PIPE_CYC_C
   //! the integration's term, ns: the end of the PDU's sample span at the

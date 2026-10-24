@@ -138,15 +138,15 @@ module KL_crf_tx #(
   //! output's row alone: the AAF talkers stamp theirs as set, #632), and no
   //! converter is elaborated
   parameter bit ROUND_MTT_P = 1'b1,
-  //! IEEE 1722-2016 10.7 Equation (14)'s TC (#773), "the amount of time that
-  //! samples spend accumulating in the Talker's transmit buffer". 0: none,
-  //! as before. 1: ev_ns_i is the instant the event's frame started at the
-  //! media interface, and the PDU reaches the MAC only after the frame's
-  //! marker, this engine and the TX path, so TC is the fewest whole media
-  //! clock periods covering that (TC_PER_C; whole periods keep the stamp on
-  //! the grid the AAF talkers stamp, 4.3.5), added beside the rounded
-  //! offset. GET_STREAM_INFO still reads the offset alone.
-  parameter bit          TC_P     = 1'b0,
+  // IEEE 1722-2016 10.7 Equation (14)'s TC (#773), "the amount of time that
+  // samples spend accumulating in the Talker's transmit buffer". Off: none,
+  // as before. On: ev_ns_i is the instant the event's frame started at the
+  // media interface, and the PDU reaches the MAC only after the frame's
+  // marker and this engine, so TC is the fewest whole media clock periods
+  // covering that (TC_PER_C; whole periods keep the stamp on the grid the
+  // AAF talkers stamp, 4.3.5), added beside the rounded offset.
+  // GET_STREAM_INFO still reads the offset alone.
+  parameter bit          TC_P     = 1'b0,        //! Equation (14)'s T_C on (#773)
   parameter int unsigned CLK_HZ_P = 50_000_000,  //! clk_i, for PIPE_CYC_C
   //! the integration's term, ns: ev_p_i's pulse after its event's instant
   parameter int unsigned EV_LATE_NS_P  = 0

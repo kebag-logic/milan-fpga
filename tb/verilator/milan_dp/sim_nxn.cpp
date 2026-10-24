@@ -8654,24 +8654,52 @@ class NxnDatapathHarness {
         #endif
     }
 
+    //! #773: n media clock periods at 48 kHz, ns, rounded up, as each output
+    //! adds them
+    static uint64_t periods_ns(long n) { return static_cast<uint64_t>((n * 1000000000L + 47999) / 48000); }
+
+    //! #773: the whole media clock periods an output added beside its offset
+    //! to put `base` (its stamp less the offset) on a domain event seen, an AAF
+    //! talker's 6 to 12, the CRF output's 0 to 6; -1 when none does
+    static long periods_on_grid(uint64_t base, bool crf, const std::set<uint32_t>& dom_lo,
+                                const std::set<uint64_t>& dom_64) {
+        for (long n = crf ? 0 : 6; n <= 12; ++n) {
+            const uint64_t at = base - periods_ns(n);
+            if (crf ? dom_64.count(at) != 0 : dom_lo.count(static_cast<uint32_t>(at)) != 0) return n;
+        }
+        return -1;
+    }
+
+    //! #773: the periods each output was found to add, one count per output
+    void report_output_periods(const std::vector<std::set<long>>& periods) {
+        for (size_t index = 0; index < periods.size(); ++index) {
+            const bool crf = index + 1 == periods.size();
+            std::string found;
+            for (const long n : periods[index]) found += (found.empty() ? "" : ",") + std::to_string(n);
+            printf("  #773 output %zu %s adds %s media clock periods beside its offset\n", index,
+                   crf ? "CRF" : "AAF", found.c_str());
+            char label[120];
+            snprintf(label, sizeof label, "#773 output %zu adds one whole number of periods to every stamp", index);
+            ck(label, static_cast<long>(periods[index].size()), 1);
+        }
+    }
+
+    // Compare transmitted fields with the PHC at egress, the cycle the PDU's
+    // last beat leaves the MAC port: IEEE 1722-2016 4.3.3 Equation (1) puts the
+    // hand-over at or before the timestamp less the offset, and after that less
+    // TUmax, the 125 us Milan v1.2 5.3.7.6 supposes (#773; for the CRF output,
+    // 10.7 Equation (14) with its TC). #632, exactly: every output stamps a
+    // domain media event's instant (an AAF talker the frame it captured, the
+    // CRF output every 96th) plus its offset as GET_STREAM_INFO reads it: an
+    // AAF output's as set, the CRF output's as applied. #773 adds, beside the
+    // offset, whole media clock periods each output derives from its own
+    // capture-to-wire path: an AAF talker its PDU's six-sample span plus
+    // Milan's fixed delay (0 to 125 us: 6 periods at most), the CRF output
+    // Equation (14)'s TC. The leg finds the periods each output adds, which
+    // this shape's clocks set, and requires one count per output. It records
+    // every event's instant (dom_ns_w, a timestamp source, never an expected
+    // value), the low 32 bits for an AAF stamp, all 64 for a CRF stamp.
     void grade_output_timestamps(const std::vector<uint32_t>& offsets) {
-        // Compare transmitted fields with the PHC at egress, the cycle the
-        // PDU's last beat leaves the MAC port: IEEE 1722-2016 4.3.3 Equation
-        // (1) puts the hand-over at or before the timestamp less the offset,
-        // and after that less TUmax, the 125 us Milan v1.2 5.3.7.6 supposes
-        // (#773; for the CRF output, 10.7 Equation (14) with its TC).
-        // #632, exactly: every output stamps a domain media event's instant
-        // (an AAF talker the frame it captured, the CRF output every 96th)
-        // plus its offset as GET_STREAM_INFO reads it: an AAF output's as
-        // set, the CRF output's as applied. #773 adds, beside the offset,
-        // whole media clock periods each output derives from its own
-        // capture-to-wire path: an AAF talker its PDU's six-sample span plus
-        // Milan's fixed delay (0 to 125 us: 6 periods at most), the CRF output
-        // Equation (14)'s TC. The leg finds the periods each output adds,
-        // which this shape's clocks set, and requires one count per output.
-        // It records every event's instant (dom_ns_w, a timestamp source,
-        // never an expected value), the low 32 bits for an AAF stamp, all 64
-        // for a CRF stamp.
         axi_write(A_LWSRP_CTRL, 0);
         axi_write(A_MAAP_CTRL, 0);
         axi_write(A_AAF_CTRL, 0x00020003);
@@ -8694,17 +8722,7 @@ class NxnDatapathHarness {
         long exact_crf = 0;
         long off_aaf = 0;
         long off_crf = 0;
-        //! #773: n media clock periods at 48 kHz, ns, rounded up, as each
-        //! output adds them; and the count each output was found to add
-        const auto periods_ns = [](long n) { return static_cast<uint64_t>((n * 1000000000L + 47999) / 48000); };
         std::vector<std::set<long>> periods(offsets.size());
-        const auto on_grid = [&](uint64_t base, bool crf) -> long {
-            for (long n = crf ? 0 : 6; n <= 12; ++n) {
-                const uint64_t at = base - periods_ns(n);
-                if (crf ? dom_64.count(at) != 0 : dom_lo.count(static_cast<uint32_t>(at)) != 0) return n;
-            }
-            return -1;
-        };
         std::vector<uint8_t> frame;
         dut->m_axis_mac_tx_tready = 1;
         for (int cycle = 0; cycle < 600000; ++cycle) {
@@ -8732,9 +8750,10 @@ class NxnDatapathHarness {
                             printf("  timestamp output=%u stamp=%u phc=%u offset=%u residual=%d ns\n",
                                    index, stamp, now, offsets[index], error);
                             ck(label, error >= 0 && error < 125000, 1);
-                            const long n = subtype == 2
-                                ? on_grid(static_cast<uint32_t>(stamp - offsets[index]), false)
-                                : on_grid(be(frame, 34 + tag, 8) - offsets[index], true);
+                            const uint64_t base = subtype == 2
+                                ? static_cast<uint32_t>(stamp - offsets[index])
+                                : be(frame, 34 + tag, 8) - offsets[index];
+                            const long n = periods_on_grid(base, subtype == 4, dom_lo, dom_64);
                             if (n >= 0) periods[index].insert(n);
                             if (subtype == 2) {
                                 (n >= 0 ? exact_aaf : off_aaf)++;
@@ -8762,16 +8781,7 @@ class NxnDatapathHarness {
         ck("#632 every CRF timestamp, all 64 bits, is a domain media event's instant plus whole periods (#773) "
            "plus its offset applied",
            static_cast<long>(off_crf == 0 && exact_crf >= 2), 1);
-        for (size_t index = 0; index < periods.size(); ++index) {
-            const bool crf = index + 1 == periods.size();
-            std::string found;
-            for (const long n : periods[index]) found += (found.empty() ? "" : ",") + std::to_string(n);
-            printf("  #773 output %zu %s adds %s media clock periods beside its offset\n", index,
-                   crf ? "CRF" : "AAF", found.c_str());
-            char label[120];
-            snprintf(label, sizeof label, "#773 output %zu adds one whole number of periods to every stamp", index);
-            ck(label, static_cast<long>(periods[index].size()), 1);
-        }
+        report_output_periods(periods);
         for (size_t index = 0; index < seen.size(); ++index) {
             char label[80];
             snprintf(label, sizeof label, "#403 output %zu produced two timestamp observations", index);

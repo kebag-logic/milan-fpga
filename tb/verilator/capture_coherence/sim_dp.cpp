@@ -549,9 +549,21 @@ void DatapathHarness::grade(const Scenario& sc) {
 //! [WIRE] and [HOLD] grade every PDU.
 void DatapathHarness::grade_wire(const std::string& n) {
     const std::int64_t crf_ofs = crf_applied_ns(pto_);
-    long aaf = 0, crf = 0, aaf_late = 0, crf_late = 0, aaf_early = 0, crf_early = 0;
-    long aaf_off = 0, crf_off = 0, aaf_on = 0, crf_on = 0, held = 0;
-    std::int64_t aaf_min = INT64_MAX, aaf_max = INT64_MIN, crf_min = INT64_MAX, crf_max = INT64_MIN;
+    long aaf = 0;
+    long crf = 0;
+    long aaf_late = 0;
+    long crf_late = 0;
+    long aaf_early = 0;
+    long crf_early = 0;
+    long aaf_off = 0;
+    long crf_off = 0;
+    long aaf_on = 0;
+    long crf_on = 0;
+    long held = 0;
+    std::int64_t aaf_min = INT64_MAX;
+    std::int64_t aaf_max = INT64_MIN;
+    std::int64_t crf_min = INT64_MAX;
+    std::int64_t crf_max = INT64_MIN;
     std::int64_t hold_max = INT64_MIN;
     std::set<std::uint32_t> dom_lo;
     for (const std::uint64_t d : dom_seen_) dom_lo.insert(static_cast<std::uint32_t>(d));
@@ -584,20 +596,23 @@ void DatapathHarness::grade_wire(const std::string& n) {
         const std::uint64_t base = h.ts - static_cast<std::uint64_t>(crf_ofs + kCrfTcNs);
         (dom_seen_.count(base) ? crf_on : crf_off)++;
     }
+    const long long aaf_lo = aaf ? aaf_min : 0;
+    const long long aaf_hi = aaf ? aaf_max : 0;
+    const long long crf_lo = crf ? crf_min : 0;
+    const long long crf_hi = crf ? crf_max : 0;
+    const long long hold_hi = aaf ? hold_max : 0;
+    const long long crf_applied = crf_ofs;
     std::printf("  [i]  %s[WIRE] offset %u ns: %ld AAF PDUs, avtp_timestamp - offset - hand-over %lld..%lld ns; "
                 "%ld CRF PDUs, timestamp - %lld ns applied - hand-over %lld..%lld ns; [GRID] AAF %ld on, %ld off, "
                 "CRF %ld on, %ld off; [HOLD] avtp_timestamp - hand-over max %lld ns\n", n.c_str(), pto_, aaf,
-                (long long)(aaf ? aaf_min : 0), (long long)(aaf ? aaf_max : 0), crf, (long long)crf_ofs,
-                (long long)(crf ? crf_min : 0), (long long)(crf ? crf_max : 0), aaf_on, aaf_off, crf_on, crf_off,
-                (long long)(aaf ? hold_max : 0));
+                aaf_lo, aaf_hi, crf, crf_applied, crf_lo, crf_hi, aaf_on, aaf_off, crf_on, crf_off, hold_hi);
     char what[240];
     std::snprintf(what, sizeof what, "%s[WIRE] AAF and CRF PDUs graded at the MAC port (%ld, %ld)", n.c_str(), aaf,
                   crf);
     check_.that(what, aaf >= 100 && crf >= 5);
     std::snprintf(what, sizeof what,
                   "%s[WIRE] every AAF PDU's hand-over is at or before its avtp_timestamp less the presentation offset "
-                  "(IEEE 1722-2016 4.3.3 Eq. (1); %ld after it, least margin %lld ns)", n.c_str(), aaf_late,
-                  (long long)(aaf ? aaf_min : 0));
+                  "(IEEE 1722-2016 4.3.3 Eq. (1); %ld after it, least margin %lld ns)", n.c_str(), aaf_late, aaf_lo);
     check_.that(what, aaf > 0 && aaf_late == 0);
     std::snprintf(what, sizeof what,
                   "%s[WIRE] ...and every AAF PDU's after it less TUmax, 125 us (Eq. (1)'s lower bound; %ld before "
@@ -605,8 +620,7 @@ void DatapathHarness::grade_wire(const std::string& n) {
     check_.that(what, aaf > 0 && aaf_early == 0);
     std::snprintf(what, sizeof what,
                   "%s[WIRE] every CRF PDU's hand-over is at or before its timestamp less the offset as applied "
-                  "(IEEE 1722-2016 10.7 Eq. (14); %ld after it, least margin %lld ns)", n.c_str(), crf_late,
-                  (long long)(crf ? crf_min : 0));
+                  "(IEEE 1722-2016 10.7 Eq. (14); %ld after it, least margin %lld ns)", n.c_str(), crf_late, crf_lo);
     check_.that(what, crf > 0 && crf_late == 0);
     std::snprintf(what, sizeof what,
                   "%s[WIRE] ...and every CRF PDU's after it less TUmax, 125 us (%ld before it)", n.c_str(),
@@ -622,7 +636,7 @@ void DatapathHarness::grade_wire(const std::string& n) {
     check_.that(what, crf_on > 0 && crf_off == 0);
     std::snprintf(what, sizeof what,
                   "%s[HOLD] no AAF stamp is more than 2.126 ms after its hand-over (Milan v1.2 4.4.2.1; %ld, "
-                  "max %lld ns)", n.c_str(), held, (long long)(aaf ? hold_max : 0));
+                  "max %lld ns)", n.c_str(), held, hold_hi);
     check_.that(what, aaf > 0 && held == 0);
 }
 
