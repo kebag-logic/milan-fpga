@@ -188,8 +188,12 @@ struct Model {
         hist[hidx] = ts;
         hidx = (hidx + 1) & (DEPTH - 1);
     }
-    void bad_pdu() {                     // format-invalid, matched stream
+    // format-invalid, matched stream. #775: it was still received (Milan
+    // v1.2 Table 5.6), so its sequence_num advances the cursor; only an
+    // accepted PDU seeds it (have_seq)
+    void bad_pdu(uint8_t seq) {
         settle = 0;                      // the UF count commits via cycle()
+        exp_seq = static_cast<uint8_t>(seq + 1);
     }
     // 100 ms without a CONSUMED PDU. #762: a started, bound sink's
     // silence is also a STREAM_INTERRUPTED; an unbind on the same edge
@@ -268,6 +272,7 @@ class CrfRxHarness {
         pin_stopped_sink();
         pin_unbind_scores_one_unlock();
         pin_aaf_pdu_on_the_crf_input();
+        pin_offformat_pdu_advances_the_sequence();
         pin_stopped_silence_is_no_interruption();
         pin_stopped_gap_is_no_interruption();
 
@@ -302,6 +307,8 @@ class CrfRxHarness {
     long g_mrtog_cnt = 0;
     long g_mrtog_wide = 0;
     long g_mrtog_run = 0;
+    // consumed timing points observed (ts_p_o, a 1-cycle strobe, #632)
+    long g_tsp_cnt = 0;
 
     // header-flag levels held across PDUs, exactly as the wire holds them:
     // mr is a LEVEL the talker toggles (1722-2016 10.4.3), tu a per-PDU flag
@@ -334,6 +341,7 @@ class CrfRxHarness {
         dut->clk_i = 0; dut->eval();
         dut->clk_i = 1; dut->eval();
         if (dut->dirty_p_o) g_dirty_cnt++;
+        if (dut->ts_p_o) g_tsp_cnt++;
         if (dut->mr_toggle_p_o) {
             g_mrtog_cnt++;
             if (++g_mrtog_run > 1) g_mrtog_wide++;
@@ -489,7 +497,7 @@ class CrfRxHarness {
             }
             g_ev_uf = true;
             pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-            m.bad_pdu();
+            m.bad_pdu(0);
         }
         ck("5 malformed: no commit before the tick", dut->fmt_err_o, 0);
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
@@ -676,7 +684,7 @@ class CrfRxHarness {
             dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
             g_ev_uf = true;
             pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-            m.bad_pdu();
+            m.bad_pdu(seq++);
         }
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("3 discontinuities: SEQ_NUM_MISMATCH +1", dut->seq_err_o,
@@ -772,7 +780,7 @@ class CrfRxHarness {
         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);  // bad ival
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.bad_pdu();
+        m.bad_pdu(seq++);
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[5t-b5] rejected PDU: MEDIA_RESET untouched", dut->mr_cnt_o, mrb);
         ck("[5t-b6] rejected PDU: UNSUPPORTED_FORMAT +1 (and only it)",
@@ -798,7 +806,7 @@ class CrfRxHarness {
         dut->ptp_now_i = ts + 4000000;   // and a LATE reference timestamp
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.bad_pdu();
+        m.bad_pdu(seq++);
         // a second reject, this one EARLY
         drive_fields(ts, seq);
         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
@@ -806,7 +814,7 @@ class CrfRxHarness {
             ts - static_cast<uint64_t>(EARLY_LIMIT_C) - 5000000ULL;
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.bad_pdu();
+        m.bad_pdu(seq++);
         g_tu = false;
         dut->ptp_now_i = ptp;
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
@@ -1032,7 +1040,7 @@ class CrfRxHarness {
         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.bad_pdu();
+        m.bad_pdu(seq++);
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
     }
 
@@ -1295,7 +1303,7 @@ class CrfRxHarness {
             dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
             g_ev_uf = true;
             pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-            m.bad_pdu();
+            m.bad_pdu(seq++);
             ck("[H2a-c1] a format-rejected flip NEVER pulses", g_mrtog_cnt, 0);
             // and the level it carried left no trace: the next ACCEPTED PDU
             // at the era's real level is still a no-op
@@ -1407,7 +1415,7 @@ class CrfRxHarness {
         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);  // bad ival
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.bad_pdu();
+        m.bad_pdu(seq++);
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[G1-b1] 254 + 1 = 255 (still counting)", dut->fmt_err_o, 255);
         align_interval();
@@ -1415,7 +1423,7 @@ class CrfRxHarness {
         dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.bad_pdu();
+        m.bad_pdu(seq++);
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[G1-b2] UNSUPPORTED_FORMAT passes 255 - peg dropped (256)",
            dut->fmt_err_o, 256);
@@ -1512,7 +1520,8 @@ class CrfRxHarness {
     //! UNSUPPORTED_FORMAT for a PDU whose format does not match the input's
     //! current format and 4.4.2.2 discards it, so an AAF PDU here is a reject
     //! like any other profile error: one interval count, nothing accepted,
-    //! the sequence cursor unmoved, and an established lock retained.
+    //! the sequence cursor advanced by its sequence_num (#775), and an
+    //! established lock retained.
     void pin_aaf_pdu_on_the_crf_input() {
         printf("\n[FMT] #765: an AAF PDU on the CRF input is UNSUPPORTED_FORMAT\n");
         for (int n = 0; n < 10; n++) {
@@ -1539,7 +1548,7 @@ class CrfRxHarness {
         dut->subtype_i = 0x02;
         g_ev_uf = true;
         pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.bad_pdu();
+        m.bad_pdu(seq++);
         dut->subtype_i = 0x04;
         ck("[FMT-b1] an AAF PDU on the CRF stream_id is not accepted",
            dut->pdu_count_o, p0);
@@ -1548,13 +1557,131 @@ class CrfRxHarness {
         ck("[FMT-b3] ...and counts UNSUPPORTED_FORMAT once", dut->fmt_err_o, f0 + 1);
         compare(g_pdu_no);
 
-        // the AAF PDU advanced nothing: the next CRF PDU continues the sequence
+        // the AAF PDU advanced only the sequence cursor (#775): the next CRF
+        // PDU continues the sequence
         align_interval();
         ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
         for (int i = 0; i < kIvalCyc + 2; i++) tick();
         ck("[FMT-c1] the next CRF PDU is accepted with no SEQ_NUM_MISMATCH",
            dut->seq_err_o, s0);
         ck("[FMT-c2] ...and no second UNSUPPORTED_FORMAT", dut->fmt_err_o, f0 + 1);
+    }
+
+    //-----------------------------------------------------------------------
+    // [SQ] #775: an off-format PDU on the CRF input was still received
+    // (Milan v1.2 Table 5.6), so its sequence_num advances the sequence
+    // cursor, while it counts UNSUPPORTED_FORMAT only and presents nothing.
+    // One AAF PDU takes a CRF PDU's slot in an in-order stream. It carries a
+    // toggled mr, tu, and a reference timestamp already past (or too far
+    // ahead), so a reject that reached any other verdict would count there.
+    // (a)-(b) the stream continues in order: over the following observation
+    // intervals SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
+    // LATE_TIMESTAMP, EARLY_TIMESTAMP and STREAM_INTERRUPTED hold.
+    // (c) a real gap after an off-format PDU still counts, measured from that
+    // PDU's sequence_num. (d) only an accepted PDU seeds an era's sequence.
+    //-----------------------------------------------------------------------
+    struct Tallies {
+        uint32_t uf;
+        uint32_t sm;
+        uint32_t mr;
+        uint32_t tu;
+        uint32_t lt;
+        uint32_t et;
+        uint32_t si;
+        uint32_t unl;
+    };
+    Tallies tallies() const {
+        return Tallies{dut->fmt_err_o, dut->seq_err_o, dut->mr_cnt_o, dut->tu_cnt_o,
+                       dut->late_cnt_o, dut->early_cnt_o, dut->cnt_intr_o,
+                       dut->cnt_unlocked_o};
+    }
+
+    //! one AAF PDU in the next CRF PDU's slot, carrying the next sequence_num
+    void send_offformat_pdu(bool late) {
+        ts += 2000200; ptp += 2000000;
+        drive_fields(ts, seq);
+        dut->subtype_i = 0x02;
+        dut->mr_i = !g_mr;                       // a toggle, were it read
+        dut->tu_i = 1;
+        dut->ptp_now_i = late ? ts + 4000000
+                              : ts - static_cast<uint64_t>(EARLY_LIMIT_C) - 5000000ULL;
+        g_ev_uf = true;
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        m.bad_pdu(seq++);
+        dut->subtype_i = 0x04;
+        dut->ptp_now_i = ptp;
+    }
+
+    //! `n` in-order CRF PDUs, then one whole observation interval
+    void send_in_order_then_commit(int n) {
+        for (int k = 0; k < n; k++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < kIvalCyc + 2; i++) tick();
+    }
+
+    void pin_offformat_pdu_advances_the_sequence() {
+        printf("\n[SQ] #775: an off-format PDU on the CRF input advances the sequence\n");
+        send_in_order_then_commit(10);
+        align_interval();
+        ck("[SQ-0] precondition: bound and locked", dut->locked_o, 1);
+
+        // (a) the AAF PDU itself
+        const Tallies t0 = tallies();
+        const uint32_t p0 = dut->pdu_count_o;
+        const long tsp0 = g_tsp_cnt;
+        const int32_t d0 = static_cast<int32_t>(dut->delta_o);
+        send_offformat_pdu(true);
+        ck("[SQ-a1] an AAF PDU mid-stream is not accepted", dut->pdu_count_o, p0);
+        ck("[SQ-a2] ...presents no timing point", g_tsp_cnt - tsp0, 0);
+        ck("[SQ-a3] ...leaves delta_o", static_cast<int32_t>(dut->delta_o), d0);
+        ck("[SQ-a4] ...and keeps the lock", dut->locked_o, 1);
+
+        // (b) the stream continues in order over the following two intervals
+        send_in_order_then_commit(3);
+        send_in_order_then_commit(3);
+        const Tallies t1 = tallies();
+        ck("[SQ-b1] UNSUPPORTED_FORMAT +1", t1.uf - t0.uf, 1);
+        ck("[SQ-b2] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence",
+           t1.sm - t0.sm, 0);
+        ck("[SQ-b3] MEDIA_RESET unchanged", t1.mr - t0.mr, 0);
+        ck("[SQ-b4] TIMESTAMP_UNCERTAIN unchanged", t1.tu - t0.tu, 0);
+        ck("[SQ-b5] LATE_TIMESTAMP unchanged", t1.lt - t0.lt, 0);
+        ck("[SQ-b6] EARLY_TIMESTAMP unchanged", t1.et - t0.et, 0);
+        ck("[SQ-b7] STREAM_INTERRUPTED unchanged", t1.si - t0.si, 0);
+        ck("[SQ-b8] MEDIA_UNLOCKED unchanged", t1.unl - t0.unl, 0);
+        ck("[SQ-b9] FRAMES_RX counts the six accepted PDUs only",
+           dut->pdu_count_o - p0, 6);
+
+        // (c) one PDU lost after an off-format PDU: a gap of one, counted
+        // from the off-format PDU's sequence_num (two, were it not advanced)
+        align_interval();
+        send_offformat_pdu(false);
+        seq++; ts += 2000200; ptp += 2000000;    // the lost CRF PDU
+        send_in_order_then_commit(4);
+        const Tallies t2 = tallies();
+        ck("[SQ-c1] a gap after an AAF PDU counts SEQ_NUM_MISMATCH +1", t2.sm - t1.sm, 1);
+        ck("[SQ-c2] ...one PDU lost from the AAF PDU's: no STREAM_INTERRUPTED",
+           t2.si - t1.si, 0);
+        ck("[SQ-c3] ...and UNSUPPORTED_FORMAT +1", t2.uf - t1.uf, 1);
+        ck("[SQ-c4] ...and EARLY_TIMESTAMP unchanged", t2.et - t1.et, 0);
+        ck("[SQ-c5] ...and MEDIA_RESET and TIMESTAMP_UNCERTAIN unchanged",
+           (t2.mr - t1.mr) + (t2.tu - t1.tu), 0);
+
+        // (d) an era's first PDU off-format: only an accepted PDU seeds the
+        // cursor, so the first accepted PDU counts nothing, whatever it carries
+        dut->en_i = 0; for (int i = 0; i < 4; i++) tick();
+        dut->en_i = 1; m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
+        align_interval();
+        send_offformat_pdu(true);
+        seq = static_cast<uint8_t>(seq + 5);
+        send_in_order_then_commit(4);
+        ck("[SQ-d1] an AAF PDU first in an era seeds no SEQ_NUM_MISMATCH",
+           dut->seq_err_o, 0);
+        ck("[SQ-d2] ...nor a STREAM_INTERRUPTED", dut->cnt_intr_o, 0);
+        ck("[SQ-d3] ...and counts UNSUPPORTED_FORMAT +1", dut->fmt_err_o, 1);
+        ck("[SQ-d4] ...and the first accepted PDU counts in FRAMES_RX", dut->pdu_count_o, 4);
     }
 
     void pin_unbind_scores_one_unlock() {
