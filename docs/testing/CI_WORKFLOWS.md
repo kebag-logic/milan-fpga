@@ -435,7 +435,7 @@ margin sets each named entry:
 | `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |
 | `milan_dp` | 4800 s | hosted PASS 3509.562 s; 1290.438 s remains (26.9%) |
 | `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
-| `media_phase` | 1400 s | #781: hosted TIMEOUT 900.0 s on three shard 10/16 jobs (run 40098975073 attempts 1 and 2, run 40103838859), its thirteen loop cases still running; locally, serial on four CPUs at the hosted three case jobs, its whole default target (the pins, the blend, the offsets, eleven detector cases and thirteen loop cases, its five builds included) ran in 787.5 s and 769.3 s; the other suites' hosted-to-local ratios in the same jobs, at most 1.575, project the hosted window to at most about 1240 s, and 1400 s leaves more than #673's 10% over that; provisional in `scripts/suite_shards.py` until this change's own hosted run measures it; the planted-defect campaign is the explicit `mutants` target |
+| `media_phase` | 1400 s | #781: hosted TIMEOUT 900.0 s on three shard 10/16 jobs (run 40098975073 attempts 1 and 2, run 40103838859), its thirteen loop cases still running; locally, serial on four CPUs at the hosted three case jobs, its whole default target (the pins, the blend, the offsets, eleven detector cases and thirteen loop cases, its five builds included) ran in 787.5 s and 769.3 s; the other suites' hosted-to-local ratios in the same jobs, at most 1.575, project the hosted window to at most about 1240 s, and 1400 s leaves more than #673's 10% over that; this change's own hosted run then measured it: job 120983200812, worker 4/17 of pull-request run 40131149135 at `8a4fa2f9`, ran its suite step from 20:50:36Z to 21:01:31Z, 655 s for all four of its suites, and `media_phase` passed in 582 s of that (`scripts/suite_shards.py --measure` on the job log); 818 s remains (58.4%); the budget stays 1400 s, not provisional, since the three earlier windows above ran past 900 s; the planted-defect campaign is the explicit `mutants` target |
 
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285)
 authorizes those three increases within existing shard envelopes.
@@ -2947,8 +2947,8 @@ plus 60 seconds for download, extraction and execution evidence.
 
 Verilator figures already include their 122-second overhead allowance.
 Worker 3 carries `gptp_tables` at 1538 seconds: 82 inside its bound and 262
-inside 30 minutes, before downstream collection. Worker 4 carries the
-provisional `media_phase` at 1539 seconds: 81 inside its bound.
+inside 30 minutes, before downstream collection. Worker 4 carries
+`media_phase`'s kept 1400-second budget at 1539 seconds: 81 inside its bound.
 The continuous media-clock exception remains explicit at 2032 seconds.
 Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
 Allowing 60 seconds each for aggregate and collector, one 120-second

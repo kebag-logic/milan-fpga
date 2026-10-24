@@ -247,8 +247,8 @@ acquire_lock() {
 #! The new limits leave >=10% in each hosted shard's measured job envelope.
 #! CI_WORKFLOWS.md records the samples and per-shard arithmetic.
 #! #781: media_phase timed out at 900 s on hosted. 1400 s leaves more than
-#! 10% over its projected hosted window (at most about 1240 s) and stays
-#! provisional (scripts/suite_shards.py) until that window is measured.
+#! 10% over its projected hosted window (at most about 1240 s). Its own
+#! hosted run then passed it in 582 s, and 1400 s is kept for that variance.
 suite_timeout() {
   case "$1" in
     capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
