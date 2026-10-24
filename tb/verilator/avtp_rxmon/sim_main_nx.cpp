@@ -1002,7 +1002,8 @@ class NxnRxStackHarness {
     // (or early) timestamp, so a reject that reached any other verdict //
     // would count there. It is graded on a locked, settled stream      //
     // ([SQ1]-[SQ3]), first in a fresh era on an unlocked stream        //
-    // ([SQ4]), and inside the settle window ([SQ5]).                   //
+    // ([SQ4]), inside the settle window ([SQ5]), and on each side of   //
+    // the mr seed: unseeded in a fresh era ([SQ6]) and seeded ([SQ7]). //
     // ---------------------------------------------------------------- //
     void offformat_pdu_advances_the_sequence(){
         printf("\n[SQ] #775: an off-format PDU advances the sequence state\n");
@@ -1013,6 +1014,8 @@ class NxnRxStackHarness {
         sq_on_a_settled_stream();
         sq_first_in_a_fresh_era();
         sq_inside_the_settle_window();
+        sq_before_the_mr_seed();
+        sq_after_the_mr_seed();
     }
 
     //! [SQ1]-[SQ3] the off-format PDU mid-stream on a locked, settled stream
@@ -1118,6 +1121,65 @@ class NxnRxStackHarness {
         sq_untouched("SQ5", 'h', t, 13);
     }
 
+    //! [SQ6] the off-format PDU first in a fresh era, before the mr seed.
+    //! The era's first accepted PDU only seeds the mr reference, so with
+    //! mr = 1 it counts no MEDIA_RESET. A reject that set the seed would
+    //! score that PDU as a toggle from the cleared reference.
+    void sq_before_the_mr_seed(){
+        sq_rebind();
+        const SqCounters t = sq_snap();
+        ck("[SQ6-0] precondition: the mr seed is clear in the fresh era",
+           (lctx_rd(3, 8) >> 22) & 3, 0);
+        align_iv();
+        sq_off_format(0xA55AC33CUL + 1000);     // it carries mr = 1
+        ck("[SQ6a] an off-format PDU before the mr seed has no accept verdict", sq_acc, 0);
+        ck("[SQ6b] ...and presents nothing (no payload emitted)", sq_out, 0);
+        ck("[SQ6c] ...and leaves the mr seed and reference clear",
+           (lctx_rd(3, 8) >> 22) & 3, 0);
+        long accepted = sq_in_order(1, true);
+        ck("[SQ6d] the era's first accepted PDU, mr = 1, is accepted", accepted, 1);
+        ck("[SQ6e] ...and counts no MEDIA_RESET: it seeds the reference",
+           lctx_rd(3, W_MR) - t[W_MR], 0);
+        ck("[SQ6f] ...which is now seeded with mr = 1", (lctx_rd(3, 8) >> 22) & 3, 3);
+        accepted += sq_in_order(9, true);
+        ck("[SQ6g] SEQ_NUM_MISMATCH unchanged across the era's first PDUs",
+           lctx_rd(3, W_SM) - t[W_SM], 0);
+        sq_untouched("SQ6", 'h', t, 10);
+    }
+
+    //! [SQ7] the off-format PDU on a seeded stream, its mr reference 0. A
+    //! reject that cleared the seed would make the next toggle only seed
+    //! the reference again, and MEDIA_RESET would miss it.
+    void sq_after_the_mr_seed(){
+        sq_rebind();
+        const SqCounters t = sq_snap();
+        long accepted = sq_in_order(9);         // mr = 0: lock, settle, seed
+        ck("[SQ7-0] precondition: the mr seed is set, its reference 0",
+           (lctx_rd(3, 8) >> 22) & 3, 2);
+        align_iv();
+        sq_off_format(0xA55AC33CUL + 1000);     // it carries mr = 1
+        ck("[SQ7a] an off-format PDU after the mr seed has no accept verdict", sq_acc, 0);
+        ck("[SQ7b] ...and presents nothing (no payload emitted)", sq_out, 0);
+        ck("[SQ7c] ...and leaves the mr seed set, its reference 0",
+           (lctx_rd(3, 8) >> 22) & 3, 2);
+        accepted += sq_in_order(1, true);
+        ck("[SQ7d] MEDIA_RESET +1 at the toggled PDU after the reject",
+           lctx_rd(3, W_MR) - t[W_MR], 1);
+        accepted += sq_in_order(3, true);
+        ck("[SQ7e] MEDIA_RESET +1 in all: a held mr counts nothing more",
+           lctx_rd(3, W_MR) - t[W_MR], 1);
+        ck("[SQ7f] every in-order PDU is accepted", accepted, 13);
+        ck("[SQ7g] SEQ_NUM_MISMATCH unchanged", lctx_rd(3, W_SM) - t[W_SM], 0);
+        ck("[SQ7h] ...UNSUPPORTED_FORMAT +1", lctx_rd(3, W_UF) - t[W_UF], 1);
+        ck("[SQ7i] ...TIMESTAMP_UNCERTAIN, LATE, EARLY unchanged",
+           (lctx_rd(3, W_TU) - t[W_TU]) + (lctx_rd(3, W_LT) - t[W_LT])
+         + (lctx_rd(3, W_ET) - t[W_ET]), 0);
+        ck("[SQ7j] ...STREAM_INTERRUPTED and MEDIA_UNLOCKED unchanged",
+           (lctx_rd(3, W_SI) - t[W_SI]) + (lctx_rd(3, W_MU) - t[W_MU]), 0);
+        ck("[SQ7k] ...FRAMES_RX counts the accepted PDUs only",
+           lctx_rd(3, W_FRX) - t[W_FRX], 13);
+    }
+
     //! a fresh binding era for stream 3: the bind clears lock, settle and
     //! the mr seed, and the current format is set again
     void sq_rebind(){
@@ -1133,12 +1195,13 @@ class NxnRxStackHarness {
         return t;
     }
 
-    //! `n` in-order PDUs, then one whole observation interval; the number
-    //! of accept verdicts
-    long sq_in_order(int n){
+    //! `n` in-order PDUs carrying the mr level `mr`, then one whole
+    //! observation interval; the number of accept verdicts
+    long sq_in_order(int n, bool mr = false){
         long accepted = 0;
         for (int k = 0; k < n; k++){
-            AafCfg c; c.sid=SQ_SID; c.seq=sq_seq++; feed_and_count(c, 3, sq_acc, sq_out);
+            AafCfg c; c.sid=SQ_SID; c.seq=sq_seq++; c.mr=mr;
+            feed_and_count(c, 3, sq_acc, sq_out);
             accepted += sq_acc;
         }
         flush_iv();
