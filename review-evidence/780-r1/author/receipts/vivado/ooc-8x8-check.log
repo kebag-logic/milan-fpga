@@ -1,0 +1,19 @@
+endpoint ooc-8x8: <scratch>/viv-head/w8/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              32467       32450       -17  ok, below the baseline
+FF               28220       28218        -2  ok, below the baseline
+RAMB36              21          21         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp/u_aecp/u_ucpu: LUT +52, FF +0
+  u_pp/u_aecp/u_d3: LUT -46, FF +0
+  u_pp/u_aecp/u_resp: LUT -41, FF +0
+  u_pp/u_aecp: LUT -20, FF -2
+  u_pp: LUT -17, FF -2
+  wrapper: LUT -17, FF -2
+  u_pp/u_notify: LUT +6, FF +0
+  u_pp/u_dispatch: LUT -2, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT -2, FF +0
+  u_pp/g_rx_pool[5].u_rx_slots: LUT -1, FF +0
+RESULT: PASS

@@ -1,0 +1,25 @@
+endpoint route-1x1: <scratch>/viv-head/w1/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              51259       51182       -77  ok, below the baseline
+FF               53208       53208         0  ok
+SLICE            15835       15825       -10  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns           0.236       0.165    -0.071  ok
+WHS_ns           0.028       0.036     0.008  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT -74, FF +2
+  u_pp: LUT -71, FF +2
+  u_pp/u_listener: LUT -14, FF +0
+  u_pp/u_aecp: LUT -10, FF +2
+  u_pp/u_aecp/u_d3: LUT -12, FF +0
+  u_pp/u_notify: LUT -6, FF +0
+  u_pp/u_event_router: LUT -4, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT -3, FF +0
+  u_pp/u_nvm_shadow: LUT -3, FF +0
+  u_pp/u_originator: LUT -3, FF +0
+  u_pp/u_rx_validator: LUT -3, FF +0
+  u_pp/u_scoreboard: LUT -3, FF +0
+RESULT: PASS

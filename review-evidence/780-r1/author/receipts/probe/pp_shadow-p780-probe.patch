@@ -1,0 +1,47 @@
+--- a/tb/verilator/pp_shadow/sim_main.cpp
++++ b/tb/verilator/pp_shadow/sim_main.cpp
+@@ -2316,6 +2316,7 @@
+         grade_get_counters_for_an_absent_sink();
+         grade_padded_get_counters_ignores_the_tail();
+         grade_get_counters_for_an_unsupported_type();
++        probe_get_avb_info_on_another_type();
+         grade_get_audio_map_from_the_render_ram();
+         grade_get_audio_map_page_rule();
+         grade_get_audio_map_absent_port();
+@@ -2704,6 +2705,36 @@
+     // every other non-success answer against the response form; the
+     // old 4-byte echo here was exactly its "Incorrect payload size"
+     // complaint on the wire.
++    // PROBE (#780, not committed): GET_AVB_INFO on CLOCK_DOMAIN 0, a
++    // descriptor_type other than AVB_INTERFACE (IEEE 1722.1-2021 7.4.40.1),
++    // through the parent wrapper. Prints the status so one build per pin
++    // shows what the parent receives: Table 7-141 NOT_IMPLEMENTED (1) at
++    // 93fb0b2d, NOT_SUPPORTED (11) at ed211803, the command echoed at cdl 16.
++    void probe_get_avb_info_on_another_type() {
++        uint8_t cf[128];
++        size_t  cn = 0;
++        uint8_t pl[4] = {0x00, 0x24, 0x00, 0x00};   // CLOCK_DOMAIN 0
++        size_t at = tx_frames.size();
++        cn = build_aecp(cf, 0, TEST_EID, 0x0027, 0x0780, pl, sizeof pl);
++        inject_rx(cf, cn, 400);
++        run_idle(20000);
++        int k = last_aecp(at);
++        ck_true("P780 GET_AVB_INFO(CLOCK_DOMAIN 0) was ANSWERED", k >= 0,
++                k >= 0 ? "an AECPDU egressed" : "SILENCE");
++        if (k >= 0) {
++            const std::vector<uint8_t>& b = tx_frames[k].bytes;
++            const unsigned st = (b[16] >> 3) & 0x1F;
++            const unsigned cdl = ((static_cast<unsigned>(b[16]) & 7) << 8) | b[17];
++            printf("P780 PROBE: GET_AVB_INFO(CLOCK_DOMAIN 0) status=%u cdl=%u type=0x%04x index=%u\n",
++                   st, cdl, static_cast<unsigned>(get_be(b, 38, 2)),
++                   static_cast<unsigned>(get_be(b, 40, 2)));
++            grade_common(b, "P780", 0x0027, 0x0780, 1);
++            grade_len(b, "P780", 4);
++            ck("P780: descriptor_type CLOCK_DOMAIN echoed",
++               static_cast<uint32_t>(get_be(b, 38, 2)), 0x0024u);
++        }
++    }
++
+     void grade_get_counters_for_an_unsupported_type() {
+         uint8_t cf[128];
+         size_t  cn = 0;

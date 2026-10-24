@@ -1,0 +1,19 @@
+[A670] REVIEW READY
+Commit: 25f05752f7e50e3cf7e27008e434ffde930b4b6f (branch 780-pin5-ed211803, from dev a032c6d6; not pushed)
+Changed: protocol-processor gitlink 93fb0b2d -> ed2118035e4cec76fb1b59cfbf8a053aeacc8af8 (processor PR #201 / #200); FPGA-gPTP stays at 55680bff. The ROM ledger rows (both digests equal the 93fb0b2d rows), the boundary diagram and the pin table row are regenerated through their generators. The adoption is recorded on the pin page (docs/reference/SUBMODULES.md:260-274, the parent-visible list) and in CHANGELOG.md:47-59, citing IEEE 1722.1-2021 Table 7-141 (status 11, the command is implemented but its target is not supported).
+Grep (item 2): no milan-fpga test, model or document expects status 1 for a wrong-type GET_AVB_INFO. milan_dp and the behave model only target AVB_INTERFACE; the firmware AECP already answers NOT_SUPPORTED; the compliance matrix and the testing guide name no status. So nothing needed updating. The fourth adoption's CHANGELOG section and pin-page row stay as history. An uncommitted pp_shadow probe shows the parent receiving status 1 at dev a032c6d6 and 11 at this head, both at cdl 16.
+Validation, all at this head in clean clones, each rc 0:
+- full sweep as 4 parallel shard units: 64/64 suites, 2,190,096 checks, 0 in-suite failures, 0 timed out
+- milan_dp: RESULT PASS 15, 0 FAIL
+- firmware gate set: all 8 commands rc 0 (test_ctrl_firmware PASS; 109/109 NVM planted defects caught; coverage PASS on 30 files; ctrl_boundary PASS)
+- rtl-fast replica: 11/11 needs: jobs succeed, including cd tests && behave --no-capture -f plain (406 scenarios). The six firmware jobs were rerun at the same head after the RV32 SDK was installed with scripts/ci_rv32_sdk.py --archive; their first run stopped at the SDK install step on a copied SDK whose provenance receipt did not match.
+- Yosys 60/60 tops; lint PASS (89 <= ratchet 89)
+- docs gates under GNU Make 4.3: all steps rc 0, with 2 skipped by rule. Builder leg 1 failed once, in its NVM saved-state writer self-test, while the sweep was loading the host. It then passed on CPython 3.12.3 and with the LiteX interpreter, and the self-test passed alone. This change does not touch that writer.
+- pin-record checks: all 11 rc 0, and the ROM ledger regenerates byte-identically
+- against the eleventh record, one Vivado run at a time, every endpoint RESULT PASS:
+  - route-1x1: LUT -77, FF 0, SLICE -10; WNS 0.165 ns, WHS 0.036 ns; route complete
+  - ooc-1x1: LUT +17, FF +2
+  - ooc-8x8: LUT -17, FF -2
+  - RAMB36/RAMB18/DSP unchanged everywhere
+Acceptance criteria: all met (gitlink; grep; every consumer gate; route-1x1, ooc-1x1 and ooc-8x8 with delta about 0; adoption table, CHANGELOG and parent-visible list).
+Open risks/questions: none. No tolerance is exceeded and no consumer gate fails, so neither STOP condition applies. The record is not re-recorded.

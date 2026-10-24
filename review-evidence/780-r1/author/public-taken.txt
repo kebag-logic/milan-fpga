@@ -1,0 +1,6 @@
+[A670] TAKEN
+Branch: 780-pin5-ed211803 (from dev a032c6d6)
+Authoritative references: #780 and its assignment (issuecomment-6386868969); processor PR #201 / issue #200 (merge ed2118035e4cec76fb1b59cfbf8a053aeacc8af8); IEEE 1722.1-2021 7.4.40 and Table 7-141; the fourth adoption #771 / #772 for the method.
+Interpreted scope: move the protocol-processor gitlink from 93fb0b2d to ed211803 (FPGA-gPTP stays at 55680bff); find every milan-fpga test, model or document that expects NOT_IMPLEMENTED (status 1) for a GET_AVB_INFO on a descriptor other than AVB_INTERFACE and change it to NOT_SUPPORTED (11), citing Table 7-141 and processor #200; re-record pin-derived records through their generators; record the adoption in the submodule adoption table, the CHANGELOG and the parent-visible list. Nothing else.
+Validation plan: the full sweep as 4 parallel shards; milan_dp; the firmware gate set; the rtl-fast replica including `cd tests && behave --no-capture -f plain`; Yosys, lint and the docs gates under GNU Make 4.3; route-1x1, ooc-1x1 and ooc-8x8 against the eleventh resource record, one Vivado run at a time. STOP if any LUT, FF or slice tolerance is exceeded or a consumer gate fails for a reason other than the status change.
+Blockers: none
