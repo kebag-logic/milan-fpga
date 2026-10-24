@@ -1,0 +1,18 @@
+MAKE: -s -C <scratch>/suite/tb/verilator/avtp_rxmon nx-build RXMON_SRC=<scratch>/pair_lock_set/KL_avtp_rx_monitor_ctx_lock_set.sv NX_MDIR=<scratch>/pair_lock_set/obj_lock_set
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): lock set: a discarded PDU sets media_locked - breaks "[SQ4f] MEDIA_LOCKED +1 at the first accepted PDU"
+    it broke 2 check(s): [SQ4c] ...and leaves the stream unlocked; [SQ4f] MEDIA_LOCKED +1 at the first accepted PDU
+    planted copies: KL_avtp_rx_monitor_ctx_lock_set.sv (the N=4 stack and the lockstep leg), KL_avtp_rx_monitor_ctx_ref_lock_set.sv (the lockstep leg)
+MAKE: -s -C <scratch>/suite/tb/verilator/avtp_rxmon lockstep-build RXMON_SRC=<scratch>/pair_lock_set/KL_avtp_rx_monitor_ctx_lock_set.sv REF_SRC=<scratch>/pair_lock_set/KL_avtp_rx_monitor_ctx_ref_lock_set.sv LS_MDIR=<scratch>/pair_lock_set/obj_ls_lock_set
+    lockstep on the planted pair, as measured and not graded: rc 0, N=1 116/0, N=8 119/0 (checks/failures)
+caught: True
+KL_avtp_rx_monitor_ctx_lock_set.sv: 1 line(s) differ from the ctx source; same length: True
+   :1020
+     - monst_r <= {ram_q_r[31:8], cur_w.seq};
+     + monst_r <= {ram_q_r[31:13], 1'b1, ram_q_r[11:8], cur_w.seq};
+KL_avtp_rx_monitor_ctx_ref_lock_set.sv: 1 line(s) differ from the ctx_ref source; same length: True
+   :992
+     - monst_r <= {ram_q_r[31:8], cur_r.seq};
+     + monst_r <= {ram_q_r[31:13], 1'b1, ram_q_r[11:8], cur_r.seq};
+obj_lock_set/Vavtp_rxmon_nx_wrap__ver.d: ['KL_avtp_rx_monitor_ctx_lock_set.sv']
+obj_ls_lock_set1/Vavtp_rxmon_lockstep_wrap__ver.d: ['KL_avtp_rx_monitor_ctx_lock_set.sv', 'KL_avtp_rx_monitor_ctx_ref_lock_set.sv']
+obj_ls_lock_set8/Vavtp_rxmon_lockstep_wrap__ver.d: ['KL_avtp_rx_monitor_ctx_lock_set.sv', 'KL_avtp_rx_monitor_ctx_ref_lock_set.sv']

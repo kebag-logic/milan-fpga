@@ -1,0 +1,18 @@
+MAKE: -s -C <scratch>/suite/tb/verilator/avtp_rxmon nx-build RXMON_SRC=<scratch>/pair_mr_seed_clear/KL_avtp_rx_monitor_ctx_mr_seed_clear.sv NX_MDIR=<scratch>/pair_mr_seed_clear/obj_mr_seed_clear
+[PASS] mutant caught (planted in the engine and the reference; the N=4 stack built from the planted engine): mr seed clear: a discarded PDU clears the mr seed - breaks "[SQ7d] MEDIA_RESET +1 at the toggled PDU after the reject"
+    it broke 3 check(s): [SQ7c] ...and leaves the mr seed set, its reference 0; [SQ7d] MEDIA_RESET +1 at the toggled PDU after the reject; [SQ7e] MEDIA_RESET +1 in all: a held mr counts nothing more
+    planted copies: KL_avtp_rx_monitor_ctx_mr_seed_clear.sv (the N=4 stack and the lockstep leg), KL_avtp_rx_monitor_ctx_ref_mr_seed_clear.sv (the lockstep leg)
+MAKE: -s -C <scratch>/suite/tb/verilator/avtp_rxmon lockstep-build RXMON_SRC=<scratch>/pair_mr_seed_clear/KL_avtp_rx_monitor_ctx_mr_seed_clear.sv REF_SRC=<scratch>/pair_mr_seed_clear/KL_avtp_rx_monitor_ctx_ref_mr_seed_clear.sv LS_MDIR=<scratch>/pair_mr_seed_clear/obj_ls_mr_seed_clear
+    lockstep on the planted pair, as measured and not graded: rc 0, N=1 116/0, N=8 119/0 (checks/failures)
+caught: True
+KL_avtp_rx_monitor_ctx_mr_seed_clear.sv: 1 line(s) differ from the ctx source; same length: True
+   :1020
+     - monst_r <= {ram_q_r[31:8], cur_w.seq};
+     + monst_r <= {ram_q_r[31:24], 1'b0, ram_q_r[22:8], cur_w.seq};
+KL_avtp_rx_monitor_ctx_ref_mr_seed_clear.sv: 1 line(s) differ from the ctx_ref source; same length: True
+   :992
+     - monst_r <= {ram_q_r[31:8], cur_r.seq};
+     + monst_r <= {ram_q_r[31:24], 1'b0, ram_q_r[22:8], cur_r.seq};
+obj_ls_mr_seed_clear1/Vavtp_rxmon_lockstep_wrap__ver.d: ['KL_avtp_rx_monitor_ctx_mr_seed_clear.sv', 'KL_avtp_rx_monitor_ctx_ref_mr_seed_clear.sv']
+obj_ls_mr_seed_clear8/Vavtp_rxmon_lockstep_wrap__ver.d: ['KL_avtp_rx_monitor_ctx_mr_seed_clear.sv', 'KL_avtp_rx_monitor_ctx_ref_mr_seed_clear.sv']
+obj_mr_seed_clear/Vavtp_rxmon_nx_wrap__ver.d: ['KL_avtp_rx_monitor_ctx_mr_seed_clear.sv']
