@@ -1,0 +1,10 @@
+python3 syn/ooc/pp_resource_gate.py check-baseline	rc=0
+python3 docs/diagrams/submodule_boundaries.gen.py --check	rc=0
+python3 docs/diagrams/timesync_chain.gen.py --check	rc=0
+python3 scripts/check_submodule_docs.py	rc=0
+python3 scripts/check_gptp_docs.py --with-submodule	rc=0
+python3 scripts/check_port_contracts.py	rc=0
+python3 scripts/measure_naming.py --check	rc=0
+python3 scripts/measure_test_evidence.py --check	rc=0
+python3 protocol-processor/scripts/check-integrator-params.py	rc=0
+python3 scripts/lint_rtl.py --check	rc=0

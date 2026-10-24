@@ -1,0 +1,7 @@
+Written 2026-10-24T22:02:56Z, before reading any other reviewer's comment on PR #783 or the later manager correction on #780.
+[R695] NEGATIVE - exact head 25f05752f7e50e3cf7e27008e434ffde930b4b6f
+F1 MINOR Tests, Docs - tests/steps/aecp_engine_steps.py:246-247 with tests/steps/aecp_engine_model.py:617-628 and PR #783 body ("The behave model grades only an existing target") - the parent behave model's opcode sweep sends GET_AVB_INFO with descriptor_type ENTITY (cdl 20) and asserts SUCCESS; the adopted engine answers NOT_SUPPORTED (11), the previous pin NOT_IMPLEMENTED (1).
+R1 RESIDUE Docs - PR #783 body, Authoritative references - "processor docs/architecture, section 8 item 12" should be "processor docs/00_MILAN_COMPLIANCE_REVIEW.md, section 8 item 14".
+S1 SUGGESTION Tests - docs gate builder leg 1 NVM saved-state self-test failed once under load with no captured failure detail; track it.
+S2 SUGGESTION Tests - commit a parent pp_shadow row grading the wrong-type GET_AVB_INFO status.
+Ledger: Conformance CLEAN; RTL CLEAN; Robustness CLEAN; Tests UNCLEAN (F1); Docs UNCLEAN (F1). All at 25f05752f7e50e3cf7e27008e434ffde930b4b6f, round R695-1.
