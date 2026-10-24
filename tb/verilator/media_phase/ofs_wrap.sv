@@ -10,7 +10,11 @@
 // The CRF row's factory value sits past the 2^32 boundary, so reset loads a
 // carry. The domain's frame grid comes from the harness: an event per frame
 // with its instant, the time base of the pairs injected after it, as the
-// capture walk hands the talkers a frame and its instant together.
+// capture walk hands the talkers a frame and its instant together. The
+// whole-period terms milan_datapath adds beside the rows (#773: the AAF
+// talkers' LEAD_P, the CRF output's TC_P) are left off here, where the rows
+// are graded; capture_coherence's datapath leg and milan_dp's output walk
+// grade them on the wire.
 `default_nettype none
 module ofs_wrap #(
   parameter int unsigned N_AAF_P = 4,
