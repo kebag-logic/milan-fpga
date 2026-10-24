@@ -8843,6 +8843,28 @@ class NxnDatapathHarness {
             ck("#632 the factory offset is selected again", aecp_status(response), 0);
             expected[target] = 2000000;
         }
+        // #773: every output at 125 us, the offset at which #773 measured the
+        // AAF talker late on the bench: each output's hand-over stays inside
+        // Equation (1)'s window and on its whole periods (6 for the CRF row,
+        // exact, so GET_STREAM_INFO reads 125,000 on every output)
+        for (unsigned target = 0; target < expected.size(); ++target) {
+            auto response = aecp_xact(0x000E, setter_sq++,
+                                      si_pl(0x0006, target, 0x20000000u, 125000));
+            ck("#773 every output accepts a 125 us offset", aecp_status(response), 0);
+            expected[target] = 125000;
+        }
+        for (int c = 0; c < 2000; ++c) step();   // the CRF row's conversion
+        for (unsigned index = 0; index < expected.size(); ++index) {
+            auto response = aecp_xact(0x000F, setter_sq++, desc_key(0x0006, index));
+            ck("#773 GET_STREAM_INFO reads 125 us on every output", lat_of(response), 125000ul);
+        }
+        grade_output_timestamps(expected);
+        for (unsigned target = 0; target < expected.size(); ++target) {
+            auto response = aecp_xact(0x000E, setter_sq++,
+                                      si_pl(0x0006, target, 0x20000000u, 2000000));
+            ck("#773 the factory offset is selected again", aecp_status(response), 0);
+            expected[target] = 2000000;
+        }
         axi_write(A_STRM_SEL, 0x101); axi_write(A_SW_DMAC_HI, source1);
         axi_write(A_STRM_SEL, selection);
         axi_write(A_LWSRP_CTRL, srp); axi_write(A_MAAP_CTRL, maap);

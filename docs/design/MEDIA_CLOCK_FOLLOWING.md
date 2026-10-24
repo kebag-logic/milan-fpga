@@ -1772,8 +1772,8 @@ lands in the render and loopback rings after it, inside their bands.
   `milan_dp`'s output walk requires every stamp, on every output of the 4x4
   and 8x8 shapes, to be a domain media event's instant plus one whole number
   of periods per output (#773) plus the offset GET_STREAM_INFO reads, at 2 ms,
-  1 ms and 2,010,000 ns, and every PDU's hand-over inside IEEE 1722-2016
-  Equation (1)'s window.
+  1 ms and 2,010,000 ns, and since #773 at 125 us on every output, with every
+  PDU's hand-over inside IEEE 1722-2016 Equation (1)'s window.
 - **Sources outside the frame bank.** A talker channel mapped from the stereo
   I2S hold, the tone or the loopback carries no frame instant of its own: its
   column is stamped with the physical frame's.
@@ -1883,7 +1883,7 @@ The mutation arm plants these defects, and each is caught:
 
 A fixed delay pushed past 125 us is refused by the build. `milan_dp`'s output
 walk requires Equation (1)'s window and one whole number of periods per output
-on the 4x4 and 8x8 test shapes. Those shapes run their audio clock with the
+on the 4x4 and 8x8 test shapes, at 2 ms, 1 ms, 2,010,000 ns and 125 us. Those shapes run their audio clock with the
 axis clock, so their periods are their own. The 8x8 TDM32 figures are derived
 only: no harness runs that shape at its clocks.
 
