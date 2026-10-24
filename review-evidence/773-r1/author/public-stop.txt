@@ -1,0 +1,46 @@
+[A664] STOP
+
+milan-fpga head: a032c6d6e3775f145349d5a495c1e1ad12294936 (branch 773-aaf-capture-to-wire-latency, no commits, nothing pushed). protocol-processor 93fb0b2d, gptp-processor 55680bff, both clean.
+STOP condition hit (assignment item 1, https://github.com/kebag-logic/milan-fpga/issues/773#issuecomment-6379902610): "If it exceeds 125 us at a shape, STOP with the figures." It exceeds 125 us at both shapes. Items 2, 3 and 5 are not started.
+
+**The figures.** These are derived from the RTL at a032c6d6, with each term named. M is the instant the AAF talker stamps (`aaf_tbase_w`, `milan_datapath.sv:7169`): the start, at the media interface, of the frame carrying the PDU's first sample. The hand-over is the PDU's last beat accepted at the datapath's MAC TX port. The first beat is 29 cycles (580 ns) earlier. Both shapes run the datapath at 50 MHz.
+
+| Term | Set by | 1x1 (TDM8 master) | 8x8 (TDM32 master) |
+|---|---|---:|---:|
+| A: the PDU's five later frames | `KL_aaf_packetizer.sv:199`, `SAMPLES_PER_FRAME_C` = 6: 5 x Ps | 104,166.7 ns | 104,166.7 ns |
+| B: the closing pair reaches the crossbar | `milan_datapath.sv:7139`, `DOM_MARK_LAT_NS_C`: last bit of pair 3, then the FIFO write and read | 20,964 ns | 5,308 ns |
+| C: capture age, from the close to the walk's snapshot tick | the aligner keep-off (`milan_datapath.sv:7348`, 256 cycles) | 256 to 785 cycles at a settled lock, 5,120 to 15,700 ns; 0 to 1,042 cycles before one | same |
+| D: the walk, from the tick to talker t's last pair | `KL_chan_map_capture.sv:1385-1437`: 4 + `LB_PAIRS_C` + 26 x slot | 86 cycles, 1,720 ns | 83 + 104t cycles: 1,660 ns (t0) to 16,220 ns (t7) |
+| E: the packetizer, from the last pair to the last beat | `KL_aaf_packetizer.sv:613-711`: 4 (+3 for t > 0) + np + beats - 1 | 57 cycles, 1,140 ns | 57 or 60 cycles |
+| F: `crf_dp_mux`, `adp_tx_mux` | combinational grant | 0 with no other frame in flight | 0 |
+| **Hand-over - M, at a settled lock** | | **133,110.7 to 143,690.7 ns** | **117,394.7 (t0) to 142,594.7 ns (t7)** |
+| Hand-over - M, in any state | | 127,990.7 to 148,830.7 ns | 112,274.7 to 147,734.7 ns |
+
+- 1x1: A + B alone is 125,130.7 ns. The PDU's sixth frame closes at the crossbar 131 ns after the six-frame span ends, before any pipeline term, so no pipeline change reaches 125 us at this base.
+- 8x8: talker 7 exceeds 125 us at every lock phase, since A + B + D alone is 125,694.7 ns. Talker 0 exceeds it once its age passes 636 cycles.
+
+**Measured at 1x1.** I ran a probe in `capture_coherence`'s whole-datapath leg (the shipping 1x1 shape, MAC always ready) on a disposable clone of a032c6d6. It covered 23 runs: INTERNAL drift at +/-1000 ppm, eight CRF lock phases, and 13 engagements placed across the walk's crossing.
+- All 5,982 PDUs stamped from the domain event hand over 128,004 to 148,844 ns after M. Every one is above 125 us, and all of them sit inside the derived any-state range to within one cycle (the -1000 ppm plan's longer frames included).
+- The runs with placed engagements end while the aligner is still pulling the close toward its keep-off (a pull of up to 256 cycles at 64 ppm takes about 80 ms; each run is 31 ms). Their ages are below the settled band, which is why measured values reach under 133.1 us.
+- The leg still passes: 447 checks, 0 failures.
+- One PDU per run is stamped before the domain event goes live (the live-PHC fallback of `aaf_tbase_w`). It measures 106,860 or 106,880 ns, which is five tick spacings plus 135 cycles. That fixes D and E to the cycle.
+- The bench figures in this issue sit inside the 1x1 band. At 125 us, the wire was 135.2 to 140.9 us after M. The shift of about 32 us from the pre-#770 image is B plus an age of about 11 us.
+- The 8x8 figures are derived only. No existing harness runs that shape at its true clocks: milan_dp's nxn8 leg builds the loopback lane and a 1:1 audio clock.
+
+**Item 4 (CRF), evidence only, nothing changed.** The Equation (14) round-up does not cover the CRF path's own latency.
+- 125,000 ns is exactly 6 periods (125,000 x 3 / 62,500) and 2 ms is exactly 96, so `KL_mtt_round`'s ceiling adds 0 ns at both offsets.
+- `KL_crf_tx` stamps the 96th event's instant plus that offset (`KL_crf_tx.sv:511`). It hands the PDU over B + 3 to 10 cycles later: 21,024 to 21,164 ns at 1x1 and 5,368 to 5,508 ns at 8x8. Add up to one AAF PDU in flight at `crf_dp_mux` (600 ns) and any control frame at `adp_tx_mux`.
+- So the CRF timestamp sits TTmax - 21 us after the 1x1 hand-over. IEEE 1722-2016 10.7 asks for at least TTmax.
+- The term Equation (14) has for this is TC, "the amount of time that samples spend accumulating in the Talker's transmit buffer". The RTL adds no TC. Since #770 back-dated the CRF stamp by B, CRF is short by B plus its pipeline at every whole-period offset, the factory 2 ms included. That matches the roughly 20 us CRF shift on the bench.
+
+**A constraint on any fix.** Both outputs stamp instants of one frame grid, each plus its own offset. So a constant added to the AAF stamp keeps #770's 4.3.5 relation and the 10.8 band against the CRF timing points only if it is a whole number of periods, within +/-5 % of Ps.
+- 7 Ps (145,833.3 ns) covers the settled-lock maxima of both shapes, leaving 2.1 us at 1x1 for MAC-side interference.
+- 8 Ps (166,666.7 ns, stamped as 166,667 ns, 0.33 ns over) covers every state, including 148.8 us before a lock at 1x1, plus a maximum-size frame ahead at the MAC.
+- Equation (1)'s lower bound (TT > PT - TTmax - TUmax, with TUmax 125 us) holds for any constant up to the earliest hand-over plus 125 us: 252.99 us at 1x1 and 237.27 us at 8x8.
+
+**Decision needed:**
+- (a) An owner exception to Milan v1.2 5.3.7.6's "between 0 and 125 microseconds": stamp M + 8 Ps + the offset as set at both shapes. That is one constant, whole periods, folded into the existing stamp adder or the banked instant. GET_STREAM_INFO reads the offset as set. End-to-end latency = offset + 166,667 ns.
+- (b) The same stamp, read as 5.3.7.6 states its two parts. The Ingress Time Reference Plane crossing is estimated as M + 6 Ps: the end of the PDU's six-frame span (at 1x1, the earliest instant its data exists; at 8x8 the kept pairs close a quarter into the sixth frame, 0.75 Ps earlier). The fixed delay of 2 Ps (41.7 us) then compensates that estimate's uncertainty, inside 125 us at both shapes. The worst hand-over is 23.8 us after the estimate at 1x1 and 22.7 us at 8x8.
+- For CRF, the same choice decides whether it adds a whole-period TC: 2 Ps at 1x1 (its path is 21.0 to 21.8 us, over one period) and 1 Ps at 8x8.
+
+Recommendation: (b), with CRF's TC as whole periods. It gives the same RTL as (a), needs no exception to 5.3.7.6's bound, and keeps the clause's estimate and its fixed delay apart. Shrinking the pipeline is not an option at 1x1 (A + B > 125 us). A base other than the frame instant would undo #770's 4.3.5 alignment.
