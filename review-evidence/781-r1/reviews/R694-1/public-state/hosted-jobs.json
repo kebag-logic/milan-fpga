@@ -1,0 +1,581 @@
+{
+  "jobs": [
+    {
+      "id": 120982936960,
+      "name": "Fail fast across this head",
+      "status": "in_progress",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Observe the first failed job",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 4
+        },
+        {
+          "name": "Cancel this run and sibling workflows",
+          "status": "pending",
+          "conclusion": null,
+          "number": 5
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 6
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 7
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "pending",
+          "conclusion": null,
+          "number": 14
+        }
+      ]
+    },
+    {
+      "id": 120982937371,
+      "name": "full-ci-gate",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Cache exact Python downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Print the event and pin the one SHA this run validates",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Assert the repository default branch is dev",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Hold every workflow file to its contract",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Decide whether this exact head needs the exhaustive gates",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Post Cache exact Python downloads",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 19
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 20
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 21
+        }
+      ]
+    },
+    {
+      "id": 120983200704,
+      "name": "Prepare pinned Yosys",
+      "status": "in_progress",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Cache the pinned Yosys build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Resolve exact package downloads 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Cache exact package downloads 2",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Build Yosys from source on cache miss",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 7
+        },
+        {
+          "name": "Package the pinned Yosys build",
+          "status": "pending",
+          "conclusion": null,
+          "number": 8
+        },
+        {
+          "name": "Upload the pinned Yosys build",
+          "status": "pending",
+          "conclusion": null,
+          "number": 9
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 10
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 11
+        },
+        {
+          "name": "Post Cache exact package downloads 2",
+          "status": "pending",
+          "conclusion": null,
+          "number": 20
+        },
+        {
+          "name": "Post Cache the pinned Yosys build",
+          "status": "pending",
+          "conclusion": null,
+          "number": 21
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "pending",
+          "conclusion": null,
+          "number": 22
+        }
+      ]
+    },
+    {
+      "id": 120983200812,
+      "name": "Verilator shard 4/17",
+      "status": "in_progress",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Set CPU-derived job budgets",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Fetch RTL dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Record the tree this worker validates",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Cache the pinned Verilator build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Resolve exact package downloads 4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Cache exact package downloads 4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Build Verilator from source on cache miss",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 9
+        },
+        {
+          "name": "Put Verilator on PATH and prove the version",
+          "status": "pending",
+          "conclusion": null,
+          "number": 10
+        },
+        {
+          "name": "Prove specialized suite ownership",
+          "status": "pending",
+          "conclusion": null,
+          "number": 11
+        },
+        {
+          "name": "Cache the pinned Yosys build for the netlist-level suite owner",
+          "status": "pending",
+          "conclusion": null,
+          "number": 12
+        },
+        {
+          "name": "Resolve exact package downloads 8",
+          "status": "pending",
+          "conclusion": null,
+          "number": 13
+        },
+        {
+          "name": "Cache exact package downloads 8",
+          "status": "pending",
+          "conclusion": null,
+          "number": 14
+        },
+        {
+          "name": "Build Yosys from source on cache miss",
+          "status": "pending",
+          "conclusion": null,
+          "number": 15
+        },
+        {
+          "name": "Resolve exact package downloads 9",
+          "status": "pending",
+          "conclusion": null,
+          "number": 16
+        },
+        {
+          "name": "Cache exact package downloads 9",
+          "status": "pending",
+          "conclusion": null,
+          "number": 17
+        },
+        {
+          "name": "Install the pinned Yosys and prove the version",
+          "status": "pending",
+          "conclusion": null,
+          "number": 18
+        },
+        {
+          "name": "Cache verified sv2v archive",
+          "status": "pending",
+          "conclusion": null,
+          "number": 19
+        },
+        {
+          "name": "Install sv2v for the netlist-level suite owner",
+          "status": "pending",
+          "conclusion": null,
+          "number": 20
+        },
+        {
+          "name": "Cache pinned field oracle build",
+          "status": "pending",
+          "conclusion": null,
+          "number": 21
+        },
+        {
+          "name": "Build the pinned tsn-gen field oracle on its suite owner",
+          "status": "pending",
+          "conclusion": null,
+          "number": 22
+        },
+        {
+          "name": "Run this exhaustive suite shard",
+          "status": "pending",
+          "conclusion": null,
+          "number": 23
+        },
+        {
+          "name": "Upload this shard's suite logs",
+          "status": "pending",
+          "conclusion": null,
+          "number": 24
+        },
+        {
+          "name": "Record actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 25
+        },
+        {
+          "name": "Upload actual job execution",
+          "status": "pending",
+          "conclusion": null,
+          "number": 26
+        },
+        {
+          "name": "Post Cache exact package downloads 4",
+          "status": "pending",
+          "conclusion": null,
+          "number": 50
+        },
+        {
+          "name": "Post Cache the pinned Verilator build",
+          "status": "pending",
+          "conclusion": null,
+          "number": 51
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "pending",
+          "conclusion": null,
+          "number": 52
+        }
+      ]
+    },
+    {
+      "id": 120983200822,
+      "name": "Verilator shard 2/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200823,
+      "name": "Verilator shard 0/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200845,
+      "name": "Verilator shard 7/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200853,
+      "name": "Verilator shard 9/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200856,
+      "name": "Verilator shard 12/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200857,
+      "name": "Verilator shard 15/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200865,
+      "name": "Verilator shard 11/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200867,
+      "name": "Verilator shard 13/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200869,
+      "name": "Verilator shard 1/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200879,
+      "name": "Verilator shard 3/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200887,
+      "name": "Verilator shard 10/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200889,
+      "name": "Verilator shard 8/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200890,
+      "name": "Verilator shard 6/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200900,
+      "name": "Verilator shard 5/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200905,
+      "name": "Verilator shard 14/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983200915,
+      "name": "Verilator shard 16/17",
+      "status": "queued",
+      "conclusion": null,
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    },
+    {
+      "id": 120983201781,
+      "name": "Physical gPTP (nightly and manual)",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 40131149135,
+      "logs_url": null,
+      "steps": null
+    }
+  ]
+}

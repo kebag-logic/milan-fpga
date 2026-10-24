@@ -1,0 +1,65 @@
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index 0d4113105..b100c26f0 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -141,7 +141,7 @@ jobs:
+     needs: full-ci-gate
+     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+     runs-on: ubuntu-latest
+-    timeout-minutes: ${{ matrix.shard == 15 && 60 || 45 }}
++    timeout-minutes: ${{ matrix.shard == 16 && 60 || 45 }}
+     strategy:
+       fail-fast: true
+       matrix:
+@@ -162,8 +162,9 @@ jobs:
+           - 13
+           - 14
+           - 15
+-        total:
+           - 16
++        total:
++          - 17
+     steps:
+       - uses: actions/checkout@v4
+         id: ci_step_0
+@@ -616,7 +617,7 @@ jobs:
+         run: |
+           shopt -s nullglob
+           roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
+-          python3 scripts/ci_events.py --require-target-sha --expect 16 \
++          python3 scripts/ci_events.py --require-target-sha --expect 17 \
+             --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
+             --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
+         id: ci_step_5
+@@ -1579,19 +1580,19 @@ jobs:
+           GH_TOKEN: ${{ github.token }}
+           EXPECTED_JOBS: '["Collect CI manifest","full-ci-gate","Physical gPTP (nightly and manual)","Union
+             capture_coherence","Union maap","Union milan_dp","Union milan_dp_mclk","Union milan_dp_render","Union
+-            pp_shadow","Verilator shard 0/16","Verilator shard 1/16","Verilator shard 2/16","Verilator
+-            shard 3/16","Verilator shard 4/16","Verilator shard 5/16","Verilator shard 6/16","Verilator
+-            shard 7/16","Verilator shard 8/16","Verilator shard 9/16","Verilator shard 10/16","Verilator
+-            shard 11/16","Verilator shard 12/16","Verilator shard 13/16","Verilator shard 14/16","Verilator
+-            shard 15/16","verilator-suites","yosys-portability","Yosys shard 0/4","Yosys shard 1/4","Yosys
+-            shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
++            pp_shadow","Verilator shard 0/17","Verilator shard 1/17","Verilator shard 2/17","Verilator
++            shard 3/17","Verilator shard 4/17","Verilator shard 5/17","Verilator shard 6/17","Verilator
++            shard 7/17","Verilator shard 8/17","Verilator shard 9/17","Verilator shard 10/17","Verilator
++            shard 11/17","Verilator shard 12/17","Verilator shard 13/17","Verilator shard 14/17","Verilator
++            shard 15/17","Verilator shard 16/17","verilator-suites","yosys-portability","Yosys shard 0/4","Yosys
++            shard 1/4","Yosys shard 2/4","Yosys shard 3/4","Prepare pinned Yosys"]'
+           SKIPPED_MATRICES: '{"Verilator shard ${{ matrix.shard }}/${{ matrix.total }}":["Verilator shard
+-            0/16","Verilator shard 1/16","Verilator shard 2/16","Verilator shard 3/16","Verilator shard
+-            4/16","Verilator shard 5/16","Verilator shard 6/16","Verilator shard 7/16","Verilator shard
+-            8/16","Verilator shard 9/16","Verilator shard 10/16","Verilator shard 11/16","Verilator shard
+-            12/16","Verilator shard 13/16","Verilator shard 14/16","Verilator shard 15/16"],"Yosys shard
+-            ${{ matrix.shard }}/${{ matrix.total }}":["Yosys shard 0/4","Yosys shard 1/4","Yosys shard
+-            2/4","Yosys shard 3/4"]}'
++            0/17","Verilator shard 1/17","Verilator shard 2/17","Verilator shard 3/17","Verilator shard
++            4/17","Verilator shard 5/17","Verilator shard 6/17","Verilator shard 7/17","Verilator shard
++            8/17","Verilator shard 9/17","Verilator shard 10/17","Verilator shard 11/17","Verilator shard
++            12/17","Verilator shard 13/17","Verilator shard 14/17","Verilator shard 15/17","Verilator
++            shard 16/17"],"Yosys shard ${{ matrix.shard }}/${{ matrix.total }}":["Yosys shard 0/4","Yosys
++            shard 1/4","Yosys shard 2/4","Yosys shard 3/4"]}'
+         run: |
+           python3 scripts/ci_fail_fast.py watch
+       - name: Cancel this run and sibling workflows
