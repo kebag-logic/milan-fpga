@@ -1,0 +1,30 @@
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile planted with run-if2 unpinned: Makefile: run-if2 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+[ok] tsn-c-stack pin control, milan_dp planted with counters unpinned: counters lacks its required stack-pin prerequisite
+[ok] tsn-c-stack pin control, milan_dp planted with counters-f5 unpinned: Makefile: counters-f5 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+[ok] tsn-c-stack pin control, milan_dp planted with counters-mutants unpinned: Makefile: counters-mutants builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+[ok] scratch lifecycle, clone, init and secondary clone disable maintenance: True
+[ok] scratch lifecycle, every Git call overrides enabled local maintenance: True
+[ok] scratch lifecycle, loose fetch then fresh clone: True
+[ok] scratch lifecycle, file vanishing after enumeration: True
+[ok] scratch lifecycle, permission error is propagated: True
+[ok] scratch lifecycle, I/O error is propagated: True
+[ok] figure control, the page's defects in the firmware builders' run one more: sw/firmware/ctrl/README.md gives the defects in the firmware builders' run as 104, where the self-test has 103
+[ok] figure control, the page's passing controls in the firmware builders' run one more: sw/firmware/ctrl/README.md gives the passing controls in the firmware builders' run as 9, where the self-test has 8
+[ok] figure control, the page's defects in the Verilator builders' run one more: sw/firmware/ctrl/README.md gives the defects in the Verilator builders' run as 6, where the self-test has 5
+[ok] figure control, the page's pin controls one more: sw/firmware/ctrl/README.md gives the pin controls as 166, where the self-test has 167
+    boundary control owned-and-standard: compiles; passes
+    boundary control standard-digraph: compiles; passes
+    boundary control outside-hash: compiles; refused
+    boundary control outside-digraph: compiles; refused
+    boundary control outside-trigraph: compiles; refused
+    boundary control outside-relative: compiles; refused
+    boundary control outside-spliced: compiles; refused
+    boundary control outside-macro: compiles; refused
+    boundary control heap-direct: compiles; refused
+    boundary control heap-macro: compiles; refused
+    boundary control heap-pointer: compiles; refused
+    boundary control os-symbol: compiles; refused
+    boundary: compiler dependencies and object symbols pass
+  [FAIL] sw/firmware/ctrl/README.md gives the pin controls as 165, where the self-test has 167
+ctrl_boundary: 836 compiled sources of 934 recorded invocations (386 the firmware's, 94 the stack's, 356 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 1 finding(s), 6 boundary, 167 pin and 4 figure controls, 0 misbehaved
+ctrl_boundary: FAIL
