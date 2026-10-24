@@ -1,0 +1,101 @@
+PUBLIC ARTIFACT: 4484c29cd1224098b5b0d4576cc5d8e4897b4836:review-evidence/774-r1/author-r2/receipts/round2/bdd/behave-head.log
+
+  Scenario: a capture with no MRP frames says the tap is what is missing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire with no MRP frames captured at all ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+14 features passed, 0 failed, 0 skipped
+406 scenarios passed, 0 failed, 0 skipped
+1977 steps passed, 0 failed, 0 skipped
+Took 0min 1.140s
+
+PUBLIC ARTIFACT: 4484c29cd1224098b5b0d4576cc5d8e4897b4836:review-evidence/774-r1/author-r2/receipts/round2/legs/crflic-run.log
+  [PASS] admitted re-declaration adds no STREAM_STOP                        got=5 exp=5
+  [PASS] SRP service is idle before staging                                 got=0 exp=0
+  [t]   174438.57 ms  CRF licence FALLS, uid 1
+  [t]   174438.57 ms  ACTIVE FALLS, uid 1
+[INV] over the whole run, every cycle
+  [PASS] the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing) got=0 exp=0
+  [PASS] the AAF gate is never open without ACTIVE[AAF] AND real grant      got=0 exp=0
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+--------------------------------------------------------------
+simulated 174538.56 ms (17453856 cycles)
+checks: 427   failures: 0
+RESULT: PASS
+
+PUBLIC ARTIFACT: 4484c29cd1224098b5b0d4576cc5d8e4897b4836:review-evidence/774-r1/author-r2/receipts/round2/legs/tspec8-run.log
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+  -- source uid 8 (CRF Media Clock Output, 1 ts/pdu), 4 Talker Advertise values
+  [PASS] a Talker Advertise value names this source
+  [PASS] CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1            got=29 exp=29
+  [PASS] TSpec MaxIntervalFrames is Table 4.4's 1                           got=1 exp=1
+  [PASS] every Talker Advertise for it carried that TSpec                   got=0 exp=0
+[INV] over the whole run
+  [PASS] no malformed DUT MRPDU                                             got=0 exp=0
+--------------------------------------------------------------
+simulated 3925.60 ms (392560 cycles)
+checks: 61   failures: 0
+RESULT: PASS
+
+PUBLIC ARTIFACT: 4484c29cd1224098b5b0d4576cc5d8e4897b4836:review-evidence/774-r1/author-r2/receipts/round2/legs/crf_tx.log
+  [PASS] [H3] MTT 4000000 -> excess < one period  got=0x00000001 exp=0x00000001
+  [PASS] [H3] MTT 2000000 -> Eq 14 offset         got=2000000 exp=2000000
+  [PASS] [H3] MTT 2000000 -> offset >= TTmax      got=0x00000001 exp=0x00000001
+  [PASS] [H3] MTT 2000000 -> excess < one period  got=0x00000001 exp=0x00000001
+  [PASS] [H3-mid-a] mid-frame write: this PDU keeps the old offset got=491520 exp=491520
+  [PASS] [H3-mid-a] ... the NEXT PDU has the converted one got=1020834 exp=1020834
+  [PASS] [H3-mid-b] write during the conversion: PREVIOUS value used got=491520 exp=491520
+  [PASS] [H3-mid-b] ... adopted whole on the following PDU got=20834 exp=20834
+  [PASS] disable: wire silent                     got=0x00000000 exp=0x00000000
+======================================================================
+KL_crf_tx: 129 checks, 0 failures
+make: Leaving directory '<lane>/tb/verilator/crf_tx'
+
+PUBLIC ARTIFACT: 4484c29cd1224098b5b0d4576cc5d8e4897b4836:review-evidence/774-r1/author-r2/receipts/round2/crflic_mutants/crflic-mutants-verdicts.txt
+[PASS] the unmutated gateware still passes the obj_crflic leg
+[PASS] the unmutated gateware still passes the obj_tspec8 leg
+[PASS] mutant caught: every gate reads the raw verdict - breaks "the CRF licence never opened (every cycle sampled)"
+[PASS] mutant caught: the CRF licence alone reads the raw verdict - breaks "the CRF licence equals ACTIVE[CRF] AND real grant"
+[PASS] mutant caught: the AAF source 0 gate alone reads the raw verdict - breaks "the AAF gate never opened"
+[PASS] mutant caught: every gate drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the CRF licence alone drops the real grant - breaks "refused CRF licence never opened"
+[PASS] mutant caught: the AAF source 0 gate alone drops the real grant - breaks "refused AAF gate never opened"
+[PASS] mutant caught: every source declares talker 0's TSpec on the 1x1 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+[PASS] mutant caught: every source declares talker 0's TSpec on the 8x8 - breaks "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+10 checks: 10 PASS, 0 FAIL
+
+PUBLIC ARTIFACT: 4484c29cd1224098b5b0d4576cc5d8e4897b4836:review-evidence/774-r1/author-r2/receipts/round2/docs_gates/all.out
+rc=0     0.1s docs-gates-0/gate_43 Doc cited-path gate [GNU Make 4.3; Python 3.14.8]
+rc=0     1.1s docs-gates-0/gate_44 Archive integrity gate [GNU Make 4.3; Python 3.12.3]
+rc=0    12.3s docs-gates-0/gate_45 Per-page contents gate [GNU Make 4.3; Python 3.14.8]
+rc=0     0.1s docs-gates-0/gate_46 AEM store generator self-test [GNU Make 4.3; Python 3.12.3]
+rc=0    16.0s docs-gates-0/gate_47 Sweep/build shape gate [GNU Make 4.3; Python 3.12.3]
+rc=0     0.4s docs-gates-0/gate_48 Deploy shape gate [GNU Make 4.3; Python 3.12.3]
+rc=0    71.8s docs-gates-0/gate_49 Entity shape gate [GNU Make 4.3; Python 3.12.3]
+rc=0    28.5s docs-gates-0/gate_50 CI scheduling and evidence controls [GNU Make 4.3; Python 3.12.3]
+rc=0   904.0s docs-gates-1/gate_25_0 End-station builder gates, leg 0 of 2 [GNU Make 4.3; Python 3.12.3]
+rc=0   280.1s docs-gates-2/gate_25_1 End-station builder gates, leg 1 of 2 [GNU Make 4.3; Python 3.12.3]
+rc=0   231.8s docs-gates-2/gate_41 CI event and SHA contract gate [GNU Make 4.3; Python 3.12.3]
+SKIP docs-gates-2/gate_42 Local act runner contract gate
+SKIP docs-check-no-git/ci_step_3 Strip git metadata, then run the docs gate
+44 steps, 0 failed, head 01fc54756f1ffb0a3aa836681215e8321ee7e86c
+
+PUBLIC ARTIFACT: 4484c29cd1224098b5b0d4576cc5d8e4897b4836:review-evidence/774-r1/author-r2/receipts/round2/rtl-fast/full.out
+rc=0     0.0s firmware-boundary[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-boundary[3] Fetch RTL dependencies
+rc=0    33.2s firmware-boundary[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     2.2s firmware-boundary[8] Install and verify the pinned RV32 SDK
+rc=0   917.2s firmware-boundary[9] Hold the TSN stack boundary over the firmware builders' compiles
+JOB firmware-boundary: success
+rc=0     0.0s firmware-verilator[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-verilator[3] Fetch RTL dependencies
+rc=0     0.5s firmware-verilator[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     0.1s firmware-verilator[11] Put Verilator on PATH and prove the version
+rc=0     2.2s firmware-verilator[13] Install and verify the pinned RV32 SDK
+rc=0   614.8s firmware-verilator[14] Hold the TSN stack boundary over the Verilator builders' compiles
+JOB firmware-verilator: success
+rtl-fast: success; failed jobs: none; head 01fc54756f1ffb0a3aa836681215e8321ee7e86c
+
