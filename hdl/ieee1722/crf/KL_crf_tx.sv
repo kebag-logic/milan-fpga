@@ -148,12 +148,8 @@ module KL_crf_tx #(
   //! offset. GET_STREAM_INFO still reads the offset alone.
   parameter bit          TC_P     = 1'b0,
   parameter int unsigned CLK_HZ_P = 50_000_000,  //! clk_i, for PIPE_CYC_C
-  //! the integration's terms, ns: ev_p_i's pulse after its event's
-  //! instant...
-  parameter int unsigned EV_LATE_NS_P  = 0,
-  //! ...and the longest m_axis_tready holds this port's frame for while
-  //! other frames pass ahead of it to the MAC
-  parameter int unsigned OUT_LATE_NS_P = 0
+  //! the integration's term, ns: ev_p_i's pulse after its event's instant
+  parameter int unsigned EV_LATE_NS_P  = 0
 )(
   input  wire         clk_i,             //! cd_milan datapath clock
   input  wire         rst_n,
@@ -305,12 +301,12 @@ module KL_crf_tx #(
 
   //! T_C (TC_P). This engine's own term, PIPE_CYC_C: from the timing point's
   //! ev_p_i to the PDU's last beat, NUM_BEATS + 1 cycles: the take into ts_r
-  //! and frame_pend_r, IDLE_S's start, then the beats (the MAC ready; the
-  //! integration's OUT_LATE_NS_P covers the rest). T_C is the fewest whole
-  //! periods covering it with the integration's terms, in ns rounded up once
-  //! (41,667 ns for 2 periods at 48 kHz, 0.33 ns above them).
+  //! and frame_pend_r, IDLE_S's start, then the beats (the MAC ready, no
+  //! other frame ahead; the whole periods' spare absorbs one). T_C is the
+  //! fewest whole periods covering it with the integration's term, in ns
+  //! rounded up once (41,667 ns for 2 periods at 48 kHz, 0.33 ns above them).
   localparam int unsigned PIPE_CYC_C = NUM_BEATS + 1;
-  localparam longint unsigned LATE_NS_C = 64'(EV_LATE_NS_P) + 64'(OUT_LATE_NS_P)
+  localparam longint unsigned LATE_NS_C = 64'(EV_LATE_NS_P)
       + (64'(PIPE_CYC_C) * 64'(NS_PER_S_C) + 64'(CLK_HZ_P) - 64'd1) / 64'(CLK_HZ_P);
   localparam longint unsigned TC_PER_C = !TC_P ? 64'd0
       : (LATE_NS_C * 64'(MCLK_DEN_C) + 64'(MCLK_NUM_C) - 64'd1) / 64'(MCLK_NUM_C);

@@ -1479,17 +1479,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //                   is a quarter of a frame in);
   //    TLK_AGE_CYC_C  the capture age, the close to the walk's tick;
   //    TLK_WALK_CYC_C the walk, the tick to the last talker's last pair
-  //                   (pair slot 4 x N_STREAMS - 1);
-  //    TLK_*_ARB_CYC_C the TX arbiters, MAC ready: crf_dp_mux and
-  //                   adp_tx_mux are round-robin packet arbiters, so a frame
-  //                   waits for at most one frame on the other input of
-  //                   each: the CRF PDU or an AAF PDU at the 8-channel
-  //                   ceiling, and one control frame, at most the IEEE 802.3
-  //                   maximum tagged frame less its FCS (the control lane's
-  //                   IFG gasket spaces its frames 512 cycles apart, so a
-  //                   second cannot follow before the stream frame passes).
-  //  The MAC's own backpressure is outside the datapath: the hand-over is
-  //  this datapath's MAC transmit port.
+  //                   (pair slot 4 x N_STREAMS - 1).
+  //  The hand-over is this datapath's MAC transmit port, the MAC ready and no
+  //  other frame ahead, as #773's ruling counts it (23.8 us after the
+  //  estimate at 1x1, 22.7 us at 8x8). A frame ahead is no term: crf_dp_mux
+  //  and adp_tx_mux are round-robin packet arbiters, so a PDU waits for at
+  //  most one frame on the other input of each (the control lane's IFG
+  //  gasket spaces its frames 512 cycles apart), a CRF PDU or an 8-channel
+  //  AAF PDU and one maximum tagged frame, 198 or 220 cycles; the whole
+  //  periods leave 17.8 us (AAF, 1x1), 18.9 us (AAF, 8x8), 20.5 and 15.3 us
+  //  (CRF) above the counted path, which absorbs it. The MAC's own
+  //  backpressure is outside the datapath.
   // --------------------------------------------------------------------------
   localparam int     TLK_LB_PAIRS_C   = LB_STREAMS_C * ((LB_CH_C < 2) ? 1 : LB_CH_C / 2);
   localparam longint TLK_PS_FLOOR_NS_C = 64'd1_000_000_000 / 64'(AUDIO_IF_FS_HZ_P);
@@ -1498,25 +1498,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       64'(MILAN_CLK_FREQ_HZ), 64'(AUDIO_IF_FS_HZ_P));
   localparam longint TLK_WALK_CYC_C   = KL_media_if_latency_pkg::walk_pair_cyc(
       TLK_LB_PAIRS_C, CMAP_GAP_CYC_C, 4 * N_STREAMS - 1);
-  //! frames in 64-bit beats, FCS excluded (the MAC appends it): the 802.3
-  //! maximum tagged frame, 1518 octets; the CRF PDU, the 802.3 minimum
-  //! (KL_crf_tx FRAME_BYTES); an AAF PDU at the 8-channel ceiling, the
-  //! tagged header, the AVTPDU header and 6 x 8 x 4 octets of samples
-  //! (KL_aaf_packetizer FRAME_BYTES_C)
-  localparam longint TLK_MAX_BEATS_C  = (64'd1518 + 64'd7) / 64'd8;
-  localparam longint TLK_CRF_BEATS_C  = (64'd60 + 64'd7) / 64'd8;
-  localparam longint TLK_AAF_BEATS_C  = (64'd14 + 64'd4 + 64'd24 + 64'd24 * 64'd8 + 64'd7) / 64'd8;
-  localparam longint TLK_AAF_ARB_CYC_C = TLK_CRF_BEATS_C + TLK_MAX_BEATS_C;
-  localparam longint TLK_CRF_ARB_CYC_C = TLK_AAF_BEATS_C + TLK_MAX_BEATS_C;
   localparam int          TLK_AAF_IN_NS_C  = int'(TLK_SPAN_NS_C + KL_media_if_latency_pkg::cyc_ns(
       TLK_AGE_CYC_C + TLK_WALK_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
-  localparam int unsigned TLK_AAF_OUT_NS_C = 32'(KL_media_if_latency_pkg::cyc_ns(
-      TLK_AAF_ARB_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
   //! the CRF timing point's ev_p_i: the marker, then the event's register
   localparam int unsigned TLK_CRF_EV_NS_C  = 32'(64'(DOM_MARK_LAT_NS_C) + KL_media_if_latency_pkg::cyc_ns(
       64'd1, 64'(MILAN_CLK_FREQ_HZ)));
-  localparam int unsigned TLK_CRF_OUT_NS_C = 32'(KL_media_if_latency_pkg::cyc_ns(
-      TLK_CRF_ARB_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
 
   //! The AAF talkers' time base (#632, #764): the instant the frame the
   //! capture walk reads started at the media interface - the domain media
@@ -1534,8 +1520,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                       .LEAD_P        (1'b1),
                       .FS_HZ_P       (AUDIO_IF_FS_HZ_P),
                       .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
-                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C),
-                      .OUT_LATE_NS_P (TLK_AAF_OUT_NS_C)) aaf_packetizer (
+                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C)) aaf_packetizer (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .pair_valid_i (pkt_pv_w), .pair_slot_i (pkt_slot_w),
     .pair_l_i (pkt_l_w), .pair_r_i (pkt_r_w),
@@ -7455,8 +7440,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   KL_crf_tx #(.ROUND_MTT_P   (1'b0),
               .TC_P          (1'b1),
               .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
-              .EV_LATE_NS_P  (TLK_CRF_EV_NS_C),
-              .OUT_LATE_NS_P (TLK_CRF_OUT_NS_C)) crf_tx (
+              .EV_LATE_NS_P  (TLK_CRF_EV_NS_C)) crf_tx (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! its timing points: every 96th domain media event, stamped with that
     //! event's instant (#632; 4.3.5 with the AAF talkers, 10.8 once phased)

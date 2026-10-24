@@ -115,13 +115,10 @@ module KL_aaf_packetizer #(
   parameter bit          LEAD_P   = 1'b0,
   parameter int unsigned FS_HZ_P  = 48_000,      //! the media clock (Ps)
   parameter int unsigned CLK_HZ_P = 50_000_000,  //! clk_i, for PIPE_CYC_C
-  //! the integration's terms, ns: the end of the PDU's sample span at the
+  //! the integration's term, ns: the end of the PDU's sample span at the
   //! media interface to its last pair here, worst (negative when that pair
-  //! closes inside the span, as an inner TDM32 pair does)...
-  parameter int          IN_LATE_NS_P  = 0,
-  //! ...and the longest m_axis_tready holds this port's frame for while
-  //! other frames pass ahead of it to the MAC
-  parameter int unsigned OUT_LATE_NS_P = 0
+  //! closes inside the span, as an inner TDM32 pair does)
+  parameter int          IN_LATE_NS_P  = 0
 )(
   input  wire         clk_i,             //! datapath clock
   input  wire         rst_n,             //! active-low synchronous reset
@@ -242,11 +239,12 @@ module KL_aaf_packetizer #(
   //! NUM_BEATS_C beats), 4 + np + NUM_BEATS_C - 1 cycles: the pend flop,
   //! E_IDLE_S's grant, E_DRD_S's two context reads and np pair fetches,
   //! then the beats; E_CRD_S's three CFG reads add 3 for a talker > 0. The
-  //! MAC ready throughout; the integration's OUT_LATE_NS_P covers the rest.
+  //! hand-over is the beat accepted with the MAC ready and no other frame
+  //! ahead; the whole periods' spare is what absorbs a frame ahead.
   //! capture_coherence measures it to the cycle at 1x1 (57 cycles).
   localparam int unsigned PIPE_CYC_C = 4 + ((N_TALKERS_P > 1) ? 3 : 0)
                                      + SAMPLES_PER_FRAME_C * MAX_PAIRS_C + NUM_BEATS_C - 1;
-  localparam longint LATE_NS_C = longint'(IN_LATE_NS_P) + longint'(OUT_LATE_NS_P)
+  localparam longint LATE_NS_C = longint'(IN_LATE_NS_P)
                                + (64'(PIPE_CYC_C) * 64'd1_000_000_000 + 64'(CLK_HZ_P) - 64'd1)
                                  / 64'(CLK_HZ_P);
   localparam longint DELAY_PER_C = (!LEAD_P || LATE_NS_C <= 0) ? 64'd0

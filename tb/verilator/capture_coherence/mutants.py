@@ -132,10 +132,9 @@ GRID_CRF = "[GRID] every CRF stamp less its offset applied and TC, 2 periods, is
 HOLD = "[HOLD] no AAF stamp is more than 2.126 ms after its hand-over"
 #: milan_datapath's binding of the AAF talkers' lead and the CRF output's TC (#773)
 AAF_LEAD = "                      .LEAD_P        (1'b1),"
-AAF_IN = "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C),"
-AAF_OUT = "                      .OUT_LATE_NS_P (TLK_AAF_OUT_NS_C)) aaf_packetizer ("
+AAF_IN = "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C)) aaf_packetizer ("
 CRF_TC = "              .TC_P          (1'b1),"
-CRF_EV = "              .EV_LATE_NS_P  (TLK_CRF_EV_NS_C),"
+CRF_EV = "              .EV_LATE_NS_P  (TLK_CRF_EV_NS_C)) crf_tx ("
 
 #: every build's MAKEFLAGS: nothing inherited from the make that started this
 #: driver. GNU make 4.3 hands a `make -C` recipe MAKEFLAGS=w, which reached
@@ -274,7 +273,7 @@ MUTATIONS = [
      ((AAF_LEAD, "                      .LEAD_P        (1'b0),"),),
      (WIRE_AAF, GRID_AAF, PIN_BAND)),
     ("dp", "the AAF fixed delay one period short: the instant plus 7 periods (#773)",
-     ((AAF_IN, "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C - 20834),"),),
+     ((AAF_IN, "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C - 20834)) aaf_packetizer ("),),
      (WIRE_AAF, GRID_AAF)),
     ("dp", "the AAF stamps 125 us late: past IEEE 1722-2016 Equation (1)'s lower bound (#773)",
      (("    .ptp_ns_i (aaf_tbase_w),", "    .ptp_ns_i (aaf_tbase_w + 64'd125000),"),),
@@ -283,13 +282,13 @@ MUTATIONS = [
      ((CRF_TC, "              .TC_P          (1'b0),"),),
      (WIRE_CRF, GRID_CRF)),
     ("dp", "the CRF output's TC one period short: 1 period at 1x1 (#773)",
-     ((CRF_EV, "              .EV_LATE_NS_P  (TLK_CRF_EV_NS_C - 32'd20834),"),),
+     ((CRF_EV, "              .EV_LATE_NS_P  (TLK_CRF_EV_NS_C - 32'd20834)) crf_tx ("),),
      (WIRE_CRF, GRID_CRF)),
     ("dp", "the CRF stamps 125 us late: past Equation (1)'s lower bound (#773)",
      (("    .ev_p_i (dom_ev_p_w), .ev_ns_i (dom_ns_w),", "    .ev_p_i (dom_ev_p_w), .ev_ns_i (dom_ns_w + 64'd125000),"),),
      WIRE_CRF_LOW),
     ("dp", "the AAF talkers' terms grow by 125 us: a fixed delay past Milan v1.2 5.3.7.6's 125 us (#773)",
-     ((AAF_OUT, "                      .OUT_LATE_NS_P (TLK_AAF_OUT_NS_C + 32'd125000)) aaf_packetizer ("),),
+     ((AAF_IN, "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C + 125000)) aaf_packetizer ("),),
      Refused("exceeds the 0 to 125 us Milan v1.2 5.3.7.6 allows: refused")),
     ("chmap", "RM7: a tick queued behind a running walk takes no snapshot when its walk starts",
      ((SNAP, "  wire tdm_snap_w = (st_r == CM_IDLE_S) && !tick_pend_r && tick_i;"),),

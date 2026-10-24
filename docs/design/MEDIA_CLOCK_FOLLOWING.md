@@ -1817,8 +1817,8 @@ reads Milan v1.2 5.3.7.6's two parts:
 
 Each talker derives its periods at elaboration from its own pipeline and the
 terms `milan_datapath` states beside the packetizer (`TLK_*`). Every term is
-its worst case, and the hand-over is the datapath's MAC transmit port with the
-MAC ready:
+its worst case. The hand-over is the datapath's MAC transmit port with the MAC
+ready and no other frame ahead, as the ruling counts it:
 
 | Term | Derivation | 1x1 TDM8 | 8x8 TDM32 |
 |---|---|---:|---:|
@@ -1826,13 +1826,22 @@ MAC ready:
 | Capture age, the close to the walk's tick | the tick spacing rounded up, plus one cycle (`age_max_cyc`) | 1,043 cycles | 1,043 cycles |
 | Capture walk, the tick to the last talker's last pair | 4 + LOOP pairs + 26 x (4N - 1) cycles (`walk_pair_cyc`) | 86 cycles | 811 cycles |
 | Packetizer, the last pair to the last beat | 4 + np + beats - 1 cycles at 8 channels, 3 more for N > 1 (`PIPE_CYC_C`) | 57 cycles | 60 cycles |
-| TX arbiters, round-robin by packet | one CRF PDU and one maximum tagged frame, 8 + 190 beats | 198 cycles | 198 cycles |
-| **Hand-over after the estimate** | the sum, at 50 MHz | **27,811 ns** | **26,715 ns** |
-| **Fixed delay** | the fewest periods covering it | **2 (41,667 ns), 13,856 ns spare** | **2, 14,952 ns spare** |
+| **Hand-over after the estimate** | the sum, at 50 MHz | **23,851 ns** | **22,755 ns** |
+| **Fixed delay** | the fewest periods covering it | **2 (41,667 ns), 17,816 ns spare** | **2, 18,912 ns spare** |
 | CRF: the timing point's pulse after its instant | the marker latency and the event's register | 20,984 ns | 5,328 ns |
 | CRF: `KL_crf_tx`, the pulse to the last beat | 8 beats + 1 cycle (`PIPE_CYC_C`) | 180 ns | 180 ns |
-| CRF: TX arbiters | one AAF PDU at 8 channels and one maximum frame, 30 + 190 beats | 4,400 ns | 4,400 ns |
-| **CRF: TC** | the fewest periods covering 25,564 and 9,908 ns | **2 (41,667 ns)** | **1 (20,834 ns)** |
+| **CRF: TC** | the fewest periods covering 21,164 and 5,508 ns | **2 (41,667 ns), 20,503 ns spare** | **1 (20,834 ns), 15,326 ns spare** |
+
+A frame ahead at the transmit arbiters is not a term. `crf_dp_mux` and
+`adp_tx_mux` are round-robin packet arbiters, and the control lane's IFG gasket
+spaces its frames 512 cycles apart. So a PDU waits for at most one frame on the
+other input of each: an AAF PDU waits for a CRF PDU and one maximum tagged
+frame (8 + 190 beats, 3,960 ns), and a CRF PDU for an 8-channel AAF PDU and one
+maximum frame (30 + 190 beats, 4,400 ns). The spare covers that at both
+shipping shapes. A test shape whose fabric clock is compressed (`milan_dp_mclk`
+at 4 MHz, five periods) has no such cover. With that wait counted as a term,
+its derivation would pass 125 us and refuse to build, although it grades no
+stamp. The MAC's own backpressure is outside the datapath.
 
 Equation (1)'s lower bound puts the hand-over after the timestamp less the
 offset less TUmax. With TUmax at the 125 us timing uncertainty Milan v1.2
@@ -1861,7 +1870,8 @@ For every PDU at the MAC port it requires the following:
 The `[PIN]` grade puts every stamp less the offset and 8 periods on the
 frame's instant at the pins. Over 31 runs the AAF margin is 17,823 to 59,807
 ns, where 59,807 is a run's first PDU, stamped from the live PHC before the
-grid is live. The CRF margin is 20,503 ns.
+grid is live. The CRF margin is 20,503 ns, the derived spare: the CRF PDU never
+waited behind an AAF PDU in these runs.
 
 The mutation arm plants these defects, and each is caught:
 
