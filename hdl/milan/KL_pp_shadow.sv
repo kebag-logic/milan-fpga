@@ -291,14 +291,16 @@ module KL_pp_shadow #(
     //! same 64 bits onto the wire), so the integrator computes it once and
     //! hands it here rather than this wrapper inventing a second copy.
     input  wire [N_STREAM_OUT_P*64-1:0] cfg_stream_id_i,
-    //! TSpec MaxFrameSize for the engine-driven DECLARE_TALKER (802.1Q
-    //! 35.2.2.4). Milan v1.2 4.3.3.2 Table 4.4 makes it a FUNCTION of the
-    //! channel count (24*C + 24 + 1), which the integrator already derives
-    //! for the framer - so it arrives here rather than being re-derived. It
-    //! was tied 16'd0 in shadow mode, where a declaration nobody sends can
-    //! carry any number; on the wire a zero MaxFrameSize is a reservation for
-    //! zero bandwidth, which a bridge grants and a stream then overruns.
-    input  wire [15:0]                  cfg_tspec_max_frame_i,
+    //! per-source TSpec MaxFrameSize for the engine-driven DECLARE_TALKER
+    //! (IEEE 802.1Q-2018 35.2.2.8.4 a)), flat [16*s +: 16] like
+    //! cfg_stream_id_i. Milan v1.2 4.3.3.2 Table 4.4 makes it a function of
+    //! each source's FORMAT: an AAF talker's channel count (24*C + 24 + 1), the
+    //! CRF Media Clock Output's PDU (28 + 1). The integrator derives both for
+    //! the framers, so they arrive here rather than being re-derived. One
+    //! value for every source declared the AAF number for the CRF stream
+    //! (#774). On the wire a zero MaxFrameSize is a reservation for zero
+    //! bandwidth, which a bridge grants and a stream then overruns.
+    input  wire [N_STREAM_OUT_P*16-1:0] cfg_tspec_max_frame_i,
     //! initial accumulated_latency for the Listener direction (802.1Q
     //! 35.2.2.8.4). Same story: tied 0 in shadow mode.
     input  wire [31:0]                  cfg_acc_lat_ns_i,
@@ -1278,9 +1280,8 @@ module KL_pp_shadow #(
       .cfg_rank_i          (1'b1),
       .cfg_acc_lat_ns_i    (cfg_acc_lat_ns_i),
       .port_rate_bps_i     (port_rate_bps_i),
-      //! scratch only: processor issue #190's per-source port, every slot
-      //! driven with the one value this wrapper still takes
-      .cfg_tspec_max_frame_i({N_STREAM_OUT_P{cfg_tspec_max_frame_i}}),
+      //! source s declares slot s (processor #190)
+      .cfg_tspec_max_frame_i(cfg_tspec_max_frame_i),
 
       //! Which talker sources exist — straight from the port, which the
       //! integrator derives from the entity shape (see the port's banner).

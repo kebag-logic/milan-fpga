@@ -63,6 +63,17 @@
 //          current-TSpec grant stays low: no licence, counter pair, reset or
 //          PDU. Required by default after adopting processor issue #112.
 //   [J]    the reverse TSpec change admits; re-measure start latency.
+//   [TSPEC] #774: every Talker Advertise the DUT puts on the wire carries its
+//          OWN source's Milan v1.2 4.3.3.2 Table 4.4 TSpec (IEEE 802.1Q-2018
+//          35.2.2.8.4): AAF PCM32 48 kHz N channels 24*N + 24 + 1, CRF one
+//          timestamp per PDU 28 + 1, MaxIntervalFrames 1. After [B] each
+//          declared MaxFrameSize is also the AVTPDU that source emits plus
+//          the table's one octet.
+//
+// TSPEC_ONLY_TB builds the [TSPEC] grading alone on another shape
+// (SOURCES_TB talker sources, the last one the CRF Media Clock Output): boot,
+// every source probed until MAAP grants and the DUT declares, then [TSPEC]
+// without the wire half, since no Listener Ready opens a stream.
 
 #include "Vmilan_datapath.h"
 #include "Vmilan_datapath___024root.h"
@@ -82,10 +93,20 @@
 #ifndef DIAG_TICK_MS_TB
 #error "DIAG_TICK_MS_TB must be the Table 5.4 observation interval, in ms"
 #endif
+#ifndef WIRE_CHANS_TB
+#error "WIRE_CHANS_TB must be the AAF talkers' channels_per_frame (TALKER_WIRE_CHANS_P)"
+#endif
+#ifndef SOURCES_TB
+#define SOURCES_TB 2
+#endif
+#ifndef TSPEC_ONLY_TB
+#define TSPEC_ONLY_TB 0
+#endif
 
 namespace {
 
 constexpr uint64_t kMsCyc = MS_CYC_TB;
+constexpr uint64_t kWireChans = WIRE_CHANS_TB;
 constexpr uint64_t kDiagTickMs = DIAG_TICK_MS_TB;
 constexpr uint64_t kNever = ~0ull;
 
@@ -152,6 +173,19 @@ struct Peer {
     uint64_t ta_on_wire = kNever;
 };
 
+//! The TSpec (IEEE 802.1Q-2018 35.2.2.8.4, FirstValue octets 16..19, Figure
+//! 35-2) of the DUT's own Talker Advertise attributes for one source. A
+//! vector's value n carries FirstValue's TSpec: incrementing FirstValue adds 1
+//! to the Unique ID and to the destination_address and to nothing else
+//! (35.2.2.8 a) and b)), so sources the DUT packs into one vector declare one
+//! TSpec, and a source whose TSpec differs needs a vector of its own.
+struct TspecSeen {
+    long values = 0;               // Talker Advertise values naming this source
+    long off_table = 0;            // ...whose TSpec is not this source's
+    uint64_t max_frame = kNever;   // the latest MaxFrameSize
+    uint64_t interval_frames = kNever;
+};
+
 class CrfLicenceHarness {
  public:
     int run();
@@ -170,8 +204,9 @@ class CrfLicenceHarness {
     //! Run B capture carried for the CRF output (uid 1)
     static constexpr uint64_t kSidBase = 0x0200000000010000ull;
     static constexpr int kUidAaf = 0;
-    static constexpr int kUidCrf = 1;
-    static constexpr int kSources = 2;
+    static constexpr int kSources = SOURCES_TB;
+    //! the CRF Media Clock Output is the last source (CRF_TUID_C = N_STREAMS)
+    static constexpr int kUidCrf = kSources - 1;
     static constexpr uint64_t kMaapPoolBase = 0x91E0F0000000ull;
 
     // ---- the CSR window ----------------------------------------------------
@@ -180,6 +215,7 @@ class CrfLicenceHarness {
     static constexpr uint16_t A_MAC_AHI = 0x10C;
     static constexpr uint16_t A_ADP_EIDLO = 0x604;
     static constexpr uint16_t A_ADP_EIDHI = 0x608;
+    static constexpr uint16_t A_ADP_TALKER = 0x618;
     static constexpr uint16_t A_AAF_CTRL = 0x654;
     static constexpr uint16_t A_LWSRP_CTRL = 0x680;
     static constexpr uint16_t A_LWSRP_STATUS = 0x694;
@@ -199,7 +235,7 @@ class CrfLicenceHarness {
     Level aaf_gate;                // aaf_stream_en_w[0]
     long licence_ne_active = 0;    // cycles CRF differs from ACTIVE AND real grant
     long aaf_without_active = 0;   // cycles AAF opens without ACTIVE AND real grant
-    std::array<uint64_t, kSources> listener_event{kNever, kNever};
+    std::array<uint64_t, kSources> listener_event{};
     bool corner_phase = false;
 
     // ---- the MAC ports -----------------------------------------------------
@@ -209,6 +245,11 @@ class CrfLicenceHarness {
     std::vector<uint8_t> tx_cur;
     std::vector<StreamPdu> crf_pdus;
     std::vector<StreamPdu> aaf_pdus;
+    //! the longest AVTPDU of each kind on the wire: the header plus its
+    //! crf_data_length or stream_data_length (IEEE 1722-2016 10.4, 7.2)
+    uint64_t crf_avtpdu_max = 0;
+    uint64_t aaf_avtpdu_max = 0;
+    TspecSeen tspec[kSources];
 
     // ---- the scripted peers -------------------------------------------------
     std::multimap<uint64_t, std::function<void()>> sched;
@@ -291,6 +332,10 @@ class CrfLicenceHarness {
     void stage_declaration(int uid, uint16_t max_frame, bool open);
     uint64_t listener_decode_delay(int uid);
     void phase_real_grant();
+    static uint64_t table44_max_frame(int uid);
+    void on_dut_tspec(int uid, const std::vector<uint8_t>& first_value);
+    void phase_tspec_open();
+    void grade_tspec(bool wire);
     void grant_case(int uid, bool refuse, unsigned round_phase, uint64_t decode_delay,
                     bool unwarmed = false);
 };
@@ -649,6 +694,13 @@ void CrfLicenceHarness::on_stream_pdu(const std::vector<uint8_t>& f, size_t avtp
     }
     p.sid = get_be(f, avtp + 4, 8);
     p.da = get_be(f, 0, 6);
+    if (subtype == 0x04 && f.size() >= avtp + 20) {
+        const uint64_t n = 20 + get_be(f, avtp + 16, 2);    // + crf_data_length
+        if (n > crf_avtpdu_max) crf_avtpdu_max = n;
+    } else if (subtype == 0x02 && f.size() >= avtp + 24) {
+        const uint64_t n = 24 + get_be(f, avtp + 20, 2);    // + stream_data_length
+        if (n > aaf_avtpdu_max) aaf_avtpdu_max = n;
+    }
     std::vector<StreamPdu>& v = (subtype == 0x04) ? crf_pdus : aaf_pdus;
     if (v.empty()) note(subtype == 0x04 ? "first CRF PDU on the wire" : "first AAF PDU on the wire", -1, -1);
     v.push_back(p);
@@ -689,8 +741,10 @@ void CrfLicenceHarness::on_mrpdu(const std::vector<uint8_t>& f) {
             const uint64_t sid0 = get_be(v.first_value, 0, 8);
             for (int k = 0; k < v.n && k < static_cast<int>(v.events.size()); k++) {
                 const uint64_t sid = sid0 + static_cast<uint64_t>(k);   // 802.1Q 35.2.2.8.x +k
-                if (sid >= kSidBase && sid < kSidBase + kSources)
+                if (sid >= kSidBase && sid < kSidBase + kSources) {
                     on_dut_talker_event(static_cast<int>(sid - kSidBase), v.events[static_cast<size_t>(k)]);
+                    on_dut_tspec(static_cast<int>(sid - kSidBase), v.first_value);
+                }
             }
         }
     }
@@ -832,13 +886,15 @@ unsigned CrfLicenceHarness::lstn_reg(int uid) const {
 void CrfLicenceHarness::boot() {
     printf("[BOOT] identity, the firmware boot values, the MAAP claim started\n");
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4Eu);
+    ck("ADP_TALKER[15:0] talker_stream_sources is this leg's source count",
+       axi_read(A_ADP_TALKER) & 0xFFFFu, kSources);
     axi_write(A_MAC_ALO, kStaMacLo);
     axi_write(A_MAC_AHI, kStaMacHi);
     axi_write(A_ADP_EIDLO, static_cast<uint32_t>(kTestEid & 0xFFFFFFFFu));
     axi_write(A_ADP_EIDHI, static_cast<uint32_t>(kTestEid >> 32));
     axi_write(A_AAF_CTRL, 0x00020001u);    // AAF talker on, bypass CLEAR, VID 2
     axi_write(A_LWSRP_CTRL, 0x13u);        // SRP policing: engine + talker on
-    axi_write(A_MAAP_CTRL, 0x201u);        // MAAP on, two addresses
+    axi_write(A_MAAP_CTRL, (static_cast<uint32_t>(kSources) << 8) | 1u);   // MAAP on, one address per source
     axi_write(A_CRFT_CTRL, 0x3u);          // CRF output on, class A
     axi_write(A_PP_CTRL, 0x1u);            // entity enable
     rx_q.push_back(msrp_frame(domain_msg(0, 1)));   // the switch's Domain
@@ -1205,6 +1261,68 @@ void CrfLicenceHarness::phase_real_grant() {
     }
 }
 
+// ============================================================================
+//  [TSPEC] #774: each source declares its own format's Table 4.4 TSpec
+// ============================================================================
+//! Milan v1.2 4.3.3.2 Table 4.4, the rows this device's formats are: "AAF
+//! PCM32, 48kHz, N channels" 24*N + 24 + 1 and "CRF, 1 ts/pdu" 28 + 1. The
+//! numbers are the table's, not the gateware's.
+uint64_t CrfLicenceHarness::table44_max_frame(int uid) {
+    return (uid == kUidCrf) ? 28 + 1 : 24 * kWireChans + 24 + 1;
+}
+
+void CrfLicenceHarness::on_dut_tspec(int uid, const std::vector<uint8_t>& first_value) {
+    if (corner_phase || first_value.size() < 20) return;   // [G]-[J] stage their own TSpecs
+    TspecSeen& t = tspec[uid];
+    t.values++;
+    t.max_frame = get_be(first_value, 16, 2);
+    t.interval_frames = get_be(first_value, 18, 2);
+    if (t.max_frame != table44_max_frame(uid) || t.interval_frames != 1) t.off_table++;
+}
+
+//! TSPEC_ONLY_TB's opening: every source probed once while KL_maap is still
+//! probing, so MAAP's grant opens each DA gate and the DUT declares; no
+//! listener retries and no switch Listener Ready, so nothing streams.
+void CrfLicenceHarness::phase_tspec_open() {
+    printf("[A] every source probed: MAAP grants and the DUT declares each one\n");
+    const uint64_t t0 = cyc;
+    for (int s = 0; s < kSources; s++) probe(s);
+    run_until(t0 + ms(3900));
+    ck("KL_maap reached ANNOUNCE (a block of one address per source is claimed)",
+       (axi_read(A_MAAP_STAT1) >> 2) & 1u, 1);
+    for (int s = 0; s < kSources; s++) {
+        printf("  -- source uid %d (%s)\n", s, s == kUidCrf ? "CRF Media Clock Output" : "AAF");
+        ck_true("...MAAP's grant opens the DA gate", declaring[s].first_rise != kNever);
+        ck_true("the DUT declares Talker Advertise on the wire", peer[s].ta_on_wire != kNever);
+    }
+}
+
+//! `wire`: the run carried this shape's streams, so each declaration is also
+//! graded against the AVTPDU on the wire (IEEE 802.1Q-2018 35.2.2.8.4 a):
+//! "the maximum frame size that the Talker will produce").
+void CrfLicenceHarness::grade_tspec(bool wire) {
+    printf("[TSPEC] #774: every source's Talker Advertise carries its own format's "
+           "Milan v1.2 Table 4.4 TSpec\n");
+    for (int s = 0; s < kSources; s++) {
+        const TspecSeen& t = tspec[s];
+        printf("  -- source uid %d (%s), %ld Talker Advertise values\n", s,
+               s == kUidCrf ? "CRF Media Clock Output, 1 ts/pdu" : "AAF PCM32 48 kHz",
+               t.values);
+        ck_true("a Talker Advertise value names this source", t.values > 0);
+        ck(s == kUidCrf ? "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1"
+                        : "AAF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 24*N + 24 + 1",
+           t.max_frame, table44_max_frame(s));
+        ck("TSpec MaxIntervalFrames is Table 4.4's 1", t.interval_frames, 1);
+        ck("every Talker Advertise for it carried that TSpec", static_cast<uint64_t>(t.off_table), 0);
+    }
+    if (!wire) return;
+    printf("  -- against the wire\n");
+    ck("the CRF MaxFrameSize is the emitted CRF AVTPDU plus one octet",
+       tspec[kUidCrf].max_frame, crf_avtpdu_max + 1);
+    ck("the AAF MaxFrameSize is the emitted AAF AVTPDU plus one octet",
+       tspec[kUidAaf].max_frame, aaf_avtpdu_max + 1);
+}
+
 void CrfLicenceHarness::grade_invariants() {
     printf("[INV] over the whole run, every cycle\n");
     ck("the CRF licence equals ACTIVE[CRF] AND real grant (config: en, class A, SRP policing)",
@@ -1216,6 +1334,17 @@ void CrfLicenceHarness::grade_invariants() {
 int CrfLicenceHarness::run() {
     const milan::tb::Model<Vmilan_datapath> model;
     dut = model.get();
+    listener_event.fill(kNever);
+#if TSPEC_ONLY_TB
+    printf("=== #774 TSpec per source, %d talker sources, %llu wire channels, 1 ms = %llu cycles ===\n",
+           kSources, static_cast<unsigned long long>(kWireChans), static_cast<unsigned long long>(kMsCyc));
+    do_reset();
+    boot();
+    phase_tspec_open();
+    grade_tspec(false);
+    printf("[INV] over the whole run\n");
+    ck("no malformed DUT MRPDU", static_cast<uint64_t>(dut_malformed), 0);
+#else
     printf("=== obj_crflic: #530 on endstation_ax7101_1x1_tdm8, 1 ms = %llu cycles ===\n",
            static_cast<unsigned long long>(kMsCyc));
     do_reset();
@@ -1227,8 +1356,10 @@ int CrfLicenceHarness::run() {
     phase_f_after_c(licence.first_rise);
     phase_d();
     phase_e();
+    grade_tspec(true);
     phase_real_grant();
     grade_invariants();
+#endif
     printf("--------------------------------------------------------------\n");
     printf("simulated %.2f ms (%llu cycles)\n", t_ms(cyc), static_cast<unsigned long long>(cyc));
     printf("checks: %ld   failures: %ld\n", checks, fails);

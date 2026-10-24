@@ -211,15 +211,26 @@ module KL_crf_tx #(
   output logic        m_axis_tlast,
   input  wire         m_axis_tready,
 
-  output logic [31:0] tx_count_o         //! CRF PDUs completed on the wire side
+  output logic [31:0] tx_count_o,        //! CRF PDUs completed on the wire side
+
+  //! TSpec MaxFrameSize of this stream (IEEE 802.1Q-2018 35.2.2.8.4 a)), a
+  //! constant of the PDU shape built below: Milan v1.2 4.3.3.2 Table 4.4
+  //! "CRF, 1 ts/pdu" = 28 + 1, the AVTPDU plus the table's one octet. The
+  //! integrator declares it for this Stream Output (#774), so the declaration
+  //! follows the frame this module emits rather than a second copy of it.
+  output logic [15:0] tspec_max_frame_o
 );
 
   //! Milan 7.3.1 constants (mirror KL_crf_rx)
   localparam [28:0] CRF_BASEHZ_C = 29'd48000;
+  //! crf_data_length (IEEE 1722-2016 10.4.11): one 64-bit timestamp per PDU
   localparam [15:0] CRF_DLEN_C   = 16'd8;
   localparam [15:0] CRF_IVAL_C   = 16'd96;
 
-  localparam int CRF_PDU_C   = 28;                      //! CRF AVTPDU octets
+  //! CRF AVTPDU header ahead of crf_data, pdu[0..19] below (IEEE 1722-2016
+  //! 10.4: subtype through timestamp_interval)
+  localparam int CRF_HDR_C   = 20;
+  localparam int CRF_PDU_C   = CRF_HDR_C + int'(CRF_DLEN_C);   //! AVTPDU octets, 28
   localparam int ETH_HDR_C   = 14;                      //! DA + SA + EtherType
   localparam int VTAG_C      = 4;                        //! 802.1Q C-TAG (9.5)
   //! ONE frame length for BOTH shapes: the 802.3 minimum (60 + FCS = 64).
@@ -228,12 +239,11 @@ module KL_crf_tx #(
   localparam int FRAME_BYTES = ETH_HDR_C + CRF_PDU_C + 18;     //! 60
   localparam int NUM_BEATS   = (FRAME_BYTES + 7) / 8;   //! 8
   localparam int LAST_KEEP   = FRAME_BYTES - (NUM_BEATS-1)*8;  //! 4
-  //! The MSRP TSpec MaxFrameSize the integration must declare for this
-  //! stream is FRAME_BYTES - (ETH_HDR_C + VTAG_C) = 42: the PADDED MSDU,
-  //! not the 28-octet AVTPDU (802.1Q 35.2.2.4 TSpec; the engine's idleSlope
-  //! adds the fixed 42 = preamble 8 + eth 14 + tag 4 + FCS 4 + IPG 12, so
-  //! 42 + 42 = the 84-octet wire slot this frame really occupies).
-  //! milan_datapath's CRF_SRP_MAXF_C carries that number.
+  //! The TSpec MaxFrameSize is the AVTPDU plus one octet (Milan v1.2 Table
+  //! 4.4), not the padded MSDU: the table's bandwidth rule raises F =
+  //! MaxFrameSize + 22 to the 68-octet minimum tagged frame, which is where
+  //! the pad is paid for.
+  assign tspec_max_frame_o = 16'(CRF_PDU_C + 1);
 
   // =========================================================================
   //  IEEE 1722-2016 10.7, Equation (14): the Max Transit Time offset

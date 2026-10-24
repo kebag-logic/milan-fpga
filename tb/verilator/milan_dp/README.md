@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **fourteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
+`make` builds **fifteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -84,7 +84,8 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`), `dynmap_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF | `[DYNMAP]` (#658): the power-on audio maps on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0, over the wire and in both crossbar RAMs; SET_STREAM_FORMAT under Milan 5.4.2.7; the output clip in the boot window; a restored 4-channel input format; the boot window's guard arms, each staged on its own clock. Then, on a fresh boot, `[762-DP]` (#762) on this shipping geometry, with the elaborated parameters logged. Then `[MAPREC]` (#637): the channel-map records written and restored across a planted power cycle, the EMPTY list in both directions included. Its planted controls are `make dynmap-mutants`; see [the section below](#the-658-power-on-audio-maps-obj_dynmap) |
 | `obj_maprec8` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_ax7101_8x8`, eight dynamic output ports, direct option OFF | `[MAPREC]` (#637) across ports: a stream channel moved between output ports in both port orders and around a cycle, saved by the writer and restored, graded on GET_AUDIO_MAP, every key's owner and cluster, and the capture RAM; keys two records claim; a refused put-back that rolls every map back; PP_STAT's composed verdicts |
 | `obj_maprec4` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_arty_4x4`, four dynamic input ports, direct option OFF | `[MAPREC]` (#637) across ports: the first and last input ports' records and an emptied port between them, saved and restored, graded on GET_AUDIO_MAP, the stores and the render RAM; the last port's put-back under a restored 2-channel format |
-| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; its mutation campaign is `make crflic-mutants` |
+| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; and `[TSPEC]` (#774) grades every Talker Advertise the DUT declares against its own source's Milan v1.2 Table 4.4 TSpec and the AVTPDU that source emits; its mutation campaign is `make crflic-mutants` |
+| `obj_tspec8` | `sim_crf_licence.cpp` (`TSPEC_ONLY_TB`) | `endstation_ax7101_8x8`, eight AAF talkers of 8 wire channels and the CRF Media Clock Output, the `obj_crflic` compressed grid | #774: `[TSPEC]` alone on the largest shape. Every source is probed once, MAAP grants nine addresses, and each of the nine sources' Talker Advertise values must carry its own format's Table 4.4 TSpec: 217 for each AAF talker, 29 for the CRF output, MaxIntervalFrames 1. Its planted control is in `make crflic-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
 | `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602/#632: a 1.5 s PHC step under CRF selection asserts `tu`, and the presentation stage refuses and counts the PDUs stamped across the step, with no render re-base and unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; the [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs it: its `gmstep_mutants.py` plants five controls in the sweep and its `make gmstep-mutants` the whole inventory |
@@ -443,7 +444,7 @@ Each phase has a bounded simulated deadline.
 Transport timeout aborts print the remaining unexecuted scope.
 
 The explicit physical driver runs this leg once through `milan_dp_gptp`.
-The `milan_dp` default retains its fourteen legs.
+The `milan_dp` default retains its fifteen legs.
 `suite_tally.py` reads its separate physical-rate summary.
 It also counts 40 setup, audio and missing-response accounting checks.
 `suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
@@ -512,6 +513,7 @@ Advertise state are sampled on every cycle.
 | `[H]` | Matching admitted re-declarations stream and reset the per-run counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
 | `[I]` | A refused 20,000-byte TSpec follows an admissible 224-byte TSpec. Both sources and phases require no licence, counter pair, reset or PDU. This is a required default pass with processor #112. |
 | `[J]` | The reverse TSpec change admits 224 bytes after 20,000 bytes. Both sources and phases must stream; logs re-measure ACTIVE-to-licence latency. |
+| `[TSPEC]` | #774, after `[E]` and before the staged TSpecs of `[G]`: every Talker Advertise value the DUT sent for each source carries that source's Milan v1.2 4.3.3.2 Table 4.4 TSpec (IEEE 802.1Q-2018 35.2.2.8.4): 24 x 8 + 24 + 1 = 217 for the AAF talker, 28 + 1 = 29 for the CRF output, MaxIntervalFrames 1. A packed vector's value n carries FirstValue's TSpec, since incrementing touches only the Unique ID and the destination address (35.2.2.8). Each MaxFrameSize is also the longest AVTPDU that source emitted plus one octet. |
 | `[INV]` | Every cycle: CRF equals ACTIVE AND its real grant. AAF never opens without both terms. |
 
 **Refused re-declaration fixture (#551).**
@@ -526,6 +528,7 @@ The replay must reproduce that timing and raise optimistic ACTIVE.
 An oversized 20,000-byte TSpec exceeds the real admission ceiling.
 Cases `[G]` and `[H]` preload the graded TSpec.
 Cases `[I]` and `[J]` change it; all four run by default.
+`[TSPEC]` reads no declaration from `[G]` on, so these staged TSpecs are not graded as the source's own.
 Withdrawal clears its grant before each case starts.
 Both source indexes run at both phases of the two-cycle round.
 Nonzero counter seeds distinguish preservation from an unnoticed reset.
@@ -579,6 +582,7 @@ The #551 campaign additionally removes each real-grant term.
 |---|---|---|
 | the licence mutants | `make crflic-mutants`: each consumer reads raw admission, removing ACTIVE | Three named checks must fail; the clean leg must pass. |
 | the real-grant mutants (#551) | Same command: every gate, CRF alone, or AAF source 0 alone reads ACTIVE without its real grant | Each refused-source licence check must fail. |
+| talker 0's TSpec on every source (#774) | Same command: `KL_pp_shadow` gets `{ACMP_SRC_C{tctx_maxf_w[0]}}`, the integration before #774, built once as `obj_crflic` and once as `obj_tspec8` | On both shapes "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1" must fail; each clean leg must pass. |
 | the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore the pin of record | 34 failures total: 28 `[I]` assertions and 6 `[J]` admitted-case timing checks. In `[I]`, both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passed at `990f9652`, the measurement pin. |
 | the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer at 1772.00 ms; the first CRF PDU leaves at 1966.30 ms, 3.85 s before the first Listener Ready; and the licence never closes again, through Asking Failed and the unbind |
 | processor pin `424c688f` | by hand, one of the two arms that need a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
