@@ -1,0 +1,62 @@
+PASS lead 8 Ps rounded up: computed 166667 expected 166667 [page text found: '166,667 ns']
+PASS 1x1 queue lower: computed 31119 expected 31119
+PASS 1x1 queue upper: computed 2656119 expected 2656119
+PASS 1x1 grid-live earliest hand-over: computed 127991 expected 127991
+PASS 1x1 grid-live arrival lead at 2 ms: computed 2038676 expected 2038676
+PASS 1x1 grid-live last event after arrival: computed 2142843 expected 2142843
+PASS 1x1 grid-live margin (0.1 us): computed 513.3 expected 513.3
+PASS 8x8 queue lower: computed 25942 expected 25942
+PASS 8x8 queue upper: computed 2650942 expected 2650942
+PASS 8x8 grid-live earliest hand-over: computed 112275 expected 112275
+PASS 8x8 grid-live arrival lead at 2 ms: computed 2054392 expected 2054392
+PASS 8x8 grid-live last event after arrival: computed 2158559 expected 2158559
+PASS 8x8 grid-live margin (0.1 us): computed 492.4 expected 492.4
+PASS five tick spacings, cycles at least: computed 5208 expected 5208 [page text found: '5,208 cycles at least']
+PASS walk on to the last pair: computed 78 expected 78 [page text found: '(78 cycles)']
+PASS start-up hand-over cycles: computed 5343 expected 5343 [page text found: '5,343 cycles']
+PASS start-up hand-over ns: computed 106860 expected 106860 [page text found: '106,860 ns']
+PASS start-up arrival lead at 2 ms: computed 2059807 expected 2059807 [page text found: '2,059,807 ns before its timestamp']
+PASS start-up arrival lead at 125 us: computed 184807 expected 184807 [page text found: '(184,807 ns at 125 us)']
+PASS start-up lead with one more cycle (the measured 2,059,787): computed 2059787 expected 2059787
+PASS start-up last event after arrival: computed 2163974 expected 2163974 [page text found: '2,163,974 ns after arrival']
+PASS 1x1 start-up margin (0.1 us): computed 492.1 expected 492.1
+PASS 8x8 start-up margin (0.1 us): computed 487.0 expected 487.0
+PASS inside 2.126 ms (Milan v1.2 4.4.2.1): computed True expected True
+PASS Eq.(1) lead ceiling >= stated 231.8 us and lead below it: computed (True, True) expected (True, True) [page text found: 'any lead up to 231.8 us holds']
+PASS Eq.(1) lead ceiling (exact, ns): computed 231860 expected 231860
+PASS drift: 5 Ps x 1000 ppm: computed 104 expected 104 [page text found: '(104 ns at 1,000 ppm)']
+PASS drift: 5 Ps: computed 104167 expected 104167 [page text found: '104,167 d ns']
+PASS 1x1 transit bound at 2 ms: computed 2135548 expected 2135548
+PASS 1x1 first-event offset bound: computed 2489452 expected 2489452
+PASS 1x1 whole-PDU offset bound: computed 2385285 expected 2385285
+PASS 8x8 transit bound at 2 ms: computed 2140725 expected 2140725
+PASS 8x8 first-event offset bound: computed 2484275 expected 2484275
+PASS 8x8 whole-PDU offset bound: computed 2380108 expected 2380108
+PASS range text: computed True expected True [page text found: '2,135,548 ns (1x1) or 2,140,725 ns (8x8)']
+PASS range text: computed True expected True [page text found: '2,489,452 ns (1x1) or 2,484,275 ns (8x8)']
+PASS range text: computed True expected True [page text found: '2,385,285 or 2,380,108 ns']
+PASS max tagged frame on the wire: computed 12336 expected 12336 [page text found: '12,336 ns']
+PASS max frame at 100 Mb/s: computed 123360 expected 123360 [page text found: '123,360 ns']
+PASS gasket 512 cycles: computed 10240 expected 10240 [page text found: '10.24 us']
+PASS one frame ahead at the MAC, aaf1 left: computed 5480 expected 5480
+PASS one frame ahead at the MAC, aaf8 left: computed 6576 expected 6576
+PASS one frame ahead at the MAC, crf1 left: computed 8167 expected 8167
+PASS one frame ahead at the MAC, crf8 left: computed 2990 expected 2990
+PASS one-frame-ahead text: computed True expected True [page text found: '5,480 ns (1x1) or 6,576 ns (8x8) for an AAF PDU, and 8,167 or 2,990 ns for a CRF PDU']
+PASS AAF egress shift: computed 16208 expected 16208 [page text found: '16,208 ns (AAF)']
+PASS CRF egress shift: computed 18040 expected 18040 [page text found: '18,040 ns (CRF)']
+PASS AAF left 1x1/8x8: computed (1608, 2704) expected (1608, 2704) [page text found: '1,608 or 2,704 ns for AAF']
+PASS CRF 1x1 left: computed 2463 expected 2463 [page text found: '2,463 ns']
+PASS CRF 8x8 late: computed 2714 expected 2714 [page text found: 'up to 2,714 ns after its timestamp less the applied offset']
+PASS CRF 8x8 corner named as transit after Equation (1)'s TT: computed True expected True [page text found: "That is after the hand-over, which is Equation (1)'s TT, so it is transit that the stream's latency budget carries."]
+PASS 2 ms runs found: computed 23 expected 23
+PASS every 2 ms [HOLD] <= 2,059,807: computed True expected True
+PASS every 125 us [HOLD] <= 184,807: computed True expected True
+INFO 2 ms runs whose [HOLD] max equals 2,059,807: 9 of 23; others: [2059787]
+PASS earlier claim 'measures that `[HOLD]` maximum in every 2 ms run' absent from the page (present: False)
+PASS 2 ms [HOLD] maxima take exactly two values: computed 2 expected 2
+PASS largest 2 ms [HOLD] maximum is the derived bound: computed 2059807 expected 2059807
+PASS the lower value is one cycle under the bound: computed 20 expected 20
+PASS page sentence from the log (9 and 14 of 23): computed True expected True [page text found: 'reaches that bound: its largest 2 ms `[HOLD]` maximum is 2,059,807 ns, in 9 of its 23 runs; the other 14 reach 2,059,787 ns, where the five tick spacings take one cycle more.']
+ALL PASS
+rc=0
