@@ -1,0 +1,144 @@
+{
+  "shards": [
+    {
+      "shard": 0,
+      "head": "c2a080aef7cd9a4ee2cd1bb4f8214b529bfd8c83",
+      "rc": 0,
+      "suites": [
+        "aaf_clock_meter",
+        "avtp_parser",
+        "avtp_stream",
+        "cdc",
+        "controller_rate",
+        "crf_tx",
+        "csr",
+        "gptp_plane",
+        "ifg",
+        "mbx",
+        "media_nco",
+        "milan_dp",
+        "pcmlpf",
+        "tdm",
+        "tsn_fuzz"
+      ],
+      "checks": 54074,
+      "failures": 0,
+      "skips": [
+        "SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)",
+        "SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))",
+        "SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)",
+        "SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))"
+      ]
+    },
+    {
+      "shard": 1,
+      "head": "c2a080aef7cd9a4ee2cd1bb4f8214b529bfd8c83",
+      "rc": 0,
+      "suites": [
+        "aaf_latency_tap_bank",
+        "adp_tx",
+        "cbs",
+        "cls",
+        "follow_ring",
+        "gptp_tables",
+        "gptp_txts",
+        "i2spb",
+        "link_guard",
+        "media_grid_align",
+        "media_phase",
+        "milan_dp_mclk",
+        "pair_fill",
+        "render_queue",
+        "tcam",
+        "tcam_csr"
+      ],
+      "checks": 331530,
+      "failures": 0,
+      "skips": []
+    },
+    {
+      "shard": 2,
+      "head": "c2a080aef7cd9a4ee2cd1bb4f8214b529bfd8c83",
+      "rc": 0,
+      "suites": [
+        "aaf",
+        "aaf_latency_taps",
+        "capture_coherence",
+        "chmap_capture",
+        "chmap_render",
+        "clkvalid",
+        "datapath",
+        "lat_history_ring",
+        "milan_dp_gm_steps",
+        "nvm_backend",
+        "nvm_cosim",
+        "pp_shadow",
+        "ptp",
+        "ptp_sync",
+        "ptp_ts",
+        "queues",
+        "tdm_render"
+      ],
+      "checks": 262066,
+      "failures": 0,
+      "skips": []
+    },
+    {
+      "shard": 3,
+      "head": "c2a080aef7cd9a4ee2cd1bb4f8214b529bfd8c83",
+      "rc": 0,
+      "suites": [
+        "aaf_audio_loop",
+        "aes3",
+        "avtp_rxmon",
+        "classifier",
+        "crf_rx",
+        "eth_tx_reset",
+        "fw_service_budget",
+        "gptp_shadow",
+        "maap",
+        "mac_rmon",
+        "milan_dp_render",
+        "mmcm_servo",
+        "mmcm_servo_autorepair",
+        "rx_filter",
+        "shaper_core",
+        "tkdiag"
+      ],
+      "checks": 1541972,
+      "failures": 0,
+      "skips": []
+    }
+  ],
+  "docs": {
+    "head": "c2a080aef7cd9a4ee2cd1bb4f8214b529bfd8c83",
+    "head_after": "c2a080aef7cd9a4ee2cd1bb4f8214b529bfd8c83",
+    "steps": 44,
+    "executed": 42,
+    "skipped": [
+      {
+        "job": "docs-gates-2",
+        "id": "gate_42",
+        "name": "Local act runner contract gate",
+        "rc": null,
+        "skipped": "executes the candidate act_ci.py on the host; AGENTS.md section 5 allows the candidate copy only inside the disposable CI job"
+      },
+      {
+        "job": "docs-check-no-git",
+        "id": "ci_step_3",
+        "name": "Strip git metadata, then run the docs gate",
+        "rc": null,
+        "skipped": "its body runs rm -rf .git, which would delete this worktree's git link; its two gates run in place below"
+      }
+    ],
+    "rcs": [
+      0
+    ],
+    "make_versions": [
+      "GNU Make 4.3"
+    ],
+    "remaining_metadata": {}
+  },
+  "suites": 64,
+  "checks": 2189642
+}
