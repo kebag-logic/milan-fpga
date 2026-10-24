@@ -1,0 +1,23 @@
+start 2026-10-24T17:52:46.369004039Z head a032c6d6e3775f145349d5a495c1e1ad12294936 cpus pid 3497452's current affinity list: 96-111
+2026-10-24T17:54:23.438376Z shard: 10/16   selected suites: 4
+2026-10-24T17:54:23.895280Z FAIL     milan_dp__3
+2026-10-24T17:54:24.336047Z FAIL     pp_shadow__3
+2026-10-24T17:54:29.827235Z PASS     ifg
+2026-10-24T18:07:37.330456Z PASS     media_phase
+2026-10-24T18:07:37.330583Z ----------------------------------------------------------------
+2026-10-24T18:07:37.330593Z suites: 4   passed: 2   failed: 2   timed out: 0
+2026-10-24T18:07:37.370318Z checks: 390   in-suite failures: 0
+2026-10-24T18:07:37.370339Z 
+2026-10-24T18:07:37.370346Z ACCOUNTING FAILURE -- nothing was measured by 2 suite log(s):
+2026-10-24T18:07:37.370352Z   NOCOUNT  milan_dp__3: printed no tally line at all
+2026-10-24T18:07:37.370358Z   NOCOUNT  pp_shadow__3: printed no tally line at all
+2026-10-24T18:07:37.370369Z   A suite that measured nothing is an UNKNOWN, not agreement.
+2026-10-24T18:07:37.370375Z   If it printed no tally: make it print one of the shapes in
+2026-10-24T18:07:37.370381Z   scripts/suite_tally.py. If it tallied zero: make it assert
+2026-10-24T18:07:37.370386Z   something, or say why it ran nothing with a SUITE-SKIP: line
+2026-10-24T18:07:37.370392Z   AND still report the checks it did run.
+2026-10-24T18:07:37.370398Z 
+2026-10-24T18:07:37.370403Z The check total above is INCOMPLETE and must not be quoted.
+2026-10-24T18:07:37.374343Z failing suites: milan_dp__3 pp_shadow__3
+2026-10-24T18:07:37.374355Z logs: <scratch>/runA-logs
+rc 2 end 2026-10-24T18:07:37.437091995Z
