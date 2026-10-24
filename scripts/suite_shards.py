@@ -6,7 +6,7 @@ physical gPTP suite. CI expands six registered parents into driver-owned case
 partitions. Only leg counts and measured duration estimates are registered here;
 the case names come from each driver, and executed receipts prove their union.
 
-Longest-first scheduling balances sixteen standard workers. The tsn-gen owner
+Longest-first scheduling balances sixteen regular workers of seventeen (#781). The tsn-gen owner
 stays at worker 1 and the netlist owner at worker 3. One continuous media-clock
 history runs alone on the final worker under issue 737s explicit timing exception.
 Every other worker must project at most 1620 seconds including setup. The older
@@ -19,7 +19,7 @@ hide a new suite by omitting it from selection. A changed count or timeout is re
 from the generated workflow, and omission, ownership, overflow and deterministic
 selection controls must still pass.
 
-    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/16
+    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/17
     python3 scripts/suite_shards.py --measure worker.log
     python3 scripts/suite_shards.py --selftest
 """
@@ -109,7 +109,7 @@ SUITE_SECONDS = {
     "mbx": 82,
     "media_grid_align": 255,
     "media_nco": 17,
-    "media_phase": 900,
+    "media_phase": 1400,
     "milan_dp": 2797,
     "milan_dp_gm_steps": 926,
     "milan_dp_mclk": 2038,
@@ -144,7 +144,9 @@ PROVISIONAL_SUITES: frozenset[str] = frozenset({"media_phase"})
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
 #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
-WORKER_OVERHEAD_SECONDS = (122,) * 16
+#: #781: a seventeenth worker takes media_phase's hosted 1400 s budget at the
+#: same 45-minute limit and the same 122 s allowance as every regular worker.
+WORKER_OVERHEAD_SECONDS = (122,) * 17
 
 # Physical inventory stays available to the serial gate and log ownership.
 SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
