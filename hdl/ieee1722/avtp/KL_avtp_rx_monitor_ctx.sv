@@ -16,11 +16,10 @@
                 (the module-avb-extracted engine): lock on first valid PDU /
                 8-PDU settle / mismatch detect + interrupt(lost>=2) /
                 100 ms silence unlock + interrupt (#762) / per-PDU format
-                compare (a rejected
-                PDU affects nothing else) / counter reset ONLY on that
-                stream's not-bound->bound edge [M-5.3.8.10]. Here, unlike
-                there, a rejected PDU advances the sequence state and
-                affects nothing else (#775).
+                compare (a rejected PDU affects nothing else) / counter
+                reset ONLY on that stream's not-bound->bound edge
+                [M-5.3.8.10]. Here, unlike there, a rejected PDU advances
+                the sequence state and affects nothing else (#775).
 
                 COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly:
 
