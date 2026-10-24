@@ -1664,8 +1664,9 @@ lands in the render and loopback rings after it, inside their bands.
 #### The domain's outputs
 
 - **CRF output.** `KL_crf_tx` counts 96 domain events per PDU and stamps the
-  96th's instant plus the Equation (14) offset. Its own /512 /96 divider of
-  `clk_audio_i` and its clock crossing are retired.
+  96th's instant plus the Equation (14) offset and, since #773, its TC (the
+  [next section](#the-talkers-capture-to-wire-latency)). Its own /512 /96
+  divider of `clk_audio_i` and its clock crossing are retired.
 - **AAF talkers.** The time base is the instant of the frame the capture walk
   reads. `KL_chan_map_capture` banks each frame's instant
   (`KL_media_domain_event` `mark_ns_o`) beside the frame and loads it into the
@@ -1674,21 +1675,24 @@ lands in the render and loopback rings after it, inside their bands.
   pair offset ((3 - p) pair periods on TDM8) never reach the timestamp. A time
   base latched at the tick instead named the frame before whenever a frame
   closed on the tick's own cycle: a whole sample off, which `capture_coherence`
-  caught at the engagement placed on the walk's crossing.
+  caught at the engagement placed on the walk's crossing. Since #773 the stamp
+  adds, before the offset, the crossing estimate and Milan's fixed delay, eight
+  whole periods on both shipping shapes (the
+  [next section](#the-talkers-capture-to-wire-latency)).
 - Both outputs therefore stamp the same frame instants whatever the packet
   grid's phase (4.3.5), and those instants sit on the followed stream's timing
-  points once the phase settles (10.8). Each output adds its own offset: the
-  CRF output whole periods, an AAF talker its offset as set (next bullet), so
-  with offsets of whole periods, as the factory 2 ms is, the outputs stay
-  whole periods apart. This is the assignment's item 3 by its second option:
+  points once the phase settles (10.8). Each output adds its own whole-period
+  terms (#773) and its own offset: the CRF output whole periods, an AAF talker
+  its offset as set (next bullet), so with offsets of whole periods, as the
+  factory 2 ms is, the outputs stay whole periods apart. This is the assignment's item 3 by its second option:
   the constant is folded out at the detector's own reference, and no aligner
   target moves.
 - **Presentation offsets: AAF as set, CRF in whole periods.** An AAF talker
   applies its offset (SET_STREAM_INFO) exactly as set: Milan v1.2 5.4.2.9 sets
   the offset to the commanded value, and no clause of Milan v1.2, IEEE
   1722.1-2021 or IEEE 1722-2016 puts AAF timestamps on whole media clock
-  periods. Each AAF timestamp is its frame's instant plus the offset as set,
-  to the ns. The one round-up rule is IEEE 1722-2016 10.7 Equation (14) (PICS
+  periods. Each AAF timestamp is its frame's instant plus the eight periods of
+  #773 plus the offset as set, to the ns. The one round-up rule is IEEE 1722-2016 10.7 Equation (14) (PICS
   CRF-19), and it is the CRF output's: `KL_mtt_round` rounds the CRF output's
   row alone up to a whole number of media clock periods, and `KL_crf_tx`
   stamps it (`ROUND_MTT_P = 0`, its own converter and multiplier block not
@@ -1751,7 +1755,8 @@ lands in the render and loopback rings after it, inside their bands.
   the largest value it can carry, never as its low word (11,871 ns for
   0xFFFFFFFF). An AAF offset is never rounded, so it stays 32 bits, and an AAF
   timestamp is the low 32 bits of gPTP time (IEEE 1722-2016 4.4.4.9, Equation
-  (6)): the frame's instant plus the offset, modulo 2^32. A controller cannot
+  (6)): the frame's instant plus its periods and the offset, modulo 2^32. A
+  controller cannot
   set an offset from 2^31 on (5.4.2.9 bounds it at 0x7FFFFFFF, and the
   processor refuses bit 31), so only a factory row reaches one.
   `media_phase`'s `ofs` grades 0, 1, 20,833, 20,834, 62,500, 2,000,000,
@@ -1765,11 +1770,112 @@ lands in the render and loopback rings after it, inside their bands.
   the AAF rows stamped rounded and read back rounded (round 2's binding), the
   CRF row stamped as set, and the carry dropped at its four places.
   `milan_dp`'s output walk requires every stamp, on every output of the 4x4
-  and 8x8 shapes, to be a domain media event's instant plus the offset
-  GET_STREAM_INFO reads, at 2 ms, 1 ms and 2,010,000 ns.
+  and 8x8 shapes, to be a domain media event's instant plus one whole number
+  of periods per output (#773) plus the offset GET_STREAM_INFO reads, at 2 ms,
+  1 ms and 2,010,000 ns, and every PDU's hand-over inside IEEE 1722-2016
+  Equation (1)'s window.
 - **Sources outside the frame bank.** A talker channel mapped from the stereo
   I2S hold, the tone or the loopback carries no frame instant of its own: its
   column is stamped with the physical frame's.
+
+#### The talkers' capture-to-wire latency
+
+[#773](https://github.com/kebag-logic/milan-fpga/issues/773) found the AAF
+talker late after #770. At a 125 us offset every PDU reached the wire after
+its own `avtp_timestamp`: -15.9 to -10.2 us on the bench. The stamp's base had
+become the instant the PDU's first frame started at the media interface
+(4.3.5), and the PDU cannot leave until its sixth frame has closed and been
+carried to the MAC: 128.0 to 148.8 us later at 1x1, more than 125 us at both
+shipping shapes ([measured and derived](https://github.com/kebag-logic/milan-fpga/issues/773#issuecomment-6380097334)).
+The [ruling](https://github.com/kebag-logic/milan-fpga/issues/773#issuecomment-6380110812)
+reads Milan v1.2 5.3.7.6's two parts:
+
+- **The crossing estimate.** The AAF talker estimates the Ingress Time
+  Reference Plane crossing (IEEE 1722-2016 4.3.3) as the end of the PDU's
+  sample span: the first frame's instant plus six periods
+  (`KL_aaf_packetizer` `SAMPLES_PER_FRAME_C`).
+- **The fixed delay.** Milan's "fixed delay value (between 0 and 125
+  microseconds)" covers that estimate's uncertainty: the fewest whole periods
+  covering the worst hand-over after it. That is two periods, 41.7 us, at both
+  shipping shapes. A delay above 125 us is refused at elaboration
+  (`KL_aaf_packetizer` `g_lead_delay`).
+- **The stamp** is the instant plus 8 Ps (166,667 ns, rounded up once, 0.33 ns
+  above the periods) plus the offset as set. These are whole periods, so 4.3.5's
+  relation to the CRF output and 10.8's band against a followed stream's timing
+  points hold as before: a listener presents every sample on the same frame
+  grid, eight periods later. GET_STREAM_INFO still reads the offset as set
+  (5.4.2.10.2).
+- **The end-to-end latency**, from a sample's frame at the capture pins to its
+  presentation at a listener, is the offset plus 8 Ps: 291,667 ns at 125 us
+  and 2,166,667 ns at 2 ms.
+- **CRF.** Equation (14) adds TC, "the amount of time that samples spend
+  accumulating in the Talker's transmit buffer". It is the fewest whole
+  periods covering the path from the timing point's frame instant to the PDU's
+  hand-over: 2 periods (41,667 ns) at 1x1 and 1 (20,834 ns) at 8x8
+  (`KL_crf_tx` `TC_P`). Equation (14)'s round-up of the offset is unchanged,
+  and GET_STREAM_INFO reads the offset alone.
+
+Each talker derives its periods at elaboration from its own pipeline and the
+terms `milan_datapath` states beside the packetizer (`TLK_*`). Every term is
+its worst case, and the hand-over is the datapath's MAC transmit port with the
+MAC ready:
+
+| Term | Derivation | 1x1 TDM8 | 8x8 TDM32 |
+|---|---|---:|---:|
+| The span's end to the last frame's close at the crossbar | the marker latency less one period (`TLK_SPAN_NS_C`) | 20,964 - 20,833 = 131 ns | 5,308 - 20,833 = -15,525 ns |
+| Capture age, the close to the walk's tick | the tick spacing rounded up, plus one cycle (`age_max_cyc`) | 1,043 cycles | 1,043 cycles |
+| Capture walk, the tick to the last talker's last pair | 4 + LOOP pairs + 26 x (4N - 1) cycles (`walk_pair_cyc`) | 86 cycles | 811 cycles |
+| Packetizer, the last pair to the last beat | 4 + np + beats - 1 cycles at 8 channels, 3 more for N > 1 (`PIPE_CYC_C`) | 57 cycles | 60 cycles |
+| TX arbiters, round-robin by packet | one CRF PDU and one maximum tagged frame, 8 + 190 beats | 198 cycles | 198 cycles |
+| **Hand-over after the estimate** | the sum, at 50 MHz | **27,811 ns** | **26,715 ns** |
+| **Fixed delay** | the fewest periods covering it | **2 (41,667 ns), 13,856 ns spare** | **2, 14,952 ns spare** |
+| CRF: the timing point's pulse after its instant | the marker latency and the event's register | 20,984 ns | 5,328 ns |
+| CRF: `KL_crf_tx`, the pulse to the last beat | 8 beats + 1 cycle (`PIPE_CYC_C`) | 180 ns | 180 ns |
+| CRF: TX arbiters | one AAF PDU at 8 channels and one maximum frame, 30 + 190 beats | 4,400 ns | 4,400 ns |
+| **CRF: TC** | the fewest periods covering 25,564 and 9,908 ns | **2 (41,667 ns)** | **1 (20,834 ns)** |
+
+Equation (1)'s lower bound puts the hand-over after the timestamp less the
+offset less TUmax. With TUmax at the 125 us timing uncertainty Milan v1.2
+5.3.7.6 supposes, that holds for any lead up to the earliest hand-over plus
+125 us. The earliest is 112.3 us after the instant (8x8 talker 0 at age 0), so
+any lead up to 237 us holds, and the lead is 166.7 us.
+
+**The listener's buffer.** Take this device's own talker at the 2 ms default
+with zero transit. A PDU arrives at most 2,038,676 ns (1x1) or 2,054,392 ns
+(8x8) before its timestamp, inside Milan v1.2 4.4.2.1's 2.126 ms. Its last
+event is presented five periods later, at most 2,142,843 or 2,158,559 ns after
+arrival. That is 513.3 or 492.4 us inside the render queue's
+2,656,119 or 2,650,942 ns ([supported range](#the-listener-each-sample-at-its-presentation-time-632)).
+Before #773 those were 1,976,176 and 1,991,892 ns.
+
+**Proof.** `capture_coherence`'s datapath leg runs the shipping 1x1 shape with
+the CRF output on, at 2 ms and at 125 us (`DP-CRF125-0..7`, both outputs).
+For every PDU at the MAC port it requires the following:
+
+- `[WIRE]`: the hand-over is at or before the timestamp less the offset (the
+  CRF output's applied offset), and after it less 125 us;
+- `[GRID]`: every AAF stamp less its offset and 8 periods, and every CRF stamp
+  less its offset and TC, is a domain media event's instant;
+- `[HOLD]`: no AAF stamp is more than 2.126 ms after its hand-over.
+
+The `[PIN]` grade puts every stamp less the offset and 8 periods on the
+frame's instant at the pins. Over 31 runs the AAF margin is 17,823 to 59,807
+ns, where 59,807 is a run's first PDU, stamped from the live PHC before the
+grid is live. The CRF margin is 20,503 ns.
+
+The mutation arm plants these defects, and each is caught:
+
+- the AAF lead dropped (#770's stamp);
+- the fixed delay one period short (7 Ps);
+- the AAF stamp 125 us late (the lower bound and `[HOLD]`);
+- the CRF TC dropped, and one period short (1 Ps);
+- the CRF stamp 125 us late.
+
+A fixed delay pushed past 125 us is refused by the build. `milan_dp`'s output
+walk requires Equation (1)'s window and one whole number of periods per output
+on the 4x4 and 8x8 test shapes. Those shapes run their audio clock with the
+axis clock, so their periods are their own. The 8x8 TDM32 figures are derived
+only: no harness runs that shape at its clocks.
 
 #### Per-interface constants
 
