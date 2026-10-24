@@ -1,0 +1,7 @@
+[PASS clean] clean: passed
+[PASS mutant caught] crf_data_length 12 resizes the frame to 64: ASSERT FAILED: FRAME_BYTES is not 60
+[PASS mutant caught] header 24 resizes the frame to 64: ASSERT FAILED: FRAME_BYTES is not 60
+[PASS mutant caught] the tag grows the frame (+ VTAG_C): ASSERT FAILED: FRAME_BYTES is not 60
+[PASS mutant caught] round-1 type cast int'(...) the resolver does not read: ASSERT FAILED: no localparam int found
+[PASS mutant caught] non-arithmetic $bits(...) in the frame size: ASSERT FAILED: no localparam bits found
+6 checks: 6 PASS, 0 FAIL

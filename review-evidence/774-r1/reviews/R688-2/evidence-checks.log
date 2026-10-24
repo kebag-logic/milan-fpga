@@ -1,0 +1,24 @@
+shard 0: 15/15 suites, 54146/0 checks, rc=0
+shard 1: 16/16 suites, 331530/0 checks, rc=0
+shard 2: 17/17 suites, 262066/0 checks, rc=0
+shard 3: 16/16 suites, 1541583/0 checks, rc=0
+PASS total: 64/64 suites, 2189325 checks, zero failures
+native replica job changes: success; executed steps=2
+native replica job verilator-lint: success; executed steps=4
+native replica job bdd-conformance: success; executed steps=4
+native replica job yosys-elaboration: success; executed steps=7
+native replica job publication-census: success; executed steps=4
+native replica job firmware-unit: success; executed steps=8
+native replica job firmware-control-mutants: success; executed steps=5
+native replica job firmware-aecp-mutants: success; executed steps=5
+native replica job firmware-srp-mutants: success; executed steps=5
+native replica job firmware-boundary: success; executed steps=5
+native replica job firmware-verilator: success; executed steps=6
+Native run-body replica only; uses/setup substitutions are recorded in receipts.json.
+PASS carry 0d4b4620..HEAD: ci/image/command-table.json, sw/firmware/ctrl/README.md
+PASS carry 2a0085dd..HEAD: sw/firmware/ctrl/README.md
+PASS BDD scenario and steps byte-identical to base
+PASS command-table script digest, non-installing class and runtime pattern
+PASS head suite walk: no learned entry for changed script or new executable
+PASS base suite walk: no learned entry for changed script or new executable
+PASS selected raw public receipts copied without byte changes
