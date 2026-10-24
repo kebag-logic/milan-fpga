@@ -1,0 +1,32 @@
+lock_set [engine]
+  nx rc=0 NxN RX stack: 169 checks, 0 failures
+  lockstep N=1 rc=1 == avtp_rxmon lockstep N=1: checks: 116   failures: 4 == | RESULT: FAIL
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=46164 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=2753 exp=0
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=61026 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=3409 exp=0
+  lockstep N=8 rc=1 == avtp_rxmon lockstep N=8: checks: 119   failures: 4 == | RESULT: FAIL
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=53325 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=5755 exp=0
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=66670 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=6420 exp=0
+lock_set [both]
+  nx rc=0 NxN RX stack: 169 checks, 0 failures
+  lockstep N=1 rc=0 == avtp_rxmon lockstep N=1: checks: 116   failures: 0 == | RESULT: PASS
+  lockstep N=8 rc=0 == avtp_rxmon lockstep N=8: checks: 119   failures: 0 == | RESULT: PASS
+settle_dec [engine]
+  nx rc=0 NxN RX stack: 169 checks, 0 failures
+  lockstep N=1 rc=1 == avtp_rxmon lockstep N=1: checks: 116   failures: 4 == | RESULT: FAIL
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=25302 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=1597 exp=0
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=31547 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=1632 exp=0
+  lockstep N=8 rc=1 == avtp_rxmon lockstep N=8: checks: 119   failures: 4 == | RESULT: FAIL
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=67878 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=2681 exp=0
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=26136 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=2502 exp=0
+settle_dec [both]
+  nx rc=0 NxN RX stack: 169 checks, 0 failures
+  lockstep N=1 rc=0 == avtp_rxmon lockstep N=1: checks: 116   failures: 0 == | RESULT: PASS
+  lockstep N=8 rc=0 == avtp_rxmon lockstep N=8: checks: 119   failures: 0 == | RESULT: PASS

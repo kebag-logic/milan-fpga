@@ -1,0 +1,42 @@
+aaf_lock_set: SURVIVED rc=0 fails=0 named=0
+aaf_settle_dec: SURVIVED rc=0 fails=0 named=0
+aaf_settle_restart: CAUGHT rc=1 fails=1 named=1
+    [FAIL] [SQ3b] a gap after an off-format PDU counts SEQ_NUM_MISMATCH +1 got=0 exp=1
+aaf_mr_seed: CAUGHT rc=1 fails=2 named=2
+    [FAIL] [SQ2d] MEDIA_RESET unchanged                   got=1 exp=0
+    [FAIL] [SQ3f] ...and MEDIA_RESET and TIMESTAMP_UNCERTAIN unchanged got=1 exp=0
+aaf_wire_chans: CAUGHT rc=1 fails=3 named=3
+    [FAIL] [UF2e] ...and leaves wire_chans at 8           got=2 exp=8
+    [FAIL] [UF4g] wire_chans follows the accepted PDU     got=8 exp=2
+    [FAIL] [SQ1e] ...and wire_chans stays 8               got=2 exp=8
+aaf_off_by_one: CAUGHT rc=1 fails=6 named=6
+    [FAIL] no mismatch across bad-format PDUs             got=3 exp=2
+    [FAIL] [UF2g] ...with no SEQ_NUM_MISMATCH             got=1 exp=0
+    [FAIL] [SQ1c] ...and its sequence_num is prev_seq     got=50 exp=49
+    [FAIL] [SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence got=1 exp=0
+    [FAIL] [SQ2h] STREAM_INTERRUPTED unchanged            got=1 exp=0
+    [FAIL] [SQ3b] a gap after an off-format PDU counts SEQ_NUM_MISMATCH +1 got=0 exp=1
+aaf_pseq_stream0_addr: CAUGHT rc=1 fails=4 named=4
+    [FAIL] [UF2g] ...with no SEQ_NUM_MISMATCH             got=1 exp=0
+    [FAIL] [SQ1c] ...and its sequence_num is prev_seq     got=48 exp=49
+    [FAIL] [SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence got=1 exp=0
+    [FAIL] [SQ3c] ...one PDU lost from the off-format PDU's: no STREAM_INTERRUPTED got=1 exp=0
+aaf_pseq_no_write: CAUGHT rc=1 fails=5 named=5
+    [FAIL] no mismatch across bad-format PDUs             got=3 exp=2
+    [FAIL] [UF2g] ...with no SEQ_NUM_MISMATCH             got=1 exp=0
+    [FAIL] [SQ1c] ...and its sequence_num is prev_seq     got=48 exp=49
+    [FAIL] [SQ2c] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence got=1 exp=0
+    [FAIL] [SQ3c] ...one PDU lost from the off-format PDU's: no STREAM_INTERRUPTED got=1 exp=0
+aaf_reject_refreshes_silence: SURVIVED rc=0 fails=0 named=0
+crf_no_plus_one: CAUGHT rc=1 fails=91 named=3
+    [FAIL] [FMT-c1] the next CRF PDU is accepted with no SEQ_NUM_MISMATCH got=1 exp=0
+    [FAIL] [SQ-b2] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence got=1 exp=0
+    [FAIL] [SQ-c2] ...one PDU lost from the AAF PDU's: no STREAM_INTERRUPTED got=1 exp=0
+crf_reject_clears_have_seq: CAUGHT rc=1 fails=1 named=1
+    [FAIL] [SQ-c1] a gap after an AAF PDU counts SEQ_NUM_MISMATCH +1 got=0 exp=1
+crf_reject_seeds_mr: CAUGHT rc=1 fails=60 named=3
+    [FAIL] [H2a-c2] ... and did not move the reference either got=1 exp=0
+    [FAIL] [SQ-b3] MEDIA_RESET unchanged                  got=1 exp=0
+    [FAIL] [SQ-c5] ...and MEDIA_RESET and TIMESTAMP_UNCERTAIN unchanged got=1 exp=0
+crf_reject_moves_delta: CAUGHT rc=1 fails=2 named=1
+    [FAIL] [SQ-a3] ...leaves delta_o                      got=-4000000 exp=1131700
