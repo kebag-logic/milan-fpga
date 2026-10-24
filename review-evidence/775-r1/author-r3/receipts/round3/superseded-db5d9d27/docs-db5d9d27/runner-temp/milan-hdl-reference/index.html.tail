@@ -1,0 +1,200 @@
+<tr><td>AMAP_OUT_IMAGE_C</td><td>logic [AMAP_OUT_KEYS_C-1:0]</td><td>amap_out_image()</td><td></td></tr>
+<tr><td>AMAP_OUT_WORDS_C</td><td>logic [AMAP_OUT_KEYS_C*13-1:0]</td><td>amap_out_words()</td><td></td></tr>
+<tr><td>AMAP_BOOT_KEYS_C</td><td>int</td><td>(AMAP_IN_KEYS_C &gt; AMAP_OUT_KEYS_C) ? AMAP_IN_KEYS_C : AMAP_OUT_KEYS_C</td><td>THE BOOT WRITER&#x27;s cursor. amap_boot_r is the window (reset to the restore&#x27;s terminal), amap_boot_last_r the one sweep after it, from key 0, and amap_boot_drain_r the cycle its last write lands in the RAM.</td></tr>
+<tr><td>AMAP_BOOT_KW_C</td><td>int</td><td>(AMAP_BOOT_KEYS_C &lt;= 2) ? 1 : $clog2(AMAP_BOOT_KEYS_C)</td><td></td></tr>
+<tr><td>AMR_NI_C</td><td>int</td><td>AMAP_IN_PORTS_C</td><td>==== #637: the channel-map records ==================================== THE OWNER (the processor&#x27;s ruling on its issue 83, 2026-10-03; D3 15 item 2, amended; the processor&#x27;s 07 §5.1). The map plane is this parent&#x27;s, so its records are too: 0x60 + p for STREAM_PORT_INPUT p and 0x70 + p for STREAM_PORT_OUTPUT p, written and restored here through KL_pp_shadow&#x27;s record face (the backend&#x27;s device face, shared with the processor&#x27;s NVM port). Milan v1.2 5.3.9.1 and 5.3.10.1: each Stream Port&#x27;s dynamic mapping list is saved in non-volatile memory and restored after a power cycle, the EMPTY list included. Only a dynamic port&#x27;s record is ever written; a static port&#x27;s stays erased, and its map is its descriptor&#x27;s. THE RECORD (FASTCONNECT 4.2 and 6.1, D3 8.3; #637 changes neither). F07.8 framing {magic 0x1722, layout_version, record_id, payload_length, crc16 CCITT-FALSE over the header without its crc and the payload}, big-endian. The payload is the port&#x27;s set as 8-byte mappings {stream_index, stream_channel, cluster_offset, cluster_channel} in GET_AUDIO_MAP order, then UNUSED entries of exactly eight 0xFF bytes up to the capacity: the port&#x27;s cluster count for an input, max(clusters, STREAM_OUTPUT * 8) for a dynamic output (#501). The empty set is a framed record of UNUSED entries (V3g), never an erased span, so empty and erased stay apart. THE WRITER (D3 3 rules 2 to 4, 6.1, 7.1; DR2a to DR2c). One dirty bit per record, set by the accepted phase-5 change (amap_edit_live_wr_p, which an unchanged mapping never raises: DR2b) and reported to pend from that edge (KL_pp_shadow). A first-dirty window of 500 ms arms one burst that drains every dirty record in round-robin order. A record is LATCHED in one clock with no edit transaction open, so the latched set is one a completed command left; a change from that clock on TAINTS the write, whose done then clears nothing, and a change on the done edge wins. The write is one whole-record WRITE: the backend overwrites the record&#x27;s span in place and closes it at the done. An attempt that errs or misses its deadline waits 500 ms and relatches; the third failure gives the record up with the reset-sticky alarm. THE RESTORE (D3 8.3, 8.4, 8.6, 8.8, 18.4; the processor&#x27;s 07 §5.1). It runs after the D3 walk&#x27;s COMPLETE terminal only: DEFAULTS, a D3 abort and CLOSED keep every reset set. It is one transaction over the map records alone, in three stages through the transaction server above: 0. every dynamic port&#x27;s reset set (the #658 image clipped to the formats the D3 walk restored) is REMOVEd; 1. each dynamic port&#x27;s record is read whole, once. A well-formed one&#x27;s set is ADDed, judged by the ADD rule against those formats. An erased or unframed record (magic, length), a framed one whose layout, id, crc16, padding (UNUSED is eight 0xFF bytes, and nothing but UNUSED follows one) or field ranges fail, and a set the ADD rule refuses, each mark the port; 2. every marked port&#x27;s reset set is ADDed back. So a saved set never meets another port&#x27;s reset set: a key one port gave up and another took is free when the taker&#x27;s set is ADDed, whatever the port order (Milan v1.2 5.3.10.1; #637 ruling, PR #768 comment 6269988820). A failure of the walk (a device error, a short read, a wait past AMR_RS_TMO_MS_P, the aggregate AMR_RS_AGG_MS_P from PP_CTRL[1], a refused REMOVE, or a refused put-back) ROLLS BACK every map to its reset set, so no partial restore survives. One read pass is enough (the same ruling): this roll-back reaches every map, and the faces wait meanwhile (amap_boot_busy_w, pp_amap_wait_w, the format judge) and the entity enable is held, so no command edits or reads a map, and no ADPDU leaves, before the restore has ended. PP_STAT composes its verdicts with the processor&#x27;s (pp_stat_*_w).</td></tr>
+<tr><td>AMR_NO_C</td><td>int</td><td>AMAP_OUT_PORTS_C</td><td></td></tr>
+<tr><td>AMR_NR_C</td><td>int</td><td>AMR_NI_C + AMR_NO_C</td><td></td></tr>
+<tr><td>AMR_RW_C</td><td>int</td><td>$clog2(AMR_NR_C + 1)</td><td>wide enough to hold AMR_NR_C itself, the end of the walk</td></tr>
+<tr><td>AMR_LAYOUT_C</td><td>logic [7:0]</td><td>8&#x27;h02</td><td>KL_acmp_nvm_shadow&#x27;s LAYOUT_VER_P, which the D3 writer shares; the record-space gate compares this literal with the donor&#x27;s (scripts/check_nvm_record_space.py, check 15)</td></tr>
+<tr><td>AMR_ICL_C</td><td>int</td><td>amr_icl_max()</td><td>the latch: an input port&#x27;s clusters as {v, stream[2:0], channel[2:0]}, an output&#x27;s stream-channel keys as {v, cluster}</td></tr>
+<tr><td>AMR_OCW_C</td><td>int</td><td>$clog2(amr_ocl_max())</td><td></td></tr>
+<tr><td>AMR_OK_C</td><td>int</td><td>AMAP_OUT_KEYS_C</td><td></td></tr>
+<tr><td>AMR_PW_C</td><td>int</td><td>$clog2((N_STREAMS &gt; AMR_NO_C) ? N_STREAMS : AMR_NO_C)</td><td>an output key&#x27;s owner register only ever holds a value below max(N_STREAMS, ports): a phase-5 commit writes an index below the port count (commit_ok), the CSR writer and the image a stream index. So its low AMR_PW_C bits name it, and on a one-port, one-stream shape no bit does and every owned key is the port&#x27;s.</td></tr>
+<tr><td>AMR_PWX_C</td><td>int</td><td>(AMR_PW_C &gt; 0) ? AMR_PW_C : 1</td><td></td></tr>
+<tr><td>AMR_MSW_C</td><td>int</td><td>(AMR_MS_CYC_P &lt;= 2) ? 1 : $clog2(AMR_MS_CYC_P)</td><td>---- the millisecond tick of the debounce and the backoff -------------</td></tr>
+<tr><td>GSI_SNK_W_C</td><td>int</td><td>(ACMP_SINKS_C &gt; 1) ? $clog2(ACMP_SINKS_C) : 1</td><td>CLAMPED index widths - a 1-sink shape&#x27;s 2-bit vectors must never be part-selected with a wider index (the lint ratchet&#x27;s own catch)</td></tr>
+<tr><td>GSI_SRC_W_C</td><td>int</td><td>(ACMP_SRC_C &gt; 1) ? $clog2(ACMP_SRC_C) : 1</td><td></td></tr>
+<tr><td>SFMT_VAR_MASK_C</td><td>logic [63:0]</td><td>(64&#x27;h3FF &lt;&lt; 22) | (64&#x27;h1 &lt;&lt; 52)</td><td>---- the SET_STREAM_FORMAT verdict (kind 0 selector 15, issue #67) ---- The processor presents the PROPOSED format on `pp_gsi_prop_fmt_w` and asks this fabric to judge it: bit 0 = a format this build can serve for the addressed stream, bit 1 = every channel an existing audio mapping references still exists in it (Milan §5.4.2.7&#x27;s SHALL). Anything less than 3 refuses BAD_ARGUMENTS processor-side. SUPPORTED is a family decode, not a list walk: the descriptors advertise the generated base (`ADP_STRIN0_FMT_C`) plus Milan §6.2&#x27;s 48 kHz channel family {1,2,4,6,8} through the ut-bit entry, so a proposal is supported when it equals the base outside the channels_per_frame field (qword [31:22]) with the ut bit CLEAR (a SET names one concrete format, never a family string) and its channel count is a family member. Inputs take the whole family - the RX monitor already adapts to any wire count 1..8 under the declared base. An OUTPUT is talker truth: the framer emits exactly the generated wire shape, so only the base&#x27;s own channel count is accepted until talker adaptation exists. The CRF rows admit exactly the advertised CRF format (`ADP_CRF_FMT_C`) - §5.3.3.4 keeps the AAF and CRF families disjoint per stream. channels_per_frame lives at qword [31:22] (the builder&#x27;s aaf_pcm32 encoder is the gate-proven authority; the generated 2/4/8ch constants differ ONLY there). The first cut read [47:38] - the format octet plus bit_depth - which froze the family compare shut and the channel counts at a constant 8; the review&#x27;s mutation run is what caught it.</td></tr>
+<tr><td>SFV_KEYS_C</td><td>int</td><td>ADP_DMAP_IN_KEYS_C</td><td>---- channels-required reductions feeding the verdict ------------------ INPUT side: the render map is keyed by global cluster and its 8-bit entries carry {en, src, stream[2:0], channel[2:0]}, so the per-stream maximum needs a scan. One ROLLING key per cycle into per-stream accumulators, published at each wrap: a full sweep is ADP_DMAP_IN_KEYS_C cycles, far under any command&#x27;s lifetime, and map edits cannot race the verdict - the engine runs one AECP command at a time, and the vendor-CSR chmap path is bring-up-only (state is set over ATDECC). One shared read mux instead of per-stream trees: the amap page walk&#x27;s timing verdict priced parallel indexed reads out.</td></tr>
+<tr><td>SFV_KW_C</td><td>int</td><td>(SFV_KEYS_C &lt;= 2) ? 1 : $clog2(SFV_KEYS_C)</td><td></td></tr>
+<tr><td>NSIDX_W_C</td><td>int</td><td>(N_STREAMS &lt;= 1) ? 1 : $clog2(N_STREAMS)</td><td>NXN §1.1 (P1): stream-table classification authority. Entry 0 aliases the processor&#x27;s ACMP bound record combinationally; entries 1..N-1 + bench overrides arrive via the 0x800 CSR window (P12 glue below).</td></tr>
+<tr><td>AAF_SPF_C</td><td>int unsigned</td><td>6</td><td>48 kHz / 8000 per s</td></tr>
+<tr><td>AAF_SMP_OCTETS_C</td><td>int unsigned</td><td>4</td><td>AAF INT_32BIT</td></tr>
+<tr><td>AVTP_AAF_HDR_C</td><td>int unsigned</td><td>24</td><td>common + format header</td></tr>
+<tr><td>TCTX_CHANS_RST_C</td><td>logic [3:0]</td><td>aaf_chn_clamp(4&#x27;(TALKER_WIRE_CHANS_P))</td><td>RESET VALUE OF THE TSPEC GEOMETRY = THE ELABORATED WIRE WIDTH, and this is load-bearing rather than tidy. tctx_chans_r shadows TCTX w0 `chans`, but NO board software writes that window - it is provisioned by the fabric (srp_fab_rec_mux below), so on silicon this register never leaves its reset value. It used to reset to 4&#x27;d2 while KL_aaf_packetizer reset its own chans_r to the elaborated WIRE_CHANS_C, so on the shipping 4-channel Arty the wire carried a 120-octet AAF frame and talkers 1..N-1 DECLARED the 2-channel TSpec (73), reserving 7.36 Mb/s against the 10.368 Mb/s the stream actually occupies - a 29% under-reservation, i.e. the bridge grants less CBS credit than the traffic needs. Slot 0 escaped it because the fabric mux starts at s=1 and slot 0 keeps cfg_lwsrp_max_frame, which is exactly the index-0-works / 1..N-1-broken signature of 0x001F. Deriving the reset from the SAME parameter the framer is given makes wire and reservation agree by construction at any width, 8 channels included, and a CSR write still overrides.</td></tr>
+<tr><td>CRF_DECL_SLOT_C</td><td>int</td><td>(ACMP_SRC_C &gt; N_STREAMS) ? CRF_TUID_C : 0</td><td>THE INTERLOCK, repointed. Frames are tagged only while THIS STREAM&#x27;s MSRP Talker Advertise is on the wire - otherwise 802.1Q 35.1.2 prunes a tagged-but-undeclared stream to zero ports, which is strictly worse than the untagged flood. The level used to be &quot;the fabric provisioned the row AND the applicant is running&quot;; it is now the processor&#x27;s own declaration state for the CRF source, which is the same fact one step closer to the wire. Shapes with no CRF Stream Output have no source to declare and keep the untagged fallback. ...and the select must stay LEGAL at a shape that has no CRF source: at ACMP_SRC_C == N_STREAMS the vector is 2*N_STREAMS wide and slot CRF_TUID_C = N_STREAMS is one past its end. Verilator called that out as SELRANGE; synthesis would have taken the out-of-range bits as X/0 and the guard above would have hidden it. Clamp the INDEX, not the answer.</td></tr>
+<tr><td>DOM_I2S_CLOSE_C</td><td>bit</td><td>KL_media_if_latency_pkg::close_is_i2s( AUDIO_IF_SLOTS_P, AUDIO_IF_I2S_PAIR_P)</td><td></td></tr>
+<tr><td>DOM_CLOSE_PAIR_C</td><td>int</td><td>DOM_I2S_CLOSE_C ? 0 : KL_media_if_latency_pkg::close_pair(CMAP_TDM_FRAME_PAIRS_C)</td><td></td></tr>
+<tr><td>DOM_WORD_BITS_C</td><td>int</td><td>DOM_I2S_CLOSE_C ? 32 : AIF_WORD_BITS_C</td><td>the I2S front end strobes one pair of two 32-bit words</td></tr>
+<tr><td>DOM_MARK_BITS_C</td><td>longint</td><td>KL_media_if_latency_pkg::pair_end_bits( DOM_CLOSE_PAIR_C, DOM_WORD_BITS_C, 1)</td><td></td></tr>
+<tr><td>DOM_BIT_HZ_C</td><td>longint</td><td>DOM_I2S_CLOSE_C ? 64&#x27;(64 * AUDIO_IF_FS_HZ_P) : 64&#x27;(AIF_BCLK_HZ_C)</td><td></td></tr>
+<tr><td>DOM_WR_HZ_C</td><td>longint</td><td>DOM_I2S_CLOSE_C ? 64&#x27;(512 * AUDIO_IF_FS_HZ_P) : (AUDIO_IF_MASTER_P != 0) ? 64&#x27;(AUDIO_IF_CLK_HZ_P) : DOM_BIT_HZ_C</td><td></td></tr>
+<tr><td>DOM_WR_CYC_C</td><td>longint</td><td>DOM_I2S_CLOSE_C ? 64&#x27;d5 : 64&#x27;d1</td><td></td></tr>
+<tr><td>DOM_MARK_LAT_NS_C</td><td>int unsigned</td><td>32&#x27;(KL_media_if_latency_pkg::mark_lat_ns( DOM_MARK_BITS_C, DOM_BIT_HZ_C, DOM_WR_HZ_C, DOM_WR_CYC_C, 64&#x27;(MILAN_CLK_FREQ_HZ)))</td><td></td></tr>
+<tr><td>MCSRV_WIN_LOG2_C</td><td>int unsigned</td><td>9</td><td>MCSERVO_P = 0 prunes the servo (see the parameter note). The tie-off is the servo&#x27;s own IDLE state, term by term: it drives drp_en/we = 0 and ps_en = 0 while CRF is unselected, and mmcm_rst_o is asserted only inside a REPAIR sequence that a pruned build never enters. status_o = 0 makes A_MCSRV_STAT 0x8F8 a STRUCTURAL zero - REGISTER_MAP records that this window already has a dead-read carve-out, so a reader cannot tell &quot;no servo built&quot; from &quot;servo idle&quot; there and must not try. The servo&#x27;s window is 2^MCSRV_WIN_LOG2_C of its 1 ms ticks, its own default, named here because the #645 settle recentre counts LOCKED in these windows (g_settle_recentre).</td></tr>
+<tr><td>MGA_SAMPLE_CYC_C</td><td>int unsigned</td><td>MILAN_CLK_FREQ_HZ / 48_000</td><td>256 cycles, capped at a quarter sample: a compressed-clock test elaboration (2 MHz, 41 cycles a sample) has no room for 256, and there no keep-off could clear a 149-cycle transient anyway</td></tr>
+<tr><td>MGA_KEEPOFF_CYC_C</td><td>int unsigned</td><td>(MGA_SAMPLE_CYC_C / 4 &lt; 256) ? MGA_SAMPLE_CYC_C / 4 : 256</td><td></td></tr>
+<tr><td>RENDER_PAY_LEAD_C</td><td>int</td><td>16</td><td>#632: the payload follows the header&#x27;s timestamp by the cycles the render stage takes to place the PDU (its divider: a quotient bit per cycle; KL_render_queue refuses a shorter lead at elaboration)</td></tr>
+<tr><td>DPKT_FIFO_BYTES_C</td><td>int</td><td>2048</td><td>#632: the longest PDU the render stage walks. The frame FIFO drops a frame over its depth, so a payload is at most the depth less the 38-byte untagged header: 252 beats of two samples, 504 one-channel events (the stage&#x27;s late reach covers it)</td></tr>
+<tr><td>RENDER_MAX_EV_C</td><td>int</td><td>2 * ((DPKT_FIFO_BYTES_C - 38 + 7) / 8)</td><td></td></tr>
+<tr><td>SRC_SETTLE_ERR_C</td><td>int unsigned</td><td>(MILAN_CLK_FREQ_HZ / 48_000) / 64</td><td>The settle recentre&#x27;s arming edges below: the selected source index and the aligner&#x27;s engagement, one cycle late. The #386 at-switch recentre these once fed is retired with the setpoint stage (#632): the render stage places each sample by its timestamp, so a source change moves no fill. Its settling band and dwell stay, read by the settle recentre at INTERNAL.</td></tr>
+<tr><td>SRC_SETTLE_TICKS_C</td><td>int unsigned</td><td>2048</td><td></td></tr>
+<tr><td>SETTLE_EXC_ERR_C</td><td>int unsigned</td><td>2</td><td>#645 / #647: THE SETTLE RECENTRE. A recentre at the switch fires while the media plane is still moving: under following the servo locks frequency only, so the phase walk of its pull-in (1.4 ticks from INTERNAL at a 5.9 ppm offset) lands in the ring after it, and an aligner pull-in at INTERNAL arms nothing at all. This one recentre per transient fires once the plane has settled and goes to the capture crossbar&#x27;s LOOP queues (settle_recentre_p_r, declared at that instance). The render stage took it too until #632; it now places each sample by its timestamp, so the pull-in&#x27;s phase walk lands in its snapping (a slip at most, counted) rather than in a fill. Armed by a change of the selected index, by the aligner&#x27;s re-engagement, at INTERNAL by a listener bind&#x27;s first PDU (below), and, outside recovery, by an aligner excursion past the quiet band (a pull-in under a running stream). SETTLED means: under a followed source, the servo LOCKED for SETTLE_LOCK_WIN_C windows running, since the rate loop&#x27;s phase tail falls about 0.64 a window. Under a followed CRF stream the servo&#x27;s phase term (#632) then pulls the grid onto the stream&#x27;s timing points, at most Ps/2 at 0.5 ppm, so up to half a tick of that pull lands in both rings after this recentre (docs/design/MEDIA_CLOCK_FOLLOWING.md, Phase alignment). At INTERNAL, the aligner inside the settle band for SRC_SETTLE_TICKS_C ticks running, or not engaged at all (no pull to wait out). An excursion while pending restarts that run. The ceiling, 2^SETTLE_CEIL_LOG2_C ticks (21.8 s) from the arming, fires it whatever the loops do. After an action, excursion arming stays disabled until the engaged aligner has spent 2048 consecutive ticks in the quiet band. Reuse the pending dwell counter for that recovery qualification; a source change or re-engagement still arms immediately. Twice the quiet +/-1 axis-cycle quantisation, independent of the clock-frequency-scaled settling band (SRC_SETTLE_ERR_C).</td></tr>
+<tr><td>SETTLE_LOCK_WIN_C</td><td>int unsigned</td><td>8</td><td></td></tr>
+<tr><td>SETTLE_LOCK_TICKS_C</td><td>int unsigned</td><td>SETTLE_LOCK_WIN_C * (1 &lt;&lt; MCSRV_WIN_LOG2_C) * (48_000 / 1000)</td><td>one servo window in media ticks: 2^MCSRV_WIN_LOG2_C ticks of 1 ms</td></tr>
+<tr><td>SETTLE_RUN_W_C</td><td>int unsigned</td><td>$clog2(SETTLE_LOCK_TICKS_C + 1)</td><td></td></tr>
+<tr><td>SETTLE_CEIL_LOG2_C</td><td>int unsigned</td><td>20</td><td></td></tr>
+<tr><td>RENDER_PAIRS_C</td><td>int</td><td>(RX_WIRE_CHANS_C + 1) / 2</td><td></td></tr>
+<tr><td>RENDER_PIPE_MIN_NS_C</td><td>longint</td><td>KL_media_if_latency_pkg::out_pipe_ns( 0, N_STREAMS, RENDER_PAIRS_C, AUDIO_IF_RENDER_SLOTS_P, 64&#x27;(MILAN_CLK_FREQ_HZ), 64&#x27;(AUDIO_IF_CLK_HZ_P), 1&#x27;b0)</td><td></td></tr>
+<tr><td>RENDER_PIPE_NS_C</td><td>longint</td><td>KL_media_if_latency_pkg::out_pipe_ns( 0, N_STREAMS, RENDER_PAIRS_C, AUDIO_IF_RENDER_SLOTS_P, 64&#x27;(MILAN_CLK_FREQ_HZ), 64&#x27;(AUDIO_IF_CLK_HZ_P), 1&#x27;b1)</td><td></td></tr>
+<tr><td>RENDER_LEAD_C</td><td>int</td><td>KL_media_if_latency_pkg::out_lead_frames( 64&#x27;(DOM_MARK_LAT_NS_C), RENDER_PIPE_NS_C, 64&#x27;(AUDIO_IF_FS_HZ_P))</td><td></td></tr>
+<tr><td>SRP_TK_REG_ADVERTISE_C</td><td>logic [1:0]</td><td>2&#x27;d1</td><td>SINK 0&#x27;s registrar level - the flat 0x6A4/0x690 status words are scalars and always described sink 0, and [2*k +: 2] is the per-sink slice. tk_reg_state is a CODE, not a one-hot: the processor publishes 0 NONE / 1 ADVERTISE / 2 FAILED (protocol-processor hdl/srp/KL_srp_top.sv:211 tk_reg_state_o, driven by status_map at hdl/srp/KL_srp_listener_fsm.sv:851-853), so bit 1 of the slice is set for a registered Talker FAILED and clear for the registered Talker ADVERTISE this field is named for - the inversion #472 measured. The compare is against the ADVERTISE code, named below because the processor spells this word&#x27;s codes in a port comment and not in srp_pkg (the Listener four-pack below IS in the package, and is taken from it). 802.1Q 35.2.4.4.1 is the registrar. The per-sink Failure BridgeID and registered VLAN are NOT on the class-D face (it carries the per-SOURCE bridge id only; the processor serves a sink&#x27;s bridge id itself, in GET_STREAM_INFO, #508), so the CSR fields that carried them are gone from this file rather than wearing a source&#x27;s value under a sink&#x27;s name.</td></tr>
+<tr><td>PP_CTR_SIN_N_C</td><td>int unsigned</td><td>N_STREAMS + ((ACMP_SINKS_C &gt; N_STREAMS) ? 1 : 0)</td><td>---- Milan Table 5.22 GET_COUNTERS trigger: the descriptor arbiter ---- The processor&#x27;s face is SCALAR (one {type, index} per cycle) and it keeps one dirty bit per served descriptor behind it, so this fabric only has to hand over every changed tuple at least once. The sources are the per-descriptor pulses of the blocks whose counters the GET_COUNTERS face above serves: one bit per STREAM_INPUT (the rx monitor, KL_crf_rx for the CRF input), one per STREAM_OUTPUT (the talker diag, CRF output included), AVB_INTERFACE 0 and CLOCK_DOMAIN 0 (the edge terms named beside their counters). Each source bit stays PENDING until the round-robin selects it, so simultaneous changes are all delivered and a continuously changing low index cannot starve a higher one; a re-pulse while pending is absorbed (the processor re-reads current state, never history). Reviewed on PR 121 (its R1 mutation checks: dropped accumulation and a lossy clear-all picker both red). THE STREAM_INPUT ROWS ARE THE SERVED ONES: the AAF inputs, then the CRF Media Clock Input at N_STREAMS when the shape declares it (#529), whose source is KL_crf_rx&#x27;s dirty pulse. The processor keeps one dirty bit per declared sink (N_STREAM_IN_P = ACMP_SINKS_C), so that row is already there to receive it. A shape without the CRF sink drops the pulse here: it has no descriptor to notify about.</td></tr>
+<tr><td>PP_CTR_EVT_N_C</td><td>int unsigned</td><td>PP_CTR_SIN_N_C + ACMP_SRC_C + 2</td><td></td></tr>
+<tr><td>PP_CTR_RR_W_C</td><td>int unsigned</td><td>(PP_CTR_EVT_N_C &gt; 1) ? $clog2(PP_CTR_EVT_N_C) : 1</td><td></td></tr>
+</tbody></table>
+<h2 id="types-milan_datapath">Types</h2>
+<table>
+<thead><tr>
+<th>Name</th>
+<th>Definition</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr><td>amr_st_e</td><td>enum logic [4:0] { AS_BOOT, AS_RNEXT, AS_RREQ, AS_RRD, AS_RJDG, AS_ECNT, AS_EP0, AS_EP0W, AS_ESCAN, AS_EBW, AS_EP1, AS_EP1W, AS_EP2, AS_EP3, AS_EEND, AS_RB, AS_RB2, AS_SVC, AS_WLAT, AS_WCRC, AS_WREQ, AS_WSTR, AS_WWAIT, AS_WBACK, AS_WBWAIT }</td><td></td></tr>
+</tbody></table>
+<h2 id="processes-milan_datapath">Processes</h2>
+<ul>
+<li><code>always_ff : media_lrclk_tp ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : zf_audio_div ( @(posedge clk_audio_i) )</code></li>
+<li><code>always_comb : media_clk_table</code></li>
+<li><code>always_ff : media_clk_resolve ( @(posedge axis_clk) )</code></li>
+<li><code>always_comb : cfg_chmap_rphys</code></li>
+<li><code>always_ff : rmap_rd_valid_S ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : mac_speed_cdc ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : link_change_detect ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : slew_rate_alignment ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : tkd_crf_evt ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : mcr_trigger ( @(posedge axis_clk) )</code></li>
+<li><code>always_comb : pres_offset_fold</code></li>
+<li><code>always_ff : ctr_answer_srv ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_comb</code></li>
+<li><code>always_ff : itf_ctrs ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_comb</code></li>
+<li><code>always_comb</code></li>
+<li><code>always_comb</code></li>
+<li><code>always_comb : ctr_crf_block</code></li>
+<li><code>always_ff : amap_answer_srv ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_ff : amap_srv_track ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_comb : amap_in_port_shape</code></li>
+<li><code>always_comb : amap_page_slot</code></li>
+<li><code>always_comb : amap_page_fmt</code></li>
+<li><code>always_comb : amap_answer</code></li>
+<li><code>always_comb : amap_out_slot</code></li>
+<li><code>always_comb : amap_out_fmt</code></li>
+<li><code>always_comb : amap_edit_validate</code></li>
+<li><code>always_comb : amap_boot_channels</code></li>
+<li><code>always_comb : amap_boot_clip</code></li>
+<li><code>always_ff : amap_boot_walk ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_comb : amap_boot_slot</code></li>
+<li><code>always_ff : amap_edit_commit ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_comb : amr_rec_shape</code></li>
+<li><code>always_comb : amr_src_slot</code></li>
+<li><code>always_comb : amr_gen_next</code></li>
+<li><code>always_comb : amr_gen_entry</code></li>
+<li><code>always_comb : amr_frame_byte</code></li>
+<li><code>always_comb : amr_latch_live</code></li>
+<li><code>always_comb : amr_set_decode</code></li>
+<li><code>always_ff : amr_ms_tick ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_ff : amr_deadlines ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_ff : amr_fsm ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_ff : gsi_answer_srv ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_comb : gsi_flag_law</code></li>
+<li><code>always_comb : sfv_decl_rows</code></li>
+<li><code>always_comb : sfv_in_next</code></li>
+<li><code>always_ff : sfv_in_sweep ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+<li><code>always_comb : sfv_out_need</code></li>
+<li><code>always_comb : asp_entry_pick</code></li>
+<li><code>always_comb : gsi_answer</code></li>
+<li><code>always_ff : gsi_change_edges ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : win_commit_glue ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : tctx_chans_shadow ( @(posedge axis_clk) )</code></li>
+<li><code>always_comb : crft_stat_pack</code></li>
+<li><code>always_ff : ref_src_track ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : mga_tick_delay ( @(posedge axis_clk) )</code></li>
+<li><code>always_comb : accept_stop_sel</code></li>
+<li><code>always_ff : g_gm_recentre ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : g_src_edges ( @(posedge axis_clk) )</code></li>
+<li><code>always_comb : settle_bind_pdu</code></li>
+<li><code>always_ff : g_settle_bind_wait ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : g_settle_recentre ( @(posedge axis_clk) )</code></li>
+<li><code>always_comb : tdm_lane_streams</code></li>
+<li><code>always_ff : tdm_lane_freshness ( @(posedge axis_clk) )</code></li>
+<li><code>always_ff : txarb_sticky ( @(posedge axis_clk) )</code></li>
+<li><code>always_comb : mac_event_merge</code></li>
+<li><code>always_ff : pp_gm_edge ( @(posedge axis_clk) )</code></li>
+<li><code>always_comb : pp_ctr_event_pick</code></li>
+<li><code>always_comb : pp_ctr_event_next</code></li>
+<li><code>always_ff : pp_ctr_event_queue ( @(posedge axis_clk or negedge axis_resetn) )</code></li>
+</ul>
+<h2 id="functions-milan_datapath">Functions</h2>
+<ul>
+<li><code>function automatic logic [15:0] sat16_f(input logic [31:0] c)</code></li>
+<li><code>function automatic logic [7:0] sat8_f(input logic [31:0] c)</code></li>
+<li><code>function automatic logic [16:0] amap_out_cluster( input logic [12:0] e, input logic [15:0] port_i)</code></li>
+<li><code>function automatic logic [13:0] amap_edit_out_encode( input logic [15:0] off_i, input logic [15:0] port_i)</code></li>
+<li><code>function automatic logic [9:0] amap_decl_ch(input logic out_i, input int s_i)</code></li>
+<li><code>function automatic logic [AMAP_IN_KEYS_C*8-1:0] amap_in_image()</code></li>
+<li><code>function automatic logic [AMAP_OUT_KEYS_C-1:0] amap_out_image()</code></li>
+<li><code>function automatic logic [AMAP_OUT_KEYS_C*13-1:0] amap_out_words()</code></li>
+<li><code>function automatic logic [AMAP_OUT_KEYS_C*16-1:0] amap_out_owner_of( input logic [AMAP_OUT_KEYS_C-1:0] v_i)</code></li>
+<li><code>function automatic logic [AMAP_OUT_KEYS_C*16-1:0] amap_out_cluster_of( input logic [AMAP_OUT_KEYS_C-1:0] v_i)</code></li>
+<li><code>function automatic int amr_icl_max()</code></li>
+<li><code>function automatic int amr_ocl_max()</code></li>
+<li><code>function automatic logic amr_owned(input logic [15:0] owner_i, input logic [7:0] port_i)</code></li>
+<li><code>function automatic logic [15:0] amr_crc16(input logic [15:0] c, input logic [7:0] d)</code></li>
+<li><code>function automatic [3:0] aaf_chn_clamp(input [3:0] c)</code></li>
+</ul>
+<h2 id="instantiations-milan_datapath">Instantiations</h2>
+<ul>
+<li><code>tx_axis_to_mac: axi_stream_if</code></li>
+<li><code>rx_axis_from_mac: axi_stream_if</code></li>
+<li><code>rx_axis_fabric: axi_stream_if</code></li>
+<li><code>tone_gen: KL_tone_gen</code></li>
+<li><code>media_nco: KL_media_nco</code></li>
+<li><code>tone_gen_media: KL_tone_gen</code></li>
+<li><code>chan_map_capture: KL_chan_map_capture</code></li>
+<li><code>zf_tick_cdc: cdc_pulse</code></li>
+<li><code>pair_zero_fill: KL_pair_zero_fill</code></li>
+<li><code>aaf_packetizer: KL_aaf_packetizer</code></li>
+<li><code>ptp_clock_validity: KL_ptp_clock_validity</code></li>
+<li><code>csr: milan_csr</code></li>
+<li><code>ptp_sync: ptp_csr_sync</code></li>
+<li><code>ts_counter: timestamp_counter</code></li>
+<li><code>link_guard: KL_link_guard</code></li>
+<li><code>media_clock_restart: KL_media_clock_restart</code></li>
+<li><code>talker_diag: KL_talker_diag_ctx</code></li>
+<li><code>stream_table: KL_stream_table</code></li>
+<li><code>avtp_rx_parser: avtp_stream_parser</code></li>
+<li><code>crf_rx: KL_crf_rx</code></li>
+<li><code>media_domain_event: KL_media_domain_event</code></li>
+<li><code>media_grid_align: KL_media_grid_align</code></li>
+<li><code>crf_tx: KL_crf_tx</code></li>
+<li><code>avtp_rx_monitor: KL_avtp_rx_monitor_ctx</code></li>
+<li><code>aaf_rx_depkt: KL_aaf_rx_depacketizer</code></li>
+<li><code>pcm_route: KL_pcm_route</code></li>
+<li><code>render_queue: KL_render_queue</code></li>
+<li><code>chan_map_render: KL_chan_map_render</code></li>
+<li><code>i2s_feed_mux: KL_i2s_feed_mux</code></li>
+<li><code>ctl_tx_mux: adp_tx_arbiter</code></li>
+<li><code>crf_dp_mux: adp_tx_arbiter</code></li>
+<li><code>ctl_ifg: tx_ifg_gasket</code></li>
+<li><code>adp_tx_mux: adp_tx_arbiter</code></li>
+<li><code>ethernet_counters: ethernet_events</code></li>
+<li><code>aaf_latency_tap_bank: KL_aaf_latency_tap_bank</code></li>
+<li><code>pp_shadow: KL_pp_shadow</code></li>
+<li><code>pp_maap_shim: KL_pp_maap_shim</code></li>
+</ul>
+</body>
+</html>

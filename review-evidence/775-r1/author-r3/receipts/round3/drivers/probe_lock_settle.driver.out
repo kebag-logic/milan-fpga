@@ -1,0 +1,47 @@
+lock_set [engine]
+  nx rc=1 NxN RX stack: 218 checks, 2 failures
+    [FAIL] [SQ4c] ...and leaves the stream unlocked       got=1 exp=0
+    [FAIL] [SQ4f] MEDIA_LOCKED +1 at the first accepted PDU got=0 exp=1
+  lockstep N=1 rc=1 == avtp_rxmon lockstep N=1: checks: 116   failures: 4 == | RESULT: FAIL
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=46164 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=2753 exp=0
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=61026 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=3409 exp=0
+  lockstep N=8 rc=1 == avtp_rxmon lockstep N=8: checks: 119   failures: 4 == | RESULT: FAIL
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=53325 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=5755 exp=0
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=66670 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=6420 exp=0
+lock_set [both]
+  nx rc=1 NxN RX stack: 218 checks, 2 failures
+    [FAIL] [SQ4c] ...and leaves the stream unlocked       got=1 exp=0
+    [FAIL] [SQ4f] MEDIA_LOCKED +1 at the first accepted PDU got=0 exp=1
+  lockstep N=1 rc=0 == avtp_rxmon lockstep N=1: checks: 116   failures: 0 == | RESULT: PASS
+  lockstep N=8 rc=0 == avtp_rxmon lockstep N=8: checks: 119   failures: 0 == | RESULT: PASS
+settle_dec [engine]
+  nx rc=1 NxN RX stack: 218 checks, 3 failures
+    [FAIL] [SQ5c] a gap at the window's last PDU counts no SEQ_NUM_MISMATCH: the off-format PDU did not shorten the window got=1 exp=0
+    [FAIL] [SQ5d] the next gap counts SEQ_NUM_MISMATCH +1: the off-format PDU did not restart the window got=2 exp=1
+    [FAIL] [SQ5g] SEQ_NUM_MISMATCH +1 in all: the in-order PDUs count nothing got=2 exp=1
+  lockstep N=1 rc=1 == avtp_rxmon lockstep N=1: checks: 116   failures: 4 == | RESULT: FAIL
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=25302 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=1597 exp=0
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=31547 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=1632 exp=0
+  lockstep N=8 rc=1 == avtp_rxmon lockstep N=8: checks: 119   failures: 4 == | RESULT: FAIL
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=67878 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=2681 exp=0
+    [FAIL] [LS] SO: unchanged outputs match and historical dirty pulses remain got=26136 exp=0
+    [FAIL] [GC] SO: every GET_COUNTERS read identical to the reference got=2502 exp=0
+settle_dec [both]
+  nx rc=1 NxN RX stack: 218 checks, 3 failures
+    [FAIL] [SQ5c] a gap at the window's last PDU counts no SEQ_NUM_MISMATCH: the off-format PDU did not shorten the window got=1 exp=0
+    [FAIL] [SQ5d] the next gap counts SEQ_NUM_MISMATCH +1: the off-format PDU did not restart the window got=2 exp=1
+    [FAIL] [SQ5g] SEQ_NUM_MISMATCH +1 in all: the in-order PDUs count nothing got=2 exp=1
+  lockstep N=1 rc=0 == avtp_rxmon lockstep N=1: checks: 116   failures: 0 == | RESULT: PASS
+  lockstep N=8 rc=0 == avtp_rxmon lockstep N=8: checks: 119   failures: 0 == | RESULT: PASS
+
+
+real	0m22.304s
+user	3m16.648s
+sys	0m8.441s
