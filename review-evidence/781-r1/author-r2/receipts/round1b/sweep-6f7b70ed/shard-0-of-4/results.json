@@ -1,0 +1,22 @@
+{
+  "head": "6f7b70edfeed8a624c625ca7797fd468992259d2",
+  "base": "a032c6d6e3775f145349d5a495c1e1ad12294936",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-verilator-image>/usr/share/verilator",
+        "bash",
+        "scripts/run_all_suites.sh",
+        "<scratch>/sweep-6f7b70ed-r2/shard-0/logs",
+        "--wait",
+        "--shard",
+        "0/4"
+      ],
+      "exit_code": 0,
+      "seconds": 4098.691,
+      "log": "<scratch>/sweep-6f7b70ed-r2/shard-0/spec/01.log"
+    }
+  ]
+}

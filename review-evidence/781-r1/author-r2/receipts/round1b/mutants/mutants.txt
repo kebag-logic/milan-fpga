@@ -1,0 +1,26 @@
+clone head 6f7b70edfeed8a624c625ca7797fd468992259d2
+clean control: python3 scripts/suite_shards.py --selftest rc=0
+clean control: python3 scripts/ci_gate_workflows.py --check rc=0
+clean control: python3 -c import sys; sys.path.insert(0, 'scripts'); import measure_test_evidence as m; p = m.runner_contract(open('scripts/run_all_suites.sh').read()); print(p); sys.exit(1 if p else 0) rc=0
+CAUGHT  M1 overhead table back at 16 workers, workflow not regenerated: rcs=[1, 1] words={'WORKER_OVERHEAD_SECONDS describes 16 workers; rtl.yml runs 17': True, 'regenerate the gate jobs': True}
+    | FAIL head: WORKER_OVERHEAD_SECONDS describes 16 workers; rtl.yml runs 17
+    | .github/workflows/rtl.yml: regenerate the gate jobs
+CAUGHT  M2 16 workers regenerated through the generator, media_phase still 1400 s: rcs=[1] words={'FAIL head worker 0/16 predicted 1640 s (27.3 min), bound 1620 s': True, 'selftest: 30 FAILURE(S)': True}
+    | FAIL head worker 0/16 predicted 1640 s (27.3 min), bound 1620 s
+    | selftest: 30 FAILURE(S)
+CAUGHT  M3 SUITE_SECONDS media_phase 900 s against the driver's 1400 s: rcs=[1] words={'provisional figure 900 s is not the 1400 s': True}
+    | FAIL head: media_phase: provisional figure 900 s is not the 1400 s that run_all_suites.sh's suite_timeout gives it
+CAUGHT  M4 driver suite_timeout media_phase 900 s against SUITE_SECONDS 1400 s: rcs=[1, 1] words={'provisional figure 1400 s is not the 900 s': True, 'suite budgets changed': True}
+    | FAIL head: media_phase: provisional figure 1400 s is not the 900 s that run_all_suites.sh's suite_timeout gives it
+    | ['the declared 1400/1800/2400/3600/4800/5400-second suite budgets changed']
+CAUGHT  M5 rtl.yml hand-edited: 60-minute index left at 15 with 17 workers: rcs=[1, 1] words={'FAIL head worker 16/17 predicted 2032 s (33.9 min), bound 1620 s': True, 'regenerate the gate jobs': True}
+    | FAIL head worker 16/17 predicted 2032 s (33.9 min), bound 1620 s
+    | .github/workflows/rtl.yml: regenerate the gate jobs
+CAUGHT  M6 rtl.yml hand-edited: aggregate still expects 16 workers: rcs=[1] words={'regenerate the gate jobs': True}
+    | .github/workflows/rtl.yml: regenerate the gate jobs
+CAUGHT  M7 rtl.yml hand-edited: matrix total back at 16 (shard list 0..16 kept): rcs=[1] words={'regenerate the gate jobs': True}
+    | .github/workflows/rtl.yml: regenerate the gate jobs
+CAUGHT  M8 media_phase grown to 1499 s, the first figure no regular worker accepts: rcs=[1] words={'FAIL head worker 0/17 predicted 1621 s (27.0 min), bound 1620 s': True}
+    | FAIL head worker 0/17 predicted 1621 s (27.0 min), bound 1620 s
+mutants: 8, escaped: 0
+rc=0
