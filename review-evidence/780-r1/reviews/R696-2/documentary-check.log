@@ -1,0 +1,67 @@
+PASS correction issuecomment-6389770127 and PR body contain exact F1 replacement
+PASS PR metadata head: 25f05752f7e50e3cf7e27008e434ffde930b4b6f
+PASS PR compliance pointer names section 8 row 14 and implementation section 6.10
+
+AUTHORITY ed2118035e4cec76fb1b59cfbf8a053aeacc8af8 docs/00_MILAN_COMPLIANCE_REVIEW.md
+581: ## 8. Residual risks and open decisions
+582: 
+583: | # | Item | Decision taken | Recorded in |
+584: |---|---|---|---|
+585: | 1 | Current configuration index persistence unstated by Milan | **Persist** (least surprise across power cycles) | 07 §5 |
+586: | 2 | AEM status for lock violation unspecified by Milan | Use IEEE `ENTITY_LOCKED` (3) | 06 §6.8 |
+587: | 3 | Milan §5.4.2.13 references "UNSUPPORTED" status | Read as `NOT_SUPPORTED` (11) — no such code exists | 06 §6.4 |
+588: | 4 | `system_unique_id` / `user_mcr_prio` / media-clock-domain-name persistence unstated | Earlier persistence plan deferred with the commands under the October waiver; no processor storage or persistence for these fields; P4 if required by the lab | [06 §6.9](architecture/06_aecp_engine.md#69-mvu-commands), 07 §5 |
+589: | 5 | Dual ADP startup delay (0–2 s) vs link-up (0–4 s) — easy single-constant bug | Two distinct T-IDs | 08 §2 |
+590: | 6 | talker/listener_capabilities bits unconstrained by Milan | Set per IEEE Table 6-3/6-4 (IMPLEMENTED + AUDIO/MEDIA_CLOCK as per product) | 04 §3 |
+591: | 7 | IN_PROGRESS vs GET_DYNAMIC_INFO | Never emit IN_PROGRESS; hard ≤240 ms response budget | 06 §5, 08 §4 |
+592: | 8 | Milan-vs-IEEE STREAM_OUTPUT counter masks | Milan masks in Milan profile (Δ-tagged); IEEE masks in plain-IEEE profile ROM | 06 §6.6 |
+593: | 9 | SRP location (originally out of scope per the reviewed doc's §21) | Owner decision 2026-08-11: SRP endpoint (MSRP/MVRP participant) moved **in scope** as doc 10 — 1 Domain FSM, 1 VLAN FSM (Class A, single VID), N + M stream FSMs; MAAP stays external; external-stack alternative retained (`P-EN-SRP-ENGINE`) | [10](architecture/10_srp_engine.md), §6.9 |
+594: | 11 | MAAP location (item 9 recorded "MAAP stays external") | The seam grew an internal server: `KL_pp_maap` ([11](architecture/11_maap_engine.md)) answers the 02 §4.2 contract when the quasi-static `cfg_maap_internal_i` = 1 and publishes the claim for the fabric; the DEFAULT stays 0 = external, byte-identical to the landed integrations, so item 9's shipping wiring is unchanged until the integrator flips the input | [11](architecture/11_maap_engine.md), §6.9b |
+595: | 10 | Implementation strategy for the reference platform | Owner decision 2026-08-11: full implementation (scenario B of [docs/10](10_RESOURCE_AND_EFFORT.md)) proceeds in this repository; the reference platform cuts over by **direct substitution at parity** — the superseded planes are deleted, never parameterized (git history preserves them); the area verdict is accepted with eyes open, the architecture/conformance value is the goal | [docs/10](10_RESOURCE_AND_EFFORT.md) §5/§10 |
+596: | 12 | IEEE 1722.1-2021 §7.4.7: "On success this command also sends an unsolicited notification"; a SET_CONFIGURATION to the configuration already in force changes nothing (issue #178) | **No notification.** Milan v1.2 §5.4.5.2 sends one only after a successful response to a command of [ATDECC §7.5.2] when "the command modifies the state", to every registered controller except the requester; Milan wins (§5.5.2.1). The response is SUCCESS carrying the index (§7.4.7.1). A change still notifies once. While a stream is bound or streaming the command is refused STREAM_IS_RUNNING first (Milan §5.4.2.5) | [06 §6.4](architecture/06_aecp_engine.md#64-validation-chains-order-matters-first-failure-responds) |
+597: | 13 | SET_CONFIGURATION with a `configuration_index` that has no CONFIGURATION descriptor (issue #179); IEEE §7.4.7.2 names only STREAM_IS_RUNNING, ENTITY_LOCKED/ENTITY_ACQUIRED and NOT_AUTHENTICATED, and Milan §5.4.2.5 says nothing on the index | Owner decision 2026-10-17: **`NO_SUCH_DESCRIPTOR`** (2), IEEE Table 7-141: "A descriptor with the descriptor_type and descriptor_index specified does not exist", which fits a missing CONFIGURATION more precisely than `BAD_ARGUMENTS` (7, "One or more of the values in the fields of the frame were deemed to be bad"). The response carries the current index (§7.4.7.1: "the old value if it fails"). STREAM_IS_RUNNING keeps its precedence (Milan §5.4.2.5) and a truncated command stays BAD_ARGUMENTS. READ_DESCRIPTOR is unchanged: a CONFIGURATION `descriptor_index` the image lacks is a locate miss, NO_SUCH_DESCRIPTOR, while a `configuration_index` field past the count is BAD_ARGUMENTS for every descriptor type ([06 §6.1](architecture/06_aecp_engine.md)) | [06 §6.4](architecture/06_aecp_engine.md#64-validation-chains-order-matters-first-failure-responds) |
+598: | 14 | GET_AVB_INFO with a descriptor_type other than AVB_INTERFACE: IEEE 1722.1-2021 §7.4.40.3 names only NOT_AUTHENTICATED | Manager ruling ([#200](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/200)), reversing the status of [#177](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/177): **`NOT_SUPPORTED`** (11) with the command echoed at its own length, where #177 had answered `NOT_IMPLEMENTED` (1). IEEE 1722.1-2021 Table 7-141 defines NOT_IMPLEMENTED as "The ATDECC Entity does not support the command type" and NOT_SUPPORTED as "The command is implemented but the target of the command is not supported". Milan v1.2 §5.4.2.23 requires the PAAD-AE to implement GET_AVB_INFO, so the command type is implemented and only the target (a descriptor_type other than AVB_INTERFACE, IEEE §7.4.40.1) is unsupported. IEEE §9.3.5.3.3 ("Any command that is received and not implemented shall be responded to with ... NOT_IMPLEMENTED") applies to command types the entity does not implement, not to an implemented command aimed at the wrong descriptor type. Milan v1.2 uses NOT_SUPPORTED the same way for implemented commands on unsupported targets: §5.4.2.2 (LOCK_ENTITY on a descriptor other than ENTITY) and §5.4.2.9 (SET_STREAM_INFO on a Stream Input). The AVB_INTERFACE response is unchanged: SUCCESS, `NO_SUCH_DESCRIPTOR` for an index that does not exist, and `BAD_ARGUMENTS` for a command under cdl 16 | [06 §6.10](architecture/06_aecp_engine.md#sec-06-gsi); `tb/pp_top` V1, V1b, V3, V4, V5 |
+
+AUTHORITY ed2118035e4cec76fb1b59cfbf8a053aeacc8af8 docs/architecture/06_aecp_engine.md
+974: ### 6.10 GET_AVB_INFO / GET_AS_PATH and the Milan-info face
+975: 
+976: **Realization status (2026-08-15, `E_GAVB`/`E_GASP` + the shared `gsi_*` face).**
+977: The two gPTP read commands ride the SAME selector-coded gather face GET_STREAM_INFO
+978: introduced (`gsi_kind` 1 and 2), because the answers are integrator truth: the
+979: elected grandmaster, asCapable, the SRP class-A domain and the link state live in
+980: the fabric, not in a command parser. Word tables (each one `BUILD_FLD` wide):
+981: 
+982: | kind | sel | word | lands at |
+983: |---|---|---|---|
+984: | 1 AVB | 0 | gptp_grandmaster_id (qword) | @28 |
+985: | 1 AVB | 1 | {propagation_delay[31:0], domain[7:0], flags[7:0], msrp_mappings_count[15:0]} | @36..@43 |
+986: | 1 AVB | 8 | msrp_mapping[`gsi_ord`] {traffic_class, priority, vlan_id} (dword) | @44 + 4k |
+987: | 2 ASP | 0 | {48'0, path count} | @26 |
+988: | 2 ASP | 8 | path_sequence[`gsi_ord`] ClockIdentity (qword) | @28 + 8k |
+989: 
+990: Selector bit 3 marks the record-class words; the engine's shared ordinal counter
+991: (the audio-map record counter, reused) numbers them. Existence comes from the
+992: descriptor store's AVB_INTERFACE locate — GET_AS_PATH's command carries only the
+993: index (§7.4.41.1), so the engine packs the locate key with the AVB_INTERFACE
+994: constant. Both emit count-many records: a zero-count face answers an EMPTY list
+995: (cdl 32 / 16) — absent, never invented.
+996: 
+997: **GET_AVB_INFO on another descriptor type (issue #200, which reverses #177's status).**
+998: The engine answers it `NOT_SUPPORTED` (IEEE 1722.1-2021 Table 7-141 status 11, "The
+999: command is implemented but the target of the command is not supported") with the
+1000: command echoed at its own length, not `NOT_IMPLEMENTED` (status 1, "The ATDECC Entity
+1001: does not support the command type"). Milan v1.2 §5.4.2.23 requires the PAAD-AE to
+1002: implement GET_AVB_INFO, so the command type is implemented, and IEEE §7.4.40.1 makes
+1003: AVB_INTERFACE its only target, so only the target is unsupported. §9.3.5.3.3's
+1004: NOT_IMPLEMENTED ("Any command that is received and not implemented") covers command
+1005: types the entity does not implement, not an implemented command aimed at the wrong
+1006: descriptor type. Milan uses `NOT_SUPPORTED` the same way for implemented commands on
+1007: unsupported targets: §5.4.2.2 (LOCK_ENTITY on a descriptor other than ENTITY) and
+1008: §5.4.2.9 (SET_STREAM_INFO on a Stream Input). The order is the length first (a
+1009: command under cdl 16 lacks the complete descriptor_type/descriptor_index pair and
+1010: answers `BAD_ARGUMENTS`), then the type, then existence: an AVB_INTERFACE index the
+1011: image lacks answers `NO_SUCH_DESCRIPTOR`, and any other type answers `NOT_SUPPORTED`
+1012: whether or not that descriptor exists. Bytes past the index are not read, so a padded
+1013: AVB_INTERFACE command is answered as the four-byte one is.
+
+PASS prior public findings reconciled: F1 (Tests, Docs), R1 (Docs); same head and tree

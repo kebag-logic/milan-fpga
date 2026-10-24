@@ -1,0 +1,26 @@
+[
+  {
+    "command": "python3 <packet>/model_probe.py",
+    "cwd": "<exact-head-checkout>",
+    "receipt": "model-probe.log",
+    "returncode": 0
+  },
+  {
+    "command": "python3 <packet>/audit_receipts.py",
+    "cwd": "<exact-head-checkout>",
+    "receipt": "receipt-audit.log",
+    "returncode": 0
+  },
+  {
+    "command": "python3 <packet>/check_documentary.py",
+    "cwd": "<exact-head-checkout>",
+    "receipt": "documentary-check.log",
+    "returncode": 0
+  },
+  {
+    "command": "python3 <packet>/check_integrity.py",
+    "cwd": "<exact-head-checkout>",
+    "receipt": "checkout-integrity.log",
+    "returncode": 0
+  }
+]

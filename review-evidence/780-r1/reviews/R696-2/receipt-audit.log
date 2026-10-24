@@ -1,0 +1,168 @@
+PASS: 109 public executable receipt files match published SHA-256 manifest
+Evidence commit has embedded signature: False
+Integrity claim: pinned Git object and published receipt hashes; no cryptographic signer authentication claimed
+
+ARTIFACT: author/receipts/probe/probe-a032c6d6.log.p780-lines.txt
+259:  [PASS] P780 GET_AVB_INFO(CLOCK_DOMAIN 0) was ANSWERED an AECPDU egressed
+260:P780 PROBE: GET_AVB_INFO(CLOCK_DOMAIN 0) status=1 cdl=16 type=0x0024 index=0
+261:  [PASS] P780: message_type = command + 1           got=0x00000001 exp=0x00000001
+262:  [PASS] P780: sv/version nibble is zero            got=0x00000000 exp=0x00000000
+263:  [PASS] P780: target_entity_id is OURS             got=0x001BC50C exp=0x001BC50C
+264:  [PASS] P780: controller_entity_id echoed          got=0xC0FFEE00 exp=0xC0FFEE00
+265:  [PASS] P780: sequence_id echoed                   got=0x00000780 exp=0x00000780
+266:  [PASS] P780: command_type echoed, u = 0           got=0x00000027 exp=0x00000027
+267:  [PASS] P780: unicast back to the requester        got=0x02112233 exp=0x02112233
+268:  [PASS] P780: source address is the station MAC    got=0x02000000 exp=0x02000000
+269:  [PASS] P780: control_data_length = 12 + payload   got=0x00000010 exp=0x00000010
+270:  [PASS] P780: frame length matches (60-octet min)  got=0x0000003C exp=0x0000003C
+271:  [PASS] P780: descriptor_type CLOCK_DOMAIN echoed  got=0x00000024 exp=0x00000024
+699:pp_shadow: 622 checks, 0 failures
+700:RESULT: PASS
+
+
+ARTIFACT: author/receipts/probe/probe-25f05752.log.p780-lines.txt
+268:  [PASS] P780 GET_AVB_INFO(CLOCK_DOMAIN 0) was ANSWERED an AECPDU egressed
+269:P780 PROBE: GET_AVB_INFO(CLOCK_DOMAIN 0) status=11 cdl=16 type=0x0024 index=0
+270:  [PASS] P780: message_type = command + 1           got=0x00000001 exp=0x00000001
+271:  [PASS] P780: sv/version nibble is zero            got=0x00000000 exp=0x00000000
+272:  [PASS] P780: target_entity_id is OURS             got=0x001BC50C exp=0x001BC50C
+273:  [PASS] P780: controller_entity_id echoed          got=0xC0FFEE00 exp=0xC0FFEE00
+274:  [PASS] P780: sequence_id echoed                   got=0x00000780 exp=0x00000780
+275:  [PASS] P780: command_type echoed, u = 0           got=0x00000027 exp=0x00000027
+276:  [PASS] P780: unicast back to the requester        got=0x02112233 exp=0x02112233
+277:  [PASS] P780: source address is the station MAC    got=0x02000000 exp=0x02000000
+278:  [PASS] P780: control_data_length = 12 + payload   got=0x00000010 exp=0x00000010
+279:  [PASS] P780: frame length matches (60-octet min)  got=0x0000003C exp=0x0000003C
+280:  [PASS] P780: descriptor_type CLOCK_DOMAIN echoed  got=0x00000024 exp=0x00000024
+708:pp_shadow: 622 checks, 0 failures
+709:RESULT: PASS
+
+
+ARTIFACT: author/receipts/probe/probe-a032c6d6.rc
+0
+
+
+ARTIFACT: author/receipts/probe/probe-25f05752.rc
+0
+
+
+ARTIFACT: author/receipts/firmware/table.txt
+0 6s fw_rv32_selftest: python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+0 54s tally_selftest: python3 sw/firmware/gtest/tally_selftest.py --mutants
+0 0s ctrl_shards: python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+0 0s fw_coverage_selftest: python3 sw/firmware/gtest/fw_coverage.py --selftest
+0 2159s test_ctrl_firmware: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp third_party/lwSRP --jobs 8
+0 1251s test_ctrl_nvm: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 8
+0 243s fw_coverage_check: python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp third_party/lwSRP --jobs 8
+0 1607s ctrl_boundary: <home>/litex-milan/venv/bin/python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+FW-HEAVY-DONE
+
+
+ARTIFACT: author/receipts/milan_dp/summary.txt
+milan_dp leg of the full sweep (shard 0 of 4) at 25f05752f7e50e3cf7e27008e434ffde930b4b6f
+log sha256 00a5cf9e90f4f4550e8fe3d640ae8a2a0be229d01c4f9ce2c25e128bd2f4f884 bytes 2490766
+[ok] lines 11630 ; [PASS] lines 1127 ; [FAIL] lines 0 ; RESULT: PASS 15 ; RESULT: FAIL 0
+GET_AVB_INFO rows:
+      1 [ok]   B2: GET_AVB_INFO answers SUCCESS with one msrp mapping = 0x1
+      5 [ok]   [OWNERLESS] GET_AVB_INFO asCapable flag is clear = 0x0
+      5 [ok]   [OWNERLESS] GET_AVB_INFO domain is zero        = 0x0
+      5 [ok]   [OWNERLESS] GET_AVB_INFO grandmaster is zero   = 0x0
+      5 [ok]   [OWNERLESS] GET_AVB_INFO propagation delay is zero = 0x0
+      5 [ok]   [OWNERLESS] solicited GET_AVB_INFO succeeds    = 0x0
+      5 [ok]   [OWNERLESS] writes emit no GET_AVB_INFO notification = 0x0
+
+
+ARTIFACT: author/receipts/rtl_fast/combined.txt
+head 25f05752f7e50e3cf7e27008e434ffde930b4b6f; changes rtl=true (run 1: true)
+success  changes                    run 2  2 steps run,    19.4 s
+success  verilator-lint             run 1  4 steps run,    21.0 s
+success  bdd-conformance            run 1  4 steps run,     2.5 s
+success  yosys-elaboration          run 1  7 steps run,   692.7 s
+success  publication-census         run 1  4 steps run,   775.3 s
+success  firmware-unit              run 2  8 steps run,   625.3 s
+success  firmware-control-mutants   run 2  5 steps run,   948.6 s
+success  firmware-aecp-mutants      run 2  5 steps run,   202.7 s
+success  firmware-srp-mutants       run 2  5 steps run,   725.5 s
+success  firmware-boundary          run 2  5 steps run,   898.0 s
+success  firmware-verilator         run 2  6 steps run,   576.1 s
+rtl-fast needs: 11 jobs, 11 success, failed: none
+rc=0
+
+
+ARTIFACT: author/receipts/sweep/suite-tally.out
+checks: 2190096   in-suite failures: 0
+
+
+ARTIFACT: author/receipts/vivado/route-1x1-check.log
+endpoint route-1x1: <scratch>/viv-head/w1/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              51259       51182       -77  ok, below the baseline
+FF               53208       53208         0  ok
+SLICE            15835       15825       -10  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns           0.236       0.165    -0.071  ok
+WHS_ns           0.028       0.036     0.008  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT -74, FF +2
+  u_pp: LUT -71, FF +2
+  u_pp/u_listener: LUT -14, FF +0
+  u_pp/u_aecp: LUT -10, FF +2
+  u_pp/u_aecp/u_d3: LUT -12, FF +0
+  u_pp/u_notify: LUT -6, FF +0
+  u_pp/u_event_router: LUT -4, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT -3, FF +0
+  u_pp/u_nvm_shadow: LUT -3, FF +0
+  u_pp/u_originator: LUT -3, FF +0
+  u_pp/u_rx_validator: LUT -3, FF +0
+  u_pp/u_scoreboard: LUT -3, FF +0
+RESULT: PASS
+
+
+ARTIFACT: author/receipts/vivado/ooc-1x1-check.log
+endpoint ooc-1x1: <scratch>/viv-head/w1/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              23828       23845        17  ok
+FF               20000       20002         2  ok
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp/u_aecp/u_d3: LUT +194, FF +2
+  u_pp/u_aecp/u_ucpu: LUT -39, FF +0
+  u_pp/u_aecp/u_resp: LUT -30, FF +0
+  u_pp/u_dispatch: LUT -27, FF +0
+  u_pp/u_timer: LUT +27, FF +0
+  u_pp/u_srp/u_talker: LUT -25, FF +0
+  u_pp: LUT +17, FF +2
+  wrapper: LUT +17, FF +2
+  u_pp/u_srp: LUT -18, FF +0
+  u_pp/u_tx_arbiter: LUT -18, FF +0
+  u_pp/u_adp: LUT +14, FF +0
+  u_pp/u_tx_slots: LUT +14, FF +0
+RESULT: PASS
+
+
+ARTIFACT: author/receipts/vivado/ooc-8x8-check.log
+endpoint ooc-8x8: <scratch>/viv-head/w8/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              32467       32450       -17  ok, below the baseline
+FF               28220       28218        -2  ok, below the baseline
+RAMB36              21          21         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp/u_aecp/u_ucpu: LUT +52, FF +0
+  u_pp/u_aecp/u_d3: LUT -46, FF +0
+  u_pp/u_aecp/u_resp: LUT -41, FF +0
+  u_pp/u_aecp: LUT -20, FF -2
+  u_pp: LUT -17, FF -2
+  wrapper: LUT -17, FF -2
+  u_pp/u_notify: LUT +6, FF +0
+  u_pp/u_dispatch: LUT -2, FF +0
+  u_pp/u_dispatch/u_aecp_q: LUT -2, FF +0
+  u_pp/g_rx_pool[5].u_rx_slots: LUT -1, FF +0
+RESULT: PASS
+
