@@ -1,0 +1,11 @@
+`verilator_config
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+//
+// #773: the datapath leg sets both outputs' presentation offsets in the
+// processor's stored rows (sim_dp.cpp set_offsets), one hop upstream of the
+// SET_STREAM_INFO chain milan_dp proves, as it pokes the stored CLOCK_SOURCE
+// row. The rows are not public in the processor, so this leg's build makes
+// them so; no other build reads this file.
+public_flat_rw -module "KL_aecp_dyn_state" -var "ptoff_r"
+public_flat_rw -module "KL_aecp_dyn_state" -var "ptoff_v_r"

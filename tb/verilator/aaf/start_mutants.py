@@ -29,7 +29,7 @@ MUTATIONS = (
     ("reset keeps the previous start",
      "        started_r[t] <= 1'b0;", "        started_r[t] <= started_r[t];",
      "startup step equals steady"),
-    ("offset omitted", "+ transit_ns_i[32*(32'(pown_t_w)) +: 32];", "+ 32'd0;",
+    ("offset omitted", "+ transit_ns_i[32*(32'(pown_t_w)) +: 32]\n", "+ 32'd0\n",
      "sample plus offset"),
     ("normal timestamp marked invalid",
      "fb[19]={1'b1, 3'b000, emr_r, 2'b00, 1'b1};",

@@ -26,9 +26,11 @@
                 with the frame itself), so both
                 outputs are stamped from one grid's instants (IEEE 1722-2016
                 4.3.5), on the followed stream's timing points once the servo
-                holds the phase (10.8 Eq. 15): the CRF output adds its offset
-                rounded to whole periods (10.7 Eq. 14), an AAF talker its
-                offset as set (Milan v1.2 5.4.2.9, #632).
+                holds the phase (10.8 Eq. 15): the CRF output adds Equation
+                (14)'s TC and its offset rounded to whole periods (10.7 Eq.
+                14), an AAF talker its crossing estimate and fixed delay
+                (whole periods, #773) and its offset as set (Milan v1.2
+                5.4.2.9, #632).
 
                 WHAT IT OBSERVES. The domain's frame-timing owner closes each
                 frame with a marker in this clock domain: the strobe of the

@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - talker capture-to-wire latency](#unreleased---talker-capture-to-wire-latency)** -- Stamps cover the wire path.
 - **[Unreleased - media clock phase](#unreleased---media-clock-phase)** -- Phase-locked to the followed CRF.
 - **[Unreleased - pins 93fb0b2d and 55680bff](#unreleased---pins-93fb0b2d-and-55680bff)** -- Two donor pins move.
 - **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
@@ -42,6 +43,23 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - talker capture-to-wire latency
+
+- Issue #773 corrects #770's AAF stamp.
+- At 125 us each AAF PDU left after its stamp.
+- The stamp's base is the PDU's first frame instant.
+- The PDU leaves 112 to 149 us after that instant.
+- The AAF stamp now adds eight sample periods first.
+- Six estimate the crossing: the PDU's sample span.
+- Two are Milan's 5.3.7.6 fixed delay.
+- The delay is derived from the talker's own path.
+- A delay above 125 us refuses to build.
+- The CRF output adds Equation (14)'s TC.
+- TC is two periods at 1x1 and one at 8x8.
+- Both terms are whole periods, so the grid holds.
+- GET_STREAM_INFO still reads the offset alone.
+- End-to-end latency is the offset plus 166,667 ns.
 
 ## Unreleased - media clock phase
 
