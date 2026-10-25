@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - per-source TSpec](#unreleased---per-source-tspec)** -- The CRF output declares 29.
 - **[Unreleased - talker capture-to-wire latency](#unreleased---talker-capture-to-wire-latency)** -- Stamps cover the wire path.
 - **[Unreleased - media clock phase](#unreleased---media-clock-phase)** -- Phase-locked to the followed CRF.
 - **[Unreleased - pins 93fb0b2d and 55680bff](#unreleased---pins-93fb0b2d-and-55680bff)** -- Two donor pins move.
@@ -43,6 +44,19 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - per-source TSpec
+
+- Issue #774 declares each source's own TSpec.
+- Milan v1.2 Table 4.4 sets it per format.
+- The CRF output declared the AAF value, 217.
+- Table 4.4 gives CRF with one timestamp 28 + 1.
+- `KL_pp_shadow` now takes one MaxFrameSize per source.
+- Each AAF talker declares 24*N + 24 + 1 as before.
+- The CRF output declares 29 from `KL_crf_tx`'s PDU.
+- `tb/verilator/milan_dp` grades it in `[TSPEC]`.
+- `obj_crflic` runs it on the 1x1, `obj_tspec8` on the 8x8.
+- `make crflic-mutants` plants talker 0's value everywhere.
 
 ## Unreleased - talker capture-to-wire latency
 

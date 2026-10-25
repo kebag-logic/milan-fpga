@@ -2039,6 +2039,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the 10.4.3 mr level the CRF Media Clock Output stamps, and the level its
   //! last COMPLETED PDU carried (gh #62 H2b)
   wire        crft_mr_w, crft_tu_last_w, crft_mr_last_w;
+  //! the CRF output's TSpec MaxFrameSize, from the PDU shape KL_crf_tx builds
+  //! (Milan v1.2 Table 4.4 "CRF, 1 ts/pdu", #774)
+  wire [15:0] crft_maxf_w;
   wire [TDATA_WIDTH-1:0]   crft_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] crft_tx_tkeep;
   wire                     crft_tx_tvalid, crft_tx_tlast, crft_tx_tready;
@@ -2481,6 +2484,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! CRF engine applies it (eff_crft_sid_w) so the answer and the stream can
   //! never disagree. Derive, never mirror.
   wire [ACMP_SRC_C*64-1:0]  pp_src_sid_w;
+  //! ...and the per-source TSpec MaxFrameSize it declares (g_pp_maxf)
+  wire [ACMP_SRC_C*16-1:0]  pp_src_maxf_w;
   //! 1722.1-2021 6.2.6 GM_CHANGE: an edge on the committed grandmaster pair
   //! (id OR domain - both are ADPDU fields a re-advertise has to carry) and,
   //! separately, an edge on the grandmaster IDENTITY alone. The two are not
@@ -6838,7 +6843,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! does any longer, so nothing here mirrors it.
   //!
   //! The tctx_maxf_w derivation above SURVIVES and is now consumed directly:
-  //! it is the Milan Table 4.4 MaxFrameSize the processor declares with.
+  //! it is the Milan Table 4.4 MaxFrameSize the processor declares with for
+  //! each AAF talker (g_pp_maxf; the CRF output's comes from KL_crf_tx).
 
   //! THE INTERLOCK, repointed. Frames are tagged only while THIS STREAM's
   //! MSRP Talker Advertise is on the wire - otherwise 802.1Q 35.1.2 prunes a
@@ -7482,7 +7488,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
     .m_axis_tvalid(crft_tx_tvalid), .m_axis_tlast (crft_tx_tlast),
     .m_axis_tready(crft_tx_tready),
-    .tx_count_o (crft_count_w)
+    .tx_count_o (crft_count_w),
+    .tspec_max_frame_o (crft_maxf_w)
   );
 
   //! wire-truth channel count (USER 1-to-1 rule): the RENDER path follows
@@ -9101,6 +9108,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     end
   endgenerate
 
+  //! THE TSPEC LAW, one MaxFrameSize per talker source (#774; Milan v1.2
+  //! 4.3.3.2 Table 4.4, IEEE 802.1Q-2018 35.2.2.8.4 a)), each from the framer
+  //! that source's frames come out of: AAF talker t from its own TSpec
+  //! geometry (tctx_maxf_w[t], 24*N + 24 + 1), the CRF Media Clock Output
+  //! from KL_crf_tx's PDU shape (28 + 1). Talker 0's value on every slot
+  //! declared the 8-channel AAF number, 217, for the CRF stream.
+  generate
+    for (genvar gmf = 0; gmf < ACMP_SRC_C; gmf++) begin : g_pp_maxf
+      if (gmf == CRF_TUID_C) begin : g_maxf_crf
+        assign pp_src_maxf_w[16*gmf +: 16] = crft_maxf_w;
+      end else begin : g_maxf_aaf
+        assign pp_src_maxf_w[16*gmf +: 16] = tctx_maxf_w[gmf];
+      end
+    end
+  endgenerate
+
   // ==========================================================================
   //  protocol-processor CONTROL plane — THE control plane, unconditional
   // ==========================================================================
@@ -9443,11 +9466,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! with. Tied '0 (the shadow value) ACMP would answer, and SRP would
       //! declare, stream_id 0 for every source.
       .cfg_stream_id_i   (pp_src_sid_w),
-      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize, DERIVED from the wire
-      //! width the framer was elaborated with (tctx_maxf_w) - never an
-      //! independent constant, or the declaration and the frame disagree.
-      //! Talker 0's value: every AAF talker in a build shares one width.
-      .cfg_tspec_max_frame_i (tctx_maxf_w[0]),
+      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize per source, DERIVED from
+      //! the framer each source's frames come out of (pp_src_maxf_w) - never
+      //! an independent constant, or the declaration and the frame disagree.
+      .cfg_tspec_max_frame_i (pp_src_maxf_w),
       .cfg_acc_lat_ns_i  (cfg_lwsrp_latency),
       //! the SRP admission ceiling follows the negotiated link rate
       .port_rate_bps_i   (cfg_mac_is_1g ? 32'd1_000_000_000 : 32'd100_000_000),
