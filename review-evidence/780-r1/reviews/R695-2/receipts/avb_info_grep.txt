@@ -1,0 +1,112 @@
+## dev delta a032c6d6..d385b38e added/removed lines mentioning AVB_INFO / NOT_IMPLEMENTED / NOT_SUPPORTED / 0x0027 / AVB_INTERFACE:
+(end)
+## head tree, parent only (submodules excluded): GET_AVB_INFO mentions
+HEAD:CHANGELOG.md:11:- **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
+HEAD:CHANGELOG.md:52:- GET_AVB_INFO on another descriptor answers NOT_SUPPORTED (11).
+HEAD:CHANGELOG.md:175:- GET_AVB_INFO on another descriptor answers NOT_IMPLEMENTED (#177).
+HEAD:CHANGELOG.md:223:- The parent still owns GET_AVB_INFO mapping words.
+HEAD:README.md:106:- `GET_STREAM_INFO`, `GET_AVB_INFO`, and `GET_AS_PATH` (the grandmaster plus
+HEAD:README.md:145:`GET_AVB_INFO` now consumes the selected owner's coherent GM, propagation-delay,
+HEAD:avdecc/aem_descriptors.py:363:    #! with the gPTP port identity - GET_AVB_INFO and GET_AS_PATH consumers
+HEAD:avdecc/milan_controller.py:42:           GET_AVB_INFO=39, GET_STREAM_INFO=15, GET_AS_PATH=40, GET_COUNTERS=41,
+HEAD:docs/ARCHITECTURE_HW_SW_SPLIT.md:166:- ADP and AECP `GET_AVB_INFO` / `GET_AS_PATH` answers;
+HEAD:docs/MILAN_V12_ROADMAP.md:126:| `0x0027` | `GET_AVB_INFO` | 5.4.2.23 | 0x0048 |
+HEAD:docs/MILAN_V12_ROADMAP.md:437:GET_AVB_INFO changes (the root snapshot-compares every field it serves and the
+HEAD:docs/SYSTEM_DOMAIN_MAP.drawio:24:•                GET_COUNTERS / GET_AUDIO_MAP / GET_AS_PATH / GET_AVB_INFO / Milan info
+HEAD:docs/SYSTEM_DOMAIN_MAP.gen.py:30:    "               GET_COUNTERS / GET_AUDIO_MAP / GET_AS_PATH / GET_AVB_INFO / Milan info",
+HEAD:docs/SYSTEM_DOMAIN_MAP.svg:46:<text x="50" y="751" font-size="12.5" fill="#212121">               GET_COUNTERS / GET_AUDIO_MAP / GET_AS_PATH / GET_AVB_INFO / Milan info</text>
+HEAD:docs/design/MAILBOX_SPLIT.md:960:  the wrapper's GET_STREAM_INFO and GET_AVB_INFO answer face.
+HEAD:docs/design/MAILBOX_SPLIT.md:970:- the wrapper's own GET_STREAM_INFO and GET_AVB_INFO answers: its cone
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:138:- **Reference peer.** A Milan-validated end station with two AVB interfaces, both priority1 248. Its GET_AS_PATH on interface 0 is `[3cc0c6fffefe0210, its own clock]`, 
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:158:| A | 12:56:14 to 13:01:29 | 315 s tap capture; console `milan_status` plus nine CSR reads every 5 s; controller GET_AVB_INFO and GET_AS_PATH on the DUT and the peer ev
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:177:- A watcher on the controller host logs the carrier every 0.1 s and every ADP advertisement heard. While the carrier is up it polls, once a second, GET_AVB_INFO, GET_AS
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:266:  - The controller's GET_AVB_INFO reported AS_CAPABLE in all 60 Run A polls.
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:338:- **Reference peer**: not observable while the switch is off. Its link is not tapped, and the controller host is inside the partition. Its GPTP_GM_CHANGED counter advan
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:420:| GM identity | `0x624`/`0x628` `3cc0c6fffefe0210`, every sample | Announce grandmasterIdentity, all 569; DUT ADPDU `gptp_grandmaster_id`, all | GET_AVB_INFO `gptp_gran
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:423:| Peer delay | `GPTP_PDELAY` 380 to 391 ns (median 385) | tap minus claimed, median 383 to 394 ns | GET_AVB_INFO propagation_delay 381 to 391 ns (median 385) |
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:450:| Grandmaster loss | `0x624`/`0x628` and `0x730`/`0x734` read `020000fffe000001` 3.01 to 3.08 s after the switch's last Announce; `ASP_CMD` generation +1, count 1; hold
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:453:| Grandmaster return | GM and parent read `3cc0c6fffefe0210` within one sample of the Announce the DUT accepted (0 to 74 ms after it); generation +1, count 1; holdover 
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:498:4. **The DUT sends one unsolicited GET_AVB_INFO per second to a registered controller.** Each carries a propagation delay a few nanoseconds away from the last: 33 in 40
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:867:  - Once a second the controller host reads GET_AVB_INFO and GET_COUNTERS of the DUT (AVB_INTERFACE 0, Stream Input 0, Stream Outputs 0 and 1, CLOCK_DOMAIN 0) and of th
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:922:- **asCapable retained.** The console read GM and parent `3cc0c6fffefe0210`, `CLKV_STAT` `0x00010002` (sync 1, asCapable 1, holdover 0, `tu` 0) in 1,200 of 1,200 sample
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:923:- **Peer delay.** `PDELAY_NS` 372 to 391 ns (median 383), GET_AVB_INFO the same range.
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:977:| Grandmaster loss | GM and parent `020000fffe000001`, path generation +1, holdover set again, between reads 2.76 to 3.25 s after the switch's last Announce | the annou
+HEAD:docs/findings/117_GPTP_SILICON_EVIDENCE.md:980:| Grandmaster return | GM and parent `3cc0c6fffefe0210`, generation +1, holdover set, in the first sample, read 0.12 to 0.25 s after the cause | the Announce the DUT ac
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:188:| processor #177, GET_AVB_INFO status (PR #182) | -51 | -5 |
+HEAD:docs/findings/387_SOFTWARE_GM_STEP.md:255:The console, the wire Announce and the controller's GET_AVB_INFO all name it.
+HEAD:docs/findings/387_SOFTWARE_GM_STEP.md:386:| #621 item 3: five grandmaster steps with no asCapable loss | PASS | Five takeovers and five releases stepped the DUT PHC by +9.987 ms and -10.003 to -10.005 ms. asCapable 
+HEAD:docs/findings/387_SOFTWARE_GM_STEP.md:406:was polled every 0.25 s, the controller read GET_AVB_INFO, GET_COUNTERS and
+HEAD:docs/findings/387_SOFTWARE_GM_STEP.md:415:| No asCapable loss | no console sample and no DUT GET_AVB_INFO poll with asCapable 0; a poll that does not answer is counted apart, and none failed to answer |
+HEAD:docs/findings/653_DISCONNECT_ORDER_BENCH.md:195:   GET_AVB_INFO also went out here.
+HEAD:docs/findings/667_TALKER_START_BENCH.md:198:Each checkpoint also read GET_AVB_INFO and GET_AS_PATH.
+HEAD:docs/findings/B14_BENCH_5603C353.md:459:The cadence is B13's: GET_COUNTERS every 60 s (121 polls), GET_AVB_INFO and GET_AS_PATH every 5 minutes (25 reads), and a rolling tap.
+HEAD:docs/findings/B14_BENCH_5603C353.md:641:| IEEE 1722.1-2021, Sections 7.4.40 to 7.4.42 and 7.5 | GET_AVB_INFO, GET_AS_PATH, GET_COUNTERS and unsolicited notifications |
+HEAD:docs/guides/gptp/SYSTEM_INTEGRATOR.md:71:| `GET_AVB_INFO` | Coherent selected-owner summary |
+HEAD:docs/history/v1/SPEC_TRACEABILITY.md:44:>    SET/GET_CONFIGURATION, GET_AVB_INFO, GET_AS_PATH, IDENTIFY, controller
+HEAD:docs/history/v1/SPEC_TRACEABILITY.md:197:     SET/GET_NAME size + frame-vs-cdl), CMD-15a (7.4.40.2 GET_AVB_INFO 20 B
+HEAD:docs/history/v1/design/GM_LOSS_RECOVERY.md:46:- **[4. Public recovery surface](#4-public-recovery-surface)** — The selected-owner mapping into legacy CSRs, GET_AVB_INFO, GET_AS_PATH and AAF/CRF `tu`, with coherent m
+HEAD:docs/history/v1/design/GM_LOSS_RECOVERY.md:114:`asCapable` is published separately; GET_AVB_INFO consumes the engine level,
+HEAD:docs/history/v1/design/GM_LOSS_RECOVERY.md:128:| GET_AVB_INFO | snapshotted GM, pdelay and asCapable with the other response fields |
+HEAD:docs/history/v1/design/GM_LOSS_RECOVERY.md:134:publication commit lands between transactions. GET_AVB_INFO and GET_AS_PATH
+HEAD:docs/history/v1/design/GM_LOSS_RECOVERY.md:174:GET_AVB_INFO/GET_AS_PATH responses and Table 5.22 pushes. The root compares the
+HEAD:docs/history/v1/design/GPTP_PLANE.md:99:   (the protocol processor's ADPDU/GET_AVB_INFO/AS_PATH face, the
+HEAD:docs/history/v1/design/GPTP_PLANE.md:178:0x730/0x734, GET_AVB_INFO, GET_AS_PATH, clock validity/asCapable and AVTP
+HEAD:docs/history/v1/design/GPTP_PLANE.md:198:CSR/GET_AVB_INFO contract, so a legal -1 ns sample can never appear as
+HEAD:docs/history/v1/design/GPTP_PLANE.md:259:| `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv);
+HEAD:docs/history/v1/diagrams/timesync_chain.drawio:11:<mxCell id="n_g2c" value="public gPTP consumers&#10;CSR GM/parent/pdelay - GET_AVB_INFO/PATH&#10;CLKV asCapable/sync - every AVTP tu" style="rounded=1;whiteSpace=wra
+HEAD:docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:192:- **[2. AECP + AEM — processor command surface](#2-aecp--aem--processor-command-surface)** — the processor-owned command/refusal boundary and external AEM image
+HEAD:docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:242:`READ_DESCRIPTOR`, VERSION `0x0002_0055` `GET_AVB_INFO`, and the bounded
+HEAD:docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:282:| GET_AVB_INFO | protocol-processor `E_GAVB` response program through `KL_pp_shadow`, with the selected-owner gather/snapshot in `milan_datapath` | Milan v1.2 5
+HEAD:docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:304:  `GET_AVB_INFO`, bounded `GET_AS_PATH`, mapping transactions and its declared
+HEAD:docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:413:| CLKV selected-owner ABI: `CLKV_CTRL` 0x778 remains the software compatibility control/lease store, but its writes cannot manufacture default fabric-owner heal
+HEAD:docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:417:| `GET_AVB_INFO`: coherent snapshot of GM, propagation delay, domain, asCapable/GPTP/SRP flags and the class-A MSRP mapping; changes to the served snapshot driv
+HEAD:docs/history/v1/reference/PROTOCOL_TRACEABILITY.md:428:  `GET_AVB_INFO` from one selected-owner GM/pdelay/domain/asCapable snapshot and
+HEAD:docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md:207:| GET_AVB_INFO push | on GM, propagation delay, domain, asCapable, class-A priority, class-A VID | **NOT IMPLEMENTED** | IMPLEMENTED (0x0024) off {GM, domain, S
+HEAD:docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md:290:| GET_AVB_INFO | getter | **NOT IMPLEMENTED** | item 4.13 | `item-10-avb-info` |
+HEAD:docs/history/v1/tests/CONFORMANCE_TESTING_HOWTO.md:121:| `tests/features/milan_aecp_extended_commands.feature` | 15 | SET/GET_STREAM_INFO, START/STOP_STREAMING, GET_AVB_INFO, GET_AS_PATH, GET_MILAN_INFO, GET_COUNTER
+HEAD:docs/history/v1/traceability/ieee1722_1-2021.md:61:  `GET_AVB_INFO`, `GET_AS_PATH`, `GET_COUNTERS`, registration, and the mandatory
+HEAD:docs/history/v1/traceability/ieee1722_1-2021.md:290:| CMD-15 | 7.4.40 | GET_AVB_INFO (gPTP GM, propagation delay, domain, flags, MSRP mappings) | processor getter plus the root Milan-info face | ✅ IMPLEMENTED at `0x
+HEAD:docs/history/v1/traceability/ieee1722_1-2021.md:291:| CMD-15a | 7.4.40.2 | **A non-success GET_AVB_INFO response keeps the 20-byte minimum payload** (type+index+gm_id+propagation_delay+domain+flags+msrp_mappings_cou
+HEAD:docs/history/v1/traceability/milan-v12.md:225:| M-AECP-10 | 5.4.5.2 (Table 5.22) | Unsolicited notifications for every listed state change, plus command-specific success notifications | `KL_aecp_notify` (registry, s
+HEAD:docs/reference/FR_NFR.md:122:`GET_AVB_INFO`, `GET_AS_PATH`, `GET_COUNTERS`, `GET_AUDIO_MAP`, unsolicited
+HEAD:docs/reference/MILAN_COMPLIANCE_MATRIX.md:129:| 5.4.2.23 | GET_AVB_INFO | implemented | propagation delay served from the measured word since 0x0055 (audit B8 closed) |
+HEAD:docs/reference/MILAN_FEATURE_STATUS.md:106:- `GET_AVB_INFO`
+HEAD:docs/reference/REGISTER_MAP.md:322:every field of the GET_AVB_INFO answer the root serves is snapshot-compared
+HEAD:docs/reference/REGISTER_MAP.md:341:grandmaster is a GET_AVB_INFO trigger and an ADP re-advertise, and is neither
+HEAD:docs/reference/REGISTER_MAP.md:794:| `0x77C` | `CLKV_STAT` | RO live | — | `[0]` `tu` as currently stamped on every outgoing stream frame, `[1]` fabric sync_ok, `[3]` inside a discontinuity holdover, and `[16]` fabr
+HEAD:docs/reference/REGISTER_MAP.md:1298:| `0x6E4` | `GPTP_PDELAY` | RO live | reset `0`: fabric-owned measured gPTP neighbor propagation delay in ns. Option OFF reads zero; writes are inert. GET_AVB_INFO consumes this v
+HEAD:docs/reference/REGISTER_MAP_CLASSES.md:86:| `0x624/0x628` | GM identity | **needed** | live fabric publication / zero option OFF | The fabric engine supplies a coherent live 64-bit snapshot and feeds CSR readback pl
+HEAD:docs/reference/SUBMODULES.md:228:| #177, GET_AVB_INFO | [182](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/182) | A descriptor other than AVB_INTERFACE answers NOT_IMPLEMENTED with
+HEAD:docs/reference/SUBMODULES.md:242:| #82, boot grandmaster | [83](https://github.com/Mister-M-alt/FPGA-gPTP/pull/83) | From reset release the engine publishes thisClock as grandmaster and `{thisClock}` as the path (IE
+HEAD:docs/reference/SUBMODULES.md:266:| #200, GET_AVB_INFO status | [201](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/201) | A descriptor other than AVB_INTERFACE answers NOT_SUPPORTED
+HEAD:docs/reference/milan_feature_status.json:29:      "GET_AVB_INFO",
+HEAD:docs/reference/milan_feature_status.json:298:      "summary": "Every successful state-changing command pushes to each registered controller except the requester; the Table 5.22 observed triggers are wired from the f
+HEAD:docs/testing/MILAN_V12_AUDIT_2026-08-16.md:109:`IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, `GET_AS_PATH` (grandmaster plus the
+HEAD:docs/testing/MILAN_V12_AUDIT_2026-08-16.md:303:### B8. GET_AVB_INFO propagation delay (owner boundary at 0x0002_0056)
+HEAD:docs/testing/MILAN_V12_AUDIT_2026-08-16.md:309:it is a Table 5.22 `GET_AVB_INFO` trigger. In option OFF the field reads and
+HEAD:docs/testing/MILAN_V12_AUDIT_2026-08-16.md:318:Evidence: the `GET_AVB_INFO` gather selection and the `gsi_avb_chg_w` detector
+HEAD:docs/testing/MILAN_V12_AUDIT_2026-08-16.md:325:`GET_AVB_INFO` that follows it.
+HEAD:hdl/common/csr/milan_csr.sv:2348:      //! this readback, o_adp_gptp_domain (ADP, GET_AVB_INFO, notifications).
+HEAD:hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:663:  //! exists. Keep the scalar GM publication independent: GET_AVB_INFO, ADP and
+HEAD:hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:757:        // CSR GPTP_PDELAY and GET_AVB_INFO carry an *unsigned* nanosecond
+HEAD:hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:143:  output wire        as_capable_o,    //! active-owner asCapable (GET_AVB_INFO flags[0])
+HEAD:hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:241:  //! Fabric-owner asCapable for GET_AVB_INFO and its Table 5.22 push
+HEAD:hdl/milan/KL_pp_shadow.sv:439:    //! GET_AVB_INFO / GET_AS_PATH ask one word at a time and milan_datapath
+HEAD:hdl/milan/milan_datapath.sv:36://! comparators for GET_AVB_INFO and GET_AS_PATH) into the
+HEAD:hdl/milan/milan_datapath.sv:3331:  // Milan-info gather face (GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH)
+HEAD:hdl/milan/milan_datapath.sv:5950:  //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
+HEAD:hdl/milan/milan_datapath.sv:6369:      2'd1: begin                            // ---- GET_AVB_INFO ----
+HEAD:hdl/milan/milan_datapath.sv:6406:  //! ONE effective source per served GET_AVB_INFO field, and the SAME wire
+HEAD:hdl/milan/milan_datapath.sv:6408:  //! names six GET_AVB_INFO triggers; the root serves and detects four of
+HEAD:hdl/milan/milan_datapath.sv:6447:  //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
+HEAD:hdl/milan/milan_datapath.sv:9064:  //!     (1722.1-2021 6.2.6, Milan 5.6.3.5.7) and a GET_AVB_INFO trigger
+HEAD:hdl/milan/milan_datapath.sv:9426:      //! the Milan-info face: GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH
+HEAD:sw/builder/endstation_builder.py:3613:    identity - which is what the GET_AVB_INFO and GET_AS_PATH consumers do
+HEAD:sw/builder/test_builder.py:28583:        f"identity - which GET_AVB_INFO and GET_AS_PATH consumers do - "
+HEAD:sw/mailbox/publication_census.py:70:             ``PROCESSOR_FACE`` names, its GET_STREAM_INFO and GET_AVB_INFO
+HEAD:sw/mailbox/publication_census.py:88:             and GET_AVB_INFO from firmware state, a STREAM_INPUT's binding,
+HEAD:sw/mailbox/publication_census.py:229:    ("pp_cd_srp_class_a_prio_w", "gsi_prio_snap_r"): Row("processor", "", "GET_AVB_INFO's Domain snapshot"),
+HEAD:sw/mailbox/publication_census.py:230:    ("pp_cd_srp_class_a_vid_w", "gsi_vid_snap_r"): Row("processor", "", "GET_AVB_INFO's Domain snapshot"),
+HEAD:sw/mailbox/publication_census.py:242:#: The wrapper's GET_STREAM_INFO and GET_AVB_INFO answer face: its answer
+HEAD:tb/tools/avdecc_ctl.py:3:GET_COUNTERS, GET_STREAM_INFO, GET_AVB_INFO.  No la_avdecc dependency."""
+HEAD:tb/tools/a

@@ -1,0 +1,44 @@
+## ed211803 sites:
+HEAD:CHANGELOG.md:11:- **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
+HEAD:CHANGELOG.md:49:## Unreleased - processor pin ed211803
+HEAD:CHANGELOG.md:51:- Issue #780 adopts processor `ed211803` (PR #201, issue #200).
+HEAD:docs/diagrams/submodule_boundaries.drawio:1:<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1210" grid="1" gridSize="10" guides="1" page
+HEAD:docs/diagrams/submodule_boundaries.svg:33:<text x="53" y="297" font-size="16" fill="#37474F">pin ed2118035e4c</text>
+HEAD:docs/reference/SUBMODULES.md:25:| `protocol-processor` | `ed2118035e4cec76fb1b59cfbf8a053aeacc8af8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+HEAD:docs/reference/SUBMODULES.md:260:Issue #780 adopts processor pin `ed211803`.
+HEAD:syn/yosys/rom_digests.tsv:72:ed2118035e4cec76fb1b59cfbf8a053aeacc8af8	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+HEAD:syn/yosys/rom_digests.tsv:73:ed2118035e4cec76fb1b59cfbf8a053aeacc8af8	ucode.hex	1f78804e448c385d633ed4355b7d84100ec13b12c77305c3bc11986653a80a8e
+## 93fb0b2d sites:
+HEAD:CHANGELOG.md:15:- **[Unreleased - pins 93fb0b2d and 55680bff](#unreleased---pins-93fb0b2d-and-55680bff)** -- Two donor pins move.
+HEAD:CHANGELOG.md:60:- Both processor ROM digests match the `93fb0b2d` rows.
+HEAD:CHANGELOG.md:127:- That gate is the processor's; pin `93fb0b2d` carries it.
+HEAD:CHANGELOG.md:165:## Unreleased - pins 93fb0b2d and 55680bff
+HEAD:CHANGELOG.md:167:- Issue #771 adopts processor `93fb0b2d` and gPTP `55680bff`.
+HEAD:docs/design/AREA_BUDGET.md:13:The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#632](https://github.com/kebag-logic/milan-f
+HEAD:docs/design/AREA_BUDGET.md:114:Issue [#771](https://github.com/kebag-logic/milan-fpga/issues/771) then re-recorded all three endpoints at lane head `8de4b80b`, dev `d77a8afd` 
+HEAD:docs/design/AREA_BUDGET.md:116:Its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff) r
+HEAD:docs/design/AREA_BUDGET.md:130:| Resource | Device | Shipping route, #632 on dev `e5b480a3`, processor `93fb0b2d`, FPGA-gPTP `55680bff` | Used | Target | Status |
+HEAD:docs/design/AREA_BUDGET.md:504:The [tenth](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff) records [#771](https
+HEAD:docs/design/MARK_II_AREA_PLAN.md:660:[#771](https://github.com/kebag-logic/milan-fpga/issues/771) then re-recorded it at processor `93fb0b2d` and FPGA-gPTP `55680bff`, under a
+HEAD:docs/design/MEDIA_CLOCK_FOLLOWING.md:1744:  `93fb0b2d` carries that gate (processor PR #199, adopted by #771), so all
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:10:Its [next record](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff) adopted processor `93fb0b2d` and FPGA-g
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:14:The #771 record moved the processor pin from `2cbed0a9` to `93fb0b2d` and the gPTP pin from `e4869fd0` to `55680bff`; the curre
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:21:- **[Re-baseline of 2026-10-22, processor 93fb0b2d and FPGA-gPTP 55680bff](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fp
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:43:It measures lane head `5282b8b68983b3b5f7d9be4635c8847dbe6c38a1`, the lane's merge of dev `e5b480a385841f19420570bbba7c46da101d
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:45:Dev `e5b480a3`'s synthesis inputs differ from the [preceding record](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gpt
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:138:## Re-baseline of 2026-10-22, processor 93fb0b2d and FPGA-gPTP 55680bff
+HEAD:docs/findings/234_PP_SHADOW_AREA_BASELINE.md:140:This re-baseline adopts processor `93fb0b2d736b36588ea7321e25fba2f8819ea41f` and FPGA-gPTP `55680bff3b287b9a7b0c759f51471fa617
+HEAD:docs/reference/SUBMODULES.md:220:Issue #771 adopts processor pin `93fb0b2d` and gPTP pin `55680bff`.
+HEAD:docs/reference/SUBMODULES.md:272:`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `93fb0b2d` rows.
+HEAD:syn/ooc/pp_resource_baseline.json:451:   "measured": "2026-10-23, issues #632 and #764 (PR #770): RTL inputs at lane head 5282b8b68983b3b5f7d9be4635c8847dbe6c38a1, the lane's 
+HEAD:syn/ooc/pp_resource_baseline.json:919:   "measured": "2026-10-23, issues #632 and #764 (PR #770): RTL inputs at lane head 5282b8b68983b3b5f7d9be4635c8847dbe6c38a1, the lane's 
+HEAD:syn/ooc/pp_resource_baseline.json:1377:   "measured": "2026-10-23, issues #632 and #764 (PR #770): RTL inputs at lane head 5282b8b68983b3b5f7d9be4635c8847dbe6c38a1, the lane's
+HEAD:syn/yosys/rom_digests.tsv:48:93fb0b2d736b36588ea7321e25fba2f8819ea41f	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+HEAD:syn/yosys/rom_digests.tsv:49:93fb0b2d736b36588ea7321e25fba2f8819ea41f	ucode.hex	1f78804e448c385d633ed4355b7d84100ec13b12c77305c3bc11986653a80a8e
+HEAD:tb/verilator/milan_dp/README.md:702:Measured on 2026-10-22 UTC at processor pin `93fb0b2d`, which carries the stored-offset gate (processor PR #199).
+## donor mentions with a pin:
+HEAD:docs/design/SAVED_STATE_FASTCONNECT.md:435:reversed.** Checked at `dev` with the donor pinned at `e743dcdc`: no donor
+HEAD:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:224:EXECUTED at dev 36ee8a37 and donor 8f2f58fb. The tracked build is the
+HEAD:docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1286:Historical tracing used dev 36ee8a37 and donor 8f2f58fb.
+HEAD:docs/history/v1/traceability/ieee8021as.md:58:| AS-6 | 10.2 / 10.3 (BMCA, port states) | Best-master selection, Announce handling | option OFF: ownerless, with no BMCA partici
+HEAD:docs/reference/MILAN_COMPLIANCE_MATRIX.md:241:| 8.3 / 10.2.4.8 / 14.6.9 | delayAsymmetry: optional to model, zero when not modelled. Its managed object is read-write and `Tdot

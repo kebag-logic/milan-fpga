@@ -1,0 +1,127 @@
+## parent consumers sending or naming GET_AVB_INFO (0x0027):
+HEAD:avdecc/aem_descriptors.py:363:    #! with the gPTP port identity - GET_AVB_INFO and GET_AS_PATH consumers
+HEAD:avdecc/milan_controller.py:42:           GET_AVB_INFO=39, GET_STREAM_INFO=15, GET_AS_PATH=40, GET_COUNTERS=41,
+HEAD:hdl/common/csr/milan_csr.sv:1314:         //! entry[12:0]} since the per-channel store (0x0027) - the
+HEAD:hdl/common/csr/milan_csr.sv:2348:      //! this readback, o_adp_gptp_domain (ADP, GET_AVB_INFO, notifications).
+HEAD:hdl/ieee1722/aaf/KL_chan_map_capture.sv:25:                MAP ENTRY (13 bits, ONE PER STREAM CHANNEL - 0x0027,
+HEAD:hdl/ieee1722/aaf/KL_chan_map_capture.sv:399:  //! PER-CHANNEL since 0x0027 (USER 2026-08-06: "one cluster == one audio
+HEAD:hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:663:  //! exists. Keep the scalar GM publication independent: GET_AVB_INFO, ADP and
+HEAD:hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:757:        // CSR GPTP_PDELAY and GET_AVB_INFO carry an *unsigned* nanosecond
+HEAD:hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:143:  output wire        as_capable_o,    //! active-owner asCapable (GET_AVB_INFO flags[0])
+HEAD:hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv:241:  //! Fabric-owner asCapable for GET_AVB_INFO and its Table 5.22 push
+HEAD:hdl/milan/KL_pp_shadow.sv:439:    //! GET_AVB_INFO / GET_AS_PATH ask one word at a time and milan_datapath
+HEAD:hdl/milan/milan_datapath.sv:36://! comparators for GET_AVB_INFO and GET_AS_PATH) into the
+HEAD:hdl/milan/milan_datapath.sv:1317:    //! PER-CHANNEL store (0x0027, USER "one cluster == one audio channel"):
+HEAD:hdl/milan/milan_datapath.sv:1988:  //! {loop_fed[14], loop_mapped[13], entry[12:0]} (0x0027 per-channel)
+HEAD:hdl/milan/milan_datapath.sv:3331:  // Milan-info gather face (GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH)
+HEAD:hdl/milan/milan_datapath.sv:3988:  //! 0x0027 law), so channel 0 is the only channel a cluster has. NOT
+HEAD:hdl/milan/milan_datapath.sv:5950:  //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
+HEAD:hdl/milan/milan_datapath.sv:6369:      2'd1: begin                            // ---- GET_AVB_INFO ----
+HEAD:hdl/milan/milan_datapath.sv:6406:  //! ONE effective source per served GET_AVB_INFO field, and the SAME wire
+HEAD:hdl/milan/milan_datapath.sv:6408:  //! names six GET_AVB_INFO triggers; the root serves and detects four of
+HEAD:hdl/milan/milan_datapath.sv:6447:  //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
+HEAD:hdl/milan/milan_datapath.sv:6494:  //! sequence. gsi_gm_chg_w remains the AVB_INFO/counter identity edge, but
+HEAD:hdl/milan/milan_datapath.sv:9064:  //!     (1722.1-2021 6.2.6, Milan 5.6.3.5.7) and a GET_AVB_INFO trigger
+HEAD:hdl/milan/milan_datapath.sv:9309:      //! unanswerable exactly the way the pre-0x0027 shapes did.
+HEAD:hdl/milan/milan_datapath.sv:9426:      //! the Milan-info face: GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH
+HEAD:sw/builder/endstation_builder.py:3613:    identity - which is what the GET_AVB_INFO and GET_AS_PATH consumers do
+HEAD:sw/builder/test_builder.py:2043:    frozenset({0x23, 0x27})
+HEAD:sw/builder/test_builder.py:28583:        f"identity - which GET_AVB_INFO and GET_AS_PATH consumers do - "
+HEAD:sw/firmware/ctrl/aecp/aecp.h:39:struct aecp_avb_info {
+HEAD:sw/firmware/ctrl/aecp/aecp.h:87:	bool (*avb)(void *, unsigned, uint16_t, struct aecp_avb_info *);
+HEAD:sw/firmware/ctrl/aecp/aecp.h:172:// Table 5.22 events: bit 0 STREAM_INFO, bit 1 AVB_INFO, bit 2 AS_PATH,
+HEAD:sw/firmware/ctrl/aecp/aecp_commands.c:420:		struct aecp_avb_info info = {0};
+HEAD:sw/firmware/ctrl/aecp/aecp_mbx.c:58:static bool avb(void *ctx, unsigned interface, uint16_t index, struct aecp_avb_info *out)
+HEAD:sw/firmware/ctrl/app/ctrl_app_aecp.c:68:static bool avb(void *ctx, unsigned interface, uint16_t index, struct aecp_avb_info *v)
+HEAD:sw/firmware/ctrl/test/aecp_wire_model.hpp:95:    ports.avb=[](void*,unsigned,uint16_t,fw::aecp_avb_info*v){*v={GM0,0x1234,0,7,3,2};return true;};
+HEAD:sw/firmware/ctrl/test/ctrl_aecp_image.c:65:static bool a_avb(void *ctx, unsigned i, uint16_t n, struct aecp_avb_info *v)
+HEAD:sw/firmware/ctrl/test/test_aecp.cpp:68:    MOCK_METHOD(bool,Avb,(unsigned,uint16_t,aecp_avb_info *));
+HEAD:sw/firmware/ctrl/test/test_aecp.cpp:104:          [](void*p,unsigned i,uint16_t d,aecp_avb_info*v){return static_cast<Ports*>(p)->Avb(i,d,v);},
+HEAD:sw/firmware/ctrl/test/test_aecp.cpp:127:        ON_CALL(mock,Avb).WillByDefault([this](unsigned,uint16_t,aecp_avb_info*v){
+HEAD:sw/mailbox/publication_census.py:70:             ``PROCESSOR_FACE`` names, its GET_STREAM_INFO and GET_AVB_INFO
+HEAD:sw/mailbox/publication_census.py:88:             and GET_AVB_INFO from firmware state, a STREAM_INPUT's binding,
+HEAD:sw/mailbox/publication_census.py:229:    ("pp_cd_srp_class_a_prio_w", "gsi_prio_snap_r"): Row("processor", "", "GET_AVB_INFO's Domain snapshot"),
+HEAD:sw/mailbox/publication_census.py:230:    ("pp_cd_srp_class_a_vid_w", "gsi_vid_snap_r"): Row("processor", "", "GET_AVB_INFO's Domain snapshot"),
+HEAD:sw/mailbox/publication_census.py:242:#: The wrapper's GET_STREAM_INFO and GET_AVB_INFO answer face: its answer
+HEAD:tb/tools/avdecc_ctl.py:3:GET_COUNTERS, GET_STREAM_INFO, GET_AVB_INFO.  No la_avdecc dependency."""
+HEAD:tb/tools/avdecc_ctl.py:31:    'GET_AVB_INFO': 0x0027,
+HEAD:tb/tools/avdecc_ctl.py:255:def do_avb_info(link: Link, seq: int, dindex: int) -> dict[str, object]:
+HEAD:tb/tools/avdecc_ctl.py:256:    """GET_AVB_INFO decoded: the grandmaster this interface follows, its
+HEAD:tb/tools/avdecc_ctl.py:258:    st, pl = aecp_xact(link, seq, CMD['GET_AVB_INFO'],
+HEAD:tb/tools/avdecc_ctl.py:385:        out['AVB_INFO.0'] = do_avb_info(link, nx(), 0)
+HEAD:tb/tools/avdecc_ctl.py:401:        print(json.dumps(do_avb_info(link, nx(), 0), indent=1))
+HEAD:tb/tools/hive_compliance.py:44:     variable-length ones (GET_AVB_INFO's msrp_mappings list, GET_AS_PATH's
+HEAD:tb/tools/hive_compliance.py:47:     the reference device answers GET_AVB_INFO SUCCESS with 36 and its error
+HEAD:tb/tools/hive_compliance.py:251:    BAD_INDEX, CHECKS, CMD_GET_AS_PATH, CMD_GET_AUDIO_MAP, CMD_GET_AVB_INFO,
+HEAD:tb/tools/hive_compliance.py:428:    #   GET_AVB_INFO SUCCESS with cdl 36 and its error with cdl 32 (the 20 B
+HEAD:tb/tools/hive_compliance.py:450:        ("GET_AVB_INFO", CMD_GET_AVB_INFO, "7.4.40.2",
+HEAD:tb/tools/hive_compliance_wire.py:47:CMD_GET_AVB_INFO = 0x0027
+HEAD:tb/verilator/chmap_capture/chmap_wrap.sv:86:  //! per-CHANNEL 13-bit entry {en, half, src, idxh, idx} (0x0027)
+HEAD:tb/verilator/chmap_capture/reference/KL_chan_map_capture_ref.sv:25:                MAP ENTRY (13 bits, ONE PER STREAM CHANNEL - 0x0027,
+HEAD:tb/verilator/chmap_capture/reference/KL_chan_map_capture_ref.sv:385:  //! PER-CHANNEL since 0x0027 (USER 2026-08-06: "one cluster == one audio
+HEAD:tb/verilator/chmap_capture/sim_main.cpp:220:// PER-CHANNEL SHIM (0x0027, "one cluster == one audio channel"): the store
+HEAD:tb/verilator/csr/milan_csr_ref.sv:1307:         //! entry[12:0]} since the per-channel store (0x0027) - the
+HEAD:tb/verilator/csr/milan_csr_ref.sv:2324:      //! this readback, o_adp_gptp_domain (ADP, GET_AVB_INFO, notifications).
+HEAD:tb/verilator/csr/sim_main.cpp:865:  axi_write(0x680, 0x27);                // enable + talker + bypass, q1
+HEAD:tb/verilator/csr/sim_win.cpp:145:  //      PER-CHANNEL entry {en, half, src, idxh, idx} (0x0027), so a
+HEAD:tb/verilator/csr/sim_win.cpp:275:    if (dut->o_chmap_wr_side)   // capture (0x0027): compose the 13-bit
+HEAD:tb/verilator/csr/sim_win.cpp:569:// which the datapath composes into the 13-bit entry 0x1100 (0x0027).
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:35:// Response memory is an ordered 592-byte store for GET_AVB_INFO/GET_AS_PATH;
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:962:    f.u16(command == 0x27 ? 9 : 0); f.u16(0);
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:978:    const auto avb = query(0x27, 0x7001);
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:979:    check.dec("GET_AVB_INFO length", avb.size(), 62);
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:980:    check.dec("GET_AVB_INFO status SUCCESS", avb.size() > 16 ? avb[16] >> 3 : 255, 0);
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:981:    check.hex("GET_AVB_INFO coherent GM", be(avb, 42, 8), kGm);
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:982:    check.dec("GET_AVB_INFO delay equals CSR bank", be(avb, 50, 4), delay);
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:983:    check.that("GET_AVB_INFO asCapable agrees with CSR", avb.size() > 55 && (avb[55] & 1));
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1172:        const auto initial_avb = query(0x27, 0x7010);
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1173:        check.dec("pre-acquisition GET_AVB_INFO length", initial_avb.size(), 62);
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1174:        check.dec("pre-acquisition GET_AVB_INFO SUCCESS", initial_avb.size() > 16 ? initial_avb[16] >> 3 : 255, 0);
+HEAD:tb/verilator/milan_dp/sim_ax1x1gptp.cpp:1177:        check.hex("pre-acquisition GET_AVB_INFO names thisClock as GM", be(initial_avb, 42, 8), kThisClock);
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:10:// that bank byte-exactly in GET_AVB_INFO / GET_AS_PATH responses at the
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:830:    // GET_AVB_INFO gather below, or the MAC-bound Pdelay_Req scanned below.
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:965:    // CSR and the byte-exact GET_AVB_INFO field must see zero, not 0xffff_ffxx.
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1036:        dut, 0x0027, 0x7101, {0x00, 0x09, 0x00, 0x00});
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1037:    expect("GET_AVB_INFO response length", avb.size(), 62);
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1038:    expect("GET_AVB_INFO SUCCESS", aecp_status(avb), 0);
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1039:    expect("GET_AVB_INFO cdl", avb.size() >= 18
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1041:    expect("GET_AVB_INFO descriptor", avb.size() >= 42
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1043:    expect("GET_AVB_INFO nonzero GM", avb.size() >= 50
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1045:    expect("GET_AVB_INFO byte-exact negative-delay clamp", avb.size() >= 54
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1047:    expect("GET_AVB_INFO domain/flags/map", avb.size() >= 58
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1049:    expect("GET_AVB_INFO exact class mapping", avb.size() >= 62
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1124:    expect("retired writes emit no GET_AVB_INFO push",
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1125:           unsolicited_count(inert_first, 0x0027), 0);
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1333:    // two selected TLV-less masters drives AVB_INFO and GPTP_GM_CHANGED, but the
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1395:    expect("absent GM switch still emits one GET_AVB_INFO push",
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1396:           unsolicited_count(empty_gm_first, 0x0027), 1);
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1514:    expect("maximum path emits no false GET_AVB_INFO push",
+HEAD:tb/verilator/milan_dp/sim_gptp.cpp:1515:           unsolicited_count(max_first, 0x0027), 0);
+HEAD:tb/verilator/milan_dp/sim_main.cpp:898:        // per-channel store (0x0027): the window keys CHANNELS, so the
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1250:    //      the first grandmaster commit (GET_AS_PATH / GET_AVB_INFO);
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1269:    //  grade the command-driven and class-pending (AVB_INFO / AS_PATH) pushes.
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1661:    // leave the CSR face, GET_AVB_INFO, GET_AS_PATH, validity verdict, and
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1712:        ck("[OWNERLESS] writes emit no GET_AVB_INFO notification",
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1713:           notify_count(0x0027, nullptr), 0);
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1723:            aecp_xact_from(CTL_A, 0x0027, notify_sq++, ga);
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1732:        ck("[OWNERLESS] solicited GET_AVB_INFO succeeds",
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1734:        ck("[OWNERLESS] GET_AVB_INFO grandmaster is zero", served_gm, 0);
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1735:        ck("[OWNERLESS] GET_AVB_INFO propagation delay is zero",
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1737:        ck("[OWNERLESS] GET_AVB_INFO domain is zero",
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1739:        ck("[OWNERLESS] GET_AVB_INFO asCapable flag is clear",
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1771:        aecp_xact_from(CTL_B, 0x0027, notify_sq++, ga);
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:1781:                const std::vector<uint8_t> r = aecp_xact_from(CTL_A, 0x0027, notify_sq++, ga);
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:9512:        // capture map, PER-CHANNEL (0x0027): channels <- LOOP {stream 1,
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:10258:    //  LOCK_ENTITY, GET_STREAM_INFO, GET_AVB_INFO, GET_AS_PATH - wire
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:10369:        // GET_AVB_INFO: ownerless gPTP fields + one class-A mapping
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:10372:        r = aecp_xact(0x0027, seq, ga);
+HEAD:tb/verilator/milan_dp/sim_nxn.cpp:10373:        ck("B2: GET_AVB_INFO answers SUCCESS with one msrp mapping",
+HEAD:tb/verilator/nvm_backend/records_endstation_ax7101_8x8.txt:22:rec 0x27 318 28 20 BINDING 7
+HEAD:tests/steps/aecp_engine_model.py:419:            #! GET_AVB_INFO's mapping list, GET_AS_PATH's path, an audio-map
+HEAD:tests/steps/aecp_engine_steps.py:246:    0x0027: dict(name="GET_AVB_INFO", clause="Milan 5.4.2.23",
+(end)
+## of those files, changed by dev a032c6d6..d385b38e:
+CHANGED hdl/milan/KL_pp_shadow.sv
+CHANGED hdl/milan/milan_datapath.sv
+CHANGED tb/verilator/milan_dp/sim_nxn.cpp
+(end)
