@@ -6,7 +6,7 @@ physical gPTP suite. CI expands six registered parents into driver-owned case
 partitions. Only leg counts and measured duration estimates are registered here;
 the case names come from each driver, and executed receipts prove their union.
 
-Longest-first scheduling balances sixteen standard workers. The tsn-gen owner
+Longest-first scheduling balances sixteen regular workers of seventeen (#781). The tsn-gen owner
 stays at worker 1 and the netlist owner at worker 3. One continuous media-clock
 history runs alone on the final worker under issue 737s explicit timing exception.
 Every other worker must project at most 1620 seconds including setup. The older
@@ -19,7 +19,7 @@ hide a new suite by omitting it from selection. A changed count or timeout is re
 from the generated workflow, and omission, ownership, overflow and deterministic
 selection controls must still pass.
 
-    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/16
+    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/17
     python3 scripts/suite_shards.py --measure worker.log
     python3 scripts/suite_shards.py --selftest
 """
@@ -68,7 +68,11 @@ VERILATOR_JOB = "verilator-shards"
 #: run 38208503834 at 26e2748f (dev's own window was 185 s), and `gptp_tables`
 #: (#713): the larger of its hosted windows, worker 0/6 of dev run 38601263345
 #: at f6260253, where that worker passed all eight of its suites (its
-#: pull-request run 38538854504 at 7fb3664b measured 474 s).
+#: pull-request run 38538854504 at 7fb3664b measured 474 s). `media_phase`
+#: (#781) keeps its 1400 s suite_timeout figure, above its own hosted window:
+#: 582 s passing on worker 4/17 of pull-request run 40131149135 at 8a4fa2f9
+#: (job 120983200812, whose suite step ran 655 s for its four suites), while
+#: three earlier hosted windows ran past 900 s to TIMEOUT, so its variance is wide.
 SUITE_SECONDS = {
     "aaf": 73,
     "aaf_audio_loop": 6,
@@ -109,7 +113,7 @@ SUITE_SECONDS = {
     "mbx": 82,
     "media_grid_align": 255,
     "media_nco": 17,
-    "media_phase": 900,
+    "media_phase": 1400,
     "milan_dp": 2797,
     "milan_dp_gm_steps": 926,
     "milan_dp_mclk": 2038,
@@ -138,13 +142,16 @@ SUITE_SECONDS = {
 
 #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
 #: driver's suite_timeout gives a new suite, until the change's own hosted run
-#: measures it (step 3 of the module docstring's new-suite steps).
-PROVISIONAL_SUITES: frozenset[str] = frozenset({"media_phase"})
+#: measures it (step 3 of the module docstring's new-suite steps). None is
+#: pending: #781's run measured media_phase (see SUITE_SECONDS).
+PROVISIONAL_SUITES: frozenset[str] = frozenset()
 
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
 #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
-WORKER_OVERHEAD_SECONDS = (122,) * 16
+#: #781: a seventeenth worker takes media_phase's hosted 1400 s budget at the
+#: same 45-minute limit and the same 122 s allowance as every regular worker.
+WORKER_OVERHEAD_SECONDS = (122,) * 17
 
 # Physical inventory stays available to the serial gate and log ownership.
 SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
@@ -855,7 +862,9 @@ def head_selftest() -> int:
         return 1
     for problem in provisional:
         print(f"  FAIL head: {problem}")
-    if not provisional:
+    if not provisional and not PROVISIONAL_SUITES:
+        print("  ok   head no provisional figure is pending")
+    elif not provisional:
         figures = {suite: SUITE_SECONDS[suite] for suite in sorted(PROVISIONAL_SUITES)}
         print(f"  ok   head provisional figures {figures} are what "
               "run_all_suites.sh's suite_timeout gives")

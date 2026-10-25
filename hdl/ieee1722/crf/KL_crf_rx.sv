@@ -600,6 +600,11 @@ module KL_crf_rx #(
           //! a malformed PDU breaks the settle run; the UNSUPPORTED_FORMAT
           //! count itself commits at the interval tick (w_ev_uf_w above)
           settle_r  <= '0;
+          //! it was still received (Milan v1.2 Table 5.6), so its
+          //! sequence_num advances the cursor as an accepted PDU's does and
+          //! the next in-order PDU is no SEQ_NUM_MISMATCH (#775). have_seq_r
+          //! is left alone: only an accepted PDU seeds the sequence
+          exp_seq_r <= seq_i + 8'd1;
         end else begin
           //! SEQ_NUM_MISMATCH commits at the interval tick; FRAMES_RX
           //! counts this accepted PDU above. A discontinuity breaks the

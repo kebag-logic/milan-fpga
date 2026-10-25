@@ -41,7 +41,8 @@
                 emitted timestamp = event gPTP time + the Max Transit Time
                 offset, so the listener steers its 48 kHz recovery clock
                 against future-dated targets in the same ts_delta regime as
-                AAF. transit_ns_i is the SAME offset source as the AAF framer
+                AAF (with TC_P, Equation 14's TC as well, #773). transit_ns_i
+                is the SAME offset source as the AAF framer
                 (SET_STREAM_INFO MSRP_ACC_LAT / MTT 0x4C-0x4D; reset 2 ms) -
                 but unlike AAF it is not stamped raw: 10.7 Equation 14 rounds
                 it UP to a whole number of media clock periods first (see the
@@ -136,7 +137,19 @@ module KL_crf_tx #(
   //! with the same rule (milan_datapath's KL_mtt_round, which rounds this
   //! output's row alone: the AAF talkers stamp theirs as set, #632), and no
   //! converter is elaborated
-  parameter bit ROUND_MTT_P = 1'b1
+  parameter bit ROUND_MTT_P = 1'b1,
+  // IEEE 1722-2016 10.7 Equation (14)'s TC (#773), "the amount of time that
+  // samples spend accumulating in the Talker's transmit buffer". Off: none,
+  // as before. On: ev_ns_i is the instant the event's frame started at the
+  // media interface, and the PDU reaches the MAC only after the frame's
+  // marker and this engine, so TC is the fewest whole media clock periods
+  // covering that (TC_PER_C; whole periods keep the stamp on the grid the
+  // AAF talkers stamp, 4.3.5), added beside the rounded offset.
+  // GET_STREAM_INFO still reads the offset alone.
+  parameter bit          TC_P     = 1'b0,        //! Equation (14)'s T_C on (#773)
+  parameter int unsigned CLK_HZ_P = 50_000_000,  //! clk_i, for PIPE_CYC_C
+  //! the integration's term, ns: ev_p_i's pulse after its event's instant
+  parameter int unsigned EV_LATE_NS_P  = 0
 )(
   input  wire         clk_i,             //! cd_milan datapath clock
   input  wire         rst_n,
@@ -255,8 +268,10 @@ module KL_crf_tx #(
   //  P is the where-list's "nominal period of the clock source" - the MEDIA
   //  clock, NOT the 2 ms PDU spacing (reading it as the spacing would add up
   //  to 2 ms of gratuitous latency to the one stream whose whole job is a
-  //  tight recovery target). T_C = 0 here: a CRF PDU carries a captured
-  //  clock EVENT, nothing accumulates in a transmit buffer.
+  //  tight recovery target). T_C is TC_P's (#773): T_S is the instant the
+  //  event's frame started at the media interface, and the PDU can leave only
+  //  after that frame closed and was carried here, so T_C covers that path in
+  //  whole periods (TC_NS_C below).
   //
   //  P IS NOT AN INTEGER NUMBER OF NANOSECONDS. At base_frequency 48 kHz it
   //  is 1e9/48000 = 62500/3 = 20833.333... ns, so the clause's arithmetic is
@@ -295,6 +310,23 @@ module KL_crf_tx #(
       $error("KL_crf_tx: MCLK_RED_C=%0d does not divide BOTH 1e9 and base_frequency=%0d exactly, so MCLK_NUM_C/MCLK_DEN_C would not be the 10.7 media clock period.",
              MCLK_RED_C, CRF_BASEHZ_C);
     end : g_mclk_rational
+
+  //! T_C (TC_P). This engine's own term, PIPE_CYC_C: from the timing point's
+  //! ev_p_i to the PDU's last beat, NUM_BEATS + 1 cycles: the take into ts_r
+  //! and frame_pend_r, IDLE_S's start, then the beats (the MAC ready, no
+  //! other frame ahead; the whole periods' spare absorbs one). T_C is the
+  //! fewest whole periods covering it with the integration's term, in ns
+  //! rounded up once (41,667 ns for 2 periods at 48 kHz, 0.33 ns above them).
+  localparam int unsigned PIPE_CYC_C = NUM_BEATS + 1;
+  localparam longint unsigned LATE_NS_C = 64'(EV_LATE_NS_P)
+      + (64'(PIPE_CYC_C) * 64'(NS_PER_S_C) + 64'(CLK_HZ_P) - 64'd1) / 64'(CLK_HZ_P);
+  localparam longint unsigned TC_PER_C = !TC_P ? 64'd0
+      : (LATE_NS_C * 64'(MCLK_DEN_C) + 64'(MCLK_NUM_C) - 64'd1) / 64'(MCLK_NUM_C);
+  localparam longint unsigned TC_NS_C  = (TC_PER_C * 64'(MCLK_NUM_C) + 64'(MCLK_DEN_C) - 64'd1)
+                                         / 64'(MCLK_DEN_C);
+  if (TC_P && CLK_HZ_P == 0) begin : g_tc_clock
+    $error("KL_crf_tx: TC_P needs clk_i's CLK_HZ_P.");
+  end : g_tc_clock
 
   //! divider sizing, DERIVED from the two passes' worst-case numerators (a
   //! 64-bit elaboration computes them; nothing here is a written-down width)
@@ -520,7 +552,8 @@ module KL_crf_tx #(
       if (evt_take_w && enable_i && !frame_pend_r && (st_r == IDLE_S)) begin
         //! Equation 14: the ROUNDED offset, never the raw transit_ns_i. If a
         //! conversion is in flight this is still the previous whole answer.
-        ts_r         <= ev_ns_i + 64'(mtt_ofs_r);
+        //! T_C, whole periods, is a constant in the same adder (#773).
+        ts_r         <= ev_ns_i + 64'(mtt_ofs_r) + TC_NS_C;
         tu_r         <= ts_uncertain_i;   //! same PHC, same verdict
         mr_r         <= mr_i;             //! 10.4.3 level frozen for this PDU
         vln_r        <= vlan_en_i;        //! shape frozen for this frame

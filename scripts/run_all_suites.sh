@@ -39,7 +39,7 @@
 #                        Defaults: 1800 s; capture_coherence gets 2400 s,
 #                        milan_dp_mclk 3600 s, milan_dp 4800 s, the
 #                        scheduled milan_dp_gptp 5400 s and media_phase
-#                        900 s (suite_timeout below).
+#                        1400 s (suite_timeout below).
 #                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
 #                        is the obj_* collision domain. Point every worktree at
@@ -246,15 +246,16 @@ acquire_lock() {
 #! milan_dp in 3509.562 s; milan_dp_mclk timed out at 1800.008 s.
 #! The new limits leave >=10% in each hosted shard's measured job envelope.
 #! CI_WORKFLOWS.md records the samples and per-shard arithmetic.
-#! #632: media_phase's 900 s is provisional (scripts/suite_shards.py) until
-#! its hosted window is measured; the default target ran in 553 s at three case jobs.
+#! #781: media_phase timed out at 900 s on hosted. 1400 s leaves more than
+#! 10% over its projected hosted window (at most about 1240 s). Its own
+#! hosted run then passed it in 582 s, and 1400 s is kept for that variance.
 suite_timeout() {
   case "$1" in
     capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
     milan_dp)          printf '%s\n' "${SUITE_TIMEOUT:-4800}" ;;
     milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
     milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
-    media_phase)       printf '%s\n' "${SUITE_TIMEOUT:-900}" ;;
+    media_phase)       printf '%s\n' "${SUITE_TIMEOUT:-1400}" ;;
     *)                 printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;
   esac
 }
