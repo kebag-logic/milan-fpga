@@ -1,0 +1,8 @@
+Independent verdict draft written before reading prior findings (2026-10-25):
+POSITIVE at f8775f7b. No BLOCKER/MAJOR/MINOR in the delta. All five lenses CLEAN at f8775f7b:
+Conformance (per-source TSpec 217/29 graded on merged tree 1x1+8x8; #773 TC/lead composition; #775 inputs identical),
+RTL (KL_crf_tx port vs parameters disjoint; milan_datapath g_pp_maxf vs TLK_* terms disjoint; no shaper reads slope),
+Robustness (planted controls caught on merged tree; 125us refusal mutant caught),
+Tests (crflic 427/0, tspec8 61/0, crflic-mutants 10/10, capture_coherence 20832/0 + 847/0 + 44/44, nxn8 3998/0, ax1x1 233/0, shard map 81 pieces once, milan_dp 4-leg partition tspec8 once),
+Docs (CHANGELOG both entries byte-identical to sides, anchors resolve; docs gates rc 0; module matrix current).
+Sun Oct 25 09:26:10 AM CET 2026
