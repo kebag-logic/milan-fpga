@@ -1,0 +1,5 @@
+scripts/docs_check.py rc=0
+scripts/gen_toc.py --check --verify-anchors rc=2
+scripts/check_em_dash.py --base 50730a19 rc=2
+scripts/check_doc_style.py rc=0
+scripts/check_doc_paths.py rc=0
