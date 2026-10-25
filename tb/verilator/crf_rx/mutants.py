@@ -5,13 +5,14 @@
 
 The discontinuity mutants run sim_discontinuity.cpp; the #762 STREAM_INTERRUPTED
 mutants (a silence, a sequence gap, an unbind and a stopped input's silence,
-each the cause its check names) and the #765 subtype mutants (an AAF PDU on
-this stream_id ignored or accepted, and a matching CRF PDU rejected) run the
-counter harness, sim_main.cpp, through `make unit-build`. The stopped-gap
-mutants (a stopped sink's gap counted, and a STOP that disarms the gap until
-the next bind) are planted in the engine AND in the harness's replica, so the
-per-PDU replica compare cannot see them and only the named count check can
-fail.
+each the cause its check names), the #765 subtype mutants (an AAF PDU on
+this stream_id ignored or accepted, and a matching CRF PDU rejected) and the
+#775 sequence mutants (an off-format PDU that does not advance the sequence
+cursor, and one that seeds it) run the counter harness, sim_main.cpp, through
+`make unit-build`. The stopped-gap mutants (a stopped sink's gap counted, and
+a STOP that disarms the gap until the next bind) are planted in the engine AND
+in the harness's replica, so the per-PDU replica compare cannot see them and
+only the named count check can fail.
 
 No checkout is edited. Every executable, including the positive control,
 is rebuilt from this invocation's source. The harness has bounded loops.
@@ -79,6 +80,16 @@ UNIT_MUTANTS = (
      "  wire w_fmt_ok = (subtype_i == CRF_SUBTYPE_C)",
      "  wire w_fmt_ok = (subtype_i != CRF_SUBTYPE_C)",
      "[FMT-a1] a matching CRF PDU is accepted"),
+    #: #775: a discarded off-format PDU advances the sequence cursor, and only
+    #: an accepted PDU seeds it
+    ("offformat_no_advance",
+     "          exp_seq_r <= seq_i + 8'd1;\n        end else begin",
+     "        end else begin",
+     "[SQ-b2] SEQ_NUM_MISMATCH unchanged: the next PDU was in sequence"),
+    ("offformat_seeds_sequence",
+     "          exp_seq_r <= seq_i + 8'd1;\n        end else begin",
+     "          exp_seq_r <= seq_i + 8'd1;\n          have_seq_r <= 1'b1;\n        end else begin",
+     "[SQ-d1] an AAF PDU first in an era seeds no SEQ_NUM_MISMATCH"),
 )
 #: the gap's stopped-state gate, in the engine and in the replica
 GAP_RTL = "(w_lost_w >= 8'(INTR_MIN_LOST_C)) && !stop_i;"

@@ -45,7 +45,8 @@ NXSRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
 # RXMON_SRC, REF_SRC and LS_MDIR are overridable so lockstep_mutants.py builds
 # a MUTATED copy of the engine, and for #762 of the reference too, through
 # this exact recipe; RXMON_SRC and NX_MDIR do the same for format_mutants.py
-# and the N=4 stack (#765).
+# and the N=4 stack (#765), which for #775's two-copy defects also builds this
+# leg from a mutated engine and reference.
 RXMON_SRC ?= $(A)/KL_avtp_rx_monitor_ctx.sv
 REF_SRC   ?= reference/KL_avtp_rx_monitor_ctx_ref.sv
 LS_MDIR   ?= obj_ls
