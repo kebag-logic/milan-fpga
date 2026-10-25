@@ -1,0 +1,18 @@
+# probe-head: tree=91bf51e4ef246900c35a1f469392d15c3a22e1b4 protocol-processor=ed2118035e4cec76fb1b59cfbf8a053aeacc8af8 gptp-processor=55680bff3b287b9a7b0c759f51471fa617c17335
+# verilator: Verilator 5.050 2026-07-01 rev v5.050
+# full log sha256 d376a8a27e98053b5edcf50075d206d2dc7ae17493f5284ba801bb8d70cd6e4a bytes 90918
+274:  [PASS] P780 GET_AVB_INFO(CLOCK_DOMAIN 0) was ANSWERED an AECPDU egressed
+275:P780 PROBE: GET_AVB_INFO(CLOCK_DOMAIN 0) status=11 cdl=16 type=0x0024 index=0
+276:  [PASS] P780: message_type = command + 1           got=0x00000001 exp=0x00000001
+277:  [PASS] P780: sv/version nibble is zero            got=0x00000000 exp=0x00000000
+278:  [PASS] P780: target_entity_id is OURS             got=0x001BC50C exp=0x001BC50C
+279:  [PASS] P780: controller_entity_id echoed          got=0xC0FFEE00 exp=0xC0FFEE00
+280:  [PASS] P780: sequence_id echoed                   got=0x00000780 exp=0x00000780
+281:  [PASS] P780: command_type echoed, u = 0           got=0x00000027 exp=0x00000027
+282:  [PASS] P780: unicast back to the requester        got=0x02112233 exp=0x02112233
+283:  [PASS] P780: source address is the station MAC    got=0x02000000 exp=0x02000000
+284:  [PASS] P780: control_data_length = 12 + payload   got=0x00000010 exp=0x00000010
+285:  [PASS] P780: frame length matches (60-octet min)  got=0x0000003C exp=0x0000003C
+286:  [PASS] P780: descriptor_type CLOCK_DOMAIN echoed  got=0x00000024 exp=0x00000024
+714:pp_shadow: 622 checks, 0 failures
+715:RESULT: PASS
