@@ -1,0 +1,23 @@
+== blob ids (git hash-object) vs API contents sha
+8664865e5c55bb03b09c2a538b0f46c75caf4ac4 allowed_signers
+34df36b76699d7bde8f6d658ef660e75afda2f57 manifest.json
+dca71d6571a24409e8f330403bb672602dbb0015 manifest.json.sig
+== sha256
+edd36bb0a02ddc5570037a6be65e244b087f7f8173ca71669a810802a6f0e0d3  manifest.json
+892c35d52717f9bd7f65c15cd7f4066825ab24b8353ccaee3f3b65e3704f50d9  manifest.json.sig
+4b2a05d33e8008bad44f87e796955c644329b53c8c16055b59624a356a46a24d  allowed_signers
+== key
+256 SHA256:dRI12tvJkhueTEGqsRutn2L+dT/5qqOCsCVzBU5CI7k milan-local-ci (ED25519)
+== lines: 1
+== verify
+Good "milan-local-ci" signature for milan-local-ci with ED25519 key SHA256:dRI12tvJkhueTEGqsRutn2L+dT/5qqOCsCVzBU5CI7k
+rc=0
+== negative control: wrong namespace
+Couldn't verify signature: namespace does not match
+Could not verify signature.
+rc=255
+== negative control: one byte changed
+differs
+Signature verification failed: incorrect signature
+Could not verify signature.
+rc=255

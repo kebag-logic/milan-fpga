@@ -1,0 +1,8 @@
+act_fail rc=1 FAIL rtl/union-maap: act result rtl-full/Union maap is success (failure)
+cand_tree rc=1 FAIL subject.candidate tree
+drop_union_maap rc=1 FAIL coverage keys == every job id of the four workflows (45 keys, 46 jobs; missing=['rtl/union-maap'] extra=[
+leg_dup rc=1 FAIL candidate_matrix legs == candidate rtl.yml legs, each once (17 legs vs 17)
+leg_jobid rc=1 FAIL hosted Verilator shard 3/17: job id and conclusion match (1)
+ok_false rc=1 FAIL every coverage entry ok is true
+phys_no_reason rc=1 FAIL rtl/physical-gptp: named not-run reason
+yosys_3legs rc=1 FAIL rtl/yosys-shards: matrix lists all its act legs (3/4)
