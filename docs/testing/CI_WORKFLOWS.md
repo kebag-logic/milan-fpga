@@ -2025,7 +2025,16 @@ files. `GITHUB_TOKEN` is explicitly empty, so neither the active `gh` credential
 nor an SSH agent, proxy credential, runtime token, or other host secret reaches
 candidate code.
 
-Candidate jobs must use literal `ubuntu-latest`; reusable workflows and
+Candidate jobs must name one of two literal runner labels, `ubuntu-latest`
+or `ubuntu-24.04`. The act command maps both to the same runner image, one
+`--platform` entry each, and every other label, such as `ubuntu-22.04` or
+`ubuntu-26.04`, is refused by name before `act` starts. Both are accepted
+because hosted `ubuntu-latest` moved to the `ubuntu-26.04` image, where the
+pinned Python tools fail pip resolution, so the second step of #784 pins every
+workflow to `ubuntu-24.04`; until it lands the workflows still name
+`ubuntu-latest`. A label without a `--platform` entry is no error to `act`: it
+skips that job as an unsupported platform and can still exit 0, so the
+self-test requires an entry for every accepted label. Reusable workflows and
 job/service containers are refused because they can carry container options or
 host-volume requests that the trusted scanner cannot safely delegate. Steps may
 use only the repository's exact audited non-Docker action set
