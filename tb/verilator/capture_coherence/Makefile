@@ -113,6 +113,8 @@ DP_GFLAGS = -GMILAN_CLK_FREQ_HZ=$(CLK_HZ) -GN_STREAMS=$(N_TALKERS) \
             -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_RENDER_SLOTS_P=$(TDM_SLOTS) \
             -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0
 
+# ptoff_public.vlt makes the processor's stored presentation offset rows
+# public for this leg alone: its 125 us scenarios set them (#773).
 # The ACMP listener transition ROM and the AECP uCPU microcode are GENERATED,
 # and the processor $$readmemh's them by these relative names - so they must
 # exist in the RUN directory.
@@ -124,7 +126,7 @@ ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 
 dp-build: ltn_rom.hex ucode.hex
 	$(VERILATOR) $(SHAPE_AX1x1) $(DP_VFLAGS) --Mdir $(DP_MDIR) $(DP_GFLAGS) \
-	  -CFLAGS "$(DFLAGS) -Wall -Wextra" $(DP_SRCS) sim_dp.cpp -o Vcoherence_dp
+	  -CFLAGS "$(DFLAGS) -Wall -Wextra" $(abspath ptoff_public.vlt) $(DP_SRCS) sim_dp.cpp -o Vcoherence_dp
 
 dp: dp-build
 	@echo "======================================================================"

@@ -9,6 +9,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
+- **[Unreleased - per-source TSpec](#unreleased---per-source-tspec)** -- The CRF output declares 29.
+- **[Unreleased - talker capture-to-wire latency](#unreleased---talker-capture-to-wire-latency)** -- Stamps cover the wire path.
 - **[Unreleased - media clock phase](#unreleased---media-clock-phase)** -- Phase-locked to the followed CRF.
 - **[Unreleased - pins 93fb0b2d and 55680bff](#unreleased---pins-93fb0b2d-and-55680bff)** -- Two donor pins move.
 - **[Unreleased - processor pin 2ad2f845](#unreleased---processor-pin-2ad2f845)** -- Notifications follow grants and round boundaries.
@@ -57,6 +59,36 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - No parent test, model or document expected status 1 here.
 - Both processor ROM digests match the `93fb0b2d` rows.
 - No port, parameter or register changes.
+
+## Unreleased - per-source TSpec
+
+- Issue #774 declares each source's own TSpec.
+- Milan v1.2 Table 4.4 sets it per format.
+- The CRF output declared the AAF value, 217.
+- Table 4.4 gives CRF with one timestamp 28 + 1.
+- `KL_pp_shadow` now takes one MaxFrameSize per source.
+- Each AAF talker declares 24*N + 24 + 1 as before.
+- The CRF output declares 29 from `KL_crf_tx`'s PDU.
+- `tb/verilator/milan_dp` grades it in `[TSPEC]`.
+- `obj_crflic` runs it on the 1x1, `obj_tspec8` on the 8x8.
+- `make crflic-mutants` plants talker 0's value everywhere.
+
+## Unreleased - talker capture-to-wire latency
+
+- Issue #773 corrects #770's AAF stamp.
+- At 125 us each AAF PDU left after its stamp.
+- The stamp's base is the PDU's first frame instant.
+- The PDU leaves 112 to 149 us after that instant.
+- The AAF stamp now adds eight sample periods first.
+- Six estimate the crossing: the PDU's sample span.
+- Two are Milan's 5.3.7.6 fixed delay.
+- The delay is derived from the talker's own path.
+- A delay above 125 us refuses to build.
+- The CRF output adds Equation (14)'s TC.
+- TC is two periods at 1x1 and one at 8x8.
+- Both terms are whole periods, so the grid holds.
+- GET_STREAM_INFO still reads the offset alone.
+- End-to-end latency is the offset plus 166,667 ns.
 
 ## Unreleased - media clock phase
 

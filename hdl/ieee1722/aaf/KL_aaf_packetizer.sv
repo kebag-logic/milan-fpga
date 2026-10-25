@@ -24,7 +24,7 @@
                   w2 {UID[31:16], DMAC_HI[15:0]}   (stream_id = {mac, uid})
                   w3 SEQ_TS  {sequence_num[7:0]}
                   w4 TS      latched presentation time (ptp_ns + transit
-                             at first-sample capture)
+                             + the LEAD_P lead, at first-sample capture)
                   w5 FRAMES  frames_sent counter
 
                 MULTI-CHANNEL (item-4): w0.chans = channels_per_frame,
@@ -101,7 +101,24 @@ module KL_aaf_packetizer #(
   //! 296,294 frames returned UNSUPPORTED_FORMAT by a Milan-validated
   //! listener). Even 2..8, clamped like any TCTX write. Default 2 = the
   //! byte-identical shipping shape.
-  parameter int unsigned WIRE_CHANS_P = 2
+  parameter int unsigned WIRE_CHANS_P = 2,
+  // THE STAMP'S LEAD (#773; Milan v1.2 5.3.7.6, IEEE 1722-2016 4.3.3).
+  // Off: avtp_timestamp = ptp_ns_i at the first pair + the offset, as before.
+  // On: ptp_ns_i is the media-interface instant of the PDU's first frame
+  // (milan_datapath's domain media event), long before the PDU can leave,
+  // so the stamp adds Milan's two terms first, each whole periods of
+  // FS_HZ_P (4.3.5): the Ingress Time Reference Plane crossing estimated as
+  // the end of the PDU's sample span, SAMPLES_PER_FRAME_C periods, and the
+  // fixed delay for that estimate's uncertainty, the fewest periods
+  // covering the worst hand-over after it (LATE_NS_C). The offset as set
+  // follows (5.4.2.9). A fixed delay past 125 us is refused at elaboration.
+  parameter bit          LEAD_P   = 1'b0,        //! the stamp's lead on (#773)
+  parameter int unsigned FS_HZ_P  = 48_000,      //! the media clock (Ps)
+  parameter int unsigned CLK_HZ_P = 50_000_000,  //! clk_i, for PIPE_CYC_C
+  //! the integration's term, ns: the end of the PDU's sample span at the
+  //! media interface to its last pair here, worst (negative when that pair
+  //! closes inside the span, as an inner TDM32 pair does)
+  parameter int          IN_LATE_NS_P  = 0
 )(
   input  wire         clk_i,             //! datapath clock
   input  wire         rst_n,             //! active-low synchronous reset
@@ -140,7 +157,9 @@ module KL_aaf_packetizer #(
   //! one value across the vector and the wire is byte-identical to the
   //! historical single-offset shape.
   input  wire [N_TALKERS_P*32-1:0] transit_ns_i,
-  input  wire [63:0]  ptp_ns_i,          //! live PHC nanoseconds
+  //! the stamp's time base, ns: the live PHC, or with LEAD_P the instant of
+  //! the frame the first pair belongs to
+  input  wire [63:0]  ptp_ns_i,
   //! AVTP "tu" (timestamp uncertain) bit, IEEE 1722-2016 4.4.4.7 / Milan
   //! v1.2 4.3.5.2. 1 = our presentation times may not correspond to gPTP
   //! time. Latched per epoch alongside the sequence number so it cannot
@@ -215,6 +234,36 @@ module KL_aaf_packetizer #(
   localparam int unsigned NUM_BEATS_C   = (FRAME_BYTES_C + 7) / 8;     //! 30
   //! 42 + 24*C == 2 (mod 8) for every C: the last beat always keeps 2 bytes
   localparam int unsigned LAST_KEEP_C   = 2;
+  //! THE STAMP'S LEAD (LEAD_P). This engine's own term, PIPE_CYC_C: from a
+  //! PDU's last pair to its last beat, at the 8-channel ceiling (np pairs,
+  //! NUM_BEATS_C beats), 4 + np + NUM_BEATS_C - 1 cycles: the pend flop,
+  //! E_IDLE_S's grant, E_DRD_S's two context reads and np pair fetches,
+  //! then the beats; E_CRD_S's three CFG reads add 3 for a talker > 0. The
+  //! hand-over is the beat accepted with the MAC ready and no other frame
+  //! ahead; the whole periods' spare is what absorbs a frame ahead.
+  //! capture_coherence measures it to the cycle at 1x1 (57 cycles).
+  localparam int unsigned PIPE_CYC_C = 4 + ((N_TALKERS_P > 1) ? 3 : 0)
+                                     + SAMPLES_PER_FRAME_C * MAX_PAIRS_C + NUM_BEATS_C - 1;
+  localparam longint LATE_NS_C = longint'(IN_LATE_NS_P)
+                               + (64'(PIPE_CYC_C) * 64'd1_000_000_000 + 64'(CLK_HZ_P) - 64'd1)
+                                 / 64'(CLK_HZ_P);
+  localparam longint DELAY_PER_C = (!LEAD_P || LATE_NS_C <= 0) ? 64'd0
+      : (LATE_NS_C * 64'(FS_HZ_P) + 64'd999_999_999) / 64'd1_000_000_000;
+  //! estimate + fixed delay, ns, rounded up once: 166,667 ns for 8 periods
+  //! at 48 kHz, 0.33 ns above them
+  localparam longint unsigned LEAD_NS_C = !LEAD_P ? 64'd0
+      : ((64'(SAMPLES_PER_FRAME_C) + 64'(DELAY_PER_C)) * 64'd1_000_000_000
+         + 64'(FS_HZ_P) - 64'd1) / 64'(FS_HZ_P);
+  if (LEAD_P && (FS_HZ_P == 0 || CLK_HZ_P == 0)) begin : g_lead_clocks
+    $error("KL_aaf_packetizer: LEAD_P needs the media clock FS_HZ_P=%0d and clk_i's CLK_HZ_P=%0d.",
+           FS_HZ_P, CLK_HZ_P);
+  end : g_lead_clocks
+  if (LEAD_P && FS_HZ_P != 0 && DELAY_PER_C * 64'd1_000_000_000 > 64'd125_000 * 64'(FS_HZ_P))
+  begin : g_lead_delay
+    $error("KL_aaf_packetizer: the fixed delay this talker needs, %0d periods of %0d Hz for a hand-over up to %0d ns after its crossing estimate, exceeds the 0 to 125 us Milan v1.2 5.3.7.6 allows: refused.",
+           DELAY_PER_C, FS_HZ_P, LATE_NS_C);
+  end : g_lead_delay
+
   localparam int unsigned TIDXW_C = (N_TALKERS_P <= 1) ? 1
                                                        : $clog2(N_TALKERS_P);
   localparam int unsigned TAW_C   = TIDXW_C + 4;      //! TCTX {t, word}
@@ -727,11 +776,13 @@ module KL_aaf_packetizer #(
         end
         if (nsamp_r[pown_t_w] == '0 && pown_o_w == '0) begin
           //! first pair of the epoch: latch the presentation time with
-          //! THIS talker's own transit offset (per-context entry)
+          //! THIS talker's own transit offset (per-context entry), after
+          //! the stamp's lead (LEAD_NS_C, a constant in the same adder)
           tsw_pend_r <= 1'b1;
           tsw_t_r    <= pown_t_w;
           tsw_val_r  <= ptp_ns_i[31:0]
-                        + transit_ns_i[32*(32'(pown_t_w)) +: 32];
+                        + transit_ns_i[32*(32'(pown_t_w)) +: 32]
+                        + 32'(LEAD_NS_C);
         end
       end
       // ---- chans mirror: snoop the single TCTX write process -------------

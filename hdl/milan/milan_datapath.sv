@@ -1255,12 +1255,41 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! rides its own grid: each TDM close publishes the latest I2S pair beside
   //! that frame's TDM pairs.
   localparam int CMAP_TDM_SLOTS_C       = 8;
+  //! the crossbar's settle gap between slot injects, one value with the
+  //! talkers' walk term (#773, TLK_WALK_CYC_C)
+  localparam int CMAP_GAP_CYC_C         = 24;
   localparam int CMAP_TDM_FRAME_PAIRS_C = (AIF_PAIRS_C < CMAP_TDM_SLOTS_C / 2)
                                         ? AIF_PAIRS_C : CMAP_TDM_SLOTS_C / 2;
   //! the pair slot whose strobe closes a frame at the crossbar: the frame's
   //! last to arrive, the I2S pair on the blend (#632)
   localparam int CMAP_TDM_CLOSE_SLOT_C = KL_media_if_latency_pkg::close_slot(
       CMAP_TDM_FRAME_PAIRS_C, AUDIO_IF_I2S_PAIR_P);
+  //! #632, #764: the domain media event's MARKER LATENCY (KL_media_domain_event
+  //! below), the owner's, derived from its parameters by
+  //! KL_media_if_latency_pkg: to the last bit of the pair that closes the
+  //! frame at the crossbar (the frame's last pair up to TDM8; pair 3 of 16 on
+  //! TDM32; the I2S pair on the I2S blend and the I2S-only shape), then the
+  //! front-end's FIFO write and the FIFO's read side here. Every capture
+  //! front-end of this root is instantiated with a one-bit data delay, and
+  //! writes its FIFO one clk_tdm_i cycle (TDM master), one bit period (TDM
+  //! slave) or five clk_audio_i cycles (I2S master, 512 x fs by its divider;
+  //! KL_pair_blend passes its strobe through) after that pair's last bit.
+  localparam bit     DOM_I2S_CLOSE_C  = KL_media_if_latency_pkg::close_is_i2s(
+      AUDIO_IF_SLOTS_P, AUDIO_IF_I2S_PAIR_P);
+  localparam int     DOM_CLOSE_PAIR_C = DOM_I2S_CLOSE_C ? 0
+                                      : KL_media_if_latency_pkg::close_pair(CMAP_TDM_FRAME_PAIRS_C);
+  //! the I2S front end strobes one pair of two 32-bit words
+  localparam int     DOM_WORD_BITS_C  = DOM_I2S_CLOSE_C ? 32 : AIF_WORD_BITS_C;
+  localparam longint DOM_MARK_BITS_C  = KL_media_if_latency_pkg::pair_end_bits(
+      DOM_CLOSE_PAIR_C, DOM_WORD_BITS_C, 1);
+  localparam longint DOM_BIT_HZ_C = DOM_I2S_CLOSE_C ? 64'(64 * AUDIO_IF_FS_HZ_P)
+                                                    : 64'(AIF_BCLK_HZ_C);
+  localparam longint DOM_WR_HZ_C  = DOM_I2S_CLOSE_C ? 64'(512 * AUDIO_IF_FS_HZ_P)
+                                  : (AUDIO_IF_MASTER_P != 0) ? 64'(AUDIO_IF_CLK_HZ_P)
+                                                             : DOM_BIT_HZ_C;
+  localparam longint DOM_WR_CYC_C = DOM_I2S_CLOSE_C ? 64'd5 : 64'd1;
+  localparam int unsigned DOM_MARK_LAT_NS_C = 32'(KL_media_if_latency_pkg::mark_lat_ns(
+      DOM_MARK_BITS_C, DOM_BIT_HZ_C, DOM_WR_HZ_C, DOM_WR_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
   //! #632: the instant the frame closing on this cycle started at the media
   //! interface (the domain media event's back-dating, on the close's own
   //! cycle), and the instant of the frame the capture walk reads, which the
@@ -1271,6 +1300,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   KL_chan_map_capture #(
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (CMAP_TDM_SLOTS_C),
+    //! the walk's gap, one value with the talkers' walk term (#773)
+    .GAP_CYC_P (CMAP_GAP_CYC_C),
     .TDM_FRAME_PAIRS_P (CMAP_TDM_FRAME_PAIRS_C),
     //! the frame's last pair to arrive: the I2S pair on the blend (#632)
     .TDM_CLOSE_SLOT_P  (CMAP_TDM_CLOSE_SLOT_C),
@@ -1426,18 +1457,70 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        lwsrp_adopt_valid;
   wire [7:0]  lwsrp_op_prio;
   wire [11:0] lwsrp_op_vid;
+  // --------------------------------------------------------------------------
+  //  THE TALKERS' CAPTURE-TO-WIRE TERMS (#773; Milan v1.2 5.3.7.6, IEEE
+  //  1722-2016 4.3.3 Equation (1), 10.7 Equation (14)). Both outputs stamp
+  //  the instant a frame started at the media interface (4.3.5, #632), long
+  //  before the PDU can reach the MAC. Each talker derives, from its own
+  //  pipeline and these terms, the whole media clock periods it adds so the
+  //  hand-over stays at or before avtp_timestamp minus the offset:
+  //    AAF  the crossing estimate, the end of the PDU's six-sample span, and
+  //         Milan's fixed delay (0 to 125 us, refused past it) covering the
+  //         worst hand-over after that estimate (KL_aaf_packetizer LEAD_P):
+  //         2 periods at the 1x1 TDM8 and the 8x8 TDM32 shapes, so the
+  //         stamp is the instant + 8 Ps + the offset as set;
+  //    CRF  Equation (14)'s TC covering the frame's marker latency, the
+  //         event register and the PDU (KL_crf_tx TC_P): 2 periods at 1x1,
+  //         1 at 8x8.
+  //  The terms, each its worst case:
+  //    TLK_SPAN_NS_C  the PDU's last frame closes at the crossbar the marker
+  //                   latency after its instant, which is one period before
+  //                   the span ends (negative on TDM32, whose closing pair
+  //                   is a quarter of a frame in);
+  //    TLK_AGE_CYC_C  the capture age, the close to the walk's tick;
+  //    TLK_WALK_CYC_C the walk, the tick to the last talker's last pair
+  //                   (pair slot 4 x N_STREAMS - 1).
+  //  The hand-over is this datapath's MAC transmit port, the MAC ready and no
+  //  other frame ahead, as #773's ruling counts it (23.8 us after the
+  //  estimate at 1x1, 22.7 us at 8x8). A frame ahead is no term: crf_dp_mux
+  //  and adp_tx_mux are round-robin packet arbiters, so a PDU waits for at
+  //  most one frame on the other input of each (the control lane's IFG
+  //  gasket spaces its frames 512 cycles apart), a CRF PDU or an 8-channel
+  //  AAF PDU and one maximum tagged frame, 198 or 220 cycles; the whole
+  //  periods leave 17.8 us (AAF, 1x1), 18.9 us (AAF, 8x8), 20.5 and 15.3 us
+  //  (CRF) above the counted path, which absorbs it. The MAC's own
+  //  backpressure is outside the datapath.
+  // --------------------------------------------------------------------------
+  localparam int     TLK_LB_PAIRS_C   = LB_STREAMS_C * ((LB_CH_C < 2) ? 1 : LB_CH_C / 2);
+  localparam longint TLK_PS_FLOOR_NS_C = 64'd1_000_000_000 / 64'(AUDIO_IF_FS_HZ_P);
+  localparam longint TLK_SPAN_NS_C    = 64'(DOM_MARK_LAT_NS_C) - TLK_PS_FLOOR_NS_C;
+  localparam longint TLK_AGE_CYC_C    = KL_media_if_latency_pkg::age_max_cyc(
+      64'(MILAN_CLK_FREQ_HZ), 64'(AUDIO_IF_FS_HZ_P));
+  localparam longint TLK_WALK_CYC_C   = KL_media_if_latency_pkg::walk_pair_cyc(
+      TLK_LB_PAIRS_C, CMAP_GAP_CYC_C, 4 * N_STREAMS - 1);
+  localparam int          TLK_AAF_IN_NS_C  = int'(TLK_SPAN_NS_C + KL_media_if_latency_pkg::cyc_ns(
+      TLK_AGE_CYC_C + TLK_WALK_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
+  //! the CRF timing point's ev_p_i: the marker, then the event's register
+  localparam int unsigned TLK_CRF_EV_NS_C  = 32'(64'(DOM_MARK_LAT_NS_C) + KL_media_if_latency_pkg::cyc_ns(
+      64'd1, 64'(MILAN_CLK_FREQ_HZ)));
+
   //! The AAF talkers' time base (#632, #764): the instant the frame the
   //! capture walk reads started at the media interface - the domain media
   //! event's instant, banked with that frame by the crossbar
   //! (cmap_walk_ns_w) - so the capture age and the pair offset leave the
   //! avtp_timestamp by construction: it is that instant, on the CRF
-  //! output's grid (IEEE 1722-2016 4.3.5), plus the talker's offset as set
-  //! (Milan v1.2 5.4.2.9). The live PHC, as before, while no frame
-  //! grid runs. The packetizer reads the low 32 bits only (the
-  //! avtp_timestamp); the high half is the live PHC's.
+  //! output's grid (IEEE 1722-2016 4.3.5), plus the talker's lead (#773,
+  //! above) and its offset as set (Milan v1.2 5.4.2.9). The live PHC, as
+  //! before, while no frame grid runs. The packetizer reads the low 32 bits
+  //! only (the avtp_timestamp); the high half is the live PHC's.
   wire [63:0] aaf_tbase_w;
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS),
-                      .WIRE_CHANS_P(TALKER_WIRE_CHANS_P)) aaf_packetizer (
+                      .WIRE_CHANS_P(TALKER_WIRE_CHANS_P),
+                      //! #773: the crossing estimate and the fixed delay
+                      .LEAD_P        (1'b1),
+                      .FS_HZ_P       (AUDIO_IF_FS_HZ_P),
+                      .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
+                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C)) aaf_packetizer (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .pair_valid_i (pkt_pv_w), .pair_slot_i (pkt_slot_w),
     .pair_l_i (pkt_l_w), .pair_r_i (pkt_r_w),
@@ -1956,6 +2039,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the 10.4.3 mr level the CRF Media Clock Output stamps, and the level its
   //! last COMPLETED PDU carried (gh #62 H2b)
   wire        crft_mr_w, crft_tu_last_w, crft_mr_last_w;
+  //! the CRF output's TSpec MaxFrameSize, from the PDU shape KL_crf_tx builds
+  //! (Milan v1.2 Table 4.4 "CRF, 1 ts/pdu", #774)
+  wire [15:0] crft_maxf_w;
   wire [TDATA_WIDTH-1:0]   crft_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] crft_tx_tkeep;
   wire                     crft_tx_tvalid, crft_tx_tlast, crft_tx_tready;
@@ -2398,6 +2484,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! CRF engine applies it (eff_crft_sid_w) so the answer and the stream can
   //! never disagree. Derive, never mirror.
   wire [ACMP_SRC_C*64-1:0]  pp_src_sid_w;
+  //! ...and the per-source TSpec MaxFrameSize it declares (g_pp_maxf)
+  wire [ACMP_SRC_C*16-1:0]  pp_src_maxf_w;
   //! 1722.1-2021 6.2.6 GM_CHANGE: an edge on the committed grandmaster pair
   //! (id OR domain - both are ADPDU fields a re-advertise has to carry) and,
   //! separately, an edge on the grandmaster IDENTITY alone. The two are not
@@ -6755,7 +6843,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! does any longer, so nothing here mirrors it.
   //!
   //! The tctx_maxf_w derivation above SURVIVES and is now consumed directly:
-  //! it is the Milan Table 4.4 MaxFrameSize the processor declares with.
+  //! it is the Milan Table 4.4 MaxFrameSize the processor declares with for
+  //! each AAF talker (g_pp_maxf; the CRF output's comes from KL_crf_tx).
 
   //! THE INTERLOCK, repointed. Frames are tagged only while THIS STREAM's
   //! MSRP Talker Advertise is on the wire - otherwise 802.1Q 35.1.2 prunes a
@@ -7112,32 +7201,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  interface adds its own constants against this event, never a second
   //  loop.
   //
-  //  The marker latency is the owner's, derived from its parameters by
-  //  KL_media_if_latency_pkg: to the last bit of the pair that closes the
-  //  frame at the crossbar (the frame's last pair up to TDM8; pair 3 of 16 on
-  //  TDM32; the I2S pair on the I2S blend and the I2S-only shape), then the
-  //  front-end's FIFO write and the FIFO's read side here. Every capture
-  //  front-end of this root is instantiated with a one-bit data delay, and
-  //  writes its FIFO one clk_tdm_i cycle (TDM master), one bit period (TDM
-  //  slave) or five clk_audio_i cycles (I2S master, 512 x fs by its divider;
-  //  KL_pair_blend passes its strobe through) after that pair's last bit.
+  //  The marker latency is the owner's, DOM_MARK_LAT_NS_C, derived from its
+  //  parameters where the capture crossbar is bound (its first reader is the
+  //  AAF talkers' stamp lead there, #773).
   // ==========================================================================
-  localparam bit     DOM_I2S_CLOSE_C  = KL_media_if_latency_pkg::close_is_i2s(
-      AUDIO_IF_SLOTS_P, AUDIO_IF_I2S_PAIR_P);
-  localparam int     DOM_CLOSE_PAIR_C = DOM_I2S_CLOSE_C ? 0
-                                      : KL_media_if_latency_pkg::close_pair(CMAP_TDM_FRAME_PAIRS_C);
-  //! the I2S front end strobes one pair of two 32-bit words
-  localparam int     DOM_WORD_BITS_C  = DOM_I2S_CLOSE_C ? 32 : AIF_WORD_BITS_C;
-  localparam longint DOM_MARK_BITS_C  = KL_media_if_latency_pkg::pair_end_bits(
-      DOM_CLOSE_PAIR_C, DOM_WORD_BITS_C, 1);
-  localparam longint DOM_BIT_HZ_C = DOM_I2S_CLOSE_C ? 64'(64 * AUDIO_IF_FS_HZ_P)
-                                                    : 64'(AIF_BCLK_HZ_C);
-  localparam longint DOM_WR_HZ_C  = DOM_I2S_CLOSE_C ? 64'(512 * AUDIO_IF_FS_HZ_P)
-                                  : (AUDIO_IF_MASTER_P != 0) ? 64'(AUDIO_IF_CLK_HZ_P)
-                                                             : DOM_BIT_HZ_C;
-  localparam longint DOM_WR_CYC_C = DOM_I2S_CLOSE_C ? 64'd5 : 64'd1;
-  localparam int unsigned DOM_MARK_LAT_NS_C = 32'(KL_media_if_latency_pkg::mark_lat_ns(
-      DOM_MARK_BITS_C, DOM_BIT_HZ_C, DOM_WR_HZ_C, DOM_WR_CYC_C, 64'(MILAN_CLK_FREQ_HZ)));
   //! the owner's frame marker: the strobe of the pair that closes the frame
   //! at the crossbar, the frame's last to arrive (#617; CMAP_TDM_CLOSE_SLOT_C)
   wire        frame_mark_w = aafcap_pv_w &&
@@ -7374,8 +7441,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //  the REAL audio-MMCM 96-sample event grid. Joins the low-rate control
   //  merge untagged (no MSRP TA yet - see the module header).
   // ==========================================================================
-  //! its offset comes rounded, by the rule it would apply (pres_round)
-  KL_crf_tx #(.ROUND_MTT_P (1'b0)) crf_tx (
+  //! its offset comes rounded, by the rule it would apply (pres_round); its
+  //! Equation (14) TC from the terms beside the AAF packetizer (#773)
+  KL_crf_tx #(.ROUND_MTT_P   (1'b0),
+              .TC_P          (1'b1),
+              .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
+              .EV_LATE_NS_P  (TLK_CRF_EV_NS_C)) crf_tx (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! its timing points: every 96th domain media event, stamped with that
     //! event's instant (#632; 4.3.5 with the AAF talkers, 10.8 once phased)
@@ -7417,7 +7488,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
     .m_axis_tvalid(crft_tx_tvalid), .m_axis_tlast (crft_tx_tlast),
     .m_axis_tready(crft_tx_tready),
-    .tx_count_o (crft_count_w)
+    .tx_count_o (crft_count_w),
+    .tspec_max_frame_o (crft_maxf_w)
   );
 
   //! wire-truth channel count (USER 1-to-1 rule): the RENDER path follows
@@ -9036,6 +9108,22 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     end
   endgenerate
 
+  //! THE TSPEC LAW, one MaxFrameSize per talker source (#774; Milan v1.2
+  //! 4.3.3.2 Table 4.4, IEEE 802.1Q-2018 35.2.2.8.4 a)), each from the framer
+  //! that source's frames come out of: AAF talker t from its own TSpec
+  //! geometry (tctx_maxf_w[t], 24*N + 24 + 1), the CRF Media Clock Output
+  //! from KL_crf_tx's PDU shape (28 + 1). Talker 0's value on every slot
+  //! declared the 8-channel AAF number, 217, for the CRF stream.
+  generate
+    for (genvar gmf = 0; gmf < ACMP_SRC_C; gmf++) begin : g_pp_maxf
+      if (gmf == CRF_TUID_C) begin : g_maxf_crf
+        assign pp_src_maxf_w[16*gmf +: 16] = crft_maxf_w;
+      end else begin : g_maxf_aaf
+        assign pp_src_maxf_w[16*gmf +: 16] = tctx_maxf_w[gmf];
+      end
+    end
+  endgenerate
+
   // ==========================================================================
   //  protocol-processor CONTROL plane — THE control plane, unconditional
   // ==========================================================================
@@ -9378,11 +9466,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! with. Tied '0 (the shadow value) ACMP would answer, and SRP would
       //! declare, stream_id 0 for every source.
       .cfg_stream_id_i   (pp_src_sid_w),
-      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize, DERIVED from the wire
-      //! width the framer was elaborated with (tctx_maxf_w) - never an
-      //! independent constant, or the declaration and the frame disagree.
-      //! Talker 0's value: every AAF talker in a build shares one width.
-      .cfg_tspec_max_frame_i (tctx_maxf_w[0]),
+      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize per source, DERIVED from
+      //! the framer each source's frames come out of (pp_src_maxf_w) - never
+      //! an independent constant, or the declaration and the frame disagree.
+      .cfg_tspec_max_frame_i (pp_src_maxf_w),
       .cfg_acc_lat_ns_i  (cfg_lwsrp_latency),
       //! the SRP admission ceiling follows the negotiated link rate
       .port_rate_bps_i   (cfg_mac_is_1g ? 32'd1_000_000_000 : 32'd100_000_000),

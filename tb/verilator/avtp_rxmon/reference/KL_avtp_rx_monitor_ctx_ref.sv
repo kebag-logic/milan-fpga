@@ -12,6 +12,8 @@
 //! this copy: lockstep_mutants.py plants each #762 defect in BOTH modules.
 //! #765's channel-count compare (f_cpf_w/p_cpf_w) is applied the same way;
 //! it is graded by sim_main_nx.cpp's [UF] cases, never against this copy.
+//! #775's sequence advance on a discarded off-format PDU (M_PSEQ_S) is
+//! applied the same way; sim_main_nx.cpp's [SQ] cases grade it.
 
 /*
 ------------------------------------------------------------------------------
@@ -286,7 +288,8 @@ module KL_avtp_rx_monitor_ctx_ref #(
     M_INC_S,       //! serial RMW loop (counters / w11 / silence / bind-zero)
     M_BRD_S,       //! BIND: MON_STATE read issued
     M_BDEC_S,      //! BIND: preserved-field w8 write + CFG words
-    M_EXTRD_S      //! window read turnaround
+    M_EXTRD_S,     //! window read turnaround
+    M_PSEQ_S       //! PDU: w8 prev_seq write (discarded off-format PDU, #775)
   } mstate_t;
 
   mstate_t           mst_r;
@@ -612,6 +615,11 @@ module KL_avtp_rx_monitor_ctx_ref #(
             eng_wdata_w = cur_r.tsd;
           end
         endcase
+      end
+      M_PSEQ_S : begin
+        eng_we_w    = 1'b1;
+        eng_waddr_w = laddr(ev_s_r, W_MONST_C);
+        eng_wdata_w = monst_r;
       end
       M_INC_S : begin
         if (w11_mode_r) begin
@@ -979,8 +987,10 @@ module KL_avtp_rx_monitor_ctx_ref #(
           if (!fmt_ok_w) begin
             //! counts nothing else (reference early-return); UNSUPPORTED_
             //! FORMAT is an interval counter now - iv_events raised the
-            //! flag this cycle, so there is nothing to walk
-            mst_r <= M_IDLE_S;
+            //! flag this cycle, so there is nothing to walk. #775: its
+            //! sequence_num still advances prev_seq, nothing else
+            monst_r <= {ram_q_r[31:8], cur_r.seq};
+            mst_r   <= M_PSEQ_S;
           end
           else begin
             pdu_accept_p_o     <= 1'b1;
@@ -1031,6 +1041,8 @@ module KL_avtp_rx_monitor_ctx_ref #(
           end
           else wrph_r <= wrph_r + 4'd1;
         end
+
+        M_PSEQ_S : mst_r <= M_IDLE_S;
 
         M_INC_S : begin
           if (w11_mode_r) begin
