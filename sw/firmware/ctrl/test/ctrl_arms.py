@@ -193,7 +193,8 @@ def arm_reentry_release(tree: Tree) -> Outcome:
 
 def arm_unit(tree: Tree) -> Outcome:
     """The driver, the loop and the composition on GoogleMock's HAL and port-layer
-    mocks; then the MMIO platform over a host window."""
+    mocks; then the MMIO platform over a host window, and the platform's memory
+    primitives."""
     fw = tuple(n for n in PORTABLE if n != "port/shlan_port.c")
     objs = compile_c(tree, sources(tree, fw), "unit") + compile_tests(tree, UNIT_TESTS, "unit/tests")
     seams = execute("unit", link(tree, "test_unit", objs))
@@ -201,7 +202,13 @@ def arm_unit(tree: Tree) -> Outcome:
               "-DCTRL_MBX_WFI=ctrl_test_wfi")
     mmio = compile_c(tree, sources(tree, ("plat/mbx_plat_mmio.c",)), "mmio", window)
     platform = execute("unit", link(tree, "test_mmio", mmio + compile_tests(tree, ("test_mmio.cpp",), "mmio/tests")))
-    return Outcome("unit", max(seams.rc, platform.rc), f"{seams.log}\n{platform.log}")
+    # The platform's memcpy, memmove, memset and memcmp under names the host's C library does not own.
+    renamed = ("-Dmemcpy=ctrl_mem_memcpy", "-Dmemmove=ctrl_mem_memmove", "-Dmemset=ctrl_mem_memset",
+               "-Dmemcmp=ctrl_mem_memcmp")
+    mem = compile_c(tree, sources(tree, ("plat/ctrl_mem.c",)), "mem", renamed)
+    mem_tests = compile_tests(tree, ("test_ctrl_mem.cpp",), "mem/tests")
+    memory = execute("unit", link(tree, "test_ctrl_mem", mem + mem_tests))
+    return Outcome("unit", max(seams.rc, platform.rc, memory.rc), f"{seams.log}\n{platform.log}\n{memory.log}")
 
 
 #: The unit binary: the two link-seam mocks and the tests written on them.
@@ -326,7 +333,8 @@ def symbols(tool: str, objs: list[Path], undefined: bool) -> set[str]:
 
 
 def arm_rv32(tree: Tree, require: bool) -> Outcome:
-    """The portable set and the MMIO platform, cross-compiled; only C-library and libgcc symbols left open."""
+    """The portable set and the platform, cross-compiled; only C-library and libgcc symbols left open, and
+    none at all by the platform's memory primitives, which a compiler-made call would turn into recursion."""
     cc = rv32_compiler()
     if cc is None:
         if require:
@@ -339,7 +347,7 @@ def arm_rv32(tree: Tree, require: bool) -> Outcome:
     except ValueError as exc:
         raise Refusal(str(exc)) from exc
     objs = []
-    for src in sources(tree, PORTABLE + ("plat/mbx_plat_mmio.c",)):
+    for src in sources(tree, PORTABLE + ("plat/mbx_plat_mmio.c", "plat/ctrl_mem.c")):
         obj = obj_dir / f"{src.parent.name}_{src.stem}.o"
         res = run([cc, *RV32_FLAGS, *runtime_inc, *includes(tree), "-c", str(src), "-o", str(obj)])
         if res.returncode != 0:
@@ -349,6 +357,9 @@ def arm_rv32(tree: Tree, require: bool) -> Outcome:
     open_syms = symbols(tool + "nm", objs, True) - symbols(tool + "nm", objs, False)
     stray = sorted(open_syms - RV32_LIBC - fw_rv32.HELPERS)
     findings = fw_rv32.object_findings(cc, objs)
+    leaf = symbols(tool + "nm", [obj_dir / "plat_ctrl_mem.o"], True)
+    if leaf:
+        findings.append(f"plat/ctrl_mem.c references {', '.join(sorted(leaf))}: the memory primitives call nothing")
     try:
         frame = fw_rv32.stack_frames(objs)
     except ValueError as exc:

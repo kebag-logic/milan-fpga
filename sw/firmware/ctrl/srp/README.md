@@ -199,6 +199,7 @@ A subsequent same-pass registration cannot erase the owed stop notification.
 
 An accepted `TX_HEAD` write commits the complete frame and Applicant transition.
 A refused send retains identical bytes and interface until accepted.
+lwSRP builds each MRPDU in the owed frame itself, after its Ethernet header, so no frame is copied (#665).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
 Each LINK event preserves the lifecycle, including down/up between service passes.
 Observed level changes apply the same reset and receive fence.

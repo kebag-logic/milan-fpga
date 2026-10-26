@@ -72,7 +72,9 @@ Initialization checks before touching potentially uninitialized destination stor
 Its refusal increments the active caller's counter; others increment the destination's.
 The diagnostic build defines `CTRL_REENTRY_ASSERT`.
 
-Unavailable notification snapshots retain their event and retry after 1 ms.
+Unavailable notification snapshots retain their event and retry after 1, 2, 4, then every 8 ms (`AECP_RETRY_MAX_MS`, #665).
+The first failure of a round schedules the next round; a delivered notice resets the wait.
+Solicited responses never wait on a retry, so their 240 ms bound (IEEE 1722.1-2021 9.3.2.6) is untouched.
 Other eligible snapshots continue during that wait.
 The retry timer permits the event loop to sleep.
 Backpressure retains the completed snapshot and its remaining recipients.

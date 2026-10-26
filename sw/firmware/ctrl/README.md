@@ -46,7 +46,7 @@ is an integration obligation, not a target-time result established here.
 | [`acmp/`](acmp) | the ACMP mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
 | [`aecp/`](aecp) | the AECP core, image and saved-state adapters, mailbox completion tracking and opt-in application bridge |
 | [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
-| [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
+| [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`), and the core's word-wide `memcpy`, `memmove`, `memset` and `memcmp` ([`ctrl_mem.c`](plat/ctrl_mem.c)) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
 | [`test/`](test) | the host tests and their driver |
 
@@ -651,6 +651,12 @@ placement's block RAM instead, behind its reset entry
 [`plat/ctrl_split_start.S`](plat/ctrl_split_start.S)), and adds the bank plan
 the SoC would build for it to its report; see
 [Split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md).
+Both layouts link the platform's word-wide `memcpy`, `memmove`, `memset` and
+`memcmp` ([`plat/ctrl_mem.c`](plat/ctrl_mem.c), #665) ahead of the runtime
+archive, whose byte loops are then not linked. The builder refuses an object
+of that file that references any symbol, since a call the compiler made there
+would recurse. The `rv32` arm compiles it under the same refusal, and the `unit`
+arm runs it on the host under the names `ctrl_mem_*`.
 
 
 `ctrl_image.py` links the firmware as a Mark II platform composes it

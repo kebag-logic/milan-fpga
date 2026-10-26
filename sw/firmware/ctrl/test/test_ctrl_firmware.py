@@ -24,8 +24,9 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
   unit     the firmware's own seams on GoogleMock: the mailbox window
            (mbx_hal.h) and lwSRP's port layer (shlan_port.h) under the app's
            composition, the driver's contract and refusals, the adapter's
-           bounds (test_unit_seams.cpp, test_unit_driver.cpp), and the MMIO
-           platform over a host window (test_mmio.cpp);
+           bounds (test_unit_seams.cpp, test_unit_driver.cpp), the MMIO
+           platform over a host window (test_mmio.cpp), and the platform's
+           memcpy, memmove, memset and memcmp under host names (test_ctrl_mem.cpp);
   walk     the PROCESSOR's own ADP stimulus and expectations, cut out of the
            pinned submodule's tb/adp_engine/sim_main.cpp at build time (its
            entity constants, its model_frame builder and its Table 5.51

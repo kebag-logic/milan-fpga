@@ -52,6 +52,18 @@
 //      platform's cost per access, which this lane has not measured.
 // A protocol composes its own figures from these (ADP_MBX_PASS_MAX).
 //
+// THE SHARE (#665, #397's one-hart rule). A pass is the only opportunity to
+// take an input, and the smallest deadline every input shares is T_svc =
+// 10 ms (FR_NFR.md 3.4.1). An input waits for the pass running when it
+// arrives, then is taken N passes later and answered in that pass, so
+// (N + 1) passes must fit T_svc. The deepest admitted wait is the A3 row of
+// seven owed frames, answered in pass 8 after the room returns, so no pass
+// may exceed T_svc / 9, about 1.1 ms or 55,500 CPU cycles at 50 MHz. Every
+// slice above serves that share: events, records and centiseconds per pass
+// here, and in the modules one owed frame per interface (ADP, ACMP), one
+// notice built (AECP) and two MRPDUs per interface (SRP, srp_bounds.h) per
+// pass, each resumed on the next.
+//
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
 // that many times, in registration order, at most CTRL_LOOP_TICKS_PER_PASS

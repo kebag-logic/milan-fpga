@@ -271,10 +271,16 @@ enum mbx_status mbx_rx_take(unsigned ch, struct mbx_frame *f)
 	    len > max_frame[ch] || occupied > rx_words[ch] || record > occupied) {
 		return rx_resync(ch, head);
 	}
-	for (uint32_t i = 0; i < payload; ++i) {
-		uint32_t word = rx_word(ch, (uint32_t)tail + MBX_RX_HDR_WORDS + i);
-		uint32_t n = len - 4u * i;
-		ring_lanes_unpack(word, &f->bytes[4u * i], n > 4u ? 4u : n);
+	// The payload's words in ring order, each whole word but a short last one.
+	const uint32_t base = rx_base[ch];
+	const uint32_t mask = rx_words[ch] - 1u;
+	uint32_t at = (uint32_t)tail + MBX_RX_HDR_WORDS;
+	uint8_t *p = f->bytes;
+	for (uint32_t whole = len / 4u; whole != 0u; --whole, ++at, p += 4) {
+		ring_lanes_unpack4(mbx_hal_read32(base + 4u * (at & mask)), p);
+	}
+	if (len % 4u != 0u) {
+		ring_lanes_unpack(mbx_hal_read32(base + 4u * (at & mask)), p, len % 4u);
 	}
 	f->len = (uint16_t)len;
 	f->interface = (uint8_t)mbx_field(w0, MBX_RXREC_W0_IF_LSB, MBX_RXREC_W0_IF_WIDTH);
@@ -316,9 +322,16 @@ enum mbx_status mbx_tx_send(unsigned ch, unsigned interface, const uint8_t *fram
 				  mbx_place(interface, MBX_TXREC_W0_IF_LSB, MBX_TXREC_W0_IF_WIDTH) |
 				  mbx_place(MBX_TX_KIND, MBX_TXREC_W0_KIND_LSB, MBX_TXREC_W0_KIND_WIDTH));
 	tx_word(ch, (uint32_t)head + 1u, mbx_place(tx_seq, MBX_TXREC_W1_SEQ_LSB, MBX_TXREC_W1_SEQ_WIDTH));
-	for (uint32_t i = 0; i < payload; ++i) {
-		uint32_t n = (uint32_t)len - 4u * i;
-		tx_word(ch, (uint32_t)head + MBX_TX_HDR_WORDS + i, ring_lanes_pack(&frame[4u * i], n > 4u ? 4u : n));
+	// The payload's words in ring order, each whole word but a short last one.
+	const uint32_t base = tx_base[ch];
+	const uint32_t mask = tx_words[ch] - 1u;
+	uint32_t at = (uint32_t)head + MBX_TX_HDR_WORDS;
+	const uint8_t *p = frame;
+	for (uint32_t whole = len / 4u; whole != 0u; --whole, ++at, p += 4) {
+		mbx_hal_write32(base + 4u * (at & mask), ring_lanes_pack4(p));
+	}
+	if (len % 4u != 0u) {
+		mbx_hal_write32(base + 4u * (at & mask), ring_lanes_pack(p, len % 4u));
 	}
 	tx_head[ch] = (uint16_t)(head + record);
 	tx_seq = (uint16_t)(tx_seq + 1u);

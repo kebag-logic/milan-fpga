@@ -40,6 +40,23 @@ static inline void ring_lanes_unpack(uint32_t word, uint8_t *p, unsigned n)
 	}
 }
 
+// The ring word holding the four frame bytes p[0..3], and the four bytes out
+// of one: the whole-word forms of the two above, which a record's words but
+// its last use (#665: a byte loop a word cost the driver tens of thousands of
+// cycles a pass).
+static inline uint32_t ring_lanes_pack4(const uint8_t *p)
+{
+	return (uint32_t)p[0] | ((uint32_t)p[1] << 8) | ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+
+static inline void ring_lanes_unpack4(uint32_t word, uint8_t *p)
+{
+	p[0] = (uint8_t)word;
+	p[1] = (uint8_t)(word >> 8);
+	p[2] = (uint8_t)(word >> 16);
+	p[3] = (uint8_t)(word >> 24);
+}
+
 // The field [lsb +: width] of a 32-bit register or header word.
 static inline uint32_t mbx_field(uint32_t word, uint32_t lsb, uint32_t width)
 {

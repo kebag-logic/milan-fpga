@@ -86,6 +86,10 @@ struct Core : testing::Test {
     bool bound=false;
     bool streaming=false;
     bool observations=true;
+    // #665: a response zeroes and writes only the bytes it sends, so each is
+    // built over whatever the last one left: the clock port fills the idle
+    // buffer with this, and every test's expected bytes see through it.
+    uint8_t poison=0xa5;
     std::vector<std::pair<unsigned,Bytes>> sent;
     std::vector<uint32_t> completions;
     std::array<aecp_mapping,64> input{},output{};
@@ -119,7 +123,9 @@ struct Core : testing::Test {
         });
         ON_CALL(mock,Send).WillByDefault([this](unsigned i,const uint8_t*p,size_t n,uint32_t c){
             if(room) { sent.emplace_back(i,Bytes(p,p+n)); completions.push_back(c); } return room;});
-        ON_CALL(mock,Now).WillByDefault([this]{return ms;});
+        ON_CALL(mock,Now).WillByDefault([this]{
+            if(!a.response_owed&&!a.notify)std::memset(a.response,poison,sizeof a.response);
+            return ms;});
         ON_CALL(mock,Random).WillByDefault(Return(12345));
         ON_CALL(mock,Stream).WillByDefault([this](unsigned,uint16_t,uint16_t,aecp_stream_info*v){
             *v={0x0102030405060708,0x91e0f0000101,0x8877665544332211,0xff000000,12345,7,2,9,3,4,bound,streaming};
@@ -636,6 +642,70 @@ TEST_F(Core, EveryDescriptorAndReadFailures)
     }
     ask(4,Bytes(7),7);auto b=Bytes(8);put(b,0,1,2);put(b,4,2,2);ask(4,b,7);
     put(b,0,0,2);put(b,4,0xffff,2);ask(4,b,2);
+}
+
+// #665: what a response sends never depends on what its buffer held. Every
+// command number, a spread of body lengths and descriptor targets, every
+// non-AEM message type, the notifications they cause and the asynchronous
+// notices (lock expiry, controller probing) run on two fresh cores, one
+// building over a zeroed buffer as the whole-frame clear did, one over a
+// filled one; they must send the same frames, byte for byte.
+TEST_F(Core, ResponsesDependOnNothingTheBufferHeld)
+{
+    struct Twin : Core { void TestBody() override {} };
+    auto corpus=[](Core &c){
+        c.register_controller(CTLR+1);c.register_controller(CTLR+2,AECP_TEST_INTERFACES-1);
+        // Each command is answered, its notices fanned out, then 10 ms pass, so a
+        // START's deadline expires before the next and the clock reaches every
+        // lock expiry and controller probe on the way.
+        auto feed=[&c](const Bytes &frame){aecp_rx(&c.a,0,frame.data(),frame.size());c.drain();c.ms+=10;c.drain();};
+        std::vector<Bytes> bodies={{},Bytes(2,0x5a),Bytes(16,0xff),Bytes(140,0x33)};
+        for(unsigned type:{0u,1u,2u,5u,6u,9u,13u,14u,15u,26u,36u})for(size_t size:{4u,8u,12u,16u,72u,84u}){
+            auto b=target(type,0,size);for(size_t k=4;k<size;++k)b[k]=uint8_t(k==4?0:k);bodies.push_back(b);
+        }
+        for(unsigned cmd=0;cmd<80;++cmd)for(auto &b:bodies)feed(command(cmd,b));
+        auto entry=[](unsigned cmd,const Bytes &payload){
+            Bytes e(8);put(e,0,payload.size(),2);put(e,6,cmd,2);e.insert(e.end(),payload.begin(),payload.end());return e;};
+        Bytes dynamic=entry(15,target(5,0));
+        for(auto &e:{entry(17,target(0,0,8)),entry(41,target(9,0)),entry(9,target(6,0))})dynamic.insert(dynamic.end(),e.begin(),e.end());
+        feed(command(75,dynamic));
+        for(unsigned msg:{2u,4u,8u})for(auto &b:bodies)feed(command(0,b,CTLR,0,msg));
+        for(unsigned type:{0u,1u,2u,3u})for(size_t size:{6u,8u,16u,20u}){
+            Bytes m(size);m[0]=0xc5;m[1]=0x0a;m[2]=0xc1;m[3]=0;put(m,4,type,2);feed(command(0x001b,m,CTLR,0,6));
+        }
+        feed(command(36,{},CTLR+1));
+        for(unsigned n=0;n<4;++n){aecp_changed(&c.a,5,0,1u<<n);aecp_changed(&c.a,6,0,1u<<n);}
+        aecp_changed(&c.a,9,0,6);aecp_changed(&c.a,36,0,8);c.drain();
+        // The lock expires 60 s on, in a poll that starts with nothing owed, while
+        // CTLR+1 stays registered by asking every 20 s: its notice must leave.
+        feed(command(1,Bytes(16)));
+        for(unsigned n=0;n<3;++n){c.ms+=20000;c.drain();feed(command(2,{},CTLR+1));}
+        for(unsigned n=0;n<8;++n){c.ms+=30000;c.drain();c.ms+=300;c.drain();}
+    };
+    // Every path that clears a body of its own sends at least one frame here.
+    auto covered=[](const Core &c){
+        bool unlock=false;
+        bool hdcp=false;
+        bool mvu=false;
+        bool dynamic=false;
+        bool notice=false;
+        for(auto &f:c.sent){
+            const unsigned cmd=unsigned(get(f.second,36,2));
+            const unsigned msg=f.second[15]&15u;
+            unlock|=cmd==0x8001u;hdcp|=msg==9u;mvu|=msg==7u;dynamic|=msg==1u&&cmd==75u;
+            notice|=msg==1u&&(cmd&0x8000u)&&cmd!=0x8001u;
+        }
+        return unlock&&hdcp&&mvu&&dynamic&&notice;
+    };
+    Twin cleared;cleared.SetUp();cleared.poison=0;cleared.sent.clear();corpus(cleared);
+    poison=0xa5;sent.clear();corpus(*this);
+    ASSERT_EQ(sent.size(),cleared.sent.size())<<"the same frames leave";
+    ASSERT_GT(sent.size(),2000u)<<"the corpus answers";
+    ASSERT_TRUE(covered(*this))<<"the corpus sends an unlock notice, HDCP, MVU and dynamic responses and notices";
+    for(size_t n=0;n<sent.size();++n){
+        ASSERT_EQ(sent[n],cleared.sent[n])<<"frame "<<n<<" (command "<<get(sent[n].second,36,2)<<
+            ") is the same over a filled buffer and a cleared one";
+    }
 }
 
 TEST_F(Core, RootDescriptorConfigurationIsIgnored)
@@ -1155,13 +1225,34 @@ TEST_F(Core, UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin)
     EXPECT_FALSE(aecp_poll(&a));testing::Mock::VerifyAndClearExpectations(&mock);
     counters_ready=true;ms=1;sent.clear();drain();
     EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"same descriptor counters recover while its stream stays unavailable";
-    recovered=true;ms=2;drain();
+    // The stream notices failed again at 1 ms, so their next retry backs off to 3 ms.
+    recovered=true;ms=2;drain();EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"the second retry waits 2 ms";
+    ms=3;drain();
     EXPECT_EQ(sent.size(),3u*AECP_TEST_INTERFACES)<<"every retained failed event recovers";
     for(auto &e:events)EXPECT_EQ(e.retry_pending,0u);
     aecp_changed(&a,5,0,8);sent.clear();ms=1000;drain();EXPECT_TRUE(sent.empty());
     ms=1001;drain();EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"recovered counters retain completion spacing";
     ms=UINT32_MAX;recovered=false;aecp_changed(&a,5,0,1);sent.clear();drain();
     recovered=true;ms=0;drain();EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"retry deadline survives clock wrap";
+}
+
+// #665: a notice whose observation stays unavailable is retried after 1, 2,
+// 4, then every 8 ms (AECP_RETRY_MAX_MS), leaves at the first retry after
+// the port answers, and a delivered notice starts the next failure at 1 ms.
+TEST_F(Core, UnavailableNoticeRetriesBackOffToEightMilliseconds)
+{
+    register_controller();sent.clear();unsigned reads=0;bool ready=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){
+        ++reads;*v={};return ready;});
+    aecp_changed(&a,5,0,1);
+    std::vector<uint32_t> attempts;
+    for(ms=0;ms<40;++ms){unsigned before=reads;drain();if(reads!=before)attempts.push_back(ms);}
+    EXPECT_EQ(attempts,(std::vector<uint32_t>{0,1,3,7,15,23,31,39}))<<"retries back off 1, 2, 4, then every 8 ms";
+    EXPECT_TRUE(sent.empty());
+    ready=true;ms=46;drain();EXPECT_TRUE(sent.empty())<<"no attempt before the retry is due";
+    ms=47;drain();EXPECT_EQ(sent.size(),1u)<<"the notice leaves at the retry after the port answers";
+    ready=false;aecp_changed(&a,5,0,1);ms=100;drain();unsigned before=reads;ms=101;drain();
+    EXPECT_GT(reads,before)<<"a delivered notice starts the next backoff at 1 ms";
 }
 
 TEST_F(Core, StaticMapsPreventOrphaningFormats)
@@ -1587,10 +1678,18 @@ TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
     receive(2);EXPECT_TRUE(adapter.core.response_owed);auto before=fabric.tx_sent;
     mbx_model_tx_pause(&fabric,false);service(100);
     EXPECT_FALSE(adapter.core.response_owed);EXPECT_GT(fabric.tx_sent,before);
+    for(unsigned n=0;n<5;++n)ASSERT_TRUE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),200+n));
+    service(100);ASSERT_EQ(adapter.completion_count,0u);
+    const unsigned head=adapter.completion_head;
+    ASSERT_NE(head,0u)<<"the head has moved, so the full queue below wraps";
     for(unsigned n=0;n<AECP_MBX_COMPLETIONS;++n)
         ASSERT_TRUE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),n));
     EXPECT_FALSE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),100));
-    EXPECT_EQ(adapter.completion_count,AECP_MBX_COMPLETIONS);service(100);
+    EXPECT_EQ(adapter.completion_count,AECP_MBX_COMPLETIONS);
+    for(unsigned k=0;k<AECP_MBX_COMPLETIONS;++k)
+        EXPECT_EQ(adapter.completions[(head+k)%AECP_MBX_COMPLETIONS].cookie,k)
+            <<"a full queue holds every completion in its order across the wrap";
+    service(100);
     EXPECT_EQ(adapter.completion_count,0u);
     mbx_event e{};e.type=MBX_EV_TYPE_TIMER;e.timer_slot=6;e.timer_tag=adapter.tag;
     adapter.armed=false;loop.sinks[0].fn(loop.sinks[0].ctx,&e);EXPECT_EQ(adapter.stale_expiries,1u);

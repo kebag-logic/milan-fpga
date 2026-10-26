@@ -13,6 +13,17 @@ extern "C" {
 #define AECP_FRAME_BYTES 1514u
 #define AECP_PATH_ITEMS 64u
 #define AECP_MAP_PAGE 176u
+// A notice whose observation port is unavailable is retried 1, 2, 4, then
+// every 8 ms until it is built (#665: a 1 ms retry rebuilt every pending
+// notice each millisecond). Only notices wait on it: a solicited response
+// never does (aecp_ready), so the 240 ms response bound of IEEE 1722.1-2021
+// 9.3.2.6 (9.2.1.2.5 in 1722.1-2013) and Milan v1.2 5.4.3.4 is untouched.
+// Once the port answers, the notice of Milan v1.2 5.4.5.2 and Table 5.22 is
+// built within 8 ms plus the pass that takes it, inside T_svc = 10 ms and
+// the 24 ms notification ceiling of FR_NFR.md 3.4.1; GET_COUNTERS keeps its
+// one-second spacing, and the 60 s unlock and the controller monitor of
+// Milan v1.2 5.4.2.2 and 5.4.5.3 are not retries.
+#define AECP_RETRY_MAX_MS 8u
 
 enum aecp_status {
 	AECP_SUCCESS = 0, AECP_NOT_IMPLEMENTED = 1, AECP_NO_SUCH_DESCRIPTOR = 2,
@@ -117,6 +128,7 @@ struct aecp_event {
 	bool counter_sent;
 	bool awaiting_output;
 	uint8_t overrides; // bit 0 scalar, bit 1 latency: a default-valued SET counts
+	uint8_t retry_ms;  // the next retry's wait, 0 before the first (AECP_RETRY_MAX_MS)
 };
 struct aecp_config {
 	uint64_t entity_id;
@@ -144,6 +156,8 @@ struct aecp {
 	bool in_port;
 	bool open;
 	bool start_pending;
+	bool notices; // an event may hold a notice or a retry: the event scans run only then (#665)
+	unsigned awaiting; // events whose snapshot awaits its frame's completion: aecp_tx_complete scans only then
 	uint8_t response[AECP_FRAME_BYTES];
 	size_t response_bytes;
 	unsigned response_interface;

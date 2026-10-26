@@ -127,6 +127,10 @@ def main() -> int:
         inc += [f"-I{out}",f"-I{NVM_DIR}",*fw_rv32.includes(cc)]
         sources=[source(variant if name.startswith("mbx/") else tree.src,tree.stack,name) for name in PORTABLE]
         sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/("ctrl_aecp_image.c" if args.with_aecp else "ctrl_image.c")]
+        # The platform's word-wide memory primitives, linked ahead of the runtime archive's byte loops (#665);
+        # a tree from before them links the archive's.
+        memory=tree.src/"plat/ctrl_mem.c"
+        sources += [memory] if memory.is_file() else []
         if args.with_aecp:
             if args.without_srp:
                 raise Refusal("AECP sizing requires the complete SRP composition")
@@ -148,8 +152,12 @@ def main() -> int:
         findings=fw_rv32.object_findings(cc,objects)
         if findings:
             raise Refusal(str(findings))
-        elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
         nm=cc.removesuffix("gcc")+"nm"
+        for src,obj in zip(sources,objects):
+            # A call the compiler made inside memcpy, memmove or memset would recurse.
+            if src.name == "ctrl_mem.c" and checked([nm,"-u",str(obj)]).strip():
+                raise Refusal(f"{obj.name} references a symbol: the platform's memory primitives call nothing")
+        elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
         verify_abi(cc,elf)
         symbols=checked([nm,"-S",str(elf)])
         if checked([nm,"-u",str(elf)]).strip():

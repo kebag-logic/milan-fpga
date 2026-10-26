@@ -17,8 +17,12 @@ bool aecp_overridden(const struct aecp *, const struct aecp_descriptor *, unsign
 void aecp_override(struct aecp *, const struct aecp_descriptor *, unsigned);
 void aecp_note(struct aecp *, enum aecp_change, uint16_t, uint16_t);
 bool aecp_stream_read(struct aecp *, uint16_t, uint16_t, struct aecp_stream_info *);
+// A response's Ethernet header and AECPDU common data, through command_type.
+#define AECP_HEADER_BYTES 38u
 // Command-specific data only. The caller provides AECP_FRAME_BYTES of output
-// space, disjoint from the input. Output is always initialized by this call.
+// space, disjoint from the input. This call writes every one of the *bytes
+// bytes of output it answers with, so none depends on what the buffer held,
+// and zeroes no more than its fixed body (#665).
 unsigned aecp_command(struct aecp *, unsigned, uint16_t, const uint8_t *, size_t,
 		      uint8_t *, size_t *);
 unsigned aecp_map_command(struct aecp *, uint16_t, const uint8_t *, size_t,

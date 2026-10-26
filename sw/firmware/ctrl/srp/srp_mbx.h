@@ -72,7 +72,8 @@ struct srp_mbx {
     struct srp_interface ifs[MBX_N_IF];
     struct ctrl_loop *loop;
     struct srp_mbx_config config;
-    uint8_t frame[MBX_FRAME_BYTES_MAX];
+    // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
+    // Ethernet header before it, so a frame is never copied (#665).
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
     struct mbx_frame pending_rx; // len is zero unless receive must retry
     uint16_t owed_len;

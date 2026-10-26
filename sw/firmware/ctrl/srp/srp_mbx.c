@@ -549,11 +549,12 @@ static int send_pdu(void *ctx, uint8_t port, const uint8_t *pdu, size_t len)
     (void)port;
     struct send_context *s = ctx;
     struct srp_mbx *m = s->interface->owner;
+    // pdu is owed_frame + 14: lwSRP sends the buffer poll gave it, and while a
+    // frame is owed only its participant runs, so nothing rebuilds over it.
     if (!m->owed_len) {
         memcpy(m->owed_frame,s->app->ops->group_addr,6);
         wire_put_be(m->owed_frame + 6,s->interface->mac,6);
         wire_put_be(m->owed_frame + 12,s->app->ops->ethertype,2);
-        memcpy(m->owed_frame + 14,pdu,len);
         m->owed_len = (uint16_t)(len + 14u);
         m->owed_if = s->interface->index;
         m->owed_ethertype = s->app->ops->ethertype;
@@ -856,7 +857,7 @@ static bool poll(void *ctx)
         (void)mrp_reclaim(i->msrp,0);
         (void)mrp_reclaim(i->mvrp,0);
         if (i->link) {
-            int result = mrp_transmit(app,0,m->frame,sizeof(m->frame) - 14u,send_pdu,&send);
+            int result = mrp_transmit(app,0,m->owed_frame + 14u,sizeof(m->owed_frame) - 14u,send_pdu,&send);
             if (result != 0) {
                 owed = true;
             }
