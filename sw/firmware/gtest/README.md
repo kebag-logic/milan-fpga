@@ -439,7 +439,7 @@ The versions this harness was built and measured with:
 | Where | gcc and gcov | GoogleTest and GoogleMock |
 |---|---|---|
 | the development host | 16.2.1 | 1.18.0 |
-| `ubuntu-24.04` (`ubuntu-latest`), as the job installs them | 13.3.0 | 1.14.0 (`libgtest-dev` and `libgmock-dev` 1.14.0-1) |
+| `ubuntu-24.04`, as the job installs them | 13.3.0 | 1.14.0 (`libgtest-dev` and `libgmock-dev` 1.14.0-1) |
 
 Both measure the same per-file coverage, and every row of
 [the exclusion table](#coverage-exclusions) matches under both.
