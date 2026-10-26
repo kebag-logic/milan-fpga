@@ -868,7 +868,7 @@ TEST_F(Core, ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease)
 // ACMP owner reads, LOCK_ENTITY's locked_id and every refusal report it, so
 // another controller is refused by the lock itself and its owner as every
 // change is while one waits (#665; Milan v1.2 5.4.2.2, 5.4.4.2; IEEE
-// 1722.1-2021 7.4.1, 7.4.2).
+// 1722.1-2021 7.4.2, 7.4.3).
 TEST_F(Core, AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease)
 {
     bool face=true;unsigned released=0;
@@ -2468,11 +2468,11 @@ TEST_F(Face, ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken)
     EXPECT_LT(commits.back(),heads.back())<<"LOCK_HELD falls before the unlock notification";
 }
 
-// IEEE 1722.1-2021 9.3.2.6: a controller that received IN_PROGRESS waits 120 ms
-// for the next response, and 240 ms for a command's. A change the datapath
-// never takes is answered within 120 ms of its IN_PROGRESS and 240 ms of its
-// command, the service bound included, on the mailbox's own millisecond clock
-// (#665; docs/reference/FR_NFR.md).
+// IEEE 1722.1-2021 9.3.2.6: a response leaves within 240 ms of its command, and
+// a controller that received IN_PROGRESS waits 120 ms for the next. A change
+// the datapath never takes is answered within 120 ms of its IN_PROGRESS and
+// 240 ms of its command, the service bound included, on the mailbox's own
+// millisecond clock (#665; docs/reference/FR_NFR.md).
 TEST_F(Face, AWaitingChangeIsAnsweredWithinTheInProgressCadence)
 {
     constexpr uint64_t MS=1000000;   // ns
