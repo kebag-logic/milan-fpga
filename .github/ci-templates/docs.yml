@@ -7,7 +7,7 @@ on:
 
 jobs:
   docs-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       # The documentation-only gates run before any submodule checkout. The
       # builder gates below consume the pinned processor image tools and expand
@@ -493,7 +493,7 @@ jobs:
   #  history keeps reading as the item-00 record.
   # ==========================================================================
   wire-accountability:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Fetch the engine authority the builder derives from
@@ -507,7 +507,7 @@ jobs:
   # extracted tarball or a downloaded zip, which is how most outsiders will
   # first meet this repo.
   docs-check-no-git:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Strip git metadata, then run the docs gate

@@ -9,7 +9,7 @@ env:
   YOSYS_VERSION: v0.66
 jobs:
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       rtl: ${{ steps.scope.outputs.rtl }}
@@ -98,7 +98,7 @@ jobs:
   verilator-lint:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -190,7 +190,7 @@ jobs:
           if-no-files-found: error
           retention-days: 3
   bdd-conformance:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -254,7 +254,7 @@ jobs:
   yosys-elaboration:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -406,7 +406,7 @@ jobs:
   publication-census:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -573,7 +573,7 @@ jobs:
   firmware-unit:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -683,7 +683,7 @@ jobs:
   firmware-control-mutants:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -780,7 +780,7 @@ jobs:
   firmware-aecp-mutants:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -876,7 +876,7 @@ jobs:
   firmware-srp-mutants:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -972,7 +972,7 @@ jobs:
   firmware-boundary:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -1066,7 +1066,7 @@ jobs:
   firmware-verilator:
     needs: changes
     if: ${{ needs.changes.outputs.rtl == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
@@ -1215,7 +1215,7 @@ jobs:
       - firmware-srp-mutants
       - firmware-boundary
       - firmware-verilator
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -1296,7 +1296,7 @@ jobs:
           retention-days: 3
   ci-manifest:
     name: Collect CI manifest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
     needs:
@@ -1373,7 +1373,7 @@ jobs:
           retention-days: 3
   ci-fail-fast:
     name: Fail fast across this head
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
       == github.repository) }}
@@ -1439,7 +1439,7 @@ jobs:
           retention-days: 3
   ci-cancel-tail:
     name: Cancel late CI failures
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 3
     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
       == github.repository)) }}

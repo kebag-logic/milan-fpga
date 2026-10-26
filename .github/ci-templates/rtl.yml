@@ -34,7 +34,7 @@ env:
 
 jobs:
   full-ci-gate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       run_full: ${{ steps.gate.outputs.run_full }}
@@ -153,7 +153,7 @@ jobs:
     name: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     strategy:
       fail-fast: true
@@ -317,7 +317,7 @@ jobs:
     name: Physical gPTP (nightly and manual)
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
@@ -400,7 +400,7 @@ jobs:
     # GitHub context and would otherwise turn a selector failure into a pass.
     if: ${{ always() && (needs.full-ci-gate.result != 'success' || needs.full-ci-gate.outputs.run_full != 'false') }}
     needs: [full-ci-gate, verilator-shards]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -458,7 +458,7 @@ jobs:
     name: Yosys shard ${{ matrix.shard }}/${{ matrix.total }}
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     strategy:
       fail-fast: true
@@ -491,7 +491,7 @@ jobs:
       # upstream tag on a cache miss with its bundled ABC submodule - the
       # commit the tag pins, recorded in /opt/yosys/ABC_REV and printed on
       # every run - then verified by a step that fails on any other version.
-      # The apt package this replaces resolved to whatever ubuntu-latest
+      # The apt package this replaces resolved to whatever the hosted image
       # carried on the day (Yosys 0.33, 33 releases behind a bench box), and
       # the same RTL's cell counts moved up to 39% between that tool and the
       # bench one with both exiting 0.
@@ -583,7 +583,7 @@ jobs:
     # always() below still makes this job run when verilator-suites fails.
     if: ${{ always() && (needs.full-ci-gate.result != 'success' || needs.full-ci-gate.outputs.run_full != 'false') }}
     needs: [full-ci-gate, yosys-shards, verilator-suites]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4

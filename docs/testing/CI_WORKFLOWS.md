@@ -4,6 +4,14 @@ The repository separates rapid pull-request feedback from exhaustive RTL
 validation. This changes when hosted runners execute the long gates; it does not
 reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
+Every job of the four workflows runs on the pinned hosted image
+`ubuntu-24.04`, never on the floating `ubuntu-latest` (#784). The workflow
+generators write that label, and the
+[local act runner](#act-first-local-replication) replays no other. Hosted
+`ubuntu-latest` moved to the `ubuntu-26.04` image, where the pinned CPython
+3.12 wheels in `ci/constraints-ci.txt` do not install, so every pinned pip
+install there fails at resolution.
+
 ## Contents
 
 - **[Fast feedback](#fast-feedback)** -- What runs on every pull-request update and why docs-only changes avoid RTL tool setup.
@@ -554,7 +562,7 @@ Physical regressions therefore report nightly, outside the required PR aggregate
 The seventeen default workers retain every other suite.
 
 The physical suite has a 5400-second build-and-run deadline.
-Its separate four-core `ubuntu-latest` job permits 120 minutes total.
+Its separate four-core `ubuntu-24.04` job permits 120 minutes total.
 The remaining 30 minutes allow toolchain installation and evidence upload.
 These deadlines await successful hosted measurement; they promise no completion time.
 The earlier 2400-second hosted timeout established no upper slowdown bound.
@@ -2025,16 +2033,18 @@ files. `GITHUB_TOKEN` is explicitly empty, so neither the active `gh` credential
 nor an SSH agent, proxy credential, runtime token, or other host secret reaches
 candidate code.
 
-Candidate jobs must name one of two literal runner labels, `ubuntu-latest`
-or `ubuntu-24.04`. The act command maps both to the same runner image, one
-`--platform` entry each, and every other label, such as `ubuntu-22.04` or
-`ubuntu-26.04`, is refused by name before `act` starts. Both are accepted
-because hosted `ubuntu-latest` moved to the `ubuntu-26.04` image, where the
-pinned Python tools fail pip resolution, so the second step of #784 pins every
-workflow to `ubuntu-24.04`; until it lands the workflows still name
-`ubuntu-latest`. A label without a `--platform` entry is no error to `act`: it
-skips that job as an unsupported platform and can still exit 0, so the
-self-test requires an entry for every accepted label. Reusable workflows and
+Candidate jobs must name the literal runner label `ubuntu-24.04`, the image
+every workflow pins. The act command maps it to the runner image with one
+`--platform` entry, and every other label, such as `ubuntu-latest`,
+`ubuntu-22.04` or `ubuntu-26.04`, is refused by name before `act` starts.
+`ubuntu-latest` is refused because hosted `ubuntu-latest` moved to the
+`ubuntu-26.04` image, where the pinned CPython 3.12 wheels do not install
+(#784): a job on it would run hosted on an image the replay does not model.
+A label that has neither a `--platform` entry nor an entry in
+act's built-in table, such as `ubuntu-24.04`, is no error to `act`: it skips
+that job as an unsupported platform and can still exit 0, and a built-in label
+such as `ubuntu-latest` would run on act's default `node:16` image instead, so
+the self-test requires an entry for every accepted label. Reusable workflows and
 job/service containers are refused because they can carry container options or
 host-volume requests that the trusted scanner cannot safely delegate. Steps may
 use only the repository's exact audited non-Docker action set

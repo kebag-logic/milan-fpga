@@ -162,7 +162,7 @@ def aggregate(name: str, template: dict) -> dict:
     checkout = copy.deepcopy(template["jobs"][CARRIERS[name]]["steps"][0])
     if not str(checkout.get("uses", "")).startswith("actions/checkout@"):
         raise ValueError(name + ": original checkout must stay first")
-    return {"runs-on": "ubuntu-latest", "timeout-minutes": 3,
+    return {"runs-on": "ubuntu-24.04", "timeout-minutes": 3,
             "needs": [worker_id(name, leg) for leg in worker_legs(name, template)], "if": "${{ always() }}",
             "steps": [checkout, *reader_setup(),
                       {"name": "Download executed gate outcomes", "uses": "actions/download-artifact@v4",
