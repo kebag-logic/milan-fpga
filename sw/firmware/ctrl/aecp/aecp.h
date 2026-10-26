@@ -67,10 +67,12 @@ struct aecp_map {
 	const struct aecp_mapping *defaults;
 	size_t default_count;
 };
+// LOCK: the LOCK_ENTITY state moved (a lock, an unlock or its expiry), before
+// the response or the notification that reports it (#665, ruling 6410169666).
 enum aecp_change {
 	AECP_CHANGE_CONFIGURATION, AECP_CHANGE_FORMAT, AECP_CHANGE_LATENCY,
 	AECP_CHANGE_RATE, AECP_CHANGE_CLOCK, AECP_CHANGE_NAME, AECP_CHANGE_MAP,
-	AECP_CHANGE_IDENTIFY, AECP_CHANGE_SYSTEM_ID
+	AECP_CHANGE_IDENTIFY, AECP_CHANGE_SYSTEM_ID, AECP_CHANGE_LOCK
 };
 // All ports are required. They return without delivering ANY protocol input.
 // A port may publish an observation or apply a hardware value synchronously;

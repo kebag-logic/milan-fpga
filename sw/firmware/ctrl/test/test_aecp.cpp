@@ -23,6 +23,7 @@ extern "C" {
 #endif
 #ifdef AECP_TEST_MAILBOX
 #include "aecp_mbx.h"
+#include "aecp_face.h"
 #include "mbx_model.h"
 #endif
 #ifdef AECP_TEST_APP
@@ -1713,4 +1714,544 @@ TEST_F(Latency, DeferredFailureAndTimerPathsUseTheirDueTime)
     ASSERT_GT(commits.size(),count);check(1,origin,commits.back());
     EXPECT_FALSE(adapter.core.locked);
 }
+
+// ---- contract 2.3: the AECP owner's face block (#665, the assignment 6409739310
+// and the ruling 6410169666). The datapath behind it is Far: it answers each
+// window's request from its own words and takes each commit, recording the
+// block it took, so a check reads what the datapath would hold. ----
+namespace {
+struct Far {
+    mbx_model_reply reply=MBX_MODEL_ANSWER;
+    bool ack=true;
+    uint64_t verdict=3;
+    const uint64_t *clock=nullptr;
+    std::vector<std::pair<unsigned,std::vector<uint32_t>>> commits;   // interface, the block it took
+    std::vector<uint64_t> taken_at;                                   // the trace clock at each
+    unsigned requests[MBX_WINDOWS]{};
+    static mbx_model_reply answer(void *p,unsigned i,unsigned w,const uint32_t *r,uint64_t *d) {
+        auto &f=*static_cast<Far*>(p);++f.requests[w];*d=word(i,w,r,f.verdict);return f.reply;
+    }
+    static bool commit(void *p,unsigned i,const uint32_t *b) {
+        auto &f=*static_cast<Far*>(p);f.commits.emplace_back(i,std::vector<uint32_t>(b,b+MBX_FACE_STRIDE/4));
+        f.taken_at.push_back(f.clock?*f.clock:0);return f.ack;
+    }
+    //! The datapath's answer words: a counter quadlet names its descriptor and word,
+    //! the GET_STREAM_INFO and GET_AVB_INFO words are the processor face's layout.
+    static uint64_t word(unsigned i,unsigned w,const uint32_t *r,uint64_t verdict) {
+        unsigned type=r[0]&0xffffu,index=r[0]>>16;
+        if(w==MBX_WIN_CTR){unsigned q=r[1]&63u;return q==32u?0xf3fu:(0x80000000u|(i<<24)|(type<<16)|(index<<8)|q);}
+        unsigned kind=r[1]&3u,sel=(r[1]>>4)&15u;
+        if(w==MBX_WIN_GSI&&kind==0){
+            switch(sel){
+            case 0:return type==5?0x80000000u:0xf2000000u;
+            case 2:return 0x0102030405060708ull;
+            case 3:return 12345;
+            case 4:return (0x91e0f0000101ull<<16)|(0x22u<<8);
+            case 5:return 0x8877665544332211ull;
+            case 6:return (uint64_t(2)<<48)|7u;
+            case 15:return verdict;
+            default:return 0;
+            }
+        }
+        if(w==MBX_WIN_GSI&&kind==1){
+            if(sel==0)return 0x0123456789abcdefull;
+            if(sel==1)return (uint64_t(123456)<<32)|(uint64_t(9)<<24)|(uint64_t(0x7a)<<16)|1u;
+            if(sel==8)return 0x06030002u;
+        }
+        return 0;
+    }
+};
+uint32_t at(const std::vector<uint32_t> &block,uint32_t reg,uint32_t lsb,uint32_t width) {
+    uint32_t mask=width>=32?0xffffffffu:((1u<<width)-1u);return (block.at(reg/4)>>lsb)&mask;
+}
+uint64_t at64(const std::vector<uint32_t> &block,uint32_t lo,uint32_t hi) {
+    return (uint64_t(block.at(hi/4))<<32)|block.at(lo/4);
+}
+constexpr uint32_t SNK=MBX_FACE_SINK_BASE;
+constexpr uint32_t SRC=MBX_FACE_SOURCE_BASE;
+
+struct Face : Core {
+    mbx_model fabric{};
+    Far far{};
+    mbx_model_far side{&far,Far::answer,Far::commit};
+    aecp_face face{};
+    aecp_mbx adapter{};
+    ctrl_loop loop{};
+    uint64_t ns=0;
+    uint64_t accesses=0;
+    std::vector<uint64_t> heads;     // the trace clock at each AECP TX_HEAD write
+    std::vector<uint64_t> commits;   // and at each F_COMMIT write
+    static void trace(void *p,bool write,uint32_t offset,uint32_t) {
+        auto &s=*static_cast<Face*>(p);s.ns+=100;++s.accesses;
+        if(write&&offset==MBX_CH_BASE+MBX_CH_AECP*MBX_CH_STRIDE+MBX_CH_REG_TX_HEAD)s.heads.push_back(s.ns);
+        if(write&&offset>=MBX_FACE_BASE&&(offset-MBX_FACE_BASE)%MBX_FACE_STRIDE==MBX_FACE_REG_F_COMMIT)
+            s.commits.push_back(s.ns);
+    }
+    void SetUp() override {
+        Core::SetUp();mbx_model_reset(&fabric);mbx_model_bind(&fabric,nullptr,nullptr);
+        far.clock=&ns;mbx_model_far_bind(&fabric,&side);
+        ctrl_loop_init(&loop);aecp_face_init(&face,&ports);
+        ASSERT_TRUE(aecp_mbx_init(&adapter,&cfg,&face.ports,6));aecp_face_attach(&face,&adapter.core);
+        ASSERT_TRUE(aecp_mbx_attach(&adapter,&loop));
+        uint64_t mac[MBX_N_IF];for(unsigned i=0;i<MBX_N_IF;++i)mac[i]=MAC+i;
+        ASSERT_TRUE(ctrl_loop_open(&loop,ENTITY,mac));
+        mbx_host_trace(trace,this);aecp_face_open(&face);aecp_mbx_open(&adapter);
+    }
+    void TearDown() override {mbx_host_trace(nullptr,nullptr);mbx_model_far_bind(&fabric,nullptr);}
+    void service(unsigned count=10){for(unsigned n=0;n<count;++n){(void)ctrl_loop_service(&loop);(void)aecp_face_poll(&face);}}
+    //! One command and its response (its first frame), its status checked.
+    Bytes receive(unsigned cmd,Bytes body={},unsigned status=0,uint64_t id=CTLR,unsigned interface=0) {
+        auto p=command(cmd,body,id,interface);uint32_t before=fabric.tx_sent;
+        EXPECT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),interface));service();
+        if(fabric.tx_sent==before){ADD_FAILURE()<<"command "<<cmd<<" has a response";return Bytes(200);}
+        auto f=mbx_model_tx_frame(&fabric,before);Bytes out(f->bytes,f->bytes+f->len);
+        EXPECT_EQ(get(out,16,2)>>11,status)<<"status for command "<<cmd;mbx_model_advance_ms(&fabric,5);
+        return out;
+    }
+    //! The block interface i's datapath took at its last commit.
+    const std::vector<uint32_t> &taken(unsigned i) {
+        for(auto it=far.commits.rbegin();it!=far.commits.rend();++it)if(it->first==i)return it->second;
+        static const std::vector<uint32_t> none(MBX_FACE_STRIDE/4,0xdeadbeefu);ADD_FAILURE()<<"no commit on "<<i;
+        return none;
+    }
+    unsigned home(unsigned type,unsigned index) { return (unsigned)get(desc(type,index).value+126,2); }
+};
+}
+
+TEST_F(Face, OpenPublishesEverySettingWithReadyBeforeAecpOpens)
+{
+    ASSERT_EQ(far.commits.size(),MBX_N_IF)<<"one commit per interface at open";
+    EXPECT_EQ(face.commits,MBX_N_IF);EXPECT_EQ(face.late,0u);EXPECT_EQ(fabric.bus_err,0u);
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        const auto &b=taken(i);
+        EXPECT_EQ(at(b,MBX_FACE_REG_F_CTRL,MBX_F_CTRL_READY_LSB,1),1u)<<"F_CTRL.READY published with the settings";
+        EXPECT_EQ(at(b,MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_CUR_CONFIG_LSB,16),adapter.core.configuration);
+        EXPECT_EQ(at(b,MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),adapter.core.identify);
+        EXPECT_EQ(at(b,MBX_FACE_REG_F_CLOCK,MBX_F_CLOCK_SOURCE_INDEX_LSB,16),get(desc(36).value+70,2));
+        EXPECT_EQ(at(b,MBX_FACE_REG_F_AECP,MBX_F_AECP_LOCK_HELD_LSB,1),0u);
+    }
+    for(const auto &d:descriptors){
+        if((d.type!=5&&d.type!=6)||d.configuration!=adapter.core.configuration)continue;
+        const auto &b=taken(home(d.type,d.index));uint64_t format=get(d.value+74,8);
+        if(d.type==5){
+            EXPECT_EQ(at64(b,SNK+16*d.index+MBX_FACE_SNK_REG_F_FMT_IN_LO,SNK+16*d.index+MBX_FACE_SNK_REG_F_FMT_IN_HI),format)
+                <<"sink "<<d.index<<"'s format on its own interface";
+            EXPECT_EQ(at(b,SNK+16*d.index+MBX_FACE_SNK_REG_F_SNK_VALID,MBX_F_SNK_VALID_FMT_IN_LSB,1),0u);
+        }else{
+            EXPECT_EQ(at64(b,SRC+16*d.index+MBX_FACE_SRC_REG_F_FMT_OUT_LO,SRC+16*d.index+MBX_FACE_SRC_REG_F_FMT_OUT_HI),format);
+            EXPECT_EQ(at(b,SRC+16*d.index+MBX_FACE_SRC_REG_F_PT_OFFSET,0,32),adapter.core.cfg.latency[d.index]);
+            EXPECT_EQ(at(b,SRC+16*d.index+MBX_FACE_SRC_REG_F_SRC_VALID,0,2),0u);
+        }
+    }
+}
+
+// Each setting is written and its commit taken before the response that
+// promises it (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.5.2;
+// IEEE 1722.1-2021 7.5.2), and the block the datapath took holds it.
+TEST_F(Face, EachSettingIsCommittedBeforeTheResponseThatPromisesIt)
+{
+    auto before=[&](const char *what){
+        ASSERT_FALSE(commits.empty())<<what<<": a commit";ASSERT_FALSE(heads.empty())<<what<<": a response";
+        EXPECT_LT(commits.back(),heads.back())<<what<<": committed before the response";
+        EXPECT_LT(far.taken_at.back(),heads.back())<<what<<": taken by the datapath before the response";
+        EXPECT_EQ(face.late,0u)<<what;
+    };
+    for(unsigned type:{5u,6u}){
+        Bytes b=target(type,0,12);uint64_t format=get(desc(type).defaults+74,8);put(b,4,format,8);
+        commits.clear();heads.clear();receive(8,b);before("SET_STREAM_FORMAT");
+        const auto &blk=taken(home(type,0));
+        if(type==5){
+            EXPECT_EQ(at64(blk,SNK+MBX_FACE_SNK_REG_F_FMT_IN_LO,SNK+MBX_FACE_SNK_REG_F_FMT_IN_HI),format);
+            EXPECT_EQ(at(blk,SNK+MBX_FACE_SNK_REG_F_SNK_VALID,MBX_F_SNK_VALID_FMT_IN_LSB,1),1u)<<"the sink's format is set";
+        }else{
+            EXPECT_EQ(at64(blk,SRC+MBX_FACE_SRC_REG_F_FMT_OUT_LO,SRC+MBX_FACE_SRC_REG_F_FMT_OUT_HI),format);
+            EXPECT_EQ(at(blk,SRC+MBX_FACE_SRC_REG_F_SRC_VALID,MBX_F_SRC_VALID_FMT_OUT_LSB,1),1u)<<"the source's format is set";
+        }
+        EXPECT_EQ(at(blk,MBX_FACE_REG_F_AECP,MBX_F_AECP_DYN_DIRTY_LSB,1),1u)<<"a persisted setting moved";
+    }
+    Bytes info=target(6,0,84);put(info,4,0x20000000,4);put(info,24,4321,4);
+    commits.clear();heads.clear();receive(14,info);before("SET_STREAM_INFO");
+    EXPECT_EQ(at(taken(home(6,0)),SRC+MBX_FACE_SRC_REG_F_PT_OFFSET,0,32),4321u);
+    EXPECT_EQ(at(taken(home(6,0)),SRC+MBX_FACE_SRC_REG_F_SRC_VALID,MBX_F_SRC_VALID_PT_OFFSET_LSB,1),1u);
+    Bytes clock=target(36,0,8);put(clock,4,get(desc(36).value+70,2),2);
+    commits.clear();heads.clear();receive(22,clock);before("SET_CLOCK_SOURCE");
+    Bytes identify=target(26,0,5);identify[4]=255;
+    commits.clear();heads.clear();receive(24,identify);before("SET_CONTROL IDENTIFY");
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),255u)<<"IDENTIFY in its own field";
+        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_CUR_CONFIG_LSB,16),adapter.core.configuration)
+            <<"CUR_CONFIG in its own field";
+    }
+    Bytes config(4);put(config,2,0,2);
+    commits.clear();heads.clear();receive(6,config);before("SET_CONFIGURATION");
+    commits.clear();heads.clear();receive(1,Bytes(16));before("LOCK_ENTITY");
+    for(unsigned i=0;i<MBX_N_IF;++i)EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_AECP,MBX_F_AECP_LOCK_HELD_LSB,1),1u);
+    Bytes unlock(16);put(unlock,0,1,4);
+    commits.clear();heads.clear();receive(1,unlock);before("LOCK_ENTITY release");
+    for(unsigned i=0;i<MBX_N_IF;++i)EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_AECP,MBX_F_AECP_LOCK_HELD_LSB,1),0u);
+    auto count=far.commits.size();receive(1,unlock);
+    EXPECT_EQ(far.commits.size(),count)<<"a lock state that did not move publishes nothing";
+    EXPECT_EQ(fabric.bus_err,0u)<<"no write met a held value";
+}
+
+TEST_F(Face, LockExpiryIsPublishedBeforeItsNotification)
+{
+    receive(36);receive(1,Bytes(16));
+    commits.clear();heads.clear();
+    mbx_model_advance_ms(&fabric,60000);service(100);
+    ASSERT_FALSE(adapter.core.locked);ASSERT_FALSE(heads.empty())<<"the unlock notification is sent";
+    ASSERT_FALSE(commits.empty())<<"LOCK_HELD falls before the unlock notification: its commit";
+    EXPECT_LT(commits.front(),heads.front())<<"LOCK_HELD falls before the unlock notification";
+    for(unsigned i=0;i<MBX_N_IF;++i)EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_AECP,MBX_F_AECP_LOCK_HELD_LSB,1),0u);
+}
+
+// GET_COUNTERS reads its 33 quadlets through the CTR window of its interface,
+// each read bounded.
+TEST_F(Face, CountersAreReadThroughTheWindowEachWithinItsBound)
+{
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        auto out=receive(41,target(5,0),0,CTLR,i);
+        EXPECT_EQ(get(out,42,4),0xf3fu)<<"counters_valid is quadlet 32";
+        for(unsigned q=0;q<32;++q)
+            EXPECT_EQ(get(out,46+4*q,4),0x80000000u|(home(5,0)<<24)|(5u<<16)|q)<<"quadlet "<<q<<", the stream's interface";
+    }
+    EXPECT_EQ(far.requests[MBX_WIN_CTR],33u*MBX_N_IF);
+    // a window the datapath never answers: the read gives up at its bound, to the access
+    aecp_counters c{};far.reply=MBX_MODEL_HOLD;uint64_t before=accesses;
+    EXPECT_FALSE(face.ports.counters(&face,0,5,0,&c));
+    EXPECT_EQ(accesses-before,1u+2u+1u+(MBX_WIN_CTR_WAIT_CYCLES+1u))
+        <<"busy check, two request words, GO and wait_cycles + 1 status reads, no more";
+    EXPECT_EQ(face.unanswered,1u);
+    before=accesses;EXPECT_FALSE(face.ports.counters(&face,0,5,0,&c))<<"a request still open refuses the next";
+    EXPECT_EQ(accesses-before,1u)<<"refused at the busy check";
+    mbx_model_win_expire(&fabric,0,MBX_WIN_CTR);far.reply=MBX_MODEL_SILENT;
+    EXPECT_FALSE(face.ports.counters(&face,0,5,0,&c))<<"an unanswered request fails the port";
+    far.reply=MBX_MODEL_ANSWER;EXPECT_TRUE(face.ports.counters(&face,0,5,0,&c));
+    EXPECT_FALSE(face.ports.counters(&face,MBX_N_IF,5,0,&c))<<"no such interface";
+    EXPECT_EQ(face.unanswered,4u);
+}
+
+TEST_F(Face, StreamAvbAndFormatAreTheDatapathsWords)
+{
+    auto out=receive(15,target(6,0));
+    EXPECT_EQ(get(out,42,4),0xf2000000u);EXPECT_EQ(get(out,54,8),0x0102030405060708ull);
+    EXPECT_EQ(get(out,62,4),12345u);EXPECT_EQ(get(out,66,6),0x91e0f0000101ull);
+    EXPECT_EQ(out[72],0x22u);EXPECT_EQ(get(out,74,8),0x8877665544332211ull);EXPECT_EQ(get(out,82,2),2u);
+    auto avb=receive(39,target(9,0));
+    EXPECT_EQ(get(avb,42,8),0x0123456789abcdefull);EXPECT_EQ(get(avb,50,4),123456u);
+    EXPECT_EQ(avb[54],9u);EXPECT_EQ(avb[55],0x7au);EXPECT_EQ(avb[59],3u);EXPECT_EQ(get(avb,60,2),2u);
+    // Milan v1.2 5.3.7.3: an output whose licence the SRP owner published streams
+    Bytes b=target(6,0,12);put(b,4,get(desc(6).defaults+74,8),8);
+    ASSERT_TRUE(mbx_pub_licence(home(6,0),1u));receive(8,b,12);
+    ASSERT_TRUE(mbx_pub_licence(home(6,0),0u));receive(8,b);
+    // the verdict passes only as exactly 3 in its low byte
+    far.verdict=7;receive(8,b,7);far.verdict=1;receive(8,b,7);far.verdict=0x103;receive(8,b);
+    // an observation the datapath does not answer: the running check itself cannot be made
+    far.reply=MBX_MODEL_SILENT;receive(8,b,10);receive(15,target(6,0),10);receive(39,target(9,0),10);
+    EXPECT_GE(face.unanswered,3u);
+    // a read that fails at any word fails the whole observation
+    aecp_stream_info s{};aecp_avb_info v{};
+    for(unsigned answered:{0u,1u,2u,5u}){
+        unsigned left=answered;
+        mbx_model_far partial{&left,[](void *p,unsigned,unsigned,const uint32_t *,uint64_t *d){
+            auto &n=*static_cast<unsigned*>(p);*d=0;if(n==0)return MBX_MODEL_SILENT;--n;return MBX_MODEL_ANSWER;},nullptr};
+        mbx_model_far_bind(&fabric,&partial);
+        if(answered<3){EXPECT_FALSE(face.ports.avb(&face,0,0,&v))<<"AVB word "<<answered<<" unanswered";}
+        left=answered;EXPECT_FALSE(face.ports.stream(&face,0,6,0,&s))<<"stream word "<<answered<<" unanswered";
+        mbx_model_far_bind(&fabric,&side);
+    }
+    EXPECT_FALSE(face.ports.format(&face,6,0x7fff,0))<<"no such descriptor";
+}
+
+// A commit the datapath does not take within the bound is late: owed, and
+// published again, whole, once the block is free.
+TEST_F(Face, ALateCommitIsOwedAndPublishedAgainWhole)
+{
+    far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;receive(24,identify);
+    EXPECT_EQ(face.late,MBX_N_IF)<<"no acknowledgement within MBX_FACE_ACK_CYCLES, on any interface";
+    for(unsigned i=0;i<MBX_N_IF;++i){EXPECT_TRUE(face.owed[i]);EXPECT_TRUE(mbx_face_busy(i));}
+    auto count=far.commits.size();identify[4]=0;receive(24,identify);
+    EXPECT_EQ(far.commits.size(),count)<<"a change while a commit waits writes nothing";
+    EXPECT_EQ(fabric.bus_err,0u)<<"and so meets no held value";
+    EXPECT_TRUE(aecp_face_poll(&face))<<"still owed while the block is held";
+    far.ack=true;
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        mbx_model_face_ack(&fabric,i);
+        EXPECT_EQ(aecp_face_poll(&face),i+1u<MBX_N_IF)<<"owed while another interface's block is held, "
+                                                        "published again once each block is free";
+    }
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),0u)<<"with the value now in force";
+        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_CTRL,MBX_F_CTRL_READY_LSB,1),1u);
+        EXPECT_FALSE(face.owed[i]);
+    }
+    EXPECT_EQ(mbx_face_commit(MBX_N_IF),MBX_STATUS_BAD);EXPECT_FALSE(mbx_face_busy(MBX_N_IF));
+    EXPECT_FALSE(mbx_face_write(MBX_N_IF,MBX_FACE_REG_F_CTRL,1));
+    EXPECT_FALSE(mbx_face_write_source(0,MBX_N_PUB_SOURCES,MBX_FACE_SRC_REG_F_PT_OFFSET,1));
+    EXPECT_FALSE(mbx_face_write_sink(0,MBX_N_PUB_SINKS,MBX_FACE_SNK_REG_F_FMT_IN_LO,1));
+    uint64_t d=0;const uint32_t r[MBX_WIN_REQUEST_WORDS]{};
+    EXPECT_EQ(mbx_win_read(MBX_N_IF,MBX_WIN_CTR,r,&d),MBX_STATUS_BAD);
+    EXPECT_EQ(mbx_win_read(0,MBX_WINDOWS,r,&d),MBX_STATUS_BAD);
+    EXPECT_FALSE(mbx_pub_licensed(MBX_N_IF,0));EXPECT_FALSE(mbx_pub_licensed(0,MBX_N_PUB_SOURCES));
+    far.ack=false;ASSERT_EQ(mbx_face_commit(0),MBX_STATUS_BAD);
+    EXPECT_EQ(mbx_face_commit(0),MBX_STATUS_FULL)<<"a commit that waits refuses the next";
+    mbx_model_face_ack(&fabric,0);
+}
+
+// Each stream's entry goes to its own interface's block; a setting of the
+// entity goes to every interface's.
+TEST_F(Face, AStreamsSettingGoesToItsOwnInterface)
+{
+    Bytes b=target(5,0,12);put(b,4,get(desc(5).defaults+74,8),8);
+    auto count=far.commits.size();receive(8,b);
+    ASSERT_EQ(far.commits.size()-count,MBX_N_IF)<<"the first persisted change also publishes DYN_DIRTY everywhere";
+    count=far.commits.size();receive(8,b);
+    EXPECT_EQ(far.commits.size()-count,0u)<<"a repeated identical SET publishes nothing";
+    Bytes o=target(6,0,12);put(o,4,get(desc(6).defaults+74,8),8);
+    count=far.commits.size();receive(8,o);
+    ASSERT_EQ(far.commits.size()-count,1u)<<"one stream, one interface";
+    EXPECT_EQ(far.commits.back().first,home(6,0));
+    face.ports.changed(&face,AECP_CHANGE_CLOCK,36,1);face.ports.changed(&face,AECP_CHANGE_RATE,2,0);
+    face.ports.changed(&face,AECP_CHANGE_FORMAT,7,0);face.ports.changed(&face,AECP_CHANGE_SYSTEM_ID,0,0);
+    EXPECT_EQ(far.commits.size()-count,1u)<<"a change no face field carries publishes nothing once dirty";
+}
+
+// A stream descriptor too short to name its interface, or naming one the
+// build lacks, publishes nothing and has no verdict; a missing or short
+// CLOCK_DOMAIN publishes clock source 0.
+TEST_F(Face, DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing)
+{
+    auto &in=desc(5,0);const size_t length=in.length;const uint16_t interface=(uint16_t)get(in.value+126,2);
+    face.dirty=true;   // DYN_DIRTY already published: a persisted change alone moves no setting
+    auto count=far.commits.size();
+    in.length=100;face.ports.changed(&face,AECP_CHANGE_FORMAT,5,0);
+    EXPECT_FALSE(face.ports.format(&face,5,0,0))<<"a stream naming no interface has no verdict";
+    in.length=length;put(in.value+126,MBX_N_IF,2);face.ports.changed(&face,AECP_CHANGE_FORMAT,5,0);
+    EXPECT_FALSE(face.ports.format(&face,5,0,0))<<"a stream on an interface the build lacks has no verdict";
+    put(in.value+126,interface,2);
+    face.ports.changed(&face,AECP_CHANGE_FORMAT,7,0);face.ports.changed(&face,AECP_CHANGE_LATENCY,5,0x7fff);
+    face.ports.changed(&face,AECP_CHANGE_CLOCK,5,0);
+    EXPECT_EQ(far.commits.size(),count)<<"none of those publishes";
+    auto &clock=desc(36,0);const size_t clock_length=clock.length;
+    clock.length=60;face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);
+    EXPECT_EQ(at(taken(0),MBX_FACE_REG_F_CLOCK,MBX_F_CLOCK_SOURCE_INDEX_LSB,16),0u)<<"a short CLOCK_DOMAIN";
+    clock.length=clock_length;clock.configuration=1;face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);
+    EXPECT_EQ(at(taken(0),MBX_FACE_REG_F_CLOCK,MBX_F_CLOCK_SOURCE_INDEX_LSB,16),0u)<<"no CLOCK_DOMAIN in force";
+    clock.configuration=0;
+    far.reply=MBX_MODEL_SILENT;
+    EXPECT_FALSE(face.ports.format(&face,6,0,get(desc(6).defaults+74,8)))<<"an unanswered verdict refuses";
+}
+
+TEST_F(Face, BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed)
+{
+    aecp_face early{};aecp_face_init(&early,&ports);aecp_face_attach(&early,&adapter.core);
+    early.ports.changed(&early,AECP_CHANGE_IDENTIFY,26,0);
+    EXPECT_EQ(at(taken(0),MBX_FACE_REG_F_CTRL,MBX_F_CTRL_READY_LSB,1),0u)<<"no READY before the face opens";
+    aecp_face_status(&early,1,2,false);
+    EXPECT_EQ(early.restore,1u);EXPECT_EQ(early.nvm,2u);
+    // a commit someone else left waiting: the face owes its interface
+    far.ack=false;ASSERT_EQ(mbx_face_commit(0),MBX_STATUS_BAD);EXPECT_FALSE(face.owed[0]);
+    face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);EXPECT_TRUE(face.owed[0]);
+    far.ack=true;mbx_model_face_ack(&fabric,0);while(aecp_face_poll(&face)){for(unsigned i=0;i<MBX_N_IF;++i)mbx_model_face_ack(&fabric,i);}
+    EXPECT_FALSE(face.owed[0]);
+    // the store's words alone, or the dirty level alone, publish on every interface
+    auto count=far.commits.size();aecp_face_status(&face,face.restore,face.nvm,!face.dirty);
+    EXPECT_EQ(far.commits.size()-count,MBX_N_IF);
+    count=far.commits.size();aecp_face_status(&face,face.restore,face.nvm+1,face.dirty);
+    EXPECT_EQ(far.commits.size()-count,MBX_N_IF);
+    count=far.commits.size();aecp_face_status(&face,face.restore,face.nvm,face.dirty);
+    EXPECT_EQ(far.commits.size(),count)<<"nothing moved, nothing published";
+}
+
+namespace {
+struct FaceLatency : Face {};
+}
+
+// Every command through the face keeps the original service budget, every
+// window read and commit counted at 100 ns an access (aecp/README.md).
+TEST_F(FaceLatency, EveryCommandThroughTheFaceKeepsTheServiceBudget)
+{
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        std::vector<std::pair<unsigned,Bytes>> cases={{41,target(5,0)},{41,target(6,0)},{15,target(5,0)},
+            {15,target(6,0)},{39,target(9,0)},{8,target(5,0,12)},{8,target(6,0,12)},{14,target(6,0,84)},
+            {22,target(36,0,8)},{24,target(26,0,5)},{6,Bytes(4)},{1,Bytes(16)}};
+        for(auto &[cmd,b]:cases){
+            if(cmd==8)put(b,4,get(desc(get(b,0,2)).defaults+74,8),8);
+            if(cmd==14){put(b,4,0x20000000,4);put(b,24,777+i,4);}
+            if(cmd==22)put(b,4,get(desc(36).value+70,2),2);
+            if(cmd==24)b[4]=(i&1)?0:255;
+            heads.clear();const uint64_t origin=ns,first=accesses;receive(cmd,b,0,CTLR,i);
+            ASSERT_FALSE(heads.empty())<<cmd;
+            const uint64_t elapsed=heads.front()-origin+1000100;
+            std::printf("H-AECP-FACE if=%u path=%u elapsed_ns=%llu accesses=%llu\n",MBX_N_IF,cmd,
+                        (unsigned long long)elapsed,(unsigned long long)(accesses-first));
+            EXPECT_LE(elapsed,aecp_service_limit_ns)<<"the original event service budget, the face included";
+        }
+    }
+    // the worst window path: GET_COUNTERS with every quadlet taking its whole wait bound
+    const uint64_t bound=33u*(2u+1u+(MBX_WIN_CTR_WAIT_CYCLES+1u)+1u)+1u;
+    std::printf("H-AECP-FACE-COUNTERS-BOUND accesses=%llu elapsed_ns=%llu\n",(unsigned long long)bound,
+                (unsigned long long)(bound*100u+1000100u));
+    EXPECT_LE(bound*100u+1000100u,aecp_service_limit_ns);
+}
+
+#ifdef AECP_TEST_APP
+namespace {
+struct AppFace : Nvm {
+    mbx_model fabric{};
+    Far far{};
+    mbx_model_far side{&far,Far::answer,Far::commit};
+    aecp_face face{};
+    ctrl_app application{};
+    ctrl_app_aecp bridge{};
+    aecp_mbx adapter{};
+    acmp_nvm binding_owner{};
+    adp_entity entity{ENTITY,1,MAC,0xc588,2,0x4801,2,0x4801,0};
+    acmp_config connection{};
+    ctrl_app_config setup{};
+    alignas(std::max_align_t) uint8_t arena[SRP_POOL_ARENA_BYTES]{};
+    acmp_env acmp_env_ports{};
+    uint64_t ns=0;
+    std::vector<uint64_t> heads,commits;
+    static void trace(void *p,bool write,uint32_t offset,uint32_t) {
+        auto &s=*static_cast<AppFace*>(p);s.ns+=100;
+        if(write&&offset==MBX_CH_BASE+MBX_CH_AECP*MBX_CH_STRIDE+MBX_CH_REG_TX_HEAD)s.heads.push_back(s.ns);
+        if(write&&offset>=MBX_FACE_BASE&&(offset-MBX_FACE_BASE)%MBX_FACE_STRIDE==MBX_FACE_REG_F_COMMIT)
+            s.commits.push_back(s.ns);
+    }
+    void SetUp() override {
+        Nvm::SetUp();mbx_model_reset(&fabric);mbx_model_bind(&fabric,nullptr,nullptr);
+        far.clock=&ns;mbx_model_far_bind(&fabric,&side);mbx_host_trace(trace,this);
+        connection.entity_id=ENTITY;connection.n_interfaces=MBX_N_IF;connection.n_sinks=2;connection.n_sources=2;
+        for(unsigned i=0;i<MBX_N_IF;++i){connection.mac[i]=MAC;cfg.mac[i]=MAC;}
+        acmp_env_ports={nullptr,[](void*,uint64_t*p){*p=0;return false;},
+            [](void*,unsigned,acmp_source_state*p){*p={};},[](void*,unsigned,const acmp_stream*){},
+            [](void*,unsigned){},[](void*,unsigned){}};
+        setup.entity=&entity;setup.arena=arena;setup.arena_bytes=sizeof arena;
+        setup.classes=srp_pool_classes;setup.n_classes=SRP_POOL_N_CLASSES;
+        setup.maap_allocation=[](void*,unsigned,uint64_t,uint16_t,bool){};
+        setup.acmp=&connection;setup.acmp_env=&acmp_env_ports;
+        aecp_face_init(&face,&ports);
+        ASSERT_TRUE(ctrl_app_compose(&application,&setup));
+        ASSERT_TRUE(ctrl_app_compose_aecp(&application,&bridge,&adapter,&cfg,&face.ports,&owner));
+        ASSERT_TRUE(ctrl_app_aecp_attach_face(&bridge,&face));
+        EXPECT_FALSE(ctrl_app_aecp_attach_face(&bridge,&face))<<"one face";
+        aecp_nvm_init(&owner,&adapter.core,names,AECP_ENTITY_NAMES,scratch,AECP_ENTITY_MAP_MAX);
+        acmp_nvm_init(&binding_owner,&application.acmp.acmp,NVM_G_BIND,&owner.port);
+        nvm_store_boot(&nvm_fmodel_port,&binding_owner.port);
+        ASSERT_TRUE(ctrl_app_open(&application,&setup));
+        ASSERT_TRUE(ctrl_app_open_aecp(&bridge));
+    }
+    void TearDown() override {mbx_host_trace(nullptr,nullptr);mbx_model_far_bind(&fabric,nullptr);}
+    void service(unsigned count=20){for(unsigned i=0;i<count;++i)(void)ctrl_loop_service(&application.loop);}
+    void aem(unsigned cmd,Bytes body={},uint64_t ctl=CTLR) {
+        auto p=command(cmd,body,ctl);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();
+        mbx_model_advance_ms(&fabric,5);
+    }
+    //! The AECP frames sent from frame `from` on whose command field is cmd.
+    unsigned frames(unsigned from,unsigned cmd) {
+        unsigned n=0;
+        for(unsigned k=from;k<fabric.tx_sent;++k){auto p=mbx_model_tx_frame(&fabric,k);
+            if(p!=nullptr&&p->bytes[14]==0xfb&&get(p->bytes+36,2)==cmd)++n;}
+        return n;
+    }
+};
+}
+
+// The store's restore and saved-state words reach the datapath, with READY,
+// before AECP is released (the ruling, item 4), and again when they move.
+TEST_F(AppFace, StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange)
+{
+    ASSERT_FALSE(far.commits.empty());
+    const auto &b=far.commits.front().second;
+    EXPECT_EQ(at(b,MBX_FACE_REG_F_CTRL,MBX_F_CTRL_READY_LSB,1),1u);
+    EXPECT_EQ(at(b,MBX_FACE_REG_F_RESTORE,MBX_F_RESTORE_DONE_LSB,1),1u)<<"the boot walk ended";
+    EXPECT_EQ(at(b,MBX_FACE_REG_F_RESTORE,MBX_F_RESTORE_BLANK_LSB,1),1u)<<"on a blank store";
+    EXPECT_EQ(at(b,MBX_FACE_REG_F_RESTORE,MBX_F_RESTORE_FAIL_LSB,1),0u);
+    EXPECT_EQ(at(b,MBX_FACE_REG_F_NVM,MBX_F_NVM_BACKED_LSB,1),1u);
+    EXPECT_EQ(at(b,MBX_FACE_REG_F_NVM,MBX_F_NVM_IMG_VALID_LSB,1),0u)<<"no slot is authoritative";
+    EXPECT_TRUE(heads.empty())<<"no AECP frame before the publication";
+    auto count=far.commits.size();
+    Bytes f=target(5,0,12);put(f,4,get(desc(5).defaults+74,8),8);aem(8,f);
+    EXPECT_GT(far.commits.size(),count);
+    EXPECT_EQ(at(far.commits.back().second,MBX_FACE_REG_F_AECP,MBX_F_AECP_DYN_DIRTY_LSB,1),1u);
+    for(unsigned n=0;n<200;++n){service(1);nvm_store_service();nvm_fmodel_advance_us(10000);mbx_model_advance_ms(&fabric,10);}
+    if(nvm_store_status()->commits_ok>0){
+        EXPECT_EQ(at(far.commits.back().second,MBX_FACE_REG_F_AECP,MBX_F_AECP_DYN_DIRTY_LSB,1),0u)
+            <<"saved: DYN_DIRTY falls with the store's dirty and pending";
+        EXPECT_EQ(at(far.commits.back().second,MBX_FACE_REG_F_NVM,MBX_F_NVM_IMG_VALID_LSB,1),1u);
+    }
+}
+
+// COUNTERS_CHANGED drives Milan v1.2 Table 5.22's GET_COUNTERS notification,
+// at most one per descriptor per second; AVB_INFO_CHANGED and AS_PATH_CHANGED
+// drive theirs; a live map write is counted.
+TEST_F(AppFace, FaceEventsDriveTheirTable522Notifications)
+{
+    aem(36);
+    unsigned before=fabric.tx_sent;
+    mbx_model_face_event(&fabric,0,MBX_MODEL_EV_COUNTERS,6,0);service();
+    EXPECT_EQ(frames(before,0x8029),1u)<<"a counter change notifies GET_COUNTERS";
+    before=fabric.tx_sent;mbx_model_advance_ms(&fabric,MBX_CTRCHG_HOLDOFF_MS);
+    mbx_model_face_event(&fabric,0,MBX_MODEL_EV_COUNTERS,6,0);service();
+    mbx_model_advance_ms(&fabric,100);mbx_model_face_event(&fabric,0,MBX_MODEL_EV_COUNTERS,6,0);service();
+    EXPECT_LE(frames(before,0x8029),1u)<<"at most one per descriptor per second";
+    before=fabric.tx_sent;mbx_model_advance_ms(&fabric,2*MBX_CTRCHG_HOLDOFF_MS);
+    mbx_model_face_event(&fabric,0,MBX_MODEL_EV_COUNTERS,0x42,0);service(60);
+    EXPECT_GE(frames(before,0x8029),2u)<<"ALL notifies every served descriptor";
+    before=fabric.tx_sent;mbx_model_face_event(&fabric,0,MBX_MODEL_EV_AVB,0,0);service();
+    EXPECT_EQ(frames(before,0x8027),1u)<<"an AVB_INFO change notifies GET_AVB_INFO";
+    before=fabric.tx_sent;mbx_model_face_event(&fabric,0,MBX_MODEL_EV_ASP,0,0);service();
+    EXPECT_EQ(frames(before,0x8028),1u)<<"an AS_PATH change notifies GET_AS_PATH";
+    mbx_model_face_event(&fabric,0,MBX_MODEL_EV_AMAP,0,0);service();
+    EXPECT_EQ(bridge.live_map_writes,1u);
+    mbx_event e{};e.type=MBX_EV_TYPE_TIMER;
+    for(unsigned n=0;n<application.loop.n_sinks;++n)application.loop.sinks[n].fn(application.loop.sinks[n].ctx,&e);
+    EXPECT_EQ(bridge.live_map_writes,1u)<<"another event is not the face's";
+}
+
+TEST_F(AppFace, AttachRefusesAFullLoop)
+{
+    ctrl_app_aecp other{};other.app=&application;other.aecp=&adapter;
+    const unsigned saved=application.loop.n_sinks;application.loop.n_sinks=CTRL_LOOP_MAX_SINKS;
+    EXPECT_FALSE(ctrl_app_aecp_attach_face(&other,&face))<<"a full loop refuses the face";application.loop.n_sinks=saved;
+}
+// The store's every terminal and flag, in the processor's CSR bits.
+TEST_F(AppFace, StoreWordsCarryEveryTerminalAndFlag)
+{
+    struct Row{nvm_terminal terminal;uint32_t done,fail,blank,closed,rb;};
+    const Row rows[]={{NVM_T_NONE,0,0,0,0,0},{NVM_T_COMPLETE,1,0,0,0,0},{NVM_T_BLANK,1,0,1,0,0},
+                      {NVM_T_DEFAULTS,1,1,0,0,1},{NVM_T_CLOSED,1,1,0,1,0}};
+    for(const Row &r:rows){
+        nvm_status s{};s.terminal=r.terminal;s.auth=-1;uint32_t restore=0,nvm=0;bool dirty=true;
+        ctrl_app_aecp_store_words(&s,&restore,&nvm,&dirty);
+        EXPECT_EQ((restore>>MBX_F_RESTORE_DONE_LSB)&1u,r.done)<<"terminal "<<r.terminal;
+        EXPECT_EQ((restore>>MBX_F_RESTORE_FAIL_LSB)&1u,r.fail)<<"terminal "<<r.terminal;
+        EXPECT_EQ((restore>>MBX_F_RESTORE_BLANK_LSB)&1u,r.blank)<<"terminal "<<r.terminal;
+        EXPECT_EQ((restore>>MBX_F_RESTORE_CLOSED_LSB)&1u,r.closed)<<"terminal "<<r.terminal;
+        EXPECT_EQ((restore>>MBX_F_RESTORE_RB_LSB)&1u,r.rb)<<"terminal "<<r.terminal;
+        EXPECT_EQ((restore>>MBX_F_RESTORE_BUSY_LSB)&1u,0u);
+        EXPECT_EQ((restore>>MBX_F_RESTORE_RS_CAUSE_LSB)&7u,0u);EXPECT_EQ((restore>>MBX_F_RESTORE_CAUSE_LSB)&3u,0u);
+        EXPECT_EQ((nvm>>MBX_F_NVM_BACKED_LSB)&1u,r.done);EXPECT_EQ(nvm&~(1u<<MBX_F_NVM_BACKED_LSB),0u);
+        EXPECT_FALSE(dirty);
+    }
+    nvm_status s{};s.terminal=NVM_T_COMPLETE;s.abandoned=1;s.stale=1;s.dirty=1;s.pending=1;s.auth=0;
+    s.last_verdict=NVM_VD_CRC;uint32_t restore=0,nvm=0;bool dirty=false;
+    ctrl_app_aecp_store_words(&s,&restore,&nvm,&dirty);
+    EXPECT_EQ(nvm,(1u<<MBX_F_NVM_BACKED_LSB)|(1u<<MBX_F_NVM_ALARM_LSB)|(1u<<MBX_F_NVM_DIRTY_LSB)|
+                  (1u<<MBX_F_NVM_STALE_LSB)|(1u<<MBX_F_NVM_PEND_LSB)|(1u<<MBX_F_NVM_IMG_VALID_LSB)|
+                  (uint32_t(NVM_VD_CRC)<<MBX_F_NVM_VERDICT_LSB));
+    EXPECT_TRUE(dirty);
+    s.dirty=0;ctrl_app_aecp_store_words(&s,&restore,&nvm,&dirty);EXPECT_TRUE(dirty)<<"pending alone is not saved";
+}
+
+// A commit the datapath has not taken keeps the loop busy until it is published.
+TEST_F(AppFace, AHeldCommitKeepsTheLoopBusy)
+{
+    far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;aem(24,identify);
+    EXPECT_GT(ctrl_loop_service(&application.loop),0u)<<"an owed commit keeps the loop busy";
+    far.ack=true;for(unsigned i=0;i<MBX_N_IF;++i)mbx_model_face_ack(&fabric,i);service();
+    EXPECT_FALSE(face.owed[0])<<"published once the datapath takes it";
+}
+#endif
 #endif

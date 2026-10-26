@@ -27,7 +27,8 @@ def mailbox_sources(tree: Tree, config: Path, interfaces: int, out: Path) -> tup
     """Compile the adapter against the generated one- or two-interface contract."""
     from srp_arms import prepared
     variant, extra = prepared(tree, interfaces, out, config)
-    sources = [tree.src / "aecp/aecp_mbx.c", tree.src / "loop/ctrl_loop.c", variant / "mbx/mbx.c"]
+    sources = [tree.src / "aecp/aecp_mbx.c", tree.src / "aecp/aecp_face.c", tree.src / "loop/ctrl_loop.c",
+               variant / "mbx/mbx.c"]
     host = [tree.src / "host" / name for name in ("mbx_model.c", "mbx_plat_host.c")]
     return [*extra, "-DAECP_TEST_MAILBOX"], sources, host
 

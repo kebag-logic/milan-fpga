@@ -452,10 +452,14 @@ static unsigned lock(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out
 		status = AECP_ENTITY_LOCKED;
 	} else {
 		bool take = (wire_be32(in) & 1u) == 0u;
-		a->notify = take != a->locked;
+		bool moved = take != a->locked;
+		a->notify = moved;
 		a->locked = take;
 		a->lock_owner = take ? a->requester : 0u;
 		a->lock_deadline = a->now + 60000u;
+		if (moved) {
+			aecp_note(a, AECP_CHANGE_LOCK, 0, 0);
+		}
 	}
 	wire_put_be(out + 4, a->lock_owner, 8);
 	return status;

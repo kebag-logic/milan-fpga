@@ -59,7 +59,7 @@ def aecp_inputs(tree: Tree, config: Path, out: Path) -> tuple[list[str], list[Pa
     checked([sys.executable,"-B",str(CTRL/"aecp/aecp_entity.py"),str(config),
              "-o",str(out/"aecp_entity_gen.h")])
     inc=[f"-I{tree.src/'aecp'}",f"-I{out/'gen'}",f"-I{NVM_DIR/'plat'}",f"-I{NVM_DIR/'test/rv32'}"]
-    sources=[tree.src/"aecp"/s for s in (*AECP_SOURCES,"aecp_mbx.c","aecp_nvm.c")]
+    sources=[tree.src/"aecp"/s for s in (*AECP_SOURCES,"aecp_mbx.c","aecp_nvm.c","aecp_face.c")]
     sources += [tree.src/"app/ctrl_app_aecp.c",*[NVM_DIR/s for s in
                 ("nvm_klj2.c","nvm_store.c","plat/nvm_flash_litespi.c")]]
     return inc,sources

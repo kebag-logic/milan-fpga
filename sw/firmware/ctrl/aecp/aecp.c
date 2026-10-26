@@ -425,6 +425,7 @@ static bool asynchronous(struct aecp *a)
 	if (a->locked && due(a->now, a->lock_deadline)) {
 		a->locked = false;
 		a->lock_owner = 0;
+		aecp_note(a, AECP_CHANGE_LOCK, 0, 0);
 		header(a, 0, 0, a->cfg.entity_id, 0, 0, 1u, 1u);
 		wire_put_be(a->response + 38, 1u, 4);
 		finish(a, AECP_SUCCESS, 16u);
