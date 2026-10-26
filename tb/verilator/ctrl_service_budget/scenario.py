@@ -802,9 +802,9 @@ def owed_group(p: Point) -> Group:
     """The owed-frame row (a response with 7 frames owed ahead of it) under the composed load."""
     acmp = CH['acmp']
     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
-    # A response with 7 frames owed ahead of it (A3): the egress held and the TX ring filled
-    # with responses; then, the token bucket refilled, the load arrives: seven commands, the
-    # probe and the rest of the ACMP ring's admitted burst behind it, so the probe's response
+    # A response with 7 frames owed ahead of it (A3): the egress held and the ACMP transmit ring
+    # filled with responses; then, the token bucket refilled, the load arrives: seven commands,
+    # the probe and the rest of the ACMP ring's admitted burst behind it, so the probe's response
     # is the eighth owed. The egress returns 60 ms later.
     g = Group('backlog-owed', sim_ms=4000)
     ready(g, p)
@@ -842,15 +842,14 @@ def owed_group(p: Point) -> Group:
 def backlog_groups(p: Point) -> list[Group]:
     """The four backlog rows (MAILBOX_SPLIT.md:753-758), each under the composed maximum load.
 
-    Every group's composed window carries every receive channel's admitted
-    burst at once (composed_load, MAAP and SRP included) and fifteen
-    grandmaster changes, and each row's input is the last of its own
-    channel's records. The event and ACMP rows are at their rings' room, a
-    bound; the ADP ring takes its burst, fewer records than it holds, so its
-    row is observed at that backlog, and backlog-adp-refill adds the bucket's
-    refill-rate arrivals up to the ring's room before the input (observed,
-    not a bound). The bound-talker rows bind a sink first; the owed-frame
-    row holds the egress while its commands arrive with the load.
+    Each composed window carries its row's defined load (#665; MAILBOX_SPLIT.md:753-758),
+    including MAAP, SRP and fifteen grandmaster changes. The row's input is last on its channel
+    except in the owed row, which places the remaining admitted ACMP commands behind it. The
+    event and ACMP rows are at their rings' room, a bound; the ADP ring takes its burst, fewer
+    records than it holds, so its row is observed at that backlog, and backlog-adp-refill adds
+    the bucket's refill-rate arrivals up to the ring's room before the input (observed, not a
+    bound). The bound-talker rows bind a sink first; the owed-frame row holds the egress while
+    its commands arrive with the load.
     """
     acmp = CH['acmp']
     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)

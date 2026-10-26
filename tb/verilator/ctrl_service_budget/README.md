@@ -149,7 +149,11 @@ The self-test counts every window's stimulus against the same loads, restated, s
 The window must also service its load.
 For each loaded channel, the window's first and last record are graded from their receive commit to the end of the pass that released them, as the SRP rows end: the handler runs after the release, inside that pass (`ctrl_loop.c`, `service_rx`).
 A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither T_svc nor its ceiling.
-The window's longest pass is the composed maximum only if the window released its whole load; otherwise the record names what was left, and that pass is a lower bound of a load the firmware did not finish.
+A served record's records ahead are its channel's earlier records not yet released at its commit.
+A window that left records unreleased names them, and its passes ran without that work, so its longest pass is a lower bound of a load the firmware did not finish.
+The composed maximum is the longest pass over every backlog row's window, each of which committed its defined load (`run.composed_maximum`).
+While any of those windows left its load unreleased, the composed maximum is a lower bound.
+The longest pass of the windows that released their whole load is reported beside it, labelled as such: it leaves out the windows the firmware never finished, so it is not the composed maximum.
 
 The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 18 ms.
 A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc, and its ceiling by W plus the ceiling.
@@ -161,7 +165,7 @@ Arm B is the labelled second arm, whose fixture callbacks answer.
 The SHUTDOWN row comes from the labelled `shutdown-entry` arm.
 In the path tables a cell is a path's worst measured instance across the groups that measure it, "ms (the pass bound)"; **miss** is over T_svc, **over ceiling** over the 3.4.1 ceiling as well.
 A record never released or a command never answered is worse than any time measured, and its cell gives the time it had waited, at least.
-Each run writes every path's worst instance, every probe, every composed window and every timed-out wait to its `table.md`, and all of it to `results.json`.
+Each run writes every path's worst instance, every probe, every composed window, the composed maximum and every timed-out wait to its `table.md`, and all of it to `results.json`.
 
 Arm labels: A is arm A, B is arm B, S is the `shutdown-entry` arm; 1 is 1x1 and 8 is 8x8.
 T_svc misses, counted per path and per probe instance (a path several groups measure is one path, at its worst; at 8x8 each interface's instance is its own path):
@@ -190,20 +194,23 @@ Their waits sum to 1.59 to 1.64 times each pass's cycles, so more than one fetch
 
 ### Passes
 
-| Point, arm | Idle pass, CPU cycles (ms) | Worst pass, CPU cycles (ms), group | Composed maximum, CPU cycles (ms), group | Longest pass under a load left unreleased (lower bound) |
+| Point, arm | Idle pass, CPU cycles (ms) | Worst pass, CPU cycles (ms), group | Composed maximum, every backlog window, CPU cycles (ms), group | Over the windows that released their whole load only |
 |---|---:|---:|---:|---:|
-| 1x1, A | 65,703 to 72,632 (1.31 to 1.45) | 1,565,803 (31.32), backlog-adp | 740,260 (14.81), backlog | 1,565,803 (31.32), backlog-adp |
-| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 740,260 (14.81), backlog | 740,260 (14.81), backlog | - |
-| 8x8, A | 157,133 to 185,315 (3.14 to 3.71) | 2,989,496 (59.79), acmp-notk | 1,392,016 (27.84), backlog | 2,209,308 (44.19), backlog-adp-refill |
-| 8x8, B | 157,133 to 293,468 (3.14 to 5.87) | 2,004,666 (40.09), acmp-notk | 1,392,016 (27.84), backlog | - |
+| 1x1, A | 65,703 to 72,632 (1.31 to 1.45) | 1,565,803 (31.32), backlog-adp | at least 1,565,803 (31.32), backlog-adp, a lower bound | 740,260 (14.81), backlog |
+| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 740,260 (14.81), backlog | 740,260 (14.81), backlog | 740,260 (14.81), backlog |
+| 8x8, A | 157,133 to 185,315 (3.14 to 3.71) | 2,989,496 (59.79), acmp-notk | at least 2,209,308 (44.19), backlog-adp-refill, a lower bound | 1,392,016 (27.84), backlog |
+| 8x8, B | 157,133 to 293,468 (3.14 to 5.87) | 2,004,666 (40.09), acmp-notk | 1,392,016 (27.84), backlog | 1,392,016 (27.84), backlog |
 
-The composed maximum is the longest pass of a window that released its whole load.
-In arm A's two bound-talker windows SRP's 32 records are never released (see [the load's service](#the-loads-service)), so their longest passes are lower bounds, in the last column.
+The composed maximum is the longest pass over every backlog window, each of which committed its row's defined load.
+In arm A, the formal measurement, the two bound-talker windows never release SRP's 32 records (see [the load's service](#the-loads-service)), so their passes ran without SRP's work and the composed maximum is a lower bound: at least 31.32 ms at 1x1 and at least 44.19 ms at 8x8.
+The last column leaves those windows out; it is labelled, and it is not the composed maximum.
+Every window of arm B released its load, so its two figures are the same.
 An idle pass's largest consumers are AECP's two modules, `aecp` 26,497 and `aecp_nvm` 20,254 cycles at 1x1, 73,883 and 20,254 at 8x8, mostly their polls.
 The idle range excludes the pass the script's end cuts short; at 8x8 it is 3.14 to 3.71 ms (157,133 to 185,315 cycles) in arm A.
 The 8x8 link-up pass, 2,004,666 cycles, is lwSRP's `mrp_mad` 473,950, `memset` 361,053, `memcpy` 244,102, the mailbox driver 119,790 and software multiply and divide (`__mulsi3` 111,201, `__udivsi3` 89,954).
-The composed maximum at both points is the `backlog` group's: at 1x1, 740,260 cycles of `memset` 278,637, the mailbox driver 141,995, `memcpy` 66,719, AECP 41,029 and ACMP 36,377; at 8x8, 1,392,016 cycles of `memset` 477,042, the mailbox driver 134,267, `memcpy` 132,197, AECP 111,084, ACMP 89,857 and `__mulsi3` 67,272.
-The 1x1 worst pass, `backlog-adp`'s 1,565,803 cycles, is `memset` 984,728, AECP 173,531, the mailbox driver 127,547, ACMP 49,350 and `memcpy` 46,964: after the bind, AECP's retry (see [Findings](#findings)).
+In arm B, and over arm A's windows that released their load, the longest pass at both points is the `backlog` group's: at 1x1, 740,260 cycles of `memset` 278,637, the mailbox driver 141,995, `memcpy` 66,719, AECP 41,029 and ACMP 36,377; at 8x8, 1,392,016 cycles of `memset` 477,042, the mailbox driver 134,267, `memcpy` 132,197, AECP 111,084, ACMP 89,857 and `__mulsi3` 67,272.
+Arm A's 1x1 composed maximum and worst pass, `backlog-adp`'s 1,565,803 cycles, is `memset` 984,728, AECP 173,531, the mailbox driver 127,547, ACMP 49,350 and `memcpy` 46,964: after the bind, AECP's retry (see [Findings](#findings)).
+Arm A's 8x8 composed maximum, `backlog-adp-refill`'s 2,209,308 cycles, is `memset` 827,831, lwSRP's `mrp_mad` 429,626, AECP 350,539, the mailbox driver 150,636 and `memcpy` 140,364.
 
 ### ADP
 
@@ -300,7 +307,10 @@ Only the first SET of a value notifies, so the sampling rate (the image has one)
 - In arm A, the fixture's stream observation reports unavailable, so the image refuses SET_CONFIGURATION and SET_STREAM_INFO (ENTITY_MISBEHAVING), and an output map edit, and never sends BIND_RX's GET_STREAM_INFO notice: AECP retries it every millisecond.
   Those paths are arm B's.
 - At 8x8 the image's input maps have capacity 0, so only an output map edit can change a map, in arm B.
-- SET_NAME's notice carries the 64-byte name, and costs about 20,400 CPU cycles a recipient; the others cost 11,800 to 13,400.
+- Over every fan-out measured, on every interface, a recipient costs 11,786 to 22,030 CPU cycles (11,818 to 20,486 in arm A).
+  SET_NAME's notice carries the 64-byte name and costs 20,358 to 20,486; in arm B SET_STREAM_INFO's costs 21,875 to 22,030 and BIND_RX's GET_STREAM_INFO notice 18,358 to 18,475; every other fan-out costs 11,786 to 13,440 (11,818 to 13,440 in arm A).
+- The 16 recipients at 1x1 take 7.77 to 14.80 ms (7.77 to 11.33 in arm A), and the 32 at 8x8 take 12.39 to 32.78 ms (12.39 to 22.98 in arm A).
+  A SET_CONTROL cell is the worse of its two fan-outs, identify on and identify off; the better ones, 7.77 ms at 1x1 and 12.39 ms on 8x8 interface 0, set the low ends.
 
 ### SRP and MAAP
 
@@ -349,7 +359,7 @@ Under sustained arrivals the bucket keeps admitting one record per period, so th
 | the same, its bucket refilling up to the ring's room (observed) | - | 88.33 (107.65) **over ceiling** [4 ahead] | 118.81 (156.29) **over ceiling** [6 ahead] | - | - |
 | a response with 7 frames owed ahead of it | 31,707 / 39,861 | 126.29 (130.31) **over ceiling** [7 ahead] | 161.10 (170.62) **over ceiling** [7 ahead] | 126.28 (130.30) **over ceiling** [7 ahead] | 161.10 (170.62) **over ceiling** [7 ahead] |
 | an ACMP command behind the owed input, the worst of four | - | at least 363.98, **never answered** [8 ahead] | at least 860.00, **never answered** [9 ahead] | at least 363.98, **never answered** [8 ahead] | at least 860.00, **never answered** [9 ahead] |
-| the same, from the moment the room returns | - | 66.29 | 101.10 | 66.28 | 101.10 |
+| the owed response, from the moment the room returns | - | 66.29 | 101.10 | 66.28 | 101.10 |
 
 The desk bounds charge every pass with every term at once, at a full ring of the smallest records.
 "Records ahead" is the backlog in the input's own ring (for the event row, the event ring) when it arrived.
@@ -424,7 +434,11 @@ Every window committed exactly its defined load (the run refuses one that did no
   The measured access is 0.18 us, inside every allowance but the full-ADP-ring row's; the passes around the accesses are 1.3 to 60 ms.
 - The single passes break the [#397 one-hart rule](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046).
   A pass is the loop's only opportunity to take an input, and the smallest deadline every duty shares is T_svc.
-  The composed maximum is 14.81 ms at 1x1 and 27.84 ms at 8x8, in both arms; arm A's windows that never finish their load run passes of 31.32 and 44.19 ms, and the 8x8 link-up pass is 40.09 ms.
+  In arm A, the formal measurement, the composed maximum is at least 31.32 ms at 1x1 and at least 44.19 ms at 8x8: a lower bound, because those passes ran in windows whose SRP load is never released.
+  In arm B every window released its load, and the composed maximum is 14.81 and 27.84 ms, the same as over arm A's released windows only; the 8x8 link-up pass is 40.09 ms.
+- **The baseline for S2b and S2c** is arm A's composed maximum over every backlog window: at least 1,565,803 cycles (31.32 ms) at 1x1 and at least 2,209,308 (44.19 ms) at 8x8, compared window by window in [the load's service](#the-loads-service).
+  The figure over the released windows only is no baseline: a change that lets SRP be served in `backlog-adp` adds that window to it, so its before and after would cover different windows.
+  The [later owner decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860) puts the instruction cache (S2c) before firmware-only tuning (S2b).
 - An input waits for the pass that is running and then for the pass that takes it.
   So T_svc needs every pass well under 5 ms.
   At 8x8 the idle pass is already 3.1 to 3.7 ms, and LINK_UP, LINK_DOWN, SRP's startup and MAAP's first PROBE miss outright.
@@ -437,13 +451,14 @@ Every window committed exactly its defined load (the run refuses one that did no
   The ring admits 12 GET_RX_STATEs, but the core holds at most `ACMP_OWED_MAX` = 8 responses (tsn-c-stack `acmp.h`; `room()` counts a busy drop).
   With the egress held and eight responses owed, the core takes the commands behind and never answers them.
   At 1x1 none of the four commands behind the owed input is ever answered, in either arm; at 8x8 two of the four are, after 176.52 and 188.27 ms, and two are not. Their controller sees no response, and its 200 ms ACMP timeout (Milan v1.2 Table 5.26) expires.
-- **Notification fan-out costs a recipient 11,800 to 20,400 CPU cycles**, so 16 registrations take 7.8 to 11.3 ms at 1x1 and 32 take 12.4 to 23.0 ms at 8x8.
-  SET_NAME misses T_svc at both points, every fan-out misses it at 8x8, and at 8x8 BIND_RX's GET_STREAM_INFO notice (25.79 and 28.92 ms) and SET_STREAM_INFO on interface 1 (32.78 ms) are over the 24 ms ceiling (arm B).
+- **Notification fan-out costs a recipient 11,786 to 22,030 CPU cycles** (11,818 to 20,486 in arm A), so 16 registrations take 7.77 to 14.80 ms at 1x1 (7.77 to 11.33 in arm A) and 32 take 12.39 to 32.78 ms at 8x8 (12.39 to 22.98 in arm A).
+  SET_NAME misses T_svc at both points, and at 1x1 so do arm B's SET_STREAM_INFO (11.68 ms) and BIND_RX's GET_STREAM_INFO notice (14.80 ms).
+  Every fan-out misses it at 8x8, and there BIND_RX's GET_STREAM_INFO notice (25.79 and 28.92 ms) and SET_STREAM_INFO on interface 1 (32.78 ms) are over the 24 ms ceiling (arm B).
 - **For D4 (a), a per-pass cap**, the measured consumers are, in order:
   - `memset` and `memcpy`, byte loops on RV32I: each AECP response zeroes its 1,514-byte frame (`aecp.c:58`) and the 1,476-byte payload in it (`aecp_commands.c:555`), and a 1x1 READ_DESCRIPTOR pass spends 153,929 to 156,240 cycles (3.1 ms) in `memset`;
   - lwSRP's link reset and declarations (`mrp_mad`), 474,000 cycles in the 8x8 link-up pass and 430,000 in the 8x8 composed passes;
   - AECP's two modules (mostly their polls), about 47,000 cycles of every 1x1 pass and 94,000 at 8x8;
-  - each fan-out's notices, one a recipient in one pass (`aecp.c`, `transmit`), 11,800 to 20,400 cycles each;
+  - each fan-out's notices, one a recipient in one pass (`aecp.c`, `transmit`), 11,786 to 22,030 cycles each (11,818 to 20,486 in arm A);
   - software multiply and divide, the RV32I core having no M extension.
   A cap that keeps passes under the TICK also ends SRP's starvation.
 - **For D4 (b), the admitted backlog** ([Backlog rows](#backlog-rows)):
@@ -490,19 +505,20 @@ The fixture has a short composed window: one record on every receive channel and
 Its checks:
 
 - the fixture's digest, each of its seven rows with its pass bound and the records ahead, each loaded channel's first and last record served in its window, its worst pass and its composed maximum with the window's population and its release;
-- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window no composed maximum;
+- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
 - every clock conversion; the ceilings and T_svc, restated in [`selftest.py`](selftest.py) so a changed table fails;
 - an exact-budget path passes and one bus cycle more misses; W + T_svc passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling;
 - the probe's own tagged frame starts it; a commit after a refused frame is the next frame's; a commit that follows no frame is refused;
 - a response to another sequence_id, or on the other interface, does not end it; the last required output ends it; the expected response is checked;
 - a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
-- a notification over two recipients ends at the last; a late recipient misses; a missing one, a duplicate standing in for another, and a controller outside the set are refused; unrelated unsolicited responses do not end it;
+- a notification over two recipients ends at the last; a late recipient misses; a missing one, a duplicate standing in for another, and a controller outside the set are refused; unrelated unsolicited responses do not end it; over three recipients, the cost a recipient is the first to last commit over the two gaps;
 - the composed maximum is a window's longest pass even when that pass is neither its first nor its last, and the worst pass includes the run's last pass; the pass the script's end cuts is no idle pass;
+- the composed maximum is the longest pass of every backlog window, the fixture's excluded, and a lower bound while one left its load unreleased, with the released windows' longest beside it;
 - the responses owed ahead are exactly the owed ones, in order; a command that may be dropped and is never answered is reported, unbounded, and one that may not is refused;
 - the defined loads, restated; every composed window of the real scenario, at one and two interfaces, sends and declares exactly its defined load; the owed row has its seven owed and its four behind;
 - the real fan-out group registers the firmware's capacity (read from `aecp.h`) on every interface, every registration is each fan-out's recipient, and no requester is registered;
 - a control probe is an instance of its functional path; repeated instances count as one path, at their worst, with every miss;
-- the records ahead of an input; each path's worst instance, a starved one first, and the misses per path and per instance;
+- the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build.
 
@@ -541,8 +557,13 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | composition: the backlog stimulus omits SRP | every composed window's stimulus is its defined load |
 | composition: the backlog stimulus omits MAAP | every composed window's stimulus is its defined load |
 | composition: the owed row omits the ACMP commands behind its input (earlier rule) | every composed window's stimulus is its defined load |
-| service: a record never released is omitted | a starved channel is reported by name, and its window is no composed maximum |
-| service: a window that left its load unreleased is the composed maximum (earlier rule) | a starved channel is reported by name, and its window is no composed maximum |
+| service: a record never released is omitted | a starved channel is reported by name, and its window reports its load unreleased |
+| service: a window that left its load unreleased reports it released (earlier rule) | a starved channel is reported by name, and its window reports its load unreleased |
+| composition: the composed maximum is taken over the windows that released their load (earlier rule) | the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased |
+| composition: the composed maximum is no lower bound where a window left its load unreleased | the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased |
+| composition: the composed maximum includes the fixture's short window | the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased |
+| service: the records ahead count only those never released | a served record's records ahead are those not yet released at its commit |
+| notify: the cost a recipient divides by the recipients, not the gaps | a fan-out's cost a recipient is its first to last commit over the gaps between them |
 | service: a record's service ends at its release, not at its pass's end | fixture row fixture.service.adp.first.if0 |
 | owed: the responses ahead are not checked | the responses owed ahead are checked: ['31'] |
 | owed: a command never answered fits | a command never answered is reported, unbounded, where it may be dropped |
@@ -598,6 +619,7 @@ The run must refuse the boot with an instruction access fault, cause 1, and prin
 - A record's service ends at the end of the pass that released it; lwSRP may keep a record for replay (`pending_rx`) and finish it in a later pass.
 - SHUTDOWN is measured through a test-only entry, because the linked image never disables ADP.
 - START_STREAMING calls a port the fixture leaves empty, so it is not run.
+- SET_STREAM_FORMAT is refused in both arms, whose format port answers unsupported (`ctrl_aecp_image.c`, `a_format`), so its fan-out is not run.
 - The lock expiry's notice (60 s after a LOCK_ENTITY) and the counter pushes are not run: the first is beyond the simulation's length, and the fixture changes no counter.
 - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
 - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.

@@ -7,8 +7,10 @@ regrades the committed trace fixture.log, which the 'fixture' group
 recorded on the test SoC, against oracle.json: every probe's row, its pass
 bound and backlog, each loaded channel's service, the worst pass, the
 composed maximum and the composed window's population. Synthetic traces
-check each marker, the notification fan-out, the owed responses, the clock
-conversion, the pass bound, the deadlines and the composition. The real
+check each marker, the notification fan-out and its cost a recipient, the
+owed responses, the records ahead of a served record, the clock
+conversion, the pass bound, the deadlines and the composition; synthetic
+windows check the composed maximum over the backlog rows. The real
 scenario's composed windows are counted against the defined loads restated
 here, its fan-out against the firmware's registration capacity read here,
 and its controls against their paths. The run's exit status, the regrade's
@@ -196,7 +198,7 @@ def fixture_checks() -> list[Check]:
     result = regraded(oracle, starved_text)
     rows = [r for r in result['probes'] if '.service.srp.' in r['probe']]
     window_row = result['passes']['composed']
-    out.append(('a starved channel is reported by name, and its window is no composed maximum',
+    out.append(('a starved channel is reported by name, and its window reports its load unreleased',
                 len(rows) == 2 and all(r['starved'] and r['status'] == 'measured' and r['within_t_svc'] is False
                                        and r['within_ceiling'] is False for r in rows)
                 and window_row['serviced'] is False and window_row['unreleased'] == {'srp': 1},
@@ -329,6 +331,12 @@ def notify_checks() -> list[Check]:
     r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 7, command=0x0029), 501173),
                       (1, to(CTL1, 8, descriptor=(0, 1)), 551173), (1, to(CTL1, 1), 901173)])
     out.append(('unrelated unsolicited responses do not end it', r.get('end_sys') == 901173, str(r)))
+    # Three recipients, 400,000 bus cycles first to last: 200,000 CPU cycles over two gaps.
+    r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 1), 601173), (0, to(CTL3, 2), 801173)],
+                     recipients=((CTL1, 0), (CTL1, 1), (CTL3, 0)))
+    out.append(("a fan-out's cost a recipient is its first to last commit over the gaps between them",
+                r.get('fanout') == dict(recipients=3, first_sys=401173, last_sys=801173,
+                                        per_recipient_cpu_cycles=100_000), str(r.get('fanout'))))
     return out
 
 
@@ -343,6 +351,20 @@ def composition_checks() -> list[Check]:
              *received(ACMP, 's.cmd.if0'), *tx_record(ACMP, 0, acmp_response(0x41), 0, 5000)]
     r = one(synthetic(lines), probe)
     out.append(('records ahead of an input', (r.get('ring'), r.get('ahead')) == ('acmp', 1), str(r)))
+    # Two ACMP records of a composed window, released one a pass: the second committed before
+    # the first's release has it ahead; committed after that release, it has none.
+    got = []
+    for second in (1300, 1600):
+        lines = ['MARK 1000 composed', *received(ACMP, '-', 1100), *received(ACMP, '-', second),
+                 f'PASS 1 1500 750 100 instr=10 store_mbx=1 W 1550:{tail:x}:14',
+                 f'PASS 2 2000 1000 100 instr=10 store_mbx=1 W 2050:{tail:x}:28', 'MARK 100000 composed_end']
+        with patch.object(grade, 'defined_load', lambda name: {'acmp': 2}):
+            rows = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['probes']
+        got.append([(r['probe'].split('.', 1)[1], r['ahead']) for r in rows])
+    want = [[('service.acmp.first.if0', 0), ('service.acmp.last.if0', 1)],
+            [('service.acmp.first.if0', 0), ('service.acmp.last.if0', 0)]]
+    out.append(("a served record's records ahead are those not yet released at its commit", got == want,
+                str(got)))
     row = lambda name, ms, within, group: dict(probe=name, row='r', status='measured', path=['p.x', 0], ms=ms,
                                                within_t_svc=within, group=group, bound_ms=ms, ring='acmp', ahead=0,
                                                within_ceiling=True)
@@ -363,6 +385,22 @@ def composition_checks() -> list[Check]:
     worst = run.paths(results)[0]['worst']
     out.append(("a starved instance is its path's worst", worst['probe'] == 'c.x.if0'
                 and run.verdict_word(worst).startswith('STARVED'), str(worst)))
+    # The composed maximum is the longest pass of every backlog window, here one that left SRP
+    # unreleased, so a lower bound; the released windows' longest stands beside it, and the
+    # fixture's short window is no backlog row.
+    window = lambda group, cycles, done: dict(group=group, probes=[], timeouts=[], passes=dict(composed=dict(
+        cycles=cycles, ms=cycles / 50_000, passes=3, window_ms=100.0, serviced=done, unreleased={} if done
+        else {'srp': 32})))
+    results = [window('fixture', 9_000_000, True), window('backlog', 700_000, True),
+               window('backlog-adp', 1_500_000, False), window('backlog-owed', 600_000, True)]
+    got = [run.composed_maximum(results), run.composed_maximum([results[1], results[3]])]
+    released = dict(cycles=700_000, ms=14.0, group='backlog')
+    want = [dict(cycles=1_500_000, ms=30.0, group='backlog-adp', windows=3, lower_bound=True,
+                 unreleased=['backlog-adp'], released=released),
+            dict(cycles=700_000, ms=14.0, group='backlog', windows=2, lower_bound=False, unreleased=[],
+                 released=released)]
+    out.append(('the composed maximum is the longest pass of every backlog window, a lower bound while one '
+                'left its load unreleased', got == want, str(got)))
     return out
 
 

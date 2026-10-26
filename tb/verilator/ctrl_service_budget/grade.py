@@ -12,11 +12,17 @@ it and require a named failure:
                     commit belongs to; Grader.recipients and fanout_end(), a
                     notification's required recipients and its end
   the pass bound    Grader.pass_end and Grader.pass_origin
+  the fan-out cost  grade_probe's fanout: the last recipient's commit less the
+                    first's, over the gaps between the recipients
   the composition   composed() and population(), checked against defined_load(),
-                    which derives each row's population from the contract alone
+                    which derives each row's population from the contract alone;
+                    run.composed_maximum() takes the longest pass over every
+                    backlog row's window
   the service       releases() and service(): each loaded channel's first and
-                    last record to the end of the pass that released it, and a
-                    record never released reported as starved
+                    last record to the end of the pass that released it, a
+                    record never released reported as starved, and the records
+                    ahead of each: its channel's earlier records not yet
+                    released at its commit
   the owed frames   owed_ahead(): the responses committed ahead of a probe's
   the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS and verdicts()
   the run           refuse_run(): an incomplete simulation, a trap or a bus error
@@ -43,9 +49,12 @@ CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not t
 #: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
 #: to the 60-byte frame minimum.
 LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60}
-#: The groups whose composed window carries a defined load: the backlog rows
-#: (MAILBOX_SPLIT.md:753-758) and the self-test's short window.
-COMPOSED_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed', 'fixture')
+#: The backlog rows (MAILBOX_SPLIT.md:753-758): their composed windows carry the defined
+#: composed load, so the composed maximum is taken over them (run.composed_maximum).
+BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
+#: The groups whose composed window carries a defined load: the backlog rows and the
+#: self-test's short window.
+COMPOSED_ROWS = (*BACKLOG_ROWS, 'fixture')
 
 
 class Refusal(RuntimeError):
@@ -699,7 +708,8 @@ def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list
 
     A record released after the window closed is marked out of the window. A record no
     release reached by the run's end is starved: its row carries the time it had waited, a
-    lower bound, and fits neither T_svc nor its ceiling.
+    lower bound, and fits neither T_svc nor its ceiling. The records ahead of a record are its
+    channel's earlier records that no release had passed at its commit.
     """
     finish = max(int(grader.log.summary.get('sys', 0)), end)
     rows = []
@@ -743,9 +753,11 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     """The longest pass that starts inside the composed window, whose committed population must
     be the row's defined load exactly (MAAP and SRP included).
 
-    It is the composed maximum only if the window released every record of that load
-    (serviced): a window that closed on a starved channel measured passes without that
-    channel's work, so its longest pass is a lower bound, and unreleased names the records.
+    serviced says whether the window released every record of that load: a window that
+    closed on a starved channel measured passes without that channel's work, so its longest
+    pass is a lower bound, and unreleased names the records. The composed maximum is the
+    longest over every backlog row's window, a lower bound while one is not serviced
+    (run.composed_maximum).
     """
     if 'composed' not in marks or 'composed_end' not in marks:
         if group.load or group.name in COMPOSED_ROWS:

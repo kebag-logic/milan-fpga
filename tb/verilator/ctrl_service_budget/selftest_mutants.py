@@ -73,6 +73,46 @@ def _starved_omitted() -> list:
     return [patch.object(grade, 'service', lambda *a: [r for r in original(*a) if not r['starved']])]
 
 
+def _cost_over_recipients() -> list:
+    """Each fan-out's cost a recipient divided by its recipients, not the gaps between them."""
+    original = grade.grade_probe
+
+    def grade_probe(grader: grade.Grader, probe: scenario.Probe, *a: object) -> dict:
+        """The mutant grade_probe: the fan-out's cost recomputed over its recipients."""
+        row = original(grader, probe, *a)
+        fan = row.get('fanout')
+        if fan and fan['recipients']:
+            fan['per_recipient_cpu_cycles'] = grader.cpu_cycles(fan['last_sys'] - fan['first_sys']) // fan['recipients']
+        return row
+    return [patch.object(grade, 'grade_probe', grade_probe)]
+
+
+def _ahead_never_released() -> list:
+    """A served record's records ahead counted as only the earlier records never released."""
+    original = grade.service
+
+    def service(grader: grade.Grader, *a: object) -> list[dict]:
+        """The mutant service: each row's records ahead recounted without the later releases."""
+        rows = original(grader, *a)
+        for row in rows:
+            records = grade.releases(grader.log, scenario.CH[row['ring']])
+            n = next(k for k, (c, *_) in enumerate(records) if c == row['start_sys'])
+            row['ahead'] = sum(1 for _, _, r in records[:n] if r is None)
+        return rows
+    return [patch.object(grade, 'service', service)]
+
+
+def _maximum_of(keep: Callable[[dict], bool], bound: bool = True) -> Patches:
+    """run.composed_maximum over the results keep selects, or never a lower bound."""
+    original = run.composed_maximum
+
+    def composed_maximum(results: list[dict]) -> dict | None:
+        """The mutant composed maximum."""
+        top = original([g for g in results if keep(g)])
+        return top if bound or top is None else dict(top, lower_bound=False)
+    return lambda: [patch.object(run, 'composed_maximum', composed_maximum)]
+
+
 def _offer_without(channel: str, groups: str, after: str = '') -> Patches:
     """Group.offer dropping a channel's records, step and declaration together, in the named
     groups (after a mark, if given): a stimulus that omits background work."""
@@ -296,8 +336,16 @@ MUTANTS: dict[str, Patches] = {
     'composition: the owed row omits the ACMP commands behind its input (earlier rule)': _offer_without(
         'acmp', 'backlog-owed', after='backlog.owed.if0'),
     'service: a record never released is omitted': _starved_omitted,
-    'service: a window that left its load unreleased is the composed maximum (earlier rule)': lambda: [patch.object(
+    'service: a window that left its load unreleased reports it released (earlier rule)': lambda: [patch.object(
         grade, 'unreleased', lambda *a: {})],
+    'composition: the composed maximum is taken over the windows that released their load (earlier rule)':
+        _maximum_of(lambda g: (g['passes'].get('composed') or {}).get('serviced', False)),
+    'composition: the composed maximum is no lower bound where a window left its load unreleased': _maximum_of(
+        lambda g: True, bound=False),
+    "composition: the composed maximum includes the fixture's short window": lambda: [patch.object(
+        grade, 'BACKLOG_ROWS', grade.COMPOSED_ROWS)],
+    'service: the records ahead count only those never released': _ahead_never_released,
+    'notify: the cost a recipient divides by the recipients, not the gaps': _cost_over_recipients,
     "service: a record's service ends at its release, not at its pass's end": lambda: [patch.object(
         grade, 'served', lambda grader, taking, released: released)],
     'owed: the responses ahead are not checked': lambda: [patch.object(

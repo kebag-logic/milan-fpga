@@ -64,6 +64,23 @@ def windows(results: list[dict]) -> list[dict]:
             for g in results if g['passes'].get('composed')]
 
 
+def composed_maximum(results: list[dict]) -> dict | None:
+    """The composed maximum: the longest pass over every backlog row's window, each of which
+    committed its defined load (grade.check_load refuses one that did not). A window that left
+    records unreleased ran its passes without that work, so while any did, the figure is a lower
+    bound. The longest pass of the windows that released their whole load is given beside it."""
+    import grade
+    every = [w for w in windows(results) if w['group'] in grade.BACKLOG_ROWS]
+    if not every:
+        return None
+    top = max(every, key=lambda w: w['cycles'])
+    done = max((w for w in every if w['serviced']), key=lambda w: w['cycles'], default=None)
+    return dict(cycles=top['cycles'], ms=top['ms'], group=top['group'], windows=len(every),
+                lower_bound=not all(w['serviced'] for w in every),
+                unreleased=[w['group'] for w in every if not w['serviced']],
+                released=dict(cycles=done['cycles'], ms=done['ms'], group=done['group']) if done else None)
+
+
 def paths(results: list[dict]) -> list[dict]:
     """Every measured path's worst instance across the groups, with its instance and miss counts.
 
@@ -105,13 +122,22 @@ def table(results: list[dict], point: str) -> str:
         ms = f"at least {w['ms']:.3f}" if w.get('starved') or w.get('unanswered') else f"{w['ms']:.3f}"
         lines.append(f"| {e['row']} | {e['interface']} | `{w['probe']}` ({w['group']}) | {ms}{bound} | "
                      f"{verdict_word(w)} | {w['ahead']} {w['ring']} | {e['instances']} | {e['misses']} |")
-    lines += ['', 'Composed windows: the longest pass is the composed maximum only where the window released '
-              'its whole load.', '',
+    lines += ['', 'Composed windows: a window that left its load unreleased ran its passes without that work, so '
+              'its longest pass is a lower bound.', '',
               '| Group | Window ms | Passes in it | Longest pass, CPU cycles (ms) | Load released | Unreleased |',
               '|---|---:|---:|---:|---|---|']
     for w in windows(results):
         lines.append(f"| {w['group']} | {w['window_ms']:.3f} | {w['passes']} | {w['cycles']:,} ({w['ms']:.3f}) | "
                      f"{'yes' if w['serviced'] else 'no'} | {w['unreleased'] or '-'} |")
+    top = composed_maximum(results)
+    if top:
+        bound = f", a lower bound (load unreleased in {', '.join(top['unreleased'])})" if top['lower_bound'] else ''
+        done = top['released']
+        lines += ['', f"Composed maximum over the {top['windows']} backlog windows: "
+                  f"{'at least ' if top['lower_bound'] else ''}{top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), "
+                  f"{top['group']}{bound}.",
+                  'Over the windows that released their whole load only: '
+                  + (f"{done['cycles']:,} ({done['ms']:.3f} ms), {done['group']}." if done else 'none.')]
     lines += ['', '| Path | Probe | CPU cycles | ms | T_svc (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
               '| Mailbox accesses (model) | Fetch share |',
               '|---|---|---:|---:|---:|---:|---|---:|---:|---:|']
@@ -277,6 +303,7 @@ def main() -> int:
     (out / 'results.json').write_text(json.dumps(dict(point=args.point, build=spec['executable_sha256'],
                                                       results=results, paths=paths(results),
                                                       counts=counts(results), windows=windows(results),
+                                                      composed_maximum=composed_maximum(results),
                                                       refusals=refusals, misses=misses), indent=1) + '\n')
     for line in refusals:
         print('REFUSED', line)
