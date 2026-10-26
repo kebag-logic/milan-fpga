@@ -1,0 +1,24 @@
+MUTANT worst pass: the run's last pass is dropped
+  fixture_checks: 24 checks, failed: []
+  marker_checks: 16 checks, failed: ['the pass bound runs from the running pass at the bus ratio']
+  notify_checks: 7 checks, failed: []
+  composition_checks: RAISED Refusal: synthetic.service.acmp.last.if0: the release at 2050 belongs to no work pass
+  maximum_checks: 4 checks, failed: []
+  window_checks: 8 checks, failed: ["the worst pass includes the run's last pass"]
+  load_checks: 5 checks, failed: []
+  path_checks: 2 checks, failed: []
+  fanout_checks: 1 checks, failed: []
+  run_checks: 5 checks, failed: []
+  reuse_checks: 10 checks, failed: []
+MUTANT composition: the load is the stimulus's own declaration (earlier rule)
+  fixture_checks: 24 checks, failed: ['a window short of its defined load is refused although it declares it', 'a composed window that committed more than its load is refused']
+  marker_checks: 16 checks, failed: []
+  notify_checks: 7 checks, failed: []
+  composition_checks: RAISED Refusal: synthetic: the composed window committed {'adp': 0, 'acmp': 2, 'aecp': 0, 'maap': 0, 'srp': 0, 'GM': 0, 'LINK': 0}, its load is {'adp': 0, '
+  maximum_checks: 4 checks, failed: []
+  window_checks: 8 checks, failed: []
+  load_checks: 5 checks, failed: []
+  path_checks: 2 checks, failed: []
+  fanout_checks: 1 checks, failed: []
+  run_checks: 5 checks, failed: []
+  reuse_checks: 10 checks, failed: []
