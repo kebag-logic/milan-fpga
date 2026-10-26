@@ -1,0 +1,62 @@
+E-4096-at-F-150 FAIL DUT-attributed audio events []
+    {"channel": 1, "capture_index": 7992, "class": "dropped", "n": 4096, "located_within": [7991, 7992]}
+    {"channel": 1, "capture_index": 7996, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 7999, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8003, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8006, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8008, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8014, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8018, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8021, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8024, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8028, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8031, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8035, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8038, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8040, "class": "bit-flip", "n": 2, "mask": "0x00000100"}
+    {"channel": 0, "capture_index": 8046, "class": "dropped", "n": 4096, "located_within": [8042, 8046]}
+    {"channel": 2, "capture_index": 8046, "class": "dropped", "n": 4096, "located_within": [8042, 8046]}
+    {"channel": 3, "capture_index": 8046, "class": "dropped", "n": 4096, "located_within": [8042, 8046]}
+E--4096-at-F-150 NOT RUN void: a planted arm was missed [{"class": "bit-flip", "index": 7992, "mask": 256, "channel": 1}]
+    {"channel": 1, "capture_index": 7992, "class": "repeated", "n": 4096, "located_within": [7990, 7992]}
+    {"channel": 1, "capture_index": 7996, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 7999, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8003, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8005, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8008, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8010, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8014, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8018, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8021, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8024, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8028, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8031, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8035, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8037, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 1, "capture_index": 8040, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 0, "capture_index": 8042, "class": "repeated", "n": 4096, "located_within": [8041, 8042]}
+    {"channel": 2, "capture_index": 8042, "class": "repeated", "n": 4096, "located_within": [8041, 8042]}
+    {"channel": 3, "capture_index": 8042, "class": "repeated", "n": 4096, "located_within": [8041, 8042]}
+E-clean-arms-only PASS zero DUT-attributed events over the qualified interval; every planted arm found []
+A-drop4096-5-after-flip NOT RUN void: a planted arm was missed [{"class": "bit-flip", "index": 700, "mask": 256, "channel": 1}]
+    {"channel": 1, "capture_index": 700, "class": "dropped", "n": 4096}
+    {"channel": 1, "capture_index": 704, "class": "bit-flip", "n": 1, "mask": "0x00000100"}
+    {"channel": 0, "capture_index": 708, "class": "dropped", "n": 4096, "located_within": [705, 708]}
+    {"channel": 2, "capture_index": 708, "class": "dropped", "n": 4096, "located_within": [705, 708]}
+    {"channel": 3, "capture_index": 708, "class": "dropped", "n": 4096, "located_within": [705, 708]}
+A-drop4096-5-after-repeat FAIL DUT-attributed audio events []
+    {"channel": 0, "capture_index": 502, "class": "dropped", "n": 4096}
+    {"channel": 1, "capture_index": 502, "class": "dropped", "n": 4096}
+    {"channel": 2, "capture_index": 502, "class": "dropped", "n": 4096}
+    {"channel": 3, "capture_index": 502, "class": "dropped", "n": 4096}
+A-drop1024-200-before-repeat NOT RUN void: a planted arm was missed [{"class": "dropped", "index": 300, "n": 3}]
+    {"channel": 0, "capture_index": 300, "class": "dropped", "n": 1027}
+    {"channel": 1, "capture_index": 300, "class": "dropped", "n": 1027}
+    {"channel": 2, "capture_index": 300, "class": "dropped", "n": 1027}
+    {"channel": 3, "capture_index": 300, "class": "dropped", "n": 1027}
+A-ch1-0x80000x100-ends-5-before-flip FAIL DUT-attributed audio events []
+    {"channel": 1, "capture_index": 595, "class": "dropped", "n": 1024}
+    {"channel": 1, "capture_index": 695, "class": "repeated", "n": 1024}
+M-0x100-at-6143-n-2049 FAIL DUT-attributed audio events []
+    {"channel": 2, "capture_index": 6143, "class": "repeated", "n": 499717421056}
+    {"channel": 2, "capture_index": 8194, "class": "dropped", "n": 499717421056, "located_within": [8192, 8194]}
