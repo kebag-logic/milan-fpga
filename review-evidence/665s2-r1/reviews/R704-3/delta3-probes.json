@@ -1,0 +1,251 @@
+{
+  "populations": {
+    "A1/backlog": {
+      "GM": 15,
+      "LINK": 1,
+      "adp": 8,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "acmp": 12
+    },
+    "A1/backlog-adp": {
+      "GM": 15,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "acmp": 12,
+      "adp": 8
+    },
+    "A1/backlog-adp-refill": {
+      "GM": 15,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "acmp": 12,
+      "adp": 11
+    },
+    "A1/backlog-owed": {
+      "GM": 15,
+      "adp": 8,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "acmp": 12
+    },
+    "A8/backlog": {
+      "GM": 15,
+      "LINK": 1,
+      "adp": 8,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "acmp": 12
+    },
+    "A8/backlog-adp": {
+      "GM": 15,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "acmp": 12,
+      "adp": 8
+    },
+    "A8/backlog-adp-refill": {
+      "GM": 15,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "acmp": 12,
+      "adp": 11
+    },
+    "A8/backlog-owed": {
+      "GM": 15,
+      "adp": 8,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "acmp": 12
+    }
+  },
+  "mutants": {
+    "omit-srp": [
+      "every composed window's stimulus is its defined load",
+      "every composed window declares its defined load"
+    ],
+    "omit-maap": [
+      "every composed window's stimulus is its defined load",
+      "every composed window declares its defined load"
+    ],
+    "omit-acmp": [
+      "every composed window's stimulus is its defined load",
+      "every composed window declares its defined load"
+    ],
+    "halve-composed-maximum": [
+      "fixture passes: worst pass and composed maximum",
+      "the composed maximum is the window's longest pass, wherever it falls"
+    ]
+  },
+  "capacity": {
+    "A1": [
+      {
+        "probe": "aecp_fanout.set_name.if0",
+        "recipients": 16
+      },
+      {
+        "probe": "aecp_fanout.set_clock_source.if0",
+        "recipients": 16
+      },
+      {
+        "probe": "aecp_fanout.set_control_identify_on.if0",
+        "recipients": 16
+      },
+      {
+        "probe": "aecp_fanout.set_control_identify_off.if0",
+        "recipients": 16
+      },
+      {
+        "probe": "aecp_fanout.remove_audio_mappings.if0",
+        "recipients": 16
+      },
+      {
+        "probe": "aecp_fanout.add_audio_mappings.if0",
+        "recipients": 16
+      },
+      {
+        "probe": "aecp_fanout.set_sampling_rate.if0",
+        "recipients": 16
+      },
+      {
+        "probe": "aecp_fanout.lock_entity.if0",
+        "recipients": 16
+      },
+      {
+        "probe": "aecp_fanout.unlock_entity.if0",
+        "recipients": 16
+      }
+    ],
+    "A8": [
+      {
+        "probe": "aecp_fanout.set_name.if0",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.set_clock_source.if0",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.set_control_identify_on.if0",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.set_control_identify_off.if0",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.set_sampling_rate.if0",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.lock_entity.if0",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.unlock_entity.if0",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.set_name.if1",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.set_clock_source.if1",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.set_control_identify_on.if1",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.set_control_identify_off.if1",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.lock_entity.if1",
+        "recipients": 32
+      },
+      {
+        "probe": "aecp_fanout.unlock_entity.if1",
+        "recipients": 32
+      }
+    ]
+  },
+  "shutdown": {
+    "A1": {
+      "paths": 1,
+      "instances": 2
+    },
+    "A8": {
+      "paths": 2,
+      "instances": 3
+    }
+  },
+  "builds": {
+    "A1": {
+      "matching_inputs": {
+        "build:image/ctrl_app.elf": "d4c28047549719c4a2115674913550dd13b9d3b06074c1d577d46aeeecda3639",
+        "build:gateware/sim_mem.init": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+        "build:gateware/sim_rom_bank0.init": "3353d2618bf020240fe2e0b5cc767657bc30e1fd3067dd6002f1995dda877097",
+        "build:gateware/sim_rom_bank1.init": "b440fa7888381502b423b30ff3bacf2482f21e80e0730ea24ff13707b3b76547",
+        "build:budget_config.hpp": "f47025b2fc70bd18f619fdc7949c0614d750e3d199c073129740a3e131c9d601",
+        "checkout:tb/verilator/ctrl_service_budget/sim_main.cpp": "800120cb8a1ed0c98526e0a118fdf04ccf1e9283732483b556ed6730349ae7bb",
+        "checkout:tb/verilator/ctrl_service_budget/observe.vlt": "d2795f53d43a785bdd8488f0ec66454178ad538781f242049f9258ff775d1aac",
+        "checkout:tb/verilator/fw_service_budget/flash.hpp": "ffd30ea46c3aec139583d92f1ce8d8ecd8efc9b409e94b261d85c29337ec9f90",
+        "checkout:hdl/milan/mailbox/KL_mbx_pkg.sv": "8a151d244bf1338fac4f37e3646b3554f32037cdc2639e5117ec200ff168a7bf",
+        "checkout:hdl/milan/mailbox/KL_mbx_ring.sv": "6f306c031d6a851c4223b96591ff5dd8852eae44e82962f00d74cfdccd6dfa3c",
+        "checkout:hdl/milan/mailbox/KL_mbx_rx.sv": "289ac7d28bf4dd7ca080876d4aec6706c95784afde69a0084d10b135e103990f",
+        "checkout:hdl/milan/mailbox/KL_mbx_tx.sv": "840ede25d27b69bf78042adcc8cd58e317d1ab0bd388fa5ff9049428373de663",
+        "checkout:hdl/milan/mailbox/KL_mbx_evt.sv": "11bbe504a88838478148b6c7d0a2a8fe35ed89e8075fe182e50e9f9e143780fd",
+        "checkout:hdl/milan/mailbox/KL_mbx.sv": "192b84656f23227199054a07f2dfa10e1a466544cb5f36221b37d0e37f1d8895",
+        "checkout:hdl/milan/mailbox/KL_mbx_wb.sv": "01efd0c3d6e8f027cd1b2946b9fe9e0c25dff009ea55819777e9add35be2e329",
+        "tree:firmware": "0dd3f074eebc16cc97a36dc80ae92fa0be77024fa91524133260f38dd6578c91",
+        "tree:config": "8dedebc4cbc513d7b36d416d5240acbb365b4991e1a744ad4b6717cd139ed79a"
+      },
+      "different_inputs": {
+        "build:runtime/libc.a": "c4bdec1bcd5780d2b3a062229ba2a2cfef3345c7b17a96feb6584db9eb4c2fd6",
+        "build:runtime/libcompiler_rt.a": "da3f76054c82e37849e8dc56c751e4dbd7dcaa1cec37225b6ff56e2f95052366",
+        "build:gateware/sim.v": "89d701d442da5115d8df542391282eaef9701f3eb08163f7daadb8a739cb10e1"
+      },
+      "netlist": "VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56",
+      "configuration_equal": true
+    },
+    "A8": {
+      "matching_inputs": {
+        "build:image/ctrl_app.elf": "c89a1871fd2bca2b5515492c6996b076551bbda7ccd58c773c8bc633a00224ba",
+        "build:gateware/sim_mem.init": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+        "build:gateware/sim_rom_bank0.init": "0c56d0d85749f4466b73f57bab851e2169010a7a268b30abd771ab8a8364ee4d",
+        "build:gateware/sim_rom_bank1.init": "828f72b6db427c4c5287cd27b2c5fcb6819e0fd9b89950807a18569bacd9155b",
+        "build:gateware/sim_rom_bank2.init": "b3413e140b8f8e878042c8d8fd18906bf93c74ecd63b4e923eb8d71ceb35d140",
+        "build:budget_config.hpp": "ef75c6f5e9639047cd927a3303c7f5b94e39fd34eec10ce58430f259fdf6837c",
+        "checkout:tb/verilator/ctrl_service_budget/sim_main.cpp": "800120cb8a1ed0c98526e0a118fdf04ccf1e9283732483b556ed6730349ae7bb",
+        "checkout:tb/verilator/ctrl_service_budget/observe.vlt": "d2795f53d43a785bdd8488f0ec66454178ad538781f242049f9258ff775d1aac",
+        "checkout:tb/verilator/fw_service_budget/flash.hpp": "ffd30ea46c3aec139583d92f1ce8d8ecd8efc9b409e94b261d85c29337ec9f90",
+        "build:mbx-variant/KL_mbx_pkg.sv": "7278aa73d76e23e6462ce160751f24ef2e22db0e30c469f500d5e26454459d89",
+        "checkout:hdl/milan/mailbox/KL_mbx_ring.sv": "6f306c031d6a851c4223b96591ff5dd8852eae44e82962f00d74cfdccd6dfa3c",
+        "checkout:hdl/milan/mailbox/KL_mbx_rx.sv": "289ac7d28bf4dd7ca080876d4aec6706c95784afde69a0084d10b135e103990f",
+        "checkout:hdl/milan/mailbox/KL_mbx_tx.sv": "840ede25d27b69bf78042adcc8cd58e317d1ab0bd388fa5ff9049428373de663",
+        "checkout:hdl/milan/mailbox/KL_mbx_evt.sv": "11bbe504a88838478148b6c7d0a2a8fe35ed89e8075fe182e50e9f9e143780fd",
+        "build:mbx-variant/KL_mbx.sv": "4fda1a8b17f597ebcc408883c1861664a0599b4f6162892c93e46aff35a62a36",
+        "checkout:hdl/milan/mailbox/KL_mbx_wb.sv": "01efd0c3d6e8f027cd1b2946b9fe9e0c25dff009ea55819777e9add35be2e329",
+        "tree:firmware": "0dd3f074eebc16cc97a36dc80ae92fa0be77024fa91524133260f38dd6578c91",
+        "tree:config": "ecc56aae9390d1b512b3cb37498d34d59b0cd281eb4d5afcdf915bb7276a5e2c"
+      },
+      "different_inputs": {
+        "build:runtime/libc.a": "c4bdec1bcd5780d2b3a062229ba2a2cfef3345c7b17a96feb6584db9eb4c2fd6",
+        "build:runtime/libcompiler_rt.a": "da3f76054c82e37849e8dc56c751e4dbd7dcaa1cec37225b6ff56e2f95052366",
+        "build:gateware/sim.v": "2ea8862393e531f729640bcbf4b3742f89e03d77d0cdcabddc86f177cd74f428"
+      },
+      "netlist": "VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56",
+      "configuration_equal": true
+    }
+  }
+}

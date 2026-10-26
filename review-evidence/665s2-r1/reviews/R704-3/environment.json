@@ -1,0 +1,12 @@
+{
+  "head": "f887663852d118e810ef690c3dd5cf9fe2292588",
+  "tree": "cf2618f79f020ff486b2165ffd81f12e1146298d",
+  "base": "e76a755afc0536453161e3cd33f6f4d2dcd7641f",
+  "delta_base": "cd3525c3ddcbdb5d78bf8fccdab354c468926997",
+  "delta": " tb/verilator/ctrl_service_budget/README.md         | 262 +++++++++++++++------\n tb/verilator/ctrl_service_budget/grade.py          | 211 ++++++++++++++++-\n tb/verilator/ctrl_service_budget/oracle.json       | 182 ++++++++++++++\n tb/verilator/ctrl_service_budget/run.py            |  39 ++-\n tb/verilator/ctrl_service_budget/scenario.py       | 222 ++++++++++++++---\n tb/verilator/ctrl_service_budget/selftest.py       | 251 +++++++++++++++++++-\n .../ctrl_service_budget/selftest_mutants.py        | 124 +++++++++-\n 7 files changed, 1151 insertions(+), 140 deletions(-)\n",
+  "history": "f887663852 Grade the composed load's service, fan out at registration capacity and answer for the owed row's whole population (#665)\ncd3525c3dd Measure the defined composed load, the whole notification fan-out and SHUTDOWN, and protect every figure (#665)\nd58c8e22e9 Measure every split service path in CPU cycles on the shipping core (#665)\n",
+  "simulator": "Verilator 5.050 2026-07-01 rev v5.050",
+  "compiler": "riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0",
+  "tracked_source_changes": "none",
+  "native_parallel_limit": 15
+}

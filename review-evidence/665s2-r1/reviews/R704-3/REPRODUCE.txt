@@ -1,0 +1,42 @@
+From the reviewed checkout, with this packet in a separate directory:
+
+export REVIEW_ROOT="$PWD"
+export REVIEW_PACKET=<packet-directory>
+export PRODUCT_PYTHON=<product-environment-python>
+export MILAN_RV32_CC=<pinned-rv32-compiler>
+export PINNED_SIM_DIR=<verified-simulator-directory>
+export LITEX_ENV_CC_TRIPLE=riscv32-linux
+export PYTHONDONTWRITEBYTECODE=1 PYTHONHASHSEED=0
+export COURSIER_MODE=offline SBT_OPTS=-Dsbt.offline=true
+export TMPDIR="$REVIEW_PACKET/scratch"
+mkdir -p "$TMPDIR"
+
+git fetch --no-tags origin 0b3e0e3ab108a6d66ed762da7c8766a15d250a97
+python3 -B "$REVIEW_PACKET/get_evidence.py"
+"$PRODUCT_PYTHON" -B "$REVIEW_PACKET/prepare.py"
+export PYTHONPATH="$REVIEW_PACKET/scratch/python"
+export PATH="$REVIEW_PACKET/scratch/bin:$PINNED_SIM_DIR:$(dirname "$MILAN_RV32_CC"):$PATH"
+"$PRODUCT_PYTHON" -B "$REVIEW_PACKET/build_focused.py"
+python3 -B tb/verilator/ctrl_service_budget/run.py --self-test
+python3 -B "$REVIEW_PACKET/probe_delta3.py"
+python3 -B "$REVIEW_PACKET/prior/probe_scenario_control.py"
+"$PRODUCT_PYTHON" -B "$REVIEW_PACKET/measure_focused.py"
+python3 -B "$REVIEW_PACKET/audit_native.py"
+python3 -B "$REVIEW_PACKET/verify_identity.py"
+
+The unchanged prior audit_receipts.py hard-codes its input publication folder
+as author-r2/receipts. For the round-3 audit, bind that folder to the published
+author-r3/receipts in an isolated scratch/audit-view directory, with scratch/A1,
+scratch/A8 and measurements linked to this packet's corresponding directories.
+Set REVIEW_PACKET to that isolated view only for the audit invocation.
+The script itself remains byte-identical to its public original.
+
+All drivers join their children in the foreground. Two campaigns use six
+simulation workers each, alongside the prior driver's three workers: fifteen
+maximum. The two builds overlap their independent setup; native make -j16
+commands are serialized by a packet-local lock. No shared inputs are edited.
+CPU generation is disabled; missing matching cached inputs are a setup failure.
+
+This packet preserves full numerical simulation traces. Driver metadata paths
+are replaced with <checkout>, <packet>, <product-environment> or <compiler-root>
+where necessary; receipt-index.json records pre/post-normalization digests.
