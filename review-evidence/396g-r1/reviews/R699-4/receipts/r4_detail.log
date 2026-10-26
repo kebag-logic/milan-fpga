@@ -1,0 +1,55 @@
+slip3-17-before-0x80000-L100-b3000 FAIL DUT-attributed audio events []
+    {"channel": 0, "capture_index": 2983, "class": "dropped", "n": 3}
+    {"channel": 1, "capture_index": 2983, "class": "dropped", "n": 3}
+    {"channel": 2, "capture_index": 2983, "class": "dropped", "n": 3}
+    {"channel": 3, "capture_index": 2983, "class": "dropped", "n": 3}
+    {"channel": 2, "capture_index": 3000, "class": "dropped", "n": 1024}
+    {"channel": 2, "capture_index": 3068, "class": "repeated", "n": 2048}
+    {"channel": 2, "capture_index": 3100, "class": "dropped", "n": 1024}
+slip-2-1-before-0x100-L100-b3000 FAIL DUT-attributed audio events []
+    {"channel": 0, "capture_index": 2999, "class": "repeated", "n": 2}
+    {"channel": 1, "capture_index": 2999, "class": "repeated", "n": 2}
+    {"channel": 2, "capture_index": 2999, "class": "repeated", "n": 2}
+    {"channel": 3, "capture_index": 2999, "class": "repeated", "n": 2}
+    {"channel": 2, "capture_index": 3000, "class": "repeated", "n": 499717412864}
+    {"channel": 2, "capture_index": 3100, "class": "dropped", "n": 499717412864}
+slip3-63-before-0x40000-L300-b3000 FAIL DUT-attributed audio events []
+    {"channel": 0, "capture_index": 2937, "class": "dropped", "n": 3}
+    {"channel": 1, "capture_index": 2937, "class": "dropped", "n": 3}
+    {"channel": 2, "capture_index": 2937, "class": "dropped", "n": 3}
+    {"channel": 3, "capture_index": 2937, "class": "dropped", "n": 3}
+    {"channel": 2, "capture_index": 3000, "class": "repeated", "n": 512}
+    {"channel": 2, "capture_index": 3068, "class": "bit-flip", "n": 232, "mask": "0x00080000"}
+    {"channel": 2, "capture_index": 3300, "class": "dropped", "n": 512}
+slip3-17-before-0x80000-L100-b3000-ch2-only FAIL DUT-attributed audio events []
+    {"channel": 2, "capture_index": 2983, "class": "dropped", "n": 3}
+    {"channel": 2, "capture_index": 3000, "class": "dropped", "n": 1024}
+    {"channel": 2, "capture_index": 3068, "class": "repeated", "n": 2048}
+    {"channel": 2, "capture_index": 3100, "class": "dropped", "n": 1024}
+slip100-17-before-0x80000-L100-b3000 FAIL DUT-attributed audio events []
+    {"channel": 0, "capture_index": 2983, "class": "dropped", "n": 100}
+    {"channel": 1, "capture_index": 2983, "class": "dropped", "n": 100}
+    {"channel": 2, "capture_index": 2983, "class": "dropped", "n": 100}
+    {"channel": 3, "capture_index": 2983, "class": "dropped", "n": 100}
+    {"channel": 2, "capture_index": 3000, "class": "repeated", "n": 1024}
+    {"channel": 2, "capture_index": 3100, "class": "dropped", "n": 1024}
+slip3-64-before-0x80000-L100-b3000 (control) FAIL DUT-attributed audio events []
+    {"channel": 0, "capture_index": 2936, "class": "dropped", "n": 3}
+    {"channel": 1, "capture_index": 2936, "class": "dropped", "n": 3}
+    {"channel": 2, "capture_index": 2936, "class": "dropped", "n": 3}
+    {"channel": 3, "capture_index": 2936, "class": "dropped", "n": 3}
+    {"channel": 2, "capture_index": 3000, "class": "bit-flip", "n": 100, "mask": "0x00080000"}
+no-slip-0x80000-L100-b3000 (control) FAIL DUT-attributed audio events []
+    {"channel": 2, "capture_index": 3000, "class": "bit-flip", "n": 100, "mask": "0x00080000"}
+0x100-adjacent-before-0x80000-L100-b4089 FAIL DUT-attributed audio events []
+    {"channel": 2, "capture_index": 4088, "class": "dropped", "n": 2048, "located_within": [4086, 4088]}
+    {"channel": 2, "capture_index": 4089, "class": "bit-flip", "n": 100, "mask": "0x00080000"}
+0x80000-adjacent-before-0x80100-L100-b3000 FAIL DUT-attributed audio events []
+    {"channel": 2, "capture_index": 2999, "class": "dropped", "n": 1024}
+    {"channel": 2, "capture_index": 3000, "class": "bit-flip", "n": 100, "mask": "0x00080100"}
+0x80000-gap2-before-0x80100-L100-b4089 FAIL DUT-attributed audio events []
+    {"channel": 2, "capture_index": 4087, "class": "bit-flip", "n": 1, "mask": "0x00080000"}
+    {"channel": 2, "capture_index": 4089, "class": "bit-flip", "n": 100, "mask": "0x00080100"}
+0x100-adjacent-before-0xF00F00-L100-b3000 FAIL DUT-attributed audio events []
+    {"channel": 2, "capture_index": 2999, "class": "bit-flip", "n": 101, "mask": "0x00F00F00"}
+IDENTITY 0x100@4088 == drop2048@4088+repeat2048@4089 on ch2: True
