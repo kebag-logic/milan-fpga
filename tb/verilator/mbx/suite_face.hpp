@@ -703,7 +703,9 @@ void Suite<Bench, Check>::check_face_timing() {
                 win_status(0, 0, 1, b_.face(i).tag[w]));
         wr(face_reg(i, r.go), 1u << MBX_CTR_CMD_GO_LSB);
         std::uint32_t tag = b_.face(i).tag[w];
-        b_.idle(held - 1u);
+        // a request that never opened leaves held 0: T0 has failed, and the
+        // bench stays bounded
+        b_.idle(held == 0u ? 0u : held - 1u);
         b_.win_answer(w, i, tag, 0xA0u + w);
         ck_.dec(("T0 " + name + " an answer on the last cycle of the bound is taken").c_str(), rd(face_reg(i, r.status)),
                 win_status(0, 1, 0, tag));
