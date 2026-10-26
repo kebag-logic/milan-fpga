@@ -1,0 +1,8 @@
+COMMAND <scratch>/B8/native/Vsim <scratch>/runs/B8-bl/backlog.txt -
+COMMAND <scratch>/B8/native/Vsim <scratch>/runs/B8-bl/backlog-adp.txt -
+COMMAND <scratch>/B8/native/Vsim <scratch>/runs/B8-bl/backlog-owed.txt -
+BUDGET backlog.event.if0: 44.651 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 108.712 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 55.792 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 151.916 ms over T_svc 10 ms
+3 groups graded, 0 refusals, 4 T_svc misses (4 of 4 probe instances, 4 of 4 paths)

@@ -1,0 +1,12 @@
+COMMAND <scratch>/A1/native/Vsim <scratch>/runs/A1-bl/backlog.txt -
+COMMAND <scratch>/A1/native/Vsim <scratch>/runs/A1-bl/backlog-adp.txt -
+COMMAND <scratch>/A1/native/Vsim <scratch>/runs/A1-bl/backlog-adp-refill.txt -
+COMMAND <scratch>/A1/native/Vsim <scratch>/runs/A1-bl/backlog-owed.txt -
+COMMAND <scratch>/A1/native/Vsim <scratch>/runs/A1-bl/fixture.txt -
+BUDGET backlog.event.if0: 15.487 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 63.304 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 67.932 ms over T_svc 10 ms
+BUDGET backlog.adp_available_refill.if0: 88.334 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 125.789 ms over T_svc 10 ms
+BUDGET fixture.entity_departing.if0: 25.174 ms over T_svc 10 ms
+5 groups graded, 0 refusals, 6 T_svc misses (6 of 12 probe instances, 6 of 12 paths)

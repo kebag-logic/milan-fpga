@@ -1,0 +1,14 @@
+R1 CAUGHT rc=1 clock ratio: CPU cycles rounded down :: FAIL: fixture row fixture.malformed.if0: cpu_cycles 107472 (pinned 107473)
+R2 CAUGHT rc=1 clock ratio: composed-maximum ms from the bus clock :: FAIL: fixture passes: worst pass and composed maximum: composed_ms 4.18342 (pinned 8.36684)
+R3 CAUGHT rc=1 clock ratio: worst-pass ms from the bus clock :: FAIL: fixture passes: worst pass and composed maximum: worst_ms 14.35369 (pinned 28.70738)
+R4 CAUGHT rc=1 clock ratio: the pass bound treats CPU cycles as bus cycles :: FAIL: fixture row fixture.link_up.if0: bound_cpu_cycles 124226 (pinned 248452), bound_ms 2.48452 (pinned 4.96904)
+R5 CAUGHT rc=1 marker: a timer path starts one millisecond after its deadline :: FAIL: fixture row fixture.tmr_no_resp1.if0: start_sys 58400065 (pinned 58300065), sys_cycles 447797 (pinned 547797), cpu_cycles 223899 (pinned 273899), ms 4.477
+R6 CAUGHT rc=1 deadline: the ceiling verdict drops the normative wait :: FAIL: W + T_svc passes: {'probe': 's.cmd.if0', 'row': 'Domain', 'family': 'srp', 'interface': 0, 'path': ['s.cmd', 0], 'start_sys': 1173, 'end_sys': 21001173, '
+R7 CAUGHT rc=1 marker: the expected-response check is skipped :: FAIL: the expected response is checked: {'probe': 's.cmd.if0', 'row': 'BIND_RX', 'family': 'acmp', 'interface': 0, 'path': ['s.cmd', 0], 'start_sys': 1173, 'end
+R8 CAUGHT rc=1 marker: a receive commit is given to the oldest pending frame (R8 inverted) :: FAIL: a receive commit belongs to the frame it follows: {'probe': 's.cmd.if0', 'row': 'GET_RX_STATE', 'family': 'acmp', 'interface': 0, 'path': ['s.cmd', 0], 's
+R9 CAUGHT rc=1 pass bound: starts at the input, not at the running pass :: FAIL: fixture row fixture.malformed.if0: bound_cpu_cycles 107473 (pinned 107505), bound_ms 2.14945 (pinned 2.1501)
+R10 CAUGHT rc=1 deadline: a T_svc miss never fails the run :: FAIL: a T_svc miss fails the run unless recorded: 
+R11 CAUGHT rc=1 a refused (unmeasured) probe does not fail the run :: FAIL: a refusal fails the run, recorded or not: 
+R12 CAUGHT rc=1 a CPU trap or bus error is not refused :: FAIL: a CPU trap is refused: 
+review mutants: 12 run, 0 escaped the self-test
+rc=0

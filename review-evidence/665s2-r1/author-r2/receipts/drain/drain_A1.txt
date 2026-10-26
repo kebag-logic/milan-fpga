@@ -1,0 +1,116 @@
+== A1/backlog.log: composed window 162.91 ms
+   committed {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15, 'LINK': 1}; refused in window []
+   pass at     0.00 ms,  14.81 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    14.81 ms,  14.30 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    29.11 ms,  11.64 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    40.75 ms,  10.29 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 1}
+   pass at    51.04 ms,   9.50 ms long, releases {'acmp': 2, 'aecp': 1}
+   pass at    60.55 ms,   9.50 ms long, releases {'acmp': 2, 'aecp': 1}
+   pass at    70.05 ms,   6.86 ms long, releases {'aecp': 1}
+   pass at    76.91 ms,   7.22 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at    84.13 ms,   7.22 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at    91.35 ms,   6.33 ms long, releases {'aecp': 1}
+   pass at    97.68 ms,   7.22 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at   104.90 ms,   7.22 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at   112.11 ms,   6.33 ms long, releases {'aecp': 1}
+   pass at   118.44 ms,   7.22 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at   125.66 ms,   7.22 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at   132.89 ms,   6.33 ms long, releases {'aecp': 1}
+   pass at   139.21 ms,   2.31 ms long, releases {'srp': 2}
+   pass at   141.52 ms,   1.67 ms long, releases {'srp': 2}
+   pass at   143.19 ms,   1.67 ms long, releases {'srp': 2}
+   pass at   144.87 ms,   2.20 ms long, releases {'srp': 2}
+   pass at   147.07 ms,   1.67 ms long, releases {'srp': 2}
+   pass at   148.74 ms,   1.67 ms long, releases {'srp': 2}
+   pass at   150.41 ms,   1.67 ms long, releases {'srp': 2}
+   pass at   152.09 ms,   1.67 ms long, releases {'srp': 2}
+   pass at   153.76 ms,   1.49 ms long, releases {'srp': 1}
+   pass at   155.25 ms,   2.21 ms long, releases {'srp': 2}
+   pass at   157.46 ms,   1.50 ms long, releases {'srp': 1}
+   released by passes starting in the window {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32}
+   backlog.event.if0: input at 0.001 ms into the window, 15 records ahead in events
+   backlog.acmp_command.if0: input at 0.053 ms into the window, 11 records ahead in acmp
+== A1/backlog-adp.log: composed window 567.99 ms
+   committed {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15, 'LINK': 0}; refused in window []
+   pass at    18.73 ms,  14.87 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    33.60 ms,  16.64 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    50.25 ms,  31.32 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 1}
+   pass at    81.56 ms,  29.48 ms long, releases {'acmp': 2, 'aecp': 1}
+   pass at   111.04 ms,  29.48 ms long, releases {'acmp': 2, 'aecp': 1}
+   pass at   140.52 ms,  26.71 ms long, releases {'aecp': 1}
+   pass at   167.23 ms,  26.71 ms long, releases {'aecp': 1}
+   pass at   193.95 ms,  30.00 ms long, releases {'aecp': 1}
+   pass at   223.95 ms,  29.53 ms long, releases {'aecp': 1}
+   pass at   253.48 ms,  26.65 ms long, releases {'aecp': 1}
+   pass at   280.12 ms,  26.65 ms long, releases {'aecp': 1}
+   pass at   306.78 ms,  26.67 ms long, releases {'aecp': 1}
+   pass at   333.44 ms,  30.01 ms long, releases {'aecp': 1}
+   pass at   363.45 ms,  26.66 ms long, releases {'aecp': 1}
+   pass at   390.11 ms,  26.68 ms long, releases {'aecp': 1}
+   pass at   416.79 ms,  21.76 ms long, releases {}
+   pass at   438.56 ms,  25.00 ms long, releases {}
+   pass at   463.55 ms,  25.00 ms long, releases {}
+   pass at   488.56 ms,  21.66 ms long, releases {}
+   pass at   510.21 ms,  25.00 ms long, releases {}
+   pass at   535.22 ms,  22.32 ms long, releases {}
+   pass at   557.54 ms,  10.45 ms long, releases {}
+   released by passes starting in the window {'adp': 6, 'acmp': 10, 'aecp': 15, 'maap': 5}
+   backlog.adp_available.if0: input at 0.053 ms into the window, 7 records ahead in adp
+== A1/backlog-adp-refill.log: composed window 628.34 ms
+   committed {'adp': 11, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15, 'LINK': 0}; refused in window []
+   pass at    18.73 ms,  14.87 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    33.60 ms,  16.64 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    50.25 ms,  30.63 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 1}
+   pass at    80.87 ms,  29.96 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1}
+   pass at   110.84 ms,  30.42 ms long, releases {'adp': 1, 'acmp': 2, 'aecp': 1}
+   pass at   141.25 ms,  26.71 ms long, releases {'aecp': 1}
+   pass at   167.96 ms,  26.71 ms long, releases {'aecp': 1}
+   pass at   194.68 ms,  30.00 ms long, releases {'aecp': 1}
+   pass at   224.67 ms,  29.53 ms long, releases {'aecp': 1}
+   pass at   254.20 ms,  26.64 ms long, releases {'aecp': 1}
+   pass at   280.84 ms,  26.65 ms long, releases {'aecp': 1}
+   pass at   307.49 ms,  26.67 ms long, releases {'aecp': 1}
+   pass at   334.16 ms,  30.00 ms long, releases {'aecp': 1}
+   pass at   364.16 ms,  26.66 ms long, releases {'aecp': 1}
+   pass at   390.83 ms,  26.68 ms long, releases {'aecp': 1}
+   pass at   417.51 ms,  21.77 ms long, releases {}
+   pass at   439.27 ms,  25.00 ms long, releases {}
+   pass at   464.27 ms,  25.00 ms long, releases {}
+   pass at   489.27 ms,  21.66 ms long, releases {}
+   pass at   510.93 ms,  25.00 ms long, releases {}
+   pass at   535.93 ms,  21.67 ms long, releases {}
+   pass at   557.60 ms,  25.01 ms long, releases {}
+   pass at   582.61 ms,  22.31 ms long, releases {}
+   pass at   604.92 ms,  23.41 ms long, releases {}
+   released by passes starting in the window {'adp': 9, 'acmp': 10, 'aecp': 15, 'maap': 5}
+   backlog.adp_available_refill.if0: input at 40.002 ms into the window, 4 records ahead in adp
+== A1/backlog-owed.log: composed window 184.40 ms
+   committed {'adp': 8, 'acmp': 8, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15, 'LINK': 0}; refused in window []
+   pass at     0.64 ms,  11.25 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    11.89 ms,  11.65 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    23.54 ms,  11.06 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 2}
+   pass at    34.60 ms,  10.40 ms long, releases {'adp': 2, 'acmp': 2, 'aecp': 1, 'maap': 1}
+   pass at    45.01 ms,   6.81 ms long, releases {'aecp': 1}
+   pass at    51.82 ms,   7.76 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at    59.57 ms,   5.92 ms long, releases {'srp': 2}
+   pass at    65.50 ms,   6.99 ms long, releases {'aecp': 1}
+   pass at    72.48 ms,   8.54 ms long, releases {'aecp': 1, 'srp': 1}
+   pass at    81.02 ms,   9.51 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at    90.54 ms,   9.51 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at   100.04 ms,   9.51 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at   109.56 ms,   9.51 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at   119.06 ms,   9.51 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at   128.58 ms,   8.91 ms long, releases {'aecp': 1, 'srp': 2}
+   pass at   137.49 ms,   6.39 ms long, releases {'aecp': 1}
+   pass at   143.88 ms,   6.96 ms long, releases {'aecp': 1}
+   pass at   150.84 ms,   4.00 ms long, releases {'srp': 2}
+   pass at   154.83 ms,   3.33 ms long, releases {'srp': 2}
+   pass at   158.16 ms,   3.90 ms long, releases {'srp': 2}
+   pass at   162.06 ms,   3.33 ms long, releases {'srp': 2}
+   pass at   165.39 ms,   3.33 ms long, releases {'srp': 2}
+   pass at   168.72 ms,   3.90 ms long, releases {'srp': 2}
+   pass at   172.62 ms,   3.33 ms long, releases {'srp': 2}
+   pass at   175.95 ms,   2.36 ms long, releases {'srp': 1}
+   pass at   178.31 ms,   1.94 ms long, releases {}
+   released by passes starting in the window {'adp': 8, 'acmp': 8, 'aecp': 16, 'maap': 7, 'srp': 32}
+   backlog.owed.if0: input at 0.050 ms into the window, 7 records ahead in acmp
