@@ -1,0 +1,59 @@
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/acmp-notk.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/adp-advertise.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/maap.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/acmp-noresp.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/srp.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/backlog.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/adp-link.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/acmp-disc.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/adp-gm.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/adp-discover.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/control.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/acmp-cmd.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/aecp.txt -
+COMMAND ${REVIEW_PACKET}/scratch/A8/native/Vsim ${REVIEW_PACKET}/scratch/A8/results/backlog-adp.txt -
+BUDGET acmp.tmr_no_tk.if0: 15.234 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 32.514 ms over T_svc 10 ms
+BUDGET adp.link_up.if1: 41.690 ms over T_svc 10 ms
+BUDGET maap.probe1.if0: 18.489 ms over T_svc 10 ms
+BUDGET maap.probe1.if1: 17.039 ms over T_svc 10 ms
+BUDGET acmp.tmr_no_resp1.if0: 14.193 ms over T_svc 10 ms
+BUDGET acmp.tmr_no_resp1.if1: 12.885 ms over T_svc 10 ms
+BUDGET acmp.tmr_retry.if0: 27.137 ms over T_svc 10 ms
+BUDGET acmp.tmr_retry.if1: 26.206 ms over T_svc 10 ms
+BUDGET srp.startup.if0: 15.788 ms over T_svc 10 ms
+BUDGET srp.startup.if1: 13.246 ms over T_svc 10 ms
+BUDGET acmp.entity_departing.if0: 45.449 ms over T_svc 10 ms
+BUDGET acmp.entity_departing.if1: 47.729 ms over T_svc 10 ms
+BUDGET acmp.entity_available.if0: 27.410 ms over T_svc 10 ms
+BUDGET acmp.entity_available.if1: 29.722 ms over T_svc 10 ms
+BUDGET backlog.event.if0: 40.514 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 101.982 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 98.925 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 32.514 ms over T_svc 10 ms
+BUDGET adp.link_up.if1: 41.690 ms over T_svc 10 ms
+BUDGET adp.link_down.if0: 18.351 ms over T_svc 10 ms
+BUDGET adp.link_down.if1: 26.844 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 32.514 ms over T_svc 10 ms
+BUDGET adp.link_up.if1: 41.690 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 32.514 ms over T_svc 10 ms
+BUDGET adp.link_up.if1: 41.690 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 32.514 ms over T_svc 10 ms
+BUDGET adp.link_up.if1: 41.690 ms over T_svc 10 ms
+BUDGET acmp.probe_tx_response.if0: 19.403 ms over T_svc 10 ms
+BUDGET acmp.get_rx_state.if0: 10.963 ms over T_svc 10 ms
+BUDGET acmp.probe_tx.if0: 11.168 ms over T_svc 10 ms
+BUDGET acmp.get_tx_state.if0: 10.670 ms over T_svc 10 ms
+BUDGET acmp.disconnect_tx.if0: 10.624 ms over T_svc 10 ms
+BUDGET acmp.get_tx_connection.if0: 10.627 ms over T_svc 10 ms
+BUDGET acmp.bind_rx.if1: 11.356 ms over T_svc 10 ms
+BUDGET acmp.probe_tx_response.if1: 15.990 ms over T_svc 10 ms
+BUDGET acmp.get_rx_state.if1: 19.785 ms over T_svc 10 ms
+BUDGET acmp.unbind_rx.if1: 19.804 ms over T_svc 10 ms
+BUDGET acmp.probe_tx.if1: 21.016 ms over T_svc 10 ms
+BUDGET acmp.get_tx_state.if1: 27.595 ms over T_svc 10 ms
+BUDGET acmp.disconnect_tx.if1: 20.181 ms over T_svc 10 ms
+BUDGET acmp.get_tx_connection.if1: 19.699 ms over T_svc 10 ms
+BUDGET aecp.get_configuration.if0: 14.822 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 48.632 ms over T_svc 10 ms
+14 groups graded, 0 refusals, 44 T_svc misses
