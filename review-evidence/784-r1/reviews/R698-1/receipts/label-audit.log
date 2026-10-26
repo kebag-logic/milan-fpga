@@ -1,0 +1,62 @@
+scripts/ci_gate_workflows.py:165:    return {"runs-on": "ubuntu-latest", "timeout-minutes": 3,
+scripts/yosys_shards.py:21:# apt Yosys of its day (0.33-5build2 on ubuntu-latest). CI has pinned Yosys
+scripts/ci_workflow_plan_selftest.py:20:    runs-on: ubuntu-latest
+scripts/ci_workflow_plan_selftest.py:30:    runs-on: ubuntu-latest
+scripts/ci_workflow_plan_selftest.py:39:    runs-on: ubuntu-latest
+scripts/ci_runtime_workflows.py:127:    return {"name": "Fail fast across this head", "runs-on": "ubuntu-latest", "timeout-minutes": 120,
+scripts/ci_runtime_workflows.py:145:    return {"name": "Cancel late CI failures", "runs-on": "ubuntu-latest", "timeout-minutes": 3,
+scripts/ci_runtime_workflows.py:159:    return {"name": "Collect CI manifest", "runs-on": "ubuntu-latest", "timeout-minutes": 15,
+scripts/ci_suite_workflows.py:44:        "runs-on": "ubuntu-latest", "timeout-minutes": 2,
+scripts/ci_suite_workflows.py:76:        "name": "Prepare pinned Yosys", "runs-on": "ubuntu-latest", "timeout-minutes": 29,
+scripts/act_ci.py:87:#: to RUNNER_IMAGE (#784). Hosted ``ubuntu-latest`` moved to the 26.04 image,
+scripts/act_ci.py:89:#: ``ubuntu-24.04``; both are accepted while that change lands. Any other label
+scripts/act_ci.py:92:RUNS_ON_LABELS = ("ubuntu-latest", "ubuntu-24.04")
+scripts/act_ci.py:6605:            "    runs-on: ubuntu-latest\n    steps:\n      - run: true\n",
+scripts/act_ci.py:6720:    """Arms: the sandbox accepts exactly the literals ubuntu-latest and ubuntu-24.04, refusing others by name (#784)."""
+scripts/act_ci.py:6724:        for label in ("ubuntu-latest", "ubuntu-24.04"):
+scripts/act_ci.py:6733:            ("the arm image", "ubuntu-24.04-arm"),
+scripts/act_ci.py:6734:            ("a one-label list", "[ubuntu-24.04]"),
+scripts/act_ci.py:6750:        "act's platform list maps ubuntu-latest and ubuntu-24.04 to the runner image, once each",
+scripts/act_ci.py:6751:        platforms == [f"ubuntu-latest={RUNNER_IMAGE}", f"ubuntu-24.04={RUNNER_IMAGE}"],
+scripts/act_ci.py:6753:    probes = ("ubuntu-latest", "ubuntu-24.04", "ubuntu-26.04", "ubuntu-22.04", "ubuntu-20.04", "self-hosted")
+scripts/act_ci.py:6813:    """Arms: a ubuntu-24.04 job replays to an act command that maps it; a ubuntu-26.04 job is refused first (#784)."""
+scripts/act_ci.py:6815:    rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, "ubuntu-24.04")
+scripts/act_ci.py:6817:        "a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command "
+scripts/act_ci.py:6818:        "that maps ubuntu-24.04 to the runner image",
+scripts/act_ci.py:6820:        and f" --platform ubuntu-24.04={RUNNER_IMAGE} " in transcript,
+scripts/act_ci.py:6823:        f"a ubuntu-24.04 replay holds its job containers to the same {CONTAINER_MEMORY} memory "
+scripts/act_ci.py:6824:        "and swap bound as ubuntu-latest",
+scripts/act_ci.py:6827:        in dry_run_replay(resolved, shipping_root, "ubuntu-latest")[2],
+scripts/act_ci.py:7710:    plain = "    runs-on: ubuntu-latest\n    steps:\n      - run: true\n"
+scripts/act_ci.py:8688:    "name: actions\non: push\njobs:\n  use:\n    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:8714:        "  one:\n    runs-on: ubuntu-latest\n    steps:\n"
+scripts/act_ci.py:8717:        "  two:\n    runs-on: ubuntu-latest\n    steps:\n"
+scripts/act_ci.py:13038:        "name: docs\non: push\njobs:\n  docs:\n    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:13298:            "    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:13304:            "    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:13311:            "    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:13351:                "  unsafe:\n    runs-on: ubuntu-latest\n    steps:\n"
+scripts/act_ci.py:13370:        "on: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:13384:            f"name: {name}\non: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:13414:        "name: safe\non: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:15537:            "    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:15546:            "    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:15559:            "    runs-on: ubuntu-latest\n"
+scripts/act_ci.py:16654:            "    runs-on: ubuntu-latest\n"
+scripts/ci_events.py:177:    'runs-on': 'ubuntu-latest',
+scripts/ci_events.py:4651:        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+scripts/ci_events.py:4663:                                  "runs-on": "ubuntu-latest",
+scripts/ci_events.py:4676:                                  "runs-on": "ubuntu-latest",
+scripts/ci_events.py:4689:        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+scripts/ci_events.py:4702:        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+scripts/ci_events.py:4734:    jobs(w[path])["standalone"] = {"runs-on": "ubuntu-latest", key: value,
+scripts/ci_events.py:4791:        jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-latest",
+scripts/ci_events.py:5030:        "runs-on": "ubuntu-latest",
+scripts/ci_events.py:5102:        job = {"runs-on": "ubuntu-latest", "steps": [{"run": "true"}]}
+scripts/ci_events.py:5274:        "runs-on": "ubuntu-latest",
+scripts/ci_events.py:5341:        "runs-on": "ubuntu-latest",
+scripts/ci_events.py:5757:        all_jobs[jid] = {"runs-on": "ubuntu-latest",
+scripts/ci_events.py:5772:        jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
+scripts/ci_events.py:7861:        jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
+scripts/ci_events.py:8435:                             "    name: docs-check\n    runs-on: ubuntu-latest\n"
+scripts/ci_events.py:8473:                              "    runs-on: ubuntu-latest\n"

@@ -1,0 +1,38 @@
+command: ['python3', '/review/docs_gates.py']
+isolation: private user/PID/network/IPC/UTS namespaces; no host home, sockets or credentials; read-only source; no capabilities
+COMMAND scripts/docs_check.py
+docs_check: 0 finding(s) across 210 md files + 1418 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+RETURN 0
+COMMAND scripts/check_feature_status.py
+feature_status: 0 finding(s)
+RETURN 0
+COMMAND scripts/check_em_dash.py --base d385b38e
+check_em_dash: 0 finding(s) over 10 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [d385b38e..HEAD]
+RETURN 0
+COMMAND scripts/check_doc_style.py
+documentation style: OK (23 current documents)
+RETURN 0
+COMMAND scripts/gen_toc.py --selftest
+TOC selftest: PASS (1501/1501 arm(s))
+RETURN 0
+COMMAND scripts/gen_toc.py --verify-anchors
+anchor check: 537 existing cross-page fragment links reproduced
+RETURN 0
+COMMAND scripts/gen_toc.py --check
+TOC gate: OK (149 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+RETURN 0
+COMMAND scripts/check_doc_paths.py
+doc path gate: OK (1062 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+RETURN 0
+COMMAND scripts/check_baremetal_only.py --check
+baremetal-only: OK (0 findings across 1416 tracked first-party file(s))
+RETURN 0
+COMMAND docs/DOC_MAP.gen.py --check
+Fontconfig error: Cannot load default config file: File not found
+documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+RETURN 0
+COMMAND scripts/ci_gate_workflows.py --check
+RETURN 0
+COMMAND scripts/generate_ci_evidence_pins.py --check
+RETURN 0
+FAILED []
