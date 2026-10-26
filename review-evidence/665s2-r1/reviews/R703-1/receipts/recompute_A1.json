@@ -1,0 +1,215 @@
+{
+ "results": "$REVIEWS/665s2-r703-1-packet/scratch/b/a1x1/results",
+ "interfaces": 1,
+ "groups": {
+  "acmp-cmd": {
+   "passes": 79,
+   "worst_cpu": 1493556,
+   "worst_ms": 29.871,
+   "clock": {
+    "consecutive_pass_pairs_ok": 11,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-disc": {
+   "passes": 174,
+   "worst_cpu": 1552161,
+   "worst_ms": 31.043,
+   "clock": {
+    "consecutive_pass_pairs_ok": 106,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-noresp": {
+   "passes": 300,
+   "worst_cpu": 1448955,
+   "worst_ms": 28.979,
+   "clock": {
+    "consecutive_pass_pairs_ok": 232,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-notk": {
+   "passes": 489,
+   "worst_cpu": 1493556,
+   "worst_ms": 29.871,
+   "clock": {
+    "consecutive_pass_pairs_ok": 421,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-advertise": {
+   "passes": 586,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 3,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-discover": {
+   "passes": 87,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 1,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-gm": {
+   "passes": 87,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 1,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-link": {
+   "passes": 86,
+   "worst_cpu": 274011,
+   "worst_ms": 5.48,
+   "clock": {
+    "consecutive_pass_pairs_ok": 1,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "aecp": {
+   "passes": 108,
+   "worst_cpu": 367459,
+   "worst_ms": 7.349,
+   "clock": {
+    "consecutive_pass_pairs_ok": 13,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "backlog-adp": {
+   "passes": 99,
+   "worst_cpu": 1476866,
+   "worst_ms": 29.537,
+   "clock": {
+    "consecutive_pass_pairs_ok": 31,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 1391312,
+   "composed_ms": 27.826,
+   "backlog_rows": {
+    "ENTITY_AVAILABLE behind the adp ring": {
+     "start": 89325906,
+     "end": 93715834,
+     "ms": 43.899
+    }
+   }
+  },
+  "backlog": {
+   "passes": 119,
+   "worst_cpu": 685184,
+   "worst_ms": 13.704,
+   "clock": {
+    "consecutive_pass_pairs_ok": 34,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 685184,
+   "composed_ms": 13.704,
+   "backlog_rows": {
+    "event behind 15 others": {
+     "start": 78167506,
+     "end": 79579712,
+     "ms": 14.122
+    },
+    "ACMP command behind a full acmp ring": {
+     "start": 78170584,
+     "wire": 84206089,
+     "wire_ms": 60.355
+    },
+    "response with 7 owed ahead": {
+     "start": 104772894,
+     "wire": 112348635,
+     "wire_ms": 75.757,
+     "room": 110772890
+    }
+   }
+  },
+  "control": {
+   "passes": 87,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 1,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "fixture": {
+   "passes": 44,
+   "worst_cpu": 1435464,
+   "worst_ms": 28.709,
+   "clock": {
+    "consecutive_pass_pairs_ok": 19,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "maap": {
+   "passes": 188,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 2,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "srp": {
+   "passes": 284,
+   "worst_cpu": 353587,
+   "worst_ms": 7.072,
+   "clock": {
+    "consecutive_pass_pairs_ok": 4,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  }
+ }
+}

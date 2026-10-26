@@ -1,0 +1,13 @@
+R1 CAUGHT rc=1 clock ratio: CPU cycles rounded down :: FAIL: fixture row fixture.malformed.if0: {'status': 'measured', 'start_sys': 29252511, 'end_sys': 29467456, 'sys_cycles': 214945, 'cpu_cycle
+R2 ESCAPED rc=0 clock ratio: composed-maximum ms from the bus clock
+R3 ESCAPED rc=0 clock ratio: worst-pass ms from the bus clock
+R4 ESCAPED rc=0 clock ratio: the pass bound treats CPU cycles as bus cycles
+R5 CAUGHT rc=1 marker: a timer path starts one millisecond after its deadline :: FAIL: fixture row fixture.tmr_no_resp1.if0: {'status': 'measured', 'start_sys': 56300065, 'end_sys': 56764648, 'sys_cycles': 464583, 'cpu_cy
+R6 ESCAPED rc=0 deadline: the ceiling verdict drops the normative wait
+R7 ESCAPED rc=0 marker: the expected-response check is skipped
+R8 ESCAPED rc=0 marker: a receive commit is given to the newest frame
+R9 ESCAPED rc=0 pass bound: starts at the input, not at the running pass
+R10 ESCAPED rc=0 deadline: a T_svc miss never fails the run
+R11 ESCAPED rc=0 a refused (unmeasured) probe does not fail the run
+R12 ESCAPED rc=0 a CPU trap or bus error is not refused
+review mutants: 12 run, 10 escaped the self-test

@@ -1,0 +1,33 @@
+PASS: fixture digest
+PASS: fixture row fixture.link_up.if0
+PASS: fixture row fixture.malformed.if0
+PASS: fixture row fixture.set_name.if0
+PASS: fixture row fixture.link_down.if0
+PASS: fixture row fixture.bind_rx.if0
+PASS: fixture row fixture.tmr_no_resp1.if0
+PASS: fixture row fixture.entity_departing.if0
+PASS: clock conversion
+PASS: ceilings pinned
+PASS: exact budget passes
+PASS: one cycle over misses
+PASS: tagged start
+PASS: sequence and interface
+PASS: last end decides
+PASS: timer origin is the armed deadline
+PASS: W + T_svc passes
+PASS: W + T_svc + 1 misses
+PASS: planted over-budget path is caught
+MUTANT caught: marker: the frame tag is ignored: tagged start
+MUTANT caught: marker: a timer path starts when its record is posted: fixture row fixture.tmr_no_resp1.if0
+MUTANT caught: marker: any response on the channel ends the path: sequence and interface
+MUTANT caught: marker: the interface is ignored: sequence and interface
+MUTANT caught: marker: the first required output ends the path: fixture row fixture.set_name.if0
+MUTANT caught: clock ratio: CPU cycles equal bus cycles: fixture row fixture.link_up.if0
+MUTANT caught: clock ratio: inverted: fixture row fixture.link_up.if0
+MUTANT caught: clock ratio: milliseconds from the CPU clock: fixture row fixture.link_up.if0
+MUTANT caught: deadline: T_svc 20 ms: ceilings pinned
+MUTANT caught: deadline: strictly below the budget: exact budget passes
+MUTANT caught: deadline: the normative wait is not added: W + T_svc passes
+MUTANT caught: deadline: the ACMP ceiling is the transaction timeout: ceilings pinned
+self-test: 0 failures
+rc=0
