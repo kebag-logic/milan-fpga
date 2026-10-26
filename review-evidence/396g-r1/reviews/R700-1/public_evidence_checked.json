@@ -1,0 +1,128 @@
+[
+  {
+    "file": "author/receipts/INDEX.md",
+    "expected_sha256": "838a91934389e28637a8f1580543fdc0119622ded5b523e9e93e3de325fb3c9e",
+    "actual_sha256": "838a91934389e28637a8f1580543fdc0119622ded5b523e9e93e3de325fb3c9e",
+    "tail": "4ce9e7404` |\n| `plan_feature.log` | 50300 | `c3b7ef071040379b4e67e5804109196630b226a1e5e92b1f2c994dc416ba40ef` |\n| `py_idiom.log` | 461 | `66326de81da375ba31376c87dd7106f92da62604e3de159278854298939da14e` |\n| `rc.txt` | 401 | `e8a03961842a6df19ca903024e8451fcdf2569a692510943a52914793c94785b` |\n| `release_mutants.log` | 13957 | `2e3e9dec68c4998eca9941bfb34edd1d55d403f59efaf2ac68d0a2b009c37121` |\n| `selftest.log` | 17284 | `07131a07e5504edb2859130d4c02f323e5c3a15043ec829d073b00a5c65cc432` |\n| `standards_citations.txt` | 8713 | `c82a3f20091593d3f476b0b6c7c30a2385d37f24cc4159547cbecd312066a634` |\n"
+  },
+  {
+    "file": "author/receipts/bdd_conformance.summary.txt",
+    "expected_sha256": "ada3b51644e35bf61121de1f64cc5eaa1b3cd367df4a8248a5cfe2e8a517b99a",
+    "actual_sha256": "ada3b51644e35bf61121de1f64cc5eaa1b3cd367df4a8248a5cfe2e8a517b99a",
+    "tail": "owth VERDICT, not an INFO note -- @1.5 the two real escapes and their controls\n  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.6 the two real escapes and their controls\n  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.7 the two real escapes and their controls\n14 features passed, 0 failed, 0 skipped\n452 scenarios passed, 0 failed, 0 skipped\n2154 steps passed, 0 failed, 0 skipped\n--- tail\n\n14 features passed, 0 failed, 0 skipped\n452 scenarios passed, 0 failed, 0 skipped\n2154 steps passed, 0 failed, 0 skipped\nTook 0min 1.335s\n"
+  },
+  {
+    "file": "author/receipts/coverage_release.log",
+    "expected_sha256": "2449e3bd0fa545062ffcbac04c6ff02f9e94d184ca78ff0c8dc4f775263fabe2",
+    "actual_sha256": "2449e3bd0fa545062ffcbac04c6ff02f9e94d184ca78ff0c8dc4f775263fabe2",
+    "tail": "  ],\n      \"dut_listener\": [\n        0,\n        1,\n        2,\n        3,\n        4\n      ],\n      \"peer_talker\": [\n        0,\n        2\n      ],\n      \"peer_listener\": [\n        0,\n        2,\n        4,\n        6,\n        8\n      ]\n    },\n    \"expected\": {\n      \"dut_talker\": [\n        0,\n        1,\n        2,\n        3,\n        4\n      ],\n      \"dut_listener\": [\n        0,\n        1,\n        2,\n        3,\n        4\n      ],\n      \"peer_talker\": [\n        0,\n        2\n      ],\n      \"peer_listener\": [\n        0,\n        2,\n        4,\n        6,\n        8\n      ]\n    },\n    \"missing\": {}\n  }\n}\n"
+  },
+  {
+    "file": "author/receipts/doc_paths.log",
+    "expected_sha256": "a9e2aa111f4344f7413c06a72d639c4fd3a4901a52d3f4382748beac342875dc",
+    "actual_sha256": "a9e2aa111f4344f7413c06a72d639c4fd3a4901a52d3f4382748beac342875dc",
+    "tail": "doc path gate: OK (1065 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)\n"
+  },
+  {
+    "file": "author/receipts/doc_style.log",
+    "expected_sha256": "e44785f7c4566223d097c60b7c622446f3c096a97e26bc660ef43f562ed3876e",
+    "actual_sha256": "e44785f7c4566223d097c60b7c622446f3c096a97e26bc660ef43f562ed3876e",
+    "tail": "documentation style: OK (23 current documents)\n"
+  },
+  {
+    "file": "author/receipts/docs_check.log",
+    "expected_sha256": "819bf8cdc2043059083df80938da6e4cf1c213d7e2dca328cd1228caedfad46e",
+    "actual_sha256": "819bf8cdc2043059083df80938da6e4cf1c213d7e2dca328cd1228caedfad46e",
+    "tail": "docs_check: 0 finding(s) across 210 md files + 1418 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]\n"
+  },
+  {
+    "file": "author/receipts/em_dash.log",
+    "expected_sha256": "d3a89e1f733749f7c7f866feff2fe2a50008c21cd6312c6b75e4923637d5b260",
+    "actual_sha256": "d3a89e1f733749f7c7f866feff2fe2a50008c21cd6312c6b75e4923637d5b260",
+    "tail": "check_em_dash: 0 finding(s) over 222 added line(s) in 5 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [e76a755a..HEAD]\n"
+  },
+  {
+    "file": "author/receipts/feature_mutants.log",
+    "expected_sha256": "78ff8d8ba90426520cfb602b967c72fec3199a0337f1a32f68ac504f7d41932c",
+    "actual_sha256": "78ff8d8ba90426520cfb602b967c72fec3199a0337f1a32f68ac504f7d41932c",
+    "tail": "e audio run\nKILLED: capture loss counted against DUT: 132 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:438  a missed planted arm voids the audio run\nKILLED: inventory loses clock source: 131 scenarios passed, 2 failed, 0 skipped | first: features/torture_campaign_plan.feature:342  release defaults encode the decided soak, audio run and cycle mix\nKILLED: audio integrity loses CRF sink targets: 131 scenarios passed, 2 failed, 0 skipped | first: features/torture_campaign_plan.feature:149  coverage is audited PER AREA, because the whole-plan audit is blind\n"
+  },
+  {
+    "file": "author/receipts/feature_mutants_baseline.log",
+    "expected_sha256": "4d861158e3411847fb46a0894ec202341b59dbdc9e680b14f9c910aa204977ce",
+    "actual_sha256": "4d861158e3411847fb46a0894ec202341b59dbdc9e680b14f9c910aa204977ce",
+    "tail": "ing human entry exits 2 ... passed in 0.000s\n    And a SKIP alone exits 0 ... passed in 0.000s\n    And the summary counts every verdict kind ... passed in 0.000s\n\n  Scenario: every grandmaster change needs a following uncertainty hold\n    Given the campaign plan is importable ... passed in 0.000s\n    When the soak release area is planned ... passed in 0.000s\n    Then the planned uncertainty oracle rejects missing holds for every GM change ... passed in 0.000s\n\n1 feature passed, 0 failed, 0 skipped\n133 scenarios passed, 0 failed, 0 skipped\n533 steps passed, 0 failed, 0 skipped\nTook 0min 0.643s\n"
+  },
+  {
+    "file": "author/receipts/feature_status.log",
+    "expected_sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+    "actual_sha256": "802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0",
+    "tail": "feature_status: 0 finding(s)\n"
+  },
+  {
+    "file": "author/receipts/feature_status_selftest.log",
+    "expected_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "actual_sha256": "77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184",
+    "tail": "djective is not a count\n  PASS  claim wrapped across lines\n  PASS  wrapped version claim still read\n  PASS  claim inside a block quote\n  PASS  count in a fact block ignored\n  PASS  documented order reversed\n  PASS  order block required\n  PASS  order block unregistered\n  PASS  boot order source tie\n  PASS  boot order reversed in firmware\n  PASS  boot step absent\n  PASS  commented boot call ignored\n  PASS  missing milan_init refused\n  PASS  value register required\n  PASS  unknown register fact\n  PASS  boot order needs two steps\nfeature_status self-test: 46/46 passed\nfeature_status: 0 finding(s)\n"
+  },
+  {
+    "file": "author/receipts/gen_toc_anchors.log",
+    "expected_sha256": "625f5c1ec7b2151da0c2f9c82b319b9ff3ec008703b7ee526e73d4eb095a670e",
+    "actual_sha256": "625f5c1ec7b2151da0c2f9c82b319b9ff3ec008703b7ee526e73d4eb095a670e",
+    "tail": "anchor check: 537 existing cross-page fragment links reproduced\n"
+  },
+  {
+    "file": "author/receipts/gen_toc_check.log",
+    "expected_sha256": "aa92588bd92ea3971c9a1e3be9f6543378c641e37bd3d935316b04d0bcf4c09e",
+    "actual_sha256": "aa92588bd92ea3971c9a1e3be9f6543378c641e37bd3d935316b04d0bcf4c09e",
+    "tail": "TOC gate: OK (149 page(s) carry an annotated contents list, 18 below the 3-section threshold)\n"
+  },
+  {
+    "file": "author/receipts/grader_throughput.log",
+    "expected_sha256": "d24b009cb36137196dc1c06a7a27b941bcb99ec73f0f96c58fb38f368a145b7e",
+    "actual_sha256": "d24b009cb36137196dc1c06a7a27b941bcb99ec73f0f96c58fb38f368a145b7e",
+    "tail": "frames=5758976 channels=8 elapsed_s=0.055 capture_minutes_per_s=36.5\nverdict=NOT RUN why=void: drop, repeat and flip arms must run at the start and at the end events=0\n"
+  },
+  {
+    "file": "author/receipts/head.txt",
+    "expected_sha256": "81341a6db6f2dbff3129dce34c2e4f041e639abd9d29332bf27e4c0d8a6f61c3",
+    "actual_sha256": "81341a6db6f2dbff3129dce34c2e4f041e639abd9d29332bf27e4c0d8a6f61c3",
+    "tail": "head 21faa48242e021177a1dc702f28e51347c6a7a57\n"
+  },
+  {
+    "file": "author/receipts/mutant_failing_words.log",
+    "expected_sha256": "348d4eacb53d609a28adfca9710803cdc7646fa0811dd4ece63a84316a0aca7e",
+    "actual_sha256": "348d4eacb53d609a28adfca9710803cdc7646fa0811dd4ece63a84316a0aca7e",
+    "tail": "ores the eight Milan items and the binding' not found in \"REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3\nADP text drops the reset origin | test_release_assertion_text | AssertionError: 'for a soft reset T0 is the host-timestamped reset command' not found in 'REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEE\ncounter text drops the timestamp counters | test_release_assertion_text | AssertionError: 'zero SEQ_NUM_MISMATCH, STREAM_INTERRUPTED, LATE_TIMESTAMP and ' not found in 'REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions\n"
+  },
+  {
+    "file": "author/receipts/plan_feature.log",
+    "expected_sha256": "c3b7ef071040379b4e67e5804109196630b226a1e5e92b1f2c994dc416ba40ef",
+    "actual_sha256": "c3b7ef071040379b4e67e5804109196630b226a1e5e92b1f2c994dc416ba40ef",
+    "tail": "ing human entry exits 2 ... passed in 0.000s\n    And a SKIP alone exits 0 ... passed in 0.000s\n    And the summary counts every verdict kind ... passed in 0.000s\n\n  Scenario: every grandmaster change needs a following uncertainty hold\n    Given the campaign plan is importable ... passed in 0.000s\n    When the soak release area is planned ... passed in 0.000s\n    Then the planned uncertainty oracle rejects missing holds for every GM change ... passed in 0.000s\n\n1 feature passed, 0 failed, 0 skipped\n133 scenarios passed, 0 failed, 0 skipped\n533 steps passed, 0 failed, 0 skipped\nTook 0min 0.755s\n"
+  },
+  {
+    "file": "author/receipts/py_idiom.log",
+    "expected_sha256": "66326de81da375ba31376c87dd7106f92da62604e3de159278854298939da14e",
+    "actual_sha256": "66326de81da375ba31376c87dd7106f92da62604e3de159278854298939da14e",
+    "tail": "py idiom: 512 first-party modules, 263161 lines\n  bare except: 0\n  mutable default argument: 0\n  shell invocation: 0\n  shadowed builtin: 0\n  wildcard import: 0\n  dynamic eval/exec: 0\n  unparseable source: 0\n  long function: 9 <= 9\n  long module: 10 <= 10\n  unannotated public function: 0 <= 0\n  undocumented public function: 0 <= 0\n  os.path use: 1 <= 1\n  unmanaged open: 0 <= 0\n  too many parameters: 7 <= 7\n  global statement: 0 <= 0\n  over-long line: 0 <= 0\n"
+  },
+  {
+    "file": "author/receipts/rc.txt",
+    "expected_sha256": "e8a03961842a6df19ca903024e8451fcdf2569a692510943a52914793c94785b",
+    "actual_sha256": "e8a03961842a6df19ca903024e8451fcdf2569a692510943a52914793c94785b",
+    "tail": "selftest rc=0\nplan_feature rc=0\ndocs_check rc=0\ngen_toc_check rc=0\ngen_toc_anchors rc=0\nem_dash rc=0\ndoc_style rc=0\ndoc_paths rc=0\npy_idiom rc=0\nfeature_status rc=0\nfeature_status_selftest rc=0\ncoverage_release rc=0\ndiff_check_range rc=0\ndiff_check_tree rc=0\nbdd_conformance rc=0\nrelease_mutants rc=0\nfeature_mutants_baseline rc=0\nfeature_mutants rc=0\ngrader_throughput rc=0\nmutant_failing_words rc=0\n"
+  },
+  {
+    "file": "author/receipts/release_mutants.log",
+    "expected_sha256": "2e3e9dec68c4998eca9941bfb34edd1d55d403f59efaf2ac68d0a2b009c37121",
+    "actual_sha256": "2e3e9dec68c4998eca9941bfb34edd1d55d403f59efaf2ac68d0a2b009c37121",
+    "tail": " soak window: test_release_defaults_and_assertions\nKILLED: planted-event log not retained: test_release_defaults_and_assertions\nKILLED: unlock text allows explained unlocks: test_release_assertion_text\nKILLED: cycle text returns to 160/40: test_release_assertion_text\nKILLED: soak text returns to seven days: test_release_assertion_text\nKILLED: state text drops the eight items: test_release_assertion_text\nKILLED: ADP text drops the reset origin: test_release_assertion_text\nKILLED: counter text drops the timestamp counters: test_release_assertion_text\nPASS: 192 mutations killed; source unchanged\n"
+  },
+  {
+    "file": "author/receipts/selftest.log",
+    "expected_sha256": "07131a07e5504edb2859130d4c02f323e5c3a15043ec829d073b00a5c65cc432",
+    "actual_sha256": "07131a07e5504edb2859130d4c02f323e5c3a15043ec829d073b00a5c65cc432",
+    "tail": "_source_edit)\nA bench of another shape is a --dut/--peer spec, and a misspelt key is ... ok\ntest_tv_tnv_grades_settled_and_coalesced_packet_snapshots (__main__.self_test.<locals>.T.test_tv_tnv_grades_settled_and_coalesced_packet_snapshots)\nA single coalesced snapshot cannot establish a packet-rate defect. ... ok\ntest_unpublished_zero_receive_snapshot (__main__.self_test.<locals>.T.test_unpublished_zero_receive_snapshot)\nReal startup boundary: three accepted packets precede RX publication. ... ok\n\n----------------------------------------------------------------------\nRan 94 tests in 1.473s\n\nOK\n"
+  }
+]

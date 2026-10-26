@@ -1,0 +1,267 @@
+{
+  "plan_sha256": "d502af12cf3a52f027c5a88ce2bd9052b244ef8f5628f27cd560b2eb9e57c6be",
+  "steps": 17,
+  "assertion_occurrences": 80,
+  "all_have_clause_and_severity": true,
+  "release_steps": [
+    {
+      "sid": "soak.continuous",
+      "op": "release_soak",
+      "assertions": [
+        "release.complete-evidence",
+        "soak.continuous-duration",
+        "soak.bound-both-directions",
+        "soak.counter-walk",
+        "soak.no-counter-errors",
+        "soak.mr-causes-and-hold",
+        "soak.gptp-continuity",
+        "soak.tu-within-holdover",
+        "soak.timestamp-margin",
+        "soak.uptime-monotonic"
+      ],
+      "clauses": {
+        "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+        "soak.continuous-duration": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: at least 86400 continuous seconds (24 h) after all pairs flow; no concatenating interrupted runs or counting setup time",
+        "soak.bound-both-directions": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: keep the compatible AAF and CRF pairs bound and flowing in both directions throughout the observation window",
+        "soak.counter-walk": "Milan v1.2 Table 5.4 / Table 5.6; REQ-VER-06: read every declared input and output, CRF included, at baseline, each interval and the endpoint; validate masks and lock/start-stop invariants; no unexplained counter reset",
+        "soak.no-counter-errors": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.8.10 Table 5.6; IEEE 1722-2016 4.4.4.6: zero SEQ_NUM_MISMATCH, STREAM_INTERRUPTED, LATE_TIMESTAMP and EARLY_TIMESTAMP growth on every Stream Input, CRF included; zero MEDIA_UNLOCKED growth of any cause, explained or not, outside a recorded planted event; each planted event excuses at most one increment per input; a decrease is a counter reset and fails; graded by check_release_soak_counters; missing reads or a missing planted-event log is NOT RUN",
+        "soak.mr-causes-and-hold": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: every mr toggle and MEDIA_RESET increment needs a recorded media-clock-source change, CRF disruption, or received CRF mr toggle mapped to that stream's clock source; GM change alone fails; match causes within +/- observation_resolution_s of the toggle; hold each new value for at least 8 AVTPDUs of that stream; MEDIA_RESET counts observation intervals, not packets; missing packet, cause, counter or resolution evidence is NOT RUN; each cause excuses at most one toggle per stream; 2 * observation_resolution_s must be less than the 1 s counter interval ceiling; capture must span [first read - 1 s - observation_resolution_s, last read]; a MEDIA_RESET decrease is a counter reset, not a wrap",
+        "soak.gptp-continuity": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 4.2.6.2.4: coherent fabric publication reads and transition evidence prove no asCapable loss",
+        "soak.tu-within-holdover": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: each tu interval contains at least one recorded discontinuity: GM-identity edge, GM time-source change, or other detected gPTP discontinuity (including PHC settime/adjtime and fabric discontinuity); containment uses [observed_start - observation_resolution_s, clear); measure from the last recorded discontinuity before tu clears; it clears within 0.5 s plus the stated observation resolution; uncorrelated tu fails; resolution comes from wire capture and correlated event timestamps; it includes launch-to-capture latency and event-to-capture correlation error; after each GM change, clear + observation_resolution_s must be at least GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity implements 0.25-0.5 s; B.1's 5 s media-clock holdover is not a tu bound; periodic healthy samples alone cannot prove this; first discontinuity must be within observation_resolution_s of the rise; grade every GM change against the complete tu interval history; a GM change with no covering interval fails; true hold d is observed as h within +/- R, where R = observation_resolution_s; minimum accepts h + R >= 0.25 s, so d >= 0.25 s - 2 * R; require 2 * R < 0.25 s so an instant clear fails; upper bound requires h + R <= 0.5 s + R, equivalently h <= 0.5 s; resolution_limit_s is 0.125 s; coarser resolution is NOT RUN",
+        "soak.timestamp-margin": "docs/reference/REGISTER_MAP.md AVTPRX_TSD (0x6EC): record signed ns presentation margin for the last accepted STREAM_INPUT[0] PDU, with freshness evidence; never attribute this single-index register to other streams",
+        "soak.uptime-monotonic": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: DUT uptime advances monotonically; reboot or unavailable uptime evidence cannot pass the continuous soak"
+      },
+      "parameters": {
+        "duration_s": 86400,
+        "interval_s": 60
+      }
+    },
+    {
+      "sid": "audio.integrity",
+      "op": "release_audio_integrity",
+      "assertions": [
+        "release.complete-evidence",
+        "audio.inside-soak-window",
+        "audio.counter-every-digital-path",
+        "audio.counter-classified",
+        "audio.planted-arms-found",
+        "audio.capture-losses-apart",
+        "audio.event-record",
+        "audio.analog-sine-pair",
+        "audio.zero-dut-glitches"
+      ],
+      "clauses": {
+        "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+        "audio.inside-soak-window": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: starts after soak.continuous binds every pair and starts timing, ends at or before the soak endpoint and lasts at least 86400 continuous seconds; a shorter run or one outside the window cannot qualify",
+        "audio.counter-every-digital-path": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04; IEEE 1722-2016 7.3.5: every channel of every bound AAF stream, in both directions, carries the bit-exact counter: the DUT talker to the reference peer to an external digital capture, the reference peer to the DUT listener to the DUT's TDM output and the direct TDM capture (#451), and the DUT's TDM loop",
+        "audio.counter-classified": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: grade_audio_counter_capture classifies every discontinuity at its sample as n dropped, n repeated, n samples of silence (replaced or inserted), a bit-flip mask or a channel swap; slips are decided modulo 4096 samples, so an exact multiple of 4096 is invisible to the counter",
+        "audio.planted-arms-found": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: the source plants a drop, a repeat and a bit flip at logged capture indices at the start and at the end of the run; each is found with its class and its size or mask; a missed arm, or arms that do not run at both ends, voids the run as NOT RUN",
+        "audio.capture-losses-apart": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: capture-side losses logged by the capture tool are attributed to the capture and reported apart, never counted against the DUT; a logged loss the capture does not show is NOT RUN",
+        "audio.event-record": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04; Milan v1.2 5.3.8.10 Table 5.6: each event records its wall and gPTP times, capture index, expected and received words and class, with walks of every stream's counters and the CRF sink's, the DUT's SLIP_LB and SLIP_TDM words and the gPTP state within audio_context_s on each side",
+        "audio.analog-sine-pair": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: 997 Hz and 9,973 Hz on another channel pair through the analog path, graded per block by THD+N and the sample-exact predictor residual; no limit is decided for either, so this assertion is NOT RUN until a recorded decision sets them",
+        "audio.zero-dut-glitches": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: zero DUT-attributed events over the run on every bound channel, in both directions, with every planted arm found"
+      },
+      "parameters": {
+        "duration_s": 86400
+      }
+    },
+    {
+      "sid": "audio.control.planted-drop",
+      "op": "release_negative_control",
+      "assertions": [
+        "release.control-fails-as-expected",
+        "audio.zero-dut-glitches",
+        "audio.counter-classified"
+      ],
+      "clauses": {
+        "release.control-fails-as-expected": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 acceptance 4: a negative control passes only when its expected assertion FAILs on the known defect; a PASS, SKIP or NOT RUN of that assertion means the gate cannot see it",
+        "audio.zero-dut-glitches": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: zero DUT-attributed events over the run on every bound channel, in both directions, with every planted arm found",
+        "audio.counter-classified": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: grade_audio_counter_capture classifies every discontinuity at its sample as n dropped, n repeated, n samples of silence (replaced or inserted), a bit-flip mask or a channel swap; slips are decided modulo 4096 samples, so an exact multiple of 4096 is invisible to the counter"
+      },
+      "parameters": {
+        "expected_failing_assertion": "audio.zero-dut-glitches",
+        "expected_verdict": "FAIL"
+      }
+    },
+    {
+      "sid": "power.idle",
+      "op": "release_power_cycles",
+      "assertions": [
+        "release.complete-evidence",
+        "power.cycle-count-and-phase",
+        "power.state-restored",
+        "power.adp-valid-time",
+        "power.automatic-restore-bound",
+        "power.rebind-bound",
+        "power.single-boot",
+        "power.counter-walk"
+      ],
+      "clauses": {
+        "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+        "power.cycle-count-and-phase": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 (a power cycle or a simple reset): 200 cycles, 150 confirmed cold cuts (100 idle, 50 inside a journal commit window) and 50 soft resets with power held on; a reset never counts as a cold cut and a cut never as a reset; preserve each cycle's command timestamp and its cut-phase or reset evidence",
+        "power.state-restored": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, 5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, 5.3.13; issue #70's eight-item inventory: every cycle, cut or reset, restores the eight Milan items and the binding; set each item away from its default before the cycle so a revert is visible; compare each against the pre-cycle snapshot; commit cuts must restore a complete old or new committed snapshot, never mixed state; graded by check_release_state_restored; a pre-cycle value equal to its default or a missing readback is NOT RUN",
+        "power.adp-valid-time": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: first post-cut ENTITY_AVAILABLE arrives within the advertised valid_time measured from T0, the host-timestamped power-strip ON command; decode the captured pre-cut PDU in two-second units and require valid_time=10 (20 s); power_off_hold_s and pre-cut advertisement age are provenance, not charged to this window; missing capture or a missed deadline fails; for a soft reset T0 is the host-timestamped reset command",
+        "power.automatic-restore-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP PDU of EACH persisted binding in both directions, including CRF, must be at most restore_bound_s; provisional 30 s, ratified by the manager using #397 boot-to-entity-enabled and #75 restart measurements; controller repair cannot count",
+        "power.rebind-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.2.4; issue #75: an additional per-cycle controller reconnect after automatic restoration succeeds; CONNECT_RX success to first valid AVTP PDU below 1 second; both restoration and reconnect must pass",
+        "power.single-boot": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #366: complete UART/reset observation from T0 through the next cycle or campaign end, at least boot_observation_s, records exactly one BIOS pass and no additional restart, after a cut and after a reset; check_release_boot refuses the repeated BIOS pass even if the second pass restores streaming",
+        "power.counter-walk": "Milan v1.2 Table 5.4 / Table 5.6; REQ-VER-06: snapshot every declared stream index, both directions and CRF, before and after every cycle; validate masks, supported formats, lock/start-stop invariants and flow"
+      },
+      "parameters": {
+        "cycles": 100,
+        "total_cycles": 200,
+        "phase": "idle",
+        "cold": true,
+        "soft_reset": false,
+        "boot_observation_s": 35,
+        "restore_bound_s": 30,
+        "persisted_items": [
+          "configuration",
+          "sampling_rate",
+          "stream_format",
+          "presentation_time_offset",
+          "channel_mappings",
+          "clock_source",
+          "entity_names",
+          "object_names",
+          "stream_binding"
+        ],
+        "adp_valid_time_unit_s": 2,
+        "adp_required_valid_time": 10,
+        "rebind_limit_s": 1,
+        "rebind_limit_exclusive": true
+      }
+    },
+    {
+      "sid": "power.journal_commit",
+      "op": "release_power_cycles",
+      "assertions": [
+        "release.complete-evidence",
+        "power.cycle-count-and-phase",
+        "power.state-restored",
+        "power.adp-valid-time",
+        "power.automatic-restore-bound",
+        "power.rebind-bound",
+        "power.single-boot",
+        "power.counter-walk"
+      ],
+      "clauses": {
+        "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+        "power.cycle-count-and-phase": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 (a power cycle or a simple reset): 200 cycles, 150 confirmed cold cuts (100 idle, 50 inside a journal commit window) and 50 soft resets with power held on; a reset never counts as a cold cut and a cut never as a reset; preserve each cycle's command timestamp and its cut-phase or reset evidence",
+        "power.state-restored": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, 5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, 5.3.13; issue #70's eight-item inventory: every cycle, cut or reset, restores the eight Milan items and the binding; set each item away from its default before the cycle so a revert is visible; compare each against the pre-cycle snapshot; commit cuts must restore a complete old or new committed snapshot, never mixed state; graded by check_release_state_restored; a pre-cycle value equal to its default or a missing readback is NOT RUN",
+        "power.adp-valid-time": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: first post-cut ENTITY_AVAILABLE arrives within the advertised valid_time measured from T0, the host-timestamped power-strip ON command; decode the captured pre-cut PDU in two-second units and require valid_time=10 (20 s); power_off_hold_s and pre-cut advertisement age are provenance, not charged to this window; missing capture or a missed deadline fails; for a soft reset T0 is the host-timestamped reset command",
+        "power.automatic-restore-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP PDU of EACH persisted binding in both directions, including CRF, must be at most restore_bound_s; provisional 30 s, ratified by the manager using #397 boot-to-entity-enabled and #75 restart measurements; controller repair cannot count",
+        "power.rebind-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.2.4; issue #75: an additional per-cycle controller reconnect after automatic restoration succeeds; CONNECT_RX success to first valid AVTP PDU below 1 second; both restoration and reconnect must pass",
+        "power.single-boot": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #366: complete UART/reset observation from T0 through the next cycle or campaign end, at least boot_observation_s, records exactly one BIOS pass and no additional restart, after a cut and after a reset; check_release_boot refuses the repeated BIOS pass even if the second pass restores streaming",
+        "power.counter-walk": "Milan v1.2 Table 5.4 / Table 5.6; REQ-VER-06: snapshot every declared stream index, both directions and CRF, before and after every cycle; validate masks, supported formats, lock/start-stop invariants and flow"
+      },
+      "parameters": {
+        "cycles": 50,
+        "total_cycles": 200,
+        "phase": "journal_commit",
+        "cold": true,
+        "soft_reset": false,
+        "boot_observation_s": 35,
+        "restore_bound_s": 30,
+        "persisted_items": [
+          "configuration",
+          "sampling_rate",
+          "stream_format",
+          "presentation_time_offset",
+          "channel_mappings",
+          "clock_source",
+          "entity_names",
+          "object_names",
+          "stream_binding"
+        ],
+        "adp_valid_time_unit_s": 2,
+        "adp_required_valid_time": 10,
+        "rebind_limit_s": 1,
+        "rebind_limit_exclusive": true
+      }
+    },
+    {
+      "sid": "power.soft_reset",
+      "op": "release_power_cycles",
+      "assertions": [
+        "release.complete-evidence",
+        "power.cycle-count-and-phase",
+        "power.state-restored",
+        "power.adp-valid-time",
+        "power.automatic-restore-bound",
+        "power.rebind-bound",
+        "power.single-boot",
+        "power.counter-walk"
+      ],
+      "clauses": {
+        "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+        "power.cycle-count-and-phase": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 (a power cycle or a simple reset): 200 cycles, 150 confirmed cold cuts (100 idle, 50 inside a journal commit window) and 50 soft resets with power held on; a reset never counts as a cold cut and a cut never as a reset; preserve each cycle's command timestamp and its cut-phase or reset evidence",
+        "power.state-restored": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, 5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, 5.3.13; issue #70's eight-item inventory: every cycle, cut or reset, restores the eight Milan items and the binding; set each item away from its default before the cycle so a revert is visible; compare each against the pre-cycle snapshot; commit cuts must restore a complete old or new committed snapshot, never mixed state; graded by check_release_state_restored; a pre-cycle value equal to its default or a missing readback is NOT RUN",
+        "power.adp-valid-time": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: first post-cut ENTITY_AVAILABLE arrives within the advertised valid_time measured from T0, the host-timestamped power-strip ON command; decode the captured pre-cut PDU in two-second units and require valid_time=10 (20 s); power_off_hold_s and pre-cut advertisement age are provenance, not charged to this window; missing capture or a missed deadline fails; for a soft reset T0 is the host-timestamped reset command",
+        "power.automatic-restore-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP PDU of EACH persisted binding in both directions, including CRF, must be at most restore_bound_s; provisional 30 s, ratified by the manager using #397 boot-to-entity-enabled and #75 restart measurements; controller repair cannot count",
+        "power.rebind-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.2.4; issue #75: an additional per-cycle controller reconnect after automatic restoration succeeds; CONNECT_RX success to first valid AVTP PDU below 1 second; both restoration and reconnect must pass",
+        "power.single-boot": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #366: complete UART/reset observation from T0 through the next cycle or campaign end, at least boot_observation_s, records exactly one BIOS pass and no additional restart, after a cut and after a reset; check_release_boot refuses the repeated BIOS pass even if the second pass restores streaming",
+        "power.counter-walk": "Milan v1.2 Table 5.4 / Table 5.6; REQ-VER-06: snapshot every declared stream index, both directions and CRF, before and after every cycle; validate masks, supported formats, lock/start-stop invariants and flow"
+      },
+      "parameters": {
+        "cycles": 50,
+        "total_cycles": 200,
+        "phase": "soft_reset",
+        "cold": false,
+        "soft_reset": true,
+        "boot_observation_s": 35,
+        "restore_bound_s": 30,
+        "persisted_items": [
+          "configuration",
+          "sampling_rate",
+          "stream_format",
+          "presentation_time_offset",
+          "channel_mappings",
+          "clock_source",
+          "entity_names",
+          "object_names",
+          "stream_binding"
+        ],
+        "adp_valid_time_unit_s": 2,
+        "adp_required_valid_time": 10,
+        "rebind_limit_s": 1,
+        "rebind_limit_exclusive": true
+      }
+    },
+    {
+      "sid": "power.control.first-boot-restart",
+      "op": "release_negative_control",
+      "assertions": [
+        "release.control-fails-as-expected",
+        "power.single-boot"
+      ],
+      "clauses": {
+        "release.control-fails-as-expected": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 acceptance 4: a negative control passes only when its expected assertion FAILs on the known defect; a PASS, SKIP or NOT RUN of that assertion means the gate cannot see it",
+        "power.single-boot": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #366: complete UART/reset observation from T0 through the next cycle or campaign end, at least boot_observation_s, records exactly one BIOS pass and no additional restart, after a cut and after a reset; check_release_boot refuses the repeated BIOS pass even if the second pass restores streaming"
+      },
+      "parameters": {
+        "phase": "idle",
+        "cycles": 1,
+        "expected_verdict": "FAIL",
+        "expected_failing_assertion": "power.single-boot"
+      }
+    },
+    {
+      "sid": "power.control.persistence-disabled",
+      "op": "release_negative_control",
+      "assertions": [
+        "release.control-fails-as-expected",
+        "power.state-restored"
+      ],
+      "clauses": {
+        "release.control-fails-as-expected": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 acceptance 4: a negative control passes only when its expected assertion FAILs on the known defect; a PASS, SKIP or NOT RUN of that assertion means the gate cannot see it",
+        "power.state-restored": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, 5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, 5.3.13; issue #70's eight-item inventory: every cycle, cut or reset, restores the eight Milan items and the binding; set each item away from its default before the cycle so a revert is visible; compare each against the pre-cycle snapshot; commit cuts must restore a complete old or new committed snapshot, never mixed state; graded by check_release_state_restored; a pre-cycle value equal to its default or a missing readback is NOT RUN"
+      },
+      "parameters": {
+        "phase": "idle",
+        "cycles": 1,
+        "expected_verdict": "FAIL",
+        "expected_failing_assertion": "power.state-restored"
+      }
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+[
+  {
+    "name": "selftest",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 1.518
+  },
+  {
+    "name": "mutants",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/tools/torture_release_mutants.py"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 292.041
+  },
+  {
+    "name": "behave",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g/tests",
+    "rc": 0,
+    "seconds": 2.219
+  },
+  {
+    "name": "plan",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--plan",
+      "--areas",
+      "soak,audio,power",
+      "--json"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 0.165
+  },
+  {
+    "name": "coverage",
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--coverage-by-area",
+      "--areas",
+      "soak,audio,power"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 0.165
+  },
+  {
+    "name": "docs_check",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 7.128
+  },
+  {
+    "name": "doc_paths",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 0.115
+  },
+  {
+    "name": "toc",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 5.923
+  },
+  {
+    "name": "anchors",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 4.321
+  },
+  {
+    "name": "em_dash",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "e76a755afc0536453161e3cd33f6f4d2dcd7641f"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 3.07
+  },
+  {
+    "name": "doc_style",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "py_idiom",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 5.374
+  },
+  {
+    "name": "feature_status",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_feature_status.py"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 1.166
+  },
+  {
+    "name": "feature_status_selftest",
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 1.166
+  },
+  {
+    "name": "diff_check",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "e76a755a",
+      "HEAD"
+    ],
+    "cwd": "$REVIEWS/r700-1-396g",
+    "rc": 0,
+    "seconds": 0.016
+  }
+]
