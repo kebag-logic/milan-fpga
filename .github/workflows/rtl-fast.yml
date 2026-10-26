@@ -251,8 +251,95 @@ jobs:
           retention-days: 3
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
-  yosys-elaboration:
+  yosys-tool:
+    name: Prepare pinned Yosys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     needs: changes
+    if: ${{ needs.changes.outputs.rtl == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        id: ci_step_0
+        name: Run actions/checkout@v4
+      - name: Set CPU-derived job budgets
+        run: |
+          set -euo pipefail
+          cpus="$(nproc)"
+          test "$cpus" -gt 0
+          campaign=$(( cpus < 4 ? cpus : 4 ))
+          simulations=$(( cpus < 4 ? cpus : 4 ))
+          tool_build=$(( cpus < 8 ? cpus : 8 ))
+          {
+            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+            printf 'VERILATOR_JOBS=%s\n' "$cpus"
+            printf 'SIM_JOBS=%s\n' "$simulations"
+            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+          } >> "$GITHUB_ENV"
+        id: ci_step_1
+      - name: Cache the pinned Yosys build
+        id: cache-yosys
+        uses: actions/cache@v4
+        with:
+          path: /opt/yosys
+          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{
+            runner.os }}
+      - name: Resolve exact package downloads 2
+        id: ci_packages_2
+        run: |
+          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+      - name: Cache exact package downloads 2
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ci_packages_2
+          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+            '.github/workflows/*.yml') }}
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+        id: ci_step_4
+      - name: Build Yosys from source on cache miss
+        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+        run: |
+          set -euo pipefail
+          : # package index prepared above
+          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends \
+            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+          git clone --depth 1 --branch "$YOSYS_VERSION" \
+            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+          test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
+          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
+          make -C /tmp/yosys-src config-gcc
+          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+            >> /tmp/yosys-src/Makefile.conf
+          make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
+          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
+          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+          # runner-owned so the cache action's save and restore are symmetric
+          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+        id: ci_step_5
+      - name: Record actual job execution
+        id: ci_record
+        if: ${{ always() }}
+        env:
+          CI_STEP_RESULTS: ${{ toJSON(steps) }}
+          CI_JOB_RESULT: ${{ job.status }}
+          CI_MATRIX: ${{ toJSON(matrix) }}
+        run: |
+          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job yosys-tool --output "$RUNNER_TEMP/job-evidence.json"
+      - name: Upload actual job execution
+        id: ci_upload
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-evidence-rtl-fast-yosys-tool-${{ strategy.job-index }}-${{ github.sha }}
+          path: ${{ runner.temp }}/job-evidence.json
+          if-no-files-found: error
+          retention-days: 3
+  yosys-elaboration:
+    needs:
+      - changes
+      - yosys-tool
     if: ${{ needs.changes.outputs.rtl == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -280,46 +367,14 @@ jobs:
       - name: Fetch RTL dependencies
         run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
         id: ci_step_2
-      - name: Cache the pinned Yosys build
-        id: cache-yosys
+      - name: Restore the pinned Yosys build
         uses: actions/cache@v4
         with:
           path: /opt/yosys
-          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml')
-            }}-${{ runner.os }}
-      - name: Resolve exact package downloads 3
-        id: ci_packages_3
-        run: |
-          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354 --directory "$RUNNER_TEMP/ci_packages_3" --output "$GITHUB_OUTPUT"
-        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
-      - name: Cache exact package downloads 3
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/ci_packages_3
-          key: ${{ runner.os }}-${{ steps.ci_packages_3.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
-            '.github/workflows/*.yml') }}
-        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
-        id: ci_step_5
-      - name: Build Yosys from source on cache miss
-        if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
-        run: |
-          set -euo pipefail
-          : # package index prepared above
-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_3" install -y --no-install-recommends \
-            git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
-          git clone --depth 1 --branch "$YOSYS_VERSION" \
-            https://github.com/YosysHQ/yosys.git /tmp/yosys-src
-          test "$(git -C /tmp/yosys-src rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
-          git -C /tmp/yosys-src submodule update --init --depth 1 abc libs/cxxopts
-          make -C /tmp/yosys-src config-gcc
-          printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
-            >> /tmp/yosys-src/Makefile.conf
-          make -C /tmp/yosys-src -j"$CI_TOOL_BUILD_JOBS" PREFIX=/opt/yosys
-          sudo make -C /tmp/yosys-src install PREFIX=/opt/yosys
-          git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
-          # runner-owned so the cache action's save and restore are symmetric
-          sudo chown -R "$(id -u):$(id -g)" /opt/yosys
-        id: ci_step_6
+          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{
+            runner.os }}
+          fail-on-cache-miss: true
+        id: ci_step_3
       - name: Install the pinned Yosys and prove the version
         run: |
           set -euo pipefail
@@ -328,14 +383,14 @@ jobs:
           echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
           yosys -V
           yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
-        id: ci_step_7
+        id: ci_step_4
       - name: Cache verified sv2v archive
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/ci-sv2v-cache
           key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
             '.github/workflows/*.yml') }}-${{ runner.os }}
-        id: ci_step_8
+        id: ci_step_5
       - name: Install the pinned sv2v release
         run: |
           set -euo pipefail
@@ -350,14 +405,14 @@ jobs:
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
             /usr/local/bin/sv2v
           sv2v --version
-        id: ci_step_9
+        id: ci_step_6
       - name: Elaborate the integration-heavy tops
         run: |
           syn/yosys/run.sh --mode elaborate --no-structural \
             --top milan_datapath \
             --top KL_pp_shadow \
             --top KL_gptp_shadow
-        id: ci_step_10
+        id: ci_step_7
       - name: Prove the OOC read sets come from run.sh and refuse a bad one
         run: |
           set -euo pipefail
@@ -375,16 +430,16 @@ jobs:
           python3 syn/ooc/pp_resource_gate.py check-baseline
           python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
           python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
-        id: ci_step_11
+        id: ci_step_8
       - name: Prove ooc.sh generates the ROMs and fails on a failed top
         run: python3 syn/yosys/ooc_selftest.py
-        id: ci_step_12
+        id: ci_step_9
       - name: Prove both synthesis flows refuse active elaboration guards
         run: python3 syn/yosys/guard_selftest.py
-        id: ci_step_13
+        id: ci_step_10
       - name: Prove the result cache refuses a planted entry
         run: python3 syn/yosys/cache_selftest.py
-        id: ci_step_14
+        id: ci_step_11
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -1207,6 +1262,7 @@ jobs:
       - changes
       - verilator-lint
       - bdd-conformance
+      - yosys-tool
       - yosys-elaboration
       - publication-census
       - firmware-unit
@@ -1243,6 +1299,7 @@ jobs:
           CHANGES_RESULT: ${{ needs.changes.result }}
           VERILATOR_LINT_RESULT: ${{ needs.verilator-lint.result }}
           BDD_CONFORMANCE_RESULT: ${{ needs.bdd-conformance.result }}
+          YOSYS_TOOL_RESULT: ${{ needs.yosys-tool.result }}
           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
           PUBLICATION_CENSUS_RESULT: ${{ needs.publication-census.result }}
           FIRMWARE_UNIT_RESULT: ${{ needs.firmware-unit.result }}
@@ -1258,6 +1315,7 @@ jobs:
             "changes:$CHANGES_RESULT" \
             "verilator-lint:$VERILATOR_LINT_RESULT" \
             "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
+            "yosys-tool:$YOSYS_TOOL_RESULT" \
             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
             "publication-census:$PUBLICATION_CENSUS_RESULT" \
             "firmware-unit:$FIRMWARE_UNIT_RESULT" \
@@ -1303,6 +1361,7 @@ jobs:
       - changes
       - verilator-lint
       - bdd-conformance
+      - yosys-tool
       - yosys-elaboration
       - publication-census
       - firmware-unit
@@ -1408,7 +1467,8 @@ jobs:
         id: ci_observe
         env:
           GH_TOKEN: ${{ github.token }}
-          EXPECTED_JOBS: '["bdd-conformance","changes","Collect CI manifest","firmware-aecp-mutants","firmware-boundary","firmware-control-mutants","firmware-srp-mutants","firmware-unit","firmware-verilator","publication-census","rtl-fast","verilator-lint","yosys-elaboration"]'
+          EXPECTED_JOBS: '["bdd-conformance","changes","Collect CI manifest","firmware-aecp-mutants","firmware-boundary","firmware-control-mutants","firmware-srp-mutants","firmware-unit","firmware-verilator","publication-census","rtl-fast","verilator-lint","yosys-elaboration","Prepare
+            pinned Yosys"]'
           SKIPPED_MATRICES: '{}'
         run: |
           python3 scripts/ci_fail_fast.py watch

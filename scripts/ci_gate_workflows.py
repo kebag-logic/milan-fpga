@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
+import json
 from pathlib import Path
 import shlex
 
@@ -33,6 +35,18 @@ DRIVER_COMMAND = "python3 sw/builder/test_builder.py"
 VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
                    "Put Verilator on PATH and prove the version"}
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
+#: rtl-fast builds its pinned Yosys once, in a job of its own (#789). The
+#: template keeps the build in yosys-elaboration; the generator moves it, and
+#: the moved key binds the pinned version, the build recipe and the runner
+#: image instead of every workflow file. A workflow edit then rebuilds nothing,
+#: and a recipe change rebuilds in a job whose only work is the build.
+FAST_TOOL_JOB = "yosys-tool"
+FAST_TOOL_CONSUMER = "yosys-elaboration"
+FAST_AGGREGATE = "rtl-fast"
+#: The owner's 30-minute hosted budget (#789); no job's timeout is raised.
+FAST_TOOL_TIMEOUT = 30
+YOSYS_BUILD_STEPS = ("Cache the pinned Yosys build", "Build Yosys from source on cache miss")
+WORKFLOW_FILES_DIGEST = "${{ hashFiles('.github/workflows/*.yml') }}"
 
 
 class Dumper(yaml.SafeDumper):
@@ -180,6 +194,84 @@ def aggregate(name: str, template: dict) -> dict:
             }
 
 
+def recipe_digest(build: dict) -> str:
+    """The template's build step, every key included, as one digest."""
+    return hashlib.sha256(json.dumps(build, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def fast_tool_key(cache: dict, build: dict, image: str) -> str:
+    """The template key, its workflow-file digest replaced by the recipe digest and the runner image."""
+    key = cache["with"]["key"]
+    if key.count(WORKFLOW_FILES_DIGEST) != 1:
+        raise ValueError(FAST_TOOL_CONSUMER + ": Yosys cache key lacks its one workflow-file digest")
+    return key.replace(WORKFLOW_FILES_DIGEST, "recipe-" + recipe_digest(build) + "-" + image)
+
+
+def result_binding(job_id: str) -> tuple[str, str]:
+    """The fast verdict's environment name and value for one needed job's result."""
+    return job_id.upper().replace("-", "_") + "_RESULT", "${{ needs." + job_id + ".result }}"
+
+
+def require_fast_tool(verdict_job: dict) -> None:
+    """A failed tool job skips yosys-elaboration, which the verdict accepts, so it reads the tool's result too."""
+    tool, tool_value = result_binding(FAST_TOOL_JOB)
+    consumer, _ = result_binding(FAST_TOOL_CONSUMER)
+    steps = verdict_job["steps"]
+    if FAST_TOOL_CONSUMER not in verdict_job["needs"] or len(steps) != 1 or consumer not in steps[0]["env"]:
+        raise ValueError(FAST_AGGREGATE + ": verdict lacks its yosys-elaboration result")
+    verdict_job["needs"].insert(verdict_job["needs"].index(FAST_TOOL_CONSUMER), FAST_TOOL_JOB)
+    verdict = steps[0]
+    env = {}
+    for name, value in verdict["env"].items():
+        if name == consumer:
+            env[tool] = tool_value
+        env[name] = value
+    verdict["env"] = env
+    lines = verdict["run"].split("\n")
+    pair = '"' + FAST_TOOL_CONSUMER + ":$" + consumer + '" \\'
+    found = [index for index, line in enumerate(lines) if line.strip() == pair]
+    if len(found) != 1:
+        raise ValueError(FAST_AGGREGATE + ": verdict lacks its one yosys-elaboration result pair")
+    line = lines[found[0]]
+    lines.insert(found[0], line[:len(line) - len(line.lstrip())] + '"' + FAST_TOOL_JOB + ":$" + tool + '" \\')
+    verdict["run"] = "\n".join(lines)
+
+
+def fast_yosys_tool(source: dict) -> dict:
+    """Build Yosys in its own job; yosys-elaboration restores that exact tree or fails (#789)."""
+    jobs = source["jobs"]
+    consumer = jobs[FAST_TOOL_CONSUMER]
+    names = [step.get("name") for step in consumer["steps"]]
+    if (FAST_TOOL_JOB in jobs or [name for name in names if name in YOSYS_BUILD_STEPS] != list(YOSYS_BUILD_STEPS)
+            or names[names.index(YOSYS_BUILD_STEPS[0]) + 1] != YOSYS_BUILD_STEPS[1]):
+        raise ValueError(FAST_TOOL_CONSUMER + ": missing or reordered Yosys build recipe")
+    checkout = consumer["steps"][0]
+    if not str(checkout.get("uses", "")).startswith("actions/checkout@"):
+        raise ValueError(FAST_TOOL_CONSUMER + ": original checkout must stay first")
+    at = names.index(YOSYS_BUILD_STEPS[0])
+    cache, build = consumer["steps"][at:at + 2]
+    key = fast_tool_key(cache, build, consumer["runs-on"])
+    moved = copy.deepcopy(cache)
+    moved["with"]["key"] = key
+    tool = {"name": "Prepare pinned Yosys", "runs-on": consumer["runs-on"], "timeout-minutes": FAST_TOOL_TIMEOUT,
+            "needs": copy.deepcopy(consumer["needs"]), "if": consumer["if"],
+            "steps": [copy.deepcopy(checkout), moved, copy.deepcopy(build)]}
+    needs = consumer["needs"]
+    consumer["needs"] = [*([needs] if isinstance(needs, str) else needs), FAST_TOOL_JOB]
+    # The tool job's exact tree or a refusal: no fallback key, and no build here.
+    consumer["steps"][at:at + 2] = [{"name": "Restore the pinned Yosys build", "uses": cache["uses"],
+                                     "with": {"path": cache["with"]["path"], "key": key,
+                                              "fail-on-cache-miss": True}}]
+    require_fast_tool(jobs[FAST_AGGREGATE])
+    ordered = {}
+    for job_id, job in jobs.items():
+        if job_id == FAST_TOOL_CONSUMER:
+            ordered[FAST_TOOL_JOB] = tool
+        ordered[job_id] = job
+    source["jobs"] = ordered
+    return source
+
+
 def gate_graph(name: str, template: dict) -> dict:
     """Preserve ordered bodies, conditions, bindings and source checkout in each leg."""
     source = copy.deepcopy(template)
@@ -189,6 +281,8 @@ def gate_graph(name: str, template: dict) -> dict:
         if name == "rtl":
             from ci_suite_workflows import generate as suite_workflows
             return suite_workflows(source)
+        if name == "rtl-fast":
+            return fast_yosys_tool(source)
         return source
     original = source["jobs"].pop(CARRIERS[name])
     cases: dict[int, list[dict]] = {}

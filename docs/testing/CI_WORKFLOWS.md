@@ -170,7 +170,7 @@ The generated command census retains each command's conditions.
 It also pins every worker and its 45-minute timeout.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs, `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
+jobs (`yosys-tool` included), `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
 Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
@@ -314,10 +314,34 @@ The elaboration smoke proves that the integration-heavy source lists lower and
 resolve. It does not replace generic synthesis and must not be reported as a
 portability pass.
 
+The smoke's Yosys is built by `yosys-tool` ("Prepare pinned Yosys", #789), a
+job of its own. `scripts/ci_gate_workflows.py` derives it from
+`yosys-elaboration`'s template cache and build steps, the way `rtl-full`
+derives its own tool job. `yosys-elaboration` needs it and restores the built
+tree with `fail-on-cache-miss` and no fallback key; it never builds Yosys.
+The tool's cache key binds the pinned version and source commit, `recipe-`
+followed by the SHA-256 of the template build step (every key of the step,
+serialised as sorted compact JSON), the runner image label and `runner.os`.
+It names no workflow file, so a workflow edit restores the same tree, while a
+recipe or image change rebuilds it inside the tool job's own 30-minute limit.
+No timeout was raised for this. Before #789 the key hashed
+`.github/workflows/*.yml`, so every workflow edit rebuilt Yosys cold inside
+`yosys-elaboration`. That build took 16 min 33 s of the job's 30 at
+`847eb4dd` (job 121450772865), and the job's own steps then ran past the limit.
+The identical cold build took 13 min 26 s in `rtl-full`'s tool job at the same
+head (job 121450783569). The `rtl-fast` aggregate needs `yosys-tool` and reads
+its result, because a failed build skips `yosys-elaboration` and the aggregate
+counts a skipped job as a pass. `scripts/ci_gate_workflows_selftest.py` plants
+one defect per property and requires each refusal by name. The defects are: a
+key bound to the workflow files or missing an input, a fallback, a raised
+timeout, a consumer that builds or accepts a miss, and a verdict that no
+longer reads the tool job.
+
 The mailbox publication census runs in a job of its own, `publication-census`
 (`sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"`,
-#665, comment 6100024293), which installs the pinned Yosys from the same
-cache key as `yosys-elaboration` and the same pinned sv2v release. It
+#665, comment 6100024293). It installs the pinned Yosys through its own cache
+and build steps, under a key bound to the workflow files like `rtl-full`'s, and
+does not need `yosys-tool`. It installs the same pinned sv2v release. It
 elaborates `milan_datapath` with the recipe `syn/yosys/run.sh --emit
 milan_datapath` prints, in every shape the builder builds (the recipe's, and
 each `configs/*.yaml` with its generated header and the parameters
@@ -3258,3 +3282,14 @@ Yosys v0.66 uses source commit `86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51`.
 These are Git object digests, verified after the release checkout.
 A changed workflow invalidates the recipe digest automatically.
 Cache hits still require the existing installed-version checks.
+
+One key differs: `rtl-fast`'s `yosys-tool` (#789, see
+[Fast feedback](#fast-feedback)). Its recipe digest is the SHA-256 of its
+template build step, not of the workflow files, and it names the runner image
+label beside `runner.os`. A workflow edit leaves the key unchanged; an edit of
+the build step or the image changes it. The generated-graph comparison in
+`ci_events.py` holds that key to the generator's output, and
+`ci_gate_workflows_selftest.py` removes each input from it and requires a
+refusal. `yosys-elaboration` restores the same key and refuses a miss. If the
+tool job's cache save did not complete, re-run all of the workflow's jobs, not
+only the failed ones: re-running the consumer alone cannot rebuild the tree.
