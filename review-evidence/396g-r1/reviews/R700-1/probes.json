@@ -1,0 +1,697 @@
+[
+  {
+    "name": "clean",
+    "expected_verdict": "PASS",
+    "actual_verdict": "PASS",
+    "injected": [],
+    "events": [],
+    "missed": [],
+    "why": "zero DUT-attributed events; every planted arm found"
+  },
+  {
+    "name": "drop-5",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 5
+      }
+    ],
+    "events": [
+      {
+        "channel": 0,
+        "capture_index": 8000,
+        "class": "dropped",
+        "expected": "0x001F4100",
+        "received": "0x001F4600",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 5
+      },
+      {
+        "channel": 1,
+        "capture_index": 8000,
+        "class": "dropped",
+        "expected": "0x002F4100",
+        "received": "0x002F4600",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 5
+      },
+      {
+        "channel": 2,
+        "capture_index": 8000,
+        "class": "dropped",
+        "expected": "0x003F4100",
+        "received": "0x003F4600",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 5
+      },
+      {
+        "channel": 3,
+        "capture_index": 8000,
+        "class": "dropped",
+        "expected": "0x004F4100",
+        "received": "0x004F4600",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 5
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "repeat-4",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "repeated",
+        "n": 4
+      }
+    ],
+    "events": [
+      {
+        "channel": 0,
+        "capture_index": 8000,
+        "class": "repeated",
+        "expected": "0x001F4100",
+        "received": "0x001F3D00",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 4
+      },
+      {
+        "channel": 1,
+        "capture_index": 8000,
+        "class": "repeated",
+        "expected": "0x002F4100",
+        "received": "0x002F3D00",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 4
+      },
+      {
+        "channel": 2,
+        "capture_index": 8000,
+        "class": "repeated",
+        "expected": "0x003F4100",
+        "received": "0x003F3D00",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 4
+      },
+      {
+        "channel": 3,
+        "capture_index": 8000,
+        "class": "repeated",
+        "expected": "0x004F4100",
+        "received": "0x004F3D00",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 4
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "silence-6",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "silence",
+        "span": 6
+      }
+    ],
+    "events": [
+      {
+        "channel": 0,
+        "capture_index": 8000,
+        "class": "silence",
+        "expected": "0x001F4100",
+        "received": "0x00000000",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 6,
+        "inserted": false
+      },
+      {
+        "channel": 1,
+        "capture_index": 8000,
+        "class": "silence",
+        "expected": "0x002F4100",
+        "received": "0x00000000",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 6,
+        "inserted": false
+      },
+      {
+        "channel": 2,
+        "capture_index": 8000,
+        "class": "silence",
+        "expected": "0x003F4100",
+        "received": "0x00000000",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 6,
+        "inserted": false
+      },
+      {
+        "channel": 3,
+        "capture_index": 8000,
+        "class": "silence",
+        "expected": "0x004F4100",
+        "received": "0x00000000",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 6,
+        "inserted": false
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "swap-3",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "swap",
+        "span": 3,
+        "channels": [
+          0,
+          2
+        ]
+      }
+    ],
+    "events": [
+      {
+        "channel": 0,
+        "capture_index": 8000,
+        "class": "swap",
+        "expected": "0x001F4100",
+        "received": "0x003F4100",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 3,
+        "partner": 2
+      },
+      {
+        "channel": 2,
+        "capture_index": 8000,
+        "class": "swap",
+        "expected": "0x003F4100",
+        "received": "0x001F4100",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 3,
+        "partner": 0
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "missed-arm",
+    "expected_verdict": "NOT RUN",
+    "actual_verdict": "NOT RUN",
+    "injected": [],
+    "events": [],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "capture-loss",
+    "expected_verdict": "PASS",
+    "actual_verdict": "PASS",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 9
+      }
+    ],
+    "events": [
+      {
+        "channel": 0,
+        "capture_index": 8000,
+        "class": "dropped",
+        "expected": "0x001F4100",
+        "received": "0x001F4A00",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "capture",
+        "n": 9
+      },
+      {
+        "channel": 1,
+        "capture_index": 8000,
+        "class": "dropped",
+        "expected": "0x002F4100",
+        "received": "0x002F4A00",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "capture",
+        "n": 9
+      },
+      {
+        "channel": 2,
+        "capture_index": 8000,
+        "class": "dropped",
+        "expected": "0x003F4100",
+        "received": "0x003F4A00",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "capture",
+        "n": 9
+      },
+      {
+        "channel": 3,
+        "capture_index": 8000,
+        "class": "dropped",
+        "expected": "0x004F4100",
+        "received": "0x004F4A00",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "capture",
+        "n": 9
+      }
+    ],
+    "missed": [],
+    "why": "zero DUT-attributed events; every planted arm found"
+  },
+  {
+    "name": "drop-4096",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "PASS",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 4096
+      }
+    ],
+    "events": [],
+    "missed": [],
+    "why": "zero DUT-attributed events; every planted arm found"
+  },
+  {
+    "name": "drop-3000",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 3000
+      }
+    ],
+    "events": [
+      {
+        "channel": 0,
+        "capture_index": 8000,
+        "class": "repeated",
+        "expected": "0x001F4100",
+        "received": "0x001AF900",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 1096
+      },
+      {
+        "channel": 1,
+        "capture_index": 8000,
+        "class": "repeated",
+        "expected": "0x002F4100",
+        "received": "0x002AF900",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 1096
+      },
+      {
+        "channel": 2,
+        "capture_index": 8000,
+        "class": "repeated",
+        "expected": "0x003F4100",
+        "received": "0x003AF900",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 1096
+      },
+      {
+        "channel": 3,
+        "capture_index": 8000,
+        "class": "repeated",
+        "expected": "0x004F4100",
+        "received": "0x004AF900",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 1096
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "two-low-bit-flips",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "bit-flip",
+        "span": 2,
+        "channel": 2,
+        "mask": 1024
+      }
+    ],
+    "events": [
+      {
+        "channel": 2,
+        "capture_index": 8000,
+        "class": "dropped",
+        "expected": "0x003F4100",
+        "received": "0x003F4500",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 4
+      },
+      {
+        "channel": 2,
+        "capture_index": 8002,
+        "class": "repeated",
+        "expected": "0x003F4700",
+        "received": "0x003F4300",
+        "wall_s": 100.16670833333333,
+        "gptp_s": 200.16670833333333,
+        "context_wall_s": [
+          95.16670833333333,
+          105.16670833333333
+        ],
+        "attribution": "dut",
+        "n": 4
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "single-tag-bit-flip",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "bit-flip",
+        "channel": 0,
+        "mask": 2097152
+      }
+    ],
+    "events": [
+      {
+        "channel": 0,
+        "capture_index": 8000,
+        "class": "swap",
+        "expected": "0x001F4100",
+        "received": "0x003F4100",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 1,
+        "partner": 2
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "copy-channel",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "copy-channel",
+        "span": 3,
+        "source": 2,
+        "destination": 0
+      }
+    ],
+    "events": [
+      {
+        "channel": 0,
+        "capture_index": 8000,
+        "class": "swap",
+        "expected": "0x001F4100",
+        "received": "0x003F4100",
+        "wall_s": 100.16666666666667,
+        "gptp_s": 200.16666666666666,
+        "context_wall_s": [
+          95.16666666666667,
+          105.16666666666667
+        ],
+        "attribution": "dut",
+        "n": 3,
+        "partner": 2
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "commit-target-defaults-persistence-disabled",
+    "expected_verdict": "NOT RUN or FAIL",
+    "result": [
+      "PASS",
+      {
+        "phase": "journal_commit",
+        "items": [
+          "configuration",
+          "sampling_rate",
+          "stream_format",
+          "presentation_time_offset",
+          "channel_mappings",
+          "clock_source",
+          "entity_names",
+          "object_names",
+          "stream_binding"
+        ],
+        "restored": "new committed snapshot"
+      }
+    ]
+  },
+  {
+    "name": "unlock-outside-planted-window",
+    "actual_unlock_s": 45,
+    "reads": [
+      {
+        "target": "input-0",
+        "timestamp_s": 0,
+        "values": {
+          "SEQ_NUM_MISMATCH": 0,
+          "STREAM_INTERRUPTED": 0,
+          "LATE_TIMESTAMP": 0,
+          "EARLY_TIMESTAMP": 0,
+          "MEDIA_UNLOCKED": 0
+        }
+      },
+      {
+        "target": "input-0",
+        "timestamp_s": 60,
+        "values": {
+          "SEQ_NUM_MISMATCH": 0,
+          "STREAM_INTERRUPTED": 0,
+          "LATE_TIMESTAMP": 0,
+          "EARLY_TIMESTAMP": 0,
+          "MEDIA_UNLOCKED": 1
+        }
+      }
+    ],
+    "planted": [
+      {
+        "target": "input-0",
+        "kind": "deliberate disturbance",
+        "window_s": [
+          10,
+          20
+        ]
+      }
+    ],
+    "expected_verdict": "FAIL or NOT RUN without temporal evidence",
+    "result": [
+      "PASS",
+      {
+        "zero_growth": [
+          "SEQ_NUM_MISMATCH",
+          "STREAM_INTERRUPTED",
+          "LATE_TIMESTAMP",
+          "EARLY_TIMESTAMP"
+        ],
+        "planted_only": "MEDIA_UNLOCKED",
+        "targets": 1,
+        "planted_unlocks": 1
+      }
+    ]
+  },
+  {
+    "name": "timestamps-after-capture-loss",
+    "verdict": "FAIL",
+    "event": {
+      "channel": 0,
+      "capture_index": 8000,
+      "class": "bit-flip",
+      "expected": "0x001F4100",
+      "received": "0x001F4101",
+      "wall_s": 100.16666666666667,
+      "gptp_s": 200.16666666666666,
+      "context_wall_s": [
+        95.16666666666667,
+        105.16666666666667
+      ],
+      "attribution": "dut",
+      "n": 1,
+      "mask": "0x00000001"
+    },
+    "capture_loss_frames": 409600,
+    "expected_wall_s": 108.7,
+    "expected_gptp_s": 208.7,
+    "expected_capture_duration_s": 8.95,
+    "actual_capture_duration_s": 0.4166666666666667
+  },
+  {
+    "name": "grader-count-mutant",
+    "returncode": 1,
+    "result": "KILLED"
+  }
+]
