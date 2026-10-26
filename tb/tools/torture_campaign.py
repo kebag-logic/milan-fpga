@@ -8035,13 +8035,21 @@ class _ReleaseGateChecks:
         detail = grade([], anchors=((8000, 123.0, 456.0), (frames, 200.0, 500.0)))
         event = next(e for e in detail["events"] if e["attribution"] == "dut")
         self.assertEqual((event["wall_s"], event["gptp_s"], event["timing"]), (123.0, 456.0, "anchored"))
-        for anchors in (((0, 101.0, 0.0),), ((900, 101.0, 0.0), (800, 102.0, 0.0)), ((900, 99.0, 0.0),),
-                        ((frames + 1, 999.0, 0.0),), ((900, 101.0),)):
+        # Graded against the clean capture's own qualified length, so only the anchors decide.
+        layout_refusal = "capture layout, both logs, tolerance, start times and anchors required"
+        for anchors, expected in ((((900, 101.0, 0.0), (frames, 102.0, 0.0)), "PASS"),
+                                  (((0, 101.0, 0.0),), layout_refusal),
+                                  (((900, 101.0, 0.0), (800, 102.0, 0.0)), layout_refusal),
+                                  (((900, 99.0, 0.0),), layout_refusal), (((900, 100.0, 0.0),), layout_refusal),
+                                  (((frames + 1, 999.0, 0.0),), "fewer than 64 frames, or an anchor past the capture"),
+                                  (((900, 101.0),), layout_refusal)):
             with self.subTest(anchors=anchors):
                 verdict, detail = grade_audio_counter_capture(
                     synthesize_counter_capture(frames, 4, events=source),
-                    CounterCapture(4, "big", 48000, 100.0, 200.0, anchors=anchors), CounterRunLog(arms, [], 0))
-                self.assertEqual(verdict, "NOT RUN", detail["why"])
+                    CounterCapture(4, "big", 48000, 100.0, 200.0, anchors=anchors), CounterRunLog(arms, [], 0),
+                    required_s=(frames - 2 * 63) / 48000)
+                self.assertEqual(verdict if expected == "PASS" else (verdict, detail["why"]),
+                                 expected if expected == "PASS" else ("NOT RUN", expected))
 
     def test_audio_capture_loss_needs_every_channel(self) -> None:
         """A logged loss is a slip on every counter channel; on one channel it is not the capture's."""
