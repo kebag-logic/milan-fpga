@@ -133,6 +133,7 @@ import sys
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field, asdict, replace
 from decimal import Decimal
+from functools import lru_cache
 from typing import Optional
 
 # ------------------------------------------------------- counter definitions --
@@ -2425,7 +2426,8 @@ A_AUDIO_PRESERVED = AssertSpec(
     "IDENTITY test and not a counter test")
 
 
-def plan_audio(dut: Device = ARTY, peer: Device = PEER) -> list:
+def plan_audio(dut: Device = ARTY, peer: Device = PEER,
+               settings: "ReleaseSettings | None" = None) -> list:
     """AUDIO IS NEVER FORGOTTEN.  Three shapes, because presence testing cannot
     tell a correct channel map from a crossed one - and EVERY INDEX, because
     index 0 is the least representative index on this fabric.
@@ -2436,7 +2438,16 @@ def plan_audio(dut: Device = ARTY, peer: Device = PEER) -> list:
     coverage audit could not see it because it was computed over the WHOLE plan,
     where the matrix's full coverage masked the audio area entirely.  Coverage is
     now audited PER AREA (plan_coverage_by_area) and this walks every index.
+
+    The area ends with issue #396's release audio-integrity run, which rides
+    inside the soak window, and its planted-drop negative control.
     """
+    return _audio_identity_steps(dut, peer) + _audio_release_steps(
+        dut, peer, settings if settings is not None else ReleaseSettings())
+
+
+def _audio_identity_steps(dut: Device, peer: Device) -> list:
+    """The channel-identity loop, the per-channel walking tone and THD+N."""
     steps = []
     for ti in dut.talker_indices(include_crf=False):
         li = ti if ti < peer.listeners else 0
@@ -3104,17 +3115,40 @@ RELEASE_MAX_SOAK_INTERVAL_S = 60
 RELEASE_RESTORE_BOUND_S = 30
 # With relative error +/-R, h + R >= 0.25 can admit d=0 iff 2R >= 0.25.
 RELEASE_TU_RESOLUTION_LIMIT_S = 0.25 / 2
+# Issue #396 owner decision 2026-10-26 item 1: one continuous 24-hour window
+# holds the soak and the audio-integrity run that rides inside it.
+RELEASE_SOAK_DURATION_S = 24 * 60 * 60
+# Item 2: 200 cycles. 150 cold cuts through the power strip, a third of them
+# (50) inside a journal commit and the rest idle, and 50 soft resets.
+RELEASE_POWER_PHASES = (("idle", 100), ("journal_commit", 50), ("soft_reset", 50))
+# Item 3: every cycle restores the eight Milan v1.2 saved-state items of
+# issue #70's inventory, and the binding that automatic restoration needs.
+# Milan v1.2 states no non-volatile clause for the current configuration; it
+# is in the inventory as issue #70 item 1.
+RELEASE_PERSISTED_ITEMS = {
+    "configuration": "issue #70 item 1: the currently set CONFIGURATION",
+    "sampling_rate": "Milan v1.2 5.3.5.1: every AUDIO_UNIT",
+    "stream_format": "Milan v1.2 5.3.7.1 / 5.3.8.1: every STREAM_OUTPUT and STREAM_INPUT",
+    "presentation_time_offset": "Milan v1.2 5.3.7.6: every STREAM_OUTPUT",
+    "channel_mappings": "Milan v1.2 5.3.9.1 / 5.3.10.1: both port directions",
+    "clock_source": "Milan v1.2 5.3.11.1: every CLOCK_DOMAIN",
+    "entity_names": "Milan v1.2 5.3.13: ENTITY entity_name and group_name",
+    "object_names": "Milan v1.2 5.3.13: every other user-settable object_name",
+    "stream_binding": "Milan v1.2 5.3.8.2 / 5.3.8.3 / 5.3.8.7: bound state, "
+                      "binding parameters and started/stopped state",
+}
 
 
 @dataclass(frozen=True)
 class ReleaseSettings:
     """Issue #396's release profile; smaller profiles are diagnostic only."""
-    soak_duration_s: int = 7 * 24 * 60 * 60
+    soak_duration_s: int = RELEASE_SOAK_DURATION_S
     soak_interval_s: int = 60
     power_cycles: int = 200
-    idle_cycles: int = 160
-    commit_cycles: int = 40
-    persisted_items: tuple[str, ...] = ("stream_binding",)
+    idle_cycles: int = 100
+    commit_cycles: int = 50
+    reset_cycles: int = 50
+    persisted_items: tuple[str, ...] = tuple(RELEASE_PERSISTED_ITEMS)
     # Provisional policy from #396 round 2; ratification uses #397 and #75.
     restore_bound_s: int = RELEASE_RESTORE_BOUND_S
     # Extra diagnostic observation never extends a pass deadline.
@@ -3123,17 +3157,28 @@ class ReleaseSettings:
     topology_explicit: bool = False
     # Existing phys.dut-cycle.power-cycle discharge hold, recorded separately.
     power_off_hold_s: int = 8
+    # Issue #396 decision 2026-10-04 as amended 2026-10-26: the audio run
+    # lasts the whole soak window, inside it.
+    audio_duration_s: int = RELEASE_SOAK_DURATION_S
+    # The same decision's "a few seconds either side" of every audio event:
+    # the longest gap between the counter, SLIP and gPTP walks during the run.
+    audio_context_s: int = 5
 
     def __post_init__(self) -> None:
         for name in ("soak_duration_s", "soak_interval_s", "power_cycles", "power_off_hold_s",
-                     "idle_cycles", "commit_cycles", "restore_bound_s", "boot_margin_s"):
+                     "idle_cycles", "commit_cycles", "reset_cycles", "restore_bound_s",
+                     "boot_margin_s", "audio_duration_s", "audio_context_s"):
             value = getattr(self, name)
             if type(value) is not int or value <= 0:
                 raise ValueError(f"{name} must be a positive integer")
         if self.soak_interval_s > self.soak_duration_s:
             raise ValueError("soak interval exceeds duration")
-        if self.idle_cycles + self.commit_cycles != self.power_cycles:
-            raise ValueError("idle and commit cycles must sum to power cycles")
+        if self.audio_duration_s > self.soak_duration_s:
+            raise ValueError("the audio run must fit inside the soak window")
+        if self.audio_context_s > self.audio_duration_s:
+            raise ValueError("audio context exceeds the audio run")
+        if self.idle_cycles + self.commit_cycles + self.reset_cycles != self.power_cycles:
+            raise ValueError("idle, commit and reset cycles must sum to power cycles")
         if type(self.topology_explicit) is not bool:
             raise ValueError("topology_explicit must be a boolean")
         items = self.persisted_items
@@ -3152,7 +3197,7 @@ A_RELEASE_EVIDENCE = AssertSpec(
 SOAK_ASSERTS = (
     A_RELEASE_EVIDENCE,
     AssertSpec("soak.continuous-duration", RELEASE_CLAUSE +
-               ": at least 604800 continuous seconds after all pairs flow; "
+               ": at least 86400 continuous seconds (24 h) after all pairs flow; "
                "no concatenating interrupted runs or counting setup time"),
     AssertSpec("soak.bound-both-directions", RELEASE_CLAUSE +
                ": keep the compatible AAF and CRF pairs bound and flowing "
@@ -3162,9 +3207,14 @@ SOAK_ASSERTS = (
                "at baseline, each interval and the endpoint; validate masks "
                "and lock/start-stop invariants; no unexplained counter reset"),
     AssertSpec("soak.no-counter-errors", RELEASE_CLAUSE +
-               "; Milan v1.2 5.3.8.10 Table 5.6; IEEE 1722-2016 4.4.4.6: zero SEQ_NUM_MISMATCH and "
-               "STREAM_INTERRUPTED growth; no unexplained MEDIA_UNLOCKED; "
-               "record every delta and each unlock explanation"),
+               "; Milan v1.2 5.3.8.10 Table 5.6; IEEE 1722-2016 4.4.4.6: "
+               "zero SEQ_NUM_MISMATCH, STREAM_INTERRUPTED, LATE_TIMESTAMP and "
+               "EARLY_TIMESTAMP growth on every Stream Input, CRF included; "
+               "zero MEDIA_UNLOCKED growth of any cause, explained or not, "
+               "outside a recorded planted event; each planted event excuses at "
+               "most one increment per input; a decrease is a counter reset and fails; "
+               "graded by check_release_soak_counters; missing reads or a missing "
+               "planted-event log is NOT RUN"),
     AssertSpec("soak.mr-causes-and-hold", RELEASE_CLAUSE +
                "; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: "
                "every mr toggle and MEDIA_RESET increment needs a recorded "
@@ -3216,17 +3266,23 @@ SOAK_ASSERTS = (
 )
 POWER_ASSERTS = (
     A_RELEASE_EVIDENCE,
-    AssertSpec("power.cold-count-and-phase", RELEASE_CLAUSE +
-               ": 200 confirmed cold cuts, 160 idle and 40 inside a journal "
-               "commit window; resets never count; preserve cut timestamps "
-               "and commit-window evidence for each cycle"),
+    AssertSpec("power.cycle-count-and-phase", RELEASE_CLAUSE +
+               "; Milan v1.2 5.5.1.4 (a power cycle or a simple reset): "
+               "200 cycles, 150 confirmed cold cuts (100 idle, 50 inside a "
+               "journal commit window) and 50 soft resets with power held on; "
+               "a reset never counts as a cold cut and a cut never as a reset; "
+               "preserve each cycle's command timestamp and its cut-phase or "
+               "reset evidence"),
     AssertSpec("power.state-restored", RELEASE_CLAUSE +
                "; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, "
                "5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, "
-               "5.3.11.1, 5.3.13; additional state per project inventory: "
-               "compare each persisted item against the pre-cut snapshot; "
+               "5.3.11.1, 5.3.13; issue #70's eight-item inventory: every "
+               "cycle, cut or reset, restores the eight Milan items and the "
+               "binding; set each item away from its default before the cycle "
+               "so a revert is visible; compare each against the pre-cycle snapshot; "
                "commit cuts must restore a complete old or new committed "
-               "snapshot, never mixed state; missing readback cannot pass"),
+               "snapshot, never mixed state; graded by check_release_state_restored; "
+               "a pre-cycle value equal to its default or a missing readback is NOT RUN"),
     AssertSpec("power.adp-valid-time", RELEASE_CLAUSE +
                "; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: "
                "first post-cut ENTITY_AVAILABLE arrives within the advertised "
@@ -3234,7 +3290,8 @@ POWER_ASSERTS = (
                "ON command; decode the captured pre-cut PDU in two-second "
                "units and require valid_time=10 (20 s); power_off_hold_s and "
                "pre-cut advertisement age are provenance, not charged to "
-               "this window; missing capture or a missed deadline fails"),
+               "this window; missing capture or a missed deadline fails; "
+               "for a soft reset T0 is the host-timestamped reset command"),
     AssertSpec("power.automatic-restore-bound", RELEASE_CLAUSE +
                "; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP "
                "PDU of EACH persisted binding in both directions, including "
@@ -3248,15 +3305,74 @@ POWER_ASSERTS = (
                "both restoration and reconnect must pass"),
     AssertSpec("power.single-boot", RELEASE_CLAUSE +
                "; issue #366: complete UART/reset observation from T0 through "
-               "the next cut or campaign end, at least boot_observation_s, "
+               "the next cycle or campaign end, at least boot_observation_s, "
                "records exactly one BIOS pass and no "
-               "additional restart; check_release_boot refuses the repeated "
-               "BIOS pass even if the second pass restores streaming"),
+               "additional restart, after a cut and after a reset; check_release_boot "
+               "refuses the repeated BIOS pass even if the second pass restores streaming"),
     AssertSpec("power.counter-walk", "Milan v1.2 Table 5.4 / Table 5.6; "
                "REQ-VER-06: snapshot every declared stream index, both "
                "directions and CRF, before and after every cycle; validate "
                "masks, supported formats, lock/start-stop invariants and flow"),
 )
+#: Issue #396 audio signal design (issuecomment-5978644444), run inside the
+#: 24-hour soak by the 2026-10-26 owner decisions.
+AUDIO_RELEASE_CLAUSE = RELEASE_CLAUSE + "; issue #396 audio signal design 2026-10-04"
+AUDIO_RELEASE_ASSERTS = (
+    A_RELEASE_EVIDENCE,
+    AssertSpec("audio.inside-soak-window", AUDIO_RELEASE_CLAUSE +
+               ": starts after soak.continuous binds every pair and starts timing, "
+               "ends at or before the soak endpoint and lasts at least 86400 "
+               "continuous seconds; a shorter run or one outside the window cannot qualify"),
+    AssertSpec("audio.counter-every-digital-path", AUDIO_RELEASE_CLAUSE +
+               "; IEEE 1722-2016 7.3.5: every channel of every bound AAF stream, in "
+               "both directions, carries the bit-exact counter: the DUT talker to the "
+               "reference peer to an external digital capture, the reference peer to "
+               "the DUT listener to the DUT's TDM output and the direct TDM capture "
+               "(#451), and the DUT's TDM loop"),
+    AssertSpec("audio.counter-classified", AUDIO_RELEASE_CLAUSE +
+               ": grade_audio_counter_capture classifies every discontinuity at its "
+               "sample as n dropped, n repeated, n samples of silence (replaced or "
+               "inserted), a bit-flip mask or a channel swap; slips are decided modulo "
+               "4096 samples, so an exact multiple of 4096 is invisible to the counter"),
+    AssertSpec("audio.planted-arms-found", AUDIO_RELEASE_CLAUSE +
+               ": the source plants a drop, a repeat and a bit flip at logged capture "
+               "indices at the start and at the end of the run; each is found with its "
+               "class and its size or mask; a missed arm, or arms that do not run at "
+               "both ends, voids the run as NOT RUN"),
+    AssertSpec("audio.capture-losses-apart", AUDIO_RELEASE_CLAUSE +
+               ": capture-side losses logged by the capture tool are attributed to the "
+               "capture and reported apart, never counted against the DUT; a logged "
+               "loss the capture does not show is NOT RUN"),
+    AssertSpec("audio.event-record", AUDIO_RELEASE_CLAUSE +
+               "; Milan v1.2 5.3.8.10 Table 5.6: each event records its wall and gPTP "
+               "times, capture index, expected and received words and class, with walks "
+               "of every stream's counters and the CRF sink's, the DUT's SLIP_LB and "
+               "SLIP_TDM words and the gPTP state within audio_context_s on each side"),
+    AssertSpec("audio.analog-sine-pair", AUDIO_RELEASE_CLAUSE +
+               ": 997 Hz and 9,973 Hz on another channel pair through the analog path, "
+               "graded per block by THD+N and the sample-exact predictor residual; no "
+               "limit is decided for either, so this assertion is NOT RUN until a "
+               "recorded decision sets them"),
+    AssertSpec("audio.zero-dut-glitches", AUDIO_RELEASE_CLAUSE +
+               ": zero DUT-attributed events over the run on every bound channel, in "
+               "both directions, with every planted arm found"),
+)
+#: Each release repeat operation and the assertions it may never drop.
+RELEASE_REQUIRED_ASSERTS = {
+    "release_soak": frozenset(spec.name for spec in SOAK_ASSERTS),
+    "release_audio_integrity": frozenset(spec.name for spec in AUDIO_RELEASE_ASSERTS),
+    "release_power_cycles": frozenset(spec.name for spec in POWER_ASSERTS),
+}
+RELEASE_CONTROL_OP = "release_negative_control"
+#: Acceptance 4's negative controls, each in the area whose assertion it fails.
+RELEASE_CONTROLS = {
+    "power": ("power.control.first-boot-restart", "power.control.persistence-disabled"),
+    "audio": ("audio.control.planted-drop",),
+}
+A_RELEASE_CONTROL = AssertSpec(
+    "release.control-fails-as-expected", RELEASE_CLAUSE + "; issue #396 acceptance 4: a "
+    "negative control passes only when its expected assertion FAILs on the known "
+    "defect; a PASS, SKIP or NOT RUN of that assertion means the gate cannot see it")
 
 
 def _release_counter_targets(dut: Device, peer: Device) -> list[dict]:
@@ -3310,7 +3426,7 @@ def _release_args(dut: Device, peer: Device) -> dict:
 def _release_profile_eligible(settings: ReleaseSettings) -> bool:
     """Common plan prerequisites; this judges no measured hardware evidence."""
     return (settings.topology_explicit
-            and "stream_binding" in settings.persisted_items
+            and set(RELEASE_PERSISTED_ITEMS) <= set(settings.persisted_items)
             and settings.restore_bound_s <= RELEASE_RESTORE_BOUND_S
             and settings.soak_interval_s <= RELEASE_MAX_SOAK_INTERVAL_S)
 
@@ -3341,6 +3457,566 @@ def check_release_boot(boot_passes: int | None, restarts: int | None, *,
 def _release_finite(value: object) -> bool:
     import math
     return type(value) in (int, float) and math.isfinite(value)
+
+
+#: Issue #396 owner decision 2026-10-26 item 3: these Table 5.6 counters may
+#: not grow at all over the soak.
+RELEASE_ZERO_GROWTH_COUNTERS = ("SEQ_NUM_MISMATCH", "STREAM_INTERRUPTED",
+                                "LATE_TIMESTAMP", "EARLY_TIMESTAMP")
+
+
+def _release_counter_reads_valid(reads: list, names: Sequence[str]) -> bool:
+    for read in reads:
+        if (not isinstance(read, dict) or not isinstance(read.get("target"), str)
+                or not read["target"] or not _release_finite(read.get("timestamp_s"))
+                or not isinstance(read.get("values"), dict)):
+            return False
+        for name in names:
+            value = read["values"].get(name)
+            if type(value) is not int or not 0 <= value < 2**32:
+                return False
+    return True
+
+
+def _release_planted_valid(planted: list) -> bool:
+    for event in planted:
+        window = event.get("window_s") if isinstance(event, dict) else None
+        if (not isinstance(event, dict) or not isinstance(event.get("target"), str)
+                or not event["target"] or not isinstance(event.get("kind"), str)
+                or not event["kind"] or not isinstance(window, (tuple, list)) or len(window) != 2
+                or any(not _release_finite(value) for value in window) or window[1] < window[0]):
+            return False
+    return True
+
+
+def check_release_soak_counters(reads: list[dict] | None, planted_events: list[dict] | None, *,
+                                targets: Sequence[str] | None,
+                                capture_complete: bool) -> tuple[str, dict]:
+    """L3 #396 item 3 over the whole soak window, for every Stream Input.
+
+    Milan v1.2 5.3.8.10 Table 5.6. `reads` carry target, timestamp_s and
+    values {name: count}, with a baseline and an endpoint for every name in
+    `targets`, CRF inputs included. `planted_events` is the runner's complete
+    log of deliberately planted disturbances, each with its target, kind and
+    recorded window_s; an empty list attests that none was planted, None is
+    missing evidence. A MEDIA_UNLOCKED increment between two reads is excused
+    only by a distinct planted event of that input whose window meets the read
+    interval, whatever else explains it. A decrease of any counter is a
+    reset: Table 5.6 zeroes the block on a not-bound to bound transition, so
+    the soak was interrupted.
+    """
+    names = RELEASE_ZERO_GROWTH_COUNTERS + ("MEDIA_UNLOCKED",)
+    detail = {"zero_growth": list(RELEASE_ZERO_GROWTH_COUNTERS),
+              "planted_only": "MEDIA_UNLOCKED"}
+    if (capture_complete is not True or reads is None or planted_events is None
+            or not targets or any(not isinstance(t, str) or not t for t in targets)):
+        return "NOT RUN", dict(detail, why="complete reads, targets and planted-event log required")
+    if not _release_counter_reads_valid(reads, names) or not _release_planted_valid(planted_events):
+        return "NOT RUN", dict(detail, why="invalid counter reads or planted-event log")
+    planted = {}
+    for event in sorted(planted_events, key=lambda e: e["window_s"][0]):
+        planted.setdefault(event["target"], []).append(event)
+    used = 0
+    for target in targets:
+        series = [read for read in reads if read["target"] == target]
+        if len(series) < 2:
+            return "NOT RUN", dict(detail, target=target, why="baseline and endpoint reads required")
+        unused = list(planted.get(target, []))
+        for before, after in zip(series, series[1:]):
+            interval = [before["timestamp_s"], after["timestamp_s"]]
+            if not interval[0] < interval[1]:
+                return "NOT RUN", dict(detail, target=target, why="ordered reads required")
+            for name in names:
+                delta = after["values"][name] - before["values"][name]
+                if delta < 0:
+                    return "FAIL", dict(detail, target=target, counter=name, interval_s=interval,
+                                        why="counter decreased: a reset interrupted the soak")
+                if delta and name != "MEDIA_UNLOCKED":
+                    return "FAIL", dict(detail, target=target, counter=name, delta=delta,
+                                        interval_s=interval, why="zero-growth counter grew")
+            delta = after["values"]["MEDIA_UNLOCKED"] - before["values"]["MEDIA_UNLOCKED"]
+            matches = [event for event in unused
+                       if event["window_s"][0] <= interval[1] and event["window_s"][1] >= interval[0]]
+            if delta > len(matches):
+                return "FAIL", dict(detail, target=target, counter="MEDIA_UNLOCKED", delta=delta,
+                                    interval_s=interval, why="MEDIA_UNLOCKED outside a planted event")
+            for event in matches[:delta]:
+                unused.remove(event)
+            used += delta
+    return "PASS", dict(detail, targets=len(targets), planted_unlocks=used)
+
+
+def check_release_state_restored(pre: dict | None, post: dict | None, defaults: dict | None, *,
+                                 items: Sequence[str], phase: str,
+                                 committed: dict | None = None) -> tuple[str, dict]:
+    """L3 #396 item 3: one cycle's readback of the persisted inventory.
+
+    `pre` is the committed snapshot before the cycle and `post` the readback
+    after it, as {item: value}; `defaults` holds the image's power-on values.
+    Every pre-cycle value must differ from its default, or a build that
+    restores nothing reads back as restored (issue #70's vacuity trap). Idle
+    cuts and soft resets restore `pre` exactly. A journal_commit cut lands
+    while `committed` is being written, and the readback must be all of
+    `pre` or all of `committed`, never a mix.
+    """
+    detail = {"phase": phase, "items": list(items)}
+    if phase not in {name for name, _ in RELEASE_POWER_PHASES} or not items:
+        return "NOT RUN", dict(detail, why="known phase and nonempty inventory required")
+    snapshots = [pre, post, defaults] + ([committed] if phase == "journal_commit" else [])
+    if any(not isinstance(snap, dict) or any(item not in snap for item in items)
+           for snap in snapshots):
+        return "NOT RUN", dict(detail, why="complete pre-cycle, readback and default snapshots required")
+    at_default = [item for item in items if pre[item] == defaults[item]]
+    if at_default:
+        return "NOT RUN", dict(detail, at_default=at_default,
+                               why="pre-cycle value equals its default, so a revert is invisible")
+    if phase == "journal_commit":
+        if all(committed[item] == pre[item] for item in items):
+            return "NOT RUN", dict(detail, why="the interrupted commit changes nothing")
+        if all(post[item] == pre[item] for item in items):
+            return "PASS", dict(detail, restored="old committed snapshot")
+        if all(post[item] == committed[item] for item in items):
+            return "PASS", dict(detail, restored="new committed snapshot")
+        return "FAIL", dict(detail, why="mixed or partial state after a commit cut",
+                            differs=[item for item in items if post[item] != pre[item]])
+    differs = [item for item in items if post[item] != pre[item]]
+    if differs:
+        return "FAIL", dict(detail, differs=differs,
+                            reverted=[item for item in differs if post[item] == defaults[item]],
+                            why="persisted state not restored")
+    return "PASS", detail
+
+
+# ------------------------------------------------- the audio-integrity counter --
+#: Issue #396 decision 2026-10-04 (issuecomment-5978644444): a bit-exact
+#: counter on every digital path. Each S32 word carries a 24-bit sample in
+#: bits 31:8 with bits 7:0 zero, the layout of the #451 and #629 captures.
+#: Sample bits 15:12 hold the channel number, index + 1 so that no valid word
+#: is zero and silence stays distinct, and bits 11:0 a free-running sample
+#: counter. Eight channels peak near -47 dBFS, and the 4096-sample wrap is an
+#: 11.7 Hz sawtooth at 48 kHz: a low-level infrasonic signal, bench only.
+AUDIO_COUNTER_BITS = 12
+AUDIO_COUNTER_MODULUS = 1 << AUDIO_COUNTER_BITS
+AUDIO_PAD_BITS = 8
+AUDIO_TAG_MAX = 15
+#: Bits no valid counter word sets: the sample's bits 23:16 and the pad.
+AUDIO_ZERO_MASK = 0xFF0000FF
+AUDIO_CLASSES = ("dropped", "repeated", "silence", "bit-flip", "swap")
+#: The source plants these at the start and at the end of every run.
+AUDIO_PLANTED_ARMS = ({"class": "dropped", "n": 3}, {"class": "repeated", "n": 2},
+                      {"class": "bit-flip", "mask": 0x00000100})
+
+
+#: Frames compared at once on the clean fast path; a mismatching block is
+#: walked word by word, so a short block keeps that walk near the event.
+AUDIO_FAST_BLOCK = 256
+
+
+def audio_counter_word(tag: int, counter: int) -> int:
+    """The S32 word carrying channel number `tag` at sample counter `counter`."""
+    return ((tag << AUDIO_COUNTER_BITS) | (counter % AUDIO_COUNTER_MODULUS)) << AUDIO_PAD_BITS
+
+
+@lru_cache(maxsize=8)
+def _audio_period_frames(tags: tuple, byteorder: str) -> tuple:
+    """One counter period of packed frames, frame k carrying counter k."""
+    import struct
+    layout = struct.Struct(("<" if byteorder == "little" else ">") + "I" * len(tags))
+    return tuple(layout.pack(*[audio_counter_word(tag, k) for tag in tags])
+                 for k in range(AUDIO_COUNTER_MODULUS))
+
+
+def synthesize_counter_capture(frames: int, channels: int, *, byteorder: str = "big",
+                               start_counter: int = 0, events: Sequence[dict] = ()) -> bytes:
+    """An interleaved S32 capture of the counter signal, for offline controls.
+
+    Events are placed in capture-index terms: drop and repeat move the source
+    ordinal by n from `index` on; silence zeroes n frames from `index`, and an
+    inserted silence also delays the content by n; flip XORs `mask` into one
+    channel's word; swap exchanges two channels for n frames. A capture-side
+    loss looks like a drop at the capture, so it is planted as one.
+    """
+    shifts, silent = {}, set()
+    for event in events:
+        if event["kind"] in ("drop", "repeat"):
+            sign = 1 if event["kind"] == "drop" else -1
+            shifts[event["index"]] = shifts.get(event["index"], 0) + sign * event["n"]
+        elif event["kind"] == "silence":
+            silent.update(range(event["index"], event["index"] + event["n"]))
+            if event.get("inserted"):
+                shifts[event["index"]] = shifts.get(event["index"], 0) - event["n"]
+    table = _audio_period_frames(tuple(range(1, channels + 1)), byteorder)
+    quiet, shift, out = bytes(4 * channels), 0, []
+    for index in range(frames):
+        shift += shifts.get(index, 0)
+        out.append(quiet if index in silent
+                   else table[(start_counter + index + shift) % AUDIO_COUNTER_MODULUS])
+    capture = bytearray(b"".join(out))
+
+    def at(index: int, channel: int) -> slice:
+        """The byte span of one channel's word in one frame."""
+        offset = 4 * (index * channels + channel)
+        return slice(offset, offset + 4)
+
+    for event in events:
+        if event["kind"] == "flip":
+            word = int.from_bytes(capture[at(event["index"], event["channel"])], byteorder)
+            capture[at(event["index"], event["channel"])] = (word ^ event["mask"]).to_bytes(4, byteorder)
+        elif event["kind"] == "swap":
+            a, b = event["channels"]
+            for index in range(event["index"], event["index"] + event["n"]):
+                capture[at(index, a)], capture[at(index, b)] = \
+                    capture[at(index, b)], capture[at(index, a)]
+    return bytes(capture)
+
+
+def _audio_chunks(capture):
+    if isinstance(capture, (bytes, bytearray, memoryview)):
+        yield bytes(capture)
+        return
+    for chunk in capture:
+        yield bytes(chunk)
+
+
+class _CounterScan:
+    """Per-channel state machine over the counter words of one capture.
+
+    A mismatching word of its own channel is held for one sample: if the next
+    word resumes the old sequence it was a corruption with that XOR mask,
+    otherwise it starts a slip of the signed counter distance. Runs of zero
+    words are silence; when the content resumes where it stopped the silence
+    was inserted. A word that is another channel's expected word is a swap;
+    anything else is a corruption run with the OR of its XOR masks.
+    """
+
+    def __init__(self, tags: list, layout: "CounterCapture", limit: int) -> None:
+        self.tags = tags
+        self.timing = (layout.rate_hz, layout.start_wall_s, layout.start_gptp_s, layout.context_s)
+        self.expected = [None] * len(tags)
+        self.run = [None] * len(tags)
+        self.held = [None] * len(tags)
+        self.events = []
+        self.limit = limit
+        self.unrecorded = 0
+
+    def aligned_phase(self) -> int | None:
+        """The shared counter when every channel is in step and idle, else None."""
+        phases = {self.expected[c] for c, tag in enumerate(self.tags) if tag is not None}
+        if (len(phases) != 1 or None in phases or any(self.run) or any(self.held)):
+            return None
+        return phases.pop()
+
+    def advance(self, frames: int) -> None:
+        """Move every channel past `frames` words that matched on the fast path."""
+        for channel, tag in enumerate(self.tags):
+            if tag is not None:
+                self.expected[channel] = (self.expected[channel] + frames) % AUDIO_COUNTER_MODULUS
+
+    def _emit(self, channel: int, index: int, cls: str, words: tuple, **fields) -> None:
+        """Record one event; `words` is the (expected, received) pair."""
+        if len(self.events) >= self.limit:
+            self.unrecorded += 1
+            return
+        expected, received = words
+        rate_hz, wall_s, gptp_s, context_s = self.timing
+        offset_s = index / rate_hz
+        record = {"channel": channel, "capture_index": index, "class": cls,
+                  "expected": None if expected is None else f"0x{expected:08X}",
+                  "received": f"0x{received:08X}", "wall_s": wall_s + offset_s,
+                  "gptp_s": gptp_s + offset_s,
+                  "context_wall_s": [wall_s + offset_s - context_s, wall_s + offset_s + context_s],
+                  "attribution": "dut"}
+        record.update(fields)
+        self.events.append(record)
+
+    def _own(self, channel: int, word: int) -> bool:
+        return (word & AUDIO_ZERO_MASK) == 0 and (word >> 20) & 0xF == self.tags[channel]
+
+    def _close(self, channel: int, word: int | None) -> bool:
+        """Emit the open run; True when the word resumed an inserted silence."""
+        run, self.run[channel] = self.run[channel], None
+        if run is None:
+            return False
+        if run["class"] == "silence":
+            resumed = word is not None and self._own(channel, word) and \
+                ((word >> 8) & 0xFFF) == run["counter"]
+            self._emit(channel, run["index"], "silence", (run["expected"], 0), n=run["n"],
+                       inserted=resumed if word is not None else None)
+            if resumed:
+                self.expected[channel] = run["counter"]
+            return resumed
+        fields = {"n": run["n"]}
+        if run["class"] == "swap":
+            fields["partner"] = run["partner"]
+        else:
+            fields["mask"] = f"0x{run['mask']:08X}"
+        self._emit(channel, run["index"], run["class"], (run["expected"], run["received"]), **fields)
+        return False
+
+    def _resolve(self, channel: int, word: int | None) -> None:
+        held, self.held[channel] = self.held[channel], None
+        tag = self.tags[channel]
+        words = (held["expected"], held["received"])
+        if word is not None and word == audio_counter_word(tag, held["counter"] + 1):
+            self._emit(channel, held["index"], "bit-flip", words, n=1,
+                       mask=f"0x{held['received'] ^ held['expected']:08X}")
+            self.expected[channel] = (held["counter"] + 1) % AUDIO_COUNTER_MODULUS
+            return
+        shift = (held["seen"] - held["counter"]) % AUDIO_COUNTER_MODULUS
+        if shift >= AUDIO_COUNTER_MODULUS // 2:
+            shift -= AUDIO_COUNTER_MODULUS
+        self._emit(channel, held["index"], "dropped" if shift > 0 else "repeated",
+                   words, n=abs(shift),
+                   **({} if word is not None else {"unresolved": "capture ended"}))
+        self.expected[channel] = (held["seen"] + 1) % AUDIO_COUNTER_MODULUS
+
+    def step(self, index: int, frame: Sequence[int]) -> None:
+        """Classify one frame's words against each channel's expected word."""
+        expected_words = {}
+        for channel, tag in enumerate(self.tags):
+            if tag is not None and self.expected[channel] is not None and self.held[channel] is None:
+                expected_words[audio_counter_word(tag, self.expected[channel])] = channel
+        for channel, tag in enumerate(self.tags):
+            if tag is None:
+                continue
+            word = frame[channel]
+            if self.held[channel] is not None:
+                self._resolve(channel, word)
+            counter = self.expected[channel]
+            if counter is None:
+                if self._own(channel, word):
+                    self._close(channel, word)
+                    self.expected[channel] = (((word >> 8) & 0xFFF) + 1) % AUDIO_COUNTER_MODULUS
+                else:
+                    self._open(channel, index, "silence" if word == 0 else "bit-flip", (None, word))
+                continue
+            expect = audio_counter_word(tag, counter)
+            if word == expect:
+                self._close(channel, word)
+                self.expected[channel] = (counter + 1) % AUDIO_COUNTER_MODULUS
+                continue
+            if word == 0:
+                self._open(channel, index, "silence", (expect, word), counter=counter)
+                self.expected[channel] = (counter + 1) % AUDIO_COUNTER_MODULUS
+                continue
+            if self.run[channel] is not None and self.run[channel]["class"] == "silence":
+                if self._close(channel, word):
+                    self.expected[channel] = (self.expected[channel] + 1) % AUDIO_COUNTER_MODULUS
+                    continue
+            if self._own(channel, word):
+                self._close(channel, word)
+                self.held[channel] = {"index": index, "counter": counter, "expected": expect,
+                                      "received": word, "seen": (word >> 8) & 0xFFF}
+                continue
+            partner = expected_words.get(word)
+            if partner is not None and partner != channel:
+                self._open(channel, index, "swap", (expect, word), partner=partner)
+            else:
+                self._open(channel, index, "bit-flip", (expect, word))
+            self.expected[channel] = (counter + 1) % AUDIO_COUNTER_MODULUS
+
+    def _open(self, channel: int, index: int, cls: str, words: tuple, **context) -> None:
+        """Start or extend a run; `words` is (expected, received), `context`
+        the expected counter at a silence start or the swap partner."""
+        expected, word = words
+        partner = context.get("partner")
+        run = self.run[channel]
+        if (run is not None and run["class"] == cls and run.get("partner") == partner
+                and run["index"] + run["n"] == index):
+            run["n"] += 1
+            if cls == "bit-flip":
+                run["mask"] |= word ^ (expected or 0)
+            return
+        self._close(channel, word)
+        self.run[channel] = {"class": cls, "index": index, "n": 1, "expected": expected,
+                             "received": word, "counter": context.get("counter"),
+                             "partner": partner, "mask": word ^ (expected or 0)}
+
+    def finish(self) -> None:
+        """Resolve a held word and close every open run at the capture's end."""
+        for channel, tag in enumerate(self.tags):
+            if tag is None:
+                continue
+            if self.held[channel] is not None:
+                self._resolve(channel, None)
+            self._close(channel, None)
+
+
+def _audio_logs_valid(arms: list, losses: list, channels: int) -> bool:
+    for arm in arms:
+        if (not isinstance(arm, dict) or arm.get("class") not in ("dropped", "repeated", "bit-flip")
+                or type(arm.get("index")) is not int or arm["index"] < 0):
+            return False
+        channel = arm.get("channel")
+        if channel is not None and (type(channel) is not int or not 0 <= channel < channels):
+            return False
+        size = arm.get("mask" if arm["class"] == "bit-flip" else "n")
+        if type(size) is not int or size <= 0:
+            return False
+    for loss in losses:
+        if (not isinstance(loss, dict) or type(loss.get("index")) is not int or loss["index"] < 0
+                or type(loss.get("frames")) is not int or loss["frames"] <= 0):
+            return False
+    return True
+
+
+def _audio_shift(event: dict) -> int:
+    return event["n"] if event["class"] == "dropped" else -event["n"]
+
+
+def _audio_attribute(events: list, arms: list, losses: list, counter_channels: list,
+                     tolerance: int) -> tuple[str | None, list]:
+    """Mark logged capture losses and planted arms; (refusal, missed arms)."""
+    for loss in losses:
+        if loss["frames"] % AUDIO_COUNTER_MODULUS == 0:
+            continue
+        hits = [e for e in events if e["attribution"] == "dut"
+                and e["capture_index"] == loss["index"] and e["class"] in ("dropped", "repeated")
+                and _audio_shift(e) % AUDIO_COUNTER_MODULUS == loss["frames"] % AUDIO_COUNTER_MODULUS]
+        if sorted({e["channel"] for e in hits}) != counter_channels:
+            return "a logged capture loss is not in the capture", []
+        for event in hits:
+            event["attribution"] = "capture"
+    missed = []
+    for arm in arms:
+        want = counter_channels if arm.get("channel") is None else [arm["channel"]]
+        picks = {}
+        for event in events:
+            if (event["attribution"] != "dut" or event["class"] != arm["class"]
+                    or event["channel"] not in want
+                    or abs(event["capture_index"] - arm["index"]) > tolerance):
+                continue
+            if arm["class"] == "bit-flip":
+                if event["n"] != 1 or event["mask"] != f"0x{arm['mask']:08X}":
+                    continue
+            elif event["n"] != arm["n"]:
+                continue
+            best = picks.get(event["channel"])
+            if best is None or (abs(event["capture_index"] - arm["index"])
+                                < abs(best["capture_index"] - arm["index"])):
+                picks[event["channel"]] = event
+        if sorted(picks) != sorted(want):
+            missed.append(arm)
+            continue
+        for event in picks.values():
+            event["attribution"] = "planted"
+    return None, missed
+
+
+@dataclass(frozen=True)
+class CounterCapture:
+    """One counter capture as recorded: its layout, clocks and channel numbers.
+
+    Headerless interleaved S32 in `byteorder`, at `rate_hz`. The start times
+    put every event on the wall and gPTP clocks, and `context_s` brackets it.
+    `tags` names the channel number each capture channel must carry, None
+    for a channel without the counter; None keeps the default, index + 1.
+    """
+    channels: int
+    byteorder: str
+    rate_hz: float
+    start_wall_s: float | None
+    start_gptp_s: float | None
+    context_s: float = 5
+    tags: tuple | None = None
+
+
+@dataclass(frozen=True)
+class CounterRunLog:
+    """The source's planted-arm log and the capture tool's loss log.
+
+    Arms carry class, capture index, n or mask, and channel, None for every
+    counter channel; losses carry capture index and frames. None is a missing
+    log and an empty list attests none. `arm_tolerance_frames` is the arm
+    log's recorded index error.
+    """
+    planted_arms: list | None
+    capture_losses: list | None
+    arm_tolerance_frames: int | None
+
+
+def grade_audio_counter_capture(capture: "bytes | Iterable[bytes]", layout: CounterCapture,
+                                log: CounterRunLog, *, max_events: int = 100000) -> tuple[str, dict]:
+    """L3 #396 audio grader over one interleaved S32 counter capture.
+
+    `capture` is headerless interleaved S32, the format tb/tools/thdn.py and
+    the #451/#629 captures use, given as bytes or as an iterable of chunks so
+    that a 24-hour file streams.
+
+    NOT RUN: missing or inconsistent evidence, or a void run, where an arm was
+    missed or the arms do not run at both the start and the end. FAIL: any
+    event attributed to neither a planted arm nor a logged capture loss.
+    Slips are decided modulo 4096 samples: a shift of 2048 or more aliases,
+    and an exact multiple of 4096 is invisible to the counter.
+    """
+    import struct
+    channels, byteorder, rate_hz = layout.channels, layout.byteorder, layout.rate_hz
+    planted_arms, capture_losses = log.planted_arms, log.capture_losses
+    detail = {"channels": channels, "byteorder": byteorder, "rate_hz": rate_hz,
+              "modulus": AUDIO_COUNTER_MODULUS, "classes": list(AUDIO_CLASSES)}
+    if (type(channels) is not int or channels < 1 or byteorder not in ("big", "little")
+            or not _release_finite(rate_hz) or rate_hz <= 0
+            or planted_arms is None or capture_losses is None
+            or type(log.arm_tolerance_frames) is not int or log.arm_tolerance_frames < 0
+            or not _release_finite(layout.start_wall_s) or not _release_finite(layout.start_gptp_s)
+            or not _release_finite(layout.context_s) or layout.context_s < 0
+            or type(max_events) is not int or max_events < 1):
+        return "NOT RUN", dict(detail, why="capture layout, both logs, tolerance and start times required")
+    tags = [c + 1 for c in range(channels)] if layout.tags is None else list(layout.tags)
+    counter_channels = [c for c, tag in enumerate(tags) if tag is not None]
+    numbers = [tag for tag in tags if tag is not None]
+    if (len(tags) != channels or not counter_channels
+            or any(type(tag) is not int or not 1 <= tag <= AUDIO_TAG_MAX for tag in numbers)
+            or len(set(numbers)) != len(numbers)):
+        return "NOT RUN", dict(detail, why="one distinct channel number from 1 to 15 per counter channel")
+    if not _audio_logs_valid(planted_arms, capture_losses, channels):
+        return "NOT RUN", dict(detail, why="invalid planted-arm or capture-loss log")
+    scan = _CounterScan(tags, layout, max_events)
+    frame = struct.Struct(("<" if byteorder == "little" else ">") + "I" * channels)
+    # Fast path: a clean stretch equals the period of expected frames, rotated.
+    period = (b"".join(_audio_period_frames(tuple(tags), byteorder)) * 2
+              if len(counter_channels) == channels else None)
+    pending, index = b"", 0
+    for chunk in _audio_chunks(capture):
+        data = pending + chunk
+        usable = len(data) - len(data) % frame.size
+        pending, offset = data[usable:], 0
+        while offset < usable:
+            count = min(AUDIO_FAST_BLOCK, (usable - offset) // frame.size)
+            phase = scan.aligned_phase() if period is not None else None
+            if phase is not None and data[offset:offset + count * frame.size] == \
+                    period[phase * frame.size:(phase + count) * frame.size]:
+                scan.advance(count)
+            else:
+                for k in range(count):
+                    scan.step(index + k, frame.unpack_from(data, offset + k * frame.size))
+            index += count
+            offset += count * frame.size
+    if pending or index == 0:
+        return "NOT RUN", dict(detail, frames=index, why="empty capture or a torn final frame")
+    scan.finish()
+    events = scan.events
+    refusal, missed = _audio_attribute(events, planted_arms, capture_losses, counter_channels,
+                                       log.arm_tolerance_frames)
+    counts = {}
+    for event in events:
+        bucket = counts.setdefault(event["attribution"], {})
+        bucket[event["class"]] = bucket.get(event["class"], 0) + 1
+    detail.update(frames=index, duration_s=index / rate_hz, counts=counts, events=events,
+                  unrecorded_events=scan.unrecorded, planted_missed=missed)
+    if refusal:
+        return "NOT RUN", dict(detail, why=refusal)
+    if scan.unrecorded:
+        return "FAIL", dict(detail, why=f"more than {max_events} events; the excess is counted, not recorded")
+    if missed:
+        return "NOT RUN", dict(detail, why="void: a planted arm was missed")
+    halves = [{arm["class"] for arm in planted_arms if (arm["index"] >= index / 2) == late}
+              for late in (False, True)]
+    if any(half != {"dropped", "repeated", "bit-flip"} for half in halves):
+        return "NOT RUN", dict(detail, why="void: drop, repeat and flip arms must run at the start and at the end")
+    if counts.get("dut"):
+        return "FAIL", dict(detail, why="DUT-attributed audio events")
+    return "PASS", dict(detail, why="zero DUT-attributed events; every planted arm found")
 
 
 def check_release_tu(interval_s: tuple[float, float], discontinuities_s: list[float], *,
@@ -3586,16 +4262,22 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
               settings: ReleaseSettings = ReleaseSettings()) -> list[Step]:
     """One continuous repeat operation, with baseline and final counter walks."""
     args = _release_args(dut, peer)
+    args["evidence"].append("planted_event_log")
     args.update(duration_s=settings.soak_duration_s,
                 interval_s=settings.soak_interval_s,
-                release_eligible=(settings.soak_duration_s
-                                  >= ReleaseSettings.soak_duration_s),
+                release_eligible=settings.soak_duration_s >= RELEASE_SOAK_DURATION_S,
                 sample_at_start=True, sample_at_end=True,
                 gptp_publication=["gm", "parent", "path", "pdelay_ns",
                                   "sync", "asCapable", "tu"],
                 continuous_evidence=["asCapable_transitions", "tu_intervals",
                                      "stream_flow", "uptime", "mr_pdus", "media_clock_events",
-                                     "MEDIA_RESET_reads", "gptp_discontinuities", "gm_changes"],
+                                     "MEDIA_RESET_reads", "gptp_discontinuities", "gm_changes",
+                                     "planted_events"],
+                counter_oracle="check_release_soak_counters",
+                zero_growth_counters=list(RELEASE_ZERO_GROWTH_COUNTERS),
+                media_unlocked_rule="zero growth outside a recorded planted event, explained or not",
+                planted_event_log="every deliberately planted disturbance with its target, kind "
+                                  "and window_s; an empty list when none was planted",
                 mr_oracle="check_release_mr",
                 mr_capture_window="[first read - 1 s - observation_resolution_s, last read]",
                 mr_distinct_causes=True,
@@ -3630,40 +4312,145 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
                       "streams owe traffic. Teardown after the final snapshot.")]
 
 
+def _audio_control_fixture() -> dict:
+    """A synthetic capture: arms at both ends and one unplanted DUT drop."""
+    frames, channels, n = 6 * AUDIO_COUNTER_MODULUS, 8, 5
+    arm_at = (100, 300, 500, frames - 900, frames - 600, frames - 300)
+    kinds = ("drop", "repeat", "flip") * 2
+    arms, source = [], []
+    for at, kind, arm in zip(arm_at, kinds, AUDIO_PLANTED_ARMS * 2):
+        channel = 2 if at < frames // 2 else 5
+        arms.append(dict(arm, index=at, **({"channel": channel} if kind == "flip" else {})))
+        source.append({"kind": kind, "index": at, **({"channel": channel, "mask": arm["mask"]}
+                                                      if kind == "flip" else {"n": arm["n"]})})
+    return {"generator": "synthesize_counter_capture", "frames": frames, "channels": channels,
+            "rate_hz": 48000, "byteorder": "big", "arm_tolerance_frames": 2,
+            "planted_arms": arms, "source_events": source,
+            "dut_event": {"kind": "drop", "index": 3 * AUDIO_COUNTER_MODULUS + 7, "n": n},
+            "expected_events": {"class": "dropped", "n": n,
+                                "capture_index": 3 * AUDIO_COUNTER_MODULUS + 7,
+                                "channels": list(range(channels))}}
+
+
+def _audio_release_steps(dut: Device, peer: Device, settings: ReleaseSettings) -> list[Step]:
+    """Issue #396's audio-integrity run inside the soak, and its control."""
+    args = _release_args(dut, peer)
+    args["evidence"] += ["audio_captures", "planted_arm_log", "capture_loss_log",
+                         "audio_event_records"]
+    args.update(
+        duration_s=settings.audio_duration_s, context_s=settings.audio_context_s,
+        window="soak.continuous",
+        window_rule="start after soak.continuous binds every pair and starts timing; "
+                    "end at or before its endpoint",
+        release_eligible=(settings.audio_duration_s >= RELEASE_SOAK_DURATION_S
+                          and _release_profile_eligible(settings)),
+        topology_explicit=settings.topology_explicit,
+        digital_paths=[
+            {"path": "outbound", "talker": dut.entity_id, "listener": peer.entity_id,
+             "capture": "an external digital capture", "byteorder": "recorded per capture"},
+            {"path": "return", "talker": peer.entity_id, "listener": dut.entity_id,
+             "capture": "the DUT's TDM output and the direct TDM capture (#451)",
+             "byteorder": "recorded per capture"},
+            {"path": "dut-tdm-loop", "talker": dut.entity_id, "listener": dut.entity_id,
+             "capture": "the direct TDM capture (#451)", "byteorder": "recorded per capture"}],
+        graded_pairs="every AAF pair; a CRF stream carries no audio samples",
+        counter_layout={"container": "S32; 24-bit sample in bits 31:8; bits 7:0 zero",
+                        "channel_field": "sample bits 15:12 = channel index + 1",
+                        "counter_field": "sample bits 11:0, free-running sample counter",
+                        "modulus": AUDIO_COUNTER_MODULUS},
+        counter_grader="grade_audio_counter_capture",
+        counter_classes=list(AUDIO_CLASSES),
+        counter_limits="slips decided modulo 4096 samples; a shift of 2048 or more "
+                       "aliases; an exact multiple of 4096 is invisible to the counter",
+        planted_arms=[dict(arm) for arm in AUDIO_PLANTED_ARMS],
+        planted_placement="every arm at the start and at the end of the run, logged with "
+                          "its capture index, channel and size or mask",
+        planted_missed="void: NOT RUN",
+        capture_losses="logged by the capture tool; attributed to the capture and reported apart",
+        event_record=["wall_s", "gptp_s", "capture_index", "expected", "received", "class"],
+        event_context={"counter_walk": "every stream and the CRF sink",
+                       "csr": {"SLIP_LB": 0x8D4, "SLIP_TDM": 0x8D8},
+                       "gptp": "publication and transition state",
+                       "max_gap_s": settings.audio_context_s},
+        analog={"tones_hz": [997, 9973], "path": "the analog chain, converters included",
+                "grading": ["THD+N per block", "sample-exact predictor residual"],
+                "limits": None, "limits_status": "undecided on #396; NOT RUN until decided"},
+        pass_rule="zero DUT-attributed events on every bound channel, both directions, "
+                  "with every planted arm found")
+    control = {"control_of": "audio.integrity", "expected_failing_assertion": "audio.zero-dut-glitches",
+               "expected_verdict": "FAIL", "oracle": "grade_audio_counter_capture",
+               "offline": True, "context_s": settings.audio_context_s,
+               "fixture": _audio_control_fixture()}
+    return [
+        Step("audio.integrity", "audio", "release_audio_integrity", args,
+             asserts=AUDIO_RELEASE_ASSERTS, clause=AUDIO_RELEASE_CLAUSE, needs_human=True,
+             human_action="Feed the counter source and the sine pair, start every capture, "
+                          "and plant the logged arms at the start and the end of the run.",
+             note="Runs concurrently with soak.continuous, inside its window. Grade "
+                  "every capture offline; walk counters, SLIP words and gPTP state "
+                  "at most context_s apart throughout."),
+        Step("audio.control.planted-drop", "audio", RELEASE_CONTROL_OP, control,
+             asserts=(A_RELEASE_CONTROL, _spec(AUDIO_RELEASE_ASSERTS, "audio.zero-dut-glitches"),
+                      _spec(AUDIO_RELEASE_ASSERTS, "audio.counter-classified")),
+             clause=AUDIO_RELEASE_CLAUSE + "; issue #396 acceptance 4",
+             note="Graded offline on a synthetic capture: the unplanted drop must FAIL "
+                  "and be classified exactly, every arm found.")]
+
+
 def plan_power(dut: Device = ARTY, peer: Device = PEER,
                settings: ReleaseSettings = ReleaseSettings()) -> list[Step]:
-    """Serial cold cuts; each phase repeats the full before/after contract."""
+    """Serial cycles; each phase repeats the full before/after contract.
+
+    Two phases are cold cuts from the power strip and one is soft resets with
+    power held on. The negative controls follow as their own entries.
+    """
     steps = []
+    minimum = dict(RELEASE_POWER_PHASES)
     for phase, count in (("idle", settings.idle_cycles),
-                         ("journal_commit", settings.commit_cycles)):
+                         ("journal_commit", settings.commit_cycles),
+                         ("soft_reset", settings.reset_cycles)):
+        cold = phase != "soft_reset"
         args = _release_args(dut, peer)
+        args["evidence"].append("power_strip_log" if cold else "reset_command_log")
         args.update(cycles=count, total_cycles=settings.power_cycles,
-                    phase=phase, cold=True, count_resets=False,
-                    outlet_role="dut",
-                    power_off_hold_s=settings.power_off_hold_s,
-                    power_off_hold_origin="phys.dut-cycle.power-cycle: default 8 s; verify discharge",
-                    power_off_hold_in_adp_window=False,
-                    boot_observation_s=settings.restore_bound_s + settings.boot_margin_s,
+                    phase=phase, cold=cold, soft_reset=not cold,
+                    cycle_kind="cold cut" if cold else "soft reset",
+                    outlet_role="dut")
+        if cold:
+            args.update(power_off_hold_s=settings.power_off_hold_s,
+                        power_off_hold_origin="phys.dut-cycle.power-cycle: default 8 s; verify discharge",
+                        power_off_hold_in_adp_window=False,
+                        cold_confirmation="power removed; discharge verified",
+                        time_origin="T0: power-strip ON command, host monotonic clock")
+        else:
+            args.update(reset_method="bench-declared reset with power held on; record the "
+                                     "mechanism, its command timestamp and the outlet state per cycle",
+                        cold_confirmation="power held on; outlet ON before and after the reset",
+                        time_origin="T0: reset command, host monotonic clock")
+        args.update(boot_observation_s=settings.restore_bound_s + settings.boot_margin_s,
                     boot_margin_s=settings.boot_margin_s,
                     restore_bound_s=settings.restore_bound_s,
                     restore_bound_provisional=True,
                     restore_bound_origin="issue #396 round 2; ratify with #397 and #75",
                     boot_observation_origin="restore_bound_s + boot_margin_s from T0",
-                    time_origin="T0: power-strip ON command, host monotonic clock",
                     restore_start="T0",
                     restore_end="first valid AVTP PDU of each persisted binding",
                     restore_limit_exclusive=False,
                     restore_requires="automatic; no controller repair; both directions and CRF",
                     boot_max_passes=1, boot_max_restarts=0,
-                    boot_evidence="complete UART/reset observation from T0 through next cut or campaign end; "
+                    boot_evidence="complete UART/reset observation from T0 through next cycle or campaign end; "
                                   "at least boot_observation_s",
                     persisted_items=list(settings.persisted_items),
+                    persisted_item_clauses={item: RELEASE_PERSISTED_ITEMS.get(item, "project inventory")
+                                            for item in settings.persisted_items},
+                    state_oracle="check_release_state_restored",
+                    state_values="set every item away from its default before the cycle",
                     release_eligible=(settings.power_cycles >= ReleaseSettings.power_cycles
-                                      and settings.idle_cycles >= ReleaseSettings.idle_cycles
-                                      and settings.commit_cycles >= ReleaseSettings.commit_cycles),
+                                      and settings.idle_cycles >= minimum["idle"]
+                                      and settings.commit_cycles >= minimum["journal_commit"]
+                                      and settings.reset_cycles >= minimum["soft_reset"]),
                     cut_requires=("journal_commit_window" if phase == "journal_commit"
                                   else "journal_idle"),
-                    cold_confirmation="power removed; discharge verified",
                     adp_reference="last pre-cut DUT ENTITY_AVAILABLE, host timestamp and raw PDU",
                     adp_valid_time_unit_s=2,
                     adp_required_valid_time=10,
@@ -3684,14 +4471,88 @@ def plan_power(dut: Device = ARTY, peer: Device = PEER,
         steps.append(Step(
             "power." + phase, "power", "release_power_cycles", args,
             asserts=POWER_ASSERTS, clause=RELEASE_CLAUSE, needs_human=True,
-            human_action="Provide the bench power-strip hook and timestamped "
-                         "cut-phase evidence; then run unattended cold cuts.",
-            note="Each cycle: establish pairs and saved state, snapshot, prove "
-                 "cut phase, remove power, confirm discharge, restore power, "
-                 "observe boot, verify automatic restore, measure reconnect, "
-                 "walk all counters. No next cut before verification finishes. "
-                 "Missing journal instrumentation leaves qualification open."))
-    return steps
+            human_action=("Provide the bench power-strip hook and timestamped "
+                          "cut-phase evidence; then run unattended cold cuts." if cold else
+                          "Provide the bench reset hook with power held on and "
+                          "timestamped reset evidence; then run unattended soft resets."),
+            note=("Each cycle: establish pairs and saved state, snapshot, prove "
+                  "cut phase, remove power, confirm discharge, restore power, "
+                  "observe boot, verify automatic restore, measure reconnect, "
+                  "walk all counters. No next cut before verification finishes. "
+                  "Missing journal instrumentation leaves qualification open." if cold else
+                  "Each cycle: establish pairs and saved state, snapshot, issue the "
+                  "reset with power held on, observe boot, verify automatic restore, "
+                  "measure reconnect, walk all counters. No next cycle before "
+                  "verification finishes.")))
+    return steps + _power_controls(dut, peer, settings)
+
+
+def _spec(asserts: Sequence[AssertSpec], name: str) -> AssertSpec:
+    return next(spec for spec in asserts if spec.name == name)
+
+
+def _power_controls(dut: Device, peer: Device, settings: ReleaseSettings) -> list[Step]:
+    """Acceptance 4's two power-campaign controls, each with its failing assertion.
+
+    The desk fixture is the defect's signature for the named oracle, so the
+    offline suite proves the assertion can fail on it; the bench run against
+    the known-defect image is #396 part B.
+    """
+    items = list(settings.persisted_items)
+    common = {"control_of": "power.idle", "phase": "idle", "cycles": 1,
+              "expected_verdict": "FAIL", "pairs": _release_pairs(dut, peer),
+              "evidence": ["image_hashes", "manifest", "verdict_jsonl", "uart_transcript",
+                           "controller_log", "timestamped_snapshots"]}
+    return [
+        Step("power.control.first-boot-restart", "power", RELEASE_CONTROL_OP,
+             dict(common, image="the shipping pair, first cold boot after its flash-pair (#366)",
+                  expected_failing_assertion="power.single-boot", oracle="check_release_boot",
+                  desk_fixture={"boot_passes": 2, "restarts": 1, "capture_complete": True},
+                  retain="flash-to-first-cold-boot provenance and uninterrupted UART capture"),
+             asserts=(A_RELEASE_CONTROL, _spec(POWER_ASSERTS, "power.single-boot")),
+             clause=RELEASE_CLAUSE + "; issue #366", needs_human=True,
+             human_action="Flash the shipping pair, then run one cold cut with "
+                          "complete UART capture from T0.",
+             note="Only the first cold boot after a flash shows the restart, so the "
+                  "control is exactly one cycle after the flash."),
+        Step("power.control.persistence-disabled", "power", RELEASE_CONTROL_OP,
+             dict(common, image="a build with persistence disabled",
+                  expected_failing_assertion="power.state-restored",
+                  oracle="check_release_state_restored",
+                  desk_fixture={"items": items,
+                                "pre": {item: "set" for item in items},
+                                "post": {item: "default" for item in items},
+                                "defaults": {item: "default" for item in items}}),
+             asserts=(A_RELEASE_CONTROL, _spec(POWER_ASSERTS, "power.state-restored")),
+             clause=RELEASE_CLAUSE + "; issue #70", needs_human=True,
+             human_action="Flash a persistence-disabled build, set every inventory "
+                          "item away from its default, then run one cold cut.",
+             note="Every item reads back at its default, which the restore "
+                  "assertion must fail."),
+    ]
+
+
+def run_release_control(step: Step) -> tuple[str, dict]:
+    """Run one control's desk fixture through its oracle; the verdict it earns."""
+    args = step.args
+    fixture = args.get("desk_fixture") or args.get("fixture")
+    if step.op != RELEASE_CONTROL_OP or not isinstance(fixture, dict):
+        return "NOT RUN", {"why": "not a negative control with a desk fixture"}
+    if args.get("oracle") == "check_release_boot":
+        return check_release_boot(fixture["boot_passes"], fixture["restarts"],
+                                  capture_complete=fixture["capture_complete"])
+    if args.get("oracle") == "check_release_state_restored":
+        return check_release_state_restored(fixture["pre"], fixture["post"], fixture["defaults"],
+                                            items=fixture["items"], phase=args["phase"])
+    if args.get("oracle") == "grade_audio_counter_capture":
+        capture = synthesize_counter_capture(
+            fixture["frames"], fixture["channels"], byteorder=fixture["byteorder"],
+            events=fixture["source_events"] + [fixture["dut_event"]])
+        return grade_audio_counter_capture(
+            capture, CounterCapture(fixture["channels"], fixture["byteorder"], fixture["rate_hz"],
+                                    0.0, 0.0, args["context_s"]),
+            CounterRunLog(fixture["planted_arms"], [], fixture["arm_tolerance_frames"]))
+    return "NOT RUN", {"why": f"unknown oracle {args.get('oracle')!r}"}
 
 
 def _release_coverage(step: Step, dut: Device, peer: Device) -> dict:
@@ -3753,7 +4614,7 @@ def build_plan(areas: Iterable[str] | None = None, dut: Device = ARTY,
     out = []
     for a in want:
         fn = AREAS[a]
-        if a in ("soak", "power"):
+        if a in ("soak", "audio", "power"):
             out += fn(dut, peer, release)
             continue
         try:
@@ -3905,24 +4766,54 @@ def area_covers_every_index(plan: Iterable[Step], area: str,
                             dut: Device = ARTY, peer: Device = PEER, *,
                             expect: dict[str, list[int]] | None = None
                             ) -> tuple[bool, dict[str, object]]:
-    """(ok, detail) for ONE area against that area's own expectation."""
+    """(ok, detail) for ONE area against that area's own expectation.
+
+    The audio area's identity expectation is judged without its release
+    steps: their counter targets walk every index and would otherwise mask an
+    index-0-only identity loop. The release steps carry their own audit.
+    """
     plan = list(plan)
-    cov = plan_coverage_by_area(plan, dut, peer).get(area, {})
+    scoped = plan if area != "audio" else [
+        s for s in plan if s.op not in RELEASE_REQUIRED_ASSERTS and s.op != RELEASE_CONTROL_OP]
+    cov = plan_coverage_by_area(scoped, dut, peer).get(area, {})
     want = expect if expect is not None else \
         area_index_expectations(dut, peer).get(area, {})
     missing = {k: sorted(set(v) - set(cov.get(k, []))) for k, v in want.items()}
     missing = {k: v for k, v in missing.items() if v}
-    if area in ("soak", "power"):
-        steps = [s for s in plan if s.area == area]
-        for step in steps:
-            defects = _release_coverage(step, dut, peer)
-            if defects:
-                missing[step.sid] = defects
-        if area == "power" and {s.args.get("phase") for s in steps} != {
-                "idle", "journal_commit"}:
-            missing["phases"] = "idle and journal_commit are both required"
+    if area in ("soak", "audio", "power"):
+        missing.update(_release_area_defects(area, [s for s in plan if s.area == area],
+                                             dut, peer))
     return (not missing, {"area": area, "covered": cov, "expected": want,
                           "missing": missing})
+
+
+def _release_area_defects(area: str, steps: list[Step], dut: Device, peer: Device) -> dict:
+    """Issue #396's per-area contract: repeats, assertions, cycle mix, controls."""
+    defects = {}
+    repeats = [s for s in steps if s.op in RELEASE_REQUIRED_ASSERTS]
+    if not repeats:
+        defects["release"] = "no release repeat in this area"
+    for step in repeats:
+        found = _release_coverage(step, dut, peer)
+        owed = RELEASE_REQUIRED_ASSERTS[step.op] - {
+            spec.name for spec in step.asserts if spec.severity == "SHALL"}
+        if owed:
+            found["asserts"] = sorted(owed)
+        if found:
+            defects[step.sid] = found
+    if area == "power":
+        if sorted(s.args.get("phase") for s in repeats) != sorted(p for p, _ in RELEASE_POWER_PHASES):
+            defects["phases"] = "idle, journal_commit and soft_reset are each required once"
+        totals = {s.args.get("total_cycles") for s in repeats}
+        if len(totals) != 1 or sum(s.args.get("cycles", 0) for s in repeats) not in totals:
+            defects["cycle_mix"] = "the phase cycles must add up to total_cycles"
+    for sid in RELEASE_CONTROLS.get(area, ()):
+        control = next((s for s in steps if s.sid == sid and s.op == RELEASE_CONTROL_OP), None)
+        if (control is None or control.args.get("expected_verdict") != "FAIL"
+                or control.args.get("expected_failing_assertion")
+                not in {spec.name for spec in control.asserts}):
+            defects[sid] = "negative control missing or not carrying its failing assertion"
+    return defects
 
 
 def human_steps(plan: Iterable[Step]) -> list[Step]:
@@ -4839,42 +5730,83 @@ class _AreaContractChecks:
 class _ReleasePlanChecks:
     """L3: issue #396's decisions, independently enumerated and fault planted."""
 
+    def _release_repeats(self, plan: list[Step]) -> dict[str, Step]:
+        return {s.sid: s for s in plan if s.op in RELEASE_REQUIRED_ASSERTS}
+
     def test_release_defaults_and_assertions(self) -> None:
-        """The seven-day and 160/40 cold-cut contracts survive serialization."""
-        soak, idle, commit = build_plan(
-            ["soak", "power"], release=ReleaseSettings(topology_explicit=True))
-        self.assertEqual((soak.args["duration_s"], soak.args["interval_s"]),
-                         (604800, 60))
-        self.assertEqual([s.args["cycles"] for s in (idle, commit)], [160, 40])
-        self.assertEqual([s.args["phase"] for s in (idle, commit)],
-                         ["idle", "journal_commit"])
+        """L3 #396 2026-10-26: the 24-hour soak, its audio run and 100/50/50 cycles."""
+        repeats = self._release_repeats(build_plan(
+            ["soak", "audio", "power"], release=ReleaseSettings(topology_explicit=True)))
+        soak, audio = repeats["soak.continuous"], repeats["audio.integrity"]
+        idle, commit, reset = (repeats["power." + p] for p in ("idle", "journal_commit", "soft_reset"))
+        self.assertEqual(len(repeats), 5)
+        self.assertEqual((soak.args["duration_s"], soak.args["interval_s"]), (86400, 60))
+        self.assertEqual((audio.args["duration_s"], audio.args["context_s"], audio.args["window"]),
+                         (86400, 5, "soak.continuous"))
+        self.assertEqual([s.args["cycles"] for s in (idle, commit, reset)], [100, 50, 50])
+        self.assertEqual([s.args["phase"] for s in (idle, commit, reset)],
+                         ["idle", "journal_commit", "soft_reset"])
+        self.assertEqual([s.args["cold"] for s in (idle, commit, reset)], [True, True, False])
+        self.assertEqual([s.args["soft_reset"] for s in (idle, commit, reset)], [False, False, True])
         self.assertEqual(soak.args["timestamp_margin"]["offset"], 0x6EC)
         self.assertEqual(soak.args["timestamp_margin"]["stream_input"], 0)
-        for step in (idle, commit):
-            self.assertTrue(step.args["cold"])
-            self.assertFalse(step.args["count_resets"])
+        self.assertEqual(soak.args["zero_growth_counters"],
+                         ["SEQ_NUM_MISMATCH", "STREAM_INTERRUPTED", "LATE_TIMESTAMP", "EARLY_TIMESTAMP"])
+        for step in (idle, commit, reset):
             self.assertEqual(step.args["total_cycles"], 200)
-            self.assertEqual(step.args["persisted_items"], ["stream_binding"])
+            self.assertEqual(step.args["persisted_items"], [
+                "configuration", "sampling_rate", "stream_format", "presentation_time_offset",
+                "channel_mappings", "clock_source", "entity_names", "object_names",
+                "stream_binding"])
             self.assertEqual(step.args["boot_observation_s"], 35)
             self.assertEqual(step.args["restore_bound_s"], 30)
             self.assertEqual(step.args["boot_margin_s"], 5)
-            self.assertEqual(step.args["power_off_hold_s"], 8)
             self.assertEqual(step.args["rebind_limit_s"], 1)
             self.assertTrue(step.args["rebind_limit_exclusive"])
             self.assertTrue(step.needs_human)
+        for step in (idle, commit):
+            self.assertEqual(step.args["power_off_hold_s"], 8)
+            self.assertEqual(step.args["time_origin"], "T0: power-strip ON command, host monotonic clock")
+        self.assertNotIn("power_off_hold_s", reset.args)
+        self.assertEqual(reset.args["time_origin"], "T0: reset command, host monotonic clock")
         self.assertEqual(commit.args["cut_requires"], "journal_commit_window")
+        oracles = {"soak": soak.args["counter_oracle"], "audio": audio.args["counter_grader"],
+                   "power": idle.args["state_oracle"]}
+        self.assertEqual(oracles, {"soak": "check_release_soak_counters",
+                                   "audio": "grade_audio_counter_capture",
+                                   "power": "check_release_state_restored"})
+        for name in oracles.values():
+            self.assertTrue(callable(globals()[name]), name)
+        self.assertIn("planted_event_log", soak.args["evidence"])
+        self.assertIn("planted_events", soak.args["continuous_evidence"])
+        self.assertTrue({"audio_captures", "planted_arm_log", "capture_loss_log"}
+                        <= set(audio.args["evidence"]))
+        self.assertEqual([arm["class"] for arm in audio.args["planted_arms"]],
+                         ["dropped", "repeated", "bit-flip"])
+        self.assertEqual(audio.args["counter_classes"],
+                         ["dropped", "repeated", "silence", "bit-flip", "swap"])
+        self.assertEqual(audio.args["analog"]["tones_hz"], [997, 9973])
+        self.assertIsNone(audio.args["analog"]["limits"])
+        self.assertEqual({p["path"] for p in audio.args["digital_paths"]},
+                         {"outbound", "return", "dut-tdm-loop"})
+        self.assertEqual(reset.args["evidence"][-1], "reset_command_log")
+        self.assertEqual(idle.args["evidence"][-1], "power_strip_log")
         expected = {
             "soak": {"release.complete-evidence", "soak.continuous-duration",
                      "soak.bound-both-directions", "soak.counter-walk",
                      "soak.no-counter-errors", "soak.gptp-continuity", "soak.mr-causes-and-hold",
                      "soak.tu-within-holdover", "soak.timestamp-margin",
                      "soak.uptime-monotonic"},
-            "power": {"release.complete-evidence", "power.cold-count-and-phase",
+            "audio": {"release.complete-evidence", "audio.inside-soak-window",
+                      "audio.counter-every-digital-path", "audio.counter-classified",
+                      "audio.planted-arms-found", "audio.capture-losses-apart",
+                      "audio.event-record", "audio.analog-sine-pair", "audio.zero-dut-glitches"},
+            "power": {"release.complete-evidence", "power.cycle-count-and-phase",
                       "power.state-restored", "power.adp-valid-time",
                       "power.rebind-bound", "power.automatic-restore-bound",
                       "power.single-boot", "power.counter-walk"},
         }
-        for step in (soak, idle, commit):
+        for step in repeats.values():
             data = json.loads(json.dumps(step.as_dict()))
             self.assertEqual(set(data["asserts"]), expected[step.area])
             self.assertEqual(set(data["assert_severity"].values()), {"SHALL"})
@@ -4884,7 +5816,7 @@ class _ReleasePlanChecks:
         """L3 topology oracle: both devices, descriptor kinds, and all repeats."""
         from copy import deepcopy
         original = build_plan()
-        for source in (s for s in original if s.area in ("soak", "power")):
+        for source in (s for s in original if s.op in RELEASE_REQUIRED_ASSERTS):
             self.assertTrue(area_covers_every_index(original, source.area)[0])
             for target in source.args["counter_targets"]:
                 with self.subTest(repeat=source.sid, target=target):
@@ -4900,7 +5832,7 @@ class _ReleasePlanChecks:
         """AAF-only and CRF-only losses cannot mask one another in either direction."""
         from copy import deepcopy
         original = build_plan()
-        for source in (s for s in original if s.area in ("soak", "power")):
+        for source in (s for s in original if s.op in RELEASE_REQUIRED_ASSERTS):
             for talker in (ARTY, PEER):
                 for kind in ("all", "aaf", "crf"):
                     with self.subTest(repeat=source.sid, talker=talker.name, kind=kind):
@@ -4915,10 +5847,11 @@ class _ReleasePlanChecks:
                         self.assertFalse(ok, detail)
                         self.assertIn(source.sid, detail["missing"])
                         self.assertTrue(area_covers_every_index(broken, "matrix")[0])
-        for source in (s for s in original if s.area in ("soak", "power")):
+        for source in (s for s in original if s.op in RELEASE_REQUIRED_ASSERTS
+                       or s.op == RELEASE_CONTROL_OP):
             without_repeat = [s for s in original if s.sid != source.sid]
-            self.assertFalse(area_covers_every_index(without_repeat, source.area)[0])
-        for area in ("soak", "power"):
+            self.assertFalse(area_covers_every_index(without_repeat, source.area)[0], source.sid)
+        for area in ("soak", "audio", "power"):
             self.assertFalse(area_covers_every_index([], area)[0])
 
     def test_release_sparse_shapes_and_compatible_pairs(self) -> None:
@@ -4931,7 +5864,11 @@ class _ReleasePlanChecks:
             cov = plan_covers_every_index(plan, dut, PEER)
             self.assertEqual(cov["dut_talker"], [1, 3, 7])
             self.assertEqual(cov["dut_listener"], [2, 5, 8])
-            for step in plan:
+        plan = build_plan(["soak", "audio", "power"], dut, PEER)
+        self.assertEqual(_release_area_defects(
+            "audio", [s for s in plan if s.area == "audio"], dut, PEER), {})
+        for area in ("soak", "audio", "power"):
+            for step in (s for s in plan if s.area == area and "pairs" in s.args):
                 sinks = [(p["listener"], p["listener_index"])
                          for p in step.args["pairs"]]
                 self.assertEqual(len(sinks), len(set(sinks)))
@@ -4943,24 +5880,34 @@ class _ReleasePlanChecks:
     def test_release_settings_validation(self) -> None:
         """Bad repeat inputs refuse; diagnostic inputs cannot qualify a release."""
         for changes in ({"soak_duration_s": 0}, {"soak_interval_s": -1},
-                        {"soak_interval_s": 604801}, {"power_cycles": 201},
-                        {"idle_cycles": 0}, {"commit_cycles": -1},
+                        {"soak_interval_s": 86401}, {"power_cycles": 201},
+                        {"idle_cycles": 0}, {"commit_cycles": -1}, {"reset_cycles": 0},
+                        {"reset_cycles": 51}, {"reset_cycles": True},
                         {"power_cycles": True}, {"soak_duration_s": float("nan")},
+                        {"audio_duration_s": 86401}, {"audio_duration_s": 0},
+                        {"audio_context_s": 0}, {"audio_context_s": False},
+                        {"audio_duration_s": 4, "audio_context_s": 5},
                         {"persisted_items": ()}, {"persisted_items": ("",)},
                         {"persisted_items": ("binding", "binding")}):
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 ReleaseSettings(**changes)
-        settings = ReleaseSettings(125, 17, 3, 2, 1,
-                                   ("stream_binding", "clock_source"))
-        soak, idle, commit = build_plan(["soak", "power"], release=settings)
+        settings = ReleaseSettings(soak_duration_s=125, soak_interval_s=17, power_cycles=4,
+                                   idle_cycles=2, commit_cycles=1, reset_cycles=1,
+                                   persisted_items=("stream_binding", "clock_source"),
+                                   audio_duration_s=100, audio_context_s=3)
+        repeats = self._release_repeats(build_plan(["soak", "audio", "power"], release=settings))
+        soak, audio = repeats["soak.continuous"], repeats["audio.integrity"]
+        idle, commit, reset = (repeats["power." + p] for p in ("idle", "journal_commit", "soft_reset"))
         self.assertEqual(soak.args["duration_s"], 125)
         self.assertEqual(soak.args["interval_s"], 17)
-        self.assertEqual([idle.args["total_cycles"], commit.args["total_cycles"]], [3, 3])
+        self.assertEqual((audio.args["duration_s"], audio.args["context_s"]), (100, 3))
+        self.assertEqual(audio.args["event_context"]["max_gap_s"], 3)
+        self.assertEqual([s.args["total_cycles"] for s in (idle, commit, reset)], [4, 4, 4])
         self.assertTrue(soak.args["sample_at_end"])
-        self.assertEqual([idle.args["cycles"], commit.args["cycles"]], [2, 1])
+        self.assertEqual([s.args["cycles"] for s in (idle, commit, reset)], [2, 1, 1])
         self.assertEqual(commit.args["persisted_items"],
                          ["stream_binding", "clock_source"])
-        for step in (soak, idle, commit):
+        for step in repeats.values():
             self.assertFalse(step.args["release_eligible"])
         no_crf = Device("dut", "aa" * 8, "bb" * 6, 1, 1)
         with self.assertRaisesRegex(ValueError, "CRF"):
@@ -4973,32 +5920,39 @@ class _ReleasePlanChecks:
         import contextlib
         import io
         from unittest.mock import patch
-        argv = ["torture_campaign.py", "--plan", "--areas", "soak,power",
+        argv = ["torture_campaign.py", "--plan", "--areas", "soak,audio,power",
                 "--json", "--soak-duration-s", "125", "--soak-interval-s", "17",
-                "--power-cycles", "3", "--idle-cycles", "2", "--commit-cycles", "1",
-                "--persisted-items", "stream_binding,clock_source",
+                "--power-cycles", "4", "--idle-cycles", "2", "--commit-cycles", "1",
+                "--reset-cycles", "1", "--persisted-items", "stream_binding,clock_source",
                 "--restore-bound-s", "23", "--boot-margin-s", "7",
-                "--power-off-hold-s", "13"]
+                "--power-off-hold-s", "13", "--audio-duration-s", "100",
+                "--audio-context-s", "3"]
         output = io.StringIO()
         with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
             self.assertEqual(main(), 0)
-        soak, idle, commit = json.loads(output.getvalue())
+        steps = {step["sid"]: step for step in json.loads(output.getvalue())}
+        soak, audio = steps["soak.continuous"], steps["audio.integrity"]
+        idle, commit, reset = (steps["power." + p] for p in ("idle", "journal_commit", "soft_reset"))
         self.assertEqual(soak["args"]["duration_s"], 125)
         self.assertEqual(soak["args"]["interval_s"], 17)
-        for step in (idle, commit):
-            self.assertEqual(step["args"]["total_cycles"], 3)
+        self.assertEqual((audio["args"]["duration_s"], audio["args"]["context_s"]), (100, 3))
+        for step in (idle, commit, reset):
+            self.assertEqual(step["args"]["total_cycles"], 4)
             self.assertEqual(step["args"]["restore_bound_s"], 23)
             self.assertEqual(step["args"]["boot_margin_s"], 7)
             self.assertEqual(step["args"]["boot_observation_s"], 30)
+        for step in (idle, commit):
             self.assertEqual(step["args"]["power_off_hold_s"], 13)
-        self.assertEqual([idle["args"]["cycles"], commit["args"]["cycles"]], [2, 1])
+        self.assertEqual([s["args"]["cycles"] for s in (idle, commit, reset)], [2, 1, 1])
         self.assertEqual(commit["args"]["persisted_items"],
                          ["stream_binding", "clock_source"])
-        with patch.object(sys, "argv", argv + ["--power-cycles", "4"]), \
-                contextlib.redirect_stderr(io.StringIO()), \
-                self.assertRaises(SystemExit) as failure:
-            main()
-        self.assertEqual(failure.exception.code, 2)
+        for extra in (["--power-cycles", "5"], ["--reset-cycles", "2"],
+                      ["--audio-duration-s", "126"]):
+            with self.subTest(extra=extra), patch.object(sys, "argv", argv + extra), \
+                    contextlib.redirect_stderr(io.StringIO()), \
+                    self.assertRaises(SystemExit) as failure:
+                main()
+            self.assertEqual(failure.exception.code, 2)
 
     def test_release_cli_power_hold_default(self) -> None:
         """L3 #396: an omitted CLI hold retains the decided eight seconds."""
@@ -5009,20 +5963,43 @@ class _ReleasePlanChecks:
         argv = ["torture_campaign.py", "--plan", "--areas", "power", "--json"]
         with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
             self.assertEqual(main(), 0)
-        steps = json.loads(output.getvalue())
-        self.assertEqual(len(steps), 2)
-        for step in steps:
+        steps = [step for step in json.loads(output.getvalue())
+                 if step["op"] == "release_power_cycles"]
+        self.assertEqual([step["args"]["phase"] for step in steps],
+                         ["idle", "journal_commit", "soft_reset"])
+        for step in steps[:2]:
             self.assertEqual(step["args"]["power_off_hold_s"], 8)
+        self.assertNotIn("power_off_hold_s", steps[2]["args"])
 
     def test_release_timing_and_snapshot_contract(self) -> None:
         """L3 #396 round 3 pins T0 origins, separate off time, and phase policies."""
         settings = ReleaseSettings(restore_bound_s=19, boot_margin_s=11, power_off_hold_s=17)
-        idle, commit = build_plan(["power"], release=settings)
+        repeats = self._release_repeats(build_plan(["power"], release=settings))
+        idle, commit, reset = (repeats["power." + p] for p in ("idle", "journal_commit", "soft_reset"))
         self.assertEqual(idle.args["snapshot_policy"], "exact pre-cut committed snapshot")
+        self.assertEqual(reset.args["snapshot_policy"], "exact pre-cut committed snapshot")
         self.assertEqual(commit.args["snapshot_policy"], "complete old or new committed snapshot")
         self.assertEqual(idle.args["cut_requires"], "journal_idle")
+        self.assertEqual(reset.args["cut_requires"], "journal_idle")
+        self.assertEqual(reset.args["cycle_kind"], "soft reset")
+        self.assertEqual(reset.args["cold_confirmation"], "power held on; outlet ON before and after the reset")
+        self.assertIn("power held on", reset.args["reset_method"])
+        self.assertEqual(reset.args["time_origin"], "T0: reset command, host monotonic clock")
+        for key in ("power_off_hold_s", "power_off_hold_origin", "power_off_hold_in_adp_window"):
+            self.assertNotIn(key, reset.args)
+        for step in (idle, commit, reset):
+            args = json.loads(json.dumps(step.as_dict()))["args"]
+            self.assertEqual(args["restore_bound_s"], 19)
+            self.assertEqual(args["boot_observation_s"], 30)
+            self.assertEqual(args["restore_start"], "T0")
+            self.assertEqual(args["adp_start"], "T0")
+            self.assertEqual(args["state_oracle"], "check_release_state_restored")
+            self.assertEqual(args["boot_evidence"],
+                             "complete UART/reset observation from T0 through next cycle or campaign end; "
+                             "at least boot_observation_s")
         for step in (idle, commit):
             args = json.loads(json.dumps(step.as_dict()))["args"]
+            self.assertEqual(args["cold_confirmation"], "power removed; discharge verified")
             self.assertEqual(args["restore_bound_s"], 19)
             self.assertEqual(args["boot_margin_s"], 11)
             self.assertEqual(args["boot_observation_s"], 30)
@@ -5060,26 +6037,43 @@ class _ReleasePlanChecks:
     def test_release_eligibility_boundaries(self) -> None:
         """Each prerequisite can independently refuse an otherwise eligible area."""
         settings = ReleaseSettings(topology_explicit=True)
-        cases = [({}, (True, True)),
-                 ({"restore_bound_s": 29}, (True, True)),
-                 ({"restore_bound_s": 30}, (True, True)),
-                 ({"restore_bound_s": 31}, (False, False)),
-                 ({"restore_bound_s": 3600}, (False, False)),
-                 ({"soak_duration_s": 604799}, (False, True)),
-                 ({"soak_interval_s": 61}, (False, False)),
-                 ({"soak_interval_s": 604800}, (False, False)),
-                 ({"persisted_items": ("clock_source",)}, (False, False)),
-                 ({"topology_explicit": False}, (False, False)),
-                 ({"idle_cycles": 199, "commit_cycles": 1}, (True, False)),
-                 ({"idle_cycles": 159, "commit_cycles": 41}, (True, False)),
-                 ({"power_cycles": 199, "idle_cycles": 159}, (True, False)),
-                 ({"power_cycles": 201, "commit_cycles": 41}, (True, True))]
-        for changes, (soak_ok, power_ok) in cases:
+        items = tuple(RELEASE_PERSISTED_ITEMS)
+        cases = [({}, (True, True, True)),
+                 ({"restore_bound_s": 29}, (True, True, True)),
+                 ({"restore_bound_s": 30}, (True, True, True)),
+                 ({"restore_bound_s": 31}, (False, False, False)),
+                 ({"restore_bound_s": 3600}, (False, False, False)),
+                 ({"soak_duration_s": 86399, "audio_duration_s": 86399}, (False, False, True)),
+                 ({"soak_duration_s": 604800}, (True, True, True)),
+                 ({"audio_duration_s": 86399}, (True, False, True)),
+                 ({"soak_interval_s": 61}, (False, False, False)),
+                 ({"soak_interval_s": 86400}, (False, False, False)),
+                 ({"persisted_items": ("stream_binding",)}, (False, False, False)),
+                 ({"persisted_items": items + ("vendor_extra",)}, (True, True, True)),
+                 ({"topology_explicit": False}, (False, False, False)),
+                 ({"idle_cycles": 99, "commit_cycles": 51}, (True, True, False)),
+                 ({"idle_cycles": 101, "commit_cycles": 49}, (True, True, False)),
+                 ({"idle_cycles": 101, "reset_cycles": 49}, (True, True, False)),
+                 ({"idle_cycles": 150, "commit_cycles": 50, "reset_cycles": 0}, None),
+                 ({"power_cycles": 199, "idle_cycles": 99}, (True, True, False)),
+                 ({"power_cycles": 201, "reset_cycles": 51}, (True, True, True)),
+                 ({"power_cycles": 201, "idle_cycles": 101}, (True, True, True))]
+        cases += [({"persisted_items": tuple(i for i in items if i != item)}, (False, False, False))
+                  for item in items]
+        for changes, expected in cases:
             with self.subTest(changes=changes):
-                plan = build_plan(["soak", "power"], release=replace(settings, **changes))
-                self.assertEqual([step.args["release_eligible"] for step in plan],
-                                 [soak_ok, power_ok, power_ok])
-        for step in build_plan(["soak", "power"]):
+                if expected is None:
+                    with self.assertRaises(ValueError):
+                        replace(settings, **changes)
+                    continue
+                repeats = self._release_repeats(build_plan(
+                    ["soak", "audio", "power"], release=replace(settings, **changes)))
+                soak_ok, audio_ok, power_ok = expected
+                self.assertEqual({sid: step.args["release_eligible"] for sid, step in repeats.items()},
+                                 {"soak.continuous": soak_ok, "audio.integrity": audio_ok,
+                                  "power.idle": power_ok, "power.journal_commit": power_ok,
+                                  "power.soft_reset": power_ok})
+        for step in self._release_repeats(build_plan(["soak", "audio", "power"])).values():
             self.assertFalse(step.args["release_eligible"])
         for changes in ({"restore_bound_s": 0}, {"restore_bound_s": True},
                         {"restore_bound_s": float("nan")}, {"boot_margin_s": -1},
@@ -5102,10 +6096,13 @@ class _ReleasePlanChecks:
                                 (["--dut", dut, "--peer", peer], True)):
             with self.subTest(flags=flags):
                 output = io.StringIO()
-                argv = ["torture_campaign.py", "--plan", "--areas", "soak,power", "--json"] + flags
+                argv = ["torture_campaign.py", "--plan", "--areas", "soak,audio,power", "--json"] + flags
                 with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
                     self.assertEqual(main(), 0)
-                for step in json.loads(output.getvalue()):
+                repeats = [step for step in json.loads(output.getvalue())
+                           if step["op"] in RELEASE_REQUIRED_ASSERTS]
+                self.assertEqual(len(repeats), 5)
+                for step in repeats:
                     self.assertEqual(step["args"]["topology_explicit"], expected)
                     self.assertEqual(step["args"]["release_eligible"], expected)
 
@@ -5130,11 +6127,14 @@ class _ReleasePlanChecks:
                     for key, value in fields.items() if empty or key not in omitted)
                 with self.subTest(role=role, omitted=omitted, empty=empty):
                     output = io.StringIO()
-                    argv = ["torture_campaign.py", "--plan", "--areas", "soak,power", "--json",
+                    argv = ["torture_campaign.py", "--plan", "--areas", "soak,audio,power", "--json",
                             "--dut", specs[0], "--peer", specs[1]]
                     with patch.object(sys, "argv", argv), contextlib.redirect_stdout(output):
                         self.assertEqual(main(), 0)
-                    for step in json.loads(output.getvalue()):
+                    repeats = [step for step in json.loads(output.getvalue())
+                               if step["op"] in RELEASE_REQUIRED_ASSERTS]
+                    self.assertEqual(len(repeats), 5)
+                    for step in repeats:
                         self.assertFalse(step["args"]["topology_explicit"])
                         self.assertFalse(step["args"]["release_eligible"])
             # Empty numeric/index-set values are refused by the parser;
@@ -5249,8 +6249,38 @@ class _ReleasePlanChecks:
         self.assertIn("missing, NOT RUN, SKIP, INFO", specs["release.complete-evidence"])
         for phrase in ("valid_time measured from T0", "require valid_time=10 (20 s)",
                        "pre-cut advertisement age are provenance, " "not charged to",
-                       "missing capture or a missed deadline fails"):
+                       "missing capture or a missed deadline fails",
+                       "for a soft reset T0 is the host-timestamped reset command"):
             self.assertIn(phrase, specs["power.adp-valid-time"])
+        decided = {
+            "soak.continuous-duration": ("at least 86400 continuous seconds (24 h)",),
+            "soak.no-counter-errors": ("zero SEQ_NUM_MISMATCH, STREAM_INTERRUPTED, LATE_TIMESTAMP and ",
+                                       "EARLY_TIMESTAMP growth on every Stream Input, CRF included",
+                                       "zero MEDIA_UNLOCKED growth of any cause, explained or not",
+                                       "outside a recorded planted event"),
+            "power.cycle-count-and-phase": ("200 cycles, 150 confirmed cold cuts (100 idle, 50 inside a ",
+                                            "and 50 soft resets with power held on",
+                                            "a reset never counts as a cold cut and a cut never as a reset"),
+            "power.state-restored": ("restores the eight Milan items and the binding",
+                                     "set each item away from its default before the cycle",
+                                     "never mixed state"),
+            "power.single-boot": ("after a cut and after a reset",),
+        }
+        for name, phrases in decided.items():
+            for phrase in phrases:
+                self.assertIn(phrase, specs[name], name)
+        audio = {spec.name: spec.clause for step in build_plan(["audio"]) for spec in step.asserts}
+        for name, phrase in (
+                ("audio.inside-soak-window", "lasts at least 86400 continuous seconds"),
+                ("audio.counter-classified", "n dropped, n repeated, n samples of silence"),
+                ("audio.counter-classified", "a bit-flip mask or a channel swap"),
+                ("audio.planted-arms-found", "voids the run as NOT RUN"),
+                ("audio.capture-losses-apart", "never counted against the DUT"),
+                ("audio.analog-sine-pair", "997 Hz and 9,973 Hz"),
+                ("audio.analog-sine-pair", "NOT RUN until a recorded decision sets them"),
+                ("audio.zero-dut-glitches", "zero DUT-attributed events"),
+                ("release.control-fails-as-expected", "only when its expected assertion FAILs")):
+            self.assertIn(phrase, audio[name], name)
 
     def test_release_crf_overlap_refused(self) -> None:
         """An AAF range or explicit set cannot also designate the CRF stream."""
@@ -5263,7 +6293,9 @@ class _ReleasePlanChecks:
                     build_plan(["soak", "power"], dut, peer)
         with self.assertRaisesRegex(ValueError, "AAF"):
             build_plan(["power"], replace(ARTY, crf_out=0), PEER)
-        for step in build_plan(["soak", "power"]):
+        with self.assertRaisesRegex(ValueError, "AAF"):
+            build_plan(["audio"], replace(ARTY, crf_in=0), PEER)
+        for step in self._release_repeats(build_plan(["soak", "audio", "power"])).values():
             for target in step.args["counter_targets"]:
                 device = ARTY if target["entity"] == ARTY.entity_id else PEER
                 crf = device.crf_in if target["descriptor"] == "stream_input" else device.crf_out
@@ -5278,12 +6310,14 @@ class _ReleasePlanChecks:
                                 (1, True), (1, False), (1, -1)):
             self.assertEqual(check_release_boot(passes, restarts, capture_complete=True)[0], "SKIP")
         self.assertEqual(check_release_boot(1, 0, capture_complete=False)[0], "SKIP")
-        for step in build_plan(["power"]):
+        repeats = self._release_repeats(build_plan(["power"])).values()
+        self.assertEqual(len(repeats), 3)
+        for step in repeats:
             self.assertIn("power.single-boot", {spec.name for spec in step.asserts})
             self.assertEqual(step.args["boot_max_passes"], 1)
             self.assertEqual(step.args["boot_max_restarts"], 0)
             self.assertEqual(step.args["boot_evidence"],
-                             "complete UART/reset observation from T0 through next cut or campaign end; "
+                             "complete UART/reset observation from T0 through next cycle or campaign end; "
                              "at least boot_observation_s")
 
 
@@ -5701,6 +6735,372 @@ class _ReleaseSoakChecks:
             self.assertEqual(args[key], value)
 
 
+class _ReleaseGateChecks:
+    """Issue #396 owner decisions 2026-10-26: stricter soak counters, the eight
+    saved-state items, the audio counter grader and the negative controls."""
+
+    _NAMES = ("SEQ_NUM_MISMATCH", "STREAM_INTERRUPTED", "LATE_TIMESTAMP",
+              "EARLY_TIMESTAMP", "MEDIA_UNLOCKED")
+
+    def _reads(self, target: str = "in-0", **after: int) -> list[dict]:
+        base = {name: 7 for name in self._NAMES}
+        return [{"target": target, "timestamp_s": 0, "values": dict(base)},
+                {"target": target, "timestamp_s": 60, "values": dict(base, **after)}]
+
+    def _counters(self, reads, planted=(), targets=("in-0",), complete=True):
+        return check_release_soak_counters(reads, list(planted) if planted is not None else None,
+                                           targets=list(targets), capture_complete=complete)
+
+    def test_release_soak_counter_growth(self) -> None:
+        """L3 #396 item 3: any growth of the four counters fails, each alone."""
+        self.assertEqual(self._counters(self._reads())[0], "PASS")
+        for name in ("SEQ_NUM_MISMATCH", "STREAM_INTERRUPTED", "LATE_TIMESTAMP", "EARLY_TIMESTAMP"):
+            with self.subTest(name=name):
+                verdict, detail = self._counters(self._reads(**{name: 8}))
+                self.assertEqual(verdict, "FAIL", detail)
+                self.assertEqual(detail["counter"], name)
+                planted = [{"target": "in-0", "kind": "CRF disruption", "window_s": (10, 20)}]
+                self.assertEqual(self._counters(self._reads(**{name: 8}), planted)[0], "FAIL")
+        for name in self._NAMES:
+            verdict, detail = self._counters(self._reads(**{name: 6}))
+            self.assertEqual(verdict, "FAIL", detail)
+            self.assertIn("reset", detail["why"])
+
+    def test_release_soak_media_unlocked_planted(self) -> None:
+        """L3 #396 item 3: an unlock passes only inside a distinct planted event."""
+        planted = {"target": "in-0", "kind": "CRF disruption", "window_s": (10, 20)}
+        for events, unlocks, expected in (
+                ([], 1, "FAIL"), ([planted], 1, "PASS"), ([planted], 2, "FAIL"),
+                ([planted, dict(planted, window_s=(30, 31))], 2, "PASS"),
+                ([dict(planted, target="in-1")], 1, "FAIL"),
+                ([dict(planted, window_s=(61, 70))], 1, "FAIL"),
+                ([dict(planted, window_s=(60, 70))], 1, "PASS"),
+                ([dict(planted, window_s=(-5, 0))], 1, "PASS"),
+                ([dict(planted, window_s=(-5, -0.001))], 1, "FAIL")):
+            with self.subTest(events=events, unlocks=unlocks):
+                verdict, detail = self._counters(self._reads(MEDIA_UNLOCKED=7 + unlocks), events)
+                self.assertEqual(verdict, expected, detail)
+        reads = self._reads(MEDIA_UNLOCKED=8)
+        reads.append({"target": "in-0", "timestamp_s": 120, "values": dict(reads[1]["values"],
+                                                                           MEDIA_UNLOCKED=9)})
+        self.assertEqual(self._counters(reads, [planted])[0], "FAIL")
+        # One window across a read boundary is still one planted event.
+        spanning = dict(planted, window_s=(50, 70))
+        self.assertEqual(self._counters(reads, [spanning])[0], "FAIL")
+        self.assertEqual(self._counters(reads, [spanning, dict(spanning, window_s=(55, 65))])[0], "PASS")
+
+    def test_release_soak_counter_evidence(self) -> None:
+        """Missing reads, targets or log, and malformed records, are NOT RUN."""
+        reads = self._reads()
+        for args in ({"reads": None}, {"planted": None}, {"complete": False},
+                     {"targets": ()}, {"targets": ("in-0", "crf-in")},
+                     {"reads": reads[:1]}, {"reads": list(reversed(reads))},
+                     {"reads": [reads[0], dict(reads[1], values={"SEQ_NUM_MISMATCH": 7})]},
+                     {"reads": [reads[0], dict(reads[1], values=dict(reads[1]["values"],
+                                                                     LATE_TIMESTAMP=2**32))]},
+                     {"planted": [{"target": "in-0", "kind": "x", "window_s": (5, 1)}]},
+                     {"planted": [{"target": "in-0", "kind": "", "window_s": (1, 5)}]}):
+            with self.subTest(args=args):
+                call = dict({"reads": reads, "planted": [], "targets": ("in-0",), "complete": True}, **args)
+                self.assertEqual(self._counters(call["reads"], call["planted"], call["targets"],
+                                                call["complete"])[0], "NOT RUN")
+        crf = self._reads("crf-in", LATE_TIMESTAMP=8)
+        self.assertEqual(self._counters(reads + crf, targets=("in-0", "crf-in"))[0], "FAIL")
+
+    def _state(self, phase="idle", **changes):
+        items = ("configuration", "stream_binding")
+        call = {"pre": {item: "set" for item in items}, "post": {item: "set" for item in items},
+                "defaults": {item: "default" for item in items}, "committed": None}
+        call.update(changes)
+        return check_release_state_restored(call["pre"], call["post"], call["defaults"],
+                                            items=items, phase=phase, committed=call["committed"])
+
+    def test_release_state_restored(self) -> None:
+        """L3 #396 item 3: every item restored, each one independently graded."""
+        for phase in ("idle", "soft_reset"):
+            self.assertEqual(self._state(phase)[0], "PASS")
+            for item in ("configuration", "stream_binding"):
+                post = {"configuration": "set", "stream_binding": "set", item: "default"}
+                verdict, detail = self._state(phase, post=post)
+                self.assertEqual(verdict, "FAIL", detail)
+                self.assertEqual((detail["differs"], detail["reverted"]), ([item], [item]))
+        verdict, detail = self._state(pre={"configuration": "default", "stream_binding": "set"})
+        self.assertEqual(verdict, "NOT RUN", detail)
+        self.assertEqual(detail["at_default"], ["configuration"])
+        for changes in ({"post": {"configuration": "set"}}, {"pre": None}, {"defaults": {}}):
+            self.assertEqual(self._state(**changes)[0], "NOT RUN")
+        self.assertEqual(self._state("warm")[0], "NOT RUN")
+
+    def test_release_state_commit_cut(self) -> None:
+        """A commit cut restores all old or all new state, never a mix."""
+        new = {"configuration": "new", "stream_binding": "new"}
+        for post, expected in (({"configuration": "set", "stream_binding": "set"}, "PASS"),
+                               (new, "PASS"),
+                               ({"configuration": "new", "stream_binding": "set"}, "FAIL"),
+                               ({"configuration": "default", "stream_binding": "default"}, "FAIL")):
+            with self.subTest(post=post):
+                self.assertEqual(self._state("journal_commit", post=post, committed=new)[0], expected)
+        self.assertEqual(self._state("journal_commit")[0], "NOT RUN")
+        self.assertEqual(self._state("journal_commit", committed={"configuration": "set",
+                                                                  "stream_binding": "set"})[0], "NOT RUN")
+
+    def test_release_controls_fail_as_planted(self) -> None:
+        """L3 acceptance 4: every control fails its own assertion, and only by its defect."""
+        controls = {s.sid: s for s in build_plan(["audio", "power"]) if s.op == RELEASE_CONTROL_OP}
+        self.assertEqual(sorted(controls), ["audio.control.planted-drop",
+                                            "power.control.first-boot-restart",
+                                            "power.control.persistence-disabled"])
+        expected = {"audio.control.planted-drop": "audio.zero-dut-glitches",
+                    "power.control.first-boot-restart": "power.single-boot",
+                    "power.control.persistence-disabled": "power.state-restored"}
+        for sid, step in controls.items():
+            with self.subTest(sid=sid):
+                self.assertEqual(step.args["expected_failing_assertion"], expected[sid])
+                self.assertIn(expected[sid], {spec.name for spec in step.asserts})
+                self.assertEqual(step.args["expected_verdict"], "FAIL")
+                verdict, detail = run_release_control(step)
+                self.assertEqual(verdict, "FAIL", detail)
+        boot = controls["power.control.first-boot-restart"].args["desk_fixture"]
+        self.assertEqual(check_release_boot(1, 0, capture_complete=boot["capture_complete"])[0], "PASS")
+        state = controls["power.control.persistence-disabled"].args["desk_fixture"]
+        self.assertEqual(set(state["items"]), set(RELEASE_PERSISTED_ITEMS))
+        self.assertEqual(check_release_state_restored(
+            state["pre"], state["pre"], state["defaults"], items=state["items"], phase="idle")[0], "PASS")
+
+    def test_release_audio_control_classifies_exactly(self) -> None:
+        """L3 acceptance 4: the planted drop is found at its sample, with its size."""
+        step = next(s for s in build_plan(["audio"]) if s.sid == "audio.control.planted-drop")
+        fixture = step.args["fixture"]
+        verdict, detail = run_release_control(step)
+        self.assertEqual(verdict, "FAIL", detail["why"])
+        dut = [e for e in detail["events"] if e["attribution"] == "dut"]
+        want = fixture["expected_events"]
+        self.assertEqual(sorted((e["channel"], e["capture_index"], e["class"], e["n"]) for e in dut),
+                         [(c, want["capture_index"], want["class"], want["n"]) for c in want["channels"]])
+        self.assertEqual(detail["planted_missed"], [])
+        self.assertEqual(detail["counts"]["planted"], {"dropped": 16, "repeated": 16, "bit-flip": 2})
+        clean = synthesize_counter_capture(fixture["frames"], fixture["channels"],
+                                           events=fixture["source_events"])
+        verdict, detail = grade_audio_counter_capture(
+            clean, CounterCapture(fixture["channels"], "big", fixture["rate_hz"], 0.0, 0.0),
+            CounterRunLog(fixture["planted_arms"], [], 2))
+        self.assertEqual(verdict, "PASS", detail["why"])
+
+    def test_audio_counter_word_layout(self) -> None:
+        """Independent byte vectors for the counter layout, both byte orders."""
+        self.assertEqual(synthesize_counter_capture(1, 1, start_counter=5), bytes.fromhex("00100500"))
+        self.assertEqual(synthesize_counter_capture(1, 2, byteorder="little", start_counter=4101),
+                         bytes.fromhex("0005100000052000"))
+        self.assertEqual(audio_counter_word(8, 4095), 0x008FFF00)
+        import math
+        peak_dbfs = 20 * math.log10(audio_counter_word(8, 4095) / 2**31)
+        self.assertTrue(-48 < peak_dbfs < -46, peak_dbfs)
+        self.assertLess(48000 / AUDIO_COUNTER_MODULUS, 20)
+
+    @staticmethod
+    def _grade_args(capture, args: dict) -> tuple[str, dict]:
+        args = dict(args)
+        max_events = args.pop("max_events", 100000)
+        log = CounterRunLog(args.pop("planted_arms"), args.pop("capture_losses"),
+                            args.pop("arm_tolerance_frames"))
+        return grade_audio_counter_capture(capture, CounterCapture(**args), log,
+                                           max_events=max_events)
+
+    def _grade(self, extra=(), losses=(), arms=None, frames=4 * 4096, **kw):
+        base = [{"kind": "drop", "index": 100, "n": 3}, {"kind": "repeat", "index": 300, "n": 2},
+                {"kind": "flip", "index": 500, "channel": 1, "mask": 0x100},
+                {"kind": "drop", "index": frames - 900, "n": 3},
+                {"kind": "repeat", "index": frames - 600, "n": 2},
+                {"kind": "flip", "index": frames - 300, "channel": 3, "mask": 0x100}]
+        logged = [{"class": "dropped", "index": 100, "n": 3}, {"class": "repeated", "index": 300, "n": 2},
+                  {"class": "bit-flip", "index": 500, "mask": 0x100, "channel": 1},
+                  {"class": "dropped", "index": frames - 900, "n": 3},
+                  {"class": "repeated", "index": frames - 600, "n": 2},
+                  {"class": "bit-flip", "index": frames - 300, "mask": 0x100, "channel": 3}]
+        order = kw.pop("byteorder", "big")
+        capture = synthesize_counter_capture(frames, 4, byteorder=order if order == "little" else "big",
+                                             events=base + list(extra)) + kw.pop("tail", b"")
+        if kw.pop("chunk", None):
+            capture = [capture[i:i + 1000] for i in range(0, len(capture), 1000)]
+        args = dict(channels=4, byteorder=order, rate_hz=48000,
+                    planted_arms=logged if arms is None else arms, capture_losses=list(losses),
+                    arm_tolerance_frames=2, start_wall_s=100.0, start_gptp_s=7.0, context_s=5)
+        args.update(kw)
+        verdict, detail = self._grade_args(capture, args)
+        dut = [e for e in detail.get("events", []) if e["attribution"] == "dut"]
+        return verdict, detail, dut
+
+    def test_audio_grader_classes(self) -> None:
+        """Each class is found at its sample with its size, mask or partner."""
+        at = 2 * 4096 + 13
+        cases = (({"kind": "drop", "index": at, "n": 5}, "dropped", {"n": 5}, 4),
+                 ({"kind": "repeat", "index": at, "n": 4}, "repeated", {"n": 4}, 4),
+                 ({"kind": "drop", "index": at, "n": 2047}, "dropped", {"n": 2047}, 4),
+                 ({"kind": "repeat", "index": at, "n": 2048}, "repeated", {"n": 2048}, 4),
+                 ({"kind": "silence", "index": at, "n": 6}, "silence", {"n": 6, "inserted": False}, 4),
+                 ({"kind": "silence", "index": at, "n": 6, "inserted": True}, "silence",
+                  {"n": 6, "inserted": True}, 4),
+                 ({"kind": "flip", "index": at, "channel": 2, "mask": 0x1}, "bit-flip",
+                  {"n": 1, "mask": "0x00000001"}, 1),
+                 ({"kind": "flip", "index": at, "channel": 2, "mask": 0x00000400}, "bit-flip",
+                  {"n": 1, "mask": "0x00000400"}, 1),
+                 ({"kind": "flip", "index": at, "channel": 2, "mask": 0x80000000}, "bit-flip",
+                  {"n": 1, "mask": "0x80000000"}, 1),
+                 ({"kind": "swap", "index": at, "n": 3, "channels": (0, 2)}, "swap", {"n": 3}, 2),
+                 ({"kind": "drop", "index": 2 * 4096, "n": 1}, "dropped", {"n": 1}, 4))
+        for event, cls, fields, count in cases:
+            for options in ({}, {"chunk": True}, {"byteorder": "little"}):
+                with self.subTest(event=event, options=options):
+                    verdict, detail, dut = self._grade([event], **options)
+                    self.assertEqual(verdict, "FAIL", detail["why"])
+                    self.assertEqual(len(dut), count, dut)
+                    for record in dut:
+                        self.assertEqual(record["class"], cls)
+                        self.assertEqual(record["capture_index"], event["index"])
+                        self.assertEqual({k: record.get(k) for k in fields}, fields)
+        verdict, detail, dut = self._grade([{"kind": "swap", "index": at, "n": 3, "channels": (0, 2)}])
+        self.assertEqual(sorted((e["channel"], e["partner"]) for e in dut), [(0, 2), (2, 0)])
+        verdict, detail, dut = self._grade([{"kind": "drop", "index": at, "n": 5}])
+        # The start arms leave the source ordinal at index + 3 - 2.
+        self.assertEqual((dut[0]["expected"], dut[0]["received"]),
+                         (f"0x{audio_counter_word(1, at + 3 - 2):08X}",
+                          f"0x{audio_counter_word(1, at + 3 - 2 + 5):08X}"))
+        self.assertAlmostEqual(dut[0]["wall_s"], 100.0 + at / 48000)
+        self.assertAlmostEqual(dut[0]["gptp_s"], 7.0 + at / 48000)
+        self.assertEqual(dut[0]["context_wall_s"], [dut[0]["wall_s"] - 5, dut[0]["wall_s"] + 5])
+
+    def test_audio_grader_attribution(self) -> None:
+        """Logged capture losses go apart; planted arms must all be found at both ends."""
+        loss = {"kind": "drop", "index": 2 * 4096 + 3, "n": 9}
+        verdict, detail, dut = self._grade([loss], [{"index": loss["index"], "frames": 9}])
+        self.assertEqual((verdict, dut), ("PASS", []), detail["why"])
+        self.assertEqual(detail["counts"]["capture"], {"dropped": 4})
+        self.assertEqual(self._grade([loss])[0], "FAIL")
+        self.assertEqual(self._grade([], [{"index": loss["index"], "frames": 9}])[0], "NOT RUN")
+        self.assertEqual(self._grade([loss], [{"index": loss["index"], "frames": 8}])[0], "NOT RUN")
+        self.assertEqual(self._grade([], [{"index": 5, "frames": 4096}])[0], "PASS")
+        frames = 4 * 4096
+        logged = [{"class": "dropped", "index": 100, "n": 3}, {"class": "repeated", "index": 300, "n": 2},
+                  {"class": "bit-flip", "index": 500, "mask": 0x100, "channel": 1},
+                  {"class": "dropped", "index": frames - 900, "n": 3},
+                  {"class": "repeated", "index": frames - 600, "n": 2},
+                  {"class": "bit-flip", "index": frames - 300, "mask": 0x100, "channel": 3}]
+        self.assertEqual(self._grade(arms=logged)[0], "PASS")
+        for change, expected in (({"index": 102}, "PASS"), ({"index": 103}, "NOT RUN"),
+                                 ({"n": 4}, "NOT RUN"), ({"class": "repeated"}, "NOT RUN")):
+            arms = [dict(logged[0], **change)] + logged[1:]
+            with self.subTest(change=change):
+                verdict, detail, _ = self._grade(arms=arms)
+                self.assertEqual(verdict, expected, detail["why"])
+        flip = [dict(arm, mask=0x200) if arm["class"] == "bit-flip" else arm for arm in logged]
+        self.assertEqual(self._grade(arms=flip)[0], "NOT RUN")
+        moved = [dict(arm, channel=2) if arm["class"] == "bit-flip" else arm for arm in logged]
+        self.assertEqual(self._grade(arms=moved)[0], "NOT RUN")
+        for half in (logged[:3], logged[3:]):
+            verdict, detail, _ = self._grade(arms=half)
+            self.assertEqual(verdict, "NOT RUN")
+            self.assertIn("start and at the end", detail["why"])
+        verdict, detail, dut = self._grade(arms=logged[:4] + logged[5:])
+        self.assertEqual(verdict, "NOT RUN")
+        self.assertEqual([e["class"] for e in dut], ["repeated"] * 4)
+
+    def test_audio_grader_evidence(self) -> None:
+        """Missing logs, bad layouts and torn captures are NOT RUN, never PASS."""
+        for change in ({"planted_arms": None}, {"capture_losses": None},
+                       {"arm_tolerance_frames": None}, {"start_wall_s": None},
+                       {"start_gptp_s": float("nan")}, {"rate_hz": 0}, {"byteorder": "middle"},
+                       {"tags": [1, 1, 2, 3]}, {"tags": [1, 2, 3]}, {"tags": [None] * 4},
+                       {"tags": [0, 1, 2, 3]}, {"tags": [16, 1, 2, 3]}, {"context_s": -1},
+                       {"planted_arms": [{"class": "dropped", "index": -1, "n": 3}]},
+                       {"capture_losses": [{"index": 3, "frames": 0}]}):
+            with self.subTest(change=change):
+                self.assertEqual(self._grade(**change)[0], "NOT RUN")
+        common = dict(channels=1, byteorder="big", rate_hz=48000, planted_arms=[], capture_losses=[],
+                      arm_tolerance_frames=0, start_wall_s=0.0, start_gptp_s=0.0, context_s=5)
+        self.assertEqual(self._grade_args(b"", common)[0], "NOT RUN")
+        self.assertEqual(self._grade_args(b"\x00\x10\x05\x00\x00", common)[0], "NOT RUN")
+        self.assertEqual(self._grade()[0], "PASS")
+        verdict, detail, _ = self._grade(tail=b"\x00")
+        self.assertEqual(verdict, "NOT RUN", detail["why"])
+        self.assertIn("torn", detail["why"])
+        # Channel 2 carries something else: its words are never graded.
+        verdict, detail, dut = self._grade([{"kind": "flip", "index": 9000, "channel": 2, "mask": 1}],
+                                           tags=[1, 2, None, 4])
+        self.assertEqual((verdict, dut), ("PASS", []), detail["why"])
+        verdict, detail, dut = self._grade([{"kind": "flip", "index": 9000, "channel": 1, "mask": 1}],
+                                           tags=[1, 2, None, 4])
+        self.assertEqual((verdict, [e["channel"] for e in dut]), ("FAIL", [1]))
+        verdict, detail, _ = self._grade([{"kind": "silence", "index": 4000, "n": 3000}], max_events=3)
+        self.assertEqual(verdict, "FAIL")
+        self.assertGreater(detail["unrecorded_events"], 0)
+
+    def test_release_area_audit_refuses_each_defect(self) -> None:
+        """L3: phases, cycle mix, assertions and controls each redden their area."""
+        from copy import deepcopy
+        original = build_plan()
+        for area in ("soak", "audio", "power"):
+            self.assertTrue(area_covers_every_index(original, area)[0], area)
+        repeats = [s.sid for s in original if s.op in RELEASE_REQUIRED_ASSERTS]
+        for sid in repeats:
+            source = next(s for s in original if s.sid == sid)
+            for spec in source.asserts:
+                for change in ("drop", "downgrade"):
+                    with self.subTest(sid=sid, assertion=spec.name, change=change):
+                        broken = deepcopy(original)
+                        step = next(s for s in broken if s.sid == sid)
+                        step.asserts = tuple(
+                            replace(a, severity="INFO") if change == "downgrade" and a.name == spec.name
+                            else a for a in step.asserts
+                            if change == "downgrade" or a.name != spec.name)
+                        ok, detail = area_covers_every_index(broken, step.area)
+                        self.assertFalse(ok)
+                        self.assertEqual(detail["missing"][sid]["asserts"], [spec.name])
+        for phase in ("idle", "journal_commit", "soft_reset"):
+            broken = deepcopy(original)
+            step = next(s for s in broken if s.sid == "power." + phase)
+            step.args["cycles"] -= 1
+            ok, detail = area_covers_every_index(broken, "power")
+            self.assertEqual((ok, detail["missing"].get("cycle_mix") is not None), (False, True), phase)
+            step.args["phase"] = "idle" if phase != "idle" else "soft_reset"
+            self.assertIn("phases", area_covers_every_index(broken, "power")[1]["missing"])
+        for sid in (s for sids in RELEASE_CONTROLS.values() for s in sids):
+            for change in ("remove", "verdict", "assertion"):
+                broken = deepcopy(original)
+                step = next(s for s in broken if s.sid == sid)
+                if change == "remove":
+                    broken.remove(step)
+                elif change == "verdict":
+                    step.args["expected_verdict"] = "PASS"
+                else:
+                    step.asserts = tuple(a for a in step.asserts
+                                         if a.name != step.args["expected_failing_assertion"])
+                with self.subTest(sid=sid, change=change):
+                    ok, detail = area_covers_every_index(broken, step.area)
+                    self.assertFalse(ok)
+                    self.assertIn(sid, detail["missing"])
+                    self.assertTrue(area_covers_every_index(broken, "matrix")[0])
+
+    def test_release_audio_does_not_mask_identity(self) -> None:
+        """The release run walks every index; it cannot cover an index-0-only identity loop."""
+        plan = build_plan(["audio"])
+        self.assertTrue(area_covers_every_index(plan, "audio")[0])
+        lonely = [s for s in plan if s.op in RELEASE_REQUIRED_ASSERTS or s.op == RELEASE_CONTROL_OP
+                  or s.sid.endswith(".t0") or s.sid == "audio.thdn"]
+        ok, detail = area_covers_every_index(lonely, "audio")
+        self.assertFalse(ok, detail)
+        self.assertEqual(detail["missing"]["dut_talker"], [1, 2, 3])
+
+    def test_release_cycle_mix_is_the_decision(self) -> None:
+        """Independent arithmetic: 150 cold cuts, a third in a commit, and 50 resets."""
+        repeats = [s for s in build_plan(["power"]) if s.op == "release_power_cycles"]
+        cycles = {s.args["phase"]: s.args["cycles"] for s in repeats}
+        cold = cycles["idle"] + cycles["journal_commit"]
+        self.assertEqual((cold, cycles["journal_commit"] * 3, cycles["soft_reset"]), (150, 150, 50))
+        self.assertEqual(sum(cycles.values()), 200)
+        self.assertEqual({s.args["total_cycles"] for s in repeats}, {200})
+        self.assertEqual({s.args["cycle_kind"] for s in repeats if s.args["cold"]}, {"cold cut"})
+
+
 class _ConcurrencyChecks:
     """The multi-stream concurrency sets and the audio family.
 
@@ -5986,8 +7386,8 @@ def self_test() -> int:
     import unittest
 
     class T(_CounterLawChecks, _StreamingLicenceChecks, _PlanContractChecks,
-            _AreaContractChecks, _ReleasePlanChecks, _ReleaseSoakChecks, _ConcurrencyChecks,
-            unittest.TestCase):
+            _AreaContractChecks, _ReleasePlanChecks, _ReleaseSoakChecks, _ReleaseGateChecks,
+            _ConcurrencyChecks, unittest.TestCase):
         """Every arm of the offline suite, under the one name the report uses."""
 
     r = unittest.TextTestRunner(verbosity=2).run(
@@ -6025,8 +7425,14 @@ def main() -> int:
     ap.add_argument("--power-cycles", type=int, default=ReleaseSettings.power_cycles)
     ap.add_argument("--idle-cycles", type=int, default=ReleaseSettings.idle_cycles)
     ap.add_argument("--commit-cycles", type=int, default=ReleaseSettings.commit_cycles)
+    ap.add_argument("--reset-cycles", type=int, default=ReleaseSettings.reset_cycles,
+                    help="soft resets with power held on; #396 decision 2026-10-26")
     ap.add_argument("--persisted-items", default=",".join(ReleaseSettings.persisted_items),
                     help="comma-separated items persisted by the shipping image")
+    ap.add_argument("--audio-duration-s", type=int, default=ReleaseSettings.audio_duration_s,
+                    help="audio-integrity run inside the soak window")
+    ap.add_argument("--audio-context-s", type=int, default=ReleaseSettings.audio_context_s,
+                    help="longest gap between walks during the audio run")
     ap.add_argument("--restore-bound-s", type=int, default=ReleaseSettings.restore_bound_s,
                     help="provisional T0-to-automatic-AVTP bound; #396 round 2")
     ap.add_argument("--boot-margin-s", type=int, default=ReleaseSettings.boot_margin_s,
@@ -6042,13 +7448,15 @@ def main() -> int:
     peer = parse_device_spec(a.peer, PEER) if a.peer else PEER
     areas = a.areas.split(",") if a.areas else None
     try:
-        release = ReleaseSettings(a.soak_duration_s, a.soak_interval_s,
-                                  a.power_cycles, a.idle_cycles, a.commit_cycles,
-                                  tuple(a.persisted_items.split(",")))
-        release = replace(release, restore_bound_s=a.restore_bound_s,
-                          boot_margin_s=a.boot_margin_s,
-                          power_off_hold_s=a.power_off_hold_s,
-                          topology_explicit=_release_topology_explicit(a.dut, a.peer))
+        release = ReleaseSettings(
+            soak_duration_s=a.soak_duration_s, soak_interval_s=a.soak_interval_s,
+            power_cycles=a.power_cycles, idle_cycles=a.idle_cycles,
+            commit_cycles=a.commit_cycles, reset_cycles=a.reset_cycles,
+            persisted_items=tuple(a.persisted_items.split(",")),
+            restore_bound_s=a.restore_bound_s, boot_margin_s=a.boot_margin_s,
+            power_off_hold_s=a.power_off_hold_s,
+            audio_duration_s=a.audio_duration_s, audio_context_s=a.audio_context_s,
+            topology_explicit=_release_topology_explicit(a.dut, a.peer))
         plan = build_plan(areas, dut, peer, release=release)
     except ValueError as error:
         ap.error(str(error))
@@ -6073,7 +7481,7 @@ def main() -> int:
         flag = "HUMAN" if s.needs_human else "     "
         print(f"{flag} {s.area:8s} {s.op:22s} {s.sid}")
         print(f"           asserts: {', '.join(x.name for x in s.asserts)}")
-        if s.area in ("soak", "power"):
+        if s.op in RELEASE_REQUIRED_ASSERTS or s.op == RELEASE_CONTROL_OP:
             print(f"           args: {json.dumps(s.args, sort_keys=True)}")
     print(f"\n{len(plan)} steps, "
           f"{sum(len(s.asserts) for s in plan)} assertions, "

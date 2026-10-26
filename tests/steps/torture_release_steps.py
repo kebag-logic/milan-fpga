@@ -19,23 +19,53 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tb" / "tools"))
 import torture_campaign as tp  # noqa: E402
 
 
+#: Issue #396's release repeats and the assertions each owes, stated here
+#: independently of the planner's own table so that the audit has an oracle.
+RELEASE_REQUIRED = {
+    "release_soak": {
+        "release.complete-evidence", "soak.continuous-duration", "soak.bound-both-directions",
+        "soak.counter-walk", "soak.no-counter-errors", "soak.mr-causes-and-hold",
+        "soak.gptp-continuity", "soak.tu-within-holdover", "soak.timestamp-margin",
+        "soak.uptime-monotonic"},
+    "release_audio_integrity": {
+        "release.complete-evidence", "audio.inside-soak-window",
+        "audio.counter-every-digital-path", "audio.counter-classified",
+        "audio.planted-arms-found", "audio.capture-losses-apart", "audio.event-record",
+        "audio.analog-sine-pair", "audio.zero-dut-glitches"},
+    "release_power_cycles": {
+        "release.complete-evidence", "power.cycle-count-and-phase", "power.state-restored",
+        "power.adp-valid-time", "power.automatic-restore-bound", "power.rebind-bound",
+        "power.single-boot", "power.counter-walk"},
+}
+#: The eight Milan v1.2 saved-state items of issue #70 and the binding.
+EIGHT_ITEMS_AND_BINDING = [
+    "configuration", "sampling_rate", "stream_format", "presentation_time_offset",
+    "channel_mappings", "clock_source", "entity_names", "object_names", "stream_binding"]
+
+
 def _plan(context: Context, areas: list[str]) -> None:
     context.tp_dut, context.tp_peer = tp.ARTY, tp.PEER
     context.tp_plan = tp.build_plan(areas)
     context.tp_cov = tp.plan_covers_every_index(context.tp_plan)
 
 
+def _repeats(plan: list) -> list:
+    """The release repeat operations, without identity steps or controls."""
+    return [s for s in plan if s.op in RELEASE_REQUIRED]
+
+
 @when("the {area} release area is planned")
 def step_tp_release_area(context: Context, area: str) -> None:
     """Plan each release area alone, so another area cannot supply its coverage."""
-    assert area in ("soak", "power")
+    assert area in ("soak", "audio", "power")
     _plan(context, [area])
 
 
 @then("every release repeat observes every index including each CRF sink")
 def step_tp_release_observations(context: Context) -> None:
     """L3 oracle: the descriptor topology, independent of the plan's audit."""
-    for step in context.tp_plan:
+    assert _repeats(context.tp_plan)
+    for step in _repeats(context.tp_plan):
         actual = {(t["entity"], t["descriptor"], t["index"])
                   for t in step.args["counter_targets"]}
         expected = set()
@@ -52,7 +82,8 @@ def step_tp_release_observations(context: Context) -> None:
 def step_tp_release_bindings(context: Context) -> None:
     """One listener cannot be rebound by a second simultaneous pair."""
     dut, peer = context.tp_dut, context.tp_peer
-    for step in context.tp_plan:
+    assert _repeats(context.tp_plan)
+    for step in _repeats(context.tp_plan):
         pairs = step.args["pairs"]
         sinks = [(p["listener"], p["listener_index"]) for p in pairs]
         assert len(sinks) == len(set(sinks)), sinks
@@ -75,7 +106,7 @@ def step_tp_release_omission(context: Context, area: str, missing: str) -> None:
     """Plant one omission in one repeat while retaining a full matrix."""
     _plan(context, ["matrix", area])
     context.tp_release_area = area
-    step = next(s for s in context.tp_plan if s.area == area)
+    step = next(s for s in _repeats(context.tp_plan) if s.area == area)
     dut, peer = context.tp_dut, context.tp_peer
     if missing == "direction":
         step.args["pairs"] = [p for p in step.args["pairs"]
@@ -103,37 +134,53 @@ def step_tp_release_matrix_still_complete(context: Context) -> None:
     assert ok, detail
 
 
-@then("the soak lasts seven days with periodic and endpoint observations")
+@then("the soak lasts 24 hours with periodic and endpoint observations")
 def step_tp_release_soak_defaults(context: Context) -> None:
-    """Issue #396 fixes seven days; interval sampling must include both ends."""
+    """Issue #396 2026-10-26 fixes 24 hours; interval sampling must include both ends."""
     steps = [s for s in context.tp_plan if s.area == "soak"]
     assert len(steps) == 1
     args = steps[0].args
-    assert args["duration_s"] == 7 * 24 * 60 * 60
+    assert args["duration_s"] == 24 * 60 * 60
     assert args["interval_s"] == 60
     assert args["sample_at_start"] and args["sample_at_end"]
     assert args["continuous_evidence"] == ["asCapable_transitions", "tu_intervals",
                                            "stream_flow", "uptime", "mr_pdus", "media_clock_events",
-                                           "MEDIA_RESET_reads", "gptp_discontinuities", "gm_changes"]
+                                           "MEDIA_RESET_reads", "gptp_discontinuities", "gm_changes",
+                                           "planted_events"]
+    assert args["zero_growth_counters"] == ["SEQ_NUM_MISMATCH", "STREAM_INTERRUPTED",
+                                            "LATE_TIMESTAMP", "EARLY_TIMESTAMP"]
 
 
-@then("power repeats 160 idle and 40 journal-commit cold cuts")
+@then("the audio run lasts the whole soak window inside it")
+def step_tp_release_audio_defaults(context: Context) -> None:
+    """Issue #396 decision 2026-10-04 as amended: the audio run rides inside the soak."""
+    audio = [s for s in _repeats(context.tp_plan) if s.area == "audio"]
+    assert [s.sid for s in audio] == ["audio.integrity"]
+    args = audio[0].args
+    assert args["window"] == "soak.continuous"
+    assert args["duration_s"] == 24 * 60 * 60
+    assert {p["path"] for p in args["digital_paths"]} == {"outbound", "return", "dut-tdm-loop"}
+    assert [a["class"] for a in args["planted_arms"]] == ["dropped", "repeated", "bit-flip"]
+    assert args["analog"]["tones_hz"] == [997, 9973]
+
+
+@then("power repeats 100 idle and 50 journal-commit cold cuts and 50 soft resets")
 def step_tp_release_power_defaults(context: Context) -> None:
-    """Issue #396 excludes warm resets and requires measured commit-window cuts."""
-    steps = [s for s in context.tp_plan if s.area == "power"]
-    assert [(s.args["phase"], s.args["cycles"]) for s in steps] == [
-        ("idle", 160), ("journal_commit", 40)]
+    """Issue #396 2026-10-26: 150 cold cuts, a third in a commit, and 50 soft resets."""
+    steps = _repeats([s for s in context.tp_plan if s.area == "power"])
+    assert [(s.args["phase"], s.args["cycles"], s.args["cold"]) for s in steps] == [
+        ("idle", 100, True), ("journal_commit", 50, True), ("soft_reset", 50, False)]
     for step in steps:
-        assert step.args["cold"] and not step.args["count_resets"]
         assert step.args["total_cycles"] == 200
-        assert step.args["persisted_items"] == ["stream_binding"]
+        assert step.args["persisted_items"] == EIGHT_ITEMS_AND_BINDING
         assert step.args["restore_bound_s"] == 30
         assert step.args["boot_margin_s"] == 5
         assert step.args["boot_observation_s"] == 35
-        assert step.args["power_off_hold_s"] == 8
         assert step.args["restore_start"] == "T0"
         assert step.args["restore_end"] == "first valid AVTP PDU of each persisted binding"
         assert step.args["rebind_limit_s"] == 1 and step.args["rebind_limit_exclusive"]
+    assert [s.args.get("power_off_hold_s") for s in steps] == [8, 8, None]
+    assert steps[2].args["time_origin"] == "T0: reset command, host monotonic clock"
     assert steps[0].args["snapshot_policy"] == "exact pre-cut committed snapshot"
     assert steps[1].args["snapshot_policy"] == "complete old or new committed snapshot"
     assert steps[1].args["cut_requires"] == "journal_commit_window"
@@ -142,9 +189,8 @@ def step_tp_release_power_defaults(context: Context) -> None:
 @then("release assertions require complete measured evidence")
 def step_tp_release_evidence(context: Context) -> None:
     """Desk coverage is never a substitute for completed physical evidence."""
-    for step in context.tp_plan:
-        if step.area not in ("soak", "power"):
-            continue
+    assert len(_repeats(context.tp_plan)) == 5
+    for step in _repeats(context.tp_plan):
         specs = {a.name: a for a in step.asserts}
         assert "release.complete-evidence" in specs
         assert all(a.severity == "SHALL" for a in specs.values())
@@ -180,22 +226,32 @@ def step_tp_release_repeat_omission(context: Context, repeat: str, role: str, mi
 @when("a diagnostic release profile uses non-default timing and counts")
 def step_tp_release_parameters(context: Context) -> None:
     """Non-default inputs are an independent oracle for the emitted parameters."""
-    settings = tp.ReleaseSettings(125, 17, 10, 8, 2, ("stream_binding", "clock_source"),
-                                  restore_bound_s=23, boot_margin_s=7, power_off_hold_s=13)
-    context.tp_plan = tp.build_plan(["soak", "power"], release=settings)
+    settings = tp.ReleaseSettings(
+        soak_duration_s=125, soak_interval_s=17, power_cycles=10, idle_cycles=6,
+        commit_cycles=2, reset_cycles=2, persisted_items=("stream_binding", "clock_source"),
+        restore_bound_s=23, boot_margin_s=7, power_off_hold_s=13, audio_duration_s=100,
+        audio_context_s=3)
+    context.tp_plan = tp.build_plan(["soak", "audio", "power"], release=settings)
 
 
 @then("every release repeat preserves those parameters and its timing origins")
 def step_tp_release_parameter_results(context: Context) -> None:
-    """L3 #396 round 3: T0 starts the ADP window after the recorded hold."""
-    soak, idle, commit = context.tp_plan
+    """L3 #396 round 3 and 2026-10-26: T0 per cycle kind; hold recorded, not charged."""
+    repeats = {s.sid: s for s in _repeats(context.tp_plan)}
+    soak, audio = repeats["soak.continuous"], repeats["audio.integrity"]
+    idle, commit, reset = (repeats["power." + p] for p in ("idle", "journal_commit", "soft_reset"))
     assert (soak.args["duration_s"], soak.args["interval_s"]) == (125, 17)
-    assert (idle.args["cycles"], commit.args["cycles"]) == (8, 2)
+    assert (audio.args["duration_s"], audio.args["context_s"]) == (100, 3)
+    assert (idle.args["cycles"], commit.args["cycles"], reset.args["cycles"]) == (6, 2, 2)
+    assert reset.args["time_origin"] == "T0: reset command, host monotonic clock"
+    assert "power_off_hold_s" not in reset.args
+    for step in (idle, commit, reset):
+        assert step.args["total_cycles"] == 10
+        assert step.args["restore_bound_s"] == 23 and step.args["boot_margin_s"] == 7
+        assert step.args["boot_observation_s"] == 30
+        assert step.args["adp_start"] == "T0"
     for step in (idle, commit):
         args = step.args
-        assert args["total_cycles"] == 10
-        assert args["restore_bound_s"] == 23 and args["boot_margin_s"] == 7
-        assert args["boot_observation_s"] == 30
         assert args["power_off_hold_s"] == 13
         assert args["power_off_hold_in_adp_window"] is False
         assert args["time_origin"] == "T0: power-strip ON command, host monotonic clock"
@@ -207,7 +263,7 @@ def step_tp_release_parameter_results(context: Context) -> None:
         assert args["rebind_requires"] == "automatic restoration passed for every persisted binding"
         assert {"power.automatic-restore-bound", "power.rebind-bound", "power.single-boot"} <= {
             spec.name for spec in step.asserts}
-    assert all(not step.args["release_eligible"] for step in context.tp_plan)
+    assert all(not step.args["release_eligible"] for step in repeats.values())
 
 
 @then("the first-boot restart control fails the release boot assertion")
@@ -229,16 +285,17 @@ def step_tp_release_partial_cli(context: Context, shape: str, role: str) -> None
                                if part.split("=", 1)[0] not in missing)
     root = Path(__file__).resolve().parents[2]
     result = subprocess.run(
-        [sys.executable, "-B", "tb/tools/torture_campaign.py", "--plan", "--areas", "soak,power",
+        [sys.executable, "-B", "tb/tools/torture_campaign.py", "--plan", "--areas", "soak,audio,power",
          "--json", "--dut", specs[0], "--peer", specs[1]],
         cwd=root, capture_output=True, text=True, check=True, timeout=600)
-    context.release_cli_steps = json.loads(result.stdout)
+    context.release_cli_steps = [step for step in json.loads(result.stdout)
+                                 if step["op"] in RELEASE_REQUIRED]
 
 
 @then("every release repeat reports diagnostic topology")
 def step_tp_release_partial_result(context: Context) -> None:
-    """Require all three emitted repeats to reject the partial CLI shape."""
-    assert len(context.release_cli_steps) == 3
+    """Require all five emitted repeats to reject the partial CLI shape."""
+    assert len(context.release_cli_steps) == 5
     for step in context.release_cli_steps:
         assert step["args"]["topology_explicit"] is False
         assert step["args"]["release_eligible"] is False
@@ -248,14 +305,15 @@ def step_tp_release_partial_result(context: Context) -> None:
 def step_tp_release_restore_bound(context: Context, seconds: int) -> None:
     """L3 #396 round 3 varies only restoration, keeping other prerequisites valid."""
     context.tp_plan = tp.build_plan(
-        ["soak", "power"], release=tp.ReleaseSettings(topology_explicit=True, restore_bound_s=seconds))
+        ["soak", "audio", "power"],
+        release=tp.ReleaseSettings(topology_explicit=True, restore_bound_s=seconds))
 
 
 @then("every release repeat is {eligibility} for release")
 def step_tp_release_eligible(context: Context, eligibility: str) -> None:
     """The independent 29/30/31-second examples pin the inclusive ceiling."""
-    assert len(context.tp_plan) == 3
-    for step in context.tp_plan:
+    assert len(_repeats(context.tp_plan)) == 5
+    for step in _repeats(context.tp_plan):
         assert step.args["release_eligible"] is (eligibility == "eligible")
 
 
@@ -314,3 +372,252 @@ def step_tp_release_tu_history(context: Context) -> None:
         verdict, evidence = oracle(intervals, [], gm_changes_s=gm,
                                    observation_resolution_s=0.001, capture_complete=True)
         assert verdict == expected, evidence
+
+
+# ------------------------------------------- issue #396 decisions 2026-10-26 --
+@then("the power phases add up to 200 cycles")
+def step_tp_release_cycle_total(context: Context) -> None:
+    """The decided mix, read from the plan and summed here, not by the audit."""
+    steps = _repeats(context.tp_plan)
+    assert sum(s.args["cycles"] for s in steps) == 200, [s.args["cycles"] for s in steps]
+    assert {s.args["total_cycles"] for s in steps} == {200}
+    assert sorted(s.args["phase"] for s in steps) == ["idle", "journal_commit", "soft_reset"]
+
+
+@then("150 of them are cold cuts and a third of those land in a journal commit")
+def step_tp_release_cold_share(context: Context) -> None:
+    """Owner decision 2026-10-26 item 2: 150 cold, 50 of them inside a commit."""
+    cycles = {s.args["phase"]: (s.args["cycles"], s.args["cold"]) for s in _repeats(context.tp_plan)}
+    cold = sum(count for count, is_cold in cycles.values() if is_cold)
+    assert cold == 150 and cycles["journal_commit"] == (50, True), cycles
+    assert cycles["soft_reset"] == (50, False), cycles
+
+
+@then("every cycle restores the eight Milan items and the binding")
+def step_tp_release_items(context: Context) -> None:
+    """Owner decision 2026-10-26 item 3: the eight items, not the binding alone."""
+    for step in _repeats(context.tp_plan):
+        assert step.args["persisted_items"] == EIGHT_ITEMS_AND_BINDING, step.sid
+        assert step.args["state_oracle"] == "check_release_state_restored"
+        assert "power.state-restored" in {a.name for a in step.asserts}
+
+
+@when("the power release plan loses one {phase} cycle")
+def step_tp_release_lose_cycle(context: Context, phase: str) -> None:
+    """Plant a 199-cycle mix in one phase while the matrix stays complete."""
+    _plan(context, ["matrix", "power"])
+    context.tp_release_area = "power"
+    step = next(s for s in _repeats(context.tp_plan) if s.args["phase"] == phase)
+    step.args["cycles"] -= 1
+
+
+@then("every release repeat carries its area's required assertions at SHALL severity")
+def step_tp_release_required(context: Context) -> None:
+    """Against the independent table above; one repeat of each kind at least."""
+    repeats = _repeats(context.tp_plan)
+    assert {s.op for s in repeats} == set(RELEASE_REQUIRED)
+    for step in repeats:
+        shall = {a.name for a in step.asserts if a.severity == "SHALL"}
+        assert RELEASE_REQUIRED[step.op] <= shall, (step.sid, RELEASE_REQUIRED[step.op] - shall)
+
+
+@then("every release repeat refuses an unsupported operation instead of skipping it")
+def step_tp_release_refuses(context: Context) -> None:
+    """A runner that cannot perform a repeat reports it, never a silent PASS."""
+    for step in _repeats(context.tp_plan):
+        assert step.args["unsupported_operation"] == "refuse; never skip or claim PASS", step.sid
+        assert "SKIP" in {a.name: a.clause for a in step.asserts}["release.complete-evidence"]
+
+
+@when("release repeat {repeat} has its {assertion} assertion {change}")
+def step_tp_release_lose_assertion(context: Context, repeat: str, assertion: str, change: str) -> None:
+    """Drop an assertion, or downgrade it to INFO, in one repeat only."""
+    from dataclasses import replace
+    area = repeat.split(".")[0]
+    _plan(context, ["matrix", area])
+    context.tp_release_area = area
+    step = next(s for s in context.tp_plan if s.sid == repeat)
+    assert assertion in {a.name for a in step.asserts}
+    if change == "dropped":
+        step.asserts = tuple(a for a in step.asserts if a.name != assertion)
+    else:
+        assert change == "downgraded"
+        step.asserts = tuple(replace(a, severity="INFO") if a.name == assertion else a
+                             for a in step.asserts)
+
+
+_GROWTH = {
+    "nothing": ({}, []),
+    "one SEQ_NUM_MISMATCH": ({"SEQ_NUM_MISMATCH": 1}, []),
+    "one STREAM_INTERRUPTED": ({"STREAM_INTERRUPTED": 1}, []),
+    "one LATE_TIMESTAMP": ({"LATE_TIMESTAMP": 1}, []),
+    "one EARLY_TIMESTAMP": ({"EARLY_TIMESTAMP": 1}, []),
+    "one MEDIA_UNLOCKED": ({"MEDIA_UNLOCKED": 1}, []),
+    "one MEDIA_UNLOCKED in a planted event": ({"MEDIA_UNLOCKED": 1}, [(20, 25)]),
+    "two MEDIA_UNLOCKED in one planted event": ({"MEDIA_UNLOCKED": 2}, [(20, 25)]),
+}
+
+
+@when("an input's soak counter walk shows {growth}")
+def step_tp_release_counter_walk(context: Context, growth: str) -> None:
+    """Two reads of one CRF Stream Input, 60 s apart, with the named growth."""
+    names = ("SEQ_NUM_MISMATCH", "STREAM_INTERRUPTED", "LATE_TIMESTAMP",
+             "EARLY_TIMESTAMP", "MEDIA_UNLOCKED")
+    delta, windows = _GROWTH[growth]
+    before = {name: 3 for name in names}
+    after = {name: 3 + delta.get(name, 0) for name in names}
+    reads = [{"target": "dut/stream_input/4", "timestamp_s": 100, "values": before},
+             {"target": "dut/stream_input/4", "timestamp_s": 160, "values": after}]
+    planted = [{"target": "dut/stream_input/4", "kind": "CRF disruption",
+                "window_s": (100 + start, 100 + end)} for start, end in windows]
+    context.release_counter_verdict = tp.check_release_soak_counters(
+        reads, planted, targets=["dut/stream_input/4"], capture_complete=True)
+
+
+@then("the soak counter oracle grades it {verdict}")
+def step_tp_release_counter_verdict(context: Context, verdict: str) -> None:
+    """The verdict the decided rule owes; the named oracle is the plan's own."""
+    actual, detail = context.release_counter_verdict
+    assert actual == verdict, detail
+    soak = tp.build_plan(["soak"])[0]
+    assert soak.args["counter_oracle"] == "check_release_soak_counters"
+
+
+@when("the {control} negative control is run at the desk")
+def step_tp_release_control(context: Context, control: str) -> None:
+    """Run the plan entry's own desk fixture through its own oracle."""
+    plan = tp.build_plan([control.split(".")[0]])
+    context.release_control = next(s for s in plan if s.sid == control)
+    context.release_control_result = tp.run_release_control(context.release_control)
+
+
+@then("the control fails {assertion}")
+def step_tp_release_control_fails(context: Context, assertion: str) -> None:
+    """The control carries the assertion it expects to fail, and the oracle fails."""
+    step = context.release_control
+    assert step.op == "release_negative_control"
+    assert step.args["expected_failing_assertion"] == assertion
+    assert assertion in {a.name for a in step.asserts}
+    assert step.args["expected_verdict"] == "FAIL"
+    verdict, detail = context.release_control_result
+    assert verdict == "FAIL", detail
+
+
+@then("the same oracle passes once the defect is removed")
+def step_tp_release_control_clean(context: Context) -> None:
+    """Without its defect the fixture passes, so the FAIL is the defect's alone."""
+    args = context.release_control.args
+    if args["oracle"] == "check_release_boot":
+        verdict, detail = tp.check_release_boot(1, 0, capture_complete=True)
+    elif args["oracle"] == "check_release_state_restored":
+        fixture = args["desk_fixture"]
+        verdict, detail = tp.check_release_state_restored(
+            fixture["pre"], fixture["pre"], fixture["defaults"], items=fixture["items"], phase="idle")
+    else:
+        fixture = args["fixture"]
+        verdict, detail = tp.grade_audio_counter_capture(
+            tp.synthesize_counter_capture(fixture["frames"], fixture["channels"],
+                                          events=fixture["source_events"]),
+            tp.CounterCapture(fixture["channels"], "big", fixture["rate_hz"], 0.0, 0.0),
+            tp.CounterRunLog(fixture["planted_arms"], [], 2))
+    assert verdict == "PASS", detail
+
+
+@when("the planted audio drop is graded on its synthetic capture")
+def step_tp_release_audio_drop(context: Context) -> None:
+    """The plan's own control entry, graded offline with no bench."""
+    step = next(s for s in tp.build_plan(["audio"]) if s.sid == "audio.control.planted-drop")
+    assert step.args["offline"] is True
+    context.release_audio_fixture = step.args["fixture"]
+    context.release_audio_result = tp.run_release_control(step)
+
+
+@then("the grader finds one 5-sample drop at the planted sample on every channel")
+def step_tp_release_audio_drop_found(context: Context) -> None:
+    """Exact class, size, sample and channel set: nothing approximate."""
+    verdict, detail = context.release_audio_result
+    assert verdict == "FAIL", detail["why"]
+    dut = [e for e in detail["events"] if e["attribution"] == "dut"]
+    planted = context.release_audio_fixture["dut_event"]
+    assert planted == {"kind": "drop", "index": 3 * 4096 + 7, "n": 5}
+    assert sorted((e["channel"], e["class"], e["n"], e["capture_index"]) for e in dut) == [
+        (channel, "dropped", 5, planted["index"]) for channel in range(8)]
+
+
+@then("every planted arm is found and attributed apart from the DUT")
+def step_tp_release_audio_arms(context: Context) -> None:
+    """Three arms at each end; eight channels see each source-side slip."""
+    verdict, detail = context.release_audio_result
+    assert detail["planted_missed"] == []
+    assert detail["counts"]["planted"] == {"dropped": 16, "repeated": 16, "bit-flip": 2}
+
+
+def _counter_capture(extra: list, losses: list | None = None, arms_drop: int = 0) -> tuple:
+    """A four-channel capture with the drop, repeat and flip arms at both ends."""
+    frames = 4 * 4096
+    sites = (200, 400, 600, frames - 800, frames - 500, frames - 200)
+    source = [{"kind": "drop", "index": sites[0], "n": 3}, {"kind": "repeat", "index": sites[1], "n": 2},
+              {"kind": "flip", "index": sites[2], "channel": 0, "mask": 0x100},
+              {"kind": "drop", "index": sites[3], "n": 3}, {"kind": "repeat", "index": sites[4], "n": 2},
+              {"kind": "flip", "index": sites[5], "channel": 1, "mask": 0x100}]
+    arms = [{"class": "dropped", "index": sites[0], "n": 3}, {"class": "repeated", "index": sites[1], "n": 2},
+            {"class": "bit-flip", "index": sites[2], "channel": 0, "mask": 0x100},
+            {"class": "dropped", "index": sites[3], "n": 3}, {"class": "repeated", "index": sites[4], "n": 2},
+            {"class": "bit-flip", "index": sites[5], "channel": 1, "mask": 0x100}]
+    arms += [{"class": "dropped", "index": 9000, "n": arms_drop}] if arms_drop else []
+    capture = tp.synthesize_counter_capture(frames, 4, events=source + extra)
+    return tp.grade_audio_counter_capture(
+        capture, tp.CounterCapture(4, "big", 48000, 0.0, 0.0),
+        tp.CounterRunLog(arms, losses or [], 0))
+
+
+_EVENTS = {
+    "a 3-sample drop": {"kind": "drop", "index": 8000, "n": 3},
+    "a 2-sample repeat": {"kind": "repeat", "index": 8000, "n": 2},
+    "6 samples of silence": {"kind": "silence", "index": 8000, "n": 6},
+    "a bit flip on one channel": {"kind": "flip", "index": 8000, "channel": 3, "mask": 0x00000800},
+    "a swap of two channels": {"kind": "swap", "index": 8000, "n": 4, "channels": (1, 2)},
+}
+
+
+@when("a synthetic counter capture carries {event}")
+def step_tp_release_counter_event(context: Context, event: str) -> None:
+    """One unplanted event in the middle of an otherwise clean, armed capture."""
+    context.release_counter_event = _EVENTS[event]
+    context.release_counter_result = _counter_capture([_EVENTS[event]])
+
+
+@then("the audio grader reports {cls} on {count:d} channels")
+def step_tp_release_counter_class(context: Context, cls: str, count: int) -> None:
+    """Class and sample exact, and nothing else attributed to the DUT."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL", detail["why"]
+    dut = [e for e in detail["events"] if e["attribution"] == "dut"]
+    assert len(dut) == count, dut
+    assert {(e["class"], e["capture_index"]) for e in dut} == {
+        (cls, context.release_counter_event["index"])}
+
+
+@when("a synthetic counter capture logs an arm the source never planted")
+def step_tp_release_counter_missed(context: Context) -> None:
+    """The log claims a drop at sample 9000; the capture has none there."""
+    context.release_counter_result = _counter_capture([], arms_drop=4)
+
+
+@then("the audio grader voids the run as NOT RUN")
+def step_tp_release_counter_void(context: Context) -> None:
+    """A grader that missed a control cannot be trusted with the rest."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "NOT RUN", detail["why"]
+    assert detail["why"] == "void: a planted arm was missed"
+    assert [arm["index"] for arm in detail["planted_missed"]] == [9000]
+
+
+@then("a logged capture loss is attributed to the capture, not the DUT")
+def step_tp_release_counter_loss(context: Context) -> None:
+    """The same slip passes when the capture tool logged it, and fails when not."""
+    loss = {"kind": "drop", "index": 7000, "n": 11}
+    verdict, detail = _counter_capture([loss], losses=[{"index": 7000, "frames": 11}])
+    assert verdict == "PASS", detail["why"]
+    assert detail["counts"]["capture"] == {"dropped": 4}
+    assert _counter_capture([loss])[0] == "FAIL"

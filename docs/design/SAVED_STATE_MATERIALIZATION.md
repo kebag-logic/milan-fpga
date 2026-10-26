@@ -2947,13 +2947,13 @@ Every control must finish and fail its intended assertion.
 
 **Physical result.** Follow [REQ-VER-06](../../REQUIREMENTS.md#8-verification-and-release-acceptance).
 Use [TESTING section 6d](../testing/TESTING.md#6d-unattended-campaign-vehicle)'s campaign vehicle.
-Complete seven continuous days with the reference peer.
+Complete its 24 continuous hours with the reference peer.
 Include both directions, CRF and every declared stream index.
-Complete 200 cold cuts: 160 idle and 40 during commits.
+Complete its 200 cycles: 100 idle and 50 commit cold cuts, and 50 soft resets.
 Restore all eight item groups and the complete binding inventory.
 No controller repair may count as automatic recovery.
 
-T0 is the host-timestamped outlet ON command.
+T0 is the host-timestamped outlet ON command, or the reset command for a soft reset.
 First ENTITY_AVAILABLE must precede T0 plus twenty seconds.
 Its `valid_time` is 10; boot consumes that window.
 Automatic AVTP restoration has the existing provisional thirty-second ceiling.

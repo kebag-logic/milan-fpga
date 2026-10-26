@@ -1019,23 +1019,28 @@ bare-metal board exposes only the UART. What stands in its place:
   power-cut soak is #70's.
 
 **Standing release campaigns (#396, REQ-VER-06).**
+The [owner decisions of 2026-10-26](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-6408072465) set these values.
 Use one DUT and the reference peer.
-The soak lasts seven continuous days with bidirectional streams bound.
+The soak lasts 24 continuous hours with bidirectional streams bound.
+The audio-integrity run rides inside that same window.
 Include AAF and CRF; observe every declared stream index.
-Complete 200 unattended cold cuts: 160 idle, 40 journal-commit.
-Warm resets contribute no cycles.
+Complete 200 unattended cycles.
+100 are idle cold cuts and 50 are cold cuts inside a journal commit.
+The other 50 are soft resets with power held on.
+A soft reset never stands in for a cold cut.
 These numbers are project release policy, not Milan-prescribed durations.
 
 Generate the plan without accessing hardware:
 
 ```sh
-python3 -B tb/tools/torture_campaign.py --plan --areas soak,power --json \
+python3 -B tb/tools/torture_campaign.py --plan --areas soak,audio,power --json \
   --dut "$DUT_SPEC" --peer "$PEER_SPEC" \
-  --soak-duration-s 604800 --soak-interval-s 60 \
-  --power-cycles 200 --idle-cycles 160 --commit-cycles 40 \
-  --persisted-items stream_binding --restore-bound-s 30 --boot-margin-s 5 \
-  --power-off-hold-s 8
-python3 -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,power \
+  --soak-duration-s 86400 --soak-interval-s 60 \
+  --audio-duration-s 86400 --audio-context-s 5 \
+  --power-cycles 200 --idle-cycles 100 --commit-cycles 50 --reset-cycles 50 \
+  --persisted-items configuration,sampling_rate,stream_format,presentation_time_offset,channel_mappings,clock_source,entity_names,object_names,stream_binding \
+  --restore-bound-s 30 --boot-margin-s 5 --power-off-hold-s 8
+python3 -B tb/tools/torture_campaign.py --coverage-by-area --areas soak,audio,power \
   --dut "$DUT_SPEC" --peer "$PEER_SPEC"
 python3 -B tb/tools/torture_campaign.py --self-test
 python3 -B tb/tools/torture_release_mutants.py
@@ -1047,21 +1052,25 @@ The built-in topologies are desk fixtures, not discovered hardware.
 Use the existing `--dut` and `--peer` key/value format.
 Include actual identities, AAF indices, and separate CRF indices.
 AAF index sets or ranges overlapping CRF are refused.
-Set `--persisted-items` from the shipping image's persistence inventory.
-It currently contains stream binding; #70 expands it to eight items.
+`--persisted-items` defaults to the eight Milan items of #70 and the binding.
+They are `configuration`, `sampling_rate`, `stream_format`, `presentation_time_offset`,
+`channel_mappings`, `clock_source`, `entity_names`, `object_names` and `stream_binding`.
+`RELEASE_PERSISTED_ITEMS` holds the clause behind each one.
+Additional project items may be appended to the list.
 
 `release_eligible` judges configured prerequisites for each area only.
-Both areas require the stream-binding inventory and explicit topology.
-Both require `soak_interval_s <= 60`, the sampling ceiling.
+Every release repeat requires that complete inventory and explicit topology.
+Each also requires `soak_interval_s <= 60`, the sampling ceiling.
 This ceiling retains the existing minute counter-walk cadence.
 It is project policy, separate from device counter-update intervals.
-Both require `restore_bound_s <= RELEASE_RESTORE_BOUND_S`, provisionally 30 seconds.
+Each requires `restore_bound_s <= RELEASE_RESTORE_BOUND_S`, provisionally 30 seconds.
 Tighter restoration bounds remain eligible when other prerequisites hold.
 These shared prerequisites describe the paired release profile.
 Selecting only one area retains those shared profile checks.
-The soak additionally requires at least 604800 continuous seconds.
-Power additionally requires 200 cuts, including 160 idle/40 commit.
-Larger profiles must still meet both phase minimums.
+The soak additionally requires at least 86400 continuous seconds.
+The audio run additionally requires at least 86400 seconds inside the soak.
+Power additionally requires 200 cycles: at least 100 idle, 50 commit and 50 reset.
+Larger profiles must still meet all three phase minimums.
 Failure of any prerequisite emits `release_eligible: false`.
 It cannot qualify a release.
 
@@ -1083,19 +1092,28 @@ Unbound outputs are observed but need not transmit.
 Counter targets enumerate all indices independently of those bindings.
 Sample at baseline, each interval, and the exact endpoint.
 Include the final partial interval when duration is indivisible.
-Never accumulate separate runs into seven continuous days.
+Never accumulate separate runs into the 24 continuous hours.
 Teardown follows the final snapshot.
 
 | Soak evidence | Required result |
 |---|---|
 | Milan 5.3.7.7/5.3.8.10, Tables 5.4/5.6 counters | Every index; valid masks/invariants; no unexplained resets |
-| `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`; IEEE 1722-2016 4.4.4.6 | Zero growth throughout the soak |
-| `MEDIA_UNLOCKED` | Every increase explained with retained evidence |
+| `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`, `LATE_TIMESTAMP`, `EARLY_TIMESTAMP`; Milan Table 5.6; IEEE 1722-2016 4.4.4.6 | Zero growth on every Stream Input, CRF included, throughout the soak |
+| `MEDIA_UNLOCKED` | Zero growth outside a recorded planted event, explained or not; each planted event excuses one increment per input |
 | Wire `mr`, media-clock events, MEDIA_RESET; IEEE 1722-2016 4.4.4.3, Milan Tables 5.4/5.6, Annex B.1.2 | Each toggle and increment has a recorded source change, CRF disruption, or received CRF `mr` toggle; eight-PDU hold per stream; GM change alone fails |
 | Coherent fabric gPTP publication and transition history | No `asCapable` loss; Milan 4.2.6.2.4 |
 | Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity in `[observed_start - observation_resolution_s, clear)`: GM identity change, GM time-source change, or other detected gPTP discontinuity; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; after a GM change, hold at least 0.25 seconds, allowing that resolution; uncorrelated `tu` fails |
 | `AVTPRX_TSD`, signed nanoseconds | Fresh margin observations for `STREAM_INPUT[0]` only |
 | DUT uptime | Monotonic advance, with no reboot |
+
+Use `check_release_soak_counters` for the counter rows above.
+Supply every Stream Input's reads, each with `target`, `timestamp_s` and `values`.
+Read the five counters at baseline, at every interval and at the endpoint.
+Name every input, CRF included, in `targets`; a missing series is NOT RUN.
+Supply the runner's planted-event log: `target`, `kind` and `window_s`.
+An explicit empty list records that nothing was planted; `None` is NOT RUN.
+An unlock is excused only by a planted window meeting its read interval.
+A decrease of any counter is a reset and fails the soak.
 
 The [corrected decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5857765949) governs the `mr`/`tu` release checks.
 Use `check_release_mr` separately for each stream and counter endpoint.
@@ -1245,7 +1263,75 @@ Non-GM discontinuities remain valid causes without the GM minimum.
 [`KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv) implements 0.25-0.5 seconds.
 B.1's recommended five-second media-clock holdover never bounds `tu`.
 
-`release_power_cycles` emits separate idle and journal-commit repeat groups.
+**The audio-integrity run (`audio.integrity`).**
+Its [signal design](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5978644444) is a bit-exact counter on every digital path.
+`release_audio_integrity` runs concurrently with `soak.continuous`, inside its window.
+It starts after the soak binds every pair and starts timing.
+It ends at or before the soak endpoint and lasts at least 86400 seconds.
+Every channel of every bound AAF stream carries the counter, in both directions.
+The DUT talker reaches an external digital capture through the reference peer.
+The reference peer feeds the DUT listener, its TDM output and the direct TDM capture (#451).
+The DUT's TDM loop is graded as well.
+CRF streams carry no audio samples, so no counter rides on them.
+
+Each word is S32, with the 24-bit sample in bits 31:8 and bits 7:0 zero.
+The #451 and #629 captures use the same layout.
+Sample bits 15:12 carry the channel number, the channel index plus one.
+Sample bits 11:0 carry a free-running sample counter, modulo 4096.
+No valid word is zero, so silence stays distinct from data.
+Eight channels peak near -47 dBFS.
+The wrap is an 11.7 Hz sawtooth at 48 kHz, so keep it off loudspeakers.
+
+`grade_audio_counter_capture` grades one headerless interleaved S32 capture.
+State its channel count, byte order and rate, as `tb/tools/thdn.py` callers do.
+`tb/tools/thdn.py` documents the external capture as big-endian.
+The #451 direct TDM capture recorded little-endian words.
+Supply the capture as bytes or as an iterable of chunks, so a 24-hour file streams.
+`tags` names each channel's number; `None` marks a channel without the counter.
+Every word must equal the next expected word of its channel.
+A mismatch becomes an event at its exact capture index:
+
+| Class | Signature |
+|---|---|
+| `dropped`, `n` | The counter resumes `n` samples ahead |
+| `repeated`, `n` | The counter resumes `n` samples behind |
+| `silence`, `n` | `n` zero words; `inserted` when the content resumes where it stopped |
+| `bit-flip`, `mask` | A corrupted word, with the XOR mask against the expected word |
+| `swap`, `partner` | The word expected on another channel |
+
+Slips are decided modulo 4096 samples.
+A shift of 2048 or more aliases.
+An exact multiple of 4096 is invisible to the counter.
+The soak's sequence and interruption counters remain the check for those.
+
+Each event records `wall_s`, `gptp_s`, `capture_index`, `expected`, `received` and class.
+Supply the capture's start wall and gPTP times; missing times are NOT RUN.
+`context_wall_s` brackets each event by `audio_context_s`, five seconds by default.
+Walk every stream's counters and the CRF sink's at least that often.
+Walk the DUT's `SLIP_LB` and `SLIP_TDM` words and the gPTP state at the same cadence.
+
+The source plants a drop, a repeat and a bit flip at both ends of the run.
+Their defaults are a 3-sample drop, a 2-sample repeat and mask `0x00000100`.
+Log each arm with its class, capture index, size or mask, and channel.
+An arm with no channel applies to every counter channel.
+`arm_tolerance_frames` is the log's recorded index error.
+Each arm must be found with its class and its exact size or mask.
+A missed arm voids the run as NOT RUN.
+So do arms that do not run in both halves of the capture.
+
+The capture tool logs its own losses as a capture index and a frame count.
+A logged loss is a slip at that index on every counter channel.
+Such slips are attributed to the capture and reported apart.
+A logged loss the capture does not show is NOT RUN.
+Every remaining event is DUT-attributed, and any one of them fails the run.
+
+The sine pair, 997 Hz and 9,973 Hz, runs on another channel pair.
+It crosses the analog path, converters included.
+THD+N per block and the sample-exact predictor residual grade it.
+No limit is decided for either, so `audio.analog-sine-pair` is NOT RUN.
+It stays NOT RUN until a recorded decision sets the limits.
+
+`release_power_cycles` emits idle, journal-commit and soft-reset repeat groups.
 Each cycle establishes bindings and snapshots committed state first.
 Record phase evidence before removing DUT power.
 Confirm discharge; a reset command cannot satisfy a cold cut.
@@ -1260,17 +1346,29 @@ T0 is the power-strip ON command's host monotonic timestamp.
 Correlate capture timestamps with that same clock.
 No network-readiness event starts or restarts a deadline.
 Verify automatic restoration before any controller-assisted reconnect test.
-Compare every configured persisted item before and after each cut.
-Idle cuts require the exact pre-cut committed snapshot.
+Compare every configured persisted item before and after each cycle.
+Set every item away from its image default before the cycle.
+Otherwise a build that restores nothing would read back as restored.
+Idle cuts and soft resets require the exact pre-cycle committed snapshot.
 Commit cuts permit complete old or new committed snapshots.
 Mixed or unreadable state cannot pass.
+`check_release_state_restored` takes the pre-cycle, readback and default snapshots.
+A commit cut also supplies the snapshot being committed.
+A pre-cycle value equal to its default, or a missing readback, is NOT RUN.
+
+A soft reset keeps the DUT outlet ON before and after the reset.
+Record its mechanism, the outlet state and the reset command's timestamp.
+Its T0 is that reset command's host monotonic timestamp.
+Every post-cycle bound in the table below runs from that T0, as for a cut.
+No power-off hold applies to a reset.
+Milan v1.2 5.5.1.4 expects automatic recovery from "a power cycle or a simple reset".
 
 | Measurement | Origin and required bound |
 |---|---|
 | First post-cut DUT `ENTITY_AVAILABLE` | Before T0 plus decoded advertised `valid_time`; Milan requires twenty seconds |
 | Each persisted binding's first valid AVTP, both directions/CRF | T0 through `restore_bound_s`, inclusive; provisional default 30 seconds |
 | Additional controller reconnect, after every automatic restoration passes | Successful `CONNECT_RX` through first valid AVTP; strictly below one second (#75) |
-| Complete UART/reset observation | T0 until next cut or campaign end, at least `restore_bound_s + boot_margin_s`; margin defaults to five seconds |
+| Complete UART/reset observation | T0 until the next cycle or campaign end, at least `restore_bound_s + boot_margin_s`; margin defaults to five seconds |
 
 Retain the last pre-cut advertisement's raw PDU and host timestamp.
 Decode its own `valid_time` in two-second units.
@@ -1302,15 +1400,15 @@ They emit `release_eligible: false`; tighter bounds can remain eligible.
 Use `check_release_boot` with complete UART/reset observations per cycle.
 A repeated BIOS pass fails even if streaming subsequently recovers.
 Continue uninterrupted UART/reset capture through the post-cycle counter walk.
-Keep it until the next cut or final campaign completion.
+Keep it until the next cycle or final campaign completion.
 A restart after the minimum observation window still fails.
 This deliberately rejects #366's documented first-boot behavior for release.
 The per-flash UART smoke check only grades the resulting console.
 Its narrower acceptance cannot satisfy this release assertion.
 Walk every input/output counter, including CRF, after each cycle.
-Finish verification before beginning the next cut.
+Finish verification before beginning the next cycle.
 
-The bench executor supplies power-strip and commit-window instrumentation.
+The bench executor supplies power-strip, reset and commit-window instrumentation.
 Missing instrumentation leaves an explicit unmet obligation.
 Unsupported repeat operations must be refused, never silently skipped.
 The generic campaign exit status alone cannot qualify a release.
@@ -1318,20 +1416,43 @@ Every required release assertion needs measured `PASS` evidence.
 `SKIP`, `INFO`, `KNOWN-PENDING`, and `INSTRUMENT-SUSPECT` do not qualify.
 Neither do `NEEDS-HUMAN` entries or missing records.
 
-Retain Section 6b artifacts plus these campaign-specific records:
+**Negative controls (acceptance 4).** Each is a plan entry with its failing assertion:
+
+| Entry | Known defect | Must fail |
+|---|---|---|
+| `power.control.first-boot-restart` | The first cold boot after a flash-pair (#366) | `power.single-boot` |
+| `power.control.persistence-disabled` | A build with persistence disabled | `power.state-restored` |
+| `audio.control.planted-drop` | An unplanted 5-sample drop on a synthetic capture | `audio.zero-dut-glitches` |
+
+Each entry carries its oracle and a desk fixture with the defect's signature.
+`run_release_control` runs that fixture through the oracle.
+The self-test and the plan feature require a `FAIL` from each.
+They also require a `PASS` once the defect is removed.
+The audio control is graded offline and needs no bench.
+Its drop must be classified exactly: class, size, sample and every channel.
+The two power controls still need a bench run on the known-defect image.
+A control passes only when its assertion fails on that image.
+`PASS`, `SKIP` or `NOT RUN` there means the gate cannot see the defect.
+Retain the #366 control's flash-to-first-cold-boot provenance and UART capture.
+
+Retain [Section 6b](#6b-bench-evidence-retention) artifacts plus these campaign-specific records:
 
 - exact bitstream, firmware, and AEM hashes;
 - serialized plan, topology, persistence inventory, and verdict JSONL;
 - timestamped snapshots, controller exchanges, and power-cut phase evidence;
-- complete UART transcripts, wire captures, and the temperature log.
+- the reset command log, with the outlet state, for every soft reset;
+- the soak's counter reads and its planted-event log;
+- complete UART transcripts, wire captures, and the temperature log;
+- every audio capture, with its byte order, start wall and gPTP times;
+- the planted-arm log, the capture-loss log and the audio event records.
+
+A 24-hour audio capture is large.
+Keep it with the run on the host that recorded it.
+Link its SHA-256 and size from the findings page instead of copying it.
 
 Link dated evidence from `docs/findings/` on the exact candidate.
 File a finding for every failed assertion.
-Acceptance items 3 and 4 remain later bench work.
-They require both campaigns and a known-defect negative control.
-The #366 first-boot control must fail `power.single-boot`.
-Retain its flash-to-first-cold-boot provenance and uninterrupted UART capture.
-Disabled persistence must instead fail `power.state-restored`.
+Acceptance items 3 and 4 remain later bench work, #396 part B.
 Desk mutation controls prove plan coverage, not physical failure detection.
 Neither this plan nor its self-test closes #70 or #117.
 

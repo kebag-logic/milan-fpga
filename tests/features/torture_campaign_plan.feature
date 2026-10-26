@@ -301,6 +301,9 @@ Feature: The torture campaign's own coverage is auditable at a desk
     And each physical family ends with a full proof pair at a non-zero index
 
   # ------------------------------------------------------ runner integration
+  # Issue #396 owner decisions 2026-10-26: a 24-hour soak with the audio
+  # integrity run inside it, and 200 power cycles (100 idle cold cuts, 50 cold
+  # cuts inside a journal commit, 50 soft resets), with the stricter criteria.
   @class:release @clause:REQ-VER-06
   Scenario Outline: release areas observe every index and bind both directions
     When the <area> release area is planned
@@ -314,6 +317,7 @@ Feature: The torture campaign's own coverage is auditable at a desk
     Examples:
       | area  |
       | soak  |
+      | audio |
       | power |
 
   @class:release @clause:REQ-VER-06 @negative-control
@@ -327,16 +331,114 @@ Feature: The torture campaign's own coverage is auditable at a desk
       | soak  | index     |
       | soak  | direction |
       | soak  | CRF sink  |
+      | audio | index     |
+      | audio | direction |
+      | audio | CRF sink  |
       | power | index     |
       | power | direction |
       | power | CRF sink  |
 
   @class:release @clause:REQ-VER-06
-  Scenario: release defaults encode the decided soak and cold-cut mix
+  Scenario: release defaults encode the decided soak, audio run and cycle mix
     When the whole campaign is planned
-    Then the soak lasts seven days with periodic and endpoint observations
-    And power repeats 160 idle and 40 journal-commit cold cuts
+    Then the soak lasts 24 hours with periodic and endpoint observations
+    And the audio run lasts the whole soak window inside it
+    And power repeats 100 idle and 50 journal-commit cold cuts and 50 soft resets
     And release assertions require complete measured evidence
+
+  @class:release @clause:REQ-VER-06
+  Scenario: the power cycle mix adds up to 200
+    When the power release area is planned
+    Then the power phases add up to 200 cycles
+    And 150 of them are cold cuts and a third of those land in a journal commit
+    And every cycle restores the eight Milan items and the binding
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a cycle mix that does not add up fails the power audit
+    When the power release plan loses one <phase> cycle
+    Then that release area fails its own audit
+    And the complete matrix still passes its audit
+
+    Examples:
+      | phase          |
+      | idle           |
+      | journal_commit |
+      | soft_reset     |
+
+  @class:release @clause:REQ-VER-06
+  Scenario: no release repeat may skip a required assertion
+    When the whole campaign is planned
+    Then every release repeat carries its area's required assertions at SHALL severity
+    And every release repeat refuses an unsupported operation instead of skipping it
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: dropping or downgrading one required assertion fails the audit
+    When release repeat <repeat> has its <assertion> assertion <change>
+    Then that release area fails its own audit
+    And the complete matrix still passes its audit
+
+    Examples:
+      | repeat               | assertion                | change     |
+      | soak.continuous      | soak.no-counter-errors   | dropped    |
+      | soak.continuous      | soak.tu-within-holdover  | downgraded |
+      | audio.integrity      | audio.zero-dut-glitches  | dropped    |
+      | audio.integrity      | audio.planted-arms-found | downgraded |
+      | power.idle           | power.state-restored     | dropped    |
+      | power.journal_commit | power.single-boot        | downgraded |
+      | power.soft_reset     | power.adp-valid-time     | dropped    |
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock
+    When an input's soak counter walk shows <growth>
+    Then the soak counter oracle grades it <verdict>
+
+    Examples:
+      | growth                                  | verdict |
+      | nothing                                 | PASS    |
+      | one SEQ_NUM_MISMATCH                    | FAIL    |
+      | one STREAM_INTERRUPTED                  | FAIL    |
+      | one LATE_TIMESTAMP                      | FAIL    |
+      | one EARLY_TIMESTAMP                     | FAIL    |
+      | one MEDIA_UNLOCKED                      | FAIL    |
+      | one MEDIA_UNLOCKED in a planted event   | PASS    |
+      | two MEDIA_UNLOCKED in one planted event | FAIL    |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each negative control fails its own assertion and only by its defect
+    When the <control> negative control is run at the desk
+    Then the control fails <assertion>
+    And the same oracle passes once the defect is removed
+
+    Examples:
+      | control                            | assertion               |
+      | power.control.first-boot-restart   | power.single-boot       |
+      | power.control.persistence-disabled | power.state-restored    |
+      | audio.control.planted-drop         | audio.zero-dut-glitches |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: the audio grader classifies the planted drop exactly, offline
+    When the planted audio drop is graded on its synthetic capture
+    Then the grader finds one 5-sample drop at the planted sample on every channel
+    And every planted arm is found and attributed apart from the DUT
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader names each discontinuity class
+    When a synthetic counter capture carries <event>
+    Then the audio grader reports <class> on <channels> channels
+
+    Examples:
+      | event                       | class    | channels |
+      | a 3-sample drop             | dropped  | 4        |
+      | a 2-sample repeat           | repeated | 4        |
+      | 6 samples of silence        | silence  | 4        |
+      | a bit flip on one channel   | bit-flip | 1        |
+      | a swap of two channels      | swap     | 2        |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a missed planted arm voids the audio run
+    When a synthetic counter capture logs an arm the source never planted
+    Then the audio grader voids the run as NOT RUN
+    And a logged capture loss is attributed to the capture, not the DUT
 
   @class:release @clause:REQ-VER-06 @negative-control
   Scenario Outline: each repeat detects omissions on both sides
@@ -376,6 +478,18 @@ Feature: The torture campaign's own coverage is auditable at a desk
       | power.journal_commit | peer | CRF sink       |
       | power.journal_commit | peer | AAF direction  |
       | power.journal_commit | peer | CRF direction  |
+      | power.soft_reset     | DUT  | talker index   |
+      | power.soft_reset     | DUT  | CRF sink       |
+      | power.soft_reset     | peer | AAF direction  |
+      | power.soft_reset     | peer | CRF direction  |
+      | audio.integrity      | DUT  | talker index   |
+      | audio.integrity      | DUT  | listener index |
+      | audio.integrity      | DUT  | CRF sink       |
+      | audio.integrity      | DUT  | AAF direction  |
+      | audio.integrity      | peer | talker index   |
+      | audio.integrity      | peer | CRF sink       |
+      | audio.integrity      | peer | AAF direction  |
+      | audio.integrity      | peer | CRF direction  |
 
   @class:release @clause:REQ-VER-06
   Scenario: release timing and totals are parameterized
