@@ -283,8 +283,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/yosys
-          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{
-            runner.os }}
+          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-${{
+            hashFiles('scripts/ci_install_cache.py') }}-ubuntu-24.04-${{ runner.os }}
       - name: Resolve exact package downloads 2
         id: ci_packages_2
         run: |
@@ -371,8 +371,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/yosys
-          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{
-            runner.os }}
+          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-${{
+            hashFiles('scripts/ci_install_cache.py') }}-ubuntu-24.04-${{ runner.os }}
           fail-on-cache-miss: true
         id: ci_step_3
       - name: Install the pinned Yosys and prove the version
