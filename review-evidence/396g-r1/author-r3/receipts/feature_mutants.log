@@ -1,0 +1,10 @@
+PRISTINE rc=0: 162 scenarios passed, 0 failed, 0 skipped
+KILLED: qualified interval runs to the capture's end: 160 scenarios passed, 2 failed, 0 skipped | first: features/torture_campaign_plan.feature:477  the audio grader states its qualified interval and needs 24 hours of it
+KILLED: required duration not enforced: 161 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:477  the audio grader states its qualified interval and needs 24 hours of it
+KILLED: required duration defaults to a fraction of a second: 161 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:477  the audio grader states its qualified interval and needs 24 hours of it
+KILLED: capture-end stretch graded exactly: 159 scenarios passed, 3 failed, 0 skipped | first: features/torture_campaign_plan.feature:491  a slip of whole blocks at a capture's end is unresolved, never exact -- @1.2
+KILLED: open words reported as a corruption: 159 scenarios passed, 3 failed, 0 skipped | first: features/torture_campaign_plan.feature:491  a slip of whole blocks at a capture's end is unresolved, never exact -- @1.2
+KILLED: constant-mask track adopted as a slip: 158 scenarios passed, 4 failed, 0 skipped | first: features/torture_campaign_plan.feature:503  a constant-mask corruption of any length is one bit-flip -- @1.2
+KILLED: held excursion never returns: 158 scenarios passed, 4 failed, 0 skipped | first: features/torture_campaign_plan.feature:503  a constant-mask corruption of any length is one bit-flip -- @1.2
+KILLED: a run fits whole or not at all: 161 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:509  a slip and a one-word corruption in one window are both graded
+KILLED: a loss at the event's own index not counted: 161 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:514  an event at a logged loss's own index counts that loss

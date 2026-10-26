@@ -1,0 +1,32 @@
+inserted silence not told apart | test_audio_grader_classes | rc=1 | AssertionError: 8 != 4 : [{'capture_index': 8205, 'class': 'silence', 'n': 6, 'inserted': False, 'expected': '0x00101D00', 'received': '0x00000000', 'channel': 
+qualified interval runs to the capture's end | test_audio_boundary_block_slips_are_unresolved | rc=1 | AssertionError: 8192 not less than 8191
+qualified interval starts at acquisition | test_audio_qualified_interval_is_stated_and_required | rc=1 | AssertionError: {'start': 0, 'end': 8129, 'frames': 8129, 'seconds'[108 chars]': 0} != {'start': 63, 'end': 8129, 'frames': 8066, 'seconds[110 chars]': 0}
+acquisition index not recorded | test_audio_qualified_interval_is_stated_and_required | rc=1 | AssertionError: Tuples differ: ('FAIL', 63, 8129) != ('FAIL', 73, 8129)
+required duration not enforced | test_audio_qualified_interval_is_stated_and_required | rc=1 | AssertionError: Tuples differ: ('PASS', [], 'zero DUT-attributed events ov[47 chars]und') != ('NOT RUN', [], 'the qualified interval is [31 chars]ion')
+required duration defaults to a fraction of a second | test_audio_qualified_interval_is_stated_and_required | rc=1 | AssertionError: Tuples differ: ('PASS', [], 'zero DUT-attributed events ov[47 chars]und') != ('NOT RUN', [], 'the qualified interval is [31 chars]ion')
+capture losses counted as observed time | test_audio_qualified_interval_is_stated_and_required | rc=1 | AssertionError: 'PASS' != 'NOT RUN'
+arm outside the qualified interval accepted | test_audio_qualified_interval_is_stated_and_required | rc=1 | AssertionError: Tuples differ: ('NOT RUN', 'the qualified interval is shorter than the required duration') != ('NOT RUN', 'void: a planted arm lies outside the 
+capture loss outside the qualified interval accepted | test_audio_qualified_interval_is_stated_and_required | rc=1 | AssertionError: Tuples differ: ('NOT RUN', 'void: a planted arm lies outside the qualified interval') != ('NOT RUN', 'a logged capture loss lies outside the qua
+unacquired channel passes | test_audio_qualified_interval_is_stated_and_required | rc=1 | AssertionError: Tuples differ: ('PASS', [2], None) != ('NOT RUN', [2], None)
+unacquired channel graded to the end | test_audio_qualified_interval_is_stated_and_required | rc=1 | AssertionError: 262144 not less than or equal to 66048
+capture-end stretch graded exactly | test_audio_boundary_block_slips_are_unresolved | rc=1 | AssertionError: 'bit-flip' not found in ('unresolved', 'dropped')
+pre-acquisition stretch graded exactly | test_audio_boundary_block_slips_are_unresolved | rc=1 | AssertionError: 12 != 4 : [{'capture_index': 1, 'class': 'bit-flip', 'n': 1, 'expected': '0x00100300', 'received': '0x00100200', 'mask': '0x00000100', 'channel'
+open words reported as a corruption | test_audio_boundary_block_slips_are_unresolved | rc=1 | AssertionError: 'bit-flip' not found in ('unresolved', 'dropped')
+open stretch bound widened at the end | test_audio_boundary_block_slips_are_unresolved | rc=1 | AssertionError: False is not true : {'capture_index': 8191, 'class': 'unresolved', 'n': 1, 'expected': '0x00100200', 'received': '0x00100300', 'mask': '0x000001
+open stretch bound widened before acquisition | test_audio_boundary_block_slips_are_unresolved | rc=1 | AssertionError: 1 not less than 0
+half-block alternative dropped | test_audio_boundary_block_slips_are_unresolved | rc=1 | AssertionError: Items in the first set but not the second:
+open stretch never closes an excursion | test_audio_boundary_block_slips_are_unresolved | rc=1 | AssertionError: Lists differ: [(2, 8172, 'repeated', 1024, None, None), (2, 8174, '[72 chars]one)] != [(2, 8172, 'bit-flip', 2, '0x00080000', None), (2, 81[37 c
+a run fits whole or not at all | test_audio_slip_and_corruption_share_a_window | rc=1 | AssertionError: Lists differ: [(2, 3000, 'bit-flip', 6, '0x0000FF00', None)] != [(2, 3005, 'bit-flip', 1, '0x00000100', None)]
+departures after a slip not judged again | test_audio_slip_and_corruption_share_a_window | rc=1 | AssertionError: Lists differ: [] != [(2, 3005, 'bit-flip', 1, '0x00080000', None)]
+constant-mask track adopted as a slip | test_audio_constant_mask_at_every_length | rc=1 | AssertionError: Tuples differ: ('FAIL', [(2, 3000, 'repeated', 499717412864, None, None), (2,[40 chars]ne)]) != ('FAIL', [(2, 3000, 'bit-flip', 64, '0x00000100'
+held excursion never returns | test_audio_constant_mask_at_every_length | rc=1 | AssertionError: Tuples differ: ('FAIL', [(2, 3000, 'repeated', 499717412864, None, None), (2,[40 chars]ne)]) != ('FAIL', [(2, 3000, 'bit-flip', 64, '0x00000100'
+held excursion not carried across a region | test_audio_constant_mask_at_every_length | rc=1 | AssertionError: Tuples differ: ('FAIL', [(2, 3000, 'repeated', 499717412864, None, None), (2,[81 chars]ne)]) != ('FAIL', [(2, 3000, 'bit-flip', 2000, '0x0000010
+held excursion kept through a fast block off its mask | test_audio_constant_mask_at_every_length | rc=1 | AssertionError: 'unresolved' unexpectedly found in {'received', 'attribution', 'unresolved', 'n', 'expected', 'channel', 'gptp_s', 'wall_s', 'capture_index', 't
+held excursion kept through a word off its mask | test_audio_constant_mask_at_every_length | rc=1 | AssertionError: 'unresolved' unexpectedly found in {'channel', 'timing', 'anchors', 'expected', 'unresolved', 'capture_index', 'gptp_s', 'acquisition_index', 'w
+excursion open at the end released as exact | test_audio_constant_mask_at_every_length | rc=1 | AssertionError: Items in the first set but not the second:
+excursion cut by the end window released as exact | test_audio_constant_mask_at_every_length | rc=1 | AssertionError: None unexpectedly found in {None, 'the capture ended: a slip of whole blocks or a code-bit corruption'}
+window-bound pieces lose their corruption | test_audio_constant_mask_at_every_length | rc=1 | AssertionError: Items in the first set but not the second:
+anchor gap after the last anchor not reported | test_audio_anchor_gaps_are_reported | rc=1 | AssertionError: Tuples differ: ('PASS', []) != ('PASS', [[0, 8192]])
+anchor gaps measured over stored frames | test_audio_anchor_gaps_are_reported | rc=1 | AssertionError: Tuples differ: ('PASS', []) != ('PASS', [[0, 4000]])
+a loss at the event's own index not counted | test_audio_capture_losses_advance_the_clocks | rc=1 | AssertionError: 7000 != 10000 : {'capture_index': 7000, 'class': 'dropped', 'n': 3000, 'expected': '0x0016B300', 'received': '0x001E2200', 'channel': 0, 'attrib
+31 planted defects
