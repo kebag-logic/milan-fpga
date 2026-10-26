@@ -2110,7 +2110,11 @@ TEST_F(Face, APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt)
 TEST_F(Face, AMissingAcknowledgementRefusesEveryChangeAndNotifiesNothing)
 {
     receive(36);receive(36,{},0,CTLR+1);receive(1,Bytes(16));
-    far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;receive(24,identify,AECP_ENTITY_MISBEHAVING);
+    far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;
+    heads.clear();const uint64_t start=ns;receive(24,identify,AECP_ENTITY_MISBEHAVING);
+    ASSERT_EQ(heads.size(),1u);
+    EXPECT_LE(heads.front()-start+1000100,aecp_service_limit_ns)
+        <<"a commit that times out on every interface is answered within the service bound";
     Bytes format=target(5,0,12);put(format,4,get(desc(5).value+74,8),8);
     Bytes info=target(6,0,84);put(info,4,0x20000000,4);put(info,24,4321,4);
     Bytes name=target(0,0,72);put(name,4,1,2);std::fill(name.begin()+8,name.end(),0x5a);
