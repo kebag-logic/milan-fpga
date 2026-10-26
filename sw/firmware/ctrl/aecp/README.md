@@ -96,6 +96,22 @@ applies through `acmp_set_started`, which writes the sink's started level to
 the mailbox's [publication block](../../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)
 before it returns; the response leaves on a later pass (#665).
 
+[`aecp_face.c`](aecp_face.c) answers the physical observation and apply ports
+on contract 2.3's [face block](../../../../docs/design/MAILBOX_SPLIT.md#the-processors-other-faces)
+(#665). `changed` writes each setting the core changed into the block of every
+interface it concerns, a stream's on the interface its descriptor names, then
+commits it and waits a bounded time for the datapath's acknowledgement, all
+before the port returns and so before the response that promises it. A lock's
+expiry is published the same way, through `AECP_CHANGE_LOCK`, before its
+notification. `counters`, `stream`, `avb` and `format` read through the
+windows, each read bounded; one with no answer fails its port. `random` and
+`path` stay the platform's. `ctrl_app_aecp_attach_face()` hands the face the
+saved-state store's status before AECP opens and on every change, opens it
+with every setting and `F_CTRL.READY` before AECP opens, and turns the face
+block's events into the core's notifications. A commit the datapath has not
+taken leaves its interface owed and the loop awake until the next poll
+publishes it whole.
+
 [`aecp_state.c`](aecp_state.c), [`aecp_maps.c`](aecp_maps.c) and
 [`aecp_nvm.c`](aecp_nvm.c) implement
 [#637](https://github.com/kebag-logic/milan-fpga/issues/637). Saved scalars use
@@ -137,8 +153,16 @@ each source defect to fail its named assertion in a completed run. It plants int
 a copy of this tree and of the saved-state store beside it, so a store defect that
 reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full
-[coverage gate](../../gtest/README.md) measures the eight new production files
-at 100% lines and branches without a new exclusion.
+[coverage gate](../../gtest/README.md) measures the eight new production files,
+and since contract 2.3 `aecp_face.c`, at 100% lines and branches without a new
+exclusion. The face's 18 defects each fail a named `Face`, `FaceLatency` or
+`AppFace` assertion: a setting written after its response or in the wrong
+field; a sink's format skipped; a commit not waited for; a lock change or
+expiry unpublished; an output that never streams; `READY` never published or
+published before open; a stream setting on every interface; a short
+descriptor trusted; a window read past or slower than its bound; the store's
+status after open, or `CLOSED` not a failure; a full sink table ignored; an
+owed commit that lets the loop sleep; a counter-change event missed.
 
 [`aecp_wire.py`](../test/aecp_wire.py) builds unchanged processor RTL in scratch,
 feeds the same commands to that model and the portable core, and independently
@@ -211,8 +235,9 @@ call-chain stack bounds and physical timing remain integration obligations.
 
 [`ctrl_srp_image.py --with-aecp`](../test/ctrl_srp_image.py) links the complete
 F0-F5/F1 composition at shipping/largest shapes and one/two interfaces. The
-fixture retains saved-state restore and application service but uses explicit
-unavailable physical observation callbacks. It is a size/ABI fixture, not a
-board image. The revised F5 budget is 224 KB
+fixture retains saved-state restore and application service, and since
+contract 2.3 answers the physical observation and apply ports through the
+face (`aecp_face.c`); GET_AS_PATH stays an explicit unavailable observation.
+It is a size/ABI fixture, not a board image. The revised F5 budget is 224 KB
 ([ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081705916)).
 The later default flip still requires routed memory fit and the owner's reserve.

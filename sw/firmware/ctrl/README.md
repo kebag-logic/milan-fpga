@@ -44,7 +44,7 @@ is an integration obligation, not a target-time result established here.
 | [`maap/`](maap) | the Annex B core's per-interface mailbox adapter, allocation CSR output and H-MAAP evidence |
 | [`srp/`](srp) | per-interface MSRP/MVRP adapter, generated static shape, admission and the binding port |
 | [`acmp/`](acmp) | the ACMP mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
-| [`aecp/`](aecp) | the AECP core, image and saved-state adapters, mailbox completion tracking and opt-in application bridge |
+| [`aecp/`](aecp) | the AECP core, image and saved-state adapters, mailbox completion tracking, the platform face on contract 2.3's face block (`aecp_face.c`) and opt-in application bridge |
 | [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
 | [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
@@ -593,7 +593,14 @@ its README lists them. Every test of those
 arms is named by at least one defect, which `unnamed_tests` proves before any is planted, as lane F1's
 store suite does; a test of the stack's may instead be named by the stack's own defect table
 (its `tests/mutations.json`, which its CI plants). Some FC filter defects in the host model also name
-lane F3's own-unicast and FILTER_MISMATCH checks. With
+lane F3's own-unicast and FILTER_MISMATCH checks. Contract 2.3's face block
+(#665) adds six defects in the host model, the twins of the RTL's face rules
+in [`mutants.py`](../../../tb/verilator/mbx/mutants.py), each caught by
+`model`'s `Face` group by its own words: a window answer taken under another
+tag, a timed-out request left open, a commit that holds nothing, a source's
+format high word read from its low register, an AVB_INFO change dropped and a
+counter-change holdoff that never rolls. The AECP owner's face has its own 18
+in `aecp_mutants.py` ([AECP](aecp/README.md#verification-and-limits)). With
 `--lwsrp` it also requires the pin to refuse a
 scratch clone with one compiled source edited, and the same clone at
 another revision. `--slice K/N` plants slice K of N of the table, so the

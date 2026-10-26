@@ -96,6 +96,16 @@ Each owner writes a value before the response that promises it.
 The split placement's datapath reads the block through a build-time selection, never a runtime multiplexer.
 The [publication contract](design/MAILBOX_SPLIT.md#the-publication-block) defines its layout and writers.
 
+The split also removes the processor wrapper's other faces.
+A port census names each port of the wrapper cell under one class, in every shape.
+The classes are class-D, firmware setting, request window, event, mailbox path and gone.
+A gone output must reach only its ruled terminals, never the wire.
+Contract 2.3 adds a face block per interface for the settings, windows and events.
+Each setting holds until the datapath acknowledges its commit, within a bound.
+Each window request holds until the answer carrying its tag, or a bounded timeout.
+The AECP owner commits a setting before the response that promises it.
+The [face contract](design/MAILBOX_SPLIT.md#the-processors-other-faces) defines its classes, layout and writer.
+
 Each host supplies a bus adapter to the same window.
 F0 implements Wishbone and AXI4-Lite adapters.
 A hard-core AXI4 host requires its own conforming adapter.

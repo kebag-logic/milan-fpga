@@ -10,6 +10,9 @@ tests and the co-simulation build; no image links that firmware yet.
 Lane F-INT adds the [publication block](#the-publication-block) (contract
 2.2), where the firmware owner writes the class-D state the split placement's
 datapath reads; nothing reads it until the placement switch lands.
+Lane S1 adds [the processor's other faces](#the-processors-other-faces)
+(contract 2.3): every port of the processor wrapper in one class, and the face
+block, windows and events that carry what the split datapath still reads.
 The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
 All-fabric stays the shipping default until F2 to F5 acceptance.
 That acceptance covers all streams, counters and the audio soak.
@@ -31,6 +34,7 @@ define the interface. The numbers live in one place, the generated
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
 - **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four former differences from the processor, each now a check that fails if the old answer returns.
 - **[The publication block](#the-publication-block)** -- The class-D state the firmware owner publishes for the split placement's datapath: the layout, the stream_id behind SID_VALID, each writer and the response it precedes, the two semantic choices, and the service cost.
+- **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's exclusion, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the placement switch compares.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter and the bound-talker term added, the term in distributed RAM against its target, and the recipe.
@@ -90,7 +94,7 @@ subtype.
 `--check` regenerates every output in memory and fails on any byte of drift.
 `--crosscheck` reads the three constant carriers back by name and fails on a
 field mismatch between them, whatever produced it. `--selftest` plants a
-mismatch into each output (16 arms) and a defect into the YAML (15 arms), and
+mismatch into each output (32 arms) and a defect into the YAML (43 arms), and
 requires each to be caught, after a clean positive control. It also builds
 the two-interface variant the suite uses, which must cross-check clean, and
 requires a four-interface one, whose blocks would overlap the global
@@ -990,8 +994,9 @@ on the wire and map to the block, 14 are CSR status, and 15 are the answer
 face: the same reads and kinds the text census counted before.
 
 [`census_rules.py`](../../sw/mailbox/census_rules.py) names every rule above,
-the shapes' and the tools' included, 31 in all, and the census enforces each
-only where it tests that name.
+the shapes' and the tools' included, 31 in all, and the port census's 12
+([below](#every-port-one-class)), 43 in all; the census enforces each only
+where it tests that name.
 
 The census's self-test
 ([`census_selftest.py`](../../sw/mailbox/census_selftest.py)) elaborates a
@@ -1034,13 +1039,13 @@ and never more than its CPUs (#744), with the same Yosys cache and sv2v
 release as `yosys-elaboration`, and by `make census` in the mailbox bench.
 
 The idle slope's one read is status, for LWSRP_SLOPE: no shaper consumes it,
-and the block carries it as ruled. The census covers the class-D face and the
-started level. The wrapper's other faces the datapath reads (its AECP settings, and
-its counter and audio-map requests) belong to AECP. F5's owner now holds the
-settings and the audio maps, and reaches the platform through its ports
-(`aecp.h`): `changed` to apply a setting or a map, `format` for the
-SET_STREAM_FORMAT verdict, `counters` to read the counters. The placement
-switch must connect each face to the split build through them.
+and the block carries it as ruled. This census covers the class-D face and the
+started level. The wrapper's other faces the datapath reads (its AECP
+settings, its counter, stream-information and audio-map requests, and their
+change strobes) are decided port by port in
+[The processor's other faces](#the-processors-other-faces): contract 2.3
+carries them, and F5's owner reaches them through
+[`aecp_face.c`](../../sw/firmware/ctrl/aecp/aecp_face.c).
 
 Interface i's block starts at `0x800 + 0x200 * i`: the five interface
 registers, then sink k's entry at `+0x100 + 0x10 * k`. Every register resets
@@ -1091,6 +1096,166 @@ it destroys the participants, then `SR_DOMAIN`, `IDLE_SLOPE` and
 `SR_DOMAIN`, `IDLE_SLOPE` and `TALKER_DECL`, and each licence change
 `LICENCE` (`SRP_MBX_PUB_POLL_MAX`, 40 per interface). Each figure is measured
 on the host model.
+
+## The processor's other faces
+
+The split placement removes the whole `KL_pp_shadow` (the ruling on
+[#665 (6088423771)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6088423771),
+decision 1), so every face the datapath reads goes with it, not only the
+class-D outputs the publication block carries. The assignment on
+[#665 (6409739310)](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409739310),
+with the ruling
+[6410169666](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6410169666),
+decides each of them port by port and adds what the mailbox must carry as
+contract 2.3, an additive minor: no register, field or ring of 2.2 moves.
+
+### Every port, one class
+
+[`census_ports.py`](../../sw/mailbox/census_ports.py) names each port of the
+`pp_shadow` cell, inputs and outputs, under exactly one class, and the
+publication census judges the table on the netlist of each of the six
+shapes. At this head the cell has 217 ports in every shape:
+
+| Class | Ports | What it means | Its carrier, which must exist |
+|---|---:|---|---|
+| C | 25 | class-D, already in contract 2.2's [publication block](#the-publication-block) | exactly the class-D census's population |
+| F | 28 | a setting or status level the firmware writes | a `REGISTER.FIELD` of the face block |
+| R | 34 | a request and answer window that keeps the datapath's answer logic unchanged | the window's `REGISTER.FIELD` |
+| E | 6 | an event record | its event type, or `EVENT.Wn.FIELD` |
+| M | 14 | a frame or event path the placement switch connects | the `KL_mbx` port it reaches |
+| G | 110 | gone with the wrapper, tied to its reset value | its ruled reason |
+
+An F, R or E carrier must be as wide as its port, per source or per sink
+where the row says so, for no more streams than the contract carries. A G
+output must reach nothing that stays. Its cone is followed through every
+cell and named net, as the class-D census follows a read, and only three
+terminals end it, each named by cell and port:
+
+- the processor-status inputs of the CSR cell `csr` that `G_CSR` lists (the
+  host window's and saved-state window's read-back, the frame counters),
+  which the split reads back as defined values;
+- the twenty memory-master outputs `G_MEMORY` lists one by one, the SoC's
+  main-memory bridge;
+- an input of `pp_maap_shim`, accepted only while each of that cell's own
+  outputs reaches inputs of `pp_shadow` alone.
+
+Every other end is the wire, and a G output that reaches it fails. At this
+head, in every shape, the G cones end at 7 distinct CSR inputs, all 20 memory
+outputs and 4 shim inputs, and never on the wire.
+
+The ruling's item 1 settles the #637 map record face. `mrec_*`,
+`amap_unflushed_i` and `amap_alarm_i` are G: in the split the firmware's AECP
+owner applies the restore (#637, comment 6009661573), so the datapath's map
+writer and restore, block `amr_fsm`, goes with the wrapper. A G cone
+therefore stops at the 25 `amr_*` nets `REMOVED_WITH_WRAPPER` names and at
+the locals sv2v makes inside that block. Each named net must be reached by a
+G cone of the shape, and each must be a net of the map writer. **Acceptance
+item of the placement switch:** its split elaboration drops the exclusion,
+and the census passes without it.
+
+The census's 12 new rules (`port-*`, `g-*` in
+[`census_rules.py`](../../sw/mailbox/census_rules.py)) each carry plants in
+[`census_plants.py`](../../sw/mailbox/census_plants.py), 18 in all. Eight
+edit the table: a port no class names, a port two classes name, a row for a
+port the wrapper lacks, a class-C row the class-D census does not hold, an F
+and an M carrier that does not exist, an F carrier narrower than its port and
+a per-sink carrier counted once. Three edit the exclusion: emptied, so the
+map writer's cones reach the wire, and naming a net no G cone reaches or a
+net outside the map writer. Seven edit the elaborated netlist itself: a G
+output read by another module's input; the nets of a CSR terminal, a
+memory-master terminal and a map-record output each also read past it; a
+MAAP shim output read past `pp_shadow`; a G output on a CSR input outside
+`G_CSR`; and one driven onto a datapath output outside `G_MEMORY`. The ruling
+asks for the new arms on existing netlists: each rides
+on an arm that already elaborates the tracked sources at the recipe's shape,
+so they add no elaboration, and the rule-removal check judges each of them
+again with its rule removed.
+
+### The face block
+
+Interface i's face block starts at `0x6000 + 0x400 * i`
+([reference](../reference/MAILBOX_CONTRACT.md#interface-face-registers)):
+the settings, `F_COMMIT` and `F_STATUS`, then four windows, then source s's
+entry at `+0x100 + 0x10 * s` and sink k's at `+0x200 + 0x10 * k`. Every
+register resets to 0. A hole, an entry past the build's and an interface the
+build lacks read 0 and take no write, and a partial strobe is refused and
+counted in `BUS_ERR`, as in the publication block.
+
+Every value leaves `KL_mbx` with its qualifier, so the placement switch can
+carry each across the datapath's clock with the approved handshake
+primitives, never a raw multi-bit level:
+
+- **F, the settings.** The firmware writes the `F_*` registers, then
+  `F_COMMIT.GO`. `fw_send_o` rises and every setting holds on its `fw_*_o`
+  port until the datapath's acknowledgement `fw_ack_p_i`, which the contract
+  bounds at 64 cycles. While `F_STATUS.BUSY` is set, a write that would move
+  a held setting, and a second commit, is refused and counted in `BUS_ERR`.
+  One commit per interface carries every setting of that interface (the
+  ruling accepts this interpretation).
+- **R, the windows.** `CTR` (GET_COUNTERS), `AMAP` (GET_AUDIO_MAP), `EDIT`
+  (ADD_ and REMOVE_AUDIO_MAPPINGS) and `GSI` (GET_STREAM_INFO, GET_AVB_INFO,
+  GET_AS_PATH and SET_STREAM_FORMAT's verdict). A window's `CMD.GO` opens
+  the request: `<w>_req_o` with a new 4-bit tag on `<w>_tag_o`, the request
+  registers held on their ports. The answer is a pulse, its tag and its data;
+  under its tag it closes the request as `DONE`, under another tag or with
+  no request open it is discarded. Unanswered after the window's
+  `wait_cycles` (64 each), the request closes as `TIMEOUT`. A request write
+  or a second `GO` while it is open is refused and counted.
+- **E, the events.** `COUNTERS_CHANGED` (type 5) carries the descriptor
+  whose counters moved. Each interface keeps a pending bit per descriptor of
+  the four families `counters_changed` names (16 `STREAM_INPUT`, 16
+  `STREAM_OUTPUT`, the `AVB_INTERFACE`, the `CLOCK_DOMAIN`) and one `ALL` bit
+  for any other. A descriptor posts once per 1,000 ms holdoff epoch: a change
+  inside the epoch it already posted in waits for the next, coalesced. This
+  is the fabric half of Milan v1.2 Table 5.22's rate limit; the core keeps its
+  own. `AVB_INFO_CHANGED` (6), `AS_PATH_CHANGED` (7) and `AMAP_LIVE_WRITE`
+  (8) each coalesce into one record with a saturating `COUNT`, as the tick
+  does.
+
+`KL_mbx` names every face port and the `--ctrl-mailbox` SoC leaves them
+unread, its inputs held idle (`ctrl_mailbox_face_ports` in
+[`milan_soc.py`](../../sw/litex/milan_soc.py)). The placement switch connects
+them; the all-fabric build carries no mailbox and is unchanged.
+
+### The firmware's writer
+
+[`aecp_face.c`](../../sw/firmware/ctrl/aecp/aecp_face.c) is the AECP owner's
+platform face on contract 2.3: the `changed`, `format`, `counters`, `stream`
+and `avb` ports of `aecp.h`. `random` and `path` stay the platform's.
+
+| Value | Written | Before |
+|---|---|---|
+| `F_CTRL.READY`, with every setting and every stream entry, on every interface | `aecp_face_open`, once the saved state is applied | AECP opens (Milan v1.2 5.6.1) |
+| `F_ENTITY`, `F_CLOCK`, `F_AECP.LOCK_HELD` | the core's `changed` port, committed and acknowledged before it returns | the response that promises it (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.2) |
+| `F_AECP.LOCK_HELD` at a lock's expiry | the core's new `AECP_CHANGE_LOCK` | the unsolicited notification of the release |
+| a stream's format, and an output's presentation time offset, with their valid bits | its descriptor's `changed`, on the interface its `avb_interface_index` names | the SET_STREAM_FORMAT or SET_STREAM_INFO response |
+| every setting and every entry of the new configuration | `changed` of the configuration | the SET_CONFIGURATION response |
+| `F_RESTORE`, `F_NVM`, `F_AECP.DYN_DIRTY` | `ctrl_app_aecp.c` from the saved-state store's status | AECP opens, and again on every change (the ruling accepts this interpretation) |
+
+A commit the datapath does not acknowledge within its bound is counted late
+and leaves its interface owed: the face writes nothing more there, and the
+application's poll publishes that interface whole again once `BUSY` clears,
+keeping the loop awake meanwhile. Every window read is bounded too
+(`mbx_win_read`): a request that finds no answer within the window's wait
+fails its port, and the core answers as for an unavailable observation.
+GET_COUNTERS reads 33 quadlets through `CTR`, GET_STREAM_INFO six words and
+GET_AVB_INFO three through `GSI`, and SET_STREAM_FORMAT one verdict, whose
+low byte must be exactly 3, as the processor's argument check reads it.
+
+These choices are the firmware's, and the placement switch's comparison sees
+them:
+
+- `F_RESTORE.RS_CAUSE` and `F_RESTORE.CAUSE` are written 0: the store's
+  terminal codes are not the processor's cause codes.
+- `F_NVM.BACKED` is set once the store's boot walk has ended,
+  `F_NVM.IMG_VALID` while it holds an authoritative image, and `VERDICT` is
+  its last verdict.
+- A STREAM_OUTPUT streams while the SRP owner holds its licence
+  (`LICENCE.ACTIVE`; Milan v1.2 5.3.7.3).
+- `AMAP_LIVE_WRITE` is counted, not acted on: the core owns the maps.
+- The core holds the audio maps and does not apply a map change through the
+  `EDIT` window; a map change sets `DYN_DIRTY` only. Applying the maps to the
+  datapath is the placement switch's (see [Open items](#open-items)).
 
 ## Verification
 
@@ -1352,3 +1517,12 @@ report_timing_summary -delay_type max
   ([Measured area](#measured-area)), accepted as measured on #665 (6033962557);
   the two measured contract changes were not taken.
 - **MMRP** is not carried: Milan end stations need MSRP and MVRP only.
+- **The face block's datapath side** (contract 2.3) is unread: the placement
+  switch connects each `fw_*_o`, window and event port to the split
+  datapath, with its clock crossing, and its split elaboration must pass the
+  port census without the map writer's exclusion
+  ([Every port, one class](#every-port-one-class)).
+- **The audio maps on the datapath.** The AECP owner holds the maps and does
+  not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying
+  the maps, and the live map writes `AMAP_LIVE_WRITE` counts, is the
+  placement switch's.
