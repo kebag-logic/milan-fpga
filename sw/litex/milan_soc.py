@@ -2822,9 +2822,10 @@ CTRL_FETCH_L1 = (64, 1)
 def ctrl_cpu_args(fetch_l1: tuple[int, int] | None) -> str:
     """The generator options the split placement adds to its CPU; None adds nothing.
 
-    Only the fetch side is cached. An LSU L1 would leave patch 0005's
-    non-coherent fabric for the coherent one the DMA port then needs, and the
-    data side's traffic is mostly the uncached mailbox and CSR windows.
+    Only the fetch side is cached. An LSU L1 with the DMA port makes the
+    generator build its coherent interconnect and hub instead of patch 0005's
+    non-coherent fabric; the data-side cost measured with the instruction
+    cache is mostly byte-loop stores, which firmware removes first (#665).
     """
     if fetch_l1 is None:
         return ""
