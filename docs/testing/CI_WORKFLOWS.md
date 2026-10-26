@@ -397,9 +397,13 @@ stage of `generate()`.
   step dropped, and a key left unbound or bound to another recipe in the
   restore, plus a key binding that drops a self-test.
 
-The shared install and runtime transforms are not judged by either: they run
-on every job of the four files, and the generated-graph comparison is their
-only hold, as item 4 of the sequence pin states.
+Neither judges the shared install and runtime transforms themselves, which
+run on every job of the four files: `fast_tool_emission` replays them rather
+than holding them. For what they emit, the generated-graph comparison is the
+only whole-list hold, as item 4 of the sequence pin states.
+`scripts/ci_install_cache_selftest.py` also requires the install transform to
+keep every derived step, unchanged unless it is an `Install ` or `Build `
+step.
 
 The mailbox publication census runs in a job of its own, `publication-census`
 (`sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"`,
@@ -874,8 +878,8 @@ the instrumented job:
    the derived lists against the template. `fast_tool_emission` holds the
    emitted lists, after every stage, against the shared install and runtime
    transforms' output on the derivation, with only the two tool key strings
-   different. What those shared transforms add to or rewrite in any job of
-   the four files is held by the comparison alone.
+   different. For what those shared transforms emit in any job of the four
+   files, the comparison is the only whole-list hold.
    In `rtl.yml` they are `yosys-tool`, the case-union jobs, and the shard
    workers and `verilator-suites` aggregate whose steps the generator
    rewrites. There the comparison is the only whole-list hold, and a change
