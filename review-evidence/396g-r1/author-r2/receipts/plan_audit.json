@@ -1,0 +1,187 @@
+{
+ "command": "python3 -B tb/tools/torture_campaign.py --plan --areas soak,audio,power --json",
+ "sha256": "55065f886de63414bd4f35281c7ec1f0efd9a95b4625990e2da6e1fca6e5e300",
+ "bytes": 103148,
+ "steps": {
+  "soak.continuous": [
+   "release.complete-evidence",
+   "soak.continuous-duration",
+   "soak.bound-both-directions",
+   "soak.counter-walk",
+   "soak.no-counter-errors",
+   "soak.mr-causes-and-hold",
+   "soak.gptp-continuity",
+   "soak.tu-within-holdover",
+   "soak.timestamp-margin",
+   "soak.uptime-monotonic"
+  ],
+  "audio.identity.loop-ch12.t0": [
+   "acmp.status",
+   "counters.stream_input.frames-rx-advances",
+   "audio.identity.uncrossed",
+   "audio.identity.channel-preserved"
+  ],
+  "audio.identity.loop-ch12.t1": [
+   "acmp.status",
+   "counters.stream_input.frames-rx-advances",
+   "audio.identity.uncrossed",
+   "audio.identity.channel-preserved"
+  ],
+  "audio.identity.loop-ch12.t2": [
+   "acmp.status",
+   "counters.stream_input.frames-rx-advances",
+   "audio.identity.uncrossed",
+   "audio.identity.channel-preserved"
+  ],
+  "audio.identity.loop-ch12.t3": [
+   "acmp.status",
+   "counters.stream_input.frames-rx-advances",
+   "audio.identity.uncrossed",
+   "audio.identity.channel-preserved"
+  ],
+  "audio.identity.walking-tone-all-channels.t0": [
+   "audio.identity.uncrossed",
+   "audio.identity.no-duplicate-neighbour",
+   "audio.identity.no-silent-channel"
+  ],
+  "audio.identity.walking-tone-all-channels.t1": [
+   "audio.identity.uncrossed",
+   "audio.identity.no-duplicate-neighbour",
+   "audio.identity.no-silent-channel"
+  ],
+  "audio.identity.walking-tone-all-channels.t2": [
+   "audio.identity.uncrossed",
+   "audio.identity.no-duplicate-neighbour",
+   "audio.identity.no-silent-channel"
+  ],
+  "audio.identity.walking-tone-all-channels.t3": [
+   "audio.identity.uncrossed",
+   "audio.identity.no-duplicate-neighbour",
+   "audio.identity.no-silent-channel"
+  ],
+  "audio.thdn": [
+   "audio.thdn.worst-channel",
+   "audio.thdn.coherent-not-windowed"
+  ],
+  "audio.integrity": [
+   "release.complete-evidence",
+   "audio.inside-soak-window",
+   "audio.counter-every-digital-path",
+   "audio.counter-classified",
+   "audio.planted-arms-found",
+   "audio.capture-losses-apart",
+   "audio.event-record",
+   "audio.analog-sine-pair",
+   "audio.zero-dut-glitches"
+  ],
+  "audio.control.planted-drop": [
+   "release.control-fails-as-expected",
+   "audio.zero-dut-glitches",
+   "audio.counter-classified"
+  ],
+  "power.idle": [
+   "release.complete-evidence",
+   "power.cycle-count-and-phase",
+   "power.state-restored",
+   "power.adp-valid-time",
+   "power.automatic-restore-bound",
+   "power.rebind-bound",
+   "power.single-boot",
+   "power.counter-walk"
+  ],
+  "power.journal_commit": [
+   "release.complete-evidence",
+   "power.cycle-count-and-phase",
+   "power.state-restored",
+   "power.adp-valid-time",
+   "power.automatic-restore-bound",
+   "power.rebind-bound",
+   "power.single-boot",
+   "power.counter-walk"
+  ],
+  "power.soft_reset": [
+   "release.complete-evidence",
+   "power.cycle-count-and-phase",
+   "power.state-restored",
+   "power.adp-valid-time",
+   "power.automatic-restore-bound",
+   "power.rebind-bound",
+   "power.single-boot",
+   "power.counter-walk"
+  ],
+  "power.control.first-boot-restart": [
+   "release.control-fails-as-expected",
+   "power.single-boot"
+  ],
+  "power.control.persistence-disabled": [
+   "release.control-fails-as-expected",
+   "power.state-restored"
+  ]
+ },
+ "audio.integrity": {
+  "duration_s": 86400,
+  "context_s": 5,
+  "window": "soak.continuous",
+  "counter_layout": {
+   "container": "S32; 24-bit sample in bits 31:8; bits 7:0 zero",
+   "channel_field": "sample bits 15:12 = channel index + 1",
+   "position_field": "sample bits 11:1 = absolute sample position modulo 2048",
+   "code_field": "sample bit 0 = bit (n mod 32) of block (n div 2048)'s code, the block number times 0x9E3779B1 modulo 2^32",
+   "period_frames": 8796093022208,
+   "period_rate_basis": "Milan v1.2 6.2 Table 6.1: 48, 96 and 192 kHz; 2^43 samples is about 530 days at 192 kHz"
+  },
+  "counter_limits": [
+   "every slip is sized exactly from the decoded position",
+   "a slip of whole 2048-sample blocks is found within 63 samples and carries located_within, the samples it may have happened at",
+   "inside a cluster of events less than 64 samples apart, the slips between them take the smallest sizes the positions allow; the cluster's total is exact",
+   "a word equal to a neighbouring received word is a repeat",
+   "an excursion of two or more words with one constant XOR mask is one corruption, even where slips would produce the same words",
+   "a slip in the last 63 samples of a capture is unresolved"
+  ],
+  "planted_arms": [
+   {
+    "class": "dropped",
+    "n": 3
+   },
+   {
+    "class": "repeated",
+    "n": 2
+   },
+   {
+    "class": "bit-flip",
+    "mask": 256
+   }
+  ],
+  "planted_placement": "a drop, a repeat and a flip in the first tenth of the capture and again in its last tenth, logged with capture index, channel and size or mask",
+  "capture_losses": "logged by the capture tool; attributed to the capture and reported apart; a loss advances the acquisition index and both clocks",
+  "capture_timing": {
+   "anchors": "capture index, wall s and gPTP s recorded by the capture tool at most audio_context_s apart and at the capture's end",
+   "gptp_steps": "the soak's recorded gPTP discontinuities on the wall clock",
+   "rule": "interpolate between the anchors around an event; never extrapolate; gPTP never across a recorded discontinuity; an unsupported time is null with its reason"
+  },
+  "event_record": [
+   "wall_s",
+   "gptp_s",
+   "capture_index",
+   "acquisition_index",
+   "expected",
+   "received",
+   "class",
+   "located_within",
+   "timing"
+  ]
+ },
+ "soak.continuous": {
+  "duration_s": 86400,
+  "interval_s": 60,
+  "planted_event_log": "every deliberately planted disturbance with its target, kind and window_s; an empty list when none was planted",
+  "planted_event_reads": "read the target's counters at its window's start and end; only an increment between two reads inside the window is excused"
+ },
+ "power.journal_commit": {
+  "cycles": 50,
+  "cut_requires": "journal_commit_window",
+  "cut_evidence": "ReleaseCommitCut: the pending snapshot, the commit window [start, end) and the cut instant on the T0 clock; a cut outside the window hit no journal commit",
+  "pending_values": "set every pending item away from its default",
+  "snapshot_policy": "complete old or new committed snapshot"
+ }
+}

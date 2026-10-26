@@ -1,0 +1,37 @@
+planted window need only meet the read interval | test_release_soak_media_unlocked_planted | AssertionError: 'PASS' != 'FAIL'
+planted window excludes its start read | test_release_soak_media_unlocked_planted | AssertionError: 'FAIL' != 'PASS'
+planted window excludes its end read | test_release_soak_media_unlocked_planted | AssertionError: 'FAIL' != 'PASS'
+audio control drop removed | test_release_controls_fail_as_planted | AssertionError: 'PASS' != 'FAIL'
+lone corrupted word kept as a slip pair | test_audio_tag_integrity_decides_first | AssertionError: Lists differ: [(2, [462 chars]00, 'dropped', 2, None, None), (2, 2201, 'repe[1237 chars]one)] != [(2, [462 chars]00, 'bit-flip', 1, '0x00000400'
+slip size not folded around zero | test_audio_grader_classes | AssertionError: 'NOT RUN' != 'FAIL'
+inserted silence not told apart | test_audio_grader_classes | AssertionError: 8 != 4 : [{'capture_index': 8205, 'class': 'silence', 'n': 6, 'inserted': False, 'expected': '0x00101D00', 'received': '0x00000000', 'channel': 
+swap read as corruption | test_audio_grader_classes | AssertionError: 'bit-flip' != 'swap'
+arm position ignored | test_audio_grader_attribution | AssertionError: 'PASS' != 'NOT RUN'
+arms need not bracket the run | test_audio_grader_attribution | AssertionError: 'FAIL' != 'NOT RUN'
+arm edges widened to the halves | test_audio_arms_run_at_both_edges | AssertionError: 'PASS' != 'NOT RUN'
+fast path compares the capture with itself | test_audio_grader_classes | AssertionError: 'NOT RUN' != 'FAIL'
+block code bit dropped from the word | test_audio_counter_word_layout | AssertionError: 1048576 != 1048832
+counter repeats every 4096 samples | test_audio_counter_word_layout | AssertionError: 3152384 != 3152640
+decode ignores the block code | test_audio_counter_word_layout | AssertionError: None != 2047
+expected words lose the block code | test_audio_counter_word_layout | AssertionError: b'\x00\n\x10\x00\x00\n \x00' != b'\x00\x0b\x10\x00\x00\x0b \x00'
+planted flip mask leaves the code bit | test_audio_counter_word_layout | AssertionError: 512 != 256
+block slips not located | test_audio_block_slips_are_sized_exactly | AssertionError: False is not true : {'capture_index': 8206, 'class': 'dropped', 'n': 2048, 'expected': '0x00101F00', 'received': '0x00101E00', 'channel': 0, 'at
+foreign channel number read as a swap | test_audio_tag_integrity_decides_first | AssertionError: Lists differ: [(2, [922 chars]00, 'swap', 1, None, 1), (2, 3520, 'swap', 1, [464 chars]one)] != [(2, [922 chars]00, 'bit-flip', 1, '0x00100000',
+swap run spans a partner change | test_audio_tag_integrity_decides_first | AssertionError: Lists differ: [(0, 3000, 'swap', 6, None, 2), (2, 3000, 'swap', 3, None, 0[28 chars], 0)] != [(0, 3000, 'swap', 3, None, 2), (0, 3003, 'swap', 3
+constant-mask excursion kept as slips | test_audio_compound_and_edge_events | AssertionError: Lists differ: [(0, 3000, 'dropped', 4, None, None), (0, 3002, 'repe[242 chars]one)] != [(0, 3000, 'bit-flip', 2, '0x00000900', None), (1, 30[126
+hold read as corruption | test_audio_compound_and_edge_events | AssertionError: Lists differ: [(0, 3000, 'bit-flip', 1), (1, 3000, 'bit-flip', 1), [46 chars], 1)] != [(0, 3000, 'repeated', 1), (0, 3001, 'dropped', 1), ([146 
+only the previous word counts as a neighbour | test_audio_compound_and_edge_events | AssertionError: Lists differ: [(0, 3000, 'bit-flip', 1), (1, 3000, 'bit-flip', 1), [46 chars], 1)] != [(0, 3000, 'dropped', 1), (0, 3001, 'repeated', 1), ([146 
+identity changes not recorded | test_audio_static_swap_fails_with_every_arm_found | AssertionError: Tuples differ: ('PASS', []) != ('FAIL', [])
+arms looked for on the logged channel only | test_audio_static_swap_fails_with_every_arm_found | AssertionError: Tuples differ: ('NOT RUN', [{'class': 'bit-flip', 'index':[94 chars] 3}]) != ('FAIL', [])
+pending defaults accepted | test_release_commit_cut_evidence | AssertionError: Tuples differ: ('NOT RUN', None) != ('NOT RUN', ['configuration', 'sampling_rate', 'strea[120 chars]ng'])
+cut outside its commit accepted | test_release_commit_cut_evidence | AssertionError: Tuples differ: ('PASS', None) != ('NOT RUN', 'the cut hit no journal commit')
+commit window end made inclusive | test_release_commit_cut_evidence | AssertionError: Tuples differ: ('PASS', None) != ('NOT RUN', 'the cut hit no journal commit')
+missing cut evidence accepted | test_release_commit_cut_evidence | AssertionError: 'PASS' != 'NOT RUN'
+soft reset graded as a commit cut | test_release_commit_cut_evidence | AssertionError: 'NOT RUN' != 'FAIL'
+capture losses stop the clocks | test_audio_capture_losses_advance_the_clocks | AssertionError: Tuples differ: (8000, 8000) != (8000, 417600)
+gPTP interpolated across a recorded discontinuity | test_audio_capture_losses_advance_the_clocks | AssertionError: Tuples differ: (208.7, 'anchored') != (None, 'unsupported gPTP: a recorded discontinuity lies between the anchors')
+times extrapolated past the last anchor | test_audio_capture_losses_advance_the_clocks | AssertionError: Tuples differ: (100.16666666666667, None) != (None, None)
+anchor past the capture accepted | test_audio_capture_losses_advance_the_clocks | AssertionError: 'PASS' != 'NOT RUN'
+anchors may run backwards | test_audio_capture_losses_advance_the_clocks | AssertionError: 'PASS' != 'NOT RUN'
+capture loss needs only one channel | test_audio_capture_loss_needs_every_channel | AssertionError: Tuples differ: ('PASS', 'zero DUT-attributed events; every planted arm found') != ('NOT RUN', 'a logged capture loss is not in the capture')
+36 planted defects
