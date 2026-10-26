@@ -1282,14 +1282,19 @@ command within that clause's 240 ms ([FR_NFR.md](../reference/FR_NFR.md), the
 AECP rows). No getter waits, so GET_DYNAMIC_INFO, which carries only getters,
 never answers IN_PROGRESS (IEEE 1722.1-2021 7.4.76).
 
-A commit, once written, stays in the block until the datapath takes it, and
-`cdc_handshake` holds its value until the acknowledgement. Firmware cannot
-withdraw it. After a command that failed, the datapath takes the undone value
-with its late acknowledgement. The application's poll then publishes the block
-whole again, with the values in force, as soon as `BUSY` clears. So the
-datapath ends where the controllers were told, but holds the undone value from
-that late acknowledgement until the republished block is taken. Withdrawing a
-held commit would need the datapath side, which the placement switch wires.
+**The undone value after a failed change** is the one window this model
+leaves open. A commit, once written, stays in the block until the datapath
+takes it, and `cdc_handshake` holds its value until the acknowledgement.
+Firmware cannot withdraw it. After a command that failed, the datapath takes
+the undone value with its late acknowledgement. The application's poll then
+publishes the block whole again, with the values in force, as soon as `BUSY`
+clears. So the datapath ends at the values in force, where the controllers
+were told, but holds the undone value from that late acknowledgement until
+the republished block is taken. The datapath's end state is the review's
+outcome (a), "what the datapath finally takes" (PR #795, 6421229873). The
+ruling of 2026-10-26 (#665, 6425357821) accepts this window for the faces'
+lane. Closing it needs the datapath side, so it belongs to the placement
+switch (#665 F-INT PR 2), which wires that side.
 
 The application's poll publishes each owed interface whole again once `BUSY`
 clears, keeping the loop awake meanwhile. From then on `applied` is true and
