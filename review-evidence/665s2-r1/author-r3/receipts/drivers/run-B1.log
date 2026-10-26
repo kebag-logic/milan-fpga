@@ -1,0 +1,17 @@
+COMMAND <round-2 scratch>/B1/native/Vsim <scratch>/runs/B1/backlog-owed.txt -
+COMMAND <round-2 scratch>/B1/native/Vsim <scratch>/runs/B1/aecp-fanout.txt -
+BUDGET backlog.owed.if0: 126.281 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.first.if0: 11.886 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if0: 44.993 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.first.if0: 11.843 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 59.646 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.first.if0: 11.879 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if0: 153.275 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.first.if0: 11.868 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 44.978 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 65.962 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if0: 182.679 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if0: 11.332 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_stream_info.if0: 11.681 ms over T_svc 10 ms
+BUDGET aecp_fanout.bind_rx_stream_info.if0: 14.804 ms over T_svc 10 ms
+2 groups graded, 0 refusals, 14 T_svc misses (14 of 25 probe instances, 14 of 24 paths)
