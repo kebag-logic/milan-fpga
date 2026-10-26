@@ -103,7 +103,8 @@ A gone output must reach only its ruled terminals, never the wire.
 Contract 2.3 adds a face block per interface for the settings, windows and events.
 Each setting holds until the datapath acknowledges its commit, within a bound.
 Each window request holds until the answer carrying its tag, or a bounded timeout.
-The AECP owner commits a setting before the response that promises it.
+A response promises an AECP setting only once the datapath acknowledged its commit.
+Without that acknowledgement the command fails, and later changes are refused until it returns.
 The [face contract](design/MAILBOX_SPLIT.md#the-processors-other-faces) defines its classes, layout and writer.
 
 Each host supplies a bus adapter to the same window.

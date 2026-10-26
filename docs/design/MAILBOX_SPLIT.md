@@ -1220,22 +1220,54 @@ them; the all-fabric build carries no mailbox and is unchanged.
 ### The firmware's writer
 
 [`aecp_face.c`](../../sw/firmware/ctrl/aecp/aecp_face.c) is the AECP owner's
-platform face on contract 2.3: the `changed`, `format`, `counters`, `stream`
-and `avb` ports of `aecp.h`. `random` and `path` stay the platform's.
+platform face on contract 2.3: the `changed`, `applied`, `format`, `counters`,
+`stream` and `avb` ports of `aecp.h`. `random` and `path` stay the platform's.
 
-| Value | Written | Before |
+Each value is written and committed, and its acknowledgement awaited for at
+most `MBX_FACE_ACK_CYCLES`, inside the port; the response or notification in
+the last column leaves only once that acknowledgement has returned on every
+interface (`docs/ARCHITECTURE_HW_SW_SPLIT.md` section 1; IEEE 1722.1-2021
+7.5.2; Milan v1.2 5.4.5.2).
+
+| Value | Written | Acknowledged before |
 |---|---|---|
-| `F_CTRL.READY`, with every setting and every stream entry, on every interface | `aecp_face_open`, once the saved state is applied | AECP opens (Milan v1.2 5.6.1) |
-| `F_ENTITY`, `F_CLOCK`, `F_AECP.LOCK_HELD` | the core's `changed` port, committed and acknowledged before it returns | the response that promises it (IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.2) |
-| `F_AECP.LOCK_HELD` at a lock's expiry | the core's new `AECP_CHANGE_LOCK` | the unsolicited notification of the release |
+| `F_CTRL.READY`, with every setting and every stream entry, on every interface | `aecp_face_open`, once the saved state is applied | AECP opens (Milan v1.2 5.6.1): `ctrl_app_open_aecp` opens nothing until it is |
+| `F_ENTITY`, `F_CLOCK`, `F_AECP.LOCK_HELD` | the core's `changed` port | the response that promises it |
+| `F_AECP.LOCK_HELD` at a lock's expiry | the core's `AECP_CHANGE_LOCK` | the unsolicited notification of the release |
 | a stream's format, and an output's presentation time offset, with their valid bits | its descriptor's `changed`, on the interface its `avb_interface_index` names | the SET_STREAM_FORMAT or SET_STREAM_INFO response |
 | every setting and every entry of the new configuration | `changed` of the configuration | the SET_CONFIGURATION response |
-| `F_RESTORE`, `F_NVM`, `F_AECP.DYN_DIRTY` | `ctrl_app_aecp.c` from the saved-state store's status | AECP opens, and again on every change (the ruling accepts this interpretation) |
+| `F_RESTORE`, `F_NVM`, `F_AECP.DYN_DIRTY` | `ctrl_app_aecp.c` from the saved-state store's status | AECP opens, and again on every change (the ruling accepts this interpretation); no response promises them |
 
-A commit the datapath does not acknowledge within its bound is counted late
-and leaves its interface owed: the face writes nothing more there, and the
-application's poll publishes that interface whole again once `BUSY` clears,
-keeping the loop awake meanwhile. Every window read is bounded too
+**A commit the datapath does not acknowledge within its bound** is counted
+late and leaves its interface owed. The firmware then takes the defined
+failure path: it does not defer the response with IN_PROGRESS. That keeps the
+existing no-IN_PROGRESS policy and IEEE 1722.1-2021 9.3.2.6's 240 ms response
+deadline ([FR_NFR.md](../reference/FR_NFR.md), the AECP rows). The core asks
+the platform's `applied` port, which is false while an interface owes a
+publication or holds a commit:
+
+- **After a command that changed state.** False there, the command answers
+  ENTITY_MISBEHAVING inside the same service bound and notifies no one. This
+  is the status the core already gives a datapath that does not answer in its
+  bound: an unanswered observation, or a START_STREAMING whose apply did not
+  complete. The value stays in the held block, which the datapath takes when
+  it acknowledges. A read answered meanwhile reports the value the core holds,
+  the one that block carries.
+- **Before a state-changing command.** False there, LOCK_ENTITY,
+  SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_NAME,
+  SET_SAMPLING_RATE, SET_CLOCK_SOURCE, SET_CONTROL and ADD_ and
+  REMOVE_AUDIO_MAPPINGS each answer ENTITY_MISBEHAVING, echoing the command's
+  data, before changing anything. So no second value is merged into the owed
+  state, and the datapath never skips one a response promised. Every other
+  command is answered as before, so service stays bounded.
+- **At a lock's expiry.** The lock still expires at 60 s (Milan v1.2 5.4.2.2),
+  but no unlock notification leaves.
+
+The application's poll publishes the owed interface whole again once `BUSY`
+clears, keeping the loop awake meanwhile. From then on `applied` is true and
+changes are taken again. A datapath that never acknowledges keeps every change
+refused, and keeps AECP closed if it held the initial publication; the core's
+reads, registrations and notifications of other state continue. Every window read is bounded too
 (`mbx_win_read`): a request that finds no answer within the window's wait
 fails its port, and the core answers as for an unavailable observation.
 GET_COUNTERS reads 33 quadlets through `CTR`, GET_STREAM_INFO six words and
@@ -1261,14 +1293,15 @@ them:
 
 | Evidence | What it shows |
 |---|---|
-| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | the 39 reads of the 25 class-D nets, classified from the netlist of each of the six shapes the builder builds and the same in all; its 118 plants, each refused by its own words; each of its 31 rules removed in turn, each letting its arms through |
-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 402 checks through the Wishbone adapter and the same 402 through the AXI4-Lite adapter (404 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
+| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 39 reads of the 25 class-D nets, and each of the wrapper cell's 217 ports in one class (C 25, F 28, R 34, E 6, M 14, G 110), every G output's cone ending only at its terminals; its self-test's 138 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 18, a positive and a negative control; each of its 43 rules (31 of the class-D census, 12 of the port census) removed in turn, each letting its arms through |
+| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 523 at one interface and 530 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 568 at one interface, 575 at two |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
 | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
 | the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
 | the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface and sink; each field on its own `pub_*_o` output, a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
-| the same suite on the host model | the 389 of the RTL's 402 checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+| the face block, in the same suite (contract 2.3) | every register's fields and only those, at its own interface and entry; each field on its own port, of its own interface, entry and window; a commit holding every setting until its acknowledgement, a write that would move a held setting and a second commit refused; each window's request held from its `GO` until the answer carrying its tag, or its bound; a hole, an interface the build lacks and a partial strobe; the counted face events, each coalesced into one record; COUNTERS_CHANGED's pending bit per served descriptor, its `ALL` bit and its holdoff; a reset clearing the block. On the RTL alone: the wait bound to the cycle, an answer taken only on its pulse, and a commit held for as long as its acknowledgement takes. Two interfaces in `run-if2`, and on the model |
+| the same suite on the host model, in `make run-if2` | the 488 of the RTL's 530 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
 | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
 | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
@@ -1277,7 +1310,8 @@ them:
 | the binding owner on lane F1's store | on the host flash model at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, an unread slot refusing persistence, a refused record and the roll-back |
 | the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, a call back from the port refused, and the started level before the BIND_RX response that echoes STREAMING_WAIT and before a START_STREAMING or STOP_STREAMING is reported (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model, a started move as one `BINDING` write that keeps the stream (`B10` to `B12`), a bound or started move with no settled stream written as `BINDING` alone with `SID_VALID` clear, over the stream an unbind left in `SID_LO` and `SID_HI` (`B13`), and, composed with F5's AECP owner, a START_STREAMING and a STOP_STREAMING each moving the started level in one `BINDING` write before its response's TX_HEAD, within F5's service target (`App.StartAndStopPublishTheStartedLevelBeforeTheirResponse`, two plants in [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py) that F5's own tests let through); MAAP's DA gate before each allocation report, on the allocating interface alone at two interfaces (`DaGate*`); SRP's licence before each report, its Domain, slope and Talker declarations before every MRPDU that carries them, read at each record's commit, the Talker declarations published again by a Domain adoption and held after it, the declarations withdrawn before a reset or destroy removes them, and none published by a re-creation refused at any one of its allocations, a source's join among them (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
 | the placement switch's SRP comparator, the firmware gate's `srpcmp` arm | [`srp_wire_compare.py`](../../sw/firmware/ctrl/test/srp_wire_compare.py), an independent IEEE 802.1Q Clause 10.8 decoder and transmit-opportunity comparator, which the placement switch compares the two placements' SRP frames with (the ruling of comment 6088423771 keeps it for that switch). Its self-test runs in every firmware gate run, so it cannot rot first: its five named controls, and its 18 named planted wire and comparison defects each present and caught (a report missing any of them fails the arm), among them a dropped, an extra and a duplicated declaration, a wrong attribute or FourPacked event and every malformed length and EndMark |
-| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; six of them in the default `make`) and of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
+| the AECP owner's face, in the host tests (contract 2.3) | on the model, at one and two interfaces: each setting written in its own field, on its own interface, committed and acknowledged before the response that promises it, and a lock's expiry before its notification; the initial publication with `READY` acknowledged before AECP opens, and AECP left closed while it is not (`AppFaceUnacknowledged`); a commit not acknowledged within its bound answering ENTITY_MISBEHAVING and notifying no one, a change meanwhile refused before it changes anything and writing nothing, a read still answered, then the block published again, whole, and the next change acknowledged before its response (`Face.ALateCommitIsOwedAndPublishedAgainWhole`); one interface acknowledging and the other not (`Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt`); a datapath that never acknowledges, every state-changing command refused within the service bound and a lock expiry releasing the lock with no notification (`Face.AMissingAcknowledgementRefusesEveryChangeAndNotifiesNothing`); the core's side on a mock port, each state-changing command refused and each read answered (`Core.AChangeThePlatformHasNotAppliedPromisesNothing`); every window read within its bound; the store's words; the face events' Table 5.22 notifications |
+| planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; seven of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
 
 ## Default build
 
