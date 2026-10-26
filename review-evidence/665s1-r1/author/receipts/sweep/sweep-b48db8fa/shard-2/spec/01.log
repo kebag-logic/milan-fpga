@@ -1,0 +1,32 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 94187, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/normal-orphan input [523]", "identities": {"94166": ["14309838", "S"], "94187": ["14309840", "S"]}, "pid": 94166}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 95188, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/cancel-selection-SIGINT input [523]", "identities": {"95187": ["14310134", "S"], "95188": ["14310137", "S"]}, "pid": 95187}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 95837, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/cancel-selection-SIGTERM input [523]", "identities": {"95833": ["14310369", "S"], "95837": ["14310372", "S"]}, "pid": 95833}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 96467, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/cancel-preflight-SIGINT input [523]", "identities": {"96464": ["14310614", "S"], "96467": ["14310617", "S"]}, "pid": 96464}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 96901, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/cancel-preflight-SIGTERM input [523]", "identities": {"96897": ["14310858", "S"], "96901": ["14310861", "S"]}, "pid": 96897}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 97590, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/cancel-command-SIGINT input [523]", "identities": {"97584": ["14311118", "S"], "97590": ["14311121", "S"]}, "pid": 97584}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 98153, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/cancel-command-SIGTERM input [523]", "identities": {"98133": ["14311373", "S"], "98153": ["14311375", "S"]}, "pid": 98133}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 98624, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/cancel-transition-SIGINT input [523]", "identities": {"98621": ["14311630", "S"], "98624": ["14311633", "S"]}, "pid": 98621}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 99075, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/cancel-transition-SIGTERM input [523]", "identities": {"99070": ["14311888", "S"], "99075": ["14311890", "S"]}, "pid": 99070}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-lock-wait-SIGINT: {"exit": 130, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+cancel-lock-wait-SIGTERM: {"exit": 143, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+unsafe-command-SIGTERM: {"exit": 1, "foreign_untouched": true, "handshake": {"child": 99591, "cwd": "<work>/tmp/suite-cancellation-j0lg3y8g/unsafe-command-SIGTERM input [523]", "identities": {"99588": ["14312206", "S"], "99591": ["14312209", "S"]}, "pid": 99588}, "next_suite": true, "phase": "command", "unsafe_control_detected": true}
+Traceback (most recent call last):
+  File "<shard-clone>2/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<shard-clone>2/scripts/test_suite_cancellation.py", line 380, in main
+    with OwnedProcesses():
+         ~~~~~~~~~~~~~~^^
+  File "<shard-clone>2/scripts/owned_process.py", line 118, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "<shard-clone>2/scripts/owned_process.py", line 201, in _cleanup
+    raise RuntimeError(f"CLEANUP FAILED: owned descendants remain: {owned}")
+RuntimeError: CLEANUP FAILED: owned descendants remain: {99591: (92840, '14312209')}
+ABORTING: sweep cancellation controls failed.

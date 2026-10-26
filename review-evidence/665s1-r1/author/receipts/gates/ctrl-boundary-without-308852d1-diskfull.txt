@@ -1,0 +1,20 @@
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (9 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (489 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (129 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 2 (191 s)
+REFUSED: sw/firmware/gtest/fw_coverage.py exited 2 under the capture, so it may have compiled less than it does: 
+    suite: built, not run (--build-only)
+[ok] arm aecp-image-endstation_ax7101_8x8
+    suite: built, not run (--build-only)
+test_ctrl_firmware coverage run: BUILT
+[FAIL] ctrl_nvm coverage run
+nvm_suite: built, not run (--build-only)
+REFUSED: endstation_arty_8ch: nvm_rig.cpp does not compile:
+<tree>/sw/firmware/ctrl_nvm/test/nvm_rig.cpp:634:1: fatal error: error writing to <work>/tmp/ccADcPmI.s: No space left on device
+  634 | }  // namespace nvm_test
+      | ^
+compilation terminated.
+UNMEASURED: the ctrl_nvm gate failed in coverage mode (exit 2)
+[--without verilator] rc=2 elapsed=818s

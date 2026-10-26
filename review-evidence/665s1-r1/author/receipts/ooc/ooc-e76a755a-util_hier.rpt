@@ -1,0 +1,36 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Mon Oct 26 10:50:56 2026
+| Host         : <host>
+| Command      : report_utilization -hierarchical -file util_hier.rpt
+| Design       : tb_mbx_top
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++----------------+------------+------------+------------+---------+------+------+--------+--------+------------+
+|    Instance    |   Module   | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++----------------+------------+------------+------------+---------+------+------+--------+--------+------------+
+| tb_mbx_top     |      (top) |       3585 |       3499 |      22 |   64 | 4114 |      1 |     10 |          0 |
+|   (tb_mbx_top) |      (top) |          0 |          0 |       0 |    0 |    0 |      0 |      0 |          0 |
+|   g_wb.u_wb    |  KL_mbx_wb |        211 |        211 |       0 |    0 |    1 |      0 |      0 |          0 |
+|   u_mbx        |     KL_mbx |       3376 |       3290 |      22 |   64 | 4113 |      1 |     10 |          0 |
+|     (u_mbx)    |     KL_mbx |        665 |        665 |       0 |    0 | 1700 |      0 |      0 |          0 |
+|     u_evt      | KL_mbx_evt |        666 |        666 |       0 |    0 |  978 |      0 |      0 |          0 |
+|     u_rx       |  KL_mbx_rx |       1516 |       1430 |      22 |   64 | 1155 |      0 |      0 |          0 |
+|     u_tx       |  KL_mbx_tx |        507 |        507 |       0 |    0 |  280 |      0 |      0 |          0 |
++----------------+------------+------------+------------+---------+------+------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+

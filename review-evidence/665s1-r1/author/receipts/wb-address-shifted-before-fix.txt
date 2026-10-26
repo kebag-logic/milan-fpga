@@ -1,0 +1,291 @@
+  [FAIL] R0 CAPS.N_CH                             got=0 exp=5
+  [FAIL] R0 CAPS.N_IF                             got=0 exp=1
+  [FAIL] R0 CAPS.N_TIMERS                         got=0 exp=16
+  [FAIL] R0 CAPS.EVT_WORDS                        got=1 exp=64
+  [FAIL] R0 NOW_MS counts the millisecond pulse   got=0 exp=3
+  [FAIL] R1 IRQ_ENABLE keeps RX[7:0], EVT and ERR only got=0x1 exp=0x800001ff
+  [FAIL] R1 TICK_CTL keeps EN only                got=0xffff exp=0x1
+  [FAIL] R1 OWN_EID_LO keeps every bit            got=0x0 exp=0xffffffff
+  [FAIL] R1 OWN_EID_HI keeps every bit            got=0x0 exp=0xffffffff
+  [FAIL] R1 MAAP_BASE_LO keeps every bit          got=0x0 exp=0xffffffff
+  [FAIL] R1 MAAP_BASE_HI keeps address bits 47:32 only got=0x0 exp=0xffff
+  [FAIL] R1 MAAP_COUNT keeps 16 bits              got=0x0 exp=0xffff
+  [FAIL] R1 TMR_DEADLINE keeps every bit          got=0x0 exp=0xffffffff
+  [FAIL] R1 FILTER_EN keeps OPEN[7:0] only        got=0x0 exp=0xff
+  [FAIL] R1 a write to a read-only register changes nothing
+  [FAIL] R1 OWN_MAC_LO keeps every bit and OWN_MAC_HI keeps MAC[47:32] only, per interface
+  [FAIL] R1 each bound-talker entry keeps BOUND_EID's every bit and BOUND_EN's EN only, per interface and entry
+  [FAIL] R2 the refusal counts in BUS_ERR         got=0 exp=1
+  [FAIL] R2 the refusal sets IRQ_STATUS.ERR       got=0 exp=1
+  [FAIL] R2 an enabled ERR raises the interrupt   got=0 exp=1
+  [FAIL] R2 a TMR_CMD with no op, or naming no slot, counts in BUS_ERR got=0 exp=3
+  [FAIL] F1 ENTITY_DISCOVER for entity_id 0 is committed whole got=0 exp=23
+  [FAIL] F1 RX_PASS counts it                     got=0 exp=1
+  [FAIL] F1 IRQ_STATUS.RX shows the channel       got=7 exp=1
+  [FAIL] F1 record LEN                            got=0 exp=82
+  [FAIL] F1 record KIND                           got=0 exp=1
+  [FAIL] F1 record ARRIVAL_MS is NOW_MS at the last byte got=0 exp=7
+  [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+  [FAIL] F1 an enabled RX level raises the interrupt got=0 exp=1
+  [FAIL] F2 ENTITY_DISCOVER for this entity passes got=0 exp=2
+  [FAIL] F2 ENTITY_DISCOVER for another entity, and AVAILABLE or DEPARTING, are not passed got=0 exp=2
+  [FAIL] F2 a DISCOVER truncated inside its entity_id field is not passed got=0 exp=2
+  [FAIL] C0 ACMP to this talker or this listener passes; to neither does not got=0 exp=2
+  [FAIL] C1 AECP to this entity passes; to another does not got=0 exp=1
+  [FAIL] C2 MAAP PROBE/DEFEND/ANNOUNCE overlapping this range pass; adjacent, empty or other types do not got=0 exp=3
+  [FAIL] C3 every MSRP and MVRP PDU reaches the SRP ring got=0 exp=2
+  [FAIL] C3 the MRPDU is frame bytes 14.. of the record, ProtocolVersion first (lwSRP's mrp_rx input)
+  [FAIL] C4 a tagged frame, a foreign EtherType and a frame ending before the subtype pass nowhere got=0 exp=8
+  [FAIL] D0 records fill the ring to the last whole one got=0 exp=11
+  [FAIL] D0 a frame the free space cannot hold counts in RX_DROP got=0 exp=1
+  [FAIL] D0 and is not committed                  got=0 exp=11
+  [FAIL] D0 every unread record survives the dropped frame byte for byte
+  [FAIL] D0 once released, the space takes the next frame got=0 exp=12
+  [FAIL] D1 a frame over max_frame_bytes counts in RX_DROP got=0 exp=2
+  [FAIL] D1 and sets IRQ_STATUS.ERR               got=0 exp=1
+  [FAIL] D1 the record after it is still the next frame's
+  [FAIL] T0 a burst of the bucket's depth passes  got=0 exp=8
+  [FAIL] T0 the frames past it count in RATE_DROP got=0 exp=2
+  [FAIL] T1 one refill period buys exactly one more frame got=0 exp=9
+  [FAIL] T1 and the next is refused again         got=0 exp=3
+  [FAIL] X0 three committed records leave as three frames under backpressure
+  [FAIL] X0 TX_TAIL reaches TX_HEAD once the frames have left got=0 exp=36
+  [FAIL] X2 three records committed behind a stalled sink all leave
+  [FAIL] X2 ACMP, ACMP, then AECP committed behind a stalled ACMP frame leave as 1, 1, 2
+  [FAIL] X2 after an SRP frame, AECP, ACMP and ADP leave in the order they were committed
+  [FAIL] X2 SEQ 0xFFFF leaves before SEQ 0x0000 (modulo 2^16)
+  [FAIL] X2 equal SEQs leave round-robin from the channel served last
+  [FAIL] X2 every TX_TAIL reaches its TX_HEAD
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=1
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=23
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=2
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=46
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=3
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=69
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=4
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=92
+  [FAIL] X1 a malformed TX record counts once in TX_ERR got=0 exp=5
+  [FAIL] X1 and flushes the ring to TX_HEAD       got=0 exp=115
+  [FAIL] X1 a header whose payload lies past TX_HEAD is refused, not read got=0 exp=6
+  [FAIL] X1 the ring carries the next good record after the refusals
+  [FAIL] H0 and the frame counts in RX_DROP       got=0 exp=1
+  [FAIL] H0 back in range, the next frame is stored
+  [FAIL] H1 a TX_HEAD more than the ring ahead of TX_TAIL is refused: TX_ERR counts it got=0 exp=1
+  [FAIL] H2 back in range, the waiting expiry posts got=0 exp=4
+  [FAIL] E0 an enabled event level raises the interrupt got=0 exp=1
+  [FAIL] E0 a link rise posts a LINK event        got=0 exp=2
+  [FAIL] E0 carrying the level                    got=9 exp=1
+  [FAIL] E0 and NOW_MS                            got=0 exp=2
+  [FAIL] E1 a grandmaster change posts a GM event got=0 exp=3
+  [FAIL] E1 GM ID_LO                              got=0x0 exp=0xa5a6a7a8
+  [FAIL] E1 GM ID_HI                              got=0x0 exp=0xa1a2a3a4
+  [FAIL] E1 GM DOMAIN                             got=0 exp=7
+  [FAIL] E1 SEQ counts the postings               got=0 exp=1
+  [FAIL] E2 the ring is full of expiries          got=0 exp=64
+  [FAIL] E2 a link that flapped while the ring was full posts once got=0 exp=1
+  [FAIL] E2 with its level at posting time        got=9 exp=0
+  [FAIL] M0 slot 3 expires at its deadline        got=0 exp=1
+  [FAIL] M0 with the tag of its arm               got=0x0 exp=0x1234
+  [FAIL] M0 and its slot                          got=0 exp=3
+  [FAIL] M0 and its deadline                      got=0 exp=5
+  [FAIL] M1 a re-armed slot expires once, with the second arm's tag got=0x0 exp=0x2
+  [FAIL] M2 a deadline already past expires at once got=0x0 exp=0x66
+  [FAIL] K0 one period posts a TICK               got=0 exp=4
+  [FAIL] K0 counting one tick                     got=0 exp=1
+  [FAIL] E2 the ring is full of expiries          got=0 exp=64
+  [FAIL] K1 ticks counted while the ring was full are posted as one record got=0 exp=1
+  [FAIL] K1 carrying every tick                   got=0 exp=5
+  [FAIL] G0 GM_LO reads the live identity         got=0x0 exp=0x22222222
+  [FAIL] G0 GM_HI reads the snapshot GM_LO took   got=0x0 exp=0x11111111
+  [FAIL] G0 DOMAIN reads the same snapshot        got=0 exp=3
+  [FAIL] Q0 a valid frame reaches its channel (adp) got=5 exp=0
+  [FAIL] Q0 its record is the frame, byte for byte (adp)
+  [FAIL] Q0 a valid frame reaches its channel (acmp, multicast) got=5 exp=1
+  [FAIL] Q0 its record is the frame, byte for byte (acmp, multicast)
+  [FAIL] Q0 a valid frame reaches its channel (acmp, own unicast) got=5 exp=1
+  [FAIL] Q0 its record is the frame, byte for byte (acmp, own unicast)
+  [FAIL] Q0 a valid frame reaches its channel (aecp, command) got=5 exp=2
+  [FAIL] Q0 its record is the frame, byte for byte (aecp, command)
+  [FAIL] Q0 a valid frame reaches its channel (aecp, response) got=5 exp=2
+  [FAIL] Q0 its record is the frame, byte for byte (aecp, response)
+  [FAIL] Q0 a valid frame reaches its channel (maap) got=5 exp=3
+  [FAIL] Q0 its record is the frame, byte for byte (maap)
+  [FAIL] Q0 a valid frame reaches its channel (maap, DEFEND to own unicast) got=5 exp=3
+  [FAIL] Q0 its record is the frame, byte for byte (maap, DEFEND to own unicast)
+  [FAIL] Q0 a valid frame reaches its channel (srp MSRP) got=5 exp=4
+  [FAIL] Q0 its record is the frame, byte for byte (srp MSRP)
+  [FAIL] Q0 a valid frame reaches its channel (srp MVRP) got=5 exp=4
+  [FAIL] Q0 its record is the frame, byte for byte (srp MVRP)
+  [FAIL] Q2 to another destination MAC, it (adp): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (adp): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (adp): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (acmp, multicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (acmp, multicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (acmp, multicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (acmp, own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, command): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (aecp, response): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (maap): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (maap): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (maap): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 with an unassigned AVTP subtype, it (maap, DEFEND to own unicast): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (srp MSRP): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (srp MSRP): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 as AVTP, a wrong AVTP subtype cannot select srp (srp MSRP): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 as AVTP with the ADP subtype, it cannot select srp (srp MSRP): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q2 to another destination MAC, it (srp MVRP): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q3 under another control EtherType, it (srp MVRP): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 as AVTP, a wrong AVTP subtype cannot select srp (srp MVRP): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q4 as AVTP with the ADP subtype, it cannot select srp (srp MVRP): FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q6 untagged AAF to a stream address: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q6 untagged CRF to a stream address: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q6 untagged AAF to the ADP and ACMP address: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q6 untagged CRF to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q7 the CONTROLLER_AVAILABLE response for this controller reaches the AECP ring got=5 exp=2
+  [FAIL] Q7 its record is the response, byte for byte
+  [FAIL] Q7 every command type (even) for this target passes got=0 exp=8
+  [FAIL] Q7 every response type (odd) for this controller passes got=0 exp=8
+  [FAIL] Q8 each interface's own MAC passes AECP, the ACMP tolerance and a MAAP DEFEND on that interface got=0 exp=3
+  [FAIL] Q8 and counts once each in FILTER_MISMATCH got=0 exp=3
+  [FAIL] Q8 a MAC differing from OWN_MAC in MAC[47:32] only: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q8 a MAC differing from OWN_MAC in MAC[31:0] only: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q8 rewritten, the old own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q8 rewritten, the new own MAC passes     got=5 exp=2
+  [FAIL] Q9 with every channel closed, an untagged AAF: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q9 a mismatch sets IRQ_STATUS.ERR        got=0 exp=1
+  [FAIL] Q9 five tuple failures in a row count five got=0 exp=6
+  [FAIL] Q9 valid, tagged and identity-refused frames, and one that ends before byte 14, leave it got=0 exp=6
+  [FAIL] Q10 refusals by the filter take no token: a full burst still passes after them got=0 exp=8
+  [FAIL] Q10 the bucket refuses the frame past it in RATE_DROP got=0 exp=1
+  [FAIL] Q10 and FILTER_MISMATCH counts the tuple failures only got=0 exp=16
+  [FAIL] Q11 a DEFEND to this interface's own MAC reaches the MAAP ring got=5 exp=3
+  [FAIL] Q11 its record is the DEFEND, byte for byte
+  [FAIL] Q11 a PROBE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 an ANNOUNCE to this interface's own MAC: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 and each counts once in FILTER_MISMATCH got=0 exp=13
+  [FAIL] Q11 a DEFEND to a unicast MAC no interface owns: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 a DEFEND to the MAAP multicast address still passes got=5 exp=3
+  [FAIL] Q11 a DEFEND to this interface's own MAC that ends at byte 14, before its message_type: FILTER_MISMATCH counts it once got=0 exp=1
+  [FAIL] Q11 the DEFEND after them still reaches the MAAP ring got=5 exp=3
+  [FAIL] Q12 an ENTITY_AVAILABLE of a bound talker reaches the adp ring got=5 exp=0
+  [FAIL] Q12 its record is the ADPDU, byte for byte
+  [FAIL] Q12 an ENTITY_DEPARTING of a bound talker reaches the adp ring got=5 exp=0
+  [FAIL] Q12 ENTITY_DISCOVER for every entity and for this one still pass got=0 exp=2
+  [FAIL] Q12 one that ends with its entity_id passes got=5 exp=0
+  [FAIL] Q12 the last entry passes its talker     got=5 exp=0
+  [FAIL] Q12 rewritten, the entry's new talker passes got=5 exp=0
+  [FAIL] Q12 with every entry enabled, each entry's talker passes got=0 exp=16
+  [FAIL] Q13 a talker bound on interface i passes on interface i got=0 exp=1
+  [FAIL] Q14 the bound talker's right after it passes got=5 exp=0
+  [FAIL] Q14 and the bound talker's after that passes got=5 exp=0
+  [FAIL] Q16 the new talker passes                got=5 exp=0
+  [FAIL] Q16 the newest talker passes             got=5 exp=0
+  [FAIL] Q17 after a reset every entry of every interface's table reads 0 again
+  [FAIL] Q17 it holds talker 0, whose ENTITY_AVAILABLE passes got=5 exp=0
+  [FAIL] Q17 with BOUND_EID_HI alone written since, BOUND_EID_LO reads 0 got=0x20002 exp=0x0
+  [FAIL] Q17 and the entry holds that word and 0, whose ENTITY_AVAILABLE passes got=5 exp=0
+  [FAIL] P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+  [FAIL] P1 each interface's registers and each sink's entry read back what was written to them, and only that
+  [FAIL] P2 every field reaches the datapath on its own output, for its own interface and sink
+  [FAIL] P2 source s's DA_GATE, LICENCE and TALKER_DECL bits and sink k's BOUND and STARTED move their own output bit only
+  [FAIL] P3 and BOUND alone is on its output      got=0x0 exp=0x8000
+  [FAIL] P3 with SID_VALID set the datapath reads SID_HI:SID_LO got=0x0 exp=0x123456789abcdef
+  [FAIL] P3 BOUND and SID_VALID are independent: BOUND clear, the stream_id stays
+  [FAIL] P3 rewritten in the firmware's order, the datapath sees 0, then the whole new stream_id
+  [FAIL] P3 STARTED moves on its own output; the stream_id and BOUND stay through a write that keeps SID_VALID
+  [FAIL] P3 SID_VALID cleared takes the stream_id off the datapath; SID_LO and SID_HI still read as written
+  [FAIL] P4 and counts in BUS_ERR                 got=0 exp=2
+  [FAIL] F1 each setting, request and entry register keeps its own fields only, per interface and entry
+  [FAIL] F1 each reads back what was written to it, and only that
+  [FAIL] F2 every setting, entry and request field reaches the datapath on its own port, for its own interface
+  [FAIL] F2 each setting field, each request field and each source's and sink's value moves its own port only
+  [FAIL] F3 GO raises fw_send_o and F_STATUS.BUSY on its own interface only
+  [FAIL] F3 every setting and entry write, and a second commit, is refused while BUSY and counted got=0 exp=119
+  [FAIL] F3 a window's request registers are not held by a commit
+  [FAIL] F3 and the settings take writes again    got=0x0 exp=0xab0123
+  [FAIL] F3 an acknowledgement with no commit waiting is not taken for the next got=0 exp=1
+  [FAIL] F4 CTR GO opens the request: BUSY with tag 1, req and tag on its ports, no other window's
+  [FAIL] F4 CTR a request write and a second GO while BUSY are refused and counted got=0 exp=3
+  [FAIL] F4 CTR and the request's fields hold on their ports and in their read-back
+  [FAIL] F4 CTR an answer under another tag is discarded: still BUSY, no DATA
+  [FAIL] F4 CTR the answer under its tag closes it: DONE, the answer in DATA, the request off its port
+  [FAIL] F4 CTR an answer with no request open is discarded got=0x0 exp=0x2a5
+  [FAIL] F4 CTR the next GO takes tag 2 and clears DONE
+  [FAIL] F4 CTR unanswered past its wait bound it closes with TIMEOUT, the last answer kept
+  [FAIL] F4 CTR a late answer to the request that timed out is discarded
+  [FAIL] F4 CTR and so is that late answer under the next request
+  [FAIL] F4 CTR which takes its own               got=0x0 exp=0x6666
+  [FAIL] F4 CTR CMD written with GO clear opens nothing got=0 exp=770
+  [FAIL] F4 CTR and the window refused nothing while it was idle got=0 exp=3
+  [FAIL] F4 AMAP GO opens the request: BUSY with tag 1, req and tag on its ports, no other window's
+  [FAIL] F4 AMAP a request write and a second GO while BUSY are refused and counted got=0 exp=3
+  [FAIL] F4 AMAP and the request's fields hold on their ports and in their read-back
+  [FAIL] F4 AMAP an answer under another tag is discarded: still BUSY, no DATA
+  [FAIL] F4 AMAP the answer under its tag closes it: DONE, the answer in DATA, the request off its port
+  [FAIL] F4 AMAP an answer with no request open is discarded got=0x0 exp=0x87654321000012a5
+  [FAIL] F4 AMAP the next GO takes tag 2 and clears DONE
+  [FAIL] F4 AMAP unanswered past its wait bound it closes with TIMEOUT, the last answer kept
+  [FAIL] F4 AMAP a late answer to the request that timed out is discarded
+  [FAIL] F4 AMAP and so is that late answer under the next request
+  [FAIL] F4 AMAP which takes its own              got=0x0 exp=0x6666
+  [FAIL] F4 AMAP CMD written with GO clear opens nothing got=0 exp=770
+  [FAIL] F4 AMAP and the window refused nothing while it was idle got=0 exp=3
+  [FAIL] F4 EDIT GO opens the request: BUSY with tag 1, req and tag on its ports, no other window's
+  [FAIL] F4 EDIT a request write and a second GO while BUSY are refused and counted got=0 exp=7
+  [FAIL] F4 EDIT and the request's fields hold on their ports and in their read-back
+  [FAIL] F4 EDIT an answer under another tag is discarded: still BUSY, no DATA
+  [FAIL] F4 EDIT the answer under its tag closes it: DONE, the answer in DATA, the request off its port
+  [FAIL] F4 EDIT an answer with no request open is discarded got=0x0 exp=0x87654321000022a5
+  [FAIL] F4 EDIT the next GO takes tag 2 and clears DONE
+  [FAIL] F4 EDIT unanswered past its wait bound it closes with TIMEOUT, the last answer kept
+  [FAIL] F4 EDIT a late answer to the request that timed out is discarded
+  [FAIL] F4 EDIT and so is that late answer under the next request
+  [FAIL] F4 EDIT which takes its own              got=0x0 exp=0x6666
+  [FAIL] F4 EDIT CMD written with GO clear opens nothing got=0 exp=770
+  [FAIL] F4 EDIT and the window refused nothing while it was idle got=0 exp=7
+  [FAIL] F4 GSI GO opens the request: BUSY with tag 1, req and tag on its ports, no other window's
+  [FAIL] F4 GSI a request write and a second GO while BUSY are refused and counted got=0 exp=5
+  [FAIL] F4 GSI and the request's fields hold on their ports and in their read-back
+  [FAIL] F4 GSI an answer under another tag is discarded: still BUSY, no DATA
+  [FAIL] F4 GSI the answer under its tag closes it: DONE, the answer in DATA, the request off its port
+  [FAIL] F4 GSI an answer with no request open is discarded got=0x0 exp=0x87654321000032a5
+  [FAIL] F4 GSI the next GO takes tag 2 and clears DONE
+  [FAIL] F4 GSI unanswered past its wait bound it closes with TIMEOUT, the last answer kept
+  [FAIL] F4 GSI a late answer to the request that timed out is discarded
+  [FAIL] F4 GSI and so is that late answer under the next request
+  [FAIL] F4 GSI which takes its own               got=0x0 exp=0x6666
+  [FAIL] F4 GSI CMD written with GO clear opens nothing got=0 exp=770
+  [FAIL] F4 GSI and the window refused nothing while it was idle got=0 exp=5
+  [FAIL] F7 and counts in BUS_ERR                 got=0 exp=3
+  [FAIL] F8 one face event posts its record, on its interface, with COUNT 1 and NOW_MS
+  [FAIL] F8 one face event posts its record, on its interface, with COUNT 1 and NOW_MS
+  [FAIL] F8 one face event posts its record, on its interface, with COUNT 1 and NOW_MS
+  [FAIL] E2 the ring is full of expiries          got=0 exp=64
+  [FAIL] F8 pulses while the ring was full post one record each, the map write first, then AVB_INFO, then AS_PATH
+  [FAIL] F8 each carrying every pulse it coalesced
+  [FAIL] F9 a counter change posts COUNTERS_CHANGED with its descriptor, on its interface
+  [FAIL] F9 another descriptor posts at once; the first, posted in this epoch, waits
+  [FAIL] F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced
+  [FAIL] F9 an unknown descriptor posts a record with ALL, and the AVB_INTERFACE and the CLOCK_DOMAIN their own, as they arrive
+  [FAIL] F9 an index past its family, in the same epoch, is the ALL bit again: it posts once in the next
+  [FAIL] E2 the ring is full of expiries          got=0 exp=64
+  [FAIL] Q18 a bound talker's ENTITY_AVAILABLE stalled inside its identity passes got=5 exp=0
+  [FAIL] Q18 the next one passes                  got=5 exp=0
+  [FAIL] Q19 the next one passes                  got=5 exp=0
+  [FAIL] Q20 another entry's words read back while an entry is copied
+  [FAIL] Q20 the entry copied meanwhile passes its talker got=5 exp=0
+  [FAIL] Q20 and the entry read meanwhile its own got=5 exp=0
+  [FAIL] Q21 BOUND_EID_LO rewritten at each of 32 clocks after BOUND_EN is set again: the new talker passes got=0 exp=32
+  [FAIL] Q22 a bound talker's ENTITY_AVAILABLE with the next frame, on another index, right behind it passes alone got=0 exp=1
+  [FAIL] Q22 its record's IF the arrival interface got=0 exp=1
+  [FAIL] T0 CTR an unanswered request holds for exactly its wait bound, in clocks got=0 exp=64
+  [FAIL] T0 CTR then closes with TIMEOUT          got=0 exp=4
+rc=124

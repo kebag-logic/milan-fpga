@@ -1,0 +1,23 @@
+{
+  "head": "b48db8faed756c1f150c560ec6b395092462f03a",
+  "base": "e76a755afc0536453161e3cd33f6f4d2dcd7641f",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:~/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+        "TMPDIR=<work>/tmp",
+        "bash",
+        "scripts/run_all_suites.sh",
+        "<work>/sweep-b48db8fa/shard-3/logs",
+        "--wait",
+        "--shard",
+        "3/4"
+      ],
+      "exit_code": 2,
+      "seconds": 34.806,
+      "log": "<work>/sweep-b48db8fa/shard-3/spec/01.log"
+    }
+  ]
+}
