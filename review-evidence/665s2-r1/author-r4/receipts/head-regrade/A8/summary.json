@@ -1,0 +1,69 @@
+{
+ "point": "8x8",
+ "build": "44e0121ed7f3760c87a86f828eb055bb212d0b4f606d14147d16aebaf4df70e3",
+ "counts": {
+  "paths": 129,
+  "path_misses": 60,
+  "instances": 182,
+  "instance_misses": 102
+ },
+ "windows": [
+  {
+   "group": "backlog",
+   "cycles": 1392016,
+   "ms": 27.84032,
+   "passes": 59,
+   "window_ms": 608.76476,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "backlog-adp",
+   "cycles": 2208710,
+   "ms": 44.1742,
+   "passes": 18,
+   "window_ms": 583.55874,
+   "serviced": false,
+   "unreleased": {
+    "srp": 32
+   }
+  },
+  {
+   "group": "backlog-adp-refill",
+   "cycles": 2209308,
+   "ms": 44.18616,
+   "passes": 21,
+   "window_ms": 658.8095,
+   "serviced": false,
+   "unreleased": {
+    "srp": 32
+   }
+  },
+  {
+   "group": "backlog-owed",
+   "cycles": 1111766,
+   "ms": 22.23532,
+   "passes": 84,
+   "window_ms": 860.05287,
+   "serviced": true,
+   "unreleased": {}
+  }
+ ],
+ "composed_maximum": {
+  "cycles": 2209308,
+  "ms": 44.18616,
+  "group": "backlog-adp-refill",
+  "windows": 4,
+  "lower_bound": true,
+  "unreleased": [
+   "backlog-adp",
+   "backlog-adp-refill"
+  ],
+  "released": {
+   "cycles": 1392016,
+   "ms": 27.84032,
+   "group": "backlog"
+  }
+ },
+ "refusals": []
+}

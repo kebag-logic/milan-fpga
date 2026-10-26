@@ -1,0 +1,145 @@
+$ (cd .) python3 -B tb/verilator/ctrl_service_budget/run.py --self-test
+PASS: fixture digest
+PASS: fixture row fixture.link_up.if0
+PASS: fixture row fixture.malformed.if0
+PASS: fixture row fixture.set_name.if0
+PASS: fixture row fixture.link_down.if0
+PASS: fixture row fixture.bind_rx.if0
+PASS: fixture row fixture.tmr_no_resp1.if0
+PASS: fixture row fixture.entity_departing.if0
+PASS: fixture row fixture.service.adp.first.if0
+PASS: fixture row fixture.service.adp.last.if0
+PASS: fixture row fixture.service.acmp.first.if0
+PASS: fixture row fixture.service.acmp.last.if0
+PASS: fixture row fixture.service.aecp.first.if0
+PASS: fixture row fixture.service.aecp.last.if0
+PASS: fixture row fixture.service.maap.first.if0
+PASS: fixture row fixture.service.maap.last.if0
+PASS: fixture row fixture.service.srp.first.if0
+PASS: fixture row fixture.service.srp.last.if0
+PASS: fixture passes: worst pass and composed maximum
+PASS: planted over-budget path is caught
+PASS: a composed load missing one channel is refused
+PASS: a window short of its defined load is refused although it declares it
+PASS: a composed window that committed more than its load is refused
+PASS: a starved channel is reported by name, and its window reports its load unreleased
+PASS: clock conversion
+PASS: ceilings pinned
+PASS: exact budget passes
+PASS: one cycle over misses
+PASS: tagged start
+PASS: a receive commit belongs to the frame it follows
+PASS: a receive commit that follows no frame is refused
+PASS: sequence and interface
+PASS: last end decides
+PASS: the expected response is checked
+PASS: timer origin is the armed deadline
+PASS: an entry start is its own function's
+PASS: W + T_svc passes
+PASS: W + T_svc + 1 misses, within W + ceiling
+PASS: W + ceiling + 1 is over the ceiling
+PASS: the pass bound runs from the running pass at the bus ratio
+PASS: two recipients across interfaces end at the last
+PASS: a late recipient misses T_svc
+PASS: a missing recipient is refused
+PASS: a duplicate does not stand in for another recipient
+PASS: a notification to a controller outside the set is refused
+PASS: unrelated unsolicited responses do not end it
+PASS: a fan-out's cost a recipient is its first to last commit over the gaps between them
+PASS: records ahead of an input
+PASS: a served record's records ahead are those not yet released at its commit
+PASS: each path reports its worst instance
+PASS: misses are counted per path and per probe instance
+PASS: a starved instance is its path's worst
+PASS: the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased
+PASS: the composed maximum is the window's longest pass, wherever it falls
+PASS: the worst pass includes the run's last pass
+PASS: the pass the script's end cuts is no idle pass
+PASS: the responses owed ahead are checked: ['31', '32']
+PASS: the responses owed ahead are checked: ['31']
+PASS: the responses owed ahead are checked: ['31', '32', '33']
+PASS: the responses owed ahead are checked: ['32', '31']
+PASS: a command never answered is reported, unbounded, where it may be dropped
+PASS: the defined loads, restated
+PASS: every composed window's stimulus is its defined load
+PASS: every composed window declares its defined load
+PASS: the owed row has seven responses owed ahead of its own
+PASS: every command behind the owed input is a path that reports a drop
+PASS: a control instance is its functional path
+PASS: repeated instances of one path: one path, its worst instance, every miss
+PASS: the fan-out group registers the firmware's capacity, every registration a recipient
+PASS: a T_svc miss fails the run unless recorded
+PASS: a refusal fails the run, recorded or not
+PASS: a clean run passes; a run of no group fails
+PASS: a regrade refuses each absent log or script, and a stale script, by name
+PASS: a CPU trap is refused
+PASS: an unchanged build is reused
+PASS: reuse refuses the image
+PASS: reuse refuses a ROM file
+PASS: reuse refuses the SoC Verilog
+PASS: reuse refuses the CPU netlist
+PASS: reuse refuses a firmware source
+PASS: reuse refuses a deleted ROM file
+PASS: reuse refuses an unrecorded ROM file
+PASS: reuse refuses the native model
+PASS: reuse refuses a key that does not resolve
+MUTANT caught: marker: the frame tag is ignored: tagged start
+MUTANT caught: marker: a timer path starts when its record is posted: fixture row fixture.tmr_no_resp1.if0 (start_sys 58300071 (pinned 58300065), sys_cycles 547791 (pinned 547797), cpu_cycles 273896 (pinned 273899), ms 5.47791 (pinned 5.47797))
+MUTANT caught: marker: a timer path starts one millisecond after its deadline: fixture row fixture.tmr_no_resp1.if0 (start_sys 58400065 (pinned 58300065), sys_cycles 447797 (pinned 547797), cpu_cycles 223899 (pinned 273899), ms 4.47797 (pinned 5.47797), passes 1 (pinned 2), bo)
+MUTANT caught: marker: an entry start takes any function entry: an entry start is its own function's ({'probe': 's.shutdown.if0', 'row': 'SHUTDOWN', 'family': 'adp', 'interface': 0, 'path': ['s.shutdown', 0], 'start_sys': 4000, 'end_sys': 6000, 'sys_cycles': 200)
+MUTANT caught: marker: any response on the channel ends the path: sequence and interface
+MUTANT caught: marker: the interface is ignored: sequence and interface
+MUTANT caught: marker: the first required output ends the path: fixture row fixture.set_name.if0 (end_sys 36337182 (pinned 36377890), sys_cycles 534915 (pinned 575623), cpu_cycles 267458 (pinned 287812), ms 5.34915 (pinned 5.75623))
+MUTANT caught: marker: a receive commit goes to the oldest pending frame (earlier rule): a receive commit belongs to the frame it follows ({'probe': 's.cmd.if0', 'row': 'GET_RX_STATE', 'family': 'acmp', 'interface': 0, 'path': ['s.cmd', 0], 'status': 'no start', 'reason': 'no rxc:1 after the mark'})
+MUTANT caught: marker: the expected-response check is skipped: the expected response is checked ({'probe': 's.cmd.if0', 'row': 'BIND_RX', 'family': 'acmp', 'interface': 0, 'path': ['s.cmd', 0], 'start_sys': 1173, 'end_sys': 2000, 'sys_cycles': 827, 'cpu_cyc)
+MUTANT caught: notify: the first recipient's commit ends the fan-out: two recipients across interfaces end at the last ({'probe': 's.notify.if0', 'row': 'SET_NAME', 'family': 'notify', 'interface': 0, 'path': ['s.notify', 0], 'start_sys': 1173, 'end_sys': 401173, 'sys_cycles': 40)
+MUTANT caught: notify: the first unsolicited response on any interface ends it (earlier rule): two recipients across interfaces end at the last ({'probe': 's.notify.if0', 'row': 'SET_NAME', 'family': 'notify', 'interface': 0, 'path': ['s.notify', 0], 'start_sys': 1173, 'end_sys': 401173, 'sys_cycles': 40)
+MUTANT caught: notify: any unsolicited response counts as the change: unrelated unsolicited responses do not end it ({'probe': 's.notify.if0', 'row': 'SET_NAME', 'family': 'notify', 'interface': 0, 'path': ['s.notify', 0], 'start_sys': 1173, 'end_sys': 501173, 'sys_cycles': 50)
+MUTANT caught: notify: a missing recipient is not refused: a missing recipient is refused ({'probe': 's.notify.if0', 'row': 'SET_NAME', 'family': 'notify', 'interface': 0, 'path': ['s.notify', 0], 'start_sys': 1173, 'end_sys': 401173, 'sys_cycles': 40)
+MUTANT caught: notify: a recipient outside the set is not refused: a notification to a controller outside the set is refused ({'probe': 's.notify.if0', 'row': 'SET_NAME', 'family': 'notify', 'interface': 0, 'path': ['s.notify', 0], 'start_sys': 1173, 'end_sys': 601173, 'sys_cycles': 60)
+MUTANT caught: clock ratio: CPU cycles equal bus cycles: fixture row fixture.link_up.if0 (cpu_cycles 10562 (pinned 5281), bound_cpu_cycles 496904 (pinned 248452))
+MUTANT caught: clock ratio: inverted: fixture row fixture.link_up.if0 (cpu_cycles 21124 (pinned 5281), bound_cpu_cycles 993808 (pinned 248452))
+MUTANT caught: clock ratio: CPU cycles rounded down: fixture row fixture.malformed.if0 (cpu_cycles 107472 (pinned 107473))
+MUTANT caught: clock ratio: milliseconds from the CPU clock: fixture row fixture.link_up.if0 (ms 0.21124 (pinned 0.10562), bound_ms 9.93808 (pinned 4.96904))
+MUTANT caught: clock ratio: a pass's milliseconds from the bus clock: fixture passes: worst pass and composed maximum (worst_ms 14.35369 (pinned 28.70738), composed_ms 4.18342 (pinned 8.36684))
+MUTANT caught: clock ratio: a pass's bus cycles equal its CPU cycles: fixture row fixture.link_up.if0 (bound_cpu_cycles 124226 (pinned 248452), bound_ms 2.48452 (pinned 4.96904))
+MUTANT caught: pass bound: it starts at the input, not at the running pass: fixture row fixture.malformed.if0 (bound_cpu_cycles 107473 (pinned 107505), bound_ms 2.14945 (pinned 2.1501))
+MUTANT caught: composition: the window's population is not checked: a composed load missing one channel is refused (accepted)
+MUTANT caught: composition: the composed maximum is the run's worst pass: fixture passes: worst pass and composed maximum (composed_cycles 1435369 (pinned 418342), composed_ms 28.70738 (pinned 8.36684), composed_passes 47 (pinned 3))
+MUTANT caught: composition: the composed maximum is the window's first pass: fixture passes: worst pass and composed maximum (composed_passes 1 (pinned 3))
+MUTANT caught: worst pass: the run's last pass is dropped: refused: synthetic.service.acmp.last.if0: the release at 2050 belongs to no work pass
+MUTANT caught: passes: the pass the script's end cuts counts as idle (earlier rule): the pass the script's end cuts is no idle pass ((50, 3000))
+MUTANT caught: composition: a window that committed more than its load is accepted: a composed window that committed more than its load is refused (accepted)
+MUTANT caught: composition: the load is the stimulus's own declaration (earlier rule): refused: synthetic: the composed window committed {'adp': 0, 'acmp': 2, 'aecp': 0, 'maap': 0, 'srp': 0, 'GM': 0, 'LINK': 0}, its load is {'adp': 0, 'acmp': 0, 'aecp': 0, 'maap': 0, 'srp': 0, 'GM': 0, 'LINK': 0}
+MUTANT caught: composition: the backlog stimulus omits SRP: every composed window's stimulus is its defined load (backlog@1 {'GM': 15, 'LINK': 1, 'adp': 8, 'aecp': 16, 'maap': 7, 'acmp': 12} (defined {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15, 'LINK':)
+MUTANT caught: composition: the backlog stimulus omits MAAP: every composed window's stimulus is its defined load (backlog@1 {'GM': 15, 'LINK': 1, 'adp': 8, 'aecp': 16, 'srp': 32, 'acmp': 12} (defined {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15, 'LINK':)
+MUTANT caught: composition: the owed row omits the ACMP commands behind its input (earlier rule): every composed window's stimulus is its defined load (backlog-owed@1 {'GM': 15, 'adp': 8, 'aecp': 16, 'maap': 7, 'srp': 32, 'acmp': 8} (defined {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15}), b)
+MUTANT caught: service: a record never released is omitted: a starved channel is reported by name, and its window reports its load unreleased (([], {'srp': 1}))
+MUTANT caught: service: a window that left its load unreleased reports it released (earlier rule): a starved channel is reported by name, and its window reports its load unreleased (([{'probe': 'fixture.service.srp.first.if0', 'row': 'SRP record released under the composed load, first', 'family': 'srp', 'interface': 0, 'path': ['service.srp)
+MUTANT caught: composition: the composed maximum is taken over the windows that released their load (earlier rule): the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased ([{'cycles': 700000, 'ms': 14.0, 'group': 'backlog', 'windows': 2, 'lower_bound': False, 'unreleased': [], 'released': {'cycles': 700000, 'ms': 14.0, 'group': 'b)
+MUTANT caught: composition: the composed maximum is no lower bound where a window left its load unreleased: the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased ([{'cycles': 1500000, 'ms': 30.0, 'group': 'backlog-adp', 'windows': 3, 'lower_bound': False, 'unreleased': ['backlog-adp'], 'released': {'cycles': 700000, 'ms':)
+MUTANT caught: composition: the composed maximum includes the fixture's short window: the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased ([{'cycles': 9000000, 'ms': 180.0, 'group': 'fixture', 'windows': 4, 'lower_bound': True, 'unreleased': ['backlog-adp'], 'released': {'cycles': 9000000, 'ms': 18)
+MUTANT caught: service: the records ahead count only those never released: a served record's records ahead are those not yet released at its commit ([[('service.acmp.first.if0', 0), ('service.acmp.last.if0', 0)], [('service.acmp.first.if0', 0), ('service.acmp.last.if0', 0)]])
+MUTANT caught: notify: the cost a recipient divides by the recipients, not the gaps: a fan-out's cost a recipient is its first to last commit over the gaps between them ({'recipients': 3, 'first_sys': 401173, 'last_sys': 801173, 'per_recipient_cpu_cycles': 66666})
+MUTANT caught: service: a record's service ends at its release, not at its pass's end: fixture row fixture.service.adp.first.if0 (end_sys 33843440 (pinned 34638820), sys_cycles 41201 (pinned 836581), cpu_cycles 20601 (pinned 418291), ms 0.41201 (pinned 8.36581), passes 1 (pinned 2))
+MUTANT caught: owed: the responses ahead are not checked: the responses owed ahead are checked: ['31'] ({'status': 'measured', 'reason': None, 'owed_ahead': ['31', '32']})
+MUTANT caught: owed: a command never answered fits: a command never answered is reported, unbounded, where it may be dropped ([('measured', None, True, True), ('measured', None, True, True), ('no end', None, None, None)])
+MUTANT caught: notify: the fan-out registers one controller an interface (earlier rule): the fan-out group registers the firmware's capacity, every registration a recipient (1 interfaces, none: [1] registered, 9 fan-outs; 1 interfaces, answering-ports: [1] registered, 14 fan-outs; 2 interfaces, none: [1, 1] registered, 17 fan-outs; )
+MUTANT caught: deadline: T_svc 20 ms: fixture row fixture.service.srp.first.if0 (within_t_svc True (pinned False))
+MUTANT caught: deadline: strictly below the budget: exact budget passes ({'probe': 's.cmd.if0', 'row': 'GET_RX_STATE', 'family': 'acmp', 'interface': 0, 'path': ['s.cmd', 0], 'start_sys': 1173, 'end_sys': 1001173, 'sys_cycles': 10000)
+MUTANT caught: deadline: the normative wait is not added: W + T_svc passes ({'probe': 's.cmd.if0', 'row': 'Domain', 'family': 'srp', 'interface': 0, 'path': ['s.cmd', 0], 'start_sys': 1173, 'end_sys': 21001173, 'sys_cycles': 21000000, ')
+MUTANT caught: deadline: the ceiling drops the normative wait: W + T_svc passes ({'probe': 's.cmd.if0', 'row': 'Domain', 'family': 'srp', 'interface': 0, 'path': ['s.cmd', 0], 'start_sys': 1173, 'end_sys': 21001173, 'sys_cycles': 21000000, ')
+MUTANT caught: deadline: the ACMP ceiling is the transaction timeout: ceilings pinned ({'adp': 200.0, 'disc': 20.0, 'acmp': 200.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0} 10.0)
+MUTANT caught: run: a CPU trap is not refused: a CPU trap is refused
+MUTANT caught: run: a T_svc miss never fails the run: a T_svc miss fails the run unless recorded
+MUTANT caught: run: a refusal does not fail the run: a refusal fails the run, recorded or not
+MUTANT caught: regrade: a selected group without its log is dropped (earlier rule): a regrade refuses each absent log or script, and a stale script, by name (['noscript: stale', 'stale: stale'])
+MUTANT caught: reuse: an input outside the checkout is not rechecked (earlier rule): reuse refuses the image (reused)
+MUTANT caught: reuse: the ROM files are not attested: reuse refuses a ROM file (reused)
+MUTANT caught: tables: a path's first instance is reported, not its worst (earlier rule): each path reports its worst instance ({'p.x': {'path': 'p.x', 'interface': 0, 'row': 'r', 'instances': 2, 'misses': 2, 'worst': {'probe': 'a.x.if0', 'row': 'r', 'status': 'measured', 'path': ['p.x',)
+MUTANT caught: tables: misses are counted per probe instance only (earlier rule): misses are counted per path and per probe instance ({'paths': 2, 'path_misses': 3, 'instances': 3, 'instance_misses': 3})
+MUTANT caught: tables: a control instance is its own path (earlier rule): a control instance is its functional path (['control.discover.if0', 'control.shutdown.if0', 'control.discover.if0', 'control.shutdown.if0'])
+MUTANT caught: tables: a starved instance is not its path's worst: a starved instance is its path's worst ({'probe': 'd.x.if0', 'row': 'r', 'status': 'measured', 'path': ['p.x', 0], 'ms': 700.0, 'within_t_svc': False, 'group': 'd', 'bound_ms': 700.0, 'ring': 'acmp', )
+self-test: 0 failures
+rc=0
+tree clean after the gate
