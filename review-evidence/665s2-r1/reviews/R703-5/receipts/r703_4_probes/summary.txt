@@ -1,0 +1,13 @@
+KEY baseline_selftest_rc
+CAUGHT P1 BACKLOG_ROWS drops backlog-adp-refill (the 8x8 arm A composed maximum row) | 
+CAUGHT P2 BACKLOG_ROWS drops backlog-owed | 
+CAUGHT P3 table drops the "at least" prefix of a lower-bound composed maximum | 
+CAUGHT P4 table drops the lower-bound clause | 
+CAUGHT P5 results.json omits composed_maximum | 
+ESCAPED P6 fan-out recipients not sorted by commit before first/last | 
+CAUGHT P7 composed maximum labelled lower bound only when its own window is unreleased | 
+CAUGHT P8 released figure taken over every window | 
+ESCAPED P9 service ahead counts a record released exactly at the commit | 
+CAUGHT P10 service ahead counts every earlier record | 
+KEY D1 demonstration
+KEY git_status_porcelain_after

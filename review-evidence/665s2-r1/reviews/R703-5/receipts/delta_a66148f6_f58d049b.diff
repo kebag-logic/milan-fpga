@@ -1,0 +1,349 @@
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index d87e45cff7..94ed535d27 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -63,6 +63,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+ ```
+ 
+ - `answering-ports` (arm B) makes the fixture's four observation callbacks answer.
++  It runs three of the four backlog rows, `backlog`, `backlog-adp` and `backlog-owed`, without `backlog-adp-refill`, so its composed maximum is partial.
+ - `shutdown-entry` adds the SHUTDOWN path's only input: a poll that calls `adp_mbx_set_enable(false)` once, at NOW_MS 2,500.
+   It runs the `adp-shutdown` and `control-shutdown` groups only.
+ 
+@@ -153,6 +154,7 @@ A served record's records ahead are its channel's earlier records not yet releas
+ A window that left records unreleased names them, and its passes ran without that work, so its longest pass is a lower bound of a load the firmware did not finish.
+ The composed maximum is the longest pass over every backlog row's window, each of which committed its defined load (`run.composed_maximum`).
+ While any of those windows left its load unreleased, the composed maximum is a lower bound.
++A run that did not include every backlog row names the rows not run, and its figure is labelled partial: the longest pass of the windows it ran, not the composed maximum.
+ The longest pass of the windows that released their whole load is reported beside it, labelled as such: it leaves out the windows the firmware never finished, so it is not the composed maximum.
+ 
+ The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 18 ms.
+@@ -165,7 +167,7 @@ Arm B is the labelled second arm, whose fixture callbacks answer.
+ The SHUTDOWN row comes from the labelled `shutdown-entry` arm.
+ In the path tables a cell is a path's worst measured instance across the groups that measure it, "ms (the pass bound)"; **miss** is over T_svc, **over ceiling** over the 3.4.1 ceiling as well.
+ A record never released or a command never answered is worse than any time measured, and its cell gives the time it had waited, at least.
+-Each run writes every path's worst instance, every probe, every composed window, the composed maximum and every timed-out wait to its `table.md`, and all of it to `results.json`.
++Each run writes every path's worst instance, every probe, every composed window, the composed maximum (labelled partial where the run left out a backlog row) and every timed-out wait to its `table.md`, and all of it to `results.json`.
+ 
+ Arm labels: A is arm A, B is arm B, S is the `shutdown-entry` arm; 1 is 1x1 and 8 is 8x8.
+ T_svc misses, counted per path and per probe instance (a path several groups measure is one path, at its worst; at 8x8 each interface's instance is its own path):
+@@ -197,18 +199,19 @@ Their waits sum to 1.59 to 1.64 times each pass's cycles, so more than one fetch
+ | Point, arm | Idle pass, CPU cycles (ms) | Worst pass, CPU cycles (ms), group | Composed maximum, every backlog window, CPU cycles (ms), group | Over the windows that released their whole load only |
+ |---|---:|---:|---:|---:|
+ | 1x1, A | 65,703 to 72,632 (1.31 to 1.45) | 1,565,803 (31.32), backlog-adp | at least 1,565,803 (31.32), backlog-adp, a lower bound | 740,260 (14.81), backlog |
+-| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 740,260 (14.81), backlog | 740,260 (14.81), backlog | 740,260 (14.81), backlog |
++| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 740,260 (14.81), backlog | partial, 3 of 4 windows (`backlog-adp-refill` not run): 740,260 (14.81), backlog | 740,260 (14.81), backlog |
+ | 8x8, A | 157,133 to 185,315 (3.14 to 3.71) | 2,989,496 (59.79), acmp-notk | at least 2,209,308 (44.19), backlog-adp-refill, a lower bound | 1,392,016 (27.84), backlog |
+-| 8x8, B | 157,133 to 293,468 (3.14 to 5.87) | 2,004,666 (40.09), acmp-notk | 1,392,016 (27.84), backlog | 1,392,016 (27.84), backlog |
++| 8x8, B | 157,133 to 293,468 (3.14 to 5.87) | 2,004,666 (40.09), acmp-notk | partial, 3 of 4 windows (`backlog-adp-refill` not run): 1,392,016 (27.84), backlog | 1,392,016 (27.84), backlog |
+ 
+ The composed maximum is the longest pass over every backlog window, each of which committed its row's defined load.
+ In arm A, the formal measurement, the two bound-talker windows never release SRP's 32 records (see [the load's service](#the-loads-service)), so their passes ran without SRP's work and the composed maximum is a lower bound: at least 31.32 ms at 1x1 and at least 44.19 ms at 8x8.
+ The last column leaves those windows out; it is labelled, and it is not the composed maximum.
+-Every window of arm B released its load, so its two figures are the same.
++Arm B runs three of the four backlog rows, `backlog`, `backlog-adp` and `backlog-owed`, without `backlog-adp-refill`.
++So its figure is partial, over 3 of 4 backlog windows, and is not the composed maximum; each of those three windows released its load, so its two figures are the same.
+ An idle pass's largest consumers are AECP's two modules, `aecp` 26,497 and `aecp_nvm` 20,254 cycles at 1x1, 73,883 and 20,254 at 8x8, mostly their polls.
+ The idle range excludes the pass the script's end cuts short; at 8x8 it is 3.14 to 3.71 ms (157,133 to 185,315 cycles) in arm A.
+ The 8x8 link-up pass, 2,004,666 cycles, is lwSRP's `mrp_mad` 473,950, `memset` 361,053, `memcpy` 244,102, the mailbox driver 119,790 and software multiply and divide (`__mulsi3` 111,201, `__udivsi3` 89,954).
+-In arm B, and over arm A's windows that released their load, the longest pass at both points is the `backlog` group's: at 1x1, 740,260 cycles of `memset` 278,637, the mailbox driver 141,995, `memcpy` 66,719, AECP 41,029 and ACMP 36,377; at 8x8, 1,392,016 cycles of `memset` 477,042, the mailbox driver 134,267, `memcpy` 132,197, AECP 111,084, ACMP 89,857 and `__mulsi3` 67,272.
++In arm B's three backlog windows, and over arm A's windows that released their load, the longest pass at both points is the `backlog` group's: at 1x1, 740,260 cycles of `memset` 278,637, the mailbox driver 141,995, `memcpy` 66,719, AECP 41,029 and ACMP 36,377; at 8x8, 1,392,016 cycles of `memset` 477,042, the mailbox driver 134,267, `memcpy` 132,197, AECP 111,084, ACMP 89,857 and `__mulsi3` 67,272.
+ Arm A's 1x1 composed maximum and worst pass, `backlog-adp`'s 1,565,803 cycles, is `memset` 984,728, AECP 173,531, the mailbox driver 127,547, ACMP 49,350 and `memcpy` 46,964: after the bind, AECP's retry (see [Findings](#findings)).
+ Arm A's 8x8 composed maximum, `backlog-adp-refill`'s 2,209,308 cycles, is `memset` 827,831, lwSRP's `mrp_mad` 429,626, AECP 350,539, the mailbox driver 150,636 and `memcpy` 140,364.
+ 
+@@ -435,9 +438,12 @@ Every window committed exactly its defined load (the run refuses one that did no
+ - The single passes break the [#397 one-hart rule](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046).
+   A pass is the loop's only opportunity to take an input, and the smallest deadline every duty shares is T_svc.
+   In arm A, the formal measurement, the composed maximum is at least 31.32 ms at 1x1 and at least 44.19 ms at 8x8: a lower bound, because those passes ran in windows whose SRP load is never released.
+-  In arm B every window released its load, and the composed maximum is 14.81 and 27.84 ms, the same as over arm A's released windows only; the 8x8 link-up pass is 40.09 ms.
++  Arm B runs three of the four backlog rows, `backlog`, `backlog-adp` and `backlog-owed`, without `backlog-adp-refill`, and each released its load.
++  Over those three windows its longest pass is 14.81 and 27.84 ms, the same as over arm A's released windows only: a partial figure, not the composed maximum.
++  Its 8x8 link-up pass is 40.09 ms.
+ - **The baseline for S2b and S2c** is arm A's composed maximum over every backlog window: at least 1,565,803 cycles (31.32 ms) at 1x1 and at least 2,209,308 (44.19 ms) at 8x8, compared window by window in [the load's service](#the-loads-service).
+   The figure over the released windows only is no baseline: a change that lets SRP be served in `backlog-adp` adds that window to it, so its before and after would cover different windows.
++  Nor is a partial figure: a re-measure that leaves out a backlog row names it, and its figure covers fewer windows than the baseline.
+   The [later owner decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860) puts the instruction cache (S2c) before firmware-only tuning (S2b).
+ - An input waits for the pass that is running and then for the pass that takes it.
+   So T_svc needs every pass well under 5 ms.
+@@ -513,7 +519,9 @@ Its checks:
+ - a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
+ - a notification over two recipients ends at the last; a late recipient misses; a missing one, a duplicate standing in for another, and a controller outside the set are refused; unrelated unsolicited responses do not end it; over three recipients, the cost a recipient is the first to last commit over the two gaps;
+ - the composed maximum is a window's longest pass even when that pass is neither its first nor its last, and the worst pass includes the run's last pass; the pass the script's end cuts is no idle pass;
+-- the composed maximum is the longest pass of every backlog window, the fixture's excluded, and a lower bound while one left its load unreleased, with the released windows' longest beside it;
++- the composed maximum is the longest pass of every backlog window, the fixture's excluded, and a lower bound while one left its load unreleased, with the released windows' longest beside it; it is still a lower bound when the longest window released its load and a shorter one did not;
++- a run without every backlog row names the rows not run, and its composed maximum is partial: arm B's three rows, and one row alone;
++- `results.json`'s composed maximum is the record the table renders, its line checked word for word: a lower bound over every window, a partial figure, and both at once;
+ - the responses owed ahead are exactly the owed ones, in order; a command that may be dropped and is never answered is reported, unbounded, and one that may not is refused;
+ - the defined loads, restated; every composed window of the real scenario, at one and two interfaces, sends and declares exactly its defined load; the owed row has its seven owed and its four behind;
+ - the real fan-out group registers the firmware's capacity (read from `aecp.h`) on every interface, every registration is each fan-out's recipient, and no requester is registered;
+@@ -550,10 +558,10 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | composition: the window's population is not checked | a composed load missing one channel is refused |
+ | composition: the composed maximum is the run's worst pass | fixture passes: worst pass and composed maximum |
+ | composition: the composed maximum is the window's first pass | fixture passes: worst pass and composed maximum |
+-| worst pass: the run's last pass is dropped | the pass bound runs from the running pass at the bus ratio |
++| worst pass: the run's last pass is dropped | refused: synthetic.service.acmp.last.if0: the release at 2050 belongs to no work pass |
+ | passes: the pass the script's end cuts counts as idle (earlier rule) | the pass the script's end cuts is no idle pass |
+ | composition: a window that committed more than its load is accepted | a composed window that committed more than its load is refused |
+-| composition: the load is the stimulus's own declaration (earlier rule) | a window short of its defined load is refused although it declares it |
++| composition: the load is the stimulus's own declaration (earlier rule) | refused: synthetic: the composed window committed two ACMP records, its declared load none |
+ | composition: the backlog stimulus omits SRP | every composed window's stimulus is its defined load |
+ | composition: the backlog stimulus omits MAAP | every composed window's stimulus is its defined load |
+ | composition: the owed row omits the ACMP commands behind its input (earlier rule) | every composed window's stimulus is its defined load |
+@@ -562,6 +570,11 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | composition: the composed maximum is taken over the windows that released their load (earlier rule) | the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased |
+ | composition: the composed maximum is no lower bound where a window left its load unreleased | the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased |
+ | composition: the composed maximum includes the fixture's short window | the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased |
++| composition: the composed maximum is a lower bound only where its own window left its load unreleased | the composed maximum is a lower bound while a window shorter than the longest left its load unreleased |
++| composition: the composed maximum does not name the backlog rows a run did not include | a run without every backlog row names the rows not run, and its composed maximum is partial |
++| tables: results.json omits the composed maximum | results.json's composed maximum is the record the table renders, with its lower-bound and partial labels |
++| tables: the composed maximum line drops its lower-bound label | results.json's composed maximum is the record the table renders, with its lower-bound and partial labels |
++| tables: the composed maximum line drops its partial label | results.json's composed maximum is the record the table renders, with its lower-bound and partial labels |
+ | service: the records ahead count only those never released | a served record's records ahead are those not yet released at its commit |
+ | notify: the cost a recipient divides by the recipients, not the gaps | a fan-out's cost a recipient is its first to last commit over the gaps between them |
+ | service: a record's service ends at its release, not at its pass's end | fixture row fixture.service.adp.first.if0 |
+@@ -585,6 +598,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
+ 
+ A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
++Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
+ 
+ Regenerate the fixture only through its generator, from a fresh 1x1 run of the `fixture` group:
+ 
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index fdf3c2f062..742a52581e 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -68,14 +68,18 @@ def composed_maximum(results: list[dict]) -> dict | None:
+     """The composed maximum: the longest pass over every backlog row's window, each of which
+     committed its defined load (grade.check_load refuses one that did not). A window that left
+     records unreleased ran its passes without that work, so while any did, the figure is a lower
+-    bound. The longest pass of the windows that released their whole load is given beside it."""
++    bound. A run that did not include every backlog row names the rows not run, and its figure is
++    partial: the longest pass of the windows it ran, not the composed maximum. The longest pass of
++    the windows that released their whole load is given beside it."""
+     import grade
+     every = [w for w in windows(results) if w['group'] in grade.BACKLOG_ROWS]
+     if not every:
+         return None
+     top = max(every, key=lambda w: w['cycles'])
+     done = max((w for w in every if w['serviced']), key=lambda w: w['cycles'], default=None)
++    not_run = [row for row in grade.BACKLOG_ROWS if row not in {w['group'] for w in every}]
+     return dict(cycles=top['cycles'], ms=top['ms'], group=top['group'], windows=len(every),
++                rows=len(grade.BACKLOG_ROWS), not_run=not_run, partial=bool(not_run),
+                 lower_bound=not all(w['serviced'] for w in every),
+                 unreleased=[w['group'] for w in every if not w['serviced']],
+                 released=dict(cycles=done['cycles'], ms=done['ms'], group=done['group']) if done else None)
+@@ -132,8 +136,10 @@ def table(results: list[dict], point: str) -> str:
+     top = composed_maximum(results)
+     if top:
+         bound = f", a lower bound (load unreleased in {', '.join(top['unreleased'])})" if top['lower_bound'] else ''
++        over = (f"{top['windows']} of {top['rows']} backlog windows, a partial figure ({', '.join(top['not_run'])} "
++                'not run)' if top['partial'] else f"the {top['windows']} backlog windows")
+         done = top['released']
+-        lines += ['', f"Composed maximum over the {top['windows']} backlog windows: "
++        lines += ['', f"Composed maximum over {over}: "
+                   f"{'at least ' if top['lower_bound'] else ''}{top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), "
+                   f"{top['group']}{bound}.",
+                   'Over the windows that released their whole load only: '
+@@ -157,6 +163,14 @@ def table(results: list[dict], point: str) -> str:
+     return '\n'.join(lines) + '\n'
+ 
+ 
++def summary(point: str, build: str, results: list[dict], refusals: list[str], misses: list[str]) -> dict:
++    """results.json: every grade, every path's worst instance, the counts, the composed windows,
++    the composed maximum the table renders, the refusals and the misses."""
++    return dict(point=point, build=build, results=results, paths=paths(results), counts=counts(results),
++                windows=windows(results), composed_maximum=composed_maximum(results),
++                refusals=refusals, misses=misses)
++
++
+ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
+     """The command line."""
+     import build as builder
+@@ -300,11 +314,8 @@ def main() -> int:
+     results, refusals, misses = graded(groups, logs, spec, out)
+     refusals = absent + refusals
+     (out / 'table.md').write_text(table(results, args.point))
+-    (out / 'results.json').write_text(json.dumps(dict(point=args.point, build=spec['executable_sha256'],
+-                                                      results=results, paths=paths(results),
+-                                                      counts=counts(results), windows=windows(results),
+-                                                      composed_maximum=composed_maximum(results),
+-                                                      refusals=refusals, misses=misses), indent=1) + '\n')
++    (out / 'results.json').write_text(json.dumps(summary(args.point, spec['executable_sha256'], results, refusals,
++                                                         misses), indent=1) + '\n')
+     for line in refusals:
+         print('REFUSED', line)
+     for line in misses:
+diff --git a/tb/verilator/ctrl_service_budget/selftest.py b/tb/verilator/ctrl_service_budget/selftest.py
+index 70aab876e8..92bd514514 100644
+--- a/tb/verilator/ctrl_service_budget/selftest.py
++++ b/tb/verilator/ctrl_service_budget/selftest.py
+@@ -10,10 +10,12 @@ composed maximum and the composed window's population. Synthetic traces
+ check each marker, the notification fan-out and its cost a recipient, the
+ owed responses, the records ahead of a served record, the clock
+ conversion, the pass bound, the deadlines and the composition; synthetic
+-windows check the composed maximum over the backlog rows. The real
+-scenario's composed windows are counted against the defined loads restated
+-here, its fan-out against the firmware's registration capacity read here,
+-and its controls against their paths. The run's exit status, the regrade's
++windows check the composed maximum over the backlog rows, its lower bound,
++the rows a run did not include, and the record results.json carries and
++the table renders. The real scenario's composed windows are counted
++against the defined loads restated here, its fan-out against the
++firmware's registration capacity read here, and its controls against
++their paths. The run's exit status, the regrade's
+ refusal of an absent log and the reuse attestation run on temporary files.
+ Then each rule is mutated in turn, and a named check must fail; a mutant of
+ a headline figure (the worst pass, the composed maximum, a pass bound)
+@@ -385,22 +387,70 @@ def composition_checks() -> list[Check]:
+     worst = run.paths(results)[0]['worst']
+     out.append(("a starved instance is its path's worst", worst['probe'] == 'c.x.if0'
+                 and run.verdict_word(worst).startswith('STARVED'), str(worst)))
+-    # The composed maximum is the longest pass of every backlog window, here one that left SRP
+-    # unreleased, so a lower bound; the released windows' longest stands beside it, and the
+-    # fixture's short window is no backlog row.
++    return out
++
++
++def maximum_checks() -> list[Check]:
++    """The composed maximum over synthetic backlog windows: its lower bound, the backlog rows a run
++    did not include, and the record results.json carries and the table renders."""
+     window = lambda group, cycles, done: dict(group=group, probes=[], timeouts=[], passes=dict(composed=dict(
+         cycles=cycles, ms=cycles / 50_000, passes=3, window_ms=100.0, serviced=done, unreleased={} if done
+         else {'srp': 32})))
+-    results = [window('fixture', 9_000_000, True), window('backlog', 700_000, True),
+-               window('backlog-adp', 1_500_000, False), window('backlog-owed', 600_000, True)]
+-    got = [run.composed_maximum(results), run.composed_maximum([results[1], results[3]])]
+-    released = dict(cycles=700_000, ms=14.0, group='backlog')
+-    want = [dict(cycles=1_500_000, ms=30.0, group='backlog-adp', windows=3, lower_bound=True,
+-                 unreleased=['backlog-adp'], released=released),
+-            dict(cycles=700_000, ms=14.0, group='backlog', windows=2, lower_bound=False, unreleased=[],
+-                 released=released)]
++    record = lambda top, group, unreleased, best, not_run=(): dict(
++        cycles=top, ms=top / 50_000, group=group, windows=4 - len(not_run), rows=4, not_run=list(not_run),
++        partial=bool(not_run), lower_bound=bool(unreleased), unreleased=list(unreleased),
++        released=dict(cycles=best[0], ms=best[0] / 50_000, group=best[1]) if best else None)
++    out = []
++    # Every backlog window, the longest of them with SRP unreleased, so a lower bound; the released
++    # windows' longest stands beside it, and the fixture's short window is no backlog row. Then
++    # every window released, so no lower bound.
++    full = [window('fixture', 9_000_000, True), window('backlog', 700_000, True),
++            window('backlog-adp', 1_500_000, False), window('backlog-adp-refill', 1_200_000, False),
++            window('backlog-owed', 600_000, True)]
++    released = [window('backlog', 700_000, True), window('backlog-adp', 650_000, True),
++                window('backlog-adp-refill', 680_000, True), window('backlog-owed', 600_000, True)]
++    at_least = record(1_500_000, 'backlog-adp', ['backlog-adp', 'backlog-adp-refill'], (700_000, 'backlog'))
++    got = [run.composed_maximum(full), run.composed_maximum(released)]
+     out.append(('the composed maximum is the longest pass of every backlog window, a lower bound while one '
+-                'left its load unreleased', got == want, str(got)))
++                'left its load unreleased', got == [at_least, record(700_000, 'backlog', [], (700_000, 'backlog'))],
++                str(got)))
++    # The longest window released its load and a shorter one did not: still a lower bound.
++    shorter = [window('backlog', 1_800_000, True), window('backlog-adp', 1_500_000, False),
++               window('backlog-adp-refill', 1_200_000, True), window('backlog-owed', 600_000, True)]
++    got = run.composed_maximum(shorter)
++    out.append(('the composed maximum is a lower bound while a window shorter than the longest left its load '
++                'unreleased', got == record(1_800_000, 'backlog', ['backlog-adp'], (1_800_000, 'backlog')),
++                str(got)))
++    # The answering-ports arm's three backlog rows, without the refill row, and one row alone: each run
++    # names the rows it did not include.
++    three = [window('backlog', 740_260, True), window('backlog-adp', 645_058, True),
++             window('backlog-owed', 582_392, True)]
++    partial = record(740_260, 'backlog', [], (740_260, 'backlog'), ['backlog-adp-refill'])
++    got = [run.composed_maximum(three), run.composed_maximum(three[:1])]
++    want = [partial, record(740_260, 'backlog', [], (740_260, 'backlog'),
++                            ['backlog-adp', 'backlog-adp-refill', 'backlog-owed'])]
++    out.append(('a run without every backlog row names the rows not run, and its composed maximum is partial',
++                got == want, str(got)))
++    # results.json's record is the one the table renders: a lower bound over every window, a partial
++    # figure, and both at once (an unreleased window run alone).
++    both = record(1_500_000, 'backlog-adp', ['backlog-adp'], None, ['backlog', 'backlog-adp-refill', 'backlog-owed'])
++    cases = ((full, at_least, 'Composed maximum over the 4 backlog windows: at least 1,500,000 CPU cycles '
++              '(30.000 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).',
++              '700,000 (14.000 ms), backlog.'),
++             (three, partial, 'Composed maximum over 3 of 4 backlog windows, a partial figure (backlog-adp-refill '
++              'not run): 740,260 CPU cycles (14.805 ms), backlog.', '740,260 (14.805 ms), backlog.'),
++             (full[2:3], both, 'Composed maximum over 1 of 4 backlog windows, a partial figure (backlog, '
++              'backlog-adp-refill, backlog-owed not run): at least 1,500,000 CPU cycles (30.000 ms), backlog-adp, '
++              'a lower bound (load unreleased in backlog-adp).', 'none.'))
++    wrong = []
++    for results, top, line, best in cases:
++        saved = run.summary('1x1', '0' * 64, results, [], [])['composed_maximum']
++        lines = [text for text in run.table(results, '1x1').splitlines()
++                 if text.startswith(('Composed maximum', 'Over the windows'))]
++        if saved != top or lines != [line, f'Over the windows that released their whole load only: {best}']:
++            wrong.append(f'results.json {saved}; table {lines}')
++    out.append(("results.json's composed maximum is the record the table renders, with its lower-bound and "
++                'partial labels', not wrong, '; '.join(wrong)))
+     return out
+ 
+ 
+@@ -672,8 +722,8 @@ def reuse_checks() -> list[Check]:
+ 
+ def checks() -> list[Check]:
+     """Every named check and whether it holds."""
+-    return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *window_checks(),
+-            *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks()]
++    return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
++            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks()]
+ 
+ 
+ def write_fixture(log: Path, build_json: Path) -> None:
+diff --git a/tb/verilator/ctrl_service_budget/selftest_mutants.py b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+index 88e5d998a7..8a32487080 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_mutants.py
++++ b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+@@ -11,6 +11,7 @@ from __future__ import annotations
+ 
+ import hashlib
+ import json
++import re
+ from collections.abc import Callable
+ from pathlib import Path
+ from unittest.mock import patch
+@@ -113,6 +114,28 @@ def _maximum_of(keep: Callable[[dict], bool], bound: bool = True) -> Patches:
+     return lambda: [patch.object(run, 'composed_maximum', composed_maximum)]
+ 
+ 
++def _maximum_edited(edit: Callable[[dict], dict]) -> Patches:
++    """run.composed_maximum with its record edited."""
++    original = run.composed_maximum
++
++    def composed_maximum(results: list[dict]) -> dict | None:
++        """The mutant composed maximum: the record edited."""
++        top = original(results)
++        return None if top is None else edit(top)
++    return lambda: [patch.object(run, 'composed_maximum', composed_maximum)]
++
++
++def _maximum_line(pattern: str, repl: str) -> Patches:
++    """run.table with the pattern replaced in its composed maximum line only."""
++    original = run.table
++
++    def table(results: list[dict], point: str) -> str:
++        """The mutant table: the composed maximum line rewritten."""
++        return '\n'.join(re.sub(pattern, repl, line) if line.startswith('Composed maximum') else line
++                         for line in original(results, point).split('\n'))
++    return lambda: [patch.object(run, 'table', table)]
++
++
+ def _offer_without(channel: str, groups: str, after: str = '') -> Patches:
+     """Group.offer dropping a channel's records, step and declaration together, in the named
+     groups (after a mark, if given): a stimulus that omits background work."""
+@@ -344,6 +367,16 @@ MUTANTS: dict[str, Patches] = {
+         lambda g: True, bound=False),
+     "composition: the composed maximum includes the fixture's short window": lambda: [patch.object(
+         grade, 'BACKLOG_ROWS', grade.COMPOSED_ROWS)],
++    'composition: the composed maximum is a lower bound only where its own window left its load unreleased':
++        _maximum_edited(lambda top: dict(top, lower_bound=top['group'] in top['unreleased'])),
++    'composition: the composed maximum does not name the backlog rows a run did not include': _maximum_edited(
++        lambda top: dict(top, not_run=[], partial=False)),
++    'tables: results.json omits the composed maximum': lambda: [patch.object(
++        run, 'summary', lambda *a, f=run.summary: dict(f(*a), composed_maximum=None))],
++    'tables: the composed maximum line drops its lower-bound label': _maximum_line(
++        r'at least |, a lower bound \(load unreleased in [^)]*\)', ''),
++    'tables: the composed maximum line drops its partial label': _maximum_line(
++        r'(\d+) of \d+ backlog windows, a partial figure \([^)]*\)', r'the \1 backlog windows'),
+     'service: the records ahead count only those never released': _ahead_never_released,
+     'notify: the cost a recipient divides by the recipients, not the gaps': _cost_over_recipients,
+     "service: a record's service ends at its release, not at its pass's end": lambda: [patch.object(

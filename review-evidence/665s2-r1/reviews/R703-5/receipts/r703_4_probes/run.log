@@ -1,0 +1,112 @@
+{
+ "baseline_selftest_rc": 0,
+ "P1 BACKLOG_ROWS drops backlog-adp-refill (the 8x8 arm A composed maximum row)": {
+  "verdict": "caught",
+  "rc": 1,
+  "first_failures": []
+ },
+ "P2 BACKLOG_ROWS drops backlog-owed": {
+  "verdict": "caught",
+  "rc": 1,
+  "first_failures": []
+ },
+ "P3 table drops the \"at least\" prefix of a lower-bound composed maximum": {
+  "verdict": "caught",
+  "rc": 1,
+  "first_failures": [
+   "FAIL: results.json's composed maximum is the record the table renders, with its lower-bound and partial labels: results.json {'cycles': 1500000, 'ms': 30.0, 'group': 'backlog-adp', 'windows': 4, 'rows': 4, 'not_run': [], 'partial': False, 'lower_bound': True, 'unreleased': ['backlog-adp', 'backlog-adp-refill'], 'released': {'cycles': 700000, 'ms': 14.0, 'group': 'backlog'}}; table ['Composed maximum over the "
+  ]
+ },
+ "P4 table drops the lower-bound clause": {
+  "verdict": "caught",
+  "rc": 1,
+  "first_failures": [
+   "FAIL: results.json's composed maximum is the record the table renders, with its lower-bound and partial labels: results.json {'cycles': 1500000, 'ms': 30.0, 'group': 'backlog-adp', 'windows': 4, 'rows': 4, 'not_run': [], 'partial': False, 'lower_bound': True, 'unreleased': ['backlog-adp', 'backlog-adp-refill'], 'released': {'cycles': 700000, 'ms': 14.0, 'group': 'backlog'}}; table ['Composed maximum over the "
+  ]
+ },
+ "P5 results.json omits composed_maximum": {
+  "verdict": "caught",
+  "rc": 1,
+  "first_failures": [
+   "FAIL: results.json's composed maximum is the record the table renders, with its lower-bound and partial labels: results.json None; table ['Composed maximum over the 4 backlog windows: at least 1,500,000 CPU cycles (30.000 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).', 'Over the windows that released their whole load only: 700,000 (14.000 ms), backlog.']; results.json N"
+  ]
+ },
+ "P6 fan-out recipients not sorted by commit before first/last": {
+  "verdict": "ESCAPED",
+  "rc": 0,
+  "first_failures": []
+ },
+ "P7 composed maximum labelled lower bound only when its own window is unreleased": {
+  "verdict": "caught",
+  "rc": 1,
+  "first_failures": [
+   "FAIL: the composed maximum is a lower bound while a window shorter than the longest left its load unreleased: {'cycles': 1800000, 'ms': 36.0, 'group': 'backlog', 'windows': 4, 'rows': 4, 'not_run': [], 'partial': False, 'lower_bound': False, 'unreleased': ['backlog-adp'], 'released': {'cycles': 1800000, 'ms': 36.0, 'group': 'backlog'}}"
+  ]
+ },
+ "P8 released figure taken over every window": {
+  "verdict": "caught",
+  "rc": 1,
+  "first_failures": [
+   "FAIL: the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased: [{'cycles': 1500000, 'ms': 30.0, 'group': 'backlog-adp', 'windows': 4, 'rows': 4, 'not_run': [], 'partial': False, 'lower_bound': True, 'unreleased': ['backlog-adp', 'backlog-adp-refill'], 'released': {'cycles': 1500000, 'ms': 30.0, 'group': 'backlog-adp'}}, {'cycles': 700000, 'ms': 14.0, 'group': '",
+   "FAIL: results.json's composed maximum is the record the table renders, with its lower-bound and partial labels: results.json {'cycles': 1500000, 'ms': 30.0, 'group': 'backlog-adp', 'windows': 4, 'rows': 4, 'not_run': [], 'partial': False, 'lower_bound': True, 'unreleased': ['backlog-adp', 'backlog-adp-refill'], 'released': {'cycles': 1500000, 'ms': 30.0, 'group': 'backlog-adp'}}; table ['Composed maximum over"
+  ]
+ },
+ "P9 service ahead counts a record released exactly at the commit": {
+  "verdict": "ESCAPED",
+  "rc": 0,
+  "first_failures": []
+ },
+ "P10 service ahead counts every earlier record": {
+  "verdict": "caught",
+  "rc": 1,
+  "first_failures": [
+   "FAIL: fixture row fixture.service.aecp.first.if0: ahead 1 (pinned 0)",
+   "FAIL: fixture row fixture.service.aecp.last.if0: ahead 1 (pinned 0)",
+   "FAIL: fixture row fixture.service.srp.first.if0: ahead 1 (pinned 0)"
+  ]
+ },
+ "D1 demonstration": {
+  "arm_b_1x1_three_rows": {
+   "cycles": 740260,
+   "ms": 14.8052,
+   "group": "backlog",
+   "windows": 3,
+   "rows": 4,
+   "not_run": [
+    "backlog-adp-refill"
+   ],
+   "partial": true,
+   "lower_bound": false,
+   "unreleased": [],
+   "released": {
+    "cycles": 740260,
+    "ms": 14.8052,
+    "group": "backlog"
+   }
+  },
+  "one_row_only": {
+   "cycles": 740260,
+   "ms": 14.8052,
+   "group": "backlog",
+   "windows": 1,
+   "rows": 4,
+   "not_run": [
+    "backlog-adp",
+    "backlog-adp-refill",
+    "backlog-owed"
+   ],
+   "partial": true,
+   "lower_bound": false,
+   "unreleased": [],
+   "released": {
+    "cycles": 740260,
+    "ms": 14.8052,
+    "group": "backlog"
+   }
+  },
+  "table_one_row": [
+   "Composed maximum over 1 of 4 backlog windows, a partial figure (backlog-adp, backlog-adp-refill, backlog-owed not run): 740,260 CPU cycles (14.805 ms), backlog."
+  ]
+ },
+ "git_status_porcelain_after": ""
+}

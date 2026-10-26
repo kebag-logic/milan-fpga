@@ -1,0 +1,8 @@
+docs_check rc=0 : python3 scripts/docs_check.py
+doc_style rc=0 : python3 scripts/check_doc_style.py
+em_dash rc=2 : python3 scripts/check_em_dash.py --base e76a755afc0536453161e3cd33f6f4d2dcd7641f
+py_idiom rc=0 : python3 scripts/check_py_idiom.py
+doc_paths rc=0 : python3 scripts/check_doc_paths.py
+toc rc=2 : python3 scripts/gen_toc.py --check
+baremetal_check rc=0 : python3 -B scripts/check_baremetal_only.py --check
+git_diff_check rc=0 : git diff --check a66148f6..f58d049b
