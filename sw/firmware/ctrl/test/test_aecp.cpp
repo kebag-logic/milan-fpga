@@ -708,12 +708,10 @@ TEST_F(Core, LockQueriesAndExpiry)
     ASSERT_NE(it,sent.end());EXPECT_EQ(get(it->second,42,8),0u);
 }
 
-// The platform's applied port (#665). While it is false every state-changing
-// command answers ENTITY_MISBEHAVING, echoing its body, before it changes
-// anything, and reads are answered; a change after which it is false answers
-// ENTITY_MISBEHAVING and notifies no one, and so does a lock expiry
-// (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.5.2; IEEE
-// 1722.1-2021 7.5.2).
+// The platform's applied port (#665). While it is false every change is
+// refused by the lock check before it changes anything, ENTITY_MISBEHAVING,
+// with what that command's lock refusal reports; reads are answered (R701-4
+// F2; IEEE 1722.1-2021 7.4.15.1).
 TEST_F(Core, AChangeThePlatformHasNotAppliedPromisesNothing)
 {
     auto map=[](unsigned type){Bytes b=target(type,0,16);put(b,4,1,2);put(b,10,1,2);put(b,12,1,2);return b;};
@@ -724,37 +722,138 @@ TEST_F(Core, AChangeThePlatformHasNotAppliedPromisesNothing)
     Bytes clock=target(36,0,8);put(clock,4,get(desc(36).value+70,2),2);
     Bytes identify=target(26,0,5);identify[4]=255;
     const std::vector<std::pair<unsigned,Bytes>> changes={{1,Bytes(16)},{6,Bytes(4)},{8,format},{14,info},
-        {16,name},{20,rate},{22,clock},{24,identify},{44,map(14)},{45,map(15)}};
+        {16,name},{20,rate},{22,clock},{24,identify},{34,target(5,0)},{35,target(5,0)},{44,map(14)},{45,map(15)}};
     unsigned noted=0;
     ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){++noted;});
     register_controller();register_controller(CTLR+1);
+    // what each lock refusal reports, under another controller's lock
+    ask(1,Bytes(16),0,CTLR+1);std::vector<Bytes> locked;
+    for(const auto &[cmd,body]:changes){auto out=ask(cmd,body,3);locked.emplace_back(out.begin()+38,out.end());}
+    Bytes unlock(16);put(unlock,0,1,4);ask(1,unlock,0,CTLR+1);
     ON_CALL(mock,Applied).WillByDefault(Return(false));
-    for(const auto &[cmd,body]:changes){
+    for(size_t k=0;k<changes.size();++k){
+        const auto &[cmd,body]=changes[k];
         noted=0;auto out=ask(cmd,body,10);
         EXPECT_EQ(noted,0u)<<"command "<<cmd<<" refused before it changes anything";
         EXPECT_EQ(sent.size(),1u)<<"command "<<cmd<<": the refusal alone";
-        EXPECT_EQ(Bytes(out.begin()+38,out.end()),body)<<"command "<<cmd<<": the refusal echoes its body";
+        Bytes refusal(out.begin()+38,out.end());
+        if(cmd==1){EXPECT_EQ(get(out,42,8),0u)<<"LOCK_ENTITY reports the lock in force: none";}
+        else EXPECT_EQ(refusal,locked[k])<<"command "<<cmd<<": the refusal reports what its lock refusal reports";
     }
-    EXPECT_EQ(a.identify,0u);EXPECT_FALSE(a.locked);EXPECT_EQ(maps[0].count,0u);
+    auto control=ask(24,identify,10);EXPECT_EQ(control[42],0u)<<"the IDENTIFY in force, not the one asked";
+    auto stream=ask(14,info,10);EXPECT_NE(get(stream,62,4),4321u)<<"the latency in force, not the one asked";
+    EXPECT_EQ(a.identify,0u);EXPECT_FALSE(a.locked);EXPECT_EQ(maps[0].count,0u);EXPECT_FALSE(a.start_pending);
     for(unsigned cmd:{7u,25u,43u}){
         auto out=ask(cmd,cmd==25?target(26,0):cmd==43?target(14,0,8):Bytes(4));
         EXPECT_EQ(get(out,16,2)>>11,0u)<<"a read is still answered: "<<cmd;
     }
-    ask(10,Bytes(4),1);ask(0,Bytes(16),11);
-    // applied before the change, not after it: no SUCCESS, no notification
-    EXPECT_CALL(mock,Applied()).WillOnce(Return(true)).WillOnce(Return(false));
-    noted=0;ask(24,identify,10);
-    EXPECT_EQ(noted,1u)<<"the change was made and handed to the platform";
-    EXPECT_EQ(sent.size(),1u)<<"a change the platform did not apply promises nothing: no notification";
-    testing::Mock::VerifyAndClearExpectations(&mock);
-    ON_CALL(mock,Applied).WillByDefault(Return(true));
-    ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){++noted;});
-    ask(1,Bytes(16));EXPECT_TRUE(a.locked);
+    ask(10,Bytes(4),1);ask(0,Bytes(16),11);ask(36);
+    // under a lock of its own, LOCK_ENTITY's refusal names that lock's owner
+    ON_CALL(mock,Applied).WillByDefault(Return(true));ask(1,Bytes(16));
     ON_CALL(mock,Applied).WillByDefault(Return(false));
-    sent.clear();ms=60000;drain();
+    EXPECT_EQ(get(ask(1,unlock,10),42,8),CTLR);EXPECT_EQ(get(ask(1,unlock,3,CTLR+1),42,8),CTLR)
+        <<"another controller is still refused by the lock itself";
+}
+
+// A change of face state the platform has not applied after it waits, undone:
+// IN_PROGRESS at once with the values in force, so every read meanwhile reports
+// them, and no other change is taken. Applied within AECP_WAIT_MS it is done
+// again and answered SUCCESS, then notified; not applied, it stays undone and
+// answers ENTITY_MISBEHAVING with the values in force, notifying no one (#665;
+// IEEE 1722.1-2021 7.4, 7.5.2, 9.3.2.6; Milan v1.2 5.4.5.2).
+TEST_F(Core, AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce)
+{
+    bool face=true,late=true;unsigned noted=0;
+    ON_CALL(mock,Applied).WillByDefault([&]{return face;});
+    ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){++noted;face=face&&!late;});
+    register_controller();register_controller(CTLR+1);
+    Bytes identify=target(26,0,5);identify[4]=255;
+    auto first=ask(24,identify,AECP_IN_PROGRESS);
+    EXPECT_EQ(first[42],0u)<<"IN_PROGRESS reports the IDENTIFY in force";
+    EXPECT_EQ(sent.size(),1u)<<"IN_PROGRESS alone";
+    EXPECT_EQ(a.identify,0u)<<"the change waits undone";EXPECT_EQ(desc(26).value[108],0u)<<"in its descriptor too";
+    EXPECT_EQ(ask(25,target(26,0))[42],0u)<<"GET_CONTROL reports the value in force";
+    auto view=ask(4,{0,0,0,0,0,26,0,0});EXPECT_EQ(view[42+108],0u)<<"so does READ_DESCRIPTOR";
+    Bytes off=identify;off[4]=0;
+    EXPECT_EQ(ask(24,identify,AECP_ENTITY_MISBEHAVING,CTLR+1)[42],0u)<<"a second change is refused, with the value in force";
+    EXPECT_EQ(get(ask(1,Bytes(16),AECP_ENTITY_MISBEHAVING,CTLR+1),42,8),0u)<<"a lock too, with the lock in force";
+    EXPECT_FALSE(a.locked);EXPECT_EQ(noted,1u)<<"neither changes anything";
+    // applied: done again, answered once, then notified
+    late=false;face=true;sent.clear();drain();
+    ASSERT_EQ(sent.size(),2u)<<"the final response, then its notification";
+    EXPECT_EQ(get(sent[0].second,16,2)>>11,0u);EXPECT_EQ(sent[0].second[42],255u);
+    EXPECT_EQ(get(sent[0].second,26,8),CTLR);EXPECT_EQ(get(sent[0].second,34,2),0x1234u)<<"the command's own sequence";
+    EXPECT_EQ(get(sent[1].second,36,2),0x8018u);
+    EXPECT_EQ(get(sent[1].second,26,8),CTLR+1)<<"notified to the other controller, not the one that asked";
+    EXPECT_EQ(a.identify,255u)<<"done again once applied";EXPECT_EQ(desc(26).value[108],255u);
+    EXPECT_EQ(noted,2u)<<"handed to the platform again once done";
+    // each command of AECP_WAITS, not applied: it waits its whole bound and stays undone
+    Bytes format=target(5,0,12);put(format,4,get(desc(5).value+74,8),8);
+    Bytes info=target(6,0,84);put(info,4,0x20000000,4);put(info,24,4321,4);
+    Bytes clock=target(36,0,8);put(clock,4,get(desc(36).value+70,2),2);
+    Bytes unlock(16);put(unlock,0,1,4);
+    auto state=[&]{Bytes b(values.begin(),values.end());for(auto &e:events)b.push_back(e.overrides);
+        auto word=[&](uint64_t v,unsigned n){for(unsigned k=0;k<n;++k)b.push_back(uint8_t(v>>(8*k)));};
+        for(auto l:latency)word(l,4);
+        word(a.identify,1);word(a.locked,1);word(a.lock_owner,8);word(a.lock_deadline,4);word(a.configuration,2);
+        return b;};
+    const std::vector<std::pair<unsigned,Bytes>> waits={{1,Bytes(16)},{1,unlock},{6,Bytes(4)},{8,format},{14,info},
+        {22,clock},{24,off}};
+    for(const auto &[cmd,body]:waits){
+        late=true;face=true;noted=0;const auto before=state();
+        auto in=ask(cmd,body,AECP_IN_PROGRESS);
+        EXPECT_EQ(state(),before)<<"command "<<cmd<<" waits undone";
+        sent.clear();ms+=AECP_WAIT_MS-1;drain();EXPECT_TRUE(sent.empty())<<"command "<<cmd<<" waits its whole bound";
+        ms+=1;drain();
+        ASSERT_EQ(sent.size(),1u)<<"command "<<cmd<<": one final response, no notification";
+        auto out=sent[0].second;
+        EXPECT_EQ(get(out,16,2)>>11,AECP_ENTITY_MISBEHAVING)<<cmd;EXPECT_EQ(get(out,36,2),cmd);
+        EXPECT_EQ(get(out,26,8),CTLR);EXPECT_EQ(get(out,34,2),0x1234u);EXPECT_EQ(sent[0].first,0u);
+        EXPECT_EQ(Bytes(out.begin()+38,out.end()),Bytes(in.begin()+38,in.end()))
+            <<"command "<<cmd<<": the values in force, as IN_PROGRESS reported them";
+        EXPECT_EQ(state(),before)<<"command "<<cmd<<" stays undone";
+        EXPECT_EQ(noted,2u)<<"command "<<cmd<<": the platform is given the values in force again";
+        // once the platform applied them, the same command succeeds at once
+        late=false;face=true;sent.clear();auto done=ask(cmd,body);
+        EXPECT_EQ(sent.size(),2u)<<"command "<<cmd<<": SUCCESS, then its notification";
+        if(cmd==1&&body==Bytes(16)){EXPECT_TRUE(a.locked);}
+    }
+    EXPECT_EQ(latency[0],4321u);EXPECT_FALSE(a.locked);EXPECT_EQ(a.identify,0u);
+    // a change of no face state does not wait: the platform's apply is its own
+    late=true;face=true;Bytes name=target(0,0,72);put(name,4,1,2);std::fill(name.begin()+8,name.end(),0x5a);
+    sent.clear();ask(16,name);EXPECT_EQ(sent.size(),2u)<<"SET_NAME: SUCCESS and its notification";
+    EXPECT_FALSE(a.waiting);
+    // a response that cannot leave yet holds the outcome back
+    late=true;face=true;identify[4]=255;ask(24,identify,AECP_IN_PROGRESS);
+    room=false;late=false;face=true;drain();EXPECT_TRUE(a.response_owed);EXPECT_FALSE(a.waiting);
+    room=true;sent.clear();drain();ASSERT_EQ(sent.size(),2u);EXPECT_EQ(get(sent[0].second,16,2)>>11,0u);
+}
+
+// Milan v1.2 5.4.2.2: the lock expires at sixty seconds whether or not the
+// platform applies the release; its notification is sent once it does, however
+// late, and no change is taken before it (#665).
+TEST_F(Core, ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease)
+{
+    bool face=true;
+    ON_CALL(mock,Applied).WillByDefault([&]{return face;});
+    register_controller(CTLR+1);ask(1,Bytes(16));EXPECT_TRUE(a.locked);
+    face=false;sent.clear();ms=60000;drain();
     EXPECT_FALSE(a.locked)<<"the lock still expires at sixty seconds";
-    EXPECT_TRUE(std::none_of(sent.begin(),sent.end(),[](auto&v){return get(v.second,36,2)==0x8001;}))
-        <<"no unlock notification while the platform has not applied the release";
+    auto unlocks=[&]{return std::count_if(sent.begin(),sent.end(),[](auto&v){return get(v.second,36,2)==0x8001;});};
+    EXPECT_EQ(unlocks(),0)<<"no unlock notification while the platform has not applied the release";
+    Bytes identify=target(26,0,5);identify[4]=255;
+    EXPECT_EQ(ask(24,identify,AECP_ENTITY_MISBEHAVING)[42],0u)<<"no change while the release is not applied";
+    face=true;
+    EXPECT_EQ(ask(24,identify,AECP_ENTITY_MISBEHAVING)[42],0u)<<"nor once applied, before its notification";
+    ASSERT_EQ(unlocks(),1)<<"the expiry, notified once applied";
+    auto it=std::find_if(sent.begin(),sent.end(),[](auto&v){return get(v.second,36,2)==0x8001;});
+    EXPECT_EQ(get(it->second,26,8),CTLR+1);EXPECT_EQ(get(it->second,42,8),0u);EXPECT_EQ(get(it->second,38,4),1u);
+    sent.clear();ms+=60000;drain();EXPECT_EQ(unlocks(),0)<<"once";
+    // a notification that cannot leave yet is kept until it can
+    ask(1,Bytes(16));room=false;sent.clear();ms+=60000;drain();
+    EXPECT_FALSE(a.locked);EXPECT_TRUE(a.notify)<<"the expiry's notification waits for room";
+    room=true;drain();EXPECT_EQ(unlocks(),1)<<"and leaves once there is";
+    ask(24,identify);EXPECT_EQ(a.identify,255u)<<"changes are taken again";
 }
 
 TEST_F(Core, NamesAndDescriptorOverlay)
@@ -2016,41 +2115,62 @@ TEST_F(Face, StreamAvbAndFormatAreTheDatapathsWords)
     EXPECT_FALSE(face.ports.format(&face,6,0x7fff,0))<<"no such descriptor";
 }
 
-// A commit the datapath does not acknowledge within the bound is late. The
-// command answers ENTITY_MISBEHAVING and notifies no one; a change while the
-// commit waits is refused before it changes anything and writes nothing; reads
-// are answered. Once the acknowledgement returns the block is published again,
-// whole, and the next change is committed and acknowledged before its response
-// (#665; docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.5.2; IEEE
-// 1722.1-2021 7.5.2).
+// A commit the datapath does not acknowledge within the bound. The change
+// waits undone and the command answers IN_PROGRESS with the value in force;
+// reads meanwhile report it, and a second change is refused, writing nothing.
+// Not taken within AECP_WAIT_MS, the command answers ENTITY_MISBEHAVING and
+// notifies no one. Once the late acknowledgement frees the block it is
+// published again, whole, with the value in force, so the datapath ends where
+// the controllers were told; the next change is committed and acknowledged
+// before its response (#665; docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan
+// v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2, 9.3.2.6).
 TEST_F(Face, ALateCommitIsOwedAndPublishedAgainWhole)
 {
     receive(36,{},0,CTLR+1);   // a controller that a success would notify
     far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;
-    heads.clear();receive(24,identify,AECP_ENTITY_MISBEHAVING);
-    EXPECT_EQ(heads.size(),1u)<<"the refusal alone: no notification promises the held value";
+    heads.clear();auto in=receive(24,identify,AECP_IN_PROGRESS);
+    EXPECT_EQ(in[42],0u)<<"IN_PROGRESS reports the IDENTIFY in force";
+    EXPECT_EQ(heads.size(),1u)<<"IN_PROGRESS alone: no notification promises the held value";
     EXPECT_EQ(face.late,MBX_N_IF)<<"no acknowledgement within MBX_FACE_ACK_CYCLES, on any interface";
-    for(unsigned i=0;i<MBX_N_IF;++i){EXPECT_TRUE(face.owed[i]);EXPECT_TRUE(mbx_face_busy(i));}
-    const auto held=far.commits.size();identify[4]=0;heads.clear();receive(24,identify,AECP_ENTITY_MISBEHAVING);
-    EXPECT_EQ(far.commits.size(),held)<<"a change while a commit waits writes nothing";
-    EXPECT_EQ(fabric.bus_err,0u)<<"and so meets no held value";
-    EXPECT_EQ(adapter.core.identify,255u)<<"a change while a commit waits is refused before it changes anything";
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        EXPECT_TRUE(face.owed[i]);EXPECT_TRUE(mbx_face_busy(i));
+        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),255u)<<"the held block carries it";
+    }
+    EXPECT_EQ(adapter.core.identify,0u)<<"the change waits undone";
+    EXPECT_EQ(receive(25,target(26,0))[42],0u)<<"GET_CONTROL reports the value in force";
+    EXPECT_EQ(receive(4,{0,0,0,0,0,26,0,0})[42+108],0u)<<"so does READ_DESCRIPTOR";
+    const auto held=far.commits.size();heads.clear();
+    EXPECT_EQ(receive(24,identify,AECP_ENTITY_MISBEHAVING,CTLR+1)[42],0u)
+        <<"a second change while one waits is refused, with the value in force";
+    EXPECT_EQ(far.commits.size(),held)<<"and writes nothing";
+    EXPECT_EQ(fabric.bus_err,0u)<<"so meets no held value";
     EXPECT_EQ(heads.size(),1u)<<"and notifies no one";
-    auto read=receive(25,target(26,0));
-    EXPECT_EQ(read[42],255u)<<"a read is answered, with the value the held block carries to the datapath";
-    EXPECT_TRUE(aecp_face_poll(&face))<<"still owed while the block is held";
+    EXPECT_TRUE(aecp_face_poll(&face))<<"owed while the block is held";
+    // the bound passes, 20 ms of it in the four commands above
+    heads.clear();mbx_model_advance_ms(&fabric,AECP_WAIT_MS-21);service();
+    EXPECT_TRUE(heads.empty())<<"it waits its whole bound";
+    mbx_model_advance_ms(&fabric,1);service();
+    ASSERT_EQ(heads.size(),1u)<<"one final response, no notification";
+    auto out=mbx_model_tx_frame(&fabric,fabric.tx_sent-1);ASSERT_NE(out,nullptr);
+    EXPECT_EQ(get(out->bytes+16,2)>>11,AECP_ENTITY_MISBEHAVING);EXPECT_EQ(out->bytes[42],0u)<<"with the value in force";
+    EXPECT_EQ(get(out->bytes+26,8),CTLR);EXPECT_EQ(get(out->bytes+36,2),24u);
+    EXPECT_EQ(adapter.core.identify,0u)<<"the change stays undone";
+    // the late acknowledgement: published again, whole, with the value in force
     far.ack=true;
     for(unsigned i=0;i<MBX_N_IF;++i){
+        EXPECT_TRUE(mbx_face_busy(i))<<"the late commit is still held";
         mbx_model_face_ack(&fabric,i);
         EXPECT_EQ(aecp_face_poll(&face),i+1u<MBX_N_IF)<<"owed while another interface's block is held, "
                                                         "published again once each block is free";
     }
     for(unsigned i=0;i<MBX_N_IF;++i){
-        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),255u)<<"the held value, acknowledged";
+        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),0u)
+            <<"the datapath ends at the value the controllers were told";
         EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_CTRL,MBX_F_CTRL_READY_LSB,1),1u);
         EXPECT_FALSE(face.owed[i]);
     }
     // recovered: the next change is committed and acknowledged before its response
+    receive(24,identify);EXPECT_EQ(adapter.core.identify,255u);
     commits.clear();heads.clear();
     auto count=far.commits.size();identify[4]=0;receive(24,identify);
     EXPECT_EQ(far.commits.size()-count,MBX_N_IF)<<"one commit per interface";
@@ -2073,14 +2193,64 @@ TEST_F(Face, ALateCommitIsOwedAndPublishedAgainWhole)
     mbx_model_face_ack(&fabric,0);
 }
 
-// One interface acknowledges and the last does not: the change answers
-// ENTITY_MISBEHAVING. The interface that acknowledged holds the value, the
-// other is given it and takes it when it acknowledges, and no change is taken,
-// on any interface, until that interface is published again (#665).
+// A commit the stream's own interface acknowledges late, but within
+// AECP_WAIT_MS. The command answers IN_PROGRESS at once; reads, and a
+// notification that falls due meanwhile, report the values in force, and
+// nothing is written to any interface. Once the datapath takes the change it
+// is done again and answered SUCCESS, then notified, and the notification that
+// waited follows with the value now in force (#665; Milan v1.2 5.4.5.2, Table
+// 5.22; IEEE 1722.1-2021 7.4, 7.5.2).
+TEST_F(Face, APendingChangeIsAnsweredOnceTheDatapathTakesIt)
+{
+    receive(36,{},0,CTLR+1);
+    const unsigned source=home(6,0);far.deaf=1u<<source;
+    Bytes info=target(6,0,84);put(info,4,0x20000000,4);put(info,24,4321,4);
+    heads.clear();auto in=receive(14,info,AECP_IN_PROGRESS);
+    EXPECT_NE(get(in,62,4),4321u)<<"IN_PROGRESS reports the latency in force";
+    EXPECT_EQ(heads.size(),1u)<<"IN_PROGRESS alone";
+    EXPECT_TRUE(mbx_face_busy(source));
+    EXPECT_EQ(at(taken(source),SRC+MBX_FACE_SRC_REG_F_PT_OFFSET,0,32),4321u)<<"the held block carries it";
+    EXPECT_NE(adapter.core.cfg.latency[0],4321u)<<"the change waits undone";
+    EXPECT_NE(get(receive(15,target(6,0)),62,4),4321u)<<"GET_STREAM_INFO reports the latency in force";
+    const uint32_t from=fabric.tx_sent;aecp_changed(&adapter.core,6,0,1u);service(20);
+    auto infos=[&](uint32_t k0,uint64_t latency){unsigned n=0;
+        for(uint32_t k=k0;k<fabric.tx_sent;++k){auto f=mbx_model_tx_frame(&fabric,k);
+            if(f!=nullptr&&f->bytes[14]==0xfb&&get(f->bytes+36,2)==0x800fu&&get(f->bytes+62,4)==latency)++n;}
+        return n;};
+    EXPECT_EQ(fabric.tx_sent,from)<<"a notification that falls due meanwhile waits for the change";
+    auto count=far.commits.size();
+    Bytes format=target(5,0,12);put(format,4,get(desc(5).value+74,8),8);
+    receive(8,format,AECP_ENTITY_MISBEHAVING,CTLR+1);
+    EXPECT_EQ(far.commits.size(),count)<<"a second change is refused, writing nothing";
+    // the store's status meanwhile is owed, not written, while the change waits undone
+    count=far.commits.size();aecp_face_status(&face,face.restore,face.nvm+1,face.dirty);
+    EXPECT_EQ(far.commits.size(),count)<<"nothing is written while a change waits";
+    // taken: the response, then its notification, then the one that waited
+    far.deaf=0;mbx_model_face_ack(&fabric,source);
+    const uint32_t after=fabric.tx_sent;service();
+    ASSERT_GE(fabric.tx_sent-after,3u)<<"the response, its notification and the notification that waited";
+    auto response=mbx_model_tx_frame(&fabric,after),notice=mbx_model_tx_frame(&fabric,after+1);
+    EXPECT_EQ(get(response->bytes+36,2),14u);EXPECT_EQ(get(response->bytes+16,2)>>11,0u);
+    EXPECT_EQ(get(response->bytes+62,4),4321u);EXPECT_EQ(get(response->bytes+26,8),CTLR);
+    EXPECT_EQ(get(notice->bytes+36,2),0x800eu)<<"its notification follows the response";
+    EXPECT_EQ(get(notice->bytes+26,8),CTLR+1);
+    EXPECT_EQ(adapter.core.cfg.latency[0],4321u);
+    EXPECT_EQ(infos(after,4321u),1u)<<"the notification that waited reports the latency now in force";
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        EXPECT_FALSE(face.owed[i]);
+        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_NVM,0,32),face.nvm)<<"the status that waited reaches every interface";
+    }
+    EXPECT_EQ(at(taken(source),SRC+MBX_FACE_SRC_REG_F_PT_OFFSET,0,32),4321u)<<"and the latency stays in force";
+}
+
+// One interface acknowledges and the last does not: the change waits, then
+// fails. The interface that took it is given the value in force again at once,
+// the other when its late acknowledgement frees its block, so no interface
+// keeps a value no controller was told of; no change is taken until then (#665).
 TEST_F(Face, APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt)
 {
     const unsigned deaf=MBX_N_IF-1u;far.deaf=1u<<deaf;
-    Bytes identify=target(26,0,5);identify[4]=255;receive(24,identify,AECP_ENTITY_MISBEHAVING);
+    Bytes identify=target(26,0,5);identify[4]=255;receive(24,identify,AECP_IN_PROGRESS);
     EXPECT_EQ(face.late,1u)<<"one interface did not acknowledge";
     for(unsigned i=0;i<MBX_N_IF;++i){
         EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),255u)<<"every interface is given the value";
@@ -2090,39 +2260,47 @@ TEST_F(Face, APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt)
     Bytes format=target(5,0,12);put(format,4,get(desc(5).value+74,8),8);
     auto count=far.commits.size();receive(8,format,AECP_ENTITY_MISBEHAVING);
     EXPECT_EQ(far.commits.size(),count)<<"a stream's change on its own interface ("<<home(5,0)<<") waits too, writing nothing";
+    mbx_model_advance_ms(&fabric,AECP_WAIT_MS);service();
+    for(unsigned i=0;i<MBX_N_IF;++i){
+        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),i==deaf?255u:0u)
+            <<(i==deaf?"the held block still carries it":"the interface that took it is given the value in force again");
+    }
     far.deaf=0;mbx_model_face_ack(&fabric,deaf);
     ASSERT_FALSE(mbx_face_busy(deaf));
     EXPECT_FALSE(face.ports.applied(&face))<<"an owed interface is not applied while its block is free";
-    identify[4]=0;receive(24,identify,AECP_ENTITY_MISBEHAVING);
-    EXPECT_EQ(adapter.core.identify,255u)<<"refused until the owed interface is published again";
+    receive(24,identify,AECP_ENTITY_MISBEHAVING);
+    EXPECT_EQ(adapter.core.identify,0u)<<"refused until the owed interface is published again";
     EXPECT_FALSE(face.owed[deaf])<<"the poll published it again";
-    EXPECT_EQ(at(taken(deaf),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),255u)<<"whole, with the value in force";
+    EXPECT_EQ(at(taken(deaf),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),0u)<<"whole, with the value in force";
     EXPECT_TRUE(face.ports.applied(&face));
     receive(24,identify);
-    for(unsigned i=0;i<MBX_N_IF;++i)EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),0u);
+    for(unsigned i=0;i<MBX_N_IF;++i)EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),255u);
 }
 
-// A datapath that never acknowledges. Every state-changing command answers
-// ENTITY_MISBEHAVING within the service bound, writing nothing and notifying
-// no one; reads are answered. A lock that expires meanwhile is released without
-// a notification, and its LOCK_HELD reaches every interface once the datapath
-// takes the block (#665; Milan v1.2 5.4.2.2).
-TEST_F(Face, AMissingAcknowledgementRefusesEveryChangeAndNotifiesNothing)
+// A datapath that never acknowledges. The change waits its bound and fails;
+// IN_PROGRESS and the failure each leave within the service bound. Every change
+// after it is refused within the service bound, writing nothing and notifying
+// no one; reads are answered. A lock that expires meanwhile is released at
+// sixty seconds, and its LOCK_ENTITY notification is sent once its LOCK_HELD
+// is taken (#665; Milan v1.2 5.4.2.2, Table 5.22).
+TEST_F(Face, AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther)
 {
     receive(36);receive(36,{},0,CTLR+1);receive(1,Bytes(16));
     far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;
-    heads.clear();const uint64_t start=ns;receive(24,identify,AECP_ENTITY_MISBEHAVING);
+    heads.clear();const uint64_t start=ns;receive(24,identify,AECP_IN_PROGRESS);
     ASSERT_EQ(heads.size(),1u);
-    EXPECT_LE(heads.front()-start+1000100,aecp_service_limit_ns)
-        <<"a commit that times out on every interface is answered within the service bound";
+    EXPECT_LE(heads.front()-start+1000100,aecp_service_limit_ns)<<"IN_PROGRESS within the service bound";
+    heads.clear();mbx_model_advance_ms(&fabric,AECP_WAIT_MS);const uint64_t due=ns;service();
+    ASSERT_EQ(heads.size(),1u)<<"the failure alone";
+    EXPECT_LE(heads.front()-due+1000100,aecp_service_limit_ns)<<"the failure within the service bound of its deadline";
     Bytes format=target(5,0,12);put(format,4,get(desc(5).value+74,8),8);
     Bytes info=target(6,0,84);put(info,4,0x20000000,4);put(info,24,4321,4);
     Bytes name=target(0,0,72);put(name,4,1,2);std::fill(name.begin()+8,name.end(),0x5a);
     Bytes rate=target(2,0,8);std::copy_n(desc(2).value+get(desc(2).value+140,2),4,rate.begin()+4);
     Bytes clock=target(36,0,8);put(clock,4,get(desc(36).value+70,2),2);
-    Bytes off=identify;off[4]=0;Bytes map=target(14,0,16);put(map,4,1,2);put(map,10,1,2);put(map,12,1,2);
+    Bytes map=target(14,0,16);put(map,4,1,2);put(map,10,1,2);put(map,12,1,2);
     const std::vector<std::pair<unsigned,Bytes>> changes={{1,Bytes(16)},{6,Bytes(4)},{8,format},{14,info},
-        {16,name},{20,rate},{22,clock},{24,off},{44,map},{45,map}};
+        {16,name},{20,rate},{22,clock},{24,identify},{44,map},{45,map}};
     for(const auto &[cmd,body]:changes){
         heads.clear();const uint64_t origin=ns;const auto held=far.commits.size();
         receive(cmd,body,AECP_ENTITY_MISBEHAVING);
@@ -2130,7 +2308,7 @@ TEST_F(Face, AMissingAcknowledgementRefusesEveryChangeAndNotifiesNothing)
         ASSERT_EQ(heads.size(),1u)<<"command "<<cmd<<": the refusal alone";
         EXPECT_LE(heads.front()-origin+1000100,aecp_service_limit_ns)<<"command "<<cmd<<": within the service bound";
     }
-    EXPECT_EQ(adapter.core.identify,255u);
+    EXPECT_EQ(adapter.core.identify,0u);
     for(unsigned cmd:{7u,25u,15u,41u})
         receive(cmd,cmd==7?Bytes(4):cmd==25?target(26,0):target(cmd==15?6:5,0));
     EXPECT_EQ(fabric.bus_err,0u)<<"no write meets a held value";
@@ -2139,15 +2317,37 @@ TEST_F(Face, AMissingAcknowledgementRefusesEveryChangeAndNotifiesNothing)
             if(f!=nullptr&&f->bytes[14]==0xfb&&get(f->bytes+36,2)==0x8001)++n;}
         return n;};
     const uint32_t before=fabric.tx_sent;mbx_model_advance_ms(&fabric,60000);service(100);
-    EXPECT_FALSE(adapter.core.locked)<<"the lock still expires";
+    EXPECT_FALSE(adapter.core.locked)<<"the lock still expires at sixty seconds";
     EXPECT_EQ(unlocks(before),0u)<<"no unlock notification while LOCK_HELD is held";
     far.ack=true;for(unsigned i=0;i<MBX_N_IF;++i)mbx_model_face_ack(&fabric,i);service();
     for(unsigned i=0;i<MBX_N_IF;++i){
         EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_AECP,MBX_F_AECP_LOCK_HELD_LSB,1),0u)<<"LOCK_HELD falls on every interface";
+        EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_ENTITY,MBX_F_ENTITY_IDENTIFY_LSB,8),0u)<<"with the IDENTIFY in force";
         EXPECT_FALSE(face.owed[i]);
     }
-    EXPECT_EQ(unlocks(before),0u)<<"a release no response promised is still not notified";
+    EXPECT_EQ(unlocks(before),2u)<<"the expiry, notified to each registered controller once LOCK_HELD is taken";
     EXPECT_EQ(fabric.bus_err,0u)<<"no write meets a held value";
+}
+
+// A lock that expires while a change waits is released when the wait ends, at
+// most AECP_WAIT_MS late; LOCK_HELD falls before the unlock notification
+// (#665; Milan v1.2 5.4.2.2).
+TEST_F(Face, ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken)
+{
+    receive(1,Bytes(16));mbx_model_advance_ms(&fabric,60000-5-25);
+    receive(36,{},0,CTLR+1);   // registered late, so no availability probe falls due meanwhile
+    far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;receive(24,identify,AECP_IN_PROGRESS);
+    mbx_model_advance_ms(&fabric,30);service();
+    EXPECT_TRUE(adapter.core.locked)<<"the expiry follows the wait";
+    const uint32_t from=fabric.tx_sent;commits.clear();heads.clear();
+    far.ack=true;for(unsigned i=0;i<MBX_N_IF;++i)mbx_model_face_ack(&fabric,i);service(100);
+    EXPECT_FALSE(adapter.core.locked);EXPECT_EQ(adapter.core.identify,255u);
+    std::vector<unsigned> order;
+    for(uint32_t k=from;k<fabric.tx_sent;++k){auto f=mbx_model_tx_frame(&fabric,k);order.push_back((unsigned)get(f->bytes+36,2));}
+    EXPECT_EQ(order,(std::vector<unsigned>{24u,0x8018u,0x8001u}))<<"the change's response and notification, then the expiry's";
+    for(unsigned i=0;i<MBX_N_IF;++i)EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_AECP,MBX_F_AECP_LOCK_HELD_LSB,1),0u);
+    ASSERT_GE(heads.size(),3u);ASSERT_FALSE(commits.empty());
+    EXPECT_LT(commits.back(),heads.back())<<"LOCK_HELD falls before the unlock notification";
 }
 
 // Each stream's entry goes to its own interface's block; a setting of the

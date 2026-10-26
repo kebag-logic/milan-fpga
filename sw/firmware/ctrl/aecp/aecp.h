@@ -100,13 +100,33 @@ struct aecp_ports {
 	// Current ADP owner value for the ingress interface (IEEE 7.2.1/6.2.2.15).
 	uint32_t (*available_index)(void *, unsigned);
 	// Whether every change given to changed is applied: false while an apply
-	// waits for an acknowledgement it has not had (#665). A state-changing
-	// command asked while it is false is refused, ENTITY_MISBEHAVING, before
-	// it changes anything; one after which it is false answers
-	// ENTITY_MISBEHAVING; neither, nor a lock expiry after which it is false,
-	// notifies (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2
-	// 5.4.5.2; IEEE 1722.1-2021 7.5.2).
+	// waits for an acknowledgement it has not had (#665). While it is false
+	// the lock check refuses every change, ENTITY_MISBEHAVING, before it
+	// changes anything. A change of face state (AECP_WAITS) after which it is
+	// false is undone and answered IN_PROGRESS; it is done again, answered and
+	// notified once this is true within AECP_WAIT_MS, else it stays undone and
+	// answers ENTITY_MISBEHAVING. A lock expiry is notified once this is true
+	// (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.2.2,
+	// 5.4.5.2; IEEE 1722.1-2021 7.5.2, 9.3.2.6).
 	bool (*applied)(void *);
+};
+// The commands whose change a face commit carries: LOCK_ENTITY,
+// SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and
+// SET_CONTROL, one bit per command_type (#665).
+#define AECP_WAITS 0x01404142u
+// How long such a change waits for applied, from its command: its final
+// response then follows the IN_PROGRESS within the 120 ms cadence, and the
+// command within 240 ms (IEEE 1722.1-2021 9.3.2.6).
+#define AECP_WAIT_MS 100u
+// A command's own response at most: SET_STREAM_INFO's, the longest of
+// AECP_WAITS.
+#define AECP_HELD_BYTES (38u + 84u)
+// The values one command of AECP_WAITS changes at most: LOCK_ENTITY's three.
+#define AECP_KEPT 4u
+struct aecp_kept {
+	uint8_t *at;
+	uint8_t n;
+	uint8_t was[8];
 };
 struct aecp_registration {
 	uint64_t controller;
@@ -169,6 +189,21 @@ struct aecp {
 	uint32_t ignored;
 	uint32_t busy_drops;
 	uint32_t reentries;
+	// A change the platform has not applied (#665): the command waits, its
+	// change undone and its response held, until applied or wait_deadline.
+	bool waiting;
+	bool refusing;          // the lock check refuses every change
+	bool unlocked;          // a lock expiry's notification waits for applied
+	uint8_t kept;
+	struct aecp_kept keep[AECP_KEPT];   // what the command changed, as it found it
+	enum aecp_change noted;
+	uint16_t noted_type;
+	uint16_t noted_index;
+	uint32_t wait_deadline;
+	uint64_t held_requester;
+	unsigned held_interface;
+	size_t held_bytes;
+	uint8_t held[AECP_HELD_BYTES];
 };
 
 bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *);

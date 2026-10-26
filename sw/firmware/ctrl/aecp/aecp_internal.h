@@ -16,6 +16,8 @@ unsigned aecp_scalar_validate(struct aecp *, const struct aecp_descriptor *, enu
 bool aecp_overridden(const struct aecp *, const struct aecp_descriptor *, unsigned);
 void aecp_override(struct aecp *, const struct aecp_descriptor *, unsigned);
 void aecp_note(struct aecp *, enum aecp_change, uint16_t, uint16_t);
+// Record the n bytes at a value a command is about to change (#665).
+void aecp_keep(struct aecp *, void *, size_t);
 bool aecp_stream_read(struct aecp *, uint16_t, uint16_t, struct aecp_stream_info *);
 // Command-specific data only. The caller provides AECP_FRAME_BYTES of output
 // space, disjoint from the input. Output is always initialized by this call.

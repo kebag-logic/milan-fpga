@@ -72,11 +72,11 @@ static void write_stream(struct aecp_face *f, unsigned i, const struct aecp_desc
 // configuration on this interface (every), or one stream's. A commit not
 // acknowledged within the bound leaves the interface owed, and so does a
 // write it refuses meanwhile; a poll publishes an owed interface whole once
-// its block is free. Until then applied is false, so the core takes no
-// command's change and claims none applied.
+// its block is free. While a change waits the core holds it undone, so
+// nothing is written: every interface it reaches is owed instead.
 static void publish(struct aecp_face *f, unsigned i, bool settings, const struct aecp_descriptor *stream, bool every)
 {
-	if (f->owed[i] || mbx_face_busy(i)) {
+	if (f->owed[i] || f->core->waiting || mbx_face_busy(i)) {
 		f->owed[i] = true;
 		return;
 	}
@@ -122,13 +122,14 @@ static void changed(void *ctx, enum aecp_change kind, uint16_t type, uint16_t in
 	}
 }
 
-// The core's applied port: no interface owes a publication or holds a commit
-// the datapath has not acknowledged.
+// The core's applied port: no interface holds a commit the datapath has not
+// acknowledged, nor owes a publication. While a change waits, the commits it
+// made are all there is: owed is what waits for it.
 static bool applied(void *ctx)
 {
 	struct aecp_face *f = ctx;
 	for (unsigned i = 0; i < f->core->cfg.interfaces; ++i) {
-		if (f->owed[i] || mbx_face_busy(i)) {
+		if (mbx_face_busy(i) || (f->owed[i] && !f->core->waiting)) {
 			return false;
 		}
 	}
