@@ -1,0 +1,133 @@
+== own_search_unchecked_step (bench rc 2; RP1[fresh] fails at head too and is not a kill witness)
+FAIL: S5 after the cursor wraps a move skips every configured ID and another source's current ID (got ab00000000000001 after 65528 moves)
+FAIL: RP1[fresh] a declared Stream ID is not re-declared with another DA inside two LeaveAllTime of its withdrawal
+FAIL: RP3 no move keeps the withdrawn ID (1)
+FAIL: RP3 every move differs from every other current ID (2)
+1483 checks: 1479 PASS, 4 FAIL
+== own_pub_upper_slot0 (bench rc 2; RP1[fresh] fails at head too and is not a kill witness)
+FAIL: RP1[fresh] a declared Stream ID is not re-declared with another DA inside two LeaveAllTime of its withdrawal
+FAIL: RP3 every move differs from every other current ID (7)
+FAIL: RP3 src_stream_id_o names the declared ID (4211)
+1483 checks: 1480 PASS, 3 FAIL
+== own_search_skips_self (bench rc 2; RP1[fresh] fails at head too and is not a kill witness)
+FAIL: S5 after the cursor wraps a move skips every configured ID and another source's current ID (got ab00000000000000 after 65528 moves)
+FAIL: RP1[fresh] a declared Stream ID is not re-declared with another DA inside two LeaveAllTime of its withdrawal
+FAIL: RP2 a move never takes the withdrawn ID back (got ab00000000000008)
+FAIL: RP2 the rule gives {UP, 9}
+FAIL: RP3 no move keeps the withdrawn ID (11)
+1483 checks: 1478 PASS, 5 FAIL
+== own_probe_ignores_da_valid (bench rc 2; RP1[fresh] fails at head too and is not a kill witness)
+FAIL: E2 probe before the grant status got 0 want 3
+FAIL: E2 probe before the grant stream_id got ab00000000000003
+FAIL: E2 probe before the grant dest_mac got 91e0f0000103
+FAIL: E2 probe before the grant vlan got 2
+FAIL: I4 no DA yet at answer time status got 0 want 3
+FAIL: I4 no DA yet at answer time stream_id got ab00000000000006
+FAIL: I4 no DA yet at answer time vlan got 2
+FAIL: J5 abandoned alloc = the refused-alloc state status got 0 want 3
+FAIL: J5 abandoned alloc = the refused-alloc state stream_id got ab00000000000004
+FAIL: J5 abandoned alloc = the refused-alloc state vlan got 2
+FAIL: K3 the waiting source degrades honestly status got 0 want 3
+FAIL: K3 the waiting source degrades honestly stream_id got ab00000000000006
+FAIL: K3 the waiting source degrades honestly vlan got 2
+FAIL: R2 honest refusal src0 status/tuple
+FAIL: R2 repeated probe src0 status/tuple
+FAIL: R2 honest refusal src2 status/tuple
+FAIL: R2 repeated probe src2 status/tuple
+FAIL: R2 honest refusal src4 status/tuple
+FAIL: R2 repeated probe src4 status/tuple
+FAIL: R2 honest refusal src6 status/tuple
+FAIL: R2 repeated probe src6 status/tuple
+FAIL: R2 honest refusal src0 status/tuple
+FAIL: R2 repeated probe src0 status/tuple
+FAIL: R2 honest refusal src2 status/tuple
+FAIL: R2 repeated probe src2 status/tuple
+FAIL: R2 honest refusal src4 status/tuple
+FAIL: R2 repeated probe src4 status/tuple
+FAIL: R2 honest refusal src6 status/tuple
+FAIL: R2 repeated probe src6 status/tuple
+FAIL: R2 honest refusal src0 status/tuple
+FAIL: R2 repeated probe src0 status/tuple
+FAIL: R2 honest refusal src2 status/tuple
+FAIL: R2 repeated probe src2 status/tuple
+FAIL: R2 honest refusal src4 status/tuple
+FAIL: R2 repeated probe src4 status/tuple
+FAIL: R2 honest refusal src6 status/tuple
+FAIL: R2 repeated probe src6 status/tuple
+FAIL: R3 absent allocator src0 status/tuple
+FAIL: R4 obsolete grant rejected src0 status/tuple
+FAIL: R4 obsolete grant rejected src0 status/tuple
+FAIL: R5 stale timeout response src0 status/tuple
+FAIL: R5 saturated silence src7 status/tuple
+FAIL: R6 probe during backoff src0 status/tuple
+FAIL: R7 shrink and block move src2 status/tuple
+FAIL: R7 shrink and block move src3 status/tuple
+FAIL: R7 shrink and block move src4 status/tuple
+FAIL: R7 shrink and block move src5 status/tuple
+FAIL: R7 shrink and block move src6 status/tuple
+FAIL: R7 shrink and block move src7 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R9 consecutive command during silent allocation src1 status/tuple
+FAIL: R12 probe after conflict src0 status/tuple
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: R17 repeated absent probe src0 status/tuple
+FAIL: R17 repeated absent probe src1 status/tuple
+FAIL: R17 repeated absent probe src2 status/tuple
+FAIL: R17 repeated absent probe src3 status/tuple
+FAIL: R17 repeated absent probe src4 status/tuple
+FAIL: R17 repeated absent probe src5 status/tuple
+FAIL: R17 repeated absent probe src6 status/tuple
+FAIL: R17 repeated absent probe src7 status/tuple
+FAIL: S1 PROBE_TX before the grant src2 status/tuple (status 0 sid ab00000000000002)
+FAIL: S1 GET_TX_STATE before the grant src2 stream_id/dest_mac (sid ab00000000000002)
+FAIL: RP1[fresh] a declared Stream ID is not re-declared with another DA inside two LeaveAllTime of its withdrawal
+1483 checks: 1376 PASS, 107 FAIL
+== own_output_lags_declaration (bench rc 2; RP1[fresh] fails at head too and is not a kill witness)
+FAIL: S6 a conflict after a listener withdrawal moves the ID at the grant (got ab00000000000004)
+FAIL: S6 an ID not declared since its move is not moved again
+FAIL: S6 a conflict after a freshness lapse moves the ID (got ab00000000000004)
+FAIL: RP1[fresh] a declared Stream ID is not re-declared with another DA inside two LeaveAllTime of its withdrawal
+1483 checks: 1479 PASS, 4 FAIL

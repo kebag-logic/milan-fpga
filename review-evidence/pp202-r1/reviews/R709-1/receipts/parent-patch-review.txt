@@ -1,0 +1,22 @@
+== parent wiring patch from the published evidence (kebag-logic/milan-fpga 51842a7a, review-evidence/pp202-r1/author/parent-src-stream-id-wiring.patch)
+sha256 770210604495083d1661f7157111c4f4c2250f80dd610f1a0975d9f5b8585f89
+== patch --dry-run -p1 against the three files fetched at milan-fpga e76a755afc
+checking file hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+checking file hdl/milan/KL_pp_shadow.sv
+checking file hdl/milan/milan_datapath.sv
+fetched hdl/ieee1722/aaf/KL_aaf_packetizer.sv sha256 25f71078f9508089591c51b69531620c2030f2e3d42cdbbccbb7558bc030b103
+fetched hdl/milan/milan_datapath.sv sha256 be809a978cbb0db1393b29a0d74ea1a2737a5f9575eb6c91eb3f17162ea6d89a
+fetched hdl/milan/KL_pp_shadow.sv sha256 641188e27528c543a6023b510367172ef91824eb5b19602092fe616bf6022ffb
+== consumers of the per-source stream ID at e76a755afc (milan_datapath.sv)
+2139:  wire [63:0] eff_crft_sid_w  = (|cfg_crft_sid  || (ACMP_SRC_C == N_STREAMS))
+2486:  wire [ACMP_SRC_C*64-1:0]  pp_src_sid_w;
+6145:  wire [63:0] gsi_osid_w  = pp_src_sid_w[64*gsi_oix_w +: 64];
+6324:                              : gsi_decl_w ? gsi_osid_w : 64'd0;
+7456:    .sid_i         (eff_crft_sid_w),
+9104:        assign pp_src_sid_w[64*gsid +: 64] = eff_crft_sid_w;
+9106:        assign pp_src_sid_w[64*gsid +: 64] = {station_mac_be_w, 16'(gsid)};
+9468:      .cfg_stream_id_i   (pp_src_sid_w),
+== the packetizer's stamp at e76a755afc
+  wire [63:0] stream_id_w = {station_mac_i, eff_uid_w};
+
+  logic [7:0] fb [0:NUM_BEATS_C*8-1];

@@ -1,0 +1,6 @@
+== reviewer probes (r709_cases.hpp) on the head talker bench (rc of the bench; RP1[fresh] is the expected failure)
+RP1[fresh]: first decl sid ab00000000000003 da 91e0f0000103; after re-enable decl yes sid ab00000000000003 da 91e0f0000108 at +500 ms
+FAIL: RP1[fresh] a declared Stream ID is not re-declared with another DA inside two LeaveAllTime of its withdrawal
+RP1[block]: first decl sid ab00000000000003 da 91e0f0000103; after re-enable decl yes sid ab00000000000003 da 91e0f0000103 at +500 ms
+RP3: 40 seeds, 12000 moves: no_decl 0 withdrawn 0 distinct 0 upper 0 pub 0 others 0 answer 0
+1483 checks: 1482 PASS, 1 FAIL
