@@ -1,0 +1,13 @@
+[i]  10 builds on 4 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: <temporary>/build_break_dp/milan_datapath.sv:9706:15: syntax error, unexpected break, expecting ',' or ';'
+[PASS] the unmutated source still passes the fine harness
+[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+[PASS] mutant caught (junction): the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+[PASS] mutant caught (band): the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (dp): the marker latency drops the front-end's FIFO write term (one clk_tdm_i cycle, #632) - breaks "[PIN] ...and inside the marker latency's derivation"
+[PASS] mutant caught (dp): the CRF output stamps without its Equation (14) TC (#773) - breaks "[WIRE] every CRF PDU's hand-over is at or before its timestamp less the offset as applied" and "[GRID] every CRF stamp less its offset applied and TC, 2 periods, is a domain media event's instant"
+[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks "update landing at old end +0: one tick, in a period the old or the new trim sets"
+
+10 checks: 10 PASS, 0 FAIL

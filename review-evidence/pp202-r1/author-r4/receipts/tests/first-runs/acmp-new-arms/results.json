@@ -1,0 +1,144 @@
+[
+ {
+  "mutant": "golden-acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top--maap-internal-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "cursor_reenters_early@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S11 a return the cursor guard blocks keeps its ID and waits T-SRP-LEAVEALL2",
+   "S11 no ID is declared again with another DA inside two LeaveAllTime periods"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S11 every return moves until the cursor ends the upper half (70000 moves, last ab0000000000117f)",
+   "S11 a return the cursor guard blocks keeps its ID and waits T-SRP-LEAVEALL2 (0 draws, 0 arms, ID ab0000000000117f)",
+   "S11 nothing is declared inside the gap",
+   "S11 three quarantine epochs after the cursor left the lower half a return still keeps its ID",
+   "S11 four quarantine epochs after the cursor left the lower half a return moves again (got ab00000000001181)",
+   "S11 no ID is declared again with another DA inside two LeaveAllTime periods (4472, first ab00000000000008 after 0 ms)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "cursor_guard_three_epochs@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S11 three quarantine epochs after the cursor left the lower half a return still keeps its ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S11 three quarantine epochs after the cursor left the lower half a return still keeps its ID",
+   "S11 four quarantine epochs after the cursor left the lower half a return moves again (got ab00000000000009)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "blocked_move_declares_at_once@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S11 a return the cursor guard blocks keeps its ID and waits T-SRP-LEAVEALL2",
+   "S11 no ID is declared again with another DA inside two LeaveAllTime periods"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S11 every return moves until the cursor ends the upper half (70000 moves, last ab0000000000ffff)",
+   "S11 every move differs from the withdrawn and every current ID",
+   "S11 a return the cursor guard blocks keeps its ID and waits T-SRP-LEAVEALL2 (0 draws, 0 arms, ID ab0000000000ffff)",
+   "S11 nothing is declared inside the gap",
+   "S11 three quarantine epochs after the cursor left the lower half a return still keeps its ID",
+   "S11 no ID is declared again with another DA inside two LeaveAllTime periods (4473, first ab0000000000ffff after 0 ms)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "move_ignores_left_ids@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S5 no ID is declared again with another DA inside two LeaveAllTime periods",
+   "S5 after the cursor wraps a move skips every configured ID, the IDs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S5 no ID is declared again with another DA inside two LeaveAllTime periods (1, first ab00000000000008 after 65 ms)",
+   "S5 after the cursor wraps a move skips every configured ID, the IDs other sources left inside the quarantine and another source's current ID (got ab00000000000008 after 65523 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "record_lapses_in_one_epoch@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S5 after the cursor wraps a move skips every configured ID, the IDs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S5 after the cursor wraps a move skips every configured ID, the IDs other sources left inside the quarantine and another source's current ID (got ab00000000000009 after 65523 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "record_overwritten_while_young@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S5 after the cursor wraps a move skips every configured ID, the IDs"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S5 after the cursor wraps a move skips every configured ID, the IDs other sources left inside the quarantine and another source's current ID (got ab00000000000009 after 65523 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "moved_open_skips_leave@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "MP9: a disable and return granted at once still sends the withdrawn ID's Lv"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "MP9: a disable and return granted at once still sends the withdrawn ID's Lv, before the new ID's first Talker Advertise (frames -1, 0)"
+  ],
+  "verdict": "KILLED"
+ }
+]

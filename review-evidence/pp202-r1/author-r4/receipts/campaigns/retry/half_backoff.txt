@@ -1,0 +1,10 @@
+return code: 2
+1540 checks: 1532 PASS, 8 FAIL
+FAIL: F2 leaveall2 src0 arm deadline got 102000 want 114000
+FAIL: F2 leaveall2 src1 arm deadline got 102000 want 114000
+FAIL: F2 leaveall2 src3 arm deadline got 102000 want 114000
+FAIL: R6 full two-LeaveAll backoff armed
+FAIL: R6 full two-LeaveAll backoff armed
+FAIL: S7 a PCP change after a listener withdrawal arms T-SRP-LEAVEALL2 (1 draws, 1 arms)
+FAIL: S8 a PCP change after a lapse arms T-SRP-LEAVEALL2 on the moved ID (1 draws, 1 arms)
+FAIL: S11 a return the cursor guard blocks keeps its ID and waits T-SRP-LEAVEALL2 (1 draws, 1 arms, ID ab0000000000ffff)

@@ -1,0 +1,30 @@
+[
+ {
+  "mutant": "golden-acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "move_ignores_configured_ids@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S3 a move never takes another source's configured ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S3 a move never takes another source's configured ID after that source moved off it (got ab00000000000009)",
+   "S5 after the cursor wraps a move skips every configured ID, the IDs other sources left inside the quarantine and another source's current ID (got ab00000000000000 after 65523 moves)",
+   "S11 four quarantine epochs after the cursor left the lower half a return moves again (got ab00000000000003)"
+  ],
+  "verdict": "KILLED"
+ }
+]

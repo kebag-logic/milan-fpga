@@ -1,0 +1,46 @@
+HEAD
+2eb01391261ac37713261d36a57d1b801bb5edd5
+(rc 0)
+
+tree
+8608474fea6273539506ce0927b423aa3f0d0fa8
+(rc 0)
+
+branch
+scratch-pp202-a676d
+(rc 0)
+
+base
+e76a755afc0536453161e3cd33f6f4d2dcd7641f
+(rc 0)
+
+gitlinks
+ efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external (heads/main)
+ 55680bff3b287b9a7b0c759f51471fa617c17335 gptp-processor (remotes/origin/main)
+ 429c909cb8a60398a2028436932e04b95dd0a0bd protocol-processor (v2.0-828-g429c909)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+(rc 0)
+
+status
+(rc 0)
+
+local commits on dev e76a755a
+2eb01391261ac37713261d36a57d1b801bb5edd5 Record ROM digests for the processor recovery pin 429c909
+e28bb468c950232508de66e99a419c7feb1400ef Scratch only: pin the final processor head 429c909 (issue #202 round 4), never pushed
+a5a10346398d02142aef7291cdbecfb75657474a Scratch only: pin processor ffc76f1 (issue #202 round 4 RTL), never pushed
+33772611bbb6a008bf73b87a12403183dec37ec9 Scratch only: pin the final processor head 7e0ff0b (issue #202 round 4), never pushed
+d3ab5b37f5b022d8506275950c9050cf52ab671c Scratch only: describe the recovery leg's frame feed, bus model and Domain message by what they do, never pushed
+e9f3263f0b47d57c8f51d46350173e6f0c8a6b72 Scratch only: protocol-processor gitlink at 59f34d3 (issue #202 round 4 RTL and tests), never pushed
+fe68644177a119a7d6a65fd98b6dbc6125c607da Scratch only: name the processor #202 recovery legs by their shapes in comments and list them in the bench README, never pushed
+dcd3273d0998c91bc9ebb31f9f3afbd7356473d8 Expect the published identity in the silence fill check
+cb22699767c24697f374a2e57cb33b480ae025d0 Keep capture-coherence delay mutants anchored to the parameter binding when processor Stream ID selection follows it
+18561a20f07b1270b760c919099ebd1ec38d6067 Scratch only: the framers and output GET_STREAM_INFO stream_id read src_stream_id_o, the processor's ID outranks a TCTX uid, and the sidmove legs grade it through a MAAP conflict (processor #202), never pushed
+309af35f59078271601716fa1aa612772c456455 Scratch only: protocol-processor gitlink at 9a6d1d0 (issue #202 round 3 head), never pushed
+(rc 0)
+
+push destination
+no-push-scratch-only
+(rc 0)
+

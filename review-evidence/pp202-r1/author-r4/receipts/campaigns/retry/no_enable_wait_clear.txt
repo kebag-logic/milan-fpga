@@ -1,0 +1,10 @@
+return code: 2
+1540 checks: 1532 PASS, 8 FAIL
+FAIL: R10 re-enable immediately restarts acquisition
+FAIL: R15 release does not consume re-enabled lifetime allocation attempt
+FAIL: S11 every return moves until the cursor ends the upper half (1 moves, last ab00000000000008)
+FAIL: S11 a return the cursor guard blocks keeps its ID and waits T-SRP-LEAVEALL2 (0 draws, 0 arms, ID ab00000000000008)
+FAIL: S11 PROBE_TX inside the gap answers the kept ID and the new DA src3 status/tuple (status 3 sid 0000000000000000)
+FAIL: S11 after the gap the kept ID declares the new DA
+FAIL: S11 three quarantine epochs after the cursor left the lower half a return still keeps its ID
+FAIL: S11 four quarantine epochs after the cursor left the lower half a return moves again (got ab0000000000000b)
