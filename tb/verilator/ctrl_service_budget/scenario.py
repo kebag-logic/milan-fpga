@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The stimulus groups of the budget and the probes each measures (#665 S2).
+"""The stimulus groups of the budget and the probes each measures (#665).
 
 A group is one boot of the test SoC and a script of steps; sim_main.cpp
 runs it. A probe is one measured path: a `mark` line names it, then its
@@ -11,13 +11,17 @@ and the end of each probe off the observation log by the probe's rules:
          pad:LINK:<if>    the link level changing at the mailbox input
          pad:GM:<if>      the grandmaster-change pulse at the mailbox input
          deadline:<slot>  the armed deadline of the slot's next TIMER record
-         tick             the occurrence of the TICK record a pass takes
+         entry:<symbol>   the first commit of that function's entry (a test-only entry)
   end    tx:<ch>[:n]      the n-th accepted TX_HEAD write on the channel
          arm:<slot>       a TMR_CMD arm of the slot; cancel:<slot> its cancel
          tmr:<slot>       any TMR_CMD write of the slot
          resp:<ch>:<seq>  the TX record on the channel answering sequence_id seq
-         notify:<ch>      an unsolicited AECP response (IEEE 1722.1-2021 7.5.2)
+         notify:<ch>:<command_type>:<descriptor_type>:<descriptor_index>
+                          the unsolicited AECP responses that command's change causes,
+                          one to each of the probe's recipients (IEEE 1722.1-2021 7.5.2);
+                          the last recipient's commit ends it (FR_NFR.md 3.4.1)
          acmp_cmd:<ch>:<type>  an ACMP command the firmware originates, e.g. PROBE_TX
+         maap:<ch>:<type>  a MAAP frame of that message type; adp:<ch>:<type> an ADPDU
          rxtail:<ch>      the RX_TAIL write that releases the record
          pass_end:<ch>    the end of the pass that took the record: its handler runs
                           after the release, inside that pass (ctrl_loop.c service_rx)
@@ -26,6 +30,11 @@ and the end of each probe off the observation log by the probe's rules:
 A probe's frames carry its name as their tag, so its start is the commit of
 its own frame even when other frames share the ring; a probe may bound its
 search by a later mark (until) when probes overlap on purpose.
+
+A group's load is the population its composed window must commit: the
+records per receive channel and the GM and LINK events (grade.py refuses a
+window that committed any other count, so a load the filter refused, or a
+channel left out, cannot pass as the composed maximum).
 
 The paths, their clauses and their ceilings come from FR_NFR.md 3.4.1 and
 MAILBOX_SPLIT.md; every address comes from the mailbox contract.
@@ -101,6 +110,15 @@ class Probe:
     accesses: int | None = None  # the host model's measured or bound accesses in the pass, for comparison
     until: str = ''      # a later mark bounding the search; '' is the next mark
     also_from: str = ''  # a mark the interval is also reported from (the row's own origin)
+    #: A notification's required recipients: (controller entity_id, interface), each
+    #: registered for unsolicited notifications on that interface (IEEE 1722.1-2021 7.5.2).
+    recipients: tuple[tuple[int, int], ...] = ()
+    path: str = ''       # the path it is an instance of; '' is the name without .if<n>
+
+    def path_key(self) -> tuple[str, int]:
+        """The path and interface this probe measures; the tables report each one's worst instance."""
+        base, _, suffix = self.name.rpartition('.if')
+        return (self.path or base, int(suffix) if suffix.isdigit() else 0)
 
 
 @dataclass
@@ -109,6 +127,17 @@ class Group:
     steps: list[str] = field(default_factory=list)
     probes: list[Probe] = field(default_factory=list)
     sim_ms: int = 0      # the simulated time the script needs, for the run's bound
+    #: The composed window's required population: records per receive channel, and
+    #: 'GM' and 'LINK' events (grade.py counts each between composed and composed_end).
+    load: dict[str, int] = field(default_factory=dict)
+    #: Each loaded channel's admission for the records it was offered (admission()).
+    admission: dict[str, dict] = field(default_factory=dict)
+
+    def offer(self, channel: str, step: str, frame: bytes) -> None:
+        """One record of the composed load: a frame (or a reply) step the channel must commit."""
+        self.steps.append(step)
+        self.load[channel] = self.load.get(channel, 0) + 1
+        self.admission.setdefault(channel, admission(channel, frame))
 
     def add(self, *steps: str) -> None:
         """Steps with no probe."""
@@ -392,14 +421,18 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
     ready(g, p)
     seq = [0x6100]
 
-    def cmd(i: int, name: str, command_type: int, payload: bytes, count: int = 1, controller: int = CTL1) -> None:
-        """One AEM command probe; count 2 also waits for the notification a state change sends."""
+    def cmd(i: int, name: str, command_type: int, payload: bytes, controller: int = CTL1,
+            recipients: tuple[tuple[int, int], ...] = ()) -> None:
+        """One AEM command probe; with recipients, also every notification its state change sends."""
         frame = f.aem_command(f.Aem(p.entity_id, controller, CTL_MAC, p.mac, seq[0]), command_type, payload)
-        ends = [f'resp:{aecp}:{seq[0]:x}'] + ([f'notify:{aecp}'] if count > 1 else [])
+        notify = [f'notify:{aecp}:{command_type:04x}:{int.from_bytes(payload[0:2], "big")}:'
+                  f'{int.from_bytes(payload[2:4], "big")}'] if recipients else []
+        ends = [f'resp:{aecp}:{seq[0]:x}'] + notify
         seq[0] += 1
-        family = 'notify' if count > 1 else 'aecp'
-        g.probe(Probe(f'aecp.{name}.if{i}', name, family, f'rxc:{aecp}', ends, expect='aecp_response'),
-                f'frame {i} {frame.hex()}', wait=f'tx {aecp} {count} within {50 * MS}')
+        family = 'notify' if recipients else 'aecp'
+        g.probe(Probe(f'aecp.{name}.if{i}', name, family, f'rxc:{aecp}', ends, expect='aecp_response',
+                      recipients=recipients),
+                f'frame {i} {frame.hex()}', wait=f'tx {aecp} {1 + len(recipients)} within {50 * MS}')
 
     rows = descriptors(build)
     last = {}
@@ -427,10 +460,11 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
         g.probe(Probe(f'aecp.mvu_get_milan_info.if{i}', 'MVU GET_MILAN_INFO', 'aecp', f'rxc:{aecp}',
                       [end], expect='aecp_response'),
                 f'frame {i} {mvu.hex()}', wait=f'tx {aecp} 1 within {50 * MS}')
-        # A state change by another controller: the response, then the notification to CTL1 (7.5.2).
+        # A state change by another controller: the response, then a notification to CTL1 on
+        # every interface it has registered on so far (7.5.2): the fan-out ends at the last.
         name = f'budget if{i}'.encode().ljust(64, b'\0')   # a new value: an identical SET does not notify
         cmd(i, 'set_name', 0x0010, f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + name,
-            count=2, controller=CTL2)
+            controller=CTL2, recipients=tuple((CTL1, k) for k in range(i + 1)))
         # LOCK_ENTITY (7.4.2.1): flags, locked_id, descriptor_type and descriptor_index (the ENTITY).
         cmd(i, 'lock_entity', 0x0001, f.be(0, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
         cmd(i, 'unlock_entity', 0x0001, f.be(1, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
@@ -449,11 +483,13 @@ def maap_groups(p: Point) -> list[Group]:
                 wait=f'tx {maap} 1 within {100 * MS}', settle='')
         for n in (2, 3):
             g.probe(Probe(f'maap.probe{n}.if{i}', 'PROBE retransmission (TMR expiry)', 'maap', f'deadline:{slot}',
-                          [f'maap:{maap}:{f.MAAP_PROBE}'], expect=f'maap_type:{f.MAAP_PROBE}'),
+                          [f'maap:{maap}:{f.MAAP_PROBE}'], expect=f'maap_type:{f.MAAP_PROBE}',
+                          path='maap.probe_retransmission'),
                     wait=f'tx {maap} 1 within {800 * MS}', settle='')
         # The last retransmission and the ANNOUNCE leave on the same expiry (the core's B.3 machine).
-        g.together([(Probe(f'maap.probe4.if{i}', 'PROBE retransmission (TMR expiry)', 'maap', f'deadline:{slot}',
-                           [f'maap:{maap}:{f.MAAP_PROBE}'], expect=f'maap_type:{f.MAAP_PROBE}'), []),
+        g.together([(Probe(f'maap.probe4.if{i}', 'last PROBE retransmission (TMR expiry)', 'maap',
+                           f'deadline:{slot}', [f'maap:{maap}:{f.MAAP_PROBE}'], expect=f'maap_type:{f.MAAP_PROBE}'),
+                     []),
                     (Probe(f'maap.announce.if{i}', 'ANNOUNCE (TMR expiry)', 'maap', f'deadline:{slot}',
                            [f'maap:{maap}:{f.MAAP_ANNOUNCE}'], expect=f'maap_type:{f.MAAP_ANNOUNCE}'), [])],
                    [f'tx {maap} 2 within {800 * MS}'])
@@ -495,90 +531,199 @@ def srp_groups(p: Point) -> list[Group]:
     return [g]
 
 
-def admitted(channel: str, frame: bytes) -> int:
-    """Records of this frame a channel admits back to back: its token-bucket burst or
-    its receive ring's room, whichever is smaller (the contract's burst and rx_words)."""
-    ch = CONTRACT.channels[CH[channel]]
-    return min(ch.burst, ch.rx_words // (len(CONTRACT.rx_header) + (len(frame) + 3) // 4))
+def admission(channel: str, frame: bytes) -> dict:
+    """What KL_mbx_rx admits of a channel's records of this frame's size.
 
-
-def backlog_groups(p: Point) -> list[Group]:
-    """The four backlog rows (MAILBOX_SPLIT.md:753-758) under the composed maximum load.
-
-    Every receive ring is offered back to back exactly what it admits (admitted()),
-    the event ring a run of grandmaster changes on every interface, and each row's
-    input is the last of its kind. The owed-frame row holds the egress while eight
-    commands arrive. The bound-talker row binds a sink first, in its own group.
+    The token bucket starts full, passes burst records back to back and then
+    refills one per refill_ms (KL_mbx_rx.sv, buckets); the ring holds room
+    records of this size whatever the rate. So room bounds what the ring can
+    hold, and at_once = min(burst, room) is what one instant admits. Where
+    the burst is below the room (bounded False), sustained arrivals at the
+    refill rate can fill the ring past its burst, so a backlog of at_once
+    records is an observation, never a bound.
     """
-    acmp, adp, aecp = CH['acmp'], CH['adp'], CH['aecp']
+    ch = CONTRACT.channels[CH[channel]]
+    words = len(CONTRACT.rx_header) + (len(frame) + 3) // 4
+    room = ch.rx_words // words
+    return dict(burst=ch.burst, refill_ms=ch.refill_ms, record_words=words, room=room,
+                at_once=min(ch.burst, room), bounded=room <= ch.burst)
+
+
+def listener_ready(p: Point) -> bytes:
+    """A bridge's Listener Ready for this entity's first stream (IEEE 802.1Q-2018 35.2.2.8)."""
+    sid = (p.mac << 16) | 0
+    return f.msrp(BRIDGE_MAC, [f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])])
+
+
+#: A MAAPDU's size (B.2), the size of the conflicting PROBEs maap_conflict() replies.
+MAAP_PDU = f.maap(f.MAAP_PROBE, BRIDGE_MAC, (0, 1))
+
+
+def maap_conflict(interface: int, select: int = f.MAAP_ANNOUNCE) -> str:
+    """A bridge's PROBE of the range the interface's MAAP last sent (IEEE 1722-2016 B.3.6.6).
+
+    It copies that interface's own last ANNOUNCE (or PROBE), so its range
+    overlaps the filter's MAAP range; only the source and the type change.
+    In DEFEND the entity answers it with a DEFEND, in PROBE it re-probes.
+    """
+    return (f'reply {interface} {CH["maap"]} 15:{select:02x} on={interface} '
+            f'6={BRIDGE_MAC:012x} 15={f.MAAP_PROBE:02x}')
+
+
+def gm_run(g: Group, p: Point, count: int = 15) -> None:
+    """Grandmaster changes back to back, alternating the interfaces: GM events of the load."""
+    for n in range(count):
+        g.add(f'gm {n % p.interfaces} 0a0b0c0dfffe{n:04x} 0', 'wait cycles 8')
+    g.load['GM'] = g.load.get('GM', 0) + count
+
+
+def composed_load(g: Group, p: Point, own: str, counts: dict[str, int] | None = None,
+                  maap_select: int = f.MAAP_ANNOUNCE) -> None:
+    """Every receive channel's admitted burst at once, but own's, which the row loads itself.
+
+    Each channel is offered admission()'s at_once records (counts overrides
+    a channel's number), alternating the interfaces; ACMP's go to sink 0,
+    on interface 0. MAAP's are conflicting PROBEs of each interface's own
+    range, so the range filter passes them; SRP's are srp_groups' Listener
+    Ready. grade.py requires the window to commit exactly this population.
+    """
     disc = f.adp(f.ADP_DISCOVER, 0, CTL_MAC, f.Adp(valid_time=0))
-    avail = f.adp(f.ADP_AVAILABLE, TALKER_A, TALKER_A_MAC, f.Adp(valid_time=10, talker_sources=1, talker_caps=0x4001))
-    get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
     read = lambda seq: f.read_descriptor(f.Aem(p.entity_id, CTL1, CTL_MAC, p.mac, seq), 0, 0)
-    announce = lambda n: f.maap(f.MAAP_ANNOUNCE, BRIDGE_MAC, (0x91E0F000A000 + 16 * n, 8))
+    get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
+    srp = listener_ready(p)
+    frames = {'adp': lambda n: (f'frame {n % p.interfaces} {disc.hex()}', disc),
+              'aecp': lambda n: (f'frame {n % p.interfaces} {read(0x7100 + n).hex()}', read(0)),
+              'maap': lambda n: (maap_conflict(n % p.interfaces, maap_select), MAAP_PDU),
+              'srp': lambda n: (f'frame {n % p.interfaces} {srp.hex()}', srp),
+              'acmp': lambda n: (f'frame 0 {get(0x7200 + n).hex()}', get(0))}
+    for channel, make in frames.items():
+        if channel == own:
+            continue
+        number = (counts or {}).get(channel, admission(channel, make(0)[1])['at_once'])
+        for n in range(number):
+            g.offer(channel, *make(n))
 
-    def load(g: Group) -> None:
-        """The event run: fifteen grandmaster changes, alternating the interfaces."""
-        for n in range(15):
-            g.add(f'gm {n % p.interfaces} 0a0b0c0dfffe{n:04x} 0', 'wait cycles 8')
 
+def announced(g: Group) -> None:
+    """MAAP's PROBEs and ANNOUNCE on every interface after ready()'s link up (B.3.4.2, Table B.8)."""
+    g.add(f'wait cycles {2000 * MS}', 'wait quiet 3 within 2000000')
+
+
+def bound_talker_groups(p: Point) -> list[Group]:
+    """The bound-talker row (an ENTITY_AVAILABLE behind the adp ring), at the burst and with the
+    bucket refilling up to the ring's room (backlog-adp-refill, observed)."""
+    acmp, adp = CH['acmp'], CH['adp']
+    disc = f.adp(f.ADP_DISCOVER, 0, CTL_MAC, f.Adp(valid_time=0))
+    gone = f.adp(f.ADP_DEPARTING, TALKER_A, TALKER_A_MAC, f.Adp(valid_time=0, talker_sources=1, talker_caps=0x4001))
+    avail = f.adp(f.ADP_AVAILABLE, TALKER_A, TALKER_A_MAC, f.Adp(valid_time=10, talker_sources=1, talker_caps=0x4001))
     out = []
-    g = Group('backlog', sim_ms=3000)
+    # The bound-talker term: sink 0 bound to TALKER_A and waiting for it (PRB_W_AVAIL, reached
+    # through its DEPARTING as acmp-disc does), then the loads ending with its AVAILABLE.
+    last_gm = max(n for n in range(15) if n % p.interfaces == 0)
+    # It carries interface 0's grandmaster after the event run (Milan v1.2 Table 5.54 discards a mismatch).
+    current = f.adp(f.ADP_AVAILABLE, TALKER_A, TALKER_A_MAC,
+                    f.Adp(valid_time=10, talker_sources=1, talker_caps=0x4001, gm_id=0x0A0B0C0DFFFE0000 + last_gm))
+    at_once, room = admission('adp', disc)['at_once'], admission('adp', disc)['room']
+    for name, refills in (('backlog-adp', 0), ('backlog-adp-refill', room - at_once)):
+        g = Group(name, sim_ms=4000)
+        ready(g, p)
+        announced(g)
+        g.add(f'frame 0 {acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * MS}',
+              'wait quiet 3 within 2000000', f'frame 0 {avail.hex()}', 'wait quiet 3 within 2000000',
+              f'frame 0 {gone.hex()}', f'wait cycles {50 * MS}', 'wait quiet 3 within 2000000', 'gap 1',
+              'mark composed')
+        gm_run(g, p)
+        composed_load(g, p, own='adp')
+        for n in range(at_once - 1):
+            g.offer('adp', f'frame {n % p.interfaces} {disc.hex()}', disc)
+        # The refill leg: one more record per refill period, up to the ring's room with the input.
+        refill = CONTRACT.channels[adp].refill_ms
+        for n in range(refills):
+            g.add(f'wait cycles {refill * MS}')
+            g.offer('adp', f'frame {n % p.interfaces} {disc.hex()}', disc)
+        if refills:
+            g.add(f'wait cycles {refill * MS}')
+            probe = Probe('backlog.adp_available_refill.if0',
+                          'an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)', 'disc',
+                          f'rxc:{adp}', [f'arm:{p.interfaces}'], until='composed_end')
+        else:
+            probe = Probe('backlog.adp_available.if0', 'an ENTITY_AVAILABLE behind a full adp ring', 'disc',
+                          f'rxc:{adp}', [f'arm:{p.interfaces}'], until='composed_end')
+        g.probe(probe, f'frame 0 {current.hex()}', wait=f'tmr {p.interfaces} 1 within {400 * MS}',
+                settle='quiet 3 within 50000000')
+        g.load['adp'] += 1
+        g.add('mark composed_end')
+        out.append(g)
+    return out
+
+
+def owed_group(p: Point) -> Group:
+    """The owed-frame row (a response with 7 frames owed ahead of it) under the composed load."""
+    acmp = CH['acmp']
+    get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
+    # A response with 7 frames owed ahead of it (A3): the egress held and the TX ring filled
+    # with responses; then, the token bucket refilled, the load arrives with seven more
+    # commands and the probe, and the egress returns 60 ms later.
+    g = Group('backlog-owed', sim_ms=4000)
     ready(g, p)
-    g.add('gap 1', 'mark composed')
-    load(g)
-    g.probe(Probe('backlog.event.if0', 'an event behind 15 others', 'adp', 'pad:LINK:0', ['cancel:0'],
-                  until='composed_end'), 'link 0 0', wait='cycles 1', settle='')
-    for n in range(admitted('adp', disc)):
-        g.add(f'frame {n % p.interfaces} {disc.hex()}')
-    for n in range(admitted('aecp', read(0))):
-        g.add(f'frame {n % p.interfaces} {read(0x7100 + n).hex()}')
-    for n in range(admitted('maap', announce(0))):
-        g.add(f'frame {n % p.interfaces} {announce(n).hex()}')
-    count = admitted('acmp', get(0))
-    for n in range(count - 1):
-        g.add(f'frame 0 {get(0x7200 + n).hex()}')
-    g.probe(Probe('backlog.acmp_command.if0', 'an ACMP command behind a full acmp ring', 'acmp', f'rxc:{acmp}',
-                  [f'resp:{acmp}:72ff'], until='composed_end'), f'frame 0 {get(0x72ff).hex()}',
-            wait=f'tx {acmp} {count} within {200 * MS}', settle='quiet 3 within 50000000')
-    g.add('mark composed_end', 'gap 20', f'wait cycles {50 * MS}')
-    # A response with 7 frames owed ahead of it (A3): the egress held, the TX ring filled with
-    # responses, then, the token bucket refilled, seven more commands and the probe arrive.
+    announced(g)
     tx_room = CONTRACT.channels[acmp].tx_words // (len(CONTRACT.tx_header) + (len(get(0)) + 3) // 4)
     g.add('txready 0', f'wait cycles {2 * MS}')
     for n in range(tx_room):
         g.add(f'frame 0 {get(0x7300 + n).hex()}')
-    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}')
+    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}', 'gap 1', 'mark composed')
+    gm_run(g, p)
+    composed_load(g, p, own='acmp')
     for n in range(7):
-        g.add(f'frame 0 {get(0x7380 + n).hex()}')
+        g.offer('acmp', f'frame 0 {get(0x7380 + n).hex()}', get(0))
     g.probe(Probe('backlog.owed.if0', 'a response with 7 frames owed ahead of it', 'acmp', f'rxc:{acmp}',
-                  [f'resp:{acmp}:7387'], until='owed_end', also_from='room'),
+                  [f'resp:{acmp}:7387'], until='composed_end', also_from='room'),
             f'frame 0 {get(0x7387).hex()}', f'wait drained within {10 * MS}',
             f'wait cycles {60 * MS}', 'mark room', 'txready 1', wait=f'tx {acmp} 8 within {300 * MS}',
-            settle='quiet 3 within 2000000')
-    g.add('mark owed_end')
-    out.append(g)
-    # The bound-talker term: sink 0 bound to TALKER_A and waiting for it (PRB_W_AVAIL, reached
-    # through its DEPARTING as acmp-disc does), then the ADP burst ending with its AVAILABLE.
-    gone = f.adp(f.ADP_DEPARTING, TALKER_A, TALKER_A_MAC, f.Adp(valid_time=0, talker_sources=1, talker_caps=0x4001))
-    g = Group('backlog-adp', sim_ms=2500)
+            settle='quiet 3 within 50000000')
+    g.load['acmp'] += 1
+    g.add('mark composed_end')
+    return g
+
+
+def backlog_groups(p: Point) -> list[Group]:
+    """The four backlog rows (MAILBOX_SPLIT.md:753-758), each under the composed maximum load.
+
+    Every group's composed window carries every receive channel's admitted
+    burst at once (composed_load, MAAP and SRP included) and fifteen
+    grandmaster changes, and each row's input is the last of its own
+    channel's records. The event and ACMP rows are at their rings' room, a
+    bound; the ADP ring takes its burst, fewer records than it holds, so its
+    row is observed at that backlog, and backlog-adp-refill adds the bucket's
+    refill-rate arrivals up to the ring's room before the input (observed,
+    not a bound). The bound-talker rows bind a sink first; the owed-frame
+    row holds the egress while its commands arrive with the load.
+    """
+    acmp = CH['acmp']
+    get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
+    out = []
+
+    g = Group('backlog', sim_ms=4000)
     ready(g, p)
-    g.add(f'frame 0 {acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * MS}',
-          'wait quiet 3 within 2000000', f'frame 0 {avail.hex()}', 'wait quiet 3 within 2000000',
-          f'frame 0 {gone.hex()}', f'wait cycles {50 * MS}', 'wait quiet 3 within 2000000', 'gap 1',
-          'mark composed')
-    load(g)
-    for n in range(admitted('adp', disc) - 1):
-        g.add(f'frame {n % p.interfaces} {disc.hex()}')
-    # It carries interface 0's grandmaster after the event run (Milan v1.2 Table 5.54 discards a mismatch).
-    last_gm = max(n for n in range(15) if n % p.interfaces == 0)
-    current = f.adp(f.ADP_AVAILABLE, TALKER_A, TALKER_A_MAC,
-                    f.Adp(valid_time=10, talker_sources=1, talker_caps=0x4001, gm_id=0x0A0B0C0DFFFE0000 + last_gm))
-    g.probe(Probe('backlog.adp_available.if0', 'an ENTITY_AVAILABLE behind a full adp ring', 'disc', f'rxc:{adp}',
-                  [f'arm:{p.interfaces}'], until='composed_end'), f'frame 0 {current.hex()}',
-            wait=f'tmr {p.interfaces} 1 within {300 * MS}', settle='quiet 3 within 50000000')
+    announced(g)
+    g.add('gap 1', 'mark composed')
+    gm_run(g, p)
+    g.probe(Probe('backlog.event.if0', 'an event behind 15 others', 'adp', 'pad:LINK:0', ['cancel:0'],
+                  until='composed_end'), 'link 0 0', wait='cycles 1', settle='')
+    g.load['LINK'] = 1
+    composed_load(g, p, own='acmp')
+    count = admission('acmp', get(0))['at_once']
+    for n in range(count - 1):
+        g.offer('acmp', f'frame 0 {get(0x7200 + n).hex()}', get(0))
+    g.probe(Probe('backlog.acmp_command.if0', 'an ACMP command behind a full acmp ring', 'acmp', f'rxc:{acmp}',
+                  [f'resp:{acmp}:72ff'], until='composed_end'), f'frame 0 {get(0x72ff).hex()}',
+            wait=f'tx {acmp} {count} within {300 * MS}', settle='quiet 3 within 50000000')
+    g.load['acmp'] += 1
     g.add('mark composed_end')
     out.append(g)
+
+    out += bound_talker_groups(p)
+    out.append(owed_group(p))
     return out
 
 
@@ -594,9 +739,36 @@ def control_groups(p: Point) -> list[Group]:
     ready(g, p, link=False)
     advertised(g, p)
     disc = f.adp(f.ADP_DISCOVER, 0, CTL_MAC, f.Adp(valid_time=0))
-    g.probe(Probe('control.discover.if0', 'RCV_ADP_DISCOVER (control)', 'adp', f'rxc:{adp}', ['arm:0'], accesses=31),
-            f'frame 0 {disc.hex()}', wait=f'tmr 0 1 within {300 * MS}')
+    g.probe(Probe('control.discover.if0', 'RCV_ADP_DISCOVER (control)', 'adp', f'rxc:{adp}', ['arm:0'], accesses=31,
+                  path='adp.discover'), f'frame 0 {disc.hex()}', wait=f'tmr 0 1 within {300 * MS}')
     return [g]
+
+
+#: NOW_MS at which build.py's shutdown-entry variant disables ADP, once.
+SHUTDOWN_MS = 2500
+
+
+def shutdown_groups(p: Point) -> list[Group]:
+    """SHUTDOWN -> ENTITY_DEPARTING committed (MAILBOX_SPLIT.md:502), through a test-only entry.
+
+    The linked image never disables ADP, so this path has no input in it.
+    build.py's shutdown-entry variant (a scratch copy of the fixture, never the
+    formal image) adds a poll that calls adp_mbx_set_enable(false) once, at
+    NOW_MS SHUTDOWN_MS. The path starts at that call's entry and ends at each
+    interface's ENTITY_DEPARTING commit (IEEE 1722.1-2021 6.2.5.2.2). The
+    control group is the same path, which slow-adp-shutdown must push over
+    T_svc (run.py --mutation slow-adp-shutdown).
+    """
+    adp = CH['adp']
+    out = []
+    for name, prefix, ifs in (('adp-shutdown', 'adp', range(p.interfaces)), ('control-shutdown', 'control', [0])):
+        g = Group(name, sim_ms=SHUTDOWN_MS + 300)
+        ready(g, p)
+        g.together([(Probe(f'{prefix}.shutdown.if{i}', 'SHUTDOWN', 'adp', 'entry:adp_mbx_set_enable',
+                           [f'adp:{adp}:{f.ADP_DEPARTING}'], accesses=29, expect='adp_departing'), []) for i in ifs],
+                   [f'ms {SHUTDOWN_MS + 50}'])
+        out.append(g)
+    return out
 
 
 def boot_fault_groups() -> list[Group]:
@@ -616,39 +788,57 @@ def fixture_groups(p: Point) -> list[Group]:
     acmp, adp, aecp, srp = CH['acmp'], CH['adp'], CH['aecp'], CH['srp']
     g = Group('fixture', sim_ms=2500)
     ready(g, p, link=False)
-    g.probe(Probe('fixture.link_up.if0', 'LINK_UP', 'adp', 'pad:LINK:0', ['arm:0'], accesses=11),
+    g.probe(Probe('fixture.link_up.if0', 'LINK_UP', 'adp', 'pad:LINK:0', ['arm:0'], accesses=11,
+                  path='adp.link_up'),
             'link 0 1', wait=f'tmr 0 1 within {300 * MS}')
     g.add(f'wait cycles {100 * MS}', 'wait quiet 3 within 2000000')
     sid = (p.mac << 16) | 0
     bad = bytearray(f.msrp(BRIDGE_MAC, [f.mrp_message(3, f.be(sid, 8), [1], four_packed=[2])]))
     bad[29] = 216
-    g.probe(Probe('fixture.malformed.if0', 'malformed MRPDU discard', 'srp', f'rxc:{srp}', [f'pass_end:{srp}']),
+    g.probe(Probe('fixture.malformed.if0', 'malformed MRPDU discard', 'srp', f'rxc:{srp}', [f'pass_end:{srp}'],
+                  path='srp.malformed'),
             f'frame 0 {bytes(bad).hex()}', wait=f'cycles {30 * MS}')
     g.add(f'frame 0 {f.aem_command(f.Aem(p.entity_id, CTL1, CTL_MAC, p.mac, 0x6100), 0x0024, bytes(4)).hex()}',
           f'wait tx {aecp} 1 within {50 * MS}', 'wait quiet 3 within 2000000')
+    # A short composed window: one record on every receive channel and two GM events, so the
+    # self-test pins a composed maximum and its population.
+    g.add('gap 1', 'mark composed')
+    gm_run(g, p, 2)
+    composed_load(g, p, own='', counts={c: 1 for c in CH}, maap_select=f.MAAP_PROBE)
+    g.add('wait quiet 3 within 2000000', 'mark composed_end')
     name = b'fixture'.ljust(64, b'\0')
     frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, 0x6101), 0x0010, bytes(8) + name)
-    g.probe(Probe('fixture.set_name.if0', 'SET_NAME', 'notify', f'rxc:{aecp}', [f'resp:{aecp}:6101', f'notify:{aecp}'],
-                  expect='aecp_response'), f'frame 0 {frame.hex()}', wait=f'tx {aecp} 2 within {50 * MS}')
-    g.probe(Probe('fixture.link_down.if0', 'LINK_DOWN', 'adp', 'pad:LINK:0', ['cancel:0'], accesses=9),
+    g.probe(Probe('fixture.set_name.if0', 'SET_NAME', 'notify', f'rxc:{aecp}',
+                  [f'resp:{aecp}:6101', f'notify:{aecp}:0010:0:0'], expect='aecp_response',
+                  recipients=((CTL1, 0),), path='aecp.set_name'),
+            f'frame 0 {frame.hex()}', wait=f'tx {aecp} 2 within {50 * MS}')
+    g.probe(Probe('fixture.link_down.if0', 'LINK_DOWN', 'adp', 'pad:LINK:0', ['cancel:0'], accesses=9,
+                  path='adp.link_down'),
             'link 0 0', wait=f'tmr 0 2 within {300 * MS}')
     g.probe(Probe('fixture.bind_rx.if0', 'BIND_RX', 'acmp', f'rxc:{acmp}',
                   [f'resp:{acmp}:4100', f'acmp_cmd:{acmp}:PROBE_TX', 'arm:1', f'pub:{binding_word(0, 0)}'],
-                  accesses=77, expect='acmp_status:BIND_RX_RESPONSE:0'),
+                  accesses=77, expect='acmp_status:BIND_RX_RESPONSE:0', path='acmp.bind_rx'),
             f'frame 0 {acmp_cmd(p, "BIND_RX", 0, 0x4100).hex()}', wait=f'tx {acmp} 2 within {50 * MS}')
     g.probe(Probe('fixture.tmr_no_resp1.if0', 'TMR_DELAY, or the first TMR_NO_RESP', 'acmp', 'deadline:1',
-                  [f'acmp_cmd:{acmp}:PROBE_TX', 'arm:1'], accesses=35),
+                  [f'acmp_cmd:{acmp}:PROBE_TX', 'arm:1'], accesses=35, path='acmp.tmr_no_resp1'),
             wait=f'tx {acmp} 1 within {400 * MS}', settle='')
-    avail = f.adp(f.ADP_AVAILABLE, TALKER_A, TALKER_A_MAC, f.Adp(valid_time=10, talker_sources=1, talker_caps=0x4001))
-    gone = f.adp(f.ADP_DEPARTING, TALKER_A, TALKER_A_MAC, f.Adp(valid_time=0, talker_sources=1, talker_caps=0x4001))
+    # They carry interface 0's grandmaster after the window's GM run (Milan v1.2 Table 5.54 discards a mismatch).
+    gm = 0x0A0B0C0DFFFE0001
+    avail = f.adp(f.ADP_AVAILABLE, TALKER_A, TALKER_A_MAC,
+                  f.Adp(valid_time=10, talker_sources=1, talker_caps=0x4001, gm_id=gm))
+    gone = f.adp(f.ADP_DEPARTING, TALKER_A, TALKER_A_MAC,
+                 f.Adp(valid_time=0, talker_sources=1, talker_caps=0x4001, gm_id=gm))
     g.add(f'frame 0 {avail.hex()}', f'wait cycles {60 * MS}')
     g.probe(Probe('fixture.entity_departing.if0', 'ENTITY_DEPARTING from its RX_HEAD (H-DISC)', 'disc', f'rxc:{adp}',
-                  ['tmr:1'], accesses=29), f'frame 0 {gone.hex()}', wait=f'cycles {100 * MS}', settle='')
+                  ['tmr:1'], accesses=29, path='acmp.entity_departing'),
+            f'frame 0 {gone.hex()}', wait=f'cycles {100 * MS}', settle='')
     return [g]
 
 
 def all_groups(p: Point, build: dict) -> list[Group]:
-    """Every group of a point, in the order the tables list them."""
+    """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
+    if build.get('variant') == 'shutdown-entry':
+        return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *maap_groups(p), *srp_groups(p),
               *backlog_groups(p), *control_groups(p)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

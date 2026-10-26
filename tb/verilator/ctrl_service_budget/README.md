@@ -1,19 +1,19 @@
 # Split CPU service budget
 
 This harness measures the Mark II split firmware's service paths on the shipping cacheless core.
-Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397).
+Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397), with the [round-2 corrections](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6415127884).
 The image is `ctrl_srp_image.py --with-aecp --layout split`, linked unmodified.
 Every figure is a measured clock count at the CPU's 50 MHz, never an estimate.
 Each is compared with T_svc = 10 ms and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
 
 ## Contents
 
-- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the labelled second arm, the controls and the regrade.
+- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the labelled arms, the controls, reuse and the regrade.
 - **[The test SoC](#the-test-soc)** -- What is the shipping CPU and memory, what is test-only, and where each device sits.
-- **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound and the verdicts.
+- **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound, the composed load and the verdicts.
 - **[Results](#results)** -- Per access, per pass, every response path, the backlog rows and the fetch share.
 - **[Findings](#findings)** -- The decision input for D4, D5 and D3, and the defects the measurement exposed.
-- **[Controls and self-test](#controls-and-self-test)** -- The planted over-budget path, the region-decode control and the grader mutants.
+- **[Controls and self-test](#controls-and-self-test)** -- The planted over-budget paths, the region-decode control and the grader mutants.
 - **[Limits](#limits)** -- What is not measured, and why.
 
 ## Run and reproduce
@@ -42,16 +42,27 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 Without `--record-budget-findings` a path over T_svc fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
 `--groups` selects groups and `--jobs` sets how many run at once.
-`--reuse-build --regrade --out DIR` grades the logs already in `DIR`.
-It refuses a group whose recorded script the scenario no longer generates.
 
-The labelled second arm builds the fixture with its four observation callbacks answering:
+`--reuse-build` reuses a build only if every input recorded in its `build.json` still has its digest.
+The inputs are the checkout's testbench and mailbox sources, every file of the firmware source trees the image is compiled from, the image, its runtime archives, the ROM `.init` files the model reads when it runs, the exported SoC Verilog, the generated two-interface mailbox and the CPU netlist and RAM models.
+A changed or missing input, a ROM file that was never recorded, or a recorded key that does not resolve is refused, and the run exits 1.
+`--regrade --out DIR` grades the logs already in `DIR`, on a reused build.
+Every selected group must have its script and its log there, and its script must be the one the scenario now generates.
+Otherwise that group is refused by name and the run exits 1; a partial regrade selects its groups with `--groups`.
+
+Two labelled arms change test code only, each in a scratch copy of the fixture, and are never the formal measurement:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   --build-dir /tmp/budget-1x1-ports --variant answering-ports \
-  --groups acmp-cmd,acmp-noresp,acmp-notk,acmp-disc,backlog,backlog-adp --record-budget-findings
+  --groups acmp-cmd,acmp-noresp,acmp-notk,acmp-disc,backlog,backlog-adp,backlog-owed --record-budget-findings
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-1x1-shutdown --variant shutdown-entry --record-budget-findings
 ```
+
+- `answering-ports` (arm B) makes the fixture's four observation callbacks answer.
+- `shutdown-entry` adds the SHUTDOWN path's only input: a poll that calls `adp_mbx_set_enable(false)` once, at NOW_MS 2,500.
+  It runs the `adp-shutdown` and `control-shutdown` groups only.
 
 The directory has no Makefile on purpose.
 The serial sweep discovers every Makefile, and `scripts/suite_shards.py` must then register the suite.
@@ -86,7 +97,7 @@ Each reaches the same kind of device over the same peripheral bus in both maps, 
 `--ctrl-mailbox` leaves the CSR map unchanged ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#4-boot-console-and-diagnostics)).
 
 The CPU generator is handed each region at its power-of-two cover (256 KiB for `rom` and `sram`).
-Generated from the 224 KiB regions, its region check excludes every `rom` address with bit 15 set, and the image faults (see [Findings](#findings)).
+Generated from the 224 KiB regions, its region check excludes every `rom` address with bit 15 set, and the image faults ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
 The two netlists differ only in address-decode lines, so the cover changes no timing.
 `--cpu-regions as-built` builds the regions unchanged and reproduces the fault.
 
@@ -98,12 +109,20 @@ Every probe is a `mark`, its stimulus and a bounded wait.
 
 - A received frame starts at its receive commit, `KL_mbx_rx`'s header write (RX_HEAD).
   The probe's frame carries a tag, so other frames on the ring are not mistaken for it.
+- A commit belongs to the frame whose last byte it follows.
+  `KL_mbx_rx` takes no byte of a frame until the previous frame's verdict (`rx_ready_o` only in `RECV_S`), and every commit measured follows its frame's last byte by 4 bus cycles.
+  An older frame left without a commit was refused by the filter.
 - A link or grandmaster event starts when its level changes at the mailbox input.
 - A timer path starts at its armed deadline: the tick on which NOW_MS reaches it, not the record's posting.
+- The test-only SHUTDOWN input starts at the commit of `adp_mbx_set_enable`'s entry.
 - A path ends when its last required output is committed: an accepted TX_HEAD write, a TMR_CMD arm or cancel, a publication write or the record's RX_TAIL release.
 - A response is matched by its sequence_id and its interface.
+- A notification fan-out ends at the last required recipient's commit.
+  Each recipient is a controller registered for unsolicited notifications on an interface (IEEE 1722.1-2021 7.5.2).
+  Each must receive the unsolicited response of the probe's command type and descriptor.
+  A missing recipient is refused, and so is the change notified to a controller outside the set; other unsolicited responses do not count.
 
-CPU cycles are bus cycles times 50/100, rounded up; milliseconds come from the bus count.
+Every conversion is one `Grader` method: CPU cycles from bus cycles (times 50/100, rounded up), bus cycles from CPU cycles, and milliseconds from either.
 A pass runs from one committed entry of `ctrl_loop_service` to the next.
 A mailbox access is timed at the CPU's load/store bus, from command to response.
 Instruction fetches are counted at the cacheless fetch bus, by region.
@@ -112,43 +131,62 @@ One phase is one sample.
 So each probe also reports a measured bound.
 It runs from the start of the pass that was running when the input arrived, or the longest idle pass before it, to the end of the pass that committed the output.
 Whatever the input's phase, it is taken by the next pass at the latest, so with the same passes the interval cannot exceed the bound.
+Each probe also reports the records ahead of its input: those on its ring (or in the event ring) committed before it and not yet released.
+
+A backlog group's composed window, between its `composed` and `composed_end` marks, carries a defined load.
+The grader counts the records each receive channel committed in it, and the GM and LINK events posted.
+It refuses the group unless that population is exactly the group's load, so a record the filter refused, or a channel left out, fails the run.
+The composed maximum is the longest pass that starts inside the window.
 
 The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 18 ms.
-A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc.
+A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc, and its ceiling by W plus the ceiling.
 
 ## Results
 
 Arm A is the image as linked, the formal measurement.
 Arm B is the labelled second arm, whose fixture callbacks answer.
-In the path tables a cell is "ms at this phase (the pass bound)"; **miss** is over T_svc, **over ceiling** over the 3.4.1 ceiling as well.
-Each run writes every probe to its `table.md` and `results.json`.
+The SHUTDOWN row comes from the labelled `shutdown-entry` arm.
+In the path tables a cell is a path's worst measured instance across the groups that measure it, "ms (the pass bound)"; **miss** is over T_svc, **over ceiling** over the 3.4.1 ceiling as well.
+Each run writes every path's worst instance, every probe and every timed-out wait to its `table.md`, and all of it to `results.json`.
+
+T_svc misses, counted per path and per probe instance (a path several groups measure is one path, at its worst):
+
+| Arm | Groups | Paths missing T_svc | Probe instances missing T_svc |
+|---|---:|---:|---:|
+| A1 | 17 | 10 of 61 | 11 of 78 |
+| A8 | 16 | 37 of 106 | 45 of 125 |
+| B1 | 7 | 4 of 20 | 4 of 20 |
+| B8 | 7 | 4 of 36 | 4 of 36 |
+| S1 | 2 | 0 of 2 | 0 of 2 |
+| S8 | 2 | 0 of 3 | 0 of 3 |
 
 ### Per access and per instruction
 
 | Point | CPU cycles per instruction | Fetches per instruction | Mailbox read / write, CPU cycles | BRAM fetch, CPU cycles (max) | sram load/store | CSR | Flash window load | Code fetched, boot / service (largest run) |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| 1x1 | 9.72 | 1.73 | 9 / 9 | 9.10 (303) | 9-10 / 9-10 | 9-10 / 9 | 263 mean (138-303) | 11,160 / 40,532 B |
-| 8x8 | 9.62 | 1.70 | 9 / 9 | 9.15 (303) | 9-10 / 9-10 | 9-10 / 9 | 263 mean (138-303) | 11,396 / 43,060 B |
+| 1x1 | 9.54 | 1.69 | 9 / 9 | 9.09 (303) | 9-10 / 9-10 | 9-10 / 9 | 262.8 mean (138-303) | 11,160 / 42,080 B |
+| 8x8 | 9.51 | 1.68 | 9 / 9 | 9.13 (303) | 9-10 / 9-10 | 9-10 / 9 | 262.5 mean (138-303) | 11,396 / 43,060 B |
 
 Every access is timed at the CPU, command to response, in CPU cycles at 50 MHz.
 A mailbox access is 9 cycles, 0.18 us; `KL_mbx` itself answers in one bus cycle, and the rest is the clock crossing and the bus.
 A fetch waits behind a slow flash read, hence the 303-cycle maximum.
 Instruction fetches are 85 to 89 % of the CPU's bus transactions in every taking pass.
-Their waits sum to 1.59 to 1.69 times each pass's cycles, so more than one fetch is outstanding on average: the cacheless core is fetch-bound.
+Their waits sum to 1.59 to 1.64 times each pass's cycles, so more than one fetch is outstanding on average: the cacheless core is fetch-bound.
 
 ### Passes
 
-| Point, arm | Idle pass, CPU cycles (ms) | Worst pass, CPU cycles (ms), group | Composed maximum, worst pass (ms) |
+| Point, arm | Idle pass, CPU cycles (ms) | Worst pass, CPU cycles (ms), group | Composed maximum, CPU cycles (ms), group |
 |---|---:|---:|---:|
-| 1x1, A | 65,703 to 72,358 (1.31 to 1.45) | 1,552,161 (31.04), acmp-disc | 1,391,312 (27.83) |
-| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 685,184 (13.70), backlog | 685,184 (13.70) |
-| 8x8, A | 102,152 to 185,315 (2.04 to 3.71) | 2,989,496 (59.79), acmp-notk | 2,141,242 (42.82) |
-| 8x8, B | 7,081 to 293,468 (0.14 to 5.87) | 2,004,666 (40.09), acmp-notk | 1,302,022 (26.04) |
+| 1x1, A | 65,703 to 72,358 (1.31 to 1.45) | 1,565,803 (31.32), backlog-adp | 1,565,803 (31.32), backlog-adp |
+| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 740,260 (14.81), backlog | 740,260 (14.81), backlog |
+| 8x8, A | 102,152 to 185,315 (2.04 to 3.71) | 2,989,496 (59.79), acmp-notk | 2,209,308 (44.19), backlog-adp-refill |
+| 8x8, B | 7,081 to 293,468 (0.14 to 5.87) | 2,004,666 (40.09), acmp-notk | 1,392,016 (27.84), backlog |
 
-The idle pass's largest consumers are AECP's two polls: `aecp_poll` 26,497 and `aecp_nvm_poll` 20,254 cycles at 1x1, 73,883 and 20,254 at 8x8.
+An idle pass's largest consumers are AECP's two modules, `aecp` 26,497 and `aecp_nvm` 20,254 cycles at 1x1, 73,883 and 20,254 at 8x8, mostly their polls.
 The 8x8 link-up pass, 2,004,666 cycles, is lwSRP's `mrp_mad` 473,950, `memset` 361,053, `memcpy` 244,102, the mailbox driver 119,790 and software multiply and divide (`__mulsi3` 111,201, `__udivsi3` 89,954).
-The 1x1 composed maximum, 685,184 cycles, is `memset` 268,495, the mailbox driver 111,947, `memcpy` 66,719, AECP 44,965 and ACMP 35,611.
-Arm A's passes after a bind, 1.06 to 1.55 M cycles at 1x1, are mostly `memset` (1.1 M) and AECP (0.2 M): the retry described in [Findings](#findings).
+The 1x1 composed maximum, `backlog-adp`'s 1,565,803 cycles, is `memset` 984,728, AECP 173,531, the mailbox driver 127,547, ACMP 49,350 and `memcpy` 46,964: after the bind, AECP's retry (see [Findings](#findings)).
+The `backlog` group's composed maximum (arm B's maximum), 740,260 cycles, is `memset` 278,637, the mailbox driver 141,995, `memcpy` 66,719, AECP 41,029 and ACMP 36,377.
+At 8x8 the composed maximum, 2,209,308 cycles, adds lwSRP's `mrp_mad` (429,626) to the same `memset` and AECP terms.
 
 ### ADP
 
@@ -160,7 +198,7 @@ Arm A's passes after a bind, 1.06 to 1.55 M cycles at 1x1, are mostly `memset` (
 | GM_CHANGE -> TMR_DELAY armed | 0.10 (1.46) | 2.38 (8.95) / 2.50 (8.95) | 18 / 34 (11) |
 | LINK_UP -> TMR_DELAY armed | 0.11 (4.97) | 32.51 (73.31) **miss** / 41.69 (73.31) **miss** | 88 / 345 (11) |
 | LINK_DOWN -> timer stopped | 0.08 (5.48) | 18.35 (42.60) **miss** / 26.84 (42.60) **miss** | 33 / 70 (9) |
-| SHUTDOWN -> ENTITY_DEPARTING | not reachable: the fixture has no shutdown input | - | - |
+| SHUTDOWN -> ENTITY_DEPARTING (test-only entry, `shutdown-entry` arm) | 0.58 (1.94) | 0.58 (5.14) / 1.17 (5.14) | 39 / 75 (29) |
 
 ### ACMP
 
@@ -174,17 +212,18 @@ Arm A's passes after a bind, 1.06 to 1.55 M cycles at 1x1, are mostly `memset` (
 | GET_TX_STATE | 6.37 (26.36) | 10.67 (30.66) **miss** / 27.60 (87.09) **over ceiling** | 1.00 (2.72) | 3.52 (11.65) / 3.53 (9.89) | 117 / 115 (48) |
 | DISCONNECT_TX | 24.77 (44.77) **over ceiling** | 10.62 (30.62) **miss** / 20.18 (32.59) **over ceiling** | 0.95 (2.67) | 0.96 (6.62) / 4.19 (12.34) | 117 / 115 (48) |
 | GET_TX_CONNECTION | 11.08 (26.31) **miss** | 10.63 (30.63) **miss** / 19.70 (39.52) **miss** | 0.95 (2.67) | 3.45 (9.84) / 3.48 (9.85) | 117 / 115 (48) |
-| the first TMR_NO_RESP | 3.36 (22.30) | 14.19 (70.11) **miss** / 12.89 (70.11) **miss** | 0.86 (3.03) | 2.53 (13.06) / 1.14 (9.12) | 95 / 113 (35) |
+| the first TMR_NO_RESP | 5.48 (47.98) | 14.19 (70.11) **miss** / 12.89 (70.11) **miss** | 0.86 (3.03) | 2.53 (13.06) / 1.14 (9.12) | 124 / 113 (35) |
 | the second TMR_NO_RESP | 1.64 (21.79) | 4.43 (24.89) / 5.24 (24.89) | 1.19 (3.89) | 1.46 (12.60) / 0.54 (8.12) | 72 / 67 (14) |
 | TMR_RETRY | 7.99 (46.72) | 27.14 (76.55) **over ceiling** / 26.21 (76.55) **over ceiling** | 0.19 (3.79) | 3.17 (16.68) / 3.15 (14.68) | 73 / 68 (14) |
 | TMR_DELAY | 2.90 (44.04) | 5.69 (38.79) / 8.58 (38.80) | 1.94 (5.06) | 1.70 (9.80) / 1.08 (6.57) | 95 / 93 (35) |
 | TMR_NO_TK | 4.57 (22.15) | 15.23 (75.59) **miss** / 5.43 (38.64) | 0.19 (2.31) | 3.63 (9.89) / 3.24 (11.86) | 74 / 93 (14) |
 | ENTITY_AVAILABLE from its RX_HEAD (H-DISC) | 10.37 (25.92) **miss** | 27.41 (41.44) **over ceiling** / 29.72 (41.44) **over ceiling** | 0.90 (2.79) | 3.45 (14.07) / 5.76 (14.07) | 104 / 129 (35) |
-| ENTITY_DEPARTING from its RX_HEAD (H-DISC) | 14.42 (22.53) **miss** | 45.45 (83.13) **over ceiling** / 47.73 (83.13) **over ceiling** | 0.35 (2.24) | 1.18 (11.76) / 3.46 (11.75) | 95 / 177 (29) |
+| ENTITY_DEPARTING from its RX_HEAD (H-DISC) | 25.17 (50.78) **over ceiling** | 45.45 (83.13) **over ceiling** / 47.73 (83.13) **over ceiling** | 0.35 (2.24) | 1.18 (11.76) / 3.46 (11.75) | 98 / 177 (29) |
 | TMR_NO_ADP (H-DISC) | 1.91 (22.31) | 8.51 (37.51) / 5.66 (31.48) | 0.99 (3.04) | 4.84 (15.30) / 2.25 (11.98) | 95 / 67 (12) |
 
 The ACMP groups bind a sink, and from then on arm A's AECP retries its change notices every millisecond.
 Those groups also run lane F1's first saved-state commit: one erase and 14 page programs (3,336 B) at 1x1, up to 52 (13,256 B) at 8x8, with zero device wait.
+The 1x1 first TMR_NO_RESP and ENTITY_DEPARTING cells are the `fixture` group's instances, the worst of their paths.
 
 ### AECP
 
@@ -209,12 +248,14 @@ Those groups also run lane F1's first saved-state commit: one erase and 14 page 
 | get_configuration | 4.42 (5.56) | 14.82 (27.43) **miss** / 5.69 (11.10) | 53 / 60 |
 | get_counters | 4.92 (6.06) | 6.57 (12.39) / 6.21 (12.03) | 86 / 80 |
 | get_name | 4.69 (5.83) | 7.05 (12.87) / 5.21 (11.36) | 70 / 99 |
-| lock_entity | 3.96 (5.41) | 8.32 (14.50) / 4.68 (11.13) | 66 / 73 |
+| lock_entity | 3.96 (5.41) | 8.32 (14.50) / 8.19 (14.64) | 66 / 73 |
 | MVU GET_MILAN_INFO | 2.50 (3.64) | 3.52 (9.68) / 3.53 (9.35) | 50 / 52 |
 | register_unsolicited | 2.48 (3.61) | 5.91 (11.72) / 4.87 (10.68) | 46 / 54 |
-| set_name | 5.22 (6.90) | 7.88 (15.08) / 7.93 (15.20) | 106 / 114 |
+| SET_NAME | 5.76 (8.84) | 7.88 (15.08) / 8.39 (15.20) | 106 / 114 |
 | unknown_command | 4.42 (5.56) | 5.65 (11.47) / 5.69 (11.50) | 53 / 54 |
-| unlock_entity | 3.95 (5.40) | 5.61 (11.51) / 6.86 (11.77) | 65 / 66 |
+| unlock_entity | 3.95 (5.40) | 5.61 (11.51) / 6.12 (12.56) | 65 / 66 |
+
+SET_NAME ends at the last notification: at 8x8 if1 the two recipients are CTL1 on if0 and on if1, and the second commits at 8.39 ms.
 
 ### SRP and MAAP
 
@@ -222,57 +263,102 @@ Those groups also run lane F1's first saved-state commit: one erase and 14 page 
 |---|---:|---:|---:|
 | SRP startup declarations (LINK_UP) | 4.44 (4.97) | 15.79 (18.01) **miss** / 13.25 (33.17) **miss** | 88 / 124 |
 | SRP Listener Ready RX (registrar; the fixture grants no licence) | 2.77 (2.77) | 9.11 (12.34) / 8.33 (9.56) | 29 / 36 |
-| SRP malformed MRPDU discard | 1.75 (1.75) | 7.70 (11.04) / 5.69 (9.17) | 29 / 36 |
+| SRP malformed MRPDU discard | 2.15 (2.15) | 7.70 (11.04) / 5.69 (9.17) | 35 / 36 |
 | SRP Domain RX -> declarations (W = JoinTime 200 ms) | 4.93 (7.07) | 14.28 (20.31) / 8.17 (21.00) | 78 / 142 |
 | MAAP first PROBE (LINK_UP) | 0.90 (4.97) | 18.49 (38.98) **miss** / 17.04 (39.82) **miss** | 88 / 178 |
-| MAAP PROBE retransmission | 1.55 (4.26) | 3.78 (10.89) / 2.96 (9.41) | 37 / 44 |
-| MAAP PROBE retransmission | 1.86 (3.92) | 1.40 (8.20) / 1.67 (5.08) | 37 / 38 |
-| MAAP last PROBE | 1.24 (4.23) | 3.92 (8.86) / 2.64 (9.41) | 64 / 65 |
+| MAAP PROBE retransmission (the worse of two) | 1.86 (3.92) | 3.78 (10.89) / 2.96 (9.41) | 37 / 44 |
+| MAAP last PROBE retransmission | 1.24 (4.23) | 3.92 (8.86) / 2.64 (9.41) | 64 / 65 |
 | MAAP ANNOUNCE | 1.50 (4.23) | 4.17 (8.86) / 2.90 (9.41) | 64 / 65 |
 | MAAP conflicting PROBE -> DEFEND | 0.71 (2.02) | 1.72 (8.05) / 1.97 (8.23) | 47 / 48 |
 
 ### Backlog rows
 
-| Backlog row ([`MAILBOX_SPLIT.md:753-758`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | Desk bound, accesses IF=1 / IF=2 | A: 1x1 ms (bound) | A: 8x8 ms (bound) | B: 1x1 | B: 8x8 |
+Every backlog group's composed window carries every receive channel's admitted burst at once and fifteen grandmaster changes, alternating the interfaces.
+Each row's input is the last of its own channel's records.
+
+- ADP: ENTITY_DISCOVERs; ACMP: GET_RX_STATEs to sink 0; AECP: READ_DESCRIPTORs; SRP: a bridge's Listener Ready.
+- MAAP: a bridge's PROBE of each interface's announced range, so the range filter passes it and the entity DEFENDs it (IEEE 1722-2016 B.3.6.6).
+  The groups wait for MAAP's ANNOUNCE first.
+
+What arrives at once is bounded by each channel's token bucket and ring (`KL_mbx_rx.sv`): the bucket starts full, passes its burst back to back and then refills one record per period, and the ring holds a fixed number of records of each size.
+
+| Channel | Burst | Refill | Ring room, records of the load's frame | Offered at once | Bound? |
+|---|---:|---:|---:|---:|---|
+| adp | 8 | 1 per 10 ms | 11 (23 words each) | 8 | no: observed at the burst |
+| aecp | 16 | 1 per 5 ms | 30 (17 words each) | 16 | no: observed at the burst |
+| maap | 8 | 1 per 20 ms | 7 (17 words each) | 7 | yes: the ring is full |
+| srp | 32 | 1 per 2 ms | 60 (17 words each) | 32 | no: observed at the burst |
+| acmp | 16 | 1 per 5 ms | 12 (20 words each) | 12 | yes: the ring is full |
+
+So the event ring, the ACMP ring and the MAAP ring are at their room: a bound.
+The ADP, AECP and SRP rings are offered their burst, which is fewer records than they hold.
+Under sustained arrivals the bucket keeps admitting one record per period, so those rings can hold more: their rows are observed at the burst, not bounded by it.
+`backlog-adp-refill` measures that for the bound-talker row: the burst, then one more ENTITY_DISCOVER per refill period, up to the ring's room, then the input.
+
+| Backlog row ([`MAILBOX_SPLIT.md:753-758`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | Desk bound, accesses IF=1 / IF=2 | A: 1x1 ms (bound) [records ahead] | A: 8x8 | B: 1x1 | B: 8x8 |
 |---|---:|---:|---:|---:|---:|
-| an event behind 15 others | 10,569 / 13,287 | 14.12 (27.14) **miss** | 40.51 (67.64) **miss** | 14.12 (27.14) **miss** | 40.51 (67.64) **miss** |
-| an ACMP command behind a full acmp ring | 38,753 / 48,719 | 60.35 (67.08) **over ceiling** | 101.98 (113.42) **over ceiling** | 60.36 (67.08) **over ceiling** | 101.98 (113.42) **over ceiling** |
-| an ENTITY_AVAILABLE behind a full adp ring | 77,506 / 97,438 | 43.90 (52.85) **over ceiling** | 48.63 (65.42) **over ceiling** | 7.90 (9.79) | 15.28 (22.85) **miss** |
-| a response with 7 frames owed ahead of it | 31,707 / 39,861 | 75.76 (78.70) **over ceiling** | 98.93 (106.92) **over ceiling** | 75.78 (78.72) **over ceiling** | 98.93 (106.92) **over ceiling** |
-| the same, from the moment the room returns | - | 15.76 | 38.93 | - | - |
+| an event behind 15 others | 10,569 / 13,287 | 15.49 (29.11) **miss** [15 ahead] | 44.65 (73.70) **miss** [16 ahead] | 15.49 (29.11) **miss** [15 ahead] | 44.65 (73.70) **miss** [16 ahead] |
+| an ACMP command behind a full acmp ring | 38,753 / 48,719 | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] |
+| an ENTITY_AVAILABLE behind the adp ring at its burst (observed) | 77,506 / 97,438 | 67.93 (81.83) **over ceiling** [7 ahead] | 83.51 (107.83) **over ceiling** [7 ahead] | 36.72 (47.10) **over ceiling** [7 ahead] | 55.79 (76.28) **over ceiling** [7 ahead] |
+| the same, its bucket refilling up to the ring's room (observed) | - | 88.33 (107.65) **over ceiling** [4 ahead] | 118.81 (156.29) **over ceiling** [6 ahead] | - | - |
+| a response with 7 frames owed ahead of it | 31,707 / 39,861 | 125.79 (129.81) **over ceiling** [7 ahead] | 151.92 (161.44) **over ceiling** [7 ahead] | 125.78 (129.80) **over ceiling** [7 ahead] | 151.92 (161.44) **over ceiling** [7 ahead] |
+| the same, from the moment the room returns | - | 65.79 | 91.92 | 65.78 | 91.92 |
 
 The desk bounds charge every pass with every term at once, at a full ring of the smallest records.
-The fabric admits less: each channel's token-bucket burst or its ring's room, whichever is smaller (`scenario.admitted`).
-That is 8 ADP records (the desk counts 42), 12 GET_RX_STATE commands (19), 16 AECP commands and 7 MAAP records.
-Each row's input is the last of its channel's admitted burst, with 15 grandmaster changes in the event ring and every other channel's burst arriving too.
-The owed-frame row fills the ACMP transmit ring with the egress held, then owes eight more responses.
-Arm B equals arm A here except for the bound-talker row: the other rows bind no sink, so no retry runs.
+"Records ahead" is the backlog in the input's own ring (for the event row, the event ring) when it arrived.
+The owed-frame row fills the ACMP transmit ring with the egress held, then owes eight more responses while the load arrives.
+On the `backlog` group's interface 0 the event row's LINK_DOWN arrives with the load, so MAAP and SRP on that interface take their records with the link down.
+
+Each window committed exactly its load (the run refuses one that did not):
+
+| Arm, group | Composed population committed (records; events) | Composed maximum, CPU cycles (ms) |
+|---|---|---:|
+| A1 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 740,260 (14.81) |
+| A1 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 1,565,803 (31.32) |
+| A1 backlog-adp-refill | adp 11, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 1,531,355 (30.63) |
+| A1 backlog-owed | adp 8, acmp 8, aecp 16, maap 7, srp 32, GM 15 | 582,677 (11.65) |
+| A8 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 1,392,016 (27.84) |
+| A8 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 2,208,710 (44.17) |
+| A8 backlog-adp-refill | adp 11, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 2,209,308 (44.19) |
+| A8 backlog-owed | adp 8, acmp 8, aecp 16, maap 7, srp 32, GM 15 | 1,111,719 (22.23) |
+| B1 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 740,260 (14.81) |
+| B1 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 645,058 (12.90) |
+| B1 backlog-owed | adp 8, acmp 8, aecp 16, maap 7, srp 32, GM 15 | 582,392 (11.65) |
+| B8 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 1,392,016 (27.84) |
+| B8 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 1,111,647 (22.23) |
+| B8 backlog-owed | adp 8, acmp 8, aecp 16, maap 7, srp 32, GM 15 | 1,111,719 (22.23) |
 
 ## Findings
 
 **The rows miss T_svc, so this lane stops** ([owner decision D4](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409738976)).
 
 - Per-pass CPU work, not mailbox accesses, sets the time.
-  A 1x1 pass that takes one event record makes 15 mailbox accesses, 135 of its 89,773 cycles.
+  The 1x1 composed maximum pass makes 365 mailbox accesses, about 3,300 of its 1,565,803 cycles.
   [`MAILBOX_SPLIT.md:753-758`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency) allows each row 0.10 to 0.94 us an access to fit T_svc.
   The measured access is 0.18 us, inside every allowance but the full-ADP-ring row's; the passes around the accesses are 1.3 to 60 ms.
 - The single passes break the [#397 one-hart rule](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046).
   A pass is the loop's only opportunity to take an input, and the smallest deadline every duty shares is T_svc.
-  The composed maximum is 27.83 ms (arm A) and 13.70 ms (arm B) at 1x1, 42.82 and 26.04 ms at 8x8, and the 8x8 link-up pass is 40.09 ms.
+  The composed maximum is 31.32 ms (arm A) and 14.81 ms (arm B) at 1x1, 44.19 and 27.84 ms at 8x8, and the 8x8 link-up pass is 40.09 ms.
 - An input waits for the pass that is running and then for the pass that takes it.
   So T_svc needs every pass well under 5 ms.
   At 8x8 the idle pass is already 2.0 to 3.7 ms, and LINK_UP, LINK_DOWN, SRP's startup and MAAP's first PROBE miss outright.
 - **For D4 (a), a per-pass cap**, the measured consumers are, in order:
   - `memset` and `memcpy`, byte loops on RV32I: each AECP response zeroes its 1,514-byte frame (`aecp.c:58`) and the 1,476-byte payload in it (`aecp_commands.c:555`), and a 1x1 READ_DESCRIPTOR pass spends 153,929 to 156,240 cycles (3.1 ms) in `memset`;
-  - lwSRP's link reset and declarations (`mrp_mad`), 474,000 cycles in the 8x8 link-up pass;
-  - AECP's two polls, about 47,000 cycles of every 1x1 pass and 94,000 at 8x8;
+  - lwSRP's link reset and declarations (`mrp_mad`), 474,000 cycles in the 8x8 link-up pass and 430,000 in the 8x8 composed maximum;
+  - AECP's two modules (mostly their polls), about 47,000 cycles of every 1x1 pass and 94,000 at 8x8;
   - software multiply and divide, the RV32I core having no M extension.
-- **For D4 (b), the admitted backlog**: the token buckets already admit 8, 12, 16 and 7 records, not the desk's full rings.
-  Fewer would shorten the ring rows by whole passes, but no backlog change shortens a single 40 ms pass.
+- **For D4 (b), the admitted backlog** ([Backlog rows](#backlog-rows)):
+  - The event ring (16 records), the ACMP ring (12 GET_RX_STATEs) and the MAAP ring (7 MAAPDUs) take their room at once, so those backlogs are bounds.
+  - The ADP, AECP and SRP buckets admit 8, 16 and 32 records at once, of the 11, 30 and 60 their rings hold, and then one more every 10, 5 and 2 ms.
+    Their backlog under sustained arrivals is not bounded by the burst; the rows measured at the burst are observations.
+  - The loop takes at most two records of a channel a pass (`ctrl_loop.c`, `service_rx`): the composed windows release two ADP, ACMP and MAAP records a pass, one AECP record, and two SRP records only in the passes where SRP is ready for them.
+    Each record ahead of an input therefore costs up to a whole pass, and the passes under the composed load are 1.5 to 31 ms at 1x1.
+  - So a smaller ring or bucket removes whole passes from the ring rows, but no row fits T_svc while one pass can exceed it.
+    The refill leg shows the other side: its input arrives behind 4 records instead of 7, but during the longest passes, and takes 88.33 ms against 67.93.
 - **The fixture's AECP retries every millisecond.**
   For each pending change notice, `aecp.c:461-495` builds the response and, when the observation port reports unavailable, sets `retry_at = a->now + 1u`.
-  The fixture's ports always report unavailable, so after a bind every pass rebuilds the notices: 1.06 to 1.55 M cycles, 21 to 31 ms.
-  Arm B, whose callbacks answer, takes the same H-DISC paths in 0.35 to 0.99 ms at 1x1.
+  The fixture's ports always report unavailable, so after a bind every pass rebuilds the notices: up to 1.57 M cycles, 31 ms, at 1x1.
+  Arm B, whose callbacks answer, takes the same H-DISC paths in 0.35 to 0.99 ms at 1x1, and its bound-talker row in 36.72 ms against arm A's 67.93.
   The retry has no backoff, so a real port that reports unavailable would do the same.
 
 **D5, the smaller core** (deferred until after the flip): the shipping core already misses at both points, so a slower core would miss by more until S2b's per-pass cap lands.
@@ -280,19 +366,18 @@ Arm B equals arm A here except for the bound-talker row: the other rows bind no 
 **D3, the hybrid XIP split:**
 
 - A fetch from block RAM costs 9.1 CPU cycles.
-  A read through the flash window costs 263 on average, about 29 times as much, on the 1x SPI the product configures.
+  A read through the flash window costs 138 to 303, 263 on average: about 15 to 29 times a block RAM fetch, on the 1x SPI the product configures.
+  The low end is a burst continuation, the nearest to straight-line fetch from flash.
 - The core is fetch-bound, so code executing from flash would run roughly that much slower: no path inside T_svc can be fetched from flash.
-- The image fetches 11,160 B of code before the mailbox opens (11,396 B at 8x8) and at least 40,532 B after it (43,060 B at 8x8), of 85,912 and 87,596 B of `.text`.
+- The image fetches 11,160 B of code before the mailbox opens (11,396 B at 8x8) and at least 42,080 B after it (43,060 B at 8x8), of 85,912 and 87,596 B of `.text`.
   The service figure is the largest single run, so it is a lower bound for the hot set S14 must keep in block RAM.
 
 **Defects the measurement found**, each for its own issue:
 
-1. **The split image cannot run on the CPU the split SoC builds.**
+1. **The split image cannot run on the CPU the split SoC builds** ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
    The generator decodes a region whose size is not a power of two wrongly.
    For the 224 KiB `rom` at 0 its fetch and load checks are `(address & 0xfffc8000) == 0`, which excludes every address with bit 15 set.
-   Generated from the shipping split region list it is the same.
    The image's first call above 0x8000 (`jal aecp_image_load`, 0x6880 to 0xb1ec) takes an instruction access fault, cause 1, traps to 0 and restarts, forever.
-   M8a-2's boot needs `rom` and `sram` at a power-of-two size in the CPU's region list, or a generator fix.
 2. **The linked image addresses placeholders**, not the split SoC (the address table above).
    S3's target firmware owns the real addresses.
 3. **#723 is open**: the runtime recipe builds without `-fno-stack-protector` and the image does not link.
@@ -301,35 +386,63 @@ Arm B equals arm A here except for the bound-talker row: the other rows bind no 
 ## Controls and self-test
 
 `run.py --self-test` regrades the committed trace [`fixture.log`](fixture.log), which the `fixture` group recorded at 1x1, against [`oracle.json`](oracle.json).
+The fixture has a short composed window: one record on every receive channel and two GM events.
 Its checks:
 
-- the fixture's digest and each of its seven rows;
-- the clock conversion, 1,000,000 bus cycles being 500,000 CPU cycles and 10 ms;
-- the ceilings and T_svc, restated in [`selftest.py`](selftest.py) so a changed table fails;
-- an exact-budget path passes and one bus cycle more misses;
-- the probe's own tagged frame starts it, not an earlier frame on the ring;
-- a response to another sequence_id, or on the other interface, does not end it;
-- the last required output ends a path;
-- a timer path starts at its armed deadline, not when its record is posted;
-- W + T_svc passes, and one cycle more misses;
-- a planted over-budget path: the recorded BIND_RX response moved past T_svc must miss.
+- the fixture's digest, each of its seven rows with its pass bound and the records ahead, its worst pass and its composed maximum with the window's population;
+- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss, and the fixture with its MAAP record's commit deleted must be refused by name;
+- every clock conversion; the ceilings and T_svc, restated in [`selftest.py`](selftest.py) so a changed table fails;
+- an exact-budget path passes and one bus cycle more misses; W + T_svc passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling;
+- the probe's own tagged frame starts it; a commit after a refused frame is the next frame's; a commit that follows no frame is refused;
+- a response to another sequence_id, or on the other interface, does not end it; the last required output ends it; the expected response is checked;
+- a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
+- a notification over two recipients ends at the last; a late recipient misses; a missing one, a duplicate standing in for another, and a controller outside the set are refused; unrelated unsolicited responses do not end it;
+- the records ahead of an input; each path's worst instance and the misses per path and per instance;
+- the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
+- reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build.
 
-Then it mutates each grader rule and requires a named check to fail:
+Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
 
 | Mutant | Caught by |
 |---|---|
 | marker: the frame tag is ignored | tagged start |
-| marker: a timer path starts when its record is posted | fixture row `fixture.tmr_no_resp1.if0` |
+| marker: a timer path starts when its record is posted | fixture row fixture.tmr_no_resp1.if0 |
+| marker: a timer path starts one millisecond after its deadline | fixture row fixture.tmr_no_resp1.if0 |
+| marker: an entry start takes any function entry | an entry start is its own function's |
 | marker: any response on the channel ends the path | sequence and interface |
 | marker: the interface is ignored | sequence and interface |
-| marker: the first required output ends the path | fixture row `fixture.set_name.if0` |
-| clock ratio: CPU cycles equal bus cycles | fixture row `fixture.link_up.if0` |
-| clock ratio: inverted | fixture row `fixture.link_up.if0` |
-| clock ratio: milliseconds from the CPU clock | fixture row `fixture.link_up.if0` |
-| deadline: T_svc 20 ms | ceilings pinned |
+| marker: the first required output ends the path | fixture row fixture.set_name.if0 |
+| marker: a receive commit goes to the oldest pending frame (d58c8e22) | a receive commit belongs to the frame it follows |
+| marker: the expected-response check is skipped | the expected response is checked |
+| notify: the first recipient's commit ends the fan-out | two recipients across interfaces end at the last |
+| notify: the first unsolicited response on any interface ends it (d58c8e22) | two recipients across interfaces end at the last |
+| notify: any unsolicited response counts as the change | unrelated unsolicited responses do not end it |
+| notify: a missing recipient is not refused | a missing recipient is refused |
+| notify: a recipient outside the set is not refused | a notification to a controller outside the set is refused |
+| clock ratio: CPU cycles equal bus cycles | fixture row fixture.link_up.if0 |
+| clock ratio: inverted | fixture row fixture.link_up.if0 |
+| clock ratio: CPU cycles rounded down | fixture row fixture.malformed.if0 |
+| clock ratio: milliseconds from the CPU clock | fixture row fixture.link_up.if0 |
+| clock ratio: a pass's milliseconds from the bus clock | fixture passes: worst pass and composed maximum |
+| clock ratio: a pass's bus cycles equal its CPU cycles | fixture row fixture.link_up.if0 |
+| pass bound: it starts at the input, not at the running pass | fixture row fixture.malformed.if0 |
+| composition: the window's population is not checked | a composed load missing one channel is refused |
+| composition: the composed maximum is the run's worst pass | fixture passes: worst pass and composed maximum |
+| deadline: T_svc 20 ms | planted over-budget path is caught |
 | deadline: strictly below the budget | exact budget passes |
 | deadline: the normative wait is not added | W + T_svc passes |
+| deadline: the ceiling drops the normative wait | W + T_svc passes |
 | deadline: the ACMP ceiling is the transaction timeout | ceilings pinned |
+| run: a CPU trap is not refused | a CPU trap is refused |
+| run: a T_svc miss never fails the run | a T_svc miss fails the run unless recorded |
+| run: a refusal does not fail the run | a refusal fails the run, recorded or not |
+| regrade: a selected group without its log is dropped (d58c8e22) | a regrade refuses each absent log or script, and a stale script, by name |
+| reuse: an input outside the checkout is not rechecked (d58c8e22) | reuse refuses the image |
+| reuse: the ROM files are not attested | reuse refuses a ROM file |
+| tables: a path's first instance is reported, not its worst (d58c8e22) | each path reports its worst instance |
+| tables: misses are counted per probe instance only (d58c8e22) | misses are counted per path and per probe instance |
+
+A mutant named with `(d58c8e22)` restores the rule as #665's first measuring head had it, so its check is the test that fails on that head.
 
 Regenerate the fixture only through its generator, from a fresh 1x1 run of the `fixture` group:
 
@@ -337,11 +450,13 @@ Regenerate the fixture only through its generator, from a fresh 1x1 run of the `
 python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture RESULTS/fixture.log BUILD/build.json
 ```
 
-Two controls run the full harness:
+Three controls run the full harness:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   --build-dir /tmp/budget-slow-adp --mutation slow-adp-rx
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-slow-shutdown --variant shutdown-entry --mutation slow-adp-shutdown
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   --build-dir /tmp/budget-as-built --cpu-regions as-built
 ```
@@ -349,13 +464,17 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
 `slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins first.
 The `control` group's RCV_ADP_DISCOVER must miss T_svc: it measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
 The ordinary image measures the same path at 0.294 ms.
+`slow-adp-shutdown` makes disabling ADP spin before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
+The `control-shutdown` group's SHUTDOWN must miss T_svc: it measures 24.903 ms against 0.582 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
 `as-built` hands the generator the SoC's regions unchanged.
 The run must refuse the boot with an instruction access fault, cause 1, and prints `CONTROL as-built caught`.
 
 ## Limits
 
 - One phase is measured per probe; the pass bound covers any phase under the same passes, not other loads.
-- SHUTDOWN has no input in the fixture, and START_STREAMING calls a port the fixture leaves empty, so neither is run.
+- The ADP, AECP and SRP backlog rows are observed at their bucket's burst; the refill leg is one sample of sustained arrivals, not a bound.
+- SHUTDOWN is measured through a test-only entry, because the linked image never disables ADP.
+- START_STREAMING calls a port the fixture leaves empty, so it is not run.
 - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
 - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.
 - The flash's erase and program waits are zero, so F1's commit is measured as CPU work only; S4 owns the target port.

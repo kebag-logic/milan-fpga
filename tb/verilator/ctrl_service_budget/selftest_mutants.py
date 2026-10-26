@@ -1,0 +1,230 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""The self-test's mutants: each replaces one rule of the grader, the run or the build with a
+plausible defect, and selftest.py requires a named check to fail under it.
+
+A mutant whose name ends in "(d58c8e22)" restores the rule as #665's first
+measuring head had it, so the check that catches it is the test that fails
+on that head. Each mutant is a function returning the patches it applies.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+from collections.abc import Callable
+from pathlib import Path
+from unittest.mock import patch
+
+import build
+import grade
+import run
+import scenario
+
+Patches = Callable[[], list]
+
+
+def _start_with(rule: Callable) -> Patches:
+    """Grader.start with one marker kind replaced by rule(self, probe, after, before), else unchanged."""
+    original = grade.Grader.start
+
+    def start(self: grade.Grader, probe: scenario.Probe, interface: int, after: int, before: int) -> int | None:
+        """The mutant start: rule's hit, or the original marker where rule leaves it unchanged."""
+        hit = rule(self, probe, after, before)
+        return original(self, probe, interface, after, before) if hit == 'unchanged' else hit
+    return lambda: [patch.object(grade.Grader, 'start', start)]
+
+
+def _tag_ignored(self: grade.Grader, probe: scenario.Probe, after: int, before: int) -> object:
+    if not probe.start.startswith('rxc'):
+        return 'unchanged'
+    hits = [c for c, k, *_ in self.log.rxc if after <= c < before and k == int(probe.start.split(':')[1])]
+    return hits[0] if hits else None
+
+
+def _timer_posted(self: grade.Grader, probe: scenario.Probe, after: int, before: int) -> object:
+    if not probe.start.startswith('deadline'):
+        return 'unchanged'
+    slot = int(probe.start.split(':')[1])
+    hits = [c for c, w in self.log.records if after <= c < before and w[0] & 0xFF == grade.EV_TIMER
+            and (w[1] >> 16) & 0xFF == slot]
+    return hits[0] if hits else None
+
+
+def _timer_late(self: grade.Grader, probe: scenario.Probe, after: int, before: int) -> object:
+    if not probe.start.startswith('deadline'):
+        return 'unchanged'
+    slot = int(probe.start.split(':')[1])
+    for c, w in self.log.records:
+        if after <= c < before and w[0] & 0xFF == grade.EV_TIMER and (w[1] >> 16) & 0xFF == slot:
+            return self.log.ms.get(w[2] + 1, self.log.ms.get(w[2]))
+    return None
+
+
+def _entry_any(self: grade.Grader, probe: scenario.Probe, after: int, before: int) -> object:
+    if not probe.start.startswith('entry'):
+        return 'unchanged'
+    hits = [c for c, _ in self.log.entries if after <= c < before]
+    return hits[0] if hits else None
+
+
+def _end_with(rewrite: Callable[[str], str] | None = None, interface_free: bool = False) -> Patches:
+    """Grader.end with a resp end read as any TX on the channel, or matched on every interface."""
+    original = grade.Grader.end
+
+    def end(self: grade.Grader, spec: str, probe: scenario.Probe, interface: int, start: int,
+            before: int) -> int | None:
+        """The mutant end: a resp end matched on any interface, or the spec rewritten."""
+        if spec.startswith('resp') and interface_free:
+            ch, seq = int(spec.split(':')[1]), int(spec.split(':')[2], 16)
+            hits = [c for c, k, _, fr in self.log.tx if start <= c <= before and k == ch
+                    and grade.response_sequence(fr) == seq]
+            return hits[0] if hits else None
+        return original(self, rewrite(spec) if rewrite else spec, probe, interface, start, before)
+    return lambda: [patch.object(grade.Grader, 'end', end)]
+
+
+def _owner_oldest(pending: list, cycle: int, refused: list) -> tuple[int, str, int]:
+    """The oldest pending frame, those older than 64 cycles dropped while another waits."""
+    while len(pending) > 1 and pending[0][3] < cycle - 64:
+        refused.append(pending.pop(0))
+    return pending.pop(0)[:3] if pending else (-1, '-', 0)
+
+
+def _recipients_first_any(self: grade.Grader, spec: str, probe: scenario.Probe, start: int,
+                          before: int) -> tuple[dict, list]:
+    """The first unsolicited AECP frame on any interface ends every recipient."""
+    ch = int(spec.split(':')[1])
+    hits = [c for c, k, _, fr in self.log.tx if start <= c <= before and k == ch and len(fr) > 37
+            and fr[14] == 0xFB and fr[36] & 0x80]
+    return {r: hits[0] if hits else None for r in probe.recipients}, []
+
+
+def _recipients_unchecked() -> list:
+    original = grade.Grader.recipients
+    return [patch.object(grade.Grader, 'recipients', lambda self, *a: (original(self, *a)[0], []))]
+
+
+def _missing_ignored() -> list:
+    original = grade.fan_out
+    return [patch.object(grade, 'fanout_end', lambda found: max((c for c in found.values() if c), default=None)),
+            patch.object(grade, 'fan_out', lambda *a: '' if original(*a).startswith('no ') else original(*a))]
+
+
+def _verdicts(edit: Callable[[dict, float, scenario.Probe], dict]) -> Patches:
+    original = grade.verdicts
+    return lambda: [patch.object(grade, 'verdicts', lambda ms, probe: edit(original(ms, probe), ms, probe))]
+
+
+def _run_ignores_traps(log: grade.Log, group: scenario.Group) -> None:
+    if log.result != 'PASS' or log.errors:
+        raise grade.Refusal(f'{group.name}: the simulation did not complete')
+
+
+def _recorded_drops(groups: list, out: Path) -> tuple[list, list, list]:
+    """A selected group whose log is absent is dropped, silently."""
+    kept = [g for g in groups if (out / f'{g.name}.log').exists()]
+    stale = [g.name for g in kept if not (out / f'{g.name}.txt').exists()
+             or (out / f'{g.name}.txt').read_text() != g.script()]
+    return ([g for g in kept if g.name not in stale], [out / f'{g.name}.log' for g in kept if g.name not in stale],
+            [f'{name}: stale' for name in stale])
+
+
+def _reused_checkout_only(build_dir: Path) -> dict:
+    """Only an input under the checkout is rechecked; any other key is skipped."""
+    spec = json.loads((build_dir / 'build.json').read_text())
+    for key, want in spec['inputs'].items():
+        path = build.ROOT / key
+        if not Path(key).is_absolute() and path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() != want:
+            raise RuntimeError(f'reused build is stale: {key} changed')
+    if hashlib.sha256((build_dir / 'native/Vsim').read_bytes()).hexdigest() != spec['executable_sha256']:
+        raise RuntimeError('reused build is stale: the native model changed')
+    return spec
+
+
+def _first_instance(results: list[dict]) -> list[dict]:
+    """Each path reported at its first measured instance."""
+    out: dict = {}
+    for group in results:
+        for r in group['probes']:
+            if r['status'] == 'measured':
+                entry = out.setdefault(tuple(r['path']), dict(path=r['path'][0], interface=r['path'][1],
+                                                              row=r['row'], instances=0, misses=0,
+                                                              worst=dict(r, group=group['group'])))
+                entry['instances'] += 1
+                entry['misses'] += not r['within_t_svc']
+    return list(out.values())
+
+
+def _counts_per_instance() -> list:
+    original = run.counts
+    return [patch.object(run, 'counts', lambda results: dict(original(results),
+                                                              path_misses=original(results)['instance_misses']))]
+
+
+def _verdict(refusals_fail: bool, misses_fail: bool) -> Patches:
+    def verdict(args: object, groups: list, refusals: list, misses: list) -> int:
+        """The mutant exit status: refusals or misses fail only where the flags say."""
+        if refusals_fail and (refusals or not groups):
+            return 1
+        return 1 if misses_fail and misses and not args.record_budget_findings else 0
+    return lambda: [patch.object(run, 'verdict', verdict)]
+
+
+MUTANTS: dict[str, Patches] = {
+    'marker: the frame tag is ignored': _start_with(_tag_ignored),
+    'marker: a timer path starts when its record is posted': _start_with(_timer_posted),
+    'marker: a timer path starts one millisecond after its deadline': _start_with(_timer_late),
+    'marker: an entry start takes any function entry': _start_with(_entry_any),
+    'marker: any response on the channel ends the path': _end_with(lambda s: 'tx:' + s.split(':')[1]
+                                                                   if s.startswith('resp') else s),
+    'marker: the interface is ignored': _end_with(interface_free=True),
+    'marker: the first required output ends the path': lambda: [patch.object(grade, 'combine_ends', min)],
+    'marker: a receive commit goes to the oldest pending frame (d58c8e22)':
+        lambda: [patch.object(grade, 'owner', _owner_oldest)],
+    'marker: the expected-response check is skipped': lambda: [patch.object(grade, 'expectation', lambda *a: '')],
+    "notify: the first recipient's commit ends the fan-out": lambda: [patch.object(grade, 'fanout_end', lambda f:
+                                                                      min(f.values()) if None not in f.values()
+                                                                      else None)],
+    'notify: the first unsolicited response on any interface ends it (d58c8e22)':
+        lambda: [patch.object(grade.Grader, 'recipients', _recipients_first_any)],
+    'notify: any unsolicited response counts as the change': lambda: [patch.object(
+        grade, 'causal', lambda fr, *a: len(fr) > 37 and fr[14] == 0xFB and fr[15] & 0xF == 1 and bool(fr[36] & 0x80))],
+    'notify: a missing recipient is not refused': _missing_ignored,
+    'notify: a recipient outside the set is not refused': _recipients_unchecked,
+    'clock ratio: CPU cycles equal bus cycles': lambda: [patch.object(grade.Grader, 'cpu_cycles', lambda self, n: n)],
+    'clock ratio: inverted': lambda: [patch.object(grade.Grader, 'cpu_cycles',
+                                                   lambda self, n: n * self.log.sys_hz // self.log.cpu_hz)],
+    'clock ratio: CPU cycles rounded down': lambda: [patch.object(
+        grade.Grader, 'cpu_cycles', lambda self, n: n * self.log.cpu_hz // self.log.sys_hz)],
+    'clock ratio: milliseconds from the CPU clock': lambda: [patch.object(
+        grade.Grader, 'ms', lambda self, n: n * 1000.0 / self.log.cpu_hz)],
+    "clock ratio: a pass's milliseconds from the bus clock": lambda: [patch.object(
+        grade.Grader, 'cpu_ms', lambda self, n: n * 1000.0 / self.log.sys_hz)],
+    "clock ratio: a pass's bus cycles equal its CPU cycles": lambda: [patch.object(grade.Grader, 'bus_cycles',
+                                                                                   lambda self, n: n)],
+    'pass bound: it starts at the input, not at the running pass': lambda: [patch.object(
+        grade.Grader, 'pass_origin', lambda self, start: start)],
+    "composition: the window's population is not checked": lambda: [patch.object(grade, 'check_load',
+                                                                                 lambda *a: None)],
+    "composition: the composed maximum is the run's worst pass": lambda: [patch.object(
+        grade, 'composed_passes', lambda log, start, end: log.passes)],
+    'deadline: T_svc 20 ms': lambda: [patch.object(scenario, 'T_SVC_MS', 20.0)],
+    'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_t_svc=ms < v['t_svc_ms'])),
+    'deadline: the normative wait is not added': _verdicts(lambda v, ms, probe: dict(
+        v, within_t_svc=ms <= scenario.T_SVC_MS)),
+    'deadline: the ceiling drops the normative wait': _verdicts(lambda v, ms, probe: dict(
+        v, within_ceiling=ms <= scenario.CEILING_MS[probe.family])),
+    'deadline: the ACMP ceiling is the transaction timeout': lambda: [patch.dict(scenario.CEILING_MS, {'acmp': 200.0})],
+    'run: a CPU trap is not refused': lambda: [patch.object(grade, 'refuse_run', _run_ignores_traps)],
+    'run: a T_svc miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
+    'run: a refusal does not fail the run': _verdict(refusals_fail=False, misses_fail=True),
+    'regrade: a selected group without its log is dropped (d58c8e22)':
+        lambda: [patch.object(run, 'recorded', _recorded_drops)],
+    'reuse: an input outside the checkout is not rechecked (d58c8e22)':
+        lambda: [patch.object(build, 'reused', _reused_checkout_only)],
+    'reuse: the ROM files are not attested': lambda: [patch.object(
+        build, 'run_inputs', lambda d, spec, f=build.run_inputs: [p for p in f(d, spec) if p.suffix != '.init'])],
+    "tables: a path's first instance is reported, not its worst (d58c8e22)":
+        lambda: [patch.object(run, 'paths', _first_instance)],
+    'tables: misses are counted per probe instance only (d58c8e22)': _counts_per_instance,
+}

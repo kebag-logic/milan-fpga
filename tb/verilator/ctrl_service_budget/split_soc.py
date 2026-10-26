@@ -10,7 +10,7 @@ product simulation (tb/verilator/nvm_capture_cpu/soc.py) is imported read
 only, for its simulated clocks and its path to the product sources.
 
 The image ctrl_srp_image.py links is a size fixture whose bus addresses are
-placeholders (#665 S2): the mailbox at ctrl_build.py's CTRL_MBX_BASE and the
+placeholders (#665): the mailbox at ctrl_build.py's CTRL_MBX_BASE and the
 LiteSPI master, timer0 and flash window of ctrl_nvm/test/rv32/generated.
 This SoC puts each device where the unmodified image addresses it, and reads
 those addresses from the fixture's own sources, never restating them. The

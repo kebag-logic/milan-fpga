@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// The testbench of the split CPU budget (#665 S2, #397): it drives the
+// The testbench of the split CPU budget (#665, #397): it drives the
 // mailbox's datapath side from a stimulus script and observes, passively,
 // the committed PCs, both cacheless CPU buses, the mailbox host port, the
 // receive commit and the event-ring writes. Every figure it prints is an
@@ -174,6 +174,7 @@ public:
 
 private:
     struct Frame { unsigned interface; std::vector<std::uint8_t> bytes; std::string tag = "-"; };
+    struct Sent { unsigned interface; std::vector<std::uint8_t> bytes; };
 
     void host_sample(Vsim& dut) {
         if (dut.mbx_host_req) host_req_at_ = sys_;
@@ -203,7 +204,7 @@ private:
         std::printf("WIRE %llu %u %u %s\n", ull(sys_), unsigned(dut.mbx_tx_if),
                     unsigned(dut.mbx_tx_ch), hex.c_str());
         auto& kept = last_wire_.at(dut.mbx_tx_ch);
-        kept.push_back(egress_);
+        kept.push_back({unsigned(dut.mbx_tx_if), egress_});
         if (kept.size() > 32) kept.pop_front();
         ++wire_frames_;
         egress_.clear();
@@ -252,6 +253,9 @@ private:
                 std::printf("PC %llu %08x\n", ull(cpu_), last_pc_);
             }
             if (last_pc_ == pass_pc) pass_boundary();
+            // A function entry a probe starts at (a test-only entry's call), by its symbol.
+            for (unsigned e = 0; e < n_entries; ++e)
+                if (last_pc_ == entry_pc[e]) std::printf("ENTRY %llu %s\n", ull(sys_), entry_name[e]);
         }
         if (trap_valid(dut)) {
             ++traps_;
@@ -393,24 +397,29 @@ private:
                 if (s.args.size() > 2) f.tag = s.args[2];
                 frames_.push_back(f);
             } else if (s.op == "reply") {
-                // reply <if> <ch> <offset>:<hex> <offset>=<hex> ...: the newest frame the
-                // channel sent whose bytes at offset match, patched
+                // reply <if> <ch> <offset>:<hex> [on=<n>] <offset>=<hex> ...: the newest frame the
+                // channel sent (on interface n, if given) whose bytes at offset match, patched
                 const unsigned ch = std::stoul(s.args.at(1));
                 const auto& sel = s.args.at(2);
                 const auto colon = sel.find(':');
                 const std::size_t sel_at = std::stoul(sel.substr(0, colon));
                 const auto sel_hex = sel.substr(colon + 1);
+                int on = -1;
+                for (std::size_t a = 3; a < s.args.size(); ++a)
+                    if (s.args[a].rfind("on=", 0) == 0) on = std::stoi(s.args[a].substr(3));
                 const std::vector<std::uint8_t>* chosen = nullptr;
                 for (auto it = last_wire_.at(ch).rbegin(); it != last_wire_.at(ch).rend() && !chosen; ++it) {
-                    bool match = it->size() >= sel_at + sel_hex.size() / 2;
+                    const auto& bytes = it->bytes;
+                    bool match = (on < 0 || int(it->interface) == on) && bytes.size() >= sel_at + sel_hex.size() / 2;
                     for (std::size_t i = 0; match && i + 1 < sel_hex.size(); i += 2)
-                        match = (*it)[sel_at + i / 2] == std::stoul(sel_hex.substr(i, 2), nullptr, 16);
-                    if (match) chosen = &*it;
+                        match = bytes[sel_at + i / 2] == std::stoul(sel_hex.substr(i, 2), nullptr, 16);
+                    if (match) chosen = &bytes;
                 }
                 if (!chosen) throw std::runtime_error("reply: no frame the channel sent matches " + sel);
                 Frame f{unsigned(std::stoul(s.args.at(0))), *chosen};
                 for (std::size_t a = 3; a < s.args.size(); ++a) {
                     if (s.args[a].rfind("tag=", 0) == 0) { f.tag = s.args[a].substr(4); continue; }
+                    if (s.args[a].rfind("on=", 0) == 0) continue;
                     const auto eq = s.args[a].find('=');
                     std::size_t at = std::stoul(s.args[a].substr(0, eq));
                     const auto hex = s.args[a].substr(eq + 1);
@@ -481,7 +490,7 @@ private:
     std::array<std::array<unsigned, 4>, 256> tmr_writes_{}, tmr_mark_{};  // per slot and op
     unsigned wire_frames_ = 0, wire_mark_ = 0;
     std::vector<std::uint8_t> egress_;
-    std::array<std::deque<std::vector<std::uint8_t>>, n_ch> last_wire_;  // the newest frames each channel sent
+    std::array<std::deque<Sent>, n_ch> last_wire_;  // the newest frames each channel sent, with their interface
     std::deque<Frame> frames_;
     std::size_t offset_ = 0;
     std::uint64_t ingress_at_ = 0, gap_ = 20;

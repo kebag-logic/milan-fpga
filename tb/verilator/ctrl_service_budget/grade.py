@@ -2,9 +2,19 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Read a group's observation log and grade every probe against T_svc and its ceiling.
 
-The clock ratio, the markers and the deadlines live in one place each
-(Grader.cpu_cycles, Grader.start/end, scenario.T_SVC_MS and CEILING_MS), so
-the self-test can mutate each of them and require a named failure.
+Each rule a figure rests on lives in one place, so the self-test can mutate
+it and require a named failure:
+
+  the clock ratio   Grader.cpu_cycles, Grader.ms, Grader.bus_cycles and
+                    Grader.cpu_ms: every conversion between the bus and the
+                    CPU clock, and to milliseconds, goes through them
+  the markers       Grader.start and Grader.end; owner(), the frame a receive
+                    commit belongs to; Grader.recipients and fanout_end(), a
+                    notification's required recipients and its end
+  the pass bound    Grader.pass_end and Grader.pass_origin
+  the composition   composed() and population(), checked against the group's load
+  the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS and verdicts()
+  the run           refuse_run(): an incomplete simulation, a trap or a bus error
 """
 from __future__ import annotations
 
@@ -14,8 +24,13 @@ from dataclasses import dataclass, field
 import scenario
 
 TX_RING = {n: (ch.tx_base // 4, ch.tx_words) for n, ch in enumerate(scenario.CONTRACT.channels)}
-EV_TIMER, EV_LINK, EV_GM, EV_TICK = (next(e.value for e in scenario.CONTRACT.event_types if e.name == name)
-                                     for name in ('TIMER', 'LINK', 'GM', 'TICK'))
+CHANNEL = {n: ch.name for n, ch in enumerate(scenario.CONTRACT.channels)}
+EVENT = {e.value: e.name for e in scenario.CONTRACT.event_types}
+EV_TIMER = next(v for v, name in EVENT.items() if name == 'TIMER')
+RX_HEADER_WORDS = len(scenario.CONTRACT.rx_header)
+#: A receive commit follows its own frame's last byte: KL_mbx_rx takes no byte of the next
+#: frame until the verdict (KL_mbx_rx.sv, rx_ready_o in RECV_S only).
+COMMIT_LATENCY_MAX = 64
 
 
 class Refusal(RuntimeError):
@@ -50,12 +65,14 @@ class Log:
     cpu_hz: int
     ms: dict[int, int] = field(default_factory=dict)            # NOW_MS -> system cycle it began
     marks: list[tuple[int, str]] = field(default_factory=list)
-    rxc: list[tuple[int, int, int, str]] = field(default_factory=list)  # cycle, channel, interface, tag
+    rxc: list[tuple[int, int, int, str, int]] = field(default_factory=list)  # cycle, channel, interface, tag, bytes
+    refused: list[tuple[int, int, str, int]] = field(default_factory=list)   # last byte, interface, tag, bytes
+    entries: list[tuple[int, str]] = field(default_factory=list)            # cycle, function entered
     pads: list[tuple[int, str, int]] = field(default_factory=list)
     records: list[tuple[int, list[int]]] = field(default_factory=list)
     writes: list[tuple[int, int, int]] = field(default_factory=list)
     tx: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
-    wire: list[tuple[int, int, int, bytes]] = field(default_factory=list)
+    wire: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
     passes: list[Pass] = field(default_factory=list)
     idle: list[tuple[int, int, int]] = field(default_factory=list)
     steps: list[tuple[int, str]] = field(default_factory=list)
@@ -67,11 +84,27 @@ class Log:
     result: str = ''
 
 
+def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -> tuple[int, str, int]:
+    """The frame a receive commit at cycle belongs to: (interface, tag, bytes).
+
+    KL_mbx_rx takes no byte of a frame until the previous frame's verdict, so
+    the commit belongs to the frame whose last byte passed last; every older
+    frame still pending got no commit, so the filter refused it. A commit
+    with no frame ended within COMMIT_LATENCY_MAX cycles before it is refused.
+    """
+    if not pending or not cycle - COMMIT_LATENCY_MAX <= pending[-1][3] <= cycle:
+        raise Refusal(f'the receive commit at {cycle} follows no frame')
+    frame = pending.pop()
+    refused.extend((end, interface, tag, size) for interface, tag, size, end in pending)
+    pending.clear()
+    return frame[:3]
+
+
 def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
     """Every observation line; a line the testbench does not print is refused."""
     log = Log(sys_hz, cpu_hz)
-    pending_rx: list[tuple[int, str]] = []   # interface and tag of frames whose last byte has passed
-    rxs = (0, '-')
+    pending_rx: list[tuple[int, str, int, int]] = []   # interface, tag, bytes, last byte of frames not yet committed
+    rxs = (0, '-', 0)
     evt: dict[int, tuple[int, int]] = {}
     commits: list[tuple[int, int, int]] = []
     idle_max = 0
@@ -86,16 +119,14 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
         elif kind == 'MARK':
             log.marks.append((int(rest[0]), rest[1]))
         elif kind == 'RXS':
-            rxs = (int(rest[1]), rest[3] if len(rest) > 3 else '-')
+            rxs = (int(rest[1]), rest[3] if len(rest) > 3 else '-', int(rest[2]))
         elif kind == 'RXE':
             pending_rx.append((*rxs, int(rest[0])))
         elif kind == 'RXC':
-            # The commit belongs to the oldest frame whose last byte passed and that was not refused.
             cycle = int(rest[0])
-            while len(pending_rx) > 1 and pending_rx[0][2:] and pending_rx[0][2] < cycle - 64:
-                pending_rx.pop(0)
-            interface, tag = pending_rx.pop(0)[:2] if pending_rx else (-1, '-')
-            log.rxc.append((cycle, int(rest[1]), interface, tag))
+            log.rxc.append((cycle, int(rest[1]), *owner(pending_rx, cycle, log.refused)))
+        elif kind == 'ENTRY':
+            log.entries.append((int(rest[0]), rest[1]))
         elif kind in ('LINK', 'GM'):
             log.pads.append((int(rest[0]), kind, int(rest[1])))
         elif kind == 'EVW':
@@ -107,7 +138,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
         elif kind == 'TXC':
             commits.append((int(rest[0]), int(rest[1]), int(rest[2])))
         elif kind == 'WIRE':
-            log.wire.append((int(rest[0]), int(rest[1]), int(rest[2]), bytes.fromhex(rest[3])))
+            # sim_main.cpp prints WIRE <cycle> <interface> <channel> <frame>.
+            log.wire.append((int(rest[0]), int(rest[2]), int(rest[1]), bytes.fromhex(rest[3])))
         elif kind == 'PASS':
             index, start_sys, start_cpu, cycles = (int(v) for v in rest[:4])
             body = line.split(' W', 1)
@@ -138,6 +170,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.errors.append(line)
         else:
             raise Refusal(f'unknown observation line: {line[:80]}')
+    log.refused.extend((end, interface, tag, size) for interface, tag, size, end in pending_rx)
     log.writes.sort()
     log.tx = tx_records(log.writes, commits)
     return log
@@ -176,6 +209,20 @@ def tx_records(writes: list[tuple[int, int, int]], commits: list[tuple[int, int,
     return out
 
 
+def causal(frame: bytes, command: int, descriptor_type: int, descriptor_index: int) -> bool:
+    """An unsolicited AEM_RESPONSE (IEEE 1722.1-2021 7.5.2) of that command and descriptor."""
+    return (len(frame) > 41 and frame[14] == 0xFB and frame[15] & 0xF == 1 and bool(frame[36] & 0x80)
+            and int.from_bytes(frame[36:38], 'big') & 0x7FFF == command
+            and int.from_bytes(frame[38:40], 'big') == descriptor_type
+            and int.from_bytes(frame[40:42], 'big') == descriptor_index)
+
+
+def fanout_end(found: dict[tuple[int, int], int | None]) -> int | None:
+    """The last required recipient's commit ends a notification fan-out (FR_NFR.md 3.4.1)."""
+    cycles = list(found.values())
+    return None if not cycles or None in cycles else max(cycles)
+
+
 class Grader:
     """One place for each rule a measurement rests on."""
 
@@ -191,6 +238,14 @@ class Grader:
         """Milliseconds in an interval of system cycles."""
         return sys_cycles * 1000.0 / self.log.sys_hz
 
+    def bus_cycles(self, cpu_cycles: int) -> int:
+        """System cycles in an interval of CPU cycles (the clocks' edges are aligned)."""
+        return cpu_cycles * self.log.sys_hz // self.log.cpu_hz
+
+    def cpu_ms(self, cpu_cycles: int) -> float:
+        """Milliseconds in an interval of CPU cycles."""
+        return cpu_cycles * 1000.0 / self.log.cpu_hz
+
     # ---- the markers ----
     def start(self, probe: scenario.Probe, interface: int, after: int, before: int) -> int | None:
         """The system cycle the probe's input occurred, by its start marker."""
@@ -198,10 +253,12 @@ class Grader:
         if kind == 'rxc':
             ch = int(args[0])
             # A probe's own frames carry its name; any other frame on the ring is not its input.
-            hits = [c for c, k, i, tag in self.log.rxc if after <= c < before and k == ch
+            hits = [c for c, k, i, tag, _ in self.log.rxc if after <= c < before and k == ch
                     and i in (interface, -1) and tag == probe.name]
         elif kind == 'pad':
             hits = [c for c, k, i in self.log.pads if after <= c < before and k == args[0] and i == interface]
+        elif kind == 'entry':
+            hits = [c for c, name in self.log.entries if after <= c < before and name == args[0]]
         elif kind == 'deadline':
             slot = int(args[0])
             hits = []
@@ -216,10 +273,29 @@ class Grader:
             raise Refusal(f'{probe.name}: unknown start marker {probe.start}')
         return hits[0] if hits else None
 
+    def recipients(self, spec: str, probe: scenario.Probe, start: int,
+                   before: int) -> tuple[dict[tuple[int, int], int | None], list[tuple[int, int]]]:
+        """Each required recipient's first notification commit (None if absent), and the
+        recipients outside the probe's set that the same change notified."""
+        ch, command, descriptor_type, descriptor_index = (int(v, 16) if k == 1 else int(v)
+                                                          for k, v in enumerate(spec.split(':')[1:]))
+        found: dict[tuple[int, int], int | None] = {r: None for r in probe.recipients}
+        unexpected = []
+        for c, k, i, fr in self.log.tx:
+            if start <= c <= before and k == ch and causal(fr, command, descriptor_type, descriptor_index):
+                key = (int.from_bytes(fr[26:34], 'big'), i)
+                if key not in found:
+                    unexpected.append(key)
+                elif found[key] is None:
+                    found[key] = c
+        return found, unexpected
+
     def end(self, spec: str, probe: scenario.Probe, interface: int, start: int, before: int) -> int | None:
         """The system cycle one of the probe's required outputs was committed."""
         kind, *args = spec.split(':')
-        if kind in ('tx', 'resp', 'notify', 'acmp_cmd', 'maap'):
+        if kind == 'notify':
+            return fanout_end(self.recipients(spec, probe, start, before)[0])
+        if kind in ('tx', 'resp', 'acmp_cmd', 'maap', 'adp'):
             ch = int(args[0])
             frames = [(c, fr) for c, k, i, fr in self.log.tx if start <= c <= before and k == ch and i == interface]
             if kind == 'tx':
@@ -227,12 +303,9 @@ class Grader:
                 return frames[n - 1][0] if len(frames) >= n else None
             if kind == 'resp':
                 hits = [c for c, fr in frames if response_sequence(fr) == int(args[1], 16)]
-            elif kind == 'notify':
-                # A notification goes to each registered controller, on that controller's interface.
-                hits = [c for c, k, _, fr in self.log.tx if start <= c <= before and k == ch
-                        and len(fr) > 37 and fr[14] == 0xFB and fr[36] & 0x80]
-            elif kind == 'maap':
-                hits = [c for c, fr in frames if len(fr) > 16 and fr[14] == 0xFE and fr[15] & 0xF == int(args[1])]
+            elif kind in ('maap', 'adp'):
+                subtype = 0xFE if kind == 'maap' else 0xFA
+                hits = [c for c, fr in frames if len(fr) > 16 and fr[14] == subtype and fr[15] & 0xF == int(args[1])]
             else:
                 hits = [c for c, fr in frames if len(fr) > 16 and fr[14] == 0xFC
                         and fr[15] & 0xF == scenario.f.ACMP[args[1]]]
@@ -250,46 +323,75 @@ class Grader:
                 taking = self.taking_pass(hits[0])
                 if taking is None:
                     raise Refusal(f'{probe.name}: the release at {hits[0]} belongs to no work pass')
-                hits = [int(taking.start_sys + self.log.sys_hz / self.log.cpu_hz * taking.cycles)]
+                hits = [self.pass_end(taking)]
         elif kind == 'pub':
             hits = [c for c, w, _ in writes if w == int(args[0])]
         else:
             raise Refusal(f'{probe.name}: unknown end marker {spec}')
         return hits[0] if hits else None
 
+    # ---- the passes and the pass bound ----
+    def pass_end(self, p: Pass) -> int:
+        """The system cycle a work pass ended: its start plus its CPU cycles on the bus clock."""
+        return p.start_sys + self.bus_cycles(p.cycles)
+
     def taking_pass(self, cycle: int) -> Pass | None:
         """The pass that made the write at cycle, or that ended at cycle (a pass_end)."""
-        ratio = self.log.sys_hz / self.log.cpu_hz
         for p in self.log.passes:
-            if any(c == cycle for c, _, _ in p.writes) or int(p.start_sys + ratio * p.cycles) == cycle:
+            if any(c == cycle for c, _, _ in p.writes) or self.pass_end(p) == cycle:
                 return p
         return None
+
+    def pass_origin(self, start: int) -> int:
+        """The start of the pass running at start; an unprinted, idle pass running there is
+        charged the longest idle pass of its run."""
+        for p in self.log.passes:
+            if p.start_sys <= start < self.pass_end(p):
+                return p.start_sys
+            if p.start_sys > start:
+                return start - self.bus_cycles(p.idle_before)
+        raise Refusal('no pass is known to run at the input')
 
     def pass_bound(self, start: int, taking: Pass) -> int:
         """Bus cycles from the start of the pass running at start to the end of the taking pass.
 
         Whatever the input's phase in the pass running when it arrives, it is
         taken no later than the following pass, so with the same passes the
-        interval cannot exceed this. An unprinted, idle pass running at start
-        is charged the longest idle pass of its run.
+        interval cannot exceed this.
         """
-        ratio = self.log.sys_hz / self.log.cpu_hz
-        origin = None
-        for p in self.log.passes:
-            if p.start_sys <= start < p.start_sys + ratio * p.cycles:
-                origin = p.start_sys
-            elif p.start_sys > start:
-                if origin is None:
-                    origin = start - int(ratio * p.idle_before)
-                break
-        if origin is None:
-            raise Refusal('no pass is known to run at the input')
-        return int(taking.start_sys + ratio * taking.cycles) - origin
+        return self.pass_end(taking) - self.pass_origin(start)
 
     def window_passes(self, start: int, end: int) -> list[Pass]:
         """The work passes that ran during [start, end]."""
-        ratio = self.log.sys_hz / self.log.cpu_hz
-        return [p for p in self.log.passes if p.start_sys <= end and p.start_sys + ratio * p.cycles >= start]
+        return [p for p in self.log.passes if p.start_sys <= end and self.pass_end(p) >= start]
+
+    # ---- the backlog at an input ----
+    def ahead(self, probe: scenario.Probe, start: int) -> tuple[str, int]:
+        """The ring the probe's input joined and how many records were ahead of it there:
+        committed (or posted) before it and not yet released by the core."""
+        kind, *args = probe.start.split(':')
+        if kind == 'rxc':
+            ch = int(args[0])
+            sizes = [RX_HEADER_WORDS + (size + 3) // 4 for c, k, _, _, size in self.log.rxc if k == ch and c < start]
+            tail = [v for c, w, v in self.log.writes if w == scenario.ch_word(ch, 'RX_TAIL') and c < start]
+            released, total = unwrapped(tail), 0
+            behind = 0
+            for words in sizes:
+                total += words
+                behind += total > released
+            return CHANNEL[ch], behind
+        posted = sum(1 for c, _ in self.log.records if c < start)
+        tail = [v for c, w, v in self.log.writes if w == scenario.EVT_TAIL_WORD and c < start]
+        return 'events', posted - unwrapped(tail) // scenario.CONTRACT.ev_words
+
+
+def unwrapped(values: list[int]) -> int:
+    """The last of a 16-bit free-running index's values, counted from 0 at reset."""
+    total, last = 0, 0
+    for v in values:
+        total += (v - last) & 0xFFFF
+        last = v
+    return total
 
 
 def combine_ends(ends: list[int]) -> int:
@@ -319,14 +421,34 @@ def interface_of(name: str) -> int:
     return int(match.group(1)) if match else 0
 
 
+def fan_out(grader: Grader, probe: scenario.Probe, start: int, before: int) -> str:
+    """'' when every notification end reached exactly its recipients; else what was wrong."""
+    for spec in probe.ends:
+        if not spec.startswith('notify'):
+            continue
+        if not probe.recipients:
+            raise Refusal(f'{probe.name}: a notification end needs its recipients')
+        found, unexpected = grader.recipients(spec, probe, start, before)
+        missing = [f'{ctl:016x}@if{i}' for (ctl, i), c in found.items() if c is None]
+        if missing:
+            return f'no notification to {missing}'
+        if unexpected:
+            return f'a notification to {[f"{ctl:016x}@if{i}" for ctl, i in unexpected]}, not a recipient'
+    return ''
+
+
 def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int,
                 marks: dict[str, int] | None = None) -> dict:
     """One probe's measured interval, its taking pass and its verdicts."""
     i = interface_of(probe.name)
     start = grader.start(probe, i, mark, next_mark)
-    row = dict(probe=probe.name, row=probe.row, family=probe.family, interface=i)
+    row = dict(probe=probe.name, row=probe.row, family=probe.family, interface=i,
+               path=list(probe.path_key()))
     if start is None:
         return dict(row, status='no start', reason=f'no {probe.start} after the mark')
+    wrong = fan_out(grader, probe, start, next_mark)
+    if wrong.startswith('no notification'):
+        return dict(row, status='no end', reason=wrong, start_sys=start)
     ends = [grader.end(spec, probe, i, start, next_mark) for spec in probe.ends]
     missing = [spec for spec, e in zip(probe.ends, ends) if e is None]
     if missing:
@@ -335,26 +457,15 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
     elapsed = end - start
     ms = grader.ms(elapsed)
     taking = grader.taking_pass(end)
+    ring, ahead = grader.ahead(probe, start)
     row.update(start_sys=start, end_sys=end, sys_cycles=elapsed, cpu_cycles=grader.cpu_cycles(elapsed),
                ms=round(ms, 5), wait_ms=probe.wait_ms, passes=len(grader.window_passes(start, end)),
-               **verdicts(ms, probe))
+               ring=ring, ahead=ahead, **verdicts(ms, probe))
     if taking is not None:
         bound = grader.pass_bound(start, taking)
         row.update(bound_cpu_cycles=grader.cpu_cycles(bound), bound_ms=round(grader.ms(bound), 5),
                    bound_within_t_svc=verdicts(grader.ms(bound), probe)['within_t_svc'])
-        loads = sum(taking.count(f'load_{r}') for r in REGIONS)
-        stores = sum(taking.count(f'store_{r}') for r in REGIONS)
-        fetches = sum(taking.count(f'fetch_{r}') for r in REGIONS)
-        row.update(pass_cycles=taking.cycles, pass_instr=taking.count('instr'),
-                   pass_mbx_accesses=taking.count('load_mbx') + taking.count('store_mbx'),
-                   pass_fetch_share=round(fetches / max(1, fetches + loads + stores), 4),
-                   pass_fetch_wait_share=round(sum(taking.wait(f'fetch_{r}') for r in REGIONS)
-                                               / max(1, taking.cycles), 4),
-                   pass_regions={r: [taking.count(f'fetch_{r}'), taking.count(f'load_{r}'),
-                                     taking.count(f'store_{r}')] for r in REGIONS
-                                 if taking.count(f'fetch_{r}') + taking.count(f'load_{r}')
-                                 + taking.count(f'store_{r}')},
-                   pass_modules=dict(sorted(taking.modules.items(), key=lambda kv: -kv[1])[:6]))
+        row.update(pass_figures(taking))
     if probe.accesses is not None:
         row['model_accesses'] = probe.accesses
     if probe.also_from:
@@ -363,7 +474,7 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
             return dict(row, status='no origin', reason=f'mark {probe.also_from} is not inside the interval')
         row.update(also_from=probe.also_from, from_origin_cpu_cycles=grader.cpu_cycles(end - origin),
                    from_origin_ms=round(grader.ms(end - origin), 5))
-    check = expectation(grader, probe, i, start, next_mark)
+    check = wrong or expectation(grader, probe, i, start, next_mark)
     if check:
         return dict(row, status='unexpected response', reason=check)
     row['status'] = 'measured'
@@ -371,6 +482,23 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
 
 
 REGIONS = ('rom', 'sram', 'mbx', 'flash', 'csr', 'other')
+
+
+def pass_figures(taking: Pass) -> dict:
+    """The taking pass's cycles, instructions, accesses, fetch share, regions and largest modules."""
+    loads = sum(taking.count(f'load_{r}') for r in REGIONS)
+    stores = sum(taking.count(f'store_{r}') for r in REGIONS)
+    fetches = sum(taking.count(f'fetch_{r}') for r in REGIONS)
+    return dict(pass_cycles=taking.cycles, pass_instr=taking.count('instr'),
+                pass_mbx_accesses=taking.count('load_mbx') + taking.count('store_mbx'),
+                pass_fetch_share=round(fetches / max(1, fetches + loads + stores), 4),
+                pass_fetch_wait_share=round(sum(taking.wait(f'fetch_{r}') for r in REGIONS)
+                                            / max(1, taking.cycles), 4),
+                pass_regions={r: [taking.count(f'fetch_{r}'), taking.count(f'load_{r}'),
+                                  taking.count(f'store_{r}')] for r in REGIONS
+                              if taking.count(f'fetch_{r}') + taking.count(f'load_{r}')
+                              + taking.count(f'store_{r}')},
+                pass_modules=dict(sorted(taking.modules.items(), key=lambda kv: -kv[1])[:6]))
 
 
 def expectation(grader: Grader, probe: scenario.Probe, interface: int, start: int, before: int) -> str:
@@ -394,6 +522,8 @@ def expectation(grader: Grader, probe: scenario.Probe, interface: int, start: in
         return '' if sent(0xFB, (1, 7)) else 'no AECP response'
     if kind == 'adp_available':
         return '' if sent(0xFA, (0,)) else 'no ENTITY_AVAILABLE'
+    if kind == 'adp_departing':
+        return '' if sent(0xFA, (1,)) else 'no ENTITY_DEPARTING'
     if kind == 'maap_type':
         return '' if sent(0xFE, (int(args[0]),)) else f'no MAAP type {args[0]}'
     if kind == 'srp_frames':
@@ -401,13 +531,64 @@ def expectation(grader: Grader, probe: scenario.Probe, interface: int, start: in
     raise Refusal(f'{probe.name}: unknown expectation {probe.expect}')
 
 
-def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
-    """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish."""
-    log = parse(text, sys_hz, cpu_hz)
+def refuse_run(log: Log, group: scenario.Group) -> None:
+    """A simulation that did not finish, or whose CPU trapped or saw a bus error, measures nothing."""
     if log.result != 'PASS' or log.errors:
         raise Refusal(f'{group.name}: the simulation did not complete: {log.errors or log.result}')
     if log.traps:
         raise Refusal(f'{group.name}: the CPU trapped or saw a bus error: {log.traps[:3]}')
+
+
+def population(log: Log, start: int, end: int) -> dict[str, int]:
+    """The records each receive channel committed, and the GM and LINK events posted, in [start, end]."""
+    out = {name: 0 for name in [*CHANNEL.values(), 'GM', 'LINK']}
+    for c, ch, *_ in log.rxc:
+        if start <= c <= end:
+            out[CHANNEL[ch]] += 1
+    for c, words in log.records:
+        name = EVENT.get(words[0] & 0xFF)
+        if start <= c <= end and name in out:
+            out[name] += 1
+    return out
+
+
+def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]]) -> None:
+    """The composed window must commit exactly the group's load: a refused or missing record,
+    or a channel left out, is not the composed maximum."""
+    want = {name: group.load.get(name, 0) for name in got}
+    if got != want:
+        raise Refusal(f'{group.name}: the composed window committed {got}, its load is {want}; '
+                      f'refused frames {refused[:8]}')
+
+
+def composed_passes(log: Log, start: int, end: int) -> list[Pass]:
+    """The work passes that start inside the composed window."""
+    return [p for p in log.passes if start <= p.start_sys <= end]
+
+
+def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> dict | None:
+    """The composed maximum: the longest pass that starts inside the composed window, whose
+    committed population must be the group's load exactly (MAAP and SRP included)."""
+    if 'composed' not in marks or 'composed_end' not in marks:
+        if group.load:
+            raise Refusal(f'{group.name}: the load has no composed window')
+        return None
+    start, end = marks['composed'], marks['composed_end']
+    got = population(grader.log, start, end)
+    check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end])
+    inside = composed_passes(grader.log, start, end)
+    if not inside:
+        raise Refusal(f'{group.name}: no work pass starts inside the composed window')
+    top = max(inside, key=lambda p: p.cycles)
+    return dict(cycles=top.cycles, ms=round(grader.cpu_ms(top.cycles), 5), instr=top.count('instr'),
+                passes=len(inside), start_sys=top.start_sys, modules=top.modules, population=got,
+                admission=group.admission)
+
+
+def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
+    """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish."""
+    log = parse(text, sys_hz, cpu_hz)
+    refuse_run(log, group)
     timeouts = [s for _, s in log.steps if s.endswith('TIMEOUT')]
     grader = Grader(log)
     marks = {name: cycle for cycle, name in log.marks}
@@ -429,18 +610,11 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
     # The script's end closes the pass in progress; a zero-length one is that, not an idle pass.
     idle_min = min((m for _, m, _ in log.idle if m), default=0)
     worst = max(log.passes, key=lambda p: p.cycles, default=None)
-    composed = None
-    if 'composed' in marks and 'composed_end' in marks:
-        inside = [p for p in log.passes if marks['composed'] <= p.start_sys <= marks['composed_end']]
-        if inside:
-            top = max(inside, key=lambda p: p.cycles)
-            composed = dict(cycles=top.cycles, ms=round(top.cycles * 1000.0 / cpu_hz, 5),
-                            instr=top.count('instr'), passes=len(inside), modules=top.modules)
     return dict(group=group.name, probes=rows, timeouts=timeouts,
                 passes=dict(count=int(log.summary.get('passes', 0)), work=len(log.passes),
                             idle_min=idle_min, idle_max=idle_max,
-                            worst=dict(cycles=worst.cycles, ms=round(worst.cycles * 1000.0 / cpu_hz, 5),
+                            worst=dict(cycles=worst.cycles, ms=round(grader.cpu_ms(worst.cycles), 5),
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
-                            composed=composed),
+                            composed=composed(grader, group, marks)),
                 summary=log.summary, modules=log.modules, code=log.code)

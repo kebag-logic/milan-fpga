@@ -1,14 +1,17 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The budget grader's portable self-test (#665 S2; the method of #397 round 2).
+"""The budget grader's portable self-test (#665; the method of #397).
 
 It needs Python and PyYAML (the mailbox contract) and nothing built. It
 regrades the committed trace fixture.log, which the 'fixture' group
-recorded on the test SoC, against the rows oracle.json pins; it checks the
-clock conversion, the exact-budget boundary, a timer path's origin, the
-last-end rule, tags, interfaces, sequence ids and the normative wait on
-synthetic traces; and it plants an over-budget path in the recorded trace.
-Then it mutates each grader rule in turn and requires a named check to fail.
+recorded on the test SoC, against oracle.json: every probe's row, its pass
+bound and backlog, the worst pass, the composed maximum and the composed
+window's population. Synthetic traces check each marker, the notification
+fan-out, the clock conversion, the pass bound, the deadlines and the
+composition; the run's exit status, the regrade's refusal of an absent log
+and the reuse attestation run on temporary files. Then each rule is mutated
+in turn, and a named check must fail; a mutant of a headline figure (the
+worst pass, the composed maximum, a pass bound) fails on that figure.
 
 Regenerate the fixture only through its generator, from a fresh 'fixture'
 group run:
@@ -23,33 +26,50 @@ import hashlib
 import json
 import re
 import sys
-from collections.abc import Iterator
+import tempfile
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import build  # noqa: E402
 import grade  # noqa: E402
+import run  # noqa: E402
 import scenario  # noqa: E402
+import selftest_mutants  # noqa: E402
 
 FIXTURE_LOG = HERE / 'fixture.log'
 ORACLE = HERE / 'oracle.json'
 SYS_HZ, CPU_HZ = 100_000_000, 50_000_000
 PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'within_t_svc', 'within_ceiling',
-          'pass_cycles', 'pass_mbx_accesses', 'passes')
+          'pass_cycles', 'pass_mbx_accesses', 'passes', 'bound_cpu_cycles', 'bound_ms', 'bound_within_t_svc',
+          'ring', 'ahead')
 #: FR_NFR.md 3.4.1's ceilings, restated here on purpose: a changed table must fail.
 CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0}
+AECP, ACMP, ADP = scenario.CH['aecp'], scenario.CH['acmp'], scenario.CH['adp']
+CTL1, CTL3 = scenario.CTL1, 0x0A0B0C0D0E0F0003
+Check = tuple[str, bool, str]
 
 
 def fixture_group(oracle: dict) -> scenario.Group:
     """The 'fixture' group of the point the oracle pins."""
-    p = scenario.Point(**oracle['point'])
-    return scenario.fixture_groups(p)[0]
+    return scenario.fixture_groups(scenario.Point(**oracle['point']))[0]
 
 
-def regraded(oracle: dict) -> dict:
-    """The committed trace, graded now."""
-    return grade.grade(FIXTURE_LOG.read_text(), fixture_group(oracle), SYS_HZ, CPU_HZ)
+def regraded(oracle: dict, text: str | None = None) -> dict:
+    """The committed trace (or a planted copy of it), graded now."""
+    return grade.grade(text or FIXTURE_LOG.read_text(), fixture_group(oracle), SYS_HZ, CPU_HZ)
+
+
+def headline(result: dict) -> dict:
+    """The pass figures the oracle pins: the worst pass and the composed maximum."""
+    passes = result['passes']
+    composed = passes['composed'] or {}
+    return dict(worst_cycles=passes['worst']['cycles'], worst_ms=passes['worst']['ms'],
+                composed_cycles=composed.get('cycles'), composed_ms=composed.get('ms'),
+                composed_passes=composed.get('passes'), population=composed.get('population'),
+                idle_min=passes['idle_min'], idle_max=passes['idle_max'])
 
 
 def synthetic(lines: list[str]) -> str:
@@ -75,48 +95,127 @@ def tx_record(ch: int, interface: int, frame: bytes, at: int, cycle: int) -> lis
             f'W {writes} {cycle}:{scenario.ch_word(ch, "TX_HEAD"):x}:{head:x}', f'TXC {cycle} {ch} {head}']
 
 
-def acmp_response(sequence: int, message: str = 'GET_RX_STATE_RESPONSE') -> bytes:
+def tx_sequence(ch: int, records: list[tuple[int, bytes, int]]) -> list[str]:
+    """Consecutive TX records of one channel: (interface, frame, commit cycle) each."""
+    lines, at = [], 0
+    for interface, frame, cycle in records:
+        lines += tx_record(ch, interface, frame, at, cycle)
+        at += 2 + (len(frame) + 3) // 4
+    return lines
+
+
+def acmp_response(sequence: int, message: str = 'GET_RX_STATE_RESPONSE', status: int = 0) -> bytes:
     """An ACMP response frame with that sequence_id."""
-    return scenario.f.acmp(scenario.f.ACMP[message], 0x020000000001, scenario.f.Acmp(sequence=sequence))
+    return scenario.f.acmp(scenario.f.ACMP[message], 0x020000000001,
+                           scenario.f.Acmp(sequence=sequence, status=status))
 
 
-def checks() -> list[tuple[str, bool, str]]:
-    """Every named check and whether it holds."""
-    out = []
+def aem_response(controller: int, sequence: int, command: int = 0x0010, unsolicited: bool = False,
+                 descriptor: tuple[int, int] = (0, 0)) -> bytes:
+    """An AEM_RESPONSE (9.2.1.2) to controller; unsolicited sets the u bit (7.5.2)."""
+    payload = scenario.f.be(descriptor[0], 2) + scenario.f.be(descriptor[1], 2) + bytes(4)
+    frame = bytearray(scenario.f.aem_command(scenario.f.Aem(1, controller, 2, 3, sequence), command, payload))
+    frame[15] = 1
+    if unsolicited:
+        frame[36] |= 0x80
+    return bytes(frame)
+
+
+def received(ch: int, tag: str, at: int = 1100) -> list[str]:
+    """A 70-byte frame tagged tag whose receive commit lands 4 cycles after its last byte."""
+    return [f'RXS {at} 0 70 {tag}', f'RXE {at + 69}', f'RXC {at + 73} {ch}']
+
+
+def differences(got: dict, pinned: dict) -> str:
+    """The fields that differ, each as got (pinned)."""
+    return ', '.join(f'{k} {got.get(k)} (pinned {pinned.get(k)})' for k in pinned if got.get(k) != pinned.get(k))
+
+
+def fixture_checks() -> list[Check]:
+    """The committed trace against the oracle: digest, rows, pass figures, and a planted path."""
     oracle = json.loads(ORACLE.read_text())
     digest = hashlib.sha256(FIXTURE_LOG.read_bytes()).hexdigest()
-    out.append(('fixture digest', digest == oracle['fixture_sha256'], digest))
-    rows = {r['probe']: r for r in regraded(oracle)['probes']}
+    out = [('fixture digest', digest == oracle['fixture_sha256'], digest)]
+    result = regraded(oracle)
+    rows = {r['probe']: r for r in result['probes']}
     for name, pinned in oracle['rows'].items():
         got = {k: rows.get(name, {}).get(k) for k in PINNED}
-        out.append((f'fixture row {name}', got == pinned, f'{got} != {pinned}' if got != pinned else ''))
+        out.append((f'fixture row {name}', got == pinned, differences(got, pinned)))
+    got = headline(result)
+    out.append(('fixture passes: worst pass and composed maximum', got == oracle['passes'],
+                differences(got, oracle['passes'])))
+    # A planted over-budget path in the recorded trace: the BIND_RX response moved past T_svc.
+    row = oracle['rows']['fixture.bind_rx.if0']
+    late = row['start_sys'] + 1_000_001
+    planted = re.sub(rf'^TXC {row["end_sys"]} ', f'TXC {late} ', FIXTURE_LOG.read_text(), count=1, flags=re.M)
+    planted = re.sub(rf'\b{row["end_sys"]}:', f'{late}:', planted)
+    hit = {r['probe']: r for r in regraded(oracle, planted)['probes']}['fixture.bind_rx.if0']
+    caught = hit.get('status') == 'measured' and hit.get('within_t_svc') is False and hit.get('sys_cycles', 0) > 1e6
+    out.append(('planted over-budget path is caught', caught, str({k: hit.get(k) for k in PINNED})))
+    # A composed load with one channel left out (the MAAP record's commit deleted) is refused by name.
+    window = re.findall(r'^MARK (\d+) composed(?:_end)?$', FIXTURE_LOG.read_text(), re.M)
+    maap = scenario.CH['maap']
+    dropped = [line for line in FIXTURE_LOG.read_text().splitlines()
+               if not (line.startswith('RXC ') and line.endswith(f' {maap}')
+                       and int(window[0]) <= int(line.split()[1]) <= int(window[1]))]
+    try:
+        regraded(oracle, '\n'.join(dropped) + '\n')
+        refused = ''
+    except grade.Refusal as error:
+        refused = str(error)
+    out.append(('a composed load missing one channel is refused', "'maap': 0" in refused, refused or 'accepted'))
+    return out
+
+
+def marker_checks() -> list[Check]:
+    """The start and end markers, the commit's frame, the clock conversion and the deadlines."""
+    out = []
     g = grade.Grader(grade.Log(SYS_HZ, CPU_HZ))
-    out.append(('clock conversion', (g.cpu_cycles(1_000_000), g.cpu_cycles(3), g.ms(1_000_000)) == (500_000, 2, 10.0),
-                f'{g.cpu_cycles(1_000_000)}, {g.cpu_cycles(3)}, {g.ms(1_000_000)}'))
+    conversions = (g.cpu_cycles(1_000_000), g.cpu_cycles(3), g.ms(1_000_000), g.bus_cycles(500_000), g.cpu_ms(500_000))
+    out.append(('clock conversion', conversions == (500_000, 2, 10.0, 1_000_000, 10.0), str(conversions)))
     out.append(('ceilings pinned', scenario.CEILING_MS == CEILINGS and scenario.T_SVC_MS == 10.0,
                 f'{scenario.CEILING_MS} {scenario.T_SVC_MS}'))
-    acmp = scenario.CH['acmp']
-    probe = scenario.Probe('s.cmd.if0', 'GET_RX_STATE', 'acmp', f'rxc:{acmp}', [f'resp:{acmp}:41'])
-    frame_lines = ['MARK 1000 s.cmd.if0', 'RXS 1100 0 70 s.cmd.if0', 'RXE 1169', 'RXC 1173 1']
+    probe = scenario.Probe('s.cmd.if0', 'GET_RX_STATE', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'])
+    frame_lines = ['MARK 1000 s.cmd.if0', *received(ACMP, 's.cmd.if0')]
     for delta, within, name in ((1_000_000, True, 'exact budget passes'), (1_000_001, False, 'one cycle over misses')):
-        r = one(synthetic(frame_lines + tx_record(acmp, 0, acmp_response(0x41), 0, 1173 + delta)), probe)
+        r = one(synthetic(frame_lines + tx_record(ACMP, 0, acmp_response(0x41), 0, 1173 + delta)), probe)
         out.append((name, r.get('within_t_svc') is within and r.get('sys_cycles') == delta, str(r)))
     # Tags: the probe's own frame, the second on the channel, starts the path.
-    lines = ['MARK 1000 s.cmd.if0', 'RXS 1100 0 70 -', 'RXE 1169', 'RXC 1173 1', 'RXS 1200 0 70 s.cmd.if0',
-             'RXE 1269', 'RXC 1273 1', *tx_record(acmp, 0, acmp_response(0x41), 0, 5273)]
+    lines = ['MARK 1000 s.cmd.if0', *received(ACMP, '-'), *received(ACMP, 's.cmd.if0', 1200),
+             *tx_record(ACMP, 0, acmp_response(0x41), 0, 5273)]
+    out.append(('tagged start', one(synthetic(lines), probe).get('start_sys') == 1273, ''))
+    # A refused frame leaves no commit: the commit after it is the next frame's, even within 64 cycles.
+    lines = ['MARK 1000 s.cmd.if0', 'RXS 1000 0 60 -', 'RXE 1059', 'RXS 1060 0 60 s.cmd.if0', 'RXE 1119',
+             f'RXC 1123 {ACMP}', *tx_record(ACMP, 0, acmp_response(0x41), 0, 5000)]
     r = one(synthetic(lines), probe)
-    out.append(('tagged start', r.get('start_sys') == 1273, str(r)))
+    out.append(('a receive commit belongs to the frame it follows', r.get('start_sys') == 1123, str(r)))
+    try:
+        one(synthetic(['MARK 1000 s.cmd.if0', f'RXC 1123 {ACMP}']), probe)
+        orphan = False
+    except grade.Refusal:
+        orphan = True
+    out.append(('a receive commit that follows no frame is refused', orphan, ''))
     # Sequence and interface: an earlier response to another command, or on the other interface, is not the end.
-    lines = frame_lines + tx_record(acmp, 1, acmp_response(0x41), 0, 2000) + \
-        tx_record(acmp, 0, acmp_response(0x40), 20, 3000) + tx_record(acmp, 0, acmp_response(0x41), 40, 4000)
-    r = one(synthetic(lines), probe)
-    out.append(('sequence and interface', r.get('end_sys') == 4000, str(r)))
+    lines = frame_lines + tx_record(ACMP, 1, acmp_response(0x41), 0, 2000) + \
+        tx_record(ACMP, 0, acmp_response(0x40), 20, 3000) + tx_record(ACMP, 0, acmp_response(0x41), 40, 4000)
+    out.append(('sequence and interface', one(synthetic(lines), probe).get('end_sys') == 4000, ''))
     # The last required output ends the path.
-    both = scenario.Probe('s.cmd.if0', 'BIND_RX', 'acmp', f'rxc:{acmp}', [f'resp:{acmp}:41', 'arm:1'])
+    both = scenario.Probe('s.cmd.if0', 'BIND_RX', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41', 'arm:1'])
     arm = f'PASS 2 5000 2500 50 instr=10 store_mbx=1 W 6000:{scenario.TMR_CMD_WORD:x}:{1 << 30 | 0x100 | 1:x}'
-    r = one(synthetic(frame_lines + tx_record(acmp, 0, acmp_response(0x41), 0, 2000) + [arm]), both)
+    r = one(synthetic(frame_lines + tx_record(ACMP, 0, acmp_response(0x41), 0, 2000) + [arm]), both)
     out.append(('last end decides', r.get('end_sys') == 6000, str(r)))
-    # A timer path starts at its armed deadline, not when the record is posted or taken.
+    # The expected response is checked: a BIND_RX answered with a failure status is refused.
+    bind = scenario.Probe('s.cmd.if0', 'BIND_RX', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'],
+                          expect='acmp_status:BIND_RX_RESPONSE:0')
+    r = one(synthetic(frame_lines + tx_record(ACMP, 0, acmp_response(0x41, 'BIND_RX_RESPONSE', 1), 0, 2000)), bind)
+    out.append(('the expected response is checked', r.get('status') == 'unexpected response', str(r)))
+    out += timing_checks()
+    return out
+
+
+def timing_checks() -> list[Check]:
+    """A timer path's origin, a function entry's start, the normative wait and the pass bound."""
+    out = []
     timer = scenario.Probe('s.timer.if0', 'TMR_NO_RESP', 'acmp', 'deadline:1', ['arm:1'])
     lines = ['MARK 1000 s.timer.if0', 'MS 300000 3', 'EVW 300400 0 00000001', 'EVW 300401 1 00010007',
              'EVW 300402 2 00000003', 'EVW 300403 3 00000003',
@@ -124,116 +223,191 @@ def checks() -> list[tuple[str, bool, str]]:
     r = one(synthetic(lines), timer)
     out.append(('timer origin is the armed deadline', r.get('start_sys') == 300000 and r.get('sys_cycles') == 10000,
                 str(r)))
-    # A normative wait W extends the bound to W + T_svc (3.4.1), and nothing more.
-    waited = scenario.Probe('s.cmd.if0', 'Domain', 'srp', f'rxc:{acmp}', [f'resp:{acmp}:41'], wait_ms=200.0)
-    for delta, within, name in ((21_000_000, True, 'W + T_svc passes'), (21_000_001, False, 'W + T_svc + 1 misses')):
-        r = one(synthetic(frame_lines + tx_record(acmp, 0, acmp_response(0x41), 0, 1173 + delta)), waited)
-        out.append((name, r.get('within_t_svc') is within, str(r)))
-    # A planted over-budget path in the recorded trace: the BIND_RX response moved past T_svc.
-    text = FIXTURE_LOG.read_text()
-    row = oracle['rows']['fixture.bind_rx.if0']
-    late = row['start_sys'] + 1_000_001
-    planted = re.sub(rf'^TXC {row["end_sys"]} ', f'TXC {late} ', text, count=1, flags=re.M)
-    planted = re.sub(rf'\b{row["end_sys"]}:', f'{late}:', planted)
-    rows = {r['probe']: r for r in grade.grade(planted, fixture_group(oracle), SYS_HZ, CPU_HZ)['probes']}
-    hit = rows['fixture.bind_rx.if0']
-    caught = (hit.get('status') == 'measured' and hit.get('within_t_svc') is False
-              and hit.get('sys_cycles', 0) > 1_000_000)
-    out.append(('planted over-budget path is caught', caught, str({k: hit.get(k) for k in PINNED})))
+    # A test-only entry starts at its own function's entry, and an ADPDU of its type ends it.
+    shutdown = scenario.Probe('s.shutdown.if0', 'SHUTDOWN', 'adp', 'entry:adp_mbx_set_enable',
+                              [f'adp:{ADP}:{scenario.f.ADP_DEPARTING}'], expect='adp_departing')
+    departing = scenario.f.adp(scenario.f.ADP_DEPARTING, 1, 2, scenario.f.Adp(valid_time=0))
+    lines = ['MARK 1000 s.shutdown.if0', 'ENTRY 4000 other_function', 'ENTRY 5000 adp_mbx_set_enable',
+             *tx_record(ADP, 0, departing, 0, 6000)]
+    r = one(synthetic(lines), shutdown)
+    out.append(('an entry start is its own function\'s', r.get('start_sys') == 5000 and r.get('status') == 'measured',
+                str(r)))
+    # A normative wait W extends the bound to W + T_svc and the ceiling to W + ceiling (3.4.1), and nothing more.
+    waited = scenario.Probe('s.cmd.if0', 'Domain', 'srp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'], wait_ms=200.0)
+    frame_lines = ['MARK 1000 s.cmd.if0', *received(ACMP, 's.cmd.if0')]
+    for delta, within, ceiling, name in ((21_000_000, True, True, 'W + T_svc passes'),
+                                         (21_000_001, False, True, 'W + T_svc + 1 misses, within W + ceiling'),
+                                         (21_800_001, False, False, 'W + ceiling + 1 is over the ceiling')):
+        r = one(synthetic(frame_lines + tx_record(ACMP, 0, acmp_response(0x41), 0, 1173 + delta)), waited)
+        out.append((name, r.get('within_t_svc') is within and r.get('within_ceiling') is ceiling, str(r)))
+    # The pass bound runs from the start of the pass running at the input (1000, for 1000 CPU
+    # cycles) to the end of the taking pass (3000, 500 CPU cycles): 3000 bus cycles, 1500 CPU cycles.
+    probe = scenario.Probe('s.cmd.if0', 'GET_RX_STATE', 'acmp', f'rxc:{ACMP}', [f'rxtail:{ACMP}'])
+    tail = scenario.ch_word(ACMP, 'RX_TAIL')
+    lines = ['PASS 1 1000 500 1000 instr=10 store_mbx=1 W 1500:1:0', 'MARK 1900 s.cmd.if0',
+             'RXS 1900 0 60 s.cmd.if0', 'RXE 1959', f'RXC 1963 {ACMP}',
+             f'PASS 2 3000 1500 500 instr=10 store_mbx=1 W 3500:{tail:x}:11']
+    r = one(synthetic(lines), probe)
+    out.append(('the pass bound runs from the running pass at the bus ratio',
+                (r.get('bound_cpu_cycles'), r.get('bound_ms')) == (1500, 0.03), str(r)))
     return out
 
 
-@contextlib.contextmanager
-def mutant(name: str) -> Iterator[None]:
-    """One grader rule replaced by a plausible defect."""
-    original_start = grade.Grader.start
-    original_end = grade.Grader.end
-    if name == 'marker: the frame tag is ignored':
-        def _start(self: grade.Grader, probe: scenario.Probe, interface: int, after: int, before: int) -> int | None:
-            ch = int(probe.start.split(':')[1]) if probe.start.startswith('rxc') else -1
-            hits = [c for c, k, _, _ in self.log.rxc if after <= c < before and k == ch]
-            return hits[0] if hits else original_start(self, probe, interface, after, before)
-        with patch.object(grade.Grader, 'start', _start):
-            yield
-    elif name == 'marker: a timer path starts when its record is posted':
-        def _start(self: grade.Grader, probe: scenario.Probe, interface: int, after: int, before: int) -> int | None:
-            if probe.start.startswith('deadline'):
-                slot = int(probe.start.split(':')[1])
-                for cycle, w in self.log.records:
-                    if after <= cycle < before and w[0] & 0xFF == grade.EV_TIMER and (w[1] >> 16) & 0xFF == slot:
-                        return cycle
-                return None
-            return original_start(self, probe, interface, after, before)
-        with patch.object(grade.Grader, 'start', _start):
-            yield
-    elif name == 'marker: any response on the channel ends the path':
-        def _end(self: grade.Grader, spec: str, probe: scenario.Probe, interface: int, start: int,
-                 before: int) -> int | None:
-            if spec.startswith('resp'):
-                spec = 'tx:' + spec.split(':')[1]
-            return original_end(self, spec, probe, interface, start, before)
-        with patch.object(grade.Grader, 'end', _end):
-            yield
-    elif name == 'marker: the interface is ignored':
-        def _end(self: grade.Grader, spec: str, probe: scenario.Probe, interface: int, start: int,
-                 before: int) -> int | None:
-            if spec.startswith('resp'):
-                ch, seq = (int(v, 16) if k else int(v) for k, v in enumerate(spec.split(':')[1:]))
-                hits = [c for c, k, _, fr in self.log.tx if start <= c < before and k == ch
-                        and grade.response_sequence(fr) == seq]
-                return hits[0] if hits else None
-            return original_end(self, spec, probe, interface, start, before)
-        with patch.object(grade.Grader, 'end', _end):
-            yield
-    elif name == 'marker: the first required output ends the path':
-        with patch.object(grade, 'combine_ends', min):
-            yield
-    elif name == 'clock ratio: CPU cycles equal bus cycles':
-        with patch.object(grade.Grader, 'cpu_cycles', lambda self, n: n):
-            yield
-    elif name == 'clock ratio: inverted':
-        with patch.object(grade.Grader, 'cpu_cycles', lambda self, n: n * self.log.sys_hz // self.log.cpu_hz):
-            yield
-    elif name == 'clock ratio: milliseconds from the CPU clock':
-        with patch.object(grade.Grader, 'ms', lambda self, n: n * 1000.0 / self.log.cpu_hz):
-            yield
-    elif name == 'deadline: T_svc 20 ms':
-        with patch.object(scenario, 'T_SVC_MS', 20.0):
-            yield
-    elif name == 'deadline: strictly below the budget':
-        original = grade.verdicts
-
-        def _verdicts(ms: float, probe: scenario.Probe) -> dict:
-            v = original(ms, probe)
-            return dict(v, within_t_svc=ms < v['t_svc_ms'])
-        with patch.object(grade, 'verdicts', _verdicts):
-            yield
-    elif name == 'deadline: the normative wait is not added':
-        original = grade.verdicts
-
-        def _verdicts(ms: float, probe: scenario.Probe) -> dict:
-            v = original(ms, probe)
-            return dict(v, within_t_svc=ms <= scenario.T_SVC_MS)
-        with patch.object(grade, 'verdicts', _verdicts):
-            yield
-    elif name == 'deadline: the ACMP ceiling is the transaction timeout':
-        with patch.dict(scenario.CEILING_MS, {'acmp': 200.0}):
-            yield
-    else:
-        raise KeyError(name)
+def notification(lines_after: list[tuple[int, bytes, int]], recipients: tuple = ((CTL1, 0), (CTL1, 1))) -> dict:
+    """SET_NAME's probe over a solicited response and the notifications given as (interface, frame, cycle)."""
+    probe = scenario.Probe('s.notify.if0', 'SET_NAME', 'notify', f'rxc:{AECP}',
+                           [f'resp:{AECP}:41', f'notify:{AECP}:0010:0:0'], expect='aecp_response',
+                           recipients=recipients)
+    records = [(0, aem_response(0x0A0B0C0D0E0F0002, 0x41), 201173), *lines_after]
+    records.sort(key=lambda record: record[2])
+    lines = ['MARK 1000 s.notify.if0', *received(AECP, 's.notify.if0'), *tx_sequence(AECP, records)]
+    return one(synthetic(lines), probe)
 
 
-MUTANTS = ('marker: the frame tag is ignored', 'marker: a timer path starts when its record is posted',
-           'marker: any response on the channel ends the path', 'marker: the interface is ignored',
-           'marker: the first required output ends the path', 'clock ratio: CPU cycles equal bus cycles',
-           'clock ratio: inverted', 'clock ratio: milliseconds from the CPU clock', 'deadline: T_svc 20 ms',
-           'deadline: strictly below the budget', 'deadline: the normative wait is not added',
-           'deadline: the ACMP ceiling is the transaction timeout')
+def notify_checks() -> list[Check]:
+    """A notification fan-out ends at the last required recipient's commit (FR_NFR.md 3.4.1, 7.5.2)."""
+    to = lambda ctl, seq=0, **kw: aem_response(ctl, seq, unsolicited=True, **kw)
+    out = []
+    r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 1), 601173)])
+    out.append(('two recipients across interfaces end at the last', r.get('end_sys') == 601173 and
+                r.get('status') == 'measured', str(r)))
+    r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 1), 1401173)])
+    out.append(('a late recipient misses T_svc', r.get('ms') == 14.0 and r.get('within_t_svc') is False, str(r)))
+    r = notification([(0, to(CTL1), 401173)])
+    out.append(('a missing recipient is refused', r.get('status') == 'no end', str(r)))
+    r = notification([(0, to(CTL1), 401173), (0, to(CTL1, 1), 601173)])
+    out.append(('a duplicate does not stand in for another recipient', r.get('status') == 'no end', str(r)))
+    r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 1), 601173), (0, to(CTL3, 2), 701173)])
+    out.append(('a notification to a controller outside the set is refused',
+                r.get('status') == 'unexpected response' and 'not a recipient' in r.get('reason', ''), str(r)))
+    r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 7, command=0x0029), 501173),
+                      (1, to(CTL1, 8, descriptor=(0, 1)), 551173), (1, to(CTL1, 1), 901173)])
+    out.append(('unrelated unsolicited responses do not end it', r.get('end_sys') == 901173, str(r)))
+    return out
 
 
-def write_fixture(log: Path, build: Path) -> None:
-    """Trim a 'fixture' group log to what its probes read, then pin its graded rows."""
-    spec = json.loads(build.read_text())
+def composition_checks() -> list[Check]:
+    """The records ahead of an input, and the table's worst instance and counts per path."""
+    out = []
+    # Two ACMP records committed before the probe's, one of them released: one is ahead of it.
+    probe = scenario.Probe('s.cmd.if0', 'GET_RX_STATE', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'])
+    tail = scenario.ch_word(ACMP, 'RX_TAIL')
+    lines = [*received(ACMP, '-', 100), *received(ACMP, '-', 300),
+             f'PASS 1 400 200 50 instr=10 store_mbx=1 W 450:{tail:x}:14', 'MARK 1000 s.cmd.if0',
+             *received(ACMP, 's.cmd.if0'), *tx_record(ACMP, 0, acmp_response(0x41), 0, 5000)]
+    r = one(synthetic(lines), probe)
+    out.append(('records ahead of an input', (r.get('ring'), r.get('ahead')) == ('acmp', 1), str(r)))
+    row = lambda name, ms, within, group: dict(probe=name, row='r', status='measured', path=['p.x', 0], ms=ms,
+                                               within_t_svc=within, group=group, bound_ms=ms, ring='acmp', ahead=0,
+                                               within_ceiling=True)
+    results = [dict(group='a', probes=[row('a.x.if0', 10.5, False, 'a')], timeouts=[]),
+               dict(group='b', probes=[row('b.x.if0', 12.0, False, 'b'), row('b.y.if0', 11.0, False, 'b')],
+                    timeouts=[])]
+    results[1]['probes'][1]['path'] = ['p.y', 0]
+    worst = {e['path']: e for e in run.paths(results)}
+    out.append(('each path reports its worst instance', worst['p.x']['worst']['probe'] == 'b.x.if0'
+                and worst['p.x']['instances'] == 2, str(worst)))
+    tally = run.counts(results)
+    out.append(('misses are counted per path and per probe instance',
+                tally == dict(paths=2, path_misses=2, instances=3, instance_misses=3), str(tally)))
+    return out
+
+
+def run_checks() -> list[Check]:
+    """The run's exit status, the regrade's refusal of an absent log or script, and a trap's refusal."""
+    out = []
+    args = lambda record: argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=record)
+    g = scenario.Group('g')
+    out.append(('a T_svc miss fails the run unless recorded',
+                (run.verdict(args(False), [g], [], ['m']), run.verdict(args(True), [g], [], ['m'])) == (1, 0), ''))
+    out.append(('a refusal fails the run, recorded or not',
+                (run.verdict(args(True), [g], ['r'], []), run.verdict(args(False), [g], ['r'], [])) == (1, 1), ''))
+    out.append(('a clean run passes; a run of no group fails',
+                (run.verdict(args(False), [g], [], []), run.verdict(args(True), [], [], [])) == (0, 1), ''))
+    with tempfile.TemporaryDirectory() as tmp:
+        out_dir = Path(tmp)
+        groups = [scenario.Group(name, steps=['wait cycles 1']) for name in ('kept', 'nolog', 'noscript', 'stale')]
+        for g in groups:
+            if g.name != 'noscript':
+                (out_dir / f'{g.name}.txt').write_text(g.script() if g.name != 'stale' else 'end\n')
+            if g.name != 'nolog':
+                (out_dir / f'{g.name}.log').write_text('RESULT: PASS\n')
+        kept, _, refusals = run.recorded(groups, out_dir)
+        named = sorted(r.split(':')[0] for r in refusals)
+        out.append(('a regrade refuses each absent log or script, and a stale script, by name',
+                    [g.name for g in kept] == ['kept'] and named == ['nolog', 'noscript', 'stale'], str(refusals)))
+    try:
+        grade.grade(synthetic(['TRAP 100 0 1 00006880']), scenario.Group('t'), SYS_HZ, CPU_HZ)
+        trapped = ''
+    except grade.Refusal as error:
+        trapped = str(error)
+    out.append(('a CPU trap is refused', 'trapped' in trapped, trapped))
+    return out
+
+
+def reuse_checks() -> list[Check]:
+    """A reused build is refused when any recorded input changed, is missing, was never
+    recorded or does not resolve; an unchanged one is reused."""
+    out = []
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        bdir, external, tree = root / 'build', root / 'litex' / 'netlist.v', root / 'firmware'
+        files = {'image/ctrl_app.elf': b'elf', 'gateware/sim_rom_bank0.init': b'00000013\n', 'gateware/sim.v': b'v',
+                 'runtime/libc.a': b'a', 'native/Vsim': b'model', 'budget_config.hpp': b'h'}
+        for name, data in {**files, '../litex/netlist.v': b'cpu', '../firmware/adp.c': b'c'}.items():
+            (bdir / name).parent.mkdir(parents=True, exist_ok=True)
+            (bdir / name).write_bytes(data)
+        spec = dict(elf=str(bdir / 'image/ctrl_app.elf'), sources=[str(bdir / 'gateware/sim.v'), str(external)],
+                    shape='endstation_ax7101_1x1_tdm8', executable_sha256=hashlib.sha256(b'model').hexdigest())
+
+        def attempt(edit: Callable[[], None]) -> str:
+            """Record the build, apply one edit, and try to reuse it: '' when reused, else the refusal."""
+            with patch.object(build, 'FIRMWARE_TREES', (str(tree),)):
+                spec['inputs'] = build.digest(build.run_inputs(bdir, spec), bdir)
+                spec['inputs']['tree:firmware'] = build.tree_digest([build.ROOT / t for t in build.FIRMWARE_TREES])
+                spec['inputs']['tree:config'] = build.tree_digest([build.ROOT / 'configs' / (spec['shape'] + '.yaml')])
+                (bdir / 'build.json').write_text(json.dumps(spec))
+                saved = {p: p.read_bytes() for p in root.rglob('*') if p.is_file()}
+                edit()
+                try:
+                    build.reused(bdir)
+                    return ''
+                except RuntimeError as error:
+                    return str(error)
+                finally:
+                    for p in root.rglob('*'):
+                        if p.is_file() and p not in saved:
+                            p.unlink()
+                    for p, data in saved.items():
+                        p.write_bytes(data)
+
+        out.append(('an unchanged build is reused', attempt(lambda: None) == '', attempt(lambda: None)))
+        for name, edit, word in (
+                ('the image', lambda: (bdir / 'image/ctrl_app.elf').write_bytes(b'elf2'), 'changed'),
+                ('a ROM file', lambda: (bdir / 'gateware/sim_rom_bank0.init').write_bytes(b'0000006f\n'), 'changed'),
+                ('the SoC Verilog', lambda: (bdir / 'gateware/sim.v').write_bytes(b'v2'), 'changed'),
+                ('the CPU netlist', lambda: external.write_bytes(b'cpu2'), 'changed'),
+                ('a firmware source', lambda: (tree / 'adp.c').write_bytes(b'c2'), 'changed'),
+                ('a deleted ROM file', lambda: (bdir / 'gateware/sim_rom_bank0.init').unlink(), 'missing'),
+                ('an unrecorded ROM file', lambda: (bdir / 'gateware/sim_rom_bank1.init').write_bytes(b'0'),
+                 'never recorded'),
+                ('the native model', lambda: (bdir / 'native/Vsim').write_bytes(b'model2'), 'native model'),
+                ('a key that does not resolve', lambda: (bdir / 'build.json').write_text(json.dumps(
+                    dict(spec, inputs={**spec['inputs'], 'ctrl_app.elf': '0' * 64}))), 'does not resolve')):
+            refused = attempt(edit)
+            out.append((f'reuse refuses {name}', word in refused, refused or 'reused'))
+    return out
+
+
+def checks() -> list[Check]:
+    """Every named check and whether it holds."""
+    return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *run_checks(),
+            *reuse_checks()]
+
+
+def write_fixture(log: Path, build_json: Path) -> None:
+    """Trim a 'fixture' group log to what its probes read, then pin its graded rows and pass figures."""
+    spec = json.loads(build_json.read_text())
     p = scenario.point('1x1', spec)
     if spec['interfaces'] != 1:
         raise SystemExit('the fixture is the one-interface point')
@@ -251,8 +425,18 @@ def write_fixture(log: Path, build: Path) -> None:
         if r['status'] != 'measured':
             raise SystemExit(f'fixture probe {r["probe"]} is not measured: {r}')
         oracle['rows'][r['probe']] = {k: r.get(k) for k in PINNED}
+    oracle['passes'] = headline(graded)
     ORACLE.write_text(json.dumps(oracle, indent=1) + '\n')
     print(f'wrote {FIXTURE_LOG.name} ({FIXTURE_LOG.stat().st_size} B) and {ORACLE.name}: {len(oracle["rows"])} rows')
+
+
+@contextlib.contextmanager
+def mutated(name: str) -> Iterator[None]:
+    """One rule replaced by its mutant (selftest_mutants.MUTANTS)."""
+    with contextlib.ExitStack() as stack:
+        for p in selftest_mutants.MUTANTS[name]():
+            stack.enter_context(p)
+        yield
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -267,14 +451,14 @@ def main(argv: list[str] | None = None) -> int:
     for name, ok, detail in checks():
         print(f'{"PASS" if ok else "FAIL"}: {name}' + ('' if ok else f': {detail[:300]}'))
         failures += not ok
-    for name in MUTANTS:
-        with mutant(name):
+    for name in selftest_mutants.MUTANTS:
+        with mutated(name):
             try:
-                failed = [n for n, ok, _ in checks() if not ok]
-            except (grade.Refusal, KeyError, ValueError, IndexError, TypeError) as error:
-                failed = [f'refused: {error}']
+                failed = [(n, detail) for n, ok, detail in checks() if not ok]
+            except (grade.Refusal, KeyError, ValueError, IndexError, TypeError, RuntimeError) as error:
+                failed = [(f'refused: {error}', '')]
         if failed:
-            print(f'MUTANT caught: {name}: {failed[0]}')
+            print(f'MUTANT caught: {name}: {failed[0][0]}' + (f' ({failed[0][1][:160]})' if failed[0][1] else ''))
         else:
             print(f'MUTANT ESCAPED: {name}')
             failures += 1
