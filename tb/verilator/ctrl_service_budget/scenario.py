@@ -31,10 +31,13 @@ A probe's frames carry its name as their tag, so its start is the commit of
 its own frame even when other frames share the ring; a probe may bound its
 search by a later mark (until) when probes overlap on purpose.
 
-A group's load is the population its composed window must commit: the
-records per receive channel and the GM and LINK events (grade.py refuses a
-window that committed any other count, so a load the filter refused, or a
-channel left out, cannot pass as the composed maximum).
+A group's load is the population its stimulus declares for its composed
+window: the records per receive channel and the GM and LINK events. grade.py
+never trusts it: it refuses a window whose committed population is not the
+row's defined load, which it derives from the contract alone
+(grade.defined_load), and the self-test counts every window's stimulus
+against that definition, so a channel left out of the stimulus and its
+declaration together still fails.
 
 The paths, their clauses and their ceilings come from FR_NFR.md 3.4.1 and
 MAILBOX_SPLIT.md; every address comes from the mailbox contract.
@@ -114,6 +117,12 @@ class Probe:
     #: registered for unsolicited notifications on that interface (IEEE 1722.1-2021 7.5.2).
     recipients: tuple[tuple[int, int], ...] = ()
     path: str = ''       # the path it is an instance of; '' is the name without .if<n>
+    #: The sequence_ids of the responses owed ahead of the probe's: exactly these, in this
+    #: order, must be committed on its channel between its input and its response.
+    owed: tuple[int, ...] = ()
+    #: An admitted command the firmware may take and never answer under the load: a missing
+    #: response is then a measured finding, never answered (unbounded), not a refusal.
+    may_drop: bool = False
 
     def path_key(self) -> tuple[str, int]:
         """The path and interface this probe measures; the tables report each one's worst instance."""
@@ -415,24 +424,24 @@ def descriptors(build: dict) -> list[tuple[int, int, int, int]]:
 
 
 def aecp_groups(p: Point, build: dict) -> list[Group]:
-    """AECP: every descriptor read, the getters and setters, the notification fan-out."""
+    """AECP's solicited responses (H-AECP): every descriptor read, the getters and the setters.
+
+    Each probe ends at its response. The fan-out a setter's change causes is
+    aecp_fanout_groups' path, measured at the firmware's registration capacity.
+    """
     aecp = CH['aecp']
     g = Group('aecp', sim_ms=2500)
     ready(g, p)
     seq = [0x6100]
 
     def cmd(i: int, name: str, command_type: int, payload: bytes, controller: int = CTL1,
-            recipients: tuple[tuple[int, int], ...] = ()) -> None:
-        """One AEM command probe; with recipients, also every notification its state change sends."""
+            notices: int = 0) -> None:
+        """One AEM command probe, ending at its response; its wait also lets the change's notices leave."""
         frame = f.aem_command(f.Aem(p.entity_id, controller, CTL_MAC, p.mac, seq[0]), command_type, payload)
-        notify = [f'notify:{aecp}:{command_type:04x}:{int.from_bytes(payload[0:2], "big")}:'
-                  f'{int.from_bytes(payload[2:4], "big")}'] if recipients else []
-        ends = [f'resp:{aecp}:{seq[0]:x}'] + notify
+        ends = [f'resp:{aecp}:{seq[0]:x}']
         seq[0] += 1
-        family = 'notify' if recipients else 'aecp'
-        g.probe(Probe(f'aecp.{name}.if{i}', name, family, f'rxc:{aecp}', ends, expect='aecp_response',
-                      recipients=recipients),
-                f'frame {i} {frame.hex()}', wait=f'tx {aecp} {1 + len(recipients)} within {50 * MS}')
+        g.probe(Probe(f'aecp.{name}.if{i}', name, 'aecp', f'rxc:{aecp}', ends, expect='aecp_response'),
+                f'frame {i} {frame.hex()}', wait=f'tx {aecp} {1 + notices} within {50 * MS}')
 
     rows = descriptors(build)
     last = {}
@@ -460,14 +469,142 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
         g.probe(Probe(f'aecp.mvu_get_milan_info.if{i}', 'MVU GET_MILAN_INFO', 'aecp', f'rxc:{aecp}',
                       [end], expect='aecp_response'),
                 f'frame {i} {mvu.hex()}', wait=f'tx {aecp} 1 within {50 * MS}')
-        # A state change by another controller: the response, then a notification to CTL1 on
-        # every interface it has registered on so far (7.5.2): the fan-out ends at the last.
+        # A state change by another controller: its response, then a notice to CTL1 on every
+        # interface it has registered on so far (7.5.2), which the wait lets leave.
         name = f'budget if{i}'.encode().ljust(64, b'\0')   # a new value: an identical SET does not notify
         cmd(i, 'set_name', 0x0010, f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + name,
-            controller=CTL2, recipients=tuple((CTL1, k) for k in range(i + 1)))
+            controller=CTL2, notices=i + 1)
         # LOCK_ENTITY (7.4.2.1): flags, locked_id, descriptor_type and descriptor_index (the ENTITY).
         cmd(i, 'lock_entity', 0x0001, f.be(0, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
         cmd(i, 'unlock_entity', 0x0001, f.be(1, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
+    return [g]
+
+
+def registrations() -> int:
+    """The registrations for unsolicited notifications the firmware keeps per interface (aecp.h)."""
+    import re
+    text = (ROOT / 'sw/firmware/ctrl/aecp/aecp.h').read_text()
+    return int(re.search(r'#define AECP_REGISTRATIONS (\d+)u', text).group(1))
+
+
+def descriptor_value(build: dict, kind: int, index: int) -> bytes:
+    """A descriptor's bytes in the image's AEM table, from its descriptor_type (aecp_image.c)."""
+    import re
+    header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
+    body = header[header.index('aecp_entity_image[] = {'):]
+    body = body[:body.index('};')]
+    image = bytes(int(v, 0) for v in re.findall(r'0x[0-9a-fA-F]+|\b\d+\b', body.split('{', 1)[1]))
+    offset, count = int.from_bytes(image[12:16], 'big'), int.from_bytes(image[8:10], 'big')
+    for row in range(count):
+        e = image[offset + 16 * row:offset + 16 * row + 16]
+        rtype, number, length = (int.from_bytes(e[k:k + 2], 'big') for k in (2, 4, 6))
+        base, stride = int.from_bytes(e[8:12], 'big'), int.from_bytes(e[14:16], 'big')
+        for n in range(number):
+            value = image[base + n * stride:base + n * stride + length]
+            if rtype == kind and int.from_bytes(value[2:4], 'big') == index:
+                return value
+    raise KeyError(f'no descriptor {kind}:{index} in the image')
+
+
+def map_edit(build: dict, port_type: int) -> bytes | None:
+    """An ADD/REMOVE_AUDIO_MAPPINGS payload (IEEE 1722.1-2021 7.4.45.1) for the STREAM_PORT 0 of
+    that type: one mapping, its map's last default row. None when that map holds no row: the
+    live map starts with its defaults (aecp.c), and a map of capacity 0 can never change."""
+    import re
+    header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
+    maps = re.findall(r'\{(\d+),(\d+),(\d+),\d+,\(rows\)\+\d+,\d+,(\d+),aecp_map_defaults\+(\d+),(\d+)\}', header)
+    _, _, _, capacity, first, number = next(m for m in maps if m[:3] == (str(port_type), '0', '0'))
+    if not int(capacity) or not int(number):
+        return None
+    defaults = header[header.index('aecp_map_defaults[] = {'):]
+    rows = re.findall(r'\{(\d+),(\d+),(\d+),(\d+)\}', defaults[:defaults.index('};')])
+    mapping = b''.join(f.be(int(v), 2) for v in rows[int(first) + int(number) - 1])
+    return f.be(port_type, 2) + f.be(0, 2) + f.be(1, 2) + f.be(0, 2) + mapping
+
+
+#: The controllers aecp_fanout_groups registers on every interface, up to the capacity.
+FANOUT_CONTROLLER = 0x0A0B0C0D0E0F1000
+
+
+def aecp_fanout_groups(p: Point, build: dict) -> list[Group]:
+    """Every notification fan-out the image completes, at the firmware's registration capacity.
+
+    AECP_REGISTRATIONS controllers register on every interface, then CTL2, which
+    is not registered, sends each state-changing command that the image
+    notifies: every registration receives it (IEEE 1722.1-2021 7.5.2; aecp.c,
+    transmit), and the fan-out ends at the last recipient's commit
+    (FR_NFR.md 3.4.1, H-NOTIFY). Each command changes its value, since an
+    unchanged SET does not notify. With the answering-ports arm, whose stream
+    observation answers, the group also measures the setters the unmodified
+    fixture refuses for want of it (SET_CONFIGURATION, SET_STREAM_INFO) and
+    BIND_RX's GET_STREAM_INFO notice, which arm A's AECP retries forever.
+    """
+    aecp, acmp = CH['aecp'], CH['acmp']
+    ifs = range(p.interfaces)
+    g = Group('aecp-fanout', sim_ms=2600)
+    ready(g, p)
+    controllers = [FANOUT_CONTROLLER + n for n in range(registrations())]
+    seq = [0x5100]
+    for i in ifs:
+        for ctl in controllers:
+            frame = f.aem_command(f.Aem(p.entity_id, ctl, CTL_MAC, p.mac, seq[0]), 0x0024, bytes(4))
+            g.add(f'frame {i} {frame.hex()}', f'wait tx {aecp} 1 within {50 * MS}', 'wait quiet 3 within 2000000')
+            seq[0] += 1
+    everyone = tuple((ctl, i) for i in ifs for ctl in controllers)
+
+    def fanout(i: int, name: str, command_type: int, payload: bytes, path: str = '') -> None:
+        """One state-changing command from CTL2 on interface i, to its response and every registration's notice."""
+        frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, seq[0]), command_type, payload)
+        selector = f'{command_type:04x}:{int.from_bytes(payload[0:2], "big")}:{int.from_bytes(payload[2:4], "big")}'
+        g.probe(Probe(f'aecp_fanout.{name}.if{i}', name, 'notify', f'rxc:{aecp}',
+                      [f'resp:{aecp}:{seq[0]:x}', f'notify:{aecp}:{selector}'], expect='aecp_response',
+                      recipients=everyone, path=path),
+                f'frame {i} {frame.hex()}', wait=f'tx {aecp} {1 + len(everyone)} within {200 * MS}')
+        seq[0] += 1
+
+    rate = descriptor_value(build, 2, 0)[136:140]                  # AUDIO_UNIT current_sampling_rate (7.2.3)
+    domain = descriptor_value(build, 36, 0)                        # CLOCK_DOMAIN (7.2.32)
+    start, number = int.from_bytes(domain[72:74], 'big'), int.from_bytes(domain[74:76], 'big')
+    sources = [int.from_bytes(domain[start + 2 * k:start + 2 * k + 2], 'big') for k in range(number)]
+    answering = build.get('variant') == 'answering-ports'
+    # Dynamic map edits (Milan v1.2 5.4.2.27/.28): an input map with a row, and an output map
+    # with the answering arm (an output edit is refused unless its stream is observed not running).
+    edits = [(suffix, edit) for suffix, edit in (('', map_edit(build, 14)),
+                                                 ('_output', map_edit(build, 15) if answering else None)) if edit]
+    for i in ifs:
+        name = f'fanout if{i}'.encode().ljust(64, b'\0')
+        fanout(i, 'set_name', 0x0010, f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + name)
+        fanout(i, 'set_clock_source', 0x0016, f.be(36, 2) + f.be(0, 2) + f.be(sources[(i + 1) % number], 2)
+               + f.be(0, 2))
+        # The IDENTIFY control (Milan v1.2 5.3.12): on, then off.
+        fanout(i, 'set_control_identify_on', 0x0018, f.be(26, 2) + f.be(0, 2) + bytes((255,)),
+               path='aecp_fanout.set_control')
+        fanout(i, 'set_control_identify_off', 0x0018, f.be(26, 2) + f.be(0, 2) + bytes((0,)),
+               path='aecp_fanout.set_control')
+        for suffix, edit in edits:            # one default row removed, then added back
+            fanout(i, f'remove_audio_mappings{suffix}', 0x002D, edit)
+            fanout(i, f'add_audio_mappings{suffix}', 0x002C, edit)
+        if i == 0:
+            # Only the first SET of a value notifies: the image's one rate, the configuration in use.
+            fanout(i, 'set_sampling_rate', 0x0014, f.be(2, 2) + f.be(0, 2) + rate)
+            if answering:
+                fanout(i, 'set_configuration', 0x0006, f.be(0, 2) + f.be(0, 2))
+        if answering:
+            # MSRP_ACC_LAT_VALID (7.4.15.1) on STREAM_OUTPUT 0, a new latency on each interface.
+            info = f.be(6, 2) + f.be(0, 2) + f.be(0x2000_0000, 4) + bytes(16) + f.be(1_000_000 + i, 4)
+            fanout(i, 'set_stream_info', 0x000E, info.ljust(84, b'\0'))
+        # LOCK_ENTITY (7.4.2.1) acquired, then released: its notice's first halfwords are its flags.
+        fanout(i, 'lock_entity', 0x0001, f.be(0, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2))
+        fanout(i, 'unlock_entity', 0x0001, f.be(1, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2))
+    if answering:
+        # A cross-channel fan-out: BIND_RX's response, then its STREAM_INPUT's GET_STREAM_INFO
+        # notice to every registration (H-NOTIFY; Milan v1.2 Table 5.22).
+        for i in ifs:
+            g.probe(Probe(f'aecp_fanout.bind_rx_stream_info.if{i}', 'BIND_RX -> GET_STREAM_INFO notice', 'notify',
+                          f'rxc:{acmp}', [f'resp:{acmp}:{0x5f00 + i:x}', f'notify:{aecp}:000f:5:{i}'],
+                          recipients=everyone),
+                    f'frame {i} {acmp_cmd(p, "BIND_RX", i, 0x5f00 + i).hex()}',
+                    wait=f'tx {aecp} {len(everyone)} within {200 * MS}')
     return [g]
 
 
@@ -657,13 +794,18 @@ def bound_talker_groups(p: Point) -> list[Group]:
     return out
 
 
+#: The responses owed ahead of the owed-frame row's (MAILBOX_SPLIT.md:753-758, A3).
+OWED_AHEAD = 7
+
+
 def owed_group(p: Point) -> Group:
     """The owed-frame row (a response with 7 frames owed ahead of it) under the composed load."""
     acmp = CH['acmp']
     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
     # A response with 7 frames owed ahead of it (A3): the egress held and the TX ring filled
-    # with responses; then, the token bucket refilled, the load arrives with seven more
-    # commands and the probe, and the egress returns 60 ms later.
+    # with responses; then, the token bucket refilled, the load arrives: seven commands, the
+    # probe and the rest of the ACMP ring's admitted burst behind it, so the probe's response
+    # is the eighth owed. The egress returns 60 ms later.
     g = Group('backlog-owed', sim_ms=4000)
     ready(g, p)
     announced(g)
@@ -674,15 +816,26 @@ def owed_group(p: Point) -> Group:
     g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}', 'gap 1', 'mark composed')
     gm_run(g, p)
     composed_load(g, p, own='acmp')
-    for n in range(7):
+    for n in range(OWED_AHEAD):
         g.offer('acmp', f'frame 0 {get(0x7380 + n).hex()}', get(0))
-    g.probe(Probe('backlog.owed.if0', 'a response with 7 frames owed ahead of it', 'acmp', f'rxc:{acmp}',
-                  [f'resp:{acmp}:7387'], until='composed_end', also_from='room'),
-            f'frame 0 {get(0x7387).hex()}', f'wait drained within {10 * MS}',
-            f'wait cycles {60 * MS}', 'mark room', 'txready 1', wait=f'tx {acmp} 8 within {300 * MS}',
-            settle='quiet 3 within 50000000')
+    behind = admission('acmp', get(0))['at_once'] - OWED_AHEAD - 1
+    probe = Probe('backlog.owed.if0', 'a response with 7 frames owed ahead of it', 'acmp', f'rxc:{acmp}',
+                  [f'resp:{acmp}:{0x7380 + OWED_AHEAD:x}'], until='composed_end', also_from='room',
+                  owed=tuple(0x7380 + n for n in range(OWED_AHEAD)))
+    g.probe(probe, f'frame 0 {get(0x7380 + OWED_AHEAD).hex()}', wait=f'drained within {10 * MS}', settle='')
     g.load['acmp'] += 1
-    g.add('mark composed_end')
+    # Each command behind the input is a path too: the core owes at most ACMP_OWED_MAX
+    # responses (tsn-c-stack acmp.h), so one it takes beyond them may never be answered.
+    for n in range(behind):
+        name = f'backlog.owed_behind{n}.if0'
+        g.probes.append(Probe(name, 'an ACMP command behind the owed input', 'acmp', f'rxc:{acmp}',
+                              [f'resp:{acmp}:{0x7390 + n:x}'], until='composed_end', path='backlog.owed_behind',
+                              may_drop=True))
+        g.add(f'mark {name}')
+        g.offer('acmp', f'frame 0 {get(0x7390 + n).hex()} {name}', get(0))
+    g.add(f'wait drained within {10 * MS}', f'wait cycles {60 * MS}', 'mark room', 'txready 1',
+          f'wait tx {acmp} {OWED_AHEAD + 1 + behind} within {300 * MS}', 'wait quiet 3 within 50000000',
+          'mark composed_end')
     return g
 
 
@@ -756,8 +909,9 @@ def shutdown_groups(p: Point) -> list[Group]:
     formal image) adds a poll that calls adp_mbx_set_enable(false) once, at
     NOW_MS SHUTDOWN_MS. The path starts at that call's entry and ends at each
     interface's ENTITY_DEPARTING commit (IEEE 1722.1-2021 6.2.5.2.2). The
-    control group is the same path, which slow-adp-shutdown must push over
-    T_svc (run.py --mutation slow-adp-shutdown).
+    control group's probe is another instance of the same path, adp.shutdown,
+    which slow-adp-shutdown must push over T_svc (run.py --mutation
+    slow-adp-shutdown).
     """
     adp = CH['adp']
     out = []
@@ -765,7 +919,8 @@ def shutdown_groups(p: Point) -> list[Group]:
         g = Group(name, sim_ms=SHUTDOWN_MS + 300)
         ready(g, p)
         g.together([(Probe(f'{prefix}.shutdown.if{i}', 'SHUTDOWN', 'adp', 'entry:adp_mbx_set_enable',
-                           [f'adp:{adp}:{f.ADP_DEPARTING}'], accesses=29, expect='adp_departing'), []) for i in ifs],
+                           [f'adp:{adp}:{f.ADP_DEPARTING}'], accesses=29, expect='adp_departing',
+                           path='adp.shutdown'), []) for i in ifs],
                    [f'ms {SHUTDOWN_MS + 50}'])
         out.append(g)
     return out
@@ -808,9 +963,10 @@ def fixture_groups(p: Point) -> list[Group]:
     g.add('wait quiet 3 within 2000000', 'mark composed_end')
     name = b'fixture'.ljust(64, b'\0')
     frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, 0x6101), 0x0010, bytes(8) + name)
-    g.probe(Probe('fixture.set_name.if0', 'SET_NAME', 'notify', f'rxc:{aecp}',
+    # The fan-out's markers on one registration: the capacity's path is aecp_fanout.set_name.
+    g.probe(Probe('fixture.set_name.if0', 'SET_NAME fan-out to one registered controller', 'notify', f'rxc:{aecp}',
                   [f'resp:{aecp}:6101', f'notify:{aecp}:0010:0:0'], expect='aecp_response',
-                  recipients=((CTL1, 0),), path='aecp.set_name'),
+                  recipients=((CTL1, 0),), path='fixture.set_name_one_recipient'),
             f'frame 0 {frame.hex()}', wait=f'tx {aecp} 2 within {50 * MS}')
     g.probe(Probe('fixture.link_down.if0', 'LINK_DOWN', 'adp', 'pad:LINK:0', ['cancel:0'], accesses=9,
                   path='adp.link_down'),
@@ -839,6 +995,6 @@ def all_groups(p: Point, build: dict) -> list[Group]:
     """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
-    groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *maap_groups(p), *srp_groups(p),
-              *backlog_groups(p), *control_groups(p)]
+    groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
+              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

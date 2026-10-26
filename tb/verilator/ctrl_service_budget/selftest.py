@@ -5,13 +5,17 @@
 It needs Python and PyYAML (the mailbox contract) and nothing built. It
 regrades the committed trace fixture.log, which the 'fixture' group
 recorded on the test SoC, against oracle.json: every probe's row, its pass
-bound and backlog, the worst pass, the composed maximum and the composed
-window's population. Synthetic traces check each marker, the notification
-fan-out, the clock conversion, the pass bound, the deadlines and the
-composition; the run's exit status, the regrade's refusal of an absent log
-and the reuse attestation run on temporary files. Then each rule is mutated
-in turn, and a named check must fail; a mutant of a headline figure (the
-worst pass, the composed maximum, a pass bound) fails on that figure.
+bound and backlog, each loaded channel's service, the worst pass, the
+composed maximum and the composed window's population. Synthetic traces
+check each marker, the notification fan-out, the owed responses, the clock
+conversion, the pass bound, the deadlines and the composition. The real
+scenario's composed windows are counted against the defined loads restated
+here, its fan-out against the firmware's registration capacity read here,
+and its controls against their paths. The run's exit status, the regrade's
+refusal of an absent log and the reuse attestation run on temporary files.
+Then each rule is mutated in turn, and a named check must fail; a mutant of
+a headline figure (the worst pass, the composed maximum, a pass bound)
+fails on that figure.
 
 Regenerate the fixture only through its generator, from a fresh 'fixture'
 group run:
@@ -47,6 +51,14 @@ PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'w
           'ring', 'ahead')
 #: FR_NFR.md 3.4.1's ceilings, restated here on purpose: a changed table must fail.
 CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0}
+#: Each composed row's defined load, restated here on purpose (README, Backlog rows): every
+#: channel's records one instant admits (ADP, AECP, SRP at their bucket's burst; ACMP, MAAP at
+#: their ring's room), the refill leg's ADP at the ring's room, fifteen GM changes and the
+#: event row's LINK change. A changed contract, rule or stimulus must fail.
+AT_ONCE = {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15}
+DEFINED = {'backlog': {**AT_ONCE, 'LINK': 1}, 'backlog-adp': AT_ONCE, 'backlog-adp-refill': {**AT_ONCE, 'adp': 11},
+           'backlog-owed': AT_ONCE, 'fixture': {'adp': 1, 'acmp': 1, 'aecp': 1, 'maap': 1, 'srp': 1, 'GM': 2}}
+FIRMWARE_AECP_H = HERE.parents[2] / 'sw/firmware/ctrl/aecp/aecp.h'
 AECP, ACMP, ADP = scenario.CH['aecp'], scenario.CH['acmp'], scenario.CH['adp']
 CTL1, CTL3 = scenario.CTL1, 0x0A0B0C0D0E0F0003
 Check = tuple[str, bool, str]
@@ -69,6 +81,7 @@ def headline(result: dict) -> dict:
     return dict(worst_cycles=passes['worst']['cycles'], worst_ms=passes['worst']['ms'],
                 composed_cycles=composed.get('cycles'), composed_ms=composed.get('ms'),
                 composed_passes=composed.get('passes'), population=composed.get('population'),
+                serviced=composed.get('serviced'), unreleased=composed.get('unreleased'),
                 idle_min=passes['idle_min'], idle_max=passes['idle_max'])
 
 
@@ -164,7 +177,40 @@ def fixture_checks() -> list[Check]:
     except grade.Refusal as error:
         refused = str(error)
     out.append(('a composed load missing one channel is refused', "'maap': 0" in refused, refused or 'accepted'))
+    # The same window whose stimulus also declares no MAAP record: the defined load still wants one.
+    group = fixture_group(oracle)
+    group.load.pop('maap')
+    out.append(('a window short of its defined load is refused although it declares it',
+                "'maap': 0" in refusal(lambda: grade.grade('\n'.join(dropped) + '\n', group, SYS_HZ, CPU_HZ)), ''))
+    # The unchanged window against a defined load one MAAP record smaller: one too many is refused.
+    smaller = dict(grade.defined_load('fixture'), maap=0)
+    with patch.object(grade, 'defined_load', lambda name: smaller):
+        refused = refusal(lambda: regraded(oracle))
+    out.append(('a composed window that committed more than its load is refused', "'maap': 1" in refused,
+                refused or 'accepted'))
+    # SRP's release inside the window deleted: the record is starved, by name, and fits nothing.
+    tail = f':{scenario.ch_word(scenario.CH["srp"], "RX_TAIL"):x}:'
+    starved_text = re.sub(r' (\d+)' + re.escape(tail) + r'[0-9a-f]+',
+                          lambda m: '' if int(window[0]) <= int(m.group(1)) <= int(window[1]) else m.group(0),
+                          FIXTURE_LOG.read_text())
+    result = regraded(oracle, starved_text)
+    rows = [r for r in result['probes'] if '.service.srp.' in r['probe']]
+    window_row = result['passes']['composed']
+    out.append(('a starved channel is reported by name, and its window is no composed maximum',
+                len(rows) == 2 and all(r['starved'] and r['status'] == 'measured' and r['within_t_svc'] is False
+                                       and r['within_ceiling'] is False for r in rows)
+                and window_row['serviced'] is False and window_row['unreleased'] == {'srp': 1},
+                str((rows, window_row.get('unreleased')))))
     return out
+
+
+def refusal(action: Callable[[], object]) -> str:
+    """The grader's refusal of an action, or '' if it was accepted."""
+    try:
+        action()
+    except grade.Refusal as error:
+        return str(error)
+    return ''
 
 
 def marker_checks() -> list[Check]:
@@ -310,6 +356,193 @@ def composition_checks() -> list[Check]:
     tally = run.counts(results)
     out.append(('misses are counted per path and per probe instance',
                 tally == dict(paths=2, path_misses=2, instances=3, instance_misses=3), str(tally)))
+    # A record never released, whose time is a lower bound, is worse than any time measured.
+    starved = dict(row('c.x.if0', 600.0, False, 'c'), starved=True)
+    results = [dict(group='c', probes=[starved], timeouts=[]),
+               dict(group='d', probes=[row('d.x.if0', 700.0, False, 'd')], timeouts=[])]
+    worst = run.paths(results)[0]['worst']
+    out.append(("a starved instance is its path's worst", worst['probe'] == 'c.x.if0'
+                and run.verdict_word(worst).startswith('STARVED'), str(worst)))
+    return out
+
+
+def window_checks() -> list[Check]:
+    """The composed maximum and the worst pass wherever their pass falls, and the owed responses."""
+    out = []
+    # Three passes inside the window, the longest neither first nor last; the run's longest is its last.
+    lines = ['MARK 1000 composed', *[f'PASS {n} {s} {s // 2} {c} instr=10 store_mbx=1 W {s + 100}:1:0' for n, (s, c)
+                                     in enumerate(((2000, 100), (5000, 900), (20000, 300)), 1)],
+             'MARK 100000 composed_end', 'PASS 4 200000 100000 5000 instr=10 store_mbx=1 W 200100:1:0']
+    with patch.object(grade, 'defined_load', lambda name: {}):
+        passes = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['passes']
+    got = (passes['composed']['cycles'], passes['composed']['passes'], passes['worst']['cycles'])
+    out.append(("the composed maximum is the window's longest pass, wherever it falls", got[:2] == (900, 3), str(got)))
+    out.append(("the worst pass includes the run's last pass", got[2] == 5000, str(got)))
+    # The run of idle passes the script's end flushes holds the pass it cut short: no idle pass.
+    lines = ['PASS 1 1000 500 100 instr=10 store_mbx=1 W 1050:1:0', 'IDLE 3 1000 2000',
+             'PASS 5 9000 4500 100 instr=10 store_mbx=1 W 9050:1:0', 'IDLE 2 50 3000']
+    passes = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['passes']
+    idle = (passes['idle_min'], passes['idle_max'])
+    out.append(("the pass the script's end cuts is no idle pass", idle == (1000, 2000), str(idle)))
+    # A response with two frames owed ahead of it: exactly those two, in order, before its own.
+    probe = scenario.Probe('s.owed.if0', 'owed', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'], owed=(0x31, 0x32))
+    cases = (((0x31, 0x32), 'measured'), ((0x31,), 'unexpected response'), ((0x31, 0x32, 0x33), 'unexpected response'),
+             ((0x32, 0x31), 'unexpected response'))
+    for ahead, status in cases:
+        records = [(0, acmp_response(s), 2000 + 1000 * n) for n, s in enumerate((*ahead, 0x41))]
+        r = one(synthetic(['MARK 1000 s.owed.if0', *received(ACMP, 's.owed.if0'), *tx_sequence(ACMP, records)]), probe)
+        out.append((f'the responses owed ahead are checked: {[f"{s:x}" for s in ahead]}', r.get('status') == status,
+                    str({k: r.get(k) for k in ('status', 'reason', 'owed_ahead')})))
+    # A command the firmware may drop: never answered is a measured, unbounded finding; answered
+    # is an ordinary path; and a probe that may not drop is refused without its response.
+    lines = ['MARK 1000 s.cmd.if0', *received(ACMP, 's.cmd.if0')]
+    got = []
+    for drop, tail in ((True, []), (True, tx_record(ACMP, 0, acmp_response(0x41), 0, 5000)), (False, [])):
+        probe = scenario.Probe('s.cmd.if0', 'behind', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'], may_drop=drop)
+        r = one(synthetic(lines + tail), probe)
+        got.append((r.get('status'), r.get('unanswered'), r.get('within_t_svc'), r.get('within_ceiling')))
+    out.append(('a command never answered is reported, unbounded, where it may be dropped',
+                got == [('measured', True, False, False), ('measured', None, True, True), ('no end', None, None, None)],
+                str(got)))
+    return out
+
+
+def channel_of(frame: bytes) -> str:
+    """The receive channel a stimulus frame is for, from its EtherType and AVTP subtype."""
+    ethertype = int.from_bytes(frame[12:14], 'big')
+    if ethertype in (scenario.f.ETH_MSRP, scenario.f.ETH_MVRP):
+        return 'srp'
+    if ethertype != scenario.f.ETH_AVTP:
+        return '-'
+    return {0xFA: 'adp', 0xFB: 'aecp', 0xFC: 'acmp', 0xFE: 'maap'}[frame[14]]
+
+
+def stimulus(group: scenario.Group) -> dict[str, int]:
+    """What the group's script sends inside its composed window: records per channel, GM and LINK events."""
+    out: dict[str, int] = {}
+    inside = False
+    names = [ch.name for ch in scenario.CONTRACT.channels]
+    for step in group.steps:
+        words = step.split()
+        inside = {'mark composed': True, 'mark composed_end': False}.get(step, inside)
+        if not inside or words[0] not in ('frame', 'reply', 'gm', 'link'):
+            continue
+        name = (channel_of(bytes.fromhex(words[2])) if words[0] == 'frame' else names[int(words[2])]
+                if words[0] == 'reply' else words[0].upper())
+        out[name] = out.get(name, 0) + 1
+    return out
+
+
+def points(oracle: dict) -> list[scenario.Point]:
+    """The oracle's one-interface point and the same entity with two interfaces."""
+    one_if = scenario.Point(**oracle['point'])
+    return [one_if, scenario.Point(**dict(oracle['point'], interfaces=2))]
+
+
+def load_checks() -> list[Check]:
+    """Every composed window of the real scenario against its defined load, restated here."""
+    oracle = json.loads(ORACLE.read_text())
+    out = []
+    derived = {name: {k: v for k, v in grade.defined_load(name).items() if v} for name in DEFINED}
+    out.append(('the defined loads, restated', derived == DEFINED, str(derived)))
+    sent, declared = {}, {}
+    for p in points(oracle):
+        for g in [*scenario.backlog_groups(p), *(scenario.fixture_groups(p) if p.interfaces == 1 else [])]:
+            sent[f'{g.name}@{p.interfaces}'] = stimulus(g)
+            declared[f'{g.name}@{p.interfaces}'] = {k: v for k, v in g.load.items() if v}
+    want = {key: DEFINED[key.split('@')[0]] for key in sent}
+    out.append(("every composed window's stimulus is its defined load", sent == want,
+                ', '.join(f'{k} {v} (defined {want[k]})' for k, v in sent.items() if v != want[k])))
+    out.append(('every composed window declares its defined load', declared == want,
+                ', '.join(f'{k} {v} (defined {want[k]})' for k, v in declared.items() if v != want[k])))
+    owed = [pr for g in scenario.backlog_groups(points(oracle)[0]) for pr in g.probes if pr.owed]
+    out.append(('the owed row has seven responses owed ahead of its own',
+                [(pr.owed, pr.ends) for pr in owed] == [(tuple(range(0x7380, 0x7387)), [f'resp:{ACMP}:7387'])],
+                str([(pr.name, pr.owed, pr.ends) for pr in owed])))
+    behind = [pr for g in scenario.backlog_groups(points(oracle)[0]) for pr in g.probes if pr.may_drop]
+    out.append(('every command behind the owed input is a path that reports a drop',
+                [pr.ends for pr in behind] == [[f'resp:{ACMP}:{0x7390 + n:x}'] for n in range(4)],
+                str([(pr.name, pr.ends) for pr in behind])))
+    return out
+
+
+def path_checks() -> list[Check]:
+    """A control is another instance of its functional path, counted once, at its worst."""
+    oracle = json.loads(ORACLE.read_text())
+    out, strays = [], []
+    for p in points(oracle):
+        groups = [*scenario.adp_groups(p), *scenario.control_groups(p), *scenario.shutdown_groups(p)]
+        functional = {pr.path_key() for g in groups if not g.name.startswith('control') for pr in g.probes}
+        strays += [pr.name for g in groups if g.name.startswith('control') for pr in g.probes
+                   if pr.path_key() not in functional]
+    out.append(("a control instance is its functional path", not strays, str(strays)))
+    # The two-interface SHUTDOWN arm: two paths, three instances; the control's miss is if0's worst.
+    times = {'adp.shutdown.if0': 0.58, 'adp.shutdown.if1': 1.17, 'control.shutdown.if0': 24.9}
+    results = [dict(group=g.name, timeouts=[], probes=[
+        dict(probe=pr.name, row=pr.row, status='measured', path=list(pr.path_key()), ms=times[pr.name],
+             within_t_svc=times[pr.name] <= 10, within_ceiling=True, ring='events', ahead=0)
+        for pr in g.probes]) for g in scenario.shutdown_groups(points(oracle)[1])]
+    worst = {(e['path'], e['interface']): e['worst']['probe'] for e in run.paths(results)}
+    tally = run.counts(results)
+    out.append(('repeated instances of one path: one path, its worst instance, every miss',
+                tally == dict(paths=2, path_misses=1, instances=3, instance_misses=1)
+                and worst[('adp.shutdown', 0)] == 'control.shutdown.if0', str((tally, worst))))
+    return out
+
+
+def image_header(tmp: Path) -> Path:
+    """A minimal generated AEM header: an AUDIO_UNIT at 48 kHz, a CLOCK_DOMAIN of three sources
+    and a two-row map on each STREAM_PORT 0, in aecp_entity_gen.h's layout; returns the ELF path."""
+    be = scenario.f.be
+    audio = bytearray(152)
+    audio[0:2], audio[136:148] = be(2, 2), be(48000, 4) + be(144, 2) + be(1, 2) + be(48000, 4)
+    domain = bytearray(88)
+    domain[0:2], domain[72:82] = be(36, 2), be(76, 2) + be(3, 2) + be(0, 2) + be(1, 2) + be(2, 2)
+    entries = (be(0, 2) + be(2, 2) + be(1, 2) + be(148, 2) + be(64, 4) + be(0xFFFF, 2) + be(152, 2)
+               + be(0, 2) + be(36, 2) + be(1, 2) + be(82, 2) + be(216, 4) + be(0xFFFF, 2) + be(88, 2))
+    image = bytes(8) + be(2, 2) + bytes(2) + be(32, 4) + bytes(16) + entries + audio + domain
+    (tmp / 'aecp_entity_gen.h').write_text(
+        '#define AECP_ENTITY_MAPS_INIT(rows) { \\\n\t{14,0,0,8,(rows)+0,0,8,aecp_map_defaults+0,2}, \\\n'
+        '\t{15,0,0,176,(rows)+8,0,17,aecp_map_defaults+2,2}, \\\n}\n'
+        'static const struct aecp_mapping aecp_map_defaults[] = {\n\t{0,0,0,0},\n\t{0,7,7,0},\n\t{0,0,0,0},\n'
+        '\t{0,7,7,0},\n};\nstatic const unsigned char aecp_entity_image[] = {\n\t'
+        + ','.join(f'0x{b:02x}' for b in image) + ',\n};\n')
+    return tmp / 'ctrl_app.elf'
+
+
+def fanout_checks() -> list[Check]:
+    """The fan-out group registers the firmware's whole capacity on every interface, and each of
+    its notifications is required of every registration, from a requester outside them."""
+    oracle = json.loads(ORACLE.read_text())
+    capacity = int(re.search(r'#define AECP_REGISTRATIONS (\d+)u', FIRMWARE_AECP_H.read_text()).group(1))
+    wrong = []
+    with tempfile.TemporaryDirectory() as tmp:
+        elf = image_header(Path(tmp))
+        for p in points(oracle):
+            for variant in ('none', 'answering-ports'):
+                g = scenario.aecp_fanout_groups(p, dict(elf=str(elf), variant=variant))[0]
+                registered, requesters, mark = set(), {}, ''
+                for step in g.steps:
+                    words = step.split()
+                    if words[0] == 'mark':
+                        mark = words[1]
+                    if words[0] != 'frame':
+                        continue
+                    frame = bytes.fromhex(words[2])
+                    if frame[14] == 0xFB and int.from_bytes(frame[36:38], 'big') & 0x7FFF == 0x0024:
+                        registered.add((int.from_bytes(frame[26:34], 'big'), int(words[1])))
+                    elif mark:
+                        requesters[mark] = int.from_bytes(frame[26:34], 'big') if frame[14] == 0xFB else None
+                per_if = [sum(1 for _, i in registered if i == k) for k in range(p.interfaces)]
+                notify = [pr for pr in g.probes if pr.family == 'notify']
+                if per_if != [capacity] * p.interfaces or not notify:
+                    wrong.append(f'{p.interfaces} interfaces, {variant}: {per_if} registered, {len(notify)} fan-outs')
+                wrong += [f'{pr.name}: {len(pr.recipients)} recipients of {len(registered)}' for pr in notify
+                          if set(pr.recipients) != registered or len(pr.recipients) != len(registered)]
+                wrong += [f'{name}: requester {ctl:016x} is registered' for name, ctl in requesters.items()
+                          if ctl is not None and ctl in {c for c, _ in registered}]
+    out = [("the fan-out group registers the firmware's capacity, every registration a recipient", not wrong,
+            '; '.join(wrong) + f' (capacity {capacity})')]
     return out
 
 
@@ -401,8 +634,8 @@ def reuse_checks() -> list[Check]:
 
 def checks() -> list[Check]:
     """Every named check and whether it holds."""
-    return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *run_checks(),
-            *reuse_checks()]
+    return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *window_checks(),
+            *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks()]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

@@ -42,8 +42,26 @@ def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
 
 
 def verdict_word(r: dict) -> str:
-    """fits, MISS T_svc, or MISS ceiling (over the 3.4.1 ceiling as well)."""
+    """fits, MISS T_svc, MISS ceiling (over the 3.4.1 ceiling as well), STARVED (never released) or
+    NEVER ANSWERED (a command taken and dropped)."""
+    if r.get('starved'):
+        return 'STARVED: never released'
+    if r.get('unanswered'):
+        return 'NEVER ANSWERED'
     return 'fits' if r['within_t_svc'] else 'MISS T_svc' if r['within_ceiling'] else 'MISS ceiling'
+
+
+def severity(r: dict) -> tuple[bool, float]:
+    """A probe instance's place in its path's ordering: a record never released or a command
+    never answered (unbounded) is worse than any measured time, then the time."""
+    return bool(r.get('starved') or r.get('unanswered')), r['ms']
+
+
+def windows(results: list[dict]) -> list[dict]:
+    """Each composed window: its longest pass, whether it released its whole load, and what not."""
+    return [dict(group=g['group'], **{k: g['passes']['composed'][k] for k in
+                                      ('cycles', 'ms', 'passes', 'window_ms', 'serviced', 'unreleased')})
+            for g in results if g['passes'].get('composed')]
 
 
 def paths(results: list[dict]) -> list[dict]:
@@ -61,7 +79,7 @@ def paths(results: list[dict]) -> list[dict]:
                                                           instances=0, misses=0, worst=None))
             entry['instances'] += 1
             entry['misses'] += not r['within_t_svc']
-            if entry['worst'] is None or r['ms'] > entry['worst']['ms']:
+            if entry['worst'] is None or severity(r) > severity(entry['worst']):
                 entry['worst'] = dict(r, group=group['group'])
     return sorted(out.values(), key=lambda e: (e['path'], e['interface']))
 
@@ -84,8 +102,16 @@ def table(results: list[dict], point: str) -> str:
     for e in paths(results):
         w = e['worst']
         bound = f" ({w['bound_ms']:.3f})" if 'bound_ms' in w else ''
-        lines.append(f"| {e['row']} | {e['interface']} | `{w['probe']}` ({w['group']}) | {w['ms']:.3f}{bound} | "
+        ms = f"at least {w['ms']:.3f}" if w.get('starved') or w.get('unanswered') else f"{w['ms']:.3f}"
+        lines.append(f"| {e['row']} | {e['interface']} | `{w['probe']}` ({w['group']}) | {ms}{bound} | "
                      f"{verdict_word(w)} | {w['ahead']} {w['ring']} | {e['instances']} | {e['misses']} |")
+    lines += ['', 'Composed windows: the longest pass is the composed maximum only where the window released '
+              'its whole load.', '',
+              '| Group | Window ms | Passes in it | Longest pass, CPU cycles (ms) | Load released | Unreleased |',
+              '|---|---:|---:|---:|---|---|']
+    for w in windows(results):
+        lines.append(f"| {w['group']} | {w['window_ms']:.3f} | {w['passes']} | {w['cycles']:,} ({w['ms']:.3f}) | "
+                     f"{'yes' if w['serviced'] else 'no'} | {w['unreleased'] or '-'} |")
     lines += ['', '| Path | Probe | CPU cycles | ms | T_svc (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
               '| Mailbox accesses (model) | Fetch share |',
               '|---|---|---:|---:|---:|---:|---|---:|---:|---:|']
@@ -182,6 +208,9 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
         for r in result['probes']:
             if r['status'] != 'measured':
                 refusals.append(f"{r['probe']}: {r['status']}: {r['reason']}")
+            elif r.get('starved') or r.get('unanswered'):
+                misses.append(f"{r['probe']}: never {'released' if r.get('starved') else 'answered'}, "
+                              f"at least {r['ms']:.3f} ms over T_svc {r['t_svc_ms']:g} ms")
             elif not r['within_t_svc']:
                 misses.append(f"{r['probe']}: {r['ms']:.3f} ms over T_svc {r['t_svc_ms']:g} ms")
     return results, refusals, misses
@@ -247,8 +276,8 @@ def main() -> int:
     (out / 'table.md').write_text(table(results, args.point))
     (out / 'results.json').write_text(json.dumps(dict(point=args.point, build=spec['executable_sha256'],
                                                       results=results, paths=paths(results),
-                                                      counts=counts(results), refusals=refusals,
-                                                      misses=misses), indent=1) + '\n')
+                                                      counts=counts(results), windows=windows(results),
+                                                      refusals=refusals, misses=misses), indent=1) + '\n')
     for line in refusals:
         print('REFUSED', line)
     for line in misses:

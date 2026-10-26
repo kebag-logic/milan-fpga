@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The self-test's mutants: each replaces one rule of the grader, the run or the build with a
-plausible defect, and selftest.py requires a named check to fail under it.
+"""The self-test's mutants: each replaces one rule of the grader, the run, the scenario or the
+build with a plausible defect, and selftest.py requires a named check to fail under it.
 
-A mutant whose name ends in "(d58c8e22)" restores the rule as #665's first
-measuring head had it, so the check that catches it is the test that fails
-on that head. Each mutant is a function returning the patches it applies.
+A mutant whose name ends in "(earlier rule)" restores a rule this harness had
+before these checks, so its check is the test that fails on that rule. Each
+mutant is a function returning the patches it applies.
 """
 from __future__ import annotations
 
@@ -21,6 +21,82 @@ import run
 import scenario
 
 Patches = Callable[[], list]
+
+
+def _first_pass_only() -> list:
+    """The composed window's passes cut to its first: the composed maximum is that pass."""
+    original = grade.composed_passes
+    return [patch.object(grade, 'composed_passes', lambda log, start, end: original(log, start, end)[:1])]
+
+
+def _last_pass_dropped() -> list:
+    """The log's last work pass dropped, so the worst pass never sees it."""
+    original = grade.parse
+
+    def parse(text: str, sys_hz: int, cpu_hz: int) -> grade.Log:
+        """The mutant parse: every pass but the last."""
+        log = original(text, sys_hz, cpu_hz)
+        log.passes = log.passes[:-1]
+        return log
+    return [patch.object(grade, 'parse', parse)]
+
+
+def _cut_pass_idle() -> list:
+    """The run the script's end flushes counted as whole idle passes."""
+    original = grade.parse
+
+    def parse(text: str, sys_hz: int, cpu_hz: int) -> grade.Log:
+        """The mutant parse: the cut pass not marked."""
+        log = original(text, sys_hz, cpu_hz)
+        log.cut_idle = False
+        return log
+    return [patch.object(grade, 'parse', parse)]
+
+
+def _load_at_least(group: scenario.Group, got: dict, refused: list) -> None:
+    """A window refused only when it committed fewer records than its defined load."""
+    want = grade.defined_load(group.name)
+    if any(got[k] < want.get(k, 0) for k in got):
+        raise grade.Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}')
+
+
+def _load_declared(group: scenario.Group, got: dict, refused: list) -> None:
+    """A window checked against its stimulus's own declaration."""
+    want = {name: group.load.get(name, 0) for name in got}
+    if got != want:
+        raise grade.Refusal(f'{group.name}: the composed window committed {got}, its load is {want}')
+
+
+def _starved_omitted() -> list:
+    """The service rows without the records never released."""
+    original = grade.service
+    return [patch.object(grade, 'service', lambda *a: [r for r in original(*a) if not r['starved']])]
+
+
+def _offer_without(channel: str, groups: str, after: str = '') -> Patches:
+    """Group.offer dropping a channel's records, step and declaration together, in the named
+    groups (after a mark, if given): a stimulus that omits background work."""
+    original = scenario.Group.offer
+
+    def offer(self: scenario.Group, ch: str, step: str, frame: bytes) -> None:
+        """The mutant offer: the channel's records in those groups never sent nor declared."""
+        if ch == channel and self.name.startswith(groups) and (not after or f'mark {after}' in self.steps):
+            return
+        original(self, ch, step, frame)
+    return lambda: [patch.object(scenario.Group, 'offer', offer)]
+
+
+def _control_own_path() -> list:
+    """A control probe keyed by its own name, not the path it is an instance of."""
+    original = scenario.Probe.path_key
+
+    def path_key(self: scenario.Probe) -> tuple[str, int]:
+        """The mutant key: a control's name without .if<n>."""
+        if self.name.startswith('control.'):
+            base, _, suffix = self.name.rpartition('.if')
+            return base, int(suffix)
+        return original(self)
+    return [patch.object(scenario.Probe, 'path_key', path_key)]
 
 
 def _start_with(rule: Callable) -> Patches:
@@ -179,13 +255,13 @@ MUTANTS: dict[str, Patches] = {
                                                                    if s.startswith('resp') else s),
     'marker: the interface is ignored': _end_with(interface_free=True),
     'marker: the first required output ends the path': lambda: [patch.object(grade, 'combine_ends', min)],
-    'marker: a receive commit goes to the oldest pending frame (d58c8e22)':
+    'marker: a receive commit goes to the oldest pending frame (earlier rule)':
         lambda: [patch.object(grade, 'owner', _owner_oldest)],
     'marker: the expected-response check is skipped': lambda: [patch.object(grade, 'expectation', lambda *a: '')],
     "notify: the first recipient's commit ends the fan-out": lambda: [patch.object(grade, 'fanout_end', lambda f:
                                                                       min(f.values()) if None not in f.values()
                                                                       else None)],
-    'notify: the first unsolicited response on any interface ends it (d58c8e22)':
+    'notify: the first unsolicited response on any interface ends it (earlier rule)':
         lambda: [patch.object(grade.Grader, 'recipients', _recipients_first_any)],
     'notify: any unsolicited response counts as the change': lambda: [patch.object(
         grade, 'causal', lambda fr, *a: len(fr) > 37 and fr[14] == 0xFB and fr[15] & 0xF == 1 and bool(fr[36] & 0x80))],
@@ -208,6 +284,29 @@ MUTANTS: dict[str, Patches] = {
                                                                                  lambda *a: None)],
     "composition: the composed maximum is the run's worst pass": lambda: [patch.object(
         grade, 'composed_passes', lambda log, start, end: log.passes)],
+    "composition: the composed maximum is the window's first pass": _first_pass_only,
+    "worst pass: the run's last pass is dropped": _last_pass_dropped,
+    "passes: the pass the script's end cuts counts as idle (earlier rule)": _cut_pass_idle,
+    'composition: a window that committed more than its load is accepted': lambda: [patch.object(
+        grade, 'check_load', _load_at_least)],
+    "composition: the load is the stimulus's own declaration (earlier rule)": lambda: [patch.object(
+        grade, 'check_load', _load_declared)],
+    'composition: the backlog stimulus omits SRP': _offer_without('srp', 'backlog'),
+    'composition: the backlog stimulus omits MAAP': _offer_without('maap', 'backlog'),
+    'composition: the owed row omits the ACMP commands behind its input (earlier rule)': _offer_without(
+        'acmp', 'backlog-owed', after='backlog.owed.if0'),
+    'service: a record never released is omitted': _starved_omitted,
+    'service: a window that left its load unreleased is the composed maximum (earlier rule)': lambda: [patch.object(
+        grade, 'unreleased', lambda *a: {})],
+    "service: a record's service ends at its release, not at its pass's end": lambda: [patch.object(
+        grade, 'served', lambda grader, taking, released: released)],
+    'owed: the responses ahead are not checked': lambda: [patch.object(
+        grade, 'owed_ahead', lambda grader, probe, *a: list(probe.owed))],
+    'owed: a command never answered fits': lambda: [patch.object(
+        grade, 'never_answered', lambda grader, probe, row, start: dict(row, status='measured', ms=0.0, start_sys=start,
+                                                                        within_t_svc=True, within_ceiling=True))],
+    'notify: the fan-out registers one controller an interface (earlier rule)': lambda: [patch.object(
+        scenario, 'registrations', lambda: 1)],
     'deadline: T_svc 20 ms': lambda: [patch.object(scenario, 'T_SVC_MS', 20.0)],
     'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_t_svc=ms < v['t_svc_ms'])),
     'deadline: the normative wait is not added': _verdicts(lambda v, ms, probe: dict(
@@ -218,13 +317,16 @@ MUTANTS: dict[str, Patches] = {
     'run: a CPU trap is not refused': lambda: [patch.object(grade, 'refuse_run', _run_ignores_traps)],
     'run: a T_svc miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
     'run: a refusal does not fail the run': _verdict(refusals_fail=False, misses_fail=True),
-    'regrade: a selected group without its log is dropped (d58c8e22)':
+    'regrade: a selected group without its log is dropped (earlier rule)':
         lambda: [patch.object(run, 'recorded', _recorded_drops)],
-    'reuse: an input outside the checkout is not rechecked (d58c8e22)':
+    'reuse: an input outside the checkout is not rechecked (earlier rule)':
         lambda: [patch.object(build, 'reused', _reused_checkout_only)],
     'reuse: the ROM files are not attested': lambda: [patch.object(
         build, 'run_inputs', lambda d, spec, f=build.run_inputs: [p for p in f(d, spec) if p.suffix != '.init'])],
-    "tables: a path's first instance is reported, not its worst (d58c8e22)":
+    "tables: a path's first instance is reported, not its worst (earlier rule)":
         lambda: [patch.object(run, 'paths', _first_instance)],
-    'tables: misses are counted per probe instance only (d58c8e22)': _counts_per_instance,
+    'tables: misses are counted per probe instance only (earlier rule)': _counts_per_instance,
+    'tables: a control instance is its own path (earlier rule)': _control_own_path,
+    "tables: a starved instance is not its path's worst": lambda: [patch.object(
+        run, 'severity', lambda r: (False, r['ms']))],
 }

@@ -12,7 +12,12 @@ it and require a named failure:
                     commit belongs to; Grader.recipients and fanout_end(), a
                     notification's required recipients and its end
   the pass bound    Grader.pass_end and Grader.pass_origin
-  the composition   composed() and population(), checked against the group's load
+  the composition   composed() and population(), checked against defined_load(),
+                    which derives each row's population from the contract alone
+  the service       releases() and service(): each loaded channel's first and
+                    last record to the end of the pass that released it, and a
+                    record never released reported as starved
+  the owed frames   owed_ahead(): the responses committed ahead of a probe's
   the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS and verdicts()
   the run           refuse_run(): an incomplete simulation, a trap or a bus error
 """
@@ -31,6 +36,16 @@ RX_HEADER_WORDS = len(scenario.CONTRACT.rx_header)
 #: A receive commit follows its own frame's last byte: KL_mbx_rx takes no byte of the next
 #: frame until the verdict (KL_mbx_rx.sv, rx_ready_o in RECV_S only).
 COMMIT_LATENCY_MAX = 64
+CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not the stimulus
+#: The size of each receive channel's record in a defined composed load, from its clause and
+#: never from the stimulus: an ADPDU is 68 bytes after the Ethernet header (IEEE 1722.1-2021
+#: 6.2.1) and an ACMPDU 56 (Milan v1.2 5.5.2.2); a READ_DESCRIPTOR command (7.4.5.1), a MAAPDU
+#: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
+#: to the 60-byte frame minimum.
+LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60}
+#: The groups whose composed window carries a defined load: the backlog rows
+#: (MAILBOX_SPLIT.md:753-758) and the self-test's short window.
+COMPOSED_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed', 'fixture')
 
 
 class Refusal(RuntimeError):
@@ -82,6 +97,9 @@ class Log:
     traps: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     result: str = ''
+    #: The last run of idle passes ends in the pass the script's end cut short (sim_main.cpp
+    #: closes the pass in progress, then flushes that run), so it holds no whole idle pass.
+    cut_idle: bool = False
 
 
 def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -> tuple[int, str, int]:
@@ -150,10 +168,12 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.passes.append(Pass(index, start_sys, start_cpu, cycles, fields, writes, modules, idle_max))
             idle_max = 0
             log.writes.extend(writes)
+            log.cut_idle = False
         elif kind == 'IDLE':
             # The testbench flushes a run of idle passes just before the work pass that ends it.
             log.idle.append(tuple(int(v) for v in rest))
             idle_max = int(rest[2])
+            log.cut_idle = True
         elif kind == 'STEP':
             log.steps.append((int(rest[0]), ' '.join(rest[2:])))
         elif kind == 'SUMMARY':
@@ -415,6 +435,32 @@ def response_sequence(frame: bytes) -> int | None:
     return None
 
 
+def never_answered(grader: Grader, probe: scenario.Probe, row: dict, start: int) -> dict:
+    """An admitted command its firmware took and never answered by the run's end: a measured
+    finding whose time is a lower bound, fitting neither T_svc nor its ceiling (3.4.1)."""
+    finish = max(int(grader.log.summary.get('sys', 0)), start)
+    ring, ahead = grader.ahead(probe, start)
+    return dict(row, status='measured', unanswered=True, start_sys=start, end_sys=finish, sys_cycles=finish - start,
+                cpu_cycles=grader.cpu_cycles(finish - start), ms=round(grader.ms(finish - start), 5),
+                wait_ms=probe.wait_ms, ring=ring, ahead=ahead, **dict(verdicts(grader.ms(finish - start), probe),
+                                                                     within_t_svc=False, within_ceiling=False))
+
+
+def owed_ahead(grader: Grader, probe: scenario.Probe, interface: int, start: int, end: int) -> list[int | None]:
+    """The responses the probe's channel committed on its interface after its input and ahead
+    of its own response, in commit order (None for a frame that is no response): a response
+    with N frames owed ahead of it has exactly the N it owes (MAILBOX_SPLIT.md:753-758)."""
+    ch = int(probe.start.split(':')[1])
+    own = int(next(s for s in probe.ends if s.startswith('resp')).split(':')[2], 16)
+    out = []
+    for c, k, i, fr in grader.log.tx:
+        if start < c <= end and k == ch and i == interface:
+            if response_sequence(fr) == own:
+                break
+            out.append(response_sequence(fr))
+    return out
+
+
 def interface_of(name: str) -> int:
     """The AVB interface a probe's name ends with (.if<n>)."""
     match = re.search(r'\.if(\d+)$', name)
@@ -451,6 +497,8 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
         return dict(row, status='no end', reason=wrong, start_sys=start)
     ends = [grader.end(spec, probe, i, start, next_mark) for spec in probe.ends]
     missing = [spec for spec, e in zip(probe.ends, ends) if e is None]
+    if missing and probe.may_drop and all(spec.startswith('resp') for spec in missing):
+        return never_answered(grader, probe, row, start)
     if missing:
         return dict(row, status='no end', reason=f'missing {missing}', start_sys=start)
     end = combine_ends(ends)
@@ -461,6 +509,15 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
     row.update(start_sys=start, end_sys=end, sys_cycles=elapsed, cpu_cycles=grader.cpu_cycles(elapsed),
                ms=round(ms, 5), wait_ms=probe.wait_ms, passes=len(grader.window_passes(start, end)),
                ring=ring, ahead=ahead, **verdicts(ms, probe))
+    for spec in probe.ends:
+        if spec.startswith('notify'):
+            # Every recipient's commit, so the per-recipient cost: last less first, over the gaps.
+            cycles = sorted(c for c in grader.recipients(spec, probe, start, next_mark)[0].values() if c is not None)
+            row['fanout'] = dict(recipients=len(cycles), first_sys=cycles[0], last_sys=cycles[-1],
+                                 per_recipient_cpu_cycles=grader.cpu_cycles(cycles[-1] - cycles[0])
+                                 // max(1, len(cycles) - 1)) if cycles else dict(recipients=0)
+    if probe.owed:
+        row['owed_ahead'] = [f'{s:x}' if s is not None else '-' for s in owed_ahead(grader, probe, i, start, end)]
     if taking is not None:
         bound = grader.pass_bound(start, taking)
         row.update(bound_cpu_cycles=grader.cpu_cycles(bound), bound_ms=round(grader.ms(bound), 5),
@@ -475,6 +532,9 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
         row.update(also_from=probe.also_from, from_origin_cpu_cycles=grader.cpu_cycles(end - origin),
                    from_origin_ms=round(grader.ms(end - origin), 5))
     check = wrong or expectation(grader, probe, i, start, next_mark)
+    owed = [f'{s:x}' for s in probe.owed]
+    if not check and probe.owed and row['owed_ahead'] != owed:
+        check = f'the responses committed ahead of it are {row["owed_ahead"]}, not the owed {owed}'
     if check:
         return dict(row, status='unexpected response', reason=check)
     row['status'] = 'measured'
@@ -552,13 +612,126 @@ def population(log: Log, start: int, end: int) -> dict[str, int]:
     return out
 
 
+def room(channel: str) -> int:
+    """The records of the defined load's size the channel's receive ring holds (mailbox.yaml)."""
+    ch = next(c for c in CONTRACT.channels if c.name == channel)
+    return ch.rx_words // (RX_HEADER_WORDS + (LOAD_FRAME_BYTES[channel] + 3) // 4)
+
+
+def defined_load(name: str) -> dict[str, int]:
+    """The population a composed row's window must commit, from the contract alone and never
+    from the stimulus's declaration (FR_NFR.md 3.4.1: backlog consumes T_svc).
+
+    Every receive channel carries what one instant admits: its token bucket's burst, unless
+    its ring holds fewer records of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills
+    the ring's room. Grandmaster changes fill the event ring but the row's own event, which in
+    'backlog' is the LINK change. The fixture's short window has one record a channel and two
+    changes.
+    """
+    if name not in COMPOSED_ROWS:
+        raise Refusal(f'{name}: no defined composed load')
+    if name == 'fixture':
+        return {**{ch.name: 1 for ch in CONTRACT.channels}, 'GM': 2}
+    load = {ch.name: min(ch.burst, room(ch.name)) for ch in CONTRACT.channels}
+    load['GM'] = CONTRACT.evt_words // CONTRACT.ev_words - 1
+    if name == 'backlog':
+        load['LINK'] = 1
+    if name == 'backlog-adp-refill':
+        load['adp'] = room('adp')
+    return load
+
+
 def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]]) -> None:
-    """The composed window must commit exactly the group's load: a refused or missing record,
-    or a channel left out, is not the composed maximum."""
-    want = {name: group.load.get(name, 0) for name in got}
+    """The composed window must commit exactly its row's defined load: a refused or missing
+    record, a channel left out of the stimulus, or one record too many, is not the composed
+    maximum."""
+    defined = defined_load(group.name)
+    want = {name: defined.get(name, 0) for name in got}
     if got != want:
-        raise Refusal(f'{group.name}: the composed window committed {got}, its load is {want}; '
+        raise Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}; '
                       f'refused frames {refused[:8]}')
+
+
+def releases(log: Log, ch: int) -> list[tuple[int, int, int | None]]:
+    """Each record the channel committed, in order: its commit cycle, its interface and the
+    cycle of the RX_TAIL write that released its last word, or None if no write did."""
+    tail_word = scenario.ch_word(ch, 'RX_TAIL')
+    tails = [(c, v) for c, w, v in log.writes if w == tail_word]
+    out: list[tuple[int, int, int | None]] = []
+    end = released = last = n = 0
+    at = None
+    for c, k, interface, _, size in log.rxc:
+        if k != ch:
+            continue
+        end += RX_HEADER_WORDS + (size + 3) // 4
+        while released < end and n < len(tails):
+            at, value = tails[n]
+            released += (value - last) & 0xFFFF
+            last = value
+            n += 1
+        out.append((c, interface, at if released >= end else None))
+    return out
+
+
+def unreleased(log: Log, start: int, end: int) -> dict[str, int]:
+    """Per channel, the records committed in [start, end] that no release had passed by end."""
+    out = {}
+    for ch, name in CHANNEL.items():
+        left = sum(1 for c, _, r in releases(log, ch) if start <= c <= end and (r is None or r > end))
+        if left:
+            out[name] = left
+    return out
+
+
+def served(grader: Grader, taking: Pass, released: int) -> int:
+    """A released record's service end: the end of the pass whose RX_TAIL write released it."""
+    return grader.pass_end(taking)
+
+
+#: Each receive channel's 3.4.1 family, for its records' service under a composed load.
+SERVICE_FAMILY = {'adp': 'adp', 'acmp': 'acmp', 'aecp': 'aecp', 'maap': 'maap', 'srp': 'srp'}
+
+
+def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list[dict]:
+    """Each loaded channel's first and last record of the composed window [start, end], from
+    its receive commit to the end of the pass that released it: the handler runs after the
+    release, inside that pass (ctrl_loop.c service_rx), and the SRP rows end there too.
+
+    A record released after the window closed is marked out of the window. A record no
+    release reached by the run's end is starved: its row carries the time it had waited, a
+    lower bound, and fits neither T_svc nor its ceiling.
+    """
+    finish = max(int(grader.log.summary.get('sys', 0)), end)
+    rows = []
+    for ch, name in CHANNEL.items():
+        records = releases(grader.log, ch)
+        inside = [n for n, r in enumerate(records) if start <= r[0] <= end]
+        if not inside:
+            continue
+        for which, n in (('first', inside[0]), ('last', inside[-1])):
+            commit, interface, released = records[n]
+            probe = scenario.Probe(f'{group.name}.service.{name}.{which}.if{interface}',
+                                   f'{name.upper()} record released under the composed load, {which}',
+                                   SERVICE_FAMILY[name], f'rxc:{ch}', [], path=f'service.{name}.{which}')
+            row = dict(probe=probe.name, row=probe.row, family=probe.family, interface=interface,
+                       path=list(probe.path_key()), start_sys=commit, wait_ms=0.0, ring=name,
+                       ahead=sum(1 for _, _, r in records[:n] if r is None or r > commit),
+                       in_window=released is not None and released <= end, starved=released is None)
+            if released is None:
+                stop = finish
+            else:
+                taking = grader.taking_pass(released)
+                if taking is None:
+                    raise Refusal(f'{probe.name}: the release at {released} belongs to no work pass')
+                stop = served(grader, taking, released)
+                row.update(pass_figures(taking))
+            row.update(end_sys=stop, sys_cycles=stop - commit, cpu_cycles=grader.cpu_cycles(stop - commit),
+                       ms=round(grader.ms(stop - commit), 5), passes=len(grader.window_passes(commit, stop)),
+                       **verdicts(grader.ms(stop - commit), probe))
+            if released is None:
+                row.update(within_t_svc=False, within_ceiling=False)
+            rows.append(dict(row, status='measured'))
+    return rows
 
 
 def composed_passes(log: Log, start: int, end: int) -> list[Pass]:
@@ -567,10 +740,15 @@ def composed_passes(log: Log, start: int, end: int) -> list[Pass]:
 
 
 def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> dict | None:
-    """The composed maximum: the longest pass that starts inside the composed window, whose
-    committed population must be the group's load exactly (MAAP and SRP included)."""
+    """The longest pass that starts inside the composed window, whose committed population must
+    be the row's defined load exactly (MAAP and SRP included).
+
+    It is the composed maximum only if the window released every record of that load
+    (serviced): a window that closed on a starved channel measured passes without that
+    channel's work, so its longest pass is a lower bound, and unreleased names the records.
+    """
     if 'composed' not in marks or 'composed_end' not in marks:
-        if group.load:
+        if group.load or group.name in COMPOSED_ROWS:
             raise Refusal(f'{group.name}: the load has no composed window')
         return None
     start, end = marks['composed'], marks['composed_end']
@@ -580,9 +758,11 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     if not inside:
         raise Refusal(f'{group.name}: no work pass starts inside the composed window')
     top = max(inside, key=lambda p: p.cycles)
+    left = unreleased(grader.log, start, end)
     return dict(cycles=top.cycles, ms=round(grader.cpu_ms(top.cycles), 5), instr=top.count('instr'),
                 passes=len(inside), start_sys=top.start_sys, modules=top.modules, population=got,
-                admission=group.admission)
+                admission=group.admission, serviced=not left, unreleased=left,
+                window_ms=round(grader.ms(end - start), 5))
 
 
 def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
@@ -606,9 +786,14 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
             later = [c for c, _ in order if c > at]
             limit = later[0] if later else 1 << 62
         rows.append(grade_probe(grader, probe, at, limit, marks))
-    idle_max = max((m for _, _, m in log.idle), default=0)
-    # The script's end closes the pass in progress; a zero-length one is that, not an idle pass.
-    idle_min = min((m for _, m, _ in log.idle if m), default=0)
+    window = composed(grader, group, marks)
+    if window is not None:
+        rows += service(grader, group, marks['composed'], marks['composed_end'])
+    # The script's end closes the pass in progress: the run it flushes holds that cut pass, so
+    # neither its minimum nor its maximum is a whole idle pass's.
+    whole = log.idle[:-1] if log.cut_idle else log.idle
+    idle_max = max((m for _, _, m in whole), default=0)
+    idle_min = min((m for _, m, _ in whole if m), default=0)
     worst = max(log.passes, key=lambda p: p.cycles, default=None)
     return dict(group=group.name, probes=rows, timeouts=timeouts,
                 passes=dict(count=int(log.summary.get('passes', 0)), work=len(log.passes),
@@ -616,5 +801,5 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
                             worst=dict(cycles=worst.cycles, ms=round(grader.cpu_ms(worst.cycles), 5),
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
-                            composed=composed(grader, group, marks)),
+                            composed=window),
                 summary=log.summary, modules=log.modules, code=log.code)
