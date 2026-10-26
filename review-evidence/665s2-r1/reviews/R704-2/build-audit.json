@@ -1,0 +1,89 @@
+{
+  "A1": {
+    "configuration": {
+      "vexii_args": true,
+      "vexii_soc_args": true,
+      "ctrl_plan": true,
+      "memory_regions": true,
+      "cpu_memory_regions": true,
+      "sys_hz": true,
+      "cpu_hz": true,
+      "addresses": true,
+      "mutation": true,
+      "variant": true
+    },
+    "input_comparison": {
+      "build:budget_config.hpp": true,
+      "build:gateware/sim.v": false,
+      "build:gateware/sim_mem.init": true,
+      "build:gateware/sim_rom_bank0.init": true,
+      "build:gateware/sim_rom_bank1.init": true,
+      "build:image/ctrl_app.elf": true,
+      "build:runtime/libc.a": false,
+      "build:runtime/libcompiler_rt.a": false,
+      "checkout:hdl/milan/mailbox/KL_mbx.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_evt.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_pkg.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_ring.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_rx.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_tx.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_wb.sv": true,
+      "checkout:tb/verilator/ctrl_service_budget/observe.vlt": true,
+      "checkout:tb/verilator/ctrl_service_budget/sim_main.cpp": true,
+      "checkout:tb/verilator/fw_service_budget/flash.hpp": true,
+      "tree:config": true,
+      "tree:firmware": true
+    },
+    "core_netlist_equal": true,
+    "image_sha256": "d4c28047549719c4a2115674913550dd13b9d3b06074c1d577d46aeeecda3639",
+    "differences": [
+      "build:gateware/sim.v",
+      "build:runtime/libc.a",
+      "build:runtime/libcompiler_rt.a"
+    ]
+  },
+  "A8": {
+    "configuration": {
+      "vexii_args": true,
+      "vexii_soc_args": true,
+      "ctrl_plan": true,
+      "memory_regions": true,
+      "cpu_memory_regions": true,
+      "sys_hz": true,
+      "cpu_hz": true,
+      "addresses": true,
+      "mutation": true,
+      "variant": true
+    },
+    "input_comparison": {
+      "build:budget_config.hpp": true,
+      "build:gateware/sim.v": false,
+      "build:gateware/sim_mem.init": true,
+      "build:gateware/sim_rom_bank0.init": true,
+      "build:gateware/sim_rom_bank1.init": true,
+      "build:gateware/sim_rom_bank2.init": true,
+      "build:image/ctrl_app.elf": true,
+      "build:mbx-variant/KL_mbx.sv": true,
+      "build:mbx-variant/KL_mbx_pkg.sv": true,
+      "build:runtime/libc.a": false,
+      "build:runtime/libcompiler_rt.a": false,
+      "checkout:hdl/milan/mailbox/KL_mbx_evt.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_ring.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_rx.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_tx.sv": true,
+      "checkout:hdl/milan/mailbox/KL_mbx_wb.sv": true,
+      "checkout:tb/verilator/ctrl_service_budget/observe.vlt": true,
+      "checkout:tb/verilator/ctrl_service_budget/sim_main.cpp": true,
+      "checkout:tb/verilator/fw_service_budget/flash.hpp": true,
+      "tree:config": true,
+      "tree:firmware": true
+    },
+    "core_netlist_equal": true,
+    "image_sha256": "c89a1871fd2bca2b5515492c6996b076551bbda7ccd58c773c8bc633a00224ba",
+    "differences": [
+      "build:gateware/sim.v",
+      "build:runtime/libc.a",
+      "build:runtime/libcompiler_rt.a"
+    ]
+  }
+}

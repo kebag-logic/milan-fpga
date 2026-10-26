@@ -1,0 +1,11 @@
+COMMAND <packet>/scratch/A1/native/Vsim <packet>/measurements/A1/backlog.txt -
+COMMAND <packet>/scratch/A1/native/Vsim <packet>/measurements/A1/backlog-adp-refill.txt -
+COMMAND <packet>/scratch/A1/native/Vsim <packet>/measurements/A1/backlog-adp.txt -
+COMMAND <packet>/scratch/A1/native/Vsim <packet>/measurements/A1/aecp.txt -
+COMMAND <packet>/scratch/A1/native/Vsim <packet>/measurements/A1/backlog-owed.txt -
+BUDGET backlog.event.if0: 15.487 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 63.304 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 67.932 ms over T_svc 10 ms
+BUDGET backlog.adp_available_refill.if0: 88.334 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 125.789 ms over T_svc 10 ms
+5 groups graded, 0 refusals, 5 T_svc misses (5 of 30 probe instances, 5 of 30 paths)

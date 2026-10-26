@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "<packet>/prior-probes/probe_graders.py", line 43, in <module>
+    row = selftest.one(text, probe)
+  File "<checkout>/tb/verilator/ctrl_service_budget/selftest.py", line 83, in one
+    return grade.grade(log, group, SYS_HZ, CPU_HZ)['probes'][0]
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<checkout>/tb/verilator/ctrl_service_budget/grade.py", line 608, in grade
+    rows.append(grade_probe(grader, probe, at, limit, marks))
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<checkout>/tb/verilator/ctrl_service_budget/grade.py", line 449, in grade_probe
+    wrong = fan_out(grader, probe, start, next_mark)
+  File "<checkout>/tb/verilator/ctrl_service_budget/grade.py", line 430, in fan_out
+    raise Refusal(f'{probe.name}: a notification end needs its recipients')
+grade.Refusal: review.notify.if0: a notification end needs its recipients
