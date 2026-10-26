@@ -1,0 +1,81 @@
+{
+ "A1": {
+  "cycles": 1565803,
+  "ms": 31.31606,
+  "group": "backlog-adp",
+  "windows": 4,
+  "rows": 4,
+  "not_run": [],
+  "partial": false,
+  "lower_bound": true,
+  "unreleased": [
+   "backlog-adp",
+   "backlog-adp-refill"
+  ],
+  "released": {
+   "cycles": 740260,
+   "ms": 14.8052,
+   "group": "backlog"
+  }
+ },
+ "A8": {
+  "cycles": 2209308,
+  "ms": 44.18616,
+  "group": "backlog-adp-refill",
+  "windows": 4,
+  "rows": 4,
+  "not_run": [],
+  "partial": false,
+  "lower_bound": true,
+  "unreleased": [
+   "backlog-adp",
+   "backlog-adp-refill"
+  ],
+  "released": {
+   "cycles": 1392016,
+   "ms": 27.84032,
+   "group": "backlog"
+  }
+ },
+ "B1": {
+  "cycles": 740260,
+  "ms": 14.8052,
+  "group": "backlog",
+  "windows": 3,
+  "rows": 4,
+  "not_run": [
+   "backlog-adp-refill"
+  ],
+  "partial": true,
+  "lower_bound": false,
+  "unreleased": [],
+  "released": {
+   "cycles": 740260,
+   "ms": 14.8052,
+   "group": "backlog"
+  }
+ },
+ "B8": {
+  "cycles": 1392016,
+  "ms": 27.84032,
+  "group": "backlog",
+  "windows": 3,
+  "rows": 4,
+  "not_run": [
+   "backlog-adp-refill"
+  ],
+  "partial": true,
+  "lower_bound": false,
+  "unreleased": [],
+  "released": {
+   "cycles": 1392016,
+   "ms": 27.84032,
+   "group": "backlog"
+  }
+ },
+ "S1": null,
+ "S8": null,
+ "C-slow": null,
+ "C-shutdown": null,
+ "C-asbuilt": null
+}

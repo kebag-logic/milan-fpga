@@ -1,0 +1,16 @@
+kept out of the packet (over 200 KB): bdd_conformance.log
+bytes 377097
+sha256 84691eb00b99e3426ad1e484035b46800249325de94abbdd436d181702b3b40f
+--- last 12 lines ---
+    Given the wire-truth analyser is importable                           # steps/wire_truth_steps.py:65
+    Given a stream on the wire with no MRP frames captured at all         # steps/wire_truth_steps.py:782
+    When the analyser checks the SRP declarations                         # steps/wire_truth_steps.py:790
+    Then every SRP verdict is SKIP                                        # steps/wire_truth_steps.py:805
+    And the SRP skip says an inline tap is required                       # steps/wire_truth_steps.py:814
+
+14 features passed, 0 failed, 0 skipped
+406 scenarios passed, 0 failed, 0 skipped
+1977 steps passed, 0 failed, 0 skipped
+Took 0min 1.404s
+rc=0
+tree clean after the gate
