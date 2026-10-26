@@ -17,7 +17,7 @@ package KL_mbx_pkg;
   //! contract major version
   localparam int unsigned MBX_VERSION_MAJOR_C = 32'd2;
   //! contract minor version
-  localparam int unsigned MBX_VERSION_MINOR_C = 32'd2;
+  localparam int unsigned MBX_VERSION_MINOR_C = 32'd3;
   //! ID.MAGIC
   localparam int unsigned MBX_MAGIC_C = 32'h00004D42;
   //! host window size
@@ -368,6 +368,456 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_BINDING_STARTED_LSB_C = 32'd2;
   //! BINDING: the bound sink is started
   localparam int unsigned MBX_BINDING_STARTED_WIDTH_C = 32'd1;
+  //! first interface's face block
+  localparam int unsigned MBX_FACE_BASE_C = 32'h00006000;
+  //! bytes per interface's face block
+  localparam int unsigned MBX_FACE_STRIDE_C = 32'h00000400;
+  //! clk_i cycles within which a commit's acknowledgement returns
+  localparam int unsigned MBX_FACE_ACK_CYCLES_C = 32'd64;
+  //! The control plane's ready level, in place of the processor's enable_i and restore_go_i (Milan v1.2 5.6.1): set once the saved state is applied and AECP is released, so the datapath sees no entity before the restored state.
+  localparam int unsigned MBX_FACE_REG_F_CTRL_C = 32'h00000000;
+  //! F_CTRL: the firmware control plane is running
+  localparam int unsigned MBX_F_CTRL_READY_LSB_C = 32'd0;
+  //! F_CTRL: the firmware control plane is running
+  localparam int unsigned MBX_F_CTRL_READY_WIDTH_C = 32'd1;
+  //! The entity's current configuration (IEEE 1722.1-2021 7.4.7; the processor's aecp_cur_config_o) and its IDENTIFY control value, 0 or 255 (Milan v1.2 5.4.2.12; aecp_identify_o).
+  localparam int unsigned MBX_FACE_REG_F_ENTITY_C = 32'h00000004;
+  //! F_ENTITY: current_configuration
+  localparam int unsigned MBX_F_ENTITY_CUR_CONFIG_LSB_C = 32'd0;
+  //! F_ENTITY: current_configuration
+  localparam int unsigned MBX_F_ENTITY_CUR_CONFIG_WIDTH_C = 32'd16;
+  //! F_ENTITY: the IDENTIFY control's value
+  localparam int unsigned MBX_F_ENTITY_IDENTIFY_LSB_C = 32'd16;
+  //! F_ENTITY: the IDENTIFY control's value
+  localparam int unsigned MBX_F_ENTITY_IDENTIFY_WIDTH_C = 32'd8;
+  //! CLOCK_DOMAIN 0's clock_source_index as SET_CLOCK_SOURCE set it (IEEE 1722.1-2021 7.4.23; the processor's aecp_clk_src_index_o), which the media clock resolves.
+  localparam int unsigned MBX_FACE_REG_F_CLOCK_C = 32'h00000008;
+  //! F_CLOCK: clock_source_index
+  localparam int unsigned MBX_F_CLOCK_SOURCE_INDEX_LSB_C = 32'd0;
+  //! F_CLOCK: clock_source_index
+  localparam int unsigned MBX_F_CLOCK_SOURCE_INDEX_WIDTH_C = 32'd16;
+  //! LOCK_HELD is set while a LOCK_ENTITY is held (IEEE 1722.1-2021 7.4.2; Milan v1.2 5.4.2.27 and 5.4.2.28 forbid a local map change meanwhile; the processor's aecp_lock_held_o). DYN_DIRTY is set while a persisted setting moved and is not saved (aecp_dyn_dirty_o).
+  localparam int unsigned MBX_FACE_REG_F_AECP_C = 32'h0000000C;
+  //! F_AECP: a LOCK_ENTITY is held
+  localparam int unsigned MBX_F_AECP_LOCK_HELD_LSB_C = 32'd0;
+  //! F_AECP: a LOCK_ENTITY is held
+  localparam int unsigned MBX_F_AECP_LOCK_HELD_WIDTH_C = 32'd1;
+  //! F_AECP: a persisted setting is not saved yet
+  localparam int unsigned MBX_F_AECP_DYN_DIRTY_LSB_C = 32'd1;
+  //! F_AECP: a persisted setting is not saved yet
+  localparam int unsigned MBX_F_AECP_DYN_DIRTY_WIDTH_C = 32'd1;
+  //! The saved-state restore's status, as the processor's restore_*_o and rs_cause_o report it to the CSRs: the firmware's F1 store writes it before AECP is released and again on every change.
+  localparam int unsigned MBX_FACE_REG_F_RESTORE_C = 32'h00000010;
+  //! F_RESTORE: the restore walk is running
+  localparam int unsigned MBX_F_RESTORE_BUSY_LSB_C = 32'd0;
+  //! F_RESTORE: the restore walk is running
+  localparam int unsigned MBX_F_RESTORE_BUSY_WIDTH_C = 32'd1;
+  //! F_RESTORE: the restore sequencing completed (not a verdict)
+  localparam int unsigned MBX_F_RESTORE_DONE_LSB_C = 32'd1;
+  //! F_RESTORE: the restore sequencing completed (not a verdict)
+  localparam int unsigned MBX_F_RESTORE_DONE_WIDTH_C = 32'd1;
+  //! F_RESTORE: the completed restore did not restore
+  localparam int unsigned MBX_F_RESTORE_FAIL_LSB_C = 32'd2;
+  //! F_RESTORE: the completed restore did not restore
+  localparam int unsigned MBX_F_RESTORE_FAIL_WIDTH_C = 32'd1;
+  //! F_RESTORE: the completed walk validated no record
+  localparam int unsigned MBX_F_RESTORE_BLANK_LSB_C = 32'd3;
+  //! F_RESTORE: the completed walk validated no record
+  localparam int unsigned MBX_F_RESTORE_BLANK_WIDTH_C = 32'd1;
+  //! F_RESTORE: the walk ended CLOSED
+  localparam int unsigned MBX_F_RESTORE_CLOSED_LSB_C = 32'd4;
+  //! F_RESTORE: the walk ended CLOSED
+  localparam int unsigned MBX_F_RESTORE_CLOSED_WIDTH_C = 32'd1;
+  //! F_RESTORE: the walk rolled back to the defaults
+  localparam int unsigned MBX_F_RESTORE_RB_LSB_C = 32'd5;
+  //! F_RESTORE: the walk rolled back to the defaults
+  localparam int unsigned MBX_F_RESTORE_RB_WIDTH_C = 32'd1;
+  //! F_RESTORE: the walk's abort cause: 1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor, 7 image
+  localparam int unsigned MBX_F_RESTORE_RS_CAUSE_LSB_C = 32'd8;
+  //! F_RESTORE: the walk's abort cause: 1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor, 7 image
+  localparam int unsigned MBX_F_RESTORE_RS_CAUSE_WIDTH_C = 32'd3;
+  //! F_RESTORE: the binding walk's cause: 1 torn, 2 device, 3 deadline
+  localparam int unsigned MBX_F_RESTORE_CAUSE_LSB_C = 32'd12;
+  //! F_RESTORE: the binding walk's cause: 1 torn, 2 device, 3 deadline
+  localparam int unsigned MBX_F_RESTORE_CAUSE_WIDTH_C = 32'd2;
+  //! The saved-state store's status, as the processor's nvm_*_o report it to the CSRs: written before AECP is released and again on every change.
+  localparam int unsigned MBX_FACE_REG_F_NVM_C = 32'h00000014;
+  //! F_NVM: the store answers
+  localparam int unsigned MBX_F_NVM_BACKED_LSB_C = 32'd0;
+  //! F_NVM: the store answers
+  localparam int unsigned MBX_F_NVM_BACKED_WIDTH_C = 32'd1;
+  //! F_NVM: a record producer exhausted its write attempts
+  localparam int unsigned MBX_F_NVM_ALARM_LSB_C = 32'd1;
+  //! F_NVM: a record producer exhausted its write attempts
+  localparam int unsigned MBX_F_NVM_ALARM_WIDTH_C = 32'd1;
+  //! F_NVM: committable work no slot holds
+  localparam int unsigned MBX_F_NVM_DIRTY_LSB_C = 32'd2;
+  //! F_NVM: committable work no slot holds
+  localparam int unsigned MBX_F_NVM_DIRTY_WIDTH_C = 32'd1;
+  //! F_NVM: a writer loss not made good
+  localparam int unsigned MBX_F_NVM_STALE_LSB_C = 32'd3;
+  //! F_NVM: a writer loss not made good
+  localparam int unsigned MBX_F_NVM_STALE_WIDTH_C = 32'd1;
+  //! F_NVM: accepted work no verified slot holds and DIRTY does not report
+  localparam int unsigned MBX_F_NVM_PEND_LSB_C = 32'd4;
+  //! F_NVM: accepted work no verified slot holds and DIRTY does not report
+  localparam int unsigned MBX_F_NVM_PEND_WIDTH_C = 32'd1;
+  //! F_NVM: the image in the window was validated
+  localparam int unsigned MBX_F_NVM_IMG_VALID_LSB_C = 32'd5;
+  //! F_NVM: the image in the window was validated
+  localparam int unsigned MBX_F_NVM_IMG_VALID_WIDTH_C = 32'd1;
+  //! F_NVM: the verdict on the last image offered
+  localparam int unsigned MBX_F_NVM_VERDICT_LSB_C = 32'd8;
+  //! F_NVM: the verdict on the last image offered
+  localparam int unsigned MBX_F_NVM_VERDICT_WIDTH_C = 32'd4;
+  //! Writing GO publishes every F_* value of this interface: fw_send_o rises and the values hold until the acknowledgement. Refused while F_STATUS.BUSY is set.
+  localparam int unsigned MBX_FACE_REG_F_COMMIT_C = 32'h00000018;
+  //! F_COMMIT: publish
+  localparam int unsigned MBX_F_COMMIT_GO_LSB_C = 32'd0;
+  //! F_COMMIT: publish
+  localparam int unsigned MBX_F_COMMIT_GO_WIDTH_C = 32'd1;
+  //! The commit handshake. BUSY is set from a commit until its acknowledgement returns.
+  localparam int unsigned MBX_FACE_REG_F_STATUS_C = 32'h0000001C;
+  //! F_STATUS: a commit waits for its acknowledgement
+  localparam int unsigned MBX_F_STATUS_BUSY_LSB_C = 32'd0;
+  //! F_STATUS: a commit waits for its acknowledgement
+  localparam int unsigned MBX_F_STATUS_BUSY_WIDTH_C = 32'd1;
+  //! The descriptor GET_COUNTERS asks about.
+  localparam int unsigned MBX_FACE_REG_CTR_REQ_C = 32'h00000040;
+  //! CTR_REQ: descriptor_type
+  localparam int unsigned MBX_CTR_REQ_TYPE_LSB_C = 32'd0;
+  //! CTR_REQ: descriptor_type
+  localparam int unsigned MBX_CTR_REQ_TYPE_WIDTH_C = 32'd16;
+  //! CTR_REQ: descriptor_index
+  localparam int unsigned MBX_CTR_REQ_INDEX_LSB_C = 32'd16;
+  //! CTR_REQ: descriptor_index
+  localparam int unsigned MBX_CTR_REQ_INDEX_WIDTH_C = 32'd16;
+  //! The quadlet asked for, 0 to 31 a counters_block quadlet, 32 the counters_valid mask.
+  localparam int unsigned MBX_FACE_REG_CTR_WORD_C = 32'h00000044;
+  //! CTR_WORD: quadlet
+  localparam int unsigned MBX_CTR_WORD_WORD_LSB_C = 32'd0;
+  //! CTR_WORD: quadlet
+  localparam int unsigned MBX_CTR_WORD_WORD_WIDTH_C = 32'd6;
+  //! Writing GO asks the datapath for the quadlet. Refused while CTR_STATUS.BUSY is set.
+  localparam int unsigned MBX_FACE_REG_CTR_CMD_C = 32'h00000048;
+  //! CTR_CMD: ask
+  localparam int unsigned MBX_CTR_CMD_GO_LSB_C = 32'd0;
+  //! CTR_CMD: ask
+  localparam int unsigned MBX_CTR_CMD_GO_WIDTH_C = 32'd1;
+  //! The window's request, open or answered.
+  localparam int unsigned MBX_FACE_REG_CTR_STATUS_C = 32'h0000004C;
+  //! CTR_STATUS: the request is open
+  localparam int unsigned MBX_CTR_STATUS_BUSY_LSB_C = 32'd0;
+  //! CTR_STATUS: the request is open
+  localparam int unsigned MBX_CTR_STATUS_BUSY_WIDTH_C = 32'd1;
+  //! CTR_STATUS: the answer of the last request is in DATA
+  localparam int unsigned MBX_CTR_STATUS_DONE_LSB_C = 32'd1;
+  //! CTR_STATUS: the answer of the last request is in DATA
+  localparam int unsigned MBX_CTR_STATUS_DONE_WIDTH_C = 32'd1;
+  //! CTR_STATUS: the last request had no answer within wait_cycles
+  localparam int unsigned MBX_CTR_STATUS_TIMEOUT_LSB_C = 32'd2;
+  //! CTR_STATUS: the last request had no answer within wait_cycles
+  localparam int unsigned MBX_CTR_STATUS_TIMEOUT_WIDTH_C = 32'd1;
+  //! CTR_STATUS: the last request's tag
+  localparam int unsigned MBX_CTR_STATUS_TAG_LSB_C = 32'd8;
+  //! CTR_STATUS: the last request's tag
+  localparam int unsigned MBX_CTR_STATUS_TAG_WIDTH_C = 32'd4;
+  //! The quadlet, in IEEE 1722.1 value order.
+  localparam int unsigned MBX_FACE_REG_CTR_DATA_C = 32'h00000050;
+  //! CTR_DATA: the quadlet
+  localparam int unsigned MBX_CTR_DATA_DATA_LSB_C = 32'd0;
+  //! CTR_DATA: the quadlet
+  localparam int unsigned MBX_CTR_DATA_DATA_WIDTH_C = 32'd32;
+  //! The Stream Port the read asks about.
+  localparam int unsigned MBX_FACE_REG_AMAP_REQ_C = 32'h00000060;
+  //! AMAP_REQ: descriptor_type
+  localparam int unsigned MBX_AMAP_REQ_TYPE_LSB_C = 32'd0;
+  //! AMAP_REQ: descriptor_type
+  localparam int unsigned MBX_AMAP_REQ_TYPE_WIDTH_C = 32'd16;
+  //! AMAP_REQ: descriptor_index
+  localparam int unsigned MBX_AMAP_REQ_INDEX_LSB_C = 32'd16;
+  //! AMAP_REQ: descriptor_index
+  localparam int unsigned MBX_AMAP_REQ_INDEX_WIDTH_C = 32'd16;
+  //! The word asked for.
+  localparam int unsigned MBX_FACE_REG_AMAP_PAGE_C = 32'h00000064;
+  //! AMAP_PAGE: map_index
+  localparam int unsigned MBX_AMAP_PAGE_MAP_INDEX_LSB_C = 32'd0;
+  //! AMAP_PAGE: map_index
+  localparam int unsigned MBX_AMAP_PAGE_MAP_INDEX_WIDTH_C = 32'd16;
+  //! AMAP_PAGE: 0 number_of_maps, 1 the page's geometry, 2 a mapping record
+  localparam int unsigned MBX_AMAP_PAGE_SEL_LSB_C = 32'd16;
+  //! AMAP_PAGE: 0 number_of_maps, 1 the page's geometry, 2 a mapping record
+  localparam int unsigned MBX_AMAP_PAGE_SEL_WIDTH_C = 32'd2;
+  //! AMAP_PAGE: the record's ordinal within the page
+  localparam int unsigned MBX_AMAP_PAGE_REC_LSB_C = 32'd24;
+  //! AMAP_PAGE: the record's ordinal within the page
+  localparam int unsigned MBX_AMAP_PAGE_REC_WIDTH_C = 32'd8;
+  //! Writing GO asks the datapath for the word. Refused while AMAP_STATUS.BUSY is set.
+  localparam int unsigned MBX_FACE_REG_AMAP_CMD_C = 32'h00000068;
+  //! AMAP_CMD: ask
+  localparam int unsigned MBX_AMAP_CMD_GO_LSB_C = 32'd0;
+  //! AMAP_CMD: ask
+  localparam int unsigned MBX_AMAP_CMD_GO_WIDTH_C = 32'd1;
+  //! The window's request, open or answered.
+  localparam int unsigned MBX_FACE_REG_AMAP_STATUS_C = 32'h0000006C;
+  //! AMAP_STATUS: the request is open
+  localparam int unsigned MBX_AMAP_STATUS_BUSY_LSB_C = 32'd0;
+  //! AMAP_STATUS: the request is open
+  localparam int unsigned MBX_AMAP_STATUS_BUSY_WIDTH_C = 32'd1;
+  //! AMAP_STATUS: the answer of the last request is in DATA
+  localparam int unsigned MBX_AMAP_STATUS_DONE_LSB_C = 32'd1;
+  //! AMAP_STATUS: the answer of the last request is in DATA
+  localparam int unsigned MBX_AMAP_STATUS_DONE_WIDTH_C = 32'd1;
+  //! AMAP_STATUS: the last request had no answer within wait_cycles
+  localparam int unsigned MBX_AMAP_STATUS_TIMEOUT_LSB_C = 32'd2;
+  //! AMAP_STATUS: the last request had no answer within wait_cycles
+  localparam int unsigned MBX_AMAP_STATUS_TIMEOUT_WIDTH_C = 32'd1;
+  //! AMAP_STATUS: the last request's tag
+  localparam int unsigned MBX_AMAP_STATUS_TAG_LSB_C = 32'd8;
+  //! AMAP_STATUS: the last request's tag
+  localparam int unsigned MBX_AMAP_STATUS_TAG_WIDTH_C = 32'd4;
+  //! The word, low half.
+  localparam int unsigned MBX_FACE_REG_AMAP_DATA_LO_C = 32'h00000070;
+  //! AMAP_DATA_LO: word[31:0]
+  localparam int unsigned MBX_AMAP_DATA_LO_DATA_LSB_C = 32'd0;
+  //! AMAP_DATA_LO: word[31:0]
+  localparam int unsigned MBX_AMAP_DATA_LO_DATA_WIDTH_C = 32'd32;
+  //! The word, high half (0 unless a mapping record).
+  localparam int unsigned MBX_FACE_REG_AMAP_DATA_HI_C = 32'h00000074;
+  //! AMAP_DATA_HI: word[63:32]
+  localparam int unsigned MBX_AMAP_DATA_HI_DATA_LSB_C = 32'd0;
+  //! AMAP_DATA_HI: word[63:32]
+  localparam int unsigned MBX_AMAP_DATA_HI_DATA_WIDTH_C = 32'd32;
+  //! The Stream Port the transaction edits.
+  localparam int unsigned MBX_FACE_REG_EDIT_REQ_C = 32'h00000080;
+  //! EDIT_REQ: descriptor_type
+  localparam int unsigned MBX_EDIT_REQ_TYPE_LSB_C = 32'd0;
+  //! EDIT_REQ: descriptor_type
+  localparam int unsigned MBX_EDIT_REQ_TYPE_WIDTH_C = 32'd16;
+  //! EDIT_REQ: descriptor_index
+  localparam int unsigned MBX_EDIT_REQ_INDEX_LSB_C = 32'd16;
+  //! EDIT_REQ: descriptor_index
+  localparam int unsigned MBX_EDIT_REQ_INDEX_WIDTH_C = 32'd16;
+  //! One beat of the transaction: PHASE 0 begins validation, 1 begins the commit, 2 finishes, 3 aborts, 4 validates record REC and 5 commits it; REMOVE names a REMOVE_AUDIO_MAPPINGS; COUNT the records.
+  localparam int unsigned MBX_FACE_REG_EDIT_BEAT_C = 32'h00000084;
+  //! EDIT_BEAT: the beat's phase
+  localparam int unsigned MBX_EDIT_BEAT_PHASE_LSB_C = 32'd0;
+  //! EDIT_BEAT: the beat's phase
+  localparam int unsigned MBX_EDIT_BEAT_PHASE_WIDTH_C = 32'd3;
+  //! EDIT_BEAT: a REMOVE_AUDIO_MAPPINGS
+  localparam int unsigned MBX_EDIT_BEAT_REMOVE_LSB_C = 32'd4;
+  //! EDIT_BEAT: a REMOVE_AUDIO_MAPPINGS
+  localparam int unsigned MBX_EDIT_BEAT_REMOVE_WIDTH_C = 32'd1;
+  //! EDIT_BEAT: the record's ordinal
+  localparam int unsigned MBX_EDIT_BEAT_REC_LSB_C = 32'd8;
+  //! EDIT_BEAT: the record's ordinal
+  localparam int unsigned MBX_EDIT_BEAT_REC_WIDTH_C = 32'd8;
+  //! EDIT_BEAT: number_of_mappings
+  localparam int unsigned MBX_EDIT_BEAT_COUNT_LSB_C = 32'd16;
+  //! EDIT_BEAT: number_of_mappings
+  localparam int unsigned MBX_EDIT_BEAT_COUNT_WIDTH_C = 32'd16;
+  //! The mapping record, low half (mapping_cluster_offset, mapping_cluster_channel).
+  localparam int unsigned MBX_FACE_REG_EDIT_RECORD_LO_C = 32'h00000088;
+  //! EDIT_RECORD_LO: record[31:0]
+  localparam int unsigned MBX_EDIT_RECORD_LO_RECORD_LSB_C = 32'd0;
+  //! EDIT_RECORD_LO: record[31:0]
+  localparam int unsigned MBX_EDIT_RECORD_LO_RECORD_WIDTH_C = 32'd32;
+  //! The mapping record, high half (mapping_stream_index, mapping_stream_channel).
+  localparam int unsigned MBX_FACE_REG_EDIT_RECORD_HI_C = 32'h0000008C;
+  //! EDIT_RECORD_HI: record[63:32]
+  localparam int unsigned MBX_EDIT_RECORD_HI_RECORD_LSB_C = 32'd0;
+  //! EDIT_RECORD_HI: record[63:32]
+  localparam int unsigned MBX_EDIT_RECORD_HI_RECORD_WIDTH_C = 32'd32;
+  //! The beat's value lane, low half (the processor's amap_edit_value_o).
+  localparam int unsigned MBX_FACE_REG_EDIT_VALUE_LO_C = 32'h00000090;
+  //! EDIT_VALUE_LO: value[31:0]
+  localparam int unsigned MBX_EDIT_VALUE_LO_VALUE_LSB_C = 32'd0;
+  //! EDIT_VALUE_LO: value[31:0]
+  localparam int unsigned MBX_EDIT_VALUE_LO_VALUE_WIDTH_C = 32'd32;
+  //! The beat's value lane, high half.
+  localparam int unsigned MBX_FACE_REG_EDIT_VALUE_HI_C = 32'h00000094;
+  //! EDIT_VALUE_HI: value[63:32]
+  localparam int unsigned MBX_EDIT_VALUE_HI_VALUE_LSB_C = 32'd0;
+  //! EDIT_VALUE_HI: value[63:32]
+  localparam int unsigned MBX_EDIT_VALUE_HI_VALUE_WIDTH_C = 32'd32;
+  //! Writing GO presents the beat. Refused while EDIT_STATUS.BUSY is set.
+  localparam int unsigned MBX_FACE_REG_EDIT_CMD_C = 32'h00000098;
+  //! EDIT_CMD: present the beat
+  localparam int unsigned MBX_EDIT_CMD_GO_LSB_C = 32'd0;
+  //! EDIT_CMD: present the beat
+  localparam int unsigned MBX_EDIT_CMD_GO_WIDTH_C = 32'd1;
+  //! The window's request, open or answered.
+  localparam int unsigned MBX_FACE_REG_EDIT_STATUS_C = 32'h0000009C;
+  //! EDIT_STATUS: the request is open
+  localparam int unsigned MBX_EDIT_STATUS_BUSY_LSB_C = 32'd0;
+  //! EDIT_STATUS: the request is open
+  localparam int unsigned MBX_EDIT_STATUS_BUSY_WIDTH_C = 32'd1;
+  //! EDIT_STATUS: the answer of the last request is in DATA
+  localparam int unsigned MBX_EDIT_STATUS_DONE_LSB_C = 32'd1;
+  //! EDIT_STATUS: the answer of the last request is in DATA
+  localparam int unsigned MBX_EDIT_STATUS_DONE_WIDTH_C = 32'd1;
+  //! EDIT_STATUS: the last request had no answer within wait_cycles
+  localparam int unsigned MBX_EDIT_STATUS_TIMEOUT_LSB_C = 32'd2;
+  //! EDIT_STATUS: the last request had no answer within wait_cycles
+  localparam int unsigned MBX_EDIT_STATUS_TIMEOUT_WIDTH_C = 32'd1;
+  //! EDIT_STATUS: the last request's tag
+  localparam int unsigned MBX_EDIT_STATUS_TAG_LSB_C = 32'd8;
+  //! EDIT_STATUS: the last request's tag
+  localparam int unsigned MBX_EDIT_STATUS_TAG_WIDTH_C = 32'd4;
+  //! The beat's verdict, low half (bit 0 accepted, or for a finish a mapping changed).
+  localparam int unsigned MBX_FACE_REG_EDIT_DATA_LO_C = 32'h000000A0;
+  //! EDIT_DATA_LO: verdict[31:0]
+  localparam int unsigned MBX_EDIT_DATA_LO_DATA_LSB_C = 32'd0;
+  //! EDIT_DATA_LO: verdict[31:0]
+  localparam int unsigned MBX_EDIT_DATA_LO_DATA_WIDTH_C = 32'd32;
+  //! The beat's verdict, high half.
+  localparam int unsigned MBX_FACE_REG_EDIT_DATA_HI_C = 32'h000000A4;
+  //! EDIT_DATA_HI: verdict[63:32]
+  localparam int unsigned MBX_EDIT_DATA_HI_DATA_LSB_C = 32'd0;
+  //! EDIT_DATA_HI: verdict[63:32]
+  localparam int unsigned MBX_EDIT_DATA_HI_DATA_WIDTH_C = 32'd32;
+  //! The descriptor the word belongs to.
+  localparam int unsigned MBX_FACE_REG_GSI_REQ_C = 32'h000000C0;
+  //! GSI_REQ: descriptor_type
+  localparam int unsigned MBX_GSI_REQ_TYPE_LSB_C = 32'd0;
+  //! GSI_REQ: descriptor_type
+  localparam int unsigned MBX_GSI_REQ_TYPE_WIDTH_C = 32'd16;
+  //! GSI_REQ: descriptor_index
+  localparam int unsigned MBX_GSI_REQ_INDEX_LSB_C = 32'd16;
+  //! GSI_REQ: descriptor_index
+  localparam int unsigned MBX_GSI_REQ_INDEX_WIDTH_C = 32'd16;
+  //! The word asked for: KIND 0 GET_STREAM_INFO, 1 GET_AVB_INFO, 2 GET_AS_PATH; SEL the word within the kind (kind 0 selector 15 is SET_STREAM_FORMAT's verdict on GSI_PROP); ORD an array ordinal.
+  localparam int unsigned MBX_FACE_REG_GSI_SEL_C = 32'h000000C4;
+  //! GSI_SEL: the command family
+  localparam int unsigned MBX_GSI_SEL_KIND_LSB_C = 32'd0;
+  //! GSI_SEL: the command family
+  localparam int unsigned MBX_GSI_SEL_KIND_WIDTH_C = 32'd2;
+  //! GSI_SEL: the word selector
+  localparam int unsigned MBX_GSI_SEL_SEL_LSB_C = 32'd4;
+  //! GSI_SEL: the word selector
+  localparam int unsigned MBX_GSI_SEL_SEL_WIDTH_C = 32'd4;
+  //! GSI_SEL: the array ordinal
+  localparam int unsigned MBX_GSI_SEL_ORD_LSB_C = 32'd8;
+  //! GSI_SEL: the array ordinal
+  localparam int unsigned MBX_GSI_SEL_ORD_WIDTH_C = 32'd8;
+  //! The proposed stream format kind 0 selector 15 judges, low half.
+  localparam int unsigned MBX_FACE_REG_GSI_PROP_LO_C = 32'h000000C8;
+  //! GSI_PROP_LO: format[31:0]
+  localparam int unsigned MBX_GSI_PROP_LO_FMT_LSB_C = 32'd0;
+  //! GSI_PROP_LO: format[31:0]
+  localparam int unsigned MBX_GSI_PROP_LO_FMT_WIDTH_C = 32'd32;
+  //! The proposed stream format, high half.
+  localparam int unsigned MBX_FACE_REG_GSI_PROP_HI_C = 32'h000000CC;
+  //! GSI_PROP_HI: format[63:32]
+  localparam int unsigned MBX_GSI_PROP_HI_FMT_LSB_C = 32'd0;
+  //! GSI_PROP_HI: format[63:32]
+  localparam int unsigned MBX_GSI_PROP_HI_FMT_WIDTH_C = 32'd32;
+  //! Writing GO asks the datapath for the word. Refused while GSI_STATUS.BUSY is set.
+  localparam int unsigned MBX_FACE_REG_GSI_CMD_C = 32'h000000D0;
+  //! GSI_CMD: ask
+  localparam int unsigned MBX_GSI_CMD_GO_LSB_C = 32'd0;
+  //! GSI_CMD: ask
+  localparam int unsigned MBX_GSI_CMD_GO_WIDTH_C = 32'd1;
+  //! The window's request, open or answered.
+  localparam int unsigned MBX_FACE_REG_GSI_STATUS_C = 32'h000000D4;
+  //! GSI_STATUS: the request is open
+  localparam int unsigned MBX_GSI_STATUS_BUSY_LSB_C = 32'd0;
+  //! GSI_STATUS: the request is open
+  localparam int unsigned MBX_GSI_STATUS_BUSY_WIDTH_C = 32'd1;
+  //! GSI_STATUS: the answer of the last request is in DATA
+  localparam int unsigned MBX_GSI_STATUS_DONE_LSB_C = 32'd1;
+  //! GSI_STATUS: the answer of the last request is in DATA
+  localparam int unsigned MBX_GSI_STATUS_DONE_WIDTH_C = 32'd1;
+  //! GSI_STATUS: the last request had no answer within wait_cycles
+  localparam int unsigned MBX_GSI_STATUS_TIMEOUT_LSB_C = 32'd2;
+  //! GSI_STATUS: the last request had no answer within wait_cycles
+  localparam int unsigned MBX_GSI_STATUS_TIMEOUT_WIDTH_C = 32'd1;
+  //! GSI_STATUS: the last request's tag
+  localparam int unsigned MBX_GSI_STATUS_TAG_LSB_C = 32'd8;
+  //! GSI_STATUS: the last request's tag
+  localparam int unsigned MBX_GSI_STATUS_TAG_WIDTH_C = 32'd4;
+  //! The word, low half.
+  localparam int unsigned MBX_FACE_REG_GSI_DATA_LO_C = 32'h000000D8;
+  //! GSI_DATA_LO: word[31:0]
+  localparam int unsigned MBX_GSI_DATA_LO_DATA_LSB_C = 32'd0;
+  //! GSI_DATA_LO: word[31:0]
+  localparam int unsigned MBX_GSI_DATA_LO_DATA_WIDTH_C = 32'd32;
+  //! The word, high half.
+  localparam int unsigned MBX_FACE_REG_GSI_DATA_HI_C = 32'h000000DC;
+  //! GSI_DATA_HI: word[63:32]
+  localparam int unsigned MBX_GSI_DATA_HI_DATA_LSB_C = 32'd0;
+  //! GSI_DATA_HI: word[63:32]
+  localparam int unsigned MBX_GSI_DATA_HI_DATA_WIDTH_C = 32'd32;
+  //! first source entry inside a face block
+  localparam int unsigned MBX_FACE_SOURCE_BASE_C = 32'h00000100;
+  //! bytes per face source entry
+  localparam int unsigned MBX_FACE_SOURCE_STRIDE_C = 32'h00000010;
+  //! Source s's presentation time offset, nanoseconds, as SET_STREAM_INFO's msrp_accumulated_latency set it (Milan v1.2 5.4.2.9; the processor's aecp_pt_offset_o), taken while F_SRC_VALID.PT_OFFSET is set.
+  localparam int unsigned MBX_FACE_SRC_REG_F_PT_OFFSET_C = 32'h00000000;
+  //! F_PT_OFFSET: presentation time offset
+  localparam int unsigned MBX_F_PT_OFFSET_NS_LSB_C = 32'd0;
+  //! F_PT_OFFSET: presentation time offset
+  localparam int unsigned MBX_F_PT_OFFSET_NS_WIDTH_C = 32'd32;
+  //! Source s's stream_format, low half (Milan v1.2 5.4.2.7; aecp_fmt_out_o).
+  localparam int unsigned MBX_FACE_SRC_REG_F_FMT_OUT_LO_C = 32'h00000004;
+  //! F_FMT_OUT_LO: stream_format[31:0]
+  localparam int unsigned MBX_F_FMT_OUT_LO_FMT_LSB_C = 32'd0;
+  //! F_FMT_OUT_LO: stream_format[31:0]
+  localparam int unsigned MBX_F_FMT_OUT_LO_FMT_WIDTH_C = 32'd32;
+  //! Source s's stream_format, high half.
+  localparam int unsigned MBX_FACE_SRC_REG_F_FMT_OUT_HI_C = 32'h00000008;
+  //! F_FMT_OUT_HI: stream_format[63:32]
+  localparam int unsigned MBX_F_FMT_OUT_HI_FMT_LSB_C = 32'd0;
+  //! F_FMT_OUT_HI: stream_format[63:32]
+  localparam int unsigned MBX_F_FMT_OUT_HI_FMT_WIDTH_C = 32'd32;
+  //! Which of source s's settings a controller set (aecp_pt_offset_v_o, aecp_fmt_out_v_o).
+  localparam int unsigned MBX_FACE_SRC_REG_F_SRC_VALID_C = 32'h0000000C;
+  //! F_SRC_VALID: F_PT_OFFSET holds a set value
+  localparam int unsigned MBX_F_SRC_VALID_PT_OFFSET_LSB_C = 32'd0;
+  //! F_SRC_VALID: F_PT_OFFSET holds a set value
+  localparam int unsigned MBX_F_SRC_VALID_PT_OFFSET_WIDTH_C = 32'd1;
+  //! F_SRC_VALID: F_FMT_OUT holds a set value
+  localparam int unsigned MBX_F_SRC_VALID_FMT_OUT_LSB_C = 32'd1;
+  //! F_SRC_VALID: F_FMT_OUT holds a set value
+  localparam int unsigned MBX_F_SRC_VALID_FMT_OUT_WIDTH_C = 32'd1;
+  //! first sink entry inside a face block
+  localparam int unsigned MBX_FACE_SINK_BASE_C = 32'h00000200;
+  //! bytes per face sink entry
+  localparam int unsigned MBX_FACE_SINK_STRIDE_C = 32'h00000010;
+  //! Sink k's stream_format, low half (Milan v1.2 5.4.2.7; aecp_fmt_in_o).
+  localparam int unsigned MBX_FACE_SNK_REG_F_FMT_IN_LO_C = 32'h00000000;
+  //! F_FMT_IN_LO: stream_format[31:0]
+  localparam int unsigned MBX_F_FMT_IN_LO_FMT_LSB_C = 32'd0;
+  //! F_FMT_IN_LO: stream_format[31:0]
+  localparam int unsigned MBX_F_FMT_IN_LO_FMT_WIDTH_C = 32'd32;
+  //! Sink k's stream_format, high half.
+  localparam int unsigned MBX_FACE_SNK_REG_F_FMT_IN_HI_C = 32'h00000004;
+  //! F_FMT_IN_HI: stream_format[63:32]
+  localparam int unsigned MBX_F_FMT_IN_HI_FMT_LSB_C = 32'd0;
+  //! F_FMT_IN_HI: stream_format[63:32]
+  localparam int unsigned MBX_F_FMT_IN_HI_FMT_WIDTH_C = 32'd32;
+  //! Whether a controller set sink k's format (aecp_fmt_in_v_o).
+  localparam int unsigned MBX_FACE_SNK_REG_F_SNK_VALID_C = 32'h00000008;
+  //! F_SNK_VALID: F_FMT_IN holds a set value
+  localparam int unsigned MBX_F_SNK_VALID_FMT_IN_LSB_C = 32'd0;
+  //! F_SNK_VALID: F_FMT_IN holds a set value
+  localparam int unsigned MBX_F_SNK_VALID_FMT_IN_WIDTH_C = 32'd1;
+  //! window CTR: clk_i cycles within which a request is answered or times out
+  localparam int unsigned MBX_WIN_CTR_WAIT_CYCLES_C = 32'd64;
+  //! window CTR: its answer's words
+  localparam int unsigned MBX_WIN_CTR_DATA_WORDS_C = 32'd1;
+  //! window AMAP: clk_i cycles within which a request is answered or times out
+  localparam int unsigned MBX_WIN_AMAP_WAIT_CYCLES_C = 32'd64;
+  //! window AMAP: its answer's words
+  localparam int unsigned MBX_WIN_AMAP_DATA_WORDS_C = 32'd2;
+  //! window EDIT: clk_i cycles within which a request is answered or times out
+  localparam int unsigned MBX_WIN_EDIT_WAIT_CYCLES_C = 32'd64;
+  //! window EDIT: its answer's words
+  localparam int unsigned MBX_WIN_EDIT_DATA_WORDS_C = 32'd2;
+  //! window GSI: clk_i cycles within which a request is answered or times out
+  localparam int unsigned MBX_WIN_GSI_WAIT_CYCLES_C = 32'd64;
+  //! window GSI: its answer's words
+  localparam int unsigned MBX_WIN_GSI_DATA_WORDS_C = 32'd2;
   //! first channel register block
   localparam int unsigned MBX_CH_BASE_C = 32'h00000100;
   //! bytes per channel block
@@ -482,6 +932,38 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_EVREC_W0_SEQ_LSB_C = 32'd16;
   //! event word 0: posting sequence
   localparam int unsigned MBX_EVREC_W0_SEQ_WIDTH_C = 32'd16;
+  //! COUNTERS_CHANGED: NOW_MS milliseconds a descriptor waits after its record
+  localparam int unsigned MBX_CTRCHG_HOLDOFF_MS_C = 32'd1000;
+  //! COUNTERS_CHANGED: the STREAM_INPUT descriptor_type
+  localparam int unsigned MBX_CTRCHG_STREAM_INPUT_TYPE_C = 32'h00000005;
+  //! COUNTERS_CHANGED: STREAM_INPUT entries kept
+  localparam int unsigned MBX_CTRCHG_STREAM_INPUT_COUNT_C = 32'd16;
+  //! COUNTERS_CHANGED: the pending bit of STREAM_INPUT 0
+  localparam int unsigned MBX_CTRCHG_STREAM_INPUT_FIRST_C = 32'd0;
+  //! COUNTERS_CHANGED: the STREAM_OUTPUT descriptor_type
+  localparam int unsigned MBX_CTRCHG_STREAM_OUTPUT_TYPE_C = 32'h00000006;
+  //! COUNTERS_CHANGED: STREAM_OUTPUT entries kept
+  localparam int unsigned MBX_CTRCHG_STREAM_OUTPUT_COUNT_C = 32'd16;
+  //! COUNTERS_CHANGED: the pending bit of STREAM_OUTPUT 0
+  localparam int unsigned MBX_CTRCHG_STREAM_OUTPUT_FIRST_C = 32'd16;
+  //! COUNTERS_CHANGED: the AVB_INTERFACE descriptor_type
+  localparam int unsigned MBX_CTRCHG_AVB_INTERFACE_TYPE_C = 32'h00000009;
+  //! COUNTERS_CHANGED: AVB_INTERFACE entries kept
+  localparam int unsigned MBX_CTRCHG_AVB_INTERFACE_COUNT_C = 32'd1;
+  //! COUNTERS_CHANGED: the pending bit of AVB_INTERFACE 0
+  localparam int unsigned MBX_CTRCHG_AVB_INTERFACE_FIRST_C = 32'd32;
+  //! COUNTERS_CHANGED: the CLOCK_DOMAIN descriptor_type
+  localparam int unsigned MBX_CTRCHG_CLOCK_DOMAIN_TYPE_C = 32'h00000024;
+  //! COUNTERS_CHANGED: CLOCK_DOMAIN entries kept
+  localparam int unsigned MBX_CTRCHG_CLOCK_DOMAIN_COUNT_C = 32'd1;
+  //! COUNTERS_CHANGED: the pending bit of CLOCK_DOMAIN 0
+  localparam int unsigned MBX_CTRCHG_CLOCK_DOMAIN_FIRST_C = 32'd33;
+  //! COUNTERS_CHANGED: descriptor families
+  localparam int unsigned MBX_CTRCHG_N_SRC_C = 32'd4;
+  //! COUNTERS_CHANGED: the pending bit of every other descriptor
+  localparam int unsigned MBX_CTRCHG_ALL_BIT_C = 32'd34;
+  //! COUNTERS_CHANGED: pending bits per interface
+  localparam int unsigned MBX_CTRCHG_N_PEND_C = 32'd35;
   //! A timer slot's deadline passed.
   localparam int unsigned MBX_EV_TYPE_TIMER_C = 32'd1;
   //! TIMER event word 1: the tag of the arm that expired
@@ -534,6 +1016,54 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_EV_TICK_W3_NOW_MS_LSB_C = 32'd0;
   //! TICK event word 3: NOW_MS at posting
   localparam int unsigned MBX_EV_TICK_W3_NOW_MS_WIDTH_C = 32'd32;
+  //! The counters of a descriptor the datapath serves moved (the processor's ctr_change face; Milan v1.2 Table 5.22 makes it a GET_COUNTERS notification, at most one per descriptor per second). A descriptor that moves again before its record is posted, or within holdoff_ms of its last record, posts once. ALL set: a change named a descriptor the source keeps no bit for, so every served descriptor may have moved.
+  localparam int unsigned MBX_EV_TYPE_COUNTERS_CHANGED_C = 32'd5;
+  //! COUNTERS_CHANGED event word 1: descriptor_type (0 with ALL)
+  localparam int unsigned MBX_EV_COUNTERS_CHANGED_W1_TYPE_LSB_C = 32'd0;
+  //! COUNTERS_CHANGED event word 1: descriptor_type (0 with ALL)
+  localparam int unsigned MBX_EV_COUNTERS_CHANGED_W1_TYPE_WIDTH_C = 32'd16;
+  //! COUNTERS_CHANGED event word 1: descriptor_index (0 with ALL)
+  localparam int unsigned MBX_EV_COUNTERS_CHANGED_W1_INDEX_LSB_C = 32'd16;
+  //! COUNTERS_CHANGED event word 1: descriptor_index (0 with ALL)
+  localparam int unsigned MBX_EV_COUNTERS_CHANGED_W1_INDEX_WIDTH_C = 32'd16;
+  //! COUNTERS_CHANGED event word 2: every served descriptor may have moved
+  localparam int unsigned MBX_EV_COUNTERS_CHANGED_W2_ALL_LSB_C = 32'd0;
+  //! COUNTERS_CHANGED event word 2: every served descriptor may have moved
+  localparam int unsigned MBX_EV_COUNTERS_CHANGED_W2_ALL_WIDTH_C = 32'd1;
+  //! COUNTERS_CHANGED event word 3: NOW_MS at posting
+  localparam int unsigned MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_LSB_C = 32'd0;
+  //! COUNTERS_CHANGED event word 3: NOW_MS at posting
+  localparam int unsigned MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_WIDTH_C = 32'd32;
+  //! A GET_AVB_INFO word the datapath serves changed on the interface (the processor's gsi_avb_chg_i; Milan v1.2 Table 5.22). COUNT is the changes since the previous record, at least 1 and saturating.
+  localparam int unsigned MBX_EV_TYPE_AVB_INFO_CHANGED_C = 32'd6;
+  //! AVB_INFO_CHANGED event word 1: changes since the previous record
+  localparam int unsigned MBX_EV_AVB_INFO_CHANGED_W1_COUNT_LSB_C = 32'd0;
+  //! AVB_INFO_CHANGED event word 1: changes since the previous record
+  localparam int unsigned MBX_EV_AVB_INFO_CHANGED_W1_COUNT_WIDTH_C = 32'd16;
+  //! AVB_INFO_CHANGED event word 3: NOW_MS at posting
+  localparam int unsigned MBX_EV_AVB_INFO_CHANGED_W3_NOW_MS_LSB_C = 32'd0;
+  //! AVB_INFO_CHANGED event word 3: NOW_MS at posting
+  localparam int unsigned MBX_EV_AVB_INFO_CHANGED_W3_NOW_MS_WIDTH_C = 32'd32;
+  //! The AS_PATH sequence the datapath serves changed on the interface (the processor's gsi_asp_chg_i; Milan v1.2 Table 5.22). COUNT as for AVB_INFO_CHANGED.
+  localparam int unsigned MBX_EV_TYPE_AS_PATH_CHANGED_C = 32'd7;
+  //! AS_PATH_CHANGED event word 1: changes since the previous record
+  localparam int unsigned MBX_EV_AS_PATH_CHANGED_W1_COUNT_LSB_C = 32'd0;
+  //! AS_PATH_CHANGED event word 1: changes since the previous record
+  localparam int unsigned MBX_EV_AS_PATH_CHANGED_W1_COUNT_WIDTH_C = 32'd16;
+  //! AS_PATH_CHANGED event word 3: NOW_MS at posting
+  localparam int unsigned MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_LSB_C = 32'd0;
+  //! AS_PATH_CHANGED event word 3: NOW_MS at posting
+  localparam int unsigned MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_WIDTH_C = 32'd32;
+  //! An edit's commit beat changed the live audio map (the processor's amap_live_wr_i). COUNT is the live writes since the previous record, at least 1 and saturating.
+  localparam int unsigned MBX_EV_TYPE_AMAP_LIVE_WRITE_C = 32'd8;
+  //! AMAP_LIVE_WRITE event word 1: live writes since the previous record
+  localparam int unsigned MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB_C = 32'd0;
+  //! AMAP_LIVE_WRITE event word 1: live writes since the previous record
+  localparam int unsigned MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH_C = 32'd16;
+  //! AMAP_LIVE_WRITE event word 3: NOW_MS at posting
+  localparam int unsigned MBX_EV_AMAP_LIVE_WRITE_W3_NOW_MS_LSB_C = 32'd0;
+  //! AMAP_LIVE_WRITE event word 3: NOW_MS at posting
+  localparam int unsigned MBX_EV_AMAP_LIVE_WRITE_W3_NOW_MS_WIDTH_C = 32'd32;
   //! channel adp
   localparam int unsigned MBX_CH_ADP_C = 32'd0;
   //! adp receive ring byte offset
@@ -889,6 +1419,12 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_TERM_OFFSET_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_OFFSET_C, MBX_CH_ADP_T1_OFFSET_C, MBX_CH_ADP_T2_OFFSET_C, MBX_CH_ACMP_T0_OFFSET_C, MBX_CH_ACMP_T1_OFFSET_C, MBX_CH_ACMP_T2_OFFSET_C, MBX_CH_AECP_T0_OFFSET_C, MBX_CH_AECP_T1_OFFSET_C, MBX_CH_AECP_T2_OFFSET_C, MBX_CH_MAAP_T0_OFFSET_C, MBX_CH_MAAP_T1_OFFSET_C, MBX_CH_MAAP_T2_OFFSET_C, MBX_CH_SRP_T0_OFFSET_C, MBX_CH_SRP_T1_OFFSET_C, MBX_CH_SRP_T2_OFFSET_C};
   //! by channel id * MAX_TERMS + term
   localparam int unsigned MBX_TERM_MASK_TBL_C [MBX_N_CH_C * MBX_MAX_TERMS_C] = '{MBX_CH_ADP_T0_MSG_MASK_C, MBX_CH_ADP_T1_MSG_MASK_C, MBX_CH_ADP_T2_MSG_MASK_C, MBX_CH_ACMP_T0_MSG_MASK_C, MBX_CH_ACMP_T1_MSG_MASK_C, MBX_CH_ACMP_T2_MSG_MASK_C, MBX_CH_AECP_T0_MSG_MASK_C, MBX_CH_AECP_T1_MSG_MASK_C, MBX_CH_AECP_T2_MSG_MASK_C, MBX_CH_MAAP_T0_MSG_MASK_C, MBX_CH_MAAP_T1_MSG_MASK_C, MBX_CH_MAAP_T2_MSG_MASK_C, MBX_CH_SRP_T0_MSG_MASK_C, MBX_CH_SRP_T1_MSG_MASK_C, MBX_CH_SRP_T2_MSG_MASK_C};
+  //! by COUNTERS_CHANGED descriptor family
+  localparam int unsigned MBX_CTRCHG_TYPE_TBL_C [MBX_CTRCHG_N_SRC_C] = '{MBX_CTRCHG_STREAM_INPUT_TYPE_C, MBX_CTRCHG_STREAM_OUTPUT_TYPE_C, MBX_CTRCHG_AVB_INTERFACE_TYPE_C, MBX_CTRCHG_CLOCK_DOMAIN_TYPE_C};
+  //! by COUNTERS_CHANGED descriptor family
+  localparam int unsigned MBX_CTRCHG_COUNT_TBL_C [MBX_CTRCHG_N_SRC_C] = '{MBX_CTRCHG_STREAM_INPUT_COUNT_C, MBX_CTRCHG_STREAM_OUTPUT_COUNT_C, MBX_CTRCHG_AVB_INTERFACE_COUNT_C, MBX_CTRCHG_CLOCK_DOMAIN_COUNT_C};
+  //! by COUNTERS_CHANGED descriptor family
+  localparam int unsigned MBX_CTRCHG_FIRST_TBL_C [MBX_CTRCHG_N_SRC_C] = '{MBX_CTRCHG_STREAM_INPUT_FIRST_C, MBX_CTRCHG_STREAM_OUTPUT_FIRST_C, MBX_CTRCHG_AVB_INTERFACE_FIRST_C, MBX_CTRCHG_CLOCK_DOMAIN_FIRST_C};
 
   //! `value` placed into the field [lsb +: width] of a 32-bit word
   function automatic logic [31:0] mbx_place_f(input logic [31:0] value, input int unsigned lsb,

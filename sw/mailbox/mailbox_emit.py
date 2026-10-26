@@ -34,6 +34,7 @@ TERM_TABLES = (("TERM_TEST_TBL", "TEST"), ("TERM_OFFSET_TBL", "OFFSET"), ("TERM_
 
 #: Each table family's SystemVerilog size and index, by its name's prefix.
 TABLE_SHAPES = {"CH_": ("MBX_N_CH_C", "channel id"),
+                "CTRCHG_": ("MBX_CTRCHG_N_SRC_C", "COUNTERS_CHANGED descriptor family"),
                 "TUPLE_": ("MBX_N_CH_C * MBX_MAX_TUPLES_C", "channel id * MAX_TUPLES + tuple"),
                 "TERM_": ("MBX_N_CH_C * MBX_MAX_TERMS_C", "channel id * MAX_TERMS + term")}
 
@@ -74,6 +75,8 @@ def _tables(contract: Contract) -> list[tuple[str, list[str]]]:
     for table, suffix in TERM_TABLES:
         out.append((table, [f"CH_{ch.name.upper()}_T{k}_{suffix}"
                             for ch in contract.channels for k in range(contract.max_terms)]))
+    for table, suffix in (("CTRCHG_TYPE_TBL", "TYPE"), ("CTRCHG_COUNT_TBL", "COUNT"), ("CTRCHG_FIRST_TBL", "FIRST")):
+        out.append((table, [f"CTRCHG_{s.name}_{suffix}" for s in contract.ctrchg_sources]))
     return out
 
 
@@ -281,6 +284,34 @@ def emit_doc(contract: Contract) -> str:
         f"Sink k's entry starts at `0x{contract.pub_sink_base:X} + 0x{contract.pub_sink_stride:X} * k` inside "
         f"interface i's publication block, for {contract.pub_sinks} sinks (one per listener stream). "
         "A hole, a sink past the last and an interface the build does not have read 0 and take no write.")
+    lines += _register_section(
+        "Interface face registers", contract.face_registers,
+        f"Interface i's face block starts at `0x{contract.face_base:04X} + 0x{contract.face_stride:X} * i`. "
+        "The firmware writes the `F_*` settings, then `F_COMMIT`: `KL_mbx`'s `fw_send_o` rises and every "
+        "setting holds on its `fw_*_o` port until the datapath's acknowledgement `fw_ack_p_i`, within "
+        f"{contract.face_ack_cycles} cycles. A window's `CMD.GO` opens a request held on its ports with its "
+        "tag until the answer carrying that tag, or the window's timeout. A write that would move a held "
+        "value is refused and counted in `BUS_ERR`.")
+    lines += _register_section(
+        "Interface face source registers", contract.face_source_registers,
+        f"Source s's entry starts at `0x{contract.face_source_base:X} + 0x{contract.face_source_stride:X} * s` "
+        f"inside interface i's face block, for {contract.pub_sources} sources (one per talker stream).")
+    lines += _register_section(
+        "Interface face sink registers", contract.face_sink_registers,
+        f"Sink k's entry starts at `0x{contract.face_sink_base:X} + 0x{contract.face_sink_stride:X} * k` "
+        f"inside interface i's face block, for {contract.pub_sinks} sinks (one per listener stream). "
+        "A hole, an entry past the last and an interface the build does not have read 0 and take no write.")
+    lines += ["### Face windows", "",
+              "| Window | GO | Status | Request | Answer | Answered or timed out within |",
+              "|---|---|---|---|---|---:|"]
+    lines += [f"| `{w.name}` | `{w.go}` | `{w.status}` | {', '.join(f'`{n}`' for n in w.request)} "
+              f"| {', '.join(f'`{n}`' for n in w.data)} | {w.wait_cycles} cycles |" for w in contract.face_windows]
+    lines += ["", "### COUNTERS_CHANGED descriptors", "",
+              f"One pending bit per entry below, per interface; a change naming any other descriptor sets the "
+              f"ALL bit. A descriptor posts at most once in each {contract.ctrchg_holdoff_ms} ms epoch of `NOW_MS`.",
+              "", "| Family | descriptor_type | Entries |", "|---|---|---:|"]
+    lines += [f"| `{s.name}` | `0x{s.type:04X}` | {s.count} |" for s in contract.ctrchg_sources]
+    lines.append("")
     lines += _register_section(
         "Channel registers", contract.ch_registers,
         f"Channel c's block starts at `0x{contract.ch_base:03X} + 0x{contract.ch_stride:X} * c`.")

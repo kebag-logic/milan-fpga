@@ -59,10 +59,25 @@
 # the started levels and the declarations), each before the response that
 # promises it. It only adds: a firmware built against 2.1 leaves the block at
 # its reset value, and nothing in the window moved.
+#
+# Minor 3 (#665, the assignment 6409739310 and the ruling 6410169666; the
+# disposition scheme D1 of comment 6409738976): the processor wrapper's other
+# faces, which the split placement removes with it. A face block per
+# interface carries the firmware-written settings (class F: the AECP
+# settings, the control-ready level and the restore and saved-state status),
+# published by one commit handshake, and four request and answer windows
+# (class R: GET_COUNTERS, the audio map's read and its edit transaction, and
+# the GET_STREAM_INFO, GET_AVB_INFO and GET_AS_PATH words), each answered by
+# the datapath's own answer logic; four event types (class E) carry the
+# counter, AVB_INFO, AS_PATH and live-map changes. Every value that leaves
+# for the datapath leaves with a qualifier, so the placement switch crosses
+# it with cdc_handshake or toggle-plus-sync (CONTRIBUTING.md section 1). It
+# only adds: a firmware built against 2.2 never writes the block, never posts
+# a request, and reads no event type it does not know.
 
 version:
   major: 2
-  minor: 2
+  minor: 3
 magic: 0x4D42          # "MB"
 window_bytes: 0x8000   # host-visible window
 interfaces: 1          # AVB interfaces (link, grandmaster and domain per interface)
@@ -412,6 +427,407 @@ interface_publication_registers:
         - {name: SID_VALID, lsb: 1, width: 1, doc: SID_LO and SID_HI are the settled stream_id}
         - {name: STARTED, lsb: 2, width: 1, doc: the bound sink is started}
 
+# The face block (#665, ruling 6410169666; decision D1 of comment
+# 6409738976): per interface, the processor wrapper's faces other than its
+# class-D outputs, which the datapath of the split placement reads from here.
+# Interface i's block starts at base + stride * i; source s's entry at
+# source_base + source_stride * s and sink k's at sink_base + sink_stride * k
+# inside it, for the publication block's sources and sinks. A hole, an entry
+# past the last and an interface the build does not have read 0 and take no
+# write. Every register resets to 0.
+#
+# THE SETTINGS (class F). The firmware writes the F_* registers, then F_COMMIT.
+# A commit raises KL_mbx's fw_send_o and holds every F_* value on its fw_*_o
+# port, stable, until the datapath's acknowledgement (fw_ack_p_i) returns; then
+# F_STATUS.BUSY falls. A write to an F_* register or F_COMMIT while BUSY is set
+# is refused and counted in BUS_ERR, so a value is never sampled without its
+# qualifier (cdc_handshake's src_send and src_rcv). The firmware writes each
+# value and waits for the acknowledgement, at most ack_cycles clk_i cycles,
+# before the response that promises it (docs/ARCHITECTURE_HW_SW_SPLIT.md
+# section 1; Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2).
+#
+# THE WINDOWS (class R). A window's request registers name what the datapath's
+# answer logic is asked; its CMD.GO starts the request, which KL_mbx holds on
+# its ports with the window's TAG until the answer returns or wait_cycles pass.
+# The answer is a one-cycle pulse with its data and the TAG it answers; an
+# answer with any other TAG, or with no request open, is discarded. STATUS
+# reads BUSY while the request is open, then DONE with the DATA, or TIMEOUT. A
+# write to the request registers or a GO while BUSY is set is refused and
+# counted in BUS_ERR. Each GO advances TAG, so a late answer to a request that
+# timed out is never taken for the next one's.
+interface_face_registers:
+  base: 0x6000
+  stride: 0x400          # bytes per interface: the settings, the windows, then the entries
+  ack_cycles: 64         # a commit's acknowledgement returns within this many clk_i cycles
+  source_base: 0x100
+  source_stride: 0x10
+  sink_base: 0x200
+  sink_stride: 0x10
+  registers:
+    - name: F_CTRL
+      offset: 0x000
+      access: rw
+      doc: >-
+        The control plane's ready level, in place of the processor's enable_i and
+        restore_go_i (Milan v1.2 5.6.1): set once the saved state is applied and AECP is
+        released, so the datapath sees no entity before the restored state.
+      fields:
+        - {name: READY, lsb: 0, width: 1, doc: the firmware control plane is running}
+    - name: F_ENTITY
+      offset: 0x004
+      access: rw
+      doc: >-
+        The entity's current configuration (IEEE 1722.1-2021 7.4.7; the processor's
+        aecp_cur_config_o) and its IDENTIFY control value, 0 or 255 (Milan v1.2 5.4.2.12;
+        aecp_identify_o).
+      fields:
+        - {name: CUR_CONFIG, lsb: 0, width: 16, doc: current_configuration}
+        - {name: IDENTIFY, lsb: 16, width: 8, doc: the IDENTIFY control's value}
+    - name: F_CLOCK
+      offset: 0x008
+      access: rw
+      doc: >-
+        CLOCK_DOMAIN 0's clock_source_index as SET_CLOCK_SOURCE set it (IEEE 1722.1-2021
+        7.4.23; the processor's aecp_clk_src_index_o), which the media clock resolves.
+      fields:
+        - {name: SOURCE_INDEX, lsb: 0, width: 16, doc: clock_source_index}
+    - name: F_AECP
+      offset: 0x00C
+      access: rw
+      doc: >-
+        LOCK_HELD is set while a LOCK_ENTITY is held (IEEE 1722.1-2021 7.4.2; Milan v1.2
+        5.4.2.27 and 5.4.2.28 forbid a local map change meanwhile; the processor's
+        aecp_lock_held_o). DYN_DIRTY is set while a persisted setting moved and is not saved
+        (aecp_dyn_dirty_o).
+      fields:
+        - {name: LOCK_HELD, lsb: 0, width: 1, doc: a LOCK_ENTITY is held}
+        - {name: DYN_DIRTY, lsb: 1, width: 1, doc: a persisted setting is not saved yet}
+    - name: F_RESTORE
+      offset: 0x010
+      access: rw
+      doc: >-
+        The saved-state restore's status, as the processor's restore_*_o and rs_cause_o
+        report it to the CSRs: the firmware's F1 store writes it before AECP is released and
+        again on every change.
+      fields:
+        - {name: BUSY, lsb: 0, width: 1, doc: the restore walk is running}
+        - {name: DONE, lsb: 1, width: 1, doc: the restore sequencing completed (not a verdict)}
+        - {name: FAIL, lsb: 2, width: 1, doc: the completed restore did not restore}
+        - {name: BLANK, lsb: 3, width: 1, doc: the completed walk validated no record}
+        - {name: CLOSED, lsb: 4, width: 1, doc: the walk ended CLOSED}
+        - {name: RB, lsb: 5, width: 1, doc: the walk rolled back to the defaults}
+        - {name: RS_CAUSE, lsb: 8, width: 3, doc: "the walk's abort cause: 1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor, 7 image"}
+        - {name: CAUSE, lsb: 12, width: 2, doc: "the binding walk's cause: 1 torn, 2 device, 3 deadline"}
+    - name: F_NVM
+      offset: 0x014
+      access: rw
+      doc: >-
+        The saved-state store's status, as the processor's nvm_*_o report it to the CSRs:
+        written before AECP is released and again on every change.
+      fields:
+        - {name: BACKED, lsb: 0, width: 1, doc: the store answers}
+        - {name: ALARM, lsb: 1, width: 1, doc: a record producer exhausted its write attempts}
+        - {name: DIRTY, lsb: 2, width: 1, doc: committable work no slot holds}
+        - {name: STALE, lsb: 3, width: 1, doc: a writer loss not made good}
+        - {name: PEND, lsb: 4, width: 1, doc: accepted work no verified slot holds and DIRTY does not report}
+        - {name: IMG_VALID, lsb: 5, width: 1, doc: the image in the window was validated}
+        - {name: VERDICT, lsb: 8, width: 4, doc: the verdict on the last image offered}
+    - name: F_COMMIT
+      offset: 0x018
+      access: wo
+      doc: >-
+        Writing GO publishes every F_* value of this interface: fw_send_o rises and the
+        values hold until the acknowledgement. Refused while F_STATUS.BUSY is set.
+      fields:
+        - {name: GO, lsb: 0, width: 1, doc: publish}
+    - name: F_STATUS
+      offset: 0x01C
+      access: ro
+      doc: The commit handshake. BUSY is set from a commit until its acknowledgement returns.
+      fields:
+        - {name: BUSY, lsb: 0, width: 1, doc: a commit waits for its acknowledgement}
+    # the GET_COUNTERS window (IEEE 1722.1-2021 7.4.42; Milan v1.2 5.4.2.25)
+    - name: CTR_REQ
+      offset: 0x040
+      access: rw
+      doc: The descriptor GET_COUNTERS asks about.
+      fields:
+        - {name: TYPE, lsb: 0, width: 16, doc: descriptor_type}
+        - {name: INDEX, lsb: 16, width: 16, doc: descriptor_index}
+    - name: CTR_WORD
+      offset: 0x044
+      access: rw
+      doc: The quadlet asked for, 0 to 31 a counters_block quadlet, 32 the counters_valid mask.
+      fields:
+        - {name: WORD, lsb: 0, width: 6, doc: quadlet}
+    - name: CTR_CMD
+      offset: 0x048
+      access: wo
+      doc: Writing GO asks the datapath for the quadlet. Refused while CTR_STATUS.BUSY is set.
+      fields:
+        - {name: GO, lsb: 0, width: 1, doc: ask}
+    - name: CTR_STATUS
+      offset: 0x04C
+      access: ro
+      doc: The window's request, open or answered.
+      fields:
+        - {name: BUSY, lsb: 0, width: 1, doc: the request is open}
+        - {name: DONE, lsb: 1, width: 1, doc: the answer of the last request is in DATA}
+        - {name: TIMEOUT, lsb: 2, width: 1, doc: the last request had no answer within wait_cycles}
+        - {name: TAG, lsb: 8, width: 4, doc: the last request's tag}
+    - name: CTR_DATA
+      offset: 0x050
+      access: ro
+      doc: The quadlet, in IEEE 1722.1 value order.
+      fields:
+        - {name: DATA, lsb: 0, width: 32, doc: the quadlet}
+    # the GET_AUDIO_MAP window (IEEE 1722.1-2021 7.4.44; Milan v1.2 5.4.2.26)
+    - name: AMAP_REQ
+      offset: 0x060
+      access: rw
+      doc: The Stream Port the read asks about.
+      fields:
+        - {name: TYPE, lsb: 0, width: 16, doc: descriptor_type, STREAM_PORT_INPUT or STREAM_PORT_OUTPUT}
+        - {name: INDEX, lsb: 16, width: 16, doc: descriptor_index}
+    - name: AMAP_PAGE
+      offset: 0x064
+      access: rw
+      doc: The word asked for.
+      fields:
+        - {name: MAP_INDEX, lsb: 0, width: 16, doc: map_index, the page}
+        - {name: SEL, lsb: 16, width: 2, doc: "0 number_of_maps, 1 the page's geometry, 2 a mapping record"}
+        - {name: REC, lsb: 24, width: 8, doc: the record's ordinal within the page}
+    - name: AMAP_CMD
+      offset: 0x068
+      access: wo
+      doc: Writing GO asks the datapath for the word. Refused while AMAP_STATUS.BUSY is set.
+      fields:
+        - {name: GO, lsb: 0, width: 1, doc: ask}
+    - name: AMAP_STATUS
+      offset: 0x06C
+      access: ro
+      doc: The window's request, open or answered.
+      fields:
+        - {name: BUSY, lsb: 0, width: 1, doc: the request is open}
+        - {name: DONE, lsb: 1, width: 1, doc: the answer of the last request is in DATA}
+        - {name: TIMEOUT, lsb: 2, width: 1, doc: the last request had no answer within wait_cycles}
+        - {name: TAG, lsb: 8, width: 4, doc: the last request's tag}
+    - name: AMAP_DATA_LO
+      offset: 0x070
+      access: ro
+      doc: The word, low half.
+      fields:
+        - {name: DATA, lsb: 0, width: 32, doc: "word[31:0]"}
+    - name: AMAP_DATA_HI
+      offset: 0x074
+      access: ro
+      doc: The word, high half (0 unless a mapping record).
+      fields:
+        - {name: DATA, lsb: 0, width: 32, doc: "word[63:32]"}
+    # the ADD/REMOVE_AUDIO_MAPPINGS transaction window (IEEE 1722.1-2021 7.4.45 and 7.4.46)
+    - name: EDIT_REQ
+      offset: 0x080
+      access: rw
+      doc: The Stream Port the transaction edits.
+      fields:
+        - {name: TYPE, lsb: 0, width: 16, doc: descriptor_type}
+        - {name: INDEX, lsb: 16, width: 16, doc: descriptor_index}
+    - name: EDIT_BEAT
+      offset: 0x084
+      access: rw
+      doc: >-
+        One beat of the transaction: PHASE 0 begins validation, 1 begins the commit, 2
+        finishes, 3 aborts, 4 validates record REC and 5 commits it; REMOVE names a
+        REMOVE_AUDIO_MAPPINGS; COUNT the records.
+      fields:
+        - {name: PHASE, lsb: 0, width: 3, doc: the beat's phase}
+        - {name: REMOVE, lsb: 4, width: 1, doc: a REMOVE_AUDIO_MAPPINGS}
+        - {name: REC, lsb: 8, width: 8, doc: the record's ordinal}
+        - {name: COUNT, lsb: 16, width: 16, doc: number_of_mappings}
+    - name: EDIT_RECORD_LO
+      offset: 0x088
+      access: rw
+      doc: The mapping record, low half (mapping_cluster_offset, mapping_cluster_channel).
+      fields:
+        - {name: RECORD, lsb: 0, width: 32, doc: "record[31:0]"}
+    - name: EDIT_RECORD_HI
+      offset: 0x08C
+      access: rw
+      doc: The mapping record, high half (mapping_stream_index, mapping_stream_channel).
+      fields:
+        - {name: RECORD, lsb: 0, width: 32, doc: "record[63:32]"}
+    - name: EDIT_VALUE_LO
+      offset: 0x090
+      access: rw
+      doc: The beat's value lane, low half (the processor's amap_edit_value_o).
+      fields:
+        - {name: VALUE, lsb: 0, width: 32, doc: "value[31:0]"}
+    - name: EDIT_VALUE_HI
+      offset: 0x094
+      access: rw
+      doc: The beat's value lane, high half.
+      fields:
+        - {name: VALUE, lsb: 0, width: 32, doc: "value[63:32]"}
+    - name: EDIT_CMD
+      offset: 0x098
+      access: wo
+      doc: Writing GO presents the beat. Refused while EDIT_STATUS.BUSY is set.
+      fields:
+        - {name: GO, lsb: 0, width: 1, doc: present the beat}
+    - name: EDIT_STATUS
+      offset: 0x09C
+      access: ro
+      doc: The window's request, open or answered.
+      fields:
+        - {name: BUSY, lsb: 0, width: 1, doc: the request is open}
+        - {name: DONE, lsb: 1, width: 1, doc: the answer of the last request is in DATA}
+        - {name: TIMEOUT, lsb: 2, width: 1, doc: the last request had no answer within wait_cycles}
+        - {name: TAG, lsb: 8, width: 4, doc: the last request's tag}
+    - name: EDIT_DATA_LO
+      offset: 0x0A0
+      access: ro
+      doc: The beat's verdict, low half (bit 0 accepted, or for a finish a mapping changed).
+      fields:
+        - {name: DATA, lsb: 0, width: 32, doc: "verdict[31:0]"}
+    - name: EDIT_DATA_HI
+      offset: 0x0A4
+      access: ro
+      doc: The beat's verdict, high half.
+      fields:
+        - {name: DATA, lsb: 0, width: 32, doc: "verdict[63:32]"}
+    # the GET_STREAM_INFO, GET_AVB_INFO and GET_AS_PATH window (IEEE 1722.1-2021
+    # 7.4.16, 7.4.40 and 7.4.41; Milan v1.2 5.4.2.10, 5.4.2.23 and 5.4.2.24)
+    - name: GSI_REQ
+      offset: 0x0C0
+      access: rw
+      doc: The descriptor the word belongs to.
+      fields:
+        - {name: TYPE, lsb: 0, width: 16, doc: descriptor_type}
+        - {name: INDEX, lsb: 16, width: 16, doc: descriptor_index}
+    - name: GSI_SEL
+      offset: 0x0C4
+      access: rw
+      doc: >-
+        The word asked for: KIND 0 GET_STREAM_INFO, 1 GET_AVB_INFO, 2 GET_AS_PATH; SEL the
+        word within the kind (kind 0 selector 15 is SET_STREAM_FORMAT's verdict on
+        GSI_PROP); ORD an array ordinal.
+      fields:
+        - {name: KIND, lsb: 0, width: 2, doc: the command family}
+        - {name: SEL, lsb: 4, width: 4, doc: the word selector}
+        - {name: ORD, lsb: 8, width: 8, doc: the array ordinal}
+    - name: GSI_PROP_LO
+      offset: 0x0C8
+      access: rw
+      doc: The proposed stream format kind 0 selector 15 judges, low half.
+      fields:
+        - {name: FMT, lsb: 0, width: 32, doc: "format[31:0]"}
+    - name: GSI_PROP_HI
+      offset: 0x0CC
+      access: rw
+      doc: The proposed stream format, high half.
+      fields:
+        - {name: FMT, lsb: 0, width: 32, doc: "format[63:32]"}
+    - name: GSI_CMD
+      offset: 0x0D0
+      access: wo
+      doc: Writing GO asks the datapath for the word. Refused while GSI_STATUS.BUSY is set.
+      fields:
+        - {name: GO, lsb: 0, width: 1, doc: ask}
+    - name: GSI_STATUS
+      offset: 0x0D4
+      access: ro
+      doc: The window's request, open or answered.
+      fields:
+        - {name: BUSY, lsb: 0, width: 1, doc: the request is open}
+        - {name: DONE, lsb: 1, width: 1, doc: the answer of the last request is in DATA}
+        - {name: TIMEOUT, lsb: 2, width: 1, doc: the last request had no answer within wait_cycles}
+        - {name: TAG, lsb: 8, width: 4, doc: the last request's tag}
+    - name: GSI_DATA_LO
+      offset: 0x0D8
+      access: ro
+      doc: The word, low half.
+      fields:
+        - {name: DATA, lsb: 0, width: 32, doc: "word[31:0]"}
+    - name: GSI_DATA_HI
+      offset: 0x0DC
+      access: ro
+      doc: The word, high half.
+      fields:
+        - {name: DATA, lsb: 0, width: 32, doc: "word[63:32]"}
+  source_registers:
+    - name: F_PT_OFFSET
+      offset: 0x0
+      access: rw
+      doc: >-
+        Source s's presentation time offset, nanoseconds, as SET_STREAM_INFO's
+        msrp_accumulated_latency set it (Milan v1.2 5.4.2.9; the processor's
+        aecp_pt_offset_o), taken while F_SRC_VALID.PT_OFFSET is set.
+      fields:
+        - {name: NS, lsb: 0, width: 32, doc: presentation time offset, ns}
+    - name: F_FMT_OUT_LO
+      offset: 0x4
+      access: rw
+      doc: Source s's stream_format, low half (Milan v1.2 5.4.2.7; aecp_fmt_out_o).
+      fields:
+        - {name: FMT, lsb: 0, width: 32, doc: "stream_format[31:0]"}
+    - name: F_FMT_OUT_HI
+      offset: 0x8
+      access: rw
+      doc: Source s's stream_format, high half.
+      fields:
+        - {name: FMT, lsb: 0, width: 32, doc: "stream_format[63:32]"}
+    - name: F_SRC_VALID
+      offset: 0xC
+      access: rw
+      doc: Which of source s's settings a controller set (aecp_pt_offset_v_o, aecp_fmt_out_v_o).
+      fields:
+        - {name: PT_OFFSET, lsb: 0, width: 1, doc: F_PT_OFFSET holds a set value}
+        - {name: FMT_OUT, lsb: 1, width: 1, doc: F_FMT_OUT holds a set value}
+  sink_registers:
+    - name: F_FMT_IN_LO
+      offset: 0x0
+      access: rw
+      doc: Sink k's stream_format, low half (Milan v1.2 5.4.2.7; aecp_fmt_in_o).
+      fields:
+        - {name: FMT, lsb: 0, width: 32, doc: "stream_format[31:0]"}
+    - name: F_FMT_IN_HI
+      offset: 0x4
+      access: rw
+      doc: Sink k's stream_format, high half.
+      fields:
+        - {name: FMT, lsb: 0, width: 32, doc: "stream_format[63:32]"}
+    - name: F_SNK_VALID
+      offset: 0x8
+      access: rw
+      doc: Whether a controller set sink k's format (aecp_fmt_in_v_o).
+      fields:
+        - {name: FMT_IN, lsb: 0, width: 1, doc: F_FMT_IN holds a set value}
+  windows:
+    - {name: CTR, wait_cycles: 64, go: CTR_CMD, status: CTR_STATUS, data: [CTR_DATA],
+       request: [CTR_REQ, CTR_WORD]}
+    - {name: AMAP, wait_cycles: 64, go: AMAP_CMD, status: AMAP_STATUS, data: [AMAP_DATA_LO, AMAP_DATA_HI],
+       request: [AMAP_REQ, AMAP_PAGE]}
+    - {name: EDIT, wait_cycles: 64, go: EDIT_CMD, status: EDIT_STATUS, data: [EDIT_DATA_LO, EDIT_DATA_HI],
+       request: [EDIT_REQ, EDIT_BEAT, EDIT_RECORD_LO, EDIT_RECORD_HI, EDIT_VALUE_LO, EDIT_VALUE_HI]}
+    - {name: GSI, wait_cycles: 64, go: GSI_CMD, status: GSI_STATUS, data: [GSI_DATA_LO, GSI_DATA_HI],
+       request: [GSI_REQ, GSI_SEL, GSI_PROP_LO, GSI_PROP_HI]}
+
+# The COUNTERS_CHANGED source (#665, ruling 6410169666): one pending bit per
+# descriptor whose counters the datapath serves (its ctr_change face names a
+# STREAM_INPUT, a STREAM_OUTPUT, the AVB_INTERFACE or the CLOCK_DOMAIN),
+# per interface, and one more for a change naming any other descriptor,
+# which posts a record with ALL set. A descriptor posts at most once per
+# holdoff_ms window of NOW_MS, the Table 5.22 period of Milan v1.2 5.4.5.2,
+# and stays pending meanwhile, so the counters that move with every frame
+# cost the core one record per descriptor per second and no change is lost.
+counters_changed:
+  holdoff_ms: 1000
+  descriptors:
+    - {name: STREAM_INPUT, type: 0x0005, count: 16}
+    - {name: STREAM_OUTPUT, type: 0x0006, count: 16}
+    - {name: AVB_INTERFACE, type: 0x0009, count: 1}
+    - {name: CLOCK_DOMAIN, type: 0x0024, count: 1}
+
 channel_registers:
   base: 0x100
   stride: 0x20
@@ -570,6 +986,64 @@ event_types:
       - index: 1
         fields:
           - {name: COUNT, lsb: 0, width: 16, doc: ticks since the previous TICK record}
+      - index: 3
+        fields:
+          - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
+  - name: COUNTERS_CHANGED
+    value: 5
+    doc: >-
+      The counters of a descriptor the datapath serves moved (the processor's
+      ctr_change face; Milan v1.2 Table 5.22 makes it a GET_COUNTERS notification,
+      at most one per descriptor per second). A descriptor that moves again before
+      its record is posted, or within holdoff_ms of its last record, posts once.
+      ALL set: a change named a descriptor the source keeps no bit for, so every
+      served descriptor may have moved.
+    words:
+      - index: 1
+        fields:
+          - {name: TYPE, lsb: 0, width: 16, doc: descriptor_type (0 with ALL)}
+          - {name: INDEX, lsb: 16, width: 16, doc: descriptor_index (0 with ALL)}
+      - index: 2
+        fields:
+          - {name: ALL, lsb: 0, width: 1, doc: every served descriptor may have moved}
+      - index: 3
+        fields:
+          - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
+  - name: AVB_INFO_CHANGED
+    value: 6
+    doc: >-
+      A GET_AVB_INFO word the datapath serves changed on the interface (the
+      processor's gsi_avb_chg_i; Milan v1.2 Table 5.22). COUNT is the changes since
+      the previous record, at least 1 and saturating.
+    words:
+      - index: 1
+        fields:
+          - {name: COUNT, lsb: 0, width: 16, doc: changes since the previous record}
+      - index: 3
+        fields:
+          - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
+  - name: AS_PATH_CHANGED
+    value: 7
+    doc: >-
+      The AS_PATH sequence the datapath serves changed on the interface (the
+      processor's gsi_asp_chg_i; Milan v1.2 Table 5.22). COUNT as for AVB_INFO_CHANGED.
+    words:
+      - index: 1
+        fields:
+          - {name: COUNT, lsb: 0, width: 16, doc: changes since the previous record}
+      - index: 3
+        fields:
+          - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
+  - name: AMAP_LIVE_WRITE
+    value: 8
+    doc: >-
+      An edit's commit beat changed the live audio map (the processor's
+      amap_live_wr_i). COUNT is the live writes since the previous record, at least
+      1 and saturating.
+    words:
+      - index: 1
+        fields:
+          - {name: COUNT, lsb: 0, width: 16, doc: live writes since the previous record}
       - index: 3
         fields:
           - {name: NOW_MS, lsb: 0, width: 32, doc: NOW_MS at posting}
