@@ -68,14 +68,18 @@ def composed_maximum(results: list[dict]) -> dict | None:
     """The composed maximum: the longest pass over every backlog row's window, each of which
     committed its defined load (grade.check_load refuses one that did not). A window that left
     records unreleased ran its passes without that work, so while any did, the figure is a lower
-    bound. The longest pass of the windows that released their whole load is given beside it."""
+    bound. A run that did not include every backlog row names the rows not run, and its figure is
+    partial: the longest pass of the windows it ran, not the composed maximum. The longest pass of
+    the windows that released their whole load is given beside it."""
     import grade
     every = [w for w in windows(results) if w['group'] in grade.BACKLOG_ROWS]
     if not every:
         return None
     top = max(every, key=lambda w: w['cycles'])
     done = max((w for w in every if w['serviced']), key=lambda w: w['cycles'], default=None)
+    not_run = [row for row in grade.BACKLOG_ROWS if row not in {w['group'] for w in every}]
     return dict(cycles=top['cycles'], ms=top['ms'], group=top['group'], windows=len(every),
+                rows=len(grade.BACKLOG_ROWS), not_run=not_run, partial=bool(not_run),
                 lower_bound=not all(w['serviced'] for w in every),
                 unreleased=[w['group'] for w in every if not w['serviced']],
                 released=dict(cycles=done['cycles'], ms=done['ms'], group=done['group']) if done else None)
@@ -132,8 +136,10 @@ def table(results: list[dict], point: str) -> str:
     top = composed_maximum(results)
     if top:
         bound = f", a lower bound (load unreleased in {', '.join(top['unreleased'])})" if top['lower_bound'] else ''
+        over = (f"{top['windows']} of {top['rows']} backlog windows, a partial figure ({', '.join(top['not_run'])} "
+                'not run)' if top['partial'] else f"the {top['windows']} backlog windows")
         done = top['released']
-        lines += ['', f"Composed maximum over the {top['windows']} backlog windows: "
+        lines += ['', f"Composed maximum over {over}: "
                   f"{'at least ' if top['lower_bound'] else ''}{top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), "
                   f"{top['group']}{bound}.",
                   'Over the windows that released their whole load only: '
@@ -155,6 +161,14 @@ def table(results: list[dict], point: str) -> str:
     lines += ['', 'Bounded waits that timed out (the probe is graded on what the log holds):', '',
               *(timeouts or ['- none'])]
     return '\n'.join(lines) + '\n'
+
+
+def summary(point: str, build: str, results: list[dict], refusals: list[str], misses: list[str]) -> dict:
+    """results.json: every grade, every path's worst instance, the counts, the composed windows,
+    the composed maximum the table renders, the refusals and the misses."""
+    return dict(point=point, build=build, results=results, paths=paths(results), counts=counts(results),
+                windows=windows(results), composed_maximum=composed_maximum(results),
+                refusals=refusals, misses=misses)
 
 
 def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
@@ -300,11 +314,8 @@ def main() -> int:
     results, refusals, misses = graded(groups, logs, spec, out)
     refusals = absent + refusals
     (out / 'table.md').write_text(table(results, args.point))
-    (out / 'results.json').write_text(json.dumps(dict(point=args.point, build=spec['executable_sha256'],
-                                                      results=results, paths=paths(results),
-                                                      counts=counts(results), windows=windows(results),
-                                                      composed_maximum=composed_maximum(results),
-                                                      refusals=refusals, misses=misses), indent=1) + '\n')
+    (out / 'results.json').write_text(json.dumps(summary(args.point, spec['executable_sha256'], results, refusals,
+                                                         misses), indent=1) + '\n')
     for line in refusals:
         print('REFUSED', line)
     for line in misses:

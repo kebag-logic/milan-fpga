@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections.abc import Callable
 from pathlib import Path
 from unittest.mock import patch
@@ -111,6 +112,28 @@ def _maximum_of(keep: Callable[[dict], bool], bound: bool = True) -> Patches:
         top = original([g for g in results if keep(g)])
         return top if bound or top is None else dict(top, lower_bound=False)
     return lambda: [patch.object(run, 'composed_maximum', composed_maximum)]
+
+
+def _maximum_edited(edit: Callable[[dict], dict]) -> Patches:
+    """run.composed_maximum with its record edited."""
+    original = run.composed_maximum
+
+    def composed_maximum(results: list[dict]) -> dict | None:
+        """The mutant composed maximum: the record edited."""
+        top = original(results)
+        return None if top is None else edit(top)
+    return lambda: [patch.object(run, 'composed_maximum', composed_maximum)]
+
+
+def _maximum_line(pattern: str, repl: str) -> Patches:
+    """run.table with the pattern replaced in its composed maximum line only."""
+    original = run.table
+
+    def table(results: list[dict], point: str) -> str:
+        """The mutant table: the composed maximum line rewritten."""
+        return '\n'.join(re.sub(pattern, repl, line) if line.startswith('Composed maximum') else line
+                         for line in original(results, point).split('\n'))
+    return lambda: [patch.object(run, 'table', table)]
 
 
 def _offer_without(channel: str, groups: str, after: str = '') -> Patches:
@@ -344,6 +367,16 @@ MUTANTS: dict[str, Patches] = {
         lambda g: True, bound=False),
     "composition: the composed maximum includes the fixture's short window": lambda: [patch.object(
         grade, 'BACKLOG_ROWS', grade.COMPOSED_ROWS)],
+    'composition: the composed maximum is a lower bound only where its own window left its load unreleased':
+        _maximum_edited(lambda top: dict(top, lower_bound=top['group'] in top['unreleased'])),
+    'composition: the composed maximum does not name the backlog rows a run did not include': _maximum_edited(
+        lambda top: dict(top, not_run=[], partial=False)),
+    'tables: results.json omits the composed maximum': lambda: [patch.object(
+        run, 'summary', lambda *a, f=run.summary: dict(f(*a), composed_maximum=None))],
+    'tables: the composed maximum line drops its lower-bound label': _maximum_line(
+        r'at least |, a lower bound \(load unreleased in [^)]*\)', ''),
+    'tables: the composed maximum line drops its partial label': _maximum_line(
+        r'(\d+) of \d+ backlog windows, a partial figure \([^)]*\)', r'the \1 backlog windows'),
     'service: the records ahead count only those never released': _ahead_never_released,
     'notify: the cost a recipient divides by the recipients, not the gaps': _cost_over_recipients,
     "service: a record's service ends at its release, not at its pass's end": lambda: [patch.object(
