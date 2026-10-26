@@ -1,0 +1,8 @@
+Offline data-only sandbox and dependency mapping; no act or Docker execution.
+Head: 1c9a3e8e54fc746f95ab89e074346904ba49f3e0
+All 4 workflow sandboxes accepted: docs, elaborate, rtl-fast, rtl-full
+stage 2: yosys-tool: Prepare pinned Yosys
+stage 3: yosys-elaboration: yosys-elaboration
+stage 4: rtl-fast: rtl-fast
+Trusted runner: origin/dev scripts/act_ci.py blob 865867c373646d33322250e353ddc4cfa2f777b8; candidate blob 865867c373646d33322250e353ddc4cfa2f777b8
+Workflows identical to 1e0c5c09: True

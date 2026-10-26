@@ -1,0 +1,452 @@
+[
+ {
+  "mutant": "control",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "PASS (control)"
+ },
+ {
+  "mutant": "K01 binding drops Prove the result cache refuses a planted entry (N11)",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K02 binding drops Elaborate the integration-heavy tops",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: tool key changed by an edit outside the build recipe"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "K03 binding drops the version proof",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration does not restore exactly the tool tree before its version proof']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "K04 binding drops Install the pinned sv2v release",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K05 binding drops Fetch RTL dependencies",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K06 binding swaps the two ooc self-tests",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K07 binding rewrites a self-test body",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K08 binding adds a consumer step",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K09 binding adds a tool step after the build",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K10 binding rewrites the tool evidence record",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K11 binding sets a workflow env after the digest",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K12 binding gives the tool job an env after the digest",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: [\"tool job env differs from yosys-elaboration's\"]"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "K13 binding drops another job's step",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "K14 binding binds the restore to another recipe",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration does not restore exactly the tool tree before its version proof']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "K15 binding drops the tool build",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['tool job does not carry the template cache and build steps']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G01 derivation drops Elaborate the integration-heavy tops",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration drops Elaborate the integration-heavy tops']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G02 derivation drops the version proof",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration drops Install the pinned Yosys and prove the version', 'yosys-elaboration does not restore exactly the tool tree before its version proof']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G03 derivation drops Fetch RTL dependencies",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration drops Fetch RTL dependencies']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G04 derivation drops Prove the result cache refuses a planted entry",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration drops Prove the result cache refuses a planted entry']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G05 derivation drops Install the pinned sv2v release",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration drops Install the pinned sv2v release']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G06 derivation drops Prove ooc.sh generates the ROMs and fails on a failed top",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration drops Prove ooc.sh generates the ROMs and fails on a failed top']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G07 derivation drops Prove both synthesis flows refuse active elaboration guards",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration drops Prove both synthesis flows refuse active elaboration guards']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G08 derivation drops Prove the OOC read sets come from run.sh and refuse a bad one",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration drops Prove the OOC read sets come from run.sh and refuse a bad one']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G09 derivation swaps the two ooc self-tests",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: ['yosys-elaboration reorders or repeats its retained steps']"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G10 derivation adds a tool-job step",
+  "regenerate_rc": 1,
+  "regenerate_words": "ValueError: yosys-tool: steps after the build that its key does not bind: Planted step",
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 1,
+    "words": "ValueError: yosys-tool: steps after the build that its key does not bind: Planted step"
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "ValueError: yosys-tool: steps after the build that its key does not bind: Planted step"
+   },
+   "ci_events --check": {
+    "rc": 1,
+    "words": "ci_events: 1 finding(s) over 2199 contract item(s)"
+   }
+  },
+  "outcome": "REFUSED by the generator"
+ },
+ {
+  "mutant": "D01 the digest omits the workflow defaults",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ }
+]

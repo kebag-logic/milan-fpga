@@ -1,0 +1,30 @@
+Head 1c9a3e8e54fc746f95ab89e074346904ba49f3e0, attempt 1 of all four runs: why they were cancelled
+
+docs run 40356478658, job 121690197250 docs-gates-0 (timeout-minutes 45): started 16:11:35Z, cancelled 16:57:46Z.
+full job log bytes: 131082  sha256: 620181c10118444dd461778760c21ba9e20896cf8d3c2da53c06e5efc4adcdcc
+step 10 'Resolve exact package downloads 6' ran 16:12:10Z -> 16:57:40Z with no output, then 'The operation was canceled.':
+﻿2026-10-26T16:12:10.4422061Z ##[group]Run python3 scripts/ci_install_cache.py --packages librsvg2-bin --recipe 2476183e2339f4165eca2caa73c6a12aee41e721f751ab1e5335c6e52c3125a0 --directory "$RUNNER_TEMP/ci_packages_6" --output "$GITHUB_OUTPUT"
+2026-10-26T16:12:10.4423532Z ^[[36;1mpython3 scripts/ci_install_cache.py --packages librsvg2-bin --recipe 2476183e2339f4165eca2caa73c6a12aee41e721f751ab1e5335c6e52c3125a0 --directory "$RUNNER_TEMP/ci_packages_6" --output "$GITHUB_OUTPUT"^[[0m
+2026-10-26T16:12:10.4460291Z shell: /usr/bin/bash -e {0}
+2026-10-26T16:12:10.4460589Z env:
+2026-10-26T16:12:10.4460936Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-10-26T16:12:10.4461352Z   CI_BUILD_JOBS: 4
+2026-10-26T16:12:10.4461570Z   CI_TOOL_BUILD_JOBS: 4
+2026-10-26T16:12:10.4461827Z   CI_CAMPAIGN_JOBS: 4
+2026-10-26T16:12:10.4462047Z   VERILATOR_JOBS: 4
+2026-10-26T16:12:10.4462259Z   SIM_JOBS: 4
+2026-10-26T16:12:10.4462482Z   MAKEFLAGS: -j1 --no-print-directory
+2026-10-26T16:12:10.4462756Z ##[endgroup]
+2026-10-26T16:57:40.2670188Z ##[error]The operation was canceled.
+
+step 55 'CI scheduling and evidence controls' (which runs ci_gate_workflows_selftest.py, so the changed self-test): skipped.
+
+Then the head's other runs were cancelled (ci_fail_fast.py cancel() cancels a head's active sibling runs):
+  rtl-full shards at 16:59:48Z, the docs watcher at 16:59:56Z, rtl-fast's yosys-elaboration and publication-census
+  at 17:00:17Z-17:00:26Z, elaborate-gates-0 at 17:01:11Z. Final attempt-1 conclusions:
+  run 40356478658 docs attempt 1: cancelled, updated 2026-10-26T17:02:10Z
+  run 40356479027 rtl-fast attempt 1: cancelled, updated 2026-10-26T17:01:40Z
+  run 40356478638 elaborate attempt 1: cancelled, updated 2026-10-26T17:02:51Z
+  run 40356478782 rtl-full attempt 1: cancelled, updated 2026-10-26T17:03:03Z
+
+docs job docs-check (aggregate): failure, 16:59:58Z -> 17:00:29Z.
