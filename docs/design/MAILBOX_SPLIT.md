@@ -1223,10 +1223,11 @@ them; the all-fabric build carries no mailbox and is unchanged.
 platform face on contract 2.3: the `changed`, `applied`, `format`, `counters`,
 `stream` and `avb` ports of `aecp.h`. `random` and `path` stay the platform's.
 
-Each value is written and committed, and its acknowledgement awaited for at
-most `MBX_FACE_ACK_CYCLES`, inside the port; the response or notification in
-the last column leaves only once that acknowledgement has returned on every
-interface ([the split's architecture](../ARCHITECTURE_HW_SW_SPLIT.md), section 1;
+Each value is written and committed inside the port, which awaits the
+acknowledgement for at most `MBX_FACE_ACK_CYCLES`. A response or notification
+in the last column, which promises the value, leaves only once every
+interface has acknowledged its commit
+([the split's architecture](../ARCHITECTURE_HW_SW_SPLIT.md), section 1;
 IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.2).
 
 | Value | Written | Acknowledged before |
@@ -1267,8 +1268,9 @@ The application's poll publishes the owed interface whole again once `BUSY`
 clears, keeping the loop awake meanwhile. From then on `applied` is true and
 changes are taken again. A datapath that never acknowledges keeps every change
 refused, and keeps AECP closed if it held the initial publication; the core's
-reads, registrations and notifications of other state continue. Every window read is bounded too
-(`mbx_win_read`): a request that finds no answer within the window's wait
+reads, registrations and notifications of other state continue.
+
+Every window read is bounded too (`mbx_win_read`): a request that finds no answer within the window's wait
 fails its port, and the core answers as for an unavailable observation.
 GET_COUNTERS reads 33 quadlets through `CTR`, GET_STREAM_INFO six words and
 GET_AVB_INFO three through `GSI`, and SET_STREAM_FORMAT one verdict, whose
