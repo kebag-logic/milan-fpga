@@ -1,0 +1,16 @@
+head f58d049beb377c3f535628067022d4d5b51e8208; r703_4_probes.py sha256 a5977aa55bec81dbf6cc6c370a523086967970b56b534533a894b82751b93c64 (unmodified)
+baseline_selftest_rc 0
+P1 caught rc=1 (the self-test exits non-zero with no FAIL line: a refusal, as at the previous head)
+P2 caught rc=1 (the self-test exits non-zero with no FAIL line: a refusal, as at the previous head)
+P3 caught rc=1 FAIL: results.json's composed maximum is the record the table renders, with its lower-bound and partial labels: results.json {'cycles': 1500000, 'ms': 30.0, 'group': 'bac
+P4 caught rc=1 FAIL: results.json's composed maximum is the record the table renders, with its lower-bound and partial labels: results.json {'cycles': 1500000, 'ms': 30.0, 'group': 'bac
+P5 caught rc=1 FAIL: results.json's composed maximum is the record the table renders, with its lower-bound and partial labels: results.json None; table ['Composed maximum over the 4 bac
+P6 ESCAPED rc=0 (the self-test passes)
+P7 caught rc=1 FAIL: the composed maximum is a lower bound while a window shorter than the longest left its load unreleased: {'cycles': 1800000, 'ms': 36.0, 'group': 'backlog', 'windows
+P8 caught rc=1 FAIL: the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased: [{'cycles': 1500000, 'ms': 30.0, 'group': 'backl
+P9 ESCAPED rc=0 (the self-test passes)
+P10 caught rc=1 FAIL: fixture row fixture.service.aecp.first.if0: ahead 1 (pinned 0)
+D1 arm_b_1x1_three_rows {"cycles": 740260, "ms": 14.8052, "group": "backlog", "windows": 3, "rows": 4, "not_run": ["backlog-adp-refill"], "partial": true, "lower_bound": false, "unreleased": [], "released": {"cycles": 740260, "ms": 14.8052, "group": "backlog"}}
+D1 one_row_only {"cycles": 740260, "ms": 14.8052, "group": "backlog", "windows": 1, "rows": 4, "not_run": ["backlog-adp", "backlog-adp-refill", "backlog-owed"], "partial": true, "lower_bound": false, "unreleased": [], "released": {"cycles": 740260, "ms": 14.8052, "group": "backlog"}}
+D1 table_one_row ["Composed maximum over 1 of 4 backlog windows, a partial figure (backlog-adp, backlog-adp-refill, backlog-owed not run): 740,260 CPU cycles (14.805 ms), backlog."]
+git_status_porcelain_after ''
