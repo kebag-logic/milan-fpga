@@ -37,7 +37,7 @@ define the interface. The numbers live in one place, the generated
 - **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's exclusion, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the placement switch compares.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
-- **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter and the bound-talker term added, the term in distributed RAM against its target, and the recipe.
+- **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter, the bound-talker term, the publication block and the face block added, the term in distributed RAM against its target, and the recipe.
 - **[Open items](#open-items)** -- The datapath tap, lwSRP's transmit hook, the CPU-cycle measurement with what ACMP's bounds need of it, ACMP's wire round trip, the bound-talker term's area and MMRP.
 
 ## What moves, and what the fabric keeps
@@ -1478,6 +1478,38 @@ top exports every `pub_*_o` port; the switch-on SoC leaves them unread, but
 the registers stay for their read-back. This is the block's own recipe: the
 whole-image M0s measurement of #640 needs the split image, which the
 placement switch builds.
+
+The face block, windows and events (lane S1, contract 2.3,
+[above](#the-processors-other-faces)) were measured with the same recipe on
+2026-10-26, beside the base `e76a755a`, whose figures repeated the "now"
+column above exactly:
+
+| Block | LUT before | LUT after | FF before | FF after |
+|---|---:|---:|---:|---:|
+| `KL_mbx_rx` | 1,516 | 1,654 | 1,155 | 1,155 |
+| `KL_mbx` registers, decode, read mux | 665 | 2,092 | 1,700 | 5,083 |
+| `KL_mbx_evt` | 666 | 1,053 | 978 | 1,113 |
+| `KL_mbx_tx` | 507 | 482 | 280 | 280 |
+| `KL_mbx_wb` | 211 | 218 | 1 | 1 |
+| **Total** | **3,585** | **5,515** | **4,114** | **7,632** |
+
+It costs 1,930 LUT and 3,518 FF. The 3,383 new flip-flops in `KL_mbx` are
+the face block's storage at one interface: 1,568 bits in the sixteen source
+entries, 1,040 in the sixteen sink entries, 406 in the four windows' request
+registers, and 316 in their answers, status and wait counters. The settings
+and the commit's `BUSY` add 70. That is 3,400 bits as declared, and Vivado
+keeps 3,383 of them. In `KL_mbx_evt`, 134 of the 135 are the face events'
+state: the 35-bit pending and seen bitmaps of COUNTERS_CHANGED (70), its
+holdoff epoch (16) and the three saturating counts (48). The LUTs are the
+decode and read-back of the face registers and the windows' answer capture
+(1,427 in `KL_mbx`), and the face events (387 in `KL_mbx_evt`). The
+`KL_mbx_rx` and `KL_mbx_tx` RTL did not change; their rows moved only with
+Vivado's optimisation across the hierarchy. The block RAM is unchanged, with
+no DSP. WNS is +0.123 ns at 10 ns (+0.151 ns before), with all 12,761 nets
+routed. The bench top exports every face port. The switch-on SoC leaves them
+unread, but the registers stay for their read-back, and the placement switch
+connects them. Each `fw_*_o` entry is its own port, which the datapath reads
+in parallel, so the entries stay in flip-flops.
 
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
