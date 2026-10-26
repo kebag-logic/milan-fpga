@@ -473,7 +473,7 @@ DEFECTS = (
            'publish(f, i, settings, i == home ? stream : NULL, kind == AECP_CHANGE_CONFIGURATION);',
            'f->owed[i] = true;',
            ('Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt',
-            'committed before the response')),
+            'one response, its commit taken inside the port')),
     defect('face-identify-in-the-configuration-field', 'aecp_face.c',
            'mbx_place(f->core->identify, MBX_F_ENTITY_IDENTIFY_LSB, MBX_F_ENTITY_IDENTIFY_WIDTH)',
            'mbx_place(f->core->identify, MBX_F_ENTITY_CUR_CONFIG_LSB, MBX_F_ENTITY_IDENTIFY_WIDTH)',

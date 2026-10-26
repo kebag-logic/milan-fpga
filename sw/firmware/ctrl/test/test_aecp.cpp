@@ -2007,6 +2007,7 @@ TEST_F(Face, EachSettingIsCommittedBeforeTheResponseThatPromisesIt)
         EXPECT_LT(commits.back(),heads.back())<<what<<": committed before the response";
         EXPECT_LT(far.taken_at.back(),heads.back())<<what<<": taken by the datapath before the response";
         EXPECT_EQ(face.late,0u)<<what;
+        EXPECT_EQ(heads.size(),1u)<<what<<": one response, its commit taken inside the port";
     };
     for(unsigned type:{5u,6u}){
         Bytes b=target(type,0,12);uint64_t format=get(desc(type).defaults+74,8);put(b,4,format,8);
@@ -2629,10 +2630,13 @@ TEST_F(AppFaceUnacknowledged, AecpOpensOnlyOnceTheInitialPublicationIsAcknowledg
     EXPECT_EQ(frames(before,36),1u)<<"AECP answers once open";
 }
 
-// A commit the datapath has not taken keeps the loop busy until it is published.
+// A commit the datapath has not taken keeps the loop busy until it is published,
+// after the change it carried has failed.
 TEST_F(AppFace, AHeldCommitKeepsTheLoopBusy)
 {
     far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;aem(24,identify);
+    mbx_model_advance_ms(&fabric,AECP_WAIT_MS);service();
+    EXPECT_FALSE(adapter.core.waiting)<<"the change failed";
     EXPECT_GT(ctrl_loop_service(&application.loop),0u)<<"an owed commit keeps the loop busy";
     far.ack=true;for(unsigned i=0;i<MBX_N_IF;++i)mbx_model_face_ack(&fabric,i);service();
     EXPECT_FALSE(face.owed[0])<<"published once the datapath takes it";

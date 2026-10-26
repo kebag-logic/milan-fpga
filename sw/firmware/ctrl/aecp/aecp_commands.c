@@ -145,7 +145,9 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 			bool changed = a->configuration != wire_be16(in + 2) || !aecp_overridden(a, entity, 1u);
 			aecp_keep(a, &a->configuration, sizeof a->configuration);
 			a->configuration = (uint16_t)wire_be16(in + 2);
-			// ENTITY may be represented in every configuration's descriptor list.
+			aecp_override(a, entity, 1u);
+			// ENTITY may be represented in every configuration's descriptor list;
+			// READ_DESCRIPTOR reads configuration 0's (IEEE 7.4.5.1)
 			for (size_t n = 0; n < a->cfg.model->count; ++n) {
 				struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
 				if (d->type == 0u && d->length >= 312u) {
@@ -153,7 +155,6 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 					wire_put_be(d->value + 310, a->configuration, 2);
 				}
 			}
-			aecp_override(a, entity, 1u);
 			if (changed) {
 				aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, 0);
 			}

@@ -121,7 +121,10 @@ struct aecp_ports {
 // A command's own response at most: SET_STREAM_INFO's, the longest of
 // AECP_WAITS.
 #define AECP_HELD_BYTES (38u + 84u)
-// The values one command of AECP_WAITS changes at most: LOCK_ENTITY's three.
+// The values one command of AECP_WAITS changes at most: LOCK_ENTITY's three,
+// or SET_CONFIGURATION's configuration, override and the ENTITY copy of each of
+// two configurations; a further copy, which READ_DESCRIPTOR never reads, is not
+// kept (the builder ships one configuration).
 #define AECP_KEPT 4u
 struct aecp_kept {
 	uint8_t *at;
