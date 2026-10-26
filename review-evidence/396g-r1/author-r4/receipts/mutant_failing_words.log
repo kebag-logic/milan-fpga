@@ -1,0 +1,26 @@
+235 | half-block alternative dropped | test_audio_boundary_block_slips_are_unresolved | ('repeated', 1024)
+239 | constant-mask track adopted as a slip | test_audio_constant_mask_at_every_length | -   (2, 3064, 'dropped', 499717412864, None, None)])
+240 | held excursion never returns | test_audio_constant_mask_at_every_length | -   (2, 3064, 'dropped', 499717412864, None, None)])
+243 | held excursion kept through a word off its mask | test_audio_constant_mask_at_every_length | AssertionError: 'unresolved' unexpectedly found in {'context_wall_s', 'wall_s', 'timing', 'class', 'attribution', 'received', 'acquisition_index', 'capture_index', 'n', 'channel', 'expected', 'anchors
+250 | offset before the last change not a candidate | test_audio_block_slip_after_a_corruption_or_a_slip | + [(2, 3000, 'bit-flip', 1, '0x00000100', None)]
+251 | longest run wins over the offset in force | test_audio_block_slip_after_a_corruption_or_a_slip | + [(0, 2048), (1, 2048), (2, 2048), (3, 2048)]
+252 | half-block offsets not ordered toward the offset before | test_audio_block_slip_after_a_corruption_or_a_slip | + [(0, 2048), (1, 2048), (2, 2048), (3, 2048)]
+253 | a return at the next word not cut from the excursion | test_audio_block_slip_after_a_corruption_or_a_slip | + [(2, 3000, 'bit-flip', 1, '0x00000100', None)]
+254 | a return a whole number of blocks away not cut from the excursion | test_audio_block_slip_after_a_corruption_or_a_slip | + [(0, 2048), (1, 2048), (2, 2048), (3, 2048)]
+255 | slip of whole blocks not located on past its first word | test_audio_block_slip_after_a_corruption_or_a_slip | AssertionError: False is not true : [(0, 2048, 3062, 3064), (1, 2048, 3062, 3064), (2, 2048, 3062, 3062), (3, 2048, 3062, 3064)]
+256 | a corrupted word bounds the slip where the tracks coincide | test_audio_planted_arms_beside_block_slips | AssertionError: False is not true : {'capture_index': 501, 'class': 'repeated', 'n': 2048, 'expected': '0x0023EC00', 'received': '0x0023ED00', 'channel': 1, 'attribution': 'dut', 'acquisition_index':
+257 | slip arm absorbed by a slip of whole blocks | test_audio_planted_arms_beside_block_slips | + ('FAIL', []) : void: a planted arm was missed
+258 | split slip located only after its arm | test_audio_planted_arms_beside_block_slips | AssertionError: False is not true : {'capture_index': 300, 'class': 'repeated', 'n': 4096, 'expected': '0x00125A00', 'received': '0x00125A00', 'located_within': [300, 303], 'channel': 0, 'attribution'
+259 | no reading led by a logged flip arm | test_audio_planted_arms_beside_block_slips | + ('FAIL', []) : void: a planted arm was missed
+260 | arm-led reading taken whatever its DUT events | test_audio_planted_arms_beside_block_slips | + ('NOT RUN', [3001]) : 3001
+261 | arm-led reading never judged against the closing offset | test_audio_planted_arms_beside_block_slips | + ('FAIL', []) : void: a planted arm was missed
+262 | arm-led reading never opened before the window | test_audio_planted_arms_beside_block_slips | + ('FAIL', []) : void: a planted arm was missed
+263 | arm-led reading never cuts a word from the resync | test_audio_planted_arms_beside_block_slips | + ('FAIL', []) : void: a planted arm was missed
+264 | hold judged over the whole window | test_audio_constant_mask_beside_one_word_events | -  (2, 3100, 'dropped', 1024, None, None)]
+265 | events beside a returned excursion lost | test_audio_constant_mask_beside_one_word_events | +  (2, 3100, 'bit-flip', 1, '0x00000100', None)]
+266 | a held excursion returns only onto the old track | test_audio_constant_mask_beside_one_word_events | + ('FAIL', []) : void: a planted arm was missed
+267 | the old track's own word releases a hold | test_audio_code_bit_corruption_ending_on_a_block | -  (2, 8194, 'dropped', 499717421056, None, None)]
+268 | returned excursion ends at the window | test_audio_code_bit_corruption_ending_on_a_block | + [(2, 5000, 'bit-flip', 3192, '0x00000100', None)]
+269 | a corruption beside a slip of whole blocks judged only against the old track | test_audio_block_slip_after_a_corruption_or_a_slip | + [(2, 3000, 'bit-flip', 1, '0x00080000', None)]
+270 | a slip arm never keeps the excursion it enters or leaves | test_audio_planted_arms_beside_block_slips | + ('FAIL', []) : (299, 'void: a planted arm was missed')
+271 | a word on the new track read as its own corruption | test_audio_planted_arms_beside_block_slips | + ('FAIL', []) : void: a planted arm was missed

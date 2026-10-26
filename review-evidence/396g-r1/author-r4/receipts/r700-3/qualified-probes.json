@@ -1,0 +1,2703 @@
+{
+  "period_frames": 8796093022208,
+  "period_days_at_192k": 530.2428760493827,
+  "run_frames_at_192k": 16588800000,
+  "probes": [
+    {
+      "name": "clean-control",
+      "ops": [],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "PASS",
+      "sha256": "f395a643b6d210b302c6e8cd7a8e4b849fd420f307f44e6bb4c59951b7493c6f",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        }
+      },
+      "why": "zero DUT-attributed events over the qualified interval; every planted arm found",
+      "timing_unsupported": 0,
+      "events": [],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "interior-slip-3000",
+      "ops": [
+        [
+          "shift",
+          3000,
+          3000
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "fd7bb588a93f2805560f3975a467d386e69c0fabfda07522be51ab0b6c63be34",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "dropped": 4
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "dropped",
+          "n": 3000,
+          "expected": "0x00177300",
+          "received": "0x001EE300",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "dropped",
+          "n": 3000,
+          "expected": "0x00277300",
+          "received": "0x002EE300",
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "dropped",
+          "n": 3000,
+          "expected": "0x00377300",
+          "received": "0x003EE300",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "dropped",
+          "n": 3000,
+          "expected": "0x00477300",
+          "received": "0x004EE300",
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "interior-slip-4096",
+      "ops": [
+        [
+          "shift",
+          3000,
+          4096
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "bc9dc0b43b052954b31c03396ad784ebb77c799b5077db21448b17e0a1fa9534",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "dropped": 4
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3001,
+          "class": "dropped",
+          "n": 4096,
+          "expected": "0x00177500",
+          "received": "0x00177400",
+          "located_within": [
+            2999,
+            3001
+          ],
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 3001,
+          "wall_s": 100.06252083333334,
+          "gptp_s": 200.06252083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06252083333334,
+            105.06252083333334
+          ]
+        },
+        {
+          "capture_index": 3001,
+          "class": "dropped",
+          "n": 4096,
+          "expected": "0x00277500",
+          "received": "0x00277400",
+          "located_within": [
+            2999,
+            3001
+          ],
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 3001,
+          "wall_s": 100.06252083333334,
+          "gptp_s": 200.06252083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06252083333334,
+            105.06252083333334
+          ]
+        },
+        {
+          "capture_index": 3001,
+          "class": "dropped",
+          "n": 4096,
+          "expected": "0x00377500",
+          "received": "0x00377400",
+          "located_within": [
+            2999,
+            3001
+          ],
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3001,
+          "wall_s": 100.06252083333334,
+          "gptp_s": 200.06252083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06252083333334,
+            105.06252083333334
+          ]
+        },
+        {
+          "capture_index": 3001,
+          "class": "dropped",
+          "n": 4096,
+          "expected": "0x00477500",
+          "received": "0x00477400",
+          "located_within": [
+            2999,
+            3001
+          ],
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 3001,
+          "wall_s": 100.06252083333334,
+          "gptp_s": 200.06252083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06252083333334,
+            105.06252083333334
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "interior-slip-8192",
+      "ops": [
+        [
+          "shift",
+          3000,
+          8192
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "06add2df2ce99476b5ae41d551cd23654908b9e0ef637dce038e5f42ed9e5652",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "dropped": 4
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3002,
+          "class": "dropped",
+          "n": 8192,
+          "expected": "0x00177700",
+          "received": "0x00177600",
+          "located_within": [
+            3000,
+            3002
+          ],
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 3002,
+          "wall_s": 100.06254166666666,
+          "gptp_s": 200.06254166666668,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06254166666666,
+            105.06254166666666
+          ]
+        },
+        {
+          "capture_index": 3002,
+          "class": "dropped",
+          "n": 8192,
+          "expected": "0x00277700",
+          "received": "0x00277600",
+          "located_within": [
+            3000,
+            3002
+          ],
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 3002,
+          "wall_s": 100.06254166666666,
+          "gptp_s": 200.06254166666668,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06254166666666,
+            105.06254166666666
+          ]
+        },
+        {
+          "capture_index": 3002,
+          "class": "dropped",
+          "n": 8192,
+          "expected": "0x00377700",
+          "received": "0x00377600",
+          "located_within": [
+            3000,
+            3002
+          ],
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3002,
+          "wall_s": 100.06254166666666,
+          "gptp_s": 200.06254166666668,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06254166666666,
+            105.06254166666666
+          ]
+        },
+        {
+          "capture_index": 3002,
+          "class": "dropped",
+          "n": 8192,
+          "expected": "0x00477700",
+          "received": "0x00477600",
+          "located_within": [
+            3000,
+            3002
+          ],
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 3002,
+          "wall_s": 100.06254166666666,
+          "gptp_s": 200.06254166666668,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06254166666666,
+            105.06254166666666
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "interior-slip-409600",
+      "ops": [
+        [
+          "shift",
+          3000,
+          409600
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "083312c1cf6fbf180ea2fbb62fcbb3fabfbc8040c5237680c0d50722a5ba8965",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "dropped": 4
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x00177300",
+          "received": "0x00177200",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x00277300",
+          "received": "0x00277200",
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x00377300",
+          "received": "0x00377200",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x00477300",
+          "received": "0x00477200",
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "interior-slip--3000",
+      "ops": [
+        [
+          "shift",
+          3000,
+          -3000
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "0d6cb387f0ff165174865534ad393d9b158e7b5eca55a20c6dcb78b5e3961f54",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "repeated": 4
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 3000,
+          "expected": "0x00177300",
+          "received": "0x00100200",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 3000,
+          "expected": "0x00277300",
+          "received": "0x00200200",
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 3000,
+          "expected": "0x00377300",
+          "received": "0x00300200",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 3000,
+          "expected": "0x00477300",
+          "received": "0x00400200",
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "interior-slip--4096",
+      "ops": [
+        [
+          "shift",
+          3000,
+          -4096
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "80571ee7c58654169a03eeea035873ad7ecc5661d90d53dbbf9066b8956c509c",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "repeated": 4
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 4096,
+          "expected": "0x00177300",
+          "received": "0x00177200",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 4096,
+          "expected": "0x00277300",
+          "received": "0x00277200",
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 4096,
+          "expected": "0x00377300",
+          "received": "0x00377200",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 4096,
+          "expected": "0x00477300",
+          "received": "0x00477200",
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "tail-slip-8191-2048",
+      "ops": [
+        [
+          "shift",
+          8191,
+          2048
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "PASS",
+      "sha256": "f395a643b6d210b302c6e8cd7a8e4b849fd420f307f44e6bb4c59951b7493c6f",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        }
+      },
+      "why": "zero DUT-attributed events over the qualified interval; every planted arm found",
+      "timing_unsupported": 0,
+      "events": [],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "tail-slip-8190-8192",
+      "ops": [
+        [
+          "shift",
+          8190,
+          8192
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "PASS",
+      "sha256": "f395a643b6d210b302c6e8cd7a8e4b849fd420f307f44e6bb4c59951b7493c6f",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        }
+      },
+      "why": "zero DUT-attributed events over the qualified interval; every planted arm found",
+      "timing_unsupported": 0,
+      "events": [],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "tail-slip-8191-4096",
+      "ops": [
+        [
+          "shift",
+          8191,
+          4096
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "a40d550a54a1c3936a879ed4bc616a290b3cf3bd96dfb2d8200d245f179a4f6b",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "unresolved": 4
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 8191,
+          "class": "unresolved",
+          "n": 1,
+          "expected": "0x00100200",
+          "received": "0x00100300",
+          "mask": "0x00000100",
+          "located_within": [
+            8129,
+            8191
+          ],
+          "unresolved": "the capture ended: a slip of whole blocks or a code-bit corruption",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 8191,
+          "wall_s": 100.17064583333332,
+          "gptp_s": 200.17064583333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.17064583333332,
+            105.17064583333332
+          ]
+        },
+        {
+          "capture_index": 8191,
+          "class": "unresolved",
+          "n": 1,
+          "expected": "0x00200200",
+          "received": "0x00200300",
+          "mask": "0x00000100",
+          "located_within": [
+            8129,
+            8191
+          ],
+          "unresolved": "the capture ended: a slip of whole blocks or a code-bit corruption",
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 8191,
+          "wall_s": 100.17064583333332,
+          "gptp_s": 200.17064583333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.17064583333332,
+            105.17064583333332
+          ]
+        },
+        {
+          "capture_index": 8191,
+          "class": "unresolved",
+          "n": 1,
+          "expected": "0x00300200",
+          "received": "0x00300300",
+          "mask": "0x00000100",
+          "located_within": [
+            8129,
+            8191
+          ],
+          "unresolved": "the capture ended: a slip of whole blocks or a code-bit corruption",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 8191,
+          "wall_s": 100.17064583333332,
+          "gptp_s": 200.17064583333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.17064583333332,
+            105.17064583333332
+          ]
+        },
+        {
+          "capture_index": 8191,
+          "class": "unresolved",
+          "n": 1,
+          "expected": "0x00400200",
+          "received": "0x00400300",
+          "mask": "0x00000100",
+          "located_within": [
+            8129,
+            8191
+          ],
+          "unresolved": "the capture ended: a slip of whole blocks or a code-bit corruption",
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 8191,
+          "wall_s": 100.17064583333332,
+          "gptp_s": 200.17064583333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.17064583333332,
+            105.17064583333332
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "tail-slip-with-64-more-frames",
+      "ops": [
+        [
+          "shift",
+          8191,
+          2048
+        ]
+      ],
+      "frames": 8256,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "c5f5e987beb94cd0a4364c6ee9f0c990cc4a51968a11fd1a2f45ed0c454cbfd9",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "unresolved": 4
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 8194,
+          "class": "unresolved",
+          "n": 62,
+          "expected": "0x00100800",
+          "received": "0x00100900",
+          "mask": "0x00000100",
+          "located_within": [
+            8132,
+            8194
+          ],
+          "unresolved": "the capture ended: a slip of whole blocks or a code-bit corruption",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 8194,
+          "wall_s": 100.17070833333334,
+          "gptp_s": 200.17070833333332,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8256
+          ],
+          "context_wall_s": [
+            95.17070833333334,
+            105.17070833333334
+          ]
+        },
+        {
+          "capture_index": 8194,
+          "class": "unresolved",
+          "n": 62,
+          "expected": "0x00200800",
+          "received": "0x00200900",
+          "mask": "0x00000100",
+          "located_within": [
+            8132,
+            8194
+          ],
+          "unresolved": "the capture ended: a slip of whole blocks or a code-bit corruption",
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 8194,
+          "wall_s": 100.17070833333334,
+          "gptp_s": 200.17070833333332,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8256
+          ],
+          "context_wall_s": [
+            95.17070833333334,
+            105.17070833333334
+          ]
+        },
+        {
+          "capture_index": 8194,
+          "class": "unresolved",
+          "n": 62,
+          "expected": "0x00300800",
+          "received": "0x00300900",
+          "mask": "0x00000100",
+          "located_within": [
+            8132,
+            8194
+          ],
+          "unresolved": "the capture ended: a slip of whole blocks or a code-bit corruption",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 8194,
+          "wall_s": 100.17070833333334,
+          "gptp_s": 200.17070833333332,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8256
+          ],
+          "context_wall_s": [
+            95.17070833333334,
+            105.17070833333334
+          ]
+        },
+        {
+          "capture_index": 8194,
+          "class": "unresolved",
+          "n": 62,
+          "expected": "0x00400800",
+          "received": "0x00400900",
+          "mask": "0x00000100",
+          "located_within": [
+            8132,
+            8194
+          ],
+          "unresolved": "the capture ended: a slip of whole blocks or a code-bit corruption",
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 8194,
+          "wall_s": 100.17070833333334,
+          "gptp_s": 200.17070833333332,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8256
+          ],
+          "context_wall_s": [
+            95.17070833333334,
+            105.17070833333334
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8193,
+        "frames": 8130,
+        "seconds": 0.169375,
+        "required_s": 0.169375,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8193
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "tail-slip-chunked",
+      "ops": [
+        [
+          "shift",
+          8191,
+          2048
+        ]
+      ],
+      "frames": 8192,
+      "chunk": 113,
+      "verdict": "PASS",
+      "sha256": "f395a643b6d210b302c6e8cd7a8e4b849fd420f307f44e6bb4c59951b7493c6f",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        }
+      },
+      "why": "zero DUT-attributed events over the qualified interval; every planted arm found",
+      "timing_unsupported": 0,
+      "events": [],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "initial-slip",
+      "ops": [
+        [
+          "shift",
+          10,
+          4096
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "8176fea9be83bf3381f8c6abafa45d44ecbf92e4ff494fac3b6362d942f49e5f",
+      "missed": [],
+      "counts": {
+        "dut": {
+          "unresolved": 4
+        },
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 1,
+          "class": "unresolved",
+          "n": 9,
+          "expected": "0x00100300",
+          "received": "0x00100200",
+          "mask": "0x00000100",
+          "located_within": [
+            10,
+            72
+          ],
+          "unresolved": "before acquisition: a slip of whole blocks or a code-bit corruption",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 1,
+          "wall_s": 100.00002083333334,
+          "gptp_s": 200.00002083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.00002083333334,
+            105.00002083333334
+          ]
+        },
+        {
+          "capture_index": 1,
+          "class": "unresolved",
+          "n": 9,
+          "expected": "0x00200300",
+          "received": "0x00200200",
+          "mask": "0x00000100",
+          "located_within": [
+            10,
+            72
+          ],
+          "unresolved": "before acquisition: a slip of whole blocks or a code-bit corruption",
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 1,
+          "wall_s": 100.00002083333334,
+          "gptp_s": 200.00002083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.00002083333334,
+            105.00002083333334
+          ]
+        },
+        {
+          "capture_index": 1,
+          "class": "unresolved",
+          "n": 9,
+          "expected": "0x00300300",
+          "received": "0x00300200",
+          "mask": "0x00000100",
+          "located_within": [
+            10,
+            72
+          ],
+          "unresolved": "before acquisition: a slip of whole blocks or a code-bit corruption",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 1,
+          "wall_s": 100.00002083333334,
+          "gptp_s": 200.00002083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.00002083333334,
+            105.00002083333334
+          ]
+        },
+        {
+          "capture_index": 1,
+          "class": "unresolved",
+          "n": 9,
+          "expected": "0x00400300",
+          "received": "0x00400200",
+          "mask": "0x00000100",
+          "located_within": [
+            10,
+            72
+          ],
+          "unresolved": "before acquisition: a slip of whole blocks or a code-bit corruption",
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 1,
+          "wall_s": 100.00002083333334,
+          "gptp_s": 200.00002083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.00002083333334,
+            105.00002083333334
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 73,
+        "end": 8129,
+        "frames": 8056,
+        "seconds": 0.16783333333333333,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          73,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "constant-code-xor-2",
+      "ops": [
+        [
+          "xor",
+          3000,
+          2,
+          2,
+          256
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "0844060ec1ddc3cf53be6d54ec2c7df82ef9f50473b5f451a11b33ee8fc3163c",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "bit-flip": 1
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "bit-flip",
+          "n": 2,
+          "expected": "0x00377300",
+          "received": "0x00377200",
+          "mask": "0x00000100",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "constant-code-xor-63",
+      "ops": [
+        [
+          "xor",
+          3000,
+          63,
+          2,
+          256
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "426d2a98127daa54cf59e32000df4a4c0b79fcb638450ea5751c28aa176e9a43",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "bit-flip": 1
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "bit-flip",
+          "n": 63,
+          "expected": "0x00377300",
+          "received": "0x00377200",
+          "mask": "0x00000100",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "constant-code-xor-64",
+      "ops": [
+        [
+          "xor",
+          3000,
+          64,
+          2,
+          256
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "77308c5810aae3ea858a5f3c00a20aa3c073fafc2debf26044389572f8c99dd9",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "bit-flip": 1
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "bit-flip",
+          "n": 64,
+          "expected": "0x00377300",
+          "received": "0x00377200",
+          "mask": "0x00000100",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "constant-code-xor-65",
+      "ops": [
+        [
+          "xor",
+          3000,
+          65,
+          2,
+          256
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "7dff23c3c57d87eb63e0c6b09331075c912fc9325ba5da1193b7b4074ac1cbad",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "bit-flip": 1
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "bit-flip",
+          "n": 65,
+          "expected": "0x00377300",
+          "received": "0x00377200",
+          "mask": "0x00000100",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "constant-code-xor-100",
+      "ops": [
+        [
+          "xor",
+          3000,
+          100,
+          2,
+          256
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "7821a2062c6563a197752a941d3edffbb0ecb05e9da91c029498ee8151447f34",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "bit-flip": 1
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "bit-flip",
+          "n": 100,
+          "expected": "0x00377300",
+          "received": "0x00377200",
+          "mask": "0x00000100",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "constant-code-xor-chunked",
+      "ops": [
+        [
+          "xor",
+          3000,
+          100,
+          2,
+          256
+        ]
+      ],
+      "frames": 8192,
+      "chunk": 113,
+      "verdict": "FAIL",
+      "sha256": "7821a2062c6563a197752a941d3edffbb0ecb05e9da91c029498ee8151447f34",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "bit-flip": 1
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "bit-flip",
+          "n": 100,
+          "expected": "0x00377300",
+          "received": "0x00377200",
+          "mask": "0x00000100",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "tag-bit-flip",
+      "ops": [
+        [
+          "xor",
+          3000,
+          1,
+          0,
+          2097152
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "b33ffb560943d5c3e67f1d0a5539256633724866b1da838bf610b2daadcae479",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "bit-flip": 1
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "bit-flip",
+          "n": 1,
+          "expected": "0x00177300",
+          "received": "0x00377300",
+          "mask": "0x00200000",
+          "matches_channel": 2,
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "static-swap",
+      "ops": [
+        [
+          "swap",
+          0,
+          8192,
+          0,
+          2
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "2259e0d986d691df3f21a092759ac524287d9a99080d824d99a8d13cc055a14f",
+      "missed": [],
+      "counts": {
+        "dut": {
+          "swap": 2
+        },
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 0,
+          "n": 8192,
+          "expected": "0x00100000",
+          "received": "0x00300000",
+          "class": "swap",
+          "partner": 2,
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 0,
+          "wall_s": 100.0,
+          "gptp_s": 200.0,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0,
+            105.0
+          ]
+        },
+        {
+          "capture_index": 0,
+          "n": 8192,
+          "expected": "0x00300000",
+          "received": "0x00100000",
+          "class": "swap",
+          "partner": 0,
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 0,
+          "wall_s": 100.0,
+          "gptp_s": 200.0,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0,
+            105.0
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "hold",
+      "ops": [
+        [
+          "shift",
+          3000,
+          -1
+        ],
+        [
+          "shift",
+          3001,
+          1
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "43e82b69e21a29941e2fb28b7dea4ed54bb005272b56258979d94b0c9b4ccd22",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "dut": {
+          "repeated": 4,
+          "dropped": 4
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 1,
+          "expected": "0x00177300",
+          "received": "0x00177000",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 1,
+          "expected": "0x00277300",
+          "received": "0x00277000",
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 1,
+          "expected": "0x00377300",
+          "received": "0x00377000",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "repeated",
+          "n": 1,
+          "expected": "0x00477300",
+          "received": "0x00477000",
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 3000,
+          "wall_s": 100.0625,
+          "gptp_s": 200.0625,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.0625,
+            105.0625
+          ]
+        },
+        {
+          "capture_index": 3001,
+          "class": "dropped",
+          "n": 1,
+          "expected": "0x00177300",
+          "received": "0x00177500",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 3001,
+          "wall_s": 100.06252083333334,
+          "gptp_s": 200.06252083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06252083333334,
+            105.06252083333334
+          ]
+        },
+        {
+          "capture_index": 3001,
+          "class": "dropped",
+          "n": 1,
+          "expected": "0x00277300",
+          "received": "0x00277500",
+          "channel": 1,
+          "attribution": "dut",
+          "acquisition_index": 3001,
+          "wall_s": 100.06252083333334,
+          "gptp_s": 200.06252083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06252083333334,
+            105.06252083333334
+          ]
+        },
+        {
+          "capture_index": 3001,
+          "class": "dropped",
+          "n": 1,
+          "expected": "0x00377300",
+          "received": "0x00377500",
+          "channel": 2,
+          "attribution": "dut",
+          "acquisition_index": 3001,
+          "wall_s": 100.06252083333334,
+          "gptp_s": 200.06252083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06252083333334,
+            105.06252083333334
+          ]
+        },
+        {
+          "capture_index": 3001,
+          "class": "dropped",
+          "n": 1,
+          "expected": "0x00477300",
+          "received": "0x00477500",
+          "channel": 3,
+          "attribution": "dut",
+          "acquisition_index": 3001,
+          "wall_s": 100.06252083333334,
+          "gptp_s": 200.06252083333334,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            95.06252083333334,
+            105.06252083333334
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          8129
+        ],
+        "unobserved_frames": 0
+      }
+    },
+    {
+      "name": "capture-gap-clocks",
+      "ops": [
+        [
+          "shift",
+          2000,
+          409600
+        ],
+        [
+          "xor",
+          3000,
+          1,
+          0,
+          1
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "b8d6fc1eb431081bc887fa62fc1eac72fcc9f8975351316433201090333c96f1",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "capture": {
+          "dropped": 4
+        },
+        "dut": {
+          "bit-flip": 1
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 0,
+      "events": [
+        {
+          "capture_index": 2000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x001FA200",
+          "received": "0x001FA300",
+          "channel": 0,
+          "attribution": "capture",
+          "acquisition_index": 411600,
+          "wall_s": 108.575,
+          "gptp_s": 208.57500000000002,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.575,
+            113.575
+          ]
+        },
+        {
+          "capture_index": 2000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x002FA200",
+          "received": "0x002FA300",
+          "channel": 1,
+          "attribution": "capture",
+          "acquisition_index": 411600,
+          "wall_s": 108.575,
+          "gptp_s": 208.57500000000002,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.575,
+            113.575
+          ]
+        },
+        {
+          "capture_index": 2000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x003FA200",
+          "received": "0x003FA300",
+          "channel": 2,
+          "attribution": "capture",
+          "acquisition_index": 411600,
+          "wall_s": 108.575,
+          "gptp_s": 208.57500000000002,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.575,
+            113.575
+          ]
+        },
+        {
+          "capture_index": 2000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x004FA200",
+          "received": "0x004FA300",
+          "channel": 3,
+          "attribution": "capture",
+          "acquisition_index": 411600,
+          "wall_s": 108.575,
+          "gptp_s": 208.57500000000002,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.575,
+            113.575
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "bit-flip",
+          "n": 1,
+          "expected": "0x00177200",
+          "received": "0x00177201",
+          "mask": "0x00000001",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 412600,
+          "wall_s": 108.59583333333335,
+          "gptp_s": 208.59583333333333,
+          "timing": "anchored",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.59583333333335,
+            113.59583333333335
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          417729
+        ],
+        "unobserved_frames": 409600
+      }
+    },
+    {
+      "name": "capture-gap-gptp-step",
+      "ops": [
+        [
+          "shift",
+          2000,
+          409600
+        ],
+        [
+          "xor",
+          3000,
+          1,
+          0,
+          1
+        ]
+      ],
+      "frames": 8192,
+      "chunk": null,
+      "verdict": "FAIL",
+      "sha256": "b8d6fc1eb431081bc887fa62fc1eac72fcc9f8975351316433201090333c96f1",
+      "missed": [],
+      "counts": {
+        "planted": {
+          "dropped": 8,
+          "repeated": 8,
+          "bit-flip": 2
+        },
+        "capture": {
+          "dropped": 4
+        },
+        "dut": {
+          "bit-flip": 1
+        }
+      },
+      "why": "DUT-attributed audio events",
+      "timing_unsupported": 23,
+      "events": [
+        {
+          "capture_index": 2000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x001FA200",
+          "received": "0x001FA300",
+          "channel": 0,
+          "attribution": "capture",
+          "acquisition_index": 411600,
+          "wall_s": 108.575,
+          "gptp_s": null,
+          "timing": "unsupported gPTP: a recorded discontinuity lies between the anchors",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.575,
+            113.575
+          ]
+        },
+        {
+          "capture_index": 2000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x002FA200",
+          "received": "0x002FA300",
+          "channel": 1,
+          "attribution": "capture",
+          "acquisition_index": 411600,
+          "wall_s": 108.575,
+          "gptp_s": null,
+          "timing": "unsupported gPTP: a recorded discontinuity lies between the anchors",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.575,
+            113.575
+          ]
+        },
+        {
+          "capture_index": 2000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x003FA200",
+          "received": "0x003FA300",
+          "channel": 2,
+          "attribution": "capture",
+          "acquisition_index": 411600,
+          "wall_s": 108.575,
+          "gptp_s": null,
+          "timing": "unsupported gPTP: a recorded discontinuity lies between the anchors",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.575,
+            113.575
+          ]
+        },
+        {
+          "capture_index": 2000,
+          "class": "dropped",
+          "n": 409600,
+          "expected": "0x004FA200",
+          "received": "0x004FA300",
+          "channel": 3,
+          "attribution": "capture",
+          "acquisition_index": 411600,
+          "wall_s": 108.575,
+          "gptp_s": null,
+          "timing": "unsupported gPTP: a recorded discontinuity lies between the anchors",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.575,
+            113.575
+          ]
+        },
+        {
+          "capture_index": 3000,
+          "class": "bit-flip",
+          "n": 1,
+          "expected": "0x00177200",
+          "received": "0x00177201",
+          "mask": "0x00000001",
+          "channel": 0,
+          "attribution": "dut",
+          "acquisition_index": 412600,
+          "wall_s": 108.59583333333335,
+          "gptp_s": null,
+          "timing": "unsupported gPTP: a recorded discontinuity lies between the anchors",
+          "anchors": [
+            0,
+            8192
+          ],
+          "context_wall_s": [
+            103.59583333333335,
+            113.59583333333335
+          ]
+        }
+      ],
+      "qualified": {
+        "start": 63,
+        "end": 8129,
+        "frames": 8066,
+        "seconds": 0.16804166666666667,
+        "required_s": 0.16804166666666667,
+        "guard_frames": 63,
+        "acquisition": [
+          63,
+          417729
+        ],
+        "unobserved_frames": 409600
+      }
+    },
+    {
+      "name": "new-in-window",
+      "result": [
+        "PASS",
+        {
+          "phase": "journal_commit",
+          "items": [
+            "configuration",
+            "sampling_rate",
+            "stream_format",
+            "presentation_time_offset",
+            "channel_mappings",
+            "clock_source",
+            "entity_names",
+            "object_names",
+            "stream_binding"
+          ],
+          "restored": "new committed snapshot"
+        }
+      ]
+    },
+    {
+      "name": "old-in-window",
+      "result": [
+        "PASS",
+        {
+          "phase": "journal_commit",
+          "items": [
+            "configuration",
+            "sampling_rate",
+            "stream_format",
+            "presentation_time_offset",
+            "channel_mappings",
+            "clock_source",
+            "entity_names",
+            "object_names",
+            "stream_binding"
+          ],
+          "restored": "old committed snapshot"
+        }
+      ]
+    },
+    {
+      "name": "all-default-pending",
+      "result": [
+        "NOT RUN",
+        {
+          "phase": "journal_commit",
+          "items": [
+            "configuration",
+            "sampling_rate",
+            "stream_format",
+            "presentation_time_offset",
+            "channel_mappings",
+            "clock_source",
+            "entity_names",
+            "object_names",
+            "stream_binding"
+          ],
+          "pending_at_default": [
+            "configuration",
+            "sampling_rate",
+            "stream_format",
+            "presentation_time_offset",
+            "channel_mappings",
+            "clock_source",
+            "entity_names",
+            "object_names",
+            "stream_binding"
+          ],
+          "why": "pending value equals its default, so a fallback is invisible"
+        }
+      ]
+    },
+    {
+      "name": "one-default-pending",
+      "result": [
+        "NOT RUN",
+        {
+          "phase": "journal_commit",
+          "items": [
+            "configuration",
+            "sampling_rate",
+            "stream_format",
+            "presentation_time_offset",
+            "channel_mappings",
+            "clock_source",
+            "entity_names",
+            "object_names",
+            "stream_binding"
+          ],
+          "pending_at_default": [
+            "configuration"
+          ],
+          "why": "pending value equals its default, so a fallback is invisible"
+        }
+      ]
+    },
+    {
+      "name": "cut-at-end",
+      "result": [
+        "NOT RUN",
+        {
+          "phase": "journal_commit",
+          "items": [
+            "configuration",
+            "sampling_rate",
+            "stream_format",
+            "presentation_time_offset",
+            "channel_mappings",
+            "clock_source",
+            "entity_names",
+            "object_names",
+            "stream_binding"
+          ],
+          "restored": "new committed snapshot",
+          "why": "the cut hit no journal commit"
+        }
+      ]
+    },
+    {
+      "name": "cut-before-start",
+      "result": [
+        "NOT RUN",
+        {
+          "phase": "journal_commit",
+          "items": [
+            "configuration",
+            "sampling_rate",
+            "stream_format",
+            "presentation_time_offset",
+            "channel_mappings",
+            "clock_source",
+            "entity_names",
+            "object_names",
+            "stream_binding"
+          ],
+          "restored": "new committed snapshot",
+          "why": "the cut hit no journal commit"
+        }
+      ]
+    },
+    {
+      "name": "mixed-readback",
+      "result": [
+        "FAIL",
+        {
+          "phase": "journal_commit",
+          "items": [
+            "configuration",
+            "sampling_rate",
+            "stream_format",
+            "presentation_time_offset",
+            "channel_mappings",
+            "clock_source",
+            "entity_names",
+            "object_names",
+            "stream_binding"
+          ],
+          "why": "mixed or partial state after a commit cut",
+          "differs": [
+            "configuration"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "inside-window",
+      "result": [
+        "PASS",
+        {
+          "zero_growth": [
+            "SEQ_NUM_MISMATCH",
+            "STREAM_INTERRUPTED",
+            "LATE_TIMESTAMP",
+            "EARLY_TIMESTAMP"
+          ],
+          "planted_only": "MEDIA_UNLOCKED",
+          "targets": 1,
+          "planted_unlocks": 1
+        }
+      ]
+    },
+    {
+      "name": "after-window",
+      "result": [
+        "FAIL",
+        {
+          "zero_growth": [
+            "SEQ_NUM_MISMATCH",
+            "STREAM_INTERRUPTED",
+            "LATE_TIMESTAMP",
+            "EARLY_TIMESTAMP"
+          ],
+          "planted_only": "MEDIA_UNLOCKED",
+          "target": "input-0",
+          "counter": "MEDIA_UNLOCKED",
+          "delta": 1,
+          "interval_s": [
+            20,
+            60
+          ],
+          "why": "MEDIA_UNLOCKED outside a planted event"
+        }
+      ]
+    },
+    {
+      "name": "ambiguous-read",
+      "result": [
+        "FAIL",
+        {
+          "zero_growth": [
+            "SEQ_NUM_MISMATCH",
+            "STREAM_INTERRUPTED",
+            "LATE_TIMESTAMP",
+            "EARLY_TIMESTAMP"
+          ],
+          "planted_only": "MEDIA_UNLOCKED",
+          "target": "input-0",
+          "counter": "MEDIA_UNLOCKED",
+          "delta": 1,
+          "interval_s": [
+            0,
+            60
+          ],
+          "why": "MEDIA_UNLOCKED outside a planted event"
+        }
+      ]
+    }
+  ]
+}

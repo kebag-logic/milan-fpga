@@ -1,0 +1,14 @@
+test_audio_slip_and_corruption_share_a_window FAIL 1 subtests
+    ?         ^
+test_audio_block_slip_after_a_corruption_or_a_slip FAIL 87 subtests
+    ?         ^
+    -  (2, 3006, 'bit-flip', 3, '0x00000100', None)]
+test_audio_planted_arms_beside_block_slips FAIL 65 subtests
+    + ('FAIL', []) : void: a planted arm was missed
+    + ('FAIL', []) : void: a planted arm was missed
+test_audio_constant_mask_beside_one_word_events FAIL 25 subtests
+    -  (2, 3100, 'dropped', 1024, None, None)]
+    +  (2, 3100, 'bit-flip', 1, '0x00000100', None)]
+test_audio_code_bit_corruption_ending_on_a_block FAIL 9 subtests
+    -  (2, 8194, 'dropped', 499717421056, None, None)]
+    -  (2, 10242, 'dropped', 499717425152, None, None)]
