@@ -1,0 +1,24 @@
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/srp.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/maap.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/backlog.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/adp-link.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/adp-gm.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/adp-discover.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/acmp-cmd.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/aecp.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/backlog-adp.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/control.txt -
+COMMAND <scratch>/f1/native/Vsim <scratch>/final/A1/fixture.txt -
+REFUSED maap.probe1.if0: unexpected response: no MAAP type 1
+REFUSED maap.probe2.if0: unexpected response: no MAAP type 1
+REFUSED maap.probe3.if0: unexpected response: no MAAP type 1
+REFUSED backlog.owed.if0: no origin: mark room is not inside the interval
+BUDGET backlog.event.if0: 14.122 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 60.362 ms over T_svc 10 ms
+BUDGET acmp.probe_tx_response.if0: 12.025 ms over T_svc 10 ms
+BUDGET acmp.disconnect_tx.if0: 24.767 ms over T_svc 10 ms
+BUDGET acmp.get_tx_connection.if0: 11.080 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 138.366 ms over T_svc 10 ms
+BUDGET fixture.entity_departing.if0: 25.172 ms over T_svc 10 ms
+11 groups graded, 4 refusals, 7 T_svc misses
+rc=1

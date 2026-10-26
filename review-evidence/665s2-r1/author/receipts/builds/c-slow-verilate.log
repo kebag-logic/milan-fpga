@@ -1,0 +1,61 @@
+%Warning-PINMISSING: <scratch>/c-slow/gateware/sim.v:3096:50: Instance has missing pin: 'dma_bus_awregion'
+ 3096 | VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v:14:24: ... Location of port declaration
+   14 |   input  wire [3:0]    dma_bus_awregion,
+      |                        ^~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.052
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: <scratch>/c-slow/gateware/sim.v:3096:50: Instance has missing pin: 'dma_bus_arregion'
+ 3096 | VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v:35:24: ... Location of port declaration
+   35 |   input  wire [3:0]    dma_bus_arregion,
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <checkout>/hdl/milan/mailbox/KL_mbx_pkg.sv:15:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   15 | package KL_mbx_pkg;
+      |         ^~~~~~~~~~
+                       $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.052
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: <checkout>/hdl/milan/mailbox/KL_mbx_ring.sv:27:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   27 | module KL_mbx_ring #(
+      |        ^~~~~~~~~~~
+                       $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <checkout>/hdl/milan/mailbox/KL_mbx_rx.sv:76:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   76 | module KL_mbx_rx
+      |        ^~~~~~~~~
+                       $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <checkout>/hdl/milan/mailbox/KL_mbx_tx.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_mbx_tx
+      |        ^~~~~~~~~
+                       $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <checkout>/hdl/milan/mailbox/KL_mbx_evt.sv:40:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   40 | module KL_mbx_evt
+      |        ^~~~~~~~~~
+                       $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <checkout>/hdl/milan/mailbox/KL_mbx.sv:27:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   27 | module KL_mbx
+      |        ^~~~~~
+                       $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <checkout>/hdl/milan/mailbox/KL_mbx_wb.sv:26:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   26 | module KL_mbx_wb
+      |        ^~~~~~~~~
+                       $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 4.166 MB sources in 57 modules, into 3.023 MB in 34 C++ files needing 0.000 MB
+- Verilator: Walltime 1.553 s (elab=0.274, cvt=0.976, bld=0.000); cpu 1.544 s on 1 threads; allocated 76.836 MB

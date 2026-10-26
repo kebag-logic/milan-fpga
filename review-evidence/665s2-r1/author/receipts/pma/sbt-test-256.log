@@ -1,0 +1,34 @@
+[info] welcome to sbt 1.10.0 (Arch Linux Java 17.0.20.1)
+[info] loading settings for project vexiiriscv-build from plugins.sbt ...
+[info] loading project definition from $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/project
+[info] loading settings for project ret from build.sbt ...
+[info] loading settings for project spinalhdl-build from plugin.sbt ...
+[info] loading project definition from $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/ext/SpinalHDL/project
+[info] loading settings for project all from build.sbt ...
+[info] set current project to VexiiRiscv (in build file:$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/)
+[info] running (fork) vexiiriscv.soc.litex.SocGen --netlist-name=VexiiTest256 --netlist-directory=<scratch>/pma --with-isa=,zicsr,zifencei,i --xlen=32 --reset-vector 0 --memory-region=0,262144,rxc,p --memory-region=268435456,262144,rwxc,p --memory-region=2147483648,32768,rw,p --memory-region=536870912,16777216,rxc,p --memory-region=4026531840,65536,rw,p --cpu-count=1 --with-cpu-clk --with-dma --l2-bytes=0 --l2-ways=4 --imsic-interrupt-number=0
+[info] [Runtime] SpinalHDL dev    git head : 1097c1df52f6b4ac532e42ff35a9c610f8e9a07c
+[info] [Runtime] JVM max memory : 15672.0MiB
+[info] [Runtime] Current date : 2026.10.26 08:11:19
+[info] [Progress] at 0.000 : Elaborate components
+[info] PBUS => 
+[info] MappedTransfers(toplevel/peripheral_clint_node mapped=[0xf0010000 .. 0xf001ffff] through=List(OT(0xf0010000)) ,GF)
+[info] MappedTransfers(toplevel/peripheral_plic_intc_node mapped=[0xf0c00000 .. 0xf0ffffff] through=List(OT(0xf0c00000)) ,GF)
+[info] MappedTransfers(toplevel/self mapped=[0x0 .. 0x3ffff] through=List() ,GF)
+[info] MappedTransfers(toplevel/self mapped=[0x10000000 .. 0x1003ffff] through=List() ,GF)
+[info] MappedTransfers(toplevel/self mapped=[0x80000000 .. 0x80007fff] through=List() ,GF)
+[info] MappedTransfers(toplevel/self mapped=[0x20000000 .. 0x20ffffff] through=List() ,GF)
+[info] MappedTransfers(toplevel/self mapped=[0xf0000000 .. 0xf000ffff] through=List() ,GF)
+[info] IBUS => 
+[info] MappedTransfers(toplevel/peripheral_clint_node mapped=[0xf0010000 .. 0xf001ffff] through=List(OT(0xf0010000)) ,G)
+[info] MappedTransfers(toplevel/peripheral_plic_intc_node mapped=[0xf0c00000 .. 0xf0ffffff] through=List(OT(0xf0c00000)) ,G)
+[info] MappedTransfers(toplevel/self mapped=[0x0 .. 0x3ffff] through=List() ,G)
+[info] MappedTransfers(toplevel/self mapped=[0x10000000 .. 0x1003ffff] through=List() ,G)
+[info] MappedTransfers(toplevel/self mapped=[0x80000000 .. 0x80007fff] through=List() ,G)
+[info] MappedTransfers(toplevel/self mapped=[0x20000000 .. 0x20ffffff] through=List() ,G)
+[info] MappedTransfers(toplevel/self mapped=[0xf0000000 .. 0xf000ffff] through=List() ,G)
+[info] [Progress] at 1.958 : Checks and transforms
+[info] [Progress] at 2.716 : Generate Verilog to <scratch>/pma
+[info] [Warning] 1034 signals were pruned. You can call printPruned on the backend report to get more informations.
+[info] [Done] at 3.124
+[success] Total time: 5 s, completed Oct 26, 2026, 8:11:23 AM

@@ -1,0 +1,40 @@
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/srp.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/backlog.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/adp-link.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/adp-gm.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/adp-discover.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/acmp-cmd.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/aecp.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/backlog-adp.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/control.txt -
+BUDGET srp.startup.if0: 15.788 ms over T_svc 10 ms
+BUDGET srp.startup.if1: 13.246 ms over T_svc 10 ms
+BUDGET backlog.event.if0: 40.514 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 101.990 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 31.722 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 32.514 ms over T_svc 10 ms
+BUDGET adp.link_up.if1: 41.690 ms over T_svc 10 ms
+BUDGET adp.link_down.if0: 18.351 ms over T_svc 10 ms
+BUDGET adp.link_down.if1: 26.844 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 32.514 ms over T_svc 10 ms
+BUDGET adp.link_up.if1: 41.690 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 32.514 ms over T_svc 10 ms
+BUDGET adp.link_up.if1: 41.690 ms over T_svc 10 ms
+BUDGET acmp.probe_tx_response.if0: 19.403 ms over T_svc 10 ms
+BUDGET acmp.get_rx_state.if0: 10.963 ms over T_svc 10 ms
+BUDGET acmp.probe_tx.if0: 11.168 ms over T_svc 10 ms
+BUDGET acmp.get_tx_state.if0: 10.670 ms over T_svc 10 ms
+BUDGET acmp.disconnect_tx.if0: 10.624 ms over T_svc 10 ms
+BUDGET acmp.get_tx_connection.if0: 10.627 ms over T_svc 10 ms
+BUDGET acmp.bind_rx.if1: 11.356 ms over T_svc 10 ms
+BUDGET acmp.probe_tx_response.if1: 15.990 ms over T_svc 10 ms
+BUDGET acmp.get_rx_state.if1: 19.785 ms over T_svc 10 ms
+BUDGET acmp.unbind_rx.if1: 19.804 ms over T_svc 10 ms
+BUDGET acmp.probe_tx.if1: 21.016 ms over T_svc 10 ms
+BUDGET acmp.get_tx_state.if1: 27.595 ms over T_svc 10 ms
+BUDGET acmp.disconnect_tx.if1: 20.181 ms over T_svc 10 ms
+BUDGET acmp.get_tx_connection.if1: 19.699 ms over T_svc 10 ms
+BUDGET aecp.get_configuration.if0: 14.822 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 131.632 ms over T_svc 10 ms
+9 groups graded, 0 refusals, 29 T_svc misses
+rc=0

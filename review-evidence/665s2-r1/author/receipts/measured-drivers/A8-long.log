@@ -1,0 +1,24 @@
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/acmp-notk.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/adp-advertise.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/acmp-disc.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/acmp-noresp.txt -
+COMMAND <scratch>/f8/native/Vsim <scratch>/final/A8/maap.txt -
+REFUSED maap.probe1.if0: unexpected response: no MAAP type 1
+REFUSED maap.probe2.if0: unexpected response: no MAAP type 1
+REFUSED maap.probe3.if0: unexpected response: no MAAP type 1
+REFUSED maap.probe1.if1: unexpected response: no MAAP type 1
+REFUSED maap.probe2.if1: unexpected response: no MAAP type 1
+REFUSED maap.probe3.if1: unexpected response: no MAAP type 1
+BUDGET acmp.tmr_no_tk.if0: 15.234 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 32.514 ms over T_svc 10 ms
+BUDGET adp.link_up.if1: 41.690 ms over T_svc 10 ms
+BUDGET acmp.tmr_no_resp1.if0: 14.193 ms over T_svc 10 ms
+BUDGET acmp.tmr_no_resp1.if1: 12.885 ms over T_svc 10 ms
+BUDGET acmp.tmr_retry.if0: 27.137 ms over T_svc 10 ms
+BUDGET acmp.tmr_retry.if1: 26.206 ms over T_svc 10 ms
+BUDGET acmp.entity_departing.if0: 45.449 ms over T_svc 10 ms
+BUDGET acmp.entity_departing.if1: 47.729 ms over T_svc 10 ms
+BUDGET acmp.entity_available.if0: 27.410 ms over T_svc 10 ms
+BUDGET acmp.entity_available.if1: 29.722 ms over T_svc 10 ms
+5 groups graded, 6 refusals, 11 T_svc misses
+rc=1

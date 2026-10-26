@@ -1,0 +1,43 @@
+--- 224 KiB regions
++++ 256 KiB regions
+@@ -8046 +8045,0 @@
+-  wire       [31:0]   _zz_argsHits_3_addrHit;
+@@ -8263 +8262 @@
+-  assign argsHits_2_addrHit = (|((addrKey & 32'hfffc8000) == 32'h0));
++  assign argsHits_2_addrHit = (|((addrKey & 32'hfffc0000) == 32'h0));
+@@ -8266,2 +8265 @@
+-  assign _zz_argsHits_3_addrHit = addrKey;
+-  assign argsHits_3_addrHit = (|{((_zz_argsHits_3_addrHit & 32'hfffe0000) == 32'h10000000),{((_zz_argsHits_3_addrHit & 32'hffff0000) == 32'h10020000),((_zz_argsHits_3_addrHit & 32'hffff8000) == 32'h10030000)}});
++  assign argsHits_3_addrHit = (|((addrKey & 32'hfffc0000) == 32'h10000000));
+@@ -10694,5 +10691,0 @@
+-  wire       [31:0]   _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault;
+-  wire       [31:0]   _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_1;
+-  wire       [31:0]   _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_2;
+-  wire       [31:0]   _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_3;
+-  wire       [31:0]   _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_4;
+@@ -10706,2 +10699 @@
+-  wire       [0:0]    _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_4;
+-  wire       [2:0]    _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_5;
++  wire                _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_4;
+@@ -12701,5 +12692,0 @@
+-  assign _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault = 32'hfffc8000;
+-  assign _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_1 = (FetchCachelessPlugin_pmaBuilder_addressBits & 32'hffff0000);
+-  assign _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_2 = 32'h10020000;
+-  assign _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_3 = (FetchCachelessPlugin_pmaBuilder_addressBits & 32'hffff8000);
+-  assign _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_4 = 32'h10030000;
+@@ -12707,5 +12694,4 @@
+-  assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_1 = (LsuCachelessPlugin_pmaBuilder_addressBits & 32'hfffe0000);
+-  assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_2 = 32'hf0000000;
+-  assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_3 = ((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hfffe0000) == 32'h10000000);
+-  assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_4 = ((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hfffc8000) == 32'h0);
+-  assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_5 = {((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff0000) == 32'h10020000),{((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff8000) == 32'h10030000),((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff8000) == 32'h80000000)}};
++  assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_1 = (LsuCachelessPlugin_pmaBuilder_addressBits & 32'heffc0000);
++  assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_2 = 32'h0;
++  assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_3 = ((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hfffe0000) == 32'hf0000000);
++  assign _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_4 = ((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hffff8000) == 32'h80000000);
+@@ -16308 +16294 @@
+-  assign FetchCachelessPlugin_logic_onPma_port_rsp_fault = (! ((|{((FetchCachelessPlugin_pmaBuilder_addressBits & 32'hff000000) == 32'h20000000),{((FetchCachelessPlugin_pmaBuilder_addressBits & 32'hfffe0000) == 32'h10000000),{((FetchCachelessPlugin_pmaBuilder_addressBits & _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault) == 32'h0),{(_zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_1 == _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_2),(_zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_3 == _zz_FetchCachelessPlugin_logic_onPma_port_rsp_fault_4)}}}}) && (|FetchCachelessPlugin_pmaBuilder_onTransfers_0_hit)));
++  assign FetchCachelessPlugin_logic_onPma_port_rsp_fault = (! ((|{((FetchCachelessPlugin_pmaBuilder_addressBits & 32'hff000000) == 32'h20000000),((FetchCachelessPlugin_pmaBuilder_addressBits & 32'heffc0000) == 32'h0)}) && (|FetchCachelessPlugin_pmaBuilder_onTransfers_0_hit)));
+@@ -16318 +16304 @@
+-  assign LsuCachelessPlugin_logic_onPma_port_rsp_fault = (! ((|{((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hff000000) == 32'h20000000),{((LsuCachelessPlugin_pmaBuilder_addressBits & _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault) == 32'hf0c00000),{(_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_1 == _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_2),{_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_3,{_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_4,_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_5}}}}}) && (|{LsuCachelessPlugin_pmaBuilder_onTransfers_1_hit,LsuCachelessPlugin_pmaBuilder_onTransfers_0_hit})));
++  assign LsuCachelessPlugin_logic_onPma_port_rsp_fault = (! ((|{((LsuCachelessPlugin_pmaBuilder_addressBits & 32'hff000000) == 32'h20000000),{((LsuCachelessPlugin_pmaBuilder_addressBits & _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault) == 32'hf0c00000),{(_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_1 == _zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_2),{_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_3,_zz_LsuCachelessPlugin_logic_onPma_port_rsp_fault_4}}}}) && (|{LsuCachelessPlugin_pmaBuilder_onTransfers_1_hit,LsuCachelessPlugin_pmaBuilder_onTransfers_0_hit})));

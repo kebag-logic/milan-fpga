@@ -1,0 +1,89 @@
+wrote <scratch>/f8/image/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/f8/image/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/f8/image/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 87596,
+    ".rodata": 25158,
+    ".data": 448,
+    ".bss": 104012,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3120,
+    "image_aecp_bridge": 120,
+    "image_aecp_environment": 52,
+    "image_allocation": 16,
+    "image_app": 10056,
+    "image_arena": 48064,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2480,
+    "image_latency": 36,
+    "image_licences": 18,
+    "image_map_pools": 448,
+    "image_maps": 4608,
+    "image_map_scratch": 576,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_sources": 576,
+    "image_srp": 5896,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "4a56a5efc0c742c923f9ba7acbdc6b243cc5bb0e2f85edb7cc8a5687118c88aa"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "597ab3e3888e20a3b799d2ad11cc7362d7cac2e99a76d64373e5e384386172b2"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 142640,
+      "sha256": "c89a1871fd2bca2b5515492c6996b076551bbda7ccd58c773c8bc633a00224ba"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 94922,
+      "sha256": "e2767caaf3983d9904b4376f8ff052bb65cd896f98138858265441224bf3a8a3"
+    }
+  ],
+  "ram_sections": 225406,
+  "split": {
+    "rom": {
+      "bytes": 113208,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 112656,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 56.0,
+    "budget_tiles": 56
+  }
+}
