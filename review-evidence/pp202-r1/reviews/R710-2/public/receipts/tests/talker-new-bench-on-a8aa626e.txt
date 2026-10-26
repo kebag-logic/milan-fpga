@@ -1,0 +1,21 @@
+# tb/acmp_talker at the new head's bench files (sim_main.cpp, sid_cases.hpp, retry_cases.hpp) built against the RTL of a8aa626e1cba30625ac764c70e1fb8fb02c69c40
+# command: make -C tb/acmp_talker -j16   (rc 2 expected: the bench grades the new behaviour)
+1520 checks: 1502 PASS, 18 FAIL
+FAIL: J7 grant re-declares open sid got ab00000000000004
+FAIL: J7b the recovered source answers with its NEW DA stream_id got ab00000000000004
+FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000006
+FAIL: S1 a declared moved ID moves again after a disable (got ab00000000000008)
+FAIL: S7 a PCP change after a listener withdrawal arms T-SRP-LEAVEALL2 (0 draws, 0 arms)
+FAIL: S7 a returning listener does not declare the same ID inside the gap
+FAIL: S7 a probe does not declare the same ID inside the gap
+FAIL: S7 two LeaveAllTime periods separate the withdrawal and the same-ID declaration (2 ms)
+FAIL: S8 a PCP change after a lapse arms T-SRP-LEAVEALL2 on the moved ID (0 draws, 0 arms)
+FAIL: S8 a probe does not declare the moved ID inside the gap
+FAIL: S8 a returning listener does not declare the moved ID inside the gap
+FAIL: S8 two LeaveAllTime periods separate the withdrawal and the moved ID's declaration (2 ms)
+FAIL: S9 a probe served with a PCP change pending does not declare the same ID (2 strobes)
+FAIL: S10 a declared source returns from a disable under a new Stream ID (got ab00000000000003)
+FAIL: S10 PROBE_TX after the return answers the new ID and DA src3 status/tuple (status 0 sid ab00000000000003)
+FAIL: S10 the new DA is declared under the new ID, never the withdrawn one
+FAIL: S10 the move does not depend on the returned DA (got ab00000000000005)
+FAIL: S10 PROBE_TX after the same DA returns answers the new ID src5 status/tuple (status 0 sid ab00000000000005)

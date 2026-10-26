@@ -1,0 +1,22 @@
+lint_rtl rc=0 seconds=44
+check_port_contracts rc=0 seconds=9
+check_wire_accountability rc=0 seconds=1
+check_sv_idiom rc=0 seconds=1
+check_rtl_source_lists rc=0 seconds=6
+behave rc=0 seconds=2
+yosys_elaborate rc=0 seconds=147
+xvlog_gate rc=0 seconds=189
+DONE-static
+pp_shadow rc=0 seconds=745
+399_verdict rc=2 seconds=0
+maap rc=0 seconds=964
+1144_verdict rc=2 seconds=0
+milan_dp_render rc=0 seconds=981
+2108_verdict rc=2 seconds=1
+capture_coherence rc=2 seconds=1391
+capture_coherence_verdict rc=1 seconds=0
+milan_dp rc=2 seconds=938
+milan_dp_verdict rc=0 seconds=0
+ooc_record_rom_digests rc=0 seconds=2
+ooc_pp_shadow rc=0 seconds=787
+DONE seconds=6208

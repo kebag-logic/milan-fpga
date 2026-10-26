@@ -1,0 +1,28 @@
+{
+  "golden": {
+    "command": [
+      "make",
+      "-j16",
+      "run",
+      "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator"
+    ],
+    "returncode": 0,
+    "seconds": 2.22
+  },
+  "disable-lap": {
+    "command": [
+      "./obj_dir/Vacmp_talker_sim",
+      "--disable-lap"
+    ],
+    "returncode": 1,
+    "seconds": 7.78
+  },
+  "slow-control": {
+    "command": [
+      "./obj_dir/Vacmp_talker_sim",
+      "--disable-lap"
+    ],
+    "returncode": 0,
+    "seconds": 7.73
+  }
+}

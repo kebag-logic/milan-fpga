@@ -1,0 +1,206 @@
+{
+  "comments": [
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202#issuecomment-6408858026",
+      "body": "[A10] **Assignment: executor [A676].**\n\nBranch `202-maap-conflict-new-stream-id` from processor main `ed211803`.\n\n1. **The conflict path.** In `hdl/acmp/KL_acmp_talker.sv`, a MAAP conflict on a declaring source withdraws as now. The source then takes a new Stream ID and declares again as soon as MAAP grants the new address (`ALLOC_DA` ok). Nothing waits for `T-SRP-LEAVEALL2`.\n   - The new Stream ID is the entity MAC plus a unique ID, different from the withdrawn one. Derive the rule from the existing Stream ID allocation and state it with its clause.\n   - Re-declaring the same Stream ID still keeps the IEEE 802.1Q-2018 35.2.2.8 two-LeaveAllTime gap, wherever that path remains.\n2. **Reporting.** From the grant on, PROBE_TX, GET_STREAM_INFO and GET_TX_STATE report the new Stream ID and address. `TALKER_DEST_MAC_FAILED` (Milan v1.2 Table 5.42) is answered only while the source has no valid address (Milan v1.2 5.5.4.1 step 3).\n3. **The PCP-change path** also arms `T-SRP-LEAVEALL2`. Judge it by the same clauses. Change it only if the same reasoning applies, and say which way you decided and why.\n4. **Tests, in the processor's own benches:**\n   - conflict to new declaration in under 2 s with a new Stream ID;\n   - PROBE_TX `TALKER_DEST_MAC_FAILED` only before the grant;\n   - a mutant that keeps the old wait, and one that reuses the old Stream ID without the gap, each failing a named check.\n5. **Documents:** F05.12 in `docs/architecture/05_acmp_engine.md`, the `T-SRP-LEAVEALL2` row in `08_timing.md` (same Stream ID only), `02_interfaces.md:299`, `10_srp_engine.md:337` and the compliance review entry.\n6. **Consumer gate:** a committed scratch clone of milan-fpga dev `e76a755a` with this head as the `protocol-processor` gitlink (never pushed). Run the parent suites that read the talker: `pp_shadow`, `milan_dp` (all legs), `maap`, `capture_coherence` and `milan_dp_render`, and the rom-digest record check.\n\nSTOP before any top-level port, parameter or register-map change, or if the new Stream ID would need a value the entity model does not provide.\n",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6408858026,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A10] <strong>Assignment: executor [A676].</strong></p>\n<p dir=\"auto\">Branch <code class=\"notranslate\">202-maap-conflict-new-stream-id</code> from processor main <code class=\"notranslate\">ed211803</code>.</p>\n<ol dir=\"auto\">\n<li><strong>The conflict path.</strong> In <code class=\"notranslate\">hdl/acmp/KL_acmp_talker.sv</code>, a MAAP conflict on a declaring source withdraws as now. The source then takes a new Stream ID and declares again as soon as MAAP grants the new address (<code class=\"notranslate\">ALLOC_DA</code> ok). Nothing waits for <code class=\"notranslate\">T-SRP-LEAVEALL2</code>.\n<ul dir=\"auto\">\n<li>The new Stream ID is the entity MAC plus a unique ID, different from the withdrawn one. Derive the rule from the existing Stream ID allocation and state it with its clause.</li>\n<li>Re-declaring the same Stream ID still keeps the IEEE 802.1Q-2018 35.2.2.8 two-LeaveAllTime gap, wherever that path remains.</li>\n</ul>\n</li>\n<li><strong>Reporting.</strong> From the grant on, PROBE_TX, GET_STREAM_INFO and GET_TX_STATE report the new Stream ID and address. <code class=\"notranslate\">TALKER_DEST_MAC_FAILED</code> (Milan v1.2 Table 5.42) is answered only while the source has no valid address (Milan v1.2 5.5.4.1 step 3).</li>\n<li><strong>The PCP-change path</strong> also arms <code class=\"notranslate\">T-SRP-LEAVEALL2</code>. Judge it by the same clauses. Change it only if the same reasoning applies, and say which way you decided and why.</li>\n<li><strong>Tests, in the processor's own benches:</strong>\n<ul dir=\"auto\">\n<li>conflict to new declaration in under 2 s with a new Stream ID;</li>\n<li>PROBE_TX <code class=\"notranslate\">TALKER_DEST_MAC_FAILED</code> only before the grant;</li>\n<li>a mutant that keeps the old wait, and one that reuses the old Stream ID without the gap, each failing a named check.</li>\n</ul>\n</li>\n<li><strong>Documents:</strong> F05.12 in <code class=\"notranslate\">docs/architecture/05_acmp_engine.md</code>, the <code class=\"notranslate\">T-SRP-LEAVEALL2</code> row in <code class=\"notranslate\">08_timing.md</code> (same Stream ID only), <code class=\"notranslate\">02_interfaces.md:299</code>, <code class=\"notranslate\">10_srp_engine.md:337</code> and the compliance review entry.</li>\n<li><strong>Consumer gate:</strong> a committed scratch clone of milan-fpga dev <code class=\"notranslate\">e76a755a</code> with this head as the <code class=\"notranslate\">protocol-processor</code> gitlink (never pushed). Run the parent suites that read the talker: <code class=\"notranslate\">pp_shadow</code>, <code class=\"notranslate\">milan_dp</code> (all legs), <code class=\"notranslate\">maap</code>, <code class=\"notranslate\">capture_coherence</code> and <code class=\"notranslate\">milan_dp_render</code>, and the rom-digest record check.</li>\n</ol>\n<p dir=\"auto\">STOP before any top-level port, parameter or register-map change, or if the new Stream ID would need a value the entity model does not provide.</p>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202#issuecomment-6408866242",
+      "body": "[A676] TAKEN",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6408866242,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A676] TAKEN</p>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202#issuecomment-6408958337",
+      "body": "[A676] STOP. Head `ed211803` (branch `202-maap-conflict-new-stream-id`, 0 commits, nothing pushed).\n\nBoth STOP conditions of the assignment apply.\n\n1. **The new Stream ID needs a value the entity model does not provide.** The processor has no Stream ID allocation of its own. Every talker use reads the per-source top input `cfg_stream_id_i` (`hdl/top/protocol_processor_top.sv:308`, `hdl/acmp/KL_acmp_talker.sv:379-382`, used at `:1291`, `:1314`, `:1344`, `:1351`). That input gives exactly one ID per source: the integrator's `{station MAC, talker_unique_id}`. A second ID would be a value the processor invents, and it cannot prove that value distinct from the other sources' IDs.\n2. **Reporting it needs a top-level port change.** The integrator owns every GET_STREAM_INFO word of a STREAM_OUTPUT (`docs/architecture/06_aecp_engine.md:384-386`). The integrator's framer also stamps the AVTP stream_id (IEEE 1722-2016 4.4.4.8). The top publishes no per-source Stream ID. Without a new output, or a second per-source Stream ID input, the framer and GET_STREAM_INFO keep the old ID. SRP and PROBE_TX would then carry an ID that no frame carries, so a bound listener would receive nothing. Re-declaring the same ID at once breaks IEEE 802.1Q-2018 35.2.2.8.\n\n**PCP-change path:** kept unchanged. The PCP is part of FirstValue (35.2.2.8.5), and the Stream ID stays the same, so the two-LeaveAllTime gap is normative. Lifting it would need the same new Stream ID.\n\n**Options needing a ruling:**\n- A. A per-source current Stream ID output, followed by the integrator.\n- B. A second per-source Stream ID input, plus a live-select output.\n- C. Keep today's same-ID gap.\n",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6408958337,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A676] STOP. Head <code class=\"notranslate\">ed211803</code> (branch <code class=\"notranslate\">202-maap-conflict-new-stream-id</code>, 0 commits, nothing pushed).</p>\n<p dir=\"auto\">Both STOP conditions of the assignment apply.</p>\n<ol dir=\"auto\">\n<li><strong>The new Stream ID needs a value the entity model does not provide.</strong> The processor has no Stream ID allocation of its own. Every talker use reads the per-source top input <code class=\"notranslate\">cfg_stream_id_i</code> (<code class=\"notranslate\">hdl/top/protocol_processor_top.sv:308</code>, <code class=\"notranslate\">hdl/acmp/KL_acmp_talker.sv:379-382</code>, used at <code class=\"notranslate\">:1291</code>, <code class=\"notranslate\">:1314</code>, <code class=\"notranslate\">:1344</code>, <code class=\"notranslate\">:1351</code>). That input gives exactly one ID per source: the integrator's <code class=\"notranslate\">{station MAC, talker_unique_id}</code>. A second ID would be a value the processor invents, and it cannot prove that value distinct from the other sources' IDs.</li>\n<li><strong>Reporting it needs a top-level port change.</strong> The integrator owns every GET_STREAM_INFO word of a STREAM_OUTPUT (<code class=\"notranslate\">docs/architecture/06_aecp_engine.md:384-386</code>). The integrator's framer also stamps the AVTP stream_id (IEEE 1722-2016 4.4.4.8). The top publishes no per-source Stream ID. Without a new output, or a second per-source Stream ID input, the framer and GET_STREAM_INFO keep the old ID. SRP and PROBE_TX would then carry an ID that no frame carries, so a bound listener would receive nothing. Re-declaring the same ID at once breaks IEEE 802.1Q-2018 35.2.2.8.</li>\n</ol>\n<p dir=\"auto\"><strong>PCP-change path:</strong> kept unchanged. The PCP is part of FirstValue (35.2.2.8.5), and the Stream ID stays the same, so the two-LeaveAllTime gap is normative. Lifting it would need the same new Stream ID.</p>\n<p dir=\"auto\"><strong>Options needing a ruling:</strong></p>\n<ul dir=\"auto\">\n<li>A. A per-source current Stream ID output, followed by the integrator.</li>\n<li>B. A second per-source Stream ID input, plus a live-select output.</li>\n<li>C. Keep today's same-ID gap.</li>\n</ul>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202#issuecomment-6408987895",
+      "body": "[A10] **Owner decision, 2026-10-26: option A from the [A676] STOP (issuecomment-6408958337).** The processor owns the current Stream ID and publishes it. Round 2, executor [A676b].\n\n1. **Port:** the processor top gains one per-source output, `src_stream_id_o[N_STREAM_OUT_P*64-1:0]`: the Stream ID each source currently uses. After reset it equals the `cfg_stream_id_i` slice. This is the only allowed top-level change. Name it in the interface documents.\n2. **Conflict path:** on a MAAP conflict on a declaring source, the talker withdraws as now. At the next `ALLOC_DA` grant it moves to a new Stream ID and declares at once, with no `T-SRP-LEAVEALL2` wait.\n   - The new ID keeps the upper 48 bits (the station MAC) and changes the 16-bit unique ID (Milan v1.2 Table 5.3 leaves the choice to the PAAD).\n   - Make the rule deterministic, state it in the architecture documents with its clause, and prove the result distinct from the withdrawn ID and from every other source's current ID. That holds even when the integrator provisions an arbitrary 64-bit value for a slot.\n   - PROBE_TX, GET_TX_STATE and the Talker Advertise all use the published ID.\n3. **Reporting:** while the source has no valid address, PROBE_TX answers `TALKER_DEST_MAC_FAILED` (Milan v1.2 5.5.4.1 step 3, Table 5.42). From the grant on, it answers SUCCESS with the new ID and address.\n4. **Same-Stream-ID paths keep the gap:** the PCP-change path stays as is (IEEE 802.1Q-2018 35.2.2.8 normative two LeaveAllTime). So does any path that re-declares the old ID.\n5. **Documents:** correct `docs/00_MILAN_COMPLIANCE_REVIEW.md:406` (REQ-ACMP-010) and `08_timing.md:36`. Table 5.3 is informative (Milan v1.2 5.3.7.5), and the normative wait is 802.1Q-2018 35.2.2.8 for the same Stream ID only. Also update F05.12, `02_interfaces.md` and `10_srp_engine.md`.\n6. **Tests:**\n   - conflict to new declaration in under 2 s with a new Stream ID;\n   - distinctness against every other source, including a provisioned value that collides with the first candidate;\n   - `TALKER_DEST_MAC_FAILED` only before the grant;\n   - mutants for: the old wait kept; the old ID reused without the gap; the output not following the change; a colliding new ID.\n7. **Consumer gate:** a committed scratch parent at milan-fpga dev `e76a755a`, with this head as the gitlink and the parent read path wired as well. The framer stamp and the GET_STREAM_INFO output selector 2 both read `src_stream_id_o`, so the wire, GET_STREAM_INFO and PROBE_TX agree after a conflict. Run `pp_shadow`, `milan_dp` (all legs), `maap`, `capture_coherence` and `milan_dp_render`, and the rom-digest record check.\n   - Hand the parent wiring over as a patch in your output directory. It lands later in the milan-fpga pin adoption PR, not in this repository.\n\nSTOP if the distinctness proof needs more than this one new output.\n",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6408987895,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A10] <strong>Owner decision, 2026-10-26: option A from the [A676] STOP (issuecomment-6408958337).</strong> The processor owns the current Stream ID and publishes it. Round 2, executor [A676b].</p>\n<ol dir=\"auto\">\n<li><strong>Port:</strong> the processor top gains one per-source output, <code class=\"notranslate\">src_stream_id_o[N_STREAM_OUT_P*64-1:0]</code>: the Stream ID each source currently uses. After reset it equals the <code class=\"notranslate\">cfg_stream_id_i</code> slice. This is the only allowed top-level change. Name it in the interface documents.</li>\n<li><strong>Conflict path:</strong> on a MAAP conflict on a declaring source, the talker withdraws as now. At the next <code class=\"notranslate\">ALLOC_DA</code> grant it moves to a new Stream ID and declares at once, with no <code class=\"notranslate\">T-SRP-LEAVEALL2</code> wait.\n<ul dir=\"auto\">\n<li>The new ID keeps the upper 48 bits (the station MAC) and changes the 16-bit unique ID (Milan v1.2 Table 5.3 leaves the choice to the PAAD).</li>\n<li>Make the rule deterministic, state it in the architecture documents with its clause, and prove the result distinct from the withdrawn ID and from every other source's current ID. That holds even when the integrator provisions an arbitrary 64-bit value for a slot.</li>\n<li>PROBE_TX, GET_TX_STATE and the Talker Advertise all use the published ID.</li>\n</ul>\n</li>\n<li><strong>Reporting:</strong> while the source has no valid address, PROBE_TX answers <code class=\"notranslate\">TALKER_DEST_MAC_FAILED</code> (Milan v1.2 5.5.4.1 step 3, Table 5.42). From the grant on, it answers SUCCESS with the new ID and address.</li>\n<li><strong>Same-Stream-ID paths keep the gap:</strong> the PCP-change path stays as is (IEEE 802.1Q-2018 35.2.2.8 normative two LeaveAllTime). So does any path that re-declares the old ID.</li>\n<li><strong>Documents:</strong> correct <code class=\"notranslate\">docs/00_MILAN_COMPLIANCE_REVIEW.md:406</code> (REQ-ACMP-010) and <code class=\"notranslate\">08_timing.md:36</code>. Table 5.3 is informative (Milan v1.2 5.3.7.5), and the normative wait is 802.1Q-2018 35.2.2.8 for the same Stream ID only. Also update F05.12, <code class=\"notranslate\">02_interfaces.md</code> and <code class=\"notranslate\">10_srp_engine.md</code>.</li>\n<li><strong>Tests:</strong>\n<ul dir=\"auto\">\n<li>conflict to new declaration in under 2 s with a new Stream ID;</li>\n<li>distinctness against every other source, including a provisioned value that collides with the first candidate;</li>\n<li><code class=\"notranslate\">TALKER_DEST_MAC_FAILED</code> only before the grant;</li>\n<li>mutants for: the old wait kept; the old ID reused without the gap; the output not following the change; a colliding new ID.</li>\n</ul>\n</li>\n<li><strong>Consumer gate:</strong> a committed scratch parent at milan-fpga dev <code class=\"notranslate\">e76a755a</code>, with this head as the gitlink and the parent read path wired as well. The framer stamp and the GET_STREAM_INFO output selector 2 both read <code class=\"notranslate\">src_stream_id_o</code>, so the wire, GET_STREAM_INFO and PROBE_TX agree after a conflict. Run <code class=\"notranslate\">pp_shadow</code>, <code class=\"notranslate\">milan_dp</code> (all legs), <code class=\"notranslate\">maap</code>, <code class=\"notranslate\">capture_coherence</code> and <code class=\"notranslate\">milan_dp_render</code>, and the rom-digest record check.\n<ul dir=\"auto\">\n<li>Hand the parent wiring over as a patch in your output directory. It lands later in the milan-fpga pin adoption PR, not in this repository.</li>\n</ul>\n</li>\n</ol>\n<p dir=\"auto\">STOP if the distinctness proof needs more than this one new output.</p>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202#issuecomment-6408995638",
+      "body": "[A676b] TAKEN",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6408995638,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A676b] TAKEN</p>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202#issuecomment-6414252955",
+      "body": "[A676b] REVIEW READY. Head `a8aa626e1cba30625ac764c70e1fb8fb02c69c40` (branch `202-maap-conflict-new-stream-id`, 4 commits on `ed211803`, not pushed, no PR). Owner decision option A implemented; no STOP condition hit.\n\n- One new top-level output, `src_stream_id_o[N_STREAM_OUT_P*64-1:0]`: each source's current Stream ID, the `cfg_stream_id_i` slice after reset. No other port, parameter or register-map change.\n- A MAAP conflict on a declaring source withdraws and re-allocates at once; the next `ALLOC_DA` grant moves it to a new Stream ID and declares it in the same walk, with no `T-SRP-LEAVEALL2`. `PROBE_TX` answers `TALKER_DEST_MAC_FAILED` until the grant, then SUCCESS with the new ID and address; GET_TX_STATE and the Talker Advertise carry the published ID.\n- Rule (05 F05.12): keep the upper 48 bits; take the first unique ID, counted up from a cursor starting at P-N-STREAM-OUT, that is no source's current and no source's configured ID. Distinct from the withdrawn ID and every other current ID for any provisioned values; configured IDs stay excluded and the cursor never revisits a moved ID inside a 2^16 lap. Any conflict books the move once the current ID has been declared (also after a lapsed gate, in a PCP backoff, through a disable).\n- The PCP-change path is unchanged: same Stream ID, two LeaveAllTime (IEEE 802.1Q-2018 35.2.2.8).\n- Tests: conflict to new declaration 1,700 ms in `tb/acmp_talker` S1 and 1,737 ms through the in-scope MAAP engine in `tb/pp_top` MP8; a provisioned collision with the first candidate (S2) and a full cursor lap (S5). 20 named mutant arms (old wait kept, old ID reused, output not following, colliding ID, and more), 20 of 20 killed.\n- Gates rc 0: lint, `make check`, every suite (1,030,494 checks), the requirement-tag execution check, the portability elaboration, the elaboration guards, and every campaign that builds a changed file.\n- Consumer gate: scratch milan-fpga dev `e76a755a` with this head as the gitlink and the read path wired (framers and output GET_STREAM_INFO selector 2 read `src_stream_id_o`): `pp_shadow`, `milan_dp` (all legs), `maap`, `capture_coherence`, `milan_dp_render` and the ROM-digest record check pass, identical to the base pin. The parent wiring is handed over as a patch for the pin adoption PR.\n",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6414252955,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A676b] REVIEW READY. Head <code class=\"notranslate\">a8aa626e1cba30625ac764c70e1fb8fb02c69c40</code> (branch <code class=\"notranslate\">202-maap-conflict-new-stream-id</code>, 4 commits on <code class=\"notranslate\">ed211803</code>, not pushed, no PR). Owner decision option A implemented; no STOP condition hit.</p>\n<ul dir=\"auto\">\n<li>One new top-level output, <code class=\"notranslate\">src_stream_id_o[N_STREAM_OUT_P*64-1:0]</code>: each source's current Stream ID, the <code class=\"notranslate\">cfg_stream_id_i</code> slice after reset. No other port, parameter or register-map change.</li>\n<li>A MAAP conflict on a declaring source withdraws and re-allocates at once; the next <code class=\"notranslate\">ALLOC_DA</code> grant moves it to a new Stream ID and declares it in the same walk, with no <code class=\"notranslate\">T-SRP-LEAVEALL2</code>. <code class=\"notranslate\">PROBE_TX</code> answers <code class=\"notranslate\">TALKER_DEST_MAC_FAILED</code> until the grant, then SUCCESS with the new ID and address; GET_TX_STATE and the Talker Advertise carry the published ID.</li>\n<li>Rule (05 F05.12): keep the upper 48 bits; take the first unique ID, counted up from a cursor starting at P-N-STREAM-OUT, that is no source's current and no source's configured ID. Distinct from the withdrawn ID and every other current ID for any provisioned values; configured IDs stay excluded and the cursor never revisits a moved ID inside a 2^16 lap. Any conflict books the move once the current ID has been declared (also after a lapsed gate, in a PCP backoff, through a disable).</li>\n<li>The PCP-change path is unchanged: same Stream ID, two LeaveAllTime (IEEE 802.1Q-2018 35.2.2.8).</li>\n<li>Tests: conflict to new declaration 1,700 ms in <code class=\"notranslate\">tb/acmp_talker</code> S1 and 1,737 ms through the in-scope MAAP engine in <code class=\"notranslate\">tb/pp_top</code> MP8; a provisioned collision with the first candidate (S2) and a full cursor lap (S5). 20 named mutant arms (old wait kept, old ID reused, output not following, colliding ID, and more), 20 of 20 killed.</li>\n<li>Gates rc 0: lint, <code class=\"notranslate\">make check</code>, every suite (1,030,494 checks), the requirement-tag execution check, the portability elaboration, the elaboration guards, and every campaign that builds a changed file.</li>\n<li>Consumer gate: scratch milan-fpga dev <code class=\"notranslate\">e76a755a</code> with this head as the gitlink and the read path wired (framers and output GET_STREAM_INFO selector 2 read <code class=\"notranslate\">src_stream_id_o</code>): <code class=\"notranslate\">pp_shadow</code>, <code class=\"notranslate\">milan_dp</code> (all legs), <code class=\"notranslate\">maap</code>, <code class=\"notranslate\">capture_coherence</code>, <code class=\"notranslate\">milan_dp_render</code> and the ROM-digest record check pass, identical to the base pin. The parent wiring is handed over as a patch for the pin adoption PR.</li>\n</ul>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202#issuecomment-6414935566",
+      "body": "[A10] **Round 3 for [A676c] on PR #204.** Both reviews are NEGATIVE at `a8aa626e`: [R710-1](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204#issuecomment-6414931259) has 2 MAJOR; [R709-1](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204#issuecomment-6414853154) has 3 MINOR. The normal conflict path is accepted by both. Fix every finding at its cause, with a test that fails on `a8aa626e`.\n\n1. **Every same-Stream-ID re-declaration keeps IEEE 802.1Q-2018 35.2.2.8's two-LeaveAllTime gap** after a withdrawal. Two paths currently skip it:\n   - the PCP change after a withdrawal (R710-F01);\n   - a disable and re-enable that returns the same Stream ID with another address (R709 F-1).\n   Either move to a new Stream ID by the decision's rule, or wait the gap; state which per path. Add a mutant per path.\n2. **The parent wiring patch** (R710-F02): the framer's AAF context unique ID must not override `src_stream_id_o`. After a move, the wire, GET_STREAM_INFO and PROBE_TX carry the published ID. Correct `parent-src-stream-id-wiring.patch`, and prove it on the scratch parent with a conflict-and-move case reading the AVTP stream_id on the wire.\n3. **A check binding each slot's published upper 48 bits to its own slot** (R709 F-2), with a plant.\n4. **Documentation follows the RTL** (R709 F-3): Join!, not \"New\", or the RTL issues New. State which, with 802.1Q 10.7 / 35.2.\n5. **Residues:** remove the bench labels from source comments (R710-R01), and fix the provenance wording (R709 RESIDUE-1).\n",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6414935566,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A10] <strong>Round 3 for [A676c] on PR <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"6038263262\" data-permission-text=\"Title is private\" data-url=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/204\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204/hovercard\" href=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204\">#204</a>.</strong> Both reviews are NEGATIVE at <code class=\"notranslate\">a8aa626e</code>: <a href=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204#issuecomment-6414931259\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204/hovercard\">R710-1</a> has 2 MAJOR; <a href=\"https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204#issuecomment-6414853154\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204/hovercard\">R709-1</a> has 3 MINOR. The normal conflict path is accepted by both. Fix every finding at its cause, with a test that fails on <code class=\"notranslate\">a8aa626e</code>.</p>\n<ol dir=\"auto\">\n<li><strong>Every same-Stream-ID re-declaration keeps IEEE 802.1Q-2018 35.2.2.8's two-LeaveAllTime gap</strong> after a withdrawal. Two paths currently skip it:\n<ul dir=\"auto\">\n<li>the PCP change after a withdrawal (R710-F01);</li>\n<li>a disable and re-enable that returns the same Stream ID with another address (R709 F-1).<br>\nEither move to a new Stream ID by the decision's rule, or wait the gap; state which per path. Add a mutant per path.</li>\n</ul>\n</li>\n<li><strong>The parent wiring patch</strong> (R710-F02): the framer's AAF context unique ID must not override <code class=\"notranslate\">src_stream_id_o</code>. After a move, the wire, GET_STREAM_INFO and PROBE_TX carry the published ID. Correct <code class=\"notranslate\">parent-src-stream-id-wiring.patch</code>, and prove it on the scratch parent with a conflict-and-move case reading the AVTP stream_id on the wire.</li>\n<li><strong>A check binding each slot's published upper 48 bits to its own slot</strong> (R709 F-2), with a plant.</li>\n<li><strong>Documentation follows the RTL</strong> (R709 F-3): Join!, not \"New\", or the RTL issues New. State which, with 802.1Q 10.7 / 35.2.</li>\n<li><strong>Residues:</strong> remove the bench labels from source comments (R710-R01), and fix the provenance wording (R709 RESIDUE-1).</li>\n</ol>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202#issuecomment-6414945910",
+      "body": "[A676c] TAKEN",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6414945910,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A676c] TAKEN</p>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202#issuecomment-6420260767",
+      "body": "[A676c] REVIEW READY. Head `ebb1f0010bde76c38cc5270a6366ee9e3157ec54` (four round-3 commits on `a8aa626e`; local, not pushed).\n\nR710-1 and R709-1 findings addressed: PCP changes after withdrawal keep the same-ID gap; disable/re-enable books a new ID; the parent framer uses the published ID despite an explicit TCTX UID; per-slot upper-bit checks and plants are added; Join! documentation and comment residues are corrected.\n\nAll required gates passed. Processor sweep: 1,030,552 checks, zero failures. All affected campaigns passed, including 25/25 STREAM_ID arms. Parent consumer gates passed, including all datapath legs (13,685 checks), both real-conflict agreement cases, the 43-case capture union, and final-pin ROM recording and pp_shadow. The committed scratch parent pins this head. HANDOFF.md, PR-BODY.md, the corrected parent patch, and indexed receipts are complete. Earlier failed attempts are retained and explicitly excluded; the pre-existing parent CRF source-index limitation is documented. No STOP condition met.",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6420260767,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A676c] REVIEW READY. Head <code class=\"notranslate\">ebb1f0010bde76c38cc5270a6366ee9e3157ec54</code> (four round-3 commits on <code class=\"notranslate\">a8aa626e</code>; local, not pushed).</p>\n<p dir=\"auto\">R710-1 and R709-1 findings addressed: PCP changes after withdrawal keep the same-ID gap; disable/re-enable books a new ID; the parent framer uses the published ID despite an explicit TCTX UID; per-slot upper-bit checks and plants are added; Join! documentation and comment residues are corrected.</p>\n<p dir=\"auto\">All required gates passed. Processor sweep: 1,030,552 checks, zero failures. All affected campaigns passed, including 25/25 STREAM_ID arms. Parent consumer gates passed, including all datapath legs (13,685 checks), both real-conflict agreement cases, the 43-case capture union, and final-pin ROM recording and pp_shadow. The committed scratch parent pins this head. HANDOFF.md, PR-BODY.md, the corrected parent patch, and indexed receipts are complete. Earlier failed attempts are retained and explicitly excluded; the pre-existing parent CRF source-index limitation is documented. No STOP condition met.</p>"
+    }
+  ],
+  "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202",
+  "title": "Mister-M-alt/protocol-processor-control-plane-avb-milan Issue #202 comments",
+  "display_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202",
+  "display_title": "Mister-M-alt/protocol-processor-control-plane-avb-milan Issue #202 comments"
+}

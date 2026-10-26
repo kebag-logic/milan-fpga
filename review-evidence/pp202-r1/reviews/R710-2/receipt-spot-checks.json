@@ -1,0 +1,76 @@
+{
+  "pcp_after_withdrawal_skips_the_gap@acmp_talker": [
+    "FAIL: S7 a PCP change after a listener withdrawal arms T-SRP-LEAVEALL2 (0 draws, 0 arms)",
+    "FAIL: S7 a returning listener does not declare the same ID inside the gap",
+    "FAIL: S7 a probe does not declare the same ID inside the gap",
+    "FAIL: S7 two LeaveAllTime periods separate the withdrawal and the same-ID declaration (2 ms)",
+    "FAIL: S8 a PCP change after a lapse arms T-SRP-LEAVEALL2 on the moved ID (0 draws, 0 arms)",
+    "FAIL: S8 a probe does not declare the moved ID inside the gap",
+    "FAIL: S8 a returning listener does not declare the moved ID inside the gap",
+    "FAIL: S8 two LeaveAllTime periods separate the withdrawal and the moved ID's declaration (2 ms)",
+    "FAIL: S9 the pending PCP change then starts the gap",
+    "1520 checks: 1511 PASS, 9 FAIL"
+  ],
+  "pcp_pending_not_held@acmp_talker": [
+    "FAIL: S9 a probe served with a PCP change pending does not declare the same ID (2 strobes)",
+    "1520 checks: 1519 PASS, 1 FAIL"
+  ],
+  "disable_keeps_declared_id@acmp_talker": [
+    "FAIL: J7 grant re-declares open sid got ab00000000000004",
+    "FAIL: J7b the recovered source answers with its NEW DA stream_id got ab00000000000004",
+    "FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000006",
+    "FAIL: S1 a declared moved ID moves again after a disable (got ab00000000000008)",
+    "FAIL: S10 a declared source returns from a disable under a new Stream ID (got ab00000000000003)",
+    "FAIL: S10 PROBE_TX after the return answers the new ID and DA src3 status/tuple (status 0 sid ab00000000000003)",
+    "FAIL: S10 the new DA is declared under the new ID, never the withdrawn one",
+    "FAIL: S10 the move does not depend on the returned DA (got ab00000000000005)",
+    "FAIL: S10 PROBE_TX after the same DA returns answers the new ID src5 status/tuple (status 0 sid ab00000000000005)",
+    "1520 checks: 1511 PASS, 9 FAIL"
+  ],
+  "publish_upper_from_slot0@acmp_talker": [
+    "FAIL: S4 after reset every slot publishes its own whole configured ID (slot 7 ab00000000000008, slot 5 ab0000000000cdef)",
+    "FAIL: S4 a move leaves the other slots' whole IDs published",
+    "FAIL: S4 src7 src7 status/tuple (status 0 sid cd00000000000008)",
+    "FAIL: S4 a slot under other upper 48 bits keeps them when it moves (got ab00000000000009)",
+    "FAIL: S4 src5 src5 status/tuple (status 0 sid 0123456789abcdef)",
+    "FAIL: S4 an arbitrary provisioned slot keeps its upper 48 bits when it moves (got ab0000000000000a)",
+    "1520 checks: 1514 PASS, 6 FAIL"
+  ],
+  "reopen_sends_new@pp_top": [
+    "FAIL: MP8: the new Stream ID's first Talker Advertise is a JoinMt, not a New (event 0)"
+  ],
+  "timing_receipts": {
+    "sidmove-ax1x1-head": [
+      "  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)",
+      "  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)",
+      "checks: 50   failures: 0",
+      "RESULT: PASS"
+    ],
+    "sidmove8-8x8-head": [
+      "  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1816 ms)",
+      "  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1816 ms)",
+      "checks: 52   failures: 0",
+      "RESULT: PASS"
+    ],
+    "control-round2-precedence-sidmove8": [
+      "  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1816 ms)",
+      "  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1816 ms)",
+      "  [FAIL] [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (55)     got=0000000000000037 exp=0000000000000000",
+      "  [FAIL] [AFTER]: every one carries src_stream_id_o (else 0200000000010001)     got=0000000000000034 exp=0000000000000000",
+      "checks: 52   failures: 2",
+      "RESULT: FAIL"
+    ],
+    "control-no-wiring-sidmove": [
+      "  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)",
+      "  [FAIL] [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (54)     got=0000000000000036 exp=0000000000000000",
+      "  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)",
+      "  [FAIL] [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (14)     got=000000000000000e exp=0000000000000000",
+      "  [FAIL] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010000 exp=0200000000010002",
+      "  [FAIL] [AFTER]: every one carries src_stream_id_o (else 0200000000010000)     got=0000000000000033 exp=0000000000000000",
+      "  [FAIL] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010001 exp=0200000000010003",
+      "  [FAIL] [AFTER]: every one carries src_stream_id_o (else 0200000000010001)     got=000000000000000d exp=0000000000000000",
+      "checks: 50   failures: 6",
+      "RESULT: FAIL"
+    ]
+  }
+}

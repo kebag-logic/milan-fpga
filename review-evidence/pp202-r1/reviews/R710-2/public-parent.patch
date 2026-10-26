@@ -1,0 +1,1384 @@
+diff --git a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+index 080ed5585b..243dacfb4f 100644
+--- a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
++++ b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+@@ -118,7 +118,17 @@ module KL_aaf_packetizer #(
+   //! the integration's term, ns: the end of the PDU's sample span at the
+   //! media interface to its last pair here, worst (negative when that pair
+   //! closes inside the span, as an inner TDM32 pair does)
+-  parameter int          IN_LATE_NS_P  = 0
++  parameter int          IN_LATE_NS_P  = 0,
++  //! THE STREAM_ID SOURCE (protocol processor #202). 1: stream_id_i is the
++  //! protocol processor's current Stream ID per talker, its src_stream_id_o,
++  //! and is stamped as is on every talker, t0 included. The processor owns
++  //! the ID: it declares it, answers PROBE_TX and GET_STREAM_INFO with it
++  //! and moves it after a MAAP conflict, so no TCTX uid may name another
++  //! one, or a listener bound through PROBE_TX would register for an ID no
++  //! frame carries. 0, the default: the historical {station_mac, uid}
++  //! derivation below, with a non-zero TCTX uid naming the uid for t>0 (the
++  //! standalone framer benches, which have no processor).
++  parameter bit          SID_PP_P      = 1'b0
+ )(
+   input  wire         clk_i,             //! datapath clock
+   input  wire         rst_n,             //! active-low synchronous reset
+@@ -151,6 +161,10 @@ module KL_aaf_packetizer #(
+   //! else would ride a VLAN its reservation does not cover. Tie 0 for the
+   //! historical per-talker law.
+   input  wire         dom_ovr_i,
++  //! per-talker stream_id to stamp, flat [64*t +: 64], read only with
++  //! SID_PP_P = 1: the protocol processor's src_stream_id_o, which moves
++  //! after a MAAP conflict (processor #202)
++  input  wire [N_TALKERS_P*64-1:0] stream_id_i = '0,
+   //! per-talker presentation offsets: entry t = the max transit time talker
+   //! t adds to ptp_ns at first-sample capture (AECP's per-STREAM_OUTPUT
+   //! file, SET/GET_MAX_TRANSIT_TIME / SET_STREAM_INFO ACC_LAT). Replicate
+@@ -485,7 +499,10 @@ module KL_aaf_packetizer #(
+                          : (|evid_r  ? evid_r  : vlan_vid_i);
+   wire [15:0] eff_uid_w  = (et_r == '0) ? 16'd0
+                          : (|euid_r  ? euid_r  : 16'(et_r));
+-  wire [63:0] stream_id_w = {station_mac_i, eff_uid_w};
++  //! the processor's ID outranks every TCTX field when it owns the ID
++  //! (SID_PP_P): a TCTX uid is read only by the standalone derivation
++  wire [63:0] stream_id_w = SID_PP_P ? stream_id_i[64*32'(et_r) +: 64]
++                                     : {station_mac_i, eff_uid_w};
+ 
+   logic [7:0] fb [0:NUM_BEATS_C*8-1];
+   always_comb begin : frame_bytes
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index 53a60d1fce..b9831dbc5a 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -710,6 +710,10 @@ module KL_pp_shadow #(
+ 
+     //! ---- class-D ACMP / ADP status levels ----
+     output logic [N_STREAM_OUT_P-1:0]    acmp_declaring_o,        //! per-source DA gate open (THE talker egress gate)
++    //! per-source CURRENT stream_id, flat [64*s +: 64]: cfg_stream_id_i
++    //! after reset, moved after a MAAP conflict (processor #202). The framers
++    //! stamp it and GET_STREAM_INFO answers an output's stream_id with it.
++    output logic [N_STREAM_OUT_P*64-1:0] src_stream_id_o,
+     output logic [N_STREAM_IN_P-1:0]     acmp_bound_o,            //! per-sink binding installed, DEBOUNCED
+     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,        //! per-sink bound talker entity_id
+     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_sid_o,        //! per-sink bound stream_id
+@@ -1444,6 +1448,7 @@ module KL_pp_shadow #(
+       .srp_acc_latency_o       (srp_acc_latency_o),
+       .srp_snk_fail_code_o     (srp_snk_fail_code_o),
+       .acmp_declaring_o        (acmp_declaring_o),
++      .src_stream_id_o         (src_stream_id_o),
+       .acmp_bound_o            (acmp_bound_o),
+       .acmp_bound_eid_o        (acmp_bound_eid_o),
+       .acmp_bound_sid_o        (acmp_bound_sid_o),
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 8fc0359a34..36198421f4 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1520,7 +1520,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+                       .LEAD_P        (1'b1),
+                       .FS_HZ_P       (AUDIO_IF_FS_HZ_P),
+                       .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
+-                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C)) aaf_packetizer (
++                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C),
++                      //! processor #202: stamp the processor's current ID,
++                      //! which no TCTX uid overrides
++                      .SID_PP_P      (1'b1)) aaf_packetizer (
+     .clk_i (axis_clk), .rst_n (axis_resetn),
+     .pair_valid_i (pkt_pv_w), .pair_slot_i (pkt_slot_w),
+     .pair_l_i (pkt_l_w), .pair_r_i (pkt_r_w),
+@@ -1541,6 +1544,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .vlan_pcp_i (lwsrp_adopt_valid ? lwsrp_op_prio[2:0]
+                                    : SR_CLASS_A_PRIO_C[2:0]),
+     .dom_ovr_i  (lwsrp_adopt_valid),
++    //! the processor's current stream_id per AAF source (sources 0 to
++    //! N_STREAMS - 1 are the AAF talkers, processor #202)
++    .stream_id_i (pp_cd_src_stream_id_w[N_STREAMS*64-1:0]),
+     //! per-talker slice of the AECP per-STREAM_OUTPUT offset file: talker
+     //! t stamps its avtp_timestamp with ITS OWN entry t, as set (Milan v1.2
+     //! 5.4.2.9; #632, pres_offset_fold below)
+@@ -2482,7 +2488,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! talker_unique_id} law, the SAME 64 bits KL_aaf_packetizer stamps on the
+   //! wire, with the CRF Media Clock Output's CSR override applied where the
+   //! CRF engine applies it (eff_crft_sid_w) so the answer and the stream can
+-  //! never disagree. Derive, never mirror.
++  //! never disagree. Derive, never mirror. This is each source's ID after
++  //! reset only: the processor moves a source after a MAAP conflict and
++  //! publishes the current IDs, which the stamps and GET_STREAM_INFO read
++  //! (pp_cd_src_stream_id_w, processor #202).
+   wire [ACMP_SRC_C*64-1:0]  pp_src_sid_w;
+   //! ...and the per-source TSpec MaxFrameSize it declares (g_pp_maxf)
+   wire [ACMP_SRC_C*16-1:0]  pp_src_maxf_w;
+@@ -2529,6 +2538,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   wire [ACMP_SINKS_C*32-1:0] pp_cd_srp_acc_latency_w;
+   wire [ACMP_SINKS_C*8-1:0]  pp_cd_srp_snk_fail_code_w;
+   wire [ACMP_SRC_C-1:0]      pp_cd_acmp_declaring_w /* verilator public_flat_rd */;
++  //! each source's CURRENT stream_id (processor #202): pp_src_sid_w after
++  //! reset, moved by the processor after a MAAP conflict. Every framer stamp
++  //! and the GET_STREAM_INFO stream_id of an output read THIS, never
++  //! pp_src_sid_w, so the wire, the GSI answer and the PROBE_TX answer agree.
++  wire [ACMP_SRC_C*64-1:0]   pp_cd_src_stream_id_w;
++  //! ...and the CRF Media Clock Output's stamp: that source's current
++  //! stream_id where this shape has one, the CSR value otherwise
++  wire [63:0]                crft_tx_sid_w;
++  generate
++    if (ACMP_SRC_C > N_STREAMS) begin : g_crft_sid_pp
++      assign crft_tx_sid_w = pp_cd_src_stream_id_w[64*CRF_TUID_C +: 64];
++    end else begin : g_crft_sid_csr
++      assign crft_tx_sid_w = eff_crft_sid_w;
++    end
++  endgenerate
+   wire [ACMP_SINKS_C-1:0]    pp_cd_acmp_bound_w     /* verilator public_flat_rd */;
+   wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_eid_w;
+   wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_sid_w;
+@@ -6142,7 +6166,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   end : gsi_flag_law
+ 
+   wire [47:0] gsi_odmac_w = maap_addr + 48'(gsi_ix_w);
+-  wire [63:0] gsi_osid_w  = pp_src_sid_w[64*gsi_oix_w +: 64];
++  wire [63:0] gsi_osid_w  = pp_cd_src_stream_id_w[64*gsi_oix_w +: 64];
+ 
+   //! ---- the SET_STREAM_FORMAT verdict (kind 0 selector 15, issue #67) ----
+   //! The processor presents the PROPOSED format on `pp_gsi_prop_fmt_w` and
+@@ -7453,7 +7477,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .ev_p_i (dom_ev_p_w), .ev_ns_i (dom_ns_w),
+     //! licence-gated, never the bare CSR bit: see crft_emit_en_w
+     .enable_i      (crft_emit_en_w),
+-    .sid_i         (eff_crft_sid_w),
++    .sid_i         (crft_tx_sid_w),
+     .dest_mac_i    (eff_crft_dmac_w),
+     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+@@ -9602,6 +9626,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       .srp_acc_latency_o       (pp_cd_srp_acc_latency_w),
+       .srp_snk_fail_code_o     (pp_cd_srp_snk_fail_code_w),
+       .acmp_declaring_o        (pp_cd_acmp_declaring_w),
++      .src_stream_id_o         (pp_cd_src_stream_id_w),
+       .acmp_bound_o            (pp_cd_acmp_bound_w),
+       .acmp_bound_eid_o        (pp_cd_acmp_bound_eid_w),
+       .acmp_bound_sid_o        (pp_cd_acmp_bound_sid_w),
+diff --git a/tb/verilator/capture_coherence/mutants.py b/tb/verilator/capture_coherence/mutants.py
+index 29e828086a..dcdb3ca7b4 100644
+--- a/tb/verilator/capture_coherence/mutants.py
++++ b/tb/verilator/capture_coherence/mutants.py
+@@ -132,7 +132,8 @@ GRID_CRF = "[GRID] every CRF stamp less its offset applied and TC, 2 periods, is
+ HOLD = "[HOLD] no AAF stamp is more than 2.126 ms after its hand-over"
+ #: milan_datapath's binding of the AAF talkers' lead and the CRF output's TC (#773)
+ AAF_LEAD = "                      .LEAD_P        (1'b1),"
+-AAF_IN = "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C)) aaf_packetizer ("
++# Match the binding alone: another parameter may follow it (processor #202).
++AAF_IN = "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C)"
+ CRF_TC = "              .TC_P          (1'b1),"
+ CRF_EV = "              .EV_LATE_NS_P  (TLK_CRF_EV_NS_C)) crf_tx ("
+ 
+@@ -273,7 +274,7 @@ MUTATIONS = [
+      ((AAF_LEAD, "                      .LEAD_P        (1'b0),"),),
+      (WIRE_AAF, GRID_AAF, PIN_BAND)),
+     ("dp", "the AAF fixed delay one period short: the instant plus 7 periods (#773)",
+-     ((AAF_IN, "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C - 20834)) aaf_packetizer ("),),
++     ((AAF_IN, "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C - 20834)"),),
+      (WIRE_AAF, GRID_AAF)),
+     ("dp", "the AAF stamps 125 us late: past IEEE 1722-2016 Equation (1)'s lower bound (#773)",
+      (("    .ptp_ns_i (aaf_tbase_w),", "    .ptp_ns_i (aaf_tbase_w + 64'd125000),"),),
+@@ -289,7 +290,7 @@ MUTATIONS = [
+        "    .ev_p_i (dom_ev_p_w), .ev_ns_i (dom_ns_w + 64'd125000),"),),
+      WIRE_CRF_LOW),
+     ("dp", "the AAF talkers' terms grow by 125 us: a fixed delay past Milan v1.2 5.3.7.6's 125 us (#773)",
+-     ((AAF_IN, "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C + 125000)) aaf_packetizer ("),),
++     ((AAF_IN, "                      .IN_LATE_NS_P  (TLK_AAF_IN_NS_C + 125000)"),),
+      Refused("exceeds the 0 to 125 us Milan v1.2 5.3.7.6 allows: refused")),
+     ("chmap", "RM7: a tick queued behind a running walk takes no snapshot when its walk starts",
+      ((SNAP, "  wire tdm_snap_w = (st_r == CM_IDLE_S) && !tick_pend_r && tick_i;"),),
+diff --git a/tb/verilator/milan_dp/Makefile b/tb/verilator/milan_dp/Makefile
+index c26d983948..aa40e54518 100644
+--- a/tb/verilator/milan_dp/Makefile
++++ b/tb/verilator/milan_dp/Makefile
+@@ -13,6 +13,10 @@
+ #                 (crflic_mutants.py), outside the sweep's deadline, and the
+ #                 #774 TSpec control on both of its shapes
+ #   make tspec8 - run only the #774 per-source TSpec leg on the AX 8x8 shape
++#   make sidmove / sidmove8 - run only a processor #202 leg: a MAAP conflict
++#                 moves each declaring source's Stream ID, and the wire,
++#                 PROBE_TX and GET_STREAM_INFO follow (compressed time; the
++#                 shipping shape, and two AAF talkers of the AX 8x8 shape)
+ #   make notify - run only the timed leg: the Milan 5.4.5 notifications and
+ #                 the #508 GET_STREAM_INFO seam ([GSI]) at compressed time
+ #   make gsi-mutants - the [GSI] section's explicit mutation campaign
+@@ -235,7 +239,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
+        $(DP_SRC)
+ CPP  = sim_main.cpp
+ 
+-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
++.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build sidmove sidmove-build sidmove8 sidmove8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
+ all: run
+ 
+ # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
+@@ -330,6 +334,34 @@ $(VERILATOR) crflic_probes.vlt $(SHAPE_8x8) $(CRFLIC_FLAGS) --Mdir $(TSPEC8_MDIR
+   $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_tspec8
+ endef
+ 
++# processor #202: after a MAAP conflict the processor moves each declaring
++# source to a new Stream ID at its grant and publishes it on src_stream_id_o.
++# sim_sid_move.cpp lets a peer take the MAAP block while sources stream, and
++# requires the AVTP stream_id on the wire, the PROBE_TX answer, GET_STREAM_INFO
++# selector 2 and the Talker Advertise to name each source's published ID
++# before the move and after it, on the crflic grid. obj_sidmove streams the
++# shipping shape's AAF talker and CRF Media Clock Output (uid 1); obj_sidmove8
++# streams the TSPEC8 shape's AAF talkers 0 and 1, talker 1's TCTX uid named.
++SIDMOVE_MDIR ?= obj_sidmove
++define SIDMOVE_BUILD
++$(VERILATOR) sidmove_probes.vlt $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(SIDMOVE_MDIR) \
++  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
++  -GAUDIO_IF_MASTER_P=1 \
++  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
++  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DSOURCES_TB=2 -DGRADED_MASK_TB=0x3 -DNAMED_UID_TALKER_TB=-1 -DSHAPE8_TB=0 -Wall -Wextra" \
++  $(SRCS) sim_sid_move.cpp -o Vmilan_dp_sidmove
++endef
++SIDMOVE8_MDIR ?= obj_sidmove8
++define SIDMOVE8_BUILD
++$(VERILATOR) sidmove_probes.vlt $(SHAPE_8x8) $(CRFLIC_FLAGS) --Mdir $(SIDMOVE8_MDIR) \
++  -GN_STREAMS=$(TSPEC8_STREAMS) \
++  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
++  -GAUDIO_IF_MASTER_P=1 \
++  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
++  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DSOURCES_TB=$(shell echo $$(($(TSPEC8_STREAMS) + 1))) -DGRADED_MASK_TB=0x3 -DNAMED_UID_TALKER_TB=1 -DSHAPE8_TB=1 -Wall -Wextra" \
++  $(SRCS) sim_sid_move.cpp -o Vmilan_dp_sidmove8
++endef
++
+ # Milan 5.4.5 TIMED (issue #69) and the #508 GET_STREAM_INFO seam: the
+ # processor's timebase compressed 1000x through its own override parameters
+ # (PP_TIM_DIV_US_P = 1 clock per microsecond tick, PP_TIM_DIV_MS_P = 100
+@@ -565,6 +597,18 @@ tspec8: tspec8-build
+ tspec8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
+ 	$(TSPEC8_BUILD)
+ 
++sidmove: sidmove-build
++	./$(SIDMOVE_MDIR)/Vmilan_dp_sidmove
++
++sidmove-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
++	$(SIDMOVE_BUILD)
++
++sidmove8: sidmove8-build
++	./$(SIDMOVE8_MDIR)/Vmilan_dp_sidmove8
++
++sidmove8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
++	$(SIDMOVE8_BUILD)
++
+ # An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
+ # Six additional elaborations remove ACTIVE or the real grant at each
+ # consumer, and two more (#774) give every source talker 0's TSpec, one per
+@@ -640,7 +684,7 @@ ax1x1gptp-extended: ax1x1gptp
+ # One inventory owns default execution and CI selection.
+ COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
+ PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
+-ORDINARY_CASES = base notify crflic tspec8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
++ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
+ SUFFIX_CASES = render-mutants
+ CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
+ $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
+@@ -649,6 +693,8 @@ RUN_CASES = $(PREFIX_CASES) $(ORDINARY_CASES) $(SUFFIX_CASES)
+ CASE_OPTIONS_base = ./obj_dir/Vmilan_dp_sim
+ CASE_OPTIONS_notify = --banner "---- Milan 5.4.5 notifications and the \#508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" ./$(NOTIFY_MDIR)/Vmilan_dp_notify
+ CASE_OPTIONS_crflic = --banner "---- \#530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" ./$(CRFLIC_MDIR)/Vmilan_dp_crflic
++CASE_OPTIONS_sidmove = --banner "---- processor \#202: the Stream ID move after a MAAP conflict on the wire, the shipping shape, TIMED on the crflic grid ----" ./$(SIDMOVE_MDIR)/Vmilan_dp_sidmove
++CASE_OPTIONS_sidmove8 = --banner "---- processor \#202: the Stream ID move on the wire, two AAF talkers of the 8x8 shape, a TCTX uid named ----" ./$(SIDMOVE8_MDIR)/Vmilan_dp_sidmove8
+ CASE_OPTIONS_tspec8 = --banner "---- \#774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----" ./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
+ CASE_OPTIONS_dynmap = --banner "---- \#658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----" ./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
+ CASE_OPTIONS_maprec8 = --banner "---- \#637 the map records across the 8x8 shape's eight output ports ----" ./$(MAPREC8_MDIR)/Vmilan_dp_maprec8
+@@ -806,6 +852,18 @@ build-tspec8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_
+ exec-tspec8:
+ 	./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
+ 
++build-sidmove: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
++	$(SIDMOVE_BUILD)
++
++exec-sidmove:
++	./$(SIDMOVE_MDIR)/Vmilan_dp_sidmove
++
++build-sidmove8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
++	$(SIDMOVE8_BUILD)
++
++exec-sidmove8:
++	./$(SIDMOVE8_MDIR)/Vmilan_dp_sidmove8
++
+ build-dynmap: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+ 	$(DYNMAP_BUILD)
+ 
+diff --git a/tb/verilator/milan_dp/sidmove_probes.vlt b/tb/verilator/milan_dp/sidmove_probes.vlt
+new file mode 100644
+index 0000000000..0cd6b9faaa
+--- /dev/null
++++ b/tb/verilator/milan_dp/sidmove_probes.vlt
+@@ -0,0 +1,7 @@
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++// processor #202: sim_sid_move.cpp compares each source's published current
++// Stream ID with the wire, PROBE_TX and GET_STREAM_INFO, and reads talker 1's
++// TCTX uid back. Read only: nothing is forced.
++`verilator_config
++public_flat_rd -module "milan_datapath" -var "pp_cd_src_stream_id_w"
++public_flat_rd -module "KL_aaf_packetizer" -var "euid_r"
+diff --git a/tb/verilator/milan_dp/sim_nxn.cpp b/tb/verilator/milan_dp/sim_nxn.cpp
+index a3b2a90c4a..8ce922eace 100644
+--- a/tb/verilator/milan_dp/sim_nxn.cpp
++++ b/tb/verilator/milan_dp/sim_nxn.cpp
+@@ -7472,8 +7472,9 @@ class NxnDatapathHarness {
+         // packets"). KL_pair_zero_fill now strobes every consumed pair slot at
+         // clk_audio/512, silence where nothing feeds it, so an armed talker
+         // frames at the media rate. Talkers are told apart by the sid uid16
+-        // (bytes 24-25): t0 = 0, t1 = 5 (staged into A_SW_DMAC_HI[31:16] in the
+-        // TCTX section above); anything else armed here would be a defect.
++        // (bytes 24-25): t0 = 0, t1 = 1, from the processor. The explicit
++        // TCTX uid 5 cannot override that published identity (processor #202,
++        // IEEE 1722-2016 4.4.4.8); sibling contexts keep their own IDs.
+         {
+             std::vector<uint8_t> cur;
+             int t1f = 0, t1sil = 0, t1chans = -1, t1dlen = -1, foreign = 0,
+@@ -7493,7 +7494,7 @@ class NxnDatapathHarness {
+                         if (cur.size() >= 86 + off && cur[12+off] == 0x22
+                             && cur[13+off] == 0xF0 && cur[14+off] == 0x02) {
+                             int uid = (cur[24+off] << 8) | cur[25+off];
+-                            if (uid == 5) {
++                            if (uid == 1) {
+                                 t1f++;
+                                 t1chans = cur[32+off];
+                                 t1dlen  = (cur[34+off] << 8) | cur[35+off];
+diff --git a/tb/verilator/milan_dp/sim_sid_move.cpp b/tb/verilator/milan_dp/sim_sid_move.cpp
+new file mode 100644
+index 0000000000..a3c8b34072
+--- /dev/null
++++ b/tb/verilator/milan_dp/sim_sid_move.cpp
+@@ -0,0 +1,997 @@
++// SPDX-FileCopyrightText: 2026 Kebag Logic
++// SPDX-License-Identifier: CERN-OHL-W-2.0
++//
++// obj_sidmove: protocol processor #202 through the whole datapath, at
++// compressed time.
++//
++// After a MAAP conflict the processor withdraws each declaring source,
++// re-allocates at once and, at the grant, moves the source to a new Stream ID
++// (IEEE 802.1Q-2018 35.2.2.8 gaps only a re-declaration of the same StreamID;
++// Milan v1.2 Table 5.3, 5.3.7.5, lets the PAAD take another one). It publishes
++// each source's current ID on src_stream_id_o. A listener binds through
++// PROBE_TX and registers for the ID the answer names, so the stream frames
++// (IEEE 1722-2016 4.4.4.8, the AVTP stream_id) and a STREAM_OUTPUT's
++// GET_STREAM_INFO stream_id (IEEE 1722.1-2021 7.4.16.2, "the current id of
++// the stream") must name the same ID, before the move and after it.
++//
++// Two elaborations run it, both on the crflic grid (the processor's
++// millisecond and KL_maap's millisecond both MS_CYC_TB cycles):
++//   obj_sidmove  endstation_ax7101_1x1_tdm8, the shipping shape: AAF talker 0
++//                and the CRF Media Clock Output (source uid 1) stream;
++//   obj_sidmove8 endstation_ax7101_8x8: AAF talkers 0 and 1 stream, and
++//                talker 1's unique ID is named explicitly in its TCTX record
++//                (uid 1, equal to the derived one), the software override
++//                the framer used to let outrank the processor.
++// GRADED_MASK_TB names the source uids a leg streams and grades;
++// NAMED_UID_TALKER_TB the AAF talker whose TCTX uid it names (-1: none).
++// Phases:
++//   [BOOT]  identity, the firmware boot values, the named talker's TCTX uid.
++//   [A]     the three sources probed; MAAP claims a block and grants; the
++//           switch declares Listener Ready for the ID each PROBE_TX answer
++//           names; each source streams. The wire, PROBE_TX, GET_STREAM_INFO
++//           selector 2, the Talker Advertise and src_stream_id_o agree.
++//   [MOVE]  a peer ANNOUNCEs the claimed block from a lower MAC (IEEE
++//           1722-2016 B.3.6.4 compare_MAC: this station re-addresses). Every
++//           declaring source withdraws, takes a new Stream ID at its grant and
++//           declares it at once; the listener re-probes and binds to it.
++//   [AFTER] for each source: a new ID with the old upper 48 bits, declared
++//           under 2 s after the conflict; the wire, PROBE_TX, GET_STREAM_INFO,
++//           the Talker Advertise and src_stream_id_o all name it; no frame
++//           carries the withdrawn ID after its withdrawal; the named TCTX uid
++//           is still held and does not reach the wire.
++
++#include "Vmilan_datapath.h"
++#include "Vmilan_datapath___024root.h"
++#include "verilated.h"
++#include "../../common/verilator_harness.hpp"
++#include <cstdint>
++#include <cstdio>
++#include <cstdlib>
++#include <deque>
++#include <filesystem>
++#include <functional>
++#include <map>
++#include <string>
++#include <vector>
++
++#ifndef MS_CYC_TB
++#error "MS_CYC_TB must be the processor and KL_maap millisecond, in cycles"
++#endif
++#ifndef SOURCES_TB
++#error "SOURCES_TB must be the talker source count (the AAF talkers plus the CRF output)"
++#endif
++#ifndef GRADED_MASK_TB
++#error "GRADED_MASK_TB must name the source uids this leg streams and grades"
++#endif
++#ifndef NAMED_UID_TALKER_TB
++#error "NAMED_UID_TALKER_TB must name the AAF talker whose TCTX uid is set (-1: none)"
++#endif
++#ifndef SHAPE8_TB
++#error "SHAPE8_TB must say which shape this leg elaborates (1: endstation_ax7101_8x8)"
++#endif
++
++namespace {
++
++constexpr uint64_t kMsCyc = MS_CYC_TB;
++//! the end-station config whose AEM image the elaborated shape ships
++#if SHAPE8_TB
++constexpr char kAemiCfg[] = "endstation_ax7101_8x8";
++#else
++constexpr char kAemiCfg[] = "endstation_ax7101_1x1_tdm8";
++#endif
++constexpr uint64_t kNever = ~0ull;
++constexpr uint64_t ms(uint64_t n) { return n * kMsCyc; }
++
++//! A captured AVTP stream PDU.
++struct StreamPdu {
++    uint64_t cyc = 0;
++    int subtype = 0;
++    uint64_t sid = 0;
++    uint64_t da = 0;
++};
++
++//! What the DUT declared for one Talker Advertise value (802.1Q 35.2.2.8).
++struct TaSeen {
++    uint64_t first_join = kNever;   // first New / JoinIn / JoinMt
++    uint64_t last_leave = kNever;   // latest Lv
++};
++
++//! One source's listener and the switch port in front of it.
++struct Peer {
++    bool want = false;
++    int status = -1;                // last PROBE_TX answer
++    uint64_t answered_sid = 0;      // stream_id of the last SUCCESS answer
++    uint64_t answered_da = 0;
++    uint64_t answered_at = kNever;
++    uint64_t ready_sid = 0;         // the switch's Listener Ready, 0 = none
++    long probes = 0;
++};
++
++class SidMoveHarness {
++ public:
++    int run();
++
++ private:
++    Vmilan_datapath* dut = nullptr;
++    long checks = 0;
++    long fails = 0;
++    uint64_t cyc = 0;
++
++    static constexpr uint64_t kTestEid = 0x001BC50CAC000001ull;
++    static constexpr uint32_t kStaMacLo = 0x00000002u;   // 02:00:00:00
++    static constexpr uint32_t kStaMacHi = 0x00000100u;   // 00:01
++    static constexpr uint64_t kStaMac = 0x020000000001ull;
++    static constexpr uint64_t kCtlrMac = 0x021122334455ull;
++    static constexpr uint64_t kCtlrEid = 0xC0FFEE00DEADBEEFull;
++    //! a peer whose MAC wins compare_MAC (B.3.6.4: octet-reversed, lower wins)
++    static constexpr uint64_t kPeerMac = 0x020000000000ull;
++    static constexpr int kSources = SOURCES_TB;
++    static constexpr int kUidCrf = kSources - 1;     // CRF_TUID_C = N_STREAMS
++    static constexpr uint32_t kGraded = GRADED_MASK_TB;
++    static constexpr int kNamed = NAMED_UID_TALKER_TB;
++    std::vector<int> graded;
++    static constexpr uint64_t kMaapPoolBase = 0x91E0F0000000ull;
++
++    static constexpr uint16_t A_ID = 0x000;
++    static constexpr uint16_t A_MAC_ALO = 0x108;
++    static constexpr uint16_t A_MAC_AHI = 0x10C;
++    static constexpr uint16_t A_ADP_EIDLO = 0x604;
++    static constexpr uint16_t A_ADP_EIDHI = 0x608;
++    static constexpr uint16_t A_ADP_TALKER = 0x618;
++    static constexpr uint16_t A_AAF_CTRL = 0x654;
++    static constexpr uint16_t A_LWSRP_CTRL = 0x680;
++    static constexpr uint16_t A_MAAP_CTRL = 0x6CC;
++    static constexpr uint16_t A_MAAP_STAT0 = 0x6D0;
++    static constexpr uint16_t A_MAAP_STAT1 = 0x6D4;
++    static constexpr uint16_t A_CRFT_CTRL = 0x750;
++    static constexpr uint16_t A_STRM_SEL = 0x800;
++    static constexpr uint16_t A_STRMW_CTRL = 0x810;
++    static constexpr uint16_t A_STRMW_DMAC_HI = 0x820;
++    static constexpr uint16_t A_PP_CTRL = 0x920;
++
++    // ---- the AECP response memory: every AECP answer is assembled in it (the
++    // sim_nxn model, ported in shape from tb/verilator/pp_shadow). wr_ready goes
++    // LOW while a commit is owed, so wr_done never meets the ready that took
++    // the write (KL_aecp_resp_buf's flush arm needs exactly that).
++    static constexpr uint32_t RESP_BASE  = 0x20100000u;   // PP_RESP_BASE_P default
++    static constexpr uint32_t RESP_BYTES = 592u;          // 16 + PP_DESC_LINE_BYTES_P
++    uint8_t  rmem[RESP_BYTES] = {};
++    bool     rm_busy  = false;
++    uint32_t rm_cur   = 0;
++    int      rm_left  = 0;
++    bool     rm_wpend = false;
++    uint32_t rm_waddr = 0;
++    uint64_t rm_wdata = 0;
++    uint32_t rm_wstrb = 0;
++    uint64_t rmem_beat(uint32_t byte_addr) const;
++    void rmem_drive();
++    void rmem_edge();
++
++    // ---- the AEM descriptor memory (the sim_nxn model): AECP is held from
++    // reset until the D3 walk has proven this image, so GET_STREAM_INFO needs
++    // it. One outstanding burst, in order, the first beat DESC_MISS_CYC late,
++    // a one-clock bubble every DESC_GAP_EVERY beats.
++    static constexpr uint32_t DESC_BASE = 0x20000000u;   // PP_DESC_BASE_P default
++    static constexpr int DESC_MISS_CYC  = 142;
++    static constexpr int DESC_GAP_EVERY = 4;
++    std::vector<uint8_t> desc_img;
++    bool     dm_busy = false;
++    uint32_t dm_cur  = 0;
++    int      dm_left = 0;
++    int      dm_wait = 0;
++    int      dm_run  = 0;
++    uint64_t desc_beat(uint32_t byte_addr) const;
++    void dmem_drive();
++    void dmem_edge();
++    bool load_the_image(std::string* why);
++    void start_the_restore_walk();
++
++    std::deque<std::vector<uint8_t>> rx_q;
++    size_t rx_beat = 0;
++    int rx_gap = 0;
++    std::vector<uint8_t> tx_cur;
++    std::vector<StreamPdu> pdus;
++    std::map<uint64_t, TaSeen> ta;          // per declared stream_id
++    std::map<uint16_t, std::vector<uint8_t>> aecp_resp;   // by sequence_id
++    std::multimap<uint64_t, std::function<void()>> sched;
++    Peer peer[kSources];
++    long dut_malformed = 0;
++    uint16_t aecp_seq = 0x2020;
++    size_t aecp_seen = 0;
++
++    void lo();
++    void hi();
++    void step() { lo(); hi(); }
++    void run_until(uint64_t t) { while (cyc < t) step(); }
++    double t_ms(uint64_t c) const { return static_cast<double>(c) / static_cast<double>(kMsCyc); }
++    void run_schedule();
++    void rx_drive();
++    void rx_edge();
++    void observe();
++    void tx_frame_done();
++    void axi_write(uint16_t a, uint32_t d);
++    uint32_t axi_read(uint16_t a);
++    void do_reset();
++
++    static void put_be(std::vector<uint8_t>& f, size_t off, uint64_t v, int n);
++    static uint64_t get_be(const std::vector<uint8_t>& f, size_t off, int n);
++    static std::vector<uint8_t> msrp_frame(const std::vector<uint8_t>& payload);
++    std::vector<uint8_t> probe_tx(int uid);
++    static std::vector<uint8_t> listener_msg(uint64_t sid, int ev, int decl);
++    static std::vector<uint8_t> domain_msg();
++    static std::vector<uint8_t> maap_announce(uint64_t src, uint16_t off, uint16_t cnt);
++    std::vector<uint8_t> gsi_cmd(int ix, uint16_t seq);
++    void on_mrpdu(const std::vector<uint8_t>& f);
++    void on_acmp(const std::vector<uint8_t>& f);
++    void on_aecp(const std::vector<uint8_t>& f);
++    void on_stream_pdu(const std::vector<uint8_t>& f, size_t avtp);
++
++    void at(uint64_t when, std::function<void()> fn) { sched.emplace(when, std::move(fn)); }
++    void probe(int uid);
++    void bridge_ready(int uid, uint64_t sid);
++    void bridge_withdraw(int uid);
++
++    void ck(const char* what, uint64_t got, uint64_t exp);
++    void ck_true(const char* what, bool cond);
++    uint64_t published(int s) const;
++    uint64_t gsi_stream_id(int ix);
++    uint64_t named_uid() const;
++    uint64_t block_base() { return kMaapPoolBase | (axi_read(A_MAAP_STAT0) & 0xFFFFu); }
++    int source_of_da(uint64_t da, uint64_t base) const;
++    void grade_agreement(const char* phase, uint64_t base, uint64_t from);
++
++    void boot();
++    void phase_a();
++    void phase_move();
++};
++
++// ============================================================================
++//  clocking: the peers act first, then the inputs settle, then the model
++// ============================================================================
++void SidMoveHarness::lo() {
++    run_schedule();
++    rx_drive();
++    rmem_drive();
++    dmem_drive();
++    dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->clk_tdm_i = 0;
++    dut->eval();
++    rmem_edge();
++    dmem_edge();
++    observe();
++    rx_edge();
++}
++
++uint64_t SidMoveHarness::desc_beat(uint32_t byte_addr) const {
++    uint64_t v = 0;
++    for (int i = 0; i < 8; i++) {                 // big-endian: byte n at [63-8n-:8]
++        const uint32_t off = byte_addr - DESC_BASE + static_cast<uint32_t>(i);
++        v = (v << 8) | static_cast<uint64_t>((off < desc_img.size()) ? desc_img[off] : 0);
++    }
++    return v;
++}
++
++void SidMoveHarness::dmem_drive() {
++    const bool answering = !desc_img.empty();
++    const bool beat = answering && dm_busy && (dm_wait == 0);
++    dut->i_desc_mem_req_ready = (answering && !dm_busy) ? 1 : 0;
++    dut->i_desc_mem_rsp_valid = beat ? 1 : 0;
++    dut->i_desc_mem_rsp_data  = beat ? desc_beat(dm_cur) : 0;
++    dut->i_desc_mem_rsp_last  = (beat && dm_left == 1) ? 1 : 0;
++    dut->i_desc_mem_rsp_err   = 0;
++}
++
++void SidMoveHarness::dmem_edge() {
++    if (desc_img.empty()) return;
++    if (!dm_busy) {
++        if (dut->o_desc_mem_req_valid && dut->i_desc_mem_req_ready) {
++            dm_cur  = dut->o_desc_mem_req_addr;
++            dm_left = static_cast<int>(dut->o_desc_mem_req_beats);
++            dm_busy = (dm_left > 0);
++            dm_wait = DESC_MISS_CYC;
++            dm_run  = 0;
++        }
++    } else if (dm_wait > 0) {
++        dm_wait--;
++    } else if (dut->o_desc_mem_rsp_ready) {
++        dm_cur += 8;
++        if (--dm_left <= 0) dm_busy = false;
++        else if (++dm_run == DESC_GAP_EVERY) { dm_run = 0; dm_wait = 1; }
++    }
++}
++
++//! The image the build ships, regenerated the way sim_nxn does it: the
++//! end-station builder's overlay packed by avdecc/gen_aemi_image.py.
++bool SidMoveHarness::load_the_image(std::string* why) {
++    const char* scratch = getenv("TMPDIR");
++    if (!scratch || !*scratch) scratch = "/tmp";
++    std::string tmpl = std::string(scratch) + "/milan_sidmove_XXXXXX";
++    std::vector<char> buf(tmpl.begin(), tmpl.end());
++    buf.push_back('\0');
++    const char* made = mkdtemp(buf.data());
++    if (!made) { *why = "cannot create the image scratch directory"; return false; }
++    const std::string dir(made);
++    const std::string cfg(kAemiCfg);
++    const std::string log = dir + "/generator.log";
++    const std::string bld = dir + "/builder";
++    const std::string bin = dir + "/image.bin";
++    const std::string cmd1 = "python3 ../../../sw/builder/endstation_builder.py ../../../configs/"
++                             + cfg + ".yaml -o '" + bld + "' > '" + log + "' 2>&1";
++    const std::string cmd2 = "python3 ../../../avdecc/gen_aemi_image.py --overlay '" + bld + "/"
++                             + cfg + "/aem_overlay.json' -o '" + bin + "' --json '" + dir
++                             + "/image.json' --line-bytes 576 > '" + log + "' 2>&1";
++    if (system(cmd1.c_str()) != 0) { *why = "endstation_builder.py failed: " + log; return false; }
++    if (system(cmd2.c_str()) != 0) { *why = "gen_aemi_image.py failed: " + log; return false; }
++    FILE* fh = fopen(bin.c_str(), "rb");
++    if (!fh) { *why = "the generator wrote no image"; return false; }
++    uint8_t chunk[4096];
++    size_t n;
++    while ((n = fread(chunk, 1, sizeof chunk, fh)) > 0) desc_img.insert(desc_img.end(), chunk, chunk + n);
++    fclose(fh);
++    std::error_code ec;
++    std::filesystem::remove_all(dir, ec);
++    return !desc_img.empty();
++}
++
++//! The boot restore walk as the firmware starts it (PP_CTRL[1]) once the image
++//! is in place: with no NVM media the backend answers blank and the walk ends
++//! COMPLETE (sim_nxn start_the_boot_restore_walk), which releases AECP.
++void SidMoveHarness::start_the_restore_walk() {
++    constexpr uint16_t A_PP_STAT = 0x924;
++    constexpr uint32_t kDone = 1u << 2;
++    constexpr uint32_t kClosed = 1u << 16;
++    axi_write(A_PP_CTRL, axi_read(A_PP_CTRL) | 0x2u);
++    uint32_t st = 0;
++    for (int r = 0; r < 4000 && !(st & (kDone | kClosed)); r++) {
++        for (int c = 0; c < 64; c++) step();
++        st = axi_read(A_PP_STAT);
++    }
++    ck("[BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)", st & (kDone | kClosed), kDone);
++}
++
++uint64_t SidMoveHarness::rmem_beat(uint32_t byte_addr) const {
++    uint64_t v = 0;
++    for (int i = 0; i < 8; i++) {                 // big-endian: byte n at [63-8n-:8]
++        const uint32_t off = byte_addr - RESP_BASE + static_cast<uint32_t>(i);
++        v = (v << 8) | static_cast<uint64_t>((off < RESP_BYTES) ? rmem[off] : 0);
++    }
++    return v;
++}
++
++void SidMoveHarness::rmem_drive() {
++    dut->i_resp_mem_req_ready = rm_busy ? 0 : 1;
++    dut->i_resp_mem_rsp_valid = rm_busy ? 1 : 0;
++    dut->i_resp_mem_rsp_data  = rm_busy ? rmem_beat(rm_cur) : 0;
++    dut->i_resp_mem_rsp_last  = (rm_busy && rm_left == 1) ? 1 : 0;
++    dut->i_resp_mem_rsp_err   = 0;
++    dut->i_resp_mem_wr_ready  = rm_wpend ? 0 : 1;
++    dut->i_resp_mem_wr_done   = rm_wpend ? 1 : 0;
++    dut->i_resp_mem_wr_err    = 0;
++}
++
++void SidMoveHarness::rmem_edge() {
++    if (!rm_busy) {
++        if (dut->o_resp_mem_req_valid && dut->i_resp_mem_req_ready) {
++            rm_cur  = dut->o_resp_mem_req_addr;
++            rm_left = static_cast<int>(dut->o_resp_mem_req_beats);
++            rm_busy = (rm_left > 0);
++        }
++    } else if (dut->o_resp_mem_rsp_ready) {
++        rm_cur += 8;
++        if (--rm_left <= 0) rm_busy = false;
++    }
++    if (rm_wpend) {
++        for (int i = 0; i < 8; i++) {
++            if (rm_wstrb & (1u << i)) {
++                const uint32_t k = rm_waddr - RESP_BASE + static_cast<uint32_t>(i);
++                if (k < RESP_BYTES) rmem[k] = static_cast<uint8_t>(rm_wdata >> (56 - 8 * i));
++            }
++        }
++        rm_wpend = false;
++    } else if (dut->o_resp_mem_wr_valid && dut->i_resp_mem_wr_ready) {
++        rm_waddr = dut->o_resp_mem_wr_addr;
++        rm_wdata = dut->o_resp_mem_wr_data;
++        rm_wstrb = dut->o_resp_mem_wr_strb;
++        rm_wpend = true;
++    }
++}
++
++void SidMoveHarness::hi() {
++    dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->clk_tdm_i = 1;
++    dut->eval();
++    cyc++;
++}
++
++void SidMoveHarness::run_schedule() {
++    while (!sched.empty() && sched.begin()->first <= cyc) {
++        const std::function<void()> fn = sched.begin()->second;
++        sched.erase(sched.begin());
++        fn();
++    }
++}
++
++//! Frames are fed LITTLE-LANE (tdata[7:0] = first wire byte), the RX tap's
++//! convention, with a short gap between (the crflic BFM).
++void SidMoveHarness::rx_drive() {
++    if (rx_q.empty() || rx_gap > 0) {
++        dut->s_axis_mac_rx_tvalid = 0;
++        dut->s_axis_mac_rx_tlast = 0;
++        return;
++    }
++    const std::vector<uint8_t>& f = rx_q.front();
++    const size_t beats = (f.size() + 7) / 8;
++    uint64_t d = 0;
++    uint8_t k = 0;
++    for (size_t i = 0; i < 8; i++) {
++        const size_t o = rx_beat * 8 + i;
++        if (o < f.size()) {
++            d |= static_cast<uint64_t>(f[o]) << (8 * i);
++            k = static_cast<uint8_t>(k | (1u << i));
++        }
++    }
++    dut->s_axis_mac_rx_tdata = d;
++    dut->s_axis_mac_rx_tkeep = k;
++    dut->s_axis_mac_rx_tvalid = 1;
++    dut->s_axis_mac_rx_tlast = (rx_beat + 1 == beats) ? 1 : 0;
++}
++
++void SidMoveHarness::rx_edge() {
++    if (dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready) {
++        rx_beat++;
++        if (rx_beat * 8 >= rx_q.front().size()) {
++            rx_q.pop_front();
++            rx_beat = 0;
++            rx_gap = 16;
++        }
++    } else if (rx_gap > 0) {
++        rx_gap--;
++    }
++}
++
++void SidMoveHarness::observe() {
++    if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
++        const uint8_t keep = static_cast<uint8_t>(dut->m_axis_mac_tx_tkeep);
++        const uint64_t d = dut->m_axis_mac_tx_tdata;
++        for (int l = 0; l < 8; l++)
++            if ((keep >> l) & 1) tx_cur.push_back(static_cast<uint8_t>(d >> (8 * l)));
++        if (dut->m_axis_mac_tx_tlast) {
++            tx_frame_done();
++            tx_cur.clear();
++        }
++    }
++}
++
++// ============================================================================
++//  the AXI4-Lite BFM (the milan_dp / crflic protocol and timing)
++// ============================================================================
++void SidMoveHarness::axi_write(uint16_t a, uint32_t d) {
++    constexpr int kGuard = 2048;
++    dut->s_axi_awaddr = a; dut->s_axi_awvalid = 1;
++    dut->s_axi_wdata = d;  dut->s_axi_wstrb = 0xF; dut->s_axi_wvalid = 1;
++    dut->s_axi_bready = 1;
++    for (int g = 0; g < kGuard; g++) {
++        lo();
++        const bool acc = dut->s_axi_awready && dut->s_axi_wready;
++        hi();
++        if (acc) break;
++    }
++    dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0;
++    for (int g = 0; g < kGuard; g++) {
++        lo();
++        const bool bv = dut->s_axi_bvalid;
++        hi();
++        if (bv) break;
++    }
++    dut->s_axi_bready = 0;
++}
++
++uint32_t SidMoveHarness::axi_read(uint16_t a) {
++    constexpr int kGuard = 2048;
++    dut->s_axi_araddr = a; dut->s_axi_arvalid = 1; dut->s_axi_rready = 1;
++    for (int g = 0; g < kGuard; g++) {
++        lo();
++        const bool acc = dut->s_axi_arready;
++        hi();
++        if (acc) break;
++    }
++    dut->s_axi_arvalid = 0;
++    uint32_t d = 0;
++    for (int g = 0; g < kGuard; g++) {
++        lo();
++        const bool rv = dut->s_axi_rvalid;
++        if (rv) d = dut->s_axi_rdata;
++        hi();
++        if (rv) break;
++    }
++    dut->s_axi_rready = 0;
++    return d;
++}
++
++void SidMoveHarness::do_reset() {
++    dut->axis_resetn = 0; dut->gtx_resetn = 0;
++    dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0; dut->s_axi_arvalid = 0;
++    dut->s_axi_bready = 0; dut->s_axi_rready = 0;
++    dut->s_axis_mac_rx_tvalid = 0;
++    dut->m_axis_mac_tx_tready = 1;
++    dut->i_mac_speed = 2; dut->i_link_up = 1; dut->i_full_duplex = 1; dut->i_mac_events = 0;
++    for (int i = 0; i < 8; i++) step();
++    dut->axis_resetn = 1; dut->gtx_resetn = 1;
++    for (int i = 0; i < 16; i++) step();
++}
++
++// ============================================================================
++//  frames (wire order, byte 0 = the first destination-address octet)
++// ============================================================================
++void SidMoveHarness::put_be(std::vector<uint8_t>& f, size_t off, uint64_t v, int n) {
++    for (int i = 0; i < n; i++)
++        f[off + static_cast<size_t>(i)] = static_cast<uint8_t>(v >> (8 * (n - 1 - i)));
++}
++
++uint64_t SidMoveHarness::get_be(const std::vector<uint8_t>& f, size_t off, int n) {
++    uint64_t v = 0;
++    for (int i = 0; i < n; i++) v = (v << 8) | f[off + static_cast<size_t>(i)];
++    return v;
++}
++
++//! An MRPDU from the switch port to the Nearest Bridge group, EtherType MSRP.
++std::vector<uint8_t> SidMoveHarness::msrp_frame(const std::vector<uint8_t>& payload) {
++    std::vector<uint8_t> f(14, 0);
++    put_be(f, 0, 0x0180C200000Eull, 6);
++    put_be(f, 6, 0x020B2100000Eull, 6);
++    put_be(f, 12, 0x22EA, 2);
++    f.push_back(0x00);
++    f.insert(f.end(), payload.begin(), payload.end());
++    f.push_back(0x00);
++    f.push_back(0x00);
++    if (f.size() < 60) f.resize(60, 0);
++    return f;
++}
++
++//! Milan PROBE_TX = IEEE 1722.1 CONNECT_TX_COMMAND aimed at our source `uid`.
++std::vector<uint8_t> SidMoveHarness::probe_tx(int uid) {
++    std::vector<uint8_t> f(70, 0);
++    put_be(f, 0, 0x91E0F0010000ull, 6);
++    put_be(f, 6, kCtlrMac, 6);
++    put_be(f, 12, 0x22F0, 2);
++    f[14] = 0xFC;                                  // ACMP
++    f[15] = 0x00;                                  // CONNECT_TX_COMMAND
++    f[17] = 44;                                    // control_data_length
++    put_be(f, 26, kCtlrEid, 8);                    // @12 controller_entity_id
++    put_be(f, 34, kTestEid, 8);                    // @20 talker_entity_id
++    put_be(f, 42, 0x2222222222222222ull, 8);       // @28 listener_entity_id
++    put_be(f, 50, static_cast<uint64_t>(uid), 2);  // @36 talker_unique_id
++    put_be(f, 62, static_cast<uint64_t>(peer[uid].probes + 1), 2);   // @48 sequence_id
++    return f;
++}
++
++//! One Listener message, one value (802.1Q 35.2.2.7): event `ev` (0 New,
++//! 5 Lv), declaration `decl` (2 Ready).
++std::vector<uint8_t> SidMoveHarness::listener_msg(uint64_t sid, int ev, int decl) {
++    std::vector<uint8_t> m(18, 0);
++    m[0] = 3;
++    m[1] = 8;
++    put_be(m, 2, 14, 2);
++    put_be(m, 4, 1u, 2);
++    put_be(m, 6, sid, 8);
++    m[14] = static_cast<uint8_t>(ev * 36);
++    m[15] = static_cast<uint8_t>(decl << 6);
++    return m;
++}
++
++//! The switch's Domain: NumberOfValues 2 from {SRclassID 5, priority 2, VID
++//! 2}, so class A {6, 3, 2} is value 1 (the crflic switch's message).
++std::vector<uint8_t> SidMoveHarness::domain_msg() {
++    std::vector<uint8_t> m(13, 0);
++    m[0] = 4;
++    m[1] = 4;
++    put_be(m, 2, 9, 2);
++    put_be(m, 4, 2u, 2);
++    m[6] = 5; m[7] = 2; put_be(m, 8, 2, 2);
++    m[10] = static_cast<uint8_t>(1 * 36 + 1 * 6);
++    return m;
++}
++
++//! A MAAP ANNOUNCE (IEEE 1722-2016 Figure B.1, B.3.6.7) from `src` claiming
++//! pool offsets [off, off + cnt): message_type 3, maap_version 1, cdl 16.
++std::vector<uint8_t> SidMoveHarness::maap_announce(uint64_t src, uint16_t off, uint16_t cnt) {
++    std::vector<uint8_t> f(60, 0);
++    put_be(f, 0, 0x91E0F000FF00ull, 6);
++    put_be(f, 6, src, 6);
++    put_be(f, 12, 0x22F0, 2);
++    f[14] = 0xFE;
++    f[15] = 0x03;
++    f[16] = 0x08;
++    f[17] = 16;
++    put_be(f, 26, kMaapPoolBase | off, 6);
++    put_be(f, 32, cnt, 2);
++    return f;
++}
++
++//! AEM GET_STREAM_INFO (command_type 0x000F) for STREAM_OUTPUT `ix` (IEEE
++//! 1722.1-2021 7.4.16.1: descriptor_type 0x0006, descriptor_index).
++std::vector<uint8_t> SidMoveHarness::gsi_cmd(int ix, uint16_t seq) {
++    std::vector<uint8_t> f(60, 0);
++    put_be(f, 0, kStaMac, 6);
++    put_be(f, 6, kCtlrMac, 6);
++    put_be(f, 12, 0x22F0, 2);
++    f[14] = 0xFB;                                  // AECP, AEM_COMMAND
++    f[15] = 0x00;
++    put_be(f, 16, 12 + 4, 2);                      // control_data_length
++    put_be(f, 18, kTestEid, 8);                    // target_entity_id
++    put_be(f, 26, kCtlrEid, 8);                    // controller_entity_id
++    put_be(f, 34, seq, 2);
++    put_be(f, 36, 0x000F, 2);
++    put_be(f, 38, 0x0006, 2);
++    put_be(f, 40, static_cast<uint64_t>(ix), 2);
++    return f;
++}
++
++// ============================================================================
++//  what the DUT sends, and how the peers answer it
++// ============================================================================
++void SidMoveHarness::tx_frame_done() {
++    const std::vector<uint8_t>& f = tx_cur;
++    if (f.size() < 18) return;
++    const uint64_t et = get_be(f, 12, 2);
++    if (et == 0x22EA) {
++        on_mrpdu(f);
++    } else if (et == 0x8100 && f.size() >= 30 && get_be(f, 16, 2) == 0x22F0) {
++        on_stream_pdu(f, 18);
++    } else if (et == 0x22F0 && f[14] == 0xFC) {
++        on_acmp(f);
++    } else if (et == 0x22F0 && f[14] == 0xFB) {
++        on_aecp(f);
++    } else if (et == 0x22F0 && f.size() >= 26 && f[14] != 0xFE && f[14] != 0xFA) {
++        on_stream_pdu(f, 14);
++    }
++}
++
++void SidMoveHarness::on_stream_pdu(const std::vector<uint8_t>& f, size_t avtp) {
++    const int subtype = f[avtp];
++    if (subtype != 0x04 && subtype != 0x02) return;   // CRF, AAF
++    StreamPdu p;
++    p.cyc = cyc;
++    p.subtype = subtype;
++    p.sid = get_be(f, avtp + 4, 8);
++    p.da = get_be(f, 0, 6);
++    pdus.push_back(p);
++}
++
++//! CONNECT_TX_RESPONSE: status at wire byte 16 [7:3], stream_id @4 (18..25),
++//! talker_unique_id @36 (50..51), stream_dest_mac @40 (54..59).
++void SidMoveHarness::on_acmp(const std::vector<uint8_t>& f) {
++    if ((f[15] & 0x0F) != 1 || f.size() < 70) return;
++    const uint64_t uid64 = get_be(f, 50, 2);
++    if (uid64 >= static_cast<uint64_t>(kSources)) return;
++    const int uid = static_cast<int>(uid64);
++    Peer& p = peer[uid];
++    p.status = f[16] >> 3;
++    printf("  [t] %11.2f ms  PROBE_TX answered, uid %d, status %d, stream_id %016llx\n",
++           t_ms(cyc), uid, p.status, static_cast<unsigned long long>(get_be(f, 18, 8)));
++    if (p.status == 0) {
++        p.answered_sid = get_be(f, 18, 8);
++        p.answered_da = get_be(f, 54, 6);
++        p.answered_at = cyc;
++        if (p.want && p.ready_sid != p.answered_sid) {
++            const uint64_t sid = p.answered_sid;
++            at(cyc + ms(40), [this, uid, sid] { if (peer[uid].want) bridge_ready(uid, sid); });
++        }
++    } else if (p.status == 3 && p.want) {
++        at(cyc + ms(500), [this, uid] { if (peer[uid].want) probe(uid); });
++    }
++}
++
++void SidMoveHarness::on_aecp(const std::vector<uint8_t>& f) {
++    aecp_seen++;
++    if (f.size() < 42 || (f[15] & 0x0F) != 1 || (f[36] & 0x80) != 0) return;
++    aecp_resp[static_cast<uint16_t>(get_be(f, 34, 2))] = f;
++}
++
++//! Every Talker Advertise value (type 1), vector value k naming FirstValue's
++//! stream_id + k (802.1Q 35.2.2.8): its events, and the peers' answer to a
++//! withdrawal of the ID a listener is bound to.
++void SidMoveHarness::on_mrpdu(const std::vector<uint8_t>& f) {
++    size_t off = 15;
++    while (off + 2 <= f.size() && !(f[off] == 0 && f[off + 1] == 0)) {
++        if (off + 4 > f.size()) { dut_malformed++; return; }
++        const int type = f[off];
++        const int alen = f[off + 1];
++        size_t p = off + 4;
++        const size_t end = p + get_be(f, off + 2, 2);
++        if (end > f.size()) { dut_malformed++; return; }
++        while (p + 2 <= end && !(f[p] == 0 && f[p + 1] == 0)) {
++            const int n = static_cast<int>(get_be(f, p, 2) & 0x1FFFu);
++            p += 2;
++            if (p + static_cast<size_t>(alen) > end) { dut_malformed++; return; }
++            const uint64_t sid0 = (type == 1 && alen >= 8) ? get_be(f, p, 8) : 0;
++            p += static_cast<size_t>(alen);
++            std::vector<int> ev;
++            for (int k = 0; k < (n + 2) / 3 && p < end; k++, p++) {
++                const int b = f[p];
++                ev.push_back(b / 36); ev.push_back((b / 6) % 6); ev.push_back(b % 6);
++            }
++            if (type == 3) p += static_cast<size_t>((n + 3) / 4);
++            if (type != 1) continue;
++            for (int k = 0; k < n && k < static_cast<int>(ev.size()); k++) {
++                const uint64_t sid = sid0 + static_cast<uint64_t>(k);
++                TaSeen& t = ta[sid];
++                if (ev[static_cast<size_t>(k)] == 5) {
++                    t.last_leave = cyc;
++                    for (int s = 0; s < kSources; s++) {
++                        if (peer[s].want && peer[s].ready_sid == sid) {
++                            at(cyc + ms(2), [this, s] { bridge_withdraw(s); });
++                            at(cyc + ms(500), [this, s] { if (peer[s].want) probe(s); });
++                        }
++                    }
++                } else if (t.first_join == kNever) {
++                    t.first_join = cyc;
++                    printf("  [t] %11.2f ms  Talker Advertise first on the wire for %016llx (event %d)\n",
++                           t_ms(cyc), static_cast<unsigned long long>(sid), ev[static_cast<size_t>(k)]);
++                }
++            }
++        }
++        off = end;
++    }
++}
++
++void SidMoveHarness::probe(int uid) {
++    peer[uid].probes++;
++    rx_q.push_back(probe_tx(uid));
++}
++
++void SidMoveHarness::bridge_ready(int uid, uint64_t sid) {
++    peer[uid].ready_sid = sid;
++    rx_q.push_back(msrp_frame(listener_msg(sid, 0, 2)));
++    printf("  [t] %11.2f ms  switch declares Listener Ready, uid %d, stream_id %016llx\n",
++           t_ms(cyc), uid, static_cast<unsigned long long>(sid));
++}
++
++void SidMoveHarness::bridge_withdraw(int uid) {
++    if (peer[uid].ready_sid == 0) return;
++    rx_q.push_back(msrp_frame(listener_msg(peer[uid].ready_sid, 5, 2)));
++    peer[uid].ready_sid = 0;
++}
++
++// ============================================================================
++//  grading
++// ============================================================================
++void SidMoveHarness::ck(const char* what, uint64_t got, uint64_t exp) {
++    checks++;
++    const bool ok = (got == exp);
++    if (!ok) fails++;
++    printf("  [%s] %-70s got=%016llx exp=%016llx\n", ok ? "PASS" : "FAIL", what,
++           static_cast<unsigned long long>(got), static_cast<unsigned long long>(exp));
++}
++
++void SidMoveHarness::ck_true(const char* what, bool cond) {
++    checks++;
++    if (!cond) fails++;
++    printf("  [%s] %s\n", cond ? "PASS" : "FAIL", what);
++}
++
++//! src_stream_id_o slice `s`, as the datapath names it (pp_cd_src_stream_id_w)
++uint64_t SidMoveHarness::published(int s) const {
++    const auto& w = dut->rootp->milan_datapath__DOT__pp_cd_src_stream_id_w;
++    return (static_cast<uint64_t>(w[2 * s + 1]) << 32) | w[2 * s];
++}
++
++//! GET_STREAM_INFO(STREAM_OUTPUT ix): the stream_id field (frame 54..61,
++//! after descriptor_type, descriptor_index, stream_info_flags and
++//! stream_format), or ~0 when no SUCCESS answer came.
++uint64_t SidMoveHarness::gsi_stream_id(int ix) {
++    for (int attempt = 0; attempt < 20; attempt++) {
++        const uint16_t seq = aecp_seq++;
++        rx_q.push_back(gsi_cmd(ix, seq));
++        const uint64_t until = cyc + ms(50);
++        while (cyc < until && aecp_resp.count(seq) == 0) step();
++        const auto it = aecp_resp.find(seq);
++        if (it == aecp_resp.end()) continue;
++        const std::vector<uint8_t> r = it->second;
++        aecp_resp.erase(it);
++        if (r.size() >= 62 && (r[16] >> 3) == 0 && get_be(r, 36, 2) == 0x000F
++            && get_be(r, 38, 2) == 0x0006 && get_be(r, 40, 2) == static_cast<uint64_t>(ix))
++            return get_be(r, 54, 8);
++        printf("  [i]    GET_STREAM_INFO(STREAM_OUTPUT %d) answered status %d, command %04llx, "
++               "descriptor %04llx:%llu, %zu bytes\n", ix, r[16] >> 3,
++               static_cast<unsigned long long>(get_be(r, 36, 2)),
++               static_cast<unsigned long long>(r.size() >= 40 ? get_be(r, 38, 2) : 0),
++               static_cast<unsigned long long>(r.size() >= 42 ? get_be(r, 40, 2) : 0), r.size());
++        run_until(cyc + ms(20));
++    }
++    printf("  [i]    GET_STREAM_INFO(STREAM_OUTPUT %d): no SUCCESS answer in 20 tries "
++           "(%zu AECP responses seen)\n", ix, aecp_seen);
++    return ~0ull;
++}
++
++//! AAF talker t's PDUs go to block base + t and the CRF output's to base + its
++//! uid (KL_pp_maap_shim; milan_datapath acmp_src_dmac_w), so a PDU's source
++//! is named by its address, not by the stream_id under test.
++int SidMoveHarness::source_of_da(uint64_t da, uint64_t base) const {
++    if (da < base || da >= base + static_cast<uint64_t>(kSources)) return -1;
++    return static_cast<int>(da - base);
++}
++
++//! Each streamed source: PROBE_TX, src_stream_id_o, GET_STREAM_INFO selector
++//! 2, the Talker Advertise and every PDU sent to its address since `from`
++//! name one stream_id.
++void SidMoveHarness::grade_agreement(const char* phase, uint64_t base, uint64_t from) {
++    for (const int s : graded) {
++        char w[160];
++        printf("  -- source uid %d (%s)%s\n", s, s == kUidCrf ? "CRF Media Clock Output" : "AAF",
++               s == kNamed ? ", its TCTX uid named" : "");
++        const uint64_t pub = published(s);
++        snprintf(w, sizeof w, "%s: PROBE_TX answers SUCCESS", phase);
++        ck(w, static_cast<uint64_t>(peer[s].status), 0);
++        snprintf(w, sizeof w, "%s: PROBE_TX's stream_id is src_stream_id_o", phase);
++        ck(w, peer[s].answered_sid, pub);
++        snprintf(w, sizeof w, "%s: PROBE_TX's stream_dest_mac is the block address", phase);
++        ck(w, peer[s].answered_da, base + static_cast<uint64_t>(s));
++        snprintf(w, sizeof w, "%s: GET_STREAM_INFO selector 2 is src_stream_id_o", phase);
++        ck(w, gsi_stream_id(s), pub);
++        snprintf(w, sizeof w, "%s: the Talker Advertise declares src_stream_id_o", phase);
++        ck_true(w, ta.count(pub) != 0 && ta[pub].first_join != kNever);
++        long n = 0, other = 0;
++        uint64_t odd = 0;
++        for (const StreamPdu& p : pdus) {
++            if (p.cyc < from || source_of_da(p.da, base) != s) continue;
++            if (p.subtype != (s == kUidCrf ? 0x04 : 0x02)) continue;
++            n++;
++            if (p.sid != pub) { other++; odd = p.sid; }
++        }
++        snprintf(w, sizeof w, "%s: the source's stream PDUs are on the wire (%ld)", phase, n);
++        ck_true(w, n >= 3);
++        snprintf(w, sizeof w, "%s: every one carries src_stream_id_o (else %016llx)", phase,
++                 static_cast<unsigned long long>(odd));
++        ck(w, static_cast<uint64_t>(other), 0);
++    }
++}
++
++// ============================================================================
++//  [BOOT] identity, the firmware boot values, the named talker's TCTX uid
++// ============================================================================
++void SidMoveHarness::boot() {
++    printf("[BOOT] identity, the firmware boot values, the named talker's TCTX uid\n");
++    ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4Eu);
++    ck("ADP_TALKER[15:0] talker_stream_sources is this leg's source count",
++       axi_read(A_ADP_TALKER) & 0xFFFFu, kSources);
++    axi_write(A_MAC_ALO, kStaMacLo);
++    axi_write(A_MAC_AHI, kStaMacHi);
++    axi_write(A_ADP_EIDLO, static_cast<uint32_t>(kTestEid & 0xFFFFFFFFu));
++    axi_write(A_ADP_EIDHI, static_cast<uint32_t>(kTestEid >> 32));
++    axi_write(A_AAF_CTRL, 0x00020001u);    // AAF talker 0 on, bypass CLEAR, VID 2
++    if (kNamed > 0) {
++        // the talker's TCTX record through the P11 window: w0 {en, chans 8},
++        // and w2 {UID, DMAC_HI 0}, a non-zero uid naming the derived one
++        axi_write(A_STRM_SEL, (1u << 8) | static_cast<uint32_t>(kNamed));
++        axi_write(A_STRMW_CTRL, 1u | (8u << 1));
++        axi_write(A_STRMW_DMAC_HI, static_cast<uint32_t>(kNamed) << 16);
++    }
++    axi_write(A_LWSRP_CTRL, 0x13u);        // SRP policing: engine + talker on
++    axi_write(A_MAAP_CTRL, (static_cast<uint32_t>(kSources) << 8) | 1u);
++    axi_write(A_CRFT_CTRL, 0x3u);          // CRF output on, class A
++    axi_write(A_PP_CTRL, 0x1u);            // entity enable
++    std::string why;
++    const bool img = load_the_image(&why);
++    if (!img) printf("  [i]    %s\n", why.c_str());
++    ck("[BOOT] the shape's AEM image was generated and is served", img ? 1u : 0u, 1);
++    start_the_restore_walk();
++    rx_q.push_back(msrp_frame(domain_msg()));
++    run_until(cyc + ms(20));
++    ck("KL_maap is probing, no block claimed yet", axi_read(A_MAAP_STAT1) & 7u, 1);
++}
++
++//! the named talker's TCTX uid as the framer holds it (read at its CFG fetch)
++uint64_t SidMoveHarness::named_uid() const {
++    return dut->rootp->milan_datapath__DOT__aaf_packetizer__DOT__euid_r;
++}
++
++// ============================================================================
++//  [A] the three sources bind and stream under their configured IDs
++// ============================================================================
++void SidMoveHarness::phase_a() {
++    printf("[A] the listener probes, MAAP grants, the switch declares Listener Ready "
++           "for the answered ID, and each source streams\n");
++    const uint64_t t0 = cyc;
++    for (const int s : graded) {
++        peer[s].want = true;
++        probe(s);
++    }
++    run_until(t0 + ms(8000));
++    const uint64_t base = block_base();
++    ck("KL_maap reached ANNOUNCE (a block of one address per source)",
++       (axi_read(A_MAAP_STAT1) >> 2) & 1u, 1);
++    for (const int s : graded) {
++        char w[96];
++        snprintf(w, sizeof w, "[A] src_stream_id_o[%d] is the configured {MAC, uid}", s);
++        ck(w, published(s), (kStaMac << 16) | static_cast<uint64_t>(s));
++    }
++    if (kNamed > 0) ck("[A] the named talker's TCTX uid is held by the framer",
++                       named_uid(), static_cast<uint64_t>(kNamed));
++    // the CRF grid runs off clk_audio, uncompressed, so its PDUs are sparse on
++    // this grid: grade every PDU from half a second after the last binding
++    uint64_t from = t0;
++    for (const int s : graded)
++        if (peer[s].answered_at != kNever && peer[s].answered_at > from) from = peer[s].answered_at;
++    grade_agreement("[A]", base, from + ms(500));
++}
++
++// ============================================================================
++//  [MOVE] a peer takes the block; every declaring source moves
++// ============================================================================
++void SidMoveHarness::phase_move() {
++    printf("[MOVE] a peer ANNOUNCEs the claimed block from a lower MAC: KL_maap "
++           "re-addresses, each declaring source withdraws and moves\n");
++    const uint64_t base1 = block_base();
++    uint64_t old_sid[kSources] = {};
++    for (const int s : graded) old_sid[s] = published(s);
++    // the listener's periodic probes keep T-SRP-DAFRESH alive across the walk
++    for (const int s : graded) probe(s);
++    run_until(cyc + ms(200));
++    const uint64_t tc = cyc;
++    rx_q.push_back(maap_announce(kPeerMac, static_cast<uint16_t>(base1 & 0xFFFFu),
++                                 static_cast<uint16_t>(kSources)));
++    run_until(tc + ms(9000));
++    const uint64_t base2 = block_base();
++    ck_true("KL_maap claimed another block", base2 != base1);
++    ck("KL_maap is in ANNOUNCE again", (axi_read(A_MAAP_STAT1) >> 2) & 1u, 1);
++    printf("[AFTER] each source's new Stream ID, everywhere it is named\n");
++    bool distinct = true;
++    for (size_t a = 0; a < graded.size(); a++)
++        for (size_t b = a + 1; b < graded.size(); b++)
++            if (published(graded[a]) == published(graded[b])) distinct = false;
++    for (const int s : graded) {
++        char w[160];
++        const uint64_t pub = published(s);
++        printf("  -- source uid %d: %016llx -> %016llx\n", s,
++               static_cast<unsigned long long>(old_sid[s]), static_cast<unsigned long long>(pub));
++        ck_true("[AFTER] the source moved to a new Stream ID", pub != old_sid[s]);
++        ck("[AFTER] the new ID keeps the upper 48 bits", pub >> 16, old_sid[s] >> 16);
++        const TaSeen& was = ta[old_sid[s]];
++        ck_true("[AFTER] the withdrawn ID's Talker Advertise left after the conflict",
++                was.last_leave != kNever && was.last_leave > tc);
++        const uint64_t joined = ta.count(pub) ? ta[pub].first_join : kNever;
++        snprintf(w, sizeof w, "[AFTER] conflict to the new ID's declaration under 2 s (%.0f ms)",
++                 joined == kNever ? -1.0 : t_ms(joined - tc));
++        ck_true(w, joined != kNever && joined > tc && joined - tc < ms(2000));
++        long late = 0;
++        for (const StreamPdu& p : pdus)
++            if (p.sid == old_sid[s] && was.last_leave != kNever && p.cyc > was.last_leave + ms(50))
++                late++;
++        snprintf(w, sizeof w, "[AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (%ld)", late);
++        ck(w, static_cast<uint64_t>(late), 0);
++    }
++    ck_true("[AFTER] the graded sources' current IDs are distinct", distinct);
++    if (kNamed > 0) ck("[AFTER] the named talker's TCTX uid is still held, unchanged",
++                       named_uid(), static_cast<uint64_t>(kNamed));
++    uint64_t from = tc;
++    for (const int s : graded)
++        if (peer[s].answered_at != kNever && peer[s].answered_at > from) from = peer[s].answered_at;
++    grade_agreement("[AFTER]", base2, from + ms(500));
++}
++
++int SidMoveHarness::run() {
++    const milan::tb::Model<Vmilan_datapath> model;
++    dut = model.get();
++    for (int s = 0; s < kSources; s++)
++        if ((kGraded >> s) & 1u) graded.push_back(s);
++    printf("=== processor #202 Stream ID move, %d talker sources (graded mask 0x%x), "
++           "1 ms = %llu cycles ===\n", kSources, kGraded, static_cast<unsigned long long>(kMsCyc));
++    do_reset();
++    boot();
++    phase_a();
++    phase_move();
++    printf("[INV] over the whole run\n");
++    ck("no malformed DUT MRPDU", static_cast<uint64_t>(dut_malformed), 0);
++    printf("--------------------------------------------------------------\n");
++    printf("simulated %.2f ms (%llu cycles)\n", t_ms(cyc), static_cast<unsigned long long>(cyc));
++    printf("checks: %ld   failures: %ld\n", checks, fails);
++    printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
++    return fails ? 1 : 0;
++}
++
++}  // namespace
++
++int main(int argc, char** argv) {
++    Verilated::commandArgs(argc, argv);
++    SidMoveHarness harness;
++    return harness.run();
++}
+diff --git a/tests/features/milan_streaming_licence.feature b/tests/features/milan_streaming_licence.feature
+index 5354d3d29b..cc0f7f65fb 100644
+--- a/tests/features/milan_streaming_licence.feature
++++ b/tests/features/milan_streaming_licence.feature
+@@ -82,6 +82,10 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
+     When I read the t>0 wire identity from KL_aaf_packetizer
+     Then the t>0 identity is derived from the same roots the declaration uses
+     And software may still name each identity field explicitly
++    # protocol processor #202: in the integration the processor owns every
++    # talker's stream_id and moves it after a MAAP conflict, so the framer
++    # stamps the processor's current ID and no TCTX uid can name another one
++    And the integrated framer stamps the processor's current stream_id over any TCTX uid
+ 
+   @class:structure
+   Scenario: the stream gate requires ACTIVE AND the per-source real grant, nothing else
+diff --git a/tests/steps/milan_streaming_licence_steps.py b/tests/steps/milan_streaming_licence_steps.py
+index ea20363b38..3e539cfa74 100644
+--- a/tests/steps/milan_streaming_licence_steps.py
++++ b/tests/steps/milan_streaming_licence_steps.py
+@@ -355,3 +355,21 @@ def step_tgt0_identity_override(context: Context) -> None:
+                       ("eff_uid_w", "euid_r")):
+         expr = context.ident[name]
+         assert ("|%s" % reg) in expr.replace(" ", ""), (name, expr)
++
++
++@then("the integrated framer stamps the processor's current stream_id over any TCTX uid")
++def step_tgt0_identity_processor_owned(context: Context) -> None:
++    """With SID_PP_P the stamped stream_id is the processor's published one
++    for every talker, and milan_datapath sets it: a TCTX uid feeds only the
++    standalone derivation, so after a MAAP conflict moves an ID the wire, the
++    GET_STREAM_INFO answer and the PROBE_TX answer still name the same one."""
++    src = _strip_comments(_read(_PACKETIZER))
++    m = re.search(r"wire\s*\[63:0\]\s*stream_id_w\s*=\s*(.*?);", src, flags=re.S)
++    assert m, "no stream_id_w in KL_aaf_packetizer"
++    expr = "".join(m.group(1).split())
++    assert expr.startswith("SID_PP_P?stream_id_i["), expr
++    assert "euid_r" not in expr.split(":", 1)[0], expr
++    inst = re.search(r"KL_aaf_packetizer\s*#\((.*?)\)\s*aaf_packetizer\s*\(",
++                     _strip_comments(_read(_DATAPATH)), flags=re.S)
++    assert inst, "no aaf_packetizer instance in milan_datapath"
++    assert re.search(r"\.SID_PP_P\s*\(\s*1'b1\s*\)", inst.group(1)), inst.group(1)
