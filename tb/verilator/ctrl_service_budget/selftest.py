@@ -15,8 +15,9 @@ the rows a run did not include, and the record results.json carries and
 the table renders. The real scenario's composed windows are counted
 against the defined loads restated here, its fan-out against the
 firmware's registration capacity read here, and its controls against
-their paths. The run's exit status, the regrade's
-refusal of an absent log and the reuse attestation run on temporary files.
+their paths. The run's exit status, the regrade's refusal of an absent
+log, the reuse attestation, and the instruction cache's observers, reuse
+identity and XIP link script run on temporary files.
 Then each rule is mutated in turn, and a named check must fail; a mutant of
 a headline figure (the worst pass, the composed maximum, a pass bound)
 fails on that figure.
@@ -720,10 +721,53 @@ def reuse_checks() -> list[Check]:
     return out
 
 
+def cache_checks() -> list[Check]:
+    """The instruction cache's build (#665): the fetch observers follow the CPU's fetch plugin, a
+    refill's beats come from the netlist, a reused build must be the selected cache and arm, and
+    the XIP arm keeps the reset entry in rom."""
+    out = []
+    with tempfile.TemporaryDirectory() as tmp:
+        netlist = Path(tmp) / 'VexiiRiscvLitex_x.v'
+        cached = dict(fetch_l1_geometry=[64, 1], netlist=netlist.stem, sources=[str(netlist)])
+        netlist.write_text("assign FetchL1Plugin_logic_bus_cmd_payload_address = "
+                           "{FetchL1Plugin_logic_refill_slots_0_address[31 : 6],6'h0};\n")
+        rows, beats = build.fetch_bus(cached)
+        plain_rows, plain_beats = build.fetch_bus(dict(fetch_l1_geometry=None))
+        names = {name for name, *_ in rows}
+        out.append(('the fetch observers follow the CPU\'s fetch plugin',
+                    all('FetchL1Plugin' in v for n, _, _, v in rows if n.startswith('fetch_'))
+                    and not names & {'fetch_cmd_id', 'fetch_rsp_id'} and plain_rows == list(build.ACCESSORS),
+                    str(rows)))
+        out.append(('a refill\'s beats are read off the netlist', (beats, plain_beats) == (16, 1),
+                    str((beats, plain_beats))))
+        netlist.write_text('assign FetchL1Plugin_logic_bus_cmd_payload_address = 32\'h0;\n')
+        try:
+            build.fetch_bus(cached)
+            refused = ''
+        except RuntimeError as error:
+            refused = str(error)
+        out.append(('a cached netlist without its line-aligned refill address is refused', 'refill' in refused,
+                    refused or 'accepted'))
+    args = argparse.Namespace(cpu_regions='cover', mutation='none', variant='none', fetch_l1='none', xip=False)
+    spec = dict(shape='s', interfaces=1, cpu_regions='cover', mutation='none', variant='none')
+    out.append(('a reused build of another fetch L1 or arm is refused; a build with no fetch L1 is cacheless',
+                run.built_as(spec) == run.selected(args, 's', 1)
+                and run.built_as(dict(spec, fetch_l1='64x1')) != run.selected(args, 's', 1)
+                and run.built_as(dict(spec, fetch_l1='none', xip=True)) != run.selected(args, 's', 1), ''))
+    script = build.xip_script((build.ROOT / 'sw/firmware/ctrl/plat/ctrl_split.ld').read_text(), 0x20410000,
+                              0x21000000)
+    out.append(('the XIP arm keeps the reset entry in rom and moves the other code to flash',
+                '\t.entry : { KEEP(*(.text.start)) } > rom\n' in script
+                and '\t.text : ALIGN(4) { *(.text .text.*) } > flash\n' in script
+                and 'MEMORY { flash (rx) : ORIGIN = 0x20410000, LENGTH = 0xbf0000 }' in script, script[:400]))
+    return out
+
+
 def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
-            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks()]
+            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
+            *cache_checks()]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

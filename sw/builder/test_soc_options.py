@@ -3,12 +3,15 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Issue #654: early CPU option refusals and optional real-netlist effect tests.
 
-The builder runs the refusal bank. --netlists additionally requires the
-NaxRiscv data package and its generator sources; no missing dependency skips.
-Each export uses a fresh process because CPU wrappers retain class state.
+The builder runs the refusal bank, and the split placement's instruction
+cache check (#665): only the split CPU's generator options gain the cache.
+--netlists additionally requires the NaxRiscv data package and its generator
+sources; no missing dependency skips. Each export uses a fresh process
+because CPU wrappers retain class state.
 """
 import argparse
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -38,6 +41,12 @@ from litex.soc.cores.cpu.naxriscv import NaxRiscv
 from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
 class SetupStarted(Exception):
     pass
+recorded = {}
+def vexii_setup(args):
+    """Record the generator options the constructor hands the CPU, then stop before setup."""
+    recorded["vexii_args"] = args.vexii_args
+    recorded["split_args"] = mod.ctrl_cpu_args(mod.CTRL_FETCH_L1)
+    raise SetupStarted
 sink = io.StringIO()
 result = {}
 with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
@@ -63,7 +72,7 @@ with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
         result = {"sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw),
                   "rtl_sha256": hashlib.sha256(rtl).hexdigest()}
     else:
-        with patch.object(VexiiRiscv, "args_read", side_effect=SetupStarted), \
+        with patch.object(VexiiRiscv, "args_read", side_effect=vexii_setup), \
              patch.object(NaxRiscv, "args_read", side_effect=SetupStarted), \
              patch.object(mod.SoCCore, "__init__", side_effect=SetupStarted), \
              patch.object(mod.board_audio_routing, "assert_front_end_routed", side_effect=SetupStarted):
@@ -76,7 +85,7 @@ with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
                     mod.MilanSoC(None, 50000000, with_milan=False, cpu=spec["cpu"],
                                  xlen=spec["xlen"], **spec["options"])
             except SetupStarted:
-                result = {"kind": "setup"}
+                result = {"kind": "setup", **recorded}
             except ValueError as exc:
                 result = {"kind": "refused", "reason": str(exc)}
             except SystemExit as exc:
@@ -205,6 +214,39 @@ def _refusal_controls(directory):
     return len(cases) + 3
 
 
+def _split_cache(directory, mutations=()):
+    """The CPU options of the all-fabric and the split placement (#665), checked.
+
+    The all-fabric CPU keeps exactly its arguments; the split CPU adds only
+    the fetch L1 of ctrl_cpu_args, and that carries no LSU L1.
+    """
+    fabric = _probe(directory, options={}, mutations=list(mutations))
+    split = _probe(directory, options={"ctrl_mailbox": True, "ctrl_firmware": "unread.elf"},
+                   mutations=list(mutations))
+    assert fabric["kind"] == split["kind"] == "setup", (fabric, split)
+    assert fabric["vexii_args"] == "--xlen=32", fabric
+    assert re.fullmatch(r"--fetch-l1 --fetch-l1-sets=\d+ --fetch-l1-ways=\d+", split["split_args"]), split
+    assert split["vexii_args"] == "--xlen=32 " + split["split_args"], split
+
+
+def test_split_cache() -> None:
+    """Grade the split placement's instruction cache options and kill their loss, leak and widening."""
+    split = "\n                # #665: the split"
+    controls = [
+        ("the split CPU without its cache", "            if ctrl_mailbox:" + split, "            if False:" + split),
+        ("the all-fabric CPU with the cache", "            if ctrl_mailbox:" + split, "            if True:" + split),
+        ("a data cache with it",
+         'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"',
+         'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways} --lsu-l1"'),
+    ]
+    with tempfile.TemporaryDirectory(prefix="soc-split-cache-") as tmp:
+        directory = Path(tmp)
+        _split_cache(directory)
+        for label, old, new in controls:
+            _killed(lambda: _split_cache(directory, [(old, new)]), label)
+    print(f"Split placement CPU: the instruction cache on the split CPU only, {len(controls)} killed controls")
+
+
 def test_refusals() -> None:
     """Grade real CLI/constructor refusals, setup boundaries and planted removals."""
     with tempfile.TemporaryDirectory(prefix="soc-options-") as tmp:
@@ -249,6 +291,7 @@ if __name__ == "__main__":
     parser.add_argument("--nax-data-dir", help="isolated NaxRiscv data directory with generator sources")
     args = parser.parse_args()
     test_refusals()
+    test_split_cache()
     if args.netlists:
         test_netlists(args.nax_data_dir)
     print("RESULT: PASS")

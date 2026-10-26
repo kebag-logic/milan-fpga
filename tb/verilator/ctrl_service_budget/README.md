@@ -1,6 +1,7 @@
 # Split CPU service budget
 
-This harness measures the Mark II split firmware's service paths on the shipping cacheless core.
+This harness measures the Mark II split firmware's service paths on the split placement's core.
+That is the shipping VexiiRiscv with the split CPU's instruction cache ([#665 S2c](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860)), or without it (`--fetch-l1 none`), the cacheless core S2 measured.
 Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397).
 The image is `ctrl_srp_image.py --with-aecp --layout split`, linked unmodified.
 Every figure is a measured clock count at the CPU's 50 MHz, never an estimate.
@@ -13,6 +14,7 @@ Each is compared with T_svc = 10 ms and its ceiling in [FR_NFR.md 3.4.1](../../.
 - **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound, the defined load, its service and the verdicts.
 - **[Results](#results)** -- Per access, per pass, every response path, the fan-outs, the backlog rows and the load's service.
 - **[Findings](#findings)** -- The decision input for D4, D5 and D3, and the defects the measurement exposed.
+- **[The instruction cache](#the-instruction-cache)** -- The split CPU's fetch L1: the size sweep at both points, the hybrid-XIP arm, its block RAM and logic, and the T_svc gap it leaves.
 - **[Controls and self-test](#controls-and-self-test)** -- The planted over-budget paths, the region-decode control and the grader mutants.
 - **[Limits](#limits)** -- What is not measured, and why.
 
@@ -42,6 +44,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 Without `--record-budget-findings` a path over T_svc fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
 `--groups` selects groups and `--jobs` sets how many run at once.
+`--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
 
 `--reuse-build` reuses a build only if every input recorded in its `build.json` still has its digest.
 The inputs are the checkout's testbench and mailbox sources, every file of the firmware source trees the image is compiled from, the image, its runtime archives, the ROM `.init` files the model reads when it runs, the exported SoC Verilog, the generated two-interface mailbox and the CPU netlist and RAM models.
@@ -67,6 +70,15 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
 - `shutdown-entry` adds the SHUTDOWN path's only input: a poll that calls `adp_mbx_set_enable(false)` once, at NOW_MS 2,500.
   It runs the `adp-shutdown` and `control-shutdown` groups only.
 
+`--xip` is the labelled hybrid-XIP arm (D3, lane S14): the image's own objects, relinked so that every function past the reset entry executes from the flash window behind the instruction cache.
+`rom` keeps the reset entry, `.rodata` and the initial values of `.data`.
+The code sits at the first erase block past the product's AEM slot, and the flash device's image is preloaded with it:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-1x1-xip --xip --record-budget-findings
+```
+
 The directory has no Makefile on purpose.
 The serial sweep discovers every Makefile, and `scripts/suite_shards.py` must then register the suite.
 That is a CI change, outside this lane.
@@ -75,7 +87,8 @@ That is a CI change, outside this lane.
 
 [`split_soc.py`](split_soc.py) builds it; [`build.py`](build.py) links the image and compiles the model.
 
-- **The CPU** is MilanSoC's own VexiiRiscv path: cacheless RV32I, one hart, the CPU at the 50 MHz Milan clock, the bus at 100 MHz.
+- **The CPU** is MilanSoC's own VexiiRiscv path: RV32I, one hart, the CPU at the 50 MHz Milan clock, the bus at 100 MHz.
+  It has the split placement's instruction cache (`milan_soc.ctrl_cpu_args`), or the `--fetch-l1` selection; its data side is cacheless.
   The DMA port the shipping image has is kept, idle.
 - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
 - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
@@ -133,7 +146,8 @@ Every conversion is one `Grader` method: CPU cycles from bus cycles (times 50/10
 A pass runs from one committed entry of `ctrl_loop_service` to the next.
 The script's end cuts the pass in progress short, so the run of idle passes it flushes is no idle pass's figure.
 A mailbox access is timed at the CPU's load/store bus, from command to response.
-Instruction fetches are counted at the cacheless fetch bus, by region.
+Instruction fetches are counted at the CPU's fetch bus, by region.
+Without the cache a fetch is one word; with it, one 64-byte line refill, whose wait runs to its last beat.
 
 One phase is one sample.
 So each probe also reports a measured bound.
@@ -162,6 +176,8 @@ A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc,
 
 ## Results
 
+These are S2's results, on the cacheless core (`--fetch-l1 none`).
+[The instruction cache](#the-instruction-cache) gives the same groups on the split CPU's cache.
 Arm A is the image as linked, the formal measurement.
 Arm B is the labelled second arm, whose fixture callbacks answer.
 The SHUTDOWN row comes from the labelled `shutdown-entry` arm.

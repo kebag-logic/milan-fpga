@@ -13,6 +13,7 @@ recorded under a key that does not resolve (reused()).
 """
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import os
@@ -145,6 +146,67 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant: 
     return image / 'ctrl_app.elf'
 
 
+#: The labelled hybrid-XIP arm (#665, D3 and lane S14): the anchor in plat/ctrl_split.ld that
+#: places all code in rom, and what replaces it. Every function past the reset entry executes
+#: from the QSPI flash window behind the instruction cache; rom keeps the reset entry, .rodata
+#: and the initial values of .data, which the core reads through its cacheless data bus.
+XIP_TEXT = ('\t.text : { KEEP(*(.text.start)) *(.text .text.*) } > rom\n',
+            '\t.entry : { KEEP(*(.text.start)) } > rom\n\t.text : ALIGN(4) { *(.text .text.*) } > flash\n')
+
+
+def xip_offset() -> int:
+    """The flash offset of the arm's code: the first erase block past the product's AEM slot."""
+    sys.path.insert(0, str(ROOT / 'sw/litex'))
+    import milan_soc
+    aem = milan_soc.FLASHBOOT_LAYOUT['aem']
+    return -(-(aem['offset'] + aem['size']) // milan_soc.FLASH_ERASE_BLOCK) * milan_soc.FLASH_ERASE_BLOCK
+
+
+def xip_script(script: str, flash: int, end: int) -> str:
+    """plat/ctrl_split.ld with its code past the reset entry in a flash region from flash to end."""
+    if script.count(XIP_TEXT[0]) != 1 or script.count('INCLUDE regions.ld\n') != 1:
+        raise RuntimeError('xip: plat/ctrl_split.ld no longer has its rom code placement')
+    return script.replace(XIP_TEXT[0], XIP_TEXT[1]).replace(
+        'INCLUDE regions.ld\n', f'INCLUDE regions.ld\nMEMORY {{ flash (rx) : ORIGIN = 0x{flash:08x}, '
+        f'LENGTH = 0x{end - flash:x} }}\n')
+
+
+def xip_image(out: Path, elf: Path, window: int) -> tuple[Path, Path, Path]:
+    """Relink the image's own objects with its code in the flash window, through ctrl_srp_image.link.
+
+    Returns the relinked ELF (its symbols and link map), the ELF rom is built
+    from (the relinked one without its flash code) and the flash device's
+    image (erased bytes, then the code at xip_offset()).
+    """
+    import shutil
+    sys.path[:0] = [str(ROOT / 'sw/firmware/ctrl/test'), str(ROOT / 'sw/firmware/gtest')]
+    import ctrl_srp_image
+    import fw_rv32
+    cc = fw_rv32.compiler()
+    src = out / 'xip-source'
+    (src / 'plat').mkdir(parents=True, exist_ok=True)
+    plat = ROOT / 'sw/firmware/ctrl/plat'
+    (src / 'plat/ctrl_split.ld').write_text(xip_script((plat / 'ctrl_split.ld').read_text(), window + xip_offset(),
+                                                       window + 0x1000000))
+    shutil.copy(plat / 'ctrl_split_start.S', src / 'plat/ctrl_split_start.S')
+    objects = sorted(elf.parent.glob('[0-9]*-*.o'), key=lambda p: int(p.name.split('-', 1)[0]))
+    linked = out / 'xip'
+    linked.mkdir(exist_ok=True)
+    # The scenario reads the image's generated entity headers beside the ELF it is given.
+    for header in elf.parent.glob('*_gen.h'):
+        shutil.copy(header, linked / header.name)
+    xip_elf, _ = ctrl_srp_image.link(cc, src, linked, objects,
+                                     [out / 'runtime/libc.a', out / 'runtime/libcompiler_rt.a'], 'split')
+    objcopy = cc.removesuffix('gcc') + 'objcopy'
+    rom_elf = linked / 'ctrl_app_rom.elf'
+    run([objcopy, '--remove-section=.text', str(xip_elf), str(rom_elf)], linked / 'rom.log')
+    code = linked / 'code.bin'
+    run([objcopy, '-O', 'binary', '--only-section=.text', str(xip_elf), str(code)], linked / 'code.log')
+    image = out / 'flash.bin'
+    image.write_bytes(b'\xff' * xip_offset() + code.read_bytes())
+    return xip_elf, rom_elf, image
+
+
 def symbols(elf: Path) -> dict[str, int]:
     """The linked image's text symbols, each defined once."""
     sys.path.insert(0, str(ROOT / 'sw/firmware/gtest'))
@@ -267,6 +329,26 @@ ACCESSORS = (
 )
 
 
+def fetch_bus(spec: dict) -> tuple[list[tuple[str, str, str, str]], int]:
+    """The observers of this build's fetch bus, and the words each fetch command carries.
+
+    The cacheless CPU fetches one word a command, with ids in flight. The
+    instruction cache (#665) refills one line a command, one refill at a
+    time and without an id, so its ids read 0; its line is read off the
+    netlist's refill address, never restated.
+    """
+    if not spec.get('fetch_l1_geometry'):
+        return list(ACCESSORS), 1
+    netlist = next(Path(s) for s in spec['sources'] if Path(s).name == spec['netlist'] + '.v')
+    lines = re.findall(r"assign FetchL1Plugin_logic_bus_cmd_payload_address = "
+                       r"\{\w+\[31 : (\d+)\],\d+'h0\};", netlist.read_text())
+    if len(lines) != 1:
+        raise RuntimeError('the fetch L1 refill address is not one line-aligned assignment')
+    rows = [(name, ctype, module, var.replace('FetchCachelessPlugin', 'FetchL1Plugin'))
+            for name, ctype, module, var in ACCESSORS if name not in ('fetch_cmd_id', 'fetch_rsp_id')]
+    return rows, (1 << int(lines[0])) // 4
+
+
 #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
 ENTRY_SYMBOLS = ('adp_mbx_set_enable',)
 
@@ -310,10 +392,15 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
               'constexpr unsigned tx_head_word(unsigned ch) {',
               f"    return (0x{spec['ch_base']:x}u + ch * 0x{spec['ch_stride']:x}u + 0x{spec['tx_head']:x}u) / 4u;",
               '}']
-    for name, ctype, module, var in ACCESSORS:
+    rows, beats = fetch_bus(spec)
+    lines.append(f'constexpr unsigned fetch_beats = {beats}u;')
+    for name, ctype, module, var in rows:
         path, prefix = paths[module]
         mask = ' & 1u' if name.endswith('_id') else ''
         lines.append(f'inline {ctype} {name}(const Vsim& dut) {{ return {path}->{prefix}{var}{mask}; }}')
+    if beats > 1:
+        lines += ['inline unsigned fetch_cmd_id(const Vsim&) { return 0u; }',
+                  'inline unsigned fetch_rsp_id(const Vsim&) { return 0u; }']
     lines.append('inline void set_gm(Vsim& dut, unsigned i, std::uint64_t id, unsigned domain) {')
     if spec['interfaces'] == 1:
         lines += ['    dut.mbx_gm_id = id;', '    dut.mbx_domain = domain;', '    (void)i;']
@@ -395,20 +482,39 @@ def digest(paths: list[Path], build_dir: Path) -> dict[str, str]:
 def run_inputs(build_dir: Path, spec: dict) -> list[Path]:
     """Every file the native model is built from or reads when it runs."""
     gateware = build_dir / 'gateware'
-    return [Path(spec['elf']), *sorted((build_dir / 'runtime').glob('*.a')), *sorted(gateware.glob('*.init')),
+    return [Path(spec['elf']), *([Path(spec['flash_image'])] if spec.get('flash_image') else []),
+            *sorted((build_dir / 'runtime').glob('*.a')), *sorted(gateware.glob('*.init')),
             build_dir / 'budget_config.hpp', HERE / 'sim_main.cpp', HERE / 'observe.vlt', SIBLING / 'flash.hpp',
             *[Path(s) for s in spec['sources']]]
 
 
-def build(build_dir: Path, shape: str, n_if: int, cpu_regions: str = 'cover',
-          mutation: str = 'none', variant: str = 'none') -> dict:
+@dataclasses.dataclass(frozen=True)
+class Core:
+    """The CPU a build runs on and where its code executes from.
+
+    cpu_regions: the generator's region set (split_soc.build); fetch_l1: its
+    instruction cache (split_soc.fetch_l1_geometry); xip: the labelled
+    hybrid-XIP arm, the code past the reset entry in the flash window.
+    """
+    cpu_regions: str = 'cover'
+    fetch_l1: str = 'split'
+    xip: bool = False
+
+
+def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', variant: str = 'none',
+          core: Core = Core()) -> dict:
     """The whole build at one point; returns build.json's contents."""
     import split_soc
     build_dir.mkdir(parents=True, exist_ok=True)
     elf = firmware(build_dir, shape, n_if, mutation, variant)
+    rom_elf, flash_image = elf, None
+    if core.xip:
+        elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses()['flash'])
     table = symbols(elf)
-    spec = split_soc.build(build_dir, shape, elf, n_if, cpu_regions)
+    spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
     spec['elf'] = str(elf)
+    spec['xip'] = core.xip
+    spec['flash_image'] = str(flash_image) if flash_image else None
     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
     from mailbox_model import load
     contract = load()
@@ -464,4 +570,4 @@ if __name__ == '__main__':
     sys.path.insert(0, str(HERE))
     os.environ.setdefault('PYTHONHASHSEED', '0')
     print(json.dumps(build(Path(sys.argv[1]).resolve(), sys.argv[2], int(sys.argv[3]),
-                           cpu_regions=sys.argv[4] if len(sys.argv) > 4 else 'cover'), indent=2)[:2000])
+                           core=Core(cpu_regions=sys.argv[4] if len(sys.argv) > 4 else 'cover')), indent=2)[:2000])

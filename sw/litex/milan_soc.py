@@ -2812,6 +2812,26 @@ def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float | 
                          "omit the option or request a positive size")
 
 
+#: The split placement's instruction cache (#665, owner decision 2026-10-26: the CPU budget's
+#: first approach): VexiiRiscv's fetch L1 as (sets, ways) of the generator's fixed 64-byte line
+#: (FetchL1Plugin at the pinned revision). docs/design/SPLIT_CONTROL_MEMORY.md section 7 gives
+#: the measured sweep this is chosen from.
+CTRL_FETCH_L1 = (64, 1)
+
+
+def ctrl_cpu_args(fetch_l1: tuple[int, int] | None) -> str:
+    """The generator options the split placement adds to its CPU; None adds nothing.
+
+    Only the fetch side is cached. An LSU L1 would leave patch 0005's
+    non-coherent fabric for the coherent one the DMA port then needs, and the
+    data side's traffic is mostly the uncached mailbox and CSR windows.
+    """
+    if fetch_l1 is None:
+        return ""
+    sets, ways = fetch_l1
+    return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
+
+
 class MilanSoC(SoCCore):
     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
                  with_milan=True, with_mac=False, with_dram=False,
@@ -2854,7 +2874,8 @@ class MilanSoC(SoCCore):
                 "MilanSoC needs a resolved gptp_plane=True/False when the "
                 "Milan datapath is present")
         # ---- RISC-V core(s). Two cores are understood by the integration, although
-        #      the product gate below accepts only cacheless RV32 VexiiRiscv. The
+        #      the product gate below accepts only RV32 VexiiRiscv, cacheless except
+        #      for the split placement's instruction cache (ctrl_cpu_args). The
         #      processor descriptor/response bridges need the core's dedicated
         #      fabric-memory attachment whenever the Milan endpoint is present;
         #      it is a structural part of those two protocol faces.
@@ -2875,6 +2896,10 @@ class MilanSoC(SoCCore):
             _vex_args.with_cpu_clk = bool(milan_clk_freq)
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
+            if ctrl_mailbox:
+                # #665: the split placement's CPU fetches through its instruction
+                # cache. The all-fabric CPU's arguments, so its netlist, are unchanged.
+                vexii_extra = " ".join(filter(None, (vexii_extra, ctrl_cpu_args(CTRL_FETCH_L1))))
             # --xlen is a REAL knob on this path, not a NaxRiscv-only one. It used to be
             # hardcoded to 64 here, so `--cpu vexiiriscv --xlen 32` was accepted and
             # silently built an RV64 core  -  the same "flag that does nothing" defect the

@@ -4,7 +4,8 @@
 """The split CPU budget (#665, #397 re-opened): measured cycles of every service path.
 
 The test SoC (split_soc.py) runs the linked split image unmodified on the
-shipping cacheless core, and sim_main.cpp drives its mailbox. Each group is
+split placement's core (--fetch-l1 none: the cacheless core), and
+sim_main.cpp drives its mailbox. Each group is
 one boot and one stimulus script (scenario.py); grade.py reads the log. The
 default refuses a probe that misses T_svc unless --record-budget-findings is
 given; that option records the misses and still requires every probe of
@@ -182,6 +183,12 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser.add_argument('--out', type=Path, help='results directory; default <build-dir>/results')
     parser.add_argument('--jobs', type=int, default=8)
     parser.add_argument('--cpu-regions', choices=('cover', 'as-built'), default='cover')
+    parser.add_argument('--fetch-l1', default='split', metavar='split|none|SETSxWAYS',
+                        help="the CPU's instruction cache: the split placement's own (default), none "
+                        '(the cacheless CPU) or a test-only sweep point of 64-byte lines')
+    parser.add_argument('--xip', action='store_true',
+                        help='the labelled hybrid-XIP arm: the code past the reset entry executes from the '
+                        'flash window behind the instruction cache')
     parser.add_argument('--record-budget-findings', action='store_true')
     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
                         help='build a planted firmware defect; only its control group runs and must be caught')
@@ -275,6 +282,17 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
     return 1 if misses and not args.record_budget_findings else 0
 
 
+def selected(args: argparse.Namespace, shape: str, n_if: int) -> tuple:
+    """What this run's build must be: point, CPU regions, mutation, variant, fetch L1 and arm."""
+    return shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip
+
+
+def built_as(spec: dict) -> tuple:
+    """What a build records it is, in selected()'s order; a build that records no fetch L1 is cacheless."""
+    return (spec['shape'], spec['interfaces'], spec['cpu_regions'], spec['mutation'], spec['variant'],
+            spec.get('fetch_l1', 'none'), spec.get('xip', False))
+
+
 def main() -> int:
     """Build or reuse a point, run its groups, grade them and write the tables."""
     parser, args = arguments()
@@ -296,12 +314,11 @@ def main() -> int:
         except (RuntimeError, OSError, KeyError, ValueError) as error:
             print(f'REFUSED {error}')
             return 1
-        if ((spec['shape'], spec['interfaces'], spec['cpu_regions'], spec['mutation'], spec['variant'])
-                != (shape, n_if, args.cpu_regions, args.mutation, args.variant)):
-            parser.error('the reused build is another point, CPU region set, mutation or variant')
+        if built_as(spec) != selected(args, shape, n_if):
+            parser.error('the reused build is another point, CPU region set, mutation, variant, fetch L1 or arm')
     else:
-        spec = builder.build(build_dir, shape, n_if, cpu_regions=args.cpu_regions, mutation=args.mutation,
-                             variant=args.variant)
+        spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
+                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
     groups = select(parser, args, scenario.all_groups(scenario.point(args.point, spec), spec))
     out = (args.out or build_dir / 'results').resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -310,7 +327,7 @@ def main() -> int:
         groups, logs, absent = recorded(groups, out)
     else:
         with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-            logs = list(pool.map(lambda g: run_group(build_dir, out, g, '-'), groups))
+            logs = list(pool.map(lambda g: run_group(build_dir, out, g, spec.get('flash_image') or '-'), groups))
     results, refusals, misses = graded(groups, logs, spec, out)
     refusals = absent + refusals
     (out / 'table.md').write_text(table(results, args.point))

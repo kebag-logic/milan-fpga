@@ -309,6 +309,26 @@ def _verdict(refusals_fail: bool, misses_fail: bool) -> Patches:
     return lambda: [patch.object(run, 'verdict', verdict)]
 
 
+def _fetch_bus_cacheless(spec: dict) -> tuple[list, int]:
+    """The cacheless CPU's observers and one beat a command, whatever the CPU fetches through."""
+    return list(build.ACCESSORS), 1
+
+
+def _fetch_bus_one_beat(spec: dict, original: Callable = build.fetch_bus) -> tuple[list, int]:
+    """The CPU's own fetch observers, with one beat a refill instead of its line's words."""
+    return original(spec)[0], 1
+
+
+def _built_as_without_cache(spec: dict) -> tuple:
+    """A reused build's identity without its fetch L1 and arm."""
+    return (spec['shape'], spec['interfaces'], spec['cpu_regions'], spec['mutation'], spec['variant'], 'none', False)
+
+
+def _selected_without_cache(args: object, shape: str, n_if: int) -> tuple:
+    """The selected build's identity without its fetch L1 and arm."""
+    return shape, n_if, args.cpu_regions, args.mutation, args.variant, 'none', False
+
+
 MUTANTS: dict[str, Patches] = {
     'marker: the frame tag is ignored': _start_with(_tag_ignored),
     'marker: a timer path starts when its record is posted': _start_with(_timer_posted),
@@ -410,4 +430,12 @@ MUTANTS: dict[str, Patches] = {
     'tables: a control instance is its own path (earlier rule)': _control_own_path,
     "tables: a starved instance is not its path's worst": lambda: [patch.object(
         run, 'severity', lambda r: (False, r['ms']))],
+    'fetch bus: the cacheless observers on a cached CPU':
+        lambda: [patch.object(build, 'fetch_bus', _fetch_bus_cacheless)],
+    'fetch bus: one beat a refill': lambda: [patch.object(build, 'fetch_bus', _fetch_bus_one_beat)],
+    'reuse: the fetch L1 and the arm are not compared':
+        lambda: [patch.object(run, 'built_as', _built_as_without_cache),
+                 patch.object(run, 'selected', _selected_without_cache)],
+    'xip: the reset entry moves to flash with the other code': lambda: [patch.object(
+        build, 'XIP_TEXT', (build.XIP_TEXT[0], build.XIP_TEXT[1].replace('} > rom', '} > flash')))],
 }

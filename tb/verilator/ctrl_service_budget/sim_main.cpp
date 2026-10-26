@@ -3,7 +3,8 @@
 //
 // The testbench of the split CPU budget (#665, #397): it drives the
 // mailbox's datapath side from a stimulus script and observes, passively,
-// the committed PCs, both cacheless CPU buses, the mailbox host port, the
+// the committed PCs, the CPU's fetch bus (cacheless, or its instruction
+// cache's refills) and cacheless data bus, the mailbox host port, the
 // receive commit and the event-ring writes. Every figure it prints is an
 // observed clock count; run.py grades them.
 #include "Vsim.h"
@@ -262,21 +263,28 @@ private:
             std::printf("TRAP %llu %u %u %08x\n", ull(cpu_), unsigned(trap_interrupt(dut)),
                         trap_cause(dut), last_pc_);
         }
+        // A fetch command carries fetch_beats words: one without a cache, a whole line on the
+        // instruction cache's refill bus. Its wait runs to its last beat (or its error).
         if (fetch_cmd_valid(dut) && fetch_cmd_ready(dut)) {
             const auto r = region_of(fetch_address(dut));
             ++pass_.fetch[r];
-            fetch_at_[fetch_cmd_id(dut)] = {cpu_, r, fetch_address(dut)};
+            fetch_at_[fetch_cmd_id(dut)] = {cpu_, r, fetch_address(dut), 0};
             if (tracing_ && trace_left_) std::printf("FETCH %llu %08x\n", ull(cpu_), fetch_address(dut));
-            if (r == ROM || r == FLASH) note_code(fetch_address(dut));
+            if (r == ROM || r == FLASH)
+                for (unsigned k = 0; k < fetch_beats; ++k) note_code(fetch_address(dut) + 4u * k);
         }
         if (fetch_rsp_valid(dut)) {
-            const auto& at = fetch_at_[fetch_rsp_id(dut)];
-            if (fetch_rsp_error(dut)) {
+            auto& at = fetch_at_[fetch_rsp_id(dut)];
+            const bool error = fetch_rsp_error(dut);
+            if (error) {
                 ++bus_errors_;
                 std::printf("BUSERR %llu fetch %08x\n", ull(cpu_), at.address);
             }
-            fetch_lat_[at.region].add(cpu_ - at.start);
-            pass_.fetch_wait[at.region] += cpu_ - at.start;
+            if (at.beats < fetch_beats && (++at.beats == fetch_beats || error)) {
+                at.beats = fetch_beats;
+                fetch_lat_[at.region].add(cpu_ - at.start);
+                pass_.fetch_wait[at.region] += cpu_ - at.start;
+            }
         }
         if (lsu_cmd_valid(dut) && lsu_cmd_ready(dut)) {
             const auto r = region_of(lsu_address(dut));
@@ -463,7 +471,7 @@ private:
         }
     }
 
-    struct FetchAt { std::uint64_t start = 0; Region region = OTHER; std::uint32_t address = 0; };
+    struct FetchAt { std::uint64_t start = 0; Region region = OTHER; std::uint32_t address = 0; unsigned beats = 0; };
     struct LsuAt { std::uint64_t start = 0; Region region = OTHER; bool write = false; std::uint32_t address = 0; };
 
     Flash flash_;
