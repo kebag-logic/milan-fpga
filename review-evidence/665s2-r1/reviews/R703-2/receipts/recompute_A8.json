@@ -1,0 +1,233 @@
+{
+ "results": "$REVIEWS/665s2-r703-2-packet/scratch/builds/a8x8/results",
+ "interfaces": 2,
+ "groups": {
+  "acmp-cmd": {
+   "passes": 83,
+   "worst_cpu": 2722461,
+   "worst_ms": 54.449,
+   "clock": {
+    "consecutive_pass_pairs_ok": 25,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-disc": {
+   "passes": 133,
+   "worst_cpu": 2722070,
+   "worst_ms": 54.441,
+   "clock": {
+    "consecutive_pass_pairs_ok": 75,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-noresp": {
+   "passes": 207,
+   "worst_cpu": 2919248,
+   "worst_ms": 58.385,
+   "clock": {
+    "consecutive_pass_pairs_ok": 149,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-notk": {
+   "passes": 324,
+   "worst_cpu": 2989496,
+   "worst_ms": 59.79,
+   "clock": {
+    "consecutive_pass_pairs_ok": 266,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-advertise": {
+   "passes": 572,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 15,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-discover": {
+   "passes": 82,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 9,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-gm": {
+   "passes": 82,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 9,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-link": {
+   "passes": 82,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 11,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "aecp": {
+   "passes": 190,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 61,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "backlog-adp-refill": {
+   "passes": 294,
+   "worst_cpu": 2209308,
+   "worst_ms": 44.186,
+   "clock": {
+    "consecutive_pass_pairs_ok": 38,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 2209308,
+   "composed_ms": 44.186
+  },
+  "backlog-adp": {
+   "passes": 291,
+   "worst_cpu": 2208710,
+   "worst_ms": 44.174,
+   "clock": {
+    "consecutive_pass_pairs_ok": 35,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 2208710,
+   "composed_ms": 44.174,
+   "backlog_rows": {
+    "ENTITY_AVAILABLE behind the adp ring": {
+     "start": 312172525,
+     "end": 320523108,
+     "ms": 83.506
+    }
+   }
+  },
+  "backlog-owed": {
+   "passes": 342,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 50,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 1111719,
+   "composed_ms": 22.234,
+   "backlog_rows": {
+    "response with 7 owed ahead": {
+     "start": 310951259,
+     "wire": 326142917,
+     "wire_ms": 151.917,
+     "room": 316951255
+    }
+   }
+  },
+  "backlog": {
+   "passes": 327,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 39,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 1392016,
+   "composed_ms": 27.84,
+   "backlog_rows": {
+    "event behind 15 others": {
+     "start": 300734842,
+     "end": 305199919,
+     "ms": 44.651
+    },
+    "ACMP command behind a full acmp ring": {
+     "start": 300740014,
+     "wire": 311611295,
+     "wire_ms": 108.713
+    }
+   }
+  },
+  "control": {
+   "passes": 82,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 9,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "maap": {
+   "passes": 343,
+   "worst_cpu": 1071742,
+   "worst_ms": 21.435,
+   "clock": {
+    "consecutive_pass_pairs_ok": 22,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "srp": {
+   "passes": 306,
+   "worst_cpu": 1048452,
+   "worst_ms": 20.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 23,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,20 @@
+== 1x1 arm A
+N6 composition: the composed maximum is the window's first pass, not its longest: 3 published values change
+    backlog-adp composed 31.31606 -> 14.8694
+    backlog-adp-refill composed 30.6271 -> 14.8694
+    backlog-owed composed 11.65354 -> 11.24866
+N8 composition: a window that committed MORE than its load is accepted: 0 published values change
+N10 worst pass: the last work pass is dropped: 1 published values change
+    adp-link worst 5.48022 -> 4.96904
+N11 composition: a commit at the window's end is not counted: 0 published values change
+N12 notify: a missing recipient is skipped by the end rule (fan_out() still refuses): 0 published values change
+== 8x8 arm A
+N6 composition: the composed maximum is the window's first pass, not its longest: 4 published values change
+    backlog composed 27.84032 -> 17.6383
+    backlog-adp composed 44.1742 -> 20.56766
+    backlog-adp-refill composed 44.18616 -> 20.56766
+    backlog-owed composed 22.23438 -> 17.5175
+N8 composition: a window that committed MORE than its load is accepted: 0 published values change
+N10 worst pass: the last work pass is dropped: 0 published values change
+N11 composition: a commit at the window's end is not counted: 0 published values change
+N12 notify: a missing recipient is skipped by the end rule (fan_out() still refuses): 0 published values change
