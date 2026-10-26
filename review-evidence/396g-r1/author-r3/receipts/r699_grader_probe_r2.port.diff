@@ -1,0 +1,12 @@
+--- published/grader_probe_r2.py	2026-10-26 11:59:27.033013815 +0100
++++ grader_probe_r2.py	2026-10-26 12:01:43.381104566 +0100
+@@ -103,7 +103,8 @@
+     cap = raw if raw is not None else pack(build(frames, channels, ops + list(extra), start), order)
+     layout = tc.CounterCapture(channels, order, RATE, 0.0, 0.0, 5, tags, tuple(anchors), steps)
+     rlog = tc.CounterRunLog(alog if log is None else log, list(losses), 2)
+-    v, d = tc.grade_audio_counter_capture(cap, layout, rlog)
++    v, d = tc.grade_audio_counter_capture(cap, layout, rlog,
++                                          required_s=(len(cap) // (4 * channels) - 126) / RATE)
+     dut = [(e["channel"], e["capture_index"], e["class"],
+             e.get("n"), e.get("mask"), e.get("partner"), e.get("inserted"))
+            for e in d.get("events", []) if e["attribution"] == "dut"]
