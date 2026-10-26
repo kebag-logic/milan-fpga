@@ -1,0 +1,47 @@
+#!/bin/bash
+# usage: run_gates.sh <label> <python> <outdir>
+set -u
+label="$1"; py="$2"; out="$3"
+wt=<worktree>
+mkdir -p "$out"
+cd "$wt" || exit 2
+summary="$out/summary.tsv"
+printf 'gate\trc\tseconds\tlast line\n' > "$summary"
+run() {
+  name="$1"; shift
+  start=$(date +%s.%N)
+  "$@" > "$out/$name.log" 2>&1
+  rc=$?
+  end=$(date +%s.%N)
+  secs=$(python3 -c "print(f'{$end-$start:.1f}')")
+  sed -i -e "s#$wt#<worktree>#g" -e "s#<py312-venv>#<py312-venv>#g" -e "s#<home>#<home>#g" -e "s#<md-venv>#<md-venv>#g" "$out/$name.log"
+  printf '%s\t%s\t%s\t%s\n' "$name" "$rc" "$secs" "$(tail -1 "$out/$name.log" | cut -c1-200)" >> "$summary"
+  echo "$label $name rc=$rc ${secs}s"
+}
+flat() {
+  d="$(mktemp -d)"
+  install -m 0555 scripts/act_ci.py "$d/act_ci.py"
+  "$py" -I "$d/act_ci.py" --selftest --worktree "$wt"
+  rc=$?
+  rm -rf "$d"
+  return $rc
+}
+run ci_gate_workflows_check "$py" scripts/ci_gate_workflows.py --check
+run ci_gate_workflows_selftest "$py" scripts/ci_gate_workflows_selftest.py
+run ci_case_receipts_selftest "$py" scripts/ci_case_receipts_selftest.py
+run ci_make_cases_selftest "$py" scripts/ci_make_cases_selftest.py
+run ci_maap_cases_selftest "$py" scripts/ci_maap_cases_selftest.py
+run ci_capture_cases_selftest "$py" scripts/ci_capture_cases_selftest.py
+run ci_suite_pieces_selftest "$py" scripts/ci_suite_pieces_selftest.py
+run ci_suite_collect_selftest "$py" scripts/ci_suite_collect_selftest.py
+run ci_fail_fast_selftest "$py" scripts/ci_fail_fast_selftest.py
+run ci_runtime_evidence_selftest "$py" scripts/ci_runtime_evidence_selftest.py
+run ci_install_cache_selftest "$py" scripts/ci_install_cache_selftest.py
+run generate_ci_evidence_pins_check "$py" scripts/generate_ci_evidence_pins.py --check
+run ci_workflow_plan_selftest "$py" scripts/ci_workflow_plan_selftest.py
+run ci_manifest_selftest "$py" scripts/ci_manifest_selftest.py
+run ci_scope_selftest "$py" scripts/ci_scope.py --selftest
+run ci_events_check "$py" scripts/ci_events.py --check
+run ci_events_selftest "$py" scripts/ci_events.py --selftest
+run act_ci_selftest "$py" scripts/act_ci.py --selftest
+run act_ci_flat_install_selftest flat

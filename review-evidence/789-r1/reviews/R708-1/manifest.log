@@ -1,0 +1,27 @@
+COMMAND: python3 scripts/ci_manifest_selftest.py
+manifest difference refused: subject.head
+manifest difference refused: subject.tree
+manifest difference refused: subject.base
+manifest difference refused: definitions..github/workflows/check.yml
+manifest difference refused: environment.image
+manifest difference refused: environment.actions
+manifest difference refused: environment.tools.compiler.version
+manifest difference refused: environment.tools.compiler.source_sha256
+manifest difference refused: plan.check/test/0.matrix
+manifest difference refused: plan.check/test/0.needs
+manifest difference refused: execution.check/test/0
+manifest difference refused: execution.check/test/0
+manifest difference refused: inventories.suite.legs
+manifest difference refused: inventories.suite.legs
+manifest difference refused: inventories.suite.verdicts_sha256
+manifest difference refused: results.check/test/0
+manifest difference refused: results.check/test/0
+manifest extra job refused: plan
+manifest extra job refused: execution
+manifest extra job refused: results
+two identical skipped-step collections refused
+two identical skipped-step collections refused
+two identical cancelled collections refused
+forged completeness refused
+duplicate JSON key refused
+manifest comparison controls: PASS

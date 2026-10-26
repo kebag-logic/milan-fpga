@@ -1,0 +1,202 @@
+{
+  "observed": {
+    "current_time": "2026-10-26 10:51:31 UTC"
+  },
+  "runs": {
+    "workflow_runs": [
+      {
+        "id": 40309456540,
+        "name": "rtl-fast",
+        "status": "queued",
+        "conclusion": null,
+        "run_number": 1566,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40309456540/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40309456540/logs",
+        "workflow_id": 339150340
+      },
+      {
+        "id": 40309456471,
+        "name": "docs",
+        "status": "queued",
+        "conclusion": null,
+        "run_number": 1818,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40309456471/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40309456471/logs",
+        "workflow_id": 320168027
+      },
+      {
+        "id": 40309456521,
+        "name": "elaborate",
+        "status": "queued",
+        "conclusion": null,
+        "run_number": 1443,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40309456521/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40309456521/logs",
+        "workflow_id": 339283801
+      },
+      {
+        "id": 40309456531,
+        "name": "rtl-full",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_number": 1995,
+        "jobs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40309456531/jobs",
+        "logs_url": "https://api.github.com/repos/kebag-logic/milan-fpga/actions/runs/40309456531/logs",
+        "workflow_id": 320750503
+      }
+    ]
+  },
+  "jobs": {
+    "jobs": [
+      {
+        "id": 121526694951,
+        "name": "bdd-conformance",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40309456540,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Cache exact Python downloads",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Fetch the processor model inputs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Install behave",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run the specification-facing suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Cache exact Python downloads",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 121526695168,
+        "name": "Fail fast across this head",
+        "status": "in_progress",
+        "conclusion": null,
+        "run_id": 40309456540,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Set CPU-derived job budgets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Observe the first failed job",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 4
+          },
+          {
+            "name": "Cancel this run and sibling workflows",
+            "status": "pending",
+            "conclusion": null,
+            "number": 5
+          },
+          {
+            "name": "Record actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 6
+          },
+          {
+            "name": "Upload actual job execution",
+            "status": "pending",
+            "conclusion": null,
+            "number": 7
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "pending",
+            "conclusion": null,
+            "number": 14
+          }
+        ]
+      },
+      {
+        "id": 121526695273,
+        "name": "changes",
+        "status": "queued",
+        "conclusion": null,
+        "run_id": 40309456540,
+        "logs_url": null,
+        "steps": null
+      }
+    ]
+  }
+}

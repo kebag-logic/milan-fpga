@@ -1,0 +1,87 @@
+{
+  "generator": {
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.566
+  },
+  "generator_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 9.028
+  },
+  "events_check": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.665
+  },
+  "events_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 186.492
+  },
+  "evidence_pins": {
+    "command": [
+      "python3",
+      "scripts/generate_ci_evidence_pins.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.064
+  },
+  "scope_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_scope.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_s": 18.094
+  },
+  "workflow_plan": {
+    "command": [
+      "python3",
+      "scripts/ci_workflow_plan_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.214
+  },
+  "manifest": {
+    "command": [
+      "python3",
+      "scripts/ci_manifest_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.064
+  },
+  "runtime_evidence": {
+    "command": [
+      "python3",
+      "scripts/ci_runtime_evidence_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 5.774
+  },
+  "install_cache": {
+    "command": [
+      "python3",
+      "scripts/ci_install_cache_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.164
+  }
+}

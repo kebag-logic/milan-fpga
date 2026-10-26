@@ -1,0 +1,27 @@
+gate	rc	last line
+docs_check	0	docs_check: 0 finding(s) across 210 md files + 1418 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+em_dash	0	check_em_dash: 0 finding(s) over 39 added line(s) in 2 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [76de691e..HEAD]
+doc_style	0	documentation style: OK (23 current documents)
+doc_style_selftest	0	documentation style selftest: OK
+gptp_docs	0	gPTP documentation: OK (8 current pages)
+gptp_docs_selftest	0	gPTP documentation selftest: OK (30 controls)
+doc_map_check	0	documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+doc_map_selftest	0	documentation map selftest: OK (valid wrong-raster control)
+doc_paths	0	doc path gate: OK (1064 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+archive	0	archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)
+archive_selftest	0	archive selftest: OK (24 controls)
+toc_selftest	0	TOC selftest: PASS (1501/1501 arm(s))
+toc_verify_anchors	0	anchor check: 537 existing cross-page fragment links reproduced
+toc_check	0	TOC gate: OK (149 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+feature_status_selftest	0	feature_status: 0 finding(s)
+baremetal_check	0	baremetal-only: OK (0 findings across 1416 tracked first-party file(s))
+py_idiom	0	  over-long line: 0 <= 0
+py_idiom_selftest	0	54 checks: 54 PASS, 0 FAIL
+sh_idiom	0	  top-heavy long script: 0 <= 0
+hygiene_check	0	HYGIENE RATCHET: PASS (3 population(s), 1289 file(s))
+fail_fast_check	0	  the ratchets can be lowered to 78, 3 and 0
+test_evidence_check	0	  the mutation ratchet can be lowered to 67
+todo_ownership	0	TODO ownership gate: OK (0 owned marker(s), 0 unowned; 52 near-miss occurrence(s) on 45 line(s) correctly not treated as markers; 1354 first-party file(s) read)
+naming_check	0	NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+no_git_docs_check	0	docs_check: 0 finding(s) across 210 md files + 1418 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+no_git_feature_status	0	feature_status: 0 finding(s)

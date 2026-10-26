@@ -1,0 +1,109 @@
+{
+  "ci_case_receipts_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_case_receipts_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.666
+  },
+  "ci_make_cases_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_make_cases_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.165
+  },
+  "ci_maap_cases_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_maap_cases_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.114
+  },
+  "ci_capture_cases_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_capture_cases_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.114
+  },
+  "ci_suite_pieces_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_suite_pieces_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 8.178
+  },
+  "ci_suite_collect_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_suite_collect_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 3.169
+  },
+  "ci_fail_fast_selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_fail_fast_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.916
+  },
+  "docs_check": {
+    "command": [
+      "python3",
+      "scripts/docs_check.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 7.027
+  },
+  "check_doc_style": {
+    "command": [
+      "python3",
+      "scripts/check_doc_style.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.064
+  },
+  "check_doc_paths": {
+    "command": [
+      "python3",
+      "scripts/check_doc_paths.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 0.114
+  },
+  "check_py_idiom": {
+    "command": [
+      "python3",
+      "scripts/check_py_idiom.py"
+    ],
+    "rc": 0,
+    "elapsed_s": 5.124
+  },
+  "toc_check": {
+    "command": [
+      "python3",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_s": 5.673
+  },
+  "em_dash": {
+    "command": [
+      "python3",
+      "scripts/check_em_dash.py",
+      "--base",
+      "76de691e5625cc4ea2f9a19def9e07c1183a14ee"
+    ],
+    "rc": 0,
+    "elapsed_s": 2.819
+  }
+}
