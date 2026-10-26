@@ -474,6 +474,48 @@ Feature: The torture campaign's own coverage is auditable at a desk
     Then the audio grader voids the run as NOT RUN for arms outside the first and the last tenth
 
   @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: the audio grader states its qualified interval and needs 24 hours of it
+    When a clean counter capture is graded with the release's required duration
+    Then the audio grader returns NOT RUN for a qualified interval shorter than 24 hours
+    And the verdict states an interval from 63 samples after acquisition to 63 samples before the end
+    And the same capture passes when the required duration is its qualified length
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a slip of whole blocks at a capture's end is unresolved, never exact
+    When a counter capture ends <back> samples after a <n>-sample drop
+    Then the audio grader reports only unresolved events that bound the slip, or passes outside the qualified interval
+
+    Examples:
+      | n    | back |
+      | 2048 | 1    |
+      | 4096 | 1    |
+      | 4096 | 30   |
+      | 8192 | 62   |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a constant-mask corruption of any length is one bit-flip
+    When a synthetic counter capture XORs <mask> into <n> consecutive words on one channel
+    Then the audio grader reports one bit-flip of <n> words with mask <mask>
+
+    Examples:
+      | mask       | n   |
+      | 0x00000100 | 63  |
+      | 0x00000100 | 64  |
+      | 0x00000100 | 65  |
+      | 0x00000100 | 100 |
+      | 0x00080000 | 100 |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a slip and a one-word corruption in one window are both graded
+    When a synthetic counter capture drops 3 samples 5 samples before a code-bit flip
+    Then the audio grader reports the 3-sample drop on every channel and the flip at its sample
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: an event at a logged loss's own index counts that loss
+    When a synthetic counter capture logs a 3000-frame loss at the index of its slip
+    Then the slip's acquisition index and times include the 3000 lost frames
+
+  @class:release @clause:REQ-VER-06 @negative-control
   Scenario Outline: a journal-commit cut passes only with placed, non-vacuous evidence
     When a journal-commit cut <case>
     Then the state oracle grades the commit cut <verdict>

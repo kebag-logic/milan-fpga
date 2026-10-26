@@ -409,16 +409,26 @@ verified blocks outside the shipping datapath; the station-address rules
   The classes are n dropped, n repeated, n samples of silence, a bit-flip mask and a channel swap.
   Only a reciprocal exchange is a swap; a corrupted or copied channel number is a bit-flip.
   A channel swapped from the first frame fails as a swap, its counter still tracked.
+  An excursion that returns to its track under one XOR mask is one bit-flip, at any length.
+  A slip and a corruption in one 64-sample window are both graded in their classes.
   Patterns the signal cannot tell apart follow the rules and limits of [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle).
+  A slip of whole blocks shows only within 63 samples, so each verdict states its qualified interval.
+  It runs from 63 samples after the last channel's acquisition to 63 samples before the capture's end.
+  Nothing outside it is proved clean.
+  At either end, a stretch that differs from its track only in the code bit is one unresolved event.
+  It may be a slip of whole blocks or a code-bit corruption, so it never claims an exact class.
   The source plants a drop, a repeat and a bit flip at both ends of the run.
-  Both ends are the first and the last tenth of the capture.
+  Both ends are the first and the last tenth of the capture, inside the qualified interval.
   A missed planted arm voids the run.
   Capture-side losses are logged by the capture tool and reported apart.
   A loss still advances the acquisition index and both clocks.
+  It is not observed time, so it never counts toward the qualified interval.
   Each event records wall and gPTP times, capture index, words and class.
   Its times are interpolated between the capture tool's anchors, never invented.
   Counter, `SLIP_*` and gPTP walks bracket each event.
   The run passes with zero DUT-attributed events on every bound channel.
+  Its qualified interval must also hold at least 24 hours of observed samples.
+  So each capture runs past the 24 hours at both ends.
   `grade_audio_counter_capture` grades the counter captures.
   A sine pair, 997 Hz and 9,973 Hz, crosses the analog path.
   THD+N and the sample-exact predictor residual grade it.

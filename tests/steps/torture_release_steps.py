@@ -527,7 +527,7 @@ def step_tp_release_control_clean(context: Context) -> None:
             tp.synthesize_counter_capture(fixture["frames"], fixture["channels"],
                                           events=fixture["source_events"]),
             tp.CounterCapture(fixture["channels"], "big", fixture["rate_hz"], 0.0, 0.0),
-            tp.CounterRunLog(fixture["planted_arms"], [], 2))
+            tp.CounterRunLog(fixture["planted_arms"], [], 2), required_s=fixture["required_s"])
     assert verdict == "PASS", detail
 
 
@@ -576,7 +576,12 @@ def _counter_capture(extra: list, losses: list | None = None, arms_drop: int = 0
     capture = tp.synthesize_counter_capture(frames, 4, events=source + extra)
     return tp.grade_audio_counter_capture(
         capture, tp.CounterCapture(4, "big", 48000, 0.0, 0.0),
-        tp.CounterRunLog(arms, losses or [], 0))
+        tp.CounterRunLog(arms, losses or [], 0), required_s=_qualified_s(frames))
+
+
+def _qualified_s(frames: int) -> float:
+    """A clean capture's qualified length: 63 guard samples off each end, at 48 kHz."""
+    return (frames - 2 * 63) / 48000
 
 
 _EVENTS = {
@@ -677,7 +682,7 @@ def _arm_edits() -> list:
 def _grade_independent(shifts: dict, edits: list, **layout: object) -> tuple:
     capture = _independent_capture(8192, _with_arms(shifts), _arm_edits() + edits)
     return tp.grade_audio_counter_capture(capture, tp.CounterCapture(4, "big", 48000, 0.0, 0.0, **layout),
-                                          tp.CounterRunLog(_ARMS, [], 0))
+                                          tp.CounterRunLog(_ARMS, [], 0), required_s=_qualified_s(8192))
 
 
 def _dut(detail: dict) -> list:
@@ -808,6 +813,118 @@ def step_tp_release_mid_arms_void(context: Context) -> None:
     verdict, detail = context.release_counter_result
     assert verdict == "NOT RUN" and detail["planted_missed"] == [], detail["why"]
     assert "first and the last tenth" in detail["why"], detail["why"]
+
+
+@when("a clean counter capture is graded with the release's required duration")
+def step_tp_release_qualified_default(context: Context) -> None:
+    """The armed 8192-frame capture, with the grader's own default requirement."""
+    capture = _independent_capture(8192, _with_arms({}), _arm_edits())
+    context.release_qualified_capture = capture
+    context.release_counter_result = tp.grade_audio_counter_capture(
+        capture, tp.CounterCapture(4, "big", 48000, 0.0, 0.0), tp.CounterRunLog(_ARMS, [], 0))
+
+
+@then("the audio grader returns NOT RUN for a qualified interval shorter than 24 hours")
+def step_tp_release_qualified_short(context: Context) -> None:
+    """A fraction of a second cannot stand for the 24-hour run (REQ-VER-06)."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "NOT RUN", detail["why"]
+    assert detail["why"] == "the qualified interval is shorter than the required duration", detail["why"]
+    assert detail["qualified"]["required_s"] == 24 * 60 * 60, detail["qualified"]
+
+
+@then("the verdict states an interval from 63 samples after acquisition to 63 samples before the end")
+def step_tp_release_qualified_bounds(context: Context) -> None:
+    """A slip of whole blocks shows within 63 samples on either side, so only these are proved."""
+    qualified = context.release_counter_result[1]["qualified"]
+    assert (qualified["start"], qualified["end"], qualified["frames"]) == (63, 8192 - 63, 8192 - 126), qualified
+
+
+@then("the same capture passes when the required duration is its qualified length")
+def step_tp_release_qualified_pass(context: Context) -> None:
+    """One frame more than the interval holds is NOT RUN again."""
+    for required_s, want in ((_qualified_s(8192), "PASS"), (_qualified_s(8192) + 1 / 48000, "NOT RUN")):
+        verdict, detail = tp.grade_audio_counter_capture(
+            context.release_qualified_capture, tp.CounterCapture(4, "big", 48000, 0.0, 0.0),
+            tp.CounterRunLog(_ARMS, [], 0), required_s=required_s)
+        assert verdict == want, (required_s, detail["why"])
+
+
+@when("a counter capture ends {back:d} samples after a {n:d}-sample drop")
+def step_tp_release_tail_slip(context: Context, n: int, back: int) -> None:
+    """A slip of whole blocks with fewer than 64 samples after it."""
+    context.release_slip = (8192 - back, n)
+    context.release_counter_result = _grade_independent({8192 - back: n}, [])
+
+
+@then("the audio grader reports only unresolved events that bound the slip, or passes outside the qualified interval")
+def step_tp_release_tail_slip_found(context: Context) -> None:
+    """Never an exact corruption: either the bytes equal a clean capture, or the stretch is unresolved."""
+    verdict, detail = context.release_counter_result
+    at, _ = context.release_slip
+    dut = [e for e in detail["events"] if e["attribution"] == "dut"]
+    if not dut:
+        assert verdict == "PASS" and detail["qualified"]["end"] <= at, (verdict, detail["qualified"])
+        return
+    assert verdict == "FAIL" and len(dut) == 4, detail["why"]
+    for event in dut:
+        assert event["class"] == "unresolved", event
+        first, last = event["located_within"]
+        assert first <= at <= last < first + 63 and event["mask"] == "0x00000100", event
+        assert event["capture_index"] + event["n"] == 8192, event
+
+
+@when("a synthetic counter capture XORs {mask} into {n:d} consecutive words on one channel")
+def step_tp_release_constant_mask(context: Context, mask: str, n: int) -> None:
+    """Channel 2's words from 3000 on, each XORed with the same mask."""
+    context.release_counter_result = _grade_independent({}, [(3000 + k, 2, int(mask, 16)) for k in range(n)])
+
+
+@then("the audio grader reports one bit-flip of {n:d} words with mask {mask}")
+def step_tp_release_constant_mask_found(context: Context, n: int, mask: str) -> None:
+    """The same class at 63, 64 and beyond: never a slip pair of a corrupted track."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL", detail["why"]
+    assert _dut(detail) == [(2, 3000, "bit-flip", n, mask, None)], _dut(detail)
+
+
+@when("a synthetic counter capture drops 3 samples 5 samples before a code-bit flip")
+def step_tp_release_slip_then_flip(context: Context) -> None:
+    """Every channel drops 3 at 3000; channel 2's word at 3005 has its code bit flipped."""
+    context.release_counter_result = _grade_independent({3000: 3}, [(3005, 2, 0x100)])
+
+
+@then("the audio grader reports the 3-sample drop on every channel and the flip at its sample")
+def step_tp_release_slip_then_flip_found(context: Context) -> None:
+    """Both events in their classes, at their samples: the flip never swallows the drop."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL" and detail["planted_missed"] == [], detail["why"]
+    assert _dut(detail) == sorted([(c, 3000, "dropped", 3, None, None) for c in range(4)]
+                                  + [(2, 3005, "bit-flip", 1, "0x00000100", None)]), _dut(detail)
+
+
+@when("a synthetic counter capture logs a 3000-frame loss at the index of its slip")
+def step_tp_release_loss_at_index(context: Context) -> None:
+    """3000 frames lost at stored index 4000, with the capture tool's end anchor."""
+    capture = _independent_capture(8192, _with_arms({4000: 3000}), _arm_edits())
+    span = (8192 + 3000) / 48000
+    context.release_counter_result = tp.grade_audio_counter_capture(
+        capture, tp.CounterCapture(4, "big", 48000, 100.0, 200.0, anchors=((8192, 100.0 + span, 200.0 + span),),
+                                   gptp_steps_wall_s=()),
+        tp.CounterRunLog(_ARMS, [{"index": 4000, "frames": 3000}], 0), required_s=_qualified_s(8192))
+
+
+@then("the slip's acquisition index and times include the 3000 lost frames")
+def step_tp_release_loss_at_index_found(context: Context) -> None:
+    """The loss is logged at or before the event, so 7000 frames of acquisition precede it."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "PASS", detail["why"]
+    lost = [e for e in detail["events"] if e["attribution"] == "capture"]
+    assert sorted((e["channel"], e["capture_index"]) for e in lost) == [(c, 4000) for c in range(4)], lost
+    for event in lost:
+        assert event["acquisition_index"] == 7000, event
+        assert abs(event["wall_s"] - (100.0 + 7000 / 48000)) < 1e-9, event
+        assert abs(event["gptp_s"] - (200.0 + 7000 / 48000)) < 1e-9, event
 
 
 _COMMIT_ITEMS = EIGHT_ITEMS_AND_BINDING

@@ -1272,6 +1272,9 @@ Its [signal design](https://github.com/kebag-logic/milan-fpga/issues/396#issueco
 `release_audio_integrity` runs concurrently with `soak.continuous`, inside its window.
 It starts after the soak binds every pair and starts timing.
 It ends at or before the soak endpoint and lasts at least 86400 seconds.
+Those seconds are qualified, observed capture, defined below.
+So each capture runs past them at both ends by its guard samples and by any logged loss.
+The soak window outlasts 24 hours by as much.
 Every channel of every bound AAF stream carries the counter, in both directions.
 The DUT talker reaches an external digital capture through the reference peer.
 The reference peer feeds the DUT listener, its TDM output and the direct TDM capture (#451).
@@ -1316,6 +1319,11 @@ Each event is classified at its capture index:
 | `silence`, `n` | `n` zero words; `inserted` when the content resumes where it stopped |
 | `bit-flip`, `n`, `mask` | `n` corrupted words, with the OR of their XOR masks against the expected words |
 | `swap`, `n`, `partner` | `n` words exchanged both ways with the partner channel |
+| `unresolved`, `n`, `mask` | At either end of a capture, `n` words that differ from the track only in the code bit |
+
+An `unresolved` event is a slip of whole blocks or a code-bit corruption; the capture cannot tell which.
+Its `located_within` bounds the sample the slip would be at.
+It is a DUT event, so it fails the run, but it never claims an exact class.
 
 These rules decide, in order, between patterns that look alike:
 
@@ -1329,23 +1337,64 @@ These rules decide, in order, between patterns that look alike:
    The exception is a word equal to a neighbouring received word, which is a repeat.
    A one-sample hold reads as 1 repeated and then 1 dropped.
    A skip followed by a hold reads as 1 dropped and then 1 repeated.
-4. Two or more words that leave the track and return, with one XOR mask against it, are one `bit-flip`.
+4. Two or more words that leave the track and return, with one XOR mask against it, are one `bit-flip`, at any length.
    Otherwise each change of position is its own slip.
+
+Rules 3 and 4 judge each departure against the offset in force when it leaves.
+They judge again after every slip, so a slip and a corruption in one window are both graded.
+A word that no offset explains is cut out of its run of positions.
+So one corrupted word never hides the slips beside it, and arms may be planted closer than 64 samples.
+
+Sixty-four corrupted words under one mask can decode as another track.
+That track is the old one corrupted, so the grader holds it instead of adopting it.
+If the words return to the old track, the whole excursion is one `bit-flip`.
+If a word leaves the mask first, the held events are released as the slips they are.
+
+**The qualified interval.**
+A slip of whole blocks changes only the code bit, so it shows only within 63 samples.
+Any 63 consecutive samples hold one aligned 32-sample code group, so it always shows within them.
+So a verdict proves a sample clean only when the 63 samples before it lie on the acquired track and the 63 after it were captured.
+Every verdict states that interval in `qualified`.
+It runs from 63 samples after the last counter channel's acquisition to 63 samples before the capture's end.
+Nothing outside it is proved clean, so a slip there may pass unseen.
+Two captures can be byte-identical while one hides such a slip in its last samples.
+`qualified` also states the interval's frames, seconds and acquisition indices, and the logged losses inside it.
+A logged loss is time that ran, but nothing in it was observed, so it does not count.
+`grade_audio_counter_capture` takes `required_s`, 86400 seconds by default.
+`PASS` needs zero DUT events and at least `required_s` observed seconds in the interval.
+A shorter interval is `NOT RUN`, so a run without its guards cannot qualify; an observed event still fails.
 
 Some patterns are bit-identical, so the signal cannot tell them apart.
 These limits are stated, and a self-test arm pins each one:
 
 - A flip of position bit 0 can make a word equal to its neighbour; it then reads as the slip pair it duplicates.
-- A slip pair whose displaced words share one XOR mask with the track reads as a `bit-flip`.
+- A slip pair whose displaced words share one XOR mask with the track reads as a `bit-flip`, at any length.
+  A repeat and a later drop of half a block, inside one region of that block, is one example.
 - A slip of whole 2048-sample blocks leaves bits 11:1 unchanged.
   It is found within 63 samples and sized exactly.
   `located_within` gives the samples it may have happened at.
+- A slip whose track equals the old one under one mask is held until the masks part.
+  Half a block inside a region of a block, and the blocks that invert the code, are such slips.
+  The masks part at most one block later, and the slip is then sized exactly.
 - Between events less than 64 samples apart, each slip takes the smallest size the positions allow.
+  A code bit those sizes leave unexplained then reads as a code-bit `bit-flip`.
   The cluster's total is exact.
-- A slip in a capture's last 63 samples cannot be confirmed, so it carries `unresolved`.
+- At either end of a capture, fewer than 64 clean samples lie beyond a word whose code bit differs.
+  So a slip of whole blocks and a code-bit corruption read the same there, and the stretch is one `unresolved` event.
+  At the capture's end it runs from the first such word to the end.
+  Before a channel's acquisition it runs to the last such word.
+- Any other slip that 64 clean samples cannot confirm carries `unresolved`, with the smallest size its positions allow.
+  That holds in a capture's last samples, and for a held excursion that the capture ends inside.
+- A stretch longer than 65536 words without 64 clean samples is graded in pieces.
+  A corruption with one mask stays a `bit-flip` with that mask in each piece; a slip in a piece carries `unresolved`.
 
 The planted flip arm's mask `0x00000100` flips the code bit alone.
 The word keeps its position bits, so it never equals a neighbour.
+
+Start each capture once the counter flows on every channel.
+Words before a channel's acquisition are graded against the track it acquires, so leading silence fails.
+A channel that has not acquired the counter within its first 65536 frames voids the run at once.
+That is usually a wrong layout or byte order, so the grader stops instead of reading the rest.
 
 Each event records its class, capture and acquisition indices, expected and received words, and times.
 The capture tool records anchors: a capture index with its wall and gPTP times.
@@ -1356,12 +1405,16 @@ An event's times are interpolated between the anchors around it.
 They are never extrapolated past the last anchor.
 gPTP time is never interpolated across a recorded discontinuity.
 An unsupported time is `None`, and the event's `timing` says why.
+The verdict lists `anchor_gaps`: each stretch between anchors more than `audio_context_s` apart.
+It also lists the stretch after the last anchor when the capture's end has none.
+Gaps never change the verdict; they show where an event's context is missing.
 `context_wall_s` brackets each event by `audio_context_s`, five seconds by default.
 Walk every stream's counters and the CRF sink's at least that often.
 Walk the DUT's `SLIP_LB` and `SLIP_TDM` words and the gPTP state at the same cadence.
 
 The source plants a drop, a repeat and a bit flip at both ends of the run.
 Both ends means the first tenth of the capture and its last tenth.
+Every arm lies inside the qualified interval; an arm outside it voids the run as `NOT RUN` by that name.
 Their defaults are a 3-sample drop, a 2-sample repeat and mask `0x00000100`.
 Log each arm with its class, capture index, size or mask, and channel.
 An arm with no channel applies to every counter channel.
@@ -1375,8 +1428,10 @@ The capture tool logs its own losses as a capture index and a frame count.
 A logged loss is a slip of exactly that size at that index on every counter channel.
 Such slips are attributed to the capture and reported apart.
 A logged loss that some counter channel does not show is NOT RUN.
+So is a logged loss outside the qualified interval, where the capture cannot confirm it.
 A loss stores no frames, but time runs through it.
 The acquisition index adds every loss logged at or before an event, and its times follow.
+A loss logged at an event's own index counts.
 Every remaining event is DUT-attributed, and any one of them fails the run.
 
 The sine pair, 997 Hz and 9,973 Hz, runs on another channel pair.
