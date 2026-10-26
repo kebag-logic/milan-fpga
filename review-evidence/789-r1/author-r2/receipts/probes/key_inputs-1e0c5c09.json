@@ -1,0 +1,109 @@
+{
+ "pristine": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux",
+ "rows": [
+  {
+   "edit": "edit outside the build (elaborate one more top)",
+   "build_input": false,
+   "key_changed": false,
+   "outcome": "key-unchanged (as intended)",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "yosys-elaboration's if (schedules the tool job only)",
+   "build_input": false,
+   "key_changed": false,
+   "outcome": "key-unchanged (as intended)",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "pinned version v0.66 -> v0.67",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.67-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-fdb2031078f187db852116c5bbc36c8372d5efced30341250b4df7839f1c9802-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "asserted source commit",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-233f1aa090cc75d394eda1adee729a3b6e988d4fe848c40b48c51d1ac00d941c-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "recipe: ENABLE_PLUGINS := 1",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-318735c0ba467a6881ab45dff67ab8256244832817f801b2009b6958dbc9e39c-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "recipe: one more apt package",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-d837acba404c0ca12ec5612b167769702a5bbba48952cce17dc96ea72271e0b6-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "runner image ubuntu-22.04",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-cbb346fbb7e58ab2c7b72cad6a62113f8f0edd46999e77d6f52a33bd5f46caff-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-22.04-Linux"
+  },
+  {
+   "edit": "workflow env CXXFLAGS: -O0",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e3e686e9a1321ae65fe83dd92bbde92abea2664cd0a9f1fae1944170533e7334-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "workflow env CXXSTD: c++23",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-21b0fe2fe568b25b1ac566937f0b371a6dea9f660905f672bbb7f6b0ccd6db1a-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "workflow env, a new unrelated name (make still reads it)",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-f5271c5bdd668a41e58ce7962b088b41f9db64b64146c5ced1810d6767be51cb-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "yosys-elaboration job env CXXFLAGS: -O0",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-b898d43bebf2f308ed17422ddd086432568fd766f477c56f4aa3126f99ca777e-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "install transform rewrites the build (config-clang)",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-995d4b18ceba4bf5ea1a7b4df0c8865c121b2a4bafd510cf69ed437be997eeb2-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "job budget step exports CXXFLAGS",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e5aca20b89306c97493e708eddbac6e145718efd7ee09495a9ad57838b0beaa3-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "scripts/ci_install_cache.py content edited",
+   "build_input": true,
+   "key_changed": true,
+   "outcome": "key-changed",
+   "key": "yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-59c5116f05b5ff8b5d2dde0ebc1a311c4a4b4c119289b45121ad26eb63c66189-ubuntu-24.04-Linux"
+  },
+  {
+   "edit": "a step between the build and the cache save",
+   "build_input": true,
+   "outcome": "REFUSED",
+   "words": "yosys-tool: steps after the build that its key does not bind: Touch the built tree"
+  }
+ ]
+}

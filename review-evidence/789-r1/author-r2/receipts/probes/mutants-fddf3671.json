@@ -1,0 +1,180 @@
+[
+ {
+  "mutant": "control",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "PASS (control)"
+ },
+ {
+  "mutant": "G01 drop Elaborate the integration-heavy tops",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "AssertionError: tool key changed by an edit outside the build recipe"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G02 drop the version proof",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 1,
+    "words": "ValueError: list.index(x): x not in list"
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "KILLED"
+ },
+ {
+  "mutant": "G03 drop Fetch RTL dependencies",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "G04 drop Prove the result cache refuses a planted entry",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "G05 drop Install the pinned sv2v release",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "G06 drop Prove ooc.sh generates the ROMs and fails on a failed top",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "G07 drop Prove both synthesis flows refuse active elaboration guards",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "G08 drop Prove the OOC read sets come from run.sh and refuse a bad one",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "G09 swap the two ooc self-tests",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ },
+ {
+  "mutant": "G10 extra step in the tool job",
+  "regenerate_rc": 0,
+  "judges": {
+   "ci_gate_workflows --check": {
+    "rc": 0
+   },
+   "ci_gate_workflows_selftest": {
+    "rc": 0
+   },
+   "ci_events --check": {
+    "rc": 0
+   }
+  },
+  "outcome": "SURVIVED"
+ }
+]

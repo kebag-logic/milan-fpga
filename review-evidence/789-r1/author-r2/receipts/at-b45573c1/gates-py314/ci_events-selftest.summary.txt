@@ -1,0 +1,16 @@
+file: ci_events-selftest.log (replaced: over 200 KB)
+bytes: 337344
+sha256: c2c8408fce3e3847c3709313aa10b51bb01357400182458744d9ed4cc92b4421
+lines: 5260
+--- first 5 lines
+  ok   generated gates: docs wire-accountability missing job
+  ok   generated gates: docs wire-accountability conditional job
+  ok   generated gates: docs wire-accountability masked job
+  ok   generated gates: docs wire-accountability host environment
+  ok   generated gates: docs wire-accountability missing step 0
+--- last 5 lines
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (2199 contract items, 5258 arms)

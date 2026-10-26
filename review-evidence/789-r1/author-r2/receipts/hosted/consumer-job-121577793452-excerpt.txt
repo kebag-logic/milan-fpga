@@ -1,0 +1,70 @@
+rtl-fast run 40321654840, head 1e0c5c09f6d5e41c8a80ec5e6179c1c762b94086, job 121577793452 "yosys-elaboration"
+job: 2026-10-26T12:45:02Z -> 12:57:47Z (12 min 45 s); restore step 12:45:09 -> 12:45:11 (2 s); no build step
+full log (ANSI stripped, not kept): bytes 107314, sha256 336acc26cc648586bc24ffd41c27f6dbcab57230065736eea86e9534baf0d58f, lines 1283
+--- lines 165-218
+2026-10-26T12:45:07.7234263Z Cloning into '<checkout>/protocol-processor'...
+2026-10-26T12:45:09.0805288Z Cloning into '<checkout>/third_party/verilog-axis'...
+2026-10-26T12:45:09.7801301Z Submodule path 'gptp-processor': checked out '55680bff3b287b9a7b0c759f51471fa617c17335'
+2026-10-26T12:45:09.8529063Z Submodule path 'protocol-processor': checked out 'ed2118035e4cec76fb1b59cfbf8a053aeacc8af8'
+2026-10-26T12:45:09.8683142Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-10-26T12:45:09.9215401Z ##[group]Run actions/cache@v4
+2026-10-26T12:45:09.9215619Z with:
+2026-10-26T12:45:09.9215782Z   path: /opt/yosys
+2026-10-26T12:45:09.9216570Z   key: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux
+2026-10-26T12:45:09.9217392Z   fail-on-cache-miss: true
+2026-10-26T12:45:09.9217596Z   enableCrossOsArchive: false
+2026-10-26T12:45:09.9217794Z   lookup-only: false
+2026-10-26T12:45:09.9217965Z   save-always: false
+2026-10-26T12:45:09.9218130Z env:
+2026-10-26T12:45:09.9218285Z   VERILATOR_VERSION: v5.050
+2026-10-26T12:45:09.9218472Z   YOSYS_VERSION: v0.66
+2026-10-26T12:45:09.9218640Z   CI_BUILD_JOBS: 4
+2026-10-26T12:45:09.9218806Z   CI_TOOL_BUILD_JOBS: 4
+2026-10-26T12:45:09.9219010Z   CI_CAMPAIGN_JOBS: 4
+2026-10-26T12:45:09.9219178Z   VERILATOR_JOBS: 4
+2026-10-26T12:45:09.9219339Z   SIM_JOBS: 4
+2026-10-26T12:45:09.9219558Z   MAKEFLAGS: -j1 --no-print-directory
+2026-10-26T12:45:09.9219766Z ##[endgroup]
+2026-10-26T12:45:10.0046335Z (node:2140) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T12:45:10.0046884Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T12:45:10.1425053Z Cache hit for: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux
+2026-10-26T12:45:10.1533028Z (node:2140) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-26T12:45:11.0585031Z Received 19694030 of 19694030 (100.0%), 25.3 MBs/sec
+2026-10-26T12:45:11.0585359Z Cache Size: ~19 MB (19694030 B)
+2026-10-26T12:45:11.0605200Z [command]/usr/bin/tar -xf <runner-temp>/52a15d41-291e-4043-97fc-9c9353886035/cache.tzst -P -C <checkout> --use-compress-program unzstd
+2026-10-26T12:45:11.2010746Z Cache restored successfully
+2026-10-26T12:45:11.2083360Z Cache restored from key: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux
+2026-10-26T12:45:11.2179590Z ##[group]Run set -euo pipefail
+2026-10-26T12:45:11.2179866Z set -euo pipefail
+2026-10-26T12:45:11.2180166Z sudo ln -sf /opt/yosys/bin/yosys /opt/yosys/bin/yosys-abc /usr/local/bin/
+2026-10-26T12:45:11.2180501Z test -x /opt/yosys/bin/yosys-abc
+2026-10-26T12:45:11.2180753Z echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+2026-10-26T12:45:11.2181012Z yosys -V
+2026-10-26T12:45:11.2181220Z yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+2026-10-26T12:45:11.2236285Z shell: /usr/bin/bash -e {0}
+2026-10-26T12:45:11.2236490Z env:
+2026-10-26T12:45:11.2236652Z   VERILATOR_VERSION: v5.050
+2026-10-26T12:45:11.2236845Z   YOSYS_VERSION: v0.66
+2026-10-26T12:45:11.2237021Z   CI_BUILD_JOBS: 4
+2026-10-26T12:45:11.2237194Z   CI_TOOL_BUILD_JOBS: 4
+2026-10-26T12:45:11.2237373Z   CI_CAMPAIGN_JOBS: 4
+2026-10-26T12:45:11.2237547Z   VERILATOR_JOBS: 4
+2026-10-26T12:45:11.2237721Z   SIM_JOBS: 4
+2026-10-26T12:45:11.2237938Z   MAKEFLAGS: -j1 --no-print-directory
+2026-10-26T12:45:11.2238165Z ##[endgroup]
+2026-10-26T12:45:11.2387350Z bundled ABC: 5d51a5e420f5de493d07bf61109a977248c86ffb
+2026-10-26T12:45:11.2412314Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+2026-10-26T12:45:11.2449746Z Yosys 0.66 (git sha1 86f2ddebc, g++ 13.3.0-6ubuntu2~24.04.1 -fPIC -O3)
+2026-10-26T12:45:11.3044259Z ##[group]Run actions/cache@v4
+--- lines 1244-1252
+2026-10-26T12:57:44.6058034Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/40321654840/artifacts/12651701322
+2026-10-26T12:57:44.6726998Z Post job cleanup.
+2026-10-26T12:57:44.7601180Z Cache hit occurred on the primary key sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-dafcfe3439cccc851fc6e662d96776383963c380bcae6ee8c38c0bba1b369291-Linux, not saving cache.
+2026-10-26T12:57:44.7602996Z (node:18355) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T12:57:44.7603821Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T12:57:44.8155668Z Post job cleanup.
+2026-10-26T12:57:44.9089721Z Cache hit occurred on the primary key yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux, not saving cache.
+2026-10-26T12:57:44.9091730Z (node:18375) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T12:57:44.9092502Z (Use `node --trace-deprecation ...` to show where the warning was created)
+
+Runner filesystem paths above are redacted; full-log hashes describe the original bytes.

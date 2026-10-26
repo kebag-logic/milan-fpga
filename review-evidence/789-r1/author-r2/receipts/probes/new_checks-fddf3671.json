@@ -1,0 +1,37 @@
+[
+ {
+  "control": "pristine fast_tool_findings",
+  "result": "FAIL",
+  "why": "AssertionError: ['tool key does not bind the scripts its build steps run: scripts/ci_install_cache.py']"
+ },
+ {
+  "control": "pristine fast_tool_retention",
+  "result": "PASS",
+  "printed": 0
+ },
+ {
+  "control": "fast_tool_planted",
+  "result": "FAIL",
+  "why": "AttributeError: 'NoneType' object has no attribute 'group'"
+ },
+ {
+  "control": "fast_tool_retention_planted",
+  "result": "PASS",
+  "printed": 19
+ },
+ {
+  "control": "fast_tool_key_inputs",
+  "result": "FAIL",
+  "why": "AssertionError: tool key unchanged by an edit of its build inputs: the workflow env, yosys-elaboration's job env, an install-transform rewrite of the build, an export added to the job budget step"
+ },
+ {
+  "control": "fast_tool_template_refusals",
+  "result": "FAIL",
+  "why": "AssertionError: fast Yosys tool generator accepted a template consumer in a container the tool job would not carry"
+ },
+ {
+  "control": "fast_tool_controls (whole)",
+  "result": "FAIL",
+  "why": "AssertionError: ['tool key does not bind the scripts its build steps run: scripts/ci_install_cache.py']"
+ }
+]

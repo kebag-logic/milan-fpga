@@ -1,0 +1,1017 @@
+{
+  "conclusion": "success",
+  "headSha": "1e0c5c09f6d5e41c8a80ec5e6179c1c762b94086",
+  "jobs": [
+    {
+      "completedAt": "2026-10-26T13:05:54Z",
+      "conclusion": "success",
+      "databaseId": 121571183554,
+      "name": "Fail fast across this head",
+      "startedAt": "2026-10-26T12:27:33Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-26T12:27:35Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-26T12:27:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:27:38Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-26T12:27:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:27:38Z",
+          "conclusion": "success",
+          "name": "Set CPU-derived job budgets",
+          "number": 3,
+          "startedAt": "2026-10-26T12:27:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:49Z",
+          "conclusion": "success",
+          "name": "Observe the first failed job",
+          "number": 4,
+          "startedAt": "2026-10-26T12:27:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:49Z",
+          "conclusion": "skipped",
+          "name": "Cancel this run and sibling workflows",
+          "number": 5,
+          "startedAt": "2026-10-26T13:05:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:51Z",
+          "conclusion": "success",
+          "name": "Record actual job execution",
+          "number": 6,
+          "startedAt": "2026-10-26T13:05:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:52Z",
+          "conclusion": "success",
+          "name": "Upload actual job execution",
+          "number": 7,
+          "startedAt": "2026-10-26T13:05:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:52Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 14,
+          "startedAt": "2026-10-26T13:05:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:52Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 15,
+          "startedAt": "2026-10-26T13:05:52Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/40321654818/job/121571183554"
+    },
+    {
+      "completedAt": "2026-10-26T12:52:02Z",
+      "conclusion": "success",
+      "databaseId": 121571183791,
+      "name": "elaborate-gates-1",
+      "startedAt": "2026-10-26T12:29:06Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-26T12:29:08Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-26T12:29:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:28Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-26T12:29:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:28Z",
+          "conclusion": "success",
+          "name": "Set CPU-derived job budgets",
+          "number": 3,
+          "startedAt": "2026-10-26T12:29:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:29Z",
+          "conclusion": "success",
+          "name": "Cache exact Python downloads",
+          "number": 4,
+          "startedAt": "2026-10-26T12:29:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:45Z",
+          "conclusion": "success",
+          "name": "Decide whether this head needs an elaboration",
+          "number": 5,
+          "startedAt": "2026-10-26T12:29:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:48Z",
+          "conclusion": "success",
+          "name": "Fetch the source dependencies the elaboration reads",
+          "number": 6,
+          "startedAt": "2026-10-26T12:29:45Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:48Z",
+          "conclusion": "success",
+          "name": "Cache verified sv2v archive",
+          "number": 7,
+          "startedAt": "2026-10-26T12:29:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:48Z",
+          "conclusion": "success",
+          "name": "Install the pinned sv2v release",
+          "number": 8,
+          "startedAt": "2026-10-26T12:29:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:49Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 9,
+          "startedAt": "2026-10-26T12:29:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:51Z",
+          "conclusion": "success",
+          "name": "Put a job-private Python environment on PATH",
+          "number": 10,
+          "startedAt": "2026-10-26T12:29:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:51Z",
+          "conclusion": "success",
+          "name": "Cache the pinned pip downloads",
+          "number": 11,
+          "startedAt": "2026-10-26T12:29:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:16Z",
+          "conclusion": "success",
+          "name": "Install LiteX at the pinned revisions",
+          "number": 12,
+          "startedAt": "2026-10-26T12:29:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:16Z",
+          "conclusion": "success",
+          "name": "Cache the Scala toolchain",
+          "number": 13,
+          "startedAt": "2026-10-26T12:30:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:17Z",
+          "conclusion": "success",
+          "name": "Cache the generated CPU metadata",
+          "number": 14,
+          "startedAt": "2026-10-26T12:30:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:18Z",
+          "conclusion": "success",
+          "name": "Install sbt",
+          "number": 15,
+          "startedAt": "2026-10-26T12:30:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:26Z",
+          "conclusion": "success",
+          "name": "Place the VexiiRiscv source at the revision LiteX pins",
+          "number": 16,
+          "startedAt": "2026-10-26T12:30:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:27Z",
+          "conclusion": "success",
+          "name": "Apply the toolchain patch series",
+          "number": 17,
+          "startedAt": "2026-10-26T12:30:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:29Z",
+          "conclusion": "success",
+          "name": "Cache the pinned RV32 SDK",
+          "number": 18,
+          "startedAt": "2026-10-26T12:30:27Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:31Z",
+          "conclusion": "success",
+          "name": "Install and verify the pinned RV32 SDK",
+          "number": 19,
+          "startedAt": "2026-10-26T12:30:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:39:40Z",
+          "conclusion": "success",
+          "name": "Elaboration gates, leg 1 of 2",
+          "number": 20,
+          "startedAt": "2026-10-26T12:30:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:39:40Z",
+          "conclusion": "success",
+          "name": "Cache the pinned Verilator build",
+          "number": 21,
+          "startedAt": "2026-10-26T12:39:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:39:49Z",
+          "conclusion": "success",
+          "name": "Resolve exact package downloads 17",
+          "number": 22,
+          "startedAt": "2026-10-26T12:39:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:39:49Z",
+          "conclusion": "success",
+          "name": "Cache exact package downloads 17",
+          "number": 23,
+          "startedAt": "2026-10-26T12:39:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:44:48Z",
+          "conclusion": "success",
+          "name": "Build Verilator from source on cache miss",
+          "number": 24,
+          "startedAt": "2026-10-26T12:39:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:44:48Z",
+          "conclusion": "success",
+          "name": "Put Verilator on PATH and prove the version",
+          "number": 25,
+          "startedAt": "2026-10-26T12:44:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:49Z",
+          "conclusion": "success",
+          "name": "Standalone LiteX simulation aggregate",
+          "number": 26,
+          "startedAt": "2026-10-26T12:44:48Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:49Z",
+          "conclusion": "success",
+          "name": "Keep the generated CPU netlist arguments for the next run",
+          "number": 27,
+          "startedAt": "2026-10-26T12:51:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:49Z",
+          "conclusion": "success",
+          "name": "Record executed gate outcomes",
+          "number": 28,
+          "startedAt": "2026-10-26T12:51:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:50Z",
+          "conclusion": "success",
+          "name": "Upload executed gate outcomes",
+          "number": 29,
+          "startedAt": "2026-10-26T12:51:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:55Z",
+          "conclusion": "success",
+          "name": "Record actual job execution",
+          "number": 30,
+          "startedAt": "2026-10-26T12:51:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:56Z",
+          "conclusion": "success",
+          "name": "Upload actual job execution",
+          "number": 31,
+          "startedAt": "2026-10-26T12:51:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:56Z",
+          "conclusion": "success",
+          "name": "Post Cache exact package downloads 17",
+          "number": 53,
+          "startedAt": "2026-10-26T12:51:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:57Z",
+          "conclusion": "success",
+          "name": "Post Cache the pinned Verilator build",
+          "number": 54,
+          "startedAt": "2026-10-26T12:51:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:57Z",
+          "conclusion": "success",
+          "name": "Post Cache the pinned RV32 SDK",
+          "number": 55,
+          "startedAt": "2026-10-26T12:51:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:57Z",
+          "conclusion": "success",
+          "name": "Post Cache the generated CPU metadata",
+          "number": 56,
+          "startedAt": "2026-10-26T12:51:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:58Z",
+          "conclusion": "success",
+          "name": "Post Cache the Scala toolchain",
+          "number": 57,
+          "startedAt": "2026-10-26T12:51:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:58Z",
+          "conclusion": "success",
+          "name": "Post Cache the pinned pip downloads",
+          "number": 58,
+          "startedAt": "2026-10-26T12:51:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:59Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 59,
+          "startedAt": "2026-10-26T12:51:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:59Z",
+          "conclusion": "success",
+          "name": "Post Cache verified sv2v archive",
+          "number": 60,
+          "startedAt": "2026-10-26T12:51:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:59Z",
+          "conclusion": "success",
+          "name": "Post Cache exact Python downloads",
+          "number": 61,
+          "startedAt": "2026-10-26T12:51:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:59Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 62,
+          "startedAt": "2026-10-26T12:51:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:51:59Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 63,
+          "startedAt": "2026-10-26T12:51:59Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/40321654818/job/121571183791"
+    },
+    {
+      "completedAt": "2026-10-26T12:48:40Z",
+      "conclusion": "success",
+      "databaseId": 121571183861,
+      "name": "elaborate-gates-0",
+      "startedAt": "2026-10-26T12:28:53Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-26T12:28:55Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-26T12:28:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:14Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-26T12:28:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:15Z",
+          "conclusion": "success",
+          "name": "Set CPU-derived job budgets",
+          "number": 3,
+          "startedAt": "2026-10-26T12:29:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:15Z",
+          "conclusion": "success",
+          "name": "Cache exact Python downloads",
+          "number": 4,
+          "startedAt": "2026-10-26T12:29:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:40Z",
+          "conclusion": "success",
+          "name": "Decide whether this head needs an elaboration",
+          "number": 5,
+          "startedAt": "2026-10-26T12:29:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:42Z",
+          "conclusion": "success",
+          "name": "Fetch the source dependencies the elaboration reads",
+          "number": 6,
+          "startedAt": "2026-10-26T12:29:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:43Z",
+          "conclusion": "success",
+          "name": "Cache verified sv2v archive",
+          "number": 7,
+          "startedAt": "2026-10-26T12:29:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:43Z",
+          "conclusion": "success",
+          "name": "Install the pinned sv2v release",
+          "number": 8,
+          "startedAt": "2026-10-26T12:29:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:43Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v5",
+          "number": 9,
+          "startedAt": "2026-10-26T12:29:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:46Z",
+          "conclusion": "success",
+          "name": "Put a job-private Python environment on PATH",
+          "number": 10,
+          "startedAt": "2026-10-26T12:29:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:29:46Z",
+          "conclusion": "success",
+          "name": "Cache the pinned pip downloads",
+          "number": 11,
+          "startedAt": "2026-10-26T12:29:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:12Z",
+          "conclusion": "success",
+          "name": "Install LiteX at the pinned revisions",
+          "number": 12,
+          "startedAt": "2026-10-26T12:29:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:12Z",
+          "conclusion": "success",
+          "name": "Cache the Scala toolchain",
+          "number": 13,
+          "startedAt": "2026-10-26T12:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:12Z",
+          "conclusion": "success",
+          "name": "Cache the generated CPU metadata",
+          "number": 14,
+          "startedAt": "2026-10-26T12:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:14Z",
+          "conclusion": "success",
+          "name": "Install sbt",
+          "number": 15,
+          "startedAt": "2026-10-26T12:30:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:19Z",
+          "conclusion": "success",
+          "name": "Place the VexiiRiscv source at the revision LiteX pins",
+          "number": 16,
+          "startedAt": "2026-10-26T12:30:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:20Z",
+          "conclusion": "success",
+          "name": "Apply the toolchain patch series",
+          "number": 17,
+          "startedAt": "2026-10-26T12:30:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:22Z",
+          "conclusion": "success",
+          "name": "Cache the pinned RV32 SDK",
+          "number": 18,
+          "startedAt": "2026-10-26T12:30:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:30:24Z",
+          "conclusion": "success",
+          "name": "Install and verify the pinned RV32 SDK",
+          "number": 19,
+          "startedAt": "2026-10-26T12:30:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:31Z",
+          "conclusion": "success",
+          "name": "Elaboration gates, leg 0 of 2",
+          "number": 20,
+          "startedAt": "2026-10-26T12:30:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:31Z",
+          "conclusion": "success",
+          "name": "Keep the generated CPU netlist arguments for the next run",
+          "number": 21,
+          "startedAt": "2026-10-26T12:48:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:31Z",
+          "conclusion": "success",
+          "name": "Record executed gate outcomes",
+          "number": 22,
+          "startedAt": "2026-10-26T12:48:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:32Z",
+          "conclusion": "success",
+          "name": "Upload executed gate outcomes",
+          "number": 23,
+          "startedAt": "2026-10-26T12:48:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:34Z",
+          "conclusion": "success",
+          "name": "Record actual job execution",
+          "number": 24,
+          "startedAt": "2026-10-26T12:48:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:35Z",
+          "conclusion": "success",
+          "name": "Upload actual job execution",
+          "number": 25,
+          "startedAt": "2026-10-26T12:48:34Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:35Z",
+          "conclusion": "success",
+          "name": "Post Cache the pinned RV32 SDK",
+          "number": 43,
+          "startedAt": "2026-10-26T12:48:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:35Z",
+          "conclusion": "success",
+          "name": "Post Cache the generated CPU metadata",
+          "number": 44,
+          "startedAt": "2026-10-26T12:48:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:37Z",
+          "conclusion": "success",
+          "name": "Post Cache the Scala toolchain",
+          "number": 45,
+          "startedAt": "2026-10-26T12:48:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:37Z",
+          "conclusion": "success",
+          "name": "Post Cache the pinned pip downloads",
+          "number": 46,
+          "startedAt": "2026-10-26T12:48:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:38Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v5",
+          "number": 47,
+          "startedAt": "2026-10-26T12:48:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:38Z",
+          "conclusion": "success",
+          "name": "Post Cache verified sv2v archive",
+          "number": 48,
+          "startedAt": "2026-10-26T12:48:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:38Z",
+          "conclusion": "success",
+          "name": "Post Cache exact Python downloads",
+          "number": 49,
+          "startedAt": "2026-10-26T12:48:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:38Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 50,
+          "startedAt": "2026-10-26T12:48:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:48:39Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 51,
+          "startedAt": "2026-10-26T12:48:38Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/40321654818/job/121571183861"
+    },
+    {
+      "completedAt": "2026-10-26T12:53:12Z",
+      "conclusion": "success",
+      "databaseId": 121582160162,
+      "name": "elaborate",
+      "startedAt": "2026-10-26T12:52:36Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-26T12:52:38Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-26T12:52:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:52:54Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-26T12:52:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:52:54Z",
+          "conclusion": "success",
+          "name": "Set CPU-derived job budgets",
+          "number": 3,
+          "startedAt": "2026-10-26T12:52:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:52:55Z",
+          "conclusion": "success",
+          "name": "Cache exact Python downloads",
+          "number": 4,
+          "startedAt": "2026-10-26T12:52:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:52:55Z",
+          "conclusion": "success",
+          "name": "Cache pinned evidence reader downloads",
+          "number": 5,
+          "startedAt": "2026-10-26T12:52:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:52:57Z",
+          "conclusion": "success",
+          "name": "Install the pinned evidence reader",
+          "number": 6,
+          "startedAt": "2026-10-26T12:52:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:52:58Z",
+          "conclusion": "success",
+          "name": "Download executed gate outcomes",
+          "number": 7,
+          "startedAt": "2026-10-26T12:52:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:52:59Z",
+          "conclusion": "success",
+          "name": "Require every gate exactly once",
+          "number": 8,
+          "startedAt": "2026-10-26T12:52:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:53:00Z",
+          "conclusion": "success",
+          "name": "Upload verified gate union",
+          "number": 9,
+          "startedAt": "2026-10-26T12:52:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:53:00Z",
+          "conclusion": "success",
+          "name": "Record actual job execution",
+          "number": 10,
+          "startedAt": "2026-10-26T12:53:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:53:01Z",
+          "conclusion": "success",
+          "name": "Upload actual job execution",
+          "number": 11,
+          "startedAt": "2026-10-26T12:53:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:53:02Z",
+          "conclusion": "success",
+          "name": "Post Cache pinned evidence reader downloads",
+          "number": 20,
+          "startedAt": "2026-10-26T12:53:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:53:02Z",
+          "conclusion": "success",
+          "name": "Post Cache exact Python downloads",
+          "number": 21,
+          "startedAt": "2026-10-26T12:53:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:53:02Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 22,
+          "startedAt": "2026-10-26T12:53:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T12:53:02Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 23,
+          "startedAt": "2026-10-26T12:53:02Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/40321654818/job/121582160162"
+    },
+    {
+      "completedAt": "2026-10-26T13:05:31Z",
+      "conclusion": "success",
+      "databaseId": 121582678882,
+      "name": "Collect CI manifest",
+      "startedAt": "2026-10-26T13:04:54Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-26T13:04:56Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-26T13:04:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:16Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-26T13:04:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:16Z",
+          "conclusion": "success",
+          "name": "Set CPU-derived job budgets",
+          "number": 3,
+          "startedAt": "2026-10-26T13:05:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:22Z",
+          "conclusion": "success",
+          "name": "Fetch inventory dependencies",
+          "number": 4,
+          "startedAt": "2026-10-26T13:05:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:23Z",
+          "conclusion": "success",
+          "name": "Cache pinned evidence reader downloads",
+          "number": 5,
+          "startedAt": "2026-10-26T13:05:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:25Z",
+          "conclusion": "success",
+          "name": "Install the pinned evidence reader",
+          "number": 6,
+          "startedAt": "2026-10-26T13:05:23Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:26Z",
+          "conclusion": "success",
+          "name": "Download completed execution artifacts",
+          "number": 7,
+          "startedAt": "2026-10-26T13:05:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:28Z",
+          "conclusion": "success",
+          "name": "Collect actual runtime evidence",
+          "number": 8,
+          "startedAt": "2026-10-26T13:05:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:29Z",
+          "conclusion": "success",
+          "name": "Upload canonical CI manifest",
+          "number": 9,
+          "startedAt": "2026-10-26T13:05:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:29Z",
+          "conclusion": "success",
+          "name": "Post Cache pinned evidence reader downloads",
+          "number": 17,
+          "startedAt": "2026-10-26T13:05:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:29Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 18,
+          "startedAt": "2026-10-26T13:05:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:05:29Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 19,
+          "startedAt": "2026-10-26T13:05:29Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/40321654818/job/121582678882"
+    },
+    {
+      "completedAt": "2026-10-26T13:07:16Z",
+      "conclusion": "success",
+      "databaseId": 121588511263,
+      "name": "Cancel late CI failures",
+      "startedAt": "2026-10-26T13:07:10Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-26T13:07:11Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-26T13:07:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:07:13Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v4",
+          "number": 2,
+          "startedAt": "2026-10-26T13:07:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:07:14Z",
+          "conclusion": "success",
+          "name": "Set CPU-derived job budgets",
+          "number": 3,
+          "startedAt": "2026-10-26T13:07:13Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:07:14Z",
+          "conclusion": "success",
+          "name": "Cancel confirmed terminal failures",
+          "number": 4,
+          "startedAt": "2026-10-26T13:07:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:07:14Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v4",
+          "number": 8,
+          "startedAt": "2026-10-26T13:07:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-26T13:07:14Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 9,
+          "startedAt": "2026-10-26T13:07:14Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/kebag-logic/milan-fpga/actions/runs/40321654818/job/121588511263"
+    }
+  ],
+  "status": "completed"
+}

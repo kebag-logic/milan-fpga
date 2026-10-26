@@ -1,0 +1,11 @@
+PASS (control) | control | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=0; ci_events --check rc=0
+KILLED | G01 drop Elaborate the integration-heavy tops | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=1: AssertionError: tool key changed by an edit outside the build recipe; ci_events --check rc=0
+KILLED | G02 drop the version proof | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=1: ValueError: list.index(x): x not in list; ci_events --check rc=0
+SURVIVED | G03 drop Fetch RTL dependencies | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=0; ci_events --check rc=0
+SURVIVED | G04 drop Prove the result cache refuses a planted entry | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=0; ci_events --check rc=0
+SURVIVED | G05 drop Install the pinned sv2v release | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=0; ci_events --check rc=0
+SURVIVED | G06 drop Prove ooc.sh generates the ROMs and fails on a failed top | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=0; ci_events --check rc=0
+SURVIVED | G07 drop Prove both synthesis flows refuse active elaboration guards | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=0; ci_events --check rc=0
+SURVIVED | G08 drop Prove the OOC read sets come from run.sh and refuse a bad one | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=0; ci_events --check rc=0
+SURVIVED | G09 swap the two ooc self-tests | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=0; ci_events --check rc=0
+SURVIVED | G10 extra step in the tool job | ci_gate_workflows --check rc=0; ci_gate_workflows_selftest rc=0; ci_events --check rc=0

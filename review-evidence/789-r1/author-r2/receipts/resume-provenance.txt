@@ -1,0 +1,10 @@
+$ git status --porcelain
+
+$ git remote get-url origin
+https://github.com/kebag-logic/milan-fpga.git
+$ git merge-base HEAD 76de691e
+76de691e5625cc4ea2f9a19def9e07c1183a14ee
+$ git log --format=%H %s 76de691e..HEAD
+1e0c5c09f6d5e41c8a80ec5e6179c1c762b94086 Name a refused step after rtl-fast's Yosys build by its step name, not its generated id (#789)
+b45573c1b7826ce9b4971b023c765644c8c39a5e Bind rtl-fast's Yosys tool key to every build input of the generated tool job and hold both derived jobs whole against the template (#789)
+fddf3671ebc96a953755fa1b9a3ecec5f071a350 Build rtl-fast's pinned Yosys once in its own cached job keyed by version, recipe and image, and restore it in yosys-elaboration (#789)

@@ -1,0 +1,60 @@
+rtl-fast run 40321654840, head 1e0c5c09f6d5e41c8a80ec5e6179c1c762b94086, job 121571465201 "Prepare pinned Yosys"
+job: 2026-10-26T12:29:23Z -> 12:42:10Z (12 min 47 s); build step 12:29:37 -> 12:42:03 (12 min 26 s)
+full log (ANSI stripped, not kept): bytes 1633757, sha256 4749d6161ece2154c69890ca047520bf44334d1c0819abe21149284ef834abac, lines 19423
+--- lines 148-170
+2026-10-26T12:29:28.5304246Z ##[group]Run actions/cache@v4
+2026-10-26T12:29:28.5304509Z with:
+2026-10-26T12:29:28.5304681Z   path: /opt/yosys
+2026-10-26T12:29:28.5305522Z   key: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux
+2026-10-26T12:29:28.5306404Z   enableCrossOsArchive: false
+2026-10-26T12:29:28.5306614Z   fail-on-cache-miss: false
+2026-10-26T12:29:28.5306820Z   lookup-only: false
+2026-10-26T12:29:28.5306993Z   save-always: false
+2026-10-26T12:29:28.5307159Z env:
+2026-10-26T12:29:28.5307318Z   VERILATOR_VERSION: v5.050
+2026-10-26T12:29:28.5307505Z   YOSYS_VERSION: v0.66
+2026-10-26T12:29:28.5307683Z   CI_BUILD_JOBS: 4
+2026-10-26T12:29:28.5307878Z   CI_TOOL_BUILD_JOBS: 4
+2026-10-26T12:29:28.5308056Z   CI_CAMPAIGN_JOBS: 4
+2026-10-26T12:29:28.5308235Z   VERILATOR_JOBS: 4
+2026-10-26T12:29:28.5308401Z   SIM_JOBS: 4
+2026-10-26T12:29:28.5308668Z   MAKEFLAGS: -j1 --no-print-directory
+2026-10-26T12:29:28.5308886Z ##[endgroup]
+2026-10-26T12:29:28.6125790Z (node:2072) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T12:29:28.6126389Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T12:29:28.6660088Z Cache not found for input keys: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux
+2026-10-26T12:29:28.6765610Z ##[group]Run python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+2026-10-26T12:29:28.6767291Z python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+--- lines 205-215
+2026-10-26T12:29:37.8060724Z set -euo pipefail
+2026-10-26T12:29:37.8060982Z : # package index prepared above
+2026-10-26T12:29:37.8061412Z sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends \
+2026-10-26T12:29:37.8061889Z   git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+2026-10-26T12:29:37.8062233Z git clone --depth 1 --branch "$YOSYS_VERSION" \
+2026-10-26T12:29:37.8062575Z   https://github.com/YosysHQ/yosys.git <source-temp>
+2026-10-26T12:29:37.8063012Z test "$(git -C <source-temp> rev-parse HEAD)" = "86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51"
+2026-10-26T12:29:37.8063488Z git -C <source-temp> submodule update --init --depth 1 abc libs/cxxopts
+2026-10-26T12:29:37.8063839Z make -C <source-temp> config-gcc
+2026-10-26T12:29:37.8064184Z printf 'ENABLE_TCL := 0\nENABLE_READLINE := 0\nENABLE_PLUGINS := 0\n' \
+2026-10-26T12:29:37.8064510Z   >> <source-temp>/Makefile.conf
+--- lines 19393-19410
+2026-10-26T12:42:07.7298642Z Post job cleanup.
+2026-10-26T12:42:07.8139710Z (node:27934) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T12:42:07.8140641Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T12:42:07.8261103Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C <checkout> --files-from manifest.txt --use-compress-program zstdmt
+2026-10-26T12:42:07.8285555Z /usr/bin/tar: ../../_temp/ci_packages_2/lock: Cannot open: Permission denied
+2026-10-26T12:42:07.8304708Z /usr/bin/tar: ../../_temp/ci_packages_2/partial: Cannot open: Permission denied
+2026-10-26T12:42:07.8373841Z /usr/bin/tar: Exiting with failure status due to previous errors
+2026-10-26T12:42:07.8394479Z ##[warning]Failed to save: "/usr/bin/tar" failed with error: The process '/usr/bin/tar' failed with exit code 2
+2026-10-26T12:42:07.8916015Z Post job cleanup.
+2026-10-26T12:42:07.9732088Z (node:27966) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-26T12:42:07.9732959Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-26T12:42:07.9886303Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C <checkout> --files-from manifest.txt --use-compress-program zstdmt
+2026-10-26T12:42:08.1876546Z (node:27966) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-26T12:42:08.7291298Z Sent 19694030 of 19694030 (100.0%), 34.3 MBs/sec
+2026-10-26T12:42:08.8223980Z Cache saved with key: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux
+2026-10-26T12:42:08.8348812Z Post job cleanup.
+2026-10-26T12:42:08.9043557Z [command]/usr/bin/git version
+2026-10-26T12:42:08.9079664Z git version 2.55.0
+
+Runner filesystem paths above are redacted; full-log hashes describe the original bytes.
