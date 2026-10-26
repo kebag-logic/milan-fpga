@@ -1,0 +1,17 @@
+ok  unchanged copy (control: must be accepted): ACCEPTED
+ok  image ELF changed: REFUSED (RuntimeError: reused build is stale: build:image/ctrl_app.elf changed)
+ok  ROM bank 0 .init changed (first word): REFUSED (RuntimeError: reused build is stale: build:gateware/sim_rom_bank0.init changed)
+ok  ROM bank 1 .init deleted: REFUSED (RuntimeError: reused build is stale: build:gateware/sim_rom_bank1.init is missing)
+ok  an unrecorded ROM .init added: REFUSED (RuntimeError: reused build is stale: inputs never recorded: ['build:gateware/sim_rom_bank2.init'])
+ok  SoC Verilog sim.v changed: REFUSED (RuntimeError: reused build is stale: build:gateware/sim.v changed)
+ok  CPU netlist content changed (private copy under the recorded digest): REFUSED (RuntimeError: reused build is stale: external:$REVIEWS/665s2-r703-2-packet/scratch/stale/p06/private/VexiiRiscvLitex_1e5f104c82c5f164d7a589397)
+ok  CPU netlist recorded digest zeroed: REFUSED (RuntimeError: reused build is stale: external:$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_1e5f104c82c5f164d7a)
+ok  runtime libc.a changed: REFUSED (RuntimeError: reused build is stale: build:runtime/libc.a changed)
+ok  budget_config.hpp changed: REFUSED (RuntimeError: reused build is stale: build:budget_config.hpp changed)
+ok  native model Vsim changed: REFUSED (RuntimeError: reused build is stale: the native model changed)
+ok  firmware tree digest differs from the checkout: REFUSED (RuntimeError: reused build is stale: tree:firmware changed)
+ok  a bare-basename key (the round-1 form): REFUSED (RuntimeError: reused build is stale: input key 'sim.v' does not resolve)
+ok  an external key with a relative path: REFUSED (RuntimeError: reused build is stale: input key 'external:relative/x.v' does not resolve)
+ok  build.json without inputs: REFUSED (RuntimeError: reused build is stale: inputs never recorded: ['build:budget_config.hpp', 'build:gateware/sim.v', 'build:gateware/sim_mem.init', 'build:gateware/sim_r)
+run.py --reuse-build on the ROM-bank plant: rc=1 :: REFUSED reused build is stale: build:gateware/sim_rom_bank0.init changed
+stale probe: 15 cases, 0 wrong

@@ -1,0 +1,176 @@
+{
+  "sources": [
+    "$REVIEWS/665s2-r703-2-packet/scratch/builds/a8x8/mbx-variant/KL_mbx_pkg.sv",
+    "$REVIEWS/r703-2-665s2/hdl/milan/mailbox/KL_mbx_ring.sv",
+    "$REVIEWS/r703-2-665s2/hdl/milan/mailbox/KL_mbx_rx.sv",
+    "$REVIEWS/r703-2-665s2/hdl/milan/mailbox/KL_mbx_tx.sv",
+    "$REVIEWS/r703-2-665s2/hdl/milan/mailbox/KL_mbx_evt.sv",
+    "$REVIEWS/665s2-r703-2-packet/scratch/builds/a8x8/mbx-variant/KL_mbx.sv",
+    "$REVIEWS/r703-2-665s2/hdl/milan/mailbox/KL_mbx_wb.sv",
+    "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+    "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+    "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v",
+    "$REVIEWS/665s2-r703-2-packet/scratch/builds/a8x8/gateware/sim.v"
+  ],
+  "includes": [],
+  "sys_hz": 100000000,
+  "cpu_hz": 50000000,
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "addresses": {
+    "mailbox": 2147483648,
+    "master": 4026544128,
+    "timer0": 4026546176,
+    "flash": 536870912,
+    "flash_size": 16777216
+  },
+  "window_bytes": 32768,
+  "netlist": "VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56",
+  "vexii_soc_args": {
+    "cpu_count": "1",
+    "imsic_interrupt_number": "0",
+    "l2_bytes": "0",
+    "l2_self_flush": "None",
+    "l2_ways": "4",
+    "mac_sg": "[]",
+    "video": "[]",
+    "with_aplic": "False",
+    "with_axi3": "False",
+    "with_axilite_xlen": "False",
+    "with_cpu_clk": "True",
+    "with_dma": "True",
+    "with_jtag_instruction": "False",
+    "with_jtag_tap": "False"
+  },
+  "vexii_args": " --with-isa=,zicsr,zifencei,i --xlen=32 --reset-vector 0",
+  "memory_regions": [
+    [
+      0,
+      229376,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      229376,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "cpu_regions": "cover",
+  "cpu_memory_regions": [
+    [
+      0,
+      262144,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      262144,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "ctrl_plan": {
+    "rom": {
+      "bytes": 113208,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 112656,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 56.0,
+    "budget_tiles": 56
+  },
+  "elf": "$REVIEWS/665s2-r703-2-packet/scratch/builds/a8x8/image/ctrl_app.elf",
+  "channels": 5,
+  "filter_en": 40,
+  "tmr_cmd": 60,
+  "ch_base": 256,
+  "ch_stride": 32,
+  "tx_head": 8,
+  "inputs": {
+    "build:image/ctrl_app.elf": "c89a1871fd2bca2b5515492c6996b076551bbda7ccd58c773c8bc633a00224ba",
+    "build:runtime/libc.a": "d15d072463fa92d204f4b23b7d925e87607b6b7e3ade5b3a42a3a1c0d81a82f2",
+    "build:runtime/libcompiler_rt.a": "dab66aa697616b93d516504f51ada489b56b32716291b27bf7d79c2ea9e3731f",
+    "build:gateware/sim_mem.init": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+    "build:gateware/sim_rom_bank0.init": "0c56d0d85749f4466b73f57bab851e2169010a7a268b30abd771ab8a8364ee4d",
+    "build:gateware/sim_rom_bank1.init": "828f72b6db427c4c5287cd27b2c5fcb6819e0fd9b89950807a18569bacd9155b",
+    "build:gateware/sim_rom_bank2.init": "b3413e140b8f8e878042c8d8fd18906bf93c74ecd63b4e923eb8d71ceb35d140",
+    "build:budget_config.hpp": "ef75c6f5e9639047cd927a3303c7f5b94e39fd34eec10ce58430f259fdf6837c",
+    "checkout:tb/verilator/ctrl_service_budget/sim_main.cpp": "800120cb8a1ed0c98526e0a118fdf04ccf1e9283732483b556ed6730349ae7bb",
+    "checkout:tb/verilator/ctrl_service_budget/observe.vlt": "d2795f53d43a785bdd8488f0ec66454178ad538781f242049f9258ff775d1aac",
+    "checkout:tb/verilator/fw_service_budget/flash.hpp": "ffd30ea46c3aec139583d92f1ce8d8ecd8efc9b409e94b261d85c29337ec9f90",
+    "build:mbx-variant/KL_mbx_pkg.sv": "7278aa73d76e23e6462ce160751f24ef2e22db0e30c469f500d5e26454459d89",
+    "checkout:hdl/milan/mailbox/KL_mbx_ring.sv": "6f306c031d6a851c4223b96591ff5dd8852eae44e82962f00d74cfdccd6dfa3c",
+    "checkout:hdl/milan/mailbox/KL_mbx_rx.sv": "289ac7d28bf4dd7ca080876d4aec6706c95784afde69a0084d10b135e103990f",
+    "checkout:hdl/milan/mailbox/KL_mbx_tx.sv": "840ede25d27b69bf78042adcc8cd58e317d1ab0bd388fa5ff9049428373de663",
+    "checkout:hdl/milan/mailbox/KL_mbx_evt.sv": "11bbe504a88838478148b6c7d0a2a8fe35ed89e8075fe182e50e9f9e143780fd",
+    "build:mbx-variant/KL_mbx.sv": "4fda1a8b17f597ebcc408883c1861664a0599b4f6162892c93e46aff35a62a36",
+    "checkout:hdl/milan/mailbox/KL_mbx_wb.sv": "01efd0c3d6e8f027cd1b2946b9fe9e0c25dff009ea55819777e9add35be2e329",
+    "external:$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v": "c319d54c5a0bbe20a72ab9b394a3a1e57ef34866ae2478c5caed50e064a72523",
+    "external:$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v": "c8361e5fd0bc23be5f91cb2b63a091ab41bcdd857cc1c97f6e7e4ef8b6f61626",
+    "external:$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v": "383e47dfb8e2169cb05cc08aac80f5be7710d3f1a4f11d30f9c9ea7d831fe551",
+    "build:gateware/sim.v": "d0ce416533b9fa563dd49761593487ad3710efbfe3d70d1c2a2415fd805239ce",
+    "tree:firmware": "0dd3f074eebc16cc97a36dc80ae92fa0be77024fa91524133260f38dd6578c91",
+    "tree:config": "ecc56aae9390d1b512b3cb37498d34d59b0cd281eb4d5afcdf915bb7276a5e2c"
+  },
+  "symbols": {
+    "ctrl_loop_service": 4028,
+    "main": 27676,
+    "adp_mbx_set_enable": 9696
+  },
+  "mutation": "none",
+  "variant": "none",
+  "executable_sha256": "96f121053691d08f14b01e446888e95adb16025b07770ad56eb9d2147486b2c0"
+}

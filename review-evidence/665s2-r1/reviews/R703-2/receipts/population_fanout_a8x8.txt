@@ -1,0 +1,31 @@
+== acmp-cmd.log: 16 frames offered, 16 receive commits, 201 event records
+== acmp-disc.log: 12 frames offered, 12 receive commits, 602 event records
+== acmp-noresp.log: 4 frames offered, 4 receive commits, 1194 event records
+== acmp-notk.log: 6 frames offered, 6 receive commits, 2128 event records
+== adp-advertise.log: 0 frames offered, 0 receive commits, 592 event records
+== adp-discover.log: 2 frames offered, 2 receive commits, 92 event records
+== adp-gm.log: 0 frames offered, 0 receive commits, 94 event records
+== adp-link.log: 0 frames offered, 0 receive commits, 96 event records
+== aecp.log: 39 frames offered, 39 receive commits, 183 event records
+  aecp.set_name.if0: commit 156669839 if0 (TX commits 48, AECP wire frames 48)
+    TX commit 157417204 if0 solicited controller 0a0b0c0d0e0f0002 seq 6116 at 7.474 ms
+    TX commit 157457960 if0 UNSOLICITED controller 0a0b0c0d0e0f0001 seq 0000 at 7.881 ms
+  aecp.set_name.if1: commit 192852913 if1 (TX commits 48, AECP wire frames 48)
+    TX commit 193605346 if1 solicited controller 0a0b0c0d0e0f0002 seq 6124 at 7.524 ms
+    TX commit 193646246 if0 UNSOLICITED controller 0a0b0c0d0e0f0001 seq 0003 at 7.933 ms
+    TX commit 193691826 if1 UNSOLICITED controller 0a0b0c0d0e0f0001 seq 0000 at 8.389 ms
+== backlog-adp-refill.log: 81 frames offered, 81 receive commits, 482 event records
+  composed window 658.81 ms: commits {'adp': 11, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32}; events {'GM': 15, 'TIMER': 90, 'TICK': 66}; frames offered in window 78, never committed 0
+  backlog.adp_available_refill.if0: committed at 316167441 on adp if0; 6 records ahead on its ring
+== backlog-adp.log: 78 frames offered, 78 receive commits, 460 event records
+  composed window 583.56 ms: commits {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32}; events {'GM': 15, 'TIMER': 76, 'TICK': 58}; frames offered in window 75, never committed 0
+  backlog.adp_available.if0: committed at 312172525 on adp if0; 7 records ahead on its ring
+== backlog-owed.log: 83 frames offered, 83 receive commits, 373 event records
+  composed window 651.97 ms: commits {'adp': 8, 'acmp': 8, 'aecp': 16, 'maap': 7, 'srp': 32}; events {'GM': 15, 'TICK': 65}; frames offered in window 71, never committed 0
+  backlog.owed.if0: committed at 310951259 on acmp if0; 7 records ahead on its ring
+== backlog.log: 75 frames offered, 75 receive commits, 359 event records
+  composed window 608.76 ms: commits {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32}; events {'GM': 15, 'LINK': 1, 'TICK': 60}; frames offered in window 75, never committed 0
+  backlog.acmp_command.if0: committed at 300740014 on acmp if0; 11 records ahead on its ring
+== control.log: 1 frames offered, 1 receive commits, 92 event records
+== maap.log: 2 frames offered, 2 receive commits, 350 event records
+== srp.log: 6 frames offered, 6 receive commits, 313 event records

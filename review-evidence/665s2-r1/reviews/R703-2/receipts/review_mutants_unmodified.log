@@ -1,0 +1,13 @@
+R1 CAUGHT rc=1 clock ratio: CPU cycles rounded down :: FAIL: fixture row fixture.malformed.if0: cpu_cycles 107472 (pinned 107473)
+R2 ANCHOR-NOT-UNIQUE (0) clock ratio: composed-maximum ms from the bus clock
+R3 ANCHOR-NOT-UNIQUE (0) clock ratio: worst-pass ms from the bus clock
+R4 ANCHOR-NOT-UNIQUE (0) clock ratio: the pass bound treats CPU cycles as bus cycles
+R5 CAUGHT rc=1 marker: a timer path starts one millisecond after its deadline :: FAIL: fixture row fixture.tmr_no_resp1.if0: start_sys 58400065 (pinned 58300065), sys_cycles 447797 (pinned 547797), cpu_cycles 223899 (pinn
+R6 CAUGHT rc=1 deadline: the ceiling verdict drops the normative wait :: FAIL: W + T_svc passes: {'probe': 's.cmd.if0', 'row': 'Domain', 'family': 'srp', 'interface': 0, 'path': ['s.cmd', 0], 'start_sys': 1173, 'e
+R7 ANCHOR-NOT-UNIQUE (0) marker: the expected-response check is skipped
+R8 ANCHOR-NOT-UNIQUE (0) marker: a receive commit is given to the newest frame
+R9 ANCHOR-NOT-UNIQUE (0) pass bound: starts at the input, not at the running pass
+R10 CAUGHT rc=1 deadline: a T_svc miss never fails the run :: FAIL: a T_svc miss fails the run unless recorded: 
+R11 ANCHOR-NOT-UNIQUE (0) a refused (unmeasured) probe does not fail the run
+R12 CAUGHT rc=1 a CPU trap or bus error is not refused :: FAIL: a CPU trap is refused: 
+review mutants: 12 run, 7 escaped the self-test
