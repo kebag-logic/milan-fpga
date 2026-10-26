@@ -7,14 +7,18 @@
 //             MBX_FACE_ACK_CYCLES for the datapath's acknowledgement, before
 //             the port returns
 //   applied   false while a commit waits for its acknowledgement or an
-//             interface owes a publication. The core asks it after a change:
-//             false there, the command answers ENTITY_MISBEHAVING and nothing
-//             is notified, so a response that promises a setting follows its
-//             acknowledgement (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1;
-//             Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2). The core asks it
-//             before a state-changing command too, and refuses the command,
-//             changing nothing, until the acknowledgement returns and the
-//             interface is published again (aecp_face_poll)
+//             interface owes a publication; while a change waits, whether
+//             its commits are taken. Acknowledged state is the only state a
+//             controller sees: false after a change, the command waits, the
+//             change undone, behind IN_PROGRESS, so every response, read and
+//             notification reports the values in force; true within
+//             AECP_WAIT_MS, it is done again and answered SUCCESS, then
+//             notified, else it fails, changing nothing. While a change waits
+//             nothing is written: each interface it reaches is owed. While
+//             false, the core takes no change, until the acknowledgement
+//             returns and the interface is published again (aecp_face_poll)
+//             (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.5.2;
+//             IEEE 1722.1-2021 7.5.2, 9.3.2.6)
 //   counters  GET_COUNTERS' 32 quadlets and counters_valid through the CTR window
 //   stream    GET_STREAM_INFO's words through the GSI window (kind 0), and an
 //             output's streaming level from the SRP owner's LICENCE

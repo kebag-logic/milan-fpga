@@ -53,6 +53,8 @@ Configuration selects placement without rewriting protocol code.
 The protocol owner holds state, rather than a second writable replica.
 Fabric observations remain authoritative even when AECP serves their counters.
 State-apply acknowledgements must precede responses promising that state.
+Acknowledged state is the only state a controller sees, in responses, reads and notifications.
+A change not yet acknowledged waits undone behind IN_PROGRESS, then is answered once, done or failed.
 Response transmission must precede the unsolicited notification it causes.
 This includes ACMP responses followed by AECP notifications (#653).
 Milan v1.2 5.4.5.2 and IEEE 1722.1-2021 7.5.2 remain normative.
@@ -104,7 +106,9 @@ Contract 2.3 adds a face block per interface for the settings, windows and event
 Each setting holds until the datapath acknowledges its commit, within a bound.
 Each window request holds until the answer carrying its tag, or a bounded timeout.
 A response promises an AECP setting only once the datapath acknowledged its commit.
-Without that acknowledgement the command fails, and later changes are refused until it returns.
+Until then the command answers IN_PROGRESS and its change waits undone, so reads report the acknowledged values.
+Acknowledged within 100 ms, the change is done and answered SUCCESS; otherwise the command fails, changing nothing.
+Other changes are refused meanwhile, and until every interface holds the values in force again.
 The [face contract](design/MAILBOX_SPLIT.md#the-processors-other-faces) defines its classes, layout and writer.
 
 Each host supplies a bus adapter to the same window.

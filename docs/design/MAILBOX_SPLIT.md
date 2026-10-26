@@ -1239,35 +1239,62 @@ IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.2).
 | every setting and every entry of the new configuration | `changed` of the configuration | the SET_CONFIGURATION response |
 | `F_RESTORE`, `F_NVM`, `F_AECP.DYN_DIRTY` | `ctrl_app_aecp.c` from the saved-state store's status | AECP opens, and again on every change (the ruling accepts this interpretation); no response promises them |
 
-**A commit the datapath does not acknowledge within its bound** is counted
-late and leaves its interface owed. The firmware then takes the defined
-failure path: it does not defer the response with IN_PROGRESS. That keeps the
-existing no-IN_PROGRESS policy and IEEE 1722.1-2021 9.3.2.6's 240 ms response
-deadline ([FR_NFR.md](../reference/FR_NFR.md), the AECP rows). The core asks
-the platform's `applied` port, which is false while an interface owes a
-publication or holds a commit:
+**Acknowledged state is the only truth a controller sees.** A commit the
+datapath does not acknowledge within its bound is counted late and leaves its
+interface owed. The core asks the platform's `applied` port, which is false
+while an interface holds a commit or owes a publication:
 
-- **After a command that changed state.** False there, the command answers
-  ENTITY_MISBEHAVING inside the same service bound and notifies no one. This
-  is the status the core already gives a datapath that does not answer in its
-  bound: an unanswered observation, or a START_STREAMING whose apply did not
-  complete. The value stays in the held block, which the datapath takes when
-  it acknowledges. A read answered meanwhile reports the value the core holds,
-  the one that block carries.
-- **Before a state-changing command.** False there, LOCK_ENTITY,
-  SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_NAME,
-  SET_SAMPLING_RATE, SET_CLOCK_SOURCE, SET_CONTROL and ADD_ and
-  REMOVE_AUDIO_MAPPINGS each answer ENTITY_MISBEHAVING, echoing the command's
-  data, before changing anything. So no second value is merged into the owed
-  state, and the datapath never skips one a response promised. Every other
-  command is answered as before, so service stays bounded.
-- **At a lock's expiry.** The lock still expires at 60 s (Milan v1.2 5.4.2.2),
-  but no unlock notification leaves.
+- **After a change of face state.** LOCK_ENTITY, SET_CONFIGURATION,
+  SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and SET_CONTROL
+  (`AECP_WAITS` in `aecp.h`) carry their change in a commit. When `applied` is
+  false after one of them, the command waits. The core undoes the change from
+  the values it recorded as the command overwrote them, and keeps the SUCCESS
+  response. It answers IN_PROGRESS at once, within the service bound,
+  carrying the values in force, as the command's refusals report them. While
+  it waits, every getter, READ_DESCRIPTOR and notification reports those
+  values, and nothing is written to the face: a publication that falls due is
+  owed instead. The core's own work (Table 5.22 notifications, availability
+  probes, a lock's expiry) follows the wait.
+- **The datapath takes it.** Once every interface acknowledges within
+  `AECP_WAIT_MS` (100 ms) of the command, the change is done again. The
+  SUCCESS response leaves, then its notification. The change is handed to the
+  face and the saved-state store again, and the datapath already holds it.
+- **It does not.** At `AECP_WAIT_MS` the change stays undone, the face is
+  given the values in force, and the command answers ENTITY_MISBEHAVING with
+  those values, notifying no one. This is the status the core already gives a
+  datapath that does not answer in its bound: an unanswered observation, or a
+  START_STREAMING whose apply did not complete.
+- **Every other change, while one waits or while any interface is held or
+  owed,** is refused by the lock check before it changes anything. It answers
+  ENTITY_MISBEHAVING, carrying what that command's lock refusal reports: its
+  current fields, and for LOCK_ENTITY the current `locked_id`. A foreign lock
+  still answers ENTITY_LOCKED. Reads and registrations are answered as
+  before, so service stays bounded.
+- **At a lock's expiry.** The lock still expires at 60 s (Milan v1.2
+  5.4.2.2), or, if a change is waiting then, when that wait ends, at most
+  `AECP_WAIT_MS` later. Its LOCK_ENTITY notification (Table 5.22) is kept
+  until the publication of LOCK_HELD is acknowledged, however late, and is
+  sent then. No change is taken before it leaves.
 
-The application's poll publishes the owed interface whole again once `BUSY`
+The final response follows the IN_PROGRESS within the 120 ms cadence of IEEE
+1722.1-2021 9.3.2.6, so no second IN_PROGRESS is owed, and it follows the
+command within that clause's 240 ms ([FR_NFR.md](../reference/FR_NFR.md), the
+AECP rows). No getter waits, so GET_DYNAMIC_INFO, which carries only getters,
+never answers IN_PROGRESS (IEEE 1722.1-2021 7.4.76).
+
+A commit, once written, stays in the block until the datapath takes it, and
+`cdc_handshake` holds its value until the acknowledgement. Firmware cannot
+withdraw it. After a command that failed, the datapath takes the undone value
+with its late acknowledgement. The application's poll then publishes the block
+whole again, with the values in force, as soon as `BUSY` clears. So the
+datapath ends where the controllers were told, but holds the undone value from
+that late acknowledgement until the republished block is taken. Withdrawing a
+held commit would need the datapath side, which the placement switch wires.
+
+The application's poll publishes each owed interface whole again once `BUSY`
 clears, keeping the loop awake meanwhile. From then on `applied` is true and
 changes are taken again. A datapath that never acknowledges keeps every change
-refused, and keeps AECP closed if it held the initial publication; the core's
+refused, and keeps AECP closed if it held the initial publication. The core's
 reads, registrations and notifications of other state continue.
 
 Every window read is bounded too (`mbx_win_read`): a request that finds no answer within the window's wait
@@ -1295,7 +1322,7 @@ them:
 
 | Evidence | What it shows |
 |---|---|
-| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 39 reads of the 25 class-D nets, and each of the wrapper cell's 217 ports in one class (C 25, F 28, R 34, E 6, M 14, G 110), every G output's cone ending only at its terminals; its self-test's 138 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 18, a positive and a negative control; each of its 43 rules (31 of the class-D census, 12 of the port census) removed in turn, each letting its arms through |
+| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 39 reads of 21 of the 25 class-D nets (4 are unread), and each of the wrapper cell's 217 ports in one class (C 25, F 28, R 34, E 6, M 14, G 110), every G output's cone ending only at its terminals; its self-test's 138 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 18, a positive and a negative control; each of its 43 rules (31 of the class-D census, 12 of the port census) removed in turn, each letting its arms through |
 | [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 523 at one interface and 530 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 568 at one interface, 575 at two |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
@@ -1312,7 +1339,7 @@ them:
 | the binding owner on lane F1's store | on the host flash model at the shipping 1x1 shape: a bind saved and fast-connected after a power cycle, an unbind saved, an unread slot refusing persistence, a refused record and the roll-back |
 | the publication block's writers, in the host tests (lane F-INT) | the driver's encoding of each register (`D14`); ACMP's binding published before the BIND_RX and UNBIND_RX responses and before the notifier, the settled stream, the stream taken off on leaving settlement, restored bindings at open, a call back from the port refused, and the started level before the BIND_RX response that echoes STREAMING_WAIT and before a START_STREAMING or STOP_STREAMING is reported (`A31`), and the adapter's writes ahead of each response's TX_HEAD on the model, a started move as one `BINDING` write that keeps the stream (`B10` to `B12`), a bound or started move with no settled stream written as `BINDING` alone with `SID_VALID` clear, over the stream an unbind left in `SID_LO` and `SID_HI` (`B13`), and, composed with F5's AECP owner, a START_STREAMING and a STOP_STREAMING each moving the started level in one `BINDING` write before its response's TX_HEAD, within F5's service target (`App.StartAndStopPublishTheStartedLevelBeforeTheirResponse`, two plants in [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py) that F5's own tests let through); MAAP's DA gate before each allocation report, on the allocating interface alone at two interfaces (`DaGate*`); SRP's licence before each report, its Domain, slope and Talker declarations before every MRPDU that carries them, read at each record's commit, the Talker declarations published again by a Domain adoption and held after it, the declarations withdrawn before a reset or destroy removes them, and none published by a re-creation refused at any one of its allocations, a source's join among them (`Pub*`), and the publication term of SRP's bound measured (`PollPublicationTermIsMeasuredThroughRealCallbacks`) |
 | the placement switch's SRP comparator, the firmware gate's `srpcmp` arm | [`srp_wire_compare.py`](../../sw/firmware/ctrl/test/srp_wire_compare.py), an independent IEEE 802.1Q Clause 10.8 decoder and transmit-opportunity comparator, which the placement switch compares the two placements' SRP frames with (the ruling of comment 6088423771 keeps it for that switch). Its self-test runs in every firmware gate run, so it cannot rot first: its five named controls, and its 18 named planted wire and comparison defects each present and caught (a report missing any of them fails the arm), among them a dropped, an extra and a duplicated declaration, a wrong attribute or FourPacked event and every malformed length and EndMark |
-| the AECP owner's face, in the host tests (contract 2.3) | on the model, at one and two interfaces: each setting written in its own field, on its own interface, committed and acknowledged before the response that promises it, and a lock's expiry before its notification; the initial publication with `READY` acknowledged before AECP opens, and AECP left closed while it is not (`AppFaceUnacknowledged`); a commit not acknowledged within its bound answering ENTITY_MISBEHAVING and notifying no one, a change meanwhile refused before it changes anything and writing nothing, a read still answered, then the block published again, whole, and the next change acknowledged before its response (`Face.ALateCommitIsOwedAndPublishedAgainWhole`); one interface acknowledging and the other not (`Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt`); a datapath that never acknowledges, every state-changing command refused within the service bound and a lock expiry releasing the lock with no notification (`Face.AMissingAcknowledgementRefusesEveryChangeAndNotifiesNothing`); the core's side on a mock port, each state-changing command refused and each read answered (`Core.AChangeThePlatformHasNotAppliedPromisesNothing`); every window read within its bound; the store's words; the face events' Table 5.22 notifications |
+| the AECP owner's face, in the host tests (contract 2.3) | on the model, at one and two interfaces: each setting written in its own field, on its own interface, committed and acknowledged before the response that promises it, and a lock's expiry before its notification; the initial publication with `READY` acknowledged before AECP opens, and AECP left closed while it is not (`AppFaceUnacknowledged`); a commit not acknowledged within its bound: IN_PROGRESS with the value in force, the change undone, GET_CONTROL and READ_DESCRIPTOR reporting the value in force, a second change refused and writing nothing, then at `AECP_WAIT_MS` one ENTITY_MISBEHAVING with no notification, the block published again, whole, with the value in force, and the next change acknowledged before its response (`Face.ALateCommitIsOwedAndPublishedAgainWhole`); a commit acknowledged late within the bound: IN_PROGRESS, GET_STREAM_INFO and a notification falling due meanwhile reporting the latency in force, nothing written, then SUCCESS, its notification and the notification that waited (`Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt`); one interface acknowledging and the other not, the one that did given the value in force again at the failure (`Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt`); a datapath that never acknowledges, the change failing and every later change refused within the service bound, and a lock expiry released at 60 s and notified once LOCK_HELD is taken (`Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther`); a lock expiring while a change waits, notified after it (`Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken`); the core's side on a mock port: every change refused with what its lock refusal reports and each read answered (`Core.AChangeThePlatformHasNotAppliedPromisesNothing`), each command of `AECP_WAITS` waiting undone and then done or failed (`Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce`), and an expiry notified once applied, through a full ring (`Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease`); every window read within its bound; the store's words; the face events' Table 5.22 notifications |
 | planted defects | every arm of [`mutants.py`](../../tb/verilator/mbx/mutants.py) (`make mutants`; seven of them in the default `make`), of [`ctrl_mutants.py`](../../sw/firmware/ctrl/test/ctrl_mutants.py) with [`acmp_mutants.py`](../../sw/firmware/ctrl/test/acmp_mutants.py) (`--self-test`) and of [`aecp_mutants.py`](../../sw/firmware/ctrl/test/aecp_mutants.py), each caught by the check it names; each campaign prints its own total. Every filter rule has a defect in the RTL and one in the host model |
 
 ## Default build

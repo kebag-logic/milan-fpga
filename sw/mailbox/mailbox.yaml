@@ -444,8 +444,9 @@ interface_publication_registers:
 # response promises the value only once it is acknowledged
 # (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.5.2; IEEE
 # 1722.1-2021 7.5.2). One not acknowledged within the bound is promised by
-# none: the command answers ENTITY_MISBEHAVING, and the firmware takes no other
-# change until the acknowledgement returns (docs/design/MAILBOX_SPLIT.md).
+# none: the command answers IN_PROGRESS with its change undone, then SUCCESS if
+# the acknowledgement returns in time, else a failure, and the firmware takes no
+# other change meanwhile (docs/design/MAILBOX_SPLIT.md).
 #
 # THE WINDOWS (class R). A window's request registers name what the datapath's
 # answer logic is asked; its CMD.GO starts the request, which KL_mbx holds on

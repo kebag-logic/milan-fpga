@@ -52,21 +52,28 @@ later loop pass. Reentry is asserted in diagnostic builds and counted/refused
 otherwise.
 
 The `applied` port says whether every change handed to `changed` has been
-applied (#665). It is the defined failure path for an apply the platform did
-not complete in its bound. The core does not answer IN_PROGRESS: that keeps
-the no-IN_PROGRESS policy and the 240 ms response deadline of the
-[service requirements](../../../../docs/reference/FR_NFR.md). The core asks
-the port at three points:
+applied (#665). Acknowledged state is the only state a controller sees:
 
-- **After a command that changed state.** If it is false, the command answers
-  ENTITY_MISBEHAVING and notifies no one.
-- **Before LOCK_ENTITY, SET_CONFIGURATION, SET_STREAM_FORMAT,
-  SET_STREAM_INFO, SET_NAME, SET_SAMPLING_RATE, SET_CLOCK_SOURCE, SET_CONTROL
-  and ADD_ or REMOVE_AUDIO_MAPPINGS.** If it is false, the command answers
-  ENTITY_MISBEHAVING, echoing its data, before it changes anything.
-- **After a lock expires.** If it is false, no unlock notification leaves.
+- **While it is false**, the lock check refuses every change before it
+  changes anything. The command answers ENTITY_MISBEHAVING, carrying what its
+  lock refusal reports. Reads and registrations are answered as usual.
+- **False after a change of face state** (`AECP_WAITS`: LOCK_ENTITY,
+  SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and
+  SET_CONTROL), the command waits. The core undoes the change from the values
+  it recorded as the command overwrote them (`aecp_keep`), keeps the SUCCESS
+  response, and answers IN_PROGRESS with the values in force. If the port is
+  true within `AECP_WAIT_MS` (100 ms), the change is done again, answered and
+  notified. Otherwise it stays undone, and the command answers
+  ENTITY_MISBEHAVING and notifies no one. Either way the change is handed to
+  `changed` again. The core's own notifications, probes and lock expiry
+  follow the wait.
+- **After a lock expires**, its notification waits until the port is true,
+  and no change is taken before it leaves.
 
-Every other command is answered as usual.
+The final response follows the IN_PROGRESS within the 120 ms cadence, and
+the command within the 240 ms deadline, of the
+[service requirements](../../../../docs/reference/FR_NFR.md). No getter
+answers IN_PROGRESS.
 
 One response remains owed through backpressure. Notifications follow
 that response, exclude its requester, and advance each recipient's own sequence.
@@ -180,7 +187,7 @@ reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full
 [coverage gate](../../gtest/README.md) measures the eight new production files,
 and since contract 2.3 `aecp_face.c`, at 100% lines and branches without a new
-exclusion. The face's 30 defects each fail a named `Core`, `Face`,
+exclusion. The face's 50 defects each fail a named `Core`, `Face`,
 `FaceLatency`, `AppFace` or `AppFaceUnacknowledged` assertion:
 
 - a setting written after its response or in the wrong field;
@@ -199,14 +206,20 @@ exclusion. The face's 30 defects each fail a named `Core`, `Face`,
 
 The rest cover the acknowledgement:
 
-- a change taken while an earlier one is not applied;
-- SUCCESS or a notification for a change, or an unlock notification, that
-  the platform did not apply;
-- LOCK_ENTITY or ADD_AUDIO_MAPPINGS admitted, or GET_CONTROL refused, while
-  a change is not applied;
-- a face that never reports a change unapplied, or that counts an owed or a
-  held interface as applied;
-- a write into a held block;
+- a change taken while one is not applied, or before an expiry is notified;
+  its refusal reporting the request, or reported as a lock;
+- a change of face state that does not wait (LOCK_ENTITY, SET_STREAM_INFO),
+  is not undone, or whose IN_PROGRESS reports the request;
+- its record missing a value, an override or a byte, or too short for
+  LOCK_ENTITY;
+- a wait that never ends, or ends early;
+- a change not done again once applied; a success not notified; a failure
+  notified, reporting the request, or not given to the face; a final response
+  that forgets its requester;
+- a lock expiry inside a wait, notified unapplied, or never notified once late;
+- a face that never reports a change unapplied, counts an owed or a held
+  interface as applied, counts owed while a change waits, publishes while a
+  change waits, or writes into a held block;
 - AECP opened, or the face's open reported acknowledged, before the initial
   publication is acknowledged.
 
