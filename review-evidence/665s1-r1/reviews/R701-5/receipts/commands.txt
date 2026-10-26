@@ -1,0 +1,33 @@
+All candidate reads and runs refer to 6d2b77bb3bfb8e2fbd30db56613c8c3b5ea0ef44 (tree e7648d5aa4f16cc7b6fe7a37f9c76d622325320b).
+<clone> = the reviewed detached clone; <packet> = this packet. Every probe edit was made in <clone> and restored
+with git checkout; receipts/checkout-integrity.txt verifies the restored bytes, modes, index and gitlinks.
+
+Evidence packet 3bda7dff (review-evidence/665s1-r1), sparse fetch, then every MANIFEST.json entry hashed:
+  receipts/evidence-manifest-verify.txt (820 entries, 0 mismatched, none unlisted). The fetched commit carries
+  no signature (git %G? = N), so signer authentication is not available; integrity is by manifest hash only.
+AECP arms (application composition, both widths, and AddressSanitizer at two interfaces), concurrently:
+  python3 -B sw/firmware/ctrl/test/aecp_arms.py --app --interfaces {1,2} [--asan] --output <packet>/scratch/...
+  -> receipts/fw/aecp-arms-app-*.txt, rc 0 each, 97 of 97 tests.
+AECP plant campaign, four shards concurrently:
+  python3 -B sw/firmware/ctrl/test/aecp_mutants.py --output <packet>/scratch/mutants/shard-K --shard K 4
+  -> receipts/aecp-mutants/shard-{0..3}.log, rc 0 each, 32 caught per shard, 128 of 128, 0 escaped.
+Firmware coverage ratchet:
+  python3 -B sw/firmware/gtest/fw_coverage.py --check --jobs 16 -> receipts/gates/fw-coverage-check.txt, rc 0, 31 files.
+Mailbox generator: python3 -B sw/mailbox/gen_mailbox.py --check -> receipts/gates/gen-mailbox-check.txt, rc 0.
+Docs gates (subset): docs_check.py, check_doc_style.py, check_em_dash.py --base e76a755a (pinned renderer's
+  site-packages on PYTHONPATH), DOC_MAP.gen.py --check, check_feature_status.py -> receipts/gates/*.txt, rc 0 each.
+test_ctrl_memory.py under the system interpreter: refused at import (no migen) -> receipts/litex/, rc 1;
+  not a result. The author's exact-head receipt under LiteX's interpreter is relied on instead.
+Reviewer probe (finding R701-5-F1):
+  append probes/probe_wait_refusals.cpp to sw/firmware/ctrl/test/test_aecp.cpp
+  python3 -B sw/firmware/ctrl/test/aecp_arms.py --app --interfaces 1 --filter 'Face.ReviewerProbe*' --output ...
+  git checkout -- sw/firmware/ctrl/test/test_aecp.cpp
+  -> receipts/probe-wait-refusals-if1.txt, rc 1: SET_NAME 10, MVU SET_SYSTEM_UNIQUE_ID 1 during the wait and 1
+     while the face is held after the failed wait.
+Prior-round probe, unmodified (sha256 recorded in the receipt):
+  python3 -I <late_ack_notify_probe.py from the R701-4 packet> <clone>; aecp_arms.py --app --interfaces 2
+  --filter 'Face.ReviewerProbe*'; git checkout -- sw/firmware/ctrl/test/test_aecp.cpp
+  -> receipts/r701-4-probe-rerun.txt, rc 1 only on its first-frame status (IN_PROGRESS 9 where it expects 10).
+Face-plant count: python3 -B count_face_defects.py <clone>/sw/firmware/ctrl/test -> 128 total, 50 face plants.
+Hosted check runs at the exact head, read-only API snapshot -> receipts/hosted-check-runs.txt.
+Clone integrity: verify_checkout.sh <clone> 6d2b77bb... -> receipts/checkout-integrity.txt, rc 0.
