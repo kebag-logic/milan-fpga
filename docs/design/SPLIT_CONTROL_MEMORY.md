@@ -87,14 +87,14 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
 
-One point may plan past the budget, and only by name (#665 ruling 6412739248).
-`ctrl_memory.LEDGERED` holds `8x8-two-interfaces`, the 8x8 image with two interfaces, at 57 RAMB36.
-[Section 5](#5-fit) ledgers that tile as owed to lane S14.
+One point may plan past the budget, and only by name (#665 rulings 6412739248 and 6425357821).
+`ctrl_memory.LEDGERED` holds `8x8-two-interfaces`, the 8x8 image with two interfaces, at 57.5 RAMB36.
+[Section 5](#5-fit) ledgers that tile and a half as owed to lane S14.
 Only that point's measurement names the override, through `ctrl_memory.py plan --ledgered-point` or `ctrl_srp_image.py --ledgered-point`.
 `add_ctrl_memory` names none, so every SoC build is still held to 56 RAMB36.
 The override recognises its image by the image's own symbols.
 These are the 8x8 shape's `nvm_stage` of 13,264 bytes and the size fixture's `image_allocation`, 8 bytes per interface, so 16.
-`budget` refuses the override on any other image, and refuses its point past 57 RAMB36.
+`budget` refuses the override on any other image, and refuses its point past 57.5 RAMB36.
 `rom`'s contents are the load segments' file bytes and nothing else.
 So `entry bytes` reads them as well as the sections: the first word at the reset address must be in them.
 `load coverage` requires them to carry every byte of every section with initial bytes.
@@ -102,7 +102,7 @@ So `entry bytes` reads them as well as the sections: the first word at the reset
 `main()` runs the staging check before any export; the shape comes from `--entity-gen-dir`.
 
 [`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) plants a defect for every rule and requires that rule to refuse it.
-It plans the ledgered point at 57.0 RAMB36 by name, and requires `budget` to refuse that image in three cases: without the override, through `add_ctrl_memory`, and at 57.5 RAMB36.
+It plans the ledgered point at 57.5 RAMB36 by name, and requires `budget` to refuse that image in three cases: without the override, through `add_ctrl_memory`, and at 58.0 RAMB36.
 It also plants the override on the 1x1 images with one and two interfaces, on the 8x8 image with one interface, and on an image without `image_allocation`, and requires `budget` to refuse each.
 An override name the ledger does not hold is refused by `budget` too.
 It also requires this table to equal `ctrl_memory.RULES`.
@@ -153,21 +153,39 @@ The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-
 It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
 
 The ledger at lane S1's face writer (#665) is planned by `ctrl_memory.plan`.
-It links the firmware of `989c9f53` against its base `e76a755a`, with one runtime for both:
+It links the firmware of `4e3aab32` against its base `e76a755a`, with one runtime for both:
 
 | Point | `rom` need, B | `sram` need, B | Planned RAMB36 equivalents | Base `e76a755a` | Against the 56-RAMB36 budget |
 |---|---:|---:|---:|---:|---|
-| 1x1, one interface (shipping) | 103,304 | 46,032 | 37.0 | 35.5 | within |
-| 1x1, two interfaces | 104,888 | 57,424 | 40.5 | 38.5 | within |
-| 8x8, one interface | 117,024 | 86,608 | 50.5 | 49.0 | within |
-| 8x8, two interfaces (largest) | 118,680 | 112,768 | 57.0 | 56.0 | **over by 1 tile, owed to lane S14** |
+| 1x1, one interface (shipping) | 104,360 | 46,256 | 37.0 | 35.5 | within |
+| 1x1, two interfaces | 105,944 | 57,648 | 40.5 | 38.5 | within |
+| 8x8, one interface | 118,080 | 86,832 | 50.5 | 49.0 | within |
+| 8x8, two interfaces (largest) | 119,736 | 112,992 | 57.5 | 56.0 | **over by 1.5 tiles, owed to lane S14** |
 
-The face writer adds 5,376 to 5,472 B of `rom` and 112 B of `sram` at each point.
-The `applied` acknowledgement path accounts for 392 to 400 B of that `rom` and 16 B of that `sram`; at 8x8 with one interface it doubles `rom`'s last bank to 4 KiB, half a tile.
-At 8x8 with two interfaces, `rom`'s banks hold 118,680 B in 118,784 and `sram`'s 112,768 B in 114,688.
-That is 57.0 RAMB36, one tile over the budget, with 104 B of `rom` left before the next bank would make it 57.5.
+The face writer adds 6,432 to 6,528 B of `rom` and 336 B of `sram` at each point.
+Its `applied` acknowledgement path, as `989c9f53` built it, accounts for 392 to 400 B of that `rom` and 16 B of that `sram`; at 8x8 with one interface it doubles `rom`'s last bank to 4 KiB, half a tile.
+The model in which acknowledged state is the only truth a controller sees (#665, 6421238472) adds 1,056 B of `rom` and 224 B of `sram` at every point, against `989c9f53`, which did not have it:
+
+- the record of the values a change overwrites, and its ten call sites;
+- the swap that undoes and redoes the change;
+- the held SUCCESS response, and the command's re-answer as a refusal;
+- the wait's resolution, done or failed;
+- the lock expiry's kept notification;
+- the lock check's refusal while a change waits.
+
+All 224 B of `sram` are the core's state: the held response (`AECP_HELD_BYTES`, 122 B), the four recorded values, and the wait's deadline and requester.
+The other three points keep their RAMB36 count: only at 8x8 with two interfaces do the added bytes cross a granule, in `rom`.
+There `rom`'s banks hold 119,736 B in 120,832 and `sram`'s 112,992 B in 114,688.
+That is 57.5 RAMB36, a tile and a half over the budget, with 1,096 B of `rom` left before the next granule would make it 58.0.
+Without this model the point had 104 B left at 57.0, so returning to 57.0 needs 952 B of `rom`.
+RV32I has no compressed instructions. Two compactions were measured on throwaway edits, and neither is taken:
+
+- constant port tables in `aecp_face.c`, `aecp_mbx.c` and `ctrl_app_aecp.c`: 64 B of `rom`;
+- IN_PROGRESS carrying the held SUCCESS body instead of re-answering the command: 64 B more.
+
+Together they leave 119,608 B, still 57.5.
 The owner's decision D3 (#665, 6409738976) moves cold code and the descriptor image to QSPI flash in lane S14.
-The ruling of 2026-10-26 (#665, 6412739248) ledgers this tile as owed to S14.
+The rulings of 2026-10-26 ledger this point as owed to S14: one tile (#665, 6412739248), then a tile and a half (#665, 6425357821).
 Only that point's measurement plans it, by name ([section 3](#3-named-refusals)), and every SoC build is still refused past 56.
 The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged.
 These figures are planned, not mapped.
@@ -223,7 +241,7 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264 \
 ```
 
 This is the ledgered point, so both commands name its override.
-Without `--ledgered-point`, both refuse it at 57 RAMB36.
+Without `--ledgered-point`, both refuse it at 57.5 RAMB36.
 Every other point takes no override, and refuses one.
 
 `ctrl_image_runtime.py` builds the runtime archives; see the [control firmware](../../sw/firmware/ctrl/README.md#linked-size).
