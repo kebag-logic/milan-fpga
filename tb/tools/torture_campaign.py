@@ -9182,16 +9182,21 @@ class _ReleaseGateChecks:
         exactly or as the stated limit its bytes fall in, and every reading balances.
 
         Each capture carries one case beside each of its six arms, on two channels whose numbers no
-        one mask exchanges; its arms are 200 samples or more apart, so their windows never meet.
+        one mask exchanges; its arms are 200 samples or more apart, so their windows never meet. The
+        sweep stops at its first failing case, which it names, so a broken grader fails it at once.
         """
         for frames in (8192, 16384):
+            verdict, detail, _ = self._sweep_grade(frames, [])
+            self.assertEqual((verdict, detail["planted_missed"]), ("PASS", []), detail["why"])
             for d in range(-4, 5):
                 for mask in self._SWEEP_MASKS:
                     for pair in ((0, 1), (2, 3)):
                         extra = [{"kind": "flip", "index": arm[1] + d, "channel": channel, "mask": mask}
                                  for arm in self._sweep_arms(frames) for channel in pair]
-                        with self.subTest(frames=frames, d=d, mask=hex(mask), pair=pair):
+                        try:
                             self._sweep_check((frames, d, mask, pair), self._sweep_grade(frames, extra))
+                        except AssertionError as error:
+                            self.fail(f"frames={frames} d={d} mask={mask:#x} pair={pair}: {error}")
         # The stated voids, one of each: a word of another position before a slip arm and on it, the
         # flip arm's own word, and the word beside it under its mask.
         for at, channel, mask in ((299, 0, 0x40000), (500, 2, 0x80000), (700, 1, 0x200), (701, 1, 0x100)):
@@ -9203,8 +9208,11 @@ class _ReleaseGateChecks:
         """L3 #396 REQ-VER-06: a drop of 3 or a repeat of 2 on every channel, 1 to 64 samples before a
         constant-mask excursion of 64 to 2049 words at three block positions, leaves the excursion one
         bit-flip and the slip exact. Each capture carries the excursion on five channels, one mask each:
-        the channel numbers no mask here makes another channel's."""
+        the channel numbers no mask here makes another channel's. The sweep stops at its first failing
+        case, which it names, so a broken grader fails it at once."""
         masks = (0x80000, 0x40000, 0x100, 0x00F00F00, 0x80100)
+        verdict, detail, _ = self._sweep_grade(16384, [], channels=len(masks))
+        self.assertEqual((verdict, detail["planted_missed"]), ("PASS", []), detail["why"])
         for length in (64, 65, 100, 300, 2049):
             for begin in (3000, 4089, 6143):
                 for gap in (1, 2, 17, 63, 64):
@@ -9213,14 +9221,13 @@ class _ReleaseGateChecks:
                         extra += [{"kind": "flip", "index": begin + k, "channel": channel, "mask": mask}
                                   for channel, mask in enumerate(masks) for k in range(length)]
                         verdict, detail, _ = self._sweep_grade(16384, extra, channels=len(masks))
-                        with self.subTest(length=length, begin=begin, gap=gap, n=n):
-                            self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
-                            slip = (begin - gap, "dropped" if n > 0 else "repeated", abs(n), "")
-                            for channel, mask in enumerate(masks):
-                                got = [(e["capture_index"], e["class"], e["n"], e.get("mask", ""))
-                                       for e in detail["events"]
-                                       if e["attribution"] == "dut" and e["channel"] == channel]
-                                self.assertEqual(sorted(got), [slip, (begin, "bit-flip", length, f"0x{mask:08X}")])
+                        case = f"length={length} begin={begin} gap={gap} n={n}"
+                        self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), (case, detail["why"]))
+                        slip = (begin - gap, "dropped" if n > 0 else "repeated", abs(n), "")
+                        for channel, mask in enumerate(masks):
+                            got = [(e["capture_index"], e["class"], e["n"], e.get("mask", ""))
+                                   for e in detail["events"] if e["attribution"] == "dut" and e["channel"] == channel]
+                            self.assertEqual(sorted(got), [slip, (begin, "bit-flip", length, f"0x{mask:08X}")], case)
 
     def test_audio_slip_totals_balance_the_bytes(self) -> None:
         """L3 #396 REQ-VER-06: the slips a reading reports sum, on every channel, to the shift its
