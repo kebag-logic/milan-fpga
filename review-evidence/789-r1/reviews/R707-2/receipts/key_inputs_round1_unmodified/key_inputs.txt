@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "scripts/round1/probe_key_inputs.py", line 124, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "scripts/round1/probe_key_inputs.py", line 47, in main
+    base_key, base_build = resolved_key(pristine), tool_build(pristine)
+                           ~~~~~~~~~~~~^^^^^^^^^^
+  File "scripts/round1/probe_key_inputs.py", line 29, in resolved_key
+    assert "${{" not in key, key
+           ^^^^^^^^^^^^^^^^
+AssertionError: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-${{ hashFiles('scripts/ci_install_cache.py') }}-ubuntu-24.04-Linux
+rc=1

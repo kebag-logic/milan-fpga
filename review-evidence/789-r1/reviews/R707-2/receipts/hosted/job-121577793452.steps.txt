@@ -1,0 +1,20 @@
+121577793452 yosys-elaboration 1e0c5c09f6d5e41c8a80ec5e6179c1c762b94086 completed success 2026-10-26T12:45:02Z 2026-10-26T12:57:47Z 0:12:45 GitHub Actions 1000035452 ['ubuntu-24.04']
+   1 Set up job success 0:00:01
+   2 Run actions/checkout@v4 success 0:00:02
+   3 Set CPU-derived job budgets success 0:00:00
+   4 Fetch RTL dependencies success 0:00:03
+   5 Restore the pinned Yosys build success 0:00:02
+   6 Install the pinned Yosys and prove the version success 0:00:00
+   7 Cache verified sv2v archive success 0:00:01
+   8 Install the pinned sv2v release success 0:00:00
+   9 Elaborate the integration-heavy tops success 0:02:17
+   10 Prove the OOC read sets come from run.sh and refuse a bad one success 0:08:36
+   11 Prove ooc.sh generates the ROMs and fails on a failed top success 0:00:24
+   12 Prove both synthesis flows refuse active elaboration guards success 0:00:28
+   13 Prove the result cache refuses a planted entry success 0:00:46
+   14 Record actual job execution success 0:00:00
+   15 Upload actual job execution success 0:00:01
+   28 Post Cache verified sv2v archive success 0:00:00
+   29 Post Restore the pinned Yosys build success 0:00:00
+   30 Post Run actions/checkout@v4 success 0:00:01
+   31 Complete job success 0:00:00

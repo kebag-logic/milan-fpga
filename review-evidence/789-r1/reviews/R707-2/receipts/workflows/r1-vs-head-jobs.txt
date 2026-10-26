@@ -1,0 +1,19 @@
+identical: bdd-conformance
+identical: changes
+identical: ci-cancel-tail
+identical: ci-fail-fast
+identical: ci-manifest
+identical: firmware-aecp-mutants
+identical: firmware-boundary
+identical: firmware-control-mutants
+identical: firmware-srp-mutants
+identical: firmware-unit
+identical: firmware-verilator
+identical: publication-census
+identical: rtl-fast
+identical: verilator-lint
+differs: yosys-elaboration step 3 Restore the pinned Yosys build keys: ['with'] | with-diff: {'key': 'yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{ runner.os }}'}
+   job-level keys differing: [] step counts 14 14
+differs: yosys-tool step 2 Cache the pinned Yosys build keys: ['with'] | with-diff: {'key': 'yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{ runner.os }}'}
+   job-level keys differing: [] step counts 8 8
+top-level identical: True

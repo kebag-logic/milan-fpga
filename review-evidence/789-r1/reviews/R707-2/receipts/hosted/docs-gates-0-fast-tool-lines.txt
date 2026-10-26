@@ -1,0 +1,50 @@
+2026-10-26T12:45:24.1201951Z Fast Yosys tool: yosys-elaboration keeps every other template step in order, the tool job runs the checkout and the two moved steps
+2026-10-26T12:45:24.1203083Z Fast Yosys tool: only yosys-elaboration and the verdict change; a docs-only run stays green
+2026-10-26T12:45:24.1204095Z Fast Yosys tool refused tool key bound to the workflow files: tool key binds the workflow files; tool key lacks the build recipe; yosys-elaboration does not restore exactl
+2026-10-26T12:45:24.1205528Z Fast Yosys tool refused tool key without its script binding: tool key does not bind the scripts its build steps run: scripts/ci_install_cache.py; yosys-elaboration does no
+2026-10-26T12:45:24.1206650Z Fast Yosys tool refused tool job under another environment: tool job env differs from yosys-elaboration's
+2026-10-26T12:45:24.1207578Z Fast Yosys tool refused tool key without the version: tool key lacks the pinned version; yosys-elaboration does not restore exactly the tool tree before its version proof
+2026-10-26T12:45:24.1208685Z Fast Yosys tool refused tool key without the source: tool key lacks the source commit; yosys-elaboration does not restore exactly the tool tree before its version proof
+2026-10-26T12:45:24.1209778Z Fast Yosys tool refused tool key without the recipe: tool key lacks the build recipe; yosys-elaboration does not restore exactly the tool tree before its version proof
+2026-10-26T12:45:24.1210867Z Fast Yosys tool refused tool key without the image: tool key lacks the runner image; yosys-elaboration does not restore exactly the tool tree before its version proof
+2026-10-26T12:45:24.1211719Z Fast Yosys tool refused tool cache with a fallback: tool cache restores more than its exact key
+2026-10-26T12:45:24.1212625Z Fast Yosys tool refused tool job without its build: tool job does not carry the template cache and build steps
+2026-10-26T12:45:24.1213355Z Fast Yosys tool refused tool timeout above the budget: timeout changed or above the hosted budget: yosys-tool
+2026-10-26T12:45:24.1214088Z Fast Yosys tool refused consumer timeout raised: timeout changed or above the hosted budget: yosys-elaboration
+2026-10-26T12:45:24.1214791Z Fast Yosys tool refused tool job on another condition: tool job if differs from yosys-elaboration's
+2026-10-26T12:45:24.1215382Z Fast Yosys tool refused consumer builds again: yosys-elaboration builds Yosys
+2026-10-26T12:45:24.1215976Z Fast Yosys tool refused consumer without the tool need: yosys-elaboration does not need the tool job
+2026-10-26T12:45:24.1216737Z Fast Yosys tool refused restore accepts a miss: yosys-elaboration does not restore exactly the tool tree before its version proof
+2026-10-26T12:45:24.1217888Z Fast Yosys tool refused restore with a fallback: yosys-elaboration does not restore exactly the tool tree before its version proof
+2026-10-26T12:45:24.1218747Z Fast Yosys tool refused restore of another key: yosys-elaboration does not restore exactly the tool tree before its version proof
+2026-10-26T12:45:24.1219488Z Fast Yosys tool refused verdict without the tool need: rtl-fast verdict accepts a failed tool job
+2026-10-26T12:45:24.1220120Z Fast Yosys tool refused verdict without the tool pair: rtl-fast verdict accepts a failed tool job
+2026-10-26T12:45:24.1220794Z Fast Yosys tool retention refused actions/checkout@v4 dropped: yosys-elaboration drops actions/checkout@v4
+2026-10-26T12:45:24.1221540Z Fast Yosys tool retention refused Fetch RTL dependencies dropped: yosys-elaboration drops Fetch RTL dependencies
+2026-10-26T12:45:24.1222684Z Fast Yosys tool retention refused Install the pinned Yosys and prove the version dropped: yosys-elaboration drops Install the pinned Yosys and prove the version
+2026-10-26T12:45:24.1223716Z Fast Yosys tool retention refused Install the pinned sv2v release dropped: yosys-elaboration drops Install the pinned sv2v release
+2026-10-26T12:45:24.1224650Z Fast Yosys tool retention refused Elaborate the integration-heavy tops dropped: yosys-elaboration drops Elaborate the integration-heavy tops
+2026-10-26T12:45:24.1225756Z Fast Yosys tool retention refused Prove the OOC read sets come from run.sh and refuse a bad one dropped: yosys-elaboration drops Prove the OOC read sets come from run.sh a
+2026-10-26T12:45:24.1226987Z Fast Yosys tool retention refused Prove ooc.sh generates the ROMs and fails on a failed top dropped: yosys-elaboration drops Prove ooc.sh generates the ROMs and fails on a
+2026-10-26T12:45:24.1228206Z Fast Yosys tool retention refused Prove both synthesis flows refuse active elaboration guards dropped: yosys-elaboration drops Prove both synthesis flows refuse active ela
+2026-10-26T12:45:24.1229386Z Fast Yosys tool retention refused Prove the result cache refuses a planted entry dropped: yosys-elaboration drops Prove the result cache refuses a planted entry
+2026-10-26T12:45:24.1230348Z Fast Yosys tool retention refused a retained body rewritten: yosys-elaboration changes Elaborate the integration-heavy tops
+2026-10-26T12:45:24.1231060Z Fast Yosys tool retention refused a step added: yosys-elaboration adds Planted step
+2026-10-26T12:45:24.1231745Z Fast Yosys tool retention refused two retained steps swapped: yosys-elaboration reorders or repeats its retained steps
+2026-10-26T12:45:24.1232739Z Fast Yosys tool retention refused a retained step repeated: yosys-elaboration reorders or repeats its retained steps
+2026-10-26T12:45:24.1233549Z Fast Yosys tool retention refused the restore moved last: yosys-elaboration's one exact restore is not in its build's place
+2026-10-26T12:45:24.1234427Z Fast Yosys tool retention refused the restore accepting a miss: yosys-elaboration's one exact restore is not in its build's place
+2026-10-26T12:45:24.1235246Z Fast Yosys tool retention refused a consumer job key added: yosys-elaboration's job keys differ from the template's
+2026-10-26T12:45:24.1236000Z Fast Yosys tool retention refused a tool job step added: tool job steps are not the checkout and the two moved steps
+2026-10-26T12:45:24.1236760Z Fast Yosys tool retention refused the tool build rewritten: tool job steps are not the checkout and the two moved steps
+2026-10-26T12:45:24.1237631Z Fast Yosys tool retention refused a derivation that drops a self-test: yosys-elaboration drops Prove the result cache refuses a planted entry
+2026-10-26T12:45:24.1238646Z Fast Yosys tool key follows the build step, the workflow and job env, the generated build rewrite and budget exports, the scripts the build runs and the runner image
+2026-10-26T12:45:24.1239498Z Fast Yosys tool key unchanged by an edit outside the build recipe or of the tool job's schedule
+2026-10-26T12:45:24.1240332Z Fast Yosys tool generator refused yosys-tool: steps after the build that its key does not bind: Touch the built tree
+2026-10-26T12:45:24.1241333Z Fast Yosys tool generator refused a template key without its workflow-file digest: yosys-elaboration: Yosys cache key lacks its one workflow-file digest
+2026-10-26T12:45:31.9497655Z Fast Yosys tool generator refused a template build step removed: yosys-elaboration: missing or reordered Yosys build recipe
+2026-10-26T12:45:31.9499550Z Fast Yosys tool generator refused a template build before its cache: yosys-elaboration: missing or reordered Yosys build recipe
+2026-10-26T12:45:31.9501092Z Fast Yosys tool generator refused a template step between the cache and its build: yosys-elaboration: missing or reordered Yosys build recipe
+2026-10-26T12:45:31.9503356Z Fast Yosys tool generator refused a template consumer in a container the tool job would not carry: yosys-elaboration: job keys the tool job does not carry into the build: 
+2026-10-26T12:45:31.9505261Z Fast Yosys tool generator refused a template verdict without the elaboration pair: rtl-fast: verdict lacks its one yosys-elaboration result pair
+2026-10-26T12:45:31.9506554Z Fast Yosys tool: one cached build, an exact restore, a verdict that reads it PASS

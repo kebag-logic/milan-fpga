@@ -1,0 +1,33 @@
+## git diff --stat fddf3671..1e0c5c09 -- .github/
+ .github/workflows/rtl-fast.yml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+## git diff --stat 76de691e..1e0c5c09 -- .github/
+ .github/workflows/rtl-fast.yml | 112 +++++++++++++++++++++++++++++++----------
+ 1 file changed, 86 insertions(+), 26 deletions(-)
+## full delta of .github/ (fddf3671..1e0c5c09)
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index 75895a67b5..d91ab7aa4f 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -283,8 +283,8 @@ jobs:
+         uses: actions/cache@v4
+         with:
+           path: /opt/yosys
+-          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{
+-            runner.os }}
++          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-${{
++            hashFiles('scripts/ci_install_cache.py') }}-ubuntu-24.04-${{ runner.os }}
+       - name: Resolve exact package downloads 2
+         id: ci_packages_2
+         run: |
+@@ -371,8 +371,8 @@ jobs:
+         uses: actions/cache@v4
+         with:
+           path: /opt/yosys
+-          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{
+-            runner.os }}
++          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-${{
++            hashFiles('scripts/ci_install_cache.py') }}-ubuntu-24.04-${{ runner.os }}
+           fail-on-cache-miss: true
+         id: ci_step_3
+       - name: Install the pinned Yosys and prove the version

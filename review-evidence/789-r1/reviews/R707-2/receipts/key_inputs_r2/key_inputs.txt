@@ -1,0 +1,24 @@
+== part 1: round-1 probe body, hashFiles resolved ==
+pristine key: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux
+ok           tool-changes=True build-inputs-changed=True key-changed=True  pinned version v0.66 -> v0.67 (workflow env)
+ok           tool-changes=True build-inputs-changed=True key-changed=True  source commit asserted by the build step
+ok           tool-changes=True build-inputs-changed=True key-changed=True  build recipe: ENABLE_PLUGINS 0 -> 1
+ok           tool-changes=True build-inputs-changed=True key-changed=True  build recipe: one more apt package
+ok           tool-changes=True build-inputs-changed=False key-changed=True  runner image ubuntu-24.04 -> ubuntu-22.04
+ok           tool-changes=True build-inputs-changed=True key-changed=True  workflow env gains CXXFLAGS=-O0 (Makefile: CXXFLAGS := $(CXXFLAGS) ...)
+ok           tool-changes=True build-inputs-changed=True key-changed=True  workflow env gains CXXSTD=c++23 (Makefile: export CXXSTD ?= c++20)
+ok           tool-changes=False build-inputs-changed=True key-changed=True  yosys-elaboration job env gains CXXFLAGS=-O0
+ok           tool-changes=False build-inputs-changed=False key-changed=False  edit outside the recipe (elaboration tops)
+ok           tool-changes=False build-inputs-changed=True key-changed=True  workflow env gains an unrelated name
+ok           tool-changes=True build-inputs-changed=True key-changed=True  install-cache transform drops --no-install-recommends from the generated build (template unchanged)
+== part 2: round-2 plants ==
+pristine key: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-e15c97b1c78fe65063d60516fd3cc9f594e30beee1e2862da7554b41692ebc1b-19cd9b6e096d0b5da6683390938461023e7f4fec06fd823ba30243ef1ca799a6-ubuntu-24.04-Linux
+ok           tool-changes=True key-changed=True  E1 workflow env gains CXXFLAGS=-O0 (planted environment edit)
+ok           tool-changes=True key-changed=True  E2 yosys-elaboration job env gains CXXFLAGS=-O0 (carried into the tool job)
+ok           tool-changes=True key-changed=True  E3 workflow defaults: run shell changed
+ok           tool-changes=True key-changed=True  E4 generated job-budget step exports CXXFLAGS=-O0
+ok           tool-changes=True key-changed=True  E5 content edit of scripts/ci_install_cache.py (read by the build's package step)
+ok           tool-changes=False key-changed=False  E6 yosys-elaboration if gains && !cancelled() (schedules the tool job only)
+ok           tool-changes=False key-changed=False  E7 yosys-elaboration timeout 30 -> 25 (consumer only)
+ok           tool-changes=False key-changed=False  E8 'Fetch RTL dependencies' body edit in yosys-elaboration (outside the build)
+rc=0

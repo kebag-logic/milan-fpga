@@ -1,0 +1,118 @@
+SURVIVED C00 control (no mutation) 
+     regenerate 0 
+     selftest 0 gate workflow and union controls: PASS
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=True G01 consumer drops 'Elaborate the integration-heavy tops' 
+     regenerate 0 
+     selftest 1 AssertionError: ['yosys-elaboration drops Elaborate the integration-heavy tops']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=True G02 consumer drops 'Install the pinned Yosys and prove the version' 
+     regenerate 0 
+     selftest 1 AssertionError: ['yosys-elaboration drops Install the pinned Yosys and prove the version', 'yosys-elaboration does not restore exactly the tool tree before its version proof']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=True G03 consumer drops 'Fetch RTL dependencies' 
+     regenerate 0 
+     selftest 1 AssertionError: ['yosys-elaboration drops Fetch RTL dependencies']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=True G04 consumer drops 'Prove the result cache refuses a planted entry' 
+     regenerate 0 
+     selftest 1 AssertionError: ['yosys-elaboration drops Prove the result cache refuses a planted entry']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=True G05 consumer drops 'Install the pinned sv2v release' 
+     regenerate 0 
+     selftest 1 AssertionError: ['yosys-elaboration drops Install the pinned sv2v release']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT G08 recipe digest is a constant 
+     regenerate 0 
+     selftest 1 AssertionError: tool key unchanged by an edit of its build inputs: the template build step, the workflow env, yosys-elaboration's job env, an install-transform rewrite of the build, an export added to the job budget step
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT G09 key drops the runner image 
+     regenerate 0 
+     selftest 1 AssertionError: ['tool key lacks the runner image']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT G10 key keeps the workflow-file digest 
+     regenerate 1 ValueError: yosys-tool: the recipe stand-in must key exactly its cache and the one restore
+     selftest 1 ValueError: yosys-tool: the recipe stand-in must key exactly its cache and the one restore
+     gate_check 1 ValueError: yosys-tool: the recipe stand-in must key exactly its cache and the one restore
+     events_check 1 ci_events: 1 finding(s) over 2199 contract item(s)
+CAUGHT G15 consumer keeps its build (no splice) 
+     regenerate 0 
+     selftest 1 AssertionError: ['yosys-elaboration adds Cache the pinned Yosys build', 'yosys-elaboration adds Build Yosys from source on cache miss', "yosys-elaboration's one exact restore is not in its build's place", 'yosys-elaboration builds Yosys', 'yosys-elaboration does not restore exactly the tool tree before its version proof']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT N01 digest omits the workflow env and defaults 
+     regenerate 0 
+     selftest 1 AssertionError: tool key unchanged by an edit of its build inputs: the workflow env
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT N02 digest omits the tool job's own keys 
+     regenerate 0 
+     selftest 1 AssertionError: tool key unchanged by an edit of its build inputs: yosys-elaboration's job env
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT N03 digest over the build step only (round-1 behaviour) 
+     regenerate 0 
+     selftest 1 AssertionError: tool key unchanged by an edit of its build inputs: the workflow env, yosys-elaboration's job env, an export added to the job budget step
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=True N04 key drops the script binding 
+     regenerate 0 
+     selftest 1 AssertionError: ['tool key does not bind the scripts its build steps run: scripts/ci_install_cache.py']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT N05 restore not rebound to the digest 
+     regenerate 0 
+     selftest 1 AssertionError: ['yosys-elaboration does not restore exactly the tool tree before its version proof']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=False N06 tool job carries no job env 
+     regenerate 0 
+     selftest 1 AssertionError: tool key unchanged by an edit of its build inputs: yosys-elaboration's job env
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=True N07 after-build step guard removed 
+     regenerate 0 
+     selftest 1 AssertionError: fast Yosys tool generator accepted a step after the build that its key does not bind
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT N08 key never bound (stand-in left) 
+     regenerate 0 
+     selftest 1 AssertionError: ['tool key does not bind the scripts its build steps run: scripts/ci_install_cache.py', 'tool key lacks the build recipe']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=True N09 repository-read scan never matches 
+     regenerate 0 
+     selftest 1 AssertionError: ['tool key does not bind the scripts its build steps run: scripts/ci_install_cache.py']
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT named=False N10 unmodelled consumer job keys accepted 
+     regenerate 0 
+     selftest 1 AssertionError: fast Yosys tool generator accepted a template consumer in a container the tool job would not carry
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+SURVIVED N11 post-transform hook drops a retained self-test 
+     regenerate 0 
+     selftest 0 gate workflow and union controls: PASS
+     gate_check 0 
+     events_check 0 ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+CAUGHT W01 hand edit: tool job saves under a different key than the restore 
+     gate_check 1 .github/workflows/rtl-fast.yml: regenerate the gate jobs
+     events_check 1 ci_events: 1 finding(s) over 2199 contract item(s)
+CAUGHT W02 hand edit: consumer timeout 45 
+     gate_check 1 .github/workflows/rtl-fast.yml: regenerate the gate jobs
+     events_check 1 ci_events: 1 finding(s) over 2199 contract item(s)
+CAUGHT W03 hand edit: restore gains restore-keys 
+     gate_check 1 .github/workflows/rtl-fast.yml: regenerate the gate jobs
+     events_check 1 ci_events: 1 finding(s) over 2199 contract item(s)
+CAUGHT W04 hand edit: tool job env CXXFLAGS 
+     gate_check 1 .github/workflows/rtl-fast.yml: regenerate the gate jobs
+     events_check 1 ci_events: 1 finding(s) over 2199 contract item(s)
+rc=0 wall 33s

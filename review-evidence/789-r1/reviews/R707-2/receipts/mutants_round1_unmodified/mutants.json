@@ -1,0 +1,230 @@
+[
+ {
+  "mutant": "C00 control (no mutation)",
+  "regenerate": [
+   0,
+   ""
+  ],
+  "selftest": [
+   0,
+   "gate workflow and union controls: PASS"
+  ],
+  "gate_check": [
+   0,
+   ""
+  ],
+  "events_check": [
+   0,
+   "ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "caught": false
+ },
+ {
+  "mutant": "G01 consumer drops 'Elaborate the integration-heavy tops'",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "G02 consumer drops 'Install the pinned Yosys and prove the version'",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "G03 consumer drops 'Fetch RTL dependencies'",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "G04 consumer drops 'Prove the result cache refuses a planted entry'",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "G05 consumer drops 'Install the pinned sv2v release'",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "G06 restore accepts a miss",
+  "regenerate": [
+   0,
+   ""
+  ],
+  "selftest": [
+   1,
+   "AssertionError: [\"yosys-elaboration's one exact restore is not in its build's place\", 'yosys-elaboration does not restore exactly the tool tree before its version proof']"
+  ],
+  "gate_check": [
+   0,
+   ""
+  ],
+  "events_check": [
+   0,
+   "ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "caught": true
+ },
+ {
+  "mutant": "G07 restore gains a fallback",
+  "regenerate": [
+   0,
+   ""
+  ],
+  "selftest": [
+   1,
+   "AssertionError: [\"yosys-elaboration's one exact restore is not in its build's place\", 'yosys-elaboration does not restore exactly the tool tree before its version proof']"
+  ],
+  "gate_check": [
+   0,
+   ""
+  ],
+  "events_check": [
+   0,
+   "ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "caught": true
+ },
+ {
+  "mutant": "G08 recipe digest is a constant",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "G09 key drops the runner image",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "G10 key keeps the workflow-file digest",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "G11 verdict not wired",
+  "regenerate": [
+   0,
+   ""
+  ],
+  "selftest": [
+   1,
+   "AssertionError: ['rtl-fast verdict accepts a failed tool job']"
+  ],
+  "gate_check": [
+   0,
+   ""
+  ],
+  "events_check": [
+   0,
+   "ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "caught": true
+ },
+ {
+  "mutant": "G12 tool timeout 31",
+  "regenerate": [
+   0,
+   ""
+  ],
+  "selftest": [
+   1,
+   "AssertionError: ['timeout changed or above the hosted budget: yosys-tool']"
+  ],
+  "gate_check": [
+   0,
+   ""
+  ],
+  "events_check": [
+   0,
+   "ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "caught": true
+ },
+ {
+  "mutant": "G13 tool job runs unconditionally",
+  "regenerate": [
+   0,
+   ""
+  ],
+  "selftest": [
+   1,
+   "AssertionError: [\"tool job if differs from yosys-elaboration's\"]"
+  ],
+  "gate_check": [
+   0,
+   ""
+  ],
+  "events_check": [
+   0,
+   "ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+  ],
+  "caught": true
+ },
+ {
+  "mutant": "G14 tool job appended after the aggregate",
+  "regenerate": [
+   1,
+   "ValueError: yosys-tool: the recipe stand-in must key exactly its cache and the one restore"
+  ],
+  "selftest": [
+   1,
+   "ValueError: yosys-tool: the recipe stand-in must key exactly its cache and the one restore"
+  ],
+  "gate_check": [
+   1,
+   "ValueError: yosys-tool: the recipe stand-in must key exactly its cache and the one restore"
+  ],
+  "events_check": [
+   1,
+   "ci_events: 1 finding(s) over 2199 contract item(s)"
+  ],
+  "caught": true
+ },
+ {
+  "mutant": "G15 consumer keeps its build (no splice)",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "G16 tool job saves under the unpinned template key",
+  "regenerate": [
+   1,
+   "ValueError: yosys-tool: the recipe stand-in must key exactly its cache and the one restore"
+  ],
+  "selftest": [
+   1,
+   "ValueError: yosys-tool: the recipe stand-in must key exactly its cache and the one restore"
+  ],
+  "gate_check": [
+   1,
+   "ValueError: yosys-tool: the recipe stand-in must key exactly its cache and the one restore"
+  ],
+  "events_check": [
+   1,
+   "ci_events: 1 finding(s) over 2199 contract item(s)"
+  ],
+  "caught": true
+ },
+ {
+  "mutant": "G17 recipe digest over the whole consumer job",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "W01 hand edit: tool job saves under a different key than the restore",
+  "error": "anchor count 0"
+ },
+ {
+  "mutant": "W02 hand edit: consumer timeout 45",
+  "gate_check": [
+   1,
+   ".github/workflows/rtl-fast.yml: regenerate the gate jobs"
+  ],
+  "events_check": [
+   1,
+   "ci_events: 1 finding(s) over 2199 contract item(s)"
+  ],
+  "caught": true
+ },
+ {
+  "mutant": "W03 hand edit: restore gains restore-keys",
+  "gate_check": [
+   1,
+   ".github/workflows/rtl-fast.yml: regenerate the gate jobs"
+  ],
+  "events_check": [
+   1,
+   "ci_events: 1 finding(s) over 2199 contract item(s)"
+  ],
+  "caught": true
+ }
+]

@@ -1,0 +1,23 @@
+check_doc_paths 0 0s python3 scripts/check_doc_paths.py
+check_doc_style 0 0s python3 scripts/check_doc_style.py
+check_em_dash 0 3s python3 scripts/check_em_dash.py --base 76de691e5625cc4ea2f9a19def9e07c1183a14ee
+check_py_idiom 0 6s python3 scripts/check_py_idiom.py
+ci_capture_cases_selftest 0 0s python3 scripts/ci_capture_cases_selftest.py
+ci_case_receipts_selftest 0 1s python3 scripts/ci_case_receipts_selftest.py
+ci_events_check 0 0s python3 scripts/ci_events.py --check
+ci_events_selftest 0 187s python3 scripts/ci_events.py --selftest
+ci_fail_fast_selftest 0 1s python3 scripts/ci_fail_fast_selftest.py
+ci_gate_workflows_check 0 1s python3 scripts/ci_gate_workflows.py --check
+ci_gate_workflows_selftest 0 12s python3 scripts/ci_gate_workflows_selftest.py
+ci_install_cache_selftest 0 0s python3 scripts/ci_install_cache_selftest.py
+ci_maap_cases_selftest 0 1s python3 scripts/ci_maap_cases_selftest.py
+ci_make_cases_selftest 0 1s python3 scripts/ci_make_cases_selftest.py
+ci_manifest_selftest 0 0s python3 scripts/ci_manifest_selftest.py
+ci_runtime_evidence_selftest 0 6s python3 scripts/ci_runtime_evidence_selftest.py
+ci_scope_selftest 0 20s python3 scripts/ci_scope.py --selftest
+ci_suite_collect_selftest 0 3s python3 scripts/ci_suite_collect_selftest.py
+ci_suite_pieces_selftest 0 9s python3 scripts/ci_suite_pieces_selftest.py
+ci_workflow_plan_selftest 0 0s python3 scripts/ci_workflow_plan_selftest.py
+docs_check 0 8s python3 scripts/docs_check.py
+generate_ci_evidence_pins_check 0 0s python3 scripts/generate_ci_evidence_pins.py --check
+gen_toc_check 0 7s python3 scripts/gen_toc.py --check
