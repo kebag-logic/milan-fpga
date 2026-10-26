@@ -1,0 +1,29 @@
+['$VALIDATION_TOOLS/md-venv/bin/python3', '-m', 'pip', 'install', '--target', '<packet>/scratch/parser', '--require-hashes', '--only-binary=:all:', '-r', 'tools/hdl_reference/requirements.txt']
+Collecting pyslang==11.0.0 (from -r tools/hdl_reference/requirements.txt (line 4))
+  Using cached pyslang-11.0.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.5 MB)
+Installing collected packages: pyslang
+Successfully installed pyslang-11.0.0
+
+[notice] A new release of pip is available: 26.2.1 -> 26.2.2
+[notice] To update, run: $VALIDATION_TOOLS/md-venv/bin/python3 -m pip install --upgrade pip
+['python3', 'scripts/gen_hdl_reference.py', '--selftest']
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: 1111111111111111111111111111111111111111
+Supported sections: 4 (3 modules, 1 packages)
+Module diagrams: 3
+Known limitations:
+  - hdl/bus.sv: interface sample_if
+  - hdl/double.sv: module second
+Wrote: <packet>/scratch/hdl-reference-selftest-mb4fk9nf/positive/index.html
+HDL reference self-test: 44/44 arms passed
+['python3', 'scripts/gen_hdl_reference.py', '--output', '<packet>/scratch/hdl-reference']
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: 44d95625bde2c46d7070c090fc29ed0ba85ab64a
+Supported sections: 83 (79 modules, 4 packages)
+Module diagrams: 79
+Known limitations:
+  - hdl/common/axi_stream_if.sv: interface axi_stream_if
+  - hdl/ieee1722/aaf/KL_aaf_latency_taps.sv: module KL_aaf_latency_taps
+Wrote: <packet>/scratch/hdl-reference/index.html

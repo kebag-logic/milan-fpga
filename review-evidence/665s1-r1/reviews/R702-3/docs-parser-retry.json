@@ -1,0 +1,34 @@
+[
+  {
+    "argv": [
+      "$VALIDATION_TOOLS/md-venv/bin/python3",
+      "-m",
+      "pip",
+      "install",
+      "--target",
+      "<packet>/scratch/parser",
+      "--require-hashes",
+      "--only-binary=:all:",
+      "-r",
+      "tools/hdl_reference/requirements.txt"
+    ],
+    "rc": 0
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--selftest"
+    ],
+    "rc": 0
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/gen_hdl_reference.py",
+      "--output",
+      "<packet>/scratch/hdl-reference"
+    ],
+    "rc": 0
+  }
+]
