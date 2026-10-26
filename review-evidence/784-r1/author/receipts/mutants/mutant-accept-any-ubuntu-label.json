@@ -1,0 +1,16 @@
+{
+  "mutant": "accept-any-ubuntu-label",
+  "replaced": "            if runs_on not in RUNS_ON_LABELS:\n",
+  "with": "            if not (isinstance(runs_on, str) and runs_on.startswith(\"ubuntu-\")):\n",
+  "returncode": 1,
+  "summary": [
+    "selftest: 5 FAILURE(S)"
+  ],
+  "fail_lines": [
+    "FAIL a job on ubuntu-26.04 is refused before act, and the refusal names ubuntu-26.04",
+    "FAIL a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04",
+    "FAIL the arm image of an accepted label is refused: only the exact literal is replayed",
+    "FAIL a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command",
+    "FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does"
+  ]
+}

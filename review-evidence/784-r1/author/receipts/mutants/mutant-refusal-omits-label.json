@@ -1,0 +1,14 @@
+{
+  "mutant": "refusal-omits-label",
+  "replaced": "                    f\"workflow {relative} job {job_id} runs on {runs_on!r}; only the \"\n                    f\"literal labels {', '.join(RUNS_ON_LABELS)} are replayed\"\n",
+  "with": "                    f\"workflow {relative} job {job_id} must use literal ubuntu-latest\"\n",
+  "returncode": 1,
+  "summary": [
+    "selftest: 3 FAILURE(S)"
+  ],
+  "fail_lines": [
+    "FAIL a job on ubuntu-26.04 is refused before act, and the refusal names ubuntu-26.04",
+    "FAIL a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04",
+    "FAIL a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command"
+  ]
+}

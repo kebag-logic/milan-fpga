@@ -1,0 +1,15 @@
+{
+  "mutant": "drop-2404-from-accepted-labels",
+  "replaced": "RUNS_ON_LABELS = (\"ubuntu-latest\", \"ubuntu-24.04\")\n",
+  "with": "RUNS_ON_LABELS = (\"ubuntu-latest\",)\n",
+  "returncode": 1,
+  "summary": [
+    "selftest: 4 FAILURE(S)"
+  ],
+  "fail_lines": [
+    "FAIL a job on ubuntu-24.04 is accepted by the sandbox",
+    "FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image",
+    "FAIL a ubuntu-24.04 replay holds its job containers to the same 8g memory and swap bound as ubuntu-latest",
+    "FAIL act's platform list maps ubuntu-latest and ubuntu-24.04 to the runner image, once each"
+  ]
+}

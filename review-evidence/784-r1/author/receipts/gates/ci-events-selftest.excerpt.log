@@ -1,0 +1,33 @@
+Excerpt of the full log (not kept: 336168 bytes, 5241 lines, sha256 bb09e3d9856835ac9af43d0abe4f385bd803f671f91f0341b80c5dbfdf14e7e9); FAIL lines in full log: 0
+--- first 20 lines
+$ python3 scripts/ci_events.py --selftest
+  ok   generated gates: docs wire-accountability missing job
+  ok   generated gates: docs wire-accountability conditional job
+  ok   generated gates: docs wire-accountability masked job
+  ok   generated gates: docs wire-accountability host environment
+  ok   generated gates: docs wire-accountability missing step 0
+  ok   generated gates: docs wire-accountability changed step 0
+  ok   generated gates: docs wire-accountability changed body 0
+  ok   generated gates: docs wire-accountability missing step 1
+  ok   generated gates: docs wire-accountability changed step 1
+  ok   generated gates: docs wire-accountability changed body 1
+  ok   generated gates: docs wire-accountability missing step 2
+  ok   generated gates: docs wire-accountability changed step 2
+  ok   generated gates: docs wire-accountability changed body 2
+  ok   generated gates: docs wire-accountability cache 2 altered key
+  ok   generated gates: docs wire-accountability cache 2 altered restore-keys
+  ok   generated gates: docs wire-accountability cache 2 altered path
+  ok   generated gates: docs wire-accountability missing step 3
+  ok   generated gates: docs wire-accountability changed step 3
+  ok   generated gates: docs wire-accountability changed body 3
+--- last 10 lines
+  ok   default-branch: dispatch on main refuses
+  ok   default-branch: schedule with an unreadable value refuses
+  ok   default-branch: schedule with an empty value refuses
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (2199 contract items, 5236 arms)
+
+[rc=0]
