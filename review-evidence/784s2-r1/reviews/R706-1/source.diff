@@ -1,0 +1,1348 @@
+diff --git a/.github/ci-templates/docs.yml b/.github/ci-templates/docs.yml
+index dd86f7bce1..3f4938d590 100644
+--- a/.github/ci-templates/docs.yml
++++ b/.github/ci-templates/docs.yml
+@@ -7,7 +7,7 @@ on:
+ 
+ jobs:
+   docs-check:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     steps:
+       # The documentation-only gates run before any submodule checkout. The
+       # builder gates below consume the pinned processor image tools and expand
+@@ -493,7 +493,7 @@ jobs:
+   #  history keeps reading as the item-00 record.
+   # ==========================================================================
+   wire-accountability:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     steps:
+       - uses: actions/checkout@v4
+       - name: Fetch the engine authority the builder derives from
+@@ -507,7 +507,7 @@ jobs:
+   # extracted tarball or a downloaded zip, which is how most outsiders will
+   # first meet this repo.
+   docs-check-no-git:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     steps:
+       - uses: actions/checkout@v4
+       - name: Strip git metadata, then run the docs gate
+diff --git a/.github/ci-templates/elaborate.yml b/.github/ci-templates/elaborate.yml
+index ed112672b9..858a4f833d 100644
+--- a/.github/ci-templates/elaborate.yml
++++ b/.github/ci-templates/elaborate.yml
+@@ -68,7 +68,7 @@ env:
+ 
+ jobs:
+   elaborate:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     steps:
+       - uses: actions/checkout@v4
+         with:
+diff --git a/.github/ci-templates/rtl-fast.yml b/.github/ci-templates/rtl-fast.yml
+index 2041f47a81..92d385f8a2 100644
+--- a/.github/ci-templates/rtl-fast.yml
++++ b/.github/ci-templates/rtl-fast.yml
+@@ -23,7 +23,7 @@ env:
+ 
+ jobs:
+   changes:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 5
+     outputs:
+       rtl: ${{ steps.scope.outputs.rtl }}
+@@ -77,7 +77,7 @@ jobs:
+   verilator-lint:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 30
+     steps:
+       - uses: actions/checkout@v4
+@@ -119,7 +119,7 @@ jobs:
+         run: python3 scripts/pp_srcs.py --check --selftest
+ 
+   bdd-conformance:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 20
+     steps:
+       - uses: actions/checkout@v4
+@@ -134,7 +134,7 @@ jobs:
+   yosys-elaboration:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 30
+     steps:
+       - uses: actions/checkout@v4
+@@ -256,7 +256,7 @@ jobs:
+   publication-census:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -331,7 +331,7 @@ jobs:
+   firmware-unit:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -380,7 +380,7 @@ jobs:
+   firmware-control-mutants:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -414,7 +414,7 @@ jobs:
+   firmware-aecp-mutants:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -448,7 +448,7 @@ jobs:
+   firmware-srp-mutants:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -497,7 +497,7 @@ jobs:
+   firmware-boundary:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 30
+     steps:
+       - uses: actions/checkout@v4
+@@ -536,7 +536,7 @@ jobs:
+   firmware-verilator:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 40
+     steps:
+       - uses: actions/checkout@v4
+@@ -602,7 +602,7 @@ jobs:
+     name: rtl-fast
+     if: ${{ always() && !cancelled() }}
+     needs: [changes, verilator-lint, bdd-conformance, yosys-elaboration, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants, firmware-boundary, firmware-verilator]
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 5
+     steps:
+       - name: Require every applicable fast gate to pass
+diff --git a/.github/ci-templates/rtl.yml b/.github/ci-templates/rtl.yml
+index 973bceb526..a141104afe 100644
+--- a/.github/ci-templates/rtl.yml
++++ b/.github/ci-templates/rtl.yml
+@@ -34,7 +34,7 @@ env:
+ 
+ jobs:
+   full-ci-gate:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 5
+     outputs:
+       run_full: ${{ steps.gate.outputs.run_full }}
+@@ -153,7 +153,7 @@ jobs:
+     name: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
+     needs: full-ci-gate
+     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 120
+     strategy:
+       fail-fast: true
+@@ -317,7 +317,7 @@ jobs:
+     name: Physical gPTP (nightly and manual)
+     needs: full-ci-gate
+     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 120
+     steps:
+       - uses: actions/checkout@v4
+@@ -400,7 +400,7 @@ jobs:
+     # GitHub context and would otherwise turn a selector failure into a pass.
+     if: ${{ always() && (needs.full-ci-gate.result != 'success' || needs.full-ci-gate.outputs.run_full != 'false') }}
+     needs: [full-ci-gate, verilator-shards]
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     steps:
+       - uses: actions/checkout@v4
+@@ -458,7 +458,7 @@ jobs:
+     name: Yosys shard ${{ matrix.shard }}/${{ matrix.total }}
+     needs: full-ci-gate
+     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 120
+     strategy:
+       fail-fast: true
+@@ -491,7 +491,7 @@ jobs:
+       # upstream tag on a cache miss with its bundled ABC submodule - the
+       # commit the tag pins, recorded in /opt/yosys/ABC_REV and printed on
+       # every run - then verified by a step that fails on any other version.
+-      # The apt package this replaces resolved to whatever ubuntu-latest
++      # The apt package this replaces resolved to whatever the hosted image
+       # carried on the day (Yosys 0.33, 33 releases behind a bench box), and
+       # the same RTL's cell counts moved up to 39% between that tool and the
+       # bench one with both exiting 0.
+@@ -583,7 +583,7 @@ jobs:
+     # always() below still makes this job run when verilator-suites fails.
+     if: ${{ always() && (needs.full-ci-gate.result != 'success' || needs.full-ci-gate.outputs.run_full != 'false') }}
+     needs: [full-ci-gate, yosys-shards, verilator-suites]
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     steps:
+       - uses: actions/checkout@v4
+diff --git a/.github/workflows/docs.yml b/.github/workflows/docs.yml
+index 7c793af3fe..bb33cfef56 100644
+--- a/.github/workflows/docs.yml
++++ b/.github/workflows/docs.yml
+@@ -3,7 +3,7 @@
+ name: docs
+ jobs:
+   wire-accountability:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     steps:
+       - uses: actions/checkout@v4
+         id: ci_step_0
+@@ -62,7 +62,7 @@ jobs:
+     env:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+   docs-check-no-git:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     steps:
+       - uses: actions/checkout@v4
+         id: ci_step_0
+@@ -113,7 +113,7 @@ jobs:
+           if-no-files-found: error
+           retention-days: 3
+   docs-gates-0:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -485,7 +485,7 @@ jobs:
+     env:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+   docs-gates-1:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -632,7 +632,7 @@ jobs:
+     env:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+   docs-gates-2:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -792,7 +792,7 @@ jobs:
+     env:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+   docs-check:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 3
+     needs:
+       - docs-gates-0
+@@ -884,7 +884,7 @@ jobs:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+   ci-manifest:
+     name: Collect CI manifest
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 15
+     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
+     needs:
+@@ -955,7 +955,7 @@ jobs:
+           retention-days: 3
+   ci-fail-fast:
+     name: Fail fast across this head
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 120
+     if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+       == github.repository) }}
+@@ -1021,7 +1021,7 @@ jobs:
+           retention-days: 3
+   ci-cancel-tail:
+     name: Cancel late CI failures
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 3
+     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+       == github.repository)) }}
+diff --git a/.github/workflows/elaborate.yml b/.github/workflows/elaborate.yml
+index 2151d96c3a..479f89bdd6 100644
+--- a/.github/workflows/elaborate.yml
++++ b/.github/workflows/elaborate.yml
+@@ -8,7 +8,7 @@ env:
+   VERILATOR_VERSION: v5.050
+ jobs:
+   elaborate-gates-0:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -243,7 +243,7 @@ jobs:
+     env:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+   elaborate-gates-1:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -532,7 +532,7 @@ jobs:
+     env:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+   elaborate:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 3
+     needs:
+       - elaborate-gates-0
+@@ -623,7 +623,7 @@ jobs:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+   ci-manifest:
+     name: Collect CI manifest
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 15
+     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
+     needs:
+@@ -691,7 +691,7 @@ jobs:
+           retention-days: 3
+   ci-fail-fast:
+     name: Fail fast across this head
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 120
+     if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+       == github.repository) }}
+@@ -757,7 +757,7 @@ jobs:
+           retention-days: 3
+   ci-cancel-tail:
+     name: Cancel late CI failures
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 3
+     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+       == github.repository)) }}
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index e8a92b5399..5b21c45c46 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -9,7 +9,7 @@ env:
+   YOSYS_VERSION: v0.66
+ jobs:
+   changes:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 5
+     outputs:
+       rtl: ${{ steps.scope.outputs.rtl }}
+@@ -98,7 +98,7 @@ jobs:
+   verilator-lint:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 30
+     steps:
+       - uses: actions/checkout@v4
+@@ -190,7 +190,7 @@ jobs:
+           if-no-files-found: error
+           retention-days: 3
+   bdd-conformance:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 20
+     steps:
+       - uses: actions/checkout@v4
+@@ -254,7 +254,7 @@ jobs:
+   yosys-elaboration:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 30
+     steps:
+       - uses: actions/checkout@v4
+@@ -406,7 +406,7 @@ jobs:
+   publication-census:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -573,7 +573,7 @@ jobs:
+   firmware-unit:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -683,7 +683,7 @@ jobs:
+   firmware-control-mutants:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -780,7 +780,7 @@ jobs:
+   firmware-aecp-mutants:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -876,7 +876,7 @@ jobs:
+   firmware-srp-mutants:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+@@ -972,7 +972,7 @@ jobs:
+   firmware-boundary:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 30
+     steps:
+       - uses: actions/checkout@v4
+@@ -1066,7 +1066,7 @@ jobs:
+   firmware-verilator:
+     needs: changes
+     if: ${{ needs.changes.outputs.rtl == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 40
+     steps:
+       - uses: actions/checkout@v4
+@@ -1215,7 +1215,7 @@ jobs:
+       - firmware-srp-mutants
+       - firmware-boundary
+       - firmware-verilator
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 5
+     steps:
+       - uses: actions/checkout@v4
+@@ -1296,7 +1296,7 @@ jobs:
+           retention-days: 3
+   ci-manifest:
+     name: Collect CI manifest
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 15
+     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
+     needs:
+@@ -1373,7 +1373,7 @@ jobs:
+           retention-days: 3
+   ci-fail-fast:
+     name: Fail fast across this head
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 120
+     if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+       == github.repository) }}
+@@ -1439,7 +1439,7 @@ jobs:
+           retention-days: 3
+   ci-cancel-tail:
+     name: Cancel late CI failures
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 3
+     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+       == github.repository)) }}
+diff --git a/.github/workflows/rtl.yml b/.github/workflows/rtl.yml
+index b100c26f09..efda1607d9 100644
+--- a/.github/workflows/rtl.yml
++++ b/.github/workflows/rtl.yml
+@@ -11,7 +11,7 @@ env:
+   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+ jobs:
+   full-ci-gate:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 5
+     outputs:
+       run_full: ${{ steps.gate.outputs.run_full }}
+@@ -140,7 +140,7 @@ jobs:
+     name: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
+     needs: full-ci-gate
+     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: ${{ matrix.shard == 16 && 60 || 45 }}
+     strategy:
+       fail-fast: true
+@@ -414,7 +414,7 @@ jobs:
+     needs: full-ci-gate
+     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == 'schedule' || github.event_name
+       == 'workflow_dispatch') }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 120
+     steps:
+       - uses: actions/checkout@v4
+@@ -569,7 +569,7 @@ jobs:
+       - union-maap
+       - union-milan_dp_render
+       - union-pp_shadow
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 3
+     steps:
+       - uses: actions/checkout@v4
+@@ -673,7 +673,7 @@ jobs:
+       - full-ci-gate
+       - yosys-tool
+     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 29
+     strategy:
+       fail-fast: true
+@@ -825,7 +825,7 @@ jobs:
+       - full-ci-gate
+       - yosys-shards
+       - verilator-suites
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     steps:
+       - uses: actions/checkout@v4
+@@ -912,7 +912,7 @@ jobs:
+           retention-days: 3
+   yosys-tool:
+     name: Prepare pinned Yosys
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 29
+     needs: full-ci-gate
+     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
+@@ -1013,7 +1013,7 @@ jobs:
+       - full-ci-gate
+       - verilator-shards
+     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 2
+     steps:
+       - uses: actions/checkout@v4
+@@ -1089,7 +1089,7 @@ jobs:
+       - full-ci-gate
+       - verilator-shards
+     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 2
+     steps:
+       - uses: actions/checkout@v4
+@@ -1165,7 +1165,7 @@ jobs:
+       - full-ci-gate
+       - verilator-shards
+     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 2
+     steps:
+       - uses: actions/checkout@v4
+@@ -1241,7 +1241,7 @@ jobs:
+       - full-ci-gate
+       - verilator-shards
+     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 2
+     steps:
+       - uses: actions/checkout@v4
+@@ -1317,7 +1317,7 @@ jobs:
+       - full-ci-gate
+       - verilator-shards
+     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 2
+     steps:
+       - uses: actions/checkout@v4
+@@ -1393,7 +1393,7 @@ jobs:
+       - full-ci-gate
+       - verilator-shards
+     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 2
+     steps:
+       - uses: actions/checkout@v4
+@@ -1465,7 +1465,7 @@ jobs:
+           retention-days: 3
+   ci-manifest:
+     name: Collect CI manifest
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 15
+     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
+     needs:
+@@ -1543,7 +1543,7 @@ jobs:
+           retention-days: 3
+   ci-fail-fast:
+     name: Fail fast across this head
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 120
+     if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+       == github.repository) }}
+@@ -1622,7 +1622,7 @@ jobs:
+           retention-days: 3
+   ci-cancel-tail:
+     name: Cancel late CI failures
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 3
+     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
+       == github.repository)) }}
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 533359d47d..6efcaa6e76 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -4,6 +4,14 @@ The repository separates rapid pull-request feedback from exhaustive RTL
+ validation. This changes when hosted runners execute the long gates; it does not
+ reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
+ 
++Every job of the four workflows runs on the pinned hosted image
++`ubuntu-24.04`, never on the floating `ubuntu-latest` (#784). The workflow
++generators write that label, and the
++[local act runner](#act-first-local-replication) replays no other. Hosted
++`ubuntu-latest` moved to the `ubuntu-26.04` image, where the pinned CPython
++3.12 wheels in `ci/constraints-ci.txt` do not install, so every pinned pip
++install there fails at resolution.
++
+ ## Contents
+ 
+ - **[Fast feedback](#fast-feedback)** -- What runs on every pull-request update and why docs-only changes avoid RTL tool setup.
+@@ -554,7 +562,7 @@ Physical regressions therefore report nightly, outside the required PR aggregate
+ The seventeen default workers retain every other suite.
+ 
+ The physical suite has a 5400-second build-and-run deadline.
+-Its separate four-core `ubuntu-latest` job permits 120 minutes total.
++Its separate four-core `ubuntu-24.04` job permits 120 minutes total.
+ The remaining 30 minutes allow toolchain installation and evidence upload.
+ These deadlines await successful hosted measurement; they promise no completion time.
+ The earlier 2400-second hosted timeout established no upper slowdown bound.
+@@ -2025,16 +2033,18 @@ files. `GITHUB_TOKEN` is explicitly empty, so neither the active `gh` credential
+ nor an SSH agent, proxy credential, runtime token, or other host secret reaches
+ candidate code.
+ 
+-Candidate jobs must name one of two literal runner labels, `ubuntu-latest`
+-or `ubuntu-24.04`. The act command maps both to the same runner image, one
+-`--platform` entry each, and every other label, such as `ubuntu-22.04` or
+-`ubuntu-26.04`, is refused by name before `act` starts. Both are accepted
+-because hosted `ubuntu-latest` moved to the `ubuntu-26.04` image, where the
+-pinned Python tools fail pip resolution, so the second step of #784 pins every
+-workflow to `ubuntu-24.04`; until it lands the workflows still name
+-`ubuntu-latest`. A label without a `--platform` entry is no error to `act`: it
+-skips that job as an unsupported platform and can still exit 0, so the
+-self-test requires an entry for every accepted label. Reusable workflows and
++Candidate jobs must name the literal runner label `ubuntu-24.04`, the image
++every workflow pins. The act command maps it to the runner image with one
++`--platform` entry, and every other label, such as `ubuntu-latest`,
++`ubuntu-22.04` or `ubuntu-26.04`, is refused by name before `act` starts.
++`ubuntu-latest` is refused because hosted `ubuntu-latest` moved to the
++`ubuntu-26.04` image, where the pinned CPython 3.12 wheels do not install
++(#784): a job on it would run hosted on an image the replay does not model.
++A label that has neither a `--platform` entry nor an entry in
++act's built-in table, such as `ubuntu-24.04`, is no error to `act`: it skips
++that job as an unsupported platform and can still exit 0, and a built-in label
++such as `ubuntu-latest` would run on act's default `node:16` image instead, so
++the self-test requires an entry for every accepted label. Reusable workflows and
+ job/service containers are refused because they can carry container options or
+ host-volume requests that the trusted scanner cannot safely delegate. Steps may
+ use only the repository's exact audited non-Docker action set
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 5335a00972..48e560d0cc 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -171,7 +171,7 @@ Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustiv
+ The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
+ The separate physical job permits 5400 seconds, including compilation.
+ Its workflow job permits 120 minutes, including toolchain setup.
+-Both target a four-core `ubuntu-latest` hosted worker.
++Both target a four-core `ubuntu-24.04` hosted worker.
+ These are operational deadlines, pending completed hosted physical evidence.
+ 
+ The earlier hosted run expired at 2400 seconds.
+@@ -328,7 +328,7 @@ contain both commands, environments, elapsed times, return codes and source bind
+ 
+ Measured hosted windows at `8e4b1e53` now supersede those projections.
+ [Run 37892515345, shard 0/5 job 113696564335](https://github.com/kebag-logic/milan-fpga/actions/runs/37892515345/job/113696564335)
+-used a hosted `ubuntu-latest` runner and sequential `make -C` invocations.
++used a hosted `ubuntu-latest` runner, then the `ubuntu-24.04` image, and sequential `make -C` invocations.
+ The windows use successive suite-verdict timestamps, including build time.
+ Both suites passed:
+ 
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index 904d4fdaff..865867c373 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -84,12 +84,12 @@ EVIDENCE_HELPERS = {
+ DEFAULT_BASE = "dev"
+ RUNNER_IMAGE = "catthehacker/ubuntu:full-latest"
+ #: The literal ``runs-on`` labels a candidate job may name; act maps each one
+-#: to RUNNER_IMAGE (#784). Hosted ``ubuntu-latest`` moved to the 26.04 image,
+-#: where the pinned Python tools cannot install, so the workflows move to
+-#: ``ubuntu-24.04``; both are accepted while that change lands. Any other label
+-#: is refused: act would run it on its own default image, or skip it as an
+-#: unsupported platform and still exit 0.
+-RUNS_ON_LABELS = ("ubuntu-latest", "ubuntu-24.04")
++#: to RUNNER_IMAGE (#784). The workflows pin ``ubuntu-24.04``: hosted
++#: ``ubuntu-latest`` moved to the 26.04 image, where the pinned CPython 3.12
++#: wheels do not install, so ``ubuntu-latest`` is refused like any other label.
++#: act would run a built-in label such as ``ubuntu-latest`` on its own default
++#: image and skip any other as an unsupported platform, still exiting 0.
++RUNS_ON_LABELS = ("ubuntu-24.04",)
+ SUPPORTED_ACT_VERSION = (0, 2, 89)
+ REQUIRED_ACT_BUILD = "0.2.89+milan-ci5"
+ SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+@@ -2062,7 +2062,7 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
+             if runs_on not in RUNS_ON_LABELS:
+                 raise Refusal(
+                     f"workflow {relative} job {job_id} runs on {runs_on!r}; only the "
+-                    f"literal labels {', '.join(RUNS_ON_LABELS)} are replayed"
++                    f"literal label {' or '.join(RUNS_ON_LABELS)} is replayed"
+                 )
+             if "container" in job or "services" in job:
+                 raise Refusal(
+@@ -6602,7 +6602,7 @@ def materialize_for_transcript(
+         transcript_workflow.parent.mkdir(parents=True, exist_ok=True)
+         transcript_workflow.write_text(
+             f"name: {alias}\non: pull_request\njobs:\n  check:\n"
+-            "    runs-on: ubuntu-latest\n    steps:\n      - run: true\n",
++            "    runs-on: ubuntu-24.04\n    steps:\n      - run: true\n",
+             encoding="utf-8",
+         )
+     return layout.checkout
+@@ -6717,13 +6717,12 @@ def act_platforms(command: Sequence[str]) -> list[str]:
+ 
+ 
+ def selftest_runner_labels(tally: SelftestTally) -> None:
+-    """Arms: the sandbox accepts exactly the literals ubuntu-latest and ubuntu-24.04, refusing others by name (#784)."""
++    """Arms: the sandbox accepts exactly the literal ubuntu-24.04, refusing others by name (#784)."""
+     check = tally.check
+     with tempfile.TemporaryDirectory(prefix="act-ci-runs-on-") as raw:
+         root = pathlib.Path(raw)
+-        for label in ("ubuntu-latest", "ubuntu-24.04"):
+-            check(f"a job on {label} is accepted by the sandbox", runs_on_refusal(root, label) == "")
+-        for label in ("ubuntu-26.04", "ubuntu-22.04"):
++        check("a job on ubuntu-24.04 is accepted by the sandbox", runs_on_refusal(root, "ubuntu-24.04") == "")
++        for label in ("ubuntu-latest", "ubuntu-26.04", "ubuntu-22.04"):
+             check(
+                 f"a job on {label} is refused before act, and the refusal names {label}",
+                 f"runs on '{label}'" in runs_on_refusal(root, label),
+@@ -6747,8 +6746,8 @@ def selftest_runner_platforms(tally: SelftestTally, docker: DockerFixture) -> No
+     #: and still exits 0, so an accepted label missing here is a green replay
+     #: of a job that never ran.
+     check(
+-        "act's platform list maps ubuntu-latest and ubuntu-24.04 to the runner image, once each",
+-        platforms == [f"ubuntu-latest={RUNNER_IMAGE}", f"ubuntu-24.04={RUNNER_IMAGE}"],
++        "act's platform list maps ubuntu-24.04 to the runner image, once, and no other label",
++        platforms == [f"ubuntu-24.04={RUNNER_IMAGE}"],
+     )
+     probes = ("ubuntu-latest", "ubuntu-24.04", "ubuntu-26.04", "ubuntu-22.04", "ubuntu-20.04", "self-hosted")
+     with tempfile.TemporaryDirectory(prefix="act-ci-runs-on-") as raw:
+@@ -6810,7 +6809,7 @@ def dry_run_replay(
+ def selftest_runner_label_replay(
+     tally: SelftestTally, resolved: ValidatedRun, shipping_root: pathlib.Path
+ ) -> None:
+-    """Arms: a ubuntu-24.04 job replays to an act command that maps it; a ubuntu-26.04 job is refused first (#784)."""
++    """Arms: a ubuntu-24.04 job replays to an act command that maps it; other labels are refused first (#784)."""
+     check = tally.check
+     rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, "ubuntu-24.04")
+     check(
+@@ -6820,19 +6819,17 @@ def selftest_runner_label_replay(
+         and f" --platform ubuntu-24.04={RUNNER_IMAGE} " in transcript,
+     )
+     check(
+-        f"a ubuntu-24.04 replay holds its job containers to the same {CONTAINER_MEMORY} memory "
+-        "and swap bound as ubuntu-latest",
+-        f" --memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}'" in transcript
+-        and f" --memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}'"
+-        in dry_run_replay(resolved, shipping_root, "ubuntu-latest")[2],
+-    )
+-    rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, "ubuntu-26.04")
+-    check(
+-        "a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary "
+-        "or act command",
+-        rc is None and "runs on 'ubuntu-26.04'" in message and entered == 0
+-        and "--platform" not in transcript,
++        f"a ubuntu-24.04 replay holds its job containers to the {CONTAINER_MEMORY} memory and swap bound",
++        f" --memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}'" in transcript,
+     )
++    for label in ("ubuntu-latest", "ubuntu-26.04"):
++        rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, label)
++        check(
++            f"a job on {label} is refused naming {label}, before any Docker boundary "
++            "or act command",
++            rc is None and f"runs on '{label}'" in message and entered == 0
++            and "--platform" not in transcript,
++        )
+ 
+ 
+ 
+@@ -7648,7 +7645,7 @@ def selftest_container_memory_bound(tally: SelftestTally, docker: DockerFixture)
+     option_words = shlex.split(command[command.index("--container-options") + 1])
+     memory_words = [word for word in option_words if word.startswith("--memory=")]
+     swap_words = [word for word in option_words if word.startswith("--memory-swap=")]
+-    #: Hosted runners on either RUNS_ON_LABELS label have 16 GB: a job that
++    #: Hosted runners on the RUNS_ON_LABELS label have 16 GB: a job that
+     #: needs more fails hosted too, and a bounded container fails the replica
+     #: instead of the host. Swap equal to memory is Docker for "no swap beyond it".
+     check(
+@@ -7707,7 +7704,7 @@ def selftest_job_concurrency(tally: SelftestTally, shipping_root: pathlib.Path)
+             f"{label} is refused: the concurrency cannot be derived",
+             lambda strategy=strategy: job_container_width({"strategy": strategy}, "j"),
+         )
+-    plain = "    runs-on: ubuntu-latest\n    steps:\n      - run: true\n"
++    plain = "    runs-on: ubuntu-24.04\n    steps:\n      - run: true\n"
+     orders = list(itertools.permutations(("docs", "rtl-fast", "rtl-full")))
+     with tempfile.TemporaryDirectory(prefix="act-ci-concurrency-") as raw:
+         root = pathlib.Path(raw)
+@@ -8685,7 +8682,7 @@ def selftest_act_command_refusals(tally: SelftestTally, docker: DockerFixture) -
+ 
+ 
+ ACTION_FIXTURE_WORKFLOW = (
+-    "name: actions\non: push\njobs:\n  use:\n    runs-on: ubuntu-latest\n"
++    "name: actions\non: push\njobs:\n  use:\n    runs-on: ubuntu-24.04\n"
+     "    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/cache@v4\n"
+     "      - uses: actions/checkout@v4\n"
+ )
+@@ -8711,10 +8708,10 @@ def selftest_action_materialisation(tally: SelftestTally, docker: DockerFixture)
+     fixture_root.mkdir()
+     (fixture_root / "mixed.yml").write_text(
+         "name: mixed\non: push\njobs:\n"
+-        "  one:\n    runs-on: ubuntu-latest\n    steps:\n"
++        "  one:\n    runs-on: ubuntu-24.04\n    steps:\n"
+         "      - uses: owner/repo@v1\n      - uses: owner/repo/sub@v1\n"
+         "      - uses: ./local\n      - uses: docker://alpine:3.20\n      - run: true\n"
+-        "  two:\n    runs-on: ubuntu-latest\n    steps:\n"
++        "  two:\n    runs-on: ubuntu-24.04\n    steps:\n"
+         "      - uses: owner/repo@v1\n      - uses: actions/cache@v4\n",
+         encoding="utf-8",
+     )
+@@ -13035,7 +13032,7 @@ def selftest_git_fixture(root: pathlib.Path, pr: PullRequest) -> GitFixture:
+     workflow_path = repo / WORKFLOWS["docs"]
+     workflow_path.parent.mkdir(parents=True)
+     workflow_text = (
+-        "name: docs\non: push\njobs:\n  docs:\n    runs-on: ubuntu-latest\n"
++        "name: docs\non: push\njobs:\n  docs:\n    runs-on: ubuntu-24.04\n"
+         "    steps:\n      - run: true\n"
+     )
+     workflow_path.write_text(workflow_text, encoding="utf-8")
+@@ -13277,54 +13274,61 @@ def selftest_stack_manifest(
+ 
+ def selftest_sandbox_policy(tally: SelftestTally, repo: pathlib.Path) -> None:
+     """Arms: every job-level and step-level authority the sandbox forbids is refused before act."""
+-    refused = tally.refused
++    check = tally.check
++    #: Each arm requires its own refusal reason, not merely a Refusal: a
++    #: fixture on a label the sandbox does not accept, such as ubuntu-latest
++    #: since #784, is refused by the runs-on check first and would pass
++    #: without reaching the authority it names.
+     sandbox_job_workflows = {
+         "self-hosted-job.yml": (
+             "self-hosted runner authority is refused",
+             "    runs-on: self-hosted\n"
+             "    steps:\n      - run: echo safe\n",
++            "runs on 'self-hosted'",
+         ),
+         "missing-runs-on-job.yml": (
+             "a missing runner label is refused",
+             "    steps:\n      - run: echo safe\n",
++            "runs on None",
+         ),
+         "dynamic-runs-on-job.yml": (
+             "a nonliteral runner label is refused",
+             "    runs-on: ${{ matrix.os }}\n"
+             "    steps:\n      - run: echo safe\n",
++            "runs on '${{ matrix.os }}'",
+         ),
+         "job-container.yml": (
+             "job container authority is refused",
+-            "    runs-on: ubuntu-latest\n"
++            "    runs-on: ubuntu-24.04\n"
+             "    container: alpine:3.20\n"
+             "    steps:\n      - run: echo safe\n",
++            "requests job/service containers",
+         ),
+         "service-container.yml": (
+             "service container authority is refused",
+-            "    runs-on: ubuntu-latest\n"
++            "    runs-on: ubuntu-24.04\n"
+             "    services:\n      database:\n        image: postgres:16\n"
+             "    steps:\n      - run: echo safe\n",
++            "requests job/service containers",
+         ),
+         "reusable-workflow-job.yml": (
+             "reusable workflow authority is refused",
+             "    uses: example/workflows/.github/workflows/build.yml@v1\n"
+-            "    runs-on: ubuntu-latest\n"
++            "    runs-on: ubuntu-24.04\n"
+             "    steps:\n      - run: echo safe\n",
++            "uses a reusable workflow",
+         ),
+     }
+     original_docs = WORKFLOWS["docs"]
+     try:
+-        for filename, (label, job) in sandbox_job_workflows.items():
++        for filename, (label, job, reason) in sandbox_job_workflows.items():
+             (repo / filename).write_text(
+                 "name: sandbox-job-negative\non: push\njobs:\n"
+                 f"  unsafe:\n{job}",
+                 encoding="utf-8",
+             )
+             WORKFLOWS["docs"] = filename
+-            refused(
+-                label,
+-                lambda: validate_workflow_sandbox(repo, ("docs",)),
+-            )
++            check(label, reason in refusal_text(lambda: validate_workflow_sandbox(repo, ("docs",))))
+     finally:
+         WORKFLOWS["docs"] = original_docs
+ 
+@@ -13348,14 +13352,15 @@ def selftest_sandbox_policy(tally: SelftestTally, repo: pathlib.Path) -> None:
+         for filename, action in forbidden_action_workflows.items():
+             (repo / filename).write_text(
+                 "name: action-negative\non: push\njobs:\n"
+-                "  unsafe:\n    runs-on: ubuntu-latest\n    steps:\n"
++                "  unsafe:\n    runs-on: ubuntu-24.04\n    steps:\n"
+                 f"      - uses: {action}\n",
+                 encoding="utf-8",
+             )
+             WORKFLOWS["docs"] = filename
+-            refused(
++            check(
+                 f"step-level action {action} is refused before act",
+-                lambda: validate_workflow_sandbox(repo, ("docs",)),
++                f"uses unapproved action {action!r}"
++                in refusal_text(lambda: validate_workflow_sandbox(repo, ("docs",))),
+             )
+     finally:
+         WORKFLOWS["docs"] = original_docs
+@@ -13367,7 +13372,7 @@ def selftest_job_volume_scope(tally: SelftestTally, repo: pathlib.Path) -> None:
+     refused = tally.refused
+     original_docs = WORKFLOWS["docs"]
+     (repo / "nameless.yml").write_text(
+-        "on: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
++        "on: push\njobs:\n  safe:\n    runs-on: ubuntu-24.04\n"
+         "    steps:\n      - run: echo safe\n",
+         encoding="utf-8",
+     )
+@@ -13381,7 +13386,7 @@ def selftest_job_volume_scope(tally: SelftestTally, repo: pathlib.Path) -> None:
+         WORKFLOWS["docs"] = original_docs
+     for filename, name in (("rtl-short.yml", "rtl"), ("rtl-long.yml", "rtl-fast")):
+         (repo / filename).write_text(
+-            f"name: {name}\non: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
++            f"name: {name}\non: push\njobs:\n  safe:\n    runs-on: ubuntu-24.04\n"
+             "    steps:\n      - run: echo safe\n",
+             encoding="utf-8",
+         )
+@@ -13411,7 +13416,7 @@ def selftest_workflow_reader(tally: SelftestTally, repo: pathlib.Path) -> None:
+     reader_root.mkdir()
+     safe_workflow = reader_root / "safe.yml"
+     safe_workflow.write_text(
+-        "name: safe\non: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
++        "name: safe\non: push\njobs:\n  safe:\n    runs-on: ubuntu-24.04\n"
+         "    steps:\n      - run: true\n",
+         encoding="utf-8",
+     )
+@@ -15534,7 +15539,7 @@ def interrupt_selftest_sources(
+             "on: pull_request\n"
+             "jobs:\n"
+             "  sleep:\n"
+-            "    runs-on: ubuntu-latest\n"
++            "    runs-on: ubuntu-24.04\n"
+             "    steps:\n"
+             "      - run: sleep 300\n"
+         ),
+@@ -15543,7 +15548,7 @@ def interrupt_selftest_sources(
+             "on: pull_request\n"
+             "jobs:\n"
+             "  seed:\n"
+-            "    runs-on: ubuntu-latest\n"
++            "    runs-on: ubuntu-24.04\n"
+             "    steps:\n"
+             "      - shell: bash\n"
+             "        run: |\n"
+@@ -15556,7 +15561,7 @@ def interrupt_selftest_sources(
+             "on: pull_request\n"
+             "jobs:\n"
+             "  probe:\n"
+-            "    runs-on: ubuntu-latest\n"
++            "    runs-on: ubuntu-24.04\n"
+             "    steps:\n"
+             "      - shell: bash\n"
+             "        run: |\n"
+@@ -16651,7 +16656,7 @@ def boundary_probe_sources(plants: BoundaryPlants) -> dict[str, str]:
+             "on: pull_request\n"
+             "jobs:\n"
+             "  probe:\n"
+-            "    runs-on: ubuntu-latest\n"
++            "    runs-on: ubuntu-24.04\n"
+             "    env:\n"
+             "      PROBE_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n"
+             "    steps:\n"
+diff --git a/scripts/ci_events.py b/scripts/ci_events.py
+index 28eca3aa1f..2772b5ac7d 100755
+--- a/scripts/ci_events.py
++++ b/scripts/ci_events.py
+@@ -174,7 +174,7 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
+     'needs': 'full-ci-gate',
+     'if': "${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == "
+           "'schedule' || github.event_name == 'workflow_dispatch') }}",
+-    'runs-on': 'ubuntu-latest',
++    'runs-on': 'ubuntu-24.04',
+     'timeout-minutes': 120,
+     'steps': [   {'uses': 'actions/checkout@v4'},
+                  {   'name': 'Fetch RTL dependencies',
+@@ -4648,7 +4648,7 @@ def _m_second_carrier(path: str, name: str) -> Mutator:
+     # ruleset binds is ambiguous ([R2] on PR #239, widened by #261).
+     def f(w: World) -> None:
+         """Apply the arm's edit to `w` in place."""
+-        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
++        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
+                                   "steps": [{"run": "true"}]}
+     return f
+ 
+@@ -4660,7 +4660,7 @@ def _m_expression_carrier(path: str, name: str) -> Mutator:
+     def f(w: World) -> None:
+         """Apply the arm's edit to `w` in place."""
+         jobs(w[path])["decoy"] = {"name": "${{ '" + name + "' }}",
+-                                  "runs-on": "ubuntu-latest",
++                                  "runs-on": "ubuntu-24.04",
+                                   "steps": [{"run": "true"}]}
+     return f
+ 
+@@ -4673,7 +4673,7 @@ def _m_matrix_carrier(path: str, name: str) -> Mutator:
+     def f(w: World) -> None:
+         """Apply the arm's edit to `w` in place."""
+         jobs(w[path])["decoy"] = {"name": "${{ matrix.n }}",
+-                                  "runs-on": "ubuntu-latest",
++                                  "runs-on": "ubuntu-24.04",
+                                   "strategy": {"matrix": {"n": [name]}},
+                                   "steps": [{"run": "true"}]}
+     return f
+@@ -4686,7 +4686,7 @@ def _m_foreign_carrier(path: str, name: str) -> Mutator:
+     # round 2 on PR #293): the per-file carrier count never sees it.
+     def f(w: World) -> None:
+         """Apply the arm's edit to `w` in place."""
+-        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
++        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
+                                   "steps": [{"run": "true"}]}
+     return f
+ 
+@@ -4699,7 +4699,7 @@ def _m_matrix_decoy(path: str, name: str, matrix: Any) -> Mutator:
+     # itself an expression, `include`, a missing key, an empty list.
+     def f(w: World) -> None:
+         """Apply the arm's edit to `w` in place."""
+-        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
++        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
+                                   "strategy": {"matrix": matrix},
+                                   "steps": [{"run": "true"}]}
+     return f
+@@ -4731,7 +4731,7 @@ def _ce_add(w: World, path: str, key: str, value: Any) -> None:
+     per-class rule classifies."""
+     # An ADDED standalone job carrying a neuter key (maintainer [R0]
+     # round 4 on PR #293): no per-class rule classifies it.
+-    jobs(w[path])["standalone"] = {"runs-on": "ubuntu-latest", key: value,
++    jobs(w[path])["standalone"] = {"runs-on": "ubuntu-24.04", key: value,
+                                    "steps": [{"run": "true"}]}
+ 
+ 
+@@ -4788,7 +4788,7 @@ def _m_swap_carrier(path: str, jid: str) -> Mutator:
+     def f(w: World) -> None:
+         """Apply the arm's edit to `w` in place."""
+         jobs(w[path])[jid]["name"] = jid + "-real"
+-        jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-latest",
++        jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-24.04",
+                                   "steps": [{"run": "true"}]}
+     return f
+ 
+@@ -5027,7 +5027,7 @@ def _m_gate_needs_a_skippable_job(w: World) -> None:
+     # O1: a `noop` job that skips on schedule, and a gate that needs it.
+     jobs(w[RTL_FULL])["noop"] = {
+         "if": "${{ github.event_name != 'schedule' }}",
+-        "runs-on": "ubuntu-latest",
++        "runs-on": "ubuntu-24.04",
+         "steps": [{"run": "true"}],
+     }
+     jobs(w[RTL_FULL])[GATE_JOB]["needs"] = ["noop"]
+@@ -5099,7 +5099,7 @@ def _m_fifth_workflow(jid: str, name: str | None = None) -> Mutator:
+     # PR #293): GitHub runs it and binds its check-run names all the same.
+     def f(w: World) -> None:
+         """Apply the arm's edit to `w` in place."""
+-        job = {"runs-on": "ubuntu-latest", "steps": [{"run": "true"}]}
++        job = {"runs-on": "ubuntu-24.04", "steps": [{"run": "true"}]}
+         if name is not None:
+             job["name"] = name
+         w[f"{WORKFLOW_DIR}/decoy.yml"] = {
+@@ -5271,7 +5271,7 @@ def _m_fast_aggregate_forgets_bdd(w: World) -> None:
+ def _m_fast_new_unaggregated_job(w: World) -> None:
+     """A new fast job outside the aggregate's `needs`."""
+     jobs(w[RTL_FAST])["extra-check"] = {
+-        "runs-on": "ubuntu-latest",
++        "runs-on": "ubuntu-24.04",
+         "steps": [{"run": "true"}],
+     }
+ 
+@@ -5338,7 +5338,7 @@ def _m_new_consumer_job(w: World) -> None:
+     # selector and carries no gate on its decision runs on every event.
+     jobs(w[RTL_FULL])["extra-worker"] = {
+         "needs": GATE_JOB,
+-        "runs-on": "ubuntu-latest",
++        "runs-on": "ubuntu-24.04",
+         "steps": [{"run": "true"}],
+     }
+ 
+@@ -5754,7 +5754,7 @@ def _m_stub_job(path: str, jid: str) -> Mutator:
+         """Apply the arm's edit to `w` in place."""
+         all_jobs = jobs(w[path])
+         all_jobs[jid + "-real"] = all_jobs.pop(jid)
+-        all_jobs[jid] = {"runs-on": "ubuntu-latest",
++        all_jobs[jid] = {"runs-on": "ubuntu-24.04",
+                          "steps": [{"run": "true"}]}
+     return f
+ 
+@@ -5769,7 +5769,7 @@ def _m_duplicate_mapping(path: str, jid: str) -> Mutator:
+     # parsed world is refused.
+     def f(w: World) -> None:
+         """Apply the arm's edit to `w` in place."""
+-        jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
++        jobs(w[path])[jid] = {"runs-on": "ubuntu-24.04",
+                               "steps": [{"run": "true"}]}
+     return f
+ 
+@@ -7858,7 +7858,7 @@ def _m_append_job(path: str, jid: str) -> Mutator:
+     """Append a benign, well-formed job `jid` to a workflow."""
+     def f(w: World) -> None:
+         """Apply the arm's edit to `w` in place."""
+-        jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
++        jobs(w[path])[jid] = {"runs-on": "ubuntu-24.04",
+                               "timeout-minutes": 5,
+                               "steps": [{"name": "tidy", "run": "true"}]}
+     return f
+@@ -8432,7 +8432,7 @@ def _selftest_on_disk(root: pathlib.Path) -> tuple[list[str], int]:
+         for suffix in (".yml", ".yaml"):
+             decoy = tree / WORKFLOW_DIR / f"decoy{suffix}"
+             decoy.write_text("name: decoy\non: [pull_request]\njobs:\n  decoy:\n"
+-                             "    name: docs-check\n    runs-on: ubuntu-latest\n"
++                             "    name: docs-check\n    runs-on: ubuntu-24.04\n"
+                              "    steps:\n      - run: 'true'\n", encoding="utf-8")
+             findings = check(parse_world(read_tree(tree))).findings
+             if any(want in f and f"decoy{suffix}" in f for f in findings):
+@@ -8470,7 +8470,7 @@ def _selftest_on_disk(root: pathlib.Path) -> tuple[list[str], int]:
+             victim = tree / rel
+             original = victim.read_text(encoding="utf-8")
+             victim.write_text(original + f"\n  {jid}:\n"
+-                              "    runs-on: ubuntu-latest\n"
++                              "    runs-on: ubuntu-24.04\n"
+                               "    steps:\n      - run: 'true'\n",
+                               encoding="utf-8")
+             findings = check(parse_world(read_tree(tree))).findings
+diff --git a/scripts/ci_gate_workflows.py b/scripts/ci_gate_workflows.py
+index b1b74562ce..0addb9e1bb 100644
+--- a/scripts/ci_gate_workflows.py
++++ b/scripts/ci_gate_workflows.py
+@@ -162,7 +162,7 @@ def aggregate(name: str, template: dict) -> dict:
+     checkout = copy.deepcopy(template["jobs"][CARRIERS[name]]["steps"][0])
+     if not str(checkout.get("uses", "")).startswith("actions/checkout@"):
+         raise ValueError(name + ": original checkout must stay first")
+-    return {"runs-on": "ubuntu-latest", "timeout-minutes": 3,
++    return {"runs-on": "ubuntu-24.04", "timeout-minutes": 3,
+             "needs": [worker_id(name, leg) for leg in worker_legs(name, template)], "if": "${{ always() }}",
+             "steps": [checkout, *reader_setup(),
+                       {"name": "Download executed gate outcomes", "uses": "actions/download-artifact@v4",
+diff --git a/scripts/ci_runtime_workflows.py b/scripts/ci_runtime_workflows.py
+index 8d01f17535..21ecf01349 100644
+--- a/scripts/ci_runtime_workflows.py
++++ b/scripts/ci_runtime_workflows.py
+@@ -124,7 +124,7 @@ def instrument(path: str, job_id: str, job: dict) -> None:
+ 
+ def watcher(labels: list[str], skipped: dict) -> dict:
+     """Only this guarded job requests write permission; fork events cannot enter it."""
+-    return {"name": "Fail fast across this head", "runs-on": "ubuntu-latest", "timeout-minutes": 120,
++    return {"name": "Fail fast across this head", "runs-on": "ubuntu-24.04", "timeout-minutes": 120,
+             "if": SAME_REPOSITORY, "permissions": {"contents": "read", "actions": "write"},
+             "outputs": {"observer_only_error": "${{ steps.ci_observe.outputs.observer_error == 'true' && "
+                         "steps.ci_record.outcome == 'success' && steps.ci_upload.outcome == 'success' }}"},
+@@ -142,7 +142,7 @@ def watcher(labels: list[str], skipped: dict) -> dict:
+ 
+ def tail_guard() -> dict:
+     """Observe terminal jobs after their final evidence steps, with no dependency cycle."""
+-    return {"name": "Cancel late CI failures", "runs-on": "ubuntu-latest", "timeout-minutes": 3,
++    return {"name": "Cancel late CI failures", "runs-on": "ubuntu-24.04", "timeout-minutes": 3,
+             "if": "${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && "
+                   "github.event.pull_request.head.repo.full_name == github.repository)) }}",
+             "needs": ["ci-fail-fast", "ci-manifest"],
+@@ -156,7 +156,7 @@ def tail_guard() -> dict:
+ def collector(name: str, dependencies: list[str]) -> dict:
+     """Use read-only API provenance on hosted runs and actual step receipts locally."""
+     from ci_suite_workflows import inventory_dependencies
+-    return {"name": "Collect CI manifest", "runs-on": "ubuntu-latest", "timeout-minutes": 15,
++    return {"name": "Collect CI manifest", "runs-on": "ubuntu-24.04", "timeout-minutes": 15,
+             "if": "${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}",
+             "needs": dependencies,
+             "permissions": {"contents": "read", "actions": "read"},
+diff --git a/scripts/ci_suite_workflows.py b/scripts/ci_suite_workflows.py
+index 43ce289353..8bc8140fd1 100644
+--- a/scripts/ci_suite_workflows.py
++++ b/scripts/ci_suite_workflows.py
+@@ -41,7 +41,7 @@ def union_job(suite: str) -> dict:
+     return {
+         "name": "Union " + suite, "needs": ["full-ci-gate", *needs],
+         "if": "${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}",
+-        "runs-on": "ubuntu-latest", "timeout-minutes": 2,
++        "runs-on": "ubuntu-24.04", "timeout-minutes": 2,
+         "steps": [
+             {"uses": "actions/checkout@v4"},
+             inventory_dependencies(),
+@@ -73,7 +73,7 @@ def separate_yosys_build(source: dict) -> None:
+     if len(build_steps) != 2:
+         raise ValueError("missing Yosys build recipe")
+     source["jobs"]["yosys-tool"] = {
+-        "name": "Prepare pinned Yosys", "runs-on": "ubuntu-latest", "timeout-minutes": 29,
++        "name": "Prepare pinned Yosys", "runs-on": "ubuntu-24.04", "timeout-minutes": 29,
+         "needs": "full-ci-gate", "if": worker["if"],
+         "steps": [{"uses": "actions/checkout@v4"}, *build_steps,
+                   {"name": "Package the pinned Yosys build",
+diff --git a/scripts/ci_workflow_plan_selftest.py b/scripts/ci_workflow_plan_selftest.py
+index 48b15ef921..642cd1cdba 100644
+--- a/scripts/ci_workflow_plan_selftest.py
++++ b/scripts/ci_workflow_plan_selftest.py
+@@ -17,7 +17,7 @@ SOURCE = """name: fixtures
+ on: [push, pull_request]
+ jobs:
+   start:
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     steps:
+       - uses: actions/checkout@0123456789012345678901234567890123456789
+   workers:
+@@ -27,7 +27,7 @@ jobs:
+       matrix:
+         index: [0, 1, 2, 3]
+         total: [4]
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     steps:
+       - name: Check original values
+         run: |
+@@ -36,7 +36,7 @@ jobs:
+   verdict:
+     needs: workers
+     if: ${{ always() }}
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     steps:
+       - name: Verify every leg
+         run: python3 verify.py
+diff --git a/scripts/yosys_shards.py b/scripts/yosys_shards.py
+index 705bc8d03e..85aa7b308c 100644
+--- a/scripts/yosys_shards.py
++++ b/scripts/yosys_shards.py
+@@ -18,7 +18,7 @@ SHARD_RE = re.compile(r"^(0|[1-9][0-9]*)/([1-9][0-9]*)$")
+ NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+ 
+ # Approximate cache-hit seconds from run 32406467657, which ran the floating
+-# apt Yosys of its day (0.33-5build2 on ubuntu-latest). CI has pinned Yosys
++# apt Yosys of its day (0.33-5build2 on ubuntu-24.04). CI has pinned Yosys
+ # v0.66 since #287 and per-top wall time moves non-uniformly between the two
+ # (37.9 s -> 9.1 s on avtp_stream_parser, 40.8 s -> 42.3 s on KL_gptp_shadow),
+ # so these hints describe the retired tool until #286's measurement harness
+diff --git a/sw/firmware/gtest/README.md b/sw/firmware/gtest/README.md
+index 2db8d287b0..8017824290 100644
+--- a/sw/firmware/gtest/README.md
++++ b/sw/firmware/gtest/README.md
+@@ -439,7 +439,7 @@ The versions this harness was built and measured with:
+ | Where | gcc and gcov | GoogleTest and GoogleMock |
+ |---|---|---|
+ | the development host | 16.2.1 | 1.18.0 |
+-| `ubuntu-24.04` (`ubuntu-latest`), as the job installs them | 13.3.0 | 1.14.0 (`libgtest-dev` and `libgmock-dev` 1.14.0-1) |
++| `ubuntu-24.04`, as the job installs them | 13.3.0 | 1.14.0 (`libgtest-dev` and `libgmock-dev` 1.14.0-1) |
+ 
+ Both measure the same per-file coverage, and every row of
+ [the exclusion table](#coverage-exclusions) matches under both.
+diff --git a/tb/verilator/milan_dp/README.md b/tb/verilator/milan_dp/README.md
+index 7562a6a63d..ab7e85578a 100644
+--- a/tb/verilator/milan_dp/README.md
++++ b/tb/verilator/milan_dp/README.md
+@@ -352,7 +352,7 @@ It preserves real unanswered requests and their failed response/publication asse
+ The unchanged acquisition deadline expires before the acquired-publication check.
+ First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
+ Its separate deadline is 5400 seconds, including compilation.
+-The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
++The four-core `ubuntu-24.04` job permits 120 minutes, including toolchain setup.
+ Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
+ [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+ The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
+diff --git a/tb/verilator/milan_dp_gptp/README.md b/tb/verilator/milan_dp_gptp/README.md
+index 5fca90b3a0..78f4840380 100644
+--- a/tb/verilator/milan_dp_gptp/README.md
++++ b/tb/verilator/milan_dp_gptp/README.md
+@@ -24,7 +24,7 @@ make -C tb/verilator/milan_dp_gptp extended VERILATOR_JOBS=4
+ 
+ The first command includes preflight, timeout, verdict, and tally handling.
+ The [testing guide](../../../docs/testing/TESTING.md) declares 5400 seconds, including compilation.
+-The separate four-core `ubuntu-latest` workflow job permits 120 minutes.
++The separate four-core `ubuntu-24.04` workflow job permits 120 minutes.
+ The reference machine uses an EPYC 9554P with 128 logical CPUs.
+ Measurements restrict each job to four cores under background load.
+ Completed hosted physical evidence remains required to validate that deadline.

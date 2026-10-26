@@ -1,0 +1,9 @@
+Source: https://github.com/kebag-logic/milan-fpga/pull/785#issuecomment-6408265055
+### R697-1-01: RESIDUE (Docs)
+
+- **Where:** `docs/testing/CI_WORKFLOWS.md:2035-2037`, "A label without a `--platform` entry is no error to `act`: it skips that job as an unsupported platform and can still exit 0".
+- **Evidence:** the pinned act source (`receipts/act-source-reading.txt`, `cmd/platforms.go`) gives act a built-in table for `ubuntu-latest`, `ubuntu-22.04`, `ubuntu-20.04` and `ubuntu-18.04`, all mapped to `node:16` images. act skips a job (`pkg/runner/run_context.go:820-826`) only when the label is in neither the `-P` list nor that table. Without its `--platform` entry, `ubuntu-latest` would therefore run on `node:16-buster-slim`; it would not be skipped. The sentence is only true of a label that is not in act's table, such as `ubuntu-24.04`. The code comment at `scripts/act_ci.py:86-91` already states both outcomes correctly, and so does the self-test comment ("a label it cannot map").
+- **Impact:** wording only. The conclusion is still correct: every accepted label needs an entry, and the self-test enforces that. No code, test, figure or verdict depends on the sentence.
+- **Exact fix:** replace it with: "A label that has neither a `--platform` entry nor an entry in act's built-in table, such as `ubuntu-24.04`, is no error to `act`: it skips that job as an unsupported platform and can still exit 0, and a built-in label such as `ubuntu-latest` would run on act's default `node:16` image instead, so the self-test requires an entry for every accepted label."
+- **Verification:** reread the sentence against `cmd/platforms.go`, then run `docs_check.py`, `check_em_dash.py --base d385b38e`, `gen_toc.py --check` and `ci_events.py --check`.
+

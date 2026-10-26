@@ -1,0 +1,29 @@
+scripts/ci_gate_workflows.py:165:    return {"runs-on": "ubuntu-24.04", "timeout-minutes": 3,
+scripts/ci_workflow_plan_selftest.py:20:    runs-on: ubuntu-24.04
+scripts/ci_workflow_plan_selftest.py:30:    runs-on: ubuntu-24.04
+scripts/ci_workflow_plan_selftest.py:39:    runs-on: ubuntu-24.04
+scripts/yosys_shards.py:21:# apt Yosys of its day (0.33-5build2 on ubuntu-24.04). CI has pinned Yosys
+scripts/ci_runtime_workflows.py:127:    return {"name": "Fail fast across this head", "runs-on": "ubuntu-24.04", "timeout-minutes": 120,
+scripts/ci_runtime_workflows.py:145:    return {"name": "Cancel late CI failures", "runs-on": "ubuntu-24.04", "timeout-minutes": 3,
+scripts/ci_runtime_workflows.py:159:    return {"name": "Collect CI manifest", "runs-on": "ubuntu-24.04", "timeout-minutes": 15,
+scripts/ci_suite_workflows.py:44:        "runs-on": "ubuntu-24.04", "timeout-minutes": 2,
+scripts/ci_suite_workflows.py:76:        "name": "Prepare pinned Yosys", "runs-on": "ubuntu-24.04", "timeout-minutes": 29,
+scripts/ci_events.py:177:    'runs-on': 'ubuntu-24.04',
+scripts/ci_events.py:509:JOB_KEYS = ("name", "runs-on", "timeout-minutes", "steps", "needs", "if")
+scripts/ci_events.py:4651:        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4663:                                  "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4676:                                  "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4689:        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4702:        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4734:    jobs(w[path])["standalone"] = {"runs-on": "ubuntu-24.04", key: value,
+scripts/ci_events.py:4791:        jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5030:        "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5102:        job = {"runs-on": "ubuntu-24.04", "steps": [{"run": "true"}]}
+scripts/ci_events.py:5274:        "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5341:        "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5757:        all_jobs[jid] = {"runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5772:        jobs(w[path])[jid] = {"runs-on": "ubuntu-24.04",
+scripts/ci_events.py:7861:        jobs(w[path])[jid] = {"runs-on": "ubuntu-24.04",
+scripts/ci_events.py:8002:                       ("runs-on", "self-hosted"), ("continue-on-error", True)):
+scripts/ci_events.py:8435:                             "    name: docs-check\n    runs-on: ubuntu-24.04\n"
+scripts/ci_events.py:8473:                              "    runs-on: ubuntu-24.04\n"

@@ -1,0 +1,54 @@
+{
+  "generator-check": {
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.717
+  },
+  "events-check": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--check"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.867
+  },
+  "events-selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_events.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 209.941
+  },
+  "generator-selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_gate_workflows_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 10.085
+  },
+  "workflow-plan-selftest": {
+    "command": [
+      "python3",
+      "scripts/ci_workflow_plan_selftest.py"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.315
+  },
+  "yosys-shards-selftest": {
+    "command": [
+      "python3",
+      "scripts/yosys_shards.py",
+      "--selftest"
+    ],
+    "rc": 0,
+    "elapsed_seconds": 0.064
+  }
+}

@@ -1,0 +1,88 @@
+scripts/ci_gate_workflows.py:165:    return {"runs-on": "ubuntu-24.04", "timeout-minutes": 3,
+scripts/yosys_shards.py:21:# apt Yosys of its day (0.33-5build2 on ubuntu-24.04). CI has pinned Yosys
+scripts/ci_runtime_workflows.py:127:    return {"name": "Fail fast across this head", "runs-on": "ubuntu-24.04", "timeout-minutes": 120,
+scripts/ci_runtime_workflows.py:145:    return {"name": "Cancel late CI failures", "runs-on": "ubuntu-24.04", "timeout-minutes": 3,
+scripts/ci_runtime_workflows.py:159:    return {"name": "Collect CI manifest", "runs-on": "ubuntu-24.04", "timeout-minutes": 15,
+scripts/ci_suite_workflows.py:44:        "runs-on": "ubuntu-24.04", "timeout-minutes": 2,
+scripts/ci_suite_workflows.py:76:        "name": "Prepare pinned Yosys", "runs-on": "ubuntu-24.04", "timeout-minutes": 29,
+scripts/act_ci.py:86:#: The literal ``runs-on`` labels a candidate job may name; act maps each one
+scripts/act_ci.py:87:#: to RUNNER_IMAGE (#784). The workflows pin ``ubuntu-24.04``: hosted
+scripts/act_ci.py:88:#: ``ubuntu-latest`` moved to the 26.04 image, where the pinned CPython 3.12
+scripts/act_ci.py:89:#: wheels do not install, so ``ubuntu-latest`` is refused like any other label.
+scripts/act_ci.py:90:#: act would run a built-in label such as ``ubuntu-latest`` on its own default
+scripts/act_ci.py:92:RUNS_ON_LABELS = ("ubuntu-24.04",)
+scripts/act_ci.py:2061:            runs_on = job.get("runs-on")
+scripts/act_ci.py:2062:            if runs_on not in RUNS_ON_LABELS:
+scripts/act_ci.py:2065:                    f"literal label {' or '.join(RUNS_ON_LABELS)} is replayed"
+scripts/act_ci.py:4828:        *(word for label in RUNS_ON_LABELS for word in ("--platform", f"{label}={RUNNER_IMAGE}")),
+scripts/act_ci.py:6605:            "    runs-on: ubuntu-24.04\n    steps:\n      - run: true\n",
+scripts/act_ci.py:6698:    """Write the docs workflow under `root` with one job whose ``runs-on`` is the YAML text `runs_on`."""
+scripts/act_ci.py:6702:        f"name: docs\non: pull_request\njobs:\n  check:\n    runs-on: {runs_on}\n"
+scripts/act_ci.py:6719:def selftest_runner_labels(tally: SelftestTally) -> None:
+scripts/act_ci.py:6720:    """Arms: the sandbox accepts exactly the literal ubuntu-24.04, refusing others by name (#784)."""
+scripts/act_ci.py:6722:    with tempfile.TemporaryDirectory(prefix="act-ci-runs-on-") as raw:
+scripts/act_ci.py:6724:        check("a job on ubuntu-24.04 is accepted by the sandbox", runs_on_refusal(root, "ubuntu-24.04") == "")
+scripts/act_ci.py:6725:        for label in ("ubuntu-latest", "ubuntu-26.04", "ubuntu-22.04"):
+scripts/act_ci.py:6732:            ("the arm image", "ubuntu-24.04-arm"),
+scripts/act_ci.py:6733:            ("a one-label list", "[ubuntu-24.04]"),
+scripts/act_ci.py:6742:    """Arms: act's platform list maps every runs-on label the sandbox accepts, and no other, to RUNNER_IMAGE (#784)."""
+scripts/act_ci.py:6749:        "act's platform list maps ubuntu-24.04 to the runner image, once, and no other label",
+scripts/act_ci.py:6750:        platforms == [f"ubuntu-24.04={RUNNER_IMAGE}"],
+scripts/act_ci.py:6752:    probes = ("ubuntu-latest", "ubuntu-24.04", "ubuntu-26.04", "ubuntu-22.04", "ubuntu-20.04", "self-hosted")
+scripts/act_ci.py:6753:    with tempfile.TemporaryDirectory(prefix="act-ci-runs-on-") as raw:
+scripts/act_ci.py:6756:        "every runs-on label the sandbox accepts has a platform entry, and nothing else does",
+scripts/act_ci.py:6809:def selftest_runner_label_replay(
+scripts/act_ci.py:6812:    """Arms: a ubuntu-24.04 job replays to an act command that maps it; other labels are refused first (#784)."""
+scripts/act_ci.py:6814:    rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, "ubuntu-24.04")
+scripts/act_ci.py:6816:        "a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command "
+scripts/act_ci.py:6817:        "that maps ubuntu-24.04 to the runner image",
+scripts/act_ci.py:6819:        and f" --platform ubuntu-24.04={RUNNER_IMAGE} " in transcript,
+scripts/act_ci.py:6822:        f"a ubuntu-24.04 replay holds its job containers to the {CONTAINER_MEMORY} memory and swap bound",
+scripts/act_ci.py:6825:    for label in ("ubuntu-latest", "ubuntu-26.04"):
+scripts/act_ci.py:7648:    #: Hosted runners on the RUNS_ON_LABELS label have 16 GB: a job that
+scripts/act_ci.py:7707:    plain = "    runs-on: ubuntu-24.04\n    steps:\n      - run: true\n"
+scripts/act_ci.py:8685:    "name: actions\non: push\njobs:\n  use:\n    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:8711:        "  one:\n    runs-on: ubuntu-24.04\n    steps:\n"
+scripts/act_ci.py:8714:        "  two:\n    runs-on: ubuntu-24.04\n    steps:\n"
+scripts/act_ci.py:13035:        "name: docs\non: push\njobs:\n  docs:\n    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:13279:    #: fixture on a label the sandbox does not accept, such as ubuntu-latest
+scripts/act_ci.py:13280:    #: since #784, is refused by the runs-on check first and would pass
+scripts/act_ci.py:13285:            "    runs-on: self-hosted\n"
+scripts/act_ci.py:13289:        "missing-runs-on-job.yml": (
+scripts/act_ci.py:13294:        "dynamic-runs-on-job.yml": (
+scripts/act_ci.py:13296:            "    runs-on: ${{ matrix.os }}\n"
+scripts/act_ci.py:13302:            "    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:13309:            "    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:13317:            "    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:13355:                "  unsafe:\n    runs-on: ubuntu-24.04\n    steps:\n"
+scripts/act_ci.py:13375:        "on: push\njobs:\n  safe:\n    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:13389:            f"name: {name}\non: push\njobs:\n  safe:\n    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:13419:        "name: safe\non: push\njobs:\n  safe:\n    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:15469:    selftest_runner_labels(tally)
+scripts/act_ci.py:15470:    selftest_runner_label_replay(tally, resolved, shipping_root)
+scripts/act_ci.py:15542:            "    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:15551:            "    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:15564:            "    runs-on: ubuntu-24.04\n"
+scripts/act_ci.py:16659:            "    runs-on: ubuntu-24.04\n"
+scripts/ci_workflow_plan_selftest.py:20:    runs-on: ubuntu-24.04
+scripts/ci_workflow_plan_selftest.py:30:    runs-on: ubuntu-24.04
+scripts/ci_workflow_plan_selftest.py:39:    runs-on: ubuntu-24.04
+scripts/ci_events.py:177:    'runs-on': 'ubuntu-24.04',
+scripts/ci_events.py:509:JOB_KEYS = ("name", "runs-on", "timeout-minutes", "steps", "needs", "if")
+scripts/ci_events.py:4651:        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4663:                                  "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4676:                                  "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4689:        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4702:        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:4734:    jobs(w[path])["standalone"] = {"runs-on": "ubuntu-24.04", key: value,
+scripts/ci_events.py:4791:        jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5030:        "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5102:        job = {"runs-on": "ubuntu-24.04", "steps": [{"run": "true"}]}
+scripts/ci_events.py:5274:        "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5341:        "runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5757:        all_jobs[jid] = {"runs-on": "ubuntu-24.04",
+scripts/ci_events.py:5772:        jobs(w[path])[jid] = {"runs-on": "ubuntu-24.04",
+scripts/ci_events.py:7861:        jobs(w[path])[jid] = {"runs-on": "ubuntu-24.04",
+scripts/ci_events.py:8002:                       ("runs-on", "self-hosted"), ("continue-on-error", True)):
+scripts/ci_events.py:8435:                             "    name: docs-check\n    runs-on: ubuntu-24.04\n"
+scripts/ci_events.py:8473:                              "    runs-on: ubuntu-24.04\n"

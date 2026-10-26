@@ -1,0 +1,10 @@
+{
+  "replace": "RUNS_ON_LABELS = (\"ubuntu-24.04\",)",
+  "with": "RUNS_ON_LABELS = (\"ubuntu-latest\", \"ubuntu-24.04\")",
+  "rc": 1,
+  "failures": [
+    "FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest",
+    "FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command",
+    "FAIL act's platform list maps ubuntu-24.04 to the runner image, once, and no other label"
+  ]
+}

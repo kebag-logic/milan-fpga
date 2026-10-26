@@ -1,0 +1,30 @@
+{
+  "issue": {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/784",
+    "title": "Pin the hosted runner image to ubuntu-24.04: ubuntu-latest moved to 26.04 and every pip install fails",
+    "issue_number": 784,
+    "body": "## Problem\n\nGitHub is moving `ubuntu-latest` to the `ubuntu-26.04` image. Every job of this repository's four workflows uses `runs-on: ubuntu-latest` (46 jobs).\n\nOn `ubuntu-26.04`, every job that installs the pinned Python tools fails at pip resolution:\n\n```\nERROR: Cannot install PyYAML==6.0.2 because these package versions have conflicting dependencies.\nERROR: ResolutionImpossible\n```\n\n- Seen on PR #783 head `91bf51e4`, in runs 40187576861 (docs-check), 40187576906 (publication-census, firmware-verilator) and the re-runs. Every failing job reports `Image: ubuntu-26.04`.\n- dev's push run 40187422760 at `d385b38e`, two hours earlier, ran on `ubuntu-24.04` and passed with the same pin files.\n- Fail-fast then cancels the rest, so no PR can show a green required check.\n\nThe workflows were built for the `ubuntu-24.04` image: the caches are keyed to CPython 3.12.3, and the constraint file pins CPython 3.12 wheels.\n\n## Decision\n\nPin the hosted image to `ubuntu-24.04` explicitly. Do not follow `ubuntu-latest` silently.\n\nThe act runner (`scripts/act_ci.py`) refuses any job whose `runs-on` is not the literal `ubuntu-latest`, and it maps only that label to its runner image. A PR that changes the workflows would therefore fail its own replay on the trusted runner. The change needs two steps:\n\n1. **Step 1, runner:** `act_ci.py` accepts `ubuntu-24.04`, maps it to the same runner image as `ubuntu-latest`, and still refuses every other label. Its self-tests cover both labels and a refused third label. The workflows are unchanged, and the runner contract gate passes.\n2. **Step 2, workflows:** after step 1 merges, the generators (`scripts/ci_gate_workflows.py`, `scripts/ci_runtime_workflows.py`, `scripts/ci_suite_workflows.py`, `scripts/yosys_shards.py`) and every workflow say `runs-on: ubuntu-24.04`, regenerated through the generators. Then `act_ci.py` refuses `ubuntu-latest`. `docs/testing/CI_WORKFLOWS.md` and `docs/testing/TESTING.md` say which image and why.\n\n## Acceptance\n\n- Step 1: `act_ci.py --selftest` and the runner contract gate pass. A workflow job on `ubuntu-24.04` replays, and `ubuntu-22.04` is refused by name.\n- Step 2: `ci_events.py --check`/`--selftest` pass, every generator's check mode passes, and no `ubuntu-latest` is left in `.github/workflows/`. A hosted run of the PR shows `Image: ubuntu-24.04` on every job, and every required check is green.\n",
+    "state": "open",
+    "user": {
+      "login": "Mister-M-alt",
+      "name": "Mister-M-alt",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "id": 161579364
+    },
+    "assignees": null,
+    "labels": null,
+    "milestone": null,
+    "state_reason": null,
+    "comments": 7,
+    "created_at": "2026-10-25T17:18:08Z",
+    "updated_at": "2026-10-26T07:30:06Z",
+    "closed_at": null,
+    "display_url": "https://github.com/kebag-logic/milan-fpga/issues/784",
+    "display_title": "Pin the hosted runner image to ubuntu-24.04: ubuntu-latest moved to 26.04 and every pip install fails"
+  },
+  "url": "https://github.com/kebag-logic/milan-fpga/issues/784",
+  "title": "Pin the hosted runner image to ubuntu-24.04: ubuntu-latest moved to 26.04 and every pip install fails",
+  "display_url": "https://github.com/kebag-logic/milan-fpga/issues/784",
+  "display_title": "Pin the hosted runner image to ubuntu-24.04: ubuntu-latest moved to 26.04 and every pip install fails"
+}

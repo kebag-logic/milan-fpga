@@ -1,0 +1,25 @@
+PASS R697-1-01 prescribed wording, with line wrapping normalized
+Policy opening, pinned image and reason:
+Every job of the four workflows runs on the pinned hosted image
+`ubuntu-24.04`, never on the floating `ubuntu-latest` (#784). The workflow
+generators write that label, and the
+[local act runner](#act-first-local-replication) replays no other. Hosted
+`ubuntu-latest` moved to the `ubuntu-26.04` image, where the pinned CPython
+3.12 wheels in `ci/constraints-ci.txt` do not install, so every pinned pip
+install there fails at resolution.
+Added source comments/docstrings, manually checked for review and lane residue:
+      # The apt package this replaces resolved to whatever the hosted image
+#: to RUNNER_IMAGE (#784). The workflows pin ``ubuntu-24.04``: hosted
+#: ``ubuntu-latest`` moved to the 26.04 image, where the pinned CPython 3.12
+#: wheels do not install, so ``ubuntu-latest`` is refused like any other label.
+#: act would run a built-in label such as ``ubuntu-latest`` on its own default
+#: image and skip any other as an unsupported platform, still exiting 0.
+    """Arms: the sandbox accepts exactly the literal ubuntu-24.04, refusing others by name (#784)."""
+    """Arms: a ubuntu-24.04 job replays to an act command that maps it; other labels are refused first (#784)."""
+    #: Hosted runners on the RUNS_ON_LABELS label have 16 GB: a job that
+    #: Each arm requires its own refusal reason, not merely a Refusal: a
+    #: fixture on a label the sandbox does not accept, such as ubuntu-latest
+    #: since #784, is refused by the runs-on check first and would pass
+    #: without reaching the authority it names.
+# apt Yosys of its day (0.33-5build2 on ubuntu-24.04). CI has pinned Yosys
+PASS new comments describe behavior/reason; no added lane, round, reviewer or issue-comment identity
