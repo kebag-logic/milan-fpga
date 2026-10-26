@@ -1,0 +1,41 @@
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+Note: Google Test filter = Face.ALateCommitIsOwedAndPublishedAgainWhole:AppFace.*
+[==========] Running 6 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from Face
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+$REVIEWS/665s1-r701-3-packet/scratch/fw-tree/sw/firmware/ctrl/test/test_aecp.cpp:1974: Failure
+Expected equality of these values:
+  at(taken(0),0x4u,16u,8)
+    Which is: 255
+  0u
+    Which is: 0
+a successful second response must not precede its F value
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: a successful second response must not precede its F value
+[  FAILED  ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[----------] 1 test from Face (0 ms total)
+
+[----------] 5 tests from AppFace
+[ RUN      ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange
+[       OK ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange (11 ms)
+[ RUN      ] AppFace.FaceEventsDriveTheirTable522Notifications
+[       OK ] AppFace.FaceEventsDriveTheirTable522Notifications (2 ms)
+[ RUN      ] AppFace.AttachRefusesAFullLoop
+[       OK ] AppFace.AttachRefusesAFullLoop (1 ms)
+[ RUN      ] AppFace.StoreWordsCarryEveryTerminalAndFlag
+[       OK ] AppFace.StoreWordsCarryEveryTerminalAndFlag (3 ms)
+[ RUN      ] AppFace.AHeldCommitKeepsTheLoopBusy
+[       OK ] AppFace.AHeldCommitKeepsTheLoopBusy (1 ms)
+[----------] 5 tests from AppFace (22 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 2 test suites ran. (22 ms total)
+[  PASSED  ] 5 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+
+ 1 FAILED TEST
+== AECP core: checks: 6   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 6 checks, exit 1)

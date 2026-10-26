@@ -1,0 +1,19 @@
+$ git show -s --format=%H%n%T%n%G? HEAD
+44d95625bde2c46d7070c090fc29ed0ba85ab64a
+2b5b52bb8d0c1b43d8ce9ef24684d3a5374acde3
+N
+rc=0
+$ git --git-dir=$REVIEWS/665s1-r701-3-packet/scratch/ev.git show -s --format=%H%n%T%n%G? 50eb576c296d80307eac7c3064129440642d823d
+50eb576c296d80307eac7c3064129440642d823d
+7c83c993a7fbccc304b3ffd28536833cb986ecd4
+N
+rc=0
+$ $VALIDATION_TOOLS/pinned-verilator-5.050/verilator --version
+Verilator 5.050 2026-07-01 rev v5.050
+rc=0
+$ git diff --exit-code e76a755a HEAD -- hdl/milan/milan_datapath.sv hdl/common/csr/milan_csr.sv sw/firmware/gtest/fw_coverage.py sw/firmware/gtest/README.md .github
+rc=0
+$ git diff --exit-code bd3f5d94 HEAD -- hdl/milan/mailbox sw/mailbox/mailbox_face.py
+rc=0
+VERSION at hdl/common/csr/milan_csr.sv:201 is 0x0002_0060.
+Evidence commit signature status N: no signature. Hash verification is not signer authentication.
