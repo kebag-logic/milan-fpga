@@ -56,7 +56,10 @@ applied (#665). Acknowledged state is the only state a controller sees:
 
 - **While it is false**, the lock check refuses every change before it
   changes anything. The command answers ENTITY_MISBEHAVING, carrying what its
-  lock refusal reports. Reads and registrations are answered as usual.
+  lock refusal reports, or ENTITY_LOCKED under another controller's lock in
+  force. The MVU SET_SYSTEM_UNIQUE_ID answers ENTITY_MISBEHAVING too, with the
+  `system_unique_id` in force, and NOT_IMPLEMENTED under another controller's
+  lock. Reads and registrations are answered as usual.
 - **False after a change of face state** (`AECP_WAITS`: LOCK_ENTITY,
   SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and
   SET_CONTROL), the command waits. The core undoes the change from the values
@@ -67,13 +70,17 @@ applied (#665). Acknowledged state is the only state a controller sees:
   ENTITY_MISBEHAVING and notifies no one. Either way the change is handed to
   `changed` again. The core's own notifications, probes and lock expiry
   follow the wait.
-- **After a lock expires**, its notification waits until the port is true,
-  and no change is taken before it leaves.
+- **After a lock expires**, its release is handed to `changed`, and the lock
+  holds, by its owner, for every response and read until the port is true:
+  ENTITY_AVAILABLE, LOCK_ENTITY's `locked_id`, `aecp_locked` and every
+  refusal report it. Its notification is sent then, and no change is taken
+  before it leaves.
 
 The final response follows the IN_PROGRESS within the 120 ms cadence, and
 the command within the 240 ms deadline, of the
-[service requirements](../../../../docs/reference/FR_NFR.md). No getter
-answers IN_PROGRESS.
+[service requirements](../../../../docs/reference/FR_NFR.md), the service
+bound included, on the interface the command came in on. No getter answers
+IN_PROGRESS.
 
 One response remains owed through backpressure. Notifications follow
 that response, exclude its requester, and advance each recipient's own sequence.
@@ -187,7 +194,7 @@ reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full
 [coverage gate](../../gtest/README.md) measures the eight new production files,
 and since contract 2.3 `aecp_face.c`, at 100% lines and branches without a new
-exclusion. The face's 50 defects each fail a named `Core`, `Face`,
+exclusion. The face's 59 defects each fail a named `Core`, `Face`,
 `FaceLatency`, `AppFace` or `AppFaceUnacknowledged` assertion:
 
 - a setting written after its response or in the wrong field;
@@ -217,6 +224,13 @@ The rest cover the acknowledgement:
   notified, reporting the request, or not given to the face; a final response
   that forgets its requester;
 - a lock expiry inside a wait, notified unapplied, or never notified once late;
+- an expired lock read as released, or its owner dropped, before its release
+  is applied, by ENTITY_AVAILABLE, `aecp_locked` or a refusal to another
+  controller, or its owner kept once it is notified;
+- SET_SYSTEM_UNIQUE_ID refused NOT_IMPLEMENTED while a change waits;
+- a final response sent on the last interface a command came in on, not its
+  own, or later than 120 ms after its IN_PROGRESS with the service bound
+  (`AECP_WAIT_MS` at 115 or 130 ms);
 - a face that never reports a change unapplied, counts an owed or a held
   interface as applied, counts owed while a change waits, publishes while a
   change waits, or writes into a held block;

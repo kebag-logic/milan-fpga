@@ -153,16 +153,16 @@ The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-
 It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
 
 The ledger at lane S1's face writer (#665) is planned by `ctrl_memory.plan`.
-It links the firmware of `4e3aab32` against its base `e76a755a`, with one runtime for both:
+It links the firmware of `e493dccd` against its base `e76a755a`, with one runtime for both:
 
 | Point | `rom` need, B | `sram` need, B | Planned RAMB36 equivalents | Base `e76a755a` | Against the 56-RAMB36 budget |
 |---|---:|---:|---:|---:|---|
-| 1x1, one interface (shipping) | 104,360 | 46,256 | 37.0 | 35.5 | within |
-| 1x1, two interfaces | 105,944 | 57,648 | 40.5 | 38.5 | within |
-| 8x8, one interface | 118,080 | 86,832 | 50.5 | 49.0 | within |
-| 8x8, two interfaces (largest) | 119,736 | 112,992 | 57.5 | 56.0 | **over by 1.5 tiles, owed to lane S14** |
+| 1x1, one interface (shipping) | 104,424 | 46,256 | 37.0 | 35.5 | within |
+| 1x1, two interfaces | 106,008 | 57,648 | 40.5 | 38.5 | within |
+| 8x8, one interface | 118,144 | 86,832 | 50.5 | 49.0 | within |
+| 8x8, two interfaces (largest) | 119,800 | 112,992 | 57.5 | 56.0 | **over by 1.5 tiles, owed to lane S14** |
 
-The face writer adds 6,432 to 6,528 B of `rom` and 336 B of `sram` at each point.
+The face writer adds 6,496 to 6,592 B of `rom` and 336 B of `sram` at each point.
 Its `applied` acknowledgement path, as `989c9f53` built it, accounts for 392 to 400 B of that `rom` and 16 B of that `sram`; at 8x8 with one interface it doubles `rom`'s last bank to 4 KiB, half a tile.
 The model in which acknowledged state is the only truth a controller sees (#665, 6421238472) adds 1,056 B of `rom` and 224 B of `sram` at every point, against `989c9f53`, which did not have it:
 
@@ -173,17 +173,19 @@ The model in which acknowledged state is the only truth a controller sees (#665,
 - the lock expiry's kept notification;
 - the lock check's refusal while a change waits.
 
-All 224 B of `sram` are the core's state: the held response (`AECP_HELD_BYTES`, 122 B), the four recorded values, and the wait's deadline and requester.
+All 224 B of `sram` are the core's new state: the held response (`AECP_HELD_BYTES`, 122 B) with its interface, length and requester, the four recorded values, the noted change, the wait's deadline and its three flags.
+Holding an expired lock by its owner until its release is applied, and refusing SET_SYSTEM_UNIQUE_ID as every change is while one waits, add 64 B more of `rom` and no `sram` at every point, against `6d2b77bb`.
 The other three points keep their RAMB36 count: only at 8x8 with two interfaces do the added bytes cross a granule, in `rom`.
-There `rom`'s banks hold 119,736 B in 120,832 and `sram`'s 112,992 B in 114,688.
-That is 57.5 RAMB36, a tile and a half over the budget, with 1,096 B of `rom` left before the next granule would make it 58.0.
-Without this model the point had 104 B left at 57.0, so returning to 57.0 needs 952 B of `rom`.
-RV32I has no compressed instructions. Two compactions were measured on throwaway edits, and neither is taken:
+The shipping point has 24 B of `rom` left before its next granule would make it 37.5.
+At 8x8 with two interfaces `rom`'s banks hold 119,800 B in 120,832 and `sram`'s 112,992 B in 114,688.
+That is 57.5 RAMB36, a tile and a half over the budget, with 1,032 B of `rom` left before the next granule would make it 58.0.
+Without this model the point had 104 B left at 57.0, so returning to 57.0 needs 1,016 B of `rom`.
+RV32I has no compressed instructions. Two compactions were measured on throwaway edits at `4e3aab32`, and neither is taken:
 
 - constant port tables in `aecp_face.c`, `aecp_mbx.c` and `ctrl_app_aecp.c`: 64 B of `rom`;
 - IN_PROGRESS carrying the held SUCCESS body instead of re-answering the command: 64 B more.
 
-Together they leave 119,608 B, still 57.5.
+Together they would leave 119,672 B, still 57.5.
 The owner's decision D3 (#665, 6409738976) moves cold code and the descriptor image to QSPI flash in lane S14.
 The rulings of 2026-10-26 ledger this point as owed to S14: one tile (#665, 6412739248), then a tile and a half (#665, 6425357821).
 Only that point's measurement plans it, by name ([section 3](#3-named-refusals)), and every SoC build is still refused past 56.

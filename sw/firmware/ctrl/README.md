@@ -599,7 +599,7 @@ in [`mutants.py`](../../../tb/verilator/mbx/mutants.py), each caught by
 `model`'s `Face` group by its own words: a window answer taken under another
 tag, a timed-out request left open, a commit that holds nothing, a source's
 format high word read from its low register, an AVB_INFO change dropped and a
-counter-change holdoff that never rolls. The AECP owner's face has its own 50
+counter-change holdoff that never rolls. The AECP owner's face has its own 59
 in `aecp_mutants.py` ([AECP](aecp/README.md#verification-and-limits)). With
 `--lwsrp` it also requires the pin to refuse a
 scratch clone with one compiled source edited, and the same clone at
