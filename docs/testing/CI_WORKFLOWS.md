@@ -343,7 +343,10 @@ content through `hashFiles`, which follows the digest: today that is
 `scripts/ci_install_cache.py`, which prepares the package index the build
 installs from. After the build the job runs only the runtime evidence pair,
 which writes under `$RUNNER_TEMP`, and the generator refuses any other step
-there, since it would run before the cache save and outside the key. The key
+there, since it would run before the cache save and outside the key. The
+generator recognises the pair by its two ids, `ci_record` and `ci_upload`, not
+by its content; `fast_tool_emission` (below) holds the content to the runtime
+transform's own output. The key
 names no workflow file, so a workflow edit that changes none of these inputs
 restores the same tree, and an edit of any of them rebuilds it inside the tool
 job's own 30-minute limit. The distribution's package versions, the compiler's
@@ -364,19 +367,39 @@ key bound to the workflow files or missing an input or its script binding, a
 tool job under another environment, a fallback, a raised timeout, a consumer
 that builds or accepts a miss, and a verdict that no longer reads the tool
 job. It requires the key to change on an edit of each build input: the
-template build step, the workflow `env`, `yosys-elaboration`'s job `env`, a
+template build step, the workflow `env` and `defaults`, `yosys-elaboration`'s
+job `env`, a
 generator-side rewrite of the build, an export added to the job budget step,
 a script the build runs, and the image. It requires the key to stay the same
 on an edit outside the build and on an edit of the tool job's `if`.
 
-`fast_tool_retention` in the same self-test holds both derived step lists
-whole against the template. `yosys-elaboration` must run every template step
-but the moved pair, in order and unchanged, with the one exact restore in the
-pair's place and its other job keys unchanged. `yosys-tool` must run exactly
-the checkout and the two moved steps. Each deviation is refused by name: each
-retained step dropped in turn, a rewritten body, an added, swapped or repeated
-step, a misplaced restore, and an extra or rewritten tool step, plus a
-derivation that drops a self-test.
+Two more judges in the same self-test hold the two jobs whole, each at one
+stage of `generate()`.
+
+- `fast_tool_retention` holds the derived lists, the derivation's own output
+  before any later stage, against the template. `yosys-elaboration` must run
+  every template step but the moved pair, in order and unchanged, with the one
+  exact restore in the pair's place and its other job keys unchanged.
+  `yosys-tool` must run exactly the checkout and the two moved steps. Each
+  deviation is refused by name: each retained step dropped in turn, a
+  rewritten body, an added, swapped or repeated step, a misplaced restore, and
+  an extra or rewritten tool step, plus a derivation that drops a self-test.
+- `fast_tool_emission` holds the emitted lists, the generated `rtl-fast.yml`
+  after every stage, the key binding included. It replays the shared install
+  and runtime transforms on the derivation and requires the emitted workflow
+  to equal that replay: every job, step, job key and workflow key. The one
+  difference allowed is the two tool key strings, each the replay's string
+  with its recipe stand-in replaced by the same bound recipe. So no `rtl-fast`
+  stage after the derivation can drop, add, reorder or rewrite a step or a key
+  of any job. Each deviation is refused by name: each step of both emitted
+  jobs dropped in turn, a rewritten self-test, build or evidence step, an added
+  or swapped step, a job key, a job or a workflow `env` added, another job's
+  step dropped, and a key left unbound or bound to another recipe in the
+  restore, plus a key binding that drops a self-test.
+
+The shared install and runtime transforms are not judged by either: they run
+on every job of the four files, and the generated-graph comparison is their
+only hold, as item 4 of the sequence pin states.
 
 The mailbox publication census runs in a job of its own, `publication-census`
 (`sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"`,
@@ -845,9 +868,14 @@ the instrumented job:
    generator produces is outside these recorded lists. `ci_events.py`
    holds it by requiring the generated file to equal the generator's output
    (`check_generated_workflow`). In `rtl-fast.yml` those are `yosys-tool`
-   and the rewritten `yosys-elaboration` (#789). `fast_tool_retention` in
-   `scripts/ci_fast_tool_selftest.py` also holds both of their step
-   lists whole against the template (see [Fast feedback](#fast-feedback)).
+   and the rewritten `yosys-elaboration` (#789). Two judges in
+   `scripts/ci_fast_tool_selftest.py` also hold both of their step lists
+   whole (see [Fast feedback](#fast-feedback)). `fast_tool_retention` holds
+   the derived lists against the template. `fast_tool_emission` holds the
+   emitted lists, after every stage, against the shared install and runtime
+   transforms' output on the derivation, with only the two tool key strings
+   different. What those shared transforms add to or rewrite in any job of
+   the four files is held by the comparison alone.
    In `rtl.yml` they are `yosys-tool`, the case-union jobs, and the shard
    workers and `verilator-suites` aggregate whose steps the generator
    rewrites. There the comparison is the only whole-list hold, and a change

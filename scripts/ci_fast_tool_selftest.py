@@ -2,7 +2,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """rtl-fast's pinned Yosys (#789): one cached build under a key bound to every build input, an exact restore,
-both derived jobs held whole against the template, and a verdict that reads the tool job.
+both derived jobs held whole against the template, the emitted workflow held whole against what the shared
+transforms make of the derivation, and a verdict that reads the tool job.
 
 ci_gate_workflows_selftest.py runs fast_tool_controls() in the hosted "CI scheduling and evidence controls" step.
 """
@@ -20,7 +21,7 @@ import ci_gate_workflows
 import ci_install_workflows
 import ci_runtime_workflows
 from ci_gate_workflows import ROOT, generate, gate_graph, load_template
-from ci_gate_workflows import FAST_AGGREGATE, FAST_TOOL_CONSUMER, FAST_TOOL_JOB, YOSYS_BUILD_STEPS
+from ci_gate_workflows import FAST_AGGREGATE, FAST_TOOL_CONSUMER, FAST_TOOL_JOB, FAST_TOOL_RECIPE, YOSYS_BUILD_STEPS
 
 
 #: The owner's hosted budget for every job (#789), held here rather than read
@@ -30,6 +31,9 @@ FAST_VERDICT_STEP = "Require every applicable fast gate to pass"
 GENERATED_FAST = ".github/workflows/rtl-fast.yml"
 VERSION_PROOF = "Install the pinned Yosys and prove the version"
 TOOL_RESTORE = "Restore the pinned Yosys build"
+SELF_TEST = "Prove the result cache refuses a planted entry"
+#: The bound recipe in place of the stand-in: its digest and the optional `hashFiles` of the scripts it reads.
+BOUND_RECIPE = r"(recipe-[0-9a-f]{64}(?:-\$\{\{ hashFiles\('[^']+'(?:, '[^']+')*\) \}\})?)"
 
 
 def named_step(job: dict, name: str) -> dict | None:
@@ -198,6 +202,22 @@ def step_label(step: dict) -> str:
     return step.get("name", step.get("uses"))
 
 
+def step_findings(owner: str, expected: list[dict], actual: list[dict], steps: str) -> list[str]:
+    """Each step of `expected` that `actual` drops or changes and each step it adds, else any reordering or
+    repeat, in `owner`'s words; empty when the two lists are equal."""
+    labels, expected_labels = [step_label(step) for step in actual], [step_label(step) for step in expected]
+    findings = []
+    for step in expected:
+        if step_label(step) not in labels:
+            findings.append(owner + " drops " + step_label(step))
+        elif step not in actual:
+            findings.append(owner + " changes " + step_label(step))
+    findings.extend(owner + " adds " + label for label in labels if label not in expected_labels)
+    if not findings and actual != expected:
+        findings.append(owner + " reorders or repeats its " + steps)
+    return findings
+
+
 def fast_tool_retention(template: dict, derived: dict) -> list[str]:
     """yosys-elaboration after the derivation runs every template step but the moved pair, in order and
     unchanged, with the one exact restore in the pair's place; the tool job runs exactly the checkout and the
@@ -209,15 +229,7 @@ def fast_tool_retention(template: dict, derived: dict) -> list[str]:
     kept = [*original["steps"][:at], *original["steps"][at + 2:]]
     live = [step for step in consumer["steps"] if step.get("name") != TOOL_RESTORE]
     labels, kept_labels = [step_label(step) for step in live], [step_label(step) for step in kept]
-    findings = []
-    for step in kept:
-        if step_label(step) not in labels:
-            findings.append("yosys-elaboration drops " + step_label(step))
-        elif step not in live:
-            findings.append("yosys-elaboration changes " + step_label(step))
-    findings.extend("yosys-elaboration adds " + label for label in labels if label not in kept_labels)
-    if not findings and live != kept:
-        findings.append("yosys-elaboration reorders or repeats its retained steps")
+    findings = step_findings(FAST_TOOL_CONSUMER, kept, live, "retained steps")
     key = (named_step(tool, YOSYS_BUILD_STEPS[0]) or {"with": {}})["with"].get("key")
     restore = {"name": TOOL_RESTORE, "uses": cache["uses"],
                "with": {"path": cache["with"]["path"], "key": key, "fail-on-cache-miss": True}}
@@ -266,7 +278,6 @@ def fast_tool_retention_planted(template: dict, derived: dict) -> None:
         steps = consumer(jobs)
         steps.append(steps.pop([step.get("name") for step in steps].index(TOOL_RESTORE)))
 
-    repeated = "Prove the result cache refuses a planted entry"
     for label, edit, words in (
             *((label + " dropped", drop(label), "yosys-elaboration drops " + label) for label in kept),
             ("a retained body rewritten", edited, "yosys-elaboration changes Elaborate the integration-heavy tops"),
@@ -274,7 +285,7 @@ def fast_tool_retention_planted(template: dict, derived: dict) -> None:
              "yosys-elaboration adds Planted step"),
             ("two retained steps swapped", swap, "yosys-elaboration reorders or repeats its retained steps"),
             ("a retained step repeated", lambda jobs: consumer(jobs).append(
-                copy.deepcopy(named_step(jobs[FAST_TOOL_CONSUMER], repeated))),
+                copy.deepcopy(named_step(jobs[FAST_TOOL_CONSUMER], SELF_TEST))),
              "yosys-elaboration reorders or repeats its retained steps"),
             ("the restore moved last", restore_last,
              "yosys-elaboration's one exact restore is not in its build's place"),
@@ -297,13 +308,130 @@ def fast_tool_retention_planted(template: dict, derived: dict) -> None:
     def dropping(source: dict) -> dict:
         """The real derivation, then one retained self-test removed from its output."""
         result = derive(source)
-        drop(repeated)(result["jobs"])
+        drop(SELF_TEST)(result["jobs"])
         return result
 
     with patch.object(ci_gate_workflows, "fast_yosys_tool", dropping):
         found = fast_tool_retention(template, gate_graph("rtl-fast", template)["jobs"])
-    assert found == ["yosys-elaboration drops " + repeated], found
+    assert found == ["yosys-elaboration drops " + SELF_TEST], found
     print("Fast Yosys tool retention refused a derivation that drops a self-test: " + found[0])
+
+
+def fast_tool_emission(template: dict, generated: dict) -> list[str]:
+    """The emitted rtl-fast workflow is exactly what the shared install and runtime transforms make of the
+    derivation, except that the tool cache and its one restore carry one bound recipe where the stand-in was.
+    No rtl-fast stage after the derivation, the key binding among them, can then drop, add, reorder or rewrite
+    a step or a key of any job. Each deviation is refused by name; empty is a pass (#789)."""
+    staged = ci_runtime_workflows.generate("rtl-fast", ci_install_workflows.generate(gate_graph("rtl-fast", template)))
+    emitted = copy.deepcopy(generated)
+    findings, recipes = [], set()
+    for job_id, name in ((FAST_TOOL_JOB, YOSYS_BUILD_STEPS[0]), (FAST_TOOL_CONSUMER, TOOL_RESTORE)):
+        expected = named_step(staged["jobs"].get(job_id, {"steps": []}), name)
+        step = named_step(emitted["jobs"].get(job_id, {"steps": []}), name)
+        if expected is None or step is None:
+            continue
+        stand_in = str(expected.get("with", {}).get("key", ""))
+        prefix, _, suffix = stand_in.partition(FAST_TOOL_RECIPE)
+        bound = re.fullmatch(re.escape(prefix) + BOUND_RECIPE + re.escape(suffix), str(step.get("with", {}).get("key")))
+        if FAST_TOOL_RECIPE not in stand_in or bound is None:
+            findings.append("emitted " + job_id + "'s " + name + " key is not its stand-in with one recipe bound")
+            continue
+        recipes.add(bound.group(1))
+        step["with"]["key"] = stand_in
+    if len(recipes) > 1:
+        findings.append("emitted tool cache and its restore bind different recipes")
+    tops = sorted(key for key in {*staged, *emitted} if key != "jobs" and staged.get(key) != emitted.get(key))
+    if tops:
+        findings.append("emitted workflow keys differ from the transformed derivation's: " + ", ".join(tops))
+    if list(emitted["jobs"]) != list(staged["jobs"]):
+        findings.append("emitted jobs differ from the transformed derivation's: " + (", ".join(
+            [*("adds " + job_id for job_id in emitted["jobs"] if job_id not in staged["jobs"]),
+             *("drops " + job_id for job_id in staged["jobs"] if job_id not in emitted["jobs"])]) or "reordered"))
+    for job_id, job in staged["jobs"].items():
+        if job_id not in emitted["jobs"]:
+            continue
+        actual = emitted["jobs"][job_id]
+        if {key: value for key, value in actual.items() if key != "steps"} != {
+                key: value for key, value in job.items() if key != "steps"}:
+            findings.append("emitted " + job_id + "'s job keys differ from the transformed derivation's")
+        findings.extend(step_findings("emitted " + job_id, job["steps"], actual["steps"], "steps"))
+    return findings
+
+
+def fast_tool_emission_planted(template: dict, generated: dict) -> None:
+    """Each step of both emitted jobs dropped in turn, and each other deviation after the derivation, refused
+    by name, as is a key binding stage that drops a self-test."""
+    def job_steps(jobs: dict, job_id: str) -> list[dict]:
+        """One emitted job's steps."""
+        return jobs[job_id]["steps"]
+
+    def drop(job_id: str, label: str) -> Callable[[dict], None]:
+        """Remove the one emitted step of `job_id` called `label`."""
+        return lambda jobs: job_steps(jobs, job_id).remove(named_step(jobs[job_id], label))
+
+    def swap(jobs: dict) -> None:
+        """Exchange the two ooc self-tests."""
+        steps = job_steps(jobs, FAST_TOOL_CONSUMER)
+        first = [step.get("name") for step in steps].index("Prove ooc.sh generates the ROMs and fails on a failed top")
+        steps[first], steps[first + 1] = steps[first + 1], steps[first]
+
+    def rebound(jobs: dict) -> None:
+        """The restore bound to another recipe digest than the tool cache."""
+        key = tool_restore(jobs)["key"]
+        tool_restore(jobs)["key"] = re.sub(r"recipe-[0-9a-f]{64}", "recipe-" + "0" * 64, key)
+
+    planted = {"name": "Planted step", "run": "true\n"}
+    for label, edit, words in (
+            *((job_id + " without " + step["name"], drop(job_id, step["name"]),
+               "emitted " + job_id + " drops " + step["name"])
+              for job_id in (FAST_TOOL_CONSUMER, FAST_TOOL_JOB) for step in generated["jobs"][job_id]["steps"]),
+            ("a self-test body rewritten", lambda jobs: named_step(jobs[FAST_TOOL_CONSUMER], SELF_TEST).update(
+                run="true\n"), "emitted yosys-elaboration changes " + SELF_TEST),
+            ("the tool build rewritten", lambda jobs: named_step(jobs[FAST_TOOL_JOB], YOSYS_BUILD_STEPS[1]).update(
+                run="true\n"), "emitted yosys-tool changes " + YOSYS_BUILD_STEPS[1]),
+            ("the tool evidence record rewritten", lambda jobs: named_step(
+                jobs[FAST_TOOL_JOB], "Record actual job execution").update(run="touch /opt/yosys/planted\n"),
+             "emitted yosys-tool changes Record actual job execution"),
+            ("a consumer step added", lambda jobs: job_steps(jobs, FAST_TOOL_CONSUMER).append(copy.deepcopy(planted)),
+             "emitted yosys-elaboration adds Planted step"),
+            ("a tool step added before the cache save", lambda jobs: job_steps(jobs, FAST_TOOL_JOB).insert(
+                -2, copy.deepcopy(planted)), "emitted yosys-tool adds Planted step"),
+            ("two self-tests swapped", swap, "emitted yosys-elaboration reorders or repeats its steps"),
+            ("a consumer job key added", lambda jobs: jobs[FAST_TOOL_CONSUMER].update({"env": {"X": "1"}}),
+             "emitted yosys-elaboration's job keys differ"),
+            ("a tool job key added", lambda jobs: jobs[FAST_TOOL_JOB].update({"env": {"CXXFLAGS": "-O0"}}),
+             "emitted yosys-tool's job keys differ"),
+            ("another job's step dropped", drop("verilator-lint", "Fetch RTL dependencies"),
+             "emitted verilator-lint drops Fetch RTL dependencies"),
+            ("a job added", lambda jobs: jobs.update({"planted": {"runs-on": "ubuntu-24.04", "steps": [planted]}}),
+             "emitted jobs differ from the transformed derivation's: adds planted"),
+            ("the stand-in left in the restore", lambda jobs: tool_restore(jobs).update(
+                key=re.sub(r"recipe-[0-9a-f]{64}", FAST_TOOL_RECIPE, tool_restore(jobs)["key"])),
+             "emitted yosys-elaboration's Restore the pinned Yosys build key is not its stand-in with one recipe"),
+            ("the restore bound to another recipe", rebound,
+             "emitted tool cache and its restore bind different recipes")):
+        changed = copy.deepcopy(generated)
+        edit(changed["jobs"])
+        found = fast_tool_emission(template, changed)
+        assert any(words in finding for finding in found), (label, found)
+        print("Fast Yosys tool emission refused " + label + ": " + "; ".join(found))
+    flagged = copy.deepcopy(generated)
+    flagged["env"]["CXXFLAGS"] = "-O0"
+    found = fast_tool_emission(template, flagged)
+    assert found == ["emitted workflow keys differ from the transformed derivation's: env"], found
+    print("Fast Yosys tool emission refused a workflow env set after the digest: " + found[0])
+    # The same judge on the generator itself: a key binding stage that drops a self-test is named.
+    bind = ci_gate_workflows.bind_fast_tool_key
+
+    def dropping(workflow: dict) -> None:
+        """The real key binding, then one retained self-test removed from yosys-elaboration."""
+        bind(workflow)
+        drop(FAST_TOOL_CONSUMER, SELF_TEST)(workflow["jobs"])
+
+    with patch.object(ci_gate_workflows, "bind_fast_tool_key", dropping):
+        found = fast_tool_emission(template, generate("rtl-fast", template))
+    assert found == ["emitted yosys-elaboration drops " + SELF_TEST], found
+    print("Fast Yosys tool emission refused a key binding that drops a self-test: " + found[0])
 
 
 def fast_tool_key_inputs(template: dict, generated: dict) -> None:
@@ -351,6 +479,8 @@ def fast_tool_key_inputs(template: dict, generated: dict) -> None:
 
     flagged = copy.deepcopy(template)
     flagged["env"]["CXXFLAGS"] = "-O0"
+    shelled = copy.deepcopy(template)
+    shelled["defaults"] = {"run": {"shell": "bash --noprofile --norc -euo pipefail {0}"}}
     standard = copy.deepcopy(template)
     standard["jobs"][FAST_TOOL_CONSUMER]["env"] = {"CXXSTD": "c++23"}
     scripted =template_with(YOSYS_BUILD_STEPS[1], "make -C /tmp/yosys-src config-gcc",
@@ -362,6 +492,7 @@ def fast_tool_key_inputs(template: dict, generated: dict) -> None:
             ("the template build step", tool_key(template_with(YOSYS_BUILD_STEPS[1], "ENABLE_PLUGINS := 0",
                                                                "ENABLE_PLUGINS := 1"))),
             ("the workflow env", tool_key(flagged)),
+            ("the workflow defaults", tool_key(shelled)),
             ("yosys-elaboration's job env", tool_key(standard)),
             ("an install-transform rewrite of the build",
              transformed(ci_install_workflows, "generate", build_rewrite)),
@@ -375,8 +506,8 @@ def fast_tool_key_inputs(template: dict, generated: dict) -> None:
     assert fast_tool_findings(standard, generate("rtl-fast", standard)) == [], "tool job lost the consumer env"
     assert "scripts/ci_scope.py" in key_reads(tool_key(scripted)), "tool key does not bind a script its build runs"
     assert "-ubuntu-22.04-" in tool_key(moved), "tool key does not name its runner image"
-    print("Fast Yosys tool key follows the build step, the workflow and job env, the generated build rewrite"
-          " and budget exports, the scripts the build runs and the runner image")
+    print("Fast Yosys tool key follows the build step, the workflow env and defaults, the job env, the generated"
+          " build rewrite and budget exports, the scripts the build runs and the runner image")
     other = template_with("Elaborate the integration-heavy tops", "--top KL_gptp_shadow",
                           "--top KL_gptp_shadow --top KL_pp_shadow")
     assert generate("rtl-fast", other) != generated and tool_key(other) == key, \
@@ -456,10 +587,11 @@ def fast_tool_controls() -> None:
     template = load_template(ROOT, "rtl-fast")
     generated = generate("rtl-fast", template)
     derived = gate_graph("rtl-fast", template)["jobs"]
-    found = fast_tool_retention(template, derived) + fast_tool_findings(template, generated)
+    found = (fast_tool_retention(template, derived) + fast_tool_emission(template, generated)
+             + fast_tool_findings(template, generated))
     assert found == [], found
     print("Fast Yosys tool: yosys-elaboration keeps every other template step in order, the tool job runs"
-          " the checkout and the two moved steps")
+          " the checkout and the two moved steps, and the emitted workflow changes only their two keys")
     order = list(template["jobs"])
     at = order.index(FAST_TOOL_CONSUMER)
     assert list(derived) == [*order[:at], FAST_TOOL_JOB, *order[at:]], "tool job not just before its consumer"
@@ -472,6 +604,7 @@ def fast_tool_controls() -> None:
     print("Fast Yosys tool: only yosys-elaboration and the verdict change; a docs-only run stays green")
     fast_tool_planted(template, generated)
     fast_tool_retention_planted(template, derived)
+    fast_tool_emission_planted(template, generated)
     fast_tool_key_inputs(template, generated)
     fast_tool_template_refusals(template)
     print("Fast Yosys tool: one cached build, an exact restore, a verdict that reads it PASS")
