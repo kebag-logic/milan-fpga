@@ -1,0 +1,27 @@
+Note: Google Test filter = AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from AppFaceUnacknowledged
+[ RUN      ] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:2298: Failure
+Expected equality of these values:
+  ctrl_app_open_aecp(&bridge)
+    Which is: true
+  acknowledged
+    Which is: false
+AECP opens only once the initial publication is acknowledged
+
+  [FAIL] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged: AECP opens only once the initial publication is acknowledged
+[  FAILED  ] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged (2 ms)
+[----------] 1 test from AppFaceUnacknowledged (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

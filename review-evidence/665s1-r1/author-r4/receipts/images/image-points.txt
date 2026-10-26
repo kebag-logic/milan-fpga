@@ -1,0 +1,8 @@
+head endstation_ax7101_1x1_tdm8 if1: link rc=0 plan rc=0  tree=989c9f537f8b973fb4a5c97cad36abb35da1244a
+head endstation_ax7101_1x1_tdm8 if2: link rc=0 plan rc=0  tree=989c9f537f8b973fb4a5c97cad36abb35da1244a
+head endstation_ax7101_8x8 if1: link rc=0 plan rc=0  tree=989c9f537f8b973fb4a5c97cad36abb35da1244a
+head endstation_ax7101_8x8 if2: link rc=0 plan rc=0 --ledgered-point 8x8-two-interfaces tree=989c9f537f8b973fb4a5c97cad36abb35da1244a
+head endstation_ax7101_8x8 if2: plan without the override rc=2 (must be 2): REFUSED allocation over budget: 57 RAMB36 (rom 118680 bytes in 118784, sram 112768 bytes in 114688) exceeds the 56-RAMB36 budget
+head endstation_ax7101_1x1_tdm8-if1: plan with the override rc=2 (must be 2): REFUSED allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13264, 'image_allocation': 16}; this image carries {'nvm_stage': 3344, 'image_allocation': 8}
+head endstation_ax7101_1x1_tdm8-if2: plan with the override rc=2 (must be 2): REFUSED allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13264, 'image_allocation': 16}; this image carries {'nvm_stage': 3344, 'image_allocation': 16}
+head endstation_ax7101_8x8-if1: plan with the override rc=2 (must be 2): REFUSED allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13264, 'image_allocation': 16}; this image carries {'nvm_stage': 13264, 'image_allocation': 8}
