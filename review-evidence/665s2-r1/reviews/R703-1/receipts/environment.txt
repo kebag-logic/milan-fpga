@@ -1,0 +1,19 @@
+head d58c8e22e9bd96237b9a28ea1ddd55b0426380c4 tree e755f4dafb61b4904a8cecdf908aff3500465cc1
+parent e76a755afc0536453161e3cd33f6f4d2dcd7641f
+Verilator 5.050 2026-07-01 rev v5.050
+verilator wrapper: exec env VERILATOR_ROOT=$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b
+riscv32-buildroot-linux-gnu-gcc.br_real (Buildroot 2026.05) 14.3.0
+Python 3.14.8
+litex sha1 (sim.v header): // LiteX sha1 : a1e1c36
+383e47dfb8e2169cb05cc08aac80f5be7710d3f1a4f11d30f9c9ea7d831fe551  $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v
+d17f89a5a19ce6317f9d197a35c6b96f1ed490159abd395f84c10de41c7dab56  $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_3432f0544d53ba0ec09d144e6985c66c.v
+c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d  $LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v
+sbt shim: netlist generation refused; every netlist above was already cached
+a1x1 endstation_ax7101_1x1_tdm8 if 1 cover none none VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 elf d4c28047549719c4 Vsim e584ca305c8b19b4
+a8x8 endstation_ax7101_8x8 if 2 cover none none VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 elf c89a1871fd2bca2b Vsim b579c96f6164ad0a
+b1x1 endstation_ax7101_1x1_tdm8 if 1 cover none answering-ports VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 elf f561a45f422d89ef Vsim ec6de9b43d72f6cc
+b8x8 endstation_ax7101_8x8 if 2 cover none answering-ports VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 elf 741d33e3661927f9 Vsim 653082e43dd33848
+c-asbuilt endstation_ax7101_1x1_tdm8 if 1 as-built none none VexiiRiscvLitex_3432f0544d53ba0ec09d144e6985c66c elf d4c28047549719c4 Vsim 034087417c28c594
+c-slow endstation_ax7101_1x1_tdm8 if 1 cover slow-adp-rx none VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 elf 367e7f7f3d3026e2 Vsim ad521191b99e4205
+plant-over endstation_ax7101_1x1_tdm8 if 1 cover r703-over none VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 elf 8f9965442065767e Vsim 84b6cf0b7725f062
+plant-under endstation_ax7101_1x1_tdm8 if 1 cover r703-under none VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 elf f1f9485b7c7c870a Vsim 361233a250ebb77e

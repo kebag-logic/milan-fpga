@@ -1,0 +1,9 @@
+39a40,43
+>     'r703-over': ('adp/adp_mbx.c', '\tadp_rx(&i->adp, f->bytes, f->len);\n}',
+>                   '\tfor (volatile uint32_t n = 0; n < 6650u; ++n) {\n\t}\n\tadp_rx(&i->adp, f->bytes, f->len);\n}'),
+>     'r703-under': ('adp/adp_mbx.c', '\tadp_rx(&i->adp, f->bytes, f->len);\n}',
+>                    '\tfor (volatile uint32_t n = 0; n < 6200u; ++n) {\n\t}\n\tadp_rx(&i->adp, f->bytes, f->len);\n}'),
+74c74
+<     parser.add_argument('--mutation', choices=('none', 'slow-adp-rx'), default='none',
+---
+>     parser.add_argument('--mutation', choices=('none', 'slow-adp-rx', 'r703-over', 'r703-under'), default='none',

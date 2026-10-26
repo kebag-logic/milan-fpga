@@ -1,0 +1,32 @@
+R1 clock ratio: CPU cycles rounded down: 0 published values change
+R2 clock ratio: composed-maximum ms from the bus clock: 2 published values change
+    backlog composed 13.70368 -> 6.85184
+    backlog-adp composed 27.82624 -> 13.91312
+R3 clock ratio: worst-pass ms from the bus clock: 6 published values change
+    srp worst 7.07174 -> 3.53587
+    acmp-disc worst 31.04322 -> 15.52161
+    backlog worst 13.70368 -> 6.85184
+    acmp-cmd worst 29.87112 -> 14.93556
+    aecp worst 7.34918 -> 3.67459
+    backlog-adp worst 29.53732 -> 14.76866
+R4 clock ratio: the pass bound treats CPU cycles as bus cycles: 44 published values change
+    srp.startup.if0 bound_ms 4.96904 -> 2.48452
+    srp.listener_ready.if0 bound_ms 2.76826 -> 1.38413
+    srp.malformed.if0 bound_ms 1.7498 -> 0.8749
+    srp.domain.if0 bound_ms 7.07174 -> 3.53587
+    acmp.entity_departing.if0 bound_ms 22.53164 -> 11.26582
+    acmp.entity_available.if0 bound_ms 25.91712 -> 12.95856
+R5 marker: a timer path starts one millisecond after its deadline: 2 published values change
+    acmp.tmr_no_adp.if0 start_sys 156300065 -> 156400065
+    acmp.tmr_no_adp.if0 ms 1.91047 -> 0.91047
+R6 deadline: the ceiling verdict drops the normative wait: 0 published values change
+R7 marker: the expected-response check is skipped: 0 published values change
+R8 marker: a receive commit is given to the newest frame: 0 published values change
+R9 pass bound: starts at the input, not at the running pass: 42 published values change
+    srp.listener_ready.if0 bound_ms 2.76826 -> 2.76761
+    srp.malformed.if0 bound_ms 1.7498 -> 1.74915
+    srp.domain.if0 bound_ms 7.07174 -> 7.07109
+    acmp.entity_departing.if0 bound_ms 22.53164 -> 19.55017
+    acmp.entity_available.if0 bound_ms 25.91712 -> 15.50079
+    acmp.tmr_no_adp.if0 bound_ms 22.30924 -> 10.78043
+R12 a CPU trap or bus error is not refused: 0 published values change

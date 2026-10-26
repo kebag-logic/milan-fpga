@@ -1,0 +1,107 @@
+{
+ "results": "$REVIEWS/665s2-r703-1-packet/scratch/b/b8x8/results",
+ "interfaces": 2,
+ "groups": {
+  "acmp-cmd": {
+   "passes": 114,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 29,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-disc": {
+   "passes": 340,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 28,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-noresp": {
+   "passes": 617,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 32,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-notk": {
+   "passes": 1072,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 46,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "backlog-adp": {
+   "passes": 134,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 21,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 941982,
+   "composed_ms": 18.84,
+   "backlog_rows": {
+    "ENTITY_AVAILABLE behind the adp ring": {
+     "start": 110177998,
+     "end": 111705654,
+     "ms": 15.277
+    }
+   }
+  },
+  "backlog": {
+   "passes": 156,
+   "worst_cpu": 2004666,
+   "worst_ms": 40.093,
+   "clock": {
+    "consecutive_pass_pairs_ok": 44,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 1302022,
+   "composed_ms": 26.04,
+   "backlog_rows": {
+    "event behind 15 others": {
+     "start": 98734842,
+     "end": 102786269,
+     "ms": 40.514
+    },
+    "ACMP command behind a full acmp ring": {
+     "start": 98737920,
+     "wire": 108936229,
+     "wire_ms": 101.983
+    },
+    "response with 7 owed ahead": {
+     "start": 174157842,
+     "wire": 184050463,
+     "wire_ms": 98.926,
+     "room": 180157838
+    }
+   }
+  }
+ }
+}

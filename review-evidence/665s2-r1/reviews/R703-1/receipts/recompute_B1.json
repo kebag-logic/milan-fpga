@@ -1,0 +1,107 @@
+{
+ "results": "$REVIEWS/665s2-r703-1-packet/scratch/b/b1x1/results",
+ "interfaces": 1,
+ "groups": {
+  "acmp-cmd": {
+   "passes": 84,
+   "worst_cpu": 255179,
+   "worst_ms": 5.104,
+   "clock": {
+    "consecutive_pass_pairs_ok": 5,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-disc": {
+   "passes": 321,
+   "worst_cpu": 255784,
+   "worst_ms": 5.116,
+   "clock": {
+    "consecutive_pass_pairs_ok": 5,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-noresp": {
+   "passes": 630,
+   "worst_cpu": 255820,
+   "worst_ms": 5.116,
+   "clock": {
+    "consecutive_pass_pairs_ok": 6,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-notk": {
+   "passes": 1080,
+   "worst_cpu": 257546,
+   "worst_ms": 5.151,
+   "clock": {
+    "consecutive_pass_pairs_ok": 4,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "backlog-adp": {
+   "passes": 84,
+   "worst_cpu": 255060,
+   "worst_ms": 5.101,
+   "clock": {
+    "consecutive_pass_pairs_ok": 6,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 255060,
+   "composed_ms": 5.101,
+   "backlog_rows": {
+    "ENTITY_AVAILABLE behind the adp ring": {
+     "start": 86250284,
+     "end": 87040326,
+     "ms": 7.9
+    }
+   }
+  },
+  "backlog": {
+   "passes": 119,
+   "worst_cpu": 685184,
+   "worst_ms": 13.704,
+   "clock": {
+    "consecutive_pass_pairs_ok": 34,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 685184,
+   "composed_ms": 13.704,
+   "backlog_rows": {
+    "event behind 15 others": {
+     "start": 78167742,
+     "end": 79579948,
+     "ms": 14.122
+    },
+    "ACMP command behind a full acmp ring": {
+     "start": 78170820,
+     "wire": 84206501,
+     "wire_ms": 60.357
+    },
+    "response with 7 owed ahead": {
+     "start": 104775320,
+     "wire": 112353427,
+     "wire_ms": 75.781,
+     "room": 110775316
+    }
+   }
+  }
+ }
+}
