@@ -1,0 +1,23 @@
+--- delta_probes.py
++++ qualified_probes.py
+@@ -34,11 +34,11 @@
+  span=(frames+sum(l['frames'] for l in losses))/RATE
+  layout=t.CounterCapture(C,'big',RATE,100.,200.,anchors=((frames,100.+span,200.+span),),gptp_steps_wall_s=steps)
+  data=b if chunk is None else [b[i:i+chunk] for i in range(0,len(b),chunk)]
+- verdict,detail=t.grade_audio_counter_capture(data,layout,t.CounterRunLog(arms,list(losses),0))
++ verdict,detail=t.grade_audio_counter_capture(data,layout,t.CounterRunLog(arms,list(losses),0),required_s=(frames-126)/RATE)
+  row=dict(name=name,ops=ops,frames=frames,chunk=chunk,verdict=verdict,
+           sha256=hashlib.sha256(b).hexdigest(),missed=detail.get('planted_missed'),
+           counts=detail.get('counts'),why=detail.get('why'),timing_unsupported=detail.get('timing_unsupported'),
+-          events=[e for e in detail.get('events',[]) if e['attribution']!='planted'])
++          events=[e for e in detail.get('events',[]) if e['attribution']!='planted'],qualified=detail.get('qualified'))
+  rows.append(row)
+  print(name,verdict,[(e['channel'],e['capture_index'],e['class'],e.get('n'),e.get('mask'),e.get('unresolved')) for e in row['events']],flush=True)
+  return row
+@@ -68,5 +68,5 @@
+  reads=[dict(target='input-0',timestamp_s=s,values=dict(dict.fromkeys(names,0),MEDIA_UNLOCKED=v)) for s,v in zip(times,values)]
+  result=t.check_release_soak_counters(reads,[dict(target='input-0',kind='planted',window_s=(10,20))],targets=['input-0'],capture_complete=True)
+  rows.append(dict(name=name,result=result));print(name,result,flush=True)
+-(out/'delta-probes.json').write_text(json.dumps(dict(period_frames=2**43,period_days_at_192k=2**43/192000/86400,
++(out/'qualified-probes.json').write_text(json.dumps(dict(period_frames=2**43,period_days_at_192k=2**43/192000/86400,
+  run_frames_at_192k=86400*192000,probes=rows),indent=2)+'\n')

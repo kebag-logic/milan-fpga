@@ -1,0 +1,53 @@
+{
+  "plan_sha256": "9d423f1d128ebe650e638c0228d34bab6b29bd0544dfd85fb2a59539e97d821d",
+  "plan_bytes": 105942,
+  "steps": 17,
+  "audio_integrity": {
+    "counter_grader": "grade_audio_counter_capture",
+    "counter_grader_required_s": 86400,
+    "counter_classes": [
+      "dropped",
+      "repeated",
+      "silence",
+      "bit-flip",
+      "swap",
+      "unresolved"
+    ],
+    "qualification": {
+      "interval": "from 63 samples after the last counter channel's acquisition to 63 samples before the capture's end",
+      "guard_frames": 63,
+      "observed_only": "logged capture losses are not observed time",
+      "capture_rule": "capture past the required duration at both ends by the guards and by any logged loss, inside the soak window",
+      "verdict": "every verdict states the interval; PASS needs at least required_s observed seconds in it; a shorter interval is NOT RUN",
+      "required_s": 86400
+    },
+    "counter_limits": [
+      "every slip is sized exactly from the decoded position",
+      "a slip of whole 2048-sample blocks is found within 63 samples and carries located_within, the samples it may have happened at",
+      "inside a cluster of events less than 64 samples apart, the slips between them take the smallest sizes the positions allow, and a code bit those sizes leave unexplained reads as a code-bit corruption; the cluster's total is exact",
+      "a word equal to a neighbouring received word is a repeat",
+      "an excursion of two or more words with one constant XOR mask is one corruption at any length, even where slips would produce the same words",
+      "a stretch longer than 65536 words without 64 clean samples is graded in pieces; a constant-mask corruption stays a bit-flip with that mask in each",
+      "at either end of a capture, words that differ from their track only in the code bit are one unresolved event: a slip of whole blocks or a code-bit corruption, with located_within for the slip",
+      "any other slip that 64 clean samples cannot confirm, in a capture's last samples or inside a constant-mask excursion the capture ends in, carries unresolved",
+      "nothing outside the qualified interval is proved clean"
+    ],
+    "planted_placement": "a drop, a repeat and a flip in the first tenth of the capture and again in its last tenth, inside the qualified interval, logged with capture index, channel and size or mask",
+    "capture_start": "once the counter flows on every channel; words before a channel's acquisition are graded against the track it acquires, so leading silence fails; a channel that has not acquired within 65536 frames voids the run",
+    "capture_losses": "logged by the capture tool inside the qualified interval; attributed to the capture and reported apart; a loss advances the acquisition index and both clocks",
+    "pass_rule": "zero DUT-attributed events on every bound channel, both directions, with every planted arm found, over a qualified interval of at least required_s observed seconds",
+    "window_rule": "start after soak.continuous binds every pair and starts timing; end at or before its endpoint; the soak outlasts duration_s by the capture's guards and logged losses"
+  },
+  "audio_asserts": [
+    "release.complete-evidence",
+    "audio.inside-soak-window",
+    "audio.counter-every-digital-path",
+    "audio.counter-classified",
+    "audio.planted-arms-found",
+    "audio.capture-losses-apart",
+    "audio.event-record",
+    "audio.analog-sine-pair",
+    "audio.zero-dut-glitches"
+  ],
+  "control_fixture_required_s": 0.509375
+}

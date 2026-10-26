@@ -1,0 +1,160 @@
+[
+  {
+    "name": "selftest",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--self-test"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 7.829
+  },
+  {
+    "name": "behave",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "tests",
+    "rc": 0,
+    "seconds": 3.271
+  },
+  {
+    "name": "coverage",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--coverage-by-area",
+      "--areas",
+      "soak,audio,power"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 0.166
+  },
+  {
+    "name": "docs",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 7.127
+  },
+  {
+    "name": "paths",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 0.115
+  },
+  {
+    "name": "toc",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 5.876
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 4.222
+  },
+  {
+    "name": "em_dash",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "e76a755a"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 3.069
+  },
+  {
+    "name": "style",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 0.064
+  },
+  {
+    "name": "idiom",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 5.473
+  },
+  {
+    "name": "feature_status",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_feature_status.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 1.166
+  },
+  {
+    "name": "feature_selftest",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 1.167
+  },
+  {
+    "name": "diff_check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "e76a755a",
+      "HEAD"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 0.016
+  }
+]
