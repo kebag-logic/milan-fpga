@@ -1,0 +1,160 @@
+[
+  {
+    "name": "selftest",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--self-test"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 3.12
+  },
+  {
+    "name": "behave",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "behave",
+      "--no-capture",
+      "-f",
+      "plain"
+    ],
+    "cwd": "tests",
+    "rc": 0,
+    "seconds": 2.47
+  },
+  {
+    "name": "coverage",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "tb/tools/torture_campaign.py",
+      "--coverage-by-area",
+      "--areas",
+      "soak,audio,power"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 0.16
+  },
+  {
+    "name": "docs_check",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/docs_check.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 7.08
+  },
+  {
+    "name": "doc_paths",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_doc_paths.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 0.11
+  },
+  {
+    "name": "toc",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--check"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 5.77
+  },
+  {
+    "name": "anchors",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/gen_toc.py",
+      "--verify-anchors"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 4.02
+  },
+  {
+    "name": "em_dash",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_em_dash.py",
+      "--base",
+      "e76a755a"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 2.87
+  },
+  {
+    "name": "doc_style",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_doc_style.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 0.06
+  },
+  {
+    "name": "py_idiom",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_py_idiom.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 5.02
+  },
+  {
+    "name": "feature_status",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_feature_status.py"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 1.12
+  },
+  {
+    "name": "feature_status_selftest",
+    "command": [
+      "$VALIDATION_TOOLS/md-venv/bin/python",
+      "-B",
+      "scripts/check_feature_status.py",
+      "--self-test"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 1.17
+  },
+  {
+    "name": "diff_check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "e76a755a",
+      "HEAD"
+    ],
+    "cwd": ".",
+    "rc": 0,
+    "seconds": 0.02
+  }
+]

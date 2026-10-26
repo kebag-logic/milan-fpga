@@ -1,0 +1,1885 @@
+[
+  {
+    "name": "clean",
+    "expected_verdict": "PASS",
+    "actual_verdict": "NOT RUN",
+    "injected": [],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "drop-5",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 5
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "repeat-4",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "repeated",
+        "n": 4
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "silence-6",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "silence",
+        "span": 6
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 8000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 8000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 8000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 8000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 8000,
+        "class": "silence",
+        "n": 6,
+        "inserted": null,
+        "expected": null,
+        "received": "0x00000000",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "silence",
+        "n": 6,
+        "inserted": null,
+        "expected": null,
+        "received": "0x00000000",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "silence",
+        "n": 6,
+        "inserted": null,
+        "expected": null,
+        "received": "0x00000000",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "silence",
+        "n": 6,
+        "inserted": null,
+        "expected": null,
+        "received": "0x00000000",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8006,
+        "class": "bit-flip",
+        "n": 11994,
+        "expected": null,
+        "received": "0x001F4700",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8006,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8006,
+        "class": "bit-flip",
+        "n": 11994,
+        "expected": null,
+        "received": "0x002F4700",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 8006,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8006,
+        "class": "bit-flip",
+        "n": 11994,
+        "expected": null,
+        "received": "0x003F4700",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 8006,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8006,
+        "class": "bit-flip",
+        "n": 11994,
+        "expected": null,
+        "received": "0x004F4700",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 8006,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "swap-3",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "swap",
+        "span": 3,
+        "channels": [
+          0,
+          2
+        ]
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x003FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "missed-arm",
+    "expected_verdict": "NOT RUN",
+    "actual_verdict": "NOT RUN",
+    "injected": [],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "capture-loss",
+    "expected_verdict": "PASS",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 9
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [],
+    "why": "a logged capture loss is not in the capture"
+  },
+  {
+    "name": "drop-4096",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 4096
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "drop-3000",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 3000
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "two-low-bit-flips",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "bit-flip",
+        "span": 2,
+        "channel": 2,
+        "mask": 1024
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x001FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "single-tag-bit-flip",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "bit-flip",
+        "channel": 0,
+        "mask": 2097152
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x003FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "copy-channel",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "NOT RUN",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "copy-channel",
+        "span": 3,
+        "source": 2,
+        "destination": 0
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00100000",
+        "mask": "0x003FFF00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00200000",
+        "mask": "0x002FFF00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00300000",
+        "mask": "0x003FFF00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      },
+      {
+        "capture_index": 0,
+        "class": "bit-flip",
+        "n": 20000,
+        "expected": null,
+        "received": "0x00400000",
+        "mask": "0x004FFF00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 0,
+        "wall_s": 100.0,
+        "gptp_s": 200.0,
+        "timing": "anchored",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": [
+          95.0,
+          105.0
+        ]
+      }
+    ],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 500,
+        "class": "bit-flip",
+        "channel": 1,
+        "mask": 256
+      },
+      {
+        "index": 19000,
+        "class": "dropped",
+        "n": 3
+      },
+      {
+        "index": 19300,
+        "class": "repeated",
+        "n": 2
+      },
+      {
+        "index": 19600,
+        "class": "bit-flip",
+        "channel": 3,
+        "mask": 256
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "commit-target-defaults-persistence-disabled",
+    "expected_verdict": "NOT RUN or FAIL",
+    "result": [
+      "NOT RUN",
+      {
+        "phase": "journal_commit",
+        "items": [
+          "configuration",
+          "sampling_rate",
+          "stream_format",
+          "presentation_time_offset",
+          "channel_mappings",
+          "clock_source",
+          "entity_names",
+          "object_names",
+          "stream_binding"
+        ],
+        "pending_at_default": [
+          "configuration",
+          "sampling_rate",
+          "stream_format",
+          "presentation_time_offset",
+          "channel_mappings",
+          "clock_source",
+          "entity_names",
+          "object_names",
+          "stream_binding"
+        ],
+        "why": "pending value equals its default, so a fallback is invisible"
+      }
+    ]
+  },
+  {
+    "name": "unlock-outside-planted-window",
+    "actual_unlock_s": 45,
+    "reads": [
+      {
+        "target": "input-0",
+        "timestamp_s": 0,
+        "values": {
+          "SEQ_NUM_MISMATCH": 0,
+          "STREAM_INTERRUPTED": 0,
+          "LATE_TIMESTAMP": 0,
+          "EARLY_TIMESTAMP": 0,
+          "MEDIA_UNLOCKED": 0
+        }
+      },
+      {
+        "target": "input-0",
+        "timestamp_s": 60,
+        "values": {
+          "SEQ_NUM_MISMATCH": 0,
+          "STREAM_INTERRUPTED": 0,
+          "LATE_TIMESTAMP": 0,
+          "EARLY_TIMESTAMP": 0,
+          "MEDIA_UNLOCKED": 1
+        }
+      }
+    ],
+    "planted": [
+      {
+        "target": "input-0",
+        "kind": "deliberate disturbance",
+        "window_s": [
+          10,
+          20
+        ]
+      }
+    ],
+    "expected_verdict": "FAIL or NOT RUN without temporal evidence",
+    "result": [
+      "FAIL",
+      {
+        "zero_growth": [
+          "SEQ_NUM_MISMATCH",
+          "STREAM_INTERRUPTED",
+          "LATE_TIMESTAMP",
+          "EARLY_TIMESTAMP"
+        ],
+        "planted_only": "MEDIA_UNLOCKED",
+        "target": "input-0",
+        "counter": "MEDIA_UNLOCKED",
+        "delta": 1,
+        "interval_s": [
+          0,
+          60
+        ],
+        "why": "MEDIA_UNLOCKED outside a planted event"
+      }
+    ]
+  },
+  {
+    "name": "timestamps-after-capture-loss",
+    "verdict": "NOT RUN",
+    "event": {
+      "capture_index": 0,
+      "class": "bit-flip",
+      "n": 20000,
+      "expected": null,
+      "received": "0x00100000",
+      "mask": "0x001FFF01",
+      "channel": 0,
+      "attribution": "dut",
+      "acquisition_index": 0,
+      "wall_s": 100.0,
+      "gptp_s": 200.0,
+      "timing": "anchored",
+      "anchors": [
+        0,
+        null
+      ],
+      "context_wall_s": [
+        95.0,
+        105.0
+      ]
+    },
+    "capture_loss_frames": 409600,
+    "expected_wall_s": 108.7,
+    "expected_gptp_s": 208.7,
+    "expected_capture_duration_s": 8.95,
+    "actual_capture_duration_s": 8.95
+  }
+]

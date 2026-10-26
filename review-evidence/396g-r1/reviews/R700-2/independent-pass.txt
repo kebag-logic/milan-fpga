@@ -1,0 +1,10 @@
+[R700] NEGATIVE - exact head a3e24ac5ef984cb92458f1728f2c275349ae9854
+Independent delta assessment written before deliberately reading prior finding bodies or another review report. Verification and prior-finding reconciliation are pending.
+The entire six-file delta was inspected against REQ-VER-06 and the public decisions, including changed grader, planner, unit controls, mutation anchors, feature steps and documentation. Unchanged production contracts retain prior coverage.
+Potential findings demonstrated with the new self-test independent capture helper: a 2048-frame drop at stored frame 8191 of 8192 passes with no DUT event; 8192-frame drops at 8190 and 8191 also pass. A 100-word constant XOR 0x100 excursion is reported as two 499717412864-frame slips, contrary to the documented constant-mask rule. These need independent portable receipts.
+Lens | Status | Artifacts | Covering round | Head
+Conformance | UNCLEAN | REQUIREMENTS.md:402-419; torture_campaign.py:4000-4220,4445-4503; tail drop probe | R700-2 independent pass | a3e24ac5ef984cb92458f1728f2c275349ae9854
+RTL | CLEAN | git diff 21faa482..a3e24ac5: six files, no RTL/firmware/submodule change; S32 layout arithmetic and parser boundaries examined | R700-2 independent pass plus unchanged R700-1 scope | a3e24ac5ef984cb92458f1728f2c275349ae9854
+Robustness | UNCLEAN | torture_campaign.py:3920-3947,4047-4220; capture-edge and long-XOR probes | R700-2 independent pass | a3e24ac5ef984cb92458f1728f2c275349ae9854
+Tests | UNCLEAN | test_audio_compound_and_edge_events and test_audio_block_slips_are_sized_exactly; feature delta and mutation controls | R700-2 independent pass | a3e24ac5ef984cb92458f1728f2c275349ae9854
+Docs | UNCLEAN | TESTING.md:1310-1345; last-63 unresolved and constant-mask claims do not match probes | R700-2 independent pass | a3e24ac5ef984cb92458f1728f2c275349ae9854

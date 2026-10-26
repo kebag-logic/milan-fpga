@@ -1,0 +1,869 @@
+[
+  {
+    "name": "clean",
+    "expected_verdict": "PASS",
+    "actual_verdict": "PASS",
+    "injected": [],
+    "events": [],
+    "missed": [],
+    "why": "zero DUT-attributed events; every planted arm found"
+  },
+  {
+    "name": "drop-5",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 5
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 5,
+        "expected": "0x001E8300",
+        "received": "0x001E8C00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 5,
+        "expected": "0x002E8300",
+        "received": "0x002E8C00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 5,
+        "expected": "0x003E8300",
+        "received": "0x003E8C00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 5,
+        "expected": "0x004E8300",
+        "received": "0x004E8C00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "repeat-4",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "repeated",
+        "n": 4
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "repeated",
+        "n": 4,
+        "expected": "0x001E8300",
+        "received": "0x001E7A00",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "repeated",
+        "n": 4,
+        "expected": "0x002E8300",
+        "received": "0x002E7A00",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "repeated",
+        "n": 4,
+        "expected": "0x003E8300",
+        "received": "0x003E7A00",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "repeated",
+        "n": 4,
+        "expected": "0x004E8300",
+        "received": "0x004E7A00",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "silence-6",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "silence",
+        "span": 6
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "silence",
+        "n": 6,
+        "inserted": false,
+        "expected": "0x001E8300",
+        "received": "0x00000000",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "silence",
+        "n": 6,
+        "inserted": false,
+        "expected": "0x002E8300",
+        "received": "0x00000000",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "silence",
+        "n": 6,
+        "inserted": false,
+        "expected": "0x003E8300",
+        "received": "0x00000000",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "silence",
+        "n": 6,
+        "inserted": false,
+        "expected": "0x004E8300",
+        "received": "0x00000000",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "swap-3",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "swap",
+        "span": 3,
+        "channels": [
+          0,
+          2
+        ]
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "swap",
+        "n": 3,
+        "expected": "0x001E8300",
+        "received": "0x003E8300",
+        "partner": 2,
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "swap",
+        "n": 3,
+        "expected": "0x003E8300",
+        "received": "0x001E8300",
+        "partner": 0,
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "missed-arm",
+    "expected_verdict": "NOT RUN",
+    "actual_verdict": "NOT RUN",
+    "injected": [],
+    "events": [],
+    "missed": [
+      {
+        "index": 100,
+        "class": "dropped",
+        "n": 3
+      }
+    ],
+    "why": "void: a planted arm was missed"
+  },
+  {
+    "name": "capture-loss",
+    "expected_verdict": "PASS",
+    "actual_verdict": "PASS",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 9
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 9,
+        "expected": "0x001E8300",
+        "received": "0x001E9500",
+        "channel": 0,
+        "attribution": "capture",
+        "acquisition_index": 8009,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 9,
+        "expected": "0x002E8300",
+        "received": "0x002E9500",
+        "channel": 1,
+        "attribution": "capture",
+        "acquisition_index": 8009,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 9,
+        "expected": "0x003E8300",
+        "received": "0x003E9500",
+        "channel": 2,
+        "attribution": "capture",
+        "acquisition_index": 8009,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 9,
+        "expected": "0x004E8300",
+        "received": "0x004E9500",
+        "channel": 3,
+        "attribution": "capture",
+        "acquisition_index": 8009,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "zero DUT-attributed events; every planted arm found"
+  },
+  {
+    "name": "drop-4096",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 4096
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 4096,
+        "expected": "0x001E8300",
+        "received": "0x001E8200",
+        "located_within": [
+          7999,
+          8000
+        ],
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 4096,
+        "expected": "0x002E8300",
+        "received": "0x002E8200",
+        "located_within": [
+          7999,
+          8000
+        ],
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 4096,
+        "expected": "0x003E8300",
+        "received": "0x003E8200",
+        "located_within": [
+          7999,
+          8000
+        ],
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 4096,
+        "expected": "0x004E8300",
+        "received": "0x004E8200",
+        "located_within": [
+          7999,
+          8000
+        ],
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "drop-3000",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "dropped",
+        "n": 3000
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 3000,
+        "expected": "0x001E8300",
+        "received": "0x0015F300",
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 3000,
+        "expected": "0x002E8300",
+        "received": "0x0025F300",
+        "channel": 1,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 3000,
+        "expected": "0x003E8300",
+        "received": "0x0035F300",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      },
+      {
+        "capture_index": 8000,
+        "class": "dropped",
+        "n": 3000,
+        "expected": "0x004E8300",
+        "received": "0x0045F300",
+        "channel": 3,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "two-low-bit-flips",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "bit-flip",
+        "span": 2,
+        "channel": 2,
+        "mask": 1024
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "bit-flip",
+        "n": 2,
+        "expected": "0x003E8300",
+        "received": "0x003E8700",
+        "mask": "0x00000400",
+        "channel": 2,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "single-tag-bit-flip",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "bit-flip",
+        "channel": 0,
+        "mask": 2097152
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "bit-flip",
+        "n": 1,
+        "expected": "0x001E8300",
+        "received": "0x003E8300",
+        "mask": "0x00200000",
+        "matches_channel": 2,
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "copy-channel",
+    "expected_verdict": "FAIL",
+    "actual_verdict": "FAIL",
+    "injected": [
+      {
+        "index": 8000,
+        "class": "copy-channel",
+        "span": 3,
+        "source": 2,
+        "destination": 0
+      }
+    ],
+    "events": [
+      {
+        "capture_index": 8000,
+        "class": "bit-flip",
+        "n": 3,
+        "expected": "0x001E8300",
+        "received": "0x003E8300",
+        "mask": "0x00200000",
+        "matches_channel": 2,
+        "channel": 0,
+        "attribution": "dut",
+        "acquisition_index": 8000,
+        "wall_s": null,
+        "gptp_s": null,
+        "timing": "unsupported: no anchor after the event",
+        "anchors": [
+          0,
+          null
+        ],
+        "context_wall_s": null
+      }
+    ],
+    "missed": [],
+    "why": "DUT-attributed audio events"
+  },
+  {
+    "name": "commit-target-defaults-persistence-disabled",
+    "expected_verdict": "NOT RUN or FAIL",
+    "result": [
+      "NOT RUN",
+      {
+        "phase": "journal_commit",
+        "items": [
+          "configuration",
+          "sampling_rate",
+          "stream_format",
+          "presentation_time_offset",
+          "channel_mappings",
+          "clock_source",
+          "entity_names",
+          "object_names",
+          "stream_binding"
+        ],
+        "pending_at_default": [
+          "configuration",
+          "sampling_rate",
+          "stream_format",
+          "presentation_time_offset",
+          "channel_mappings",
+          "clock_source",
+          "entity_names",
+          "object_names",
+          "stream_binding"
+        ],
+        "why": "pending value equals its default, so a fallback is invisible"
+      }
+    ]
+  },
+  {
+    "name": "unlock-outside-planted-window",
+    "actual_unlock_s": 45,
+    "reads": [
+      {
+        "target": "input-0",
+        "timestamp_s": 0,
+        "values": {
+          "SEQ_NUM_MISMATCH": 0,
+          "STREAM_INTERRUPTED": 0,
+          "LATE_TIMESTAMP": 0,
+          "EARLY_TIMESTAMP": 0,
+          "MEDIA_UNLOCKED": 0
+        }
+      },
+      {
+        "target": "input-0",
+        "timestamp_s": 60,
+        "values": {
+          "SEQ_NUM_MISMATCH": 0,
+          "STREAM_INTERRUPTED": 0,
+          "LATE_TIMESTAMP": 0,
+          "EARLY_TIMESTAMP": 0,
+          "MEDIA_UNLOCKED": 1
+        }
+      }
+    ],
+    "planted": [
+      {
+        "target": "input-0",
+        "kind": "deliberate disturbance",
+        "window_s": [
+          10,
+          20
+        ]
+      }
+    ],
+    "expected_verdict": "FAIL or NOT RUN without temporal evidence",
+    "result": [
+      "FAIL",
+      {
+        "zero_growth": [
+          "SEQ_NUM_MISMATCH",
+          "STREAM_INTERRUPTED",
+          "LATE_TIMESTAMP",
+          "EARLY_TIMESTAMP"
+        ],
+        "planted_only": "MEDIA_UNLOCKED",
+        "target": "input-0",
+        "counter": "MEDIA_UNLOCKED",
+        "delta": 1,
+        "interval_s": [
+          0,
+          60
+        ],
+        "why": "MEDIA_UNLOCKED outside a planted event"
+      }
+    ]
+  },
+  {
+    "name": "timestamps-after-capture-loss",
+    "verdict": "FAIL",
+    "event": {
+      "capture_index": 8000,
+      "class": "bit-flip",
+      "n": 1,
+      "expected": "0x001E8300",
+      "received": "0x001E8301",
+      "mask": "0x00000001",
+      "channel": 0,
+      "attribution": "dut",
+      "acquisition_index": 417600,
+      "wall_s": null,
+      "gptp_s": null,
+      "timing": "unsupported: no anchor after the event",
+      "anchors": [
+        0,
+        null
+      ],
+      "context_wall_s": null
+    },
+    "capture_loss_frames": 409600,
+    "expected_wall_s": 108.7,
+    "expected_gptp_s": 208.7,
+    "expected_capture_duration_s": 8.95,
+    "actual_capture_duration_s": 8.95
+  },
+  {
+    "name": "grader-count-mutant",
+    "returncode": 1,
+    "result": "KILLED"
+  }
+]

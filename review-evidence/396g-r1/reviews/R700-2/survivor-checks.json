@@ -1,0 +1,23 @@
+[
+  {
+    "mutant": "G07 capture loss needs only one channel",
+    "rc": 1,
+    "named_failures": [
+      "test_audio_capture_loss_needs_every_channel"
+    ]
+  },
+  {
+    "mutant": "G12 swap partner channel ignored in a run",
+    "rc": 1,
+    "named_failures": [
+      "test_audio_tag_integrity_decides_first"
+    ]
+  },
+  {
+    "mutant": "R03 soft reset graded as a commit cut",
+    "rc": 1,
+    "named_failures": [
+      "test_release_commit_cut_evidence"
+    ]
+  }
+]
