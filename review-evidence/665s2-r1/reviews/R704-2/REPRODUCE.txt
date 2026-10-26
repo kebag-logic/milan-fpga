@@ -1,0 +1,63 @@
+R704-2 focused review reproduction
+
+Use a detached checkout of cd3525c3ddcbdb5d78bf8fccdab354c468926997
+with the five required submodules at their recorded gitlinks. All disposable
+builds, copied packages and traces used as inputs belong under packet/scratch.
+The publication commit is 33750832853802892619b60c16d7fa37d3911ccc.
+
+Set these environment variables to your local installations:
+  REVIEW_ROOT: exact-head checkout
+  REVIEW_PACKET: this packet directory
+  PRODUCT_PYTHON: product Python environment executable
+  MILAN_RV32_CC: RV32 GCC executable (recorded identity in environment.json)
+  PINNED_SIM_DIR: directory containing the verified 5.050 simulator
+The wrapper uses riscv32-linux as LITEX_ENV_CC_TRIPLE unless overridden.
+
+Prepare an isolated pythondata_cpu_vexiiriscv package under
+scratch/python, copying its __init__.py and cached configuration Python files,
+and the required cached VexiiRiscvLitex netlist and two Ram helper Verilog files.
+The exact netlist identity is in builds/A1.build.json and A8.build.json. Put an
+executable sbt shim in scratch/bin that prints 'generation disabled' and exits 91.
+Do not write to the installed package or generate new CPU netlists.
+
+Run from REVIEW_ROOT, in the foreground. Each driver joins its children:
+  bash "$REVIEW_PACKET/with-env.sh" "$REVIEW_PACKET/get_public_receipts.py"
+  bash "$REVIEW_PACKET/with-env.sh" "$REVIEW_PACKET/prior-probes/run_review.py" build
+  bash "$REVIEW_PACKET/with-env.sh" "$REVIEW_PACKET/run_delta.py"
+  bash "$REVIEW_PACKET/with-env.sh" "$REVIEW_PACKET/probe_native_delta.py"
+  bash "$REVIEW_PACKET/with-env.sh" "$REVIEW_PACKET/probe_delta.py"
+  bash "$REVIEW_PACKET/with-env.sh" "$REVIEW_PACKET/probe_scenario_control.py"
+  bash "$REVIEW_PACKET/with-env.sh" "$REVIEW_PACKET/audit_receipts.py"
+  bash "$REVIEW_PACKET/with-env.sh" tb/verilator/ctrl_service_budget/run.py --self-test
+  bash "$REVIEW_PACKET/with-env.sh" "$REVIEW_PACKET/verify_identity.py"
+
+The two campaign tasks run concurrently with --jobs 8, five groups each.
+The native probe driver joins three independent tasks. This review overlapped
+those drivers under a foreground parent, at most thirteen simulations active.
+The unchanged build driver invokes the harness, whose native make uses -j16.
+No broad banks are needed for these probes.
+
+Expected outcomes: all fresh campaigns have zero refusals and match public
+results; expected budget misses are recorded. Independent fault probes confirm
+refusals and protected figures. scenario-control.json intentionally shows that
+removing SRP and its declared load leaves all self-test checks passing (F1).
+The receipt audit demonstrates the duplicate shutdown path denominators (F2).
+The twelve-command native variants produce 126.29163 and 161.10225 ms; the
+unchanged prior fan-out stimulus produces 7.70397 ms.
+
+The original prior-probes/probe_graders.py is retained unchanged. Executing it
+at the new head returns 1 because its old notification declaration omits the
+now-required recipients; prior-unmodified.log records that exact outcome.
+probe_delta.py uses its unchanged raw traces with the new declaration metadata.
+probe_native_delta.py uses the unchanged published native fan-out stimulus.
+The older probe_native.py is retained as provenance, not claimed as a passing
+new-head regression; its assertions expect the old defects.
+
+Publication policy: scratch is excluded. Raw numerical traces and prior scripts
+are byte-for-byte unchanged. Driver/build receipts replace local absolute paths
+with <checkout>, <packet>, <product-environment>, <rv32-sdk> or <simulator>.
+receipt-index.json records pre-normalization and published digests. These build
+metadata copies are for audit, not reusable local build directories. Original
+public evidence is referenced by immutable commit and verified SHA256; no
+cryptographic signature authentication is claimed. Verify MANIFEST.sha256 from
+this directory before consuming any receipt.

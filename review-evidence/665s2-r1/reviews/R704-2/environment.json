@@ -1,0 +1,9 @@
+{
+  "head": "cd3525c3ddcbdb5d78bf8fccdab354c468926997",
+  "tree": "8880067ab9fbfc65736fea8e245a2e748c1df279",
+  "delta": "tb/verilator/ctrl_service_budget/README.md         |  273 ++--\n tb/verilator/ctrl_service_budget/build.py          |  158 ++-\n tb/verilator/ctrl_service_budget/fixture.log       | 1351 ++++++++++----------\n tb/verilator/ctrl_service_budget/grade.py          |  316 ++++-\n tb/verilator/ctrl_service_budget/oracle.json       |  115 +-\n tb/verilator/ctrl_service_budget/run.py            |  135 +-\n tb/verilator/ctrl_service_budget/scenario.py       |  368 ++++--\n tb/verilator/ctrl_service_budget/selftest.py       |  484 ++++---\n .../ctrl_service_budget/selftest_mutants.py        |  230 ++++\n tb/verilator/ctrl_service_budget/sim_main.cpp      |   25 +-\n tb/verilator/ctrl_service_budget/split_soc.py      |    2 +-\n 11 files changed, 2318 insertions(+), 1139 deletions(-)",
+  "history": "cd3525c3ddcbdb5d78bf8fccdab354c468926997 Measure the defined composed load, the whole notification fan-out and SHUTDOWN, and protect every figure (#665)\nd58c8e22e9bd96237b9a28ea1ddd55b0426380c4 Measure every split service path in CPU cycles on the shipping core (#665)",
+  "simulator_identity": "Verilator 5.050 2026-07-01 rev v5.050",
+  "compiler_identity": "riscv32-linux-gcc.br_real (Buildroot 2026.05) 14.3.0",
+  "publication_commit_signature_status": "N"
+}
