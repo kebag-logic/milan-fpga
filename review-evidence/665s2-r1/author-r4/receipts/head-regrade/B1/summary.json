@@ -1,0 +1,53 @@
+{
+ "point": "1x1",
+ "build": "48fdb49b69a67159dae81cb832f020a0fd0c81d3d62f2a811dbe2b84e6b7cd87",
+ "counts": {
+  "paths": 44,
+  "path_misses": 18,
+  "instances": 68,
+  "instance_misses": 41
+ },
+ "windows": [
+  {
+   "group": "backlog",
+   "cycles": 740260,
+   "ms": 14.8052,
+   "passes": 27,
+   "window_ms": 162.90522,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "backlog-adp",
+   "cycles": 645058,
+   "ms": 12.90116,
+   "passes": 27,
+   "window_ms": 195.37062,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "backlog-owed",
+   "cycles": 582392,
+   "ms": 11.64784,
+   "passes": 44,
+   "window_ms": 364.029,
+   "serviced": true,
+   "unreleased": {}
+  }
+ ],
+ "composed_maximum": {
+  "cycles": 740260,
+  "ms": 14.8052,
+  "group": "backlog",
+  "windows": 3,
+  "lower_bound": false,
+  "unreleased": [],
+  "released": {
+   "cycles": 740260,
+   "ms": 14.8052,
+   "group": "backlog"
+  }
+ },
+ "refusals": []
+}
