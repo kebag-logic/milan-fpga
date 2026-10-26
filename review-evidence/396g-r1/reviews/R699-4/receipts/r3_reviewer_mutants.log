@@ -1,0 +1,17 @@
+CONTROL pristine rc=0
+KILLED: V01 qualified start without its guard rc=1 by ['test_audio_boundary_block_slips_are_unresolved', 'test_audio_qualified_interval_is_stated_and_required', 'test_release_audio_control_classifies_exactly']
+KILLED: V02 qualified end without its guard rc=1 by ['test_audio_boundary_block_slips_are_unresolved', 'test_audio_qualified_interval_is_stated_and_required', 'test_release_audio_control_classifies_exactly']
+KILLED: V03 arms outside the interval accepted rc=1 by ['test_audio_qualified_interval_is_stated_and_required']
+KILLED: V04 losses outside the interval accepted rc=1 by ['test_audio_qualified_interval_is_stated_and_required']
+KILLED: V05 required length off by one frame rc=1 by ['test_audio_qualified_interval_is_stated_and_required']
+KILLED: V06 no early refusal of an unacquired channel rc=1 by ['test_audio_qualified_interval_is_stated_and_required']
+INVALID: V07 per-word hold release removed (anchor count 0)
+KILLED: V08 fast-path hold release removed rc=1 by ['test_audio_constant_mask_at_every_length']
+INVALID: V09 return needs the exact mask (anchor count 0)
+KILLED: V10 window bound no longer keeps a constant mask rc=1 by ['test_audio_constant_mask_at_every_length']
+KILLED: V11 open words at the end start one later rc=1 by ['test_audio_boundary_block_slips_are_unresolved', 'test_audio_constant_mask_at_every_length']
+KILLED: V12 open location bound at the end widened rc=1 by ['test_audio_boundary_block_slips_are_unresolved']
+INVALID: V13 half-block candidate dropped (anchor count 0)
+KILLED: V14 unobserved frames counted as observed rc=1 by ['test_audio_qualified_interval_is_stated_and_required']
+KILLED: V15 anchor gap after the last anchor omitted rc=1 by ['test_audio_anchor_gaps_are_reported']
+KILLED: V16 held events released with no reason at the end rc=1 by ['test_audio_constant_mask_at_every_length']

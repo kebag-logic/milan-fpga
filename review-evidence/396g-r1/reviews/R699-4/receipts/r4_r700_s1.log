@@ -1,0 +1,2 @@
+EQUAL [["shift", 3000, 4096, 2], ["xor", 3001, 2, 256]] == [["shift", 3005, 4096, 2]] -> FAIL 0 [{"channel": 2, "capture_index": 3005, "class": "dropped", "n": 4096, "located_within": [3002, 3005]}]
+EQUAL [["shift", 3000, 4096, 2], ["xor", 3001, 2, 524288]] == [["shift", 3001, -1024, 2], ["shift", 3002, 5120, 2]] -> FAIL 0 [{"channel": 2, "capture_index": 3001, "class": "dropped", "n": 4096, "located_within": [2999, 3001]}, {"channel": 2, "capture_index": 3001, "class": "bit-flip", "n": 1, "mask": "0x00080000"}]
