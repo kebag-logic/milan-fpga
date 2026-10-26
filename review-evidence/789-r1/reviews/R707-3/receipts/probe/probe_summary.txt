@@ -1,0 +1,18 @@
+B01_drop_selftest regen=0 controls=1 check=0 events=0 :: AssertionError: ['emitted yosys-elaboration drops Prove the result cache refuses a planted entry']
+B02_tool_env_after regen=0 controls=1 check=0 events=0 :: AssertionError: ["emitted yosys-tool's job keys differ from the transformed derivation's", "tool job env differs from yosys-elaboration's"]
+B03_build_rewrite_after regen=0 controls=1 check=0 events=0 :: AssertionError: ['emitted yosys-tool changes Build Yosys from source on cache miss']
+B04_restore_no_failmiss regen=0 controls=1 check=0 events=0 :: AssertionError: ['emitted yosys-elaboration changes Restore the pinned Yosys build', 'yosys-elaboration does not restore exactly the tool tree before its version proof']
+B05_tool_timeout_raised regen=0 controls=1 check=0 events=0 :: AssertionError: ["emitted yosys-tool's job keys differ from the transformed derivation's", 'timeout changed or above the hosted budget: yosys-tool']
+B06_consumer_needs_dropped regen=0 controls=1 check=0 events=0 :: AssertionError: ["emitted yosys-elaboration's job keys differ from the transformed derivation's", 'yosys-elaboration does not need the tool job']
+B07_other_job_step regen=0 controls=1 check=0 events=0 :: AssertionError: ['emitted verilator-lint drops Upload actual job execution']
+B08_workflow_concurrency regen=0 controls=1 check=0 events=0 :: AssertionError: ["emitted workflow keys differ from the transformed derivation's: permissions"]
+B09_hashfiles_dropped regen=0 controls=1 check=0 events=0 :: AssertionError: ['tool key does not bind the scripts its build steps run: scripts/ci_install_cache.py']
+B10_digest_empty regen=0 controls=1 check=0 events=0 :: AssertionError: tool key unchanged by an edit of its build inputs: the template build step, the workflow env, the workflow defaults, yosys-elaboration's job env, an install-transform rewrite of the build, an export added to the job budget s
+B11_restore_other_digest regen=0 controls=1 check=0 events=0 :: AssertionError: ['emitted tool cache and its restore bind different recipes', 'yosys-elaboration does not restore exactly the tool tree before its version proof']
+B12_restore_fallback regen=0 controls=1 check=0 events=0 :: AssertionError: ['emitted yosys-tool changes Cache the pinned Yosys build', 'emitted yosys-elaboration changes Restore the pinned Yosys build', 'tool cache restores more than its exact key', 'yosys-elaboration does not restore exactly the t
+control regen=0 controls=0 check=0 events=0 :: 
+J01_no_jobkey_compare regen=0 controls=1 check=0 events=0 :: AssertionError: ('a consumer job key added', [])
+J02_no_recipe_set regen=0 controls=1 check=0 events=0 :: AssertionError: ('the restore bound to another recipe', [])
+J03_no_tops regen=0 controls=1 check=0 events=0 :: AssertionError: []
+J04_no_emitted_steps regen=0 controls=1 check=0 events=0 :: AssertionError: ('yosys-elaboration without Run actions/checkout@v4', [])
+J05_replay_is_emitted regen=0 controls=1 check=0 events=0 :: AssertionError: ["emitted yosys-tool's Cache the pinned Yosys build key is not its stand-in with one recipe bound", "emitted yosys-elaboration's Restore the pinned Yosys build key is not its stand-in with one recipe bound"]

@@ -1,0 +1,87 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0, "scripts"); from ci_fast_tool_selftest import fast_tool_controls; fast_tool_controls()
+                                                                                                     ~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/789-r707-3-packet/scratch/probe/m/B10_digest_empty/scripts/ci_fast_tool_selftest.py", line 608, in fast_tool_controls
+    fast_tool_key_inputs(template, generated)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/789-r707-3-packet/scratch/probe/m/B10_digest_empty/scripts/ci_fast_tool_selftest.py", line 505, in fast_tool_key_inputs
+    assert not missed, "tool key unchanged by an edit of its build inputs: " + ", ".join(missed)
+           ^^^^^^^^^^
+AssertionError: tool key unchanged by an edit of its build inputs: the template build step, the workflow env, the workflow defaults, yosys-elaboration's job env, an install-transform rewrite of the build, an export added to the job budget step
+Fast Yosys tool: yosys-elaboration keeps every other template step in order, the tool job runs the checkout and the two moved steps, and the emitted workflow changes only their two keys
+Fast Yosys tool: only yosys-elaboration and the verdict change; a docs-only run stays green
+Fast Yosys tool refused tool key bound to the workflow files: tool key binds the workflow files; tool key lacks the build recipe; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without its script binding: tool key does not bind the scripts its build steps run: scripts/ci_install_cache.py; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool job under another environment: tool job env differs from yosys-elaboration's
+Fast Yosys tool refused tool key without the version: tool key lacks the pinned version; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the source: tool key lacks the source commit; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the recipe: tool key lacks the build recipe; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the image: tool key lacks the runner image; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool cache with a fallback: tool cache restores more than its exact key
+Fast Yosys tool refused tool job without its build: tool job does not carry the template cache and build steps
+Fast Yosys tool refused tool timeout above the budget: timeout changed or above the hosted budget: yosys-tool
+Fast Yosys tool refused consumer timeout raised: timeout changed or above the hosted budget: yosys-elaboration
+Fast Yosys tool refused tool job on another condition: tool job if differs from yosys-elaboration's
+Fast Yosys tool refused consumer builds again: yosys-elaboration builds Yosys
+Fast Yosys tool refused consumer without the tool need: yosys-elaboration does not need the tool job
+Fast Yosys tool refused restore accepts a miss: yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused restore with a fallback: yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused restore of another key: yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused verdict without the tool need: rtl-fast verdict accepts a failed tool job
+Fast Yosys tool refused verdict without the tool pair: rtl-fast verdict accepts a failed tool job
+Fast Yosys tool retention refused actions/checkout@v4 dropped: yosys-elaboration drops actions/checkout@v4
+Fast Yosys tool retention refused Fetch RTL dependencies dropped: yosys-elaboration drops Fetch RTL dependencies
+Fast Yosys tool retention refused Install the pinned Yosys and prove the version dropped: yosys-elaboration drops Install the pinned Yosys and prove the version
+Fast Yosys tool retention refused Install the pinned sv2v release dropped: yosys-elaboration drops Install the pinned sv2v release
+Fast Yosys tool retention refused Elaborate the integration-heavy tops dropped: yosys-elaboration drops Elaborate the integration-heavy tops
+Fast Yosys tool retention refused Prove the OOC read sets come from run.sh and refuse a bad one dropped: yosys-elaboration drops Prove the OOC read sets come from run.sh and refuse a bad one
+Fast Yosys tool retention refused Prove ooc.sh generates the ROMs and fails on a failed top dropped: yosys-elaboration drops Prove ooc.sh generates the ROMs and fails on a failed top
+Fast Yosys tool retention refused Prove both synthesis flows refuse active elaboration guards dropped: yosys-elaboration drops Prove both synthesis flows refuse active elaboration guards
+Fast Yosys tool retention refused Prove the result cache refuses a planted entry dropped: yosys-elaboration drops Prove the result cache refuses a planted entry
+Fast Yosys tool retention refused a retained body rewritten: yosys-elaboration changes Elaborate the integration-heavy tops
+Fast Yosys tool retention refused a step added: yosys-elaboration adds Planted step
+Fast Yosys tool retention refused two retained steps swapped: yosys-elaboration reorders or repeats its retained steps
+Fast Yosys tool retention refused a retained step repeated: yosys-elaboration reorders or repeats its retained steps
+Fast Yosys tool retention refused the restore moved last: yosys-elaboration's one exact restore is not in its build's place
+Fast Yosys tool retention refused the restore accepting a miss: yosys-elaboration's one exact restore is not in its build's place
+Fast Yosys tool retention refused a consumer job key added: yosys-elaboration's job keys differ from the template's
+Fast Yosys tool retention refused a tool job step added: tool job steps are not the checkout and the two moved steps
+Fast Yosys tool retention refused the tool build rewritten: tool job steps are not the checkout and the two moved steps
+Fast Yosys tool retention refused a derivation that drops a self-test: yosys-elaboration drops Prove the result cache refuses a planted entry
+Fast Yosys tool emission refused yosys-elaboration without Run actions/checkout@v4: emitted yosys-elaboration drops Run actions/checkout@v4
+Fast Yosys tool emission refused yosys-elaboration without Set CPU-derived job budgets: emitted yosys-elaboration drops Set CPU-derived job budgets
+Fast Yosys tool emission refused yosys-elaboration without Fetch RTL dependencies: emitted yosys-elaboration drops Fetch RTL dependencies
+Fast Yosys tool emission refused yosys-elaboration without Restore the pinned Yosys build: emitted yosys-elaboration drops Restore the pinned Yosys build
+Fast Yosys tool emission refused yosys-elaboration without Install the pinned Yosys and prove the version: emitted yosys-elaboration drops Install the pinned Yosys and prove the version
+Fast Yosys tool emission refused yosys-elaboration without Cache verified sv2v archive: emitted yosys-elaboration drops Cache verified sv2v archive
+Fast Yosys tool emission refused yosys-elaboration without Install the pinned sv2v release: emitted yosys-elaboration drops Install the pinned sv2v release
+Fast Yosys tool emission refused yosys-elaboration without Elaborate the integration-heavy tops: emitted yosys-elaboration drops Elaborate the integration-heavy tops
+Fast Yosys tool emission refused yosys-elaboration without Prove the OOC read sets come from run.sh and refuse a bad one: emitted yosys-elaboration drops Prove the OOC read sets come from run.sh and refuse a bad one
+Fast Yosys tool emission refused yosys-elaboration without Prove ooc.sh generates the ROMs and fails on a failed top: emitted yosys-elaboration drops Prove ooc.sh generates the ROMs and fails on a failed top
+Fast Yosys tool emission refused yosys-elaboration without Prove both synthesis flows refuse active elaboration guards: emitted yosys-elaboration drops Prove both synthesis flows refuse active elaboration guards
+Fast Yosys tool emission refused yosys-elaboration without Prove the result cache refuses a planted entry: emitted yosys-elaboration drops Prove the result cache refuses a planted entry
+Fast Yosys tool emission refused yosys-elaboration without Record actual job execution: emitted yosys-elaboration drops Record actual job execution
+Fast Yosys tool emission refused yosys-elaboration without Upload actual job execution: emitted yosys-elaboration drops Upload actual job execution
+Fast Yosys tool emission refused yosys-tool without Run actions/checkout@v4: emitted yosys-tool drops Run actions/checkout@v4
+Fast Yosys tool emission refused yosys-tool without Set CPU-derived job budgets: emitted yosys-tool drops Set CPU-derived job budgets
+Fast Yosys tool emission refused yosys-tool without Cache the pinned Yosys build: emitted yosys-tool drops Cache the pinned Yosys build
+Fast Yosys tool emission refused yosys-tool without Resolve exact package downloads 2: emitted yosys-tool drops Resolve exact package downloads 2
+Fast Yosys tool emission refused yosys-tool without Cache exact package downloads 2: emitted yosys-tool drops Cache exact package downloads 2
+Fast Yosys tool emission refused yosys-tool without Build Yosys from source on cache miss: emitted yosys-tool drops Build Yosys from source on cache miss
+Fast Yosys tool emission refused yosys-tool without Record actual job execution: emitted yosys-tool drops Record actual job execution
+Fast Yosys tool emission refused yosys-tool without Upload actual job execution: emitted yosys-tool drops Upload actual job execution
+Fast Yosys tool emission refused a self-test body rewritten: emitted yosys-elaboration changes Prove the result cache refuses a planted entry
+Fast Yosys tool emission refused the tool build rewritten: emitted yosys-tool changes Build Yosys from source on cache miss
+Fast Yosys tool emission refused the tool evidence record rewritten: emitted yosys-tool changes Record actual job execution
+Fast Yosys tool emission refused a consumer step added: emitted yosys-elaboration adds Planted step
+Fast Yosys tool emission refused a tool step added before the cache save: emitted yosys-tool adds Planted step
+Fast Yosys tool emission refused two self-tests swapped: emitted yosys-elaboration reorders or repeats its steps
+Fast Yosys tool emission refused a consumer job key added: emitted yosys-elaboration's job keys differ from the transformed derivation's
+Fast Yosys tool emission refused a tool job key added: emitted yosys-tool's job keys differ from the transformed derivation's
+Fast Yosys tool emission refused another job's step dropped: emitted verilator-lint drops Fetch RTL dependencies
+Fast Yosys tool emission refused a job added: emitted jobs differ from the transformed derivation's: adds planted
+Fast Yosys tool emission refused the stand-in left in the restore: emitted yosys-elaboration's Restore the pinned Yosys build key is not its stand-in with one recipe bound; emitted yosys-elaboration changes Restore the pinned Yosys build
+Fast Yosys tool emission refused the restore bound to another recipe: emitted tool cache and its restore bind different recipes
+Fast Yosys tool emission refused a workflow env set after the digest: emitted workflow keys differ from the transformed derivation's: env
+Fast Yosys tool emission refused a key binding that drops a self-test: emitted yosys-elaboration drops Prove the result cache refuses a planted entry

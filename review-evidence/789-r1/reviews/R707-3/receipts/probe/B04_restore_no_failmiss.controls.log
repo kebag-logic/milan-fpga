@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0, "scripts"); from ci_fast_tool_selftest import fast_tool_controls; fast_tool_controls()
+                                                                                                     ~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/789-r707-3-packet/scratch/probe/m/B04_restore_no_failmiss/scripts/ci_fast_tool_selftest.py", line 592, in fast_tool_controls
+    assert found == [], found
+           ^^^^^^^^^^^
+AssertionError: ['emitted yosys-elaboration changes Restore the pinned Yosys build', 'yosys-elaboration does not restore exactly the tool tree before its version proof']

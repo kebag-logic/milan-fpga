@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0, "scripts"); from ci_fast_tool_selftest import fast_tool_controls; fast_tool_controls()
+                                                                                                     ~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/789-r707-3-packet/scratch/probe/m/B02_tool_env_after/scripts/ci_fast_tool_selftest.py", line 592, in fast_tool_controls
+    assert found == [], found
+           ^^^^^^^^^^^
+AssertionError: ["emitted yosys-tool's job keys differ from the transformed derivation's", "tool job env differs from yosys-elaboration's"]

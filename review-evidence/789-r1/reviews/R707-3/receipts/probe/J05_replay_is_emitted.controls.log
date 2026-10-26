@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0, "scripts"); from ci_fast_tool_selftest import fast_tool_controls; fast_tool_controls()
+                                                                                                     ~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/789-r707-3-packet/scratch/probe/m/J05_replay_is_emitted/scripts/ci_fast_tool_selftest.py", line 593, in fast_tool_controls
+    assert found == [], found
+           ^^^^^^^^^^^
+AssertionError: ["emitted yosys-tool's Cache the pinned Yosys build key is not its stand-in with one recipe bound", "emitted yosys-elaboration's Restore the pinned Yosys build key is not its stand-in with one recipe bound"]
