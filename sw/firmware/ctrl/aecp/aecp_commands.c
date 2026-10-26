@@ -13,11 +13,18 @@ struct aecp_descriptor *aecp_find(struct aecp *a, uint16_t cfg, uint16_t type, u
 	return NULL;
 }
 
+// Another controller holds the lock in force: one that expired holds, by its
+// owner, until the platform applied its release (#665; Milan v1.2 5.4.2.2).
+bool aecp_other_lock(const struct aecp *a)
+{
+	return (a->locked || a->unlocked) && a->lock_owner != a->requester;
+}
+
 // The lock check, which also refuses every change while one waits for the
 // platform (#665).
 bool aecp_foreign_lock(const struct aecp *a)
 {
-	return a->refusing || (a->locked && a->lock_owner != a->requester);
+	return a->refusing || aecp_other_lock(a);
 }
 
 bool aecp_overridden(const struct aecp *a, const struct aecp_descriptor *d, unsigned bit)
@@ -52,7 +59,6 @@ void aecp_note(struct aecp *a, enum aecp_change kind, uint16_t type, uint16_t in
 	aecp_port_end(a);
 	a->notify = true;
 }
-
 
 bool aecp_stream_read(struct aecp *a, uint16_t type, uint16_t index, struct aecp_stream_info *out)
 {
@@ -597,8 +603,9 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		return AECP_NOT_SUPPORTED;
 	case 1: return lock(a, in, len, out, bytes);
 	case 2:
+		// the lock in force (aecp_other_lock)
 		*bytes = 20u;
-		wire_put_be(out, a->locked ? 2u : 0u, 4);
+		wire_put_be(out, a->locked || a->unlocked ? 2u : 0u, 4);
 		wire_put_be(out + 12, a->lock_owner, 8);
 		return AECP_SUCCESS;
 	case 4: return descriptor(a, interface, in, len, out, bytes);

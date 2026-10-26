@@ -200,7 +200,7 @@ bool aecp_locked(struct aecp *a, uint64_t *owner)
 {
 	if (!aecp_enter(a)) return false;
 	*owner = a->lock_owner;
-	return a->locked;
+	return a->locked || a->unlocked; // the lock in force (aecp_other_lock)
 }
 
 unsigned aecp_registry_command(struct aecp *a, unsigned interface, uint16_t cmd, uint64_t mac,
@@ -269,8 +269,15 @@ static void mvu(struct aecp *a, const uint8_t *p, size_t bytes)
 			body = 20u;
 			status = 0u;
 		} else if (cmd == 1u || cmd == 2u) {
-			if (cmd == 2u || (bytes >= 40u && wire_be64(p + 32) != 0u && !aecp_foreign_lock(a))) {
-				if (cmd == 1u && a->system_id != wire_be64(p + 32)) {
+			bool set = cmd == 1u && bytes >= 40u && wire_be64(p + 32) != 0u;
+			if (cmd == 2u || (set && !aecp_other_lock(a))) {
+				status = 0u;
+				if (set && a->refusing) {
+					// refused as every change is while one waits for the
+					// platform, with the identifier in force (#665; Milan
+					// v1.2 5.4.4.2)
+					status = AECP_ENTITY_MISBEHAVING;
+				} else if (set && a->system_id != wire_be64(p + 32)) {
 					a->system_id = wire_be64(p + 32);
 					aecp_note(a, AECP_CHANGE_SYSTEM_ID, 0, 0);
 					a->notify = false; // MVU defines no unsolicited SUID response.
@@ -278,7 +285,6 @@ static void mvu(struct aecp *a, const uint8_t *p, size_t bytes)
 				a->response[44] = a->response[45] = 0;
 				wire_put_be(a->response + 46, a->system_id, 8);
 				body = 16u;
-				status = 0u;
 			}
 		}
 	}
@@ -363,7 +369,7 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 		} else {
 			status = aecp_command(a, interface, cmd, p + 24, bytes - 24u, a->response + 38, &result);
 		}
-		if (status == AECP_ENTITY_LOCKED && a->refusing && (!a->locked || a->lock_owner == a->requester)) {
+		if (status == AECP_ENTITY_LOCKED && a->refusing && !aecp_other_lock(a)) {
 			status = AECP_ENTITY_MISBEHAVING;
 		}
 		finish(a, status, result);
@@ -481,8 +487,9 @@ static bool transmit(struct aecp *a)
 static bool asynchronous(struct aecp *a)
 {
 	if (a->locked && due(a->now, a->lock_deadline)) {
+		// released to the platform; until it applied the release the lock
+		// holds, by its owner, for every response and read (#665)
 		a->locked = false;
-		a->lock_owner = 0;
 		aecp_note(a, AECP_CHANGE_LOCK, 0, 0);
 		a->notify = false;
 		a->unlocked = true;
@@ -491,6 +498,7 @@ static bool asynchronous(struct aecp *a)
 		// Milan v1.2 5.4.2.2: the expiry's notification, once the platform
 		// applied the release, however late (#665)
 		a->unlocked = false;
+		a->lock_owner = 0;
 		header(a, 0, 0, a->cfg.entity_id, 0, 0, 1u, 1u);
 		wire_put_be(a->response + 38, 1u, 4);
 		finish(a, AECP_SUCCESS, 16u);

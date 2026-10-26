@@ -101,13 +101,15 @@ struct aecp_ports {
 	uint32_t (*available_index)(void *, unsigned);
 	// Whether every change given to changed is applied: false while an apply
 	// waits for an acknowledgement it has not had (#665). While it is false
-	// the lock check refuses every change, ENTITY_MISBEHAVING, before it
-	// changes anything. A change of face state (AECP_WAITS) after which it is
+	// the lock check refuses every change, ENTITY_MISBEHAVING (ENTITY_LOCKED
+	// where another controller holds the lock in force), before it changes
+	// anything. A change of face state (AECP_WAITS) after which it is
 	// false is undone and answered IN_PROGRESS; it is done again, answered and
 	// notified once this is true within AECP_WAIT_MS, else it stays undone and
-	// answers ENTITY_MISBEHAVING. A lock expiry is notified once this is true
-	// (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.2.2,
-	// 5.4.5.2; IEEE 1722.1-2021 7.5.2, 9.3.2.6).
+	// answers ENTITY_MISBEHAVING. A lock released at its expiry holds, by its
+	// owner, for every response and read until this is true, and is then
+	// notified (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2
+	// 5.4.2.2, 5.4.5.2; IEEE 1722.1-2021 7.5.2, 9.3.2.6).
 	bool (*applied)(void *);
 };
 // The commands whose change a face commit carries: LOCK_ENTITY,
@@ -196,7 +198,7 @@ struct aecp {
 	// change undone and its response held, until applied or wait_deadline.
 	bool waiting;
 	bool refusing;          // the lock check refuses every change
-	bool unlocked;          // a lock expiry's notification waits for applied
+	bool unlocked;          // a lock released at its expiry, held until applied
 	uint8_t kept;
 	struct aecp_kept keep[AECP_KEPT];   // what the command changed, as it found it
 	enum aecp_change noted;

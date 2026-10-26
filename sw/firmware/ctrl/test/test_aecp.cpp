@@ -161,6 +161,13 @@ struct Core : testing::Test {
         return out;
     }
     void register_controller(uint64_t id=CTLR,unsigned interface=0){ask(36,{},0,id,interface);}
+    //! Milan v1.2 5.4.4.2 MVU SET_SYSTEM_UNIQUE_ID and its response.
+    Bytes set_system_id(uint64_t value,uint64_t controller=CTLR) {
+        Bytes body={0xc5,0x0a,0xc1,0,0,0,0,0};put(body,4,1,2);body.resize(16);put(body,8,value,8);
+        auto p=command(0x001b,body,controller,0,6);sent.clear();aecp_rx(&a,0,p.data(),p.size());drain();
+        if(sent.empty()){ADD_FAILURE()<<"SET_SYSTEM_UNIQUE_ID has a response";return Bytes(200);}
+        return sent.front().second;
+    }
 };
 }
 
@@ -710,8 +717,8 @@ TEST_F(Core, LockQueriesAndExpiry)
 
 // The platform's applied port (#665). While it is false every change is
 // refused by the lock check before it changes anything, ENTITY_MISBEHAVING,
-// with what that command's lock refusal reports; reads are answered (R701-4
-// F2; IEEE 1722.1-2021 7.4.15.1).
+// with what that command's lock refusal reports; reads are answered (#665;
+// IEEE 1722.1-2021 7.4.15.1).
 TEST_F(Core, AChangeThePlatformHasNotAppliedPromisesNothing)
 {
     auto map=[](unsigned type){Bytes b=target(type,0,16);put(b,4,1,2);put(b,10,1,2);put(b,12,1,2);return b;};
@@ -854,6 +861,113 @@ TEST_F(Core, ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease)
     EXPECT_FALSE(a.locked);EXPECT_TRUE(a.notify)<<"the expiry's notification waits for room";
     room=true;drain();EXPECT_EQ(unlocks(),1)<<"and leaves once there is";
     ask(24,identify);EXPECT_EQ(a.identify,255u)<<"changes are taken again";
+}
+
+// A lock released at its expiry holds, by its owner, for every response and
+// read until the platform applied the release: ENTITY_AVAILABLE, the lock the
+// ACMP owner reads, LOCK_ENTITY's locked_id and every refusal report it, so
+// another controller is refused by the lock itself and its owner as every
+// change is while one waits (#665; Milan v1.2 5.4.2.2, 5.4.4.2; IEEE
+// 1722.1-2021 7.4.1, 7.4.2).
+TEST_F(Core, AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease)
+{
+    bool face=true;unsigned released=0;
+    ON_CALL(mock,Applied).WillByDefault([&]{return face;});
+    ON_CALL(mock,Changed).WillByDefault([&](aecp_change kind,uint16_t,uint16_t){released+=kind==AECP_CHANGE_LOCK;});
+    register_controller(CTLR+1);ask(1,Bytes(16));released=0;
+    auto unlocks=[&]{return std::count_if(sent.begin(),sent.end(),[](auto&v){return get(v.second,36,2)==0x8001;});};
+    face=false;sent.clear();ms=60000;drain();
+    EXPECT_EQ(released,1u)<<"the release is given to the platform at sixty seconds";
+    EXPECT_EQ(unlocks(),0)<<"and not notified";
+    for(uint64_t id:{CTLR+1,CTLR}){
+        auto available=ask(2,{},0,id);
+        EXPECT_EQ(get(available,38,4),2u)<<"ENTITY_AVAILABLE reports the lock in force: locked";
+        EXPECT_EQ(get(available,50,8),CTLR)<<"by its owner";
+    }
+    uint64_t owner=0;
+    EXPECT_TRUE(aecp_locked(&a,&owner))<<"the lock the ACMP owner reads is the lock in force";EXPECT_EQ(owner,CTLR);
+    Bytes unlock(16);put(unlock,0,1,4);
+    auto refused=ask(1,Bytes(16),AECP_ENTITY_LOCKED,CTLR+1);
+    EXPECT_EQ(get(refused,16,2)>>11,AECP_ENTITY_LOCKED)
+        <<"another controller's LOCK_ENTITY is refused by the lock in force, naming its owner";
+    EXPECT_EQ(get(refused,42,8),CTLR)<<"another controller's LOCK_ENTITY is refused by the lock in force, naming its owner";
+    EXPECT_EQ(get(ask(1,unlock,AECP_ENTITY_MISBEHAVING),42,8),CTLR)<<"the owner's as every change is, naming it";
+    Bytes identify=target(26,0,5);identify[4]=255;
+    EXPECT_EQ(ask(24,identify,AECP_ENTITY_LOCKED,CTLR+1)[42],0u)<<"so is another controller's change";
+    EXPECT_EQ(ask(24,identify,AECP_ENTITY_MISBEHAVING)[42],0u)<<"and the owner's";
+    EXPECT_EQ(get(set_system_id(0x0102030405060708,CTLR+1),16,2)>>11,AECP_NOT_IMPLEMENTED)
+        <<"another controller's SET_SYSTEM_UNIQUE_ID keeps its status under the lock in force";
+    auto suid=set_system_id(0x0102030405060708);
+    EXPECT_EQ(get(suid,16,2)>>11,AECP_ENTITY_MISBEHAVING);EXPECT_EQ(get(suid,46,8),0u)<<"the owner's is refused";
+    EXPECT_EQ(released,1u)<<"no refusal changes anything";EXPECT_EQ(a.system_id,0u);EXPECT_EQ(a.identify,0u);
+    // applied: notified once, then released for every reader
+    face=true;sent.clear();drain();
+    ASSERT_EQ(unlocks(),1)<<"the expiry, notified once applied";
+    auto available=ask(2,{},0,CTLR+1);
+    EXPECT_EQ(get(available,38,4),0u)<<"read unlocked once notified";
+    EXPECT_EQ(get(available,50,8),0u)<<"read unlocked once notified, with no owner";
+    EXPECT_FALSE(aecp_locked(&a,&owner));EXPECT_EQ(owner,0u)<<"read unlocked once notified, with no owner";
+    EXPECT_EQ(get(ask(1,Bytes(16),0,CTLR+1),42,8),CTLR+1)<<"another controller takes it";
+}
+
+// An MVU SET_SYSTEM_UNIQUE_ID while a change waits, or while the platform has
+// not applied one, is refused as every change is: ENTITY_MISBEHAVING with the
+// identifier in force, changing nothing. Under another controller's lock it
+// keeps its own status (#665; Milan v1.2 5.4.4.2; IEEE 1722.1-2021 9.3.2.6).
+TEST_F(Core, ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs)
+{
+    bool face=true,late=false;
+    ON_CALL(mock,Applied).WillByDefault([&]{return face;});
+    ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){face=face&&!late;});
+    constexpr uint64_t IN_FORCE=0x0102030405060708,ASKED=0x1112131415161718;
+    EXPECT_EQ(get(set_system_id(IN_FORCE),16,2)>>11,0u);
+    late=true;Bytes identify=target(26,0,5);identify[4]=255;ask(24,identify,AECP_IN_PROGRESS);
+    ASSERT_TRUE(a.waiting);
+    auto out=set_system_id(ASKED);
+    EXPECT_EQ(get(out,16,2)>>11,AECP_ENTITY_MISBEHAVING)<<"refused while a change waits, as every change is";
+    ASSERT_EQ(out.size(),54u);EXPECT_EQ(get(out,46,8),IN_FORCE)<<"with the identifier in force";
+    ms+=AECP_WAIT_MS;sent.clear();drain();ASSERT_FALSE(a.waiting);ASSERT_FALSE(face)<<"the wait failed";
+    out=set_system_id(ASKED);
+    EXPECT_EQ(get(out,16,2)>>11,AECP_ENTITY_MISBEHAVING)<<"and after the wait failed, while the platform has not applied it";
+    ASSERT_EQ(out.size(),54u);EXPECT_EQ(get(out,46,8),IN_FORCE)<<"with the identifier in force";
+    EXPECT_EQ(a.system_id,IN_FORCE)<<"neither changes anything";
+    // another controller's lock keeps its own status, applied or not
+    late=false;face=true;ask(1,Bytes(16),0,CTLR+1);
+    for(bool applied:{false,true}){
+        face=applied;
+        EXPECT_EQ(get(set_system_id(ASKED),16,2)>>11,AECP_NOT_IMPLEMENTED)<<"under another controller's lock";
+    }
+    Bytes unlock(16);put(unlock,0,1,4);ask(1,unlock,0,CTLR+1);
+    out=set_system_id(ASKED);EXPECT_EQ(get(out,16,2)>>11,0u);EXPECT_EQ(get(out,46,8),ASKED)<<"taken once applied";
+}
+
+// A change that waits is answered on the interface it came in on, from that
+// interface's address, though a command on another interface was answered
+// meanwhile; so are its IN_PROGRESS and its failure (#665; IEEE 1722.1-2021
+// 9.3.2.6).
+TEST_F(Core, AWaitingChangeIsAnsweredOnTheInterfaceItCameIn)
+{
+    bool face=true,late=true;
+    ON_CALL(mock,Applied).WillByDefault([&]{return face;});
+    ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){face=face&&!late;});
+    const unsigned asked=AECP_TEST_INTERFACES-1u;   // interface 1 at two interfaces
+    for(unsigned value:{255u,0u}){
+        const bool taken=value!=0u;
+        Bytes identify=target(26,0,5);identify[4]=(uint8_t)value;
+        late=true;face=true;ask(24,identify,AECP_IN_PROGRESS,CTLR,asked);
+        EXPECT_EQ(sent.front().first,asked)<<"IN_PROGRESS leaves on the interface the command came in on";
+        ask(25,target(26,0),0,CTLR+7,0);EXPECT_EQ(sent.front().first,0u)<<"a read on interface 0 is answered there";
+        sent.clear();
+        if(taken){late=false;face=true;}else{ms+=AECP_WAIT_MS;}
+        drain();
+        ASSERT_FALSE(sent.empty())<<"the final response";
+        const auto &[egress,out]=sent.front();
+        EXPECT_EQ(get(out,16,2)>>11,taken?0u:unsigned(AECP_ENTITY_MISBEHAVING));EXPECT_EQ(get(out,36,2),24u);
+        EXPECT_EQ(egress,asked)<<(taken?"SUCCESS":"ENTITY_MISBEHAVING")<<" leaves on the interface the command came in on";
+        EXPECT_EQ(get(out,6,6),MAC+asked)<<"from its address";EXPECT_EQ(get(out,0,6),CMAC);
+        EXPECT_EQ(get(out,26,8),CTLR);
+    }
+    EXPECT_EQ(a.identify,255u);
 }
 
 TEST_F(Core, NamesAndDescriptorOverlay)
@@ -2349,6 +2463,31 @@ TEST_F(Face, ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken)
     for(unsigned i=0;i<MBX_N_IF;++i)EXPECT_EQ(at(taken(i),MBX_FACE_REG_F_AECP,MBX_F_AECP_LOCK_HELD_LSB,1),0u);
     ASSERT_GE(heads.size(),3u);ASSERT_FALSE(commits.empty());
     EXPECT_LT(commits.back(),heads.back())<<"LOCK_HELD falls before the unlock notification";
+}
+
+// IEEE 1722.1-2021 9.3.2.6: a controller that received IN_PROGRESS waits 120 ms
+// for the next response, and 240 ms for a command's. A change the datapath
+// never takes is answered within 120 ms of its IN_PROGRESS and 240 ms of its
+// command, the service bound included, on the mailbox's own millisecond clock
+// (#665; docs/reference/FR_NFR.md).
+TEST_F(Face, AWaitingChangeIsAnsweredWithinTheInProgressCadence)
+{
+    constexpr uint64_t MS=1000000;   // ns
+    far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;
+    const uint32_t asked=fabric.now_ms,from=fabric.tx_sent;
+    auto p=command(24,identify);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();
+    ASSERT_EQ(fabric.tx_sent-from,1u)<<"IN_PROGRESS";
+    ASSERT_EQ(get(mbx_model_tx_frame(&fabric,from)->bytes+16,2)>>11,AECP_IN_PROGRESS);
+    const uint32_t in_progress=mbx_model_tx_frame(&fabric,from)->now_ms;
+    for(unsigned n=0;n<240u&&fabric.tx_sent==from+1u;++n){mbx_model_advance_ms(&fabric,1);service();}
+    ASSERT_EQ(fabric.tx_sent-from,2u)<<"one final response within 240 ms";
+    const auto *last=mbx_model_tx_frame(&fabric,from+1u);
+    EXPECT_EQ(get(last->bytes+16,2)>>11,AECP_ENTITY_MISBEHAVING);EXPECT_EQ(get(last->bytes+36,2),24u);
+    EXPECT_LE((last->now_ms-in_progress)*MS+aecp_service_limit_ns,120*MS)
+        <<"the final response within 120 ms of its IN_PROGRESS, the service bound included";
+    EXPECT_LE((last->now_ms-asked)*MS+aecp_service_limit_ns,aecp_response_limit_ns)
+        <<"and within 240 ms of its command";
+    far.ack=true;for(unsigned i=0;i<MBX_N_IF;++i)mbx_model_face_ack(&fabric,i);service();
 }
 
 // Each stream's entry goes to its own interface's block; a setting of the

@@ -13,8 +13,11 @@
 //             change undone, behind IN_PROGRESS, so every response, read and
 //             notification reports the values in force; true within
 //             AECP_WAIT_MS, it is done again and answered SUCCESS, then
-//             notified, else it fails, changing nothing. While a change waits
-//             nothing is written: each interface it reaches is owed. While
+//             notified, else it fails and the core keeps the values in force
+//             (the datapath ends there once it takes the republished block).
+//             While a change waits nothing is written: each interface it
+//             reaches is owed. A lock released at its expiry holds, by its
+//             owner, for every controller until its commit is taken. While
 //             false, the core takes no change, until the acknowledgement
 //             returns and the interface is published again (aecp_face_poll)
 //             (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.5.2;
