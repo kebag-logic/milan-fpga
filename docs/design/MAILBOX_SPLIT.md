@@ -1226,8 +1226,8 @@ platform face on contract 2.3: the `changed`, `applied`, `format`, `counters`,
 Each value is written and committed, and its acknowledgement awaited for at
 most `MBX_FACE_ACK_CYCLES`, inside the port; the response or notification in
 the last column leaves only once that acknowledgement has returned on every
-interface (`docs/ARCHITECTURE_HW_SW_SPLIT.md` section 1; IEEE 1722.1-2021
-7.5.2; Milan v1.2 5.4.5.2).
+interface ([the split's architecture](../ARCHITECTURE_HW_SW_SPLIT.md), section 1;
+IEEE 1722.1-2021 7.5.2; Milan v1.2 5.4.5.2).
 
 | Value | Written | Acknowledged before |
 |---|---|---|
