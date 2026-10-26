@@ -1,0 +1,476 @@
+[
+  {
+    "name": "nosub-applies-request-latency",
+    "path": "aecp/aecp_commands.c",
+    "old": "\t\tif ((requested & 0x20000000u) == 0u) {\n",
+    "new": "\t\tif ((requested & 0x20000000u) == 0u) {\n\t\t\ta->cfg.latency[index] = (uint32_t)wire_be32(in + 24); aecp_override(a, d, 2u);\n",
+    "checks": [
+      [
+        "Core.SetStreamInfoWithoutSubcommandPreservesState",
+        "no subcommand preserves stored latency"
+      ],
+      [
+        "Core.SetStreamInfoWithoutSubcommandPreservesState",
+        "no subcommand preserves saved override"
+      ],
+      [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "ignored flags and no subcommand preserve latency"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "entity-available-index-static",
+    "path": "aecp/aecp_commands.c",
+    "old": "wire_put_be(out + 40, available, 4u);",
+    "new": "(void)available;",
+    "checks": [
+      [
+        "Core.EntityAvailableIndexUsesTheIngressObservation",
+        "ENTITY reads current ADP available index"
+      ],
+      [
+        "App.EntityReadSeesTheRealAdpAdvertisementCount",
+        "ENTITY sees N advertisements from the ADP owner"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unavailable-retry-spins",
+    "path": "aecp/aecp.c",
+    "old": "e->retry_at = a->now + 1u;",
+    "new": "e->retry_at = a->now;",
+    "checks": [
+      [
+        "Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin",
+        "failed snapshots wait for a timed retry"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "root-configuration-refused",
+    "path": "aecp/aecp_commands.c",
+    "old": "if (type == 0u || type == 1u) {",
+    "new": "if (type == 0xffffu) {",
+    "checks": [
+      [
+        "Core.RootDescriptorConfigurationIsIgnored",
+        "root descriptor ignores received configuration"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "lock-long",
+    "path": "aecp/aecp_commands.c",
+    "old": "a->now + 60000u",
+    "new": "a->now + 60001u",
+    "checks": [
+      [
+        "Core.LockQueriesAndExpiry",
+        "lock expires at exactly sixty seconds"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "restore-forgets-override",
+    "path": "aecp/aecp_state.c",
+    "old": "aecp_override(a, d, bit);",
+    "new": "(void)bit;",
+    "checks": [
+      [
+        "Core.RestoreValuesValidateAndRollbackWithoutLiveEvents",
+        "aecp_value_latch"
+      ],
+      [
+        "Nvm.ScalarRecordsUseSharedValidationAndReserveUnknownGroups",
+        "owner.port.latch"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "latency-sign-accepted",
+    "path": "aecp/aecp_commands.c",
+    "old": "(latency & 0x80000000u) != 0u",
+    "new": "latency == UINT32_MAX",
+    "checks": [
+      [
+        "Core.StreamInfoDirectionFlagsAndLatency",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "registry-no-retry",
+    "path": "aecp/aecp.c",
+    "old": "if (r->probing == 2u)",
+    "new": "if (r->probing == 1u)",
+    "checks": [
+      [
+        "Core.RegistryCapacityInterfaceKeysAndLiveness",
+        "sent.size()"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "clock-reserved-halfword-omitted",
+    "path": "aecp/aecp_commands.c",
+    "old": "len < (set ? *bytes : 4u)",
+    "new": "len < (set ? 4u + width : 4u)",
+    "checks": [
+      [
+        "Core.ChangedScalarValuesAndDamagedLists",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unsupported-events-queued",
+    "path": "aecp/aecp.c",
+    "old": "(events & supported)",
+    "new": "(events | supported)",
+    "checks": [
+      [
+        "Core.FailedSnapshotRetriesAndUnsupportedEventsAreDiscarded",
+        "pending"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "empty-map-no-page",
+    "path": "aecp/aecp_maps.c",
+    "old": "pages = 1u;",
+    "new": "pages = 0u;",
+    "checks": [
+      [
+        "Core.MapTopologyFailuresAndEmptyPartitions",
+        "status for command"
+      ],
+      [
+        "Core.OutputPartitionGeometryUsesAllAdvertisedWidths",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "reentry-uncounted",
+    "path": "aecp/aecp.c",
+    "old": "++a->reentries;",
+    "new": "(void)a;",
+    "checks": [
+      [
+        "Core.ReentrantPortsCannotMutateState",
+        "a.reentries"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "map-cluster-channel-ignored",
+    "path": "aecp/aecp_maps.c",
+    "old": "a->cluster_channel == b->cluster_channel;",
+    "new": "((void)a->cluster_channel, true);",
+    "checks": [
+      [
+        "Core.MapsCompareEveryCoordinateAndBothDirectionsOnRestore",
+        "a distinct cluster channel is a distinct input key"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "stream-interface-bound-ignored",
+    "path": "aecp/aecp_commands.c",
+    "old": "if (interface >= a->cfg.interfaces)",
+    "new": "if (interface > 65535u)",
+    "checks": [
+      [
+        "Core.DescriptorAndObservationBoundaryFailures",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "nvm-empty-map-keeps-defaults",
+    "path": "aecp/aecp_nvm.c",
+    "old": "\t\tunsigned status = aecp_map_restore(n->core, m, n->scratch, count);",
+    "new": "\t\tif (count == 0) return NVM_APPLIED;\n\t\tunsigned status = aecp_map_restore(n->core, m, n->scratch, count);",
+    "checks": [
+      [
+        "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "the empty list survives the power cycle"
+      ],
+      [
+        "Nvm.WholeMapFramingAndEmptySetAreDistinct",
+        "all UNUSED is an intentional empty set"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-write-owner-lost",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "aecp_nvm_changed(c->state, kind, type, index);",
+    "new": "(void)c->state;",
+    "checks": [
+      [
+        "App.PhysicalObservationsAndAcceptedWritesRetainTheirOwner",
+        "nvm_store_status()->dirty"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-unbound-start-refused",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "(!old.bound || acmp_set_started(a, c->start_index, c->start_value))",
+    "new": "acmp_set_started(a, c->start_index, c->start_value)",
+    "checks": [
+      [
+        "App.UnboundStartAndStopAreSuccessfulNoOps",
+        "get(p->bytes+16,2)>>11"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "mailbox-stale-tag-accepted",
+    "path": "aecp/aecp_mbx.c",
+    "old": "e->timer_tag != m->tag",
+    "new": "e->timer_tag == m->tag",
+    "checks": [
+      [
+        "Mailbox.TimerIdentityAndAttachRefusals",
+        "adapter.stale_expiries"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "image-byte-corrupted",
+    "path": "aecp/aecp_image.c",
+    "old": "memcpy(values + used, body, length);",
+    "new": "memcpy(values + used, body, length); values[used] ^= 1u;",
+    "checks": [
+      [
+        "Image.EveryDescriptor",
+        "descriptor defaults survive the image load"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-write-after-response",
+    "path": "aecp/aecp_face.c",
+    "old": "publish(f, i, settings, i == home ? stream : NULL, kind == AECP_CHANGE_CONFIGURATION);",
+    "new": "f->owed[i] = true;",
+    "checks": [
+      [
+        "Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt",
+        "one response, its commit taken inside the port"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-commit-not-waited",
+    "path": "mbx/mbx.c",
+    "old": "mbx_hal_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), mbx_place(1u, MBX_F_COMMIT_GO_LSB, MBX_F_COMMIT_GO_WIDTH));",
+    "new": "mbx_hal_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), mbx_place(1u, MBX_F_COMMIT_GO_LSB, MBX_F_COMMIT_GO_WIDTH));\n\treturn MBX_STATUS_OK;",
+    "checks": [
+      [
+        "Face.ALateCommitIsOwedAndPublishedAgainWhole",
+        "no acknowledgement within MBX_FACE_ACK_CYCLES"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-ready-never-published",
+    "path": "aecp/aecp_face.c",
+    "old": "mbx_place(f->ready ? 1u : 0u, MBX_F_CTRL_READY_LSB,",
+    "new": "mbx_place(0u, MBX_F_CTRL_READY_LSB,",
+    "checks": [
+      [
+        "Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens",
+        "F_CTRL.READY published with the settings"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-window-read-slow",
+    "path": "mbx/mbx.c",
+    "old": "\tfor (uint32_t k = 0; k <= w->wait_cycles; ++k) {\n",
+    "new": "\tfor (uint32_t k = 0; k <= w->wait_cycles; ++k) {\n\t\tfor (unsigned z = 0; z < 4000u; ++z) (void)mbx_hal_read32(face_reg(interface, w->status));\n",
+    "checks": [
+      [
+        "FaceLatency.EveryCommandThroughTheFaceKeepsTheServiceBudget",
+        "the original event service budget, the face included"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-owed-commit-lets-the-loop-sleep",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "pending = aecp_face_poll(c->face) || pending;",
+    "new": "(void)aecp_face_poll(c->face);",
+    "checks": [
+      [
+        "AppFace.AHeldCommitKeepsTheLoopBusy",
+        "an owed commit keeps the loop busy"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "refusal-claims-a-lock",
+    "path": "aecp/aecp.c",
+    "old": "if (status == AECP_ENTITY_LOCKED && a->refusing && !aecp_other_lock(a)) {",
+    "new": "if (false) {",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedPromisesNothing",
+        "status for command 6"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "stream-info-does-not-wait",
+    "path": "aecp/aecp.h",
+    "old": "#define AECP_WAITS 0x01404142u",
+    "new": "#define AECP_WAITS 0x01400142u",
+    "checks": [
+      [
+        "Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt",
+        "IN_PROGRESS reports the latency in force"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-success-not-notified",
+    "path": "aecp/aecp.c",
+    "old": "a->notify = taken;",
+    "new": "a->notify = false;",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce",
+        "the final response, then its notification"
+      ],
+      [
+        "Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt",
+        "the response, its notification and the notification that waited"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-failure-not-republished",
+    "path": "aecp/aecp.c",
+    "old": "\t\taecp_note(a, a->noted, a->noted_type, a->noted_index);\n\t\ta->notify = taken;\n",
+    "new": "\t\ta->notify = taken;\n",
+    "checks": [
+      [
+        "Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt",
+        "the interface that took it is given the value in force again"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-lock-deadline-not-kept",
+    "path": "aecp/aecp.h",
+    "old": "#define AECP_KEPT 4u",
+    "new": "#define AECP_KEPT 2u",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce",
+        "command 1 waits undone"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unapplied-lock-release-notified",
+    "path": "aecp/aecp.c",
+    "old": "if (a->unlocked && applied(a)) {",
+    "new": "if (a->unlocked) {",
+    "checks": [
+      [
+        "Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease",
+        "no unlock notification while the platform has not applied the release"
+      ],
+      [
+        "Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther",
+        "no unlock notification while LOCK_HELD is held"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "expired-lock-not-read-by-acmp",
+    "path": "aecp/aecp.c",
+    "old": "return a->locked || a->unlocked; // the lock in force",
+    "new": "return a->locked; // the lock in force",
+    "checks": [
+      [
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+        "the lock the ACMP owner reads is the lock in force"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-response-leaves-on-the-last-interface",
+    "path": "aecp/aecp.c",
+    "old": "\t\ta->response_interface = a->held_interface;\n",
+    "new": "",
+    "checks": [
+      [
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn",
+        "leaves on the interface the command came in on"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-owed-interface-counted-applied",
+    "path": "aecp/aecp_face.c",
+    "old": "\t\tif (mbx_face_busy(i) || (f->owed[i] && !f->core->waiting)) {\n\t\t\treturn false;",
+    "new": "\t\tif (mbx_face_busy(i)) {\n\t\t\treturn false;",
+    "checks": [
+      [
+        "Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt",
+        "an owed interface is not applied while its block is free"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-publish-writes-a-held-block",
+    "path": "aecp/aecp_face.c",
+    "old": "\tif (f->owed[i] || f->core->waiting || mbx_face_busy(i)) {\n\t\tf->owed[i] = true;",
+    "new": "\tif (f->owed[i] || f->core->waiting) {\n\t\tf->owed[i] = true;",
+    "checks": [
+      [
+        "Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther",
+        "no write meets a held value"
+      ]
+    ],
+    "caught": true
+  }
+]

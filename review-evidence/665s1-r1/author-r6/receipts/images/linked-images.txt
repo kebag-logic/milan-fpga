@@ -1,0 +1,18 @@
+linked image, ctrl_srp_image.py --with-aecp --layout split; ctrl_memory.py plan; budget 56 RAMB36
+base = e76a755a, r5 = round 5's head 6d2b77bb, head = this head
+point                           base rom   r5 rom head rom  r5->h   b->h base sram  r5 sram head sram  r5->h  b->h  base    r5  head held to rom to next granule
+endstation_ax7101_1x1_tdm8 if1     97920   104360   104424    +64  +6504     45920    46256     46256     +0  +336  35.5  37.0  37.0      56                  24
+endstation_ax7101_1x1_tdm8 if2     99416   105944   106008    +64  +6592     57312    57648     57648     +0  +336  38.5  40.5  40.5      56                 488
+endstation_ax7101_8x8 if1         111648   118080   118144    +64  +6496     86496    86832     86832     +0  +336  49.0  50.5  50.5      56                 640
+endstation_ax7101_8x8 if2         113208   119736   119800    +64  +6592    112656   112992    112992     +0  +336  56.0  57.5  57.5    57.5                1032
+five largest .bss, head endstation_ax7101_1x1_tdm8 if1: image_arena 9920, image_app 8872, image_srp 4824, image_values 4527, image_aecp 3352
+five largest .bss, head endstation_ax7101_1x1_tdm8 if2: image_arena 19840, image_app 10056, image_srp 5032, image_values 4527, image_aecp 3352
+five largest .bss, head endstation_ax7101_8x8 if1: image_arena 24032, nvm_stage 13264, image_values 11753, image_app 8872, image_srp 5256
+five largest .bss, head endstation_ax7101_8x8 if2: image_arena 48064, nvm_stage 13264, image_values 11753, image_app 10056, image_srp 5896
+symbol growth at 8x8 if2, round 5 to head, by nm type: t +64
+     +64 t aecp_other_lock
+     +32 t aecp_command
+     +16 t aecp_locked
+      +8 t aecp_rx
+      -8 t aecp_poll
+     -48 t aecp_foreign_lock

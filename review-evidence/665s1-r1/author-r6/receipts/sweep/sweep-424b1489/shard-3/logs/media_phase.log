@@ -1,0 +1,736 @@
+make: Entering directory '<shard-clone>3/tb/verilator/media_phase'
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_pins --top-module pin_wrap ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv pin_wrap.sv sim_pins.cpp -o Vpin_wrap
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_render --top-module render_wrap ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv render_wrap.sv sim_render.cpp -o Vrender_wrap
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_blend --top-module blend_wrap ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv blend_wrap.sv sim_blend.cpp -o Vblend_wrap
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_ofs --top-module ofs_wrap ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ofs_wrap.sv sim_ofs.cpp -o Vofs_wrap
+%Warning-PINMISSING: pin_wrap.sv:139:13: Instance has missing pin: 'tspec_max_frame_o'
+  139 |   KL_crf_tx u_tx (
+      |             ^~~~
+                     ../../../hdl/ieee1722/crf/KL_crf_tx.sv:234:23: ... Location of port declaration
+  234 |   output logic [15:0] tspec_max_frame_o
+      |                       ^~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: ofs_wrap.sv:92:36: Instance has missing pin: 'tspec_max_frame_o'
+   92 |   KL_crf_tx #(.ROUND_MTT_P (1'b0)) u_crf (
+      |                                    ^~~~~
+                     ../../../hdl/ieee1722/crf/KL_crf_tx.sv:234:23: ... Location of port declaration
+  234 |   output logic [15:0] tspec_max_frame_o
+      |                       ^~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:228:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  228 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_pair_blend.sv:94:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                    : ... Suggest assign a label with 'begin : gen_<label_name>'
+   94 |     $error("KL_pair_blend: TDM_SLOTS_P=%0d needs 1 + %0d merged pair slots, which does not fit the 4-bit capture pair-slot bus (16). The blend ships as I2S + TDM8; widen the pair-slot bus before asking for more.",
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-SYNCASYNCNET: ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:42:25: Signal flopped as both synchronous and async: 'blend_wrap.u_i2s.rst_n'
+                       ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:143:10: ... Location of async usage
+  143 |     if (!rst_n) begin
+      |          ^~~~~
+                       ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv:71:33: ... Location of sync usage
+   71 |     tarst_n_r <= {tarst_n_r[0], rst_n};
+      |                                 ^~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.050
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+make[1]: Entering directory '<shard-clone>3/tb/verilator/media_phase/obj_pins'
+g++  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_pins.o ../sim_pins.cpp
+make[1]: Entering directory '<shard-clone>3/tb/verilator/media_phase/obj_ofs'
+g++  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_ofs.o ../sim_ofs.cpp
+make[1]: Entering directory '<shard-clone>3/tb/verilator/media_phase/obj_blend'
+g++  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_blend.o ../sim_blend.cpp
+make[1]: Entering directory '<shard-clone>3/tb/verilator/media_phase/obj_render'
+g++  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_render.o ../sim_render.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vblend_wrap.cpp Vblend_wrap___024root__0.cpp Vblend_wrap__Dpi.cpp Vblend_wrap___024root__Slow.cpp Vblend_wrap___024root__0__Slow.cpp Vblend_wrap_KL_media_if_latency_pkg__Slow.cpp Vblend_wrap__Syms__Slow.cpp > Vblend_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vblend_wrap__ALL.o Vblend_wrap__ALL.cpp
+python3 ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vpin_wrap.cpp Vpin_wrap___024root__0.cpp Vpin_wrap__Dpi.cpp Vpin_wrap___024root__Slow.cpp Vpin_wrap___024root__0__Slow.cpp Vpin_wrap_KL_media_if_latency_pkg__Slow.cpp Vpin_wrap__Syms__Slow.cpp > Vpin_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vpin_wrap__ALL.o Vpin_wrap__ALL.cpp
+python3 ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vofs_wrap.cpp Vofs_wrap___024root__0.cpp Vofs_wrap__Dpi.cpp Vofs_wrap___024root__Slow.cpp Vofs_wrap___024root__0__Slow.cpp Vofs_wrap__Syms__Slow.cpp > Vofs_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vofs_wrap__ALL.o Vofs_wrap__ALL.cpp
+python3 ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vrender_wrap.cpp Vrender_wrap___024root__0.cpp Vrender_wrap__Dpi.cpp Vrender_wrap__ConstPool__0__Slow.cpp Vrender_wrap___024root__Slow.cpp Vrender_wrap___024root__0__Slow.cpp Vrender_wrap_KL_media_if_latency_pkg__Slow.cpp Vrender_wrap__Syms__Slow.cpp > Vrender_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vrender_wrap__ALL.o Vrender_wrap__ALL.cpp
+g++    sim_pins.o verilated.o verilated_dpi.o verilated_threads.o Vpin_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpin_wrap
+rm Vpin_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<shard-clone>3/tb/verilator/media_phase/obj_pins'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.340 MB sources in 7 modules, into 0.349 MB in 7 C++ files needing 0.000 MB
+- Verilator: Walltime 15.713 s (elab=0.007, cvt=0.034, bld=15.651); cpu 0.066 s on 4 threads; allocated 413.805 MB
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_det --top-module KL_mmcm_drp_servo --prefix Vdet_servo \
+  -GTICK_CYC_P=32 ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv \
+  ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_det.cpp -o Vdet
+make[1]: Entering directory '<shard-clone>3/tb/verilator/media_phase/obj_det'
+g++  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_det.o ../sim_det.cpp
+g++    sim_ofs.o verilated.o verilated_dpi.o verilated_threads.o Vofs_wrap__ALL.a    -pthread -lpthread -latomic   -o Vofs_wrap
+rm Vofs_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<shard-clone>3/tb/verilator/media_phase/obj_ofs'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.259 MB sources in 5 modules, into 0.347 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 16.003 s (elab=0.008, cvt=0.041, bld=15.930); cpu 0.072 s on 4 threads; allocated 221.859 MB
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --public-flat-rw -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_dir --top-module media_phase_wrap ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv media_phase_wrap.sv sim_main.cpp -o Vmedia_phase
+%Warning-PINMISSING: media_phase_wrap.sv:144:13: Instance has missing pin: 'tspec_max_frame_o'
+  144 |   KL_crf_tx u_tx (
+      |             ^~~~
+                     ../../../hdl/ieee1722/crf/KL_crf_tx.sv:234:23: ... Location of port declaration
+  234 |   output logic [15:0] tspec_max_frame_o
+      |                       ^~~~~~~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+make[1]: Entering directory '<shard-clone>3/tb/verilator/media_phase/obj_dir'
+g++  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_blend.o verilated.o verilated_dpi.o verilated_threads.o Vblend_wrap__ALL.a    -pthread -lpthread -latomic   -o Vblend_wrap
+rm Vblend_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<shard-clone>3/tb/verilator/media_phase/obj_blend'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.549 MB sources in 9 modules, into 0.501 MB in 7 C++ files needing 0.001 MB
+- Verilator: Walltime 16.467 s (elab=0.011, cvt=0.049, bld=16.378); cpu 0.092 s on 4 threads; allocated 351.234 MB
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+g++    sim_render.o verilated.o verilated_dpi.o verilated_threads.o Vrender_wrap__ALL.a    -pthread -lpthread -latomic   -o Vrender_wrap
+rm Vrender_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<shard-clone>3/tb/verilator/media_phase/obj_render'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.629 MB sources in 9 modules, into 0.936 MB in 8 C++ files needing 0.001 MB
+- Verilator: Walltime 19.797 s (elab=0.017, cvt=0.095, bld=19.648); cpu 0.150 s on 4 threads; allocated 354.270 MB
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_dpi.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_dpi.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o verilated_threads.o ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+======================================================================
+obj_pins/Vpin_wrap
+python3 ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vmedia_phase_wrap.cpp Vmedia_phase_wrap___024root__0.cpp Vmedia_phase_wrap__Dpi.cpp Vmedia_phase_wrap___024root__Slow.cpp Vmedia_phase_wrap___024root__0__Slow.cpp Vmedia_phase_wrap__Syms__Slow.cpp > Vmedia_phase_wrap__ALL.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vmedia_phase_wrap__ALL.o Vmedia_phase_wrap__ALL.cpp
+python3 ~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vdet_servo.cpp Vdet_servo___024root__0.cpp Vdet_servo__Dpi.cpp Vdet_servo___024root__Slow.cpp Vdet_servo___024root__0__Slow.cpp Vdet_servo__Syms__Slow.cpp > Vdet_servo__ALL.cpp
+g++ -Os  -I.  -MMD -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I~/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra   -c -o Vdet_servo__ALL.o Vdet_servo__ALL.cpp
+======================================================================
+obj_render/Vrender_wrap
+[pins] three interfaces on one clock domain: A TDM8 owner, B TDM4, C TDM32, graded at their pins
+  info: [pins A] 1435 stamps, 11480 slot grades, max |stamp - (slot MSB - offset)| 30.2 ns
+  [ ok ] [pins A] stamps graded at every slot (11480)
+  [ ok ] [pins A] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 30.2 ns)
+  [ ok ] [pins A] ...and inside the derivation, +/-40 ns (max 30.2 ns)
+  info: [pins B] 1435 stamps, 5740 slot grades, max |stamp - (slot MSB - offset)| 29.5 ns
+  [ ok ] [pins B] stamps graded at every slot (5740)
+  [ ok ] [pins B] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 29.5 ns)
+  [ ok ] [pins B] ...and inside the derivation, +/-40 ns (max 29.5 ns)
+  info: [pins C] 1435 stamps, 45920 slot grades, max |stamp - (slot MSB - offset)| 30.6 ns
+  [ ok ] [pins C] stamps graded at every slot (45920)
+  [ ok ] [pins C] every stamped frame instant is each slot's MSB pin instant less its offset, inside +/-5 % of Ps (max 30.6 ns)
+  [ ok ] [pins C] ...and inside the derivation, +/-40 ns (max 30.6 ns)
+  [ ok ] [pins] every CRF timing point is a frame instant of ALL three interfaces' pins, inside +/-5 % of Ps (14 points, max A 29.7 ns, B 15.8 ns, C 95.8 ns)
+  [ ok ] [pins] the interfaces' constants differ (A 20964.0 ns, B 20801.3 ns, C 5308.5 ns): at least 162.8 ns apart, beyond the derivation band, so a swap cannot pass
+== media_phase pins: checks: 11   failures: 0 ==
+RESULT: PASS
+======================================================================
+obj_blend/Vblend_wrap
+[blend] the Arty I2S + TDM8 capture of one domain, graded at its pins
+  info: [blend 0] 144 banked frames; I2S frame start - banked instant -29.1 .. -15.8 ns, TDM frame start - banked instant 11.5 .. 24.9 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 0] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 0] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.1 ns)
+  [ ok ] [blend 0] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 24.9 ns)
+  [ ok ] [blend 0] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-29.1 .. -15.8 ns)
+  info: [blend 1] 144 banked frames; I2S frame start - banked instant -24.6 .. -11.3 ns, TDM frame start - banked instant 16.1 .. 29.4 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 1] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 1] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 24.6 ns)
+  [ ok ] [blend 1] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.4 ns)
+  [ ok ] [blend 1] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-24.6 .. -11.3 ns)
+  info: [blend 2] 144 banked frames; I2S frame start - banked instant -26.7 .. -13.4 ns, TDM frame start - banked instant 14.0 .. 27.3 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 2] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 2] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 26.7 ns)
+  [ ok ] [blend 2] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 27.3 ns)
+  [ ok ] [blend 2] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-26.7 .. -13.4 ns)
+  info: [blend 3] 144 banked frames; I2S frame start - banked instant -28.8 .. -15.5 ns, TDM frame start - banked instant 11.9 .. 25.2 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 3] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 3] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 28.8 ns)
+  [ ok ] [blend 3] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 25.2 ns)
+  [ ok ] [blend 3] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-28.8 .. -15.5 ns)
+  info: [blend 4] 144 banked frames; I2S frame start - banked instant -25.0 .. -11.6 ns, TDM frame start - banked instant 15.7 .. 29.1 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 4] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 4] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 25.0 ns)
+  [ ok ] [blend 4] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 29.1 ns)
+  [ ok ] [blend 4] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-25.0 .. -11.6 ns)
+  info: [blend 5] 144 banked frames; I2S frame start - banked instant -27.1 .. -13.7 ns, TDM frame start - banked instant 13.6 .. 26.9 ns, I2S against TDM of one bank max 40.7 ns
+  [ ok ] [blend 5] every banked pair names a frame its codec sent (144 banked)
+  [ ok ] [blend 5] the I2S pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 27.1 ns)
+  [ ok ] [blend 5] every TDM pair of every banked frame started at its pins inside +/-5 % of Ps of the banked instant, unfolded (max 26.9 ns)
+  [ ok ] [blend 5] ...the I2S pair inside the I2S marker latency's derivation, +/-40 ns (-27.1 .. -13.7 ns)
+== media_phase blend: checks: 24   failures: 0 ==
+RESULT: PASS
+======================================================================
+obj_ofs/Vofs_wrap
+g++    sim_det.o verilated.o verilated_dpi.o verilated_threads.o Vdet_servo__ALL.a    -pthread -lpthread -latomic   -o Vdet
+rm Vdet_servo__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<shard-clone>3/tb/verilator/media_phase/obj_det'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.146 MB sources in 4 modules, into 0.270 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 10.389 s (elab=0.006, cvt=0.031, bld=10.335); cpu 0.056 s on 4 threads; allocated 349.012 MB
+======================================================================
+[det inband] the phase detector alone, 256 PDUs a window
+  [ ok ] [det inband] engaged, the window phase inside the band (theta 0)
+  [ ok ] [det inband] settled first reads 1 at the close of the fourth full in-band window (at 4)
+  [ ok ] [det inband] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase det inband: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det events] the phase detector alone, 256 PDUs a window
+  [ ok ] [det events] settled before the restart
+  [ ok ] [det events] settled reads 0 on the cycle after an mr restart
+  [ ok ] [det events] after the restart settled rises only at the close of the fourth clean window (at 4)
+  [ ok ] [det events] settled falls at the first window with a sample out of the band and stays low
+  [ ok ] [det events] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase det events: checks: 5   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det meanin] the phase detector alone, 256 PDUs a window
+  [ ok ] [det meanin] the window phase is the samples' mean, inside the band (theta 0)
+  [ ok ] [det meanin] settled never asserts with every sample outside the band
+== media_phase det meanin: checks: 2   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det balanced] the phase detector alone, 256 PDUs a window
+  [ ok ] [det balanced] the window phase reads the half-period phase (theta -31250, |theta| >= 28125)
+  [ ok ] [det balanced] the committed correction is the slew limit's (-32768/256)
+  [ ok ] [det balanced] settled never asserts
+== media_phase det balanced: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vmedia_phase_wrap__ALL.a    -pthread -lpthread -latomic   -o Vmedia_phase
+[det unbal129] the phase detector alone, 256 PDUs a window
+  [ ok ] [det unbal129] the window phase reads the half-period phase (theta 31249, |theta| >= 28125)
+  [ ok ] [det unbal129] the committed correction is the slew limit's (32768/256)
+  [ ok ] [det unbal129] settled never asserts
+== media_phase det unbal129: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+rm Vmedia_phase_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<shard-clone>3/tb/verilator/media_phase/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.579 MB sources in 8 modules, into 0.489 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 10.448 s (elab=0.012, cvt=0.049, bld=10.346); cpu 0.097 s on 4 threads; allocated 351.344 MB
+[det unbal160] the phase detector alone, 256 PDUs a window
+  [ ok ] [det unbal160] the window phase reads the half-period phase (theta 31249, |theta| >= 28125)
+  [ ok ] [det unbal160] the committed correction is the slew limit's (32768/256)
+  [ ok ] [det unbal160] settled never asserts
+== media_phase det unbal160: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det jitter] the phase detector alone, 256 PDUs a window
+  [ ok ] [det jitter] the window phase reads the half-period phase (theta 31186, |theta| >= 28125)
+  [ ok ] [det jitter] the committed correction is the slew limit's (32768/256)
+  [ ok ] [det jitter] settled never asserts
+== media_phase det jitter: checks: 3   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det cross] the phase detector alone, 256 PDUs a window
+  [ ok ] [det cross] before the crossing the window phase reads +Ps/2 - 100 ns (30951)
+  [ ok ] [det cross] past +Ps/2 the window phase re-folds to the short way, -Ps/2 + 100 ns (-30951)
+== media_phase det cross: checks: 2   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det afterhold] the phase detector alone, 256 PDUs a window
+  [ ok ] [det afterhold] settled near 0 before the hold (theta 0)
+  [ ok ] [det afterhold] after a hold, samples either side of +/-Ps/2 read the half-period phase (theta -31250, |theta| >= 28125)
+  [ ok ] [det afterhold] ...and the committed correction is the slew limit's (-32768/256)
+  [ ok ] [det afterhold] settled never asserts after the hold
+== media_phase det afterhold: checks: 4   failures: 0 ==
+RESULT: PASS
+======================================================================
+[det range] the phase detector alone, 256 PDUs a window
+  [ ok ] [det range] d = 33554431 ns, inside +/-2^25 ns, is sampled (257 a window)
+  [ ok ] [det range] d = -33554431 ns, inside +/-2^25 ns, is sampled (257 a window)
+  [ ok ] [det range] a timestamp 2^25 ns from the domain event is not sampled (d = 33554432 ns: 0 a window)
+  [ ok ] [det range] a timestamp 2^25 ns from the domain event is not sampled (d = -33554432 ns: 0 a window)
+== media_phase det range: checks: 4   failures: 0 ==
+RESULT: PASS
+======================================================================
+[render] two render interfaces on one clock domain, post-grid delays a frame apart, graded at their pins
+  info: 231 PDUs, frames 130..1190, A out-lead 2, B out-lead 3
+  info: [render A] 4072 samples (3208 at |phi| <= 4 %), 4472 silent slots, max |pin - PT| 833.5 ns at |phi| <= 4 %, 9375.1 ns at any phi, max |pin - (PT - phi)| 0.2 ns
+  [ ok ] [render A] every slot of every frame carries its mapped stream and channel or silence (0 misplaced)
+  [ ok ] [render A] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 833.5 ns over 3208 samples)
+  [ ok ] [render A] ...and is the frame instant nearest its presentation time at every phase up to +/-0.45 Ps, inside 100 ns (max 0.2 ns)
+  [ ok ] [render A] every sample a presented PDU carries reaches the pins, at holds of 0.1 to 2.6 ms, and nothing else does (4072 of 4072, 0 missing, 0 unexpected)
+  info: [render B] 2688 samples (2112 at |phi| <= 4 %), 1584 silent slots, max |pin - PT| 874.2 ns at |phi| <= 4 %, 9415.9 ns at any phi, max |pin - (PT - phi)| 40.9 ns
+  [ ok ] [render B] every slot of every frame carries its mapped stream and channel or silence (0 misplaced)
+  [ ok ] [render B] every sample's slot-MSB pin instant, less its slot offset, is its presentation time inside +/-5 % of Ps (max 874.2 ns over 2112 samples)
+  [ ok ] [render B] ...and is the frame instant nearest its presentation time at every phase up to +/-0.45 Ps, inside 100 ns (max 40.9 ns)
+  [ ok ] [render B] every sample a presented PDU carries reaches the pins, at holds of 0.1 to 2.6 ms, and nothing else does (2688 of 2688, 0 missing, 0 unexpected)
+  info: [render] late 2, early 2, untimed 1, slips 6 (runs 6)
+  [ ok ] [render late] each late PDU (its first two events consumed; its timestamp 1 ms past) is counted once (2 of 2)
+  [ ok ] [render early] each too-early PDU (its last two events past the queue; 3 ms ahead) is counted once (2 of 2)
+  [ ok ] [render untimed] the PDU without tv is counted once (1 of 1)
+  [ ok ] [render] slips_o counts every run of presented frames that ends (6 of 6)
+  [ ok ] [render] B's out-lead (3) is at least a frame past A's (2): post-grid delays a frame apart
+== media_phase render: checks: 13   failures: 0 ==
+RESULT: PASS
+[ofs] four AAF outputs and the CRF output of one domain, each its own offset
+  [ ok ] [ofs A] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs A] row 0 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs A] row 1 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs A] row 2 set 20833 ns, GET_STREAM_INFO reads 20833
+  info: [ofs A] row 3 set 20834 ns, GET_STREAM_INFO reads 20834
+  info: [ofs A] row 4 set 0 ns, GET_STREAM_INFO reads 0, applied 0 ns (0.0000 periods)
+  [ ok ] [ofs A] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs A] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs A] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs A] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs A] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs A] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs A] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.33 ns)
+  [ ok ] [ofs A] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  [ ok ] [ofs B] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs B] row 0 set 62500 ns, GET_STREAM_INFO reads 62500
+  info: [ofs B] row 1 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs B] row 2 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs B] row 3 set 4294967295 ns, GET_STREAM_INFO reads 4294967295
+  info: [ofs B] row 4 set 1 ns, GET_STREAM_INFO reads 20834, applied 20834 ns (1.0000 periods)
+  [ ok ] [ofs B] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs B] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs B] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs B] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs B] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs B] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs B] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs B] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs C] row 0 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs C] row 1 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs C] row 2 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs C] row 3 set 20833 ns, GET_STREAM_INFO reads 20833
+  info: [ofs C] row 4 set 20833 ns, GET_STREAM_INFO reads 20834, applied 20834 ns (1.0000 periods)
+  [ ok ] [ofs C] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs C] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs C] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs C] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs C] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs C] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs C] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs C] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  [ ok ] [ofs D] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs D] row 0 set 20834 ns, GET_STREAM_INFO reads 20834
+  info: [ofs D] row 1 set 62500 ns, GET_STREAM_INFO reads 62500
+  info: [ofs D] row 2 set 4294967295 ns, GET_STREAM_INFO reads 4294967295
+  i[det snap] the phase detector alone, 256 PDUs a window
+  [ ok ] [det snap] mr one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] mr on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] mr one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] term disabled one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] term disabled on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] term disabled one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] broken history one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] broken history on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] broken history one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] not LOCKED one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] not LOCKED on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] not LOCKED one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] PHC step one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] PHC step on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] PHC step one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+  [ ok ] [det snap] slew level one cycle before the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] slew level on the closing edge: committed phase contribution 0/256 (want 0)
+  [ ok ] [det snap] slew level one cycle after the closing edge: committed phase contribution 3000/256 (want 3000)
+== media_phase det snap: checks: 18   failures: 0 ==
+RESULT: PASS
+nfo: [ofs D] row 3 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs D] row 4 set 20834 ns, GET_STREAM_INFO reads 41667, applied 41667 ns (2.0000 periods)
+  [ ok ] [ofs D] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs D] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs D] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs D] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs D] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs D] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs D] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.67 ns)
+  [ ok ] [ofs D] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs E] row 0 set 4294967295 ns, GET_STREAM_INFO reads 4294967295
+  info: [ofs E] row 1 set 20834 ns, GET_STREAM_INFO reads 20834
+  info: [ofs E] row 2 set 62500 ns, GET_STREAM_INFO reads 62500
+  info: [ofs E] row 3 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs E] row 4 set 62500 ns, GET_STREAM_INFO reads 62500, applied 62500 ns (3.0000 periods)
+  [ ok ] [ofs E] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs E] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs E] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs E] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs E] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs E] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs E] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.33 ns)
+  [ ok ] [ofs E] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 1)
+  [ ok ] [ofs F] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs F] row 0 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs F] row 1 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs F] row 2 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs F] row 3 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs F] row 4 set 2000000 ns, GET_STREAM_INFO reads 2000000, applied 2000000 ns (96.0000 periods)
+  [ ok ] [ofs F] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs F] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs F] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs F] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs F] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs F] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs F] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.33 ns)
+  [ ok ] [ofs F] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs G] row 0 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs G] row 1 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs G] row 2 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs G] row 3 set 62500 ns, GET_STREAM_INFO reads 62500
+  info: [ofs G] row 4 set 2010000 ns, GET_STREAM_INFO reads 2020834, applied 2020834 ns (97.0000 periods)
+  [ ok ] [ofs G] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs G] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs G] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs G] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs G] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs G] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs G] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs G] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  [ ok ] [ofs H] in reset the CRF row reads its factory value rounded up to whole periods, all 33 bits
+  info: [ofs H] row 0 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs H] row 1 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs H] row 2 set 20833 ns, GET_STREAM_INFO reads 20833
+  info: [ofs H] row 3 set 4294967295 ns, GET_STREAM_INFO reads 4294967295
+  info: [ofs H] row 4 set 4294967295 ns, GET_STREAM_INFO reads 4294967295, applied 4294979167 ns (206159.0000 periods)
+  [ ok ] [ofs H] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs H] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs H] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs H] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs H] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs H] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs H] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.67 ns)
+  [ ok ] [ofs H] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs I] row 0 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs I] row 1 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs I] row 2 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs I] row 3 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs I] row 4 set 4294958333 ns, GET_STREAM_INFO reads 4294958334, applied 4294958334 ns (206158.0000 periods)
+  [ ok ] [ofs I] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs I] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs I] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs I] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs I] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs I] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs I] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 1.00 ns)
+  [ ok ] [ofs I] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs J] row 0 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs J] row 1 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs J] row 2 set 1 ns, GET_STREAM_INFO reads 1
+  info: [ofs J] row 3 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs J] row 4 set 4294958334 ns, GET_STREAM_INFO reads 4294967295, applied 4294979167 ns (206159.0000 periods)
+  [ ok ] [ofs J] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs J] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs J] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs J] every AAF timestamp is a frame instant plus its row as set, to the ns (64 64 64 64 PDUs)
+  [ ok ] [ofs J] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs J] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs J] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.67 ns)
+  [ ok ] [ofs J] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+  info: [ofs K] row 0 set 2000000 ns, GET_STREAM_INFO reads 2000000
+  info: [ofs K] row 1 set 2010000 ns, GET_STREAM_INFO reads 2010000
+  info: [ofs K] row 2 set 0 ns, GET_STREAM_INFO reads 0
+  info: [ofs K] row 3 set 20833 ns, GET_STREAM_INFO reads 20833
+  info: [ofs K] row 4 set 2000000 ns, GET_STREAM_INFO reads 2000000, applied 2000000 ns (96.0000 periods)
+  [ ok ] [ofs K] the CRF row reads back as applied, rounded up to whole periods by Equation 14, all 33 bits
+  [ ok ] [ofs K] GET_STREAM_INFO reads every AAF row as set
+  [ ok ] [ofs K] GET_STREAM_INFO reads the CRF row as applied, 0xFFFFFFFF past 32 bits
+  [ ok ] [ofs K] every AAF timestamp is a frame instant plus its row as set, to the ns (65 65 65 65 PDUs)
+  [ ok ] [ofs K] every CRF timing point is a frame instant plus the CRF row as read back (4)
+  [ ok ] [ofs K] every CRF timestamp, all 64 bits, is a frame instant plus the CRF row rounded by Equation 14
+  [ ok ] [ofs K] every CRF timestamp lies on the frame grid modulo Ps, inside +/-5 % of Ps (max 0.33 ns)
+  [ ok ] [ofs K] every AAF output's phase against the CRF timing points is its row as set less the CRF row as applied, modulo Ps (max 0.33 ns, talker 0)
+== media_phase ofs: checks: 93   failures: 0 ==
+RESULT: PASS
+======================================================================
+[engage] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [engage] phase inside +/-5 % of Ps within 45 s of the event
+  info: [engage] inside the band 27.46 s after the event
+  [ ok ] [engage] phase held inside +/-5 % of Ps to the end (max 723.3 ns)
+  [ ok ] [engage] the DUT's CRF output on the reference's grid (max 880.8 ns)
+  [ ok ] [engage] the servo reports settled at the end
+  [ ok ] [engage] still LOCKED at the end
+  [ ok ] [engage] engaged +0.4413 Ps from the reference's grid
+  [ ok ] [engage] the pull is slew-limited: <= 400 ns of phase per window (max 304.7)
+  [ ok ] [engage] the pull went the short way (max |phase| 0.4413 Ps after engaging)
+  [ ok ] [engage] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [engage] fine-PS protocol clean
+  [ ok ] [engage] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [engage] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase engage: checks: 12   failures: 0 ==
+RESULT: PASS
+======================================================================
+[engage2] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [engage2] phase inside +/-5 % of Ps within 45 s of the event
+  info: [engage2] inside the band 23.36 s after the event
+  [ ok ] [engage2] phase held inside +/-5 % of Ps to the end (max 679.9 ns)
+  [ ok ] [engage2] the DUT's CRF output on the reference's grid (max 839.8 ns)
+  [ ok ] [engage2] the servo reports settled at the end
+  [ ok ] [engage2] still LOCKED at the end
+  [ ok ] [engage2] engaged -0.3587 Ps from the reference's grid
+  [ ok ] [engage2] the pull is slew-limited: <= 400 ns of phase per window (max 328.5)
+  [ ok ] [engage2] the pull went the short way (max |phase| 0.3587 Ps after engaging)
+  [ ok ] [engage2] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [engage2] fine-PS protocol clean
+  [ ok ] [engage2] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [engage2] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase engage2: checks: 12   failures: 0 ==
+RESULT: PASS
+======================================================================
+[edge] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 228.6 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 396.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [edge] the reference stepped to put the phase at +0.4999 Ps at 15.00 s
+  [ ok ] [edge] phase inside +/-5 % of Ps within 45 s of the event
+  info: [edge] inside the band 26.44 s after the event
+  [ ok ] [edge] phase held inside +/-5 % of Ps to the end (max 618.9 ns)
+  [ ok ] [edge] the DUT's CRF output on the reference's grid (max 827.3 ns)
+  [ ok ] [edge] the servo reports settled at the end
+  [ ok ] [edge] still LOCKED at the end
+  [ ok ] [edge] re-engaged at the fold (-0.4912 Ps from the reference's grid)
+  [ ok ] [edge] the pull is slew-limited: <= 400 ns of phase per window (max 337.3)
+  [ ok ] [edge] the phase term let go at the reference's history restart (within 10 ms)
+  [ ok ] [edge] the settled flag fell at the reference's history restart
+  [ ok ] [edge] every DUT CRF timestamp is a frame instant of its own grid (max 161.0 ns)
+  [ ok ] [edge] fine-PS protocol clean
+  [ ok ] [edge] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [edge] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase edge: checks: 18   failures: 0 ==
+RESULT: PASS
+======================================================================
+[edge2] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 228.6 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 396.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [edge2] the reference stepped to put the phase at +0.5000 Ps at 15.00 s
+  [ ok ] [edge2] phase inside +/-5 % of Ps within 45 s of the event
+  info: [edge2] inside the band 26.64 s after the event
+  [ ok ] [edge2] phase held inside +/-5 % of Ps to the end (max 598.7 ns)
+  [ ok ] [edge2] the DUT's CRF output on the reference's grid (max 811.3 ns)
+  [ ok ] [edge2] the servo reports settled at the end
+  [ ok ] [edge2] still LOCKED at the end
+  [ ok ] [edge2] re-engaged at the fold (-0.4913 Ps from the reference's grid)
+  [ ok ] [edge2] the pull is slew-limited: <= 400 ns of phase per window (max 329.9)
+  [ ok ] [edge2] the phase term let go at the reference's history restart (within 10 ms)
+  [ ok ] [edge2] the settled flag fell at the reference's history restart
+  [ ok ] [edge2] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [edge2] fine-PS protocol clean
+  [ ok ] [edge2] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [edge2] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase edge2: checks: 18   failures: 0 ==
+RESULT: PASS
+======================================================================
+[step] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [step] the reference stepped by 0.37 Ps at 15.00 s
+  [ ok ] [step] phase inside +/-5 % of Ps within 35 s of the event
+  info: [step] inside the band 21.70 s after the event
+  [ ok ] [step] phase held inside +/-5 % of Ps to the end (max 570.4 ns)
+  [ ok ] [step] the DUT's CRF output on the reference's grid (max 748.5 ns)
+  [ ok ] [step] the servo reports settled at the end
+  [ ok ] [step] still LOCKED at the end
+  [ ok ] [step] the phase term let go at the reference's history restart (within 10 ms)
+  [ ok ] [step] the settled flag fell at the reference's history restart
+  [ ok ] [step] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [step] fine-PS protocol clean
+  [ ok ] [step] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [step] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase step: checks: 16   failures: 0 ==
+RESULT: PASS
+======================================================================
+[ramp] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  [ ok ] [ramp] phase held inside +/-5 % of Ps through a 4 ppm ramp (max 642.9 ns)
+  [ ok ] [ramp] the DUT's CRF output on the reference's grid (max 837.2 ns)
+  [ ok ] [ramp] still LOCKED
+  [ ok ] [ramp] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [ramp] fine-PS protocol clean
+  [ ok ] [ramp] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [ramp] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase ramp: checks: 12   failures: 0 ==
+RESULT: PASS
+======================================================================
+[holdover] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  [ ok ] [holdover] the servo holds over while the reference is silent
+  info: [holdover] the reference returns at 30.00 s, phase +0.4820 Ps
+  [ ok ] [holdover] phase inside +/-5 % of Ps within 40 s of the event
+  info: [holdover] inside the band 27.33 s after the event
+  [ ok ] [holdover] phase held inside +/-5 % of Ps to the end (max 741.5 ns)
+  [ ok ] [holdover] the DUT's CRF output on the reference's grid (max 906.2 ns)
+  [ ok ] [holdover] the servo reports settled at the end
+  [ ok ] [holdover] still LOCKED at the end
+  [ ok ] [holdover] the phase term let go at HOLDOVER (within 200 ms)
+  [ ok ] [holdover] the settled flag fell at HOLDOVER
+  [ ok ] [holdover] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [holdover] fine-PS protocol clean
+  [ ok ] [holdover] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [holdover] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase holdover: checks: 17   failures: 0 ==
+RESULT: PASS
+======================================================================
+[internal] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  [ ok ] [internal] INTERNAL idles the servo
+  info: [internal] CRF selected again at 30.00 s, phase +0.2448 Ps
+  [ ok ] [internal] phase inside +/-5 % of Ps within 45 s of the event
+  info: [internal] inside the band 24.32 s after the event
+  [ ok ] [internal] phase held inside +/-5 % of Ps to the end (max 706.1 ns)
+  [ ok ] [internal] the DUT's CRF output on the reference's grid (max 838.2 ns)
+  [ ok ] [internal] the servo reports settled at the end
+  [ ok ] [internal] still LOCKED at the end
+  [ ok ] [internal] the phase term let go at INTERNAL (within 5 ms)
+  [ ok ] [internal] the settled flag fell at INTERNAL
+  [ ok ] [internal] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [internal] fine-PS protocol clean
+  [ ok ] [internal] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [internal] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase internal: checks: 17   failures: 0 ==
+RESULT: PASS
+======================================================================
+[mr] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [mr] mr toggled with a 1.8 us jump at 15.00 s
+  [ ok ] [mr] phase inside +/-5 % of Ps within 30 s of the event
+  info: [mr] inside the band 0.38 s after the event
+  [ ok ] [mr] phase held inside +/-5 % of Ps to the end (max 144.3 ns)
+  [ ok ] [mr] the DUT's CRF output on the reference's grid (max 303.2 ns)
+  [ ok ] [mr] the servo reports settled at the end
+  [ ok ] [mr] still LOCKED at the end
+  [ ok ] [mr] the phase term let go at the mr toggle (within 5 ms)
+  [ ok ] [mr] the settled flag fell at the mr toggle
+  [ ok ] [mr] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [mr] fine-PS protocol clean
+  [ ok ] [mr] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [mr] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase mr: checks: 16   failures: 0 ==
+RESULT: PASS
+======================================================================
+[slew] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [slew] the local PHC slews +27 us at 200 ppm from 15.00 s
+  info: [slew] phase +0.3019 Ps when the slew ends
+  [ ok ] [slew] phase inside +/-5 % of Ps within 40 s of the event
+  info: [slew] inside the band 20.04 s after the event
+  [ ok ] [slew] phase held inside +/-5 % of Ps to the end (max 661.5 ns)
+  [ ok ] [slew] the DUT's CRF output on the reference's grid (max 823.5 ns)
+  [ ok ] [slew] the servo reports settled at the end
+  [ ok ] [slew] still LOCKED at the end
+  [ ok ] [slew] the pull went the short way (max |phase| 0.3223 Ps after the slew)
+  [ ok ] [slew] the phase term let go at the slew level (within 5 ms)
+  [ ok ] [slew] the settled flag fell at the slew level
+  [ ok ] [slew] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [slew] fine-PS protocol clean
+  [ ok ] [slew] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [slew] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase slew: checks: 17   failures: 0 ==
+RESULT: PASS
+======================================================================
+[phcstep] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [phcstep] the local PHC steps +7000 ns at 15.00 s
+  info: [phcstep] phase +0.3395 Ps after the step
+  [ ok ] [phcstep] phase inside +/-5 % of Ps within 40 s of the event
+  info: [phcstep] inside the band 22.27 s after the event
+  [ ok ] [phcstep] phase held inside +/-5 % of Ps to the end (max 562.7 ns)
+  [ ok ] [phcstep] the DUT's CRF output on the reference's grid (max 751.8 ns)
+  [ ok ] [phcstep] the servo reports settled at the end
+  [ ok ] [phcstep] still LOCKED at the end
+  [ ok ] [phcstep] the phase term let go at the PHC step (within 5 ms)
+  [ ok ] [phcstep] the settled flag fell at the PHC step
+  [ ok ] [phcstep] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [phcstep] fine-PS protocol clean
+  [ ok ] [phcstep] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [phcstep] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase phcstep: checks: 16   failures: 0 ==
+RESULT: PASS
+======================================================================
+[burst] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [pre] phase inside +/-5 % of Ps within 14 s of the event
+  info: [pre] inside the band 0.06 s after the event
+  [ ok ] [pre] phase held inside +/-5 % of Ps to the end (max 210.4 ns)
+  [ ok ] [pre] the DUT's CRF output on the reference's grid (max 370.2 ns)
+  [ ok ] [pre] the servo reports settled at the end
+  [ ok ] [pre] still LOCKED at the end
+  info: [burst] the talker sends every 1.92 ms from 15.05 s for 0.6 s
+  [ ok ] [burst] phase inside +/-5 % of Ps within 30 s of the event
+  info: [burst] inside the band 0.06 s after the event
+  [ ok ] [burst] phase held inside +/-5 % of Ps to the end (max 142.0 ns)
+  [ ok ] [burst] the DUT's CRF output on the reference's grid (max 303.2 ns)
+  [ ok ] [burst] the servo reports settled at the end
+  [ ok ] [burst] still LOCKED at the end
+  [ ok ] [burst] the burst put more than 264 PDUs in some 512 ms (267)
+  [ ok ] [burst] the window the burst filled kept exactly 264 samples, the cap (max 264)
+  [ ok ] [burst] every DUT CRF timestamp is a frame instant of its own grid (max 160.9 ns)
+  [ ok ] [burst] fine-PS protocol clean
+  [ ok ] [burst] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [burst] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase burst: checks: 16   failures: 0 ==
+RESULT: PASS
+======================================================================
+[carry] media-clock phase loop, silicon window, clk 3.125 MHz, audio 768 kHz
+  [ ok ] [carry] LOCKED on rate alone
+  info: [carry] 40 windows, 15 odd errors, sum(e) 255, integrator moved 32640/256
+  [ ok ] [carry] the window sample is wide enough to grade (odd errors seen)
+  [ ok ] [carry] the integrator moved by exactly sum(e) / 2 (no LSB floored)
+  [ ok ] [carry] the phase term stayed off (never engaged)
+  [ ok ] [carry] every DUT CRF timestamp is a frame instant of its own grid (max 160.8 ns)
+  [ ok ] [carry] fine-PS protocol clean
+  [ ok ] [carry] settled never read 1 with the true phase outside the band (0 windows, worst 0.0 ns)
+  [ ok ] [carry] MCSRV_STAT[9] mirrors phase_o[21] on every cycle
+== media_phase carry: checks: 8   failures: 0 ==
+RESULT: PASS
+make: Leaving directory '<shard-clone>3/tb/verilator/media_phase'

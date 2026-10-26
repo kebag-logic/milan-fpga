@@ -1,0 +1,22 @@
+probe 289421878a235291f94e1158f3463e102b02169685e1031fbf437922e20a2c75 probe_held_interface.cpp at 424b1489ccd8062180f90158556d343589b9e1e5, arm core, interfaces 1
+Note: Google Test filter = Core.ReviewProbe*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.ReviewProbeWaitingResponseLeavesOnItsOwnInterface
+<work>/probes/scratch/held-interface-if1/test/test_aecp.cpp:2796: Skipped
+
+
+  [FAIL] Core.ReviewProbeWaitingResponseLeavesOnItsOwnInterface: skipped: 
+[  SKIPPED ] Core.ReviewProbeWaitingResponseLeavesOnItsOwnInterface (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  SKIPPED ] 1 test, listed below:
+[  SKIPPED ] Core.ReviewProbeWaitingResponseLeavesOnItsOwnInterface
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 0)
+rc=1

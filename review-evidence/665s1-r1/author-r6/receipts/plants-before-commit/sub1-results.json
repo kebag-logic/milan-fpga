@@ -1,0 +1,162 @@
+[
+  {
+    "name": "foreign-lock-ignored",
+    "path": "aecp/aecp_commands.c",
+    "old": "return (a->locked || a->unlocked) && a->lock_owner != a->requester;",
+    "new": "return (a->locked || a->unlocked) && a->lock_owner == a->requester;",
+    "checks": [
+      [
+        "Core.ConfigurationAndLockedSetRefusals",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unapplied-change-not-refused",
+    "path": "aecp/aecp_commands.c",
+    "old": "return a->refusing || aecp_other_lock(a);",
+    "new": "return aecp_other_lock(a);",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedPromisesNothing",
+        "refused before it changes anything"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "refusal-claims-a-lock",
+    "path": "aecp/aecp.c",
+    "old": "if (status == AECP_ENTITY_LOCKED && a->refusing && !aecp_other_lock(a)) {",
+    "new": "if (false) {",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedPromisesNothing",
+        "status for command 6"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "expired-lock-read-released",
+    "path": "aecp/aecp_commands.c",
+    "old": "wire_put_be(out, a->locked || a->unlocked ? 2u : 0u, 4);",
+    "new": "wire_put_be(out, a->locked ? 2u : 0u, 4);",
+    "checks": [
+      [
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+        "ENTITY_AVAILABLE reports the lock in force: locked"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "expired-lock-owner-dropped",
+    "path": "aecp/aecp.c",
+    "old": "\t\ta->locked = false;\n\t\taecp_note(a, AECP_CHANGE_LOCK, 0, 0);\n",
+    "new": "\t\ta->locked = false;\n\t\ta->lock_owner = 0;\n\t\taecp_note(a, AECP_CHANGE_LOCK, 0, 0);\n",
+    "checks": [
+      [
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+        "by its owner"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "expired-lock-not-read-by-acmp",
+    "path": "aecp/aecp.c",
+    "old": "return a->locked || a->unlocked; // the lock in force",
+    "new": "return a->locked; // the lock in force",
+    "checks": [
+      [
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+        "the lock the ACMP owner reads is the lock in force"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "expired-lock-not-held-against-others",
+    "path": "aecp/aecp_commands.c",
+    "old": "return (a->locked || a->unlocked) && a->lock_owner != a->requester;",
+    "new": "return a->locked && a->lock_owner != a->requester;",
+    "checks": [
+      [
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+        "another controller's LOCK_ENTITY is refused by the lock in force, naming its owner"
+      ]
+    ],
+    "caught": false
+  },
+  {
+    "name": "expired-lock-owner-kept-once-notified",
+    "path": "aecp/aecp.c",
+    "old": "\t\ta->lock_owner = 0;\n\t\theader(a, 0, 0, a->cfg.entity_id, 0, 0, 1u, 1u);\n",
+    "new": "\t\theader(a, 0, 0, a->cfg.entity_id, 0, 0, 1u, 1u);\n",
+    "checks": [
+      [
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+        "read unlocked once notified, with no owner"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "system-id-refusal-not-implemented",
+    "path": "aecp/aecp.c",
+    "old": "\t\t\t\t\tstatus = AECP_ENTITY_MISBEHAVING;\n\t\t\t\t} else if (set",
+    "new": "\t\t\t\t\tstatus = 1u;\n\t\t\t\t} else if (set",
+    "checks": [
+      [
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs",
+        "refused while a change waits, as every change is"
+      ],
+      [
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs",
+        "and after the wait failed, while the platform has not applied it"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-response-leaves-on-the-last-interface",
+    "path": "aecp/aecp.c",
+    "old": "\t\ta->response_interface = a->held_interface;\n",
+    "new": "",
+    "checks": [
+      [
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn",
+        "leaves on the interface the command came in on"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "wait-bound-past-the-cadence",
+    "path": "aecp/aecp.h",
+    "old": "#define AECP_WAIT_MS 100u",
+    "new": "#define AECP_WAIT_MS 130u",
+    "checks": [
+      [
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence",
+        "the final response within 120 ms of its IN_PROGRESS, the service bound included"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "wait-bound-past-the-cadence-with-its-service",
+    "path": "aecp/aecp.h",
+    "old": "#define AECP_WAIT_MS 100u",
+    "new": "#define AECP_WAIT_MS 115u",
+    "checks": [
+      [
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence",
+        "the final response within 120 ms of its IN_PROGRESS, the service bound included"
+      ]
+    ],
+    "caught": true
+  }
+]

@@ -1,0 +1,124 @@
+Note: Google Test filter = Face.*:FaceLatency.*:AppFace.*:AppFaceUnacknowledged.*:Core.AChangeThePlatformHasNotAppliedPromisesNothing
+[==========] Running 25 tests from 5 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.AChangeThePlatformHasNotAppliedPromisesNothing
+[       OK ] Core.AChangeThePlatformHasNotAppliedPromisesNothing (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] 17 tests from Face
+[ RUN      ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens
+[       OK ] Face.OpenPublishesEverySettingWithReadyBeforeAecpOpens (0 ms)
+[ RUN      ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+[       OK ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] Face.LockExpiryIsPublishedBeforeItsNotification
+[       OK ] Face.LockExpiryIsPublishedBeforeItsNotification (4 ms)
+[ RUN      ] Face.CountersAreReadThroughTheWindowEachWithinItsBound
+[       OK ] Face.CountersAreReadThroughTheWindowEachWithinItsBound (0 ms)
+[ RUN      ] Face.StreamAvbAndFormatAreTheDatapathsWords
+[       OK ] Face.StreamAvbAndFormatAreTheDatapathsWords (0 ms)
+[ RUN      ] Face.ReviewGetterMustNotPromiseUnacknowledgedIdentify
+<work>/probes/scratch/r702-4/pk/scratch/delta-probes/tests/test_aecp.cpp:2077: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 9
+  status
+    Which is: 10
+status for command 24
+
+  [FAIL] Face.ReviewGetterMustNotPromiseUnacknowledgedIdentify: status for command 24
+REVIEW getter: status=0 returned=0 last_acknowledged=0 busy=1 owed=1
+[  FAILED  ] Face.ReviewGetterMustNotPromiseUnacknowledgedIdentify (0 ms)
+[ RUN      ] Face.ReviewStreamNotificationMustNotPromiseUnacknowledgedOffset
+<work>/probes/scratch/r702-4/pk/scratch/delta-probes/tests/test_aecp.cpp:2077: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 9
+  status
+    Which is: 10
+status for command 14
+
+  [FAIL] Face.ReviewStreamNotificationMustNotPromiseUnacknowledgedOffset: status for command 14
+[  FAILED  ] Face.ReviewStreamNotificationMustNotPromiseUnacknowledgedOffset (0 ms)
+[ RUN      ] Face.ReviewAutomaticUnlockMustBeNotifiedAfterRecovery
+REVIEW unlock recovery: applied=1 notifications=1 registered=1
+[       OK ] Face.ReviewAutomaticUnlockMustBeNotifiedAfterRecovery (4 ms)
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+[       OK ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[ RUN      ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt
+[       OK ] Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt (0 ms)
+[ RUN      ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt
+[       OK ] Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt (0 ms)
+[ RUN      ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther
+[       OK ] Face.AMissingAcknowledgementFailsTheChangeAndRefusesEveryOther (4 ms)
+[ RUN      ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken
+[       OK ] Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken (4 ms)
+[ RUN      ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+[       OK ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence (0 ms)
+[ RUN      ] Face.AStreamsSettingGoesToItsOwnInterface
+[       OK ] Face.AStreamsSettingGoesToItsOwnInterface (0 ms)
+[ RUN      ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing
+[       OK ] Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing (0 ms)
+[ RUN      ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed
+[       OK ] Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed (0 ms)
+[----------] 17 tests from Face (20 ms total)
+
+[----------] 1 test from FaceLatency
+[ RUN      ] FaceLatency.EveryCommandThroughTheFaceKeepsTheServiceBudget
+H-AECP-FACE if=2 path=41 elapsed_ns=1026700 accesses=296
+H-AECP-FACE if=2 path=41 elapsed_ns=1026700 accesses=296
+H-AECP-FACE if=2 path=15 elapsed_ns=1010300 accesses=132
+H-AECP-FACE if=2 path=15 elapsed_ns=1010400 accesses=133
+H-AECP-FACE if=2 path=39 elapsed_ns=1006800 accesses=97
+H-AECP-FACE if=2 path=8 elapsed_ns=1012800 accesses=157
+H-AECP-FACE if=2 path=8 elapsed_ns=1011400 accesses=143
+H-AECP-FACE if=2 path=14 elapsed_ns=1014100 accesses=170
+H-AECP-FACE if=2 path=22 elapsed_ns=1006000 accesses=89
+H-AECP-FACE if=2 path=24 elapsed_ns=1005800 accesses=87
+H-AECP-FACE if=2 path=6 elapsed_ns=1029000 accesses=319
+H-AECP-FACE if=2 path=1 elapsed_ns=1006600 accesses=95
+H-AECP-FACE if=2 path=41 elapsed_ns=1026700 accesses=296
+H-AECP-FACE if=2 path=41 elapsed_ns=1026700 accesses=296
+H-AECP-FACE if=2 path=15 elapsed_ns=1010300 accesses=132
+H-AECP-FACE if=2 path=15 elapsed_ns=1010400 accesses=133
+H-AECP-FACE if=2 path=39 elapsed_ns=1006800 accesses=97
+H-AECP-FACE if=2 path=8 elapsed_ns=1010300 accesses=132
+H-AECP-FACE if=2 path=8 elapsed_ns=1010400 accesses=133
+H-AECP-FACE if=2 path=14 elapsed_ns=1014100 accesses=170
+H-AECP-FACE if=2 path=22 elapsed_ns=1003800 accesses=67
+H-AECP-FACE if=2 path=24 elapsed_ns=1005800 accesses=87
+H-AECP-FACE if=2 path=6 elapsed_ns=1025400 accesses=283
+H-AECP-FACE if=2 path=1 elapsed_ns=1004400 accesses=73
+H-AECP-FACE-COUNTERS-BOUND accesses=2278 elapsed_ns=1227900
+[       OK ] FaceLatency.EveryCommandThroughTheFaceKeepsTheServiceBudget (0 ms)
+[----------] 1 test from FaceLatency (0 ms total)
+
+[----------] 5 tests from AppFace
+[ RUN      ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange
+[       OK ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange (2 ms)
+[ RUN      ] AppFace.FaceEventsDriveTheirTable522Notifications
+[       OK ] AppFace.FaceEventsDriveTheirTable522Notifications (1 ms)
+[ RUN      ] AppFace.AttachRefusesAFullLoop
+[       OK ] AppFace.AttachRefusesAFullLoop (0 ms)
+[ RUN      ] AppFace.StoreWordsCarryEveryTerminalAndFlag
+[       OK ] AppFace.StoreWordsCarryEveryTerminalAndFlag (0 ms)
+[ RUN      ] AppFace.AHeldCommitKeepsTheLoopBusy
+[       OK ] AppFace.AHeldCommitKeepsTheLoopBusy (0 ms)
+[----------] 5 tests from AppFace (5 ms total)
+
+[----------] 1 test from AppFaceUnacknowledged
+[ RUN      ] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged
+[       OK ] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged (0 ms)
+[----------] 1 test from AppFaceUnacknowledged (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 25 tests from 5 test suites ran. (27 ms total)
+[  PASSED  ] 23 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] Face.ReviewGetterMustNotPromiseUnacknowledgedIdentify
+[  FAILED  ] Face.ReviewStreamNotificationMustNotPromiseUnacknowledgedOffset
+
+ 2 FAILED TESTS
+== AECP core: checks: 25   failures: 2 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 2 failure(s) across 25 checks, exit 1)
