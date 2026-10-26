@@ -3211,7 +3211,9 @@ SOAK_ASSERTS = (
                "zero SEQ_NUM_MISMATCH, STREAM_INTERRUPTED, LATE_TIMESTAMP and "
                "EARLY_TIMESTAMP growth on every Stream Input, CRF included; "
                "zero MEDIA_UNLOCKED growth of any cause, explained or not, "
-               "outside a recorded planted event; each planted event excuses at "
+               "outside a recorded planted event; an increment is excused only when "
+               "both reads around it lie inside that input's planted window, so read "
+               "the input at the window's start and end; each planted event excuses at "
                "most one increment per input; a decrease is a counter reset and fails; "
                "graded by check_release_soak_counters; missing reads or a missing "
                "planted-event log is NOT RUN"),
@@ -3282,7 +3284,9 @@ POWER_ASSERTS = (
                "so a revert is visible; compare each against the pre-cycle snapshot; "
                "commit cuts must restore a complete old or new committed "
                "snapshot, never mixed state; graded by check_release_state_restored; "
-               "a pre-cycle value equal to its default or a missing readback is NOT RUN"),
+               "a pre-cycle value equal to its default or a missing readback is NOT RUN; "
+               "so is a commit cut whose pending value equals its default, or whose cut "
+               "instant lies outside its recorded commit window"),
     AssertSpec("power.adp-valid-time", RELEASE_CLAUSE +
                "; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: "
                "first post-cut ENTITY_AVAILABLE arrives within the advertised "
@@ -3314,8 +3318,8 @@ POWER_ASSERTS = (
                "directions and CRF, before and after every cycle; validate "
                "masks, supported formats, lock/start-stop invariants and flow"),
 )
-#: Issue #396 audio signal design (issuecomment-5978644444), run inside the
-#: 24-hour soak by the 2026-10-26 owner decisions.
+#: Issue #396 audio signal design of 2026-10-04 and REQ-VER-06: the audio
+#: counter run shares the 24-hour soak window, by the 2026-10-26 owner decisions.
 AUDIO_RELEASE_CLAUSE = RELEASE_CLAUSE + "; issue #396 audio signal design 2026-10-04"
 AUDIO_RELEASE_ASSERTS = (
     A_RELEASE_EVIDENCE,
@@ -3332,22 +3336,33 @@ AUDIO_RELEASE_ASSERTS = (
     AssertSpec("audio.counter-classified", AUDIO_RELEASE_CLAUSE +
                ": grade_audio_counter_capture classifies every discontinuity at its "
                "sample as n dropped, n repeated, n samples of silence (replaced or "
-               "inserted), a bit-flip mask or a channel swap; slips are decided modulo "
-               "4096 samples, so an exact multiple of 4096 is invisible to the counter"),
+               "inserted), a bit-flip mask or a channel swap; the counter repeats only "
+               "after 2^43 samples, so every slip is sized exactly; a slip of whole "
+               "2048-sample blocks is located within 63 samples (located_within); the "
+               "tag's integrity decides first: only a reciprocal exchange is a swap, any "
+               "other foreign or corrupted channel number is corruption; a word equal to "
+               "a neighbouring received word is a repeat; an excursion of two or more "
+               "words with one constant XOR mask is one corruption; a channel swapped "
+               "from the first frame is a swap, its counters still tracked"),
     AssertSpec("audio.planted-arms-found", AUDIO_RELEASE_CLAUSE +
                ": the source plants a drop, a repeat and a bit flip at logged capture "
-               "indices at the start and at the end of the run; each is found with its "
-               "class and its size or mask; a missed arm, or arms that do not run at "
-               "both ends, voids the run as NOT RUN"),
+               "indices at the start and at the end of the run, in its first and its "
+               "last tenth; each is found with its class and its size or mask; a missed "
+               "arm, or arms that do not run at both ends, voids the run as NOT RUN"),
     AssertSpec("audio.capture-losses-apart", AUDIO_RELEASE_CLAUSE +
                ": capture-side losses logged by the capture tool are attributed to the "
-               "capture and reported apart, never counted against the DUT; a logged "
-               "loss the capture does not show is NOT RUN"),
+               "capture and reported apart, never counted against the DUT, and only "
+               "when every counter channel shows the slip; a logged loss the capture does "
+               "not show is NOT RUN; a loss still advances the acquisition index and "
+               "both clocks"),
     AssertSpec("audio.event-record", AUDIO_RELEASE_CLAUSE +
                "; Milan v1.2 5.3.8.10 Table 5.6: each event records its wall and gPTP "
-               "times, capture index, expected and received words and class, with walks "
-               "of every stream's counters and the CRF sink's, the DUT's SLIP_LB and "
-               "SLIP_TDM words and the gPTP state within audio_context_s on each side"),
+               "times, capture and acquisition indices, expected and received words and "
+               "class, with walks of every stream's counters and the CRF sink's, the "
+               "DUT's SLIP_LB and SLIP_TDM words and the gPTP state within "
+               "audio_context_s on each side; times are interpolated between the capture "
+               "tool's anchors, never extrapolated, and gPTP time never across a recorded "
+               "discontinuity; an unsupported time is null with its reason"),
     AssertSpec("audio.analog-sine-pair", AUDIO_RELEASE_CLAUSE +
                ": 997 Hz and 9,973 Hz on another channel pair through the analog path, "
                "graded per block by THD+N and the sample-exact predictor residual; no "
@@ -3500,10 +3515,11 @@ def check_release_soak_counters(reads: list[dict] | None, planted_events: list[d
     log of deliberately planted disturbances, each with its target, kind and
     recorded window_s; an empty list attests that none was planted, None is
     missing evidence. A MEDIA_UNLOCKED increment between two reads is excused
-    only by a distinct planted event of that input whose window meets the read
-    interval, whatever else explains it. A decrease of any counter is a
-    reset: Table 5.6 zeroes the block on a not-bound to bound transition, so
-    the soak was interrupted.
+    only by a distinct planted event of that input whose window holds both
+    reads, so the increment is confined to the planted samples; an increment
+    in a read interval that only meets a window stays unexcused, whatever
+    else explains it. A decrease of any counter is a reset: Table 5.6 zeroes
+    the block on a not-bound to bound transition, so the soak was interrupted.
     """
     names = RELEASE_ZERO_GROWTH_COUNTERS + ("MEDIA_UNLOCKED",)
     detail = {"zero_growth": list(RELEASE_ZERO_GROWTH_COUNTERS),
@@ -3536,7 +3552,7 @@ def check_release_soak_counters(reads: list[dict] | None, planted_events: list[d
                                         interval_s=interval, why="zero-growth counter grew")
             delta = after["values"]["MEDIA_UNLOCKED"] - before["values"]["MEDIA_UNLOCKED"]
             matches = [event for event in unused
-                       if event["window_s"][0] <= interval[1] and event["window_s"][1] >= interval[0]]
+                       if event["window_s"][0] <= interval[0] and interval[1] <= event["window_s"][1]]
             if delta > len(matches):
                 return "FAIL", dict(detail, target=target, counter="MEDIA_UNLOCKED", delta=delta,
                                     interval_s=interval, why="MEDIA_UNLOCKED outside a planted event")
@@ -3546,22 +3562,51 @@ def check_release_soak_counters(reads: list[dict] | None, planted_events: list[d
     return "PASS", dict(detail, targets=len(targets), planted_unlocks=used)
 
 
+@dataclass(frozen=True)
+class ReleaseCommitCut:
+    """A journal-commit cut's evidence for check_release_state_restored.
+
+    `pending` is the snapshot being committed, `window_s` the commit's
+    [start, end) and `cut_s` the cut instant, both on the host monotonic
+    clock of the cycle's T0.
+    """
+    pending: dict
+    window_s: tuple
+    cut_s: float
+
+
+def _release_cut_refusal(cut: ReleaseCommitCut | None) -> str | None:
+    """Why a commit cut's phase evidence cannot place the cut in the commit."""
+    window = None if cut is None else cut.window_s
+    if (not isinstance(window, (tuple, list)) or len(window) != 2
+            or not all(_release_finite(value) for value in (*window, cut.cut_s)) or window[1] <= window[0]):
+        return "cut-phase evidence required: the commit window and the cut instant"
+    if not window[0] <= cut.cut_s < window[1]:
+        return "the cut hit no journal commit"
+    return None
+
+
 def check_release_state_restored(pre: dict | None, post: dict | None, defaults: dict | None, *,
                                  items: Sequence[str], phase: str,
-                                 committed: dict | None = None) -> tuple[str, dict]:
+                                 committed: dict | ReleaseCommitCut | None = None) -> tuple[str, dict]:
     """L3 #396 item 3: one cycle's readback of the persisted inventory.
 
     `pre` is the committed snapshot before the cycle and `post` the readback
     after it, as {item: value}; `defaults` holds the image's power-on values.
     Every pre-cycle value must differ from its default, or a build that
     restores nothing reads back as restored (issue #70's vacuity trap). Idle
-    cuts and soft resets restore `pre` exactly. A journal_commit cut lands
-    while `committed` is being written, and the readback must be all of
-    `pre` or all of `committed`, never a mix.
+    cuts and soft resets restore `pre` exactly, and any `committed` given to
+    them is ignored. A journal_commit cut lands while the pending snapshot is
+    being written: every pending value must differ from its default too, the
+    readback must be all of `pre` or all of the pending snapshot, never a mix,
+    and a PASS needs a ReleaseCommitCut placing the cut inside the commit
+    window; a bare pending dict can only FAIL or be NOT RUN.
     """
     detail = {"phase": phase, "items": list(items)}
     if phase not in {name for name, _ in RELEASE_POWER_PHASES} or not items:
         return "NOT RUN", dict(detail, why="known phase and nonempty inventory required")
+    cut = committed if isinstance(committed, ReleaseCommitCut) else None
+    committed = cut.pending if cut is not None else committed
     snapshots = [pre, post, defaults] + ([committed] if phase == "journal_commit" else [])
     if any(not isinstance(snap, dict) or any(item not in snap for item in items)
            for snap in snapshots):
@@ -3571,14 +3616,7 @@ def check_release_state_restored(pre: dict | None, post: dict | None, defaults: 
         return "NOT RUN", dict(detail, at_default=at_default,
                                why="pre-cycle value equals its default, so a revert is invisible")
     if phase == "journal_commit":
-        if all(committed[item] == pre[item] for item in items):
-            return "NOT RUN", dict(detail, why="the interrupted commit changes nothing")
-        if all(post[item] == pre[item] for item in items):
-            return "PASS", dict(detail, restored="old committed snapshot")
-        if all(post[item] == committed[item] for item in items):
-            return "PASS", dict(detail, restored="new committed snapshot")
-        return "FAIL", dict(detail, why="mixed or partial state after a commit cut",
-                            differs=[item for item in items if post[item] != pre[item]])
+        return _release_commit_restored(pre, post, defaults, committed, cut, detail)
     differs = [item for item in items if post[item] != pre[item]]
     if differs:
         return "FAIL", dict(detail, differs=differs,
@@ -3587,43 +3625,142 @@ def check_release_state_restored(pre: dict | None, post: dict | None, defaults: 
     return "PASS", detail
 
 
+def _release_commit_restored(pre: dict, post: dict, defaults: dict, committed: dict,
+                             cut: ReleaseCommitCut | None, detail: dict) -> tuple[str, dict]:
+    """The journal_commit half of check_release_state_restored."""
+    items = detail["items"]
+    pending_at_default = [item for item in items if committed[item] == defaults[item]]
+    if pending_at_default:
+        return "NOT RUN", dict(detail, pending_at_default=pending_at_default,
+                               why="pending value equals its default, so a fallback is invisible")
+    if all(committed[item] == pre[item] for item in items):
+        return "NOT RUN", dict(detail, why="the interrupted commit changes nothing")
+    if all(post[item] == pre[item] for item in items):
+        restored = "old committed snapshot"
+    elif all(post[item] == committed[item] for item in items):
+        restored = "new committed snapshot"
+    else:
+        return "FAIL", dict(detail, why="mixed or partial state after a commit cut",
+                            differs=[item for item in items if post[item] != pre[item]])
+    refusal = _release_cut_refusal(cut)
+    if refusal:
+        return "NOT RUN", dict(detail, restored=restored, why=refusal)
+    return "PASS", dict(detail, restored=restored)
+
+
 # ------------------------------------------------- the audio-integrity counter --
-#: Issue #396 decision 2026-10-04 (issuecomment-5978644444): a bit-exact
+#: Issue #396 audio signal design of 2026-10-04, REQ-VER-06: a bit-exact
 #: counter on every digital path. Each S32 word carries a 24-bit sample in
 #: bits 31:8 with bits 7:0 zero, the layout of the #451 and #629 captures.
 #: Sample bits 15:12 hold the channel number, index + 1 so that no valid word
-#: is zero and silence stays distinct, and bits 11:0 a free-running sample
-#: counter. Eight channels peak near -47 dBFS, and the 4096-sample wrap is an
-#: 11.7 Hz sawtooth at 48 kHz: a low-level infrasonic signal, bench only.
-AUDIO_COUNTER_BITS = 12
-AUDIO_COUNTER_MODULUS = 1 << AUDIO_COUNTER_BITS
+#: is zero and silence stays distinct. Bits 11:1 hold the sample position
+#: modulo 2048, and bit 0 one bit of a block code: sample n carries bit
+#: n mod 32 of the code of block n div 2048, so 32 consecutive samples of one
+#: block give its number. The counter repeats only after 2^43 samples, about
+#: 530 days at 192 kHz, the highest Milan v1.2 6.2 (Table 6.1) rate, where a
+#: 24-hour run is 1.66e10 samples. Eight channels peak near -47 dBFS, and the
+#: 2048-sample wrap is a 23.4 Hz sawtooth at 48 kHz: a low-level bench signal.
+AUDIO_POSITION_BITS = 11
+AUDIO_BLOCK_FRAMES = 1 << AUDIO_POSITION_BITS
+AUDIO_CODE_BITS = 32
+AUDIO_PERIOD_FRAMES = AUDIO_BLOCK_FRAMES << AUDIO_CODE_BITS
+#: Block b's code is b * 0x9E3779B1 modulo 2^32, a bijection under which
+#: nearby blocks differ in many bits. A slip of whole blocks leaves bits 11:1
+#: unchanged, so the code bit is all that shows it.
+AUDIO_CODE_MULTIPLIER = 0x9E3779B1
+AUDIO_CODE_INVERSE = pow(AUDIO_CODE_MULTIPLIER, -1, 1 << AUDIO_CODE_BITS)
 AUDIO_PAD_BITS = 8
+AUDIO_TAG_SHIFT = AUDIO_PAD_BITS + 12
 AUDIO_TAG_MAX = 15
 #: Bits no valid counter word sets: the sample's bits 23:16 and the pad.
 AUDIO_ZERO_MASK = 0xFF0000FF
+#: Any 63 consecutive samples hold one aligned 32-sample group of one block,
+#: so 64 clean samples fix a channel's absolute position, and a slip of whole
+#: blocks shows within 63 samples.
+AUDIO_CONFIRM_FRAMES = 64
+#: Words one unresolved stretch may store before it is graded in pieces.
+AUDIO_WINDOW_WORDS = 1 << 16
 AUDIO_CLASSES = ("dropped", "repeated", "silence", "bit-flip", "swap")
-#: The source plants these at the start and at the end of every run.
+#: The source plants these at the start and at the end of every run. Mask
+#: 0x100 flips the code bit alone, so the arm never equals a neighbouring
+#: sample, whose position bits differ.
 AUDIO_PLANTED_ARMS = ({"class": "dropped", "n": 3}, {"class": "repeated", "n": 2},
                       {"class": "bit-flip", "mask": 0x00000100})
+#: "At the start" is the first tenth of the capture, "at the end" the last.
+AUDIO_ARM_EDGE_DIVISOR = 10
+#: Frames compared at once on the per-channel fast path.
+AUDIO_FAST_BLOCK = AUDIO_BLOCK_FRAMES
 
 
-#: Frames compared at once on the clean fast path; a mismatching block is
-#: walked word by word, so a short block keeps that walk near the event.
-AUDIO_FAST_BLOCK = 256
+def _audio_code(block: int) -> int:
+    return (block * AUDIO_CODE_MULTIPLIER) % (1 << AUDIO_CODE_BITS)
 
 
-def audio_counter_word(tag: int, counter: int) -> int:
-    """The S32 word carrying channel number `tag` at sample counter `counter`."""
-    return ((tag << AUDIO_COUNTER_BITS) | (counter % AUDIO_COUNTER_MODULUS)) << AUDIO_PAD_BITS
+def audio_counter_word(tag: int, position: int) -> int:
+    """The S32 word carrying channel number `tag` at absolute sample `position`."""
+    block, offset = divmod(position % AUDIO_PERIOD_FRAMES, AUDIO_BLOCK_FRAMES)
+    bit = (_audio_code(block) >> (offset % AUDIO_CODE_BITS)) & 1
+    return ((tag << 12) | (offset << 1) | bit) << AUDIO_PAD_BITS
 
 
-@lru_cache(maxsize=8)
-def _audio_period_frames(tags: tuple, byteorder: str) -> tuple:
-    """One counter period of packed frames, frame k carrying counter k."""
-    import struct
-    layout = struct.Struct(("<" if byteorder == "little" else ">") + "I" * len(tags))
-    return tuple(layout.pack(*[audio_counter_word(tag, k) for tag in tags])
-                 for k in range(AUDIO_COUNTER_MODULUS))
+def _audio_fields(word: int) -> tuple[int, int]:
+    """(channel number, position modulo 2048) of a counter word."""
+    return (word >> AUDIO_TAG_SHIFT) & 0xF, (word >> (AUDIO_PAD_BITS + 1)) % AUDIO_BLOCK_FRAMES
+
+
+def _audio_signed(delta: int) -> int:
+    """`delta` folded into one counter period around zero."""
+    half = AUDIO_PERIOD_FRAMES // 2
+    return (delta + half) % AUDIO_PERIOD_FRAMES - half
+
+
+@lru_cache(maxsize=16)
+def _audio_tag_base(tag: int) -> int:
+    """One block of the channel's words, code bits clear, over native-order bytes."""
+    from array import array
+    words = array("I", [((tag << 12) | (offset << 1)) << AUDIO_PAD_BITS
+                        for offset in range(AUDIO_BLOCK_FRAMES)])
+    return int.from_bytes(words.tobytes(), "little")
+
+
+@lru_cache(maxsize=64)
+def _audio_code_pattern(block: int) -> int:
+    """Block `block`'s code bits, each in its word, over native-order bytes."""
+    from array import array
+    code = _audio_code(block)
+    group = array("I", [((code >> bit) & 1) << AUDIO_PAD_BITS for bit in range(AUDIO_CODE_BITS)])
+    return int.from_bytes(group.tobytes() * (AUDIO_BLOCK_FRAMES // AUDIO_CODE_BITS), "little")
+
+
+@lru_cache(maxsize=256)
+def _audio_block_bytes(tag: int, block: int) -> bytes:
+    """One block of channel `tag`'s counter words in native byte order."""
+    return (_audio_tag_base(tag) ^ _audio_code_pattern(block)).to_bytes(4 * AUDIO_BLOCK_FRAMES, "little")
+
+
+def _audio_expected_bytes(tag: int, position: int, count: int) -> bytes:
+    """`count` consecutive words of channel `tag` from `position`, native order."""
+    parts = []
+    while count > 0:
+        block, offset = divmod(position % AUDIO_PERIOD_FRAMES, AUDIO_BLOCK_FRAMES)
+        take = min(count, AUDIO_BLOCK_FRAMES - offset)
+        parts.append(_audio_block_bytes(tag, block)[4 * offset:4 * (offset + take)])
+        position, count = position + take, count - take
+    return b"".join(parts)
+
+
+def _audio_decode(words: Sequence[int]) -> int | None:
+    """Absolute position of words[0] when the 64 words are consecutive samples."""
+    tag, first = _audio_fields(words[0])
+    lead = -first % AUDIO_CODE_BITS
+    code = 0
+    for bit in range(AUDIO_CODE_BITS):
+        code |= ((words[lead + bit] >> AUDIO_PAD_BITS) & 1) << bit
+    block = code * AUDIO_CODE_INVERSE % (1 << AUDIO_CODE_BITS)
+    position = block * AUDIO_BLOCK_FRAMES + (first + lead) % AUDIO_BLOCK_FRAMES - lead
+    if all(word == audio_counter_word(tag, position + k) for k, word in enumerate(words)):
+        return position % AUDIO_PERIOD_FRAMES
+    return None
 
 
 def synthesize_counter_capture(frames: int, channels: int, *, byteorder: str = "big",
@@ -3631,27 +3768,35 @@ def synthesize_counter_capture(frames: int, channels: int, *, byteorder: str = "
     """An interleaved S32 capture of the counter signal, for offline controls.
 
     Events are placed in capture-index terms: drop and repeat move the source
-    ordinal by n from `index` on; silence zeroes n frames from `index`, and an
-    inserted silence also delays the content by n; flip XORs `mask` into one
-    channel's word; swap exchanges two channels for n frames. A capture-side
-    loss looks like a drop at the capture, so it is planted as one.
+    position by n from `index` on; silence zeroes n frames from `index`, and
+    an inserted silence also delays the content by n; flip XORs `mask` into
+    one channel's word; swap exchanges two channels for n frames; copy puts
+    the first channel's words on the second for n frames. A capture-side loss
+    looks like a drop at the capture, so it is planted as one.
     """
-    shifts, silent = {}, set()
+    from array import array
+    shifts = {}
     for event in events:
         if event["kind"] in ("drop", "repeat"):
             sign = 1 if event["kind"] == "drop" else -1
             shifts[event["index"]] = shifts.get(event["index"], 0) + sign * event["n"]
-        elif event["kind"] == "silence":
-            silent.update(range(event["index"], event["index"] + event["n"]))
-            if event.get("inserted"):
-                shifts[event["index"]] = shifts.get(event["index"], 0) - event["n"]
-    table = _audio_period_frames(tuple(range(1, channels + 1)), byteorder)
-    quiet, shift, out = bytes(4 * channels), 0, []
-    for index in range(frames):
-        shift += shifts.get(index, 0)
-        out.append(quiet if index in silent
-                   else table[(start_counter + index + shift) % AUDIO_COUNTER_MODULUS])
-    capture = bytearray(b"".join(out))
+        elif event["kind"] == "silence" and event.get("inserted"):
+            shifts[event["index"]] = shifts.get(event["index"], 0) - event["n"]
+    marks = sorted({0, frames} | {index for index in shifts if 0 < index < frames})
+    words = array("I", bytes(4 * frames * channels))
+    for channel in range(channels):
+        column, shift = array("I"), 0
+        for start, end in zip(marks, marks[1:]):
+            shift += shifts.get(start, 0)
+            column.frombytes(_audio_expected_bytes(channel + 1, start_counter + start + shift, end - start))
+        words[channel::channels] = column
+    for event in events:
+        if event["kind"] == "silence":
+            start, end = event["index"], min(frames, event["index"] + event["n"])
+            words[start * channels:end * channels] = array("I", bytes(4 * channels * (end - start)))
+    if byteorder != sys.byteorder:
+        words.byteswap()
+    capture = bytearray(words.tobytes())
 
     def at(index: int, channel: int) -> slice:
         """The byte span of one channel's word in one frame."""
@@ -3662,11 +3807,13 @@ def synthesize_counter_capture(frames: int, channels: int, *, byteorder: str = "
         if event["kind"] == "flip":
             word = int.from_bytes(capture[at(event["index"], event["channel"])], byteorder)
             capture[at(event["index"], event["channel"])] = (word ^ event["mask"]).to_bytes(4, byteorder)
-        elif event["kind"] == "swap":
+        elif event["kind"] in ("swap", "copy"):
             a, b = event["channels"]
-            for index in range(event["index"], event["index"] + event["n"]):
-                capture[at(index, a)], capture[at(index, b)] = \
-                    capture[at(index, b)], capture[at(index, a)]
+            for index in range(event["index"], min(frames, event["index"] + event["n"])):
+                if event["kind"] == "swap":
+                    capture[at(index, a)], capture[at(index, b)] = capture[at(index, b)], capture[at(index, a)]
+                else:
+                    capture[at(index, b)] = capture[at(index, a)]
     return bytes(capture)
 
 
@@ -3678,168 +3825,422 @@ def _audio_chunks(capture):
         yield bytes(chunk)
 
 
-class _CounterScan:
-    """Per-channel state machine over the counter words of one capture.
+@dataclass
+class _AudioTrack:
+    """What one window of a channel is graded against.
 
-    A mismatching word of its own channel is held for one sample: if the next
-    word resumes the old sequence it was a corruption with that XOR mask,
-    otherwise it starts a slip of the signed counter distance. Runs of zero
-    words are silence; when the content resumes where it stopped the silence
-    was inserted. A word that is another channel's expected word is a swap;
-    anything else is a corruption run with the OR of its XOR masks.
+    `base` is the position the old track expects at `start`, `own` the
+    channel number followed, `previous` the word received just before the
+    window, `resync` the (index, number, position) of the 64 clean samples
+    that close it and `follows` the first of them. The old track held from
+    `since`. `owners` maps each channel number to its capture channel.
+    """
+    start: int
+    base: int | None
+    own: int | None
+    previous: int | None
+    resync: tuple | None
+    follows: int | None
+    since: int
+    owners: dict
+    reason: str | None
+    acquiring: bool
+
+
+def _audio_due(track: _AudioTrack, index: int, offset: int) -> int:
+    return audio_counter_word(track.own, track.base + index - track.start + offset)
+
+
+def _audio_labels(track: _AudioTrack, body: list, final: int | None) -> list[list]:
+    """Each stored word as track at an offset, corruption or swap; zero runs kept.
+
+    The tag's integrity decides first: a word of the followed channel is a
+    track candidate; another channel's word is a swap only when the exchange
+    was reciprocal at that sample, and corruption otherwise.
+    """
+    labels = []
+    for token in body:
+        if token[0] == "Z":
+            labels.append(["Z", token[1], 0, token[2]])
+            continue
+        _, index, word, partner = token
+        if track.own is not None and not word & AUDIO_ZERO_MASK and _audio_fields(word)[0] == track.own:
+            labels.append(["own", index, word, None])
+        elif partner is not None:
+            labels.append(["swap", index, word, partner])
+        else:
+            labels.append(["bad", index, word, None])
+    reference = None if track.acquiring else 0
+    k = 0
+    while k < len(labels):
+        if labels[k][0] != "own":
+            k += 1
+            continue
+        end = k + 1
+        while (end < len(labels) and labels[end][0] == "own" and labels[end][1] == labels[end - 1][1] + 1
+               and _audio_fields(labels[end][2])[1]
+               == (_audio_fields(labels[end - 1][2])[1] + 1) % AUDIO_BLOCK_FRAMES):
+            end += 1
+        offset = _audio_offset(track, labels[k:end], (reference, final))
+        for label in labels[k:end]:
+            label[0], label[3] = ("track", offset) if offset is not None else ("bad", None)
+        reference = offset if offset is not None else reference
+        k = end
+    return labels
+
+
+def _audio_offset(track: _AudioTrack, piece: list[list], anchors: tuple) -> int | None:
+    """The offset from the old track that explains every bit of `piece`, if any.
+
+    A run shorter than 64 samples cannot fix its block, so it is tried at the
+    nearest position its bits 11:1 allow from the offset before it, then from
+    the offset the window closes on.
+    """
+    first_index, first_word = piece[0][1], piece[0][2]
+    for anchor in anchors:
+        if anchor is None or track.base is None:
+            continue
+        due = track.base + first_index - track.start + anchor
+        delta = (_audio_fields(first_word)[1] - due) % AUDIO_BLOCK_FRAMES
+        offset = anchor + (delta - AUDIO_BLOCK_FRAMES if delta > AUDIO_BLOCK_FRAMES // 2 else delta)
+        if all(label[2] == _audio_due(track, label[1], offset) for label in piece):
+            return offset
+    return None
+
+
+def _audio_duplicate(track: _AudioTrack, labels: list[list], k: int) -> bool:
+    """Whether the word at labels[k] equals the word received next to it."""
+    before = labels[k - 1] if k else None
+    after = labels[k + 1] if k + 1 < len(labels) else None
+    prior = track.previous if before is None else (0 if before[0] == "Z" else before[2])
+    later = track.follows if after is None else (0 if after[0] == "Z" else after[2])
+    return labels[k][2] in (prior, later)
+
+
+def _audio_excursion(track: _AudioTrack, labels: list[list], k: int, current: int,
+                     final: int | None) -> int:
+    """Read a net-zero excursion from `current` as corruption where it must be.
+
+    An excursion leaves the track at labels[k] and returns to the same
+    offset. One word is a corruption unless it equals a neighbouring received
+    word, a repeat. Two or more words whose XOR with the track is one constant
+    mask are one corruption. Returns the label index where the excursion ends.
+    """
+    end = k
+    while end < len(labels) and (labels[end][0] == "bad"
+                                 or (labels[end][0] == "track" and labels[end][3] != current)):
+        end += 1
+    back = (labels[end][3] if end < len(labels) and labels[end][0] == "track"
+            else final if end == len(labels) else None)
+    if back != current:
+        return end
+    span = labels[k:end]
+    if len(span) == 1:
+        if span[0][0] == "bad" or _audio_duplicate(track, labels, k):
+            return end
+    elif len({label[2] ^ _audio_due(track, label[1], current) for label in span}) > 1:
+        return end
+    for label in span:
+        label[0], label[3] = "bad", None
+    return end
+
+
+def _audio_slip(track: _AudioTrack, index: int, old: int, new: int, stretch: int) -> dict:
+    """A slip from offset `old` to `new` first seen at `index`.
+
+    A slip of whole blocks leaves bits 11:1 alone, so the words before
+    `index` may fit both tracks; `located_within` then bounds the sample.
+    """
+    shift, first = new - old, index
+    if shift % AUDIO_BLOCK_FRAMES == 0:
+        while first > stretch and _audio_due(track, first - 1, old) == _audio_due(track, first - 1, new):
+            first -= 1
+    event = {"capture_index": index, "class": "dropped" if shift > 0 else "repeated", "n": abs(shift),
+             "expected": _audio_due(track, index, old), "received": _audio_due(track, index, new)}
+    if first < index:
+        event["located_within"] = [first, index]
+    return event
+
+
+def _audio_extend(events: list, run: dict | None, cls: str, label: list, track: _AudioTrack,
+                  current: int | None) -> dict:
+    """Open or extend a corruption or swap run with one word."""
+    _, index, word, partner = label
+    due = None if current is None or track.own is None else _audio_due(track, index, current)
+    match = None
+    tag = _audio_fields(word)[0]
+    if due is not None and tag in track.owners and not word & AUDIO_ZERO_MASK \
+            and word == audio_counter_word(tag, track.base + index - track.start + current):
+        match = track.owners[tag]
+    if (run is not None and run["class"] == cls and run.get("partner") == partner
+            and run["capture_index"] + run["n"] == index):
+        run["n"] += 1
+        run["mask"] |= word ^ (due or 0)
+        run["matches"].add(match)
+        return run
+    _audio_flush(events, run)
+    return {"capture_index": index, "class": cls, "n": 1, "expected": due, "received": word,
+            "mask": word ^ (due or 0), "partner": partner, "matches": {match}}
+
+
+def _audio_flush(events: list, run: dict | None) -> None:
+    """Close an open corruption or swap run into its event."""
+    if run is None:
+        return
+    matches = run.pop("matches")
+    if run["class"] == "swap":
+        run.pop("mask")
+    else:
+        run.pop("partner")
+        if len(matches) == 1 and None not in matches:
+            run["matches_channel"] = matches.pop()
+    events.append(run)
+
+
+def _audio_window_events(track: _AudioTrack, labels: list[list], final: int | None) -> tuple[list, int | None]:
+    """The events of one window and the offset it ends on.
+
+    Offsets count samples ahead of the old track. A change of offset is a
+    slip; zero runs are silence, inserted when the content resumes where it
+    stopped; foreign or corrupted words are corruption runs with the OR of
+    their XOR masks; reciprocal exchanges are swaps.
+    """
+    events, run, excursion = [], None, 0
+    current = None if track.acquiring else 0
+    stretch = track.since if current is not None else track.start
+    ahead, later = [None] * len(labels), final
+    for k in range(len(labels) - 1, -1, -1):
+        ahead[k] = later
+        later = labels[k][3] if labels[k][0] == "track" else later
+    for k, label in enumerate(labels):
+        if k >= excursion and current is not None and (
+                label[0] == "bad" or (label[0] == "track" and label[3] != current)):
+            excursion = _audio_excursion(track, labels, k, current, final)
+        kind, index, _, extra = label
+        if kind in ("bad", "swap"):
+            run = _audio_extend(events, run, "bit-flip" if kind == "bad" else "swap", label, track, current)
+            stretch = index + 1
+            continue
+        _audio_flush(events, run)
+        run = None
+        if kind == "Z":
+            inserted = None if current is None or ahead[k] is None else ahead[k] == current - extra
+            events.append({"capture_index": index, "class": "silence", "n": extra, "inserted": inserted,
+                           "expected": None if current is None else _audio_due(track, index, current),
+                           "received": 0})
+            current = current - extra if inserted else current
+            stretch = index + extra
+        elif current is None or extra != current:
+            if current is not None:
+                events.append(_audio_slip(track, index, current, extra, stretch))
+            current, stretch = extra, index
+    _audio_flush(events, run)
+    if final is not None and current is not None and final != current:
+        events.append(_audio_slip(track, track.resync[0], current, final, stretch))
+    if track.resync is None:
+        for event in events:
+            if event["class"] in ("dropped", "repeated"):
+                event["unresolved"] = track.reason
+    return events, final if final is not None else current
+
+
+class _CounterWindow:
+    """One channel's words from its first mismatch until 64 clean samples resume."""
+
+    __slots__ = ("start", "base", "previous", "tokens", "stored", "tail")
+
+    def __init__(self, start: int, base: int | None, previous: int | None) -> None:
+        self.start, self.base, self.previous = start, base, previous
+        self.tokens, self.stored, self.tail = [], 0, []
+
+    def add(self, index: int, word: int, partner: int | None, numbers: frozenset) -> None:
+        """Record one word; zero runs are counted, not stored."""
+        if word == 0:
+            last = self.tokens[-1] if self.tokens else None
+            if last is not None and last[0] == "Z" and last[1] + last[2] == index:
+                self.tokens[-1] = ("Z", last[1], last[2] + 1)
+            else:
+                self.tokens.append(("Z", index, 1))
+            self.tail = []
+            return
+        self.tokens.append(("W", index, word, partner))
+        self.stored += 1
+        tag, position = _audio_fields(word)
+        if word & AUDIO_ZERO_MASK or tag not in numbers:
+            self.tail = []
+            return
+        if self.tail:
+            last_tag, last_position = _audio_fields(self.tail[-1][1])
+            if tag != last_tag or position != (last_position + 1) % AUDIO_BLOCK_FRAMES:
+                self.tail = []
+        self.tail.append((index, word))
+        del self.tail[:-AUDIO_CONFIRM_FRAMES]
+
+    def confirmed(self) -> tuple[int, int, int] | None:
+        """(index, channel number, position) of 64 clean samples ending here."""
+        if len(self.tail) < AUDIO_CONFIRM_FRAMES:
+            return None
+        position = _audio_decode([word for _, word in self.tail])
+        if position is None:
+            del self.tail[0]
+            return None
+        return self.tail[0][0], _audio_fields(self.tail[0][1])[0], position
+
+    def end(self) -> int:
+        """The capture index after the last recorded word."""
+        last = self.tokens[-1]
+        return last[1] + (last[2] if last[0] == "Z" else 1)
+
+
+class _CounterSlot:
+    """One capture channel: the number it should carry and the track it follows."""
+
+    __slots__ = ("want", "tag", "position", "window", "previous", "since", "timeline")
+
+    def __init__(self, want: int) -> None:
+        self.want, self.tag, self.position = want, None, None
+        self.window, self.previous, self.since = None, None, 0
+        #: (index, channel number, position) where each carried identity begins.
+        self.timeline = []
+
+
+class _CounterScan:
+    """Per-channel tracks over one capture, every event classified at its sample.
+
+    A channel's numbers and position are acquired from its first 64 clean
+    samples, so a channel swapped from the first frame is followed and its
+    swap is an event. A mismatch opens a window that closes at the next 64
+    clean samples, whose decoded position sizes every slip in it exactly.
     """
 
-    def __init__(self, tags: list, layout: "CounterCapture", limit: int) -> None:
-        self.tags = tags
-        self.timing = (layout.rate_hz, layout.start_wall_s, layout.start_gptp_s, layout.context_s)
-        self.expected = [None] * len(tags)
-        self.run = [None] * len(tags)
-        self.held = [None] * len(tags)
-        self.events = []
-        self.limit = limit
-        self.unrecorded = 0
+    def __init__(self, tags: list, limit: int) -> None:
+        self.channels = len(tags)
+        self.slots = {c: _CounterSlot(tag) for c, tag in enumerate(tags) if tag is not None}
+        self.numbers = frozenset(slot.want for slot in self.slots.values())
+        self.owners = {slot.want: channel for channel, slot in self.slots.items()}
+        self.events, self.limit, self.unrecorded = [], limit, 0
 
-    def aligned_phase(self) -> int | None:
-        """The shared counter when every channel is in step and idle, else None."""
-        phases = {self.expected[c] for c, tag in enumerate(self.tags) if tag is not None}
-        if (len(phases) != 1 or None in phases or any(self.run) or any(self.held)):
+    def frames(self, first: int, data: Sequence[int]) -> None:
+        """Grade a block of frames; `data` holds its words in native order."""
+        count = len(data) // self.channels
+        for channel, slot in self.slots.items():
+            column = data[channel::self.channels]
+            if (slot.window is None and slot.position is not None
+                    and column.tobytes() == _audio_expected_bytes(slot.tag, slot.position, count)):
+                slot.position += count
+                slot.previous = column[-1]
+                continue
+            for k, word in enumerate(column):
+                self._step(channel, first + k, word, data, k)
+
+    def _step(self, channel: int, index: int, word: int, data: Sequence[int], k: int) -> None:
+        slot = self.slots[channel]
+        if slot.window is None:
+            if slot.position is not None and word == audio_counter_word(slot.tag, slot.position):
+                slot.position += 1
+                slot.previous = word
+                return
+            slot.window = _CounterWindow(index, slot.position, slot.previous)
+        slot.window.add(index, word, self._partner(channel, word, data, k), self.numbers)
+        slot.previous = word
+        found = slot.window.confirmed()
+        if found is not None:
+            self._close(channel, found, None)
+        elif slot.window.stored > AUDIO_WINDOW_WORDS:
+            self._close(channel, None, "more than 65536 words without 64 clean samples")
+
+    def _partner(self, channel: int, word: int, data: Sequence[int], k: int) -> int | None:
+        """The channel this word was exchanged with, when the exchange is reciprocal."""
+        own, tag = self.slots[channel].tag, _audio_fields(word)[0]
+        if own is None or not word or word & AUDIO_ZERO_MASK or tag == own or tag not in self.numbers:
             return None
-        return phases.pop()
+        for other, slot in self.slots.items():
+            if other != channel and (slot.tag or slot.want) == tag:
+                theirs = data[k * self.channels + other]
+                exchanged = theirs and not theirs & AUDIO_ZERO_MASK and _audio_fields(theirs)[0] == own
+                return other if exchanged else None
+        return None
 
-    def advance(self, frames: int) -> None:
-        """Move every channel past `frames` words that matched on the fast path."""
-        for channel, tag in enumerate(self.tags):
-            if tag is not None:
-                self.expected[channel] = (self.expected[channel] + frames) % AUDIO_COUNTER_MODULUS
+    def _close(self, channel: int, found: tuple | None, reason: str | None) -> None:
+        """Grade the open window, then follow the track its clean samples fix."""
+        slot = self.slots[channel]
+        window, slot.window = slot.window, None
+        acquiring = slot.position is None
+        base, own = window.base, slot.tag
+        if found is not None and acquiring:
+            base, own = found[2] - (found[0] - window.start), found[1]
+        track = _AudioTrack(window.start, base, own, window.previous, found,
+                            window.tokens[-AUDIO_CONFIRM_FRAMES][2] if found else None,
+                            slot.since, self.owners, reason, acquiring)
+        final = None
+        if found is not None:
+            final = 0 if acquiring else _audio_signed(found[2] - (base + found[0] - window.start))
+        body = window.tokens[:-AUDIO_CONFIRM_FRAMES] if found else window.tokens
+        events, offset = _audio_window_events(track, _audio_labels(track, body, final), final)
+        for event in events:
+            self._record(channel, event)
+        if found is not None:
+            if found[1] != slot.tag:
+                slot.timeline.append(found)
+            slot.tag, slot.position, slot.since = found[1], found[2] + AUDIO_CONFIRM_FRAMES, found[0]
+        elif own is not None and base is not None and offset is not None:
+            slot.position, slot.since = base + window.end() - window.start + offset, window.end()
 
-    def _emit(self, channel: int, index: int, cls: str, words: tuple, **fields) -> None:
-        """Record one event; `words` is the (expected, received) pair."""
+    def _record(self, channel: int, event: dict) -> None:
         if len(self.events) >= self.limit:
             self.unrecorded += 1
             return
-        expected, received = words
-        rate_hz, wall_s, gptp_s, context_s = self.timing
-        offset_s = index / rate_hz
-        record = {"channel": channel, "capture_index": index, "class": cls,
-                  "expected": None if expected is None else f"0x{expected:08X}",
-                  "received": f"0x{received:08X}", "wall_s": wall_s + offset_s,
-                  "gptp_s": gptp_s + offset_s,
-                  "context_wall_s": [wall_s + offset_s - context_s, wall_s + offset_s + context_s],
-                  "attribution": "dut"}
-        record.update(fields)
-        self.events.append(record)
+        for key in ("expected", "received"):
+            event[key] = None if event[key] is None else f"0x{event[key]:08X}"
+        if "mask" in event:
+            event["mask"] = f"0x{event['mask']:08X}"
+        self.events.append(dict(event, channel=channel, attribution="dut"))
 
-    def _own(self, channel: int, word: int) -> bool:
-        return (word & AUDIO_ZERO_MASK) == 0 and (word >> 20) & 0xF == self.tags[channel]
-
-    def _close(self, channel: int, word: int | None) -> bool:
-        """Emit the open run; True when the word resumed an inserted silence."""
-        run, self.run[channel] = self.run[channel], None
-        if run is None:
-            return False
-        if run["class"] == "silence":
-            resumed = word is not None and self._own(channel, word) and \
-                ((word >> 8) & 0xFFF) == run["counter"]
-            self._emit(channel, run["index"], "silence", (run["expected"], 0), n=run["n"],
-                       inserted=resumed if word is not None else None)
-            if resumed:
-                self.expected[channel] = run["counter"]
-            return resumed
-        fields = {"n": run["n"]}
-        if run["class"] == "swap":
-            fields["partner"] = run["partner"]
-        else:
-            fields["mask"] = f"0x{run['mask']:08X}"
-        self._emit(channel, run["index"], run["class"], (run["expected"], run["received"]), **fields)
-        return False
-
-    def _resolve(self, channel: int, word: int | None) -> None:
-        held, self.held[channel] = self.held[channel], None
-        tag = self.tags[channel]
-        words = (held["expected"], held["received"])
-        if word is not None and word == audio_counter_word(tag, held["counter"] + 1):
-            self._emit(channel, held["index"], "bit-flip", words, n=1,
-                       mask=f"0x{held['received'] ^ held['expected']:08X}")
-            self.expected[channel] = (held["counter"] + 1) % AUDIO_COUNTER_MODULUS
-            return
-        shift = (held["seen"] - held["counter"]) % AUDIO_COUNTER_MODULUS
-        if shift >= AUDIO_COUNTER_MODULUS // 2:
-            shift -= AUDIO_COUNTER_MODULUS
-        self._emit(channel, held["index"], "dropped" if shift > 0 else "repeated",
-                   words, n=abs(shift),
-                   **({} if word is not None else {"unresolved": "capture ended"}))
-        self.expected[channel] = (held["seen"] + 1) % AUDIO_COUNTER_MODULUS
-
-    def step(self, index: int, frame: Sequence[int]) -> None:
-        """Classify one frame's words against each channel's expected word."""
-        expected_words = {}
-        for channel, tag in enumerate(self.tags):
-            if tag is not None and self.expected[channel] is not None and self.held[channel] is None:
-                expected_words[audio_counter_word(tag, self.expected[channel])] = channel
-        for channel, tag in enumerate(self.tags):
-            if tag is None:
-                continue
-            word = frame[channel]
-            if self.held[channel] is not None:
-                self._resolve(channel, word)
-            counter = self.expected[channel]
-            if counter is None:
-                if self._own(channel, word):
-                    self._close(channel, word)
-                    self.expected[channel] = (((word >> 8) & 0xFFF) + 1) % AUDIO_COUNTER_MODULUS
-                else:
-                    self._open(channel, index, "silence" if word == 0 else "bit-flip", (None, word))
-                continue
-            expect = audio_counter_word(tag, counter)
-            if word == expect:
-                self._close(channel, word)
-                self.expected[channel] = (counter + 1) % AUDIO_COUNTER_MODULUS
-                continue
-            if word == 0:
-                self._open(channel, index, "silence", (expect, word), counter=counter)
-                self.expected[channel] = (counter + 1) % AUDIO_COUNTER_MODULUS
-                continue
-            if self.run[channel] is not None and self.run[channel]["class"] == "silence":
-                if self._close(channel, word):
-                    self.expected[channel] = (self.expected[channel] + 1) % AUDIO_COUNTER_MODULUS
+    def finish(self, frames: int) -> None:
+        """Close every open window at the capture's end, then grade identities."""
+        for channel, slot in self.slots.items():
+            if slot.window is not None:
+                self._close(channel, None, "the capture ended")
+        spans = {channel: _audio_spans(slot.timeline, frames) for channel, slot in self.slots.items()}
+        for channel, slot in self.slots.items():
+            for start, end, number, position in spans[channel]:
+                if number == slot.want:
                     continue
-            if self._own(channel, word):
-                self._close(channel, word)
-                self.held[channel] = {"index": index, "counter": counter, "expected": expect,
-                                      "received": word, "seen": (word >> 8) & 0xFFF}
-                continue
-            partner = expected_words.get(word)
-            if partner is not None and partner != channel:
-                self._open(channel, index, "swap", (expect, word), partner=partner)
-            else:
-                self._open(channel, index, "bit-flip", (expect, word))
-            self.expected[channel] = (counter + 1) % AUDIO_COUNTER_MODULUS
+                partner = self.owners.get(number)
+                for first, last, exchanged in _audio_split(start, end, spans.get(partner, []), slot.want):
+                    event = {"capture_index": first, "n": last - first,
+                             "expected": audio_counter_word(slot.want, position + first - start),
+                             "received": audio_counter_word(number, position + first - start)}
+                    if exchanged:
+                        event.update({"class": "swap", "partner": partner})
+                    else:
+                        event.update({"class": "bit-flip", "matches_channel": partner,
+                                      "mask": (slot.want ^ number) << AUDIO_TAG_SHIFT})
+                    self._record(channel, event)
+        self.events.sort(key=lambda event: (event["capture_index"], event["channel"]))
 
-    def _open(self, channel: int, index: int, cls: str, words: tuple, **context) -> None:
-        """Start or extend a run; `words` is (expected, received), `context`
-        the expected counter at a silence start or the swap partner."""
-        expected, word = words
-        partner = context.get("partner")
-        run = self.run[channel]
-        if (run is not None and run["class"] == cls and run.get("partner") == partner
-                and run["index"] + run["n"] == index):
-            run["n"] += 1
-            if cls == "bit-flip":
-                run["mask"] |= word ^ (expected or 0)
-            return
-        self._close(channel, word)
-        self.run[channel] = {"class": cls, "index": index, "n": 1, "expected": expected,
-                             "received": word, "counter": context.get("counter"),
-                             "partner": partner, "mask": word ^ (expected or 0)}
+    def carriers(self, channel: int, index: int) -> list:
+        """The capture channels carrying channel `channel`'s number at `index`."""
+        if channel not in self.slots:
+            return [channel]
+        number = self.slots[channel].want
+        found = [other for other, slot in self.slots.items()
+                 if any(start <= index < end and carried == number
+                        for start, end, carried, _ in _audio_spans(slot.timeline, index + 1))]
+        return found or [channel]
 
-    def finish(self) -> None:
-        """Resolve a held word and close every open run at the capture's end."""
-        for channel, tag in enumerate(self.tags):
-            if tag is None:
-                continue
-            if self.held[channel] is not None:
-                self._resolve(channel, None)
-            self._close(channel, None)
+
+def _audio_spans(timeline: list, frames: int) -> list[tuple]:
+    """(start, end, channel number, position at start) of each carried identity."""
+    return [(index, timeline[k + 1][0] if k + 1 < len(timeline) else frames, number, position)
+            for k, (index, number, position) in enumerate(timeline)]
+
+
+def _audio_split(start: int, end: int, partner: list, want: int) -> list[tuple]:
+    """[start, end) cut where the partner carries `want` (an exchange) or not."""
+    cuts = sorted({start, end} | {edge for span in partner for edge in span[:2] if start < edge < end})
+    return [(a, b, any(s <= a and b <= e and number == want for s, e, number, _ in partner))
+            for a, b in zip(cuts, cuts[1:])]
 
 
 def _audio_logs_valid(arms: list, losses: list, channels: int) -> bool:
@@ -3860,31 +4261,29 @@ def _audio_logs_valid(arms: list, losses: list, channels: int) -> bool:
     return True
 
 
-def _audio_shift(event: dict) -> int:
-    return event["n"] if event["class"] == "dropped" else -event["n"]
+def _audio_at(event: dict, index: int, tolerance: int) -> bool:
+    """Whether a logged index can be this event's sample, within `tolerance`."""
+    first, last = event.get("located_within", (event["capture_index"], event["capture_index"]))
+    return first - tolerance <= index <= last + tolerance
 
 
-def _audio_attribute(events: list, arms: list, losses: list, counter_channels: list,
-                     tolerance: int) -> tuple[str | None, list]:
+def _audio_attribute(events: list, log: "CounterRunLog", counter_channels: list,
+                     scan: _CounterScan) -> tuple[str | None, list]:
     """Mark logged capture losses and planted arms; (refusal, missed arms)."""
-    for loss in losses:
-        if loss["frames"] % AUDIO_COUNTER_MODULUS == 0:
-            continue
-        hits = [e for e in events if e["attribution"] == "dut"
-                and e["capture_index"] == loss["index"] and e["class"] in ("dropped", "repeated")
-                and _audio_shift(e) % AUDIO_COUNTER_MODULUS == loss["frames"] % AUDIO_COUNTER_MODULUS]
+    for loss in log.capture_losses:
+        hits = [e for e in events if e["attribution"] == "dut" and e["class"] == "dropped"
+                and e["n"] == loss["frames"] and _audio_at(e, loss["index"], 0)]
         if sorted({e["channel"] for e in hits}) != counter_channels:
             return "a logged capture loss is not in the capture", []
         for event in hits:
             event["attribution"] = "capture"
-    missed = []
-    for arm in arms:
-        want = counter_channels if arm.get("channel") is None else [arm["channel"]]
+    missed, tolerance = [], log.arm_tolerance_frames
+    for arm in log.planted_arms:
+        want = counter_channels if arm.get("channel") is None else scan.carriers(arm["channel"], arm["index"])
         picks = {}
         for event in events:
             if (event["attribution"] != "dut" or event["class"] != arm["class"]
-                    or event["channel"] not in want
-                    or abs(event["capture_index"] - arm["index"]) > tolerance):
+                    or event["channel"] not in want or not _audio_at(event, arm["index"], tolerance)):
                 continue
             if arm["class"] == "bit-flip":
                 if event["n"] != 1 or event["mask"] != f"0x{arm['mask']:08X}":
@@ -3903,14 +4302,75 @@ def _audio_attribute(events: list, arms: list, losses: list, counter_channels: l
     return None, missed
 
 
+def _audio_anchors_valid(layout: "CounterCapture") -> bool:
+    anchors, steps = layout.anchors, layout.gptp_steps_wall_s
+    if not isinstance(anchors, (tuple, list)) or (steps is not None and (
+            not isinstance(steps, (tuple, list)) or not all(_release_finite(s) for s in steps))):
+        return False
+    previous = (0, layout.start_wall_s)
+    for anchor in anchors:
+        if (not isinstance(anchor, (tuple, list)) or len(anchor) != 3 or type(anchor[0]) is not int
+                or anchor[0] <= previous[0] or not all(_release_finite(v) for v in anchor[1:])
+                or anchor[1] <= previous[1]):
+            return False
+        previous = anchor
+    return True
+
+
+def _audio_timing(events: list, layout: "CounterCapture", losses: list) -> int:
+    """Each event's acquisition index and clocks; the count left unsupported.
+
+    A logged capture loss stores no frames but time runs through it, so the
+    acquisition index is the stored index plus every loss logged at or before
+    it. Times are interpolated between the capture tool's anchors around the
+    event, never extrapolated past the last one, and gPTP time never across a
+    recorded gPTP discontinuity.
+    """
+    import bisect
+    lost = sorted((loss["index"], loss["frames"]) for loss in losses)
+
+    def acquired(index: int) -> int:
+        """The acquisition index of stored frame `index`."""
+        return index + sum(frames for at, frames in lost if at <= index)
+
+    anchors = [(0, layout.start_wall_s, layout.start_gptp_s)] + [tuple(a) for a in layout.anchors]
+    starts, unsupported = [anchor[0] for anchor in anchors], 0
+    for event in events:
+        index = event["capture_index"]
+        k = bisect.bisect_right(starts, index) - 1
+        here, there = anchors[k], anchors[k + 1] if k + 1 < len(anchors) else None
+        wall = gptp = None
+        if here[0] == index:
+            wall, gptp, timing = here[1], here[2], "anchored"
+        elif there is None:
+            timing = "unsupported: no anchor after the event"
+        else:
+            part = (acquired(index) - acquired(here[0])) / (acquired(there[0]) - acquired(here[0]))
+            wall, timing = here[1] + part * (there[1] - here[1]), "anchored"
+            if layout.gptp_steps_wall_s is None:
+                timing = "unsupported gPTP: no discontinuity record"
+            elif any(here[1] < step <= there[1] for step in layout.gptp_steps_wall_s):
+                timing = "unsupported gPTP: a recorded discontinuity lies between the anchors"
+            else:
+                gptp = here[2] + part * (there[2] - here[2])
+        unsupported += wall is None or gptp is None
+        event.update(acquisition_index=acquired(index), wall_s=wall, gptp_s=gptp, timing=timing,
+                     anchors=[here[0], None if there is None else there[0]],
+                     context_wall_s=None if wall is None else [wall - layout.context_s, wall + layout.context_s])
+    return unsupported
+
+
 @dataclass(frozen=True)
 class CounterCapture:
     """One counter capture as recorded: its layout, clocks and channel numbers.
 
     Headerless interleaved S32 in `byteorder`, at `rate_hz`. The start times
-    put every event on the wall and gPTP clocks, and `context_s` brackets it.
-    `tags` names the channel number each capture channel must carry, None
-    for a channel without the counter; None keeps the default, index + 1.
+    and `anchors`, each (capture index, wall s, gPTP s) recorded by the capture
+    tool, put every event on the wall and gPTP clocks; `gptp_steps_wall_s`
+    lists the run's recorded gPTP discontinuities on the wall clock, None when
+    no record was kept. `context_s` brackets each event. `tags` names the
+    channel number each capture channel must carry, None for a channel
+    without the counter; None keeps the default, index + 1.
     """
     channels: int
     byteorder: str
@@ -3919,6 +4379,8 @@ class CounterCapture:
     start_gptp_s: float | None
     context_s: float = 5
     tags: tuple | None = None
+    anchors: tuple = ()
+    gptp_steps_wall_s: tuple | None = None
 
 
 @dataclass(frozen=True)
@@ -3935,85 +4397,91 @@ class CounterRunLog:
     arm_tolerance_frames: int | None
 
 
+def _audio_layout_refusal(layout: CounterCapture, log: CounterRunLog, max_events: int) -> str | None:
+    """Why the layout or logs cannot be graded, or None."""
+    channels, rate_hz = layout.channels, layout.rate_hz
+    if (type(channels) is not int or channels < 1 or layout.byteorder not in ("big", "little")
+            or not _release_finite(rate_hz) or rate_hz <= 0
+            or log.planted_arms is None or log.capture_losses is None
+            or type(log.arm_tolerance_frames) is not int or log.arm_tolerance_frames < 0
+            or not _release_finite(layout.start_wall_s) or not _release_finite(layout.start_gptp_s)
+            or not _release_finite(layout.context_s) or layout.context_s < 0
+            or type(max_events) is not int or max_events < 1 or not _audio_anchors_valid(layout)):
+        return "capture layout, both logs, tolerance, start times and anchors required"
+    tags = [c + 1 for c in range(channels)] if layout.tags is None else list(layout.tags)
+    numbers = [tag for tag in tags if tag is not None]
+    if (len(tags) != channels or not numbers
+            or any(type(tag) is not int or not 1 <= tag <= AUDIO_TAG_MAX for tag in numbers)
+            or len(set(numbers)) != len(numbers)):
+        return "one distinct channel number from 1 to 15 per counter channel"
+    if not _audio_logs_valid(log.planted_arms, log.capture_losses, channels):
+        return "invalid planted-arm or capture-loss log"
+    return None
+
+
 def grade_audio_counter_capture(capture: "bytes | Iterable[bytes]", layout: CounterCapture,
                                 log: CounterRunLog, *, max_events: int = 100000) -> tuple[str, dict]:
     """L3 #396 audio grader over one interleaved S32 counter capture.
 
     `capture` is headerless interleaved S32, the format tb/tools/thdn.py and
     the #451/#629 captures use, given as bytes or as an iterable of chunks so
-    that a 24-hour file streams.
+    that a 24-hour file streams. The counter never repeats within a run, so
+    every slip is sized exactly; a slip of whole 2048-sample blocks carries
+    `located_within`, the samples it may have happened at.
 
     NOT RUN: missing or inconsistent evidence, or a void run, where an arm was
-    missed or the arms do not run at both the start and the end. FAIL: any
+    missed or the arms do not run in the first and the last tenth. FAIL: any
     event attributed to neither a planted arm nor a logged capture loss.
-    Slips are decided modulo 4096 samples: a shift of 2048 or more aliases,
-    and an exact multiple of 4096 is invisible to the counter.
     """
-    import struct
-    channels, byteorder, rate_hz = layout.channels, layout.byteorder, layout.rate_hz
-    planted_arms, capture_losses = log.planted_arms, log.capture_losses
-    detail = {"channels": channels, "byteorder": byteorder, "rate_hz": rate_hz,
-              "modulus": AUDIO_COUNTER_MODULUS, "classes": list(AUDIO_CLASSES)}
-    if (type(channels) is not int or channels < 1 or byteorder not in ("big", "little")
-            or not _release_finite(rate_hz) or rate_hz <= 0
-            or planted_arms is None or capture_losses is None
-            or type(log.arm_tolerance_frames) is not int or log.arm_tolerance_frames < 0
-            or not _release_finite(layout.start_wall_s) or not _release_finite(layout.start_gptp_s)
-            or not _release_finite(layout.context_s) or layout.context_s < 0
-            or type(max_events) is not int or max_events < 1):
-        return "NOT RUN", dict(detail, why="capture layout, both logs, tolerance and start times required")
+    from array import array
+    detail = {"channels": layout.channels, "byteorder": layout.byteorder, "rate_hz": layout.rate_hz,
+              "period_frames": AUDIO_PERIOD_FRAMES, "classes": list(AUDIO_CLASSES)}
+    refusal = _audio_layout_refusal(layout, log, max_events)
+    if refusal:
+        return "NOT RUN", dict(detail, why=refusal)
+    channels = layout.channels
     tags = [c + 1 for c in range(channels)] if layout.tags is None else list(layout.tags)
     counter_channels = [c for c, tag in enumerate(tags) if tag is not None]
-    numbers = [tag for tag in tags if tag is not None]
-    if (len(tags) != channels or not counter_channels
-            or any(type(tag) is not int or not 1 <= tag <= AUDIO_TAG_MAX for tag in numbers)
-            or len(set(numbers)) != len(numbers)):
-        return "NOT RUN", dict(detail, why="one distinct channel number from 1 to 15 per counter channel")
-    if not _audio_logs_valid(planted_arms, capture_losses, channels):
-        return "NOT RUN", dict(detail, why="invalid planted-arm or capture-loss log")
-    scan = _CounterScan(tags, layout, max_events)
-    frame = struct.Struct(("<" if byteorder == "little" else ">") + "I" * channels)
-    # Fast path: a clean stretch equals the period of expected frames, rotated.
-    period = (b"".join(_audio_period_frames(tuple(tags), byteorder)) * 2
-              if len(counter_channels) == channels else None)
+    scan, width, swap = _CounterScan(tags, max_events), 4 * channels, layout.byteorder != sys.byteorder
     pending, index = b"", 0
     for chunk in _audio_chunks(capture):
         data = pending + chunk
-        usable = len(data) - len(data) % frame.size
-        pending, offset = data[usable:], 0
-        while offset < usable:
-            count = min(AUDIO_FAST_BLOCK, (usable - offset) // frame.size)
-            phase = scan.aligned_phase() if period is not None else None
-            if phase is not None and data[offset:offset + count * frame.size] == \
-                    period[phase * frame.size:(phase + count) * frame.size]:
-                scan.advance(count)
-            else:
-                for k in range(count):
-                    scan.step(index + k, frame.unpack_from(data, offset + k * frame.size))
-            index += count
-            offset += count * frame.size
+        usable = len(data) - len(data) % width
+        pending = data[usable:]
+        for offset in range(0, usable, AUDIO_FAST_BLOCK * width):
+            words = array("I", data[offset:min(usable, offset + AUDIO_FAST_BLOCK * width)])
+            if swap:
+                words.byteswap()
+            scan.frames(index, words)
+            index += len(words) // channels
     if pending or index == 0:
         return "NOT RUN", dict(detail, frames=index, why="empty capture or a torn final frame")
-    scan.finish()
+    if index < AUDIO_CONFIRM_FRAMES or any(anchor[0] > index for anchor in layout.anchors):
+        return "NOT RUN", dict(detail, frames=index, why="fewer than 64 frames, or an anchor past the capture")
+    scan.finish(index)
     events = scan.events
-    refusal, missed = _audio_attribute(events, planted_arms, capture_losses, counter_channels,
-                                       log.arm_tolerance_frames)
+    refusal, missed = _audio_attribute(events, log, counter_channels, scan)
+    unsupported = _audio_timing(events, layout, log.capture_losses)
     counts = {}
     for event in events:
         bucket = counts.setdefault(event["attribution"], {})
         bucket[event["class"]] = bucket.get(event["class"], 0) + 1
-    detail.update(frames=index, duration_s=index / rate_hz, counts=counts, events=events,
-                  unrecorded_events=scan.unrecorded, planted_missed=missed)
+    acquired = index + sum(loss["frames"] for loss in log.capture_losses)
+    detail.update(frames=index, acquired_frames=acquired, duration_s=acquired / layout.rate_hz,
+                  counts=counts, events=events, unrecorded_events=scan.unrecorded, planted_missed=missed,
+                  timing_unsupported=unsupported)
     if refusal:
         return "NOT RUN", dict(detail, why=refusal)
     if scan.unrecorded:
         return "FAIL", dict(detail, why=f"more than {max_events} events; the excess is counted, not recorded")
     if missed:
         return "NOT RUN", dict(detail, why="void: a planted arm was missed")
-    halves = [{arm["class"] for arm in planted_arms if (arm["index"] >= index / 2) == late}
-              for late in (False, True)]
-    if any(half != {"dropped", "repeated", "bit-flip"} for half in halves):
-        return "NOT RUN", dict(detail, why="void: drop, repeat and flip arms must run at the start and at the end")
+    edge = index // AUDIO_ARM_EDGE_DIVISOR
+    ends = [{arm["class"] for arm in log.planted_arms if arm["index"] < edge},
+            {arm["class"] for arm in log.planted_arms if arm["index"] >= index - edge}]
+    if any(end != {"dropped", "repeated", "bit-flip"} for end in ends):
+        return "NOT RUN", dict(detail, why="void: drop, repeat and flip arms must run in the first "
+                                           "and the last tenth of the capture")
     if counts.get("dut"):
         return "FAIL", dict(detail, why="DUT-attributed audio events")
     return "PASS", dict(detail, why="zero DUT-attributed events; every planted arm found")
@@ -4278,6 +4746,8 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
                 media_unlocked_rule="zero growth outside a recorded planted event, explained or not",
                 planted_event_log="every deliberately planted disturbance with its target, kind "
                                   "and window_s; an empty list when none was planted",
+                planted_event_reads="read the target's counters at its window's start and end; "
+                                    "only an increment between two reads inside the window is excused",
                 mr_oracle="check_release_mr",
                 mr_capture_window="[first read - 1 s - observation_resolution_s, last read]",
                 mr_distinct_causes=True,
@@ -4314,7 +4784,7 @@ def plan_soak(dut: Device = ARTY, peer: Device = PEER,
 
 def _audio_control_fixture() -> dict:
     """A synthetic capture: arms at both ends and one unplanted DUT drop."""
-    frames, channels, n = 6 * AUDIO_COUNTER_MODULUS, 8, 5
+    frames, channels, n = 12 * AUDIO_BLOCK_FRAMES, 8, 5
     arm_at = (100, 300, 500, frames - 900, frames - 600, frames - 300)
     kinds = ("drop", "repeat", "flip") * 2
     arms, source = [], []
@@ -4326,9 +4796,9 @@ def _audio_control_fixture() -> dict:
     return {"generator": "synthesize_counter_capture", "frames": frames, "channels": channels,
             "rate_hz": 48000, "byteorder": "big", "arm_tolerance_frames": 2,
             "planted_arms": arms, "source_events": source,
-            "dut_event": {"kind": "drop", "index": 3 * AUDIO_COUNTER_MODULUS + 7, "n": n},
+            "dut_event": {"kind": "drop", "index": 6 * AUDIO_BLOCK_FRAMES + 7, "n": n},
             "expected_events": {"class": "dropped", "n": n,
-                                "capture_index": 3 * AUDIO_COUNTER_MODULUS + 7,
+                                "capture_index": 6 * AUDIO_BLOCK_FRAMES + 7,
                                 "channels": list(range(channels))}}
 
 
@@ -4356,18 +4826,38 @@ def _audio_release_steps(dut: Device, peer: Device, settings: ReleaseSettings) -
         graded_pairs="every AAF pair; a CRF stream carries no audio samples",
         counter_layout={"container": "S32; 24-bit sample in bits 31:8; bits 7:0 zero",
                         "channel_field": "sample bits 15:12 = channel index + 1",
-                        "counter_field": "sample bits 11:0, free-running sample counter",
-                        "modulus": AUDIO_COUNTER_MODULUS},
+                        "position_field": "sample bits 11:1 = absolute sample position modulo 2048",
+                        "code_field": "sample bit 0 = bit (n mod 32) of block (n div 2048)'s code, "
+                                      "the block number times 0x9E3779B1 modulo 2^32",
+                        "period_frames": AUDIO_PERIOD_FRAMES,
+                        "period_rate_basis": "Milan v1.2 6.2 Table 6.1: 48, 96 and 192 kHz; "
+                                             "2^43 samples is about 530 days at 192 kHz"},
         counter_grader="grade_audio_counter_capture",
         counter_classes=list(AUDIO_CLASSES),
-        counter_limits="slips decided modulo 4096 samples; a shift of 2048 or more "
-                       "aliases; an exact multiple of 4096 is invisible to the counter",
+        counter_limits=["every slip is sized exactly from the decoded position",
+                        "a slip of whole 2048-sample blocks is found within 63 samples and "
+                        "carries located_within, the samples it may have happened at",
+                        "inside a cluster of events less than 64 samples apart, the slips "
+                        "between them take the smallest sizes the positions allow; the "
+                        "cluster's total is exact",
+                        "a word equal to a neighbouring received word is a repeat",
+                        "an excursion of two or more words with one constant XOR mask is "
+                        "one corruption, even where slips would produce the same words",
+                        "a slip in the last 63 samples of a capture is unresolved"],
         planted_arms=[dict(arm) for arm in AUDIO_PLANTED_ARMS],
-        planted_placement="every arm at the start and at the end of the run, logged with "
-                          "its capture index, channel and size or mask",
+        planted_placement="a drop, a repeat and a flip in the first tenth of the capture and "
+                          "again in its last tenth, logged with capture index, channel and size or mask",
         planted_missed="void: NOT RUN",
-        capture_losses="logged by the capture tool; attributed to the capture and reported apart",
-        event_record=["wall_s", "gptp_s", "capture_index", "expected", "received", "class"],
+        capture_losses="logged by the capture tool; attributed to the capture and reported apart; "
+                       "a loss advances the acquisition index and both clocks",
+        capture_timing={"anchors": "capture index, wall s and gPTP s recorded by the capture tool "
+                                   "at most audio_context_s apart and at the capture's end",
+                        "gptp_steps": "the soak's recorded gPTP discontinuities on the wall clock",
+                        "rule": "interpolate between the anchors around an event; never "
+                                "extrapolate; gPTP never across a recorded discontinuity; "
+                                "an unsupported time is null with its reason"},
+        event_record=["wall_s", "gptp_s", "capture_index", "acquisition_index", "expected",
+                      "received", "class", "located_within", "timing"],
         event_context={"counter_walk": "every stream and the CRF sink",
                        "csr": {"SLIP_LB": 0x8D4, "SLIP_TDM": 0x8D8},
                        "gptp": "publication and transition state",
@@ -4451,6 +4941,12 @@ def plan_power(dut: Device = ARTY, peer: Device = PEER,
                                       and settings.reset_cycles >= minimum["soft_reset"]),
                     cut_requires=("journal_commit_window" if phase == "journal_commit"
                                   else "journal_idle"),
+                    cut_evidence=("ReleaseCommitCut: the pending snapshot, the commit window "
+                                  "[start, end) and the cut instant on the T0 clock; a cut "
+                                  "outside the window hit no journal commit"
+                                  if phase == "journal_commit" else None),
+                    pending_values=("set every pending item away from its default"
+                                    if phase == "journal_commit" else None),
                     adp_reference="last pre-cut DUT ENTITY_AVAILABLE, host timestamp and raw PDU",
                     adp_valid_time_unit_s=2,
                     adp_required_valid_time=10,
@@ -6767,27 +7263,35 @@ class _ReleaseGateChecks:
             self.assertIn("reset", detail["why"])
 
     def test_release_soak_media_unlocked_planted(self) -> None:
-        """L3 #396 item 3: an unlock passes only inside a distinct planted event."""
+        """L3 #396 item 3: an unlock passes only between two reads inside one planted window."""
         planted = {"target": "in-0", "kind": "CRF disruption", "window_s": (10, 20)}
-        for events, unlocks, expected in (
-                ([], 1, "FAIL"), ([planted], 1, "PASS"), ([planted], 2, "FAIL"),
-                ([planted, dict(planted, window_s=(30, 31))], 2, "PASS"),
-                ([dict(planted, target="in-1")], 1, "FAIL"),
-                ([dict(planted, window_s=(61, 70))], 1, "FAIL"),
-                ([dict(planted, window_s=(60, 70))], 1, "PASS"),
-                ([dict(planted, window_s=(-5, 0))], 1, "PASS"),
-                ([dict(planted, window_s=(-5, -0.001))], 1, "FAIL")):
-            with self.subTest(events=events, unlocks=unlocks):
-                verdict, detail = self._counters(self._reads(MEDIA_UNLOCKED=7 + unlocks), events)
+
+        def bracketed(inside: int, outside: int) -> list[dict]:
+            """Reads at 0, 10, 20 and 60 s; `inside` unlocks in (10, 20], `outside` in (20, 60]."""
+            base = {name: 7 for name in self._NAMES}
+            return [{"target": "in-0", "timestamp_s": t, "values": dict(base, MEDIA_UNLOCKED=7 + count)}
+                    for t, count in ((0, 0), (10, 0), (20, inside), (60, inside + outside))]
+
+        for events, inside, outside, expected in (
+                ([], 1, 0, "FAIL"), ([planted], 1, 0, "PASS"), ([planted], 2, 0, "FAIL"),
+                ([planted], 0, 1, "FAIL"), ([planted, dict(planted)], 2, 0, "PASS"),
+                ([dict(planted, target="in-1")], 1, 0, "FAIL"),
+                ([dict(planted, window_s=(5, 25))], 1, 0, "PASS"),
+                ([dict(planted, window_s=(10, 19.999))], 1, 0, "FAIL"),
+                ([dict(planted, window_s=(10.001, 20))], 1, 0, "FAIL"),
+                ([dict(planted, window_s=(5, 25))], 1, 1, "FAIL"),
+                # One window holding two read intervals still excuses one increment.
+                ([dict(planted, window_s=(0, 60))], 1, 1, "FAIL"),
+                ([dict(planted, window_s=(0, 60)), dict(planted, window_s=(0, 60))], 1, 1, "PASS")):
+            with self.subTest(events=events, inside=inside, outside=outside):
+                verdict, detail = self._counters(bracketed(inside, outside), events)
                 self.assertEqual(verdict, expected, detail)
-        reads = self._reads(MEDIA_UNLOCKED=8)
-        reads.append({"target": "in-0", "timestamp_s": 120, "values": dict(reads[1]["values"],
-                                                                           MEDIA_UNLOCKED=9)})
-        self.assertEqual(self._counters(reads, [planted])[0], "FAIL")
-        # One window across a read boundary is still one planted event.
-        spanning = dict(planted, window_s=(50, 70))
-        self.assertEqual(self._counters(reads, [spanning])[0], "FAIL")
-        self.assertEqual(self._counters(reads, [spanning, dict(spanning, window_s=(55, 65))])[0], "PASS")
+        # A planted window inside a periodic interval cannot excuse the whole interval:
+        # an unlock 25 s after the window, between reads 60 s apart, fails.
+        verdict, detail = self._counters(self._reads(MEDIA_UNLOCKED=8), [planted])
+        self.assertEqual((verdict, detail.get("why")), ("FAIL", "MEDIA_UNLOCKED outside a planted event"))
+        self.assertEqual(self._counters(self._reads(MEDIA_UNLOCKED=8),
+                                        [dict(planted, window_s=(0, 60))])[0], "PASS")
 
     def test_release_soak_counter_evidence(self) -> None:
         """Missing reads, targets or log, and malformed records, are NOT RUN."""
@@ -6832,17 +7336,71 @@ class _ReleaseGateChecks:
         self.assertEqual(self._state("warm")[0], "NOT RUN")
 
     def test_release_state_commit_cut(self) -> None:
-        """A commit cut restores all old or all new state, never a mix."""
+        """A commit cut restores all old or all new state, never a mix, and passes only placed."""
         new = {"configuration": "new", "stream_binding": "new"}
+        cut = ReleaseCommitCut(new, (10.0, 10.5), 10.2)
         for post, expected in (({"configuration": "set", "stream_binding": "set"}, "PASS"),
                                (new, "PASS"),
                                ({"configuration": "new", "stream_binding": "set"}, "FAIL"),
                                ({"configuration": "default", "stream_binding": "default"}, "FAIL")):
             with self.subTest(post=post):
-                self.assertEqual(self._state("journal_commit", post=post, committed=new)[0], expected)
+                self.assertEqual(self._state("journal_commit", post=post, committed=cut)[0], expected)
+                # A bare pending snapshot carries no cut-phase evidence, so it never passes.
+                self.assertEqual(self._state("journal_commit", post=post, committed=new)[0],
+                                 "FAIL" if expected == "FAIL" else "NOT RUN")
         self.assertEqual(self._state("journal_commit")[0], "NOT RUN")
-        self.assertEqual(self._state("journal_commit", committed={"configuration": "set",
-                                                                  "stream_binding": "set"})[0], "NOT RUN")
+        same = {"configuration": "set", "stream_binding": "set"}
+        self.assertEqual(self._state("journal_commit", committed=ReleaseCommitCut(same, (10.0, 10.5), 10.2))[0],
+                         "NOT RUN")
+
+    def test_release_commit_cut_evidence(self) -> None:
+        """L3 #396 item 3: pending defaults, or a cut outside its commit, never pass."""
+        items = list(RELEASE_PERSISTED_ITEMS)
+        pre = {item: f"set-{item}" for item in items}
+        defaults = {item: f"default-{item}" for item in items}
+        new = {item: f"new-{item}" for item in items}
+        # Persistence disabled while the pending values sit at their defaults: the
+        # readback equals the pending snapshot, and still cannot pass.
+        verdict, detail = check_release_state_restored(pre, defaults, defaults, items=items,
+                                                       phase="journal_commit", committed=defaults)
+        self.assertEqual((verdict, detail.get("pending_at_default")), ("NOT RUN", items), detail)
+
+        def grade(post: dict, pending: dict, window: object = (10.0, 10.5), cut_s: object = 10.2) -> tuple:
+            """One commit cut of the full inventory with the given evidence."""
+            return check_release_state_restored(pre, post, defaults, items=items, phase="journal_commit",
+                                                committed=ReleaseCommitCut(pending, window, cut_s))
+
+        # Persistence disabled while every pending value sits at its default.
+        verdict, detail = grade(defaults, defaults)
+        self.assertEqual((verdict, detail["pending_at_default"]), ("NOT RUN", items), detail)
+        for item in items:
+            pending = dict(new, **{item: defaults[item]})
+            for post in (defaults, pending, dict(pre, **{item: defaults[item]})):
+                with self.subTest(item=item, post=post):
+                    verdict, detail = grade(post, pending)
+                    self.assertEqual((verdict, detail.get("pending_at_default")), ("NOT RUN", [item]), detail)
+        self.assertEqual(grade(pre, new), ("PASS", dict(phase="journal_commit", items=items,
+                                                        restored="old committed snapshot")))
+        self.assertEqual(grade(new, new)[1]["restored"], "new committed snapshot")
+        self.assertEqual(grade(dict(pre, configuration=new["configuration"]), new)[0], "FAIL")
+        self.assertEqual(grade(new, new, (10.0, 10.5), 10.0)[0], "PASS")
+        for window, cut_s in (((10.0, 10.5), 10.5), ((10.0, 10.5), 9.99), ((10.0, 10.5), 11.0)):
+            verdict, detail = grade(new, new, window, cut_s)
+            self.assertEqual((verdict, detail.get("why")), ("NOT RUN", "the cut hit no journal commit"))
+        for window, cut_s in ((None, 10.2), ((10.5, 10.0), 10.2), ((10.0, float("nan")), 10.2),
+                              ((10.0, 10.5), None), ((10.0,), 10.2)):
+            verdict, detail = grade(new, new, window, cut_s)
+            self.assertEqual(verdict, "NOT RUN")
+            self.assertIn("cut-phase evidence required", detail["why"])
+        # Idle cuts and soft resets restore the pre-cycle snapshot; a pending one is ignored.
+        for phase in ("idle", "soft_reset"):
+            for committed in (new, ReleaseCommitCut(new, (10.0, 10.5), 10.2)):
+                with self.subTest(phase=phase, committed=type(committed).__name__):
+                    verdict, detail = check_release_state_restored(pre, new, defaults, items=items,
+                                                                   phase=phase, committed=committed)
+                    self.assertEqual(verdict, "FAIL", detail)
+                    self.assertEqual(check_release_state_restored(pre, pre, defaults, items=items, phase=phase,
+                                                                  committed=committed)[0], "PASS")
 
     def test_release_controls_fail_as_planted(self) -> None:
         """L3 acceptance 4: every control fails its own assertion, and only by its defect."""
@@ -6886,16 +7444,305 @@ class _ReleaseGateChecks:
             CounterRunLog(fixture["planted_arms"], [], 2))
         self.assertEqual(verdict, "PASS", detail["why"])
 
+    @staticmethod
+    def _word(tag: int, n: int) -> int:
+        """The documented layout restated apart from the planner: tag in sample bits
+        15:12, n mod 2048 in bits 11:1, bit n mod 32 of the block code in bit 0."""
+        code = ((n // 2048) * 0x9E3779B1) % 2**32
+        return ((tag << 12) | ((n % 2048) << 1) | ((code >> (n % 32)) & 1)) << 8
+
     def test_audio_counter_word_layout(self) -> None:
-        """Independent byte vectors for the counter layout, both byte orders."""
-        self.assertEqual(synthesize_counter_capture(1, 1, start_counter=5), bytes.fromhex("00100500"))
+        """Independent byte vectors, the period against the run, and position decoding."""
+        self.assertEqual(synthesize_counter_capture(1, 1, start_counter=5), bytes.fromhex("00100a00"))
         self.assertEqual(synthesize_counter_capture(1, 2, byteorder="little", start_counter=4101),
-                         bytes.fromhex("0005100000052000"))
-        self.assertEqual(audio_counter_word(8, 4095), 0x008FFF00)
+                         bytes.fromhex("000b1000000b2000"))
+        self.assertEqual(audio_counter_word(1, 2048), 0x00100100)
+        self.assertEqual(max(audio_counter_word(8, n) for n in range(4096)), 0x008FFF00)
         import math
-        peak_dbfs = 20 * math.log10(audio_counter_word(8, 4095) / 2**31)
+        import random
+        peak_dbfs = 20 * math.log10(0x008FFF00 / 2**31)
         self.assertTrue(-48 < peak_dbfs < -46, peak_dbfs)
-        self.assertLess(48000 / AUDIO_COUNTER_MODULUS, 20)
+        self.assertEqual(48000 / AUDIO_BLOCK_FRAMES, 23.4375)
+        self.assertEqual(AUDIO_PERIOD_FRAMES, 2**43)
+        day = 24 * 60 * 60
+        for rate in (48000, 96000, 192000):
+            self.assertGreater(AUDIO_PERIOD_FRAMES, 500 * day * rate, rate)
+        # The planted flip touches the code bit alone, so it never equals a neighbour.
+        self.assertEqual(AUDIO_PLANTED_ARMS[2]["mask"], 1 << AUDIO_PAD_BITS)
+        for n in range(1, 5000):
+            flipped = self._word(2, n) ^ AUDIO_PLANTED_ARMS[2]["mask"]
+            self.assertNotIn(flipped, (self._word(2, n - 1), self._word(2, n + 1)))
+        picks = random.Random(396)
+        for n in [0, 5, 2047, 2048, 4096 + 13, day * 192000 - 70, AUDIO_PERIOD_FRAMES - 30] + [
+                picks.randrange(AUDIO_PERIOD_FRAMES) for _ in range(40)]:
+            with self.subTest(position=n):
+                self.assertEqual(audio_counter_word(3, n), self._word(3, n))
+                words = [self._word(3, (n + k) % AUDIO_PERIOD_FRAMES) for k in range(AUDIO_CONFIRM_FRAMES)]
+                self.assertEqual(_audio_decode(words), n)
+                self.assertIsNone(_audio_decode(words[:1] + [words[1] ^ 0x100] + words[2:]))
+
+    def _independent(self, ops: Sequence[tuple], frames: int = 8192, arms: bool = True,
+                     **layout: object) -> tuple[str, dict, list]:
+        """A four-channel capture built from `_word`, never the planner's synthesizer.
+
+        ops: ("shift", index, k[, channel]) moves the source position from index on;
+        ("zero", index, n); ("xor", index, channel, mask); ("swap", index, n, a, b);
+        ("copy", index, n, source, destination). Drop, repeat and flip arms run in
+        the first and the last tenth unless `arms` is false.
+        """
+        import struct
+        planted = [("shift", 100, 3), ("shift", 300, -2), ("xor", 500, 1, 0x100),
+                   ("shift", frames - 700, 3), ("shift", frames - 450, -2), ("xor", frames - 200, 3, 0x100)]
+        logged = [{"class": "dropped", "index": 100, "n": 3}, {"class": "repeated", "index": 300, "n": 2},
+                  {"class": "bit-flip", "index": 500, "mask": 0x100, "channel": 1},
+                  {"class": "dropped", "index": frames - 700, "n": 3},
+                  {"class": "repeated", "index": frames - 450, "n": 2},
+                  {"class": "bit-flip", "index": frames - 200, "mask": 0x100, "channel": 3}]
+        ops = (planted if arms else []) + list(ops)
+        deltas = [{} for _ in range(4)]
+        for op in ops:
+            if op[0] == "shift":
+                for c in (range(4) if len(op) < 4 else (op[3],)):
+                    deltas[c][op[1]] = deltas[c].get(op[1], 0) + op[2]
+        shift, out = [0] * 4, []
+        for i in range(frames):
+            for c in range(4):
+                shift[c] += deltas[c].get(i, 0)
+            out.append([self._word(c + 1, i + shift[c]) for c in range(4)])
+        for op in ops:
+            if op[0] == "zero":
+                for i in range(op[1], op[1] + op[2]):
+                    out[i] = [0] * 4
+            elif op[0] == "xor":
+                out[op[1]][op[2]] ^= op[3]
+            elif op[0] in ("swap", "copy"):
+                for i in range(op[1], min(frames, op[1] + op[2])):
+                    if op[0] == "swap":
+                        out[i][op[3]], out[i][op[4]] = out[i][op[4]], out[i][op[3]]
+                    else:
+                        out[i][op[4]] = out[i][op[3]]
+        capture = b"".join(struct.pack(">4I", *frame) for frame in out)
+        losses = layout.pop("losses", [])
+        verdict, detail = grade_audio_counter_capture(
+            capture, CounterCapture(4, "big", 48000, 0.0, 0.0, **layout),
+            CounterRunLog(logged if arms else [], losses, 0))
+        dut = [(e["channel"], e["capture_index"], e["class"], e.get("n"), e.get("mask"), e.get("partner"))
+               for e in detail.get("events", []) if e["attribution"] == "dut"]
+        return verdict, detail, sorted(dut)
+
+    def test_audio_compound_and_edge_events(self) -> None:
+        """Holds, slip pairs, bursts and capture edges, each in the design's classes."""
+        at = 3000
+        every = range(4)
+        cases = (
+            ([("shift", at, -1), ("shift", at + 1, 1)],
+             [(c, at, "repeated", 1) for c in every] + [(c, at + 1, "dropped", 1) for c in every]),
+            ([("shift", at, 1), ("shift", at + 1, -1)],
+             [(c, at, "dropped", 1) for c in every] + [(c, at + 1, "repeated", 1) for c in every]),
+            ([("shift", at, -1), ("shift", at + 5, 1)],
+             [(c, at, "repeated", 1) for c in every] + [(c, at + 5, "dropped", 1) for c in every]),
+            ([("shift", at, 3), ("shift", at + 5, 2)],
+             [(c, at, "dropped", 3) for c in every] + [(c, at + 5, "dropped", 2) for c in every]),
+            ([("zero", 0, 5)], [(c, 0, "silence", 5) for c in every]),
+            ([("shift", 8191, 4)], [(c, 8191, "dropped", 4) for c in every]))
+        for ops, want in cases:
+            with self.subTest(ops=ops):
+                verdict, detail, dut = self._independent(ops)
+                self.assertEqual(verdict, "FAIL", detail["why"])
+                self.assertEqual([event[:4] for event in dut], sorted(want))
+        _, detail, _ = self._independent([("zero", 0, 5)])
+        self.assertEqual({e["inserted"] for e in detail["events"] if e["class"] == "silence"}, {None})
+        _, detail, _ = self._independent([("shift", 8191, 4)])
+        self.assertEqual({e.get("unresolved") for e in detail["events"] if e["capture_index"] == 8191},
+                         {"the capture ended"})
+        # A slip pair whose two displaced words share one XOR mask with the track is
+        # bit-identical to a two-word corruption, and reads as that corruption.
+        pair = next(i for i in range(3000, 4000)
+                    if self._word(1, i + 5) ^ self._word(1, i + 1) == self._word(1, i + 6) ^ self._word(1, i + 2))
+        mask = f"0x{self._word(1, pair + 5) ^ self._word(1, pair + 1):08X}"
+        self.assertEqual(self._independent([("shift", pair, 4), ("shift", pair + 2, -4)])[2],
+                         [(c, pair, "bit-flip", 2, mask, None) for c in every])
+        for mask, n in ((0x1, 3), (0x80000000, 2), (0x100, 2), (0x100, 3), (0x200, 2), (0x400, 2)):
+            with self.subTest(mask=mask, n=n):
+                verdict, detail, dut = self._independent([("xor", at + k, 2, mask) for k in range(n)])
+                self.assertEqual((verdict, dut), ("FAIL", [(2, at, "bit-flip", n, f"0x{mask:08X}", None)]))
+
+    def test_audio_tag_integrity_decides_first(self) -> None:
+        """A channel-number flip or a copy is corruption; only a reciprocal exchange is a swap."""
+        at, want = 3000, []
+        # One flip of every container bit, each 120 samples apart so each closes alone.
+        for bit in range(32):
+            index = 1000 + 120 * bit
+            word = self._word(3, index + 3 - 2) ^ (1 << bit)
+            if word == self._word(3, index + 3 - 2 - 1):
+                want += [(2, index, "repeated", 1, None, None), (2, index + 1, "dropped", 1, None, None)]
+            elif word == self._word(3, index + 3 - 2 + 1):
+                want += [(2, index, "dropped", 1, None, None), (2, index + 1, "repeated", 1, None, None)]
+            else:
+                want.append((2, index, "bit-flip", 1, f"0x{1 << bit:08X}", None))
+        self.assertEqual(self._independent([("xor", 1000 + 120 * bit, 2, 1 << bit) for bit in range(32)])[2],
+                         sorted(want))
+        self.assertIn((2, 1000 + 120 * 21, "bit-flip", 1, "0x00200000", None), want)
+        verdict, detail, dut = self._independent([("xor", at, 2, 0x00100000)])
+        self.assertEqual(dut, [(2, at, "bit-flip", 1, "0x00100000", None)])
+        self.assertEqual([e.get("matches_channel") for e in detail["events"] if e["attribution"] == "dut"], [1])
+        verdict, detail, dut = self._independent([("copy", at, 3, 2, 0)])
+        self.assertEqual(dut, [(0, at, "bit-flip", 3, "0x00200000", None)])
+        self.assertEqual([e.get("matches_channel") for e in detail["events"] if e["attribution"] == "dut"], [2])
+        self.assertEqual(self._independent([("swap", at, 3, 0, 2)])[2],
+                         [(0, at, "swap", 3, None, 2), (2, at, "swap", 3, None, 0)])
+        # A swap whose partner changes is two swaps, never one run.
+        self.assertEqual(self._independent([("swap", at, 3, 0, 2), ("swap", at + 3, 3, 0, 3)])[2],
+                         [(0, at, "swap", 3, None, 2), (0, at + 3, "swap", 3, None, 3),
+                          (2, at, "swap", 3, None, 0), (3, at + 3, "swap", 3, None, 0)])
+        self.assertEqual(self._independent([("swap", 8142, 50, 1, 3)])[2],
+                         [(1, 8142, "swap", 50, None, 3), (3, 8142, "swap", 50, None, 1)])
+
+    def test_audio_static_swap_fails_with_every_arm_found(self) -> None:
+        """A channel map wrong from the first frame is a swap, and its counters stay tracked."""
+        for a, b in ((0, 2), (1, 3)):
+            with self.subTest(pair=(a, b)):
+                verdict, detail, dut = self._independent([("swap", 0, 8192, a, b)])
+                self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+                self.assertEqual(dut, [(a, 0, "swap", 8192, None, b), (b, 0, "swap", 8192, None, a)])
+                self.assertEqual(detail["counts"]["planted"], {"dropped": 8, "repeated": 8, "bit-flip": 2})
+        verdict, detail, dut = self._independent([("swap", 0, 8192, 0, 2), ("shift", 4000, 7)])
+        self.assertEqual(dut, sorted([(0, 0, "swap", 8192, None, 2), (2, 0, "swap", 8192, None, 0)]
+                                     + [(c, 4000, "dropped", 7, None, None) for c in range(4)]))
+
+    def test_audio_block_slips_are_sized_exactly(self) -> None:
+        """L3 #396: a slip of whole 2048-sample blocks fails, sized and bounded, both ways."""
+        at = 2 * 4096 + 13
+        for kind, n in (("drop", 2048), ("drop", 4096), ("drop", 8192), ("drop", 409600),
+                        ("repeat", 2048), ("repeat", 4096), ("drop", 3000), ("repeat", 3000)):
+            for options in ({}, {"byteorder": "little"}, {"chunk": True}, {"start": 24 * 3600 * 192000 - 9000}):
+                with self.subTest(kind=kind, n=n, options=options):
+                    verdict, detail, dut = self._grade([{"kind": kind, "index": at, "n": n}], **options)
+                    self.assertEqual((verdict, len(dut)), ("FAIL", 4), detail["why"])
+                    for record in dut:
+                        self.assertEqual((record["class"], record["n"]),
+                                         ("dropped" if kind == "drop" else "repeated", n))
+                        first, last = record.get("located_within", (record["capture_index"],) * 2)
+                        self.assertEqual(last, record["capture_index"])
+                        self.assertTrue(first <= at <= last < first + AUDIO_CONFIRM_FRAMES, record)
+                        if n % AUDIO_BLOCK_FRAMES:
+                            self.assertEqual((first, last), (at, at), record)
+        # The whole release: clean AVTP counters cannot rescue a 4096-sample content slip.
+        self.assertEqual(self._counters(self._reads())[0], "PASS")
+        self.assertEqual(self._grade([{"kind": "drop", "index": at, "n": 4096}])[0], "FAIL")
+        verdict, detail, dut = self._independent([("shift", 3000, 4096)])
+        self.assertEqual([(e[2], e[3]) for e in dut], [("dropped", 4096)] * 4)
+
+    def test_audio_capture_losses_advance_the_clocks(self) -> None:
+        """L3 #396: a logged loss is time that ran; events take anchored times or none."""
+        frames, lost = 20000, 409600
+        arms = [{"class": "dropped", "index": 100, "n": 3}, {"class": "repeated", "index": 300, "n": 2},
+                {"class": "bit-flip", "index": 500, "mask": 0x100, "channel": 1},
+                {"class": "dropped", "index": 19000, "n": 3}, {"class": "repeated", "index": 19300, "n": 2},
+                {"class": "bit-flip", "index": 19600, "mask": 0x100, "channel": 3}]
+        source = [{"kind": "drop" if a["class"] == "dropped" else "repeat" if a["class"] == "repeated"
+                   else "flip", **{k: v for k, v in a.items() if k != "class"}} for a in arms]
+
+        def grade(losses: list, **layout: object) -> dict:
+            """Twenty thousand frames: the losses, a corrupted sample at 8000 and the arms."""
+            extra = [{"kind": "drop", "index": loss["index"], "n": loss["frames"]} for loss in losses]
+            capture = synthesize_counter_capture(frames, 4, events=source + extra + [
+                {"kind": "flip", "index": 8000, "channel": 0, "mask": 1}])
+            verdict, detail = grade_audio_counter_capture(
+                capture, CounterCapture(4, "big", 48000, 100.0, 200.0, **layout), CounterRunLog(arms, losses, 0))
+            self.assertEqual(verdict, "FAIL", detail["why"])
+            return detail
+
+        # With the start times alone, an event 8.6 s of acquisition later has no supported time.
+        detail = grade([{"index": 7000, "frames": lost}])
+        event = next(e for e in detail["events"] if e["attribution"] == "dut")
+        self.assertEqual((event["wall_s"], event["gptp_s"]), (None, None), event)
+        self.assertEqual(detail["duration_s"], (frames + lost) / 48000)
+        span = (frames + lost) / 48000
+        end = ((frames, 100.0 + span, 200.0 + span),)
+        detail = grade([{"index": 7000, "frames": lost}], anchors=end, gptp_steps_wall_s=())
+        event = next(e for e in detail["events"] if e["attribution"] == "dut")
+        self.assertEqual((event["capture_index"], event["acquisition_index"]), (8000, 8000 + lost))
+        self.assertAlmostEqual(event["wall_s"], 108.7)
+        self.assertAlmostEqual(event["gptp_s"], 208.7)
+        self.assertEqual(event["context_wall_s"], [event["wall_s"] - 5, event["wall_s"] + 5])
+        self.assertEqual((detail["acquired_frames"], detail["duration_s"]), (frames + lost, span))
+        self.assertEqual(detail["counts"]["capture"], {"dropped": 4})
+        detail = grade([{"index": 7000, "frames": lost}, {"index": 7500, "frames": 48000}],
+                       anchors=((frames, 100.0 + span + 1, 200.0 + span + 1),), gptp_steps_wall_s=())
+        event = next(e for e in detail["events"] if e["attribution"] == "dut")
+        self.assertEqual(event["acquisition_index"], 8000 + lost + 48000)
+        self.assertAlmostEqual(event["wall_s"], 100.0 + (8000 + lost + 48000) / 48000)
+        for layout, why in (({}, "unsupported: no anchor after the event"),
+                            ({"anchors": end}, "unsupported gPTP: no discontinuity record"),
+                            ({"anchors": end, "gptp_steps_wall_s": (105.0,)},
+                             "unsupported gPTP: a recorded discontinuity lies between the anchors")):
+            with self.subTest(layout=layout):
+                detail = grade([{"index": 7000, "frames": lost}], **layout)
+                event = next(e for e in detail["events"] if e["attribution"] == "dut")
+                self.assertEqual((event["gptp_s"], event["timing"]), (None, why))
+                self.assertEqual(event["wall_s"] is None, "anchors" not in layout)
+                self.assertGreater(detail["timing_unsupported"], 0)
+        detail = grade([], anchors=((8000, 123.0, 456.0), (frames, 200.0, 500.0)))
+        event = next(e for e in detail["events"] if e["attribution"] == "dut")
+        self.assertEqual((event["wall_s"], event["gptp_s"], event["timing"]), (123.0, 456.0, "anchored"))
+        for anchors in (((0, 101.0, 0.0),), ((900, 101.0, 0.0), (800, 102.0, 0.0)), ((900, 99.0, 0.0),),
+                        ((frames + 1, 999.0, 0.0),), ((900, 101.0),)):
+            with self.subTest(anchors=anchors):
+                verdict, detail = grade_audio_counter_capture(
+                    synthesize_counter_capture(frames, 4, events=source),
+                    CounterCapture(4, "big", 48000, 100.0, 200.0, anchors=anchors), CounterRunLog(arms, [], 0))
+                self.assertEqual(verdict, "NOT RUN", detail["why"])
+
+    def test_audio_capture_loss_needs_every_channel(self) -> None:
+        """A logged loss is a slip on every counter channel; on one channel it is not the capture's."""
+        loss = [{"index": 3000, "frames": 9}]
+        self.assertEqual(self._independent([("shift", 3000, 9)], losses=loss)[0], "PASS")
+        verdict, detail, _ = self._independent([("shift", 3000, 9, 0)], losses=loss)
+        self.assertEqual((verdict, detail.get("why")), ("NOT RUN", "a logged capture loss is not in the capture"))
+        self.assertEqual(self._independent([("shift", 3000, 9, 0)])[2], [(0, 3000, "dropped", 9, None, None)])
+
+    def test_audio_arms_run_at_both_edges(self) -> None:
+        """'At the start and at the end' is the first and the last tenth of the capture."""
+        frames = 4 * 4096
+        edge = frames // 10
+        logged = [{"class": "dropped", "index": 100, "n": 3}, {"class": "repeated", "index": 300, "n": 2},
+                  {"class": "bit-flip", "index": 500, "mask": 0x100, "channel": 1},
+                  {"class": "dropped", "index": frames - 900, "n": 3},
+                  {"class": "repeated", "index": frames - 600, "n": 2},
+                  {"class": "bit-flip", "index": frames - 300, "mask": 0x100, "channel": 3}]
+        for index, expected in ((edge - 1, "PASS"), (edge, "NOT RUN")):
+            source = [{"kind": "drop", "index": index, "n": 3}, {"kind": "repeat", "index": 300, "n": 2},
+                      {"kind": "flip", "index": 500, "channel": 1, "mask": 0x100},
+                      {"kind": "drop", "index": frames - 900, "n": 3},
+                      {"kind": "repeat", "index": frames - 600, "n": 2},
+                      {"kind": "flip", "index": frames - 300, "channel": 3, "mask": 0x100}]
+            arms = [dict(logged[0], index=index)] + logged[1:]
+            with self.subTest(index=index):
+                verdict, detail = grade_audio_counter_capture(
+                    synthesize_counter_capture(frames, 4, events=source),
+                    CounterCapture(4, "big", 48000, 0.0, 0.0), CounterRunLog(arms, [], 0))
+                self.assertEqual(verdict, expected, detail["why"])
+        mid = frames // 2
+        source = [{"kind": "drop", "index": mid - 300, "n": 3}, {"kind": "repeat", "index": mid - 200, "n": 2},
+                  {"kind": "flip", "index": mid - 100, "channel": 1, "mask": 0x100},
+                  {"kind": "drop", "index": mid + 100, "n": 3}, {"kind": "repeat", "index": mid + 200, "n": 2},
+                  {"kind": "flip", "index": mid + 300, "channel": 1, "mask": 0x100}]
+        arms = [{"class": {"drop": "dropped", "repeat": "repeated", "flip": "bit-flip"}[e["kind"]],
+                 **{k: v for k, v in e.items() if k != "kind"}} for e in source]
+        verdict, detail = grade_audio_counter_capture(
+            synthesize_counter_capture(frames, 4, events=source), CounterCapture(4, "big", 48000, 0.0, 0.0),
+            CounterRunLog(arms, [], 0))
+        self.assertEqual((verdict, detail["planted_missed"]), ("NOT RUN", []))
+        self.assertIn("first and the last tenth", detail["why"])
+        self.assertEqual(AUDIO_ARM_EDGE_DIVISOR, 10)
+
+    def test_audio_offset_channel_and_mixed_capture(self) -> None:
+        """One channel's slip and a channel without the counter are graded channel by channel."""
+        verdict, detail, dut = self._independent([("shift", 3000, 7, 3)], tags=(1, 2, None, 4))
+        self.assertEqual((verdict, dut), ("FAIL", [(3, 3000, "dropped", 7, None, None)]))
+        verdict, detail, dut = self._independent([("xor", 5000, 2, 0x10)], tags=(1, 2, None, 4))
+        self.assertEqual((verdict, dut), ("PASS", []), detail["why"])
 
     @staticmethod
     def _grade_args(capture, args: dict) -> tuple[str, dict]:
@@ -6919,6 +7766,7 @@ class _ReleaseGateChecks:
                   {"class": "bit-flip", "index": frames - 300, "mask": 0x100, "channel": 3}]
         order = kw.pop("byteorder", "big")
         capture = synthesize_counter_capture(frames, 4, byteorder=order if order == "little" else "big",
+                                             start_counter=kw.pop("start", 0),
                                              events=base + list(extra)) + kw.pop("tail", b"")
         if kw.pop("chunk", None):
             capture = [capture[i:i + 1000] for i in range(0, len(capture), 1000)]
@@ -6936,7 +7784,8 @@ class _ReleaseGateChecks:
         cases = (({"kind": "drop", "index": at, "n": 5}, "dropped", {"n": 5}, 4),
                  ({"kind": "repeat", "index": at, "n": 4}, "repeated", {"n": 4}, 4),
                  ({"kind": "drop", "index": at, "n": 2047}, "dropped", {"n": 2047}, 4),
-                 ({"kind": "repeat", "index": at, "n": 2048}, "repeated", {"n": 2048}, 4),
+                 ({"kind": "repeat", "index": at, "n": 2047}, "repeated", {"n": 2047}, 4),
+                 ({"kind": "drop", "index": at, "n": 2049}, "dropped", {"n": 2049}, 4),
                  ({"kind": "silence", "index": at, "n": 6}, "silence", {"n": 6, "inserted": False}, 4),
                  ({"kind": "silence", "index": at, "n": 6, "inserted": True}, "silence",
                   {"n": 6, "inserted": True}, 4),
@@ -6960,14 +7809,16 @@ class _ReleaseGateChecks:
                         self.assertEqual({k: record.get(k) for k in fields}, fields)
         verdict, detail, dut = self._grade([{"kind": "swap", "index": at, "n": 3, "channels": (0, 2)}])
         self.assertEqual(sorted((e["channel"], e["partner"]) for e in dut), [(0, 2), (2, 0)])
-        verdict, detail, dut = self._grade([{"kind": "drop", "index": at, "n": 5}])
-        # The start arms leave the source ordinal at index + 3 - 2.
+        end = 4 * 4096 / 48000
+        verdict, detail, dut = self._grade([{"kind": "drop", "index": at, "n": 5}],
+                                           anchors=((4 * 4096, 100.0 + end, 7.0 + end),), gptp_steps_wall_s=())
+        # The start arms leave the source position at index + 3 - 2.
         self.assertEqual((dut[0]["expected"], dut[0]["received"]),
-                         (f"0x{audio_counter_word(1, at + 3 - 2):08X}",
-                          f"0x{audio_counter_word(1, at + 3 - 2 + 5):08X}"))
+                         (f"0x{self._word(1, at + 3 - 2):08X}", f"0x{self._word(1, at + 3 - 2 + 5):08X}"))
         self.assertAlmostEqual(dut[0]["wall_s"], 100.0 + at / 48000)
         self.assertAlmostEqual(dut[0]["gptp_s"], 7.0 + at / 48000)
         self.assertEqual(dut[0]["context_wall_s"], [dut[0]["wall_s"] - 5, dut[0]["wall_s"] + 5])
+        self.assertEqual((dut[0]["acquisition_index"], dut[0]["timing"]), (at, "anchored"))
 
     def test_audio_grader_attribution(self) -> None:
         """Logged capture losses go apart; planted arms must all be found at both ends."""
@@ -6978,7 +7829,8 @@ class _ReleaseGateChecks:
         self.assertEqual(self._grade([loss])[0], "FAIL")
         self.assertEqual(self._grade([], [{"index": loss["index"], "frames": 9}])[0], "NOT RUN")
         self.assertEqual(self._grade([loss], [{"index": loss["index"], "frames": 8}])[0], "NOT RUN")
-        self.assertEqual(self._grade([], [{"index": 5, "frames": 4096}])[0], "PASS")
+        # The counter never repeats within a run, so even a whole-period loss must show.
+        self.assertEqual(self._grade([], [{"index": 5, "frames": 4096}])[0], "NOT RUN")
         frames = 4 * 4096
         logged = [{"class": "dropped", "index": 100, "n": 3}, {"class": "repeated", "index": 300, "n": 2},
                   {"class": "bit-flip", "index": 500, "mask": 0x100, "channel": 1},
@@ -6999,7 +7851,7 @@ class _ReleaseGateChecks:
         for half in (logged[:3], logged[3:]):
             verdict, detail, _ = self._grade(arms=half)
             self.assertEqual(verdict, "NOT RUN")
-            self.assertIn("start and at the end", detail["why"])
+            self.assertIn("first and the last tenth", detail["why"])
         verdict, detail, dut = self._grade(arms=logged[:4] + logged[5:])
         self.assertEqual(verdict, "NOT RUN")
         self.assertEqual([e["class"] for e in dut], ["repeated"] * 4)

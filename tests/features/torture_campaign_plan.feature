@@ -393,15 +393,16 @@ Feature: The torture campaign's own coverage is auditable at a desk
     Then the soak counter oracle grades it <verdict>
 
     Examples:
-      | growth                                  | verdict |
-      | nothing                                 | PASS    |
-      | one SEQ_NUM_MISMATCH                    | FAIL    |
-      | one STREAM_INTERRUPTED                  | FAIL    |
-      | one LATE_TIMESTAMP                      | FAIL    |
-      | one EARLY_TIMESTAMP                     | FAIL    |
-      | one MEDIA_UNLOCKED                      | FAIL    |
-      | one MEDIA_UNLOCKED in a planted event   | PASS    |
-      | two MEDIA_UNLOCKED in one planted event | FAIL    |
+      | growth                                    | verdict |
+      | nothing                                   | PASS    |
+      | one SEQ_NUM_MISMATCH                      | FAIL    |
+      | one STREAM_INTERRUPTED                    | FAIL    |
+      | one LATE_TIMESTAMP                        | FAIL    |
+      | one EARLY_TIMESTAMP                       | FAIL    |
+      | one MEDIA_UNLOCKED                        | FAIL    |
+      | one MEDIA_UNLOCKED in a planted event     | PASS    |
+      | one MEDIA_UNLOCKED beside a planted event | FAIL    |
+      | two MEDIA_UNLOCKED in one planted event   | FAIL    |
 
   @class:release @clause:REQ-VER-06 @negative-control
   Scenario Outline: each negative control fails its own assertion and only by its defect
@@ -433,6 +434,59 @@ Feature: The torture campaign's own coverage is auditable at a desk
       | 6 samples of silence        | silence  | 4        |
       | a bit flip on one channel   | bit-flip | 1        |
       | a swap of two channels      | swap     | 2        |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader sizes a slip of whole blocks exactly
+    When the counter capture shows a <n>-sample <kind>
+    Then the audio grader reports <class> of <n> samples on 4 channels within 63 samples of the slip
+
+    Examples:
+      | kind   | n      | class    |
+      | drop   | 2048   | dropped  |
+      | drop   | 4096   | dropped  |
+      | repeat | 4096   | repeated |
+      | drop   | 409600 | dropped  |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a channel-number flip on one channel is corruption, not a swap
+    When a synthetic counter capture flips one channel-number bit on one channel
+    Then the audio grader reports one bit-flip with that mask and no swap
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a one-sample hold reads as one repeated and then one dropped sample
+    When a synthetic counter capture holds one sample on every channel
+    Then the audio grader reports a 1-sample repeat and then a 1-sample drop on every channel
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a channel swap from the first frame fails as a swap with every arm found
+    When a synthetic counter capture swaps two channels for the whole run
+    Then the audio grader fails the run with two swaps and every planted arm found
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a capture loss is time that ran, so later events keep true clocks
+    When a synthetic counter capture loses frames at the capture before a corrupted sample
+    Then the corrupted sample's wall and gPTP times include the lost frames
+    And without an anchor after the event its times are null, not invented
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: arms planted only in the middle of the capture void the run
+    When a synthetic counter capture plants every arm in the middle of the run
+    Then the audio grader voids the run as NOT RUN for arms outside the first and the last tenth
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a journal-commit cut passes only with placed, non-vacuous evidence
+    When a journal-commit cut <case>
+    Then the state oracle grades the commit cut <verdict>
+
+    Examples:
+      | case                                                   | verdict |
+      | restores the new snapshot inside its commit window     | PASS    |
+      | restores the old snapshot inside its commit window     | PASS    |
+      | restores a mix of old and new values                   | FAIL    |
+      | pends default values while persistence is disabled     | NOT RUN |
+      | pends one default value                                | NOT RUN |
+      | lands after its commit window closed                   | NOT RUN |
+      | has no cut-phase evidence                              | NOT RUN |
 
   @class:release @clause:REQ-VER-06 @negative-control
   Scenario: a missed planted arm voids the audio run

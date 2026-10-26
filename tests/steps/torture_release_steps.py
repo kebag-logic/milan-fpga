@@ -236,7 +236,7 @@ def step_tp_release_parameters(context: Context) -> None:
 
 @then("every release repeat preserves those parameters and its timing origins")
 def step_tp_release_parameter_results(context: Context) -> None:
-    """L3 #396 round 3 and 2026-10-26: T0 per cycle kind; hold recorded, not charged."""
+    """L3 #396 / REQ-VER-06: T0 follows the cycle kind; the hold is recorded separately."""
     repeats = {s.sid: s for s in _repeats(context.tp_plan)}
     soak, audio = repeats["soak.continuous"], repeats["audio.integrity"]
     idle, commit, reset = (repeats["power." + p] for p in ("idle", "journal_commit", "soft_reset"))
@@ -446,28 +446,36 @@ def step_tp_release_lose_assertion(context: Context, repeat: str, assertion: str
                              for a in step.asserts)
 
 
+#: growth: (counter increments, planted windows, read interval the growth lands in).
 _GROWTH = {
-    "nothing": ({}, []),
-    "one SEQ_NUM_MISMATCH": ({"SEQ_NUM_MISMATCH": 1}, []),
-    "one STREAM_INTERRUPTED": ({"STREAM_INTERRUPTED": 1}, []),
-    "one LATE_TIMESTAMP": ({"LATE_TIMESTAMP": 1}, []),
-    "one EARLY_TIMESTAMP": ({"EARLY_TIMESTAMP": 1}, []),
-    "one MEDIA_UNLOCKED": ({"MEDIA_UNLOCKED": 1}, []),
-    "one MEDIA_UNLOCKED in a planted event": ({"MEDIA_UNLOCKED": 1}, [(20, 25)]),
-    "two MEDIA_UNLOCKED in one planted event": ({"MEDIA_UNLOCKED": 2}, [(20, 25)]),
+    "nothing": ({}, [], 2),
+    "one SEQ_NUM_MISMATCH": ({"SEQ_NUM_MISMATCH": 1}, [], 2),
+    "one STREAM_INTERRUPTED": ({"STREAM_INTERRUPTED": 1}, [], 2),
+    "one LATE_TIMESTAMP": ({"LATE_TIMESTAMP": 1}, [], 2),
+    "one EARLY_TIMESTAMP": ({"EARLY_TIMESTAMP": 1}, [], 2),
+    "one MEDIA_UNLOCKED": ({"MEDIA_UNLOCKED": 1}, [], 2),
+    "one MEDIA_UNLOCKED in a planted event": ({"MEDIA_UNLOCKED": 1}, [(20, 25)], 1),
+    "one MEDIA_UNLOCKED beside a planted event": ({"MEDIA_UNLOCKED": 1}, [(20, 25)], 2),
+    "two MEDIA_UNLOCKED in one planted event": ({"MEDIA_UNLOCKED": 2}, [(20, 25)], 1),
 }
 
 
 @when("an input's soak counter walk shows {growth}")
 def step_tp_release_counter_walk(context: Context, growth: str) -> None:
-    """Two reads of one CRF Stream Input, 60 s apart, with the named growth."""
+    """Reads of one CRF Stream Input at 100, 120, 125 and 160 s, with the named growth.
+
+    The runner reads the input at a planted window's start and end, so an
+    unlock inside the window lands between the 120 and 125 s reads; one
+    beside it lands in the next interval and stays unexcused (REQ-VER-06).
+    """
     names = ("SEQ_NUM_MISMATCH", "STREAM_INTERRUPTED", "LATE_TIMESTAMP",
              "EARLY_TIMESTAMP", "MEDIA_UNLOCKED")
-    delta, windows = _GROWTH[growth]
-    before = {name: 3 for name in names}
-    after = {name: 3 + delta.get(name, 0) for name in names}
-    reads = [{"target": "dut/stream_input/4", "timestamp_s": 100, "values": before},
-             {"target": "dut/stream_input/4", "timestamp_s": 160, "values": after}]
+    delta, windows, landing = _GROWTH[growth]
+    reads = []
+    for k, timestamp in enumerate((100, 120, 125, 160)):
+        grown = k > landing
+        reads.append({"target": "dut/stream_input/4", "timestamp_s": timestamp,
+                      "values": {name: 3 + (delta.get(name, 0) if grown else 0) for name in names}})
     planted = [{"target": "dut/stream_input/4", "kind": "CRF disruption",
                 "window_s": (100 + start, 100 + end)} for start, end in windows]
     context.release_counter_verdict = tp.check_release_soak_counters(
@@ -621,3 +629,217 @@ def step_tp_release_counter_loss(context: Context) -> None:
     assert verdict == "PASS", detail["why"]
     assert detail["counts"]["capture"] == {"dropped": 4}
     assert _counter_capture([loss])[0] == "FAIL"
+
+
+# ------------------------------------- the non-repeating counter, issue #396 --
+def _counter_word(tag: int, n: int) -> int:
+    """REQ-VER-06's counter layout restated here, apart from the planner: channel
+    number in sample bits 15:12, n mod 2048 in bits 11:1, and in bit 0 bit n mod 32
+    of block n div 2048's code, the block number times 0x9E3779B1 modulo 2^32."""
+    code = ((n // 2048) * 0x9E3779B1) % 2**32
+    return ((tag << 12) | ((n % 2048) << 1) | ((code >> (n % 32)) & 1)) << 8
+
+
+def _independent_capture(frames: int, shifts: dict, flips: list) -> bytes:
+    """Four big-endian S32 channels; `shifts` moves the source position from an
+    index on, and each flip (index, channel, mask) XORs one word."""
+    import struct
+    rows, shift = [], 0
+    for index in range(frames):
+        shift += shifts.get(index, 0)
+        rows.append([_counter_word(channel + 1, index + shift) for channel in range(4)])
+    for index, channel, mask in flips:
+        rows[index][channel] ^= mask
+    return b"".join(struct.pack(">4I", *row) for row in rows)
+
+
+#: Arms in the first and the last tenth of an 8192-frame capture.
+_ARM_SHIFTS = {100: 3, 300: -2, 7492: 3, 7742: -2}
+_ARMS = [{"class": "dropped", "index": 100, "n": 3}, {"class": "repeated", "index": 300, "n": 2},
+         {"class": "bit-flip", "index": 500, "mask": 0x100, "channel": 1},
+         {"class": "dropped", "index": 7492, "n": 3}, {"class": "repeated", "index": 7742, "n": 2},
+         {"class": "bit-flip", "index": 7992, "mask": 0x100, "channel": 3}]
+
+
+def _with_arms(shifts: dict) -> dict:
+    """The arm shifts plus `shifts`, added where both move the same index."""
+    merged = dict(_ARM_SHIFTS)
+    for index, shift in shifts.items():
+        merged[index] = merged.get(index, 0) + shift
+    return merged
+
+
+def _arm_edits() -> list:
+    """The two planted flips of the code bit."""
+    return [(500, 1, 0x100), (7992, 3, 0x100)]
+
+
+def _grade_independent(shifts: dict, edits: list, **layout: object) -> tuple:
+    capture = _independent_capture(8192, _with_arms(shifts), _arm_edits() + edits)
+    return tp.grade_audio_counter_capture(capture, tp.CounterCapture(4, "big", 48000, 0.0, 0.0, **layout),
+                                          tp.CounterRunLog(_ARMS, [], 0))
+
+
+def _dut(detail: dict) -> list:
+    return sorted((e["channel"], e["capture_index"], e["class"], e.get("n"), e.get("mask"), e.get("partner"))
+                  for e in detail.get("events", []) if e["attribution"] == "dut")
+
+
+@when("the counter capture shows a {n:d}-sample {kind}")
+def step_tp_release_block_slip(context: Context, n: int, kind: str) -> None:
+    """A slip at sample 3000; a counter repeating every 4096 samples would alias these sizes."""
+    assert kind in ("drop", "repeat")
+    context.release_slip = (3000, n)
+    context.release_counter_result = _grade_independent({3000: n if kind == "drop" else -n}, [])
+
+
+@then("the audio grader reports {cls} of {n:d} samples on {count:d} channels within 63 samples of the slip")
+def step_tp_release_block_slip_found(context: Context, cls: str, n: int, count: int) -> None:
+    """Sized exactly; a slip of whole blocks may be located to an interval of under 64 samples."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL", detail["why"]
+    at, size = context.release_slip
+    dut = [e for e in detail["events"] if e["attribution"] == "dut"]
+    assert len(dut) == count and {(e["class"], e["n"]) for e in dut} == {(cls, size)}, dut
+    for event in dut:
+        first, last = event.get("located_within", (event["capture_index"],) * 2)
+        assert first <= at <= last < first + 64 and last == event["capture_index"], event
+
+
+@when("a synthetic counter capture flips one channel-number bit on one channel")
+def step_tp_release_tag_flip(context: Context) -> None:
+    """Sample bit 12 of channel 2's word at 3000: its number 3 reads as channel 1's 2."""
+    context.release_counter_result = _grade_independent({}, [(3000, 2, 0x00100000)])
+
+
+@then("the audio grader reports one bit-flip with that mask and no swap")
+def step_tp_release_tag_flip_found(context: Context) -> None:
+    """Channel 1 keeps its own word, so nothing was exchanged."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL", detail["why"]
+    assert _dut(detail) == [(2, 3000, "bit-flip", 1, "0x00100000", None)], _dut(detail)
+
+
+@when("a synthetic counter capture holds one sample on every channel")
+def step_tp_release_hold(context: Context) -> None:
+    """Sample 3000 repeats sample 2999 and sample 3001 follows on time."""
+    context.release_counter_result = _grade_independent({3000: -1, 3001: 1}, [])
+
+
+@then("the audio grader reports a 1-sample repeat and then a 1-sample drop on every channel")
+def step_tp_release_hold_found(context: Context) -> None:
+    """The hold is the slip pair it is, never a bit-corruption mask."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL", detail["why"]
+    assert _dut(detail) == sorted([(c, 3000, "repeated", 1, None, None) for c in range(4)]
+                                  + [(c, 3001, "dropped", 1, None, None) for c in range(4)]), _dut(detail)
+
+
+@when("a synthetic counter capture swaps two channels for the whole run")
+def step_tp_release_static_swap(context: Context) -> None:
+    """Channels 1 and 3 exchanged from the first frame, the flip arms planted on both."""
+    capture = bytearray(_independent_capture(8192, _with_arms({}), _arm_edits()))
+    for frame in range(8192):
+        one, three = slice(16 * frame + 4, 16 * frame + 8), slice(16 * frame + 12, 16 * frame + 16)
+        capture[one], capture[three] = capture[three], capture[one]
+    context.release_counter_result = tp.grade_audio_counter_capture(
+        bytes(capture), tp.CounterCapture(4, "big", 48000, 0.0, 0.0), tp.CounterRunLog(_ARMS, [], 0))
+
+
+@then("the audio grader fails the run with two swaps and every planted arm found")
+def step_tp_release_static_swap_found(context: Context) -> None:
+    """A wrong channel map is a DUT finding, not a void measurement."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL" and detail["planted_missed"] == [], detail["why"]
+    assert _dut(detail) == [(1, 0, "swap", 8192, None, 3), (3, 0, "swap", 8192, None, 1)], _dut(detail)
+
+
+@when("a synthetic counter capture loses frames at the capture before a corrupted sample")
+def step_tp_release_loss_clock(context: Context) -> None:
+    """409600 frames lost at stored index 2000, then sample 3000 corrupted, with and
+    without the capture tool's end anchor."""
+    lost, edits = 409600, [(3000, 0, 1)]
+    capture = _independent_capture(8192, _with_arms({2000: lost}), _arm_edits() + edits)
+    span = (8192 + lost) / 48000
+    context.release_loss_results = [tp.grade_audio_counter_capture(
+        capture, tp.CounterCapture(4, "big", 48000, 100.0, 200.0, **layout),
+        tp.CounterRunLog(_ARMS, [{"index": 2000, "frames": lost}], 0))
+        for layout in ({"anchors": ((8192, 100.0 + span, 200.0 + span),), "gptp_steps_wall_s": ()}, {})]
+
+
+@then("the corrupted sample's wall and gPTP times include the lost frames")
+def step_tp_release_loss_clock_found(context: Context) -> None:
+    """(3000 + 409600) / 48000 s after the start: 8.6083 s, not 0.0625 s."""
+    verdict, detail = context.release_loss_results[0]
+    assert verdict == "FAIL", detail["why"]
+    event = next(e for e in detail["events"] if e["attribution"] == "dut")
+    assert event["acquisition_index"] == 3000 + 409600, event
+    assert abs(event["wall_s"] - (100.0 + 412600 / 48000)) < 1e-6, event
+    assert abs(event["gptp_s"] - (200.0 + 412600 / 48000)) < 1e-6, event
+    assert detail["counts"]["capture"] == {"dropped": 4}, detail["counts"]
+
+
+@then("without an anchor after the event its times are null, not invented")
+def step_tp_release_loss_clock_unsupported(context: Context) -> None:
+    """The start time alone cannot carry a later event through 8.6 s of unknowns."""
+    verdict, detail = context.release_loss_results[1]
+    event = next(e for e in detail["events"] if e["attribution"] == "dut")
+    assert (event["wall_s"], event["gptp_s"]) == (None, None), event
+    assert event["timing"] == "unsupported: no anchor after the event", event
+
+
+@when("a synthetic counter capture plants every arm in the middle of the run")
+def step_tp_release_mid_arms(context: Context) -> None:
+    """The arms all within 300 samples of the midpoint of an 8192-frame capture."""
+    shifts = {3796: 3, 3896: -2, 4196: 3, 4296: -2}
+    arms = [{"class": "dropped", "index": 3796, "n": 3}, {"class": "repeated", "index": 3896, "n": 2},
+            {"class": "bit-flip", "index": 3996, "mask": 0x100, "channel": 1},
+            {"class": "dropped", "index": 4196, "n": 3}, {"class": "repeated", "index": 4296, "n": 2},
+            {"class": "bit-flip", "index": 4396, "mask": 0x100, "channel": 1}]
+    edits = [(3996, 1, 0x100), (4396, 1, 0x100)]
+    context.release_counter_result = tp.grade_audio_counter_capture(
+        _independent_capture(8192, shifts, edits), tp.CounterCapture(4, "big", 48000, 0.0, 0.0),
+        tp.CounterRunLog(arms, [], 0))
+
+
+@then("the audio grader voids the run as NOT RUN for arms outside the first and the last tenth")
+def step_tp_release_mid_arms_void(context: Context) -> None:
+    """Every arm is found, so only their placement voids the run."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "NOT RUN" and detail["planted_missed"] == [], detail["why"]
+    assert "first and the last tenth" in detail["why"], detail["why"]
+
+
+_COMMIT_ITEMS = EIGHT_ITEMS_AND_BINDING
+_PRE = {item: f"set-{item}" for item in _COMMIT_ITEMS}
+_NEW = {item: f"new-{item}" for item in _COMMIT_ITEMS}
+_DEFAULTS = {item: f"default-{item}" for item in _COMMIT_ITEMS}
+#: case: (readback, pending snapshot, commit window, cut instant)
+_COMMIT_CASES = {
+    "restores the new snapshot inside its commit window": (_NEW, _NEW, (40.0, 40.4), 40.1),
+    "restores the old snapshot inside its commit window": (_PRE, _NEW, (40.0, 40.4), 40.1),
+    "restores a mix of old and new values": (dict(_PRE, clock_source=_NEW["clock_source"]), _NEW,
+                                             (40.0, 40.4), 40.1),
+    "pends default values while persistence is disabled": (_DEFAULTS, _DEFAULTS, (40.0, 40.4), 40.1),
+    "pends one default value": (_NEW, dict(_NEW, entity_names=_DEFAULTS["entity_names"]), (40.0, 40.4), 40.1),
+    "lands after its commit window closed": (_NEW, _NEW, (40.0, 40.4), 40.4),
+    "has no cut-phase evidence": (_NEW, _NEW, None, None),
+}
+
+
+@when("a journal-commit cut {case}")
+def step_tp_release_commit_case(context: Context, case: str) -> None:
+    """One commit cut of the nine-item inventory, through the plan's own state oracle."""
+    post, pending, window, cut_s = _COMMIT_CASES[case]
+    oracle = getattr(tp, next(s for s in tp.build_plan(["power"])
+                              if s.sid == "power.journal_commit").args["state_oracle"])
+    committed = pending if window is None else tp.ReleaseCommitCut(pending, window, cut_s)
+    context.release_commit_result = oracle(_PRE, post, _DEFAULTS, items=_COMMIT_ITEMS,
+                                           phase="journal_commit", committed=committed)
+
+
+@then("the state oracle grades the commit cut {verdict}")
+def step_tp_release_commit_verdict(context: Context, verdict: str) -> None:
+    """The verdict REQ-VER-06 owes the case."""
+    actual, detail = context.release_commit_result
+    assert actual == verdict, detail

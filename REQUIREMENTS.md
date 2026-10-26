@@ -333,6 +333,7 @@ verified blocks outside the shipping datapath; the station-address rules
   Sequence authority: IEEE 1722-2016 4.4.4.6.
   `MEDIA_UNLOCKED` must not increase outside a recorded planted event.
   That holds whatever the cause, explained or not.
+  An increment is excused only between two reads inside its input's planted window.
   Each planted event excuses at most one increment per input.
   Any counter decrease is a reset and fails the soak.
   `check_release_soak_counters` grades these counter rules.
@@ -398,16 +399,24 @@ verified blocks outside the shipping datapath; the station-address rules
   Observe gPTP publication, `AVTPRX_TSD` margin, and monotonic uptime.
   An audio-integrity run rides inside the same 24-hour soak window.
   Its [signal design](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5978644444) is a bit-exact sample counter.
+  The counter never repeats within a run; its period is 2^43 samples.
+  That is about 530 days at 192 kHz, the highest Milan v1.2 6.2 (Table 6.1) rate.
   Every channel of every bound AAF stream carries it, in both directions.
   The paths are the DUT talker to the reference peer to an external digital capture.
   They include the reference peer to the DUT listener and its TDM output.
   They include the DUT's TDM loop too.
-  Each discontinuity is classified at its sample.
+  Each discontinuity is classified at its sample, and every slip is sized exactly.
   The classes are n dropped, n repeated, n samples of silence, a bit-flip mask and a channel swap.
+  Only a reciprocal exchange is a swap; a corrupted or copied channel number is a bit-flip.
+  A channel swapped from the first frame fails as a swap, its counter still tracked.
+  Patterns the signal cannot tell apart follow the rules and limits of [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle).
   The source plants a drop, a repeat and a bit flip at both ends of the run.
+  Both ends are the first and the last tenth of the capture.
   A missed planted arm voids the run.
   Capture-side losses are logged by the capture tool and reported apart.
+  A loss still advances the acquisition index and both clocks.
   Each event records wall and gPTP times, capture index, words and class.
+  Its times are interpolated between the capture tool's anchors, never invented.
   Counter, `SLIP_*` and gPTP walks bracket each event.
   The run passes with zero DUT-attributed events on every bound channel.
   `grade_audio_counter_capture` grades the counter captures.
@@ -430,6 +439,9 @@ verified blocks outside the shipping datapath; the station-address rules
   Milan v1.2 states no separate non-volatile clause for it.
   Any additional declared state follows the project persistence inventory.
   Commit cuts recover complete old or new committed snapshots.
+  Every pending value is set away from its default too.
+  The cut instant must lie inside the recorded commit window.
+  A cut outside it hit no journal commit and cannot count.
   `check_release_state_restored` grades every cycle's readback.
   T0 is the host-timestamped power-strip ON command.
   For a soft reset, T0 is the host-timestamped reset command.

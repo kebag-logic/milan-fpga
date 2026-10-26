@@ -1099,7 +1099,7 @@ Teardown follows the final snapshot.
 |---|---|
 | Milan 5.3.7.7/5.3.8.10, Tables 5.4/5.6 counters | Every index; valid masks/invariants; no unexplained resets |
 | `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`, `LATE_TIMESTAMP`, `EARLY_TIMESTAMP`; Milan Table 5.6; IEEE 1722-2016 4.4.4.6 | Zero growth on every Stream Input, CRF included, throughout the soak |
-| `MEDIA_UNLOCKED` | Zero growth outside a recorded planted event, explained or not; each planted event excuses one increment per input |
+| `MEDIA_UNLOCKED` | Zero growth outside a recorded planted event, explained or not; an increment is excused only between two reads inside its input's planted window, one per event |
 | Wire `mr`, media-clock events, MEDIA_RESET; IEEE 1722-2016 4.4.4.3, Milan Tables 5.4/5.6, Annex B.1.2 | Each toggle and increment has a recorded source change, CRF disruption, or received CRF `mr` toggle; eight-PDU hold per stream; GM change alone fails |
 | Coherent fabric gPTP publication and transition history | No `asCapable` loss; Milan 4.2.6.2.4 |
 | Timestamped discontinuities and wire `tu` intervals | Contain at least one recorded discontinuity in `[observed_start - observation_resolution_s, clear)`: GM identity change, GM time-source change, or other detected gPTP discontinuity; measure from the last recorded discontinuity before `tu` clears; clear within 0.5 seconds plus stated observation resolution; after a GM change, hold at least 0.25 seconds, allowing that resolution; uncorrelated `tu` fails |
@@ -1112,7 +1112,11 @@ Read the five counters at baseline, at every interval and at the endpoint.
 Name every input, CRF included, in `targets`; a missing series is NOT RUN.
 Supply the runner's planted-event log: `target`, `kind` and `window_s`.
 An explicit empty list records that nothing was planted; `None` is NOT RUN.
-An unlock is excused only by a planted window meeting its read interval.
+Read the target's counters at the start and at the end of each planted window.
+An unlock is excused only when both reads around it lie inside that window.
+That confines the exception to the planted event's own samples.
+An unlock in a periodic interval that merely meets a window stays unexcused.
+Each planted event excuses at most one increment per input.
 A decrease of any counter is a reset and fails the soak.
 
 The [corrected decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5857765949) governs the `mr`/`tu` release checks.
@@ -1276,11 +1280,21 @@ CRF streams carry no audio samples, so no counter rides on them.
 
 Each word is S32, with the 24-bit sample in bits 31:8 and bits 7:0 zero.
 The #451 and #629 captures use the same layout.
-Sample bits 15:12 carry the channel number, the channel index plus one.
-Sample bits 11:0 carry a free-running sample counter, modulo 4096.
+
+| Sample bits | Content |
+|---|---|
+| 15:12 | The channel number, the channel index plus one |
+| 11:1 | The sample's absolute position `n`, modulo 2048 |
+| 0 | Bit `n mod 32` of block `n div 2048`'s code: the block number times `0x9E3779B1`, modulo 2^32 |
+
 No valid word is zero, so silence stays distinct from data.
+Thirty-two consecutive samples of one block give the block number.
+So the counter repeats only after 2^43 samples.
+That is about 530 days at 192 kHz, the highest rate in Milan v1.2 6.2 (Table 6.1).
+A 24-hour run is 1.66e10 samples at that rate, and 4.15e9 at 48 kHz.
+Any 64 clean samples fix a channel's absolute position.
 Eight channels peak near -47 dBFS.
-The wrap is an 11.7 Hz sawtooth at 48 kHz, so keep it off loudspeakers.
+The 2048-sample wrap is a 23.4 Hz sawtooth at 48 kHz, so keep it off loudspeakers.
 
 `grade_audio_counter_capture` grades one headerless interleaved S32 capture.
 State its channel count, byte order and rate, as `tb/tools/thdn.py` callers do.
@@ -1288,41 +1302,81 @@ State its channel count, byte order and rate, as `tb/tools/thdn.py` callers do.
 The #451 direct TDM capture recorded little-endian words.
 Supply the capture as bytes or as an iterable of chunks, so a 24-hour file streams.
 `tags` names each channel's number; `None` marks a channel without the counter.
-Every word must equal the next expected word of its channel.
-A mismatch becomes an event at its exact capture index:
+Each channel is graded on its own.
+A slip on one channel, or a channel without the counter, leaves the rest on the fast path.
+Each channel's number and position are acquired from its first 64 clean samples.
+A mismatch opens a window that closes at the next 64 clean samples.
+Their decoded position sizes every slip inside the window exactly.
+Each event is classified at its capture index:
 
 | Class | Signature |
 |---|---|
-| `dropped`, `n` | The counter resumes `n` samples ahead |
-| `repeated`, `n` | The counter resumes `n` samples behind |
+| `dropped`, `n` | The position resumes `n` samples ahead |
+| `repeated`, `n` | The position resumes `n` samples behind |
 | `silence`, `n` | `n` zero words; `inserted` when the content resumes where it stopped |
-| `bit-flip`, `mask` | A corrupted word, with the XOR mask against the expected word |
-| `swap`, `partner` | The word expected on another channel |
+| `bit-flip`, `n`, `mask` | `n` corrupted words, with the OR of their XOR masks against the expected words |
+| `swap`, `n`, `partner` | `n` words exchanged both ways with the partner channel |
 
-Slips are decided modulo 4096 samples.
-A shift of 2048 or more aliases.
-An exact multiple of 4096 is invisible to the counter.
-The soak's sequence and interruption counters remain the check for those.
+These rules decide, in order, between patterns that look alike:
 
-Each event records `wall_s`, `gptp_s`, `capture_index`, `expected`, `received` and class.
-Supply the capture's start wall and gPTP times; missing times are NOT RUN.
+1. The channel number decides first.
+   Only a reciprocal exchange is a `swap`.
+   A flipped channel number, or another channel's word copied in, is a `bit-flip`.
+   Its `matches_channel` names the channel whose word it equals.
+2. A channel swapped from the first frame is a `swap` over the whole run.
+   Its counter is still tracked, so its planted arms are still found.
+3. One word that leaves the track and returns at once is a `bit-flip`.
+   The exception is a word equal to a neighbouring received word, which is a repeat.
+   A one-sample hold reads as 1 repeated and then 1 dropped.
+   A skip followed by a hold reads as 1 dropped and then 1 repeated.
+4. Two or more words that leave the track and return, with one XOR mask against it, are one `bit-flip`.
+   Otherwise each change of position is its own slip.
+
+Some patterns are bit-identical, so the signal cannot tell them apart.
+These limits are stated, and a self-test arm pins each one:
+
+- A flip of position bit 0 can make a word equal to its neighbour; it then reads as the slip pair it duplicates.
+- A slip pair whose displaced words share one XOR mask with the track reads as a `bit-flip`.
+- A slip of whole 2048-sample blocks leaves bits 11:1 unchanged.
+  It is found within 63 samples and sized exactly.
+  `located_within` gives the samples it may have happened at.
+- Between events less than 64 samples apart, each slip takes the smallest size the positions allow.
+  The cluster's total is exact.
+- A slip in a capture's last 63 samples cannot be confirmed, so it carries `unresolved`.
+
+The planted flip arm's mask `0x00000100` flips the code bit alone.
+The word keeps its position bits, so it never equals a neighbour.
+
+Each event records its class, capture and acquisition indices, expected and received words, and times.
+The capture tool records anchors: a capture index with its wall and gPTP times.
+Record one at least every `audio_context_s` and one at the capture's end.
+Supply them as `anchors`, beside the start times.
+Supply the soak's recorded gPTP discontinuities as `gptp_steps_wall_s`.
+An event's times are interpolated between the anchors around it.
+They are never extrapolated past the last anchor.
+gPTP time is never interpolated across a recorded discontinuity.
+An unsupported time is `None`, and the event's `timing` says why.
 `context_wall_s` brackets each event by `audio_context_s`, five seconds by default.
 Walk every stream's counters and the CRF sink's at least that often.
 Walk the DUT's `SLIP_LB` and `SLIP_TDM` words and the gPTP state at the same cadence.
 
 The source plants a drop, a repeat and a bit flip at both ends of the run.
+Both ends means the first tenth of the capture and its last tenth.
 Their defaults are a 3-sample drop, a 2-sample repeat and mask `0x00000100`.
 Log each arm with its class, capture index, size or mask, and channel.
 An arm with no channel applies to every counter channel.
+An arm's channel names the counter it was planted on, wherever that counter is carried.
 `arm_tolerance_frames` is the log's recorded index error.
 Each arm must be found with its class and its exact size or mask.
 A missed arm voids the run as NOT RUN.
-So do arms that do not run in both halves of the capture.
+So does a set of arms missing from the first or the last tenth.
 
 The capture tool logs its own losses as a capture index and a frame count.
-A logged loss is a slip at that index on every counter channel.
+A logged loss is a slip of exactly that size at that index on every counter channel.
 Such slips are attributed to the capture and reported apart.
-A logged loss the capture does not show is NOT RUN.
+A logged loss that some counter channel does not show is NOT RUN.
+A loss stores no frames, but time runs through it.
+The acquisition index adds every loss logged at or before an event, and its times follow.
 Every remaining event is DUT-attributed, and any one of them fails the run.
 
 The sine pair, 997 Hz and 9,973 Hz, runs on another channel pair.
@@ -1353,8 +1407,15 @@ Idle cuts and soft resets require the exact pre-cycle committed snapshot.
 Commit cuts permit complete old or new committed snapshots.
 Mixed or unreadable state cannot pass.
 `check_release_state_restored` takes the pre-cycle, readback and default snapshots.
-A commit cut also supplies the snapshot being committed.
-A pre-cycle value equal to its default, or a missing readback, is NOT RUN.
+A commit cut also supplies a `ReleaseCommitCut`.
+It holds the pending snapshot, the commit window `[start, end)` and the cut instant.
+Both times come from the host monotonic clock of the cycle's T0.
+Set every pending item away from its default as well.
+Otherwise a build that falls back to its defaults would read back as the new snapshot.
+A pre-cycle or pending value equal to its default, or a missing readback, is NOT RUN.
+A cut instant outside the commit window hit no journal commit, and is NOT RUN by that name.
+A bare pending snapshot without that evidence can still fail, but never pass.
+A snapshot passed with an idle cut or a soft reset is ignored.
 
 A soft reset keeps the DUT outlet ON before and after the reset.
 Record its mechanism, the outlet state and the reset command's timestamp.
@@ -1441,9 +1502,10 @@ Retain [Section 6b](#6b-bench-evidence-retention) artifacts plus these campaign-
 - serialized plan, topology, persistence inventory, and verdict JSONL;
 - timestamped snapshots, controller exchanges, and power-cut phase evidence;
 - the reset command log, with the outlet state, for every soft reset;
-- the soak's counter reads and its planted-event log;
+- the soak's counter reads, with the reads at each planted window's edges, and its planted-event log;
+- each commit cut's pending snapshot, commit window and cut instant;
 - complete UART transcripts, wire captures, and the temperature log;
-- every audio capture, with its byte order, start wall and gPTP times;
+- every audio capture, with its byte order, start times and the capture tool's anchors;
 - the planted-arm log, the capture-loss log and the audio event records.
 
 A 24-hour audio capture is large.
