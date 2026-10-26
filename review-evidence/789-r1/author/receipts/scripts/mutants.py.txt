@@ -1,0 +1,136 @@
+"""Plant generator-code and generated-tree mutants on scratch copies; require each refusal by its words."""
+import os, pathlib, shutil, subprocess, sys
+WT = pathlib.Path("<worktree>")
+OUT = pathlib.Path(sys.argv[1])
+SCRATCH = pathlib.Path("/tmp/a682-mut")
+GEN = (WT / "scripts/ci_gate_workflows.py").read_text()
+WF = (WT / ".github/workflows/rtl-fast.yml").read_text()
+DEV_WF = subprocess.run(["git", "-C", str(WT), "show", "76de691e5625cc4ea2f9a19def9e07c1183a14ee:.github/workflows/rtl-fast.yml"],
+                        check=True, capture_output=True, text=True).stdout
+CODE = [
+    ("control", None, None, None),
+    ("M01 key keeps the workflow-file digest",
+     '    return key.replace(WORKFLOW_FILES_DIGEST, "recipe-" + recipe_digest(build) + "-" + image)\n',
+     '    return key\n', "tool key binds the workflow files"),
+    ("M02 key drops the runner image", '"recipe-" + recipe_digest(build) + "-" + image)',
+     '"recipe-" + recipe_digest(build))', "tool key lacks the runner image"),
+    ("M03 key drops the recipe digest", '"recipe-" + recipe_digest(build) + "-" + image)', 'image)',
+     "tool key lacks the build recipe"),
+    ("M04 recipe digest is a constant",
+     '    return hashlib.sha256(json.dumps(build, sort_keys=True, separators=(",", ":")).encode()).hexdigest()\n',
+     '    return hashlib.sha256(b"").hexdigest()\n', "tool key does not follow its build recipe and runner image"),
+    ("M05 recipe digest over the whole consumer job", 'key = fast_tool_key(cache, build, consumer["runs-on"])',
+     'key = fast_tool_key(cache, consumer, consumer["runs-on"])', "tool key changed by an edit outside the build recipe"),
+    ("M06 consumer keeps its build", 'consumer["steps"][at:at + 2] = [{"name": "Restore the pinned Yosys build"',
+     'consumer["steps"][at:at] = [{"name": "Restore the pinned Yosys build"', "yosys-elaboration builds Yosys"),
+    ("M07 restore accepts a miss", '"fail-on-cache-miss": True}}]', '"fail-on-cache-miss": False}}]',
+     "yosys-elaboration does not restore exactly the tool tree"),
+    ("M08 restore with a fallback key", '"fail-on-cache-miss": True}}]',
+     '"fail-on-cache-miss": True, "restore-keys": "yosys-"}}]', "yosys-elaboration does not restore exactly the tool tree"),
+    ("M09 consumer does not need the tool job",
+     'consumer["needs"] = [*([needs] if isinstance(needs, str) else needs), FAST_TOOL_JOB]', 'consumer["needs"] = needs',
+     "yosys-elaboration does not need the tool job"),
+    ("M10 verdict not wired to the tool job", '    require_fast_tool(jobs[FAST_AGGREGATE])\n', '',
+     "rtl-fast verdict accepts a failed tool job"),
+    ("M11 verdict script lacks the tool pair", '    verdict["run"] = "\\n".join(lines)\n', '    verdict["run"] = verdict["run"]\n',
+     "rtl-fast verdict accepts a failed tool job"),
+    ("M12 verdict env lacks the tool binding", '            env[tool] = tool_value\n', '            pass\n',
+     "rtl-fast verdict refuses an all-green run"),
+    ("M13 tool timeout raised to 45", 'FAST_TOOL_TIMEOUT = 30\n', 'FAST_TOOL_TIMEOUT = 45\n',
+     "timeout changed or above the hosted budget: yosys-tool"),
+    ("M14 tool job runs unconditionally", '"needs": copy.deepcopy(consumer["needs"]), "if": consumer["if"],',
+     '"needs": copy.deepcopy(consumer["needs"]), "if": "${{ always() }}",', "tool job if differs from yosys-elaboration's"),
+    ("M15 tool job needs nothing", '"needs": copy.deepcopy(consumer["needs"]), "if"', '"needs": [], "if"',
+     "tool job needs differs from yosys-elaboration's"),
+    ("M16 tool job on another image", 'tool = {"name": "Prepare pinned Yosys", "runs-on": consumer["runs-on"],',
+     'tool = {"name": "Prepare pinned Yosys", "runs-on": "ubuntu-22.04",', "tool job runs-on differs from yosys-elaboration's"),
+    ("M17 tool job appended last",
+     '        if job_id == FAST_TOOL_CONSUMER:\n            ordered[FAST_TOOL_JOB] = tool\n        ordered[job_id] = job\n',
+     '        ordered[job_id] = job\n    ordered[FAST_TOOL_JOB] = tool\n', "tool job not just before its consumer"),
+    ("M18 template key without the digest accepted", '    if key.count(WORKFLOW_FILES_DIGEST) != 1:\n',
+     '    if key.count(WORKFLOW_FILES_DIGEST) > 1:\n', "accepted a template key without its workflow-file digest"),
+    ("M19 a step between cache and build moved as the build", '            or names[names.index(YOSYS_BUILD_STEPS[0]) + 1] != YOSYS_BUILD_STEPS[1]):',
+     '            or False):', "accepted a template step between the cache and its build"),
+    ("M20 tool job without its build step", '"steps": [copy.deepcopy(checkout), moved, copy.deepcopy(build)]}',
+     '"steps": [copy.deepcopy(checkout), moved]}', "tool job does not carry the template cache and build steps"),
+]
+TREE = [
+    ("T1 hand-edited tool key bound to the workflow files", "key",
+     ("generated gate jobs must match", "regenerate the gate jobs")),
+    ("T2 hand-edited verdict without the tool job", "needs", ("generated gate jobs must match", "regenerate the gate jobs")),
+    ("T3 hand-edited restore that accepts a miss", "miss", ("generated gate jobs must match", "regenerate the gate jobs")),
+    ("T4 generated workflow left at dev's", "dev", ("generated gate jobs must match", "regenerate the gate jobs")),
+]
+
+def scrub(text):
+    return text.replace(str(WT), "<worktree>").replace(str(SCRATCH), "<scratch>").replace("<home>", "<home>")
+
+def run_code(label, old, new, words):
+    root = SCRATCH / label.split()[0]
+    shutil.rmtree(root, ignore_errors=True)
+    (root / "scripts").mkdir(parents=True)
+    (root / ".github").symlink_to(WT / ".github")
+    text = GEN
+    if old is not None:
+        assert text.count(old) == 1, (label, old)
+        text = text.replace(old, new)
+    (root / "scripts/ci_gate_workflows.py").write_text(text)
+    code = ("import sys; sys.path[:0] = [%r, %r]\nimport ci_gate_workflows_selftest as s\ns.fast_tool_controls()\n"
+            % (str(root / "scripts"), str(WT / "scripts")))
+    done = subprocess.run([sys.executable, "-c", code], cwd=WT, capture_output=True, text=True)
+    output = scrub(done.stdout + done.stderr)
+    (OUT / (label.split()[0] + ".log")).write_text(output)
+    if old is None:
+        ok = done.returncode == 0
+    else:
+        ok = done.returncode != 0 and words in output
+    shutil.rmtree(root)
+    last = [line for line in output.splitlines() if line.strip()][-1]
+    return ok, done.returncode, last
+
+def run_tree(label, kind, words):
+    root = SCRATCH / label.split()[0]
+    shutil.rmtree(root, ignore_errors=True)
+    root.mkdir(parents=True)
+    archive = subprocess.run(["git", "-C", str(WT), "archive", "HEAD"], check=True, capture_output=True).stdout
+    subprocess.run(["tar", "-x", "-C", str(root)], input=archive, check=True)
+    path = root / ".github/workflows/rtl-fast.yml"
+    text = path.read_text()
+    if kind == "key":
+        recipe = text.split("-recipe-", 1)[1].split("-ubuntu-24.04-", 1)[0]
+        text = text.replace("-recipe-" + recipe + "-ubuntu-24.04-", "-${{ hashFiles('.github/workflows/*.yml') }}-")
+    elif kind == "needs":
+        assert text.count("      - yosys-tool\n      - yosys-elaboration\n") == 2
+        text = text.replace("      - yosys-tool\n      - yosys-elaboration\n", "      - yosys-elaboration\n", 1)
+    elif kind == "miss":
+        assert text.count("          fail-on-cache-miss: true\n") == 1
+        text = text.replace("          fail-on-cache-miss: true\n", "")
+    else:
+        text = DEV_WF
+    path.write_text(text)
+    results = []
+    for name, argv, word in (("generator --check", ["scripts/ci_gate_workflows.py", "--check", "--root", str(root)], words[1]),
+                             ("ci_events --check", ["scripts/ci_events.py", "--check", "--root", str(root)], words[0])):
+        done = subprocess.run([sys.executable, *argv], cwd=WT, capture_output=True, text=True)
+        output = scrub(done.stdout + done.stderr)
+        (OUT / (label.split()[0] + "-" + name.split()[0] + ".log")).write_text(output)
+        results.append((name, done.returncode, done.returncode == 1 and word in output, word))
+    shutil.rmtree(root)
+    return results
+
+OUT.mkdir(parents=True, exist_ok=True)
+rows = ["mutant\trc\tcaught\tfailing words"]
+failed = 0
+for label, old, new, words in CODE:
+    ok, rc, last = run_code(label, old, new, words)
+    failed += not ok
+    rows.append(f"{label}\t{rc}\t{'yes' if ok else 'NO'}\t{words or 'control: must pass'}")
+    print(f"{label}: rc={rc} {'CAUGHT' if old else 'PASS'} " if ok else f"{label}: rc={rc} SURVIVED  {last}")
+for label, kind, words in TREE:
+    for name, rc, ok, word in run_tree(label, kind, words):
+        failed += not ok
+        rows.append(f"{label} [{name}]\t{rc}\t{'yes' if ok else 'NO'}\t{word}")
+        print(f"{label} [{name}]: rc={rc} {'CAUGHT' if ok else 'SURVIVED'}")
+(OUT / "summary.tsv").write_text("\n".join(rows) + "\n")
+print("mutants:", "ALL CAUGHT" if not failed else f"{failed} SURVIVED")
+sys.exit(1 if failed else 0)

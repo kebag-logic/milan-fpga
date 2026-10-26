@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+    s.fast_tool_controls()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "<worktree>/scripts/ci_gate_workflows_selftest.py", line 312, in fast_tool_controls
+    assert fast_tool_findings(template, generated) == [], fast_tool_findings(template, generated)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['tool key lacks the build recipe']

@@ -1,0 +1,30 @@
+mutant	rc	caught	failing words
+control	0	yes	control: must pass
+M01 key keeps the workflow-file digest	1	yes	tool key binds the workflow files
+M02 key drops the runner image	1	yes	tool key lacks the runner image
+M03 key drops the recipe digest	1	yes	tool key lacks the build recipe
+M04 recipe digest is a constant	1	yes	tool key does not follow its build recipe and runner image
+M05 recipe digest over the whole consumer job	1	yes	tool key changed by an edit outside the build recipe
+M06 consumer keeps its build	1	yes	yosys-elaboration builds Yosys
+M07 restore accepts a miss	1	yes	yosys-elaboration does not restore exactly the tool tree
+M08 restore with a fallback key	1	yes	yosys-elaboration does not restore exactly the tool tree
+M09 consumer does not need the tool job	1	yes	yosys-elaboration does not need the tool job
+M10 verdict not wired to the tool job	1	yes	rtl-fast verdict accepts a failed tool job
+M11 verdict script lacks the tool pair	1	yes	rtl-fast verdict accepts a failed tool job
+M12 verdict env lacks the tool binding	1	yes	rtl-fast verdict refuses an all-green run
+M13 tool timeout raised to 45	1	yes	timeout changed or above the hosted budget: yosys-tool
+M14 tool job runs unconditionally	1	yes	tool job if differs from yosys-elaboration's
+M15 tool job needs nothing	1	yes	tool job needs differs from yosys-elaboration's
+M16 tool job on another image	1	yes	tool job runs-on differs from yosys-elaboration's
+M17 tool job appended last	1	yes	tool job not just before its consumer
+M18 template key without the digest accepted	1	yes	accepted a template key without its workflow-file digest
+M19 a step between cache and build moved as the build	1	yes	accepted a template step between the cache and its build
+M20 tool job without its build step	1	yes	tool job does not carry the template cache and build steps
+T1 hand-edited tool key bound to the workflow files [generator --check]	1	yes	regenerate the gate jobs
+T1 hand-edited tool key bound to the workflow files [ci_events --check]	1	yes	generated gate jobs must match
+T2 hand-edited verdict without the tool job [generator --check]	1	yes	regenerate the gate jobs
+T2 hand-edited verdict without the tool job [ci_events --check]	1	yes	generated gate jobs must match
+T3 hand-edited restore that accepts a miss [generator --check]	1	yes	regenerate the gate jobs
+T3 hand-edited restore that accepts a miss [ci_events --check]	1	yes	generated gate jobs must match
+T4 generated workflow left at dev's [generator --check]	1	yes	regenerate the gate jobs
+T4 generated workflow left at dev's [ci_events --check]	1	yes	generated gate jobs must match

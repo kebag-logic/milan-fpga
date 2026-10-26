@@ -1,0 +1,100 @@
+# excerpt of the full ci_events.py --selftest log (py312), which is over 200 KB and is not kept
+# full log: 5260 lines, 337344 bytes, sha256 c2c8408fce3e3847c3709313aa10b51bb01357400182458744d9ed4cc92b4421
+# first 5 lines:
+  ok   generated gates: docs wire-accountability missing job
+  ok   generated gates: docs wire-accountability conditional job
+  ok   generated gates: docs wire-accountability masked job
+  ok   generated gates: docs wire-accountability host environment
+  ok   generated gates: docs wire-accountability missing step 0
+# every arm naming rtl-fast's yosys-tool or yosys-elaboration:
+  ok   generated gates: rtl-fast yosys-tool missing job
+  ok   generated gates: rtl-fast yosys-tool conditional job
+  ok   generated gates: rtl-fast yosys-tool masked job
+  ok   generated gates: rtl-fast yosys-tool host environment
+  ok   generated gates: rtl-fast yosys-tool missing step 0
+  ok   generated gates: rtl-fast yosys-tool changed step 0
+  ok   generated gates: rtl-fast yosys-tool changed body 0
+  ok   generated gates: rtl-fast yosys-tool missing step 1
+  ok   generated gates: rtl-fast yosys-tool changed step 1
+  ok   generated gates: rtl-fast yosys-tool changed body 1
+  ok   generated gates: rtl-fast yosys-tool missing step 2
+  ok   generated gates: rtl-fast yosys-tool changed step 2
+  ok   generated gates: rtl-fast yosys-tool changed body 2
+  ok   generated gates: rtl-fast yosys-tool cache 2 altered key
+  ok   generated gates: rtl-fast yosys-tool cache 2 altered restore-keys
+  ok   generated gates: rtl-fast yosys-tool cache 2 altered path
+  ok   generated gates: rtl-fast yosys-tool missing step 3
+  ok   generated gates: rtl-fast yosys-tool changed step 3
+  ok   generated gates: rtl-fast yosys-tool changed body 3
+  ok   generated gates: rtl-fast yosys-tool missing step 4
+  ok   generated gates: rtl-fast yosys-tool changed step 4
+  ok   generated gates: rtl-fast yosys-tool changed body 4
+  ok   generated gates: rtl-fast yosys-tool cache 4 altered key
+  ok   generated gates: rtl-fast yosys-tool cache 4 altered restore-keys
+  ok   generated gates: rtl-fast yosys-tool cache 4 altered path
+  ok   generated gates: rtl-fast yosys-tool missing step 5
+  ok   generated gates: rtl-fast yosys-tool changed step 5
+  ok   generated gates: rtl-fast yosys-tool changed body 5
+  ok   generated gates: rtl-fast yosys-tool missing step 6
+  ok   generated gates: rtl-fast yosys-tool changed step 6
+  ok   generated gates: rtl-fast yosys-tool changed body 6
+  ok   generated gates: rtl-fast yosys-tool missing step 7
+  ok   generated gates: rtl-fast yosys-tool changed step 7
+  ok   generated gates: rtl-fast yosys-tool changed body 7
+  ok   generated gates: rtl-fast yosys-elaboration missing job
+  ok   generated gates: rtl-fast yosys-elaboration conditional job
+  ok   generated gates: rtl-fast yosys-elaboration masked job
+  ok   generated gates: rtl-fast yosys-elaboration host environment
+  ok   generated gates: rtl-fast yosys-elaboration missing step 0
+  ok   generated gates: rtl-fast yosys-elaboration changed step 0
+  ok   generated gates: rtl-fast yosys-elaboration changed body 0
+  ok   generated gates: rtl-fast yosys-elaboration missing step 1
+  ok   generated gates: rtl-fast yosys-elaboration changed step 1
+  ok   generated gates: rtl-fast yosys-elaboration changed body 1
+  ok   generated gates: rtl-fast yosys-elaboration missing step 2
+  ok   generated gates: rtl-fast yosys-elaboration changed step 2
+  ok   generated gates: rtl-fast yosys-elaboration changed body 2
+  ok   generated gates: rtl-fast yosys-elaboration missing step 3
+  ok   generated gates: rtl-fast yosys-elaboration changed step 3
+  ok   generated gates: rtl-fast yosys-elaboration changed body 3
+  ok   generated gates: rtl-fast yosys-elaboration cache 3 altered key
+  ok   generated gates: rtl-fast yosys-elaboration cache 3 altered restore-keys
+  ok   generated gates: rtl-fast yosys-elaboration cache 3 altered path
+  ok   generated gates: rtl-fast yosys-elaboration missing step 4
+  ok   generated gates: rtl-fast yosys-elaboration changed step 4
+  ok   generated gates: rtl-fast yosys-elaboration changed body 4
+  ok   generated gates: rtl-fast yosys-elaboration missing step 5
+  ok   generated gates: rtl-fast yosys-elaboration changed step 5
+  ok   generated gates: rtl-fast yosys-elaboration changed body 5
+  ok   generated gates: rtl-fast yosys-elaboration cache 5 altered key
+  ok   generated gates: rtl-fast yosys-elaboration cache 5 altered restore-keys
+  ok   generated gates: rtl-fast yosys-elaboration cache 5 altered path
+  ok   generated gates: rtl-fast yosys-elaboration missing step 6
+  ok   generated gates: rtl-fast yosys-elaboration changed step 6
+  ok   generated gates: rtl-fast yosys-elaboration changed body 6
+  ok   generated gates: rtl-fast yosys-elaboration missing step 7
+  ok   generated gates: rtl-fast yosys-elaboration changed step 7
+  ok   generated gates: rtl-fast yosys-elaboration changed body 7
+  ok   generated gates: rtl-fast yosys-elaboration missing step 8
+  ok   generated gates: rtl-fast yosys-elaboration changed step 8
+  ok   generated gates: rtl-fast yosys-elaboration changed body 8
+  ok   generated gates: rtl-fast yosys-elaboration missing step 9
+  ok   generated gates: rtl-fast yosys-elaboration changed step 9
+  ok   generated gates: rtl-fast yosys-elaboration changed body 9
+  ok   generated gates: rtl-fast yosys-elaboration missing step 10
+  ok   generated gates: rtl-fast yosys-elaboration changed step 10
+  ok   generated gates: rtl-fast yosys-elaboration changed body 10
+  ok   generated gates: rtl-fast yosys-elaboration missing step 11
+  ok   generated gates: rtl-fast yosys-elaboration changed step 11
+  ok   generated gates: rtl-fast yosys-elaboration changed body 11
+  ok   generated gates: rtl-fast yosys-elaboration missing step 12
+  ok   generated gates: rtl-fast yosys-elaboration changed step 12
+  ok   generated gates: rtl-fast yosys-elaboration changed body 12
+  ok   generated gates: rtl-fast yosys-elaboration missing step 13
+  ok   generated gates: rtl-fast yosys-elaboration changed step 13
+  ok   generated gates: rtl-fast yosys-elaboration changed body 13
+# FAIL lines: 0
+# last 3 lines:
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (2199 contract items, 5258 arms)

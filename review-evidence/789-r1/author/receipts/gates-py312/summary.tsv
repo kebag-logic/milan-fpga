@@ -1,0 +1,20 @@
+gate	rc	seconds	last line
+ci_gate_workflows_check	0	0.7	
+ci_gate_workflows_selftest	0	9.5	gate workflow and union controls: PASS
+ci_case_receipts_selftest	0	0.5	case receipt self-test: 34 driver cases, union and comparison controls pass
+ci_make_cases_selftest	0	0.1	make case runner: all controls pass
+ci_maap_cases_selftest	0	0.1	MAAP scheduling controls: 66 cases retain their source and checks
+ci_capture_cases_selftest	0	0.1	capture observations: full/sharded values match; failed unit remains failed
+ci_suite_pieces_selftest	0	6.5	suite pieces: 64 parents, 81 scheduled units, all controls PASS
+ci_suite_collect_selftest	0	2.5	physical suite collection: all controls PASS
+ci_fail_fast_selftest	0	1.0	fail-fast controls: first failure, complete success, sibling selection, fork zero-write PASS
+ci_runtime_evidence_selftest	0	6.0	runtime manifest collectors: all controls PASS
+ci_install_cache_selftest	0	0.1	constraint source: a0b20a1df6e831386d5d5241d3b839f5572e4c7cfd20bbf2231ee81c8f7bede5
+generate_ci_evidence_pins_check	0	0.0	
+ci_workflow_plan_selftest	0	0.2	workflow planner: all controls pass
+ci_manifest_selftest	0	0.1	manifest comparison controls: PASS
+ci_scope_selftest	0	22.6	selftest: PASS
+ci_events_check	0	0.8	ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_events_selftest	0	222.8	selftest: PASS (2199 contract items, 5258 arms)
+act_ci_selftest	0	68.4	selftest: PASS
+act_ci_flat_install_selftest	0	31.7	selftest: PASS

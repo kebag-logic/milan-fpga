@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+    s.fast_tool_controls()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "<worktree>/scripts/ci_gate_workflows_selftest.py", line 316, in fast_tool_controls
+    assert list(derived) == [*order[:at], FAST_TOOL_JOB, *order[at:]], "tool job not just before its consumer"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: tool job not just before its consumer

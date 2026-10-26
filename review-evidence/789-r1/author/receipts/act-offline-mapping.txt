@@ -1,0 +1,21 @@
+candidate head: fddf3671ebc96a953755fa1b9a3ecec5f071a350
+trusted runner: scripts/act_ci.py at dev 76de691e5625cc4ea2f9a19def9e07c1183a14ee, blob 865867c373646d33322250e353ddc4cfa2f777b8
+candidate runner blob: 865867c373646d33322250e353ddc4cfa2f777b8 (diff against dev: none)
+trusted validate_workflow_sandbox(candidate, docs, elaborate, rtl-fast, rtl-full): accepted
+trusted workflow_job_volume_scope: {'docs': 'act-docs-', 'elaborate': 'act-elaborate-', 'rtl-fast': 'act-rtl-fast-', 'rtl-full': 'act-rtl-full-'}
+trusted replay_container_concurrency(rtl-fast): 4
+trusted collect_workflow_actions(rtl-fast): ['actions/cache@v4', 'actions/checkout@v4', 'actions/download-artifact@v4', 'actions/upload-artifact@v4']
+trusted RUNS_ON_LABELS: ('ubuntu-24.04',) mapped to catthehacker/ubuntu:full-latest
+job yosys-tool: name='Prepare pinned Yosys' runs-on='ubuntu-24.04' timeout-minutes='30' needs='changes'
+    Cache the pinned Yosys build uses actions/cache@v4 with {"key": "yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{ runner.os }}", "path": "/opt/yosys"}
+job yosys-elaboration: name='yosys-elaboration' runs-on='ubuntu-24.04' timeout-minutes='30' needs=['changes', 'yosys-tool']
+    Restore the pinned Yosys build uses actions/cache@v4 with {"fail-on-cache-miss": "true", "key": "yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{ runner.os }}", "path": "/opt/yosys"}
+dependency stages (a job starts only after every job it needs):
+  stage 0: changes, bdd-conformance, ci-fail-fast
+  stage 1: verilator-lint, yosys-tool, publication-census, firmware-unit, firmware-control-mutants, firmware-aecp-mutants, firmware-srp-mutants, firmware-boundary, firmware-verilator
+  stage 2: yosys-elaboration
+  stage 3: rtl-fast
+  stage 4: ci-manifest
+  stage 5: ci-cancel-tail
+ci_workflow_plan labels (16): ['Cancel late CI failures', 'Collect CI manifest', 'Fail fast across this head', 'Prepare pinned Yosys', 'bdd-conformance', 'changes', 'firmware-aecp-mutants', 'firmware-boundary', 'firmware-control-mutants', 'firmware-srp-mutants', 'firmware-unit', 'firmware-verilator', 'publication-census', 'rtl-fast', 'verilator-lint', 'yosys-elaboration']
+plan entries for yosys-tool: ['.github/workflows/rtl-fast.yml:yosys-tool']

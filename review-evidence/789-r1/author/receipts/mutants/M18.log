@@ -1,0 +1,30 @@
+Fast Yosys tool: only yosys-elaboration and the verdict change; a docs-only run stays green
+Fast Yosys tool refused tool key bound to the workflow files: tool key binds the workflow files; tool key lacks the build recipe; tool key lacks the runner image; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the version: tool key lacks the pinned version; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the source: tool key lacks the source commit; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the recipe: tool key lacks the build recipe; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the image: tool key lacks the runner image; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool cache with a fallback: tool cache restores more than its exact key
+Fast Yosys tool refused tool job without its build: tool job does not carry the template cache and build steps
+Fast Yosys tool refused tool timeout above the budget: timeout changed or above the hosted budget: yosys-tool
+Fast Yosys tool refused consumer timeout raised: timeout changed or above the hosted budget: yosys-elaboration
+Fast Yosys tool refused tool job on another condition: tool job if differs from yosys-elaboration's
+Fast Yosys tool refused consumer builds again: yosys-elaboration builds Yosys
+Fast Yosys tool refused consumer without the tool need: yosys-elaboration does not need the tool job
+Fast Yosys tool refused restore accepts a miss: yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused restore with a fallback: yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused restore of another key: yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused verdict without the tool need: rtl-fast verdict accepts a failed tool job
+Fast Yosys tool refused verdict without the tool pair: rtl-fast verdict accepts a failed tool job
+Fast Yosys tool key unchanged by an edit outside the build recipe
+Fast Yosys tool key follows its build recipe and its runner image
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+    s.fast_tool_controls()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "<worktree>/scripts/ci_gate_workflows_selftest.py", line 326, in fast_tool_controls
+    fast_tool_template_refusals(template)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "<worktree>/scripts/ci_gate_workflows_selftest.py", line 305, in fast_tool_template_refusals
+    raise AssertionError("fast Yosys tool generator accepted a template " + label)
+AssertionError: fast Yosys tool generator accepted a template key without its workflow-file digest

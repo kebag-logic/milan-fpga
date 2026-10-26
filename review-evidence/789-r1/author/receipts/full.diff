@@ -1,0 +1,698 @@
+diff --git a/.github/workflows/rtl-fast.yml b/.github/workflows/rtl-fast.yml
+index 5b21c45c46..75895a67b5 100644
+--- a/.github/workflows/rtl-fast.yml
++++ b/.github/workflows/rtl-fast.yml
+@@ -251,11 +251,12 @@ jobs:
+           retention-days: 3
+     env:
+       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
+-  yosys-elaboration:
+-    needs: changes
+-    if: ${{ needs.changes.outputs.rtl == 'true' }}
++  yosys-tool:
++    name: Prepare pinned Yosys
+     runs-on: ubuntu-24.04
+     timeout-minutes: 30
++    needs: changes
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
+     steps:
+       - uses: actions/checkout@v4
+         id: ci_step_0
+@@ -277,35 +278,32 @@ jobs:
+             printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+           } >> "$GITHUB_ENV"
+         id: ci_step_1
+-      - name: Fetch RTL dependencies
+-        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+-        id: ci_step_2
+       - name: Cache the pinned Yosys build
+         id: cache-yosys
+         uses: actions/cache@v4
+         with:
+           path: /opt/yosys
+-          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml')
+-            }}-${{ runner.os }}
+-      - name: Resolve exact package downloads 3
+-        id: ci_packages_3
++          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{
++            runner.os }}
++      - name: Resolve exact package downloads 2
++        id: ci_packages_2
+         run: |
+-          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354 --directory "$RUNNER_TEMP/ci_packages_3" --output "$GITHUB_OUTPUT"
++          python3 scripts/ci_install_cache.py --packages bison flex g++ git libfl-dev make pkg-config python3 zlib1g-dev --recipe 36059bacbb524ab5c7daadb0f78093ad7b3400d564445eb830832674c3112354 --directory "$RUNNER_TEMP/ci_packages_2" --output "$GITHUB_OUTPUT"
+         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+-      - name: Cache exact package downloads 3
++      - name: Cache exact package downloads 2
+         uses: actions/cache@v4
+         with:
+-          path: ${{ runner.temp }}/ci_packages_3
+-          key: ${{ runner.os }}-${{ steps.ci_packages_3.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
++          path: ${{ runner.temp }}/ci_packages_2
++          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+             '.github/workflows/*.yml') }}
+         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+-        id: ci_step_5
++        id: ci_step_4
+       - name: Build Yosys from source on cache miss
+         if: ${{ steps.cache-yosys.outputs.cache-hit != 'true' }}
+         run: |
+           set -euo pipefail
+           : # package index prepared above
+-          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_3" install -y --no-install-recommends \
++          sudo apt-get -o Dir::Cache::archives="$RUNNER_TEMP/ci_packages_2" install -y --no-install-recommends \
+             git make g++ bison flex libfl-dev pkg-config zlib1g-dev python3
+           git clone --depth 1 --branch "$YOSYS_VERSION" \
+             https://github.com/YosysHQ/yosys.git /tmp/yosys-src
+@@ -319,7 +317,64 @@ jobs:
+           git -C /tmp/yosys-src/abc rev-parse HEAD | sudo tee /opt/yosys/ABC_REV
+           # runner-owned so the cache action's save and restore are symmetric
+           sudo chown -R "$(id -u):$(id -g)" /opt/yosys
+-        id: ci_step_6
++        id: ci_step_5
++      - name: Record actual job execution
++        id: ci_record
++        if: ${{ always() }}
++        env:
++          CI_STEP_RESULTS: ${{ toJSON(steps) }}
++          CI_JOB_RESULT: ${{ job.status }}
++          CI_MATRIX: ${{ toJSON(matrix) }}
++        run: |
++          python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job yosys-tool --output "$RUNNER_TEMP/job-evidence.json"
++      - name: Upload actual job execution
++        id: ci_upload
++        if: ${{ always() }}
++        uses: actions/upload-artifact@v4
++        with:
++          name: job-evidence-rtl-fast-yosys-tool-${{ strategy.job-index }}-${{ github.sha }}
++          path: ${{ runner.temp }}/job-evidence.json
++          if-no-files-found: error
++          retention-days: 3
++  yosys-elaboration:
++    needs:
++      - changes
++      - yosys-tool
++    if: ${{ needs.changes.outputs.rtl == 'true' }}
++    runs-on: ubuntu-24.04
++    timeout-minutes: 30
++    steps:
++      - uses: actions/checkout@v4
++        id: ci_step_0
++        name: Run actions/checkout@v4
++      - name: Set CPU-derived job budgets
++        run: |
++          set -euo pipefail
++          cpus="$(nproc)"
++          test "$cpus" -gt 0
++          campaign=$(( cpus < 4 ? cpus : 4 ))
++          simulations=$(( cpus < 4 ? cpus : 4 ))
++          tool_build=$(( cpus < 8 ? cpus : 8 ))
++          {
++            printf 'CI_BUILD_JOBS=%s\n' "$cpus"
++            printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
++            printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
++            printf 'VERILATOR_JOBS=%s\n' "$cpus"
++            printf 'SIM_JOBS=%s\n' "$simulations"
++            printf 'MAKEFLAGS=-j1 --no-print-directory\n'
++          } >> "$GITHUB_ENV"
++        id: ci_step_1
++      - name: Fetch RTL dependencies
++        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
++        id: ci_step_2
++      - name: Restore the pinned Yosys build
++        uses: actions/cache@v4
++        with:
++          path: /opt/yosys
++          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{
++            runner.os }}
++          fail-on-cache-miss: true
++        id: ci_step_3
+       - name: Install the pinned Yosys and prove the version
+         run: |
+           set -euo pipefail
+@@ -328,14 +383,14 @@ jobs:
+           echo "bundled ABC: $(cat /opt/yosys/ABC_REV)"
+           yosys -V
+           yosys -V | grep -F "Yosys ${YOSYS_VERSION#v}"
+-        id: ci_step_7
++        id: ci_step_4
+       - name: Cache verified sv2v archive
+         uses: actions/cache@v4
+         with:
+           path: ${{ runner.temp }}/ci-sv2v-cache
+           key: sv2v-v0.0.12-ff8c9eea5bc029b372fb4953427625cddb7cf7e58c1240623ac9f260818d5a00-${{ hashFiles('scripts/ci_install*.py',
+             '.github/workflows/*.yml') }}-${{ runner.os }}
+-        id: ci_step_8
++        id: ci_step_5
+       - name: Install the pinned sv2v release
+         run: |
+           set -euo pipefail
+@@ -350,14 +405,14 @@ jobs:
+           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" \
+             /usr/local/bin/sv2v
+           sv2v --version
+-        id: ci_step_9
++        id: ci_step_6
+       - name: Elaborate the integration-heavy tops
+         run: |
+           syn/yosys/run.sh --mode elaborate --no-structural \
+             --top milan_datapath \
+             --top KL_pp_shadow \
+             --top KL_gptp_shadow
+-        id: ci_step_10
++        id: ci_step_7
+       - name: Prove the OOC read sets come from run.sh and refuse a bad one
+         run: |
+           set -euo pipefail
+@@ -375,16 +430,16 @@ jobs:
+           python3 syn/ooc/pp_resource_gate.py check-baseline
+           python3 syn/ooc/dp_srcs.py --top milan_datapath > /dev/null
+           python3 syn/ooc/dp_srcs.py --top KL_pp_shadow > /dev/null
+-        id: ci_step_11
++        id: ci_step_8
+       - name: Prove ooc.sh generates the ROMs and fails on a failed top
+         run: python3 syn/yosys/ooc_selftest.py
+-        id: ci_step_12
++        id: ci_step_9
+       - name: Prove both synthesis flows refuse active elaboration guards
+         run: python3 syn/yosys/guard_selftest.py
+-        id: ci_step_13
++        id: ci_step_10
+       - name: Prove the result cache refuses a planted entry
+         run: python3 syn/yosys/cache_selftest.py
+-        id: ci_step_14
++        id: ci_step_11
+       - name: Record actual job execution
+         id: ci_record
+         if: ${{ always() }}
+@@ -1207,6 +1262,7 @@ jobs:
+       - changes
+       - verilator-lint
+       - bdd-conformance
++      - yosys-tool
+       - yosys-elaboration
+       - publication-census
+       - firmware-unit
+@@ -1243,6 +1299,7 @@ jobs:
+           CHANGES_RESULT: ${{ needs.changes.result }}
+           VERILATOR_LINT_RESULT: ${{ needs.verilator-lint.result }}
+           BDD_CONFORMANCE_RESULT: ${{ needs.bdd-conformance.result }}
++          YOSYS_TOOL_RESULT: ${{ needs.yosys-tool.result }}
+           YOSYS_ELABORATION_RESULT: ${{ needs.yosys-elaboration.result }}
+           PUBLICATION_CENSUS_RESULT: ${{ needs.publication-census.result }}
+           FIRMWARE_UNIT_RESULT: ${{ needs.firmware-unit.result }}
+@@ -1258,6 +1315,7 @@ jobs:
+             "changes:$CHANGES_RESULT" \
+             "verilator-lint:$VERILATOR_LINT_RESULT" \
+             "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
++            "yosys-tool:$YOSYS_TOOL_RESULT" \
+             "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
+             "publication-census:$PUBLICATION_CENSUS_RESULT" \
+             "firmware-unit:$FIRMWARE_UNIT_RESULT" \
+@@ -1303,6 +1361,7 @@ jobs:
+       - changes
+       - verilator-lint
+       - bdd-conformance
++      - yosys-tool
+       - yosys-elaboration
+       - publication-census
+       - firmware-unit
+@@ -1408,7 +1467,8 @@ jobs:
+         id: ci_observe
+         env:
+           GH_TOKEN: ${{ github.token }}
+-          EXPECTED_JOBS: '["bdd-conformance","changes","Collect CI manifest","firmware-aecp-mutants","firmware-boundary","firmware-control-mutants","firmware-srp-mutants","firmware-unit","firmware-verilator","publication-census","rtl-fast","verilator-lint","yosys-elaboration"]'
++          EXPECTED_JOBS: '["bdd-conformance","changes","Collect CI manifest","firmware-aecp-mutants","firmware-boundary","firmware-control-mutants","firmware-srp-mutants","firmware-unit","firmware-verilator","publication-census","rtl-fast","verilator-lint","yosys-elaboration","Prepare
++            pinned Yosys"]'
+           SKIPPED_MATRICES: '{}'
+         run: |
+           python3 scripts/ci_fail_fast.py watch
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 6efcaa6e76..3f3b5e4ffb 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -170,7 +170,7 @@ The generated command census retains each command's conditions.
+ It also pins every worker and its 45-minute timeout.
+ 
+ A change containing only documentation skips the Verilator and Yosys setup
+-jobs, `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
++jobs (`yosys-tool` included), `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
+ Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
+ `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
+ module reads (#444). A gated module is code under the six roots named below,
+@@ -314,10 +314,34 @@ The elaboration smoke proves that the integration-heavy source lists lower and
+ resolve. It does not replace generic synthesis and must not be reported as a
+ portability pass.
+ 
++The smoke's Yosys is built by `yosys-tool` ("Prepare pinned Yosys", #789), a
++job of its own. `scripts/ci_gate_workflows.py` derives it from
++`yosys-elaboration`'s template cache and build steps, the way `rtl-full`
++derives its own tool job. `yosys-elaboration` needs it and restores the built
++tree with `fail-on-cache-miss` and no fallback key; it never builds Yosys.
++The tool's cache key binds the pinned version and source commit, `recipe-`
++followed by the SHA-256 of the template build step (every key of the step,
++serialised as sorted compact JSON), the runner image label and `runner.os`.
++It names no workflow file, so a workflow edit restores the same tree, while a
++recipe or image change rebuilds it inside the tool job's own 30-minute limit.
++No timeout was raised for this. Before #789 the key hashed
++`.github/workflows/*.yml`, so every workflow edit rebuilt Yosys cold inside
++`yosys-elaboration`. That build took 16 min 33 s of the job's 30 at
++`847eb4dd` (job 121450772865), and the job's own steps then ran past the limit.
++The identical cold build took 13 min 26 s in `rtl-full`'s tool job at the same
++head (job 121450783569). The `rtl-fast` aggregate needs `yosys-tool` and reads
++its result, because a failed build skips `yosys-elaboration` and the aggregate
++counts a skipped job as a pass. `scripts/ci_gate_workflows_selftest.py` plants
++one defect per property and requires each refusal by name. The defects are: a
++key bound to the workflow files or missing an input, a fallback, a raised
++timeout, a consumer that builds or accepts a miss, and a verdict that no
++longer reads the tool job.
++
+ The mailbox publication census runs in a job of its own, `publication-census`
+ (`sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"`,
+-#665, comment 6100024293), which installs the pinned Yosys from the same
+-cache key as `yosys-elaboration` and the same pinned sv2v release. It
++#665, comment 6100024293). It installs the pinned Yosys through its own cache
++and build steps, under a key bound to the workflow files like `rtl-full`'s, and
++does not need `yosys-tool`. It installs the same pinned sv2v release. It
+ elaborates `milan_datapath` with the recipe `syn/yosys/run.sh --emit
+ milan_datapath` prints, in every shape the builder builds (the recipe's, and
+ each `configs/*.yaml` with its generated header and the parameters
+@@ -3258,3 +3282,14 @@ Yosys v0.66 uses source commit `86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51`.
+ These are Git object digests, verified after the release checkout.
+ A changed workflow invalidates the recipe digest automatically.
+ Cache hits still require the existing installed-version checks.
++
++One key differs: `rtl-fast`'s `yosys-tool` (#789, see
++[Fast feedback](#fast-feedback)). Its recipe digest is the SHA-256 of its
++template build step, not of the workflow files, and it names the runner image
++label beside `runner.os`. A workflow edit leaves the key unchanged; an edit of
++the build step or the image changes it. The generated-graph comparison in
++`ci_events.py` holds that key to the generator's output, and
++`ci_gate_workflows_selftest.py` removes each input from it and requires a
++refusal. `yosys-elaboration` restores the same key and refuses a miss. If the
++tool job's cache save did not complete, re-run all of the workflow's jobs, not
++only the failed ones: re-running the consumer alone cannot rebuild the tree.
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 48e560d0cc..6c4a5a210c 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -328,7 +328,7 @@ contain both commands, environments, elapsed times, return codes and source bind
+ 
+ Measured hosted windows at `8e4b1e53` now supersede those projections.
+ [Run 37892515345, shard 0/5 job 113696564335](https://github.com/kebag-logic/milan-fpga/actions/runs/37892515345/job/113696564335)
+-used a hosted `ubuntu-latest` runner, then the `ubuntu-24.04` image, and sequential `make -C` invocations.
++used a hosted `ubuntu-latest` runner, which resolved to the `ubuntu-24.04` image, and sequential `make -C` invocations.
+ The windows use successive suite-verdict timestamps, including build time.
+ Both suites passed:
+ 
+diff --git a/scripts/ci_gate_workflows.py b/scripts/ci_gate_workflows.py
+index 0addb9e1bb..0991b19bd0 100644
+--- a/scripts/ci_gate_workflows.py
++++ b/scripts/ci_gate_workflows.py
+@@ -11,6 +11,8 @@ from __future__ import annotations
+ 
+ import argparse
+ import copy
++import hashlib
++import json
+ from pathlib import Path
+ import shlex
+ 
+@@ -33,6 +35,18 @@ DRIVER_COMMAND = "python3 sw/builder/test_builder.py"
+ VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
+                    "Put Verilator on PATH and prove the version"}
+ SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
++#: rtl-fast builds its pinned Yosys once, in a job of its own (#789). The
++#: template keeps the build in yosys-elaboration; the generator moves it, and
++#: the moved key binds the pinned version, the build recipe and the runner
++#: image instead of every workflow file. A workflow edit then rebuilds nothing,
++#: and a recipe change rebuilds in a job whose only work is the build.
++FAST_TOOL_JOB = "yosys-tool"
++FAST_TOOL_CONSUMER = "yosys-elaboration"
++FAST_AGGREGATE = "rtl-fast"
++#: The owner's 30-minute hosted budget (#789); no job's timeout is raised.
++FAST_TOOL_TIMEOUT = 30
++YOSYS_BUILD_STEPS = ("Cache the pinned Yosys build", "Build Yosys from source on cache miss")
++WORKFLOW_FILES_DIGEST = "${{ hashFiles('.github/workflows/*.yml') }}"
+ 
+ 
+ class Dumper(yaml.SafeDumper):
+@@ -180,6 +194,84 @@ def aggregate(name: str, template: dict) -> dict:
+             }
+ 
+ 
++def recipe_digest(build: dict) -> str:
++    """The template's build step, every key included, as one digest."""
++    return hashlib.sha256(json.dumps(build, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
++
++
++def fast_tool_key(cache: dict, build: dict, image: str) -> str:
++    """The template key, its workflow-file digest replaced by the recipe digest and the runner image."""
++    key = cache["with"]["key"]
++    if key.count(WORKFLOW_FILES_DIGEST) != 1:
++        raise ValueError(FAST_TOOL_CONSUMER + ": Yosys cache key lacks its one workflow-file digest")
++    return key.replace(WORKFLOW_FILES_DIGEST, "recipe-" + recipe_digest(build) + "-" + image)
++
++
++def result_binding(job_id: str) -> tuple[str, str]:
++    """The fast verdict's environment name and value for one needed job's result."""
++    return job_id.upper().replace("-", "_") + "_RESULT", "${{ needs." + job_id + ".result }}"
++
++
++def require_fast_tool(verdict_job: dict) -> None:
++    """A failed tool job skips yosys-elaboration, which the verdict accepts, so it reads the tool's result too."""
++    tool, tool_value = result_binding(FAST_TOOL_JOB)
++    consumer, _ = result_binding(FAST_TOOL_CONSUMER)
++    steps = verdict_job["steps"]
++    if FAST_TOOL_CONSUMER not in verdict_job["needs"] or len(steps) != 1 or consumer not in steps[0]["env"]:
++        raise ValueError(FAST_AGGREGATE + ": verdict lacks its yosys-elaboration result")
++    verdict_job["needs"].insert(verdict_job["needs"].index(FAST_TOOL_CONSUMER), FAST_TOOL_JOB)
++    verdict = steps[0]
++    env = {}
++    for name, value in verdict["env"].items():
++        if name == consumer:
++            env[tool] = tool_value
++        env[name] = value
++    verdict["env"] = env
++    lines = verdict["run"].split("\n")
++    pair = '"' + FAST_TOOL_CONSUMER + ":$" + consumer + '" \\'
++    found = [index for index, line in enumerate(lines) if line.strip() == pair]
++    if len(found) != 1:
++        raise ValueError(FAST_AGGREGATE + ": verdict lacks its one yosys-elaboration result pair")
++    line = lines[found[0]]
++    lines.insert(found[0], line[:len(line) - len(line.lstrip())] + '"' + FAST_TOOL_JOB + ":$" + tool + '" \\')
++    verdict["run"] = "\n".join(lines)
++
++
++def fast_yosys_tool(source: dict) -> dict:
++    """Build Yosys in its own job; yosys-elaboration restores that exact tree or fails (#789)."""
++    jobs = source["jobs"]
++    consumer = jobs[FAST_TOOL_CONSUMER]
++    names = [step.get("name") for step in consumer["steps"]]
++    if (FAST_TOOL_JOB in jobs or [name for name in names if name in YOSYS_BUILD_STEPS] != list(YOSYS_BUILD_STEPS)
++            or names[names.index(YOSYS_BUILD_STEPS[0]) + 1] != YOSYS_BUILD_STEPS[1]):
++        raise ValueError(FAST_TOOL_CONSUMER + ": missing or reordered Yosys build recipe")
++    checkout = consumer["steps"][0]
++    if not str(checkout.get("uses", "")).startswith("actions/checkout@"):
++        raise ValueError(FAST_TOOL_CONSUMER + ": original checkout must stay first")
++    at = names.index(YOSYS_BUILD_STEPS[0])
++    cache, build = consumer["steps"][at:at + 2]
++    key = fast_tool_key(cache, build, consumer["runs-on"])
++    moved = copy.deepcopy(cache)
++    moved["with"]["key"] = key
++    tool = {"name": "Prepare pinned Yosys", "runs-on": consumer["runs-on"], "timeout-minutes": FAST_TOOL_TIMEOUT,
++            "needs": copy.deepcopy(consumer["needs"]), "if": consumer["if"],
++            "steps": [copy.deepcopy(checkout), moved, copy.deepcopy(build)]}
++    needs = consumer["needs"]
++    consumer["needs"] = [*([needs] if isinstance(needs, str) else needs), FAST_TOOL_JOB]
++    # The tool job's exact tree or a refusal: no fallback key, and no build here.
++    consumer["steps"][at:at + 2] = [{"name": "Restore the pinned Yosys build", "uses": cache["uses"],
++                                     "with": {"path": cache["with"]["path"], "key": key,
++                                              "fail-on-cache-miss": True}}]
++    require_fast_tool(jobs[FAST_AGGREGATE])
++    ordered = {}
++    for job_id, job in jobs.items():
++        if job_id == FAST_TOOL_CONSUMER:
++            ordered[FAST_TOOL_JOB] = tool
++        ordered[job_id] = job
++    source["jobs"] = ordered
++    return source
++
++
+ def gate_graph(name: str, template: dict) -> dict:
+     """Preserve ordered bodies, conditions, bindings and source checkout in each leg."""
+     source = copy.deepcopy(template)
+@@ -189,6 +281,8 @@ def gate_graph(name: str, template: dict) -> dict:
+         if name == "rtl":
+             from ci_suite_workflows import generate as suite_workflows
+             return suite_workflows(source)
++        if name == "rtl-fast":
++            return fast_yosys_tool(source)
+         return source
+     original = source["jobs"].pop(CARRIERS[name])
+     cases: dict[int, list[dict]] = {}
+diff --git a/scripts/ci_gate_workflows_selftest.py b/scripts/ci_gate_workflows_selftest.py
+index 0f3e897947..621de26f31 100644
+--- a/scripts/ci_gate_workflows_selftest.py
++++ b/scripts/ci_gate_workflows_selftest.py
+@@ -23,7 +23,7 @@ from ci_gate_receipts import Collected, StepContext, record, verify
+ from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_template, setup, worker_id, worker_legs
+ from ci_runtime_workflows import CENSUS_WORKER_BYTES, census_budget_step, cpu_budget_step
+ from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, DRIVER_COMMAND, builder_command, builder_leg_step
+-from ci_gate_workflows import gate_graph
++from ci_gate_workflows import FAST_AGGREGATE, FAST_TOOL_CONSUMER, FAST_TOOL_JOB, YOSYS_BUILD_STEPS, gate_graph
+ import ci_suite_pieces
+ from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
+ 
+@@ -90,6 +90,243 @@ def scheduling_controls() -> None:
+     print("Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS")
+ 
+ 
++#: The owner's hosted budget for every job (#789), held here rather than read
++#: from the generator, whose constant is what this control judges.
++HOSTED_BUDGET_MINUTES = 30
++FAST_VERDICT_STEP = "Require every applicable fast gate to pass"
++
++
++def named_step(job: dict, name: str) -> dict | None:
++    """The one step of `job` called `name`, or None."""
++    found = [step for step in job["steps"] if step.get("name") == name]
++    return found[0] if len(found) == 1 else None
++
++
++def verdict_exit(job: dict, results: dict[str, str]) -> int:
++    """Run the fast verdict's own script with every needed job's result."""
++    step = named_step(job, FAST_VERDICT_STEP)
++    env = {name: results.get(value.removeprefix("${{ needs.").removesuffix(".result }}"), "success")
++           for name, value in step["env"].items()}
++    return subprocess.run(["bash", "-c", step["run"]], env={**os.environ, **env}, check=False,
++                          capture_output=True, text=True).returncode
++
++
++def fast_tool_findings(template: dict, generated: dict) -> list[str]:
++    """Every property #789 asks of rtl-fast's Yosys, each refused in its own words; empty is a pass."""
++    source, jobs = template["jobs"], generated["jobs"]
++    findings = []
++    tool, consumer, aggregate = jobs.get(FAST_TOOL_JOB), jobs[FAST_TOOL_CONSUMER], jobs[FAST_AGGREGATE]
++    original = source[FAST_TOOL_CONSUMER]
++    cache, build = (named_step(original, name) for name in YOSYS_BUILD_STEPS)
++    if tool is None or tool.get("name") != "Prepare pinned Yosys":
++        return ["no Prepare pinned Yosys job"]
++    for key in ("needs", "if", "runs-on"):
++        if tool.get(key) != original[key]:
++            findings.append("tool job " + key + " differs from yosys-elaboration's")
++    raised = [job_id for job_id, job in source.items() if jobs[job_id].get("timeout-minutes") != job["timeout-minutes"]]
++    if raised or not 0 < tool["timeout-minutes"] <= HOSTED_BUDGET_MINUTES:
++        findings.append("timeout changed or above the hosted budget: " + ", ".join(raised or [FAST_TOOL_JOB]))
++    moved = named_step(tool, YOSYS_BUILD_STEPS[0])
++    if (moved is None or named_step(tool, YOSYS_BUILD_STEPS[1]) is None
++            or {k: v for k, v in moved.items() if k != "with"} != {k: v for k, v in cache.items() if k != "with"}
++            or moved["with"].get("path") != cache["with"]["path"]):
++        findings.append("tool job does not carry the template cache and build steps")
++        return findings
++    if set(moved["with"]) != {"path", "key"}:
++        findings.append("tool cache restores more than its exact key")
++    key = moved["with"]["key"]
++    source_commit = re.search(r'rev-parse HEAD\)" = "([0-9a-f]{40})"', build["run"]).group(1)
++    for words, held in (("tool key binds the workflow files", "hashFiles(" not in key),
++                        ("tool key lacks the pinned version", key.startswith("yosys-${{ env.YOSYS_VERSION }}-")
++                         and '--branch "$YOSYS_VERSION"' in build["run"]),
++                        ("tool key lacks the source commit", "-" + source_commit + "-" in key),
++                        ("tool key lacks the build recipe", re.search(r"-recipe-[0-9a-f]{64}-", key) is not None),
++                        ("tool key lacks the runner image",
++                         key.endswith("-" + original["runs-on"] + "-${{ runner.os }}"))):
++        if not held:
++            findings.append(words)
++    if any(step.get("name") in YOSYS_BUILD_STEPS or "/tmp/yosys-src" in step.get("run", "")
++           for step in consumer["steps"]):
++        findings.append("yosys-elaboration builds Yosys")
++    needs = original["needs"]
++    if consumer["needs"] != [*([needs] if isinstance(needs, str) else needs), FAST_TOOL_JOB]:
++        findings.append("yosys-elaboration does not need the tool job")
++    restores = [step for step in consumer["steps"] if step.get("with", {}).get("path") == cache["with"]["path"]]
++    install = [step.get("name") for step in consumer["steps"]].index("Install the pinned Yosys and prove the version")
++    if (len(restores) != 1 or restores[0].get("uses") != cache["uses"]
++            or restores[0]["with"] != {"path": cache["with"]["path"], "key": key, "fail-on-cache-miss": True}
++            or consumer["steps"].index(restores[0]) > install):
++        findings.append("yosys-elaboration does not restore exactly the tool tree before its version proof")
++    if FAST_TOOL_JOB not in aggregate["needs"] or verdict_exit(aggregate, {FAST_TOOL_JOB: "failure",
++                                                                         FAST_TOOL_CONSUMER: "skipped"}) == 0:
++        findings.append("rtl-fast verdict accepts a failed tool job")
++    if verdict_exit(aggregate, {}) != 0:
++        findings.append("rtl-fast verdict refuses an all-green run")
++    return findings
++
++
++def tool_cache(jobs: dict) -> dict:
++    """The moved cache step's `with`."""
++    return named_step(jobs[FAST_TOOL_JOB], YOSYS_BUILD_STEPS[0])["with"]
++
++
++def tool_restore(jobs: dict) -> dict:
++    """yosys-elaboration's restore step's `with`."""
++    return named_step(jobs[FAST_TOOL_CONSUMER], "Restore the pinned Yosys build")["with"]
++
++
++def verdict_step(jobs: dict) -> dict:
++    """The fast verdict step."""
++    return named_step(jobs[FAST_AGGREGATE], FAST_VERDICT_STEP)
++
++
++def fast_tool_planted(template: dict, generated: dict) -> None:
++    """One planted defect per property of the generated graph; each must be refused in its own words."""
++    key = tool_cache(generated["jobs"])["key"]
++    source_commit = re.search(r"-([0-9a-f]{40})-", key).group(1)
++    recipe = re.search(r"-recipe-[0-9a-f]{64}", key).group(0)
++    unpinned = key.replace(recipe + "-ubuntu-24.04", "-${{ hashFiles('.github/workflows/*.yml') }}")
++    template_build = named_step(template["jobs"][FAST_TOOL_CONSUMER], YOSYS_BUILD_STEPS[1])
++    for label, edit, words in (
++            ("tool key bound to the workflow files", lambda jobs: tool_cache(jobs).update(key=unpinned),
++             "tool key binds the workflow files"),
++            ("tool key without the version", lambda jobs: tool_cache(jobs).update(
++                key=key.replace("${{ env.YOSYS_VERSION }}", "v0")), "tool key lacks the pinned version"),
++            ("tool key without the source", lambda jobs: tool_cache(jobs).update(
++                key=key.replace(source_commit, "head")), "tool key lacks the source commit"),
++            ("tool key without the recipe", lambda jobs: tool_cache(jobs).update(
++                key=key.replace(recipe, "")), "tool key lacks the build recipe"),
++            ("tool key without the image", lambda jobs: tool_cache(jobs).update(
++                key=key.replace("-ubuntu-24.04", "")), "tool key lacks the runner image"),
++            ("tool cache with a fallback", lambda jobs: tool_cache(jobs).update({"restore-keys": "yosys-"}),
++             "tool cache restores more than its exact key"),
++            ("tool job without its build", lambda jobs: jobs[FAST_TOOL_JOB]["steps"].remove(
++                named_step(jobs[FAST_TOOL_JOB], YOSYS_BUILD_STEPS[1])),
++             "tool job does not carry the template cache and build steps"),
++            ("tool timeout above the budget", lambda jobs: jobs[FAST_TOOL_JOB].update({"timeout-minutes": 45}),
++             "timeout changed or above the hosted budget: yosys-tool"),
++            ("consumer timeout raised", lambda jobs: jobs[FAST_TOOL_CONSUMER].update({"timeout-minutes": 45}),
++             "timeout changed or above the hosted budget: yosys-elaboration"),
++            ("tool job on another condition", lambda jobs: jobs[FAST_TOOL_JOB].update({"if": "${{ true }}"}),
++             "tool job if differs from yosys-elaboration's"),
++            ("consumer builds again", lambda jobs: jobs[FAST_TOOL_CONSUMER]["steps"].insert(
++                4, copy.deepcopy(template_build)), "yosys-elaboration builds Yosys"),
++            ("consumer without the tool need", lambda jobs: jobs[FAST_TOOL_CONSUMER].update({"needs": "changes"}),
++             "yosys-elaboration does not need the tool job"),
++            ("restore accepts a miss", lambda jobs: tool_restore(jobs).pop("fail-on-cache-miss"),
++             "yosys-elaboration does not restore exactly the tool tree"),
++            ("restore with a fallback", lambda jobs: tool_restore(jobs).update({"restore-keys": "yosys-"}),
++             "yosys-elaboration does not restore exactly the tool tree"),
++            ("restore of another key", lambda jobs: tool_restore(jobs).update(key=unpinned),
++             "yosys-elaboration does not restore exactly the tool tree"),
++            ("verdict without the tool need", lambda jobs: jobs[FAST_AGGREGATE]["needs"].remove(FAST_TOOL_JOB),
++             "rtl-fast verdict accepts a failed tool job"),
++            ("verdict without the tool pair", lambda jobs: verdict_step(jobs).update(
++                run=verdict_step(jobs)["run"].replace('"yosys-tool:$YOSYS_TOOL_RESULT" \\\n', "")),
++             "rtl-fast verdict accepts a failed tool job")):
++        changed = copy.deepcopy(generated)
++        edit(changed["jobs"])
++        found = fast_tool_findings(template, changed)
++        assert any(words in finding for finding in found), (label, found)
++        print("Fast Yosys tool refused " + label + ": " + "; ".join(found))
++
++
++def fast_tool_key_inputs(template: dict, generated: dict) -> None:
++    """The key follows the build recipe and the runner image, and nothing else the template says."""
++    key = tool_cache(generated["jobs"])["key"]
++
++    def template_with(step_name: str, old: str, new: str) -> dict:
++        """The rtl-fast template with one yosys-elaboration step's text replaced."""
++        changed = copy.deepcopy(template)
++        step = named_step(changed["jobs"][FAST_TOOL_CONSUMER], step_name)
++        assert step["run"].count(old) == 1, (step_name, old)
++        step["run"] = step["run"].replace(old, new)
++        return changed
++
++    def tool_key(changed: dict) -> str:
++        """The tool key generated from one template."""
++        return tool_cache(generate("rtl-fast", changed)["jobs"])["key"]
++
++    other = template_with("Elaborate the integration-heavy tops", "--top KL_gptp_shadow",
++                          "--top KL_gptp_shadow --top KL_pp_shadow")
++    assert generate("rtl-fast", other) != generated and tool_key(other) == key, \
++        "tool key changed by an edit outside the build recipe"
++    print("Fast Yosys tool key unchanged by an edit outside the build recipe")
++    rebuilt = template_with(YOSYS_BUILD_STEPS[1], "ENABLE_PLUGINS := 0", "ENABLE_PLUGINS := 1")
++    moved = copy.deepcopy(template)
++    moved["jobs"][FAST_TOOL_CONSUMER]["runs-on"] = "ubuntu-22.04"
++    assert len({key, tool_key(rebuilt), tool_key(moved)}) == 3 and "-ubuntu-22.04-" in tool_key(moved), \
++        "tool key does not follow its build recipe and runner image"
++    print("Fast Yosys tool key follows its build recipe and its runner image")
++
++
++def fast_tool_template_refusals(template: dict) -> None:
++    """A template the derivation cannot read faithfully is refused, never half-derived."""
++    def template_steps(changed: dict) -> list[dict]:
++        """yosys-elaboration's template steps."""
++        return changed["jobs"][FAST_TOOL_CONSUMER]["steps"]
++
++    def unbound_key(changed: dict) -> None:
++        """The template key with its workflow-file digest replaced by another."""
++        step = named_step(changed["jobs"][FAST_TOOL_CONSUMER], YOSYS_BUILD_STEPS[0])
++        step["with"]["key"] = step["with"]["key"].replace(".github/workflows/*.yml", "scripts/*.py")
++
++    def swapped(changed: dict) -> None:
++        """The build step ahead of its cache step."""
++        steps = template_steps(changed)
++        at = [step.get("name") for step in steps].index(YOSYS_BUILD_STEPS[0])
++        steps[at], steps[at + 1] = steps[at + 1], steps[at]
++
++    def interposed(changed: dict) -> None:
++        """A step between the cache step and its build, which the derivation would move as the build."""
++        steps = template_steps(changed)
++        at = [step.get("name") for step in steps].index(YOSYS_BUILD_STEPS[0])
++        steps.insert(at + 1, {"name": "Interposed step", "run": "true\n"})
++
++    for label, edit, words in (
++            ("key without its workflow-file digest", unbound_key, "lacks its one workflow-file digest"),
++            ("build step removed", lambda changed: template_steps(changed).remove(
++                named_step(changed["jobs"][FAST_TOOL_CONSUMER], YOSYS_BUILD_STEPS[1])),
++             "missing or reordered Yosys build recipe"),
++            ("build before its cache", swapped, "missing or reordered Yosys build recipe"),
++            ("step between the cache and its build", interposed, "missing or reordered Yosys build recipe"),
++            ("verdict without the elaboration pair", lambda changed: verdict_step(changed["jobs"]).update(
++                run=verdict_step(changed["jobs"])["run"].replace(
++                    '"yosys-elaboration:$YOSYS_ELABORATION_RESULT" \\\n', "")),
++             "verdict lacks its one yosys-elaboration result pair")):
++        changed = copy.deepcopy(template)
++        edit(changed)
++        try:
++            generate("rtl-fast", changed)
++        except ValueError as exc:
++            assert words in str(exc), (label, str(exc))
++            print("Fast Yosys tool generator refused a template " + label + ": " + str(exc))
++        else:
++            raise AssertionError("fast Yosys tool generator accepted a template " + label)
++
++
++def fast_tool_controls() -> None:
++    """rtl-fast's Yosys: built once under a workflow-free key, restored exactly, and judged by the verdict (#789)."""
++    template = load_template(ROOT, "rtl-fast")
++    generated = generate("rtl-fast", template)
++    assert fast_tool_findings(template, generated) == [], fast_tool_findings(template, generated)
++    derived = gate_graph("rtl-fast", template)["jobs"]
++    order = list(template["jobs"])
++    at = order.index(FAST_TOOL_CONSUMER)
++    assert list(derived) == [*order[:at], FAST_TOOL_JOB, *order[at:]], "tool job not just before its consumer"
++    for job_id in order:
++        if job_id not in (FAST_TOOL_CONSUMER, FAST_AGGREGATE):
++            assert derived[job_id] == template["jobs"][job_id], "the derivation changed " + job_id
++    docs_only = {job_id: "skipped" for job_id in order if job_id not in ("changes", FAST_AGGREGATE)}
++    assert verdict_exit(generated["jobs"][FAST_AGGREGATE], {**docs_only, FAST_TOOL_JOB: "skipped"}) == 0, \
++        "rtl-fast verdict refuses a docs-only run"
++    print("Fast Yosys tool: only yosys-elaboration and the verdict change; a docs-only run stays green")
++    fast_tool_planted(template, generated)
++    fast_tool_key_inputs(template, generated)
++    fast_tool_template_refusals(template)
++    print("Fast Yosys tool: one cached build, an exact restore, a verdict that reads it PASS")
++
++
+ def builder_split_controls() -> None:
+     """A divided builder step must end in its one driver command and run it nowhere else."""
+     for name in BUILDER_SPLIT:
+@@ -533,6 +770,7 @@ def main() -> int:
+     """Drive the production generator and verifier with independent planted losses."""
+     inventory_controls()
+     scheduling_controls()
++    fast_tool_controls()
+     builder_split_controls()
+     suite_generator_controls()
+     cpu_controls()

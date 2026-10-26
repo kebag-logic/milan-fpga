@@ -1,0 +1,35 @@
+#!/bin/bash
+# usage: run_docs.sh <outdir>
+set -u
+out="$1"; wt=<worktree>; md=<md-venv>/bin/python3
+mkdir -p "$out"; cd "$wt" || exit 2
+summary="$out/summary.tsv"; printf 'gate\trc\tlast line\n' > "$summary"
+scrub() { sed -i -e "s#$wt#<worktree>#g" -e "s#<home>#<home>#g" -e "s#<md-venv>#<md-venv>#g" -e "s#/tmp/a682-nogit#<no-git-export>#g" "$1"; }
+run() { name="$1"; shift; "$@" > "$out/$name.log" 2>&1; rc=$?; scrub "$out/$name.log"; printf '%s\t%s\t%s\n' "$name" "$rc" "$(tail -1 "$out/$name.log" | cut -c1-200)" >> "$summary"; echo "$name rc=$rc"; }
+run docs_check "$md" scripts/docs_check.py
+run em_dash "$md" scripts/check_em_dash.py --base 76de691e5625cc4ea2f9a19def9e07c1183a14ee
+run doc_style "$md" scripts/check_doc_style.py
+run doc_style_selftest "$md" scripts/check_doc_style.py --selftest
+run gptp_docs "$md" scripts/check_gptp_docs.py
+run gptp_docs_selftest "$md" scripts/check_gptp_docs.py --selftest
+run doc_map_check "$md" docs/DOC_MAP.gen.py --check
+run doc_map_selftest "$md" docs/DOC_MAP.gen.py --selftest
+run doc_paths "$md" scripts/check_doc_paths.py
+run archive "$md" scripts/check_archive.py
+run archive_selftest "$md" scripts/check_archive.py --selftest
+run toc_selftest "$md" scripts/gen_toc.py --selftest
+run toc_verify_anchors "$md" scripts/gen_toc.py --verify-anchors
+run toc_check "$md" scripts/gen_toc.py --check
+run feature_status_selftest "$md" scripts/check_feature_status.py --self-test
+run baremetal_check "$md" scripts/check_baremetal_only.py --check
+run py_idiom python3 scripts/check_py_idiom.py
+run py_idiom_selftest python3 scripts/check_py_idiom.py --selftest
+run sh_idiom python3 scripts/check_sh_idiom.py
+run hygiene_check python3 scripts/check_hygiene.py --check
+run fail_fast_check python3 scripts/measure_fail_fast.py --check
+run test_evidence_check python3 scripts/measure_test_evidence.py --check
+run todo_ownership python3 scripts/check_todo_ownership.py
+run naming_check python3 scripts/measure_naming.py --check
+rm -rf /tmp/a682-nogit && mkdir -p /tmp/a682-nogit && git archive HEAD | tar -x -C /tmp/a682-nogit
+( cd /tmp/a682-nogit && run no_git_docs_check "$md" scripts/docs_check.py && run no_git_feature_status "$md" scripts/check_feature_status.py )
+rm -rf /tmp/a682-nogit

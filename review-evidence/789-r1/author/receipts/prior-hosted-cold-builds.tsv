@@ -1,0 +1,42 @@
+# job 121450772865 (rtl-fast yosys-elaboration, run 40286249749, head 847eb4dd, cold, cancelled at 30 min)
+1	Set up job	success	2026-10-26T07:31:49Z	2026-10-26T07:31:50Z
+2	Run actions/checkout@v4	success	2026-10-26T07:31:50Z	2026-10-26T07:31:51Z
+3	Set CPU-derived job budgets	success	2026-10-26T07:31:51Z	2026-10-26T07:31:51Z
+4	Fetch RTL dependencies	success	2026-10-26T07:31:51Z	2026-10-26T07:31:53Z
+5	Cache the pinned Yosys build	success	2026-10-26T07:31:53Z	2026-10-26T07:31:54Z
+6	Resolve exact package downloads 3	success	2026-10-26T07:31:54Z	2026-10-26T07:31:59Z
+7	Cache exact package downloads 3	success	2026-10-26T07:31:59Z	2026-10-26T07:32:00Z
+8	Build Yosys from source on cache miss	success	2026-10-26T07:32:00Z	2026-10-26T07:48:33Z
+9	Install the pinned Yosys and prove the version	success	2026-10-26T07:48:33Z	2026-10-26T07:48:33Z
+10	Cache verified sv2v archive	success	2026-10-26T07:48:33Z	2026-10-26T07:48:34Z
+11	Install the pinned sv2v release	success	2026-10-26T07:48:34Z	2026-10-26T07:48:34Z
+12	Elaborate the integration-heavy tops	success	2026-10-26T07:48:34Z	2026-10-26T07:51:26Z
+13	Prove the OOC read sets come from run.sh and refuse a bad one	cancelled	2026-10-26T07:51:26Z	2026-10-26T08:02:01Z
+14	Prove ooc.sh generates the ROMs and fails on a failed top	skipped	2026-10-26T08:02:01Z	2026-10-26T08:02:01Z
+15	Prove both synthesis flows refuse active elaboration guards	skipped	2026-10-26T08:02:01Z	2026-10-26T08:02:01Z
+16	Prove the result cache refuses a planted entry	skipped	2026-10-26T08:02:01Z	2026-10-26T08:02:01Z
+17	Record actual job execution	success	2026-10-26T08:02:01Z	2026-10-26T08:02:03Z
+18	Upload actual job execution	success	2026-10-26T08:02:03Z	2026-10-26T08:02:05Z
+33	Post Cache verified sv2v archive	skipped	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+34	Post Cache exact package downloads 3	skipped	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+35	Post Cache the pinned Yosys build	skipped	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+36	Post Run actions/checkout@v4	success	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+37	Complete job	success	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+
+# job 121450783569 (rtl-full Prepare pinned Yosys, run 40286249776, head 847eb4dd, cold, success)
+2026-10-26T07:34:45Z -> 2026-10-26T07:48:38Z
+1	Set up job	success	2026-10-26T07:34:46Z	2026-10-26T07:34:47Z
+2	Run actions/checkout@v4	success	2026-10-26T07:34:47Z	2026-10-26T07:34:50Z
+3	Set CPU-derived job budgets	success	2026-10-26T07:34:50Z	2026-10-26T07:34:50Z
+4	Cache the pinned Yosys build	success	2026-10-26T07:34:50Z	2026-10-26T07:34:50Z
+5	Resolve exact package downloads 2	success	2026-10-26T07:34:50Z	2026-10-26T07:35:02Z
+6	Cache exact package downloads 2	success	2026-10-26T07:35:02Z	2026-10-26T07:35:03Z
+7	Build Yosys from source on cache miss	success	2026-10-26T07:35:03Z	2026-10-26T07:48:29Z
+8	Package the pinned Yosys build	success	2026-10-26T07:48:29Z	2026-10-26T07:48:31Z
+9	Upload the pinned Yosys build	success	2026-10-26T07:48:31Z	2026-10-26T07:48:33Z
+10	Record actual job execution	success	2026-10-26T07:48:33Z	2026-10-26T07:48:34Z
+11	Upload actual job execution	success	2026-10-26T07:48:34Z	2026-10-26T07:48:35Z
+20	Post Cache exact package downloads 2	success	2026-10-26T07:48:35Z	2026-10-26T07:48:35Z
+21	Post Cache the pinned Yosys build	success	2026-10-26T07:48:35Z	2026-10-26T07:48:36Z
+22	Post Run actions/checkout@v4	success	2026-10-26T07:48:36Z	2026-10-26T07:48:36Z
+23	Complete job	success	2026-10-26T07:48:36Z	2026-10-26T07:48:36Z

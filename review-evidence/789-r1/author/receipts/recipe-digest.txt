@@ -1,0 +1,6 @@
+template step: .github/ci-templates/rtl-fast.yml, job yosys-elaboration, 'Build Yosys from source on cache miss'
+canonical form: json.dumps(step, sort_keys=True, separators=(',', ':')), UTF-8
+sha256: 06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279
+yosys-tool / Cache the pinned Yosys build: {'path': '/opt/yosys', 'key': 'yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{ runner.os }}'}
+yosys-elaboration / Restore the pinned Yosys build: {'path': '/opt/yosys', 'key': 'yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-recipe-06e5a02fa8b585ca1b3cc3153245cd97f8b1009666d3b15728f325ed9bd22279-ubuntu-24.04-${{ runner.os }}', 'fail-on-cache-miss': True}
+template (pre-#789) key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}

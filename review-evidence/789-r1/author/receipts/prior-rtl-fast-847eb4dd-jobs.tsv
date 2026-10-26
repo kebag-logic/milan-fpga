@@ -1,0 +1,40 @@
+# run 40286249749 (rtl-fast, head 847eb4dd), every job
+121450485280	changes	success	2026-10-26T07:30:56Z	2026-10-26T07:31:46Z
+121450485517	Fail fast across this head	cancelled	2026-10-26T07:30:56Z	2026-10-26T08:03:16Z
+121450485588	bdd-conformance	success	2026-10-26T07:30:56Z	2026-10-26T07:31:11Z
+121450772759	verilator-lint	success	2026-10-26T07:31:48Z	2026-10-26T07:36:48Z
+121450772786	firmware-srp-mutants	success	2026-10-26T07:31:48Z	2026-10-26T07:43:49Z
+121450772796	firmware-aecp-mutants	success	2026-10-26T07:31:48Z	2026-10-26T07:34:43Z
+121450772865	yosys-elaboration	cancelled	2026-10-26T07:31:48Z	2026-10-26T08:02:07Z
+121450772869	firmware-control-mutants	success	2026-10-26T07:31:48Z	2026-10-26T07:47:05Z
+121450772876	firmware-unit	success	2026-10-26T07:31:49Z	2026-10-26T07:43:57Z
+121450772885	firmware-verilator	success	2026-10-26T07:31:49Z	2026-10-26T07:52:31Z
+121450772909	publication-census	success	2026-10-26T07:31:48Z	2026-10-26T07:58:43Z
+121450772915	firmware-boundary	success	2026-10-26T07:31:49Z	2026-10-26T07:49:02Z
+121460994218	rtl-fast	cancelled	2026-10-26T08:02:07Z	2026-10-26T08:03:12Z
+121461381346	Collect CI manifest	success	2026-10-26T08:03:21Z	2026-10-26T08:03:58Z
+121461651688	Cancel late CI failures	success	2026-10-26T08:04:01Z	2026-10-26T08:04:10Z
+
+# job 121450772909 publication-census, Yosys and census steps
+1	Set up job	success	2026-10-26T07:31:49Z	2026-10-26T07:31:51Z
+2	Run actions/checkout@v4	success	2026-10-26T07:31:51Z	2026-10-26T07:31:52Z
+3	Set CPU-derived job budgets	success	2026-10-26T07:31:52Z	2026-10-26T07:31:52Z
+4	Set memory-derived census workers	success	2026-10-26T07:31:52Z	2026-10-26T07:31:52Z
+5	Cache exact Python downloads	success	2026-10-26T07:31:52Z	2026-10-26T07:31:53Z
+6	Fetch RTL dependencies	success	2026-10-26T07:31:53Z	2026-10-26T07:31:55Z
+7	Cache the pinned Yosys build	success	2026-10-26T07:31:55Z	2026-10-26T07:31:56Z
+8	Resolve exact package downloads 3	success	2026-10-26T07:31:56Z	2026-10-26T07:32:02Z
+9	Cache exact package downloads 3	success	2026-10-26T07:32:02Z	2026-10-26T07:32:02Z
+10	Build Yosys from source on cache miss	success	2026-10-26T07:32:02Z	2026-10-26T07:42:24Z
+11	Install the pinned Yosys and prove the version	success	2026-10-26T07:42:24Z	2026-10-26T07:42:24Z
+12	Cache verified sv2v archive	success	2026-10-26T07:42:24Z	2026-10-26T07:42:24Z
+13	Install the pinned sv2v release	success	2026-10-26T07:42:24Z	2026-10-26T07:42:25Z
+14	Run the publication census in every shape the builder builds	success	2026-10-26T07:42:25Z	2026-10-26T07:58:37Z
+15	Record actual job execution	success	2026-10-26T07:58:37Z	2026-10-26T07:58:39Z
+16	Upload actual job execution	success	2026-10-26T07:58:39Z	2026-10-26T07:58:40Z
+28	Post Cache verified sv2v archive	success	2026-10-26T07:58:40Z	2026-10-26T07:58:40Z
+29	Post Cache exact package downloads 3	success	2026-10-26T07:58:40Z	2026-10-26T07:58:40Z
+30	Post Cache the pinned Yosys build	success	2026-10-26T07:58:40Z	2026-10-26T07:58:41Z
+31	Post Cache exact Python downloads	success	2026-10-26T07:58:41Z	2026-10-26T07:58:41Z
+32	Post Run actions/checkout@v4	success	2026-10-26T07:58:41Z	2026-10-26T07:58:41Z
+33	Complete job	success	2026-10-26T07:58:41Z	2026-10-26T07:58:41Z
