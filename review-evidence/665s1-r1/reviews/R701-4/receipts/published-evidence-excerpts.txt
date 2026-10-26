@@ -1,0 +1,65 @@
+Published round-4 author receipts at evidence commit 2d88c87ca36b521ac875b6299c2a3204040e942b (review-evidence/665s1-r1/author-r4); blob hashes and MANIFEST.json published_sha256 verified (evidence-manifest-check.txt).
+## fw/head.txt (firmware gates head)
+989c9f537f8b973fb4a5c97cad36abb35da1244a
+## census
+  ports of pp_shadow: 217: C 25, F 28, R 34, E 6, M 14, G 110; G cones end at csr 7, memory 20, shim 4, wire 0, stopped at 27 net(s) removed with the wrapper
+rc=0 elapsed=949s
+selftest: 0 of 138 arm(s) failed; 138 arm(s) and their rules' removals in 809 s at --jobs 4
+rule removals: 43
+## mailbox bench
+== mbx (Wishbone host): checks: 523   failures: 0 ==
+== mbx (AXI4-Lite host): checks: 568   failures: 0 ==
+== mbx cosim (firmware on the RTL and on the model): checks: 32   failures: 0 ==
+== mbx (Wishbone host, 2 interfaces): checks: 530   failures: 0 ==
+== mbx (AXI4-Lite host, 2 interfaces): checks: 575   failures: 0 ==
+== mbx (host model, 2 interfaces): checks: 488   failures: 0 ==
+mbx mutants: 7 of 7 caught
+mbx mutants: 199 of 199 caught
+## coverage
+test_ctrl_firmware coverage run: PASS
+sw/firmware/ctrl/aecp/aecp.c                     372/372     318/318     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_face.c                172/172     148/148     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app_aecp.c             164/164     124/124     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (31 files)
+rc=0 elapsed=254s
+## AECP mutants
+## images
+head endstation_ax7101_1x1_tdm8 if1: link rc=0 plan rc=0  tree=989c9f537f8b973fb4a5c97cad36abb35da1244a
+head endstation_ax7101_1x1_tdm8 if2: link rc=0 plan rc=0  tree=989c9f537f8b973fb4a5c97cad36abb35da1244a
+head endstation_ax7101_8x8 if1: link rc=0 plan rc=0  tree=989c9f537f8b973fb4a5c97cad36abb35da1244a
+head endstation_ax7101_8x8 if2: link rc=0 plan rc=0 --ledgered-point 8x8-two-interfaces tree=989c9f537f8b973fb4a5c97cad36abb35da1244a
+head endstation_ax7101_8x8 if2: plan without the override rc=2 (must be 2): REFUSED allocation over budget: 57 RAMB36 (rom 118680 bytes in 118784, sram 112768 bytes in 114688) exceeds the 56-RAMB36 budget
+head endstation_ax7101_1x1_tdm8-if1: plan with the override rc=2 (must be 2): REFUSED allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13264, 'image_allocation': 16}; this image carries {'nvm_stage': 3344, 'image_allocation': 8}
+head endstation_ax7101_1x1_tdm8-if2: plan with the override rc=2 (must be 2): REFUSED allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13264, 'image_allocation': 16}; this image carries {'nvm_stage': 3344, 'image_allocation': 16}
+head endstation_ax7101_8x8-if1: plan with the override rc=2 (must be 2): REFUSED allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13264, 'image_allocation': 16}; this image carries {'nvm_stage': 13264, 'image_allocation': 8}
+## export
+base-endstation_arty_4x4: normalised e626b35acd8fd39c098a66295db0f86be30097144666ceb3b24204157323103e
+base-endstation_arty_8ch: normalised b21731d95a1af4125cb01f114c0caaa55ee20b1054d78a7877b53b010b3a1088
+base-endstation_arty_current: normalised 17541c02bd7e29cb26d173edbdb236cea4e94958cfb855f09f1d8c9cb10c1665
+base-endstation_ax7101_1x1_tdm8: normalised aaa6a74bef05fd3dd3d63adf8a4cfbdaae4aae370dba50e09dd9fc6200c59033
+base-endstation_ax7101_8x8: normalised 2178cb424d1a12890d882756e45a4e22879d70c2b70d38f3bd3daf9c026b2a9a
+head-endstation_arty_4x4: normalised e626b35acd8fd39c098a66295db0f86be30097144666ceb3b24204157323103e
+head-endstation_arty_8ch: normalised b21731d95a1af4125cb01f114c0caaa55ee20b1054d78a7877b53b010b3a1088
+head-endstation_arty_current: normalised 17541c02bd7e29cb26d173edbdb236cea4e94958cfb855f09f1d8c9cb10c1665
+head-endstation_ax7101_1x1_tdm8: normalised aaa6a74bef05fd3dd3d63adf8a4cfbdaae4aae370dba50e09dd9fc6200c59033
+head-endstation_ax7101_8x8: normalised 2178cb424d1a12890d882756e45a4e22879d70c2b70d38f3bd3daf9c026b2a9a
+## probes
+9d018fe7927db6eb08055c87d396f15a0999a74731a1a03e19ac85edbbb54e43  <work>/probes/r701/response_probe.py
+bfaee8079134d558d6368f15501ea3c50839ee6eda86b647215ba940602bdaab  <work>/probes/r702-final/probe_ack.py
+9d018fe7927db6eb08055c87d396f15a0999a74731a1a03e19ac85edbbb54e43  <reviews>/665s1-r701-3-packet/scripts/response_probe.py
+bfaee8079134d558d6368f15501ea3c50839ee6eda86b647215ba940602bdaab  <reviews>/665s1-r702-3-packet/probe_ack.py
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+r701-rc=0
+REVIEW held update: response_status=10 core_identify=255 mailbox_identify=255 commits_before=4 commits_after=4 busy=1 owed=1
+probe return code: 1
+r702-script-rc=1
+## docs gates
+69
+rc=0 elapsed=276s
+## AECP mutants (final shards)
+rc=0 elapsed=113s
+rc=0 elapsed=132s
+rc=0 elapsed=114s
+rc=0 elapsed=114s
+results entries 108, caught 108 (final-shard-*-results.json)

@@ -1,0 +1,41 @@
+All candidate reads refer to d33a5adc60cd93b34be41dfacf94daaec9d059c2 (tree 7e8fef6c536150dfcded5b34ae6edde2cd6165cf).
+TREE = the reviewed detached clone. SCRATCH = a full disposable copy of TREE (cp -a, with its git metadata and
+populated submodules) under <packet>/scratch; every probe edit was made there and restored with git restore.
+
+Round-3 probe, unmodified (sha256 9d018fe7...b9ddb, identical to the round-3 manifest):
+  python3 -I scripts/response_probe.py SCRATCH
+  python3 sw/firmware/ctrl/test/aecp_arms.py --output OUT1 --app --filter 'Face.ALateCommitIsOwedAndPublishedAgainWhole:AppFace.*:AppFaceUnacknowledged.*'
+  python3 sw/firmware/ctrl/test/aecp_arms.py --output OUT2 --app --interfaces 2 --filter (same)
+  -> receipts/response-probe-if{1,2}.txt, rc 0 both: 7 of 7 pass at each width.
+  git restore --source=HEAD -- sw/firmware/ctrl/test/test_aecp.cpp
+  probe_ack.py belongs to the other reviewer's packet, which this review may not read before its verdict; its
+  published author-run log was examined instead (receipts/published-evidence-excerpts.txt).
+
+Late-acknowledgement notification probe (finding R701-4-F1):
+  python3 -I scripts/late_ack_notify_probe.py SCRATCH
+  aecp_arms.py --app [--interfaces 2] --filter 'Face.ReviewerProbe*'
+  -> receipts/late-ack-probe-if{1,2}.txt, rc 1 both: the change takes effect (datapath IDENTIFY 255) and no
+     unsolicited SET_CONTROL reaches the registered controller (0 notifications).
+  git restore --source=HEAD -- sw/firmware/ctrl/test/test_aecp.cpp
+
+Head positive controls on the restored SCRATCH:
+  python3 sw/firmware/ctrl/test/aecp_arms.py --output A1 --app            -> 93 of 93, rc 0
+  python3 sw/firmware/ctrl/test/aecp_arms.py --output A2 --app --interfaces 2 -> 93 of 93, rc 0
+  python3 sw/mailbox/gen_mailbox.py --check --crosscheck                  -> 0 findings, rc 0
+  python3 sw/mailbox/gen_mailbox.py --selftest                            -> 0 arms failed, rc 0
+  python3 scripts/docs_check.py                                           -> 0 findings, rc 0
+  python3 scripts/gen_toc.py --check / --verify-anchors                   -> rc 2, refused: the pinned Markdown
+     renderer (html5lib) is not installed here and shared installs are not allowed; the author's published
+     docs-gate receipt (69 of 69 rc 0) is relied on for these two.
+
+Delta classification (reads only):
+  python3 -I scripts/comment_only.py TREE 44d95625 d33a5adc <8 Python files of the delta>  -> all SAME-AST, rc 0
+  git diff 44d95625..d33a5adc -- hdl/ tb/ (read): comment lines only.
+
+Published evidence (evidence commit 2d88c87ca36b521ac875b6299c2a3204040e942b, review-evidence/665s1-r1/author-r4):
+  84 receipts fetched by blob id; each matches its git blob id and its MANIFEST.json published_sha256
+  (receipts/evidence-manifest-check.txt). The evidence commit itself carries no signature (API: unsigned).
+
+Final integrity:
+  python3 -I scripts/verify_checkout.py TREE   -> head, tree, 1448 tracked blobs/modes, index and the five
+  populated submodules at their gitlinks; `external` is an unpopulated gitlink; no untracked files.
