@@ -1,0 +1,108 @@
+ledger-back-to-57: rc=1 (must be 1) 34 failing checks (must be at least 1)
+  [FAIL] the ledger holds the one ruled point, 8x8 with two interfaces at 57.5 RAMB36 ({'8x8-two-interfaces': ((('nvm_stage', 13264), ('image_allocation', 16)), 57.0)})
+  [FAIL] the 8x8-two-interfaces override plans its own point's image: raised Refusal (allocation over budget: 57.5 RAMB36 (rom 12068 bytes in 12288, sram 223232 bytes in 223232) exceeds the 57-RAMB36 budget ledgered for 
+  [FAIL] that plan is 57.5 RAMB36, against the 56-RAMB36 budget and its ledgered 57.5 ({})
+  [FAIL] `plan --ledgered-point 8x8-two-interfaces` accepts its point and refuses 1x1, one interface, 1x1, two interfaces, 8x8, one interface, 8x8 with no image_allocation (exit codes [2, 2, 2, 2, 2])
+  [FAIL] MUTANT 'elf class weakened' (elf class) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'elf machine off' (elf machine) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'truncated fields read' (elf truncated) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'truncated segments read' (elf truncated) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'unterminated names read' (elf truncated) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load address read as the run address' (load address) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'entry address off' (entry address) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'entry bytes off' (entry bytes) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'outside regions off' (outside regions) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'entry bytes read the sections only' (entry bytes) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'loads outside rom off' (loads outside rom) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load coverage off' (load coverage) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load coverage reads the first byte only' (load coverage) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'a segment carries bytes below its start' (load coverage) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'nobits in rom off' (nobits in rom) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'writable in rom off' (writable in rom) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'region overlap off' (regions) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'address overlap off' (addresses) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load-address overlap off' (initial bytes) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget off' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget refuses exactly 56' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget half a tile slack' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget 1.5 tiles slack' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage symbol off' (stage symbol) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage size off' (stage size) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage accepts a larger buffer' (stage size) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage accepts a smaller buffer' (stage size) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'cpu origins off' (cpu origins) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'cpu origins read the reset address only' (cpu origins) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'rom left uninitialised for the Builder' (no BIOS build) is not graded: the checks arm fails unmutated
+ledger-at-58: rc=1 (must be 1) 33 failing checks (must be at least 1)
+  [FAIL] the ledger holds the one ruled point, 8x8 with two interfaces at 57.5 RAMB36 ({'8x8-two-interfaces': ((('nvm_stage', 13264), ('image_allocation', 16)), 58.0)})
+  [FAIL] that plan is 57.5 RAMB36, against the 56-RAMB36 budget and its ledgered 57.5 ({'rom': {'bytes': 12068, 'banks': [8192, 4096], 'RAMB36': 3, 'RAMB18': 0}, 'sram': {'bytes': 223232, 'banks': [131072, 65536, 16384, 
+  [FAIL] the ledgered point's image half a tile past its ledgered 57.5 RAMB36: accepted, expected 'allocation over budget' rule 'budget'
+  [FAIL] MUTANT 'elf class weakened' (elf class) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'elf machine off' (elf machine) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'truncated fields read' (elf truncated) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'truncated segments read' (elf truncated) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'unterminated names read' (elf truncated) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load address read as the run address' (load address) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'entry address off' (entry address) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'entry bytes off' (entry bytes) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'outside regions off' (outside regions) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'entry bytes read the sections only' (entry bytes) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'loads outside rom off' (loads outside rom) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load coverage off' (load coverage) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load coverage reads the first byte only' (load coverage) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'a segment carries bytes below its start' (load coverage) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'nobits in rom off' (nobits in rom) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'writable in rom off' (writable in rom) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'region overlap off' (regions) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'address overlap off' (addresses) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load-address overlap off' (initial bytes) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget off' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget refuses exactly 56' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget half a tile slack' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget 1.5 tiles slack' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage symbol off' (stage symbol) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage size off' (stage size) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage accepts a larger buffer' (stage size) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage accepts a smaller buffer' (stage size) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'cpu origins off' (cpu origins) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'cpu origins read the reset address only' (cpu origins) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'rom left uninitialised for the Builder' (no BIOS build) is not graded: the checks arm fails unmutated
+override-on-any-image: rc=1 (must be 1) 36 failing checks (must be at least 1)
+  [FAIL] `plan --ledgered-point 8x8-two-interfaces` accepts its point and refuses 1x1, one interface, 1x1, two interfaces, 8x8, one interface, 8x8 with no image_allocation (exit codes [0, 0, 0, 0, 0])
+  [FAIL] the 8x8-two-interfaces override on the 1x1, one interface image at 57.5 RAMB36: accepted, expected 'allocation over budget' rule 'budget'
+  [FAIL] the 8x8-two-interfaces override on the 1x1, two interfaces image at 57.5 RAMB36: accepted, expected 'allocation over budget' rule 'budget'
+  [FAIL] the 8x8-two-interfaces override on the 8x8, one interface image at 57.5 RAMB36: accepted, expected 'allocation over budget' rule 'budget'
+  [FAIL] the 8x8-two-interfaces override on the 8x8 with no image_allocation image at 57.5 RAMB36: accepted, expected 'allocation over budget' rule 'budget'
+  [FAIL] the 8x8-two-interfaces override on the 1x1 one-interface image within the budget: accepted, expected 'allocation over budget' rule 'budget'
+  [FAIL] MUTANT 'elf class weakened' (elf class) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'elf machine off' (elf machine) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'truncated fields read' (elf truncated) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'truncated segments read' (elf truncated) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'unterminated names read' (elf truncated) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load address read as the run address' (load address) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'entry address off' (entry address) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'entry bytes off' (entry bytes) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'outside regions off' (outside regions) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'entry bytes read the sections only' (entry bytes) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'loads outside rom off' (loads outside rom) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load coverage off' (load coverage) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load coverage reads the first byte only' (load coverage) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'a segment carries bytes below its start' (load coverage) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'nobits in rom off' (nobits in rom) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'writable in rom off' (writable in rom) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'region overlap off' (regions) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'address overlap off' (addresses) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'load-address overlap off' (initial bytes) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget off' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget refuses exactly 56' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget half a tile slack' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'budget 1.5 tiles slack' (budget) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage symbol off' (stage symbol) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage size off' (stage size) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage accepts a larger buffer' (stage size) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'stage accepts a smaller buffer' (stage size) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'cpu origins off' (cpu origins) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'cpu origins read the reset address only' (cpu origins) is not graded: the checks arm fails unmutated
+  [FAIL] MUTANT 'rom left uninitialised for the Builder' (no BIOS build) is not graded: the checks arm fails unmutated
+ledger plants: 0 escaped
+rc=0 elapsed=202s head=6d2b77bb3bfb8e2fbd30db56613c8c3b5ea0ef44 status=[]
