@@ -1,0 +1,24 @@
+--- round1-probes.py
++++ layout-port/probes.py
+@@ -29,7 +29,9 @@
+     for i in range(N):
+         shift = sum(e.get('n',0) * (1 if e['class']=='dropped' else -1)
+                     for e in events if e['class'] in ('dropped','repeated') and i >= e['index'])
+-        values = [((c+1)*4096 + ((i+shift)%4096))*256 for c in range(C)]
++        n = i + shift
++        code = ((n // 2048) * 0x9E3779B1) % 2**32
++        values = [(((c+1) << 12) | ((n % 2048) << 1) | ((code >> (n % 32)) & 1)) << 8 for c in range(C)]
+         for e in events:
+             if not e['index'] <= i < e['index'] + e.get('span',1):
+                 continue
+@@ -93,8 +95,8 @@
+                  actual_capture_duration_s=detail['duration_s']))
+ 
+ # Independent assertion oracle: changing the slip count must make the shipped self-test fail.
+-old='words, n=abs(shift),'
+-new='words, n=abs(shift) + 1,'
++old='"n": abs(shift),'
++new='"n": abs(shift) + 1,'
+ text=source.read_text()
+ assert text.count(old)==1
+ mutant=out/'scratch'/'count_mutant.py'
