@@ -8991,10 +8991,19 @@ class _ReleaseGateChecks:
             verdict, detail, dut = self._independent([("xor", begin + k, channel, 0x80000) for k in range(100)])
             self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
             self.assertEqual(dut, [(channel, begin, "bit-flip", 100, "0x00080000", None)])
-        # The stated limit: an excursion that a slip interrupts is the slips its words show.
+        # The stated limit: an excursion that a slip interrupts is the slips its words show, the slip
+        # a planted arm's or the DUT's; a DUT slip is still sized and placed exactly on every channel.
         verdict, detail, dut = self._independent([("xor", 250 + k, 1, 0x80000) for k in range(100)])
         self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
         self.assertEqual({e[2] for e in dut}, {"dropped", "repeated"})
+        for at, n in ((3250, -2), (3240, 3)):
+            cls = "dropped" if n > 0 else "repeated"
+            verdict, detail, dut = self._independent([("xor", 3200 + k, 2, 0x80000) for k in range(100)]
+                                                     + [("shift", at, n)])
+            self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+            self.assertEqual(dut, sorted([(c, at, cls, abs(n), None, None) for c in range(4)]
+                                         + [(2, 3200, "repeated", 1024, None, None),
+                                            (2, 3300, "dropped", 1024, None, None)]))
         # With no clean word between, across a block boundary or under a mask that leaves the channel
         # number, the neighbour is still its own one-word event; a slip at the return is that slip.
         for begin, length, mask, flip, sites in ((4080, 64, 0x100, 0x80000, (4079,)),
