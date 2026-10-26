@@ -1,0 +1,18 @@
+command: ['make', '-j16', 'run', 'VERILATOR=$REVIEWS/pp202-r710-1-packet/scoped-compiler.py']
+$REVIEWS/pp202-r710-1-packet/scoped-compiler.py --cc --exe --build -j 0 --top-module KL_acmp_talker -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$REVIEWS/pp202-r710-1-packet/scratch/own-head/tb/acmp_talker -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/KL_acmp_talker.sv sim_main.cpp -o Vacmp_talker_sim
+make[1]: Entering directory '$REVIEWS/pp202-r710-1-packet/scratch/own-head/tb/acmp_talker/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$REVIEWS/pp202-r710-1-packet/scratch/own-head/tb/acmp_talker -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_acmp_talker__ALL.a    -pthread -lpthread -latomic   -o Vacmp_talker_sim
+make[1]: Leaving directory '$REVIEWS/pp202-r710-1-packet/scratch/own-head/tb/acmp_talker/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.732 s (elab=0.000, cvt=0.000, bld=1.731); cpu 0.001 s on 2 threads; allocated 16.496 MB
+./obj_dir/Vacmp_talker_sim
+S5: 65528 moves of src0 up to and including the wrap
+OWN collision: old=ab00000000000008 new=ab00000000000010 expected=ab00000000000010
+OWN PCP: withdrawn_ms=1010 opened_ms=1012 sid=ab00000000000000 original=ab00000000000000 arms=0
+FAIL: OWN PCP after withdrawal preserves same-ID two-LeaveAll gap
+OWN PCP: withdrawn_ms=1010 opened_ms=1012 sid=ab00000000000008 original=ab00000000000008 arms=0
+FAIL: OWN PCP after withdrawal preserves same-ID two-LeaveAll gap
+1483 checks: 1481 PASS, 2 FAIL
+make: *** [Makefile:18: run] Error 1

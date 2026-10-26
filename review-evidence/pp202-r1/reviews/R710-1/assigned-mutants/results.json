@@ -1,0 +1,564 @@
+[
+ {
+  "mutant": "golden-acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "golden-pp_top--maap-internal-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "conflict_reuses_old_id@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E3 re-declare new DA open sid",
+   "S1 the declaration carries a new Stream ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E3 re-declare new DA open sid got ab00000000000003",
+   "E3 src_stream_id_o follows the move",
+   "E4 new DA answered stream_id got ab00000000000003",
+   "E5 probe after the grant stream_id got ab00000000000003",
+   "F5 re-declare src3 same DA open sid got ab00000000000003",
+   "F5 the PCP path keeps the Stream ID",
+   "R6 after backoff src0 status/tuple",
+   "R16 conflict event served under continuous commands (gates 0x02 want 0x02)",
+   "S1 the declaration carries a new Stream ID",
+   "S1 the new Stream ID follows the rule (got ab00000000000002)",
+   "S1 src_stream_id_o follows the move",
+   "S1 PROBE_TX after the grant src2 status/tuple (status 0 sid ab00000000000002)",
+   "S1 GET_TX_STATE after the grant src2 stream_id/dest_mac (sid ab00000000000002)",
+   "S1 the move survives a disable",
+   "S2 a provisioned collision with the first candidate is skipped (got ab00000000000000)",
+   "S2 the new ID differs from the withdrawn one and every current ID",
+   "S3 src7 takes the first candidate",
+   "S3 a move never takes another source's configured ID after that source moved off it (got ab00000000000000)",
+   "S4 an equal unique ID under another MAC is not a collision (got ab00000000000000)",
+   "S6 a conflict after a listener withdrawal moves the ID at the grant (got ab00000000000004)",
+   "S6 an ID not declared since its move is not moved again",
+   "S6 PROBE_TX answers the moved ID src4 status/tuple (status 0 sid ab00000000000004)",
+   "S6 the next declaration carries the moved ID",
+   "S6 a conflict after a freshness lapse moves the ID (got ab00000000000004)",
+   "S5 src1 moves to the first candidate",
+   "S5 no move repeats a unique ID inside one lap",
+   "S5 every move differs from the withdrawn and every current ID",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got 0000000000000000 after 0 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "conflict_keeps_old_wait@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E1 no backoff",
+   "S1 ALLOC_DA offered in the conflict's millisecond",
+   "S1 conflict to new declaration under 2 s"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E1 no backoff: no LEAVEALL2 draw (1) and no timer arm (1)",
+   "E1 re-alloc in the conflict's millisecond: maap request missing",
+   "E2 ping arm deadline got 70000 want 65000",
+   "E3 re-declare new DA: gate strobe missing",
+   "E3 src_stream_id_o follows the move",
+   "E4 new DA answered stream_id got ab00000000000003",
+   "E4 new DA answered dest_mac got 000000000000",
+   "E5 probe after the grant status got 3 want 0",
+   "E5 probe after the grant stream_id got 0000000000000000",
+   "E5 probe after the grant dest_mac got 000000000000",
+   "E5 probe after the grant vlan got 0",
+   "E5 ping: timer arm missing",
+   "E7 no backoff draw when nothing was declared",
+   "F2 pcp withdraw src3: gate strobe missing",
+   "F2 leaveall2 src3: timer arm missing",
+   "F5 re-declare src3 same DA: gate strobe missing",
+   "F5 the PCP path keeps the Stream ID",
+   "F: leftovers resp=0 gate=0 arm=0 mreq=1",
+   "G2a declare open src got 3",
+   "G2a declare open sid got ab00000000000008",
+   "G2a declare open da got 91e0f000010a want 91e0f0000104",
+   "G3 declare src5 open src got 4",
+   "G3 declare src5 open sid got ab00000000000004",
+   "G3 declare src5 open da got 91e0f0000104 want 91e0f0000105",
+   "G: leftovers resp=0 gate=1 arm=0 mreq=1",
+   "H1 release DA maap src got 3",
+   "H1 release DA maap rel got 0",
+   "H1 src6 was not declaring: no withdraw",
+   "H: leftovers resp=0 gate=1 arm=0 mreq=1",
+   "I1 alloc on re-enable maap rel got 1",
+   "I1 no DECLARE_TALKER on a refusal",
+   "I3 no DECLARE_TALKER without a DA",
+   "I4 grant declares open src got 5",
+   "I4 grant declares open sid got ab00000000000005",
+   "I4 grant declares open da got 91e0f0000105 want 91e0f000010a",
+   "I: leftovers resp=0 gate=1 arm=0 mreq=1",
+   "J1 withdraw on removal expected close, got open",
+   "J1 withdraw on removal close src got 6",
+   "J6 nothing was ever accepted while maap was gone",
+   "J7 the owed RELEASE is taken FIRST maap src got 6",
+   "J7 the owed RELEASE is taken FIRST maap rel got 0",
+   "J7 ...and only then does the rejoin allocate maap rel got 1",
+   "J7 grant re-declares expected open, got close",
+   "J7 grant re-declares open da got 000000000000 want 91e0f000010b",
+   "J7b the recovered source answers with its NEW DA dest_mac got 91e0f000010c",
+   "J: leftovers resp=0 gate=1 arm=0 mreq=1",
+   "K0 src2 release maap src got 4",
+   "K0 src2 release maap rel got 0",
+   "K0 withdraw on removal expected close, got open",
+   "K0 withdraw on removal close src got 4",
+   "K0 src6 release settled behind the busy face maap src got 2",
+   "K0: leftovers resp=0 gate=1 arm=0 mreq=1",
+   "K1 src6 alloc ACCEPTED maap rel got 1",
+   "K2 THE DEFECT: src2's allocation is stranded by src6's unanswered request (1 accepted)",
+   "K4 the bound has NOT elapsed: nothing may be re-offered yet",
+   "K5 THE REGRESSION: another source allocates again maap src got 6",
+   "K6 a STALE response must not open any gate (1 strobes)",
+   "K7 src2 declares with ITS OWN DA expected open, got close",
+   "K7 src2 declares with ITS OWN DA open src got 6",
+   "K7 src2 declares with ITS OWN DA open sid got ab00000000000006",
+   "K7 src2 declares with ITS OWN DA open da got 000000000000 want 91e0f00001aa",
+   "K8 the abandoned source retries maap src got 2",
+   "K8 abandoned source recovers with a FRESH DA open src got 2",
+   "K8 abandoned source recovers with a FRESH DA open sid got ab00000000000002",
+   "K8 abandoned source recovers with a FRESH DA open da got 91e0f00001aa want 91e0f00001bb",
+   "K: leftovers resp=0 gate=1 arm=0 mreq=1",
+   "L0 src7 release maap src got 6",
+   "L0 src7 release maap rel got 0",
+   "L0 src7 ALLOC now PARKS the face maap rel got 1",
+   "L0: leftovers resp=0 gate=1 arm=0 mreq=1",
+   "L1 WITHDRAW_TALKER is not delayed by the busy face expected close, got open",
+   "L1 WITHDRAW_TALKER is not delayed by the busy face close src got 6",
+   "L1 and nothing can be accepted while the claim walk holds the face",
+   "L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap src got 7",
+   "L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap rel got 0",
+   "L3 no second request for src 1",
+   "L4 src0 release takes the free face maap src got 1",
+   "L4 src3 withdraws at once close src got 1",
+   "L4 src5 withdraws at once close src got 3",
+   "L4 both are owed, neither is accepted yet",
+   "L4 src3's owed release, lowest index first maap src got 0",
+   "L4 src5's owed release follows maap src got 3",
+   "L4 three teardowns, three releases, no fourth (1 extra)",
+   "L: leftovers resp=0 gate=1 arm=0 mreq=1",
+   "R16 conflict event served under continuous commands (gates 0x00 want 0x02)",
+   "S1 no T-SRP-LEAVEALL2 is drawn (1) or armed (1)",
+   "S1 ALLOC_DA offered in the conflict's millisecond",
+   "S1 the grant declares at once with the new DA",
+   "S1 the declaration carries a new Stream ID",
+   "S1 the new Stream ID follows the rule (got 0000000000000000)",
+   "S1 conflict to new declaration under 2 s (0 ms)",
+   "S1 src_stream_id_o follows the move",
+   "S1 PROBE_TX after the grant src2 status/tuple (status 3 sid 0000000000000000)",
+   "S1 GET_TX_STATE after the grant src2 stream_id/dest_mac (sid ab00000000000002)",
+   "S2 src0 re-declared at the grant",
+   "S2 a provisioned collision with the first candidate is skipped (got 0000000000000000)",
+   "S3 src7 src7 re-declared at the grant",
+   "S3 src7 takes the first candidate",
+   "S3 src0 src0 re-declared at the grant",
+   "S3 a move never takes another source's configured ID after that source moved off it (got 0000000000000000)",
+   "S4 src0 re-declared at the grant",
+   "S4 an equal unique ID under another MAC is not a collision (got 0000000000000000)",
+   "S5 src1 src1 re-declared at the grant",
+   "S5 src1 moves to the first candidate",
+   "S5 every move re-declares at its grant (0 moves)",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got 0000000000000000 after 0 moves)",
+   "TD1 invalid disconnect leaves source state unchanged",
+   "TD1 invalid disconnect leaves source state unchanged"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "move_only_when_declaring@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S6 a conflict after a listener withdrawal moves the ID",
+   "S6 a conflict after a freshness lapse moves the ID",
+   "R6 after backoff src0 status/tuple"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "R6 after backoff src0 status/tuple",
+   "S6 a conflict after a listener withdrawal moves the ID at the grant (got ab00000000000004)",
+   "S6 an ID not declared since its move is not moved again",
+   "S6 PROBE_TX answers the moved ID src4 status/tuple (status 0 sid ab00000000000004)",
+   "S6 the next declaration carries the moved ID",
+   "S6 a conflict after a freshness lapse moves the ID (got ab00000000000004)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "used_not_marked_by_event@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S6 a conflict after a listener withdrawal moves the ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S6 a conflict after a listener withdrawal moves the ID at the grant (got ab00000000000004)",
+   "S6 an ID not declared since its move is not moved again",
+   "S6 PROBE_TX answers the moved ID src4 status/tuple (status 0 sid ab00000000000004)",
+   "S6 the next declaration carries the moved ID",
+   "S6 a conflict after a freshness lapse moves the ID (got ab00000000000008)",
+   "S5 no move repeats a unique ID inside one lap",
+   "S5 every move differs from the withdrawn and every current ID",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got 0000000000000000 after 0 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "used_not_marked_by_probe@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S1 the declaration carries a new Stream ID",
+   "S6 a conflict after a freshness lapse moves the ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E3 re-declare new DA open sid got ab00000000000003",
+   "E3 src_stream_id_o follows the move",
+   "E4 new DA answered stream_id got ab00000000000003",
+   "E5 probe after the grant stream_id got ab00000000000003",
+   "F5 re-declare src3 same DA open sid got ab00000000000003",
+   "F5 the PCP path keeps the Stream ID",
+   "R6 after backoff src0 status/tuple",
+   "R16 conflict event served under continuous commands (gates 0x02 want 0x02)",
+   "S1 the declaration carries a new Stream ID",
+   "S1 the new Stream ID follows the rule (got ab00000000000002)",
+   "S1 src_stream_id_o follows the move",
+   "S1 PROBE_TX after the grant src2 status/tuple (status 0 sid ab00000000000002)",
+   "S1 GET_TX_STATE after the grant src2 stream_id/dest_mac (sid ab00000000000002)",
+   "S1 the move survives a disable",
+   "S2 a provisioned collision with the first candidate is skipped (got ab00000000000000)",
+   "S2 the new ID differs from the withdrawn one and every current ID",
+   "S3 src7 takes the first candidate",
+   "S3 a move never takes another source's configured ID after that source moved off it (got ab00000000000000)",
+   "S4 an equal unique ID under another MAC is not a collision (got ab00000000000000)",
+   "S6 a conflict after a freshness lapse moves the ID (got ab00000000000008)",
+   "S5 src1 moves to the first candidate",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got ab00000000000008 after 65529 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "used_kept_after_move@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S6 an ID not declared since its move is not moved again"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S6 an ID not declared since its move is not moved again",
+   "S6 PROBE_TX answers the moved ID src4 status/tuple (status 0 sid ab00000000000009)",
+   "S6 the next declaration carries the moved ID",
+   "S6 a conflict after a freshness lapse moves the ID (got ab0000000000000a)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "conflict_reuses_old_id@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "MP8: the Talker Advertise carries the new Stream ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "MP8: src_stream_id_o names the new Stream ID (got 0a0b0c0d0e0f0000)",
+   "MP8: the Talker Advertise carries the new Stream ID and address",
+   "MP8: from the grant on, PROBE_TX answers SUCCESS with the new ID and address",
+   "MP8: GET_TX_STATE answers the new ID and address"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "conflict_keeps_old_wait@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "MP8: conflict to new declaration under 2 s"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "MP8: conflict to new declaration under 2 s (-1 ms)",
+   "MP8: src_stream_id_o names the new Stream ID (got 0a0b0c0d0e0f0000)",
+   "MP8: the Talker Advertise carries the new Stream ID and address",
+   "MP8: from the grant on, PROBE_TX answers SUCCESS with the new ID and address",
+   "MP8: GET_TX_STATE answers the new ID and address"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "output_ignores_move@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E3 src_stream_id_o follows the move",
+   "S1 src_stream_id_o follows the move"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E3 src_stream_id_o follows the move",
+   "F5 the PCP path keeps the Stream ID",
+   "R16 conflict event served under continuous commands (gates 0x02 want 0x02)",
+   "S1 src_stream_id_o follows the move",
+   "S1 the move survives a disable",
+   "S2 a provisioned collision with the first candidate is skipped (got ab00000000000009)",
+   "S6 a conflict after a listener withdrawal moves the ID at the grant (got ab00000000000004)",
+   "S6 an ID not declared since its move is not moved again",
+   "S6 a conflict after a freshness lapse moves the ID (got ab00000000000004)",
+   "S5 every move re-declares at its grant (0 moves)",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got 0000000000000000 after 0 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "move_takes_colliding_id@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S2 a provisioned collision with the first candidate is skipped"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S2 a provisioned collision with the first candidate is skipped (got ab00000000000008)",
+   "S2 the new ID differs from the withdrawn one and every current ID",
+   "S3 a move never takes another source's configured ID after that source moved off it (got ab00000000000009)",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got ab00000000000000 after 65528 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "move_ignores_configured_ids@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S3 a move never takes another source's configured ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S3 a move never takes another source's configured ID after that source moved off it (got ab00000000000009)",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got ab00000000000000 after 65528 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "move_ignores_moved_ids@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S5 after the cursor wraps a move skips"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S5 every move differs from the withdrawn and every current ID",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got ab00000000000008 after 65527 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "move_compares_unique_id_only@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S4 an equal unique ID under another MAC is not a collision"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S4 an equal unique ID under another MAC is not a collision (got ab00000000000009)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "move_cursor_stuck@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S5 no move repeats a unique ID inside one lap"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S5 no move repeats a unique ID inside one lap",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got 0000000000000000 after 2 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "move_lost_on_disable@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "S1 the move survives a disable"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "S1 the move survives a disable"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "probe_answers_configured_id@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E5 probe after the grant",
+   "S1 PROBE_TX after the grant"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E5 probe after the grant stream_id got ab00000000000003",
+   "R6 after backoff src0 status/tuple",
+   "S1 PROBE_TX after the grant src2 status/tuple (status 0 sid ab00000000000002)",
+   "S6 PROBE_TX answers the moved ID src4 status/tuple (status 0 sid ab00000000000004)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "output_ignores_move@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "MP8: src_stream_id_o names the new Stream ID"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "MP8: src_stream_id_o names the new Stream ID (got 0a0b0c0d0e0f0000)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "tx_state_answers_configured_id@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E4 new DA answered",
+   "S1 GET_TX_STATE after the grant"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E4 new DA answered stream_id got ab00000000000003",
+   "S1 GET_TX_STATE after the grant src2 stream_id/dest_mac (sid ab00000000000002)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "declare_carries_configured_id@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "E3 re-declare new DA open sid",
+   "F5 re-declare src3 same DA open sid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "E3 re-declare new DA open sid got ab00000000000003",
+   "F5 re-declare src3 same DA open sid got ab00000000000003",
+   "S1 the declaration carries a new Stream ID",
+   "S1 the new Stream ID follows the rule (got ab00000000000002)",
+   "S2 a provisioned collision with the first candidate is skipped (got ab00000000000000)",
+   "S2 the new ID differs from the withdrawn one and every current ID",
+   "S3 src7 takes the first candidate",
+   "S3 a move never takes another source's configured ID after that source moved off it (got ab00000000000000)",
+   "S4 an equal unique ID under another MAC is not a collision (got ab00000000000000)",
+   "S5 src1 moves to the first candidate",
+   "S5 every move re-declares at its grant (0 moves)",
+   "S5 after the cursor wraps a move skips every configured ID and another source's current ID (got 0000000000000000 after 0 moves)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "pcp_skips_the_gap@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "F2 leaveall2 src0",
+   "R6 full two-LeaveAll backoff armed"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "F2 leaveall2 src0: timer arm missing",
+   "F2 leaveall2 src1: timer arm missing",
+   "F2 leaveall2 src3: timer arm missing",
+   "F2 three draws",
+   "F3 no DAFRESH arm while BACKOFF holds the slot",
+   "F5 re-declare src3 same DA: gate strobe missing",
+   "I0 gates carried in from A-H, got 0x32",
+   "I4 only src6 moved, got 0x72",
+   "J7 final gates, got 0x72",
+   "K0 gates after removal, got 0x32",
+   "K2 no gate can open, got 0x32",
+   "K6 stale response changed the gate level to 0x32",
+   "K7 gates, got 0x36",
+   "K8 final gates, got 0x76",
+   "L4 src3 withdraws at once close src got 5",
+   "L4 src5 withdraws at once: gate strobe missing",
+   "R6 full two-LeaveAll backoff armed",
+   "R6 retries leave backoff and timer untouched",
+   "R6 probe during backoff src0 status/tuple",
+   "R6 only conflict needs a new address",
+   "R6 full two-LeaveAll backoff armed",
+   "R12 demand arc 2 allocates inside round"
+  ],
+  "verdict": "KILLED"
+ }
+]

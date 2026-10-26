@@ -1,0 +1,12 @@
+[R710] NEGATIVE - exact head a8aa626e1cba30625ac764c70e1fb8fb02c69c40
+Independent verdict recorded before consulting any other review findings/report.
+MAJOR: same-ID PCP change after listener withdrawal re-declares in 2 ms without an arm (own-head.log).
+MAJOR: handed-over AAF packetizer preserves explicit context UID over moved published ID; real output bytes retain old ID (parent-probe.log).
+RESIDUE: new bench section labels in source comments violate the owner comment rule.
+All five lenses independently applied:
+lens | status | examined artifacts | covering round | exact head
+Conformance | UNCLEAN | frozen issue/decision, REQ-ACMP-010, same-ID event paths, parent patch | R710-1 | a8aa626e1cba30625ac764c70e1fb8fb02c69c40
+RTL | UNCLEAN | talker, top, SRP latch, parent packetizer and integration patch | R710-1 | a8aa626e1cba30625ac764c70e1fb8fb02c69c40
+Robustness | UNCLEAN | dense provisioned collisions, lapsed demand/PCP sequence, explicit context UID | R710-1 | a8aa626e1cba30625ac764c70e1fb8fb02c69c40
+Tests | UNCLEAN | 20 assigned mutants killed, two goldens pass, own fault detected, uncovered PCP and parent sequence | R710-1 | a8aa626e1cba30625ac764c70e1fb8fb02c69c40
+Docs | UNCLEAN | docs/README and changed docs, public validation claims, parent read-path promise, diagram visual | R710-1 | a8aa626e1cba30625ac764c70e1fb8fb02c69c40

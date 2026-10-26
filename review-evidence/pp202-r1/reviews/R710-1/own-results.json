@@ -1,0 +1,36 @@
+[
+  {
+    "label": "own-head",
+    "rc": 2,
+    "completed": true,
+    "failures": [
+      "FAIL: OWN PCP after withdrawal preserves same-ID two-LeaveAll gap",
+      "FAIL: OWN PCP after withdrawal preserves same-ID two-LeaveAll gap"
+    ],
+    "observations": [
+      "OWN collision: old=ab00000000000008 new=ab00000000000010 expected=ab00000000000010",
+      "OWN PCP: withdrawn_ms=1010 opened_ms=1012 sid=ab00000000000000 original=ab00000000000000 arms=0",
+      "OWN PCP: withdrawn_ms=1010 opened_ms=1012 sid=ab00000000000008 original=ab00000000000008 arms=0"
+    ]
+  },
+  {
+    "label": "own-last-slot-fault",
+    "rc": 2,
+    "completed": true,
+    "failures": [
+      "FAIL: S2 a provisioned collision with the first candidate is skipped (got ab00000000000008)",
+      "FAIL: S2 the new ID differs from the withdrawn one and every current ID",
+      "FAIL: S3 a move never takes another source's configured ID after that source moved off it (got ab00000000000009)",
+      "FAIL: S5 every move differs from the withdrawn and every current ID",
+      "FAIL: S5 after the cursor wraps a move skips every configured ID and another source's current ID (got ab00000000000007 after 65527 moves)",
+      "FAIL: OWN dense collision skips all eight occupied IDs",
+      "FAIL: OWN PCP after withdrawal preserves same-ID two-LeaveAll gap",
+      "FAIL: OWN PCP after withdrawal preserves same-ID two-LeaveAll gap"
+    ],
+    "observations": [
+      "OWN collision: old=ab00000000000008 new=ab0000000000000f expected=ab00000000000010",
+      "OWN PCP: withdrawn_ms=1010 opened_ms=1012 sid=ab00000000000000 original=ab00000000000000 arms=0",
+      "OWN PCP: withdrawn_ms=1010 opened_ms=1012 sid=ab00000000000008 original=ab00000000000008 arms=0"
+    ]
+  }
+]

@@ -1,0 +1,24 @@
+command: ['/usr/bin/python3', '$REVIEWS/r710-1-pp202/tb/pp_top/acmp_mutants.py', '--output', '$REVIEWS/pp202-r710-1-packet/assigned-mutants', '--verilator', '$REVIEWS/pp202-r710-1-packet/scoped-compiler.py', '--jobs', '4', '--only', 'conflict_keeps_old_wait', 'conflict_reuses_old_id', 'declare_carries_configured_id', 'move_compares_unique_id_only', 'move_cursor_stuck', 'move_ignores_configured_ids', 'move_ignores_moved_ids', 'move_lost_on_disable', 'move_only_when_declaring', 'move_takes_colliding_id', 'output_ignores_move', 'pcp_skips_the_gap', 'probe_answers_configured_id', 'tx_state_answers_configured_id', 'used_kept_after_move', 'used_not_marked_by_event', 'used_not_marked_by_probe']
+{"mutant": "golden-acmp_talker", "verdict": "PASS"}
+{"mutant": "golden-pp_top--maap-internal-only", "verdict": "PASS"}
+{"mutant": "conflict_reuses_old_id@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "conflict_keeps_old_wait@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "move_only_when_declaring@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "used_not_marked_by_event@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "used_not_marked_by_probe@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "used_kept_after_move@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "conflict_reuses_old_id@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "conflict_keeps_old_wait@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "output_ignores_move@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "move_takes_colliding_id@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "move_ignores_configured_ids@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "move_ignores_moved_ids@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "move_compares_unique_id_only@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "move_cursor_stuck@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "move_lost_on_disable@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "probe_answers_configured_id@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "output_ignores_move@pp_top", "verdict": "KILLED", "missing": []}
+{"mutant": "tx_state_answers_configured_id@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "declare_carries_configured_id@acmp_talker", "verdict": "KILLED", "missing": []}
+{"mutant": "pcp_skips_the_gap@acmp_talker", "verdict": "KILLED", "missing": []}
+ACMP mutations: 20 of 20 KILLED by their named checks; goldens PASS
