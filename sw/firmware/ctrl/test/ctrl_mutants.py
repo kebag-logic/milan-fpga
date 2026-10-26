@@ -347,6 +347,12 @@ MUTANTS = (
            "if (record > tx_words[ch] - used) {",
            "unit", "DriverUnit.D8TransmitRefusals", "D8 a TX_TAIL more than a ring behind TX_HEAD is no room"),
     Mutant("unknown-event-decoded-as-tick", "mbx/mbx.c", "\t} else if (ev->type == MBX_EV_TYPE_TICK) {",
+           "\t} else if (ev->type == MBX_EV_TYPE_TICK || ev->type > MBX_EV_TYPE_AMAP_LIVE_WRITE) {",
+           "unit", "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
+           "D9 an event of a type the contract does not define"),
+    Mutant("unknown-event-decoded-as-a-face-count", "mbx/mbx.c",
+           "\t} else if (ev->type == MBX_EV_TYPE_AVB_INFO_CHANGED || ev->type == MBX_EV_TYPE_AS_PATH_CHANGED ||\n"
+           "\t\t   ev->type == MBX_EV_TYPE_AMAP_LIVE_WRITE) {",
            "\t} else {", "unit", "DriverUnit.D9UnknownEventTypeGrandmasterAndInterrupt",
            "D9 an event of a type the contract does not define"),
     Mutant("whole-field-loses-its-top-bit", "mbx/mbx_wire.h",

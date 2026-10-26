@@ -476,8 +476,10 @@ static void event_decode(struct mbx_event *ev, uint32_t w1, uint32_t w2, uint32_
 						     MBX_EV_COUNTERS_CHANGED_W1_INDEX_WIDTH);
 		ev->every = mbx_field(w2, MBX_EV_COUNTERS_CHANGED_W2_ALL_LSB, MBX_EV_COUNTERS_CHANGED_W2_ALL_WIDTH) != 0u;
 		ev->now_ms = mbx_field(w3, MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_LSB, MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_WIDTH);
-	} else {
-		// AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE share one layout
+	} else if (ev->type == MBX_EV_TYPE_AVB_INFO_CHANGED || ev->type == MBX_EV_TYPE_AS_PATH_CHANGED ||
+		   ev->type == MBX_EV_TYPE_AMAP_LIVE_WRITE) {
+		// AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE share one layout;
+		// a type the contract does not define decodes no field
 		_Static_assert(MBX_EV_AVB_INFO_CHANGED_W1_COUNT_LSB == MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB &&
 				       MBX_EV_AS_PATH_CHANGED_W1_COUNT_LSB == MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB &&
 				       MBX_EV_AVB_INFO_CHANGED_W1_COUNT_WIDTH == MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH &&

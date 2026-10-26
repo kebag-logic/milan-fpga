@@ -113,10 +113,13 @@ TEST(DriverUnit, D9UnknownEventTypeGrandmasterAndInterrupt) {
     ASSERT_TRUE(mbx_open());
     w.evt(0) = ev_w0(0x7Fu, 0);
     w.evt(1) = 0xFFFFFFFFu;
+    w.evt(2) = 0xFFFFFFFFu;
+    w.evt(3) = 0xFFFFFFFFu;
     w.words[MBX_REG_EVT_HEAD] = MBX_EV_WORDS;
     mbx_event ev{};
-    EXPECT_TRUE(mbx_event_take(&ev) && ev.type == 0x7Fu && ev.timer_tag == 0u && ev.gm_id == 0u && !ev.link_up &&
-                ev.tick_count == 0u)
+    EXPECT_TRUE(mbx_event_take(&ev) && ev.type == 0x7Fu && ev.timer_tag == 0u && ev.timer_slot == 0u &&
+                ev.deadline_ms == 0u && ev.now_ms == 0u && ev.gm_id == 0u && ev.domain == 0u && !ev.link_up &&
+                ev.tick_count == 0u && ev.desc_type == 0u && ev.desc_index == 0u && !ev.every && ev.count == 0u)
         << "D9 an event of a type the contract does not define is taken with no field decoded";
     w.words[MBX_IF_BASE + MBX_IF_REG_GM_LO] = 0x55667788u;
     w.words[MBX_IF_BASE + MBX_IF_REG_GM_HI] = 0x11223344u;
