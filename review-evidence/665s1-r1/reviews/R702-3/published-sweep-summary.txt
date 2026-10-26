@@ -1,0 +1,68 @@
+sweep/sweep-44d95625/shard-0/spec/01.log
+PASS     datapath
+PASS     gptp_plane
+PASS     gptp_shadow
+PASS     lat_history_ring
+PASS     link_guard
+PASS     milan_dp
+PASS     mmcm_servo
+PASS     nvm_backend
+PASS     ptp
+PASS     queues
+PASS     tdm_render
+----------------------------------------------------------------
+suites: 15   passed: 15   failed: 0   timed out: 0
+checks: 250913   in-suite failures: 0
+logs: <work>/sweep-44d95625/shard-0/logs
+
+sweep/sweep-44d95625/shard-1/spec/01.log
+PASS     gptp_tables
+PASS     gptp_txts
+PASS     media_grid_align
+PASS     media_nco
+PASS     milan_dp_gm_steps
+PASS     milan_dp_mclk
+PASS     mmcm_servo_autorepair
+PASS     pp_shadow
+PASS     ptp_sync
+PASS     render_queue
+PASS     shaper_core
+----------------------------------------------------------------
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 1536446   in-suite failures: 0
+logs: <work>/sweep-44d95625/shard-1/logs
+
+sweep/sweep-44d95625/shard-2/spec/01.log
+PASS     clkvalid
+PASS     cls
+PASS     controller_rate
+PASS     i2spb
+PASS     milan_dp_render
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     ptp_ts
+PASS     rx_filter
+PASS     tcam_csr
+PASS     tkdiag
+----------------------------------------------------------------
+suites: 16   passed: 16   failed: 0   timed out: 0
+checks: 380086   in-suite failures: 0
+logs: <work>/sweep-44d95625/shard-2/logs
+
+sweep/sweep-44d95625/shard-3/spec/01.log
+PASS     media_phase
+PASS     pcmlpf
+PASS     tcam
+PASS     tdm
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 16   passed: 16   failed: 0   timed out: 0
+checks: 23679   in-suite failures: 0
+
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+logs: <work>/sweep-44d95625/shard-3/logs
+

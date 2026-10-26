@@ -1,0 +1,110 @@
+gates/behave.txt
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+14 features passed, 0 failed, 0 skipped
+406 scenarios passed, 0 failed, 0 skipped
+1977 steps passed, 0 failed, 0 skipped
+Took 0min 1.141s
+rc=0 elapsed=1s
+
+gates/test-builder.txt
+  [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused
+test_name_count_fits_the_nvm_name_block:
+  [gate 38] capacity 128 read from hdl/milan/KL_nvm_backend.sv:248; 128 names built, 129 and the 8x8 TDM8 point (235) refused before any write, naming both figures; KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 with N_NAME_MAX_C planted at 127
+  [gate 38] 9/9 planted defects turned their check red: capacity 127 vs 128 names; capacity 129 vs 129 names; capacity 235 vs 235 names; refusal naming no figure; refusal after a write; guard on a literal; declaration commented out; declaration in hex; declaration repeated
+
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk (<calibration-build-report>) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+rc=0 elapsed=1409s
+
+gates/fw-coverage-check.txt
+sw/firmware/ctrl_nvm/nvm_klj2.c                  198/199     106/110     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_store.c                 434/434     259/266     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    100/100      63/64      lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/include/wire.h            10/10        2/2       lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/acmp.c               792/792     392/392     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/adp.c                206/208      99/106     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/maap.c               209/209     140/140     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (31 files)
+rc=0 elapsed=241s
+
+gates/aecp-mutants.txt
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-owed-commit-lets-the-loop-sleep: AppFace.AHeldCommitKeepsTheLoopBusy
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-counter-change-event-missed: AppFace.FaceEventsDriveTheirTable522Notifications
+rc=0 elapsed=291s
+
+gates/mbx-mutants.txt
+[ok] evt-face-counter-change-dropped: 5 check(s) failed; first: [FAIL] F9 a counter change posts COUNTERS_CHANGED with its descriptor, on its interface
+[ok] evt-face-counter-change-dropped-axil: 5 check(s) failed; first: [FAIL] F9 a counter change posts COUNTERS_CHANGED with its descriptor, on its interface
+[ok] evt-face-map-writes-not-coalesced: 1 check(s) failed; first: [FAIL] F8 each carrying every pulse it coalesced
+[ok] evt-face-map-writes-not-coalesced-axil: 1 check(s) failed; first: [FAIL] F8 each carrying every pulse it coalesced
+[ok] evt-face-holdoff-drops-the-change: 1 check(s) failed; first: [FAIL] F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced
+[ok] evt-face-holdoff-drops-the-change-axil: 1 check(s) failed; first: [FAIL] F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced
+mbx mutants: 199 of 199 caught
+make: Leaving directory '<tree>/tb/verilator/mbx'
+rc=0 elapsed=606s
+
+gates/docs-gates.txt
+----------------------------------------------------------------------
+checks: 228   failures: 0
+RESULT: PASS
+[rc=0] python3 scripts/check_entity_shape.py --self-test
+[rc=0] python3 scripts/ci_gate_workflows.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+[rc=0] python3 scripts/ci_events.py --check
+docs gates: 0 failed
+
+fw/final-44d95625/shard-0.txt
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-core-endstation_ax7101_1x1_tdm8-if1
+    == AECP debug callback contract: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+test_ctrl_firmware: PASS
+rc=0 elapsed=338s
+
+fw/final-44d95625/shard-1.txt
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 4 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+[ok] mutant rv-maap-gate-on-interface-0 (maap_if2, maap_if2): 12 check(s) failed
+    first: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 528 of 528 caught
+test_ctrl_firmware: PASS
+rc=0 elapsed=1125s
+
+fw/final-44d95625/shard-2.txt
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-owed-commit-lets-the-loop-sleep: AppFace.AHeldCommitKeepsTheLoopBusy
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-counter-change-event-missed: AppFace.FaceEventsDriveTheirTable522Notifications
+test_ctrl_firmware: PASS
+rc=0 elapsed=305s
+
+fw/final-44d95625/shard-3.txt
+[ok] pub-declared-dropped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-withdrawn-after-the-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption
+[ok] pub-declared-skipped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-before-the-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] pub-declared-as-each-source-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+rc=0 elapsed=779s
+
