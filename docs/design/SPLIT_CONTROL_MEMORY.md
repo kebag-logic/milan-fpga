@@ -13,9 +13,9 @@ No BIOS ROM or BIOS SRAM is built there.
 
 - **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, and why each region spans the whole budget.
 - **[2. Block RAM from the image](#2-block-ram-from-the-image)** -- Power-of-two banks of RAMB18 granules, the error answer past the last bank, and the build switch.
-- **[3. Named refusals](#3-named-refusals)** -- The checks every image passes before any block RAM is built, and the three planted controls.
+- **[3. Named refusals](#3-named-refusals)** -- The checks every image passes before any block RAM is built, the one ledgered point's named override, and the three planted controls.
 - **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and DDR3 until the wrapper is removed.
-- **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points, mapped out of context, and the ledger rows.
+- **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points, mapped out of context, and the ledger rows, with the one point over budget owed to lane S14.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
 
 ## 1. Memory map
@@ -151,6 +151,26 @@ F-INT PR 2 removes the wrapper in the split build; M8a-2 then routes the split w
 
 The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-aecp --layout split` with an 8 KiB stack.
 It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
+
+The ledger at lane S1's face writer (#665) is planned by `ctrl_memory.plan`.
+It links the firmware of `80aa0372` against its base `e76a755a`, with one runtime for both:
+
+| Point | `rom` need, B | `sram` need, B | Planned RAMB36 equivalents | Base `e76a755a` | Against the 56-RAMB36 budget |
+|---|---:|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 102,896 | 46,016 | 37.0 | 35.5 | within |
+| 1x1, two interfaces | 104,472 | 57,408 | 40.5 | 38.5 | within |
+| 8x8, one interface | 116,608 | 86,592 | 50.0 | 49.0 | within |
+| 8x8, two interfaces (largest) | 118,264 | 112,752 | 57.0 | 56.0 | **over by 1 tile, owed to lane S14** |
+
+The face writer adds 4,960 to 5,056 B of `rom` and 96 B of `sram` at each point.
+At 8x8 with two interfaces, `rom`'s banks hold 118,264 B in 118,784 and `sram`'s 112,752 B in 114,688.
+That is 57.0 RAMB36, one tile over the budget.
+The owner's decision D3 (#665, 6409738976) moves cold code and the descriptor image to QSPI flash in lane S14.
+The ruling of 2026-10-26 (#665, 6412739248) ledgers this tile as owed to S14.
+Only that point's measurement plans it, by name ([section 3](#3-named-refusals)), and every SoC build is still refused past 56.
+The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged.
+These figures are planned, not mapped.
+
 The figures below link the firmware of `8ab2b539`, which carries dev `c6bd08c6`: F-INT's publication writers and lwSRP `08ee86e8`.
 Mapped out of context by `syn/ooc/ctrl_memory_ooc.py`: Vivado 2026.1, `xc7a100t-fgg484-2`, `AreaOptimized_high`.
 
@@ -195,10 +215,15 @@ Link the image with the fixture, then plan it:
 
 ```sh
 python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_8x8.yaml \
-  --interfaces 2 --with-aecp --layout split --output "$OUT" \
+  --interfaces 2 --with-aecp --layout split --ledgered-point 8x8-two-interfaces --output "$OUT" \
   --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
-python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264
+python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264 \
+  --ledgered-point 8x8-two-interfaces
 ```
+
+This is the ledgered point, so both commands name its override.
+Without `--ledgered-point`, both refuse it at 57 RAMB36.
+Every other point takes no override, and refuses one.
 
 `ctrl_image_runtime.py` builds the runtime archives; see the [control firmware](../../sw/firmware/ctrl/README.md#linked-size).
 
