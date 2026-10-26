@@ -1,0 +1,18 @@
+{
+  "replace": "if runs_on not in RUNS_ON_LABELS:",
+  "with": "if runs_on is None:",
+  "rc": 1,
+  "failures": [
+    "FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest",
+    "FAIL a job on ubuntu-26.04 is refused before act, and the refusal names ubuntu-26.04",
+    "FAIL a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04",
+    "FAIL an upper-case spelling of an accepted label is refused: only the exact literal is replayed",
+    "FAIL the arm image of an accepted label is refused: only the exact literal is replayed",
+    "FAIL a one-label list of an accepted label is refused: only the exact literal is replayed",
+    "FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command",
+    "FAIL a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command",
+    "FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does",
+    "FAIL self-hosted runner authority is refused",
+    "FAIL a nonliteral runner label is refused"
+  ]
+}

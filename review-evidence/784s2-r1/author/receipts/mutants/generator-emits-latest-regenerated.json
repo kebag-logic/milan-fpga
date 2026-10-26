@@ -1,0 +1,32 @@
+{
+  "edit": [
+    "scripts/ci_runtime_workflows.py",
+    "\"name\": \"Fail fast across this head\", \"runs-on\": \"ubuntu-24.04\"",
+    "\"name\": \"Fail fast across this head\", \"runs-on\": \"ubuntu-latest\""
+  ],
+  "regenerated": true,
+  "gates": {
+    "gen-check": 0,
+    "ci-events-check": 0,
+    "contract-gate": 1
+  },
+  "failures": {
+    "gen-check": [],
+    "ci-events-check": [
+      "ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)"
+    ],
+    "contract-gate": [
+      "FAIL slot 0 uses external ranges without staging",
+      "FAIL slot 3 uses external ranges without staging",
+      "FAIL shipping workflows satisfy the sandbox policy (workflow .github/workflows/docs.yml job ci-fail-fast runs on 'ubuntu-latest'; only the literal label ubuntu-24.04 is replayed)"
+    ]
+  },
+  "diff_stat": [
+    " .github/workflows/docs.yml      | 2 +-",
+    " .github/workflows/elaborate.yml | 2 +-",
+    " .github/workflows/rtl-fast.yml  | 2 +-",
+    " .github/workflows/rtl.yml       | 2 +-",
+    " scripts/ci_runtime_workflows.py | 2 +-",
+    " 5 files changed, 5 insertions(+), 5 deletions(-)"
+  ]
+}

@@ -1,0 +1,155 @@
+[A679]
+
+## Contents
+
+- **[Status](#status)** — Green/WIP/blocked, test tally, and `branch` -> `dev`.
+- **[Linked Issue / roles](#linked-issue--roles)** — Public task, executor, and independent reviewers.
+- **[Description](#description)** — What changed and why.
+- **[Authoritative references](#authoritative-references)** — Requirements/specification clauses and docs.
+- **[How to get into the same state](#how-to-get-into-the-same-state)** — Copy-pasteable checkout/dependency/environment commands.
+- **[How to validate](#how-to-validate)** — Exact reviewer commands and expected result.
+- **[Known limitations / out of scope](#known-limitations--out-of-scope)** — What this deliberately does not do, and why.
+- **[Definition of Done](#definition-of-done)** — The merge bar from [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Status
+
+GREEN (offline) — generator check mode, `ci_events.py --check` (2199 items) and `--selftest` (5236 arms), `act_ci.py --selftest` (623 ok) and the runner contract gate (621 ok), the CI scheduling and evidence controls, and every docs and Python gate the change reaches pass on CPython 3.14 + PyYAML 6.0.3 and on CPython 3.12.3 + PyYAML 6.0.2, the hosted pair; nine planted runner mutants and five tree mutants are each caught by named checks — `784-pin-ubuntu-2404` -> `dev`, head `847eb4dd031eb3891b61773f4a8324cb2ed6cdc0`, one commit on dev `a8594bb9`. The hosted proof (`Image: ubuntu-24.04` on every job) comes from this PR's own run.
+
+## Linked Issue / roles
+
+Relates to #784
+
+This is step 2 of #784 (the workflows). The Issue also needs a hosted run showing `Image: ubuntu-24.04` on every job with every required check green, then a dev push run after this merge and the ruleset restore (#784 comment 6400810252). None of that can happen before this PR is pushed and merged, so this PR does not close the Issue.
+
+Executor: `[A679]`
+Internal cleared-context reviewer: to be assigned
+External reviewer: to be assigned
+
+## Description
+
+Hosted `ubuntu-latest` moved to the `ubuntu-26.04` image. There, every pinned pip install fails at resolution: `ci/constraints-ci.txt` pins CPython 3.12 wheels, which do not install on that image. Run 40187576861, job 121179871493 shows `Image: ubuntu-26.04` and `ResolutionImpossible` on `PyYAML==6.0.2`. #784 decides to pin `ubuntu-24.04` rather than follow `ubuntu-latest`. Step 1 (#785) taught the act runner to accept `ubuntu-24.04`. This step moves every job to that label and makes it the runner's only label.
+
+| Piece | Change |
+|---|---|
+| Templates `.github/ci-templates/{docs,elaborate,rtl-fast,rtl}.yml` | All 22 source jobs say `runs-on: ubuntu-24.04`. One historical comment in `rtl.yml` drops the label name. |
+| Generators | `ci_gate_workflows.py` (the aggregate jobs), `ci_runtime_workflows.py` (fail-fast watcher, tail guard, manifest collector) and `ci_suite_workflows.py` (suite unions, the Yosys tool job) emit `ubuntu-24.04`. A census finds no other `runs-on` writer: `ci_install_workflows.py` writes none, and `yosys_shards.py` only had a comment naming the label. That comment now names `ubuntu-24.04`, the image its weight run used. |
+| `.github/workflows/*.yml` | Regenerated with `python3 scripts/ci_gate_workflows.py`, no hand edits. The diff is exactly 46 `runs-on: ubuntu-latest` lines becoming `runs-on: ubuntu-24.04` (9 + 6 + 15 + 16 jobs). |
+| `scripts/ci_events.py` | The whole-job `physical-gptp` contract pins `ubuntu-24.04`. Self-test fixture jobs use the same label (arm count unchanged). |
+| `scripts/act_ci.py` | `RUNS_ON_LABELS = ("ubuntu-24.04",)`. A job on `ubuntu-latest` is refused before act, and the refusal names it: `runs on 'ubuntu-latest'; only the literal label ubuntu-24.04 is replayed`. act gets one `--platform ubuntu-24.04=<RUNNER_IMAGE>` entry. |
+| Runner self-tests | The label arms follow: `ubuntu-24.04` accepted; `ubuntu-latest`, `ubuntu-26.04` and `ubuntu-22.04` refused by name; the `ubuntu-latest` and `ubuntu-26.04` replays are refused before any Docker boundary; the platform list is exactly the one entry. All fixture and probe workflows move to `ubuntu-24.04`. The sandbox-policy arms now each require their own refusal reason (below). |
+| `docs/testing/CI_WORKFLOWS.md` | The page opening states the pinned image and why. The runner contract names the single label, says `ubuntu-latest` is refused and why, and carries R697-1-01's exact `--platform` sentence. The physical job line names `ubuntu-24.04`. |
+| `docs/testing/TESTING.md` | The physical job targets a four-core `ubuntu-24.04` worker. The measured run 37892515345 keeps its `ubuntu-latest` label and gains the image it actually ran on, `ubuntu-24.04` (from its job log). |
+| `tb/verilator/milan_dp/README.md`, `tb/verilator/milan_dp_gptp/README.md`, `sw/firmware/gtest/README.md` | Statements about the current job name `ubuntu-24.04`. |
+
+Why the sandbox-policy arms changed: once only `ubuntu-24.04` is accepted, a fixture still on `ubuntu-latest` is refused by the label check first. A Refusal-only arm then passes without ever reaching the authority it names. Two demonstrations show this:
+
+- With the old arms put back, deleting the job/service container refusal leaves the whole self-test green (rc 0, `ok job container authority is refused`). Deleting the action refusal does the same.
+- dev's runner with only its label narrowed aborts at the boundary probe fixture: `Refusal: ... boundary-probe-selftest.yml job probe runs on 'ubuntu-latest'`.
+
+Each arm now requires its own reason fragment, and its fixture runs on `ubuntu-24.04`.
+
+Planted mutants. Each is one exact replacement in a scratch copy, run as `python3 -I <0555 copy> --selftest --worktree <checkout>`. Tree mutants use a scratch worktree.
+
+| Mutant | Result | Failing checks |
+|---|---|---|
+| `RUNS_ON_LABELS` back to `("ubuntu-latest", "ubuntu-24.04")` | rc 1, 3 | `a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest`; `a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command`; `act's platform list maps ubuntu-24.04 to the runner image, once, and no other label` |
+| `RUNS_ON_LABELS = ("ubuntu-latest",)` | rc 1, 8 | including `a job on ubuntu-24.04 is accepted by the sandbox` and the `ubuntu-24.04` dry-run replay |
+| label check reduced to `runs_on is None` | rc 1, 11 | every refusal-names and exact-literal arm, `self-hosted runner authority is refused`, `a nonliteral runner label is refused` |
+| platform words dropped | rc 1, 3 | the replay mapping, the platform list, `every runs-on label the sandbox accepts has a platform entry, and nothing else does` |
+| `ubuntu-latest` mapped as well | rc 1, 2 | the platform list and the accepted-equals-mapped check |
+| refusal text without the label | rc 1, 8 | the five refusal-names arms and the three runs-on reason arms |
+| container/services refusal deleted | rc 1, 2 | `job container authority is refused`; `service container authority is refused` |
+| unapproved-action refusal deleted | rc 1, 4 | the four `step-level action ... is refused before act` arms |
+| reusable-workflow refusal deleted | rc 1, 1 | `reusable workflow authority is refused` |
+| a template job back on `ubuntu-latest`, regenerated | generator check 0, `ci_events` 0, runner contract gate rc 1 | `shipping workflows satisfy the sandbox policy (workflow .github/workflows/docs.yml job wire-accountability runs on 'ubuntu-latest'; only the literal label ubuntu-24.04 is replayed)` |
+| the watcher generator back on `ubuntu-latest`, not regenerated | generator check rc 1 | `.github/workflows/<each>.yml: regenerate the gate jobs` |
+| the same, regenerated | runner contract gate rc 1 | `... job ci-fail-fast runs on 'ubuntu-latest' ...` |
+| a generated workflow hand-edited | generator check rc 1, `ci_events` rc 1 | `regenerate the gate jobs`; `generated gate jobs must match their complete inventory and aggregate ...` |
+| the physical job back on `ubuntu-latest`, regenerated | `ci_events` rc 1, runner contract gate rc 1 | `physical-gptp must match its pinned schedule, budget, steps and evidence`; the shipping-workflows arm |
+
+So a job put back on `ubuntu-latest` is caught by the runner contract gate's shipping-workflows arm. The hosted docs workflow runs that arm inside the required `docs-check`, and the trusted act replay refuses the job outright.
+
+Bootstrap: dev's trusted runner (step 1) accepts all 46 head jobs. Its installed self-test over this head passes, including `ok shipping workflows satisfy the sandbox policy`, and its `validate_workflow_sandbox` accepts every job. This PR's own act replay therefore runs on the trusted runner. The changed runner was tested offline only.
+
+## Authoritative references
+
+- #784: Decision, Acceptance (step 2), and the step 2 assignment comment on #784.
+- R697-1-01 on PR #785: the exact `--platform` sentence, applied verbatim.
+- [AGENTS.md section 5](../AGENTS.md#5-executor-procedure) and [Act-first local replication](../docs/testing/CI_WORKFLOWS.md#act-first-local-replication): the bootstrap rule.
+- [docs/testing/CI_WORKFLOWS.md](../docs/testing/CI_WORKFLOWS.md): the opening paragraph and the runner contract paragraph beginning "Candidate jobs must name the literal runner label".
+- Pinned act 0.2.89 source: `cmd/platforms.go` (the built-in table maps `ubuntu-latest` to `node:16-buster-slim`); `pkg/runner/run_context.go` (`ImageOS` is `ubuntu20` for `ubuntu-latest` and `ubuntu24` for `ubuntu-24.04`).
+- Hosted job logs, read-only:
+  - 121179871493: `Image: ubuntu-26.04`, `ResolutionImpossible`.
+  - 113696564335 (run 37892515345): `Image: ubuntu-24.04`.
+  - 96546610543 (run 32406467657): `Image: ubuntu-24.04`, noble `yosys 0.33-5build2`.
+
+## How to get into the same state
+
+```sh
+git fetch origin
+git switch --detach 847eb4dd031eb3891b61773f4a8324cb2ed6cdc0
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+```
+
+The CI tooling gates need PyYAML (the hosted pin is `PyYAML==6.0.2` in `ci/constraints-ci.txt`).
+
+## How to validate
+
+```sh
+git diff a8594bb95631fa5c49d18fa0bbc9530e31ad59aa HEAD -- .github/workflows
+python3 scripts/ci_gate_workflows.py --check
+git grep -n ubuntu-latest -- .github scripts/ci_gate_workflows.py scripts/ci_runtime_workflows.py scripts/ci_suite_workflows.py scripts/ci_install_workflows.py scripts/yosys_shards.py
+python3 scripts/yosys_shards.py --selftest
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+python3 scripts/act_ci.py --selftest
+install_dir="$(mktemp -d)"
+install -m 0555 scripts/act_ci.py "$install_dir/act_ci.py"
+python3 -I "$install_dir/act_ci.py" --selftest --worktree "$PWD"
+rm -rf "$install_dir"
+python3 scripts/ci_gate_workflows_selftest.py
+python3 scripts/ci_runtime_evidence_selftest.py
+python3 scripts/generate_ci_evidence_pins.py --check
+python3 scripts/ci_workflow_plan_selftest.py
+python3 scripts/docs_check.py
+python3 scripts/check_em_dash.py --base a8594bb95631fa5c49d18fa0bbc9530e31ad59aa
+python3 scripts/gen_toc.py --check
+python3 scripts/check_baremetal_only.py --check
+python3 scripts/check_py_idiom.py
+```
+
+Expected result / pass criteria:
+
+- The workflow diff is only `runs-on: ubuntu-latest` becoming `runs-on: ubuntu-24.04`, 46 times.
+- `git grep` prints nothing and exits 1.
+- Every other command exits 0. Both self-tests end `selftest: PASS`, with 0 `FAIL` lines and `ok` on these arms:
+  - `a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest`;
+  - `a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command`;
+  - `act's platform list maps ubuntu-24.04 to the runner image, once, and no other label`;
+  - `shipping workflows satisfy the sandbox policy`.
+- On the hosted run of this head, every job's set-up log shows `Image: ubuntu-24.04`.
+
+## Known limitations / out of scope
+
+- No hosted evidence yet. This head is not pushed by the executor, and the `Image: ubuntu-24.04` proof, the green required checks, the dev push run after merge and the ruleset restore are the manager's steps under #784.
+- Offline only, per the bootstrap rule: no live act, Docker, privileged run or host act slot. The trusted dev runner replays this PR.
+- No RTL change: the Verilator sweep, campaigns and Vivado were not run, and the change does not reach `bdd-conformance`'s inputs. The scope classifier still reports the change as RTL/tooling relevant (`true`), so the hosted RTL lanes run.
+- act now sets `ImageOS=ubuntu24` in the replay instead of `ubuntu20`. Nothing in this repository reads it, and `actions/setup-python@v5` (today `a26af69b`) has no reference to it. The runner resolves `@v5` when it replays.
+- Every cache key that hashes `.github/workflows/*.yml` misses once on the first hosted run, as designed.
+- Two Makefile comments (`tb/verilator/follow_ring/Makefile`, `tb/verilator/milan_dp_render/Makefile`) still name the `ubuntu-latest` label of past run 37892515345. They are true, and they are left unchanged so that no build files enter the diff.
+
+## Definition of Done
+
+- [ ] Linked Issue acceptance criteria are satisfied (step 2 offline items met; the hosted image proof and the post-merge restore remain)
+- [x] New or changed behavior has self-checking tests
+- [x] Required local verification bar passes
+- [ ] Self-test evidence is posted in a PR comment
+- [x] No undocumented requirement or interface change remains
+- [ ] Internal cleared-context review is positive
+- [ ] External review is positive
+- [ ] Blocking and major findings are fixed and re-reviewed
+- [ ] No review round remains in flight
+- [ ] Candidate merge result is validated per [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [x] Documentation is updated where needed
+- [ ] Post-merge containment will be checked before the Issue moves to Done

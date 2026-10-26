@@ -1,0 +1,25 @@
+{
+  "edit": [
+    ".github/workflows/rtl.yml",
+    "  verilator-suites:\n",
+    null
+  ],
+  "regenerated": false,
+  "gates": {
+    "gen-check": 1,
+    "ci-events-check": 1
+  },
+  "failures": {
+    "gen-check": [
+      ".github/workflows/rtl.yml: regenerate the gate jobs"
+    ],
+    "ci-events-check": [
+      "FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps, dependencies and receipts are refused",
+      "ci_events: 1 finding(s) over 2199 contract item(s)"
+    ]
+  },
+  "diff_stat": [
+    " .github/workflows/rtl.yml | 2 +-",
+    " 1 file changed, 1 insertion(+), 1 deletion(-)"
+  ]
+}

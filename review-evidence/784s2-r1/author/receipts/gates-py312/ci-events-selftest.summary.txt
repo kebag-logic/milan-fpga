@@ -1,0 +1,14 @@
+full log: ci-events-selftest.log.gz (gzip -9 -n), uncompressed 336160 bytes, sha256 1d350afe90c8195cfd1f66053134f690aa5190d1776deb7310a5d1616e5cceda
+ok lines: 5237; lines containing FAIL: 0
+--- first 5 lines
+$ python3 scripts/ci_events.py --selftest
+  ok   generated gates: docs wire-accountability missing job
+  ok   generated gates: docs wire-accountability conditional job
+  ok   generated gates: docs wire-accountability masked job
+  ok   generated gates: docs wire-accountability host environment
+--- last 5 lines
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (2199 contract items, 5236 arms)

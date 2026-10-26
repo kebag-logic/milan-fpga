@@ -1,0 +1,9 @@
+{
+  "replace": "*(word for label in RUNS_ON_LABELS for word in (\"--platform\", f\"{label}={RUNNER_IMAGE}\")),",
+  "with": "*(word for label in (\"ubuntu-latest\", *RUNS_ON_LABELS) for word in (\"--platform\", f\"{label}={RUNNER_IMAGE}\")),",
+  "rc": 1,
+  "failures": [
+    "FAIL act's platform list maps ubuntu-24.04 to the runner image, once, and no other label",
+    "FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does"
+  ]
+}

@@ -1,0 +1,1 @@
+| dev-runner-on-head | `sh -c 'set -eu; d="$(mktemp -d)"; trap "rm -rf \"$d\"" EXIT; install -m 0555 /tmp/a679-dev-act_ci.py "$d/act_ci.py"; python3 -I "$d/act_ci.py" --selftest --worktree "$PWD"'` | 0 | 31.7 s |

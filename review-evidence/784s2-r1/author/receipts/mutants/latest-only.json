@@ -1,0 +1,15 @@
+{
+  "replace": "RUNS_ON_LABELS = (\"ubuntu-24.04\",)",
+  "with": "RUNS_ON_LABELS = (\"ubuntu-latest\",)",
+  "rc": 1,
+  "failures": [
+    "FAIL a job on ubuntu-24.04 is accepted by the sandbox",
+    "FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest",
+    "FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image",
+    "FAIL a ubuntu-24.04 replay holds its job containers to the 8g memory and swap bound",
+    "FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command",
+    "FAIL slot 0 uses external ranges without staging",
+    "FAIL slot 3 uses external ranges without staging",
+    "FAIL act's platform list maps ubuntu-24.04 to the runner image, once, and no other label"
+  ]
+}

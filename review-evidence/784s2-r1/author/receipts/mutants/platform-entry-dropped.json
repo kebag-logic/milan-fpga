@@ -1,0 +1,10 @@
+{
+  "replace": "*(word for label in RUNS_ON_LABELS for word in (\"--platform\", f\"{label}={RUNNER_IMAGE}\")),",
+  "with": "*(),",
+  "rc": 1,
+  "failures": [
+    "FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image",
+    "FAIL act's platform list maps ubuntu-24.04 to the runner image, once, and no other label",
+    "FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does"
+  ]
+}

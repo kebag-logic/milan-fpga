@@ -1,0 +1,11 @@
+{
+  "replace": "if not isinstance(action, str) or action not in TRUSTED_ACTION_USES:",
+  "with": "if not isinstance(action, str):",
+  "rc": 1,
+  "failures": [
+    "FAIL step-level action docker://alpine:3.20 is refused before act",
+    "FAIL step-level action example/setup@v1 is refused before act",
+    "FAIL step-level action actions/checkout@v5 is refused before act",
+    "FAIL step-level action ./local-action is refused before act"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "edit": [
+    "scripts/ci_runtime_workflows.py",
+    "\"name\": \"Fail fast across this head\", \"runs-on\": \"ubuntu-24.04\"",
+    "\"name\": \"Fail fast across this head\", \"runs-on\": \"ubuntu-latest\""
+  ],
+  "regenerated": false,
+  "gates": {
+    "gen-check": 1
+  },
+  "failures": {
+    "gen-check": [
+      ".github/workflows/docs.yml: regenerate the gate jobs",
+      ".github/workflows/elaborate.yml: regenerate the gate jobs",
+      ".github/workflows/rtl.yml: regenerate the gate jobs",
+      ".github/workflows/rtl-fast.yml: regenerate the gate jobs"
+    ]
+  },
+  "diff_stat": [
+    " scripts/ci_runtime_workflows.py | 2 +-",
+    " 1 file changed, 1 insertion(+), 1 deletion(-)"
+  ]
+}

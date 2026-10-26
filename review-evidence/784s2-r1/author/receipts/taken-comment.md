@@ -1,0 +1,13 @@
+[A679] TAKEN
+Branch: `784-pin-ubuntu-2404`, from dev `a8594bb95631fa5c49d18fa0bbc9530e31ad59aa`
+Authoritative references: #784 (Decision, step 2; Acceptance, step 2); assignment https://github.com/kebag-logic/milan-fpga/issues/784#issuecomment-6409728491; R697-1-01 wording fix (https://github.com/kebag-logic/milan-fpga/pull/785#issuecomment-6408265055); `scripts/act_ci.py` (`RUNS_ON_LABELS`, `validate_workflow_sandbox`, `build_act_command`, their self-tests); the generators `scripts/ci_gate_workflows.py`, `scripts/ci_runtime_workflows.py`, `scripts/ci_suite_workflows.py`, `scripts/yosys_shards.py`; the source templates under `.github/ci-templates/`; `scripts/ci_events.py` (job contract); `docs/testing/CI_WORKFLOWS.md`, `docs/testing/TESTING.md`; AGENTS.md section 5 bootstrap rule.
+Interpreted scope: every generator that writes `runs-on` emits `ubuntu-24.04`, the four source templates say `ubuntu-24.04`, and every workflow under `.github/workflows/` is regenerated through `scripts/ci_gate_workflows.py` (no hand edits), so no `ubuntu-latest` remains in the workflows, the templates or the generators. `ci_events.py`'s job contract follows to `ubuntu-24.04`. `act_ci.py`'s `RUNS_ON_LABELS` becomes `("ubuntu-24.04",)`: a job on `ubuntu-latest` is refused before act and the refusal names it; act gets one `--platform ubuntu-24.04=<runner image>` entry; self-test fixtures and arms follow, with planted mutants recorded. `CI_WORKFLOWS.md` states the pinned image and why (hosted `ubuntu-latest` moved to 26.04, where the pinned CPython 3.12 wheels do not install), carries R697-1-01's exact `--platform` sentence, and `TESTING.md` names the label where it does today. Statements elsewhere that describe a current job's label follow; statements recording a past run's label stay. A census of every `runs-on` writer is published with the evidence.
+Validation plan (offline only, no privilege, no Docker, no real PR):
+python3 scripts/ci_gate_workflows.py --check
+python3 scripts/ci_events.py --check
+python3 scripts/ci_events.py --selftest
+python3 scripts/act_ci.py --selftest
+python3 -I <installed 0555 copy>/act_ci.py --selftest --worktree <checkout>   (the runner contract gate)
+python3 scripts/yosys_shards.py --selftest
+plus every command of the CI scheduling and evidence controls step, and the docs gates the page edits reach (docs_check, check_em_dash, check_doc_style, gen_toc, check_doc_paths, check_feature_status, check_baremetal_only, DOC_MAP) under the pinned Markdown renderer, and the Python gates the script edits reach; on the pinned renderer interpreter and on CPython 3.12.3 + PyYAML 6.0.2.
+Blockers: none

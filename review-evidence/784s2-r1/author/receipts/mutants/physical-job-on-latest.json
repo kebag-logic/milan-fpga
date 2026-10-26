@@ -1,0 +1,30 @@
+{
+  "edit": [
+    ".github/ci-templates/rtl.yml",
+    "    name: Physical gPTP (nightly and manual)\n",
+    null
+  ],
+  "regenerated": true,
+  "gates": {
+    "gen-check": 0,
+    "ci-events-check": 1,
+    "contract-gate": 1
+  },
+  "failures": {
+    "gen-check": [],
+    "ci-events-check": [
+      "FAIL .github/workflows/rtl.yml: physical-gptp must match its pinned schedule, budget, steps and evidence",
+      "ci_events: 1 finding(s) over 2199 contract item(s)"
+    ],
+    "contract-gate": [
+      "FAIL slot 0 uses external ranges without staging",
+      "FAIL slot 3 uses external ranges without staging",
+      "FAIL shipping workflows satisfy the sandbox policy (workflow .github/workflows/rtl.yml job physical-gptp runs on 'ubuntu-latest'; only the literal label ubuntu-24.04 is replayed)"
+    ]
+  },
+  "diff_stat": [
+    " .github/ci-templates/rtl.yml | 2 +-",
+    " .github/workflows/rtl.yml    | 2 +-",
+    " 2 files changed, 2 insertions(+), 2 deletions(-)"
+  ]
+}

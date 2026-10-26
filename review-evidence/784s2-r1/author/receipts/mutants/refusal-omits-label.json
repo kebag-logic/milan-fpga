@@ -1,0 +1,15 @@
+{
+  "replace": "f\"workflow {relative} job {job_id} runs on {runs_on!r}; only the \"",
+  "with": "f\"workflow {relative} job {job_id} runs on an unaccepted label; only the \"",
+  "rc": 1,
+  "failures": [
+    "FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest",
+    "FAIL a job on ubuntu-26.04 is refused before act, and the refusal names ubuntu-26.04",
+    "FAIL a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04",
+    "FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command",
+    "FAIL a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command",
+    "FAIL self-hosted runner authority is refused",
+    "FAIL a missing runner label is refused",
+    "FAIL a nonliteral runner label is refused"
+  ]
+}
