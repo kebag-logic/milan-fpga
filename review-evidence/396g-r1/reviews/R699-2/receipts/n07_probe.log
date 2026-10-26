@@ -1,0 +1,16 @@
+== head
+{"channel": 0, "class": "dropped", "attribution": "dut", "acquisition_index": 8214, "wall_s": 0.171125}
+{"channel": 1, "class": "dropped", "attribution": "dut", "acquisition_index": 8214, "wall_s": 0.171125}
+{"channel": 2, "class": "repeated", "attribution": "dut", "acquisition_index": 8214, "wall_s": 0.171125}
+{"channel": 3, "class": "dropped", "attribution": "dut", "acquisition_index": 8214, "wall_s": 0.171125}
+want acquisition_index 8214 wall 0.171125
+block-slip-then-flip gap 5 [{"channel": 2, "capture_index": 8207, "class": "dropped", "n": 4096, "located_within": [8205, 8207], "attribution": "dut"}, {"channel": 2, "capture_index": 8210, "class": "dropped", "n": 1024, "attribution": "dut"}, {"channel": 2, "capture_index": 8211, "class": "repeated", "n": 1024, "attribution": "dut"}]
+block-slip-then-flip gap 80 [{"channel": 2, "capture_index": 8207, "class": "dropped", "n": 4096, "located_within": [8205, 8207], "attribution": "dut"}, {"channel": 2, "capture_index": 8285, "class": "bit-flip", "n": 1, "mask": "0x00080000", "attribution": "dut"}]
+== N07 mutant
+{"channel": 0, "class": "dropped", "attribution": "dut", "acquisition_index": 8205, "wall_s": 0.17093750000000002}
+{"channel": 1, "class": "dropped", "attribution": "dut", "acquisition_index": 8205, "wall_s": 0.17093750000000002}
+{"channel": 2, "class": "repeated", "attribution": "dut", "acquisition_index": 8205, "wall_s": 0.17093750000000002}
+{"channel": 3, "class": "dropped", "attribution": "dut", "acquisition_index": 8205, "wall_s": 0.17093750000000002}
+want acquisition_index 8214 wall 0.171125
+block-slip-then-flip gap 5 [{"channel": 2, "capture_index": 8207, "class": "dropped", "n": 4096, "located_within": [8205, 8207], "attribution": "dut"}, {"channel": 2, "capture_index": 8210, "class": "dropped", "n": 1024, "attribution": "dut"}, {"channel": 2, "capture_index": 8211, "class": "repeated", "n": 1024, "attribution": "dut"}]
+block-slip-then-flip gap 80 [{"channel": 2, "capture_index": 8207, "class": "dropped", "n": 4096, "located_within": [8205, 8207], "attribution": "dut"}, {"channel": 2, "capture_index": 8285, "class": "bit-flip", "n": 1, "mask": "0x00080000", "attribution": "dut"}]

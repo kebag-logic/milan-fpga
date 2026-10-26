@@ -1,0 +1,1092 @@
+USING RUNNER: behave.runner:Runner
+@torture @campaign @level:L3 @matrix:M-CAMPAIGN
+Feature: The torture campaign's own coverage is auditable at a desk # features/torture_campaign_plan.feature:5
+  Bench time is the scarce resource, so the campaign that spends it has to be
+  reviewable without spending any. tb/tools/torture_campaign.py is the PLAN -
+  every pair, every index, every churn sequence, every adverse condition, and
+  for each the exact assertions it owes with the clause behind them - and it
+  performs no I/O at all. These scenarios audit that plan: they are the reason
+  "we test every combination" and "we tested link loss" can be checked instead
+  of believed.
+  LEVEL / ORACLE (docs/testing/methodology.md). LEVEL 3. ORACLE: the clause
+  list, plus the standing user rules the plan encodes. What this level cannot
+  see: whether the device passes - only whether the right questions get asked,
+  of every index, with a clause attached to each.
+  WHY A PLAN AUDIT IS WORTH SCENARIOS OF ITS OWN. A runner that decides its
+  coverage as it goes can only be audited by running it on hardware. Four
+  separate per-index defects on this device hid behind index-0-only testing
+  (GET_STREAM_INFO serving index 0's answer for every index, MAX_TRANSIT_TIME
+  existing only at index 0, GET_COUNTERS answering only index 0, and the
+  per-stream window's talker state bits hardwired 0 above index 0), and index 0
+  is the LEAST representative index here because the 0x800 window makes it a
+  hard alias of the legacy flat registers.
+  THE ADVERSE-CONDITIONS SOURCING, and the two honesty rules that follow from
+  reading it rather than remembering it:
+  The Milan adverse-network-conditions recommended practice covers exactly ONE
+  condition - sustained high rate traffic - in four traffic classes, and it is
+  a RECOMMENDATION: "It is not a current requirement for a Milan device to
+  support the features mentioned."  It says nothing about malformed packets.
+  Therefore
+  (1) the storm entries are severity RECOMMENDED, and a failure is a finding
+  with a cost decision attached, not a conformance failure; and
+  (2) the same clause says "As AVDECC traffic is Non-Priority, it is not
+  expected that a Milan device remains responsive to AVDECC commands while
+  subjected to high rate Non-Priority traffic" - so control-plane
+  responsiveness under storm is RECORDED and never failed, and the malformed
+  frame entries cite IEEE 1722.1-2021 because that document does not cover
+  them.
+  It is cited generically, with no version: the version is a detail visible
+  only to a document holder and no technical claim here needs it.
+  THE LICENCE, which is why this plan has a step of its own for it:
+  Milan v1.2 5.3.7.3 licenses a talker only "As long as a PAAD is declaring a
+  Talker Advertise attribute AND receiving a Listener Ready or Listener Ready
+  Failed attribute for a Stream Output".  The second half of that conjunction
+  arrives over MSRP from the listener, so a bind that returns SUCCESS does not
+  grant it.  On this fabric it is readable as LWSRP_STATUS (0x694) bit 8, and
+  0x30 - talker declared, domain ok, GATE SHUT - is what a CORRECTLY silent
+  bound talker reads.  A plan that put the frames-advance verdicts on the bind
+  step therefore turned every conformant bound-but-ungated pair into a SHALL
+  failure; they live on the licence-owning step instead, and SKIP when the
+  reading is unavailable.
+  @torture @campaign @level:L3 @matrix:M-CAMPAIGN
+  Feature: The torture campaign's own coverage is auditable at a desk  # features/torture_campaign_plan.feature:5
+
+  @class:coverage @rule:never-index-0-only
+  Scenario: the matrix walks every talker and listener index in both directions  # features/torture_campaign_plan.feature:63
+    Given the campaign plan is importable                                        # steps/torture_plan_steps.py:41
+    When the matrix area is planned                                              # steps/torture_plan_steps.py:62
+    Then the plan covers every DUT talker index                                  # steps/torture_plan_steps.py:104
+    And the plan covers every DUT listener index                                 # steps/torture_plan_steps.py:113
+    And the plan covers every peer talker index                                  # steps/torture_plan_steps.py:122
+    And the plan covers every peer listener index                                # steps/torture_plan_steps.py:130
+    And the plan contains outbound, return and loopback pair sets                # steps/torture_plan_steps.py:138
+
+  @class:coverage @rule:never-index-0-only @negative-control
+  Scenario: the index audit can say no                                        # features/torture_campaign_plan.feature:72
+    Given the campaign plan is importable                                     # steps/torture_plan_steps.py:41
+    When the matrix area is planned for a device with 1 talker and 1 listener # steps/torture_plan_steps.py:69
+    Then the plan covers only index 0                                         # steps/torture_plan_steps.py:147
+    And that is fewer indices than the real DUT shape                         # steps/torture_plan_steps.py:154
+
+  @class:coverage @clause:Milan-7.2.2 @clause:Milan-7.2.3
+  Scenario: the CRF media clock stream is part of the matrix, not an extra  # features/torture_campaign_plan.feature:81
+    Given the campaign plan is importable                                   # steps/torture_plan_steps.py:41
+    When the matrix area is planned                                         # steps/torture_plan_steps.py:62
+    Then the CRF talker index is in the plan                                # steps/torture_plan_steps.py:163
+    And the CRF listener index is in the plan                               # steps/torture_plan_steps.py:169
+    And the CRF pair steps are marked as the media clock pair               # steps/torture_plan_steps.py:175
+
+  @class:contract @clause:Milan-5.3.8.10 @clause:Milan-Table-5.4
+  Scenario: every bind step owes the whole bound-and-streaming assertion set  # features/torture_campaign_plan.feature:93
+    Given the campaign plan is importable                                     # steps/torture_plan_steps.py:41
+    When the matrix and churn areas are planned                               # steps/torture_plan_steps.py:91
+    Then every connect step carries the full bound-streaming assertion set    # steps/torture_plan_steps.py:186
+    And that includes the rebind steps                                        # steps/torture_plan_steps.py:211
+    And no bind step grades whether frames are advancing                      # steps/torture_plan_steps.py:273
+
+  @class:contract @clause:Milan-5.3.7.3 @honesty
+  Scenario: the licence is measured BEFORE any START_STREAMING is sent  # features/torture_campaign_plan.feature:104
+    Given the campaign plan is importable                               # steps/torture_plan_steps.py:41
+    When the matrix and churn areas are planned                         # steps/torture_plan_steps.py:91
+    Then every bind is followed by a measure-before-start step          # steps/torture_plan_steps.py:225
+    And that step asserts the stream starts on the bind alone           # steps/torture_plan_steps.py:242
+    And that step measures before it sends anything                     # steps/torture_plan_steps.py:250
+    And that step asks the SRP licence before it grades any silence     # steps/torture_plan_steps.py:260
+
+  @class:contract @clause:Milan-5.3.7.3 @honesty @multi-sided
+  Scenario: the licence-owning step measures every participant, not only the DUT  # features/torture_campaign_plan.feature:119
+    Given the campaign plan is importable                                         # steps/torture_plan_steps.py:41
+    When the matrix area is planned                                               # steps/torture_plan_steps.py:62
+    Then every bind is followed by a measure-before-start step                    # steps/torture_plan_steps.py:225
+    And the licence-owning step carries the cross-participant invariants          # steps/torture_plan_steps.py:291
+
+  @class:contract @clause:Milan-5.3.7.3 @honesty
+  Scenario: every unbind VERIFIES the stop, so the next pair can still be measured  # features/torture_campaign_plan.feature:131
+    Given the campaign plan is importable                                           # steps/torture_plan_steps.py:41
+    When the matrix and churn areas are planned                                     # steps/torture_plan_steps.py:91
+    Then every unbind verifies the stop took effect                                 # steps/torture_plan_steps.py:306
+
+  @class:contract @clause:Milan-Table-5.6 @honesty
+  Scenario: the growth assertions can actually fail                                  # features/torture_campaign_plan.feature:141
+    Given the campaign plan is importable                                            # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                               # steps/torture_plan_steps.py:97
+    Then the whole campaign has no assertion that can only be INFO at SHALL severity # steps/torture_plan_steps.py:325
+
+  @class:coverage @rule:never-index-0-only @honesty
+  Scenario: coverage is audited PER AREA, because the whole-plan audit is blind  # features/torture_campaign_plan.feature:149
+    Given the campaign plan is importable                                        # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                           # steps/torture_plan_steps.py:97
+    Then coverage is audited per area                                            # steps/torture_plan_steps.py:344
+    And the per-area audit can say no about one area while another is complete   # steps/torture_plan_steps.py:358
+
+  @class:runner @honesty
+  Scenario: the topology is configuration, not a source edit  # features/torture_campaign_plan.feature:158
+    Given the campaign plan is importable                     # steps/torture_plan_steps.py:41
+    When the matrix area is planned                           # steps/torture_plan_steps.py:62
+    Then the topology is configuration and a typo is refused  # steps/torture_plan_steps.py:375
+
+  @class:contract @clause:methodology-R3
+  Scenario: every assertion in the whole campaign names a clause and a severity  # features/torture_campaign_plan.feature:166
+    Given the campaign plan is importable                                        # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                           # steps/torture_plan_steps.py:97
+    Then every assertion carries a non-empty clause                              # steps/torture_plan_steps.py:394
+    And every assertion severity is SHALL or RECOMMENDED or INFO                 # steps/torture_plan_steps.py:402
+
+  @class:contract
+  Scenario: every step id in the campaign is unique, so two mornings can be diffed  # features/torture_campaign_plan.feature:172
+    Given the campaign plan is importable                                           # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                              # steps/torture_plan_steps.py:97
+    Then no two steps share an id                                                   # steps/torture_plan_steps.py:412
+    And every step serialises to JSON with its clauses attached                     # steps/torture_plan_steps.py:420
+
+  @class:churn @clause:Milan-5.5.3.5.43
+  Scenario: the churn area reaches the implicit rebind a bind/unbind loop cannot  # features/torture_campaign_plan.feature:179
+    Given the campaign plan is importable                                         # steps/torture_plan_steps.py:41
+    When the churn area is planned                                                # steps/torture_plan_steps.py:78
+    Then there is a rebind step that does not unbind first                        # steps/torture_plan_steps.py:436
+    And each rebind moves to a DIFFERENT talker index than its first bind         # steps/torture_plan_steps.py:447
+    And the rebind step asserts the counter reset on not-bound to bound           # steps/torture_plan_steps.py:462
+
+  @class:churn @clause:17221-8.2.2.6.2.1
+  Scenario: the churn area binds a second listener while the first is streaming  # features/torture_campaign_plan.feature:190
+    Given the campaign plan is importable                                        # steps/torture_plan_steps.py:41
+    When the churn area is planned                                               # steps/torture_plan_steps.py:78
+    Then there is a bind-while-streaming step                                    # steps/torture_plan_steps.py:471
+
+  @class:churn @clause:Milan-5.5.3.5.43
+  Scenario: the rebind storm is auditable by an invariant, not by guessing the winner  # features/torture_campaign_plan.feature:195
+    Given the campaign plan is importable                                              # steps/torture_plan_steps.py:41
+    When the churn area is planned                                                     # steps/torture_plan_steps.py:78
+    Then there is a rebind storm step with at least 20 iterations                      # steps/torture_plan_steps.py:477
+    And the rebind storm asserts the lock invariant and ADP liveness                   # steps/torture_plan_steps.py:486
+
+  @class:torture @clause:Milan-adverse-conditions
+  Scenario: storm entries are RECOMMENDED, and control responsiveness is INFO                           # features/torture_campaign_plan.feature:205
+    Given the campaign plan is importable                                                               # steps/torture_plan_steps.py:41
+    When the torture area is planned                                                                    # steps/torture_plan_steps.py:84
+    Then every storm step marks stream continuity as RECOMMENDED                                        # steps/torture_plan_steps.py:500
+    And every storm step marks control responsiveness as INFO                                           # steps/torture_plan_steps.py:512
+    And the storm steps cover non-priority broadcast, unicast to our own MAC, AVDECC and AVB management # steps/torture_plan_steps.py:521
+
+  @class:torture @clause:17221-9.2.1.1.6 @honesty
+  Scenario: malformed-frame entries do NOT cite the adverse-conditions document  # features/torture_campaign_plan.feature:215
+    Given the campaign plan is importable                                        # steps/torture_plan_steps.py:41
+    When the torture area is planned                                             # steps/torture_plan_steps.py:84
+    Then no malformed-frame step cites the adverse-conditions recommendation     # steps/torture_plan_steps.py:541
+    And every malformed-frame step cites IEEE 1722.1 or IEEE 1722                # steps/torture_plan_steps.py:576
+    And every malformed-frame step asserts the entity does not wedge             # steps/torture_plan_steps.py:587
+
+  @class:torture @honesty @rule:cite-generically
+  Scenario: no clause in the campaign carries a draft version number  # features/torture_campaign_plan.feature:225
+    Given the campaign plan is importable                             # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                # steps/torture_plan_steps.py:97
+    Then no clause in the campaign carries a draft version number     # steps/torture_plan_steps.py:558
+
+  @class:torture
+  Scenario: the malformed matrix fuzzes the length fields in both directions                # features/torture_campaign_plan.feature:230
+    Given the campaign plan is importable                                                   # steps/torture_plan_steps.py:41
+    When the torture area is planned                                                        # steps/torture_plan_steps.py:84
+    Then the malformed matrix includes an overstated control_data_length                    # steps/torture_plan_steps.py:595
+    And the malformed matrix includes an understated control_data_length                    # steps/torture_plan_steps.py:602
+    And the malformed matrix includes a truncated AECP payload                              # steps/torture_plan_steps.py:609
+    And the malformed matrix includes an AAF stream_data_length that overstates the payload # steps/torture_plan_steps.py:616
+
+  @class:torture @clause:Milan-5.3.7.5
+  Scenario: the MAAP conflict entry asserts the withdraw-wait-reallocate sequence  # features/torture_campaign_plan.feature:241
+    Given the campaign plan is importable                                          # steps/torture_plan_steps.py:41
+    When the torture area is planned                                               # steps/torture_plan_steps.py:84
+    Then the MAAP conflict step asserts a withdraw and reallocate                  # steps/torture_plan_steps.py:625
+    And the MAAP conflict clause mentions the LeaveAll wait                        # steps/torture_plan_steps.py:635
+
+  @class:torture @clause:8021Q-9.6
+  Scenario: VLAN misconfiguration covers the wrong SR VID and VID zero separately  # features/torture_campaign_plan.feature:250
+    Given the campaign plan is importable                                          # steps/torture_plan_steps.py:41
+    When the torture area is planned                                               # steps/torture_plan_steps.py:84
+    Then there is a wrong-SR-VID step                                              # steps/torture_plan_steps.py:646
+    And there is a VID-zero step                                                   # steps/torture_plan_steps.py:653
+    And the VID-zero step asserts no untagged stream frames                        # steps/torture_plan_steps.py:661
+
+  @class:torture @clause:Milan-5.3.7.3
+  Scenario: starvation asserts silence-with-frames, and stream loss asserts the interrupt counter  # features/torture_campaign_plan.feature:257
+    Given the campaign plan is importable                                                          # steps/torture_plan_steps.py:41
+    When the torture area is planned                                                               # steps/torture_plan_steps.py:84
+    Then the source-starvation step asserts the talker keeps framing                               # steps/torture_plan_steps.py:668
+    And the stream-stop step asserts STREAM_INTERRUPTED advances                                   # steps/torture_plan_steps.py:679
+
+  @class:human @rule:print-do-not-skip
+  Scenario: entries a human must perform are printed as a checklist, never skipped  # features/torture_campaign_plan.feature:264
+    Given the campaign plan is importable                                           # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                              # steps/torture_plan_steps.py:97
+    Then at least 3 steps need a human                                              # steps/torture_plan_steps.py:690
+    And the checklist names every human step with its action and its clause         # steps/torture_plan_steps.py:698
+    And an empty plan produces a checklist that says so                             # steps/torture_plan_steps.py:711
+
+  @class:human
+  Scenario: the physical conditions are still covered - by strip or by hand  # features/torture_campaign_plan.feature:273
+    Given the campaign plan is importable                                    # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                       # steps/torture_plan_steps.py:97
+    Then the human entries include a cable pull                              # steps/torture_plan_steps.py:717
+    And the human entries include a grandmaster change                       # steps/torture_plan_steps.py:723
+    And the human entries include a grandmaster loss                         # steps/torture_plan_steps.py:734
+    And the human entries include a power cycle                              # steps/torture_plan_steps.py:745
+    And the power-cycle step asserts the non-volatile state is restored      # steps/torture_plan_steps.py:754
+
+  @class:human @class:physical @rule:no-regression-without-hook
+  Scenario: the physical family is powerstrip-automatable, serialized, and runs last  # features/torture_campaign_plan.feature:289
+    Given the campaign plan is importable                                             # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                                # steps/torture_plan_steps.py:97
+    Then the physical area is the last thing the campaign runs                        # steps/torture_plan_steps.py:768
+    And every physical cycle step is still a human entry in the plan                  # steps/torture_plan_steps.py:784
+    And the physical cycle steps name the outlet role they need                       # steps/torture_plan_steps.py:794
+    And the physical recovery budgets respect the bench floors                        # steps/torture_plan_steps.py:802
+    And the partition window is asserted as the condition, not a failure              # steps/torture_plan_steps.py:818
+    And each physical family ends with a full proof pair at a non-zero index          # steps/torture_plan_steps.py:830
+
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: release areas observe every index and bind both directions -- @1.1   # features/torture_campaign_plan.feature:319
+    Given the campaign plan is importable                                                # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                                # steps/torture_release_steps.py:57
+    Then the plan covers every DUT talker index                                          # steps/torture_plan_steps.py:104
+    And the plan covers every DUT listener index                                         # steps/torture_plan_steps.py:113
+    And the plan covers every peer talker index                                          # steps/torture_plan_steps.py:122
+    And the plan covers every peer listener index                                        # steps/torture_plan_steps.py:130
+    And every release repeat observes every index including each CRF sink                # steps/torture_release_steps.py:64
+    And every release repeat binds compatible AAF and CRF in both directions             # steps/torture_release_steps.py:81
+
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: release areas observe every index and bind both directions -- @1.2   # features/torture_campaign_plan.feature:320
+    Given the campaign plan is importable                                                # steps/torture_plan_steps.py:41
+    When the audio release area is planned                                               # steps/torture_release_steps.py:57
+    Then the plan covers every DUT talker index                                          # steps/torture_plan_steps.py:104
+    And the plan covers every DUT listener index                                         # steps/torture_plan_steps.py:113
+    And the plan covers every peer talker index                                          # steps/torture_plan_steps.py:122
+    And the plan covers every peer listener index                                        # steps/torture_plan_steps.py:130
+    And every release repeat observes every index including each CRF sink                # steps/torture_release_steps.py:64
+    And every release repeat binds compatible AAF and CRF in both directions             # steps/torture_release_steps.py:81
+
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: release areas observe every index and bind both directions -- @1.3   # features/torture_campaign_plan.feature:321
+    Given the campaign plan is importable                                                # steps/torture_plan_steps.py:41
+    When the power release area is planned                                               # steps/torture_release_steps.py:57
+    Then the plan covers every DUT talker index                                          # steps/torture_plan_steps.py:104
+    And the plan covers every DUT listener index                                         # steps/torture_plan_steps.py:113
+    And the plan covers every peer talker index                                          # steps/torture_plan_steps.py:122
+    And the plan covers every peer listener index                                        # steps/torture_plan_steps.py:130
+    And every release repeat observes every index including each CRF sink                # steps/torture_release_steps.py:64
+    And every release repeat binds compatible AAF and CRF in both directions             # steps/torture_release_steps.py:81
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.1   # features/torture_campaign_plan.feature:331
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When the soak release plan loses its index                                               # steps/torture_release_steps.py:104
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.2   # features/torture_campaign_plan.feature:332
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When the soak release plan loses its direction                                           # steps/torture_release_steps.py:104
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.3   # features/torture_campaign_plan.feature:333
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When the soak release plan loses its CRF sink                                            # steps/torture_release_steps.py:104
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.4   # features/torture_campaign_plan.feature:334
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When the audio release plan loses its index                                              # steps/torture_release_steps.py:104
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.5   # features/torture_campaign_plan.feature:335
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When the audio release plan loses its direction                                          # steps/torture_release_steps.py:104
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.6   # features/torture_campaign_plan.feature:336
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When the audio release plan loses its CRF sink                                           # steps/torture_release_steps.py:104
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.7   # features/torture_campaign_plan.feature:337
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When the power release plan loses its index                                              # steps/torture_release_steps.py:104
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.8   # features/torture_campaign_plan.feature:338
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When the power release plan loses its direction                                          # steps/torture_release_steps.py:104
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: release coverage refuses omissions even with a complete matrix -- @1.9   # features/torture_campaign_plan.feature:339
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When the power release plan loses its CRF sink                                           # steps/torture_release_steps.py:104
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06
+  Scenario: release defaults encode the decided soak, audio run and cycle mix     # features/torture_campaign_plan.feature:342
+    Given the campaign plan is importable                                         # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                            # steps/torture_plan_steps.py:97
+    Then the soak lasts 24 hours with periodic and endpoint observations          # steps/torture_release_steps.py:137
+    And the audio run lasts the whole soak window inside it                       # steps/torture_release_steps.py:154
+    And power repeats 100 idle and 50 journal-commit cold cuts and 50 soft resets # steps/torture_release_steps.py:167
+    And release assertions require complete measured evidence                     # steps/torture_release_steps.py:189
+
+  @class:release @clause:REQ-VER-06
+  Scenario: the power cycle mix adds up to 200                                  # features/torture_campaign_plan.feature:350
+    Given the campaign plan is importable                                       # steps/torture_plan_steps.py:41
+    When the power release area is planned                                      # steps/torture_release_steps.py:57
+    Then the power phases add up to 200 cycles                                  # steps/torture_release_steps.py:378
+    And 150 of them are cold cuts and a third of those land in a journal commit # steps/torture_release_steps.py:387
+    And every cycle restores the eight Milan items and the binding              # steps/torture_release_steps.py:396
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a cycle mix that does not add up fails the power audit -- @1.1   # features/torture_campaign_plan.feature:364
+    Given the campaign plan is importable                                            # steps/torture_plan_steps.py:41
+    When the power release plan loses one idle cycle                                 # steps/torture_release_steps.py:405
+    Then that release area fails its own audit                                       # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                   # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a cycle mix that does not add up fails the power audit -- @1.2   # features/torture_campaign_plan.feature:365
+    Given the campaign plan is importable                                            # steps/torture_plan_steps.py:41
+    When the power release plan loses one journal_commit cycle                       # steps/torture_release_steps.py:405
+    Then that release area fails its own audit                                       # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                   # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a cycle mix that does not add up fails the power audit -- @1.3   # features/torture_campaign_plan.feature:366
+    Given the campaign plan is importable                                            # steps/torture_plan_steps.py:41
+    When the power release plan loses one soft_reset cycle                           # steps/torture_release_steps.py:405
+    Then that release area fails its own audit                                       # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                   # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06
+  Scenario: no release repeat may skip a required assertion                            # features/torture_campaign_plan.feature:369
+    Given the campaign plan is importable                                              # steps/torture_plan_steps.py:41
+    When the whole campaign is planned                                                 # steps/torture_plan_steps.py:97
+    Then every release repeat carries its area's required assertions at SHALL severity # steps/torture_release_steps.py:414
+    And every release repeat refuses an unsupported operation instead of skipping it   # steps/torture_release_steps.py:424
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: dropping or downgrading one required assertion fails the audit -- @1.1   # features/torture_campaign_plan.feature:382
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous has its soak.no-counter-errors assertion dropped     # steps/torture_release_steps.py:432
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: dropping or downgrading one required assertion fails the audit -- @1.2   # features/torture_campaign_plan.feature:383
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous has its soak.tu-within-holdover assertion downgraded # steps/torture_release_steps.py:432
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: dropping or downgrading one required assertion fails the audit -- @1.3   # features/torture_campaign_plan.feature:384
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity has its audio.zero-dut-glitches assertion dropped    # steps/torture_release_steps.py:432
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: dropping or downgrading one required assertion fails the audit -- @1.4    # features/torture_campaign_plan.feature:385
+    Given the campaign plan is importable                                                     # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity has its audio.planted-arms-found assertion downgraded # steps/torture_release_steps.py:432
+    Then that release area fails its own audit                                                # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                            # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: dropping or downgrading one required assertion fails the audit -- @1.5   # features/torture_campaign_plan.feature:386
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When release repeat power.idle has its power.state-restored assertion dropped            # steps/torture_release_steps.py:432
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: dropping or downgrading one required assertion fails the audit -- @1.6   # features/torture_campaign_plan.feature:387
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit has its power.single-boot assertion downgraded  # steps/torture_release_steps.py:432
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: dropping or downgrading one required assertion fails the audit -- @1.7   # features/torture_campaign_plan.feature:388
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When release repeat power.soft_reset has its power.adp-valid-time assertion dropped      # steps/torture_release_steps.py:432
+    Then that release area fails its own audit                                               # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                                           # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock -- @1.1   # features/torture_campaign_plan.feature:397
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When an input's soak counter walk shows nothing                                     # steps/torture_release_steps.py:463
+    Then the soak counter oracle grades it PASS                                         # steps/torture_release_steps.py:485
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock -- @1.2   # features/torture_campaign_plan.feature:398
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When an input's soak counter walk shows one SEQ_NUM_MISMATCH                        # steps/torture_release_steps.py:463
+    Then the soak counter oracle grades it FAIL                                         # steps/torture_release_steps.py:485
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock -- @1.3   # features/torture_campaign_plan.feature:399
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When an input's soak counter walk shows one STREAM_INTERRUPTED                      # steps/torture_release_steps.py:463
+    Then the soak counter oracle grades it FAIL                                         # steps/torture_release_steps.py:485
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock -- @1.4   # features/torture_campaign_plan.feature:400
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When an input's soak counter walk shows one LATE_TIMESTAMP                          # steps/torture_release_steps.py:463
+    Then the soak counter oracle grades it FAIL                                         # steps/torture_release_steps.py:485
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock -- @1.5   # features/torture_campaign_plan.feature:401
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When an input's soak counter walk shows one EARLY_TIMESTAMP                         # steps/torture_release_steps.py:463
+    Then the soak counter oracle grades it FAIL                                         # steps/torture_release_steps.py:485
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock -- @1.6   # features/torture_campaign_plan.feature:402
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When an input's soak counter walk shows one MEDIA_UNLOCKED                          # steps/torture_release_steps.py:463
+    Then the soak counter oracle grades it FAIL                                         # steps/torture_release_steps.py:485
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock -- @1.7   # features/torture_campaign_plan.feature:403
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When an input's soak counter walk shows one MEDIA_UNLOCKED in a planted event       # steps/torture_release_steps.py:463
+    Then the soak counter oracle grades it PASS                                         # steps/torture_release_steps.py:485
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock -- @1.8   # features/torture_campaign_plan.feature:404
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When an input's soak counter walk shows one MEDIA_UNLOCKED beside a planted event   # steps/torture_release_steps.py:463
+    Then the soak counter oracle grades it FAIL                                         # steps/torture_release_steps.py:485
+
+  @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
+  Scenario Outline: the soak counters admit no growth and no unplanted unlock -- @1.9   # features/torture_campaign_plan.feature:405
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When an input's soak counter walk shows two MEDIA_UNLOCKED in one planted event     # steps/torture_release_steps.py:463
+    Then the soak counter oracle grades it FAIL                                         # steps/torture_release_steps.py:485
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each negative control fails its own assertion and only by its defect -- @1.1   # features/torture_campaign_plan.feature:415
+    Given the campaign plan is importable                                                          # steps/torture_plan_steps.py:41
+    When the power.control.first-boot-restart negative control is run at the desk                  # steps/torture_release_steps.py:494
+    Then the control fails power.single-boot                                                       # steps/torture_release_steps.py:502
+    And the same oracle passes once the defect is removed                                          # steps/torture_release_steps.py:514
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each negative control fails its own assertion and only by its defect -- @1.2   # features/torture_campaign_plan.feature:416
+    Given the campaign plan is importable                                                          # steps/torture_plan_steps.py:41
+    When the power.control.persistence-disabled negative control is run at the desk                # steps/torture_release_steps.py:494
+    Then the control fails power.state-restored                                                    # steps/torture_release_steps.py:502
+    And the same oracle passes once the defect is removed                                          # steps/torture_release_steps.py:514
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each negative control fails its own assertion and only by its defect -- @1.3   # features/torture_campaign_plan.feature:417
+    Given the campaign plan is importable                                                          # steps/torture_plan_steps.py:41
+    When the audio.control.planted-drop negative control is run at the desk                        # steps/torture_release_steps.py:494
+    Then the control fails audio.zero-dut-glitches                                                 # steps/torture_release_steps.py:502
+    And the same oracle passes once the defect is removed                                          # steps/torture_release_steps.py:514
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: the audio grader classifies the planted drop exactly, offline          # features/torture_campaign_plan.feature:420
+    Given the campaign plan is importable                                          # steps/torture_plan_steps.py:41
+    When the planted audio drop is graded on its synthetic capture                 # steps/torture_release_steps.py:534
+    Then the grader finds one 5-sample drop at the planted sample on every channel # steps/torture_release_steps.py:543
+    And every planted arm is found and attributed apart from the DUT               # steps/torture_release_steps.py:555
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader names each discontinuity class -- @1.1   # features/torture_campaign_plan.feature:432
+    Given the campaign plan is importable                                     # steps/torture_plan_steps.py:41
+    When a synthetic counter capture carries a 3-sample drop                  # steps/torture_release_steps.py:591
+    Then the audio grader reports dropped on 4 channels                       # steps/torture_release_steps.py:598
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader names each discontinuity class -- @1.2   # features/torture_campaign_plan.feature:433
+    Given the campaign plan is importable                                     # steps/torture_plan_steps.py:41
+    When a synthetic counter capture carries a 2-sample repeat                # steps/torture_release_steps.py:591
+    Then the audio grader reports repeated on 4 channels                      # steps/torture_release_steps.py:598
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader names each discontinuity class -- @1.3   # features/torture_campaign_plan.feature:434
+    Given the campaign plan is importable                                     # steps/torture_plan_steps.py:41
+    When a synthetic counter capture carries 6 samples of silence             # steps/torture_release_steps.py:591
+    Then the audio grader reports silence on 4 channels                       # steps/torture_release_steps.py:598
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader names each discontinuity class -- @1.4   # features/torture_campaign_plan.feature:435
+    Given the campaign plan is importable                                     # steps/torture_plan_steps.py:41
+    When a synthetic counter capture carries a bit flip on one channel        # steps/torture_release_steps.py:591
+    Then the audio grader reports bit-flip on 1 channels                      # steps/torture_release_steps.py:598
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader names each discontinuity class -- @1.5   # features/torture_campaign_plan.feature:436
+    Given the campaign plan is importable                                     # steps/torture_plan_steps.py:41
+    When a synthetic counter capture carries a swap of two channels           # steps/torture_release_steps.py:591
+    Then the audio grader reports swap on 2 channels                          # steps/torture_release_steps.py:598
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader sizes a slip of whole blocks exactly -- @1.1                     # features/torture_campaign_plan.feature:445
+    Given the campaign plan is importable                                                             # steps/torture_plan_steps.py:41
+    When the counter capture shows a 2048-sample drop                                                 # steps/torture_release_steps.py:688
+    Then the audio grader reports dropped of 2048 samples on 4 channels within 63 samples of the slip # steps/torture_release_steps.py:696
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader sizes a slip of whole blocks exactly -- @1.2                     # features/torture_campaign_plan.feature:446
+    Given the campaign plan is importable                                                             # steps/torture_plan_steps.py:41
+    When the counter capture shows a 4096-sample drop                                                 # steps/torture_release_steps.py:688
+    Then the audio grader reports dropped of 4096 samples on 4 channels within 63 samples of the slip # steps/torture_release_steps.py:696
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader sizes a slip of whole blocks exactly -- @1.3                      # features/torture_campaign_plan.feature:447
+    Given the campaign plan is importable                                                              # steps/torture_plan_steps.py:41
+    When the counter capture shows a 4096-sample repeat                                                # steps/torture_release_steps.py:688
+    Then the audio grader reports repeated of 4096 samples on 4 channels within 63 samples of the slip # steps/torture_release_steps.py:696
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the audio grader sizes a slip of whole blocks exactly -- @1.4                       # features/torture_campaign_plan.feature:448
+    Given the campaign plan is importable                                                               # steps/torture_plan_steps.py:41
+    When the counter capture shows a 409600-sample drop                                                 # steps/torture_release_steps.py:688
+    Then the audio grader reports dropped of 409600 samples on 4 channels within 63 samples of the slip # steps/torture_release_steps.py:696
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a channel-number flip on one channel is corruption, not a swap       # features/torture_campaign_plan.feature:451
+    Given the campaign plan is importable                                        # steps/torture_plan_steps.py:41
+    When a synthetic counter capture flips one channel-number bit on one channel # steps/torture_release_steps.py:709
+    Then the audio grader reports one bit-flip with that mask and no swap        # steps/torture_release_steps.py:715
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a one-sample hold reads as one repeated and then one dropped sample               # features/torture_campaign_plan.feature:456
+    Given the campaign plan is importable                                                     # steps/torture_plan_steps.py:41
+    When a synthetic counter capture holds one sample on every channel                        # steps/torture_release_steps.py:723
+    Then the audio grader reports a 1-sample repeat and then a 1-sample drop on every channel # steps/torture_release_steps.py:729
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a channel swap from the first frame fails as a swap with every arm found  # features/torture_campaign_plan.feature:461
+    Given the campaign plan is importable                                             # steps/torture_plan_steps.py:41
+    When a synthetic counter capture swaps two channels for the whole run             # steps/torture_release_steps.py:738
+    Then the audio grader fails the run with two swaps and every planted arm found    # steps/torture_release_steps.py:749
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a capture loss is time that ran, so later events keep true clocks              # features/torture_campaign_plan.feature:466
+    Given the campaign plan is importable                                                  # steps/torture_plan_steps.py:41
+    When a synthetic counter capture loses frames at the capture before a corrupted sample # steps/torture_release_steps.py:757
+    Then the corrupted sample's wall and gPTP times include the lost frames                # steps/torture_release_steps.py:770
+    And without an anchor after the event its times are null, not invented                 # steps/torture_release_steps.py:782
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: arms planted only in the middle of the capture void the run                          # features/torture_campaign_plan.feature:472
+    Given the campaign plan is importable                                                        # steps/torture_plan_steps.py:41
+    When a synthetic counter capture plants every arm in the middle of the run                   # steps/torture_release_steps.py:791
+    Then the audio grader voids the run as NOT RUN for arms outside the first and the last tenth # steps/torture_release_steps.py:805
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a journal-commit cut passes only with placed, non-vacuous evidence -- @1.1   # features/torture_campaign_plan.feature:483
+    Given the campaign plan is importable                                                        # steps/torture_plan_steps.py:41
+    When a journal-commit cut restores the new snapshot inside its commit window                 # steps/torture_release_steps.py:830
+    Then the state oracle grades the commit cut PASS                                             # steps/torture_release_steps.py:841
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a journal-commit cut passes only with placed, non-vacuous evidence -- @1.2   # features/torture_campaign_plan.feature:484
+    Given the campaign plan is importable                                                        # steps/torture_plan_steps.py:41
+    When a journal-commit cut restores the old snapshot inside its commit window                 # steps/torture_release_steps.py:830
+    Then the state oracle grades the commit cut PASS                                             # steps/torture_release_steps.py:841
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a journal-commit cut passes only with placed, non-vacuous evidence -- @1.3   # features/torture_campaign_plan.feature:485
+    Given the campaign plan is importable                                                        # steps/torture_plan_steps.py:41
+    When a journal-commit cut restores a mix of old and new values                               # steps/torture_release_steps.py:830
+    Then the state oracle grades the commit cut FAIL                                             # steps/torture_release_steps.py:841
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a journal-commit cut passes only with placed, non-vacuous evidence -- @1.4   # features/torture_campaign_plan.feature:486
+    Given the campaign plan is importable                                                        # steps/torture_plan_steps.py:41
+    When a journal-commit cut pends default values while persistence is disabled                 # steps/torture_release_steps.py:830
+    Then the state oracle grades the commit cut NOT RUN                                          # steps/torture_release_steps.py:841
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a journal-commit cut passes only with placed, non-vacuous evidence -- @1.5   # features/torture_campaign_plan.feature:487
+    Given the campaign plan is importable                                                        # steps/torture_plan_steps.py:41
+    When a journal-commit cut pends one default value                                            # steps/torture_release_steps.py:830
+    Then the state oracle grades the commit cut NOT RUN                                          # steps/torture_release_steps.py:841
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a journal-commit cut passes only with placed, non-vacuous evidence -- @1.6   # features/torture_campaign_plan.feature:488
+    Given the campaign plan is importable                                                        # steps/torture_plan_steps.py:41
+    When a journal-commit cut lands after its commit window closed                               # steps/torture_release_steps.py:830
+    Then the state oracle grades the commit cut NOT RUN                                          # steps/torture_release_steps.py:841
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a journal-commit cut passes only with placed, non-vacuous evidence -- @1.7   # features/torture_campaign_plan.feature:489
+    Given the campaign plan is importable                                                        # steps/torture_plan_steps.py:41
+    When a journal-commit cut has no cut-phase evidence                                          # steps/torture_release_steps.py:830
+    Then the state oracle grades the commit cut NOT RUN                                          # steps/torture_release_steps.py:841
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a missed planted arm voids the audio run                      # features/torture_campaign_plan.feature:492
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When a synthetic counter capture logs an arm the source never planted # steps/torture_release_steps.py:609
+    Then the audio grader voids the run as NOT RUN                        # steps/torture_release_steps.py:615
+    And a logged capture loss is attributed to the capture, not the DUT   # steps/torture_release_steps.py:624
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.1   # features/torture_campaign_plan.feature:505
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses DUT talker index            # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                            # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                        # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.2   # features/torture_campaign_plan.feature:506
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses DUT listener index          # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                            # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                        # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.3   # features/torture_campaign_plan.feature:507
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses DUT CRF sink                # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                            # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                        # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.4   # features/torture_campaign_plan.feature:508
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses DUT AAF direction           # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                            # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                        # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.5   # features/torture_campaign_plan.feature:509
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses DUT CRF direction           # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                            # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                        # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.6   # features/torture_campaign_plan.feature:510
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses peer talker index           # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                            # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                        # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.7   # features/torture_campaign_plan.feature:511
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses peer listener index         # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                            # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                        # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.8   # features/torture_campaign_plan.feature:512
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses peer CRF sink               # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                            # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                        # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.9   # features/torture_campaign_plan.feature:513
+    Given the campaign plan is importable                                 # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses peer AAF direction          # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                            # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                        # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.10   # features/torture_campaign_plan.feature:514
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat soak.continuous loses peer CRF direction           # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.11   # features/torture_campaign_plan.feature:515
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses DUT talker index                  # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.12   # features/torture_campaign_plan.feature:516
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses DUT listener index                # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.13   # features/torture_campaign_plan.feature:517
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses DUT CRF sink                      # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.14   # features/torture_campaign_plan.feature:518
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses DUT AAF direction                 # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.15   # features/torture_campaign_plan.feature:519
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses DUT CRF direction                 # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.16   # features/torture_campaign_plan.feature:520
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses peer talker index                 # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.17   # features/torture_campaign_plan.feature:521
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses peer listener index               # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.18   # features/torture_campaign_plan.feature:522
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses peer CRF sink                     # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.19   # features/torture_campaign_plan.feature:523
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses peer AAF direction                # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.20   # features/torture_campaign_plan.feature:524
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.idle loses peer CRF direction                # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.21   # features/torture_campaign_plan.feature:525
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses DUT talker index        # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.22   # features/torture_campaign_plan.feature:526
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses DUT listener index      # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.23   # features/torture_campaign_plan.feature:527
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses DUT CRF sink            # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.24   # features/torture_campaign_plan.feature:528
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses DUT AAF direction       # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.25   # features/torture_campaign_plan.feature:529
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses DUT CRF direction       # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.26   # features/torture_campaign_plan.feature:530
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses peer talker index       # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.27   # features/torture_campaign_plan.feature:531
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses peer listener index     # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.28   # features/torture_campaign_plan.feature:532
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses peer CRF sink           # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.29   # features/torture_campaign_plan.feature:533
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses peer AAF direction      # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.30   # features/torture_campaign_plan.feature:534
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.journal_commit loses peer CRF direction      # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.31   # features/torture_campaign_plan.feature:535
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.soft_reset loses DUT talker index            # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.32   # features/torture_campaign_plan.feature:536
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.soft_reset loses DUT CRF sink                # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.33   # features/torture_campaign_plan.feature:537
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.soft_reset loses peer AAF direction          # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.34   # features/torture_campaign_plan.feature:538
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat power.soft_reset loses peer CRF direction          # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.35   # features/torture_campaign_plan.feature:539
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity loses DUT talker index             # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.36   # features/torture_campaign_plan.feature:540
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity loses DUT listener index           # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.37   # features/torture_campaign_plan.feature:541
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity loses DUT CRF sink                 # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.38   # features/torture_campaign_plan.feature:542
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity loses DUT AAF direction            # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.39   # features/torture_campaign_plan.feature:543
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity loses peer talker index            # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.40   # features/torture_campaign_plan.feature:544
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity loses peer CRF sink                # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.41   # features/torture_campaign_plan.feature:545
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity loses peer AAF direction           # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: each repeat detects omissions on both sides -- @1.42   # features/torture_campaign_plan.feature:546
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When release repeat audio.integrity loses peer CRF direction           # steps/torture_release_steps.py:202
+    Then that release area fails its own audit                             # steps/torture_release_steps.py:122
+    And the complete matrix still passes its audit                         # steps/torture_release_steps.py:130
+
+  @class:release @clause:REQ-VER-06
+  Scenario: release timing and totals are parameterized                         # features/torture_campaign_plan.feature:549
+    Given the campaign plan is importable                                       # steps/torture_plan_steps.py:41
+    When a diagnostic release profile uses non-default timing and counts        # steps/torture_release_steps.py:226
+    Then every release repeat preserves those parameters and its timing origins # steps/torture_release_steps.py:237
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: partial CLI topology never qualifies the release profile -- @1.1   # features/torture_campaign_plan.feature:560
+    Given the campaign plan is importable                                              # steps/torture_plan_steps.py:41
+    When the release CLI omits only CRF keys from the DUT topology                     # steps/torture_release_steps.py:277
+    Then every release repeat reports diagnostic topology                              # steps/torture_release_steps.py:295
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: partial CLI topology never qualifies the release profile -- @1.2   # features/torture_campaign_plan.feature:561
+    Given the campaign plan is importable                                              # steps/torture_plan_steps.py:41
+    When the release CLI omits only listener from the DUT topology                     # steps/torture_release_steps.py:277
+    Then every release repeat reports diagnostic topology                              # steps/torture_release_steps.py:295
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: partial CLI topology never qualifies the release profile -- @1.3   # features/torture_campaign_plan.feature:562
+    Given the campaign plan is importable                                              # steps/torture_plan_steps.py:41
+    When the release CLI omits only CRF keys from the peer topology                    # steps/torture_release_steps.py:277
+    Then every release repeat reports diagnostic topology                              # steps/torture_release_steps.py:295
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: partial CLI topology never qualifies the release profile -- @1.4   # features/torture_campaign_plan.feature:563
+    Given the campaign plan is importable                                              # steps/torture_plan_steps.py:41
+    When the release CLI omits only listener from the peer topology                    # steps/torture_release_steps.py:277
+    Then every release repeat reports diagnostic topology                              # steps/torture_release_steps.py:295
+
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: restoration eligibility honors the provisional release ceiling -- @1.1   # features/torture_campaign_plan.feature:572
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When an explicit release profile uses a restoration bound of 29 seconds                  # steps/torture_release_steps.py:304
+    Then every release repeat is eligible for release                                        # steps/torture_release_steps.py:312
+
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: restoration eligibility honors the provisional release ceiling -- @1.2   # features/torture_campaign_plan.feature:573
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When an explicit release profile uses a restoration bound of 30 seconds                  # steps/torture_release_steps.py:304
+    Then every release repeat is eligible for release                                        # steps/torture_release_steps.py:312
+
+  @class:release @clause:REQ-VER-06
+  Scenario Outline: restoration eligibility honors the provisional release ceiling -- @1.3   # features/torture_campaign_plan.feature:574
+    Given the campaign plan is importable                                                    # steps/torture_plan_steps.py:41
+    When an explicit release profile uses a restoration bound of 31 seconds                  # steps/torture_release_steps.py:304
+    Then every release repeat is ineligible for release                                      # steps/torture_release_steps.py:312
+
+  @class:release @clause:REQ-VER-06
+  Scenario: uncertainty intervals need a recorded event and the implemented bound           # features/torture_campaign_plan.feature:577
+    Given the campaign plan is importable                                                   # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                                   # steps/torture_release_steps.py:57
+    Then uncertainty is correlated and bounded by half a second plus observation resolution # steps/torture_release_steps.py:320
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: the last discontinuity anchors a chained uncertainty interval  # features/torture_campaign_plan.feature:582
+    Given the campaign plan is importable                                  # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                  # steps/torture_release_steps.py:57
+    Then a chained discontinuity clearing at 0.62 seconds is PASS          # steps/torture_release_steps.py:335
+    And a chained discontinuity clearing at 0.8 seconds is FAIL            # steps/torture_release_steps.py:335
+    And an uncertainty interval without a discontinuity fails              # steps/torture_release_steps.py:344
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.1   # features/torture_campaign_plan.feature:595
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                               # steps/torture_release_steps.py:57
+    Then a lone discontinuity at -0.0005 seconds with 0.001 second resolution is PASS   # steps/torture_release_steps.py:353
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.2   # features/torture_campaign_plan.feature:596
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                               # steps/torture_release_steps.py:57
+    Then a lone discontinuity at -0.002 seconds with 0.001 second resolution is FAIL    # steps/torture_release_steps.py:353
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.3   # features/torture_campaign_plan.feature:597
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                               # steps/torture_release_steps.py:57
+    Then a lone discontinuity at 0 seconds with 0.001 second resolution is PASS         # steps/torture_release_steps.py:353
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.4   # features/torture_campaign_plan.feature:598
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                               # steps/torture_release_steps.py:57
+    Then a lone discontinuity at 0 seconds with 0 second resolution is PASS             # steps/torture_release_steps.py:353
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.5   # features/torture_campaign_plan.feature:599
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                               # steps/torture_release_steps.py:57
+    Then a lone discontinuity at -0.1 seconds with 0.001 second resolution is FAIL      # steps/torture_release_steps.py:353
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.6   # features/torture_campaign_plan.feature:600
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                               # steps/torture_release_steps.py:57
+    Then a lone discontinuity at -0.001 seconds with 0.001 second resolution is PASS    # steps/torture_release_steps.py:353
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.7   # features/torture_campaign_plan.feature:601
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                               # steps/torture_release_steps.py:57
+    Then a lone discontinuity at -0.001001 seconds with 0.001 second resolution is FAIL # steps/torture_release_steps.py:353
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.8   # features/torture_campaign_plan.feature:602
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                               # steps/torture_release_steps.py:57
+    Then a lone discontinuity at 0.4 seconds with 0.001 second resolution is FAIL       # steps/torture_release_steps.py:353
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: wire observation resolution contains a lone discontinuity -- @1.9   # features/torture_campaign_plan.feature:603
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                               # steps/torture_release_steps.py:57
+    Then a lone discontinuity at 0.401 seconds with 0.001 second resolution is FAIL     # steps/torture_release_steps.py:353
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: a second successful boot cannot hide the first-boot restart  # features/torture_campaign_plan.feature:606
+    Given the campaign plan is importable                                # steps/torture_plan_steps.py:41
+    Then the first-boot restart control fails the release boot assertion # steps/torture_release_steps.py:269
+
+  @class:runner
+  Scenario: areas can be selected, and an unknown area is refused  # features/torture_campaign_plan.feature:610
+    Given the campaign plan is importable                          # steps/torture_plan_steps.py:41
+    Then selecting the audio area yields only audio steps          # steps/torture_plan_steps.py:846
+    And selecting an unknown area raises                           # steps/torture_plan_steps.py:853
+    And selecting nothing yields all configured areas              # steps/torture_plan_steps.py:863
+
+  @class:runner
+  Scenario: the verdict record shape is stable and the exit codes are graded            # features/torture_campaign_plan.feature:616
+    Given the campaign plan is importable                                               # steps/torture_plan_steps.py:41
+    Then a verdict record carries schema, step, assertion, verdict, severity and clause # steps/torture_plan_steps.py:870
+    And a SHALL failure exits 1                                                         # steps/torture_plan_steps.py:884
+    And a RECOMMENDED failure exits 2                                                   # steps/torture_plan_steps.py:890
+    And an outstanding human entry exits 2                                              # steps/torture_plan_steps.py:898
+    And a SKIP alone exits 0                                                            # steps/torture_plan_steps.py:904
+    And the summary counts every verdict kind                                           # steps/torture_plan_steps.py:910
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario: every grandmaster change needs a following uncertainty hold           # features/torture_campaign_plan.feature:628
+    Given the campaign plan is importable                                         # steps/torture_plan_steps.py:41
+    When the soak release area is planned                                         # steps/torture_release_steps.py:57
+    Then the planned uncertainty oracle rejects missing holds for every GM change # steps/torture_release_steps.py:362
+
+1 feature passed, 0 failed, 0 skipped
+150 scenarios passed, 0 failed, 0 skipped
+585 steps passed, 0 failed, 0 skipped
+Took 0min 1.689s
