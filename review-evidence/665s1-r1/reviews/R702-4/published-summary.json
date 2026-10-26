@@ -1,0 +1,159 @@
+{
+  "evidence_commit": "2d88c87ca36b521ac875b6299c2a3204040e942b",
+  "firmware_execution_head": "989c9f537f8b973fb4a5c97cad36abb35da1244a",
+  "aecp_mutants": {
+    "count": 108,
+    "caught": 108,
+    "unique_names": 108
+  },
+  "docs": {
+    "commands": 69,
+    "nonzero_commands": [],
+    "ending": [
+      "docs gates: 0 failed",
+      "rc=0 elapsed=276s"
+    ]
+  },
+  "image_plans": {
+    "head-endstation_ax7101_8x8-if1.plan.txt": {
+      "rom": {
+        "bytes": 117024,
+        "banks": [
+          65536,
+          32768,
+          16384,
+          4096
+        ],
+        "RAMB36": 29,
+        "RAMB18": 0
+      },
+      "sram": {
+        "bytes": 86608,
+        "banks": [
+          65536,
+          16384,
+          4096,
+          2048
+        ],
+        "RAMB36": 21,
+        "RAMB18": 1
+      },
+      "tiles": 50.5,
+      "budget_tiles": 56
+    },
+    "head-endstation_ax7101_1x1_tdm8-if1.plan.txt": {
+      "rom": {
+        "bytes": 103304,
+        "banks": [
+          65536,
+          32768,
+          4096,
+          2048
+        ],
+        "RAMB36": 25,
+        "RAMB18": 1
+      },
+      "sram": {
+        "bytes": 46032,
+        "banks": [
+          32768,
+          8192,
+          4096,
+          2048
+        ],
+        "RAMB36": 11,
+        "RAMB18": 1
+      },
+      "tiles": 37.0,
+      "budget_tiles": 56
+    },
+    "head-endstation_ax7101_1x1_tdm8-if2.plan.txt": {
+      "rom": {
+        "bytes": 104888,
+        "banks": [
+          65536,
+          32768,
+          8192
+        ],
+        "RAMB36": 26,
+        "RAMB18": 0
+      },
+      "sram": {
+        "bytes": 57424,
+        "banks": [
+          32768,
+          16384,
+          8192,
+          2048
+        ],
+        "RAMB36": 14,
+        "RAMB18": 1
+      },
+      "tiles": 40.5,
+      "budget_tiles": 56
+    },
+    "head-endstation_ax7101_8x8-if2.plan.txt": {
+      "rom": {
+        "bytes": 118680,
+        "banks": [
+          65536,
+          32768,
+          16384,
+          4096
+        ],
+        "RAMB36": 29,
+        "RAMB18": 0
+      },
+      "sram": {
+        "bytes": 112768,
+        "banks": [
+          65536,
+          32768,
+          16384
+        ],
+        "RAMB36": 28,
+        "RAMB18": 0
+      },
+      "tiles": 57.0,
+      "budget_tiles": 56,
+      "ledgered": "8x8-two-interfaces",
+      "ledgered_tiles": 57.0
+    }
+  },
+  "export_comparisons": {
+    "export-compare-endstation_ax7101_8x8.json": {
+      "files": 3876,
+      "identical": 3856,
+      "different": [],
+      "missing": []
+    },
+    "export-compare-endstation_arty_current.json": {
+      "files": 3876,
+      "identical": 3856,
+      "different": [],
+      "missing": []
+    },
+    "export-compare-endstation_arty_4x4.json": {
+      "files": 3876,
+      "identical": 3856,
+      "different": [],
+      "missing": []
+    },
+    "export-compare-endstation_arty_8ch.json": {
+      "files": 3876,
+      "identical": 3856,
+      "different": [],
+      "missing": []
+    },
+    "export-compare-endstation_ax7101_1x1_tdm8.json": {
+      "files": 3876,
+      "identical": 3856,
+      "different": [],
+      "missing": []
+    }
+  },
+  "probe_source_sha256": {
+    "response_probe.py": "9d018fe7927db6eb08055c87d396f15a0999a74731a1a03e19ac85edbbb54e43",
+    "probe_ack.py": "bfaee8079134d558d6368f15501ea3c50839ee6eda86b647215ba940602bdaab"
+  }
+}

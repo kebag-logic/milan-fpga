@@ -1,0 +1,121 @@
+{
+  "parent": {
+    "expected_head": "d33a5adc60cd93b34be41dfacf94daaec9d059c2",
+    "actual_head": "d33a5adc60cd93b34be41dfacf94daaec9d059c2",
+    "tree": "7e8fef6c536150dfcded5b34ae6edde2cd6165cf",
+    "index_tree": "7e8fef6c536150dfcded5b34ae6edde2cd6165cf",
+    "tracked_blobs": 1448,
+    "blob_mode_errors": [],
+    "gitlinks": [
+      {
+        "path": "external",
+        "gitlink": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5"
+      },
+      {
+        "path": "gptp-processor",
+        "gitlink": "55680bff3b287b9a7b0c759f51471fa617c17335"
+      },
+      {
+        "path": "protocol-processor",
+        "gitlink": "ed2118035e4cec76fb1b59cfbf8a053aeacc8af8"
+      },
+      {
+        "path": "third_party/lwSRP",
+        "gitlink": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348"
+      },
+      {
+        "path": "third_party/tsn-c-stack",
+        "gitlink": "70936b77dc41981e192438388cd0aced69954f18"
+      },
+      {
+        "path": "third_party/verilog-axis",
+        "gitlink": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+      }
+    ],
+    "matches": true
+  },
+  "submodules": [
+    {
+      "path": "external",
+      "gitlink": "efeb541ae5fe1e078332d8462dca2fc2d9cb8db5",
+      "optional_uninitialized": true
+    },
+    {
+      "path": "gptp-processor",
+      "expected_head": "55680bff3b287b9a7b0c759f51471fa617c17335",
+      "actual_head": "55680bff3b287b9a7b0c759f51471fa617c17335",
+      "tree": "249bdbe6209bbc7ec17a816c26823ad97bb6d748",
+      "index_tree": "249bdbe6209bbc7ec17a816c26823ad97bb6d748",
+      "tracked_blobs": 107,
+      "blob_mode_errors": [],
+      "gitlinks": [],
+      "matches": true
+    },
+    {
+      "path": "protocol-processor",
+      "expected_head": "ed2118035e4cec76fb1b59cfbf8a053aeacc8af8",
+      "actual_head": "ed2118035e4cec76fb1b59cfbf8a053aeacc8af8",
+      "tree": "1279c09f5b690c5e94969036baa57ccfa99eccf8",
+      "index_tree": "1279c09f5b690c5e94969036baa57ccfa99eccf8",
+      "tracked_blobs": 704,
+      "blob_mode_errors": [],
+      "gitlinks": [],
+      "matches": true
+    },
+    {
+      "path": "third_party/lwSRP",
+      "expected_head": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348",
+      "actual_head": "08ee86e812a0eb5e1dc6cd61b494d8baf3491348",
+      "tree": "67b35af9c7a906ea044e04686362d58811f85051",
+      "index_tree": "67b35af9c7a906ea044e04686362d58811f85051",
+      "tracked_blobs": 65,
+      "blob_mode_errors": [],
+      "gitlinks": [],
+      "matches": true
+    },
+    {
+      "path": "third_party/tsn-c-stack",
+      "expected_head": "70936b77dc41981e192438388cd0aced69954f18",
+      "actual_head": "70936b77dc41981e192438388cd0aced69954f18",
+      "tree": "591d38854105564a5d632c18e846b0dd60c2f148",
+      "index_tree": "591d38854105564a5d632c18e846b0dd60c2f148",
+      "tracked_blobs": 98,
+      "blob_mode_errors": [],
+      "gitlinks": [],
+      "matches": true
+    },
+    {
+      "path": "third_party/verilog-axis",
+      "expected_head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "actual_head": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "tree": "54432ffb46df72ed7c5d4bdecf4c0774bdd3a019",
+      "index_tree": "54432ffb46df72ed7c5d4bdecf4c0774bdd3a019",
+      "tracked_blobs": 214,
+      "blob_mode_errors": [],
+      "gitlinks": [],
+      "matches": true
+    }
+  ],
+  "all_initialized_match": true,
+  "comment_only_or_unchanged": {
+    "hdl/milan/mailbox/KL_mbx.sv": true,
+    "hdl/milan/mailbox/KL_mbx_evt.sv": true,
+    "hdl/milan/mailbox/KL_mbx_pkg.sv": true,
+    "tb/verilator/mbx/suite_face.hpp": true,
+    "tb/verilator/mbx/suite.hpp": true,
+    "sw/firmware/ctrl/mbx/mbx_contract.h": true
+  },
+  "protected_paths_unchanged_from_base": {
+    "hdl/milan/milan_datapath.sv": true,
+    ".github": true,
+    "sw/mailbox/ci_gate_workflows.py": true
+  },
+  "coverage_framework_delta": [],
+  "changed_since_executed_firmware_head": [
+    "docs/ARCHITECTURE_HW_SW_SPLIT.md",
+    "docs/design/MAILBOX_SPLIT.md",
+    "docs/design/SPLIT_CONTROL_MEMORY.md",
+    "sw/firmware/ctrl/README.md",
+    "sw/firmware/ctrl/aecp/README.md"
+  ]
+}
