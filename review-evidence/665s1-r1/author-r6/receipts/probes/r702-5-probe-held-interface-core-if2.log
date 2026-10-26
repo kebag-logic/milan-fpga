@@ -1,0 +1,18 @@
+probe 289421878a235291f94e1158f3463e102b02169685e1031fbf437922e20a2c75 probe_held_interface.cpp at 424b1489ccd8062180f90158556d343589b9e1e5, arm core, interfaces 2
+Note: Google Test filter = Core.ReviewProbe*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.ReviewProbeWaitingResponseLeavesOnItsOwnInterface
+PROBE in-progress egress=1
+PROBE final status=0 egress=1 src_mac=20000000002
+[       OK ] Core.ReviewProbeWaitingResponseLeavesOnItsOwnInterface (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== AECP core: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+rc=0

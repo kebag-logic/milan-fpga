@@ -1,0 +1,24 @@
+probe 00c00f269b7d7084a849dbc6aff12fa38845cbd66963fede6ad76ae922fa7b08 probe_release_reads.cpp at 424b1489ccd8062180f90158556d343589b9e1e5, arm app, interfaces 2
+wrote <work>/probes/scratch/release-reads-app-if2/out/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/probes/scratch/release-reads-app-if2/out/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/probes/scratch/release-reads-app-if2/out/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = Core.ReviewProbe*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.ReviewProbeReadsDuringAPendingRelease
+PROBE control-locked ENTITY_AVAILABLE status=0 flags=2 lock_owner=1020304050607081
+PROBE after-expiry core_locked=0 unlocked_pending=1
+PROBE pending-release ENTITY_AVAILABLE status=0 flags=2 lock_owner=1020304050607081
+PROBE pending-release foreign LOCK_ENTITY status=3 locked_id=1020304050607081
+PROBE after-applied ENTITY_AVAILABLE flags=0 lock_owner=0
+[       OK ] Core.ReviewProbeReadsDuringAPendingRelease (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== AECP core: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+rc=0

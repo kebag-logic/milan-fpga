@@ -1,0 +1,32 @@
+[
+  {
+    "name": "foreign-lock-ignored",
+    "path": "aecp/aecp_commands.c",
+    "old": "return (a->locked || a->unlocked) && a->lock_owner != a->requester;",
+    "new": "return (a->locked || a->unlocked) && a->lock_owner == a->requester;",
+    "checks": [
+      [
+        "Core.ConfigurationAndLockedSetRefusals",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "expired-lock-not-held-against-others",
+    "path": "aecp/aecp_commands.c",
+    "old": "return (a->locked || a->unlocked) && a->lock_owner != a->requester;",
+    "new": "return a->locked && a->lock_owner != a->requester;",
+    "checks": [
+      [
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+        "another controller's LOCK_ENTITY is refused by the lock in force, naming its owner"
+      ],
+      [
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+        "another controller's SET_SYSTEM_UNIQUE_ID keeps its status under the lock in force"
+      ]
+    ],
+    "caught": true
+  }
+]

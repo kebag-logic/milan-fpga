@@ -1,0 +1,452 @@
+[
+  {
+    "name": "nosub-bypasses-input-refusal",
+    "path": "aecp/aecp_commands.c",
+    "old": "\t\tif (type == 5u) {\n\t\t\treturn AECP_NOT_SUPPORTED;\n\t\t}\n",
+    "new": "\t\tif (type == 5u && (wire_be32(in + 4) & 0xfaf80000u) != 0u) {\n\t\t\treturn AECP_NOT_SUPPORTED;\n\t\t}\n",
+    "checks": [
+      [
+        "Core.S2_NoSubcommandSetOnInputIsNotSupported",
+        "NOT_SUPPORTED for a no-sub-command SET to a STREAM_INPUT"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "retry-timer-lost",
+    "path": "aecp/aecp.c",
+    "old": "e->retry_pending != 0u && (!armed || due(deadline, e->retry_at))",
+    "new": "e->retry_pending == 0u && (!armed || due(deadline, e->retry_at))",
+    "checks": [
+      [
+        "Core.CounterTimerArmsOnlyEligibleCompletedSnapshots",
+        "Unexpected mock function call"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unavailable-head-blocks-notices",
+    "path": "aecp/aecp.c",
+    "old": "e->retry_at = a->now + 1u;",
+    "new": "e->retry_at = a->now + 1u; return true;",
+    "checks": [
+      [
+        "Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin",
+        "backpressure retains the built independent snapshot"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "stream-info-noop-refused",
+    "path": "aecp/aecp_commands.c",
+    "old": "(requested & 0xdaf80000u) != 0u",
+    "new": "requested != 0x20000000u",
+    "checks": [
+      [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unknown-body-lost",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out, in, len);",
+    "new": "memset(out, 0, len);",
+    "checks": [
+      [
+        "Core.UnsupportedAndAcquire",
+        "unsupported command echoes its exact body"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "default-is-not-override",
+    "path": "aecp/aecp_commands.c",
+    "old": "!aecp_overridden(a, d, 1u) || memcmp",
+    "new": "memcmp",
+    "checks": [
+      [
+        "Core.AcceptedDefaultBecomesAnOverrideAndObservationFailureRefusesSet",
+        "aecp_value_latch"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "path-failure-success",
+    "path": "aecp/aecp_commands.c",
+    "old": "if (!ok || count > AECP_PATH_ITEMS)",
+    "new": "if ((void)ok, count > AECP_PATH_ITEMS)",
+    "checks": [
+      [
+        "Core.ObservationRefusals",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "dynamic-unknown-status",
+    "path": "aecp/aecp_commands.c",
+    "old": "status = AECP_NOT_SUPPORTED;",
+    "new": "status = AECP_SUCCESS;",
+    "checks": [
+      [
+        "Core.DynamicInfoWhitelistAndIndependentResults",
+        "per-record NOT_SUPPORTED"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "identify-one-accepted",
+    "path": "aecp/aecp_commands.c",
+    "old": "in[4] != 0u && in[4] != 255u",
+    "new": "in[4] > 1u && in[4] != 255u",
+    "checks": [
+      [
+        "Core.IdentifyCurrentValueAndRefusals",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "counter-spacing-short",
+    "path": "aecp/aecp.c",
+    "old": "departure_ms + 1000u",
+    "new": "departure_ms + 999u",
+    "checks": [
+      [
+        "Core.CounterNoticesCoalesceAndWaitForEligibility",
+        "sent.empty()"
+      ],
+      [
+        "Mailbox.OutputTailStartsCounterSpacingAfterAStall",
+        "fabric.tx_sent"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "saved-latency-wrong-type",
+    "path": "aecp/aecp_state.c",
+    "old": "if (v.type != 6u) return false;",
+    "new": "if (v.type != 5u && v.type != 6u) return false;",
+    "checks": [
+      [
+        "Core.SavedValuesRejectWrongFieldsAndDamagedDescriptors",
+        "aecp_value_restore"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "framing-version-ignored",
+    "path": "aecp/aecp.c",
+    "old": "(p[1] & 0xf0u) != 0u",
+    "new": "(p[1] & 0xe0u) != 0u",
+    "checks": [
+      [
+        "Core.FramingRejectsInvalidIdentityAndTruncation",
+        "a.malformed"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "descriptor-configuration-ignored",
+    "path": "aecp/aecp_commands.c",
+    "old": "d->configuration == cfg && d->type == type",
+    "new": "(void)cfg, d->type == type",
+    "checks": [
+      [
+        "Core.MetadataConfigurationKeysAndRepeatedOverrides",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "completion-cookie-ignored",
+    "path": "aecp/aecp.c",
+    "old": "e->cookie == cookie",
+    "new": "(e->cookie != UINT32_MAX || cookie == UINT32_MAX)",
+    "checks": [
+      [
+        "Core.NotificationBackpressureAndLatestCompletion",
+        "an old completion cannot release a newer copy"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "nvm-partial-latch-writes",
+    "path": "aecp/aecp_nvm.c",
+    "old": "len != m->capacity * 8u) return 0;",
+    "new": "len > m->capacity * 8u) return 0;",
+    "checks": [
+      [
+        "Nvm.MapRecordsRefuseMissingStorageAndNeverPartiallyLatch",
+        "owner.port.latch"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-notice-overtakes-unbind",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "if (acmp_change_pending(a, n)) pending = true;",
+    "new": "if (false) pending = true;",
+    "checks": [
+      [
+        "App.MediaUnlockedNoticeCannotPassAnOwedUnbindResponse",
+        "response) < (notice"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-expired-start-applies",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "if (c->aecp->core.start_pending) {",
+    "new": "if (true) {",
+    "checks": [
+      [
+        "App.ExpiredAndMissingStartRequestsCannotApplyLate",
+        "sinks[0].started"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "mailbox-interface-crossed",
+    "path": "aecp/aecp_mbx.c",
+    "old": "aecp_rx(&m->core, f->interface, f->bytes, f->len);",
+    "new": "aecp_rx(&m->core, 0, f->bytes, f->len);",
+    "checks": [
+      [
+        "Mailbox.EveryInterfaceAndObservationPort",
+        "fabric.tx_sent"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "latency-budget-relaxed",
+    "path": "test/aecp_latency_policy.hpp",
+    "old": "10000000;",
+    "new": "20000000;",
+    "checks": [
+      [
+        "Latency.NotificationFanoutAndStallsRetainTheirOriginalOrigin",
+        "late output cannot restart the service clock"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "debug-guard-silent",
+    "path": "aecp/aecp.c",
+    "old": "ctrl_reentry_assert(\"aecp\");",
+    "new": "(void)a;",
+    "checks": [
+      [
+        "AecpDebug.EveryInputRejectsSynchronousPortDelivery",
+        "died but not with expected exit code"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-window-read-past-its-bound",
+    "path": "mbx/mbx.c",
+    "old": "for (uint32_t k = 0; k <= w->wait_cycles; ++k) {",
+    "new": "for (uint32_t k = 0; k <= 2u * w->wait_cycles; ++k) {",
+    "checks": [
+      [
+        "Face.CountersAreReadThroughTheWindowEachWithinItsBound",
+        "wait_cycles + 1 status reads, no more"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-output-never-streams",
+    "path": "aecp/aecp_face.c",
+    "old": "out->running = type == STREAM_OUTPUT && mbx_pub_licensed(interface, index);",
+    "new": "out->running = false;",
+    "checks": [
+      [
+        "Face.StreamAvbAndFormatAreTheDatapathsWords",
+        "status for command 8"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-short-descriptor-trusted",
+    "path": "aecp/aecp_face.c",
+    "old": "unsigned i = d->length >= INTERFACE_AT + 2u ? (unsigned)wire_be16(d->value + INTERFACE_AT) : MBX_N_IF;",
+    "new": "unsigned i = (unsigned)wire_be16(d->value + INTERFACE_AT);",
+    "checks": [
+      [
+        "Face.DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing",
+        "a stream naming no interface has no verdict"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-attach-ignores-a-full-loop",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "if (c->face != NULL || c->app->loop.n_sinks == CTRL_LOOP_MAX_SINKS) return false;",
+    "new": "if (c->face != NULL) return false;",
+    "checks": [
+      [
+        "AppFace.AttachRefusesAFullLoop",
+        "a full loop refuses the face"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "refusal-reports-the-request",
+    "path": "aecp/aecp.c",
+    "old": "\t\t\tstatus = AECP_ENTITY_MISBEHAVING;\n\t\t}\n\t\tfinish(a, status, result);\n",
+    "new": "\t\t\tstatus = AECP_ENTITY_MISBEHAVING;\n\t\t\tmemcpy(a->response + 38, p + 24, result);\n\t\t}\n\t\tfinish(a, status, result);\n",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedPromisesNothing",
+        "the refusal reports what its lock refusal reports"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "unapplied-change-claims-success",
+    "path": "aecp/aecp.c",
+    "old": "if (a->notify && cmd < 32u && ((AECP_WAITS >> cmd) & 1u) != 0u && !applied(a)) {",
+    "new": "if (false) {",
+    "checks": [
+      [
+        "Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt",
+        "IN_PROGRESS alone"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-change-not-redone",
+    "path": "aecp/aecp.c",
+    "old": "\t\tif (taken) {\n\t\t\tswap(a);\n\t\t}\n",
+    "new": "",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce",
+        "done again once applied"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-times-out-early",
+    "path": "aecp/aecp.c",
+    "old": "a->wait_deadline = a->now + AECP_WAIT_MS;",
+    "new": "a->wait_deadline = a->now + AECP_WAIT_MS / 2u;",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce",
+        "waits its whole bound"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-change-not-kept",
+    "path": "aecp/aecp_commands.c",
+    "old": "\tif (a->kept < AECP_KEPT) {",
+    "new": "\tif (false) {",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce",
+        "the change waits undone"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "waiting-expiry-not-deferred",
+    "path": "aecp/aecp.c",
+    "old": "\t\tif (!taken && !due(a->now, a->wait_deadline)) {\n\t\t\treturn true;\n",
+    "new": "\t\tif (!taken && !due(a->now, a->wait_deadline)) {\n\t\t\treturn asynchronous(a) || true;\n",
+    "checks": [
+      [
+        "Face.ALockThatExpiresWhileAChangeWaitsIsNotifiedOnceTaken",
+        "the expiry follows the wait"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "expired-lock-owner-dropped",
+    "path": "aecp/aecp.c",
+    "old": "\t\ta->locked = false;\n\t\taecp_note(a, AECP_CHANGE_LOCK, 0, 0);\n",
+    "new": "\t\ta->locked = false;\n\t\ta->lock_owner = 0;\n\t\taecp_note(a, AECP_CHANGE_LOCK, 0, 0);\n",
+    "checks": [
+      [
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+        "by its owner"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "system-id-refusal-not-implemented",
+    "path": "aecp/aecp.c",
+    "old": "\t\t\t\t\tstatus = AECP_ENTITY_MISBEHAVING;\n\t\t\t\t} else if (set",
+    "new": "\t\t\t\t\tstatus = 1u;\n\t\t\t\t} else if (set",
+    "checks": [
+      [
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs",
+        "refused while a change waits, as every change is"
+      ],
+      [
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs",
+        "and after the wait failed, while the platform has not applied it"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-never-unapplied",
+    "path": "aecp/aecp_face.c",
+    "old": "\t\tif (mbx_face_busy(i) || (f->owed[i] && !f->core->waiting)) {\n\t\t\treturn false;",
+    "new": "\t\tif (false) {\n\t\t\treturn false;",
+    "checks": [
+      [
+        "Face.ALateCommitIsOwedAndPublishedAgainWhole",
+        "IN_PROGRESS alone: no notification promises the held value"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-publishes-while-a-change-waits",
+    "path": "aecp/aecp_face.c",
+    "old": "\tif (f->owed[i] || f->core->waiting || mbx_face_busy(i)) {\n\t\tf->owed[i] = true;",
+    "new": "\tif (f->owed[i] || mbx_face_busy(i)) {\n\t\tf->owed[i] = true;",
+    "checks": [
+      [
+        "Face.APendingChangeIsAnsweredOnceTheDatapathTakesIt",
+        "nothing is written while a change waits"
+      ]
+    ],
+    "caught": true
+  }
+]

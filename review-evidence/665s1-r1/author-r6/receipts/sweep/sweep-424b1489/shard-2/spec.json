@@ -1,0 +1,19 @@
+{
+ "cwd": "<shard-clone>2",
+ "head": "424b1489ccd8062180f90158556d343589b9e1e5",
+ "base": "e76a755afc0536453161e3cd33f6f4d2dcd7641f",
+ "commands": [
+  [
+   "env",
+   "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:~/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TMPDIR=<work>/tmp-sweep",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<work>/sweep-424b1489/shard-2/logs",
+   "--wait",
+   "--shard",
+   "2/4"
+  ]
+ ]
+}
