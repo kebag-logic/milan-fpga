@@ -1,0 +1,480 @@
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 71ae3c2e53..d87e45cff7 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -149,7 +149,11 @@ The self-test counts every window's stimulus against the same loads, restated, s
+ The window must also service its load.
+ For each loaded channel, the window's first and last record are graded from their receive commit to the end of the pass that released them, as the SRP rows end: the handler runs after the release, inside that pass (`ctrl_loop.c`, `service_rx`).
+ A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither T_svc nor its ceiling.
+-The window's longest pass is the composed maximum only if the window released its whole load; otherwise the record names what was left, and that pass is a lower bound of a load the firmware did not finish.
++A served record's records ahead are its channel's earlier records not yet released at its commit.
++A window that left records unreleased names them, and its passes ran without that work, so its longest pass is a lower bound of a load the firmware did not finish.
++The composed maximum is the longest pass over every backlog row's window, each of which committed its defined load (`run.composed_maximum`).
++While any of those windows left its load unreleased, the composed maximum is a lower bound.
++The longest pass of the windows that released their whole load is reported beside it, labelled as such: it leaves out the windows the firmware never finished, so it is not the composed maximum.
+ 
+ The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 18 ms.
+ A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc, and its ceiling by W plus the ceiling.
+@@ -161,7 +165,7 @@ Arm B is the labelled second arm, whose fixture callbacks answer.
+ The SHUTDOWN row comes from the labelled `shutdown-entry` arm.
+ In the path tables a cell is a path's worst measured instance across the groups that measure it, "ms (the pass bound)"; **miss** is over T_svc, **over ceiling** over the 3.4.1 ceiling as well.
+ A record never released or a command never answered is worse than any time measured, and its cell gives the time it had waited, at least.
+-Each run writes every path's worst instance, every probe, every composed window and every timed-out wait to its `table.md`, and all of it to `results.json`.
++Each run writes every path's worst instance, every probe, every composed window, the composed maximum and every timed-out wait to its `table.md`, and all of it to `results.json`.
+ 
+ Arm labels: A is arm A, B is arm B, S is the `shutdown-entry` arm; 1 is 1x1 and 8 is 8x8.
+ T_svc misses, counted per path and per probe instance (a path several groups measure is one path, at its worst; at 8x8 each interface's instance is its own path):
+@@ -190,20 +194,23 @@ Their waits sum to 1.59 to 1.64 times each pass's cycles, so more than one fetch
+ 
+ ### Passes
+ 
+-| Point, arm | Idle pass, CPU cycles (ms) | Worst pass, CPU cycles (ms), group | Composed maximum, CPU cycles (ms), group | Longest pass under a load left unreleased (lower bound) |
++| Point, arm | Idle pass, CPU cycles (ms) | Worst pass, CPU cycles (ms), group | Composed maximum, every backlog window, CPU cycles (ms), group | Over the windows that released their whole load only |
+ |---|---:|---:|---:|---:|
+-| 1x1, A | 65,703 to 72,632 (1.31 to 1.45) | 1,565,803 (31.32), backlog-adp | 740,260 (14.81), backlog | 1,565,803 (31.32), backlog-adp |
+-| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 740,260 (14.81), backlog | 740,260 (14.81), backlog | - |
+-| 8x8, A | 157,133 to 185,315 (3.14 to 3.71) | 2,989,496 (59.79), acmp-notk | 1,392,016 (27.84), backlog | 2,209,308 (44.19), backlog-adp-refill |
+-| 8x8, B | 157,133 to 293,468 (3.14 to 5.87) | 2,004,666 (40.09), acmp-notk | 1,392,016 (27.84), backlog | - |
+-
+-The composed maximum is the longest pass of a window that released its whole load.
+-In arm A's two bound-talker windows SRP's 32 records are never released (see [the load's service](#the-loads-service)), so their longest passes are lower bounds, in the last column.
++| 1x1, A | 65,703 to 72,632 (1.31 to 1.45) | 1,565,803 (31.32), backlog-adp | at least 1,565,803 (31.32), backlog-adp, a lower bound | 740,260 (14.81), backlog |
++| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 740,260 (14.81), backlog | 740,260 (14.81), backlog | 740,260 (14.81), backlog |
++| 8x8, A | 157,133 to 185,315 (3.14 to 3.71) | 2,989,496 (59.79), acmp-notk | at least 2,209,308 (44.19), backlog-adp-refill, a lower bound | 1,392,016 (27.84), backlog |
++| 8x8, B | 157,133 to 293,468 (3.14 to 5.87) | 2,004,666 (40.09), acmp-notk | 1,392,016 (27.84), backlog | 1,392,016 (27.84), backlog |
++
++The composed maximum is the longest pass over every backlog window, each of which committed its row's defined load.
++In arm A, the formal measurement, the two bound-talker windows never release SRP's 32 records (see [the load's service](#the-loads-service)), so their passes ran without SRP's work and the composed maximum is a lower bound: at least 31.32 ms at 1x1 and at least 44.19 ms at 8x8.
++The last column leaves those windows out; it is labelled, and it is not the composed maximum.
++Every window of arm B released its load, so its two figures are the same.
+ An idle pass's largest consumers are AECP's two modules, `aecp` 26,497 and `aecp_nvm` 20,254 cycles at 1x1, 73,883 and 20,254 at 8x8, mostly their polls.
+ The idle range excludes the pass the script's end cuts short; at 8x8 it is 3.14 to 3.71 ms (157,133 to 185,315 cycles) in arm A.
+ The 8x8 link-up pass, 2,004,666 cycles, is lwSRP's `mrp_mad` 473,950, `memset` 361,053, `memcpy` 244,102, the mailbox driver 119,790 and software multiply and divide (`__mulsi3` 111,201, `__udivsi3` 89,954).
+-The composed maximum at both points is the `backlog` group's: at 1x1, 740,260 cycles of `memset` 278,637, the mailbox driver 141,995, `memcpy` 66,719, AECP 41,029 and ACMP 36,377; at 8x8, 1,392,016 cycles of `memset` 477,042, the mailbox driver 134,267, `memcpy` 132,197, AECP 111,084, ACMP 89,857 and `__mulsi3` 67,272.
+-The 1x1 worst pass, `backlog-adp`'s 1,565,803 cycles, is `memset` 984,728, AECP 173,531, the mailbox driver 127,547, ACMP 49,350 and `memcpy` 46,964: after the bind, AECP's retry (see [Findings](#findings)).
++In arm B, and over arm A's windows that released their load, the longest pass at both points is the `backlog` group's: at 1x1, 740,260 cycles of `memset` 278,637, the mailbox driver 141,995, `memcpy` 66,719, AECP 41,029 and ACMP 36,377; at 8x8, 1,392,016 cycles of `memset` 477,042, the mailbox driver 134,267, `memcpy` 132,197, AECP 111,084, ACMP 89,857 and `__mulsi3` 67,272.
++Arm A's 1x1 composed maximum and worst pass, `backlog-adp`'s 1,565,803 cycles, is `memset` 984,728, AECP 173,531, the mailbox driver 127,547, ACMP 49,350 and `memcpy` 46,964: after the bind, AECP's retry (see [Findings](#findings)).
++Arm A's 8x8 composed maximum, `backlog-adp-refill`'s 2,209,308 cycles, is `memset` 827,831, lwSRP's `mrp_mad` 429,626, AECP 350,539, the mailbox driver 150,636 and `memcpy` 140,364.
+ 
+ ### ADP
+ 
+@@ -300,7 +307,10 @@ Only the first SET of a value notifies, so the sampling rate (the image has one)
+ - In arm A, the fixture's stream observation reports unavailable, so the image refuses SET_CONFIGURATION and SET_STREAM_INFO (ENTITY_MISBEHAVING), and an output map edit, and never sends BIND_RX's GET_STREAM_INFO notice: AECP retries it every millisecond.
+   Those paths are arm B's.
+ - At 8x8 the image's input maps have capacity 0, so only an output map edit can change a map, in arm B.
+-- SET_NAME's notice carries the 64-byte name, and costs about 20,400 CPU cycles a recipient; the others cost 11,800 to 13,400.
++- Over every fan-out measured, on every interface, a recipient costs 11,786 to 22,030 CPU cycles (11,818 to 20,486 in arm A).
++  SET_NAME's notice carries the 64-byte name and costs 20,358 to 20,486; in arm B SET_STREAM_INFO's costs 21,875 to 22,030 and BIND_RX's GET_STREAM_INFO notice 18,358 to 18,475; every other fan-out costs 11,786 to 13,440 (11,818 to 13,440 in arm A).
++- The 16 recipients at 1x1 take 7.77 to 14.80 ms (7.77 to 11.33 in arm A), and the 32 at 8x8 take 12.39 to 32.78 ms (12.39 to 22.98 in arm A).
++  A SET_CONTROL cell is the worse of its two fan-outs, identify on and identify off; the better ones, 7.77 ms at 1x1 and 12.39 ms on 8x8 interface 0, set the low ends.
+ 
+ ### SRP and MAAP
+ 
+@@ -349,7 +359,7 @@ Under sustained arrivals the bucket keeps admitting one record per period, so th
+ | the same, its bucket refilling up to the ring's room (observed) | - | 88.33 (107.65) **over ceiling** [4 ahead] | 118.81 (156.29) **over ceiling** [6 ahead] | - | - |
+ | a response with 7 frames owed ahead of it | 31,707 / 39,861 | 126.29 (130.31) **over ceiling** [7 ahead] | 161.10 (170.62) **over ceiling** [7 ahead] | 126.28 (130.30) **over ceiling** [7 ahead] | 161.10 (170.62) **over ceiling** [7 ahead] |
+ | an ACMP command behind the owed input, the worst of four | - | at least 363.98, **never answered** [8 ahead] | at least 860.00, **never answered** [9 ahead] | at least 363.98, **never answered** [8 ahead] | at least 860.00, **never answered** [9 ahead] |
+-| the same, from the moment the room returns | - | 66.29 | 101.10 | 66.28 | 101.10 |
++| the owed response, from the moment the room returns | - | 66.29 | 101.10 | 66.28 | 101.10 |
+ 
+ The desk bounds charge every pass with every term at once, at a full ring of the smallest records.
+ "Records ahead" is the backlog in the input's own ring (for the event row, the event ring) when it arrived.
+@@ -424,7 +434,11 @@ Every window committed exactly its defined load (the run refuses one that did no
+   The measured access is 0.18 us, inside every allowance but the full-ADP-ring row's; the passes around the accesses are 1.3 to 60 ms.
+ - The single passes break the [#397 one-hart rule](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046).
+   A pass is the loop's only opportunity to take an input, and the smallest deadline every duty shares is T_svc.
+-  The composed maximum is 14.81 ms at 1x1 and 27.84 ms at 8x8, in both arms; arm A's windows that never finish their load run passes of 31.32 and 44.19 ms, and the 8x8 link-up pass is 40.09 ms.
++  In arm A, the formal measurement, the composed maximum is at least 31.32 ms at 1x1 and at least 44.19 ms at 8x8: a lower bound, because those passes ran in windows whose SRP load is never released.
++  In arm B every window released its load, and the composed maximum is 14.81 and 27.84 ms, the same as over arm A's released windows only; the 8x8 link-up pass is 40.09 ms.
++- **The baseline for S2b and S2c** is arm A's composed maximum over every backlog window: at least 1,565,803 cycles (31.32 ms) at 1x1 and at least 2,209,308 (44.19 ms) at 8x8, compared window by window in [the load's service](#the-loads-service).
++  The figure over the released windows only is no baseline: a change that lets SRP be served in `backlog-adp` adds that window to it, so its before and after would cover different windows.
++  The [later owner decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860) puts the instruction cache (S2c) before firmware-only tuning (S2b).
+ - An input waits for the pass that is running and then for the pass that takes it.
+   So T_svc needs every pass well under 5 ms.
+   At 8x8 the idle pass is already 3.1 to 3.7 ms, and LINK_UP, LINK_DOWN, SRP's startup and MAAP's first PROBE miss outright.
+@@ -437,13 +451,14 @@ Every window committed exactly its defined load (the run refuses one that did no
+   The ring admits 12 GET_RX_STATEs, but the core holds at most `ACMP_OWED_MAX` = 8 responses (tsn-c-stack `acmp.h`; `room()` counts a busy drop).
+   With the egress held and eight responses owed, the core takes the commands behind and never answers them.
+   At 1x1 none of the four commands behind the owed input is ever answered, in either arm; at 8x8 two of the four are, after 176.52 and 188.27 ms, and two are not. Their controller sees no response, and its 200 ms ACMP timeout (Milan v1.2 Table 5.26) expires.
+-- **Notification fan-out costs a recipient 11,800 to 20,400 CPU cycles**, so 16 registrations take 7.8 to 11.3 ms at 1x1 and 32 take 12.4 to 23.0 ms at 8x8.
+-  SET_NAME misses T_svc at both points, every fan-out misses it at 8x8, and at 8x8 BIND_RX's GET_STREAM_INFO notice (25.79 and 28.92 ms) and SET_STREAM_INFO on interface 1 (32.78 ms) are over the 24 ms ceiling (arm B).
++- **Notification fan-out costs a recipient 11,786 to 22,030 CPU cycles** (11,818 to 20,486 in arm A), so 16 registrations take 7.77 to 14.80 ms at 1x1 (7.77 to 11.33 in arm A) and 32 take 12.39 to 32.78 ms at 8x8 (12.39 to 22.98 in arm A).
++  SET_NAME misses T_svc at both points, and at 1x1 so do arm B's SET_STREAM_INFO (11.68 ms) and BIND_RX's GET_STREAM_INFO notice (14.80 ms).
++  Every fan-out misses it at 8x8, and there BIND_RX's GET_STREAM_INFO notice (25.79 and 28.92 ms) and SET_STREAM_INFO on interface 1 (32.78 ms) are over the 24 ms ceiling (arm B).
+ - **For D4 (a), a per-pass cap**, the measured consumers are, in order:
+   - `memset` and `memcpy`, byte loops on RV32I: each AECP response zeroes its 1,514-byte frame (`aecp.c:58`) and the 1,476-byte payload in it (`aecp_commands.c:555`), and a 1x1 READ_DESCRIPTOR pass spends 153,929 to 156,240 cycles (3.1 ms) in `memset`;
+   - lwSRP's link reset and declarations (`mrp_mad`), 474,000 cycles in the 8x8 link-up pass and 430,000 in the 8x8 composed passes;
+   - AECP's two modules (mostly their polls), about 47,000 cycles of every 1x1 pass and 94,000 at 8x8;
+-  - each fan-out's notices, one a recipient in one pass (`aecp.c`, `transmit`), 11,800 to 20,400 cycles each;
++  - each fan-out's notices, one a recipient in one pass (`aecp.c`, `transmit`), 11,786 to 22,030 cycles each (11,818 to 20,486 in arm A);
+   - software multiply and divide, the RV32I core having no M extension.
+   A cap that keeps passes under the TICK also ends SRP's starvation.
+ - **For D4 (b), the admitted backlog** ([Backlog rows](#backlog-rows)):
+@@ -490,19 +505,20 @@ The fixture has a short composed window: one record on every receive channel and
+ Its checks:
+ 
+ - the fixture's digest, each of its seven rows with its pass bound and the records ahead, each loaded channel's first and last record served in its window, its worst pass and its composed maximum with the window's population and its release;
+-- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window no composed maximum;
++- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
+ - every clock conversion; the ceilings and T_svc, restated in [`selftest.py`](selftest.py) so a changed table fails;
+ - an exact-budget path passes and one bus cycle more misses; W + T_svc passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling;
+ - the probe's own tagged frame starts it; a commit after a refused frame is the next frame's; a commit that follows no frame is refused;
+ - a response to another sequence_id, or on the other interface, does not end it; the last required output ends it; the expected response is checked;
+ - a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
+-- a notification over two recipients ends at the last; a late recipient misses; a missing one, a duplicate standing in for another, and a controller outside the set are refused; unrelated unsolicited responses do not end it;
++- a notification over two recipients ends at the last; a late recipient misses; a missing one, a duplicate standing in for another, and a controller outside the set are refused; unrelated unsolicited responses do not end it; over three recipients, the cost a recipient is the first to last commit over the two gaps;
+ - the composed maximum is a window's longest pass even when that pass is neither its first nor its last, and the worst pass includes the run's last pass; the pass the script's end cuts is no idle pass;
++- the composed maximum is the longest pass of every backlog window, the fixture's excluded, and a lower bound while one left its load unreleased, with the released windows' longest beside it;
+ - the responses owed ahead are exactly the owed ones, in order; a command that may be dropped and is never answered is reported, unbounded, and one that may not is refused;
+ - the defined loads, restated; every composed window of the real scenario, at one and two interfaces, sends and declares exactly its defined load; the owed row has its seven owed and its four behind;
+ - the real fan-out group registers the firmware's capacity (read from `aecp.h`) on every interface, every registration is each fan-out's recipient, and no requester is registered;
+ - a control probe is an instance of its functional path; repeated instances count as one path, at their worst, with every miss;
+-- the records ahead of an input; each path's worst instance, a starved one first, and the misses per path and per instance;
++- the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
+ - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
+ - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build.
+ 
+@@ -541,8 +557,13 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | composition: the backlog stimulus omits SRP | every composed window's stimulus is its defined load |
+ | composition: the backlog stimulus omits MAAP | every composed window's stimulus is its defined load |
+ | composition: the owed row omits the ACMP commands behind its input (earlier rule) | every composed window's stimulus is its defined load |
+-| service: a record never released is omitted | a starved channel is reported by name, and its window is no composed maximum |
+-| service: a window that left its load unreleased is the composed maximum (earlier rule) | a starved channel is reported by name, and its window is no composed maximum |
++| service: a record never released is omitted | a starved channel is reported by name, and its window reports its load unreleased |
++| service: a window that left its load unreleased reports it released (earlier rule) | a starved channel is reported by name, and its window reports its load unreleased |
++| composition: the composed maximum is taken over the windows that released their load (earlier rule) | the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased |
++| composition: the composed maximum is no lower bound where a window left its load unreleased | the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased |
++| composition: the composed maximum includes the fixture's short window | the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased |
++| service: the records ahead count only those never released | a served record's records ahead are those not yet released at its commit |
++| notify: the cost a recipient divides by the recipients, not the gaps | a fan-out's cost a recipient is its first to last commit over the gaps between them |
+ | service: a record's service ends at its release, not at its pass's end | fixture row fixture.service.adp.first.if0 |
+ | owed: the responses ahead are not checked | the responses owed ahead are checked: ['31'] |
+ | owed: a command never answered fits | a command never answered is reported, unbounded, where it may be dropped |
+@@ -598,6 +619,7 @@ The run must refuse the boot with an instruction access fault, cause 1, and prin
+ - A record's service ends at the end of the pass that released it; lwSRP may keep a record for replay (`pending_rx`) and finish it in a later pass.
+ - SHUTDOWN is measured through a test-only entry, because the linked image never disables ADP.
+ - START_STREAMING calls a port the fixture leaves empty, so it is not run.
++- SET_STREAM_FORMAT is refused in both arms, whose format port answers unsupported (`ctrl_aecp_image.c`, `a_format`), so its fan-out is not run.
+ - The lock expiry's notice (60 s after a LOCK_ENTITY) and the counter pushes are not run: the first is beyond the simulation's length, and the fixture changes no counter.
+ - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
+ - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.
+diff --git a/tb/verilator/ctrl_service_budget/grade.py b/tb/verilator/ctrl_service_budget/grade.py
+index 295ced5da0..e7354e5e4b 100644
+--- a/tb/verilator/ctrl_service_budget/grade.py
++++ b/tb/verilator/ctrl_service_budget/grade.py
+@@ -12,11 +12,17 @@ it and require a named failure:
+                     commit belongs to; Grader.recipients and fanout_end(), a
+                     notification's required recipients and its end
+   the pass bound    Grader.pass_end and Grader.pass_origin
++  the fan-out cost  grade_probe's fanout: the last recipient's commit less the
++                    first's, over the gaps between the recipients
+   the composition   composed() and population(), checked against defined_load(),
+-                    which derives each row's population from the contract alone
++                    which derives each row's population from the contract alone;
++                    run.composed_maximum() takes the longest pass over every
++                    backlog row's window
+   the service       releases() and service(): each loaded channel's first and
+-                    last record to the end of the pass that released it, and a
+-                    record never released reported as starved
++                    last record to the end of the pass that released it, a
++                    record never released reported as starved, and the records
++                    ahead of each: its channel's earlier records not yet
++                    released at its commit
+   the owed frames   owed_ahead(): the responses committed ahead of a probe's
+   the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS and verdicts()
+   the run           refuse_run(): an incomplete simulation, a trap or a bus error
+@@ -43,9 +49,12 @@ CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not t
+ #: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
+ #: to the 60-byte frame minimum.
+ LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60}
+-#: The groups whose composed window carries a defined load: the backlog rows
+-#: (MAILBOX_SPLIT.md:753-758) and the self-test's short window.
+-COMPOSED_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed', 'fixture')
++#: The backlog rows (MAILBOX_SPLIT.md:753-758): their composed windows carry the defined
++#: composed load, so the composed maximum is taken over them (run.composed_maximum).
++BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
++#: The groups whose composed window carries a defined load: the backlog rows and the
++#: self-test's short window.
++COMPOSED_ROWS = (*BACKLOG_ROWS, 'fixture')
+ 
+ 
+ class Refusal(RuntimeError):
+@@ -699,7 +708,8 @@ def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list
+ 
+     A record released after the window closed is marked out of the window. A record no
+     release reached by the run's end is starved: its row carries the time it had waited, a
+-    lower bound, and fits neither T_svc nor its ceiling.
++    lower bound, and fits neither T_svc nor its ceiling. The records ahead of a record are its
++    channel's earlier records that no release had passed at its commit.
+     """
+     finish = max(int(grader.log.summary.get('sys', 0)), end)
+     rows = []
+@@ -743,9 +753,11 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
+     """The longest pass that starts inside the composed window, whose committed population must
+     be the row's defined load exactly (MAAP and SRP included).
+ 
+-    It is the composed maximum only if the window released every record of that load
+-    (serviced): a window that closed on a starved channel measured passes without that
+-    channel's work, so its longest pass is a lower bound, and unreleased names the records.
++    serviced says whether the window released every record of that load: a window that
++    closed on a starved channel measured passes without that channel's work, so its longest
++    pass is a lower bound, and unreleased names the records. The composed maximum is the
++    longest over every backlog row's window, a lower bound while one is not serviced
++    (run.composed_maximum).
+     """
+     if 'composed' not in marks or 'composed_end' not in marks:
+         if group.load or group.name in COMPOSED_ROWS:
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index 6a2acc1786..fdf3c2f062 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -64,6 +64,23 @@ def windows(results: list[dict]) -> list[dict]:
+             for g in results if g['passes'].get('composed')]
+ 
+ 
++def composed_maximum(results: list[dict]) -> dict | None:
++    """The composed maximum: the longest pass over every backlog row's window, each of which
++    committed its defined load (grade.check_load refuses one that did not). A window that left
++    records unreleased ran its passes without that work, so while any did, the figure is a lower
++    bound. The longest pass of the windows that released their whole load is given beside it."""
++    import grade
++    every = [w for w in windows(results) if w['group'] in grade.BACKLOG_ROWS]
++    if not every:
++        return None
++    top = max(every, key=lambda w: w['cycles'])
++    done = max((w for w in every if w['serviced']), key=lambda w: w['cycles'], default=None)
++    return dict(cycles=top['cycles'], ms=top['ms'], group=top['group'], windows=len(every),
++                lower_bound=not all(w['serviced'] for w in every),
++                unreleased=[w['group'] for w in every if not w['serviced']],
++                released=dict(cycles=done['cycles'], ms=done['ms'], group=done['group']) if done else None)
++
++
+ def paths(results: list[dict]) -> list[dict]:
+     """Every measured path's worst instance across the groups, with its instance and miss counts.
+ 
+@@ -105,13 +122,22 @@ def table(results: list[dict], point: str) -> str:
+         ms = f"at least {w['ms']:.3f}" if w.get('starved') or w.get('unanswered') else f"{w['ms']:.3f}"
+         lines.append(f"| {e['row']} | {e['interface']} | `{w['probe']}` ({w['group']}) | {ms}{bound} | "
+                      f"{verdict_word(w)} | {w['ahead']} {w['ring']} | {e['instances']} | {e['misses']} |")
+-    lines += ['', 'Composed windows: the longest pass is the composed maximum only where the window released '
+-              'its whole load.', '',
++    lines += ['', 'Composed windows: a window that left its load unreleased ran its passes without that work, so '
++              'its longest pass is a lower bound.', '',
+               '| Group | Window ms | Passes in it | Longest pass, CPU cycles (ms) | Load released | Unreleased |',
+               '|---|---:|---:|---:|---|---|']
+     for w in windows(results):
+         lines.append(f"| {w['group']} | {w['window_ms']:.3f} | {w['passes']} | {w['cycles']:,} ({w['ms']:.3f}) | "
+                      f"{'yes' if w['serviced'] else 'no'} | {w['unreleased'] or '-'} |")
++    top = composed_maximum(results)
++    if top:
++        bound = f", a lower bound (load unreleased in {', '.join(top['unreleased'])})" if top['lower_bound'] else ''
++        done = top['released']
++        lines += ['', f"Composed maximum over the {top['windows']} backlog windows: "
++                  f"{'at least ' if top['lower_bound'] else ''}{top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), "
++                  f"{top['group']}{bound}.",
++                  'Over the windows that released their whole load only: '
++                  + (f"{done['cycles']:,} ({done['ms']:.3f} ms), {done['group']}." if done else 'none.')]
+     lines += ['', '| Path | Probe | CPU cycles | ms | T_svc (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
+               '| Mailbox accesses (model) | Fetch share |',
+               '|---|---|---:|---:|---:|---:|---|---:|---:|---:|']
+@@ -277,6 +303,7 @@ def main() -> int:
+     (out / 'results.json').write_text(json.dumps(dict(point=args.point, build=spec['executable_sha256'],
+                                                       results=results, paths=paths(results),
+                                                       counts=counts(results), windows=windows(results),
++                                                      composed_maximum=composed_maximum(results),
+                                                       refusals=refusals, misses=misses), indent=1) + '\n')
+     for line in refusals:
+         print('REFUSED', line)
+diff --git a/tb/verilator/ctrl_service_budget/scenario.py b/tb/verilator/ctrl_service_budget/scenario.py
+index d4219a2e24..6bada4b799 100644
+--- a/tb/verilator/ctrl_service_budget/scenario.py
++++ b/tb/verilator/ctrl_service_budget/scenario.py
+@@ -802,9 +802,9 @@ def owed_group(p: Point) -> Group:
+     """The owed-frame row (a response with 7 frames owed ahead of it) under the composed load."""
+     acmp = CH['acmp']
+     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
+-    # A response with 7 frames owed ahead of it (A3): the egress held and the TX ring filled
+-    # with responses; then, the token bucket refilled, the load arrives: seven commands, the
+-    # probe and the rest of the ACMP ring's admitted burst behind it, so the probe's response
++    # A response with 7 frames owed ahead of it (A3): the egress held and the ACMP transmit ring
++    # filled with responses; then, the token bucket refilled, the load arrives: seven commands,
++    # the probe and the rest of the ACMP ring's admitted burst behind it, so the probe's response
+     # is the eighth owed. The egress returns 60 ms later.
+     g = Group('backlog-owed', sim_ms=4000)
+     ready(g, p)
+@@ -842,15 +842,14 @@ def owed_group(p: Point) -> Group:
+ def backlog_groups(p: Point) -> list[Group]:
+     """The four backlog rows (MAILBOX_SPLIT.md:753-758), each under the composed maximum load.
+ 
+-    Every group's composed window carries every receive channel's admitted
+-    burst at once (composed_load, MAAP and SRP included) and fifteen
+-    grandmaster changes, and each row's input is the last of its own
+-    channel's records. The event and ACMP rows are at their rings' room, a
+-    bound; the ADP ring takes its burst, fewer records than it holds, so its
+-    row is observed at that backlog, and backlog-adp-refill adds the bucket's
+-    refill-rate arrivals up to the ring's room before the input (observed,
+-    not a bound). The bound-talker rows bind a sink first; the owed-frame
+-    row holds the egress while its commands arrive with the load.
++    Each composed window carries its row's defined load (#665; MAILBOX_SPLIT.md:753-758),
++    including MAAP, SRP and fifteen grandmaster changes. The row's input is last on its channel
++    except in the owed row, which places the remaining admitted ACMP commands behind it. The
++    event and ACMP rows are at their rings' room, a bound; the ADP ring takes its burst, fewer
++    records than it holds, so its row is observed at that backlog, and backlog-adp-refill adds
++    the bucket's refill-rate arrivals up to the ring's room before the input (observed, not a
++    bound). The bound-talker rows bind a sink first; the owed-frame row holds the egress while
++    its commands arrive with the load.
+     """
+     acmp = CH['acmp']
+     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
+diff --git a/tb/verilator/ctrl_service_budget/selftest.py b/tb/verilator/ctrl_service_budget/selftest.py
+index acb9843390..70aab876e8 100644
+--- a/tb/verilator/ctrl_service_budget/selftest.py
++++ b/tb/verilator/ctrl_service_budget/selftest.py
+@@ -7,8 +7,10 @@ regrades the committed trace fixture.log, which the 'fixture' group
+ recorded on the test SoC, against oracle.json: every probe's row, its pass
+ bound and backlog, each loaded channel's service, the worst pass, the
+ composed maximum and the composed window's population. Synthetic traces
+-check each marker, the notification fan-out, the owed responses, the clock
+-conversion, the pass bound, the deadlines and the composition. The real
++check each marker, the notification fan-out and its cost a recipient, the
++owed responses, the records ahead of a served record, the clock
++conversion, the pass bound, the deadlines and the composition; synthetic
++windows check the composed maximum over the backlog rows. The real
+ scenario's composed windows are counted against the defined loads restated
+ here, its fan-out against the firmware's registration capacity read here,
+ and its controls against their paths. The run's exit status, the regrade's
+@@ -196,7 +198,7 @@ def fixture_checks() -> list[Check]:
+     result = regraded(oracle, starved_text)
+     rows = [r for r in result['probes'] if '.service.srp.' in r['probe']]
+     window_row = result['passes']['composed']
+-    out.append(('a starved channel is reported by name, and its window is no composed maximum',
++    out.append(('a starved channel is reported by name, and its window reports its load unreleased',
+                 len(rows) == 2 and all(r['starved'] and r['status'] == 'measured' and r['within_t_svc'] is False
+                                        and r['within_ceiling'] is False for r in rows)
+                 and window_row['serviced'] is False and window_row['unreleased'] == {'srp': 1},
+@@ -329,6 +331,12 @@ def notify_checks() -> list[Check]:
+     r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 7, command=0x0029), 501173),
+                       (1, to(CTL1, 8, descriptor=(0, 1)), 551173), (1, to(CTL1, 1), 901173)])
+     out.append(('unrelated unsolicited responses do not end it', r.get('end_sys') == 901173, str(r)))
++    # Three recipients, 400,000 bus cycles first to last: 200,000 CPU cycles over two gaps.
++    r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 1), 601173), (0, to(CTL3, 2), 801173)],
++                     recipients=((CTL1, 0), (CTL1, 1), (CTL3, 0)))
++    out.append(("a fan-out's cost a recipient is its first to last commit over the gaps between them",
++                r.get('fanout') == dict(recipients=3, first_sys=401173, last_sys=801173,
++                                        per_recipient_cpu_cycles=100_000), str(r.get('fanout'))))
+     return out
+ 
+ 
+@@ -343,6 +351,20 @@ def composition_checks() -> list[Check]:
+              *received(ACMP, 's.cmd.if0'), *tx_record(ACMP, 0, acmp_response(0x41), 0, 5000)]
+     r = one(synthetic(lines), probe)
+     out.append(('records ahead of an input', (r.get('ring'), r.get('ahead')) == ('acmp', 1), str(r)))
++    # Two ACMP records of a composed window, released one a pass: the second committed before
++    # the first's release has it ahead; committed after that release, it has none.
++    got = []
++    for second in (1300, 1600):
++        lines = ['MARK 1000 composed', *received(ACMP, '-', 1100), *received(ACMP, '-', second),
++                 f'PASS 1 1500 750 100 instr=10 store_mbx=1 W 1550:{tail:x}:14',
++                 f'PASS 2 2000 1000 100 instr=10 store_mbx=1 W 2050:{tail:x}:28', 'MARK 100000 composed_end']
++        with patch.object(grade, 'defined_load', lambda name: {'acmp': 2}):
++            rows = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['probes']
++        got.append([(r['probe'].split('.', 1)[1], r['ahead']) for r in rows])
++    want = [[('service.acmp.first.if0', 0), ('service.acmp.last.if0', 1)],
++            [('service.acmp.first.if0', 0), ('service.acmp.last.if0', 0)]]
++    out.append(("a served record's records ahead are those not yet released at its commit", got == want,
++                str(got)))
+     row = lambda name, ms, within, group: dict(probe=name, row='r', status='measured', path=['p.x', 0], ms=ms,
+                                                within_t_svc=within, group=group, bound_ms=ms, ring='acmp', ahead=0,
+                                                within_ceiling=True)
+@@ -363,6 +385,22 @@ def composition_checks() -> list[Check]:
+     worst = run.paths(results)[0]['worst']
+     out.append(("a starved instance is its path's worst", worst['probe'] == 'c.x.if0'
+                 and run.verdict_word(worst).startswith('STARVED'), str(worst)))
++    # The composed maximum is the longest pass of every backlog window, here one that left SRP
++    # unreleased, so a lower bound; the released windows' longest stands beside it, and the
++    # fixture's short window is no backlog row.
++    window = lambda group, cycles, done: dict(group=group, probes=[], timeouts=[], passes=dict(composed=dict(
++        cycles=cycles, ms=cycles / 50_000, passes=3, window_ms=100.0, serviced=done, unreleased={} if done
++        else {'srp': 32})))
++    results = [window('fixture', 9_000_000, True), window('backlog', 700_000, True),
++               window('backlog-adp', 1_500_000, False), window('backlog-owed', 600_000, True)]
++    got = [run.composed_maximum(results), run.composed_maximum([results[1], results[3]])]
++    released = dict(cycles=700_000, ms=14.0, group='backlog')
++    want = [dict(cycles=1_500_000, ms=30.0, group='backlog-adp', windows=3, lower_bound=True,
++                 unreleased=['backlog-adp'], released=released),
++            dict(cycles=700_000, ms=14.0, group='backlog', windows=2, lower_bound=False, unreleased=[],
++                 released=released)]
++    out.append(('the composed maximum is the longest pass of every backlog window, a lower bound while one '
++                'left its load unreleased', got == want, str(got)))
+     return out
+ 
+ 
+diff --git a/tb/verilator/ctrl_service_budget/selftest_mutants.py b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+index 44a40c0775..88e5d998a7 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_mutants.py
++++ b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+@@ -73,6 +73,46 @@ def _starved_omitted() -> list:
+     return [patch.object(grade, 'service', lambda *a: [r for r in original(*a) if not r['starved']])]
+ 
+ 
++def _cost_over_recipients() -> list:
++    """Each fan-out's cost a recipient divided by its recipients, not the gaps between them."""
++    original = grade.grade_probe
++
++    def grade_probe(grader: grade.Grader, probe: scenario.Probe, *a: object) -> dict:
++        """The mutant grade_probe: the fan-out's cost recomputed over its recipients."""
++        row = original(grader, probe, *a)
++        fan = row.get('fanout')
++        if fan and fan['recipients']:
++            fan['per_recipient_cpu_cycles'] = grader.cpu_cycles(fan['last_sys'] - fan['first_sys']) // fan['recipients']
++        return row
++    return [patch.object(grade, 'grade_probe', grade_probe)]
++
++
++def _ahead_never_released() -> list:
++    """A served record's records ahead counted as only the earlier records never released."""
++    original = grade.service
++
++    def service(grader: grade.Grader, *a: object) -> list[dict]:
++        """The mutant service: each row's records ahead recounted without the later releases."""
++        rows = original(grader, *a)
++        for row in rows:
++            records = grade.releases(grader.log, scenario.CH[row['ring']])
++            n = next(k for k, (c, *_) in enumerate(records) if c == row['start_sys'])
++            row['ahead'] = sum(1 for _, _, r in records[:n] if r is None)
++        return rows
++    return [patch.object(grade, 'service', service)]
++
++
++def _maximum_of(keep: Callable[[dict], bool], bound: bool = True) -> Patches:
++    """run.composed_maximum over the results keep selects, or never a lower bound."""
++    original = run.composed_maximum
++
++    def composed_maximum(results: list[dict]) -> dict | None:
++        """The mutant composed maximum."""
++        top = original([g for g in results if keep(g)])
++        return top if bound or top is None else dict(top, lower_bound=False)
++    return lambda: [patch.object(run, 'composed_maximum', composed_maximum)]
++
++
+ def _offer_without(channel: str, groups: str, after: str = '') -> Patches:
+     """Group.offer dropping a channel's records, step and declaration together, in the named
+     groups (after a mark, if given): a stimulus that omits background work."""
+@@ -296,8 +336,16 @@ MUTANTS: dict[str, Patches] = {
+     'composition: the owed row omits the ACMP commands behind its input (earlier rule)': _offer_without(
+         'acmp', 'backlog-owed', after='backlog.owed.if0'),
+     'service: a record never released is omitted': _starved_omitted,
+-    'service: a window that left its load unreleased is the composed maximum (earlier rule)': lambda: [patch.object(
++    'service: a window that left its load unreleased reports it released (earlier rule)': lambda: [patch.object(
+         grade, 'unreleased', lambda *a: {})],
++    'composition: the composed maximum is taken over the windows that released their load (earlier rule)':
++        _maximum_of(lambda g: (g['passes'].get('composed') or {}).get('serviced', False)),
++    'composition: the composed maximum is no lower bound where a window left its load unreleased': _maximum_of(
++        lambda g: True, bound=False),
++    "composition: the composed maximum includes the fixture's short window": lambda: [patch.object(
++        grade, 'BACKLOG_ROWS', grade.COMPOSED_ROWS)],
++    'service: the records ahead count only those never released': _ahead_never_released,
++    'notify: the cost a recipient divides by the recipients, not the gaps': _cost_over_recipients,
+     "service: a record's service ends at its release, not at its pass's end": lambda: [patch.object(
+         grade, 'served', lambda grader, taking, released: released)],
+     'owed: the responses ahead are not checked': lambda: [patch.object(
