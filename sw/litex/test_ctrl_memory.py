@@ -16,6 +16,10 @@ block RAM the SoC builds from them. This file grades seven things:
      truncated ELF, writable data running in rom, a CPU with other origins and
      a load segment carrying fewer bytes than its sections claim.
      The budget boundary is pinned: 56.0 RAMB36 is accepted and 56.5 refused.
+     The one ledgered point (ctrl_memory.LEDGERED: 8x8, two interfaces) plans
+     57.0 by name and is refused without its override, through the SoC
+     build's add_ctrl_memory and at 57.5; its override is refused on every
+     other point and on an image without the size fixture's table.
   3. BANKS IN SIMULATION. The real `milan_soc.CtrlMemory`, in migen, at the
      largest image's sram banks (64, 32, 8, 4 and 2 KiB). rom reads its image
      at the first and last word of every bank and drops a write; sram writes
@@ -220,6 +224,7 @@ class Layout(NamedTuple):
     bss_at: int | None = None       # None follows .data in sram
     stage: int | None = STAGE_1X1   # nvm_stage's size; None leaves the symbol out
     machine: int = 243
+    interfaces: int | None = None   # the size fixture's image_allocation, 8 bytes per interface; None leaves it out
 
 
 GOOD = Layout()
@@ -228,6 +233,14 @@ ROM_NEED = 9_000 + 3_004 + 64
 ROM_BANKED = -(-ROM_NEED // GRANULE) * GRANULE
 #: The .bss that brings the good image to exactly the budget: sram's banks fill what rom's leave.
 BUDGET_BSS = ctrl_memory.BUDGET_BYTES - ROM_BANKED - 64 - 8192
+#: The one ledgered point (ctrl_memory.LEDGERED), one tile over: the 8x8 stage, two interfaces, 57.0 RAMB36.
+LEDGER_NAME = "8x8-two-interfaces"
+OVER_ONE = GOOD._replace(stage=STAGE_8X8, interfaces=2, bss=BUDGET_BSS + 2 * GRANULE)
+#: Every other point at the same 57.0 RAMB36, and an image without the size fixture's table.
+OTHER_POINTS = (("1x1, one interface", OVER_ONE._replace(stage=STAGE_1X1, interfaces=1)),
+                ("1x1, two interfaces", OVER_ONE._replace(stage=STAGE_1X1)),
+                ("8x8, one interface", OVER_ONE._replace(interfaces=1)),
+                ("8x8 with no image_allocation", OVER_ONE._replace(interfaces=None)))
 
 
 def elf(tmp: Path, layout: Layout) -> Path:
@@ -237,6 +250,8 @@ def elf(tmp: Path, layout: Layout) -> Path:
     bss_at = RAM + 64 if layout.bss_at is None else layout.bss_at
     stack = RAM + 64 + layout.bss
     symbols = {"_start": 4} if layout.stage is None else {"_start": 4, ctrl_memory.STAGE_SYMBOL: layout.stage}
+    if layout.interfaces is not None:
+        symbols["image_allocation"] = 8 * layout.interfaces
     path = tmp / ("image-" + "-".join(str(v) for v in layout) + ".elf")
     path.write_bytes(write_elf(layout.entry, [
         (".text", at, at, bytes((i * 7 + 3) & 0xFF for i in range(9_000)), False),
@@ -312,6 +327,8 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
     read = lambda path: lambda: ctrl_memory.plan(ctrl_memory.read_elf(path))  # noqa: E731
     stage = lambda layout, size: lambda: ctrl_memory.check_stage(image(tmp, layout), size, "planted")  # noqa: E731
     cpu = lambda reset, sram: lambda: milan_soc.add_ctrl_memory(FakeSoC(reset, sram), elf(tmp, GOOD))  # noqa: E731
+    ledger = lambda layout: lambda: ctrl_memory.plan(image(tmp, layout), ledgered=LEDGER_NAME)  # noqa: E731
+    soc = lambda layout: lambda: milan_soc.add_ctrl_memory(FakeSoC(0, RAM), elf(tmp, layout))  # noqa: E731
     shoff = lambda data: struct.unpack_from("<I", data, 32)[0]  # noqa: E731
     return [
         ("entry address", "an image entering away from the reset address", plan(GOOD._replace(entry=0x100))),
@@ -349,12 +366,51 @@ def refusal_arms(tmp: Path) -> list[tuple[str, str, Callable[[], object]]]:
         ("budget", "PLANTED: an allocation over budget (215,000 bytes of .bss: 58 RAMB36, each region inside its own)",
          plan(GOOD._replace(bss=215_000))),
         ("budget", "an allocation of 56.5 RAMB36, half a tile over", plan(GOOD._replace(bss=BUDGET_BSS + GRANULE))),
+        ("budget", "the ledgered point's image, 57 RAMB36, planned without its override", plan(OVER_ONE)),
+        ("budget", "the SoC build's add_ctrl_memory given the ledgered point's image", soc(OVER_ONE)),
+        ("budget", "the ledgered point's image half a tile past its ledgered 57 RAMB36",
+         ledger(OVER_ONE._replace(bss=OVER_ONE.bss + GRANULE))),
+        *(("budget", f"the {LEDGER_NAME} override on the {what} image at 57 RAMB36", ledger(layout))
+          for what, layout in OTHER_POINTS),
+        ("budget", f"the {LEDGER_NAME} override on the 1x1 one-interface image within the budget",
+         ledger(GOOD._replace(interfaces=1))),
+        ("budget", "an override the ledger does not hold, on the ledgered point's image",
+         lambda: ctrl_memory.plan(image(tmp, OVER_ONE), ledgered="8x8-one-interface")),
+        ("budget", "an override the ledger does not hold, on the image of the point it names",
+         lambda: ctrl_memory.plan(image(tmp, OVER_ONE._replace(interfaces=1)), ledgered="8x8-one-interface")),
         ("stage symbol", "an image with no nvm_stage", stage(GOOD._replace(stage=None), STAGE_1X1)),
         ("stage size", "PLANTED: a staging buffer sized for another shape (1x1 image, 8x8 stage)",
          stage(GOOD, STAGE_8X8)),
         ("stage size", "PLANTED: a staging buffer sized for another shape (8x8 image, 1x1 stage)",
          stage(GOOD._replace(stage=STAGE_8X8), STAGE_1X1)),
     ]
+
+
+def ledger_arms(problems: list[str], tmp: Path) -> None:
+    """The one ledgered point plans to its 57 RAMB36 by name, and the override reaches no other image.
+
+    The refusals (no override, the SoC build, half a tile more, every other
+    point, an unknown name) are refusal_arms rows under `budget`.
+    """
+    held = {name: (p.symbols, p.tiles) for name, p in ctrl_memory.LEDGERED.items()}
+    check(problems, held == {LEDGER_NAME: (((ctrl_memory.STAGE_SYMBOL, STAGE_8X8), ("image_allocation", 16)), 57.0)},
+          f"the ledger holds the one ruled point, 8x8 with two interfaces at 57 RAMB36 ({held})")
+    plan = accepted(problems, lambda: ctrl_memory.plan(image(tmp, OVER_ONE), ledgered=LEDGER_NAME),
+                    f"the {LEDGER_NAME} override plans its own point's image")
+    summary = plan.summary() if isinstance(plan, ctrl_memory.Plan) else {}
+    check(problems, (summary.get("tiles"), summary.get("budget_tiles"), summary.get("ledgered"),
+                     summary.get("ledgered_tiles")) == (57.0, 56, LEDGER_NAME, 57.0),
+          f"that plan is 57.0 RAMB36, against the 56-RAMB36 budget and its ledgered 57 ({summary})")
+    good = ctrl_memory.plan(image(tmp, GOOD)).summary()
+    check(problems, not {"ledgered", "ledgered_tiles"} & set(good),
+          f"a plan without the override names no ledgered point ({sorted(good)})")
+    codes = []
+    for layout in (OVER_ONE, *(layout for _, layout in OTHER_POINTS)):
+        with contextlib.redirect_stdout(None), contextlib.redirect_stderr(None):
+            codes.append(ctrl_memory.main(["plan", str(elf(tmp, layout)), "--ledgered-point", LEDGER_NAME]))
+    check(problems, codes == [0] + [2] * len(OTHER_POINTS),
+          f"`plan --ledgered-point {LEDGER_NAME}` accepts its point and refuses "
+          f"{', '.join(what for what, _ in OTHER_POINTS)} (exit codes {codes})")
 
 
 def check_arms(problems: list[str], tmp: Path) -> None:
@@ -376,6 +432,7 @@ def check_arms(problems: list[str], tmp: Path) -> None:
     full = accepted(problems, lambda: ctrl_memory.plan(image(tmp, GOOD._replace(bss=BUDGET_BSS))),
                     "an allocation of exactly 56 RAMB36 is accepted")
     check(problems, getattr(full, "tiles", None) == 56.0, f"that allocation plans 56.0 RAMB36 ({full and full.tiles})")
+    ledger_arms(problems, tmp)
     soc = FakeSoC(ctrl_memory.ROM.origin, RAM)
     accepted(problems, lambda: milan_soc.add_ctrl_memory(soc, elf(tmp, GOOD)), "add_ctrl_memory builds the image")
     regions = {name: (r.origin, r.size, r.mode) for name, r in soc.regions.items()}

@@ -80,12 +80,21 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 | `memory-map overlap` | `regions` | The two regions sharing an address |
 | `memory-map overlap` | `addresses` | Two sections sharing an address |
 | `memory-map overlap` | `initial bytes` | Two sections sharing a load address |
-| `allocation over budget` | `budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half |
+| `allocation over budget` | `budget` | Banks totalling more than 56 RAMB36, a RAMB18 counting half, or more than a ledgered point's tiles; that point's override on any other image |
 | `staging buffer` | `stage symbol` | An image with no `nvm_stage` |
 | `staging buffer` | `stage size` | An `nvm_stage` that is not the selected shape's stage: its KLJ2 container plus one record header |
 
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
+
+One point may plan past the budget, and only by name (#665 ruling 6412739248).
+`ctrl_memory.LEDGERED` holds `8x8-two-interfaces`, the 8x8 image with two interfaces, at 57 RAMB36.
+[Section 5](#5-fit) ledgers that tile as owed to lane S14.
+Only that point's measurement names the override, through `ctrl_memory.py plan --ledgered-point` or `ctrl_srp_image.py --ledgered-point`.
+`add_ctrl_memory` names none, so every SoC build is still held to 56 RAMB36.
+The override recognises its image by the image's own symbols.
+These are the 8x8 shape's `nvm_stage` of 13,264 bytes and the size fixture's `image_allocation`, 8 bytes per interface, so 16.
+`budget` refuses the override on any other image, and refuses its point past 57 RAMB36.
 `rom`'s contents are the load segments' file bytes and nothing else.
 So `entry bytes` reads them as well as the sections: the first word at the reset address must be in them.
 `load coverage` requires them to carry every byte of every section with initial bytes.
@@ -93,6 +102,9 @@ So `entry bytes` reads them as well as the sections: the first word at the reset
 `main()` runs the staging check before any export; the shape comes from `--entity-gen-dir`.
 
 [`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) plants a defect for every rule and requires that rule to refuse it.
+It plans the ledgered point at 57.0 RAMB36 by name, and requires `budget` to refuse that image in three cases: without the override, through `add_ctrl_memory`, and at 57.5 RAMB36.
+It also plants the override on the 1x1 images with one and two interfaces, on the 8x8 image with one interface, and on an image without `image_allocation`, and requires `budget` to refuse each.
+An override name the ledger does not hold is refused by `budget` too.
 It also requires this table to equal `ctrl_memory.RULES`.
 For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
 
