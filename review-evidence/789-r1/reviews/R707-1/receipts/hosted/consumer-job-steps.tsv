@@ -1,0 +1,20 @@
+job 121544696739 yosys-elaboration completed success 2026-10-26T11:28:34Z 2026-10-26T11:39:02Z sha fddf3671ebc96a953755fa1b9a3ecec5f071a350 run 40309456540 attempt 1 labels ['ubuntu-24.04']
+1	Set up job	success	2026-10-26T11:28:35Z	2026-10-26T11:28:36Z
+2	Run actions/checkout@v4	success	2026-10-26T11:28:36Z	2026-10-26T11:28:39Z
+3	Set CPU-derived job budgets	success	2026-10-26T11:28:39Z	2026-10-26T11:28:39Z
+4	Fetch RTL dependencies	success	2026-10-26T11:28:39Z	2026-10-26T11:28:43Z
+5	Restore the pinned Yosys build	success	2026-10-26T11:28:43Z	2026-10-26T11:28:48Z
+6	Install the pinned Yosys and prove the version	success	2026-10-26T11:28:48Z	2026-10-26T11:28:48Z
+7	Cache verified sv2v archive	success	2026-10-26T11:28:48Z	2026-10-26T11:28:49Z
+8	Install the pinned sv2v release	success	2026-10-26T11:28:49Z	2026-10-26T11:28:49Z
+9	Elaborate the integration-heavy tops	success	2026-10-26T11:28:49Z	2026-10-26T11:30:23Z
+10	Prove the OOC read sets come from run.sh and refuse a bad one	success	2026-10-26T11:30:23Z	2026-10-26T11:37:38Z
+11	Prove ooc.sh generates the ROMs and fails on a failed top	success	2026-10-26T11:37:38Z	2026-10-26T11:37:58Z
+12	Prove both synthesis flows refuse active elaboration guards	success	2026-10-26T11:37:58Z	2026-10-26T11:38:21Z
+13	Prove the result cache refuses a planted entry	success	2026-10-26T11:38:21Z	2026-10-26T11:38:57Z
+14	Record actual job execution	success	2026-10-26T11:38:57Z	2026-10-26T11:38:59Z
+15	Upload actual job execution	success	2026-10-26T11:38:59Z	2026-10-26T11:39:00Z
+28	Post Cache verified sv2v archive	success	2026-10-26T11:39:00Z	2026-10-26T11:39:00Z
+29	Post Restore the pinned Yosys build	success	2026-10-26T11:39:00Z	2026-10-26T11:39:00Z
+30	Post Run actions/checkout@v4	success	2026-10-26T11:39:00Z	2026-10-26T11:39:00Z
+31	Complete job	success	2026-10-26T11:39:00Z	2026-10-26T11:39:00Z

@@ -1,0 +1,22 @@
+yosys-elaboration dev steps: 17 head steps: 14
+  removed: ['Cache the pinned Yosys build', 'Resolve exact package downloads 3', 'Cache exact package downloads 3', 'Build Yosys from source on cache miss']
+  added: ['Restore the pinned Yosys build']
+  kept in order: True
+  kept steps whose body differs (ids ignored): []
+job differs: ci-fail-fast timeout dev 120 head 120
+  timeout above 30: ci-fail-fast 120
+job differs: ci-manifest timeout dev 15 head 15
+  timeout above 30: firmware-aecp-mutants 45
+  timeout above 30: firmware-control-mutants 45
+  timeout above 30: firmware-srp-mutants 45
+  timeout above 30: firmware-unit 45
+  timeout above 30: firmware-verilator 40
+job differs: rtl-fast timeout dev 5 head 5
+job differs: yosys-elaboration timeout dev 30 head 30
+job only in head : yosys-tool timeout 30
+head timeouts: {'changes': 5, 'verilator-lint': 30, 'bdd-conformance': 20, 'yosys-tool': 30, 'yosys-elaboration': 30, 'publication-census': 45, 'firmware-unit': 45, 'firmware-control-mutants': 45, 'firmware-aecp-mutants': 45, 'firmware-srp-mutants': 45, 'firmware-boundary': 30, 'firmware-verilator': 40, 'rtl-fast': 5, 'ci-manifest': 15, 'ci-fail-fast': 120, 'ci-cancel-tail': 3}
+dev timeouts:  {'changes': 5, 'verilator-lint': 30, 'bdd-conformance': 20, 'yosys-elaboration': 30, 'publication-census': 45, 'firmware-unit': 45, 'firmware-control-mutants': 45, 'firmware-aecp-mutants': 45, 'firmware-srp-mutants': 45, 'firmware-boundary': 30, 'firmware-verilator': 40, 'rtl-fast': 5, 'ci-manifest': 15, 'ci-fail-fast': 120, 'ci-cancel-tail': 3}
+docs.yml identical to dev
+elaborate.yml identical to dev
+rtl.yml identical to dev
+templates identical to dev

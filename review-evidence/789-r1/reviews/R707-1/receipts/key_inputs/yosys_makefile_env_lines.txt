@@ -1,0 +1,6 @@
+source: https://raw.githubusercontent.com/YosysHQ/yosys/86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51/Makefile
+087611500b605e4995b94f44e1440039c018fe4f8cfb2a5bb479d7b1b6d00c0d  Makefile
+106:export CXXSTD ?= c++20
+107:CXXFLAGS := $(CXXFLAGS) -Wall -Wextra -Werror=unused -ggdb -I. -I"$(YOSYS_SRC)" -MD -MP -D_YOSYS_ -fPIC -I$(PREFIX)/include
+108:LIBS := $(LIBS) -lstdc++ -lm
+274:CXX = g++
