@@ -1,0 +1,42 @@
+control: changed=none
+    generator --check rc=0
+    ci_events --check rc=0
+    runner contract gate rc=0 FAIL=0
+template-job-latest-regen: changed= 2 files changed, 2 insertions(+), 2 deletions(-)
+    generator --check rc=0
+    ci_events --check rc=0
+    runner contract gate rc=1 FAIL=3
+        FAIL slot 0 uses external ranges without staging
+        FAIL slot 3 uses external ranges without staging
+        FAIL shipping workflows satisfy the sandbox policy (workflow .github/workflows/rtl.yml job yosys-shards runs on 'ubuntu-latest'; only the literal label ubuntu-24.04 is replayed)
+template-job-latest-noregen: changed= 1 file changed, 1 insertion(+), 1 deletion(-)
+    generator --check rc=1 :: ['.github/workflows/rtl.yml: regenerate the gate jobs']
+    ci_events --check rc=1 :: ['FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps, dependencies and receipts are refused']
+    runner contract gate rc=0 FAIL=0
+union-generator-latest-noregen: changed= 1 file changed, 1 insertion(+), 1 deletion(-)
+    generator --check rc=1 :: ['.github/workflows/rtl.yml: regenerate the gate jobs']
+    ci_events --check rc=1 :: ['FAIL .github/workflows/rtl.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps, dependencies and receipts are refused']
+    runner contract gate rc=0 FAIL=0
+union-generator-latest-regen: changed= 2 files changed, 7 insertions(+), 7 deletions(-)
+    generator --check rc=0
+    ci_events --check rc=0
+    runner contract gate rc=1 FAIL=3
+        FAIL slot 0 uses external ranges without staging
+        FAIL slot 3 uses external ranges without staging
+        FAIL shipping workflows satisfy the sandbox policy (workflow .github/workflows/rtl.yml job union-milan_dp runs on 'ubuntu-latest'; only the literal label ubuntu-24.04 is replayed)
+tail-guard-generator-2604-regen: changed= 5 files changed, 5 insertions(+), 5 deletions(-)
+    generator --check rc=0
+    ci_events --check rc=0
+    runner contract gate rc=1 FAIL=3
+        FAIL slot 0 uses external ranges without staging
+        FAIL slot 3 uses external ranges without staging
+        FAIL shipping workflows satisfy the sandbox policy (workflow .github/workflows/docs.yml job ci-cancel-tail runs on 'ubuntu-26.04'; only the literal label ubuntu-24.04 is replayed)
+workflow-hand-edit-2204: changed= 1 file changed, 1 insertion(+), 1 deletion(-)
+    generator --check rc=1 :: ['.github/workflows/elaborate.yml: regenerate the gate jobs']
+    ci_events --check rc=1 :: ['FAIL .github/workflows/elaborate.yml: generated gate jobs must match their complete inventory and aggregate: every original body, binding, condition and checkout is preserved; missing or additional steps, dependencies and receipts are refused']
+    runner contract gate rc=1 FAIL=1
+        FAIL shipping workflows satisfy the sandbox policy (workflow .github/workflows/elaborate.yml job elaborate runs on 'ubuntu-22.04'; only the literal label ubuntu-24.04 is replayed)
+ci-events-physical-latest: changed= 1 file changed, 1 insertion(+), 1 deletion(-)
+    generator --check rc=0
+    ci_events --check rc=1 :: ['FAIL .github/workflows/rtl.yml: physical-gptp must match its pinned schedule, budget, steps and evidence']
+    runner contract gate rc=0 FAIL=0

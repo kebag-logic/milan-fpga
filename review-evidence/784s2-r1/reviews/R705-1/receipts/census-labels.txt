@@ -1,0 +1,151 @@
+## ubuntu- label mentions outside workflows/templates (scripts ci tools tests docs)
+scripts/act_ci.py:88:#: ``ubuntu-latest`` moved to the 26.04 image, where the pinned CPython 3.12
+scripts/act_ci.py:89:#: wheels do not install, so ``ubuntu-latest`` is refused like any other label.
+scripts/act_ci.py:90:#: act would run a built-in label such as ``ubuntu-latest`` on its own default
+scripts/act_ci.py:6725:        for label in ("ubuntu-latest", "ubuntu-26.04", "ubuntu-22.04"):
+scripts/act_ci.py:6825:    for label in ("ubuntu-latest", "ubuntu-26.04"):
+scripts/act_ci.py:13279:    #: fixture on a label the sandbox does not accept, such as ubuntu-latest
+## ImageOS / runner.os / ImageVersion readers
+.github/ci-templates/docs.yml:56:          key: markdown-renderer-pip-cmarkgfm2025.10.22-html5lib1.1-${{ runner.os }}-${{ hashFiles('tools/markdown/requirements.txt') }}-${{ hashFiles('.github/workflows/*.yml') }}
+.github/ci-templates/docs.yml:191:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+.github/ci-templates/elaborate.yml:179:          key: elaborate-pip-git-pins-${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt') }}-${{ hashFiles('.github/workflows/*.yml') }}
+.github/ci-templates/elaborate.yml:211:          key: elaborate-sbt-1.10.7-32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6-${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml') }}
+.github/ci-templates/elaborate.yml:272:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+.github/ci-templates/elaborate.yml:298:          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+.github/ci-templates/rtl-fast.yml:92:          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+.github/ci-templates/rtl-fast.yml:153:          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+.github/ci-templates/rtl-fast.yml:270:          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+.github/ci-templates/rtl-fast.yml:358:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+.github/ci-templates/rtl-fast.yml:404:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+.github/ci-templates/rtl-fast.yml:438:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+.github/ci-templates/rtl-fast.yml:472:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+.github/ci-templates/rtl-fast.yml:520:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+.github/ci-templates/rtl-fast.yml:560:          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+.github/ci-templates/rtl-fast.yml:589:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{ hashFiles('scripts/ci_rv32_sdk.py') }}
+.github/ci-templates/rtl.yml:190:          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+.github/ci-templates/rtl.yml:237:          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+.github/ci-templates/rtl.yml:347:          key: verilator-${{ env.VERILATOR_VERSION }}-848d926ebd4addacacd294dc84e35d9d4ae8078c-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+.github/ci-templates/rtl.yml:503:          key: yosys-${{ env.YOSYS_VERSION }}-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-${{ hashFiles('.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/docs.yml:34:            }}-${{ runner.os }}
+.github/workflows/docs.yml:147:            }}-${{ runner.os }}
+.github/workflows/docs.yml:173:          key: markdown-renderer-pip-cmarkgfm2025.10.22-html5lib1.1-${{ runner.os }}-${{ hashFiles('tools/markdown/requirements.txt')
+.github/workflows/docs.yml:189:          key: ${{ runner.os }}-${{ steps.ci_packages_6.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/docs.yml:287:            '.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/docs.yml:313:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/docs.yml:519:            }}-${{ runner.os }}
+.github/workflows/docs.yml:528:          key: markdown-renderer-pip-cmarkgfm2025.10.22-html5lib1.1-${{ runner.os }}-${{ hashFiles('tools/markdown/requirements.txt')
+.github/workflows/docs.yml:544:          key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/docs.yml:561:            '.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/docs.yml:582:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/docs.yml:666:            }}-${{ runner.os }}
+.github/workflows/docs.yml:675:          key: markdown-renderer-pip-cmarkgfm2025.10.22-html5lib1.1-${{ runner.os }}-${{ hashFiles('tools/markdown/requirements.txt')
+.github/workflows/docs.yml:691:          key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/docs.yml:708:            '.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/docs.yml:729:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/docs.yml:831:            }}-${{ runner.os }}
+.github/workflows/docs.yml:839:            }}-${{ runner.os }}
+.github/workflows/docs.yml:932:            }}-${{ runner.os }}
+.github/workflows/elaborate.yml:42:            }}-${{ runner.os }}
+.github/workflows/elaborate.yml:86:            '.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/elaborate.yml:123:          key: elaborate-pip-git-pins-${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt') }}-${{
+.github/workflows/elaborate.yml:142:            runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
+.github/workflows/elaborate.yml:186:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/elaborate.yml:277:            }}-${{ runner.os }}
+.github/workflows/elaborate.yml:321:            '.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/elaborate.yml:358:          key: elaborate-pip-git-pins-${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt') }}-${{
+.github/workflows/elaborate.yml:377:            runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
+.github/workflows/elaborate.yml:421:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/elaborate.yml:443:            }}-${{ runner.os }}
+.github/workflows/elaborate.yml:454:          key: ${{ runner.os }}-${{ steps.ci_packages_17.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/elaborate.yml:570:            }}-${{ runner.os }}
+.github/workflows/elaborate.yml:578:            }}-${{ runner.os }}
+.github/workflows/elaborate.yml:668:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:133:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:143:          key: ${{ runner.os }}-${{ steps.ci_packages_3.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:222:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:289:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:299:          key: ${{ runner.os }}-${{ steps.ci_packages_3.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:337:            '.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:471:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:482:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:492:          key: ${{ runner.os }}-${{ steps.ci_packages_3.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:530:            '.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:605:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:619:          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:639:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/rtl-fast.yml:715:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:729:          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:746:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/rtl-fast.yml:812:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:826:          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:843:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/rtl-fast.yml:908:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:922:          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:939:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/rtl-fast.yml:1004:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:1018:          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:1034:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/rtl-fast.yml:1098:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:1112:          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:1130:            }}-${{ runner.os }}
+.github/workflows/rtl-fast.yml:1140:          key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl-fast.yml:1171:          key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
+.github/workflows/rtl-fast.yml:1350:            }}-${{ runner.os }}
+.github/workflows/rtl.yml:49:            }}-${{ runner.os }}
+.github/workflows/rtl.yml:212:            }}-${{ runner.os }}
+.github/workflows/rtl.yml:222:          key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl.yml:271:            }}-${{ runner.os }}
+.github/workflows/rtl.yml:281:          key: ${{ runner.os }}-${{ steps.ci_packages_8.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl.yml:314:          key: ${{ runner.os }}-${{ steps.ci_packages_9.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl.yml:335:            '.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/rtl.yml:359:            }}-${{ runner.os }}
+.github/workflows/rtl.yml:446:            }}-${{ runner.os }}
+.github/workflows/rtl.yml:474:            }}-${{ runner.os }}
+.github/workflows/rtl.yml:484:          key: ${{ runner.os }}-${{ steps.ci_packages_4.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl.yml:744:          key: ${{ runner.os }}-${{ steps.ci_packages_5.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl.yml:763:            '.github/workflows/*.yml') }}-${{ runner.os }}
+.github/workflows/rtl.yml:946:            }}-${{ runner.os }}
+.github/workflows/rtl.yml:956:          key: ${{ runner.os }}-${{ steps.ci_packages_2.outputs.key }}-${{ hashFiles('scripts/ci_install*.py',
+.github/workflows/rtl.yml:1520:            }}-${{ runner.os }}
+docs/testing/CI_IMAGE.md:609:The [runner manifest](https://github.com/actions/runner-images/blob/ubuntu24/20261004.327/images/ubuntu/Ubuntu2404-Readme.md)
+scripts/ci_events.py:207:                                        '${{ runner.os }}'
+scripts/ci_events.py:753:    "key": "rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-"
+scripts/ci_events.py:961:                  "key": "markdown-renderer-pip-cmarkgfm2025.10.22-html5lib1.1-${{ runner.os }}-"
+scripts/ci_events.py:1223:                  "key": "elaborate-pip-git-pins-${{ runner.os }}-"
+scripts/ci_events.py:1236:                         "${{ runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-"
+scripts/ci_events.py:1276:                         '${{ runner.os }}'
+scripts/ci_events.py:2154:           '${{ runner.os }}'
+scripts/ci_events.py:2163:           '${{ runner.os }}'
+scripts/ci_events.py:8114:                ("OS", "key", RV32_CACHE_WITH["key"].replace("${{ runner.os }}", "")),
+scripts/ci_install_workflows.py:53:                           "${{ runner.os }}-${{ steps." + token + ".outputs.key }}-" + RECIPE, condition), retained]
+scripts/ci_install_workflows.py:69:                      "sv2v-v0.0.12-" + SV2V_SHA + "-" + RECIPE + "-${{ runner.os }}", condition), retained]
+scripts/ci_install_workflows.py:78:                      "tsn-gen-${{ env.TSN_GEN_REV }}-" + RECIPE + "-${{ runner.os }}", condition), retained]
+scripts/ci_install_workflows.py:96:                                    + RECIPE + "-${{ runner.os }}"))
+scripts/ci_runtime_workflows.py:23:                             "'scripts/ci_gate_workflows.py', '.github/workflows/*.yml') }}-${{ runner.os }}"}},
+## files that enumerate generators (who writes .github/workflows)
+scripts/act_ci.py
+scripts/check_baremetal_only.py
+scripts/ci_command_table.py
+scripts/ci_differential.py
+scripts/ci_differential_selftest.py
+scripts/ci_events.py
+scripts/ci_fail_fast.py
+scripts/ci_fail_fast_selftest.py
+scripts/ci_gate_workflows.py
+scripts/ci_install_workflows.py
+scripts/ci_inventory_nodes_selftest.py
+scripts/ci_inventory_patterns_selftest.py
+scripts/ci_manifest.py
+scripts/ci_manifest_selftest.py
+scripts/ci_runtime_evidence.py
+scripts/ci_runtime_evidence_selftest.py
+scripts/ci_runtime_workflows.py
+scripts/ci_scope.py
+scripts/ci_scope_history.py
+scripts/ci_tool_inventory.py
+scripts/ci_tool_inventory_selftest.py
+scripts/ci_toolcache_isolation.py
+scripts/ci_workflow_plan.py
+scripts/ci_workflow_plan_selftest.py
+scripts/measure_fail_fast.py
+scripts/measure_test_evidence.py

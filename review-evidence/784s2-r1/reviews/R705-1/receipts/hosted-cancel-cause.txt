@@ -1,0 +1,33 @@
+## rtl-fast ci-fail-fast job 121450485517 (run 40286249749), excerpt
+2026-10-26T08:03:10.4724559Z {"first_failure": "yosys-elaboration", "conclusion": "cancelled"}
+2026-10-26T08:03:10.4827657Z ##[error]Process completed with exit code 1.
+2026-10-26T08:03:12.9439414Z Cancelled runs: [40286249776, 40286249788, 40286249845, 40286249749]
+## yosys-elaboration job 121450772865, excerpt
+2026-10-26T07:31:49.4544932Z Image: ubuntu-24.04
+2026-10-26T07:31:54.2595314Z Cache not found for input keys: yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-e3388d3a9eadc6f9c46c2df9e3c9bfeadc379a61666a2e4c942e9a3c30f0754d-Linux
+2026-10-26T08:02:01.3121684Z ##[error]The operation was canceled.
+1	Set up job	success	2026-10-26T07:31:49Z	2026-10-26T07:31:50Z
+2	Run actions/checkout@v4	success	2026-10-26T07:31:50Z	2026-10-26T07:31:51Z
+3	Set CPU-derived job budgets	success	2026-10-26T07:31:51Z	2026-10-26T07:31:51Z
+4	Fetch RTL dependencies	success	2026-10-26T07:31:51Z	2026-10-26T07:31:53Z
+5	Cache the pinned Yosys build	success	2026-10-26T07:31:53Z	2026-10-26T07:31:54Z
+6	Resolve exact package downloads 3	success	2026-10-26T07:31:54Z	2026-10-26T07:31:59Z
+7	Cache exact package downloads 3	success	2026-10-26T07:31:59Z	2026-10-26T07:32:00Z
+8	Build Yosys from source on cache miss	success	2026-10-26T07:32:00Z	2026-10-26T07:48:33Z
+9	Install the pinned Yosys and prove the version	success	2026-10-26T07:48:33Z	2026-10-26T07:48:33Z
+10	Cache verified sv2v archive	success	2026-10-26T07:48:33Z	2026-10-26T07:48:34Z
+11	Install the pinned sv2v release	success	2026-10-26T07:48:34Z	2026-10-26T07:48:34Z
+12	Elaborate the integration-heavy tops	success	2026-10-26T07:48:34Z	2026-10-26T07:51:26Z
+13	Prove the OOC read sets come from run.sh and refuse a bad one	cancelled	2026-10-26T07:51:26Z	2026-10-26T08:02:01Z
+14	Prove ooc.sh generates the ROMs and fails on a failed top	skipped	2026-10-26T08:02:01Z	2026-10-26T08:02:01Z
+15	Prove both synthesis flows refuse active elaboration guards	skipped	2026-10-26T08:02:01Z	2026-10-26T08:02:01Z
+16	Prove the result cache refuses a planted entry	skipped	2026-10-26T08:02:01Z	2026-10-26T08:02:01Z
+17	Record actual job execution	success	2026-10-26T08:02:01Z	2026-10-26T08:02:03Z
+18	Upload actual job execution	success	2026-10-26T08:02:03Z	2026-10-26T08:02:05Z
+33	Post Cache verified sv2v archive	skipped	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+34	Post Cache exact package downloads 3	skipped	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+35	Post Cache the pinned Yosys build	skipped	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+36	Post Run actions/checkout@v4	success	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+37	Complete job	success	2026-10-26T08:02:05Z	2026-10-26T08:02:05Z
+## actions cache for the yosys key after the run
+yosys-v0.66-86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51-e3388d3a9eadc6f9c46c2df9e3c9bfeadc379a61666a2e4c942e9a3c30f0754d-Linux	refs/pull/788/merge	2026-10-26T07:48:36.635169Z	19693104

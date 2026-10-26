@@ -1,0 +1,3 @@
+dev-trusted runner (RUNS_ON_LABELS=('ubuntu-latest', 'ubuntu-24.04')) on head workflows ('docs', 'elaborate', 'rtl-fast', 'rtl-full'): ACCEPTED
+head runner (RUNS_ON_LABELS=('ubuntu-24.04',)) on head workflows ('docs', 'elaborate', 'rtl-fast', 'rtl-full'): ACCEPTED
+head runner (RUNS_ON_LABELS=('ubuntu-24.04',)) on dev-a8594bb9 workflows ('docs', 'elaborate', 'rtl-fast', 'rtl-full'): REFUSED: workflow .github/workflows/docs.yml job wire-accountability runs on 'ubuntu-latest'; only the literal label ubuntu-24.04 is replayed

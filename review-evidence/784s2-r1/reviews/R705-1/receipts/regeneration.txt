@@ -1,0 +1,18 @@
+## A. regenerate at head in a scratch copy
+generator rc=0
+status lines after regeneration: 0
+## B. dev export, label-only substitution, regenerate
+dev-regen generator rc=0
+docs.yml: regenerated-from-dev bytes identical to head
+elaborate.yml: regenerated-from-dev bytes identical to head
+rtl-fast.yml: regenerated-from-dev bytes identical to head
+rtl.yml: regenerated-from-dev bytes identical to head
+## C. head templates vs label-substituted dev templates
+docs template: identical
+elaborate template: identical
+rtl-fast template: identical
+rtl template differs (head < > substituted dev):
+494c494
+<       # The apt package this replaces resolved to whatever the hosted image
+---
+>       # The apt package this replaces resolved to whatever ubuntu-latest

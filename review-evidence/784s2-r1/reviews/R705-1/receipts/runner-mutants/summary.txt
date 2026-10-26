@@ -1,0 +1,63 @@
+control: rc=0 ok=621 FAIL=0
+readmit-latest: rc=1 ok=618 FAIL=3
+    FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest
+    FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command
+    FAIL act's platform list maps ubuntu-24.04 to the runner image, once, and no other label
+latest-only: rc=1 ok=187 FAIL=8
+    FAIL a job on ubuntu-24.04 is accepted by the sandbox
+    FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest
+    FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image
+    FAIL a ubuntu-24.04 replay holds its job containers to the 8g memory and swap bound
+    FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command
+    FAIL slot 0 uses external ranges without staging
+    FAIL slot 3 uses external ranges without staging
+    FAIL act's platform list maps ubuntu-24.04 to the runner image, once, and no other label
+drop-platform-entry: rc=1 ok=618 FAIL=3
+    FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image
+    FAIL act's platform list maps ubuntu-24.04 to the runner image, once, and no other label
+    FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does
+platform-wrong-label: rc=1 ok=618 FAIL=3
+    FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image
+    FAIL act's platform list maps ubuntu-24.04 to the runner image, once, and no other label
+    FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does
+platform-wrong-image: rc=1 ok=618 FAIL=3
+    FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image
+    FAIL act's platform list maps ubuntu-24.04 to the runner image, once, and no other label
+    FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does
+sandbox-admits-latest: rc=1 ok=618 FAIL=3
+    FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest
+    FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command
+    FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does
+sandbox-prefix: rc=1 ok=614 FAIL=7
+    FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest
+    FAIL a job on ubuntu-26.04 is refused before act, and the refusal names ubuntu-26.04
+    FAIL a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04
+    FAIL the arm image of an accepted label is refused: only the exact literal is replayed
+    FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command
+    FAIL a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command
+    FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does
+sandbox-no-label-check: rc=1 ok=609 FAIL=12
+    FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest
+    FAIL a job on ubuntu-26.04 is refused before act, and the refusal names ubuntu-26.04
+    FAIL a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04
+    FAIL an upper-case spelling of an accepted label is refused: only the exact literal is replayed
+    FAIL the arm image of an accepted label is refused: only the exact literal is replayed
+    FAIL a one-label list of an accepted label is refused: only the exact literal is replayed
+    FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command
+    FAIL a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command
+    FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does
+    FAIL self-hosted runner authority is refused
+    FAIL a missing runner label is refused
+    FAIL a nonliteral runner label is refused
+refusal-unnamed: rc=1 ok=613 FAIL=8
+    FAIL a job on ubuntu-latest is refused before act, and the refusal names ubuntu-latest
+    FAIL a job on ubuntu-26.04 is refused before act, and the refusal names ubuntu-26.04
+    FAIL a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04
+    FAIL a job on ubuntu-latest is refused naming ubuntu-latest, before any Docker boundary or act command
+    FAIL a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command
+    FAIL self-hosted runner authority is refused
+    FAIL a missing runner label is refused
+    FAIL a nonliteral runner label is refused
+container-refusal-deleted: rc=1 ok=619 FAIL=2
+    FAIL job container authority is refused
+    FAIL service container authority is refused

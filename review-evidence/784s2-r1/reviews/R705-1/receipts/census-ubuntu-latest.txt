@@ -1,0 +1,17 @@
+## git grep -n ubuntu-latest (whole tree at head, excluding submodules)
+847eb4dd:docs/testing/CI_WORKFLOWS.md:8:`ubuntu-24.04`, never on the floating `ubuntu-latest` (#784). The workflow
+847eb4dd:docs/testing/CI_WORKFLOWS.md:11:`ubuntu-latest` moved to the `ubuntu-26.04` image, where the pinned CPython
+847eb4dd:docs/testing/CI_WORKFLOWS.md:2038:`--platform` entry, and every other label, such as `ubuntu-latest`,
+847eb4dd:docs/testing/CI_WORKFLOWS.md:2040:`ubuntu-latest` is refused because hosted `ubuntu-latest` moved to the
+847eb4dd:docs/testing/CI_WORKFLOWS.md:2046:such as `ubuntu-latest` would run on act's default `node:16` image instead, so
+847eb4dd:docs/testing/TESTING.md:331:used a hosted `ubuntu-latest` runner, then the `ubuntu-24.04` image, and sequential `make -C` invocations.
+847eb4dd:scripts/act_ci.py:88:#: ``ubuntu-latest`` moved to the 26.04 image, where the pinned CPython 3.12
+847eb4dd:scripts/act_ci.py:89:#: wheels do not install, so ``ubuntu-latest`` is refused like any other label.
+847eb4dd:scripts/act_ci.py:90:#: act would run a built-in label such as ``ubuntu-latest`` on its own default
+847eb4dd:scripts/act_ci.py:6725:        for label in ("ubuntu-latest", "ubuntu-26.04", "ubuntu-22.04"):
+847eb4dd:scripts/act_ci.py:6752:    probes = ("ubuntu-latest", "ubuntu-24.04", "ubuntu-26.04", "ubuntu-22.04", "ubuntu-20.04", "self-hosted")
+847eb4dd:scripts/act_ci.py:6825:    for label in ("ubuntu-latest", "ubuntu-26.04"):
+847eb4dd:scripts/act_ci.py:13279:    #: fixture on a label the sandbox does not accept, such as ubuntu-latest
+847eb4dd:tb/verilator/follow_ring/Makefile:26:# hosted ubuntu-latest runner, run 37892515345, shard 0/5 job 113696564335.
+847eb4dd:tb/verilator/milan_dp_render/Makefile:42:# hosted ubuntu-latest runner, run 37892515345, shard 0/5 job 113696564335.
+rc=0
