@@ -1,0 +1,442 @@
+{
+  "schema": "aecp-command-table/1",
+  "about": [
+    "SPDX-FileCopyrightText: 2026 Kebag Logic",
+    "SPDX-License-Identifier: CERN-OHL-W-2.0",
+    "The AECP command model (issue #73, REQ-VER-002): one row per command KL_aecp_engine serves.",
+    "gen_ucode.py takes its status codes and the MVU command_type from this file, and refuses an entry it never placed.",
+    "docs/architecture/06_aecp_engine.md F06.14 is generated from it: python3 scripts/check_aecp_commands.py --write.",
+    "scripts/check_aecp_commands.py (make check) holds every other consumer to it: what the engine decodes and dispatches as tb/aecp_cmds observes it (tb/aecp_cmds/decode.json: the programs per opcode, the shortest accepted command, the responses, the GET_DYNAMIC_INFO members and record lengths, the unsolicited jobs), the engine's OP_*_C, GDI_*_C and UPC_*_C values, the top's hazard classifier, the scoreboard's lock-protected classes, the notify block's class map, ucpu_pkg's status codes, the generated ROM's programs and 06 section 8.1.",
+    "Sizes are control_data_length (cdl), the offset-from-@12 length; the AECPDU is 12 + cdl octets.",
+    "entries are every uPC program the engine dispatches the command to, on any outcome (E_<entry> in gen_ucode.py, UPC_<entry>_C in the engine), the success program first; tb/aecp_cmds observes them.",
+    "status is the command's own status set; common_status lists what every command of a message type can also answer."
+  ],
+  "fields": "aecp_fields.json",
+  "status_codes": {
+    "SUCCESS": {"code": 0, "rtl": "ST_SUCCESS_C"},
+    "NOT_IMPLEMENTED": {"code": 1, "rtl": "ST_NOT_IMPLEMENTED_C"},
+    "NO_SUCH_DESCRIPTOR": {"code": 2, "rtl": "ST_NO_SUCH_DESC_C"},
+    "ENTITY_LOCKED": {"code": 3, "rtl": "ST_LOCKED_C"},
+    "BAD_ARGUMENTS": {"code": 7, "rtl": "ST_BAD_ARGUMENTS_C"},
+    "NO_RESOURCES": {"code": 8, "rtl": "ST_NO_RESOURCES_C"},
+    "ENTITY_MISBEHAVING": {"code": 10, "rtl": "ST_ENTITY_MISBEHAVING_C"},
+    "NOT_SUPPORTED": {"code": 11, "rtl": "ST_NOT_SUPPORTED_C"},
+    "STREAM_IS_RUNNING": {"code": 12, "rtl": null}
+  },
+  "common_status": {
+    "AEM": ["ENTITY_MISBEHAVING"],
+    "MVU": ["NOT_IMPLEMENTED"]
+  },
+  "hazard_classes": {
+    "RO_SNAPSHOT": 0,
+    "CFG_BARRIER": 1,
+    "STREAM_CFG": 2,
+    "MAP_CFG": 3,
+    "CLOCK_CFG": 4,
+    "NAME_WR": 5,
+    "LOCK_OP": 6,
+    "REGISTRY_OP": 7,
+    "IDENTIFY": 8
+  },
+  "unserved": "NOTIMPL",
+  "echo_entries": ["NOTIMPL", "BADARG", "NSUPPE"],
+  "shared_entries": {
+    "BADARG": "the shared BAD_ARGUMENTS echo; also the first entry of IDENTIFY_NOTIFICATION and the engine-built GET_DYNAMIC_INFO aggregate",
+    "NSUPPE": "the shared NOT_SUPPORTED echo; also the first entry of ACQUIRE_ENTITY, which never succeeds",
+    "DLKILL": "the deadline kill's arm (03 section 6 rule (e)): every AEM command's ENTITY_MISBEHAVING",
+    "NOTIMPL": "the NOT_IMPLEMENTED echo of every command the engine does not serve, on every message type",
+    "NOSEND": "an unsolicited job whose kind has no program: retired without a frame",
+    "NAMEERR": "the GET_NAME and SET_NAME error body: the engine declares UPC_NAMEERR_C and never dispatches to it; both programs branch there"
+  },
+  "commands": [
+    {
+      "name": "ACQUIRE_ENTITY", "message": "AEM", "opcode": "0x0000", "rtl": "OP_ACQUIRE_C",
+      "clause": "Milan 5.4.2.1; IEEE 7.4.1",
+      "command": {"cdl": 28, "floor": 12},
+      "response": {"cdl": 28, "echo": true},
+      "status": ["NOT_SUPPORTED"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": false, "oversize": false,
+      "entries": ["NSUPPE"],
+      "doc": {"mandate": "shall, **never succeeds** (Δ7)", "scope": "any", "size": "owner_id 0"}
+    },
+    {
+      "name": "LOCK_ENTITY", "message": "AEM", "opcode": "0x0001", "rtl": "OP_LOCK_C",
+      "clause": "Milan 5.4.2.2; IEEE 7.4.2",
+      "command": {"cdl": 28},
+      "response": {"cdl": 28},
+      "status": ["SUCCESS", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "LOCK_OP", "lock": false,
+      "notify": {"class": null, "kind": "PP_UNS_LOCK_C", "body": "LOCKUNS", "doc": "on lock/unlock with the command's flags; auto-unlock with flags UNLOCK"},
+      "gdi": false, "oversize": false,
+      "entries": ["LOCKEN", "NSUPPE", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "ENTITY only (Δ10); the lock itself, so not lock-protected"}
+    },
+    {
+      "name": "ENTITY_AVAILABLE", "message": "AEM", "opcode": "0x0002", "rtl": "OP_ENTITY_AVAIL_C",
+      "clause": "Milan 5.4.2.3; IEEE 7.4.3",
+      "command": {"cdl": 12},
+      "response": {"cdl": 32},
+      "status": ["SUCCESS"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": false, "oversize": false,
+      "entries": ["EAVL"],
+      "doc": {"mandate": "shall", "scope": "—", "size": "2021 form w/ flags + acquired/locked IDs"}
+    },
+    {
+      "name": "READ_DESCRIPTOR", "message": "AEM", "opcode": "0x0004", "rtl": "OP_READ_DESCRIPTOR_C",
+      "clause": "Milan 5.4.2.4; IEEE 7.4.5",
+      "command": {"cdl": 20},
+      "response": {"cdl": 16, "plus": "descriptor", "stub": 20},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": false, "oversize": true,
+      "entries": ["RDESC", "RDESCENT", "RDESCAU", "RDESCCD", "RDESCSI", "RDESCSO", "RDESCCT", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "allowed while locked", "size": "the stub is §7.4.5's {type, index}"}
+    },
+    {
+      "name": "SET_CONFIGURATION", "message": "AEM", "opcode": "0x0006", "rtl": "OP_SET_CONFIG_C",
+      "clause": "Milan 5.4.2.5; IEEE 7.4.7",
+      "command": {"cdl": 16},
+      "response": {"cdl": 16},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "STREAM_IS_RUNNING"],
+      "hazard": "CFG_BARRIER", "lock": true,
+      "notify": {"class": 1, "kind": "PP_UNS_CFG_C", "body": "GCFG", "doc": "success with state change, requester excluded"},
+      "gdi": false, "oversize": false,
+      "entries": ["SCFG", "SCFGRUN", "SCFGBAD"],
+      "doc": {"mandate": "shall", "scope": "STREAM_IS_RUNNING guard §6.4", "class": "(assigned by the top's classifier, [03 §6](03_packet_engine.md))"}
+    },
+    {
+      "name": "GET_CONFIGURATION", "message": "AEM", "opcode": "0x0007", "rtl": "OP_GET_CONFIG_C",
+      "clause": "Milan 5.4.2.6; IEEE 7.4.8",
+      "command": {"cdl": 12},
+      "response": {"cdl": 16},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": true, "oversize": false,
+      "entries": ["GCFG"],
+      "doc": {"mandate": "shall", "scope": "—"}
+    },
+    {
+      "name": "SET_STREAM_FORMAT", "message": "AEM", "opcode": "0x0008", "rtl": "OP_SET_STREAM_FMT_C",
+      "clause": "Milan 5.4.2.7; IEEE 7.4.9",
+      "command": {"cdl": 24},
+      "response": {"cdl": 24},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED", "STREAM_IS_RUNNING"],
+      "hazard": "STREAM_CFG", "lock": true,
+      "notify": {"class": 2, "kind": "PP_UNS_SFMT_C", "body": "GSFMT", "doc": "success with state change, requester excluded"},
+      "gdi": false, "oversize": false,
+      "entries": ["SFMTI", "SFMTO", "SFRUN", "SFBAD", "TIZ8NS"],
+      "doc": {"mandate": "shall", "scope": "per stream, both directions; §6.4 chain"}
+    },
+    {
+      "name": "GET_STREAM_FORMAT", "message": "AEM", "opcode": "0x0009", "rtl": "OP_GET_STREAM_FMT_C",
+      "clause": "Milan 5.4.2.8; IEEE 7.4.10",
+      "command": {"cdl": 16},
+      "response": {"cdl": 24},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": true, "oversize": false,
+      "entries": ["GSFMT", "TIZ8NS", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "—"}
+    },
+    {
+      "name": "SET_STREAM_INFO", "message": "AEM", "opcode": "0x000E", "rtl": "OP_SET_STREAM_INFO_C",
+      "clause": "Milan 5.4.2.9; IEEE 7.4.15",
+      "command": {"cdl": 96, "floor": 60},
+      "response": {"cdl": 96, "echo": true},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED", "STREAM_IS_RUNNING"],
+      "hazard": "STREAM_CFG", "lock": true,
+      "notify": {"class": 3, "kind": "PP_UNS_SINFO_C", "body": "SINFOUNS", "doc": "success with state change, requester excluded"},
+      "gdi": false, "oversize": false,
+      "entries": ["SINFO", "SIBAD", "SIRUN", "NSUPPE", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "**output only** (Δ11); §6.3; accepts exactly the 2021 body (cdl 96) and the 2013 48-byte body (cdl 60)", "size": "the 2021 form, whichever body"}
+    },
+    {
+      "name": "GET_STREAM_INFO", "message": "AEM", "opcode": "0x000F", "rtl": "OP_GET_STREAM_INFO_C",
+      "clause": "Milan 5.4.2.10; IEEE 7.4.16",
+      "command": {"cdl": 16},
+      "response": {"cdl": 68},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "RO_SNAPSHOT", "lock": false,
+      "notify": {"class": null, "kind": "PP_UNS_STRI_C", "body": "GSTRI", "doc": "async triggers"},
+      "gdi": true, "oversize": false,
+      "entries": ["GSTRI", "NSUPPE", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "Milan 80-B form §6.2"}
+    },
+    {
+      "name": "SET_NAME", "message": "AEM", "opcode": "0x0010", "rtl": "OP_SET_NAME_C",
+      "clause": "Milan 5.4.2.11; IEEE 7.4.17",
+      "command": {"cdl": 84},
+      "response": {"cdl": 84},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS"],
+      "hazard": "NAME_WR", "lock": true,
+      "notify": {"class": 7, "kind": "PP_UNS_NAME_C", "body": "GNAME", "doc": "naming trigger"},
+      "gdi": false, "oversize": false,
+      "entries": ["SNAME", "NAMEBAD"],
+      "doc": {"mandate": "shall", "scope": "every named descriptor; ENTITY indices 0 and 1, all others index 0", "size": "current 64-B name"}
+    },
+    {
+      "name": "GET_NAME", "message": "AEM", "opcode": "0x0011", "rtl": "OP_GET_NAME_C",
+      "clause": "Milan 5.4.2.12; IEEE 7.4.18",
+      "command": {"cdl": 20},
+      "response": {"cdl": 84},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": true, "oversize": false,
+      "entries": ["GNAME", "NAMEBAD"],
+      "doc": {"mandate": "shall", "scope": "every named descriptor; ENTITY indices 0 and 1, all others index 0", "size": "current 64-B name"}
+    },
+    {
+      "name": "SET_SAMPLING_RATE", "message": "AEM", "opcode": "0x0014", "rtl": "OP_SET_SAMP_RATE_C",
+      "clause": "Milan 5.4.2.13; IEEE 7.4.21",
+      "command": {"cdl": 20},
+      "response": {"cdl": 20},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "CLOCK_CFG", "lock": true,
+      "notify": {"class": 5, "kind": "PP_UNS_SRATE_C", "body": "GSRATE", "doc": "success with state change, requester excluded"},
+      "gdi": false, "oversize": false,
+      "entries": ["SSRATE", "TIZ4NS", "BADARG4"],
+      "doc": {"mandate": "shall", "scope": "per AUDIO_UNIT; §6.4"}
+    },
+    {
+      "name": "GET_SAMPLING_RATE", "message": "AEM", "opcode": "0x0015", "rtl": "OP_GET_SAMP_RATE_C",
+      "clause": "Milan 5.4.2.14; IEEE 7.4.22",
+      "command": {"cdl": 16},
+      "response": {"cdl": 20},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": true, "oversize": false,
+      "entries": ["GSRATE", "TIZ4NS", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "—"}
+    },
+    {
+      "name": "SET_CLOCK_SOURCE", "message": "AEM", "opcode": "0x0016", "rtl": "OP_SET_CLOCK_SRC_C",
+      "clause": "Milan 5.4.2.15; IEEE 7.4.23",
+      "command": {"cdl": 20},
+      "response": {"cdl": 20},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "CLOCK_CFG", "lock": true,
+      "notify": {"class": 8, "kind": "PP_UNS_CLKS_C", "body": "GCLKS", "doc": "success with state change, requester excluded"},
+      "gdi": false, "oversize": false,
+      "entries": ["SCLKS", "TIZ4NS", "BADARG4"],
+      "doc": {"mandate": "shall", "scope": "per CLOCK_DOMAIN"}
+    },
+    {
+      "name": "GET_CLOCK_SOURCE", "message": "AEM", "opcode": "0x0017", "rtl": "OP_GET_CLOCK_SRC_C",
+      "clause": "Milan 5.4.2.16; IEEE 7.4.24",
+      "command": {"cdl": 16},
+      "response": {"cdl": 20},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": true, "oversize": false,
+      "entries": ["GCLKS", "TIZ4NS", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "—"}
+    },
+    {
+      "name": "SET_CONTROL", "message": "AEM", "opcode": "0x0018", "rtl": "OP_SET_CONTROL_C",
+      "clause": "Milan 5.4.2.17; IEEE 7.4.25",
+      "command": {"cdl": 17},
+      "response": {"cdl": 17},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "IDENTIFY", "lock": true,
+      "notify": {"class": 4, "kind": "PP_UNS_CTRL_C", "body": "GCTRL", "doc": "success with state change, requester excluded"},
+      "gdi": false, "oversize": false,
+      "entries": ["SCTRL", "NSUPP1", "BADARG1"],
+      "doc": {"mandate": "shall (identify)", "scope": "value 0/255", "size": "one LINEAR_UINT8 value"}
+    },
+    {
+      "name": "GET_CONTROL", "message": "AEM", "opcode": "0x0019", "rtl": "OP_GET_CONTROL_C",
+      "clause": "Milan 5.4.2.18; IEEE 7.4.26",
+      "command": {"cdl": 16},
+      "response": {"cdl": 17},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": false, "oversize": false,
+      "entries": ["GCTRL", "NSUPP1", "BADARG1"],
+      "doc": {"mandate": "shall (identify)", "scope": "— (variable-size, so not a GET_DYNAMIC_INFO member)", "size": "one LINEAR_UINT8 value"}
+    },
+    {
+      "name": "START_STREAMING", "message": "AEM", "opcode": "0x0022", "rtl": "OP_START_STRM_C",
+      "clause": "Milan 5.4.2.19; IEEE 7.4.35",
+      "command": {"cdl": 16},
+      "response": {"cdl": 16},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "ENTITY_MISBEHAVING", "NOT_SUPPORTED"],
+      "hazard": "STREAM_CFG", "lock": true,
+      "notify": {"class": 9, "kind": "PP_UNS_STRM_C", "body": "STRMUNS", "doc": "success with state change, requester excluded; the started/stopped GET_STREAM_INFO is a separate event"},
+      "gdi": false, "oversize": false,
+      "entries": ["STRT", "STRMNS", "STRMBAD"],
+      "doc": {"mandate": "shall", "scope": "**input only** (Δ11); every other type `NOT_SUPPORTED`", "size": "`{type, index}` on every arm"}
+    },
+    {
+      "name": "STOP_STREAMING", "message": "AEM", "opcode": "0x0023", "rtl": "OP_STOP_STRM_C",
+      "clause": "Milan 5.4.2.20; IEEE 7.4.36",
+      "command": {"cdl": 16},
+      "response": {"cdl": 16},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "ENTITY_MISBEHAVING", "NOT_SUPPORTED"],
+      "hazard": "STREAM_CFG", "lock": true,
+      "notify": {"class": 9, "kind": "PP_UNS_STRM_C", "body": "STRMUNS", "doc": "success with state change, requester excluded; the started/stopped GET_STREAM_INFO is a separate event"},
+      "gdi": false, "oversize": false,
+      "entries": ["STOP", "STRMNS", "STRMBAD"],
+      "doc": {"mandate": "shall", "scope": "**input only** (Δ11); every other type `NOT_SUPPORTED`", "size": "`{type, index}` on every arm"}
+    },
+    {
+      "name": "REGISTER_UNSOLICITED_NOTIFICATION", "message": "AEM", "opcode": "0x0024", "rtl": "OP_REG_UNSOL_C",
+      "clause": "Milan 5.4.2.21; IEEE 7.4.37",
+      "command": {"cdl": 16, "floor": 12},
+      "response": {"cdl": 16, "echo": true},
+      "status": ["SUCCESS", "NO_RESOURCES"],
+      "hazard": "REGISTRY_OP", "lock": false, "notify": null, "gdi": false, "oversize": false,
+      "entries": ["REGUN"],
+      "doc": {"mandate": "shall", "scope": "§7; accepts 2013 no-flags form", "size": "w/ flags"}
+    },
+    {
+      "name": "DEREGISTER_UNSOLICITED_NOTIFICATION", "message": "AEM", "opcode": "0x0025", "rtl": "OP_DEREG_UNSOL_C",
+      "clause": "Milan 5.4.2.22; IEEE 7.4.38",
+      "command": {"cdl": 12},
+      "response": {"cdl": 12, "echo": true},
+      "status": ["SUCCESS"],
+      "hazard": "REGISTRY_OP", "lock": false,
+      "notify": {"class": null, "kind": "PP_UNS_DEREG_C", "body": "UNSOK", "doc": "auto-deregister → targeted"},
+      "gdi": false, "oversize": false,
+      "entries": ["DEREG"],
+      "doc": {"mandate": "shall", "scope": "§7"}
+    },
+    {
+      "name": "IDENTIFY_NOTIFICATION", "message": "AEM", "opcode": "0x0026", "rtl": "OP_IDENTIFY_NOTIF_C",
+      "clause": "IEEE 7.4.39",
+      "command": {"cdl": 16, "floor": 12},
+      "response": {"cdl": 16, "echo": true},
+      "status": ["BAD_ARGUMENTS"],
+      "hazard": "RO_SNAPSHOT", "lock": false,
+      "notify": {"class": null, "kind": "PP_UNS_IDENT_C", "body": "IDNOTIF", "doc": "is one"},
+      "gdi": false, "oversize": false,
+      "entries": ["BADARG"],
+      "doc": {"mandate": "unsolicited-only", "scope": "as command → `BAD_ARGUMENTS` echo (IEEE §7.4.39.2, the opcode-specific rule — it governs over §9.3.5.3.3's fallback)", "size": "the unsolicited response"}
+    },
+    {
+      "name": "GET_AVB_INFO", "message": "AEM", "opcode": "0x0027", "rtl": "OP_GET_AVB_INFO_C",
+      "clause": "Milan 5.4.2.23; IEEE 7.4.40",
+      "command": {"cdl": 16},
+      "response": {"cdl": 32, "per": 4, "unit": "msrp mappings"},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "RO_SNAPSHOT", "lock": false,
+      "notify": {"class": null, "kind": "PP_UNS_AVB_C", "body": "GAVB", "doc": "async triggers"},
+      "gdi": false, "oversize": true,
+      "entries": ["GAVB", "NSUPPE", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "gather §6.2"}
+    },
+    {
+      "name": "GET_AS_PATH", "message": "AEM", "opcode": "0x0028", "rtl": "OP_GET_AS_PATH_C",
+      "clause": "Milan 5.4.2.24; IEEE 7.4.41",
+      "command": {"cdl": 16},
+      "response": {"cdl": 16, "per": 8, "unit": "path entries"},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS"],
+      "hazard": "RO_SNAPSHOT", "lock": false,
+      "notify": {"class": null, "kind": "PP_UNS_ASP_C", "body": "GASP", "doc": "async trigger"},
+      "gdi": false, "oversize": true,
+      "entries": ["GASP", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "gather §6.2"}
+    },
+    {
+      "name": "GET_COUNTERS", "message": "AEM", "opcode": "0x0029", "rtl": "OP_GET_COUNTERS_C",
+      "clause": "Milan 5.4.2.25; IEEE 7.4.42",
+      "command": {"cdl": 16},
+      "response": {"cdl": 148},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "RO_SNAPSHOT", "lock": false,
+      "notify": {"class": null, "kind": "PP_UNS_CTRS_C", "body": "GCTRS", "doc": "async (`T-CTR-NOTIF`)"},
+      "gdi": true, "oversize": false,
+      "entries": ["GCTRS", "GCTRSNS", "BADARG"],
+      "doc": {"mandate": "shall", "scope": "§6.6"}
+    },
+    {
+      "name": "GET_AUDIO_MAP", "message": "AEM", "opcode": "0x002B", "rtl": "OP_GET_AUDIO_MAP_C",
+      "clause": "Milan 5.4.2.26; IEEE 7.4.44",
+      "command": {"cdl": 20},
+      "response": {"cdl": 24, "per": 8, "unit": "mappings"},
+      "status": ["SUCCESS", "NOT_IMPLEMENTED", "NO_SUCH_DESCRIPTOR", "BAD_ARGUMENTS", "NO_RESOURCES", "NOT_SUPPORTED"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": false, "oversize": true,
+      "entries": ["GAMAP", "GAMAPO", "NOTIMPL", "BADARG"],
+      "doc": {"mandate": "shall (dynamic ports)", "scope": "§6.5"}
+    },
+    {
+      "name": "ADD_AUDIO_MAPPINGS", "message": "AEM", "opcode": "0x002C", "rtl": "OP_ADD_AUDIO_MAP_C",
+      "clause": "Milan 5.4.2.27; IEEE 7.4.45",
+      "command": {"cdl": 20, "per": 8, "unit": "mappings"},
+      "response": {"cdl": 20, "per": 8, "unit": "mappings", "echo": true},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "MAP_CFG", "lock": true,
+      "notify": {"class": 6, "kind": "PP_UNS_AMAP_C", "body": "UNSOK", "doc": "success with state change, requester excluded"},
+      "gdi": false, "oversize": true,
+      "entries": ["AMADD", "NSUPPE", "BADARG"],
+      "doc": {"mandate": "shall (dynamic ports)", "scope": "§6.5", "size": "mirrors request"}
+    },
+    {
+      "name": "REMOVE_AUDIO_MAPPINGS", "message": "AEM", "opcode": "0x002D", "rtl": "OP_REMOVE_AUDIO_MAP_C",
+      "clause": "Milan 5.4.2.28; IEEE 7.4.46",
+      "command": {"cdl": 20, "per": 8, "unit": "mappings"},
+      "response": {"cdl": 20, "per": 8, "unit": "mappings", "echo": true},
+      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
+      "hazard": "MAP_CFG", "lock": true,
+      "notify": {"class": 6, "kind": "PP_UNS_AMAP_C", "body": "UNSOK", "doc": "success with state change, requester excluded"},
+      "gdi": false, "oversize": true,
+      "entries": ["AMREMOVE", "NSUPPE", "BADARG"],
+      "doc": {"mandate": "shall (dynamic ports)", "scope": "§6.5", "size": "mirrors request"}
+    },
+    {
+      "name": "GET_DYNAMIC_INFO", "message": "AEM", "opcode": "0x004B", "rtl": "OP_GET_DYNAMIC_INFO_C",
+      "clause": "Milan 5.4.2.29; IEEE 7.4.76",
+      "command": {"cdl": 12, "plus": "records", "max": 524},
+      "response": {"cdl": 12, "plus": "records", "max": 524, "engine": true},
+      "status": ["SUCCESS", "BAD_ARGUMENTS"],
+      "engine_status": ["SUCCESS"],
+      "hazard": "MAP_CFG", "lock": false, "notify": null, "gdi": false, "oversize": false,
+      "entries": ["BADARG"],
+      "doc": {"mandate": "shall", "scope": "two-pass iterator §6.7; exactly the 13 fixed getters", "class": "at admission, no-descriptor key (assigned by the top's classifier, 03 §6); records RO", "size": "the engine's aggregate, whole records only"}
+    },
+    {
+      "name": "GET_MILAN_INFO", "message": "MVU", "opcode": "0x0000", "rtl": "MVU_GET_MILAN_INFO_C",
+      "clause": "Milan 5.4.4.1",
+      "command": {"cdl": 20},
+      "response": {"cdl": 32},
+      "status": ["SUCCESS"],
+      "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": false, "oversize": false,
+      "entries": ["MVUINFO", "NOTIMPL"],
+      "doc": {"mandate": "shall", "scope": "§6.9"}
+    }
+  ],
+  "documented": [
+    {
+      "section": "aem", "opcode": "0x0003", "name": "CONTROLLER_AVAILABLE",
+      "cells": ["responder: n/i (not a controller); **originator**: §7", "—", "—", "—", "—", "—", "—", "—", "24 B echo (cdl 12)", "NOT_IMPLEMENTED"]
+    },
+    {
+      "section": "mvu", "opcode": "MVU 0x0001/0x0002", "name": "SET/GET_SYSTEM_UNIQUE_ID",
+      "cells": ["recommended, **waived for October; not implemented**", "owner decision and Milan §5.4.4.2/.3: §6.9", "n/i", "—", "—", "—", "—", "28 / 20", "command-length echo", "NOT_IMPLEMENTED"]
+    },
+    {
+      "section": "mvu", "opcode": "MVU 0x0003/0x0004", "name": "SET/GET_MEDIA_CLOCK_REFERENCE_INFO",
+      "cells": ["recommended, **waived for October; not implemented**", "owner decision and Milan §5.4.4.4/.5, §7.6: §6.9", "n/i", "—", "—", "—", "—", "92 / 20", "command-length echo", "NOT_IMPLEMENTED"]
+    },
+    {
+      "section": "gdi", "opcode": "0x000B", "name": "GET_VIDEO_FORMAT", "rtl": "GDI_GET_VIDEO_FMT_C", "gdi": true,
+      "cells": ["n/i", "—", "RO_SNAPSHOT", "no", "yes", "no", "—", "—", "echo standalone", "NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI"]
+    },
+    {
+      "section": "gdi", "opcode": "0x000D", "name": "GET_SENSOR_FORMAT", "rtl": "GDI_GET_SENSOR_FMT_C", "gdi": true,
+      "cells": ["n/i", "—", "RO_SNAPSHOT", "no", "yes", "no", "—", "—", "echo standalone", "NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI"]
+    },
+    {
+      "section": "gdi", "opcode": "0x0013", "name": "GET_ASSOCIATION_ID", "rtl": "GDI_GET_ASSOC_ID_C", "gdi": true,
+      "cells": ["n/i", "—", "RO_SNAPSHOT", "no", "yes", "no", "—", "—", "echo standalone", "NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI"]
+    },
+    {
+      "section": "gdi", "opcode": "0x001D", "name": "GET_SIGNAL_SELECTOR", "rtl": "GDI_GET_SIGNAL_SEL_C", "gdi": true,
+      "cells": ["n/i", "—", "RO_SNAPSHOT", "no", "yes", "no", "—", "—", "echo standalone", "NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI"]
+    },
+    {
+      "section": "gdi", "opcode": "0x0048", "name": "GET_MEMORY_OBJECT_LENGTH", "rtl": "GDI_GET_MEM_LEN_C", "gdi": true,
+      "cells": ["n/i", "—", "RO_SNAPSHOT", "no", "yes", "no", "—", "—", "echo standalone", "NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI"]
+    },
+    {
+      "section": "gdi", "opcode": "0x004A", "name": "GET_STREAM_BACKUP", "rtl": "GDI_GET_STREAM_BKUP_C", "gdi": true,
+      "cells": ["n/i", "—", "RO_SNAPSHOT", "no", "yes", "no", "—", "—", "echo standalone", "NOT_IMPLEMENTED standalone; per-element NOT_SUPPORTED inside GDI"]
+    },
+    {
+      "section": "tail", "opcode": "all others 0x0005–0x0068, 0x3FFF", "name": "—",
+      "cells": ["n/i", "—", "—", "—", "no: any of these inside a batch ⇒ `BAD_ARGUMENTS`, §7.4.76.2", "—", "—", "—", "echo", "NOT_IMPLEMENTED"]
+    }
+  ]
+}

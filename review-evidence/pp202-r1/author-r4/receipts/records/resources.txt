@@ -1,0 +1,10 @@
+Memory samples of this unit (five-second sampling of memory.current, which counts page cache)
+Sampled peak bytes: 12353855488
+Sampled peak GiB: 11.51
+Peak UTC: 2026-10-26T18:16:38+00:00
+Anonymous memory at that time (memory.stat, read by hand): about 4.2 GB; file cache about 7.1 GB
+Minimum host MemAvailable sampled: 29.1 GB
+Samples: 3768; raw 116891 bytes; sha256 a783265e08ed04bdac7d92d7d18e931328cec73aa2e906d8505d72fdb0820007
+MemoryHigh was set to 9 GiB on the unit at about 18:17 UTC (systemctl --user set-property --runtime), after which memory.current stayed at or below it (9.00 GiB sampled maximum).
+CPU: the unit's 16 CPUs; cpu_ranges.py reported no free 16- or 12-CPU range on the host during this round, so no shard units were placed.
+Verilator ran through a PATH wrapper replacing a build's -j 0 with -j 2 to -j 6 (VLT_J), so concurrent runs shared the CPUs.

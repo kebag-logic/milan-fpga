@@ -1,0 +1,4 @@
+[i]  10 builds on 4 worker(s), one per CPU this process may use; the datapath builds start first
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: <temporary>/build_break_dp/milan_datapath.sv:9706:15: syntax error, unexpected break, expecting ',' or ';'
+[PASS] the unmutated source still passes the fine harness
+[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"

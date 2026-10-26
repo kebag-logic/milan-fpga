@@ -1,0 +1,75 @@
+origin URL
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+(rc 0)
+
+origin/main and merge base
+ed2118035e4cec76fb1b59cfbf8a053aeacc8af8
+ed2118035e4cec76fb1b59cfbf8a053aeacc8af8
+(rc 0)
+
+round-3 head (start)
+ebb1f0010bde76c38cc5270a6366ee9e3157ec54
+(rc 0)
+
+head and tree
+429c909cb8a60398a2028436932e04b95dd0a0bd
+338b112f854a16ef831c39dc1b3a3f66108190a2
+(rc 0)
+
+branch
+202-maap-conflict-new-stream-id
+(rc 0)
+
+round-4 commits
+429c909cb8a60398a2028436932e04b95dd0a0bd Name the commit the SRP, processor-top and talker retry campaign records were measured at (issue #202)
+ffc76f1741e355bea3d2aa78f232a56a3db3d241 Lay the talker's SRP leave copy out at 128 bits a source with the stream_id at bit 0, so its two variable-index reads are multiplexers, not barrel shifters (issue #202)
+7e0ff0baee7817b23dac0169614f249bcad15fcf Record the quarantine and owed-Leave cases, their planted arms and the re-measured talker, stream-FSM, SRP, processor-top and MAAP campaign counts (issue #202)
+3cf5334870dc8977b3155e9a78efa3bcb5d92090 Grade a configured Stream ID's exclusion past its source's quarantine record, a minute after the source moved off it (issue #202)
+59f34d3d8344ec5cb8344ce24a197ce053656144 State the Stream ID quarantine and its proof in F05.12, the timing row and the interface documents, and the talker's owed Leave on a fast re-open in 10 (issue #202)
+83107719b1119139716826404f10eea8591ad983 Quarantine moved Stream IDs for two LeaveAll periods, keep a fast return's owed Leave in the SRP talker, and name the disable move in the two port comments (issue #202)
+(rc 0)
+
+status including ignored
+(rc 0)
+
+diff stat ebb1f001..HEAD
+ docs/00_MILAN_COMPLIANCE_REVIEW.md                 |   2 +-
+ docs/architecture/02_interfaces.md                 |   6 +-
+ docs/architecture/05_acmp_engine.md                |  96 +++++++---
+ docs/architecture/08_timing.md                     |   2 +-
+ docs/architecture/09_verification.md               |  14 +-
+ docs/architecture/10_srp_engine.md                 |  36 +++-
+ docs/guides/integrator.md                          |   5 +-
+ hdl/acmp/KL_acmp_talker.sv                         | 169 ++++++++++++++---
+ hdl/srp/KL_srp_talker_fsm.sv                       |  86 ++++++++-
+ hdl/top/protocol_processor_top.sv                  |  11 +-
+ tb/acmp_talker/README.md                           |  45 +++--
+ tb/acmp_talker/sid_cases.hpp                       | 206 ++++++++++++++++++--
+ tb/maap/README.md                                  |   4 +-
+ tb/pp_top/README.md                                |  64 ++++---
+ tb/pp_top/acmp_mutants.py                          |  50 ++++-
+ tb/pp_top/pp_top_wrap.sv                           |   7 +-
+ tb/pp_top/sim_main.cpp                             |  54 ++++++
+ tb/srp_stream_fsms/README.md                       |  36 +++-
+ tb/srp_stream_fsms/sim_main.cpp                    | 210 +++++++++++++++++++++
+ tb/srp_stream_fsms/walk_main.cpp                   |  48 ++++-
+ tb/srp_top/README.md                               |  48 ++++-
+ tb/srp_top/mutants.py                              |  27 ++-
+ tb/srp_top/mutations/lwid-read-source-0.patch      |  11 ++
+ .../mutations/lwid-written-from-source-0.patch     |  11 ++
+ .../mutations/lwtsp-read-at-gate-source.patch      |  11 ++
+ tb/srp_top/mutations/talker-close-keeps-join.patch |  10 +
+ .../talker-leave-copy-rewritten-while-parked.patch |  16 ++
+ tb/srp_top/mutations/talker-lo-not-owed.patch      |  11 ++
+ .../mutations/talker-park-keeps-matcher.patch      |  11 ++
+ .../mutations/talker-park-never-retires.patch      |  10 +
+ .../mutations/talker-park-retires-on-txla.patch    |  11 ++
+ .../mutations/talker-parked-applies-rx.patch       |  11 ++
+ .../mutations/talker-rebind-back-keeps-park.patch  |  12 ++
+ .../mutations/talker-reopen-abandons-leave.patch   |  11 ++
+ .../mutations/talker-reopen-parks-own-stream.patch |  11 ++
+ .../talker-unrecorded-applicant-owes.patch         |  11 ++
+ .../mutations/walk-ignores-talker-leave-copy.patch |  11 ++
+ 37 files changed, 1253 insertions(+), 142 deletions(-)
+(rc 0)
+

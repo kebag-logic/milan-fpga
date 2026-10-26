@@ -1,0 +1,82 @@
+Full record: 296594 bytes; sha256 db57d82e0f14eac657ecae6089c944c7c988697acd7f02e2af55562121f99a8b
+Last 80 lines (paths normalized):
+FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 98 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 98 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-WALK-ZERO bit 30 step unsolicited: full failure bridge sink 1
+FAIL: GI LATENCY-WALK-ZERO bit 30 step unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 91 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 bf ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 91 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 bf ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 99 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 bf ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 99 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 bf ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 9b 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 bf ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 9b 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 bf ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-WALK-ZERO bit 30 return unsolicited: full failure bridge sink 1
+FAIL: GI LATENCY-WALK-ZERO bit 30 return unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 92 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 92 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 9d 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 9d 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 9f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b 9f 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-OTHER solicited: full failure bridge sink 1
+FAIL: GI LATENCY-OTHER solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a2 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a2 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-WALK-ZERO bit 31 step unsolicited: full failure bridge sink 1
+FAIL: GI LATENCY-WALK-ZERO bit 31 step unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 93 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 7f ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 93 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 7f ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a3 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 7f ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a3 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 7f ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a5 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 7f ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a5 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 7f ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-WALK-ZERO bit 31 return unsolicited: full failure bridge sink 1
+FAIL: GI LATENCY-WALK-ZERO bit 31 return unsolicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 94 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 94 80 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a7 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a7 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI LATENCY-READ solicited: full failure bridge sink 1
+FAIL: GI LATENCY-READ solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a9 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b a9 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 ff ff ff ff 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+GI latency walks added: 5568 checks, 768 failures
+FAIL: GI FAILED-AGAIN unsolicited: full failure bridge sink 0
+FAIL: GI FAILED-AGAIN unsolicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 95 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 95 80 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI FAILED-AGAIN solicited: full failure bridge sink 0
+FAIL: GI FAILED-AGAIN solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b ab 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b ab 00 0f 00 05 00 00 80 00 05 00 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI DISTINCT-1 solicited: full failure bridge sink 1
+FAIL: GI DISTINCT-1 solicited: byte-exact sink 1 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b ae 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 0b 00 00 00 00 00 00 00 00 00 00 02 00 00 05 01 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b ae 00 0f 00 05 00 01 80 00 05 01 00 a0 00 00 05 01 00 01 00 b0 00 00 05 01 00 02 00 0c 05 01 91 e0 f0 0d 00 05 0b 00 9e af 10 29 38 47 56 c2 00 02 00 00 05 01 00 01 60 00 00 00
+FAIL: GI STOP-WITH-REGISTRATION: A, the requester's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 5, STREAMING_WAIT set
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 05 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 00 05 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI STOP-WITH-REGISTRATION: B's sink 0 notification is byte-exact: u = 1, its DA, entity_id and sequence_id 6, STREAMING_WAIT set
+  GI got (94 B): 02 02 c2 c2 c2 c2 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 43 00 06 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 c2 c2 c2 c2 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 43 00 06 80 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+FAIL: GI STOP-WITH-REGISTRATION solicited: full failure bridge sink 0
+FAIL: GI STOP-WITH-REGISTRATION solicited: byte-exact sink 0 response
+  GI got (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b d1 00 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 00 00 00 00 00 00 00 00 00 02 00 00 05 00 00 01 60 00 00 00
+  GI expected (94 B): 02 02 de ad be ef 0a 0b 0c 0d 0e 0f 22 f0 fb 01 00 44 12 34 56 78 9a bc de f0 77 77 00 00 00 00 00 42 7b d1 00 0f 00 05 00 00 80 00 05 08 00 a0 00 00 05 00 00 01 00 b0 00 00 05 00 00 02 00 0c 05 00 91 e0 f0 0d 00 05 07 00 b1 7d 23 45 67 89 ab cd 00 02 00 00 05 00 00 01 60 00 00 00
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6254 checks, 810 failures
