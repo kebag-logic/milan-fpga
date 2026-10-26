@@ -1341,14 +1341,34 @@ These rules decide, in order, between patterns that look alike:
    Otherwise each change of position is its own slip.
 
 Rules 3 and 4 judge each departure against the offset in force when it leaves.
-They judge again after every slip, so a slip and a corruption in one window are both graded.
+They judge again after every slip, so a slip and a corruption in one window are both graded, in either order.
 A word that no offset explains is cut out of its run of positions.
-So one corrupted word never hides the slips beside it, and arms may be planted closer than 64 samples.
+The offset in force before a change stays a candidate after it.
+So a corrupted word that happens to fit the next track never strands the words after it.
+Each slip takes the smallest size the positions allow.
+A slip of whole blocks is placed at the first word that shows it.
+A departure ends at the first word from which every word up to its return fits the offset in force.
+A slip of whole blocks has a `located_within` that runs back over the words that fit both tracks.
+It runs on to the first word that shows the slip.
+A corrupted word bounds it only where the two tracks differ; elsewhere its mask is the same on either side.
+
+Where the bytes allow two readings, the planted-arm log decides at a logged arm.
+The grader takes the reading that places the arm only when it has no more DUT events.
+So the log never hides a DUT event, and an arm the capture does not show is still missed.
+A DUT slip that undoes a planted slip arm at the next sample leaves one displaced word.
+The log reads that word as the arm and the DUT slip, not as a corruption.
+Arms may be planted closer than 64 samples.
+A DUT slip beside an arm, at another sample, fails the run with every arm found.
 
 Sixty-four corrupted words under one mask can decode as another track.
 That track is the old one corrupted, so the grader holds it instead of adopting it.
+Only the window's trailing words under that mask start the hold, so an event before them is graded on its own.
+A word that is the old track's own is the return, never a release.
 If the words return to the old track, the whole excursion is one `bit-flip`.
-If a word leaves the mask first, the held events are released as the slips they are.
+It ends where the old track's words began, and the rest of the window is graded against the old track.
+So a one-word event beside the excursion, at either end, is graded on its own.
+Content that resumes nearer the old track than the held one has returned; a slip after the return is its own event.
+If a word leaves the mask first, or a masked word follows the old track's own, the held events are released as the slips they are.
 
 **The qualified interval.**
 A slip of whole blocks changes only the code bit, so it shows only within 63 samples.
@@ -1357,6 +1377,9 @@ So a verdict proves a sample clean only when the 63 samples before it lie on the
 Every verdict states that interval in `qualified`.
 It runs from 63 samples after the last counter channel's acquisition to 63 samples before the capture's end.
 Nothing outside it is proved clean, so a slip there may pass unseen.
+The interval decides what is proved clean, not which class a slip near its end receives.
+A slip of whole blocks with fewer than 64 captured samples after its first differing word reads as `unresolved`.
+That holds inside the interval too.
 Two captures can be byte-identical while one hides such a slip in its last samples.
 `qualified` also states the interval's frames, seconds and acquisition indices, and the logged losses inside it.
 A logged loss is time that ran, but nothing in it was observed, so it does not count.
@@ -1370,6 +1393,8 @@ These limits are stated, and a self-test arm pins each one:
 - A flip of position bit 0 can make a word equal to its neighbour; it then reads as the slip pair it duplicates.
 - A slip pair whose displaced words share one XOR mask with the track reads as a `bit-flip`, at any length.
   A repeat and a later drop of half a block, inside one region of that block, is one example.
+  Where the pair's total is whole blocks, it reads as that `bit-flip` and a slip of whole blocks beside it.
+  The corruption is judged against whichever track gives its mask fewer bits set, the slip first when that is the new track.
 - A slip of whole 2048-sample blocks leaves bits 11:1 unchanged.
   It is found within 63 samples and sized exactly.
   `located_within` gives the samples it may have happened at.
@@ -1379,6 +1404,17 @@ These limits are stated, and a self-test arm pins each one:
 - Between events less than 64 samples apart, each slip takes the smallest size the positions allow.
   A code bit those sizes leave unexplained then reads as a code-bit `bit-flip`.
   The cluster's total is exact.
+- A code-bit corruption less than 64 samples before a slip of whole blocks may make its word the new track's.
+  When every word between them fits both tracks, the bytes are that slip alone at the corrupted word, and read so.
+- A slip of whole blocks and a code-bit corruption less than 64 samples apart can give the same bytes in either order.
+  That happens when the corrupted word is the other track's and only one word between them differs.
+  The corruption then reads first, and the slip is located after it.
+- A slip followed, within the words that fit both tracks, by a slip of whole blocks gives the bytes of one slip of their sum.
+  It reads as that one slip.
+- At a logged arm, the planted-arm log decides between such readings, as above.
+  A DUT slip at a planted slip arm's own sample is one slip of their sum.
+  Unless the DUT slip is whole blocks, the arm is then missed and the run is void.
+- A constant-mask corruption that a slip interrupts reads as the slips its words show.
 - At either end of a capture, fewer than 64 clean samples lie beyond a word whose code bit differs.
   So a slip of whole blocks and a code-bit corruption read the same there, and the stretch is one `unresolved` event.
   At the capture's end it runs from the first such word to the end.
@@ -1395,6 +1431,8 @@ Start each capture once the counter flows on every channel.
 Words before a channel's acquisition are graded against the track it acquires, so leading silence fails.
 A channel that has not acquired the counter within its first 65536 frames voids the run at once.
 That is usually a wrong layout or byte order, so the grader stops instead of reading the rest.
+It may also be a channel the DUT never drives with the counter; the reason names both.
+A channel that never acquires the counter, so has no qualified interval, is void for the same reasons.
 
 Each event records its class, capture and acquisition indices, expected and received words, and times.
 The capture tool records anchors: a capture index with its wall and gPTP times.

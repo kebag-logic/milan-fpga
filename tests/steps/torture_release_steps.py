@@ -18,6 +18,11 @@ if TYPE_CHECKING:
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tb" / "tools"))
 import torture_campaign as tp  # noqa: E402
 
+#! The synthetic counter captures these scenarios grade live beside this file.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from torture_audio_model import (  # noqa: E402
+    _ARMS, _arm_edits, _counter_capture, _dut, _grade_independent, _independent_capture, _qualified_s, _with_arms)
+
 
 #: Issue #396's release repeats and the assertions each owes, stated here
 #: independently of the planner's own table so that the audit has an oracle.
@@ -560,30 +565,6 @@ def step_tp_release_audio_arms(context: Context) -> None:
     assert detail["counts"]["planted"] == {"dropped": 16, "repeated": 16, "bit-flip": 2}
 
 
-def _counter_capture(extra: list, losses: list | None = None, arms_drop: int = 0) -> tuple:
-    """A four-channel capture with the drop, repeat and flip arms at both ends."""
-    frames = 4 * 4096
-    sites = (200, 400, 600, frames - 800, frames - 500, frames - 200)
-    source = [{"kind": "drop", "index": sites[0], "n": 3}, {"kind": "repeat", "index": sites[1], "n": 2},
-              {"kind": "flip", "index": sites[2], "channel": 0, "mask": 0x100},
-              {"kind": "drop", "index": sites[3], "n": 3}, {"kind": "repeat", "index": sites[4], "n": 2},
-              {"kind": "flip", "index": sites[5], "channel": 1, "mask": 0x100}]
-    arms = [{"class": "dropped", "index": sites[0], "n": 3}, {"class": "repeated", "index": sites[1], "n": 2},
-            {"class": "bit-flip", "index": sites[2], "channel": 0, "mask": 0x100},
-            {"class": "dropped", "index": sites[3], "n": 3}, {"class": "repeated", "index": sites[4], "n": 2},
-            {"class": "bit-flip", "index": sites[5], "channel": 1, "mask": 0x100}]
-    arms += [{"class": "dropped", "index": 9000, "n": arms_drop}] if arms_drop else []
-    capture = tp.synthesize_counter_capture(frames, 4, events=source + extra)
-    return tp.grade_audio_counter_capture(
-        capture, tp.CounterCapture(4, "big", 48000, 0.0, 0.0),
-        tp.CounterRunLog(arms, losses or [], 0), required_s=_qualified_s(frames))
-
-
-def _qualified_s(frames: int) -> float:
-    """A clean capture's qualified length: 63 guard samples off each end, at 48 kHz."""
-    return (frames - 2 * 63) / 48000
-
-
 _EVENTS = {
     "a 3-sample drop": {"kind": "drop", "index": 8000, "n": 3},
     "a 2-sample repeat": {"kind": "repeat", "index": 8000, "n": 2},
@@ -637,57 +618,6 @@ def step_tp_release_counter_loss(context: Context) -> None:
 
 
 # ------------------------------------- the non-repeating counter, issue #396 --
-def _counter_word(tag: int, n: int) -> int:
-    """REQ-VER-06's counter layout restated here, apart from the planner: channel
-    number in sample bits 15:12, n mod 2048 in bits 11:1, and in bit 0 bit n mod 32
-    of block n div 2048's code, the block number times 0x9E3779B1 modulo 2^32."""
-    code = ((n // 2048) * 0x9E3779B1) % 2**32
-    return ((tag << 12) | ((n % 2048) << 1) | ((code >> (n % 32)) & 1)) << 8
-
-
-def _independent_capture(frames: int, shifts: dict, flips: list) -> bytes:
-    """Four big-endian S32 channels; `shifts` moves the source position from an
-    index on, and each flip (index, channel, mask) XORs one word."""
-    import struct
-    rows, shift = [], 0
-    for index in range(frames):
-        shift += shifts.get(index, 0)
-        rows.append([_counter_word(channel + 1, index + shift) for channel in range(4)])
-    for index, channel, mask in flips:
-        rows[index][channel] ^= mask
-    return b"".join(struct.pack(">4I", *row) for row in rows)
-
-
-#: Arms in the first and the last tenth of an 8192-frame capture.
-_ARM_SHIFTS = {100: 3, 300: -2, 7492: 3, 7742: -2}
-_ARMS = [{"class": "dropped", "index": 100, "n": 3}, {"class": "repeated", "index": 300, "n": 2},
-         {"class": "bit-flip", "index": 500, "mask": 0x100, "channel": 1},
-         {"class": "dropped", "index": 7492, "n": 3}, {"class": "repeated", "index": 7742, "n": 2},
-         {"class": "bit-flip", "index": 7992, "mask": 0x100, "channel": 3}]
-
-
-def _with_arms(shifts: dict) -> dict:
-    """The arm shifts plus `shifts`, added where both move the same index."""
-    merged = dict(_ARM_SHIFTS)
-    for index, shift in shifts.items():
-        merged[index] = merged.get(index, 0) + shift
-    return merged
-
-
-def _arm_edits() -> list:
-    """The two planted flips of the code bit."""
-    return [(500, 1, 0x100), (7992, 3, 0x100)]
-
-
-def _grade_independent(shifts: dict, edits: list, **layout: object) -> tuple:
-    capture = _independent_capture(8192, _with_arms(shifts), _arm_edits() + edits)
-    return tp.grade_audio_counter_capture(capture, tp.CounterCapture(4, "big", 48000, 0.0, 0.0, **layout),
-                                          tp.CounterRunLog(_ARMS, [], 0), required_s=_qualified_s(8192))
-
-
-def _dut(detail: dict) -> list:
-    return sorted((e["channel"], e["capture_index"], e["class"], e.get("n"), e.get("mask"), e.get("partner"))
-                  for e in detail.get("events", []) if e["attribution"] == "dut")
 
 
 @when("the counter capture shows a {n:d}-sample {kind}")
@@ -901,6 +831,74 @@ def step_tp_release_slip_then_flip_found(context: Context) -> None:
     assert verdict == "FAIL" and detail["planted_missed"] == [], detail["why"]
     assert _dut(detail) == sorted([(c, 3000, "dropped", 3, None, None) for c in range(4)]
                                   + [(2, 3005, "bit-flip", 1, "0x00000100", None)]), _dut(detail)
+
+
+@when("a synthetic counter capture flips {mask} on one channel at 3000 and every channel slips {n:d} samples at {at:d}")
+def step_tp_release_flip_then_block_slip(context: Context, mask: str, n: int, at: int) -> None:
+    """Channel 2's word at 3000 corrupted, then a slip of whole blocks on every channel."""
+    context.release_slip = (at, n)
+    context.release_counter_result = _grade_independent({at: n}, [(3000, 2, int(mask, 16))])
+    context.release_flip_mask = mask
+
+
+@then("the audio grader reports the flip at 3000 and on every channel a slip of {n:d} located around {at:d}")
+def step_tp_release_flip_then_block_slip_found(context: Context, n: int, at: int) -> None:
+    """The corruption at its sample, never absorbed; each slip's location holds its sample."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL" and detail["planted_missed"] == [], detail["why"]
+    dut = [e for e in detail["events"] if e["attribution"] == "dut"]
+    flips = [(e["channel"], e["capture_index"], e["n"], e["mask"]) for e in dut if e["class"] == "bit-flip"]
+    assert flips == [(2, 3000, 1, context.release_flip_mask)], flips
+    slips = [e for e in dut if e["class"] in ("dropped", "repeated")]
+    assert sorted((e["channel"], e["n"]) for e in slips) == [(c, abs(n)) for c in range(4)], slips
+    for event in slips:
+        first, last = event.get("located_within", (event["capture_index"],) * 2)
+        assert first <= at <= last, event
+
+
+@when("a synthetic counter capture slips every channel {n:d} samples {k:d} samples after the planted flip arm")
+def step_tp_release_slip_after_flip_arm(context: Context, n: int, k: int) -> None:
+    """The flip arm is channel 1's word at 500; the DUT slips every channel at 500 + k."""
+    context.release_counter_result = _grade_independent({500 + k: n}, [])
+
+
+@then("the audio grader fails the run with every planted arm found")
+def step_tp_release_slip_after_flip_arm_found(context: Context) -> None:
+    """A DUT defect beside an arm fails the run; it never voids it."""
+    verdict, detail = context.release_counter_result
+    assert (verdict, detail["planted_missed"]) == ("FAIL", []), detail["why"]
+
+
+@when("a synthetic counter capture XORs 0x00080000 into 100 words from 3000 and flips the code bit at {flip:d}")
+def step_tp_release_mask_beside_flip(context: Context, flip: int) -> None:
+    """Channel 2's words 3000 to 3099 under one mask, and one code-bit flip beside them."""
+    edits = [(3000 + k, 2, 0x00080000) for k in range(100)] + [(flip, 2, 0x100)]
+    context.release_counter_result = _grade_independent({}, edits)
+
+
+@then("the audio grader reports one bit-flip of 100 words and the code-bit flip at {flip:d}")
+def step_tp_release_mask_beside_flip_found(context: Context, flip: int) -> None:
+    """The excursion keeps its class; the neighbour is its own event, never a slip pair."""
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL", detail["why"]
+    assert _dut(detail) == sorted([(2, 3000, "bit-flip", 100, "0x00080000", None),
+                                   (2, flip, "bit-flip", 1, "0x00000100", None)]), _dut(detail)
+
+
+@when("a synthetic counter capture flips the code bit of the words from {first:d} to {end:d} on one channel")
+def step_tp_release_code_bit_blocks(context: Context, first: int, end: int) -> None:
+    """Channel 2's words [first, end) with the code bit flipped, over at least one whole block."""
+    context.release_code_bit = (first, end)
+    context.release_counter_result = _grade_independent({}, [(k, 2, 0x100) for k in range(first, end)])
+
+
+@then("the audio grader reports one code-bit flip of those words")
+def step_tp_release_code_bit_blocks_found(context: Context) -> None:
+    """The old track's own words are the return, never a release of slips."""
+    first, end = context.release_code_bit
+    verdict, detail = context.release_counter_result
+    assert verdict == "FAIL", detail["why"]
+    assert _dut(detail) == [(2, first, "bit-flip", end - first, "0x00000100", None)], _dut(detail)
 
 
 @when("a synthetic counter capture logs a 3000-frame loss at the index of its slip")

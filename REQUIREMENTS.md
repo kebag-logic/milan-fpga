@@ -409,8 +409,9 @@ verified blocks outside the shipping datapath; the station-address rules
   The classes are n dropped, n repeated, n samples of silence, a bit-flip mask and a channel swap.
   Only a reciprocal exchange is a swap; a corrupted or copied channel number is a bit-flip.
   A channel swapped from the first frame fails as a swap, its counter still tracked.
-  An excursion that returns to its track under one XOR mask is one bit-flip, at any length.
-  A slip and a corruption in one 64-sample window are both graded in their classes.
+  An excursion that returns to its track under one XOR mask is one bit-flip, at any length, beside any one-word event.
+  A slip and a corruption in one 64-sample window are both graded in their classes, in either order.
+  Where the bytes allow two readings, the planted-arm log decides at a logged arm; that never hides a DUT event.
   Patterns the signal cannot tell apart follow the rules and limits of [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle).
   A slip of whole blocks shows only within 63 samples, so each verdict states its qualified interval.
   It runs from 63 samples after the last channel's acquisition to 63 samples before the capture's end.

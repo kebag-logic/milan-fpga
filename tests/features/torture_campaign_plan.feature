@@ -511,6 +511,52 @@ Feature: The torture campaign's own coverage is auditable at a desk
     Then the audio grader reports the 3-sample drop on every channel and the flip at its sample
 
   @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a slip of whole blocks after a one-word corruption is graded as both events
+    When a synthetic counter capture flips <mask> on one channel at 3000 and every channel slips <n> samples at <at>
+    Then the audio grader reports the flip at 3000 and on every channel a slip of <n> located around <at>
+
+    Examples:
+      | mask       | n     | at   |
+      | 0x00080000 | 4096  | 3005 |
+      | 0x00000100 | 4096  | 3005 |
+      | 0x00000100 | -2048 | 3040 |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a slip of whole blocks just after the planted flip arm fails with every arm found
+    When a synthetic counter capture slips every channel <n> samples <k> samples after the planted flip arm
+    Then the audio grader fails the run with every planted arm found
+
+    Examples:
+      | n     | k |
+      | 4096  | 1 |
+      | 4096  | 2 |
+      | 4096  | 3 |
+      | -4096 | 1 |
+      | 8192  | 1 |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a constant-mask excursion beside a one-word corruption stays one bit-flip
+    When a synthetic counter capture XORs 0x00080000 into 100 words from 3000 and flips the code bit at <flip>
+    Then the audio grader reports one bit-flip of 100 words and the code-bit flip at <flip>
+
+    Examples:
+      | flip |
+      | 2995 |
+      | 3100 |
+      | 3162 |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: a code-bit corruption over whole blocks is one bit-flip wherever it ends
+    When a synthetic counter capture flips the code bit of the words from <first> to <end> on one channel
+    Then the audio grader reports one code-bit flip of those words
+
+    Examples:
+      | first | end  |
+      | 2000  | 4096 |
+      | 1000  | 6144 |
+      | 2047  | 6143 |
+
+  @class:release @clause:REQ-VER-06 @negative-control
   Scenario: an event at a logged loss's own index counts that loss
     When a synthetic counter capture logs a 3000-frame loss at the index of its slip
     Then the slip's acquisition index and times include the 3000 lost frames
