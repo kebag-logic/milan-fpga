@@ -1,0 +1,19 @@
+--- published/delta_probes.py	2026-10-26 11:59:27.031787514 +0100
++++ delta_probes.py	2026-10-26 12:01:43.381009433 +0100
+@@ -34,13 +34,13 @@
+  span=(frames+sum(l['frames'] for l in losses))/RATE
+  layout=t.CounterCapture(C,'big',RATE,100.,200.,anchors=((frames,100.+span,200.+span),),gptp_steps_wall_s=steps)
+  data=b if chunk is None else [b[i:i+chunk] for i in range(0,len(b),chunk)]
+- verdict,detail=t.grade_audio_counter_capture(data,layout,t.CounterRunLog(arms,list(losses),0))
++ verdict,detail=t.grade_audio_counter_capture(data,layout,t.CounterRunLog(arms,list(losses),0),required_s=(frames-126)/RATE)
+  row=dict(name=name,ops=ops,frames=frames,chunk=chunk,verdict=verdict,
+           sha256=hashlib.sha256(b).hexdigest(),missed=detail.get('planted_missed'),
+           counts=detail.get('counts'),why=detail.get('why'),timing_unsupported=detail.get('timing_unsupported'),
+-          events=[e for e in detail.get('events',[]) if e['attribution']!='planted'])
++          events=[e for e in detail.get('events',[]) if e['attribution']!='planted'],qualified=detail.get('qualified'))
+  rows.append(row)
+- print(name,verdict,[(e['channel'],e['capture_index'],e['class'],e.get('n'),e.get('mask'),e.get('unresolved')) for e in row['events']],flush=True)
++ print(name,verdict,row['qualified'] and (row['qualified']['start'],row['qualified']['end']),[(e['channel'],e['capture_index'],e['class'],e.get('n'),e.get('mask'),e.get('unresolved')) for e in row['events']],flush=True)
+  return row
+ probe('clean-control')
+ for n in (3000,4096,8192,409600,-3000,-4096):probe('interior-slip-'+str(n),[('shift',3000,n)])
