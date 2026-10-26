@@ -1,0 +1,6 @@
+make: Entering directory '<shard-clone>1/tb/verilator/media_nco'
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --top-module media_nco_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM +incdir+../../../hdl/common -CFLAGS "-std=c++17 -O2 -I<shard-clone>1/tb/verilator/media_nco -Wall -Wextra" --Mdir obj_dir media_nco_wrap.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv sim_main.cpp -o Vmedia_nco_sim
+%Error: Can't write file: obj_dir/Vmedia_nco_wrap__Syms__Slow.cpp
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.050 for more assistance.
+make: *** [Makefile:36: build] Error 1
+make: Leaving directory '<shard-clone>1/tb/verilator/media_nco'

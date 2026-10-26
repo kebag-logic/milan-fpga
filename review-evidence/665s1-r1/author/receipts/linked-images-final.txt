@@ -1,0 +1,53 @@
+linked image, ctrl_srp_image.py --with-aecp --layout split; ctrl_memory.py plan; budget 56 RAMB36
+point                               base rom  head rom   delta base sram head sram  delta base tiles head tiles
+endstation_ax7101_1x1_tdm8 if1         97920    102912   +4992     45920     46016    +96       35.5       37.0
+endstation_ax7101_1x1_tdm8 if2         99416    104488   +5072     57312     57408    +96       38.5       40.5
+endstation_ax7101_8x8 if1             111648    116624   +4976     86496     86592    +96       49.0       50.0
+endstation_ax7101_8x8 if2             113208    118280   +5072    112656    112752    +96       56.0       57.0
+five largest .bss, head endstation_ax7101_1x1_tdm8 if1: image_arena 9920, image_app 8872, image_srp 4824, image_values 4527, nvm_stage 3344
+five largest .bss, head endstation_ax7101_1x1_tdm8 if2: image_arena 19840, image_app 10056, image_srp 5032, image_values 4527, nvm_stage 3344
+five largest .bss, head endstation_ax7101_8x8 if1: image_arena 24032, nvm_stage 13264, image_values 11753, image_app 8872, image_srp 5256
+five largest .bss, head endstation_ax7101_8x8 if2: image_arena 48064, nvm_stage 13264, image_values 11753, image_app 10056, image_srp 5896
+symbol growth at 8x8 if2, base to head, by nm type: b +92, r +208, t +3724
+    +416 t write_stream
+    +396 t mbx_win_read
+    +304 t face_event
+    +256 t publish
+    +232 t changed
+    +216 t ctrl_app_aecp_store_words
+    +192 r windows
+    +192 t counters
+    +188 t format
+    +164 t aecp_face_init
+    +152 t aecp_face_poll
+    +148 t aecp_face_status
+    +136 t mbx_face_commit
+    +116 t ctrl_app_aecp_attach_face
+    +100 t mbx_pub_licensed
+     +96 t aecp_face_open
+     +84 b image_face
+     +76 t interface_of.isra.0
+     +72 t mbx_face_write
+     +68 t publish_store
+     +60 t stream
+     +60 t mbx_face_busy
+     +56 t ctrl_app_aecp_changed
+     +52 r image_platform
+     +40 t mbx_face_write_source
+     +40 t mbx_face_write_sink
+     +40 t main
+     +32 t mbx_event_take
+     +24 t aecp_poll
+     +24 t aecp_command
+     +20 t ctrl_app_open_aecp
+     +16 r families.0
+     +16 t current.isra.0
+     +12 t nvm_store_status
+      +8 b image_aecp_bridge
+      +8 t aecp_face_attach
+      -4 t a_changed
+      -8 t a_stream
+      -8 t a_format
+      -8 t a_counters
+      -8 t a_avb
+     -52 r image_aecp_environment
