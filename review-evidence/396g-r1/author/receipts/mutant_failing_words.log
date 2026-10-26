@@ -1,0 +1,60 @@
+soak returns to seven days | test_release_defaults_and_assertions | AssertionError: Tuples differ: (604800, 60) != (86400, 60)
+cycle minimums return to 160/40 | test_release_eligibility_boundaries | AssertionError: {'soa[55 chars]le': False, 'power.journal_commit': False, 'po[18 chars]alse} != {'soa[55 chars]le': True, 'power.journal_commit': True, 'powe[15
+soft-reset minimum dropped | test_release_eligibility_boundaries | AssertionError: {'soa[55 chars]le': True, 'power.journal_commit': True, 'powe[15 chars]True} != {'soa[55 chars]le': False, 'power.journal_commit': False, 'po[18
+soft resets planned as cold cuts | test_release_defaults_and_assertions | AssertionError: Lists differ: [True, True, True] != [True, True, False]
+soft reset T0 taken from the power strip | test_release_timing_and_snapshot_contract | AssertionError: 'T0: power-strip ON command, host monotonic clock' != 'T0: reset command, host monotonic clock'
+inventory loses the clock source | test_release_defaults_and_assertions | AssertionError: Lists differ: ['con[91 chars]s', 'entity_names', 'object_names', 'stream_binding'] != ['con[91 chars]s', 'clock_source', 'entity_names', 'object
+eligibility accepts the binding alone | test_release_eligibility_boundaries | AssertionError: {'soak.continuous': True, 'audio.integrity': True, 'power.idl[60 chars]True} != {'soak.continuous': False, 'audio.integrity': False, 'power.i[65
+audio duration eligibility dropped | test_release_eligibility_boundaries | AssertionError: {'soa[36 chars]ty': True, 'power.idle': True, 'power.journal_[35 chars]True} != {'soa[36 chars]ty': False, 'power.idle': True, 'power.journal[36
+audio run may outlast the soak | test_release_settings_validation | AssertionError: ValueError not raised
+zero-growth counters may grow | test_release_soak_counter_growth | AssertionError: 'PASS' != 'FAIL'
+LATE_TIMESTAMP leaves the zero-growth set | test_release_soak_counter_growth | AssertionError: 'PASS' != 'FAIL'
+EARLY_TIMESTAMP leaves the zero-growth set | test_release_soak_counter_growth | AssertionError: 'PASS' != 'FAIL'
+MEDIA_UNLOCKED needs no planted event | test_release_soak_media_unlocked_planted | AssertionError: 'PASS' != 'FAIL'
+one planted event excuses many unlocks | test_release_soak_media_unlocked_planted | AssertionError: 'PASS' != 'FAIL'
+another input's planted event accepted | test_release_soak_media_unlocked_planted | AssertionError: 'PASS' != 'FAIL'
+planted window excludes the read edge | test_release_soak_media_unlocked_planted | AssertionError: 'FAIL' != 'PASS'
+soak counter decrease accepted | test_release_soak_counter_growth | AssertionError: 'reset' not found in 'zero-growth counter grew'
+soak missing evidence accepted | test_release_soak_counter_evidence | AssertionError: 'PASS' != 'NOT RUN'
+soak endpoint read optional | test_release_soak_counter_evidence | AssertionError: 'PASS' != 'NOT RUN'
+state vacuity check removed | test_release_state_restored | AssertionError: 'FAIL' != 'NOT RUN'
+mixed commit state accepted | test_release_state_commit_cut | AssertionError: 'PASS' != 'FAIL'
+vacuous commit accepted | test_release_state_commit_cut | AssertionError: 'PASS' != 'NOT RUN'
+reverted state accepted | test_release_state_restored | AssertionError: 'PASS' != 'FAIL'
+missing state readback accepted | test_release_state_restored | AssertionError: 'PASS' != 'NOT RUN'
+first-boot control fixture healthy | test_release_controls_fail_as_planted | AssertionError: 'PASS' != 'FAIL'
+persistence control fixture restored | test_release_controls_fail_as_planted | AssertionError: 'PASS' != 'FAIL'
+audio control drop removed | test_release_controls_fail_as_planted | AssertionError: 'PASS' != 'FAIL'
+control verdict not audited | test_release_area_audit_refuses_each_defect | AssertionError: True is not false
+control failing assertion not audited | test_release_area_audit_refuses_each_defect | AssertionError: True is not false
+controls not required | test_release_area_audit_refuses_each_defect | AssertionError: True is not false
+power phases not audited | test_release_area_audit_refuses_each_defect | AssertionError: 'phases' not found in {'cycle_mix': 'the phase cycles must add up to total_cycles'}
+cycle mix not audited | test_release_area_audit_refuses_each_defect | AssertionError: Tuples differ: (True, False) != (False, True)
+release assertions not audited | test_release_area_audit_refuses_each_defect | AssertionError: True is not false
+assertion severity not audited | test_release_area_audit_refuses_each_defect | AssertionError: True is not false
+release audio masks the identity audit | test_release_audio_does_not_mask_identity | AssertionError: True is not false : {'area': 'audio', 'covered': {'dut_talker': [0, 1, 2, 3, 4], 'dut_listener': [0, 1, 2, 3, 4], 'peer_talker': [0, 2], 'peer_l
+isolated flip read as a slip | test_audio_grader_classes | AssertionError: 'NOT RUN' != 'FAIL'
+slip direction inverted | test_audio_grader_classes | AssertionError: 'NOT RUN' != 'FAIL'
+slip alias boundary moved | test_audio_grader_classes | AssertionError: 'dropped' != 'repeated'
+inserted silence not told apart | test_audio_grader_classes | AssertionError: 8 != 4 : [{'channel': 0, 'capture_index': 8205, 'class': 'silence', 'expected': '0x00100E00', 'received': '0x00000000', 'wall_s': 100.1709375, '
+swap read as corruption | test_audio_grader_classes | AssertionError: 'bit-flip' != 'swap'
+capture loss counted against the DUT | test_audio_grader_attribution | AssertionError: Tuples differ: ('FAIL', [{'channel': 0, 'capture_index': 8[998 chars] 9}]) != ('PASS', [])
+logged capture loss trusted without the capture | test_audio_grader_attribution | AssertionError: 'PASS' != 'NOT RUN'
+missed arm accepted | test_audio_grader_attribution | AssertionError: 'PASS' != 'NOT RUN'
+arm position ignored | test_audio_grader_attribution | AssertionError: 'PASS' != 'NOT RUN'
+arm size ignored | test_audio_grader_attribution | AssertionError: 'PASS' != 'NOT RUN'
+arm mask ignored | test_audio_grader_attribution | AssertionError: 'PASS' != 'NOT RUN'
+arms need not bracket the run | test_audio_grader_attribution | AssertionError: 'FAIL' != 'NOT RUN'
+DUT audio events pass | test_audio_grader_classes | AssertionError: 'PASS' != 'FAIL'
+torn final frame accepted | test_audio_grader_evidence | AssertionError: 'PASS' != 'NOT RUN'
+fast path compares the capture with itself | test_audio_grader_classes | AssertionError: 'NOT RUN' != 'FAIL'
+event overflow passes | test_audio_grader_evidence | AssertionError: 'NOT RUN' != 'FAIL'
+soak counter oracle unnamed | test_release_defaults_and_assertions | AssertionError: {'soak': 'none', 'audio': 'grade_audio_counter_capt[41 chars]red'} != {'soak': 'check_release_soak_counters', 'audio': 'g[64 chars]red'}
+audio run outside the soak window | test_release_defaults_and_assertions | AssertionError: Tuples differ: (86400, 5, '') != (86400, 5, 'soak.continuous')
+planted-event log not retained | test_release_defaults_and_assertions | AssertionError: 'planted_event_log' not found in ['image_hashes', 'manifest', 'csr_map', 'verdict_jsonl', 'uart_transcript', 'wire_captures', 'controller_log', 
+unlock text allows explained unlocks | test_release_assertion_text | AssertionError: 'zero MEDIA_UNLOCKED growth of any cause, explained or not' not found in 'REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Mil
+cycle text returns to 160/40 | test_release_assertion_text | AssertionError: '200 cycles, 150 confirmed cold cuts (100 idle, 50 inside a ' not found in "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; M
+soak text returns to seven days | test_release_assertion_text | AssertionError: 'at least 86400 continuous seconds (24 h)' not found in 'REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: at least 604800 cont
+state text drops the eight items | test_release_assertion_text | AssertionError: 'restores the eight Milan items and the binding' not found in "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3
+ADP text drops the reset origin | test_release_assertion_text | AssertionError: 'for a soft reset T0 is the host-timestamped reset command' not found in 'REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEE
+counter text drops the timestamp counters | test_release_assertion_text | AssertionError: 'zero SEQ_NUM_MISMATCH, STREAM_INTERRUPTED, LATE_TIMESTAMP and ' not found in 'REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions

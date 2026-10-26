@@ -1,0 +1,124 @@
+Standards text extracted with pdftotext -layout; line numbers refer to that extraction.
+
+== Milan Specification v1.2 (consolidated, 2023-11-30): saved state
+1681:5.3.5.1 Sampling rate
+1751:5.3.7.1 Format
+1863:5.3.7.6 Presentation time offset
+1920:5.3.8.1 Format
+1936:5.3.8.2 Bound state
+1945:5.3.8.3 Binding parameters
+2022:5.3.8.7 Started/stopped state
+2145:5.3.9.1 Channels mapping
+2162:5.3.10.1 Channels mapping
+2178:5.3.11.1 Clock source
+2234:5.3.13 User names
+1684:The current sampling rate shall be saved in a non-volatile memory and restored after a power cycle.
+1758:The current format shall be saved in a non-volatile memory and restored after a power cycle.
+1880:The Presentation time offset shall be saved in a non-volatile memory and restored after a power cycle.
+1927:The current format shall be saved in a non-volatile memory and restored after a power cycle.
+1942:The current bound state shall be saved in a non-volatile memory and restored after a power cycle.
+2029:The current started/stopped state shall be saved in a non-volatile memory and restored after a power cycle.
+2151:The PAAD-AE shall maintain a list of all its output channel mappings. This list shall be saved in a non-volatile
+2171:The PAAD-AE shall maintain a list of all its input channel mappings. This list shall be saved in a non-volatile
+2187:The current clock source shall be saved in a non-volatile memory and restored after a power cycle.
+2256:the user. The PAAD-AE shall save them in a non-volatile memory and restore them after a power cycle.
+
+== Milan v1.2 5.3.8.10, Table 5.6
+5.3.8.10 Diagnostic counters
+
+For each Stream Input of the currently set Configuration, the PAAD-AE shall keep track of the counters in
+Table 5.6 (each counter is a 32-bit unsigned integer that wraps over to zero when it reaches the maximum
+
+ Symbol                          Meaning
+ MEDIA_LOCKED                    Incremented each time the input stream gets synchronized on the media
+                                 clock (whatever where the media clock comes from). Note: the definition
+                                 of “synchronized” is left open to each manufacturer.
+
+ MEDIA_UNLOCKED                  Incremented each time the input stream gets unsynchronized on the me-
+                                 dia clock (whatever where the media clock comes from). Note: the defini-
+                                 tion of “unsynchronized” is left open to each manufacturer. At any time, the
+                                 PAAD-AE shall ensure that either MEDIA_LOCKED=MEDIA_UNLOCKED
+                                 (in this case, the input stream is not synchronized on the media clock), or
+                                 MEDIA_LOCKED=MEDIA_UNLOCKED+1 (in this case, the input stream
+                                 is synchronized on the media clock).
+ STREAM_INTERRUPTED              Incremented each time the stream playback is interrupted for any reason
+                                 other than a Controller Unbind operation. Note: depending on the im-
+                                 plementation, this can include the loss of several AVTPDUs, wrong times-
+                                 tamps, buffer overrun/underrun, . . .
+ SEQ_NUM_MISMATCH                Incremented at the end of every observation interval during which
+                                 a Stream Data AVTPDU has been received with a non-sequential
+                                 sequence_num field.     The duration of the observation interval is
+                                 implementation-specific and shall be less than or equal to 1 second.
+
+ MEDIA_RESET                     Incremented at the end of every observation interval during which the
+                                 “mr” bit was toggled in any of the received Stream Data AVTPDUs. The
+                                 duration of the observation interval is implementation-specific and shall
+                                 be less than or equal to 1 second.
+ TIMESTAMP_UNCERTAIN             Incremented at the end of every observation interval during which the “tu”
+                                 bit was set in any of the received Stream Data AVTPDUs. The duration of
+                                 the observation interval is implementation-specific and shall be less than
+                                 or equal to 1 second.
+ UNSUPPORTED_FORMAT              Incremented at the end of every observation interval during which a
+                                 Stream Data AVTPDU has been received with a format that did not match
+                                 the current format of the Stream Input. The duration of the observation
+                                 interval is implementation-specific and shall be less than or equal to 1 sec-
+                                 ond.
+ LATE_TIMESTAMP                  Incremented at the end of every observation interval during which
+                                 a Stream Data AVTPDU has been received with an AVTP timestamp
+                                 field that was in the past. The duration of the observation interval is
+                                 implementation-specific and shall be less than or equal to 1 second.
+
+ EARLY_TIMESTAMP                 Incremented at the end of every observation interval during which a
+                                 Stream Data AVTPDU has been received with an AVTP timestamp field
+                                 that was too far in the future to process. The duration of the observation
+                                 interval is implementation-specific and shall be less than or equal to 1 sec-
+                                 ond.
+
+ FRAMES_RX                       Incremented at the end of every observation interval during which at least
+                                 one Stream Data AVTPDU has been received on this Stream Input. The
+                                 duration of the observation interval is implementation-specific and shall
+                                 be less than or equal to 1 second.
+
+
+The PAAD-AE shall reset all of these counters to zero each time the Stream Input changes its state from not
+bound to bound.
+
+== Milan v1.2 5.5.1.4 Auto Connect (power cycle or simple reset)
+5.5.1.4 Auto Connect
+
+A design goal of this protocol is for Listeners to be able to maintain established connections autonomously,
+without relying on intervention from a controller. Once a controller has issued a binding request to a Listener
+and received an acknowledgement, it has no further involvement in the connection process until an unbinding
+is desired. Once it has acknowledged a binding request, a Listener must perform the following steps:
+    • Probe the SRP parameters of the talker’s source stream
+    • Perform the necessary SRP transactions to reserve the required resources in the network
+    • Continuously monitor for SRP failures
+If an SRP failure is detected or the Listener is reset due to a power cycle, this process must be restarted, with
+one additional preliminary step:
+    • Wait for an ADP ENTITY_AVAILABLE message from the talker to ensure that both talker and listener are
+      still in the same gPTP domain.
+The state where a Listener’s sink is bound but has not yet determined the SRP parameters used by the Talker,
+or has to renew its knowledge of the SRP parameters, is called the probing state in this specification.
+By means of the mechanism described above, a listener is able to reestablish a stream after any of the following
+events, without the intervention of a controller:
+    • Power cycle of the listener
+    • Power cycle of the talker
+    • Power cycle or replacement of any switch on the path from the talker to the listener
+However, in the following situations the listener does not have to (and will likely not be able to) reestablish a
+stream:
+    • If the listener is restarted for some reason other than a power cycle or a simple reset (firmware upgrade,
+      reset to factory defaults, etc.)
+    • If, while the listener was off, or while one of the switches on the path from the talker to the listener
+      was off, the configuration of the talker has changed (firmware upgrade, reset to factory defaults, or any
+      change explicitly requested by a controller)
+In the two situations described above, it is expected that a controller will be used to reconfigure the listener
+and establish a new binding if necessary.
+
+
+
+
+== IEEE 1722-2016 clause headings
+1914:          4.4.4.3 mr (media clock restart) field
+1967:          4.4.4.6 sequence_num field
+1981:          4.4.4.7 tu (timestamp uncertain) field
+3683:          7.3.5 pcm_data_payload field

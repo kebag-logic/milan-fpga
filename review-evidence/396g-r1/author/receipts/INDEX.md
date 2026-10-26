@@ -1,0 +1,33 @@
+# Receipts index
+
+Generated from the files present in this directory (name, bytes, SHA-256).
+Head: 21faa48242e021177a1dc702f28e51347c6a7a57
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `bdd_conformance.summary.txt` | 1469 | `ada3b51644e35bf61121de1f64cc5eaa1b3cd367df4a8248a5cfe2e8a517b99a` |
+| `coverage_release.log` | 1965 | `2449e3bd0fa545062ffcbac04c6ff02f9e94d184ca78ff0c8dc4f775263fabe2` |
+| `diff_check_range.log` | 0 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `diff_check_tree.log` | 0 | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `doc_paths.log` | 101 | `a9e2aa111f4344f7413c06a72d639c4fd3a4901a52d3f4382748beac342875dc` |
+| `docs_check.log` | 128 | `819bf8cdc2043059083df80938da6e4cf1c213d7e2dca328cd1228caedfad46e` |
+| `doc_style.log` | 47 | `e44785f7c4566223d097c60b7c622446f3c096a97e26bc660ef43f562ed3876e` |
+| `em_dash.log` | 140 | `d3a89e1f733749f7c7f866feff2fe2a50008c21cd6312c6b75e4923637d5b260` |
+| `feature_mutants_baseline.log` | 50300 | `4d861158e3411847fb46a0894ec202341b59dbdc9e680b14f9c910aa204977ce` |
+| `feature_mutants.log` | 2942 | `78ff8d8ba90426520cfb602b967c72fec3199a0337f1a32f68ac504f7d41932c` |
+| `feature_mutants.py` | 3350 | `27c34db787685e39ba693c13cdf49dae52b0f558b70e82a07cafb8c5dc1fc6eb` |
+| `feature_status.log` | 29 | `802f5eeb2f0aa147169f3ddb9c64d4369ca92ab380455195403f2e8ae02490d0` |
+| `feature_status_selftest.log` | 1500 | `77f7649b1865c0daf4f3de04dd18c78be4885c9c94a8f03fd1e4f262758c3184` |
+| `gen_toc_anchors.log` | 64 | `625f5c1ec7b2151da0c2f9c82b319b9ff3ec008703b7ee526e73d4eb095a670e` |
+| `gen_toc_check.log` | 94 | `aa92588bd92ea3971c9a1e3be9f6543378c641e37bd3d935316b04d0bcf4c09e` |
+| `grader_throughput.log` | 168 | `d24b009cb36137196dc1c06a7a27b941bcb99ec73f0f96c58fb38f368a145b7e` |
+| `grader_throughput.py` | 1102 | `0f25205fe0b12a786a350c770f7b788d994003d9d06938a4824ce8a17e7e5e89` |
+| `head.txt` | 46 | `81341a6db6f2dbff3129dce34c2e4f041e639abd9d29332bf27e4c0d8a6f61c3` |
+| `mutant_failing_words.log` | 8484 | `348d4eacb53d609a28adfca9710803cdc7646fa0811dd4ece63a84316a0aca7e` |
+| `mutant_failing_words.py` | 1402 | `2fe472476713ca50b0b17d8d9a9e66d489c2ef2df6ba22d489da8c24ce9e7404` |
+| `plan_feature.log` | 50300 | `c3b7ef071040379b4e67e5804109196630b226a1e5e92b1f2c994dc416ba40ef` |
+| `py_idiom.log` | 461 | `66326de81da375ba31376c87dd7106f92da62604e3de159278854298939da14e` |
+| `rc.txt` | 401 | `e8a03961842a6df19ca903024e8451fcdf2569a692510943a52914793c94785b` |
+| `release_mutants.log` | 13957 | `2e3e9dec68c4998eca9941bfb34edd1d55d403f59efaf2ac68d0a2b009c37121` |
+| `selftest.log` | 17284 | `07131a07e5504edb2859130d4c02f323e5c3a15043ec829d073b00a5c65cc432` |
+| `standards_citations.txt` | 8713 | `c82a3f20091593d3f476b0b6c7c30a2385d37f24cc4159547cbecd312066a634` |
