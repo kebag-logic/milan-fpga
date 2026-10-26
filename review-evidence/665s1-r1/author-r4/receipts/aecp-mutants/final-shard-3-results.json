@@ -1,0 +1,369 @@
+[
+  {
+    "name": "nosub-reports-request-latency",
+    "path": "aecp/aecp_commands.c",
+    "old": "\t\t\twire_put_be(out + 4, flags & ~0x20000000u, 4);\n",
+    "new": "\t\t\twire_put_be(out + 4, flags & ~0x20000000u, 4); memcpy(out + 24, in + 24, 4u);\n",
+    "checks": [
+      [
+        "Core.SetStreamInfoWithoutSubcommandPreservesState",
+        "no subcommand reports current latency, not requested latency"
+      ],
+      [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "SET latency follows Milan success and current refusal rules"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "hdcp-data-length-echo",
+    "path": "aecp/aecp.c",
+    "old": "wire_put_be(a->response + 36, 0u, 2);",
+    "new": "wire_put_be(a->response + 36, wire_be16(p + 22), 2);",
+    "checks": [
+      [
+        "Core.NonAemMessageTypesFollowTheirOwnContracts",
+        "HDCP refusal clears data length"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "stream-info-request-echo",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out + 8, d->value + 74, 8u);",
+    "new": "memcpy(out + 8, in + 8, len >= 16u ? 8u : 0u);",
+    "checks": [
+      [
+        "Core.SetStreamInfoReportsCurrentFieldsOnSuccessAndRefusal",
+        "SET response uses current format"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "identify-refusal-body-lost",
+    "path": "aecp/aecp_commands.c",
+    "old": "memcpy(out, in, len < 4u ? len : 4u);",
+    "new": "memset(out, 0, 4u);",
+    "checks": [
+      [
+        "Core.UnsupportedAndAcquire",
+        "identify refusal preserves descriptor fields"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "group-name-offset",
+    "path": "aecp/aecp_commands.c",
+    "old": "48u + 132u * name",
+    "new": "48u + 64u * name",
+    "checks": [
+      [
+        "Core.GroupNameDoesNotOverwriteFirmwareVersion",
+        "group_name changes only"
+      ],
+      [
+        "Core.NamesAndDescriptorOverlay",
+        "READ_DESCRIPTOR uses the same name"
+      ],
+      [
+        "Nvm.ShapePoolsAndNameOrdinalsMatchSavedRecords",
+        "b"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "boot-clip-boundary",
+    "path": "aecp/aecp_maps.c",
+    "old": "m->rows[k].channel >= channels(wire_be64(d->value + 74))",
+    "new": "m->rows[k].channel > channels(wire_be64(d->value + 74))",
+    "checks": [
+      [
+        "Core.RestoreMapWholeSetClipAndDefaults",
+        "m.count"
+      ],
+      [
+        "Nvm.AbsentMapClipsButRefusedMapRevertsItsFormat",
+        "m.count"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "owed-response-discarded",
+    "path": "aecp/aecp.c",
+    "old": "if (a->response_owed) {",
+    "new": "if (a->response_owed && false) {",
+    "checks": [
+      [
+        "Core.BackpressureOrdersResponseBeforeNotice",
+        "sent.size()"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "foreign-lock-ignored",
+    "path": "aecp/aecp_commands.c",
+    "old": "return a->locked && a->lock_owner != a->requester;",
+    "new": "return a->locked && a->lock_owner == a->requester;",
+    "checks": [
+      [
+        "Core.ConfigurationAndLockedSetRefusals",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "dynamic-overflow-kept",
+    "path": "aecp/aecp_commands.c",
+    "old": "*bytes + 8u + result_bytes <= 512u",
+    "new": "*bytes + 8u + result_bytes <= 1024u",
+    "checks": [
+      [
+        "Core.DynamicInfoSkipsOverflowAndKeepsLaterRecords",
+        "out.size()"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "static-map-orphan-accepted",
+    "path": "aecp/aecp_maps.c",
+    "old": "wire_be16(record) == index && wire_be16(record + 2) >= channels(format)",
+    "new": "wire_be16(record) == index && wire_be16(record + 2) > 1023u",
+    "checks": [
+      [
+        "Core.StaticMapsPreventOrphaningFormats",
+        "status for command"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "boot-map-capacity-ignored",
+    "path": "aecp/aecp_maps.c",
+    "old": "count > m->capacity) return AECP_BAD_ARGUMENTS;",
+    "new": "count > 65535u) return AECP_BAD_ARGUMENTS;",
+    "checks": [
+      [
+        "Core.BootMapFaultsCannotPartlyReplaceTheSet",
+        "aecp_map_restore"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "probe-sequence-ignored",
+    "path": "aecp/aecp.c",
+    "old": "r->probe_sequence == wire_be16(p + 20)",
+    "new": "r->probe_sequence != UINT16_MAX",
+    "checks": [
+      [
+        "Core.ProbeIdentityAndSequenceMustBothMatch",
+        "probing"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "no-interface-accepted",
+    "path": "aecp/aecp.c",
+    "old": "cfg->interfaces == 0u ||",
+    "new": "",
+    "checks": [
+      [
+        "Core.InitRefusalsAndClosedService",
+        "aecp_init"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "nvm-hole-accepted",
+    "path": "aecp/aecp_nvm.c",
+    "old": "if (unused) return refused(n, m);",
+    "new": "if (unused && false) return refused(n, m);",
+    "checks": [
+      [
+        "Nvm.WholeMapFramingAndEmptySetAreDistinct",
+        "owner.port.apply"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "nvm-unused-payload-reads-erased",
+    "path": "../ctrl_nvm/nvm_store.c",
+    "old": "\tif (nvm_all_erased(rec, NVM_REC_HDR)) {",
+    "new": "\tif (nvm_all_erased(rec, NVM_REC_HDR) || nvm_all_erased(rec + NVM_REC_HDR, r.plen)) {",
+    "checks": [
+      [
+        "Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle",
+        "the empty list survives the power cycle"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-failure-flags-lost",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "s.registering_failed ? 0x08000040u : 0u",
+    "new": "s.registering_failed ? 0u : 0u",
+    "checks": [
+      [
+        "App.InputInfoReflectsAcmpSettlementAndFailures",
+        "v.flags"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "app-start-skips-publication",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "acmp_set_started(a, c->start_index, c->start_value)",
+    "new": "(!a->in_port && (a->sinks[c->start_index].started = c->start_value, true))",
+    "checks": [
+      [
+        "App.StartAndStopPublishTheStartedLevelBeforeTheirResponse",
+        "the datapath's started level follows START/STOP"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "mailbox-full-completions-overwritten",
+    "path": "aecp/aecp_mbx.c",
+    "old": "m->completion_count == AECP_MBX_COMPLETIONS ||",
+    "new": "m->completion_count > AECP_MBX_COMPLETIONS ||",
+    "checks": [
+      [
+        "Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse",
+        "adapter.ports.send"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "image-crc-ignored",
+    "path": "aecp/aecp_image.c",
+    "old": "crc32(image, bytes) == expected_crc",
+    "new": "(crc32(image, bytes) == expected_crc || true)",
+    "checks": [
+      [
+        "Image.RejectHeader",
+        "image CRC rejects corrupted descriptor bytes"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-identify-in-the-configuration-field",
+    "path": "aecp/aecp_face.c",
+    "old": "mbx_place(f->core->identify, MBX_F_ENTITY_IDENTIFY_LSB, MBX_F_ENTITY_IDENTIFY_WIDTH)",
+    "new": "mbx_place(f->core->identify, MBX_F_ENTITY_CUR_CONFIG_LSB, MBX_F_ENTITY_IDENTIFY_WIDTH)",
+    "checks": [
+      [
+        "Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt",
+        "IDENTIFY in its own field"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-lock-not-published",
+    "path": "aecp/aecp_commands.c",
+    "old": "\t\tif (moved) {\n\t\t\taecp_note(a, AECP_CHANGE_LOCK, 0, 0);\n\t\t}\n",
+    "new": "",
+    "checks": [
+      [
+        "Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt",
+        "LOCK_ENTITY: a commit"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-ready-before-open",
+    "path": "aecp/aecp_face.c",
+    "old": "mbx_place(f->ready ? 1u : 0u, MBX_F_CTRL_READY_LSB,",
+    "new": "mbx_place(1u, MBX_F_CTRL_READY_LSB,",
+    "checks": [
+      [
+        "Face.BeforeOpenTheSettingsCarryNoReadyAndAHeldBlockIsOwed",
+        "no READY before the face opens"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-store-status-after-open",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "\t\tpublish_store(c);\n\t\tif (!aecp_face_open(c->face)) return false;\n",
+    "new": "\t\tif (!aecp_face_open(c->face)) return false;\n",
+    "checks": [
+      [
+        "AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange",
+        "the boot walk ended"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-counter-change-event-missed",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "\t\tctrl_app_aecp_changed(c, e->desc_type, e->desc_index, 8u);\n",
+    "new": "",
+    "checks": [
+      [
+        "AppFace.FaceEventsDriveTheirTable522Notifications",
+        "a counter change notifies GET_COUNTERS"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "held-face-admits-lock-entity",
+    "path": "aecp/aecp.c",
+    "old": "0x01514142u",
+    "new": "0x01514140u",
+    "checks": [
+      [
+        "Core.AChangeThePlatformHasNotAppliedPromisesNothing",
+        "command 1 refused before it changes anything"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "face-owed-interface-counted-applied",
+    "path": "aecp/aecp_face.c",
+    "old": "\t\tif (f->owed[i] || mbx_face_busy(i)) {\n\t\t\treturn false;",
+    "new": "\t\tif (mbx_face_busy(i)) {\n\t\t\treturn false;",
+    "checks": [
+      [
+        "Face.APartialAcknowledgementFailsTheChangeUntilEveryInterfaceTakesIt",
+        "an owed interface is not applied while its block is free"
+      ]
+    ],
+    "caught": true
+  },
+  {
+    "name": "aecp-opens-before-its-publication-is-acknowledged",
+    "path": "app/ctrl_app_aecp.c",
+    "old": "if (!aecp_face_open(c->face)) return false;",
+    "new": "(void)aecp_face_open(c->face);",
+    "checks": [
+      [
+        "AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged",
+        "AECP opens only once the initial publication is acknowledged"
+      ]
+    ],
+    "caught": true
+  }
+]

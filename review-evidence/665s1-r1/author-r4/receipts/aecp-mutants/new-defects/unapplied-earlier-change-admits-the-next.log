@@ -1,0 +1,172 @@
+Note: Google Test filter = Core.AChangeThePlatformHasNotAppliedPromisesNothing
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Core
+[ RUN      ] Core.AChangeThePlatformHasNotAppliedPromisesNothing
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:734: Failure
+Expected equality of these values:
+  noted
+    Which is: 1
+  0u
+    Which is: 0
+command 1 refused before it changes anything
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 1 refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:736: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\0', '\0', '\0', '\x10' (16), ' ' (32, 0x20), '0' (48, 0x30), '@' (64, 0x40), 'P' (80, 0x50), '`' (96, 0x60), 'p' (112, 0x70), '\x80' (128), '\0', '\0', '\0', '\0' }
+  body
+    Which is: { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' }
+command 1: the refusal echoes its body
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 1: the refusal echoes its body
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:734: Failure
+Expected equality of these values:
+  noted
+    Which is: 1
+  0u
+    Which is: 0
+command 6 refused before it changes anything
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 6 refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:734: Failure
+Expected equality of these values:
+  noted
+    Which is: 1
+  0u
+    Which is: 0
+command 8 refused before it changes anything
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 8 refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:734: Failure
+Expected equality of these values:
+  noted
+    Which is: 1
+  0u
+    Which is: 0
+command 14 refused before it changes anything
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 14 refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:736: Failure
+Expected equality of these values:
+  Bytes(out.begin()+38,out.end())
+    Which is: { '\0', '\x6' (6), '\0', '\0', '\xF7' (247), '\0', '\0', '\0', '\x2' (2), '\x5' (5), '\x2' (2), ' ' (32, 0x20), '\x2' (2), '\0', '`' (96, 0x60), '\0', '\x1' (1), '\x2' (2), '\x3' (3), '\x4' (4), '\x5' (5), '\x6' (6), '\a' (7), '\b' (8), '\0', '\0', '\x10' (16), '\xE1' (225), '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', ... }
+  body
+    Which is: { '\0', '\x6' (6), '\0', '\0', ' ' (32, 0x20), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x10' (16), '\xE1' (225), '\0', '\0', '\0', '\0', ... }
+command 14: the refusal echoes its body
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 14: the refusal echoes its body
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:734: Failure
+Expected equality of these values:
+  noted
+    Which is: 1
+  0u
+    Which is: 0
+command 16 refused before it changes anything
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 16 refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:734: Failure
+Expected equality of these values:
+  noted
+    Which is: 1
+  0u
+    Which is: 0
+command 20 refused before it changes anything
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 20 refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:734: Failure
+Expected equality of these values:
+  noted
+    Which is: 1
+  0u
+    Which is: 0
+command 22 refused before it changes anything
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 22 refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:734: Failure
+Expected equality of these values:
+  noted
+    Which is: 1
+  0u
+    Which is: 0
+command 24 refused before it changes anything
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 24 refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:734: Failure
+Expected equality of these values:
+  noted
+    Which is: 1
+  0u
+    Which is: 0
+command 44 refused before it changes anything
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: command 44 refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:155: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 7
+  status
+    Which is: 10
+status for command 45
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: status for command 45
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:738: Failure
+Expected equality of these values:
+  a.identify
+    Which is: '\xFF' (255)
+  0u
+    Which is: 0
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing:     Which is: 0
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:738: Failure
+Value of: a.locked
+  Actual: true
+Expected: false
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: Expected: false
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:738: Failure
+Expected equality of these values:
+  maps[0].count
+    Which is: 1
+  0u
+    Which is: 0
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing:     Which is: 0
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:155: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 10
+status for command 24
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: status for command 24
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:747: Failure
+Expected equality of these values:
+  noted
+    Which is: 0
+  1u
+    Which is: 1
+the change was made and handed to the platform
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing: the change was made and handed to the platform
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:745: Failure
+Actual function call count doesn't match EXPECT_CALL(mock, Applied())...
+         Expected: to be called twice
+           Actual: never called - unsatisfied and active
+
+  [FAIL] Core.AChangeThePlatformHasNotAppliedPromisesNothing:            Actual: never called - unsatisfied and active
+[  FAILED  ] Core.AChangeThePlatformHasNotAppliedPromisesNothing (0 ms)
+[----------] 1 test from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.AChangeThePlatformHasNotAppliedPromisesNothing
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)

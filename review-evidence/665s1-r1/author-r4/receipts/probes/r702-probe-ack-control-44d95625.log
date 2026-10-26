@@ -1,0 +1,34 @@
+wrote <work>/probes/r702-control/scratch/ack-probe/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/probes/r702-control/scratch/ack-probe/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/probes/r702-control/scratch/ack-probe/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+Note: Google Test filter = Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt:Face.ALateCommitIsOwedAndPublishedAgainWhole:Face.ReviewHeldSettingMustNotPromiseUnwrittenValue
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from Face
+[ RUN      ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt
+[       OK ] Face.EachSettingIsCommittedBeforeTheResponseThatPromisesIt (0 ms)
+[ RUN      ] Face.ReviewHeldSettingMustNotPromiseUnwrittenValue
+REVIEW held update: response_status=0 core_identify=0 mailbox_identify=255 commits_before=4 commits_after=4 busy=1 owed=1
+<work>/probes/r702-control/scratch/ack-probe/tests/test_aecp.cpp:1983: Failure
+Value of: status!=0 || actual==0u
+  Actual: false
+Expected: true
+successful response must not promise an unwritten F value
+
+  [FAIL] Face.ReviewHeldSettingMustNotPromiseUnwrittenValue: successful response must not promise an unwritten F value
+[  FAILED  ] Face.ReviewHeldSettingMustNotPromiseUnwrittenValue (0 ms)
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+[       OK ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[----------] 3 tests from Face (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.ReviewHeldSettingMustNotPromiseUnwrittenValue
+
+ 1 FAILED TEST
+== AECP core: checks: 3   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 3 checks, exit 1)
+probe return code: 1

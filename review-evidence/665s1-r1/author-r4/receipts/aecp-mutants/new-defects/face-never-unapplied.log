@@ -1,0 +1,108 @@
+Note: Google Test filter = Face.ALateCommitIsOwedAndPublishedAgainWhole
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Face
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:1861: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 10
+status for command 24
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: status for command 24
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:2031: Failure
+Expected equality of these values:
+  heads.size()
+    Which is: 2
+  1u
+    Which is: 1
+the refusal alone: no notification promises the held value
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: the refusal alone: no notification promises the held value
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:1861: Failure
+Expected equality of these values:
+  get(out,16,2)>>11
+    Which is: 0
+  status
+    Which is: 10
+status for command 24
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: status for command 24
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:2037: Failure
+Expected equality of these values:
+  adapter.core.identify
+    Which is: '\0'
+  255u
+    Which is: 255
+a change while a commit waits is refused before it changes anything
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: a change while a commit waits is refused before it changes anything
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:2038: Failure
+Expected equality of these values:
+  heads.size()
+    Which is: 2
+  1u
+    Which is: 1
+and notifies no one
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: and notifies no one
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:2040: Failure
+Expected equality of these values:
+  read[42]
+    Which is: '\0'
+  255u
+    Which is: 255
+a read is answered, with the value the held block carries to the datapath
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: a read is answered, with the value the held block carries to the datapath
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:2049: Failure
+Expected equality of these values:
+  at(taken(i),0x4u,16u,8)
+    Which is: 0
+  255u
+    Which is: 255
+the held value, acknowledged
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: the held value, acknowledged
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:2049: Failure
+Expected equality of these values:
+  at(taken(i),0x4u,16u,8)
+    Which is: 0
+  255u
+    Which is: 255
+the held value, acknowledged
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: the held value, acknowledged
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:2056: Failure
+Expected equality of these values:
+  far.commits.size()-count
+    Which is: 0
+  2u
+    Which is: 2
+one commit per interface
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: one commit per interface
+<tree>/sw/firmware/ctrl/test/test_aecp.cpp:2057: Failure
+Expected equality of these values:
+  heads.size()
+    Which is: 1
+  2u
+    Which is: 2
+the response, then its notification
+
+  [FAIL] Face.ALateCommitIsOwedAndPublishedAgainWhole: the response, then its notification
+[  FAILED  ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[----------] 1 test from Face (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
