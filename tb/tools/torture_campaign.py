@@ -3345,8 +3345,11 @@ AUDIO_RELEASE_ASSERTS = (
                "other foreign or corrupted channel number is corruption; a word equal to "
                "a neighbouring received word is a repeat; an excursion of two or more "
                "words with one constant XOR mask is one corruption at any length, beside "
-               "any one-word event; a slip and a corruption in one window are both graded "
-               "in either order, and patterns the bytes cannot tell apart follow "
+               "any one-word event or slip; on every channel the slips reported sum to "
+               "the shift the bytes decode, and a window no reading balances is one "
+               "unresolved event; a slip and a corruption in one window are both graded "
+               "in either order, except on and just before a planted arm as "
+               "counter_limits states, and patterns the bytes cannot tell apart follow "
                "counter_limits, the planted-arm log deciding at a logged arm; a "
                "channel swapped from the first frame is a swap, its counters still "
                "tracked; at either end of a capture, words that differ from their track "
@@ -3360,8 +3363,10 @@ AUDIO_RELEASE_ASSERTS = (
                "last tenth and inside the qualified interval; each is found with its "
                "class and its size or mask; where the capture's bytes allow a reading "
                "that places an arm, the arm's log decides, never at the cost of another "
-               "DUT event; a missed arm, an arm outside the qualified "
-               "interval, or arms that do not run at both ends, voids the run as NOT RUN"),
+               "DUT event; a corruption on a planted arm's sample or just before it can "
+               "still leave the arm missed, as counter_limits states; a missed arm, an "
+               "arm outside the qualified interval, or arms that do not run at both ends, "
+               "voids the run as NOT RUN, which blocks the release"),
     AssertSpec("audio.capture-losses-apart", AUDIO_RELEASE_CLAUSE +
                ": capture-side losses logged by the capture tool are attributed to the "
                "capture and reported apart, never counted against the DUT, and only "
@@ -3704,10 +3709,12 @@ AUDIO_GUARD_FRAMES = AUDIO_CONFIRM_FRAMES - 1
 AUDIO_WINDOW_WORDS = 1 << 16
 #: `unresolved` is a stretch at either end of a capture that differs from the
 #: track only in the code bit: a slip of whole blocks or a code-bit corruption,
-#: which the capture cannot tell apart.
+#: which the capture cannot tell apart; or a window no balanced reading explains.
 AUDIO_CLASSES = ("dropped", "repeated", "silence", "bit-flip", "swap", "unresolved")
 AUDIO_END_REASON = "the capture ended"
 AUDIO_BOUND_REASON = "more than 65536 words without 64 clean samples"
+#: Issue #396 REQ-VER-06: a window whose reported slips would not sum to the shift its bytes decode.
+AUDIO_UNBALANCED_REASON = "an unclassified corruption: no reading's slips sum to the shift the bytes decode"
 #: The source plants these at the start and at the end of every run, inside
 #: the qualified interval. Mask 0x100 flips the code bit alone, so the arm
 #: never equals a neighbouring sample, whose position bits differ.
@@ -3730,6 +3737,9 @@ AUDIO_QUALIFICATION = {
 #: Patterns the counter cannot tell apart, as the plan states them (TESTING.md 6d).
 AUDIO_COUNTER_LIMITS = (
     "every slip is sized exactly from the decoded position",
+    "on every channel the slips a reading reports sum to the shift its closing samples decode; a "
+    "reading that does not is never taken, and a window no reading balances is one unresolved event "
+    "at its first sample, never a slip that did not happen",
     "a slip of whole 2048-sample blocks is found within 63 samples and carries located_within, "
     "the samples it may have happened at: back over the words that fit both tracks, a corrupted "
     "word included where the tracks coincide, and on to the first word that shows it",
@@ -3745,15 +3755,32 @@ AUDIO_COUNTER_LIMITS = (
     "a slip followed, within the words that fit both tracks, by a slip of whole blocks gives the "
     "bytes of one slip of their sum, and reads so",
     "at a logged planted arm the arm log decides between readings with the same bytes, taking "
-    "the one that places the arm only when it has no more DUT events, so a DUT slip that undoes "
-    "a slip arm at the next sample reads as the arm and that slip; a DUT slip at a planted slip "
-    "arm's own sample is one slip of their sum, so unless the DUT slip is whole blocks the arm "
-    "is missed and the run is void",
+    "another only when it has fewer DUT events, or as many and more arms found, so a DUT slip "
+    "that undoes a slip arm at the next sample reads as the arm and that slip; a DUT slip at a "
+    "planted slip arm's own sample is one slip of their sum, so unless the DUT slip is whole "
+    "blocks the arm is missed and the run is void",
+    "a one-word corruption on a planted slip arm's own sample or the next one may read first, "
+    "judged against the offset before the slip, with the slip placed after it within the arm "
+    "tolerance: the bytes are the same either way",
+    "beside a planted flip arm, on its channel, under a slip of whole blocks, the arm's word is the "
+    "other track's where the two differ, so the bytes may be that slip on the other side of the arm "
+    "with the arm's code bit one sample over; within the tolerance the arm is found, and "
+    "located_within bounds the slip of that reading",
+    "a corrupted word on a planted slip arm's own sample or the one before it, that is its "
+    "channel's word at another position at most half a block (1024 samples) from the old or the "
+    "new track's, reads as a slip to that position and on to the arm's track: the arm is missed "
+    "and the run is void",
+    "a corruption of a planted flip arm's own word, on its channel, combines with the arm's mask, "
+    "and one beside it under the arm's own mask makes a two-word excursion of that mask: either "
+    "way the arm is missed and the run is void",
     "a word equal to a neighbouring received word is a repeat",
     "an excursion of two or more words with one constant XOR mask is one corruption at any "
-    "length, even where slips would produce the same words and whatever one-word event lies "
-    "beside it; a word on the old track is its return",
-    "a constant-mask corruption that a slip interrupts reads as the slips its words show",
+    "length, even where slips would produce the same words; a one-word event beside it, "
+    "adjacent or not, a slip before it and a slip at its return are graded on their own, and a "
+    "two-word excursion under two masks that no single offset explains is two one-word "
+    "corruptions; a word on the old track is its return",
+    "a constant-mask corruption that a slip interrupts, or whose words one offset explains up to "
+    "a slip at its return, reads as the slips its words show",
     "a slip pair whose total is whole blocks and whose displaced words share one XOR mask reads "
     "as that bit-flip and a slip of whole blocks beside it, the corruption judged against "
     "whichever track gives its mask fewer bits set",
@@ -4097,24 +4124,23 @@ class _AudioSteer:
 
 def _audio_excursion(track: _AudioTrack, labels: list[list], k: int, current: int,
                      final: int | None, steer: _AudioSteer) -> int:
-    """Read a net-zero excursion from `current` as corruption where it must be.
+    """Read an excursion from `current` as corruption where it must be; the label index where it ends.
 
-    An excursion leaves the track at labels[k] and returns to the same
-    offset. One word is a corruption unless it equals a neighbouring received
-    word, a repeat. Two or more words whose XOR with the track is one constant
-    mask are one corruption. A window cut at its word bound is graded in
-    pieces, so there a constant-mask stretch reaching the cut stays one
-    corruption. Returns the label index where the excursion ends.
+    An excursion leaves the track at labels[k]. One that returns to the same
+    offset, where `_audio_return` finds, is read by `_audio_corruption`. A
+    window cut at its word bound is graded in pieces, so there a
+    constant-mask stretch reaching the cut stays one corruption.
 
-    Words fitted to another offset of whole blocks may fit the offset in
-    force too. When only the leading stretch does not, the excursion is that
-    stretch and returns at the next word. When its positions return at once
-    but a whole number of blocks away, the stretch is judged the same way
-    beside the slip of whole blocks: either reading is two events. It is
-    judged against the offset after the slip, the slip coming first, when its
-    mask there has fewer bits set; the steer's `judge` records that choice. An
-    excursion that enters or leaves at a capture index in its `keep`, where a
-    logged slip arm decides, stays the slips it reads as.
+    When its positions return at once but a whole number of blocks away, the
+    stretch is judged the same way beside the slip of whole blocks: either
+    reading is two events. It is judged against the offset after the slip,
+    the slip coming first, when its mask there has fewer bits set; the
+    steer's `judge` records that choice. An excursion that ends in a slip of
+    another size is one corruption and that slip when one mask joins its
+    words, no single offset explains them and none is on the slip's track:
+    as slips it would be three events or more. An excursion that enters or
+    leaves at a capture index in the steer's `keep`, where a logged slip arm
+    decides, stays the slips it reads as.
     """
     end = k
     while end < len(labels) and (labels[end][0] == "bad"
@@ -4125,18 +4151,21 @@ def _audio_excursion(track: _AudioTrack, labels: list[list], k: int, current: in
     if back is None and end == len(labels) and end - k > 1 and track.reason == AUDIO_BOUND_REASON:
         back = current
     if back == current:
-        fits = [r for r in range(k + 1, end)
-                if labels[r][0] == "track" and labels[r][2] == _audio_due(track, labels[r][1], current)]
-        if fits and fits == list(range(fits[0], end)):
-            for label in labels[fits[0]:end]:
-                label[0], label[3] = "track", current
-            end = fits[0]
+        end = _audio_return(track, labels, k, end, current)
     else:
         cut = k
         while cut < end and not (labels[cut][0] == "track"
                                  and (labels[cut][3] - current) % AUDIO_BLOCK_FRAMES == 0):
             cut += 1
         if cut == k or cut == end and (back is None or (back - current) % AUDIO_BLOCK_FRAMES):
+            span = labels[k:end]
+            if (cut == end and back is not None and len(span) > 1
+                    and not steer.keep & {span[0][1], span[-1][1] + 1}
+                    and len({label[2] ^ _audio_due(track, label[1], current) for label in span}) == 1
+                    and len({label[3] if label[0] == "track" else None for label in span}) > 1
+                    and all(label[2] != _audio_due(track, label[1], back) for label in span)):
+                for label in span:
+                    label[0], label[3] = "bad", span[0][1]
             return end
         end, ahead = cut, labels[cut][3] if cut < len(labels) else back
         masks = {offset: {label[2] ^ _audio_due(track, label[1], offset) for label in labels[k:end]}
@@ -4144,17 +4173,71 @@ def _audio_excursion(track: _AudioTrack, labels: list[list], k: int, current: in
         if len(masks[ahead]) == 1 and 0 not in masks[ahead] and (
                 len(masks[current]) > 1 or bin(*masks[ahead]).count("1") < bin(*masks[current]).count("1")):
             steer.judge[labels[k][1]] = current = ahead
-    span = labels[k:end]
-    if steer.keep & {span[0][1], span[-1][1] + 1}:
-        return end
-    if len(span) == 1:
-        if span[0][0] == "bad" or _audio_duplicate(track, labels, k):
-            return end
-    elif len({label[2] ^ _audio_due(track, label[1], current) for label in span}) > 1:
-        return end
-    for label in span:
-        label[0], label[3] = "bad", None
+    if not steer.keep & {labels[k][1], labels[end - 1][1] + 1}:
+        _audio_corruption(track, labels, k, end, current)
     return end
+
+
+def _audio_return(track: _AudioTrack, labels: list[list], k: int, end: int, current: int) -> int:
+    """The label index where an excursion that returns to `current` really returns.
+
+    Words fitted to another offset of whole blocks may fit the offset in
+    force too. When only the leading stretch does not, the excursion is that
+    stretch and returns at the next word. So does a leading stretch under one
+    mask that no single offset of whole blocks explains, before the first
+    word that fits the offset in force: a corruption, not a slip, so that word
+    and the coincident words after it are its return, and what follows is
+    graded on its own.
+    """
+    fits = [r for r in range(k + 1, end)
+            if labels[r][0] == "track" and labels[r][2] == _audio_due(track, labels[r][1], current)]
+    if fits and fits == list(range(fits[0], end)):
+        for label in labels[fits[0]:end]:
+            label[0], label[3] = "track", current
+        return fits[0]
+    if fits:
+        lead = labels[k:fits[0]]
+        offsets = {label[3] if label[0] == "track" else None for label in lead}
+        if (len({label[2] ^ _audio_due(track, label[1], current) for label in lead}) == 1
+                and (len(offsets) > 1 or None in offsets or (offsets.pop() - current) % AUDIO_BLOCK_FRAMES)):
+            back = fits[0]
+            while back in fits:
+                labels[back][0], labels[back][3] = "track", current
+                back += 1
+            return fits[0]
+    return end
+
+
+def _audio_corruption(track: _AudioTrack, labels: list[list], k: int, end: int, current: int) -> None:
+    """Relabel the net-zero excursion labels[k:end] as corruption where it must be.
+
+    One word is a corruption unless it equals a neighbouring received word, a
+    repeat. Two or more words whose XOR with the track is one constant mask
+    are one corruption. When no single offset explains the words, a word at
+    either end off the mask the others share is its own one-word corruption,
+    and so is each word of a two-word excursion under two masks; a corrupted
+    label's fourth field groups the words of one corruption, so a word beside
+    it is never merged in. Otherwise each change of position is its own slip.
+    """
+    span = labels[k:end]
+    if len(span) == 1:
+        if span[0][0] != "bad" and not _audio_duplicate(track, labels, k):
+            span[0][0], span[0][3] = "bad", None
+        return
+    masks = [label[2] ^ _audio_due(track, label[1], current) for label in span]
+    first, last = 0, len(span)
+    if len(set(masks)) > 1:
+        if span[0][0] == "track" and len({label[3] if label[0] == "track" else None for label in span}) == 1:
+            return
+        for first, last in ((1, len(span)), (0, len(span) - 1), (1, len(span) - 1)):
+            if (last - first > 1 or len(span) == 2) and len(set(masks[first:last])) == 1 and all(
+                    span[i][0] == "bad" or not _audio_duplicate(track, labels, k + i)
+                    for i in (*range(first), *range(last, len(span)))):
+                break
+        else:
+            return
+    for i, label in enumerate(span):
+        label[0], label[3] = "bad", span[first][1] if first <= i < last else None
 
 
 def _audio_slip(track: _AudioTrack, index: int, old: int, new: int, stretch: int,
@@ -4178,6 +4261,17 @@ def _audio_slip(track: _AudioTrack, index: int, old: int, new: int, stretch: int
     if first < last:
         event["located_within"] = [first, last]
     return event
+
+
+def _audio_net(events: Iterable[dict]) -> int:
+    """The signed shift of the content that `events` read as: drops ahead, repeats and inserted silence back."""
+    net = 0
+    for event in events:
+        if event["class"] in ("dropped", "repeated"):
+            net += event["n"] if event["class"] == "dropped" else -event["n"]
+        elif event["class"] == "silence" and event.get("inserted"):
+            net -= event["n"]
+    return net
 
 
 def _audio_upto(track: _AudioTrack, labels: list[list], k: int, offset: int, final: int | None) -> int:
@@ -4215,7 +4309,11 @@ def _audio_open(track: _AudioTrack, run: list[list], stretch: int) -> dict:
 
 def _audio_extend(events: list, run: dict | None, cls: str, label: list, track: _AudioTrack,
                   current: int | None) -> dict:
-    """Open or extend a corruption or swap run with one word."""
+    """Open or extend a corruption or swap run with one word.
+
+    A run grows only with the next word of its class and its partner: for a
+    corrupted word, the group `_audio_corruption` gave it.
+    """
     _, index, word, partner = label
     due = None if current is None or track.own is None else _audio_due(track, index, current)
     match = None
@@ -4445,7 +4543,8 @@ class _AudioImage:
 class _CounterSlot:
     """One capture channel: the number it should carry and the track it follows."""
 
-    __slots__ = ("want", "tag", "position", "window", "previous", "since", "timeline", "acquired", "image")
+    __slots__ = ("want", "tag", "position", "window", "previous", "since", "timeline", "acquired", "image",
+                 "shift", "reported")
 
     def __init__(self, want: int) -> None:
         self.want, self.tag, self.position = want, None, None
@@ -4455,6 +4554,8 @@ class _CounterSlot:
         #: The capture index of the 64 clean samples that first fixed the track.
         self.acquired = None
         self.image = None
+        #: The content shift the closing samples decode since acquisition, and the one the recorded slips sum to.
+        self.shift = self.reported = 0
 
 
 class _CounterScan:
@@ -4551,8 +4652,9 @@ class _CounterScan:
         index its tolerance allows, judged against the offset in force or the
         closing one. A slip arm that it misses is tried as the slip into or out
         of an excursion read as a corruption. Another reading is taken only when
-        it has no more DUT events and finds more arms, so it never hides a DUT
-        event.
+        it has fewer DUT events, or as many and finds more arms, so it never
+        hides a DUT event. A reading whose slips do not sum to the shift the
+        closing samples decode is never taken while one that does exists.
         """
         body = tokens[:-AUDIO_CONFIRM_FRAMES] if track.resync else tokens
         last = tokens[-1]
@@ -4565,7 +4667,13 @@ class _CounterScan:
                  for arm in arms if arm["class"] != "bit-flip"]
         read = _audio_window_events(track, _audio_labels(track, body, final), final,
                                     _AudioSteer(slips, self.tolerance))
-        best = (self._score(read[0], arms), read)
+        balance = final is not None and not track.acquiring
+
+        def ranked(events: list) -> tuple:
+            """(unbalanced, DUT events, minus the arms found) of one reading."""
+            return (balance and _audio_net(events) != final, *self._score(events, arms))
+
+        best = (ranked(read[0]), read)
         for arm in arms:
             if any(_audio_arm_found(e, arm, self.tolerance) for e in read[0]):
                 continue
@@ -4573,7 +4681,7 @@ class _CounterScan:
                 keep = frozenset(range(arm["index"] - self.tolerance, arm["index"] + self.tolerance + 1))
                 other = _audio_window_events(track, _audio_labels(track, body, final), final,
                                              _AudioSteer(slips, self.tolerance, keep=keep))
-                score = self._score(other[0], arms)
+                score = ranked(other[0])
                 if score < best[0]:
                     best = (score, other)
                 continue
@@ -4583,7 +4691,7 @@ class _CounterScan:
                     forced = {index: judged}
                     other = _audio_window_events(cut[0], _audio_labels(cut[0], cut[1], final, forced), final,
                                                  _AudioSteer(slips, self.tolerance, forced))
-                    score = self._score(other[0], arms)
+                    score = ranked(other[0])
                     if score < best[0]:
                         best = (score, other)
         return best[1]
@@ -4626,29 +4734,79 @@ class _CounterScan:
         """Hold the slips into a track that is the old one under one mask; the events to record now.
 
         Only the window's trailing words under the closing mask decide, so an
-        event before them is recorded and never stops the hold.
+        event before them is recorded and never stops the hold. The old one is
+        the track at the offset in force where those words begin: the window's
+        opening offset or one the reading reaches, whichever leaves the longest
+        masked run, so a slip before the excursion sizes it. What is recorded
+        now must end on that offset, as the bytes do, so a reading that reaches
+        another is read again with the masked words restored, and the held
+        slips are the ones those words read as from it.
         """
         if slot.image is not None or not final or track.resync is None or track.resync[1] != slot.tag:
             return events
 
-        def xor(token: tuple) -> int | None:
-            """The word's XOR with the old track; None for silence."""
-            return None if token[0] == "Z" else token[2] ^ _audio_due(track, token[1], 0)
+        def masked(offset: int) -> tuple[int, int]:
+            """(k, mask): tokens[k:] are the track at `offset` under one nonzero mask."""
+            def xor(token: tuple) -> int | None:
+                """The word's XOR with the track at `offset`; None for silence."""
+                return None if token[0] == "Z" else token[2] ^ _audio_due(track, token[1], offset)
 
-        mask, k = xor(tokens[-1]), len(tokens)
-        while mask and k and xor(tokens[k - 1]) == mask:
-            k -= 1
-        if not mask or k == len(tokens):
-            return events
+            mask, k = xor(tokens[-1]), len(tokens)
+            while mask and k and xor(tokens[k - 1]) == mask:
+                k -= 1
+            return (k, mask) if mask else (len(tokens), 0)
+
+        offsets, reached = [0], 0
+        for event in events:
+            reached += _audio_net((event,))
+            offsets.append(reached)
+        runs = [(*masked(offset), offset) for offset in dict.fromkeys(offsets)]
+        for run in sorted(runs, key=lambda run: run[0]):
+            split = self._split(track, events, tokens, run, final) if run[0] < len(tokens) else None
+            if split is not None:
+                before, held, at = split
+                slot.image = _AudioImage(slot.tag, track.base + at - track.start + run[2], at, run[1], held)
+                return before
+        return events
+
+    def _split(self, track: _AudioTrack, events: list, tokens: list, run: tuple,
+               final: int) -> tuple[list, list, int] | None:
+        """(recorded, held, start) of a hold of tokens[k:] under `mask` over the track at `offset`, or None.
+
+        `run` is (k, mask, offset).
+
+        None when the reading has no slip that may lie in the masked words, so
+        there is nothing to hold, or when the words before them cannot be read
+        apart from the masked ones.
+        """
+        k, mask, offset = run
         at = tokens[k][1]
         for event in events:
             if event["capture_index"] < at < event["capture_index"] + event["n"] and event["class"] == "bit-flip":
                 at = event["capture_index"] + event["n"]
+        before = [event for event in events if event["capture_index"] < at]
         held = [event for event in events if event["capture_index"] >= at]
+        if not any(event["class"] in ("dropped", "repeated")
+                   and event.get("located_within", [at - 1, event["capture_index"]])[1] >= at for event in events):
+            return None
+        if _audio_net(before) != offset:
+            at, found = tokens[k][1], track.resync
+            words = tokens[:k] + [(token[0], token[1], token[2] ^ mask, None) for token in tokens[k:]]
+            if any(token[0] != "W" or token[2] != _audio_due(track, token[1], offset)
+                   for token in words[-AUDIO_CONFIRM_FRAMES:]):
+                return None
+            restored = replace(track, follows=words[-AUDIO_CONFIRM_FRAMES][2], resync=(
+                found[0], found[1], (track.base + found[0] - track.start + offset) % AUDIO_PERIOD_FRAMES))
+            before, _ = self._read(restored, words, offset)
+            previous = track.previous if k == 0 else tokens[k - 1][2] if tokens[k - 1][0] == "W" else 0
+            excursion = replace(track, start=at, base=track.base + at - track.start + offset, previous=previous,
+                                since=at)
+            held, _ = self._read(excursion, tokens[k:], final - offset)
+            if any(event["capture_index"] >= at for event in before):
+                return None
         if not any(event["class"] in ("dropped", "repeated") for event in held):
-            return events
-        slot.image = _AudioImage(slot.tag, track.base + at - track.start, at, mask, held)
-        return [event for event in events if event["capture_index"] < at]
+            return None
+        return before, held, at
 
     def _partner(self, channel: int, word: int, data: Sequence[int], k: int) -> int | None:
         """The channel this word was exchanged with, when the exchange is reciprocal."""
@@ -4678,6 +4836,7 @@ class _CounterScan:
             final = 0 if acquiring else _audio_signed(found[2] - (base + found[0] - window.start))
         body = window.tokens[:-AUDIO_CONFIRM_FRAMES] if found else window.tokens
         events, offset = self._read(track, window.tokens, final)
+        truth = None if acquiring else final if found is not None else offset
         image, tokens = slot.image, window.tokens
         if image is not None:
             back = (None if found is None or found[1] != image.tag
@@ -4692,8 +4851,16 @@ class _CounterScan:
                 self._release(channel, "the capture ended inside a constant-mask excursion"
                               if reason == AUDIO_END_REASON else None)
         events = self._hold(slot, track, events, tokens, None if acquiring else final)
+        if truth is not None:
+            slot.shift += truth
+            held = 0 if slot.image is None else _audio_net(slot.image.events)
+            if slot.reported + _audio_net(events) + held != slot.shift:
+                events = [self._unbalanced(track, window, found)]
+                slot.reported = slot.shift - held
         for event in events:
             self._record(channel, event)
+        if acquiring:
+            slot.shift = slot.reported
         if found is not None:
             if acquiring and slot.acquired is None:
                 slot.acquired = found[0]
@@ -4703,7 +4870,25 @@ class _CounterScan:
         elif own is not None and base is not None and offset is not None:
             slot.position, slot.since = base + window.end() - window.start + offset, window.end()
 
+    def _unbalanced(self, track: _AudioTrack, window: _CounterWindow, found: tuple | None) -> dict:
+        """The window as one unresolved event: no reading's slips sum to the shift its bytes decode.
+
+        Every reading balances by construction, so this is the guard behind
+        it: the window is an unclassified corruption at its first sample,
+        never a slip that did not happen.
+        """
+        end = found[0] + 1 if found is not None else window.end()
+        mask = 0
+        for token in window.tokens:
+            if token[0] == "W" and token[1] < end:
+                mask |= token[2] ^ _audio_due(track, token[1], 0)
+        first = window.tokens[0]
+        return {"capture_index": window.start, "class": "unresolved", "n": end - window.start,
+                "expected": _audio_due(track, window.start, 0), "received": first[2] if first[0] == "W" else 0,
+                "mask": mask, "located_within": [window.start, end - 1], "unresolved": AUDIO_UNBALANCED_REASON}
+
     def _record(self, channel: int, event: dict) -> None:
+        self.slots[channel].reported += _audio_net((event,))
         if len(self.events) >= self.limit:
             self.unrecorded += 1
             return
@@ -8810,6 +8995,27 @@ class _ReleaseGateChecks:
         verdict, detail, dut = self._independent([("xor", 250 + k, 1, 0x80000) for k in range(100)])
         self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
         self.assertEqual({e[2] for e in dut}, {"dropped", "repeated"})
+        # With no clean word between, across a block boundary or under a mask that leaves the channel
+        # number, the neighbour is still its own one-word event; a slip at the return is that slip.
+        for begin, length, mask, flip, sites in ((4080, 64, 0x100, 0x80000, (4079,)),
+                                                  (4080, 64, 0x100, 0x80000, (4144,)),
+                                                  (4089, 64, 0x80000, 0x100, (4088, 4153)),
+                                                  (6140, 65, 0x100, 0x80000, (6139, 6205)),
+                                                  (3000, 100, 0x00F00F00, 0x100, (2999,)),
+                                                  (3000, 100, 0x00F00F00, 0x100, (3100,))):
+            ops = [("xor", begin + k, 2, mask) for k in range(length)] + [("xor", at, 2, flip) for at in sites]
+            with self.subTest(begin=begin, mask=mask, sites=sites):
+                verdict, detail, dut = self._independent(ops)
+                self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+                self.assertEqual(dut, sorted([(2, begin, "bit-flip", length, f"0x{mask:08X}", None)] + [
+                    (2, at, "bit-flip", 1, f"0x{flip:08X}", None) for at in sites]))
+        for begin, length, mask, n in ((4089, 64, 0x80000, 3), (4089, 65, 0x40000, -2), (6143, 64, 0x80100, -2)):
+            ops = [("xor", begin + k, 2, mask) for k in range(length)] + [("shift", begin + length, n)]
+            with self.subTest(begin=begin, mask=mask, n=n):
+                verdict, detail, dut = self._independent(ops)
+                self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+                self.assertEqual(dut, sorted([(2, begin, "bit-flip", length, f"0x{mask:08X}", None)] + [
+                    (c, begin + length, "dropped" if n > 0 else "repeated", abs(n), None, None) for c in range(4)]))
 
     def test_audio_code_bit_corruption_ending_on_a_block(self) -> None:
         """L3 #396: a code-bit corruption over whole blocks is one bit-flip wherever it ends;
@@ -8822,6 +9028,287 @@ class _ReleaseGateChecks:
                     verdict, detail, dut = self._independent(ops, frames=frames)
                     self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
                     self.assertEqual(dut, [(2, begin, "bit-flip", end - begin, "0x00000100", None)])
+
+    #: Issue #396 composition sweep: one mask for each class of bits a corruption can touch: the
+    #: code bit, position bit 0, four position bits, position bits 9 and 10, bit 10 with the code
+    #: bit, a channel-number bit and a pad bit.
+    _SWEEP_MASKS = (0x100, 0x200, 0x1E00, 0x40000, 0x80000, 0x80100, 0x100000, 0x01000000)
+
+    @staticmethod
+    def _sweep_arms(frames: int) -> list:
+        """(class, index, size or mask, channel) of the arms the composition sweep plants and logs."""
+        return [("dropped", 300, 3, None), ("repeated", 500, 2, None), ("bit-flip", 700, 0x100, 1),
+                ("dropped", frames - 700, 3, None), ("repeated", frames - 450, 2, None),
+                ("bit-flip", frames - 200, 0x100, 1)]
+
+    def _sweep_log(self, frames: int) -> list:
+        """The sweep's arms as the source logs them."""
+        return [{"class": cls, "index": index, "mask": size, "channel": channel} if cls == "bit-flip"
+                else {"class": cls, "index": index, "n": size}
+                for cls, index, size, channel in self._sweep_arms(frames)]
+
+    def _sweep_shift(self, frames: int, index: int) -> int:
+        """The content shift the sweep's slip arms put in force at capture index `index`."""
+        return sum(size if cls == "dropped" else -size for cls, at, size, _ in self._sweep_arms(frames)
+                   if cls != "bit-flip" and at <= index)
+
+    def _sweep_grade(self, frames: int, extra: list, channels: int = 4) -> tuple[str, dict, list]:
+        """Grade the sweep's arms and `extra` synthesizer events at the release arm tolerance of 2.
+
+        Returns the verdict, the detail and each channel's received words.
+        """
+        from array import array
+        source = [{"kind": "flip", "index": index, "channel": channel, "mask": size} if cls == "bit-flip"
+                  else {"kind": "drop" if cls == "dropped" else "repeat", "index": index, "n": size}
+                  for cls, index, size, channel in self._sweep_arms(frames)]
+        capture = synthesize_counter_capture(frames, channels, byteorder=sys.byteorder, events=source + extra)
+        verdict, detail = grade_audio_counter_capture(
+            capture, CounterCapture(channels, sys.byteorder, 48000, 0.0, 0.0),
+            CounterRunLog(self._sweep_log(frames), [], 2), required_s=(frames - 2 * 63) / 48000)
+        words = array("I", capture)
+        return verdict, detail, [words[channel::channels] for channel in range(channels)]
+
+    def _sweep_independent(self, frames: int, ops: list) -> tuple[str, dict]:
+        """Grade `_independent_bytes` of the sweep's arms and `ops` at the release arm tolerance of 2."""
+        arms = [("xor", index, channel, size) if cls == "bit-flip"
+                else ("shift", index, size if cls == "dropped" else -size)
+                for cls, index, size, channel in self._sweep_arms(frames)]
+        return grade_audio_counter_capture(
+            self._independent_bytes(arms + ops, frames, arms=False), CounterCapture(4, "big", 48000, 0.0, 0.0),
+            CounterRunLog(self._sweep_log(frames), [], 2), required_s=(frames - 2 * 63) / 48000)
+
+    def _sweep_class(self, case: tuple, column) -> str:
+        """The class one corruption beside one arm falls in, decided from the bytes alone.
+
+        "void-flip": on a flip arm's own word, or beside it under the arm's mask, on its channel.
+        "void-position": on a slip arm's sample or the one before it, the corrupted word being its
+        channel's word at another position at most half a block from the old or the new track's.
+        "neighbour": a corrupted word equal to a received neighbour. "first": on a slip arm's
+        sample or the next one. "exact": any other.
+        """
+        frames, (cls, index, size, arm_channel), d, channel, mask = case
+        at, word = index + d, column[index + d]
+        if cls == "bit-flip" and channel == arm_channel and (d == 0 or abs(d) == 1 and mask == size):
+            return "void-flip"
+        if cls != "bit-flip" and d in (-1, 0):
+            true = at + self._sweep_shift(frames, at)
+            for base in (at + self._sweep_shift(frames, index - 1), at + self._sweep_shift(frames, index)):
+                delta = ((word >> 9) - base) % AUDIO_BLOCK_FRAMES
+                for q in (base + delta, base + delta - AUDIO_BLOCK_FRAMES):
+                    if abs(q - base) <= AUDIO_BLOCK_FRAMES // 2 and q != true and self._word(channel + 1, q) == word:
+                        return "void-position"
+        if word in (column[at - 1], column[at + 1]):
+            return "neighbour"
+        return "first" if cls != "bit-flip" and d in (0, 1) else "exact"
+
+    def _sweep_case(self, case: tuple, near: list, column) -> None:
+        """Check one exact, neighbour or first case: the arm's event and the corruption's, or its stated reading."""
+        frames, (cls, index, size, arm_channel), d, channel, mask, kind = case
+        at = index + d
+        if cls == "bit-flip":
+            own = [e for e in near if channel == arm_channel and e["capture_index"] == index
+                   and (e["class"], e["n"], e["mask"]) == (cls, 1, f"0x{size:08X}")]
+        else:
+            own = [e for e in near if e["class"] == cls and e["n"] == size and index <= e["capture_index"] <= index + 2]
+        self.assertEqual(len(own), 0 if cls == "bit-flip" and channel != arm_channel else 1, near)
+        rest = [(e["capture_index"], e["class"], e["n"], e.get("mask")) for e in near if e not in own]
+        if rest == [(at, "bit-flip", 1, f"0x{mask:08X}")] and (not own or own[0]["capture_index"] == index):
+            return
+        self.assertIn(kind, ("neighbour", "first"), near)
+        if kind == "neighbour":
+            self.assertEqual(rest[0][0::2] + rest[1][0::2], (at, 1, at + 1, 1), near)
+            self.assertEqual({rest[0][1], rest[1][1]}, {"dropped", "repeated"}, near)
+            return
+        # The stated reading: the corruption first, judged against the offset before the slip, the slip after it.
+        (first, flip, one, masked), moved = rest[0], own[0]["capture_index"]
+        self.assertEqual((len(rest), flip, one), (1, "bit-flip", 1), near)
+        self.assertTrue(first < moved <= index + 2, near)
+        old, new = self._sweep_shift(frames, index - 1), self._sweep_shift(frames, index)
+        for i in range(first, moved + AUDIO_CONFIRM_FRAMES):
+            want = self._word(channel + 1, i + (old if i < moved else new)) ^ (int(masked, 16) if i == first else 0)
+            self.assertEqual(column[i], want, (i, near))
+
+    def _sweep_check(self, case: tuple, graded: tuple) -> None:
+        """Check one composition-sweep capture: each case's class from its bytes, then its reading."""
+        frames, d, mask, pair = case
+        verdict, detail, columns = graded
+        self.assertNotIn(AUDIO_UNBALANCED_REASON, {e.get("unresolved") for e in detail["events"]})
+        voids = set()
+        for arm in self._sweep_arms(frames):
+            cls, index, size, arm_channel = arm
+            for channel in pair:
+                column = columns[channel]
+                planted = size if cls == "bit-flip" and channel == arm_channel and d == 0 else 0
+                self.assertEqual(column[index + d], self._word(channel + 1, index + d + self._sweep_shift(
+                    frames, index + d)) ^ mask ^ planted)
+                kind = self._sweep_class((frames, arm, d, channel, mask), column)
+                near = [e for e in detail["events"] if e["channel"] == channel and abs(e["capture_index"] - index) <= 8]
+                # Every reading balances: the slips beside an arm sum to the arm's own shift.
+                self.assertEqual(_audio_net(near), 0 if cls == "bit-flip" else size if cls == "dropped" else -size,
+                                 (arm, channel, kind, near))
+                if kind.startswith("void"):
+                    voids.add(index)
+                    continue
+                self._sweep_case((frames, arm, d, channel, mask, kind), near, column)
+        self.assertEqual((verdict, sorted(arm["index"] for arm in detail["planted_missed"])),
+                         ("NOT RUN", sorted(voids)) if voids else ("FAIL", []), detail["why"])
+
+    def _sweep_mirrored(self, frames: int, slip: dict, detail: dict, column) -> None:
+        """The stated limit for a slip located away from its sample beside a flip arm: the bytes are
+        that slip where the reading puts it, with the arm's code bit moved to the word the reading
+        flips, within the tolerance."""
+        flips = [e for e in detail["events"] if e["channel"] == slip["channel"] and e["class"] == "bit-flip"]
+        arm = next(a for a in self._sweep_arms(frames) if a[0] == "bit-flip" and a[3] == slip["channel"]
+                   and abs(a[1] - slip["capture_index"]) <= 8)
+        flip = next(e for e in flips if abs(e["capture_index"] - arm[1]) <= 2 and e["mask"] == "0x00000100")
+        size = slip["n"] if slip["class"] == "dropped" else -slip["n"]
+        at, old = slip["capture_index"], self._sweep_shift(frames, slip["capture_index"])
+        for i in range(min(at, arm[1]) - 2, max(at, arm[1]) + AUDIO_CONFIRM_FRAMES):
+            want = self._word(slip["channel"] + 1, i + old + (size if i >= at else 0))
+            self.assertEqual(column[i], want ^ (0x100 if i == flip["capture_index"] else 0), (i, slip, flip))
+
+    def test_audio_composition_sweep(self) -> None:
+        """L3 #396 REQ-VER-06: a one-word corruption 0 to 4 samples from each planted arm, on every
+        channel, under each class of mask, on two capture lengths at the release tolerance, is graded
+        exactly or as the stated limit its bytes fall in, and every reading balances.
+
+        Each capture carries one case beside each of its six arms, on two channels whose numbers no
+        one mask exchanges; its arms are 200 samples or more apart, so their windows never meet.
+        """
+        for frames in (8192, 16384):
+            for d in range(-4, 5):
+                for mask in self._SWEEP_MASKS:
+                    for pair in ((0, 1), (2, 3)):
+                        extra = [{"kind": "flip", "index": arm[1] + d, "channel": channel, "mask": mask}
+                                 for arm in self._sweep_arms(frames) for channel in pair]
+                        with self.subTest(frames=frames, d=d, mask=hex(mask), pair=pair):
+                            self._sweep_check((frames, d, mask, pair), self._sweep_grade(frames, extra))
+        # The stated voids, one of each: a word of another position before a slip arm and on it, the
+        # flip arm's own word, and the word beside it under its mask.
+        for at, channel, mask in ((299, 0, 0x40000), (500, 2, 0x80000), (700, 1, 0x200), (701, 1, 0x100)):
+            verdict, detail, _ = self._sweep_grade(8192, [{"kind": "flip", "index": at, "channel": channel,
+                                                           "mask": mask}])
+            self.assertEqual((verdict, detail["why"]), ("NOT RUN", "void: a planted arm was missed"), at)
+
+    def test_audio_slip_before_a_constant_mask(self) -> None:
+        """L3 #396 REQ-VER-06: a drop of 3 or a repeat of 2 on every channel, 1 to 64 samples before a
+        constant-mask excursion of 64 to 2049 words at three block positions, leaves the excursion one
+        bit-flip and the slip exact. Each capture carries the excursion on five channels, one mask each:
+        the channel numbers no mask here makes another channel's."""
+        masks = (0x80000, 0x40000, 0x100, 0x00F00F00, 0x80100)
+        for length in (64, 65, 100, 300, 2049):
+            for begin in (3000, 4089, 6143):
+                for gap in (1, 2, 17, 63, 64):
+                    for n in (3, -2):
+                        extra = [{"kind": "drop" if n > 0 else "repeat", "index": begin - gap, "n": abs(n)}]
+                        extra += [{"kind": "flip", "index": begin + k, "channel": channel, "mask": mask}
+                                  for channel, mask in enumerate(masks) for k in range(length)]
+                        verdict, detail, _ = self._sweep_grade(16384, extra, channels=len(masks))
+                        with self.subTest(length=length, begin=begin, gap=gap, n=n):
+                            self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+                            slip = (begin - gap, "dropped" if n > 0 else "repeated", abs(n), "")
+                            for channel, mask in enumerate(masks):
+                                got = [(e["capture_index"], e["class"], e["n"], e.get("mask", ""))
+                                       for e in detail["events"]
+                                       if e["attribution"] == "dut" and e["channel"] == channel]
+                                self.assertEqual(sorted(got), [slip, (begin, "bit-flip", length, f"0x{mask:08X}")])
+
+    def test_audio_slip_totals_balance_the_bytes(self) -> None:
+        """L3 #396 REQ-VER-06: the slips a reading reports sum, on every channel, to the shift its
+        closing samples decode; a reading that does not is never taken, and where none does the
+        window is one unclassified corruption, never a slip that did not happen."""
+        def excursion(begin: int, length: int, mask: int) -> list:
+            """Channel 2's words from `begin` under `mask`."""
+            return [("xor", begin + k, 2, mask) for k in range(length)]
+
+        # A one-word corruption 1 to 4 samples before a constant-mask excursion, near a block boundary,
+        # is never a whole-block slip that never returns; nor beside both ends of a code-bit excursion.
+        for neighbours, begin, length, mask in (([(4085, 0x100)], 4088, 100, 0x80000),
+                                                ([(4087, 0x80000)], 4089, 100, 0x80100),
+                                                ([(2997, 0x100)], 3000, 100, 0x80000),
+                                                ([(4078, 0x80000), (4145, 0x80000)], 4080, 64, 0x100),
+                                                ([(4077, 0x80000), (4146, 0x80000)], 4080, 64, 0x100),
+                                                ([(4092, 0x80000)], 4094, 64, 0x100),
+                                                ([(4086, 0x80000)], 4088, 64, 0x100)):
+            ops = excursion(begin, length, mask) + [("xor", at, 2, flip) for at, flip in neighbours]
+            with self.subTest(neighbours=neighbours, begin=begin):
+                verdict, detail, dut = self._independent(ops)
+                self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+                self.assertEqual(dut, sorted([(2, begin, "bit-flip", length, f"0x{mask:08X}", None)] + [
+                    (2, at, "bit-flip", 1, f"0x{flip:08X}", None) for at, flip in neighbours]))
+                for channel in range(4):
+                    self.assertEqual(_audio_net(e for e in detail["events"] if e["channel"] == channel), 2)
+        from unittest.mock import patch
+        # The guard: a reading that loses a slip is never recorded as read.
+        read = _CounterScan._read
+
+        def lossy(scan: _CounterScan, track: _AudioTrack, tokens: list, final: int | None) -> tuple:
+            """The reading with its slip of 1024 lost."""
+            events, offset = read(scan, track, tokens, final)
+            return [e for e in events if e["n"] != 1024], offset
+
+        with patch.object(_CounterScan, "_read", lossy):
+            verdict, detail, dut = self._independent([("shift", 3000, 1024), ("xor", 2990, 2, 0x01000000)])
+        self.assertEqual(verdict, "FAIL", detail["why"])
+        self.assertEqual(dut, sorted([(c, 3000, "unresolved", 1, "0x00080000", None) for c in (0, 1, 3)]
+                                     + [(2, 2990, "unresolved", 11, "0x01080000", None)]))
+        self.assertEqual({e["unresolved"] for e in detail["events"] if e["attribution"] == "dut"},
+                         {AUDIO_UNBALANCED_REASON})
+        # A reading with fewer DUT events that does not balance is never taken over one that does.
+        events = _audio_window_events
+
+        def tempting(track: _AudioTrack, labels: list, final: int | None, steer: _AudioSteer | None = None) -> tuple:
+            """An arm-led reading that finds the arm with one DUT event but loses a sample."""
+            read = events(track, labels, final, steer)
+            if steer is not None and steer.keep:
+                arm = {"capture_index": 300, "class": "dropped", "n": 3, "expected": 0, "received": 0}
+                return [arm, dict(arm, capture_index=301, **{"class": "repeated", "n": 1})], read[1]
+            return read
+
+        with patch.dict(globals(), {"_audio_window_events": tempting}):
+            verdict, detail, _ = self._sweep_grade(8192, [{"kind": "flip", "index": 299, "channel": 0,
+                                                            "mask": 0x40000}])
+        self.assertEqual((verdict, [arm["index"] for arm in detail["planted_missed"]]), ("NOT RUN", [300]))
+        self.assertNotIn(AUDIO_UNBALANCED_REASON, {e.get("unresolved") for e in detail["events"]})
+        self.assertEqual(sorted((e["capture_index"], e["class"], e["n"]) for e in detail["events"]
+                                if e["channel"] == 0 and 290 < e["capture_index"] < 310),
+                         [(299, "dropped", 512), (300, "repeated", 509)])
+
+    def test_audio_arm_interplay_at_the_release_tolerance(self) -> None:
+        """L3 #396: at the release arm tolerance of 2, a DUT slip of whole blocks beside a planted flip
+        arm, on two capture lengths, and a slip arm inside a cluster of slips of whole blocks, fail with
+        every arm found and every reading balanced; a flip arm is found only as one word under its mask."""
+        for frames, at, n in ((16384, 16185, -2048), (16384, 16185, 8192), (16384, 701, 4096),
+                              (8192, 7993, -2048), (8192, 699, -2048), (8192, 702, 4096), (8192, 3000, 4096)):
+            source = [{"kind": "drop" if n > 0 else "repeat", "index": at, "n": abs(n)}]
+            verdict, detail, columns = self._sweep_grade(frames, source)
+            with self.subTest(frames=frames, at=at, n=n):
+                self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+                dut = [e for e in detail["events"] if e["attribution"] == "dut"]
+                self.assertEqual(sorted((e["channel"], e["class"], e["n"]) for e in dut),
+                                 [(c, "dropped" if n > 0 else "repeated", abs(n)) for c in range(4)])
+                for event in dut:
+                    low, high = event.get("located_within", (event["capture_index"],) * 2)
+                    if low <= at <= high:
+                        continue
+                    self._sweep_mirrored(frames, event, detail, columns[event["channel"]])
+        # A slip arm inside a cluster of slips of whole blocks is split from them within the tolerance.
+        frames = 16384
+        for ops in ([("xor", 15664, 0, 0x100), ("shift", 15684, -4096), ("shift", 15696, -4096)],
+                    [("shift", 15667, -4096, 0), ("xor", 15677, 2, 0x100), ("shift", 15705, -4096)],
+                    [("shift", 15639, 8192), ("shift", 15661, 1024, 0), ("shift", 15693, 4096)]):
+            with self.subTest(ops=ops):
+                verdict, detail = self._sweep_independent(frames, ops)
+                self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+                for channel in range(4):
+                    shifts = [op[2] for op in ops if op[0] == "shift" and (len(op) < 4 or op[3] == channel)]
+                    self.assertEqual(_audio_net(e for e in detail["events"] if e["channel"] == channel),
+                                     sum(shifts) + 2)
+        # A slip of half a block before the flip arm is a slip, not an excursion its arm word interrupts.
+        verdict, detail, _ = self._sweep_grade(frames, [{"kind": "drop", "index": 684, "n": 1024}])
+        self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+        self.assertEqual(sorted((e["channel"], e["capture_index"], e["class"], e["n"]) for e in detail["events"]
+                                if e["attribution"] == "dut"), [(c, 684, "dropped", 1024) for c in range(4)])
 
     def test_audio_anchor_gaps_are_reported(self) -> None:
         """L3 #396: stretches the capture tool left unanchored are named; the verdict stands."""

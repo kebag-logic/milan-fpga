@@ -1338,23 +1338,44 @@ These rules decide, in order, between patterns that look alike:
    A one-sample hold reads as 1 repeated and then 1 dropped.
    A skip followed by a hold reads as 1 dropped and then 1 repeated.
 4. Two or more words that leave the track and return, with one XOR mask against it, are one `bit-flip`, at any length.
+   A word at either end under another mask is its own one-word `bit-flip` when no single offset explains the excursion.
+   So is each word of a two-word excursion under two masks that no single offset explains.
    Otherwise each change of position is its own slip.
 
 Rules 3 and 4 judge each departure against the offset in force when it leaves.
 They judge again after every slip, so a slip and a corruption in one window are both graded, in either order.
+The exceptions are the planted-arm voids below.
 A word that no offset explains is cut out of its run of positions.
 The offset in force before a change stays a candidate after it.
 So a corrupted word that happens to fit the next track never strands the words after it.
 Each slip takes the smallest size the positions allow.
 A slip of whole blocks is placed at the first word that shows it.
 A departure ends at the first word from which every word up to its return fits the offset in force.
+It also ends at the first word that fits the offset in force after a leading stretch under one mask.
+That holds when no single offset of whole blocks explains the stretch; the coincident words after it are its return.
+An excursion under one mask that ends in a slip is one `bit-flip` and that slip.
+That holds when no single offset explains its words and none is on the slip's track.
+As slips it would be three events or more.
 A slip of whole blocks has a `located_within` that runs back over the words that fit both tracks.
 It runs on to the first word that shows the slip.
 A corrupted word bounds it only where the two tracks differ; elsewhere its mask is the same on either side.
 
+**Every reading balances.**
+On every channel, the slips a reading reports sum to the shift its closing 64 samples decode.
+Inserted silence counts as a slip back.
+A reading that does not balance is never taken while one that does exists.
+A held excursion's slips count until it returns, when its `bit-flip` replaces them.
+The grader keeps that ledger per channel and checks it at every window after acquisition.
+A window no reading balances is one `unresolved` event at its first sample.
+Its reason reads "an unclassified corruption: no reading's slips sum to the shift the bytes decode".
+So no slip that did not happen is ever reported.
+Every reading balances by construction, so this is the guard behind it.
+
 Where the bytes allow two readings, the planted-arm log decides at a logged arm.
-The grader takes the reading that places the arm only when it has no more DUT events.
+The grader takes another reading only when it has fewer DUT events, or as many and more arms found.
 So the log never hides a DUT event, and an arm the capture does not show is still missed.
+It cannot place an arm where the bytes leave no reading that finds it.
+The voids below are those shapes, and a void blocks the release.
 A DUT slip that undoes a planted slip arm at the next sample leaves one displaced word.
 The log reads that word as the arm and the DUT slip, not as a corruption.
 Arms may be planted closer than 64 samples.
@@ -1363,6 +1384,13 @@ A DUT slip beside an arm, at another sample, fails the run with every arm found.
 Sixty-four corrupted words under one mask can decode as another track.
 That track is the old one corrupted, so the grader holds it instead of adopting it.
 Only the window's trailing words under that mask start the hold, so an event before them is graded on its own.
+The old one is the track at the offset in force where those words begin.
+That is the window's opening offset or one the reading reaches, whichever leaves the longest masked run.
+So a slip before the excursion sizes the hold.
+What is recorded before the hold must end on that offset, as the bytes do.
+A reading that does not end there is read again with the masked words restored.
+The held slips are then the ones the masked words read as from that offset.
+A hold is made only where a slip of the reading may lie in the masked words.
 A word that is the old track's own is the return, never a release.
 If the words return to the old track, the whole excursion is one `bit-flip`.
 It ends where the old track's words began, and the rest of the window is graded against the old track.
@@ -1414,7 +1442,14 @@ These limits are stated, and a self-test arm pins each one:
 - At a logged arm, the planted-arm log decides between such readings, as above.
   A DUT slip at a planted slip arm's own sample is one slip of their sum.
   Unless the DUT slip is whole blocks, the arm is then missed and the run is void.
+- A one-word corruption on a planted slip arm's own sample, or the next one, may read first.
+  It is then judged against the offset before the slip, and the slip is placed after it, within the arm tolerance.
+  The bytes are the same either way.
+- Beside a planted flip arm, on its channel, under a slip of whole blocks, the arm's word is the other track's where the two differ.
+  So the bytes may be that slip on the other side of the arm, with the arm's code bit one sample over.
+  Within the tolerance the arm is found, and `located_within` bounds the slip of that reading.
 - A constant-mask corruption that a slip interrupts reads as the slips its words show.
+  So does one whose words a single offset explains up to a slip at its return.
 - At either end of a capture, fewer than 64 clean samples lie beyond a word whose code bit differs.
   So a slip of whole blocks and a code-bit corruption read the same there, and the stretch is one `unresolved` event.
   At the capture's end it runs from the first such word to the end.
@@ -1423,6 +1458,24 @@ These limits are stated, and a self-test arm pins each one:
   That holds in a capture's last samples, and for a held excursion that the capture ends inside.
 - A stretch longer than 65536 words without 64 clean samples is graded in pieces.
   A corruption with one mask stays a `bit-flip` with that mask in each piece; a slip in a piece carries `unresolved`.
+
+Two shapes beside a planted arm void the run, so the release cannot qualify; each event is still listed:
+
+- A corrupted word on a planted slip arm's own sample, or on the one before it, that is another position's word.
+  That is its channel's word at a position at most half a block (1024 samples) from the old or the new track's.
+  It reads as a slip to that position and on to the arm's track, so the arm is missed.
+  A mask that moves sample bits 11:1, with or without the code bit, can do this.
+  The code bit alone, a channel-number bit or a pad bit cannot.
+- A corruption of a planted flip arm's own word, on its channel, combines with the arm's mask.
+  One beside it under the arm's own mask makes a two-word excursion of that mask.
+  Either way the arm is missed.
+
+`test_audio_composition_sweep` grades every placement of these shapes and the rest.
+It covers a one-word corruption 0 to 4 samples before or after each planted arm, on every channel.
+It uses eight mask classes, two capture lengths and the release tolerance of 2.
+Each case is checked against the class its bytes put it in: exact, a stated limit, or one of the voids.
+`test_audio_slip_before_a_constant_mask` grades a short slip 1 to 64 samples before a constant-mask excursion.
+Its excursions run 64 to 2049 words at three block positions, under five masks.
 
 The planted flip arm's mask `0x00000100` flips the code bit alone.
 The word keeps its position bits, so it never equals a neighbour.
