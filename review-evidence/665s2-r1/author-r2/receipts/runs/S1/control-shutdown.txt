@@ -1,0 +1,13 @@
+wait ready
+mark booted
+wait cycles 5000000
+wait quiet 3 within 2000000
+link 0 1
+wait cycles 60000000
+wait quiet 3 within 2000000
+mark settled
+mark control.shutdown.if0
+wait ms 2550
+wait quiet 3 within 2000000
+mark control-shutdown.barrier0
+end

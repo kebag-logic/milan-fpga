@@ -1,0 +1,45 @@
+{
+ "harness": "this head",
+ "late_recipient": {
+  "status": "measured",
+  "reason": null,
+  "end_sys": 1401173,
+  "ms": 14.0,
+  "within_t_svc": false
+ },
+ "missing_recipient": {
+  "status": "no end",
+  "reason": "no notification to ['0a0b0c0d0e0f0001@if1']",
+  "end_sys": null,
+  "ms": null,
+  "within_t_svc": null
+ },
+ "stale_digest_old_build": {
+  "ctrl_app.elf": "refused: reused build is stale: input key 'ctrl_app.elf' does not resolve",
+  "Ram_1w_1rs_Generic.v": "refused: reused build is stale: input key 'ctrl_app.elf' does not resolve",
+  "Ram_1w_1ra_Generic.v": "refused: reused build is stale: input key 'ctrl_app.elf' does not resolve",
+  "VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v": "refused: reused build is stale: input key 'ctrl_app.elf' does not resolve",
+  "sim.v": "refused: reused build is stale: input key 'ctrl_app.elf' does not resolve"
+ },
+ "stale_digest_new_build": {
+  "ctrl_app.elf": "refused: reused build is stale: build:image/ctrl_app.elf changed",
+  "libc.a": "refused: reused build is stale: build:runtime/libc.a changed",
+  "libcompiler_rt.a": "refused: reused build is stale: build:runtime/libcompiler_rt.a changed",
+  "sim_mem.init": "refused: reused build is stale: build:gateware/sim_mem.init changed",
+  "sim_rom_bank0.init": "refused: reused build is stale: build:gateware/sim_rom_bank0.init changed",
+  "sim_rom_bank1.init": "refused: reused build is stale: build:gateware/sim_rom_bank1.init changed",
+  "build:budget_config.hpp": "refused: reused build is stale: build:budget_config.hpp changed",
+  "Ram_1w_1rs_Generic.v": "refused: reused build is stale: external:$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v changed",
+  "Ram_1w_1ra_Generic.v": "refused: reused build is stale: external:$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v changed",
+  "VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v": "refused: reused build is stale: external:$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v changed",
+  "sim.v": "refused: reused build is stale: build:gateware/sim.v changed"
+ },
+ "empty_regrade": {
+  "returncode": 1,
+  "stdout": [
+   "REFUSED backlog: no recorded script in the results",
+   "REFUSED backlog-adp: no recorded script in the results",
+   "0 groups graded, 2 refusals, 0 T_svc misses (0 of 0 probe instances, 0 of 0 paths)"
+  ]
+ }
+}
