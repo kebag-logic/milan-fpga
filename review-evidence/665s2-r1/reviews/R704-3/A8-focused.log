@@ -1,0 +1,70 @@
+COMMAND <packet>/scratch/A8/native/Vsim <packet>/measurements/A8/backlog.txt -
+COMMAND <packet>/scratch/A8/native/Vsim <packet>/measurements/A8/backlog-adp.txt -
+COMMAND <packet>/scratch/A8/native/Vsim <packet>/measurements/A8/backlog-adp-refill.txt -
+COMMAND <packet>/scratch/A8/native/Vsim <packet>/measurements/A8/aecp-fanout.txt -
+COMMAND <packet>/scratch/A8/native/Vsim <packet>/measurements/A8/backlog-owed.txt -
+COMMAND <packet>/scratch/A8/native/Vsim <packet>/measurements/A8/aecp.txt -
+BUDGET backlog.event.if0: 44.651 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 108.712 ms over T_svc 10 ms
+BUDGET backlog.service.adp.first.if0: 27.406 ms over T_svc 10 ms
+BUDGET backlog.service.adp.last.if1: 88.955 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.first.if0: 27.363 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.last.if0: 118.960 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.first.if0: 27.399 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.last.if1: 224.967 ms over T_svc 10 ms
+BUDGET backlog.service.maap.first.if0: 27.388 ms over T_svc 10 ms
+BUDGET backlog.service.maap.last.if0: 88.941 ms over T_svc 10 ms
+BUDGET backlog.service.srp.first.if0: 131.247 ms over T_svc 10 ms
+BUDGET backlog.service.srp.last.if1: 278.536 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 83.506 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.first.if0: 21.608 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.last.if0: 103.671 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.first.if0: 21.617 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.last.if0: 177.137 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.first.if0: 21.653 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.last.if1: 507.207 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.first.if0: 21.643 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.last.if0: 103.708 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.first.if0: never released, at least 583.542 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.last.if1: never released, at least 583.522 ms over T_svc 10 ms
+BUDGET backlog.adp_available_refill.if0: 118.807 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.first.if0: 21.608 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.last.if0: 137.940 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.first.if0: 21.617 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.last.if0: 177.896 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.first.if0: 21.653 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.last.if1: 510.223 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.first.if0: 21.643 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.last.if0: 101.694 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.first.if0: never released, at least 658.793 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.last.if1: never released, at least 658.773 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 161.102 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: 176.520 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 860.001 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: 188.272 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 860.000 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.first.if0: 18.068 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if1: 72.362 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.first.if0: 18.026 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 105.390 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.first.if0: 18.062 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if1: 224.106 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.first.if0: 18.051 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 72.347 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 143.913 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if1: 340.848 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if0: 20.683 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_clock_source.if0: 15.085 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_on.if0: 14.616 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_off.if0: 12.386 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_sampling_rate.if0: 15.081 ms over T_svc 10 ms
+BUDGET aecp_fanout.lock_entity.if0: 16.075 ms over T_svc 10 ms
+BUDGET aecp_fanout.unlock_entity.if0: 15.643 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if1: 22.979 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_clock_source.if1: 14.794 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_on.if1: 15.434 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_off.if1: 14.963 ms over T_svc 10 ms
+BUDGET aecp_fanout.lock_entity.if1: 16.393 ms over T_svc 10 ms
+BUDGET aecp_fanout.unlock_entity.if1: 15.736 ms over T_svc 10 ms
+BUDGET aecp.get_configuration.if0: 14.822 ms over T_svc 10 ms
+6 groups graded, 0 refusals, 63 T_svc misses (63 of 101 probe instances, 29 of 67 paths)

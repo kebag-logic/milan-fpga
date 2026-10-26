@@ -1,0 +1,288 @@
+{
+  "raw_regrades": [
+    "A1/adp-link",
+    "A1/adp-gm",
+    "A1/adp-discover",
+    "A1/control",
+    "A1/acmp-cmd",
+    "A1/aecp",
+    "A1/fixture",
+    "A8/adp-link",
+    "A8/adp-gm",
+    "A8/adp-discover",
+    "A8/control",
+    "A8/acmp-cmd",
+    "B1/acmp-cmd",
+    "B8/acmp-cmd"
+  ],
+  "published_counts": {
+    "A1": {
+      "paths": 81,
+      "path_misses": 22,
+      "instances": 141,
+      "instance_misses": 58
+    },
+    "A8": {
+      "paths": 129,
+      "path_misses": 60,
+      "instances": 182,
+      "instance_misses": 102
+    },
+    "B1": {
+      "paths": 44,
+      "path_misses": 18,
+      "instances": 68,
+      "instance_misses": 41
+    },
+    "B8": {
+      "paths": 68,
+      "path_misses": 36,
+      "instances": 92,
+      "instance_misses": 60
+    },
+    "S1": {
+      "paths": 1,
+      "path_misses": 0,
+      "instances": 2,
+      "instance_misses": 0
+    },
+    "S8": {
+      "paths": 2,
+      "path_misses": 0,
+      "instances": 3,
+      "instance_misses": 0
+    },
+    "C-shutdown": {
+      "paths": 1,
+      "path_misses": 1,
+      "instances": 1,
+      "instance_misses": 1
+    }
+  },
+  "shutdown_counts": {
+    "S1": {
+      "probes": [
+        {
+          "group": "adp-shutdown",
+          "name": "adp.shutdown.if0",
+          "path": [
+            "adp.shutdown",
+            0
+          ],
+          "start": "entry:adp_mbx_set_enable",
+          "ends": [
+            "adp:0:1"
+          ]
+        },
+        {
+          "group": "control-shutdown",
+          "name": "control.shutdown.if0",
+          "path": [
+            "adp.shutdown",
+            0
+          ],
+          "start": "entry:adp_mbx_set_enable",
+          "ends": [
+            "adp:0:1"
+          ]
+        }
+      ],
+      "reported": {
+        "paths": 1,
+        "path_misses": 0,
+        "instances": 2,
+        "instance_misses": 0
+      },
+      "deduplicated": {
+        "paths": 1,
+        "path_misses": 0,
+        "instances": 2,
+        "instance_misses": 0
+      }
+    },
+    "S8": {
+      "probes": [
+        {
+          "group": "adp-shutdown",
+          "name": "adp.shutdown.if0",
+          "path": [
+            "adp.shutdown",
+            0
+          ],
+          "start": "entry:adp_mbx_set_enable",
+          "ends": [
+            "adp:0:1"
+          ]
+        },
+        {
+          "group": "adp-shutdown",
+          "name": "adp.shutdown.if1",
+          "path": [
+            "adp.shutdown",
+            1
+          ],
+          "start": "entry:adp_mbx_set_enable",
+          "ends": [
+            "adp:0:1"
+          ]
+        },
+        {
+          "group": "control-shutdown",
+          "name": "control.shutdown.if0",
+          "path": [
+            "adp.shutdown",
+            0
+          ],
+          "start": "entry:adp_mbx_set_enable",
+          "ends": [
+            "adp:0:1"
+          ]
+        }
+      ],
+      "reported": {
+        "paths": 2,
+        "path_misses": 0,
+        "instances": 3,
+        "instance_misses": 0
+      },
+      "deduplicated": {
+        "paths": 2,
+        "path_misses": 0,
+        "instances": 3,
+        "instance_misses": 0
+      }
+    }
+  },
+  "fresh": {
+    "A1": {
+      "exact_matches": [
+        "backlog",
+        "backlog-adp",
+        "backlog-adp-refill",
+        "backlog-owed",
+        "aecp-fanout",
+        "aecp"
+      ],
+      "counts": {
+        "paths": 49,
+        "path_misses": 17,
+        "instances": 83,
+        "instance_misses": 50
+      },
+      "refusals": []
+    },
+    "A8": {
+      "exact_matches": [
+        "backlog",
+        "backlog-adp",
+        "backlog-adp-refill",
+        "backlog-owed",
+        "aecp-fanout",
+        "aecp"
+      ],
+      "counts": {
+        "paths": 67,
+        "path_misses": 29,
+        "instances": 101,
+        "instance_misses": 63
+      },
+      "refusals": []
+    }
+  },
+  "gates": {
+    "check_doc_style.log": [
+      "documentation style: OK (23 current documents)",
+      "rc=0"
+    ],
+    "check_doc_style_selftest.log": [
+      "documentation style selftest: OK",
+      "rc=0"
+    ],
+    "check_em_dash_selftest.log": [
+      "check_em_dash selftest: PASS (339 arm(s))",
+      "rc=0"
+    ],
+    "check_archive.log": [
+      "archive gate: OK (21 historical page(s), each indexed with metadata and a current successor)",
+      "rc=0"
+    ],
+    "check_py_idiom.log": [
+      "  global statement: 0 <= 0",
+      "  over-long line: 0 <= 0",
+      "rc=0"
+    ],
+    "check_hygiene.log": [
+      "  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0",
+      "HYGIENE RATCHET: PASS (3 population(s), 1300 file(s))",
+      "rc=0"
+    ],
+    "check_rtl_source_lists.log": [
+      "RTL source-list gate: OK (111 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorded)",
+      "rc=0"
+    ],
+    "check_todo_ownership.log": [
+      "TODO ownership gate: OK (0 owned marker(s), 0 unowned; 52 near-miss occurrence(s) on 45 line(s) correctly not treated as markers; 1366 first-party file(s) read)",
+      "rc=0"
+    ],
+    "gen_toc_selftest.log": [
+      "TOC selftest: PASS (1501/1501 arm(s))",
+      "rc=0"
+    ],
+    "git_diff_check.log": [
+      "rc=0"
+    ],
+    "check_soc_sources.log": [
+      "SoC source gate: OK (45 instantiated modules all registered, 80 sources all present)",
+      "rc=0"
+    ],
+    "gen_toc_check.log": [
+      "TOC gate: OK (150 page(s) carry an annotated contents list, 18 below the 3-section threshold)",
+      "rc=0"
+    ],
+    "check_doc_paths.log": [
+      "doc path gate: OK (1062 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)",
+      "rc=0"
+    ],
+    "docs_check.log": [
+      "docs_check: 0 finding(s) across 211 md files + 1433 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]",
+      "rc=0"
+    ],
+    "check_cpp_idiom_selftest.log": [
+      "",
+      "75 checks: 75 PASS, 0 FAIL",
+      "rc=0"
+    ],
+    "check_py_idiom_selftest.log": [
+      "",
+      "54 checks: 54 PASS, 0 FAIL",
+      "rc=0"
+    ],
+    "check_archive_selftest.log": [
+      "archive selftest: OK (24 controls)",
+      "rc=0"
+    ],
+    "check_cpp_idiom.log": [
+      "  long function: 0 <= 0",
+      "  build without warnings: 0 <= 0",
+      "rc=0"
+    ],
+    "selftest.log": [
+      "MUTANT caught: tables: a starved instance is not its path's worst: a starved instance is its path's worst ({'probe': 'd.x.if0', 'row': 'r', 'status': 'measured', 'path': ['p.x', 0], 'ms': 700.0, 'within_t_svc': False, 'group': 'd', 'bound_ms': 700.0, 'ring': 'acmp', )",
+      "self-test: 0 failures",
+      "rc=0"
+    ],
+    "behave.log": [
+      "Took 0min 1.113s",
+      "rc=0",
+      "full log: 1bc733bd3e1239b968aa9f276a107ed53658a1d42a6bef6d6656f2b15004c196 377051 B (kept out of the packet)"
+    ],
+    "gen_toc_verify_anchors.log": [
+      "anchor check: 545 existing cross-page fragment links reproduced",
+      "rc=0"
+    ],
+    "check_em_dash.log": [
+      "check_em_dash: 0 finding(s) over 607 added line(s) in 1 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [e76a755a..HEAD]",
+      "rc=0"
+    ]
+  }
+}
