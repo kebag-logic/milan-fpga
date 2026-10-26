@@ -1,0 +1,23 @@
+return code: 2
+1463 checks: 1442 PASS, 21 FAIL
+FAIL: R10 conflict immediately restarts acquisition
+FAIL: R12 demand arc 0 allocates inside round
+FAIL: R12 demand arc 1 allocates inside round
+FAIL: R16 conflict event served under continuous commands (gates 0x00 want 0x02)
+FAIL: S2 src0 re-declared at the grant
+FAIL: S2 a provisioned collision with the first candidate is skipped (got 0000000000000000)
+FAIL: S3 src7 src7 re-declared at the grant
+FAIL: S3 src7 takes the first candidate
+FAIL: S3 src0 src0 re-declared at the grant
+FAIL: S3 a move never takes another source's configured ID after that source moved off it (got 0000000000000000)
+FAIL: S4 src0 re-declared at the grant
+FAIL: S4 an equal unique ID under another MAC is not a collision (got 0000000000000000)
+FAIL: S6 a conflict after a listener withdrawal moves the ID at the grant (got ab00000000000004)
+FAIL: S6 an ID not declared since its move is not moved again
+FAIL: S6 PROBE_TX answers the moved ID src4 status/tuple (status 3 sid 0000000000000000)
+FAIL: S6 the next declaration carries the moved ID
+FAIL: S6 a conflict after a freshness lapse moves the ID (got ab00000000000008)
+FAIL: S5 src1 src1 re-declared at the grant
+FAIL: S5 src1 moves to the first candidate
+FAIL: S5 every move re-declares at its grant (0 moves)
+FAIL: S5 after the cursor wraps a move skips every configured ID and another source's current ID (got 0000000000000000 after 0 moves)

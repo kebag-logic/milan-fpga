@@ -1,0 +1,16 @@
+# runs set aside (never used as records), and why
+
+- pre-commit working-tree runs (retry, ACMP subsets, MAAP campaign): measurements that fixed the
+  README records before the commits; every record was re-measured at the committed head.
+- the ACMP campaign on the working tree, first attempt: stopped to refine the booking rule (a
+  conflict on any declared ID books the move); its temporary trees were removed.
+- head chains at 1e0c83df (unsplit chain, chain A, parent static gates): stopped when the
+  portability gate failed at that commit (fixed by bba84945).
+- head chain A at bba84945, first run_suites: stopped at the name_state stage after a memory
+  spike (Verilator `-j 0` sizes builds to the host's 128 threads); rerun complete under a
+  wrapper that caps Verilator's -j, results unaffected by the cap.
+- base ACMP campaign, first run (--jobs 8): stopped at ~13 GB anonymous memory; rerun capped.
+- head d3 campaign, first run: stopped at 26 of 110 arms to restructure the chains under the
+  2-hour background limit; three arms cut by the stop recorded SURVIVED without a tally
+  (RPL_fmti, passes_may_disagree, unframed_reads_as_device_error); the campaign was rerun
+  whole.

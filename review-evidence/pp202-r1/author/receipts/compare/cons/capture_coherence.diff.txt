@@ -1,0 +1,6 @@
+--- only at base
+[DP-CRF-3] milan_datapath, CRF selected, true 391/1591 p[PASS] the unmutated source still passes the fine harness
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: <tmp>/build_break_dp/milan_datapath.sv:9681:15: syntax error, unexpected break, expecting ',' or ';'
++++ only at head
+[PASS] a planted build break fails the dp build, and the arm prints its error: %Error: <tmp>/build_break_dp/milan_datapath.sv:9703:15: syntax error, unexpected break, expecting ',' or ';'
+[i]  CRF-frame-true-192: engaged -192 cycles from the crossing, the close then moved -11..+1 (furthest at column 1967); tail: tick 197 cycles after the frame close, -1..[PASS] the unmutated source still passes the fine harness

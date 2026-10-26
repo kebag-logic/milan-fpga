@@ -1,0 +1,126 @@
+diff --git a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+index 080ed5585b..ae072fc8fe 100644
+--- a/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
++++ b/hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+@@ -151,6 +151,12 @@ module KL_aaf_packetizer #(
+   //! else would ride a VLAN its reservation does not cover. Tie 0 for the
+   //! historical per-talker law.
+   input  wire         dom_ovr_i,
++  //! per-talker stream_id to stamp, flat [64*t +: 64]: the protocol
++  //! processor's src_stream_id_o, which moves after a MAAP conflict
++  //! (processor #202), so the wire names the ID the processor declares and
++  //! answers. A zero slot, the default, keeps the derived {station_mac, uid}
++  //! below; a non-zero TCTX uid for t>0 still wins, as every other field's.
++  input  wire [N_TALKERS_P*64-1:0] stream_id_i = '0,
+   //! per-talker presentation offsets: entry t = the max transit time talker
+   //! t adds to ptp_ns at first-sample capture (AECP's per-STREAM_OUTPUT
+   //! file, SET/GET_MAX_TRANSIT_TIME / SET_STREAM_INFO ACC_LAT). Replicate
+@@ -485,7 +491,10 @@ module KL_aaf_packetizer #(
+                          : (|evid_r  ? evid_r  : vlan_vid_i);
+   wire [15:0] eff_uid_w  = (et_r == '0) ? 16'd0
+                          : (|euid_r  ? euid_r  : 16'(et_r));
+-  wire [63:0] stream_id_w = {station_mac_i, eff_uid_w};
++  wire [63:0] sid_in_w    = stream_id_i[64*32'(et_r) +: 64];
++  wire        sid_named_w = (et_r != '0) && |euid_r;
++  wire [63:0] stream_id_w = (|sid_in_w && !sid_named_w) ? sid_in_w
++                                                        : {station_mac_i, eff_uid_w};
+ 
+   logic [7:0] fb [0:NUM_BEATS_C*8-1];
+   always_comb begin : frame_bytes
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index 53a60d1fce..b9831dbc5a 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -710,6 +710,10 @@ module KL_pp_shadow #(
+ 
+     //! ---- class-D ACMP / ADP status levels ----
+     output logic [N_STREAM_OUT_P-1:0]    acmp_declaring_o,        //! per-source DA gate open (THE talker egress gate)
++    //! per-source CURRENT stream_id, flat [64*s +: 64]: cfg_stream_id_i
++    //! after reset, moved after a MAAP conflict (processor #202). The framers
++    //! stamp it and GET_STREAM_INFO answers an output's stream_id with it.
++    output logic [N_STREAM_OUT_P*64-1:0] src_stream_id_o,
+     output logic [N_STREAM_IN_P-1:0]     acmp_bound_o,            //! per-sink binding installed, DEBOUNCED
+     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,        //! per-sink bound talker entity_id
+     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_sid_o,        //! per-sink bound stream_id
+@@ -1444,6 +1448,7 @@ module KL_pp_shadow #(
+       .srp_acc_latency_o       (srp_acc_latency_o),
+       .srp_snk_fail_code_o     (srp_snk_fail_code_o),
+       .acmp_declaring_o        (acmp_declaring_o),
++      .src_stream_id_o         (src_stream_id_o),
+       .acmp_bound_o            (acmp_bound_o),
+       .acmp_bound_eid_o        (acmp_bound_eid_o),
+       .acmp_bound_sid_o        (acmp_bound_sid_o),
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 8fc0359a34..628d79e801 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -1541,6 +1541,9 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .vlan_pcp_i (lwsrp_adopt_valid ? lwsrp_op_prio[2:0]
+                                    : SR_CLASS_A_PRIO_C[2:0]),
+     .dom_ovr_i  (lwsrp_adopt_valid),
++    //! the processor's current stream_id per AAF source (sources 0 to
++    //! N_STREAMS - 1 are the AAF talkers, processor #202)
++    .stream_id_i (pp_cd_src_stream_id_w[N_STREAMS*64-1:0]),
+     //! per-talker slice of the AECP per-STREAM_OUTPUT offset file: talker
+     //! t stamps its avtp_timestamp with ITS OWN entry t, as set (Milan v1.2
+     //! 5.4.2.9; #632, pres_offset_fold below)
+@@ -2482,7 +2485,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   //! talker_unique_id} law, the SAME 64 bits KL_aaf_packetizer stamps on the
+   //! wire, with the CRF Media Clock Output's CSR override applied where the
+   //! CRF engine applies it (eff_crft_sid_w) so the answer and the stream can
+-  //! never disagree. Derive, never mirror.
++  //! never disagree. Derive, never mirror. This is each source's ID after
++  //! reset only: the processor moves a source after a MAAP conflict and
++  //! publishes the current IDs, which the stamps and GET_STREAM_INFO read
++  //! (pp_cd_src_stream_id_w, processor #202).
+   wire [ACMP_SRC_C*64-1:0]  pp_src_sid_w;
+   //! ...and the per-source TSpec MaxFrameSize it declares (g_pp_maxf)
+   wire [ACMP_SRC_C*16-1:0]  pp_src_maxf_w;
+@@ -2529,6 +2535,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   wire [ACMP_SINKS_C*32-1:0] pp_cd_srp_acc_latency_w;
+   wire [ACMP_SINKS_C*8-1:0]  pp_cd_srp_snk_fail_code_w;
+   wire [ACMP_SRC_C-1:0]      pp_cd_acmp_declaring_w /* verilator public_flat_rd */;
++  //! each source's CURRENT stream_id (processor #202): pp_src_sid_w after
++  //! reset, moved by the processor after a MAAP conflict. Every framer stamp
++  //! and the GET_STREAM_INFO stream_id of an output read THIS, never
++  //! pp_src_sid_w, so the wire, the GSI answer and the PROBE_TX answer agree.
++  wire [ACMP_SRC_C*64-1:0]   pp_cd_src_stream_id_w;
++  //! ...and the CRF Media Clock Output's stamp: that source's current
++  //! stream_id where this shape has one, the CSR value otherwise
++  wire [63:0]                crft_tx_sid_w;
++  generate
++    if (ACMP_SRC_C > N_STREAMS) begin : g_crft_sid_pp
++      assign crft_tx_sid_w = pp_cd_src_stream_id_w[64*CRF_TUID_C +: 64];
++    end else begin : g_crft_sid_csr
++      assign crft_tx_sid_w = eff_crft_sid_w;
++    end
++  endgenerate
+   wire [ACMP_SINKS_C-1:0]    pp_cd_acmp_bound_w     /* verilator public_flat_rd */;
+   wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_eid_w;
+   wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_sid_w;
+@@ -6142,7 +6163,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+   end : gsi_flag_law
+ 
+   wire [47:0] gsi_odmac_w = maap_addr + 48'(gsi_ix_w);
+-  wire [63:0] gsi_osid_w  = pp_src_sid_w[64*gsi_oix_w +: 64];
++  wire [63:0] gsi_osid_w  = pp_cd_src_stream_id_w[64*gsi_oix_w +: 64];
+ 
+   //! ---- the SET_STREAM_FORMAT verdict (kind 0 selector 15, issue #67) ----
+   //! The processor presents the PROPOSED format on `pp_gsi_prop_fmt_w` and
+@@ -7453,7 +7474,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+     .ev_p_i (dom_ev_p_w), .ev_ns_i (dom_ns_w),
+     //! licence-gated, never the bare CSR bit: see crft_emit_en_w
+     .enable_i      (crft_emit_en_w),
+-    .sid_i         (eff_crft_sid_w),
++    .sid_i         (crft_tx_sid_w),
+     .dest_mac_i    (eff_crft_dmac_w),
+     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+@@ -9602,6 +9623,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       .srp_acc_latency_o       (pp_cd_srp_acc_latency_w),
+       .srp_snk_fail_code_o     (pp_cd_srp_snk_fail_code_w),
+       .acmp_declaring_o        (pp_cd_acmp_declaring_w),
++      .src_stream_id_o         (pp_cd_src_stream_id_w),
+       .acmp_bound_o            (pp_cd_acmp_bound_w),
+       .acmp_bound_eid_o        (pp_cd_acmp_bound_eid_w),
+       .acmp_bound_sid_o        (pp_cd_acmp_bound_sid_w),
