@@ -1,0 +1,94 @@
+[A676c]
+
+Closes #202
+
+After a MAAP conflict, a source whose Stream ID has been on the wire moves to a new, distinct Stream ID at the next `ALLOC_DA` grant, and a declaring source declares it at once, with no `T-SRP-LEAVEALL2` wait. The processor publishes each source's current Stream ID on one new top-level output, `src_stream_id_o[N_STREAM_OUT_P*64-1:0]` (the owner decision on #202, option A). `PROBE_TX`, GET_TX_STATE and the Talker Advertise carry it. Every other path that would declare an ID again with another FirstValue either moves it or waits two LeaveAllTime periods: a disable of a declared source moves it, and an SR-class PCP change keeps the ID and waits, also when the declaration was withdrawn before the change.
+
+This PR supersedes #204 and answers its two reviews (R710-1 and R709-1, both negative at `a8aa626e`).
+
+## Clauses
+
+- IEEE 802.1Q-2018 35.2.2.8 (normative): "MSRP does not support changes in any of the FirstValue fields for an existing StreamID". A Talker that brings a new Stream up "with a different FirstValue, utilizing the same StreamID" must leave two LeaveAllTime periods (Table 10-7) after removing the old registration. The rule covers the same StreamID only. The destination address and VID are in DataFrameParameters and the PCP in PriorityAndRank (35.2.2.8.5), all in FirstValue.
+- Milan v1.2 Table 5.3 is in 5.3.7.5, "Plug-and-play SRP parameters (informative)". It leaves the two last bytes of the Stream ID to the PAAD "to distinguish between the different Streams it is sourcing from this AVB interface", and lets the PAAD use "the same Stream ID as before, or another Stream ID".
+- Milan v1.2 5.5.4.1 step 3 and Table 5.42: `PROBE_TX` answers `TALKER_DEST_MAC_FAILED` while the source has no valid destination address; from the grant on it answers SUCCESS with the new ID and address.
+- IEEE 1722.1-2021 7.4.16.2: GET_STREAM_INFO's stream_id is "the current id of the stream". IEEE 1722-2016 4.4.4.8: every stream data AVTPDU carries the StreamID.
+- IEEE 802.1Q-2018 10.7.5.4/10.7.5.5 and 35.2.3.1.1: the re-declaration after a move is a Join!, not a New!, so the new ID's first message is sJ, a JoinMt (10.7.6.3); a new StreamID is a new attribute value, which a Registrar in MT registers on rJoinMt! as on rNew! (Table 10-4).
+
+## The move rule (05 F05.12)
+
+- After reset, a source's Stream ID is its `cfg_stream_id_i` slice.
+- A move keeps the slice's upper 48 bits and replaces the 16-bit unique ID with the first value, counted up modulo 2^16 from a move cursor, for which {upper 48 bits, unique ID} is no source's current Stream ID and no source's configured Stream ID. The cursor then moves past it. It starts at `P-N-STREAM-OUT`, the first unique ID past the default {MAC, s} assignment.
+- Distinctness: at most 2 × `P-N-STREAM-OUT` IDs are excluded, so one of the first 2 × `P-N-STREAM-OUT` + 1 candidates is free, and the search (one candidate per clock, in the walk that consumes the grant) ends within that many clocks. The result is a whole 64-bit ID that equals no source's current ID, the withdrawn one included, whatever values the integrator provisions; an equal unique ID under other upper 48 bits is another ID. The proof takes `cfg_stream_id_i` as stable since reset (02 §2 rule 4).
+- The move is booked by any conflict once the current ID has been declared (after a withdrawal on a lapsed gate, inside a PCP backoff, while disabled) and by a disable of such a source. It is kept through a disable, and the moved ID stays until reset. An ID that has never been declared is not moved.
+
+## The same-Stream-ID paths
+
+After an ID has been declared and withdrawn:
+
+- withdrawn on a lapsed gate (`DA_OK`): the DA is kept. A PCP change now enters the same `BACKOFF` as one while declaring, with nothing to withdraw, and arms `T-SRP-LEAVEALL2` from the change, which comes after the withdrawal. While a PCP change is pending for such a source, no same-ID declaration opens: a command is served ahead of pending events on its turn, and could otherwise declare the changed FirstValue first. Without a PCP change the next declaration carries the FirstValue it was withdrawn with;
+- withdrawn by a PCP change: the existing gap;
+- withdrawn by a conflict or a disable: a move is booked, so the next declaration uses a different ID. A disabled source sees no PCP change and its quasi-static TSpec may change while it is out; the move covers both, whatever DA the allocator grants at the return.
+
+## Change
+
+- `KL_acmp_talker`: the conflict path (withdraw, invalidate the DA, re-allocate at once, book the move; the grant searches, installs and declares the new ID in the same walk); `EVC_OFF` books the move for a declared ID; `EVC_PCP` from `DA_OK` with a declared ID enters `BACKOFF`; `pcp_hold_w` holds same-ID opens while a PCP change is pending. Per source the move state is a booked bit, a declared bit and a 16-bit replacement unique ID, plus one 16-bit cursor, in flops. `PROBE_TX`, GET_TX_STATE and `DECLARE_TALKER` read the current ID.
+- `protocol_processor_top`: the one new output, `src_stream_id_o`. No parameter or register map changes.
+- Documents: F05.12, the move rule and proof and the same-ID paths (05); the `T-SRP-LEAVEALL2` row (08); REQ-ACMP-010 and GAP-04 (00); the status dictionary and the `srp`/`maap`/`avtp` faces (02); the Talker FSM's per-open latch and the Join!/New! statement (10, F10.4); the output stream_id owner note (06); the integrator guide; the integration diagram; the 09 evidence map; the test READMEs.
+
+## Tests
+
+`tb/acmp_talker` (1,520 checks; 1,376 at main):
+
+- E: src3's conflict withdraws with no draw or arm, re-allocates in the same millisecond, answers `TALKER_DEST_MAC_FAILED` before the grant, and declares the new DA under `0xAB00000000000008` at it. F shows the PCP path keeping that ID and the gap.
+- S1: the whole path, timed: conflict to new declaration in 1,700 ms (the allocator's walk). A disabled source keeps its moved ID while out and, the moved ID having been declared, moves again at its return.
+- S2 to S5: distinctness (a provisioned collision with the first candidate, another source's configured ID after it moved off it, an equal unique ID under another MAC, one full 65,528-move lap of the cursor). S4 also binds every slot's whole published ID to its own slot (slot 7 `0xCD00000000000008`, slot 5 `0x0123456789ABCDEF`), after reset, after another slot's move and after its own.
+- S6: the move is booked after a listener withdrawal and after a freshness lapse; an ID not declared since its move is not moved again.
+- S7, S8: a PCP change after a withdrawal, on the configured ID (Listener withdrawal) and on a moved ID (freshness lapse): the gap is armed from the change; a returning Listener and a probe declare nothing inside it; at its end the same ID declares the new VID at least two LeaveAllTime (20 s) after the withdrawal.
+- S9: a PCP change arriving with a probe declares nothing under the withdrawn ID.
+- S10: a declared source disabled and re-enabled returns under a new ID, with a fresh DA and with the same DA from a block allocator; a probe 500 ms after the withdrawal declares the new DA under the new ID; a source that never declared returns under its configured ID. J7 and K8 of the main timeline follow the same rule.
+
+`tb/pp_top` MP8, through the in-scope MAAP engine (IEEE 1722-2016 Annex B), the SRP engine and the MAC stream: `PROBE_TX` answers `TALKER_DEST_MAC_FAILED` byte-exact while the walk probes; the declaration rises 1,737 ms after the conflicting ANNOUNCE; `src_stream_id_o` names `{OWN_MAC, 8}`; the Talker Advertise for it appears on the new base and its first message is a JoinMt; `PROBE_TX` and GET_TX_STATE answer it byte-exact.
+
+On the RTL of `a8aa626e` the new talker bench fails 18 checks, the 2 ms same-ID re-declaration after a PCP change and the disable/re-enable returning the same ID with another DA among them.
+
+Planted mutants, group `STREAM_ID` in `tb/pp_top/acmp_mutants.py`, 25 of 25 killed by named checks (failing checks in brackets; "here" counts are on the MP section alone):
+
+- The old wait kept, `conflict_keeps_old_wait`: `E1 no backoff`, `S1 conflict to new declaration under 2 s`; here `MP8: conflict to new declaration under 2 s` (124; here 6).
+- The old ID reused without the gap, `conflict_reuses_old_id`: `S1 the declaration carries a new Stream ID`; here `MP8: the Talker Advertise carries the new Stream ID` (35; here 5).
+- The output not following the change, `output_ignores_move`: `S1 src_stream_id_o follows the move`; here `MP8: src_stream_id_o names the new Stream ID` (17; here 1).
+- A colliding new ID, `move_takes_colliding_id`: `S2 a provisioned collision with the first candidate is skipped` (4). Each search term dropped: configured IDs (2), moved IDs (2), upper 48 bits (3). A stuck cursor (3). A move lost on disable (1).
+- The booking rule: booked only while declaring (6); the declared mark not set by the event path (19) or the command path (34); the mark kept after a move (4).
+- Each answer and the declaration reading the configured ID: `PROBE_TX` (8), GET_TX_STATE (2), `DECLARE_TALKER` (18).
+- The PCP path re-declaring without the gap, `pcp_skips_the_gap` (22).
+- A PCP change after a withdrawal starting no gap, `pcp_after_withdrawal_skips_the_gap`: `S7 two LeaveAllTime periods separate the withdrawal and the same-ID declaration`, `S8 two LeaveAllTime periods separate the withdrawal and the moved ID's declaration` (9).
+- A probe served with a PCP change pending declaring anyway, `pcp_pending_not_held`: `S9 a probe served with a PCP change pending does not declare the same ID` (1).
+- A disable booking no move, `disable_keeps_declared_id`: `S10 a declared source returns from a disable under a new Stream ID`, `J7 grant re-declares open sid` (9).
+- Every slot publishing slot 0's upper 48 bits, `publish_upper_from_slot0`: `S4 after reset every slot publishes its own whole configured ID`, `S4 a slot under other upper 48 bits keeps them when it moves` (6).
+- The re-open after a move sent as New!, `reopen_sends_new`: here `MP8: the new Stream ID's first Talker Advertise is a JoinMt, not a New` (here 1).
+
+## Validation at processor main ed211803 and this head
+
+- Every processor suite passes: 1,030,399 checks at main, 1,030,552 here, 0 failing. Only `acmp_talker` (1,376 → 1,520) and `pp_top` (10,741 → 10,750) move.
+- The requirement-tag execution check passes (231 tags at main, 241 here).
+- Lint, documentation checks, the portability elaboration (42 tops) and the elaboration guards (93 of 93) pass.
+- Every campaign that builds a changed file passes: ACMP 90 of 90 (65 at main, the 25 above added); talker retry 62 killed, 7 equivalence and 1 performance control, coverage 59 of 59; MAAP 29 of 29 (pp_top arms 4 and 12 of 43); AECP deadline and hazard-class 67 of 67; dispatch 74 of 74; counters 18 of 18; GET_STREAM_INFO 23 detected; name-write mutant detected; notifications 137 of 137; D3 110 of 110; elaboration-guard mutants 160 of 160; name-state 16 of 16, with all goldens passing.
+
+## Parent integration and consumer gate
+
+A source's Stream ID is no longer fixed, so an integrator stamps `src_stream_id_o` on the source's stream frames and answers a STREAM_OUTPUT's GET_STREAM_INFO stream_id (selector 2) with it, never with `cfg_stream_id_i`. The milan-fpga wiring is handed over for the pin adoption PR. In it the AAF framer stamps the processor's current ID for every talker through an explicit `SID_PP_P` parameter that the datapath sets, so a TCTX unique ID can no longer name another ID than the one the processor declares (its standalone default keeps the old derivation); the CRF Media Clock Output's stamp and GET_STREAM_INFO selector 2 read `src_stream_id_o`; `KL_pp_shadow` passes the port out; and a specification-facing scenario step pins the precedence.
+
+Two new parent legs prove the agreement through a real MAAP conflict, at compressed time: the shipping AX 1x1 shape (AAF talker 0 and the CRF output) and the 8x8 shape (AAF talkers 0 and 1, talker 1's TCTX unique ID named explicitly). The sources bind and stream; a peer ANNOUNCEs the claimed block from a lower MAC; every declaring source withdraws and declares a new ID in under 2 s (1,735 ms and 1,778 ms). Before and after the move, the AVTP stream_id of every PDU on the wire, the PROBE_TX answer, GET_STREAM_INFO selector 2, the Talker Advertise and `src_stream_id_o` name the same ID, and no PDU carries the withdrawn ID 50 ms after its Leave. With the previous patch's precedence the 8x8 leg fails on talker 1's frames, which keep the withdrawn ID; with no wiring the AX 1x1 leg fails on the wire and on GET_STREAM_INFO.
+
+Consumer gate on a scratch clone of milan-fpga dev e76a755a with the wiring applied (never pushed): `pp_shadow` 2,187 checks, `maap` 251, `milan_dp_render` 347, and all `milan_dp` legs 13,685, with zero failures and rc 0 for every command and aggregate verdict. The capture gate covers 43 cases exactly once with verified observations, all four shards and their union returning 0. The ROM-digest record and out-of-context checks pass. The final local parent commit pins `ebb1f00` and records its ROM digests; `pp_shadow` and its aggregate verdict pass again at that exact pin.
+
+The full processor sweep and campaigns built `9a6d1d08`. The final processor changes are documentation and a test comment; consumed HDL and build inputs are identical. Final-head lint, documentation checks and the talker suite pass; the final-pin consumer results are distinguished from earlier-pin results in the handoff. The parent patch also adapts two capture mutation anchors to the added parameter and the existing silence-fill classifier to the processor-owned ID, retaining their assertions.
+
+Found on the way and outside this issue: on parent shapes whose AAF stream count is a power of two above one (the 8x8 and 4x4 shapes), the datapath's maap-face source index is one bit narrower than the processor's, so the CRF output's allocation and conflict arrive as source 0's. It is recorded for the pin adoption; the CRF output is graded on the AX 1x1 shape, which is unaffected.
+
+## Notes for review
+
+- The PCP gap after a withdrawal is counted from the PCP change, conservatively: it can only be longer than two LeaveAllTime after the withdrawal.
+- A disable of a declared source always moves it, also when the allocator returns the same DA: the move needs no stored history, and it covers a PCP or TSpec change while the source was out.
+- The SRP engine keeps one applicant per source. A return from a disable answered within one `T-MRP-JOIN` reaches the applicant before the withdrawal's Leave has gone out; the re-declaration then replaces it in place (Table 10-3 LA + Join! → AA) and the withdrawn ID's registration ages out at the next LeaveAll. Nothing is declared under the withdrawn ID with another FirstValue. A conflict cannot get there: the new claim takes three probe intervals.
+- Between DEFEND and the grant, an allocator that refuses while it probes leaves up to one `T-ACMP-DA-RETRY` round (100 ms) in which MAAP holds the address but the source has none yet; `PROBE_TX` answers `TALKER_DEST_MAC_FAILED` until the grant.
+- Ports, parameters and register maps: only `src_stream_id_o` is added.

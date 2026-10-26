@@ -1,0 +1,18 @@
+{
+  "_comment": [
+    "RECORDED MODEL DIGESTS of this repository's own Milan models, keyed by",
+    "entity_model_id (IEEE 1722.1-2021 §6.2.2.8, Milan v1.2 §5.3.1).",
+    "",
+    "gen_desc_image.py --model-ids model_ids.json (build(model_ids=...))",
+    "refuses a recorded id whose model digest moved (L9 model-digest): a",
+    "structural change that kept its entity_model_id. It also refuses an id",
+    "with no record (L9 model-id-recorded). The digest is printed in the",
+    "layout report. Change a model and its id together, then record the new",
+    "pair here in the same commit.",
+    "",
+    "0x020000FFFE00C801: milan_min.json"
+  ],
+  "models": {
+    "0x020000FFFE00C801": "6d7982fbd1657a88838ff40bbe0746eaa8600e5be7bebae670e1de0c6f46ae20"
+  }
+}

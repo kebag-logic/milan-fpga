@@ -1,0 +1,26 @@
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index f721653..80f64b7 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -677,6 +677,13 @@ module protocol_processor_top
+     //! per-source DA gate open. THE talker egress gate a fabric ANDs with its
+     //! own stream enable every clock.
+     output logic [N_STREAM_OUT_P-1:0]    acmp_declaring_o,
++    //! per-source CURRENT Stream ID, flat [64*s +: 64]: the cfg_stream_id_i
++    //! slice after reset, moved after a MAAP conflict (issue #202, 05
++    //! F05.12). PROBE_TX, GET_TX_STATE and the Talker Advertise carry it; a
++    //! fabric stamps it on the source's stream frames and answers a
++    //! STREAM_OUTPUT's GET_STREAM_INFO stream_id with it, so the wire and
++    //! every answer name the same stream.
++    output logic [N_STREAM_OUT_P*64-1:0] src_stream_id_o,
+     //! per-sink binding installed, DEBOUNCED. The internal binding register
+     //! dips 1->0->1 inside a single executor transaction on every re-bind
+     //! (the F05.3 BIND_NEW row runs an unbind action before the bind action),
+@@ -2346,6 +2353,7 @@ module protocol_processor_top
+       .maap_conflict_src_i   (tkr_maap_confl_src_w),
+       .maap_conflict_ack_o   (tkr_maap_confl_ack_w),
+       .declaring_o           (tkr_declaring_w),
++      .src_stream_id_o       (src_stream_id_o),
+       .gate_open_o           (tkr_gate_open_w),
+       .gate_close_o          (tkr_gate_close_w),
+       .gate_src_o            (tkr_gate_src_w),

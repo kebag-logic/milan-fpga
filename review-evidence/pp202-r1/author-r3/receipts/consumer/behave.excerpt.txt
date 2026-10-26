@@ -1,0 +1,82 @@
+Full log: 197459 bytes; sha256 c01a891c91834bd2d4319bd1a8547c8f8e13d8029058fa52dfcf5c595e93d6e5
+Last 80 lines (paths normalized):
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built ADPDU that claims control_data_length 200 ... passed in 0.000s
+    When the analyser checks control length honesty ... passed in 0.000s
+    Then the analyser reports FAIL on "length-honest" ... passed in 0.000s
+    And the liar's declared control_data_length is 200 ... passed in 0.000s
+
+  Scenario: an empty capture is a FAIL, never a clean pass
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    When the analyser checks the capture shape ... passed in 0.000s
+    Then the analyser reports FAIL on "stream-frames-present" ... passed in 0.000s
+
+  Scenario: a ProfiShark tap capture only decodes with its 28-octet offset
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a written pcap of 3 tap records with a 28 octet header and an FCS ... passed in 0.000s
+    When the analyser reads it with the tap offset ... passed in 0.000s
+    Then the analyser reports PASS on "stream-frames-present" ... passed in 0.000s
+    When the analyser reads it without the tap offset ... passed in 0.000s
+    Then the analyser reports FAIL on "stream-frames-present" ... passed in 0.000s
+
+  Scenario: an empty capture leaves NO check silent and NO check passing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    When the analyser checks an empty capture end to end ... passed in 0.000s
+    Then no check verdict is PASS ... passed in 0.000s
+    And every check family is represented ... passed in 0.000s
+    And every SKIP names what was absent ... passed in 0.000s
+    And the capture-shape verdict is FAIL ... passed in 0.000s
+
+  Scenario: the Talker Advertise FirstValue decodes to its 25 clause-defined octets
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built MSRP Talker Advertise for stream 0200000000020003 ... passed in 0.000s
+    When the analyser decodes the MRPDU ... passed in 0.000s
+    Then the attribute is a Talker Advertise ... passed in 0.000s
+    And the declared destination address is 91e0f000fe07 ... passed in 0.000s
+    And the declared vlan identifier is 2 ... passed in 0.000s
+    And the declared MaxFrameSize is 1024 ... passed in 0.000s
+    And the attribute is declaring ... passed in 0.000s
+
+  Scenario: a Listener attribute's declaration type rides the FourPackedEvents vector
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a hand-built MSRP Listener Ready for stream 0200000000020003 ... passed in 0.000s
+    When the analyser decodes the MRPDU ... passed in 0.000s
+    Then the listener declaration is "Ready" ... passed in 0.000s
+
+  Scenario: a talker Stream Output that never declares is found from the wire
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given the entity declares 5 talker stream ids from 0200000000020000 ... passed in 0.000s
+    And only stream 0200000000020000 and 0200000000020001 advertise ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "talker-advertise-declared" ... passed in 0.000s
+    And the missing declarations are named ... passed in 0.000s
+
+  Scenario: frames on the wire with no Listener Ready are unreserved
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire whose only Listener declaration is "Asking Failed" ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "listener-declaration-present" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about dmac -- @1.1 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire dmac differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-dmac-matches-wire" ... passed in 0.000s
+
+  Scenario Outline: the declaration and the frames must agree about vid -- @1.2 
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream whose wire vid differs from its declaration ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then the analyser reports FAIL on "declared-vid-matches-wire" ... passed in 0.000s
+
+  Scenario: a capture with no MRP frames says the tap is what is missing
+    Given the wire-truth analyser is importable ... passed in 0.000s
+    Given a stream on the wire with no MRP frames captured at all ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+14 features passed, 0 failed, 0 skipped
+406 scenarios passed, 0 failed, 0 skipped
+1978 steps passed, 0 failed, 0 skipped
+Took 0min 1.490s

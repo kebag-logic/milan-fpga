@@ -1,0 +1,82 @@
+Full log: 1513304 bytes; sha256 4a098bb59f67cfe610966ccd76847b0e4ecefbcb376e9799047bdf483caa41a4
+Last 80 lines (paths normalized):
+  [ok]   [NOTIFY] GET_NAME(ENTITY,0) answers SUCCESS (the restore point) = 0x0
+  [ok]   [NOTIFY] REGISTER from controller A answers SUCCESS = 0x0
+  [ok]   [NOTIFY] REGISTER from controller B answers SUCCESS = 0x0
+  [ok]   [NOTIFY] ...B's response went to B (dst MAC + controller_entity_id) = 0x1
+  [ok]   [NOTIFY] SET_NAME from A (a real change) is SUCCESS = 0x0
+  [i]    command-to-push latency: 2374 cycles (SET_NAME injected to the unsolicited frame's last beat)
+  [ok]   [NOTIFY] exactly ONE unsolicited SET_NAME egressed = 0x1
+  [ok]   [NOTIFY] ...to controller B (dst MAC and controller_entity_id) = 0x1
+  [ok]   [NOTIFY] ...and none to A, the requester (5.4.5.2 'except') = 0x0
+  [ok]   [NOTIFY] ...B's sequence_id starts at 0 (5.4.2.21: a new entry) = 0x0
+  [ok]   [NOTIFY] ...target_entity_id is this entity    = 0x1
+  [ok]   [NOTIFY] ...status SUCCESS with the full cdl-84 SET_NAME body = 0x1
+  [ok]   [NOTIFY] ...carrying the NEW name: current state, not history = 0x1
+  [ok]   [NOTIFY] SET_NAME of the value already held is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes NOTHING: no state was modified (5.4.5.2) = 0x0
+  [ok]   [NOTIFY] SET_NAME from B is SUCCESS            = 0x0
+  [ok]   [NOTIFY] B's change reaches A alone            = 0x1
+  [ok]   [NOTIFY] ...A's entry starts its own sequence at 0 = 0x0
+  [ok]   [NOTIFY] a second change from A is SUCCESS     = 0x0
+  [ok]   [NOTIFY] ...reaches B with sequence_id 1 (its entry advanced) = 0x1
+  [ok]   [NOTIFY] ...and A's entry did not move (independent per entry) = 0x0
+  [ok]   [NOTIFY] GET_NAME right after is byte-identical from the body on = 0x1
+  [ok]   [OWNERLESS] GM LO write is inert               = 0x0
+  [ok]   [OWNERLESS] GM HI write is inert               = 0x0
+  [ok]   [OWNERLESS] domain write is inert              = 0x0
+  [ok]   [OWNERLESS] pdelay write is inert              = 0x0
+  [ok]   [OWNERLESS] parent LO write is inert           = 0x0
+  [ok]   [OWNERLESS] parent HI write is inert           = 0x0
+  [ok]   [OWNERLESS] CLKV control write is inert        = 0x0
+  [ok]   [OWNERLESS] AS path LO write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path HI write is inert          = 0x0
+  [ok]   [OWNERLESS] AS path command/write is inert     = 0x0
+  [ok]   [OWNERLESS] timestamp uncertainty is permanent = 0x1
+  [ok]   [OWNERLESS] sync_ok remains clear              = 0x0
+  [ok]   [OWNERLESS] retired no-lease bit remains clear = 0x0
+  [ok]   [OWNERLESS] software discontinuity cannot arm holdover = 0x0
+  [ok]   [OWNERLESS] retired lease count remains zero   = 0x0
+  [ok]   [OWNERLESS] asCapable remains clear            = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AVB_INFO notification = 0x0
+  [ok]   [OWNERLESS] writes emit no GET_AS_PATH notification = 0x0
+  [ok]   [OWNERLESS] writes emit no AVB_INTERFACE counter notification = 0x0
+  [ok]   [OWNERLESS] writes do not count a grandmaster change = 0x0
+  [ok]   [OWNERLESS] solicited GET_AVB_INFO succeeds    = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO grandmaster is zero   = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO propagation delay is zero = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO domain is zero        = 0x0
+  [ok]   [OWNERLESS] GET_AVB_INFO asCapable flag is clear = 0x0
+  [ok]   [OWNERLESS] solicited GET_AS_PATH succeeds     = 0x0
+  [ok]   [OWNERLESS] GET_AS_PATH has the empty cdl      = 0x10
+  [ok]   [OWNERLESS] GET_AS_PATH count is zero          = 0x0
+  [ok]   [NOTIFY] DEREGISTER from B answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] a change from A with B gone is SUCCESS = 0x0
+  [ok]   [NOTIFY] ...and pushes nothing: A is the requester, B is gone = 0x0
+  [ok]   [NOTIFY] DEREGISTER from A answers SUCCESS     = 0x0
+  [ok]   [NOTIFY] the shipped entity_name is restored   = 0x1
+  [i]    media grid: 300 ticks in 625000 clocks (want 300 +/-1)
+  [i]    0x0041 grid: fsync-vs-grid ALIGNMENT is modelled and graded where the ratio exists: obj_aclk drives the true 391/1591 plan and proves the accepted INTERNAL drift AND the #74 aligned-under-CRF close (KL_media_grid_align). The silicon counterpart stays J11.8 against J11.9.
+  [ok]   0x0041 grid: media_tick_p actually ticks (vacuity guard) = 0x1
+  [ok]   0x0041 grid: rate is 48 kHz on the milan clock = 0x1
+  [i]    physical bucket: the slot-indexed feed pulsed 1220 times in 625000 cycles
+  [ok]   0x0042 phys: the slot-indexed capture bucket IS fed (was tied off) = 0x1
+  [ok]   0x0041 grid: the NCO's servo gate IS the live selection verdict = 0x0
+  [ok]   0x0041 grid: INTERNAL engages the grid aligner (#629 A2-a) = 0x1
+  [ok]   0x0041 grid: a disengaged aligner leaves no residual trim on the NCO port = 0x0
+--------------------------------------------------------------
+checks: 2098   failures: 4
+RESULT: FAIL
+sim_pool: ./obj_nxn/Vmilan_dp_nxn exited with status 1
+sim_pool: ./obj_nxndv/Vmilan_dp_nxndv was not started after a child failure
+sim_pool: ./obj_nxn8/Vmilan_dp_nxn8 was not started after a child failure
+sim_pool: ./obj_nxn4c/Vmilan_dp_nxn4c was not started after a child failure
+sim_pool: ./obj_nolpf/Vmilan_dp_nolpf was not started after a child failure
+sim_pool: ./obj_prune/Vmilan_dp_prune was not started after a child failure
+sim_pool: ./obj_ax1x1/Vmilan_dp_ax1x1 was not started after a child failure
+sim_pool: ./obj_aclk/Vmilan_dp_aclk was not started after a child failure
+sim_pool: ./obj_maprec8/Vmilan_dp_maprec8 was not started after a child failure
+sim_pool: ./obj_maprec4/Vmilan_dp_maprec4 was not started after a child failure
+sim_pool: first leg in recipe order that did not pass: ./obj_nxn/Vmilan_dp_nxn
+make: *** [Makefile:716: run] Error 1
+make: Leaving directory '<scratch>'

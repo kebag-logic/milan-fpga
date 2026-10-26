@@ -1,0 +1,73 @@
+return code: 2
+1496 checks: 1425 PASS, 71 FAIL
+FAIL: B4 re-ping: timer arm missing
+FAIL: B4: response missing
+FAIL: B4 msg_type got 0 want 1
+FAIL: B4 stream_id got 0000000000000000
+FAIL: B4 controller_eid got 0000000000000000
+FAIL: B4 talker_eid got 0000000000000000
+FAIL: B4 listener_eid got 0000000000000000
+FAIL: B4 talker_uid got 0
+FAIL: B4 listener_uid got 0
+FAIL: B4 dest_mac got 000000000000
+FAIL: B4 sequence_id got 0
+FAIL: B4 flags got 0000 want 000a
+FAIL: B4 vlan got 0
+FAIL: D4 ping: timer arm missing
+FAIL: D4 re-declare: gate strobe missing
+FAIL: D4: response missing
+FAIL: D4 msg_type got 0 want 1
+FAIL: D4 stream_id got 0000000000000000
+FAIL: D4 controller_eid got 0000000000000000
+FAIL: D4 talker_eid got 0000000000000000
+FAIL: D4 listener_eid got 0000000000000000
+FAIL: D4 talker_uid got 0
+FAIL: D4 listener_uid got 0
+FAIL: D4 dest_mac got 000000000000
+FAIL: D4 sequence_id got 0
+FAIL: D4 flags got 0000 want 0002
+FAIL: D4 vlan got 0
+FAIL: E1 conflict withdraw: gate strobe missing
+FAIL: G2a: response missing
+FAIL: G2a declare: gate strobe missing
+FAIL: G2a ping: timer arm missing
+FAIL: G2 stateless: identical probe = identical bytes
+FAIL: G2 content sane
+FAIL: G: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: H1 src6 was not declaring: no withdraw
+FAIL: H: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: I1 no DECLARE_TALKER on a refusal
+FAIL: I3 no DECLARE_TALKER without a DA
+FAIL: I4 grant declares open src got 4
+FAIL: I4 grant declares open sid got ab00000000000004
+FAIL: I4 grant declares open da got 91e0f0000104 want 91e0f000010a
+FAIL: I: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: J1 withdraw on removal expected close, got open
+FAIL: J1 withdraw on removal close src got 6
+FAIL: J7 grant re-declares expected open, got close
+FAIL: J7 grant re-declares open sid got ab00000000000004
+FAIL: J7 grant re-declares open da got 000000000000 want 91e0f000010b
+FAIL: J: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: K0 withdraw on removal expected close, got open
+FAIL: K0 withdraw on removal close src got 4
+FAIL: K0: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: K6 a STALE response must not open any gate (1 strobes)
+FAIL: K7 src2 declares with ITS OWN DA expected open, got close
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 src2 declares with ITS OWN DA open da got 000000000000 want 91e0f00001aa
+FAIL: K8 abandoned source recovers with a FRESH DA open src got 2
+FAIL: K8 abandoned source recovers with a FRESH DA open sid got ab00000000000002
+FAIL: K8 abandoned source recovers with a FRESH DA open da got 91e0f00001aa want 91e0f00001bb
+FAIL: K: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: L0: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face expected close, got open
+FAIL: L1 WITHDRAW_TALKER is not delayed by the busy face close src got 6
+FAIL: L4 src3 withdraws at once close src got 1
+FAIL: L4 src5 withdraws at once close src got 3
+FAIL: L: leftovers resp=0 gate=1 arm=0 mreq=0
+FAIL: S10 src5 declares its configured ID src5 status/tuple (status 99 sid 0000000000000000)
+FAIL: S10 the move does not depend on the returned DA (got ab00000000000005)
+FAIL: S10 PROBE_TX after the same DA returns answers the new ID src5 status/tuple (status 0 sid ab00000000000005)
+FAIL: TD1 invalid disconnect leaves source state unchanged
+FAIL: TD1 invalid disconnect leaves source state unchanged
