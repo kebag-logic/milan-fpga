@@ -1,0 +1,30 @@
+{
+  "issue": {
+    "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202",
+    "title": "After a MAAP conflict, declare at once with a new Stream ID as soon as MAAP holds the new address (no two-LeaveAll address gate)",
+    "issue_number": 202,
+    "body": "**After a MAAP conflict, the talker must report and use its new destination address as soon as MAAP holds one. It must not withhold the address for two LeaveAll periods.**\n\n**What the talker does now (bench capture, milan-fpga image with processor `ed211803`):**\n- MAAP re-allocates at once, as IEEE 1722-2016 B.3 Table B.7 asks. The new range is ANNOUNCEd, in DEFEND, about 1.6 s after the conflict.\n- The talker withdraws its Talker Advertise (Lv at about +0.19 s) and enters BACKOFF for `T-SRP-LEAVEALL2`: `hdl/acmp/KL_acmp_talker.sv:38`, `docs/architecture/05_acmp_engine.md:444-445`.\n- `PROBE_TX_RESPONSE` keeps answering `TALKER_DEST_MAC_FAILED` at +10 s, while MAAP has held a valid address with no conflict since +1.6 s.\n- The talker re-declares with the same Stream ID only at about +21.4 s.\n\n**Clauses:**\n- Milan v1.2 5.5.4.1 step 3 (normative): \"Check that a valid Destination MAC Address is available for this Stream Output. If not, send a PROBE_TX_RESPONSE message as shown in Table 5.42\". A valid address is available once MAAP is in DEFEND with no conflict.\n- Milan v1.2 Table 5.3 is in 5.3.7.5, \"Plug-and-play SRP parameters (informative)\", which \"describes a possible plug-and-play implementation ... but does not preclude any other implementation\". Its two-LeaveAll wait is therefore not a requirement. Its validity line also says the address \"is valid as long as MAAP has successfully allocated an address and is not reporting a conflict\". Table 5.3 itself allows a new Stream ID: \"the PAAD may decide to use the same Stream ID as before, or another Stream ID\".\n- IEEE 802.1Q-2018 35.2.2.8 (normative) is the real source of the wait: \"If a Talker wishes to tear an old Stream down and bring a new Stream up, with a different FirstValue, utilizing the same StreamID, there must be at least two LeaveAllTime ... time periods between when the Talker removes the existing Stream registration and declares the new Stream.\" It constrains the same StreamID only.\n- A reference Milan peer, checked on the bench, takes a new address in 1.6-1.7 s and a new Stream ID, and re-declares and answers SUCCESS at 2.0 s.\n\n**Required:**\n- On a MAAP conflict, the talker withdraws as now. As soon as MAAP holds the new address in DEFEND, the talker takes a new Stream ID for that source and declares at once. PROBE_TX, GET_STREAM_INFO and GET_TX_STATE report the new Stream ID and address from that moment.\n- Choose the new Stream ID per Milan v1.2 / IEEE 1722.1-2021: entity MAC plus a unique ID that differs from the withdrawn one. If the same Stream ID is ever reused, the IEEE 802.1Q-2018 35.2.2.8 two-LeaveAllTime gap still holds.\n- `PROBE_TX_RESPONSE` answers `TALKER_DEST_MAC_FAILED` only while MAAP holds no valid address.\n- Update the ACMP engine figure F05.12 and `08_timing.md` (`T-SRP-LEAVEALL2`'s row: same Stream ID only), and the tests: the conflict-to-new-declaration time under 2 s with a new Stream ID, a mutant that keeps the old wait failing a named check, and the same-Stream-ID path still waiting two LeaveAllTime.\n- The SR-class PCP-change path that also arms `T-SRP-LEAVEALL2` is judged separately. Keep it unless the same reasoning applies; say which.\n\nFound by the manager's ruling on a bench run of the milan-fpga release candidate (dev `e76a755a`, processor `ed211803`), with the reference peer checked.\n",
+    "state": "open",
+    "user": {
+      "login": "Mister-M-alt",
+      "name": "Mister-M-alt",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "id": 161579364
+    },
+    "assignees": null,
+    "labels": null,
+    "milestone": null,
+    "state_reason": null,
+    "comments": 9,
+    "created_at": "2026-10-26T05:20:57Z",
+    "updated_at": "2026-10-26T15:41:51Z",
+    "closed_at": null,
+    "display_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202",
+    "display_title": "After a MAAP conflict, declare at once with a new Stream ID as soon as MAAP holds the new address (no two-LeaveAll address gate)"
+  },
+  "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202",
+  "title": "After a MAAP conflict, declare at once with a new Stream ID as soon as MAAP holds the new address (no two-LeaveAll address gate)",
+  "display_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/202",
+  "display_title": "After a MAAP conflict, declare at once with a new Stream ID as soon as MAAP holds the new address (no two-LeaveAll address gate)"
+}

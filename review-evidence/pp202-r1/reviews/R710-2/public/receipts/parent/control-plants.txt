@@ -1,0 +1,30 @@
+# Negative controls of the parent sidmove legs, planted in the scratch parent at 18561a20f0
+# (the corrected wiring), built into separate object directories, then reverted with
+# git checkout (worktree clean afterwards).
+
+## control-round2-precedence-sidmove8 (the round-2 packetizer law: a non-zero TCTX uid for t>0 outranks the processor)
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+-  wire [63:0] stream_id_w = SID_PP_P ? stream_id_i[64*32'(et_r) +: 64]
+-                                     : {station_mac_i, eff_uid_w};
++  wire [63:0] sid_in_w    = stream_id_i[64*32'(et_r) +: 64];
++  wire        sid_named_w = (et_r != '0) && |euid_r;
++  wire [63:0] stream_id_w = (|sid_in_w && !sid_named_w) ? sid_in_w
++                                                        : {station_mac_i, eff_uid_w};
+command: make sidmove8 VERILATOR_JOBS=4 SIDMOVE8_MDIR=obj_sidmove8_r2   (in tb/verilator/milan_dp)
+result: rc 2, 52 checks, 2 failures, both on source uid 1 (TCTX uid named):
+  [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (55)
+  [AFTER]: every one carries src_stream_id_o (else 0200000000010001)
+
+## control-no-wiring-sidmove (the base e76a755a law: the stamps and GET_STREAM_INFO read the reset value)
+hdl/ieee1722/aaf/KL_aaf_packetizer.sv
++  wire [63:0] stream_id_w = {station_mac_i, eff_uid_w};
+hdl/milan/milan_datapath.sv
+-  wire [63:0] gsi_osid_w  = pp_cd_src_stream_id_w[64*gsi_oix_w +: 64];
++  wire [63:0] gsi_osid_w  = pp_src_sid_w[64*gsi_oix_w +: 64];
+-      assign crft_tx_sid_w = pp_cd_src_stream_id_w[64*CRF_TUID_C +: 64];
++      assign crft_tx_sid_w = eff_crft_sid_w;
+command: make sidmove VERILATOR_JOBS=4 SIDMOVE_MDIR=obj_sidmove_nowire   (in tb/verilator/milan_dp)
+result: rc 2, 50 checks, 6 failures, AAF talker 0 and the CRF output alike:
+  [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (54) / (14)
+  [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o (got the withdrawn ID)
+  [AFTER]: every one carries src_stream_id_o (else the withdrawn ID)

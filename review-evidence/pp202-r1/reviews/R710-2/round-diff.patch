@@ -1,0 +1,1150 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index 82fd9a7..f1409ab 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -138,7 +138,8 @@ behavior depends on those interfaces: GET_AVB_INFO / GET_AS_PATH (gPTP data; §5
+ GET_STREAM_INFO (SRP declaration/registration state, failure code+bridge, accumulated
+ latency; §5.4.2.10), GET_COUNTERS (link/gPTP/media-clock/stream events; §5.4.2.25),
+ talker DA-validity gate (MAAP + 15 s probe freshness **or** listener registered;
+-§4.3.3.1), MAAP-conflict recovery (withdraw → new DA → new Stream ID; Table 5.3, 802.1Q-2018 §35.2.2.8),
++§4.3.3.1), MAAP-conflict recovery (withdraw → new DA; this design takes a new Stream ID, which
++Milan Table 5.3 (§5.3.7.5, informative) allows, so IEEE 802.1Q-2018 §35.2.2.8's same-StreamID gap does not apply),
+ MSRP domain adopt/re-declare (§4.2.7.2.1), unsolicited notifications on all of the above
+ (Table 5.22).
+ **Disposition**: interface classes in [02](architecture/02_interfaces.md); the `srp` and
+@@ -403,7 +404,7 @@ verification).
+ | REQ-ACMP-007 | Milan §5.5.4.2 step 1, Tables 5.44/5.45; §5.5.4.4 | DISCONNECT_TX validates the source: invalid → TALKER_UNKNOWN_ID, valid → SUCCESS; neither changes state. GET_TX_CONNECTION → NOT_SUPPORTED | shall | I; traced | [GAP-02](#gap-02) | responder rules | 05 §6bis | DIR |
+ | REQ-ACMP-008 | Milan §5.5.4.3 | GET_TX_STATE: REGISTERING_FAILED = registering Listener Asking Failed; stream fields = declared values | shall | A; traced | [GAP-02](#gap-02) | responder rules | 05 §6bis | DIR |
+ | REQ-ACMP-009 | Milan §4.3.3.1 | Talker DA valid ⇔ MAAP-allocated ∧ (PROBE_TX ≤ 15 s ∨ matching listener attr registered) | shall | A; traced | [GAP-04](#gap-04) | F05.12, SRP adapter | 05 §6bis, 02 §4 | TIM |
+-| REQ-ACMP-010 | IEEE 802.1Q-2018 §35.2.2.8, Table 10-7; Milan Table 5.3 (§5.3.7.5, informative) | Re-declaring the **same** Stream ID with another FirstValue waits 2×LeaveAllTime: an SR-class PCP change ⇒ withdraw attr, wait `T-SRP-LEAVEALL2`, re-declare. A MAAP conflict while declaring ⇒ withdraw attr, new DA, new Stream ID distinct from every source's current ID, re-declare at the grant without the wait (issue #202). Table 5.3's wait is informative; the normative one covers the same StreamID only | shall | A; traced | [GAP-04](#gap-04) | F05.12 | 05 §6bis | DIR |
++| REQ-ACMP-010 | IEEE 802.1Q-2018 §35.2.2.8, Table 10-7; Milan Table 5.3 (§5.3.7.5, informative) | Re-declaring the **same** Stream ID with another FirstValue waits 2×LeaveAllTime: an SR-class PCP change ⇒ withdraw attr, wait `T-SRP-LEAVEALL2`, re-declare; a PCP change after the declaration was withdrawn on a lapsed gate waits the same gap before the ID is declared again. A MAAP conflict while declaring ⇒ withdraw attr, new DA, new Stream ID distinct from every source's current ID, re-declare at the grant without the wait; a disable of a declared source also takes a new Stream ID at its return (issue #202). Table 5.3's wait is informative; the normative one covers the same StreamID only | shall | A; traced | [GAP-04](#gap-04) | F05.12 | 05 §6bis | DIR |
+ | REQ-ACMP-011 | Milan §5.5.3.2/.5 | Listener SM: 8 states with normative transition set | shall | I; traced | [GAP-02](#gap-02) | F05.2–F05.6 | 05 §6 | MTXW |
+ | REQ-ACMP-012 | Milan §5.5.3.1 | Dispatch: LISTENER_UNKNOWN_ID on bad unique_id; silently ignore bad PROBE_TX_RESPONSE; ignore all other ACMP | shall | A; traced | [GAP-02](#gap-02) | RX classifier | 05 §4 | TOL |
+ | REQ-ACMP-013 | Milan §5.5.3.5.3 | Canonical bind: lock check, NVM store, response SUCCESS{cc=1}, start discovery, PROBE_TX{FAST_CONNECT=1}, save copy | shall | A; traced | [GAP-02](#gap-02) | A-ID actions | 05 §6.3 | MTXW |
+diff --git a/docs/architecture/02_interfaces.md b/docs/architecture/02_interfaces.md
+index 58e573b..02bef2d 100644
+--- a/docs/architecture/02_interfaces.md
++++ b/docs/architecture/02_interfaces.md
+@@ -298,7 +298,9 @@ exact match per Milan §5.3.8.9, matching done in the adapter),
+ Events: `MAAP_CONFLICT{source}` → on a declaring source, drives the withdraw → re-alloc
+ at once → new Stream ID at the grant → re-declare flow, with no backoff
+ ([05 F05.12](05_acmp_engine.md#sec-05-sidmove), issue #202). `T-SRP-LEAVEALL2` stays on the
+-SR-class PCP change, which keeps the Stream ID (IEEE 802.1Q-2018 §35.2.2.8).
++SR-class PCP change, which keeps the Stream ID (IEEE 802.1Q-2018 §35.2.2.8). After a
++`RELEASE_DA` the allocator may grant the source another DA: a source whose Stream ID has been
++declared returns from a disable under a new Stream ID whatever DA it is granted.
+ 
+ This face is a **processor-top port group** by default, and — since the MAAP
+ engine landed ([11](11_maap_engine.md)) — also an internal seam: the quasi-static
+@@ -559,7 +561,7 @@ internal are consumed inside the processor and add no top-level ports.
+ | `tk_reg_state[sink]` | 2 | srp | {NONE, ADVERTISE, FAILED} for the settled match | GET_STREAM_INFO(in), GET_RX_STATE | `srp_tk_reg_state_o` |
+ | `msrp_fail_code[x]` / `msrp_fail_bridge[x]` | 8 / 64 | srp | valid with FAILED states; zero outside them, except the internal sink bridge, which is the raw registrar latch gated once on `tk_reg_state[sink]` FAILED after the processor's index mux; input values read live per gather beat ([06 F06.13](06_aecp_engine.md#fig-06-lineage)) | GET_STREAM_INFO: input failure-code byte of selector 4 and bridge selector 5 are processor-owned; selector 5 has no external request for inputs | `srp_src_fail_code_o`, `srp_src_fail_bridge_o`, `srp_snk_fail_code_o`; the sink bridge is internal |
+ | `pbsta[sink]` / `acmpsta[sink]` | 3 / 5 | ACMP listener record (internal) | committed record RAM write; acmpsta zero outside PROBING_ACTIVE (Milan §5.3.8.6) | GET_STREAM_INFO input selector 7, served internally with no external request; changed commits trigger notification | internal, no port |
+-| `src_stream_id[src]` | 64 | ACMP talker (`KL_acmp_talker`) | level, flops; the `cfg_stream_id_i` slice after reset, moved at the grant that follows a MAAP conflict once the ID has been declared ([05 F05.12](05_acmp_engine.md#sec-05-sidmove)); distinct from every other source's current ID | `PROBE_TX`, GET_TX_STATE and `DECLARE_TALKER` inside; outside, the integrator's stream framer stamp and its STREAM_OUTPUT GET_STREAM_INFO selector 2 | `src_stream_id_o` |
++| `src_stream_id[src]` | 64 | ACMP talker (`KL_acmp_talker`) | level, flops; the `cfg_stream_id_i` slice after reset, moved at the grant that follows a MAAP conflict, or a disable, once the ID has been declared ([05 F05.12](05_acmp_engine.md#sec-05-sidmove)); distinct from every other source's current ID | `PROBE_TX`, GET_TX_STATE and `DECLARE_TALKER` inside; outside, the integrator's stream framer stamp and its STREAM_OUTPUT GET_STREAM_INFO selector 2 | `src_stream_id_o` |
+ | `granted_slope_bps[src]` | 32 | srp | per-stream granted idleSlope while `sr_admitted[src]` = 1, else 0 (802.1Q §34.6.1.1) | CBS slope MUX, per-talker gate | `srp_granted_slope_bps_o` |
+ | `sr_admitted[src]` | 1 | srp | reservation admitted against the Σ-slope port ceiling | AVTP per-talker gate | `srp_sr_admitted_o` |
+ | `acc_latency[sink]` | 32 | srp | registered talker attr value | GET_STREAM_INFO(in) (+ P-INTERNAL-INGRESS-DELAY-NS) | `srp_acc_latency_o` |
+diff --git a/docs/architecture/05_acmp_engine.md b/docs/architecture/05_acmp_engine.md
+index 2861b5c..59af3ee 100644
+--- a/docs/architecture/05_acmp_engine.md
++++ b/docs/architecture/05_acmp_engine.md
+@@ -443,8 +443,9 @@ stateDiagram-v2
+     DECLARING --> DA_OK: gate false / srp WITHDRAW_TALKER
+     DECLARING --> NO_DA: MAAP_CONFLICT / WITHDRAW_TALKER, book a Stream ID move, ALLOC_DA at once
+     DECLARING --> BACKOFF: SR-class PCP change / WITHDRAW_TALKER, arm T-SRP-LEAVEALL2
++    DA_OK --> BACKOFF: SR-class PCP change [current Stream ID declared before] / arm T-SRP-LEAVEALL2, nothing to withdraw
+     BACKOFF --> DA_OK: T-SRP-LEAVEALL2 expiry / re-declare, same Stream ID (a conflict in the backoff: ALLOC_DA, and its grant installs the booked move)
+-    DA_OK --> [*]: source removed
++    DA_OK --> [*]: source removed / RELEASE_DA, book a Stream ID move if the current ID has been declared
+ ```
+ 
+ This is Milan's mechanism against advertising unwanted streams: a talker declares only
+@@ -473,11 +474,41 @@ this AVB interface".
+   the Stream ID is kept, so the withdrawal waits `T-SRP-LEAVEALL2` before it re-declares. A
+   conflict inside that backoff invalidates the DA, which is re-allocated at expiry, and books
+   a move like any other conflict (below): the re-declaration after the gap takes the new ID.
++- **SR-class PCP change after a withdrawal.** A source in `DA_OK` whose current Stream ID has
++  been declared before (its gate lapsed: the Listener left or the probe went stale) keeps the
++  ID too, so it enters the same `BACKOFF`, with nothing to withdraw. The gap is counted from
++  the change, which comes after the withdrawal, so a returning Listener or a new `PROBE_TX`
++  declares the changed FirstValue no earlier than two LeaveAllTime periods after the
++  withdrawal; it can only be longer than needed. No declaration under the same ID opens while
++  a PCP change is pending for its source, also in the change's own cycle: a command is served
++  ahead of pending events on its turn, and would otherwise declare the changed FirstValue
++  before the event has started the gap. A source in `NO_DA` whose ID has been declared always
++  has a move booked (only a conflict or a disable takes it there), so its next declaration is
++  under a new ID and needs no gap.
+ - **Any conflict books the move once the source's current Stream ID has been declared** since
+   reset or its last move: also after the declaration was withdrawn on a lapsed gate (`DA_OK`),
+   inside a PCP backoff, or while the source is disabled. The new DA is then never declared
+   under an ID that has been on the wire with the old one, however soon the next demand comes.
+   A conflict on an ID that has never been declared moves nothing.
++- **A disable of a source whose current Stream ID has been declared books the move too.** The
++  release hands the DA back and the allocator may grant another one at the return
++  ([02 §4.2](02_interfaces.md#42-maap-address-allocation)); a disabled source sees no PCP change
++  (the change reaches enabled sources only), and its quasi-static TSpec may change while it is
++  out. So the source returns under a new Stream ID at its first grant, whatever DA it gets. A
++  source that never declared its current ID returns under it. The SRP engine keeps one
++  applicant per source: a re-declaration that reaches it before the withdrawal's Leave has gone
++  out (inside one `T-MRP-JOIN`) takes the applicant from LA to AA (IEEE 802.1Q-2018 Table 10-3),
++  so the withdrawn ID's Leave is not sent and its registration ages out at the next LeaveAll
++  instead. Nothing is declared under the withdrawn ID with another FirstValue, so §35.2.2.8
++  holds. A conflict cannot get there (the new claim takes three probe intervals, IEEE 1722-2016
++  Table B.8); a disable and return answered within one `T-MRP-JOIN` can.
++
++Together: an ID that has been on the wire is declared again only with the FirstValue it was
++withdrawn with (the DA kept in `DA_OK`, no PCP change since), or after two LeaveAllTime
++periods. Every other re-declaration is under a new ID. The other FirstValue fields, the TSpec,
++rank and accumulated latency, come from quasi-static configuration
++([02 §2](02_interfaces.md#2-clocking-reset-cdc) rule 4), stable while the entity is enabled;
++one changed while its source is disabled is covered by the move.
+ 
+ **The move rule.** The processor owns each source's current Stream ID and publishes it on
+ `src_stream_id_o` ([02 F02.10](02_interfaces.md#fig-02-statusdict)). After reset it is the
+@@ -500,9 +531,13 @@ off an ID withdrawn moments before, which §35.2.2.8 would forbid with another D
+ configured IDs stay excluded after their source has moved off them, and the cursor revisits no
+ moved ID within one lap of 2^16 candidates. A lap needs 2^16 − 2 × `P-N-STREAM-OUT` moves or
+ more, and each move follows a conflict and a fresh MAAP claim of at least three probe intervals
+-(IEEE 1722-2016 Table B.8), far beyond two LeaveAllTime periods. A move is booked by the
+-conflict and kept through a disable, so a declared ID is not declared again with another
+-address; the moved ID stays until reset. The fabric must stamp `src_stream_id_o` on the source's
++(IEEE 1722-2016 Table B.8), or a disable and return of the source, a change of its quasi-static
++configuration: far beyond two LeaveAllTime periods. A move is booked by a conflict or by a
++disable of a declared source and kept through a disable, so a declared ID is not declared
++again with another address; the moved ID stays until reset. The proof takes `cfg_stream_id_i`
++as stable since reset, the quasi-static rule of 02 §2 rule 4: a slot re-provisioned without a
++reset keeps its moved unique ID under the new upper 48 bits, which the search has not checked
++against the other slots. The fabric must stamp `src_stream_id_o` on the source's
+ stream frames (IEEE 1722-2016 §4.4.4.8) and answer a STREAM_OUTPUT's GET_STREAM_INFO stream_id
+ with it ([06 §6.2](06_aecp_engine.md)), or a listener bound through `PROBE_TX` would register for
+ an ID no frame carries.
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index fa841f9..4f9341d 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -387,7 +387,7 @@ face clears those fields and flags while the internal fields still report
+ their state owners. An output's selector 2 stream_id is the integrator's word
+ but not its choice: it answers the source's `src_stream_id_o` slice, "the
+ current id of the stream" (IEEE 1722.1-2021 §7.4.16.2), which the talker
+-declares and answers `PROBE_TX` with and moves after a MAAP conflict
++declares and answers `PROBE_TX` with and moves after a MAAP conflict or a disable
+ ([05 F05.12](05_acmp_engine.md#sec-05-sidmove), issue #202). Selector 15 of the same kind is SET_STREAM_FORMAT's verdict word:
+ while that command is in flight the engine presents the PROPOSED format on
+ `gsi_prop_fmt`, and the integrator answers bit 0 = supported for the addressed
+diff --git a/docs/architecture/08_timing.md b/docs/architecture/08_timing.md
+index 0822852..9157672 100644
+--- a/docs/architecture/08_timing.md
++++ b/docs/architecture/08_timing.md
+@@ -33,7 +33,7 @@ plain-IEEE build where different; blank = same).
+ | T-CTR-NOTIF | 1 s | notif engine | ≥ 1 s between GET_COUNTERS notifications per descriptor | Milan Table 5.22 | |
+ | T-ACMP-DA-RETRY | 100 ms | talker DA gate | allocation retry round for enabled NO_DA sources; one attempt/source/round | implementation policy, [05 §6bis](05_acmp_engine.md#6bis-talker-side-stateless-responder) | |
+ | T-SRP-DAFRESH | 15 s | talker DA gate | PROBE_TX freshness window for DA validity | Milan §4.3.3.1 | — |
+-| T-SRP-LEAVEALL2 | 2 × T-MRP-LEAVEALL ≈ 20–30 s | talker DA gate | backoff before re-declaring the **same** Stream ID with another FirstValue: after an SR-class PCP change. A MAAP conflict takes a new Stream ID and does not wait ([05 F05.12](05_acmp_engine.md#sec-05-sidmove)) | IEEE 802.1Q-2018 §35.2.2.8, Table 10-7 (normative, same StreamID only); Milan Table 5.3 (§5.3.7.5, informative) | — |
++| T-SRP-LEAVEALL2 | 2 × T-MRP-LEAVEALL ≈ 20–30 s | talker DA gate | backoff before re-declaring the **same** Stream ID with another FirstValue: after an SR-class PCP change, while declaring or after the declaration was withdrawn on a lapsed gate. A MAAP conflict, and a disable of a declared source, take a new Stream ID and do not wait ([05 F05.12](05_acmp_engine.md#sec-05-sidmove)) | IEEE 802.1Q-2018 §35.2.2.8, Table 10-7 (normative, same StreamID only); Milan Table 5.3 (§5.3.7.5, informative) | — |
+ | T-MAAP-PROBE | random, strictly 500 ms < T < 600 ms | MAAP engine (11) | probe_timer — a fresh draw at every start | 1722-2016 B.3.4.2, Table B.8 | |
+ | T-MAAP-ANNOUNCE | random, strictly 30 s < T < 32 s | MAAP engine (11) | announce_timer — a fresh draw at every start | 1722-2016 B.3.4.1, Table B.8 | |
+ | T-MRP-JOIN | 200 ms (180–240) | SRP engine (10) | MRP joinTime — join tx cadence + vector aggregation window | Milan Table 4.3 | |
+diff --git a/docs/architecture/09_verification.md b/docs/architecture/09_verification.md
+index 6d58231..39f118d 100644
+--- a/docs/architecture/09_verification.md
++++ b/docs/architecture/09_verification.md
+@@ -795,7 +795,8 @@ The mutation record is in the [`tb/pp_top` README](../../tb/pp_top/README.md).
+ A conflict on a source whose current Stream ID has been declared moves the source to a new,
+ distinct Stream ID at the next grant, published on `src_stream_id_o`; a declaring source
+ re-declares it at once, with no `T-SRP-LEAVEALL2` ([05 F05.12](05_acmp_engine.md#sec-05-sidmove)).
+-The same-Stream-ID PCP path keeps the IEEE 802.1Q-2018 §35.2.2.8 gap.
++A disable of such a source moves it too. The same-Stream-ID PCP path keeps the
++IEEE 802.1Q-2018 §35.2.2.8 gap, also when the declaration was withdrawn before the change.
+ 
+ | Property | Checks | Controls |
+ |---|---|---|
+@@ -803,7 +804,10 @@ The same-Stream-ID PCP path keeps the IEEE 802.1Q-2018 §35.2.2.8 gap.
+ | `TALKER_DEST_MAC_FAILED` only before the grant; from it, PROBE_TX, GET_TX_STATE, the Talker Advertise and `src_stream_id_o` carry the new ID and address | `tb/acmp_talker` E2, E4, E5, S1; `tb/pp_top` MP8a, MP8 | `output_ignores_move`, `probe_answers_configured_id`, `tx_state_answers_configured_id`, `declare_carries_configured_id` |
+ | the new ID differs from the withdrawn one and from every other source's current and configured ID, a provisioned collision with the first candidate included; an equal unique ID under another MAC is no collision; no unique ID repeats inside a 2^16 lap | `tb/acmp_talker` S2 to S5 | `move_takes_colliding_id`, `move_ignores_configured_ids`, `move_ignores_moved_ids`, `move_compares_unique_id_only`, `move_cursor_stuck` |
+ | any conflict books the move once the ID has been declared (after a lapsed gate, in a PCP backoff, through a disable); a never-declared ID is not moved | `tb/acmp_talker` S6, R6, S1, E7 | `move_only_when_declaring`, `used_not_marked_by_event`, `used_not_marked_by_probe`, `used_kept_after_move`, `move_lost_on_disable` |
++| a disable of a source whose ID has been declared moves it at the return grant, with a fresh DA or the same one; a source that never declared returns under its ID | `tb/acmp_talker` S10, J7, K8, S1 | `disable_keeps_declared_id` |
++| every slot publishes its own whole 64-bit ID: its configured slice after reset, its own upper 48 bits after a move, a slot under other upper 48 bits and an arbitrary provisioned value included | `tb/acmp_talker` S4 | `publish_upper_from_slot0` |
+ | the PCP path keeps the Stream ID and waits two LeaveAllTime | `tb/acmp_talker` F2, F5, R6 | `pcp_skips_the_gap` |
++| a PCP change after the ID was withdrawn on a lapsed gate waits two LeaveAllTime from the withdrawal before a returning Listener or probe declares the same ID, the configured one and a moved one alike; no same-ID declaration opens while the change is pending | `tb/acmp_talker` S7, S8, S9 | `pcp_after_withdrawal_skips_the_gap`, `pcp_pending_not_held` |
+ 
+ Every control is in `tb/pp_top/acmp_mutants.py` (group `STREAM_ID`); the mutation record is in
+ the [`tb/pp_top` README](../../tb/pp_top/README.md#section-mp-the-internal-maap-engine-11-ieee-1722-2016-annex-b).
+diff --git a/docs/architecture/10_srp_engine.md b/docs/architecture/10_srp_engine.md
+index f3fdf44..d0ef8f0 100644
+--- a/docs/architecture/10_srp_engine.md
++++ b/docs/architecture/10_srp_engine.md
+@@ -337,8 +337,9 @@ stay frozen, §6.2), and (on PCP change) triggers the talker withdraw →
+ `T-SRP-LEAVEALL2` → re-declare flow of [F05.12](05_acmp_engine.md#fig-05-dagate). That flow
+ keeps the Stream ID, and the PCP is in PriorityAndRank, so the gap is the normative one of
+ IEEE 802.1Q-2018 §35.2.2.8 (two LeaveAllTime periods, Table 10-7, for the same StreamID
+-only). A MAAP conflict is not a Domain change: it re-declares under a new Stream ID at once
+-([05 F05.12](05_acmp_engine.md#sec-05-sidmove)).
++only). A source whose declaration was already withdrawn on a lapsed gate waits the same gap
++before its ID is declared again. A MAAP conflict is not a Domain change: it re-declares under
++a new Stream ID at once ([05 F05.12](05_acmp_engine.md#sec-05-sidmove)).
+ 
+ ### 6.2 VLAN FSM (×1, MVRP)
+ 
+@@ -413,7 +414,7 @@ This engine cannot observe the wire, so that order is the integrator's to keep.
+ ```mermaid
+ stateDiagram-v2
+     [*] --> GATED
+-    GATED --> DECLARING: DA-gate opens (F05.12) / VLAN user++, tx Talker Advertise (New)
++    GATED --> DECLARING: DA-gate opens (F05.12) / VLAN user++, Talker Advertise New! at the source's first open since reset, Join! at every later one
+     DECLARING --> DECLARED: JoinIn confirmed on T-MRP-JOIN cadence
+     DECLARED --> DECLARED: LeaveAll or periodic / re-join declaration
+     DECLARED --> GATED: DA-gate closes / tx Lv, VLAN user--
+@@ -426,7 +427,15 @@ In every state the FSM registers incoming **Listener** attributes for its stream
+ current `src_stream_id_o` slice: every DA-gate open latches {stream_id, DA, VLAN} again and
+ restarts the Listener registrar at MT, so after the Stream ID move of a MAAP conflict
+ ([05 F05.12](05_acmp_engine.md#sec-05-sidmove)) a registration of the withdrawn ID is never
+-counted for the new one, and the Talker Advertise names the new ID from its first New. The talker streams **iff** declaring Advertise ∧ registering
++counted for the new one, and the Talker Advertise names the new ID from its first message.
++That open is a Join! (IEEE 802.1Q-2018 §10.7.5.5), not a New!: the RTL issues New!
++(§10.7.5.4) only at a source's first open since reset, and Join! at every later one, the
++re-declaration of a moved ID included. In Table 10-3, Join! takes the applicant to VP (from
++VO, once the withdrawal's Leave has gone out) or to AA (from LA), and the next tx! sends sJ, a
++JoinMt here (§10.7.6.3), so the new ID's first message is a JoinMt.
++That is what MSRP asks: §35.2.3.1.1 maps REGISTER_STREAM.request onto a MAD_Join.request with
++no explicit new declaration, and a new StreamID is a new attribute value, which a Registrar in
++MT registers on rJoinMt! as it would on rNew! (Table 10-4). The talker streams **iff** declaring Advertise ∧ registering
+ Ready or ReadyFailed (Milan §5.3.7.3, Δ14 — exported as a level to the AVTP engine);
+ `GET_TX_STATE`'s REGISTERING_FAILED reports the AskingFailed case
+ ([F05.11](05_acmp_engine.md#fig-05-talker)). The streaming level additionally
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index 77fc451..ca86a45 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -330,7 +330,8 @@ index *s* occupies `[W*s +: W]`. The same convention is used by every per-index
+ status output.
+ 
+ `cfg_stream_id_i` slot *s* is source *s*'s Stream ID **after reset** only. After a
+-MAAP conflict on a source whose Stream ID has been declared, the processor moves that
++MAAP conflict on a source whose Stream ID has been declared, and when such a source returns
++from a disable (`cfg_src_en_i` low, then high), the processor moves that
+ source to a new Stream ID and publishes it on `src_stream_id_o` (§8): stamp your stream frames and
+ answer your STREAM_OUTPUT GET_STREAM_INFO stream_id from that output, never from
+ the input. The rule and its distinctness proof are in
+@@ -560,7 +561,7 @@ gate on them per cycle.
+ | Output | Use |
+ |---|---|
+ | `acmp_declaring_o` | **the talker egress gate.** AND it with your own stream enable. |
+-| `src_stream_id_o` | each source's **current** Stream ID, flat `[64*s +: 64]`: equal to the `cfg_stream_id_i` slot after reset, moved after a MAAP conflict (issue #202). `PROBE_TX`, GET_TX_STATE and the Talker Advertise carry it. Stamp it in the stream_id field of the source's stream frames (IEEE 1722-2016 §4.4.4.8) and answer the STREAM_OUTPUT GET_STREAM_INFO stream_id (`gsi_*` kind 0 selector 2) with it, or a listener bound through `PROBE_TX` registers for an ID none of your frames carries. |
++| `src_stream_id_o` | each source's **current** Stream ID, flat `[64*s +: 64]`: equal to the `cfg_stream_id_i` slot after reset, moved after a MAAP conflict, or at the return from a disable, once the ID has been declared (issue #202). `PROBE_TX`, GET_TX_STATE and the Talker Advertise carry it. Stamp it in the stream_id field of the source's stream frames (IEEE 1722-2016 §4.4.4.8) and answer the STREAM_OUTPUT GET_STREAM_INFO stream_id (`gsi_*` kind 0 selector 2) with it, or a listener bound through `PROBE_TX` registers for an ID none of your frames carries. |
+ | `acmp_bound_o` | per-sink binding installed, **debounced** — safe to edge-detect. The raw internal register dips low and high again inside a single rebind transaction; this port does not. |
+ | `acmp_bound_eid_o`, `acmp_bound_sid_o`, `acmp_bound_dmac_o`, `acmp_bound_vlan_o` | the bound stream's identity on the wire: who the talker is, which stream, on what address and VLAN. Arm your RX filter and stream table from these — you cannot derive them from the entity id. `acmp_bound_vlan_o` remains 12 bits per sink, the low [11:0] VID of the full stored VLAN; the SRP listener-service request uses the same projection ([02 §4.4](../architecture/02_interfaces.md#sec-02-avtp)). |
+ | `srp_active_o` | declaring Advertise, a Listener is Ready/ReadyFailed, optimistic or real admission, and the stream VID's MVRP join has left through the TX arbiter (Milan §4.3.2; [10 §6.2](../architecture/10_srp_engine.md#sec-10-join-before-stream)). For confirmed admission use **ACTIVE AND `srp_sr_admitted_o`** (parent issue #551 decision). |
+diff --git a/hdl/acmp/KL_acmp_talker.sv b/hdl/acmp/KL_acmp_talker.sv
+index aca9048..b29c385 100644
+--- a/hdl/acmp/KL_acmp_talker.sv
++++ b/hdl/acmp/KL_acmp_talker.sv
+@@ -37,15 +37,24 @@
+ //                gate goes false. SR-class PCP change while declaring:
+ //                withdraw → BACKOFF for T-SRP-LEAVEALL2 (2 x a
+ //                T-MRP-LEAVEALL PRNG draw, kind 3) → re-declare with the
+-//                same Stream ID and DA. MAAP conflict while declaring:
++//                same Stream ID and DA. A PCP change after the ID was
++//                withdrawn on a lapsed gate (DA_OK) enters the same BACKOFF
++//                with nothing to withdraw: the gap is counted from the
++//                change, which comes after the withdrawal. No same-ID
++//                declaration opens while a PCP change is pending for its
++//                source. MAAP conflict while declaring:
+ //                withdraw, invalidate the DA and re-allocate at once; the
+ //                next grant moves the source to a new Stream ID and
+ //                re-declares in the same walk, with no backoff (issue #202,
+ //                the move rule below). The move is booked by ANY conflict
+ //                once the source's current ID has been declared, also after
+ //                a withdrawal on a lapsed gate, inside a PCP backoff or while
+-//                disabled: the new DA must never be declared under an ID
+-//                that has been on the wire with another one.
++//                disabled, and by a disable of such a source: the release
++//                hands its DA back, a disabled source sees no PCP change,
++//                and its quasi-static TSpec may change while it is out, so
++//                it returns under a new Stream ID. An ID that has been on
++//                the wire is never declared again with another FirstValue
++//                before two LeaveAllTime periods (802.1Q-2018 35.2.2.8).
+ //
+ //                Stream ID move (issue #202, REQ-ACMP-010). IEEE 802.1Q-2018
+ //                35.2.2.8: MSRP supports no FirstValue change under an
+@@ -97,7 +106,8 @@
+ //                DA and, from DA_OK, drops to NO_DA + re-alloc without
+ //                backoff (nothing was on the wire to withdraw). A source
+ //                disabled by configuration withdraws, releases its DA and
+-//                returns to NO_DA. Backoff expiry with the DA still invalid
++//                returns to NO_DA (with a move booked if its ID had been
++//                declared). Backoff expiry with the DA still invalid
+ //                re-enters through NO_DA + ALLOC_DA (F05.12 names the
+ //                target DA_OK; the alloc round-trip is the same arc split
+ //                over the maap response).
+@@ -507,6 +517,15 @@ module KL_acmp_talker
+   //! face busy at EVC_OFF time, and the P-MAAP-ACCEPT-CYC accept window
+   //! closing on an offered release.
+   logic [N_STREAM_OUT_P-1:0] pe_rel_r;
++  //! A PCP change not yet applied to a source whose ID has been declared:
++  //! no declaration under that same ID opens until EVC_PCP has taken the
++  //! source into its backoff, also in the strobe's own cycle, before the
++  //! pending bit is set. A command is served ahead of pending events on
++  //! its turn, so a probe could otherwise declare the changed FirstValue
++  //! moments after the withdrawal (802.1Q-2018 35.2.2.8, issue #202).
++  logic [N_STREAM_OUT_P-1:0] pcp_hold_w;
++  assign pcp_hold_w = (pe_pcp_r | (srp_pcp_change_i ? cfg_src_en_i : '0))
++                      & sid_used_r;
+ 
+   //! T-ACMP-DA-RETRY (08 F08.1): one allocation attempt per enabled source
+   //! per 100 ms round, including probe/listener-driven attempts. The round
+@@ -756,7 +775,7 @@ module KL_acmp_talker
+     if (ping_w) begin
+       txn_rec2_w.pinged  = 1'b1;
+       txn_rec2_w.ping_ts = now_ms_i;
+-      if ((rec_w.gstate == GS_DA_OK_C) && da_ok_w) begin
++      if ((rec_w.gstate == GS_DA_OK_C) && da_ok_w && !pcp_hold_w[tsrc_w]) begin
+         txn_rec2_w.gstate = GS_DECLARING_C;   // gate true: fresh just set
+         txn_open_w        = 1'b1;
+       end
+@@ -820,7 +839,9 @@ module KL_acmp_talker
+           ev_daok2_w = ev_rec2_w.da_valid && !pe_conflict_r[ev_src_r];
+           ev_gate_w  = ev_daok2_w
+                        && (fresh_f(ev_rec2_w) || lsn_reg_f(ev_src_r));
+-          if ((ev_rec2_w.gstate == GS_DA_OK_C) && ev_gate_w) begin
++          // a moving grant declares an ID never on the wire: no PCP hold
++          if ((ev_rec2_w.gstate == GS_DA_OK_C) && ev_gate_w
++              && (ev_sid_move_w || !pcp_hold_w[ev_src_r])) begin
+             ev_rec2_w.gstate = GS_DECLARING_C;
+             ev_open_w        = 1'b1;
+           end
+@@ -846,6 +867,11 @@ module KL_acmp_talker
+           ev_to_maap_w  = 1'b1;
+           ev_maap_rel_w = 1'b1;
+         end
++        // A declared ID comes back under a new Stream ID: the allocator may
++        // grant another DA after the release, and a PCP change or a TSpec
++        // change while disabled reaches no record, so the same ID would need
++        // the 802.1Q-2018 35.2.2.8 gap (issue #202, REQ-ACMP-010).
++        ev_sid_owe_w = sid_used_r[ev_src_r];
+       end
+ 
+       EVC_CONFLICT: begin
+@@ -874,6 +900,13 @@ module KL_acmp_talker
+           ev_rec2_w.gstate = GS_BACKOFF_C;  // DA kept: only the class moved
+           ev_we_w          = 1'b1;
+           ev_to_draw_w     = 1'b1;
++        end else if ((rec_w.gstate == GS_DA_OK_C) && sid_used_r[ev_src_r]) begin
++          // the ID was declared and withdrawn on a lapsed gate: the next
++          // declaration waits the same gap, counted from this change, which
++          // comes after the withdrawal (issue #202, REQ-ACMP-010)
++          ev_rec2_w.gstate = GS_BACKOFF_C;
++          ev_we_w          = 1'b1;
++          ev_to_draw_w     = 1'b1;
+         end
+       end
+ 
+@@ -885,7 +918,7 @@ module KL_acmp_talker
+             ev_daok2_w       = !pe_conflict_r[ev_src_r];
+             ev_gate_w        = ev_daok2_w
+                                && (fresh_f(rec_w) || lsn_reg_f(ev_src_r));
+-            if (ev_gate_w) begin
++            if (ev_gate_w && !pcp_hold_w[ev_src_r]) begin
+               ev_rec2_w.gstate = GS_DECLARING_C;
+               ev_open_w        = 1'b1;
+             end
+@@ -914,7 +947,8 @@ module KL_acmp_talker
+         ev_daok2_w = rec_w.da_valid && !pe_conflict_r[ev_src_r];
+         ev_gate_w  = ev_daok2_w
+                      && (fresh_f(rec_w) || lsn_reg_f(ev_src_r));
+-        if ((rec_w.gstate == GS_DA_OK_C) && ev_gate_w) begin
++        if ((rec_w.gstate == GS_DA_OK_C) && ev_gate_w
++            && !pcp_hold_w[ev_src_r]) begin
+           ev_rec2_w.gstate = GS_DECLARING_C;
+           ev_open_w        = 1'b1;
+           ev_we_w          = 1'b1;
+@@ -1337,9 +1371,9 @@ module KL_acmp_talker
+         sid_cand_r <= sid_cand_r + 16'd1;
+       end
+       if (state_r == S_EV_ACT) begin
+-        //! The move is booked by the conflict and survives a disable, so a
+-        //! declared ID is never declared again with another DA; only the
+-        //! grant that installs it clears it.
++        //! The move is booked by a conflict or a disable and survives the
++        //! disable, so a declared ID is never declared again with another
++        //! DA; only the grant that installs it clears it.
+         if (ev_sid_owe_w) sid_move_r[ev_src_r] <= 1'b1;
+         if (ev_sid_move_w) begin
+           sid_move_r[ev_src_r]  <= 1'b0;
+diff --git a/tb/acmp_talker/README.md b/tb/acmp_talker/README.md
+index c361b79..920b804 100644
+--- a/tb/acmp_talker/README.md
++++ b/tb/acmp_talker/README.md
+@@ -5,7 +5,7 @@ Proves the ACMP stateless talker responder + per-source DA-gate
+ (`hdl/acmp/KL_acmp_talker.sv`) against
+ [05 §6bis](../../docs/architecture/05_acmp_engine.md) (F05.11 decision tree +
+ F05.12 DA-gate) and the 08 §2/§5 timer contract: `make` = build + run, exit 0 =
+-PASS, 1463 checks. `make lint` runs the repo's zero-warning gate (no width
++PASS, 1520 checks. `make lint` runs the repo's zero-warning gate (no width
+ waivers).
+ 
+ The C++ harness is an independent model, never DUT logic: every expected
+@@ -30,8 +30,8 @@ truncated-PDU rule (flags beyond a 44-byte PDU read as 0); freshness expiry
+ (withdraw only once fresh AND listener are both gone; DA kept); the MAAP
+ conflict flow (withdraw -> no draw, no arm -> re-alloc at once ->
+ DEST_MAC_FAILED until the grant -> re-declare at the grant with the NEW DA
+-under a NEW Stream ID, issue #202; section S below; a conflict books that
+-move whenever the source's current ID has been declared); the PCP-change
++under a NEW Stream ID, issue #202; section S below; a conflict, or a disable,
++books that move whenever the source's current ID has been declared); the PCP-change
+ flow (kind-3 draw -> arm now+2xdraw, the DA and the Stream ID KEPT: probe
+ during backoff still answers SUCCESS, re-declare with the SAME DA and ID after
+ the gap); the compressed backoff exit that
+@@ -229,8 +229,11 @@ controls retained baseline behavior, and one performance control retained the
+ contract bounds; baseline and restored runs pass 1342 checks. Re-measured
+ 2026-10-26 for issue #202 (section S added; E, R6, R12 and R16 follow the new
+ conflict path): the same 62 killed, seven equivalent and one performance
+-control; baseline and restored pass 1463 checks; `--jobs 8` took 110 s. The
+-counts below are that run's.
++control; baseline and restored pass 1463 checks; `--jobs 8` took 110 s. Re-measured
++again 2026-10-26 at 9a6d1d08a5d1 (RTL as at 39358354c47a; S1, S4, J7 and K8
++follow the disable move, S7 to S10 added): the same 62 killed, seven equivalent
++and one performance control, twelve with more failing assertions; baseline and
++restored pass 1520 checks. The counts below are that run's.
+ All 59 assertion sites in `retry_cases.hpp` have a killed witness. Counts below
+ include named failures anywhere in the committed suite; `coverage.txt` separately
+ requires a witness for each retry assertion site.
+@@ -245,10 +248,10 @@ requires a witness for each retry assertion site.
+ | `fixed_priority` | killed, 1 failures | R3 every source gets an attempt under continuous commands |
+ | `command_monopoly` | killed, 9 failures | R3 every source gets an attempt under continuous commands |
+ | `retry_monopoly` | killed, 62 failures | R3 absent allocator src0 consumed |
+-| `disabled_alloc` | killed, 2 failures | R2 disabled listener event cannot allocate |
++| `disabled_alloc` | killed, 4 failures | R2 disabled listener event cannot allocate |
+ | `no_accept_bound` | killed, 199 failures | R3 every source gets an attempt under continuous commands |
+ | `short_accept_bound` | killed, 2 failures | R3 absent request respects accept bound |
+-| `refusal_is_grant` | killed, 62 failures | R1 automatic bounded acquisition |
++| `refusal_is_grant` | killed, 66 failures | R1 automatic bounded acquisition |
+ | `obsolete_grant` | killed, 19 failures | R4 obsolete grant rejected src0 status/tuple |
+ | `obsolete_release_lost` | killed, 11 failures | R4 obsolete successful allocation released before retry |
+ | `no_response_bound` | killed, 16 failures | R5 timeout retries automatically across wrap |
+@@ -257,16 +260,16 @@ requires a witness for each retry assertion site.
+ | `no_stale_capacity` | killed, 2 failures | R5 silent accepts stop at stale-credit capacity |
+ | `no_stale_drain` | killed, 16 failures | R5 retry response src0 status/tuple |
+ | `backoff_bypass` | killed, 2 failures | R6 retries leave backoff and timer untouched |
+-| `reallocate_owned` | killed, 126 failures | R1 owned addresses are never reallocated |
+-| `half_backoff` | killed, 5 failures | R6 full two-LeaveAll backoff armed |
+-| `fresh_forever` | killed, 97 failures | R1 freshness expiry still withdraws every source |
+-| `declare_without_demand` | killed, 161 failures | R1 acquired addresses neither declare nor borrow timer slots |
+-| `source_alias` | killed, 209 failures | R1 first probe after bound src0 status/tuple |
+-| `gate_without_ownership` | killed, 62 failures | R1 acquired addresses neither declare nor borrow timer slots |
+-| `no_requests` | killed, 256 failures | R1 one refused startup attempt per source |
+-| `no_command_ready` | killed, 744 failures | R1 first probe after bound src0 consumed |
++| `reallocate_owned` | killed, 134 failures | R1 owned addresses are never reallocated |
++| `half_backoff` | killed, 7 failures | R6 full two-LeaveAll backoff armed |
++| `fresh_forever` | killed, 102 failures | R1 freshness expiry still withdraws every source |
++| `declare_without_demand` | killed, 177 failures | R1 acquired addresses neither declare nor borrow timer slots |
++| `source_alias` | killed, 240 failures | R1 first probe after bound src0 status/tuple |
++| `gate_without_ownership` | killed, 73 failures | R1 acquired addresses neither declare nor borrow timer slots |
++| `no_requests` | killed, 291 failures | R1 one refused startup attempt per source |
++| `no_command_ready` | killed, 763 failures | R1 first probe after bound src0 consumed |
+ | `busy_tracker_blocks_commands` | killed, 78 failures | R4 obsolete grant rejected src0 consumed |
+-| `no_conflict_wait_clear` | killed, 21 failures | R10 conflict immediately restarts acquisition |
++| `no_conflict_wait_clear` | killed, 25 failures | R10 conflict immediately restarts acquisition |
+ | `wait_on_release` | killed, 50 failures | R15 release does not consume re-enabled lifetime allocation attempt |
+ | `tick_no_rearm` | killed, 45 failures | R2 one attempt per enabled source per round |
+ | `no_rotate_advance` | killed, 1 failures | R3 every source gets an attempt under continuous commands |
+@@ -280,7 +283,7 @@ requires a witness for each retry assertion site.
+ | `no_turn_restore` | killed, 59 failures | R3 commands never starve behind retries (gap=0) |
+ | `elig_drop_rel` | killed, 1 failures | R11 owed release serviced under continuous commands |
+ | `elig_drop_off` | killed, 4 failures | R11 disable withdraws under continuous commands |
+-| `ready_ignores_turn` | killed, 67 failures | B4 re-ping: timer arm missing |
++| `ready_ignores_turn` | killed, 71 failures | B4 re-ping: timer arm missing |
+ | `init_ignores_off_conflict` | killed, 2 failures | R14 cancellation kind0 prevents obsolete allocation offer |
+ | `retry_period_200` | killed, 22 failures | R1 automatic bounded acquisition |
+ | `tick_ge_to_gt` | killed, 22 failures | R1 automatic bounded acquisition |
+@@ -349,7 +352,7 @@ TD1's no-state-effect check, independently of the response-status control.
+ `disconnect_not_accepted` removes command acceptance and must fail TD1's
+ consumption checks. A missing transaction cannot be mistaken for a no-op.
+ 
+-## Stream ID move after a MAAP conflict (issue #202)
++## Stream ID move after a MAAP conflict, and the same-ID gap (issue #202)
+ 
+ IEEE 802.1Q-2018 35.2.2.8 gaps only a re-declaration of the same StreamID with another
+ FirstValue; Milan v1.2 Table 5.3 (5.3.7.5, informative) lets the PAAD pick another Stream
+@@ -358,17 +361,23 @@ moves the source to a new Stream ID and declares it in the same walk. The rule a
+ distinctness proof are in
+ [05 F05.12](../../docs/architecture/05_acmp_engine.md#sec-05-sidmove). Section E grades it
+ inside the main timeline (src3 moves to `0xAB00000000000008`; section F then shows the PCP
+-path keeping that ID and the gap). Section S (`sid_cases.hpp`) grades it on fresh boots,
+-with every expected ID written from the rule:
++path keeping that ID and the gap). Every other path that would declare an ID again with
++another FirstValue either moves it (a disable) or waits two LeaveAllTime periods (a PCP
++change after a withdrawal). Section S (`sid_cases.hpp`) grades it on fresh boots, with
++every expected ID written from the rule:
+ 
+ | Case | Contract |
+ |---|---|
+-| S1 | The conflict withdraws at once; no T-SRP-LEAVEALL2 is drawn or armed; ALLOC_DA is offered in the conflict's millisecond. While the allocator's walk runs (1,700 ms, IEEE 1722-2016 Table B.8), PROBE_TX answers TALKER_DEST_MAC_FAILED, GET_TX_STATE names the withdrawn ID with DA 0 and `src_stream_id_o` holds it. The grant declares at once, with the new DA and the new ID, 1,700 ms after the conflict (under 2 s). From then on `src_stream_id_o`, PROBE_TX and GET_TX_STATE carry the new ID; no other source's ID moves; a disable and re-enable keep the new ID; a conflict with nothing declared moves nothing |
++| S1 | The conflict withdraws at once; no T-SRP-LEAVEALL2 is drawn or armed; ALLOC_DA is offered in the conflict's millisecond. While the allocator's walk runs (1,700 ms, IEEE 1722-2016 Table B.8), PROBE_TX answers TALKER_DEST_MAC_FAILED, GET_TX_STATE names the withdrawn ID with DA 0 and `src_stream_id_o` holds it. The grant declares at once, with the new DA and the new ID, 1,700 ms after the conflict (under 2 s). From then on `src_stream_id_o`, PROBE_TX and GET_TX_STATE carry the new ID; no other source's ID moves; a disabled source keeps the new ID while out, and, the new ID having been declared, its return moves it once more, to `...09`; a conflict with nothing declared moves nothing |
+ | S2 | Slot 7 provisioned with the first candidate (`0xAB00000000000008`): the move skips it to `...09`, and every current ID stays distinct |
+ | S3 | Slot 7 provisioned with `...09`: src7 moves to `...08`, and src0's later move skips `...09`, src7's configured ID, to `...0A` |
+-| S4 | An equal unique ID under another upper 48 bits (`0xCD00000000000008`) is another ID and is not refused |
++| S4 | Slot 7 provisioned `0xCD00000000000008`, slot 5 an arbitrary `0x0123456789ABCDEF`: after reset every slot publishes its own whole configured ID; an equal unique ID under another upper 48 bits is another ID and is not refused (src0 moves to `...08`); the other slots stay published whole; src7 moves to `0xCD00000000000009` and src5 to `0x0123456789AB000A`, each keeping its own upper 48 bits |
+ | S6 | Any conflict books the move once the ID has been declared: src4 declares on a Listener, withdraws when it leaves, and a conflict moves it to `...08` at the grant without declaring; a second conflict leaves `...08`, never declared, alone; a probe declares `...08`, its freshness lapses, and the next conflict moves it to `...09` |
+ | S5 | One full lap of the 16-bit cursor (65,528 moves of src0 after src1 moved to `...08`): no unique ID repeats inside the lap, every move differs from the withdrawn and every current ID, and the first move after the wrap skips every configured ID and src1's moved ID to `...09` |
++| S7 | IEEE 802.1Q-2018 35.2.2.8 on the configured ID: src0 declares on a Listener and withdraws when it leaves (DA_OK); a PCP change 1 ms later (with the Domain's new VID) draws and arms T-SRP-LEAVEALL2 from the change; the returning Listener 1 ms after, and a probe 1 ms after that (answered SUCCESS with the kept ID and DA), declare nothing; at the gap's end the same ID declares the new VID, at least two LeaveAllTime (20 s) after the withdrawal |
++| S8 | The same on a conflict-moved ID declared by a probe and withdrawn when its freshness lapses: the PCP change arms the gap on the moved ID, a probe and a returning Listener declare nothing inside it, and the moved ID declares the new FirstValue at least 20 s after the withdrawal |
++| S9 | A PCP change in the cycle a probe is offered: the command is served ahead of the pending event, and declares nothing under the withdrawn ID; the event then starts the gap |
++| S10 | A disable of a declared source books the move: src3 declares its configured ID, is disabled, keeps the ID while out, and returns under `...08`; a probe 500 ms after the withdrawal declares the fresh DA under `...08`, never `...03`. With a block allocator that hands src5 the same DA back it moves all the same (`...09`). A source that never declared (src6) returns under its configured ID |
+ 
+ The arms that must fail these checks by name are in `tb/pp_top/acmp_mutants.py` (group
+ `STREAM_ID`): the old wait kept (`conflict_keeps_old_wait`), the old ID reused without the
+@@ -376,7 +385,10 @@ gap (`conflict_reuses_old_id`), the output not following the move (`output_ignor
+ a colliding new ID (`move_takes_colliding_id`), the configured, moved and upper-48 terms of
+ the search dropped one at a time, a stuck cursor, a move lost on disable, the move booked only
+ while declaring, the declared mark not set by the event or the command path or kept after a
+-move, each answer and the declaration reading the configured ID, and the PCP path
+-re-declaring without the gap. The
++move, each answer and the declaration reading the configured ID, the PCP path
++re-declaring without the gap, a PCP change after a withdrawal starting no gap
++(`pcp_after_withdrawal_skips_the_gap`), a probe served with a PCP change pending declaring
++anyway (`pcp_pending_not_held`), a disable booking no move (`disable_keeps_declared_id`),
++and every slot publishing slot 0's upper 48 bits (`publish_upper_from_slot0`). The
+ first three also run against `tb/pp_top`'s section MP8, the whole path through the in-scope
+ MAAP engine.
+diff --git a/tb/acmp_talker/sid_cases.hpp b/tb/acmp_talker/sid_cases.hpp
+index 1e602cd..90eaa4b 100644
+--- a/tb/acmp_talker/sid_cases.hpp
++++ b/tb/acmp_talker/sid_cases.hpp
+@@ -4,7 +4,11 @@
+ // the rule in 05 F05.12, never read from the DUT: the new ID keeps the
+ // slot's upper 48 bits and takes the first unique ID, counted up from a
+ // cursor that starts at P-N-STREAM-OUT (8), that is no source's current and
+-// no source's configured ID. Included after Hn, like retry_cases.hpp.
++// no source's configured ID. Every path that declares an ID again after its
++// withdrawal with another FirstValue either moves the ID or waits two
++// LeaveAllTime periods (IEEE 802.1Q-2018 35.2.2.8, Table 10-7: 2 x 10 s):
++// a disable of a declared source moves it; a PCP change keeps the ID and
++// waits. Included after Hn, like retry_cases.hpp.
+ struct SidChecks {
+   int& checks;
+   int& fails;
+@@ -13,8 +17,12 @@ struct SidChecks {
+   //! IEEE 1722-2016 B.3, Table B.8: three probe intervals of 500 to 600 ms
+   //! claim the new range; the bench's allocator answers after this walk
+   static constexpr uint32_t WALK_MS = 1700;
++  //! IEEE 802.1Q-2018 35.2.2.8 with Table 10-7's LeaveAllTime of 10 s: the
++  //! least time between a withdrawal and a same-ID declaration of another
++  //! FirstValue
++  static constexpr uint32_t GAP_MS = 2 * 10000;
+   void probe(Hn& h, int src, int status, uint64_t da, uint64_t sid,
+-             const char* tag);
++             const char* tag, int vlan = VID);
+   void tx_state(Hn& h, int src, uint64_t da, uint64_t sid, const char* tag);
+   //! src declares on a probe, then a conflict hits it; the grant follows
+   //! at once (auto_grant). Returns the Stream ID the grant declared.
+@@ -26,16 +34,22 @@ struct SidChecks {
+   void other_mac_is_no_collision();
+   void declared_id_moves_after_a_withdrawal();
+   void cursor_lap();
++  //! the last gate strobe of `src` since the logs were cleared, or nullptr
++  static const GateEv* last_open(const Hn& h, int src);
++  void pcp_after_a_listener_withdrawal_waits();
++  void pcp_after_a_lapse_on_a_moved_id_waits();
++  void pcp_pending_holds_a_probe_open();
++  void disable_moves_a_declared_id();
+ };
+ 
+ void SidChecks::probe(Hn& h, int src, int status, uint64_t da, uint64_t sid,
+-                      const char* tag) {
++                      const char* tag, int vlan) {
+   h.resps.clear();
+   CHECK(h.send(MT_PROBE, src, C1, 0x600 + src, L1, 8, FL_FC),
+         "%s src%d consumed", tag, src);
+   CHECK(h.resps.size() == 1 && h.resps[0].status == status
+         && h.resps[0].da == da && h.resps[0].sid == sid
+-        && h.resps[0].vlan == (status == ST_OK ? VID : 0),
++        && h.resps[0].vlan == (status == ST_OK ? vlan : 0),
+         "%s src%d status/tuple (status %u sid %016llx)", tag, src,
+         h.resps.empty() ? 99u : unsigned(h.resps[0].status),
+         static_cast<unsigned long long>(h.resps.empty() ? 0 : h.resps[0].sid));
+@@ -78,7 +92,7 @@ bool SidChecks::all_distinct(const Hn& h) const {
+   return true;
+ }
+ 
+-// S1: the whole conflict path on one declaring source, timed in ms.
++// The whole conflict path on one declaring source, timed in ms.
+ void SidChecks::conflict_moves_and_declares() {
+   Hn h; h.configure_the_talker_and_release_reset(); h.run(400);
+   for (int s = 0; s < N_SRC; ++s) h.da[s] = da_pool(s);
+@@ -139,11 +153,15 @@ void SidChecks::conflict_moves_and_declares() {
+   REQ_TAG("REQ-ACMP-008", "DIR", "S1 GET_TX_STATE after the grant");
+   tx_state(h, 2, DA_NEW, SID_NEW, "S1 GET_TX_STATE after the grant");
+ 
+-  // the move is for good: a disable and re-enable keep the new ID, so the
+-  // withdrawn one is never declared again with another DA
++  // the move is for good: a disabled source keeps its new ID, so the
++  // withdrawn one is never declared again with another DA. The new ID has
++  // been declared, so the return grant moves the source once more.
+   h.d->cfg_src_en_i = 0xFB; h.run(200);
+-  h.d->cfg_src_en_i = 0xFF; h.run(400);
+   CHECK(h.sid_pub(2) == SID_NEW, "S1 the move survives a disable");
++  h.d->cfg_src_en_i = 0xFF; h.run(400);
++  CHECK(h.sid_pub(2) == (UP | 0x0009u),
++        "S1 a declared moved ID moves again after a disable (got %016llx)",
++        static_cast<unsigned long long>(h.sid_pub(2)));
+   // a conflict with nothing declared moves nothing
+   h.d->maap_conflict_valid_i = 1; h.d->maap_conflict_src_i = 5;
+   h.tick(); h.run(200);
+@@ -151,7 +169,7 @@ void SidChecks::conflict_moves_and_declares() {
+         "S1 a conflict with nothing declared keeps the Stream ID");
+ }
+ 
+-// S2: a slot provisioned with the first candidate's value is skipped.
++// A slot provisioned with the first candidate's value is skipped.
+ void SidChecks::provisioned_collision() {
+   Hn h; h.sid_cfg[7] = UP | 0x0008u;
+   h.configure_the_talker_and_release_reset(); h.run(400);
+@@ -165,7 +183,7 @@ void SidChecks::provisioned_collision() {
+         "S2 the new ID differs from the withdrawn one and every current ID");
+ }
+ 
+-// S3: another source's configured ID stays excluded after it moved off it,
++// Another source's configured ID stays excluded after it moved off it,
+ // so a move never re-declares an ID that source withdrew moments before.
+ void SidChecks::configured_id_stays_excluded() {
+   Hn h; h.sid_cfg[7] = UP | 0x0009u;
+@@ -180,18 +198,40 @@ void SidChecks::configured_id_stays_excluded() {
+   CHECK(all_distinct(h), "S3 every current ID distinct");
+ }
+ 
+-// S4: an equal unique ID under another upper 48 bits is another ID.
++// An equal unique ID under another upper 48 bits is another ID, and every
++// slot publishes its own whole 64-bit ID: after reset its configured
++// slice, after a move its own upper 48 bits with the new unique ID.
+ void SidChecks::other_mac_is_no_collision() {
+   Hn h; h.sid_cfg[7] = 0xCD00000000000008ull;
++  h.sid_cfg[5] = 0x0123456789ABCDEFull;   // an arbitrary provisioned value
+   h.configure_the_talker_and_release_reset(); h.run(400);
+   for (int s = 0; s < N_SRC; ++s) h.da[s] = da_pool(s);
++  bool own = true;
++  for (int s = 0; s < N_SRC; ++s)
++    if (h.sid_pub(s) != h.sid_cfg[s]) own = false;
++  CHECK(own, "S4 after reset every slot publishes its own whole configured ID "
++        "(slot 7 %016llx, slot 5 %016llx)",
++        static_cast<unsigned long long>(h.sid_pub(7)),
++        static_cast<unsigned long long>(h.sid_pub(5)));
+   const uint64_t s0 = move_once(h, 0, "S4");
+   CHECK(s0 == (UP | 0x0008u),
+         "S4 an equal unique ID under another MAC is not a collision "
+         "(got %016llx)", static_cast<unsigned long long>(s0));
++  CHECK(h.sid_pub(7) == 0xCD00000000000008ull
++        && h.sid_pub(5) == 0x0123456789ABCDEFull,
++        "S4 a move leaves the other slots' whole IDs published");
++  const uint64_t s7 = move_once(h, 7, "S4 src7");
++  CHECK(s7 == 0xCD00000000000009ull && h.sid_pub(7) == s7,
++        "S4 a slot under other upper 48 bits keeps them when it moves "
++        "(got %016llx)", static_cast<unsigned long long>(h.sid_pub(7)));
++  const uint64_t s5 = move_once(h, 5, "S4 src5");
++  CHECK(s5 == 0x0123456789AB000Aull && h.sid_pub(5) == s5,
++        "S4 an arbitrary provisioned slot keeps its upper 48 bits when it "
++        "moves (got %016llx)", static_cast<unsigned long long>(h.sid_pub(5)));
++  CHECK(all_distinct(h), "S4 every current ID distinct");
+ }
+ 
+-// S6: any conflict books the move once the current ID has been declared,
++// Any conflict books the move once the current ID has been declared,
+ // also after the declaration was withdrawn on a lapsed gate: the new DA is
+ // never declared under an ID that was on the wire with the old one. An ID
+ // not declared since its move is not moved again.
+@@ -229,7 +269,7 @@ void SidChecks::declared_id_moves_after_a_withdrawal() {
+         static_cast<unsigned long long>(h.sid_pub(4)));
+ }
+ 
+-// S5: one full lap of the 16-bit cursor. src1 moves once, then src0 moves
++// One full lap of the 16-bit cursor. src1 moves once, then src0 moves
+ // until the cursor wraps: inside the lap no unique ID repeats, every move
+ // differs from the withdrawn and every current ID, and the first move after
+ // the wrap skips every configured ID and src1's moved one.
+@@ -275,6 +315,171 @@ void SidChecks::cursor_lap() {
+         static_cast<unsigned long long>(after_wrap), moves);
+ }
+ 
++const GateEv* SidChecks::last_open(const Hn& h, int src) {
++  const GateEv* g = nullptr;
++  for (const auto& e : h.gates)
++    if (e.open && e.src == src) g = &e;
++  return g;
++}
++
++// A PCP change after the configured ID was withdrawn on a lapsed gate keeps
++// the ID, so the next declaration waits the gap, counted from the change.
++// Neither a returning listener nor a probe declares the changed FirstValue
++// (here the Domain's new VID) under the same ID inside it.
++void SidChecks::pcp_after_a_listener_withdrawal_waits() {
++  Hn h; h.configure_the_talker_and_release_reset(); h.run(400);
++  h.d->now_ms_i = 1000;
++  h.set_lsn(0, LSN_READY);
++  CHECK(h.decl_mask() == 0x01u, "S7 src0 declares on a registered listener");
++  h.d->now_ms_i = 1010;
++  h.gates.clear();
++  h.set_lsn(0, LSN_NONE);
++  CHECK(h.decl_mask() == 0 && h.gates.size() == 1 && !h.gates[0].open,
++        "S7 src0 withdraws when the listener leaves");
++  const uint32_t tw = h.gates.empty() ? 0 : h.gates[0].ms;
++  h.gates.clear(); h.arms.clear(); h.draws.clear();
++  const uint32_t tp = 1011;
++  h.d->now_ms_i = tp; h.draw_val = 11000; h.d->srp_class_vid_i = VID + 1;
++  h.d->srp_pcp_change_i = 1; h.tick(); h.run(40);
++  REQ_TAG("REQ-ACMP-010", "DIR", "S7 a PCP change after a listener withdrawal arms T-SRP-LEAVEALL2");
++  CHECK(h.draws.size() == 1 && h.arms.size() == 1 && !h.arms[0].cancel
++        && h.arms[0].slot == TMR_BASE && h.arms[0].dl == tp + 2 * 11000
++        && h.gates.empty(),
++        "S7 a PCP change after a listener withdrawal arms T-SRP-LEAVEALL2 "
++        "(%zu draws, %zu arms)", h.draws.size(), h.arms.size());
++  h.arms.clear(); h.draws.clear();
++  h.d->now_ms_i = tp + 1;
++  h.set_lsn(0, LSN_READY);
++  CHECK(h.gates.empty() && h.decl_mask() == 0,
++        "S7 a returning listener does not declare the same ID inside the gap");
++  h.d->now_ms_i = tp + 2;
++  probe(h, 0, ST_OK, da_pool(0), sid_of(0),
++        "S7 PROBE_TX inside the gap answers the kept ID and DA", VID + 1);
++  CHECK(h.gates.empty() && h.decl_mask() == 0,
++        "S7 a probe does not declare the same ID inside the gap");
++  h.d->now_ms_i = tp + 2 * 11000;
++  h.fire_expiry(0); h.run(20);
++  const GateEv* g = last_open(h, 0);
++  CHECK(g && g->sid == sid_of(0) && g->da == da_pool(0) && g->vlan == VID + 1,
++        "S7 after the gap the same ID declares the changed FirstValue");
++  REQ_TAG("REQ-ACMP-010", "DIR", "S7 two LeaveAllTime periods separate the withdrawal and the same-ID declaration");
++  CHECK(g && g->ms - tw >= GAP_MS,
++        "S7 two LeaveAllTime periods separate the withdrawal and the same-ID declaration"
++        " (%u ms)", g ? g->ms - tw : 0u);
++}
++
++// The same on a conflict-moved ID declared by a probe and withdrawn when its
++// freshness lapsed: the moved ID is kept through the PCP change and waits.
++void SidChecks::pcp_after_a_lapse_on_a_moved_id_waits() {
++  Hn h; h.configure_the_talker_and_release_reset(); h.run(400);
++  for (int s = 0; s < N_SRC; ++s) h.da[s] = da_pool(s);
++  const uint32_t t0 = 30000;
++  h.d->now_ms_i = t0;
++  const uint64_t mv = move_once(h, 2, "S8");
++  CHECK(mv == (UP | 0x0008u) && h.sid_pub(2) == mv,
++        "S8 src2 declares its moved ID (got %016llx)",
++        static_cast<unsigned long long>(mv));
++  h.d->now_ms_i = t0 + T_DAFRESH + 1;
++  h.gates.clear();
++  h.fire_expiry(2); h.run(40);
++  CHECK(h.decl_mask() == 0 && h.gates.size() == 1 && !h.gates[0].open
++        && h.gates[0].src == 2,
++        "S8 the moved ID withdraws when its freshness lapses");
++  const uint32_t tw = h.gates.empty() ? 0 : h.gates[0].ms;
++  h.gates.clear(); h.arms.clear(); h.draws.clear();
++  const uint32_t tp = tw + 1;
++  h.d->now_ms_i = tp; h.draw_val = 10000; h.d->srp_class_vid_i = VID + 1;
++  h.d->srp_pcp_change_i = 1; h.tick(); h.run(40);
++  CHECK(h.draws.size() == 1 && h.arms.size() == 1 && !h.arms[0].cancel
++        && h.arms[0].slot == TMR_BASE + 2 && h.arms[0].dl == tp + 2 * 10000
++        && h.gates.empty(),
++        "S8 a PCP change after a lapse arms T-SRP-LEAVEALL2 on the moved ID "
++        "(%zu draws, %zu arms)", h.draws.size(), h.arms.size());
++  h.arms.clear(); h.draws.clear();
++  h.d->now_ms_i = tp + 1;
++  probe(h, 2, ST_OK, h.da[2], mv,
++        "S8 PROBE_TX inside the gap answers the moved ID and DA", VID + 1);
++  CHECK(h.gates.empty() && h.decl_mask() == 0,
++        "S8 a probe does not declare the moved ID inside the gap");
++  h.d->now_ms_i = tp + 2;
++  h.set_lsn(2, LSN_READY);
++  CHECK(h.gates.empty() && h.decl_mask() == 0,
++        "S8 a returning listener does not declare the moved ID inside the gap");
++  h.d->now_ms_i = tp + 2 * 10000;
++  h.fire_expiry(2); h.run(20);
++  const GateEv* g = last_open(h, 2);
++  CHECK(g && g->sid == mv && g->da == h.da[2] && g->vlan == VID + 1,
++        "S8 after the gap the moved ID declares the changed FirstValue");
++  CHECK(g && g->ms - tw >= GAP_MS,
++        "S8 two LeaveAllTime periods separate the withdrawal and the moved "
++        "ID's declaration (%u ms)", g ? g->ms - tw : 0u);
++}
++
++// A PCP change that arrives with a probe: the command is served ahead of
++// the pending event, and must not declare the changed FirstValue under the
++// withdrawn ID before the event has started the gap.
++void SidChecks::pcp_pending_holds_a_probe_open() {
++  Hn h; h.configure_the_talker_and_release_reset(); h.run(400);
++  h.d->now_ms_i = 1000;
++  h.set_lsn(5, LSN_READY);
++  CHECK(h.decl_mask() == 0x20u, "S9 src5 declares on a registered listener");
++  h.set_lsn(5, LSN_NONE);
++  CHECK(h.decl_mask() == 0, "S9 src5 withdraws when the listener leaves");
++  h.gates.clear(); h.arms.clear(); h.draws.clear(); h.resps.clear();
++  h.d->now_ms_i = 1002; h.draw_val = 10000;
++  h.d->srp_pcp_change_i = 1;               // in the probe's first cycle
++  CHECK(h.send(MT_PROBE, 5, C1, 0x6A5, L1, 8, FL_FC), "S9 src5 consumed");
++  h.run(40);
++  REQ_TAG("REQ-ACMP-010", "DIR", "S9 a probe served with a PCP change pending does not declare the same ID");
++  CHECK(h.gates.empty() && h.decl_mask() == 0,
++        "S9 a probe served with a PCP change pending does not declare the same ID"
++        " (%zu strobes)", h.gates.size());
++  CHECK(h.draws.size() == 1, "S9 the pending PCP change then starts the gap");
++}
++
++// A disable of a source whose ID has been declared books the move: the
++// release hands the DA back and the allocator may grant another one, so the
++// source returns under a new Stream ID whatever DA it gets. A source that
++// never declared keeps its configured ID.
++void SidChecks::disable_moves_a_declared_id() {
++  Hn h; h.configure_the_talker_and_release_reset(); h.run(400);
++  h.d->now_ms_i = 1000;
++  probe(h, 3, ST_OK, da_pool(3), sid_of(3), "S10 src3 declares its configured ID");
++  CHECK(h.decl_mask() == 0x08u, "S10 src3 declaring");
++  h.gates.clear(); h.mreqs.clear(); h.arms.clear();
++  h.d->cfg_src_en_i = 0xF7; h.run(200);
++  CHECK(h.gates.size() == 1 && !h.gates[0].open && h.gates[0].src == 3,
++        "S10 the disable withdraws src3");
++  CHECK(h.sid_pub(3) == sid_of(3), "S10 a disabled source keeps its ID while out");
++  h.gates.clear();
++  h.d->cfg_src_en_i = 0xFF; h.run(400);   // the allocator grants a fresh DA
++  REQ_TAG("REQ-ACMP-010", "DIR", "S10 a declared source returns from a disable under a new Stream ID");
++  CHECK(h.sid_pub(3) == (UP | 0x0008u),
++        "S10 a declared source returns from a disable under a new Stream ID "
++        "(got %016llx)", static_cast<unsigned long long>(h.sid_pub(3)));
++  h.d->now_ms_i = 1500;                    // 500 ms after the withdrawal
++  probe(h, 3, ST_OK, da_pool(8), UP | 0x0008u,
++        "S10 PROBE_TX after the return answers the new ID and DA");
++  const GateEv* g = last_open(h, 3);
++  CHECK(g && g->sid == (UP | 0x0008u) && g->da == da_pool(8),
++        "S10 the new DA is declared under the new ID, never the withdrawn one");
++  // a block allocator gives the same DA back: the ID moves all the same
++  h.block_count = N_SRC; h.block_base = da_pool(0);
++  probe(h, 5, ST_OK, da_pool(5), sid_of(5), "S10 src5 declares its configured ID");
++  h.d->cfg_src_en_i = 0xDF; h.run(200);
++  h.d->cfg_src_en_i = 0xFF; h.run(400);
++  CHECK(h.sid_pub(5) == (UP | 0x0009u),
++        "S10 the move does not depend on the returned DA (got %016llx)",
++        static_cast<unsigned long long>(h.sid_pub(5)));
++  probe(h, 5, ST_OK, da_pool(5), UP | 0x0009u,
++        "S10 PROBE_TX after the same DA returns answers the new ID");
++  h.d->cfg_src_en_i = 0xBF; h.run(200);
++  h.d->cfg_src_en_i = 0xFF; h.run(400);
++  CHECK(h.sid_pub(6) == sid_of(6),
++        "S10 a source that never declared returns under its configured ID");
++  CHECK(all_distinct(h), "S10 every current ID distinct");
++}
++
+ void Hn::check_sid_cases() {
+   SidChecks sid{checks, fails};
+   sid.conflict_moves_and_declares();
+@@ -283,4 +488,8 @@ void Hn::check_sid_cases() {
+   sid.other_mac_is_no_collision();
+   sid.declared_id_moves_after_a_withdrawal();
+   sid.cursor_lap();
++  sid.pcp_after_a_listener_withdrawal_waits();
++  sid.pcp_after_a_lapse_on_a_moved_id_waits();
++  sid.pcp_pending_holds_a_probe_open();
++  sid.disable_moves_a_declared_id();
+ }
+diff --git a/tb/acmp_talker/sim_main.cpp b/tb/acmp_talker/sim_main.cpp
+index 2d83391..2038fa1 100644
+--- a/tb/acmp_talker/sim_main.cpp
++++ b/tb/acmp_talker/sim_main.cpp
+@@ -10,7 +10,7 @@
+ // fields and reads REGISTERING_FAILED LIVE from the srp face); the DA
+ // lifecycle walk none -> maap-granted -> declared; MAAP conflict ->
+ // withdraw -> re-alloc at once -> re-declare at the grant with the NEW DA
+-// under a NEW Stream ID (issue #202, sections E and S); the PCP-change
++// under a NEW Stream ID (issue #202, REQ-ACMP-010); the PCP-change
+ // backoff, T-SRP-LEAVEALL2 (2 x PRNG draw, compressed by TB-driven expiry),
+ // that KEEPS the DA and the Stream ID; T-SRP-DAFRESH freshness expiry; the V3
+ // truncated-PDU zero-fill; per-source independence; and the stateless
+@@ -210,7 +210,7 @@ struct Hn {
+   // reads back from an earlier one; all three were locals of `main`.
+   uint64_t da[N_SRC];
+   // cfg_stream_id_i per slot, applied at reset: sid_of(s) unless a section
+-  // provisions another value (section S, issue #202)
++  // provisions another value (issue #202, REQ-ACMP-010)
+   uint64_t sid_cfg[N_SRC] = {sid_of(0), sid_of(1), sid_of(2), sid_of(3),
+                              sid_of(4), sid_of(5), sid_of(6), sid_of(7)};
+   uint32_t t2 = 0;
+@@ -701,6 +701,12 @@ void Hn::check_dafresh_expiry() {
+ // new ID keeps the slot's upper 48 bits; its unique ID is the first one past
+ // the default {MAC, s} block that no slot uses (05 F05.12): 8.
+ static constexpr uint64_t SID3B = 0xAB00000000000008ull;
++// A source whose ID has been declared returns from a disable under a new
++// Stream ID (05 F05.12): src4, declared on a probe before it leaves, takes
++// the next candidate, 9, at its return, and src6, declared on its grant
++// before it leaves, the one after, 10.
++static constexpr uint64_t SID4B = 0xAB00000000000009ull;
++static constexpr uint64_t SID6B = 0xAB0000000000000Aull;
+ 
+ void Hn::check_a_maap_conflict_withdraws_and_reallocates() {
+   uint32_t t5 = 50000; d->now_ms_i = t5;
+@@ -980,7 +986,7 @@ void Hn::check_an_absent_maap_degrades_without_wedging() {
+   const uint64_t da4b = da_pool(11);
+   expect_mreq("J7 the owed RELEASE is taken FIRST", 4, true);
+   expect_mreq("J7 ...and only then does the rejoin allocate", 4, false);
+-  expect_open("J7 grant re-declares", 4, da4b);
++  expect_open("J7 grant re-declares", 4, da4b, SID4B);
+   CHECK(saw_edge(4, true),
+         "J7 declaring_o[4] OBSERVED 0 -> 1: the source recovered");
+   CHECK(decl_mask() == 0x7Au, "J7 final gates, got 0x%02x", decl_mask());
+@@ -989,7 +995,7 @@ void Hn::check_an_absent_maap_degrades_without_wedging() {
+     CHECK(send(MT_PROBE, 4, C1, 0x182, L1, 5, FL_FC), "J7b consumed");
+     run(8);
+     Resp e = echo(MT_PROBE, ST_OK, 4, C1, 0x182, L1, 5);
+-    e.sid = sid_of(4); e.da = da4b; e.vlan = VID; e.flags = FL_FC;
++    e.sid = SID4B; e.da = da4b; e.vlan = VID; e.flags = FL_FC;
+     expect_resp("J7b the recovered source answers with its NEW DA", e);
+     expect_arm("J7b ping", 4, t9 + T_DAFRESH, false);
+   }
+@@ -1117,7 +1123,7 @@ void Hn::check_a_late_stale_response_is_swallowed() {
+   expect_mreq("K8 the abandoned source retries", 6, false);
+   inject_rsp(true, DA6);
+   run(30);
+-  expect_open("K8 abandoned source recovers with a FRESH DA", 6, DA6);
++  expect_open("K8 abandoned source recovers with a FRESH DA", 6, DA6, SID6B);
+   CHECK(decl_mask() == 0x7Eu, "K8 final gates, got 0x%02x", decl_mask());
+   drained("K");
+ }
+diff --git a/tb/maap/README.md b/tb/maap/README.md
+index 4f36943..324aedf 100644
+--- a/tb/maap/README.md
++++ b/tb/maap/README.md
+@@ -243,9 +243,9 @@ the results are printed in the table's order whatever order they finish in.
+ | `seed-clamp-removed` | the footnote-a seed clamp removed: the provisioned offset is probed as given | maap | U18 x4 (claim `…:FF:FF`; PROBE bytes; claim; last-source grant), U18b x2: 6 FAIL of 196 |
+ | `release-keeps-draw-mark` | the fix above removed | maap | U17b phases 1 to 3, U17c x2, U18 x3 and U27 x1, each behind a wedge that the next Release! clears in `W_IVAL`: 9 FAIL of 194 |
+ | `validator-maap-version-1-only` | `KL_pp_rx_validator.sv` gains a `maap_version == 1` acceptance rule (issue #67, B.2.3.2/B.2.3.4) | rx_validator | F29a/F29b/F29c: versions 2, 0 and 31 counted `rx_version` and aborted: 47 FAIL of 555 |
+-| (same arm) | | pp_top `maap-internal` | MP7 x4: neither the version-2 nor the version-0 PROBE is defended: 4 FAIL of 42 |
++| (same arm) | | pp_top `maap-internal` | MP7 x4: neither the version-2 nor the version-0 PROBE is defended: 4 FAIL of 43 |
+ | `compare-mac-forward` | `cmp_mac_true_w = own_mac_i < rxm_sa_r`: compare_MAC in forward octet order (issue #68, B.3.6.4) | maap | U7, U8, U9 x2, U10, U19 x2, U20, U21: 9 FAIL of 194 |
+-| (same arm) | | pp_top `maap-internal` | MP4 x5: the rev-lower, forward-higher ANNOUNCE is ignored, nothing withdrawn; MP8a x1 and MP8 x5 behind it (issue #202: no conflict, so no new Stream ID): 11 FAIL of 42 |
++| (same arm) | | pp_top `maap-internal` | MP4 x5: the rev-lower, forward-higher ANNOUNCE is ignored, nothing withdrawn; MP8a x1 and MP8 x6 behind it (issue #202: no conflict, so no new Stream ID): 12 FAIL of 43 |
+ | `probe-rprobe-never-yields` | PROBE / rProbe! never yields | maap | U19 x2: 2 FAIL of 196 |
+ | `defend-rdefend-ignored` | DEFEND / rDefend! ignored (only rAnnounce! can yield in DEFEND) | maap | U21 x4, then U22 x4 behind it: 8 FAIL of 194 |
+ | `defend-rdefend-no-tiebreak` | DEFEND / rDefend! always yields (no compare_MAC) | maap | U20, then U21 (not in DEFEND): 2 FAIL of 196 |
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index 4e0c89a..36c3cb0 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -2039,7 +2039,7 @@ MP4's conflict.
+ octet-reversed lower than `OWN_MAC` (`0A:0B:0C:0D:0E:0F`) but forward higher,
+ and a premise check says so. Only the reversed compare_MAC yields to it, so
+ the `tb/maap` campaign's `compare-mac-forward` arm fails MP4 (5 FAIL, with the
+-six MP8a/MP8 checks behind it 11 of 42).
++seven MP8a/MP8 checks behind it 12 of 43).
+ 
+ **MP7** (issue #67, B.2.3): every other MAAP frame in this bench carries
+ maap_version 1. MP7 feeds a conflicting PROBE with maap_version 2 (B.2.3.2),
+@@ -2056,42 +2056,49 @@ risen less than 2 s after the conflicting ANNOUNCE (measured 1,737 ms: the
+ walk's four probes and the next `T-ACMP-DA-RETRY` round, no T-SRP-LEAVEALL2);
+ `src_stream_id_o[0]` is `{OWN_MAC, 8}`, the first unique ID past the wrap's
+ `{mac, 0..7}`, and no other source's ID moved; an MSRP frame on the MAC stream
+-carries a Talker Advertise for `{OWN_MAC, 8}` on the new base; PROBE_TX answers
+-SUCCESS and GET_TX_STATE the same ID and address, both byte-exact. The
+-`conflict_keeps_old_wait`, `conflict_reuses_old_id` and `output_ignores_move`
+-arms of `acmp_mutants.py` fail it by name.
+-
+-`make maap-internal` builds the bench and runs the MP section alone (42
++carries a Talker Advertise for `{OWN_MAC, 8}` on the new base, and that ID's
++first Talker Advertise is a JoinMt, not a New: the re-open is the applicant's
++Join! (IEEE 802.1Q-2018 10.7.5.5, 10.7.6.3; 10 F10.4); PROBE_TX answers SUCCESS
++and GET_TX_STATE the same ID and address, both byte-exact. The
++`conflict_keeps_old_wait`, `conflict_reuses_old_id`, `output_ignores_move` and
++`reopen_sends_new` arms of `acmp_mutants.py` fail it by name.
++
++`make maap-internal` builds the bench and runs the MP section alone (43
+ checks).
+ 
+ The issue #202 group of `acmp_mutants.py` (`STREAM_ID`) plants each defect in
+ `KL_acmp_talker` and grades it with `tb/acmp_talker` (sections E, F, R6 and S,
+-its README) and, for the first three, with this section's MP8 run alone
+-(`--maap-internal-only`):
++its README) and, for the first three and the last, with this section's MP8 run
++alone (`--maap-internal-only`):
+ 
+ | Mutant | Defect planted | Named checks, each failing | Failing checks |
+ |---|---|---|---|
+-| `conflict_keeps_old_wait` | the old wait kept: a conflict on a declaring source backs off for T-SRP-LEAVEALL2 | `E1 no backoff`, `S1 ALLOC_DA offered in the conflict's millisecond`, `S1 conflict to new declaration under 2 s`; here `MP8: conflict to new declaration under 2 s` | 108; here 5 |
+-| `conflict_reuses_old_id` | the old ID reused without the gap: a conflict books no move | `E3 re-declare new DA open sid`, `S1 the declaration carries a new Stream ID`; here `MP8: the Talker Advertise carries the new Stream ID` | 28; here 4 |
+-| `output_ignores_move` | `src_stream_id_o` publishes the configured slice | `E3 src_stream_id_o follows the move`, `S1 src_stream_id_o follows the move`; here `MP8: src_stream_id_o names the new Stream ID` | 11; here 1 |
++| `conflict_keeps_old_wait` | the old wait kept: a conflict on a declaring source backs off for T-SRP-LEAVEALL2 | `E1 no backoff`, `S1 ALLOC_DA offered in the conflict's millisecond`, `S1 conflict to new declaration under 2 s`; here `MP8: conflict to new declaration under 2 s` | 124; here 6 |
++| `conflict_reuses_old_id` | the old ID reused without the gap: a conflict books no move | `E3 re-declare new DA open sid`, `S1 the declaration carries a new Stream ID`; here `MP8: the Talker Advertise carries the new Stream ID` | 35; here 5 |
++| `output_ignores_move` | `src_stream_id_o` publishes the configured slice | `E3 src_stream_id_o follows the move`, `S1 src_stream_id_o follows the move`; here `MP8: src_stream_id_o names the new Stream ID` | 17; here 1 |
+ | `move_takes_colliding_id` | a colliding new ID: the search refuses no candidate | `S2 a provisioned collision with the first candidate is skipped` | 4 |
+ | `move_ignores_configured_ids` | the configured-ID term covers unmoved sources only | `S3 a move never takes another source's configured ID` | 2 |
+ | `move_ignores_moved_ids` | the moved-ID term dropped | `S5 after the cursor wraps a move skips` | 2 |
+-| `move_compares_unique_id_only` | the upper-48 match dropped | `S4 an equal unique ID under another MAC is not a collision` | 1 |
+-| `move_cursor_stuck` | the cursor never advances | `S5 no move repeats a unique ID inside one lap` | 2 |
++| `move_compares_unique_id_only` | the upper-48 match dropped | `S4 an equal unique ID under another MAC is not a collision` | 3 |
++| `move_cursor_stuck` | the cursor never advances | `S5 no move repeats a unique ID inside one lap` | 3 |
+ | `move_lost_on_disable` | a disable returns the source to its configured ID | `S1 the move survives a disable` | 1 |
+ | `move_only_when_declaring` | only a conflict on a declaring source books the move | `S6 a conflict after a listener withdrawal moves the ID`, `S6 a conflict after a freshness lapse moves the ID`, `R6 after backoff src0 status/tuple` | 6 |
+-| `used_not_marked_by_event` | an event-path declaration does not mark the ID declared | `S6 a conflict after a listener withdrawal moves the ID` | 8 |
+-| `used_not_marked_by_probe` | a probe-path declaration does not mark the ID declared | `S1 the declaration carries a new Stream ID`, `S6 a conflict after a freshness lapse moves the ID` | 22 |
++| `used_not_marked_by_event` | an event-path declaration does not mark the ID declared | `S6 a conflict after a listener withdrawal moves the ID` | 19 |
++| `used_not_marked_by_probe` | a probe-path declaration does not mark the ID declared | `S1 the declaration carries a new Stream ID`, `S6 a conflict after a freshness lapse moves the ID` | 34 |
+ | `used_kept_after_move` | the declared mark survives the move | `S6 an ID not declared since its move is not moved again` | 4 |
+-| `probe_answers_configured_id` | PROBE_TX answers the configured ID | `E5 probe after the grant`, `S1 PROBE_TX after the grant` | 4 |
++| `probe_answers_configured_id` | PROBE_TX answers the configured ID | `E5 probe after the grant`, `S1 PROBE_TX after the grant` | 8 |
+ | `tx_state_answers_configured_id` | GET_TX_STATE answers the configured ID | `E4 new DA answered`, `S1 GET_TX_STATE after the grant` | 2 |
+-| `declare_carries_configured_id` | DECLARE_TALKER carries the configured ID | `E3 re-declare new DA open sid`, `F5 re-declare src3 same DA open sid` | 12 |
++| `declare_carries_configured_id` | DECLARE_TALKER carries the configured ID | `E3 re-declare new DA open sid`, `F5 re-declare src3 same DA open sid` | 18 |
+ | `pcp_skips_the_gap` | the same-Stream-ID PCP path re-declares without T-SRP-LEAVEALL2 | `F2 leaveall2 src0`, `R6 full two-LeaveAll backoff armed` | 22 |
+-
+-Measured 2026-10-26 on the lane tree: 20 of 20 KILLED (17 in `tb/acmp_talker`, 3 here),
+-and both goldens PASS. The `tb/maap` mutation campaign uses it: its
+-`validator-maap-version-1-only` arm fails MP7 (4 FAIL of 42).
++| `pcp_after_withdrawal_skips_the_gap` | a PCP change after the ID was withdrawn on a lapsed gate starts no gap: the next demand declares the changed FirstValue under the same ID at once | `S7 a PCP change after a listener withdrawal arms T-SRP-LEAVEALL2`, `S7 two LeaveAllTime periods separate the withdrawal and the same-ID declaration`, `S8 two LeaveAllTime periods separate the withdrawal and the moved ID's declaration` | 9 |
++| `pcp_pending_not_held` | a probe served ahead of a pending PCP change declares the same ID | `S9 a probe served with a PCP change pending does not declare the same ID` | 1 |
++| `disable_keeps_declared_id` | a disable of a declared source books no move | `S10 a declared source returns from a disable under a new Stream ID`, `J7 grant re-declares open sid` | 9 |
++| `publish_upper_from_slot0` | every slot publishes slot 0's upper 48 bits | `S4 after reset every slot publishes its own whole configured ID`, `S4 a slot under other upper 48 bits keeps them when it moves` | 6 |
++| `reopen_sends_new` | the re-open after a move is a New! (`KL_srp_talker_fsm`), not the applicant's Join! | here `MP8: the new Stream ID's first Talker Advertise is a JoinMt, not a New` | here 1 |
++
++Measured 2026-10-26 at 9a6d1d08a5d1 (RTL as at 39358354c47a): 25 of 25 KILLED (21 in
++`tb/acmp_talker`, 4 here), and both goldens PASS. The `tb/maap` mutation campaign uses
++it: its `validator-maap-version-1-only` arm fails MP7 (4 FAIL of 43).
+ 
+ ## Section AC: the ACMP listener path end to end (issues #45, #47, #48)
+ 
+diff --git a/tb/pp_top/acmp_mutants.py b/tb/pp_top/acmp_mutants.py
+index bed29fe..61abd90 100755
+--- a/tb/pp_top/acmp_mutants.py
++++ b/tb/pp_top/acmp_mutants.py
+@@ -416,8 +416,10 @@ TSPEC = (
+ # issue #202: after a MAAP conflict on a declaring source the next grant moves
+ # it to a new Stream ID, distinct from the withdrawn one and from every other
+ # source's current and configured ID, and declares it at once; src_stream_id_o,
+-# PROBE_TX, GET_TX_STATE and the Talker Advertise carry it. Section S of
+-# tb/acmp_talker grades the rule, section MP8 of tb/pp_top the whole path
++# PROBE_TX, GET_TX_STATE and the Talker Advertise carry it. A disable of a
++# declared source moves it too, and a PCP change after a withdrawal keeps the
++# ID and waits two LeaveAllTime periods (IEEE 802.1Q-2018 35.2.2.8). The
++# talker suite grades the rule; the processor-top suite grades the whole path
+ # through the in-scope MAAP engine and the SRP encoder.
+ TALKER = "hdl/acmp/KL_acmp_talker.sv"
+ PP_TOP_MAAP = Suite("tb/pp_top", ("make", "gsi-build"),
+@@ -433,6 +435,18 @@ OWE = "        ev_sid_owe_w       = sid_used_r[ev_src_r];\n"
+ OPEN_USED = "        if (ev_open_w) sid_used_r[ev_src_r] <= 1'b1;\n"
+ PROBE_USED = "      if ((state_r == S_TXN_ACT) && txn_open_w) sid_used_r[tsrc_w] <= 1'b1;\n"
+ PUBLISH = "         sid_ovr_v_r[g] ? sid_ovr_r[g] : cfg_stream_id_i[g*64 +: 16]};\n"
++PUB_UPPER = "        {cfg_stream_id_i[g*64+16 +: 48],\n"
++OFF_OWE = "        ev_sid_owe_w = sid_used_r[ev_src_r];\n"
++PCP_LAPSED = ("        end else if ((rec_w.gstate == GS_DA_OK_C) && sid_used_r[ev_src_r]) begin\n"
++              "          // the ID was declared and withdrawn on a lapsed gate: the next\n"
++              "          // declaration waits the same gap, counted from this change, which\n"
++              "          // comes after the withdrawal (issue #202, REQ-ACMP-010)\n"
++              "          ev_rec2_w.gstate = GS_BACKOFF_C;\n"
++              "          ev_we_w          = 1'b1;\n"
++              "          ev_to_draw_w     = 1'b1;\n"
++              "        end\n")
++PCP_HOLD = ("  assign pcp_hold_w = (pe_pcp_r | (srp_pcp_change_i ? cfg_src_en_i : '0))\n"
++            "                      & sid_used_r;\n")
+ CFG_TERM = "          && ((cfg_stream_id_i[j*64 +: 16] == sid_cand_r)\n"
+ CUR_TERM = "              || (sid_ovr_v_r[j] && (sid_ovr_r[j] == sid_cand_r)))) begin\n"
+ UPPER = "      if ((cfg_stream_id_i[j*64+16 +: 48] == mv_sid_w[63:16])\n"
+@@ -511,6 +525,35 @@ STREAM_ID = (
+          "          ev_rec2_w.gstate = GS_DA_OK_C;  // DA kept: only the class moved\n"
+          "          ev_we_w          = 1'b1;\n"),),
+            ("F2 leaveall2 src0", "R6 full two-LeaveAll backoff armed")),
++    # the same-Stream-ID path after a withdrawal: a PCP change on a source
++    # withdrawn on a lapsed gate starts no gap, so the next demand declares
++    # the changed FirstValue under the same ID at once
++    Mutant("pcp_after_withdrawal_skips_the_gap", ACMP_TALKER, (
++        (TALKER, PCP_LAPSED, "        end\n"),),
++           ("S7 a PCP change after a listener withdrawal arms T-SRP-LEAVEALL2",
++            "S7 two LeaveAllTime periods separate the withdrawal and the same-ID declaration",
++            "S8 two LeaveAllTime periods separate the withdrawal and the moved ID's declaration")),
++    # ...and a probe served ahead of the pending PCP change declares it
++    Mutant("pcp_pending_not_held", ACMP_TALKER, (
++        (TALKER, PCP_HOLD, "  assign pcp_hold_w = '0;\n"),),
++           ("S9 a probe served with a PCP change pending does not declare the same ID",)),
++    # a disable of a declared source books no move: the return grant's DA is
++    # declared under the ID that was on the wire with the old one
++    Mutant("disable_keeps_declared_id", ACMP_TALKER, ((TALKER, OFF_OWE, ""),),
++           ("S10 a declared source returns from a disable under a new Stream ID",
++            "J7 grant re-declares open sid")),
++    # the re-open after a move is a New! instead of the applicant's Join!: the
++    # new ID's first Talker Advertise is a New, which 10 F10.4 says it is not
++    Mutant("reopen_sends_new", PP_TOP_MAAP, (
++        ("hdl/srp/KL_srp_talker_fsm.sv",
++         "        app_ev_w[s]   = gate_open_i ? (rec_valid_r[s] ? AE_JOIN_C : AE_NEW_C)\n",
++         "        app_ev_w[s]   = gate_open_i ? AE_NEW_C\n"),),
++           ("MP8: the new Stream ID's first Talker Advertise is a JoinMt, not a New",)),
++    # every slot publishes slot 0's upper 48 bits
++    Mutant("publish_upper_from_slot0", ACMP_TALKER, (
++        (TALKER, PUB_UPPER, "        {cfg_stream_id_i[16 +: 48],\n"),),
++           ("S4 after reset every slot publishes its own whole configured ID",
++            "S4 a slot under other upper 48 bits keeps them when it moves")),
+ )
+ MUTANTS = (INERT + LONG_FORM + SETTLE_PATH + STORAGE + FIELDS + REBIND + SWAP + COALESCE
+            + TSPEC + STREAM_ID)
+diff --git a/tb/pp_top/pp_top_wrap.sv b/tb/pp_top/pp_top_wrap.sv
+index 3ce2c1e..f74f798 100644
+--- a/tb/pp_top/pp_top_wrap.sv
++++ b/tb/pp_top/pp_top_wrap.sv
+@@ -265,7 +265,7 @@ module pp_top_wrap (
+ 
+     // the per-source DA gate a fabric ANDs with its own stream enable
+     output logic [7:0]  acmp_declaring_o,
+-    //! each source's current Stream ID (issue #202), which section MP8
++    //! each source's current Stream ID (issue #202), which the conflict-recovery test
+     //! grades against PROBE_TX, GET_TX_STATE and the Talker Advertise
+     output logic [8*64-1:0] src_stream_id_o,
+     //! the published (debounced) binding view an integrator folds into
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 0429211..0c59114 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -9378,7 +9378,7 @@ struct InternalMaapPhase {
+     return base2;
+   }
+ 
+-  // ---- MP8: after the conflict, a new Stream ID at the grant (#202) ---
++  // ---- after the conflict, a new Stream ID at the grant (#202) ---
+   // The withdrawn source re-allocates at once and the fresh walk's grant
+   // declares it under a new Stream ID, with no T-SRP-LEAVEALL2: IEEE
+   // 802.1Q-2018 35.2.2.8 gaps only a re-declaration of the same StreamID.
+@@ -9391,7 +9391,8 @@ struct InternalMaapPhase {
+     return (uint64_t(d2->src_stream_id_o[2 * s + 1]) << 32)
+            | d2->src_stream_id_o[2 * s];
+   }
+-  //! MP8a, inside MP4's walk: Milan v1.2 5.5.4.1 step 3, Table 5.42
++  //! During the replacement-address claim: Milan v1.2 5.5.4.1 step 3,
++  //! Table 5.42
+   void mp8a_no_address_before_the_grant() {
+     h2.q_acmp.clear();
+     h2.feed(acmp_frame(CTLR_MAC, 0, 0, 0, CTLR_EID, EID, T1_EID,
+@@ -9407,7 +9408,7 @@ struct InternalMaapPhase {
+   }
+   void mp8_the_source_declares_a_new_stream_id(uint64_t base2) {
+     for (int i = 0; i < 1000 && !(d2->acmp_declaring_o & 1); i++) h2.run_ms(1);
+-    //! -1: no declaration rose after the conflict inside MP8's second
++    //! -1: no declaration rose after the conflict within the observation second
+     const bool rose = (d2->acmp_declaring_o & 1)
+                       && int32_t(h2.decl_rise_ms[0] - t_conflict) >= 0;
+     const int dt = rose ? int(h2.decl_rise_ms[0] - t_conflict) : -1;
+@@ -9421,15 +9422,25 @@ struct InternalMaapPhase {
+     for (int s = 1; s < 8; ++s)
+       if (sid_pub(s) != (SID_T0 | uint64_t(s))) rest = false;
+     CHECK(rest, "MP8: no other source's Stream ID moved");
++    //! the AttributeEvent of the new ID's first Talker Advertise
++    int first_ev = -1;
+     auto ta = h2.wait_frame(h2.q_msrp, 1200, [&](const std::vector<uint8_t>& f) {
+       for (const auto& v : parse_mrpdu(f).vecs)
+         if (v.type == 1 && v.fv.size() >= 14 && fv_u64(v.fv, 0, 8) == SID_MOVED
+-            && fv_u64(v.fv, 8, 6) == base2)
++            && fv_u64(v.fv, 8, 6) == base2) {
++          first_ev = v.ev.empty() ? -1 : v.ev[0];
+           return true;
++        }
+       return false;
+     });
+     CHECK(!ta.empty(),
+           "MP8: the Talker Advertise carries the new Stream ID and address");
++    // The gate re-open is the applicant's Join! (IEEE 802.1Q-2018 10.7.5.5),
++    // so the new ID's first message is sJ, a JoinMt (10.7.6.3; 10.8.2.6
++    // AttributeEvent 3), not a New (0): 10 F10.4.
++    CHECK(first_ev == 3,
++          "MP8: the new Stream ID's first Talker Advertise is a JoinMt, not a New (event %d)",
++          first_ev);
+     h2.q_acmp.clear();
+     h2.feed(acmp_frame(CTLR_MAC, 0, 0, 0, CTLR_EID, EID, T1_EID,
+                        0, 7, 0, 0, 0x6011, 0x000A, 0));
