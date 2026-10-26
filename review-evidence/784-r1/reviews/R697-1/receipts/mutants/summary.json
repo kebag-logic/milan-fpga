@@ -1,0 +1,93 @@
+{
+ "control": {
+  "rc": 0,
+  "fail_count": 0,
+  "new_failures": [],
+  "verdict": "control"
+ },
+ "drop-2404-from-platform-map": {
+  "rc": 1,
+  "fail_count": 3,
+  "new_failures": [
+   "FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image",
+   "FAIL act's platform list maps ubuntu-latest and ubuntu-24.04 to the runner image, once each",
+   "FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does"
+  ],
+  "verdict": "KILLED"
+ },
+ "map-2404-to-act-default-image": {
+  "rc": 1,
+  "fail_count": 3,
+  "new_failures": [
+   "FAIL a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command that maps ubuntu-24.04 to the runner image",
+   "FAIL act's platform list maps ubuntu-latest and ubuntu-24.04 to the runner image, once each",
+   "FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does"
+  ],
+  "verdict": "KILLED"
+ },
+ "sandbox-accepts-any-ubuntu-prefix": {
+  "rc": 1,
+  "fail_count": 5,
+  "new_failures": [
+   "FAIL a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04",
+   "FAIL a job on ubuntu-26.04 is refused before act, and the refusal names ubuntu-26.04",
+   "FAIL a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command",
+   "FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does",
+   "FAIL the arm image of an accepted label is refused: only the exact literal is replayed"
+  ],
+  "verdict": "KILLED"
+ },
+ "sandbox-accepts-one-label-list": {
+  "rc": 1,
+  "fail_count": 1,
+  "new_failures": [
+   "FAIL a one-label list of an accepted label is refused: only the exact literal is replayed"
+  ],
+  "verdict": "KILLED"
+ },
+ "sandbox-case-insensitive": {
+  "rc": 1,
+  "fail_count": 1,
+  "new_failures": [
+   "FAIL an upper-case spelling of an accepted label is refused: only the exact literal is replayed"
+  ],
+  "verdict": "KILLED"
+ },
+ "third-label-2204-added": {
+  "rc": 1,
+  "fail_count": 2,
+  "new_failures": [
+   "FAIL a job on ubuntu-22.04 is refused before act, and the refusal names ubuntu-22.04",
+   "FAIL act's platform list maps ubuntu-latest and ubuntu-24.04 to the runner image, once each"
+  ],
+  "verdict": "KILLED"
+ },
+ "platform-map-duplicated": {
+  "rc": 1,
+  "fail_count": 1,
+  "new_failures": [
+   "FAIL act's platform list maps ubuntu-latest and ubuntu-24.04 to the runner image, once each"
+  ],
+  "verdict": "KILLED"
+ },
+ "run-validation-skips-sandbox": {
+  "rc": 1,
+  "fail_count": 1,
+  "new_failures": [
+   "FAIL a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary or act command"
+  ],
+  "verdict": "KILLED"
+ },
+ "sandbox-accepts-only-2404-drops-latest": {
+  "rc": 1,
+  "fail_count": 5,
+  "new_failures": [
+   "FAIL a job on ubuntu-latest is accepted by the sandbox",
+   "FAIL a ubuntu-24.04 replay holds its job containers to the same 8g memory and swap bound as ubuntu-latest",
+   "FAIL every runs-on label the sandbox accepts has a platform entry, and nothing else does",
+   "FAIL slot 0 uses external ranges without staging",
+   "FAIL slot 3 uses external ranges without staging"
+  ],
+  "verdict": "KILLED"
+ }
+}

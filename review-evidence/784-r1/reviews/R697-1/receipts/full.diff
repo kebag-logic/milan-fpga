@@ -1,0 +1,242 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 9c82de0635..533359d47d 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -2025,7 +2025,16 @@ files. `GITHUB_TOKEN` is explicitly empty, so neither the active `gh` credential
+ nor an SSH agent, proxy credential, runtime token, or other host secret reaches
+ candidate code.
+ 
+-Candidate jobs must use literal `ubuntu-latest`; reusable workflows and
++Candidate jobs must name one of two literal runner labels, `ubuntu-latest`
++or `ubuntu-24.04`. The act command maps both to the same runner image, one
++`--platform` entry each, and every other label, such as `ubuntu-22.04` or
++`ubuntu-26.04`, is refused by name before `act` starts. Both are accepted
++because hosted `ubuntu-latest` moved to the `ubuntu-26.04` image, where the
++pinned Python tools fail pip resolution, so the second step of #784 pins every
++workflow to `ubuntu-24.04`; until it lands the workflows still name
++`ubuntu-latest`. A label without a `--platform` entry is no error to `act`: it
++skips that job as an unsupported platform and can still exit 0, so the
++self-test requires an entry for every accepted label. Reusable workflows and
+ job/service containers are refused because they can carry container options or
+ host-volume requests that the trusted scanner cannot safely delegate. Steps may
+ use only the repository's exact audited non-Docker action set
+diff --git a/scripts/act_ci.py b/scripts/act_ci.py
+index dc3ebeeb49..904d4fdaff 100755
+--- a/scripts/act_ci.py
++++ b/scripts/act_ci.py
+@@ -83,6 +83,13 @@ EVIDENCE_HELPERS = {
+ # END EVIDENCE HELPER PINS
+ DEFAULT_BASE = "dev"
+ RUNNER_IMAGE = "catthehacker/ubuntu:full-latest"
++#: The literal ``runs-on`` labels a candidate job may name; act maps each one
++#: to RUNNER_IMAGE (#784). Hosted ``ubuntu-latest`` moved to the 26.04 image,
++#: where the pinned Python tools cannot install, so the workflows move to
++#: ``ubuntu-24.04``; both are accepted while that change lands. Any other label
++#: is refused: act would run it on its own default image, or skip it as an
++#: unsupported platform and still exit 0.
++RUNS_ON_LABELS = ("ubuntu-latest", "ubuntu-24.04")
+ SUPPORTED_ACT_VERSION = (0, 2, 89)
+ REQUIRED_ACT_BUILD = "0.2.89+milan-ci5"
+ SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+@@ -2051,9 +2058,11 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
+                     f"workflow {relative} job {job_id} uses a reusable workflow; "
+                     "the trusted sandbox cannot inspect its container policy"
+                 )
+-            if job.get("runs-on") != "ubuntu-latest":
++            runs_on = job.get("runs-on")
++            if runs_on not in RUNS_ON_LABELS:
+                 raise Refusal(
+-                    f"workflow {relative} job {job_id} must use literal ubuntu-latest"
++                    f"workflow {relative} job {job_id} runs on {runs_on!r}; only the "
++                    f"literal labels {', '.join(RUNS_ON_LABELS)} are replayed"
+                 )
+             if "container" in job or "services" in job:
+                 raise Refusal(
+@@ -4816,8 +4825,7 @@ def build_act_command(
+         str(layout.checkout / WORKFLOWS[workflow]),
+         "--eventpath",
+         str(layout.event_path),
+-        "--platform",
+-        f"ubuntu-latest={RUNNER_IMAGE}",
++        *(word for label in RUNS_ON_LABELS for word in ("--platform", f"{label}={RUNNER_IMAGE}")),
+         "--artifact-server-path",
+         str(artifact_path),
+         "--artifact-server-addr",
+@@ -6686,6 +6694,147 @@ def selftest_validation_transcript(
+     )
+ 
+ 
++def write_runs_on_workflow(root: pathlib.Path, runs_on: str) -> None:
++    """Write the docs workflow under `root` with one job whose ``runs-on`` is the YAML text `runs_on`."""
++    path = root / WORKFLOWS["docs"]
++    path.parent.mkdir(parents=True, exist_ok=True)
++    path.write_text(
++        f"name: docs\non: pull_request\njobs:\n  check:\n    runs-on: {runs_on}\n"
++        "    steps:\n      - run: true\n",
++        encoding="utf-8",
++    )
++
++
++def runs_on_refusal(root: pathlib.Path, runs_on: str) -> str:
++    """The sandbox's Refusal for a docs job on `runs_on` under `root`, or an empty string when it is accepted."""
++    write_runs_on_workflow(root, runs_on)
++    return refusal_text(lambda: validate_workflow_sandbox(root, ("docs",)))
++
++
++def act_platforms(command: Sequence[str]) -> list[str]:
++    """The ``label=image`` word after each ``--platform`` in an act command line, in order."""
++    return [command[index + 1] for index, word in enumerate(command[:-1]) if word == "--platform"]
++
++
++def selftest_runner_labels(tally: SelftestTally) -> None:
++    """Arms: the sandbox accepts exactly the literals ubuntu-latest and ubuntu-24.04, refusing others by name (#784)."""
++    check = tally.check
++    with tempfile.TemporaryDirectory(prefix="act-ci-runs-on-") as raw:
++        root = pathlib.Path(raw)
++        for label in ("ubuntu-latest", "ubuntu-24.04"):
++            check(f"a job on {label} is accepted by the sandbox", runs_on_refusal(root, label) == "")
++        for label in ("ubuntu-26.04", "ubuntu-22.04"):
++            check(
++                f"a job on {label} is refused before act, and the refusal names {label}",
++                f"runs on '{label}'" in runs_on_refusal(root, label),
++            )
++        for description, runs_on in (
++            ("an upper-case spelling", "Ubuntu-24.04"),
++            ("the arm image", "ubuntu-24.04-arm"),
++            ("a one-label list", "[ubuntu-24.04]"),
++        ):
++            check(
++                f"{description} of an accepted label is refused: only the exact literal is replayed",
++                runs_on_refusal(root, runs_on) != "",
++            )
++
++
++def selftest_runner_platforms(tally: SelftestTally, docker: DockerFixture) -> None:
++    """Arms: act's platform list maps every runs-on label the sandbox accepts, and no other, to RUNNER_IMAGE (#784)."""
++    check = tally.check
++    platforms = act_platforms(build_act_command(["act"], "docs", docker.layout, docker.port, docker.boundary))
++    #: act skips a job whose label it cannot map as an unsupported platform
++    #: and still exits 0, so an accepted label missing here is a green replay
++    #: of a job that never ran.
++    check(
++        "act's platform list maps ubuntu-latest and ubuntu-24.04 to the runner image, once each",
++        platforms == [f"ubuntu-latest={RUNNER_IMAGE}", f"ubuntu-24.04={RUNNER_IMAGE}"],
++    )
++    probes = ("ubuntu-latest", "ubuntu-24.04", "ubuntu-26.04", "ubuntu-22.04", "ubuntu-20.04", "self-hosted")
++    with tempfile.TemporaryDirectory(prefix="act-ci-runs-on-") as raw:
++        accepted = {label for label in probes if runs_on_refusal(pathlib.Path(raw), label) == ""}
++    check(
++        "every runs-on label the sandbox accepts has a platform entry, and nothing else does",
++        accepted == {platform.split("=", 1)[0] for platform in platforms}
++        and all(platform.endswith(f"={RUNNER_IMAGE}") for platform in platforms),
++    )
++
++
++def dry_run_replay(
++    resolved: ValidatedRun, shipping_root: pathlib.Path, runs_on: str
++) -> tuple[int | None, str, str, int]:
++    """Dry-run a docs workflow with one job on `runs_on` through run_validation and the real sandbox.
++
++    Git, GitHub, Docker and act are faked as in selftest_validation_transcript;
++    validate_workflow_sandbox is not. Returns act-ci's exit status (None on a
++    Refusal), the Refusal's text, the printed transcript and how many Docker
++    boundaries were entered.
++    """
++    boundaries: list[DockerBoundary] = []
++
++    @contextlib.contextmanager
++    def dry_boundary(planned: DockerBoundary, **_kwargs: object) -> Iterator[DockerBoundary]:
++        """A boundary stand-in that records the populated boundary it yields."""
++        active = replace(planned, network_id="a" * 64, gateway="172.18.0.1",
++                         toolcache_owned=True, toolcache_seeded=True)
++        boundaries.append(active)
++        yield active
++
++    def materialize(_run: ValidatedRun, layout: RunLayout) -> pathlib.Path:
++        """A materialization stand-in that writes only the docs workflow."""
++        write_runs_on_workflow(layout.checkout, runs_on)
++        return layout.checkout
++
++    transcript = io.StringIO()
++    rc: int | None = None
++    message = ""
++    with mock.patch.multiple(
++        sys.modules[__name__],
++        materialize_remote_head=materialize,
++        validate_checkout=lambda *_args, **_kwargs: None,
++        initialize_required_submodules=lambda *_args, **_kwargs: None,
++        require_live_pull_request=lambda *_args, **_kwargs: None,
++        inspect_docker_boundary=lambda *_args, **_kwargs: None,
++        temporary_docker_boundary=dry_boundary,
++        allocate_tcp_port=lambda: 43210,
++    ), mock.patch.object(os, "cpu_count", return_value=512):
++        try:
++            with contextlib.redirect_stdout(transcript):
++                rc = run_validation(resolved, ("docs",), shipping_root,
++                                    launch=LaunchOptions("/trusted/act", use_sudo=False, dry_run=True))
++        except Refusal as exc:
++            message = str(exc)
++    return rc, message, transcript.getvalue(), len(boundaries)
++
++
++def selftest_runner_label_replay(
++    tally: SelftestTally, resolved: ValidatedRun, shipping_root: pathlib.Path
++) -> None:
++    """Arms: a ubuntu-24.04 job replays to an act command that maps it; a ubuntu-26.04 job is refused first (#784)."""
++    check = tally.check
++    rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, "ubuntu-24.04")
++    check(
++        "a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command "
++        "that maps ubuntu-24.04 to the runner image",
++        rc == RC_OK and message == "" and entered == 1
++        and f" --platform ubuntu-24.04={RUNNER_IMAGE} " in transcript,
++    )
++    check(
++        f"a ubuntu-24.04 replay holds its job containers to the same {CONTAINER_MEMORY} memory "
++        "and swap bound as ubuntu-latest",
++        f" --memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}'" in transcript
++        and f" --memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}'"
++        in dry_run_replay(resolved, shipping_root, "ubuntu-latest")[2],
++    )
++    rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, "ubuntu-26.04")
++    check(
++        "a job on ubuntu-26.04 is refused naming ubuntu-26.04, before any Docker boundary "
++        "or act command",
++        rc is None and "runs on 'ubuntu-26.04'" in message and entered == 0
++        and "--platform" not in transcript,
++    )
++
++
+ 
+ def cpu_range_monitor_stand_in(
+     log: list[tuple[str, ...]],
+@@ -7499,9 +7648,9 @@ def selftest_container_memory_bound(tally: SelftestTally, docker: DockerFixture)
+     option_words = shlex.split(command[command.index("--container-options") + 1])
+     memory_words = [word for word in option_words if word.startswith("--memory=")]
+     swap_words = [word for word in option_words if word.startswith("--memory-swap=")]
+-    #: Hosted ``ubuntu-latest`` runners have 16 GB: a job that needs more
+-    #: fails hosted too, and a bounded container fails the replica instead
+-    #: of the host. Swap equal to memory is Docker for "no swap beyond it".
++    #: Hosted runners on either RUNS_ON_LABELS label have 16 GB: a job that
++    #: needs more fails hosted too, and a bounded container fails the replica
++    #: instead of the host. Swap equal to memory is Docker for "no swap beyond it".
+     check(
+         f"job containers are held to {CONTAINER_MEMORY} of memory and the "
+         "same swap ceiling, one limit each, in Docker size syntax",
+@@ -15105,6 +15254,7 @@ def selftest_run_directory_stages(
+             second = make_layout(second_root, other_pr)
+             docker = selftest_docker_fixture(first)
+             selftest_act_command(tally, docker)
++            selftest_runner_platforms(tally, docker)
+             selftest_combined_execution(tally, docker)
+             selftest_container_cpu_bound(tally, docker)
+             selftest_job_cpu_ranges(tally)
+@@ -15311,6 +15461,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
+     selftest_scope_history_wiring(tally, shipping_root)
+     selftest_flat_install(tally, shipping_root)
+     selftest_validation_transcript(tally, fixture, resolved, shipping_root)
++    selftest_runner_labels(tally)
++    selftest_runner_label_replay(tally, resolved, shipping_root)
+     selftest_slot_validation_path(tally, resolved, shipping_root)
+     selftest_dry_run_cpu_ranges(tally, resolved, shipping_root)
+     selftest_workflow_order(tally, resolved, shipping_root)

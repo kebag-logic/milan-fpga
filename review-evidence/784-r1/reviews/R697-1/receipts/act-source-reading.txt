@@ -1,0 +1,57 @@
+Pinned act source, commit 4f411281417e88660bea1c1a1749aa71ae0bd60f (scripts/build_ci_act.py ACT_COMMIT), read only, not executed.
+--- cmd/root.go:82
+	rootCmd.Flags().StringArrayVarP(&input.platforms, "platform", "P", []string{}, "custom image to use per platform (e.g. -P ubuntu-18.04=nektos/act-environments-ubuntu:18.04)")
+--- cmd/platforms.go (whole file)
+package cmd
+
+import (
+	"strings"
+)
+
+func (i *Input) newPlatforms() map[string]string {
+	platforms := map[string]string{
+		"ubuntu-latest": "node:16-buster-slim",
+		"ubuntu-22.04":  "node:16-bullseye-slim",
+		"ubuntu-20.04":  "node:16-buster-slim",
+		"ubuntu-18.04":  "node:16-buster-slim",
+	}
+
+	for _, p := range i.platforms {
+		pParts := strings.Split(p, "=")
+		if len(pParts) == 2 {
+			platforms[strings.ToLower(pParts[0])] = pParts[1]
+		}
+	}
+	return platforms
+}
+--- pkg/runner/run_context.go:748-760 runsOnImage
+func (rc *RunContext) runsOnImage(ctx context.Context) string {
+	if rc.Run.Job().RunsOn() == nil {
+		common.Logger(ctx).Errorf("'runs-on' key not defined in %s", rc.String())
+	}
+
+	for _, platformName := range rc.runsOnPlatformNames(ctx) {
+		image := rc.Config.Platforms[strings.ToLower(platformName)]
+		if image != "" {
+			return image
+		}
+	}
+
+	return ""
+--- pkg/runner/run_context.go:820-826 isEnabled skip path
+	img := rc.platformImage(ctx)
+	if img == "" {
+		for _, platformName := range rc.runsOnPlatformNames(ctx) {
+			l.Infof("\U0001F6A7  Skipping unsupported platform -- Try running with `-P %+v=...`", platformName)
+		}
+		return false, nil
+	}
+--- pkg/runner/run_context.go:1066-1073 ImageOS
+		if platformName != "" {
+			if platformName == "ubuntu-latest" {
+				// hardcode current ubuntu-latest since we have no way to check that 'on the fly'
+				env["ImageOS"] = "ubuntu20"
+			} else {
+				platformName = strings.SplitN(strings.Replace(platformName, `-`, ``, 1), `.`, 2)[0]
+				env["ImageOS"] = platformName
+			}

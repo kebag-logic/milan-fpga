@@ -1,0 +1,22 @@
+ok   ACCEPT 'literal ubuntu-latest': 
+ok   ACCEPT 'literal ubuntu-24.04': 
+ok   ACCEPT 'single-quoted ubuntu-24.04': 
+ok   ACCEPT 'double-quoted ubuntu-24.04': 
+ok   REFUSE 'ubuntu-22.04': workflow .github/workflows/docs.yml job check runs on 'ubuntu-22.04'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'ubuntu-26.04': workflow .github/workflows/docs.yml job check runs on 'ubuntu-26.04'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'ubuntu-20.04': workflow .github/workflows/docs.yml job check runs on 'ubuntu-20.04'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'empty value': workflow .github/workflows/docs.yml job check runs on ''; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'empty quoted string': workflow .github/workflows/docs.yml job check runs on ''; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'null': workflow .github/workflows/docs.yml job check runs on 'null'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'matrix expression': workflow .github/workflows/docs.yml job check runs on '${{ matrix.os }}'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'one-label list': workflow .github/workflows/docs.yml job check runs on ['ubuntu-24.04']; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'two-label list': workflow .github/workflows/docs.yml job check runs on ['ubuntu-latest', 'ubuntu-24.04']; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'group mapping': workflow .github/workflows/docs.yml job check runs on {'group': 'hosted', 'labels': 'ubuntu-24.04'}; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'trailing space quoted': workflow .github/workflows/docs.yml job check runs on 'ubuntu-24.04 '; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'upper-case': workflow .github/workflows/docs.yml job check runs on 'UBUNTU-LATEST'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'windows-latest': workflow .github/workflows/docs.yml job check runs on 'windows-latest'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'macos-latest': workflow .github/workflows/docs.yml job check runs on 'macos-latest'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'number 24.04': workflow .github/workflows/docs.yml job check runs on '24.04'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+ok   REFUSE 'self-hosted': workflow .github/workflows/docs.yml job check runs on 'self-hosted'; only the literal labels ubuntu-latest, ubuntu-24.04 are replayed
+probes 20, unexpected 0
+rc=0
