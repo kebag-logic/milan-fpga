@@ -1,0 +1,216 @@
+{
+    "csr_bases": {
+        "ctrl": 4026531840,
+        "identifier_mem": 4026533888,
+        "spiflash": 4026535936,
+        "uart": 4026537984,
+        "spiflash_master": 4026544128,
+        "timer0": 4026546176
+    },
+    "csr_registers": {
+        "ctrl_reset": {
+            "addr": 4026531840,
+            "size": 1,
+            "type": "rw"
+        },
+        "ctrl_scratch": {
+            "addr": 4026531844,
+            "size": 1,
+            "type": "rw"
+        },
+        "ctrl_bus_errors": {
+            "addr": 4026531848,
+            "size": 1,
+            "type": "ro"
+        },
+        "spiflash_mmap_clk_divisor": {
+            "addr": 4026535936,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_mmap_dummy_bits": {
+            "addr": 4026535940,
+            "size": 1,
+            "type": "rw"
+        },
+        "uart_rxtx": {
+            "addr": 4026537984,
+            "size": 1,
+            "type": "rw"
+        },
+        "uart_txfull": {
+            "addr": 4026537988,
+            "size": 1,
+            "type": "ro"
+        },
+        "uart_rxempty": {
+            "addr": 4026537992,
+            "size": 1,
+            "type": "ro"
+        },
+        "uart_ev_status": {
+            "addr": 4026537996,
+            "size": 1,
+            "type": "ro"
+        },
+        "uart_ev_pending": {
+            "addr": 4026538000,
+            "size": 1,
+            "type": "rw"
+        },
+        "uart_ev_enable": {
+            "addr": 4026538004,
+            "size": 1,
+            "type": "rw"
+        },
+        "uart_txempty": {
+            "addr": 4026538008,
+            "size": 1,
+            "type": "ro"
+        },
+        "uart_rxfull": {
+            "addr": 4026538012,
+            "size": 1,
+            "type": "ro"
+        },
+        "spiflash_master_cs": {
+            "addr": 4026544128,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_master_phyconfig": {
+            "addr": 4026544132,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_master_rxtx": {
+            "addr": 4026544136,
+            "size": 1,
+            "type": "rw"
+        },
+        "spiflash_master_status": {
+            "addr": 4026544140,
+            "size": 1,
+            "type": "ro"
+        },
+        "spiflash_master_clk_divisor": {
+            "addr": 4026544144,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_load": {
+            "addr": 4026546176,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_reload": {
+            "addr": 4026546180,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_en": {
+            "addr": 4026546184,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_update_value": {
+            "addr": 4026546188,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_value": {
+            "addr": 4026546192,
+            "size": 1,
+            "type": "ro"
+        },
+        "timer0_ev_status": {
+            "addr": 4026546196,
+            "size": 1,
+            "type": "ro"
+        },
+        "timer0_ev_pending": {
+            "addr": 4026546200,
+            "size": 1,
+            "type": "rw"
+        },
+        "timer0_ev_enable": {
+            "addr": 4026546204,
+            "size": 1,
+            "type": "rw"
+        }
+    },
+    "constants": {
+        "config_platform_name": "sim",
+        "config_clock_frequency": 100000000,
+        "config_cpu_has_interrupt": null,
+        "config_cpu_reset_addr": 0,
+        "config_cpu_count": 1,
+        "config_cpu_isa": "rv32i2p0__zicsr_zifencei",
+        "config_cpu_type_vexiiriscv": null,
+        "config_cpu_variant_baremetal": null,
+        "config_cpu_family": "riscv",
+        "config_cpu_name": "vexiiriscv",
+        "config_cpu_human_name": "VexiiRiscv (rv32i2p0__zicsr_zifencei)",
+        "config_cpu_nop": "nop",
+        "config_bios_no_build_time": null,
+        "config_identifier": "Milan TSN SoC - VexiiRiscv RV32 1-core baremetal",
+        "milan_gptp_owner": 0,
+        "milan_cpu_xlen": 32,
+        "config_bios_no_boot": null,
+        "config_csr_data_width": 32,
+        "config_csr_alignment": 32,
+        "config_csr_ordering_big": null,
+        "config_bus_standard": "wishbone",
+        "config_bus_data_width": 32,
+        "config_bus_address_width": 32,
+        "config_bus_bursting": 0,
+        "config_cpu_has_dma_bus": null,
+        "config_cpu_interrupts": 3,
+        "timer0_interrupt": 2,
+        "uart_interrupt": 1
+    },
+    "memories": {
+        "plic": {
+            "base": 4039114752,
+            "size": 4194304,
+            "type": "io+linker"
+        },
+        "clint": {
+            "base": 4026597376,
+            "size": 65536,
+            "type": "io+linker"
+        },
+        "rom": {
+            "base": 0,
+            "size": 229376,
+            "type": "cached"
+        },
+        "sram": {
+            "base": 268435456,
+            "size": 229376,
+            "type": "cached"
+        },
+        "ctrl_mbx": {
+            "base": 2147483648,
+            "size": 32768,
+            "type": "io"
+        },
+        "spiflash": {
+            "base": 536870912,
+            "size": 16777216,
+            "type": "cached"
+        },
+        "csr": {
+            "base": 4026531840,
+            "size": 65536,
+            "type": "io"
+        }
+    },
+    "cores": {
+        "ctrl": "SoCController",
+        "spiflash": "LiteSPI",
+        "uart": "UART",
+        "spiflash_master": "LiteSPIMaster",
+        "timer0": "Timer"
+    }
+}

@@ -1,0 +1,63 @@
+R704-1 focused reproduction
+
+Use an isolated checkout at d58c8e22e9bd96237b9a28ea1ddd55b0426380c4.
+Initialize the five recorded submodules. No shipping source is edited.
+Set REVIEW_ROOT to that checkout and REVIEW_PACKET to this packet directory.
+All disposable files go under REVIEW_PACKET/scratch.
+
+Environment prerequisites:
+  Product Python environment (Python 3.14.8 in this execution), with LiteX,
+  CPU data, picolibc data, PyYAML and behave available.
+  Pinned simulator 5.050, identity checked before building.
+  RV32 SDK compiler 14.3.0 (Buildroot 2026.05) on PATH.
+  cmarkgfm and html5lib from the documentation environment on PYTHONPATH.
+  A COPY of pythondata_cpu_vexiiriscv under REVIEW_PACKET/scratch/python.
+  Do not let netlist generation write the shared product environment.
+
+Export:
+  PYTHONPATH="$REVIEW_PACKET/scratch/python:$DOCS_SITE_PACKAGES"
+  PYTHONHASHSEED=0
+  PYTHONDONTWRITEBYTECODE=1
+  COURSIER_MODE=offline
+  SBT_OPTS=-Dsbt.offline=true
+  MILAN_RV32_CC="$RV32_SDK/host/bin/riscv32-linux-gcc"
+  LITEX_ENV_CC_TRIPLE=riscv32-linux
+  PATH="$PINNED_SIMULATOR:$RV32_SDK/host/bin:$PATH"
+
+Commands, using the product Python as python3:
+  python3 "$REVIEW_PACKET/verify_identity.py"
+  python3 "$REVIEW_PACKET/run_review.py" build
+  python3 "$REVIEW_PACKET/build_controls.py"
+  python3 "$REVIEW_PACKET/run_controls.py"
+  python3 "$REVIEW_PACKET/probe_graders.py"
+  python3 "$REVIEW_PACKET/probe_native.py"
+  python3 "$REVIEW_PACKET/run_review.py" measure
+  python3 "$REVIEW_PACKET/run_review.py" gates
+
+The measure command joins two independent campaigns in the foreground, each
+with --jobs 8 (16 simulations total). Each native build uses make -j16.
+The original execution overlapped the two measurement campaigns and lightweight
+gates, and paused only its own simulations while compiling/running controls.
+The sequence above is also valid and avoids concurrent controls entirely.
+
+For comparison, fetch the public evidence commit
+90dd5bdf68f6f772a1e5907a93fe337499b10c48 and extract its
+review-evidence/665s2-r1 tree into REVIEW_PACKET/scratch/published.
+Then:
+  python3 "$REVIEW_PACKET/audit_results.py"
+  python3 "$REVIEW_PACKET/audit_costs.py"
+  python3 "$REVIEW_PACKET/collect_receipts.py"
+  python3 "$REVIEW_PACKET/verify_identity.py"
+
+Expected results:
+  Both formal measurement campaigns return 0 with --record-budget-findings,
+  zero refusals and recorded T_svc misses. The expected misses are not approval.
+  Both supplied native controls and the independent slow-ACMP control are caught.
+  The independent grader probes demonstrate the defects described in REPORT.md.
+  The self-test catches all 12 supplied mutants; docs and behave gates pass.
+
+Numeric simulation receipts are copied byte-for-byte. Build and driver logs
+replace local path prefixes with the environment names above; receipt-index.json
+records both source and published hashes and whether replacement occurred.
+The scratch tree, generated binaries, package copies and build trees are private
+disposables and are not in the publication manifest.

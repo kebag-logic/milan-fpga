@@ -1,0 +1,91 @@
+{
+  "late_recipient": {
+    "graded": {
+      "probe": "review.notify.if0",
+      "row": "notification fan-out",
+      "family": "notify",
+      "interface": 0,
+      "start_sys": 1173,
+      "end_sys": 401173,
+      "sys_cycles": 400000,
+      "cpu_cycles": 200000,
+      "ms": 4.0,
+      "wait_ms": 0.0,
+      "passes": 2,
+      "t_svc_ms": 10.0,
+      "ceiling_ms": 24.0,
+      "within_t_svc": true,
+      "within_ceiling": true,
+      "bound_cpu_cycles": 200000,
+      "bound_ms": 4.0,
+      "bound_within_t_svc": true,
+      "pass_cycles": 50,
+      "pass_instr": 10,
+      "pass_mbx_accesses": 21,
+      "pass_fetch_share": 0.0,
+      "pass_fetch_wait_share": 0.0,
+      "pass_regions": {
+        "mbx": [
+          0,
+          3,
+          18
+        ]
+      },
+      "pass_modules": {},
+      "status": "measured"
+    },
+    "required_end_sys": 1401173,
+    "required_ms": 14,
+    "expected_within_t_svc": false
+  },
+  "missing_recipient": {
+    "probe": "review.notify.if0",
+    "row": "notification fan-out",
+    "family": "notify",
+    "interface": 0,
+    "start_sys": 1173,
+    "end_sys": 401173,
+    "sys_cycles": 400000,
+    "cpu_cycles": 200000,
+    "ms": 4.0,
+    "wait_ms": 0.0,
+    "passes": 2,
+    "t_svc_ms": 10.0,
+    "ceiling_ms": 24.0,
+    "within_t_svc": true,
+    "within_ceiling": true,
+    "bound_cpu_cycles": 200000,
+    "bound_ms": 4.0,
+    "bound_within_t_svc": true,
+    "pass_cycles": 50,
+    "pass_instr": 10,
+    "pass_mbx_accesses": 21,
+    "pass_fetch_share": 0.0,
+    "pass_fetch_wait_share": 0.0,
+    "pass_regions": {
+      "mbx": [
+        0,
+        3,
+        18
+      ]
+    },
+    "pass_modules": {},
+    "status": "measured"
+  },
+  "modified_elf_reuse_accepted": true,
+  "modified_runtime_rom_reuse_accepted": {
+    "original_sha256": "3353d2618bf020240fe2e0b5cc767657bc30e1fd3067dd6002f1995dda877097",
+    "mutated_sha256": "dde6ee3b6e7bfef1aaa9065665533d6a2ec2e6afc1df1ba506c95e139f28b829",
+    "mutation": "Reset entry replaced with jal zero, 0",
+    "native_reads_at_runtime": "$readmemh(\"sim_rom_bank0.init\", rom_bank0)",
+    "rom_files_bound_in_manifest": false
+  },
+  "empty_regrade": {
+    "returncode": 0,
+    "stdout": "0 groups graded, 0 refusals, 0 T_svc misses\n",
+    "requested_groups": [
+      "backlog",
+      "backlog-adp"
+    ]
+  }
+}
