@@ -1,0 +1,29 @@
+R709-2 independent verdict, written before any prior review finding was read.
+Exact head ebb1f0010bde76c38cc5270a6366ee9e3157ec54, tree ce4931d11f3730d05e6ff8934ec96ddc2366578f.
+Delta judged: a8aa626e..ebb1f001 (4 commits), on the scope of issue #202 and the owner decision (option A).
+
+Verdict: NEGATIVE (one open MINOR).
+
+Findings:
+- F1 MINOR (Conformance, RTL, Robustness, Tests, Docs): a declared source disabled and re-enabled
+  with a grant inside one T-MRP-JOIN re-opens the SRP applicant under the moved ID while the
+  withdrawn ID's Lv is still owed; the single per-source applicant takes LA + Join! -> AA and the
+  withdrawn ID's Leave is never transmitted (reviewer probe receipts/lv-probe.log; control arm with a
+  tx! between close and open sends it). 05 F05.12 and 10 F10.4 cite Table 10-3 for a transition
+  across two attribute values. No test covers the window at the SRP or wire level.
+- RES-1 RESIDUE: port comments hdl/top/protocol_processor_top.sv:680-682 and
+  hdl/acmp/KL_acmp_talker.sv:308-310 describe the move after a MAAP conflict only (the delta added
+  the disable move).
+- RES-2 RESIDUE: PR body "This PR supersedes #204" (the PR is #204).
+- SUG-1 SUGGESTION: the 2^16-lap timing argument in 05 now relies on disable/return being quasi-static;
+  state the assumed rate.
+- SUG-2 SUGGESTION: a PCP change pending at a moving grant withdraws the just-declared new ID into a
+  full T-SRP-LEAVEALL2 backoff although that ID was never on the wire before.
+
+Ledger:
+lens | state | examined
+Conformance | UNCLEAN (F1) | KL_acmp_talker delta, KL_srp_talker_fsm gate path, 05/10/08/00 clause text
+RTL | UNCLEAN (F1) | KL_acmp_talker.sv EVC_OFF/EVC_PCP/pcp_hold_w/EVC_TMR/EVC_LSN/txn, sid_state
+Robustness | UNCLEAN (F1) | disable-return window, PCP-after-withdrawal paths, NO_DA invariant
+Tests | UNCLEAN (F1) | talker 1520/1520; head bench on a8aa626 RTL 18 FAIL; STREAM_ID 25/25 killed; probe
+Docs | UNCLEAN (F1) | 05, 10, 02, 06, 08, 09, 00, integrator guide, READMEs; make check rc 0
