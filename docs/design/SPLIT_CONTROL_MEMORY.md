@@ -153,17 +153,17 @@ The image is the full F0-F5/F1 composition, linked by `ctrl_srp_image.py --with-
 It holds the descriptor image (7,512 / 19,520 B), the shape's `nvm_stage` (3,344 / 13,264 B) and the lwSRP pool.
 
 The ledger at lane S1's face writer (#665) is planned by `ctrl_memory.plan`.
-It links the firmware of `80aa0372` against its base `e76a755a`, with one runtime for both:
+It links the firmware of `308852d1` against its base `e76a755a`, with one runtime for both:
 
 | Point | `rom` need, B | `sram` need, B | Planned RAMB36 equivalents | Base `e76a755a` | Against the 56-RAMB36 budget |
 |---|---:|---:|---:|---:|---|
-| 1x1, one interface (shipping) | 102,896 | 46,016 | 37.0 | 35.5 | within |
-| 1x1, two interfaces | 104,472 | 57,408 | 40.5 | 38.5 | within |
-| 8x8, one interface | 116,608 | 86,592 | 50.0 | 49.0 | within |
-| 8x8, two interfaces (largest) | 118,264 | 112,752 | 57.0 | 56.0 | **over by 1 tile, owed to lane S14** |
+| 1x1, one interface (shipping) | 102,912 | 46,016 | 37.0 | 35.5 | within |
+| 1x1, two interfaces | 104,488 | 57,408 | 40.5 | 38.5 | within |
+| 8x8, one interface | 116,624 | 86,592 | 50.0 | 49.0 | within |
+| 8x8, two interfaces (largest) | 118,280 | 112,752 | 57.0 | 56.0 | **over by 1 tile, owed to lane S14** |
 
-The face writer adds 4,960 to 5,056 B of `rom` and 96 B of `sram` at each point.
-At 8x8 with two interfaces, `rom`'s banks hold 118,264 B in 118,784 and `sram`'s 112,752 B in 114,688.
+The face writer adds 4,976 to 5,072 B of `rom` and 96 B of `sram` at each point.
+At 8x8 with two interfaces, `rom`'s banks hold 118,280 B in 118,784 and `sram`'s 112,752 B in 114,688.
 That is 57.0 RAMB36, one tile over the budget.
 The owner's decision D3 (#665, 6409738976) moves cold code and the descriptor image to QSPI flash in lane S14.
 The ruling of 2026-10-26 (#665, 6412739248) ledgers this tile as owed to S14.
