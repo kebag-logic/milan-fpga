@@ -3,7 +3,7 @@
 name: docs
 jobs:
   wire-accountability:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         id: ci_step_0
@@ -62,7 +62,7 @@ jobs:
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   docs-check-no-git:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         id: ci_step_0
@@ -113,7 +113,7 @@ jobs:
           if-no-files-found: error
           retention-days: 3
   docs-gates-0:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -485,7 +485,7 @@ jobs:
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   docs-gates-1:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -632,7 +632,7 @@ jobs:
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   docs-gates-2:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -792,7 +792,7 @@ jobs:
     env:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   docs-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 3
     needs:
       - docs-gates-0
@@ -884,7 +884,7 @@ jobs:
       PIP_CONSTRAINT: ${{ github.workspace }}/ci/constraints-ci.txt
   ci-manifest:
     name: Collect CI manifest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
     needs:
@@ -955,7 +955,7 @@ jobs:
           retention-days: 3
   ci-fail-fast:
     name: Fail fast across this head
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
       == github.repository) }}
@@ -1021,7 +1021,7 @@ jobs:
           retention-days: 3
   ci-cancel-tail:
     name: Cancel late CI failures
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 3
     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
       == github.repository)) }}

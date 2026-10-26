@@ -171,7 +171,7 @@ Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustiv
 The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
 The separate physical job permits 5400 seconds, including compilation.
 Its workflow job permits 120 minutes, including toolchain setup.
-Both target a four-core `ubuntu-latest` hosted worker.
+Both target a four-core `ubuntu-24.04` hosted worker.
 These are operational deadlines, pending completed hosted physical evidence.
 
 The earlier hosted run expired at 2400 seconds.
@@ -328,7 +328,7 @@ contain both commands, environments, elapsed times, return codes and source bind
 
 Measured hosted windows at `8e4b1e53` now supersede those projections.
 [Run 37892515345, shard 0/5 job 113696564335](https://github.com/kebag-logic/milan-fpga/actions/runs/37892515345/job/113696564335)
-used a hosted `ubuntu-latest` runner and sequential `make -C` invocations.
+used a hosted `ubuntu-latest` runner, then the `ubuntu-24.04` image, and sequential `make -C` invocations.
 The windows use successive suite-verdict timestamps, including build time.
 Both suites passed:
 

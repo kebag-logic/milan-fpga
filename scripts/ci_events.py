@@ -174,7 +174,7 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
     'needs': 'full-ci-gate',
     'if': "${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == "
           "'schedule' || github.event_name == 'workflow_dispatch') }}",
-    'runs-on': 'ubuntu-latest',
+    'runs-on': 'ubuntu-24.04',
     'timeout-minutes': 120,
     'steps': [   {'uses': 'actions/checkout@v4'},
                  {   'name': 'Fetch RTL dependencies',
@@ -4648,7 +4648,7 @@ def _m_second_carrier(path: str, name: str) -> Mutator:
     # ruleset binds is ambiguous ([R2] on PR #239, widened by #261).
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
-        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
                                   "steps": [{"run": "true"}]}
     return f
 
@@ -4660,7 +4660,7 @@ def _m_expression_carrier(path: str, name: str) -> Mutator:
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
         jobs(w[path])["decoy"] = {"name": "${{ '" + name + "' }}",
-                                  "runs-on": "ubuntu-latest",
+                                  "runs-on": "ubuntu-24.04",
                                   "steps": [{"run": "true"}]}
     return f
 
@@ -4673,7 +4673,7 @@ def _m_matrix_carrier(path: str, name: str) -> Mutator:
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
         jobs(w[path])["decoy"] = {"name": "${{ matrix.n }}",
-                                  "runs-on": "ubuntu-latest",
+                                  "runs-on": "ubuntu-24.04",
                                   "strategy": {"matrix": {"n": [name]}},
                                   "steps": [{"run": "true"}]}
     return f
@@ -4686,7 +4686,7 @@ def _m_foreign_carrier(path: str, name: str) -> Mutator:
     # round 2 on PR #293): the per-file carrier count never sees it.
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
-        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
                                   "steps": [{"run": "true"}]}
     return f
 
@@ -4699,7 +4699,7 @@ def _m_matrix_decoy(path: str, name: str, matrix: Any) -> Mutator:
     # itself an expression, `include`, a missing key, an empty list.
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
-        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-latest",
+        jobs(w[path])["decoy"] = {"name": name, "runs-on": "ubuntu-24.04",
                                   "strategy": {"matrix": matrix},
                                   "steps": [{"run": "true"}]}
     return f
@@ -4731,7 +4731,7 @@ def _ce_add(w: World, path: str, key: str, value: Any) -> None:
     per-class rule classifies."""
     # An ADDED standalone job carrying a neuter key (maintainer [R0]
     # round 4 on PR #293): no per-class rule classifies it.
-    jobs(w[path])["standalone"] = {"runs-on": "ubuntu-latest", key: value,
+    jobs(w[path])["standalone"] = {"runs-on": "ubuntu-24.04", key: value,
                                    "steps": [{"run": "true"}]}
 
 
@@ -4788,7 +4788,7 @@ def _m_swap_carrier(path: str, jid: str) -> Mutator:
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
         jobs(w[path])[jid]["name"] = jid + "-real"
-        jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-latest",
+        jobs(w[path])["decoy"] = {"name": jid, "runs-on": "ubuntu-24.04",
                                   "steps": [{"run": "true"}]}
     return f
 
@@ -5027,7 +5027,7 @@ def _m_gate_needs_a_skippable_job(w: World) -> None:
     # O1: a `noop` job that skips on schedule, and a gate that needs it.
     jobs(w[RTL_FULL])["noop"] = {
         "if": "${{ github.event_name != 'schedule' }}",
-        "runs-on": "ubuntu-latest",
+        "runs-on": "ubuntu-24.04",
         "steps": [{"run": "true"}],
     }
     jobs(w[RTL_FULL])[GATE_JOB]["needs"] = ["noop"]
@@ -5099,7 +5099,7 @@ def _m_fifth_workflow(jid: str, name: str | None = None) -> Mutator:
     # PR #293): GitHub runs it and binds its check-run names all the same.
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
-        job = {"runs-on": "ubuntu-latest", "steps": [{"run": "true"}]}
+        job = {"runs-on": "ubuntu-24.04", "steps": [{"run": "true"}]}
         if name is not None:
             job["name"] = name
         w[f"{WORKFLOW_DIR}/decoy.yml"] = {
@@ -5271,7 +5271,7 @@ def _m_fast_aggregate_forgets_bdd(w: World) -> None:
 def _m_fast_new_unaggregated_job(w: World) -> None:
     """A new fast job outside the aggregate's `needs`."""
     jobs(w[RTL_FAST])["extra-check"] = {
-        "runs-on": "ubuntu-latest",
+        "runs-on": "ubuntu-24.04",
         "steps": [{"run": "true"}],
     }
 
@@ -5338,7 +5338,7 @@ def _m_new_consumer_job(w: World) -> None:
     # selector and carries no gate on its decision runs on every event.
     jobs(w[RTL_FULL])["extra-worker"] = {
         "needs": GATE_JOB,
-        "runs-on": "ubuntu-latest",
+        "runs-on": "ubuntu-24.04",
         "steps": [{"run": "true"}],
     }
 
@@ -5754,7 +5754,7 @@ def _m_stub_job(path: str, jid: str) -> Mutator:
         """Apply the arm's edit to `w` in place."""
         all_jobs = jobs(w[path])
         all_jobs[jid + "-real"] = all_jobs.pop(jid)
-        all_jobs[jid] = {"runs-on": "ubuntu-latest",
+        all_jobs[jid] = {"runs-on": "ubuntu-24.04",
                          "steps": [{"run": "true"}]}
     return f
 
@@ -5769,7 +5769,7 @@ def _m_duplicate_mapping(path: str, jid: str) -> Mutator:
     # parsed world is refused.
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
-        jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
+        jobs(w[path])[jid] = {"runs-on": "ubuntu-24.04",
                               "steps": [{"run": "true"}]}
     return f
 
@@ -7858,7 +7858,7 @@ def _m_append_job(path: str, jid: str) -> Mutator:
     """Append a benign, well-formed job `jid` to a workflow."""
     def f(w: World) -> None:
         """Apply the arm's edit to `w` in place."""
-        jobs(w[path])[jid] = {"runs-on": "ubuntu-latest",
+        jobs(w[path])[jid] = {"runs-on": "ubuntu-24.04",
                               "timeout-minutes": 5,
                               "steps": [{"name": "tidy", "run": "true"}]}
     return f
@@ -8432,7 +8432,7 @@ def _selftest_on_disk(root: pathlib.Path) -> tuple[list[str], int]:
         for suffix in (".yml", ".yaml"):
             decoy = tree / WORKFLOW_DIR / f"decoy{suffix}"
             decoy.write_text("name: decoy\non: [pull_request]\njobs:\n  decoy:\n"
-                             "    name: docs-check\n    runs-on: ubuntu-latest\n"
+                             "    name: docs-check\n    runs-on: ubuntu-24.04\n"
                              "    steps:\n      - run: 'true'\n", encoding="utf-8")
             findings = check(parse_world(read_tree(tree))).findings
             if any(want in f and f"decoy{suffix}" in f for f in findings):
@@ -8470,7 +8470,7 @@ def _selftest_on_disk(root: pathlib.Path) -> tuple[list[str], int]:
             victim = tree / rel
             original = victim.read_text(encoding="utf-8")
             victim.write_text(original + f"\n  {jid}:\n"
-                              "    runs-on: ubuntu-latest\n"
+                              "    runs-on: ubuntu-24.04\n"
                               "    steps:\n      - run: 'true'\n",
                               encoding="utf-8")
             findings = check(parse_world(read_tree(tree))).findings
