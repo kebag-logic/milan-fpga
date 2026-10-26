@@ -122,10 +122,10 @@ bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, u
 // bound and started, with SID_VALID as the entry holds it, so the stream_id
 // stays on the datapath through the write. One write.
 bool mbx_pub_sink_binding(unsigned interface, unsigned sink, bool bound, bool started, bool sid_valid);
-// The face block (contract 2.3; #665, the assignment 6409739310 and the ruling
-// 6410169666): the settings the firmware writes for interface `interface`'s
-// datapath in the split placement, and the request windows its observation
-// ports read. Each setting write names one register by its offset inside the
+// The face block (contract 2.3; #665): the settings the firmware writes for
+// interface `interface`'s datapath in the split placement, and the request
+// windows its observation ports read. Each setting write names one register
+// by its offset inside the
 // interface's block (MBX_FACE_REG_F_*), a source's or a sink's entry by the
 // entry's (MBX_FACE_SRC_REG_*, MBX_FACE_SNK_REG_*), and returns false, writing
 // nothing, for an interface or an entry the contract does not have. A setting

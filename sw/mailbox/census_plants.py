@@ -561,7 +561,7 @@ def apply(src: Any, plant: Plant) -> Any:
 # ---- every port of the wrapper (census_ports.py) -----------------------------
 # These arms change no source, so none elaborates: each is judged on the
 # netlist a tracked-source arm already elaborated at the recipe's shape
-# (#665, ruling 6410169666 item 5). A table arm replaces the port table or the
+# (#665). A table arm replaces the port table or the
 # exclusion; a netlist arm adds one consumer to a copy of the netlist, the
 # cells and ports an edit of the source would have elaborated to. Each terminal
 # of a G cone has an arm that moves a consumer past it (the ruling, item 2).

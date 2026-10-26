@@ -15,12 +15,12 @@
 //                published, each expired timer with the tag of the arm it
 //                belongs to, and, while TICK_CTL.EN is set, the centisecond
 //                tick count the firmware's timer port (lwSRP's
-//                shlan_timer_tick) is driven by. Since contract 2.3 (#665,
-//                ruling 6410169666) it also posts the datapath's face events:
-//                a live audio-map write, an AVB_INFO or AS_PATH change, each
-//                with the count since its last record, and a served
-//                descriptor's counter change, one pending bit per descriptor
-//                (Milan v1.2 Table 5.22). Fixed priority: link, then
+//                shlan_timer_tick) is driven by. Since contract 2.3 (#665)
+//                it also posts the datapath's face events: a live audio-map
+//                write, an AVB_INFO or AS_PATH change, each with the count
+//                since its last record, and a served descriptor's counter
+//                change, one pending bit per descriptor (Milan v1.2 Table
+//                5.22). Fixed priority: link, then
 //                grandmaster, then the lowest expired slot, then the tick,
 //                then the map write, AVB_INFO, AS_PATH, and last the lowest
 //                pending descriptor of the lowest interface.

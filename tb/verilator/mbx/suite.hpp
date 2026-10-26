@@ -97,7 +97,7 @@ class Suite {
         "AdpBoundTalkers",
         // lane F-INT: the publication block (#665, comment 6088423771)
         "Publication",
-        // contract 2.3: the face block (#665, the assignment 6409739310 and the ruling 6410169666)
+        // contract 2.3: the face block (#665)
         "Face"};
 
     void run() {

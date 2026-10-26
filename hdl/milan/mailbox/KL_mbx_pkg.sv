@@ -406,7 +406,7 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_F_AECP_DYN_DIRTY_LSB_C = 32'd1;
   //! F_AECP: a persisted setting is not saved yet
   localparam int unsigned MBX_F_AECP_DYN_DIRTY_WIDTH_C = 32'd1;
-  //! The saved-state restore's status, as the processor's restore_*_o and rs_cause_o report it to the CSRs: the firmware's F1 store writes it before AECP is released and again on every change.
+  //! The saved-state restore's status, as the processor's restore_*_o and rs_cause_o report it to the CSRs: the firmware's saved-state store writes it before AECP is released and again on every change.
   localparam int unsigned MBX_FACE_REG_F_RESTORE_C = 32'h00000010;
   //! F_RESTORE: the restore walk is running
   localparam int unsigned MBX_F_RESTORE_BUSY_LSB_C = 32'd0;

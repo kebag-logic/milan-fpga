@@ -21,7 +21,7 @@ not built. This file is the one statement of that memory map. The SoC reads it
 - the allocation is held to the owner's 224 KB: 56 RAMB36 at 4,096 usable
   bytes each, a RAMB18 counting half (#640 ruling 6101485877). LEDGERED
   names the one point allowed past it, only when its measurement asks for it
-  by name (#665 ruling 6412739248); the SoC build asks for none.
+  by name (#665); the SoC build asks for none.
 
 Every refusal names its check: `reset entry`, `memory map`, `memory-map
 overlap`, `allocation over budget` and `staging buffer`. RULES lists each

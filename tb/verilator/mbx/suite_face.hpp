@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// suite_face.hpp - the face block's checks (contract 2.3; #665, the
-// assignment 6409739310 and the ruling 6410169666), members of mbx_tb::Suite
-// (suite.hpp), run on the RTL through both bus adapters and on the host model.
+// suite_face.hpp - the face block's checks (contract 2.3; #665), members of
+// mbx_tb::Suite (suite.hpp), run on the RTL through both bus adapters and on
+// the host model.
 //
 // The face block carries what the processor wrapper's other faces carried:
 // the settings the firmware writes (F), published by a commit handshake, and
@@ -214,7 +214,7 @@ void Suite<Bench, Check>::check_face() {
     check_face_reset();
 }
 
-// F1: every register keeps its own fields and every bit of them, at its own
+// every register keeps its own fields and every bit of them, at its own
 // interface and entry.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_face_masks() {
@@ -237,7 +237,7 @@ void Suite<Bench, Check>::check_face_masks() {
     ck_.dec("F1 no setting or request write is refused while nothing is held", rd(MBX_REG_BUS_ERR), 0);
 }
 
-// F2: each field reaches its own port, of its own interface, entry and window.
+// each field reaches its own port, of its own interface, entry and window.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_face_outputs() {
     bool fields = true;
@@ -331,7 +331,7 @@ void Suite<Bench, Check>::check_face_outputs() {
              single);
 }
 
-// F3: a commit holds every setting until its acknowledgement, and a write that
+// a commit holds every setting until its acknowledgement, and a write that
 // would move one meanwhile is refused.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_face_commit() {
@@ -399,7 +399,7 @@ std::uint32_t Suite<Bench, Check>::face_words_mask(std::uint32_t off) {
     return 0u;
 }
 
-// F4 to F6: window w's request holds from its GO until the answer carrying its
+// window w's request holds from its GO until the answer carrying its
 // tag; an answer under another tag, or with no request open, is discarded; the
 // wait bound closes it unanswered; nothing it does moves another window.
 template <class Bench, class Check>
@@ -473,7 +473,7 @@ void Suite<Bench, Check>::check_face_window(unsigned w) {
     ck_.dec(label("and the window refused nothing while it was idle").c_str(), rd(MBX_REG_BUS_ERR), err0 + refused);
 }
 
-// F7: outside the registers: a hole, an interface the build lacks, a status
+// outside the registers: a hole, an interface the build lacks, a status
 // or an answer take no write; a partial strobe is refused.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_face_out_of_window() {
@@ -535,7 +535,7 @@ void Suite<Bench, Check>::check_face_out_of_window() {
     ck_.dec("F7 and counts in BUS_ERR", rd(MBX_REG_BUS_ERR), err0 + 3u);
 }
 
-// F8: the counted face events, each coalesced into one record that carries
+// the counted face events, each coalesced into one record that carries
 // every pulse, in their priority after the tick.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_face_events() {
@@ -583,7 +583,7 @@ void Suite<Bench, Check>::check_face_events() {
     ck_.that("F8 each carrying every pulse it coalesced", counts[0] == 2u && counts[1] == 3u && counts[2] == 4u);
 }
 
-// F9: COUNTERS_CHANGED: one pending bit per served descriptor, ALL for any
+// COUNTERS_CHANGED: one pending bit per served descriptor, ALL for any
 // other, and at most one record per descriptor in each holdoff epoch, a change
 // meanwhile waiting for the next.
 template <class Bench, class Check>
@@ -653,7 +653,7 @@ void Suite<Bench, Check>::check_face_counter_events() {
                  take_event().empty());
 }
 
-// F10: a reset clears the whole block, every port, every open request and
+// a reset clears the whole block, every port, every open request and
 // every pending face event.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_face_reset() {
@@ -703,8 +703,8 @@ void Suite<Bench, Check>::check_face_timing() {
                 win_status(0, 0, 1, b_.face(i).tag[w]));
         wr(face_reg(i, r.go), 1u << MBX_CTR_CMD_GO_LSB);
         std::uint32_t tag = b_.face(i).tag[w];
-        // a request that never opened leaves held 0: T0 has failed, and the
-        // bench stays bounded
+        // a request that never opened leaves held 0: the timing check has
+        // failed, and the bench stays bounded
         b_.idle(held == 0u ? 0u : held - 1u);
         b_.win_answer(w, i, tag, 0xA0u + w);
         ck_.dec(("T0 " + name + " an answer on the last cycle of the bound is taken").c_str(), rd(face_reg(i, r.status)),

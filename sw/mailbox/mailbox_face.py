@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Emit the face block of KL_mbx.sv: the settings, their commit, the windows.
 
-The face block (contract 2.3; #665, the assignment 6409739310 and the ruling
-6410169666) carries the processor wrapper's faces other than its class-D
-outputs. Every setting field leaves on a port of its own, ``fw_<register>_<field>_o``
+The face block (contract 2.3; #665) carries the processor wrapper's faces
+other than its class-D outputs. Every setting field leaves on a port of its
+own, ``fw_<register>_<field>_o``
 for the interface settings and the names ``FACE_SOURCE_PORTS`` and
 ``FACE_SINK_PORTS`` give the entries, and every window's request field on
 ``<window>_<field>_o`` (a ``_LO``/``_HI`` register pair joined into one

@@ -2684,7 +2684,7 @@ class CtrlMailbox(LiteXModule):
     for the datapath) are left unread here too: only the split placement's
     datapath reads them (#665, comment 6088423771). So are the face block's
     (contract 2.3: the settings, the four request and answer windows and the
-    face events; #665, comment 6410169666): its outputs are named and unread,
+    face events; #665): its outputs are named and unread,
     and the datapath's answers, acknowledgements and events are held idle, so
     a request times out and a commit waits, as the contract defines.
     """

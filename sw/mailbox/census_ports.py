@@ -2,17 +2,15 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """census_ports.py - every port of the processor wrapper cell, each in exactly one disposition class.
 
-THE QUESTION. The split placement removes the whole KL_pp_shadow (#665,
-ruling 6088423771, decision 1), and with it every face the datapath reads,
-not only the class-D outputs publication_census.py follows. Which faces the
-mailbox must carry, and which may go, is decided port by port here, from the
-netlist census_elab.py builds, in every shape the builder builds (#665, the
-assignment 6409739310 and the ruling 6410169666).
+THE QUESTION. The split placement removes the whole KL_pp_shadow (#665), and
+with it every face the datapath reads, not only the class-D outputs
+publication_census.py follows. Which faces the mailbox must carry, and which
+may go, is decided port by port here, from the netlist census_elab.py builds,
+in every shape the builder builds (#665).
 
 THE POPULATION is every port of the KL_pp_shadow module, as the elaborated
 datapath's pp_shadow cell declares it: inputs and outputs alike, 217 at the
-head this was written at. ``PORTS`` names each under one class (decision D1
-of comment 6409738976):
+head this was written at. ``PORTS`` names each under one class (#665):
 
   C  class-D, already carried by contract 2.2's publication block: exactly
      publication_census.CLASS_D_PORTS and the started level
@@ -49,10 +47,10 @@ THE EXCLUSION OWED TO THE PLACEMENT SWITCH (the ruling, item 1). The #637 map
 record face (mrec_*) feeds the datapath's map writer and restore, block
 amr_fsm (hdl/milan/milan_datapath.sv, its restore and hold path), which
 drives the render channel map. That block goes with the wrapper: in the
-split, the firmware's AECP owner applies the #637 restore (comment
-6009661573), so map persistence keeps one owner. A G cone therefore stops at
-the nets ``REMOVED_WITH_WRAPPER`` names, and at the locals sv2v makes inside
-the block (``amr_fsm.``). Each named net must be reached by a G cone of the
+split, the firmware's AECP owner applies the #637 restore (#637), so map
+persistence keeps one owner. A G cone therefore stops at the nets
+``REMOVED_WITH_WRAPPER`` names, and at the locals sv2v makes inside the block
+(``amr_fsm.``). Each named net must be reached by a G cone of the
 shape, and each must be a net of the map writer (``amr_``). ACCEPTANCE ITEM
 OF THE PLACEMENT SWITCH: its split elaboration drops this exclusion, and
 the census passes without it.

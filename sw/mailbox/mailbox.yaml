@@ -60,10 +60,8 @@
 # promises it. It only adds: a firmware built against 2.1 leaves the block at
 # its reset value, and nothing in the window moved.
 #
-# Minor 3 (#665, the assignment 6409739310 and the ruling 6410169666; the
-# disposition scheme D1 of comment 6409738976): the processor wrapper's other
-# faces, which the split placement removes with it. A face block per
-# interface carries the firmware-written settings (class F: the AECP
+# Minor 3 (#665): the processor wrapper's other faces, which the split
+# placement removes with it. A face block per interface carries the firmware-written settings (class F: the AECP
 # settings, the control-ready level and the restore and saved-state status),
 # published by one commit handshake, and four request and answer windows
 # (class R: GET_COUNTERS, the audio map's read and its edit transaction, and
@@ -427,9 +425,9 @@ interface_publication_registers:
         - {name: SID_VALID, lsb: 1, width: 1, doc: SID_LO and SID_HI are the settled stream_id}
         - {name: STARTED, lsb: 2, width: 1, doc: the bound sink is started}
 
-# The face block (#665, ruling 6410169666; decision D1 of comment
-# 6409738976): per interface, the processor wrapper's faces other than its
-# class-D outputs, which the datapath of the split placement reads from here.
+# The face block (#665): per interface, the processor wrapper's faces other
+# than its class-D outputs, which the datapath of the split placement reads
+# from here.
 # Interface i's block starts at base + stride * i; source s's entry at
 # source_base + source_stride * s and sink k's at sink_base + sink_stride * k
 # inside it, for the publication block's sources and sinks. A hole, an entry
@@ -442,9 +440,12 @@ interface_publication_registers:
 # F_STATUS.BUSY falls. A write to an F_* register or F_COMMIT while BUSY is set
 # is refused and counted in BUS_ERR, so a value is never sampled without its
 # qualifier (cdc_handshake's src_send and src_rcv). The firmware writes each
-# value and waits for the acknowledgement, at most ack_cycles clk_i cycles,
-# before the response that promises it (docs/ARCHITECTURE_HW_SW_SPLIT.md
-# section 1; Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2).
+# value and waits for the acknowledgement, at most ack_cycles clk_i cycles; a
+# response promises the value only once it is acknowledged
+# (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2 5.4.5.2; IEEE
+# 1722.1-2021 7.5.2). One not acknowledged within the bound is promised by
+# none: the command answers ENTITY_MISBEHAVING, and the firmware takes no other
+# change until the acknowledgement returns (docs/design/MAILBOX_SPLIT.md).
 #
 # THE WINDOWS (class R). A window's request registers name what the datapath's
 # answer logic is asked; its CMD.GO starts the request, which KL_mbx holds on
@@ -507,8 +508,8 @@ interface_face_registers:
       access: rw
       doc: >-
         The saved-state restore's status, as the processor's restore_*_o and rs_cause_o
-        report it to the CSRs: the firmware's F1 store writes it before AECP is released and
-        again on every change.
+        report it to the CSRs: the firmware's saved-state store writes it before AECP is
+        released and again on every change.
       fields:
         - {name: BUSY, lsb: 0, width: 1, doc: the restore walk is running}
         - {name: DONE, lsb: 1, width: 1, doc: the restore sequencing completed (not a verdict)}
@@ -812,9 +813,9 @@ interface_face_registers:
     - {name: GSI, wait_cycles: 64, go: GSI_CMD, status: GSI_STATUS, data: [GSI_DATA_LO, GSI_DATA_HI],
        request: [GSI_REQ, GSI_SEL, GSI_PROP_LO, GSI_PROP_HI]}
 
-# The COUNTERS_CHANGED source (#665, ruling 6410169666): one pending bit per
-# descriptor whose counters the datapath serves (its ctr_change face names a
-# STREAM_INPUT, a STREAM_OUTPUT, the AVB_INTERFACE or the CLOCK_DOMAIN),
+# The COUNTERS_CHANGED source (#665): one pending bit per descriptor whose
+# counters the datapath serves (its ctr_change face names a STREAM_INPUT, a
+# STREAM_OUTPUT, the AVB_INTERFACE or the CLOCK_DOMAIN),
 # per interface, and one more for a change naming any other descriptor,
 # which posts a record with ALL set. A descriptor posts at most once per
 # holdoff_ms window of NOW_MS, the Table 5.22 period of Milan v1.2 5.4.5.2,

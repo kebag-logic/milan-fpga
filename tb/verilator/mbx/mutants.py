@@ -478,9 +478,8 @@ ARMS += (
 )
 
 
-#: ---- contract 2.3: the face block (#665, the assignment 6409739310 and the
-#: ruling 6410169666), one defect per rule through both adapters (the model's
-#: twins are in sw/firmware/ctrl/test/ctrl_mutants.py) ----
+#: ---- contract 2.3: the face block (#665), one defect per rule through both
+#: adapters (the model's twins are in sw/firmware/ctrl/test/ctrl_mutants.py) ----
 ARMS += (
     # a field on the wrong port
     *_both("top-face-identify-from-cur-config", "KL_mbx.sv",

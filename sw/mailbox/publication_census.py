@@ -108,10 +108,9 @@ THE RULES. census_rules.py names every rule above, the shapes' and the
 tools' included, and each is enforced only where ``live()`` names it.
 
 EVERY PORT. census_ports.py classifies every port of the same pp_shadow cell,
-inputs and outputs, in each shape on the same netlist (#665, the assignment
-6409739310 and the ruling 6410169666): class-D, firmware-written, a window, an
-event, a frame path, or gone with a G output's cone ending only at its three
-terminals and the map writer's exclusion. Its findings join this census's.
+inputs and outputs, in each shape on the same netlist (#665): class-D,
+firmware-written, a window, an event, a frame path, or gone with a G output's
+cone ending only at its three terminals and the map writer's exclusion. Its findings join this census's.
 
 ``--selftest`` (census_selftest.py) elaborates a planted copy of the datapath,
 the wrapper or an included file for each defect of ``census_plants.PLANTS``,

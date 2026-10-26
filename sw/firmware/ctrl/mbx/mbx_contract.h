@@ -405,7 +405,7 @@
 #define MBX_F_AECP_DYN_DIRTY_LSB 1u
 /* F_AECP: a persisted setting is not saved yet */
 #define MBX_F_AECP_DYN_DIRTY_WIDTH 1u
-/* The saved-state restore's status, as the processor's restore_*_o and rs_cause_o report it to the CSRs: the firmware's F1 store writes it before AECP is released and again on every change. */
+/* The saved-state restore's status, as the processor's restore_*_o and rs_cause_o report it to the CSRs: the firmware's saved-state store writes it before AECP is released and again on every change. */
 #define MBX_FACE_REG_F_RESTORE 0x10u
 /* F_RESTORE: the restore walk is running */
 #define MBX_F_RESTORE_BUSY_LSB 0u

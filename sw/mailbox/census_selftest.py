@@ -16,8 +16,7 @@ the census table:
   the port arms      census_plants.port_arms(): the port table, the
                      exclusion, or one consumer added to the netlist, each
                      judged on the netlist of an arm that elaborated the
-                     tracked sources, so none elaborates again (#665, ruling
-                     6410169666 item 5)
+                     tracked sources, so none elaborates again (#665)
 
 THE MUTATION CHECK (#665, comment 6100024293). Each arm names the rule of
 census_rules.RULES whose removal must let it through (the positive control

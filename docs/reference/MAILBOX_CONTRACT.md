@@ -330,7 +330,7 @@ Interface i's face block starts at `0x6000 + 0x400 * i`. The firmware writes the
 | `0x004` | `F_ENTITY` | rw | The entity's current configuration (IEEE 1722.1-2021 7.4.7; the processor's aecp_cur_config_o) and its IDENTIFY control value, 0 or 255 (Milan v1.2 5.4.2.12; aecp_identify_o). |
 | `0x008` | `F_CLOCK` | rw | CLOCK_DOMAIN 0's clock_source_index as SET_CLOCK_SOURCE set it (IEEE 1722.1-2021 7.4.23; the processor's aecp_clk_src_index_o), which the media clock resolves. |
 | `0x00C` | `F_AECP` | rw | LOCK_HELD is set while a LOCK_ENTITY is held (IEEE 1722.1-2021 7.4.2; Milan v1.2 5.4.2.27 and 5.4.2.28 forbid a local map change meanwhile; the processor's aecp_lock_held_o). DYN_DIRTY is set while a persisted setting moved and is not saved (aecp_dyn_dirty_o). |
-| `0x010` | `F_RESTORE` | rw | The saved-state restore's status, as the processor's restore_*_o and rs_cause_o report it to the CSRs: the firmware's F1 store writes it before AECP is released and again on every change. |
+| `0x010` | `F_RESTORE` | rw | The saved-state restore's status, as the processor's restore_*_o and rs_cause_o report it to the CSRs: the firmware's saved-state store writes it before AECP is released and again on every change. |
 | `0x014` | `F_NVM` | rw | The saved-state store's status, as the processor's nvm_*_o report it to the CSRs: written before AECP is released and again on every change. |
 | `0x018` | `F_COMMIT` | wo | Writing GO publishes every F_* value of this interface: fw_send_o rises and the values hold until the acknowledgement. Refused while F_STATUS.BUSY is set. |
 | `0x01C` | `F_STATUS` | ro | The commit handshake. BUSY is set from a commit until its acknowledgement returns. |
