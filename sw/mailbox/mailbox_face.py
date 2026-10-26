@@ -222,6 +222,12 @@ def _hit(area: int, reg: str, kind: str = "REG") -> str:
 def block(contract: Contract) -> list[str]:
     """The face block's storage, its writes and their refusals, the commit, the
     windows' requests, answers and timeouts, and the outputs."""
+    return (_storage(contract) + _refusal(contract) + _writes(contract) + _commit() + _windows(contract)
+            + _outputs(contract))
+
+
+def _storage(contract: Contract) -> list[str]:
+    """Every register the face block stores, per interface, entry and window."""
     regs = {r.name: r for r in contract.face_registers}
     sets = settings(contract)
     out = ["  // ---- the face block's storage: the firmware writes it, the datapath reads it ---------"]
@@ -242,11 +248,16 @@ def block(contract: Contract) -> list[str]:
                 f"  logic [MBX_{w.status}_TAG_WIDTH_C-1:0] {lw}_tag_r [MBX_N_IF_C];   //! {w.status}.TAG",
                 f"  logic [15:0] {lw}_wait_r [MBX_N_IF_C];   //! cycles the open request has waited",
                 f"  logic [{32 * len(w.data) - 1}:0] {lw}_data_r [MBX_N_IF_C];   //! the answer"]
-    # the refusals: a write that would move a held value
+    return out
+
+
+def _refusal(contract: Contract) -> list[str]:
+    """The refusals: a write that would move a held value."""
+    sets = settings(contract)
     held_f = [_hit(0, r.name) for r in sets] + [_hit(0, FACE_COMMIT)]
     held_f += [_hit(1, r.name, "SRC_REG") for r in contract.face_source_registers]
     held_f += [_hit(2, r.name, "SNK_REG") for r in contract.face_sink_registers]
-    out += ["", "  logic face_refused_w;   //! a write that would move a held value, refused and counted",
+    out = ["", "  logic face_refused_w;   //! a write that would move a held value, refused and counted",
             "  always_comb begin : face_refusal",
             "    face_refused_w = 1'b0;",
             "    if (wr_w && fw_busy_r[face_if_w] && (" + "\n        || ".join(f"({h})" for h in held_f) + "))",
@@ -254,10 +265,15 @@ def block(contract: Contract) -> list[str]:
     for w in contract.face_windows:
         terms = "\n        || ".join(f"({_hit(0, n)})" for n in (*w.request, w.go))
         out += [f"    if (wr_w && {w.name.lower()}_busy_r[face_if_w] && ({terms}))", "      face_refused_w = 1'b1;"]
-    out += ["  end : face_refusal", ""]
-    # the writes
-    out += ["  always_ff @(posedge clk_i) begin : face_write", "    if (!rst_n) begin",
-            "      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin"]
+    return out + ["  end : face_refusal", ""]
+
+
+def _writes(contract: Contract) -> list[str]:
+    """The writes: each register takes its own fields, unless the write is refused."""
+    regs = {r.name: r for r in contract.face_registers}
+    sets = settings(contract)
+    out = ["  always_ff @(posedge clk_i) begin : face_write", "    if (!rst_n) begin",
+           "      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin"]
     out += [f"        face_{r.name.lower()}_r[i] <= '0;" for r in sets]
     out += [f"        face_{regs[n].name.lower()}_r[i] <= '0;" for w in contract.face_windows for n in w.request]
     out.append("        for (int s = 0; s < int'(MBX_N_PUB_SOURCES_C); s++) begin")
@@ -279,10 +295,13 @@ def block(contract: Contract) -> list[str]:
     for r in contract.face_sink_registers:
         out += [f"      if ({_hit(2, r.name, 'SNK_REG')})",
                 f"        face_{r.name.lower()}_r[face_if_w][face_k_w] <= {_bits(r)}'(host_wdata_i & ({_mask(r)}));"]
-    out += ["    end", "  end : face_write", ""]
-    # the commit
+    return out + ["    end", "  end : face_write", ""]
+
+
+def _commit() -> list[str]:
+    """The commit: GO raises fw_send_o until the acknowledgement."""
     go = f"mbx_field_f(host_wdata_i, MBX_{FACE_COMMIT}_GO_LSB_C, MBX_{FACE_COMMIT}_GO_WIDTH_C) != 0"
-    out += ["  // the commit: GO raises fw_send_o until the acknowledgement; an acknowledgement",
+    return ["  // the commit: GO raises fw_send_o until the acknowledgement; an acknowledgement",
             "  // with no commit waiting is not one",
             "  always_ff @(posedge clk_i) begin : face_commit",
             "    if (!rst_n) fw_busy_r <= '0;",
@@ -294,7 +313,11 @@ def block(contract: Contract) -> list[str]:
             "        fw_busy_r[face_if_w] <= 1'b1;",
             "    end",
             "  end : face_commit", ""]
-    # the windows
+
+
+def _windows(contract: Contract) -> list[str]:
+    """Each window: GO opens a request under the next tag, its answer or its timeout closes it."""
+    out = []
     for w in contract.face_windows:
         lw, tag = w.name.lower(), f"MBX_{w.status}_TAG_WIDTH_C"
         dw = 32 * len(w.data)
@@ -331,9 +354,14 @@ def block(contract: Contract) -> list[str]:
                 "      end",
                 "    end",
                 f"  end : win_{lw}", ""]
-    # the outputs
-    out += ["  always_comb begin : face_out", "    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin",
-            "      fw_send_o[i] = fw_busy_r[i];"]
+    return out
+
+
+def _outputs(contract: Contract) -> list[str]:
+    """Every face output: each setting, entry and request on its own port, per interface."""
+    regs = {r.name: r for r in contract.face_registers}
+    out = ["  always_comb begin : face_out", "    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin",
+           "      fw_send_o[i] = fw_busy_r[i];"]
     for port, reg, fld, _b in setting_ports(contract):
         width = f"MBX_{reg}_{fld}_WIDTH_C"
         out.append(f"      {port}[{width}*i +: {width}] = {width}'({_field(reg, fld, f'face_{reg.lower()}_r[i]')});")
