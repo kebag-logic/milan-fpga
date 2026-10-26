@@ -558,10 +558,10 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | composition: the window's population is not checked | a composed load missing one channel is refused |
 | composition: the composed maximum is the run's worst pass | fixture passes: worst pass and composed maximum |
 | composition: the composed maximum is the window's first pass | fixture passes: worst pass and composed maximum |
-| worst pass: the run's last pass is dropped | the pass bound runs from the running pass at the bus ratio |
+| worst pass: the run's last pass is dropped | refused: synthetic.service.acmp.last.if0: the release at 2050 belongs to no work pass |
 | passes: the pass the script's end cuts counts as idle (earlier rule) | the pass the script's end cuts is no idle pass |
 | composition: a window that committed more than its load is accepted | a composed window that committed more than its load is refused |
-| composition: the load is the stimulus's own declaration (earlier rule) | a window short of its defined load is refused although it declares it |
+| composition: the load is the stimulus's own declaration (earlier rule) | refused: synthetic: the composed window committed two ACMP records, its declared load none |
 | composition: the backlog stimulus omits SRP | every composed window's stimulus is its defined load |
 | composition: the backlog stimulus omits MAAP | every composed window's stimulus is its defined load |
 | composition: the owed row omits the ACMP commands behind its input (earlier rule) | every composed window's stimulus is its defined load |
@@ -598,6 +598,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
+Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
 
 Regenerate the fixture only through its generator, from a fresh 1x1 run of the `fixture` group:
 
