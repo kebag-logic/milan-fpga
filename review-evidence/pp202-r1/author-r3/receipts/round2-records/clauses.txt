@@ -1,0 +1,42 @@
+# clauses read for processor #202 round 2 (short quotes; the standards are not distributed)
+
+Milan v1.2 5.3.7.5 "Plug-and-play SRP parameters (informative)": "This section describes a
+  possible plug-and-play implementation of a Talker PAAD-AE, but does not preclude any other
+  implementation."
+Milan v1.2 Table 5.3, Stream ID row: "The first 6 bytes are equal to the MAC Address of the AVB
+  Interface associated with this Stream Output. The 2 last bytes can be used indifferently by
+  the PAAD to distinguish between the different Streams it is sourcing from this AVB
+  interface. Note: the PAAD may always use the same Stream ID for a given STREAM_OUTPUT
+  descriptor, or change each time it starts declaring an MSRP Talker attribute for this
+  stream."
+Milan v1.2 Table 5.3, Stream Destination MAC Address row: conflict while declaring -> the PAAD
+  "withdraws the Talker attribute, waits for 2 LeaveAll periods and allocates a new
+  Destination MAC Address ... Note: at that time, the PAAD may decide to use the same Stream
+  ID as before, or another Stream ID." "This parameter is valid as long as MAAP has
+  successfully allocated an address and is not reporting a conflict."
+Milan v1.2 Table 5.3, Stream Priority code point row: PCP change while declaring -> withdraw,
+  "waits for 2 LeaveAll periods", declare with the new PCP; same Stream ID note.
+Milan v1.2 5.5.4.1 step 3: "Check that a valid Destination MAC Address is available for this
+  Stream Output. If not, send a PROBE_TX_RESPONSE message as shown in Table 5.42. and exit."
+  Table 5.42: status TALKER_DEST_MAC_FAILED; stream_id, stream_dest_mac, stream_vlan_id
+  "Undefined".
+
+IEEE 802.1Q-2018 35.2.2.8: "MSRP does not support changes in any of the FirstValue fields for
+  an existing StreamID. If a Talker wishes to tear an old Stream down and bring a new Stream
+  up, with a different FirstValue, utilizing the same StreamID, there must be at least two
+  LeaveAllTime (Table 10-7) time periods between when the Talker removes the existing Stream
+  registration and declares the new Stream." "Talkers may tear a Stream down and bring the
+  same Stream back up immediately, as long as the FirstValue has not changed."
+  FirstValue = StreamID (35.2.2.8.2), DataFrameParameters (35.2.2.8.3), TSpec, PriorityAndRank
+  (35.2.2.8.5), Accumulated Latency, FailureInformation.
+IEEE 802.1Q-2018 35.2.2.8.2: StreamID = EUI-48 of the sourcing System + a 16-bit Unique ID
+  "used to distinguish among multiple streams sourced by the same System"; "StreamIDs are
+  unique across the entire bridged network".
+IEEE 802.1Q-2018 Table 10-7: LeaveAllTime 1000 (centiseconds).
+
+IEEE 1722-2016 Annex B Table B.8: MAAP_PROBE_RETRANSMITS 3, MAAP_PROBE_INTERVAL_BASE 500 ms,
+  MAAP_PROBE_INTERVAL_VARIATION 100 ms, MAAP_ANNOUNCE_INTERVAL_BASE 30 s, VARIATION 2 s.
+IEEE 1722-2016 Annex B Table B.7: a conflicting rProbe!/rDefend!/rAnnounce! with compare_MAC
+  (B.3.6.4) FALSE restarts the walk on a fresh address; probeCount! -> sAnnounce, DEFEND.
+IEEE 1722-2016 4.4.4.8: every stream data AVTPDU carries a valid StreamID.
+IEEE 1722.1-2021 7.4.16.2: "The stream_id field is set to the current id of the stream".

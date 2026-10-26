@@ -1,0 +1,99 @@
+mutant	verdict	failing_checks	named_checks
+armq_drop_skip_sat@pp_top	KILLED	1	AQ3: driven from the bench, the arm port and the drop counter equal
+armq_full_pop_refuses@pp_top	KILLED	1	AQ3: driven from the bench, the arm port and the drop counter equal
+armq_head_stuck@pp_top	KILLED	3	AQ2: the arm port and the drop counter equal the eight-queue model | AQ3: driven from the bench, the arm port and the drop counter equal
+armq_read_tail@pp_top	KILLED	78	AQ2: the arm port and the drop counter equal the eight-queue model | AQ3: driven from the bench, the arm port and the drop counter equal
+armq_ring_of_three@pp_top	KILLED	12	AQ2: the arm port and the drop counter equal the eight-queue model | AQ3: driven from the bench, the arm port and the drop counter equal
+armq_write_at_head@pp_top	KILLED	3	AQ2: the arm port and the drop counter equal the eight-queue model | AQ3: driven from the bench, the arm port and the drop counter equal
+armq_write_at_mid@pp_top	KILLED	3	AQ2: the arm port and the drop counter equal the eight-queue model | AQ3: driven from the bench, the arm port and the drop counter equal
+armq_write_refused@pp_top	KILLED	1	AQ3: driven from the bench, the arm port and the drop counter equal
+armq_write_wrap_hi@pp_top	KILLED	1	AQ3: driven from the bench, the arm port and the drop counter equal
+bound_dmac_from_sid@pp_top	KILLED	2	AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream
+bound_view_not_cleared@pp_top	KILLED	1	AS6: the bound view is cleared with the binding
+bound_view_not_latched@pp_top	KILLED	3	AS2: acmp_bound_o/eid/sid/dmac/vlan_o[1] carry the settled stream | AS5: the bound view still carries the settled stream
+cdl_not_44_rejected@pp_top	KILLED	32	AL1: a 96-B UNBIND_RX | AL2: a 96-B BIND_RX | AL3: the 96-B PROBE_TX | AL4: no 96-B frame was dropped
+cdl_not_44_rejected@rx_validator	KILLED	27	F30 BIND_RX cdl 84 | F30 PROBE_TX cdl 84
+conflict_keeps_old_wait@acmp_talker	KILLED	124	E1 no backoff | S1 ALLOC_DA offered in the conflict's millisecond | S1 conflict to new declaration under 2 s
+conflict_keeps_old_wait@pp_top	KILLED	6	MP8: conflict to new declaration under 2 s
+conflict_reuses_old_id@acmp_talker	KILLED	35	E3 re-declare new DA open sid | S1 the declaration carries a new Stream ID
+conflict_reuses_old_id@pp_top	KILLED	5	MP8: the Talker Advertise carries the new Stream ID
+declare_carries_configured_id@acmp_talker	KILLED	18	E3 re-declare new DA open sid | F5 re-declare src3 same DA open sid
+disable_keeps_declared_id@acmp_talker	KILLED	9	S10 a declared source returns from a disable under a new Stream ID | J7 grant re-declares open sid
+disconnect_changes_gate@acmp_talker	KILLED	73	TD1 invalid disconnect leaves source state unchanged
+disconnect_invalid_success@acmp_talker	KILLED	2	TD1 invalid disconnect
+disconnect_not_accepted@acmp_talker	KILLED	181	TD1 consumed
+field_reset_blocked@acmp_listener	KILLED	2088	field check reset completes | field check stimulus completes | field bind responds | VLAN response settles | VLAN GET_RX_STATE response exists | duplicate probe exists | LD1 response exists | same-talker rebind changes binding controller while probe remains pending
+golden-acmp_listener	PASS	0	
+golden-acmp_talker	PASS	0	
+golden-pp_top--acmp-only	PASS	0	
+golden-pp_top--arm-queue-only	PASS	0	
+golden-pp_top--gsi-internal-only	PASS	0	
+golden-pp_top--maap-internal-only	PASS	0	
+golden-pp_top--tspec-only	PASS	0	
+golden-rx_validator	PASS	0	
+gsi_vlan_external@pp_top	KILLED	52	VLAN168 GET_STREAM_INFO retains all received bits | VLAN168 unbind clears the full stored VLAN
+guard_ctlr_dropped@acmp_listener	KILLED	51	B14 wrong controller_entity_id in PWR | B14 wrong controller_entity_id in PW2
+guard_talker_eid_dropped@acmp_listener	KILLED	40	B14 wrong talker_entity_id in PWR | B14 wrong talker_entity_id in PW2
+guard_talker_uid_dropped@acmp_listener	KILLED	30	B14 wrong talker_unique_id in PWR | B14 wrong talker_unique_id in PW2
+lock_gate_bypassed@acmp_listener	KILLED	28	LD3 lock refusal preserves binding for message 6 | LD3 lock refusal preserves binding for message 8
+lock_status_13@acmp_listener	KILLED	5	LD3 lock refusal status 16 for message 6 | LD3 lock refusal status 16 for message 8
+matcher_da_ignored@pp_top	KILLED	5	AS3: near misses (DA, VLAN, stream_id) put no Listener declaration | AS3: near misses register nothing | AS3: no TK_ATTR_REGISTERED{1}
+matcher_vid_ignored@pp_top	KILLED	5	AS3: near misses (DA, VLAN, stream_id) put no Listener declaration | AS3: near misses register nothing | AS3: no TK_ATTR_REGISTERED{1}
+move_compares_unique_id_only@acmp_talker	KILLED	3	S4 an equal unique ID under another MAC is not a collision
+move_cursor_stuck@acmp_talker	KILLED	3	S5 no move repeats a unique ID inside one lap
+move_ignores_configured_ids@acmp_talker	KILLED	2	S3 a move never takes another source's configured ID
+move_ignores_moved_ids@acmp_talker	KILLED	2	S5 after the cursor wraps a move skips
+move_lost_on_disable@acmp_talker	KILLED	1	S1 the move survives a disable
+move_only_when_declaring@acmp_talker	KILLED	6	S6 a conflict after a listener withdrawal moves the ID | S6 a conflict after a freshness lapse moves the ID | R6 after backoff src0 status/tuple
+move_takes_colliding_id@acmp_talker	KILLED	4	S2 a provisioned collision with the first candidate is skipped
+msg_ok_forced@acmp_listener	KILLED	93	B13 msg 7 status 0 in PWR | B13 msg 14 status 0 in PWR | B13 msg 3 status 5 in PW2 | B13 msg 15 status 5 in PW2
+msg_ok_forced@pp_top	KILLED	1	AI3: the sink never left PRB_W_RESP
+output_ignores_move@acmp_talker	KILLED	17	E3 src_stream_id_o follows the move | S1 src_stream_id_o follows the move
+output_ignores_move@pp_top	KILLED	1	MP8: src_stream_id_o names the new Stream ID
+parent_vlan_shifted@pp_top	KILLED	1	VLAN168 parent VID remains the low 12 bits
+park_never_retires@pp_top	KILLED	1	AS7: the MRPDU after it declares the new stream
+pcp_after_withdrawal_skips_the_gap@acmp_talker	KILLED	9	S7 a PCP change after a listener withdrawal arms T-SRP-LEAVEALL2 | S7 two LeaveAllTime periods separate the withdrawal and the same-ID declaration | S8 two LeaveAllTime periods separate the withdrawal and the moved ID's declaration
+pcp_pending_not_held@acmp_talker	KILLED	1	S9 a probe served with a PCP change pending does not declare the same ID
+pcp_skips_the_gap@acmp_talker	KILLED	22	F2 leaveall2 src0 | R6 full two-LeaveAll backoff armed
+probe_answers_configured_id@acmp_talker	KILLED	8	E5 probe after the grant | S1 PROBE_TX after the grant
+probe_guard_current_controller@acmp_listener	KILLED	2	guard accepts controller from sent probe after same-talker rebind | guard rejects controller absent from sent probe after same-talker rebind
+probe_retry_current_controller@acmp_listener	KILLED	1	retry preserves original probe after same-talker rebind
+publish_upper_from_slot0@acmp_talker	KILLED	6	S4 after reset every slot publishes its own whole configured ID | S4 a slot under other upper 48 bits keeps them when it moves
+rebind_abandons_leave@pp_top	KILLED	1	AS7: a rebind settled
+rec_read_in_idle@acmp_listener	KILLED	1	RV8(setup): state sync
+rec_read_sink_zero@acmp_listener	KILLED	647	B12: parked sink 7 record untouched | F05.3 BIND_SAME x PWA: sm_state
+rec_settled_vlan_unstored@acmp_listener	KILLED	26	F05.3 GETRX x SOK: settled | B12: parked sink 7 record untouched
+rec_started_unstored@acmp_listener	KILLED	91	S1d: STOP through the request face cleared the bit | F05.3 GETRX x PWA: flags
+rec_sweep_misaddressed@acmp_listener	KILLED	37	RS GET_RX_STATE after the reset: binding
+reopen_sends_new@pp_top	KILLED	1	MP8: the new Stream ID's first Talker Advertise is a JoinMt, not a New
+retry_probe_status_cleared@acmp_listener	KILLED	1	LD2 retry probe preserves received status
+retry_probe_status_cleared@pp_top	KILLED	165	GI RETRY-RETAIN solicited: acmpsta sink 0 = 7
+retry_status_cleared@acmp_listener	KILLED	3	LD2 discovered retry preserves received status
+rf_swap_sticky@acmp_listener	KILLED	2	B4b: no invented arc; the swap back to Talker Advertise clears RF | B4b: after the swap back GET_RX_STATE clears REGISTERING_FAILED
+rf_swap_sticky@pp_top	KILLED	4	AS5c: after the swap back to Talker Advertise | AS5d precondition: the start type taken alone
+rf_swap_unlatched@acmp_listener	KILLED	4	B4: no invented arc; the swap to Talker Failed latches RF | B4: after the swap to Talker Failed GET_RX_STATE carries REGISTERING_FAILED
+rf_swap_unlatched@pp_top	KILLED	4	AS5b: after the in-place swap to Talker Failed
+router_coalesce_unflagged@pp_top	KILLED	2	AS5d precondition: the listener took the two strobes | AS5e precondition: the listener took the two strobes
+settled_vlan_truncated@acmp_listener	KILLED	1	VLAN full field in GET_RX_STATE
+settled_vlan_truncated@pp_top	KILLED	1	VLAN168 GET_RX_STATE retains all received bits
+settlement_vlan_truncated@acmp_listener	KILLED	1	VLAN full field at settle action
+st_ls_index_zero@pp_top	KILLED	21	AS4: class-D: Listener READY declared | AS4: exactly one TK_ATTR_REGISTERED{1} | AS5: 11.5 s after the settle
+st_ls_settle_as_withdraw@pp_top	KILLED	22	AS4: the matching Talker Advertise yields Listener Ready New | AS4: class-D: Listener READY declared | AS5: 11.5 s after the settle
+st_ls_sid_da_swapped@pp_top	KILLED	22	AS4: the matching Talker Advertise yields Listener Ready New | AS4: class-D: Listener READY declared | AS5: 11.5 s after the settle
+st_ls_state_none@pp_top	KILLED	22	AS4: the matching Talker Advertise yields Listener Ready New | AS4: class-D: Listener READY declared | AS5: 11.5 s after the settle
+st_ls_teardown_as_declare@pp_top	KILLED	1	AS6: the sink's VLAN membership is released
+st_ls_teardown_lost@pp_top	KILLED	3	AS6: the Listener attribute is withdrawn on the wire | AS6: no Listener declared and no match held
+st_ls_vid_dropped@pp_top	KILLED	22	AS4: the matching Talker Advertise yields Listener Ready New | AS4: class-D: Listener READY declared | AS5: 11.5 s after the settle
+stored_vlan_truncated@pp_top	KILLED	1	VLAN168 GET_STREAM_INFO retains all received bits
+tk_failed_and_payload@pp_top	KILLED	2	AS5e: after the queue drains GET_RX_STATE follows the last swap
+tk_failed_first_payload@pp_top	KILLED	4	AS5d: after the queue drains GET_RX_STATE follows the last swap | AS5e: after the queue drains GET_RX_STATE follows the last swap
+tk_failed_or_payload@pp_top	KILLED	2	AS5d: after the queue drains GET_RX_STATE follows the last swap
+tk_type_unlatched@pp_top	KILLED	10	AS5d precondition: with the four ordinary TX slots full | AS5e precondition: the start type taken alone
+tspec_no_allocator@pp_top	KILLED	9	TS0: AECP is released and every source's PROBE_TX_RESPONSE is SUCCESS
+tspec_slot_last@pp_top	KILLED	7	TS1: source 0 declares its own slot's MaxFrameSize
+tspec_slot_zero@pp_top	KILLED	7	TS1: source 1 declares its own slot's MaxFrameSize
+tx_state_answers_configured_id@acmp_talker	KILLED	2	E4 new DA answered | S1 GET_TX_STATE after the grant
+unbind_talker_echo@acmp_listener	KILLED	9	LD1 successful unbind has zero talker fields
+used_kept_after_move@acmp_talker	KILLED	4	S6 an ID not declared since its move is not moved again
+used_not_marked_by_event@acmp_talker	KILLED	19	S6 a conflict after a listener withdrawal moves the ID
+used_not_marked_by_probe@acmp_talker	KILLED	34	S1 the declaration carries a new Stream ID | S6 a conflict after a freshness lapse moves the ID

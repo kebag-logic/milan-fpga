@@ -1,0 +1,17 @@
+# base and head records (processor #202 round 2)
+processor origin: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+processor branch: 202-maap-conflict-new-stream-id
+processor base (main): ed2118035e4cec76fb1b59cfbf8a053aeacc8af8
+processor head: a8aa626e1cba30625ac764c70e1fb8fb02c69c40
+commits on branch past base:
+  a8aa626e1cba30625ac764c70e1fb8fb02c69c40 Label F05.12's backoff exit with the booked move a conflict inside the backoff installs, and widen the integrator guide's move condition to any declared ID (issue #202)
+  bba84945adaabb2789c55920153c45c5c823eaad Publish src_stream_id_o as a spelled-out expression, since yosys elaborates a function called with a genvar as a constant function (issue #202)
+  1e0c83df45b4e402cc85b995e5c4f52613f86efd State the Stream ID move rule and its distinctness proof, name src_stream_id_o, and limit the two-LeaveAllTime gap to the same Stream ID in the architecture, interface and compliance documents (issue #202)
+  2a4f21422da0d6db99f1e4f17cb26e992ed53818 Move a declared source to a new distinct Stream ID at the first grant after a MAAP conflict, declare it at once with no two-LeaveAll wait, and publish it on src_stream_id_o (issue #202)
+build inputs at the record head bba84945 vs the final head (hdl tb scripts syn Makefile), changed files:
+  (none listed = identical)
+files changed by the final commit:
+  docs/architecture/05_acmp_engine.md
+  docs/guides/integrator.md
+worktree status (porcelain, empty = clean):
+--- end status

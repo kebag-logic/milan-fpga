@@ -1,0 +1,33 @@
+repository: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+branch: 202-maap-conflict-new-stream-id
+base: ed2118035e4cec76fb1b59cfbf8a053aeacc8af8
+round-2 head: a8aa626e1cba30625ac764c70e1fb8fb02c69c40
+head: ebb1f0010bde76c38cc5270a6366ee9e3157ec54
+merge-base: ed2118035e4cec76fb1b59cfbf8a053aeacc8af8
+status: clean
+
+round-3 commits:
+39358354c47ab6042d697625c6ca0dff66273e31 Move a declared source to a new Stream ID when it returns from a disable, and keep a PCP change after a withdrawal two LeaveAllTime away from the same-ID declaration (issue #202)
+9a6d1d08a5d1b3d4b335e38803285bf2075bb5cf State the disable move and the PCP gap after a withdrawal in F05.12, REQ-ACMP-010, the timing row and the interface documents, and say the re-open after a move is a Join!, not a New (issue #202)
+1cfd3b19f045df63b6cd78fe61da3d038519441c Re-measure the talker, processor-top and MAAP records for the disable move and the PCP gap, and note the applicant's LA window a fast return reaches (issue #202)
+ebb1f0010bde76c38cc5270a6366ee9e3157ec54 Name the talker timeline's disable-move IDs by what each source did, not by check name (issue #202)
+
+round-3 diff:
+docs/00_MILAN_COMPLIANCE_REVIEW.md   |   5 +-
+ docs/architecture/02_interfaces.md   |   6 +-
+ docs/architecture/05_acmp_engine.md  |  43 ++++++-
+ docs/architecture/06_aecp_engine.md  |   2 +-
+ docs/architecture/08_timing.md       |   2 +-
+ docs/architecture/09_verification.md |   6 +-
+ docs/architecture/10_srp_engine.md   |  17 ++-
+ docs/guides/integrator.md            |   5 +-
+ hdl/acmp/KL_acmp_talker.sv           |  56 +++++++--
+ tb/acmp_talker/README.md             |  60 +++++----
+ tb/acmp_talker/sid_cases.hpp         | 235 +++++++++++++++++++++++++++++++++--
+ tb/acmp_talker/sim_main.cpp          |  16 ++-
+ tb/maap/README.md                    |   4 +-
+ tb/pp_top/README.md                  |  51 ++++----
+ tb/pp_top/acmp_mutants.py            |  47 ++++++-
+ tb/pp_top/pp_top_wrap.sv             |   2 +-
+ tb/pp_top/sim_main.cpp               |  19 ++-
+ 17 files changed, 475 insertions(+), 101 deletions(-)

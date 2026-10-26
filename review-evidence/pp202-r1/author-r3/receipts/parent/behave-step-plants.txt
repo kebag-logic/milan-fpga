@@ -1,0 +1,26 @@
+# behave, the scenario 'a talker above 0 egresses on the SRP licence alone, with its own identity', in a shared clone of the scratch parent at 18561a20f0 (submodules protocol-processor, gptp-processor)
+## golden: rc 0
+1 feature passed, 0 failed, 0 skipped
+1 scenario passed, 0 failed, 4 skipped
+9 steps passed, 0 failed, 18 skipped
+Took 0min 0.016s
+## plant 1: the round-2 packetizer law (a non-zero TCTX uid for t>0 outranks stream_id_i): rc 1
+    Then the t>0 identity is derived from the same roots the declaration uses            # steps/milan_streaming_licence_steps.py:333
+    And software may still name each identity field explicitly                           # steps/milan_streaming_licence_steps.py:348
+    And the integrated framer stamps the processor's current stream_id over any TCTX uid # steps/milan_streaming_licence_steps.py:360
+      ASSERT FAILED: (|sid_in_w&&!sid_named_w)?sid_in_w:{station_mac_i,eff_uid_w}
+
+
+
+Failing scenarios:
+  features/milan_streaming_licence.feature:54  a talker above 0 egresses on the SRP licence alone, with its own identity
+## plant 2: milan_datapath sets SID_PP_P (1'b0): rc 1
+    Then the t>0 identity is derived from the same roots the declaration uses            # steps/milan_streaming_licence_steps.py:333
+    And software may still name each identity field explicitly                           # steps/milan_streaming_licence_steps.py:348
+    And the integrated framer stamps the processor's current stream_id over any TCTX uid # steps/milan_streaming_licence_steps.py:360
+      ASSERT FAILED: .N_TALKERS_P(N_STREAMS),
+                            .WIRE_CHANS_P(TALKER_WIRE_CHANS_P),
+                             
+                            .LEAD_P        (1'b1),
+                            .FS_HZ_P       (AUDIO_IF_FS_HZ_P),
+                            .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
