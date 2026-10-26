@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
     mbx_tb::Suite<mbx_tb::Bench> suite(bench, check);
     suite.run();
     suite.run_bound_timing();
+    suite.run_face_timing();
     if (host == 1) {
         mbx_tb::AxilChecks axil(bench, check);
         axil.run();

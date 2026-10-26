@@ -23,7 +23,12 @@
 // ring, the event poster can be held as a full event ring holds it, the
 // frames it sends are captured in order, and what the publication
 // block would drive into each interface's datapath can be read
-// (mbx_model_pub_view).
+// (mbx_model_pub_view), as can the face block's (mbx_model_face_view). The
+// datapath behind the face block is the harness's: it answers each window's
+// request and acknowledges each commit, at once through a bound far side
+// (mbx_model_far_bind) or later by a call (mbx_model_win_answer,
+// mbx_model_win_expire, mbx_model_face_ack), and it raises the face events
+// (mbx_model_face_event).
 
 #ifndef MBX_MODEL_H
 #define MBX_MODEL_H
@@ -40,6 +45,42 @@ extern "C" {
 
 #define MBX_MODEL_TX_CAPTURE 64u        // frames the TX capture holds (oldest dropped)
 #define MBX_MODEL_TMR_LOG 256u          // TMR_CMD operations the log holds (oldest dropped)
+#define MBX_MODEL_WINDOWS 4u            // the face block's windows, in the contract's order
+#define MBX_MODEL_WIN_WORDS 6u          // request registers a window holds at most
+
+// The face block's windows (contract 2.3), in the contract's order.
+enum mbx_model_window { MBX_MODEL_WIN_CTR, MBX_MODEL_WIN_AMAP, MBX_MODEL_WIN_EDIT, MBX_MODEL_WIN_GSI };
+// The face block's event sources.
+enum mbx_model_face_ev { MBX_MODEL_EV_COUNTERS, MBX_MODEL_EV_AVB, MBX_MODEL_EV_ASP, MBX_MODEL_EV_AMAP };
+
+// One window's state: its request held from its GO until its answer or timeout.
+struct mbx_model_win {
+	bool busy;
+	bool done;
+	bool timeout;
+	uint8_t tag;
+	uint64_t data;                                  // the last answer, DATA_HI:DATA_LO
+};
+
+// What the datapath behind the face block does with a window's request.
+enum mbx_model_reply {
+	MBX_MODEL_ANSWER,       // answers it at once, with *data
+	MBX_MODEL_SILENT,       // never answers: it times out at once (the RTL's wait_cycles
+				// have passed by the firmware's next poll)
+	MBX_MODEL_HOLD          // holds it open until mbx_model_win_answer or _expire
+};
+
+// The datapath behind the face block, for the firmware's host tests. answer()
+// is called when a window's GO is written, with the request registers' words
+// in the contract's order. commit() is called when F_COMMIT is written, with
+// the interface's block as it is then (the words the datapath takes): true
+// acknowledges it at once, false holds it until mbx_model_face_ack.
+struct mbx_model_far {
+	void *ctx;
+	enum mbx_model_reply (*answer)(void *ctx, unsigned interface, unsigned window, const uint32_t *request,
+				       uint64_t *data);
+	bool (*commit)(void *ctx, unsigned interface, const uint32_t *block);
+};
 
 // One frame the TX merge sent.
 struct mbx_model_tx {
@@ -91,6 +132,10 @@ struct mbx_model {
 	uint64_t bound_eid[MBX_N_IF][MBX_N_BOUND];     // BOUND_EID_HI:BOUND_EID_LO per interface and entry
 	bool bound_en[MBX_N_IF][MBX_N_BOUND];           // BOUND_EN
 	uint32_t pub[MBX_N_IF][MBX_PUB_STRIDE / 4u];    // the publication block, word by word, its fields masked
+	uint32_t face[MBX_N_IF][MBX_FACE_STRIDE / 4u];  // the face block's settings and requests, their fields masked
+	bool fw_busy[MBX_N_IF];                         // F_STATUS.BUSY: a commit waits for its acknowledgement
+	struct mbx_model_win win[MBX_N_IF][MBX_MODEL_WINDOWS];
+	const struct mbx_model_far *far;                // NULL: the harness answers by call
 	uint32_t filter_en;
 	uint64_t maap_base;
 	uint16_t maap_count;
@@ -112,6 +157,12 @@ struct mbx_model {
 	uint8_t domain_snap[MBX_N_IF];
 	uint8_t tick_div;
 	uint16_t tick_count;
+	uint16_t amap_count[MBX_N_IF];                  // the face events not yet posted, saturating
+	uint16_t avb_count[MBX_N_IF];
+	uint16_t asp_count[MBX_N_IF];
+	uint64_t ctr_pending[MBX_N_IF];                 // bit b: COUNTERS_CHANGED pending bit b
+	uint64_t ctr_seen[MBX_N_IF];                    // posted in this holdoff epoch
+	uint16_t ctr_epoch_ms;
 	uint8_t tx_last_ch;
 	bool tx_paused;
 	bool evt_paused;
@@ -175,6 +226,42 @@ struct mbx_model_pub {
 	uint64_t sid[MBX_N_PUB_SINKS];                  // SID_HI:SID_LO, 0 while SID_VALID is clear
 };
 void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mbx_model_pub *out);
+
+// What interface `interface`'s datapath takes from KL_mbx's face ports: the
+// commit level, every setting register's word and every entry's, as fw_*_o
+// carry their fields, and each window's open request with its tag and request
+// registers' words (the contract's order). All zero for an interface the build lacks.
+struct mbx_model_face {
+	bool send;                                      // fw_send_o
+	uint32_t ctrl;                                  // F_CTRL
+	uint32_t entity;                                // F_ENTITY
+	uint32_t clock;                                 // F_CLOCK
+	uint32_t aecp;                                  // F_AECP
+	uint32_t restore;                               // F_RESTORE
+	uint32_t nvm;                                   // F_NVM
+	uint32_t pt_offset[MBX_N_PUB_SOURCES];          // F_PT_OFFSET.NS
+	uint64_t fmt_out[MBX_N_PUB_SOURCES];            // F_FMT_OUT_HI:F_FMT_OUT_LO
+	uint32_t src_valid[MBX_N_PUB_SOURCES];          // F_SRC_VALID
+	uint64_t fmt_in[MBX_N_PUB_SINKS];               // F_FMT_IN_HI:F_FMT_IN_LO
+	uint32_t snk_valid[MBX_N_PUB_SINKS];            // F_SNK_VALID
+	bool req[MBX_MODEL_WINDOWS];                    // <window>_req_o
+	uint8_t tag[MBX_MODEL_WINDOWS];                 // <window>_tag_o
+	uint32_t request[MBX_MODEL_WINDOWS][MBX_MODEL_WIN_WORDS];
+};
+void mbx_model_face_view(const struct mbx_model *m, unsigned interface, struct mbx_model_face *out);
+
+// The datapath's side of the face block. An acknowledgement with no commit
+// waiting, and an answer whose tag is not the open request's or with no
+// request open, are not taken, as the RTL takes none.
+void mbx_model_far_bind(struct mbx_model *m, const struct mbx_model_far *far);
+void mbx_model_face_ack(struct mbx_model *m, unsigned interface);
+void mbx_model_win_answer(struct mbx_model *m, unsigned interface, unsigned window, uint8_t tag, uint64_t data);
+// The open request's wait_cycles passed unanswered.
+void mbx_model_win_expire(struct mbx_model *m, unsigned interface, unsigned window);
+// One event pulse: a COUNTERS change names its descriptor's type and index;
+// the others ignore both.
+void mbx_model_face_event(struct mbx_model *m, unsigned interface, enum mbx_model_face_ev kind, uint16_t type,
+			  uint16_t index);
 
 // mbx_plat_host.c routes mbx_hal.h to this model; mbx_hal_wait() calls
 // `wait` (when set) so a harness can advance time while the firmware sleeps.

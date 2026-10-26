@@ -90,7 +90,93 @@ module tb_mbx_top
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_bound_o,       //! BINDING.BOUND per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_sid_valid_o,   //! BINDING.SID_VALID per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_started_o,     //! BINDING.STARTED per sink
-  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0]         pub_sid_o          //! SID_HI:SID_LO per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0]         pub_sid_o,         //! SID_HI:SID_LO per sink
+
+  // the face block's ports, KL_mbx's own (contract 2.3): the bench answers the
+  // windows and acknowledges the commits as the datapath of the split would
+  // the face block: the settings, held from a commit until its acknowledgement
+  output logic [MBX_N_IF_C-1:0] fw_send_o,   //! a commit waits for its acknowledgement: every fw_*_o holds
+  input  wire  [MBX_N_IF_C-1:0] fw_ack_p_i,   //! one-cycle pulse per interface: the datapath took the commit
+  output logic [MBX_N_IF_C*MBX_F_CTRL_READY_WIDTH_C-1:0] fw_ctrl_ready_o,   //! F_CTRL.READY per interface
+  output logic [MBX_N_IF_C*MBX_F_ENTITY_CUR_CONFIG_WIDTH_C-1:0] fw_entity_cur_config_o,   //! F_ENTITY.CUR_CONFIG per interface
+  output logic [MBX_N_IF_C*MBX_F_ENTITY_IDENTIFY_WIDTH_C-1:0] fw_entity_identify_o,   //! F_ENTITY.IDENTIFY per interface
+  output logic [MBX_N_IF_C*MBX_F_CLOCK_SOURCE_INDEX_WIDTH_C-1:0] fw_clock_source_index_o,   //! F_CLOCK.SOURCE_INDEX per interface
+  output logic [MBX_N_IF_C*MBX_F_AECP_LOCK_HELD_WIDTH_C-1:0] fw_aecp_lock_held_o,   //! F_AECP.LOCK_HELD per interface
+  output logic [MBX_N_IF_C*MBX_F_AECP_DYN_DIRTY_WIDTH_C-1:0] fw_aecp_dyn_dirty_o,   //! F_AECP.DYN_DIRTY per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_BUSY_WIDTH_C-1:0] fw_restore_busy_o,   //! F_RESTORE.BUSY per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_DONE_WIDTH_C-1:0] fw_restore_done_o,   //! F_RESTORE.DONE per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_FAIL_WIDTH_C-1:0] fw_restore_fail_o,   //! F_RESTORE.FAIL per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_BLANK_WIDTH_C-1:0] fw_restore_blank_o,   //! F_RESTORE.BLANK per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_CLOSED_WIDTH_C-1:0] fw_restore_closed_o,   //! F_RESTORE.CLOSED per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_RB_WIDTH_C-1:0] fw_restore_rb_o,   //! F_RESTORE.RB per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_RS_CAUSE_WIDTH_C-1:0] fw_restore_rs_cause_o,   //! F_RESTORE.RS_CAUSE per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_CAUSE_WIDTH_C-1:0] fw_restore_cause_o,   //! F_RESTORE.CAUSE per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_BACKED_WIDTH_C-1:0] fw_nvm_backed_o,   //! F_NVM.BACKED per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_ALARM_WIDTH_C-1:0] fw_nvm_alarm_o,   //! F_NVM.ALARM per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_DIRTY_WIDTH_C-1:0] fw_nvm_dirty_o,   //! F_NVM.DIRTY per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_STALE_WIDTH_C-1:0] fw_nvm_stale_o,   //! F_NVM.STALE per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_PEND_WIDTH_C-1:0] fw_nvm_pend_o,   //! F_NVM.PEND per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_IMG_VALID_WIDTH_C-1:0] fw_nvm_img_valid_o,   //! F_NVM.IMG_VALID per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_VERDICT_WIDTH_C-1:0] fw_nvm_verdict_o,   //! F_NVM.VERDICT per interface
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*32-1:0] fw_pt_offset_ns_o,   //! F_PT_OFFSET.NS per source
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*1-1:0] fw_pt_offset_v_o,   //! F_SRC_VALID.PT_OFFSET per source
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*64-1:0] fw_fmt_out_o,   //! F_FMT_OUT_HI.FMT:F_FMT_OUT_LO.FMT per source
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*1-1:0] fw_fmt_out_v_o,   //! F_SRC_VALID.FMT_OUT per source
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] fw_fmt_in_o,   //! F_FMT_IN_HI.FMT:F_FMT_IN_LO.FMT per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*1-1:0] fw_fmt_in_v_o,   //! F_SNK_VALID.FMT_IN per sink
+  // the CTR window: the request holds from its GO until its answer or 64 cycles
+  output logic [MBX_N_IF_C-1:0] ctr_req_o,   //! a request is open: its fields and tag hold
+  output logic [MBX_N_IF_C*MBX_CTR_STATUS_TAG_WIDTH_C-1:0] ctr_tag_o,   //! the open request's tag
+  output logic [MBX_N_IF_C*16-1:0] ctr_type_o,   //! CTR_REQ.TYPE per interface
+  output logic [MBX_N_IF_C*16-1:0] ctr_index_o,   //! CTR_REQ.INDEX per interface
+  output logic [MBX_N_IF_C*6-1:0] ctr_word_o,   //! CTR_WORD.WORD per interface
+  input  wire  [MBX_N_IF_C-1:0] ctr_ans_p_i,   //! one-cycle pulse: the answer, with its data and tag
+  input  wire  [MBX_N_IF_C*MBX_CTR_STATUS_TAG_WIDTH_C-1:0] ctr_ans_tag_i,   //! the tag of the request it answers
+  input  wire  [MBX_N_IF_C*32-1:0] ctr_ans_data_i,   //! the answer, valid with ctr_ans_p_i
+  // the AMAP window: the request holds from its GO until its answer or 64 cycles
+  output logic [MBX_N_IF_C-1:0] amap_req_o,   //! a request is open: its fields and tag hold
+  output logic [MBX_N_IF_C*MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_tag_o,   //! the open request's tag
+  output logic [MBX_N_IF_C*16-1:0] amap_type_o,   //! AMAP_REQ.TYPE per interface
+  output logic [MBX_N_IF_C*16-1:0] amap_index_o,   //! AMAP_REQ.INDEX per interface
+  output logic [MBX_N_IF_C*16-1:0] amap_map_index_o,   //! AMAP_PAGE.MAP_INDEX per interface
+  output logic [MBX_N_IF_C*2-1:0] amap_sel_o,   //! AMAP_PAGE.SEL per interface
+  output logic [MBX_N_IF_C*8-1:0] amap_rec_o,   //! AMAP_PAGE.REC per interface
+  input  wire  [MBX_N_IF_C-1:0] amap_ans_p_i,   //! one-cycle pulse: the answer, with its data and tag
+  input  wire  [MBX_N_IF_C*MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_ans_tag_i,   //! the tag of the request it answers
+  input  wire  [MBX_N_IF_C*64-1:0] amap_ans_data_i,   //! the answer, valid with amap_ans_p_i
+  // the EDIT window: the request holds from its GO until its answer or 64 cycles
+  output logic [MBX_N_IF_C-1:0] edit_req_o,   //! a request is open: its fields and tag hold
+  output logic [MBX_N_IF_C*MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_tag_o,   //! the open request's tag
+  output logic [MBX_N_IF_C*16-1:0] edit_type_o,   //! EDIT_REQ.TYPE per interface
+  output logic [MBX_N_IF_C*16-1:0] edit_index_o,   //! EDIT_REQ.INDEX per interface
+  output logic [MBX_N_IF_C*3-1:0] edit_phase_o,   //! EDIT_BEAT.PHASE per interface
+  output logic [MBX_N_IF_C*1-1:0] edit_remove_o,   //! EDIT_BEAT.REMOVE per interface
+  output logic [MBX_N_IF_C*8-1:0] edit_rec_o,   //! EDIT_BEAT.REC per interface
+  output logic [MBX_N_IF_C*16-1:0] edit_count_o,   //! EDIT_BEAT.COUNT per interface
+  output logic [MBX_N_IF_C*64-1:0] edit_record_o,   //! EDIT_RECORD_HI.RECORD:EDIT_RECORD_LO.RECORD per interface
+  output logic [MBX_N_IF_C*64-1:0] edit_value_o,   //! EDIT_VALUE_HI.VALUE:EDIT_VALUE_LO.VALUE per interface
+  input  wire  [MBX_N_IF_C-1:0] edit_ans_p_i,   //! one-cycle pulse: the answer, with its data and tag
+  input  wire  [MBX_N_IF_C*MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_ans_tag_i,   //! the tag of the request it answers
+  input  wire  [MBX_N_IF_C*64-1:0] edit_ans_data_i,   //! the answer, valid with edit_ans_p_i
+  // the GSI window: the request holds from its GO until its answer or 64 cycles
+  output logic [MBX_N_IF_C-1:0] gsi_req_o,   //! a request is open: its fields and tag hold
+  output logic [MBX_N_IF_C*MBX_GSI_STATUS_TAG_WIDTH_C-1:0] gsi_tag_o,   //! the open request's tag
+  output logic [MBX_N_IF_C*16-1:0] gsi_type_o,   //! GSI_REQ.TYPE per interface
+  output logic [MBX_N_IF_C*16-1:0] gsi_index_o,   //! GSI_REQ.INDEX per interface
+  output logic [MBX_N_IF_C*2-1:0] gsi_kind_o,   //! GSI_SEL.KIND per interface
+  output logic [MBX_N_IF_C*4-1:0] gsi_sel_o,   //! GSI_SEL.SEL per interface
+  output logic [MBX_N_IF_C*8-1:0] gsi_ord_o,   //! GSI_SEL.ORD per interface
+  output logic [MBX_N_IF_C*64-1:0] gsi_prop_o,   //! GSI_PROP_HI.FMT:GSI_PROP_LO.FMT per interface
+  input  wire  [MBX_N_IF_C-1:0] gsi_ans_p_i,   //! one-cycle pulse: the answer, with its data and tag
+  input  wire  [MBX_N_IF_C*MBX_GSI_STATUS_TAG_WIDTH_C-1:0] gsi_ans_tag_i,   //! the tag of the request it answers
+  input  wire  [MBX_N_IF_C*64-1:0] gsi_ans_data_i,   //! the answer, valid with gsi_ans_p_i
+  // the face block's events, one-cycle pulses per interface with their qualifiers
+  input  wire  [MBX_N_IF_C-1:0] ctr_chg_p_i,   //! a served descriptor's counters moved
+  input  wire  [MBX_N_IF_C*16-1:0] ctr_chg_type_i,   //! its descriptor_type, valid with ctr_chg_p_i
+  input  wire  [MBX_N_IF_C*16-1:0] ctr_chg_index_i,   //! its descriptor_index, valid with ctr_chg_p_i
+  input  wire  [MBX_N_IF_C-1:0] avb_chg_p_i,   //! a served GET_AVB_INFO word changed
+  input  wire  [MBX_N_IF_C-1:0] asp_chg_p_i,   //! the served AS_PATH sequence changed
+  input  wire  [MBX_N_IF_C-1:0] amap_wr_p_i   //! an edit's commit beat changed the live map
 );
 
   logic                    host_req_w;
@@ -207,7 +293,84 @@ module tb_mbx_top
     .pub_bound_o       (pub_bound_o),
     .pub_sid_valid_o   (pub_sid_valid_o),
     .pub_started_o     (pub_started_o),
-    .pub_sid_o         (pub_sid_o)
+    .pub_sid_o         (pub_sid_o),
+    .fw_send_o                (fw_send_o),
+    .fw_ack_p_i               (fw_ack_p_i),
+    .fw_ctrl_ready_o          (fw_ctrl_ready_o),
+    .fw_entity_cur_config_o   (fw_entity_cur_config_o),
+    .fw_entity_identify_o     (fw_entity_identify_o),
+    .fw_clock_source_index_o  (fw_clock_source_index_o),
+    .fw_aecp_lock_held_o      (fw_aecp_lock_held_o),
+    .fw_aecp_dyn_dirty_o      (fw_aecp_dyn_dirty_o),
+    .fw_restore_busy_o        (fw_restore_busy_o),
+    .fw_restore_done_o        (fw_restore_done_o),
+    .fw_restore_fail_o        (fw_restore_fail_o),
+    .fw_restore_blank_o       (fw_restore_blank_o),
+    .fw_restore_closed_o      (fw_restore_closed_o),
+    .fw_restore_rb_o          (fw_restore_rb_o),
+    .fw_restore_rs_cause_o    (fw_restore_rs_cause_o),
+    .fw_restore_cause_o       (fw_restore_cause_o),
+    .fw_nvm_backed_o          (fw_nvm_backed_o),
+    .fw_nvm_alarm_o           (fw_nvm_alarm_o),
+    .fw_nvm_dirty_o           (fw_nvm_dirty_o),
+    .fw_nvm_stale_o           (fw_nvm_stale_o),
+    .fw_nvm_pend_o            (fw_nvm_pend_o),
+    .fw_nvm_img_valid_o       (fw_nvm_img_valid_o),
+    .fw_nvm_verdict_o         (fw_nvm_verdict_o),
+    .fw_pt_offset_ns_o        (fw_pt_offset_ns_o),
+    .fw_pt_offset_v_o         (fw_pt_offset_v_o),
+    .fw_fmt_out_o             (fw_fmt_out_o),
+    .fw_fmt_out_v_o           (fw_fmt_out_v_o),
+    .fw_fmt_in_o              (fw_fmt_in_o),
+    .fw_fmt_in_v_o            (fw_fmt_in_v_o),
+    .ctr_req_o                (ctr_req_o),
+    .ctr_tag_o                (ctr_tag_o),
+    .ctr_type_o               (ctr_type_o),
+    .ctr_index_o              (ctr_index_o),
+    .ctr_word_o               (ctr_word_o),
+    .ctr_ans_p_i              (ctr_ans_p_i),
+    .ctr_ans_tag_i            (ctr_ans_tag_i),
+    .ctr_ans_data_i           (ctr_ans_data_i),
+    .amap_req_o               (amap_req_o),
+    .amap_tag_o               (amap_tag_o),
+    .amap_type_o              (amap_type_o),
+    .amap_index_o             (amap_index_o),
+    .amap_map_index_o         (amap_map_index_o),
+    .amap_sel_o               (amap_sel_o),
+    .amap_rec_o               (amap_rec_o),
+    .amap_ans_p_i             (amap_ans_p_i),
+    .amap_ans_tag_i           (amap_ans_tag_i),
+    .amap_ans_data_i          (amap_ans_data_i),
+    .edit_req_o               (edit_req_o),
+    .edit_tag_o               (edit_tag_o),
+    .edit_type_o              (edit_type_o),
+    .edit_index_o             (edit_index_o),
+    .edit_phase_o             (edit_phase_o),
+    .edit_remove_o            (edit_remove_o),
+    .edit_rec_o               (edit_rec_o),
+    .edit_count_o             (edit_count_o),
+    .edit_record_o            (edit_record_o),
+    .edit_value_o             (edit_value_o),
+    .edit_ans_p_i             (edit_ans_p_i),
+    .edit_ans_tag_i           (edit_ans_tag_i),
+    .edit_ans_data_i          (edit_ans_data_i),
+    .gsi_req_o                (gsi_req_o),
+    .gsi_tag_o                (gsi_tag_o),
+    .gsi_type_o               (gsi_type_o),
+    .gsi_index_o              (gsi_index_o),
+    .gsi_kind_o               (gsi_kind_o),
+    .gsi_sel_o                (gsi_sel_o),
+    .gsi_ord_o                (gsi_ord_o),
+    .gsi_prop_o               (gsi_prop_o),
+    .gsi_ans_p_i              (gsi_ans_p_i),
+    .gsi_ans_tag_i            (gsi_ans_tag_i),
+    .gsi_ans_data_i           (gsi_ans_data_i),
+    .ctr_chg_p_i              (ctr_chg_p_i),
+    .ctr_chg_type_i           (ctr_chg_type_i),
+    .ctr_chg_index_i          (ctr_chg_index_i),
+    .avb_chg_p_i              (avb_chg_p_i),
+    .asp_chg_p_i              (asp_chg_p_i),
+    .amap_wr_p_i              (amap_wr_p_i)
   );
 
 endmodule : tb_mbx_top

@@ -83,7 +83,7 @@ class Suite {
     Suite(Bench& bench, Check& check) : b_(bench), ck_(check) {}
 
     //! The groups run() runs, in its order.
-    static constexpr unsigned kGroups = 24;
+    static constexpr unsigned kGroups = 25;
     static constexpr const char* kGroupNames[kGroups] = {
         "ResetIdentityAndRegisterMasks", "PartialStrobeRefused", "AdpFilter", "Classification",
         "DropNeverTouchesAnUnreadRecord", "RateLimit", "TxMerge", "TxCommitOrder", "TxRefusals",
@@ -96,7 +96,9 @@ class Suite {
         // lane F3 round 2: the adp channel's bound talkers (#665, comment 6029368753)
         "AdpBoundTalkers",
         // lane F-INT: the publication block (#665, comment 6088423771)
-        "Publication"};
+        "Publication",
+        // contract 2.3: the face block (#665, the assignment 6409739310 and the ruling 6410169666)
+        "Face"};
 
     void run() {
         for (unsigned g = 0; g < kGroups; ++g) {
@@ -114,6 +116,16 @@ class Suite {
         check_bound_timing();
         check_bound_verdict_interface();
         ck_.dec("no bus access went unanswered in the timing checks", b_.bus_timeouts, 0);
+    }
+
+    //! The face block's timing (contract 2.3): its wait bounds to the cycle and
+    //! a commit held as long as its acknowledgement takes, which only a
+    //! cycle-by-cycle bench shows. sim_main runs it after run(); the model,
+    //! transaction-level, never does.
+    void run_face_timing() {
+        restart();
+        check_face_timing();
+        ck_.dec("no bus access went unanswered in the face timing checks", b_.bus_timeouts, 0);
     }
 
     //! One group: the first on the bench's reset, every later one on a restart.
@@ -148,7 +160,8 @@ class Suite {
         case 20: check_tokens_apart(); break;
         case 21: check_maap_defend(); break;
         case 22: check_adp_bound_talkers(); break;
-        default: check_publication(); break;
+        case 23: check_publication(); break;
+        default: check_face(); break;
         }
     }
 
@@ -335,6 +348,28 @@ class Suite {
     void check_pub_sid_valid();
     void check_pub_out_of_window();
     void check_pub_reset();
+    void check_face();
+    void check_face_masks();
+    void check_face_outputs();
+    void check_face_commit();
+    void check_face_window(unsigned w);
+    void check_face_out_of_window();
+    void check_face_events();
+    void check_face_counter_events();
+    void check_face_reset();
+    void check_face_timing();
+    //! Every face register of every interface, each status and answer included, as the host reads it.
+    std::vector<std::uint32_t> face_regs_now();
+    //! The face block's view of every interface.
+    std::vector<FaceView> face_views();
+    //! The view of an interface whose every face port is 0.
+    static FaceView face_zero();
+    //! Every setting, request and entry register of every interface written with a value of its own.
+    void fill_face(std::uint32_t seed);
+    //! The view fill_face(seed) leaves on interface i.
+    static FaceView face_expected(std::uint32_t i, std::uint32_t seed);
+    //! The fields of the face register at `off` inside an interface's block.
+    static std::uint32_t face_words_mask(std::uint32_t off);
     //! Every publication register of every interface written with a value
     //! of its own (`seed` varies them), as read back from then on.
     void fill_pub(std::uint32_t seed);
@@ -1966,5 +2001,7 @@ void Suite<Bench, Check>::check_pub_reset() {
 }
 
 }  // namespace mbx_tb
+
+#include "suite_face.hpp"
 
 #endif  // MBX_SUITE_HPP

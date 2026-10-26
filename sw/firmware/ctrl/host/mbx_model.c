@@ -20,11 +20,17 @@
 //               flushed to TX_HEAD;
 //   KL_mbx_evt  timers expiring at their deadline, every source coalesced,
 //               posted only into four free words, in the priority link,
-//               grandmaster, lowest slot, tick;
+//               grandmaster, lowest slot, tick, live map write, AVB_INFO,
+//               AS_PATH, and the lowest pending counter-change descriptor
+//               not posted in this holdoff epoch;
 //   KL_mbx      the register file, the GM_LO snapshot, the sticky ERR, the
 //               refusal of a partial write, the interrupt levels, the
 //               publication block (its fields masked, a hole reading 0 and
-//               taking no write, the stream_id taken only while SID_VALID).
+//               taking no write, the stream_id taken only while SID_VALID),
+//               the face block (the same, a write that would move a held
+//               setting or request refused, the commit and each window's
+//               request open until its acknowledgement, its answer or its
+//               timeout, an answer under another tag discarded).
 
 #include "mbx_model.h"
 
@@ -58,6 +64,98 @@ static uint32_t *ring_word(struct mbx_model *m, uint32_t base, uint32_t words, u
 static uint16_t sat16(uint16_t v)
 {
 	return v == 0xFFFFu ? v : (uint16_t)(v + 1u);
+}
+
+// ---- the face block's events ------------------------------------------------
+
+static const uint32_t ctrchg_type[MBX_CTRCHG_N_SRC] = MBX_CTRCHG_TYPE_TBL;
+static const uint32_t ctrchg_count[MBX_CTRCHG_N_SRC] = MBX_CTRCHG_COUNT_TBL;
+static const uint32_t ctrchg_first[MBX_CTRCHG_N_SRC] = MBX_CTRCHG_FIRST_TBL;
+
+_Static_assert(MBX_CTRCHG_N_PEND <= 64u, "the model keeps a counter-change interface's pending bits in one word");
+
+// The pending bit a counter change names: its descriptor's, or ALL.
+static unsigned ctr_bit(uint16_t type, uint16_t index)
+{
+	for (unsigned f = 0; f < MBX_CTRCHG_N_SRC; ++f) {
+		if (type == ctrchg_type[f] && index < ctrchg_count[f]) {
+			return ctrchg_first[f] + index;
+		}
+	}
+	return MBX_CTRCHG_ALL_BIT;
+}
+
+// The face events after the tick, in KL_mbx_evt's priority.
+static bool next_face_source(const struct mbx_model *m, uint32_t w[4])
+{
+	static const struct {
+		uint32_t type;
+		uint32_t count_lsb;
+		uint32_t count_width;
+	} counted[3] = {
+		{MBX_EV_TYPE_AMAP_LIVE_WRITE, MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB, MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH},
+		{MBX_EV_TYPE_AVB_INFO_CHANGED, MBX_EV_AVB_INFO_CHANGED_W1_COUNT_LSB, MBX_EV_AVB_INFO_CHANGED_W1_COUNT_WIDTH},
+		{MBX_EV_TYPE_AS_PATH_CHANGED, MBX_EV_AS_PATH_CHANGED_W1_COUNT_LSB, MBX_EV_AS_PATH_CHANGED_W1_COUNT_WIDTH},
+	};
+	for (unsigned k = 0; k < 3u; ++k) {
+		for (unsigned i = 0; i < MBX_N_IF; ++i) {
+			uint16_t count = k == 0u ? m->amap_count[i] : k == 1u ? m->avb_count[i] : m->asp_count[i];
+			if (count != 0u) {
+				w[0] = mbx_place(counted[k].type, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH) |
+				       mbx_place(i, MBX_EVREC_W0_IF_LSB, MBX_EVREC_W0_IF_WIDTH);
+				w[1] = mbx_place(count, counted[k].count_lsb, counted[k].count_width);
+				w[2] = 0;
+				w[3] = m->now_ms;
+				return true;
+			}
+		}
+	}
+	for (unsigned i = 0; i < MBX_N_IF; ++i) {
+		uint64_t ready = m->ctr_pending[i] & ~m->ctr_seen[i];
+		for (unsigned b = 0; b < MBX_CTRCHG_N_PEND; ++b) {
+			if (((ready >> b) & 1u) == 0u) {
+				continue;
+			}
+			uint32_t type = 0;
+			uint32_t index = 0;
+			for (unsigned f = 0; f < MBX_CTRCHG_N_SRC; ++f) {
+				if (b >= ctrchg_first[f] && b < ctrchg_first[f] + ctrchg_count[f]) {
+					type = ctrchg_type[f];
+					index = b - ctrchg_first[f];
+				}
+			}
+			w[0] = mbx_place(MBX_EV_TYPE_COUNTERS_CHANGED, MBX_EVREC_W0_TYPE_LSB, MBX_EVREC_W0_TYPE_WIDTH) |
+			       mbx_place(i, MBX_EVREC_W0_IF_LSB, MBX_EVREC_W0_IF_WIDTH);
+			w[1] = mbx_place(type, MBX_EV_COUNTERS_CHANGED_W1_TYPE_LSB, MBX_EV_COUNTERS_CHANGED_W1_TYPE_WIDTH) |
+			       mbx_place(index, MBX_EV_COUNTERS_CHANGED_W1_INDEX_LSB, MBX_EV_COUNTERS_CHANGED_W1_INDEX_WIDTH);
+			w[2] = mbx_place(b == MBX_CTRCHG_ALL_BIT ? 1u : 0u, MBX_EV_COUNTERS_CHANGED_W2_ALL_LSB,
+					 MBX_EV_COUNTERS_CHANGED_W2_ALL_WIDTH);
+			w[3] = m->now_ms;
+			return true;
+		}
+	}
+	return false;
+}
+
+// Clear the face source the record in w[] came from.
+static void face_source_posted(struct mbx_model *m, uint32_t type, uint32_t i, const uint32_t w[4])
+{
+	if (type == MBX_EV_TYPE_AMAP_LIVE_WRITE) {
+		m->amap_count[i] = 0;
+	} else if (type == MBX_EV_TYPE_AVB_INFO_CHANGED) {
+		m->avb_count[i] = 0;
+	} else if (type == MBX_EV_TYPE_AS_PATH_CHANGED) {
+		m->asp_count[i] = 0;
+	} else {
+		unsigned b = mbx_field(w[2], MBX_EV_COUNTERS_CHANGED_W2_ALL_LSB, MBX_EV_COUNTERS_CHANGED_W2_ALL_WIDTH) != 0u
+				     ? MBX_CTRCHG_ALL_BIT
+				     : ctr_bit((uint16_t)mbx_field(w[1], MBX_EV_COUNTERS_CHANGED_W1_TYPE_LSB,
+								   MBX_EV_COUNTERS_CHANGED_W1_TYPE_WIDTH),
+					       (uint16_t)mbx_field(w[1], MBX_EV_COUNTERS_CHANGED_W1_INDEX_LSB,
+								   MBX_EV_COUNTERS_CHANGED_W1_INDEX_WIDTH));
+		m->ctr_pending[i] &= ~(1ull << b);
+		m->ctr_seen[i] |= 1ull << b;
+	}
 }
 
 // ---- the event poster -----------------------------------------------------
@@ -102,7 +200,7 @@ static bool next_source(const struct mbx_model *m, uint32_t w[4])
 		w[3] = m->now_ms;
 		return true;
 	}
-	return false;
+	return next_face_source(m, w);
 }
 
 // Clear the source the record in w[] came from.
@@ -116,8 +214,10 @@ static void source_posted(struct mbx_model *m, const uint32_t w[4])
 		m->gm_pending[i] = false;
 	} else if (type == MBX_EV_TYPE_TIMER) {
 		m->timers[mbx_field(w[1], MBX_EV_TIMER_W1_SLOT_LSB, MBX_EV_TIMER_W1_SLOT_WIDTH)].pending = false;
-	} else {
+	} else if (type == MBX_EV_TYPE_TICK) {
 		m->tick_count = 0;
+	} else {
+		face_source_posted(m, type, i, w);
 	}
 }
 
@@ -173,6 +273,12 @@ static void one_ms(struct mbx_model *m)
 		if (tick) {
 			m->tick_count = sat16(m->tick_count);
 		}
+	}
+	if ((uint32_t)m->ctr_epoch_ms + 1u >= MBX_CTRCHG_HOLDOFF_MS) {
+		m->ctr_epoch_ms = 0;
+		memset(m->ctr_seen, 0, sizeof m->ctr_seen);
+	} else {
+		m->ctr_epoch_ms++;
 	}
 	timers_expire(m);
 	post(m);
@@ -473,7 +579,10 @@ void mbx_model_gm_change(struct mbx_model *m, unsigned interface, uint64_t gm_id
 
 void mbx_model_reset(struct mbx_model *m)
 {
+	// the far side is the harness's, not the fabric's: a reset keeps it
+	const struct mbx_model_far *far = m->far;
 	memset(m, 0, sizeof *m);
+	m->far = far;
 	for (unsigned c = 0; c < MBX_N_CH; ++c) {
 		m->ch[c].tokens = (uint8_t)burst[c];
 	}
@@ -691,6 +800,319 @@ void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mb
 	}
 }
 
+// ---- the face block (contract 2.3) ------------------------------------------------
+
+#define FIELD_MASK(r, f) \
+	((MBX_##r##_##f##_WIDTH >= 32u ? 0xFFFFFFFFu : ((1u << MBX_##r##_##f##_WIDTH) - 1u)) << MBX_##r##_##f##_LSB)
+
+// One window: its GO, status and data registers and its request registers,
+// each an offset inside an interface's block, in the contract's order.
+struct face_window {
+	uint32_t go;
+	uint32_t status;
+	uint32_t data_lo;
+	uint32_t data_hi;          // data_hi == data_lo: one data word
+	uint32_t req[MBX_MODEL_WIN_WORDS];
+	unsigned n_req;
+};
+static const struct face_window face_windows[MBX_MODEL_WINDOWS] = {
+	{MBX_FACE_REG_CTR_CMD, MBX_FACE_REG_CTR_STATUS, MBX_FACE_REG_CTR_DATA, MBX_FACE_REG_CTR_DATA,
+	 {MBX_FACE_REG_CTR_REQ, MBX_FACE_REG_CTR_WORD}, 2},
+	{MBX_FACE_REG_AMAP_CMD, MBX_FACE_REG_AMAP_STATUS, MBX_FACE_REG_AMAP_DATA_LO, MBX_FACE_REG_AMAP_DATA_HI,
+	 {MBX_FACE_REG_AMAP_REQ, MBX_FACE_REG_AMAP_PAGE}, 2},
+	{MBX_FACE_REG_EDIT_CMD, MBX_FACE_REG_EDIT_STATUS, MBX_FACE_REG_EDIT_DATA_LO, MBX_FACE_REG_EDIT_DATA_HI,
+	 {MBX_FACE_REG_EDIT_REQ, MBX_FACE_REG_EDIT_BEAT, MBX_FACE_REG_EDIT_RECORD_LO, MBX_FACE_REG_EDIT_RECORD_HI,
+	  MBX_FACE_REG_EDIT_VALUE_LO, MBX_FACE_REG_EDIT_VALUE_HI}, 6},
+	{MBX_FACE_REG_GSI_CMD, MBX_FACE_REG_GSI_STATUS, MBX_FACE_REG_GSI_DATA_LO, MBX_FACE_REG_GSI_DATA_HI,
+	 {MBX_FACE_REG_GSI_REQ, MBX_FACE_REG_GSI_SEL, MBX_FACE_REG_GSI_PROP_LO, MBX_FACE_REG_GSI_PROP_HI}, 4},
+};
+
+// The fields of a setting or request register at `rel` inside an interface's
+// block, an entry's included: 0 for a hole, an ro or wo register and an entry
+// past the last.
+static uint32_t face_mask(uint32_t rel)
+{
+	if (rel >= MBX_FACE_SINK_BASE) {
+		if ((rel - MBX_FACE_SINK_BASE) / MBX_FACE_SINK_STRIDE >= MBX_N_PUB_SINKS) {
+			return 0;
+		}
+		switch ((rel - MBX_FACE_SINK_BASE) % MBX_FACE_SINK_STRIDE) {
+		case MBX_FACE_SNK_REG_F_FMT_IN_LO:
+			return FIELD_MASK(F_FMT_IN_LO, FMT);
+		case MBX_FACE_SNK_REG_F_FMT_IN_HI:
+			return FIELD_MASK(F_FMT_IN_HI, FMT);
+		case MBX_FACE_SNK_REG_F_SNK_VALID:
+			return FIELD_MASK(F_SNK_VALID, FMT_IN);
+		default:
+			return 0;
+		}
+	}
+	if (rel >= MBX_FACE_SOURCE_BASE) {
+		if ((rel - MBX_FACE_SOURCE_BASE) / MBX_FACE_SOURCE_STRIDE >= MBX_N_PUB_SOURCES) {
+			return 0;
+		}
+		switch ((rel - MBX_FACE_SOURCE_BASE) % MBX_FACE_SOURCE_STRIDE) {
+		case MBX_FACE_SRC_REG_F_PT_OFFSET:
+			return FIELD_MASK(F_PT_OFFSET, NS);
+		case MBX_FACE_SRC_REG_F_FMT_OUT_LO:
+			return FIELD_MASK(F_FMT_OUT_LO, FMT);
+		case MBX_FACE_SRC_REG_F_FMT_OUT_HI:
+			return FIELD_MASK(F_FMT_OUT_HI, FMT);
+		case MBX_FACE_SRC_REG_F_SRC_VALID:
+			return FIELD_MASK(F_SRC_VALID, PT_OFFSET) | FIELD_MASK(F_SRC_VALID, FMT_OUT);
+		default:
+			return 0;
+		}
+	}
+	switch (rel) {
+	case MBX_FACE_REG_F_CTRL:
+		return FIELD_MASK(F_CTRL, READY);
+	case MBX_FACE_REG_F_ENTITY:
+		return FIELD_MASK(F_ENTITY, CUR_CONFIG) | FIELD_MASK(F_ENTITY, IDENTIFY);
+	case MBX_FACE_REG_F_CLOCK:
+		return FIELD_MASK(F_CLOCK, SOURCE_INDEX);
+	case MBX_FACE_REG_F_AECP:
+		return FIELD_MASK(F_AECP, LOCK_HELD) | FIELD_MASK(F_AECP, DYN_DIRTY);
+	case MBX_FACE_REG_F_RESTORE:
+		return FIELD_MASK(F_RESTORE, BUSY) | FIELD_MASK(F_RESTORE, DONE) | FIELD_MASK(F_RESTORE, FAIL) |
+		       FIELD_MASK(F_RESTORE, BLANK) | FIELD_MASK(F_RESTORE, CLOSED) | FIELD_MASK(F_RESTORE, RB) |
+		       FIELD_MASK(F_RESTORE, RS_CAUSE) | FIELD_MASK(F_RESTORE, CAUSE);
+	case MBX_FACE_REG_F_NVM:
+		return FIELD_MASK(F_NVM, BACKED) | FIELD_MASK(F_NVM, ALARM) | FIELD_MASK(F_NVM, DIRTY) |
+		       FIELD_MASK(F_NVM, STALE) | FIELD_MASK(F_NVM, PEND) | FIELD_MASK(F_NVM, IMG_VALID) |
+		       FIELD_MASK(F_NVM, VERDICT);
+	case MBX_FACE_REG_CTR_REQ:
+		return FIELD_MASK(CTR_REQ, TYPE) | FIELD_MASK(CTR_REQ, INDEX);
+	case MBX_FACE_REG_CTR_WORD:
+		return FIELD_MASK(CTR_WORD, WORD);
+	case MBX_FACE_REG_AMAP_REQ:
+		return FIELD_MASK(AMAP_REQ, TYPE) | FIELD_MASK(AMAP_REQ, INDEX);
+	case MBX_FACE_REG_AMAP_PAGE:
+		return FIELD_MASK(AMAP_PAGE, MAP_INDEX) | FIELD_MASK(AMAP_PAGE, SEL) | FIELD_MASK(AMAP_PAGE, REC);
+	case MBX_FACE_REG_EDIT_REQ:
+		return FIELD_MASK(EDIT_REQ, TYPE) | FIELD_MASK(EDIT_REQ, INDEX);
+	case MBX_FACE_REG_EDIT_BEAT:
+		return FIELD_MASK(EDIT_BEAT, PHASE) | FIELD_MASK(EDIT_BEAT, REMOVE) | FIELD_MASK(EDIT_BEAT, REC) |
+		       FIELD_MASK(EDIT_BEAT, COUNT);
+	case MBX_FACE_REG_EDIT_RECORD_LO:
+	case MBX_FACE_REG_EDIT_RECORD_HI:
+	case MBX_FACE_REG_EDIT_VALUE_LO:
+	case MBX_FACE_REG_EDIT_VALUE_HI:
+	case MBX_FACE_REG_GSI_PROP_LO:
+	case MBX_FACE_REG_GSI_PROP_HI:
+		return 0xFFFFFFFFu;
+	case MBX_FACE_REG_GSI_REQ:
+		return FIELD_MASK(GSI_REQ, TYPE) | FIELD_MASK(GSI_REQ, INDEX);
+	case MBX_FACE_REG_GSI_SEL:
+		return FIELD_MASK(GSI_SEL, KIND) | FIELD_MASK(GSI_SEL, SEL) | FIELD_MASK(GSI_SEL, ORD);
+	default:
+		return 0;
+	}
+}
+
+// The window whose request register sits at `rel`, or MBX_MODEL_WINDOWS.
+static unsigned face_request_window(uint32_t rel)
+{
+	for (unsigned w = 0; w < MBX_MODEL_WINDOWS; ++w) {
+		for (unsigned k = 0; k < face_windows[w].n_req; ++k) {
+			if (face_windows[w].req[k] == rel) {
+				return w;
+			}
+		}
+	}
+	return MBX_MODEL_WINDOWS;
+}
+
+// The face block an offset falls in: interface *i and the offset *rel inside
+// that interface's block; false outside every interface's.
+static bool face_at(uint32_t off, unsigned *i, uint32_t *rel)
+{
+	if (off < MBX_FACE_BASE || off >= MBX_FACE_BASE + MBX_FACE_STRIDE * MBX_N_IF) {
+		return false;
+	}
+	*i = (off - MBX_FACE_BASE) / MBX_FACE_STRIDE;
+	*rel = (off - MBX_FACE_BASE) % MBX_FACE_STRIDE;
+	return true;
+}
+
+static uint32_t face_read(const struct mbx_model *m, unsigned i, uint32_t rel)
+{
+	if (rel == MBX_FACE_REG_F_STATUS) {
+		return mbx_place(m->fw_busy[i] ? 1u : 0u, MBX_F_STATUS_BUSY_LSB, MBX_F_STATUS_BUSY_WIDTH);
+	}
+	for (unsigned w = 0; w < MBX_MODEL_WINDOWS; ++w) {
+		const struct face_window *fw = &face_windows[w];
+		const struct mbx_model_win *s = &m->win[i][w];
+		if (rel == fw->status) {
+			// every window's STATUS has CTR_STATUS's layout (gen_mailbox.py refuses another)
+			return mbx_place(s->busy ? 1u : 0u, MBX_CTR_STATUS_BUSY_LSB, MBX_CTR_STATUS_BUSY_WIDTH) |
+			       mbx_place(s->done ? 1u : 0u, MBX_CTR_STATUS_DONE_LSB, MBX_CTR_STATUS_DONE_WIDTH) |
+			       mbx_place(s->timeout ? 1u : 0u, MBX_CTR_STATUS_TIMEOUT_LSB, MBX_CTR_STATUS_TIMEOUT_WIDTH) |
+			       mbx_place(s->tag, MBX_CTR_STATUS_TAG_LSB, MBX_CTR_STATUS_TAG_WIDTH);
+		}
+		if (rel == fw->data_lo) {
+			return (uint32_t)s->data;
+		}
+		if (rel == fw->data_hi) {
+			return (uint32_t)(s->data >> 32);
+		}
+	}
+	return m->face[i][rel / 4u];
+}
+
+// The request registers' words of window w on interface i, in the contract's order.
+static void face_request(const struct mbx_model *m, unsigned i, unsigned w, uint32_t *out)
+{
+	memset(out, 0, sizeof(uint32_t) * MBX_MODEL_WIN_WORDS);
+	for (unsigned k = 0; k < face_windows[w].n_req; ++k) {
+		out[k] = m->face[i][face_windows[w].req[k] / 4u];
+	}
+}
+
+static void face_go(struct mbx_model *m, unsigned i, unsigned w)
+{
+	struct mbx_model_win *s = &m->win[i][w];
+	s->busy = true;
+	s->done = false;
+	s->timeout = false;
+	s->tag = (uint8_t)((s->tag + 1u) & ((1u << MBX_CTR_STATUS_TAG_WIDTH) - 1u));
+	if (m->far != NULL && m->far->answer != NULL) {
+		uint32_t request[MBX_MODEL_WIN_WORDS];
+		uint64_t data = 0;
+		face_request(m, i, w, request);
+		enum mbx_model_reply reply = m->far->answer(m->far->ctx, i, w, request, &data);
+		if (reply == MBX_MODEL_ANSWER) {
+			mbx_model_win_answer(m, i, w, s->tag, data);
+		} else if (reply == MBX_MODEL_SILENT) {
+			mbx_model_win_expire(m, i, w);
+		}
+	}
+}
+
+// A write into interface i's face block: refused while it would move a held value.
+static void face_write(struct mbx_model *m, unsigned i, uint32_t rel, uint32_t v)
+{
+	unsigned w = face_request_window(rel);
+	bool setting = w == MBX_MODEL_WINDOWS && face_mask(rel) != 0u;
+	bool held = (setting || rel == MBX_FACE_REG_F_COMMIT) ? m->fw_busy[i] : false;
+	for (unsigned k = 0; k < MBX_MODEL_WINDOWS; ++k) {
+		held = held || ((w == k || rel == face_windows[k].go) && m->win[i][k].busy);
+	}
+	if (held) {
+		m->bus_err = sat16(m->bus_err);
+		m->err = true;
+		return;
+	}
+	if (rel == MBX_FACE_REG_F_COMMIT) {
+		if (mbx_field(v, MBX_F_COMMIT_GO_LSB, MBX_F_COMMIT_GO_WIDTH) != 0u) {
+			m->fw_busy[i] = true;
+			if (m->far != NULL && m->far->commit != NULL && m->far->commit(m->far->ctx, i, m->face[i])) {
+				m->fw_busy[i] = false;
+			}
+		}
+		return;
+	}
+	for (unsigned k = 0; k < MBX_MODEL_WINDOWS; ++k) {
+		if (rel == face_windows[k].go) {
+			// every window's CMD has CTR_CMD's layout
+			if (mbx_field(v, MBX_CTR_CMD_GO_LSB, MBX_CTR_CMD_GO_WIDTH) != 0u) {
+				face_go(m, i, k);
+			}
+			return;
+		}
+	}
+	m->face[i][rel / 4u] = v & face_mask(rel);
+}
+
+void mbx_model_face_view(const struct mbx_model *m, unsigned interface, struct mbx_model_face *out)
+{
+	memset(out, 0, sizeof *out);
+	if (interface >= MBX_N_IF) {
+		return;
+	}
+	const uint32_t *w = m->face[interface];
+	out->send = m->fw_busy[interface];
+	out->ctrl = w[MBX_FACE_REG_F_CTRL / 4u];
+	out->entity = w[MBX_FACE_REG_F_ENTITY / 4u];
+	out->clock = w[MBX_FACE_REG_F_CLOCK / 4u];
+	out->aecp = w[MBX_FACE_REG_F_AECP / 4u];
+	out->restore = w[MBX_FACE_REG_F_RESTORE / 4u];
+	out->nvm = w[MBX_FACE_REG_F_NVM / 4u];
+	for (unsigned s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+		const uint32_t *e = w + (MBX_FACE_SOURCE_BASE + MBX_FACE_SOURCE_STRIDE * s) / 4u;
+		out->pt_offset[s] = e[MBX_FACE_SRC_REG_F_PT_OFFSET / 4u];
+		out->fmt_out[s] = ((uint64_t)e[MBX_FACE_SRC_REG_F_FMT_OUT_HI / 4u] << 32) | e[MBX_FACE_SRC_REG_F_FMT_OUT_LO / 4u];
+		out->src_valid[s] = e[MBX_FACE_SRC_REG_F_SRC_VALID / 4u];
+	}
+	for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
+		const uint32_t *e = w + (MBX_FACE_SINK_BASE + MBX_FACE_SINK_STRIDE * k) / 4u;
+		out->fmt_in[k] = ((uint64_t)e[MBX_FACE_SNK_REG_F_FMT_IN_HI / 4u] << 32) | e[MBX_FACE_SNK_REG_F_FMT_IN_LO / 4u];
+		out->snk_valid[k] = e[MBX_FACE_SNK_REG_F_SNK_VALID / 4u];
+	}
+	for (unsigned k = 0; k < MBX_MODEL_WINDOWS; ++k) {
+		out->req[k] = m->win[interface][k].busy;
+		out->tag[k] = m->win[interface][k].tag;
+		face_request(m, interface, k, out->request[k]);
+	}
+}
+
+void mbx_model_far_bind(struct mbx_model *m, const struct mbx_model_far *far)
+{
+	m->far = far;
+}
+
+void mbx_model_face_ack(struct mbx_model *m, unsigned interface)
+{
+	if (interface < MBX_N_IF) {
+		m->fw_busy[interface] = false;
+	}
+}
+
+void mbx_model_win_answer(struct mbx_model *m, unsigned interface, unsigned window, uint8_t tag, uint64_t data)
+{
+	if (interface >= MBX_N_IF || window >= MBX_MODEL_WINDOWS) {
+		return;
+	}
+	struct mbx_model_win *s = &m->win[interface][window];
+	if (s->busy && s->tag == tag) {
+		s->busy = false;
+		s->done = true;
+		// a one-word window keeps the answer's low word
+		s->data = face_windows[window].data_hi == face_windows[window].data_lo ? (uint32_t)data : data;
+	}
+}
+
+void mbx_model_win_expire(struct mbx_model *m, unsigned interface, unsigned window)
+{
+	if (interface < MBX_N_IF && window < MBX_MODEL_WINDOWS && m->win[interface][window].busy) {
+		m->win[interface][window].busy = false;
+		m->win[interface][window].timeout = true;
+	}
+}
+
+void mbx_model_face_event(struct mbx_model *m, unsigned interface, enum mbx_model_face_ev kind, uint16_t type,
+			  uint16_t index)
+{
+	if (interface >= MBX_N_IF) {
+		return;
+	}
+	switch (kind) {
+	case MBX_MODEL_EV_COUNTERS:
+		m->ctr_pending[interface] |= 1ull << ctr_bit(type, index);
+		break;
+	case MBX_MODEL_EV_AVB:
+		m->avb_count[interface] = sat16(m->avb_count[interface]);
+		break;
+	case MBX_MODEL_EV_ASP:
+		m->asp_count[interface] = sat16(m->asp_count[interface]);
+		break;
+	default:
+		m->amap_count[interface] = sat16(m->amap_count[interface]);
+		break;
+	}
+	post(m);
+}
+
 // The bound-talker block an offset falls in: interface *i, entry *e and the
 // register's offset inside the entry; false outside it.
 static bool bound_at(uint32_t off, unsigned *i, unsigned *e, uint32_t *reg)
@@ -785,6 +1207,9 @@ uint32_t mbx_model_read(struct mbx_model *m, uint32_t byte_offset)
 	}
 	if (pub_at(off, &i, &reg)) {
 		return m->pub[i][reg / 4u];
+	}
+	if (face_at(off, &i, &reg)) {
+		return face_read(m, i, reg);
 	}
 	if (off < MBX_REGISTER_SPACE_BYTES) {
 		return read_global(m, off);
@@ -896,6 +1321,8 @@ void mbx_model_write(struct mbx_model *m, uint32_t byte_offset, uint32_t value, 
 		write_bound(m, i, e, reg, value);
 	} else if (pub_at(off, &i, &reg)) {
 		m->pub[i][reg / 4u] = value & pub_mask(reg);
+	} else if (face_at(off, &i, &reg)) {
+		face_write(m, i, reg, value);
 	} else if (off < MBX_REGISTER_SPACE_BYTES) {
 		write_global(m, off, value);
 	} else if (writable_ring(off)) {
