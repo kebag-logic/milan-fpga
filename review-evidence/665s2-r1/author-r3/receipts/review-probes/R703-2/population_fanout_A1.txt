@@ -1,0 +1,55 @@
+== acmp-cmd.log: 8 frames offered, 8 receive commits, 141 event records
+== acmp-disc.log: 6 frames offered, 6 receive commits, 899 event records
+== acmp-noresp.log: 2 frames offered, 2 receive commits, 1908 event records
+== acmp-notk.log: 3 frames offered, 3 receive commits, 3419 event records
+== adp-advertise.log: 0 frames offered, 0 receive commits, 586 event records
+== adp-discover.log: 1 frames offered, 1 receive commits, 86 event records
+== adp-gm.log: 0 frames offered, 0 receive commits, 87 event records
+== adp-link.log: 0 frames offered, 0 receive commits, 87 event records
+== aecp-fanout.log: 25 frames offered, 25 receive commits, 103 event records
+  aecp_fanout.set_name.if0: commit 94050745 if0 (TX commits 169, AECP wire frames 169)
+    TX commit 94532530 if0 solicited controller 0a0b0c0d0e0f0002 seq 5110 at 4.818 ms
+    TX commit 94573246 if0 UNSOLICITED controller 0a0b0c0d0e0f1000 seq 0000 at 5.225 ms
+    TX commit 94613962 if0 UNSOLICITED controller 0a0b0c0d0e0f1001 seq 0000 at 5.632 ms
+    TX commit 94654678 if0 UNSOLICITED controller 0a0b0c0d0e0f1002 seq 0000 at 6.039 ms
+    TX commit 94695394 if0 UNSOLICITED controller 0a0b0c0d0e0f1003 seq 0000 at 6.446 ms
+    TX commit 94736110 if0 UNSOLICITED controller 0a0b0c0d0e0f1004 seq 0000 at 6.854 ms
+    TX commit 94776826 if0 UNSOLICITED controller 0a0b0c0d0e0f1005 seq 0000 at 7.261 ms
+    TX commit 94817542 if0 UNSOLICITED controller 0a0b0c0d0e0f1006 seq 0000 at 7.668 ms
+    TX commit 94858258 if0 UNSOLICITED controller 0a0b0c0d0e0f1007 seq 0000 at 8.075 ms
+    TX commit 94898974 if0 UNSOLICITED controller 0a0b0c0d0e0f1008 seq 0000 at 8.482 ms
+    TX commit 94939690 if0 UNSOLICITED controller 0a0b0c0d0e0f1009 seq 0000 at 8.889 ms
+    TX commit 94980406 if0 UNSOLICITED controller 0a0b0c0d0e0f100a seq 0000 at 9.297 ms
+    TX commit 95021122 if0 UNSOLICITED controller 0a0b0c0d0e0f100b seq 0000 at 9.704 ms
+    TX commit 95061838 if0 UNSOLICITED controller 0a0b0c0d0e0f100c seq 0000 at 10.111 ms
+    TX commit 95102554 if0 UNSOLICITED controller 0a0b0c0d0e0f100d seq 0000 at 10.518 ms
+    TX commit 95143270 if0 UNSOLICITED controller 0a0b0c0d0e0f100e seq 0000 at 10.925 ms
+    TX commit 95183986 if0 UNSOLICITED controller 0a0b0c0d0e0f100f seq 0000 at 11.332 ms
+== aecp.log: 25 frames offered, 25 receive commits, 97 event records
+  aecp.set_name.if0: commit 102162271 if0 (TX commits 28, AECP wire frames 28)
+    TX commit 102643178 if0 solicited controller 0a0b0c0d0e0f0002 seq 6116 at 4.809 ms
+    TX commit 102683894 if0 UNSOLICITED controller 0a0b0c0d0e0f0001 seq 0000 at 5.216 ms
+== backlog-adp-refill.log: 81 frames offered, 81 receive commits, 507 event records
+  composed window 628.34 ms: commits {'adp': 11, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32}; events {'GM': 15, 'TICK': 63, 'TIMER': 121}; frames offered in window 78, never committed 0
+  backlog.adp_available_refill.if0: committed at 293969901 on adp if0; 4 records ahead on its ring
+== backlog-adp.log: 78 frames offered, 78 receive commits, 487 event records
+  composed window 567.99 ms: commits {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32}; events {'GM': 15, 'TICK': 57, 'TIMER': 107}; frames offered in window 75, never committed 0
+  backlog.adp_available.if0: committed at 289974985 on adp if0; 7 records ahead on its ring
+== backlog-owed.log: 87 frames offered, 87 receive commits, 331 event records
+  composed window 364.03 ms: commits {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32}; events {'GM': 15, 'TICK': 36}; frames offered in window 75, never committed 0
+  backlog.owed.if0: committed at 286413953 on acmp if0; 7 records ahead on its ring
+  backlog.owed_behind0.if0: committed at 286414028 on acmp if0; 8 records ahead on its ring
+  backlog.owed_behind1.if0: committed at 286414103 on acmp if0; 9 records ahead on its ring
+  backlog.owed_behind2.if0: committed at 286414178 on acmp if0; 10 records ahead on its ring
+  backlog.owed_behind3.if0: committed at 286414253 on acmp if0; 11 records ahead on its ring
+== backlog.log: 75 frames offered, 75 receive commits, 304 event records
+  composed window 162.91 ms: commits {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32}; events {'GM': 15, 'LINK': 1, 'TICK': 16}; frames offered in window 75, never committed 0
+  backlog.acmp_command.if0: committed at 278817282 on acmp if0; 11 records ahead on its ring
+== control.log: 1 frames offered, 1 receive commits, 86 event records
+== fixture.log: 11 frames offered, 11 receive commits, 153 event records
+  composed window 20.00 ms: commits {'adp': 1, 'acmp': 1, 'aecp': 1, 'maap': 1, 'srp': 1}; events {'GM': 2, 'TICK': 2}; frames offered in window 5, never committed 0
+  fixture.set_name.if0: commit 35802267 if0 (TX commits 4, AECP wire frames 4)
+    TX commit 36337182 if0 solicited controller 0a0b0c0d0e0f0002 seq 6101 at 5.349 ms
+    TX commit 36377890 if0 UNSOLICITED controller 0a0b0c0d0e0f0001 seq 0000 at 5.756 ms
+== maap.log: 1 frames offered, 1 receive commits, 187 event records
+== srp.log: 3 frames offered, 3 receive commits, 281 event records

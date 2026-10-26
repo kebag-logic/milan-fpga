@@ -1,0 +1,792 @@
+{
+  "late": {
+    "probe": "review.notify.if0",
+    "row": "notification fan-out",
+    "family": "notify",
+    "interface": 0,
+    "path": [
+      "review.notify",
+      0
+    ],
+    "start_sys": 1173,
+    "end_sys": 1401173,
+    "sys_cycles": 1400000,
+    "cpu_cycles": 700000,
+    "ms": 14.0,
+    "wait_ms": 0.0,
+    "passes": 3,
+    "ring": "aecp",
+    "ahead": 0,
+    "t_svc_ms": 10.0,
+    "ceiling_ms": 24.0,
+    "within_t_svc": false,
+    "within_ceiling": true,
+    "fanout": {
+      "recipients": 2,
+      "first_sys": 401173,
+      "last_sys": 1401173,
+      "per_recipient_cpu_cycles": 500000
+    },
+    "bound_cpu_cycles": 700000,
+    "bound_ms": 14.0,
+    "bound_within_t_svc": false,
+    "pass_cycles": 50,
+    "pass_instr": 10,
+    "pass_mbx_accesses": 21,
+    "pass_fetch_share": 0.0,
+    "pass_fetch_wait_share": 0.0,
+    "pass_regions": {
+      "mbx": [
+        0,
+        3,
+        18
+      ]
+    },
+    "pass_modules": {},
+    "status": "measured"
+  },
+  "missing": {
+    "probe": "review.notify.if0",
+    "row": "notification fan-out",
+    "family": "notify",
+    "interface": 0,
+    "path": [
+      "review.notify",
+      0
+    ],
+    "status": "no end",
+    "reason": "no notification to ['0000000000000004@if1']",
+    "start_sys": 1173
+  },
+  "loads": {
+    "A1/backlog": {
+      "load": {
+        "GM": 15,
+        "LINK": 1,
+        "adp": 8,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12
+      },
+      "at_once": {
+        "adp": 8,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12
+      },
+      "below": {}
+    },
+    "A1/backlog-adp": {
+      "load": {
+        "GM": 15,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12,
+        "adp": 8
+      },
+      "at_once": {
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12,
+        "adp": 8
+      },
+      "below": {}
+    },
+    "A1/backlog-adp-refill": {
+      "load": {
+        "GM": 15,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12,
+        "adp": 11
+      },
+      "at_once": {
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12,
+        "adp": 8
+      },
+      "below": {}
+    },
+    "A1/backlog-owed": {
+      "load": {
+        "GM": 15,
+        "adp": 8,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12
+      },
+      "at_once": {
+        "adp": 8,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12
+      },
+      "below": {}
+    },
+    "A8/backlog": {
+      "load": {
+        "GM": 15,
+        "LINK": 1,
+        "adp": 8,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12
+      },
+      "at_once": {
+        "adp": 8,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12
+      },
+      "below": {}
+    },
+    "A8/backlog-adp": {
+      "load": {
+        "GM": 15,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12,
+        "adp": 8
+      },
+      "at_once": {
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12,
+        "adp": 8
+      },
+      "below": {}
+    },
+    "A8/backlog-adp-refill": {
+      "load": {
+        "GM": 15,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12,
+        "adp": 11
+      },
+      "at_once": {
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12,
+        "adp": 8
+      },
+      "below": {}
+    },
+    "A8/backlog-owed": {
+      "load": {
+        "GM": 15,
+        "adp": 8,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12
+      },
+      "at_once": {
+        "adp": 8,
+        "aecp": 16,
+        "maap": 7,
+        "srp": 32,
+        "acmp": 12
+      },
+      "below": {}
+    }
+  },
+  "reuse_unchanged": true,
+  "attestation": [
+    {
+      "input": "image/ctrl_app.elf",
+      "action": "changed",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:image/ctrl_app.elf changed\n"
+    },
+    {
+      "input": "image/ctrl_app.elf",
+      "action": "changed",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:image/ctrl_app.elf changed\n"
+    },
+    {
+      "input": "image/ctrl_app.elf",
+      "action": "missing",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:image/ctrl_app.elf is missing\n"
+    },
+    {
+      "input": "image/ctrl_app.elf",
+      "action": "missing",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:image/ctrl_app.elf is missing\n"
+    },
+    {
+      "input": "gateware/sim_mem.init",
+      "action": "changed",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_mem.init changed\n"
+    },
+    {
+      "input": "gateware/sim_mem.init",
+      "action": "changed",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_mem.init changed\n"
+    },
+    {
+      "input": "gateware/sim_mem.init",
+      "action": "missing",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_mem.init is missing\n"
+    },
+    {
+      "input": "gateware/sim_mem.init",
+      "action": "missing",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_mem.init is missing\n"
+    },
+    {
+      "input": "gateware/sim_rom_bank0.init",
+      "action": "changed",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_rom_bank0.init changed\n"
+    },
+    {
+      "input": "gateware/sim_rom_bank0.init",
+      "action": "changed",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_rom_bank0.init changed\n"
+    },
+    {
+      "input": "gateware/sim_rom_bank0.init",
+      "action": "missing",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_rom_bank0.init is missing\n"
+    },
+    {
+      "input": "gateware/sim_rom_bank0.init",
+      "action": "missing",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_rom_bank0.init is missing\n"
+    },
+    {
+      "input": "gateware/sim_rom_bank1.init",
+      "action": "changed",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_rom_bank1.init changed\n"
+    },
+    {
+      "input": "gateware/sim_rom_bank1.init",
+      "action": "changed",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_rom_bank1.init changed\n"
+    },
+    {
+      "input": "gateware/sim_rom_bank1.init",
+      "action": "missing",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_rom_bank1.init is missing\n"
+    },
+    {
+      "input": "gateware/sim_rom_bank1.init",
+      "action": "missing",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim_rom_bank1.init is missing\n"
+    },
+    {
+      "input": "gateware/sim.v",
+      "action": "changed",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim.v changed\n"
+    },
+    {
+      "input": "gateware/sim.v",
+      "action": "changed",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim.v changed\n"
+    },
+    {
+      "input": "gateware/sim.v",
+      "action": "missing",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim.v is missing\n"
+    },
+    {
+      "input": "gateware/sim.v",
+      "action": "missing",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:gateware/sim.v is missing\n"
+    },
+    {
+      "input": "external/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v",
+      "action": "changed",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:external/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v changed\n"
+    },
+    {
+      "input": "external/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v",
+      "action": "changed",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:external/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v changed\n"
+    },
+    {
+      "input": "external/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v",
+      "action": "missing",
+      "flag": "--reuse-build",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:external/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v is missing\n"
+    },
+    {
+      "input": "external/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v",
+      "action": "missing",
+      "flag": "--regrade",
+      "returncode": 1,
+      "stdout": "REFUSED reused build is stale: build:external/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v is missing\n"
+    }
+  ],
+  "unresolved": "reused build is stale: input key 'unresolved.elf' does not resolve",
+  "missing_logs": [
+    {
+      "record": false,
+      "returncode": 1,
+      "stdout": "REFUSED backlog: no recorded log in the results\nREFUSED backlog-adp: no recorded log in the results\n0 groups graded, 2 refusals, 0 T_svc misses (0 of 0 probe instances, 0 of 0 paths)\n"
+    },
+    {
+      "record": true,
+      "returncode": 1,
+      "stdout": "REFUSED backlog: no recorded log in the results\nREFUSED backlog-adp: no recorded log in the results\n0 groups graded, 2 refusals, 0 T_svc misses (0 of 0 probe instances, 0 of 0 paths)\n"
+    }
+  ],
+  "partial_regrade": [
+    {
+      "selected": "control,backlog",
+      "record": false,
+      "returncode": 1,
+      "stdout": "REFUSED backlog: no recorded log in the results\n1 groups graded, 1 refusals, 0 T_svc misses (0 of 3 probe instances, 0 of 3 paths)\n"
+    },
+    {
+      "selected": "control,backlog",
+      "record": true,
+      "returncode": 1,
+      "stdout": "REFUSED backlog: no recorded log in the results\n1 groups graded, 1 refusals, 0 T_svc misses (0 of 3 probe instances, 0 of 3 paths)\n"
+    },
+    {
+      "selected": "control",
+      "record": false,
+      "returncode": 0,
+      "stdout": "1 groups graded, 0 refusals, 0 T_svc misses (0 of 3 probe instances, 0 of 3 paths)\n"
+    }
+  ],
+  "headline_controls": [
+    {
+      "mutation": "clock ratio: a pass's milliseconds from the bus clock",
+      "before": {
+        "headline": {
+          "worst_cycles": 1435369,
+          "worst_ms": 28.70738,
+          "composed_cycles": 418342,
+          "composed_ms": 8.36684,
+          "composed_passes": 3,
+          "population": {
+            "adp": 1,
+            "acmp": 1,
+            "aecp": 1,
+            "maap": 1,
+            "srp": 1,
+            "GM": 2,
+            "LINK": 0
+          },
+          "serviced": true,
+          "unreleased": {},
+          "idle_min": 65703,
+          "idle_max": 69030
+        },
+        "bounds": [
+          4.96904,
+          2.1501,
+          8.83735,
+          5.55062,
+          3.59442,
+          47.97956,
+          50.78094,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "after": {
+        "headline": {
+          "worst_cycles": 1435369,
+          "worst_ms": 14.35369,
+          "composed_cycles": 418342,
+          "composed_ms": 4.18342,
+          "composed_passes": 3,
+          "population": {
+            "adp": 1,
+            "acmp": 1,
+            "aecp": 1,
+            "maap": 1,
+            "srp": 1,
+            "GM": 2,
+            "LINK": 0
+          },
+          "serviced": true,
+          "unreleased": {},
+          "idle_min": 65703,
+          "idle_max": 69030
+        },
+        "bounds": [
+          4.96904,
+          2.1501,
+          8.83735,
+          5.55062,
+          3.59442,
+          47.97956,
+          50.78094,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "failed_checks": [
+        "fixture passes: worst pass and composed maximum",
+        "clock conversion"
+      ]
+    },
+    {
+      "mutation": "clock ratio: a pass's bus cycles equal its CPU cycles",
+      "before": {
+        "headline": {
+          "worst_cycles": 1435369,
+          "worst_ms": 28.70738,
+          "composed_cycles": 418342,
+          "composed_ms": 8.36684,
+          "composed_passes": 3,
+          "population": {
+            "adp": 1,
+            "acmp": 1,
+            "aecp": 1,
+            "maap": 1,
+            "srp": 1,
+            "GM": 2,
+            "LINK": 0
+          },
+          "serviced": true,
+          "unreleased": {},
+          "idle_min": 65703,
+          "idle_max": 69030
+        },
+        "bounds": [
+          4.96904,
+          2.1501,
+          8.83735,
+          5.55062,
+          3.59442,
+          47.97956,
+          50.78094,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "after": {
+        "headline": {
+          "worst_cycles": 1435369,
+          "worst_ms": 28.70738,
+          "composed_cycles": 418342,
+          "composed_ms": 8.36684,
+          "composed_passes": 3,
+          "population": {
+            "adp": 1,
+            "acmp": 1,
+            "aecp": 1,
+            "maap": 1,
+            "srp": 1,
+            "GM": 2,
+            "LINK": 0
+          },
+          "serviced": true,
+          "unreleased": {},
+          "idle_min": 65703,
+          "idle_max": 69030
+        },
+        "bounds": [
+          2.48452,
+          1.07505,
+          4.68814,
+          2.77531,
+          1.79721,
+          11.81039,
+          17.35633,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "failed_checks": [
+        "fixture row fixture.link_up.if0",
+        "fixture row fixture.malformed.if0",
+        "fixture row fixture.set_name.if0",
+        "fixture row fixture.link_down.if0",
+        "fixture row fixture.bind_rx.if0",
+        "fixture row fixture.tmr_no_resp1.if0",
+        "fixture row fixture.entity_departing.if0",
+        "fixture row fixture.service.adp.first.if0",
+        "fixture row fixture.service.adp.last.if0",
+        "fixture row fixture.service.acmp.first.if0",
+        "fixture row fixture.service.acmp.last.if0",
+        "fixture row fixture.service.aecp.first.if0",
+        "fixture row fixture.service.aecp.last.if0",
+        "fixture row fixture.service.maap.first.if0",
+        "fixture row fixture.service.maap.last.if0",
+        "fixture row fixture.service.srp.first.if0",
+        "fixture row fixture.service.srp.last.if0",
+        "clock conversion",
+        "the pass bound runs from the running pass at the bus ratio"
+      ]
+    },
+    {
+      "mutation": "pass bound: it starts at the input, not at the running pass",
+      "before": {
+        "headline": {
+          "worst_cycles": 1435369,
+          "worst_ms": 28.70738,
+          "composed_cycles": 418342,
+          "composed_ms": 8.36684,
+          "composed_passes": 3,
+          "population": {
+            "adp": 1,
+            "acmp": 1,
+            "aecp": 1,
+            "maap": 1,
+            "srp": 1,
+            "GM": 2,
+            "LINK": 0
+          },
+          "serviced": true,
+          "unreleased": {},
+          "idle_min": 65703,
+          "idle_max": 69030
+        },
+        "bounds": [
+          4.96904,
+          2.1501,
+          8.83735,
+          5.55062,
+          3.59442,
+          47.97956,
+          50.78094,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "after": {
+        "headline": {
+          "worst_cycles": 1435369,
+          "worst_ms": 28.70738,
+          "composed_cycles": 418342,
+          "composed_ms": 8.36684,
+          "composed_passes": 3,
+          "population": {
+            "adp": 1,
+            "acmp": 1,
+            "aecp": 1,
+            "maap": 1,
+            "srp": 1,
+            "GM": 2,
+            "LINK": 0
+          },
+          "serviced": true,
+          "unreleased": {},
+          "idle_min": 65703,
+          "idle_max": 69030
+        },
+        "bounds": [
+          4.96904,
+          2.14945,
+          7.45675,
+          5.55062,
+          3.59367,
+          23.32759,
+          30.27623,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "failed_checks": [
+        "fixture row fixture.malformed.if0",
+        "fixture row fixture.set_name.if0",
+        "fixture row fixture.bind_rx.if0",
+        "fixture row fixture.tmr_no_resp1.if0",
+        "fixture row fixture.entity_departing.if0",
+        "the pass bound runs from the running pass at the bus ratio"
+      ]
+    },
+    {
+      "mutation": "composition: the composed maximum is the run's worst pass",
+      "before": {
+        "headline": {
+          "worst_cycles": 1435369,
+          "worst_ms": 28.70738,
+          "composed_cycles": 418342,
+          "composed_ms": 8.36684,
+          "composed_passes": 3,
+          "population": {
+            "adp": 1,
+            "acmp": 1,
+            "aecp": 1,
+            "maap": 1,
+            "srp": 1,
+            "GM": 2,
+            "LINK": 0
+          },
+          "serviced": true,
+          "unreleased": {},
+          "idle_min": 65703,
+          "idle_max": 69030
+        },
+        "bounds": [
+          4.96904,
+          2.1501,
+          8.83735,
+          5.55062,
+          3.59442,
+          47.97956,
+          50.78094,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "after": {
+        "headline": {
+          "worst_cycles": 1435369,
+          "worst_ms": 28.70738,
+          "composed_cycles": 1435369,
+          "composed_ms": 28.70738,
+          "composed_passes": 47,
+          "population": {
+            "adp": 1,
+            "acmp": 1,
+            "aecp": 1,
+            "maap": 1,
+            "srp": 1,
+            "GM": 2,
+            "LINK": 0
+          },
+          "serviced": true,
+          "unreleased": {},
+          "idle_min": 65703,
+          "idle_max": 69030
+        },
+        "bounds": [
+          4.96904,
+          2.1501,
+          8.83735,
+          5.55062,
+          3.59442,
+          47.97956,
+          50.78094,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "failed_checks": [
+        "fixture passes: worst pass and composed maximum",
+        "the composed maximum is the window's longest pass, wherever it falls"
+      ]
+    }
+  ]
+}

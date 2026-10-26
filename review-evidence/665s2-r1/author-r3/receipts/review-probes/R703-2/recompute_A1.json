@@ -1,0 +1,259 @@
+{
+ "results": "runs/A1",
+ "interfaces": 1,
+ "groups": {
+  "acmp-cmd": {
+   "passes": 79,
+   "worst_cpu": 1493556,
+   "worst_ms": 29.871,
+   "clock": {
+    "consecutive_pass_pairs_ok": 11,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-disc": {
+   "passes": 174,
+   "worst_cpu": 1552161,
+   "worst_ms": 31.043,
+   "clock": {
+    "consecutive_pass_pairs_ok": 106,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-noresp": {
+   "passes": 300,
+   "worst_cpu": 1448955,
+   "worst_ms": 28.979,
+   "clock": {
+    "consecutive_pass_pairs_ok": 232,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "acmp-notk": {
+   "passes": 489,
+   "worst_cpu": 1493556,
+   "worst_ms": 29.871,
+   "clock": {
+    "consecutive_pass_pairs_ok": 421,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-advertise": {
+   "passes": 586,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 3,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-discover": {
+   "passes": 87,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 1,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-gm": {
+   "passes": 87,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 1,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "adp-link": {
+   "passes": 86,
+   "worst_cpu": 274011,
+   "worst_ms": 5.48,
+   "clock": {
+    "consecutive_pass_pairs_ok": 1,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "aecp-fanout": {
+   "passes": 127,
+   "worst_cpu": 649005,
+   "worst_ms": 12.98,
+   "clock": {
+    "consecutive_pass_pairs_ok": 29,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "aecp": {
+   "passes": 108,
+   "worst_cpu": 367459,
+   "worst_ms": 7.349,
+   "clock": {
+    "consecutive_pass_pairs_ok": 13,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "backlog-adp-refill": {
+   "passes": 303,
+   "worst_cpu": 1531355,
+   "worst_ms": 30.627,
+   "clock": {
+    "consecutive_pass_pairs_ok": 32,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 1531355,
+   "composed_ms": 30.627
+  },
+  "backlog-adp": {
+   "passes": 301,
+   "worst_cpu": 1565803,
+   "worst_ms": 31.316,
+   "clock": {
+    "consecutive_pass_pairs_ok": 30,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 1565803,
+   "composed_ms": 31.316,
+   "backlog_rows": {
+    "ENTITY_AVAILABLE behind the adp ring": {
+     "start": 289974985,
+     "end": 296768200,
+     "ms": 67.932
+    }
+   }
+  },
+  "backlog-owed": {
+   "passes": 328,
+   "worst_cpu": 582677,
+   "worst_ms": 11.654,
+   "clock": {
+    "consecutive_pass_pairs_ok": 34,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 582677,
+   "composed_ms": 11.654,
+   "backlog_rows": {
+    "response with 7 owed ahead": {
+     "start": 286413953,
+     "wire": 299043213,
+     "wire_ms": 126.293,
+     "room": 292414249
+    }
+   }
+  },
+  "backlog": {
+   "passes": 299,
+   "worst_cpu": 740260,
+   "worst_ms": 14.805,
+   "clock": {
+    "consecutive_pass_pairs_ok": 28,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 740260,
+   "composed_ms": 14.805,
+   "backlog_rows": {
+    "event behind 15 others": {
+     "start": 278812110,
+     "end": 280360782,
+     "ms": 15.487
+    },
+    "ACMP command behind a full acmp ring": {
+     "start": 278817282,
+     "wire": 285147763,
+     "wire_ms": 63.305
+    }
+   }
+  },
+  "control": {
+   "passes": 87,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 1,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "fixture": {
+   "passes": 47,
+   "worst_cpu": 1435369,
+   "worst_ms": 28.707,
+   "clock": {
+    "consecutive_pass_pairs_ok": 20,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   },
+   "composed_cpu": 418342,
+   "composed_ms": 8.367
+  },
+  "maap": {
+   "passes": 188,
+   "worst_cpu": 248452,
+   "worst_ms": 4.969,
+   "clock": {
+    "consecutive_pass_pairs_ok": 2,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  },
+  "srp": {
+   "passes": 284,
+   "worst_cpu": 353587,
+   "worst_ms": 7.072,
+   "clock": {
+    "consecutive_pass_pairs_ok": 4,
+    "consecutive_pass_pairs_bad": 0,
+    "ms_spacing": [
+     100000
+    ]
+   }
+  }
+ }
+}
