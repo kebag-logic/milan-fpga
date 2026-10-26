@@ -1,0 +1,7 @@
+--- follow-up ---
+Q-dup-then-skip-k1 ["FAIL", "DUT-attributed audio events", 8, [[0, 8205, "repeated", 1, null, null], [0, 8206, "dropped", 1, null, null], [1, 8205, "repeated", 1, null, null], [1, 8206, "dropped", 1, null, null], [2, 8205, "repeated", 1, null, null], [2, 8206, "dropped", 1, null, null]]]
+Q-dup-then-skip-k5 ["FAIL", "DUT-attributed audio events", 8, [[0, 8205, "repeated", 1, null, null], [0, 8210, "dropped", 1, null, null], [1, 8205, "repeated", 1, null, null], [1, 8210, "dropped", 1, null, null], [2, 8205, "repeated", 1, null, null], [2, 8210, "dropped", 1, null, null]]]
+Q-skip-then-dup-k1 ["FAIL", "DUT-attributed audio events", 8, [[0, 8205, "dropped", 1, null, null], [0, 8206, "repeated", 1, null, null], [1, 8205, "dropped", 1, null, null], [1, 8206, "repeated", 1, null, null], [2, 8205, "dropped", 1, null, null], [2, 8206, "repeated", 1, null, null]]]
+Q-tag-flip-nonreciprocal ["FAIL", "DUT-attributed audio events", 1, [[2, 8205, "bit-flip", 1, "0x00100000", null]]]
+Q-static-swap-0-2 ["FAIL", "DUT-attributed audio events", 2, [[0, 0, "swap", 16384, null, 2], [2, 0, "swap", 16384, null, 0]]]
+Q-static-swap-1-3 ["FAIL", "DUT-attributed audio events", 2, [[1, 0, "swap", 16384, null, 3], [3, 0, "swap", 16384, null, 1]]]

@@ -1,0 +1,14 @@
+PRISTINE rc=0: 150 scenarios passed, 0 failed, 0 skipped
+KILLED: counter repeats every 4096 samples: 133 scenarios passed, 17 failed, 0 skipped | first: features/torture_campaign_plan.feature:417  each negative control fails its own assertion and only by its defect -- @1.3
+KILLED: block slips not located: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:446  the audio grader sizes a slip of whole blocks exactly -- @1.2
+KILLED: foreign channel number read as a swap: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:451  a channel-number flip on one channel is corruption, not a swap
+KILLED: hold read as corruption: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:456  a one-sample hold reads as one repeated and then one dropped sample
+KILLED: identity changes not recorded: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:461  a channel swap from the first frame fails as a swap with every arm found
+KILLED: arms looked for on the logged channel only: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:461  a channel swap from the first frame fails as a swap with every arm found
+KILLED: capture losses stop the clocks: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:466  a capture loss is time that ran, so later events keep true clocks
+KILLED: times extrapolated past the last anchor: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:466  a capture loss is time that ran, so later events keep true clocks
+KILLED: arm edges widened to the halves: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:472  arms planted only in the middle of the capture void the run
+KILLED: pending defaults accepted: 148 scenarios passed, 2 failed, 0 skipped | first: features/torture_campaign_plan.feature:486  a journal-commit cut passes only with placed, non-vacuous evidence -- @1.4
+KILLED: cut outside its commit accepted: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:488  a journal-commit cut passes only with placed, non-vacuous evidence -- @1.6
+KILLED: missing cut evidence accepted: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:489  a journal-commit cut passes only with placed, non-vacuous evidence -- @1.7
+KILLED: planted window need only meet the read interval: 149 scenarios passed, 1 failed, 0 skipped | first: features/torture_campaign_plan.feature:404  the soak counters admit no growth and no unplanted unlock -- @1.8
