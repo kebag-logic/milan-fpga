@@ -1,0 +1,76 @@
+Hosted check runs at f887663852d118e810ef690c3dd5cf9fe2292588 (read-only, 2026-10-26T18:15:13Z):
+bdd-conformance | success
+Cancel late CI failures | success
+Cancel late CI failures | success
+Cancel late CI failures | success
+Cancel late CI failures | success
+changes | success
+Collect CI manifest | success
+Collect CI manifest | success
+Collect CI manifest | success
+Collect CI manifest | success
+docs-check | failure
+docs-check-no-git | success
+docs-gates-0 | failure
+docs-gates-1 | cancelled
+docs-gates-2 | success
+elaborate | failure
+elaborate-gates-0 | success
+elaborate-gates-1 | cancelled
+Fail fast across this head | cancelled
+Fail fast across this head | cancelled
+Fail fast across this head | cancelled
+Fail fast across this head | cancelled
+firmware-aecp-mutants | cancelled
+firmware-boundary | cancelled
+firmware-control-mutants | cancelled
+firmware-srp-mutants | cancelled
+firmware-unit | cancelled
+firmware-verilator | cancelled
+full-ci-gate | success
+Physical gPTP (nightly and manual) | skipped
+Prepare pinned Yosys | success
+publication-census | cancelled
+rtl-fast | cancelled
+Union capture_coherence | failure
+Union maap | failure
+Union milan_dp | failure
+Union milan_dp_mclk | failure
+Union milan_dp_render | failure
+Union pp_shadow | failure
+verilator-lint | cancelled
+Verilator shard 0/17 | cancelled
+Verilator shard 10/17 | cancelled
+Verilator shard 11/17 | cancelled
+Verilator shard 1/17 | cancelled
+Verilator shard 12/17 | cancelled
+Verilator shard 13/17 | cancelled
+Verilator shard 14/17 | cancelled
+Verilator shard 15/17 | cancelled
+Verilator shard 16/17 | cancelled
+Verilator shard 2/17 | cancelled
+Verilator shard 3/17 | cancelled
+Verilator shard 4/17 | cancelled
+Verilator shard 5/17 | cancelled
+Verilator shard 6/17 | cancelled
+Verilator shard 7/17 | cancelled
+Verilator shard 8/17 | cancelled
+Verilator shard 9/17 | cancelled
+verilator-suites | failure
+wire-accountability | success
+yosys-elaboration | cancelled
+yosys-portability | failure
+Yosys shard 0/4 | cancelled
+Yosys shard 1/4 | cancelled
+Yosys shard 2/4 | cancelled
+Yosys shard 3/4 | cancelled
+
+docs-gates-0 (job 121723005938), failing step 'Bare-metal scope gate', excerpt:
+##[endgroup]
+  - tb/verilator/ctrl_service_budget/scenario.py:805: [H] retired target host-plane surface 'TX ring': '# A response with 7 frames owed ahead of it (A3): the egress held and the TX ring filled' (#259: no dormant target driver/memory-ring contract)
+baremetal-only: FAIL (1 finding(s) across 1431 scanned file(s))
+##[error]Process completed with exit code 1.
+
+Previous head cd3525c3: docs-gates-0 and docs-check also failure:
+docs-check | failure
+docs-gates-0 | failure

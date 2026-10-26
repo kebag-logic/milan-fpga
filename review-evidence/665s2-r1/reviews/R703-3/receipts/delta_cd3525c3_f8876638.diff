@@ -1,0 +1,1838 @@
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index 0a0ec823de..71ae3c2e53 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -1,7 +1,7 @@
+ # Split CPU service budget
+ 
+ This harness measures the Mark II split firmware's service paths on the shipping cacheless core.
+-Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397), with the [round-2 corrections](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6415127884).
++Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397).
+ The image is `ctrl_srp_image.py --with-aecp --layout split`, linked unmodified.
+ Every figure is a measured clock count at the CPU's 50 MHz, never an estimate.
+ Each is compared with T_svc = 10 ms and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+@@ -10,8 +10,8 @@ Each is compared with T_svc = 10 ms and its ceiling in [FR_NFR.md 3.4.1](../../.
+ 
+ - **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the labelled arms, the controls, reuse and the regrade.
+ - **[The test SoC](#the-test-soc)** -- What is the shipping CPU and memory, what is test-only, and where each device sits.
+-- **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound, the composed load and the verdicts.
+-- **[Results](#results)** -- Per access, per pass, every response path, the backlog rows and the fetch share.
++- **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound, the defined load, its service and the verdicts.
++- **[Results](#results)** -- Per access, per pass, every response path, the fan-outs, the backlog rows and the load's service.
+ - **[Findings](#findings)** -- The decision input for D4, D5 and D3, and the defects the measurement exposed.
+ - **[Controls and self-test](#controls-and-self-test)** -- The planted over-budget paths, the region-decode control and the grader mutants.
+ - **[Limits](#limits)** -- What is not measured, and why.
+@@ -49,13 +49,15 @@ A changed or missing input, a ROM file that was never recorded, or a recorded ke
+ `--regrade --out DIR` grades the logs already in `DIR`, on a reused build.
+ Every selected group must have its script and its log there, and its script must be the one the scenario now generates.
+ Otherwise that group is refused by name and the run exits 1; a partial regrade selects its groups with `--groups`.
++So a group whose script is unchanged, on a build that still attests, is regraded from its log rather than run again.
+ 
+ Two labelled arms change test code only, each in a scratch copy of the fixture, and are never the formal measurement:
+ 
+ ```sh
+ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+   --build-dir /tmp/budget-1x1-ports --variant answering-ports \
+-  --groups acmp-cmd,acmp-noresp,acmp-notk,acmp-disc,backlog,backlog-adp,backlog-owed --record-budget-findings
++  --groups acmp-cmd,acmp-noresp,acmp-notk,acmp-disc,backlog,backlog-adp,backlog-owed,aecp-fanout \
++  --record-budget-findings
+ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+   --build-dir /tmp/budget-1x1-shutdown --variant shutdown-entry --record-budget-findings
+ ```
+@@ -121,9 +123,14 @@ Every probe is a `mark`, its stimulus and a bounded wait.
+   Each recipient is a controller registered for unsolicited notifications on an interface (IEEE 1722.1-2021 7.5.2).
+   Each must receive the unsolicited response of the probe's command type and descriptor.
+   A missing recipient is refused, and so is the change notified to a controller outside the set; other unsolicited responses do not count.
++  Every fan-out is measured with the firmware's registration capacity on every interface (`AECP_REGISTRATIONS`, 16, in `aecp.h`), from a requester outside them, so every registration is a recipient.
++  The per-recipient cost is the last recipient's commit less the first's, over the gaps between them.
++- A response with frames owed ahead of it requires exactly those responses, by sequence_id and in order, between its input and its own.
++- A command the core may take and drop under the load (one behind the owed input) is a path too: a response that never comes is reported as **never answered**, a measured finding with no bound, not a refusal.
+ 
+ Every conversion is one `Grader` method: CPU cycles from bus cycles (times 50/100, rounded up), bus cycles from CPU cycles, and milliseconds from either.
+ A pass runs from one committed entry of `ctrl_loop_service` to the next.
++The script's end cuts the pass in progress short, so the run of idle passes it flushes is no idle pass's figure.
+ A mailbox access is timed at the CPU's load/store bus, from command to response.
+ Instruction fetches are counted at the cacheless fetch bus, by region.
+ 
+@@ -133,10 +140,16 @@ It runs from the start of the pass that was running when the input arrived, or t
+ Whatever the input's phase, it is taken by the next pass at the latest, so with the same passes the interval cannot exceed the bound.
+ Each probe also reports the records ahead of its input: those on its ring (or in the event ring) committed before it and not yet released.
+ 
+-A backlog group's composed window, between its `composed` and `composed_end` marks, carries a defined load.
+-The grader counts the records each receive channel committed in it, and the GM and LINK events posted.
+-It refuses the group unless that population is exactly the group's load, so a record the filter refused, or a channel left out, fails the run.
+-The composed maximum is the longest pass that starts inside the window.
++A backlog group's composed window, between its `composed` and `composed_end` marks, carries its row's defined load.
++`grade.defined_load` derives that load from the mailbox contract alone, never from the stimulus: each channel's records one instant admits, at the size of the load's frame.
++The grader counts the records each receive channel committed in the window, and the GM and LINK events posted.
++It refuses the group unless that population is exactly the defined load, so a record the filter refused, a channel left out or one record too many fails the run.
++The self-test counts every window's stimulus against the same loads, restated, so a scenario that drops a channel from its stimulus and from its own declaration together still fails.
++
++The window must also service its load.
++For each loaded channel, the window's first and last record are graded from their receive commit to the end of the pass that released them, as the SRP rows end: the handler runs after the release, inside that pass (`ctrl_loop.c`, `service_rx`).
++A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither T_svc nor its ceiling.
++The window's longest pass is the composed maximum only if the window released its whole load; otherwise the record names what was left, and that pass is a lower bound of a load the firmware did not finish.
+ 
+ The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 18 ms.
+ A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc, and its ceiling by W plus the ceiling.
+@@ -147,25 +160,27 @@ Arm A is the image as linked, the formal measurement.
+ Arm B is the labelled second arm, whose fixture callbacks answer.
+ The SHUTDOWN row comes from the labelled `shutdown-entry` arm.
+ In the path tables a cell is a path's worst measured instance across the groups that measure it, "ms (the pass bound)"; **miss** is over T_svc, **over ceiling** over the 3.4.1 ceiling as well.
+-Each run writes every path's worst instance, every probe and every timed-out wait to its `table.md`, and all of it to `results.json`.
++A record never released or a command never answered is worse than any time measured, and its cell gives the time it had waited, at least.
++Each run writes every path's worst instance, every probe, every composed window and every timed-out wait to its `table.md`, and all of it to `results.json`.
+ 
+-T_svc misses, counted per path and per probe instance (a path several groups measure is one path, at its worst):
++Arm labels: A is arm A, B is arm B, S is the `shutdown-entry` arm; 1 is 1x1 and 8 is 8x8.
++T_svc misses, counted per path and per probe instance (a path several groups measure is one path, at its worst; at 8x8 each interface's instance is its own path):
+ 
+ | Arm | Groups | Paths missing T_svc | Probe instances missing T_svc |
+ |---|---:|---:|---:|
+-| A1 | 17 | 10 of 61 | 11 of 78 |
+-| A8 | 16 | 37 of 106 | 45 of 125 |
+-| B1 | 7 | 4 of 20 | 4 of 20 |
+-| B8 | 7 | 4 of 36 | 4 of 36 |
+-| S1 | 2 | 0 of 2 | 0 of 2 |
+-| S8 | 2 | 0 of 3 | 0 of 3 |
++| A1 | 18 | 22 of 81 | 58 of 141 |
++| A8 | 17 | 60 of 129 | 102 of 182 |
++| B1 | 8 | 18 of 44 | 41 of 68 |
++| B8 | 8 | 36 of 68 | 60 of 92 |
++| S1 | 2 | 0 of 1 | 0 of 2 |
++| S8 | 2 | 0 of 2 | 0 of 3 |
+ 
+ ### Per access and per instruction
+ 
+ | Point | CPU cycles per instruction | Fetches per instruction | Mailbox read / write, CPU cycles | BRAM fetch, CPU cycles (max) | sram load/store | CSR | Flash window load | Code fetched, boot / service (largest run) |
+ |---|---:|---:|---:|---:|---:|---:|---:|---:|
+-| 1x1 | 9.54 | 1.69 | 9 / 9 | 9.09 (303) | 9-10 / 9-10 | 9-10 / 9 | 262.8 mean (138-303) | 11,160 / 42,080 B |
+-| 8x8 | 9.51 | 1.68 | 9 / 9 | 9.13 (303) | 9-10 / 9-10 | 9-10 / 9 | 262.5 mean (138-303) | 11,396 / 43,060 B |
++| 1x1 | 9.52 | 1.69 | 9 / 9 | 9.09 (303) | 9-10 / 9-10 | 9-10 / 9 | 262.9 mean (138-303) | 11,160 / 42,080 B |
++| 8x8 | 9.49 | 1.68 | 9 / 9 | 9.13 (303) | 9-10 / 9-10 | 9-10 / 9 | 262.5 mean (138-303) | 11,396 / 43,060 B |
+ 
+ Every access is timed at the CPU, command to response, in CPU cycles at 50 MHz.
+ A mailbox access is 9 cycles, 0.18 us; `KL_mbx` itself answers in one bus cycle, and the rest is the clock crossing and the bus.
+@@ -175,18 +190,20 @@ Their waits sum to 1.59 to 1.64 times each pass's cycles, so more than one fetch
+ 
+ ### Passes
+ 
+-| Point, arm | Idle pass, CPU cycles (ms) | Worst pass, CPU cycles (ms), group | Composed maximum, CPU cycles (ms), group |
+-|---|---:|---:|---:|
+-| 1x1, A | 65,703 to 72,358 (1.31 to 1.45) | 1,565,803 (31.32), backlog-adp | 1,565,803 (31.32), backlog-adp |
+-| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 740,260 (14.81), backlog | 740,260 (14.81), backlog |
+-| 8x8, A | 102,152 to 185,315 (2.04 to 3.71) | 2,989,496 (59.79), acmp-notk | 2,209,308 (44.19), backlog-adp-refill |
+-| 8x8, B | 7,081 to 293,468 (0.14 to 5.87) | 2,004,666 (40.09), acmp-notk | 1,392,016 (27.84), backlog |
++| Point, arm | Idle pass, CPU cycles (ms) | Worst pass, CPU cycles (ms), group | Composed maximum, CPU cycles (ms), group | Longest pass under a load left unreleased (lower bound) |
++|---|---:|---:|---:|---:|
++| 1x1, A | 65,703 to 72,632 (1.31 to 1.45) | 1,565,803 (31.32), backlog-adp | 740,260 (14.81), backlog | 1,565,803 (31.32), backlog-adp |
++| 1x1, B | 65,703 to 232,901 (1.31 to 4.66) | 740,260 (14.81), backlog | 740,260 (14.81), backlog | - |
++| 8x8, A | 157,133 to 185,315 (3.14 to 3.71) | 2,989,496 (59.79), acmp-notk | 1,392,016 (27.84), backlog | 2,209,308 (44.19), backlog-adp-refill |
++| 8x8, B | 157,133 to 293,468 (3.14 to 5.87) | 2,004,666 (40.09), acmp-notk | 1,392,016 (27.84), backlog | - |
+ 
++The composed maximum is the longest pass of a window that released its whole load.
++In arm A's two bound-talker windows SRP's 32 records are never released (see [the load's service](#the-loads-service)), so their longest passes are lower bounds, in the last column.
+ An idle pass's largest consumers are AECP's two modules, `aecp` 26,497 and `aecp_nvm` 20,254 cycles at 1x1, 73,883 and 20,254 at 8x8, mostly their polls.
++The idle range excludes the pass the script's end cuts short; at 8x8 it is 3.14 to 3.71 ms (157,133 to 185,315 cycles) in arm A.
+ The 8x8 link-up pass, 2,004,666 cycles, is lwSRP's `mrp_mad` 473,950, `memset` 361,053, `memcpy` 244,102, the mailbox driver 119,790 and software multiply and divide (`__mulsi3` 111,201, `__udivsi3` 89,954).
+-The 1x1 composed maximum, `backlog-adp`'s 1,565,803 cycles, is `memset` 984,728, AECP 173,531, the mailbox driver 127,547, ACMP 49,350 and `memcpy` 46,964: after the bind, AECP's retry (see [Findings](#findings)).
+-The `backlog` group's composed maximum (arm B's maximum), 740,260 cycles, is `memset` 278,637, the mailbox driver 141,995, `memcpy` 66,719, AECP 41,029 and ACMP 36,377.
+-At 8x8 the composed maximum, 2,209,308 cycles, adds lwSRP's `mrp_mad` (429,626) to the same `memset` and AECP terms.
++The composed maximum at both points is the `backlog` group's: at 1x1, 740,260 cycles of `memset` 278,637, the mailbox driver 141,995, `memcpy` 66,719, AECP 41,029 and ACMP 36,377; at 8x8, 1,392,016 cycles of `memset` 477,042, the mailbox driver 134,267, `memcpy` 132,197, AECP 111,084, ACMP 89,857 and `__mulsi3` 67,272.
++The 1x1 worst pass, `backlog-adp`'s 1,565,803 cycles, is `memset` 984,728, AECP 173,531, the mailbox driver 127,547, ACMP 49,350 and `memcpy` 46,964: after the bind, AECP's retry (see [Findings](#findings)).
+ 
+ ### ADP
+ 
+@@ -227,6 +244,9 @@ The 1x1 first TMR_NO_RESP and ENTITY_DEPARTING cells are the `fixture` group's i
+ 
+ ### AECP
+ 
++Each row ends at the command's solicited response (H-AECP).
++The notification a setter's change causes is the fan-out below.
++
+ | AECP path | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses, 1x1 / 8x8 |
+ |---|---:|---:|---:|
+ | READ_DESCRIPTOR type 0, 312 B | 5.14 (6.28) | 6.17 (12.33) / 6.19 (12.34) | 124 / 125 |
+@@ -251,11 +271,36 @@ The 1x1 first TMR_NO_RESP and ENTITY_DEPARTING cells are the `fixture` group's i
+ | lock_entity | 3.96 (5.41) | 8.32 (14.50) / 8.19 (14.64) | 66 / 73 |
+ | MVU GET_MILAN_INFO | 2.50 (3.64) | 3.52 (9.68) / 3.53 (9.35) | 50 / 52 |
+ | register_unsolicited | 2.48 (3.61) | 5.91 (11.72) / 4.87 (10.68) | 46 / 54 |
+-| SET_NAME | 5.76 (8.84) | 7.88 (15.08) / 8.39 (15.20) | 106 / 114 |
++| set_name | 4.81 (6.90) | 7.47 (15.08) / 7.52 (15.20) | 106 / 114 |
+ | unknown_command | 4.42 (5.56) | 5.65 (11.47) / 5.69 (11.50) | 53 / 54 |
+ | unlock_entity | 3.95 (5.40) | 5.61 (11.51) / 6.12 (12.56) | 65 / 66 |
+ 
+-SET_NAME ends at the last notification: at 8x8 if1 the two recipients are CTL1 on if0 and on if1, and the second commits at 8.39 ms.
++### Notification fan-out
++
++The `aecp-fanout` group registers 16 controllers on every interface, the firmware's capacity, and a controller outside them sends each state-changing command the image notifies.
++Every fan-out ends at the last of the 16 (1x1) or 32 (8x8) recipients' commits.
++Only the first SET of a value notifies, so the sampling rate (the image has one) and the configuration are measured once, on interface 0.
++
++| Fan-out (H-NOTIFY), to the last of every registration | A: 1x1 ms (bound) | A: 8x8 if0 / if1 | B: 1x1 | B: 8x8 if0 / if1 | CPU cycles a recipient, 1x1 / 8x8 if0 |
++|---|---:|---:|---:|---:|---:|
++| SET_NAME (ENTITY name) | 11.33 (12.98) **miss** | 20.68 (27.82) **miss** / 22.98 (29.45) **miss** | 11.33 (12.98) **miss** | 20.68 (27.82) **miss** / 22.72 (29.51) **miss** | 20,358 / 20,486 |
++| SET_CLOCK_SOURCE (CLOCK_DOMAIN 0) | 8.05 (8.92) | 15.09 (19.86) **miss** / 14.79 (19.93) **miss** | 8.05 (8.92) | 15.09 (19.86) **miss** / 14.79 (19.94) **miss** | 12,355 / 12,352 |
++| SET_CONTROL (IDENTIFY on, then off) | 7.79 (8.94) | 14.62 (20.46) **miss** / 15.43 (21.29) **miss** | 7.79 (8.94) | 14.62 (20.46) **miss** / 15.64 (19.02) **miss** | 11,859 / 11,870 |
++| REMOVE_AUDIO_MAPPINGS (STREAM_PORT_INPUT 0) | 8.58 (9.79) | - / - | 8.58 (9.79) | - / - | 13,396 / - |
++| ADD_AUDIO_MAPPINGS (STREAM_PORT_INPUT 0) | 8.57 (9.78) | - / - | 8.57 (9.78) | - / - | 13,274 / - |
++| SET_SAMPLING_RATE (AUDIO_UNIT 0) | 7.97 (8.81) | 15.08 (18.86) **miss** / - | 7.94 (8.78) | 12.58 (19.55) **miss** / - | 12,352 / 12,403 |
++| LOCK_ENTITY, acquired | 8.20 (9.35) | 16.07 (21.92) **miss** / 16.39 (22.25) **miss** | 8.23 (9.38) | 13.60 (16.54) **miss** / 13.58 (16.52) **miss** | 13,271 / 13,376 |
++| LOCK_ENTITY, released | 8.21 (9.36) | 15.64 (21.49) **miss** / 15.74 (21.59) **miss** | 8.20 (9.35) | 15.68 (19.74) **miss** / 15.66 (21.51) **miss** | 13,307 / 13,335 |
++| SET_CONFIGURATION | - | - / - | 9.23 (10.02) | 19.79 (27.04) **miss** / - | 11,874 (B) / 11,786 (B) |
++| SET_STREAM_INFO (STREAM_OUTPUT 0, its latency) | - | - / - | 11.68 (12.83) **miss** | 22.56 (28.81) **miss** / 32.78 (52.42) **over ceiling** | 21,875 (B) / 22,030 (B) |
++| REMOVE_AUDIO_MAPPINGS (STREAM_PORT_OUTPUT 0) | - | - / - | 8.74 (10.00) | 16.80 (21.65) **miss** / 16.73 (23.34) **miss** | 13,364 (B) / 13,415 (B) |
++| ADD_AUDIO_MAPPINGS (STREAM_PORT_OUTPUT 0) | - | - / - | 8.75 (10.00) | 15.08 (22.40) **miss** / 15.02 (22.34) **miss** | 13,271 (B) / 13,376 (B) |
++| BIND_RX -> its GET_STREAM_INFO notice | - | - / - | 14.80 (15.95) **miss** | 25.79 (29.12) **over ceiling** / 28.92 (34.78) **over ceiling** | 18,358 (B) / 18,359 (B) |
++
++- In arm A, the fixture's stream observation reports unavailable, so the image refuses SET_CONFIGURATION and SET_STREAM_INFO (ENTITY_MISBEHAVING), and an output map edit, and never sends BIND_RX's GET_STREAM_INFO notice: AECP retries it every millisecond.
++  Those paths are arm B's.
++- At 8x8 the image's input maps have capacity 0, so only an output map edit can change a map, in arm B.
++- SET_NAME's notice carries the 64-byte name, and costs about 20,400 CPU cycles a recipient; the others cost 11,800 to 13,400.
+ 
+ ### SRP and MAAP
+ 
+@@ -274,7 +319,8 @@ SET_NAME ends at the last notification: at 8x8 if1 the two recipients are CTL1 o
+ ### Backlog rows
+ 
+ Every backlog group's composed window carries every receive channel's admitted burst at once and fifteen grandmaster changes, alternating the interfaces.
+-Each row's input is the last of its own channel's records.
++The row's own channel carries the row's records: ACMP 12 in `backlog` and `backlog-owed`, ADP 8, or 11 with the refill leg, which fills the ADP ring's room.
++Each row's input is the last of its own channel's records but the owed row's, which has the rest of the ACMP ring's admitted burst behind it.
+ 
+ - ADP: ENTITY_DISCOVERs; ACMP: GET_RX_STATEs to sink 0; AECP: READ_DESCRIPTORs; SRP: a bridge's Listener Ready.
+ - MAAP: a bridge's PROBE of each interface's announced range, so the range filter passes it and the entity DEFENDs it (IEEE 1722-2016 B.3.6.6).
+@@ -301,64 +347,118 @@ Under sustained arrivals the bucket keeps admitting one record per period, so th
+ | an ACMP command behind a full acmp ring | 38,753 / 48,719 | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] |
+ | an ENTITY_AVAILABLE behind the adp ring at its burst (observed) | 77,506 / 97,438 | 67.93 (81.83) **over ceiling** [7 ahead] | 83.51 (107.83) **over ceiling** [7 ahead] | 36.72 (47.10) **over ceiling** [7 ahead] | 55.79 (76.28) **over ceiling** [7 ahead] |
+ | the same, its bucket refilling up to the ring's room (observed) | - | 88.33 (107.65) **over ceiling** [4 ahead] | 118.81 (156.29) **over ceiling** [6 ahead] | - | - |
+-| a response with 7 frames owed ahead of it | 31,707 / 39,861 | 125.79 (129.81) **over ceiling** [7 ahead] | 151.92 (161.44) **over ceiling** [7 ahead] | 125.78 (129.80) **over ceiling** [7 ahead] | 151.92 (161.44) **over ceiling** [7 ahead] |
+-| the same, from the moment the room returns | - | 65.79 | 91.92 | 65.78 | 91.92 |
++| a response with 7 frames owed ahead of it | 31,707 / 39,861 | 126.29 (130.31) **over ceiling** [7 ahead] | 161.10 (170.62) **over ceiling** [7 ahead] | 126.28 (130.30) **over ceiling** [7 ahead] | 161.10 (170.62) **over ceiling** [7 ahead] |
++| an ACMP command behind the owed input, the worst of four | - | at least 363.98, **never answered** [8 ahead] | at least 860.00, **never answered** [9 ahead] | at least 363.98, **never answered** [8 ahead] | at least 860.00, **never answered** [9 ahead] |
++| the same, from the moment the room returns | - | 66.29 | 101.10 | 66.28 | 101.10 |
+ 
+ The desk bounds charge every pass with every term at once, at a full ring of the smallest records.
+ "Records ahead" is the backlog in the input's own ring (for the event row, the event ring) when it arrived.
+-The owed-frame row fills the ACMP transmit ring with the egress held, then owes eight more responses while the load arrives.
++At 8x8 the event ring was full (16 records) when the LINK change occurred, so the event waited for room, which 3.4.1 counts.
++The owed-frame row fills the ACMP transmit ring with the egress held, then owes eight more responses while the load arrives: seven commands, the probe and four more behind it.
++Its response follows exactly the seven owed responses, 0x7380 to 0x7386 in order, at both points and in both arms.
++The four commands behind it are each a path: at 1x1 none is ever answered, in either arm (at least 363.98 ms by the run's end); at 8x8 0x7390 and 0x7392 are answered after 176.52 and 188.27 ms, and 0x7391 and 0x7393 never are (at least 860.00 ms).
+ On the `backlog` group's interface 0 the event row's LINK_DOWN arrives with the load, so MAAP and SRP on that interface take their records with the link down.
+ 
+-Each window committed exactly its load (the run refuses one that did not):
+-
+-| Arm, group | Composed population committed (records; events) | Composed maximum, CPU cycles (ms) |
+-|---|---|---:|
+-| A1 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 740,260 (14.81) |
+-| A1 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 1,565,803 (31.32) |
+-| A1 backlog-adp-refill | adp 11, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 1,531,355 (30.63) |
+-| A1 backlog-owed | adp 8, acmp 8, aecp 16, maap 7, srp 32, GM 15 | 582,677 (11.65) |
+-| A8 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 1,392,016 (27.84) |
+-| A8 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 2,208,710 (44.17) |
+-| A8 backlog-adp-refill | adp 11, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 2,209,308 (44.19) |
+-| A8 backlog-owed | adp 8, acmp 8, aecp 16, maap 7, srp 32, GM 15 | 1,111,719 (22.23) |
+-| B1 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 740,260 (14.81) |
+-| B1 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 645,058 (12.90) |
+-| B1 backlog-owed | adp 8, acmp 8, aecp 16, maap 7, srp 32, GM 15 | 582,392 (11.65) |
+-| B8 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 1,392,016 (27.84) |
+-| B8 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 1,111,647 (22.23) |
+-| B8 backlog-owed | adp 8, acmp 8, aecp 16, maap 7, srp 32, GM 15 | 1,111,719 (22.23) |
++### The load's service
++
++Each loaded channel's first and last record of a composed window, from its commit to the end of the pass that released it, at its worst over the groups [records ahead of it]:
++
++| Record released under the composed load (commit to the end of its releasing pass) | A: 1x1 ms | A: 8x8 if0 / if1 | B: 1x1 | B: 8x8 if0 / if1 |
++|---|---:|---:|---:|---:|
++| ADP, first record | 18.69 **miss** [0 ahead] | 27.41 **miss** [0 ahead] / - | 14.80 **miss** [0 ahead] | 27.41 **miss** [0 ahead] / - |
++| ADP, last record | 101.25 **miss** [4 ahead] | 137.94 **miss** [6 ahead] / 88.96 **miss** [7 ahead] | 51.03 **miss** [7 ahead] | 72.71 **miss** [7 ahead] / 88.96 **miss** [7 ahead] |
++| ACMP, first record | 18.70 **miss** [0 ahead] | 27.36 **over ceiling** [0 ahead] / - | 14.76 **miss** [0 ahead] | 27.36 **over ceiling** [0 ahead] / - |
++| ACMP, last record | 141.21 **over ceiling** [11 ahead] | 177.90 **over ceiling** [11 ahead] / - | 69.99 **over ceiling** [11 ahead] | 118.96 **over ceiling** [11 ahead] / - |
++| AECP, first record | 18.73 **miss** [0 ahead] | 27.40 **over ceiling** [0 ahead] / - | 14.80 **miss** [0 ahead] | 27.40 **over ceiling** [0 ahead] / - |
++| AECP, last record | 417.50 **over ceiling** [15 ahead] | - / 510.22 **over ceiling** [15 ahead] | 155.13 **over ceiling** [15 ahead] | - / 224.97 **over ceiling** [15 ahead] |
++| MAAP, first record | 18.72 **miss** [0 ahead] | 27.39 **miss** [0 ahead] / - | 14.79 **miss** [0 ahead] | 27.39 **miss** [0 ahead] / - |
++| MAAP, last record | 81.55 **over ceiling** [6 ahead] | 103.71 **over ceiling** [6 ahead] / - | 51.01 **over ceiling** [6 ahead] | 88.94 **over ceiling** [6 ahead] / - |
++| SRP, first record | at least 628.32, **never released** [0 ahead] | at least 658.79, **never released** [0 ahead] / - | 84.11 **over ceiling** [0 ahead] | 143.91 **over ceiling** [0 ahead] / - |
++| SRP, last record | at least 628.30, **never released** [31 ahead] | - / at least 658.77, **never released** [31 ahead] | 186.48 **over ceiling** [31 ahead] | - / 340.85 **over ceiling** [31 ahead] |
++
++SRP's records, per window:
++
++| Arm, group | SRP first record ms | SRP last record ms |
++|---|---:|---:|
++| A1 backlog | 84.11 | 158.92 |
++| A1 backlog-adp | at least 567.97, never released | at least 567.95, never released |
++| A1 backlog-adp-refill | at least 628.32, never released | at least 628.30, never released |
++| A1 backlog-owed | 65.97 | 182.69 |
++| A8 backlog | 131.25 | 278.54 |
++| A8 backlog-adp | at least 583.54, never released | at least 583.52, never released |
++| A8 backlog-adp-refill | at least 658.79, never released | at least 658.77, never released |
++| A8 backlog-owed | 143.91 | 340.85 |
++| B1 backlog | 84.11 | 158.91 |
++| B1 backlog-adp | 67.68 | 186.48 |
++| B1 backlog-owed | 65.96 | 182.68 |
++| B8 backlog | 131.25 | 278.54 |
++| B8 backlog-adp | 131.11 | 334.69 |
++| B8 backlog-owed | 143.91 | 340.85 |
++
++Every window committed exactly its defined load (the run refuses one that did not), and these released it:
++
++| Arm, group | Composed population committed (records; events) | Window, ms | Load released | Longest pass in it, CPU cycles (ms) |
++|---|---|---:|---|---:|
++| A1 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 162.91 | yes | 740,260 (14.81) |
++| A1 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 567.99 | no: srp 32 never | 1,565,803 (31.32), a lower bound |
++| A1 backlog-adp-refill | adp 11, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 628.34 | no: srp 32 never | 1,531,355 (30.63), a lower bound |
++| A1 backlog-owed | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 364.03 | yes | 582,677 (11.65) |
++| A8 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 608.76 | yes | 1,392,016 (27.84) |
++| A8 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 583.56 | no: srp 32 never | 2,208,710 (44.17), a lower bound |
++| A8 backlog-adp-refill | adp 11, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 658.81 | no: srp 32 never | 2,209,308 (44.19), a lower bound |
++| A8 backlog-owed | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 860.05 | yes | 1,111,766 (22.24) |
++| B1 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 162.91 | yes | 740,260 (14.81) |
++| B1 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 195.37 | yes | 645,058 (12.90) |
++| B1 backlog-owed | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 364.03 | yes | 582,392 (11.65) |
++| B8 backlog | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15, LINK 1 | 608.76 | yes | 1,392,016 (27.84) |
++| B8 backlog-adp | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 555.84 | yes | 1,111,647 (22.23) |
++| B8 backlog-owed | adp 8, acmp 12, aecp 16, maap 7, srp 32, GM 15 | 860.05 | yes | 1,111,766 (22.24) |
+ 
+ ## Findings
+ 
+ **The rows miss T_svc, so this lane stops** ([owner decision D4](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409738976)).
+ 
+ - Per-pass CPU work, not mailbox accesses, sets the time.
+-  The 1x1 composed maximum pass makes 365 mailbox accesses, about 3,300 of its 1,565,803 cycles.
++  The 1x1 worst pass makes 365 mailbox accesses, about 3,300 of its 1,565,803 cycles.
+   [`MAILBOX_SPLIT.md:753-758`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency) allows each row 0.10 to 0.94 us an access to fit T_svc.
+   The measured access is 0.18 us, inside every allowance but the full-ADP-ring row's; the passes around the accesses are 1.3 to 60 ms.
+ - The single passes break the [#397 one-hart rule](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046).
+   A pass is the loop's only opportunity to take an input, and the smallest deadline every duty shares is T_svc.
+-  The composed maximum is 31.32 ms (arm A) and 14.81 ms (arm B) at 1x1, 44.19 and 27.84 ms at 8x8, and the 8x8 link-up pass is 40.09 ms.
++  The composed maximum is 14.81 ms at 1x1 and 27.84 ms at 8x8, in both arms; arm A's windows that never finish their load run passes of 31.32 and 44.19 ms, and the 8x8 link-up pass is 40.09 ms.
+ - An input waits for the pass that is running and then for the pass that takes it.
+   So T_svc needs every pass well under 5 ms.
+-  At 8x8 the idle pass is already 2.0 to 3.7 ms, and LINK_UP, LINK_DOWN, SRP's startup and MAAP's first PROBE miss outright.
++  At 8x8 the idle pass is already 3.1 to 3.7 ms, and LINK_UP, LINK_DOWN, SRP's startup and MAAP's first PROBE miss outright.
++- **SRP is starved while the passes are longer than the TICK.**
++  `srp_mbx.c:441-451` (`rx_order_ready`) lets SRP take a record only when no tick is owed and no event is pending.
++  The mailbox posts a TICK every 10 ms, so a pass longer than 10 ms always leaves one pending, and SRP takes nothing.
++  In arm A's `backlog-adp` and `backlog-adp-refill`, after the bind, every pass is over 10 ms: none of SRP's 32 records is released in windows of 568 to 659 ms, at both points.
++  Where SRP is served its first record waits 66 to 144 ms and its 32nd up to 341 ms, against MRP's 18 ms ceiling, in both arms.
++- **The ACMP core drops the commands it cannot owe.**
++  The ring admits 12 GET_RX_STATEs, but the core holds at most `ACMP_OWED_MAX` = 8 responses (tsn-c-stack `acmp.h`; `room()` counts a busy drop).
++  With the egress held and eight responses owed, the core takes the commands behind and never answers them.
++  At 1x1 none of the four commands behind the owed input is ever answered, in either arm; at 8x8 two of the four are, after 176.52 and 188.27 ms, and two are not. Their controller sees no response, and its 200 ms ACMP timeout (Milan v1.2 Table 5.26) expires.
++- **Notification fan-out costs a recipient 11,800 to 20,400 CPU cycles**, so 16 registrations take 7.8 to 11.3 ms at 1x1 and 32 take 12.4 to 23.0 ms at 8x8.
++  SET_NAME misses T_svc at both points, every fan-out misses it at 8x8, and at 8x8 BIND_RX's GET_STREAM_INFO notice (25.79 and 28.92 ms) and SET_STREAM_INFO on interface 1 (32.78 ms) are over the 24 ms ceiling (arm B).
+ - **For D4 (a), a per-pass cap**, the measured consumers are, in order:
+   - `memset` and `memcpy`, byte loops on RV32I: each AECP response zeroes its 1,514-byte frame (`aecp.c:58`) and the 1,476-byte payload in it (`aecp_commands.c:555`), and a 1x1 READ_DESCRIPTOR pass spends 153,929 to 156,240 cycles (3.1 ms) in `memset`;
+-  - lwSRP's link reset and declarations (`mrp_mad`), 474,000 cycles in the 8x8 link-up pass and 430,000 in the 8x8 composed maximum;
++  - lwSRP's link reset and declarations (`mrp_mad`), 474,000 cycles in the 8x8 link-up pass and 430,000 in the 8x8 composed passes;
+   - AECP's two modules (mostly their polls), about 47,000 cycles of every 1x1 pass and 94,000 at 8x8;
++  - each fan-out's notices, one a recipient in one pass (`aecp.c`, `transmit`), 11,800 to 20,400 cycles each;
+   - software multiply and divide, the RV32I core having no M extension.
++  A cap that keeps passes under the TICK also ends SRP's starvation.
+ - **For D4 (b), the admitted backlog** ([Backlog rows](#backlog-rows)):
+   - The event ring (16 records), the ACMP ring (12 GET_RX_STATEs) and the MAAP ring (7 MAAPDUs) take their room at once, so those backlogs are bounds.
+   - The ADP, AECP and SRP buckets admit 8, 16 and 32 records at once, of the 11, 30 and 60 their rings hold, and then one more every 10, 5 and 2 ms.
+     Their backlog under sustained arrivals is not bounded by the burst; the rows measured at the burst are observations.
+   - The loop takes at most two records of a channel a pass (`ctrl_loop.c`, `service_rx`): the composed windows release two ADP, ACMP and MAAP records a pass, one AECP record, and two SRP records only in the passes where SRP is ready for them.
+-    Each record ahead of an input therefore costs up to a whole pass, and the passes under the composed load are 1.5 to 31 ms at 1x1.
++    Each record ahead of an input therefore costs up to a whole pass, and the last record of every loaded channel misses T_svc (the load's service).
+   - So a smaller ring or bucket removes whole passes from the ring rows, but no row fits T_svc while one pass can exceed it.
+     The refill leg shows the other side: its input arrives behind 4 records instead of 7, but during the longest passes, and takes 88.33 ms against 67.93.
++  - The ACMP ring's room (12) exceeds the core's owed responses (8): with the egress held, the difference is dropped.
+ - **The fixture's AECP retries every millisecond.**
+   For each pending change notice, `aecp.c:461-495` builds the response and, when the observation port reports unavailable, sets `retry_at = a->now + 1u`.
+   The fixture's ports always report unavailable, so after a bind every pass rebuilds the notices: up to 1.57 M cycles, 31 ms, at 1x1.
+-  Arm B, whose callbacks answer, takes the same H-DISC paths in 0.35 to 0.99 ms at 1x1, and its bound-talker row in 36.72 ms against arm A's 67.93.
++  Arm B, whose callbacks answer, takes the same H-DISC paths in 0.35 to 0.99 ms at 1x1, its bound-talker row in 36.72 ms against arm A's 67.93, and serves SRP in every window.
+   The retry has no backoff, so a real port that reports unavailable would do the same.
+ 
+ **D5, the smaller core** (deferred until after the flip): the shipping core already misses at both points, so a slower core would miss by more until S2b's per-pass cap lands.
+@@ -389,15 +489,20 @@ Each window committed exactly its load (the run refuses one that did not):
+ The fixture has a short composed window: one record on every receive channel and two GM events.
+ Its checks:
+ 
+-- the fixture's digest, each of its seven rows with its pass bound and the records ahead, its worst pass and its composed maximum with the window's population;
+-- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss, and the fixture with its MAAP record's commit deleted must be refused by name;
++- the fixture's digest, each of its seven rows with its pass bound and the records ahead, each loaded channel's first and last record served in its window, its worst pass and its composed maximum with the window's population and its release;
++- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window no composed maximum;
+ - every clock conversion; the ceilings and T_svc, restated in [`selftest.py`](selftest.py) so a changed table fails;
+ - an exact-budget path passes and one bus cycle more misses; W + T_svc passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling;
+ - the probe's own tagged frame starts it; a commit after a refused frame is the next frame's; a commit that follows no frame is refused;
+ - a response to another sequence_id, or on the other interface, does not end it; the last required output ends it; the expected response is checked;
+ - a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
+ - a notification over two recipients ends at the last; a late recipient misses; a missing one, a duplicate standing in for another, and a controller outside the set are refused; unrelated unsolicited responses do not end it;
+-- the records ahead of an input; each path's worst instance and the misses per path and per instance;
++- the composed maximum is a window's longest pass even when that pass is neither its first nor its last, and the worst pass includes the run's last pass; the pass the script's end cuts is no idle pass;
++- the responses owed ahead are exactly the owed ones, in order; a command that may be dropped and is never answered is reported, unbounded, and one that may not is refused;
++- the defined loads, restated; every composed window of the real scenario, at one and two interfaces, sends and declares exactly its defined load; the owed row has its seven owed and its four behind;
++- the real fan-out group registers the firmware's capacity (read from `aecp.h`) on every interface, every registration is each fan-out's recipient, and no requester is registered;
++- a control probe is an instance of its functional path; repeated instances count as one path, at their worst, with every miss;
++- the records ahead of an input; each path's worst instance, a starved one first, and the misses per path and per instance;
+ - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
+ - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build.
+ 
+@@ -412,10 +517,10 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | marker: any response on the channel ends the path | sequence and interface |
+ | marker: the interface is ignored | sequence and interface |
+ | marker: the first required output ends the path | fixture row fixture.set_name.if0 |
+-| marker: a receive commit goes to the oldest pending frame (d58c8e22) | a receive commit belongs to the frame it follows |
++| marker: a receive commit goes to the oldest pending frame (earlier rule) | a receive commit belongs to the frame it follows |
+ | marker: the expected-response check is skipped | the expected response is checked |
+ | notify: the first recipient's commit ends the fan-out | two recipients across interfaces end at the last |
+-| notify: the first unsolicited response on any interface ends it (d58c8e22) | two recipients across interfaces end at the last |
++| notify: the first unsolicited response on any interface ends it (earlier rule) | two recipients across interfaces end at the last |
+ | notify: any unsolicited response counts as the change | unrelated unsolicited responses do not end it |
+ | notify: a missing recipient is not refused | a missing recipient is refused |
+ | notify: a recipient outside the set is not refused | a notification to a controller outside the set is refused |
+@@ -428,7 +533,21 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | pass bound: it starts at the input, not at the running pass | fixture row fixture.malformed.if0 |
+ | composition: the window's population is not checked | a composed load missing one channel is refused |
+ | composition: the composed maximum is the run's worst pass | fixture passes: worst pass and composed maximum |
+-| deadline: T_svc 20 ms | planted over-budget path is caught |
++| composition: the composed maximum is the window's first pass | fixture passes: worst pass and composed maximum |
++| worst pass: the run's last pass is dropped | the pass bound runs from the running pass at the bus ratio |
++| passes: the pass the script's end cuts counts as idle (earlier rule) | the pass the script's end cuts is no idle pass |
++| composition: a window that committed more than its load is accepted | a composed window that committed more than its load is refused |
++| composition: the load is the stimulus's own declaration (earlier rule) | a window short of its defined load is refused although it declares it |
++| composition: the backlog stimulus omits SRP | every composed window's stimulus is its defined load |
++| composition: the backlog stimulus omits MAAP | every composed window's stimulus is its defined load |
++| composition: the owed row omits the ACMP commands behind its input (earlier rule) | every composed window's stimulus is its defined load |
++| service: a record never released is omitted | a starved channel is reported by name, and its window is no composed maximum |
++| service: a window that left its load unreleased is the composed maximum (earlier rule) | a starved channel is reported by name, and its window is no composed maximum |
++| service: a record's service ends at its release, not at its pass's end | fixture row fixture.service.adp.first.if0 |
++| owed: the responses ahead are not checked | the responses owed ahead are checked: ['31'] |
++| owed: a command never answered fits | a command never answered is reported, unbounded, where it may be dropped |
++| notify: the fan-out registers one controller an interface (earlier rule) | the fan-out group registers the firmware's capacity, every registration a recipient |
++| deadline: T_svc 20 ms | fixture row fixture.service.srp.first.if0 |
+ | deadline: strictly below the budget | exact budget passes |
+ | deadline: the normative wait is not added | W + T_svc passes |
+ | deadline: the ceiling drops the normative wait | W + T_svc passes |
+@@ -436,13 +555,15 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | run: a CPU trap is not refused | a CPU trap is refused |
+ | run: a T_svc miss never fails the run | a T_svc miss fails the run unless recorded |
+ | run: a refusal does not fail the run | a refusal fails the run, recorded or not |
+-| regrade: a selected group without its log is dropped (d58c8e22) | a regrade refuses each absent log or script, and a stale script, by name |
+-| reuse: an input outside the checkout is not rechecked (d58c8e22) | reuse refuses the image |
++| regrade: a selected group without its log is dropped (earlier rule) | a regrade refuses each absent log or script, and a stale script, by name |
++| reuse: an input outside the checkout is not rechecked (earlier rule) | reuse refuses the image |
+ | reuse: the ROM files are not attested | reuse refuses a ROM file |
+-| tables: a path's first instance is reported, not its worst (d58c8e22) | each path reports its worst instance |
+-| tables: misses are counted per probe instance only (d58c8e22) | misses are counted per path and per probe instance |
++| tables: a path's first instance is reported, not its worst (earlier rule) | each path reports its worst instance |
++| tables: misses are counted per probe instance only (earlier rule) | misses are counted per path and per probe instance |
++| tables: a control instance is its own path (earlier rule) | a control instance is its functional path |
++| tables: a starved instance is not its path's worst | a starved instance is its path's worst |
+ 
+-A mutant named with `(d58c8e22)` restores the rule as #665's first measuring head had it, so its check is the test that fails on that head.
++A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
+ 
+ Regenerate the fixture only through its generator, from a fresh 1x1 run of the `fixture` group:
+ 
+@@ -465,7 +586,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+ The `control` group's RCV_ADP_DISCOVER must miss T_svc: it measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
+ The ordinary image measures the same path at 0.294 ms.
+ `slow-adp-shutdown` makes disabling ADP spin before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
+-The `control-shutdown` group's SHUTDOWN must miss T_svc: it measures 24.903 ms against 0.582 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
++The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss T_svc: it measures 24.903 ms against 0.582 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
+ `as-built` hands the generator the SoC's regions unchanged.
+ The run must refuse the boot with an instruction access fault, cause 1, and prints `CONTROL as-built caught`.
+ 
+@@ -473,8 +594,11 @@ The run must refuse the boot with an instruction access fault, cause 1, and prin
+ 
+ - One phase is measured per probe; the pass bound covers any phase under the same passes, not other loads.
+ - The ADP, AECP and SRP backlog rows are observed at their bucket's burst; the refill leg is one sample of sustained arrivals, not a bound.
++- A composed window closes three quiet passes, or 500 ms, after its row's input is served; a record still unreleased then is reported with the time it had waited by the run's end, a lower bound of a wait the measurement does not see end.
++- A record's service ends at the end of the pass that released it; lwSRP may keep a record for replay (`pending_rx`) and finish it in a later pass.
+ - SHUTDOWN is measured through a test-only entry, because the linked image never disables ADP.
+ - START_STREAMING calls a port the fixture leaves empty, so it is not run.
++- The lock expiry's notice (60 s after a LOCK_ENTITY) and the counter pushes are not run: the first is beyond the simulation's length, and the fixture changes no counter.
+ - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
+ - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.
+ - The flash's erase and program waits are zero, so F1's commit is measured as CPU work only; S4 owns the target port.
+diff --git a/tb/verilator/ctrl_service_budget/grade.py b/tb/verilator/ctrl_service_budget/grade.py
+index e3e7b85e78..295ced5da0 100644
+--- a/tb/verilator/ctrl_service_budget/grade.py
++++ b/tb/verilator/ctrl_service_budget/grade.py
+@@ -12,7 +12,12 @@ it and require a named failure:
+                     commit belongs to; Grader.recipients and fanout_end(), a
+                     notification's required recipients and its end
+   the pass bound    Grader.pass_end and Grader.pass_origin
+-  the composition   composed() and population(), checked against the group's load
++  the composition   composed() and population(), checked against defined_load(),
++                    which derives each row's population from the contract alone
++  the service       releases() and service(): each loaded channel's first and
++                    last record to the end of the pass that released it, and a
++                    record never released reported as starved
++  the owed frames   owed_ahead(): the responses committed ahead of a probe's
+   the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS and verdicts()
+   the run           refuse_run(): an incomplete simulation, a trap or a bus error
+ """
+@@ -31,6 +36,16 @@ RX_HEADER_WORDS = len(scenario.CONTRACT.rx_header)
+ #: A receive commit follows its own frame's last byte: KL_mbx_rx takes no byte of the next
+ #: frame until the verdict (KL_mbx_rx.sv, rx_ready_o in RECV_S only).
+ COMMIT_LATENCY_MAX = 64
++CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not the stimulus
++#: The size of each receive channel's record in a defined composed load, from its clause and
++#: never from the stimulus: an ADPDU is 68 bytes after the Ethernet header (IEEE 1722.1-2021
++#: 6.2.1) and an ACMPDU 56 (Milan v1.2 5.5.2.2); a READ_DESCRIPTOR command (7.4.5.1), a MAAPDU
++#: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
++#: to the 60-byte frame minimum.
++LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60}
++#: The groups whose composed window carries a defined load: the backlog rows
++#: (MAILBOX_SPLIT.md:753-758) and the self-test's short window.
++COMPOSED_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed', 'fixture')
+ 
+ 
+ class Refusal(RuntimeError):
+@@ -82,6 +97,9 @@ class Log:
+     traps: list[str] = field(default_factory=list)
+     errors: list[str] = field(default_factory=list)
+     result: str = ''
++    #: The last run of idle passes ends in the pass the script's end cut short (sim_main.cpp
++    #: closes the pass in progress, then flushes that run), so it holds no whole idle pass.
++    cut_idle: bool = False
+ 
+ 
+ def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -> tuple[int, str, int]:
+@@ -150,10 +168,12 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
+             log.passes.append(Pass(index, start_sys, start_cpu, cycles, fields, writes, modules, idle_max))
+             idle_max = 0
+             log.writes.extend(writes)
++            log.cut_idle = False
+         elif kind == 'IDLE':
+             # The testbench flushes a run of idle passes just before the work pass that ends it.
+             log.idle.append(tuple(int(v) for v in rest))
+             idle_max = int(rest[2])
++            log.cut_idle = True
+         elif kind == 'STEP':
+             log.steps.append((int(rest[0]), ' '.join(rest[2:])))
+         elif kind == 'SUMMARY':
+@@ -415,6 +435,32 @@ def response_sequence(frame: bytes) -> int | None:
+     return None
+ 
+ 
++def never_answered(grader: Grader, probe: scenario.Probe, row: dict, start: int) -> dict:
++    """An admitted command its firmware took and never answered by the run's end: a measured
++    finding whose time is a lower bound, fitting neither T_svc nor its ceiling (3.4.1)."""
++    finish = max(int(grader.log.summary.get('sys', 0)), start)
++    ring, ahead = grader.ahead(probe, start)
++    return dict(row, status='measured', unanswered=True, start_sys=start, end_sys=finish, sys_cycles=finish - start,
++                cpu_cycles=grader.cpu_cycles(finish - start), ms=round(grader.ms(finish - start), 5),
++                wait_ms=probe.wait_ms, ring=ring, ahead=ahead, **dict(verdicts(grader.ms(finish - start), probe),
++                                                                     within_t_svc=False, within_ceiling=False))
++
++
++def owed_ahead(grader: Grader, probe: scenario.Probe, interface: int, start: int, end: int) -> list[int | None]:
++    """The responses the probe's channel committed on its interface after its input and ahead
++    of its own response, in commit order (None for a frame that is no response): a response
++    with N frames owed ahead of it has exactly the N it owes (MAILBOX_SPLIT.md:753-758)."""
++    ch = int(probe.start.split(':')[1])
++    own = int(next(s for s in probe.ends if s.startswith('resp')).split(':')[2], 16)
++    out = []
++    for c, k, i, fr in grader.log.tx:
++        if start < c <= end and k == ch and i == interface:
++            if response_sequence(fr) == own:
++                break
++            out.append(response_sequence(fr))
++    return out
++
++
+ def interface_of(name: str) -> int:
+     """The AVB interface a probe's name ends with (.if<n>)."""
+     match = re.search(r'\.if(\d+)$', name)
+@@ -451,6 +497,8 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
+         return dict(row, status='no end', reason=wrong, start_sys=start)
+     ends = [grader.end(spec, probe, i, start, next_mark) for spec in probe.ends]
+     missing = [spec for spec, e in zip(probe.ends, ends) if e is None]
++    if missing and probe.may_drop and all(spec.startswith('resp') for spec in missing):
++        return never_answered(grader, probe, row, start)
+     if missing:
+         return dict(row, status='no end', reason=f'missing {missing}', start_sys=start)
+     end = combine_ends(ends)
+@@ -461,6 +509,15 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
+     row.update(start_sys=start, end_sys=end, sys_cycles=elapsed, cpu_cycles=grader.cpu_cycles(elapsed),
+                ms=round(ms, 5), wait_ms=probe.wait_ms, passes=len(grader.window_passes(start, end)),
+                ring=ring, ahead=ahead, **verdicts(ms, probe))
++    for spec in probe.ends:
++        if spec.startswith('notify'):
++            # Every recipient's commit, so the per-recipient cost: last less first, over the gaps.
++            cycles = sorted(c for c in grader.recipients(spec, probe, start, next_mark)[0].values() if c is not None)
++            row['fanout'] = dict(recipients=len(cycles), first_sys=cycles[0], last_sys=cycles[-1],
++                                 per_recipient_cpu_cycles=grader.cpu_cycles(cycles[-1] - cycles[0])
++                                 // max(1, len(cycles) - 1)) if cycles else dict(recipients=0)
++    if probe.owed:
++        row['owed_ahead'] = [f'{s:x}' if s is not None else '-' for s in owed_ahead(grader, probe, i, start, end)]
+     if taking is not None:
+         bound = grader.pass_bound(start, taking)
+         row.update(bound_cpu_cycles=grader.cpu_cycles(bound), bound_ms=round(grader.ms(bound), 5),
+@@ -475,6 +532,9 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
+         row.update(also_from=probe.also_from, from_origin_cpu_cycles=grader.cpu_cycles(end - origin),
+                    from_origin_ms=round(grader.ms(end - origin), 5))
+     check = wrong or expectation(grader, probe, i, start, next_mark)
++    owed = [f'{s:x}' for s in probe.owed]
++    if not check and probe.owed and row['owed_ahead'] != owed:
++        check = f'the responses committed ahead of it are {row["owed_ahead"]}, not the owed {owed}'
+     if check:
+         return dict(row, status='unexpected response', reason=check)
+     row['status'] = 'measured'
+@@ -552,25 +612,143 @@ def population(log: Log, start: int, end: int) -> dict[str, int]:
+     return out
+ 
+ 
++def room(channel: str) -> int:
++    """The records of the defined load's size the channel's receive ring holds (mailbox.yaml)."""
++    ch = next(c for c in CONTRACT.channels if c.name == channel)
++    return ch.rx_words // (RX_HEADER_WORDS + (LOAD_FRAME_BYTES[channel] + 3) // 4)
++
++
++def defined_load(name: str) -> dict[str, int]:
++    """The population a composed row's window must commit, from the contract alone and never
++    from the stimulus's declaration (FR_NFR.md 3.4.1: backlog consumes T_svc).
++
++    Every receive channel carries what one instant admits: its token bucket's burst, unless
++    its ring holds fewer records of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills
++    the ring's room. Grandmaster changes fill the event ring but the row's own event, which in
++    'backlog' is the LINK change. The fixture's short window has one record a channel and two
++    changes.
++    """
++    if name not in COMPOSED_ROWS:
++        raise Refusal(f'{name}: no defined composed load')
++    if name == 'fixture':
++        return {**{ch.name: 1 for ch in CONTRACT.channels}, 'GM': 2}
++    load = {ch.name: min(ch.burst, room(ch.name)) for ch in CONTRACT.channels}
++    load['GM'] = CONTRACT.evt_words // CONTRACT.ev_words - 1
++    if name == 'backlog':
++        load['LINK'] = 1
++    if name == 'backlog-adp-refill':
++        load['adp'] = room('adp')
++    return load
++
++
+ def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]]) -> None:
+-    """The composed window must commit exactly the group's load: a refused or missing record,
+-    or a channel left out, is not the composed maximum."""
+-    want = {name: group.load.get(name, 0) for name in got}
++    """The composed window must commit exactly its row's defined load: a refused or missing
++    record, a channel left out of the stimulus, or one record too many, is not the composed
++    maximum."""
++    defined = defined_load(group.name)
++    want = {name: defined.get(name, 0) for name in got}
+     if got != want:
+-        raise Refusal(f'{group.name}: the composed window committed {got}, its load is {want}; '
++        raise Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}; '
+                       f'refused frames {refused[:8]}')
+ 
+ 
++def releases(log: Log, ch: int) -> list[tuple[int, int, int | None]]:
++    """Each record the channel committed, in order: its commit cycle, its interface and the
++    cycle of the RX_TAIL write that released its last word, or None if no write did."""
++    tail_word = scenario.ch_word(ch, 'RX_TAIL')
++    tails = [(c, v) for c, w, v in log.writes if w == tail_word]
++    out: list[tuple[int, int, int | None]] = []
++    end = released = last = n = 0
++    at = None
++    for c, k, interface, _, size in log.rxc:
++        if k != ch:
++            continue
++        end += RX_HEADER_WORDS + (size + 3) // 4
++        while released < end and n < len(tails):
++            at, value = tails[n]
++            released += (value - last) & 0xFFFF
++            last = value
++            n += 1
++        out.append((c, interface, at if released >= end else None))
++    return out
++
++
++def unreleased(log: Log, start: int, end: int) -> dict[str, int]:
++    """Per channel, the records committed in [start, end] that no release had passed by end."""
++    out = {}
++    for ch, name in CHANNEL.items():
++        left = sum(1 for c, _, r in releases(log, ch) if start <= c <= end and (r is None or r > end))
++        if left:
++            out[name] = left
++    return out
++
++
++def served(grader: Grader, taking: Pass, released: int) -> int:
++    """A released record's service end: the end of the pass whose RX_TAIL write released it."""
++    return grader.pass_end(taking)
++
++
++#: Each receive channel's 3.4.1 family, for its records' service under a composed load.
++SERVICE_FAMILY = {'adp': 'adp', 'acmp': 'acmp', 'aecp': 'aecp', 'maap': 'maap', 'srp': 'srp'}
++
++
++def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list[dict]:
++    """Each loaded channel's first and last record of the composed window [start, end], from
++    its receive commit to the end of the pass that released it: the handler runs after the
++    release, inside that pass (ctrl_loop.c service_rx), and the SRP rows end there too.
++
++    A record released after the window closed is marked out of the window. A record no
++    release reached by the run's end is starved: its row carries the time it had waited, a
++    lower bound, and fits neither T_svc nor its ceiling.
++    """
++    finish = max(int(grader.log.summary.get('sys', 0)), end)
++    rows = []
++    for ch, name in CHANNEL.items():
++        records = releases(grader.log, ch)
++        inside = [n for n, r in enumerate(records) if start <= r[0] <= end]
++        if not inside:
++            continue
++        for which, n in (('first', inside[0]), ('last', inside[-1])):
++            commit, interface, released = records[n]
++            probe = scenario.Probe(f'{group.name}.service.{name}.{which}.if{interface}',
++                                   f'{name.upper()} record released under the composed load, {which}',
++                                   SERVICE_FAMILY[name], f'rxc:{ch}', [], path=f'service.{name}.{which}')
++            row = dict(probe=probe.name, row=probe.row, family=probe.family, interface=interface,
++                       path=list(probe.path_key()), start_sys=commit, wait_ms=0.0, ring=name,
++                       ahead=sum(1 for _, _, r in records[:n] if r is None or r > commit),
++                       in_window=released is not None and released <= end, starved=released is None)
++            if released is None:
++                stop = finish
++            else:
++                taking = grader.taking_pass(released)
++                if taking is None:
++                    raise Refusal(f'{probe.name}: the release at {released} belongs to no work pass')
++                stop = served(grader, taking, released)
++                row.update(pass_figures(taking))
++            row.update(end_sys=stop, sys_cycles=stop - commit, cpu_cycles=grader.cpu_cycles(stop - commit),
++                       ms=round(grader.ms(stop - commit), 5), passes=len(grader.window_passes(commit, stop)),
++                       **verdicts(grader.ms(stop - commit), probe))
++            if released is None:
++                row.update(within_t_svc=False, within_ceiling=False)
++            rows.append(dict(row, status='measured'))
++    return rows
++
++
+ def composed_passes(log: Log, start: int, end: int) -> list[Pass]:
+     """The work passes that start inside the composed window."""
+     return [p for p in log.passes if start <= p.start_sys <= end]
+ 
+ 
+ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> dict | None:
+-    """The composed maximum: the longest pass that starts inside the composed window, whose
+-    committed population must be the group's load exactly (MAAP and SRP included)."""
++    """The longest pass that starts inside the composed window, whose committed population must
++    be the row's defined load exactly (MAAP and SRP included).
++
++    It is the composed maximum only if the window released every record of that load
++    (serviced): a window that closed on a starved channel measured passes without that
++    channel's work, so its longest pass is a lower bound, and unreleased names the records.
++    """
+     if 'composed' not in marks or 'composed_end' not in marks:
+-        if group.load:
++        if group.load or group.name in COMPOSED_ROWS:
+             raise Refusal(f'{group.name}: the load has no composed window')
+         return None
+     start, end = marks['composed'], marks['composed_end']
+@@ -580,9 +758,11 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
+     if not inside:
+         raise Refusal(f'{group.name}: no work pass starts inside the composed window')
+     top = max(inside, key=lambda p: p.cycles)
++    left = unreleased(grader.log, start, end)
+     return dict(cycles=top.cycles, ms=round(grader.cpu_ms(top.cycles), 5), instr=top.count('instr'),
+                 passes=len(inside), start_sys=top.start_sys, modules=top.modules, population=got,
+-                admission=group.admission)
++                admission=group.admission, serviced=not left, unreleased=left,
++                window_ms=round(grader.ms(end - start), 5))
+ 
+ 
+ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
+@@ -606,9 +786,14 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
+             later = [c for c, _ in order if c > at]
+             limit = later[0] if later else 1 << 62
+         rows.append(grade_probe(grader, probe, at, limit, marks))
+-    idle_max = max((m for _, _, m in log.idle), default=0)
+-    # The script's end closes the pass in progress; a zero-length one is that, not an idle pass.
+-    idle_min = min((m for _, m, _ in log.idle if m), default=0)
++    window = composed(grader, group, marks)
++    if window is not None:
++        rows += service(grader, group, marks['composed'], marks['composed_end'])
++    # The script's end closes the pass in progress: the run it flushes holds that cut pass, so
++    # neither its minimum nor its maximum is a whole idle pass's.
++    whole = log.idle[:-1] if log.cut_idle else log.idle
++    idle_max = max((m for _, _, m in whole), default=0)
++    idle_min = min((m for _, m, _ in whole if m), default=0)
+     worst = max(log.passes, key=lambda p: p.cycles, default=None)
+     return dict(group=group.name, probes=rows, timeouts=timeouts,
+                 passes=dict(count=int(log.summary.get('passes', 0)), work=len(log.passes),
+@@ -616,5 +801,5 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
+                             worst=dict(cycles=worst.cycles, ms=round(grader.cpu_ms(worst.cycles), 5),
+                                        instr=worst.count('instr'), start_sys=worst.start_sys,
+                                        modules=worst.modules) if worst else None,
+-                            composed=composed(grader, group, marks)),
++                            composed=window),
+                 summary=log.summary, modules=log.modules, code=log.code)
+diff --git a/tb/verilator/ctrl_service_budget/oracle.json b/tb/verilator/ctrl_service_budget/oracle.json
+index 7f23ef0c84..0d8d1d6471 100644
+--- a/tb/verilator/ctrl_service_budget/oracle.json
++++ b/tb/verilator/ctrl_service_budget/oracle.json
+@@ -135,6 +135,186 @@
+    "bound_within_t_svc": false,
+    "ring": "adp",
+    "ahead": 0
++  },
++  "fixture.service.adp.first.if0": {
++   "status": "measured",
++   "start_sys": 33802239,
++   "end_sys": 34638820,
++   "sys_cycles": 836581,
++   "cpu_cycles": 418291,
++   "ms": 8.36581,
++   "within_t_svc": true,
++   "within_ceiling": true,
++   "pass_cycles": 418342,
++   "pass_mbx_accesses": 224,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "adp",
++   "ahead": 0
++  },
++  "fixture.service.adp.last.if0": {
++   "status": "measured",
++   "start_sys": 33802239,
++   "end_sys": 34638820,
++   "sys_cycles": 836581,
++   "cpu_cycles": 418291,
++   "ms": 8.36581,
++   "within_t_svc": true,
++   "within_ceiling": true,
++   "pass_cycles": 418342,
++   "pass_mbx_accesses": 224,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "adp",
++   "ahead": 0
++  },
++  "fixture.service.acmp.first.if0": {
++   "status": "measured",
++   "start_sys": 33802509,
++   "end_sys": 34638820,
++   "sys_cycles": 836311,
++   "cpu_cycles": 418156,
++   "ms": 8.36311,
++   "within_t_svc": true,
++   "within_ceiling": true,
++   "pass_cycles": 418342,
++   "pass_mbx_accesses": 224,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "acmp",
++   "ahead": 0
++  },
++  "fixture.service.acmp.last.if0": {
++   "status": "measured",
++   "start_sys": 33802509,
++   "end_sys": 34638820,
++   "sys_cycles": 836311,
++   "cpu_cycles": 418156,
++   "ms": 8.36311,
++   "within_t_svc": true,
++   "within_ceiling": true,
++   "pass_cycles": 418342,
++   "pass_mbx_accesses": 224,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "acmp",
++   "ahead": 0
++  },
++  "fixture.service.aecp.first.if0": {
++   "status": "measured",
++   "start_sys": 33802304,
++   "end_sys": 34638820,
++   "sys_cycles": 836516,
++   "cpu_cycles": 418258,
++   "ms": 8.36516,
++   "within_t_svc": true,
++   "within_ceiling": true,
++   "pass_cycles": 418342,
++   "pass_mbx_accesses": 224,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "aecp",
++   "ahead": 0
++  },
++  "fixture.service.aecp.last.if0": {
++   "status": "measured",
++   "start_sys": 33802304,
++   "end_sys": 34638820,
++   "sys_cycles": 836516,
++   "cpu_cycles": 418258,
++   "ms": 8.36516,
++   "within_t_svc": true,
++   "within_ceiling": true,
++   "pass_cycles": 418342,
++   "pass_mbx_accesses": 224,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "aecp",
++   "ahead": 0
++  },
++  "fixture.service.maap.first.if0": {
++   "status": "measured",
++   "start_sys": 33802369,
++   "end_sys": 34638820,
++   "sys_cycles": 836451,
++   "cpu_cycles": 418226,
++   "ms": 8.36451,
++   "within_t_svc": true,
++   "within_ceiling": true,
++   "pass_cycles": 418342,
++   "pass_mbx_accesses": 224,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "maap",
++   "ahead": 0
++  },
++  "fixture.service.maap.last.if0": {
++   "status": "measured",
++   "start_sys": 33802369,
++   "end_sys": 34638820,
++   "sys_cycles": 836451,
++   "cpu_cycles": 418226,
++   "ms": 8.36451,
++   "within_t_svc": true,
++   "within_ceiling": true,
++   "pass_cycles": 418342,
++   "pass_mbx_accesses": 224,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "maap",
++   "ahead": 0
++  },
++  "fixture.service.srp.first.if0": {
++   "status": "measured",
++   "start_sys": 33802434,
++   "end_sys": 34974638,
++   "sys_cycles": 1172204,
++   "cpu_cycles": 586102,
++   "ms": 11.72204,
++   "within_t_svc": false,
++   "within_ceiling": true,
++   "pass_cycles": 167909,
++   "pass_mbx_accesses": 37,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "srp",
++   "ahead": 0
++  },
++  "fixture.service.srp.last.if0": {
++   "status": "measured",
++   "start_sys": 33802434,
++   "end_sys": 34974638,
++   "sys_cycles": 1172204,
++   "cpu_cycles": 586102,
++   "ms": 11.72204,
++   "within_t_svc": false,
++   "within_ceiling": true,
++   "pass_cycles": 167909,
++   "pass_mbx_accesses": 37,
++   "passes": 2,
++   "bound_cpu_cycles": null,
++   "bound_ms": null,
++   "bound_within_t_svc": null,
++   "ring": "srp",
++   "ahead": 0
+   }
+  },
+  "passes": {
+@@ -152,6 +332,8 @@
+    "GM": 2,
+    "LINK": 0
+   },
++  "serviced": true,
++  "unreleased": {},
+   "idle_min": 65703,
+   "idle_max": 69030
+  }
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index 47472814a1..6a2acc1786 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -42,10 +42,28 @@ def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
+ 
+ 
+ def verdict_word(r: dict) -> str:
+-    """fits, MISS T_svc, or MISS ceiling (over the 3.4.1 ceiling as well)."""
++    """fits, MISS T_svc, MISS ceiling (over the 3.4.1 ceiling as well), STARVED (never released) or
++    NEVER ANSWERED (a command taken and dropped)."""
++    if r.get('starved'):
++        return 'STARVED: never released'
++    if r.get('unanswered'):
++        return 'NEVER ANSWERED'
+     return 'fits' if r['within_t_svc'] else 'MISS T_svc' if r['within_ceiling'] else 'MISS ceiling'
+ 
+ 
++def severity(r: dict) -> tuple[bool, float]:
++    """A probe instance's place in its path's ordering: a record never released or a command
++    never answered (unbounded) is worse than any measured time, then the time."""
++    return bool(r.get('starved') or r.get('unanswered')), r['ms']
++
++
++def windows(results: list[dict]) -> list[dict]:
++    """Each composed window: its longest pass, whether it released its whole load, and what not."""
++    return [dict(group=g['group'], **{k: g['passes']['composed'][k] for k in
++                                      ('cycles', 'ms', 'passes', 'window_ms', 'serviced', 'unreleased')})
++            for g in results if g['passes'].get('composed')]
++
++
+ def paths(results: list[dict]) -> list[dict]:
+     """Every measured path's worst instance across the groups, with its instance and miss counts.
+ 
+@@ -61,7 +79,7 @@ def paths(results: list[dict]) -> list[dict]:
+                                                           instances=0, misses=0, worst=None))
+             entry['instances'] += 1
+             entry['misses'] += not r['within_t_svc']
+-            if entry['worst'] is None or r['ms'] > entry['worst']['ms']:
++            if entry['worst'] is None or severity(r) > severity(entry['worst']):
+                 entry['worst'] = dict(r, group=group['group'])
+     return sorted(out.values(), key=lambda e: (e['path'], e['interface']))
+ 
+@@ -84,8 +102,16 @@ def table(results: list[dict], point: str) -> str:
+     for e in paths(results):
+         w = e['worst']
+         bound = f" ({w['bound_ms']:.3f})" if 'bound_ms' in w else ''
+-        lines.append(f"| {e['row']} | {e['interface']} | `{w['probe']}` ({w['group']}) | {w['ms']:.3f}{bound} | "
++        ms = f"at least {w['ms']:.3f}" if w.get('starved') or w.get('unanswered') else f"{w['ms']:.3f}"
++        lines.append(f"| {e['row']} | {e['interface']} | `{w['probe']}` ({w['group']}) | {ms}{bound} | "
+                      f"{verdict_word(w)} | {w['ahead']} {w['ring']} | {e['instances']} | {e['misses']} |")
++    lines += ['', 'Composed windows: the longest pass is the composed maximum only where the window released '
++              'its whole load.', '',
++              '| Group | Window ms | Passes in it | Longest pass, CPU cycles (ms) | Load released | Unreleased |',
++              '|---|---:|---:|---:|---|---|']
++    for w in windows(results):
++        lines.append(f"| {w['group']} | {w['window_ms']:.3f} | {w['passes']} | {w['cycles']:,} ({w['ms']:.3f}) | "
++                     f"{'yes' if w['serviced'] else 'no'} | {w['unreleased'] or '-'} |")
+     lines += ['', '| Path | Probe | CPU cycles | ms | T_svc (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
+               '| Mailbox accesses (model) | Fetch share |',
+               '|---|---|---:|---:|---:|---:|---|---:|---:|---:|']
+@@ -182,6 +208,9 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
+         for r in result['probes']:
+             if r['status'] != 'measured':
+                 refusals.append(f"{r['probe']}: {r['status']}: {r['reason']}")
++            elif r.get('starved') or r.get('unanswered'):
++                misses.append(f"{r['probe']}: never {'released' if r.get('starved') else 'answered'}, "
++                              f"at least {r['ms']:.3f} ms over T_svc {r['t_svc_ms']:g} ms")
+             elif not r['within_t_svc']:
+                 misses.append(f"{r['probe']}: {r['ms']:.3f} ms over T_svc {r['t_svc_ms']:g} ms")
+     return results, refusals, misses
+@@ -247,8 +276,8 @@ def main() -> int:
+     (out / 'table.md').write_text(table(results, args.point))
+     (out / 'results.json').write_text(json.dumps(dict(point=args.point, build=spec['executable_sha256'],
+                                                       results=results, paths=paths(results),
+-                                                      counts=counts(results), refusals=refusals,
+-                                                      misses=misses), indent=1) + '\n')
++                                                      counts=counts(results), windows=windows(results),
++                                                      refusals=refusals, misses=misses), indent=1) + '\n')
+     for line in refusals:
+         print('REFUSED', line)
+     for line in misses:
+diff --git a/tb/verilator/ctrl_service_budget/scenario.py b/tb/verilator/ctrl_service_budget/scenario.py
+index 20f3c8020b..d4219a2e24 100644
+--- a/tb/verilator/ctrl_service_budget/scenario.py
++++ b/tb/verilator/ctrl_service_budget/scenario.py
+@@ -31,10 +31,13 @@ A probe's frames carry its name as their tag, so its start is the commit of
+ its own frame even when other frames share the ring; a probe may bound its
+ search by a later mark (until) when probes overlap on purpose.
+ 
+-A group's load is the population its composed window must commit: the
+-records per receive channel and the GM and LINK events (grade.py refuses a
+-window that committed any other count, so a load the filter refused, or a
+-channel left out, cannot pass as the composed maximum).
++A group's load is the population its stimulus declares for its composed
++window: the records per receive channel and the GM and LINK events. grade.py
++never trusts it: it refuses a window whose committed population is not the
++row's defined load, which it derives from the contract alone
++(grade.defined_load), and the self-test counts every window's stimulus
++against that definition, so a channel left out of the stimulus and its
++declaration together still fails.
+ 
+ The paths, their clauses and their ceilings come from FR_NFR.md 3.4.1 and
+ MAILBOX_SPLIT.md; every address comes from the mailbox contract.
+@@ -114,6 +117,12 @@ class Probe:
+     #: registered for unsolicited notifications on that interface (IEEE 1722.1-2021 7.5.2).
+     recipients: tuple[tuple[int, int], ...] = ()
+     path: str = ''       # the path it is an instance of; '' is the name without .if<n>
++    #: The sequence_ids of the responses owed ahead of the probe's: exactly these, in this
++    #: order, must be committed on its channel between its input and its response.
++    owed: tuple[int, ...] = ()
++    #: An admitted command the firmware may take and never answer under the load: a missing
++    #: response is then a measured finding, never answered (unbounded), not a refusal.
++    may_drop: bool = False
+ 
+     def path_key(self) -> tuple[str, int]:
+         """The path and interface this probe measures; the tables report each one's worst instance."""
+@@ -415,24 +424,24 @@ def descriptors(build: dict) -> list[tuple[int, int, int, int]]:
+ 
+ 
+ def aecp_groups(p: Point, build: dict) -> list[Group]:
+-    """AECP: every descriptor read, the getters and setters, the notification fan-out."""
++    """AECP's solicited responses (H-AECP): every descriptor read, the getters and the setters.
++
++    Each probe ends at its response. The fan-out a setter's change causes is
++    aecp_fanout_groups' path, measured at the firmware's registration capacity.
++    """
+     aecp = CH['aecp']
+     g = Group('aecp', sim_ms=2500)
+     ready(g, p)
+     seq = [0x6100]
+ 
+     def cmd(i: int, name: str, command_type: int, payload: bytes, controller: int = CTL1,
+-            recipients: tuple[tuple[int, int], ...] = ()) -> None:
+-        """One AEM command probe; with recipients, also every notification its state change sends."""
++            notices: int = 0) -> None:
++        """One AEM command probe, ending at its response; its wait also lets the change's notices leave."""
+         frame = f.aem_command(f.Aem(p.entity_id, controller, CTL_MAC, p.mac, seq[0]), command_type, payload)
+-        notify = [f'notify:{aecp}:{command_type:04x}:{int.from_bytes(payload[0:2], "big")}:'
+-                  f'{int.from_bytes(payload[2:4], "big")}'] if recipients else []
+-        ends = [f'resp:{aecp}:{seq[0]:x}'] + notify
++        ends = [f'resp:{aecp}:{seq[0]:x}']
+         seq[0] += 1
+-        family = 'notify' if recipients else 'aecp'
+-        g.probe(Probe(f'aecp.{name}.if{i}', name, family, f'rxc:{aecp}', ends, expect='aecp_response',
+-                      recipients=recipients),
+-                f'frame {i} {frame.hex()}', wait=f'tx {aecp} {1 + len(recipients)} within {50 * MS}')
++        g.probe(Probe(f'aecp.{name}.if{i}', name, 'aecp', f'rxc:{aecp}', ends, expect='aecp_response'),
++                f'frame {i} {frame.hex()}', wait=f'tx {aecp} {1 + notices} within {50 * MS}')
+ 
+     rows = descriptors(build)
+     last = {}
+@@ -460,17 +469,145 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
+         g.probe(Probe(f'aecp.mvu_get_milan_info.if{i}', 'MVU GET_MILAN_INFO', 'aecp', f'rxc:{aecp}',
+                       [end], expect='aecp_response'),
+                 f'frame {i} {mvu.hex()}', wait=f'tx {aecp} 1 within {50 * MS}')
+-        # A state change by another controller: the response, then a notification to CTL1 on
+-        # every interface it has registered on so far (7.5.2): the fan-out ends at the last.
++        # A state change by another controller: its response, then a notice to CTL1 on every
++        # interface it has registered on so far (7.5.2), which the wait lets leave.
+         name = f'budget if{i}'.encode().ljust(64, b'\0')   # a new value: an identical SET does not notify
+         cmd(i, 'set_name', 0x0010, f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + name,
+-            controller=CTL2, recipients=tuple((CTL1, k) for k in range(i + 1)))
++            controller=CTL2, notices=i + 1)
+         # LOCK_ENTITY (7.4.2.1): flags, locked_id, descriptor_type and descriptor_index (the ENTITY).
+         cmd(i, 'lock_entity', 0x0001, f.be(0, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
+         cmd(i, 'unlock_entity', 0x0001, f.be(1, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
+     return [g]
+ 
+ 
++def registrations() -> int:
++    """The registrations for unsolicited notifications the firmware keeps per interface (aecp.h)."""
++    import re
++    text = (ROOT / 'sw/firmware/ctrl/aecp/aecp.h').read_text()
++    return int(re.search(r'#define AECP_REGISTRATIONS (\d+)u', text).group(1))
++
++
++def descriptor_value(build: dict, kind: int, index: int) -> bytes:
++    """A descriptor's bytes in the image's AEM table, from its descriptor_type (aecp_image.c)."""
++    import re
++    header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
++    body = header[header.index('aecp_entity_image[] = {'):]
++    body = body[:body.index('};')]
++    image = bytes(int(v, 0) for v in re.findall(r'0x[0-9a-fA-F]+|\b\d+\b', body.split('{', 1)[1]))
++    offset, count = int.from_bytes(image[12:16], 'big'), int.from_bytes(image[8:10], 'big')
++    for row in range(count):
++        e = image[offset + 16 * row:offset + 16 * row + 16]
++        rtype, number, length = (int.from_bytes(e[k:k + 2], 'big') for k in (2, 4, 6))
++        base, stride = int.from_bytes(e[8:12], 'big'), int.from_bytes(e[14:16], 'big')
++        for n in range(number):
++            value = image[base + n * stride:base + n * stride + length]
++            if rtype == kind and int.from_bytes(value[2:4], 'big') == index:
++                return value
++    raise KeyError(f'no descriptor {kind}:{index} in the image')
++
++
++def map_edit(build: dict, port_type: int) -> bytes | None:
++    """An ADD/REMOVE_AUDIO_MAPPINGS payload (IEEE 1722.1-2021 7.4.45.1) for the STREAM_PORT 0 of
++    that type: one mapping, its map's last default row. None when that map holds no row: the
++    live map starts with its defaults (aecp.c), and a map of capacity 0 can never change."""
++    import re
++    header = Path(build['elf']).with_name('aecp_entity_gen.h').read_text()
++    maps = re.findall(r'\{(\d+),(\d+),(\d+),\d+,\(rows\)\+\d+,\d+,(\d+),aecp_map_defaults\+(\d+),(\d+)\}', header)
++    _, _, _, capacity, first, number = next(m for m in maps if m[:3] == (str(port_type), '0', '0'))
++    if not int(capacity) or not int(number):
++        return None
++    defaults = header[header.index('aecp_map_defaults[] = {'):]
++    rows = re.findall(r'\{(\d+),(\d+),(\d+),(\d+)\}', defaults[:defaults.index('};')])
++    mapping = b''.join(f.be(int(v), 2) for v in rows[int(first) + int(number) - 1])
++    return f.be(port_type, 2) + f.be(0, 2) + f.be(1, 2) + f.be(0, 2) + mapping
++
++
++#: The controllers aecp_fanout_groups registers on every interface, up to the capacity.
++FANOUT_CONTROLLER = 0x0A0B0C0D0E0F1000
++
++
++def aecp_fanout_groups(p: Point, build: dict) -> list[Group]:
++    """Every notification fan-out the image completes, at the firmware's registration capacity.
++
++    AECP_REGISTRATIONS controllers register on every interface, then CTL2, which
++    is not registered, sends each state-changing command that the image
++    notifies: every registration receives it (IEEE 1722.1-2021 7.5.2; aecp.c,
++    transmit), and the fan-out ends at the last recipient's commit
++    (FR_NFR.md 3.4.1, H-NOTIFY). Each command changes its value, since an
++    unchanged SET does not notify. With the answering-ports arm, whose stream
++    observation answers, the group also measures the setters the unmodified
++    fixture refuses for want of it (SET_CONFIGURATION, SET_STREAM_INFO) and
++    BIND_RX's GET_STREAM_INFO notice, which arm A's AECP retries forever.
++    """
++    aecp, acmp = CH['aecp'], CH['acmp']
++    ifs = range(p.interfaces)
++    g = Group('aecp-fanout', sim_ms=2600)
++    ready(g, p)
++    controllers = [FANOUT_CONTROLLER + n for n in range(registrations())]
++    seq = [0x5100]
++    for i in ifs:
++        for ctl in controllers:
++            frame = f.aem_command(f.Aem(p.entity_id, ctl, CTL_MAC, p.mac, seq[0]), 0x0024, bytes(4))
++            g.add(f'frame {i} {frame.hex()}', f'wait tx {aecp} 1 within {50 * MS}', 'wait quiet 3 within 2000000')
++            seq[0] += 1
++    everyone = tuple((ctl, i) for i in ifs for ctl in controllers)
++
++    def fanout(i: int, name: str, command_type: int, payload: bytes, path: str = '') -> None:
++        """One state-changing command from CTL2 on interface i, to its response and every registration's notice."""
++        frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, seq[0]), command_type, payload)
++        selector = f'{command_type:04x}:{int.from_bytes(payload[0:2], "big")}:{int.from_bytes(payload[2:4], "big")}'
++        g.probe(Probe(f'aecp_fanout.{name}.if{i}', name, 'notify', f'rxc:{aecp}',
++                      [f'resp:{aecp}:{seq[0]:x}', f'notify:{aecp}:{selector}'], expect='aecp_response',
++                      recipients=everyone, path=path),
++                f'frame {i} {frame.hex()}', wait=f'tx {aecp} {1 + len(everyone)} within {200 * MS}')
++        seq[0] += 1
++
++    rate = descriptor_value(build, 2, 0)[136:140]                  # AUDIO_UNIT current_sampling_rate (7.2.3)
++    domain = descriptor_value(build, 36, 0)                        # CLOCK_DOMAIN (7.2.32)
++    start, number = int.from_bytes(domain[72:74], 'big'), int.from_bytes(domain[74:76], 'big')
++    sources = [int.from_bytes(domain[start + 2 * k:start + 2 * k + 2], 'big') for k in range(number)]
++    answering = build.get('variant') == 'answering-ports'
++    # Dynamic map edits (Milan v1.2 5.4.2.27/.28): an input map with a row, and an output map
++    # with the answering arm (an output edit is refused unless its stream is observed not running).
++    edits = [(suffix, edit) for suffix, edit in (('', map_edit(build, 14)),
++                                                 ('_output', map_edit(build, 15) if answering else None)) if edit]
++    for i in ifs:
++        name = f'fanout if{i}'.encode().ljust(64, b'\0')
++        fanout(i, 'set_name', 0x0010, f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + name)
++        fanout(i, 'set_clock_source', 0x0016, f.be(36, 2) + f.be(0, 2) + f.be(sources[(i + 1) % number], 2)
++               + f.be(0, 2))
++        # The IDENTIFY control (Milan v1.2 5.3.12): on, then off.
++        fanout(i, 'set_control_identify_on', 0x0018, f.be(26, 2) + f.be(0, 2) + bytes((255,)),
++               path='aecp_fanout.set_control')
++        fanout(i, 'set_control_identify_off', 0x0018, f.be(26, 2) + f.be(0, 2) + bytes((0,)),
++               path='aecp_fanout.set_control')
++        for suffix, edit in edits:            # one default row removed, then added back
++            fanout(i, f'remove_audio_mappings{suffix}', 0x002D, edit)
++            fanout(i, f'add_audio_mappings{suffix}', 0x002C, edit)
++        if i == 0:
++            # Only the first SET of a value notifies: the image's one rate, the configuration in use.
++            fanout(i, 'set_sampling_rate', 0x0014, f.be(2, 2) + f.be(0, 2) + rate)
++            if answering:
++                fanout(i, 'set_configuration', 0x0006, f.be(0, 2) + f.be(0, 2))
++        if answering:
++            # MSRP_ACC_LAT_VALID (7.4.15.1) on STREAM_OUTPUT 0, a new latency on each interface.
++            info = f.be(6, 2) + f.be(0, 2) + f.be(0x2000_0000, 4) + bytes(16) + f.be(1_000_000 + i, 4)
++            fanout(i, 'set_stream_info', 0x000E, info.ljust(84, b'\0'))
++        # LOCK_ENTITY (7.4.2.1) acquired, then released: its notice's first halfwords are its flags.
++        fanout(i, 'lock_entity', 0x0001, f.be(0, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2))
++        fanout(i, 'unlock_entity', 0x0001, f.be(1, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2))
++    if answering:
++        # A cross-channel fan-out: BIND_RX's response, then its STREAM_INPUT's GET_STREAM_INFO
++        # notice to every registration (H-NOTIFY; Milan v1.2 Table 5.22).
++        for i in ifs:
++            g.probe(Probe(f'aecp_fanout.bind_rx_stream_info.if{i}', 'BIND_RX -> GET_STREAM_INFO notice', 'notify',
++                          f'rxc:{acmp}', [f'resp:{acmp}:{0x5f00 + i:x}', f'notify:{aecp}:000f:5:{i}'],
++                          recipients=everyone),
++                    f'frame {i} {acmp_cmd(p, "BIND_RX", i, 0x5f00 + i).hex()}',
++                    wait=f'tx {aecp} {len(everyone)} within {200 * MS}')
++    return [g]
++
++
+ def maap_groups(p: Point) -> list[Group]:
+     """MAAP (IEEE 1722-2016 Annex B): probing, announce and the DEFEND of a conflicting PROBE."""
+     maap = CH['maap']
+@@ -657,13 +794,18 @@ def bound_talker_groups(p: Point) -> list[Group]:
+     return out
+ 
+ 
++#: The responses owed ahead of the owed-frame row's (MAILBOX_SPLIT.md:753-758, A3).
++OWED_AHEAD = 7
++
++
+ def owed_group(p: Point) -> Group:
+     """The owed-frame row (a response with 7 frames owed ahead of it) under the composed load."""
+     acmp = CH['acmp']
+     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
+     # A response with 7 frames owed ahead of it (A3): the egress held and the TX ring filled
+-    # with responses; then, the token bucket refilled, the load arrives with seven more
+-    # commands and the probe, and the egress returns 60 ms later.
++    # with responses; then, the token bucket refilled, the load arrives: seven commands, the
++    # probe and the rest of the ACMP ring's admitted burst behind it, so the probe's response
++    # is the eighth owed. The egress returns 60 ms later.
+     g = Group('backlog-owed', sim_ms=4000)
+     ready(g, p)
+     announced(g)
+@@ -674,15 +816,26 @@ def owed_group(p: Point) -> Group:
+     g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}', 'gap 1', 'mark composed')
+     gm_run(g, p)
+     composed_load(g, p, own='acmp')
+-    for n in range(7):
++    for n in range(OWED_AHEAD):
+         g.offer('acmp', f'frame 0 {get(0x7380 + n).hex()}', get(0))
+-    g.probe(Probe('backlog.owed.if0', 'a response with 7 frames owed ahead of it', 'acmp', f'rxc:{acmp}',
+-                  [f'resp:{acmp}:7387'], until='composed_end', also_from='room'),
+-            f'frame 0 {get(0x7387).hex()}', f'wait drained within {10 * MS}',
+-            f'wait cycles {60 * MS}', 'mark room', 'txready 1', wait=f'tx {acmp} 8 within {300 * MS}',
+-            settle='quiet 3 within 50000000')
++    behind = admission('acmp', get(0))['at_once'] - OWED_AHEAD - 1
++    probe = Probe('backlog.owed.if0', 'a response with 7 frames owed ahead of it', 'acmp', f'rxc:{acmp}',
++                  [f'resp:{acmp}:{0x7380 + OWED_AHEAD:x}'], until='composed_end', also_from='room',
++                  owed=tuple(0x7380 + n for n in range(OWED_AHEAD)))
++    g.probe(probe, f'frame 0 {get(0x7380 + OWED_AHEAD).hex()}', wait=f'drained within {10 * MS}', settle='')
+     g.load['acmp'] += 1
+-    g.add('mark composed_end')
++    # Each command behind the input is a path too: the core owes at most ACMP_OWED_MAX
++    # responses (tsn-c-stack acmp.h), so one it takes beyond them may never be answered.
++    for n in range(behind):
++        name = f'backlog.owed_behind{n}.if0'
++        g.probes.append(Probe(name, 'an ACMP command behind the owed input', 'acmp', f'rxc:{acmp}',
++                              [f'resp:{acmp}:{0x7390 + n:x}'], until='composed_end', path='backlog.owed_behind',
++                              may_drop=True))
++        g.add(f'mark {name}')
++        g.offer('acmp', f'frame 0 {get(0x7390 + n).hex()} {name}', get(0))
++    g.add(f'wait drained within {10 * MS}', f'wait cycles {60 * MS}', 'mark room', 'txready 1',
++          f'wait tx {acmp} {OWED_AHEAD + 1 + behind} within {300 * MS}', 'wait quiet 3 within 50000000',
++          'mark composed_end')
+     return g
+ 
+ 
+@@ -756,8 +909,9 @@ def shutdown_groups(p: Point) -> list[Group]:
+     formal image) adds a poll that calls adp_mbx_set_enable(false) once, at
+     NOW_MS SHUTDOWN_MS. The path starts at that call's entry and ends at each
+     interface's ENTITY_DEPARTING commit (IEEE 1722.1-2021 6.2.5.2.2). The
+-    control group is the same path, which slow-adp-shutdown must push over
+-    T_svc (run.py --mutation slow-adp-shutdown).
++    control group's probe is another instance of the same path, adp.shutdown,
++    which slow-adp-shutdown must push over T_svc (run.py --mutation
++    slow-adp-shutdown).
+     """
+     adp = CH['adp']
+     out = []
+@@ -765,7 +919,8 @@ def shutdown_groups(p: Point) -> list[Group]:
+         g = Group(name, sim_ms=SHUTDOWN_MS + 300)
+         ready(g, p)
+         g.together([(Probe(f'{prefix}.shutdown.if{i}', 'SHUTDOWN', 'adp', 'entry:adp_mbx_set_enable',
+-                           [f'adp:{adp}:{f.ADP_DEPARTING}'], accesses=29, expect='adp_departing'), []) for i in ifs],
++                           [f'adp:{adp}:{f.ADP_DEPARTING}'], accesses=29, expect='adp_departing',
++                           path='adp.shutdown'), []) for i in ifs],
+                    [f'ms {SHUTDOWN_MS + 50}'])
+         out.append(g)
+     return out
+@@ -808,9 +963,10 @@ def fixture_groups(p: Point) -> list[Group]:
+     g.add('wait quiet 3 within 2000000', 'mark composed_end')
+     name = b'fixture'.ljust(64, b'\0')
+     frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, 0x6101), 0x0010, bytes(8) + name)
+-    g.probe(Probe('fixture.set_name.if0', 'SET_NAME', 'notify', f'rxc:{aecp}',
++    # The fan-out's markers on one registration: the capacity's path is aecp_fanout.set_name.
++    g.probe(Probe('fixture.set_name.if0', 'SET_NAME fan-out to one registered controller', 'notify', f'rxc:{aecp}',
+                   [f'resp:{aecp}:6101', f'notify:{aecp}:0010:0:0'], expect='aecp_response',
+-                  recipients=((CTL1, 0),), path='aecp.set_name'),
++                  recipients=((CTL1, 0),), path='fixture.set_name_one_recipient'),
+             f'frame 0 {frame.hex()}', wait=f'tx {aecp} 2 within {50 * MS}')
+     g.probe(Probe('fixture.link_down.if0', 'LINK_DOWN', 'adp', 'pad:LINK:0', ['cancel:0'], accesses=9,
+                   path='adp.link_down'),
+@@ -839,6 +995,6 @@ def all_groups(p: Point, build: dict) -> list[Group]:
+     """Every group of a point's build, longest first; the shutdown-entry variant has only its own."""
+     if build.get('variant') == 'shutdown-entry':
+         return shutdown_groups(p)
+-    groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *maap_groups(p), *srp_groups(p),
+-              *backlog_groups(p), *control_groups(p)]
++    groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
++              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p)]
+     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])
+diff --git a/tb/verilator/ctrl_service_budget/selftest.py b/tb/verilator/ctrl_service_budget/selftest.py
+index c292009748..acb9843390 100644
+--- a/tb/verilator/ctrl_service_budget/selftest.py
++++ b/tb/verilator/ctrl_service_budget/selftest.py
+@@ -5,13 +5,17 @@
+ It needs Python and PyYAML (the mailbox contract) and nothing built. It
+ regrades the committed trace fixture.log, which the 'fixture' group
+ recorded on the test SoC, against oracle.json: every probe's row, its pass
+-bound and backlog, the worst pass, the composed maximum and the composed
+-window's population. Synthetic traces check each marker, the notification
+-fan-out, the clock conversion, the pass bound, the deadlines and the
+-composition; the run's exit status, the regrade's refusal of an absent log
+-and the reuse attestation run on temporary files. Then each rule is mutated
+-in turn, and a named check must fail; a mutant of a headline figure (the
+-worst pass, the composed maximum, a pass bound) fails on that figure.
++bound and backlog, each loaded channel's service, the worst pass, the
++composed maximum and the composed window's population. Synthetic traces
++check each marker, the notification fan-out, the owed responses, the clock
++conversion, the pass bound, the deadlines and the composition. The real
++scenario's composed windows are counted against the defined loads restated
++here, its fan-out against the firmware's registration capacity read here,
++and its controls against their paths. The run's exit status, the regrade's
++refusal of an absent log and the reuse attestation run on temporary files.
++Then each rule is mutated in turn, and a named check must fail; a mutant of
++a headline figure (the worst pass, the composed maximum, a pass bound)
++fails on that figure.
+ 
+ Regenerate the fixture only through its generator, from a fresh 'fixture'
+ group run:
+@@ -47,6 +51,14 @@ PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'w
+           'ring', 'ahead')
+ #: FR_NFR.md 3.4.1's ceilings, restated here on purpose: a changed table must fail.
+ CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0}
++#: Each composed row's defined load, restated here on purpose (README, Backlog rows): every
++#: channel's records one instant admits (ADP, AECP, SRP at their bucket's burst; ACMP, MAAP at
++#: their ring's room), the refill leg's ADP at the ring's room, fifteen GM changes and the
++#: event row's LINK change. A changed contract, rule or stimulus must fail.
++AT_ONCE = {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15}
++DEFINED = {'backlog': {**AT_ONCE, 'LINK': 1}, 'backlog-adp': AT_ONCE, 'backlog-adp-refill': {**AT_ONCE, 'adp': 11},
++           'backlog-owed': AT_ONCE, 'fixture': {'adp': 1, 'acmp': 1, 'aecp': 1, 'maap': 1, 'srp': 1, 'GM': 2}}
++FIRMWARE_AECP_H = HERE.parents[2] / 'sw/firmware/ctrl/aecp/aecp.h'
+ AECP, ACMP, ADP = scenario.CH['aecp'], scenario.CH['acmp'], scenario.CH['adp']
+ CTL1, CTL3 = scenario.CTL1, 0x0A0B0C0D0E0F0003
+ Check = tuple[str, bool, str]
+@@ -69,6 +81,7 @@ def headline(result: dict) -> dict:
+     return dict(worst_cycles=passes['worst']['cycles'], worst_ms=passes['worst']['ms'],
+                 composed_cycles=composed.get('cycles'), composed_ms=composed.get('ms'),
+                 composed_passes=composed.get('passes'), population=composed.get('population'),
++                serviced=composed.get('serviced'), unreleased=composed.get('unreleased'),
+                 idle_min=passes['idle_min'], idle_max=passes['idle_max'])
+ 
+ 
+@@ -164,9 +177,42 @@ def fixture_checks() -> list[Check]:
+     except grade.Refusal as error:
+         refused = str(error)
+     out.append(('a composed load missing one channel is refused', "'maap': 0" in refused, refused or 'accepted'))
++    # The same window whose stimulus also declares no MAAP record: the defined load still wants one.
++    group = fixture_group(oracle)
++    group.load.pop('maap')
++    out.append(('a window short of its defined load is refused although it declares it',
++                "'maap': 0" in refusal(lambda: grade.grade('\n'.join(dropped) + '\n', group, SYS_HZ, CPU_HZ)), ''))
++    # The unchanged window against a defined load one MAAP record smaller: one too many is refused.
++    smaller = dict(grade.defined_load('fixture'), maap=0)
++    with patch.object(grade, 'defined_load', lambda name: smaller):
++        refused = refusal(lambda: regraded(oracle))
++    out.append(('a composed window that committed more than its load is refused', "'maap': 1" in refused,
++                refused or 'accepted'))
++    # SRP's release inside the window deleted: the record is starved, by name, and fits nothing.
++    tail = f':{scenario.ch_word(scenario.CH["srp"], "RX_TAIL"):x}:'
++    starved_text = re.sub(r' (\d+)' + re.escape(tail) + r'[0-9a-f]+',
++                          lambda m: '' if int(window[0]) <= int(m.group(1)) <= int(window[1]) else m.group(0),
++                          FIXTURE_LOG.read_text())
++    result = regraded(oracle, starved_text)
++    rows = [r for r in result['probes'] if '.service.srp.' in r['probe']]
++    window_row = result['passes']['composed']
++    out.append(('a starved channel is reported by name, and its window is no composed maximum',
++                len(rows) == 2 and all(r['starved'] and r['status'] == 'measured' and r['within_t_svc'] is False
++                                       and r['within_ceiling'] is False for r in rows)
++                and window_row['serviced'] is False and window_row['unreleased'] == {'srp': 1},
++                str((rows, window_row.get('unreleased')))))
+     return out
+ 
+ 
++def refusal(action: Callable[[], object]) -> str:
++    """The grader's refusal of an action, or '' if it was accepted."""
++    try:
++        action()
++    except grade.Refusal as error:
++        return str(error)
++    return ''
++
++
+ def marker_checks() -> list[Check]:
+     """The start and end markers, the commit's frame, the clock conversion and the deadlines."""
+     out = []
+@@ -310,6 +356,193 @@ def composition_checks() -> list[Check]:
+     tally = run.counts(results)
+     out.append(('misses are counted per path and per probe instance',
+                 tally == dict(paths=2, path_misses=2, instances=3, instance_misses=3), str(tally)))
++    # A record never released, whose time is a lower bound, is worse than any time measured.
++    starved = dict(row('c.x.if0', 600.0, False, 'c'), starved=True)
++    results = [dict(group='c', probes=[starved], timeouts=[]),
++               dict(group='d', probes=[row('d.x.if0', 700.0, False, 'd')], timeouts=[])]
++    worst = run.paths(results)[0]['worst']
++    out.append(("a starved instance is its path's worst", worst['probe'] == 'c.x.if0'
++                and run.verdict_word(worst).startswith('STARVED'), str(worst)))
++    return out
++
++
++def window_checks() -> list[Check]:
++    """The composed maximum and the worst pass wherever their pass falls, and the owed responses."""
++    out = []
++    # Three passes inside the window, the longest neither first nor last; the run's longest is its last.
++    lines = ['MARK 1000 composed', *[f'PASS {n} {s} {s // 2} {c} instr=10 store_mbx=1 W {s + 100}:1:0' for n, (s, c)
++                                     in enumerate(((2000, 100), (5000, 900), (20000, 300)), 1)],
++             'MARK 100000 composed_end', 'PASS 4 200000 100000 5000 instr=10 store_mbx=1 W 200100:1:0']
++    with patch.object(grade, 'defined_load', lambda name: {}):
++        passes = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['passes']
++    got = (passes['composed']['cycles'], passes['composed']['passes'], passes['worst']['cycles'])
++    out.append(("the composed maximum is the window's longest pass, wherever it falls", got[:2] == (900, 3), str(got)))
++    out.append(("the worst pass includes the run's last pass", got[2] == 5000, str(got)))
++    # The run of idle passes the script's end flushes holds the pass it cut short: no idle pass.
++    lines = ['PASS 1 1000 500 100 instr=10 store_mbx=1 W 1050:1:0', 'IDLE 3 1000 2000',
++             'PASS 5 9000 4500 100 instr=10 store_mbx=1 W 9050:1:0', 'IDLE 2 50 3000']
++    passes = grade.grade(synthetic(lines), scenario.Group('synthetic'), SYS_HZ, CPU_HZ)['passes']
++    idle = (passes['idle_min'], passes['idle_max'])
++    out.append(("the pass the script's end cuts is no idle pass", idle == (1000, 2000), str(idle)))
++    # A response with two frames owed ahead of it: exactly those two, in order, before its own.
++    probe = scenario.Probe('s.owed.if0', 'owed', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'], owed=(0x31, 0x32))
++    cases = (((0x31, 0x32), 'measured'), ((0x31,), 'unexpected response'), ((0x31, 0x32, 0x33), 'unexpected response'),
++             ((0x32, 0x31), 'unexpected response'))
++    for ahead, status in cases:
++        records = [(0, acmp_response(s), 2000 + 1000 * n) for n, s in enumerate((*ahead, 0x41))]
++        r = one(synthetic(['MARK 1000 s.owed.if0', *received(ACMP, 's.owed.if0'), *tx_sequence(ACMP, records)]), probe)
++        out.append((f'the responses owed ahead are checked: {[f"{s:x}" for s in ahead]}', r.get('status') == status,
++                    str({k: r.get(k) for k in ('status', 'reason', 'owed_ahead')})))
++    # A command the firmware may drop: never answered is a measured, unbounded finding; answered
++    # is an ordinary path; and a probe that may not drop is refused without its response.
++    lines = ['MARK 1000 s.cmd.if0', *received(ACMP, 's.cmd.if0')]
++    got = []
++    for drop, tail in ((True, []), (True, tx_record(ACMP, 0, acmp_response(0x41), 0, 5000)), (False, [])):
++        probe = scenario.Probe('s.cmd.if0', 'behind', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'], may_drop=drop)
++        r = one(synthetic(lines + tail), probe)
++        got.append((r.get('status'), r.get('unanswered'), r.get('within_t_svc'), r.get('within_ceiling')))
++    out.append(('a command never answered is reported, unbounded, where it may be dropped',
++                got == [('measured', True, False, False), ('measured', None, True, True), ('no end', None, None, None)],
++                str(got)))
++    return out
++
++
++def channel_of(frame: bytes) -> str:
++    """The receive channel a stimulus frame is for, from its EtherType and AVTP subtype."""
++    ethertype = int.from_bytes(frame[12:14], 'big')
++    if ethertype in (scenario.f.ETH_MSRP, scenario.f.ETH_MVRP):
++        return 'srp'
++    if ethertype != scenario.f.ETH_AVTP:
++        return '-'
++    return {0xFA: 'adp', 0xFB: 'aecp', 0xFC: 'acmp', 0xFE: 'maap'}[frame[14]]
++
++
++def stimulus(group: scenario.Group) -> dict[str, int]:
++    """What the group's script sends inside its composed window: records per channel, GM and LINK events."""
++    out: dict[str, int] = {}
++    inside = False
++    names = [ch.name for ch in scenario.CONTRACT.channels]
++    for step in group.steps:
++        words = step.split()
++        inside = {'mark composed': True, 'mark composed_end': False}.get(step, inside)
++        if not inside or words[0] not in ('frame', 'reply', 'gm', 'link'):
++            continue
++        name = (channel_of(bytes.fromhex(words[2])) if words[0] == 'frame' else names[int(words[2])]
++                if words[0] == 'reply' else words[0].upper())
++        out[name] = out.get(name, 0) + 1
++    return out
++
++
++def points(oracle: dict) -> list[scenario.Point]:
++    """The oracle's one-interface point and the same entity with two interfaces."""
++    one_if = scenario.Point(**oracle['point'])
++    return [one_if, scenario.Point(**dict(oracle['point'], interfaces=2))]
++
++
++def load_checks() -> list[Check]:
++    """Every composed window of the real scenario against its defined load, restated here."""
++    oracle = json.loads(ORACLE.read_text())
++    out = []
++    derived = {name: {k: v for k, v in grade.defined_load(name).items() if v} for name in DEFINED}
++    out.append(('the defined loads, restated', derived == DEFINED, str(derived)))
++    sent, declared = {}, {}
++    for p in points(oracle):
++        for g in [*scenario.backlog_groups(p), *(scenario.fixture_groups(p) if p.interfaces == 1 else [])]:
++            sent[f'{g.name}@{p.interfaces}'] = stimulus(g)
++            declared[f'{g.name}@{p.interfaces}'] = {k: v for k, v in g.load.items() if v}
++    want = {key: DEFINED[key.split('@')[0]] for key in sent}
++    out.append(("every composed window's stimulus is its defined load", sent == want,
++                ', '.join(f'{k} {v} (defined {want[k]})' for k, v in sent.items() if v != want[k])))
++    out.append(('every composed window declares its defined load', declared == want,
++                ', '.join(f'{k} {v} (defined {want[k]})' for k, v in declared.items() if v != want[k])))
++    owed = [pr for g in scenario.backlog_groups(points(oracle)[0]) for pr in g.probes if pr.owed]
++    out.append(('the owed row has seven responses owed ahead of its own',
++                [(pr.owed, pr.ends) for pr in owed] == [(tuple(range(0x7380, 0x7387)), [f'resp:{ACMP}:7387'])],
++                str([(pr.name, pr.owed, pr.ends) for pr in owed])))
++    behind = [pr for g in scenario.backlog_groups(points(oracle)[0]) for pr in g.probes if pr.may_drop]
++    out.append(('every command behind the owed input is a path that reports a drop',
++                [pr.ends for pr in behind] == [[f'resp:{ACMP}:{0x7390 + n:x}'] for n in range(4)],
++                str([(pr.name, pr.ends) for pr in behind])))
++    return out
++
++
++def path_checks() -> list[Check]:
++    """A control is another instance of its functional path, counted once, at its worst."""
++    oracle = json.loads(ORACLE.read_text())
++    out, strays = [], []
++    for p in points(oracle):
++        groups = [*scenario.adp_groups(p), *scenario.control_groups(p), *scenario.shutdown_groups(p)]
++        functional = {pr.path_key() for g in groups if not g.name.startswith('control') for pr in g.probes}
++        strays += [pr.name for g in groups if g.name.startswith('control') for pr in g.probes
++                   if pr.path_key() not in functional]
++    out.append(("a control instance is its functional path", not strays, str(strays)))
++    # The two-interface SHUTDOWN arm: two paths, three instances; the control's miss is if0's worst.
++    times = {'adp.shutdown.if0': 0.58, 'adp.shutdown.if1': 1.17, 'control.shutdown.if0': 24.9}
++    results = [dict(group=g.name, timeouts=[], probes=[
++        dict(probe=pr.name, row=pr.row, status='measured', path=list(pr.path_key()), ms=times[pr.name],
++             within_t_svc=times[pr.name] <= 10, within_ceiling=True, ring='events', ahead=0)
++        for pr in g.probes]) for g in scenario.shutdown_groups(points(oracle)[1])]
++    worst = {(e['path'], e['interface']): e['worst']['probe'] for e in run.paths(results)}
++    tally = run.counts(results)
++    out.append(('repeated instances of one path: one path, its worst instance, every miss',
++                tally == dict(paths=2, path_misses=1, instances=3, instance_misses=1)
++                and worst[('adp.shutdown', 0)] == 'control.shutdown.if0', str((tally, worst))))
++    return out
++
++
++def image_header(tmp: Path) -> Path:
++    """A minimal generated AEM header: an AUDIO_UNIT at 48 kHz, a CLOCK_DOMAIN of three sources
++    and a two-row map on each STREAM_PORT 0, in aecp_entity_gen.h's layout; returns the ELF path."""
++    be = scenario.f.be
++    audio = bytearray(152)
++    audio[0:2], audio[136:148] = be(2, 2), be(48000, 4) + be(144, 2) + be(1, 2) + be(48000, 4)
++    domain = bytearray(88)
++    domain[0:2], domain[72:82] = be(36, 2), be(76, 2) + be(3, 2) + be(0, 2) + be(1, 2) + be(2, 2)
++    entries = (be(0, 2) + be(2, 2) + be(1, 2) + be(148, 2) + be(64, 4) + be(0xFFFF, 2) + be(152, 2)
++               + be(0, 2) + be(36, 2) + be(1, 2) + be(82, 2) + be(216, 4) + be(0xFFFF, 2) + be(88, 2))
++    image = bytes(8) + be(2, 2) + bytes(2) + be(32, 4) + bytes(16) + entries + audio + domain
++    (tmp / 'aecp_entity_gen.h').write_text(
++        '#define AECP_ENTITY_MAPS_INIT(rows) { \\\n\t{14,0,0,8,(rows)+0,0,8,aecp_map_defaults+0,2}, \\\n'
++        '\t{15,0,0,176,(rows)+8,0,17,aecp_map_defaults+2,2}, \\\n}\n'
++        'static const struct aecp_mapping aecp_map_defaults[] = {\n\t{0,0,0,0},\n\t{0,7,7,0},\n\t{0,0,0,0},\n'
++        '\t{0,7,7,0},\n};\nstatic const unsigned char aecp_entity_image[] = {\n\t'
++        + ','.join(f'0x{b:02x}' for b in image) + ',\n};\n')
++    return tmp / 'ctrl_app.elf'
++
++
++def fanout_checks() -> list[Check]:
++    """The fan-out group registers the firmware's whole capacity on every interface, and each of
++    its notifications is required of every registration, from a requester outside them."""
++    oracle = json.loads(ORACLE.read_text())
++    capacity = int(re.search(r'#define AECP_REGISTRATIONS (\d+)u', FIRMWARE_AECP_H.read_text()).group(1))
++    wrong = []
++    with tempfile.TemporaryDirectory() as tmp:
++        elf = image_header(Path(tmp))
++        for p in points(oracle):
++            for variant in ('none', 'answering-ports'):
++                g = scenario.aecp_fanout_groups(p, dict(elf=str(elf), variant=variant))[0]
++                registered, requesters, mark = set(), {}, ''
++                for step in g.steps:
++                    words = step.split()
++                    if words[0] == 'mark':
++                        mark = words[1]
++                    if words[0] != 'frame':
++                        continue
++                    frame = bytes.fromhex(words[2])
++                    if frame[14] == 0xFB and int.from_bytes(frame[36:38], 'big') & 0x7FFF == 0x0024:
++                        registered.add((int.from_bytes(frame[26:34], 'big'), int(words[1])))
++                    elif mark:
++                        requesters[mark] = int.from_bytes(frame[26:34], 'big') if frame[14] == 0xFB else None
++                per_if = [sum(1 for _, i in registered if i == k) for k in range(p.interfaces)]
++                notify = [pr for pr in g.probes if pr.family == 'notify']
++                if per_if != [capacity] * p.interfaces or not notify:
++                    wrong.append(f'{p.interfaces} interfaces, {variant}: {per_if} registered, {len(notify)} fan-outs')
++                wrong += [f'{pr.name}: {len(pr.recipients)} recipients of {len(registered)}' for pr in notify
++                          if set(pr.recipients) != registered or len(pr.recipients) != len(registered)]
++                wrong += [f'{name}: requester {ctl:016x} is registered' for name, ctl in requesters.items()
++                          if ctl is not None and ctl in {c for c, _ in registered}]
++    out = [("the fan-out group registers the firmware's capacity, every registration a recipient", not wrong,
++            '; '.join(wrong) + f' (capacity {capacity})')]
+     return out
+ 
+ 
+@@ -401,8 +634,8 @@ def reuse_checks() -> list[Check]:
+ 
+ def checks() -> list[Check]:
+     """Every named check and whether it holds."""
+-    return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *run_checks(),
+-            *reuse_checks()]
++    return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *window_checks(),
++            *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks()]
+ 
+ 
+ def write_fixture(log: Path, build_json: Path) -> None:
+diff --git a/tb/verilator/ctrl_service_budget/selftest_mutants.py b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+index 3d9f87dd42..44a40c0775 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_mutants.py
++++ b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+@@ -1,11 +1,11 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""The self-test's mutants: each replaces one rule of the grader, the run or the build with a
+-plausible defect, and selftest.py requires a named check to fail under it.
++"""The self-test's mutants: each replaces one rule of the grader, the run, the scenario or the
++build with a plausible defect, and selftest.py requires a named check to fail under it.
+ 
+-A mutant whose name ends in "(d58c8e22)" restores the rule as #665's first
+-measuring head had it, so the check that catches it is the test that fails
+-on that head. Each mutant is a function returning the patches it applies.
++A mutant whose name ends in "(earlier rule)" restores a rule this harness had
++before these checks, so its check is the test that fails on that rule. Each
++mutant is a function returning the patches it applies.
+ """
+ from __future__ import annotations
+ 
+@@ -23,6 +23,82 @@ import scenario
+ Patches = Callable[[], list]
+ 
+ 
++def _first_pass_only() -> list:
++    """The composed window's passes cut to its first: the composed maximum is that pass."""
++    original = grade.composed_passes
++    return [patch.object(grade, 'composed_passes', lambda log, start, end: original(log, start, end)[:1])]
++
++
++def _last_pass_dropped() -> list:
++    """The log's last work pass dropped, so the worst pass never sees it."""
++    original = grade.parse
++
++    def parse(text: str, sys_hz: int, cpu_hz: int) -> grade.Log:
++        """The mutant parse: every pass but the last."""
++        log = original(text, sys_hz, cpu_hz)
++        log.passes = log.passes[:-1]
++        return log
++    return [patch.object(grade, 'parse', parse)]
++
++
++def _cut_pass_idle() -> list:
++    """The run the script's end flushes counted as whole idle passes."""
++    original = grade.parse
++
++    def parse(text: str, sys_hz: int, cpu_hz: int) -> grade.Log:
++        """The mutant parse: the cut pass not marked."""
++        log = original(text, sys_hz, cpu_hz)
++        log.cut_idle = False
++        return log
++    return [patch.object(grade, 'parse', parse)]
++
++
++def _load_at_least(group: scenario.Group, got: dict, refused: list) -> None:
++    """A window refused only when it committed fewer records than its defined load."""
++    want = grade.defined_load(group.name)
++    if any(got[k] < want.get(k, 0) for k in got):
++        raise grade.Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}')
++
++
++def _load_declared(group: scenario.Group, got: dict, refused: list) -> None:
++    """A window checked against its stimulus's own declaration."""
++    want = {name: group.load.get(name, 0) for name in got}
++    if got != want:
++        raise grade.Refusal(f'{group.name}: the composed window committed {got}, its load is {want}')
++
++
++def _starved_omitted() -> list:
++    """The service rows without the records never released."""
++    original = grade.service
++    return [patch.object(grade, 'service', lambda *a: [r for r in original(*a) if not r['starved']])]
++
++
++def _offer_without(channel: str, groups: str, after: str = '') -> Patches:
++    """Group.offer dropping a channel's records, step and declaration together, in the named
++    groups (after a mark, if given): a stimulus that omits background work."""
++    original = scenario.Group.offer
++
++    def offer(self: scenario.Group, ch: str, step: str, frame: bytes) -> None:
++        """The mutant offer: the channel's records in those groups never sent nor declared."""
++        if ch == channel and self.name.startswith(groups) and (not after or f'mark {after}' in self.steps):
++            return
++        original(self, ch, step, frame)
++    return lambda: [patch.object(scenario.Group, 'offer', offer)]
++
++
++def _control_own_path() -> list:
++    """A control probe keyed by its own name, not the path it is an instance of."""
++    original = scenario.Probe.path_key
++
++    def path_key(self: scenario.Probe) -> tuple[str, int]:
++        """The mutant key: a control's name without .if<n>."""
++        if self.name.startswith('control.'):
++            base, _, suffix = self.name.rpartition('.if')
++            return base, int(suffix)
++        return original(self)
++    return [patch.object(scenario.Probe, 'path_key', path_key)]
++
++
+ def _start_with(rule: Callable) -> Patches:
+     """Grader.start with one marker kind replaced by rule(self, probe, after, before), else unchanged."""
+     original = grade.Grader.start
+@@ -179,13 +255,13 @@ MUTANTS: dict[str, Patches] = {
+                                                                    if s.startswith('resp') else s),
+     'marker: the interface is ignored': _end_with(interface_free=True),
+     'marker: the first required output ends the path': lambda: [patch.object(grade, 'combine_ends', min)],
+-    'marker: a receive commit goes to the oldest pending frame (d58c8e22)':
++    'marker: a receive commit goes to the oldest pending frame (earlier rule)':
+         lambda: [patch.object(grade, 'owner', _owner_oldest)],
+     'marker: the expected-response check is skipped': lambda: [patch.object(grade, 'expectation', lambda *a: '')],
+     "notify: the first recipient's commit ends the fan-out": lambda: [patch.object(grade, 'fanout_end', lambda f:
+                                                                       min(f.values()) if None not in f.values()
+                                                                       else None)],
+-    'notify: the first unsolicited response on any interface ends it (d58c8e22)':
++    'notify: the first unsolicited response on any interface ends it (earlier rule)':
+         lambda: [patch.object(grade.Grader, 'recipients', _recipients_first_any)],
+     'notify: any unsolicited response counts as the change': lambda: [patch.object(
+         grade, 'causal', lambda fr, *a: len(fr) > 37 and fr[14] == 0xFB and fr[15] & 0xF == 1 and bool(fr[36] & 0x80))],
+@@ -208,6 +284,29 @@ MUTANTS: dict[str, Patches] = {
+                                                                                  lambda *a: None)],
+     "composition: the composed maximum is the run's worst pass": lambda: [patch.object(
+         grade, 'composed_passes', lambda log, start, end: log.passes)],
++    "composition: the composed maximum is the window's first pass": _first_pass_only,
++    "worst pass: the run's last pass is dropped": _last_pass_dropped,
++    "passes: the pass the script's end cuts counts as idle (earlier rule)": _cut_pass_idle,
++    'composition: a window that committed more than its load is accepted': lambda: [patch.object(
++        grade, 'check_load', _load_at_least)],
++    "composition: the load is the stimulus's own declaration (earlier rule)": lambda: [patch.object(
++        grade, 'check_load', _load_declared)],
++    'composition: the backlog stimulus omits SRP': _offer_without('srp', 'backlog'),
++    'composition: the backlog stimulus omits MAAP': _offer_without('maap', 'backlog'),
++    'composition: the owed row omits the ACMP commands behind its input (earlier rule)': _offer_without(
++        'acmp', 'backlog-owed', after='backlog.owed.if0'),
++    'service: a record never released is omitted': _starved_omitted,
++    'service: a window that left its load unreleased is the composed maximum (earlier rule)': lambda: [patch.object(
++        grade, 'unreleased', lambda *a: {})],
++    "service: a record's service ends at its release, not at its pass's end": lambda: [patch.object(
++        grade, 'served', lambda grader, taking, released: released)],
++    'owed: the responses ahead are not checked': lambda: [patch.object(
++        grade, 'owed_ahead', lambda grader, probe, *a: list(probe.owed))],
++    'owed: a command never answered fits': lambda: [patch.object(
++        grade, 'never_answered', lambda grader, probe, row, start: dict(row, status='measured', ms=0.0, start_sys=start,
++                                                                        within_t_svc=True, within_ceiling=True))],
++    'notify: the fan-out registers one controller an interface (earlier rule)': lambda: [patch.object(
++        scenario, 'registrations', lambda: 1)],
+     'deadline: T_svc 20 ms': lambda: [patch.object(scenario, 'T_SVC_MS', 20.0)],
+     'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_t_svc=ms < v['t_svc_ms'])),
+     'deadline: the normative wait is not added': _verdicts(lambda v, ms, probe: dict(
+@@ -218,13 +317,16 @@ MUTANTS: dict[str, Patches] = {
+     'run: a CPU trap is not refused': lambda: [patch.object(grade, 'refuse_run', _run_ignores_traps)],
+     'run: a T_svc miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
+     'run: a refusal does not fail the run': _verdict(refusals_fail=False, misses_fail=True),
+-    'regrade: a selected group without its log is dropped (d58c8e22)':
++    'regrade: a selected group without its log is dropped (earlier rule)':
+         lambda: [patch.object(run, 'recorded', _recorded_drops)],
+-    'reuse: an input outside the checkout is not rechecked (d58c8e22)':
++    'reuse: an input outside the checkout is not rechecked (earlier rule)':
+         lambda: [patch.object(build, 'reused', _reused_checkout_only)],
+     'reuse: the ROM files are not attested': lambda: [patch.object(
+         build, 'run_inputs', lambda d, spec, f=build.run_inputs: [p for p in f(d, spec) if p.suffix != '.init'])],
+-    "tables: a path's first instance is reported, not its worst (d58c8e22)":
++    "tables: a path's first instance is reported, not its worst (earlier rule)":
+         lambda: [patch.object(run, 'paths', _first_instance)],
+-    'tables: misses are counted per probe instance only (d58c8e22)': _counts_per_instance,
++    'tables: misses are counted per probe instance only (earlier rule)': _counts_per_instance,
++    'tables: a control instance is its own path (earlier rule)': _control_own_path,
++    "tables: a starved instance is not its path's worst": lambda: [patch.object(
++        run, 'severity', lambda r: (False, r['ms']))],
+ }

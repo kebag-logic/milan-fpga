@@ -1,0 +1,26 @@
+N11 composition: a commit at the window's end is not counted: 0 values change
+N12 notify: a missing recipient is skipped by the end rule (fan_out() still refuses): 0 values change
+G2 service: the 16-bit tail counter is not taken modulo 2^16: 0 values change
+G3 service: a record released after the window closed counts as released inside it: 0 values change
+G6 fan-out: the per-recipient cost divides by the recipients, not the gaps: 9 values change
+    aecp_fanout.set_name.if0 fanout {'recipients': 16, 'first_sys': 94573246, 'last_sys': 95183986, 'per_recipient_cpu_cycles': 20358} -> {'recipients': 16, 'first_sys': 94573246, 'last_sys': 95183986, 'per_recipient_cpu_cycles': 19085}
+    aecp_fanout.set_clock_source.if0 fanout {'recipients': 16, 'first_sys': 96610786, 'last_sys': 96981454, 'per_recipient_cpu_cycles': 12355} -> {'recipients': 16, 'first_sys': 96610786, 'last_sys': 96981454, 'per_recipient_cpu_cycles': 11583}
+    aecp_fanout.set_control_identify_on.if0 fanout {'recipients': 16, 'first_sys': 98436412, 'last_sys': 98790978, 'per_recipient_cpu_cycles': 11818} -> {'recipients': 16, 'first_sys': 98436412, 'last_sys': 98790978, 'per_recipient_cpu_cycles': 11080}
+    aecp_fanout.set_control_identify_off.if0 fanout {'recipients': 16, 'first_sys': 100272282, 'last_sys': 100628064, 'per_recipient_cpu_cycles': 11859} -> {'recipients': 16, 'first_sys': 100272282, 'last_sys': 100628064, 'per_recipient_cpu_cycles': 11118}
+    aecp_fanout.remove_audio_mappings.if0 fanout {'recipients': 16, 'first_sys': 102279512, 'last_sys': 102681404, 'per_recipient_cpu_cycles': 13396} -> {'recipients': 16, 'first_sys': 102279512, 'last_sys': 102681404, 'per_recipient_cpu_cycles': 12559}
+    aecp_fanout.add_audio_mappings.if0 fanout {'recipients': 16, 'first_sys': 104340788, 'last_sys': 104739008, 'per_recipient_cpu_cycles': 13274} -> {'recipients': 16, 'first_sys': 104340788, 'last_sys': 104739008, 'per_recipient_cpu_cycles': 12444}
+    aecp_fanout.set_sampling_rate.if0 fanout {'recipients': 16, 'first_sys': 106231110, 'last_sys': 106601670, 'per_recipient_cpu_cycles': 12352} -> {'recipients': 16, 'first_sys': 106231110, 'last_sys': 106601670, 'per_recipient_cpu_cycles': 11580}
+    aecp_fanout.lock_entity.if0 fanout {'recipients': 16, 'first_sys': 108323954, 'last_sys': 108722110, 'per_recipient_cpu_cycles': 13271} -> {'recipients': 16, 'first_sys': 108323954, 'last_sys': 108722110, 'per_recipient_cpu_cycles': 12442}
+G9 service: the records ahead count only those never released: 18 values change
+    backlog.service.adp.last.if0 ahead 7 -> 0
+    backlog.service.acmp.last.if0 ahead 11 -> 0
+    backlog.service.aecp.last.if0 ahead 15 -> 0
+    backlog.service.maap.last.if0 ahead 6 -> 0
+    backlog.service.srp.last.if0 ahead 31 -> 0
+    backlog-adp.service.adp.last.if0 ahead 7 -> 0
+    backlog-adp.service.acmp.last.if0 ahead 11 -> 0
+    backlog-adp.service.aecp.last.if0 ahead 15 -> 0
+H3 composition: passes over 1 M cycles are dropped from the window: 2 values change
+    backlog-adp composed [1565803, False, {'srp': 32}] -> [832156, False, {'srp': 32}]
+    backlog-adp-refill composed [1531355, False, {'srp': 32}] -> [832156, False, {'srp': 32}]
+rc=0

@@ -1,0 +1,23 @@
+S1 CAUGHT rc=1 load: composed_load omits SRP in every row :: FAIL: every composed window's stimulus is its defined load: backlog@1 {'GM': 15, 'LINK': 1, 'adp': 8, 'aecp': 16, 'maap': 7, 'acmp': 12} (defined {'adp': 8, 'ac
+S2 CAUGHT rc=1 load: composed_load omits MAAP in every row
+S3 CAUGHT rc=1 load: the owed row omits the ACMP commands behind its input :: FAIL: every composed window's stimulus is its defined load: backlog-owed@1 {'GM': 15, 'adp': 8, 'aecp': 16, 'maap': 7, 'srp': 32, 'acmp': 8} (defined {'adp': 8,
+S4 CAUGHT rc=1 load: the backlog row omits four of its ACMP commands :: FAIL: every composed window's stimulus is its defined load: backlog@1 {'GM': 15, 'LINK': 1, 'adp': 8, 'aecp': 16, 'maap': 7, 'srp': 32, 'acmp': 8} (defined {'ad
+S5 CAUGHT rc=1 load: SRP omitted at the two-interface point only :: FAIL: every composed window's stimulus is its defined load: backlog@2 {'GM': 15, 'LINK': 1, 'adp': 8, 'aecp': 16, 'maap': 7, 'acmp': 12} (defined {'adp': 8, 'ac
+S6 CAUGHT rc=1 load: SRP omitted in the bound-talker rows only :: FAIL: every composed window's stimulus is its defined load: backlog-adp@1 {'GM': 15, 'aecp': 16, 'maap': 7, 'acmp': 12, 'adp': 8} (defined {'adp': 8, 'acmp': 12
+S7 CAUGHT rc=1 load: the owed row carries half the AECP burst :: FAIL: every composed window's stimulus is its defined load: backlog-owed@1 {'GM': 15, 'adp': 8, 'aecp': 8, 'maap': 7, 'srp': 32, 'acmp': 12} (defined {'adp': 8,
+S8 CAUGHT rc=1 load: the event row carries 14 grandmaster changes :: FAIL: every composed window's stimulus is its defined load: backlog@1 {'GM': 14, 'LINK': 1, 'adp': 8, 'aecp': 16, 'maap': 7, 'srp': 32, 'acmp': 12} (defined {'a
+G1 CAUGHT rc=1 service: a record is released by any tail write before the run ends :: FAIL: a starved channel is reported by name, and its window is no composed maximum: ([{'probe': 'fixture.service.srp.first.if0', 'row': 'SRP record released und
+G2 ESCAPED rc=0 service: the 16-bit tail counter is not taken modulo 2^16
+G3 ESCAPED rc=0 service: a record released after the window closed counts as released inside it
+G4 CAUGHT rc=1 service: every window reports its load released :: FAIL: a starved channel is reported by name, and its window is no composed maximum: ([{'probe': 'fixture.service.srp.first.if0', 'row': 'SRP record released und
+G5 CAUGHT rc=1 service: only each channel's first record is graded :: FAIL: fixture row fixture.service.adp.last.if0: status None (pinned measured), start_sys None (pinned 33802239), end_sys None (pinned 34638820), sys_cycles None
+G6 ESCAPED rc=0 fan-out: the per-recipient cost divides by the recipients, not the gaps
+G7 CAUGHT rc=1 owed: only the number of responses ahead is checked, not their sequence :: FAIL: the responses owed ahead are checked: ['32', '31']: {'status': 'measured', 'reason': None, 'owed_ahead': ['32', '31']}
+G8 CAUGHT rc=1 never answered: every probe may drop its response :: FAIL: a command never answered is reported, unbounded, where it may be dropped: [('measured', True, False, False), ('measured', None, True, True), ('measured', 
+G9 ESCAPED rc=0 service: the records ahead count only those never released
+G10 CAUGHT rc=1 defined load: one grandmaster change fewer :: FAIL: the defined loads, restated: {'backlog': {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 14, 'LINK': 1}, 'backlog-adp': {'adp': 8, 'acmp': 
+H1 CAUGHT rc=1 composition: the composed maximum is the window's last pass :: FAIL: fixture passes: worst pass and composed maximum: composed_cycles 95611 (pinned 418342), composed_ms 1.91222 (pinned 8.36684)
+H2 CAUGHT rc=1 composition: the composed maximum is the window's median pass :: FAIL: fixture passes: worst pass and composed maximum: composed_cycles 167909 (pinned 418342), composed_ms 3.35818 (pinned 8.36684)
+H3 ESCAPED rc=0 composition: passes over 1 M cycles are dropped from the window
+review mutants: 21 run, 5 escaped the self-test
+rc=0
