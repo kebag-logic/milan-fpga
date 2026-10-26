@@ -1,0 +1,33 @@
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+Note: Google Test filter = Face.ALateCommitIsOwedAndPublishedAgainWhole:AppFace.*:AppFaceUnacknowledged.*
+[==========] Running 7 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from Face
+[ RUN      ] Face.ALateCommitIsOwedAndPublishedAgainWhole
+[       OK ] Face.ALateCommitIsOwedAndPublishedAgainWhole (0 ms)
+[----------] 1 test from Face (0 ms total)
+
+[----------] 5 tests from AppFace
+[ RUN      ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange
+[       OK ] AppFace.StoreStatusIsPublishedBeforeAecpOpensAndOnEveryChange (2 ms)
+[ RUN      ] AppFace.FaceEventsDriveTheirTable522Notifications
+[       OK ] AppFace.FaceEventsDriveTheirTable522Notifications (0 ms)
+[ RUN      ] AppFace.AttachRefusesAFullLoop
+[       OK ] AppFace.AttachRefusesAFullLoop (0 ms)
+[ RUN      ] AppFace.StoreWordsCarryEveryTerminalAndFlag
+[       OK ] AppFace.StoreWordsCarryEveryTerminalAndFlag (0 ms)
+[ RUN      ] AppFace.AHeldCommitKeepsTheLoopBusy
+[       OK ] AppFace.AHeldCommitKeepsTheLoopBusy (0 ms)
+[----------] 5 tests from AppFace (4 ms total)
+
+[----------] 1 test from AppFaceUnacknowledged
+[ RUN      ] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged
+[       OK ] AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged (0 ms)
+[----------] 1 test from AppFaceUnacknowledged (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 3 test suites ran. (4 ms total)
+[  PASSED  ] 7 tests.
+== AECP core: checks: 7   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (7 tests, 0 failures, exit 0)
