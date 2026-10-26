@@ -1,0 +1,48 @@
+All candidate/source reads refer to 44d95625bde2c46d7070c090fc29ed0ba85ab64a.
+TREE is a checkout with the required submodules at their gitlinks.
+PACKET is the review output directory; disposable outputs stay below PACKET/scratch.
+SCRATCH_TREE is a separate disposable copy of TREE, also at the exact head.
+LITEX_PYTHON is the existing integration interpreter with migen/LiteX available.
+VERILATOR is the verified pinned 5.050 executable; SV2V is the pinned v0.0.12 executable.
+YOSYS is 0.66. TMPDIR=$PACKET/scratch.
+
+Independent census:
+  python3 sw/mailbox/publication_census.py --check --selftest --jobs 6
+  python3 "$PACKET/scripts/census_probes.py" "$TREE" "$PACKET/scratch/source-probes"
+
+Generator:
+  python3 sw/mailbox/gen_mailbox.py --check --crosscheck --selftest
+
+Mailbox (from SCRATCH_TREE):
+  make -j16 -C tb/verilator/mbx run-if2 VERILATOR="$VERILATOR" VBUILD_JOBS=2
+  VBUILD_JOBS=2 python3 tb/verilator/mbx/mutants.py --jobs 4
+  The completed resumed make receipt also contains the one-interface controls and co-simulation.
+
+Firmware positive control (from SCRATCH_TREE):
+  python3 sw/firmware/ctrl/test/aecp_arms.py --output "$PACKET/scratch/face-run" --app --filter 'Face.*:FaceApp.*'
+  The fixture is named AppFace, so this initial filter runs nine Face tests only.
+
+F1 probe (on SCRATCH_TREE only):
+  python3 "$PACKET/scripts/response_probe.py" "$SCRATCH_TREE"
+  python3 sw/firmware/ctrl/test/aecp_arms.py --output "$PACKET/scratch/face-run" --app --filter 'Face.ALateCommitIsOwedAndPublishedAgainWhole:AppFace.*'
+  Expected on reviewed head: one failure, held IDENTIFY 255 instead of 0; five AppFace tests pass.
+  git restore --source=HEAD -- sw/firmware/ctrl/test/test_aecp.cpp
+
+Planner:
+  "$LITEX_PYTHON" sw/litex/test_ctrl_memory.py
+  "$LITEX_PYTHON" "$PACKET/scripts/ledger_mutants.py" "$TREE"
+
+Evidence manifest:
+  python3 "$PACKET/scripts/verify_evidence_manifest.py" PUBLIC_EVIDENCE_DIRECTORY
+
+Exports:
+  The completed resumed scripts/export_both.sh runs five configs at base twice and head once.
+  python3 "$PACKET/scripts/export_digest.py" BASE_EXPORT_DIRECTORIES... HEAD_EXPORT_DIRECTORIES...
+  scripts/export_norm.py records normalization differences against the repeat-base control.
+
+Final bytes/modes/index/gitlinks:
+  python3 "$PACKET/scripts/verify_checkout.py" "$TREE"
+
+Initial setup failures are retained separately: the shell default frontend was v0.0.13 and was correctly refused;
+the system interpreter lacked migen for the memory suite. Corrected runs use the pinned frontend/integration interpreter.
+Inherited duplicate census, unmapped-port and mailbox mutation process trees were stopped; only completed resumed receipts count.

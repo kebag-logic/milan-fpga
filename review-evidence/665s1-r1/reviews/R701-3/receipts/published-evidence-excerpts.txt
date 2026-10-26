@@ -1,0 +1,253 @@
+Public evidence commit: 50eb576c296d80307eac7c3064129440642d823d; paths below relative to review-evidence/665s1-r1/author/receipts.
+
+gates/census.txt
+[ok] rule port-contract: removed, it lets through every one of its 2 arm(s), e.g. port census: an F carrier contract 2.3 does not define
+[ok] rule port-width: removed, it lets through every one of its 2 arm(s), e.g. port census: an F carrier narrower than its port
+[ok] rule g-on-wire: removed, it lets through every one of its 5 arm(s), e.g. port census: a CSR terminal's net also read past it
+[ok] rule g-csr-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a G output on a CSR input outside the processor-status face
+[ok] rule g-memory-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a G output on a datapath output outside the memory masters
+[ok] rule g-shim-terminal: removed, it lets through every one of its 1 arm(s), e.g. port census: a MAAP shim output read past pp_shadow
+[ok] rule g-exclusion-stale: removed, it lets through every one of its 1 arm(s), e.g. port census: the exclusion naming a net no G cone reaches
+[ok] rule g-exclusion-amr: removed, it lets through every one of its 1 arm(s), e.g. port census: the exclusion naming a net outside the map writer
+mutations: 0 of 43 rule(s) no arm proves
+rc=0 elapsed=992s
+
+gates/fw-coverage-check-b48db8fa.txt
+sw/firmware/ctrl/srp/srp_mbx.c                   543/543     486/486     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_klj2.c                  198/199     106/110     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_store.c                 434/434     259/266     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    100/100      63/64      lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/include/wire.h            10/10        2/2       lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/acmp.c               792/792     392/392     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/adp.c                206/208      99/106     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/maap.c               209/209     140/140     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (31 files)
+rc=0 elapsed=254s
+
+gates/mbx-mutants.txt
+[ok] evt-face-avb-change-dropped-axil: 3 check(s) failed; first: [FAIL] F8 one face event posts its record, on its interface, with COUNT 1 and NOW_MS
+[ok] evt-face-counter-change-dropped: 5 check(s) failed; first: [FAIL] F9 a counter change posts COUNTERS_CHANGED with its descriptor, on its interface
+[ok] evt-face-counter-change-dropped-axil: 5 check(s) failed; first: [FAIL] F9 a counter change posts COUNTERS_CHANGED with its descriptor, on its interface
+[ok] evt-face-map-writes-not-coalesced: 1 check(s) failed; first: [FAIL] F8 each carrying every pulse it coalesced
+[ok] evt-face-map-writes-not-coalesced-axil: 1 check(s) failed; first: [FAIL] F8 each carrying every pulse it coalesced
+[ok] evt-face-holdoff-drops-the-change: 1 check(s) failed; first: [FAIL] F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced
+[ok] evt-face-holdoff-drops-the-change-axil: 1 check(s) failed; first: [FAIL] F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced
+mbx mutants: 199 of 199 caught
+make: Leaving directory '<tree>/tb/verilator/mbx'
+rc=0 elapsed=606s
+
+gates/aecp-mutants.txt
+[ok] face-attach-ignores-a-full-loop: AppFace.AttachRefusesAFullLoop
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-owed-commit-lets-the-loop-sleep: AppFace.AHeldCommitKeepsTheLoopBusy
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/aecpm/out/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-counter-change-event-missed: AppFace.FaceEventsDriveTheirTable522Notifications
+rc=0 elapsed=291s
+
+gates/docs-gates-c9abfc2d.txt
+         (rejected by: short_listener: configs/generated copy is current: got False, expected True)
+----------------------------------------------------------------------
+checks: 228   failures: 0
+RESULT: PASS
+[rc=0] python3 scripts/check_entity_shape.py --self-test
+[rc=0] python3 scripts/ci_gate_workflows.py --check
+  note cron `17 1 * * *` renders 01:17 UTC; the policy page states both
+ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+[rc=0] python3 scripts/ci_events.py --check
+docs gates: 0 failed
+
+gates/behave.txt
+    Given a stream on the wire with no MRP frames captured at all ... passed in 0.000s
+    When the analyser checks the SRP declarations ... passed in 0.000s
+    Then every SRP verdict is SKIP ... passed in 0.000s
+    And the SRP skip says an inline tap is required ... passed in 0.000s
+
+14 features passed, 0 failed, 0 skipped
+406 scenarios passed, 0 failed, 0 skipped
+1977 steps passed, 0 failed, 0 skipped
+Took 0min 1.141s
+rc=0 elapsed=1s
+
+gates/test-builder.txt
+test_descriptor_fields_name_this_device:
+  [gate 37] all 5 tracked configs (gPTP plane on) serve AVB_INTERFACE port_number 1 - the engine's OUR_PORTNUM_C, parsed here - and IDENTIFY reset_time 0 (no automatic reset, Milan 5.3.12); the builtin model states the same port; planted port_number and reset_time refused
+test_name_count_fits_the_nvm_name_block:
+  [gate 38] capacity 128 read from hdl/milan/KL_nvm_backend.sv:248; 128 names built, 129 and the 8x8 TDM8 point (235) refused before any write, naming both figures; KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 with N_NAME_MAX_C planted at 127
+  [gate 38] 9/9 planted defects turned their check red: capacity 127 vs 128 names; capacity 129 vs 129 names; capacity 235 vs 235 names; refusal naming no figure; refusal after a write; guard on a literal; declaration commented out; declaration in hex; declaration repeated
+
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk (~/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+rc=0 elapsed=1409s
+
+gates/lint-rtl.txt
+  hdl/ieee8021q/ts/traffic_classifier.sv:211:22: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's SEL generates 3 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:36: WIDTHEXPAND  Operator ADD expects 32 bits on the LHS, but LHS's VARREF 'byte_counter' generates 6 bits.
+  hdl/ieee8021q/ts/traffic_classifier.sv:254:20: WIDTHTRUNC  Operator ASSIGNDLY expects 6 bits on the Assign RHS, but Assign RHS's ADD generates 32 bits.
+  hdl/ieee8021q/ts/traffic_queues.sv:150:24: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARREF 'gsel' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:103:23: WIDTHTRUNC  Operator ASSIGNW expects 1 bits on the Assign RHS, but Assign RHS's VARXREF 'tdest' generates 3 bits.
+  hdl/ieee8021q/ts/traffic_shaping_core.sv:206:22: WIDTHTRUNC  Operator ASSIGNDLY expects 3 bits on the Assign RHS, but Assign RHS's VARREF 'sel_comb' generates 32 bits.
+  hdl/milan/KL_pp_shadow.sv:258:24: SYNCASYNCNET  Signal flopped as both synchronous and async: 'rst_n'
+  hdl/milan/milan_datapath.sv:471:15: SYNCASYNCNET  Signal flopped as both synchronous and async: 'axis_resetn'
+LINT GATE: PASS (89 violation(s) <= ratchet 89; 19 waived, 0 justified lint_off)
+rc=0
+
+gates/xvlog-gate.txt
+xvlog gate: 0 finding(s) across 0 module(s)
+  analysed: 84 tracked .sv/.v file(s) under hdl/ and 52 under the pinned processors (protocol-processor/hdl, gptp-processor/hdl)
+  pinned at: protocol-processor@ed211803; gptp-processor@55680bff - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+  NOT analysed: third_party/ and external/ (leaf IP this repo neither owns nor edits), and
+                any defect only ELABORATION rejects - xvlog analyses; the split-initialiser
+                class needs xelab, which nothing in this repo runs (#224)
+  hdl/: 0 finding(s)
+  pinned processors: 0 finding(s)
+xvlog gate: PASS (0 finding(s) == ratchet; 0 hdl/, 0 pinned processors)
+rc=0
+
+gates/yosys-mailbox-tops.txt
+tied inputs: 29   justified: 2   UNJUSTIFIED: 0   stale: 0
+TIED-INPUT GATE: PASS (2 justified tie(s), no unjustified ones)
+== observer-purity structural check (taps/telemetry never drive streams) ==
+  negative self-test: checker flags the broken fixture (2 violations) - OK
+  negative self-test: checker flags the broken MAC-site fixture (3 violations) - OK
+--------------------------------------------------------------
+pure observers: 4 file(s)   tap readers: 4 file(s)   MAC-site observers: 1 file(s)
+stream-net bindings checked: 28 (rx_axis_fabric: 15, MAC transmit stream: 2)   violations: 0
+TAP-PURITY RESULT: PASS
+rc=0
+
+ooc/ooc-bd3f5d94-timing-summary.txt
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.123        0.000                      0                10776        3.870        0.000                       0                  7826  
+
+fw/final-44d95625/head.txt
+44d95625bde2c46d7070c090fc29ed0ba85ab64a
+
+fw/final-44d95625/shard-0.txt
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-core-endstation_ax7101_1x1_tdm8-if1
+    == AECP debug callback contract: checks: 1   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (1 tests, 0 failures, exit 0)
+test_ctrl_firmware: PASS
+rc=0 elapsed=338s
+
+fw/final-44d95625/shard-1.txt
+[ok] mutant pub-maap-gate-open-while-invalid (maap): 4 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate closed while the range is only probed, interface 0
+[ok] mutant rv-maap-gate-on-interface-0 (maap_if2, maap_if2): 12 check(s) failed
+    first: [FAIL] MaapHost.DaGateOpensOnTheAcquiringInterfaceAloneBeforeItsReport: DA gate of the acquiring interface opens before its own report
+[ok] mutant pub-maap-sources-past-the-block (maap): 1 check(s) failed
+    first: [FAIL] MaapHost.DaGateIsPublishedBeforeEachAllocationIsReported: DA gate: more sources than the publication block has are refused
+mutants: 528 of 528 caught
+test_ctrl_firmware: PASS
+rc=0 elapsed=1125s
+
+fw/final-44d95625/shard-2.txt
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-owed-commit-lets-the-loop-sleep: AppFace.AHeldCommitKeepsTheLoopBusy
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/tmp/ctrl-fw-wyppidw_/aecp-mutants/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] face-counter-change-event-missed: AppFace.FaceEventsDriveTheirTable522Notifications
+test_ctrl_firmware: PASS
+rc=0 elapsed=305s
+
+fw/final-44d95625/shard-3.txt
+[ok] pub-declared-dropped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-withdrawn-after-the-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB TALKER_DECL holds every declared source after the adoption
+[ok] pub-declared-skipped-at-adoption: PubTalkerDeclHoldsAcrossADomainAdoption / PUB every Talker MRPDU under the adopted VID left with TALKER_DECL published again
+[ok] pub-declared-before-the-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] pub-declared-as-each-source-joins: PubTalkerDeclIsNotPublishedByACreationThatFails / publishes no Talker declaration
+[ok] lwSRP pin, a compiled source edited: lwSRP's src/ differs from the pinned 08ee86e8: src/core/mrp_mad.c
+[ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+rc=0 elapsed=779s
+
+sweep/sweep-44d95625/shard-0/spec/01.log
+PASS     aaf_latency_taps
+PASS     avtp_stream
+PASS     chmap_render
+PASS     datapath
+PASS     gptp_plane
+PASS     gptp_shadow
+PASS     lat_history_ring
+PASS     link_guard
+PASS     milan_dp
+PASS     mmcm_servo
+PASS     nvm_backend
+PASS     ptp
+PASS     queues
+PASS     tdm_render
+----------------------------------------------------------------
+suites: 15   passed: 15   failed: 0   timed out: 0
+checks: 250913   in-suite failures: 0
+logs: <work>/sweep-44d95625/shard-0/logs
+
+sweep/sweep-44d95625/shard-1/spec/01.log
+PASS     classifier
+PASS     eth_tx_reset
+PASS     fw_service_budget
+PASS     gptp_tables
+PASS     gptp_txts
+PASS     media_grid_align
+PASS     media_nco
+PASS     milan_dp_gm_steps
+PASS     milan_dp_mclk
+PASS     mmcm_servo_autorepair
+PASS     pp_shadow
+PASS     ptp_sync
+PASS     render_queue
+PASS     shaper_core
+----------------------------------------------------------------
+suites: 17   passed: 17   failed: 0   timed out: 0
+checks: 1536446   in-suite failures: 0
+logs: <work>/sweep-44d95625/shard-1/logs
+
+sweep/sweep-44d95625/shard-2/spec/01.log
+PASS     capture_coherence
+PASS     cbs
+PASS     chmap_capture
+PASS     clkvalid
+PASS     cls
+PASS     controller_rate
+PASS     i2spb
+PASS     milan_dp_render
+PASS     nvm_cosim
+PASS     pair_fill
+PASS     ptp_ts
+PASS     rx_filter
+PASS     tcam_csr
+PASS     tkdiag
+----------------------------------------------------------------
+suites: 16   passed: 16   failed: 0   timed out: 0
+checks: 380086   in-suite failures: 0
+logs: <work>/sweep-44d95625/shard-2/logs
+
+sweep/sweep-44d95625/shard-3/spec/01.log
+PASS     maap
+PASS     mac_rmon
+PASS     mbx
+PASS     media_phase
+PASS     pcmlpf
+PASS     tcam
+PASS     tdm
+PASS     tsn_fuzz
+----------------------------------------------------------------
+suites: 16   passed: 16   failed: 0   timed out: 0
+checks: 23679   in-suite failures: 0
+
+declared skips (4) -- these ran NOTHING and contribute 0 to the total above:
+  SKIPPED  tsn_fuzz: AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee1722/avtp/doc/TEST_RESULTS.md freshness not checked (AAF/AVTP field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+  SKIPPED  tsn_fuzz: gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable)
+  SKIPPED  tsn_fuzz: hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md freshness not checked (gPTP/802.1AS field campaign (tsn-gen absent; set TSN_GEN_ROOT to enable))
+logs: <work>/sweep-44d95625/shard-3/logs
