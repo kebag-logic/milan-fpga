@@ -1,0 +1,220 @@
+{
+ "accepted_return_codes": [
+  {
+   "receipt": "processor/sweep-ffc76f1/check-req-tags.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "processor/sweep-ffc76f1/run_suites.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "processor/final-ffc76f1/elab_guards.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "processor/final-ffc76f1/lint_hdl.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "processor/final-ffc76f1/make_check.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "processor/final-ffc76f1/talker_suite.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "processor/final-ffc76f1/yosys_run.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "processor/final-head-429c909/lint_hdl.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "processor/final-head-429c909/make_check.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "processor/final-head-429c909/talker_suite.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/acmp.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/aecp.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/ctr.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/d3.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/dispatch.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/elab.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/gsi.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/maap.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/namestate.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/namewr.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/notify.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/retry.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "campaigns/srp.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/behave.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/capture_shard0.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/capture_shard1.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/capture_shard2.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/capture_shard3.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/capture_union.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/check_port_contracts.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/check_rtl_source_lists.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/check_sv_idiom.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/check_wire_accountability.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/consumer-tally.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/lint_rtl.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/maap.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/maap_verdict.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/milan_dp.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/milan_dp_render.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/milan_dp_render_verdict.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/milan_dp_verdict.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/pp_shadow.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/pp_shadow_verdict.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/xvlog_gate.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/consumer/yosys_elaborate.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/final-pin/ooc_pp_shadow.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/final-pin/ooc_record_rom_digests.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/final-pin/pp_shadow.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/final-pin/pp_shadow_tally.rc",
+   "rc": 0
+  },
+  {
+   "receipt": "parent/final-pin/pp_shadow_verdict.rc",
+   "rc": 0
+  }
+ ],
+ "all_accepted_zero": true,
+ "expected_failures_on_the_round_3_rtl": [
+  {
+   "receipt": "tests/old-rtl/pp_top-mp-on-ebb1f001-rtl.rc",
+   "rc": 1
+  },
+  {
+   "receipt": "tests/old-rtl/stream-fsms-bench-on-ebb1f001-rtl.rc",
+   "rc": 2
+  },
+  {
+   "receipt": "tests/old-rtl/talker-bench-on-ebb1f001-rtl.rc",
+   "rc": 2
+  }
+ ],
+ "all_expected_failures_nonzero": true
+}
