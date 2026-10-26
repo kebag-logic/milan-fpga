@@ -438,6 +438,6 @@ MUTANTS: dict[str, Patches] = {
                  patch.object(run, 'selected', _selected_without_cache)],
     'xip: the reset entry moves to flash with the other code': lambda: [patch.object(
         build, 'XIP_TEXT', (build.XIP_TEXT[0], build.XIP_TEXT[1].replace('} > rom', '} > flash')))],
-    "xip: F1's flash driver moves to flash with the other code": lambda: [patch.object(
-        build, 'XIP_TEXT', (build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
+    "xip: F1's flash driver moves to flash with the other code": lambda: [patch.object(build, 'XIP_TEXT', (
+        build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
 }
