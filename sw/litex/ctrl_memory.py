@@ -199,11 +199,12 @@ class Ledgered:
 #: build names none, so no build is held to more than 56 RAMB36. An image is the
 #: point when it carries every listed symbol at its listed size: the 8x8 shape's
 #: staging buffer and the size fixture's per-interface table at two interfaces
-#: (ctrl_aecp_image.c, `uint64_t image_allocation[MBX_N_IF]`). The over-budget
-#: tile is ledgered in docs/design/SPLIT_CONTROL_MEMORY.md section 5.
+#: (ctrl_aecp_image.c, `uint64_t image_allocation[MBX_N_IF]`). The tile and a
+#: half over budget are ledgered in docs/design/SPLIT_CONTROL_MEMORY.md section 5.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
-                                   57.0, "lane S14, the hybrid XIP (#665 decision D3, ruling 6412739248)"),
+                                   57.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                         "6425357821)"),
 }
 
 
