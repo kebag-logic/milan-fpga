@@ -1,0 +1,10 @@
+delta-probes.json: round3 sha256 da61a2656d8957122c34fe80a1f7a39f305ed3d1f13799e0755926c5f155c2f6 head sha256 da61a2656d8957122c34fe80a1f7a39f305ed3d1f13799e0755926c5f155c2f6 identical
+qualified-probes.json: round3 sha256 493f14359a581d222035b45500072a64c44bd1c100071354dc22dfbcf7f4e797 head sha256 493f14359a581d222035b45500072a64c44bd1c100071354dc22dfbcf7f4e797 identical
+boundary-matrix.json: round3 sha256 54116226f11179a28996119a85db11efaac691499d274bda45fe53058740c4b0 head sha256 9485dad4d69ef6a16d76e6bc36e17b2b313e111cb42a7a8f6c3a8abab9039f3d differs
+  compound-4096-1-80000: verdict FAIL -> FAIL; compound rule False -> True
+    round3 channel 2: [(3001, 'repeated', 1024, None, None), (3002, 'dropped', 5120, None, None)]
+    head channel 2: [(3001, 'dropped', 4096, None, [2999, 3001]), (3001, 'bit-flip', 1, '0x00080000', None)]
+  compound-4096-5-100: verdict FAIL -> FAIL; compound rule True -> False
+    round3 channel 2: [(3001, 'dropped', 4096, None, [2999, 3001]), (3005, 'bit-flip', 1, '0x00000100', None)]
+    head channel 2: [(3001, 'bit-flip', 1, '0x00000100', None), (3006, 'dropped', 4096, None, [3006, 3008])]
+compound-ambiguity.json: round3 sha256 8916f1b936a65b3553a38939cae2cc29290fcb844ffdced2bf14e644fc70dd8c head sha256 8916f1b936a65b3553a38939cae2cc29290fcb844ffdced2bf14e644fc70dd8c identical

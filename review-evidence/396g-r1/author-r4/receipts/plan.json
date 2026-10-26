@@ -1,0 +1,2450 @@
+[
+  {
+    "sid": "soak.continuous",
+    "area": "soak",
+    "op": "release_soak",
+    "args": {
+      "pairs": [
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 0,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 0,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt0-peerl0"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 1,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 2,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt1-peerl2"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 2,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 4,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt2-peerl4"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 3,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 6,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt3-peerl6"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 4,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 8,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt4-peerl8"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 0,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl0"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 1,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl1"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 2,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl2"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 3,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl3"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 2,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 4,
+          "listener_mac": "020000000002",
+          "label": "peert2-artyl4"
+        }
+      ],
+      "counter_targets": [
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 6,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 8,
+          "crf": true
+        }
+      ],
+      "format_policy": "read talker live format; match listener before bind",
+      "evidence": [
+        "image_hashes",
+        "manifest",
+        "csr_map",
+        "verdict_jsonl",
+        "uart_transcript",
+        "wire_captures",
+        "controller_log",
+        "timestamped_snapshots",
+        "temperature_log",
+        "planted_event_log"
+      ],
+      "unsupported_operation": "refuse; never skip or claim PASS",
+      "duration_s": 86400,
+      "interval_s": 60,
+      "release_eligible": false,
+      "sample_at_start": true,
+      "sample_at_end": true,
+      "gptp_publication": [
+        "gm",
+        "parent",
+        "path",
+        "pdelay_ns",
+        "sync",
+        "asCapable",
+        "tu"
+      ],
+      "continuous_evidence": [
+        "asCapable_transitions",
+        "tu_intervals",
+        "stream_flow",
+        "uptime",
+        "mr_pdus",
+        "media_clock_events",
+        "MEDIA_RESET_reads",
+        "gptp_discontinuities",
+        "gm_changes",
+        "planted_events"
+      ],
+      "counter_oracle": "check_release_soak_counters",
+      "zero_growth_counters": [
+        "SEQ_NUM_MISMATCH",
+        "STREAM_INTERRUPTED",
+        "LATE_TIMESTAMP",
+        "EARLY_TIMESTAMP"
+      ],
+      "media_unlocked_rule": "zero growth outside a recorded planted event, explained or not",
+      "planted_event_log": "every deliberately planted disturbance with its target, kind and window_s; an empty list when none was planted",
+      "planted_event_reads": "read the target's counters at its window's start and end; only an increment between two reads inside the window is excused",
+      "mr_oracle": "check_release_mr",
+      "mr_capture_window": "[first read - 1 s - observation_resolution_s, last read]",
+      "mr_distinct_causes": true,
+      "mr_resolution_limit_s": 0.5,
+      "tu_oracle": "check_release_tu_history",
+      "tu_resolution_limit_s": 0.125,
+      "tu_rise_check": "first discontinuity <= observed_start + observation_resolution_s",
+      "mr_cause_kinds": [
+        "media-clock-source change",
+        "CRF disruption",
+        "CRF mr toggle"
+      ],
+      "mr_cause_window": "toggle timestamp +/- observation_resolution_s",
+      "mr_hold_pdus": 8,
+      "mr_pdu_index": "unwrapped per-stream capture index",
+      "mr_counter_update_bound_s": 1.0,
+      "missing_evidence": "NOT RUN",
+      "tu_gm_minimum_s": 0.25,
+      "tu_gm_minimum_check": "clear + observation_resolution_s >= GM change + 0.25 s",
+      "tu_holdover_bound_s": 0.5,
+      "tu_time_origin": "last recorded discontinuity before tu clears",
+      "tu_event_window": "[observed_start - observation_resolution_s, clear)",
+      "tu_discontinuity_kinds": [
+        "PHC settime/adjtime",
+        "fabric discontinuity",
+        "GM-identity edge",
+        "GM time-source change",
+        "other detected gPTP discontinuity"
+      ],
+      "tu_observation_resolution": "record wire-capture and correlated event-timestamp resolution in seconds",
+      "tu_uncorrelated": "fail",
+      "timestamp_margin": {
+        "register": "AVTPRX_TSD",
+        "offset": 1772,
+        "stream_input": 0,
+        "units": "signed ns"
+      },
+      "max_soak_interval_s": 60,
+      "topology_explicit": false
+    },
+    "asserts": [
+      "release.complete-evidence",
+      "soak.continuous-duration",
+      "soak.bound-both-directions",
+      "soak.counter-walk",
+      "soak.no-counter-errors",
+      "soak.mr-causes-and-hold",
+      "soak.gptp-continuity",
+      "soak.tu-within-holdover",
+      "soak.timestamp-margin",
+      "soak.uptime-monotonic"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions",
+    "note": "Bind all pairs before timing; sample at each interval and the exact endpoint, including a partial final interval. Monitor unbound outputs too; only bound streams owe traffic. Teardown after the final snapshot.",
+    "assert_clauses": {
+      "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+      "soak.continuous-duration": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: at least 86400 continuous seconds (24 h) after all pairs flow; no concatenating interrupted runs or counting setup time",
+      "soak.bound-both-directions": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: keep the compatible AAF and CRF pairs bound and flowing in both directions throughout the observation window",
+      "soak.counter-walk": "Milan v1.2 Table 5.4 / Table 5.6; REQ-VER-06: read every declared input and output, CRF included, at baseline, each interval and the endpoint; validate masks and lock/start-stop invariants; no unexplained counter reset",
+      "soak.no-counter-errors": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.8.10 Table 5.6; IEEE 1722-2016 4.4.4.6: zero SEQ_NUM_MISMATCH, STREAM_INTERRUPTED, LATE_TIMESTAMP and EARLY_TIMESTAMP growth on every Stream Input, CRF included; zero MEDIA_UNLOCKED growth of any cause, explained or not, outside a recorded planted event; an increment is excused only when both reads around it lie inside that input's planted window, so read the input at the window's start and end; each planted event excuses at most one increment per input; a decrease is a counter reset and fails; graded by check_release_soak_counters; missing reads or a missing planted-event log is NOT RUN",
+      "soak.mr-causes-and-hold": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEEE 1722-2016 4.4.4.3; Milan v1.2 Annex B.1.2, Tables 5.4/5.6: every mr toggle and MEDIA_RESET increment needs a recorded media-clock-source change, CRF disruption, or received CRF mr toggle mapped to that stream's clock source; GM change alone fails; match causes within +/- observation_resolution_s of the toggle; hold each new value for at least 8 AVTPDUs of that stream; MEDIA_RESET counts observation intervals, not packets; missing packet, cause, counter or resolution evidence is NOT RUN; each cause excuses at most one toggle per stream; 2 * observation_resolution_s must be less than the 1 s counter interval ceiling; capture must span [first read - 1 s - observation_resolution_s, last read]; a MEDIA_RESET decrease is a counter reset, not a wrap",
+      "soak.gptp-continuity": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 4.2.6.2.4: coherent fabric publication reads and transition evidence prove no asCapable loss",
+      "soak.tu-within-holdover": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 Annex B.1/B.1.1 / IEEE 1722-2016 4.4.4.7: each tu interval contains at least one recorded discontinuity: GM-identity edge, GM time-source change, or other detected gPTP discontinuity (including PHC settime/adjtime and fabric discontinuity); containment uses [observed_start - observation_resolution_s, clear); measure from the last recorded discontinuity before tu clears; it clears within 0.5 s plus the stated observation resolution; uncorrelated tu fails; resolution comes from wire capture and correlated event timestamps; it includes launch-to-capture latency and event-to-capture correlation error; after each GM change, clear + observation_resolution_s must be at least GM change + 0.25 s (Annex B.1.1 minimum); missing GM history is NOT RUN; clock validity implements 0.25-0.5 s; B.1's 5 s media-clock holdover is not a tu bound; periodic healthy samples alone cannot prove this; first discontinuity must be within observation_resolution_s of the rise; grade every GM change against the complete tu interval history; a GM change with no covering interval fails; true hold d is observed as h within +/- R, where R = observation_resolution_s; minimum accepts h + R >= 0.25 s, so d >= 0.25 s - 2 * R; require 2 * R < 0.25 s so an instant clear fails; upper bound requires h + R <= 0.5 s + R, equivalently h <= 0.5 s; resolution_limit_s is 0.125 s; coarser resolution is NOT RUN",
+      "soak.timestamp-margin": "docs/reference/REGISTER_MAP.md AVTPRX_TSD (0x6EC): record signed ns presentation margin for the last accepted STREAM_INPUT[0] PDU, with freshness evidence; never attribute this single-index register to other streams",
+      "soak.uptime-monotonic": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: DUT uptime advances monotonically; reboot or unavailable uptime evidence cannot pass the continuous soak"
+    },
+    "assert_severity": {
+      "release.complete-evidence": "SHALL",
+      "soak.continuous-duration": "SHALL",
+      "soak.bound-both-directions": "SHALL",
+      "soak.counter-walk": "SHALL",
+      "soak.no-counter-errors": "SHALL",
+      "soak.mr-causes-and-hold": "SHALL",
+      "soak.gptp-continuity": "SHALL",
+      "soak.tu-within-holdover": "SHALL",
+      "soak.timestamp-margin": "SHALL",
+      "soak.uptime-monotonic": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.identity.loop-ch12.t0",
+    "area": "audio",
+    "op": "audio_identity_loop",
+    "args": {
+      "talker": "020000fffe000002",
+      "talker_mac": "020000000002",
+      "talker_index": 0,
+      "peer": "3cc0c60102030000",
+      "peer_mac": "3cc0c6010203",
+      "peer_listener": 0,
+      "peer_talker": 0,
+      "listener": "020000fffe000002",
+      "listener_mac": "020000000002",
+      "dut_listener": 0,
+      "listener_index": 0,
+      "channels": [
+        1,
+        2
+      ],
+      "pattern": "walking"
+    },
+    "asserts": [
+      "acmp.status",
+      "counters.stream_input.frames-rx-advances",
+      "audio.identity.uncrossed",
+      "audio.identity.channel-preserved"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1",
+    "note": "stream talker 0 to the reference device's ch 1/2 and it returns on ch 1/2 into sink 0; the peer is the independent oracle",
+    "assert_clauses": {
+      "acmp.status": "IEEE 1722.1-2021 8.2.2.5 / Milan v1.2 5.5.3: the response carries the status of the request, and SUCCESS is the only status a conformant bind of a compatible pair may return",
+      "counters.stream_input.frames-rx-advances": "Milan v1.2 5.3.7.3 + Table 5.6 FRAMES_RX: a bound listener fed by a streaming talker sees FRAMES_RX advance; a frozen FRAMES_RX beside a SUCCESS bind is the defect this campaign exists to catch",
+      "audio.identity.uncrossed": "IEEE 1722-2016 7.3.5: the payload is a chronological sequence of sample frames, each carrying one sample per channel IN CHANNEL ORDER, so channel k is payload sample k mod channels_per_frame",
+      "audio.identity.channel-preserved": "Milan v1.2 5.3.10.1 channel mapping: a channel-preserving loop through a Milan-validated device returns ch 1/2 on ch 1/2, which makes the test an IDENTITY test and not a counter test"
+    },
+    "assert_severity": {
+      "acmp.status": "SHALL",
+      "counters.stream_input.frames-rx-advances": "SHALL",
+      "audio.identity.uncrossed": "SHALL",
+      "audio.identity.channel-preserved": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.identity.loop-ch12.t1",
+    "area": "audio",
+    "op": "audio_identity_loop",
+    "args": {
+      "talker": "020000fffe000002",
+      "talker_mac": "020000000002",
+      "talker_index": 1,
+      "peer": "3cc0c60102030000",
+      "peer_mac": "3cc0c6010203",
+      "peer_listener": 1,
+      "peer_talker": 1,
+      "listener": "020000fffe000002",
+      "listener_mac": "020000000002",
+      "dut_listener": 1,
+      "listener_index": 1,
+      "channels": [
+        1,
+        2
+      ],
+      "pattern": "walking"
+    },
+    "asserts": [
+      "acmp.status",
+      "counters.stream_input.frames-rx-advances",
+      "audio.identity.uncrossed",
+      "audio.identity.channel-preserved"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1",
+    "note": "stream talker 1 to the reference device's ch 1/2 and it returns on ch 1/2 into sink 1; the peer is the independent oracle",
+    "assert_clauses": {
+      "acmp.status": "IEEE 1722.1-2021 8.2.2.5 / Milan v1.2 5.5.3: the response carries the status of the request, and SUCCESS is the only status a conformant bind of a compatible pair may return",
+      "counters.stream_input.frames-rx-advances": "Milan v1.2 5.3.7.3 + Table 5.6 FRAMES_RX: a bound listener fed by a streaming talker sees FRAMES_RX advance; a frozen FRAMES_RX beside a SUCCESS bind is the defect this campaign exists to catch",
+      "audio.identity.uncrossed": "IEEE 1722-2016 7.3.5: the payload is a chronological sequence of sample frames, each carrying one sample per channel IN CHANNEL ORDER, so channel k is payload sample k mod channels_per_frame",
+      "audio.identity.channel-preserved": "Milan v1.2 5.3.10.1 channel mapping: a channel-preserving loop through a Milan-validated device returns ch 1/2 on ch 1/2, which makes the test an IDENTITY test and not a counter test"
+    },
+    "assert_severity": {
+      "acmp.status": "SHALL",
+      "counters.stream_input.frames-rx-advances": "SHALL",
+      "audio.identity.uncrossed": "SHALL",
+      "audio.identity.channel-preserved": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.identity.loop-ch12.t2",
+    "area": "audio",
+    "op": "audio_identity_loop",
+    "args": {
+      "talker": "020000fffe000002",
+      "talker_mac": "020000000002",
+      "talker_index": 2,
+      "peer": "3cc0c60102030000",
+      "peer_mac": "3cc0c6010203",
+      "peer_listener": 2,
+      "peer_talker": 2,
+      "listener": "020000fffe000002",
+      "listener_mac": "020000000002",
+      "dut_listener": 2,
+      "listener_index": 2,
+      "channels": [
+        1,
+        2
+      ],
+      "pattern": "walking"
+    },
+    "asserts": [
+      "acmp.status",
+      "counters.stream_input.frames-rx-advances",
+      "audio.identity.uncrossed",
+      "audio.identity.channel-preserved"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1",
+    "note": "stream talker 2 to the reference device's ch 1/2 and it returns on ch 1/2 into sink 2; the peer is the independent oracle",
+    "assert_clauses": {
+      "acmp.status": "IEEE 1722.1-2021 8.2.2.5 / Milan v1.2 5.5.3: the response carries the status of the request, and SUCCESS is the only status a conformant bind of a compatible pair may return",
+      "counters.stream_input.frames-rx-advances": "Milan v1.2 5.3.7.3 + Table 5.6 FRAMES_RX: a bound listener fed by a streaming talker sees FRAMES_RX advance; a frozen FRAMES_RX beside a SUCCESS bind is the defect this campaign exists to catch",
+      "audio.identity.uncrossed": "IEEE 1722-2016 7.3.5: the payload is a chronological sequence of sample frames, each carrying one sample per channel IN CHANNEL ORDER, so channel k is payload sample k mod channels_per_frame",
+      "audio.identity.channel-preserved": "Milan v1.2 5.3.10.1 channel mapping: a channel-preserving loop through a Milan-validated device returns ch 1/2 on ch 1/2, which makes the test an IDENTITY test and not a counter test"
+    },
+    "assert_severity": {
+      "acmp.status": "SHALL",
+      "counters.stream_input.frames-rx-advances": "SHALL",
+      "audio.identity.uncrossed": "SHALL",
+      "audio.identity.channel-preserved": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.identity.loop-ch12.t3",
+    "area": "audio",
+    "op": "audio_identity_loop",
+    "args": {
+      "talker": "020000fffe000002",
+      "talker_mac": "020000000002",
+      "talker_index": 3,
+      "peer": "3cc0c60102030000",
+      "peer_mac": "3cc0c6010203",
+      "peer_listener": 3,
+      "peer_talker": 3,
+      "listener": "020000fffe000002",
+      "listener_mac": "020000000002",
+      "dut_listener": 3,
+      "listener_index": 3,
+      "channels": [
+        1,
+        2
+      ],
+      "pattern": "walking"
+    },
+    "asserts": [
+      "acmp.status",
+      "counters.stream_input.frames-rx-advances",
+      "audio.identity.uncrossed",
+      "audio.identity.channel-preserved"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1",
+    "note": "stream talker 3 to the reference device's ch 1/2 and it returns on ch 1/2 into sink 3; the peer is the independent oracle",
+    "assert_clauses": {
+      "acmp.status": "IEEE 1722.1-2021 8.2.2.5 / Milan v1.2 5.5.3: the response carries the status of the request, and SUCCESS is the only status a conformant bind of a compatible pair may return",
+      "counters.stream_input.frames-rx-advances": "Milan v1.2 5.3.7.3 + Table 5.6 FRAMES_RX: a bound listener fed by a streaming talker sees FRAMES_RX advance; a frozen FRAMES_RX beside a SUCCESS bind is the defect this campaign exists to catch",
+      "audio.identity.uncrossed": "IEEE 1722-2016 7.3.5: the payload is a chronological sequence of sample frames, each carrying one sample per channel IN CHANNEL ORDER, so channel k is payload sample k mod channels_per_frame",
+      "audio.identity.channel-preserved": "Milan v1.2 5.3.10.1 channel mapping: a channel-preserving loop through a Milan-validated device returns ch 1/2 on ch 1/2, which makes the test an IDENTITY test and not a counter test"
+    },
+    "assert_severity": {
+      "acmp.status": "SHALL",
+      "counters.stream_input.frames-rx-advances": "SHALL",
+      "audio.identity.uncrossed": "SHALL",
+      "audio.identity.channel-preserved": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.identity.walking-tone-all-channels.t0",
+    "area": "audio",
+    "op": "audio_identity_capture",
+    "args": {
+      "talker": "020000fffe000002",
+      "talker_mac": "020000000002",
+      "talker_index": 0,
+      "pattern": "walking",
+      "per_channel_distinct": true
+    },
+    "asserts": [
+      "audio.identity.uncrossed",
+      "audio.identity.no-duplicate-neighbour",
+      "audio.identity.no-silent-channel"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "IEEE 1722-2016 7.3.5",
+    "note": "every driven sample is DISTINCT per (channel, sample event) - a pattern that drove equal values on two channels could not fail on a swap (methodology R4)",
+    "assert_clauses": {
+      "audio.identity.uncrossed": "IEEE 1722-2016 7.3.5: the payload is a chronological sequence of sample frames, each carrying one sample per channel IN CHANNEL ORDER, so channel k is payload sample k mod channels_per_frame",
+      "audio.identity.no-duplicate-neighbour": "IEEE 1722-2016 7.3.5: two channels carrying identical content is the signature of a mux stuck on one pair, and presence testing cannot see it",
+      "audio.identity.no-silent-channel": "IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1: a mapped channel that carries nothing is a dropped channel"
+    },
+    "assert_severity": {
+      "audio.identity.uncrossed": "SHALL",
+      "audio.identity.no-duplicate-neighbour": "SHALL",
+      "audio.identity.no-silent-channel": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.identity.walking-tone-all-channels.t1",
+    "area": "audio",
+    "op": "audio_identity_capture",
+    "args": {
+      "talker": "020000fffe000002",
+      "talker_mac": "020000000002",
+      "talker_index": 1,
+      "pattern": "walking",
+      "per_channel_distinct": true
+    },
+    "asserts": [
+      "audio.identity.uncrossed",
+      "audio.identity.no-duplicate-neighbour",
+      "audio.identity.no-silent-channel"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "IEEE 1722-2016 7.3.5",
+    "note": "every driven sample is DISTINCT per (channel, sample event) - a pattern that drove equal values on two channels could not fail on a swap (methodology R4)",
+    "assert_clauses": {
+      "audio.identity.uncrossed": "IEEE 1722-2016 7.3.5: the payload is a chronological sequence of sample frames, each carrying one sample per channel IN CHANNEL ORDER, so channel k is payload sample k mod channels_per_frame",
+      "audio.identity.no-duplicate-neighbour": "IEEE 1722-2016 7.3.5: two channels carrying identical content is the signature of a mux stuck on one pair, and presence testing cannot see it",
+      "audio.identity.no-silent-channel": "IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1: a mapped channel that carries nothing is a dropped channel"
+    },
+    "assert_severity": {
+      "audio.identity.uncrossed": "SHALL",
+      "audio.identity.no-duplicate-neighbour": "SHALL",
+      "audio.identity.no-silent-channel": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.identity.walking-tone-all-channels.t2",
+    "area": "audio",
+    "op": "audio_identity_capture",
+    "args": {
+      "talker": "020000fffe000002",
+      "talker_mac": "020000000002",
+      "talker_index": 2,
+      "pattern": "walking",
+      "per_channel_distinct": true
+    },
+    "asserts": [
+      "audio.identity.uncrossed",
+      "audio.identity.no-duplicate-neighbour",
+      "audio.identity.no-silent-channel"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "IEEE 1722-2016 7.3.5",
+    "note": "every driven sample is DISTINCT per (channel, sample event) - a pattern that drove equal values on two channels could not fail on a swap (methodology R4)",
+    "assert_clauses": {
+      "audio.identity.uncrossed": "IEEE 1722-2016 7.3.5: the payload is a chronological sequence of sample frames, each carrying one sample per channel IN CHANNEL ORDER, so channel k is payload sample k mod channels_per_frame",
+      "audio.identity.no-duplicate-neighbour": "IEEE 1722-2016 7.3.5: two channels carrying identical content is the signature of a mux stuck on one pair, and presence testing cannot see it",
+      "audio.identity.no-silent-channel": "IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1: a mapped channel that carries nothing is a dropped channel"
+    },
+    "assert_severity": {
+      "audio.identity.uncrossed": "SHALL",
+      "audio.identity.no-duplicate-neighbour": "SHALL",
+      "audio.identity.no-silent-channel": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.identity.walking-tone-all-channels.t3",
+    "area": "audio",
+    "op": "audio_identity_capture",
+    "args": {
+      "talker": "020000fffe000002",
+      "talker_mac": "020000000002",
+      "talker_index": 3,
+      "pattern": "walking",
+      "per_channel_distinct": true
+    },
+    "asserts": [
+      "audio.identity.uncrossed",
+      "audio.identity.no-duplicate-neighbour",
+      "audio.identity.no-silent-channel"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "IEEE 1722-2016 7.3.5",
+    "note": "every driven sample is DISTINCT per (channel, sample event) - a pattern that drove equal values on two channels could not fail on a swap (methodology R4)",
+    "assert_clauses": {
+      "audio.identity.uncrossed": "IEEE 1722-2016 7.3.5: the payload is a chronological sequence of sample frames, each carrying one sample per channel IN CHANNEL ORDER, so channel k is payload sample k mod channels_per_frame",
+      "audio.identity.no-duplicate-neighbour": "IEEE 1722-2016 7.3.5: two channels carrying identical content is the signature of a mux stuck on one pair, and presence testing cannot see it",
+      "audio.identity.no-silent-channel": "IEEE 1722-2016 7.3.5 + Milan v1.2 5.3.10.1: a mapped channel that carries nothing is a dropped channel"
+    },
+    "assert_severity": {
+      "audio.identity.uncrossed": "SHALL",
+      "audio.identity.no-duplicate-neighbour": "SHALL",
+      "audio.identity.no-silent-channel": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.thdn",
+    "area": "audio",
+    "op": "thdn_gate",
+    "args": {
+      "source": "wire_capture",
+      "rate_hz": 48000,
+      "f0_hz": 1000,
+      "channels": 2,
+      "accept_dbfs": -120.0,
+      "analyser": "tb/tools/thdn.py"
+    },
+    "asserts": [
+      "audio.thdn.worst-channel",
+      "audio.thdn.coherent-not-windowed"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "reuses tb/tools/thdn.py - do not reimplement",
+    "note": "numpy is required for this one step and nowhere else",
+    "assert_clauses": {
+      "audio.thdn.worst-channel": "USER acceptance: THD+N <= -120 dBFS end to end; the digital source itself measures -147.99 dBFS, so the wire+fabric path must add nothing",
+      "audio.thdn.coherent-not-windowed": "the pilot tone is exact-period (48 samples = 1 kHz at 48 kHz), so a capture truncated to whole periods is coherently sampled; applying a window spreads the fundamental into neighbouring bins which the residual then counts as distortion - it MANUFACTURES the number it is supposed to measure"
+    },
+    "assert_severity": {
+      "audio.thdn.worst-channel": "SHALL",
+      "audio.thdn.coherent-not-windowed": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.integrity",
+    "area": "audio",
+    "op": "release_audio_integrity",
+    "args": {
+      "pairs": [
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 0,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 0,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt0-peerl0"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 1,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 2,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt1-peerl2"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 2,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 4,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt2-peerl4"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 3,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 6,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt3-peerl6"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 4,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 8,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt4-peerl8"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 0,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl0"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 1,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl1"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 2,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl2"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 3,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl3"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 2,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 4,
+          "listener_mac": "020000000002",
+          "label": "peert2-artyl4"
+        }
+      ],
+      "counter_targets": [
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 6,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 8,
+          "crf": true
+        }
+      ],
+      "format_policy": "read talker live format; match listener before bind",
+      "evidence": [
+        "image_hashes",
+        "manifest",
+        "csr_map",
+        "verdict_jsonl",
+        "uart_transcript",
+        "wire_captures",
+        "controller_log",
+        "timestamped_snapshots",
+        "temperature_log",
+        "audio_captures",
+        "planted_arm_log",
+        "capture_loss_log",
+        "audio_event_records"
+      ],
+      "unsupported_operation": "refuse; never skip or claim PASS",
+      "duration_s": 86400,
+      "context_s": 5,
+      "window": "soak.continuous",
+      "window_rule": "start after soak.continuous binds every pair and starts timing; end at or before its endpoint; the soak outlasts duration_s by the capture's guards and logged losses",
+      "release_eligible": false,
+      "topology_explicit": false,
+      "digital_paths": [
+        {
+          "path": "outbound",
+          "talker": "020000fffe000002",
+          "listener": "3cc0c60102030000",
+          "capture": "an external digital capture",
+          "byteorder": "recorded per capture"
+        },
+        {
+          "path": "return",
+          "talker": "3cc0c60102030000",
+          "listener": "020000fffe000002",
+          "capture": "the DUT's TDM output and the direct TDM capture (#451)",
+          "byteorder": "recorded per capture"
+        },
+        {
+          "path": "dut-tdm-loop",
+          "talker": "020000fffe000002",
+          "listener": "020000fffe000002",
+          "capture": "the direct TDM capture (#451)",
+          "byteorder": "recorded per capture"
+        }
+      ],
+      "graded_pairs": "every AAF pair; a CRF stream carries no audio samples",
+      "counter_layout": {
+        "container": "S32; 24-bit sample in bits 31:8; bits 7:0 zero",
+        "channel_field": "sample bits 15:12 = channel index + 1",
+        "position_field": "sample bits 11:1 = absolute sample position modulo 2048",
+        "code_field": "sample bit 0 = bit (n mod 32) of block (n div 2048)'s code, the block number times 0x9E3779B1 modulo 2^32",
+        "period_frames": 8796093022208,
+        "period_rate_basis": "Milan v1.2 6.2 Table 6.1: 48, 96 and 192 kHz; 2^43 samples is about 530 days at 192 kHz"
+      },
+      "counter_grader": "grade_audio_counter_capture",
+      "counter_grader_required_s": 86400,
+      "counter_classes": [
+        "dropped",
+        "repeated",
+        "silence",
+        "bit-flip",
+        "swap",
+        "unresolved"
+      ],
+      "qualification": {
+        "interval": "from 63 samples after the last counter channel's acquisition to 63 samples before the capture's end",
+        "guard_frames": 63,
+        "observed_only": "logged capture losses are not observed time",
+        "capture_rule": "capture past the required duration at both ends by the guards and by any logged loss, inside the soak window",
+        "verdict": "every verdict states the interval; PASS needs at least required_s observed seconds in it; a shorter interval is NOT RUN",
+        "required_s": 86400
+      },
+      "counter_limits": [
+        "every slip is sized exactly from the decoded position",
+        "a slip of whole 2048-sample blocks is found within 63 samples and carries located_within, the samples it may have happened at: back over the words that fit both tracks, a corrupted word included where the tracks coincide, and on to the first word that shows it",
+        "inside a cluster of events less than 64 samples apart, the slips between them take the smallest sizes the positions allow, and a code bit those sizes leave unexplained reads as a code-bit corruption; the cluster's total is exact",
+        "a code-bit corruption less than 64 samples before a slip of whole blocks may make its word the new track's; when every word between them fits both tracks, the bytes are that slip alone at the corrupted word, and read so",
+        "where a slip of whole blocks and a code-bit corruption less than 64 samples apart give the same bytes in either order, because the corrupted word is the other track's and only one word between them differs, the corruption reads first and the slip is located after it",
+        "a slip followed, within the words that fit both tracks, by a slip of whole blocks gives the bytes of one slip of their sum, and reads so",
+        "at a logged planted arm the arm log decides between readings with the same bytes, taking the one that places the arm only when it has no more DUT events, so a DUT slip that undoes a slip arm at the next sample reads as the arm and that slip; a DUT slip at a planted slip arm's own sample is one slip of their sum, so unless the DUT slip is whole blocks the arm is missed and the run is void",
+        "a word equal to a neighbouring received word is a repeat",
+        "an excursion of two or more words with one constant XOR mask is one corruption at any length, even where slips would produce the same words and whatever one-word event lies beside it; a word on the old track is its return",
+        "a constant-mask corruption that a slip interrupts reads as the slips its words show",
+        "a slip pair whose total is whole blocks and whose displaced words share one XOR mask reads as that bit-flip and a slip of whole blocks beside it, the corruption judged against whichever track gives its mask fewer bits set",
+        "a stretch longer than 65536 words without 64 clean samples is graded in pieces; a constant-mask corruption stays a bit-flip with that mask in each",
+        "at either end of a capture, words that differ from their track only in the code bit are one unresolved event: a slip of whole blocks or a code-bit corruption, with located_within for the slip",
+        "any other slip that 64 clean samples cannot confirm, in a capture's last samples or inside a constant-mask excursion the capture ends in, carries unresolved",
+        "nothing outside the qualified interval is proved clean"
+      ],
+      "planted_arms": [
+        {
+          "class": "dropped",
+          "n": 3
+        },
+        {
+          "class": "repeated",
+          "n": 2
+        },
+        {
+          "class": "bit-flip",
+          "mask": 256
+        }
+      ],
+      "planted_placement": "a drop, a repeat and a flip in the first tenth of the capture and again in its last tenth, inside the qualified interval, logged with capture index, channel and size or mask",
+      "planted_missed": "void: NOT RUN",
+      "capture_start": "once the counter flows on every channel; words before a channel's acquisition are graded against the track it acquires, so leading silence fails; a channel that has not acquired within 65536 frames voids the run",
+      "capture_losses": "logged by the capture tool inside the qualified interval; attributed to the capture and reported apart; a loss advances the acquisition index and both clocks",
+      "capture_timing": {
+        "anchors": "capture index, wall s and gPTP s recorded by the capture tool at most audio_context_s apart and at the capture's end",
+        "gptp_steps": "the soak's recorded gPTP discontinuities on the wall clock",
+        "rule": "interpolate between the anchors around an event; never extrapolate; gPTP never across a recorded discontinuity; an unsupported time is null with its reason"
+      },
+      "event_record": [
+        "wall_s",
+        "gptp_s",
+        "capture_index",
+        "acquisition_index",
+        "expected",
+        "received",
+        "class",
+        "located_within",
+        "timing"
+      ],
+      "event_context": {
+        "counter_walk": "every stream and the CRF sink",
+        "csr": {
+          "SLIP_LB": 2260,
+          "SLIP_TDM": 2264
+        },
+        "gptp": "publication and transition state",
+        "max_gap_s": 5
+      },
+      "analog": {
+        "tones_hz": [
+          997,
+          9973
+        ],
+        "path": "the analog chain, converters included",
+        "grading": [
+          "THD+N per block",
+          "sample-exact predictor residual"
+        ],
+        "limits": null,
+        "limits_status": "undecided on #396; NOT RUN until decided"
+      },
+      "pass_rule": "zero DUT-attributed events on every bound channel, both directions, with every planted arm found, over a qualified interval of at least required_s observed seconds"
+    },
+    "asserts": [
+      "release.complete-evidence",
+      "audio.inside-soak-window",
+      "audio.counter-every-digital-path",
+      "audio.counter-classified",
+      "audio.planted-arms-found",
+      "audio.capture-losses-apart",
+      "audio.event-record",
+      "audio.analog-sine-pair",
+      "audio.zero-dut-glitches"
+    ],
+    "needs_human": true,
+    "human_action": "Feed the counter source and the sine pair, start every capture, and plant the logged arms at the start and the end of the run.",
+    "clause": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04",
+    "note": "Runs concurrently with soak.continuous, inside its window. Grade every capture offline; walk counters, SLIP words and gPTP state at most context_s apart throughout.",
+    "assert_clauses": {
+      "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+      "audio.inside-soak-window": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: starts after soak.continuous binds every pair and starts timing, ends at or before the soak endpoint and lasts at least 86400 continuous seconds of qualified, observed capture, so it runs past them by its guards and any logged loss; a shorter run or one outside the window cannot qualify",
+      "audio.counter-every-digital-path": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04; IEEE 1722-2016 7.3.5: every channel of every bound AAF stream, in both directions, carries the bit-exact counter: the DUT talker to the reference peer to an external digital capture, the reference peer to the DUT listener to the DUT's TDM output and the direct TDM capture (#451), and the DUT's TDM loop",
+      "audio.counter-classified": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: grade_audio_counter_capture classifies every discontinuity at its sample as n dropped, n repeated, n samples of silence (replaced or inserted), a bit-flip mask or a channel swap; the counter repeats only after 2^43 samples, so every slip is sized exactly; a slip of whole 2048-sample blocks is located within 63 samples (located_within); the tag's integrity decides first: only a reciprocal exchange is a swap, any other foreign or corrupted channel number is corruption; a word equal to a neighbouring received word is a repeat; an excursion of two or more words with one constant XOR mask is one corruption at any length, beside any one-word event; a slip and a corruption in one window are both graded in either order, and patterns the bytes cannot tell apart follow counter_limits, the planted-arm log deciding at a logged arm; a channel swapped from the first frame is a swap, its counters still tracked; at either end of a capture, words that differ from their track only in the code bit are one unresolved event, never an exact class; the verdict states its qualified interval, from 63 samples after the last channel's acquisition to 63 samples before the capture's end, and nothing outside it is proved clean",
+      "audio.planted-arms-found": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: the source plants a drop, a repeat and a bit flip at logged capture indices at the start and at the end of the run, in its first and its last tenth and inside the qualified interval; each is found with its class and its size or mask; where the capture's bytes allow a reading that places an arm, the arm's log decides, never at the cost of another DUT event; a missed arm, an arm outside the qualified interval, or arms that do not run at both ends, voids the run as NOT RUN",
+      "audio.capture-losses-apart": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: capture-side losses logged by the capture tool are attributed to the capture and reported apart, never counted against the DUT, and only when every counter channel shows the slip; a logged loss the capture does not show, or one outside the qualified interval, is NOT RUN; a loss still advances the acquisition index and both clocks, but it is not observed time",
+      "audio.event-record": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04; Milan v1.2 5.3.8.10 Table 5.6: each event records its wall and gPTP times, capture and acquisition indices, expected and received words and class, with walks of every stream's counters and the CRF sink's, the DUT's SLIP_LB and SLIP_TDM words and the gPTP state within audio_context_s on each side; times are interpolated between the capture tool's anchors, never extrapolated, and gPTP time never across a recorded discontinuity; an unsupported time is null with its reason",
+      "audio.analog-sine-pair": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: 997 Hz and 9,973 Hz on another channel pair through the analog path, graded per block by THD+N and the sample-exact predictor residual; no limit is decided for either, so this assertion is NOT RUN until a recorded decision sets them",
+      "audio.zero-dut-glitches": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: zero DUT-attributed events over the run on every bound channel, in both directions, with every planted arm found, over a qualified interval of at least 86400 observed seconds; a shorter qualified interval is NOT RUN"
+    },
+    "assert_severity": {
+      "release.complete-evidence": "SHALL",
+      "audio.inside-soak-window": "SHALL",
+      "audio.counter-every-digital-path": "SHALL",
+      "audio.counter-classified": "SHALL",
+      "audio.planted-arms-found": "SHALL",
+      "audio.capture-losses-apart": "SHALL",
+      "audio.event-record": "SHALL",
+      "audio.analog-sine-pair": "SHALL",
+      "audio.zero-dut-glitches": "SHALL"
+    }
+  },
+  {
+    "sid": "audio.control.planted-drop",
+    "area": "audio",
+    "op": "release_negative_control",
+    "args": {
+      "control_of": "audio.integrity",
+      "expected_failing_assertion": "audio.zero-dut-glitches",
+      "expected_verdict": "FAIL",
+      "oracle": "grade_audio_counter_capture",
+      "offline": true,
+      "context_s": 5,
+      "fixture": {
+        "generator": "synthesize_counter_capture",
+        "frames": 24576,
+        "channels": 8,
+        "rate_hz": 48000,
+        "byteorder": "big",
+        "arm_tolerance_frames": 2,
+        "required_s": 0.509375,
+        "planted_arms": [
+          {
+            "class": "dropped",
+            "n": 3,
+            "index": 100
+          },
+          {
+            "class": "repeated",
+            "n": 2,
+            "index": 300
+          },
+          {
+            "class": "bit-flip",
+            "mask": 256,
+            "index": 500,
+            "channel": 2
+          },
+          {
+            "class": "dropped",
+            "n": 3,
+            "index": 23676
+          },
+          {
+            "class": "repeated",
+            "n": 2,
+            "index": 23976
+          },
+          {
+            "class": "bit-flip",
+            "mask": 256,
+            "index": 24276,
+            "channel": 5
+          }
+        ],
+        "source_events": [
+          {
+            "kind": "drop",
+            "index": 100,
+            "n": 3
+          },
+          {
+            "kind": "repeat",
+            "index": 300,
+            "n": 2
+          },
+          {
+            "kind": "flip",
+            "index": 500,
+            "channel": 2,
+            "mask": 256
+          },
+          {
+            "kind": "drop",
+            "index": 23676,
+            "n": 3
+          },
+          {
+            "kind": "repeat",
+            "index": 23976,
+            "n": 2
+          },
+          {
+            "kind": "flip",
+            "index": 24276,
+            "channel": 5,
+            "mask": 256
+          }
+        ],
+        "dut_event": {
+          "kind": "drop",
+          "index": 12295,
+          "n": 5
+        },
+        "expected_events": {
+          "class": "dropped",
+          "n": 5,
+          "capture_index": 12295,
+          "channels": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      }
+    },
+    "asserts": [
+      "release.control-fails-as-expected",
+      "audio.zero-dut-glitches",
+      "audio.counter-classified"
+    ],
+    "needs_human": false,
+    "human_action": "",
+    "clause": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04; issue #396 acceptance 4",
+    "note": "Graded offline on a synthetic capture: the unplanted drop must FAIL and be classified exactly, every arm found.",
+    "assert_clauses": {
+      "release.control-fails-as-expected": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 acceptance 4: a negative control passes only when its expected assertion FAILs on the known defect; a PASS, SKIP or NOT RUN of that assertion means the gate cannot see it",
+      "audio.zero-dut-glitches": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: zero DUT-attributed events over the run on every bound channel, in both directions, with every planted arm found, over a qualified interval of at least 86400 observed seconds; a shorter qualified interval is NOT RUN",
+      "audio.counter-classified": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 audio signal design 2026-10-04: grade_audio_counter_capture classifies every discontinuity at its sample as n dropped, n repeated, n samples of silence (replaced or inserted), a bit-flip mask or a channel swap; the counter repeats only after 2^43 samples, so every slip is sized exactly; a slip of whole 2048-sample blocks is located within 63 samples (located_within); the tag's integrity decides first: only a reciprocal exchange is a swap, any other foreign or corrupted channel number is corruption; a word equal to a neighbouring received word is a repeat; an excursion of two or more words with one constant XOR mask is one corruption at any length, beside any one-word event; a slip and a corruption in one window are both graded in either order, and patterns the bytes cannot tell apart follow counter_limits, the planted-arm log deciding at a logged arm; a channel swapped from the first frame is a swap, its counters still tracked; at either end of a capture, words that differ from their track only in the code bit are one unresolved event, never an exact class; the verdict states its qualified interval, from 63 samples after the last channel's acquisition to 63 samples before the capture's end, and nothing outside it is proved clean"
+    },
+    "assert_severity": {
+      "release.control-fails-as-expected": "SHALL",
+      "audio.zero-dut-glitches": "SHALL",
+      "audio.counter-classified": "SHALL"
+    }
+  },
+  {
+    "sid": "power.idle",
+    "area": "power",
+    "op": "release_power_cycles",
+    "args": {
+      "pairs": [
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 0,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 0,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt0-peerl0"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 1,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 2,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt1-peerl2"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 2,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 4,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt2-peerl4"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 3,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 6,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt3-peerl6"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 4,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 8,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt4-peerl8"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 0,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl0"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 1,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl1"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 2,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl2"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 3,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl3"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 2,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 4,
+          "listener_mac": "020000000002",
+          "label": "peert2-artyl4"
+        }
+      ],
+      "counter_targets": [
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 6,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 8,
+          "crf": true
+        }
+      ],
+      "format_policy": "read talker live format; match listener before bind",
+      "evidence": [
+        "image_hashes",
+        "manifest",
+        "csr_map",
+        "verdict_jsonl",
+        "uart_transcript",
+        "wire_captures",
+        "controller_log",
+        "timestamped_snapshots",
+        "temperature_log",
+        "power_strip_log"
+      ],
+      "unsupported_operation": "refuse; never skip or claim PASS",
+      "cycles": 100,
+      "total_cycles": 200,
+      "phase": "idle",
+      "cold": true,
+      "soft_reset": false,
+      "cycle_kind": "cold cut",
+      "outlet_role": "dut",
+      "power_off_hold_s": 8,
+      "power_off_hold_origin": "phys.dut-cycle.power-cycle: default 8 s; verify discharge",
+      "power_off_hold_in_adp_window": false,
+      "cold_confirmation": "power removed; discharge verified",
+      "time_origin": "T0: power-strip ON command, host monotonic clock",
+      "boot_observation_s": 35,
+      "boot_margin_s": 5,
+      "restore_bound_s": 30,
+      "restore_bound_provisional": true,
+      "restore_bound_origin": "issue #396 round 2; ratify with #397 and #75",
+      "boot_observation_origin": "restore_bound_s + boot_margin_s from T0",
+      "restore_start": "T0",
+      "restore_end": "first valid AVTP PDU of each persisted binding",
+      "restore_limit_exclusive": false,
+      "restore_requires": "automatic; no controller repair; both directions and CRF",
+      "boot_max_passes": 1,
+      "boot_max_restarts": 0,
+      "boot_evidence": "complete UART/reset observation from T0 through next cycle or campaign end; at least boot_observation_s",
+      "persisted_items": [
+        "configuration",
+        "sampling_rate",
+        "stream_format",
+        "presentation_time_offset",
+        "channel_mappings",
+        "clock_source",
+        "entity_names",
+        "object_names",
+        "stream_binding"
+      ],
+      "persisted_item_clauses": {
+        "configuration": "issue #70 item 1: the currently set CONFIGURATION",
+        "sampling_rate": "Milan v1.2 5.3.5.1: every AUDIO_UNIT",
+        "stream_format": "Milan v1.2 5.3.7.1 / 5.3.8.1: every STREAM_OUTPUT and STREAM_INPUT",
+        "presentation_time_offset": "Milan v1.2 5.3.7.6: every STREAM_OUTPUT",
+        "channel_mappings": "Milan v1.2 5.3.9.1 / 5.3.10.1: both port directions",
+        "clock_source": "Milan v1.2 5.3.11.1: every CLOCK_DOMAIN",
+        "entity_names": "Milan v1.2 5.3.13: ENTITY entity_name and group_name",
+        "object_names": "Milan v1.2 5.3.13: every other user-settable object_name",
+        "stream_binding": "Milan v1.2 5.3.8.2 / 5.3.8.3 / 5.3.8.7: bound state, binding parameters and started/stopped state"
+      },
+      "state_oracle": "check_release_state_restored",
+      "state_values": "set every item away from its default before the cycle",
+      "release_eligible": false,
+      "cut_requires": "journal_idle",
+      "cut_evidence": null,
+      "pending_values": null,
+      "adp_reference": "last pre-cut DUT ENTITY_AVAILABLE, host timestamp and raw PDU",
+      "adp_valid_time_unit_s": 2,
+      "adp_required_valid_time": 10,
+      "adp_start": "T0",
+      "adp_deadline": "2 * pre_cut_valid_time",
+      "adp_elapsed": "first_post_cut_available_host_s - t0_host_s",
+      "adp_limit_exclusive": true,
+      "adp_missing_or_expired": "fail; require captured valid_time=10 and arrival before T0 deadline",
+      "rebind_limit_s": 1,
+      "rebind_limit_exclusive": true,
+      "rebind_start": "CONNECT_RX success",
+      "rebind_end": "first valid AVTP PDU",
+      "rebind_requires": "automatic restoration passed for every persisted binding",
+      "snapshot_policy": "exact pre-cut committed snapshot",
+      "topology_explicit": false
+    },
+    "asserts": [
+      "release.complete-evidence",
+      "power.cycle-count-and-phase",
+      "power.state-restored",
+      "power.adp-valid-time",
+      "power.automatic-restore-bound",
+      "power.rebind-bound",
+      "power.single-boot",
+      "power.counter-walk"
+    ],
+    "needs_human": true,
+    "human_action": "Provide the bench power-strip hook and timestamped cut-phase evidence; then run unattended cold cuts.",
+    "clause": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions",
+    "note": "Each cycle: establish pairs and saved state, snapshot, prove cut phase, remove power, confirm discharge, restore power, observe boot, verify automatic restore, measure reconnect, walk all counters. No next cut before verification finishes. Missing journal instrumentation leaves qualification open.",
+    "assert_clauses": {
+      "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+      "power.cycle-count-and-phase": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 (a power cycle or a simple reset): 200 cycles, 150 confirmed cold cuts (100 idle, 50 inside a journal commit window) and 50 soft resets with power held on; a reset never counts as a cold cut and a cut never as a reset; preserve each cycle's command timestamp and its cut-phase or reset evidence",
+      "power.state-restored": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, 5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, 5.3.13; issue #70's eight-item inventory: every cycle, cut or reset, restores the eight Milan items and the binding; set each item away from its default before the cycle so a revert is visible; compare each against the pre-cycle snapshot; commit cuts must restore a complete old or new committed snapshot, never mixed state; graded by check_release_state_restored; a pre-cycle value equal to its default or a missing readback is NOT RUN; so is a commit cut whose pending value equals its default, or whose cut instant lies outside its recorded commit window",
+      "power.adp-valid-time": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: first post-cut ENTITY_AVAILABLE arrives within the advertised valid_time measured from T0, the host-timestamped power-strip ON command; decode the captured pre-cut PDU in two-second units and require valid_time=10 (20 s); power_off_hold_s and pre-cut advertisement age are provenance, not charged to this window; missing capture or a missed deadline fails; for a soft reset T0 is the host-timestamped reset command",
+      "power.automatic-restore-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP PDU of EACH persisted binding in both directions, including CRF, must be at most restore_bound_s; provisional 30 s, ratified by the manager using #397 boot-to-entity-enabled and #75 restart measurements; controller repair cannot count",
+      "power.rebind-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.2.4; issue #75: an additional per-cycle controller reconnect after automatic restoration succeeds; CONNECT_RX success to first valid AVTP PDU below 1 second; both restoration and reconnect must pass",
+      "power.single-boot": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #366: complete UART/reset observation from T0 through the next cycle or campaign end, at least boot_observation_s, records exactly one BIOS pass and no additional restart, after a cut and after a reset; check_release_boot refuses the repeated BIOS pass even if the second pass restores streaming",
+      "power.counter-walk": "Milan v1.2 Table 5.4 / Table 5.6; REQ-VER-06: snapshot every declared stream index, both directions and CRF, before and after every cycle; validate masks, supported formats, lock/start-stop invariants and flow"
+    },
+    "assert_severity": {
+      "release.complete-evidence": "SHALL",
+      "power.cycle-count-and-phase": "SHALL",
+      "power.state-restored": "SHALL",
+      "power.adp-valid-time": "SHALL",
+      "power.automatic-restore-bound": "SHALL",
+      "power.rebind-bound": "SHALL",
+      "power.single-boot": "SHALL",
+      "power.counter-walk": "SHALL"
+    }
+  },
+  {
+    "sid": "power.journal_commit",
+    "area": "power",
+    "op": "release_power_cycles",
+    "args": {
+      "pairs": [
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 0,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 0,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt0-peerl0"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 1,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 2,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt1-peerl2"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 2,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 4,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt2-peerl4"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 3,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 6,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt3-peerl6"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 4,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 8,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt4-peerl8"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 0,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl0"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 1,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl1"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 2,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl2"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 3,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl3"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 2,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 4,
+          "listener_mac": "020000000002",
+          "label": "peert2-artyl4"
+        }
+      ],
+      "counter_targets": [
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 6,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 8,
+          "crf": true
+        }
+      ],
+      "format_policy": "read talker live format; match listener before bind",
+      "evidence": [
+        "image_hashes",
+        "manifest",
+        "csr_map",
+        "verdict_jsonl",
+        "uart_transcript",
+        "wire_captures",
+        "controller_log",
+        "timestamped_snapshots",
+        "temperature_log",
+        "power_strip_log"
+      ],
+      "unsupported_operation": "refuse; never skip or claim PASS",
+      "cycles": 50,
+      "total_cycles": 200,
+      "phase": "journal_commit",
+      "cold": true,
+      "soft_reset": false,
+      "cycle_kind": "cold cut",
+      "outlet_role": "dut",
+      "power_off_hold_s": 8,
+      "power_off_hold_origin": "phys.dut-cycle.power-cycle: default 8 s; verify discharge",
+      "power_off_hold_in_adp_window": false,
+      "cold_confirmation": "power removed; discharge verified",
+      "time_origin": "T0: power-strip ON command, host monotonic clock",
+      "boot_observation_s": 35,
+      "boot_margin_s": 5,
+      "restore_bound_s": 30,
+      "restore_bound_provisional": true,
+      "restore_bound_origin": "issue #396 round 2; ratify with #397 and #75",
+      "boot_observation_origin": "restore_bound_s + boot_margin_s from T0",
+      "restore_start": "T0",
+      "restore_end": "first valid AVTP PDU of each persisted binding",
+      "restore_limit_exclusive": false,
+      "restore_requires": "automatic; no controller repair; both directions and CRF",
+      "boot_max_passes": 1,
+      "boot_max_restarts": 0,
+      "boot_evidence": "complete UART/reset observation from T0 through next cycle or campaign end; at least boot_observation_s",
+      "persisted_items": [
+        "configuration",
+        "sampling_rate",
+        "stream_format",
+        "presentation_time_offset",
+        "channel_mappings",
+        "clock_source",
+        "entity_names",
+        "object_names",
+        "stream_binding"
+      ],
+      "persisted_item_clauses": {
+        "configuration": "issue #70 item 1: the currently set CONFIGURATION",
+        "sampling_rate": "Milan v1.2 5.3.5.1: every AUDIO_UNIT",
+        "stream_format": "Milan v1.2 5.3.7.1 / 5.3.8.1: every STREAM_OUTPUT and STREAM_INPUT",
+        "presentation_time_offset": "Milan v1.2 5.3.7.6: every STREAM_OUTPUT",
+        "channel_mappings": "Milan v1.2 5.3.9.1 / 5.3.10.1: both port directions",
+        "clock_source": "Milan v1.2 5.3.11.1: every CLOCK_DOMAIN",
+        "entity_names": "Milan v1.2 5.3.13: ENTITY entity_name and group_name",
+        "object_names": "Milan v1.2 5.3.13: every other user-settable object_name",
+        "stream_binding": "Milan v1.2 5.3.8.2 / 5.3.8.3 / 5.3.8.7: bound state, binding parameters and started/stopped state"
+      },
+      "state_oracle": "check_release_state_restored",
+      "state_values": "set every item away from its default before the cycle",
+      "release_eligible": false,
+      "cut_requires": "journal_commit_window",
+      "cut_evidence": "ReleaseCommitCut: the pending snapshot, the commit window [start, end) and the cut instant on the T0 clock; a cut outside the window hit no journal commit",
+      "pending_values": "set every pending item away from its default",
+      "adp_reference": "last pre-cut DUT ENTITY_AVAILABLE, host timestamp and raw PDU",
+      "adp_valid_time_unit_s": 2,
+      "adp_required_valid_time": 10,
+      "adp_start": "T0",
+      "adp_deadline": "2 * pre_cut_valid_time",
+      "adp_elapsed": "first_post_cut_available_host_s - t0_host_s",
+      "adp_limit_exclusive": true,
+      "adp_missing_or_expired": "fail; require captured valid_time=10 and arrival before T0 deadline",
+      "rebind_limit_s": 1,
+      "rebind_limit_exclusive": true,
+      "rebind_start": "CONNECT_RX success",
+      "rebind_end": "first valid AVTP PDU",
+      "rebind_requires": "automatic restoration passed for every persisted binding",
+      "snapshot_policy": "complete old or new committed snapshot",
+      "topology_explicit": false
+    },
+    "asserts": [
+      "release.complete-evidence",
+      "power.cycle-count-and-phase",
+      "power.state-restored",
+      "power.adp-valid-time",
+      "power.automatic-restore-bound",
+      "power.rebind-bound",
+      "power.single-boot",
+      "power.counter-walk"
+    ],
+    "needs_human": true,
+    "human_action": "Provide the bench power-strip hook and timestamped cut-phase evidence; then run unattended cold cuts.",
+    "clause": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions",
+    "note": "Each cycle: establish pairs and saved state, snapshot, prove cut phase, remove power, confirm discharge, restore power, observe boot, verify automatic restore, measure reconnect, walk all counters. No next cut before verification finishes. Missing journal instrumentation leaves qualification open.",
+    "assert_clauses": {
+      "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+      "power.cycle-count-and-phase": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 (a power cycle or a simple reset): 200 cycles, 150 confirmed cold cuts (100 idle, 50 inside a journal commit window) and 50 soft resets with power held on; a reset never counts as a cold cut and a cut never as a reset; preserve each cycle's command timestamp and its cut-phase or reset evidence",
+      "power.state-restored": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, 5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, 5.3.13; issue #70's eight-item inventory: every cycle, cut or reset, restores the eight Milan items and the binding; set each item away from its default before the cycle so a revert is visible; compare each against the pre-cycle snapshot; commit cuts must restore a complete old or new committed snapshot, never mixed state; graded by check_release_state_restored; a pre-cycle value equal to its default or a missing readback is NOT RUN; so is a commit cut whose pending value equals its default, or whose cut instant lies outside its recorded commit window",
+      "power.adp-valid-time": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: first post-cut ENTITY_AVAILABLE arrives within the advertised valid_time measured from T0, the host-timestamped power-strip ON command; decode the captured pre-cut PDU in two-second units and require valid_time=10 (20 s); power_off_hold_s and pre-cut advertisement age are provenance, not charged to this window; missing capture or a missed deadline fails; for a soft reset T0 is the host-timestamped reset command",
+      "power.automatic-restore-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP PDU of EACH persisted binding in both directions, including CRF, must be at most restore_bound_s; provisional 30 s, ratified by the manager using #397 boot-to-entity-enabled and #75 restart measurements; controller repair cannot count",
+      "power.rebind-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.2.4; issue #75: an additional per-cycle controller reconnect after automatic restoration succeeds; CONNECT_RX success to first valid AVTP PDU below 1 second; both restoration and reconnect must pass",
+      "power.single-boot": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #366: complete UART/reset observation from T0 through the next cycle or campaign end, at least boot_observation_s, records exactly one BIOS pass and no additional restart, after a cut and after a reset; check_release_boot refuses the repeated BIOS pass even if the second pass restores streaming",
+      "power.counter-walk": "Milan v1.2 Table 5.4 / Table 5.6; REQ-VER-06: snapshot every declared stream index, both directions and CRF, before and after every cycle; validate masks, supported formats, lock/start-stop invariants and flow"
+    },
+    "assert_severity": {
+      "release.complete-evidence": "SHALL",
+      "power.cycle-count-and-phase": "SHALL",
+      "power.state-restored": "SHALL",
+      "power.adp-valid-time": "SHALL",
+      "power.automatic-restore-bound": "SHALL",
+      "power.rebind-bound": "SHALL",
+      "power.single-boot": "SHALL",
+      "power.counter-walk": "SHALL"
+    }
+  },
+  {
+    "sid": "power.soft_reset",
+    "area": "power",
+    "op": "release_power_cycles",
+    "args": {
+      "pairs": [
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 0,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 0,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt0-peerl0"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 1,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 2,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt1-peerl2"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 2,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 4,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt2-peerl4"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 3,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 6,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt3-peerl6"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 4,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 8,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt4-peerl8"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 0,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl0"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 1,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl1"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 2,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl2"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 3,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl3"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 2,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 4,
+          "listener_mac": "020000000002",
+          "label": "peert2-artyl4"
+        }
+      ],
+      "counter_targets": [
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_output",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 1,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 3,
+          "crf": false
+        },
+        {
+          "entity": "020000fffe000002",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_output",
+          "index": 2,
+          "crf": true
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 0,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 2,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 4,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 6,
+          "crf": false
+        },
+        {
+          "entity": "3cc0c60102030000",
+          "descriptor": "stream_input",
+          "index": 8,
+          "crf": true
+        }
+      ],
+      "format_policy": "read talker live format; match listener before bind",
+      "evidence": [
+        "image_hashes",
+        "manifest",
+        "csr_map",
+        "verdict_jsonl",
+        "uart_transcript",
+        "wire_captures",
+        "controller_log",
+        "timestamped_snapshots",
+        "temperature_log",
+        "reset_command_log"
+      ],
+      "unsupported_operation": "refuse; never skip or claim PASS",
+      "cycles": 50,
+      "total_cycles": 200,
+      "phase": "soft_reset",
+      "cold": false,
+      "soft_reset": true,
+      "cycle_kind": "soft reset",
+      "outlet_role": "dut",
+      "reset_method": "bench-declared reset with power held on; record the mechanism, its command timestamp and the outlet state per cycle",
+      "cold_confirmation": "power held on; outlet ON before and after the reset",
+      "time_origin": "T0: reset command, host monotonic clock",
+      "boot_observation_s": 35,
+      "boot_margin_s": 5,
+      "restore_bound_s": 30,
+      "restore_bound_provisional": true,
+      "restore_bound_origin": "issue #396 round 2; ratify with #397 and #75",
+      "boot_observation_origin": "restore_bound_s + boot_margin_s from T0",
+      "restore_start": "T0",
+      "restore_end": "first valid AVTP PDU of each persisted binding",
+      "restore_limit_exclusive": false,
+      "restore_requires": "automatic; no controller repair; both directions and CRF",
+      "boot_max_passes": 1,
+      "boot_max_restarts": 0,
+      "boot_evidence": "complete UART/reset observation from T0 through next cycle or campaign end; at least boot_observation_s",
+      "persisted_items": [
+        "configuration",
+        "sampling_rate",
+        "stream_format",
+        "presentation_time_offset",
+        "channel_mappings",
+        "clock_source",
+        "entity_names",
+        "object_names",
+        "stream_binding"
+      ],
+      "persisted_item_clauses": {
+        "configuration": "issue #70 item 1: the currently set CONFIGURATION",
+        "sampling_rate": "Milan v1.2 5.3.5.1: every AUDIO_UNIT",
+        "stream_format": "Milan v1.2 5.3.7.1 / 5.3.8.1: every STREAM_OUTPUT and STREAM_INPUT",
+        "presentation_time_offset": "Milan v1.2 5.3.7.6: every STREAM_OUTPUT",
+        "channel_mappings": "Milan v1.2 5.3.9.1 / 5.3.10.1: both port directions",
+        "clock_source": "Milan v1.2 5.3.11.1: every CLOCK_DOMAIN",
+        "entity_names": "Milan v1.2 5.3.13: ENTITY entity_name and group_name",
+        "object_names": "Milan v1.2 5.3.13: every other user-settable object_name",
+        "stream_binding": "Milan v1.2 5.3.8.2 / 5.3.8.3 / 5.3.8.7: bound state, binding parameters and started/stopped state"
+      },
+      "state_oracle": "check_release_state_restored",
+      "state_values": "set every item away from its default before the cycle",
+      "release_eligible": false,
+      "cut_requires": "journal_idle",
+      "cut_evidence": null,
+      "pending_values": null,
+      "adp_reference": "last pre-cut DUT ENTITY_AVAILABLE, host timestamp and raw PDU",
+      "adp_valid_time_unit_s": 2,
+      "adp_required_valid_time": 10,
+      "adp_start": "T0",
+      "adp_deadline": "2 * pre_cut_valid_time",
+      "adp_elapsed": "first_post_cut_available_host_s - t0_host_s",
+      "adp_limit_exclusive": true,
+      "adp_missing_or_expired": "fail; require captured valid_time=10 and arrival before T0 deadline",
+      "rebind_limit_s": 1,
+      "rebind_limit_exclusive": true,
+      "rebind_start": "CONNECT_RX success",
+      "rebind_end": "first valid AVTP PDU",
+      "rebind_requires": "automatic restoration passed for every persisted binding",
+      "snapshot_policy": "exact pre-cut committed snapshot",
+      "topology_explicit": false
+    },
+    "asserts": [
+      "release.complete-evidence",
+      "power.cycle-count-and-phase",
+      "power.state-restored",
+      "power.adp-valid-time",
+      "power.automatic-restore-bound",
+      "power.rebind-bound",
+      "power.single-boot",
+      "power.counter-walk"
+    ],
+    "needs_human": true,
+    "human_action": "Provide the bench reset hook with power held on and timestamped reset evidence; then run unattended soft resets.",
+    "clause": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions",
+    "note": "Each cycle: establish pairs and saved state, snapshot, issue the reset with power held on, observe boot, verify automatic restore, measure reconnect, walk all counters. No next cycle before verification finishes.",
+    "assert_clauses": {
+      "release.complete-evidence": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions: all required assertions need measured PASS records on the exact image; missing, NOT RUN, SKIP, INFO, KNOWN-PENDING, NEEDS-HUMAN and INSTRUMENT-SUSPECT cannot qualify a release",
+      "power.cycle-count-and-phase": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 (a power cycle or a simple reset): 200 cycles, 150 confirmed cold cuts (100 idle, 50 inside a journal commit window) and 50 soft resets with power held on; a reset never counts as a cold cut and a cut never as a reset; preserve each cycle's command timestamp and its cut-phase or reset evidence",
+      "power.state-restored": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, 5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, 5.3.13; issue #70's eight-item inventory: every cycle, cut or reset, restores the eight Milan items and the binding; set each item away from its default before the cycle so a revert is visible; compare each against the pre-cycle snapshot; commit cuts must restore a complete old or new committed snapshot, never mixed state; graded by check_release_state_restored; a pre-cycle value equal to its default or a missing readback is NOT RUN; so is a commit cut whose pending value equals its default, or whose cut instant lies outside its recorded commit window",
+      "power.adp-valid-time": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; IEEE 1722.1-2021 6.2.2.5, 6.2.4/6.2.5; Milan v1.2 5.6.2/5.6.3: first post-cut ENTITY_AVAILABLE arrives within the advertised valid_time measured from T0, the host-timestamped power-strip ON command; decode the captured pre-cut PDU in two-second units and require valid_time=10 (20 s); power_off_hold_s and pre-cut advertisement age are provenance, not charged to this window; missing capture or a missed deadline fails; for a soft reset T0 is the host-timestamped reset command",
+      "power.automatic-restore-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.1.4 / 5.5.2.6: from T0 to first valid AVTP PDU of EACH persisted binding in both directions, including CRF, must be at most restore_bound_s; provisional 30 s, ratified by the manager using #397 boot-to-entity-enabled and #75 restart measurements; controller repair cannot count",
+      "power.rebind-bound": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.5.2.4; issue #75: an additional per-cycle controller reconnect after automatic restoration succeeds; CONNECT_RX success to first valid AVTP PDU below 1 second; both restoration and reconnect must pass",
+      "power.single-boot": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #366: complete UART/reset observation from T0 through the next cycle or campaign end, at least boot_observation_s, records exactly one BIOS pass and no additional restart, after a cut and after a reset; check_release_boot refuses the repeated BIOS pass even if the second pass restores streaming",
+      "power.counter-walk": "Milan v1.2 Table 5.4 / Table 5.6; REQ-VER-06: snapshot every declared stream index, both directions and CRF, before and after every cycle; validate masks, supported formats, lock/start-stop invariants and flow"
+    },
+    "assert_severity": {
+      "release.complete-evidence": "SHALL",
+      "power.cycle-count-and-phase": "SHALL",
+      "power.state-restored": "SHALL",
+      "power.adp-valid-time": "SHALL",
+      "power.automatic-restore-bound": "SHALL",
+      "power.rebind-bound": "SHALL",
+      "power.single-boot": "SHALL",
+      "power.counter-walk": "SHALL"
+    }
+  },
+  {
+    "sid": "power.control.first-boot-restart",
+    "area": "power",
+    "op": "release_negative_control",
+    "args": {
+      "control_of": "power.idle",
+      "phase": "idle",
+      "cycles": 1,
+      "expected_verdict": "FAIL",
+      "pairs": [
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 0,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 0,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt0-peerl0"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 1,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 2,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt1-peerl2"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 2,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 4,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt2-peerl4"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 3,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 6,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt3-peerl6"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 4,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 8,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt4-peerl8"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 0,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl0"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 1,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl1"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 2,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl2"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 3,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl3"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 2,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 4,
+          "listener_mac": "020000000002",
+          "label": "peert2-artyl4"
+        }
+      ],
+      "evidence": [
+        "image_hashes",
+        "manifest",
+        "verdict_jsonl",
+        "uart_transcript",
+        "controller_log",
+        "timestamped_snapshots"
+      ],
+      "image": "the shipping pair, first cold boot after its flash-pair (#366)",
+      "expected_failing_assertion": "power.single-boot",
+      "oracle": "check_release_boot",
+      "desk_fixture": {
+        "boot_passes": 2,
+        "restarts": 1,
+        "capture_complete": true
+      },
+      "retain": "flash-to-first-cold-boot provenance and uninterrupted UART capture"
+    },
+    "asserts": [
+      "release.control-fails-as-expected",
+      "power.single-boot"
+    ],
+    "needs_human": true,
+    "human_action": "Flash the shipping pair, then run one cold cut with complete UART capture from T0.",
+    "clause": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #366",
+    "note": "Only the first cold boot after a flash shows the restart, so the control is exactly one cycle after the flash.",
+    "assert_clauses": {
+      "release.control-fails-as-expected": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 acceptance 4: a negative control passes only when its expected assertion FAILs on the known defect; a PASS, SKIP or NOT RUN of that assertion means the gate cannot see it",
+      "power.single-boot": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #366: complete UART/reset observation from T0 through the next cycle or campaign end, at least boot_observation_s, records exactly one BIOS pass and no additional restart, after a cut and after a reset; check_release_boot refuses the repeated BIOS pass even if the second pass restores streaming"
+    },
+    "assert_severity": {
+      "release.control-fails-as-expected": "SHALL",
+      "power.single-boot": "SHALL"
+    }
+  },
+  {
+    "sid": "power.control.persistence-disabled",
+    "area": "power",
+    "op": "release_negative_control",
+    "args": {
+      "control_of": "power.idle",
+      "phase": "idle",
+      "cycles": 1,
+      "expected_verdict": "FAIL",
+      "pairs": [
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 0,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 0,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt0-peerl0"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 1,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 2,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt1-peerl2"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 2,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 4,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt2-peerl4"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 3,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 6,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt3-peerl6"
+        },
+        {
+          "talker": "020000fffe000002",
+          "talker_index": 4,
+          "talker_mac": "020000000002",
+          "listener": "3cc0c60102030000",
+          "listener_index": 8,
+          "listener_mac": "3cc0c6010203",
+          "label": "artyt4-peerl8"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 0,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl0"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 1,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl1"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 2,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl2"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 0,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 3,
+          "listener_mac": "020000000002",
+          "label": "peert0-artyl3"
+        },
+        {
+          "talker": "3cc0c60102030000",
+          "talker_index": 2,
+          "talker_mac": "3cc0c6010203",
+          "listener": "020000fffe000002",
+          "listener_index": 4,
+          "listener_mac": "020000000002",
+          "label": "peert2-artyl4"
+        }
+      ],
+      "evidence": [
+        "image_hashes",
+        "manifest",
+        "verdict_jsonl",
+        "uart_transcript",
+        "controller_log",
+        "timestamped_snapshots"
+      ],
+      "image": "a build with persistence disabled",
+      "expected_failing_assertion": "power.state-restored",
+      "oracle": "check_release_state_restored",
+      "desk_fixture": {
+        "items": [
+          "configuration",
+          "sampling_rate",
+          "stream_format",
+          "presentation_time_offset",
+          "channel_mappings",
+          "clock_source",
+          "entity_names",
+          "object_names",
+          "stream_binding"
+        ],
+        "pre": {
+          "configuration": "set",
+          "sampling_rate": "set",
+          "stream_format": "set",
+          "presentation_time_offset": "set",
+          "channel_mappings": "set",
+          "clock_source": "set",
+          "entity_names": "set",
+          "object_names": "set",
+          "stream_binding": "set"
+        },
+        "post": {
+          "configuration": "default",
+          "sampling_rate": "default",
+          "stream_format": "default",
+          "presentation_time_offset": "default",
+          "channel_mappings": "default",
+          "clock_source": "default",
+          "entity_names": "default",
+          "object_names": "default",
+          "stream_binding": "default"
+        },
+        "defaults": {
+          "configuration": "default",
+          "sampling_rate": "default",
+          "stream_format": "default",
+          "presentation_time_offset": "default",
+          "channel_mappings": "default",
+          "clock_source": "default",
+          "entity_names": "default",
+          "object_names": "default",
+          "stream_binding": "default"
+        }
+      }
+    },
+    "asserts": [
+      "release.control-fails-as-expected",
+      "power.state-restored"
+    ],
+    "needs_human": true,
+    "human_action": "Flash a persistence-disabled build, set every inventory item away from its default, then run one cold cut.",
+    "clause": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #70",
+    "note": "Every item reads back at its default, which the restore assertion must fail.",
+    "assert_clauses": {
+      "release.control-fails-as-expected": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; issue #396 acceptance 4: a negative control passes only when its expected assertion FAILs on the known defect; a PASS, SKIP or NOT RUN of that assertion means the gate cannot see it",
+      "power.state-restored": "REQUIREMENTS.md REQ-VER-06; issue #396 owner/assignment decisions; Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6, 5.3.8.1/5.3.8.2/5.3.8.3/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, 5.3.13; issue #70's eight-item inventory: every cycle, cut or reset, restores the eight Milan items and the binding; set each item away from its default before the cycle so a revert is visible; compare each against the pre-cycle snapshot; commit cuts must restore a complete old or new committed snapshot, never mixed state; graded by check_release_state_restored; a pre-cycle value equal to its default or a missing readback is NOT RUN; so is a commit cut whose pending value equals its default, or whose cut instant lies outside its recorded commit window"
+    },
+    "assert_severity": {
+      "release.control-fails-as-expected": "SHALL",
+      "power.state-restored": "SHALL"
+    }
+  }
+]
