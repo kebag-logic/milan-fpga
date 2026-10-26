@@ -69,9 +69,11 @@ static void write_stream(struct aecp_face *f, unsigned i, const struct aecp_desc
 
 // Write what moved on interface i, then commit it and wait for the
 // acknowledgement: the settings, every stream entry of the current
-// configuration on this interface (every), or one stream's. An interface
-// whose earlier commit the datapath has not taken refuses writes: it is owed,
-// and the next poll publishes everything.
+// configuration on this interface (every), or one stream's. A commit not
+// acknowledged within the bound leaves the interface owed, and so does a
+// write it refuses meanwhile; a poll publishes an owed interface whole once
+// its block is free. Until then applied is false, so the core takes no
+// command's change and claims none applied.
 static void publish(struct aecp_face *f, unsigned i, bool settings, const struct aecp_descriptor *stream, bool every)
 {
 	if (f->owed[i] || mbx_face_busy(i)) {
@@ -118,6 +120,19 @@ static void changed(void *ctx, enum aecp_change kind, uint16_t type, uint16_t in
 			publish(f, i, settings, i == home ? stream : NULL, kind == AECP_CHANGE_CONFIGURATION);
 		}
 	}
+}
+
+// The core's applied port: no interface owes a publication or holds a commit
+// the datapath has not acknowledged.
+static bool applied(void *ctx)
+{
+	struct aecp_face *f = ctx;
+	for (unsigned i = 0; i < f->core->cfg.interfaces; ++i) {
+		if (f->owed[i] || mbx_face_busy(i)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 // One GSI word: kind, selector and ordinal of a descriptor, the proposed format beside them.
@@ -240,7 +255,7 @@ void aecp_face_init(struct aecp_face *f, const struct aecp_ports *platform)
 	memset(f, 0, sizeof *f);
 	f->platform = platform;
 	f->ports = (struct aecp_ports){.ctx = f, .random = random_value, .stream = stream, .avb = avb, .path = path,
-		.counters = counters, .changed = changed, .format = format};
+		.counters = counters, .changed = changed, .format = format, .applied = applied};
 }
 
 void aecp_face_attach(struct aecp_face *f, struct aecp *core)
@@ -259,19 +274,21 @@ void aecp_face_status(struct aecp_face *f, uint32_t restore, uint32_t nvm, bool 
 	}
 }
 
-void aecp_face_open(struct aecp_face *f)
+bool aecp_face_open(struct aecp_face *f)
 {
 	f->ready = true;
 	for (unsigned i = 0; i < f->core->cfg.interfaces; ++i) {
-		publish(f, i, true, NULL, true);
+		f->owed[i] = true;
 	}
+	return !aecp_face_poll(f);
 }
 
 bool aecp_face_poll(struct aecp_face *f)
 {
 	bool owed = false;
 	for (unsigned i = 0; i < f->core->cfg.interfaces; ++i) {
-		if (f->owed[i] && !mbx_face_busy(i)) {
+		if (f->owed[i]) {
+			// publish refuses a block still held, which stays owed
 			f->owed[i] = false;
 			publish(f, i, true, NULL, true);
 		}

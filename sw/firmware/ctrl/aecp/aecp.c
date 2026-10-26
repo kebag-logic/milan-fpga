@@ -43,6 +43,22 @@ static bool due(uint32_t time, uint32_t deadline)
 	return (uint32_t)(time - deadline) < 0x80000000u;
 }
 
+static bool applied(struct aecp *a)
+{
+	aecp_port_begin(a);
+	bool value = a->ports->applied(a->ports->ctx);
+	aecp_port_end(a);
+	return value;
+}
+
+// The AEM commands that can change state: LOCK_ENTITY, SET_CONFIGURATION,
+// SET_STREAM_FORMAT, SET_STREAM_INFO, SET_NAME, SET_SAMPLING_RATE,
+// SET_CLOCK_SOURCE, SET_CONTROL, ADD_ and REMOVE_AUDIO_MAPPINGS.
+static bool changes(uint16_t cmd)
+{
+	return cmd < 32u ? ((0x01514142u >> cmd) & 1u) != 0u : (cmd | 1u) == 45u;
+}
+
 static void monitor(struct aecp *a, struct aecp_registration *r)
 {
 	aecp_port_begin(a);
@@ -320,8 +336,20 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 		if (cmd == 36u || cmd == 37u) {
 			status = aecp_registry_command(a, interface, cmd, source, p + 24, bytes - 24u,
 					       a->response + 38, &result);
+		} else if (changes(cmd) && !applied(a)) {
+			// an earlier change is not applied yet: refused before it changes
+			// anything, so no value joins the one still owed (#665)
+			result = bytes - 24u;
+			memcpy(a->response + 38, p + 24, result);
+			status = AECP_ENTITY_MISBEHAVING;
 		} else {
 			status = aecp_command(a, interface, cmd, p + 24, bytes - 24u, a->response + 38, &result);
+		}
+		if (a->notify && !applied(a)) {
+			// a change the platform did not apply within its bound promises
+			// nothing: no SUCCESS and no notification (#665)
+			status = AECP_ENTITY_MISBEHAVING;
+			a->notify = false;
 		}
 		finish(a, status, result);
 		if (a->start_pending) {
@@ -430,7 +458,8 @@ static bool asynchronous(struct aecp *a)
 		wire_put_be(a->response + 38, 1u, 4);
 		finish(a, AECP_SUCCESS, 16u);
 		a->response_owed = false;
-		a->notify = true;
+		// the release is notified only once the platform applied it (#665)
+		a->notify = applied(a);
 		a->requester = 0;
 		return true;
 	}

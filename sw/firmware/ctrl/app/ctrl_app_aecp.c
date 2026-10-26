@@ -108,6 +108,12 @@ static uint32_t available_index(void *ctx, unsigned interface)
 	return c->app->adp.ifs[interface].adp.available_index;
 }
 
+static bool applied(void *ctx)
+{
+	struct ctrl_app_aecp *c = ctx;
+	return c->environment->applied(c->environment->ctx);
+}
+
 void ctrl_app_aecp_store_words(const struct nvm_status *s, uint32_t *restore, uint32_t *nvm, bool *dirty)
 {
 	bool done = s->terminal != NVM_T_NONE;
@@ -209,7 +215,8 @@ bool ctrl_app_compose_aecp(struct ctrl_app *app, struct ctrl_app_aecp *c, struct
 	memset(c, 0, sizeof *c);
 	c->app = app; c->aecp = m; c->state = state; c->environment = env;
 	c->ports = (struct aecp_ports){.ctx = c, .random = random_value, .stream = stream,
-		.avb = avb, .path = path, .counters = counters, .changed = changed, .start = start, .format = format, .available_index = available_index};
+		.avb = avb, .path = path, .counters = counters, .changed = changed, .start = start, .format = format, .available_index = available_index,
+		.applied = applied};
 	if (!aecp_mbx_init(m, cfg, &c->ports, CTRL_APP_AECP_SLOT) || !aecp_mbx_attach(m, &app->loop)) return false;
 	c->acmp_owner = app->acmp.acmp.env;
 	c->acmp_ports = (struct acmp_env){c, locked, source, srp, persist, acmp_changed};
@@ -231,9 +238,9 @@ bool ctrl_app_open_aecp(struct ctrl_app_aecp *c)
 {
 	if (!c->state->released) return false;
 	if (c->face != NULL) {
-		// the restored settings and the store's status reach the datapath before AECP does
+		// the restored settings and the store's status reach the datapath, acknowledged, before AECP does
 		publish_store(c);
-		aecp_face_open(c->face);
+		if (!aecp_face_open(c->face)) return false;
 	}
 	uint32_t channels = 0;
 	for (unsigned n = 0; n < MBX_N_CH; ++n) {

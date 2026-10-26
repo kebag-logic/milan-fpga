@@ -36,13 +36,15 @@ bool ctrl_app_compose_aecp(struct ctrl_app *, struct ctrl_app_aecp *, struct aec
 bool ctrl_app_aecp_attach_face(struct ctrl_app_aecp *, struct aecp_face *);
 // The saved-state store's status as the processor reported its restore and
 // store to the CSRs: F_RESTORE, F_NVM and whether a persisted setting is not
-// saved yet (#665, ruling 6410169666 item 4). The store's boot walk is
-// synchronous, so BUSY is never set; its abort causes are the store's own code
-// space (nvm_store.h), which the processor's RS_CAUSE and CAUSE codes do not
-// share, so both stay 0.
+// saved yet (#665). The store's boot walk is synchronous, so BUSY is never
+// set; its abort causes are the store's own code space (nvm_store.h), which
+// the processor's RS_CAUSE and CAUSE codes do not share, so both stay 0.
 struct nvm_status;
 void ctrl_app_aecp_store_words(const struct nvm_status *, uint32_t *restore, uint32_t *nvm, bool *dirty);
-// After ctrl_app_open and optional SRP attachment; requires store release.
+// After ctrl_app_open and optional SRP attachment; requires store release and,
+// with a face, every interface's acknowledgement of the initial publication
+// (aecp_face_open). False opens nothing: AECP stays closed and the call may be
+// made again.
 bool ctrl_app_open_aecp(struct ctrl_app_aecp *);
 // Event-loop input only. Input events wait behind any causal ACMP response.
 void ctrl_app_aecp_changed(struct ctrl_app_aecp *, uint16_t, uint16_t, unsigned);

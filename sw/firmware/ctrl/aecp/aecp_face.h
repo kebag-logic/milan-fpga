@@ -1,13 +1,20 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
-// The AECP owner's platform face on contract 2.3 (#665, the assignment
-// 6409739310 and the ruling 6410169666): what the processor wrapper's AECP
-// faces carried in the fabric placement, in the mailbox's face block.
+// The AECP owner's platform face on contract 2.3 (#665): what the processor
+// wrapper's AECP faces carried in the fabric placement, in the mailbox's face
+// block.
 //   changed   writes each setting the core changed (class F) into the block of
-//             every interface it concerns and commits it, waiting a bounded
-//             time for the datapath's acknowledgement, all before the port
-//             returns and so before the response that promises it
-//             (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2
-//             5.4.5.2; IEEE 1722.1-2021 7.5.2)
+//             every interface it concerns and commits it, waiting at most
+//             MBX_FACE_ACK_CYCLES for the datapath's acknowledgement, before
+//             the port returns
+//   applied   false while a commit waits for its acknowledgement or an
+//             interface owes a publication. The core asks it after a change:
+//             false there, the command answers ENTITY_MISBEHAVING and nothing
+//             is notified, so a response that promises a setting follows its
+//             acknowledgement (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1;
+//             Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2). The core asks it
+//             before a state-changing command too, and refuses the command,
+//             changing nothing, until the acknowledgement returns and the
+//             interface is published again (aecp_face_poll)
 //   counters  GET_COUNTERS' 32 quadlets and counters_valid through the CTR window
 //   stream    GET_STREAM_INFO's words through the GSI window (kind 0), and an
 //             output's streaming level from the SRP owner's LICENCE
@@ -47,10 +54,12 @@ void aecp_face_attach(struct aecp_face *, struct aecp *core);
 // at once once the face is open, else by aecp_face_open.
 void aecp_face_status(struct aecp_face *, uint32_t restore, uint32_t nvm, bool dirty);
 // Publish every setting with F_CTRL.READY set, on every interface: after the
-// saved state is applied, before AECP opens (Milan v1.2 5.6.1).
-void aecp_face_open(struct aecp_face *);
-// Publish again each interface whose commit the datapath had not taken; true
-// while one is still owed.
+// saved state is applied, before AECP opens (Milan v1.2 5.6.1). True once every
+// interface acknowledged it; false leaves the others owed, and AECP stays
+// closed until a later call or poll publishes them.
+bool aecp_face_open(struct aecp_face *);
+// Publish again, whole, each owed interface whose block is free; true while
+// one is still owed.
 bool aecp_face_poll(struct aecp_face *);
 
 #ifdef __cplusplus

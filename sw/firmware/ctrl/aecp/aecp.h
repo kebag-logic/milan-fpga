@@ -68,7 +68,7 @@ struct aecp_map {
 	size_t default_count;
 };
 // LOCK: the LOCK_ENTITY state moved (a lock, an unlock or its expiry), before
-// the response or the notification that reports it (#665, ruling 6410169666).
+// the response or the notification that reports it (#665).
 enum aecp_change {
 	AECP_CHANGE_CONFIGURATION, AECP_CHANGE_FORMAT, AECP_CHANGE_LATENCY,
 	AECP_CHANGE_RATE, AECP_CHANGE_CLOCK, AECP_CHANGE_NAME, AECP_CHANGE_MAP,
@@ -90,7 +90,8 @@ struct aecp_ports {
 	bool (*path)(void *, unsigned, uint16_t, uint64_t *, size_t, size_t *);
 	bool (*counters)(void *, unsigned, uint16_t, uint16_t, struct aecp_counters *);
 	// Called only after a validated change. The value remains in core-owned
-	// storage. This is the persistence/physical-apply notification port.
+	// storage. This is the persistence/physical-apply notification port;
+	// whether the apply completed is read through applied.
 	void (*changed)(void *, enum aecp_change, uint16_t, uint16_t);
 	// START/STOP is ACMP-owned. Queue a request; later call aecp_start_done.
 	void (*start)(void *, uint16_t, bool);
@@ -98,6 +99,14 @@ struct aecp_ports {
 	bool (*format)(void *, uint16_t, uint16_t, uint64_t);
 	// Current ADP owner value for the ingress interface (IEEE 7.2.1/6.2.2.15).
 	uint32_t (*available_index)(void *, unsigned);
+	// Whether every change given to changed is applied: false while an apply
+	// waits for an acknowledgement it has not had (#665). A state-changing
+	// command asked while it is false is refused, ENTITY_MISBEHAVING, before
+	// it changes anything; one after which it is false answers
+	// ENTITY_MISBEHAVING; neither, nor a lock expiry after which it is false,
+	// notifies (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2
+	// 5.4.5.2; IEEE 1722.1-2021 7.5.2).
+	bool (*applied)(void *);
 };
 struct aecp_registration {
 	uint64_t controller;
