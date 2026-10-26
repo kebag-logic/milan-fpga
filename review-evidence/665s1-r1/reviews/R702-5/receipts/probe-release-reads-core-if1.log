@@ -1,0 +1,47 @@
+Note: Google Test filter = Core.ReviewProbe*:Core.ALock*:Core.AChange*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Core
+[ RUN      ] Core.AChangeThePlatformHasNotAppliedPromisesNothing
+[       OK ] Core.AChangeThePlatformHasNotAppliedPromisesNothing (0 ms)
+[ RUN      ] Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce
+[       OK ] Core.AChangeThePlatformHasNotAppliedWaitsUndoneAndIsAnsweredOnce (0 ms)
+[ RUN      ] Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease
+[       OK ] Core.ALockExpiryIsNotifiedOnceThePlatformAppliedTheRelease (0 ms)
+[ RUN      ] Core.ReviewProbeReadsDuringAPendingRelease
+PROBE control-locked ENTITY_AVAILABLE status=0 flags=2 lock_owner=1020304050607081
+PROBE after-expiry core_locked=0 unlocked_pending=1
+PROBE pending-release ENTITY_AVAILABLE status=0 flags=0 lock_owner=0
+PROBE pending-release foreign LOCK_ENTITY status=10 locked_id=0
+$REVIEWS/665s1-r702-5-packet/scratch/probe-src/test_aecp.cpp:2674: Failure
+Expected equality of these values:
+  get(ea,38,4)
+    Which is: 0
+  2u
+    Which is: 2
+ruling item 3: a read reports the last acknowledged LOCK_HELD (locked) while its release is pending
+
+  [FAIL] Core.ReviewProbeReadsDuringAPendingRelease: ruling item 3: a read reports the last acknowledged LOCK_HELD (locked) while its release is pending
+$REVIEWS/665s1-r702-5-packet/scratch/probe-src/test_aecp.cpp:2675: Failure
+Expected equality of these values:
+  get(ea,50,8)
+    Which is: 0
+  CTLR+1
+    Which is: 1161981756646125697
+and the acknowledged owner
+
+  [FAIL] Core.ReviewProbeReadsDuringAPendingRelease: and the acknowledged owner
+PROBE after-applied ENTITY_AVAILABLE flags=0 lock_owner=0
+[  FAILED  ] Core.ReviewProbeReadsDuringAPendingRelease (0 ms)
+[----------] 4 tests from Core (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 3 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Core.ReviewProbeReadsDuringAPendingRelease
+
+ 1 FAILED TEST
+== AECP core: checks: 4   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 4 checks, exit 1)
