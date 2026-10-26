@@ -397,7 +397,7 @@ def fast_tool_key_inputs(template: dict, generated: dict) -> None:
     try:
         transformed(ci_runtime_workflows, "generate", after_build)
     except ValueError as exc:
-        assert "steps after the build that its key does not bind: touch" in str(exc), str(exc)
+        assert "steps after the build that its key does not bind: Touch the built tree" in str(exc), str(exc)
         print("Fast Yosys tool generator refused " + str(exc))
     else:
         raise AssertionError("fast Yosys tool generator accepted a step after the build that its key does not bind")

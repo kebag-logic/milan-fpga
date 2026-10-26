@@ -237,10 +237,10 @@ def fast_tool_inputs(workflow: dict) -> tuple[dict, list[str]]:
     if [name for name in names if name in YOSYS_BUILD_STEPS] != list(YOSYS_BUILD_STEPS):
         raise ValueError(FAST_TOOL_JOB + ": missing or reordered Yosys build recipe")
     end = names.index(YOSYS_BUILD_STEPS[1]) + 1
-    after = [step.get("id", step.get("name")) for step in tool["steps"][end:]]
-    if after != list(FAST_TOOL_EVIDENCE):
+    after = tool["steps"][end:]
+    if [step.get("id") for step in after] != list(FAST_TOOL_EVIDENCE):
         raise ValueError(FAST_TOOL_JOB + ": steps after the build that its key does not bind: " + ", ".join(
-            str(step) for step in after if step not in FAST_TOOL_EVIDENCE))
+            str(step.get("name", step.get("id"))) for step in after if step.get("id") not in FAST_TOOL_EVIDENCE))
     steps = copy.deepcopy(tool["steps"][:end])
     del steps[names.index(YOSYS_BUILD_STEPS[0])]["with"]["key"]
     inputs = {"workflow": {key: workflow.get(key) for key in ("env", "defaults")},
