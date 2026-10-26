@@ -916,10 +916,12 @@ TEST_F(Core, AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease)
 // keeps its own status (#665; Milan v1.2 5.4.4.2; IEEE 1722.1-2021 9.3.2.6).
 TEST_F(Core, ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs)
 {
-    bool face=true,late=false;
+    bool face=true;
+    bool late=false;
     ON_CALL(mock,Applied).WillByDefault([&]{return face;});
     ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){face=face&&!late;});
-    constexpr uint64_t IN_FORCE=0x0102030405060708,ASKED=0x1112131415161718;
+    constexpr uint64_t IN_FORCE=0x0102030405060708;
+    constexpr uint64_t ASKED=0x1112131415161718;
     EXPECT_EQ(get(set_system_id(IN_FORCE),16,2)>>11,0u);
     late=true;Bytes identify=target(26,0,5);identify[4]=255;ask(24,identify,AECP_IN_PROGRESS);
     ASSERT_TRUE(a.waiting);
@@ -947,7 +949,8 @@ TEST_F(Core, ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs)
 // 9.3.2.6).
 TEST_F(Core, AWaitingChangeIsAnsweredOnTheInterfaceItCameIn)
 {
-    bool face=true,late=true;
+    bool face=true;
+    bool late=true;
     ON_CALL(mock,Applied).WillByDefault([&]{return face;});
     ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){face=face&&!late;});
     const unsigned asked=AECP_TEST_INTERFACES-1u;   // interface 1 at two interfaces
@@ -2474,7 +2477,8 @@ TEST_F(Face, AWaitingChangeIsAnsweredWithinTheInProgressCadence)
 {
     constexpr uint64_t MS=1000000;   // ns
     far.ack=false;Bytes identify=target(26,0,5);identify[4]=255;
-    const uint32_t asked=fabric.now_ms,from=fabric.tx_sent;
+    const uint32_t asked=fabric.now_ms;
+    const uint32_t from=fabric.tx_sent;
     auto p=command(24,identify);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();
     ASSERT_EQ(fabric.tx_sent-from,1u)<<"IN_PROGRESS";
     ASSERT_EQ(get(mbx_model_tx_frame(&fabric,from)->bytes+16,2)>>11,AECP_IN_PROGRESS);
