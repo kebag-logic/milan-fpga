@@ -756,8 +756,8 @@ def cache_checks() -> list[Check]:
                 and run.built_as(dict(spec, fetch_l1='none', xip=True)) != run.selected(args, 's', 1), ''))
     script = build.xip_script((build.ROOT / 'sw/firmware/ctrl/plat/ctrl_split.ld').read_text(), 0x20410000,
                               0x21000000)
-    out.append(('the XIP arm keeps the reset entry in rom and moves the other code to flash',
-                '\t.entry : { KEEP(*(.text.start)) } > rom\n' in script
+    out.append(('the XIP arm keeps the reset entry and F1\'s flash driver in rom and moves the other code to flash',
+                '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n' in script
                 and '\t.text : ALIGN(4) { *(.text .text.*) } > flash\n' in script
                 and 'MEMORY { flash (rx) : ORIGIN = 0x20410000, LENGTH = 0xbf0000 }' in script, script[:400]))
     return out

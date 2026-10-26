@@ -147,11 +147,14 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant: 
 
 
 #: The labelled hybrid-XIP arm (#665, D3 and lane S14): the anchor in plat/ctrl_split.ld that
-#: places all code in rom, and what replaces it. Every function past the reset entry executes
-#: from the QSPI flash window behind the instruction cache; rom keeps the reset entry, .rodata
-#: and the initial values of .data, which the core reads through its cacheless data bus.
+#: places all code in rom, and what replaces it. Every other function executes from the QSPI
+#: flash window behind the instruction cache. rom keeps the reset entry, F1's flash driver,
+#: .rodata and the initial values of .data, which the core reads through its cacheless data
+#: bus. The driver stays in block RAM as D3 requires: a CPU fetching from the flash cannot also
+#: hold the flash's command master, so the driver's own fetches would wait behind its chip select.
 XIP_TEXT = ('\t.text : { KEEP(*(.text.start)) *(.text .text.*) } > rom\n',
-            '\t.entry : { KEEP(*(.text.start)) } > rom\n\t.text : ALIGN(4) { *(.text .text.*) } > flash\n')
+            '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n'
+            '\t.text : ALIGN(4) { *(.text .text.*) } > flash\n')
 
 
 def xip_offset() -> int:

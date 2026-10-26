@@ -867,6 +867,7 @@ The firmware row replaces CPU memory, so replacement storage counts once.
 | M8a-1: firmware allocation as mapped, 8x8 with two interfaces | +53 | +2 | +54 | 123 |
 | M2 maximum additional allocation | +2 | 0 | +2 | 125 |
 | Conditional release of remaining wrapper storage, split only | -10 | -2 | -11 | 114 |
+| S2c: the split CPU's 4 KiB instruction cache, split only, out of context | +1 | +1 | +1.5 | 115.5 |
 
 The base and wrapper counts come from the [route record](../../syn/ooc/pp_resource_baseline.json).
 The [mailbox measurement](MAILBOX_SPLIT.md#measured-area) supplies its debit.
@@ -883,6 +884,8 @@ No separate smaller-core RAM saving is credited.
 Arithmetic in tiles: `87.5 - 6.5 + 6 - 18 + 54 + 2 = 125`.
 The conditional release subtracts eleven once, giving 114.
 With every bank in block RAM: `126`, and 115 after the release.
+The split CPU's instruction cache then adds 1.5 ([#665 S2c](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860)): 115.5, or 116.5 with every bank in block RAM.
+It is the CPU's own memory, outside the firmware allocation, measured out of context on the product split CPU netlist ([split control memory](SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache)).
 These memory entries grant no additional LUT saving.
 The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
 They depend on fitting the credited RAM conversions within the ledger.
@@ -890,6 +893,7 @@ They depend on fitting the credited RAM conversions within the ledger.
 Before the conditional release, with M2's unused +2 allowance, the total is 3.5 tiles over 121.5.
 The split takes the release: 114 tiles leaves 7.5 below that ceiling.
 With every bank in block RAM, 115 leaves 6.5.
+With the split CPU's instruction cache, 115.5 leaves 6.0, and 116.5 leaves 5.0.
 Both leave the separate 13.5-tile reserve untouched.
 Neither number proves integrated fit; M8a-2's route does.
 Unpriced M6 RAM conversions and integration buffers consume that allowance.
@@ -920,6 +924,7 @@ The measured mailbox already supplies its own queues and timers.
 Do not credit its storage or these released stores twice.
 At 56 firmware tiles, the conditional total becomes 116 tiles.
 It leaves 5.5 below the ceiling, before other unpriced debits.
+With the split CPU's instruction cache it is 117.5, 4.0 below.
 M2's measured MAC/CSR FIFO conversion adds no tile, so deferring it frees none.
 Beyond that allowance, defer new M6/M7 block-RAM conversions first.
 Keep their existing storage and reprice the associated LUT savings.

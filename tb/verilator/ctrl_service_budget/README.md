@@ -71,7 +71,8 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   It runs the `adp-shutdown` and `control-shutdown` groups only.
 
 `--xip` is the labelled hybrid-XIP arm (D3, lane S14): the image's own objects, relinked so that every function past the reset entry executes from the flash window behind the instruction cache.
-`rom` keeps the reset entry, `.rodata` and the initial values of `.data`.
+`rom` keeps the reset entry, F1's flash driver (`nvm_flash_litespi.c`), `.rodata` and the initial values of `.data`.
+The driver stays in block RAM, as D3 requires: a CPU fetching from the flash cannot also hold the flash's command master.
 The code sits at the first erase block past the product's AEM slot, and the flash device's image is preloaded with it:
 
 ```sh
@@ -544,7 +545,10 @@ Its checks:
 - a control probe is an instance of its functional path; repeated instances count as one path, at their worst, with every miss;
 - the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
-- reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build.
+- reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
+- the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
+- a reused build of another fetch L1 or arm is refused, and a build that records no fetch L1 is the cacheless one;
+- the XIP arm's link script keeps the reset entry and F1's flash driver in `rom` and puts every other function in the flash window.
 
 Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
 
@@ -612,6 +616,11 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: misses are counted per probe instance only (earlier rule) | misses are counted per path and per probe instance |
 | tables: a control instance is its own path (earlier rule) | a control instance is its functional path |
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
+| fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |
+| fetch bus: one beat a refill | a refill's beats are read off the netlist |
+| reuse: the fetch L1 and the arm are not compared | a reused build of another fetch L1 or arm is refused; a build with no fetch L1 is cacheless |
+| xip: the reset entry moves to flash with the other code | the XIP arm keeps the reset entry and F1's flash driver in rom and moves the other code to flash |
+| xip: F1's flash driver moves to flash with the other code | the XIP arm keeps the reset entry and F1's flash driver in rom and moves the other code to flash |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -657,3 +666,6 @@ The run must refuse the boot with an instruction access fault, cause 1, and prin
 - There is no datapath, no DDR3 and no packet traffic besides the stimulus; the CPU's DMA port is idle.
 - The firmware polls (`CTRL_MBX_WFI` undefined), as the fixture is linked.
 - The two-interface fixture gives both interfaces the same MAC, as `ctrl_aecp_image.c` does.
+- With the instruction cache, a fetch is observed as a line refill on the cache's bus; hits are on no bus and are not counted.
+- The XIP arm runs every function but the reset entry and F1's flash driver from flash.
+  The model's erase and program waits are zero, so it does not see a real part's read stall while it programs.
