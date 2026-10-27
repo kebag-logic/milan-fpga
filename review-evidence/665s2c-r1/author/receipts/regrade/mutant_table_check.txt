@@ -1,0 +1,68 @@
+ok  marker: the frame tag is ignored -> tagged start
+ok  marker: a timer path starts when its record is posted -> fixture row fixture.tmr_no_resp1.if0
+ok  marker: a timer path starts one millisecond after its deadline -> fixture row fixture.tmr_no_resp1.if0
+ok  marker: an entry start takes any function entry -> an entry start is its own function's
+ok  marker: any response on the channel ends the path -> sequence and interface
+ok  marker: the interface is ignored -> sequence and interface
+ok  marker: the first required output ends the path -> fixture row fixture.set_name.if0
+ok  marker: a receive commit goes to the oldest pending frame (earlier rule) -> a receive commit belongs to the frame it follows
+ok  marker: the expected-response check is skipped -> the expected response is checked
+ok  notify: the first recipient's commit ends the fan-out -> two recipients across interfaces end at the last
+ok  notify: the first unsolicited response on any interface ends it (earlier rule) -> two recipients across interfaces end at the last
+ok  notify: any unsolicited response counts as the change -> unrelated unsolicited responses do not end it
+ok  notify: a missing recipient is not refused -> a missing recipient is refused
+ok  notify: a recipient outside the set is not refused -> a notification to a controller outside the set is refused
+ok  clock ratio: CPU cycles equal bus cycles -> fixture row fixture.link_up.if0
+ok  clock ratio: inverted -> fixture row fixture.link_up.if0
+ok  clock ratio: CPU cycles rounded down -> fixture row fixture.malformed.if0
+ok  clock ratio: milliseconds from the CPU clock -> fixture row fixture.link_up.if0
+ok  clock ratio: a pass's milliseconds from the bus clock -> fixture passes: worst pass and composed maximum
+ok  clock ratio: a pass's bus cycles equal its CPU cycles -> fixture row fixture.link_up.if0
+ok  pass bound: it starts at the input, not at the running pass -> fixture row fixture.malformed.if0
+ok  composition: the window's population is not checked -> a composed load missing one channel is refused
+ok  composition: the composed maximum is the run's worst pass -> fixture passes: worst pass and composed maximum
+ok  composition: the composed maximum is the window's first pass -> fixture passes: worst pass and composed maximum
+ok  worst pass: the run's last pass is dropped -> refused: synthetic.service.acmp.last.if0: the release at 2050 belongs to no work pass
+ok  passes: the pass the script's end cuts counts as idle (earlier rule) -> the pass the script's end cuts is no idle pass
+ok  composition: a window that committed more than its load is accepted -> a composed window that committed more than its load is refused
+ok  composition: the load is the stimulus's own declaration (earlier rule) -> refused: synthetic: the composed window committed two ACMP records, its declared load none
+ok  composition: the backlog stimulus omits SRP -> every composed window's stimulus is its defined load
+ok  composition: the backlog stimulus omits MAAP -> every composed window's stimulus is its defined load
+ok  composition: the owed row omits the ACMP commands behind its input (earlier rule) -> every composed window's stimulus is its defined load
+ok  service: a record never released is omitted -> a starved channel is reported by name, and its window reports its load unreleased
+ok  service: a window that left its load unreleased reports it released (earlier rule) -> a starved channel is reported by name, and its window reports its load unreleased
+ok  composition: the composed maximum is taken over the windows that released their load (earlier rule) -> the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased
+ok  composition: the composed maximum is no lower bound where a window left its load unreleased -> the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased
+ok  composition: the composed maximum includes the fixture's short window -> the composed maximum is the longest pass of every backlog window, a lower bound while one left its load unreleased
+ok  composition: the composed maximum is a lower bound only where its own window left its load unreleased -> the composed maximum is a lower bound while a window shorter than the longest left its load unreleased
+ok  composition: the composed maximum does not name the backlog rows a run did not include -> a run without every backlog row names the rows not run, and its composed maximum is partial
+ok  tables: results.json omits the composed maximum -> results.json's composed maximum is the record the table renders, with its lower-bound and partial labels
+ok  tables: the composed maximum line drops its lower-bound label -> results.json's composed maximum is the record the table renders, with its lower-bound and partial labels
+ok  tables: the composed maximum line drops its partial label -> results.json's composed maximum is the record the table renders, with its lower-bound and partial labels
+ok  service: the records ahead count only those never released -> a served record's records ahead are those not yet released at its commit
+ok  notify: the cost a recipient divides by the recipients, not the gaps -> a fan-out's cost a recipient is its first to last commit over the gaps between them
+ok  service: a record's service ends at its release, not at its pass's end -> fixture row fixture.service.adp.first.if0
+ok  owed: the responses ahead are not checked -> the responses owed ahead are checked: ['31']
+ok  owed: a command never answered fits -> a command never answered is reported, unbounded, where it may be dropped
+ok  notify: the fan-out registers one controller an interface (earlier rule) -> the fan-out group registers the firmware's capacity, every registration a recipient
+ok  deadline: T_svc 20 ms -> fixture row fixture.service.srp.first.if0
+ok  deadline: strictly below the budget -> exact budget passes
+ok  deadline: the normative wait is not added -> W + T_svc passes
+ok  deadline: the ceiling drops the normative wait -> W + T_svc passes
+ok  deadline: the ACMP ceiling is the transaction timeout -> ceilings pinned
+ok  run: a CPU trap is not refused -> a CPU trap is refused
+ok  run: a T_svc miss never fails the run -> a T_svc miss fails the run unless recorded
+ok  run: a refusal does not fail the run -> a refusal fails the run, recorded or not
+ok  regrade: a selected group without its log is dropped (earlier rule) -> a regrade refuses each absent log or script, and a stale script, by name
+ok  reuse: an input outside the checkout is not rechecked (earlier rule) -> reuse refuses the image
+ok  reuse: the ROM files are not attested -> reuse refuses a ROM file
+ok  tables: a path's first instance is reported, not its worst (earlier rule) -> each path reports its worst instance
+ok  tables: misses are counted per probe instance only (earlier rule) -> misses are counted per path and per probe instance
+ok  tables: a control instance is its own path (earlier rule) -> a control instance is its functional path
+ok  tables: a starved instance is not its path's worst -> a starved instance is its path's worst
+ok  fetch bus: the cacheless observers on a cached CPU -> the fetch observers follow the CPU's fetch plugin
+ok  fetch bus: one beat a refill -> a refill's beats are read off the netlist
+ok  reuse: the fetch L1 and the arm are not compared -> a reused build of another fetch L1 or arm is refused; a build with no fetch L1 is cacheless
+ok  xip: the reset entry moves to flash with the other code -> the XIP arm keeps the reset entry and F1's flash driver in rom and moves the other code to flash
+ok  xip: F1's flash driver moves to flash with the other code -> the XIP arm keeps the reset entry and F1's flash driver in rom and moves the other code to flash
+67 rows, 67 caught mutants matched, 0 mismatches, 67 MUTANT caught lines

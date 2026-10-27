@@ -1,0 +1,60 @@
+1:  22280937cf ! 1:  05a8bae3c8 Give the split CPU an instruction cache and measure it on the split service-budget harness (#665)
+    @@ tb/verilator/ctrl_service_budget/run.py: def main() -> int:
+          (out / 'table.md').write_text(table(results, args.point))
+     
+      ## tb/verilator/ctrl_service_budget/selftest.py ##
+    -@@ tb/verilator/ctrl_service_budget/selftest.py: conversion, the pass bound, the deadlines and the composition. The real
+    - scenario's composed windows are counted against the defined loads restated
+    - here, its fan-out against the firmware's registration capacity read here,
+    - and its controls against their paths. The run's exit status, the regrade's
+    +@@ tb/verilator/ctrl_service_budget/selftest.py: the rows a run did not include, and the record results.json carries and
+    + the table renders. The real scenario's composed windows are counted
+    + against the defined loads restated here, its fan-out against the
+    + firmware's registration capacity read here, and its controls against
+    +-their paths. The run's exit status, the regrade's
+     -refusal of an absent log and the reuse attestation run on temporary files.
+    -+refusal of an absent log, the reuse attestation, and the instruction
+    -+cache's observers, reuse identity and XIP link script run on temporary
+    -+files.
+    ++their paths. The run's exit status, the regrade's refusal of an absent
+    ++log, the reuse attestation, and the instruction cache's observers, reuse
+    ++identity and XIP link script run on temporary files.
+      Then each rule is mutated in turn, and a named check must fail; a mutant of
+      a headline figure (the worst pass, the composed maximum, a pass bound)
+      fails on that figure.
+    @@ tb/verilator/ctrl_service_budget/selftest.py: def reuse_checks() -> list[Check]:
+     +
+      def checks() -> list[Check]:
+          """Every named check and whether it holds."""
+    -     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *window_checks(),
+    --            *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks()]
+    -+            *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(), *cache_checks()]
+    +     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
+    +-            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks()]
+    ++            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
+    ++            *cache_checks()]
+      
+      
+      def write_fixture(log: Path, build_json: Path) -> None:
+2:  7e1124be50 = 2:  561a3845c5 State the measured reason the split CPU keeps a cacheless data side (#665)
+3:  6d70008a9a ! 3:  d8a9d00ac7 Keep F1's flash driver in block RAM in the hybrid-XIP arm and record the cache's parameters and tiles (#665)
+    @@ tb/verilator/ctrl_service_budget/README.md: python3 -B tb/verilator/ctrl_service
+      ```sh
+     @@ tb/verilator/ctrl_service_budget/README.md: Its checks:
+      - a control probe is an instance of its functional path; repeated instances count as one path, at their worst, with every miss;
+    - - the records ahead of an input; each path's worst instance, a starved one first, and the misses per path and per instance;
+    + - the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
+      - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
+     -- reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build.
+     +- reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
+    @@ tb/verilator/ctrl_service_budget/README.md: Then [`selftest_mutants.py`](selftes
+     +| xip: F1's flash driver moves to flash with the other code | the XIP arm keeps the reset entry and F1's flash driver in rom and moves the other code to flash |
+      
+      A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
+    - 
+    + Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
+     @@ tb/verilator/ctrl_service_budget/README.md: The run must refuse the boot with an instruction access fault, cause 1, and prin
+      - There is no datapath, no DDR3 and no packet traffic besides the stimulus; the CPU's DMA port is idle.
+      - The firmware polls (`CTRL_MBX_WFI` undefined), as the fixture is linked.
+4:  f3c71e423c = 4:  102799f458 Wrap the XIP driver mutant's line to the idiom gate's width (#665)
+5:  2a7b0df539 = 5:  92ba8f40e2 Report the instruction cache's sweep, every arm, the hybrid-XIP arm and the T_svc gap on the split service budget (#665)

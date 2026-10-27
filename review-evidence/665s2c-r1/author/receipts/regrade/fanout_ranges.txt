@@ -1,0 +1,86 @@
+P1-none: 9 fan-outs, recipients [16]; a recipient 11,818 to 20,358 CPU cycles; 7.77 to 11.33 ms; over T_svc: ['set_name if0 11.33']
+  aecp_fanout.add_audio_mappings.if0 (add_audio_mappings, if0): 13,274 a recipient, 8.57 ms
+  aecp_fanout.lock_entity.if0 (lock_entity, if0): 13,271 a recipient, 8.20 ms
+  aecp_fanout.remove_audio_mappings.if0 (remove_audio_mappings, if0): 13,396 a recipient, 8.58 ms
+  aecp_fanout.set_clock_source.if0 (set_clock_source, if0): 12,355 a recipient, 8.05 ms
+  aecp_fanout.set_control_identify_off.if0 (set_control_identify_off, if0): 11,859 a recipient, 7.79 ms
+  aecp_fanout.set_control_identify_on.if0 (set_control_identify_on, if0): 11,818 a recipient, 7.77 ms
+  aecp_fanout.set_name.if0 (set_name, if0): 20,358 a recipient, 11.33 ms
+  aecp_fanout.set_sampling_rate.if0 (set_sampling_rate, if0): 12,352 a recipient, 7.97 ms
+  aecp_fanout.unlock_entity.if0 (unlock_entity, if0): 13,307 a recipient, 8.21 ms
+P8-none: 13 fan-outs, recipients [32]; a recipient 11,844 to 20,486 CPU cycles; 12.39 to 22.98 ms; over T_svc: ['lock_entity if0 16.07', 'lock_entity if1 16.39', 'set_clock_source if0 15.09', 'set_clock_source if1 14.79', 'set_control_identify_off if0 12.39', 'set_control_identify_off if1 14.96', 'set_control_identify_on if0 14.62', 'set_control_identify_on if1 15.43', 'set_name if0 20.68', 'set_name if1 22.98', 'set_sampling_rate if0 15.08', 'unlock_entity if0 15.64', 'unlock_entity if1 15.74']
+  aecp_fanout.lock_entity.if0 (lock_entity, if0): 13,376 a recipient, 16.07 ms
+  aecp_fanout.lock_entity.if1 (lock_entity, if1): 13,311 a recipient, 16.39 ms
+  aecp_fanout.set_clock_source.if0 (set_clock_source, if0): 12,352 a recipient, 15.09 ms
+  aecp_fanout.set_clock_source.if1 (set_clock_source, if1): 12,416 a recipient, 14.79 ms
+  aecp_fanout.set_control_identify_off.if0 (set_control_identify_off, if0): 11,844 a recipient, 12.39 ms
+  aecp_fanout.set_control_identify_off.if1 (set_control_identify_off, if1): 11,895 a recipient, 14.96 ms
+  aecp_fanout.set_control_identify_on.if0 (set_control_identify_on, if0): 11,870 a recipient, 14.62 ms
+  aecp_fanout.set_control_identify_on.if1 (set_control_identify_on, if1): 11,935 a recipient, 15.43 ms
+  aecp_fanout.set_name.if0 (set_name, if0): 20,486 a recipient, 20.68 ms
+  aecp_fanout.set_name.if1 (set_name, if1): 20,388 a recipient, 22.98 ms
+  aecp_fanout.set_sampling_rate.if0 (set_sampling_rate, if0): 12,403 a recipient, 15.08 ms
+  aecp_fanout.unlock_entity.if0 (unlock_entity, if0): 13,335 a recipient, 15.64 ms
+  aecp_fanout.unlock_entity.if1 (unlock_entity, if1): 13,440 a recipient, 15.74 ms
+P1-64x1: 9 fan-outs, recipients [16]; a recipient 7,144 to 11,870 CPU cycles; 4.43 to 6.45 ms; over T_svc: none
+  aecp_fanout.add_audio_mappings.if0 (add_audio_mappings, if0): 7,950 a recipient, 4.91 ms
+  aecp_fanout.lock_entity.if0 (lock_entity, if0): 7,949 a recipient, 4.66 ms
+  aecp_fanout.remove_audio_mappings.if0 (remove_audio_mappings, if0): 8,047 a recipient, 4.93 ms
+  aecp_fanout.set_clock_source.if0 (set_clock_source, if0): 7,477 a recipient, 4.61 ms
+  aecp_fanout.set_control_identify_off.if0 (set_control_identify_off, if0): 7,188 a recipient, 4.45 ms
+  aecp_fanout.set_control_identify_on.if0 (set_control_identify_on, if0): 7,144 a recipient, 4.43 ms
+  aecp_fanout.set_name.if0 (set_name, if0): 11,870 a recipient, 6.45 ms
+  aecp_fanout.set_sampling_rate.if0 (set_sampling_rate, if0): 7,476 a recipient, 4.57 ms
+  aecp_fanout.unlock_entity.if0 (unlock_entity, if0): 7,988 a recipient, 4.67 ms
+P8-64x1: 13 fan-outs, recipients [32]; a recipient 8,385 to 13,114 CPU cycles; 8.25 to 13.56 ms; over T_svc: ['lock_entity if1 10.01', 'set_name if0 12.81', 'set_name if1 13.56', 'unlock_entity if0 10.02', 'unlock_entity if1 10.03']
+  aecp_fanout.lock_entity.if0 (lock_entity, if0): 9,193 a recipient, 8.38 ms
+  aecp_fanout.lock_entity.if1 (lock_entity, if1): 9,190 a recipient, 10.01 ms
+  aecp_fanout.set_clock_source.if0 (set_clock_source, if0): 8,632 a recipient, 9.07 ms
+  aecp_fanout.set_clock_source.if1 (set_clock_source, if1): 8,643 a recipient, 8.25 ms
+  aecp_fanout.set_control_identify_off.if0 (set_control_identify_off, if0): 8,386 a recipient, 9.64 ms
+  aecp_fanout.set_control_identify_off.if1 (set_control_identify_off, if1): 8,387 a recipient, 9.64 ms
+  aecp_fanout.set_control_identify_on.if0 (set_control_identify_on, if0): 8,385 a recipient, 9.47 ms
+  aecp_fanout.set_control_identify_on.if1 (set_control_identify_on, if1): 8,388 a recipient, 9.46 ms
+  aecp_fanout.set_name.if0 (set_name, if0): 13,114 a recipient, 12.81 ms
+  aecp_fanout.set_name.if1 (set_name, if1): 13,111 a recipient, 13.56 ms
+  aecp_fanout.set_sampling_rate.if0 (set_sampling_rate, if0): 8,639 a recipient, 8.51 ms
+  aecp_fanout.unlock_entity.if0 (unlock_entity, if0): 9,191 a recipient, 10.02 ms
+  aecp_fanout.unlock_entity.if1 (unlock_entity, if1): 9,208 a recipient, 10.03 ms
+B1-64x1: 14 fan-outs, recipients [16]; a recipient 7,054 to 12,635 CPU cycles; 4.42 to 8.70 ms; over T_svc: none
+  aecp_fanout.bind_rx_stream_info.if0 (BIND_RX -> GET_STREAM_INFO notice, if0): 10,686 a recipient, 8.70 ms
+  aecp_fanout.add_audio_mappings.if0 (add_audio_mappings, if0): 7,876 a recipient, 4.90 ms
+  aecp_fanout.add_audio_mappings_output.if0 (add_audio_mappings_output, if0): 7,874 a recipient, 5.00 ms
+  aecp_fanout.lock_entity.if0 (lock_entity, if0): 7,891 a recipient, 4.64 ms
+  aecp_fanout.remove_audio_mappings.if0 (remove_audio_mappings, if0): 7,894 a recipient, 4.89 ms
+  aecp_fanout.remove_audio_mappings_output.if0 (remove_audio_mappings_output, if0): 7,891 a recipient, 4.99 ms
+  aecp_fanout.set_clock_source.if0 (set_clock_source, if0): 7,332 a recipient, 4.58 ms
+  aecp_fanout.set_configuration.if0 (set_configuration, if0): 7,054 a recipient, 4.97 ms
+  aecp_fanout.set_control_identify_off.if0 (set_control_identify_off, if0): 7,078 a recipient, 4.43 ms
+  aecp_fanout.set_control_identify_on.if0 (set_control_identify_on, if0): 7,069 a recipient, 4.42 ms
+  aecp_fanout.set_name.if0 (set_name, if0): 11,796 a recipient, 6.73 ms
+  aecp_fanout.set_sampling_rate.if0 (set_sampling_rate, if0): 7,322 a recipient, 4.52 ms
+  aecp_fanout.set_stream_info.if0 (set_stream_info, if0): 12,635 a recipient, 6.62 ms
+  aecp_fanout.unlock_entity.if0 (unlock_entity, if0): 7,874 a recipient, 4.64 ms
+B8-64x1: 22 fan-outs, recipients [32]; a recipient 9,629 to 15,334 CPU cycles; 8.85 to 18.19 ms; over T_svc: ['BIND_RX -> GET_STREAM_INFO notice if0 18.19', 'BIND_RX -> GET_STREAM_INFO notice if1 18.16', 'remove_audio_mappings_output if0 11.95', 'remove_audio_mappings_output if1 11.50', 'set_configuration if0 12.56', 'set_control_identify_off if1 10.45', 'set_name if0 13.25', 'set_name if1 12.78', 'set_stream_info if0 13.32', 'set_stream_info if1 12.90']
+  aecp_fanout.bind_rx_stream_info.if0 (BIND_RX -> GET_STREAM_INFO notice, if0): 13,267 a recipient, 18.19 ms
+  aecp_fanout.bind_rx_stream_info.if1 (BIND_RX -> GET_STREAM_INFO notice, if1): 13,374 a recipient, 18.16 ms
+  aecp_fanout.add_audio_mappings_output.if0 (add_audio_mappings_output, if0): 10,544 a recipient, 9.99 ms
+  aecp_fanout.add_audio_mappings_output.if1 (add_audio_mappings_output, if1): 10,456 a recipient, 9.94 ms
+  aecp_fanout.lock_entity.if0 (lock_entity, if0): 10,555 a recipient, 9.69 ms
+  aecp_fanout.lock_entity.if1 (lock_entity, if1): 10,540 a recipient, 9.27 ms
+  aecp_fanout.remove_audio_mappings_output.if0 (remove_audio_mappings_output, if0): 10,571 a recipient, 11.95 ms
+  aecp_fanout.remove_audio_mappings_output.if1 (remove_audio_mappings_output, if1): 10,489 a recipient, 11.50 ms
+  aecp_fanout.set_clock_source.if0 (set_clock_source, if0): 9,972 a recipient, 9.90 ms
+  aecp_fanout.set_clock_source.if1 (set_clock_source, if1): 10,017 a recipient, 9.17 ms
+  aecp_fanout.set_configuration.if0 (set_configuration, if0): 9,629 a recipient, 12.56 ms
+  aecp_fanout.set_control_identify_off.if0 (set_control_identify_off, if0): 9,655 a recipient, 8.85 ms
+  aecp_fanout.set_control_identify_off.if1 (set_control_identify_off, if1): 9,723 a recipient, 10.45 ms
+  aecp_fanout.set_control_identify_on.if0 (set_control_identify_on, if0): 9,688 a recipient, 9.28 ms
+  aecp_fanout.set_control_identify_on.if1 (set_control_identify_on, if1): 9,762 a recipient, 8.91 ms
+  aecp_fanout.set_name.if0 (set_name, if0): 14,488 a recipient, 13.25 ms
+  aecp_fanout.set_name.if1 (set_name, if1): 14,399 a recipient, 12.78 ms
+  aecp_fanout.set_sampling_rate.if0 (set_sampling_rate, if0): 9,945 a recipient, 8.96 ms
+  aecp_fanout.set_stream_info.if0 (set_stream_info, if0): 15,334 a recipient, 13.32 ms
+  aecp_fanout.set_stream_info.if1 (set_stream_info, if1): 15,330 a recipient, 12.90 ms
+  aecp_fanout.unlock_entity.if0 (unlock_entity, if0): 10,517 a recipient, 9.26 ms
+  aecp_fanout.unlock_entity.if1 (unlock_entity, if1): 10,501 a recipient, 9.25 ms

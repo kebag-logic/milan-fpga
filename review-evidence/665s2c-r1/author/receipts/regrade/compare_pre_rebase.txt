@@ -1,0 +1,201 @@
+P1-none: 18 of 18 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 1565803, "ms": 31.31606, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 740260, "ms": 14.8052, "group": "backlog"}}
+  table @@ -89 +89 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -97,0 +98,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 1,565,803 CPU cycles (31.316 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 740,260 (14.805 ms), backlog.
+P8-none: 17 of 17 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 2209308, "ms": 44.18616, "group": "backlog-adp-refill", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 1392016, "ms": 27.84032, "group": "backlog"}}
+  table @@ -137 +137 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -144,0 +145,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 2,209,308 CPU cycles (44.186 ms), backlog-adp-refill, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 1,392,016 (27.840 ms), backlog.
+P1-32x1: 18 of 18 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 941231, "ms": 18.82462, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 449585, "ms": 8.9917, "group": "backlog"}}
+  table @@ -89 +89 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -97,0 +98,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 941,231 CPU cycles (18.825 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 449,585 (8.992 ms), backlog.
+P8-32x1: 17 of 17 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 1486741, "ms": 29.73482, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 728920, "ms": 14.5784, "group": "backlog"}}
+  table @@ -137 +137 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -144,0 +145,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 1,486,741 CPU cycles (29.735 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 728,920 (14.578 ms), backlog.
+P1-64x1: 18 of 18 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 966218, "ms": 19.32436, "group": "backlog-adp-refill", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 429838, "ms": 8.59676, "group": "backlog"}}
+  table @@ -89 +89 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -97,0 +98,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 966,218 CPU cycles (19.324 ms), backlog-adp-refill, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 429,838 (8.597 ms), backlog.
+P8-64x1: 17 of 17 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 1455957, "ms": 29.11914, "group": "backlog-adp-refill", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 701553, "ms": 14.03106, "group": "backlog"}}
+  table @@ -137 +137 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -144,0 +145,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 1,455,957 CPU cycles (29.119 ms), backlog-adp-refill, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 701,553 (14.031 ms), backlog.
+P1-128x1: 18 of 18 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 947828, "ms": 18.95656, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 420150, "ms": 8.403, "group": "backlog"}}
+  table @@ -89 +89 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -97,0 +98,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 947,828 CPU cycles (18.957 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 420,150 (8.403 ms), backlog.
+P8-128x1: 17 of 17 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 1439270, "ms": 28.7854, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 688222, "ms": 13.76444, "group": "backlog"}}
+  table @@ -137 +137 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -144,0 +145,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 1,439,270 CPU cycles (28.785 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 688,222 (13.764 ms), backlog.
+P1-64x2: 18 of 18 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 900689, "ms": 18.01378, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 409652, "ms": 8.19304, "group": "backlog"}}
+  table @@ -89 +89 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -97,0 +98,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 900,689 CPU cycles (18.014 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 409,652 (8.193 ms), backlog.
+P8-64x2: 17 of 17 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 1417585, "ms": 28.3517, "group": "backlog-adp-refill", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 681617, "ms": 13.63234, "group": "backlog"}}
+  table @@ -137 +137 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -144,0 +145,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 1,417,585 CPU cycles (28.352 ms), backlog-adp-refill, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 681,617 (13.632 ms), backlog.
+P1-256x1: 18 of 18 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 899129, "ms": 17.98258, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 408472, "ms": 8.16944, "group": "backlog"}}
+  table @@ -89 +89 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -97,0 +98,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 899,129 CPU cycles (17.983 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 408,472 (8.169 ms), backlog.
+P8-256x1: 17 of 17 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 1408512, "ms": 28.17024, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 676669, "ms": 13.53338, "group": "backlog"}}
+  table @@ -137 +137 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -144,0 +145,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 1,408,512 CPU cycles (28.170 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 676,669 (13.533 ms), backlog.
+B1-64x1: 8 of 8 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 430466, "ms": 8.60932, "group": "backlog", "windows": 3, "rows": 4, "not_run": ["backlog-adp-refill"], "partial": true, "lower_bound": false, "unreleased": [], "released": {"cycles": 430466, "ms": 8.60932, "group": "backlog"}}
+  table @@ -52 +52 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -58,0 +59,3 @@
+  table +
+  table +Composed maximum over 3 of 4 backlog windows, a partial figure (backlog-adp-refill not run): 430,466 CPU cycles (8.609 ms), backlog.
+  table +Over the windows that released their whole load only: 430,466 (8.609 ms), backlog.
+B8-64x1: 8 of 8 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 703383, "ms": 14.06766, "group": "backlog", "windows": 3, "rows": 4, "not_run": ["backlog-adp-refill"], "partial": true, "lower_bound": false, "unreleased": [], "released": {"cycles": 703383, "ms": 14.06766, "group": "backlog"}}
+  table @@ -76 +76 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -82,0 +83,3 @@
+  table +
+  table +Composed maximum over 3 of 4 backlog windows, a partial figure (backlog-adp-refill not run): 703,383 CPU cycles (14.068 ms), backlog.
+  table +Over the windows that released their whole load only: 703,383 (14.068 ms), backlog.
+S1-64x1: 2 of 2 group grades byte-identical; results.json keys that differ: none
+  table @@ -9 +9 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+S8-64x1: 2 of 2 group grades byte-identical; results.json keys that differ: none
+  table @@ -10 +10 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+C1-asbuilt-64x1: 0 of 0 group grades byte-identical; results.json keys that differ: none
+  table @@ -8 +8 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+C1-slow-64x1: 1 of 1 group grades byte-identical; results.json keys that differ: none
+  table @@ -11 +11 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+C1-shutdown-64x1: 1 of 1 group grades byte-identical; results.json keys that differ: none
+  table @@ -9 +9 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+P1-xip-64x1: 18 of 18 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 4745634, "ms": 94.91268, "group": "backlog-owed", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog", "backlog-adp", "backlog-adp-refill", "backlog-owed"], "released": null}
+  table @@ -86 +86 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -94,0 +95,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 4,745,634 CPU cycles (94.913 ms), backlog-owed, a lower bound (load unreleased in backlog, backlog-adp, backlog-adp-refill, backlog-owed).
+  table +Over the windows that released their whole load only: none.
+P8-xip-64x1: 17 of 17 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 4938228, "ms": 98.76456, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog", "backlog-adp", "backlog-adp-refill", "backlog-owed"], "released": null}
+  table @@ -133 +133 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -140,0 +141,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 4,938,228 CPU cycles (98.765 ms), backlog-adp, a lower bound (load unreleased in backlog, backlog-adp, backlog-adp-refill, backlog-owed).
+  table +Over the windows that released their whole load only: none.
+P1-xip-512x1: 18 of 18 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 1403934, "ms": 28.07868, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 1171236, "ms": 23.42472, "group": "backlog"}}
+  table @@ -89 +89 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -97,0 +98,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 1,403,934 CPU cycles (28.079 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 1,171,236 (23.425 ms), backlog.
+P8-xip-512x1: 17 of 17 group grades byte-identical; results.json keys that differ: ['composed_maximum']
+  results.json composed_maximum was: null
+  results.json composed_maximum now: {"cycles": 2088796, "ms": 41.77592, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": true, "unreleased": ["backlog-adp", "backlog-adp-refill"], "released": {"cycles": 1549529, "ms": 30.99058, "group": "backlog-owed"}}
+  table @@ -137 +137 @@
+  table -Composed windows: the longest pass is the composed maximum only where the window released its whole load.
+  table +Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+  table @@ -144,0 +145,3 @@
+  table +
+  table +Composed maximum over the 4 backlog windows: at least 2,088,796 CPU cycles (41.776 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+  table +Over the windows that released their whole load only: 1,549,529 (30.991 ms), backlog-owed.
+compare: 0 arms with a changed group grade

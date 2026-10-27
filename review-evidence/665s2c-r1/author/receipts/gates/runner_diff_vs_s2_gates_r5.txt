@@ -1,0 +1,22 @@
+2,4c2,6
+< """Run the round-5 gate set at the checkout's head, foreground, one log per gate with its rc on
+< the last line, and a summary table. The docs workflow's check-mode commands, the bare-metal scope
+< gate, the harness self-test, whitespace and rtl-fast's bdd-conformance.
+---
+> """Run S2's round-5 gate set at the S2c checkout's head, one log per gate with its rc on the
+> last line, and a summary table: the docs workflow's check-mode commands, the bare-metal scope
+> gate, the harness self-test, whitespace and rtl-fast's bdd-conformance, with S2c's CPU option
+> test (test_soc_options.py) added beside the end-station builder gate. Copied from S2's
+> gates_r5.py; only this docstring and the added gate differ.
+6c8
+< Usage: gates_r5.py CHECKOUT PYTHON OUT_DIR SCRATCH [NAME...]
+---
+> Usage: gates_s2c.py CHECKOUT PYTHON OUT_DIR SCRATCH [NAME...]
+115a118
+>     ('soc_options', ['python3', 'sw/builder/test_soc_options.py'], '.'),
+119,120c122,123
+< ENV = {'builder_require_rv32': dict(os.environ, PATH=os.environ['GATE_BUILDER_PATH'] + ':' + os.environ['PATH'],
+<                                     PYTHONUNBUFFERED='1')}
+---
+> _BUILDER = dict(os.environ, PATH=os.environ['GATE_BUILDER_PATH'] + ':' + os.environ['PATH'], PYTHONUNBUFFERED='1')
+> ENV = {'builder_require_rv32': _BUILDER, 'soc_options': _BUILDER}

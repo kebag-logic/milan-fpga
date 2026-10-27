@@ -1,0 +1,13 @@
+ docs/design/MARK_II_AREA_PLAN.md                   |   5 +
+ docs/design/SPLIT_CONTROL_MEMORY.md                |  38 +++
+ sw/builder/test_soc_options.py                     |  53 +++-
+ sw/litex/milan_soc.py                              |  28 +-
+ tb/verilator/ctrl_service_budget/README.md         | 296 ++++++++++++++++++++-
+ tb/verilator/ctrl_service_budget/build.py          | 121 ++++++++-
+ tb/verilator/ctrl_service_budget/observe.vlt       |  10 +-
+ tb/verilator/ctrl_service_budget/run.py            |  31 ++-
+ tb/verilator/ctrl_service_budget/selftest.py       |  50 +++-
+ .../ctrl_service_budget/selftest_mutants.py        |  30 +++
+ tb/verilator/ctrl_service_budget/sim_main.cpp      |  24 +-
+ tb/verilator/ctrl_service_budget/split_soc.py      |  40 ++-
+ 12 files changed, 682 insertions(+), 44 deletions(-)
