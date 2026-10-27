@@ -1,0 +1,7 @@
+Device)  -  a **stereo (2-channel) talker + listener at 48 kHz**  -  implemented on
+the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101). The
+release uses one cacheless RV32I control hart and scales media capacity through
+fabric stream contexts, channels, sample rates, and, in future profiles,
+replicated physical ports.
+| NFR-SCOUT-01 | The release architecture MUST use one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized
+322:| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP and SRP MUST each be build-selectable between bare-metal firmware and fabric. Mark II defaults to f
