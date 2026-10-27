@@ -2818,19 +2818,28 @@ def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float | 
 #: the measured sweep this is chosen from.
 CTRL_FETCH_L1 = (64, 1)
 
+#: The split placement's multiply and divide (#665, owner decision 2026-10-27; NFR-SCOUT-01):
+#: the pinned VexiiRiscv's RV32M, its MulPlugin and its DivPlugin at the generator's defaults
+#: (radix 2, built for area). The split firmware is built rv32im, so its 32-bit multiplies and
+#: divides are instructions instead of the runtime's software loops.
+CTRL_MULDIV = "--with-mul --with-div"
+
 
 def ctrl_cpu_args(fetch_l1: tuple[int, int] | None) -> str:
-    """The generator options the split placement adds to its CPU; None adds nothing.
+    """The generator options the split placement adds to its CPU: RV32M, and its instruction
+    cache unless fetch_l1 is None.
 
     Only the fetch side is cached. An LSU L1 with the DMA port makes the
     generator build its coherent interconnect and hub instead of patch 0005's
     non-coherent fabric; the data-side cost measured with the instruction
     cache is mostly byte-loop stores, which firmware removes first (#665).
+    The ISA does not depend on the cache: the split image is RV32IM, so every
+    cache geometry runs it, None included.
     """
     if fetch_l1 is None:
-        return ""
+        return CTRL_MULDIV
     sets, ways = fetch_l1
-    return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
+    return f"{CTRL_MULDIV} --fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
 
 
 class MilanSoC(SoCCore):
@@ -2875,8 +2884,8 @@ class MilanSoC(SoCCore):
                 "MilanSoC needs a resolved gptp_plane=True/False when the "
                 "Milan datapath is present")
         # ---- RISC-V core(s). Two cores are understood by the integration, although
-        #      the product gate below accepts only RV32 VexiiRiscv, cacheless except
-        #      for the split placement's instruction cache (ctrl_cpu_args). The
+        #      the product gate below accepts only RV32 VexiiRiscv, RV32I and cacheless
+        #      except for the split placement's RV32M and instruction cache (ctrl_cpu_args). The
         #      processor descriptor/response bridges need the core's dedicated
         #      fabric-memory attachment whenever the Milan endpoint is present;
         #      it is a structural part of those two protocol faces.
@@ -2898,8 +2907,8 @@ class MilanSoC(SoCCore):
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
             if ctrl_mailbox:
-                # #665: the split placement's CPU fetches through its instruction
-                # cache. The all-fabric CPU's arguments, so its netlist, are unchanged.
+                # #665: the split placement's CPU has RV32M and fetches through its
+                # instruction cache. The all-fabric CPU's arguments, so its netlist, are unchanged.
                 vexii_extra = " ".join(filter(None, (vexii_extra, ctrl_cpu_args(CTRL_FETCH_L1))))
             # --xlen is a REAL knob on this path, not a NaxRiscv-only one. It used to be
             # hardcoded to 64 here, so `--cpu vexiiriscv --xlen 32` was accepted and

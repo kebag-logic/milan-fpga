@@ -69,7 +69,33 @@ int format(char *dst, size_t n, const char *fmt, va_list ap) {
         assert result.returncode == 0, result.stderr
         assert fw_rv32.object_findings(cc, [obj]), name
         print(f"PASS: caught {name} object")
-    obj.write_bytes(b"not an ELF object")
+    # The split placement's hart (#665): exactly RV32IM, so neither its base alone, nor Zmmul without the
+    # divide, nor a compressed build passes as it.
+    for name, arch, accepted in (("RV32IM", "rv32im", True), ("RV32I", "rv32i", False),
+                                 ("multiply-only (Zmmul)", "rv32i_zmmul", False),
+                                 ("compressed RV32IMC", "rv32imc", False)):
+        result = fw_gtest.run([cc, f"-march={arch}", "-mabi=ilp32", "-ffreestanding",
+                               "-c", str(source), "-o", str(obj)])
+        assert result.returncode == 0, result.stderr
+        findings = fw_rv32.object_findings(cc, [obj], "rv32im")
+        assert not findings if accepted else findings and "expected RV32IM" in findings[0], (name, findings)
+        print(f"PASS: {'accepted' if accepted else 'caught'} {name} object as the split hart's RV32IM")
+    # Its multiply and divide (#665): RV32IM makes a 32-bit divide an instruction, and the audit names the
+    # helper an RV32I divide or multiply, or a 64-bit divide on RV32IM, still calls.
+    for name, arch, body, called in (
+            ("an RV32IM 32-bit divide", "rv32im", "unsigned f(unsigned a, unsigned b) { return a / b; }", None),
+            ("an RV32I 32-bit divide", "rv32i", "unsigned f(unsigned a, unsigned b) { return a / b; }", "__udivsi3"),
+            ("an RV32I multiply", "rv32i", "unsigned f(unsigned a, unsigned b) { return a * b; }", "__mulsi3"),
+            ("an RV32IM 64-bit divide", "rv32im",
+             "unsigned long long f(unsigned long long a, unsigned long long b) { return a / b; }", "__udivdi3")):
+        source.write_text(body + "\n")
+        result = fw_gtest.run([cc, f"-march={arch}", "-mabi=ilp32", "-ffreestanding", "-Os",
+                               "-c", str(source), "-o", str(obj)])
+        assert result.returncode == 0, result.stderr
+        findings = fw_rv32.muldiv_findings(cc, [obj])
+        assert findings == ([f"{obj.name}: calls software multiply or divide ['{called}']"] if called else []), \
+            (name, findings)
+        print(f"PASS: {'caught' if called else 'accepted'} {name}{f' (calls {called})' if called else ''}")
     assert fw_rv32.object_findings(cc, [obj])
     obj.with_suffix(".su").write_text("probe.c:1:1:probe\t16\tdynamic\n")
     try:
@@ -79,7 +105,7 @@ int format(char *dst, size_t n, const char *fmt, va_list ap) {
     else:
         raise AssertionError("dynamic stack report was accepted")
     print("PASS: caught malformed object and dynamic stack report")
-    return 9
+    return 17
 
 
 def runtime_cases(cc: str, work: Path) -> int:

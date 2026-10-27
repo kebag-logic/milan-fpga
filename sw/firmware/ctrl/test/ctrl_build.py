@@ -72,6 +72,10 @@ C_FLAGS = ("-std=c11", "-O2", "-DNDEBUG", "-Wall", "-Wextra", "-Werror", "-pedan
 RV32_FLAGS = ("-march=rv32i", "-mabi=ilp32", "-ffreestanding", "-fno-stack-protector", "-Os", "-DNDEBUG",
               "-std=c11", "-Wall",
               "-Wextra", "-Werror", "-pedantic", "-fstack-usage", "-DCTRL_MBX_BASE=0x80000000u")
+#: The split placement's hart is RV32IM (#665, owner decision 2026-10-27; NFR-SCOUT-01), so the split
+#: image (ctrl_srp_image.py --layout split) is built for it. Every other RV32 build here keeps RV32I.
+SPLIT_ISA = "rv32im"
+SPLIT_RV32_FLAGS = tuple(f"-march={SPLIT_ISA}" if flag == "-march=rv32i" else flag for flag in RV32_FLAGS)
 #: Runtime interfaces an object-only check may leave undefined, including the
 #: assertion handler when a debug build enables a protocol's re-entry guard.
 RV32_LIBC = frozenset({"memset", "memcpy", "vsnprintf", "__assert_fail"})

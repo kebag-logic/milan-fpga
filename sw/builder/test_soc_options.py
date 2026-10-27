@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Issue #654: early CPU option refusals and optional real-netlist effect tests.
 
-The builder runs the refusal bank, and the split placement's instruction
-cache check (#665): only the split CPU's generator options gain the cache,
-at exactly its documented geometry.
+The builder runs the refusal bank, and the split placement's CPU check
+(#665): only the split CPU's generator options gain RV32M and the
+instruction cache, the cache at exactly its documented geometry.
 --netlists additionally requires the NaxRiscv data package and its generator
 sources; no missing dependency skips. Each export uses a fresh process
 because CPU wrappers retain class state.
@@ -24,6 +24,11 @@ SOC = ROOT / "sw/litex/milan_soc.py"
 #: debit): a 4 KiB fetch L1 of 64 sets, one way, of the generator's 64-byte
 #: line, and no LSU L1. A changed geometry must fail.
 SPLIT_FETCH_L1 = "--fetch-l1 --fetch-l1-sets=64 --fetch-l1-ways=1"
+#: RV32M on the split CPU only (#665, owner decision 2026-10-27; NFR-SCOUT-01):
+#: the generator's multiply and its divide at their defaults. Losing either, or
+#: another divider, must fail.
+SPLIT_MULDIV = "--with-mul --with-div"
+SPLIT_CPU = f"{SPLIT_MULDIV} {SPLIT_FETCH_L1}"
 
 # Keep __file__ at the real recipe, including when planting source mutations.
 # Only the refusal probe replaces CPU setup with a sentinel. The effect arm
@@ -51,6 +56,7 @@ def vexii_setup(args):
     """Record the generator options the constructor hands the CPU, then stop before setup."""
     recorded["vexii_args"] = args.vexii_args
     recorded["split_args"] = mod.ctrl_cpu_args(mod.CTRL_FETCH_L1)
+    recorded["cacheless_args"] = mod.ctrl_cpu_args(None)
     raise SetupStarted
 sink = io.StringIO()
 result = {}
@@ -223,37 +229,48 @@ def _split_cache(directory, mutations=()):
     """The CPU options of the all-fabric and the split placement (#665), checked.
 
     The all-fabric CPU keeps exactly its arguments; the split CPU adds only
-    the documented fetch L1 (SPLIT_FETCH_L1), which carries no LSU L1, and
-    ctrl_cpu_args gives the harness's --fetch-l1 split the same options.
+    RV32M (SPLIT_MULDIV) and the documented fetch L1 (SPLIT_FETCH_L1), which
+    carries no LSU L1, and ctrl_cpu_args gives the harness's --fetch-l1 split
+    the same options and its cacheless arm the same RV32M.
     """
     fabric = _probe(directory, options={}, mutations=list(mutations))
     split = _probe(directory, options={"ctrl_mailbox": True, "ctrl_firmware": "unread.elf"},
                    mutations=list(mutations))
     assert fabric["kind"] == split["kind"] == "setup", (fabric, split)
     assert fabric["vexii_args"] == "--xlen=32", fabric
-    assert split["split_args"] == SPLIT_FETCH_L1, split
-    assert split["vexii_args"] == "--xlen=32 " + SPLIT_FETCH_L1, split
+    assert split["split_args"] == SPLIT_CPU, split
+    assert split["vexii_args"] == "--xlen=32 " + SPLIT_CPU, split
+    assert split["cacheless_args"] == SPLIT_MULDIV, split
 
 
 def test_split_cache() -> None:
-    """Grade the split placement's instruction cache options and kill their loss, leak, widening and resizing."""
+    """Grade the split placement's RV32M and instruction cache options and kill their loss, leak, widening and
+    resizing."""
     split = "\n                # #665: the split"
+    cache = 'return f"{CTRL_MULDIV} --fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"'
+    muldiv = 'CTRL_MULDIV = "--with-mul --with-div"'
     controls = [
-        ("the split CPU without its cache", "            if ctrl_mailbox:" + split, "            if False:" + split),
-        ("the all-fabric CPU with the cache", "            if ctrl_mailbox:" + split, "            if True:" + split),
-        ("a data cache with it",
-         'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"',
-         'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways} --lsu-l1"'),
+        ("the split CPU without its cache or RV32M", "            if ctrl_mailbox:" + split,
+         "            if False:" + split),
+        ("the all-fabric CPU with the cache and RV32M", "            if ctrl_mailbox:" + split,
+         "            if True:" + split),
+        ("a data cache with it", cache, cache[:-1] + ' --lsu-l1"'),
         ("a larger cache", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (128, 1)"),
         ("a second way", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (64, 2)"),
         ("a smaller cache", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (32, 1)"),
+        ("the split CPU without RV32M", muldiv, 'CTRL_MULDIV = ""'),
+        ("a multiply without the divide", muldiv, 'CTRL_MULDIV = "--with-mul"'),
+        ("a radix-4 divider", muldiv, 'CTRL_MULDIV = "--with-mul --with-div --div-radix=4"'),
+        ("the cache without RV32M", cache, 'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"'),
+        ("the cacheless arm without RV32M", "    if fetch_l1 is None:\n        return CTRL_MULDIV",
+         '    if fetch_l1 is None:\n        return ""'),
     ]
     with tempfile.TemporaryDirectory(prefix="soc-split-cache-") as tmp:
         directory = Path(tmp)
         _split_cache(directory)
         for label, old, new in controls:
             _killed(lambda: _split_cache(directory, [(old, new)]), label)
-    print("Split placement CPU: the 4 KiB direct-mapped instruction cache on the split CPU only, "
+    print("Split placement CPU: RV32M and the 4 KiB direct-mapped instruction cache on the split CPU only, "
           f"{len(controls)} killed controls")
 
 

@@ -228,7 +228,9 @@ python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
 
 The gate requires the exact lwSRP gitlink and compiled source bytes.
 The pinned SDK distribution is named `ilp32d`; the cacheless core build uses
-`-march=rv32i -mabi=ilp32`, as required by #679.
+`-march=rv32i -mabi=ilp32`, as required by #679. The split image
+(`ctrl_srp_image.py --layout split`) uses `-march=rv32im`, the split hart's
+multiply and divide (#665), and calls no software multiply or divide helper.
 Minimal freestanding headers and ELF/runtime checks prevent hosted-libc leakage.
 Object totals include the library and adapter; compiler stack frames are reported
 separately and do not establish a whole call-chain bound.

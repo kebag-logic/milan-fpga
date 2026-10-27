@@ -20,8 +20,8 @@ import re
 import struct
 import sys
 from pathlib import Path
-from ctrl_build import (CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, NVM_DIR, STACK, Tree, Refusal, legacy_stack, run,
-                        source, stack_pin)
+from ctrl_build import (CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, SPLIT_ISA, SPLIT_RV32_FLAGS, NVM_DIR, STACK, Tree,
+                        Refusal, legacy_stack, run, source, stack_pin)
 from srp_arms import prepared, LWSRP_SOURCES
 from ctrl_arms import lwsrp_pin
 import fw_gtest
@@ -65,29 +65,50 @@ def aecp_inputs(tree: Tree, config: Path, out: Path) -> tuple[list[str], list[Pa
     return inc,sources
 
 
-def verify_abi(cc: str, elf: Path) -> None:
-    """Verify the final ELF, including all linked runtime objects."""
+def verify_abi(cc: str, elf: Path, isa: str) -> None:
+    """Verify the final ELF, including all linked runtime objects, is exactly `isa`."""
     data=elf.read_bytes()
     attributes=checked([cc.removesuffix("gcc")+"readelf","-A",str(elf)])
     arches=re.findall(r'Tag_RISCV_arch: "([^"]+)"',attributes)
+    name,attribute=fw_rv32.ARCH[isa]
     if (data[:7] != b"\x7fELF\x01\x01\x01" or
             struct.unpack_from("<HH",data,16) != (2,243) or
             struct.unpack_from("<I",data,36)[0] != 0 or
-            len(arches) != 1 or not re.fullmatch(r"rv32i\d+p\d+",arches[0])):
-        raise Refusal("linked image must be RV32I ILP32, including runtime code")
+            len(arches) != 1 or not re.fullmatch(attribute,arches[0])):
+        raise Refusal(f"linked image must be {name} ILP32, including runtime code")
+
+
+def layout_isa(layout: str) -> str:
+    """The split placement's hart is RV32IM (#665, owner decision 2026-10-27); the flat size fixture stays RV32I."""
+    return SPLIT_ISA if layout == "split" else "rv32i"
+
+
+def layout_flags(layout: str) -> tuple[str, list[str]]:
+    """The layout's ISA and the flags its objects are compiled with."""
+    isa=layout_isa(layout)
+    return isa,[*(SPLIT_RV32_FLAGS if isa == SPLIT_ISA else RV32_FLAGS),
+                "-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
+
+
+def object_audit(cc: str, objects: list[Path], isa: str) -> list[str]:
+    """Each object must be built for exactly `isa`; on the split hart, which multiplies and divides in hardware
+    (#665), none may call a software multiply or divide helper."""
+    return fw_rv32.object_findings(cc,objects,isa)+(fw_rv32.muldiv_findings(cc,objects) if isa == SPLIT_ISA else [])
 
 
 def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Path],
          layout: str) -> tuple[Path, Path]:
-    """Link the image flat (ctrl_image.ld) or split behind its reset entry (plat/ctrl_split.ld)."""
+    """Link the image flat (ctrl_image.ld) or split behind its reset entry (plat/ctrl_split.ld), for its layout's
+    ISA (layout_isa)."""
     elf=out/"ctrl_app.elf"; mapfile=out/"ctrl_app.map"
+    isa=layout_isa(layout)
     script,ldflags=HERE/"ctrl_image.ld",[]
     if layout == "split":
         start=out/"ctrl_split_start.o"
-        checked([cc,"-march=rv32i","-mabi=ilp32","-c",str(src/"plat/ctrl_split_start.S"),"-o",str(start)])
+        checked([cc,f"-march={isa}","-mabi=ilp32","-c",str(src/"plat/ctrl_split_start.S"),"-o",str(start)])
         (out/"regions.ld").write_text(ctrl_memory.regions_ld())
         script,ldflags=src/"plat/ctrl_split.ld",[f"-L{out}",str(start)]
-    checked([cc,"-march=rv32i","-mabi=ilp32","-nostdlib","-static","-no-pie",
+    checked([cc,f"-march={isa}","-mabi=ilp32","-nostdlib","-static","-no-pie",
              "-Wl,--gc-sections,--build-id=none",f"-Wl,-Map,{mapfile}",
              "-T",str(script),*ldflags,*map(str,objects),
              "-Wl,--start-group",*map(str,libraries),"-Wl,--end-group","-o",str(elf)])
@@ -123,7 +144,7 @@ def main() -> int:
         variant,inc=prepared(tree,args.interfaces,out,args.config.resolve())
         checked([sys.executable,"-B",str(CTRL/"adp/adp_entity.py"),str(args.config),
                  "-o",str(out/"adp_entity_gen.h")])
-        flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
+        isa,flags=layout_flags(args.layout)
         inc += [f"-I{out}",f"-I{NVM_DIR}",*fw_rv32.includes(cc)]
         sources=[source(variant if name.startswith("mbx/") else tree.src,tree.stack,name) for name in PORTABLE]
         sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/("ctrl_aecp_image.c" if args.with_aecp else "ctrl_image.c")]
@@ -149,7 +170,7 @@ def main() -> int:
             obj=out/f"{index}-{src.stem}.o"
             checked([cc,*flags,*inc,"-c",str(src),"-o",str(obj)])
             objects.append(obj)
-        findings=fw_rv32.object_findings(cc,objects)
+        findings=object_audit(cc,objects,isa)
         if findings:
             raise Refusal(str(findings))
         nm=cc.removesuffix("gcc")+"nm"
@@ -158,7 +179,7 @@ def main() -> int:
             if src.name == "ctrl_mem.c" and checked([nm,"-u",str(obj)]).strip():
                 raise Refusal(f"{obj.name} references a symbol: the platform's memory primitives call nothing")
         elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
-        verify_abi(cc,elf)
+        verify_abi(cc,elf,isa)
         symbols=checked([nm,"-S",str(elf)])
         if checked([nm,"-u",str(elf)]).strip():
             raise Refusal("linked runtime has unresolved symbols")

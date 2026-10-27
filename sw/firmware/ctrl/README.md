@@ -652,6 +652,12 @@ placement's block RAM instead, behind its reset entry
 [`plat/ctrl_split_start.S`](plat/ctrl_split_start.S)), and adds the bank plan
 the SoC would build for it to its report; see
 [Split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md).
+The split layout is built for the split hart's RV32IM (#665, owner decision of
+2026-10-27; NFR-SCOUT-01): `ctrl_build.SPLIT_RV32_FLAGS`, which are the RV32I
+flags with `-march=rv32im`. Its objects must carry the `rv32i_m_zmmul`
+attribute and none may call a software multiply or divide helper
+(`fw_rv32.muldiv_findings`), and the linked ELF must be RV32IM. The flat layout
+and `ctrl_image.py` stay RV32I.
 Both layouts link the platform's word-wide `memcpy`, `memmove`, `memset` and
 `memcmp` ([`plat/ctrl_mem.c`](plat/ctrl_mem.c), #665) ahead of the runtime
 archive, whose byte loops are then not linked. The builder refuses an object
