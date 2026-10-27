@@ -380,7 +380,7 @@ Clauses are IEEE 1722.1-2021, IEEE 1722-2016, IEEE 802.1Q-2018, IEEE 802.1AS-201
 | Hierarchy | LUT | FF | Function | How it is built | Set by the standard | Implementation choice |
 |---|---:|---:|---|---|---|---|
 | `@own` (the LiteX top) | 4,833 | 6,072 | DDR3 controller and PHY, the SoC bus and CSR banks, the management MAC, UART, SPI flash, the BIOS ROM and SRAM, generated FIFOs | one flat generated module | nothing in Milan | DDR3 main memory (L11a), the FIFO storage (L3) |
-| `VexiiRiscvLitex_*` | 3,522 | 4,736 | the control hart (NFR-SCOUT-01: one cacheless RV32I) | the VexiiRiscv core and its bus bridges | nothing in Milan | the core choice (L11b) |
+| `VexiiRiscvLitex_*` | 3,522 | 4,736 | the control hart (NFR-SCOUT-01: one RV32I hart, 4 KiB instruction cache, no data cache) | the VexiiRiscv core and its bus bridges | nothing in Milan | the core choice (L11b) |
 | `VexiiRiscvLitex_*/vexiis_0_logic_core` and its own logic | 1,148 | 1,041 | the RV32I pipeline itself | an in-order pipeline with its register file | nothing in Milan | the core |
 | `VexiiRiscvLitex_*/@own` | 696 | 1,807 | the netlist's own glue: bus adapters, clock-domain FIFOs, the interrupt and timer blocks | generated interconnect | nothing in Milan | replaced with the core in L11b |
 

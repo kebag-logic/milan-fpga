@@ -240,6 +240,8 @@ The cache's tiles are the CPU's, outside `rom` and `sram`, so the 56-RAMB36 firm
 They are debited in the [plan's ledger](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 1.5 tiles, in the split only.
 The route closes at the shipping clocks, the CPU at 50 MHz and its bus at 100 MHz; the integrated route is M8a-2's.
 
-[NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) requires "one cacheless RV32I control hart", and [the architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats it.
-The owner's decision gives the split hart this instruction cache.
-That requirement text awaits the owner's amendment (#665); this section records the conflict until then.
+The owner amended [NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) for this cache on 2026-10-27 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6434741232), [correction](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6434744436)), following the 2026-10-26 decision that the cache is the first approach.
+It had required "one cacheless RV32I control hart", which this cache contradicted.
+It now requires one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless.
+[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
+Any change to the cache's geometry, or a data cache, needs the owner's decision again.
