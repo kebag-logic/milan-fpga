@@ -1,0 +1,140 @@
+{
+  "sources": [
+    "<scratch>/builds/P8-xip-512x1/mbx-variant/KL_mbx_pkg.sv",
+    "<checkout>/hdl/milan/mailbox/KL_mbx_ring.sv",
+    "<checkout>/hdl/milan/mailbox/KL_mbx_rx.sv",
+    "<checkout>/hdl/milan/mailbox/KL_mbx_tx.sv",
+    "<checkout>/hdl/milan/mailbox/KL_mbx_evt.sv",
+    "<scratch>/builds/P8-xip-512x1/mbx-variant/KL_mbx.sv",
+    "<checkout>/hdl/milan/mailbox/KL_mbx_wb.sv",
+    "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+    "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+    "$LITEX/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_a0c06ad628d5b7d3d1e4126dbf13d26e.v",
+    "<scratch>/builds/P8-xip-512x1/gateware/sim.v"
+  ],
+  "includes": [],
+  "sys_hz": 100000000,
+  "cpu_hz": 50000000,
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "addresses": {
+    "mailbox": 2147483648,
+    "master": 4026544128,
+    "timer0": 4026546176,
+    "flash": 536870912,
+    "flash_size": 16777216
+  },
+  "window_bytes": 32768,
+  "netlist": "VexiiRiscvLitex_a0c06ad628d5b7d3d1e4126dbf13d26e",
+  "vexii_soc_args": {
+    "cpu_count": "1",
+    "imsic_interrupt_number": "0",
+    "l2_bytes": "0",
+    "l2_self_flush": "None",
+    "l2_ways": "4",
+    "mac_sg": "[]",
+    "video": "[]",
+    "with_aplic": "False",
+    "with_axi3": "False",
+    "with_axilite_xlen": "False",
+    "with_cpu_clk": "True",
+    "with_dma": "True",
+    "with_jtag_instruction": "False",
+    "with_jtag_tap": "False"
+  },
+  "vexii_args": " --with-isa=,zicsr,zifencei,i --xlen=32 --fetch-l1 --fetch-l1-sets=512 --fetch-l1-ways=1 --reset-vector 0",
+  "memory_regions": [
+    [
+      0,
+      229376,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      229376,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "cpu_regions": "cover",
+  "cpu_memory_regions": [
+    [
+      0,
+      262144,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      262144,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "fetch_l1": "512x1",
+  "fetch_l1_geometry": [
+    512,
+    1
+  ],
+  "ctrl_plan": {
+    "rom": {
+      "bytes": 27216,
+      "banks": [
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 7,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 112656,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 35.0,
+    "budget_tiles": 56
+  }
+}

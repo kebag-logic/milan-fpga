@@ -1,0 +1,145 @@
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/acmp-notk.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/adp-advertise.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/acmp-noresp.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/srp.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/backlog.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/backlog-adp-refill.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/backlog-adp.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/backlog-owed.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/acmp-disc.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/maap.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/adp-link.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/adp-gm.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/adp-discover.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/control.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/aecp-fanout.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/acmp-cmd.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/aecp.txt <scratch>/builds/P1-xip-64x1/flash.bin
+COMMAND <scratch>/builds/P1-xip-64x1/native/Vsim <scratch>/builds/P1-xip-64x1/results/fixture.txt <scratch>/builds/P1-xip-64x1/flash.bin
+REFUSED acmp-notk: the CPU trapped or saw a bus error: ['TRAP 105161657 0 2 2041effc', 'TRAP 107822293 0 2 2041677c', 'TRAP 115482848 0 2 2041677c']
+REFUSED acmp-noresp: the CPU trapped or saw a bus error: ['TRAP 105638661 0 2 2041effc', 'TRAP 113799305 0 2 0000005c', 'TRAP 115959822 0 2 0000005c']
+REFUSED acmp-disc: the CPU trapped or saw a bus error: ['TRAP 105306086 0 2 2041effc', 'TRAP 107966722 0 2 2041677c', 'TRAP 115627277 0 2 2041677c']
+REFUSED acmp.unbind_rx.if0: no end: missing ['resp:1:4102', 'tmr:1']
+REFUSED fixture.set_name.if0: no end: no notification to ['0a0b0c0d0e0f0001@if0']
+BUDGET adp.link_up.if0: 35.371 ms over T_svc 10 ms
+BUDGET adp.tmr_delay.if0: 12.351 ms over T_svc 10 ms
+BUDGET srp.startup.if0: 28.146 ms over T_svc 10 ms
+BUDGET srp.listener_ready.if0: 38.845 ms over T_svc 10 ms
+BUDGET srp.malformed.if0: 12.998 ms over T_svc 10 ms
+BUDGET backlog.event.if0: 119.884 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 368.407 ms over T_svc 10 ms
+BUDGET backlog.service.adp.first.if0: 67.106 ms over T_svc 10 ms
+BUDGET backlog.service.adp.last.if0: 271.071 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.first.if0: 67.063 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.last.if0: 388.514 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.first.if0: 67.099 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.last.if0: 686.867 ms over T_svc 10 ms
+BUDGET backlog.service.maap.first.if0: 67.089 ms over T_svc 10 ms
+BUDGET backlog.service.maap.last.if0: 271.057 ms over T_svc 10 ms
+BUDGET backlog.service.srp.first.if0: 709.772 ms over T_svc 10 ms
+BUDGET backlog.service.srp.last.if0: never released, at least 799.957 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 210.687 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.first.if0: 60.322 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.last.if0: 255.937 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.first.if0: 60.332 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.last.if0: 391.450 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.first.if0: 60.367 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.last.if0: never released, at least 710.728 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.first.if0: 60.357 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.last.if0: 255.973 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.first.if0: never released, at least 710.723 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.last.if0: never released, at least 710.703 ms over T_svc 10 ms
+BUDGET backlog.adp_available_refill.if0: 306.434 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.first.if0: 60.322 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.last.if0: 358.976 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.first.if0: 60.332 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.last.if0: 398.932 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.first.if0: 60.367 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.last.if0: never released, at least 846.424 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.first.if0: 60.357 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.last.if0: 251.164 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.first.if0: never released, at least 846.419 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.last.if0: never released, at least 846.399 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 499.172 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: 530.856 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: 565.673 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: 597.355 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: 629.038 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.first.if0: 57.987 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if0: 272.814 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.first.if0: 57.945 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 394.000 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.first.if0: 57.981 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if0: 726.265 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.first.if0: 57.970 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 272.799 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 759.007 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if0: never released, at least 860.009 ms over T_svc 10 ms
+BUDGET maap.probe1.if0: 39.838 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 35.371 ms over T_svc 10 ms
+BUDGET adp.tmr_delay.if0: 12.351 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 35.371 ms over T_svc 10 ms
+BUDGET adp.tmr_delay.if0: 12.351 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 35.371 ms over T_svc 10 ms
+BUDGET adp.tmr_delay.if0: 12.351 ms over T_svc 10 ms
+BUDGET adp.link_up.if0: 35.371 ms over T_svc 10 ms
+BUDGET adp.tmr_delay.if0: 12.351 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if0: 45.452 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_clock_source.if0: 44.020 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_on.if0: 43.085 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_control_identify_off.if0: 40.740 ms over T_svc 10 ms
+BUDGET aecp_fanout.remove_audio_mappings.if0: 42.996 ms over T_svc 10 ms
+BUDGET aecp_fanout.add_audio_mappings.if0: 42.507 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_sampling_rate.if0: 45.647 ms over T_svc 10 ms
+BUDGET aecp_fanout.lock_entity.if0: 48.762 ms over T_svc 10 ms
+BUDGET aecp_fanout.unlock_entity.if0: 39.161 ms over T_svc 10 ms
+BUDGET acmp.bind_rx.if0: 19.598 ms over T_svc 10 ms
+BUDGET acmp.probe_tx_response.if0: 13.521 ms over T_svc 10 ms
+BUDGET acmp.get_rx_state.if0: 36.730 ms over T_svc 10 ms
+BUDGET acmp.probe_tx.if0: 16.367 ms over T_svc 10 ms
+BUDGET acmp.get_tx_state.if0: 38.995 ms over T_svc 10 ms
+BUDGET acmp.get_tx_connection.if0: 26.072 ms over T_svc 10 ms
+BUDGET aecp.register_unsolicited.if0: 20.742 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t0.i0.c0.if0: 21.541 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t1.i0.c0.if0: 24.002 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t2.i0.c0.if0: 20.913 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t5.i1.c0.if0: 24.551 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t6.i1.c0.if0: 24.088 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t9.i0.c0.if0: 20.821 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t10.i2.c0.if0: 20.759 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t12.i0.c0.if0: 20.735 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t13.i0.c0.if0: 42.258 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t14.i0.c0.if0: 20.687 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t15.i0.c0.if0: 20.651 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t20.i24.c0.if0: 28.348 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t26.i0.c0.if0: 20.929 ms over T_svc 10 ms
+BUDGET aecp.read_descriptor.t36.i0.c0.if0: 20.813 ms over T_svc 10 ms
+BUDGET aecp.get_configuration.if0: 23.598 ms over T_svc 10 ms
+BUDGET aecp.entity_available.if0: 20.545 ms over T_svc 10 ms
+BUDGET aecp.get_name.if0: 20.958 ms over T_svc 10 ms
+BUDGET aecp.get_counters.if0: 21.155 ms over T_svc 10 ms
+BUDGET aecp.get_avb_info.if0: 20.601 ms over T_svc 10 ms
+BUDGET aecp.unknown_command.if0: 20.235 ms over T_svc 10 ms
+BUDGET aecp.mvu_get_milan_info.if0: 19.257 ms over T_svc 10 ms
+BUDGET aecp.set_name.if0: 23.570 ms over T_svc 10 ms
+BUDGET aecp.lock_entity.if0: 13.210 ms over T_svc 10 ms
+BUDGET aecp.unlock_entity.if0: 22.331 ms over T_svc 10 ms
+BUDGET fixture.link_up.if0: 35.371 ms over T_svc 10 ms
+BUDGET fixture.malformed.if0: 16.567 ms over T_svc 10 ms
+BUDGET fixture.link_down.if0: 31.052 ms over T_svc 10 ms
+BUDGET fixture.bind_rx.if0: 22.870 ms over T_svc 10 ms
+BUDGET fixture.tmr_no_resp1.if0: 23.701 ms over T_svc 10 ms
+BUDGET fixture.entity_departing.if0: 19.627 ms over T_svc 10 ms
+BUDGET fixture.service.adp.first.if0: 54.307 ms over T_svc 10 ms
+BUDGET fixture.service.adp.last.if0: 54.307 ms over T_svc 10 ms
+BUDGET fixture.service.acmp.first.if0: 54.304 ms over T_svc 10 ms
+BUDGET fixture.service.acmp.last.if0: 54.304 ms over T_svc 10 ms
+BUDGET fixture.service.aecp.first.if0: 54.306 ms over T_svc 10 ms
+BUDGET fixture.service.aecp.last.if0: 54.306 ms over T_svc 10 ms
+BUDGET fixture.service.maap.first.if0: 54.305 ms over T_svc 10 ms
+BUDGET fixture.service.maap.last.if0: 54.305 ms over T_svc 10 ms
+BUDGET fixture.service.srp.first.if0: 206.990 ms over T_svc 10 ms
+BUDGET fixture.service.srp.last.if0: 206.990 ms over T_svc 10 ms
+15 groups graded, 5 refusals, 119 T_svc misses (119 of 131 probe instances, 64 of 73 paths)
+elapsed=2419s
+rc=1

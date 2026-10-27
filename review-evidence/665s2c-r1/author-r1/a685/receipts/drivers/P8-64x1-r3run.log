@@ -1,0 +1,24 @@
+COMMAND <scratch>/builds/P8-64x1/native/Vsim <scratch>/builds/P8-64x1/results/backlog-owed.txt -
+COMMAND <scratch>/builds/P8-64x1/native/Vsim <scratch>/builds/P8-64x1/results/aecp-fanout.txt -
+BUDGET backlog.owed.if0: 122.316 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 369.841 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 369.841 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 369.840 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 369.839 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.first.if0: 10.417 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if1: 43.662 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.first.if0: 10.374 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 63.110 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.first.if0: 10.410 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if1: 140.818 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.first.if0: 10.400 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 43.647 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 32.682 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if1: 157.729 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if0: 12.814 ms over T_svc 10 ms
+BUDGET aecp_fanout.unlock_entity.if0: 10.017 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if1: 13.562 ms over T_svc 10 ms
+BUDGET aecp_fanout.lock_entity.if1: 10.014 ms over T_svc 10 ms
+BUDGET aecp_fanout.unlock_entity.if1: 10.032 ms over T_svc 10 ms
+2 groups graded, 0 refusals, 20 T_svc misses (20 of 28 probe instances, 17 of 23 paths)
+rc=0

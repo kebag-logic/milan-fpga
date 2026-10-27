@@ -1,0 +1,15 @@
+COMMAND <scratch>/builds/P1-128x1/native/Vsim <scratch>/builds/P1-128x1/results/backlog-owed.txt -
+COMMAND <scratch>/builds/P1-128x1/native/Vsim <scratch>/builds/P1-128x1/results/aecp-fanout.txt -
+BUDGET backlog.owed.if0: 91.326 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 364.160 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 364.160 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 364.159 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 364.158 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if0: 28.869 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 38.239 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if0: 104.309 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 28.854 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 21.545 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if0: 68.900 ms over T_svc 10 ms
+2 groups graded, 0 refusals, 11 T_svc misses (11 of 24 probe instances, 8 of 20 paths)
+rc=0
