@@ -1,0 +1,119 @@
+clean: pass
+005 caught missed=0 slew idle lapse arms qualification
+001 caught missed=0 slew level tied low
+004 caught missed=0 slew clears before the replacement rate
+006 caught missed=0 slew idle asCapable loss arms qualification
+008 caught missed=1 result face always ready
+007 caught missed=0 slew mastership keeps qualification
+002 caught missed=0 slew clears at the first in-band pair
+003 caught missed=0 the tracking band is empty
+009 caught missed=1 result value taken without an accepted beat
+011 caught missed=1 recorded t1 survives reset
+010 caught missed=1 result tag taken without an accepted beat
+014 caught missed=1 lost Sync cancels the requester exchange
+013 caught missed=1 lost t1 fabricates a time and a companion
+015 caught missed=1 lost response cancels the requester exchange
+016 caught missed=1 a later response re-arms the frozen pair
+012 caught missed=1 byte face advances without ready
+017 caught missed=1 the tail runs before its own t1
+018 caught missed=1 a new request leaves the old pair live
+019 caught missed=1 credit gate removed from the Pdelay_Req leg
+020 caught missed=1 credit gate removed from the Sync leg
+021 caught missed=1 credit gate removed from the Announce leg
+022 caught missed=1 every pair uses the locked threshold
+024 caught missed=1 exactly the threshold steps
+023 caught missed=1 every pair uses the link-up threshold
+027 caught missed=1 a receipt timeout unlocks the servo
+025 caught missed=1 the step arm is unreachable
+026 caught missed=1 a grandmaster change unlocks the servo
+028 caught missed=1 becoming grandmaster unlocks the servo
+029 caught missed=1 the locked threshold is 200 us
+030 caught missed=1 asCapable's rise keeps the lock
+031 caught missed=1 the whole trim is not clamped
+033 caught missed=1 the integrator is not clamped
+032 caught missed=1 the trim clamp is one unit wider than the envelope
+034 caught missed=0 reset leaves the grandmaster zero
+035 caught missed=0 reset keeps the elected grandmaster
+041 caught missed=0 the boot commit never retires
+037 caught missed=0 reset leaves the path empty
+038 caught missed=0 reset keeps the elected tail
+039 caught missed=0 no engine commit after reset
+040 caught missed=0 the boot commit fires twice
+042 caught missed=0 the boot commit waits for the timer bootstrap
+044 caught missed=0 an unwritten best record reads as the best vector
+036 caught missed=0 the thisClock words are read swapped
+043 caught missed=0 a warm reset keeps the retained best record
+045 caught missed=0 a winning peer's grandmaster is not published
+046 caught missed=0 a winning peer's path is not staged
+047 caught missed=0 the self publication keeps the departed grandmaster
+048 caught missed=0 the self publication keeps the departed path
+049 caught missed=0 the self publication keeps the departed record
+051 caught missed=0 an incapable receipt timeout keeps the elected peer
+052 caught missed=0 an incapable port's Announces still compete
+053 caught missed=0 the asCapable drop keeps the flags word
+050 caught missed=0 an asCapable fall leaves the receipt watch running
+054 caught missed=0 an incapable port's receipt watch is not re-armed
+055 caught missed=0 the published flags leave gmPresent to the microcode
+056 caught missed=0 the image does not mark thisClock grandmaster-capable
+057 caught missed=0 the capability mark ignores priority1
+059 caught missed=0 becoming grandmaster clears sync-ok
+060 caught missed=0 a queued receipt timeout clears a master's sync-ok
+058 caught missed=0 mastership sets the microcode's presence bit
+061 caught missed=0 a queued receipt timeout ages a master
+062 caught missed=0 a sync receipt timeout only clears sync-ok
+064 caught missed=0 an aged port takes Announces
+063 caught missed=0 adoption leaves the Sync receipt watch off
+065 caught missed=0 a master steers on its aged peer's Sync
+066 caught missed=0 a master hears no Sync
+067 caught missed=0 the Sync receipt watch is 100 ms
+068 caught missed=0 the Sync receipt watch is 500 ms
+069 caught missed=0 a parent refresh expires the Sync watch
+070 caught missed=0 the adoption watch is 100 ms
+071 caught missed=0 a Follow_Up pairs whatever its sequenceId
+072 caught missed=0 the Follow_Up watch is 50 ms
+073 caught missed=0 lost responses clear asCapable at the first
+075 caught missed=0 same-identity duplicates are a storm
+076 caught missed=0 lost responses clear asCapable at the fourth
+077 caught missed=0 lost responses clear asCapable at the sixth
+078 caught missed=0 a second response re-arms the pairing
+074 caught missed=0 the fifth loss stops the requests
+079 caught missed=0 a third response re-arms the reset exchange
+082 caught missed=0 a handover to a peer keeps sync-ok
+080 caught missed=0 dispatch ignores a busy serializer
+083 caught missed=0 the received path is published without thisClock
+085 caught missed=0 eight received entries take a ninth
+084 caught missed=0 thisClock is appended to an absent path
+086 caught missed=0 seven received entries leave thisClock out
+081 caught missed=0 mastership never publishes the master bit
+087 caught missed=0 thisClock lands one slot early
+088 caught missed=0 thisClock fills every later slot
+089 caught missed=0 the appended entry is the announcing source
+090 caught missed=0 the received entries are not copied
+091 caught missed=0 every received path is published empty
+clean=pass controls=91 caught=91 not-clean=26
+NOT CLEAN 8 result face always ready caught ['a result already owed to the micro-code cannot be replaced by a later one']
+NOT CLEAN 9 result value taken without an accepted beat caught ['the accepted result keeps its own timestamp until its dispatch']
+NOT CLEAN 10 result tag taken without an accepted beat caught ['the accepted result keeps its own tag and outcome until its dispatch']
+NOT CLEAN 11 recorded t1 survives reset caught ['a t1 measured before a reset cannot pair with a later Follow_Up']
+NOT CLEAN 12 byte face advances without ready caught ['a stalled byte, including the final one, waits for an accepted transfer']
+NOT CLEAN 13 lost t1 fabricates a time and a companion caught ['a lost result writes no time and completes no exchange']
+NOT CLEAN 14 lost Sync cancels the requester exchange caught ['a lost Sync result retires the Sync claim and nothing else']
+NOT CLEAN 15 lost response cancels the requester exchange caught ['a lost Pdelay_Resp result retires the response claim and nothing else']
+NOT CLEAN 16 a later response re-arms the frozen pair caught ['a complete pair keeps its own identity and operands until its t1']
+NOT CLEAN 17 the tail runs before its own t1 caught ["a delay is computed from this exchange's own t1, never a predecessor's"]
+NOT CLEAN 18 a new request leaves the old pair live caught ["a superseded exchange cannot pair with the new request's t1"]
+NOT CLEAN 19 credit gate removed from the Pdelay_Req leg caught ['a Pdelay_Req beat is postponed while the transmit path has no credit']
+NOT CLEAN 20 credit gate removed from the Sync leg caught ['a Sync beat is postponed while the transmit path has no credit']
+NOT CLEAN 21 credit gate removed from the Announce leg caught ['an Announce beat is postponed while the transmit path has no credit']
+NOT CLEAN 22 every pair uses the locked threshold caught ['a link-up pair steps over 20 us']
+NOT CLEAN 23 every pair uses the link-up threshold caught ['a locked pair slews up to 100 us']
+NOT CLEAN 24 exactly the threshold steps caught ['an offset of exactly 20 us, or 100 us once locked, slews']
+NOT CLEAN 25 the step arm is unreachable caught ['an offset over the threshold steps']
+NOT CLEAN 26 a grandmaster change unlocks the servo caught ['the servo stays locked across a grandmaster identity change']
+NOT CLEAN 27 a receipt timeout unlocks the servo caught ['the servo stays locked across a Sync receipt timeout']
+NOT CLEAN 28 becoming grandmaster unlocks the servo caught ['the servo stays locked across a return from mastership']
+NOT CLEAN 29 the locked threshold is 200 us caught ['a locked pair steps over 100 us, after a receipt timeout too']
+NOT CLEAN 30 asCapable's rise keeps the lock caught ['the first pair after asCapable rises, or after a reset, is a link-up']
+NOT CLEAN 31 the whole trim is not clamped caught ['the written trim never leaves +-200 ppm']
+NOT CLEAN 32 the trim clamp is one unit wider than the envelope caught ['the written trim never leaves the envelope the consumer derives']
+NOT CLEAN 33 the integrator is not clamped caught ['the integrator stays within +-200 ppm']

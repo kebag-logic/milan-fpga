@@ -1,0 +1,814 @@
+{
+ "controls": 91,
+ "caught": 91,
+ "clean": "pass",
+ "names": 108,
+ "unkilled": [],
+ "rule_breaks": [],
+ "kills": {
+  "#89 a Follow_Up 60 ms after its Sync is used": [
+   36,
+   45,
+   47,
+   58,
+   66,
+   67,
+   69,
+   72,
+   74,
+   81
+  ],
+  "#89 first grandmaster: Sync recovery is heard as master and steers nothing": [
+   36,
+   60,
+   62,
+   63,
+   64,
+   65,
+   74,
+   81
+  ],
+  "#89 first grandmaster: the next Announce elects the grandmaster": [
+   36,
+   45,
+   49,
+   58,
+   66,
+   69,
+   74,
+   81
+  ],
+  "#89 first grandmaster: usable Sync keeps it elected": [
+   36,
+   45,
+   58,
+   66,
+   67,
+   69,
+   74,
+   81
+  ],
+  "#89 Follow_Up after the next Sync: no unusable pair is consumed": [
+   71
+  ],
+  "#89 Follow_Up after the next Sync: Sync recovery is heard as master and steers nothing": [
+   36,
+   62,
+   65,
+   71,
+   74,
+   81
+  ],
+  "#89 Follow_Up after the next Sync: the aged port stays master while Announces continue": [
+   36,
+   47,
+   60,
+   62,
+   64,
+   71,
+   74,
+   81
+  ],
+  "#89 Follow_Up after the next Sync: the next Announce elects the grandmaster": [
+   36,
+   45,
+   47,
+   49,
+   58,
+   66,
+   69,
+   74,
+   81
+  ],
+  "#89 Follow_Up after the next Sync: the plane takes mastership within syncReceiptTimeout and one BMCA pass": [
+   36,
+   45,
+   47,
+   58,
+   62,
+   66,
+   67,
+   68,
+   69,
+   71,
+   74,
+   81
+  ],
+  "#89 Follow_Up after the next Sync: usable Sync keeps it elected": [
+   36,
+   45,
+   47,
+   58,
+   66,
+   67,
+   69,
+   74,
+   81
+  ],
+  "#89 Follow_Up with the next sequenceId: no unusable pair is consumed": [
+   71
+  ],
+  "#89 Follow_Up with the next sequenceId: Sync recovery is heard as master and steers nothing": [
+   36,
+   62,
+   65,
+   71,
+   74,
+   81
+  ],
+  "#89 Follow_Up with the next sequenceId: the aged port stays master while Announces continue": [
+   36,
+   47,
+   60,
+   62,
+   64,
+   71,
+   74,
+   81
+  ],
+  "#89 Follow_Up with the next sequenceId: the next Announce elects the grandmaster": [
+   36,
+   45,
+   47,
+   49,
+   58,
+   63,
+   66,
+   69,
+   74,
+   81
+  ],
+  "#89 Follow_Up with the next sequenceId: the plane takes mastership within syncReceiptTimeout and one BMCA pass": [
+   36,
+   45,
+   47,
+   58,
+   62,
+   66,
+   67,
+   68,
+   69,
+   71,
+   74,
+   81
+  ],
+  "#89 Follow_Up with the next sequenceId: usable Sync keeps it elected": [
+   36,
+   45,
+   47,
+   58,
+   63,
+   66,
+   67,
+   69,
+   74,
+   81
+  ],
+  "#89 never usable: phase 36 adopted the grandmaster": [
+   36,
+   45,
+   49,
+   74
+  ],
+  "#89 never usable: the aged port stays master while Announces continue": [
+   36,
+   47,
+   60,
+   62,
+   63,
+   64,
+   74,
+   81
+  ],
+  "#89 never usable: the grandmaster is aged": [
+   36,
+   62,
+   63,
+   74,
+   81
+  ],
+  "#89 never usable: within syncReceiptTimeout of its adoption": [
+   36,
+   45,
+   47,
+   49,
+   62,
+   63,
+   69,
+   70,
+   74,
+   81
+  ],
+  "#89 no Follow_Up: Sync recovery is heard as master and steers nothing": [
+   36,
+   62,
+   65,
+   74,
+   81
+  ],
+  "#89 no Follow_Up: the aged port stays master while Announces continue": [
+   36,
+   47,
+   60,
+   62,
+   64,
+   74,
+   81
+  ],
+  "#89 no Follow_Up: the next Announce elects the grandmaster": [
+   36,
+   45,
+   47,
+   49,
+   58,
+   66,
+   69,
+   74,
+   81
+  ],
+  "#89 no Follow_Up: the plane takes mastership within syncReceiptTimeout and one BMCA pass": [
+   36,
+   45,
+   47,
+   58,
+   62,
+   66,
+   67,
+   68,
+   69,
+   74,
+   81
+  ],
+  "#89 no Follow_Up: usable Sync keeps it elected": [
+   36,
+   45,
+   47,
+   58,
+   66,
+   67,
+   69,
+   74,
+   81
+  ],
+  "#89 Sync every 250 ms keeps the plane deferring": [
+   36,
+   45,
+   47,
+   58,
+   66,
+   67,
+   69,
+   74,
+   81
+  ],
+  "#89 Sync stops: mastership carries sync-ok": [
+   12,
+   36,
+   59,
+   62
+  ],
+  "#89 Sync stops: Sync recovery is heard as master and steers nothing": [
+   36,
+   62,
+   65,
+   74,
+   81
+  ],
+  "#89 Sync stops: the aged port stays master while Announces continue": [
+   36,
+   47,
+   60,
+   62,
+   64,
+   74,
+   81
+  ],
+  "#89 Sync stops: the Announce leaves the grandmaster elected": [
+   36,
+   69
+  ],
+  "#89 Sync stops: the next Announce elects the grandmaster": [
+   36,
+   45,
+   47,
+   49,
+   58,
+   66,
+   69,
+   74,
+   81
+  ],
+  "#89 Sync stops: the plane takes mastership": [
+   12,
+   36,
+   62,
+   81
+  ],
+  "#89 Sync stops: the plane takes mastership within syncReceiptTimeout and one BMCA pass": [
+   36,
+   45,
+   47,
+   58,
+   62,
+   66,
+   67,
+   68,
+   69,
+   74,
+   81
+  ],
+  "#89 Sync stops: the takeover names thisClock": [
+   12,
+   36,
+   47,
+   62
+  ],
+  "#89 Sync stops: usable Sync keeps it elected": [
+   36,
+   45,
+   47,
+   58,
+   66,
+   67,
+   69,
+   74,
+   81
+  ],
+  "#89 Sync stops: within syncReceiptTimeout and one BMCA pass": [
+   12,
+   36,
+   45,
+   47,
+   62,
+   67,
+   68,
+   69,
+   70,
+   81
+  ],
+  "#89 takeover: the queued receipt timeout ages nothing": [
+   12,
+   36,
+   47,
+   61,
+   62,
+   67,
+   68,
+   69
+  ],
+  "#90 no follow-up: four losses keep asCapable": [
+   36,
+   73,
+   74,
+   76
+  ],
+  "#90 no follow-up: one loss keeps asCapable": [
+   36,
+   73,
+   74
+  ],
+  "#90 no follow-up: request 1 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#90 no follow-up: request 2 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#90 no follow-up: request 3 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#90 no follow-up: request 4 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#90 no follow-up: request 5 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#90 no follow-up: request 6 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#90 no follow-up: runs from a capable plane": [
+   36,
+   74
+  ],
+  "#90 no follow-up: runs from a completed exchange": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#90 no follow-up: the fifth loss clears asCapable": [
+   12,
+   77,
+   80
+  ],
+  "#90 no response: four losses keep asCapable": [
+   36,
+   73,
+   76
+  ],
+  "#90 no response: one loss keeps asCapable": [
+   36,
+   73
+  ],
+  "#90 no response: request 1 goes out": [
+   12,
+   36,
+   80
+  ],
+  "#90 no response: request 2 goes out": [
+   12,
+   36,
+   80
+  ],
+  "#90 no response: request 3 goes out": [
+   12,
+   36,
+   80
+  ],
+  "#90 no response: request 4 goes out": [
+   12,
+   36,
+   80
+  ],
+  "#90 no response: request 5 goes out": [
+   12,
+   36,
+   80
+  ],
+  "#90 no response: request 6 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#90 no response: runs from a capable plane": [
+   36
+  ],
+  "#90 no response: runs from a completed exchange": [
+   12,
+   36,
+   80
+  ],
+  "#90 no response: the fifth loss clears asCapable": [
+   12,
+   77,
+   80
+  ],
+  "#91 duplicated response: four losses keep asCapable": [
+   36,
+   73,
+   74,
+   75,
+   76
+  ],
+  "#91 duplicated response: no exchange completes": [
+   78
+  ],
+  "#91 duplicated response: one loss keeps asCapable": [
+   36,
+   73,
+   74
+  ],
+  "#91 duplicated response: request 1 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#91 duplicated response: request 2 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#91 duplicated response: request 3 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#91 duplicated response: request 4 goes out": [
+   12,
+   36,
+   74,
+   75,
+   80
+  ],
+  "#91 duplicated response: request 5 goes out": [
+   12,
+   36,
+   74,
+   75,
+   80
+  ],
+  "#91 duplicated response: request 6 goes out": [
+   12,
+   36,
+   74,
+   75,
+   80
+  ],
+  "#91 duplicated response: runs from a capable plane": [
+   36,
+   74
+  ],
+  "#91 duplicated response: runs from a completed exchange": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#91 duplicated response: the fifth loss clears asCapable": [
+   12,
+   77,
+   78,
+   80
+  ],
+  "#91 duplicates are not a storm: requests keep going out": [
+   12,
+   36,
+   75,
+   80
+  ],
+  "#91 three responses: four losses keep asCapable": [
+   36,
+   73,
+   74,
+   75,
+   76
+  ],
+  "#91 three responses: no exchange completes": [
+   78,
+   79
+  ],
+  "#91 three responses: one loss keeps asCapable": [
+   36,
+   73,
+   74
+  ],
+  "#91 three responses: request 1 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#91 three responses: request 2 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#91 three responses: request 3 goes out": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#91 three responses: request 4 goes out": [
+   12,
+   36,
+   74,
+   75,
+   80
+  ],
+  "#91 three responses: request 5 goes out": [
+   12,
+   36,
+   74,
+   75,
+   80
+  ],
+  "#91 three responses: request 6 goes out": [
+   12,
+   36,
+   74,
+   75,
+   80
+  ],
+  "#91 three responses: runs from a capable plane": [
+   36,
+   74
+  ],
+  "#91 three responses: runs from a completed exchange": [
+   12,
+   36,
+   74,
+   80
+  ],
+  "#91 three responses: the fifth loss clears asCapable": [
+   12,
+   77,
+   78,
+   79,
+   80
+  ],
+  "failover, +150 us: the new grandmaster's Sync is heard": [
+   12,
+   36,
+   62,
+   65,
+   68,
+   81
+  ],
+  "failover, -50 us: the new grandmaster's Sync is heard": [
+   12,
+   36,
+   62,
+   65,
+   68,
+   81
+  ],
+  "receipt timeout, same GM: re-elected after Sync recovers": [
+   12,
+   36,
+   45,
+   47,
+   58,
+   62,
+   65,
+   66,
+   69,
+   81
+  ],
+  "receipt timeout, same GM: the second timeout and return": [
+   12,
+   36,
+   45,
+   47,
+   58,
+   62,
+   65,
+   66,
+   68,
+   69,
+   81
+  ],
+  "slew: active slave pairs until asCapable falls": [
+   1,
+   58,
+   66,
+   69,
+   81
+  ],
+  "slew: idle return has no level edge": [
+   3,
+   62,
+   65
+  ],
+  "slew: idle return leaves the rate alone": [
+   3,
+   62,
+   65
+  ],
+  "slew: idle return stays inactive": [
+   62,
+   65
+  ],
+  "slew: idle timeout ages the grandmaster": [
+   10,
+   36,
+   62,
+   68,
+   81
+  ],
+  "slew: idle timeout's grandmaster returns": [
+   10,
+   36,
+   45,
+   47,
+   58,
+   62,
+   65,
+   66,
+   69,
+   81
+  ],
+  "slew: missing Sync ages the grandmaster": [
+   10,
+   36,
+   62,
+   81
+  ],
+  "slew: missing Sync has one falling edge": [
+   1,
+   2,
+   10,
+   23,
+   24,
+   36,
+   47,
+   62,
+   67,
+   69
+  ],
+  "slew: missing Sync keeps the integral-only rate": [
+   10,
+   23,
+   24,
+   26,
+   33,
+   36,
+   47,
+   67,
+   69
+  ],
+  "slew: missing Sync retires the correction": [
+   62
+  ],
+  "slew: missing Sync's grandmaster returns": [
+   10,
+   36,
+   45,
+   58,
+   62,
+   65,
+   66,
+   69,
+   81
+  ],
+  "slew: missing Sync writes one replacement rate": [
+   1,
+   2,
+   10,
+   23,
+   24,
+   36,
+   47,
+   62,
+   67,
+   69
+  ],
+  "slew: return after the missing Sync stays inactive": [
+   3,
+   5,
+   62,
+   65
+  ],
+  "slew: second return pair stays inactive": [
+   3
+  ],
+  "still slave inside the Sync receipt watch": [
+   36,
+   69,
+   70
+  ],
+  "the newcomer's Sync is heard": [
+   12,
+   36,
+   65,
+   81
+  ],
+  "#84 takeover: a queued receipt timeout keeps sync-ok": [
+   12,
+   36,
+   59,
+   60,
+   81
+  ],
+  "closed loop starts unsynchronized": [
+   12,
+   36,
+   45,
+   47,
+   58,
+   62,
+   65,
+   66,
+   68,
+   69,
+   81,
+   82
+  ],
+  "failover, +150 us: the receipt timeout comes first": [
+   12,
+   36,
+   62,
+   68,
+   81
+  ],
+  "failover, -50 us: the receipt timeout comes first": [
+   12,
+   36,
+   62,
+   68,
+   81
+  ]
+ }
+}

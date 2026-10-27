@@ -1,0 +1,11 @@
+PROBE start: slave=1 gm_is_GMS=1
+PROBE round 1 detail: grandmaster changes=2 gm_commit_ms_after_announce=0.3 retakeover_ms_after_gm_commit=374.9
+PROBE round 1 late-announce: aged_master=1 master_after_pair=1 announce_ms_after_pair=624.5 elected_by_announce=1 commits_naming_gm=1 retakeovers=1 master_at_end=1
+PROBE round 2 detail: grandmaster changes=2 gm_commit_ms_after_announce=0.3 retakeover_ms_after_gm_commit=374.3
+PROBE round 2 late-announce: aged_master=1 master_after_pair=1 announce_ms_after_pair=624.0 elected_by_announce=1 commits_naming_gm=2 retakeovers=1 master_at_end=1
+PROBE round 3 detail: grandmaster changes=2 gm_commit_ms_after_announce=0.3 retakeover_ms_after_gm_commit=374.4
+PROBE round 3 late-announce: aged_master=1 master_after_pair=1 announce_ms_after_pair=624.5 elected_by_announce=1 commits_naming_gm=1 retakeovers=1 master_at_end=1
+PROBE round 4 detail: grandmaster changes=2 gm_commit_ms_after_announce=0.3 retakeover_ms_after_gm_commit=374.8
+PROBE round 4 control-announce: aged_master=1 master_after_pair=1 announce_ms_after_pair=124.0 elected_by_announce=1 commits_naming_gm=2 retakeovers=1 master_at_end=1
+PROBE summary: late Announces that re-elected the aged grandmaster: 3 of 3
+PROBE parked: sync_ms_after_pair=339.0 master=1 takeover_ms_after_sync=35.4 follow_up_ms_after_sync=200.0 elected_by_next_announce=1 commits_naming_gm=1

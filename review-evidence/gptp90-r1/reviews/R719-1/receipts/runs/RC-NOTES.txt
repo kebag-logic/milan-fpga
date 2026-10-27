@@ -1,0 +1,13 @@
+Return codes not stored in a .rc file, as observed on the console:
+  parent-pre-*            rc 2 for cpp_idiom, py_idiom, naming, test_evidence (REFUSED: submodules
+                          not initialised in the fresh scratch parent clone); docs_check rc 0.
+                          Superseded by the two rows below, run after the submodules were initialised.
+  parent-headlink-nopatch-*   rc 0 for all five (scratch parent 97aab1d0, gptp gitlink d27a1654, no patch)
+  parent-headlink-patched-*   rc 0 for all five (same, companion patch applied)
+mutants-head.rc is 1 only because par_mutants.py's own summary also flags controls
+whose free-text "breaks" descriptions are not check names (26 such, all caught).
+The tree's own named-check rule is re-applied by kill_map.py: 0 rule breaks
+(receipts/kill_map.json). Every control's verdict is "caught"; clean control "pass".
+probe-reaging-head.rc 0 is the script's rc; the probe evidence is the PROBE lines.
+Simulator: pinned Verilator 5.050 (2026-07-01 rev v5.050), wrapper sha256
+905795b99e0a8803383b198b118bafcbd87d20b877e3f09c39c31ea81979e92f.

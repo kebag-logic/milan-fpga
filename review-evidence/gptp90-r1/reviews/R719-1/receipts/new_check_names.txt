@@ -1,0 +1,104 @@
+#89 a Follow_Up 60 ms after its Sync is used
+#89 first grandmaster: Sync recovery is heard as master and steers nothing
+#89 first grandmaster: the next Announce elects the grandmaster
+#89 first grandmaster: usable Sync keeps it elected
+#89 Follow_Up after the next Sync: no unusable pair is consumed
+#89 Follow_Up after the next Sync: Sync recovery is heard as master and steers nothing
+#89 Follow_Up after the next Sync: the aged port stays master while Announces continue
+#89 Follow_Up after the next Sync: the next Announce elects the grandmaster
+#89 Follow_Up after the next Sync: the plane takes mastership within syncReceiptTimeout and one BMCA pass
+#89 Follow_Up after the next Sync: usable Sync keeps it elected
+#89 Follow_Up with the next sequenceId: no unusable pair is consumed
+#89 Follow_Up with the next sequenceId: Sync recovery is heard as master and steers nothing
+#89 Follow_Up with the next sequenceId: the aged port stays master while Announces continue
+#89 Follow_Up with the next sequenceId: the next Announce elects the grandmaster
+#89 Follow_Up with the next sequenceId: the plane takes mastership within syncReceiptTimeout and one BMCA pass
+#89 Follow_Up with the next sequenceId: usable Sync keeps it elected
+#89 never usable: phase 36 adopted the grandmaster
+#89 never usable: the aged port stays master while Announces continue
+#89 never usable: the grandmaster is aged
+#89 never usable: within syncReceiptTimeout of its adoption
+#89 no Follow_Up: Sync recovery is heard as master and steers nothing
+#89 no Follow_Up: the aged port stays master while Announces continue
+#89 no Follow_Up: the next Announce elects the grandmaster
+#89 no Follow_Up: the plane takes mastership within syncReceiptTimeout and one BMCA pass
+#89 no Follow_Up: usable Sync keeps it elected
+#89 Sync every 250 ms keeps the plane deferring
+#89 Sync stops: mastership carries sync-ok
+#89 Sync stops: Sync recovery is heard as master and steers nothing
+#89 Sync stops: the aged port stays master while Announces continue
+#89 Sync stops: the Announce leaves the grandmaster elected
+#89 Sync stops: the next Announce elects the grandmaster
+#89 Sync stops: the plane takes mastership
+#89 Sync stops: the plane takes mastership within syncReceiptTimeout and one BMCA pass
+#89 Sync stops: the takeover names thisClock
+#89 Sync stops: usable Sync keeps it elected
+#89 Sync stops: within syncReceiptTimeout and one BMCA pass
+#89 takeover: the queued receipt timeout ages nothing
+#90 no follow-up: four losses keep asCapable
+#90 no follow-up: one loss keeps asCapable
+#90 no follow-up: request 1 goes out
+#90 no follow-up: request 2 goes out
+#90 no follow-up: request 3 goes out
+#90 no follow-up: request 4 goes out
+#90 no follow-up: request 5 goes out
+#90 no follow-up: request 6 goes out
+#90 no follow-up: runs from a capable plane
+#90 no follow-up: runs from a completed exchange
+#90 no follow-up: the fifth loss clears asCapable
+#90 no response: four losses keep asCapable
+#90 no response: one loss keeps asCapable
+#90 no response: request 1 goes out
+#90 no response: request 2 goes out
+#90 no response: request 3 goes out
+#90 no response: request 4 goes out
+#90 no response: request 5 goes out
+#90 no response: request 6 goes out
+#90 no response: runs from a capable plane
+#90 no response: runs from a completed exchange
+#90 no response: the fifth loss clears asCapable
+#91 duplicated response: four losses keep asCapable
+#91 duplicated response: no exchange completes
+#91 duplicated response: one loss keeps asCapable
+#91 duplicated response: request 1 goes out
+#91 duplicated response: request 2 goes out
+#91 duplicated response: request 3 goes out
+#91 duplicated response: request 4 goes out
+#91 duplicated response: request 5 goes out
+#91 duplicated response: request 6 goes out
+#91 duplicated response: runs from a capable plane
+#91 duplicated response: runs from a completed exchange
+#91 duplicated response: the fifth loss clears asCapable
+#91 duplicates are not a storm: requests keep going out
+#91 three responses: four losses keep asCapable
+#91 three responses: no exchange completes
+#91 three responses: one loss keeps asCapable
+#91 three responses: request 1 goes out
+#91 three responses: request 2 goes out
+#91 three responses: request 3 goes out
+#91 three responses: request 4 goes out
+#91 three responses: request 5 goes out
+#91 three responses: request 6 goes out
+#91 three responses: runs from a capable plane
+#91 three responses: runs from a completed exchange
+#91 three responses: the fifth loss clears asCapable
+failover, +150 us: the new grandmaster's Sync is heard
+failover, -50 us: the new grandmaster's Sync is heard
+receipt timeout, same GM: re-elected after Sync recovers
+receipt timeout, same GM: the second timeout and return
+slew: active slave pairs until asCapable falls
+slew: idle return has no level edge
+slew: idle return leaves the rate alone
+slew: idle return stays inactive
+slew: idle timeout ages the grandmaster
+slew: idle timeout's grandmaster returns
+slew: missing Sync ages the grandmaster
+slew: missing Sync has one falling edge
+slew: missing Sync keeps the integral-only rate
+slew: missing Sync retires the correction
+slew: missing Sync's grandmaster returns
+slew: missing Sync writes one replacement rate
+slew: return after the missing Sync stays inactive
+slew: second return pair stays inactive
+still slave inside the Sync receipt watch
+the newcomer's Sync is heard

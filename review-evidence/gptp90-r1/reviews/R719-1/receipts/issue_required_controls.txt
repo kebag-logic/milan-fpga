@@ -1,0 +1,8 @@
+61 a queued receipt timeout ages a master caught 1 FAIL lines; first: FAIL #89 takeover: the queued receipt timeout ages nothing got 0000000000000002 exp 0000000000000001
+62 a sync receipt timeout only clears sync-ok caught 105 FAIL lines; first: FAIL #89 Sync stops: the plane takes mastership got 0000000000000000 exp 0000000000000001
+63 adoption leaves the Sync receipt watch off caught 6 FAIL lines; first: FAIL #89 never usable: the grandmaster is aged got 0000000000000000 exp 0000000000000001
+64 an aged port takes Announces caught 6 FAIL lines; first: FAIL #89 never usable: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000
+76 lost responses clear asCapable at the fourth caught 5 FAIL lines; first: FAIL #90 no response: four losses keep asCapable got 0000000000000000 exp 0000000000000004
+77 lost responses clear asCapable at the sixth caught 7 FAIL lines; first: FAIL #90 no response: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+78 a second response re-arms the pairing caught 7 FAIL lines; first: FAIL #91 duplicated response: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+79 a third response re-arms the reset exchange caught 5 FAIL lines; first: FAIL #91 three responses: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
