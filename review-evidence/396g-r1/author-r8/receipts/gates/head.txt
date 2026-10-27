@@ -1,0 +1,23 @@
+head a7a514fbf5572ce08394cd727c9cc9085745c79f
+tree 7bdbb8703e4e4dd34c86adb234af37ec68a2e6d3
+parent 5fdabc1c4c76206bd2528435c56d88466c0f972e
+merge-base with e76a755a e76a755afc0536453161e3cd33f6f4d2dcd7641f
+origin/dev 97aab1d0f28bd753a3e11df6278d5cac54f964dd
+gitlink 160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+gitlink 160000 commit 55680bff3b287b9a7b0c759f51471fa617c17335	gptp-processor
+gitlink 160000 commit ed2118035e4cec76fb1b59cfbf8a053aeacc8af8	protocol-processor
+gitlink 040000 tree 6604713e96eb6f7ed95d95412f17ea894db9a039	third_party
+commit a7a514fbf5572ce08394cd727c9cc9085745c79f Promise coverage, not position, for each audio event outside the exactness scope, gate every unit by it, and add a control that leaves a slip uncovered on one channel (#396)
+commit 5fdabc1c4c76206bd2528435c56d88466c0f972e Bound each audio listing from 63 samples before its event's first word to 63 after its last, check each listing, and fuzz events inside excursions on both capture lengths (#396)
+commit 73be3b364ddcc8585fb5f4f5e06a55bb2f10ff8a List a constant-mask excursion that a slip interrupts from its first word, and pin it with its control (#396)
+commit b206d88b937257ca5ccf1753c5fa211605c9f7e6 State that the slip-before sweep's masks make no channel number zero or another channel's, and that each event is listed on each channel it changes (#396)
+commit 9c20c08ea97aee81505fe5354f4e212cc13c085a Give each release control 1200 seconds before a timeout counts as no kill (#396)
+commit 6c9d566df910f8328fb25e510d66f2cf19c4a721 Claim for every audio capture that a DUT event never grades PASS and is listed, gate it by a seeded composition fuzz, scope exact classes to the swept shapes and pin two shapes outside them (#396)
+commit 910d4b94c4d5334b1869f42e9653c308a15d0dba Stop the composition sweeps at their first failing case, after a clean-capture check, so a broken grader fails them at once (#396)
+commit 17a43ef2c4caaaac8e31840f48e247af28e3cf0f Pin the interrupted constant-mask excursion with a DUT slip as well as a planted one (#396)
+commit 4a460fc33d4d125d4ec98a5752dd85298e23e84e Balance every audio reading against its decoded shift, hold excursions at the offset in force, grade one-word events beside them and sweep each planted arm's neighbours (#396)
+commit 85da3e4595871c1573c28b4d040b9e98463a41c9 Grade a whole-block slip after a one-word corruption, let the arm log decide bit-identical readings and keep constant-mask excursions whole beside one-word events (#396)
+commit 4d69e1923ce8209029af6e084336f13cca834c29 Grade the invalid-anchor arm against its capture's qualified length so each anchor defect decides the verdict (#396)
+commit 9da26126a6a87af19f654f47cdb373172cc6026e Qualify only the observed audio interval, grade boundary block slips unresolved and one constant mask at every length (#396)
+commit a3e24ac5ef984cb92458f1728f2c275349ae9854 Make the audio counter non-repeating and grade tags, holds, commit cuts, planted windows and capture-loss clocks exactly (#396)
+commit 21faa48242e021177a1dc702f28e51347c6a7a57 Plan the 24-hour soak, its audio run and the 200-cycle power gate (#396)

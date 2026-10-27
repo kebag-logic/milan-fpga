@@ -1,0 +1,11 @@
+control: a returned excursion's bit-flip left for the hold to read again
+[pristine] rc=0
+channel 0: [(4424, 'bit-flip', 1673), (6097, 'dropped', 1021), (6098, 'bit-flip', 3), (6102, 'bit-flip', 2), (6106, 'bit-flip', 1), (6109, 'bit-flip', 2), (6115, 'bit-flip', 3), (6121, 'bit-flip', 2), (6127, 'bit-flip', 2), (6130, 'bit-flip', 3), (6134, 'bit-flip', 2), (6138, 'bit-flip', 1), (6141, 'bit-flip', 2), (6146, 'bit-flip', 4), (6150, 'repeated', 1024)]
+_fuzz_check: ('FAIL', set())
+test_audio_compositions_never_pass_and_list_every_event ok
+test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip ok
+[mutated] rc=0
+channel 0: [(6097, 'dropped', 1021), (6098, 'bit-flip', 3), (6102, 'bit-flip', 2), (6106, 'bit-flip', 1), (6109, 'bit-flip', 2), (6115, 'bit-flip', 3), (6121, 'bit-flip', 2), (6127, 'bit-flip', 2), (6130, 'bit-flip', 3), (6134, 'bit-flip', 2), (6138, 'bit-flip', 1), (6141, 'bit-flip', 2), (6146, 'bit-flip', 4), (6150, 'repeated', 1024)]
+_fuzz_check: ('FAIL', set())
+test_audio_compositions_never_pass_and_list_every_event ok
+test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip FAIL
