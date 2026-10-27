@@ -1,0 +1,239 @@
+{
+  "baseline": {
+    "core-if1": {
+      "rc": 0,
+      "probes_ok": {
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken": true,
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails": true,
+        "ReviewProbeSystemIdReadWhileWaiting": true
+      },
+      "new_tests_ok": {
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease": true,
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs": true,
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn": true,
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence": false
+      },
+      "failed_lines": []
+    },
+    "core-if2": {
+      "rc": 0,
+      "probes_ok": {
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken": true,
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails": true,
+        "ReviewProbeSystemIdReadWhileWaiting": true
+      },
+      "new_tests_ok": {
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease": true,
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs": true,
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn": true,
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence": false
+      },
+      "failed_lines": []
+    },
+    "app-if1": {
+      "rc": 0,
+      "probes_ok": {
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken": true,
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails": true,
+        "ReviewProbeSystemIdReadWhileWaiting": true
+      },
+      "new_tests_ok": {
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease": true,
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs": true,
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn": true,
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence": true
+      },
+      "failed_lines": []
+    },
+    "app-if2": {
+      "rc": 0,
+      "probes_ok": {
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken": true,
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails": true,
+        "ReviewProbeSystemIdReadWhileWaiting": true
+      },
+      "new_tests_ok": {
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease": true,
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs": true,
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn": true,
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence": true
+      },
+      "failed_lines": []
+    }
+  },
+  "plants": [
+    {
+      "name": "expired-lock-read-released",
+      "path": "aecp/aecp_commands.c",
+      "checks": [
+        [
+          "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+          "ENTITY_AVAILABLE reports the lock in force: locked"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "expired-lock-owner-dropped",
+      "path": "aecp/aecp.c",
+      "checks": [
+        [
+          "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+          "by its owner"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "expired-lock-not-read-by-acmp",
+      "path": "aecp/aecp.c",
+      "checks": [
+        [
+          "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+          "the lock the ACMP owner reads is the lock in force"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "expired-lock-not-held-against-others",
+      "path": "aecp/aecp_commands.c",
+      "checks": [
+        [
+          "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+          "another controller's LOCK_ENTITY is refused by the lock in force, naming its owner"
+        ],
+        [
+          "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+          "another controller's SET_SYSTEM_UNIQUE_ID keeps its status under the lock in force"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "expired-lock-owner-kept-once-notified",
+      "path": "aecp/aecp.c",
+      "checks": [
+        [
+          "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+          "read unlocked once notified, with no owner"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "system-id-refusal-not-implemented",
+      "path": "aecp/aecp.c",
+      "checks": [
+        [
+          "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs",
+          "refused while a change waits, as every change is"
+        ],
+        [
+          "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs",
+          "and after the wait failed, while the platform has not applied it"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "waiting-response-leaves-on-the-last-interface",
+      "path": "aecp/aecp.c",
+      "checks": [
+        [
+          "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn",
+          "leaves on the interface the command came in on"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "wait-bound-past-the-cadence",
+      "path": "aecp/aecp.h",
+      "checks": [
+        [
+          "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence",
+          "the final response within 120 ms of its IN_PROGRESS, the service bound included"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "wait-bound-past-the-cadence-with-its-service",
+      "path": "aecp/aecp.h",
+      "checks": [
+        [
+          "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence",
+          "the final response within 120 ms of its IN_PROGRESS, the service bound included"
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "review-refusal-status-old-predicate",
+      "path": "aecp/aecp.c",
+      "checks": [
+        [
+          "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+          ""
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "review-mvu-set-taken-while-refusing",
+      "path": "aecp/aecp.c",
+      "checks": [
+        [
+          "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs",
+          ""
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "review-available-owner-zero-while-released",
+      "path": "aecp/aecp_commands.c",
+      "checks": [
+        [
+          "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+          ""
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "review-lock-reply-owner-zero-while-released",
+      "path": "aecp/aecp_commands.c",
+      "checks": [
+        [
+          "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease",
+          ""
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "review-mvu-refusal-reports-request",
+      "path": "aecp/aecp.c",
+      "checks": [
+        [
+          "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs",
+          ""
+        ]
+      ],
+      "caught": true
+    },
+    {
+      "name": "review-wait-bound-111",
+      "path": "aecp/aecp.h",
+      "checks": [
+        [
+          "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence",
+          ""
+        ]
+      ],
+      "caught": true
+    }
+  ]
+}

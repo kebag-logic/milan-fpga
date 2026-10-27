@@ -1,0 +1,68 @@
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+[baseline core if1] rc=0 probes={'ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken': True, 'ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails': True, 'ReviewProbeSystemIdReadWhileWaiting': True} new={'Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease': True, 'Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs': True, 'Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn': True, 'Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence': False} failed=0
+[baseline core if2] rc=0 probes={'ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken': True, 'ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails': True, 'ReviewProbeSystemIdReadWhileWaiting': True} new={'Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease': True, 'Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs': True, 'Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn': True, 'Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence': False} failed=0
+[baseline app if1] rc=0 probes={'ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken': True, 'ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails': True, 'ReviewProbeSystemIdReadWhileWaiting': True} new={'Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease': True, 'Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs': True, 'Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn': True, 'Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence': True} failed=0
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[baseline app if2] rc=0 probes={'ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken': True, 'ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails': True, 'ReviewProbeSystemIdReadWhileWaiting': True} new={'Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease': True, 'Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs': True, 'Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn': True, 'Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence': True} failed=0
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-read-released
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-owner-dropped
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-not-read-by-acmp
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-not-held-against-others
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] expired-lock-owner-kept-once-notified
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] system-id-refusal-not-implemented
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] waiting-response-leaves-on-the-last-interface
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] wait-bound-past-the-cadence
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] wait-bound-past-the-cadence-with-its-service
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] review-refusal-status-old-predicate
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] review-mvu-set-taken-while-refusing
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] review-available-owner-zero-while-released
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] review-lock-reply-owner-zero-while-released
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] review-mvu-refusal-reports-request
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/probe1/work/build/aecp-mailbox-endstation_ax7101_1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+[ok] review-wait-bound-111

@@ -1,0 +1,65 @@
+{
+  "baseline": {
+    "core-if1": {
+      "rc": 1,
+      "probes_ok": {
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken": false,
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails": false,
+        "ReviewProbeSystemIdReadWhileWaiting": false
+      },
+      "new_tests_ok": {
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease": true,
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs": true,
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn": true,
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence": false
+      },
+      "failed_lines": []
+    },
+    "core-if2": {
+      "rc": 0,
+      "probes_ok": {
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken": false,
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails": false,
+        "ReviewProbeSystemIdReadWhileWaiting": false
+      },
+      "new_tests_ok": {
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease": true,
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs": true,
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn": true,
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence": false
+      },
+      "failed_lines": []
+    },
+    "app-if1": {
+      "rc": 1,
+      "probes_ok": {
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken": false,
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails": false,
+        "ReviewProbeSystemIdReadWhileWaiting": false
+      },
+      "new_tests_ok": {
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease": true,
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs": true,
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn": true,
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence": true
+      },
+      "failed_lines": []
+    },
+    "app-if2": {
+      "rc": 0,
+      "probes_ok": {
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenTaken": false,
+        "ReviewProbeOwnerUnlockWaitsAcrossExpiryThenFails": false,
+        "ReviewProbeSystemIdReadWhileWaiting": false
+      },
+      "new_tests_ok": {
+        "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease": true,
+        "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs": true,
+        "Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn": true,
+        "Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence": true
+      },
+      "failed_lines": []
+    }
+  },
+  "plants": []
+}

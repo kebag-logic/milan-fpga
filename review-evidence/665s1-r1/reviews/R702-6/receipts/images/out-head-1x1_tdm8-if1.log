@@ -1,0 +1,97 @@
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 93684,
+    ".rodata": 12456,
+    ".data": 56,
+    ".bss": 37996,
+    ".stack": 8192,
+    ".riscv.attributes": 28,
+    ".debug_info": 7169,
+    ".debug_abbrev": 2013,
+    ".debug_loclists": 6889,
+    ".debug_aranges": 344,
+    ".debug_rnglists": 478,
+    ".debug_line": 6796,
+    ".debug_str": 1534,
+    ".debug_line_str": 740,
+    ".debug_frame": 108
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3352,
+    "image_aecp_bridge": 132,
+    "image_allocation": 8,
+    "image_app": 8872,
+    "image_arena": 9920,
+    "image_binding": 40,
+    "image_descriptors": 672,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 840,
+    "image_face": 88,
+    "image_latency": 8,
+    "image_licences": 2,
+    "image_map_pools": 56,
+    "image_maps": 200,
+    "image_map_scratch": 136,
+    "image_model": 12,
+    "image_names": 468,
+    "image_platform": 56,
+    "image_sources": 64,
+    "image_srp": 4824,
+    "image_state": 84,
+    "image_values": 4527
+  },
+  "artifacts": [
+    {
+      "name": "libc_nano.a",
+      "size": 9804776,
+      "sha256": "1e747b32e39db12e03388988c0df263187e1f337038fea4c1b7d99e8368c1164"
+    },
+    {
+      "name": "libgcc.a",
+      "size": 4451638,
+      "sha256": "f26fda377a42b7435ef40d970081ae853d4a44f9a018141ee983795f1b3492df"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 162108,
+      "sha256": "e8cf63cec4aa3bb882c9918a06d588f188baa09256834b721fcc3a9746114673"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 194113,
+      "sha256": "ea4fcc1c64925095346bff7956a4682ec03c3bcb63d842b92988c339415e1046"
+    }
+  ],
+  "ram_sections": 152384,
+  "split": {
+    "rom": {
+      "bytes": 106200,
+      "banks": [
+        65536,
+        32768,
+        8192
+      ],
+      "RAMB36": 26,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 46256,
+      "banks": [
+        32768,
+        8192,
+        4096,
+        2048
+      ],
+      "RAMB36": 11,
+      "RAMB18": 1
+    },
+    "tiles": 37.5,
+    "budget_tiles": 56
+  }
+}
