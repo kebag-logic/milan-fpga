@@ -124,7 +124,7 @@ def instrument(path: str, job_id: str, job: dict) -> None:
 
 def watcher(labels: list[str], skipped: dict) -> dict:
     """Only this guarded job requests write permission; fork events cannot enter it."""
-    return {"name": "Fail fast across this head", "runs-on": "ubuntu-latest", "timeout-minutes": 120,
+    return {"name": "Fail fast across this head", "runs-on": "ubuntu-24.04", "timeout-minutes": 120,
             "if": SAME_REPOSITORY, "permissions": {"contents": "read", "actions": "write"},
             "outputs": {"observer_only_error": "${{ steps.ci_observe.outputs.observer_error == 'true' && "
                         "steps.ci_record.outcome == 'success' && steps.ci_upload.outcome == 'success' }}"},
@@ -142,7 +142,7 @@ def watcher(labels: list[str], skipped: dict) -> dict:
 
 def tail_guard() -> dict:
     """Observe terminal jobs after their final evidence steps, with no dependency cycle."""
-    return {"name": "Cancel late CI failures", "runs-on": "ubuntu-latest", "timeout-minutes": 3,
+    return {"name": "Cancel late CI failures", "runs-on": "ubuntu-24.04", "timeout-minutes": 3,
             "if": "${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && "
                   "github.event.pull_request.head.repo.full_name == github.repository)) }}",
             "needs": ["ci-fail-fast", "ci-manifest"],
@@ -156,7 +156,7 @@ def tail_guard() -> dict:
 def collector(name: str, dependencies: list[str]) -> dict:
     """Use read-only API provenance on hosted runs and actual step receipts locally."""
     from ci_suite_workflows import inventory_dependencies
-    return {"name": "Collect CI manifest", "runs-on": "ubuntu-latest", "timeout-minutes": 15,
+    return {"name": "Collect CI manifest", "runs-on": "ubuntu-24.04", "timeout-minutes": 15,
             "if": "${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}",
             "needs": dependencies,
             "permissions": {"contents": "read", "actions": "read"},

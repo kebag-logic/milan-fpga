@@ -11,7 +11,7 @@ env:
   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
 jobs:
   full-ci-gate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       run_full: ${{ steps.gate.outputs.run_full }}
@@ -140,7 +140,7 @@ jobs:
     name: Verilator shard ${{ matrix.shard }}/${{ matrix.total }}
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: ${{ matrix.shard == 16 && 60 || 45 }}
     strategy:
       fail-fast: true
@@ -414,7 +414,7 @@ jobs:
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == 'schedule' || github.event_name
       == 'workflow_dispatch') }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
@@ -569,7 +569,7 @@ jobs:
       - union-maap
       - union-milan_dp_render
       - union-pp_shadow
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:
       - uses: actions/checkout@v4
@@ -673,7 +673,7 @@ jobs:
       - full-ci-gate
       - yosys-tool
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 29
     strategy:
       fail-fast: true
@@ -825,7 +825,7 @@ jobs:
       - full-ci-gate
       - yosys-shards
       - verilator-suites
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -912,7 +912,7 @@ jobs:
           retention-days: 3
   yosys-tool:
     name: Prepare pinned Yosys
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 29
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' }}
@@ -1013,7 +1013,7 @@ jobs:
       - full-ci-gate
       - verilator-shards
     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
@@ -1089,7 +1089,7 @@ jobs:
       - full-ci-gate
       - verilator-shards
     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
@@ -1165,7 +1165,7 @@ jobs:
       - full-ci-gate
       - verilator-shards
     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
@@ -1241,7 +1241,7 @@ jobs:
       - full-ci-gate
       - verilator-shards
     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
@@ -1317,7 +1317,7 @@ jobs:
       - full-ci-gate
       - verilator-shards
     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
@@ -1393,7 +1393,7 @@ jobs:
       - full-ci-gate
       - verilator-shards
     if: ${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
@@ -1465,7 +1465,7 @@ jobs:
           retention-days: 3
   ci-manifest:
     name: Collect CI manifest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     if: ${{ always() && (github.event_name == 'push' || github.event_name == 'pull_request') }}
     needs:
@@ -1543,7 +1543,7 @@ jobs:
           retention-days: 3
   ci-fail-fast:
     name: Fail fast across this head
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
       == github.repository) }}
@@ -1622,7 +1622,7 @@ jobs:
           retention-days: 3
   ci-cancel-tail:
     name: Cancel late CI failures
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 3
     if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name
       == github.repository)) }}

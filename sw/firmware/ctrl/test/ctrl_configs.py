@@ -178,6 +178,28 @@ OUTSIDE = {
                                         "netlists sv2v and Yosys elaborate (#665 F-INT); it compiles no C",
     "sw/mailbox/census_ports.py": "classifies every port of the processor wrapper in the census's netlists, naming "
                                   "the firmware that writes each face (#665 S1); it compiles nothing",
+    # the CPU budget harness (#665): no hosted job can run its build, which needs picolibc's and compiler-rt's
+    # packages, the patched LiteX tree and Verilator together, so none of it is a known builder
+    "tb/verilator/ctrl_service_budget/build.py": "delegates every compile of the firmware: its image to "
+                                                 "ctrl_srp_image.py, run unchanged at the shapes, interface counts and "
+                                                 "AECP composition the gate runs it at (ctrl_runs.image_runs; the "
+                                                 "split layout's reset entry is test_ctrl_memory.py's, and the runtime "
+                                                 "archives change only the link), a control's planted copy of the "
+                                                 "firmware's tree outside the checkout to the same builder, a variant "
+                                                 "arm's image to fixture_variant.py and its runtime to runtime_ssp.py; "
+                                                 "its own compiles build the test SoC's Verilator model",
+    "tb/verilator/ctrl_service_budget/runtime_ssp.py": "runs ctrl_image_runtime.py with -fno-stack-protector on its "
+                                                       "compiles (#723): the bare-metal runtime from picolibc's and "
+                                                       "compiler-rt's sources outside the checkout, no firmware or "
+                                                       "stack source",
+    "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "
+                                                    "aecp.h; it compiles nothing",
+    "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
+                                                    "aecp.h and compiles nothing",
+    "tb/verilator/ctrl_service_budget/split_soc.py": "exports the test SoC with LiteX, its software and gateware "
+                                                     "compiles off, and reads the image's placeholder addresses from "
+                                                     "ctrl_build.RV32_FLAGS and the store's generated headers; it "
+                                                     "compiles no firmware or stack source",
 }
 #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
 #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
@@ -194,6 +216,10 @@ SUITES = {
                                             "against them",
     "sw/firmware/gtest/fw_coverage_selftest.py": "the coverage reader's planted cases (fw_coverage.py --selftest): "
                                                  "programs it writes outside the checkout",
+    "tb/verilator/ctrl_service_budget/fixture_variant.py": "the CPU budget harness's labelled variant arms (#665, "
+                                                           "run.py --variant): ctrl_srp_image.py's compiles, the size "
+                                                           "fixture read from build.py's edited copy outside the "
+                                                           "checkout",
 }
 
 
