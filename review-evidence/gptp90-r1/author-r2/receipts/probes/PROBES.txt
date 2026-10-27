@@ -1,0 +1,13 @@
+Reviewer probe scripts, run unchanged (sha256 matches each reviewer's MANIFEST.sha256):
+d2f7e90ca6dfa671ee0ee67343fd7b5e10f6d07b0984eb5b631abad54dc919f7  probe_reaging.sh
+a623cae54c09cf73371b485fae4861798b9f92a603f2bf5e56155958cfeca6a3  p255_probe.py
+c55e82ede6a45680a62db63ae7c08fc56feff8af43d841ae45d0d920336fc47c  reviewer_probes.py
+a472647e5f8057b8232de51ede7e09a4a64a4b7617b34b10a203c53a1003cd59  par_mutants.py (R720-1)
+
+Adapted probe (not a reviewer file): R3 against the round-2 leg
+24a9f1dc971cdb9c54271ef0abafa8cb1cf38eb557a8ffc50034e627561ff727  adapted_probes.py
+
+Head checkout for every probe run: 4d8fb9024c7ed4ce4b6e70912721c3cfb03e729e
+R719-1 probe: sh probe_reaging.sh <probe-tree> <workdir>
+R720-1 p255 probe: planted by p255_probe.py into a copy, built and run as R720-1 ran it (scripts/run_p255.sh in the lane scratch)
+R720-1 mutation probes: par_mutants.py <probe-tree> <out> 4 --probes reviewer_probes.py --only-probes

@@ -1,0 +1,11 @@
+CONTROL pass
+probe   0 caught R1 an asCapable rise keeps the aged mark
+probe   1 caught R2 a usable pair keeps the aged mark
+probe   2 caught R3 the timeout records no aged mark
+probe   5 NOT-CAUGHT R6 only a same-source second response resets
+probe   4 NOT-CAUGHT R5 init leaves the first request unjudged-guard off
+probe   6 caught R7 the Announce gate tests the wrong role
+probe   3 caught R4 a completed exchange keeps the loss count
+probe   7 caught R8 a slave pair does not restart the watch
+probe   8 caught R9 the fifth loss keeps the recovery ladder
+control=pass author=0/0 probes caught=7/9
