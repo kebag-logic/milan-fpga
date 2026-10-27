@@ -291,6 +291,18 @@ The STRMW talker SID words (`0x814`, `0x818`) still read the ID a source starts 
 
 The torture plan's MAAP conflict entry no longer expects a two-LeaveAll wait.
 
+Against the eleventh record, this adoption's shipping route grows by 753 LUTs (+1.47 %) and 499 FFs.
+
+The route's LUT tolerance is 500, so the [resource gate](../design/AREA_BUDGET.md#the-resource-gate) refuses it until the record is re-baselined.
+
+That re-baseline is an owner decision this adoption does not take.
+
+712 of those LUTs are the processor's: the #202 move, its quarantine and the owed Leave.
+
+Slices fall by 55, block RAM and DSP are unchanged, and the route keeps +0.440 ns WNS.
+
+Standalone, the wrapper grows by 518 LUTs and 404 FFs at 1x1 and by 1,689 LUTs and 1,562 FFs at 8x8, all of it the processor's.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
