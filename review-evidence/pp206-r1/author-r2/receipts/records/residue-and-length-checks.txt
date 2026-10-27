@@ -1,0 +1,17 @@
+$ awk 'NR>=394 && NR<=401 && length > 90' docs/architecture/06_aecp_engine.md
+rc=0 (no output)
+$ awk 'NR>=394 && NR<=400 && length > 90' docs/architecture/06_aecp_engine.md
+rc=0 (no output)
+words of the paragraph unchanged:
+True
+
+$ grep -n 'Premise checks' tb/pp_top/README.md
+515:  claimed flag passes. Premise checks read the binding view at RESET,
+516-  PROBING, SETTLED, REPROBE, PASSIVE-STALE and UNBOUND. Selector 4's
+
+settled_gate_mutations lines 28 - 65 = 38
+mutations lines 68 - 167 = 100
+run lines 170 - 176 = 7
+check_variant lines 179 - 212 = 34
+report lines 215 - 221 = 7
+main lines 224 - 252 = 29
