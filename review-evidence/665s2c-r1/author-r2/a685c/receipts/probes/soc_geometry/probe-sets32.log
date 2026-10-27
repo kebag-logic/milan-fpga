@@ -1,0 +1,21 @@
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+Traceback (most recent call last):
+  File "<scratch>/full-tree.Ldte/sw/builder/test_soc_options.py", line 304, in <module>
+    test_split_cache()
+    ~~~~~~~~~~~~~~~~^^
+  File "<scratch>/full-tree.Ldte/sw/builder/test_soc_options.py", line 253, in test_split_cache
+    _split_cache(directory)
+    ~~~~~~~~~~~~^^^^^^^^^^^
+  File "<scratch>/full-tree.Ldte/sw/builder/test_soc_options.py", line 234, in _split_cache
+    assert split["split_args"] == SPLIT_FETCH_L1, split
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'kind': 'setup', 'vexii_args': '--xlen=32 --fetch-l1 --fetch-l1-sets=32 --fetch-l1-ways=1', 'split_args': '--fetch-l1 --fetch-l1-sets=32 --fetch-l1-ways=1'}

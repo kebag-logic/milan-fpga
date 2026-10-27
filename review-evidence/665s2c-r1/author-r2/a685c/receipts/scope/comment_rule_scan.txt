@@ -1,0 +1,11 @@
+head de91db59d10d4e9e3de607f068ace7680f293fd7
+Lane or review labels (S<n>, F<n>, M<n>, R<nn>, A<nn>, 'lane') on any line added to a source file since S2 (git diff -U0 f58d049b HEAD -- '*.py' '*.cpp' '*.hpp' '*.vlt' '*.ld'): comments, docstrings and strings alike.
+added source lines: 480
+hits:
+none
+
+At a611785f, the same scan found:
++#: The labelled hybrid-XIP arm (#665, D3 and lane S14): the anchor in plat/ctrl_split.ld that
++#: flash window behind the instruction cache. rom keeps the reset entry, F1's flash driver,
++    out.append(('the XIP arm keeps the reset entry and F1\'s flash driver in rom and moves the other code to flash',
++    "xip: F1's flash driver moves to flash with the other code": lambda: [patch.object(build, 'XIP_TEXT', (

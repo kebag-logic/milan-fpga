@@ -1,0 +1,9 @@
+Fixture regeneration through its generator, at head 619e84e61a41b1b81b95d8bc0cf29737b05a2458:
+the documented run (--point 1x1 --fetch-l1 none --groups fixture --record-budget-findings), then selftest.py --write-fixture on its log and build.json.
+git status --porcelain after the generator wrote fixture.log and oracle.json (empty = byte-identical to the committed files):
+(end of status)
+8137bb36aaaee8f3408854be5962302d18ca17cd350de1c607e18a01943f9e22  tb/verilator/ctrl_service_budget/fixture.log
+ed73d85a4f77b11e25d72d5a1f2a4741de20c254ef8abe16d90a08b16dc3b48f  tb/verilator/ctrl_service_budget/oracle.json
+committed blobs:
+100644 blob d3b45a3b5ef24c6071cf83e8c863a9fcb875e17b	tb/verilator/ctrl_service_budget/fixture.log
+100644 blob 0d8d1d6471df21eb33c7879c1e3a110ef3b2b136	tb/verilator/ctrl_service_budget/oracle.json
