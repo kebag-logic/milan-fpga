@@ -1,0 +1,9 @@
+docs_check rc=0 :: docs_check: 0 finding(s) across 211 md files + 1433 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+em_dash rc=2 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools
+doc_style rc=0 :: documentation style: OK (23 current documents)
+doc_map rc=0 :: documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+naming rc=0 :: NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+hygiene rc=0 :: HYGIENE RATCHET: PASS (3 population(s), 1300 file(s))
+py_idiom rc=0 ::   over-long line: 0 <= 0
+doc_paths rc=0 :: doc path gate: OK (1062 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+toc_check rc=2 :: gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r too
