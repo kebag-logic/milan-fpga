@@ -406,7 +406,7 @@ verified blocks outside the shipping datapath; the station-address rules
   They include the reference peer to the DUT listener and its TDM output.
   They include the DUT's TDM loop too.
   Every capture meets one property: a capture with a DUT event the bytes show never grades PASS.
-  Each such event is listed within 63 samples of its sample.
+  Each such event is listed within 63 samples of its sample, on each channel it changes.
   The exception is an event that masks a planted arm at its sample; the run is then void, and its reason names that cause.
   A seeded fuzz over compositions of DUT events and planted arms is the gate for this property.
   Exact classification is claimed only inside a stated scope, which TESTING 6d lists.

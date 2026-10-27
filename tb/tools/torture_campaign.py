@@ -3752,8 +3752,8 @@ AUDIO_COUNTER_LIMITS = (
     "exact classification is claimed only inside a scope: one DUT event with at least 64 clean samples "
     "between it and every other event and planted arm, except an excursion whose mask clears its "
     "channel number; a one-word corruption 0 to 4 samples from a planted arm; a short slip 1 to 64 "
-    "samples before a constant-mask excursion whose mask leaves every channel number intact; any other "
-    "composition fails or voids the run and may read in other classes",
+    "samples before a constant-mask excursion whose mask makes no channel number zero or another "
+    "channel's; any other composition fails or voids the run and may read in other classes",
     "inside the scope, every slip is sized exactly from the decoded position",
     "on every channel the slips a reading reports sum to the shift its closing samples decode; a "
     "reading that does not is never taken, and a window no reading balances is one unresolved event "

@@ -1506,7 +1506,7 @@ Exact classification, as the rules and limits above state, is claimed only for t
   An excursion whose mask clears its channel number is the exception.
 - A one-word corruption 0 to 4 samples from a planted arm, as `test_audio_composition_sweep` grades it.
 - A short slip 1 to 64 samples before a constant-mask excursion, as `test_audio_slip_before_a_constant_mask` grades it.
-  The excursion's mask leaves every channel number intact.
+  The excursion's mask makes no channel number zero or another channel's.
 
 Any other composition grades `FAIL` or void, and may read in other classes.
 Two such shapes are pinned, so a change to their reading is seen:
