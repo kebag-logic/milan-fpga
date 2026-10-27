@@ -1,0 +1,25 @@
+HEAD a7a514fbf5572ce08394cd727c9cc9085745c79f tree 7bdbb8703e4e4dd34c86adb234af37ec68a2e6d3
+porcelain(ignored):
+end porcelain
+index+worktree == HEAD
+ls-files digest e5c7283e3144d877 ls-tree digest e5c7283e3144d877
+gitlinks head:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 55680bff3b287b9a7b0c759f51471fa617c17335	gptp-processor
+160000 commit ed2118035e4cec76fb1b59cfbf8a053aeacc8af8	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+gitlinks base e76a755a:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 55680bff3b287b9a7b0c759f51471fa617c17335	gptp-processor
+160000 commit ed2118035e4cec76fb1b59cfbf8a053aeacc8af8	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+delta stat 5fdabc1c..HEAD:
+ 4 files changed, 67 insertions(+), 52 deletions(-)
+base..HEAD non-doc/non-tb paths:
+commit messages (subject only, trailers):
+a7a514fbf5572ce08394cd727c9cc9085745c79f Promise coverage, not position, for each audio event outside the exactness scope, gate every unit by it, and add a control that leaves a slip uncovered on one channel (#396)
+  body-lines=
