@@ -1,0 +1,16 @@
+diff --git a/tb/acmp_talker/sid_cases.hpp b/tb/acmp_talker/sid_cases.hpp
+index 488d350..9489695 100644
+--- a/tb/acmp_talker/sid_cases.hpp
++++ b/tb/acmp_talker/sid_cases.hpp
+@@ -356,7 +356,10 @@ void SidChecks::cursor_lap() {
+   h.gates.clear();
+   std::vector<bool> used(65536, false);
+   for (int s = 0; s < N_SRC; ++s) used[h.sid_pub(s) & 0xFFFF] = true;
+-  bool fresh_ids = true, distinct = true, declared = true, left = false;
++  bool fresh_ids = true;
++  bool distinct = true;
++  bool declared = true;
++  bool left = false;
+   uint64_t prev = h.sid_pub(0);
+   uint64_t after_wrap = 0;
+   int moves = 0;

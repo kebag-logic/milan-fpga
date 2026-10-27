@@ -1,0 +1,11 @@
+Own verdict and ledger, written before reading any prior review report at this round.
+Exact head a5ad8caea58886f01633e1545fb26300f1db9ebd, tree e496f4f6faa5d95dbf531f743ecd0dc7a3f72f4a.
+Delta since the last reviewed head 98e0137c: one hunk, tb/acmp_talker/sid_cases.hpp:359-362, four
+declarations split from one, same names, initialisers and order.
+Draft verdict: POSITIVE. Findings of my own at this delta: none.
+Conformance CLEAN (delta touches no RTL, no clause claim; RTL equals ffc76f17).
+RTL CLEAN (hdl/ scripts/ syn/ Makefile unchanged since ffc76f17 and since 98e0137c).
+Robustness CLEAN (no behavioural change; suite output identical at both heads).
+Tests CLEAN (talker suite 1545/1545 at head on pinned 5.050; lint rc 0; Rule 11 scan 1 -> 0 here and in the patch).
+Docs CLEAN (no doc in delta; make check rc 0; no doc cites sid_cases.hpp by line; PR body consistent).
+Tue Oct 27 04:15:13 AM UTC 2026
