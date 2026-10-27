@@ -1,0 +1,12 @@
+test_audio_constant_mask_beside_one_word_events FAIL 8 subtests
+    Diff is 1289 characters long. Set self.maxDiff to None to see it.
+    -  (2, 4145, 'repeated', 1024, None, None)]
+test_audio_code_bit_corruption_ending_on_a_block ok 0
+test_audio_composition_sweep FAIL 1 subtests
+    AssertionError: frames=8192 d=-1 mask=0x200 pair=(0, 1): 0 != 1 : [{'capture_index': 699, 'class': 'bit-flip', 'n': 2, 'expected': '0x00257800', 'received': '0x00257A00', 'mask': '0x00000300', 'channel': 1, 'attribution': 'dut', 'acquisition_index': 699, 'wall_s': None, 'gptp_s': None, 'timing': 'un
+test_audio_slip_before_a_constant_mask FAIL 1 subtests
+    -  (3064, 'repeated', 1024, '')] : length=64 begin=3000 gap=1 n=3
+test_audio_slip_totals_balance_the_bytes FAIL 7 subtests
+       (2, 4088, 'bit-flip', 100, '0x00080000', None)]
+       (2, 3000, 'bit-flip', 100, '0x00080000', None)]
+test_audio_arm_interplay_at_the_release_tolerance ok 0

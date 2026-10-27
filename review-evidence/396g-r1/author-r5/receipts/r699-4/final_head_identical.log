@@ -1,0 +1,18 @@
+git diff --stat 4a460fc3 17a43ef2:
+ tb/tools/torture_campaign.py | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+changed hunk headers:
+@@ -8994 +8994,2 @@ class _ReleaseGateChecks:
+@@ -8997,0 +8999,8 @@ class _ReleaseGateChecks:
+
+R699-4 probe logs rerun at the 17a43ef2 export against those in receipts/r699-4 (run at the 4a460fc3 export):
+byte-identical: r4_a_detail.log
+byte-identical: r4_arm_corruption_sweep.log
+byte-identical: r4_cf_full.log
+byte-identical: r4_checks.log
+byte-identical: r4_detail.log
+byte-identical: r4_net_sweep.log
+byte-identical: r4_probe.log
+byte-identical: r4_r700_s1.log
+byte-identical: r4_regress_sweep.log

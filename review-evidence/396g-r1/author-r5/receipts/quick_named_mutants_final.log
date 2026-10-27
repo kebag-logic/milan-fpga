@@ -1,0 +1,26 @@
+KILLED: lone corrupted word kept as a slip pair: test_audio_tag_integrity_decides_first: FAIL Diff is 2319 characters long. Set self.maxDiff to None to see it.
+KILLED: constant-mask excursion kept as slips: test_audio_compound_and_edge_events: FAIL -  (3, 3002, 'repeated', 4, None, None)]
+KILLED: hold read as corruption: test_audio_compound_and_edge_events: FAIL +  (3, 3001, 'dropped', 1)]
+KILLED: constant-mask track adopted as a slip: test_audio_constant_mask_at_every_length: FAIL -   (2, 3064, 'dropped', 499717412864, None, None)])
+KILLED: a return at the next word not cut from the excursion: test_audio_block_slip_after_a_corruption_or_a_slip: FAIL ?         ^
+KILLED: arm-led reading taken whatever its DUT events: test_audio_planted_arms_beside_block_slips: FAIL + ('NOT RUN', [3001]) : 3001
+KILLED: hold judged over the whole window: test_audio_constant_mask_beside_one_word_events: FAIL -  (2, 3100, 'dropped', 1024, None, None)]
+KILLED: a slip arm never keeps the excursion it enters or leaves: test_audio_planted_arms_beside_block_slips: FAIL + ('FAIL', []) : (299, 'void: a planted arm was missed')
+KILLED: hold judged only against the window's opening offset: test_audio_slip_before_a_constant_mask: FAIL -  (3064, 'repeated', 1024, '')] : length=64 begin=3000 gap=1 n=3
+KILLED: hold tried at its shortest masked run first: test_audio_slip_before_a_constant_mask: FAIL -  (4189, 'repeated', 1024, '')] : length=100 begin=4089 gap=1 n=3
+KILLED: recorded part of a hold never read again: test_audio_slip_totals_balance_the_bytes: FAIL ?       ^     ^^^^^ ^^    ++        ^
+KILLED: a hold made where no slip may lie in the masked words: test_audio_arm_interplay_at_the_release_tolerance: FAIL + ('FAIL', []) : void: a planted arm was missed
+KILLED: unbalanced readings ranked with balanced ones: test_audio_slip_totals_balance_the_bytes: FAIL AssertionError: "an unclassified corruption: no reading's slips sum to the shift the bytes decode" unexpectedly found in {"an unclassified corruption: no reading's slips sum to the shift the bytes dec
+KILLED: the balance guard never fires: test_audio_slip_totals_balance_the_bytes: FAIL +  (3, 3000, 'unresolved', 1, '0x00080000', None)]
+KILLED: unbalanced window recorded as its reading: test_audio_slip_totals_balance_the_bytes: FAIL +  (3, 3000, 'unresolved', 1, '0x00080000', None)]
+KILLED: unbalanced window reported at its resync: test_audio_slip_totals_balance_the_bytes: FAIL    (3, 3000, 'unresolved', 1, '0x00080000', None)]
+KILLED: slips recorded outside the ledger: test_audio_slip_totals_balance_the_bytes: FAIL -   {'class': 'repeated', 'index': 7742, 'n': 2}]) : void: a planted arm was missed
+KILLED: an excursion's lead never returns at a word that fits: test_audio_slip_totals_balance_the_bytes: FAIL Diff is 1323 characters long. Set self.maxDiff to None to see it.
+KILLED: coincident words after a return keep the other offset: test_audio_slip_totals_balance_the_bytes: FAIL    (2, 4146, 'bit-flip', 1, '0x00080000', None)]
+KILLED: no word beside a constant-mask excursion split off: test_audio_constant_mask_beside_one_word_events: FAIL Diff is 1289 characters long. Set self.maxDiff to None to see it.
+KILLED: a two-word excursion under two masks kept whole: test_audio_composition_sweep: FAIL AssertionError: frames=8192 d=-1 mask=0x200 pair=(0, 1): 0 != 1 : [{'capture_index': 699, 'class': 'bit-flip', 'n': 2, 'expected': '0x00257800', 'received': '0x00257A00', 'mask': '0x00000300', 'channe
+KILLED: a word beside a constant-mask excursion merged into it: test_audio_constant_mask_beside_one_word_events: FAIL +  (2, 4080, 'bit-flip', 64, '0x00000100', None)]
+KILLED: a constant-mask excursion before a slip read as slips: test_audio_constant_mask_beside_one_word_events: FAIL    (3, 4153, 'dropped', 3, None, None)]
+KILLED: an excursion already on the slip's track read as one corruption: test_audio_composition_sweep: FAIL  : [{'capture_index': 15934, 'class': 'bit-flip', 'n': 2, 'expected': '0x001C8500', 'received': '0x001C8100', 'mask': '0x00000400', 'channel': 0, 'attribution': 'dut', 'acquisition_index': 15934, 'wal
+KILLED: a flip arm found in a run of any length: test_audio_arm_interplay_at_the_release_tolerance: FAIL + ('FAIL', []) : void: a planted arm was missed
+KILLED: a slip arm split only at its exact index: test_audio_arm_interplay_at_the_release_tolerance: FAIL + ('FAIL', []) : void: a planted arm was missed

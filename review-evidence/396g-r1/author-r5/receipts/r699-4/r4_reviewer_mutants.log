@@ -1,0 +1,16 @@
+CONTROL pristine rc=0
+KILLED: W01 reading score ignores arms found rc=1 by ['test_audio_arm_interplay_at_the_release_tolerance', 'test_audio_planted_arms_beside_block_slips']
+SURVIVED: W02 an equal-score reading replaces the first rc=0
+KILLED: W03 a flip arm matches a run of any length rc=1 by ['test_audio_arm_interplay_at_the_release_tolerance']
+KILLED: W04 a masked word after the old track's own keeps the hold rc=1 by ['test_audio_constant_mask_at_every_length']
+KILLED: W05 a returned excursion ends at its window's first word rc=1 by ['test_audio_code_bit_corruption_ending_on_a_block']
+SURVIVED: W06 hold start may split a bit-flip event rc=0
+KILLED: W07 a slip arm splits only at its exact index rc=1 by ['test_audio_arm_interplay_at_the_release_tolerance']
+SURVIVED: W08 located_within runs one word past the new track rc=0
+KILLED: W09 the mask with equal bits set puts the slip first rc=1 by ['test_audio_block_slip_after_a_corruption_or_a_slip', 'test_audio_planted_arms_beside_block_slips']
+SURVIVED: W10 upto stops one word short rc=0
+SURVIVED: W11 the offset before is never remembered rc=0
+KILLED: W12 a forced word's offset never takes force rc=1 by ['test_audio_planted_arms_beside_block_slips']
+KILLED: W13 a returned excursion needs the exact old track rc=1 by ['test_audio_constant_mask_beside_one_word_events']
+KILLED: W14 the arm-led read never opens before the window rc=1 by ['test_audio_planted_arms_beside_block_slips']
+SUMMARY: 14 mutants {'KILLED': 9, 'SURVIVED': 5, 'INVALID': 0}; export unchanged: True

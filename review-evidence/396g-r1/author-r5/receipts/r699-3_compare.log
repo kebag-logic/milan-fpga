@@ -1,0 +1,28 @@
+IDENTICAL arm_interaction_probe_r2.log
+IDENTICAL compound_probe_r2.log
+IDENTICAL edge_probe_r2.log
+DIFFERS grader_probe_r2.log: 6 lines
+    < P9-clean INFO {"verdict": "NOT RUN", "seconds_audio": 20.0, TIMING}
+    > P9-clean INFO {"verdict": "NOT RUN", "seconds_audio": 20.0, TIMING}
+    < P9-one-channel-non-counter INFO {"verdict": "NOT RUN", "seconds_audio": 2.0, TIMING}
+    > P9-one-channel-non-counter INFO {"verdict": "NOT RUN", "seconds_audio": 2.0, TIMING}
+    < P9-one-channel-offset INFO {"verdict": "NOT RUN", "seconds_audio": 20.0, TIMING}
+    > P9-one-channel-offset INFO {"verdict": "NOT RUN", "seconds_audio": 20.0, TIMING}
+IDENTICAL n07_probe.log
+DIFFERS port_grader_probe_r2.log: 6 lines
+    < P9-clean INFO {"verdict": "NOT RUN", "seconds_audio": 20.0, TIMING}
+    > P9-clean INFO {"verdict": "NOT RUN", "seconds_audio": 20.0, TIMING}
+    < P9-one-channel-non-counter INFO {"verdict": "NOT RUN", "seconds_audio": 2.0, TIMING}
+    > P9-one-channel-non-counter INFO {"verdict": "NOT RUN", "seconds_audio": 2.0, TIMING}
+    < P9-one-channel-offset INFO {"verdict": "NOT RUN", "seconds_audio": 20.0, TIMING}
+    > P9-one-channel-offset INFO {"verdict": "NOT RUN", "seconds_audio": 20.0, TIMING}
+IDENTICAL r3_arm_void_probe.log
+IDENTICAL r3_classify.log
+IDENTICAL r3_cluster_probe.log
+IDENTICAL r3_detail.log
+IDENTICAL r3_probe.log
+DIFFERS throughput_misuse_r2.log: 4 lines
+    < {"seconds_audio": 1, "verdict": "NOT RUN", "why": "void: a counter channel never acquired the counter; check the layout and byte order, and that the DUT drives the counter on that channel", "events": 8, TIMING, TIMING}
+    > {"seconds_audio": 1, "verdict": "NOT RUN", "why": "void: a counter channel never acquired the counter; check the layout and byte order, and that the DUT drives the counter on that channel", "events": 8, TIMING, TIMING}
+    < {"seconds_audio": 2, "verdict": "NOT RUN", "why": "void: a counter channel did not acquire the counter in its first 65536 frames; check the layout and byte order, and that the DUT drives the counter on that channel", "events": 0, TIMING, TIMING}
+    > {"seconds_audio": 2, "verdict": "NOT RUN", "why": "void: a counter channel did not acquire the counter in its first 65536 frames; check the layout and byte order, and that the DUT drives the counter on that channel", "events": 0, TIMING, TIMING}

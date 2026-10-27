@@ -1,0 +1,61 @@
+[
+  {
+    "mask": "0x100",
+    "original": [
+      [
+        "shift",
+        3000,
+        4096
+      ],
+      [
+        "xor",
+        3001,
+        1,
+        2,
+        256
+      ]
+    ],
+    "channel2_alternative": [
+      [
+        "shift",
+        3005,
+        4096
+      ]
+    ],
+    "equal": true,
+    "original_sha256": "3d005e4f54680e96861c4ce6333d5cd9fde0d67a9504f650fe4f03e563bccabf",
+    "alternative_sha256": "3d005e4f54680e96861c4ce6333d5cd9fde0d67a9504f650fe4f03e563bccabf"
+  },
+  {
+    "mask": "0x80000",
+    "original": [
+      [
+        "shift",
+        3000,
+        4096
+      ],
+      [
+        "xor",
+        3001,
+        1,
+        2,
+        524288
+      ]
+    ],
+    "channel2_alternative": [
+      [
+        "shift",
+        3001,
+        -1024
+      ],
+      [
+        "shift",
+        3002,
+        5120
+      ]
+    ],
+    "equal": true,
+    "original_sha256": "c0dd365ae897ba87d95fa3aaf70a232052355c13e1952865ea9902f94854383c",
+    "alternative_sha256": "c0dd365ae897ba87d95fa3aaf70a232052355c13e1952865ea9902f94854383c"
+  }
+]
