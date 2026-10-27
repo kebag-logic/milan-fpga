@@ -1,0 +1,43 @@
+OWN1 the asCapable rise keeps the aged mark
+CAUGHT
+FAIL link-up +15 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL link-up +15 us: offset published got 00000000000249f0 exp 0000000000003a98
+FAIL link-up +15 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL link-up +25 us: offset published got 00000000000249f0 exp 00000000000061a8
+FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: the step writes the bare estimate got 00000000fff3332d exp 00000000ffef5c21
+FAIL link-up -15 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL link-up -15 us: offset published got 00000000000249f0 exp 00000000ffffc568
+FAIL link-up -15 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL link-up -25 us: offset published got 00000000000249f0 exp 00000000ffff9e58
+FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: the step writes the bare estimate got 00000000fff3332d exp 00000000fff3332e
+FAIL link-up +20 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL link-up +20 us: offset published got 00000000000249f0 exp 0000000000004e20
+FAIL link-up +20 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL link-up -20 us: offset published got 00000000000249f0 exp 00000000ffffb1e0
+FAIL link-up -20 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL link-up +20 us + 1 ns: offset published got 00000000000249f0 exp 0000000000004e21
+FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000fff3332d exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL link-up -20 us - 1 ns: offset published got 00000000000249f0 exp 00000000ffffb1df
+FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000fff3332d exp 00000000fff3332f
+FAIL link-up: one step pulse per probe over 20 us got 0000000000000009 exp 000000000000000d
+FAIL locked +90 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked +90 us: step pulses   got 0000000000000001 exp 0000000000000000
+FAIL locked +90 us: addend matches the mirror got 00000000fff3332d exp 00000000ffe66666
+FAIL locked +110 us: addend matches the mirror got 00000000000a3d76 exp 00000000fffd70af
+FAIL locked -110 us: addend matches the mirror got 00000000000a3d76 exp 00000000fffd70af
+FAIL locked +100 us + 1 ns: addend matches the mirror got 00000000000a3d77 exp 000000000000000d
+FAIL locked -100 us - 1 ns: addend matches the mirror got 00000000000a3d77 exp 000000000000000d
+1817 checks: 1636 PASS, 181 FAIL

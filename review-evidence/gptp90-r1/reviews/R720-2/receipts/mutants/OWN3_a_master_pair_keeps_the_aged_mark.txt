@@ -1,0 +1,43 @@
+OWN3 a master pair keeps the aged mark
+CAUGHT
+FAIL receipt timeout, same GM: re-elected after Sync recovers got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +50 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL receipt timeout, same GM, +50 us: offset published got 00000000001e81b7 exp 000000000000c350
+FAIL receipt timeout, same GM, +50 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM: the second timeout and return got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL receipt timeout, same GM, +150 us: offset published got 00000000001e81b7 exp 00000000000249f0
+FAIL receipt timeout, same GM, +150 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: one step pulse got 0000000000000008 exp 0000000000000009
+FAIL link-up +15 us: addend matches the mirror got 00000000fff0a3d0 exp 00000000ffe66666
+FAIL link-up +25 us: addend matches the mirror got 00000000fffc28f4 exp 00000000ffef5c21
+FAIL link-up +25 us: the step writes the bare estimate got 00000000fffc28f4 exp 00000000ffef5c21
+FAIL link-up -15 us: addend matches the mirror got 00000000000b8525 exp 00000000fffeb852
+FAIL link-up -25 us: addend matches the mirror got 0000000000000001 exp 00000000fff3332e
+FAIL link-up -25 us: the step writes the bare estimate got 0000000000000001 exp 00000000fff3332e
+FAIL link-up +20 us: addend matches the mirror got 00000000ffeb8516 exp 00000000ffe66666
+FAIL link-up -20 us: addend matches the mirror got 00000000000f5c33 exp 0000000000028f60
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 0000000000000002 exp 00000000fff3332f
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 0000000000000002 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 0000000000000002 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 0000000000000002 exp 00000000fff3332f
+FAIL locked +110 us: addend matches the mirror got 0000000000000003 exp 00000000fffd70af
+FAIL locked -110 us: addend matches the mirror got 0000000000000003 exp 00000000fffd70af
+FAIL closed loop starts unsynchronized got 0000000000000000 exp 0000000000000001
+FAIL one re-base then lock        got 0000000000000010 exp 0000000000000011
+FAIL measured offset converged    got 0000000000000000 exp 0000000000000001
+FAIL addend carries the master's rate got 0000000000000000 exp 0000000000000001
+FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: never more than 100 us, so never a step got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: the trim rides its clamp got 0000000000000000 exp 000000000019999a
+FAIL long slew, master +90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: the loop settles back to lock got 0000000000000000 exp 0000000000000001
+FAIL slew: real correction has one uninterrupted interval got 0000000000000000 exp 0000000000000002
+FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: never more than 100 us, so never a step got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: the trim rides its clamp got 00000000000147a1 exp 000000000019999a
+FAIL long slew, master -90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: the loop settles back to lock got 0000000000000000 exp 0000000000000001
+FAIL slew: real correction has one uninterrupted interval got 0000000000000000 exp 0000000000000002
+1831 checks: 1648 PASS, 183 FAIL

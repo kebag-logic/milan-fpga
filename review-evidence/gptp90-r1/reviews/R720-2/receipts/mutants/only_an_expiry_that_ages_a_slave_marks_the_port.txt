@@ -1,0 +1,6 @@
+only an expiry that ages a slave marks the port
+CAUGHT
+FAIL #89 takeover: the queued receipt timeout leaves the port aged got 0000000000000000 exp 0000000000000001
+FAIL #89 a lone pair heard as master: a later Announce elects nothing got 0000000000000000 exp 0000000000000001
+FAIL #89 Announce lapse: a sync receipt timeout after mastership ages the next Announce got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: only an expiry that ages a slave marks the port - breaks "#89 takeover: the queued receipt timeout leaves the port aged | #89 a lone pair heard as master: a later Announce elects nothing | #89 Announce lapse: a sync receipt timeout after mastership ages the next Announce"

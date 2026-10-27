@@ -1,0 +1,8 @@
+a sync receipt timeout only clears sync-ok
+CAUGHT
+FAIL #89 Sync stops: the plane takes mastership got 0000000000000000 exp 0000000000000001
+FAIL #89 never usable: the grandmaster is aged got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up after the next Sync: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up with the next sequenceId: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a sync receipt timeout only clears sync-ok - breaks "#89 Sync stops: the plane takes mastership | #89 never usable: the grandmaster is aged | #89 no Follow_Up: the plane takes mastership within | #89 Follow_Up after the next Sync: the plane takes mastership within | #89 Follow_Up with the next sequenceId: the plane takes mastership within"

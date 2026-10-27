@@ -1,0 +1,31 @@
+CONTROL unmutated	PASS
+a queued receipt timeout ages a master	CAUGHT
+a sync receipt timeout only clears sync-ok	CAUGHT
+only an expiry that ages a slave marks the port	CAUGHT
+sync receipt ageing ignores gmPresent	CAUGHT
+adoption leaves the Sync receipt watch off	CAUGHT
+an aged port takes Announces	CAUGHT
+an aged port refuses a priority1 255 grandmaster	CAUGHT
+an aged Announce is dropped rather than aged	CAUGHT
+mastership stops the Sync receipt watch	CAUGHT
+mastership stops the Follow_Up watch	CAUGHT
+mastership voids the parked Sync	CAUGHT
+a master steers on its aged peer's Sync	CAUGHT
+a master hears no Sync	CAUGHT
+the Sync receipt watch is 100 ms	CAUGHT
+the Sync receipt watch is 500 ms	CAUGHT
+a parent refresh expires the Sync watch	CAUGHT
+the adoption watch is 100 ms	CAUGHT
+a Follow_Up pairs whatever its sequenceId	CAUGHT
+the Follow_Up watch is 50 ms	CAUGHT
+lost responses clear asCapable at the first	CAUGHT
+the fifth loss stops the requests	CAUGHT
+same-identity duplicates are a storm	CAUGHT
+lost responses clear asCapable at the fourth	CAUGHT
+lost responses clear asCapable at the sixth	CAUGHT
+a second response re-arms the pairing	CAUGHT
+a third response re-arms the reset exchange	CAUGHT
+OWN1 the asCapable rise keeps the aged mark	CAUGHT
+OWN2 the gmPresent threshold is priority1 254	PASS
+OWN3 a master pair keeps the aged mark	CAUGHT
+OWN4 a Sync is taken on an incapable port	PASS
