@@ -1,0 +1,155 @@
+diff --git a/sw/builder/test_soc_options.py b/sw/builder/test_soc_options.py
+index f12c185d82..0c3eab7c83 100644
+--- a/sw/builder/test_soc_options.py
++++ b/sw/builder/test_soc_options.py
+@@ -3,12 +3,15 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """Issue #654: early CPU option refusals and optional real-netlist effect tests.
+ 
+-The builder runs the refusal bank. --netlists additionally requires the
+-NaxRiscv data package and its generator sources; no missing dependency skips.
+-Each export uses a fresh process because CPU wrappers retain class state.
++The builder runs the refusal bank, and the split placement's instruction
++cache check (#665): only the split CPU's generator options gain the cache.
++--netlists additionally requires the NaxRiscv data package and its generator
++sources; no missing dependency skips. Each export uses a fresh process
++because CPU wrappers retain class state.
+ """
+ import argparse
+ import json
++import re
+ from pathlib import Path
+ import subprocess
+ import sys
+@@ -38,6 +41,12 @@ from litex.soc.cores.cpu.naxriscv import NaxRiscv
+ from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
+ class SetupStarted(Exception):
+     pass
++recorded = {}
++def vexii_setup(args):
++    """Record the generator options the constructor hands the CPU, then stop before setup."""
++    recorded["vexii_args"] = args.vexii_args
++    recorded["split_args"] = mod.ctrl_cpu_args(mod.CTRL_FETCH_L1)
++    raise SetupStarted
+ sink = io.StringIO()
+ result = {}
+ with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+@@ -63,7 +72,7 @@ with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+         result = {"sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw),
+                   "rtl_sha256": hashlib.sha256(rtl).hexdigest()}
+     else:
+-        with patch.object(VexiiRiscv, "args_read", side_effect=SetupStarted), \
++        with patch.object(VexiiRiscv, "args_read", side_effect=vexii_setup), \
+              patch.object(NaxRiscv, "args_read", side_effect=SetupStarted), \
+              patch.object(mod.SoCCore, "__init__", side_effect=SetupStarted), \
+              patch.object(mod.board_audio_routing, "assert_front_end_routed", side_effect=SetupStarted):
+@@ -76,7 +85,7 @@ with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+                     mod.MilanSoC(None, 50000000, with_milan=False, cpu=spec["cpu"],
+                                  xlen=spec["xlen"], **spec["options"])
+             except SetupStarted:
+-                result = {"kind": "setup"}
++                result = {"kind": "setup", **recorded}
+             except ValueError as exc:
+                 result = {"kind": "refused", "reason": str(exc)}
+             except SystemExit as exc:
+@@ -205,6 +214,39 @@ def _refusal_controls(directory):
+     return len(cases) + 3
+ 
+ 
++def _split_cache(directory, mutations=()):
++    """The CPU options of the all-fabric and the split placement (#665), checked.
++
++    The all-fabric CPU keeps exactly its arguments; the split CPU adds only
++    the fetch L1 of ctrl_cpu_args, and that carries no LSU L1.
++    """
++    fabric = _probe(directory, options={}, mutations=list(mutations))
++    split = _probe(directory, options={"ctrl_mailbox": True, "ctrl_firmware": "unread.elf"},
++                   mutations=list(mutations))
++    assert fabric["kind"] == split["kind"] == "setup", (fabric, split)
++    assert fabric["vexii_args"] == "--xlen=32", fabric
++    assert re.fullmatch(r"--fetch-l1 --fetch-l1-sets=\d+ --fetch-l1-ways=\d+", split["split_args"]), split
++    assert split["vexii_args"] == "--xlen=32 " + split["split_args"], split
++
++
++def test_split_cache() -> None:
++    """Grade the split placement's instruction cache options and kill their loss, leak and widening."""
++    split = "\n                # #665: the split"
++    controls = [
++        ("the split CPU without its cache", "            if ctrl_mailbox:" + split, "            if False:" + split),
++        ("the all-fabric CPU with the cache", "            if ctrl_mailbox:" + split, "            if True:" + split),
++        ("a data cache with it",
++         'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"',
++         'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways} --lsu-l1"'),
++    ]
++    with tempfile.TemporaryDirectory(prefix="soc-split-cache-") as tmp:
++        directory = Path(tmp)
++        _split_cache(directory)
++        for label, old, new in controls:
++            _killed(lambda: _split_cache(directory, [(old, new)]), label)
++    print(f"Split placement CPU: the instruction cache on the split CPU only, {len(controls)} killed controls")
++
++
+ def test_refusals() -> None:
+     """Grade real CLI/constructor refusals, setup boundaries and planted removals."""
+     with tempfile.TemporaryDirectory(prefix="soc-options-") as tmp:
+@@ -249,6 +291,7 @@ if __name__ == "__main__":
+     parser.add_argument("--nax-data-dir", help="isolated NaxRiscv data directory with generator sources")
+     args = parser.parse_args()
+     test_refusals()
++    test_split_cache()
+     if args.netlists:
+         test_netlists(args.nax_data_dir)
+     print("RESULT: PASS")
+diff --git a/sw/litex/milan_soc.py b/sw/litex/milan_soc.py
+index f0df55f21b..9aaf5659d2 100644
+--- a/sw/litex/milan_soc.py
++++ b/sw/litex/milan_soc.py
+@@ -2812,6 +2812,27 @@ def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float |
+                          "omit the option or request a positive size")
+ 
+ 
++#: The split placement's instruction cache (#665, owner decision 2026-10-26: the CPU budget's
++#: first approach): VexiiRiscv's fetch L1 as (sets, ways) of the generator's fixed 64-byte line
++#: (FetchL1Plugin at the pinned revision). docs/design/SPLIT_CONTROL_MEMORY.md section 7 gives
++#: the measured sweep this is chosen from.
++CTRL_FETCH_L1 = (64, 1)
++
++
++def ctrl_cpu_args(fetch_l1: tuple[int, int] | None) -> str:
++    """The generator options the split placement adds to its CPU; None adds nothing.
++
++    Only the fetch side is cached. An LSU L1 with the DMA port makes the
++    generator build its coherent interconnect and hub instead of patch 0005's
++    non-coherent fabric; the data-side cost measured with the instruction
++    cache is mostly byte-loop stores, which firmware removes first (#665).
++    """
++    if fetch_l1 is None:
++        return ""
++    sets, ways = fetch_l1
++    return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
++
++
+ class MilanSoC(SoCCore):
+     def __init__(self, platform, sys_clk_freq, xlen=64, cpu_count=1,
+                  with_milan=True, with_mac=False, with_dram=False,
+@@ -2854,7 +2875,8 @@ class MilanSoC(SoCCore):
+                 "MilanSoC needs a resolved gptp_plane=True/False when the "
+                 "Milan datapath is present")
+         # ---- RISC-V core(s). Two cores are understood by the integration, although
+-        #      the product gate below accepts only cacheless RV32 VexiiRiscv. The
++        #      the product gate below accepts only RV32 VexiiRiscv, cacheless except
++        #      for the split placement's instruction cache (ctrl_cpu_args). The
+         #      processor descriptor/response bridges need the core's dedicated
+         #      fabric-memory attachment whenever the Milan endpoint is present;
+         #      it is a structural part of those two protocol faces.
+@@ -2875,6 +2897,10 @@ class MilanSoC(SoCCore):
+             _vex_args.with_cpu_clk = bool(milan_clk_freq)
+             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
+             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
++            if ctrl_mailbox:
++                # #665: the split placement's CPU fetches through its instruction
++                # cache. The all-fabric CPU's arguments, so its netlist, are unchanged.
++                vexii_extra = " ".join(filter(None, (vexii_extra, ctrl_cpu_args(CTRL_FETCH_L1))))
+             # --xlen is a REAL knob on this path, not a NaxRiscv-only one. It used to be
+             # hardcoded to 64 here, so `--cpu vexiiriscv --xlen 32` was accepted and
+             # silently built an RV64 core  -  the same "flag that does nothing" defect the

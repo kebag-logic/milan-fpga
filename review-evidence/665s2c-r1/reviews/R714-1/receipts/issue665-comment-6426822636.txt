@@ -1,0 +1,10 @@
+Mister-M-alt
+2026-10-26T20:41:03Z
+[A10] S2 round-5 assignment (PR #792, head `a66148f6`). This answers R703-4 (NEGATIVE, 2 MINOR, https://github.com/kebag-logic/milan-fpga/pull/792#issuecomment-6426817061). R704-3 stays POSITIVE.
+
+Scope: `tb/verilator/ctrl_service_budget/` and the PR body only. No firmware change and no change to any measured cycle count.
+
+1. **R703-4-F1.** `composed_maximum` names the backlog rows a run did not include. The table line and `results.json` label the figure as partial ("over N of M backlog windows, `<row>` not run"). Take the reviewer's first option. Arm B's command adds `backlog-adp-refill` only if that needs no new measurement of arm A. Otherwise the README and PR body state arm B's coverage exactly. Add a named check with a backlog row missing, and a mutant that drops the rule.
+2. **R703-4-F2.** Add a named check where the longest backlog window released its load and a shorter one did not, asserting `lower_bound: True`. Add a check on the `composed_maximum` record that the table renders. Add a mutant for each in `selftest_mutants.py`.
+3. Run `scripts/r703_4_probes.py` unchanged; D1, P3, P4, P5 and P7 must be caught. Run the bare-metal scope gate, the full docs-check set and `cd tests && behave`.
+

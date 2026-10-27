@@ -1,0 +1,43 @@
+P1-none: 10 fan-out cells (groups ['aecp-fanout', 'fixture']), recipients [1, 16], per-recipient 0..20358, ms 5.76..11.33, miss 1 (aecp_fanout.set_name.if0 11.33), over ceiling 0
+P8-none: 13 fan-out cells (groups ['aecp-fanout']), recipients [32], per-recipient 11844..20486, ms 12.39..22.98, miss 13 (aecp_fanout.set_name.if0 20.68, aecp_fanout.set_clock_source.if0 15.09, aecp_fanout.set_control_identify_on.if0 14.62, aecp_fanout.set_control_identify_off.if0 12.39, aecp_fanout.set_sampling_rate.if0 15.08, aecp_fanout.lock_entity.if0 16.07, aecp_fanout.unlock_entity.if0 15.64, aecp_fanout.set_name.if1 22.98, aecp_fanout.set_clock_source.if1 14.79, aecp_fanout.set_control_identify_on.if1 15.43, aecp_fanout.set_control_identify_off.if1 14.96, aecp_fanout.lock_entity.if1 16.39, aecp_fanout.unlock_entity.if1 15.74), over ceiling 0
+P1-64x1: 10 fan-out cells (groups ['aecp-fanout', 'fixture']), recipients [1, 16], per-recipient 0..11870, ms 2.88..6.45, miss 0 (), over ceiling 0
+P8-64x1: 13 fan-out cells (groups ['aecp-fanout']), recipients [32], per-recipient 8385..13114, ms 8.25..13.56, miss 5 (aecp_fanout.set_name.if0 12.81, aecp_fanout.unlock_entity.if0 10.02, aecp_fanout.set_name.if1 13.56, aecp_fanout.lock_entity.if1 10.01, aecp_fanout.unlock_entity.if1 10.03), over ceiling 0
+B1-64x1: 14 fan-out cells (groups ['aecp-fanout']), recipients [16], per-recipient 7054..12635, ms 4.42..8.70, miss 0 (), over ceiling 0
+B8-64x1: 22 fan-out cells (groups ['aecp-fanout']), recipients [32], per-recipient 9629..15334, ms 8.85..18.19, miss 10 (aecp_fanout.set_name.if0 13.25, aecp_fanout.remove_audio_mappings_output.if0 11.95, aecp_fanout.set_configuration.if0 12.56, aecp_fanout.set_stream_info.if0 13.32, aecp_fanout.set_name.if1 12.78, aecp_fanout.set_control_identify_off.if1 10.45, aecp_fanout.remove_audio_mappings_output.if1 11.50, aecp_fanout.set_stream_info.if1 12.90, aecp_fanout.bind_rx_stream_info.if0 18.19, aecp_fanout.bind_rx_stream_info.if1 18.16), over ceiling 0
+per-recipient add_audio_mappings: 7876..7950
+per-recipient add_audio_mappings_output: 7874..10544
+per-recipient bind_rx_stream_info: 10686..13374
+per-recipient lock_entity: 7891..10555
+per-recipient remove_audio_mappings: 7894..8047
+per-recipient remove_audio_mappings_output: 7891..10571
+per-recipient set_clock_source: 7332..10017
+per-recipient set_configuration: 7054..9629
+per-recipient set_control_identify_off: 7078..9723
+per-recipient set_control_identify_on: 7069..9762
+per-recipient set_name: 11796..14488
+per-recipient set_sampling_rate: 7322..9945
+per-recipient set_stream_info: 12635..15334
+per-recipient unlock_entity: 7874..10517
+every other fan-out: 7054 .. 10571
+P1-64x1 add_audio_mappings if0: 4.91 (5.71)
+P1-64x1 lock_entity if0: 4.66 (5.43)
+P1-64x1 remove_audio_mappings if0: 4.93 (5.72)
+P1-64x1 set_clock_source if0: 4.61 (5.22)
+P1-64x1 set_control_identify_off if0: 4.45 (5.22)
+P1-64x1 set_control_identify_on if0: 4.43 (5.20)
+P1-64x1 set_name if0: 6.45 (7.47)
+P1-64x1 set_sampling_rate if0: 4.57 (5.15)
+P1-64x1 unlock_entity if0: 4.67 (5.44)
+P8-64x1 lock_entity if0: 8.38 (10.02)
+P8-64x1 lock_entity if1: 10.01 (13.67)
+P8-64x1 set_clock_source if0: 9.07 (12.56)
+P8-64x1 set_clock_source if1: 8.25 (9.73)
+P8-64x1 set_control_identify_off if0: 9.64 (13.29)
+P8-64x1 set_control_identify_off if1: 9.64 (13.29)
+P8-64x1 set_control_identify_on if0: 9.47 (13.12)
+P8-64x1 set_control_identify_on if1: 9.46 (13.11)
+P8-64x1 set_name if0: 12.81 (17.15)
+P8-64x1 set_name if1: 13.56 (17.73)
+P8-64x1 set_sampling_rate if0: 8.51 (9.97)
+P8-64x1 unlock_entity if0: 10.02 (13.67)
+P8-64x1 unlock_entity if1: 10.03 (13.68)

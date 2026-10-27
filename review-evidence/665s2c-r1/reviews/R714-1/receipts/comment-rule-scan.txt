@@ -1,0 +1,4 @@
+118:+#: The labelled hybrid-XIP arm (#665, D3 and lane S14): the anchor in plat/ctrl_split.ld that
+120:+#: flash window behind the instruction cache. rom keeps the reset entry, F1's flash driver,
+350:+    out.append(('the XIP arm keeps the reset entry and F1\'s flash driver in rom and moves the other code to flash',
+395:+    "xip: F1's flash driver moves to flash with the other code": lambda: [patch.object(build, 'XIP_TEXT', (

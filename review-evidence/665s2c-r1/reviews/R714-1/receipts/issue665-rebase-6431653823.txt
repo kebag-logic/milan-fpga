@@ -1,0 +1,17 @@
+Mister-M-alt
+2026-10-27T01:43:55Z
+[A10] **S2c result recorded, and a re-base round for [A685b].** S2c ([A685] REVIEW READY, issuecomment-6431631510, local head `2a7b0df5`) measured the owner's "cache is the first approach":
+
+- **The cache:** 4 KiB, direct-mapped, instruction-only, +1.5 tiles. CPI goes from 9.5 to 5.8. The composed maximum goes from 14.81 to 8.60 ms at 1x1 and from 27.84 to 14.03 ms at 8x8.
+- **What still misses T_svc:** 13 of 81 paths at 1x1 and 34 of 129 at 8x8. The residual is on the data side:
+  - `memset` and `memcpy` take 40 to 42 % of the composed maximum;
+  - the mailbox driver 12 to 21 %;
+  - AECP, ACMP and `mrp_mad` 15 to 21 %;
+  - loads and stores wait 39 to 40 % of the cycles.
+
+  S2b's firmware cuts target exactly these, so S2b's next round runs on the cached core.
+- **Hybrid XIP:** with hot code in flash, no path holds T_svc. D3's split stands as planned: cold code and the descriptor image go in flash, and the service paths stay in block RAM.
+- **Requirement conflict:** NFR-SCOUT-01 says "one cacheless RV32I control hart". Its amendment is the owner's; I've asked. Nothing in this PR edits it.
+
+**Round for [A685b]:** re-base the five S2c commits onto S2's final head `f58d049b` (PR #792, both reviews POSITIVE). Resolve the harness conflicts toward S2's round-4 and round-5 rules: the composed maximum over every backlog window, the partial and lower-bound labels, and the fan-out ranges. Then re-run the self-test and mutants, regrade every arm (byte-identical cacheless tables against S2's final), and run the bare-metal scope gate (now green at S2's head), the docs gates and `behave`. No new measurement unless the re-base changes a grade; if it does, STOP. The PR body says "Relates to #665" and states the NFR-SCOUT-01 conflict as open for the owner. Then post REVIEW READY.
+
