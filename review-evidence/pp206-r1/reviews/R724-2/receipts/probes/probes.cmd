@@ -1,0 +1,1 @@
+TMPDIR=<packet>/scratch/tmp VL_JOBS=4 VL_REAL=<pinned 5.050>/verilator python3 -I probes.py <clone at c836105> receipts/probes/out <packet>/vl-capped.sh 4   (the run used the wrapper's then-default VL_REAL, the pinned 5.050 recorded in receipts/VERILATOR-IDENTITY.txt)
