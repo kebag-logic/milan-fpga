@@ -3336,21 +3336,25 @@ AUDIO_RELEASE_ASSERTS = (
                "the DUT listener to the DUT's TDM output and the direct TDM capture "
                "(#451), and the DUT's TDM loop"),
     AssertSpec("audio.counter-classified", AUDIO_RELEASE_CLAUSE +
-               ": grade_audio_counter_capture classifies every discontinuity at its "
-               "sample as n dropped, n repeated, n samples of silence (replaced or "
-               "inserted), a bit-flip mask or a channel swap; the counter repeats only "
-               "after 2^43 samples, so every slip is sized exactly; a slip of whole "
-               "2048-sample blocks is located within 63 samples (located_within); the "
-               "tag's integrity decides first: only a reciprocal exchange is a swap, any "
-               "other foreign or corrupted channel number is corruption; a word equal to "
-               "a neighbouring received word is a repeat; an excursion of two or more "
-               "words with one constant XOR mask is one corruption at any length, beside "
-               "any one-word event or slip; on every channel the slips reported sum to "
-               "the shift the bytes decode, and a window no reading balances is one "
-               "unresolved event; a slip and a corruption in one window are both graded "
-               "in either order, except on and just before a planted arm as "
-               "counter_limits states, and patterns the bytes cannot tell apart follow "
-               "counter_limits, the planted-arm log deciding at a logged arm; a "
+               ": grade_audio_counter_capture lists every discontinuity the bytes show "
+               "in a class: n dropped, n repeated, n samples of silence (replaced or "
+               "inserted), a bit-flip mask or a channel swap; a capture with one never "
+               "grades PASS, and each is listed within 63 samples of its sample unless "
+               "it masks a planted arm and voids the run; inside the exactness scope "
+               "counter_limits states, each is classified at its sample and every slip "
+               "sized exactly, the counter repeating only after 2^43 samples, and outside "
+               "it a composition fails or voids the run and may read in other classes; a "
+               "slip of whole 2048-sample blocks is located within 63 samples "
+               "(located_within); the tag's integrity decides first: only a reciprocal "
+               "exchange is a swap, any other foreign or corrupted channel number is "
+               "corruption; a word equal to a neighbouring received word is a repeat; "
+               "inside the scope an excursion of two or more words with one constant XOR "
+               "mask is one corruption at any length, and a slip and a corruption in one "
+               "window are both graded in either order, except the planted-arm voids; on "
+               "every channel the slips reported sum to the shift the bytes decode, and a "
+               "window no reading balances is one unresolved event; patterns the bytes "
+               "cannot tell apart follow counter_limits, the planted-arm log deciding at "
+               "a logged arm; a "
                "channel swapped from the first frame is a swap, its counters still "
                "tracked; at either end of a capture, words that differ from their track "
                "only in the code bit are one unresolved event, never an exact class; "
@@ -3363,8 +3367,9 @@ AUDIO_RELEASE_ASSERTS = (
                "last tenth and inside the qualified interval; each is found with its "
                "class and its size or mask; where the capture's bytes allow a reading "
                "that places an arm, the arm's log decides, never at the cost of another "
-               "DUT event; a corruption on a planted arm's sample or just before it can "
-               "still leave the arm missed, as counter_limits states; a missed arm, an "
+               "DUT event; a DUT event on or beside a planted arm's sample can still "
+               "leave the arm missed, as counter_limits states, and the void's reason "
+               "names that possible cause; a missed arm, an "
                "arm outside the qualified interval, or arms that do not run at both ends, "
                "voids the run as NOT RUN, which blocks the release"),
     AssertSpec("audio.capture-losses-apart", AUDIO_RELEASE_CLAUSE +
@@ -3715,6 +3720,10 @@ AUDIO_END_REASON = "the capture ended"
 AUDIO_BOUND_REASON = "more than 65536 words without 64 clean samples"
 #: Issue #396 REQ-VER-06: a window whose reported slips would not sum to the shift its bytes decode.
 AUDIO_UNBALANCED_REASON = "an unclassified corruption: no reading's slips sum to the shift the bytes decode"
+#: Issue #396 REQ-VER-06: a missed arm voids the run; the source may have failed to plant it, or a DUT
+#: event at its sample may have changed its bytes.
+AUDIO_ARM_MISSED_REASON = ("void: a planted arm was missed; the source may not have planted it, or a DUT "
+                           "event at its sample may have masked it")
 #: The source plants these at the start and at the end of every run, inside
 #: the qualified interval. Mask 0x100 flips the code bit alone, so the arm
 #: never equals a neighbouring sample, whose position bits differ.
@@ -3736,10 +3745,19 @@ AUDIO_QUALIFICATION = {
                "seconds in it; a shorter interval is NOT RUN"}
 #: Patterns the counter cannot tell apart, as the plan states them (TESTING.md 6d).
 AUDIO_COUNTER_LIMITS = (
-    "every slip is sized exactly from the decoded position",
+    "every capture: a capture with a DUT event the bytes show never grades PASS, and each such event "
+    "is listed on each channel it changes within 63 samples of its sample, unless it masks a planted "
+    "arm at its sample and the run is void; events that cancel one another, or only move an arm within "
+    "its tolerance, leave a clean run's bytes",
+    "exact classification is claimed only inside a scope: one DUT event with at least 64 clean samples "
+    "between it and every other event and planted arm, except an excursion whose mask clears its "
+    "channel number; a one-word corruption 0 to 4 samples from a planted arm; a short slip 1 to 64 "
+    "samples before a constant-mask excursion whose mask leaves every channel number intact; any other "
+    "composition fails or voids the run and may read in other classes",
+    "inside the scope, every slip is sized exactly from the decoded position",
     "on every channel the slips a reading reports sum to the shift its closing samples decode; a "
     "reading that does not is never taken, and a window no reading balances is one unresolved event "
-    "at its first sample, never a slip that did not happen",
+    "at its first sample, never an unbalanced slip",
     "a slip of whole 2048-sample blocks is found within 63 samples and carries located_within, "
     "the samples it may have happened at: back over the words that fit both tracks, a corrupted "
     "word included where the tracks coincide, and on to the first word that shows it",
@@ -3754,8 +3772,8 @@ AUDIO_COUNTER_LIMITS = (
     "word between them differs, the corruption reads first and the slip is located after it",
     "a slip followed, within the words that fit both tracks, by a slip of whole blocks gives the "
     "bytes of one slip of their sum, and reads so",
-    "at a logged planted arm the arm log decides between readings with the same bytes, taking "
-    "another only when it has fewer DUT events, or as many and more arms found, so a DUT slip "
+    "at a logged planted arm the arm log decides between the readings it tries with the same bytes, "
+    "taking another only when it has fewer DUT events, or as many and more arms found, so a DUT slip "
     "that undoes a slip arm at the next sample reads as the arm and that slip; a DUT slip at a "
     "planted slip arm's own sample is one slip of their sum, so unless the DUT slip is whole "
     "blocks the arm is missed and the run is void",
@@ -3766,7 +3784,7 @@ AUDIO_COUNTER_LIMITS = (
     "other track's where the two differ, so the bytes may be that slip on the other side of the arm "
     "with the arm's code bit one sample over; within the tolerance the arm is found, and "
     "located_within bounds the slip of that reading",
-    "a corrupted word on a planted slip arm's own sample or the one before it, that is its "
+    "inside the scope, a corrupted word on a planted slip arm's own sample or the one before it, that is its "
     "channel's word at another position at most half a block (1024 samples) from the old or the "
     "new track's, reads as a slip to that position and on to the arm's track: the arm is missed "
     "and the run is void",
@@ -3775,10 +3793,14 @@ AUDIO_COUNTER_LIMITS = (
     "way the arm is missed and the run is void",
     "a word equal to a neighbouring received word is a repeat",
     "an excursion of two or more words with one constant XOR mask is one corruption at any "
-    "length, even where slips would produce the same words; a one-word event beside it, "
-    "adjacent or not, a slip before it and a slip at its return are graded on their own, and a "
-    "two-word excursion under two masks that no single offset explains is two one-word "
-    "corruptions; a word on the old track is its return",
+    "length, unless its mask clears its channel number, even where slips would produce the same "
+    "words, and a word on the old track is its return; a one-word event beside it, adjacent or not, "
+    "a slip before it and a slip at its return are read on their own, and a two-word excursion under "
+    "two masks that no single offset explains as two one-word corruptions, exactly so inside the scope",
+    "outside the scope, a constant-mask excursion over a planted slip arm's sample may void the run "
+    "although a reading of the bytes finds the arm",
+    "outside the scope, an excursion whose mask clears its channel number splits at each word it "
+    "makes zero, a block start whose code bit is 0, which reads as one sample of silence",
     "a constant-mask corruption that a slip interrupts, or whose words one offset explains up to "
     "a slip at its return, reads as the slips its words show",
     "a slip pair whose total is whole blocks and whose displaced words share one XOR mask reads "
@@ -4653,8 +4675,10 @@ class _CounterScan:
         closing one. A slip arm that it misses is tried as the slip into or out
         of an excursion read as a corruption. Another reading is taken only when
         it has fewer DUT events, or as many and finds more arms, so it never
-        hides a DUT event. A reading whose slips do not sum to the shift the
-        closing samples decode is never taken while one that does exists.
+        adds a DUT event. These are not every reading the bytes allow, so a DUT
+        event over an arm can still leave it missed. A reading whose slips do
+        not sum to the shift the closing samples decode is never taken while
+        one that does exists.
         """
         body = tokens[:-AUDIO_CONFIRM_FRAMES] if track.resync else tokens
         last = tokens[-1]
@@ -4875,7 +4899,7 @@ class _CounterScan:
 
         Every reading balances by construction, so this is the guard behind
         it: the window is an unclassified corruption at its first sample,
-        never a slip that did not happen.
+        never an unbalanced slip.
         """
         end = found[0] + 1 if found is not None else window.end()
         mask = 0
@@ -5268,7 +5292,7 @@ def grade_audio_counter_capture(capture: "bytes | Iterable[bytes]", layout: Coun
     if any(not start <= arm["index"] < end for arm in log.planted_arms):
         return "NOT RUN", dict(detail, why="void: a planted arm lies outside the qualified interval")
     if missed:
-        return "NOT RUN", dict(detail, why="void: a planted arm was missed")
+        return "NOT RUN", dict(detail, why=AUDIO_ARM_MISSED_REASON)
     edge = index // AUDIO_ARM_EDGE_DIVISOR
     ends = [{arm["class"] for arm in log.planted_arms if arm["index"] < edge},
             {arm["class"] for arm in log.planted_arms if arm["index"] >= index - edge}]
@@ -9202,7 +9226,7 @@ class _ReleaseGateChecks:
         for at, channel, mask in ((299, 0, 0x40000), (500, 2, 0x80000), (700, 1, 0x200), (701, 1, 0x100)):
             verdict, detail, _ = self._sweep_grade(8192, [{"kind": "flip", "index": at, "channel": channel,
                                                            "mask": mask}])
-            self.assertEqual((verdict, detail["why"]), ("NOT RUN", "void: a planted arm was missed"), at)
+            self.assertEqual((verdict, detail["why"]), ("NOT RUN", AUDIO_ARM_MISSED_REASON), at)
 
     def test_audio_slip_before_a_constant_mask(self) -> None:
         """L3 #396 REQ-VER-06: a drop of 3 or a repeat of 2 on every channel, 1 to 64 samples before a
@@ -9232,7 +9256,7 @@ class _ReleaseGateChecks:
     def test_audio_slip_totals_balance_the_bytes(self) -> None:
         """L3 #396 REQ-VER-06: the slips a reading reports sum, on every channel, to the shift its
         closing samples decode; a reading that does not is never taken, and where none does the
-        window is one unclassified corruption, never a slip that did not happen."""
+        window is one unclassified corruption, never an unbalanced slip."""
         def excursion(begin: int, length: int, mask: int) -> list:
             """Channel 2's words from `begin` under `mask`."""
             return [("xor", begin + k, 2, mask) for k in range(length)]
@@ -9325,6 +9349,174 @@ class _ReleaseGateChecks:
         self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
         self.assertEqual(sorted((e["channel"], e["capture_index"], e["class"], e["n"]) for e in detail["events"]
                                 if e["attribution"] == "dut"), [(c, 684, "dropped", 1024) for c in range(4)])
+
+    #: Issue #396 property fuzz: slip sizes from one sample to two whole blocks, and the seeds per planted arm.
+    _FUZZ_SIZES = (1, 2, 3, 5, 17, 100, 1023, 1024, 1025, 2048, 4096)
+    _FUZZ_SEEDS = 48
+
+    def _fuzz_unit(self, rnd, kind: str, at: int, channel: int, length: int) -> tuple:
+        """One DUT event: (kind, sample, the channels it changes, the words it spans, synthesizer events).
+
+        A corruption takes a sweep mask class, the mask that clears its channel's number, or any word."""
+        if kind in ("flip", "run"):
+            pick = rnd.random()
+            mask = (rnd.choice(self._SWEEP_MASKS) if pick < 0.6 else (channel + 1) << 20 if pick < 0.75
+                    else rnd.randrange(1, 1 << 32))
+            return kind, at, [channel], length, [{"kind": "flip", "index": at + k, "channel": channel, "mask": mask}
+                                                 for k in range(length)]
+        if kind == "slip":
+            return kind, at, list(range(4)), 1, [{"kind": rnd.choice(("drop", "repeat")), "index": at,
+                                                  "n": rnd.choice(self._FUZZ_SIZES)}]
+        if kind == "silence":
+            n = rnd.randint(1, 40)
+            return kind, at, list(range(4)), n, [{"kind": "silence", "index": at, "n": n,
+                                                  "inserted": rnd.random() < 0.5}]
+        pair, n = rnd.sample(range(4), 2), rnd.randint(1, 20)
+        return kind, at, pair if kind == "swap" else pair[1:], n, [{"kind": kind, "index": at, "n": n,
+                                                                     "channels": pair}]
+
+    def _fuzz_units(self, frames: int, seed: int) -> list:
+        """One to four seeded DUT events composed over and beside the planted arm `seed` picks.
+
+        The first is at or over that arm's sample, half the time on a flip arm's channel; each other is
+        beside any arm, near an earlier event or anywhere."""
+        import random
+        rnd, arms, units = random.Random(seed), self._sweep_arms(frames), []
+        for k in range(rnd.choice((1, 1, 1, 2, 3, 4))):
+            kind = rnd.choice(("flip", "run", "run", "slip", "slip", "silence", "swap", "copy"))
+            length = rnd.choice((2, 3, 5, rnd.randint(2, 150), rnd.randint(64, 2100))) if kind == "run" else 1
+            place, arm = rnd.random(), arms[seed % len(arms)] if k == 0 else rnd.choice(arms)
+            if k == 0 or place < 0.4:
+                at = arm[1] + (rnd.randint(-min(length, 12) - 2, 3) if kind == "run"
+                               else rnd.choice((0, 0, -1, 1, -2, 2, rnd.randint(-8, 8))))
+            elif place < 0.7:
+                at = rnd.choice(units)[1] + rnd.randint(-80, 80)
+            else:
+                at = rnd.randint(1000, frames - 1000)
+            at, channel = max(200, min(frames - 160, at)), rnd.randrange(4)
+            if k == 0 and arm[3] is not None and rnd.random() < 0.5:
+                channel = arm[3]
+            units.append(self._fuzz_unit(rnd, kind, at, channel, min(length, frames - at)))
+        return units
+
+    @staticmethod
+    def _fuzz_reach(event: dict, sample: int) -> int:
+        """Samples from `sample` to the nearest word `event` spans or may have happened at."""
+        first, last = event.get("located_within", (event["capture_index"],) * 2)
+        if event["class"] not in ("dropped", "repeated"):
+            last = max(last, event["capture_index"] + event["n"] - 1)
+        return max(first - sample, sample - last, 0)
+
+    def _fuzz_clean(self, frames: int, detail: dict, channel: int, extra: list) -> list:
+        """Channel `channel`'s words with `extra` and the arms, each at its logged sample or where the
+        grader found it on that channel: one word list for each such placement."""
+        import itertools
+        from array import array
+        choices = []
+        for cls, index, size, arm_channel in self._sweep_arms(frames):
+            found = {e["capture_index"] for e in detail["events"] if e["attribution"] == "planted"
+                     and e["channel"] == channel and e["class"] == cls and abs(e["capture_index"] - index) <= 2}
+            choices.append([{"kind": "flip", "index": at, "channel": arm_channel, "mask": size} if cls == "bit-flip"
+                            else {"kind": "drop" if cls == "dropped" else "repeat", "index": at, "n": size}
+                            for at in sorted(found | {index})])
+        return [array("I", synthesize_counter_capture(frames, 4, byteorder=sys.byteorder,
+                                                      events=list(arms) + extra))[channel::4]
+                for arms in itertools.product(*choices)]
+
+    def _fuzz_check(self, frames: int, units: list) -> tuple[str, set]:
+        """Grade one composition against the property; return its verdict and the allowances it needed.
+
+        It never grades PASS unless every channel's words are a clean run's, each arm at its logged sample
+        or where the grader found it ("clean"). Each unit is listed on every channel it changes: a DUT
+        event lies within 63 samples of its sample. Otherwise the run is void with an arm missed at that
+        sample ("masked"), or removing the unit and some units near it leaves that channel's words as they
+        are, with the arms so placed ("cancelled")."""
+        import itertools
+        verdict, detail, columns = self._sweep_grade(frames, [event for unit in units for event in unit[4]])
+        if verdict == "PASS":
+            self.assertTrue(all(columns[c] in self._fuzz_clean(frames, detail, c, []) for c in range(4)),
+                            ("a DUT event passed", detail["events"]))
+            return verdict, {"clean"}
+        allowed = set()
+        for i, (kind, at, channels, span, _) in enumerate(units):
+            for channel in channels:
+                if any(e["channel"] == channel and e["attribution"] == "dut"
+                       and self._fuzz_reach(e, at) <= AUDIO_GUARD_FRAMES for e in detail["events"]):
+                    continue
+                if verdict == "NOT RUN" and any(at - 2 <= arm["index"] <= at + span + 1
+                                                and arm.get("channel") in (None, channel)
+                                                for arm in detail["planted_missed"]):
+                    allowed.add("masked")
+                    continue
+                near = [j for j, unit in enumerate(units) if j != i and unit[1] - AUDIO_GUARD_FRAMES <= at + span
+                        and at <= unit[1] + unit[3] + AUDIO_GUARD_FRAMES]
+                rest = [event for j, unit in enumerate(units) if j != i and j not in near for event in unit[4]]
+                self.assertTrue(any(columns[channel] in self._fuzz_clean(
+                    frames, detail, channel, rest + [event for j in kept for event in units[j][4]])
+                    for r in range(len(near) + 1) for kept in itertools.combinations(near, r)),
+                    ("a DUT event is not listed", kind, at, channel, verdict, detail["events"]))
+                allowed.add("cancelled")
+        return verdict, allowed
+
+    def test_audio_compositions_never_pass_and_list_every_event(self) -> None:
+        """L3 #396 REQ-VER-06: seeded compositions of DUT slips, silences, swaps, copies, one-word corruptions
+        and constant-mask excursions, over and beside every planted arm, never grade PASS, and each event is
+        listed within 63 samples of its sample unless it masks an arm and voids the run.
+
+        It checks that property, not a class: outside the swept shapes a composition may read otherwise.
+        Each allowance the check makes is pinned once. It stops at its first failing seed, which it names."""
+        frames = 16384
+        verdict, detail, _ = self._sweep_grade(frames, [])
+        self.assertEqual((verdict, detail["planted_missed"]), ("PASS", []), detail["why"])
+        every = list(range(4))
+        pinned = {  # the flip arm moved one word on; two slips that cancel; a slip arm undone at its sample
+            "clean": [("run", 700, [1], 2, [{"kind": "flip", "index": 700 + k, "channel": 1, "mask": 0x100}
+                                            for k in range(2)])],
+            "cancelled": [("slip", 9000, every, 1, [{"kind": "drop", "index": 9000, "n": 5}]),
+                          ("slip", 9000, every, 1, [{"kind": "repeat", "index": 9000, "n": 5}]),
+                          ("flip", 4000, [2], 1, [{"kind": "flip", "index": 4000, "channel": 2, "mask": 0x200}])],
+            "masked": [("slip", frames - 700, every, 1, [{"kind": "repeat", "index": frames - 700, "n": 3}])]}
+        for allowance, units in pinned.items():
+            self.assertEqual(self._fuzz_check(frames, units)[1], {allowance})
+        verdicts = set()
+        for seed in range(len(self._sweep_arms(frames)) * self._FUZZ_SEEDS):
+            try:
+                verdicts.add(self._fuzz_check(frames, self._fuzz_units(frames, seed))[0])
+            except AssertionError as error:
+                self.fail(f"seed={seed}: {error}")
+        self.assertLessEqual({"FAIL", "NOT RUN"}, verdicts)
+
+    def test_audio_excursion_over_a_slip_arm_may_void(self) -> None:
+        """L3 #396 REQ-VER-06: outside the exactness scope, a constant-mask excursion over a planted slip
+        arm's sample may void the run, naming a DUT event as a possible cause, with each event listed.
+
+        0x100 over channel 2's words 15934 to 15938, under the repeat arm at 15934, reads as five corrupted
+        words and a DUT repeat after them; the bytes also hold the arm and one excursion, but that reading
+        is not taken."""
+        run = [{"kind": "flip", "index": 15934 + k, "channel": 2, "mask": 0x100} for k in range(5)]
+        verdict, detail, _ = self._sweep_grade(16384, run)
+        self.assertEqual((verdict, detail["why"], [arm["index"] for arm in detail["planted_missed"]]),
+                         ("NOT RUN", AUDIO_ARM_MISSED_REASON, [15934]))
+        self.assertIn("or a DUT event at its sample may have masked it", detail["why"])
+        self.assertEqual(sorted((e["channel"], e["capture_index"], e["class"], e["n"], e.get("mask", ""))
+                                for e in detail["events"] if e["attribution"] == "dut"),
+                         [(0, 15934, "repeated", 2, ""), (1, 15934, "repeated", 2, ""),
+                          (2, 15934, "bit-flip", 5, "0x00000D00"), (2, 15939, "repeated", 2, ""),
+                          (3, 15934, "repeated", 2, "")])
+
+    def test_audio_excursion_clearing_its_channel_number_is_split(self) -> None:
+        """L3 #396 REQ-VER-06: outside the exactness scope, a constant-mask excursion whose mask clears its
+        channel's number is split at each word it makes zero, a block start whose code bit is 0.
+
+        0x100000 over channel 0's 65 words from 4080 makes the word at 4095, block position 0, all zero: it
+        reads as a bit-flip of 15 words, one sample of silence and a bit-flip of 49, and fails the run."""
+        run = [{"kind": "flip", "index": 4080 + k, "channel": 0, "mask": 0x100000} for k in range(65)]
+        verdict, detail, columns = self._sweep_grade(16384, run)
+        self.assertEqual((verdict, detail["planted_missed"], columns[0][4095]), ("FAIL", [], 0), detail["why"])
+        self.assertEqual(sorted((e["channel"], e["capture_index"], e["class"], e["n"], e.get("mask", ""))
+                                for e in detail["events"] if e["attribution"] == "dut"),
+                         [(0, 4080, "bit-flip", 15, "0x00100000"), (0, 4095, "silence", 1, ""),
+                          (0, 4096, "bit-flip", 49, "0x00100000")])
 
     def test_audio_anchor_gaps_are_reported(self) -> None:
         """L3 #396: stretches the capture tool left unanchored are named; the verdict stands."""

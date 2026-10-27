@@ -603,7 +603,7 @@ def step_tp_release_counter_void(context: Context) -> None:
     """A grader that missed a control cannot be trusted with the rest."""
     verdict, detail = context.release_counter_result
     assert verdict == "NOT RUN", detail["why"]
-    assert detail["why"] == "void: a planted arm was missed"
+    assert detail["why"] == tp.AUDIO_ARM_MISSED_REASON
     assert [arm["index"] for arm in detail["planted_missed"]] == [9000]
 
 

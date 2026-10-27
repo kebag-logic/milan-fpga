@@ -21,6 +21,9 @@ _SWEEP = "test_audio_composition_sweep"
 _BEFORE = "test_audio_slip_before_a_constant_mask"
 _BALANCE = "test_audio_slip_totals_balance_the_bytes"
 _TOLERANCE = "test_audio_arm_interplay_at_the_release_tolerance"
+_PROPERTY = "test_audio_compositions_never_pass_and_list_every_event"
+_OVER_ARM = "test_audio_excursion_over_a_slip_arm_may_void"
+_ZERO = "test_audio_excursion_clearing_its_channel_number_is_split"
 AUDIO_GRADER_MUTANTS = (
     ("qualified interval runs to the capture's end", "        return start, max(start, frames - AUDIO_GUARD_FRAMES)",
      "        return start, frames", _BOUNDARY),
@@ -199,4 +202,21 @@ AUDIO_GRADER_MUTANTS = (
     ("a slip arm split only at its exact index",
      "            if abs(at - index) <= steer.tolerance and rest and not rest % AUDIO_BLOCK_FRAMES:",
      "            if at == index and rest and not rest % AUDIO_BLOCK_FRAMES:", _TOLERANCE),
+    ("a DUT event inside a found arm's tolerance taken as the arm",
+     '        for event in picks.values():\n            event["attribution"] = "planted"',
+     '        for event in [e for e in events if e["channel"] in want and _audio_at(e, arm["index"], tolerance)]:\n'
+     '            event["attribution"] = "planted"', _PROPERTY),
+    ("a flip arm found in any corruption carrying its mask bit",
+     '                if event["n"] != 1 or event["mask"] != f"0x{arm[\'mask\']:08X}":',
+     '                if not int(event["mask"], 16) & arm["mask"]:', _PROPERTY),
+    ("a slip arm found at its own sample whatever its size", '            elif event["n"] != arm["n"]:',
+     '            elif event["n"] != arm["n"] and event["capture_index"] != arm["index"]:', _PROPERTY),
+    ("a missed arm's void reason without its possible DUT cause",
+     'AUDIO_ARM_MISSED_REASON = ("void: a planted arm was missed; the source may not have planted it, or a DUT "\n'
+     '                           "event at its sample may have masked it")',
+     'AUDIO_ARM_MISSED_REASON = "void: a planted arm was missed"', _OVER_ARM),
+    ("a zero word after a stored word kept as data",
+     '        """Record one word; zero runs are counted, not stored."""\n        if word == 0:\n',
+     '        """Record one word; zero runs are counted, not stored."""\n'
+     '        if word == 0 and not (self.tokens and self.tokens[-1][0] == "W"):\n', _ZERO),
 )

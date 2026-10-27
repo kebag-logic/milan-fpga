@@ -405,18 +405,23 @@ verified blocks outside the shipping datapath; the station-address rules
   The paths are the DUT talker to the reference peer to an external digital capture.
   They include the reference peer to the DUT listener and its TDM output.
   They include the DUT's TDM loop too.
-  Each discontinuity is classified at its sample, and every slip is sized exactly.
+  Every capture meets one property: a capture with a DUT event the bytes show never grades PASS.
+  Each such event is listed within 63 samples of its sample.
+  The exception is an event that masks a planted arm at its sample; the run is then void, and its reason names that cause.
+  A seeded fuzz over compositions of DUT events and planted arms is the gate for this property.
+  Exact classification is claimed only inside a stated scope, which TESTING 6d lists.
+  The scope is one event at a time, away from the planted arms, and the compositions the self-test sweeps grade.
+  Inside it, each discontinuity is classified at its sample, and every slip is sized exactly.
   The classes are n dropped, n repeated, n samples of silence, a bit-flip mask and a channel swap.
   Only a reciprocal exchange is a swap; a corrupted or copied channel number is a bit-flip.
   A channel swapped from the first frame fails as a swap, its counter still tracked.
   An excursion that returns to its track under one XOR mask is one bit-flip, at any length.
-  That holds beside any one-word event, and after a short slip before it.
+  That holds unless the mask clears its channel number, which is outside the scope.
   On every channel, the reported slips sum to the shift the bytes decode.
-  A window no reading balances is one unresolved event, never a slip that did not happen.
-  A slip and a corruption in one 64-sample window are both graded in their classes, in either order.
-  The exceptions are the planted-arm voids that TESTING 6d states.
-  Where the bytes allow two readings, the planted-arm log decides at a logged arm; that never hides a DUT event.
-  It cannot place an arm where the bytes leave no reading that finds it, so those shapes void the run.
+  A window no reading balances is one unresolved event, never an unbalanced slip.
+  Outside the scope, a composition may read in other classes, or void the run.
+  Two examples are a DUT event over or beside a planted arm and a multi-word excursion beside other events.
+  Where the bytes allow two readings, the planted-arm log decides at a logged arm, never at the cost of another DUT event.
   Patterns the signal cannot tell apart follow the rules and limits of [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle).
   A slip of whole blocks shows only within 63 samples, so each verdict states its qualified interval.
   It runs from 63 samples after the last channel's acquisition to 63 samples before the capture's end.

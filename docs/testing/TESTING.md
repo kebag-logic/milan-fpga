@@ -1291,6 +1291,7 @@ The #451 and #629 captures use the same layout.
 | 0 | Bit `n mod 32` of block `n div 2048`'s code: the block number times `0x9E3779B1`, modulo 2^32 |
 
 No valid word is zero, so silence stays distinct from data.
+A corruption can still make a word zero, and that word reads as silence.
 Thirty-two consecutive samples of one block give the block number.
 So the counter repeats only after 2^43 samples.
 That is about 530 days at 192 kHz, the highest rate in Milan v1.2 6.2 (Table 6.1).
@@ -1338,13 +1339,15 @@ These rules decide, in order, between patterns that look alike:
    A one-sample hold reads as 1 repeated and then 1 dropped.
    A skip followed by a hold reads as 1 dropped and then 1 repeated.
 4. Two or more words that leave the track and return, with one XOR mask against it, are one `bit-flip`, at any length.
+   The exception is a mask that clears the channel number, which is outside the exactness scope below.
+   Each word it makes zero reads as `silence` and splits the excursion.
    A word at either end under another mask is its own one-word `bit-flip` when no single offset explains the excursion.
    So is each word of a two-word excursion under two masks that no single offset explains.
    Otherwise each change of position is its own slip.
 
 Rules 3 and 4 judge each departure against the offset in force when it leaves.
 They judge again after every slip, so a slip and a corruption in one window are both graded, in either order.
-The exceptions are the planted-arm voids below.
+That holds inside the exactness scope below, except for the planted-arm voids it states.
 A word that no offset explains is cut out of its run of positions.
 The offset in force before a change stays a candidate after it.
 So a corrupted word that happens to fit the next track never strands the words after it.
@@ -1368,14 +1371,15 @@ A held excursion's slips count until it returns, when its `bit-flip` replaces th
 The grader keeps that ledger per channel and checks it at every window after acquisition.
 A window no reading balances is one `unresolved` event at its first sample.
 Its reason reads "an unclassified corruption: no reading's slips sum to the shift the bytes decode".
-So no slip that did not happen is ever reported.
+So no unbalanced slip is ever reported.
 Every reading balances by construction, so this is the guard behind it.
 
 Where the bytes allow two readings, the planted-arm log decides at a logged arm.
-The grader takes another reading only when it has fewer DUT events, or as many and more arms found.
-So the log never hides a DUT event, and an arm the capture does not show is still missed.
-It cannot place an arm where the bytes leave no reading that finds it.
-The voids below are those shapes, and a void blocks the release.
+Of the readings it tries, the grader takes another only when it has fewer DUT events, or as many and more arms found.
+So the log never adds a DUT event, and an arm the capture does not show is still missed.
+It does not try every reading the bytes allow.
+So outside the exactness scope, a DUT event over a planted arm can void the run although a reading of the bytes finds the arm.
+Inside the scope, the voids below are the only shapes that miss an arm, and a void blocks the release.
 A DUT slip that undoes a planted slip arm at the next sample leaves one displaced word.
 The log reads that word as the arm and the DUT slip, not as a corruption.
 Arms may be planted closer than 64 samples.
@@ -1459,23 +1463,59 @@ These limits are stated, and a self-test arm pins each one:
 - A stretch longer than 65536 words without 64 clean samples is graded in pieces.
   A corruption with one mask stays a `bit-flip` with that mask in each piece; a slip in a piece carries `unresolved`.
 
-Two shapes beside a planted arm void the run, so the release cannot qualify; each event is still listed:
+Inside the exactness scope, two shapes beside a planted arm void the run, so the release cannot qualify.
+Each event is still listed:
 
 - A corrupted word on a planted slip arm's own sample, or on the one before it, that is another position's word.
   That is its channel's word at a position at most half a block (1024 samples) from the old or the new track's.
   It reads as a slip to that position and on to the arm's track, so the arm is missed.
   A mask that moves sample bits 11:1, with or without the code bit, can do this.
-  The code bit alone, a channel-number bit or a pad bit cannot.
+  For one corrupted word, the code bit alone, a channel-number bit or a pad bit cannot.
 - A corruption of a planted flip arm's own word, on its channel, combines with the arm's mask.
   One beside it under the arm's own mask makes a two-word excursion of that mask.
   Either way the arm is missed.
 
-`test_audio_composition_sweep` grades every placement of these shapes and the rest.
+`test_audio_composition_sweep` grades every placement of these one-word shapes.
 It covers a one-word corruption 0 to 4 samples before or after each planted arm, on every channel.
 It uses eight mask classes, two capture lengths and the release tolerance of 2.
 Each case is checked against the class its bytes put it in: exact, a stated limit, or one of the voids.
 `test_audio_slip_before_a_constant_mask` grades a short slip 1 to 64 samples before a constant-mask excursion.
 Its excursions run 64 to 2049 words at three block positions, under five masks.
+
+**The property and its exactness scope.**
+Every capture meets one property, whatever its events.
+A capture with a DUT event the bytes show never grades `PASS`.
+Each such event is listed: on each channel it changes, a DUT event is recorded within 63 samples of its sample.
+That is the furthest a slip of whole blocks can lie before the first word that shows it.
+The one exception is a DUT event that masks a planted arm at its sample.
+The run is then void, and its reason says the source may not have planted the arm, or a DUT event may have masked it.
+Events that cancel one another, or only move an arm within its tolerance, leave a clean run's bytes.
+The capture does not show them.
+
+`test_audio_compositions_never_pass_and_list_every_event` is the gate for the property.
+It grades 288 seeded compositions of one to four DUT events over and beside each of the six planted arms.
+The events are slips of 1 to 4096 samples, silences, swaps, copies, one-word corruptions and constant-mask excursions.
+The excursions run up to 2100 words.
+Their masks are the sweep's eight classes, the mask that clears the channel's number, and any other word.
+It checks the property, not a class.
+Each allowance it makes is pinned once: an arm moved within its tolerance, events that cancel, and an arm masked at its sample.
+
+Exact classification, as the rules and limits above state, is claimed only for these shapes:
+
+- One DUT event with at least 64 clean samples between it and every other event and planted arm.
+  An excursion whose mask clears its channel number is the exception.
+- A one-word corruption 0 to 4 samples from a planted arm, as `test_audio_composition_sweep` grades it.
+- A short slip 1 to 64 samples before a constant-mask excursion, as `test_audio_slip_before_a_constant_mask` grades it.
+  The excursion's mask leaves every channel number intact.
+
+Any other composition grades `FAIL` or void, and may read in other classes.
+Two such shapes are pinned, so a change to their reading is seen:
+
+- A constant-mask excursion over a planted slip arm's sample may void the run, although a reading of the bytes finds the arm.
+  `test_audio_excursion_over_a_slip_arm_may_void` pins one: `0x100` over five words from the repeat arm's sample.
+- An excursion whose mask clears its channel number splits at each word it makes zero.
+  That word is a block start whose code bit is 0, and it reads as one sample of `silence` between two `bit-flip` events.
+  `test_audio_excursion_clearing_its_channel_number_is_split` pins one: 65 words under `0x100000` on channel 0.
 
 The planted flip arm's mask `0x00000100` flips the code bit alone.
 The word keeps its position bits, so it never equals a neighbour.
