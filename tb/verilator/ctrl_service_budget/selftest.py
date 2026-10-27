@@ -776,6 +776,7 @@ def main_verdict(bdir: Path, *flags: str) -> str:
     """run.main at 1x1 on bdir with the flags: 'reached' once it sets up its groups, else how it
     exited and its last line."""
     def reached(*a: object) -> None:
+        """scenario.point in the run's place: the run got this far, so stop it here."""
         raise Reached
     said = io.StringIO()
     argv = ['run.py', '--point', '1x1', '--build-dir', str(bdir), *flags]
