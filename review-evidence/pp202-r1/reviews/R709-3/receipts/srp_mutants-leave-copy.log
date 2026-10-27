@@ -1,0 +1,20 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+talker-reopen-abandons-leave: rc=2 failures=9 KILLED tags=TP1,TP4,TP6,TP7,TP8,TP9
+talker-reopen-abandons-leave: rc=2 failures=19 KILLED tags=WK13
+talker-park-never-retires: rc=2 failures=3 KILLED tags=TP1,TP4,TP7
+talker-reopen-parks-own-stream: rc=2 failures=2 KILLED tags=TP2,TP3
+talker-rebind-back-keeps-park: rc=2 failures=1 KILLED tags=TP3
+talker-lo-not-owed: rc=2 failures=2 KILLED tags=TP4,TP8
+talker-unrecorded-applicant-owes: rc=2 failures=1 KILLED tags=TP5
+talker-close-keeps-join: rc=2 failures=1 KILLED tags=TP6
+talker-park-retires-on-txla: rc=2 failures=1 KILLED tags=TP7
+talker-parked-applies-rx: rc=2 failures=1 KILLED tags=TP8
+talker-park-keeps-matcher: rc=2 failures=1 KILLED tags=TP9
+walk-ignores-talker-leave-copy: rc=2 failures=5 KILLED tags=TP1,TP4,TP6,TP7,TP8
+walk-ignores-talker-leave-copy: rc=2 failures=15 KILLED tags=WK13
+lwid-read-source-0: rc=2 failures=11 KILLED tags=WK13
+lwtsp-read-at-gate-source: rc=2 failures=11 KILLED tags=WK13
+lwid-written-from-source-0: rc=2 failures=11 KILLED tags=WK13
+talker-leave-copy-rewritten-while-parked: rc=2 failures=15 KILLED tags=WK13
+19 checks: 19 PASS, 0 FAIL
