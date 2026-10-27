@@ -1,0 +1,95 @@
+test_audio_compositions_never_pass_and_list_every_event (__main__.T.test_audio_compositions_never_pass_and_list_every_event)
+L3 #396 REQ-VER-06: seeded compositions of DUT slips, silences, swaps, copies, one-word corruptions ... FAIL
+test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip (__main__.T.test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip)
+L3 #396 REQ-VER-06: outside the exactness scope, a constant-mask excursion that a DUT slip ... FAIL
+
+======================================================================
+FAIL: test_audio_compositions_never_pass_and_list_every_event (__main__.T.test_audio_compositions_never_pass_and_list_every_event)
+L3 #396 REQ-VER-06: seeded compositions of DUT slips, silences, swaps, copies, one-word corruptions
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/396g-r699-8-packet/scratch/m/s63/torture_campaign.py", line 9537, in test_audio_compositions_never_pass_and_list_every_event
+    verdicts.add(self._fuzz_check(frames, self._fuzz_units(frames, seed))[0])
+                 ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/396g-r699-8-packet/scratch/m/s63/torture_campaign.py", line 9509, in _fuzz_check
+    self.assertEqual(stray, [], "a DUT listing covers no DUT event")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'capture_index': 16266, 'class': 'droppe[253 chars]one}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'capture_index': 16266, 'class': 'dropped', 'n': 2, 'expected': '0x004E9A00', 'received': '0x004E9E00', 'channel': 3, 'attribution': 'dut', 'acquisition_index': 16266, 'wall_s': None, 'gptp_s': None, 'timing': 'unsupported: no anchor after the event', 'anchors': [0, None], 'context_wall_s': None}
+
++ []
+- [{'acquisition_index': 16266,
+-   'anchors': [0, None],
+-   'attribution': 'dut',
+-   'capture_index': 16266,
+-   'channel': 3,
+-   'class': 'dropped',
+-   'context_wall_s': None,
+-   'expected': '0x004E9A00',
+-   'gptp_s': None,
+-   'n': 2,
+-   'received': '0x004E9E00',
+-   'timing': 'unsupported: no anchor after the event',
+-   'wall_s': None}] : a DUT listing covers no DUT event
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/396g-r699-8-packet/scratch/m/s63/torture_campaign.py", line 9539, in test_audio_compositions_never_pass_and_list_every_event
+    self.fail(f"seed={seed}: {error}")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: seed=35: Lists differ: [{'capture_index': 16266, 'class': 'droppe[253 chars]one}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'capture_index': 16266, 'class': 'dropped', 'n': 2, 'expected': '0x004E9A00', 'received': '0x004E9E00', 'channel': 3, 'attribution': 'dut', 'acquisition_index': 16266, 'wall_s': None, 'gptp_s': None, 'timing': 'unsupported: no anchor after the event', 'anchors': [0, None], 'context_wall_s': None}
+
++ []
+- [{'acquisition_index': 16266,
+-   'anchors': [0, None],
+-   'attribution': 'dut',
+-   'capture_index': 16266,
+-   'channel': 3,
+-   'class': 'dropped',
+-   'context_wall_s': None,
+-   'expected': '0x004E9A00',
+-   'gptp_s': None,
+-   'n': 2,
+-   'received': '0x004E9E00',
+-   'timing': 'unsupported: no anchor after the event',
+-   'wall_s': None}] : a DUT listing covers no DUT event
+
+======================================================================
+FAIL: test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip (__main__.T.test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip)
+L3 #396 REQ-VER-06: outside the exactness scope, a constant-mask excursion that a DUT slip
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$REVIEWS/396g-r699-8-packet/scratch/m/s63/torture_campaign.py", line 9603, in test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip
+    self.assertEqual([e for e in events if e[0]], [(c, slip, "repeated", 3, "") for c in range(1, 4)])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(1, [22 chars]'), (2, 6097, 'repeated', 3, ''), (3, 6160, 'repeated', 3, '')] != [(1, [22 chars]'), (2, 6097, 'repeated', 3, ''), (3, 6097, 'repeated', 3, '')]
+
+First differing element 2:
+(3, 6160, 'repeated', 3, '')
+(3, 6097, 'repeated', 3, '')
+
+  [(1, 6097, 'repeated', 3, ''),
+   (2, 6097, 'repeated', 3, ''),
+-  (3, 6160, 'repeated', 3, '')]
+?      --
+
++  (3, 6097, 'repeated', 3, '')]
+?        ++
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.513s
+
+FAILED (failures=2)
+FAILED: test_audio_compositions_never_pass_and_list_every_event :: -   'wall_s': None}] : a DUT listing covers no DUT event
+FAILED: test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip :: ?        ++
+Command exited with non-zero status 1
+wall=0.68s maxrss=53036kB

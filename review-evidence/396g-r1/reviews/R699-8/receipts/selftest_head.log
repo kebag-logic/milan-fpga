@@ -1,0 +1,246 @@
+test_areas_selector (__main__.self_test.<locals>.T.test_areas_selector)
+--areas selects exactly the named areas and REFUSES an unknown one, so ... ok
+test_audio_anchor_gaps_are_reported (__main__.self_test.<locals>.T.test_audio_anchor_gaps_are_reported)
+L3 #396: stretches the capture tool left unanchored are named; the verdict stands. ... ok
+test_audio_arm_interplay_at_the_release_tolerance (__main__.self_test.<locals>.T.test_audio_arm_interplay_at_the_release_tolerance)
+L3 #396: at the release arm tolerance of 2, a DUT slip of whole blocks beside a planted flip ... ok
+test_audio_arms_run_at_both_edges (__main__.self_test.<locals>.T.test_audio_arms_run_at_both_edges)
+'At the start and at the end' is the first and the last tenth of the capture. ... ok
+test_audio_block_slip_after_a_corruption_or_a_slip (__main__.self_test.<locals>.T.test_audio_block_slip_after_a_corruption_or_a_slip)
+L3 #396: a slip of whole blocks under 64 samples after a one-word corruption or a short ... ok
+test_audio_block_slips_are_sized_exactly (__main__.self_test.<locals>.T.test_audio_block_slips_are_sized_exactly)
+L3 #396: a slip of whole 2048-sample blocks fails, sized and bounded, both ways. ... ok
+test_audio_boundary_block_slips_are_unresolved (__main__.self_test.<locals>.T.test_audio_boundary_block_slips_are_unresolved)
+L3 #396: a slip of whole blocks near either end is unresolved, never an exact class. ... ok
+test_audio_capture_loss_needs_every_channel (__main__.self_test.<locals>.T.test_audio_capture_loss_needs_every_channel)
+A logged loss is a slip on every counter channel; on one channel it is not the capture's. ... ok
+test_audio_capture_losses_advance_the_clocks (__main__.self_test.<locals>.T.test_audio_capture_losses_advance_the_clocks)
+L3 #396: a logged loss is time that ran; events take anchored times or none. ... ok
+test_audio_code_bit_corruption_ending_on_a_block (__main__.self_test.<locals>.T.test_audio_code_bit_corruption_ending_on_a_block)
+L3 #396: a code-bit corruption over whole blocks is one bit-flip wherever it ends; ... ok
+test_audio_composition_sweep (__main__.self_test.<locals>.T.test_audio_composition_sweep)
+L3 #396 REQ-VER-06: a one-word corruption 0 to 4 samples from each planted arm, on every ... ok
+test_audio_compositions_never_pass_and_list_every_event (__main__.self_test.<locals>.T.test_audio_compositions_never_pass_and_list_every_event)
+L3 #396 REQ-VER-06: seeded compositions of DUT slips, silences, swaps, copies, one-word corruptions ... ok
+test_audio_compound_and_edge_events (__main__.self_test.<locals>.T.test_audio_compound_and_edge_events)
+Holds, slip pairs, bursts and capture edges, each in the design's classes. ... ok
+test_audio_constant_mask_at_every_length (__main__.self_test.<locals>.T.test_audio_constant_mask_at_every_length)
+L3 #396: one XOR mask over an excursion is one corruption at every length. ... ok
+test_audio_constant_mask_beside_one_word_events (__main__.self_test.<locals>.T.test_audio_constant_mask_beside_one_word_events)
+L3 #396: a constant-mask excursion stays one bit-flip beside a one-word corruption. ... ok
+test_audio_counter_word_layout (__main__.self_test.<locals>.T.test_audio_counter_word_layout)
+Independent byte vectors, the period against the run, and position decoding. ... ok
+test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip (__main__.self_test.<locals>.T.test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip)
+L3 #396 REQ-VER-06: outside the exactness scope, a constant-mask excursion that a DUT slip ... ok
+test_audio_excursion_clearing_its_channel_number_is_split (__main__.self_test.<locals>.T.test_audio_excursion_clearing_its_channel_number_is_split)
+L3 #396 REQ-VER-06: outside the exactness scope, a constant-mask excursion whose mask clears its ... ok
+test_audio_excursion_over_a_slip_arm_may_void (__main__.self_test.<locals>.T.test_audio_excursion_over_a_slip_arm_may_void)
+L3 #396 REQ-VER-06: outside the exactness scope, a constant-mask excursion over a planted slip ... ok
+test_audio_grader_attribution (__main__.self_test.<locals>.T.test_audio_grader_attribution)
+Logged capture losses go apart; planted arms must all be found at both ends. ... ok
+test_audio_grader_classes (__main__.self_test.<locals>.T.test_audio_grader_classes)
+Each class is found at its sample with its size, mask or partner. ... ok
+test_audio_grader_evidence (__main__.self_test.<locals>.T.test_audio_grader_evidence)
+Missing logs, bad layouts and torn captures are NOT RUN, never PASS. ... ok
+test_audio_is_never_forgotten (__main__.self_test.<locals>.T.test_audio_is_never_forgotten)
+The campaign is invalid without an identity step, a per-channel-DISTINCT ... ok
+test_audio_offset_channel_and_mixed_capture (__main__.self_test.<locals>.T.test_audio_offset_channel_and_mixed_capture)
+One channel's slip and a channel without the counter are graded channel by channel. ... ok
+test_audio_planted_arms_beside_block_slips (__main__.self_test.<locals>.T.test_audio_planted_arms_beside_block_slips)
+L3 #396: a DUT slip of whole blocks beside a planted arm fails with every arm found, ... ok
+test_audio_qualified_interval_is_stated_and_required (__main__.self_test.<locals>.T.test_audio_qualified_interval_is_stated_and_required)
+L3 #396 REQ-VER-06: a verdict proves only its stated interval; PASS needs 24 h of it. ... ok
+test_audio_slip_and_corruption_share_a_window (__main__.self_test.<locals>.T.test_audio_slip_and_corruption_share_a_window)
+L3 #396: a slip and a one-word corruption under 64 samples apart are both graded. ... ok
+test_audio_slip_before_a_constant_mask (__main__.self_test.<locals>.T.test_audio_slip_before_a_constant_mask)
+L3 #396 REQ-VER-06: a drop of 3 or a repeat of 2 on every channel, 1 to 64 samples before a ... ok
+test_audio_slip_totals_balance_the_bytes (__main__.self_test.<locals>.T.test_audio_slip_totals_balance_the_bytes)
+L3 #396 REQ-VER-06: the slips a reading reports sum, on every channel, to the shift its ... ok
+test_audio_static_swap_fails_with_every_arm_found (__main__.self_test.<locals>.T.test_audio_static_swap_fails_with_every_arm_found)
+A channel map wrong from the first frame is a swap, and its counters stay tracked. ... ok
+test_audio_tag_integrity_decides_first (__main__.self_test.<locals>.T.test_audio_tag_integrity_decides_first)
+A channel-number flip or a copy is corruption; only a reciprocal exchange is a swap. ... ok
+test_churn_includes_the_implicit_rebind_to_a_different_talker (__main__.self_test.<locals>.T.test_churn_includes_the_implicit_rebind_to_a_different_talker)
+The churn area reaches the implicit rebind - a BIND_RX over an already ... ok
+test_concurrent_packet_law_attributes_each_direction (__main__.self_test.<locals>.T.test_concurrent_packet_law_attributes_each_direction)
+A shared flowing window cannot pass an interval-rate pair. ... ok
+test_counter_semantics_grades_both_ways_round (__main__.self_test.<locals>.T.test_counter_semantics_grades_both_ways_round)
+Packet counters follow the ruled rate; anomaly counters keep their law. ... ok
+test_counter_tables_match_the_standards (__main__.self_test.<locals>.T.test_counter_tables_match_the_standards)
+The four counter tables still hold what the two standards define, and ... ok
+test_counters_payload_decode_and_unnamed_slots (__main__.self_test.<locals>.T.test_counters_payload_decode_and_unnamed_slots)
+A GET_COUNTERS payload decodes BY NAME: an unclaimed slot is absent ... ok
+test_coverage_is_audited_PER_AREA (__main__.self_test.<locals>.T.test_coverage_is_audited_PER_AREA)
+The per-area audit reddens on an index-0-only audio area while the ... ok
+test_cross_side_growth_bites_every_way (__main__.self_test.<locals>.T.test_cross_side_growth_bites_every_way)
+Each cross-participant invariant fails on its own defect - one-sided ... ok
+test_every_bound_step_carries_the_full_assertion_set (__main__.self_test.<locals>.T.test_every_bound_step_carries_the_full_assertion_set)
+No bind may drop an assertion its clause requires: a step that asks ... ok
+test_every_step_has_a_clause_or_says_it_is_info (__main__.self_test.<locals>.T.test_every_step_has_a_clause_or_says_it_is_info)
+Every assertion cites a clause and declares a severity, so nothing in ... ok
+test_every_stream_input_counter_has_an_update_law (__main__.self_test.<locals>.T.test_every_stream_input_counter_has_an_update_law)
+Every counter in the 1722.1 Stream Input block has an update law, so no ... ok
+test_exit_codes (__main__.self_test.<locals>.T.test_exit_codes)
+A SHALL failure exits 1, a RECOMMENDED-only one exits 2, and a SKIP ... ok
+test_frames_rate_band (__main__.self_test.<locals>.T.test_frames_rate_band)
+Milan bounds the observation interval from ABOVE only, so 200 ticks/s is ... ok
+test_human_entries_are_emitted_not_skipped (__main__.self_test.<locals>.T.test_human_entries_are_emitted_not_skipped)
+Every needs-human step reaches the printed checklist.  A silently ... ok
+test_ieee_bit_numbering_conversion (__main__.self_test.<locals>.T.test_ieee_bit_numbering_conversion)
+Table 7-156's MSB-first 'Bit #' converts to the wire mask bit; reading ... ok
+test_interval_ceiling_catches_a_half_converted_counter (__main__.self_test.<locals>.T.test_interval_ceiling_catches_a_half_converted_counter)
+Nothing whose trigger arrives in a frame may out-tick FRAMES_RX - except ... ok
+test_licence_decode_and_the_shut_gate (__main__.self_test.<locals>.T.test_licence_decode_and_the_shut_gate)
+LWSRP_STATUS decodes to OPEN, SHUT or UNKNOWN, and an absent reading ... ok
+test_lock_and_talker_invariants (__main__.self_test.<locals>.T.test_lock_and_talker_invariants)
+Both Milan state invariants grade their legal shapes AND their illegal ... ok
+test_matrix_walks_every_index_both_directions_and_crf (__main__.self_test.<locals>.T.test_matrix_walks_every_index_both_directions_and_crf)
+The matrix covers every index on both devices in both directions, CRF ... ok
+test_milan_and_ieee_stream_output_layouts_differ (__main__.self_test.<locals>.T.test_milan_and_ieee_stream_output_layouts_differ)
+FRAMES_TX and MEDIA_RESET sit at DIFFERENT offsets in the two Stream ... ok
+test_multi_area_walks_concurrent_sets_and_serialises (__main__.self_test.<locals>.T.test_multi_area_walks_concurrent_sets_and_serialises)
+Each concurrency set binds, verifies, then tears down in that order; no ... ok
+test_multi_concurrent_flowing_bites_every_way (__main__.self_test.<locals>.T.test_multi_concurrent_flowing_bites_every_way)
+One dead pair among many FAILs, a one-sided pair counts as dead, a pair ... ok
+test_multi_stress_set_is_maximal_and_loads_both_directions (__main__.self_test.<locals>.T.test_multi_stress_set_is_maximal_and_loads_both_directions)
+The stress set binds every DUT talker and feeds every reachable ... ok
+test_multi_unbound_isolation_bites (__main__.self_test.<locals>.T.test_multi_unbound_isolation_bites)
+An UNBOUND Stream Input that ticks while its neighbours stream FAILs - ... ok
+test_no_growth_is_a_verdict_and_not_a_note (__main__.self_test.<locals>.T.test_no_growth_is_a_verdict_and_not_a_note)
+One tick of an error counter is one bad observation interval and FAILS. ... ok
+test_packet_agreement_attributes_interval_sides (__main__.self_test.<locals>.T.test_packet_agreement_attributes_interval_sides)
+Ruled pairs pass; each interval regression belongs to its own side. ... ok
+test_persistence_clause_is_quoted_and_never_deleted (__main__.self_test.<locals>.T.test_persistence_clause_is_quoted_and_never_deleted)
+Milan 5.3.8.1 stays quoted in the assertion itself: a build with no ... ok
+test_physical_family_contract (__main__.self_test.<locals>.T.test_physical_family_contract)
+The physical area runs LAST, keeps both power cycles needs_human in the ... ok
+test_plan_steps_serialise (__main__.self_test.<locals>.T.test_plan_steps_serialise)
+Every plan step survives json.dumps and its assertion names agree with ... ok
+test_release_area_audit_refuses_each_defect (__main__.self_test.<locals>.T.test_release_area_audit_refuses_each_defect)
+L3: phases, cycle mix, assertions and controls each redden their area. ... ok
+test_release_assertion_text (__main__.self_test.<locals>.T.test_release_assertion_text)
+L3 #396: operator-facing instructions must preserve the decided rules. ... ok
+test_release_audio_control_classifies_exactly (__main__.self_test.<locals>.T.test_release_audio_control_classifies_exactly)
+L3 acceptance 4: the planted drop is found at its sample, with its size. ... ok
+test_release_audio_does_not_mask_identity (__main__.self_test.<locals>.T.test_release_audio_does_not_mask_identity)
+The release run walks every index; it cannot cover an index-0-only identity loop. ... ok
+test_release_binding_omissions_in_every_repeat (__main__.self_test.<locals>.T.test_release_binding_omissions_in_every_repeat)
+AAF-only and CRF-only losses cannot mask one another in either direction. ... ok
+test_release_boot_negative_control (__main__.self_test.<locals>.T.test_release_boot_negative_control)
+L3 #366: two BIOS passes fail even when the second boot is healthy. ... ok
+test_release_cli_parameters (__main__.self_test.<locals>.T.test_release_cli_parameters)
+The actual CLI threads every parameter into emitted JSON. ... ok
+test_release_cli_power_hold_default (__main__.self_test.<locals>.T.test_release_cli_power_hold_default)
+L3 #396: an omitted CLI hold retains the decided eight seconds. ... ok
+test_release_commit_cut_evidence (__main__.self_test.<locals>.T.test_release_commit_cut_evidence)
+L3 #396 item 3: pending defaults, or a cut outside its commit, never pass. ... ok
+test_release_controls_fail_as_planted (__main__.self_test.<locals>.T.test_release_controls_fail_as_planted)
+L3 acceptance 4: every control fails its own assertion, and only by its defect. ... ok
+test_release_counter_omissions_in_every_repeat (__main__.self_test.<locals>.T.test_release_counter_omissions_in_every_repeat)
+L3 topology oracle: both devices, descriptor kinds, and all repeats. ... ok
+test_release_crf_overlap_refused (__main__.self_test.<locals>.T.test_release_crf_overlap_refused)
+An AAF range or explicit set cannot also designate the CRF stream. ... ok
+test_release_cycle_mix_is_the_decision (__main__.self_test.<locals>.T.test_release_cycle_mix_is_the_decision)
+Independent arithmetic: 150 cold cuts, a third in a commit, and 50 resets. ... ok
+test_release_deciding_resolution (__main__.self_test.<locals>.T.test_release_deciding_resolution)
+An uncertainty as large as a decision limit cannot qualify evidence. ... ok
+test_release_defaults_and_assertions (__main__.self_test.<locals>.T.test_release_defaults_and_assertions)
+L3 #396 2026-10-26: the 24-hour soak, its audio run and 100/50/50 cycles. ... ok
+test_release_eligibility_boundaries (__main__.self_test.<locals>.T.test_release_eligibility_boundaries)
+Each prerequisite can independently refuse an otherwise eligible area. ... ok
+test_release_media_reset_decrease (__main__.self_test.<locals>.T.test_release_media_reset_decrease)
+Talker-start resets never decode as billions of new events. ... ok
+test_release_media_reset_intervals (__main__.self_test.<locals>.T.test_release_media_reset_intervals)
+Counts are per device interval, with bounded deferred updates. ... ok
+test_release_media_reset_no_cause (__main__.self_test.<locals>.T.test_release_media_reset_no_cause)
+A counter increase without a caused wire toggle must fail. ... ok
+test_release_media_reset_window_edges (__main__.self_test.<locals>.T.test_release_media_reset_window_edges)
+Both counter edges and earliest-toggle consumption affect the verdict. ... ok
+test_release_mr_allowed_causes (__main__.self_test.<locals>.T.test_release_mr_allowed_causes)
+Each allowed clock cause independently explains a toggle and reset. ... ok
+test_release_mr_capture_span (__main__.self_test.<locals>.T.test_release_mr_capture_span)
+A complete capture declaration still needs recorded span endpoints. ... ok
+test_release_mr_distinct_causes (__main__.self_test.<locals>.T.test_release_mr_distinct_causes)
+One cause cannot excuse a run of eight-PDU-spaced toggles. ... ok
+test_release_mr_eight_pdus (__main__.self_test.<locals>.T.test_release_mr_eight_pdus)
+Seven PDUs fails; exactly eight passes, including a falling toggle. ... ok
+test_release_mr_gm_only (__main__.self_test.<locals>.T.test_release_mr_gm_only)
+A GM edge or PHC step alone is not a media-clock-source change. ... ok
+test_release_mr_missing_evidence (__main__.self_test.<locals>.T.test_release_mr_missing_evidence)
+Missing records, incomplete capture and invalid resolution never pass. ... ok
+test_release_mr_no_cause (__main__.self_test.<locals>.T.test_release_mr_no_cause)
+A complete empty cause history cannot excuse an observed toggle. ... ok
+test_release_mr_plan_contract (__main__.self_test.<locals>.T.test_release_mr_plan_contract)
+The emitted soak contract requires all inputs used by the checks. ... ok
+test_release_mr_record_boundaries (__main__.self_test.<locals>.T.test_release_mr_record_boundaries)
+Counter endpoints, record types and timestamp ordering are evidence. ... ok
+test_release_mr_resolution (__main__.self_test.<locals>.T.test_release_mr_resolution)
+A measured relative timestamp bound controls both matching edges. ... ok
+test_release_mr_stream_scope (__main__.self_test.<locals>.T.test_release_mr_stream_scope)
+Neither another stream's cause nor its PDUs can satisfy this stream. ... ok
+test_release_resolution_evidence (__main__.self_test.<locals>.T.test_release_resolution_evidence)
+Every refusal path retains the measured resolution and deciding limit. ... ok
+test_release_round2_plan_contract (__main__.self_test.<locals>.T.test_release_round2_plan_contract)
+The plan selects the history oracle and states evidence limits. ... ok
+test_release_settings_validation (__main__.self_test.<locals>.T.test_release_settings_validation)
+Bad repeat inputs refuse; diagnostic inputs cannot qualify a release. ... ok
+test_release_soak_counter_evidence (__main__.self_test.<locals>.T.test_release_soak_counter_evidence)
+Missing reads, targets or log, and malformed records, are NOT RUN. ... ok
+test_release_soak_counter_growth (__main__.self_test.<locals>.T.test_release_soak_counter_growth)
+L3 #396 item 3: any growth of the four counters fails, each alone. ... ok
+test_release_soak_media_unlocked_planted (__main__.self_test.<locals>.T.test_release_soak_media_unlocked_planted)
+L3 #396 item 3: an unlock passes only between two reads inside one planted window. ... ok
+test_release_sparse_shapes_and_compatible_pairs (__main__.self_test.<locals>.T.test_release_sparse_shapes_and_compatible_pairs)
+Counter coverage follows sparse topology, never a baked index range. ... ok
+test_release_state_commit_cut (__main__.self_test.<locals>.T.test_release_state_commit_cut)
+A commit cut restores all old or all new state, never a mix, and passes only placed. ... ok
+test_release_state_restored (__main__.self_test.<locals>.T.test_release_state_restored)
+L3 #396 item 3: every item restored, each one independently graded. ... ok
+test_release_timing_and_snapshot_contract (__main__.self_test.<locals>.T.test_release_timing_and_snapshot_contract)
+L3 #396 round 3 pins T0 origins, separate off time, and phase policies. ... ok
+test_release_topology_each_key (__main__.self_test.<locals>.T.test_release_topology_each_key)
+L3 explicit means each key on each role, not any partial override. ... ok
+test_release_topology_provenance_cli (__main__.self_test.<locals>.T.test_release_topology_provenance_cli)
+Full explicit inputs qualify; missing or partial device specs do not. ... ok
+test_release_tu_before_first_discontinuity (__main__.self_test.<locals>.T.test_release_tu_before_first_discontinuity)
+L3 #593: the rise must coincide with its first recorded event. ... ok
+test_release_tu_chained_discontinuities (__main__.self_test.<locals>.T.test_release_tu_chained_discontinuities)
+L3 #396 round 4 examples independently pin passing and late clears. ... ok
+test_release_tu_contract (__main__.self_test.<locals>.T.test_release_tu_contract)
+L3 #396 round 4 anchors each interval at its last discontinuity. ... ok
+test_release_tu_gm_minimum (__main__.self_test.<locals>.T.test_release_tu_gm_minimum)
+The latest GM edge requires 0.25 s, allowing recorded resolution. ... ok
+test_release_tu_history (__main__.self_test.<locals>.T.test_release_tu_history)
+Missing, absent and late tu are distinct even across several GM changes. ... ok
+test_release_tu_history_boundaries (__main__.self_test.<locals>.T.test_release_tu_history_boundaries)
+Both GM assignment edges and interval separateness affect real verdicts. ... ok
+test_release_tu_missing_gm_history (__main__.self_test.<locals>.T.test_release_tu_missing_gm_history)
+An omitted GM history cannot silently bypass the minimum check. ... ok
+test_release_tu_rise_boundary (__main__.self_test.<locals>.T.test_release_tu_rise_boundary)
+The first event brackets the rise at both inclusive R edges. ... ok
+test_release_tu_start_resolution (__main__.self_test.<locals>.T.test_release_tu_start_resolution)
+L3 #396 round 5: lone events bracket the observed start independently. ... ok
+test_release_tu_two_sided_boundaries (__main__.self_test.<locals>.T.test_release_tu_two_sided_boundaries)
+Instant clears fail below the derived limit; coarse evidence is refused. ... ok
+test_storm_entries_are_recommended_not_shall (__main__.self_test.<locals>.T.test_storm_entries_are_recommended_not_shall)
+The adverse-practice storm entries stay RECOMMENDED and control ... ok
+test_stream_sources_count_packets (__main__.self_test.<locals>.T.test_stream_sources_count_packets)
+Both stream directions are declared packet sources under #726. ... ok
+test_the_gm_story_states_its_own_precondition (__main__.self_test.<locals>.T.test_the_gm_story_states_its_own_precondition)
+The GM clauses name WHICH device each direction is for.  Asserting the ... ok
+test_the_peer_crf_input_is_not_an_aaf_sink (__main__.self_test.<locals>.T.test_the_peer_crf_input_is_not_an_aaf_sink)
+No 'highest AAF index' selector may aim an AAF talker at the peer's CRF ... ok
+test_the_test_machine_is_an_instrument_before_a_witness (__main__.self_test.<locals>.T.test_the_test_machine_is_an_instrument_before_a_witness)
+Host NIC loss DOWNGRADES a device verdict to INSTRUMENT-SUSPECT instead ... ok
+test_topology_is_configuration_not_a_source_edit (__main__.self_test.<locals>.T.test_topology_is_configuration_not_a_source_edit)
+A bench of another shape is a --dut/--peer spec, and a misspelt key is ... ok
+test_tv_tnv_grades_settled_and_coalesced_packet_snapshots (__main__.self_test.<locals>.T.test_tv_tnv_grades_settled_and_coalesced_packet_snapshots)
+A single coalesced snapshot cannot establish a packet-rate defect. ... ok
+test_unpublished_zero_receive_snapshot (__main__.self_test.<locals>.T.test_unpublished_zero_receive_snapshot)
+Real startup boundary: three accepted packets precede RX publication. ... ok
+
+----------------------------------------------------------------------
+Ran 120 tests in 31.124s
+
+OK
+wall=31.29s maxrss=90580kB

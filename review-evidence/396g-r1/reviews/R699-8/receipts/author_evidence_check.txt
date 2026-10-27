@@ -1,0 +1,68 @@
+evidence commit 9bae445a642682118a75ff5c837fe80fd42e2cc0 (branch 396g-review-evidence; unsigned commit, digests from MANIFEST.json sha256 ff4943df5e48ae48e512e99c435b4830e60540ece0502fdffb6c63736aee9c91)
+author-r8/: 82 listed, 82 match, 0 mismatch, 0 unlisted
+rc=0
+--- gates/rc.txt
+gates/bdd_conformance 0
+gates/behave_plan 0
+gates/coverage_release 0
+gates/diff_check_range 0
+gates/diff_check_tree 0
+gates/doc_paths 0
+gates/doc_style 0
+gates/docs_check 0
+gates/em_dash 0
+gates/em_dash_base_e76a755a 0
+gates/feature_status 0
+gates/feature_status_selftest 0
+gates/gen_toc_anchors 0
+gates/gen_toc_check 0
+gates/plan_json 0
+gates/porcelain 0
+gates/py_idiom 0
+gates/release_mutants 0
+gates/run_head_gates 0
+gates/selftest 0
+--- release_mutants tail
+PASS: 298 mutations killed; source unchanged
+2026-10-27T13:39:15Z
+2026-10-27T16:30:47Z
+--- export sha256 (author) vs head files (reviewer)
+6b5d64c7dc41c51c90336b3cb5a579fa2711cbaaa382e8408bc5dd6e96e03c54  tb/tools/torture_campaign.py
+9b4d2e67befefc1e739c3e0123de5cc773cd84982c8a6af14c2268c73a26a6b3  tb/tools/torture_release_mutants.py
+58043cdc01b5579f1aabe700eb27d14389027d5251d5b1a5683601b9737e4d04  tb/tools/torture_release_audio_mutants.py
+tree 892633724459674895059a7f824917613a8d1d99 torture_campaign.py
+tree aa71df5b9feefd6a48e26d5054b558bf3b314066 torture_release_mutants.py
+tree b4b515eefbb0acdae0bcc57626231101f54b65d8 torture_release_audio_mutants.py
+torture_campaign.py same
+torture_release_mutants.py same
+torture_release_audio_mutants.py same
+head a7a514fbf5572ce08394cd727c9cc9085745c79f
+6b5d64c7dc41c51c90336b3cb5a579fa2711cbaaa382e8408bc5dd6e96e03c54  tb/tools/torture_campaign.py
+9b4d2e67befefc1e739c3e0123de5cc773cd84982c8a6af14c2268c73a26a6b3  tb/tools/torture_release_mutants.py
+58043cdc01b5579f1aabe700eb27d14389027d5251d5b1a5683601b9737e4d04  tb/tools/torture_release_audio_mutants.py
+--- head.txt first lines
+head a7a514fbf5572ce08394cd727c9cc9085745c79f
+tree 7bdbb8703e4e4dd34c86adb234af37ec68a2e6d3
+parent 5fdabc1c4c76206bd2528435c56d88466c0f972e
+merge-base with e76a755a e76a755afc0536453161e3cd33f6f4d2dcd7641f
+origin/dev 97aab1d0f28bd753a3e11df6278d5cac54f964dd
+gitlink 160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+gitlink 160000 commit 55680bff3b287b9a7b0c759f51471fa617c17335	gptp-processor
+gitlink 160000 commit ed2118035e4cec76fb1b59cfbf8a053aeacc8af8	protocol-processor
+gitlink 040000 tree 6604713e96eb6f7ed95d95412f17ea894db9a039	third_party
+commit a7a514fbf5572ce08394cd727c9cc9085745c79f Promise coverage, not position, for each audio event outside the exactness scope, gate every unit by it, and add a control that leaves a slip uncovered on one channel (#396)
+commit 5fdabc1c4c76206bd2528435c56d88466c0f972e Bound each audio listing from 63 samples before its event's first word to 63 after its last, check each listing, and fuzz events inside excursions on both capture lengths (#396)
+commit 73be3b364ddcc8585fb5f4f5e06a55bb2f10ff8a List a constant-mask excursion that a slip interrupts from its first word, and pin it with its control (#396)
+--- sweeps_compare.log
+cmp sweeps_5fdabc1c.txt sweeps_a7a514fb.txt
+IDENTICAL
+rc=0
+sweeps_5fdabc1c.txt 4853612 bytes sha256 284796a0723b565ea606b7c6598d2c25aaabbecc013b05378855a31fe221a9ba lines 445
+sweeps_a7a514fb.txt 4853612 bytes sha256 284796a0723b565ea606b7c6598d2c25aaabbecc013b05378855a31fe221a9ba lines 445
+{"cases": 445, "sha256": "5f0b7f1203866f8ee546716275c64ec045d265008296c4b587eedbb924b55c4b"}
+{"cases": 445, "sha256": "5f0b7f1203866f8ee546716275c64ec045d265008296c4b587eedbb924b55c4b"}
+
+--- selftest tail
+Ran 120 tests in 30.975s
+
+OK
