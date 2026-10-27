@@ -647,6 +647,10 @@ Each group's graded JSON carries every fan-out it measured, with its recipients 
 
 ### Paths that still miss T_svc
 
+A cell is a path's worst measured instance, as in [Results](#results).
+A command never answered or a record never released is worse than any time measured, and its cells give the time it had waited by the run's end, at least.
+Those figures are lower bounds of waits that never ended, with and without the cache, so they do not measure what the cache saves.
+
 | 1x1: path missing T_svc with the 4 KiB cache | Interface | none, ms (bound) | 4 KiB, ms (bound) | 4 KiB, CPU cycles |
 |---|---:|---:|---:|---:|
 | PROBE_TX_RESPONSE | 0 | 12.02 (29.87) **miss** | 11.35 (30.26) **miss** | 567,383 |
@@ -655,13 +659,13 @@ Each group's graded JSON carries every fan-out it measured, with its recipients 
 | an ENTITY_AVAILABLE behind a full adp ring | 0 | 67.93 (81.83) **over ceiling** | 37.07 (50.09) **over ceiling** | 1,853,704 |
 | an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed) | 0 | 88.33 (107.65) **over ceiling** | 34.33 (55.30) **over ceiling** | 1,716,699 |
 | a response with 7 frames owed ahead of it | 0 | 126.29 (130.31) **over ceiling** | 93.51 (95.48) **over ceiling** | 4,675,270 |
-| an ACMP command behind the owed input | 0 | 363.98 **over ceiling** | 363.69 **over ceiling** | 18,184,318 |
+| an ACMP command behind the owed input | 0 | at least 363.98, **never answered** | at least 363.69, **never answered** | at least 18,184,318, **never answered** |
 | ACMP record released under the composed load, last | 0 | 141.21 **over ceiling** | 81.43 **over ceiling** | 4,071,644 |
 | ADP record released under the composed load, last | 0 | 101.25 **miss** | 44.63 **miss** | 2,231,449 |
 | AECP record released under the composed load, last | 0 | 417.50 **over ceiling** | 244.70 **over ceiling** | 12,235,196 |
 | MAAP record released under the composed load, last | 0 | 81.55 **over ceiling** | 44.67 **miss** | 2,233,287 |
-| SRP record released under the composed load, first | 0 | 628.32 **over ceiling** | 574.32 **over ceiling** | 28,715,962 |
-| SRP record released under the composed load, last | 0 | 628.30 **over ceiling** | 574.30 **over ceiling** | 28,714,955 |
+| SRP record released under the composed load, first | 0 | at least 628.32, **never released** | at least 574.32, **never released** | at least 28,715,962, **never released** |
+| SRP record released under the composed load, last | 0 | at least 628.30, **never released** | at least 574.30, **never released** | at least 28,714,955, **never released** |
 
 | 8x8: path missing T_svc with the 4 KiB cache | Interface | none, ms (bound) | 4 KiB, ms (bound) | 4 KiB, CPU cycles |
 |---|---:|---:|---:|---:|
@@ -687,7 +691,7 @@ Each group's graded JSON carries every fan-out it measured, with its recipients 
 | an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed) | 0 | 118.81 (156.29) **over ceiling** | 52.00 (65.59) **over ceiling** | 2,600,153 |
 | an event behind 15 others | 0 | 44.65 (73.70) **miss** | 14.45 (28.05) **miss** | 722,398 |
 | a response with 7 frames owed ahead of it | 0 | 161.10 (170.62) **over ceiling** | 122.32 (128.00) **over ceiling** | 6,115,798 |
-| an ACMP command behind the owed input | 0 | 860.00 **over ceiling** | 369.84 **over ceiling** | 18,492,065 |
+| an ACMP command behind the owed input | 0 | at least 860.00, **never answered** | at least 369.84, **never answered** | at least 18,492,065, **never answered** |
 | ACMP record released under the composed load, first | 0 | 27.36 **over ceiling** | 13.99 **miss** | 699,320 |
 | ACMP record released under the composed load, last | 0 | 177.90 **over ceiling** | 102.46 **over ceiling** | 5,123,204 |
 | ADP record released under the composed load, first | 0 | 27.41 **miss** | 14.03 **miss** | 701,449 |
@@ -697,8 +701,8 @@ Each group's graded JSON carries every fan-out it measured, with its recipients 
 | AECP record released under the composed load, last | 1 | 510.22 **over ceiling** | 312.35 **over ceiling** | 15,617,522 |
 | MAAP record released under the composed load, first | 0 | 27.39 **miss** | 14.01 **miss** | 700,592 |
 | MAAP record released under the composed load, last | 0 | 103.71 **over ceiling** | 57.56 **over ceiling** | 2,877,773 |
-| SRP record released under the composed load, first | 0 | 658.79 **over ceiling** | 591.99 **over ceiling** | 29,599,416 |
-| SRP record released under the composed load, last | 1 | 658.77 **over ceiling** | 591.97 **over ceiling** | 29,598,409 |
+| SRP record released under the composed load, first | 0 | at least 658.79, **never released** | at least 591.99, **never released** | at least 29,599,416, **never released** |
+| SRP record released under the composed load, last | 1 | at least 658.77, **never released** | at least 591.97, **never released** | at least 29,598,409, **never released** |
 
 A probe measures one phase, so a path can measure longer with the cache than without it.
 In arm A's ACMP groups the change-notice retry makes every pass 14 to 16 ms at 1x1 and 19 to 21 ms at 8x8 with the cache, against 27 to 31 ms without it.
@@ -748,7 +752,7 @@ That is D3's rule that the driver stays in block RAM, and the arm now keeps it t
 Each netlist is the harness's CPU, with the power-of-two region cover.
 Vivado runs out of context with `AreaOptimized_high` on `xc7a100t-fgg484-2`; the timing column places and routes the same synthesis at the shipping clocks, the CPU at 20 ns and its bus at 10 ns.
 Yosys maps with `synth_xilinx -family xc7 -flatten`, as `syn/yosys/ooc.sh` prices a top; it keeps the cacheless core's FIFOs in logic, where Vivado uses 4.5 tiles.
-The cache costs about 170 to 220 FF and under 75 LUTs at every size, and, in Vivado, one tile for each 2 KiB of data and half a tile of tags.
+The cache costs about 170 to 220 FF and under 75 LUTs at every size, and, in Vivado, one tile for each 4 KiB of data and half a tile of tags for each way.
 The product split CPU's figures are in [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache).
 
 ### The T_svc gap
