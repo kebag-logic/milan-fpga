@@ -1,0 +1,18 @@
+diff --git a/tb/verilator/tsn_fuzz/fuzz_ptp_timing.py b/tb/verilator/tsn_fuzz/fuzz_ptp_timing.py
+index e35a9d3b0f..cabc6e26a1 100644
+--- a/tb/verilator/tsn_fuzz/fuzz_ptp_timing.py
++++ b/tb/verilator/tsn_fuzz/fuzz_ptp_timing.py
+@@ -151,12 +151,8 @@ class PtpTimingSections:
+         self._btca_reject("better vector, path-trace head is not the announced "
+                      "grandmaster (10.5.3.3.4)", None, drop=1,
+                      gm_identity=0x3333, path_trace=[0x5555])
+-        self._btca_reject("better vector, one path-trace hop against "
+-                     "stepsRemoved 1 (10.5.3.3.4)", None, drop=1,
+-                     gm_identity=0x3333, steps_removed=1,
+-                     path_trace=[0x3333])
+         self._btca_reject("better vector, stepsRemoved 255 on a one-hop path "
+-                     "trace (10.5.3.3.4)", None, drop=1, steps_removed=255)
++                     "trace (10.3.10.2.1b)", None, drop=None, steps_removed=255)
+ 
+     def btca(self) -> None:
+         """Only a legal better vector moves the grandmaster: each

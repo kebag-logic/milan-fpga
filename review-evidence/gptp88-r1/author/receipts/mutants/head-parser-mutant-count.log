@@ -1,0 +1,24 @@
+mutant: the path-count refusal restored (#88)
+FAIL #88 one entry, stepsRemoved 3: event got 0000000000000000 exp 0000000000000003
+FAIL #88 one entry, stepsRemoved 3: count and loop got 0000000000000000 exp 0000000000000001
+FAIL #88 one entry, stepsRemoved 3: identity 0 got 0000000000000000 exp 001122fffe334455
+FAIL #88 one entry, stepsRemoved 3: no drop got 0000000000000010 exp 000000000000000f
+FAIL #88 two entries, stepsRemoved 2: event got 0000000000000000 exp 0000000000000003
+FAIL #88 two entries, stepsRemoved 2: count and loop got 0000000000000000 exp 0000000000000002
+FAIL #88 two entries, stepsRemoved 2: identity 0 got 0000000000000000 exp 001122fffe334455
+FAIL #88 two entries, stepsRemoved 2: identity 1 got 0000000000000000 exp 001122fffe556677
+FAIL #88 two entries, stepsRemoved 2: no drop got 0000000000000011 exp 0000000000000010
+FAIL #88 three entries, stepsRemoved 0: event got 0000000000000000 exp 0000000000000003
+FAIL #88 three entries, stepsRemoved 0: count and loop got 0000000000000000 exp 0000000000000003
+FAIL #88 three entries, stepsRemoved 0: identity 0 got 0000000000000000 exp 001122fffe334455
+FAIL #88 three entries, stepsRemoved 0: identity 1 got 0000000000000000 exp 001122fffe778899
+FAIL #88 three entries, stepsRemoved 0: identity 2 got 0000000000000000 exp 001122fffe556677
+FAIL #88 three entries, stepsRemoved 0: no drop got 0000000000000012 exp 0000000000000011
+FAIL #88 short loop, stepsRemoved 5: event got 0000000000000000 exp 0000000000000003
+FAIL #88 short loop, stepsRemoved 5: count and loop got 0000000000000000 exp 0000000000000102
+FAIL #88 short loop, stepsRemoved 5: identity 0 got 0000000000000000 exp 001122fffe334455
+FAIL #88 short loop, stepsRemoved 5: identity 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: no drop got 0000000000000013 exp 0000000000000012
+tally: 355 checks: 335 PASS, 20 FAIL
+verdict: caught
+named checks failing: 8 of 8

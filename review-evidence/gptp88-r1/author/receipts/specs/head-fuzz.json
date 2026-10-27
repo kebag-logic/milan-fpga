@@ -1,0 +1,19 @@
+{
+ "cwd": "<scratch>/parent-fuzzhead",
+ "head": "db4cb6da5ec7e9bf21aa1302dfaa9de923072923",
+ "base": "97aab1d0f28bd753a3e11df6278d5cac54f964dd",
+ "commands": [
+  [
+   "env",
+   "PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR_ROOT=<verilator-5.050-root>",
+   "TMPDIR=<tmp>",
+   "HOME=<home>",
+   "TSN_GEN_ROOT=<tsn-gen-pinned>",
+   "make",
+   "-C",
+   "tb/verilator/tsn_fuzz",
+   "ptp"
+  ]
+ ]
+}

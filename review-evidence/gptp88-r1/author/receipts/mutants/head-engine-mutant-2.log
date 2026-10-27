@@ -1,0 +1,57 @@
+mutant: thisClock fills every later slot
+FAIL half-identity control A: raw path tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL half-identity control A: raw path tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL half-identity control A: raw path tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL half-identity control A: raw path tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL half-identity control A: raw path tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL half-identity control B: raw path tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL half-identity control B: raw path tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL half-identity control B: raw path tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL half-identity control B: raw path tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL half-identity control B: raw path tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 2 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: tail 2      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 3      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 4      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 5      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 6      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 7      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL adopt clears inactive tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL adopt clears inactive tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL adopt clears inactive tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL worse TLV-less announce retains zero tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL worse TLV-less announce retains zero tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL worse TLV-less announce retains zero tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL parent refresh clears old tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL parent refresh clears old tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL parent refresh clears old tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL parent refresh clears old tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL post-release C clears inactive A tail got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+tally: 1804 checks: 1751 PASS, 53 FAIL
+verdict: caught
+named checks failing: 23 of 23

@@ -1,0 +1,23 @@
+{
+  "head": "4cf56eaa46dce85026dc9fa7d68f744287a9dc8a",
+  "base": "97aab1d0f28bd753a3e11df6278d5cac54f964dd",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<tmp>",
+        "HOME=<home>",
+        "TSN_GEN_ROOT=<tsn-gen-pinned>",
+        "make",
+        "-C",
+        "tb/verilator/tsn_fuzz",
+        "ptp"
+      ],
+      "exit_code": 2,
+      "seconds": 38.827,
+      "log": "01.log"
+    }
+  ]
+}

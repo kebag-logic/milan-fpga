@@ -1,0 +1,82 @@
+# #88 new checks and the mutants that fail them (head 2ae9a957)
+
+## engine: 54 new checks
+- #88 issue shape: elected <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 issue shape: parent <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 issue shape: no longer master <- the path-count refusal restored
+- #88 issue shape: count <- the path-count refusal restored; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 issue shape: tail 1 <- the path-count refusal restored; (b) the stepsRemoved refusal removed; a parent update must beat the best
+- #88 issue shape: tail 2 <- thisClock fills every later slot; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 issue shape: tail 3 <- thisClock fills every later slot; a parent update must beat the best
+- #88 issue shape: tail 4 <- thisClock fills every later slot; a parent update must beat the best
+- #88 issue shape: tail 5 <- thisClock fills every later slot; a parent update must beat the best
+- #88 issue shape: tail 6 <- thisClock fills every later slot; a parent update must beat the best
+- #88 issue shape: tail 7 <- thisClock fills every later slot; a parent update must beat the best
+- #88 issue shape: its commit names the grandmaster and path <- the path-count refusal restored; thisClock fills every later slot; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 issue shape: parser accepts <- the path-count refusal restored
+- #88 issue shape: no Announce for one interval <- the path-count refusal restored
+- #88 issue shape: the degraded grandmaster yields <- (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: elected <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: count <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: tail 1 <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: tail 2 <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: tail 3 <- thisClock fills every later slot; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: tail 4 <- thisClock fills every later slot; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: tail 5 <- thisClock fills every later slot; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: tail 6 <- thisClock fills every later slot; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: tail 7 <- thisClock fills every later slot; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: its commit names the grandmaster and path <- the path-count refusal restored; thisClock fills every later slot; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 two entries, stepsRemoved 5: the degraded grandmaster yields <- (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: elected <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: count <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: tail 1 <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: tail 2 <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: tail 3 <- the path-count refusal restored; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: tail 4 <- thisClock fills every later slot; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: tail 5 <- thisClock fills every later slot; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: tail 6 <- thisClock fills every later slot; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: tail 7 <- thisClock fills every later slot; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: its commit names the grandmaster and path <- the path-count refusal restored; thisClock fills every later slot; (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 three entries, stepsRemoved 0: the degraded grandmaster yields <- (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed; a parent update must beat the best
+- #88 own source, one entry, stepsRemoved 3: still master <- (a) the own-source refusal removed
+- #88 own source, one entry, stepsRemoved 3: gm still us <- (a) the own-source refusal removed
+- #88 own source, one entry, stepsRemoved 3: flags untouched <- (a) the own-source refusal removed
+- #88 own source, one entry, stepsRemoved 3: raw vector never published <- (a) the own-source refusal removed
+- #88 own source, one entry, stepsRemoved 3: parser-drop policy <- the path-count refusal restored
+- #88 stepsRemoved 255, one entry: still master <- (a) the own-source refusal removed; (b) the stepsRemoved refusal removed
+- #88 stepsRemoved 255, one entry: gm still us <- (a) the own-source refusal removed; (b) the stepsRemoved refusal removed
+- #88 stepsRemoved 255, one entry: parent still us <- (b) the stepsRemoved refusal removed
+- #88 stepsRemoved 255, one entry: flags untouched <- (b) the stepsRemoved refusal removed
+- #88 stepsRemoved 255, one entry: raw vector never published <- (b) the stepsRemoved refusal removed
+- #88 stepsRemoved 255, one entry: parser-drop policy <- the path-count refusal restored
+- #88 short loop, stepsRemoved 5: still master <- (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed
+- #88 short loop, stepsRemoved 5: gm still us <- (a) the own-source refusal removed; (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed
+- #88 short loop, stepsRemoved 5: parent still us <- (b) the stepsRemoved refusal removed; (c) the PathTrace loop refusal removed
+- #88 short loop, stepsRemoved 5: flags untouched <- (c) the PathTrace loop refusal removed
+- #88 short loop, stepsRemoved 5: raw vector never published <- (c) the PathTrace loop refusal removed
+- #88 short loop, stepsRemoved 5: parser-drop policy <- the path-count refusal restored
+engine: 54 of 54 new checks fail under at least one named mutant
+
+## parser: 20 new checks
+- #88 one entry, stepsRemoved 3: event <- the path-count refusal restored (#88)
+- #88 one entry, stepsRemoved 3: count and loop <- the path-count refusal restored (#88)
+- #88 one entry, stepsRemoved 3: identity 0 <- the path-count refusal restored (#88)
+- #88 one entry, stepsRemoved 3: no drop <- the path-count refusal restored (#88)
+- #88 two entries, stepsRemoved 2: event <- the path-count refusal restored (#88)
+- #88 two entries, stepsRemoved 2: count and loop <- the path-count refusal restored (#88)
+- #88 two entries, stepsRemoved 2: identity 0 <- the path-count refusal restored (#88)
+- #88 two entries, stepsRemoved 2: identity 1 <- the path-count refusal restored (#88)
+- #88 two entries, stepsRemoved 2: no drop <- the path-count refusal restored (#88)
+- #88 three entries, stepsRemoved 0: event <- the path-count refusal restored (#88)
+- #88 three entries, stepsRemoved 0: count and loop <- the path-count refusal restored (#88)
+- #88 three entries, stepsRemoved 0: identity 0 <- the path-count refusal restored (#88)
+- #88 three entries, stepsRemoved 0: identity 1 <- the path-count refusal restored (#88)
+- #88 three entries, stepsRemoved 0: identity 2 <- the path-count refusal restored (#88)
+- #88 three entries, stepsRemoved 0: no drop <- the path-count refusal restored (#88)
+- #88 short loop, stepsRemoved 5: event <- the path-count refusal restored (#88)
+- #88 short loop, stepsRemoved 5: count and loop <- the path-count refusal restored (#88)
+- #88 short loop, stepsRemoved 5: identity 0 <- the path-count refusal restored (#88)
+- #88 short loop, stepsRemoved 5: identity 1 <- the path-count refusal restored (#88)
+- #88 short loop, stepsRemoved 5: no drop <- the path-count refusal restored (#88)
+parser: 20 of 20 new checks fail under at least one named mutant
+
