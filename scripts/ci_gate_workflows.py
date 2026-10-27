@@ -11,7 +11,10 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
+import json
 from pathlib import Path
+import re
 import shlex
 
 import yaml
@@ -33,6 +36,35 @@ DRIVER_COMMAND = "python3 sw/builder/test_builder.py"
 VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
                    "Put Verilator on PATH and prove the version"}
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
+#: rtl-fast builds its pinned Yosys once, in a job of its own (#789). The
+#: template keeps the build in yosys-elaboration; the generator moves it, and
+#: the moved key binds the pinned version, the build recipe and the runner
+#: image instead of every workflow file. A workflow edit then rebuilds nothing,
+#: and a recipe change rebuilds in a job whose only work is the build.
+FAST_TOOL_JOB = "yosys-tool"
+FAST_TOOL_CONSUMER = "yosys-elaboration"
+FAST_AGGREGATE = "rtl-fast"
+#: The owner's 30-minute hosted budget (#789); no job's timeout is raised.
+FAST_TOOL_TIMEOUT = 30
+YOSYS_BUILD_STEPS = ("Cache the pinned Yosys build", "Build Yosys from source on cache miss")
+FAST_TOOL_RESTORE = "Restore the pinned Yosys build"
+WORKFLOW_FILES_DIGEST = "${{ hashFiles('.github/workflows/*.yml') }}"
+#: The derivation's stand-in for the tool key's recipe digest. generate() replaces it once the tool job is
+#: emitted as it runs, so the digest also covers what the transforms after the derivation add to the build:
+#: the job budget step's exports, the package-index steps and the rewritten install line (#789).
+FAST_TOOL_RECIPE = "recipe-{build-inputs}"
+#: Tool job keys that only schedule it; every other job key is build environment and is digested.
+FAST_TOOL_SCHEDULING = ("name", "needs", "if", "timeout-minutes")
+#: yosys-elaboration's job keys the moved build ran under, so the tool job carries them. Any other job key
+#: is refused rather than dropped from the build.
+FAST_TOOL_CARRIED = ("runs-on", "env", "defaults")
+#: The runtime evidence pair, the only steps the tool job runs after its build. They write only under
+#: $RUNNER_TEMP, so nothing outside the digest runs between the build and the cache save.
+FAST_TOOL_EVIDENCE = ("ci_record", "ci_upload")
+#: A repository file a run body names, such as `scripts/ci_install_cache.py`, which prepares the package
+#: index the build installs from. Absolute and `$VAR/` paths are the runner's, not the repository's.
+REPOSITORY_READ = re.compile(r"(?<![\w.$/~-])(?:\./)?((?:[\w-]+/)+[\w.-]+\.(?:py|sh|txt|json|ya?ml|toml|cfg|patch|mk))"
+                             r"(?![\w/])")
 
 
 class Dumper(yaml.SafeDumper):
@@ -180,6 +212,131 @@ def aggregate(name: str, template: dict) -> dict:
             }
 
 
+def recipe_digest(inputs: dict) -> str:
+    """The build inputs, every key included, as one digest."""
+    return hashlib.sha256(json.dumps(inputs, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def fast_tool_key(cache: dict, image: str) -> str:
+    """The template key, its workflow-file digest replaced by the recipe stand-in and the runner image."""
+    key = cache["with"]["key"]
+    if key.count(WORKFLOW_FILES_DIGEST) != 1:
+        raise ValueError(FAST_TOOL_CONSUMER + ": Yosys cache key lacks its one workflow-file digest")
+    return key.replace(WORKFLOW_FILES_DIGEST, FAST_TOOL_RECIPE + "-" + image)
+
+
+def fast_tool_inputs(workflow: dict) -> tuple[dict, list[str]]:
+    """What the emitted tool job feeds its build, and the repository files those steps name.
+
+    The inputs are the workflow's `env` and `defaults`, the tool job's keys other than its scheduling ones,
+    and every step up to and including the build as it runs, the moved cache step's own key aside. Make
+    reads every environment variable as a variable of the same name, so no `env` entry is left out as
+    unrelated (#789)."""
+    tool = workflow["jobs"][FAST_TOOL_JOB]
+    names = [step.get("name") for step in tool["steps"]]
+    if [name for name in names if name in YOSYS_BUILD_STEPS] != list(YOSYS_BUILD_STEPS):
+        raise ValueError(FAST_TOOL_JOB + ": missing or reordered Yosys build recipe")
+    end = names.index(YOSYS_BUILD_STEPS[1]) + 1
+    after = tool["steps"][end:]
+    if [step.get("id") for step in after] != list(FAST_TOOL_EVIDENCE):
+        raise ValueError(FAST_TOOL_JOB + ": steps after the build that its key does not bind: " + ", ".join(
+            str(step.get("name", step.get("id"))) for step in after if step.get("id") not in FAST_TOOL_EVIDENCE))
+    steps = copy.deepcopy(tool["steps"][:end])
+    del steps[names.index(YOSYS_BUILD_STEPS[0])]["with"]["key"]
+    inputs = {"workflow": {key: workflow.get(key) for key in ("env", "defaults")},
+              "job": {**{key: value for key, value in tool.items() if key not in (*FAST_TOOL_SCHEDULING, "steps")},
+                      "steps": steps}}
+    return inputs, sorted({path for step in steps for path in REPOSITORY_READ.findall(step.get("run", ""))})
+
+
+def bind_fast_tool_key(workflow: dict) -> None:
+    """Replace the recipe stand-in in the tool cache and its one restore with the digest of the build inputs.
+
+    A repository file the build's steps name is bound by its content through `hashFiles`, which both jobs
+    evaluate on the same checkout; the workflow files are never among them."""
+    inputs, reads = fast_tool_inputs(workflow)
+    recipe = "recipe-" + recipe_digest(inputs)
+    if reads:
+        recipe += "-${{ hashFiles(" + ", ".join("'" + path + "'" for path in reads) + ") }}"
+    keyed = [(job_id, step.get("name")) for job_id, job in workflow["jobs"].items() for step in job["steps"]
+             if FAST_TOOL_RECIPE in str(step.get("with", {}).get("key", ""))]
+    if keyed != [(FAST_TOOL_JOB, YOSYS_BUILD_STEPS[0]), (FAST_TOOL_CONSUMER, FAST_TOOL_RESTORE)]:
+        raise ValueError(FAST_TOOL_JOB + ": the recipe stand-in must key exactly its cache and the one restore")
+    for job_id, name in keyed:
+        step = next(step for step in workflow["jobs"][job_id]["steps"] if step.get("name") == name)
+        step["with"]["key"] = step["with"]["key"].replace(FAST_TOOL_RECIPE, recipe)
+
+
+def result_binding(job_id: str) -> tuple[str, str]:
+    """The fast verdict's environment name and value for one needed job's result."""
+    return job_id.upper().replace("-", "_") + "_RESULT", "${{ needs." + job_id + ".result }}"
+
+
+def require_fast_tool(verdict_job: dict) -> None:
+    """A failed tool job skips yosys-elaboration, which the verdict accepts, so it reads the tool's result too."""
+    tool, tool_value = result_binding(FAST_TOOL_JOB)
+    consumer, _ = result_binding(FAST_TOOL_CONSUMER)
+    steps = verdict_job["steps"]
+    if FAST_TOOL_CONSUMER not in verdict_job["needs"] or len(steps) != 1 or consumer not in steps[0]["env"]:
+        raise ValueError(FAST_AGGREGATE + ": verdict lacks its yosys-elaboration result")
+    verdict_job["needs"].insert(verdict_job["needs"].index(FAST_TOOL_CONSUMER), FAST_TOOL_JOB)
+    verdict = steps[0]
+    env = {}
+    for name, value in verdict["env"].items():
+        if name == consumer:
+            env[tool] = tool_value
+        env[name] = value
+    verdict["env"] = env
+    lines = verdict["run"].split("\n")
+    pair = '"' + FAST_TOOL_CONSUMER + ":$" + consumer + '" \\'
+    found = [index for index, line in enumerate(lines) if line.strip() == pair]
+    if len(found) != 1:
+        raise ValueError(FAST_AGGREGATE + ": verdict lacks its one yosys-elaboration result pair")
+    line = lines[found[0]]
+    lines.insert(found[0], line[:len(line) - len(line.lstrip())] + '"' + FAST_TOOL_JOB + ":$" + tool + '" \\')
+    verdict["run"] = "\n".join(lines)
+
+
+def fast_yosys_tool(source: dict) -> dict:
+    """Build Yosys in its own job; yosys-elaboration restores that exact tree or fails (#789)."""
+    jobs = source["jobs"]
+    consumer = jobs[FAST_TOOL_CONSUMER]
+    names = [step.get("name") for step in consumer["steps"]]
+    if (FAST_TOOL_JOB in jobs or [name for name in names if name in YOSYS_BUILD_STEPS] != list(YOSYS_BUILD_STEPS)
+            or names[names.index(YOSYS_BUILD_STEPS[0]) + 1] != YOSYS_BUILD_STEPS[1]):
+        raise ValueError(FAST_TOOL_CONSUMER + ": missing or reordered Yosys build recipe")
+    checkout = consumer["steps"][0]
+    if not str(checkout.get("uses", "")).startswith("actions/checkout@"):
+        raise ValueError(FAST_TOOL_CONSUMER + ": original checkout must stay first")
+    unmodelled = sorted(set(consumer) - {"steps", *FAST_TOOL_SCHEDULING, *FAST_TOOL_CARRIED})
+    if unmodelled:
+        raise ValueError(FAST_TOOL_CONSUMER + ": job keys the tool job does not carry into the build: "
+                         + ", ".join(unmodelled))
+    at = names.index(YOSYS_BUILD_STEPS[0])
+    cache, build = consumer["steps"][at:at + 2]
+    key = fast_tool_key(cache, consumer["runs-on"])
+    moved = copy.deepcopy(cache)
+    moved["with"]["key"] = key
+    tool = {"name": "Prepare pinned Yosys", "runs-on": consumer["runs-on"], "timeout-minutes": FAST_TOOL_TIMEOUT,
+            "needs": copy.deepcopy(consumer["needs"]), "if": consumer["if"],
+            **{carried: copy.deepcopy(consumer[carried]) for carried in FAST_TOOL_CARRIED[1:] if carried in consumer},
+            "steps": [copy.deepcopy(checkout), moved, copy.deepcopy(build)]}
+    needs = consumer["needs"]
+    consumer["needs"] = [*([needs] if isinstance(needs, str) else needs), FAST_TOOL_JOB]
+    # The tool job's exact tree or a refusal: no fallback key, and no build here.
+    consumer["steps"][at:at + 2] = [{"name": FAST_TOOL_RESTORE, "uses": cache["uses"],
+                                     "with": {"path": cache["with"]["path"], "key": key,
+                                              "fail-on-cache-miss": True}}]
+    require_fast_tool(jobs[FAST_AGGREGATE])
+    ordered = {}
+    for job_id, job in jobs.items():
+        if job_id == FAST_TOOL_CONSUMER:
+            ordered[FAST_TOOL_JOB] = tool
+        ordered[job_id] = job
+    source["jobs"] = ordered
+    return source
+
+
 def gate_graph(name: str, template: dict) -> dict:
     """Preserve ordered bodies, conditions, bindings and source checkout in each leg."""
     source = copy.deepcopy(template)
@@ -189,6 +346,8 @@ def gate_graph(name: str, template: dict) -> dict:
         if name == "rtl":
             from ci_suite_workflows import generate as suite_workflows
             return suite_workflows(source)
+        if name == "rtl-fast":
+            return fast_yosys_tool(source)
         return source
     original = source["jobs"].pop(CARRIERS[name])
     cases: dict[int, list[dict]] = {}
@@ -227,6 +386,8 @@ def generate(name: str, template: dict) -> dict:
     from ci_install_workflows import generate as install_workflows
     from ci_suite_workflows import check_inventory_dependencies
     result = runtime_workflows(name, install_workflows(gate_graph(name, template)))
+    if name == "rtl-fast":
+        bind_fast_tool_key(result)
     check_inventory_dependencies(result)
     return result
 
