@@ -1,0 +1,23 @@
+control: a DUT event inside a found arm's tolerance taken as the arm
+seed 1:
+  run at 501, channels [3], 67 word(s): {'kind': 'flip', 'index': 501, 'channel': 3, 'mask': '0x18072E8D'}
+verdict PASS: zero DUT-attributed events over the qualified interval; every planted arm found; missed []
+  ch0 500 repeated 2  planted
+  ch1 500 repeated 2  planted
+  ch2 500 repeated 2  planted
+  ch3 500 repeated 2  planted
+  ch3 501 bit-flip 67 0x18072E8D planted
+control: a flip arm found in any corruption carrying its mask bit
+seed 146:
+  run at 700, channels [1], 2 word(s): {'kind': 'flip', 'index': 700, 'channel': 1, 'mask': '0x00100000'}
+verdict PASS: zero DUT-attributed events over the qualified interval; every planted arm found; missed []
+  ch1 699 bit-flip 3 0x00100100 planted
+control: a slip arm found at its own sample whatever its size
+seed 12:
+  slip at 300, channels [0, 1, 2, 3], 1 word(s): {'kind': 'drop', 'index': 300, 'n': 100}
+  copy at 15682, channels [3], 12 word(s): {'kind': 'copy', 'index': 15682, 'n': 12, 'channels': [1, 3]}
+verdict NOT RUN: void: a planted arm was missed; the source may not have planted it, or a DUT event at its sample may have masked it; missed [15684]
+  ch0 300 dropped 103  planted
+  ch1 300 dropped 103  planted
+  ch2 300 dropped 103  planted
+  ch3 300 dropped 103  planted

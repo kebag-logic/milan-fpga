@@ -1,0 +1,296 @@
+source sha256 23613441b71da8cac17cae612e7b765dabaffdaa73c7938bcdc412373fffc01b mutants 294
+KILLED	  53.7s	#0	restore eligibility check removed	test_release_eligibility_boundaries
+KILLED	  33.4s	#1	restore ceiling relaxed	test_release_eligibility_boundaries
+KILLED	  33.3s	#2	power-off hold hardcoded	test_release_timing_and_snapshot_contract
+KILLED	  33.2s	#3	power-off CLI value discarded	test_release_cli_parameters
+KILLED	  52.9s	#4	ADP window charged for pre-cut time	test_release_timing_and_snapshot_contract
+KILLED	  36.5s	#5	missing ADP evidence skipped	test_release_timing_and_snapshot_contract
+KILLED	  53.3s	#6	tu bound uses media-clock holdover	test_release_tu_contract
+KILLED	  50.7s	#7	uncorrelated tu ignored	test_release_tu_contract
+KILLED	  33.1s	#8	boot evidence ends before the next cycle	test_release_boot_negative_control
+KILLED	  35.0s	#9	tu anchor uses the first discontinuity	test_release_tu_chained_discontinuities
+KILLED	  33.5s	#10	tu clearing deadline ignores observation resolution	test_release_tu_chained_discontinuities
+KILLED	  42.6s	#11	tu oracle accepts an uncorrelated interval	test_release_tu_chained_discontinuities
+KILLED	  33.2s	#12	tu plan uses the first discontinuity	test_release_tu_contract
+KILLED	  41.9s	#13	tu plan drops capture resolution	test_release_tu_contract
+KILLED	  39.8s	#14	tu assertion allows five seconds	test_release_assertion_text
+KILLED	  33.1s	#15	tu assertion drops uncorrelated failure	test_release_assertion_text
+KILLED	  47.1s	#16	ADP assertion uses the pre-cut anchor	test_release_assertion_text
+KILLED	  31.1s	#17	ADP assertion charges the off time	test_release_assertion_text
+KILLED	  31.5s	#18	CLI power hold default changes	test_release_cli_power_hold_default
+KILLED	  29.2s	#19	tu containment drops the start allowance	test_release_tu_start_resolution
+KILLED	  29.4s	#20	tu containment doubles the start allowance	test_release_tu_start_resolution
+KILLED	  29.8s	#21	tu containment excludes its inclusive start	test_release_tu_start_resolution
+KILLED	  39.9s	#22	tu containment includes the clear instant	test_release_tu_start_resolution
+KILLED	  39.6s	#23	tu assertion drops the event window	test_release_assertion_text
+KILLED	  31.3s	#24	tu plan drops the start allowance	test_release_tu_contract
+KILLED	  32.2s	#25	mr clock-source cause removed	test_release_mr_allowed_causes
+KILLED	  32.5s	#26	mr CRF disruption cause removed	test_release_mr_allowed_causes
+KILLED	  53.8s	#27	mr received CRF toggle cause removed	test_release_mr_allowed_causes
+KILLED	  54.1s	#28	mr uncorrelated toggle accepted	test_release_mr_no_cause
+KILLED	  33.0s	#29	mr GM-only toggle accepted	test_release_mr_gm_only
+KILLED	  33.6s	#30	mr cause time window removed	test_release_mr_resolution
+KILLED	  33.7s	#31	mr foreign-stream cause accepted	test_release_mr_stream_scope
+KILLED	  33.5s	#32	mr eight-PDU minimum removed	test_release_mr_eight_pdus
+KILLED	  33.2s	#33	mr terminal hold evidence ignored	test_release_mr_eight_pdus
+KILLED	  34.0s	#34	MEDIA_RESET cause check removed	test_release_media_reset_no_cause
+KILLED	  34.0s	#35	MEDIA_RESET reuses a toggle for two increments	test_release_media_reset_intervals
+KILLED	  33.0s	#36	MEDIA_RESET interval update allowance removed	test_release_media_reset_intervals
+KILLED	  33.3s	#37	tu GM minimum removed	test_release_tu_gm_minimum
+KILLED	  46.9s	#38	tu GM minimum anchored at the first GM change	test_release_tu_gm_minimum
+KILLED	  36.2s	#39	tu GM minimum drops recorded resolution	test_release_tu_gm_minimum
+KILLED	  33.1s	#40	tu missing GM history accepted	test_release_tu_missing_gm_history
+KILLED	  32.6s	#41	mr missing evidence accepted	test_release_mr_missing_evidence
+KILLED	  32.3s	#42	mr plan hold weakened	test_release_mr_plan_contract
+KILLED	  30.7s	#43	tu plan GM minimum removed	test_release_mr_plan_contract
+KILLED	  39.3s	#44	tu rise correlation removed	test_release_tu_before_first_discontinuity
+KILLED	  30.0s	#45	tu rise correlation made exclusive	test_release_tu_rise_boundary
+KILLED	  43.0s	#46	tu resolution ceiling removed	test_release_deciding_resolution
+KILLED	  29.5s	#47	mr resolution ceiling removed	test_release_deciding_resolution
+KILLED	  29.2s	#48	GM history coverage removed	test_release_tu_history
+KILLED	  29.5s	#49	GM history check skips interval verdict	test_release_tu_history
+KILLED	  40.4s	#50	history coarse resolution accepted	test_release_tu_history
+KILLED	  30.4s	#51	history interval order ignored	test_release_tu_history
+KILLED	  37.1s	#52	single interval drops future GM changes	test_release_tu_history
+KILLED	  37.6s	#53	mr reuses one cause	test_release_mr_distinct_causes
+KILLED	  38.9s	#54	mr cause order ignored	test_release_mr_distinct_causes
+KILLED	  47.0s	#55	mr cause window doubled	test_release_mr_resolution
+KILLED	  50.7s	#56	mr cause window strict	test_release_mr_resolution
+KILLED	  58.8s	#57	mr cause first toggle skipped	test_release_mr_no_cause
+KILLED	  49.7s	#58	mr cause last toggle skipped	test_release_mr_no_cause
+KILLED	  54.3s	#59	mr PDU time order ignored	test_release_mr_record_boundaries
+KILLED	  54.0s	#60	counter stream filter removed	test_release_mr_record_boundaries
+KILLED	  53.4s	#61	counter endpoint optional	test_release_mr_record_boundaries
+KILLED	  53.2s	#62	counter read order ignored	test_release_mr_record_boundaries
+KILLED	  51.9s	#63	counter reset ignored	test_release_media_reset_decrease
+KILLED	  51.9s	#64	counter upper window drops resolution	test_release_media_reset_window_edges
+KILLED	  51.3s	#65	counter upper window widened	test_release_media_reset_window_edges
+KILLED	  51.2s	#66	counter consumes latest toggle	test_release_media_reset_window_edges
+KILLED	  51.4s	#67	counter range ignored	test_release_mr_record_boundaries
+KILLED	  53.7s	#68	cause kind type ignored	test_release_mr_record_boundaries
+KILLED	  52.6s	#69	tu bound guard removed	test_release_deciding_resolution
+KILLED	  52.7s	#70	tu zero interval accepted	test_release_deciding_resolution
+KILLED	  53.3s	#71	capture start check removed	test_release_mr_capture_span
+KILLED	  53.4s	#72	capture endpoint check removed	test_release_mr_capture_span
+KILLED	  54.2s	#73	capture guard removed	test_release_mr_capture_span
+KILLED	  54.5s	#74	tu minimum sentence	test_release_assertion_text
+KILLED	  55.1s	#75	tu minimum and missing history	test_release_assertion_text
+KILLED	  55.1s	#76	mr cause kinds	test_release_mr_plan_contract
+KILLED	  53.9s	#77	mr toggle and counter scope	test_release_mr_plan_contract
+KILLED	  54.6s	#78	mr counter intervals	test_release_mr_plan_contract
+KILLED	  53.3s	#79	missing evidence verdict	test_release_assertion_text
+KILLED	  53.5s	#80	mr distinct causes	test_release_mr_plan_contract
+KILLED	  53.3s	#81	mr deciding resolution	test_release_mr_plan_contract
+KILLED	  52.0s	#82	mr capture span	test_release_mr_plan_contract
+KILLED	  52.0s	#83	mr reset classification	test_release_mr_plan_contract
+KILLED	  52.8s	#84	tu rise text	test_release_assertion_text
+KILLED	  53.3s	#85	tu history text	test_release_assertion_text
+KILLED	  52.9s	#86	tu uncovered GM text	test_release_assertion_text
+KILLED	  52.1s	#87	tu deciding resolution text	test_release_assertion_text
+KILLED	  52.2s	#88	tu coarse resolution text	test_release_assertion_text
+KILLED	  51.6s	#89	plan mr_distinct_causes weakened	test_release_round2_plan_contract
+KILLED	  52.0s	#90	plan tu_oracle weakened	test_release_round2_plan_contract
+KILLED	  51.3s	#91	plan tu_resolution_limit_s weakened	test_release_round2_plan_contract
+KILLED	  52.0s	#92	plan mr_resolution_limit_s weakened	test_release_round2_plan_contract
+KILLED	  52.0s	#93	plan mr_capture_window weakened	test_release_round2_plan_contract
+KILLED	  51.8s	#94	plan tu_rise_check weakened	test_release_round2_plan_contract
+KILLED	  52.9s	#95	capture metadata completeness ignored	test_release_mr_capture_span
+KILLED	  52.9s	#96	capture metadata window ignored	test_release_mr_capture_span
+KILLED	  54.6s	#97	history evidence refusal accepted	test_release_tu_history
+KILLED	  53.7s	#98	history nonfinite event accepted	test_release_tu_history
+KILLED	  54.0s	#99	history invalid interval accepted	test_release_tu_history
+KILLED	  52.8s	#100	history invalid order accepted	test_release_tu_history
+KILLED	  53.0s	#101	missing capture extent accepted	test_release_mr_capture_span
+KILLED	  52.3s	#102	invalid mr records accepted	test_release_mr_record_boundaries
+KILLED	  52.7s	#103	capture PDU extent check removed	test_release_mr_capture_span
+KILLED	  52.4s	#104	mr completeness guard removed	test_release_mr_missing_evidence
+KILLED	  51.6s	#105	mr negative resolution guard removed	test_release_mr_missing_evidence
+KILLED	  51.9s	#106	tu resolution restored to one-sided limit	test_release_tu_two_sided_boundaries
+KILLED	  52.0s	#107	tu upper bound ignores possible late true clear	test_release_tu_two_sided_boundaries
+KILLED	  55.3s	#108	tu upper bound excludes equality	test_release_tu_two_sided_boundaries
+KILLED	  53.7s	#109	tu upper bound bypasses latest clear	test_release_tu_two_sided_boundaries
+KILLED	  53.3s	#110	tu resolution boundary admits equality	test_release_tu_two_sided_boundaries
+KILLED	  53.4s	#111	history resolution boundary admits equality	test_release_tu_two_sided_boundaries
+KILLED	  53.4s	#112	history negative resolution accepted	test_release_tu_history_boundaries
+KILLED	  53.0s	#113	history GM assignment drops start allowance	test_release_tu_history_boundaries
+KILLED	  52.6s	#114	history GM assignment excludes start boundary	test_release_tu_history_boundaries
+KILLED	  52.2s	#115	history GM assignment includes clear boundary	test_release_tu_history_boundaries
+KILLED	  48.3s	#116	history accepts touching intervals	test_release_tu_history_boundaries
+KILLED	  51.1s	#117	history omits resolution limit	test_release_resolution_evidence
+KILLED	  48.7s	#118	single tu omits resolution limit	test_release_resolution_evidence
+KILLED	  44.4s	#119	mr omits resolution limit	test_release_resolution_evidence
+KILLED	  46.1s	#120	mr record accepts empty stream ID	test_release_mr_record_boundaries
+KILLED	  42.5s	#121	mr record accepts negative PDU index	test_release_mr_record_boundaries
+KILLED	  40.0s	#122	mr verdict cause window altered	test_release_resolution_evidence
+KILLED	  33.6s	#123	mr cause window text	test_release_mr_plan_contract
+KILLED	  49.7s	#124	mr stream mapping text	test_release_mr_plan_contract
+KILLED	  31.5s	#125	mr missing evidence text	test_release_mr_plan_contract
+KILLED	  50.1s	#126	tu detected discontinuity kinds text	test_release_assertion_text
+KILLED	  36.4s	#127	tu PHC and fabric examples text	test_release_assertion_text
+KILLED	  41.0s	#128	tu two-sided model text	test_release_assertion_text
+KILLED	  44.5s	#129	tu minimum derivation text	test_release_assertion_text
+KILLED	  42.7s	#130	tu upper derivation text	test_release_assertion_text
+KILLED	  45.1s	#131	tu numeric resolution limit text	test_release_assertion_text
+KILLED	  46.1s	#132	soak returns to seven days	test_release_defaults_and_assertions
+KILLED	  51.9s	#133	cycle minimums return to 160/40	test_release_eligibility_boundaries
+KILLED	  50.3s	#134	soft-reset minimum dropped	test_release_eligibility_boundaries
+KILLED	  49.1s	#135	soft resets planned as cold cuts	test_release_defaults_and_assertions
+KILLED	  53.1s	#136	soft reset T0 taken from the power strip	test_release_timing_and_snapshot_contract
+KILLED	  52.6s	#137	inventory loses the clock source	test_release_defaults_and_assertions
+KILLED	  52.8s	#138	eligibility accepts the binding alone	test_release_eligibility_boundaries
+KILLED	  46.8s	#139	audio duration eligibility dropped	test_release_eligibility_boundaries
+KILLED	  52.4s	#140	audio run may outlast the soak	test_release_settings_validation
+KILLED	  48.1s	#141	zero-growth counters may grow	test_release_soak_counter_growth
+KILLED	  49.8s	#142	LATE_TIMESTAMP leaves the zero-growth set	test_release_soak_counter_growth
+KILLED	  45.7s	#143	EARLY_TIMESTAMP leaves the zero-growth set	test_release_soak_counter_growth
+KILLED	  48.6s	#144	MEDIA_UNLOCKED needs no planted event	test_release_soak_media_unlocked_planted
+KILLED	  48.5s	#145	one planted event excuses many unlocks	test_release_soak_media_unlocked_planted
+KILLED	  42.6s	#146	another input's planted event accepted	test_release_soak_media_unlocked_planted
+KILLED	  51.4s	#147	planted window need only meet the read interval	test_release_soak_media_unlocked_planted
+KILLED	  50.1s	#148	planted window excludes its start read	test_release_soak_media_unlocked_planted
+KILLED	  48.8s	#149	planted window excludes its end read	test_release_soak_media_unlocked_planted
+KILLED	  47.2s	#150	soak counter decrease accepted	test_release_soak_counter_growth
+KILLED	  53.6s	#151	soak missing evidence accepted	test_release_soak_counter_evidence
+KILLED	  52.3s	#152	soak endpoint read optional	test_release_soak_counter_evidence
+KILLED	  53.2s	#153	state vacuity check removed	test_release_state_restored
+KILLED	  56.2s	#154	mixed commit state accepted	test_release_state_commit_cut
+KILLED	  50.6s	#155	vacuous commit accepted	test_release_state_commit_cut
+KILLED	  51.6s	#156	reverted state accepted	test_release_state_restored
+KILLED	  48.1s	#157	missing state readback accepted	test_release_state_restored
+KILLED	  50.9s	#158	first-boot control fixture healthy	test_release_controls_fail_as_planted
+KILLED	  51.7s	#159	persistence control fixture restored	test_release_controls_fail_as_planted
+KILLED	  50.4s	#160	audio control drop removed	test_release_controls_fail_as_planted
+KILLED	  50.6s	#161	control verdict not audited	test_release_area_audit_refuses_each_defect
+KILLED	  52.1s	#162	control failing assertion not audited	test_release_area_audit_refuses_each_defect
+KILLED	  48.7s	#163	controls not required	test_release_area_audit_refuses_each_defect
+KILLED	  46.4s	#164	power phases not audited	test_release_area_audit_refuses_each_defect
+KILLED	  51.1s	#165	cycle mix not audited	test_release_area_audit_refuses_each_defect
+KILLED	  51.7s	#166	release assertions not audited	test_release_area_audit_refuses_each_defect
+KILLED	  53.3s	#167	assertion severity not audited	test_release_area_audit_refuses_each_defect
+KILLED	  43.5s	#168	release audio masks the identity audit	test_release_audio_does_not_mask_identity
+KILLED	  48.2s	#169	lone corrupted word kept as a slip pair	test_audio_tag_integrity_decides_first
+KILLED	  28.8s	#170	slip direction inverted	test_audio_grader_classes
+KILLED	  30.6s	#171	slip size not folded around zero	test_audio_grader_classes
+KILLED	  51.4s	#172	inserted silence not told apart	test_audio_grader_classes
+KILLED	  51.4s	#173	swap read as corruption	test_audio_grader_classes
+KILLED	  50.7s	#174	capture loss counted against the DUT	test_audio_grader_attribution
+KILLED	  52.0s	#175	logged capture loss trusted without the capture	test_audio_grader_attribution
+KILLED	  36.8s	#176	missed arm accepted	test_audio_grader_attribution
+KILLED	  46.8s	#177	arm position ignored	test_audio_grader_attribution
+KILLED	  40.8s	#178	arm size ignored	test_audio_grader_attribution
+KILLED	  43.0s	#179	arm mask ignored	test_audio_grader_attribution
+KILLED	  47.3s	#180	arms need not bracket the run	test_audio_grader_attribution
+KILLED	  44.3s	#181	arm edges widened to the halves	test_audio_arms_run_at_both_edges
+KILLED	  28.7s	#182	DUT audio events pass	test_audio_grader_classes
+KILLED	  40.4s	#183	torn final frame accepted	test_audio_grader_evidence
+KILLED	  19.4s	#184	fast path compares the capture with itself	test_audio_grader_classes
+KILLED	  39.6s	#185	event overflow passes	test_audio_grader_evidence
+KILLED	  39.7s	#186	soak counter oracle unnamed	test_release_defaults_and_assertions
+KILLED	  49.9s	#187	audio run outside the soak window	test_release_defaults_and_assertions
+KILLED	  35.2s	#188	planted-event log not retained	test_release_defaults_and_assertions
+KILLED	  51.9s	#189	unlock text allows explained unlocks	test_release_assertion_text
+KILLED	  32.4s	#190	cycle text returns to 160/40	test_release_assertion_text
+KILLED	  29.0s	#191	soak text returns to seven days	test_release_assertion_text
+KILLED	  30.8s	#192	state text drops the eight items	test_release_assertion_text
+KILLED	  35.4s	#193	ADP text drops the reset origin	test_release_assertion_text
+KILLED	  30.3s	#194	counter text drops the timestamp counters	test_release_assertion_text
+KILLED	 314.8s	#195	block code bit dropped from the word	test_audio_counter_word_layout
+KILLED	 176.6s	#196	counter repeats every 4096 samples	test_audio_counter_word_layout
+KILLED	 262.6s	#197	decode ignores the block code	test_audio_counter_word_layout
+KILLED	  42.7s	#198	expected words lose the block code	test_audio_counter_word_layout
+KILLED	  33.6s	#199	planted flip mask leaves the code bit	test_audio_counter_word_layout
+KILLED	  36.3s	#200	block slips not located	test_audio_block_slips_are_sized_exactly
+KILLED	  36.4s	#201	foreign channel number read as a swap	test_audio_tag_integrity_decides_first
+KILLED	  44.7s	#202	swap run spans a partner change	test_audio_tag_integrity_decides_first
+KILLED	  40.5s	#203	constant-mask excursion kept as slips	test_audio_compound_and_edge_events
+KILLED	  48.0s	#204	hold read as corruption	test_audio_compound_and_edge_events
+KILLED	  34.1s	#205	only the previous word counts as a neighbour	test_audio_compound_and_edge_events
+KILLED	  34.1s	#206	identity changes not recorded	test_audio_static_swap_fails_with_every_arm_found
+KILLED	  33.6s	#207	arms looked for on the logged channel only	test_audio_static_swap_fails_with_every_arm_found
+KILLED	  42.2s	#208	pending defaults accepted	test_release_commit_cut_evidence
+KILLED	  38.0s	#209	cut outside its commit accepted	test_release_commit_cut_evidence
+KILLED	  32.1s	#210	commit window end made inclusive	test_release_commit_cut_evidence
+KILLED	  31.4s	#211	missing cut evidence accepted	test_release_commit_cut_evidence
+KILLED	  47.0s	#212	soft reset graded as a commit cut	test_release_commit_cut_evidence
+KILLED	  29.5s	#213	capture losses stop the clocks	test_audio_capture_losses_advance_the_clocks
+KILLED	  30.0s	#214	gPTP interpolated across a recorded discontinuity	test_audio_capture_losses_advance_the_clocks
+KILLED	  37.3s	#215	times extrapolated past the last anchor	test_audio_capture_losses_advance_the_clocks
+KILLED	  41.0s	#216	anchor past the capture accepted	test_audio_capture_losses_advance_the_clocks
+KILLED	  41.1s	#217	anchors may run backwards	test_audio_capture_losses_advance_the_clocks
+KILLED	  38.9s	#218	capture loss needs only one channel	test_audio_capture_loss_needs_every_channel
+KILLED	  28.8s	#219	qualified interval runs to the capture's end	test_audio_boundary_block_slips_are_unresolved
+KILLED	  30.5s	#220	qualified interval starts at acquisition	test_audio_qualified_interval_is_stated_and_required
+KILLED	  37.8s	#221	acquisition index not recorded	test_audio_qualified_interval_is_stated_and_required
+KILLED	  28.5s	#222	required duration not enforced	test_audio_qualified_interval_is_stated_and_required
+KILLED	  45.5s	#223	required duration defaults to a fraction of a second	test_audio_qualified_interval_is_stated_and_required
+KILLED	  31.5s	#224	capture losses counted as observed time	test_audio_qualified_interval_is_stated_and_required
+KILLED	  45.6s	#225	arm outside the qualified interval accepted	test_audio_qualified_interval_is_stated_and_required
+KILLED	  28.9s	#226	capture loss outside the qualified interval accepted	test_audio_qualified_interval_is_stated_and_required
+KILLED	  31.8s	#227	unacquired channel passes	test_audio_qualified_interval_is_stated_and_required
+KILLED	  29.6s	#228	unacquired channel graded to the end	test_audio_qualified_interval_is_stated_and_required
+KILLED	  28.7s	#229	capture-end stretch graded exactly	test_audio_boundary_block_slips_are_unresolved
+KILLED	  28.8s	#230	pre-acquisition stretch graded exactly	test_audio_boundary_block_slips_are_unresolved
+KILLED	  31.3s	#231	open words reported as a corruption	test_audio_boundary_block_slips_are_unresolved
+KILLED	  51.6s	#232	open stretch bound widened at the end	test_audio_boundary_block_slips_are_unresolved
+KILLED	  51.0s	#233	open stretch bound widened before acquisition	test_audio_boundary_block_slips_are_unresolved
+KILLED	  26.4s	#234	half-block alternative dropped	test_audio_boundary_block_slips_are_unresolved
+KILLED	  29.8s	#235	open stretch never closes an excursion	test_audio_boundary_block_slips_are_unresolved
+KILLED	  22.3s	#236	a run fits whole or not at all	test_audio_slip_and_corruption_share_a_window
+KILLED	  24.2s	#237	departures after a slip not judged again	test_audio_slip_and_corruption_share_a_window
+KILLED	  25.7s	#238	constant-mask track adopted as a slip	test_audio_constant_mask_at_every_length
+KILLED	  26.8s	#239	held excursion never returns	test_audio_constant_mask_at_every_length
+KILLED	  30.7s	#240	held excursion not carried across a region	test_audio_constant_mask_at_every_length
+KILLED	  33.7s	#241	held excursion kept through a fast block off its mask	test_audio_constant_mask_at_every_length
+KILLED	  31.7s	#242	held excursion kept through a word off its mask	test_audio_constant_mask_at_every_length
+KILLED	  40.2s	#243	excursion open at the end released as exact	test_audio_constant_mask_at_every_length
+KILLED	  31.4s	#244	excursion cut by the end window released as exact	test_audio_constant_mask_at_every_length
+KILLED	  38.0s	#245	window-bound pieces lose their corruption	test_audio_constant_mask_at_every_length
+KILLED	  30.9s	#246	anchor gap after the last anchor not reported	test_audio_anchor_gaps_are_reported
+KILLED	  29.5s	#247	anchor gaps measured over stored frames	test_audio_anchor_gaps_are_reported
+KILLED	  29.4s	#248	a loss at the event's own index not counted	test_audio_capture_losses_advance_the_clocks
+KILLED	  33.6s	#249	offset before the last change not a candidate	test_audio_block_slip_after_a_corruption_or_a_slip
+KILLED	  23.6s	#250	longest run wins over the offset in force	test_audio_block_slip_after_a_corruption_or_a_slip
+KILLED	  27.3s	#251	half-block offsets not ordered toward the offset before	test_audio_block_slip_after_a_corruption_or_a_slip
+KILLED	  31.3s	#252	a return at the next word not cut from the excursion	test_audio_block_slip_after_a_corruption_or_a_slip
+KILLED	  47.0s	#253	a return a whole number of blocks away not cut from the excursion	test_audio_block_slip_after_a_corruption_or_a_slip
+KILLED	  48.2s	#254	slip of whole blocks not located on past its first word	test_audio_block_slip_after_a_corruption_or_a_slip
+KILLED	  32.8s	#255	a corrupted word bounds the slip where the tracks coincide	test_audio_planted_arms_beside_block_slips
+KILLED	  32.8s	#256	slip arm absorbed by a slip of whole blocks	test_audio_planted_arms_beside_block_slips
+KILLED	  32.4s	#257	split slip located only after its arm	test_audio_planted_arms_beside_block_slips
+KILLED	  35.8s	#258	no reading led by a logged flip arm	test_audio_planted_arms_beside_block_slips
+KILLED	  38.8s	#259	arm-led reading taken whatever its DUT events	test_audio_planted_arms_beside_block_slips
+KILLED	  33.2s	#260	arm-led reading never judged against the closing offset	test_audio_planted_arms_beside_block_slips
+KILLED	  38.8s	#261	arm-led reading never opened before the window	test_audio_planted_arms_beside_block_slips
+KILLED	  33.0s	#262	arm-led reading never cuts a word from the resync	test_audio_planted_arms_beside_block_slips
+KILLED	  37.1s	#263	hold judged over the whole window	test_audio_constant_mask_beside_one_word_events
+KILLED	  32.2s	#264	events beside a returned excursion lost	test_audio_constant_mask_beside_one_word_events
+KILLED	  32.2s	#265	a held excursion returns only onto the old track	test_audio_constant_mask_beside_one_word_events
+KILLED	  33.3s	#266	the old track's own word releases a hold	test_audio_code_bit_corruption_ending_on_a_block
+KILLED	  48.4s	#267	returned excursion ends at the window	test_audio_code_bit_corruption_ending_on_a_block
+KILLED	  36.5s	#268	a corruption beside a slip of whole blocks judged only against the old track	test_audio_block_slip_after_a_corruption_or_a_slip
+KILLED	  32.6s	#269	a slip arm never keeps the excursion it enters or leaves	test_audio_planted_arms_beside_block_slips
+KILLED	  32.6s	#270	a word on the new track read as its own corruption	test_audio_planted_arms_beside_block_slips
+KILLED	  27.6s	#271	hold judged only against the window's opening offset	test_audio_slip_before_a_constant_mask
+KILLED	  29.7s	#272	hold tried at its shortest masked run first	test_audio_slip_before_a_constant_mask
+KILLED	  47.6s	#273	recorded part of a hold never read again	test_audio_slip_totals_balance_the_bytes
+KILLED	  31.3s	#274	a hold made where no slip may lie in the masked words	test_audio_arm_interplay_at_the_release_tolerance
+KILLED	  43.2s	#275	unbalanced readings ranked with balanced ones	test_audio_slip_totals_balance_the_bytes
+KILLED	  29.4s	#276	the balance guard never fires	test_audio_slip_totals_balance_the_bytes
+KILLED	  29.9s	#277	unbalanced window recorded as its reading	test_audio_slip_totals_balance_the_bytes
+KILLED	  30.5s	#278	unbalanced window reported at its resync	test_audio_slip_totals_balance_the_bytes
+KILLED	  15.7s	#279	slips recorded outside the ledger	test_audio_slip_totals_balance_the_bytes
+KILLED	  30.3s	#280	an excursion's lead never returns at a word that fits	test_audio_slip_totals_balance_the_bytes
+KILLED	  30.9s	#281	coincident words after a return keep the other offset	test_audio_slip_totals_balance_the_bytes
+KILLED	  29.4s	#282	no word beside a constant-mask excursion split off	test_audio_constant_mask_beside_one_word_events
+KILLED	  47.3s	#283	a two-word excursion under two masks kept whole	test_audio_composition_sweep
+KILLED	  29.7s	#284	a word beside a constant-mask excursion merged into it	test_audio_constant_mask_beside_one_word_events
+KILLED	  33.0s	#285	a constant-mask excursion before a slip read as slips	test_audio_constant_mask_beside_one_word_events
+KILLED	  32.7s	#286	an excursion already on the slip's track read as one corruption	test_audio_composition_sweep
+KILLED	  33.3s	#287	a flip arm found in a run of any length	test_audio_arm_interplay_at_the_release_tolerance
+KILLED	  33.3s	#288	a slip arm split only at its exact index	test_audio_arm_interplay_at_the_release_tolerance
+KILLED	  29.3s	#289	a DUT event inside a found arm's tolerance taken as the arm	test_audio_compositions_never_pass_and_list_every_event
+KILLED	  28.6s	#290	a flip arm found in any corruption carrying its mask bit	test_audio_compositions_never_pass_and_list_every_event
+KILLED	  27.6s	#291	a slip arm found at its own sample whatever its size	test_audio_compositions_never_pass_and_list_every_event
+KILLED	  34.3s	#292	a missed arm's void reason without its possible DUT cause	test_audio_excursion_over_a_slip_arm_may_void
+KILLED	  34.0s	#293	a zero word after a stored word kept as data	test_audio_excursion_clearing_its_channel_number_is_split
+PASS: 294 of 294 killed

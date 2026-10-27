@@ -1,0 +1,66 @@
+source sha256 bb34f859d9cca0d80a6a411ba838dd34106d374f4165aa8d5d6fc40b72b6f42b mutants 294
+KILLED	  55.5s	#0	restore eligibility check removed	test_release_eligibility_boundaries
+KILLED	  33.6s	#1	restore ceiling relaxed	test_release_eligibility_boundaries
+KILLED	  35.1s	#2	power-off hold hardcoded	test_release_timing_and_snapshot_contract
+KILLED	  33.8s	#3	power-off CLI value discarded	test_release_cli_parameters
+KILLED	  33.7s	#4	ADP window charged for pre-cut time	test_release_timing_and_snapshot_contract
+KILLED	  54.5s	#5	missing ADP evidence skipped	test_release_timing_and_snapshot_contract
+KILLED	  55.3s	#6	tu bound uses media-clock holdover	test_release_tu_contract
+KILLED	  54.8s	#7	uncorrelated tu ignored	test_release_tu_contract
+KILLED	  32.3s	#8	boot evidence ends before the next cycle	test_release_boot_negative_control
+KILLED	  38.5s	#9	tu anchor uses the first discontinuity	test_release_tu_chained_discontinuities
+KILLED	  32.1s	#10	tu clearing deadline ignores observation resolution	test_release_tu_chained_discontinuities
+KILLED	  34.0s	#11	tu oracle accepts an uncorrelated interval	test_release_tu_chained_discontinuities
+KILLED	  33.4s	#12	tu plan uses the first discontinuity	test_release_tu_contract
+KILLED	  33.4s	#13	tu plan drops capture resolution	test_release_tu_contract
+KILLED	  35.6s	#14	tu assertion allows five seconds	test_release_assertion_text
+KILLED	  53.0s	#15	tu assertion drops uncorrelated failure	test_release_assertion_text
+KILLED	  32.2s	#16	ADP assertion uses the pre-cut anchor	test_release_assertion_text
+KILLED	  32.6s	#17	ADP assertion charges the off time	test_release_assertion_text
+KILLED	  34.2s	#18	CLI power hold default changes	test_release_cli_power_hold_default
+KILLED	  52.7s	#19	tu containment drops the start allowance	test_release_tu_start_resolution
+KILLED	  29.2s	#20	tu containment doubles the start allowance	test_release_tu_start_resolution
+KILLED	  29.4s	#21	tu containment excludes its inclusive start	test_release_tu_start_resolution
+KILLED	  29.4s	#22	tu containment includes the clear instant	test_release_tu_start_resolution
+KILLED	  29.7s	#23	tu assertion drops the event window	test_release_assertion_text
+KILLED	  31.2s	#24	tu plan drops the start allowance	test_release_tu_contract
+KILLED	  32.3s	#25	mr clock-source cause removed	test_release_mr_allowed_causes
+KILLED	  39.5s	#26	mr CRF disruption cause removed	test_release_mr_allowed_causes
+KILLED	  32.2s	#27	mr received CRF toggle cause removed	test_release_mr_allowed_causes
+KILLED	  33.1s	#28	mr uncorrelated toggle accepted	test_release_mr_no_cause
+KILLED	  37.8s	#29	mr GM-only toggle accepted	test_release_mr_gm_only
+KILLED	  38.4s	#30	mr cause time window removed	test_release_mr_resolution
+KILLED	  33.5s	#31	mr foreign-stream cause accepted	test_release_mr_stream_scope
+KILLED	  33.4s	#32	mr eight-PDU minimum removed	test_release_mr_eight_pdus
+KILLED	  35.2s	#33	mr terminal hold evidence ignored	test_release_mr_eight_pdus
+KILLED	  34.8s	#34	MEDIA_RESET cause check removed	test_release_media_reset_no_cause
+KILLED	  37.0s	#35	MEDIA_RESET reuses a toggle for two increments	test_release_media_reset_intervals
+Traceback (most recent call last):
+  File "<reviewer scripts>/parallel_mutants.py", line 61, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<reviewer scripts>/parallel_mutants.py", line 50, in main
+    for i, name, status, dt, test in pool.map(one, chosen):
+                                     ~~~~~~~~^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 645, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 312, in _result_or_cancel
+    return fut.result(timeout)
+           ~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 447, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "<reviewer scripts>/parallel_mutants.py", line 35, in one
+    d.mkdir(exist_ok=True)
+    ~~~~~~~^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<mutant copies>/m036'
