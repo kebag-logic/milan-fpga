@@ -97,6 +97,16 @@ extern "C" {
 #define CTRL_LOOP_MAX_SINKS 8u          // event sinks
 #define CTRL_LOOP_MAX_TICKS 4u          // centisecond consumers
 #define CTRL_LOOP_MAX_POLLS 8u          // polled modules
+// The records one pass takes, kept under the owner's D4(b) decision of
+// 2026-10-27 (#665: the admitted backlog first). RX: two of a channel, the
+// most maximum-length records SRP's ring holds (srp_bounds.h). Every module's
+// pass bound charges a record at its channel's maximum length, so a larger
+// count is charged for records no ring can hold until those bounds are
+// restated in ring words. Events: eight, half the ring. The whole ring would
+// take an event behind a full ring by the first pass, but every pass's bound
+// would carry sixteen events: CTRL_APP_PASS_MAX 4,036 accesses instead of
+// 3,140 at one interface, and ACMP's owed-frame bound 12,222 instead of 9,270,
+// over T_svc at 1 us an access (docs/design/MAILBOX_SPLIT.md).
 #define CTRL_LOOP_EVENTS_PER_PASS 8u    // event records one pass takes at most
 #define CTRL_LOOP_RX_PER_PASS 2u        // RX records one pass takes per channel at most
 #define CTRL_LOOP_TICKS_PER_PASS 16u    // centiseconds one pass dispatches at most
