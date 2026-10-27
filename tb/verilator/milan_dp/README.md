@@ -725,7 +725,9 @@ That adds sixteen checks to its run.
 
 The #790 rows plant processor #206's settled gate open in the processor copy.
 Measured on 2026-10-27 UTC at processor pin `f65c8ff7`.
-The clean leg passes 499/499 checks; every other row fails as before, against 499.
+The clean leg passes 499/499 checks, and every row above is still caught by its named check.
+Three of them fail more checks, because G11's four answers carry fields those defects also break.
+Tying probing/ACMP status to zero fails 24, reading the other sink's owners 50, and the old approximation 16.
 
 | Mutant | Named check that fails | Failures |
 |---|---|---|
