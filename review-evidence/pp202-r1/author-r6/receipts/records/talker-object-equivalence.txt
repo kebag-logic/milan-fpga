@@ -1,0 +1,13 @@
+tb/acmp_talker sim_main.o built at 98e0137 and at a5ad8ca with the suite's own Verilator and C++ flags (-O2), disassembled with objdump -d --no-show-raw-insn
+lines: 11790 and 11790
+differing lines: 8
+  line 10524: 1a25:	mov    $0x19b,%ecx  ->  1a25:	mov    $0x19e,%ecx   (411 -> 414, +3)
+  line 10553: 1ac0:	mov    $0x1a5,%ecx  ->  1ac0:	mov    $0x1a8,%ecx   (421 -> 424, +3)
+  line 10667: 1d1c:	mov    $0x22e,%ecx  ->  1d1c:	mov    $0x231,%ecx   (558 -> 561, +3)
+  line 10787: 1f73:	mov    $0x243,%ecx  ->  1f73:	mov    $0x246,%ecx   (579 -> 582, +3)
+  line 11145: 2672:	mov    $0x287,%ecx  ->  2672:	mov    $0x28a,%ecx   (647 -> 650, +3)
+  line 11272: 28fd:	mov    $0x29e,%ecx  ->  28fd:	mov    $0x2a1,%ecx   (670 -> 673, +3)
+  line 11531: 2e00:	mov    $0x1f0,%ecx  ->  2e00:	mov    $0x1f3,%ecx   (496 -> 499, +3)
+  line 11673: 30b6:	mov    $0x20d,%ecx  ->  30b6:	mov    $0x210,%ecx   (525 -> 528, +3)
+every difference is a source line number passed in %ecx, raised by 3 (the three lines the split adds above it): yes
+The eight literals are the __LINE__ of the eight REQ_TAG(...) calls below line 359 of tb/acmp_talker/sid_cases.hpp (at the head: 414, 424, 499, 528, 561, 582, 650, 673); no other instruction differs, so the suite, the ACMP STREAM_ID arms and the talker retry campaign execute the same code with only those tag records' line numbers moved.

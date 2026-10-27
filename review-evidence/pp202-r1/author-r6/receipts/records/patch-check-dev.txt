@@ -1,0 +1,38 @@
+Patch regeneration (scratch parent pp202-parent):
+  git diff 309af35f59 878c273e46 -- . ':(exclude)protocol-processor' > parent-src-stream-id-wiring.patch
+  309af35f59 = dev e76a755a with only the gitlink moved; 878c273e46 = round 4's wiring commit d3ab5b37f5 plus the one-line split
+New patch: sha256 ff5068d295872d1f872b89890ff76f9bb1d3fd0738ad650282dbe45d9e171275, 70091 bytes
+Round-5 patch: sha256 e399117609459a2e1b9e8ea22f7c87b0edd118a86ce56bcde67fbc5e92fbf1fa, 70077 bytes
+
+diff round-5 patch -> new patch:
+346c346
+< index 0000000000..1f07aac71f
+---
+> index 0000000000..7a2a323608
+349c349
+< @@ -0,0 +1,998 @@
+---
+> @@ -0,0 +1,999 @@
+1182c1182,1183
+< +        long n = 0, other = 0;
+---
+> +        long n = 0;
+> +        long other = 0;
+(diff rc 1: 1 = they differ, as intended)
+
+Fresh dev check (a local clone checked out at e76a755afc):
+  git apply --check --index parent-src-stream-id-wiring.patch -> rc 0
+  git apply --index parent-src-stream-id-wiring.patch -> rc 0
+  gitlink set to a5ad8caea588, submodules protocol-processor, gptp-processor and third_party/verilog-axis initialised at their pinned commits; committed as 83a77ca62c (local, never pushed)
+  git diff --stat 878c273e46 HEAD -- . ':(exclude)protocol-processor' -> empty (the applied tree equals the scratch wiring commit outside the gitlink):
+  git diff --stat a67e481010 HEAD (the scratch final pin) ->
+ syn/yosys/rom_digests.tsv | 4 ----
+ 1 file changed, 4 deletions(-)
+  (only the ROM-digest record the scratch parent adds per pin)
+  submodule status:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 55680bff3b287b9a7b0c759f51471fa617c17335 gptp-processor (remotes/origin/main)
+ a5ad8caea58886f01633e1545fb26300f1db9ebd protocol-processor (v2.0-832-ga5ad8ca)
+-08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+-70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)

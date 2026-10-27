@@ -1,0 +1,27 @@
+Processor repository: Mister-M-alt/protocol-processor-control-plane-avb-milan (origin checked before the commit)
+Base (processor main): ed2118035e4cec76fb1b59cfbf8a053aeacc8af8
+Round-5 head (start): 98e0137cfaf07b3b3efd21d2bd19648762e86f2b tree 9fdc9864d6ad8a900403a0ba81969b028c8d8140
+Head: a5ad8caea58886f01633e1545fb26300f1db9ebd tree e496f4f6faa5d95dbf531f743ecd0dc7a3f72f4a
+Round-6 commit: a5ad8ca Declare S5's four flags one per line, as the parent's C++ idiom gate requires (issue #202)
+git diff --stat 98e0137 HEAD:
+ tb/acmp_talker/sid_cases.hpp | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+git diff 98e0137 HEAD:
+diff --git a/tb/acmp_talker/sid_cases.hpp b/tb/acmp_talker/sid_cases.hpp
+index 488d350..9489695 100644
+--- a/tb/acmp_talker/sid_cases.hpp
++++ b/tb/acmp_talker/sid_cases.hpp
+@@ -356,7 +356,10 @@ void SidChecks::cursor_lap() {
+   h.gates.clear();
+   std::vector<bool> used(65536, false);
+   for (int s = 0; s < N_SRC; ++s) used[h.sid_pub(s) & 0xFFFF] = true;
+-  bool fresh_ids = true, distinct = true, declared = true, left = false;
++  bool fresh_ids = true;
++  bool distinct = true;
++  bool declared = true;
++  bool left = false;
+   uint64_t prev = h.sid_pub(0);
+   uint64_t after_wrap = 0;
+   int moves = 0;
+git status --short --ignored (lane tree):
