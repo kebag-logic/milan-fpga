@@ -521,6 +521,225 @@ Every window committed exactly its defined load (the run refuses one that did no
 3. **#723 is open**: the runtime recipe builds without `-fno-stack-protector` and the image does not link.
    [`runtime_ssp.py`](runtime_ssp.py) runs it unchanged with that one flag.
 
+## The instruction cache
+
+The [S2c assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860) gives the split CPU an L1 instruction cache, VexiiRiscv's fetch L1, through the pinned generator's own options (`milan_soc.ctrl_cpu_args`).
+The split CPU's cache is 4 KiB, direct-mapped, of 64-byte lines; its data side stays cacheless.
+[Split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache) states the parameters and why, and debits the block RAM.
+This section runs the same groups as [Results](#results) on the cached CPU, at the split's size and at the sweep's other sizes, at both points, graded as Results are.
+Every run's `table.md` lists every path's worst instance and every probe, in CPU cycles and ms.
+
+### The sweep
+
+| Instruction cache | Tiles, out of context (difference) | 1x1: composed maximum, ms | 1x1: under an unreleased load, at least | 1x1: paths (instances) missing T_svc | 8x8: composed maximum, ms | 8x8: under an unreleased load, at least | 8x8: paths (instances) missing T_svc |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| none (S2) | 4.5 (+0) | 14.81 | 31.32 | 22 of 81 (58 of 141) | 27.84 | 44.19 | 60 of 129 (102 of 182) |
+| 2 KiB, 1 way | 5.5 (+1) | 8.99 | 18.82 | 16 of 81 (41 of 141) | 14.58 | 29.73 | 37 of 129 (65 of 182) |
+| 4 KiB, 1 way (split) | 6 (+1.5) | 8.60 | 19.32 | 13 of 81 (34 of 141) | 14.03 | 29.12 | 34 of 129 (66 of 182) |
+| 8 KiB, 1 way | 7 (+2.5) | 8.40 | 18.96 | 13 of 81 (34 of 141) | 13.76 | 28.79 | 31 of 129 (59 of 182) |
+| 8 KiB, 2 ways | 7.5 (+3) | 8.19 | 18.01 | 12 of 81 (33 of 141) | 13.63 | 28.35 | 29 of 129 (61 of 182) |
+| 16 KiB, 1 way | 9 (+4.5) | 8.17 | 17.98 | 12 of 81 (33 of 141) | 13.53 | 28.17 | 29 of 129 (61 of 182) |
+
+The tiles are Vivado's out-of-context mapping of each netlist the harness ran, the cacheless one included; [block RAM and logic](#block-ram-and-logic) has the full figures.
+The first 4 KiB takes most of the gain: the composed maximum falls from 14.81 to 8.60 ms at 1x1 (42 %) and from 27.84 to 14.03 ms at 8x8 (50 %).
+2 KiB is 4 to 5 % slower than 4 KiB and leaves three more paths missing T_svc at each point, for half a tile less.
+8 and 16 KiB, with one way or two, are 2 to 5 % faster than 4 KiB for one to three tiles more.
+So the split takes 4 KiB with one way.
+
+Every arm on the split's cache, against S2's cacheless figures above:
+
+| Arm, with the 4 KiB cache | Groups | Paths missing T_svc | Probe instances missing T_svc | Without the cache (S2), paths / instances |
+|---|---:|---:|---:|---:|
+| A1 | 18 | 13 of 81 | 34 of 141 | 22 of 81 / 58 of 141 |
+| A8 | 17 | 34 of 129 | 66 of 182 | 60 of 129 / 102 of 182 |
+| B1 | 8 | 10 of 44 | 25 of 68 | 18 of 44 / 41 of 68 |
+| B8 | 8 | 26 of 68 | 44 of 92 | 36 of 68 / 60 of 92 |
+| S1 | 2 | 0 of 1 | 0 of 2 | 0 of 1 / 0 of 2 |
+| S8 | 2 | 0 of 2 | 0 of 3 | 0 of 2 / 0 of 3 |
+
+### What the cache changes
+
+| Point, instruction cache | CPU cycles per instruction | Fetch commands per 1,000 instructions | Mean fetch wait, CPU cycles | Fetch waits / cycles | Data waits / cycles |
+|---|---:|---:|---:|---:|---:|
+| 1x1, none | 9.52 | 1687.6 | 9.1 | 1.611 | 0.226 |
+| 1x1, 4 KiB | 5.83 | 15.5 | 42.3 | 0.112 | 0.390 |
+| 1x1, 8 KiB | 5.68 | 10.8 | 42.3 | 0.081 | 0.394 |
+| 8x8, none | 9.49 | 1676.7 | 9.1 | 1.614 | 0.233 |
+| 8x8, 4 KiB | 5.65 | 10.1 | 42.2 | 0.075 | 0.403 |
+| 8x8, 8 KiB | 5.58 | 8.1 | 42.2 | 0.061 | 0.405 |
+
+Without the cache every instruction word is a bus transaction of about 9 CPU cycles, and those waits add up to 1.6 times the run's cycles: more than one fetch is outstanding at a time.
+With 4 KiB a fetch command is a 64-byte line refill of 42 cycles, 10 to 16 of them every 1,000 instructions, and refill waits fall to 7 to 11 % of the cycles.
+The CPU then waits on its data side: a load or store to `sram`, the mailbox or a CSR stays 9 to 10 cycles, and those waits are 39 to 40 % of the cycles.
+The composed maximum's largest consumer is still `memset`, a byte loop on RV32I: 31 % of it at both points (133,859 of 429,838 cycles at 1x1, 219,287 of 701,553 at 8x8).
+The mailbox driver takes 21 % and 12 %, and `memcpy` 9 % and 11 %.
+In the worst passes, arm A's change-notice retry makes `memset` 63 % (1x1) and 49 % (8x8).
+
+### Backlog rows and notification fan-out
+
+| Backlog row | A 1x1, none | A 1x1, 4 KiB | A 8x8, none | A 8x8, 4 KiB | B 1x1, 4 KiB | B 8x8, 4 KiB |
+|---|---:|---:|---:|---:|---:|---:|
+| an event behind 15 others | 15.49 (29.11) **miss** | 8.99 (16.94) | 44.65 (73.70) **miss** | 14.45 (28.05) **miss** | 9.02 (16.97) | 14.49 (28.12) **miss** |
+| an ACMP command behind a full acmp ring | 63.30 (70.05) **over ceiling** | 36.41 (40.22) **over ceiling** | 108.71 (120.30) **over ceiling** | 57.96 (63.77) **over ceiling** | 36.41 (40.22) **over ceiling** | 58.13 (63.97) **over ceiling** |
+| an ENTITY_AVAILABLE behind the adp ring at its burst (observed) | 67.93 (81.83) **over ceiling** | 37.07 (50.09) **over ceiling** | 83.51 (107.83) **over ceiling** | 46.43 (66.02) **over ceiling** | 22.21 (29.60) **over ceiling** | 33.61 (43.29) **over ceiling** |
+| the same, its bucket refilling up to the ring's room (observed) | 88.33 (107.65) **over ceiling** | 34.33 (55.30) **over ceiling** | 118.81 (156.29) **over ceiling** | 52.00 (65.59) **over ceiling** | - | - |
+| a response with 7 frames owed ahead of it | 126.29 (130.31) **over ceiling** | 93.51 (95.48) **over ceiling** | 161.10 (170.62) **over ceiling** | 122.32 (128.00) **over ceiling** | 94.03 (96.47) **over ceiling** | 118.52 (124.19) **over ceiling** |
+
+The cache shortens every backlog row by a quarter to two thirds, but only the 1x1 event row then fits T_svc.
+The ring and owed rows still span several passes of 14 to 21 ms each.
+Arm B, without the retry passes, gives the same event, ACMP-ring and owed rows within 3 %, and an ADP-ring row of 22.21 ms at 1x1 and 33.61 ms at 8x8.
+
+| Fan-out at registration capacity | Interface | 1x1, none | 1x1, 4 KiB | 8x8, none | 8x8, 4 KiB |
+|---|---:|---:|---:|---:|---:|
+| `add_audio_mappings` | 0 | 8.57 (9.78) | 4.91 (5.71) | - | - |
+| `lock_entity` | 0 | 8.20 (9.35) | 4.66 (5.43) | 16.07 (21.92) **miss** | 8.38 (10.02) |
+| `lock_entity` | 1 | - | - | 16.39 (22.25) **miss** | 10.01 (13.67) **miss** |
+| `remove_audio_mappings` | 0 | 8.58 (9.79) | 4.93 (5.72) | - | - |
+| `set_clock_source` | 0 | 8.05 (8.92) | 4.61 (5.22) | 15.09 (19.86) **miss** | 9.07 (12.56) |
+| `set_clock_source` | 1 | - | - | 14.79 (19.93) **miss** | 8.25 (9.73) |
+| `set_control` | 0 | 7.79 (8.94) | 4.45 (5.22) | 14.62 (20.46) **miss** | 9.64 (13.29) |
+| `set_control` | 1 | - | - | 15.43 (21.29) **miss** | 9.64 (13.29) |
+| `set_name` | 0 | 11.33 (12.98) **miss** | 6.45 (7.47) | 20.68 (27.82) **miss** | 12.81 (17.15) **miss** |
+| `set_name` | 1 | - | - | 22.98 (29.45) **miss** | 13.56 (17.73) **miss** |
+| `set_sampling_rate` | 0 | 7.97 (8.81) | 4.57 (5.15) | 15.08 (18.86) **miss** | 8.51 (9.97) |
+| `unlock_entity` | 0 | 8.21 (9.36) | 4.67 (5.44) | 15.64 (21.49) **miss** | 10.02 (13.67) **miss** |
+| `unlock_entity` | 1 | - | - | 15.74 (21.59) **miss** | 10.03 (13.68) **miss** |
+
+At the firmware's registration capacity, 16 controllers on every interface, every fan-out now fits at 1x1: SET_NAME takes 6.45 ms, from 11.33.
+At 8x8, SET_NAME, LOCK_ENTITY and UNLOCK still miss, at 10.01 to 13.56 ms.
+
+### Paths that still miss T_svc
+
+| 1x1: path missing T_svc with the 4 KiB cache | Interface | none, ms (bound) | 4 KiB, ms (bound) | 4 KiB, CPU cycles |
+|---|---:|---:|---:|---:|
+| PROBE_TX_RESPONSE | 0 | 12.02 (29.87) **miss** | 11.35 (30.26) **miss** | 567,383 |
+| UNBIND_RX | 0 | 6.56 (26.86) | 10.29 (15.85) **miss** | 514,510 |
+| an ACMP command behind a full acmp ring | 0 | 63.30 (70.05) **over ceiling** | 36.41 (40.22) **over ceiling** | 1,820,497 |
+| an ENTITY_AVAILABLE behind a full adp ring | 0 | 67.93 (81.83) **over ceiling** | 37.07 (50.09) **over ceiling** | 1,853,704 |
+| an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed) | 0 | 88.33 (107.65) **over ceiling** | 34.33 (55.30) **over ceiling** | 1,716,699 |
+| a response with 7 frames owed ahead of it | 0 | 126.29 (130.31) **over ceiling** | 93.51 (95.48) **over ceiling** | 4,675,270 |
+| an ACMP command behind the owed input | 0 | 363.98 **over ceiling** | 363.69 **over ceiling** | 18,184,318 |
+| ACMP record released under the composed load, last | 0 | 141.21 **over ceiling** | 81.43 **over ceiling** | 4,071,644 |
+| ADP record released under the composed load, last | 0 | 101.25 **miss** | 44.63 **miss** | 2,231,449 |
+| AECP record released under the composed load, last | 0 | 417.50 **over ceiling** | 244.70 **over ceiling** | 12,235,196 |
+| MAAP record released under the composed load, last | 0 | 81.55 **over ceiling** | 44.67 **miss** | 2,233,287 |
+| SRP record released under the composed load, first | 0 | 628.32 **over ceiling** | 574.32 **over ceiling** | 28,715,962 |
+| SRP record released under the composed load, last | 0 | 628.30 **over ceiling** | 574.30 **over ceiling** | 28,714,955 |
+
+| 8x8: path missing T_svc with the 4 KiB cache | Interface | none, ms (bound) | 4 KiB, ms (bound) | 4 KiB, CPU cycles |
+|---|---:|---:|---:|---:|
+| DISCONNECT_TX | 0 | 10.62 (30.62) **miss** | 16.30 (36.30) **miss** | 814,999 |
+| ENTITY_AVAILABLE from its RX_HEAD (H-DISC) | 0 | 27.41 (41.44) **over ceiling** | 21.38 (53.20) **over ceiling** | 1,069,241 |
+| ENTITY_AVAILABLE from its RX_HEAD (H-DISC) | 1 | 29.72 (41.44) **over ceiling** | 22.66 (53.20) **over ceiling** | 1,133,183 |
+| ENTITY_DEPARTING from its RX_HEAD (H-DISC) | 0 | 45.45 (83.13) **over ceiling** | 21.22 (29.72) **over ceiling** | 1,061,066 |
+| ENTITY_DEPARTING from its RX_HEAD (H-DISC) | 1 | 47.73 (83.13) **over ceiling** | 22.47 (29.72) **over ceiling** | 1,123,367 |
+| GET_RX_STATE | 0 | 10.96 (30.77) **miss** | 18.68 (38.55) **miss** | 933,947 |
+| GET_TX_CONNECTION | 0 | 10.63 (30.63) **miss** | 16.29 (36.29) **miss** | 814,715 |
+| GET_TX_STATE | 0 | 10.67 (30.66) **miss** | 16.32 (36.31) **miss** | 816,003 |
+| PROBE_TX | 0 | 11.17 (30.68) **miss** | 18.80 (38.48) **miss** | 939,974 |
+| PROBE_TX | 1 | 21.02 (54.45) **over ceiling** | 13.46 (24.91) **miss** | 672,826 |
+| TMR_DELAY, or the first TMR_NO_RESP | 1 | 12.89 (70.11) **miss** | 10.46 (45.03) **miss** | 523,060 |
+| UNBIND_RX | 0 | 6.75 (27.03) | 12.11 (32.32) **miss** | 605,716 |
+| lock_entity | 1 | 16.39 (22.25) **miss** | 10.01 (13.67) **miss** | 500,717 |
+| set_name | 0 | 20.68 (27.82) **miss** | 12.81 (17.15) **miss** | 640,708 |
+| set_name | 1 | 22.98 (29.45) **miss** | 13.56 (17.73) **miss** | 678,100 |
+| unlock_entity | 0 | 15.64 (21.49) **miss** | 10.02 (13.67) **miss** | 500,843 |
+| unlock_entity | 1 | 15.74 (21.59) **miss** | 10.03 (13.68) **miss** | 501,625 |
+| an ACMP command behind a full acmp ring | 0 | 108.71 (120.30) **over ceiling** | 57.96 (63.77) **over ceiling** | 2,897,982 |
+| an ENTITY_AVAILABLE behind a full adp ring | 0 | 83.51 (107.83) **over ceiling** | 46.43 (66.02) **over ceiling** | 2,321,442 |
+| an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed) | 0 | 118.81 (156.29) **over ceiling** | 52.00 (65.59) **over ceiling** | 2,600,153 |
+| an event behind 15 others | 0 | 44.65 (73.70) **miss** | 14.45 (28.05) **miss** | 722,398 |
+| a response with 7 frames owed ahead of it | 0 | 161.10 (170.62) **over ceiling** | 122.32 (128.00) **over ceiling** | 6,115,798 |
+| an ACMP command behind the owed input | 0 | 860.00 **over ceiling** | 369.84 **over ceiling** | 18,492,065 |
+| ACMP record released under the composed load, first | 0 | 27.36 **over ceiling** | 13.99 **miss** | 699,320 |
+| ACMP record released under the composed load, last | 0 | 177.90 **over ceiling** | 102.46 **over ceiling** | 5,123,204 |
+| ADP record released under the composed load, first | 0 | 27.41 **miss** | 14.03 **miss** | 701,449 |
+| ADP record released under the composed load, last | 0 | 137.94 **miss** | 62.51 **miss** | 3,125,398 |
+| ADP record released under the composed load, last | 1 | 88.96 **miss** | 47.30 **miss** | 2,364,755 |
+| AECP record released under the composed load, first | 0 | 27.40 **over ceiling** | 14.02 **miss** | 701,112 |
+| AECP record released under the composed load, last | 1 | 510.22 **over ceiling** | 312.35 **over ceiling** | 15,617,522 |
+| MAAP record released under the composed load, first | 0 | 27.39 **miss** | 14.01 **miss** | 700,592 |
+| MAAP record released under the composed load, last | 0 | 103.71 **over ceiling** | 57.56 **over ceiling** | 2,877,773 |
+| SRP record released under the composed load, first | 0 | 658.79 **over ceiling** | 591.99 **over ceiling** | 29,599,416 |
+| SRP record released under the composed load, last | 1 | 658.77 **over ceiling** | 591.97 **over ceiling** | 29,598,409 |
+
+A probe measures one phase, so a path can measure longer with the cache than without it.
+In arm A's ACMP groups the change-notice retry makes every pass 14 to 16 ms at 1x1 and 19 to 21 ms at 8x8 with the cache, against 27 to 31 ms without it.
+At 8x8, seven ACMP inputs arrive after their pass took its records, so each waits for the next pass and spans two cached passes where it spanned one cacheless pass; their pass bounds rise by 5 to 20 ms.
+At 1x1 a few ADP and ACMP inputs land later in their pass: the ADP paths stay within 1.04 ms, and UNBIND_RX's 10.29 ms has a pass bound of 15.85 ms against 26.86 ms without the cache.
+Arm B, whose callbacks answer, has no retry passes.
+
+### The hybrid-XIP arm
+
+| Point, instruction cache, code | Planned block RAM, tiles | CPU cycles per instruction | Mean refill, CPU cycles | Groups graded, probes refused | Paths (instances) missing T_svc | Composed maximum, ms (or under an unreleased load, at least) | Worst pass, ms |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 1x1, 4 KiB, block RAM | 35.5 | 5.83 | 42 | 18, 0 | 13 of 81 (34 of 141) | 8.60 | 19.32 |
+| 1x1, 4 KiB, flash | 15 | 33.95 | 2,143 | 18, 3 | 71 of 78 (120 of 138) | (94.91) | 94.91 |
+| 1x1, 32 KiB, flash | 15 | 10.19 | 2,145 | 18, 0 | 19 of 81 (62 of 141) | 23.42 | 28.08 |
+| 8x8, 4 KiB, block RAM | 56 | 5.65 | 42 | 17, 0 | 34 of 129 (66 of 182) | 14.03 | 37.89 |
+| 8x8, 4 KiB, flash | 35 | 21.75 | 2,161 | 17, 4 | 111 of 125 (151 of 178) | (98.76) | 112.79 |
+| 8x8, 32 KiB, flash | 35 | 8.92 | 2,094 | 17, 0 | 50 of 129 (83 of 182) | 30.99 | 50.75 |
+
+With the code in flash, a 64-byte refill takes 2,100 to 2,160 CPU cycles on the product's single-lane read (the model's 12.5 MHz serial clock), against 42 from block RAM.
+A 4 KiB cache does not hide that: the CPU runs at 34 cycles an instruction at 1x1 and 22 at 8x8, waiting on refills for most of them.
+71 of 78 paths miss T_svc at 1x1 and 111 of 125 at 8x8; no composed window releases its load, and three probes' bounded waits (four at 8x8) expire before their outputs.
+A 32 KiB cache, 13 tiles out of context, brings the CPU to 10 cycles an instruction at 1x1 and 9 at 8x8, near the cacheless block-RAM core's 9.5.
+It still leaves 19 of 81 and 50 of 129 paths missing T_svc, and composed maxima of 23.42 and 30.99 ms, longer than the cacheless core's 14.81 and 27.84 ms.
+Against the split's 4 KiB cache with its code in block RAM, it would save about 14 tiles at either point (13 tiles of cache against 6, and 20.5 or 21 tiles of `rom`), for two to three times the service times.
+So no path inside T_svc can execute from the flash behind the split's cache, or behind one eight times its size, as D3 rules.
+Moving the code out of block RAM would free 20.5 tiles at 1x1 with one interface (35.5 to 15.0, planned) and 21 at 8x8 with two (56.0 to 35.0); F1's flash driver, `.rodata` and the initial values of `.data` stay.
+
+A first run also put F1's flash driver in flash.
+The CPU then stalled in the driver's `ls_window` while the command master held the flash's chip select, and took an illegal-instruction trap (cause 2) in the three ACMP groups that read saved state.
+That is D3's rule that the driver stays in block RAM, and the arm now keeps it there.
+
+### Block RAM and logic
+
+| Instruction cache | Vivado LUT / FF | Vivado RAMB36 / RAMB18 (tiles) | Routed WNS / WHS at 20 / 10 ns, ns | Yosys LUT (with LUTRAM) / FF | Yosys RAMB36 / RAMB18 |
+|---|---:|---:|---:|---:|---:|
+| none (S2) | 2,525 / 3,021 | 2 / 5 (4.5) | +0.980 / +0.089 | 7,198 / 6,552 | 0 / 0 |
+| 2 KiB, 1 way | 2,537 / 3,192 | 2 / 7 (5.5) | +0.566 / +0.078 | 7,386 / 6,936 | 0 / 2 |
+| 4 KiB, 1 way (split) | 2,534 / 3,194 | 3 / 6 (6) | +0.931 / +0.075 | 7,194 / 6,938 | 2 / 0 |
+| 8 KiB, 1 way | 2,548 / 3,196 | 4 / 6 (7) | +0.821 / +0.081 | 7,328 / 6,940 | 4 / 0 |
+| 8 KiB, 2 ways | 2,587 / 3,242 | 4 / 7 (7.5) | +0.324 / +0.077 | 7,398 / 7,078 | 4 / 0 |
+| 16 KiB, 1 way | 2,549 / 3,198 | 6 / 6 (9) | +0.846 / +0.066 | 7,196 / 6,902 | 8 / 2 |
+| 16 KiB, 2 ways | 2,597 / 3,245 | 6 / 7 (9.5) | +0.537 / +0.094 | 7,584 / 7,080 | 8 / 0 |
+| 32 KiB, 1 way | 2,551 / 3,200 | 10 / 6 (13) | +0.708 / +0.084 | 7,190 / 6,906 | 16 / 2 |
+
+Each netlist is the harness's CPU, with the power-of-two region cover.
+Vivado runs out of context with `AreaOptimized_high` on `xc7a100t-fgg484-2`; the timing column places and routes the same synthesis at the shipping clocks, the CPU at 20 ns and its bus at 10 ns.
+Yosys maps with `synth_xilinx -family xc7 -flatten`, as `syn/yosys/ooc.sh` prices a top; it keeps the cacheless core's FIFOs in logic, where Vivado uses 4.5 tiles.
+The cache costs about 170 to 220 FF and under 75 LUTs at every size, and, in Vivado, one tile for each 2 KiB of data and half a tile of tags.
+The product split CPU's figures are in [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache).
+
+### The T_svc gap
+
+The cache alone does not close T_svc at either point.
+
+- **1x1, one interface.** The composed maximum is 8.60 ms, within T_svc, but 13 of 81 paths (34 of 141 instances) still miss.
+  The ACMP-ring, ADP-ring and owed rows take 34 to 94 ms; the bound-talker windows never release SRP's 32 records, after at least 574 ms.
+  The worst pass is 19.32 ms, so #397's one-hart rule, every pass well under T_svc, still fails.
+- **8x8, two interfaces.** The composed maximum is 14.03 ms, and 34 of 129 paths (66 of 182 instances) miss.
+  The event row is 14.45 ms, the ring and owed rows 46 to 122 ms, and the fan-out at registration capacity 10 to 13.6 ms; the worst pass is 37.89 ms.
+
+The residual is the data side's, and in order of size:
+
+- `memset` and `memcpy`, byte loops: 40 % of the composed maximum at 1x1 and 42 % at 8x8. Word-wide copies and zeroing only the bytes a response sends are S2b's first item.
+- AECP's change-notice retry every millisecond (`aecp.c`, `retry_at = now + 1`), which sets every worst pass in arm A. S2b's backoff answers it.
+- The mailbox driver, 12 to 21 %, and AECP, ACMP and lwSRP's `mrp_mad`, together 15 to 21 %. S2b's per-pass cap bounds them.
+- Software multiply, divide and shift, 7 % at both points. The M extension removes them; that is an owner decision.
+
+With the instruction cache in, the core's own lever left is its data side: loads and stores wait 39 to 40 % of the cycles.
+A data cache is the owner's option, with the coherent interconnect it needs (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache)); the clock stays the owner's too.
+
+### Controls with the cache
+
+The three controls run again on the cached CPU (`--fetch-l1 64x1`), and each is caught:
+
+- `slow-adp-rx`: the planted RCV_ADP_DISCOVER measures 16.556 ms against 0.513 ms unplanted. The planted loop now runs from the cache, so it is shorter than the cacheless 24.614 ms, and still over T_svc.
+- `slow-adp-shutdown`: SHUTDOWN measures 16.328 ms against 0.333 ms unplanted. The `shutdown-entry` arm's SHUTDOWN is 0.33 ms at 1x1 and 0.32 / 0.64 ms at 8x8.
+- `as-built`: handed the SoC's regions, the cached CPU takes the same instruction access fault, cause 1, at the same call (`0x6880`). The cache does not change #791's decode.
+
 ## Controls and self-test
 
 `run.py --self-test` regrades the committed trace [`fixture.log`](fixture.log), which the `fixture` group recorded at 1x1, against [`oracle.json`](oracle.json).
