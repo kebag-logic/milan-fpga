@@ -1,0 +1,15 @@
+# rv-mutants: python3 $REVIEWS/pp205-r717-1-packet/scripts/rv_mutants.py --tree $REVIEWS/pp205-r717-1-packet/scratch/rvmut --output $REVIEWS/pp205-r717-1-packet/receipts/rv-mutants --verilator $VALIDATION_TOOLS/pinned-verilator-5.050/verilator --jobs 5
+2026-10-27T08:21:34Z
+{"mutant": "golden-acmp_talker", "verdict": "PASS"}
+{"mutant": "rv_unknown_eid_zeroed@acmp_talker", "expectation": "KILL", "verdict": "KILLED", "missing": []}
+{"mutant": "rv_unknown_uid_zeroed@acmp_talker", "expectation": "KILL", "verdict": "KILLED", "missing": []}
+{"mutant": "rv_unknown_echoes_flags@acmp_talker", "expectation": "KILL", "verdict": "KILLED", "missing": []}
+{"mutant": "rv_fetch_inverted@acmp_talker", "expectation": "KILL", "verdict": "KILLED", "missing": []}
+{"mutant": "rv_unknown_eid_halves_swapped@acmp_talker", "expectation": "KILL", "verdict": "KILLED", "missing": []}
+{"mutant": "rv_success_explicit_zero_removed@acmp_talker", "expectation": "EQUIVALENT", "verdict": "SURVIVED", "missing": ["B2 listener_eid"]}
+{"mutant": "rv_disconnect_eid_zeroed@acmp_talker", "expectation": "KILL", "verdict": "KILLED", "missing": []}
+{"mutant": "rv_probe_unknown_zeroed@acmp_talker", "expectation": "KILL", "verdict": "KILLED", "missing": []}
+{"mutant": "rv_no_clear_on_dispatch@acmp_talker", "expectation": "INFO", "verdict": "SURVIVED", "missing": ["never-named"]}
+{"mutant": "rv_gtx_connection_eid_zeroed@acmp_talker", "expectation": "KILL", "verdict": "KILLED", "missing": []}
+RV summary: as expected
+2026-10-27T08:22:13Z

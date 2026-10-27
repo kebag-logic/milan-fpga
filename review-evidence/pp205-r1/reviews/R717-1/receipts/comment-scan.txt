@@ -1,0 +1,39 @@
+# added lines in 097a7987..7bad3943 matching lane/round/reviewer/comment-id patterns (all files)
+50:+| `no_get_tx_state_response` | killed, 144 failures | R16 conflict commands keep flowing (0) |
+# end
+# added comment lines in hdl/ and tb/*.cpp,*.py (for case-ID review)
++//                  - a successful GET_TX_STATE zeroes the listener fields
++//                    (Milan v1.2 Table 5.47) and reads REGISTERING_FAILED
++//                    LIVE (= 1 iff the registered Listener attribute is
++//                    ASKING_FAILED). For an unknown talker_unique_id it
++//                    echoes the command's listener fields under
++//                    TALKER_UNKNOWN_ID (Table 5.46, issue #205), as the
++//                    PROBE_TX and DISCONNECT_TX refusals do.
++  // flags: PROBE (incl. unknown-id echo), DISCONNECT, GET_TX_CONNECTION, and
++  // GET_TX_STATE for an unknown talker_unique_id, whose TALKER_UNKNOWN_ID
++  // response echoes the listener fields (Milan v1.2 Table 5.46, issue #205).
++  // A successful GET_TX_STATE zeroes them (Table 5.47) and fetches nothing.
++  // difference: PROBE echoes FC+SW and forces RF = 0; a successful
++  // GET_TX_STATE zeroes the listener fields (Milan v1.2 Table 5.47) and
++  // reads RF live from the srp face. Every TALKER_UNKNOWN_ID response
++  // echoes the command's listener fields (Tables 5.40, 5.44 and 5.46,
++  // issue #205).
++    // idle values only: every response below sets its listener fields
++            // Milan v1.2 Table 5.47: the listener fields are 0 on success
++            // Milan v1.2 5.5.4.3 step 1, Table 5.46: TALKER_UNKNOWN_ID
++            // echoes the command's listener fields (issue #205, REQ-ACMP-008)
++// pipewire reference inverted — while a successful GET_TX_STATE zeroes the
++// listener fields and reads REGISTERING_FAILED LIVE from the srp face, and
++// its TALKER_UNKNOWN_ID echoes them from the command, issue #205); the DA
++// a listener entity id with eight distinct bytes, for the echoes that must
++// carry each byte to its own place (issue #205)
++    // fields 0 whatever the command carries (C2 and H3 grade the echo)
++    // echoes the command's listener fields, here with every byte distinct;
++    // the flags and stream fields are undefined there and answered 0
++    // the command's listener fields (issue #205)
++# issue #205: GET_TX_STATE for an unknown talker_unique_id echoes the command's
++# listener fields under TALKER_UNKNOWN_ID (Milan v1.2 Table 5.46); a successful
++# one answers them 0 (Table 5.47)
++    # the defect as reported: the unknown-ID answer zeroes the listener fields
++    # the echo kept but the command's fields never fetched from the RX slot
++    # every GET_TX_STATE fetched and echoed, the success answer included

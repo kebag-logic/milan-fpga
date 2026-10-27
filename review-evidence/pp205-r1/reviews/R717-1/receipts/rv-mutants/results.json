@@ -1,0 +1,198 @@
+[
+ {
+  "mutant": "golden-acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "rv_unknown_eid_zeroed@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C2 unknown-id listener_eid",
+   "H3 disabled source GET_TX_STATE listener_eid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C2 unknown-id listener_eid got 0000000000000000",
+   "H3 disabled source GET_TX_STATE listener_eid got 0000000000000000"
+  ],
+  "verdict": "KILLED",
+  "expectation": "KILL"
+ },
+ {
+  "mutant": "rv_unknown_uid_zeroed@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C2 unknown-id listener_uid",
+   "H3 disabled source GET_TX_STATE listener_uid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C2 unknown-id listener_uid got 0",
+   "H3 disabled source GET_TX_STATE listener_uid got 0"
+  ],
+  "verdict": "KILLED",
+  "expectation": "KILL"
+ },
+ {
+  "mutant": "rv_unknown_echoes_flags@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C2 unknown-id flags",
+   "H3 disabled source GET_TX_STATE flags"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C2 unknown-id flags got ffff want 0000",
+   "H3 disabled source GET_TX_STATE flags got ffff want 0000"
+  ],
+  "verdict": "KILLED",
+  "expectation": "KILL"
+ },
+ {
+  "mutant": "rv_fetch_inverted@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C2 unknown-id listener_eid",
+   "H3 disabled source GET_TX_STATE listener_eid",
+   "C2 unknown-id listener_uid",
+   "H3 disabled source GET_TX_STATE listener_uid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C2 unknown-id listener_eid got 0000000000000000",
+   "C2 unknown-id listener_uid got 0",
+   "H3 disabled source GET_TX_STATE listener_eid got 0000000000000000",
+   "H3 disabled source GET_TX_STATE listener_uid got 0"
+  ],
+  "verdict": "KILLED",
+  "expectation": "KILL"
+ },
+ {
+  "mutant": "rv_unknown_eid_halves_swapped@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C2 unknown-id listener_eid",
+   "H3 disabled source GET_TX_STATE listener_eid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C2 unknown-id listener_eid got b5a69788f1e2d3c4",
+   "H3 disabled source GET_TX_STATE listener_eid got b5a69788f1e2d3c4"
+  ],
+  "verdict": "KILLED",
+  "expectation": "KILL"
+ },
+ {
+  "mutant": "rv_success_explicit_zero_removed@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "B2 listener_eid"
+  ],
+  "missing": [
+   "B2 listener_eid"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED",
+  "expectation": "EQUIVALENT"
+ },
+ {
+  "mutant": "rv_disconnect_eid_zeroed@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C4 disconnect no-op listener_eid",
+   "TD1"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C4 disconnect no-op listener_eid got 0000000000000000",
+   "TD1 invalid disconnect listener_eid got 0000000000000000",
+   "TD1 invalid disconnect listener_eid got 0000000000000000"
+  ],
+  "verdict": "KILLED",
+  "expectation": "KILL"
+ },
+ {
+  "mutant": "rv_probe_unknown_zeroed@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C1 unknown-id listener_eid",
+   "C1 unknown-id listener_uid",
+   "H2 disabled source listener_eid",
+   "H2 disabled source listener_uid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C1 unknown-id listener_eid got 0000000000000000",
+   "C1 unknown-id listener_uid got 0",
+   "H2 disabled source listener_eid got 0000000000000000",
+   "H2 disabled source listener_uid got 0",
+   "L1 the removed source answers at once listener_eid got 0000000000000000",
+   "L1 the removed source answers at once listener_uid got 0"
+  ],
+  "verdict": "KILLED",
+  "expectation": "KILL"
+ },
+ {
+  "mutant": "rv_no_clear_on_dispatch@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [
+   "never-named"
+  ],
+  "missing": [
+   "never-named"
+  ],
+  "failing_checks": [],
+  "verdict": "SURVIVED",
+  "expectation": "INFO"
+ },
+ {
+  "mutant": "rv_gtx_connection_eid_zeroed@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C5 get_tx_connection listener_eid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C5 get_tx_connection listener_eid got 0000000000000000"
+  ],
+  "verdict": "KILLED",
+  "expectation": "KILL"
+ }
+]

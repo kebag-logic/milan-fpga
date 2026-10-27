@@ -1,0 +1,10 @@
+# talker-lint-head: make -C $REVIEWS/pp205-r717-1-packet/scratch/head/tb/acmp_talker lint VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator
+2026-10-27T08:19:43Z
+make: Entering directory '$REVIEWS/pp205-r717-1-packet/scratch/head/tb/acmp_talker'
+$VALIDATION_TOOLS/pinned-verilator-5.050/verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+  -Wno-UNUSEDPARAM ../../hdl/common/pp_pkg.sv ../../hdl/srp/srp_pkg.sv ../../hdl/acmp/KL_acmp_talker.sv
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.166 MB sources in 4 modules, into 0.405 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.057 s (elab=0.007, cvt=0.034, bld=0.000); cpu 0.056 s on 1 threads; allocated 23.289 MB
+make: Leaving directory '$REVIEWS/pp205-r717-1-packet/scratch/head/tb/acmp_talker'
+2026-10-27T08:19:43Z
