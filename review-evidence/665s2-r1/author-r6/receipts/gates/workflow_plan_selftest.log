@@ -1,0 +1,25 @@
+$ (cd .) python3 scripts/ci_workflow_plan_selftest.py
+plan control: changed 'original values' changes the bound plan
+plan control: changed 'exit 0' changes the bound plan
+plan control: changed 'index: [0, 1, 2, 3]' changes the bound plan
+plan control: changed 'needs: workers' changes the bound plan
+plan control: changed 'always()' changes the bound plan
+plan control: duplicate key refused
+plan control: unhashable dependency refused
+plan control: missing dependency refused
+plan control: cycle refused
+plan control: dynamic matrix refused
+plan control: float coordinate refused
+plan control: duplicate coordinate refused
+plan control: empty coordinate refused
+plan control: name expression refused
+plan control: name collision refused
+plan control: missing body refused
+plan control: alias refused
+plan control: forged definitions refused against committed source
+plan control: forged plan refused against committed source
+plan control: forged tree refused against committed source
+plan control: dirty bytes and another head cannot redefine committed inputs
+workflow planner: all controls pass
+rc=0
+tree clean after the gate

@@ -1,0 +1,23 @@
+{
+  "head": "e0e1b4649ea3af908a8f32eccaad7903fa2cc134",
+  "base": "e76a755afc0536453161e3cd33f6f4d2dcd7641f",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<tools>/verilator-v5.050/bin:~/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<tools>/verilator-v5.050/share/verilator",
+        "TMPDIR=<scratch>/sweep-tmp",
+        "bash",
+        "scripts/run_all_suites.sh",
+        "<scratch>/sweep/shard-1/logs",
+        "--wait",
+        "--shard",
+        "1/4"
+      ],
+      "exit_code": 0,
+      "seconds": 3854.854,
+      "log": "<scratch>/sweep/shard-1/spec/01.log"
+    }
+  ]
+}
