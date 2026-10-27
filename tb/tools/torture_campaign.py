@@ -3802,7 +3802,8 @@ AUDIO_COUNTER_LIMITS = (
     "outside the scope, an excursion whose mask clears its channel number splits at each word it "
     "makes zero, a block start whose code bit is 0, which reads as one sample of silence",
     "a constant-mask corruption that a slip interrupts, or whose words one offset explains up to "
-    "a slip at its return, reads as the slips its words show",
+    "a slip at its return, reads as the slips its words show; an interrupted one is listed from its "
+    "first word, its words before the slip one bit-flip up to it where they are held as one mask",
     "a slip pair whose total is whole blocks and whose displaced words share one XOR mask reads "
     "as that bit-flip and a slip of whole blocks beside it, the corruption judged against "
     "whichever track gives its mask fewer bits set",
@@ -4845,7 +4846,12 @@ class _CounterScan:
         return None
 
     def _close(self, channel: int, found: tuple | None, reason: str | None) -> None:
-        """Grade the open window, then follow the track its clean samples fix."""
+        """Grade the open window, then follow the track its clean samples fix.
+
+        A returned excursion's bit-flip lies before the window's words, the
+        only ones a hold reads again, so it is recorded ahead of what the hold
+        records: an excursion a slip interrupts is listed from its first word.
+        """
         slot = self.slots[channel]
         window, slot.window = slot.window, None
         acquiring = slot.position is None
@@ -4861,7 +4867,7 @@ class _CounterScan:
         body = window.tokens[:-AUDIO_CONFIRM_FRAMES] if found else window.tokens
         events, offset = self._read(track, window.tokens, final)
         truth = None if acquiring else final if found is not None else offset
-        image, tokens = slot.image, window.tokens
+        image, tokens, returned = slot.image, window.tokens, []
         if image is not None:
             back = (None if found is None or found[1] != image.tag
                     else _audio_signed(found[2] - (image.base + found[0] - image.start)))
@@ -4871,10 +4877,11 @@ class _CounterScan:
             elif back is not None and abs(back) <= abs(final):
                 slot.image = None
                 track, events, tokens, final = self._returned(image, window, body, track, back)
+                returned, events = events[:1], events[1:]
             else:
                 self._release(channel, "the capture ended inside a constant-mask excursion"
                               if reason == AUDIO_END_REASON else None)
-        events = self._hold(slot, track, events, tokens, None if acquiring else final)
+        events = returned + self._hold(slot, track, events, tokens, None if acquiring else final)
         if truth is not None:
             slot.shift += truth
             held = 0 if slot.image is None else _audio_net(slot.image.events)
@@ -9517,6 +9524,30 @@ class _ReleaseGateChecks:
                                 for e in detail["events"] if e["attribution"] == "dut"),
                          [(0, 4080, "bit-flip", 15, "0x00100000"), (0, 4095, "silence", 1, ""),
                           (0, 4096, "bit-flip", 49, "0x00100000")])
+
+    def test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word(self) -> None:
+        """L3 #396 REQ-VER-06: outside the exactness scope, a constant-mask excursion that a DUT slip
+        interrupts, away from every planted arm, fails and is listed from its first word.
+
+        0x80100 over channel 0's words 4424 to 6149 alone is one bit-flip of 1726 words. With a DUT
+        repeat of 3 at 6097 on every channel, its words before the slip are one bit-flip up to it, and
+        the words from the slip on read as the slips and corruptions they show, none later than 63
+        samples after the excursion's last word."""
+        frames, start, length, slip = 16384, 4424, 1726, 6097
+        run = [{"kind": "flip", "index": start + k, "channel": 0, "mask": 0x80100} for k in range(length)]
+
+        def dut(extra: list) -> list:
+            """(channel, sample, class, n, mask) of each DUT event, the run failing with every arm found."""
+            verdict, detail, _ = self._sweep_grade(frames, run + extra)
+            self.assertEqual((verdict, detail["planted_missed"]), ("FAIL", []), detail["why"])
+            return sorted((e["channel"], e["capture_index"], e["class"], e["n"], e.get("mask", ""))
+                          for e in detail["events"] if e["attribution"] == "dut")
+
+        self.assertEqual(dut([]), [(0, start, "bit-flip", length, "0x00080100")])
+        events = dut([{"kind": "repeat", "index": slip, "n": 3}])
+        self.assertEqual(events[0], (0, start, "bit-flip", slip - start, "0x00080100"), events)
+        self.assertEqual([e for e in events if e[0]], [(c, slip, "repeated", 3, "") for c in range(1, 4)])
+        self.assertTrue(all(slip <= e[1] <= start + length - 1 + AUDIO_GUARD_FRAMES for e in events[1:]), events)
 
     def test_audio_anchor_gaps_are_reported(self) -> None:
         """L3 #396: stretches the capture tool left unanchored are named; the verdict stands."""

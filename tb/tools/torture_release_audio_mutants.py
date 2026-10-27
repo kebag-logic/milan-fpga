@@ -24,6 +24,7 @@ _TOLERANCE = "test_audio_arm_interplay_at_the_release_tolerance"
 _PROPERTY = "test_audio_compositions_never_pass_and_list_every_event"
 _OVER_ARM = "test_audio_excursion_over_a_slip_arm_may_void"
 _ZERO = "test_audio_excursion_clearing_its_channel_number_is_split"
+_INTERRUPTED = "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word"
 AUDIO_GRADER_MUTANTS = (
     ("qualified interval runs to the capture's end", "        return start, max(start, frames - AUDIO_GUARD_FRAMES)",
      "        return start, frames", _BOUNDARY),
@@ -219,4 +220,6 @@ AUDIO_GRADER_MUTANTS = (
      '        """Record one word; zero runs are counted, not stored."""\n        if word == 0:\n',
      '        """Record one word; zero runs are counted, not stored."""\n'
      '        if word == 0 and not (self.tokens and self.tokens[-1][0] == "W"):\n', _ZERO),
+    ("a returned excursion's bit-flip left for the hold to read again",
+     "                returned, events = events[:1], events[1:]\n", "                returned = []\n", _INTERRUPTED),
 )

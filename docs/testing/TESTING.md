@@ -1454,6 +1454,8 @@ These limits are stated, and a self-test arm pins each one:
   Within the tolerance the arm is found, and `located_within` bounds the slip of that reading.
 - A constant-mask corruption that a slip interrupts reads as the slips its words show.
   So does one whose words a single offset explains up to a slip at its return.
+  An interrupted one is listed from its first word.
+  Where its words before the slip are held as one mask, they read as one `bit-flip` up to the slip.
 - At either end of a capture, fewer than 64 clean samples lie beyond a word whose code bit differs.
   So a slip of whole blocks and a code-bit corruption read the same there, and the stretch is one `unresolved` event.
   At the capture's end it runs from the first such word to the end.
@@ -1509,13 +1511,17 @@ Exact classification, as the rules and limits above state, is claimed only for t
   The excursion's mask makes no channel number zero or another channel's.
 
 Any other composition grades `FAIL` or void, and may read in other classes.
-Two such shapes are pinned, so a change to their reading is seen:
+Three such shapes are pinned, so a change to their reading is seen:
 
 - A constant-mask excursion over a planted slip arm's sample may void the run, although a reading of the bytes finds the arm.
   `test_audio_excursion_over_a_slip_arm_may_void` pins one: `0x100` over five words from the repeat arm's sample.
 - An excursion whose mask clears its channel number splits at each word it makes zero.
   That word is a block start whose code bit is 0, and it reads as one sample of `silence` between two `bit-flip` events.
   `test_audio_excursion_clearing_its_channel_number_is_split` pins one: 65 words under `0x100000` on channel 0.
+- A constant-mask excursion that a DUT slip interrupts, away from the arms, is listed from its first word.
+  `test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word` pins one.
+  It is `0x80100` over channel 0's words 4424 to 6149, with a DUT repeat of 3 at 6097 on every channel.
+  Its words before the slip read as one `bit-flip` up to it.
 
 The planted flip arm's mask `0x00000100` flips the code bit alone.
 The word keeps its position bits, so it never equals a neighbour.
