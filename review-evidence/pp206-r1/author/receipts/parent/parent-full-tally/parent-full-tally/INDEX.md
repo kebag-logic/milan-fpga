@@ -1,0 +1,7 @@
+# Index of parent-full-tally/ (generated from the files present)
+
+| File | Bytes | sha256 |
+|---|---:|---|
+| HEAD.txt | 41 | 5d255e35ba56bb6af2bcbfbbb6908a6a092e42c25be8d0af5da0537a65c30044 |
+| suite_tally.rc | 2 | 9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa |
+| suite_tally.txt | 4400 | e11c1d1b8e5b84021447986922afa34cf43d8c549941815d7af40ca9ee0b3472 |
