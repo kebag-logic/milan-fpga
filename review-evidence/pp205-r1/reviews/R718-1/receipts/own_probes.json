@@ -1,0 +1,111 @@
+[
+ {
+  "probe": "control_unmodified",
+  "verdict": "SURVIVED",
+  "rc": 0,
+  "tally": "1561 checks: 1561 PASS, 0 FAIL",
+  "fails": [],
+  "n_fails": 0
+ },
+ {
+  "probe": "unknown_uid_zero",
+  "verdict": "KILLED",
+  "rc": 2,
+  "tally": "1561 checks: 1559 PASS, 2 FAIL",
+  "fails": [
+   "FAIL: C2 unknown-id listener_uid got 0",
+   "FAIL: H3 disabled source GET_TX_STATE listener_uid got 0"
+  ],
+  "n_fails": 2
+ },
+ {
+  "probe": "unknown_eid_zero",
+  "verdict": "KILLED",
+  "rc": 2,
+  "tally": "1561 checks: 1559 PASS, 2 FAIL",
+  "fails": [
+   "FAIL: C2 unknown-id listener_eid got 0000000000000000",
+   "FAIL: H3 disabled source GET_TX_STATE listener_eid got 0000000000000000"
+  ],
+  "n_fails": 2
+ },
+ {
+  "probe": "unknown_echoes_flags",
+  "verdict": "KILLED",
+  "rc": 2,
+  "tally": "1561 checks: 1559 PASS, 2 FAIL",
+  "fails": [
+   "FAIL: C2 unknown-id flags got 000a want 0000",
+   "FAIL: H3 disabled source GET_TX_STATE flags got 000a want 0000"
+  ],
+  "n_fails": 2
+ },
+ {
+  "probe": "unknown_reports_stream",
+  "verdict": "KILLED",
+  "rc": 2,
+  "tally": "1561 checks: 1559 PASS, 2 FAIL",
+  "fails": [
+   "FAIL: C2 unknown-id stream_id got ab00000000000007",
+   "FAIL: H3 disabled source GET_TX_STATE stream_id got ab00000000000006"
+  ],
+  "n_fails": 2
+ },
+ {
+  "probe": "fetch_only_out_of_range",
+  "verdict": "KILLED",
+  "rc": 2,
+  "tally": "1561 checks: 1559 PASS, 2 FAIL",
+  "fails": [
+   "FAIL: H3 disabled source GET_TX_STATE listener_eid got 0000000000000000",
+   "FAIL: H3 disabled source GET_TX_STATE listener_uid got 0"
+  ],
+  "n_fails": 2
+ },
+ {
+  "probe": "eid_byte_swap",
+  "verdict": "KILLED",
+  "rc": 2,
+  "tally": "1561 checks: 1559 PASS, 2 FAIL",
+  "fails": [
+   "FAIL: C2 unknown-id listener_eid got 88f1e2d3c4b5a697",
+   "FAIL: H3 disabled source GET_TX_STATE listener_eid got 88f1e2d3c4b5a697"
+  ],
+  "n_fails": 2
+ },
+ {
+  "probe": "uid_byte_swap",
+  "verdict": "KILLED",
+  "rc": 2,
+  "tally": "1561 checks: 1559 PASS, 2 FAIL",
+  "fails": [
+   "FAIL: C2 unknown-id listener_uid got 6028",
+   "FAIL: H3 disabled source GET_TX_STATE listener_uid got 6028"
+  ],
+  "n_fails": 2
+ },
+ {
+  "probe": "success_zero_lines_removed",
+  "verdict": "SURVIVED",
+  "rc": 0,
+  "tally": "1561 checks: 1561 PASS, 0 FAIL",
+  "fails": [],
+  "n_fails": 0
+ },
+ {
+  "probe": "success_echo_unfetched",
+  "verdict": "SURVIVED",
+  "rc": 0,
+  "tally": "1561 checks: 1561 PASS, 0 FAIL",
+  "fails": [],
+  "n_fails": 0
+ },
+ {
+  "probe": "pdu_not_cleared_at_dispatch",
+  "verdict": "SURVIVED",
+  "rc": 0,
+  "tally": "1561 checks: 1561 PASS, 0 FAIL",
+  "fails": [],
+  "n_fails": 0
+ }
+]
