@@ -2643,21 +2643,32 @@ def _torture_maap_steps(dut):
         "torture.maap.conflict", "torture", "maap_conflict",
         {"claim_same_dmac_as": dut.name, "seconds": 20},
         asserts=(AssertSpec("maap.withdraws-and-reallocates",
-                            "Milan v1.2 5.3.7.5 Table 5.3: 'While a Stream "
-                            "Output is declaring a Talker attribute, if MAAP "
-                            "reports a conflict, the PAAD withdraws the Talker "
-                            "attribute, waits for 2 LeaveAll periods and "
-                            "allocates a new Destination MAC Address, then "
-                            "declares a new Talker attribute with the new "
-                            "Destination MAC Address'"),
+                            "Milan v1.2 5.3.7.5 Table 5.3 (informative): on a "
+                            "MAAP conflict the PAAD withdraws the Talker "
+                            "attribute and allocates a new Destination MAC "
+                            "Address, and 'may decide to use the same Stream "
+                            "ID as before, or another Stream ID'. This device "
+                            "moves the source to another Stream ID and declares "
+                            "it at once (processor #202, #799): IEEE 802.1Q-2018 "
+                            "35.2.2.8 asks for 2 LeaveAllTime periods only "
+                            "before the SAME StreamID is declared with another "
+                            "FirstValue"),
                  A_ADP_ALIVE,
                  AssertSpec("stream.dmac-follows-the-new-claim",
                             "Milan v1.2 5.3.7.4: the Stream Destination MAC "
                             "Address is an SRP parameter, so the wire DMAC and "
-                            "the declaration move together")),
-        clause="Milan v1.2 5.3.7.5 Table 5.3 + IEEE 1722-2016 Annex B",
-        note="the 2 LeaveAll wait is part of the requirement: an immediate "
-             "re-claim is a different behaviour"))
+                            "the declaration move together"),
+                 AssertSpec("stream.id-follows-the-move",
+                            "IEEE 1722-2016 4.4.4.8 and IEEE 1722.1-2021 "
+                            "7.4.16.2: the AVTP stream_id on the wire, the "
+                            "PROBE_TX answer and GET_STREAM_INFO name the "
+                            "source's current Stream ID, the new one after "
+                            "the move")),
+        clause="Milan v1.2 5.3.7.5 Table 5.3 + IEEE 802.1Q-2018 35.2.2.8 + "
+               "IEEE 1722-2016 Annex B",
+        note="the withdrawn Stream ID is never declared again with another "
+             "destination MAC inside 2 LeaveAll periods (802.1Q 35.2.2.8); "
+             "another Stream ID needs no wait"))
     return S
 
 

@@ -238,13 +238,16 @@ Feature: The torture campaign's own coverage is auditable at a desk
     And the malformed matrix includes an AAF stream_data_length that overstates the payload
 
   @class:torture @clause:Milan-5.3.7.5
-  Scenario: the MAAP conflict entry asserts the withdraw-wait-reallocate sequence
-    # Milan v1.2 Table 5.3 spells out the sequence, and the 2 LeaveAll wait is
-    # part of it: an immediate re-claim is a different behaviour, not a faster
-    # version of the same one.
+  Scenario: the MAAP conflict entry asserts the withdraw, the reallocation and the Stream ID move
+    # Milan v1.2 Table 5.3 lets the PAAD use another Stream ID after a
+    # conflict, and IEEE 802.1Q-2018 35.2.2.8 asks for the 2 LeaveAll wait
+    # only before the SAME StreamID returns with another FirstValue. Since
+    # processor #202 the device moves the source to a new Stream ID and
+    # declares it at once (#799), so the entry grades the move, not a wait.
     When the torture area is planned
     Then the MAAP conflict step asserts a withdraw and reallocate
-    And the MAAP conflict clause mentions the LeaveAll wait
+    And the MAAP conflict step asserts the new Stream ID on the wire and in the answers
+    And the MAAP conflict clause limits the LeaveAll wait to the same Stream ID
 
   @class:torture @clause:8021Q-9.6
   Scenario: VLAN misconfiguration covers the wrong SR VID and VID zero separately
