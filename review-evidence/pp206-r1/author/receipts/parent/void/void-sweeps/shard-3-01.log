@@ -1,0 +1,11 @@
+shard: 3/4   selected suites: 16
+PASS     aaf_audio_loop
+PASS     aaf_latency_tap_bank
+PASS     cdc
+PASS     crf_rx
+PASS     crf_tx
+PASS     csr
+Terminated                 timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+CANCELLED: TERM; no completed sweep result
+partial logs: <work>/parent-sweep-shards/shard-3/logs
+CANCELLED: signal 15; no completed sweep result

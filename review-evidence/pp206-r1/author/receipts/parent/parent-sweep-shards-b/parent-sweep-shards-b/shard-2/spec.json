@@ -1,0 +1,19 @@
+{
+ "cwd": "<data>/lanes/pp206-a691-parentb-shard2",
+ "head": "764d125329bce2b860b142cd4c49a63421b8be23",
+ "base": "c31398954e84e332d95d12a8aae9e358170ebeb7",
+ "commands": [
+  [
+   "env",
+   "PATH=<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "TMPDIR=<work>/tmp",
+   "VERILATOR_JOBS=4",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<work>/parent-sweep-shards-b/shard-2/logs",
+   "--wait",
+   "--shard",
+   "2/4"
+  ]
+ ]
+}
