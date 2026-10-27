@@ -104,6 +104,18 @@ Generated from the 224 KiB regions, its region check excludes every `rom` addres
 The two netlists differ only in address-decode lines, so the cover changes no timing.
 `--cpu-regions as-built` builds the regions unchanged and reproduces the fault.
 
+The TSN stack boundary gate finds six of this harness's files by text, because they name the firmware's tree.
+Each is listed in [`ctrl_configs.py`](../../../sw/firmware/ctrl/test/ctrl_configs.py) with its reason.
+None is one of the gate's known builders.
+No hosted job can run the harness's build, which needs picolibc's and compiler-rt's packages, the patched LiteX tree and Verilator together.
+
+- `build.py`, `runtime_ssp.py`, `scenario.py`, `selftest.py` and `split_soc.py` are in `OUTSIDE`.
+  `build.py` hands its image to `ctrl_srp_image.py`, run unchanged at the shapes, interface counts and AECP composition the gate runs it at.
+  Its own compiles build the Verilator model.
+- `fixture_variant.py` is in `SUITES`: it compiles only in the labelled variant arms, from an edited copy of the size fixture.
+
+A new file here that names the firmware's tree must be listed there too, or the gate refuses it by name.
+
 ## Markers and grading
 
 [`scenario.py`](scenario.py) writes each group's script.
