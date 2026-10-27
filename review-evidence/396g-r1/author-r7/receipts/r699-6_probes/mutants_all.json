@@ -1,0 +1,3156 @@
+[
+ {
+  "name": "restore eligibility check removed",
+  "test": "test_release_eligibility_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_eligibility_boundaries"
+  ],
+  "seconds": 30.9
+ },
+ {
+  "name": "restore ceiling relaxed",
+  "test": "test_release_eligibility_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_defaults_and_assertions",
+   "test_release_eligibility_boundaries"
+  ],
+  "seconds": 42.3
+ },
+ {
+  "name": "power-off hold hardcoded",
+  "test": "test_release_timing_and_snapshot_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_cli_parameters",
+   "test_release_timing_and_snapshot_contract"
+  ],
+  "seconds": 41.8
+ },
+ {
+  "name": "power-off CLI value discarded",
+  "test": "test_release_cli_parameters",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_cli_parameters"
+  ],
+  "seconds": 31.9
+ },
+ {
+  "name": "ADP window charged for pre-cut time",
+  "test": "test_release_timing_and_snapshot_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_timing_and_snapshot_contract"
+  ],
+  "seconds": 31.0
+ },
+ {
+  "name": "missing ADP evidence skipped",
+  "test": "test_release_timing_and_snapshot_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_timing_and_snapshot_contract"
+  ],
+  "seconds": 31.0
+ },
+ {
+  "name": "tu bound uses media-clock holdover",
+  "test": "test_release_tu_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_contract"
+  ],
+  "seconds": 31.2
+ },
+ {
+  "name": "uncorrelated tu ignored",
+  "test": "test_release_tu_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_contract"
+  ],
+  "seconds": 31.2
+ },
+ {
+  "name": "boot evidence ends before the next cycle",
+  "test": "test_release_boot_negative_control",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_boot_negative_control",
+   "test_release_timing_and_snapshot_contract"
+  ],
+  "seconds": 31.7
+ },
+ {
+  "name": "tu anchor uses the first discontinuity",
+  "test": "test_release_tu_chained_discontinuities",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_gm_minimum"
+  ],
+  "seconds": 33.1
+ },
+ {
+  "name": "tu clearing deadline ignores observation resolution",
+  "test": "test_release_tu_chained_discontinuities",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 35.6
+ },
+ {
+  "name": "tu oracle accepts an uncorrelated interval",
+  "test": "test_release_tu_chained_discontinuities",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_start_resolution"
+  ],
+  "seconds": 55.4
+ },
+ {
+  "name": "tu plan uses the first discontinuity",
+  "test": "test_release_tu_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_contract"
+  ],
+  "seconds": 35.5
+ },
+ {
+  "name": "tu plan drops capture resolution",
+  "test": "test_release_tu_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_contract"
+  ],
+  "seconds": 35.9
+ },
+ {
+  "name": "tu assertion allows five seconds",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 36.1
+ },
+ {
+  "name": "tu assertion drops uncorrelated failure",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 36.2
+ },
+ {
+  "name": "ADP assertion uses the pre-cut anchor",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 43.3
+ },
+ {
+  "name": "ADP assertion charges the off time",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 49.7
+ },
+ {
+  "name": "CLI power hold default changes",
+  "test": "test_release_cli_power_hold_default",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_cli_power_hold_default"
+  ],
+  "seconds": 49.6
+ },
+ {
+  "name": "tu containment drops the start allowance",
+  "test": "test_release_tu_start_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_history_boundaries",
+   "test_release_tu_start_resolution"
+  ],
+  "seconds": 35.2
+ },
+ {
+  "name": "tu containment doubles the start allowance",
+  "test": "test_release_tu_start_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_start_resolution"
+  ],
+  "seconds": 39.4
+ },
+ {
+  "name": "tu containment excludes its inclusive start",
+  "test": "test_release_tu_start_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_gm_minimum",
+   "test_release_tu_start_resolution",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 36.3
+ },
+ {
+  "name": "tu containment includes the clear instant",
+  "test": "test_release_tu_start_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_start_resolution"
+  ],
+  "seconds": 49.5
+ },
+ {
+  "name": "tu assertion drops the event window",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 34.7
+ },
+ {
+  "name": "tu plan drops the start allowance",
+  "test": "test_release_tu_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_contract"
+  ],
+  "seconds": 35.7
+ },
+ {
+  "name": "mr clock-source cause removed",
+  "test": "test_release_mr_allowed_causes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution",
+   "test_release_media_reset_decrease",
+   "test_release_media_reset_intervals",
+   "test_release_media_reset_window_edges",
+   "test_release_mr_allowed_causes",
+   "test_release_mr_eight_pdus",
+   "test_release_mr_record_boundaries",
+   "test_release_mr_resolution"
+  ],
+  "seconds": 34.7
+ },
+ {
+  "name": "mr CRF disruption cause removed",
+  "test": "test_release_mr_allowed_causes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_media_reset_intervals",
+   "test_release_media_reset_window_edges",
+   "test_release_mr_allowed_causes",
+   "test_release_mr_capture_span",
+   "test_release_mr_distinct_causes",
+   "test_release_mr_resolution"
+  ],
+  "seconds": 52.7
+ },
+ {
+  "name": "mr received CRF toggle cause removed",
+  "test": "test_release_mr_allowed_causes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_allowed_causes",
+   "test_release_mr_eight_pdus"
+  ],
+  "seconds": 52.5
+ },
+ {
+  "name": "mr uncorrelated toggle accepted",
+  "test": "test_release_mr_no_cause",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_distinct_causes",
+   "test_release_mr_gm_only",
+   "test_release_mr_no_cause",
+   "test_release_mr_resolution",
+   "test_release_mr_stream_scope"
+  ],
+  "seconds": 38.8
+ },
+ {
+  "name": "mr GM-only toggle accepted",
+  "test": "test_release_mr_gm_only",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_gm_only"
+  ],
+  "seconds": 41.3
+ },
+ {
+  "name": "mr cause time window removed",
+  "test": "test_release_mr_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_resolution"
+  ],
+  "seconds": 37.1
+ },
+ {
+  "name": "mr foreign-stream cause accepted",
+  "test": "test_release_mr_stream_scope",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_stream_scope"
+  ],
+  "seconds": 36.7
+ },
+ {
+  "name": "mr eight-PDU minimum removed",
+  "test": "test_release_mr_eight_pdus",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_eight_pdus",
+   "test_release_mr_stream_scope"
+  ],
+  "seconds": 55.2
+ },
+ {
+  "name": "mr terminal hold evidence ignored",
+  "test": "test_release_mr_eight_pdus",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_eight_pdus"
+  ],
+  "seconds": 47.0
+ },
+ {
+  "name": "MEDIA_RESET cause check removed",
+  "test": "test_release_media_reset_no_cause",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_media_reset_intervals",
+   "test_release_media_reset_no_cause",
+   "test_release_media_reset_window_edges"
+  ],
+  "seconds": 43.7
+ },
+ {
+  "name": "MEDIA_RESET reuses a toggle for two increments",
+  "test": "test_release_media_reset_intervals",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_media_reset_intervals"
+  ],
+  "seconds": 42.4
+ },
+ {
+  "name": "MEDIA_RESET interval update allowance removed",
+  "test": "test_release_media_reset_intervals",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_media_reset_intervals",
+   "test_release_media_reset_window_edges"
+  ],
+  "seconds": 34.5
+ },
+ {
+  "name": "tu GM minimum removed",
+  "test": "test_release_tu_gm_minimum",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_gm_minimum",
+   "test_release_tu_history",
+   "test_release_tu_history_boundaries",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 42.1
+ },
+ {
+  "name": "tu GM minimum anchored at the first GM change",
+  "test": "test_release_tu_gm_minimum",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_gm_minimum",
+   "test_release_tu_history"
+  ],
+  "seconds": 31.4
+ },
+ {
+  "name": "tu GM minimum drops recorded resolution",
+  "test": "test_release_tu_gm_minimum",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_gm_minimum",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 50.8
+ },
+ {
+  "name": "tu missing GM history accepted",
+  "test": "test_release_tu_missing_gm_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence",
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_missing_gm_history"
+  ],
+  "seconds": 33.0
+ },
+ {
+  "name": "mr missing evidence accepted",
+  "test": "test_release_mr_missing_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_capture_span",
+   "test_release_mr_missing_evidence",
+   "test_release_resolution_evidence"
+  ],
+  "seconds": 54.5
+ },
+ {
+  "name": "mr plan hold weakened",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 33.2
+ },
+ {
+  "name": "tu plan GM minimum removed",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 54.2
+ },
+ {
+  "name": "tu rise correlation removed",
+  "test": "test_release_tu_before_first_discontinuity",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_before_first_discontinuity",
+   "test_release_tu_rise_boundary"
+  ],
+  "seconds": 31.2
+ },
+ {
+  "name": "tu rise correlation made exclusive",
+  "test": "test_release_tu_rise_boundary",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_gm_minimum",
+   "test_release_tu_rise_boundary",
+   "test_release_tu_start_resolution",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 35.2
+ },
+ {
+  "name": "tu resolution ceiling removed",
+  "test": "test_release_deciding_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution",
+   "test_release_resolution_evidence",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 32.3
+ },
+ {
+  "name": "mr resolution ceiling removed",
+  "test": "test_release_deciding_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution"
+  ],
+  "seconds": 50.3
+ },
+ {
+  "name": "GM history coverage removed",
+  "test": "test_release_tu_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_history"
+  ],
+  "seconds": 46.6
+ },
+ {
+  "name": "GM history check skips interval verdict",
+  "test": "test_release_tu_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_history",
+   "test_release_tu_history_boundaries",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 31.3
+ },
+ {
+  "name": "history coarse resolution accepted",
+  "test": "test_release_tu_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence",
+   "test_release_tu_history",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 34.9
+ },
+ {
+  "name": "history interval order ignored",
+  "test": "test_release_tu_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_history",
+   "test_release_tu_history_boundaries"
+  ],
+  "seconds": 41.4
+ },
+ {
+  "name": "single interval drops future GM changes",
+  "test": "test_release_tu_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_history"
+  ],
+  "seconds": 32.3
+ },
+ {
+  "name": "mr reuses one cause",
+  "test": "test_release_mr_distinct_causes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_distinct_causes"
+  ],
+  "seconds": 30.8
+ },
+ {
+  "name": "mr cause order ignored",
+  "test": "test_release_mr_distinct_causes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_distinct_causes"
+  ],
+  "seconds": 40.7
+ },
+ {
+  "name": "mr cause window doubled",
+  "test": "test_release_mr_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_resolution"
+  ],
+  "seconds": 30.9
+ },
+ {
+  "name": "mr cause window strict",
+  "test": "test_release_mr_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_resolution"
+  ],
+  "seconds": 30.8
+ },
+ {
+  "name": "mr cause first toggle skipped",
+  "test": "test_release_mr_no_cause",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_distinct_causes",
+   "test_release_mr_gm_only",
+   "test_release_mr_no_cause",
+   "test_release_mr_resolution",
+   "test_release_mr_stream_scope"
+  ],
+  "seconds": 47.2
+ },
+ {
+  "name": "mr cause last toggle skipped",
+  "test": "test_release_mr_no_cause",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_distinct_causes",
+   "test_release_mr_gm_only",
+   "test_release_mr_no_cause",
+   "test_release_mr_resolution",
+   "test_release_mr_stream_scope"
+  ],
+  "seconds": 32.1
+ },
+ {
+  "name": "mr PDU time order ignored",
+  "test": "test_release_mr_record_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_record_boundaries"
+  ],
+  "seconds": 31.3
+ },
+ {
+  "name": "counter stream filter removed",
+  "test": "test_release_mr_record_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_record_boundaries"
+  ],
+  "seconds": 31.2
+ },
+ {
+  "name": "counter endpoint optional",
+  "test": "test_release_mr_record_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_record_boundaries"
+  ],
+  "seconds": 31.2
+ },
+ {
+  "name": "counter read order ignored",
+  "test": "test_release_mr_record_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_record_boundaries"
+  ],
+  "seconds": 54.4
+ },
+ {
+  "name": "counter reset ignored",
+  "test": "test_release_media_reset_decrease",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_media_reset_decrease",
+   "test_release_media_reset_intervals"
+  ],
+  "seconds": 32.1
+ },
+ {
+  "name": "counter upper window drops resolution",
+  "test": "test_release_media_reset_window_edges",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_media_reset_window_edges"
+  ],
+  "seconds": 54.0
+ },
+ {
+  "name": "counter upper window widened",
+  "test": "test_release_media_reset_window_edges",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_media_reset_window_edges"
+  ],
+  "seconds": 54.8
+ },
+ {
+  "name": "counter consumes latest toggle",
+  "test": "test_release_media_reset_window_edges",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_media_reset_window_edges"
+  ],
+  "seconds": 31.3
+ },
+ {
+  "name": "counter range ignored",
+  "test": "test_release_mr_record_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_record_boundaries"
+  ],
+  "seconds": 31.4
+ },
+ {
+  "name": "cause kind type ignored",
+  "test": "test_release_mr_record_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_record_boundaries"
+  ],
+  "seconds": 32.8
+ },
+ {
+  "name": "tu bound guard removed",
+  "test": "test_release_deciding_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution",
+   "test_release_resolution_evidence"
+  ],
+  "seconds": 53.9
+ },
+ {
+  "name": "tu zero interval accepted",
+  "test": "test_release_deciding_resolution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution",
+   "test_release_resolution_evidence"
+  ],
+  "seconds": 31.5
+ },
+ {
+  "name": "capture start check removed",
+  "test": "test_release_mr_capture_span",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_capture_span"
+  ],
+  "seconds": 32.4
+ },
+ {
+  "name": "capture endpoint check removed",
+  "test": "test_release_mr_capture_span",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_capture_span"
+  ],
+  "seconds": 54.1
+ },
+ {
+  "name": "capture guard removed",
+  "test": "test_release_mr_capture_span",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_capture_span"
+  ],
+  "seconds": 54.0
+ },
+ {
+  "name": "tu minimum sentence",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 32.1
+ },
+ {
+  "name": "tu minimum and missing history",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 31.5
+ },
+ {
+  "name": "mr cause kinds",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 31.2
+ },
+ {
+  "name": "mr toggle and counter scope",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 31.9
+ },
+ {
+  "name": "mr counter intervals",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 54.0
+ },
+ {
+  "name": "missing evidence verdict",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 31.4
+ },
+ {
+  "name": "mr distinct causes",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 53.2
+ },
+ {
+  "name": "mr deciding resolution",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 53.1
+ },
+ {
+  "name": "mr capture span",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 31.2
+ },
+ {
+  "name": "mr reset classification",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 32.1
+ },
+ {
+  "name": "tu rise text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 36.7
+ },
+ {
+  "name": "tu history text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 30.9
+ },
+ {
+  "name": "tu uncovered GM text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 37.3
+ },
+ {
+  "name": "tu deciding resolution text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 45.1
+ },
+ {
+  "name": "tu coarse resolution text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 51.4
+ },
+ {
+  "name": "plan mr_distinct_causes weakened",
+  "test": "test_release_round2_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_round2_plan_contract"
+  ],
+  "seconds": 51.0
+ },
+ {
+  "name": "plan tu_oracle weakened",
+  "test": "test_release_round2_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_round2_plan_contract"
+  ],
+  "seconds": 32.2
+ },
+ {
+  "name": "plan tu_resolution_limit_s weakened",
+  "test": "test_release_round2_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_round2_plan_contract"
+  ],
+  "seconds": 31.6
+ },
+ {
+  "name": "plan mr_resolution_limit_s weakened",
+  "test": "test_release_round2_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_round2_plan_contract"
+  ],
+  "seconds": 31.3
+ },
+ {
+  "name": "plan mr_capture_window weakened",
+  "test": "test_release_round2_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_round2_plan_contract"
+  ],
+  "seconds": 54.3
+ },
+ {
+  "name": "plan tu_rise_check weakened",
+  "test": "test_release_round2_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_round2_plan_contract"
+  ],
+  "seconds": 31.0
+ },
+ {
+  "name": "capture metadata completeness ignored",
+  "test": "test_release_mr_capture_span",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_capture_span"
+  ],
+  "seconds": 47.7
+ },
+ {
+  "name": "capture metadata window ignored",
+  "test": "test_release_mr_capture_span",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution",
+   "test_release_media_reset_decrease",
+   "test_release_media_reset_intervals",
+   "test_release_media_reset_no_cause",
+   "test_release_media_reset_window_edges",
+   "test_release_mr_allowed_causes",
+   "test_release_mr_capture_span",
+   "test_release_mr_distinct_causes",
+   "test_release_mr_eight_pdus",
+   "test_release_mr_gm_only",
+   "test_release_mr_missing_evidence",
+   "test_release_mr_no_cause",
+   "test_release_mr_record_boundaries",
+   "test_release_mr_resolution",
+   "test_release_mr_stream_scope"
+  ],
+  "seconds": 49.5
+ },
+ {
+  "name": "history evidence refusal accepted",
+  "test": "test_release_tu_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence",
+   "test_release_tu_history",
+   "test_release_tu_history_boundaries",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 50.6
+ },
+ {
+  "name": "history nonfinite event accepted",
+  "test": "test_release_tu_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence",
+   "test_release_tu_history"
+  ],
+  "seconds": 31.0
+ },
+ {
+  "name": "history invalid interval accepted",
+  "test": "test_release_tu_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence",
+   "test_release_tu_history"
+  ],
+  "seconds": 33.1
+ },
+ {
+  "name": "history invalid order accepted",
+  "test": "test_release_tu_history",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence",
+   "test_release_tu_history",
+   "test_release_tu_history_boundaries"
+  ],
+  "seconds": 31.2
+ },
+ {
+  "name": "missing capture extent accepted",
+  "test": "test_release_mr_capture_span",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_capture_span"
+  ],
+  "seconds": 33.4
+ },
+ {
+  "name": "invalid mr records accepted",
+  "test": "test_release_mr_record_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_missing_evidence",
+   "test_release_mr_record_boundaries"
+  ],
+  "seconds": 32.9
+ },
+ {
+  "name": "capture PDU extent check removed",
+  "test": "test_release_mr_capture_span",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_capture_span"
+  ],
+  "seconds": 53.4
+ },
+ {
+  "name": "mr completeness guard removed",
+  "test": "test_release_mr_missing_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_capture_span",
+   "test_release_mr_missing_evidence"
+  ],
+  "seconds": 55.3
+ },
+ {
+  "name": "mr negative resolution guard removed",
+  "test": "test_release_mr_missing_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_missing_evidence"
+  ],
+  "seconds": 55.1
+ },
+ {
+  "name": "tu resolution restored to one-sided limit",
+  "test": "test_release_tu_two_sided_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution",
+   "test_release_resolution_evidence",
+   "test_release_round2_plan_contract",
+   "test_release_tu_history_boundaries",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 33.4
+ },
+ {
+  "name": "tu upper bound ignores possible late true clear",
+  "test": "test_release_tu_two_sided_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 35.7
+ },
+ {
+  "name": "tu upper bound excludes equality",
+  "test": "test_release_tu_two_sided_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 33.8
+ },
+ {
+  "name": "tu upper bound bypasses latest clear",
+  "test": "test_release_tu_two_sided_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_chained_discontinuities",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 35.2
+ },
+ {
+  "name": "tu resolution boundary admits equality",
+  "test": "test_release_tu_two_sided_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution",
+   "test_release_resolution_evidence",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 36.1
+ },
+ {
+  "name": "history resolution boundary admits equality",
+  "test": "test_release_tu_two_sided_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 36.9
+ },
+ {
+  "name": "history negative resolution accepted",
+  "test": "test_release_tu_history_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence",
+   "test_release_tu_history_boundaries"
+  ],
+  "seconds": 48.9
+ },
+ {
+  "name": "history GM assignment drops start allowance",
+  "test": "test_release_tu_history_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_history_boundaries"
+  ],
+  "seconds": 49.1
+ },
+ {
+  "name": "history GM assignment excludes start boundary",
+  "test": "test_release_tu_history_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_history_boundaries",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 48.1
+ },
+ {
+  "name": "history GM assignment includes clear boundary",
+  "test": "test_release_tu_history_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_history_boundaries"
+  ],
+  "seconds": 36.2
+ },
+ {
+  "name": "history accepts touching intervals",
+  "test": "test_release_tu_history_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_tu_history_boundaries"
+  ],
+  "seconds": 36.0
+ },
+ {
+  "name": "history omits resolution limit",
+  "test": "test_release_resolution_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence",
+   "test_release_tu_history_boundaries",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 35.4
+ },
+ {
+  "name": "single tu omits resolution limit",
+  "test": "test_release_resolution_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution",
+   "test_release_resolution_evidence",
+   "test_release_tu_two_sided_boundaries"
+  ],
+  "seconds": 36.1
+ },
+ {
+  "name": "mr omits resolution limit",
+  "test": "test_release_resolution_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_deciding_resolution",
+   "test_release_resolution_evidence"
+  ],
+  "seconds": 35.9
+ },
+ {
+  "name": "mr record accepts empty stream ID",
+  "test": "test_release_mr_record_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_record_boundaries"
+  ],
+  "seconds": 34.7
+ },
+ {
+  "name": "mr record accepts negative PDU index",
+  "test": "test_release_mr_record_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_record_boundaries"
+  ],
+  "seconds": 35.0
+ },
+ {
+  "name": "mr verdict cause window altered",
+  "test": "test_release_resolution_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_resolution_evidence"
+  ],
+  "seconds": 35.1
+ },
+ {
+  "name": "mr cause window text",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 34.6
+ },
+ {
+  "name": "mr stream mapping text",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 34.7
+ },
+ {
+  "name": "mr missing evidence text",
+  "test": "test_release_mr_plan_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_mr_plan_contract"
+  ],
+  "seconds": 34.6
+ },
+ {
+  "name": "tu detected discontinuity kinds text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 35.0
+ },
+ {
+  "name": "tu PHC and fabric examples text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 35.0
+ },
+ {
+  "name": "tu two-sided model text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 35.0
+ },
+ {
+  "name": "tu minimum derivation text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 35.2
+ },
+ {
+  "name": "tu upper derivation text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 34.8
+ },
+ {
+  "name": "tu numeric resolution limit text",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 34.9
+ },
+ {
+  "name": "soak returns to seven days",
+  "test": "test_release_defaults_and_assertions",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_release_defaults_and_assertions",
+   "test_release_settings_validation"
+  ],
+  "seconds": 34.2
+ },
+ {
+  "name": "cycle minimums return to 160/40",
+  "test": "test_release_eligibility_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_defaults_and_assertions",
+   "test_release_eligibility_boundaries",
+   "test_release_topology_provenance_cli"
+  ],
+  "seconds": 37.4
+ },
+ {
+  "name": "soft-reset minimum dropped",
+  "test": "test_release_eligibility_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_eligibility_boundaries"
+  ],
+  "seconds": 36.7
+ },
+ {
+  "name": "soft resets planned as cold cuts",
+  "test": "test_release_defaults_and_assertions",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_cli_power_hold_default",
+   "test_release_defaults_and_assertions",
+   "test_release_timing_and_snapshot_contract"
+  ],
+  "seconds": 36.5
+ },
+ {
+  "name": "soft reset T0 taken from the power strip",
+  "test": "test_release_timing_and_snapshot_contract",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_defaults_and_assertions",
+   "test_release_timing_and_snapshot_contract"
+  ],
+  "seconds": 49.9
+ },
+ {
+  "name": "inventory loses the clock source",
+  "test": "test_release_defaults_and_assertions",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_defaults_and_assertions"
+  ],
+  "seconds": 36.3
+ },
+ {
+  "name": "eligibility accepts the binding alone",
+  "test": "test_release_eligibility_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_eligibility_boundaries"
+  ],
+  "seconds": 40.9
+ },
+ {
+  "name": "audio duration eligibility dropped",
+  "test": "test_release_eligibility_boundaries",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_eligibility_boundaries"
+  ],
+  "seconds": 52.9
+ },
+ {
+  "name": "audio run may outlast the soak",
+  "test": "test_release_settings_validation",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_cli_parameters",
+   "test_release_settings_validation"
+  ],
+  "seconds": 56.8
+ },
+ {
+  "name": "zero-growth counters may grow",
+  "test": "test_release_soak_counter_growth",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_counter_evidence",
+   "test_release_soak_counter_growth"
+  ],
+  "seconds": 52.2
+ },
+ {
+  "name": "LATE_TIMESTAMP leaves the zero-growth set",
+  "test": "test_release_soak_counter_growth",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_defaults_and_assertions",
+   "test_release_soak_counter_evidence",
+   "test_release_soak_counter_growth"
+  ],
+  "seconds": 35.4
+ },
+ {
+  "name": "EARLY_TIMESTAMP leaves the zero-growth set",
+  "test": "test_release_soak_counter_growth",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_defaults_and_assertions",
+   "test_release_soak_counter_growth"
+  ],
+  "seconds": 40.7
+ },
+ {
+  "name": "MEDIA_UNLOCKED needs no planted event",
+  "test": "test_release_soak_media_unlocked_planted",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_media_unlocked_planted"
+  ],
+  "seconds": 54.5
+ },
+ {
+  "name": "one planted event excuses many unlocks",
+  "test": "test_release_soak_media_unlocked_planted",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_media_unlocked_planted"
+  ],
+  "seconds": 46.2
+ },
+ {
+  "name": "another input's planted event accepted",
+  "test": "test_release_soak_media_unlocked_planted",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_media_unlocked_planted"
+  ],
+  "seconds": 43.4
+ },
+ {
+  "name": "planted window need only meet the read interval",
+  "test": "test_release_soak_media_unlocked_planted",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_media_unlocked_planted"
+  ],
+  "seconds": 56.9
+ },
+ {
+  "name": "planted window excludes its start read",
+  "test": "test_release_soak_media_unlocked_planted",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_media_unlocked_planted"
+  ],
+  "seconds": 43.4
+ },
+ {
+  "name": "planted window excludes its end read",
+  "test": "test_release_soak_media_unlocked_planted",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_media_unlocked_planted"
+  ],
+  "seconds": 41.9
+ },
+ {
+  "name": "soak counter decrease accepted",
+  "test": "test_release_soak_counter_growth",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_counter_growth"
+  ],
+  "seconds": 56.4
+ },
+ {
+  "name": "soak missing evidence accepted",
+  "test": "test_release_soak_counter_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_counter_evidence"
+  ],
+  "seconds": 34.6
+ },
+ {
+  "name": "soak endpoint read optional",
+  "test": "test_release_soak_counter_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_soak_counter_evidence"
+  ],
+  "seconds": 46.6
+ },
+ {
+  "name": "state vacuity check removed",
+  "test": "test_release_state_restored",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_state_restored"
+  ],
+  "seconds": 33.6
+ },
+ {
+  "name": "mixed commit state accepted",
+  "test": "test_release_state_commit_cut",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_commit_cut_evidence",
+   "test_release_state_commit_cut"
+  ],
+  "seconds": 34.3
+ },
+ {
+  "name": "vacuous commit accepted",
+  "test": "test_release_state_commit_cut",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_state_commit_cut"
+  ],
+  "seconds": 54.6
+ },
+ {
+  "name": "reverted state accepted",
+  "test": "test_release_state_restored",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_commit_cut_evidence",
+   "test_release_controls_fail_as_planted",
+   "test_release_state_restored"
+  ],
+  "seconds": 50.0
+ },
+ {
+  "name": "missing state readback accepted",
+  "test": "test_release_state_restored",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_state_commit_cut",
+   "test_release_state_restored"
+  ],
+  "seconds": 31.5
+ },
+ {
+  "name": "first-boot control fixture healthy",
+  "test": "test_release_controls_fail_as_planted",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_controls_fail_as_planted"
+  ],
+  "seconds": 35.7
+ },
+ {
+  "name": "persistence control fixture restored",
+  "test": "test_release_controls_fail_as_planted",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_controls_fail_as_planted"
+  ],
+  "seconds": 54.2
+ },
+ {
+  "name": "audio control drop removed",
+  "test": "test_release_controls_fail_as_planted",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_audio_control_classifies_exactly",
+   "test_release_controls_fail_as_planted"
+  ],
+  "seconds": 36.0
+ },
+ {
+  "name": "control verdict not audited",
+  "test": "test_release_area_audit_refuses_each_defect",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_area_audit_refuses_each_defect"
+  ],
+  "seconds": 45.5
+ },
+ {
+  "name": "control failing assertion not audited",
+  "test": "test_release_area_audit_refuses_each_defect",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_area_audit_refuses_each_defect"
+  ],
+  "seconds": 50.4
+ },
+ {
+  "name": "controls not required",
+  "test": "test_release_area_audit_refuses_each_defect",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_area_audit_refuses_each_defect",
+   "test_release_binding_omissions_in_every_repeat"
+  ],
+  "seconds": 50.9
+ },
+ {
+  "name": "power phases not audited",
+  "test": "test_release_area_audit_refuses_each_defect",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_area_audit_refuses_each_defect"
+  ],
+  "seconds": 42.9
+ },
+ {
+  "name": "cycle mix not audited",
+  "test": "test_release_area_audit_refuses_each_defect",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_area_audit_refuses_each_defect"
+  ],
+  "seconds": 31.4
+ },
+ {
+  "name": "release assertions not audited",
+  "test": "test_release_area_audit_refuses_each_defect",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_area_audit_refuses_each_defect"
+  ],
+  "seconds": 50.7
+ },
+ {
+  "name": "assertion severity not audited",
+  "test": "test_release_area_audit_refuses_each_defect",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_area_audit_refuses_each_defect"
+  ],
+  "seconds": 32.2
+ },
+ {
+  "name": "release audio masks the identity audit",
+  "test": "test_release_audio_does_not_mask_identity",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_audio_does_not_mask_identity"
+  ],
+  "seconds": 31.4
+ },
+ {
+  "name": "lone corrupted word kept as a slip pair",
+  "test": "test_audio_tag_integrity_decides_first",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_composition_sweep",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_tag_integrity_decides_first"
+  ],
+  "seconds": 48.4
+ },
+ {
+  "name": "slip direction inverted",
+  "test": "test_audio_grader_classes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported",
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_arms_run_at_both_edges",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_capture_loss_needs_every_channel",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_attribution",
+   "test_audio_grader_classes",
+   "test_audio_grader_evidence",
+   "test_audio_offset_channel_and_mixed_capture",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_static_swap_fails_with_every_arm_found",
+   "test_audio_tag_integrity_decides_first",
+   "test_release_audio_control_classifies_exactly",
+   "test_release_controls_fail_as_planted"
+  ],
+  "seconds": 15.5
+ },
+ {
+  "name": "slip size not folded around zero",
+  "test": "test_audio_grader_classes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported",
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_arms_run_at_both_edges",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_capture_loss_needs_every_channel",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_attribution",
+   "test_audio_grader_classes",
+   "test_audio_grader_evidence",
+   "test_audio_offset_channel_and_mixed_capture",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_static_swap_fails_with_every_arm_found",
+   "test_audio_tag_integrity_decides_first",
+   "test_release_audio_control_classifies_exactly"
+  ],
+  "seconds": 28.8
+ },
+ {
+  "name": "inserted silence not told apart",
+  "test": "test_audio_grader_classes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_grader_classes"
+  ],
+  "seconds": 31.0
+ },
+ {
+  "name": "swap read as corruption",
+  "test": "test_audio_grader_classes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_grader_classes",
+   "test_audio_tag_integrity_decides_first"
+  ],
+  "seconds": 30.9
+ },
+ {
+  "name": "capture loss counted against the DUT",
+  "test": "test_audio_grader_attribution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported",
+   "test_audio_capture_loss_needs_every_channel",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_grader_attribution",
+   "test_audio_qualified_interval_is_stated_and_required"
+  ],
+  "seconds": 31.6
+ },
+ {
+  "name": "logged capture loss trusted without the capture",
+  "test": "test_audio_grader_attribution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_capture_loss_needs_every_channel",
+   "test_audio_grader_attribution"
+  ],
+  "seconds": 53.2
+ },
+ {
+  "name": "missed arm accepted",
+  "test": "test_audio_grader_attribution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_attribution",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 39.0
+ },
+ {
+  "name": "arm position ignored",
+  "test": "test_audio_grader_attribution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_attribution",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 50.8
+ },
+ {
+  "name": "arm size ignored",
+  "test": "test_audio_grader_attribution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_grader_attribution",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 23.3
+ },
+ {
+  "name": "arm mask ignored",
+  "test": "test_audio_grader_attribution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_grader_attribution",
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 24.7
+ },
+ {
+  "name": "arms need not bracket the run",
+  "test": "test_audio_grader_attribution",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arms_run_at_both_edges",
+   "test_audio_grader_attribution"
+  ],
+  "seconds": 33.6
+ },
+ {
+  "name": "arm edges widened to the halves",
+  "test": "test_audio_arms_run_at_both_edges",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arms_run_at_both_edges"
+  ],
+  "seconds": 35.0
+ },
+ {
+  "name": "DUT audio events pass",
+  "test": "test_audio_grader_classes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_grader_attribution",
+   "test_audio_grader_classes",
+   "test_audio_grader_evidence",
+   "test_audio_offset_channel_and_mixed_capture",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_static_swap_fails_with_every_arm_found",
+   "test_release_audio_control_classifies_exactly",
+   "test_release_controls_fail_as_planted"
+  ],
+  "seconds": 18.8
+ },
+ {
+  "name": "torn final frame accepted",
+  "test": "test_audio_grader_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_grader_evidence"
+  ],
+  "seconds": 36.6
+ },
+ {
+  "name": "fast path compares the capture with itself",
+  "test": "test_audio_grader_classes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported",
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_arms_run_at_both_edges",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_capture_loss_needs_every_channel",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_attribution",
+   "test_audio_grader_classes",
+   "test_audio_grader_evidence",
+   "test_audio_offset_channel_and_mixed_capture",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_static_swap_fails_with_every_arm_found",
+   "test_audio_tag_integrity_decides_first",
+   "test_release_audio_control_classifies_exactly",
+   "test_release_controls_fail_as_planted"
+  ],
+  "seconds": 20.0
+ },
+ {
+  "name": "event overflow passes",
+  "test": "test_audio_grader_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_grader_evidence"
+  ],
+  "seconds": 55.4
+ },
+ {
+  "name": "soak counter oracle unnamed",
+  "test": "test_release_defaults_and_assertions",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_defaults_and_assertions"
+  ],
+  "seconds": 36.2
+ },
+ {
+  "name": "audio run outside the soak window",
+  "test": "test_release_defaults_and_assertions",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_defaults_and_assertions"
+  ],
+  "seconds": 58.7
+ },
+ {
+  "name": "planted-event log not retained",
+  "test": "test_release_defaults_and_assertions",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_defaults_and_assertions"
+  ],
+  "seconds": 58.7
+ },
+ {
+  "name": "unlock text allows explained unlocks",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 36.0
+ },
+ {
+  "name": "cycle text returns to 160/40",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 44.2
+ },
+ {
+  "name": "soak text returns to seven days",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 36.8
+ },
+ {
+  "name": "state text drops the eight items",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 48.0
+ },
+ {
+  "name": "ADP text drops the reset origin",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 34.9
+ },
+ {
+  "name": "counter text drops the timestamp counters",
+  "test": "test_release_assertion_text",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_assertion_text"
+  ],
+  "seconds": 52.3
+ },
+ {
+  "name": "block code bit dropped from the word",
+  "test": "test_audio_counter_word_layout",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported",
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_arms_run_at_both_edges",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_capture_loss_needs_every_channel",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_counter_word_layout",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_attribution",
+   "test_audio_grader_classes",
+   "test_audio_grader_evidence",
+   "test_audio_offset_channel_and_mixed_capture",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_static_swap_fails_with_every_arm_found",
+   "test_audio_tag_integrity_decides_first",
+   "test_release_audio_control_classifies_exactly",
+   "test_release_controls_fail_as_planted"
+  ],
+  "seconds": 352.4
+ },
+ {
+  "name": "counter repeats every 4096 samples",
+  "test": "test_audio_counter_word_layout",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported",
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_arms_run_at_both_edges",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_capture_loss_needs_every_channel",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_counter_word_layout",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_attribution",
+   "test_audio_grader_classes",
+   "test_audio_grader_evidence",
+   "test_audio_offset_channel_and_mixed_capture",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_static_swap_fails_with_every_arm_found",
+   "test_audio_tag_integrity_decides_first",
+   "test_release_audio_control_classifies_exactly",
+   "test_release_controls_fail_as_planted"
+  ],
+  "seconds": 167.4
+ },
+ {
+  "name": "decode ignores the block code",
+  "test": "test_audio_counter_word_layout",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported",
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_counter_word_layout",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_classes",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 257.0
+ },
+ {
+  "name": "expected words lose the block code",
+  "test": "test_audio_counter_word_layout",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_arms_run_at_both_edges",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_counter_word_layout",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_attribution",
+   "test_audio_grader_classes",
+   "test_audio_grader_evidence",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_release_audio_control_classifies_exactly"
+  ],
+  "seconds": 24.1
+ },
+ {
+  "name": "planted flip mask leaves the code bit",
+  "test": "test_audio_counter_word_layout",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_counter_word_layout"
+  ],
+  "seconds": 37.6
+ },
+ {
+  "name": "block slips not located",
+  "test": "test_audio_block_slips_are_sized_exactly",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 32.2
+ },
+ {
+  "name": "foreign channel number read as a swap",
+  "test": "test_audio_tag_integrity_decides_first",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_tag_integrity_decides_first"
+  ],
+  "seconds": 27.8
+ },
+ {
+  "name": "swap run spans a partner change",
+  "test": "test_audio_tag_integrity_decides_first",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_tag_integrity_decides_first"
+  ],
+  "seconds": 37.3
+ },
+ {
+  "name": "constant-mask excursion kept as slips",
+  "test": "test_audio_compound_and_edge_events",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_composition_sweep",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 25.3
+ },
+ {
+  "name": "hold read as corruption",
+  "test": "test_audio_compound_and_edge_events",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_compound_and_edge_events"
+  ],
+  "seconds": 45.9
+ },
+ {
+  "name": "only the previous word counts as a neighbour",
+  "test": "test_audio_compound_and_edge_events",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_compound_and_edge_events"
+  ],
+  "seconds": 32.7
+ },
+ {
+  "name": "identity changes not recorded",
+  "test": "test_audio_static_swap_fails_with_every_arm_found",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_static_swap_fails_with_every_arm_found"
+  ],
+  "seconds": 49.3
+ },
+ {
+  "name": "arms looked for on the logged channel only",
+  "test": "test_audio_static_swap_fails_with_every_arm_found",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_static_swap_fails_with_every_arm_found"
+  ],
+  "seconds": 44.1
+ },
+ {
+  "name": "pending defaults accepted",
+  "test": "test_release_commit_cut_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_commit_cut_evidence"
+  ],
+  "seconds": 32.1
+ },
+ {
+  "name": "cut outside its commit accepted",
+  "test": "test_release_commit_cut_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_commit_cut_evidence"
+  ],
+  "seconds": 30.9
+ },
+ {
+  "name": "commit window end made inclusive",
+  "test": "test_release_commit_cut_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_commit_cut_evidence"
+  ],
+  "seconds": 30.9
+ },
+ {
+  "name": "missing cut evidence accepted",
+  "test": "test_release_commit_cut_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_commit_cut_evidence",
+   "test_release_state_commit_cut"
+  ],
+  "seconds": 31.1
+ },
+ {
+  "name": "soft reset graded as a commit cut",
+  "test": "test_release_commit_cut_evidence",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_release_commit_cut_evidence"
+  ],
+  "seconds": 31.3
+ },
+ {
+  "name": "capture losses stop the clocks",
+  "test": "test_audio_capture_losses_advance_the_clocks",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_capture_losses_advance_the_clocks"
+  ],
+  "seconds": 31.1
+ },
+ {
+  "name": "gPTP interpolated across a recorded discontinuity",
+  "test": "test_audio_capture_losses_advance_the_clocks",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_capture_losses_advance_the_clocks"
+  ],
+  "seconds": 30.8
+ },
+ {
+  "name": "times extrapolated past the last anchor",
+  "test": "test_audio_capture_losses_advance_the_clocks",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_capture_losses_advance_the_clocks"
+  ],
+  "seconds": 31.1
+ },
+ {
+  "name": "anchor past the capture accepted",
+  "test": "test_audio_capture_losses_advance_the_clocks",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_capture_losses_advance_the_clocks"
+  ],
+  "seconds": 30.9
+ },
+ {
+  "name": "anchors may run backwards",
+  "test": "test_audio_capture_losses_advance_the_clocks",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_capture_losses_advance_the_clocks"
+  ],
+  "seconds": 31.5
+ },
+ {
+  "name": "capture loss needs only one channel",
+  "test": "test_audio_capture_loss_needs_every_channel",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_capture_loss_needs_every_channel"
+  ],
+  "seconds": 33.3
+ },
+ {
+  "name": "qualified interval runs to the capture's end",
+  "test": "test_audio_boundary_block_slips_are_unresolved",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_release_audio_control_classifies_exactly"
+  ],
+  "seconds": 32.2
+ },
+ {
+  "name": "qualified interval starts at acquisition",
+  "test": "test_audio_qualified_interval_is_stated_and_required",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_release_audio_control_classifies_exactly"
+  ],
+  "seconds": 33.1
+ },
+ {
+  "name": "acquisition index not recorded",
+  "test": "test_audio_qualified_interval_is_stated_and_required",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_qualified_interval_is_stated_and_required"
+  ],
+  "seconds": 35.0
+ },
+ {
+  "name": "required duration not enforced",
+  "test": "test_audio_qualified_interval_is_stated_and_required",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_qualified_interval_is_stated_and_required"
+  ],
+  "seconds": 35.8
+ },
+ {
+  "name": "required duration defaults to a fraction of a second",
+  "test": "test_audio_qualified_interval_is_stated_and_required",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_qualified_interval_is_stated_and_required"
+  ],
+  "seconds": 35.1
+ },
+ {
+  "name": "capture losses counted as observed time",
+  "test": "test_audio_qualified_interval_is_stated_and_required",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_qualified_interval_is_stated_and_required"
+  ],
+  "seconds": 35.8
+ },
+ {
+  "name": "arm outside the qualified interval accepted",
+  "test": "test_audio_qualified_interval_is_stated_and_required",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_qualified_interval_is_stated_and_required"
+  ],
+  "seconds": 35.5
+ },
+ {
+  "name": "capture loss outside the qualified interval accepted",
+  "test": "test_audio_qualified_interval_is_stated_and_required",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_qualified_interval_is_stated_and_required"
+  ],
+  "seconds": 38.6
+ },
+ {
+  "name": "unacquired channel passes",
+  "test": "test_audio_qualified_interval_is_stated_and_required",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_qualified_interval_is_stated_and_required"
+  ],
+  "seconds": 43.6
+ },
+ {
+  "name": "unacquired channel graded to the end",
+  "test": "test_audio_qualified_interval_is_stated_and_required",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_qualified_interval_is_stated_and_required"
+  ],
+  "seconds": 31.5
+ },
+ {
+  "name": "capture-end stretch graded exactly",
+  "test": "test_audio_boundary_block_slips_are_unresolved",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_constant_mask_at_every_length"
+  ],
+  "seconds": 35.4
+ },
+ {
+  "name": "pre-acquisition stretch graded exactly",
+  "test": "test_audio_boundary_block_slips_are_unresolved",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved"
+  ],
+  "seconds": 31.8
+ },
+ {
+  "name": "open words reported as a corruption",
+  "test": "test_audio_boundary_block_slips_are_unresolved",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_constant_mask_at_every_length"
+  ],
+  "seconds": 52.2
+ },
+ {
+  "name": "open stretch bound widened at the end",
+  "test": "test_audio_boundary_block_slips_are_unresolved",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved"
+  ],
+  "seconds": 31.7
+ },
+ {
+  "name": "open stretch bound widened before acquisition",
+  "test": "test_audio_boundary_block_slips_are_unresolved",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved"
+  ],
+  "seconds": 32.0
+ },
+ {
+  "name": "half-block alternative dropped",
+  "test": "test_audio_boundary_block_slips_are_unresolved",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_composition_sweep",
+   "test_audio_constant_mask_beside_one_word_events"
+  ],
+  "seconds": 41.7
+ },
+ {
+  "name": "open stretch never closes an excursion",
+  "test": "test_audio_boundary_block_slips_are_unresolved",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved"
+  ],
+  "seconds": 54.0
+ },
+ {
+  "name": "a run fits whole or not at all",
+  "test": "test_audio_slip_and_corruption_share_a_window",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_composition_sweep",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 40.6
+ },
+ {
+  "name": "departures after a slip not judged again",
+  "test": "test_audio_slip_and_corruption_share_a_window",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_composition_sweep",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask"
+  ],
+  "seconds": 25.2
+ },
+ {
+  "name": "constant-mask track adopted as a slip",
+  "test": "test_audio_constant_mask_at_every_length",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 34.9
+ },
+ {
+  "name": "held excursion never returns",
+  "test": "test_audio_constant_mask_at_every_length",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 27.2
+ },
+ {
+  "name": "held excursion not carried across a region",
+  "test": "test_audio_constant_mask_at_every_length",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_slip_before_a_constant_mask"
+  ],
+  "seconds": 28.7
+ },
+ {
+  "name": "held excursion kept through a fast block off its mask",
+  "test": "test_audio_constant_mask_at_every_length",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_constant_mask_at_every_length"
+  ],
+  "seconds": 32.0
+ },
+ {
+  "name": "held excursion kept through a word off its mask",
+  "test": "test_audio_constant_mask_at_every_length",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_constant_mask_at_every_length"
+  ],
+  "seconds": 54.0
+ },
+ {
+  "name": "excursion open at the end released as exact",
+  "test": "test_audio_constant_mask_at_every_length",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_constant_mask_at_every_length"
+  ],
+  "seconds": 52.4
+ },
+ {
+  "name": "excursion cut by the end window released as exact",
+  "test": "test_audio_constant_mask_at_every_length",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_constant_mask_at_every_length"
+  ],
+  "seconds": 49.8
+ },
+ {
+  "name": "window-bound pieces lose their corruption",
+  "test": "test_audio_constant_mask_at_every_length",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_constant_mask_at_every_length"
+  ],
+  "seconds": 35.4
+ },
+ {
+  "name": "anchor gap after the last anchor not reported",
+  "test": "test_audio_anchor_gaps_are_reported",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported"
+  ],
+  "seconds": 34.4
+ },
+ {
+  "name": "anchor gaps measured over stored frames",
+  "test": "test_audio_anchor_gaps_are_reported",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported"
+  ],
+  "seconds": 49.1
+ },
+ {
+  "name": "a loss at the event's own index not counted",
+  "test": "test_audio_capture_losses_advance_the_clocks",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_capture_losses_advance_the_clocks"
+  ],
+  "seconds": 57.2
+ },
+ {
+  "name": "offset before the last change not a candidate",
+  "test": "test_audio_block_slip_after_a_corruption_or_a_slip",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_composition_sweep",
+   "test_audio_slip_and_corruption_share_a_window"
+  ],
+  "seconds": 34.0
+ },
+ {
+  "name": "longest run wins over the offset in force",
+  "test": "test_audio_block_slip_after_a_corruption_or_a_slip",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_composition_sweep",
+   "test_audio_slip_before_a_constant_mask"
+  ],
+  "seconds": 31.1
+ },
+ {
+  "name": "half-block offsets not ordered toward the offset before",
+  "test": "test_audio_block_slip_after_a_corruption_or_a_slip",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_composition_sweep"
+  ],
+  "seconds": 41.5
+ },
+ {
+  "name": "a return at the next word not cut from the excursion",
+  "test": "test_audio_block_slip_after_a_corruption_or_a_slip",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_slip_and_corruption_share_a_window"
+  ],
+  "seconds": 59.8
+ },
+ {
+  "name": "a return a whole number of blocks away not cut from the excursion",
+  "test": "test_audio_block_slip_after_a_corruption_or_a_slip",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 58.9
+ },
+ {
+  "name": "slip of whole blocks not located on past its first word",
+  "test": "test_audio_block_slip_after_a_corruption_or_a_slip",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 35.5
+ },
+ {
+  "name": "a corrupted word bounds the slip where the tracks coincide",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 36.3
+ },
+ {
+  "name": "slip arm absorbed by a slip of whole blocks",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 33.6
+ },
+ {
+  "name": "split slip located only after its arm",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 55.1
+ },
+ {
+  "name": "no reading led by a logged flip arm",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 54.8
+ },
+ {
+  "name": "arm-led reading taken whatever its DUT events",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 31.8
+ },
+ {
+  "name": "arm-led reading never judged against the closing offset",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 32.2
+ },
+ {
+  "name": "arm-led reading never opened before the window",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 32.1
+ },
+ {
+  "name": "arm-led reading never cuts a word from the resync",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 53.7
+ },
+ {
+  "name": "hold judged over the whole window",
+  "test": "test_audio_constant_mask_beside_one_word_events",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 30.3
+ },
+ {
+  "name": "events beside a returned excursion lost",
+  "test": "test_audio_constant_mask_beside_one_word_events",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word"
+  ],
+  "seconds": 35.1
+ },
+ {
+  "name": "a held excursion returns only onto the old track",
+  "test": "test_audio_constant_mask_beside_one_word_events",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word"
+  ],
+  "seconds": 51.4
+ },
+ {
+  "name": "the old track's own word releases a hold",
+  "test": "test_audio_code_bit_corruption_ending_on_a_block",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_code_bit_corruption_ending_on_a_block"
+  ],
+  "seconds": 36.8
+ },
+ {
+  "name": "returned excursion ends at the window",
+  "test": "test_audio_code_bit_corruption_ending_on_a_block",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_code_bit_corruption_ending_on_a_block"
+  ],
+  "seconds": 35.8
+ },
+ {
+  "name": "a corruption beside a slip of whole blocks judged only against the old track",
+  "test": "test_audio_block_slip_after_a_corruption_or_a_slip",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_block_slip_after_a_corruption_or_a_slip"
+  ],
+  "seconds": 35.2
+ },
+ {
+  "name": "a slip arm never keeps the excursion it enters or leaves",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 31.0
+ },
+ {
+  "name": "a word on the new track read as its own corruption",
+  "test": "test_audio_planted_arms_beside_block_slips",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 51.5
+ },
+ {
+  "name": "hold judged only against the window's opening offset",
+  "test": "test_audio_slip_before_a_constant_mask",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_slip_before_a_constant_mask"
+  ],
+  "seconds": 37.5
+ },
+ {
+  "name": "hold tried at its shortest masked run first",
+  "test": "test_audio_slip_before_a_constant_mask",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_slip_before_a_constant_mask"
+  ],
+  "seconds": 36.2
+ },
+ {
+  "name": "recorded part of a hold never read again",
+  "test": "test_audio_slip_totals_balance_the_bytes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 53.5
+ },
+ {
+  "name": "a hold made where no slip may lie in the masked words",
+  "test": "test_audio_arm_interplay_at_the_release_tolerance",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance"
+  ],
+  "seconds": 32.6
+ },
+ {
+  "name": "unbalanced readings ranked with balanced ones",
+  "test": "test_audio_slip_totals_balance_the_bytes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 30.8
+ },
+ {
+  "name": "the balance guard never fires",
+  "test": "test_audio_slip_totals_balance_the_bytes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 31.0
+ },
+ {
+  "name": "unbalanced window recorded as its reading",
+  "test": "test_audio_slip_totals_balance_the_bytes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 54.5
+ },
+ {
+  "name": "unbalanced window reported at its resync",
+  "test": "test_audio_slip_totals_balance_the_bytes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 52.5
+ },
+ {
+  "name": "slips recorded outside the ledger",
+  "test": "test_audio_slip_totals_balance_the_bytes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_anchor_gaps_are_reported",
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_arms_run_at_both_edges",
+   "test_audio_block_slip_after_a_corruption_or_a_slip",
+   "test_audio_block_slips_are_sized_exactly",
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_capture_loss_needs_every_channel",
+   "test_audio_capture_losses_advance_the_clocks",
+   "test_audio_code_bit_corruption_ending_on_a_block",
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_attribution",
+   "test_audio_grader_classes",
+   "test_audio_grader_evidence",
+   "test_audio_offset_channel_and_mixed_capture",
+   "test_audio_planted_arms_beside_block_slips",
+   "test_audio_qualified_interval_is_stated_and_required",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_static_swap_fails_with_every_arm_found",
+   "test_audio_tag_integrity_decides_first",
+   "test_release_audio_control_classifies_exactly",
+   "test_release_controls_fail_as_planted"
+  ],
+  "seconds": 16.5
+ },
+ {
+  "name": "an excursion's lead never returns at a word that fits",
+  "test": "test_audio_slip_totals_balance_the_bytes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 44.9
+ },
+ {
+  "name": "coincident words after a return keep the other offset",
+  "test": "test_audio_slip_totals_balance_the_bytes",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_slip_totals_balance_the_bytes"
+  ],
+  "seconds": 54.8
+ },
+ {
+  "name": "no word beside a constant-mask excursion split off",
+  "test": "test_audio_constant_mask_beside_one_word_events",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_constant_mask_beside_one_word_events"
+  ],
+  "seconds": 29.9
+ },
+ {
+  "name": "a two-word excursion under two masks kept whole",
+  "test": "test_audio_composition_sweep",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep"
+  ],
+  "seconds": 29.9
+ },
+ {
+  "name": "a word beside a constant-mask excursion merged into it",
+  "test": "test_audio_constant_mask_beside_one_word_events",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_constant_mask_beside_one_word_events"
+  ],
+  "seconds": 35.2
+ },
+ {
+  "name": "a constant-mask excursion before a slip read as slips",
+  "test": "test_audio_constant_mask_beside_one_word_events",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_constant_mask_beside_one_word_events"
+  ],
+  "seconds": 50.6
+ },
+ {
+  "name": "an excursion already on the slip's track read as one corruption",
+  "test": "test_audio_composition_sweep",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep"
+  ],
+  "seconds": 52.5
+ },
+ {
+  "name": "a flip arm found in a run of any length",
+  "test": "test_audio_arm_interplay_at_the_release_tolerance",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance"
+  ],
+  "seconds": 40.9
+ },
+ {
+  "name": "a slip arm split only at its exact index",
+  "test": "test_audio_arm_interplay_at_the_release_tolerance",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance"
+  ],
+  "seconds": 53.9
+ },
+ {
+  "name": "a DUT event inside a found arm's tolerance taken as the arm",
+  "test": "test_audio_compositions_never_pass_and_list_every_event",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_arm_interplay_at_the_release_tolerance",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_planted_arms_beside_block_slips"
+  ],
+  "seconds": 28.7
+ },
+ {
+  "name": "a flip arm found in any corruption carrying its mask bit",
+  "test": "test_audio_compositions_never_pass_and_list_every_event",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event"
+  ],
+  "seconds": 39.1
+ },
+ {
+  "name": "a slip arm found at its own sample whatever its size",
+  "test": "test_audio_compositions_never_pass_and_list_every_event",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_composition_sweep",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_grader_attribution"
+  ],
+  "seconds": 23.6
+ },
+ {
+  "name": "a missed arm's void reason without its possible DUT cause",
+  "test": "test_audio_excursion_over_a_slip_arm_may_void",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_excursion_over_a_slip_arm_may_void"
+  ],
+  "seconds": 46.7
+ },
+ {
+  "name": "a zero word after a stored word kept as data",
+  "test": "test_audio_excursion_clearing_its_channel_number_is_split",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_excursion_clearing_its_channel_number_is_split"
+  ],
+  "seconds": 45.5
+ },
+ {
+  "name": "a returned excursion's bit-flip left for the hold to read again",
+  "test": "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word"
+  ],
+  "seconds": 45.1
+ },
+ {
+  "name": "a corruption of two or more words listed after its last word plus 63",
+  "test": "test_audio_compositions_never_pass_and_list_every_event",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_classes",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_tag_integrity_decides_first"
+  ],
+  "seconds": 28.6
+ },
+ {
+  "name": "a corruption of two or more words listed again after its last word plus 63",
+  "test": "test_audio_compositions_never_pass_and_list_every_event",
+  "outcome": "killed",
+  "failing_tests": [
+   "test_audio_boundary_block_slips_are_unresolved",
+   "test_audio_compositions_never_pass_and_list_every_event",
+   "test_audio_compound_and_edge_events",
+   "test_audio_constant_mask_at_every_length",
+   "test_audio_constant_mask_beside_one_word_events",
+   "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word",
+   "test_audio_excursion_clearing_its_channel_number_is_split",
+   "test_audio_excursion_over_a_slip_arm_may_void",
+   "test_audio_grader_classes",
+   "test_audio_slip_and_corruption_share_a_window",
+   "test_audio_slip_before_a_constant_mask",
+   "test_audio_slip_totals_balance_the_bytes",
+   "test_audio_tag_integrity_decides_first"
+  ],
+  "seconds": 21.3
+ }
+]

@@ -1,0 +1,38 @@
+close 0 64 found (0, 1, 0) reason None image None
+hold in [] final None -> now [] image None
+close 300 364 found (300, 1, 303) reason None image None
+hold in [(300, 'dropped', 3)] final 3 -> now [(300, 'dropped', 3)] image None
+  record 300 dropped 3 None
+close 500 564 found (500, 1, 501) reason None image None
+hold in [(500, 'repeated', 2)] final -2 -> now [(500, 'repeated', 2)] image None
+  record 500 repeated 2 None
+close 4424 4488 found (4424, 1, 8296375610697) reason None image None
+hold in [(4424, 'repeated', 499717415936)] final -499717415936 -> now [] image (4424, '0x80100', [(4424, 'repeated', 499717415936)])
+close 5119 5183 found (5119, 1, 8296375609344) reason None image (4424, '0x80100')
+hold in [] final -2048 -> now [] image (4424, '0x80100', [(4424, 'repeated', 499717415936), (5119, 'repeated', 2048)])
+close 6097 6214 found (6150, 1, 6148) reason None image (4424, '0x80100')
+hold in [(6097, 'dropped', 1021), (6098, 'bit-flip', 3), (6102, 'bit-flip', 2), (6106, 'bit-flip', 1), (6109, 'bit-flip', 2), (6115, 'bit-flip', 3), (6121, 'bit-flip', 2), (6127, 'bit-flip', 2), (6130, 'bit-flip', 3), (6134, 'bit-flip', 2), (6138, 'bit-flip', 1), (6141, 'bit-flip', 2), (6146, 'repeated', 2048), (6147, 'bit-flip', 3), (6150, 'dropped', 1024)] final -3 -> now [(6097, 'dropped', 1021), (6098, 'bit-flip', 3), (6102, 'bit-flip', 2), (6106, 'bit-flip', 1), (6109, 'bit-flip', 2), (6115, 'bit-flip', 3), (6121, 'bit-flip', 2), (6127, 'bit-flip', 2), (6130, 'bit-flip', 3), (6134, 'bit-flip', 2), (6138, 'bit-flip', 1), (6141, 'bit-flip', 2), (6146, 'bit-flip', 4)] image (6150, '0x80000', [(6150, 'repeated', 1024)])
+  record 4424 bit-flip 1673 None
+  record 6097 dropped 1021 None
+  record 6098 bit-flip 3 None
+  record 6102 bit-flip 2 None
+  record 6106 bit-flip 1 None
+  record 6109 bit-flip 2 None
+  record 6115 bit-flip 3 None
+  record 6121 bit-flip 2 None
+  record 6127 bit-flip 2 None
+  record 6130 bit-flip 3 None
+  record 6134 bit-flip 2 None
+  record 6138 bit-flip 1 None
+  record 6141 bit-flip 2 None
+  record 6146 bit-flip 4 None
+release None image start 6150 events [(6150, 'repeated', 1024)]
+  record 6150 repeated 1024 None
+close 15684 15748 found (15684, 1, 15685) reason None image None
+hold in [(15684, 'dropped', 3)] final 3 -> now [(15684, 'dropped', 3)] image None
+  record 15684 dropped 3 None
+close 15934 15998 found (15934, 1, 15933) reason None image None
+hold in [(15934, 'repeated', 2)] final -2 -> now [(15934, 'repeated', 2)] image None
+  record 15934 repeated 2 None
+verdict FAIL DUT-attributed audio events
+[[4424, "bit-flip", 1673, "0x00080100"], [6097, "dropped", 1021, null], [6098, "bit-flip", 3, "0x00000100"], [6102, "bit-flip", 2, "0x00000100"], [6106, "bit-flip", 1, "0x00000100"], [6109, "bit-flip", 2, "0x00000100"], [6115, "bit-flip", 3, "0x00000100"], [6121, "bit-flip", 2, "0x00000100"], [6127, "bit-flip", 2, "0x00000100"], [6130, "bit-flip", 3, "0x00000100"], [6134, "bit-flip", 2, "0x00000100"], [6138, "bit-flip", 1, "0x00000100"], [6141, "bit-flip", 2, "0x00000100"], [6146, "bit-flip", 4, "0x00000100"], [6150, "repeated", 1024, null]]

@@ -1,0 +1,31 @@
+unit run 303 [1] 5 [{"kind": "flip", "index": 303, "channel": 1, "mask": 2097152}, {"kind": "flip", "index": 304, "channel": 1, "mask": 2097152}] ... x5
+unit slip 337 [0, 1, 2, 3] 1 [{"kind": "drop", "index": 337, "n": 1025}] ... x1
+unit run 2773 [2] 96 [{"kind": "flip", "index": 2773, "channel": 2, "mask": 524544}, {"kind": "flip", "index": 2774, "channel": 2, "mask": 524544}] ... x96
+unit run 2773 [2] 1571 [{"kind": "flip", "index": 2773, "channel": 2, "mask": 524544}, {"kind": "flip", "index": 2774, "channel": 2, "mask": 524544}] ... x1571
+verdict FAIL | DUT-attributed audio events
+missed []
+  planted 0 300 dropped 3 None None None
+  dut 0 337 dropped 1025 None None None
+  planted 0 500 repeated 2 None None None
+  planted 0 7492 dropped 3 None None None
+  planted 0 7742 repeated 2 None None None
+  planted 1 300 dropped 3 None None None
+  dut 1 303 bit-flip 5 0x00200000 None None
+  dut 1 337 dropped 1025 None None None
+  planted 1 500 repeated 2 None None None
+  planted 1 700 bit-flip 1 0x00000100 None None
+  planted 1 7492 dropped 3 None None None
+  planted 1 7742 repeated 2 None None None
+  planted 1 7992 bit-flip 1 0x00000100 None None
+  planted 2 300 dropped 3 None None None
+  dut 2 337 dropped 1025 None None None
+  planted 2 500 repeated 2 None None None
+  dut 2 2869 bit-flip 1475 0x00080100 None None
+  planted 2 7492 dropped 3 None None None
+  planted 2 7742 repeated 2 None None None
+  planted 3 300 dropped 3 None None None
+  dut 3 337 dropped 1025 None None None
+  planted 3 500 repeated 2 None None None
+  planted 3 7492 dropped 3 None None None
+  planted 3 7742 repeated 2 None None None
+check ('FAIL', set())
