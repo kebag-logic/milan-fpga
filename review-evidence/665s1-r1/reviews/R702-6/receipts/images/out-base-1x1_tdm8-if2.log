@@ -1,0 +1,101 @@
+wrote $REVIEWS/665s1-r702-6-packet/scratch/img/out-base/1x1_tdm8-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/img/out-base/1x1_tdm8-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s1-r702-6-packet/scratch/img/out-base/1x1_tdm8-if2/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 95204,
+    ".rodata": 12456,
+    ".data": 56,
+    ".bss": 49380,
+    ".stack": 8192,
+    ".riscv.attributes": 28,
+    ".debug_info": 7169,
+    ".debug_abbrev": 2013,
+    ".debug_loclists": 6889,
+    ".debug_aranges": 344,
+    ".debug_rnglists": 478,
+    ".debug_line": 6796,
+    ".debug_str": 1534,
+    ".debug_line_str": 740,
+    ".debug_frame": 108
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3352,
+    "image_aecp_bridge": 132,
+    "image_allocation": 16,
+    "image_app": 10056,
+    "image_arena": 19840,
+    "image_binding": 40,
+    "image_descriptors": 672,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 840,
+    "image_face": 88,
+    "image_latency": 8,
+    "image_licences": 4,
+    "image_map_pools": 56,
+    "image_maps": 200,
+    "image_map_scratch": 136,
+    "image_model": 12,
+    "image_names": 468,
+    "image_platform": 56,
+    "image_sources": 128,
+    "image_srp": 5032,
+    "image_state": 84,
+    "image_values": 4527
+  },
+  "artifacts": [
+    {
+      "name": "libc_nano.a",
+      "size": 9804776,
+      "sha256": "1e747b32e39db12e03388988c0df263187e1f337038fea4c1b7d99e8368c1164"
+    },
+    {
+      "name": "libgcc.a",
+      "size": 4451638,
+      "sha256": "f26fda377a42b7435ef40d970081ae853d4a44f9a018141ee983795f1b3492df"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 166156,
+      "sha256": "a9396e72d70133c6cc659a4f24264efcf8aac0acaa4613b98836edee7ecf0ac7"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 193850,
+      "sha256": "5810d61fd16b39cf502eb4f6ec7feb58b247d04d0283a25e5148e72cbc44399f"
+    }
+  ],
+  "ram_sections": 165288,
+  "split": {
+    "rom": {
+      "bytes": 107720,
+      "banks": [
+        65536,
+        32768,
+        8192,
+        2048
+      ],
+      "RAMB36": 26,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 57648,
+      "banks": [
+        32768,
+        16384,
+        8192,
+        2048
+      ],
+      "RAMB36": 14,
+      "RAMB18": 1
+    },
+    "tiles": 41.0,
+    "budget_tiles": 56
+  }
+}

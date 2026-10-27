@@ -1,0 +1,23 @@
+Note: Google Test filter = Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Face
+[ RUN      ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+$REVIEWS/665s1-r702-6-packet/scratch/probe1/probe_here/test_aecp.cpp:2490: Failure
+Expected: ((last->now_ms-in_progress)*MS+aecp_service_limit_ns) <= (120*MS), actual: 140000000 vs 120000000
+the final response within 120 ms of its IN_PROGRESS, the service bound included
+
+  [FAIL] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence: the final response within 120 ms of its IN_PROGRESS, the service bound included
+[  FAILED  ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence (0 ms)
+[----------] 1 test from Face (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Face.AWaitingChangeIsAnsweredWithinTheInProgressCadence
+
+ 1 FAILED TEST
+== AECP core: checks: 1   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 1 checks, exit 1)
