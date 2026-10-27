@@ -1,0 +1,141 @@
+[
+  {
+    "variant": "R-mask-overclears-format",
+    "build_rc": 0,
+    "run_rc": 1,
+    "complete": true,
+    "fail_lines": 61,
+    "fail_lines_matching_prefix": 61,
+    "prefix": "GI",
+    "first_fails": [
+      "FAIL: GI RESET solicited: byte-exact sink 0 response",
+      "FAIL: GI RESET solicited: byte-exact sink 1 response",
+      "FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-ACTIVE solicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6373 checks, 61 failures"
+    ]
+  },
+  {
+    "variant": "R-mask-overclears-acclat",
+    "build_rc": 0,
+    "run_rc": 0,
+    "complete": true,
+    "fail_lines": 0,
+    "fail_lines_matching_prefix": 0,
+    "prefix": "GI",
+    "first_fails": [],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6373 checks, 0 failures"
+    ]
+  },
+  {
+    "variant": "R-mask-wrong-lane",
+    "build_rc": 0,
+    "run_rc": 1,
+    "complete": true,
+    "fail_lines": 22,
+    "fail_lines_matching_prefix": 22,
+    "prefix": "GI GATE",
+    "first_fails": [
+      "FAIL: GI GATE RESET solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0",
+      "FAIL: GI GATE RESET solicited: byte-exact sink 0 response",
+      "FAIL: GI GATE PROBING unsolicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0",
+      "FAIL: GI GATE PROBING unsolicited: byte-exact sink 0 response",
+      "FAIL: GI GATE PROBING solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0",
+      "FAIL: GI GATE PROBING solicited: byte-exact sink 0 response"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6373 checks, 22 failures"
+    ]
+  },
+  {
+    "variant": "R-sel4-fail-code-dropped",
+    "build_rc": 0,
+    "run_rc": 0,
+    "complete": true,
+    "fail_lines": 0,
+    "fail_lines_matching_prefix": 0,
+    "prefix": "GI",
+    "first_fails": [],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6373 checks, 0 failures"
+    ]
+  },
+  {
+    "variant": "R-status-wrong-field",
+    "build_rc": 0,
+    "run_rc": 1,
+    "complete": true,
+    "fail_lines": 834,
+    "fail_lines_matching_prefix": 20,
+    "prefix": "GI GATE",
+    "first_fails": [
+      "FAIL: GI COMPLETED unsolicited: byte-exact sink 0 response",
+      "FAIL: GI COMPLETED solicited: byte-exact sink 0 response",
+      "FAIL: GI COMPLETED unsolicited: byte-exact sink 1 response",
+      "FAIL: GI COMPLETED solicited: byte-exact sink 1 response",
+      "FAIL: GI FAILED-0 unsolicited: byte-exact sink 0 response",
+      "FAIL: GI FAILED-0 solicited: byte-exact sink 0 response"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6373 checks, 834 failures"
+    ]
+  },
+  {
+    "variant": "R-settled-ge-passive",
+    "build_rc": 0,
+    "run_rc": 1,
+    "complete": true,
+    "fail_lines": 71,
+    "fail_lines_matching_prefix": 10,
+    "prefix": "GI GATE PASSIVE-STALE",
+    "first_fails": [
+      "FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-ACTIVE solicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response",
+      "FAIL: GI PASSIVE unsolicited: byte-exact sink 0 response",
+      "FAIL: GI PASSIVE solicited: byte-exact sink 0 response"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6373 checks, 71 failures"
+    ]
+  },
+  {
+    "variant": "R-gate-leaks-to-output",
+    "build_rc": 0,
+    "run_rc": 0,
+    "complete": true,
+    "fail_lines": 0,
+    "fail_lines_matching_prefix": 0,
+    "prefix": "",
+    "first_fails": [],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6373 checks, 0 failures"
+    ]
+  },
+  {
+    "variant": "R-gate-hits-format",
+    "build_rc": 0,
+    "run_rc": 1,
+    "complete": true,
+    "fail_lines": 61,
+    "fail_lines_matching_prefix": 0,
+    "prefix": "",
+    "first_fails": [
+      "FAIL: GI RESET solicited: byte-exact sink 0 response",
+      "FAIL: GI RESET solicited: byte-exact sink 1 response",
+      "FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-ACTIVE solicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6373 checks, 61 failures"
+    ]
+  }
+]

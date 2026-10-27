@@ -1,0 +1,70 @@
+[
+  {
+    "variant": "golden",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  },
+  {
+    "variant": "settled-gate-removed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE PASSIVE-STALE solicited: stream_id sink 0 is zero"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "settled-gate-flags-passed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE PASSIVE-STALE solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "settled-gate-sid-passed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE PASSIVE-STALE solicited: stream_id sink 0 is zero"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "settled-gate-dmac-passed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE PASSIVE-STALE solicited: stream_dest_mac sink 0 is zero"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "settled-gate-closed",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE SETTLED solicited: stream_id sink 0 is the settled stream's"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "settled-means-bound",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE PROBING solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0"
+    ],
+    "passed": true
+  },
+  {
+    "variant": "restored",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true
+  }
+]
