@@ -1,0 +1,93 @@
+remote: https://github.com/kebag-logic/milan-fpga.git
+head: e0bb857a9f4b8e9d29736970a1135afde03260c5
+lane base origin/dev-soft-core e76a755a is an ancestor of the head
+ls-remote:
+f58d049beb377c3f535628067022d4d5b51e8208	refs/heads/665-s2-cpu-budget
+9220f9b38a30a3390fb5a9ef147e13d3a608b409	refs/heads/dev-soft-core
+
+commits since de91db59:
+e0bb857a9f4b8e9d29736970a1135afde03260c5 Amend NFR-SCOUT-01 for the split hart's 4 KiB instruction cache, as the owner decided, and record the amendment (#665)
+
+commit body and trailers (empty expected):
+| 
+[end]
+
+diff --stat de91db59..HEAD:
+ docs/ARCHITECTURE_HW_SW_SPLIT.md    | 2 +-
+ docs/design/MARK_II_AREA_PLAN.md    | 2 +-
+ docs/design/SPLIT_CONTROL_MEMORY.md | 8 +++++---
+ docs/reference/FR_NFR.md            | 2 +-
+ 4 files changed, 8 insertions(+), 6 deletions(-)
+
+diff de91db59..HEAD:
+diff --git a/docs/ARCHITECTURE_HW_SW_SPLIT.md b/docs/ARCHITECTURE_HW_SW_SPLIT.md
+index 2c47d3a1b1..7ee8e1ded1 100644
+--- a/docs/ARCHITECTURE_HW_SW_SPLIT.md
++++ b/docs/ARCHITECTURE_HW_SW_SPLIT.md
+@@ -59,7 +59,7 @@ Milan v1.2 5.4.5.2 and IEEE 1722.1-2021 7.5.2 remain normative.
+ 
+ [NFR-SCOUT-01..03](reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
+ constrain capacity, placement and service timing.
+-One cacheless RV32I control hart remains the release target.
++The release architecture uses one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless.
+ Media capacity grows through fabric contexts, channels and sample rates.
+ Protocol state grows through static pools sized from the entity model.
+ Every supported shape must meet the same service bound.
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index 43a2ce53fb..9fed8b99e5 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -380,7 +380,7 @@ Clauses are IEEE 1722.1-2021, IEEE 1722-2016, IEEE 802.1Q-2018, IEEE 802.1AS-201
+ | Hierarchy | LUT | FF | Function | How it is built | Set by the standard | Implementation choice |
+ |---|---:|---:|---|---|---|---|
+ | `@own` (the LiteX top) | 4,833 | 6,072 | DDR3 controller and PHY, the SoC bus and CSR banks, the management MAC, UART, SPI flash, the BIOS ROM and SRAM, generated FIFOs | one flat generated module | nothing in Milan | DDR3 main memory (L11a), the FIFO storage (L3) |
+-| `VexiiRiscvLitex_*` | 3,522 | 4,736 | the control hart (NFR-SCOUT-01: one cacheless RV32I) | the VexiiRiscv core and its bus bridges | nothing in Milan | the core choice (L11b) |
++| `VexiiRiscvLitex_*` | 3,522 | 4,736 | the control hart (NFR-SCOUT-01: one RV32I hart, 4 KiB instruction cache, no data cache) | the VexiiRiscv core and its bus bridges | nothing in Milan | the core choice (L11b) |
+ | `VexiiRiscvLitex_*/vexiis_0_logic_core` and its own logic | 1,148 | 1,041 | the RV32I pipeline itself | an in-order pipeline with its register file | nothing in Milan | the core |
+ | `VexiiRiscvLitex_*/@own` | 696 | 1,807 | the netlist's own glue: bus adapters, clock-domain FIFOs, the interrupt and timer blocks | generated interconnect | nothing in Milan | replaced with the core in L11b |
+ 
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index d9033a9812..0a80e653ae 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -240,6 +240,8 @@ The cache's tiles are the CPU's, outside `rom` and `sram`, so the 56-RAMB36 firm
+ They are debited in the [plan's ledger](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 1.5 tiles, in the split only.
+ The route closes at the shipping clocks, the CPU at 50 MHz and its bus at 100 MHz; the integrated route is M8a-2's.
+ 
+-[NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) requires "one cacheless RV32I control hart", and [the architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats it.
+-The owner's decision gives the split hart this instruction cache.
+-That requirement text awaits the owner's amendment (#665); this section records the conflict until then.
++The owner amended [NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) for this cache on 2026-10-27 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6434741232), [correction](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6434744436)), following the 2026-10-26 decision that the cache is the first approach.
++It had required "one cacheless RV32I control hart", which this cache contradicted.
++It now requires one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless.
++[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
++Any change to the cache's geometry, or a data cache, needs the owner's decision again.
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index 509e9ca806..90ca449322 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -318,7 +318,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
+ ### 3.4 Fabric scale-out and future ports
+ | ID | Requirement | Pri | Ver |
+ |----|-------------|-----|-----|
+-| NFR-SCOUT-01 | The release architecture MUST use one cacheless RV32I control hart. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
++| NFR-SCOUT-01 | The release architecture MUST use one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
+ | NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP and SRP MUST each be build-selectable between bare-metal firmware and fabric. Mark II defaults to firmware; all-fabric remains supported and the shipping default until F2 to F5 pass suites and bench acceptance for all streams, counters and audio soak. Each function MUST have one state owner. Framing, timestamps, ingress filtering, gPTP and media MUST remain fabric-owned. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |
+ | NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio and gPTP deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. | M | A,T |
+ | NFR-SCOUT-04 | The PHC, MAC trunk, CSR window, and fabric egress arbiter MUST each have one coherent owner and deterministic arbitration across all elaborated streams. | M | A,T |
+
+docs/history touched: 0
+submodule pointer changes: 0
+
+remaining 'cacheless' in the four documents and the architecture page (git grep -n at the head):
+HEAD:docs/ARCHITECTURE_HW_SW_SPLIT.md:62:The release architecture uses one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless.
+HEAD:docs/design/MARK_II_AREA_PLAN.md:610:D5 conditionally approves a smaller cacheless RV32I control hart.
+HEAD:docs/design/MARK_II_AREA_PLAN.md:1302:| D5, control core | [Owner decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637): smaller cacheless RV32I, conditionally | Prove 8x8 capture <= 24.5 ms and boot timing; revert otherwise |
+HEAD:docs/design/MARK_II_AREA_PLAN.md:1357:**The core pricing (L11b).** Three cacheless RV32I cores synthesized out of context with `AreaOptimized_high` for the same part: the shipping VexiiRiscv netlist the export reads, LiteX's VexRiscv `Min` netlist, and PicoRV32 with LiteX's `minimal` parameters. Each is the core alone, with whatever bus bridges its netlist contains; the figures are in [L11](#l11-the-soc-side).
+HEAD:docs/design/SPLIT_CONTROL_MEMORY.md:223:| Data cache | none | With the DMA port, an LSU L1 makes the generator build its coherent interconnect and hub instead of [patch 0005](../../sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch)'s non-coherent fabric. The data side's measured cost is mostly byte-loop stores to `sram`, which the firmware removes first. |
+HEAD:docs/design/SPLIT_CONTROL_MEMORY.md:228:Its region check is the cacheless fetch's expression, read at the cache's own fetch stage.
+HEAD:docs/design/SPLIT_CONTROL_MEMORY.md:235:| Split, cacheless (base `e76a755a`) | 3,091 | 5,017 | 2 / 5 | 4.5 | +0.305 / +0.064 ns |
+HEAD:docs/design/SPLIT_CONTROL_MEMORY.md:244:It had required "one cacheless RV32I control hart", which this cache contradicted.
+HEAD:docs/design/SPLIT_CONTROL_MEMORY.md:245:It now requires one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless.
+HEAD:docs/reference/FR_NFR.md:6:release uses one cacheless RV32I control hart and scales media capacity through
+HEAD:docs/reference/FR_NFR.md:321:| NFR-SCOUT-01 | The release architecture MUST use one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |

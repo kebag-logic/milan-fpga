@@ -1,0 +1,12 @@
+KILLED main reuse refusal removed (run.py:317): rc=1
+    FAIL: the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless: xip --xip: reached; xip --fetch-l1 64x1: reached; plain (split): reached; plain --fetch-l1 none --xip: reached; no fetch L1 recorded (split): reached
+    self-test: 1 failures
+KILLED build records xip as False (build.py:520): rc=1
+    FAIL: the run builds and records the fetch L1 and the arm it selected: {'xip': ('reached', ('64x1', False)), 'plain': ('reached', ('none', False))}
+    FAIL: the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless: xip --fetch-l1 64x1 --xip: exit 2: run.py: error: the reused build is another point, CPU region set, mutation, variant, fetch L1 or arm; xip --fetch-l1 64x1: reached
+    self-test: 2 failures
+KILLED main builds with the default cache, ignoring --fetch-l1 (run.py:321): rc=1
+    FAIL: the run builds and records the fetch L1 and the arm it selected: {'xip': ('reached', ('split', True)), 'plain': ('reached', ('split', False))}
+    FAIL: the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless: xip --fetch-l1 64x1 --xip: exit 2: run.py: error: the reused build is another point, CPU region set, mutation, variant, fetch L1 or arm; xip --xip: reached; plain --fetch-l1 none: exit 2: run.py: error: the reused build is another point, CPU region set, mutation, vari
+    self-test: 2 failures
+rc=0

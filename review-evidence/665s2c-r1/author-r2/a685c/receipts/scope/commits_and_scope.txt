@@ -1,0 +1,34 @@
+head de91db59d10d4e9e3de607f068ace7680f293fd7
+Round-2 commits on a611785f (one-line subjects, no body, no trailers):
+706603ee2721a0ab1810cb5eadca2428b966e311 Label the cache's never-answered and never-released paths as lower bounds and state its block-RAM rate as measured (#665)
+  body lines after the subject: 0
+a75220ac56ba670966ce11cf7894958090e84cee Select the cacheless core in the README's S2 Results, arm, fixture and control commands (#665)
+  body lines after the subject: 0
+d50b799d2ac49fdb508fe956b0f00cae45be9a3b Drive the run's build record and reuse refusal of the cache's fetch L1 and arm in the self-test (#665)
+  body lines after the subject: 0
+2d9671ac9639099c089becb9dd0e1cedb78ab45e Pin the split CPU's 4 KiB direct-mapped generator options in the option test (#665)
+  body lines after the subject: 0
+619e84e61a41b1b81b95d8bc0cf29737b05a2458 Word the XIP arm's comment, conclusion and tile figures as measured, and count the area plan's four totals (#665)
+  body lines after the subject: 0
+de91db59d10d4e9e3de607f068ace7680f293fd7 Document the self-test's group-setup sentinel, as the Python idiom gate requires (#665)
+  body lines after the subject: 0
+
+git diff --stat a611785f..HEAD:
+ docs/design/MARK_II_AREA_PLAN.md                   |   4 +-
+ sw/builder/test_soc_options.py                     |  24 +++--
+ tb/verilator/ctrl_service_budget/README.md         |  74 +++++++++----
+ tb/verilator/ctrl_service_budget/build.py          |  11 +-
+ tb/verilator/ctrl_service_budget/selftest.py       | 119 ++++++++++++++++++---
+ .../ctrl_service_budget/selftest_mutants.py        |  30 +++++-
+ 6 files changed, 211 insertions(+), 51 deletions(-)
+
+Product, firmware, mailbox, config and HDL paths changed since a611785f (expect none):
+(end)
+
+Submodule pointers changed since a611785f (expect none):
+(end)
+
+git ls-remote origin before REVIEW READY:
+f58d049beb377c3f535628067022d4d5b51e8208	refs/heads/665-s2-cpu-budget
+a611785f2afe5bbe587f74034d869e869a1c8d37	refs/heads/665-s2c-icache
+9220f9b38a30a3390fb5a9ef147e13d3a608b409	refs/heads/dev-soft-core

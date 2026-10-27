@@ -1,0 +1,12 @@
+ci_events_selftest.log is over 200 KB and kept outside the packet, by digest:
+bytes 336198
+sha256 20302756e7a6fbebd47b49a98028dccfc7b8735bd1fe77256ddfb6179f398573
+last lines:
+  ok   default-branch: schedule with an empty value refuses
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (2199 contract items, 5236 arms)
+rc=0
+tree clean after the gate
