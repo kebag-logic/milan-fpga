@@ -18,6 +18,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points, mapped out of context, and the ledger rows.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
 - **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
+- **[8. The CPU's multiply and divide](#8-the-cpus-multiply-and-divide)** -- The split CPU's RV32M, the image built and audited for it, its logic out of context, and the requirement amended for it.
 
 ## 1. Memory map
 
@@ -242,6 +243,40 @@ The route closes at the shipping clocks, the CPU at 50 MHz and its bus at 100 MH
 
 The owner amended [NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) for this cache on 2026-10-27 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6434741232), [correction](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6434744436)), following the 2026-10-26 decision that the cache is the first approach.
 It had required "one cacheless RV32I control hart", which this cache contradicted.
-It now requires one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless.
-[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
+It then required one RV32I control hart: in the split placement with a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement cacheless.
+Section 8 records the later amendment for the split hart's multiply and divide.
 Any change to the cache's geometry, or a data cache, needs the owner's decision again.
+
+## 8. The CPU's multiply and divide
+
+The split placement's CPU has RV32M ([#665 S2b round 3](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6445197853), owner decision of 2026-10-27).
+`milan_soc.CTRL_MULDIV` adds the pinned VexiiRiscv generator's `--with-mul --with-div` to `ctrl_cpu_args`, under `--ctrl-mailbox` only: its `MulPlugin`, and its `DivPlugin` at the generator's defaults, a radix-2 divider built for area.
+The ISA does not depend on the cache, so the harness's cacheless and sweep arms (`--fetch-l1 none`, `SETSxWAYS`) keep RV32M and run the same image.
+The all-fabric CPU's arguments are unchanged, so its netlist is too; [`test_soc_options.py`](../../sw/builder/test_soc_options.py) proves both, with eleven planted controls.
+
+The split image is built for it.
+`ctrl_srp_image.py --layout split` compiles and links with `-march=rv32im` (`ctrl_build.SPLIT_RV32_FLAGS`).
+It refuses an object without the RV32IM attribute, an object that calls a software multiply or divide helper (`fw_rv32.muldiv_findings`), and a linked ELF that is not RV32IM.
+The flat layout and `ctrl_image.py` stay RV32I.
+So every 32-bit multiply and divide of the split image is an instruction.
+The saved-state store's clock (`ls_now_us`), lwSRP's `parse_pass` and LeaveAll draw, MAAP's and ADP's random draws, AECP's controller monitor and map commands, and the pool's index arithmetic no longer call `__udivsi3`, `__umodsi3` or `__mulsi3`, and SRP's `declare_sources` no longer calls `__muldi3`.
+At the shipping 1x1 point the image calls one runtime helper still, `__lshrdi3`, at nine call sites: tsn-c-stack's `wire_put_be` (`include/wire.h`) shifts its value as 64 bits, in its five out-of-line copies and where the SRP glue inlines it.
+Removing that shift is the stack's change, not this placement's.
+
+Out of context, Vivado 2026.1 with `AreaOptimized_high` on `xc7a100t-fgg484-2`, the product split CPU netlist the `--ctrl-mailbox` export reads at the shipping 1x1 config, both netlists exported from the same image so that only the extension differs:
+
+| CPU | LUT | FF | DSP48E1 | RAMB36 / RAMB18 | Tiles | Routed WNS / WHS at 20 / 10 ns |
+|---|---:|---:|---:|---:|---:|---:|
+| Split, 4 KiB instruction cache | 3,082 | 5,190 | 0 | 3 / 6 | 6.0 | +0.607 / +0.003 ns |
+| Split, 4 KiB instruction cache and RV32M | 3,481 | 5,433 | 4 | 3 / 6 | 6.0 | +0.826 / +0.073 ns |
+| Difference | +399 | +243 | +4 | 0 / 0 | 0 | |
+
+The first row reproduces section 7's cached CPU exactly.
+The extension adds no block RAM, so neither the 56-RAMB36 firmware allocation nor the [plan's ledger](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger) changes; its logic and its four DSP slices are the CPU's, in the split only.
+Both routes complete with no routing error and close at the shipping clocks, the CPU at 50 MHz and its bus at 100 MHz; the integrated route is M8a-2's.
+
+The owner amended [NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) for this extension on 2026-10-27 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6445197853)).
+It had required one RV32I control hart in both placements.
+It now requires one control hart: in the split placement it is RV32IM, with a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it is RV32I and stays cacheless.
+[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
+Any other extension, or M on the all-fabric hart, needs the owner's decision again.

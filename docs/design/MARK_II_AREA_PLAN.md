@@ -380,7 +380,7 @@ Clauses are IEEE 1722.1-2021, IEEE 1722-2016, IEEE 802.1Q-2018, IEEE 802.1AS-201
 | Hierarchy | LUT | FF | Function | How it is built | Set by the standard | Implementation choice |
 |---|---:|---:|---|---|---|---|
 | `@own` (the LiteX top) | 4,833 | 6,072 | DDR3 controller and PHY, the SoC bus and CSR banks, the management MAC, UART, SPI flash, the BIOS ROM and SRAM, generated FIFOs | one flat generated module | nothing in Milan | DDR3 main memory (L11a), the FIFO storage (L3) |
-| `VexiiRiscvLitex_*` | 3,522 | 4,736 | the control hart (NFR-SCOUT-01: one RV32I hart, 4 KiB instruction cache, no data cache) | the VexiiRiscv core and its bus bridges | nothing in Milan | the core choice (L11b) |
+| `VexiiRiscvLitex_*` | 3,522 | 4,736 | the control hart (NFR-SCOUT-01: one hart; in the split placement RV32IM, 4 KiB instruction cache, no data cache) | the VexiiRiscv core and its bus bridges | nothing in Milan | the core choice (L11b) |
 | `VexiiRiscvLitex_*/vexiis_0_logic_core` and its own logic | 1,148 | 1,041 | the RV32I pipeline itself | an in-order pipeline with its register file | nothing in Milan | the core |
 | `VexiiRiscvLitex_*/@own` | 696 | 1,807 | the netlist's own glue: bus adapters, clock-domain FIFOs, the interrupt and timer blocks | generated interconnect | nothing in Milan | replaced with the core in L11b |
 
@@ -886,6 +886,7 @@ The conditional release subtracts eleven once, giving 114.
 With every bank in block RAM: `126`, and 115 after the release.
 The split CPU's instruction cache then adds 1.5 ([#665 S2c](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860)): 115.5, or 116.5 with every bank in block RAM.
 It is the CPU's own memory, outside the firmware allocation, measured out of context on the product split CPU netlist ([split control memory](SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache)).
+The split CPU's RV32M ([#665 S2b round 3](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6445197853)) adds no tile; out of context it adds 399 LUTs, 243 FFs and 4 DSP48E1 slices to that netlist ([split control memory](SPLIT_CONTROL_MEMORY.md#8-the-cpus-multiply-and-divide)), a split-only debit the LUT estimates do not yet carry.
 These memory entries grant no additional LUT saving.
 The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
 They depend on fitting the credited RAM conversions within the ledger.

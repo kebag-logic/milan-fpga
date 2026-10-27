@@ -314,6 +314,11 @@ flowchart TB
   later record's count adds to what is carried), so lwSRP's leave, LeaveAll
   and periodic timers run on fabric time, lose no tick when the core is
   late, and catch up a bounded slice at a time.
+  The owner's D4(b) decision (#665, 2026-10-27: the admitted backlog first)
+  kept these counts; `ctrl_loop.h` states why. Every pass bound below charges
+  a record at its channel's maximum length, and SRP's ring holds two of those.
+  A full ring of events in every pass would raise each module's bound (ACMP's
+  owed-frame bound from 9,270 to 12,222 accesses).
   Register `shlan_timer_tick` once, not lwSRP's `mrp_tick()` per
   application: `mrp_tick()` calls the same global tick, so one registration
   per MRP application would advance every timer that many times per
