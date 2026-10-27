@@ -1,0 +1,82 @@
+[
+  {
+    "name": "rx-refusal-old-owner-form",
+    "path": "aecp/aecp.c",
+    "old": "if (status == AECP_ENTITY_LOCKED && a->refusing && !aecp_other_lock(a)) {",
+    "new": "if (status == AECP_ENTITY_LOCKED && a->refusing && (!a->locked || a->lock_owner == a->requester)) {",
+    "tests": [
+      "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease"
+    ],
+    "caught": true
+  },
+  {
+    "name": "available-owner-zero-while-unlocked",
+    "path": "aecp/aecp_commands.c",
+    "old": "wire_put_be(out + 12, a->lock_owner, 8);",
+    "new": "wire_put_be(out + 12, a->locked ? a->lock_owner : 0u, 8);",
+    "tests": [
+      "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease"
+    ],
+    "caught": true
+  },
+  {
+    "name": "acmp-owner-zero-while-unlocked",
+    "path": "aecp/aecp.c",
+    "old": "*owner = a->lock_owner;",
+    "new": "*owner = a->locked ? a->lock_owner : 0u;",
+    "tests": [
+      "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease"
+    ],
+    "caught": true
+  },
+  {
+    "name": "lock-refusal-locked-id-zero-while-unlocked",
+    "path": "aecp/aecp_commands.c",
+    "old": "wire_put_be(out + 4, a->lock_owner, 8);",
+    "new": "wire_put_be(out + 4, a->locked ? a->lock_owner : 0u, 8);",
+    "tests": [
+      "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease"
+    ],
+    "caught": true
+  },
+  {
+    "name": "mvu-refusal-only-while-waiting",
+    "path": "aecp/aecp.c",
+    "old": "if (set && a->refusing) {",
+    "new": "if (set && a->waiting) {",
+    "tests": [
+      "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs"
+    ],
+    "caught": true
+  },
+  {
+    "name": "mvu-ignores-other-lock",
+    "path": "aecp/aecp.c",
+    "old": "if (cmd == 2u || (set && !aecp_other_lock(a))) {",
+    "new": "if (cmd == 2u || set) {",
+    "tests": [
+      "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs"
+    ],
+    "caught": true
+  },
+  {
+    "name": "mvu-refusal-before-other-lock",
+    "path": "aecp/aecp.c",
+    "old": "if (cmd == 2u || (set && !aecp_other_lock(a))) {",
+    "new": "if (cmd == 2u || (set && (a->refusing || !aecp_other_lock(a)))) {",
+    "tests": [
+      "Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs"
+    ],
+    "caught": true
+  },
+  {
+    "name": "owner-changes-while-unlocked",
+    "path": "aecp/aecp_commands.c",
+    "old": "return a->refusing || aecp_other_lock(a);",
+    "new": "return (a->refusing && !a->unlocked) || aecp_other_lock(a);",
+    "tests": [
+      "Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease"
+    ],
+    "caught": true
+  }
+]

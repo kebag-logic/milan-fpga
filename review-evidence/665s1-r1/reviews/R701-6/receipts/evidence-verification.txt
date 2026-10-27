@@ -1,0 +1,19 @@
+Evidence commit 17fa488f86d1122dd8a25f6de0a77d5a2d22490d ("665s1 author round 6 packet"; not GPG-signed, %G? = N).
+MANIFEST.json: 1071 entries; author-r6 entries 186; 186 match published_sha256; 0 bad; 0 unlisted author-r6 files.
+  original != published or path_redacted: author-r6/probes/collect_receipts.sh only.
+author-r6/receipts/INDEX.md: 172 rows; 172 match byte length and sha256.
+head.txt in aecp-mutants/, fw/, gates/, probes/: 424b1489ccd8062180f90158556d343589b9e1e5. Sweep spec: head 424b1489..., base e76a755a.
+aecp-mutants results-shard-0..3.json: 137 defects, 137 caught, four shard logs rc=0.
+fw/shard-0..3.txt: "test_ctrl_firmware: PASS", rc=0 each.
+gates/docs-gates.txt: 69 commands at [rc=0], none non-zero.
+gates/fw-coverage-check.txt: aecp.c 417/417 360/360, aecp_commands.c 450/450 374/374, aecp_face.c 172/172 152/152.
+images/linked-images.txt: rom 104,424 / 106,008 / 118,144 / 119,800; sram 46,256 / 57,648 / 86,832 / 112,992; RAMB36 37.0 / 40.5 / 50.5 / 57.5;
+  8x8 if2 refused without the override (rc 2); the override refused at the other three points (rc 2).
+Published prior-round reviewer probes (fetched from the same commit, review-evidence/665s1-r1/reviews/):
+e2b6b27a242611c568e3443dbc467dd61a036f09ac2e28faa829614e147999ec  R701-5/count_face_defects.py
+7d8c9bcbf68602b942d1c44d4b97d7ae4d532167ef8f7d1bd06f2ea70815ef30  R701-5/probes/probe_wait_refusals.cpp
+289421878a235291f94e1158f3463e102b02169685e1031fbf437922e20a2c75  R702-5/scripts/probe_held_interface.cpp
+00c00f269b7d7084a849dbc6aff12fa38845cbd66963fede6ad76ae922fa7b08  R702-5/scripts/probe_release_reads.cpp
+11492263b552b720143ec3e48ae37071649b5b42fd710462746d70ae012d86b3  R702-5/scripts/review_mutants.py
+32e052842c4eb93de6f96c9ffe9e551736c3e623e7fde3fa25f51ee3a9d0ded8  R702-5/scripts/run_arm.py
+All six equal the hashes in author-r6/receipts/probes/probe-hashes.txt.

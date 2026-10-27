@@ -1,0 +1,42 @@
+== mode core interfaces 1: rc 0
+Note: Google Test filter = Core.ReviewerProbeUnlockedEdges:Core.AnExpired*:Core.ASystemId*:Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Core
+[ RUN      ] Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease
+[       OK ] Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease (0 ms)
+[ RUN      ] Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs
+[       OK ] Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs (0 ms)
+[ RUN      ] Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn
+[       OK ] Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn (0 ms)
+[ RUN      ] Core.ReviewerProbeUnlockedEdges
+[       OK ] Core.ReviewerProbeUnlockedEdges (0 ms)
+[----------] 4 tests from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+== AECP core: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
+== mode core interfaces 2: rc 0
+Note: Google Test filter = Core.ReviewerProbeUnlockedEdges:Core.AnExpired*:Core.ASystemId*:Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from Core
+[ RUN      ] Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease
+[       OK ] Core.AnExpiredLockHoldsByItsOwnerUntilThePlatformAppliedItsRelease (0 ms)
+[ RUN      ] Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs
+[       OK ] Core.ASystemIdChangeWhileOneWaitsIsRefusedAsEveryChangeIs (0 ms)
+[ RUN      ] Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn
+[       OK ] Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn (0 ms)
+[ RUN      ] Core.ReviewerProbeUnlockedEdges
+[       OK ] Core.ReviewerProbeUnlockedEdges (0 ms)
+[----------] 4 tests from Core (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+== AECP core: checks: 4   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (4 tests, 0 failures, exit 0)
