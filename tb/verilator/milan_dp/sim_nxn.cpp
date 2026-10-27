@@ -7472,8 +7472,9 @@ class NxnDatapathHarness {
         // packets"). KL_pair_zero_fill now strobes every consumed pair slot at
         // clk_audio/512, silence where nothing feeds it, so an armed talker
         // frames at the media rate. Talkers are told apart by the sid uid16
-        // (bytes 24-25): t0 = 0, t1 = 5 (staged into A_SW_DMAC_HI[31:16] in the
-        // TCTX section above); anything else armed here would be a defect.
+        // (bytes 24-25): t0 = 0, t1 = 1, from the processor. The explicit
+        // TCTX uid 5 cannot override that published identity (processor #202,
+        // IEEE 1722-2016 4.4.4.8); sibling contexts keep their own IDs.
         {
             std::vector<uint8_t> cur;
             int t1f = 0, t1sil = 0, t1chans = -1, t1dlen = -1, foreign = 0,
@@ -7493,7 +7494,7 @@ class NxnDatapathHarness {
                         if (cur.size() >= 86 + off && cur[12+off] == 0x22
                             && cur[13+off] == 0xF0 && cur[14+off] == 0x02) {
                             int uid = (cur[24+off] << 8) | cur[25+off];
-                            if (uid == 5) {
+                            if (uid == 1) {
                                 t1f++;
                                 t1chans = cur[32+off];
                                 t1dlen  = (cur[34+off] << 8) | cur[35+off];
