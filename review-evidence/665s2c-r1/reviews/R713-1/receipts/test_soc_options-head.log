@@ -1,0 +1,19 @@
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+  killed: the split CPU without its cache
+  killed: the all-fabric CPU with the cache
+  killed: a data cache with it
+Split placement CPU: the instruction cache on the split CPU only, 3 killed controls
+RESULT: PASS
+
+real	0m22.971s
+user	0m18.670s
+sys	0m4.159s

@@ -1,0 +1,17 @@
+Call relocations in the head image's flash-driver object (scratch rerun P1-64x1, image/26-nvm_flash_litespi.o), by containing function:
+      1 <.L15>: ls_late
+      1 <.L21>: ls_ready
+      1 <.L30>: ls_late
+      1 <.L45>: ls_xfer
+      1 <.L47>: ls_call_begin
+      2 <.L47>: ls_window
+      1 <.L54>: ls_xfer
+      1 <.L62>: ls_call_begin
+      2 <.L62>: ls_window
+      1 <ls_busy>: ls_call_begin
+      1 <ls_busy>: ls_open
+      2 <ls_now_us>: __muldi3
+      2 <ls_now_us>: __udivdi3
+      1 <ls_now_us>: __umoddi3
+      1 <ls_window>: ls_open
+      1 <ls_xfer>: ls_ready
