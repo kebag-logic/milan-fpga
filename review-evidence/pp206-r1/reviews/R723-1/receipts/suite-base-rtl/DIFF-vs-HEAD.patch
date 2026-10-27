@@ -1,0 +1,57 @@
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index abd45cc..6a3950e 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3529,7 +3529,6 @@ module protocol_processor_top
+   logic [SINK_IDX_W_C-1:0] gsi_sink_w;
+   logic [7:0]  gsi_fail_code_w, gsi_status_w;
+   logic [63:0] gsi_fail_bridge_w;
+-  logic        gsi_settled_w;
+   assign gsi_input_w = (gsi_kind_o == 2'd0)
+                         && (gsi_desc_type_o == 16'h0005);
+   assign gsi_internal_w = gsi_input_w
+@@ -3551,18 +3550,6 @@ module protocol_processor_top
+     end
+   end
+ 
+-  //! Milan 5.4.2.10.1 and Table 5.9: an input's stream_id, stream_dest_mac
+-  //! and stream_vlan_id, and their STREAM_ID_VALID, STREAM_DEST_MAC_VALID
+-  //! and STREAM_VLAN_ID_VALID flags, are valid if, and only if, the Stream
+-  //! Input is settled, which is probing_status PROBING_COMPLETED (Milan
+-  //! 5.3.8.5, Table 5.5; IEEE 1722.1-2021 7.4.16.2). The selector 7 status
+-  //! decides it for the integrator's words too: the published binding view
+-  //! keeps a stream's identity from settle to unbind, so an integrator
+-  //! that reads it would report a sink back in probing as settled on its
+-  //! last stream (issue #206).
+-  assign gsi_settled_w = (32'(gsi_desc_index_o) < N_STREAM_IN_P)
+-                         && (gsi_status_w[7:5] == pp_acmp_pkg::PB_COMPLETED_C);
+-
+   always_comb begin : gsi_answer
+     aecp_gsi_data_w = gsi_data_i;
+     if (gsi_input_w) begin
+@@ -3570,22 +3557,13 @@ module protocol_processor_top
+         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+         // Milan 5.3.8.9 and 5.4.2.10: report the full received VLAN.
+-        4'd6: aecp_gsi_data_w = {gsi_settled_w
++        4'd6: aecp_gsi_data_w = {
++            ((32'(gsi_desc_index_o) < N_STREAM_IN_P)
++             && (gsi_status_w[7:5] == pp_acmp_pkg::PB_COMPLETED_C))
+               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+         default: begin end
+       endcase
+-      // Table 5.9 while unsettled: clear the three flags (0x52000000) in
+-      // selector 0's flags, and zero selector 2's stream_id and selector
+-      // 4's stream_dest_mac [63:16].
+-      if (!gsi_settled_w) begin
+-        case (gsi_sel_o)
+-          4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+-          4'd2: aecp_gsi_data_w = 64'd0;
+-          4'd4: aecp_gsi_data_w[63:16] = 48'd0;
+-          default: begin end
+-        endcase
+-      end
+     end
+   end
+ 
