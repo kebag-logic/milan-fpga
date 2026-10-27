@@ -1,0 +1,82 @@
+raw size 2876768 bytes, raw sha256 c3234691cfa567ab7f2c745d0ab71e6b47e14f972b06d5bb2d2895d1bce7f22d; kept as its last 80 lines (host paths normalized)
+----
+  [ok]   [MAPREC] inputs, after the power cycle: port 2: the mappings are the expected list = 0x1
+  [i]    inputs, after the power cycle: port 3: status 0, 4 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0 s3.c2->o2.c0 s0.c0->o3.c0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: number_of_mappings = 0x4
+  [ok]   [MAPREC] inputs, after the power cycle: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: the crossbar RAM routes as the reference = 0x0
+  [i]    inputs, after the power cycle: PP_STAT 5b000404
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT fail 0 = 0x0
+  [ok]   [MAPREC] inputs, after the power cycle: PP_STAT blank 0 = 0x0
+  [ok]   [MAPREC] put-back, last port: the codec frames the format alone = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back reference: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back reference: the map restore held the faces 619 clocks after restore_done, 5069 after PP_CTRL[1]
+  [ok]   [MAPREC] put-back, last port: the codec frames the records = 0x1
+  [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0) = 0x1
+  [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])   = 0x1
+  [ok]   [MAPREC] put-back, last port: the restore reached its terminal and the map restore ended = 0x1
+  [i]    put-back, last port: the map restore held the faces 633 clocks after restore_done, 5083 after PP_CTRL[1]
+  [i]    put-back, last port: port 0: status 0, 4 mapping(s) s0.c0->o0.c0 s0.c1->o1.c0 s0.c2->o2.c0 s0.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 0: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 0: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 0: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 1: status 0, 4 mapping(s) s1.c0->o0.c0 s1.c1->o1.c0 s1.c2->o2.c0 s1.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 1: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 2: status 0, 4 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 2: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 2: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 3: status 0, 2 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0
+  [ok]   [MAPREC] put-back, last port: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 3: number_of_mappings = 0x2
+  [ok]   [MAPREC] put-back, last port: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] put-back, last port: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] put-back, last port: the crossbar RAM routes as the reference = 0x0
+  [i]    put-back, last port: PP_STAT 5b000404
+  [ok]   [MAPREC] put-back, last port: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] put-back, last port: PP_STAT fail 0   = 0x0
+  [ok]   [MAPREC] put-back, last port: PP_STAT blank 0  = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x10
+--------------------------------------------------------------
+checks: 137   failures: 0
+RESULT: PASS
+python3 render_mutants.py
+RENDER-PHASE {"seq": 1, "event": "origin", "t_s": 0.0, "clock": "monotonic", "unit": "s"}
+RENDER-PHASE {"seq": 2, "event": "baseline", "t_s": 0.002, "case": "control", "selected": "prebuilt"}
+RENDER-PHASE {"seq": 3, "event": "start", "t_s": 0.002, "case": "control", "phase": "simulation", "mode": "--live-only", "idle_s": 0.002}
+RENDER-PHASE {"seq": 4, "event": "end", "t_s": 73.744, "case": "control", "phase": "simulation", "mode": "--live-only", "elapsed_s": 73.742, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--live-only)
+RENDER-PHASE {"seq": 5, "event": "start", "t_s": 73.744, "case": "control", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 6, "event": "end", "t_s": 127.177, "case": "control", "phase": "simulation", "mode": "--render-only", "elapsed_s": 53.433, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--render-only)
+RENDER-PHASE {"seq": 7, "event": "start", "t_s": 127.179, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 8, "event": "end", "t_s": 144.856, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "elapsed_s": 17.677, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 9, "event": "start", "t_s": 144.856, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 198.99, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 54.134, "status": 1}
+[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 198.992, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 215.505, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "elapsed_s": 16.513, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 215.505, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 268.003, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 52.498, "status": 1}
+[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 268.007, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "idle_s": 0.004}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 285.164, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "elapsed_s": 17.157, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 285.164, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 340.801, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "elapsed_s": 55.637, "status": 1}
+[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 340.805, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "idle_s": 0.004}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 357.926, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "elapsed_s": 17.121, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 357.926, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 432.806, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "elapsed_s": 74.88, "status": 1}
+[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 432.92, "state": "idle", "idle_s": 0.114}
+
+6 checks: 6 PASS, 0 FAIL
+make: Leaving directory '<scratch>/pp205-parent/tb/verilator/milan_dp'

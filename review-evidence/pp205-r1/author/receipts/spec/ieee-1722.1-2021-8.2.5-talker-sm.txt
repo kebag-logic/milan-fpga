@@ -1,0 +1,37 @@
+# IEEE 1722.1-2021: 8.2.5.2.3 txResponse, 8.2.5.2.5 getState (layout text), and Figure 8-4 GET STATE action (page 353, plain text)
+# Note: in 1722.1-2021, 8.2.4 is the ACMP Listener State Machine (its txResponse is 8.2.4.2.5, same wording); 8.2.5 is the ACMP Talker State Machine.
+   8.2.4. ACMP Listener State Machine
+   8.2.4.1. State machine variables
+   8.2.4.2.5. txResponse(messageType, response, error)
+   The txResponse function transmits a response of type messageType. It sets the ACMPDU fields to the
+   values from the response parameter, the message_type field to the value of messageType and the status
+   field to the value of the error parameter.
+   8.2.4.2.6. connectListener(response)
+   8.2.5.2.3. txResponse(messageType, response, error)
+   The txResponse function transmits a response of type messageType. It sets the ACMPDU fields to the
+   values from the response parameter, the message_type field to the value of messageType and the status
+   field to the value of the error parameter.
+
+
+   8.2.5.2.5. getState(command)
+   The getState function returns a response structure of type ACMPCommandResponse filled with the contents
+   of the command parameter, with the stream_id, stream_dest_mac, stream_vlan_id, and connection_count
+   field set to the values for the ATDECC TalkerStreamInfos entry associated stream identified by the command
+   structure. The getState function also returns a status code as defined in Table 8­3 indicating either SUCCESS
+   or the reason for a failure.
+   8.2.5.2.6. getConnection(command)
+--- Figure 8-4 (p.353) GET STATE action block:
+
+GET STATE
+if(validTalkerUnique(rcvdCmdResp.talker_unique_id))
+{
+(response, error) = getState(rcvdCmdResp);
+}
+else
+{
+response = rcvdCmdResp;
+error = TALKER_UNKNOWN_ID;
+}
+8.2.5.3. State machine diagram
+
+Figure 8­4—ACMP Talker state machine

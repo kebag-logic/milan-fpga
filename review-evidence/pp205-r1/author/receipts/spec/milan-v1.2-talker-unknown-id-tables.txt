@@ -1,0 +1,86 @@
+# Milan v1.2, the three TALKER_UNKNOWN_ID tables: 5.40 (PROBE_TX), 5.44 (DISCONNECT_TX), 5.46 (GET_TX_STATE)
+
+Upon reception of a PROBE_TX_COMMAND message with talker_entity_id field being equal to the Entity ID
+of the PAAD-AE, the PAAD-AE shall:
+     1) Extract the talker’s source from the talker_unique_id field and check that it is valid. If not, send a
+        PROBE_TX_RESPONSE message as shown in Table 5.40 and exit.
+     2) Check that the command ingressed from the AVB Interface attached to the target Stream Output. If not,
+        either ignore the command, or send a PROBE_TX_RESPONSE as shown in Table 5.41. Then exit.
+     3) Check that a valid Destination MAC Address is available for this Stream Output.        If not, send a
+        PROBE_TX_RESPONSE message as shown in Table 5.42. and exit.
+     4) Send a PROBE_TX_RESPONSE message as shown in Table 5.43.
+A Talker PAAD shall ignore the STREAMING_WAIT bit of the PROBE_TX_COMMAND message. No matter the
+                     Table 5.40: PROBE_TX_RESPONSE fields if received talker_unique_id
+                     is invalid.
+
+
+
+  Field                            Value
+  message_type                     PROBE_TX_RESPONSE
+  status                           TALKER_UNKNOWN_ID
+  controller_entity_id             Same value as in the PROBE_TX_COMMAND message.
+  talker_entity_id                 Same value as in the PROBE_TX_COMMAND message.
+  listener_entity_id               Same value as in the PROBE_TX_COMMAND message.
+  talker_unique_id                 Same value as in the PROBE_TX_COMMAND message.
+  listener_unique_id               Same value as in the PROBE_TX_COMMAND message.
+  sequence_id                      Same value as in the PROBE_TX_COMMAND message.
+  connection_count                 Undefined.
+  FAST_CONNECT                     Undefined.
+  STREAMING_WAIT                   Undefined.
+  REGISTERING_FAILED               Undefined.
+  stream_id                        Undefined.
+  stream_dest_mac                  Undefined.
+  stream_vlan_id                   Undefined.
+
+
+
+
+
+                     Table 5.44:     DISCONNECT_TX_RESPONSE   fields   if   received
+                     talker_unique_id is not valid.
+
+
+
+  Field                          Value
+  message_type                   DISCONNECT_TX_RESPONSE
+  status                         TALKER_UNKNOWN_ID
+  controller_entity_id           Same value as in the DISCONNECT_TX_COMMAND message.
+  talker_entity_id               Same value as in the DISCONNECT_TX_COMMAND message.
+  listener_entity_id             Same value as in the DISCONNECT_TX_COMMAND message.
+  talker_unique_id               Same value as in the DISCONNECT_TX_COMMAND message.
+  listener_unique_id             Same value as in the DISCONNECT_TX_COMMAND message.
+  sequence_id                    Same value as in the DISCONNECT_TX_COMMAND message.
+  connection_count               Undefined.
+  FAST_CONNECT                   Undefined.
+  STREAMING_WAIT                 Undefined.
+  REGISTERING_FAILED             Undefined.
+  stream_id                      Undefined.
+  stream_dest_mac                Undefined.
+  stream_vlan_id                 Undefined.
+
+
+
+                     Table 5.46:       GET_TX_STATE_RESPONSE   fields   if   received
+                     talker_unique_id is not valid.
+
+
+
+  Field                          Value
+  message_type                   GET_TX_STATE_RESPONSE
+  status                         TALKER_UNKNOWN_ID
+  controller_entity_id           Same value as in the GET_TX_STATE_COMMAND message.
+  talker_entity_id               Same value as in the GET_TX_STATE_COMMAND message.
+  listener_entity_id             Same value as in the GET_TX_STATE_COMMAND message.
+  talker_unique_id               Same value as in the GET_TX_STATE_COMMAND message.
+  listener_unique_id             Same value as in the GET_TX_STATE_COMMAND message.
+  sequence_id                    Same value as in the GET_TX_STATE_COMMAND message.
+  connection_count               Undefined.
+  FAST_CONNECT                   Undefined.
+  STREAMING_WAIT                 Undefined.
+  REGISTERING_FAILED             Undefined.
+  stream_id                      Undefined.
+  stream_dest_mac                Undefined.
+  stream_vlan_id                 Undefined.
+
+
+

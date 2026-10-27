@@ -1,0 +1,24 @@
+START 1 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator verilator --version
+END 1 0 0.07
+START 2 env git fetch --no-tags origin refs/pull/13/head
+END 2 0 1.224
+START 3 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator bash scripts/lint_hdl.sh
+END 3 0 15.339
+START 4 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator REQ_TAG_LOG=<scratch>/pp205-runs/req-tags-c1.txt bash scripts/run_suites.sh
+END 4 0 2394.797
+START 5 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/check-req-tags.py --suites <scratch>/pp205-runs/processor-c1/04.log --evidence <scratch>/pp205-runs/req-tags-c1.txt
+END 5 0 0.114
+START 6 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -j1 check
+END 6 0 42.513
+START 7 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/gen_matrix.py --check
+END 7 0 0.047
+START 8 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator bash syn/yosys/run.sh
+END 8 0 78.433
+START 9 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 -B tb/elab_guards/guards.py --frontend yosys --jobs 4
+END 9 0 117.653
+START 10 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -C tb/acmp_talker lint
+END 10 0 0.129
+START 11 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -C tb/nvm_port figures
+END 11 0 894.199
+START 12 env git diff --check 097a79875f20c27f0a5987a193c165c5086f3cf5 HEAD
+END 12 0 0.021

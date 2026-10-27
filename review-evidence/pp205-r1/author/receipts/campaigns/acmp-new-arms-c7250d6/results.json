@@ -1,0 +1,72 @@
+[
+ {
+  "mutant": "golden-acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "tx_state_success_echoes_listener@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "B2 listener_eid",
+   "B2 listener_uid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "B2 listener_eid got 1111222233334444",
+   "B2 listener_uid got 7"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "tx_state_unknown_not_fetched@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C2 unknown-id listener_eid",
+   "C2 unknown-id listener_uid",
+   "H3 disabled source GET_TX_STATE listener_eid",
+   "H3 disabled source GET_TX_STATE listener_uid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C2 unknown-id listener_eid got 0000000000000000",
+   "C2 unknown-id listener_uid got 0",
+   "H3 disabled source GET_TX_STATE listener_eid got 0000000000000000",
+   "H3 disabled source GET_TX_STATE listener_uid got 0"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "tx_state_unknown_zeroes_listener@acmp_talker",
+  "suite": "tb/acmp_talker",
+  "build_rc": 0,
+  "run_rc": 2,
+  "completed": true,
+  "named_checks": [
+   "C2 unknown-id listener_eid",
+   "C2 unknown-id listener_uid",
+   "H3 disabled source GET_TX_STATE listener_eid",
+   "H3 disabled source GET_TX_STATE listener_uid"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "C2 unknown-id listener_eid got 0000000000000000",
+   "C2 unknown-id listener_uid got 0",
+   "H3 disabled source GET_TX_STATE listener_eid got 0000000000000000",
+   "H3 disabled source GET_TX_STATE listener_uid got 0"
+  ],
+  "verdict": "KILLED"
+ }
+]

@@ -1,0 +1,27 @@
+# Base and head records (processor)
+origin: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+branch: 205-gtx-state-echo (local, not pushed)
+
+base (processor main): 097a79875f20c27f0a5987a193c165c5086f3cf5 tree e496f4f6faa5d95dbf531f743ecd0dc7a3f72f4a
+commit 1: c7250d652f928fc49051b2e7154cbb937d9dd2d4 tree 8df9ef80721d5a32f3749a288d92610b73f38813
+head:     7bad3943c6dc3a86814faa43aee53a1e8aab4a4f tree 317c13456cdceac6cdcda6e7b40992c40e300b5f
+
+## git log --format='%H %s' 097a798..HEAD
+7bad3943c6dc3a86814faa43aee53a1e8aab4a4f Record the #205 arms and the talker retry campaign re-measured at c7250d6 (issue #205)
+c7250d652f928fc49051b2e7154cbb937d9dd2d4 Echo the command's listener fields when GET_TX_STATE answers TALKER_UNKNOWN_ID (Milan v1.2 Table 5.46); success keeps Table 5.47's zeros (issue #205)
+
+## git diff --stat 097a798 HEAD
+ docs/00_MILAN_COMPLIANCE_REVIEW.md  |  2 +-
+ docs/architecture/05_acmp_engine.md | 13 ++++++++--
+ hdl/acmp/KL_acmp_talker.sv          | 34 +++++++++++++++++++-------
+ tb/acmp_talker/README.md            | 48 ++++++++++++++++++++++++++++++-------
+ tb/acmp_talker/sim_main.cpp         | 28 +++++++++++++++++-----
+ tb/pp_top/acmp_mutants.py           | 38 ++++++++++++++++++++++++++---
+ 6 files changed, 135 insertions(+), 28 deletions(-)
+
+## git diff --stat c7250d6 HEAD (commit 2: README records only)
+ tb/acmp_talker/README.md | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+## git status --short --ignored (lane tree)
+(empty above = clean, ignored files included)

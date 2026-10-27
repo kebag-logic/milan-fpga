@@ -1,0 +1,19 @@
+# Per-suite tallies: this sweep (c7250d6) against the #202 sweep record (b2b2bfd, pp202-a676e receipts)
+raw sha256 of the #202 record: ecc864a6c3c47694fcafcfdc9e0a01f303ede3e9baed00de999c757332212e65
+raw sha256 of this sweep log: 09cb5397c0d8128f770db50e7d35cb78dc9db6397b4b7d8f4f1a0879eaaabda3
+
+## diff (< #202 at b2b2bfd, > this sweep)
+3c3
+< PASS acmp_talker (1545 checks: 1545 PASS, 0 FAIL)
+---
+> PASS acmp_talker (1561 checks: 1561 PASS, 0 FAIL)
+37c37
+< suites: 1030593 checks total, 0 failing
+---
+> suites: 1030609 checks total, 0 failing
+
+## suite inputs between b2b2bfd and main 097a798 (git diff --stat b2b2bfd 097a798 -- tb hdl scripts)
+ tb/acmp_talker/README.md     | 28 ++++++++++++++++------------
+ tb/acmp_talker/sid_cases.hpp |  5 ++++-
+ tb/pp_top/README.md          | 19 ++++++++++---------
+ 3 files changed, 30 insertions(+), 22 deletions(-)

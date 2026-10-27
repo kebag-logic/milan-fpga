@@ -1,0 +1,6 @@
+Base-RTL run of the new talker tests (the planted defect is main itself)
+clone: processor 097a79875f20c27f0a5987a193c165c5086f3cf5, hdl/ untouched (git diff 097a798 -- hdl is empty)
+tb/acmp_talker/sim_main.cpp sha256 33c90b7d2f3e82b43840c082cebcef188d178a994c9eebfbcf7bff5134e617e4 = the blob at 7bad394 (and c7250d6)
+simulator: the CI pin 5.050, fresh obj_dir
+command: make run (in tb/acmp_talker)
+rc: 2 (the simulation exits 1; make reports 2)

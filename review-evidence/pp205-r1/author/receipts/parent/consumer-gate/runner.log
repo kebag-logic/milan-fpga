@@ -1,0 +1,34 @@
+START 1 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/check_cpp_idiom.py
+END 1 0 1.87
+START 2 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/check_py_idiom.py
+END 2 0 5.061
+START 3 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/xvlog_gate.py --check
+END 3 0 153.775
+START 4 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/check_rtl_source_lists.py
+END 4 0 1.932
+START 5 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/pp_srcs.py --check --selftest
+END 5 0 0.396
+START 6 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 sw/builder/test_builder.py
+END 6 0 1389.404
+START 7 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -C tb/verilator/pp_shadow -j8
+END 7 0 289.301
+START 8 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/check_port_contracts.py
+END 8 0 3.271
+START 9 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/measure_naming.py --check
+END 9 0 0.551
+START 10 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/measure_test_evidence.py --check
+END 10 0 9.443
+START 11 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/docs_check.py
+END 11 0 7.905
+START 12 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/lint_rtl.py --check
+END 12 0 12.378
+START 13 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -C tb/verilator/nvm_cosim lint
+END 13 0 0.381
+START 14 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -C tb/verilator/nvm_cosim quick
+END 14 0 32.5
+START 15 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -C tb/verilator/milan_dp -j8
+END 15 0 1866.677
+START 16 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -C tb/verilator/milan_dp_render -j8
+END 16 0 841.908
+START 17 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/check_rtl_source_lists.py --selftest
+END 17 0 3.046

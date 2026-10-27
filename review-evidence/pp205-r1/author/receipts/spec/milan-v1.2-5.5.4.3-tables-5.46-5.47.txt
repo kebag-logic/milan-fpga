@@ -1,0 +1,76 @@
+# Milan v1.2 (Final Approved 2023-11-30), 5.5.4.3 and Tables 5.46/5.47, text extracted with pdftotext -layout
+5.5.4.3 Treatment of a GET_TX_STATE_COMMAND message
+
+Upon reception of a GET_TX_STATE_COMMAND message with talker_entity_id field being equal to the Entity
+ID of the PAAD-AE, the PAAD-AE shall:
+     1) Extract the talker’s source from the talker_unique_id field and check that it is valid. If not, send a
+        GET_TX_STATE_RESPONSE message as shown in Table 5.46 and exit.
+     2) Send a GET_TX_STATE_RESPONSE message as shown in Table 5.47.
+
+
+
+
+98                                                       Chapter 5. Discovery, Connection and Control
+                                                                             Milan Specification v1.2
+
+
+
+                     Table 5.46:       GET_TX_STATE_RESPONSE   fields   if   received
+                     talker_unique_id is not valid.
+
+
+
+  Field                          Value
+  message_type                   GET_TX_STATE_RESPONSE
+  status                         TALKER_UNKNOWN_ID
+  controller_entity_id           Same value as in the GET_TX_STATE_COMMAND message.
+  talker_entity_id               Same value as in the GET_TX_STATE_COMMAND message.
+  listener_entity_id             Same value as in the GET_TX_STATE_COMMAND message.
+  talker_unique_id               Same value as in the GET_TX_STATE_COMMAND message.
+  listener_unique_id             Same value as in the GET_TX_STATE_COMMAND message.
+  sequence_id                    Same value as in the GET_TX_STATE_COMMAND message.
+  connection_count               Undefined.
+  FAST_CONNECT                   Undefined.
+  STREAMING_WAIT                 Undefined.
+  REGISTERING_FAILED             Undefined.
+  stream_id                      Undefined.
+  stream_dest_mac                Undefined.
+  stream_vlan_id                 Undefined.
+
+
+
+
+5.5. Connection management                                                                         99
+Milan Specification v1.2
+
+
+
+                         Table 5.47: GET_TX_STATE_RESPONSE fields on success.
+
+
+
+  Field                         Value
+  message_type                  GET_TX_STATE_RESPONSE
+  status                        SUCCESS
+  controller_entity_id          Same value as in the GET_TX_STATE_COMMAND message.
+  talker_entity_id              Same value as in the GET_TX_STATE_COMMAND message.
+  listener_entity_id            00:00:00:00:00:00:00:00
+  talker_unique_id              Same value as in the GET_TX_STATE_COMMAND message.
+  listener_unique_id            0
+  sequence_id                   Same value as in the GET_TX_STATE_COMMAND message.
+  connection_count              0
+  FAST_CONNECT                  0
+  STREAMING_WAIT                0
+  REGISTERING_FAILED            1 if registering a Listener Asking Failed attribute, 0 otherwise.
+  stream_id                     Stream ID of the stream transmitted by this source (undefined if the
+                                PAAD is not declaring any Talker attribute).
+  stream_dest_mac               Destination MAC Address used by the stream (undefined if the PAAD is
+                                not declaring any Talker attribute).
+  stream_vlan_id                VLAN ID used by the stream (undefined if the PAAD is not declaring any
+                                Talker attribute).
+
+
+
+
+5.5.4.4 Treatment of a GET_TX_CONNECTION_COMMAND message
+

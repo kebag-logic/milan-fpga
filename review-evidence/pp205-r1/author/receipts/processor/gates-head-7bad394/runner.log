@@ -1,0 +1,14 @@
+START 1 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator verilator --version
+END 1 0 0.058
+START 2 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -j1 check
+END 2 0 64.577
+START 3 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator python3 scripts/gen_matrix.py --check
+END 3 0 0.052
+START 4 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -C tb/acmp_talker run
+END 4 0 6.168
+START 5 env PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<pinned-tool>/usr/share/verilator make -C tb/acmp_talker lint
+END 5 0 0.111
+START 6 env git diff --check 097a79875f20c27f0a5987a193c165c5086f3cf5 HEAD
+END 6 0 0.006
+START 7 env git diff --stat c7250d652f928fc49051b2e7154cbb937d9dd2d4 HEAD
+END 7 0 0.003

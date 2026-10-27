@@ -1,0 +1,98 @@
+{
+  "head": "7bad3943c6dc3a86814faa43aee53a1e8aab4a4f",
+  "base": "097a79875f20c27f0a5987a193c165c5086f3cf5",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-tool>/usr/share/verilator",
+        "verilator",
+        "--version"
+      ],
+      "exit_code": 0,
+      "seconds": 0.058,
+      "log": "<scratch>/pp205-runs/processor-head/01.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-tool>/usr/share/verilator",
+        "make",
+        "-j1",
+        "check"
+      ],
+      "exit_code": 0,
+      "seconds": 64.577,
+      "log": "<scratch>/pp205-runs/processor-head/02.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-tool>/usr/share/verilator",
+        "python3",
+        "scripts/gen_matrix.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.052,
+      "log": "<scratch>/pp205-runs/processor-head/03.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-tool>/usr/share/verilator",
+        "make",
+        "-C",
+        "tb/acmp_talker",
+        "run"
+      ],
+      "exit_code": 0,
+      "seconds": 6.168,
+      "log": "<scratch>/pp205-runs/processor-head/04.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/pp205-tools/pinned-tool-bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-tool>/usr/share/verilator",
+        "make",
+        "-C",
+        "tb/acmp_talker",
+        "lint"
+      ],
+      "exit_code": 0,
+      "seconds": 0.111,
+      "log": "<scratch>/pp205-runs/processor-head/05.log"
+    },
+    {
+      "command": [
+        "env",
+        "git",
+        "diff",
+        "--check",
+        "097a79875f20c27f0a5987a193c165c5086f3cf5",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "seconds": 0.006,
+      "log": "<scratch>/pp205-runs/processor-head/06.log"
+    },
+    {
+      "command": [
+        "env",
+        "git",
+        "diff",
+        "--stat",
+        "c7250d652f928fc49051b2e7154cbb937d9dd2d4",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "seconds": 0.003,
+      "log": "<scratch>/pp205-runs/processor-head/07.log"
+    }
+  ]
+}

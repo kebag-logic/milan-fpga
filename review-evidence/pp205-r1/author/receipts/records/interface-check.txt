@@ -1,0 +1,14 @@
+# STOP-condition check: top-level port, parameter or register-map change
+
+## files changed under hdl/ (097a798..7bad394)
+hdl/acmp/KL_acmp_talker.sv
+
+## changed hdl lines declaring a port, parameter or localparam (grep -E '^[+-][^+-].*\b(input|output|inout|parameter|localparam)\b')
+(none)
+
+## hdl/top, docs/architecture/02_interfaces.md, 07_memory_maps.md changed?
+(empty above = unchanged)
+
+## KL_acmp_talker module header, `module KL_acmp_talker` to the closing `);` of its port list
+097a798: lines 177-358; HEAD: lines 181-362 (the banner above it grew by 4 lines)
+identical text: True (182 lines)

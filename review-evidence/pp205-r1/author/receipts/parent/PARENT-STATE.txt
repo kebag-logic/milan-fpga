@@ -1,0 +1,56 @@
+# Scratch parent state (local clone, never pushed)
+cloned from: the trusted dev clone at 97aab1d0 (local); branch scratch-pp205-a687
+origin: https://github.com/kebag-logic/milan-fpga.git (fetch); push URL: no-push://scratch-pp205-never-pushed
+
+## git log --format='%H %s' -3
+876a55b9ecdd0bb29f20861361a70a28f434aa73 Consumer check: parent adaptation parent-src-stream-id-wiring.patch (sha256 ff5068d2...1275)
+06c1e706285ddd883a1a345ebdb98e3d715f2863 Consumer check: protocol-processor at 7bad3943
+97aab1d0f28bd753a3e11df6278d5cac54f964dd Merge PR #794: Cache the pinned Yosys tool job by version, recipe and image (#789)
+
+## the patch
+sha256 ff5068d295872d1f872b89890ff76f9bb1d3fd0738ad650282dbe45d9e171275, 70091 bytes
+git apply --check --index on dev 97aab1d0: rc 0; applied with git apply --index and committed as 876a55b9
+
+## git diff --stat 97aab1d0 HEAD
+ hdl/ieee1722/aaf/KL_aaf_packetizer.sv          |  21 +-
+ hdl/milan/KL_pp_shadow.sv                      |   5 +
+ hdl/milan/milan_datapath.sv                    |  33 +-
+ protocol-processor                             |   2 +-
+ tb/verilator/capture_coherence/mutants.py      |   7 +-
+ tb/verilator/milan_dp/Makefile                 |  59 +-
+ tb/verilator/milan_dp/README.md                |   2 +
+ tb/verilator/milan_dp/sidmove_probes.vlt       |   7 +
+ tb/verilator/milan_dp/sim_nxn.cpp              |   7 +-
+ tb/verilator/milan_dp/sim_sid_move.cpp         | 999 +++++++++++++++++++++++++
+ tests/features/milan_streaming_licence.feature |   4 +
+ tests/steps/milan_streaming_licence_steps.py   |  18 +
+ 12 files changed, 1149 insertions(+), 15 deletions(-)
+
+## the patch commit equals the patch (git diff 06c1e706 876a55b9 vs the patch file, ignoring index lines)
+identical
+
+## git submodule status
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 55680bff3b287b9a7b0c759f51471fa617c17335 gptp-processor (heads/main)
+ 7bad3943c6dc3a86814faa43aee53a1e8aab4a4f protocol-processor (v2.0-835-g7bad394)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+
+## protocol-processor
+HEAD 7bad3943c6dc3a86814faa43aee53a1e8aab4a4f; status lines 0
+
+## submodule URLs (.git/config) and each submodule's origin
+submodule.gptp-processor.url https://github.com/Mister-M-alt/FPGA-gPTP.git
+submodule.third_party/lwSRP.url https://github.com/kebag-logic/lwSRP.git
+submodule.third_party/tsn-c-stack.url https://github.com/kebag-logic/tsn-c-stack.git
+submodule.third_party/verilog-axis.url https://github.com/alexforencich/verilog-axis
+submodule.protocol-processor.url https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+protocol-processor origin https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git; pushurl set: no
+gptp-processor origin https://github.com/Mister-M-alt/FPGA-gPTP.git; pushurl set: no
+third_party/lwSRP origin https://github.com/kebag-logic/lwSRP.git; pushurl set: no
+third_party/tsn-c-stack origin https://github.com/kebag-logic/tsn-c-stack.git; pushurl set: no
+third_party/verilog-axis origin https://github.com/alexforencich/verilog-axis; pushurl set: no
+
+## git status --short (tracked) before the consumer gate
+(clean; recorded at launch: 0 lines)
