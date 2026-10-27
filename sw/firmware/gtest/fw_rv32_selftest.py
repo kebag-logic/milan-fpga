@@ -96,6 +96,7 @@ int format(char *dst, size_t n, const char *fmt, va_list ap) {
         assert findings == ([f"{obj.name}: calls software multiply or divide ['{called}']"] if called else []), \
             (name, findings)
         print(f"PASS: {'caught' if called else 'accepted'} {name}{f' (calls {called})' if called else ''}")
+    obj.write_bytes(b"not an ELF object")
     assert fw_rv32.object_findings(cc, [obj])
     obj.with_suffix(".su").write_text("probe.c:1:1:probe\t16\tdynamic\n")
     try:
