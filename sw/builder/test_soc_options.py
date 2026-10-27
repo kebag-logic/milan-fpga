@@ -4,14 +4,14 @@
 """Issue #654: early CPU option refusals and optional real-netlist effect tests.
 
 The builder runs the refusal bank, and the split placement's instruction
-cache check (#665): only the split CPU's generator options gain the cache.
+cache check (#665): only the split CPU's generator options gain the cache,
+at exactly its documented geometry.
 --netlists additionally requires the NaxRiscv data package and its generator
 sources; no missing dependency skips. Each export uses a fresh process
 because CPU wrappers retain class state.
 """
 import argparse
 import json
-import re
 from pathlib import Path
 import subprocess
 import sys
@@ -19,6 +19,11 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 SOC = ROOT / "sw/litex/milan_soc.py"
+#: The split CPU's generator options, restated here on purpose (#665,
+#: docs/design/SPLIT_CONTROL_MEMORY.md section 7, and the area plan's 1.5-tile
+#: debit): a 4 KiB fetch L1 of 64 sets, one way, of the generator's 64-byte
+#: line, and no LSU L1. A changed geometry must fail.
+SPLIT_FETCH_L1 = "--fetch-l1 --fetch-l1-sets=64 --fetch-l1-ways=1"
 
 # Keep __file__ at the real recipe, including when planting source mutations.
 # Only the refusal probe replaces CPU setup with a sentinel. The effect arm
@@ -218,19 +223,20 @@ def _split_cache(directory, mutations=()):
     """The CPU options of the all-fabric and the split placement (#665), checked.
 
     The all-fabric CPU keeps exactly its arguments; the split CPU adds only
-    the fetch L1 of ctrl_cpu_args, and that carries no LSU L1.
+    the documented fetch L1 (SPLIT_FETCH_L1), which carries no LSU L1, and
+    ctrl_cpu_args gives the harness's --fetch-l1 split the same options.
     """
     fabric = _probe(directory, options={}, mutations=list(mutations))
     split = _probe(directory, options={"ctrl_mailbox": True, "ctrl_firmware": "unread.elf"},
                    mutations=list(mutations))
     assert fabric["kind"] == split["kind"] == "setup", (fabric, split)
     assert fabric["vexii_args"] == "--xlen=32", fabric
-    assert re.fullmatch(r"--fetch-l1 --fetch-l1-sets=\d+ --fetch-l1-ways=\d+", split["split_args"]), split
-    assert split["vexii_args"] == "--xlen=32 " + split["split_args"], split
+    assert split["split_args"] == SPLIT_FETCH_L1, split
+    assert split["vexii_args"] == "--xlen=32 " + SPLIT_FETCH_L1, split
 
 
 def test_split_cache() -> None:
-    """Grade the split placement's instruction cache options and kill their loss, leak and widening."""
+    """Grade the split placement's instruction cache options and kill their loss, leak, widening and resizing."""
     split = "\n                # #665: the split"
     controls = [
         ("the split CPU without its cache", "            if ctrl_mailbox:" + split, "            if False:" + split),
@@ -238,13 +244,17 @@ def test_split_cache() -> None:
         ("a data cache with it",
          'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"',
          'return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways} --lsu-l1"'),
+        ("a larger cache", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (128, 1)"),
+        ("a second way", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (64, 2)"),
+        ("a smaller cache", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (32, 1)"),
     ]
     with tempfile.TemporaryDirectory(prefix="soc-split-cache-") as tmp:
         directory = Path(tmp)
         _split_cache(directory)
         for label, old, new in controls:
             _killed(lambda: _split_cache(directory, [(old, new)]), label)
-    print(f"Split placement CPU: the instruction cache on the split CPU only, {len(controls)} killed controls")
+    print("Split placement CPU: the 4 KiB direct-mapped instruction cache on the split CPU only, "
+          f"{len(controls)} killed controls")
 
 
 def test_refusals() -> None:
