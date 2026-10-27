@@ -17,6 +17,9 @@
 //   D14  the publication block (lane F-INT): each value in its interface's
 //        register and field, a sink's stream_id written behind a clear
 //        SID_VALID, and an interface or a sink past the contract's refused;
+//   D15  a record's payload in its ring words at every frame length modulo
+//        four, from a frame at every alignment, and across the ring's end
+//        (#665: whole words go in one access);
 //   B2   the adapter's slots past the fabric's timer bank;
 //   B3   a record or an event naming an interface with no instance, counted;
 //   B4   an adapter the loop has no room for.
@@ -25,6 +28,7 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
+#include <cstring>
 
 #include "adp_mbx.h"
 #include "ctrl_loop.h"
@@ -135,6 +139,57 @@ TEST(DriverUnit, D10LanesAndFieldsAtTheirBounds) {
     EXPECT_TRUE(out[3] == 4u && out[4] == 0xEEu && out[5] == 0xEEu) << "D10 and unpacks four, touching no fifth byte";
     EXPECT_EQ(mbx_place(0xDEADBEEFu, 0, 32), 0xDEADBEEFu) << "D10 a 32-bit field places whole";
     EXPECT_EQ(mbx_field(0xDEADBEEFu, 0, 32), 0xDEADBEEFu) << "D10 and reads whole";
+}
+
+//! Ring word k of a frame, as the contract lays it out: frame byte j in word
+//! j/4 at bits [8*(j%4)+7 : 8*(j%4)], lanes past the frame zero.
+std::uint32_t lanes_of(const std::uint8_t* frame, std::size_t len, std::size_t k) {
+    std::uint32_t word = 0;
+    for (std::size_t j = 4u * k; j < len && j < 4u * k + 4u; ++j) {
+        word |= static_cast<std::uint32_t>(frame[j]) << (8u * (j % 4u));
+    }
+    return word;
+}
+
+TEST(DriverUnit, D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd) {
+    // Each record starts three words before its ring's end, so its payload
+    // runs past the end and on from word 0.
+    const std::uint32_t tx_start = MBX_CH_ADP_TX_WORDS - 3u;
+    const std::uint32_t rx_start = MBX_CH_ADP_RX_WORDS - 3u;
+    alignas(4) static std::uint8_t source[MBX_CH_ADP_MAX_FRAME_BYTES + 4u];
+    static mbx_frame got;
+    static const std::uint16_t lengths[] = {14, 15, 16, 17, 18, 19, 20, 21, 82, MBX_CH_ADP_MAX_FRAME_BYTES};
+    for (const std::uint16_t len : lengths) {
+        const std::size_t words = (len + 3u) / 4u;
+        for (unsigned offset = 0; offset < 4u; ++offset) {
+            NiceMock<MockMbxHal> hal;
+            Window w(hal);
+            w.words[ch_reg(kAdp, MBX_CH_REG_TX_HEAD)] = tx_start;
+            w.words[ch_reg(kAdp, MBX_CH_REG_TX_TAIL)] = tx_start;
+            w.words[ch_reg(kAdp, MBX_CH_REG_RX_TAIL)] = rx_start;
+            ASSERT_TRUE(mbx_open());
+            std::uint8_t* frame = source + offset;
+            for (std::size_t j = 0; j < len; ++j) {
+                frame[j] = static_cast<std::uint8_t>(0x5Bu + 37u * j + offset);
+            }
+            ASSERT_EQ(mbx_tx_send(kAdp, 0, frame, len), MBX_STATUS_OK);
+            for (std::size_t k = 0; k < words; ++k) {
+                EXPECT_EQ(w.tx(kAdp, tx_start + MBX_TX_HDR_WORDS + k), lanes_of(frame, len, k))
+                    << "D15 TX word " << k << " of a " << len << "-byte frame at alignment " << offset;
+            }
+            w.rx(kAdp, rx_start) = rx_w0(len, 0);
+            w.rx(kAdp, rx_start + 1u) = 0x00C0FFEEu;
+            for (std::size_t k = 0; k < words; ++k) {
+                w.rx(kAdp, rx_start + MBX_RX_HDR_WORDS + k) = lanes_of(frame, len, k);
+            }
+            w.words[ch_reg(kAdp, MBX_CH_REG_RX_HEAD)] =
+                (rx_start + MBX_RX_HDR_WORDS + static_cast<std::uint32_t>(words)) & 0xFFFFu;
+            std::memset(got.bytes, 0xA5, sizeof got.bytes);
+            ASSERT_EQ(mbx_rx_take(kAdp, &got), MBX_STATUS_OK);
+            EXPECT_TRUE(got.len == len && got.arrival_ms == 0x00C0FFEEu && std::memcmp(got.bytes, frame, len) == 0)
+                << "D15 RX: a " << len << "-byte record's bytes are the frame's, alignment " << offset;
+        }
+    }
 }
 
 TEST(DriverUnit, D11OwnMacPerInterfaceAndTheMismatchCount) {

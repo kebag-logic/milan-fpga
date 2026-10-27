@@ -183,13 +183,12 @@ DEFECTS = (
            'nvm_rec_by_id(bit + 0u * w)',
            ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
             'the empty set is a framed record, not an erased one')),
-    defect('ring-pack-word-lanes-swapped', 'mbx/mbx_wire.h',
-           'return (uint32_t)p[0] | ((uint32_t)p[1] << 8)',
-           'return (uint32_t)p[1] | ((uint32_t)p[0] << 8)',
-           ('Mailbox.EveryInterfaceAndObservationPort', 'get(p->bytes+16,2)>>11')),
-    defect('ring-unpack-word-lanes-swapped', 'mbx/mbx_wire.h',
-           '\tp[0] = (uint8_t)word;\n\tp[1] = (uint8_t)(word >> 8);\n',
-           '\tp[1] = (uint8_t)word;\n\tp[0] = (uint8_t)(word >> 8);\n',
+    # A received frame's bytes always start on a word, so on a little-endian
+    # core every frame AECP receives takes the whole-word store (#665). The
+    # whole-word load is the unit arm's (ctrl_mutants.py, D15).
+    defect('ring-store-word-lanes-rotated', 'mbx/mbx_wire.h',
+           '\t*(uint32_t *)(void *)p = word;\n',
+           '\t*(uint32_t *)(void *)p = word << 8 | word >> 24;\n',
            ('Mailbox.EveryInterfaceAndObservationPort', 'fabric.tx_sent')),
     defect('stream-info-request-echo', 'aecp_commands.c',
            'memcpy(out + 8, d->value + 74, 8u);',

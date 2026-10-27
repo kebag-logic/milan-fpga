@@ -2,6 +2,7 @@
 // The adapter owns no heap or protocol tables; lwSRP owns its MRP machines.
 #include "srp_mbx.h"
 #include <string.h>
+#include "srp_bounds.h"
 #ifndef NDEBUG
 #include <assert.h>
 #endif
@@ -845,7 +846,11 @@ static bool poll(void *ctx)
             }
         }
     }
-    for (unsigned attempt = 0; attempt < 2u * MBX_N_IF; ++attempt) {
+    // At most SRP_MBX_POLL_FRAMES MRPDUs a poll (srp_bounds.h): a participant
+    // that sent ends the poll's transmissions, and the cursor resumes at the
+    // next participant on the next poll, which the owed result runs at once.
+    unsigned sent = 0;
+    for (unsigned attempt = 0; attempt < 2u * MBX_N_IF && sent < SRP_MBX_POLL_FRAMES; ++attempt) {
         unsigned slot = m->owed_len ? 2u * m->owed_if + (m->owed_ethertype == MRP_ETHERTYPE_MVRP) : m->cursor;
         struct srp_interface *i = &m->ifs[slot / 2u];
         struct mrp_app *app = slot % 2u ? i->mvrp : i->msrp;
@@ -861,6 +866,7 @@ static bool poll(void *ctx)
             if (result != 0) {
                 owed = true;
             }
+            sent += result > 0 ? 1u : 0u;
         }
         if (!m->owed_len) {
             m->cursor = (slot + 1u) % (2u * MBX_N_IF);

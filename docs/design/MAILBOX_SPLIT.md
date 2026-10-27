@@ -723,8 +723,8 @@ At F0's assumed 1 us per access, only the event bound still fits T_svc
 under the ceiling (19.61 ms), and the one behind a full adp ring exceeds it
 (39.23 ms).
 
-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,523
-accesses at one interface and 4,429 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,140
+accesses at one interface and 3,280 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
 includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
 sets of event-record reads: the eight shared records are each read once.
 Add `CTRL_APP_SRP_FEEDBACK_MAX`: seven accesses per sink, at most 16 sinks.
@@ -732,8 +732,8 @@ Registration followed by withdrawal can stop or re-arm two timers.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 Kind updates preserve state and require no additional mailbox access.
-`srp_bounds.h` derives SRP's 1,676 / 2,486 accesses from the maximum frame,
-two transmit calls per interface, bounded reception, link reconciliation,
+`srp_bounds.h` derives SRP's 1,293 / 1,337 accesses from the maximum frame,
+one transmitted frame a poll (#665), bounded reception, link reconciliation,
 retry clocks and the publication term (a reset's five writes, an adoption's
 three, two licence changes for each of 16 sources: 40 per interface). lwSRP sends at most one frame per call. Its centisecond callbacks
 make no mailbox access. The composition now queues ACMP's binding requests
@@ -752,14 +752,14 @@ Target calibration must include both costs; this table bounds mailbox accesses o
 
 | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
 |---|---:|---:|---:|
-| an event behind 15 others | 2 | 10,569 / 13,287 | 0.94 / 0.75 us |
-| an ACMP command behind a full acmp ring | 10 | 38,753 / 48,719 | 0.25 / 0.20 us |
-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 77,506 / 97,438 | 0.12 / 0.10 us |
-| a response with 7 frames owed ahead of it | 8, after room returns | 31,707 / 39,861 | 0.31 / 0.25 us |
+| an event behind 15 others | 2 | 9,420 / 9,840 | 1.06 / 1.01 us |
+| an ACMP command behind a full acmp ring | 10 | 34,540 / 36,080 | 0.28 / 0.27 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 69,080 / 72,160 | 0.14 / 0.13 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 28,260 / 29,520 | 0.35 / 0.33 us |
 
-At 1 us per access, event envelopes are 10.569 / 13.287 ms.
-Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
-ceiling still covers both event envelopes, but none of the other rows.
+At 1 us per access, event envelopes are 9.420 / 9.840 ms.
+Both fit T_svc = 10 ms; none of the other rows does, and none of them
+fits the 20 ms ACMP ceiling.
 The firmware gate compiles these header bounds at both interface counts.
 It checks each product and conservatively rounded access-time threshold.
 Its controls spoil each table cell and the event-time conclusion.

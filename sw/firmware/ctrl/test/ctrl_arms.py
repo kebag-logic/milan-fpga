@@ -193,8 +193,8 @@ def arm_reentry_release(tree: Tree) -> Outcome:
 
 def arm_unit(tree: Tree) -> Outcome:
     """The driver, the loop and the composition on GoogleMock's HAL and port-layer
-    mocks; then the MMIO platform over a host window, and the platform's memory
-    primitives."""
+    mocks; then the MMIO platform over a host window, the driver built for that
+    window, and the platform's memory primitives."""
     fw = tuple(n for n in PORTABLE if n != "port/shlan_port.c")
     objs = compile_c(tree, sources(tree, fw), "unit") + compile_tests(tree, UNIT_TESTS, "unit/tests")
     seams = execute("unit", link(tree, "test_unit", objs))
@@ -202,13 +202,18 @@ def arm_unit(tree: Tree) -> Outcome:
               "-DCTRL_MBX_WFI=ctrl_test_wfi")
     mmio = compile_c(tree, sources(tree, ("plat/mbx_plat_mmio.c",)), "mmio", window)
     platform = execute("unit", link(tree, "test_mmio", mmio + compile_tests(tree, ("test_mmio.cpp",), "mmio/tests")))
+    # The driver as the image builds it: for the window, each access made in place (plat/mbx_mmio.h, #665).
+    driver = compile_c(tree, sources(tree, ("mbx/mbx.c",)), "mmio-driver", window)
+    in_place = execute("unit", link(tree, "test_mmio_driver",
+                                    driver + compile_tests(tree, ("test_mmio_driver.cpp",), "mmio-driver/tests")))
     # The platform's memcpy, memmove, memset and memcmp under names the host's C library does not own.
     renamed = ("-Dmemcpy=ctrl_mem_memcpy", "-Dmemmove=ctrl_mem_memmove", "-Dmemset=ctrl_mem_memset",
                "-Dmemcmp=ctrl_mem_memcmp")
     mem = compile_c(tree, sources(tree, ("plat/ctrl_mem.c",)), "mem", renamed)
     mem_tests = compile_tests(tree, ("test_ctrl_mem.cpp",), "mem/tests")
     memory = execute("unit", link(tree, "test_ctrl_mem", mem + mem_tests))
-    return Outcome("unit", max(seams.rc, platform.rc, memory.rc), f"{seams.log}\n{platform.log}\n{memory.log}")
+    return Outcome("unit", max(seams.rc, platform.rc, in_place.rc, memory.rc),
+                   f"{seams.log}\n{platform.log}\n{in_place.log}\n{memory.log}")
 
 
 #: The unit binary: the two link-seam mocks and the tests written on them.

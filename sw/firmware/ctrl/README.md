@@ -37,7 +37,7 @@ is an integration obligation, not a target-time result established here.
 
 | Directory | What it holds |
 |---|---|
-| [`mbx/`](mbx) | the generated contract header, the three-function bus port (`mbx_hal.h`), the ring lanes and the driver |
+| [`mbx/`](mbx) | the generated contract header, the three-function bus port (`mbx_hal.h`), the ring lanes and the driver; a record's whole words move in one access each on a little-endian core, and the driver built for the memory-mapped window makes its accesses in place (#665) |
 | [`port/`](port) | lwSRP's port layer: `shlan_malloc`/`calloc`/`free` on the static block pool, `shlan_printf` on the debug sink |
 | [`loop/`](loop) | the event loop: events first, bounded passes, the TICK fan-out in slices, sleep only when nothing is owed, the bring-up order, and the latency bound's assumptions |
 | [`adp/`](adp) | the ADP mailbox adapter with the latency bounds, and `adp_entity.py` |
@@ -46,7 +46,7 @@ is an integration obligation, not a target-time result established here.
 | [`acmp/`](acmp) | the ACMP mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
 | [`aecp/`](aecp) | the AECP core, image and saved-state adapters, mailbox completion tracking and opt-in application bridge |
 | [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
-| [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`), and the core's word-wide `memcpy`, `memmove`, `memset` and `memcmp` ([`ctrl_mem.c`](plat/ctrl_mem.c)) |
+| [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`), its two accesses as inline functions ([`mbx_mmio.h`](plat/mbx_mmio.h)), and the core's word-wide `memcpy`, `memmove`, `memset` and `memcmp` ([`ctrl_mem.c`](plat/ctrl_mem.c)) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
 | [`test/`](test) | the host tests and their driver |
 
@@ -439,9 +439,10 @@ Registration and withdrawal can each stop or re-arm a timer.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 The static maximum of 16 sinks contributes 112 accesses.
-The result is 3,523 accesses at one interface and 4,429 at two. The SRP bound counts one maximum-size frame per
-library transmit call, at most two calls per interface, receive readiness and
-retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
+The result is 3,140 accesses at one interface and 3,280 at two. The SRP bound counts one maximum-size frame per
+library transmit call, at most one sending call a poll over every interface
+(#665: `SRP_MBX_POLL_FRAMES`, the next participant's on the next poll), receive
+readiness and retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.
 The feedback allowance covers the same poll's ACMP registration entries.
 It excludes CPU work and external ports.
 The SRP arm also builds U6/F6 with all four modules at each interface count:
@@ -475,7 +476,7 @@ port from the hand-rolled checks and the coverage ratchet are described in
 |---|---|---|
 | `model` | `model_suite.cpp` | the mailbox suite's checks, which the RTL passes through both adapters, pass on the model too |
 | `port` | `test_port_loop.cpp` | the pool, the debug sink, the driver on the model (TX commit order across channels included, and the own MAC the filter matches with the FILTER_MISMATCH it counts), the loop's order (every interface's own MAC before a channel opens), bounds, owed work and tick slices, and a TICK record taken while centiseconds are carried |
-| `unit` | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp` | the firmware's own seams on GoogleMock: the app's composition order over the mailbox window (`mbx_hal.h`) and lwSRP's port layer (`shlan_port.h`), the entity's MAC as every interface's own MAC, the contract check field by field, the driver's refusals and bounds, each interface's own MAC block and the FILTER_MISMATCH read, the adapter's slot, interface and loop-room refusals, and the MMIO platform over a host window |
+| `unit` | `test_unit_seams.cpp`, `test_unit_driver.cpp`, `test_mmio.cpp`, `test_mmio_driver.cpp` | the firmware's own seams on GoogleMock: the app's composition order over the mailbox window (`mbx_hal.h`) and lwSRP's port layer (`shlan_port.h`), the entity's MAC as every interface's own MAC, the contract check field by field, the driver's refusals and bounds, a record's payload words at every length, frame alignment and across the ring's end (D15), each interface's own MAC block and the FILTER_MISMATCH read, the adapter's slot, interface and loop-room refusals, the MMIO platform over a host window, and the driver built for that window with its accesses in place (M3) |
 | `adp` | the stack's `tests/test_adp.cpp`, `test_adp.cpp` | the ADP core over fake ports (deferred sends, strays, discards, the two draw kinds, the available_index every DEPARTING and restart carries on the wire, an owed DEPARTING across a restart and a second SHUTDOWN, owed frames across a link loss, a GM change, a DISCOVER and a stray expiry, and the bound of two owed DEPARTINGs with the SHUTDOWNs beyond it coalesced and counted), the tag race, the latency bound of every path, an owed frame behind a full transmit ring under a HAL that sleeps, the owed DEPARTING across a restart through the mailbox, the pass an AVAILABLE behind owed DEPARTINGs is committed in, and the bound with both rings full and ticks coalesced |
 | `reentry_debug`, `reentry_release` | the stack's `tests/test_adp_reentry.cpp` | Every port/core entry pair, same and cross instance; both inline-expiry regressions. Assertions in debug, counted refusal in release. |
 | `walk` | `adp_walk.cpp` | the processor's own ADP walk, reused: 36 cells of its Table 5.51 transcription and its frame builder, on the firmware and the model |

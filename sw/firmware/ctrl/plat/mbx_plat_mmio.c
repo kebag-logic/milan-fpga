@@ -9,7 +9,9 @@
 // store, so the compiler neither merges, splits, reorders nor drops one, and
 // the bus sees exactly the accesses the driver makes. CTRL_MBX_BASE is the
 // window's bus address, from the SoC's generated memory map; a build that
-// does not say where the window is fails here rather than guessing.
+// does not say where the window is fails in mbx_mmio.h rather than guessing.
+// mbx_mmio.h holds the two accesses, which the driver built for the window
+// makes in place (mbx.c, #665).
 //
 // mbx_hal_wait() returns at once unless the platform defines CTRL_MBX_WFI,
 // in which case the core waits for an interrupt. Returning early is always
@@ -27,24 +29,16 @@
 #include <stdint.h>
 
 #include "mbx_hal.h"
-
-#ifndef CTRL_MBX_BASE
-#error "CTRL_MBX_BASE: define the mailbox window's bus address (the SoC's generated memory map)"
-#endif
-
-static volatile uint32_t *word_at(uint32_t byte_offset)
-{
-	return (volatile uint32_t *)(uintptr_t)((uintptr_t)(CTRL_MBX_BASE) + byte_offset);
-}
+#include "mbx_mmio.h"
 
 uint32_t mbx_hal_read32(uint32_t byte_offset)
 {
-	return *word_at(byte_offset);
+	return mbx_mmio_read32(byte_offset);
 }
 
 void mbx_hal_write32(uint32_t byte_offset, uint32_t value)
 {
-	*word_at(byte_offset) = value;
+	mbx_mmio_write32(byte_offset, value);
 }
 
 void mbx_hal_wait(void)

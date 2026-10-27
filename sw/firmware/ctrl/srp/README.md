@@ -200,6 +200,10 @@ A subsequent same-pass registration cannot erase the owed stop notification.
 An accepted `TX_HEAD` write commits the complete frame and Applicant transition.
 A refused send retains identical bytes and interface until accepted.
 lwSRP builds each MRPDU in the owed frame itself, after its Ethernet header, so no frame is copied (#665).
+A poll builds and sends at most one MRPDU (`SRP_MBX_POLL_FRAMES`, `srp_bounds.h`).
+The participant that sent ends the poll's transmissions, and the next poll resumes at the next participant.
+Its owed result runs that poll at once, so every participant is reached in turn (#665).
+lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 1.1 ms (`ctrl_loop.h`).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
 Each LINK event preserves the lifecycle, including down/up between service passes.
 Observed level changes apply the same reset and receive fence.
@@ -277,11 +281,12 @@ a reset writes five registers, a Domain adoption three and each licence change
 one, funded as one reset, one adoption and two changes for each of 16 sources
 (`SRP_MBX_PUB_POLL_MAX`, 40 per interface); a LINK event now costs six.
 The transmit observer wraps the real `send_pdu` callback and pads library output
-to the channel maximum. It measures 383 accesses for each of two calls per
-interface, preserving the firmware callback and the mailbox driver.
+to the channel maximum. It measures 383 accesses for the one frame a poll sends,
+poll after poll until every participant on every interface has sent once,
+preserving the firmware callback and the mailbox driver (#665).
 A pass drains eight real event records and another drains two maximum RX records.
 Subtracting unrelated published terms checks their funding independently.
-The SRP envelope is 1,676 / 2,486 accesses at IF=1/2.
+The SRP envelope is 1,293 / 1,337 accesses at IF=1/2.
 Adding one read in either poll or send fails a named test.
 Poll-allocation tests exhaust storage after successful reception.
 Separate receive tests exhaust it before accepting a mailbox record.

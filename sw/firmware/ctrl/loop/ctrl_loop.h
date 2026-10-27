@@ -59,10 +59,20 @@
 // (N + 1) passes must fit T_svc. The deepest admitted wait is the A3 row of
 // seven owed frames, answered in pass 8 after the room returns, so no pass
 // may exceed T_svc / 9, about 1.1 ms or 55,500 CPU cycles at 50 MHz. Every
-// slice above serves that share: events, records and centiseconds per pass
-// here, and in the modules one owed frame per interface (ADP, ACMP), one
-// notice built (AECP) and two MRPDUs per interface (SRP, srp_bounds.h) per
-// pass, each resumed on the next.
+// slice serves that share, and each module's work in one pass is bounded,
+// the rest resumed on the next pass:
+//   * the loop: the events, records and centiseconds per pass above;
+//   * ADP and ACMP: the records the loop hands them, and one owed frame per
+//     interface (adp_mbx.h, acmp_mbx.h);
+//   * MAAP: its records, and at most two queued frames per interface
+//     (tsn-c-stack maap.c, pump);
+//   * AECP: one record, taken only while no response or notice is owed, and
+//     one notice built, sent to every registered recipient the transmit ring
+//     has room for (aecp.c, transmit);
+//   * SRP: its records, and one MRPDU built and sent a pass over every
+//     participant of every interface (SRP_MBX_POLL_FRAMES, srp_bounds.h;
+//     #665: lwSRP's periodic transmission had built all four at two
+//     interfaces in one pass).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer

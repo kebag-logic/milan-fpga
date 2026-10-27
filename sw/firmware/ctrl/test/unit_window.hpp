@@ -76,6 +76,13 @@ class Window {
         return words[base[ch] + 4u * (index & (size[ch] - 1u))];
     }
 
+    //! Word `index` of channel ch's transmit ring.
+    std::uint32_t& tx(unsigned ch, std::uint32_t index) {
+        static const std::uint32_t base[MBX_N_CH] = MBX_CH_TX_BASE_TBL;
+        static const std::uint32_t size[MBX_N_CH] = MBX_CH_TX_WORDS_TBL;
+        return words[base[ch] + 4u * (index & (size[ch] - 1u))];
+    }
+
     //! Word `index` of the event ring.
     std::uint32_t& evt(std::uint32_t index) { return words[MBX_EVT_BASE + 4u * (index & (MBX_EVT_WORDS - 1u))]; }
 
