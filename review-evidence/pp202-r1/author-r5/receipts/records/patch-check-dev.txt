@@ -1,0 +1,26 @@
+patch file sha256 and bytes (this directory's copy, from the round-4 hand-over)
+e399117609459a2e1b9e8ea22f7c87b0edd118a86ce56bcde67fbc5e92fbf1fa
+70077
+
+dev base
+e76a755afc0536453161e3cd33f6f4d2dcd7641f
+
+git apply --check --index (on dev e76a755a)
+(rc 0)
+
+git apply --index
+(rc 0)
+
+applied tree against the scratch parent's wiring commit d3ab5b37f5, gitlink excluded (empty = identical)
+(rc 0)
+
+the patch regenerated from the scratch parent: git diff 309af35f59 d3ab5b37f5 -- . ':(exclude)protocol-processor' | sha256sum
+(rc 0)
+e399117609459a2e1b9e8ea22f7c87b0edd118a86ce56bcde67fbc5e92fbf1fa
+dev e76a755a + the patch (git apply --index above) + gitlink protocol-processor at 98e0137
+(rc 0)
+
+against the scratch parent's pin commit f080fff704 (expected: only the ROM-digest record, which the scratch parent adds per pin)
+ syn/yosys/rom_digests.tsv | 2 --
+ 1 file changed, 2 deletions(-)
+(rc 0)

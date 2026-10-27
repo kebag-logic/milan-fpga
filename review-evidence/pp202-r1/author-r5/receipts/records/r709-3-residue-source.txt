@@ -1,0 +1,30 @@
+R709-3 packet REPORT.md (review-evidence/pp202-r1/reviews/R709-3/REPORT.md at evidence commit cedb425a7c588ace8adee43cd771bc1edecaedcd)
+sha256 dde1e8e65fd458c2d23c560864838f75971f7ec10a038442a4df29a252dc868f, bytes 21201
+Its RESIDUE-1 and RESIDUE-2 text, lines 116-141 as published:
+
+
+### RESIDUE-1: a bench README names a review round as provenance
+
+- **Lenses:** Docs (wording only; no lens made unclean).
+- **Where:** `tb/pp_top/README.md:2076-2077`: "on the round-3 SRP talker FSM the Lv never goes out (frames -1, 0)."
+- **Authority:** the owner's comment and provenance rule (2026-10-15). A review round is not a stable reference; a commit is.
+- **Impact:** none on behaviour, figures or verdicts.
+- **Exact fix:** "on the SRP talker FSM at `ebb1f001` the Lv never goes out (frames -1, 0)."
+- **Verification:** inspect the line.
+
+### RESIDUE-2: the quarantine's value is copied outside F08.1
+
+- **Lenses:** Docs (wording only; no lens made unclean).
+- **Where:**
+  - `docs/architecture/02_interfaces.md:304` and `:566`: "within the last 30 s";
+  - `docs/architecture/09_verification.md:800`: "the 30 s quarantine";
+  - `docs/architecture/05_acmp_engine.md:528-529`: "(`T-MRP-LEAVEALL`, 10 to 15 s, F08.1)" and "*Q* is 30 s".
+- **Authority:** `docs/README.md` §2 single-source rules. Timing values live only in F08.1. "A timing or parameter value copied outside its table … are review findings". Q is defined as the longest `T-SRP-LEAVEALL2`, an existing F08.1 row.
+- **Impact:** none on code or claims. Today the values agree with F08.1, but a later edit to F08.1 would leave these copies stale.
+- **Exact fix:**
+  - 02:304 and 02:566: "within the longest `T-SRP-LEAVEALL2` (the [quarantine](05_acmp_engine.md#sec-05-sidq))";
+  - 09:800: "within the quarantine";
+  - 05:528-529: "A LeaveAll period is at most the longest `T-MRP-LEAVEALL` (F08.1), so the quarantine *Q* is the longest `T-SRP-LEAVEALL2`."
+  - The integrator guide may keep "30 s", because the rule binds the architecture documents only.
+- **Verification:** `grep -n "30 s" docs/architecture/0[25]*.md docs/architecture/09*.md` shows no quarantine hit; `make check` passes.
+

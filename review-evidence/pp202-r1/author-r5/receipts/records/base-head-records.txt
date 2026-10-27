@@ -1,0 +1,54 @@
+origin URL
+https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+(rc 0)
+
+origin/main and merge base
+ed2118035e4cec76fb1b59cfbf8a053aeacc8af8
+ed2118035e4cec76fb1b59cfbf8a053aeacc8af8
+(rc 0)
+
+round-4 head (start)
+429c909cb8a60398a2028436932e04b95dd0a0bd
+(rc 0)
+
+head and tree
+98e0137cfaf07b3b3efd21d2bd19648762e86f2b
+9fdc9864d6ad8a900403a0ba81969b028c8d8140
+(rc 0)
+
+branch
+202-maap-conflict-new-stream-id
+(rc 0)
+
+round-5 commits
+98e0137cfaf07b3b3efd21d2bd19648762e86f2b Record S5's one-epoch record case, the age-1 overwrite arm and the talker, ACMP and talker retry counts re-measured at b2b2bfd (issue #202)
+83c2eeff1ead736a31e27114ce3b9e4a78683b18 Name the quarantine by the longest T-SRP-LEAVEALL2 in 02, 05 and 09 rather than copy its 30 s, grade the record keep in both epochs in the 09 row, and name MP9's SRP talker FSM by its commit (issue #202)
+b2b2bfdbe878015ed096e26b220228a85fbf5753 Grade a quarantine record past its first epoch: in S5 src5 moves again 1 ms after an epoch ends, and the move after the wrap, 10 s after src5 left its first ID, must skip it; plant its age-1 overwrite as an arm (issue #202)
+(rc 0)
+
+diff stat 429c909..HEAD
+ docs/architecture/02_interfaces.md   |  7 ++--
+ docs/architecture/05_acmp_engine.md  |  4 +--
+ docs/architecture/09_verification.md |  4 +--
+ tb/acmp_talker/README.md             | 28 ++++++++-------
+ tb/acmp_talker/sid_cases.hpp         | 69 +++++++++++++++++++++++++++---------
+ tb/pp_top/README.md                  | 19 +++++-----
+ tb/pp_top/acmp_mutants.py            |  8 +++++
+ 7 files changed, 94 insertions(+), 45 deletions(-)
+(rc 0)
+
+files changed after the swept and campaigned commit b2b2bfd (suite inputs identical when only docs and READMEs)
+ docs/architecture/02_interfaces.md   |  7 ++++---
+ docs/architecture/05_acmp_engine.md  |  4 ++--
+ docs/architecture/09_verification.md |  4 ++--
+ tb/acmp_talker/README.md             | 28 ++++++++++++++++------------
+ tb/pp_top/README.md                  | 19 ++++++++++---------
+ 5 files changed, 34 insertions(+), 28 deletions(-)
+(rc 0)
+
+processor consumed inputs (hdl scripts syn Makefile) 429c909..HEAD (empty = identical)
+(rc 0)
+
+RTL changed this round (empty = none)
+(rc 0)
+
