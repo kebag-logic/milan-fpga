@@ -5996,9 +5996,21 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! The MSRP_FAILURE_VALID and REGISTERING_FAILED flags stay this face's.
   //!
   //! HONESTY LEDGER (what this face says and why):
-  //!  - a sink is SETTLED when it is bound and its settled stream_id is
-  //!    nonzero (the binding view latches identity at settle and zeroes it
-  //!    at unbind); that gates the stream_id, DA and VLAN fields and flags.
+  //!  - an input's stream_id, DA and VLAN and their STREAM_ID_VALID,
+  //!    STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID flags are valid only
+  //!    while the sink is settled, probing_status PROBING_COMPLETED (Milan
+  //!    v1.2 5.4.2.10.1, Table 5.9; 5.3.8.5, Table 5.5). This face cannot
+  //!    see probing_status, so the PROCESSOR applies that rule to the words
+  //!    below (processor #206, #790): while its committed status is not
+  //!    PROBING_COMPLETED it clears 0x52000000 in selector 0 and answers
+  //!    0 for selector 2 and selector 4 [63:16]. This face's own gate,
+  //!    gsi_setl_w (bound, and the binding view's stream_id nonzero), is
+  //!    wider: the view latches the identity at settle and zeroes it only
+  //!    at unbind, so a sink back in probing still reads "settled" here.
+  //!  - an output's stream_id is the processor's CURRENT ID for that
+  //!    source, src_stream_id_o (processor #202: moved after a MAAP
+  //!    conflict), the one its frames carry and PROBE_TX answers; IEEE
+  //!    1722.1-2021 7.4.16.2, "the current id of the stream".
   //!  - stream_format at reset is the addressed ROW's generated declared
   //!    format (ADP_STRIN_FMT_C / ADP_STROUT_FMT_C - the config accepts
   //!    independent per-row format lists, so row 0's fact must never
