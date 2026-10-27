@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- A moved Stream ID; settled-only stream fields.
 - **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
 - **[Unreleased - per-source TSpec](#unreleased---per-source-tspec)** -- The CRF output declares 29.
 - **[Unreleased - talker capture-to-wire latency](#unreleased---talker-capture-to-wire-latency)** -- Stamps cover the wire path.
@@ -45,6 +46,30 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin f65c8ff7
+
+- Issue #799 adopts processor `f65c8ff7` (PRs #204, #207, #208).
+- FPGA-gPTP stays at `55680bff`.
+- Processor #202: after a MAAP conflict a declared source moves to a new Stream ID.
+- It keeps the upper 48 bits and declares the new ID at once.
+- IEEE 802.1Q-2018 35.2.2.8 asks for a wait only before the same StreamID returns.
+- Milan v1.2 Table 5.3 lets the PAAD use another Stream ID.
+- The processor publishes each source's current ID on `src_stream_id_o`.
+- `KL_pp_shadow` passes it out; the AAF and CRF frames carry it.
+- An output's GET_STREAM_INFO stream_id is that ID (IEEE 1722.1-2021 7.4.16.2).
+- A TCTX unique ID no longer reaches the wire.
+- The STRMW talker SID words still read the ID a source starts with.
+- milan_dp's `sidmove` and `sidmove8` legs drive a real conflict.
+- The torture plan's conflict entry no longer expects a two-LeaveAll wait.
+- Processor #205: GET_TX_STATE for an unknown source echoes the listener fields.
+- Milan v1.2 5.5.4.3 step 1 and Table 5.46 give them.
+- Processor #206: an unsettled input reports no stream_id, DA or VLAN.
+- Its three Table 5.9 flags are clear (Milan v1.2 5.4.2.10.1).
+- This closes #790; `[GSI]` G11 and `pp_shadow` `[GSI]` grade four cases.
+- `make gsi-mutants` plants the pass-through in the processor copy.
+- Both processor ROM digests match the `ed211803` rows.
+- The top adds one output; no parameter or register changes.
 
 ## Unreleased - processor pin ed211803
 

@@ -273,6 +273,24 @@ No port, parameter or register changes.
 
 No parent test, model or document expected status 1 here.
 
+Issue #799 adopts processor pin `f65c8ff7`.
+
+FPGA-gPTP stays at `55680bff`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #202, Stream ID after a MAAP conflict | [204](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204) | After a MAAP conflict a declared source moves to a new Stream ID with the same upper 48 bits at its next grant, and declares it at once: IEEE 802.1Q-2018 Section 35.2.2.8 asks for two LeaveAllTime periods only before the same StreamID returns with another FirstValue, and Milan v1.2 Table 5.3 lets the PAAD use another Stream ID. The top gains the output `src_stream_id_o`, each source's current ID; `KL_pp_shadow` passes it out, and `milan_datapath` stamps it on the AAF and CRF frames (IEEE 1722-2016 Section 4.4.4.8) and answers an output's GET_STREAM_INFO stream_id with it (IEEE 1722.1-2021 Section 7.4.16.2). A TCTX unique ID no longer reaches the wire. The milan_dp `sidmove` and `sidmove8` legs drive a real conflict |
+| #205, GET_TX_STATE refusal | [207](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/207) | A GET_TX_STATE whose talker_unique_id names no valid source answers TALKER_UNKNOWN_ID with the command's listener_entity_id and listener_unique_id (Milan v1.2 Section 5.5.4.3 step 1, Table 5.46); SUCCESS keeps both 0 (Table 5.47) |
+| #206, GET_STREAM_INFO while not settled | [208](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/208) | An input that is not settled reports stream_id, stream_dest_mac and stream_vlan_id as 0 with STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear (Milan v1.2 Section 5.4.2.10.1, Table 5.9): the processor gates the parent's selectors 0, 2 and 4 on its committed probing status. This closes #790; milan_dp `[GSI]` G11 and the `pp_shadow` `[GSI]` group grade its four cases, and `make gsi-mutants` plants the pass-through |
+
+The top adds one output, `src_stream_id_o`; no parameter or register changes.
+
+`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `ed211803` rows.
+
+The STRMW talker SID words (`0x814`, `0x818`) still read the ID a source starts with.
+
+The torture plan's MAAP conflict entry no longer expects a two-LeaveAll wait.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
