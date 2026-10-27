@@ -1,0 +1,5 @@
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 0000000000000084 exp 0000000000000000
+[PASS] mutant caught: the self publication keeps the departed path - breaks "#82 peer leaves: the mastership commit path is {thisClock} | #82 Pdelay loss: that commit carries {thisClock} | #82 Pdelay loss: that mastership names thisClock, {thisClock} | #82 every commit naming thisClock carries {thisClock}"

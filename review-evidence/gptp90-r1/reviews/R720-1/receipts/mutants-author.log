@@ -1,0 +1,93 @@
+CONTROL pass
+author   1 caught slew clears at the first in-band pair
+author   8 caught result value taken without an accepted beat
+author   5 caught slew idle asCapable loss arms qualification
+author  10 caught recorded t1 survives reset
+author   2 caught the tracking band is empty
+author   7 caught result face always ready
+author   3 caught slew clears before the replacement rate
+author   4 caught slew idle lapse arms qualification
+author   6 caught slew mastership keeps qualification
+author   9 caught result tag taken without an accepted beat
+author   0 caught slew level tied low
+author  13 caught lost Sync cancels the requester exchange
+author  12 caught lost t1 fabricates a time and a companion
+author  11 caught byte face advances without ready
+author  14 caught lost response cancels the requester exchange
+author  15 caught a later response re-arms the frozen pair
+author  20 caught credit gate removed from the Announce leg
+author  16 caught the tail runs before its own t1
+author  17 caught a new request leaves the old pair live
+author  18 caught credit gate removed from the Pdelay_Req leg
+author  19 caught credit gate removed from the Sync leg
+author  21 caught every pair uses the locked threshold
+author  22 caught every pair uses the link-up threshold
+author  23 caught exactly the threshold steps
+author  24 caught the step arm is unreachable
+author  25 caught a grandmaster change unlocks the servo
+author  26 caught a receipt timeout unlocks the servo
+author  27 caught becoming grandmaster unlocks the servo
+author  28 caught the locked threshold is 200 us
+author  29 caught asCapable's rise keeps the lock
+author  30 caught the whole trim is not clamped
+author  31 caught the trim clamp is one unit wider than the envelope
+author  32 caught the integrator is not clamped
+author  40 caught the boot commit never retires
+author  33 caught reset leaves the grandmaster zero
+author  34 caught reset keeps the elected grandmaster
+author  36 caught reset leaves the path empty
+author  37 caught reset keeps the elected tail
+author  38 caught no engine commit after reset
+author  39 caught the boot commit fires twice
+author  41 caught the boot commit waits for the timer bootstrap
+author  44 caught a winning peer's grandmaster is not published
+author  43 caught an unwritten best record reads as the best vector
+author  42 caught a warm reset keeps the retained best record
+author  46 caught the self publication keeps the departed grandmaster
+author  45 caught a winning peer's path is not staged
+author  47 caught the self publication keeps the departed path
+author  48 caught the self publication keeps the departed record
+author  35 caught the thisClock words are read swapped
+author  57 caught mastership sets the microcode's presence bit
+author  52 caught the asCapable drop keeps the flags word
+author  49 caught an asCapable fall leaves the receipt watch running
+author  51 caught an incapable port's Announces still compete
+author  50 caught an incapable receipt timeout keeps the elected peer
+author  53 caught an incapable port's receipt watch is not re-armed
+author  54 caught the published flags leave gmPresent to the microcode
+author  56 caught the capability mark ignores priority1
+author  55 caught the image does not mark thisClock grandmaster-capable
+author  58 caught becoming grandmaster clears sync-ok
+author  59 caught a queued receipt timeout clears a master's sync-ok
+author  62 caught adoption leaves the Sync receipt watch off
+author  60 caught a queued receipt timeout ages a master
+author  63 caught an aged port takes Announces
+author  61 caught a sync receipt timeout only clears sync-ok
+author  64 caught a master steers on its aged peer's Sync
+author  66 caught the Sync receipt watch is 100 ms
+author  69 caught the adoption watch is 100 ms
+author  65 caught a master hears no Sync
+author  68 caught a parent refresh expires the Sync watch
+author  67 caught the Sync receipt watch is 500 ms
+author  70 caught a Follow_Up pairs whatever its sequenceId
+author  71 caught the Follow_Up watch is 50 ms
+author  72 caught lost responses clear asCapable at the first
+author  76 caught lost responses clear asCapable at the sixth
+author  75 caught lost responses clear asCapable at the fourth
+author  74 caught same-identity duplicates are a storm
+author  77 caught a second response re-arms the pairing
+author  73 caught the fifth loss stops the requests
+author  78 caught a third response re-arms the reset exchange
+author  79 caught dispatch ignores a busy serializer
+author  81 caught a handover to a peer keeps sync-ok
+author  83 caught thisClock is appended to an absent path
+author  82 caught the received path is published without thisClock
+author  84 caught eight received entries take a ninth
+author  80 caught mastership never publishes the master bit
+author  85 caught seven received entries leave thisClock out
+author  86 caught thisClock lands one slot early
+author  87 caught thisClock fills every later slot
+author  88 caught the appended entry is the announcing source
+author  89 caught the received entries are not copied
+author  90 caught every received path is published empty
+control=pass author=91/91 probes caught=0/0

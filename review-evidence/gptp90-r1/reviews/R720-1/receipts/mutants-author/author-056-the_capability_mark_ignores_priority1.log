@@ -1,0 +1,5 @@
+FAIL p1 255 #82 cold release: every cycle to the first beat has gmPresent got 000000000024a169 exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit's flags are gmPresent alone got 0000000000000001 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000001 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the capability mark ignores priority1 - breaks "p1 255 #82 cold release: every cycle to the first beat has gmPresent | p1 255 #82 cold release: that commit's flags are gmPresent alone | p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone | p1 255 #82 Pdelay loss: that mastership commit has gmPresent"

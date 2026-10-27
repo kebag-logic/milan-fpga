@@ -1,0 +1,21 @@
+FAIL #85 direct grandmaster: count got 0000000000000001 exp 0000000000000002
+FAIL #85 direct grandmaster: tail 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: count got 0000000000000005 exp 0000000000000006
+FAIL #85 multi-hop grandmaster: tail 5 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: count got 0000000000000007 exp 0000000000000008
+FAIL #85 seven received entries: tail 7 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 00000000000001cc exp 0000000000000000
+FAIL p1 255 #85 every peer path ends with thisClock got 0000000000000039 exp 0000000000000000
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL adopt appends thisClock as path tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL worse announce retains path A tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL worse TLV-less announce retains path A tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL parent refresh appends thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL unknown before path current parent: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL post-release C appends thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: the received path is published without thisClock - breaks "#85 direct grandmaster: count | #85 direct grandmaster: tail 1 | #85 direct grandmaster: its commit names the grandmaster and path | #85 multi-hop grandmaster: count | #85 multi-hop grandmaster: tail 5 | #85 multi-hop grandmaster: its commit names the grandmaster and path | #85 seven received entries: count | #85 seven received entries: tail 7 | #85 seven received entries: its commit names the grandmaster and path | #85 every peer path ends with thisClock | p1 255 #85 every peer path ends with thisClock | #82 peer wins: its commit carries the peer path | #82 warm reset: the live peer carries its own path | #82 Pdelay loss: once capable, a live peer worse than D wins | adopt appends thisClock as path tail 4 | worse announce retains path A tail 4 | worse TLV-less announce retains path A tail 4 | parent refresh appends thisClock | unknown before path current parent: tail 3 | post-release C appends thisClock"

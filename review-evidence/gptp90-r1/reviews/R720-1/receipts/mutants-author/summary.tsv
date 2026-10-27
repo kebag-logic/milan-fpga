@@ -1,0 +1,92 @@
+control	-	unmutated	pass	control.log
+author	0	slew level tied low	caught	author-000-slew_level_tied_low.log
+author	1	slew clears at the first in-band pair	caught	author-001-slew_clears_at_the_first_in_band_pair.log
+author	2	the tracking band is empty	caught	author-002-the_tracking_band_is_empty.log
+author	3	slew clears before the replacement rate	caught	author-003-slew_clears_before_the_replacement_rate.log
+author	4	slew idle lapse arms qualification	caught	author-004-slew_idle_lapse_arms_qualification.log
+author	5	slew idle asCapable loss arms qualification	caught	author-005-slew_idle_asCapable_loss_arms_qualification.log
+author	6	slew mastership keeps qualification	caught	author-006-slew_mastership_keeps_qualification.log
+author	7	result face always ready	caught	author-007-result_face_always_ready.log
+author	8	result value taken without an accepted beat	caught	author-008-result_value_taken_without_an_accepted_beat.log
+author	9	result tag taken without an accepted beat	caught	author-009-result_tag_taken_without_an_accepted_beat.log
+author	10	recorded t1 survives reset	caught	author-010-recorded_t1_survives_reset.log
+author	11	byte face advances without ready	caught	author-011-byte_face_advances_without_ready.log
+author	12	lost t1 fabricates a time and a companion	caught	author-012-lost_t1_fabricates_a_time_and_a_companion.log
+author	13	lost Sync cancels the requester exchange	caught	author-013-lost_Sync_cancels_the_requester_exchange.log
+author	14	lost response cancels the requester exchange	caught	author-014-lost_response_cancels_the_requester_exchange.log
+author	15	a later response re-arms the frozen pair	caught	author-015-a_later_response_re_arms_the_frozen_pair.log
+author	16	the tail runs before its own t1	caught	author-016-the_tail_runs_before_its_own_t1.log
+author	17	a new request leaves the old pair live	caught	author-017-a_new_request_leaves_the_old_pair_live.log
+author	18	credit gate removed from the Pdelay_Req leg	caught	author-018-credit_gate_removed_from_the_Pdelay_Req_leg.log
+author	19	credit gate removed from the Sync leg	caught	author-019-credit_gate_removed_from_the_Sync_leg.log
+author	20	credit gate removed from the Announce leg	caught	author-020-credit_gate_removed_from_the_Announce_leg.log
+author	21	every pair uses the locked threshold	caught	author-021-every_pair_uses_the_locked_threshold.log
+author	22	every pair uses the link-up threshold	caught	author-022-every_pair_uses_the_link_up_threshold.log
+author	23	exactly the threshold steps	caught	author-023-exactly_the_threshold_steps.log
+author	24	the step arm is unreachable	caught	author-024-the_step_arm_is_unreachable.log
+author	25	a grandmaster change unlocks the servo	caught	author-025-a_grandmaster_change_unlocks_the_servo.log
+author	26	a receipt timeout unlocks the servo	caught	author-026-a_receipt_timeout_unlocks_the_servo.log
+author	27	becoming grandmaster unlocks the servo	caught	author-027-becoming_grandmaster_unlocks_the_servo.log
+author	28	the locked threshold is 200 us	caught	author-028-the_locked_threshold_is_200_us.log
+author	29	asCapable's rise keeps the lock	caught	author-029-asCapable_s_rise_keeps_the_lock.log
+author	30	the whole trim is not clamped	caught	author-030-the_whole_trim_is_not_clamped.log
+author	31	the trim clamp is one unit wider than the envelope	caught	author-031-the_trim_clamp_is_one_unit_wider_than_the_envelope.log
+author	32	the integrator is not clamped	caught	author-032-the_integrator_is_not_clamped.log
+author	33	reset leaves the grandmaster zero	caught	author-033-reset_leaves_the_grandmaster_zero.log
+author	34	reset keeps the elected grandmaster	caught	author-034-reset_keeps_the_elected_grandmaster.log
+author	35	the thisClock words are read swapped	caught	author-035-the_thisClock_words_are_read_swapped.log
+author	36	reset leaves the path empty	caught	author-036-reset_leaves_the_path_empty.log
+author	37	reset keeps the elected tail	caught	author-037-reset_keeps_the_elected_tail.log
+author	38	no engine commit after reset	caught	author-038-no_engine_commit_after_reset.log
+author	39	the boot commit fires twice	caught	author-039-the_boot_commit_fires_twice.log
+author	40	the boot commit never retires	caught	author-040-the_boot_commit_never_retires.log
+author	41	the boot commit waits for the timer bootstrap	caught	author-041-the_boot_commit_waits_for_the_timer_bootstrap.log
+author	42	a warm reset keeps the retained best record	caught	author-042-a_warm_reset_keeps_the_retained_best_record.log
+author	43	an unwritten best record reads as the best vector	caught	author-043-an_unwritten_best_record_reads_as_the_best_vector.log
+author	44	a winning peer's grandmaster is not published	caught	author-044-a_winning_peer_s_grandmaster_is_not_published.log
+author	45	a winning peer's path is not staged	caught	author-045-a_winning_peer_s_path_is_not_staged.log
+author	46	the self publication keeps the departed grandmaster	caught	author-046-the_self_publication_keeps_the_departed_grandmaster.log
+author	47	the self publication keeps the departed path	caught	author-047-the_self_publication_keeps_the_departed_path.log
+author	48	the self publication keeps the departed record	caught	author-048-the_self_publication_keeps_the_departed_record.log
+author	49	an asCapable fall leaves the receipt watch running	caught	author-049-an_asCapable_fall_leaves_the_receipt_watch_running.log
+author	50	an incapable receipt timeout keeps the elected peer	caught	author-050-an_incapable_receipt_timeout_keeps_the_elected_peer.log
+author	51	an incapable port's Announces still compete	caught	author-051-an_incapable_port_s_Announces_still_compete.log
+author	52	the asCapable drop keeps the flags word	caught	author-052-the_asCapable_drop_keeps_the_flags_word.log
+author	53	an incapable port's receipt watch is not re-armed	caught	author-053-an_incapable_port_s_receipt_watch_is_not_re_armed.log
+author	54	the published flags leave gmPresent to the microcode	caught	author-054-the_published_flags_leave_gmPresent_to_the_microcode.log
+author	55	the image does not mark thisClock grandmaster-capable	caught	author-055-the_image_does_not_mark_thisClock_grandmaster_capable.log
+author	56	the capability mark ignores priority1	caught	author-056-the_capability_mark_ignores_priority1.log
+author	57	mastership sets the microcode's presence bit	caught	author-057-mastership_sets_the_microcode_s_presence_bit.log
+author	58	becoming grandmaster clears sync-ok	caught	author-058-becoming_grandmaster_clears_sync_ok.log
+author	59	a queued receipt timeout clears a master's sync-ok	caught	author-059-a_queued_receipt_timeout_clears_a_master_s_sync_ok.log
+author	60	a queued receipt timeout ages a master	caught	author-060-a_queued_receipt_timeout_ages_a_master.log
+author	61	a sync receipt timeout only clears sync-ok	caught	author-061-a_sync_receipt_timeout_only_clears_sync_ok.log
+author	62	adoption leaves the Sync receipt watch off	caught	author-062-adoption_leaves_the_Sync_receipt_watch_off.log
+author	63	an aged port takes Announces	caught	author-063-an_aged_port_takes_Announces.log
+author	64	a master steers on its aged peer's Sync	caught	author-064-a_master_steers_on_its_aged_peer_s_Sync.log
+author	65	a master hears no Sync	caught	author-065-a_master_hears_no_Sync.log
+author	66	the Sync receipt watch is 100 ms	caught	author-066-the_Sync_receipt_watch_is_100_ms.log
+author	67	the Sync receipt watch is 500 ms	caught	author-067-the_Sync_receipt_watch_is_500_ms.log
+author	68	a parent refresh expires the Sync watch	caught	author-068-a_parent_refresh_expires_the_Sync_watch.log
+author	69	the adoption watch is 100 ms	caught	author-069-the_adoption_watch_is_100_ms.log
+author	70	a Follow_Up pairs whatever its sequenceId	caught	author-070-a_Follow_Up_pairs_whatever_its_sequenceId.log
+author	71	the Follow_Up watch is 50 ms	caught	author-071-the_Follow_Up_watch_is_50_ms.log
+author	72	lost responses clear asCapable at the first	caught	author-072-lost_responses_clear_asCapable_at_the_first.log
+author	73	the fifth loss stops the requests	caught	author-073-the_fifth_loss_stops_the_requests.log
+author	74	same-identity duplicates are a storm	caught	author-074-same_identity_duplicates_are_a_storm.log
+author	75	lost responses clear asCapable at the fourth	caught	author-075-lost_responses_clear_asCapable_at_the_fourth.log
+author	76	lost responses clear asCapable at the sixth	caught	author-076-lost_responses_clear_asCapable_at_the_sixth.log
+author	77	a second response re-arms the pairing	caught	author-077-a_second_response_re_arms_the_pairing.log
+author	78	a third response re-arms the reset exchange	caught	author-078-a_third_response_re_arms_the_reset_exchange.log
+author	79	dispatch ignores a busy serializer	caught	author-079-dispatch_ignores_a_busy_serializer.log
+author	80	mastership never publishes the master bit	caught	author-080-mastership_never_publishes_the_master_bit.log
+author	81	a handover to a peer keeps sync-ok	caught	author-081-a_handover_to_a_peer_keeps_sync_ok.log
+author	82	the received path is published without thisClock	caught	author-082-the_received_path_is_published_without_thisClock.log
+author	83	thisClock is appended to an absent path	caught	author-083-thisClock_is_appended_to_an_absent_path.log
+author	84	eight received entries take a ninth	caught	author-084-eight_received_entries_take_a_ninth.log
+author	85	seven received entries leave thisClock out	caught	author-085-seven_received_entries_leave_thisClock_out.log
+author	86	thisClock lands one slot early	caught	author-086-thisClock_lands_one_slot_early.log
+author	87	thisClock fills every later slot	caught	author-087-thisClock_fills_every_later_slot.log
+author	88	the appended entry is the announcing source	caught	author-088-the_appended_entry_is_the_announcing_source.log
+author	89	the received entries are not copied	caught	author-089-the_received_entries_are_not_copied.log
+author	90	every received path is published empty	caught	author-090-every_received_path_is_published_empty.log

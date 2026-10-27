@@ -1,0 +1,6 @@
+FAIL #84 first mastership: the master flags carry sync-ok got 0000000000000007 exp 000000000000000f
+FAIL #84 takeover: its commit names thisClock with sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 every master cycle publishes sync-ok got 000000000fa78365 exp 0000000000000000
+FAIL p1 255 #84 first mastership: the master flags carry sync-ok got 0000000000000006 exp 000000000000000e
+FAIL p1 255 #84 every master cycle publishes sync-ok got 00000000000005bc exp 0000000000000000
+[PASS] mutant caught: becoming grandmaster clears sync-ok - breaks "#84 first mastership: the master flags carry sync-ok | #84 takeover: its commit names thisClock with sync-ok | #84 every master cycle publishes sync-ok | p1 255 #84 first mastership: the master flags carry sync-ok | p1 255 #84 every master cycle publishes sync-ok"

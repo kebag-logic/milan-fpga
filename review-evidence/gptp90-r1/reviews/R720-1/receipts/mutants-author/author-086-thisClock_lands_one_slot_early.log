@@ -1,0 +1,4 @@
+FAIL #85 direct grandmaster: tail 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: tail 5 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 every peer path ends with thisClock got 00000000000001cb exp 0000000000000000
+[PASS] mutant caught: thisClock lands one slot early - breaks "#85 direct grandmaster: tail 1 | #85 multi-hop grandmaster: tail 5 | #85 every peer path ends with thisClock"

@@ -1,0 +1,114 @@
+new or rewritten check names (static): 113
+ MAP       #89 Follow_Up after the next Sync: Sync recovery is heard as master and steers nothing
+NAMED MAP  #89 Follow_Up after the next Sync: no unusable pair is consumed
+ MAP       #89 Follow_Up after the next Sync: the aged port stays master while Announces continue
+ MAP       #89 Follow_Up after the next Sync: the next Announce elects the grandmaster
+ MAP       #89 Follow_Up after the next Sync: the plane takes mastership within syncReceiptTimeout and one BMCA pass
+ MAP       #89 Follow_Up after the next Sync: usable Sync keeps it elected
+ MAP       #89 Follow_Up with the next sequenceId: Sync recovery is heard as master and steers nothing
+NAMED MAP  #89 Follow_Up with the next sequenceId: no unusable pair is consumed
+ MAP       #89 Follow_Up with the next sequenceId: the aged port stays master while Announces continue
+ MAP       #89 Follow_Up with the next sequenceId: the next Announce elects the grandmaster
+ MAP       #89 Follow_Up with the next sequenceId: the plane takes mastership within syncReceiptTimeout and one BMCA pass
+ MAP       #89 Follow_Up with the next sequenceId: usable Sync keeps it elected
+NAMED MAP  #89 Sync every 250 ms keeps the plane deferring
+NAMED MAP  #89 Sync stops: Sync recovery is heard as master and steers nothing
+ MAP       #89 Sync stops: mastership carries sync-ok
+NONE       #89 Sync stops: no unusable pair is consumed
+NAMED MAP  #89 Sync stops: the Announce leaves the grandmaster elected
+ MAP       #89 Sync stops: the aged port stays master while Announces continue
+NAMED MAP  #89 Sync stops: the next Announce elects the grandmaster
+NAMED MAP  #89 Sync stops: the plane takes mastership
+ MAP       #89 Sync stops: the plane takes mastership within syncReceiptTimeout and one BMCA pass
+ MAP       #89 Sync stops: the takeover names thisClock
+ MAP       #89 Sync stops: usable Sync keeps it elected
+NAMED MAP  #89 Sync stops: within syncReceiptTimeout and one BMCA pass
+NAMED MAP  #89 a Follow_Up 60 ms after its Sync is used
+NAMED MAP  #89 first grandmaster: Sync recovery is heard as master and steers nothing
+NONE       #89 first grandmaster: no unusable pair is consumed
+NONE       #89 first grandmaster: the aged port stays master while Announces continue
+NAMED MAP  #89 first grandmaster: the next Announce elects the grandmaster
+NONE       #89 first grandmaster: the plane takes mastership within syncReceiptTimeout and one BMCA pass
+NAMED MAP  #89 first grandmaster: usable Sync keeps it elected
+ MAP       #89 never usable: phase 36 adopted the grandmaster
+NONE       #89 never usable: the aged port stays master while Announces 
+NAMED MAP  #89 never usable: the grandmaster is aged
+NAMED MAP  #89 never usable: within syncReceiptTimeout of its adoption
+NAMED MAP  #89 no Follow_Up: Sync recovery is heard as master and steers nothing
+NONE       #89 no Follow_Up: no unusable pair is consumed
+ MAP       #89 no Follow_Up: the aged port stays master while Announces continue
+NAMED MAP  #89 no Follow_Up: the next Announce elects the grandmaster
+ MAP       #89 no Follow_Up: the plane takes mastership within syncReceiptTimeout and one BMCA pass
+ MAP       #89 no Follow_Up: usable Sync keeps it elected
+NAMED MAP  #89 takeover: the queued receipt timeout ages nothing
+NAMED MAP  #90 no follow-up: four losses keep asCapable
+NONE       #90 no follow-up: no exchange completes
+NAMED MAP  #90 no follow-up: one loss keeps asCapable
+ MAP       #90 no follow-up: request 1 goes out
+ MAP       #90 no follow-up: request 2 goes out
+ MAP       #90 no follow-up: request 3 goes out
+ MAP       #90 no follow-up: request 4 goes out
+ MAP       #90 no follow-up: request 5 goes out
+ MAP       #90 no follow-up: request 6 goes out
+NAMED MAP  #90 no follow-up: runs from a capable plane
+NAMED MAP  #90 no follow-up: runs from a completed exchange
+NAMED MAP  #90 no follow-up: the fifth loss clears asCapable
+NONE       #90 no follow-up: the new grandmaster's Sync is heard
+NAMED MAP  #90 no response: four losses keep asCapable
+NONE       #90 no response: no exchange completes
+NAMED MAP  #90 no response: one loss keeps asCapable
+ MAP       #90 no response: request 1 goes out
+ MAP       #90 no response: request 2 goes out
+ MAP       #90 no response: request 3 goes out
+ MAP       #90 no response: request 4 goes out
+ MAP       #90 no response: request 5 goes out
+NAMED MAP  #90 no response: request 6 goes out
+ MAP       #90 no response: runs from a capable plane
+ MAP       #90 no response: runs from a completed exchange
+NAMED MAP  #90 no response: the fifth loss clears asCapable
+NONE       #90 no response: the new grandmaster's Sync is heard
+NAMED MAP  #91 duplicated response: four losses keep asCapable
+NAMED MAP  #91 duplicated response: no exchange completes
+NAMED MAP  #91 duplicated response: one loss keeps asCapable
+ MAP       #91 duplicated response: request 1 goes out
+ MAP       #91 duplicated response: request 2 goes out
+ MAP       #91 duplicated response: request 3 goes out
+ MAP       #91 duplicated response: request 4 goes out
+ MAP       #91 duplicated response: request 5 goes out
+ MAP       #91 duplicated response: request 6 goes out
+ MAP       #91 duplicated response: runs from a capable plane
+ MAP       #91 duplicated response: runs from a completed exchange
+NAMED MAP  #91 duplicated response: the fifth loss clears asCapable
+NONE       #91 duplicated response: the new grandmaster's Sync is heard
+NAMED MAP  #91 duplicates are not a storm: requests keep going out
+NAMED MAP  #91 three responses: four losses keep asCapable
+NAMED MAP  #91 three responses: no exchange completes
+NAMED MAP  #91 three responses: one loss keeps asCapable
+ MAP       #91 three responses: request 1 goes out
+ MAP       #91 three responses: request 2 goes out
+ MAP       #91 three responses: request 3 goes out
+ MAP       #91 three responses: request 4 goes out
+ MAP       #91 three responses: request 5 goes out
+ MAP       #91 three responses: request 6 goes out
+ MAP       #91 three responses: runs from a capable plane
+ MAP       #91 three responses: runs from a completed exchange
+NAMED MAP  #91 three responses: the fifth loss clears asCapable
+NONE       #91 three responses: the new grandmaster's Sync is heard
+ MAP       receipt timeout, same GM: re-elected after Sync recovers
+ MAP       receipt timeout, same GM: the second timeout and return
+ MAP       slew: active slave pairs until asCapable falls
+ MAP       slew: idle return has no level edge
+ MAP       slew: idle return leaves the rate alone
+ MAP       slew: idle return stays inactive
+ MAP       slew: idle timeout ages the grandmaster
+ MAP       slew: idle timeout's grandmaster returns
+ MAP       slew: missing Sync ages the grandmaster
+ MAP       slew: missing Sync has one falling edge
+ MAP       slew: missing Sync keeps the integral-only rate
+ MAP       slew: missing Sync retires the correction
+ MAP       slew: missing Sync writes one replacement rate
+ MAP       slew: missing Sync's grandmaster returns
+ MAP       slew: return after the missing Sync stays inactive
+NAMED MAP  slew: second return pair stays inactive
+NAMED MAP  still slave inside the Sync receipt watch
+ MAP       the newcomer's Sync is heard

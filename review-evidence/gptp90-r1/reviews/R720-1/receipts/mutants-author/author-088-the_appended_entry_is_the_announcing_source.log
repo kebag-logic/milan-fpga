@@ -1,0 +1,4 @@
+FAIL #85 direct grandmaster: tail 1 got 00e5e5fffe000001 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: tail 5 got 00e6e6fffe0000c4 exp 02a1b2fffec3d4e5
+FAIL #85 every peer path ends with thisClock got 00000000000001cb exp 0000000000000000
+[PASS] mutant caught: the appended entry is the announcing source - breaks "#85 direct grandmaster: tail 1 | #85 multi-hop grandmaster: tail 5 | #85 every peer path ends with thisClock"

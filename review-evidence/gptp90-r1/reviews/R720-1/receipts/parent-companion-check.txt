@@ -1,0 +1,8 @@
+companion patch (published author evidence, milan-fpga 21fb280b review-evidence/gptp90-r1/author/receipts/parent-companion-test.patch)
+1651cb5a2919e98cefd00aca19460227f57b7fabd3fae0b891495a5954eecdcb parent-companion-test.patch
+applies cleanly (git apply --check) to milan-fpga 97aab1d0 with gptp-processor = d27a1654 tree
+files: docs/testing/TESTING.md tb/verilator/gptp_plane/phc_step.py tb/verilator/gptp_plane/sim_phc_step.cpp tb/verilator/milan_dp/sim_ax1x1gptp.cpp tb/verilator/milan_dp/sim_gptp.cpp
+no RTL, no generator, no gitlink, no parent source outside tests/docs touched
+parent-milan_dp-gptp-head-nopatch rc=2 185 checks: 167 PASS, 18 FAIL
+parent-milan_dp-gptp-head-companion rc=0 185 checks: 185 PASS, 0 FAIL
+parent-milan_dp-gptp-lat-head-companion rc=0 185 checks: 185 PASS, 0 FAIL

@@ -1,0 +1,9 @@
+FAIL #82 peer leaves: the mastership commit names thisClock got 0082b0fffe000001 exp 02a1b2fffec3d4e5
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #85 direct grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 eight received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 absent path: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the self publication keeps the departed grandmaster - breaks "#82 peer leaves: the mastership commit names thisClock | #82 Pdelay loss: thisClock is committed within 2 ms of the fall | #82 Pdelay loss: that mastership names thisClock, {thisClock} | #85 direct grandmaster: the degraded grandmaster yields | #85 multi-hop grandmaster: the degraded grandmaster yields | #85 seven received entries: the degraded grandmaster yields | #85 eight received entries: the degraded grandmaster yields | #85 absent path: the degraded grandmaster yields"

@@ -1,0 +1,10 @@
+control	-	unmutated	pass	control.log
+probe	0	R1 an asCapable rise keeps the aged mark	caught	probe-000-R1_an_asCapable_rise_keeps_the_aged_mark.log
+probe	1	R2 a usable pair keeps the aged mark	caught	probe-001-R2_a_usable_pair_keeps_the_aged_mark.log
+probe	2	R3 the timeout records no aged mark	caught	probe-002-R3_the_timeout_records_no_aged_mark.log
+probe	3	R4 a completed exchange keeps the loss count	caught	probe-003-R4_a_completed_exchange_keeps_the_loss_count.log
+probe	4	R5 init leaves the first request unjudged-guard off	NOT-CAUGHT	probe-004-R5_init_leaves_the_first_request_unjudged_guard_off.log
+probe	5	R6 only a same-source second response resets	NOT-CAUGHT	probe-005-R6_only_a_same_source_second_response_resets.log
+probe	6	R7 the Announce gate tests the wrong role	caught	probe-006-R7_the_Announce_gate_tests_the_wrong_role.log
+probe	7	R8 a slave pair does not restart the watch	caught	probe-007-R8_a_slave_pair_does_not_restart_the_watch.log
+probe	8	R9 the fifth loss keeps the recovery ladder	caught	probe-008-R9_the_fifth_loss_keeps_the_recovery_ladder.log

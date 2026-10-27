@@ -1,0 +1,6 @@
+FAIL #89 never usable: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 Sync stops: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up after the next Sync: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up with the next sequenceId: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an aged port takes Announces - breaks "#89 never usable: the aged port stays master while Announces continue | #89 Sync stops: the aged port stays master | #89 no Follow_Up: the aged port stays master | #89 Follow_Up after the next Sync: the aged port stays master | #89 Follow_Up with the next sequenceId: the aged port stays master"
