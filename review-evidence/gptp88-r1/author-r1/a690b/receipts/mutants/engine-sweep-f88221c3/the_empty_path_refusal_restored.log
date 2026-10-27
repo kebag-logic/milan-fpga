@@ -1,0 +1,13 @@
+mutant: the empty-path refusal restored
+FAIL #88 empty path: elected      got 02a1b2fffec3d4e5 exp 00eaeafffe000001
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000004 exp 0000000000000001
+FAIL #88 empty path from the parent: head got 00f6f6fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: tail 1 got 00f6f6fffe0000b1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 2 got 00f6f6fffe0000c1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: parser accepts got 000000000000000c exp 000000000000000b
+tally: 1929 checks: 1920 PASS, 9 FAIL
+named checks failing: 4 of 4
+verdict: caught

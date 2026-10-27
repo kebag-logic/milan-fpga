@@ -1,0 +1,77 @@
+mutant: a winning peer's grandmaster is not published
+FAIL boundary-clean announce: adopted got 02a1b2fffec3d4e5 exp 00d1d1fffe000004
+FAIL half-identity control A: adopted got 02a1b2fffec3d4e5 exp 00d2d2fffe000006
+FAIL half-identity control B: adopted got 02a1b2fffec3d4e5 exp 00d3d3fffe000007
+FAIL TLV-less competition control: adopted got 02a1b2fffec3d4e5 exp 00d4d4fffe000008
+FAIL #85 direct grandmaster: elected got 02a1b2fffec3d4e5 exp 00e5e5fffe000001
+FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: elected got 02a1b2fffec3d4e5 exp 00e6e6fffe000001
+FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: elected got 02a1b2fffec3d4e5 exp 00e7e7fffe000001
+FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 eight received entries: elected got 02a1b2fffec3d4e5 exp 00e8e8fffe000001
+FAIL #85 eight received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 absent path: elected     got 02a1b2fffec3d4e5 exp 00e9e9fffe000001
+FAIL #85 absent path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path: elected      got 02a1b2fffec3d4e5 exp 00eaeafffe000001
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: elected     got 02a1b2fffec3d4e5 exp 00f1f1fffe000001
+FAIL #88 issue shape: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 head not the grandmaster: elected got 02a1b2fffec3d4e5 exp 00f5f5fffe000001
+FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: elected got 02a1b2fffec3d4e5 exp 00f2f2fffe000001
+FAIL #88 two entries, stepsRemoved 5: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: elected got 02a1b2fffec3d4e5 exp 00f3f3fffe000001
+FAIL #88 three entries, stepsRemoved 0: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 G1 elected: elected      got 02a1b2fffec3d4e5 exp 00f6f6fffe000001
+FAIL #87 G1 elected: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 G1 to G2 without a TLV: elected got 02a1b2fffec3d4e5 exp 00f7f7fffe000001
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: elected got 02a1b2fffec3d4e5 exp 00f7f7fffe000001
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 parent path headed elsewhere: elected got 02a1b2fffec3d4e5 exp 00f7f7fffe000001
+FAIL #88 parent path headed elsewhere: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: elected got 02a1b2fffec3d4e5 exp 00f7f7fffe000001
+FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL gm is theirs                 got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL worse announce retains selected GM got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL worse TLV-less announce retains selected GM got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL TLV-less current parent: GM retained got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL #88 current parent's path headed elsewhere: GM retained got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL frozen queued A GM coherent  got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL post-release C GM coherent   got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL raw-empty overload: frozen A GM got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL locked +90 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL gm survives the switch       got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL no flicker on the switch     got 0000000000000000 exp 0000000000000008
+FAIL gm undisturbed by the race   got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL GM change: the pair before it: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL GM change: new identity adopted got 02a1b2fffec3d4e5 exp 00b0b0fffe00000b
+FAIL GM change again: new identity adopted got 02a1b2fffec3d4e5 exp 00c0c0fffe00000c
+FAIL failover, -50 us: new identity adopted got 02a1b2fffec3d4e5 exp 00d0d0fffe00000d
+FAIL failover, +150 us: new identity adopted got 02a1b2fffec3d4e5 exp 00e0e0fffe00000e
+FAIL newcomer adopted, no ghost   got 02a1b2fffec3d4e5 exp 00beeffffe000002
+FAIL vector outranks identity     got 02a1b2fffec3d4e5 exp 00beeffffe000002
+FAIL torn better announce adopts  got 02a1b2fffec3d4e5 exp 00cafefffe000003
+FAIL #87 post-warm-reset TLV-less selection commits {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL post-warm-reset raw-empty GM got 02a1b2fffec3d4e5 exp 00c028fffe000001
+FAIL warm-reset link-up: WGM elected got 02a1b2fffec3d4e5 exp 00c028fffe000001
+FAIL warm-reset link-up: WGM re-adopted got 02a1b2fffec3d4e5 exp 00c028fffe000001
+FAIL slew: idle GM change selects the new identity got 02a1b2fffec3d4e5 exp 00aaccfffe010205
+FAIL #82 peer wins: its commit names the peer GM got 02a1b2fffec3d4e5 exp 0082a0fffe000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 02a1b2fffec3d4e5 exp 0082b0fffe000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 0000000000000177 exp 0000000000000000
+FAIL #84 the run hands mastership to a peer got 0000000000000000 exp 0000000000000001
+FAIL #85 peer commits with a path were graded got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 every commit naming thisClock carries {thisClock} got 0000000000000030 exp 0000000000000000
+FAIL p1 255 #84 the run hands mastership to a peer got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #85 peer commits with a path were graded got 0000000000000000 exp 0000000000000001
+tally: 1932 checks: 1859 PASS, 73 FAIL
+named checks failing: 8 of 8
+verdict: caught

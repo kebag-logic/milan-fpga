@@ -1,0 +1,17 @@
+mutant: the image does not mark thisClock grandmaster-capable
+FAIL #82 cold release: every cycle to the first beat has gmPresent got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL master flags                 got 0000000000000006 exp 0000000000000007
+FAIL #84 first mastership: the master flags carry sync-ok got 000000000000000e exp 000000000000000f
+FAIL boundary-clean announce: degraded parent yields got 0000000000000002 exp 0000000000000003
+FAIL half-identity control A: degraded parent yields got 0000000000000002 exp 0000000000000003
+FAIL half-identity control B: degraded parent yields got 0000000000000002 exp 0000000000000003
+FAIL TLV-less competition control: degraded parent yields got 0000000000000002 exp 0000000000000003
+FAIL degraded parent yields NOW   got 0000000000000002 exp 0000000000000003
+FAIL #82 warm reset: its flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+tally: 1929 checks: 1916 PASS, 13 FAIL
+named checks failing: 6 of 6
+verdict: caught

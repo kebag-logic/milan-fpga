@@ -1,0 +1,134 @@
+mutant: the received entries are not copied
+FAIL boundary-clean announce: raw path head got 0000000000000000 exp 00d1d1fffe000004
+FAIL boundary-clean announce: raw path tail 1 got 0000000000000000 exp 00d1000000000001
+FAIL boundary-clean announce: raw path tail 2 got 0000000000000000 exp 00d1000000000002
+FAIL boundary-clean announce: raw path tail 3 got 0000000000000000 exp 00d1000000000003
+FAIL boundary-clean announce: raw path tail 4 got 0000000000000000 exp 00d1000000000004
+FAIL boundary-clean announce: raw path tail 5 got 0000000000000000 exp 00d1000000000005
+FAIL boundary-clean announce: raw path tail 6 got 0000000000000000 exp 00d1000000000006
+FAIL boundary-clean announce: raw path tail 7 got 0000000000000000 exp 00d1000000000007
+FAIL half-identity control A: raw path head got 0000000000000000 exp 00d2d2fffe000006
+FAIL half-identity control A: raw path tail 1 got 0000000000000000 exp 02a1b2fffec3d4e4
+FAIL half-identity control B: raw path head got 0000000000000000 exp 00d3d3fffe000007
+FAIL half-identity control B: raw path tail 1 got 0000000000000000 exp 02a1b3fffec3d4e5
+FAIL #85 direct grandmaster: head got 0000000000000000 exp 00e5e5fffe000001
+FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: head got 0000000000000000 exp 00e6e6fffe000001
+FAIL #85 multi-hop grandmaster: tail 1 got 0000000000000000 exp 00e6e6fffe0000b1
+FAIL #85 multi-hop grandmaster: tail 2 got 0000000000000000 exp 00e6e6fffe0000b2
+FAIL #85 multi-hop grandmaster: tail 3 got 0000000000000000 exp 00e6e6fffe0000b3
+FAIL #85 multi-hop grandmaster: tail 4 got 0000000000000000 exp 00e6e6fffe0000c4
+FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: head got 0000000000000000 exp 00e7e7fffe000001
+FAIL #85 seven received entries: tail 1 got 0000000000000000 exp 00e7e7fffe000002
+FAIL #85 seven received entries: tail 2 got 0000000000000000 exp 00e7e7fffe000003
+FAIL #85 seven received entries: tail 3 got 0000000000000000 exp 00e7e7fffe000004
+FAIL #85 seven received entries: tail 4 got 0000000000000000 exp 00e7e7fffe000005
+FAIL #85 seven received entries: tail 5 got 0000000000000000 exp 00e7e7fffe000006
+FAIL #85 seven received entries: tail 6 got 0000000000000000 exp 00e7e7fffe000007
+FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 eight received entries: head got 0000000000000000 exp 00e8e8fffe000001
+FAIL #85 eight received entries: tail 1 got 0000000000000000 exp 00e8e8fffe000002
+FAIL #85 eight received entries: tail 2 got 0000000000000000 exp 00e8e8fffe000003
+FAIL #85 eight received entries: tail 3 got 0000000000000000 exp 00e8e8fffe000004
+FAIL #85 eight received entries: tail 4 got 0000000000000000 exp 00e8e8fffe000005
+FAIL #85 eight received entries: tail 5 got 0000000000000000 exp 00e8e8fffe000006
+FAIL #85 eight received entries: tail 6 got 0000000000000000 exp 00e8e8fffe000007
+FAIL #85 eight received entries: tail 7 got 0000000000000000 exp 00e8e8fffe000008
+FAIL #85 eight received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: entry 0 is the received head got 0000000000000000 exp 00f1f1fffe000001
+FAIL #88 issue shape: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 head not the grandmaster: entry 0 is the received head got 0000000000000000 exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: tail 1 got 0000000000000000 exp 00f5f5fffe0000c1
+FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: head got 0000000000000000 exp 00f2f2fffe000001
+FAIL #88 two entries, stepsRemoved 5: tail 1 got 0000000000000000 exp 00f2f2fffe0000b1
+FAIL #88 two entries, stepsRemoved 5: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: head got 0000000000000000 exp 00f3f3fffe000001
+FAIL #88 three entries, stepsRemoved 0: tail 1 got 0000000000000000 exp 00f3f3fffe0000b1
+FAIL #88 three entries, stepsRemoved 0: tail 2 got 0000000000000000 exp 00f3f3fffe0000c2
+FAIL #88 three entries, stepsRemoved 0: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 G1 elected: head         got 0000000000000000 exp 00f6f6fffe000001
+FAIL #87 G1 elected: tail 1       got 0000000000000000 exp 00f6f6fffe0000b1
+FAIL #87 G1 elected: tail 2       got 0000000000000000 exp 00f6f6fffe0000c1
+FAIL #87 G1 elected: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 G1 to G2 without a TLV: head got 0000000000000000 exp 00f6f6fffe000001
+FAIL #87 G1 to G2 without a TLV: tail 1 got 0000000000000000 exp 00f6f6fffe0000b1
+FAIL #87 G1 to G2 without a TLV: tail 2 got 0000000000000000 exp 00f6f6fffe0000c1
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 parent path headed elsewhere: head got 0000000000000000 exp 00f7f7fffe0000a1
+FAIL #88 parent path headed elsewhere: tail 1 got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #88 parent path headed elsewhere: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: head got 0000000000000000 exp 00f7f7fffe0000a1
+FAIL #87 parent refresh without a TLV: tail 1 got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL adopt publishes path head    got 0000000000000000 exp 00aaccfffe010203
+FAIL adopt publishes path tail 1  got 0000000000000000 exp 001122fffe000011
+FAIL adopt publishes path tail 2  got 0000000000000000 exp 001122fffe000022
+FAIL adopt publishes path tail 3  got 0000000000000000 exp 0080e1fffe112233
+FAIL worse announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+FAIL worse announce retains path A tail 1 got 0000000000000000 exp 001122fffe000011
+FAIL worse announce retains path A tail 2 got 0000000000000000 exp 001122fffe000022
+FAIL worse announce retains path A tail 3 got 0000000000000000 exp 0080e1fffe112233
+FAIL worse TLV-less announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+FAIL worse TLV-less announce retains path A tail 1 got 0000000000000000 exp 001122fffe000011
+FAIL worse TLV-less announce retains path A tail 2 got 0000000000000000 exp 001122fffe000022
+FAIL worse TLV-less announce retains path A tail 3 got 0000000000000000 exp 0080e1fffe112233
+FAIL deep path retains its head   got 0000000000000000 exp 00aaccfffe010203
+FAIL deep path retains tail 1     got 0000000000000000 exp 00d000fffe000001
+FAIL deep path retains tail 2     got 0000000000000000 exp 00d000fffe000002
+FAIL deep path retains tail 3     got 0000000000000000 exp 00d000fffe000003
+FAIL deep path retains tail 4     got 0000000000000000 exp 00d000fffe000004
+FAIL deep path retains tail 5     got 0000000000000000 exp 00d000fffe000005
+FAIL deep path retains tail 6     got 0000000000000000 exp 00d000fffe000006
+FAIL deep path retains tail 7     got 0000000000000000 exp 00d000fffe000007
+FAIL parent refresh publishes path C head got 0000000000000000 exp 00aaccfffe010203
+FAIL parent refresh publishes path C tail 1 got 0000000000000000 exp 00ccd0fffe000033
+FAIL parent refresh publishes path C tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL unknown-only current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL unknown-only current parent: keeps tail 1 got 0000000000000000 exp 00ccd0fffe000033
+FAIL unknown-only current parent: keeps tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL unknown before path current parent: head got 0000000000000000 exp 00aaccfffe010203
+FAIL unknown before path current parent: tail 1 got 0000000000000000 exp 00ccddfffe000044
+FAIL unknown before path current parent: tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL full path before raw empty: head got 0000000000000000 exp 00aaccfffe010203
+FAIL full path before raw empty: tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL full path before raw empty: tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL full path before raw empty: tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL full path before raw empty: tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL full path before raw empty: tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL full path before raw empty: tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL full path before raw empty: tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL TLV-less current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL TLV-less current parent: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL TLV-less current parent: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL TLV-less current parent: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL TLV-less current parent: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL TLV-less current parent: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL TLV-less current parent: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL TLV-less current parent: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL out-of-message fake PathTrace: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL out-of-message fake PathTrace: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL out-of-message fake PathTrace: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL out-of-message fake PathTrace: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL out-of-message fake PathTrace: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL out-of-message fake PathTrace: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL out-of-message fake PathTrace: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL out-of-message fake PathTrace: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 0000000000000000 exp 00bad0fffe000001
+FAIL #88 current parent's path headed elsewhere: tail 1 got 0000000000000000 exp 00ccd0fffe000033
+FAIL #88 current parent's path headed elsewhere: tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL frozen queued A head coherent got 0000000000000000 exp 00aaccfffe010203
+FAIL frozen queued A tail 1 coherent got 0000000000000000 exp 00e100fffe000011
+FAIL frozen queued A tail 2 coherent got 0000000000000000 exp 00e100fffe000022
+FAIL post-release C head coherent got 0000000000000000 exp 00aaccfffe010203
+FAIL post-release C tail coherent got 0000000000000000 exp 00e300fffe000033
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+FAIL raw-empty overload: post-release tail got 0000000000000000 exp 00e300fffe000033
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+tally: 1929 checks: 1799 PASS, 130 FAIL
+named checks failing: 19 of 19
+verdict: caught

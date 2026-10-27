@@ -1,0 +1,10 @@
+mutant: the empty-path refusal restored (#88)
+FAIL #88 empty path: event    got 0000000000000000 exp 0000000000000003
+FAIL #88 empty path: present, count zero got 0000000000000000 exp 8000000000000000
+FAIL #88 empty path: no drop  got 0000000000000010 exp 000000000000000f
+FAIL #88 empty path between unknowns: event got 0000000000000000 exp 0000000000000003
+FAIL #88 empty path between unknowns: present, count zero got 0000000000000000 exp 8000000000000000
+FAIL #88 empty path between unknowns: no drop got 0000000000000011 exp 0000000000000010
+tally: 378 checks: 372 PASS, 6 FAIL
+named checks failing: 4 of 4
+verdict: caught

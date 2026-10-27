@@ -1,0 +1,337 @@
+ann event
+ann ev_seq
+ann w0
+ann w2 srcid
+ann w3 srcpn
+ann w8
+ann w9 gmid
+ann w10
+ann w12 hops
+ann w16 pt0
+ann w17 pt1
+TLV-less ann: event
+TLV-less ann: zero count and loop
+TLV-less ann: no retained identity
+TLV-less ann: no drop
+out-of-message path: event
+out-of-message path: zero count and loop
+out-of-message path: no retained identity
+out-of-message path: no drop
+unknown-only ann: event
+unknown-only ann: zero count
+unknown-only ann: no identity
+unknown-only ann: no drop
+unknown organization TLV: event
+unknown organization TLV: zero count
+unknown organization TLV: no identity
+unknown organization TLV: no drop
+zero-length unknown ann: event
+zero-length unknown ann: zero count
+zero-length unknown ann: no drop
+two unknown TLVs: event
+two unknown TLVs: zero count
+two unknown TLVs: no identity
+two unknown TLVs: no drop
+unknown before path: event
+unknown before path: count
+unknown before path: head
+unknown before path: tail
+unknown before path: no drop
+unknown after path: event
+unknown after path: count
+unknown after path: head
+unknown after path: tail
+unknown after path: no drop
+unknowns around path: event
+unknowns around path: count
+unknowns around path: head
+unknowns around path: tail
+unknowns around path: no drop
+partial TLV header 1: no event
+partial TLV header 1: no w12
+partial TLV header 1: one drop
+partial TLV header 2: no event
+partial TLV header 2: no w12
+partial TLV header 2: one drop
+partial TLV header 3: no event
+partial TLV header 3: no w12
+partial TLV header 3: one drop
+odd unknown length: no event
+odd unknown length: no w12
+odd unknown length: one drop
+huge unknown length: no event
+huge unknown length: no w12
+huge unknown length: one drop
+unknown crosses declaration: no event
+unknown crosses declaration: no w12
+unknown crosses declaration: one drop
+physically truncated unknown: no event
+physically truncated unknown: no w12
+physically truncated unknown: one drop
+malformed after valid path: no event
+malformed after valid path: no w12
+malformed after valid path: one drop
+duplicate path 0: no event
+duplicate path 0: no w12
+duplicate path 0: one drop
+duplicate path 1: no event
+duplicate path 1: no w12
+duplicate path 1: one drop
+duplicate path 2: no event
+duplicate path 2: no w12
+duplicate path 2: one drop
+maximum unknown TLV: event
+maximum unknown TLV: zero count
+maximum unknown TLV: no drop
+declared suffix without path: no event
+declared suffix without path: no w12
+declared suffix without path: one drop
+truncated path: no event
+truncated path: no w12
+truncated path: one drop
+declared path overrun: no event
+declared path overrun: one drop
+misaligned path: no event
+misaligned path: one drop
+path-count mismatch: no event
+path-count mismatch: one drop
+valid ann with padding: event
+valid ann with padding: count
+valid ann with padding: no drop
+deep self path: event
+deep self path: full count+loop
+deep self path: first retained
+deep self path: eighth retained
+deep self path: no drop
+sync event
+sync w0
+sync w1 corr
+sync w4 sec
+sync w5 ns
+fu event
+fu w4 sec
+fu w5 ns
+fu w11
+pdresp event
+pdresp w4
+pdresp w5
+pdresp w6
+pdresp w7
+etype drop: no event
+version drop: no event
+tspec drop: no event
+truncated drop: no event
+rx_err drop: no event
+domain 5 sync drop: no event
+domain 5 sync drop: no bank write
+domain 5 sync drop: one drop
+domain 1 announce drop: no event
+domain 1 announce drop: no bank write
+domain 1 announce drop: one drop
+domain 255 pdresp drop: no event
+domain 255 pdresp drop: no bank write
+domain 255 pdresp drop: one drop
+pdreq event
+pdreq w0
+pdreq w2 srcid
+sig event
+sig w0
+domain 0x10 pdreq drop: no event
+domain 0x10 pdreq drop: no bank write
+domain 0x10 pdreq drop: one drop
+domain 0x80 sig drop: no event
+domain 0x80 sig drop: no bank write
+domain 0x80 sig drop: one drop
+TLV-less fu drop: no event
+TLV-less fu drop: no bank write
+TLV-less fu drop: one drop
+75-octet fu drop: no event
+75-octet fu drop: no bank write
+75-octet fu drop: one drop
+cut fu drop: no event
+cut fu drop: one drop
+fu tlvType 0x0008 drop: no event
+fu tlvType 0x0008 drop: no w11 write
+fu tlvType 0x0008 drop: one drop
+fu lengthField 27 drop: no event
+fu lengthField 27 drop: no w11 write
+fu lengthField 27 drop: one drop
+fu orgId 00-1B-19 drop: no event
+fu orgId 00-1B-19 drop: no w11 write
+fu orgId 00-1B-19 drop: one drop
+fu orgSubType 2 drop: no event
+fu orgSubType 2 drop: no w11 write
+fu orgSubType 2 drop: one drop
+complete fu after the arms: event
+complete fu after the arms: ev_seq
+complete fu after the arms: w11
+complete fu after the arms: no drop
+fu with a trailing TLV: event
+fu with a trailing TLV: w11
+fu with a trailing TLV: no drop
+sync declared 43 drop: no event
+sync declared 43 drop: no bank write
+sync declared 43 drop: one drop
+sync declared 44 control: event
+sync declared 44 control: no drop
+pdresp declared 53 drop: no event
+pdresp declared 53 drop: no bank write
+pdresp declared 53 drop: one drop
+pdresp declared 54 control: event
+pdresp declared 54 control: no drop
+pdrfu declared 53 drop: no event
+pdrfu declared 53 drop: no bank write
+pdrfu declared 53 drop: one drop
+pdrfu declared 54 control: event
+pdrfu declared 54 control: no drop
+pdreq declared 53 drop: no event
+pdreq declared 53 drop: no bank write
+pdreq declared 53 drop: one drop
+pdreq declared 54 control: event
+pdreq declared 54 control: no drop
+signaling declared 33 drop: no event
+signaling declared 33 drop: no bank write
+signaling declared 33 drop: one drop
+signaling declared 34 control: event
+signaling declared 34 control: no drop
+sync padded to 60 (zero): event
+sync padded to 60 (zero): six words
+sync padded to 60 (zero): w5 ns
+sync padded to 60 (zero): no drop
+sync padded to 60 (TLV-shaped): event
+sync padded to 60 (TLV-shaped): six words
+sync padded to 60 (TLV-shaped): w5 ns
+sync padded to 60 (TLV-shaped): no drop
+sync padded to 60 (0x0008): event
+sync padded to 60 (0x0008): six words
+sync padded to 60 (0x0008): w5 ns
+sync padded to 60 (0x0008): no drop
+sync padded to 74: event
+sync padded to 74: six words
+sync padded to 74: w5 ns
+sync padded to 74: no drop
+header-only pdreq drop: no event
+header-only pdreq drop: no bank write
+header-only pdreq drop: one drop
+44-octet pdreq drop: no event
+44-octet pdreq drop: no bank write
+44-octet pdreq drop: one drop
+53-octet pdreq drop: no event
+53-octet pdreq drop: no bank write
+53-octet pdreq drop: one drop
+cut pdreq drop: no event
+cut pdreq drop: one drop
+type 0x1 drop: no event
+type 0x1 drop: no bank write
+type 0x1 drop: one drop
+type 0x4 drop: no event
+type 0x4 drop: no bank write
+type 0x4 drop: one drop
+type 0x5 drop: no event
+type 0x5 drop: no bank write
+type 0x5 drop: one drop
+type 0x6 drop: no event
+type 0x6 drop: no bank write
+type 0x6 drop: one drop
+type 0x7 drop: no event
+type 0x7 drop: no bank write
+type 0x7 drop: one drop
+type 0x9 drop: no event
+type 0x9 drop: no bank write
+type 0x9 drop: one drop
+type 0xD drop: no event
+type 0xD drop: no bank write
+type 0xD drop: one drop
+type 0xE drop: no event
+type 0xE drop: no bank write
+type 0xE drop: one drop
+type 0xF drop: no event
+type 0xF drop: no bank write
+type 0xF drop: one drop
+complete pdreq after the arms: event
+complete pdreq after the arms: ev_seq
+complete pdreq after the arms: w0
+complete pdreq after the arms: w2 srcid
+complete pdreq after the arms: no drop
+drop then 0-gap runt: two drops
+runt then 0-gap drop: two drops
+drop then 1-gap runt: two drops
+runt then 1-gap drop: two drops
+drop then zero-gap sync: one drop
+drop then zero-gap sync: event
+drop then zero-gap sync: w0
+good then zero-gap good: two events
+good then zero-gap good: no drop
+good then zero-gap good: first w0
+good then zero-gap good: second w0
+sof and eof without valid: not a frame
+drop count advanced
+sync rx_err at every byte: one drop
+sync rx_err at every byte: no event
+sync rx_err at every byte: no later write
+sync rx_err held from byte 20 to eof: one drop
+sync rx_err held from byte 20 to eof: no event
+sync control after the errors: event
+sync control after the errors: no drop
+fu rx_err at every byte: one drop
+fu rx_err at every byte: no event
+fu rx_err at every byte: no later write
+fu rx_err held from byte 20 to eof: one drop
+fu rx_err held from byte 20 to eof: no event
+fu control after the errors: event
+fu control after the errors: no drop
+pdreq rx_err at every byte: one drop
+pdreq rx_err at every byte: no event
+pdreq rx_err at every byte: no later write
+pdreq rx_err held from byte 20 to eof: one drop
+pdreq rx_err held from byte 20 to eof: no event
+pdreq control after the errors: event
+pdreq control after the errors: no drop
+pdresp rx_err at every byte: one drop
+pdresp rx_err at every byte: no event
+pdresp rx_err at every byte: no later write
+pdresp rx_err held from byte 20 to eof: one drop
+pdresp rx_err held from byte 20 to eof: no event
+pdresp control after the errors: event
+pdresp control after the errors: no drop
+rx_err in every gap between bytes: sync event
+rx_err in every gap between bytes: no drop
+sync after a refused sync: one drop
+sync after a refused sync: event
+sync after a refused sync: every word is this frame's
+sync after a refused pdresp: one drop
+sync after a refused pdresp: event
+sync after a refused pdresp: every word is this frame's
+fu after a refused fu: one drop
+fu after a refused fu: event
+fu after a refused fu: every word is this frame's
+fu after a refused pdresp: one drop
+fu after a refused pdresp: event
+fu after a refused pdresp: every word is this frame's
+pdreq after a refused pdreq: one drop
+pdreq after a refused pdreq: event
+pdreq after a refused pdreq: every word is this frame's
+pdreq after a refused sync: one drop
+pdreq after a refused sync: event
+pdreq after a refused sync: every word is this frame's
+pdresp after a refused pdresp: one drop
+pdresp after a refused pdresp: event
+pdresp after a refused pdresp: every word is this frame's
+pdresp after a refused fu: one drop
+pdresp after a refused fu: event
+pdresp after a refused fu: every word is this frame's
+sync rx_err at first, middle, eof: one drop
+sync rx_err at first, middle, eof: no event
+sync rx_err at first, middle, eof: no write after
+fu rx_err at first, middle, eof: one drop
+fu rx_err at first, middle, eof: no event
+fu rx_err at first, middle, eof: no write after
+pdreq rx_err at first, middle, eof: one drop
+pdreq rx_err at first, middle, eof: no event
+pdreq rx_err at first, middle, eof: no write after
+pdresp rx_err at first, middle, eof: one drop
+pdresp rx_err at first, middle, eof: no event
+pdresp rx_err at first, middle, eof: no write after
+ann rx_err at first, middle, eof: one drop
+ann rx_err at first, middle, eof: no event
+ann rx_err at first, middle, eof: no write after

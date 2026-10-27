@@ -1,0 +1,153 @@
+mutant: the refusal outlives its frame
+FAIL maximum unknown TLV: event got 0000000000000000 exp 0000000000000003
+FAIL maximum unknown TLV: no drop got 000000000000000c exp 000000000000000b
+FAIL valid ann with padding: event got 0000000000000000 exp 0000000000000003
+FAIL valid ann with padding: count got 0000000000000000 exp 8000000000000001
+FAIL valid ann with padding: no drop got 0000000000000011 exp 0000000000000010
+FAIL deep self path: event    got 0000000000000000 exp 0000000000000003
+FAIL deep self path: full count+loop got 0000000000000000 exp 8000000000000109
+FAIL deep self path: first retained got 0000000000000000 exp 001122fffe334455
+FAIL deep self path: eighth retained got 0000000000000000 exp 0000000000007007
+FAIL deep self path: no drop  got 0000000000000012 exp 0000000000000011
+FAIL #88 one entry, stepsRemoved 3: event got 0000000000000000 exp 0000000000000003
+FAIL #88 one entry, stepsRemoved 3: presence, count and loop got 0000000000000000 exp 8000000000000001
+FAIL #88 one entry, stepsRemoved 3: identity 0 got 0000000000000000 exp 001122fffe334455
+FAIL #88 one entry, stepsRemoved 3: no drop got 0000000000000013 exp 0000000000000012
+FAIL #88 two entries, stepsRemoved 2: event got 0000000000000000 exp 0000000000000003
+FAIL #88 two entries, stepsRemoved 2: presence, count and loop got 0000000000000000 exp 8000000000000002
+FAIL #88 two entries, stepsRemoved 2: identity 0 got 0000000000000000 exp 001122fffe334455
+FAIL #88 two entries, stepsRemoved 2: identity 1 got 0000000000000000 exp 001122fffe556677
+FAIL #88 two entries, stepsRemoved 2: no drop got 0000000000000014 exp 0000000000000013
+FAIL #88 three entries, stepsRemoved 0: event got 0000000000000000 exp 0000000000000003
+FAIL #88 three entries, stepsRemoved 0: presence, count and loop got 0000000000000000 exp 8000000000000003
+FAIL #88 three entries, stepsRemoved 0: identity 0 got 0000000000000000 exp 001122fffe334455
+FAIL #88 three entries, stepsRemoved 0: identity 1 got 0000000000000000 exp 001122fffe778899
+FAIL #88 three entries, stepsRemoved 0: identity 2 got 0000000000000000 exp 001122fffe556677
+FAIL #88 three entries, stepsRemoved 0: no drop got 0000000000000015 exp 0000000000000014
+FAIL #88 short loop, stepsRemoved 5: event got 0000000000000000 exp 0000000000000003
+FAIL #88 short loop, stepsRemoved 5: presence, count and loop got 0000000000000000 exp 8000000000000102
+FAIL #88 short loop, stepsRemoved 5: identity 0 got 0000000000000000 exp 001122fffe334455
+FAIL #88 short loop, stepsRemoved 5: identity 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: no drop got 0000000000000016 exp 0000000000000015
+FAIL #88 head not the grandmaster, two entries: event got 0000000000000000 exp 0000000000000003
+FAIL #88 head not the grandmaster, two entries: presence, count and loop got 0000000000000000 exp 8000000000000002
+FAIL #88 head not the grandmaster, two entries: identity 0 got 0000000000000000 exp 00bad0fffe000001
+FAIL #88 head not the grandmaster, two entries: identity 1 got 0000000000000000 exp 001122fffe556677
+FAIL #88 head not the grandmaster, two entries: no drop got 0000000000000017 exp 0000000000000016
+FAIL #88 head not the grandmaster, one entry: event got 0000000000000000 exp 0000000000000003
+FAIL #88 head not the grandmaster, one entry: presence, count and loop got 0000000000000000 exp 8000000000000001
+FAIL #88 head not the grandmaster, one entry: identity 0 got 0000000000000000 exp 001122fffe556677
+FAIL #88 head not the grandmaster, one entry: no drop got 0000000000000018 exp 0000000000000017
+FAIL #88 head is thisClock: event got 0000000000000000 exp 0000000000000003
+FAIL #88 head is thisClock: presence, count and loop got 0000000000000000 exp 8000000000000102
+FAIL #88 head is thisClock: identity 0 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 head is thisClock: identity 1 got 0000000000000000 exp 001122fffe556677
+FAIL #88 head is thisClock: no drop got 0000000000000019 exp 0000000000000018
+FAIL #88 empty path: event    got 0000000000000000 exp 0000000000000003
+FAIL #88 empty path: present, count zero got 0000000000000000 exp 8000000000000000
+FAIL #88 empty path: no drop  got 000000000000001a exp 0000000000000019
+FAIL #88 empty path between unknowns: event got 0000000000000000 exp 0000000000000003
+FAIL #88 empty path between unknowns: present, count zero got 0000000000000000 exp 8000000000000000
+FAIL #88 empty path between unknowns: no drop got 000000000000001b exp 000000000000001a
+FAIL sync event               got 0000000000000000 exp 0000000000000001
+FAIL sync w0                  got 0000000000000000 exp 00000102000208fd
+FAIL sync w1 corr             got 0000000000000000 exp 0000001234560000
+FAIL sync w4 sec              got 0000000000000000 exp 0000000012345678
+FAIL sync w5 ns               got 0000000000000000 exp 000000001dcd6500
+FAIL fu event                 got 0000000000000000 exp 0000000000000002
+FAIL fu w4 sec                got 0000000000000000 exp 0000000012345678
+FAIL fu w5 ns                 got 0000000000000000 exp 000000002faf0800
+FAIL fu w11                   got 0000000000000000 exp fffff00000070000
+FAIL pdresp event             got 0000000000000000 exp 0000000000000005
+FAIL pdresp w4                got 0000000000000000 exp 000000000000abcd
+FAIL pdresp w5                got 0000000000000000 exp 00000000075bcd15
+FAIL pdresp w6                got 0000000000000000 exp deadbeefcafef00d
+FAIL pdresp w7                got 0000000000000000 exp 0000000000000001
+FAIL pdreq event              got 0000000000000000 exp 0000000000000004
+FAIL pdreq w0                 got 0000000000000000 exp 00020c020000007f
+FAIL pdreq w2 srcid           got 0000000000000000 exp 00220ffffe334455
+FAIL sig event                got 0000000000000000 exp 0000000000000007
+FAIL sig w0                   got 0000000000000000 exp 000c0c0c0000087f
+FAIL complete fu after the arms: event got 0000000000000000 exp 0000000000000002
+FAIL complete fu after the arms: ev_seq got 000000000000a015 exp 0000000000000f76
+FAIL complete fu after the arms: w11 got 0000000000000000 exp fffff00000070000
+FAIL complete fu after the arms: no drop got 0000000000000033 exp 0000000000000032
+FAIL fu with a trailing TLV: event got 0000000000000000 exp 0000000000000002
+FAIL fu with a trailing TLV: w11 got 0000000000000000 exp fffff00000070000
+FAIL fu with a trailing TLV: no drop got 0000000000000034 exp 0000000000000033
+FAIL sync declared 44 control: event got 0000000000000000 exp 0000000000000001
+FAIL sync declared 44 control: no drop got 0000000000000036 exp 0000000000000035
+FAIL pdresp declared 54 control: event got 0000000000000000 exp 0000000000000005
+FAIL pdresp declared 54 control: no drop got 0000000000000038 exp 0000000000000037
+FAIL pdrfu declared 54 control: event got 0000000000000000 exp 0000000000000006
+FAIL pdrfu declared 54 control: no drop got 000000000000003a exp 0000000000000039
+FAIL pdreq declared 54 control: event got 0000000000000000 exp 0000000000000004
+FAIL pdreq declared 54 control: no drop got 000000000000003c exp 000000000000003b
+FAIL signaling declared 34 control: event got 0000000000000000 exp 0000000000000007
+FAIL signaling declared 34 control: no drop got 000000000000003e exp 000000000000003d
+FAIL sync padded to 60 (zero): event got 0000000000000000 exp 0000000000000001
+FAIL sync padded to 60 (zero): six words got 0000000000000000 exp 0000000000000006
+FAIL sync padded to 60 (zero): w5 ns got 0000000000000000 exp 000000001dcd6500
+FAIL sync padded to 60 (zero): no drop got 000000000000003f exp 000000000000003e
+FAIL sync padded to 60 (TLV-shaped): event got 0000000000000000 exp 0000000000000001
+FAIL sync padded to 60 (TLV-shaped): six words got 0000000000000000 exp 0000000000000006
+FAIL sync padded to 60 (TLV-shaped): w5 ns got 0000000000000000 exp 000000001dcd6500
+FAIL sync padded to 60 (TLV-shaped): no drop got 0000000000000040 exp 000000000000003f
+FAIL sync padded to 60 (0x0008): event got 0000000000000000 exp 0000000000000001
+FAIL sync padded to 60 (0x0008): six words got 0000000000000000 exp 0000000000000006
+FAIL sync padded to 60 (0x0008): w5 ns got 0000000000000000 exp 000000001dcd6500
+FAIL sync padded to 60 (0x0008): no drop got 0000000000000041 exp 0000000000000040
+FAIL sync padded to 74: event got 0000000000000000 exp 0000000000000001
+FAIL sync padded to 74: six words got 0000000000000000 exp 0000000000000006
+FAIL sync padded to 74: w5 ns got 0000000000000000 exp 000000001dcd6500
+FAIL sync padded to 74: no drop got 0000000000000042 exp 0000000000000041
+FAIL complete pdreq after the arms: event got 0000000000000000 exp 0000000000000004
+FAIL complete pdreq after the arms: ev_seq got 000000000000a015 exp 0000000000000e54
+FAIL complete pdreq after the arms: w0 got 0000000000000000 exp 00020e540000007f
+FAIL complete pdreq after the arms: w2 srcid got 0000000000000000 exp 00220ffffe334455
+FAIL complete pdreq after the arms: no drop got 0000000000000050 exp 000000000000004f
+FAIL drop then zero-gap sync: one drop got 000000000000005a exp 0000000000000059
+FAIL drop then zero-gap sync: event got 0000000000000000 exp 0000000000000001
+FAIL drop then zero-gap sync: w0 got 0000000000000000 exp 00000777000208fd
+FAIL good then zero-gap good: two events got 0000000000000000 exp 0000000000000002
+FAIL good then zero-gap good: no drop got 000000000000005c exp 000000000000005a
+FAIL good then zero-gap good: first w0 got 0000000000000000 exp 00000777000208fd
+FAIL good then zero-gap good: second w0 got 0000000000000000 exp 00000778000208fd
+FAIL drop count advanced      got 000000000000005c exp 000000000000004b
+FAIL sync control after the errors: event got 0000000000000000 exp 0000000000000001
+FAIL sync control after the errors: no drop got 0000000000000098 exp 0000000000000097
+FAIL fu control after the errors: event got 0000000000000000 exp 0000000000000002
+FAIL fu control after the errors: no drop got 00000000000000f4 exp 00000000000000f3
+FAIL pdreq control after the errors: event got 0000000000000000 exp 0000000000000004
+FAIL pdreq control after the errors: no drop got 000000000000013a exp 0000000000000139
+FAIL pdresp control after the errors: event got 0000000000000000 exp 0000000000000005
+FAIL pdresp control after the errors: no drop got 0000000000000180 exp 000000000000017f
+FAIL rx_err in every gap between bytes: sync event got 0000000000000000 exp 0000000000000001
+FAIL rx_err in every gap between bytes: no drop got 0000000000000181 exp 0000000000000180
+FAIL sync after a refused sync: one drop got 0000000000000183 exp 0000000000000182
+FAIL sync after a refused sync: event got 0000000000000000 exp 0000000000013542
+FAIL sync after a refused sync: every word is this frame's got 0000000000000000 exp 0000000000000006
+FAIL sync after a refused pdresp: one drop got 0000000000000185 exp 0000000000000184
+FAIL sync after a refused pdresp: event got 0000000000000000 exp 0000000000013544
+FAIL sync after a refused pdresp: every word is this frame's got 0000000000000000 exp 0000000000000006
+FAIL fu after a refused fu: one drop got 0000000000000187 exp 0000000000000186
+FAIL fu after a refused fu: event got 0000000000000000 exp 0000000000023546
+FAIL fu after a refused fu: every word is this frame's got 0000000000000000 exp 0000000000000007
+FAIL fu after a refused pdresp: one drop got 0000000000000189 exp 0000000000000188
+FAIL fu after a refused pdresp: event got 0000000000000000 exp 0000000000023548
+FAIL fu after a refused pdresp: every word is this frame's got 0000000000000000 exp 0000000000000007
+FAIL pdreq after a refused pdreq: one drop got 000000000000018b exp 000000000000018a
+FAIL pdreq after a refused pdreq: event got 0000000000000000 exp 000000000004354a
+FAIL pdreq after a refused pdreq: every word is this frame's got 0000000000000000 exp 0000000000000004
+FAIL pdreq after a refused sync: one drop got 000000000000018d exp 000000000000018c
+FAIL pdreq after a refused sync: event got 0000000000000000 exp 000000000004354c
+FAIL pdreq after a refused sync: every word is this frame's got 0000000000000000 exp 0000000000000004
+FAIL pdresp after a refused pdresp: one drop got 000000000000018f exp 000000000000018e
+FAIL pdresp after a refused pdresp: event got 0000000000000000 exp 000000000005354e
+FAIL pdresp after a refused pdresp: every word is this frame's got 0000000000000000 exp 0000000000000008
+FAIL pdresp after a refused fu: one drop got 0000000000000191 exp 0000000000000190
+FAIL pdresp after a refused fu: event got 0000000000000000 exp 0000000000053550
+FAIL pdresp after a refused fu: every word is this frame's got 0000000000000000 exp 0000000000000008
+tally: 378 checks: 229 PASS, 149 FAIL
+named checks failing: 24 of 24
+verdict: caught

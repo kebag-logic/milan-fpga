@@ -1,0 +1,27 @@
+{
+ "cwd": "<parent-mut>",
+ "head": "1c05c78d11944efd6b446f2cdd9a475bb48bb844",
+ "base": "97aab1d0f28bd753a3e11df6278d5cac54f964dd",
+ "commands": [
+  [
+   "env",
+   "PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR_ROOT=<verilator-5.050-root>",
+   "TMPDIR=<tmp>",
+   "HOME=<home>",
+   "make",
+   "-C",
+   "tb/verilator/csr"
+  ],
+  [
+   "env",
+   "PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR_ROOT=<verilator-5.050-root>",
+   "TMPDIR=<tmp>",
+   "HOME=<home>",
+   "make",
+   "-C",
+   "tb/verilator/gptp_txts"
+  ]
+ ]
+}

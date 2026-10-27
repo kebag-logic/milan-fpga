@@ -1,0 +1,12 @@
+mutant: eight received entries take a ninth
+FAIL boundary-clean announce: raw path count got 0000000000000009 exp 0000000000000008
+FAIL #85 eight received entries: count got 0000000000000009 exp 0000000000000008
+FAIL #85 eight received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL deep parent path clamps to eight got 0000000000000009 exp 0000000000000008
+FAIL full path before raw empty: count eight got 0000000000000009 exp 0000000000000008
+FAIL TLV-less current parent: keeps the previous count got 0000000000000009 exp 0000000000000008
+FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000009 exp 0000000000000008
+FAIL #85 every peer path ends with thisClock got 0000000000000006 exp 0000000000000000
+tally: 1932 checks: 1924 PASS, 8 FAIL
+named checks failing: 2 of 2
+verdict: caught

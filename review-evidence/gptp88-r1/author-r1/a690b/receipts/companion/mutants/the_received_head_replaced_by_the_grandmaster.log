@@ -1,0 +1,7 @@
+mutant: the received head replaced by the grandmaster
+planted in: gptp-processor/hdl/top/KL_gptp_engine.sv
+== gptp_shadow: rc 2; 320 checks: 319 PASS, 1 FAIL
+FAIL path headed elsewhere publishes the received head got 00aaccfffe010205 exp 00ddbbfffe000001
+== milan_dp_gptp: rc 2; 192 checks: 191 PASS, 1 FAIL
+FAIL #88 GET_AS_PATH entry 0 is the received head got 00aaccfffe010204 exp 001122fffe000044
+== tsn_fuzz_ptp: rc 0; campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL

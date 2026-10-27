@@ -1,0 +1,49 @@
+mutant: the empty sequence published without a TLV
+FAIL TLV-less competition control: raw path count got 0000000000000000 exp 0000000000000001
+FAIL TLV-less competition control: raw path head got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 absent path: count       got 0000000000000000 exp 0000000000000001
+FAIL #85 absent path: head        got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 absent path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000000 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: head got 0000000000000000 exp 00f6f6fffe000001
+FAIL #87 G1 to G2 without a TLV: tail 1 got 0000000000000000 exp 00f6f6fffe0000b1
+FAIL #87 G1 to G2 without a TLV: tail 2 got 0000000000000000 exp 00f6f6fffe0000c1
+FAIL #87 G1 to G2 without a TLV: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: count got 0000000000000000 exp 0000000000000003
+FAIL #87 parent refresh without a TLV: head got 0000000000000000 exp 00f7f7fffe0000a1
+FAIL #87 parent refresh without a TLV: tail 1 got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #87 parent refresh without a TLV: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL unknown-only current parent: keeps the previous count got 0000000000000000 exp 0000000000000004
+FAIL unknown-only current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL unknown-only current parent: keeps tail 1 got 0000000000000000 exp 00ccd0fffe000033
+FAIL unknown-only current parent: keeps tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL unknown-only current parent: keeps tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL TLV-less current parent: keeps the previous count got 0000000000000000 exp 0000000000000008
+FAIL TLV-less current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL TLV-less current parent: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL TLV-less current parent: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL TLV-less current parent: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL TLV-less current parent: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL TLV-less current parent: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL TLV-less current parent: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL TLV-less current parent: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000000 exp 0000000000000008
+FAIL out-of-message fake PathTrace: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL out-of-message fake PathTrace: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL out-of-message fake PathTrace: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL out-of-message fake PathTrace: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL out-of-message fake PathTrace: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL out-of-message fake PathTrace: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL out-of-message fake PathTrace: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL out-of-message fake PathTrace: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less selection commits {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less epoch never mixes a path got 0000000000000001 exp 0000000000000000
+FAIL #87 post-warm-reset TLV-less count got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less head got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 every peer path ends with thisClock got 000000000000000b exp 0000000000000000
+tally: 1932 checks: 1887 PASS, 45 FAIL
+named checks failing: 12 of 12
+verdict: caught

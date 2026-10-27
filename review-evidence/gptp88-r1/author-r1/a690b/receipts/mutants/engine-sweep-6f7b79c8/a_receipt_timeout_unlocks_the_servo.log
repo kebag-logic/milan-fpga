@@ -1,0 +1,56 @@
+mutant: a receipt timeout unlocks the servo
+FAIL receipt timeout, same GM, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL receipt timeout, same GM, +50 us: addend matches the mirror got 0000000000000000 exp 00000000ffe66666
+FAIL receipt timeout, same GM, +50 us: no step pulse got 0000000000000009 exp 0000000000000008
+FAIL receipt timeout, same GM, +150 us: addend matches the mirror got 0000000000000000 exp 00000000fff3332d
+FAIL receipt timeout, same GM, +150 us: one step pulse got 000000000000000a exp 0000000000000009
+FAIL link-up +15 us: addend matches the mirror got 00000000fff0a3d0 exp 00000000ffe66666
+FAIL link-up +25 us: addend matches the mirror got 00000000fffc28f4 exp 00000000ffef5c21
+FAIL link-up +25 us: the step writes the bare estimate got 00000000fffc28f4 exp 00000000ffef5c21
+FAIL link-up -15 us: addend matches the mirror got 00000000000b8525 exp 00000000fffeb852
+FAIL link-up -25 us: addend matches the mirror got 0000000000000001 exp 00000000fff3332e
+FAIL link-up -25 us: the step writes the bare estimate got 0000000000000001 exp 00000000fff3332e
+FAIL link-up +20 us: addend matches the mirror got 00000000ffeb8516 exp 00000000ffe66666
+FAIL link-up -20 us: addend matches the mirror got 00000000000f5c33 exp 0000000000028f60
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 0000000000000002 exp 00000000fff3332f
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 0000000000000002 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 0000000000000002 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 0000000000000002 exp 00000000fff3332f
+FAIL locked +110 us: addend matches the mirror got 0000000000000003 exp 00000000fffd70af
+FAIL locked -110 us: addend matches the mirror got 0000000000000003 exp 00000000fffd70af
+FAIL failover, -50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL failover, -50 us: addend matches the mirror got 000000000001967a exp 000000000019999a
+FAIL failover, -50 us: no step pulse got 0000000000000015 exp 0000000000000014
+FAIL failover, +150 us: addend matches the mirror got 000000000001967a exp 00000000000e634e
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000001 exp 0000000000000002
+FAIL return from mastership, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL return from mastership, +50 us: addend matches the mirror got 000000000001967a exp 00000000ffe66666
+FAIL return from mastership, +50 us: no step pulse got 0000000000000017 exp 0000000000000016
+FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 000000000001967a exp 000000000001967b
+FAIL warm-reset link-up: first pair: addend matches the mirror got 00000000fffe840a exp 00000000fffe840b
+FAIL warm-reset link-up: +25 us: addend matches the mirror got 00000000fff923c6 exp 00000000fff923c7
+FAIL slew: arithmetic remains the PI policy got 00000000fff923c6 exp 00000000fff923c7
+FAIL slew: arithmetic remains the PI policy got 00000000fff923c6 exp 00000000fff923c7
+FAIL slew: arithmetic remains the PI policy got 00000000fff90990 exp 00000000fff90991
+FAIL slew: arithmetic remains the PI policy got 00000000fff93770 exp 00000000fff93771
+FAIL slew: arithmetic remains the PI policy got 00000000fff923c7 exp 00000000fff923c8
+FAIL slew: arithmetic remains the PI policy got 00000000fff923c7 exp 00000000fff923c8
+FAIL slew: arithmetic remains the PI policy got 00000000fff90991 exp 00000000fff90992
+FAIL slew: arithmetic remains the PI policy got 00000000fff93771 exp 00000000fff93772
+FAIL slew: arithmetic remains the PI policy got 00000000fff923c8 exp 00000000fff923c9
+FAIL slew: arithmetic remains the PI policy got 00000000fff923c8 exp 00000000fff923c9
+FAIL slew: arithmetic remains the PI policy got 00000000fff90992 exp 00000000fff90993
+FAIL slew: arithmetic remains the PI policy got 00000000fff902c1 exp 00000000fff902c2
+FAIL slew: arithmetic remains the PI policy got 00000000fff8fc67 exp 00000000fff8fc68
+FAIL slew: arithmetic remains the PI policy got 00000000fff92a8b exp 00000000fff92a8c
+FAIL slew: arithmetic remains the PI policy got 00000000fff916af exp 00000000fff916b0
+FAIL slew: arithmetic remains the PI policy got 00000000fff930e6 exp 00000000fff930e7
+FAIL slew: arithmetic remains the PI policy got 00000000fff91022 exp 00000000fff91023
+FAIL slew: arithmetic remains the PI policy got 00000000fff93472 exp 00000000fff93473
+FAIL slew: arithmetic remains the PI policy got 00000000fff92096 exp 00000000fff92097
+FAIL slew: arithmetic remains the PI policy got 00000000fff92096 exp 00000000fff92097
+FAIL #84 every master cycle publishes sync-ok got 000000000003d79a exp 0000000000000000
+tally: 1932 checks: 1881 PASS, 51 FAIL
+named checks failing: 0 of 1
+NOT FAILING: the servo stays locked across a Sync receipt timeout
+verdict: caught

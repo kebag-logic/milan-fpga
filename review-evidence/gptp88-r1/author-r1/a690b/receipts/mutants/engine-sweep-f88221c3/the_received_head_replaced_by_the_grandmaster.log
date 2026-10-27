@@ -1,0 +1,11 @@
+mutant: the received head replaced by the grandmaster
+FAIL #88 head not the grandmaster: entry 0 is the received head got 00f5f5fffe000001 exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 parent path headed elsewhere: head got 00f7f7fffe000001 exp 00f7f7fffe0000a1
+FAIL #88 parent path headed elsewhere: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: head got 00f7f7fffe000001 exp 00f7f7fffe0000a1
+FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 00aaccfffe010203 exp 00bad0fffe000001
+tally: 1929 checks: 1922 PASS, 7 FAIL
+named checks failing: 5 of 5
+verdict: caught

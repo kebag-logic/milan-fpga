@@ -1,0 +1,57 @@
+mutant: rx_err ignored on every byte
+FAIL rx_err drop: no event    got 0000000000000001 exp 0000000000000000
+FAIL drop count advanced      got 000000000000003b exp 000000000000003c
+FAIL sync rx_err at every byte: one drop got 0000000000000000 exp 000000000000003a
+FAIL sync rx_err at every byte: no event got 0000000000000000 exp 000000000000003a
+FAIL sync rx_err at every byte: no later write got 0000000000000001 exp 000000000000003a
+FAIL sync rx_err held from byte 20 to eof: one drop got 000000000000003b exp 000000000000003c
+FAIL sync rx_err held from byte 20 to eof: no event got 0000000000000001 exp 0000000000000000
+FAIL fu rx_err at every byte: one drop got 0000000000000000 exp 000000000000005a
+FAIL fu rx_err at every byte: no event got 0000000000000000 exp 000000000000005a
+FAIL fu rx_err at every byte: no later write got 0000000000000011 exp 000000000000005a
+FAIL fu rx_err held from byte 20 to eof: one drop got 000000000000003b exp 000000000000003c
+FAIL fu rx_err held from byte 20 to eof: no event got 0000000000000001 exp 0000000000000000
+FAIL pdreq rx_err at every byte: one drop got 0000000000000000 exp 0000000000000044
+FAIL pdreq rx_err at every byte: no event got 0000000000000000 exp 0000000000000044
+FAIL pdreq rx_err at every byte: no later write got 0000000000000015 exp 0000000000000044
+FAIL pdreq rx_err held from byte 20 to eof: one drop got 000000000000003b exp 000000000000003c
+FAIL pdreq rx_err held from byte 20 to eof: no event got 0000000000000001 exp 0000000000000000
+FAIL pdresp rx_err at every byte: one drop got 0000000000000000 exp 0000000000000044
+FAIL pdresp rx_err at every byte: no event got 0000000000000000 exp 0000000000000044
+FAIL pdresp rx_err at every byte: no later write got 0000000000000001 exp 0000000000000044
+FAIL pdresp rx_err held from byte 20 to eof: one drop got 000000000000003b exp 000000000000003c
+FAIL pdresp rx_err held from byte 20 to eof: no event got 0000000000000001 exp 0000000000000000
+FAIL sync after a refused sync: one drop got 000000000000003b exp 000000000000003c
+FAIL sync after a refused sync: event got 0000000000000000 exp 0000000000013542
+FAIL sync after a refused pdresp: one drop got 000000000000003b exp 000000000000003c
+FAIL sync after a refused pdresp: event got 0000000000000000 exp 0000000000013544
+FAIL fu after a refused fu: one drop got 000000000000003b exp 000000000000003c
+FAIL fu after a refused fu: event got 0000000000000000 exp 0000000000023546
+FAIL fu after a refused pdresp: one drop got 000000000000003b exp 000000000000003c
+FAIL fu after a refused pdresp: event got 0000000000000000 exp 0000000000023548
+FAIL pdreq after a refused pdreq: one drop got 000000000000003b exp 000000000000003c
+FAIL pdreq after a refused pdreq: event got 0000000000000000 exp 000000000004354a
+FAIL pdreq after a refused sync: one drop got 000000000000003b exp 000000000000003c
+FAIL pdreq after a refused sync: event got 0000000000000000 exp 000000000004354c
+FAIL pdresp after a refused pdresp: one drop got 000000000000003b exp 000000000000003c
+FAIL pdresp after a refused pdresp: event got 0000000000000000 exp 000000000005354e
+FAIL pdresp after a refused fu: one drop got 000000000000003b exp 000000000000003c
+FAIL pdresp after a refused fu: event got 0000000000000000 exp 0000000000053550
+FAIL sync rx_err at first, middle, eof: one drop got 0000000000000000 exp 0000000000000003
+FAIL sync rx_err at first, middle, eof: no event got 0000000000000000 exp 0000000000000003
+FAIL sync rx_err at first, middle, eof: no write after got 0000000000000001 exp 0000000000000003
+FAIL fu rx_err at first, middle, eof: one drop got 0000000000000000 exp 0000000000000003
+FAIL fu rx_err at first, middle, eof: no event got 0000000000000000 exp 0000000000000003
+FAIL fu rx_err at first, middle, eof: no write after got 0000000000000001 exp 0000000000000003
+FAIL pdreq rx_err at first, middle, eof: one drop got 0000000000000000 exp 0000000000000003
+FAIL pdreq rx_err at first, middle, eof: no event got 0000000000000000 exp 0000000000000003
+FAIL pdreq rx_err at first, middle, eof: no write after got 0000000000000001 exp 0000000000000003
+FAIL pdresp rx_err at first, middle, eof: one drop got 0000000000000000 exp 0000000000000003
+FAIL pdresp rx_err at first, middle, eof: no event got 0000000000000000 exp 0000000000000003
+FAIL pdresp rx_err at first, middle, eof: no write after got 0000000000000001 exp 0000000000000003
+FAIL ann rx_err at first, middle, eof: one drop got 0000000000000000 exp 0000000000000003
+FAIL ann rx_err at first, middle, eof: no event got 0000000000000000 exp 0000000000000003
+FAIL ann rx_err at first, middle, eof: no write after got 0000000000000000 exp 0000000000000003
+tally: 378 checks: 325 PASS, 53 FAIL
+named checks failing: 4 of 4
+verdict: caught

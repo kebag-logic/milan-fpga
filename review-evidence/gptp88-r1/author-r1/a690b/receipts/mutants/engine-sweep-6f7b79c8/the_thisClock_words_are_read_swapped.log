@@ -1,0 +1,880 @@
+mutant: the thisClock words are read swapped
+FAIL pre-init deep Announce: GM stays thisClock got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL pdreq srcCID                 got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #82 cold release: every cycle to the first beat names thisClock got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: every cycle to the first beat has gmPresent got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 cold release: that commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL self-sourced request: no Pdelay_Resp got 0000000000000001 exp 0000000000000000
+FAIL self-sourced request: no frame at all got 0000000000000002 exp 0000000000000001
+FAIL peer request across our window: response sent got 0000000000000000 exp 0000000000000001
+FAIL peer request across our window: response sent got 0000000000000000 exp 0000000000000001
+FAIL peer request across our window: response sent got 0000000000000000 exp 0000000000000001
+FAIL peer requests across our window: three Pdelay_Resps got 0000000000000000 exp 0000000000000003
+FAIL out-of-order stamp: the Resp_FU is built got 0000000000000000 exp 0000000000000001
+FAIL high-byte-only difference: the Resp_FU is built got 0000000000000000 exp 0000000000000001
+FAIL equal sequences: the request is still answered got 0000000000000000 exp 0000000000000001
+FAIL equal sequences: response-first stamp builds the Resp_FU got 0000000000000000 exp 0000000000000001
+FAIL pub pdelay ex1               got 0000000000000000 exp 0000000000000258
+FAIL self-sourced pair: one was answered got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 3: timeout
+FAIL pdrfu srcCID                 got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL pdrfu seq                    got 0000000000009901 exp 00000000000055aa
+FAIL pdrfu reqCID                 got 02a1b2fffec3d4e5 exp 0080e1fffe112233
+FAIL low-half requester: its sequence got 0000000000009900 exp 00000000000055b1
+FAIL low-half requester: its reqCID got 0080e1fffe112233 exp 00777700fec3d4e5
+FAIL low-half requester: Resp_FU pairs got 0000000000009900 exp 00000000000055b1
+FAIL high-half requester: its sequence got 0000000000009901 exp 00000000000055b2
+FAIL high-half requester: its reqCID got 0080e1fffe112233 exp 02a1b2ff00112233
+FAIL high-half requester: Resp_FU pairs got 0000000000009901 exp 00000000000055b2
+FAIL foreign-domain request: no Pdelay_Resp got 0000000000000001 exp 0000000000000000
+FAIL wait_tx type 3: timeout
+FAIL domestic request after it: Resp_FU pairs got 0000000000009902 exp 00000000000055ac
+FAIL truncated requests: no Pdelay_Resp got 0000000000000001 exp 0000000000000000
+FAIL wait_tx type 3: timeout
+FAIL wait_tx type 10: timeout
+FAIL second exchange -> capable   got 0000000000000000 exp 0000000000000001
+FAIL capable at two exchanges     got 0000000000000001 exp 0000000000000002
+FAIL pub pdelay corrected         got 0000000000000000 exp 0000000000000258
+FAIL became master                got 0000000000000000 exp 0000000000000001
+FAIL master flags                 got 0000000000000000 exp 0000000000000007
+FAIL #84 first mastership: the master flags carry sync-ok got 0000000000000000 exp 000000000000000f
+FAIL gm is us                     got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL self path entry 0 is thisClock got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL wait_tx type 11: timeout
+FAIL wait_tx type 0: timeout
+FAIL sync collision: stamp is pending got ffffffffffffffff exp 0000000000000000
+FAIL sync collision: equal-sequence request answered got 0000000000000000 exp 0000000000000001
+FAIL sync collision: response stamp builds Resp_FU got 0000000000000000 exp 0000000000000001
+FAIL sync collision: own stamp still builds Sync FU got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL 7b: a request to pair against got 0000000000000000 exp 0000000000000001
+FAIL the paired Follow_Up computes got 0000000000000000 exp 0000000000000258
+FAIL the paired Follow_Up keeps capable got 0000000000000000 exp 0000000000000004
+FAIL wait_tx type 2: timeout
+FAIL 7b: a second request         got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL 7b: a third request          got 0000000000000000 exp 0000000000000001
+FAIL the next exchange computes   got 0000000000000000 exp 0000000000000258
+FAIL still capable after the probes got 0000000000000000 exp 0000000000000004
+FAIL wait_tx type 2: timeout
+FAIL pdelay flags 0200/0000: a request to answer got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL pdelay flags 0208/0008: a request to answer got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL pdelay flags 0000/0200: a request to answer got 0000000000000000 exp 0000000000000001
+FAIL every ignored-flag pdelay variant ran got 0000000000000000 exp 0000000000000003
+FAIL wait_tx type 2: timeout
+FAIL 7c: a request for the controls got 0000000000000000 exp 0000000000000001
+FAIL still master                 got 0000000000000000 exp 0000000000000002
+FAIL gm still us                  got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL annq published               got 0000000000000000 exp ffc4faf8fe436af8
+FAIL foreign-domain announce: still master got 0000000000000000 exp 0000000000000002
+FAIL foreign-domain announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL foreign-domain announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL foreign-domain announce: raw vector never published got 0000000000000000 exp ffc4faf8fe436af8
+FAIL #88 own source, one entry, stepsRemoved 3: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 own source, one entry, stepsRemoved 3: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #88 stepsRemoved 255, one entry: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 stepsRemoved 255, one entry: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #88 stepsRemoved 255, one entry: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 short loop, stepsRemoved 5: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL own-source announce: still master got 0000000000000000 exp 0000000000000002
+FAIL own-source announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL own-source announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL stepsRemoved-255 announce: still master got 0000000000000000 exp 0000000000000002
+FAIL stepsRemoved-255 announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL stepsRemoved-255 announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL deep-trace loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL deep-trace loop announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL deep-trace loop announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL eighth-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL eighth-hop loop announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL eighth-hop loop announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL first-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL first-hop loop announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL first-hop loop announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL single-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL single-hop loop announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL single-hop loop announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL path-trace-loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL path-trace-loop announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL path-trace-loop announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL stepsRemoved-0x0100 announce: still master got 0000000000000000 exp 0000000000000002
+FAIL stepsRemoved-0x0100 announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL stepsRemoved-0x0100 announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL boundary-clean announce: adopted got fec3d4e502a1b2ff exp 00d1d1fffe000004
+FAIL boundary-clean announce: announcer is the parent got 0000000000000000 exp 00d1d1fffe000005
+FAIL boundary-clean announce: raw path count got 0000000000000001 exp 0000000000000008
+FAIL boundary-clean announce: raw path head got fec3d4e502a1b2ff exp 00d1d1fffe000004
+FAIL boundary-clean announce: raw path tail 1 got 0000000000000000 exp 00d1000000000001
+FAIL boundary-clean announce: raw path tail 2 got 0000000000000000 exp 00d1000000000002
+FAIL boundary-clean announce: raw path tail 3 got 0000000000000000 exp 00d1000000000003
+FAIL boundary-clean announce: raw path tail 4 got 0000000000000000 exp 00d1000000000004
+FAIL boundary-clean announce: raw path tail 5 got 0000000000000000 exp 00d1000000000005
+FAIL boundary-clean announce: raw path tail 6 got 0000000000000000 exp 00d1000000000006
+FAIL boundary-clean announce: raw path tail 7 got 0000000000000000 exp 00d1000000000007
+FAIL boundary-clean announce: degraded parent yields got 0000000000000000 exp 0000000000000003
+FAIL boundary-clean announce: gm is us again got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL stepsRemoved-0xFFFF announce: still master got 0000000000000000 exp 0000000000000002
+FAIL stepsRemoved-0xFFFF announce: gm still us got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL stepsRemoved-0xFFFF announce: parent still us got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL half-identity control A: adopted got fec3d4e502a1b2ff exp 00d2d2fffe000006
+FAIL half-identity control A: announcer is the parent got 0000000000000000 exp 02a1b3fffec3d4e5
+FAIL half-identity control A: raw path count got 0000000000000001 exp 0000000000000003
+FAIL half-identity control A: raw path head got fec3d4e502a1b2ff exp 00d2d2fffe000006
+FAIL half-identity control A: raw path tail 1 got 0000000000000000 exp 02a1b2fffec3d4e4
+FAIL half-identity control A: raw path tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL half-identity control A: degraded parent yields got 0000000000000000 exp 0000000000000003
+FAIL half-identity control A: gm is us again got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL half-identity control B: adopted got fec3d4e502a1b2ff exp 00d3d3fffe000007
+FAIL half-identity control B: announcer is the parent got 0000000000000000 exp 02a1b2fffec3d4e4
+FAIL half-identity control B: raw path count got 0000000000000001 exp 0000000000000003
+FAIL half-identity control B: raw path head got fec3d4e502a1b2ff exp 00d3d3fffe000007
+FAIL half-identity control B: raw path tail 1 got 0000000000000000 exp 02a1b3fffec3d4e5
+FAIL half-identity control B: raw path tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL half-identity control B: degraded parent yields got 0000000000000000 exp 0000000000000003
+FAIL half-identity control B: gm is us again got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL TLV-less competition control: adopted got fec3d4e502a1b2ff exp 00d4d4fffe000008
+FAIL TLV-less competition control: announcer is the parent got 0000000000000000 exp 00d4d4fffe000009
+FAIL TLV-less competition control: raw path head got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL TLV-less competition control: degraded parent yields got 0000000000000000 exp 0000000000000003
+FAIL TLV-less competition control: gm is us again got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: elected got fec3d4e502a1b2ff exp 00e5e5fffe000001
+FAIL #85 direct grandmaster: count got 0000000000000001 exp 0000000000000002
+FAIL #85 direct grandmaster: head got fec3d4e502a1b2ff exp 00e5e5fffe000001
+FAIL #85 direct grandmaster: tail 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 direct grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: elected got fec3d4e502a1b2ff exp 00e6e6fffe000001
+FAIL #85 multi-hop grandmaster: count got 0000000000000001 exp 0000000000000006
+FAIL #85 multi-hop grandmaster: head got fec3d4e502a1b2ff exp 00e6e6fffe000001
+FAIL #85 multi-hop grandmaster: tail 1 got 0000000000000000 exp 00e6e6fffe0000b1
+FAIL #85 multi-hop grandmaster: tail 2 got 0000000000000000 exp 00e6e6fffe0000b2
+FAIL #85 multi-hop grandmaster: tail 3 got 0000000000000000 exp 00e6e6fffe0000b3
+FAIL #85 multi-hop grandmaster: tail 4 got 0000000000000000 exp 00e6e6fffe0000c4
+FAIL #85 multi-hop grandmaster: tail 5 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: elected got fec3d4e502a1b2ff exp 00e7e7fffe000001
+FAIL #85 seven received entries: count got 0000000000000001 exp 0000000000000008
+FAIL #85 seven received entries: head got fec3d4e502a1b2ff exp 00e7e7fffe000001
+FAIL #85 seven received entries: tail 1 got 0000000000000000 exp 00e7e7fffe000002
+FAIL #85 seven received entries: tail 2 got 0000000000000000 exp 00e7e7fffe000003
+FAIL #85 seven received entries: tail 3 got 0000000000000000 exp 00e7e7fffe000004
+FAIL #85 seven received entries: tail 4 got 0000000000000000 exp 00e7e7fffe000005
+FAIL #85 seven received entries: tail 5 got 0000000000000000 exp 00e7e7fffe000006
+FAIL #85 seven received entries: tail 6 got 0000000000000000 exp 00e7e7fffe000007
+FAIL #85 seven received entries: tail 7 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 eight received entries: elected got fec3d4e502a1b2ff exp 00e8e8fffe000001
+FAIL #85 eight received entries: count got 0000000000000001 exp 0000000000000008
+FAIL #85 eight received entries: head got fec3d4e502a1b2ff exp 00e8e8fffe000001
+FAIL #85 eight received entries: tail 1 got 0000000000000000 exp 00e8e8fffe000002
+FAIL #85 eight received entries: tail 2 got 0000000000000000 exp 00e8e8fffe000003
+FAIL #85 eight received entries: tail 3 got 0000000000000000 exp 00e8e8fffe000004
+FAIL #85 eight received entries: tail 4 got 0000000000000000 exp 00e8e8fffe000005
+FAIL #85 eight received entries: tail 5 got 0000000000000000 exp 00e8e8fffe000006
+FAIL #85 eight received entries: tail 6 got 0000000000000000 exp 00e8e8fffe000007
+FAIL #85 eight received entries: tail 7 got 0000000000000000 exp 00e8e8fffe000008
+FAIL #85 eight received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 eight received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 absent path: elected     got fec3d4e502a1b2ff exp 00e9e9fffe000001
+FAIL #85 absent path: head        got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #85 absent path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 absent path: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path: elected      got fec3d4e502a1b2ff exp 00eaeafffe000001
+FAIL #88 empty path: head         got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: elected     got fec3d4e502a1b2ff exp 00f1f1fffe000001
+FAIL #88 issue shape: parent      got 0000000000000000 exp 00f1f1fffe0000c3
+FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+FAIL #88 issue shape: entry 0 is the received head got fec3d4e502a1b2ff exp 00f1f1fffe000001
+FAIL #88 issue shape: tail 1      got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 issue shape: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 head not the grandmaster: elected got fec3d4e502a1b2ff exp 00f5f5fffe000001
+FAIL #88 head not the grandmaster: parent got 0000000000000000 exp 00f5f5fffe0000c1
+FAIL #88 head not the grandmaster: count got 0000000000000001 exp 0000000000000003
+FAIL #88 head not the grandmaster: entry 0 is the received head got fec3d4e502a1b2ff exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: tail 1 got 0000000000000000 exp 00f5f5fffe0000c1
+FAIL #88 head not the grandmaster: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 head not the grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: elected got fec3d4e502a1b2ff exp 00f2f2fffe000001
+FAIL #88 two entries, stepsRemoved 5: count got 0000000000000001 exp 0000000000000003
+FAIL #88 two entries, stepsRemoved 5: head got fec3d4e502a1b2ff exp 00f2f2fffe000001
+FAIL #88 two entries, stepsRemoved 5: tail 1 got 0000000000000000 exp 00f2f2fffe0000b1
+FAIL #88 two entries, stepsRemoved 5: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 two entries, stepsRemoved 5: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: elected got fec3d4e502a1b2ff exp 00f3f3fffe000001
+FAIL #88 three entries, stepsRemoved 0: count got 0000000000000001 exp 0000000000000004
+FAIL #88 three entries, stepsRemoved 0: head got fec3d4e502a1b2ff exp 00f3f3fffe000001
+FAIL #88 three entries, stepsRemoved 0: tail 1 got 0000000000000000 exp 00f3f3fffe0000b1
+FAIL #88 three entries, stepsRemoved 0: tail 2 got 0000000000000000 exp 00f3f3fffe0000c2
+FAIL #88 three entries, stepsRemoved 0: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 three entries, stepsRemoved 0: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #87 G1 elected: elected      got fec3d4e502a1b2ff exp 00f6f6fffe000001
+FAIL #87 G1 elected: parent       got 0000000000000000 exp 00f6f6fffe0000c1
+FAIL #87 G1 elected: count        got 0000000000000001 exp 0000000000000004
+FAIL #87 G1 elected: head         got fec3d4e502a1b2ff exp 00f6f6fffe000001
+FAIL #87 G1 elected: tail 1       got 0000000000000000 exp 00f6f6fffe0000b1
+FAIL #87 G1 elected: tail 2       got 0000000000000000 exp 00f6f6fffe0000c1
+FAIL #87 G1 elected: tail 3       got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 G1 elected: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 G1 to G2 without a TLV: elected got fec3d4e502a1b2ff exp 00f7f7fffe000001
+FAIL #87 G1 to G2 without a TLV: parent got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000001 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: head got fec3d4e502a1b2ff exp 00f6f6fffe000001
+FAIL #87 G1 to G2 without a TLV: tail 1 got 0000000000000000 exp 00f6f6fffe0000b1
+FAIL #87 G1 to G2 without a TLV: tail 2 got 0000000000000000 exp 00f6f6fffe0000c1
+FAIL #87 G1 to G2 without a TLV: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: elected got fec3d4e502a1b2ff exp 00f7f7fffe000001
+FAIL #88 empty path from the parent: parent got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #88 empty path from the parent: head got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 parent path headed elsewhere: elected got fec3d4e502a1b2ff exp 00f7f7fffe000001
+FAIL #88 parent path headed elsewhere: parent got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #88 parent path headed elsewhere: count got 0000000000000001 exp 0000000000000003
+FAIL #88 parent path headed elsewhere: head got fec3d4e502a1b2ff exp 00f7f7fffe0000a1
+FAIL #88 parent path headed elsewhere: tail 1 got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #88 parent path headed elsewhere: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 parent path headed elsewhere: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: elected got fec3d4e502a1b2ff exp 00f7f7fffe000001
+FAIL #87 parent refresh without a TLV: parent got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #87 parent refresh without a TLV: count got 0000000000000001 exp 0000000000000003
+FAIL #87 parent refresh without a TLV: head got fec3d4e502a1b2ff exp 00f7f7fffe0000a1
+FAIL #87 parent refresh without a TLV: tail 1 got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #87 parent refresh without a TLV: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 the degraded G2 yields   got 0000000000000000 exp 0000000000000001
+FAIL #87 the degraded G2 yields with {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL adopted                      got 0000000000000000 exp 0000000000000001
+FAIL adopt keeps capable          got 0000000000000000 exp 0000000000000004
+FAIL gm is theirs                 got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL adopt publishes complete path count got 0000000000000001 exp 0000000000000005
+FAIL adopt publishes path head    got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL adopt publishes path tail 1  got 0000000000000000 exp 001122fffe000011
+FAIL adopt publishes path tail 2  got 0000000000000000 exp 001122fffe000022
+FAIL adopt publishes path tail 3  got 0000000000000000 exp 0080e1fffe112233
+FAIL adopt appends thisClock as path tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL worse announce retains selected GM got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL worse announce retains selected parent got 0000000000000000 exp 0080e1fffe112233
+FAIL worse announce reaches a commit got 0000000000000001 exp 0000000000000002
+FAIL worse announce retains path A count got 0000000000000001 exp 0000000000000005
+FAIL worse announce retains path A head got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL worse announce retains path A tail 1 got 0000000000000000 exp 001122fffe000011
+FAIL worse announce retains path A tail 2 got 0000000000000000 exp 001122fffe000022
+FAIL worse announce retains path A tail 3 got 0000000000000000 exp 0080e1fffe112233
+FAIL worse announce retains path A tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL worse TLV-less announce reaches one retained-state commit got 0000000000000001 exp 0000000000000002
+FAIL worse TLV-less announce retains selected GM got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL worse TLV-less announce retains selected parent got 0000000000000000 exp 0080e1fffe112233
+FAIL worse TLV-less announce retains path A count got 0000000000000001 exp 0000000000000005
+FAIL worse TLV-less announce retains path A head got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL worse TLV-less announce retains path A tail 1 got 0000000000000000 exp 001122fffe000011
+FAIL worse TLV-less announce retains path A tail 2 got 0000000000000000 exp 001122fffe000022
+FAIL worse TLV-less announce retains path A tail 3 got 0000000000000000 exp 0080e1fffe112233
+FAIL worse TLV-less announce retains path A tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL deep parent path clamps to eight got 0000000000000001 exp 0000000000000008
+FAIL deep path retains its head   got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL deep path retains tail 1     got 0000000000000000 exp 00d000fffe000001
+FAIL deep path retains tail 2     got 0000000000000000 exp 00d000fffe000002
+FAIL deep path retains tail 3     got 0000000000000000 exp 00d000fffe000003
+FAIL deep path retains tail 4     got 0000000000000000 exp 00d000fffe000004
+FAIL deep path retains tail 5     got 0000000000000000 exp 00d000fffe000005
+FAIL deep path retains tail 6     got 0000000000000000 exp 00d000fffe000006
+FAIL deep path retains tail 7     got 0000000000000000 exp 00d000fffe000007
+FAIL parent refresh publishes path C count got 0000000000000001 exp 0000000000000004
+FAIL parent refresh publishes path C head got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL parent refresh publishes path C tail 1 got 0000000000000000 exp 00ccd0fffe000033
+FAIL parent refresh publishes path C tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL parent refresh appends thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL unknown-only current parent: one commit got 0000000000000001 exp 0000000000000002
+FAIL unknown-only current parent: keeps the previous count got 0000000000000001 exp 0000000000000004
+FAIL unknown-only current parent: keeps the previous head got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL unknown-only current parent: keeps tail 1 got 0000000000000000 exp 00ccd0fffe000033
+FAIL unknown-only current parent: keeps tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL unknown-only current parent: keeps tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL unknown before path current parent: one commit got 0000000000000001 exp 0000000000000002
+FAIL unknown before path current parent: count got 0000000000000001 exp 0000000000000004
+FAIL unknown before path current parent: head got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL unknown before path current parent: tail 1 got 0000000000000000 exp 00ccddfffe000044
+FAIL unknown before path current parent: tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL unknown before path current parent: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL full path before raw empty: count eight got 0000000000000001 exp 0000000000000008
+FAIL full path before raw empty: head got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL full path before raw empty: tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL full path before raw empty: tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL full path before raw empty: tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL full path before raw empty: tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL full path before raw empty: tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL full path before raw empty: tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL full path before raw empty: tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL TLV-less current parent: one commit got 0000000000000001 exp 0000000000000002
+FAIL TLV-less current parent: GM retained got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL TLV-less current parent: parent retained got 0000000000000000 exp 0080e1fffe112233
+FAIL TLV-less current parent: keeps the previous count got 0000000000000001 exp 0000000000000008
+FAIL TLV-less current parent: keeps the previous head got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL TLV-less current parent: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL TLV-less current parent: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL TLV-less current parent: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL TLV-less current parent: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL TLV-less current parent: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL TLV-less current parent: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL TLV-less current parent: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL out-of-message fake PathTrace: one commit got 0000000000000001 exp 0000000000000002
+FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000001 exp 0000000000000008
+FAIL out-of-message fake PathTrace: keeps the previous head got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL out-of-message fake PathTrace: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL out-of-message fake PathTrace: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL out-of-message fake PathTrace: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL out-of-message fake PathTrace: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL out-of-message fake PathTrace: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL out-of-message fake PathTrace: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL out-of-message fake PathTrace: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL #88 current parent's path headed elsewhere: one commit got 0000000000000001 exp 0000000000000002
+FAIL #88 current parent's path headed elsewhere: GM retained got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL #88 current parent's path headed elsewhere: count got 0000000000000001 exp 0000000000000004
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got fec3d4e502a1b2ff exp 00bad0fffe000001
+FAIL #88 current parent's path headed elsewhere: tail 1 got 0000000000000000 exp 00ccd0fffe000033
+FAIL #88 current parent's path headed elsewhere: tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL #88 current parent's path headed elsewhere: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL only frozen A commits under announce overload got 0000000000000001 exp 0000000000000002
+FAIL two announce chasers counted as drops got 000000000000005a exp 0000000000000058
+FAIL post-release C commits       got 0000000000000001 exp 0000000000000002
+FAIL post-release C GM coherent   got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL post-release C parent coherent got 0000000000000000 exp 0080e1fffe112233
+FAIL post-release C count coherent got 0000000000000001 exp 0000000000000004
+FAIL post-release C head coherent got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL post-release C tail coherent got 0000000000000000 exp 00e300fffe000033
+FAIL post-release C appends thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL raw-empty overload: only frozen A commits got 0000000000000001 exp 0000000000000002
+FAIL raw-empty overload: two present chasers dropped got 000000000000005f exp 000000000000005d
+FAIL raw-empty overload: post-release path commits got 0000000000000001 exp 0000000000000002
+FAIL raw-empty overload: post-release count got 0000000000000001 exp 0000000000000004
+FAIL raw-empty overload: post-release tail got 0000000000000000 exp 00e300fffe000033
+FAIL pub offset                   got 0000000000000000 exp 00000000000f3c00
+FAIL sync-ok rose                 got 0000000000000000 exp 0000000000000008
+FAIL big offset re-bases the phc  got 0000000000000000 exp 0000000000000001
+FAIL late FU dropped              got 0000000000000000 exp 00000000000f3c00
+FAIL late FU never steers         got 0000000000000000 exp 0000000000000002
+FAIL next pair lands              got 0000000000000000 exp 00000000001e7e40
+FAIL foreign-domain pair: offset unmoved got 0000000000000000 exp 00000000001e7e40
+FAIL foreign Sync left no pending slot got 0000000000000000 exp 00000000001e7e40
+FAIL TLV-less Follow_Up: offset unmoved got 0000000000000000 exp 00000000001e7e40
+FAIL cut Follow_Up: offset unmoved got 0000000000000000 exp 00000000001e7e40
+FAIL wrong-TLV Follow_Up: offset unmoved got 0000000000000000 exp 00000000001e7e40
+FAIL complete Follow_Up pairs with the surviving Sync got 0000000000000000 exp 00000000001e7f8d
+FAIL complete Follow_Up re-bases the phc got 0000000000000000 exp 0000000000000001
+FAIL padded Sync (60) pairs: offset got 0000000000000000 exp 00000000001e806b
+FAIL padded Sync (60) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+FAIL padded Sync (74) pairs: offset got 0000000000000000 exp 00000000001e8227
+FAIL padded Sync (74) pairs: re-bases the phc got 0000000000000000 exp 0000000000000001
+FAIL sync flags 0200/0000: pairs and steers got 0000000000000001 exp 000000000000000f
+FAIL sync flags 0208/0008: pairs and steers got 0000000000000001 exp 000000000000000f
+FAIL sync flags 0000/0200: pairs and steers got 0000000000000001 exp 000000000000000f
+FAIL still slave at the verdict   got 0000000000000000 exp 0000000000000001
+FAIL timeout keeps capable        got 0000000000000000 exp 0000000000000004
+FAIL receipt timeout, same GM: asCapable held got 0000000000000000 exp 0000000000000004
+FAIL receipt timeout, same GM, +50 us: offset published got 0000000000000000 exp 000000000000c350
+FAIL receipt timeout, same GM, +50 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +50 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL receipt timeout, same GM: asCapable held again got 0000000000000000 exp 0000000000000004
+FAIL receipt timeout, same GM, +150 us: offset published got 0000000000000000 exp 00000000000249f0
+FAIL receipt timeout, same GM, +150 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL receipt timeout, same GM, +150 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL receipt timeout, same GM, +150 us: one step pulse got 0000000000000000 exp 0000000000000001
+FAIL link-up +15 us: asCapable falls and rises first got 0000000000000000 exp 0000000000000001
+FAIL link-up +15 us: offset published got 0000000000000000 exp 0000000000003a98
+FAIL link-up +15 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +15 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up +25 us: asCapable falls and rises first got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: offset published got 0000000000000000 exp 00000000000061a8
+FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up +25 us: the step writes the bare estimate got ffffffffffffffff exp 00000000ffef5c21
+FAIL link-up -15 us: asCapable falls and rises first got 0000000000000000 exp 0000000000000001
+FAIL link-up -15 us: offset published got 0000000000000000 exp 00000000ffffc568
+FAIL link-up -15 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -15 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up -25 us: asCapable falls and rises first got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: offset published got 0000000000000000 exp 00000000ffff9e58
+FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up -25 us: the step writes the bare estimate got ffffffffffffffff exp 00000000fff3332e
+FAIL link-up +20 us: asCapable falls and rises first got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us: offset published got 0000000000000000 exp 0000000000004e20
+FAIL link-up +20 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up -20 us: asCapable falls and rises first got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us: offset published got 0000000000000000 exp 00000000ffffb1e0
+FAIL link-up -20 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up +20 us + 1 ns: asCapable falls and rises first got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: offset published got 0000000000000000 exp 0000000000004e21
+FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got ffffffffffffffff exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: asCapable falls and rises first got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: offset published got 0000000000000000 exp 00000000ffffb1df
+FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got ffffffffffffffff exp 00000000fff3332f
+FAIL link-up: one step pulse per probe over 20 us got 0000000000000000 exp 0000000000000004
+FAIL locked +90 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked +90 us: offset published got 0000000000000000 exp 0000000000015f90
+FAIL locked +90 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +90 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked -90 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked -90 us: offset published got 0000000000000000 exp 00000000fffea070
+FAIL locked -90 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -90 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked +110 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked +110 us: offset published got 0000000000000000 exp 000000000001adb0
+FAIL locked +110 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL locked +110 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +110 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked -110 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked -110 us: offset published got 0000000000000000 exp 00000000fffe5250
+FAIL locked -110 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL locked -110 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -110 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked +100 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked +100 us: offset published got 0000000000000000 exp 00000000000186a0
+FAIL locked +100 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +100 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked -100 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked -100 us: offset published got 0000000000000000 exp 00000000fffe7960
+FAIL locked -100 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked +100 us + 1 ns: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked +100 us + 1 ns: offset published got 0000000000000000 exp 00000000000186a1
+FAIL locked +100 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +100 us + 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +100 us + 1 ns: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked -100 us - 1 ns: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked -100 us - 1 ns: offset published got 0000000000000000 exp 00000000fffe795f
+FAIL locked -100 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us - 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us - 1 ns: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked: one step pulse per probe over 100 us got 0000000000000000 exp 0000000000000004
+FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 0: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL integrator survives the step got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 1: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 2: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 3: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 4: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 5: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 6: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 7: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 8: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 9: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 10: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 11: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 12: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 13: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 14: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 15: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 16: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 17: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 18: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 19: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 20: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 21: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 22: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL closed loop pair 23: addend matches the mirror got ffffffffffffffff exp 00000000fffeb85f
+FAIL one re-base then lock        got 0000000000000000 exp 0000000000000001
+FAIL addend carries the master's rate got 0000000000000000 exp 0000000000000001
+FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: every pair locked got 0000000000000030 exp 0000000000000000
+FAIL long slew, master +90 us: asCapable holds throughout got 0000000000000030 exp 0000000000000000
+FAIL long slew, master +90 us: over 4 Pdelay exchanges complete got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: every addend matches the mirror got 0000000000000030 exp 0000000000000000
+FAIL long slew, master +90 us: never more than 100 us, so never a step got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: the trim rides its clamp got 0000000000000000 exp 000000000019999a
+FAIL long slew, master +90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL slew: real correction has one uninterrupted interval got 0000000000000000 exp 0000000000000002
+FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: every pair locked got 0000000000000028 exp 0000000000000000
+FAIL long slew, master -90 us: asCapable holds throughout got 0000000000000028 exp 0000000000000000
+FAIL long slew, master -90 us: over 4 Pdelay exchanges complete got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: every addend matches the mirror got 0000000000000028 exp 0000000000000000
+FAIL long slew, master -90 us: never more than 100 us, so never a step got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: the trim rides its clamp got 0000000000000001 exp 000000000019999a
+FAIL long slew, master -90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL slew: real correction has one uninterrupted interval got 0000000000000000 exp 0000000000000002
+FAIL matching FU still lands      got 0000000000000000 exp 0000000000001130
+FAIL matching FU steers as the mirror got ffffffffffffffff exp 00000000fffa36ee
+FAIL paired FU still lands        got 0000000000000000 exp 0000000000001900
+FAIL paired FU steers as the mirror got ffffffffffffffff exp 00000000fff70a47
+FAIL sync-ok up before the switch got 0000000000000000 exp 0000000000000008
+FAIL source tiebreak switches parent got 0000000000000000 exp 0011223344556677
+FAIL gm survives the switch       got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL no flicker on the switch     got 0000000000000000 exp 0000000000000008
+FAIL longer path rejected         got 0000000000000000 exp 0011223344556677
+FAIL shorter path wins            got 0000000000000000 exp 00f1f1fffe000009
+FAIL gm undisturbed by the race   got fec3d4e502a1b2ff exp 00aaccfffe010203
+FAIL parent undisturbed by the race got 0000000000000000 exp 00f1f1fffe000009
+FAIL GM change: the pair before it: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL GM change: the pair before it: offset published got 0000000000000000 exp 0000000000000bb8
+FAIL GM change: the pair before it: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL GM change: the pair before it: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL GM change: new identity adopted got fec3d4e502a1b2ff exp 00b0b0fffe00000b
+FAIL GM change: same parent       got 0000000000000000 exp 00f1f1fffe000009
+FAIL GM change: still slave       got 0000000000000000 exp 0000000000000001
+FAIL GM change, +50 us: offset published got 0000000000000000 exp 000000000000c350
+FAIL GM change, +50 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL GM change, +50 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL GM change again: new identity adopted got fec3d4e502a1b2ff exp 00c0c0fffe00000c
+FAIL GM change, -5 ms: offset published got 0000000000000000 exp 00000000ffb3b4c0
+FAIL GM change, -5 ms: step pulses got 0000000000000000 exp 0000000000000001
+FAIL GM change, -5 ms: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL GM change, -5 ms: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL GM change, -5 ms: one step pulse got 0000000000000000 exp 0000000000000001
+FAIL failover, -50 us: asCapable held got 0000000000000000 exp 0000000000000004
+FAIL failover, -50 us: new identity adopted got fec3d4e502a1b2ff exp 00d0d0fffe00000d
+FAIL failover, -50 us: same parent got 0000000000000000 exp 00f1f1fffe000009
+FAIL failover, -50 us: offset published got 0000000000000000 exp 00000000ffff3cb0
+FAIL failover, -50 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL failover, -50 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL failover, +150 us: asCapable held got 0000000000000000 exp 0000000000000004
+FAIL failover, +150 us: new identity adopted got fec3d4e502a1b2ff exp 00e0e0fffe00000e
+FAIL failover, +150 us: same parent got 0000000000000000 exp 00f1f1fffe000009
+FAIL failover, +150 us: offset published got 0000000000000000 exp 00000000000249f0
+FAIL failover, +150 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL failover, +150 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL failover, +150 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL failover, +150 us: one step pulse got 0000000000000000 exp 0000000000000001
+FAIL sync-ok high before the takeover got 0000000000000000 exp 0000000000000008
+FAIL degraded parent yields NOW   got 0000000000000000 exp 0000000000000003
+FAIL gm is us again               got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #84 takeover: its commit names thisClock with sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 takeover: the queued receipt timeout commits after it got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL re-adopted                   got 0000000000000000 exp 0000000000000001
+FAIL return from mastership: asCapable held got 0000000000000000 exp 0000000000000004
+FAIL return from mastership, +50 us: offset published got 0000000000000000 exp 000000000000c350
+FAIL return from mastership, +50 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL return from mastership, +50 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL far exchange ran             got 0000000000000000 exp 0000000000000001
+FAIL uncapable pair dropped       got 0000000000000000 exp 000000000000c350
+FAIL capable again                got 0000000000000000 exp 0000000000000001
+FAIL link-up after asCapable returns, -25 us: offset published got 0000000000000000 exp 00000000ffff9e58
+FAIL link-up after asCapable returns, -25 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up after asCapable returns, -25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up after asCapable returns, -25 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL quiet ride to mastership     got 0000000000000000 exp 0000000000000001
+FAIL gm is us after the quiet     got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL own-GM transition publishes thisClock at entry 0 got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL newcomer adopted, no ghost   got fec3d4e502a1b2ff exp 00beeffffe000002
+FAIL newcomer is the parent       got 0000000000000000 exp 00beeffffe000001
+FAIL vector outranks identity     got fec3d4e502a1b2ff exp 00beeffffe000002
+FAIL torn better announce adopts  got fec3d4e502a1b2ff exp 00cafefffe000003
+FAIL its announcer is the parent  got 0000000000000000 exp 00cafefffe000004
+FAIL neg exchange ran             got 0000000000000000 exp 0000000000000001
+FAIL neg pdelay published         got 0000000000000000 exp 0000000000000258
+FAIL neg pdelay in floor          got 0000000000000000 exp 0000000000000001
+FAIL neg keeps capable            got 0000000000000000 exp 0000000000000004
+FAIL far exchange ran             got 0000000000000000 exp 0000000000000001
+FAIL far pdelay published         got 0000000000000000 exp 0000000000000258
+FAIL far pdelay over thresh       got 0000000000000000 exp 0000000000000001
+FAIL recovery ex1 ran             got 0000000000000000 exp 0000000000000001
+FAIL recovery ex2 ran             got 0000000000000000 exp 0000000000000001
+FAIL two goods recover            got 0000000000000000 exp 0000000000000004
+FAIL fall at the fourth lost      got 0000000000000000 exp 0000000000000001
+FAIL post-gap exchange ran        got 0000000000000000 exp 0000000000000001
+FAIL stale window skips ratio     got 0000000000000000 exp 0000000000000258
+FAIL 26b: the request phase 26 answered got 0000000000000000 exp 0000000000000001
+FAIL capable before the storm     got 0000000000000000 exp 0000000000000001
+FAIL a genuine t1 to replay against got 0000000000000000 exp 0000000000000001
+FAIL resume timer restarts requests got 0000000000000000 exp 0000000000000001
+FAIL the ladder re-earns          got 0000000000000000 exp 0000000000000001
+FAIL dup intervals ran            got 0000000000000000 exp 0000000000000001
+FAIL duplicates are not a storm   got 0000000000000000 exp 0000000000000004
+FAIL 27b: capable before the late-second storm got 0000000000000000 exp 0000000000000001
+FAIL 27b: the countdown resumes requests got 0000000000000000 exp 0000000000000001
+FAIL 27b: the ladder re-earns     got 0000000000000000 exp 0000000000000001
+FAIL warm-reset deep-loop setup is capable got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less selection commits {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL post-warm-reset raw-empty GM got fec3d4e502a1b2ff exp 00c028fffe000001
+FAIL #87 post-warm-reset TLV-less head got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL warm-reset link-up: WGM elected got fec3d4e502a1b2ff exp 00c028fffe000001
+FAIL warm-reset link-up: first pair: offset published got 0000000000000000 exp 0000000000000bb8
+FAIL warm-reset link-up: first pair: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: first pair: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL warm-reset link-up: locked +30 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL warm-reset link-up: locked +30 us: offset published got 0000000000000000 exp 0000000000007530
+FAIL warm-reset link-up: locked +30 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: locked +30 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL warm-reset link-up: capable again got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: WGM re-adopted got fec3d4e502a1b2ff exp 00c028fffe000001
+FAIL warm-reset link-up: still slave got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: +25 us: offset published got 0000000000000000 exp 00000000000061a8
+FAIL warm-reset link-up: +25 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: +25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: +25 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL chased resp keeps its own stamp got 0000000000000000 exp 0000000000000259
+FAIL runt cannot poison the stamp got 0000000000000000 exp 0000000000000259
+FAIL reset Sync claim: capable setup got 0000000000000000 exp 0000000000000001
+FAIL reset Sync claim: master setup got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL reset Sync claim: Sync sent  got 0000000000000000 exp 0000000000000001
+FAIL D1: asCapable settled        got 0000000000000000 exp 0000000000000001
+FAIL D1: grandmaster settled      got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D1: Sync outstanding         got 0000000000000000 exp 0000000000000001
+FAIL D2: asCapable settled        got 0000000000000000 exp 0000000000000001
+FAIL D2: grandmaster settled      got 0000000000000000 exp 0000000000000001
+FAIL D2a lost response left the frozen pair alone value got 0000000000000000 exp 000000000000012d
+FAIL D2a lost response left the frozen pair alone moved got 0000000000000000 exp 0000000000000001
+FAIL D2b: asCapable settled       got 0000000000000000 exp 0000000000000001
+FAIL D2b: grandmaster settled     got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D2b: Sync outstanding        got 0000000000000000 exp 0000000000000001
+FAIL D2b lost Sync left the recorded t1 alone value got 0000000000000000 exp 00000000000002bd
+FAIL D2b lost Sync left the recorded t1 alone moved got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D2b lost Sync retired its own claim got 0000000000000000 exp 0000000000000001
+FAIL D2d unclaimed lost result retires nothing value got 0000000000000000 exp 00000000000001f5
+FAIL D2d unclaimed lost result retires nothing moved got 0000000000000000 exp 0000000000000001
+FAIL D3: asCapable settled        got 0000000000000000 exp 0000000000000001
+FAIL D3: grandmaster settled      got 0000000000000000 exp 0000000000000001
+FAIL D3a the pair computes from its own operands value got 0000000000000000 exp 0000000000000191
+FAIL D3a the pair computes from its own operands moved got 0000000000000000 exp 0000000000000001
+FAIL D3b a zero t1 completes its exchange value got 0000000000000000 exp 0000000000000259
+FAIL D3b a zero t1 completes its exchange moved got 0000000000000000 exp 0000000000000001
+FAIL D3c a real exchange after reset still computes value got 0000000000000000 exp 0000000000000285
+FAIL D3c a real exchange after reset still computes moved got 0000000000000000 exp 0000000000000001
+FAIL D3d interval 0 keeps its frozen operands value got 0000000000000000 exp 0000000000000259
+FAIL D3d interval 0 keeps its frozen operands moved got 0000000000000000 exp 0000000000000001
+FAIL D3d interval 1 keeps its frozen operands value got 0000000000000000 exp 000000000000028a
+FAIL D3d interval 1 keeps its frozen operands moved got 0000000000000000 exp 0000000000000001
+FAIL D3d interval 2 keeps its frozen operands value got 0000000000000000 exp 00000000000002bc
+FAIL D3d interval 2 keeps its frozen operands moved got 0000000000000000 exp 0000000000000001
+FAIL D3d three multi-answered intervals cease the requester got 0000000000000001 exp 0000000000000000
+FAIL D3 resume: asCapable settled got 0000000000000000 exp 0000000000000001
+FAIL D3 resume: grandmaster settled got 0000000000000000 exp 0000000000000001
+FAIL D4: asCapable settled        got 0000000000000000 exp 0000000000000001
+FAIL D4: grandmaster settled      got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D4 the Sync beat retries     got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 11: timeout
+FAIL D4 the Announce beat retries got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D4: Sync outstanding         got 0000000000000000 exp 0000000000000001
+FAIL Sync TX frames seen          got 0000000000000000 exp 0000000000000001
+FAIL Follow_Up TX frames seen     got 0000000000000000 exp 0000000000000001
+FAIL Announce TX frames seen      got 0000000000000000 exp 0000000000000001
+FAIL slew: lifecycle setup earns asCapable got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000000061a8
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: probe step count       got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000064
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffff9c
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe6809d
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66cf4
+FAIL slew: tracking includes a nonzero frequency trim got 0000000000000000 exp 0000000000000001
+FAIL slew: idle timeout stays asCapable got 0000000000000000 exp 0000000000000004
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66cf4
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000064
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: idle GM change selects the new identity got fec3d4e502a1b2ff exp 00aaccfffe010205
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffff9c
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe6809e
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66cf5
+FAIL slew: idle capability loss starts asCapable got 0000000000000000 exp 0000000000000004
+FAIL slew: idle capability recovers got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66cf5
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000064
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000065
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: high between pairs     got 0000000000000000 exp 0000000000000001
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000064
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: -101 ns restarts settling got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffff9b
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe680e1
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: zero crossing cannot clear early got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66d05
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffff9c
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe6873c
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000032
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66678
+FAIL slew: policy decision starts at -101 ns got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffff9b
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe68ac8
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000fffe795f
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: probe step count       got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe676ec
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000000186a1
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: probe step count       got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe676ec
+FAIL slew: exactly 100 us starts an interval got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000000186a0
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: first settled pair before lapse got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: next correction starts got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffec78
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffeb8521
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: first settled pair before GM change got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe7ae15
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: GM identity change holds active got 0000000000000000 exp 0000000000000001
+FAIL slew: GM change restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe7ae15
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe7ae15
+FAIL slew: active before mastership got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000001388
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: parent degradation returns to GM got 0000000000000000 exp 0000000000000002
+FAIL slew: mastership writes one replacement rate got 0000000000000000 exp 0000000000000001
+FAIL slew: mastership keeps the integral-only rate got ffffffffffffffff exp 00000000ffe66667
+FAIL slew: mastership has one falling edge got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66667
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66667
+FAIL slew: return from GM uses locked slew got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 000000000000c350
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: asCapable loss holds the correction got 0000000000000000 exp 0000000000000001
+FAIL slew: incapable pair cannot complete correction got 0000000000000000 exp 0000000000000001
+FAIL slew: capability can recover got 0000000000000000 exp 0000000000000001
+FAIL slew: recovery pair retains active got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000001388
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: after reset capability returns got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000000061a8
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: probe step count       got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe66666
+FAIL slew: subsequent policy correction starts got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffec78
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffeb8521
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: warm-reset qualification starts afresh got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe7ae15
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got ffffffffffffffff exp 00000000ffe7ae15
+FAIL consumer envelope: the run wrote addends got 0000000000000000 exp 0000000000000001
+FAIL consumer envelope: some addends sit exactly on it got 0000000000000000 exp 0000000000000001
+FAIL #82 peer wins: its commit names the peer GM got 0000000000000000 exp 0082a0fffe000001
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: it names thisClock, not the elected peer got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0000000000000000 exp 0082b0fffe000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit has gmPresent got 00000000ffffffff exp 0000000000000001
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000001
+FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 00000000ffffffff exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+FAIL #84 the run hands mastership to a peer got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 00000000000000d6 exp 0000000000000000
+FAIL p1 255 pre-init deep Announce: GM stays thisClock got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL p1 255 pdreq srcCID                 got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL p1 255 #82 cold release: every cycle to the first beat names thisClock got 000000000024a15d exp 0000000000000000
+FAIL p1 255 #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 second exchange -> capable   got 0000000000000000 exp 0000000000000001
+FAIL p1 255 capable at two exchanges     got 0000000000000003 exp 0000000000000002
+FAIL p1 255 pub pdelay corrected         got 0000000000000000 exp 0000000000000259
+FAIL p1 255 became master                got 0000000000000000 exp 0000000000000001
+FAIL p1 255 master flags                 got 0000000000000000 exp 0000000000000006
+FAIL p1 255 #84 first mastership: the master flags carry sync-ok got 0000000000000000 exp 000000000000000e
+FAIL p1 255 gm is us                     got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL p1 255 self path entry 0 is thisClock got fec3d4e502a1b2ff exp 02a1b2fffec3d4e5
+FAIL p1 255 #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 00000000ffffffff exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #84 the run hands mastership to a peer got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #85 every peer path ends with thisClock got 0000000000000016 exp 0000000000000000
+tally: 1639 checks: 763 PASS, 876 FAIL
+named checks failing: 2 of 2
+verdict: caught

@@ -1,0 +1,19 @@
+mutant: word 12 drops the presence bit (#87)
+FAIL ann w12 hops             got 0000000000000002 exp 8000000000000002
+FAIL unknown before path: count got 0000000000000002 exp 8000000000000002
+FAIL unknown after path: count got 0000000000000002 exp 8000000000000002
+FAIL unknowns around path: count got 0000000000000002 exp 8000000000000002
+FAIL valid ann with padding: count got 0000000000000001 exp 8000000000000001
+FAIL deep self path: full count+loop got 0000000000000109 exp 8000000000000109
+FAIL #88 one entry, stepsRemoved 3: presence, count and loop got 0000000000000001 exp 8000000000000001
+FAIL #88 two entries, stepsRemoved 2: presence, count and loop got 0000000000000002 exp 8000000000000002
+FAIL #88 three entries, stepsRemoved 0: presence, count and loop got 0000000000000003 exp 8000000000000003
+FAIL #88 short loop, stepsRemoved 5: presence, count and loop got 0000000000000102 exp 8000000000000102
+FAIL #88 head not the grandmaster, two entries: presence, count and loop got 0000000000000002 exp 8000000000000002
+FAIL #88 head not the grandmaster, one entry: presence, count and loop got 0000000000000001 exp 8000000000000001
+FAIL #88 head is thisClock: presence, count and loop got 0000000000000102 exp 8000000000000102
+FAIL #88 empty path: present, count zero got 0000000000000000 exp 8000000000000000
+FAIL #88 empty path between unknowns: present, count zero got 0000000000000000 exp 8000000000000000
+tally: 378 checks: 363 PASS, 15 FAIL
+named checks failing: 4 of 4
+verdict: caught

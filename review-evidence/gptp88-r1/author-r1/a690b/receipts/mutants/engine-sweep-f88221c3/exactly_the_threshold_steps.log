@@ -1,0 +1,68 @@
+mutant: exactly the threshold steps
+FAIL link-up +20 us: step pulses  got 0000000000000001 exp 0000000000000000
+FAIL link-up +20 us: addend matches the mirror got 00000000fff3332e exp 00000000ffe66666
+FAIL link-up -20 us: addend matches the mirror got 000000000007ae1a exp 0000000000028f60
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000fff851e9 exp 00000000fff3332f
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000fff851e9 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 00000000fff851e9 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000fff851e9 exp 00000000fff3332f
+FAIL link-up: one step pulse per probe over 20 us got 000000000000000e exp 000000000000000d
+FAIL locked +100 us: step pulses  got 0000000000000001 exp 0000000000000000
+FAIL locked +100 us: addend matches the mirror got 00000000fffd70af exp 00000000ffe66666
+FAIL locked +100 us + 1 ns: addend matches the mirror got 0000000000170a56 exp 000000000000000d
+FAIL locked -100 us - 1 ns: addend matches the mirror got 0000000000170a56 exp 000000000000000d
+FAIL locked: one step pulse per probe over 100 us got 0000000000000013 exp 0000000000000012
+FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 0: addend matches the mirror got 000000000015c2a8 exp 00000000fffeb85f
+FAIL integrator survives the step got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 1: addend matches the mirror got 000000000011dd74 exp 00000000fffad32b
+FAIL closed loop pair 2: addend matches the mirror got 000000000010ebc2 exp 00000000fff9e179
+FAIL closed loop pair 3: addend matches the mirror got 000000000010f79f exp 00000000fff9ed56
+FAIL closed loop pair 4: addend matches the mirror got 0000000000113b20 exp 00000000fffa30d7
+FAIL closed loop pair 5: addend matches the mirror got 00000000001177ae exp 00000000fffa6d65
+FAIL closed loop pair 6: addend matches the mirror got 000000000011a344 exp 00000000fffa98fb
+FAIL closed loop pair 7: addend matches the mirror got 000000000011bfe8 exp 00000000fffab59f
+FAIL closed loop pair 8: addend matches the mirror got 000000000011d2b8 exp 00000000fffac86f
+FAIL closed loop pair 9: addend matches the mirror got 000000000011dc7c exp 00000000fffad233
+FAIL closed loop pair 10: addend matches the mirror got 000000000011e31b exp 00000000fffad8d2
+FAIL closed loop pair 11: addend matches the mirror got 000000000011e651 exp 00000000fffadc08
+FAIL closed loop pair 12: addend matches the mirror got 000000000011e8bf exp 00000000fffade76
+FAIL closed loop pair 13: addend matches the mirror got 000000000011e9aa exp 00000000fffadf61
+FAIL closed loop pair 14: addend matches the mirror got 000000000011eab7 exp 00000000fffae06e
+FAIL closed loop pair 15: addend matches the mirror got 000000000011eafa exp 00000000fffae0b1
+FAIL closed loop pair 16: addend matches the mirror got 000000000011eb70 exp 00000000fffae127
+FAIL closed loop pair 17: addend matches the mirror got 000000000011eb4f exp 00000000fffae106
+FAIL closed loop pair 18: addend matches the mirror got 000000000011eb2e exp 00000000fffae0e5
+FAIL closed loop pair 19: addend matches the mirror got 000000000011eb93 exp 00000000fffae14a
+FAIL closed loop pair 20: addend matches the mirror got 000000000011eb93 exp 00000000fffae14a
+FAIL closed loop pair 21: addend matches the mirror got 000000000011eb50 exp 00000000fffae107
+FAIL closed loop pair 22: addend matches the mirror got 000000000011eb83 exp 00000000fffae13a
+FAIL closed loop pair 23: addend matches the mirror got 000000000011eb83 exp 00000000fffae13a
+FAIL slew: exactly 100 us starts an interval got 0000000000000000 exp 0000000000000001
+FAIL slew: probe step count       got 000000000000001c exp 000000000000001b
+FAIL slew: arithmetic remains the PI policy got 00000000fff92083 exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: first settled pair before lapse got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got 00000000fff92083 exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got 00000000fff92083 exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got 00000000fff92083 exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000fffe3f3e exp 00000000ffeb8521
+FAIL slew: arithmetic remains the PI policy got 00000000fffa6832 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000fffa6832 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000fffa6832 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000fff54978 exp 00000000ffe66666
+FAIL slew: mastership keeps the integral-only rate got 00000000fff92084 exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000fff92084 exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000fff92084 exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000ffe734f7 exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000ffeb0c03 exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000fff02abe exp 00000000ffeb8521
+FAIL slew: arithmetic remains the PI policy got 00000000ffec53b2 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000ffec53b2 exp 00000000ffe7ae15
+tally: 1927 checks: 1864 PASS, 63 FAIL
+named checks failing: 0 of 1
+NOT FAILING: an offset of exactly 20 us, or 100 us once locked, slews
+verdict: caught

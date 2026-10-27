@@ -1,0 +1,11 @@
+mutant: an empty path takes no thisClock
+FAIL #88 empty path: count        got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path: head         got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: head got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 0000000000000002 exp 0000000000000000
+tally: 1932 checks: 1925 PASS, 7 FAIL
+named checks failing: 6 of 6
+verdict: caught

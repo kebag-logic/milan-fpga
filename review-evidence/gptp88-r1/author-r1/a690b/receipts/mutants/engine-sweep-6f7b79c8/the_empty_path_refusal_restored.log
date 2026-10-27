@@ -1,0 +1,39 @@
+mutant: the empty-path refusal restored
+FAIL #88 empty path: elected      got 02a1b2fffec3d4e5 exp 00eaeafffe000001
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000004 exp 0000000000000001
+FAIL #88 empty path from the parent: head got 00f6f6fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: tail 1 got 00f6f6fffe0000b1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 2 got 00f6f6fffe0000c1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: parser accepts got 000000000000000c exp 000000000000000b
+tally: 1932 checks: 1923 PASS, 9 FAIL
+named checks failing: 3 of 4
+NOT FAILING: #88 empty path: count
+verdict: missed its named check(s): #88 empty path: count
+--- raw tail ---
+INFO #82 cold release graded for 2400605 cycles to the first beat
+FAIL #88 empty path: elected      got 02a1b2fffec3d4e5 exp 00eaeafffe000001
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000004 exp 0000000000000001
+FAIL #88 empty path from the parent: head got 00f6f6fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: tail 1 got 00f6f6fffe0000b1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 2 got 00f6f6fffe0000c1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: parser accepts got 000000000000000c exp 000000000000000b
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset 1 ns, trim 1174351
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 0 ns, trim 1174401
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000682 cycles after asCapable rises
+INFO #82 519 commits graded for the self path
+INFO #84 108675859 master cycles graded, 21 handovers to a peer
+INFO #85 384 peer commits graded for thisClock last
+INFO #82 cold release graded for 2400605 cycles to the first beat
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1970 cycles later with flags 0
+INFO #82 Pdelay loss: mastership commits 2000829 cycles after asCapable rises
+INFO #82 62 commits graded for the self path
+INFO #84 1456 master cycles graded, 2 handovers to a peer
+INFO #85 48 peer commits graded for thisClock last
+1932 checks: 1923 PASS, 9 FAIL

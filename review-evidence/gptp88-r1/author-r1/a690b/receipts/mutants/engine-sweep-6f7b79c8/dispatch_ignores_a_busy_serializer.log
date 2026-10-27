@@ -1,0 +1,31 @@
+mutant: dispatch ignores a busy serializer
+FAIL #84 takeover: nothing commits while dispatch is held got 000000000000013a exp 0000000000000139
+FAIL #84 takeover: the queued receipt timeout commits after it got 0000000000000000 exp 0000000000000001
+FAIL torn better announce adopts  got 00beeffffe000002 exp 00cafefffe000003
+FAIL its announcer is the parent  got 00beeffffe000001 exp 00cafefffe000004
+FAIL neg pdelay published         got 0000000000000259 exp 00000000ffffffcf
+FAIL far exchange ran             got 0000000000000000 exp 0000000000000001
+FAIL far pdelay published         got 0000000000000259 exp 00000000ffffffcf
+FAIL far pdelay over thresh       got 0000000000000000 exp 0000000000000001
+FAIL threshold clears capable     got 0000000000000004 exp 0000000000000000
+FAIL recovery ex1 ran             got 0000000000000000 exp 0000000000000001
+FAIL one good is not enough       got 0000000000000004 exp 0000000000000000
+FAIL recovery ex2 ran             got 0000000000000000 exp 0000000000000001
+FAIL lost responses clear capable got 0000000000000000 exp 0000000000000001
+FAIL fall at the fourth lost      got 0000000000000000 exp 0000000000000001
+FAIL post-gap exchange ran        got 0000000000000000 exp 0000000000000001
+FAIL gap took the stale path      got 0000000000000000 exp 0000000000000001
+FAIL stale window skips ratio     got 0000000000000259 exp 00000000ffffffcf
+FAIL 26b: asCapable down, one exchange in got 0000000000000004 exp 0000000000000000
+FAIL replayed identical pair: not a second exchange got 0000000000000004 exp 0000000000000000
+FAIL skewed replay: not a second exchange got 0000000000000004 exp 0000000000000000
+FAIL storm clears capable... eventually got 0000000000000000 exp 0000000000000001
+FAIL forged pairs cannot climb mid-cease got 0000000000000004 exp 0000000000000000
+FAIL resume timer restarts requests got 0000000000000000 exp 0000000000000001
+FAIL dup intervals ran            got 0000000000000000 exp 0000000000000001
+FAIL 27b: a late second identity still ceases got 0000000000000000 exp 0000000000000001
+FAIL 27b: the countdown resumes requests got 0000000000000000 exp 0000000000000001
+FAIL second storm ceases          got 0000000000000000 exp 0000000000000001
+tally: 1932 checks: 1905 PASS, 27 FAIL
+named checks failing: 1 of 1
+verdict: caught

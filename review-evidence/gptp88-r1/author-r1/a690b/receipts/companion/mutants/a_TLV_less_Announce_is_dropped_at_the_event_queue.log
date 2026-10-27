@@ -1,0 +1,21 @@
+mutant: a TLV-less Announce is dropped at the event queue
+planted in: gptp-processor/hdl/top/KL_gptp_engine.sv
+== gptp_shadow: rc 2; 320 checks: 319 PASS, 1 FAIL
+FAIL better TLV-less Announce changes scalar GM got 00aaccfffe010203 exp 00aaccfffe010205
+== milan_dp_gptp: rc 2; 192 checks: 177 PASS, 15 FAIL
+FAIL TLV-less refresh is not event-dropped got 0000000000000001 exp 0000000000000000
+FAIL TLV-less better Announce changes scalar GM got 00aaccfffe010203 exp 00aaccfffe010204
+FAIL fabric GM switch asserts CLKV tu hold got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu reaches AAF wire  got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu reaches CRF wire  got 0000000000000000 exp 0000000000000001
+FAIL GM switch reaches AVB counter descriptor arbiter got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu reaches CLOCK_DOMAIN descriptor arbiter got 0000000000000000 exp 0000000000000001
+FAIL GM switch emits one AVB_INTERFACE GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu emits one CLOCK_DOMAIN GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL GET_COUNTERS records fabric GPTP_GM_CHANGED got 0000000000000000 exp 0000000000000001
+FAIL GET_COUNTERS records GM-switch CLOCK_DOMAIN.UNLOCKED got 0000000000000000 exp 0000000000000001
+FAIL AVB counter push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL CLOCK_DOMAIN push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch still emits one GET_AVB_INFO push got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch still increments GPTP_GM_CHANGED got 0000000000000000 exp 0000000000000001
+== tsn_fuzz_ptp: rc 0; campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL

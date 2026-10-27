@@ -1,0 +1,17 @@
+mutant: no engine commit after reset
+FAIL #82 cold release: one commit before the first beat got 0000000000000000 exp 0000000000000001
+FAIL #82 cold release: that commit is the first edge after release got ffffffffffffffff exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 cold release: that commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: that commit is the first edge after release got ffffffffffffffff exp 0000000000000000
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its flags are gmPresent alone got 00000000ffffffff exp 0000000000000001
+FAIL p1 255 #82 cold release: one commit before the first beat got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 cold release: that commit is the first edge after release got ffffffffffffffff exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 cold release: that commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000000
+tally: 1929 checks: 1916 PASS, 13 FAIL
+named checks failing: 2 of 2
+verdict: caught

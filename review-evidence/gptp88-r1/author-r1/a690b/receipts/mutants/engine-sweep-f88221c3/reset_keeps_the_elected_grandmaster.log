@@ -1,0 +1,34 @@
+mutant: reset keeps the elected grandmaster
+FAIL pre-init deep Announce: GM stays thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 cold release: every cycle to the first beat names thisClock got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: +25 us: offset published got 0000000000000000 exp 00000000000061a8
+FAIL warm-reset link-up: +25 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: +25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: +25 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000000061a8
+FAIL slew: probe writes one rate  got 00000000000000b8 exp 00000000000000b9
+FAIL slew: probe step count       got 0000000000000018 exp 0000000000000019
+FAIL slew: subsequent policy correction starts got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffec78
+FAIL slew: probe writes one rate  got 00000000000000b8 exp 00000000000000b9
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffeb8521
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: warm-reset qualification starts afresh got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 00000000000000b8 exp 00000000000000b9
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffe7ae15
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 00000000000000b8 exp 00000000000000b9
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffe7ae15
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0082a0fffe000001 exp 02a1b2fffec3d4e5
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 0000000000000003 exp 0000000000000000
+FAIL p1 255 pre-init deep Announce: GM stays thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL p1 255 #82 cold release: every cycle to the first beat names thisClock got 000000000024a15d exp 0000000000000000
+FAIL p1 255 #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #85 every peer path ends with thisClock got 0000000000000003 exp 0000000000000000
+tally: 1921 checks: 1891 PASS, 30 FAIL
+named checks failing: 1 of 1
+verdict: caught

@@ -1,0 +1,13 @@
+mutant: a handover to a peer keeps sync-ok
+FAIL sync-ok low before sync      got 0000000000000008 exp 0000000000000000
+FAIL GM change, +50 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL GM change, -5 ms: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL return from mastership, +50 us: sync-ok low before the pair got 0000000000000008 exp 0000000000000000
+FAIL slew: idle GM change clears sync-ok got 0000000000000008 exp 0000000000000000
+FAIL slew: GM change restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+FAIL #84 every handover to a peer grandmaster clears sync-ok got 0000000000000016 exp 0000000000000000
+FAIL p1 255 #84 every handover to a peer grandmaster clears sync-ok got 0000000000000002 exp 0000000000000000
+tally: 1928 checks: 1919 PASS, 9 FAIL
+named checks failing: 2 of 2
+verdict: caught

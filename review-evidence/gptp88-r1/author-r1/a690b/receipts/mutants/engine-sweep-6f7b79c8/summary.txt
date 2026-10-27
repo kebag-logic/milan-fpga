@@ -1,0 +1,85 @@
+caught	slew level tied low
+caught	slew clears at the first in-band pair
+caught	slew clears before the replacement rate
+caught	slew idle lapse arms qualification
+caught	slew idle asCapable loss arms qualification
+caught	slew mastership keeps qualification
+caught	result face always ready
+caught	result value taken without an accepted beat
+caught	result tag taken without an accepted beat
+caught	recorded t1 survives reset
+caught	byte face advances without ready
+caught	lost t1 fabricates a time and a companion
+caught	lost Sync cancels the requester exchange
+caught	lost response cancels the requester exchange
+caught	a later response re-arms the frozen pair
+caught	the tail runs before its own t1
+caught	a new request leaves the old pair live
+caught	credit gate removed from the Pdelay_Req leg
+caught	credit gate removed from the Sync leg
+caught	credit gate removed from the Announce leg
+caught	every pair uses the locked threshold
+caught	every pair uses the link-up threshold
+caught	exactly the threshold steps
+caught	the step arm is unreachable
+caught	a grandmaster change unlocks the servo
+caught	a receipt timeout unlocks the servo
+caught	becoming grandmaster unlocks the servo
+caught	the locked threshold is 200 us
+caught	asCapable's rise keeps the lock
+caught	the whole trim is not clamped
+caught	the trim clamp is one unit wider than the envelope
+caught	the integrator is not clamped
+caught	reset leaves the grandmaster zero
+caught	reset keeps the elected grandmaster
+caught	the thisClock words are read swapped
+caught	reset leaves the path empty
+caught	reset keeps the elected tail
+caught	no engine commit after reset
+caught	the boot commit fires twice
+caught	the boot commit never retires
+caught	the boot commit waits for the timer bootstrap
+caught	a warm reset keeps the retained best record
+caught	an unwritten best record reads as the best vector
+caught	a winning peer's grandmaster is not published
+caught	a winning peer's path is not staged
+caught	the self publication keeps the departed grandmaster
+caught	the self publication keeps the departed path
+caught	the self publication keeps the departed record
+caught	an asCapable fall leaves the receipt watch running
+caught	an incapable receipt timeout keeps the elected peer
+caught	an incapable port's Announces still compete
+caught	the asCapable drop keeps the flags word
+caught	an incapable port's receipt watch is not re-armed
+caught	the published flags leave gmPresent to the microcode
+caught	the image does not mark thisClock grandmaster-capable
+caught	the capability mark ignores priority1
+caught	mastership sets the microcode's presence bit
+caught	becoming grandmaster clears sync-ok
+caught	a queued receipt timeout clears a master's sync-ok
+caught	the receipt timeout publishes nothing
+caught	dispatch ignores a busy serializer
+caught	mastership never publishes the master bit
+caught	a handover to a peer keeps sync-ok
+caught	the received path is published without thisClock
+caught	eight received entries take a ninth
+caught	seven received entries leave thisClock out
+caught	an empty path takes no thisClock
+caught	thisClock lands one slot early
+caught	thisClock fills every later slot
+caught	the appended entry is the announcing source
+caught	the received entries are not copied
+caught	every received path is published as {thisClock}
+caught	the path-count refusal restored
+caught	the path-head refusal restored
+missed its named check(s): #88 empty path: count	the empty-path refusal restored
+caught	the received head replaced by the grandmaster
+caught	the received head is not published
+caught	the empty sequence published without a TLV
+caught	a TLV-less Announce publishes {thisClock}
+caught	the self path leaves entry 0 empty
+caught	(a) the own-source refusal removed
+caught	(b) the stepsRemoved refusal removed
+caught	(c) the PathTrace loop refusal removed
+caught	a parent update must beat the best
+83 of 84 caught

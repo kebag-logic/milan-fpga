@@ -1,0 +1,1929 @@
+reset holds the result face closed
+slew: cold reset clears the level
+pre-init deep Announce: no commit
+pre-init deep Announce: parser refusal
+pre-init deep Announce: GM stays thisClock
+pdreq DA
+pdreq SA
+pdreq type
+pdreq len
+pdreq flags
+pdreq srcCID
+pdreq srcPN
+pdreq control
+pdreq logint
+pdreq body zero
+asCapable low at boot
+#82 cold release: every cycle to the first beat names thisClock
+#82 cold release: every cycle to the first beat has {thisClock}
+#82 cold release: every cycle to the first beat has gmPresent
+#82 cold release: one commit before the first beat
+#82 cold release: that commit is the first edge after release
+#82 cold release: that commit carries thisClock and {thisClock}
+#82 cold release: that commit's flags are gmPresent alone
+self-sourced request: no Pdelay_Resp
+self-sourced request: no frame at all
+self-sourced request: not a parser drop
+self-sourced request: flags unmoved
+peer request across our window: response sent
+peer request across our window: Follow_Up sent
+peer request across our window: response sent
+peer request across our window: Follow_Up sent
+peer request across our window: response sent
+peer requests across our window: three Pdelay_Resps
+peer requests across our window: none was a parser drop
+out-of-order stamp: the Resp_FU is built
+out-of-order stamp: it pairs its own request
+out-of-order stamp: it carries its own timestamp
+high-byte-only difference: the Resp_FU is built
+high-byte-only difference: it pairs its own request
+high-byte-only difference: it carries its own timestamp
+equal sequences: the request is still answered
+equal sequences: its response carries our own sequence
+equal sequences: response-first stamp builds the Resp_FU
+equal sequences: Resp_FU carries the response stamp
+boot Follow_Up before any Resp: pdelay unmoved
+boot Follow_Up before any Resp: asCapable unmoved
+pub pdelay ex1
+one exchange not capable
+self-sourced pair: one was answered
+self-sourced pair: not a parser drop
+self-sourced pair: asCapable unmoved
+self-sourced pair: pdelay unmoved
+self-sourced pair: no exchange modelled
+pdresp DA
+pdresp SA
+pdresp type
+pdresp len
+pdresp flags
+pdresp srcCID
+pdresp srcPN
+pdresp control
+pdresp logint
+pdresp seq
+pdresp t2
+pdresp reqCID
+pdrfu DA
+pdrfu SA
+pdrfu type
+pdrfu len
+pdrfu flags
+pdrfu srcCID
+pdrfu srcPN
+pdrfu control
+pdrfu logint
+pdrfu seq
+pdrfu t3
+pdrfu reqCID
+low-half requester: answered
+low-half requester: its sequence
+low-half requester: its reqCID
+low-half requester: Resp_FU pairs
+high-half requester: answered
+high-half requester: its sequence
+high-half requester: its reqCID
+high-half requester: Resp_FU pairs
+foreign-domain request: no Pdelay_Resp
+foreign-domain request: dropped and counted
+domestic request after it: answered
+domestic request after it: reqCID
+domestic request after it: Resp_FU pairs
+truncated requests: no Pdelay_Resp
+truncated requests: dropped and counted
+complete request after them: answered
+complete request after them: reqCID
+complete request after them: Resp_FU pairs
+unlisted types: the window starts quiet
+unlisted types: no frame transmitted
+unlisted types: dropped and counted
+unlisted types: flags unmoved
+second exchange -> capable
+capable at two exchanges
+pub pdelay corrected
+became master
+master flags
+#84 first mastership: the master flags carry sync-ok
+gm is us
+self path has one entry
+self path entry 0 is thisClock
+self path tail 0 is zero
+self path tail 1 is zero
+self path tail 2 is zero
+self path tail 3 is zero
+self path tail 4 is zero
+self path tail 5 is zero
+self path tail 6 is zero
+ann DA
+ann SA
+ann type
+ann len
+ann flags
+ann srcCID
+ann srcPN
+ann control
+ann logint
+ann utc
+ann p1
+ann cq
+ann p2
+ann gmid
+ann steps
+ann tsrc
+ann tlv
+ann path0
+sync DA
+sync SA
+sync type
+sync len
+sync flags
+sync srcCID
+sync srcPN
+sync control
+sync logint
+sync reserved body zero
+sync collision: stamp is pending
+sync collision: equal-sequence request answered
+sync collision: Resp_FU carries response stamp
+sync collision: response stamp builds Resp_FU
+sync collision: response stamp does not build Sync FU
+sync collision: own stamp still builds Sync FU
+syncfu DA
+syncfu SA
+syncfu type
+syncfu len
+syncfu flags
+syncfu srcCID
+syncfu srcPN
+syncfu control
+syncfu logint
+syncfu seq
+syncfu origin
+syncfu tlv
+syncfu org
+7b: a request to pair against
+Follow_Up before any Resp: pdelay unmoved
+Follow_Up before any Resp: asCapable unmoved
+stale-sequence Follow_Up: pdelay unmoved
+stale-sequence Follow_Up: asCapable unmoved
+stale-sequence Resp + Follow_Up pair: pdelay unmoved
+stale-sequence Resp + Follow_Up pair: asCapable unmoved
+high-byte-stale Resp + Follow_Up pair: pdelay unmoved
+high-byte-stale Resp + Follow_Up pair: asCapable unmoved
+Resp at a neighbour's requesting clockIdentity: pdelay unmoved
+Resp at a neighbour's requesting clockIdentity: asCapable unmoved
+Resp at a foreign requesting portNumber: pdelay unmoved
+Resp at a foreign requesting portNumber: asCapable unmoved
+Follow_Up from another responder: pdelay unmoved
+Follow_Up from another responder: asCapable unmoved
+Follow_Up at a foreign requesting portNumber: pdelay unmoved
+Follow_Up at a foreign requesting portNumber: asCapable unmoved
+Follow_Up at a neighbour's requesting clockIdentity: pdelay unmoved
+Follow_Up at a neighbour's requesting clockIdentity: asCapable unmoved
+the paired Follow_Up computes
+the paired Follow_Up keeps capable
+duplicate Follow_Up: pdelay unmoved
+duplicate Follow_Up: asCapable unmoved
+7b: a second request
+7b: a third request
+Follow_Up for a superseded request: pdelay unmoved
+Follow_Up for a superseded request: asCapable unmoved
+the next exchange computes
+still capable after the probes
+pdelay flags 0200/0000: a request to answer
+pdelay flags 0200/0000: a delay of its own
+pdelay flags 0200/0000: the exchange computes
+pdelay flags 0200/0000: not a parser drop
+pdelay flags 0200/0000: keeps capable
+pdelay flags 0208/0008: a request to answer
+pdelay flags 0208/0008: a delay of its own
+pdelay flags 0208/0008: the exchange computes
+pdelay flags 0208/0008: not a parser drop
+pdelay flags 0208/0008: keeps capable
+pdelay flags 0000/0200: a request to answer
+pdelay flags 0000/0200: a delay of its own
+pdelay flags 0000/0200: the exchange computes
+pdelay flags 0000/0200: not a parser drop
+pdelay flags 0000/0200: keeps capable
+every ignored-flag pdelay variant ran
+7c: a request for the controls
+reserved-bit cut Resp: dropped and counted
+reserved-bit cut Resp: pdelay unmoved
+reserved-bit cut Resp: asCapable unmoved
+reserved-bit Resp at a neighbour's identity: pdelay unmoved
+reserved-bit Resp at a neighbour's identity: asCapable unmoved
+reserved-bit Follow_Up at a foreign port: pdelay unmoved
+reserved-bit Follow_Up at a foreign port: asCapable unmoved
+reserved-bit pair still computes
+reserved-bit pair keeps capable
+still master
+gm still us
+annq published
+foreign-domain announce: still master
+foreign-domain announce: gm still us
+foreign-domain announce: parent still us
+foreign-domain announce: flags untouched
+foreign-domain announce: raw vector never published
+foreign-domain announce: dropped and counted
+#88 own source, one entry, stepsRemoved 3: still master
+#88 own source, one entry, stepsRemoved 3: gm still us
+#88 own source, one entry, stepsRemoved 3: flags untouched
+#88 own source, one entry, stepsRemoved 3: raw vector never published
+#88 own source, one entry, stepsRemoved 3: parser-drop policy
+#88 stepsRemoved 255, one entry: still master
+#88 stepsRemoved 255, one entry: gm still us
+#88 stepsRemoved 255, one entry: parent still us
+#88 stepsRemoved 255, one entry: flags untouched
+#88 stepsRemoved 255, one entry: raw vector never published
+#88 stepsRemoved 255, one entry: parser-drop policy
+#88 short loop, stepsRemoved 5: still master
+#88 short loop, stepsRemoved 5: gm still us
+#88 short loop, stepsRemoved 5: parent still us
+#88 short loop, stepsRemoved 5: flags untouched
+#88 short loop, stepsRemoved 5: raw vector never published
+#88 short loop, stepsRemoved 5: parser-drop policy
+own-source announce: still master
+own-source announce: gm still us
+own-source announce: parent still us
+own-source announce: flags untouched
+own-source announce: raw vector never published
+own-source announce: parser-drop policy
+stepsRemoved-255 announce: still master
+stepsRemoved-255 announce: gm still us
+stepsRemoved-255 announce: parent still us
+stepsRemoved-255 announce: flags untouched
+stepsRemoved-255 announce: raw vector never published
+stepsRemoved-255 announce: parser-drop policy
+deep-trace loop announce: still master
+deep-trace loop announce: gm still us
+deep-trace loop announce: parent still us
+deep-trace loop announce: flags untouched
+deep-trace loop announce: raw vector never published
+deep-trace loop announce: parser-drop policy
+eighth-hop loop announce: still master
+eighth-hop loop announce: gm still us
+eighth-hop loop announce: parent still us
+eighth-hop loop announce: flags untouched
+eighth-hop loop announce: raw vector never published
+eighth-hop loop announce: parser-drop policy
+first-hop loop announce: still master
+first-hop loop announce: gm still us
+first-hop loop announce: parent still us
+first-hop loop announce: flags untouched
+first-hop loop announce: raw vector never published
+first-hop loop announce: parser-drop policy
+single-hop loop announce: still master
+single-hop loop announce: gm still us
+single-hop loop announce: parent still us
+single-hop loop announce: flags untouched
+single-hop loop announce: raw vector never published
+single-hop loop announce: parser-drop policy
+path-trace-loop announce: still master
+path-trace-loop announce: gm still us
+path-trace-loop announce: parent still us
+path-trace-loop announce: flags untouched
+path-trace-loop announce: raw vector never published
+path-trace-loop announce: parser-drop policy
+stepsRemoved-0x0100 announce: still master
+stepsRemoved-0x0100 announce: gm still us
+stepsRemoved-0x0100 announce: parent still us
+stepsRemoved-0x0100 announce: flags untouched
+stepsRemoved-0x0100 announce: raw vector never published
+stepsRemoved-0x0100 announce: parser-drop policy
+boundary-clean announce: adopted
+boundary-clean announce: announcer is the parent
+boundary-clean announce: no longer master
+boundary-clean announce: raw path count
+boundary-clean announce: raw path head
+boundary-clean announce: raw path tail 1
+boundary-clean announce: raw path tail 2
+boundary-clean announce: raw path tail 3
+boundary-clean announce: raw path tail 4
+boundary-clean announce: raw path tail 5
+boundary-clean announce: raw path tail 6
+boundary-clean announce: raw path tail 7
+boundary-clean announce: parser accepts
+boundary-clean announce: degraded parent yields
+boundary-clean announce: gm is us again
+boundary-clean announce: degraded frame parser accepts
+stepsRemoved-0xFFFF announce: still master
+stepsRemoved-0xFFFF announce: gm still us
+stepsRemoved-0xFFFF announce: parent still us
+stepsRemoved-0xFFFF announce: flags untouched
+stepsRemoved-0xFFFF announce: raw vector never published
+stepsRemoved-0xFFFF announce: parser-drop policy
+half-identity control A: adopted
+half-identity control A: announcer is the parent
+half-identity control A: no longer master
+half-identity control A: raw path count
+half-identity control A: raw path head
+half-identity control A: raw path tail 1
+half-identity control A: raw path tail 2
+half-identity control A: raw path tail 3
+half-identity control A: raw path tail 4
+half-identity control A: raw path tail 5
+half-identity control A: raw path tail 6
+half-identity control A: raw path tail 7
+half-identity control A: parser accepts
+half-identity control A: degraded parent yields
+half-identity control A: gm is us again
+half-identity control A: degraded frame parser accepts
+half-identity control B: adopted
+half-identity control B: announcer is the parent
+half-identity control B: no longer master
+half-identity control B: raw path count
+half-identity control B: raw path head
+half-identity control B: raw path tail 1
+half-identity control B: raw path tail 2
+half-identity control B: raw path tail 3
+half-identity control B: raw path tail 4
+half-identity control B: raw path tail 5
+half-identity control B: raw path tail 6
+half-identity control B: raw path tail 7
+half-identity control B: parser accepts
+half-identity control B: degraded parent yields
+half-identity control B: gm is us again
+half-identity control B: degraded frame parser accepts
+TLV-less competition control: adopted
+TLV-less competition control: announcer is the parent
+TLV-less competition control: no longer master
+TLV-less competition control: raw path count
+TLV-less competition control: raw path head
+TLV-less competition control: raw path tail 1
+TLV-less competition control: raw path tail 2
+TLV-less competition control: raw path tail 3
+TLV-less competition control: raw path tail 4
+TLV-less competition control: raw path tail 5
+TLV-less competition control: raw path tail 6
+TLV-less competition control: raw path tail 7
+TLV-less competition control: parser accepts
+TLV-less competition control: degraded parent yields
+TLV-less competition control: gm is us again
+TLV-less competition control: degraded frame parser accepts
+#85 direct grandmaster: elected
+#85 direct grandmaster: count
+#85 direct grandmaster: head
+#85 direct grandmaster: tail 1
+#85 direct grandmaster: tail 2
+#85 direct grandmaster: tail 3
+#85 direct grandmaster: tail 4
+#85 direct grandmaster: tail 5
+#85 direct grandmaster: tail 6
+#85 direct grandmaster: tail 7
+#85 direct grandmaster: its commit names the grandmaster and path
+#85 direct grandmaster: the degraded grandmaster yields
+#85 multi-hop grandmaster: elected
+#85 multi-hop grandmaster: count
+#85 multi-hop grandmaster: head
+#85 multi-hop grandmaster: tail 1
+#85 multi-hop grandmaster: tail 2
+#85 multi-hop grandmaster: tail 3
+#85 multi-hop grandmaster: tail 4
+#85 multi-hop grandmaster: tail 5
+#85 multi-hop grandmaster: tail 6
+#85 multi-hop grandmaster: tail 7
+#85 multi-hop grandmaster: its commit names the grandmaster and path
+#85 multi-hop grandmaster: the degraded grandmaster yields
+#85 seven received entries: elected
+#85 seven received entries: count
+#85 seven received entries: head
+#85 seven received entries: tail 1
+#85 seven received entries: tail 2
+#85 seven received entries: tail 3
+#85 seven received entries: tail 4
+#85 seven received entries: tail 5
+#85 seven received entries: tail 6
+#85 seven received entries: tail 7
+#85 seven received entries: its commit names the grandmaster and path
+#85 seven received entries: the degraded grandmaster yields
+#85 eight received entries: elected
+#85 eight received entries: count
+#85 eight received entries: head
+#85 eight received entries: tail 1
+#85 eight received entries: tail 2
+#85 eight received entries: tail 3
+#85 eight received entries: tail 4
+#85 eight received entries: tail 5
+#85 eight received entries: tail 6
+#85 eight received entries: tail 7
+#85 eight received entries: its commit names the grandmaster and path
+#85 eight received entries: the degraded grandmaster yields
+#85 absent path: elected
+#85 absent path: count
+#85 absent path: head
+#85 absent path: tail 1
+#85 absent path: tail 2
+#85 absent path: tail 3
+#85 absent path: tail 4
+#85 absent path: tail 5
+#85 absent path: tail 6
+#85 absent path: tail 7
+#85 absent path: its commit names the grandmaster and path
+#85 absent path: the degraded grandmaster yields
+#88 empty path: elected
+#88 empty path: count
+#88 empty path: head
+#88 empty path: tail 1
+#88 empty path: tail 2
+#88 empty path: tail 3
+#88 empty path: tail 4
+#88 empty path: tail 5
+#88 empty path: tail 6
+#88 empty path: tail 7
+#88 empty path: its commit names the grandmaster and path
+#88 empty path: the degraded grandmaster yields
+#88 issue shape: elected
+#88 issue shape: parent
+#88 issue shape: no longer master
+#88 issue shape: count
+#88 issue shape: entry 0 is the received head
+#88 issue shape: tail 1
+#88 issue shape: tail 2
+#88 issue shape: tail 3
+#88 issue shape: tail 4
+#88 issue shape: tail 5
+#88 issue shape: tail 6
+#88 issue shape: tail 7
+#88 issue shape: its commit names the grandmaster and path
+#88 issue shape: parser accepts
+#88 issue shape: no Announce for one interval
+#88 issue shape: the degraded grandmaster yields
+#88 head not the grandmaster: elected
+#88 head not the grandmaster: parent
+#88 head not the grandmaster: no longer master
+#88 head not the grandmaster: count
+#88 head not the grandmaster: entry 0 is the received head
+#88 head not the grandmaster: tail 1
+#88 head not the grandmaster: tail 2
+#88 head not the grandmaster: tail 3
+#88 head not the grandmaster: tail 4
+#88 head not the grandmaster: tail 5
+#88 head not the grandmaster: tail 6
+#88 head not the grandmaster: tail 7
+#88 head not the grandmaster: its commit names the grandmaster and path
+#88 head not the grandmaster: parser accepts
+#88 head not the grandmaster: no Announce for one interval
+#88 head not the grandmaster: the degraded grandmaster yields
+#88 two entries, stepsRemoved 5: elected
+#88 two entries, stepsRemoved 5: count
+#88 two entries, stepsRemoved 5: head
+#88 two entries, stepsRemoved 5: tail 1
+#88 two entries, stepsRemoved 5: tail 2
+#88 two entries, stepsRemoved 5: tail 3
+#88 two entries, stepsRemoved 5: tail 4
+#88 two entries, stepsRemoved 5: tail 5
+#88 two entries, stepsRemoved 5: tail 6
+#88 two entries, stepsRemoved 5: tail 7
+#88 two entries, stepsRemoved 5: its commit names the grandmaster and path
+#88 two entries, stepsRemoved 5: the degraded grandmaster yields
+#88 three entries, stepsRemoved 0: elected
+#88 three entries, stepsRemoved 0: count
+#88 three entries, stepsRemoved 0: head
+#88 three entries, stepsRemoved 0: tail 1
+#88 three entries, stepsRemoved 0: tail 2
+#88 three entries, stepsRemoved 0: tail 3
+#88 three entries, stepsRemoved 0: tail 4
+#88 three entries, stepsRemoved 0: tail 5
+#88 three entries, stepsRemoved 0: tail 6
+#88 three entries, stepsRemoved 0: tail 7
+#88 three entries, stepsRemoved 0: its commit names the grandmaster and path
+#88 three entries, stepsRemoved 0: the degraded grandmaster yields
+#87 G1 elected: elected
+#87 G1 elected: parent
+#87 G1 elected: count
+#87 G1 elected: head
+#87 G1 elected: tail 1
+#87 G1 elected: tail 2
+#87 G1 elected: tail 3
+#87 G1 elected: tail 4
+#87 G1 elected: tail 5
+#87 G1 elected: tail 6
+#87 G1 elected: tail 7
+#87 G1 elected: its commit names the grandmaster and path
+#87 G1 to G2 without a TLV: elected
+#87 G1 to G2 without a TLV: parent
+#87 G1 to G2 without a TLV: count
+#87 G1 to G2 without a TLV: head
+#87 G1 to G2 without a TLV: tail 1
+#87 G1 to G2 without a TLV: tail 2
+#87 G1 to G2 without a TLV: tail 3
+#87 G1 to G2 without a TLV: tail 4
+#87 G1 to G2 without a TLV: tail 5
+#87 G1 to G2 without a TLV: tail 6
+#87 G1 to G2 without a TLV: tail 7
+#87 G1 to G2 without a TLV: its commit names the grandmaster and path
+#88 empty path from the parent: elected
+#88 empty path from the parent: parent
+#88 empty path from the parent: count
+#88 empty path from the parent: head
+#88 empty path from the parent: tail 1
+#88 empty path from the parent: tail 2
+#88 empty path from the parent: tail 3
+#88 empty path from the parent: tail 4
+#88 empty path from the parent: tail 5
+#88 empty path from the parent: tail 6
+#88 empty path from the parent: tail 7
+#88 empty path from the parent: its commit names the grandmaster and path
+#88 empty path from the parent: parser accepts
+#88 parent path headed elsewhere: elected
+#88 parent path headed elsewhere: parent
+#88 parent path headed elsewhere: count
+#88 parent path headed elsewhere: head
+#88 parent path headed elsewhere: tail 1
+#88 parent path headed elsewhere: tail 2
+#88 parent path headed elsewhere: tail 3
+#88 parent path headed elsewhere: tail 4
+#88 parent path headed elsewhere: tail 5
+#88 parent path headed elsewhere: tail 6
+#88 parent path headed elsewhere: tail 7
+#88 parent path headed elsewhere: its commit names the grandmaster and path
+#88 parent path headed elsewhere: parser accepts
+#87 parent refresh without a TLV: elected
+#87 parent refresh without a TLV: parent
+#87 parent refresh without a TLV: count
+#87 parent refresh without a TLV: head
+#87 parent refresh without a TLV: tail 1
+#87 parent refresh without a TLV: tail 2
+#87 parent refresh without a TLV: tail 3
+#87 parent refresh without a TLV: tail 4
+#87 parent refresh without a TLV: tail 5
+#87 parent refresh without a TLV: tail 6
+#87 parent refresh without a TLV: tail 7
+#87 parent refresh without a TLV: its commit names the grandmaster and path
+#87 the degraded G2 yields
+#87 the degraded G2 yields with {thisClock}
+adopted
+adopt keeps capable
+gm is theirs
+adopt publishes complete path count
+adopt publishes path head
+adopt publishes path tail 1
+adopt publishes path tail 2
+adopt publishes path tail 3
+adopt appends thisClock as path tail 4
+adopt clears inactive tail 4
+adopt clears inactive tail 5
+adopt clears inactive tail 6
+worse announce retains selected GM
+worse announce retains selected parent
+worse announce reaches a commit
+worse announce retains path A count
+worse announce retains path A head
+worse announce retains path A tail 1
+worse announce retains path A tail 2
+worse announce retains path A tail 3
+worse announce retains path A tail 4
+worse TLV-less announce reaches one retained-state commit
+worse TLV-less announce retains selected GM
+worse TLV-less announce retains selected parent
+worse TLV-less announce retains path A count
+worse TLV-less announce retains path A head
+worse TLV-less announce retains path A tail 1
+worse TLV-less announce retains path A tail 2
+worse TLV-less announce retains path A tail 3
+worse TLV-less announce retains path A tail 4
+worse TLV-less announce retains zero tail 5
+worse TLV-less announce retains zero tail 6
+worse TLV-less announce retains zero tail 7
+worse TLV-less announce parser accepts
+deep parent path clamps to eight
+deep path retains its head
+deep path retains tail 1
+deep path retains tail 2
+deep path retains tail 3
+deep path retains tail 4
+deep path retains tail 5
+deep path retains tail 6
+deep path retains tail 7
+parent refresh publishes path C count
+parent refresh publishes path C head
+parent refresh publishes path C tail 1
+parent refresh publishes path C tail 2
+parent refresh appends thisClock
+parent refresh clears old tail 3
+parent refresh clears old tail 4
+parent refresh clears old tail 5
+parent refresh clears old tail 6
+unknown-only current parent: one commit
+unknown-only current parent: keeps the previous count
+unknown-only current parent: keeps the previous head
+unknown-only current parent: keeps tail 1
+unknown-only current parent: keeps tail 2
+unknown-only current parent: keeps tail 3
+unknown-only current parent: keeps tail 4
+unknown-only current parent: keeps tail 5
+unknown-only current parent: keeps tail 6
+unknown-only current parent: keeps tail 7
+unknown-only current parent: parser accepts
+unknown before path current parent: one commit
+unknown before path current parent: count
+unknown before path current parent: head
+unknown before path current parent: tail 1
+unknown before path current parent: tail 2
+unknown before path current parent: tail 3
+unknown before path current parent: parser accepts
+full path before raw empty: count eight
+full path before raw empty: head
+full path before raw empty: tail 1
+full path before raw empty: tail 2
+full path before raw empty: tail 3
+full path before raw empty: tail 4
+full path before raw empty: tail 5
+full path before raw empty: tail 6
+full path before raw empty: tail 7
+TLV-less current parent: one commit
+TLV-less current parent: GM retained
+TLV-less current parent: parent retained
+TLV-less current parent: keeps the previous count
+TLV-less current parent: keeps the previous head
+TLV-less current parent: keeps tail 1
+TLV-less current parent: keeps tail 2
+TLV-less current parent: keeps tail 3
+TLV-less current parent: keeps tail 4
+TLV-less current parent: keeps tail 5
+TLV-less current parent: keeps tail 6
+TLV-less current parent: keeps tail 7
+TLV-less current parent: parser accepts
+out-of-message fake PathTrace: one commit
+out-of-message fake PathTrace: keeps the previous count
+out-of-message fake PathTrace: keeps the previous head
+out-of-message fake PathTrace: keeps tail 1
+out-of-message fake PathTrace: keeps tail 2
+out-of-message fake PathTrace: keeps tail 3
+out-of-message fake PathTrace: keeps tail 4
+out-of-message fake PathTrace: keeps tail 5
+out-of-message fake PathTrace: keeps tail 6
+out-of-message fake PathTrace: keeps tail 7
+out-of-message fake PathTrace: parser accepts
+unknown TLV crosses declaration: no commit
+unknown TLV crosses declaration: one parser drop
+unknown TLV crosses declaration: GM unchanged
+unknown TLV crosses declaration: parent unchanged
+unknown TLV crosses declaration: count unchanged
+unknown TLV crosses declaration: tail unchanged
+odd-length unknown TLV: no commit
+odd-length unknown TLV: one parser drop
+odd-length unknown TLV: GM unchanged
+odd-length unknown TLV: parent unchanged
+odd-length unknown TLV: count unchanged
+odd-length unknown TLV: tail unchanged
+partial TLV after valid PathTrace: no commit
+partial TLV after valid PathTrace: one parser drop
+partial TLV after valid PathTrace: GM unchanged
+partial TLV after valid PathTrace: parent unchanged
+partial TLV after valid PathTrace: count unchanged
+partial TLV after valid PathTrace: tail unchanged
+duplicate PathTrace: no commit
+duplicate PathTrace: one parser drop
+duplicate PathTrace: GM unchanged
+duplicate PathTrace: parent unchanged
+duplicate PathTrace: count unchanged
+duplicate PathTrace: tail unchanged
+PathTrace crosses messageLength: no commit
+PathTrace crosses messageLength: one parser drop
+PathTrace crosses messageLength: GM unchanged
+PathTrace crosses messageLength: parent unchanged
+PathTrace crosses messageLength: count unchanged
+PathTrace crosses messageLength: tail unchanged
+physically truncated PathTrace: no commit
+physically truncated PathTrace: one parser drop
+physically truncated PathTrace: GM unchanged
+physically truncated PathTrace: parent unchanged
+physically truncated PathTrace: count unchanged
+physically truncated PathTrace: tail unchanged
+non-identity-aligned PathTrace: no commit
+non-identity-aligned PathTrace: one parser drop
+non-identity-aligned PathTrace: GM unchanged
+non-identity-aligned PathTrace: parent unchanged
+non-identity-aligned PathTrace: count unchanged
+non-identity-aligned PathTrace: tail unchanged
+#88 current parent's path headed elsewhere: one commit
+#88 current parent's path headed elsewhere: GM retained
+#88 current parent's path headed elsewhere: count
+#88 current parent's path headed elsewhere: entry 0 is the received head
+#88 current parent's path headed elsewhere: tail 1
+#88 current parent's path headed elsewhere: tail 2
+#88 current parent's path headed elsewhere: tail 3
+#88 current parent's path headed elsewhere: parser accepts
+only frozen A commits under announce overload
+two announce chasers counted as drops
+frozen queued A GM coherent
+frozen queued A parent coherent
+frozen queued A count coherent
+frozen queued A head coherent
+frozen queued A tail 1 coherent
+frozen queued A tail 2 coherent
+post-release C commits
+post-release C GM coherent
+post-release C parent coherent
+post-release C count coherent
+post-release C head coherent
+post-release C tail coherent
+post-release C appends thisClock
+post-release C clears inactive A tail
+raw-empty overload: only frozen A commits
+raw-empty overload: two present chasers dropped
+raw-empty overload: parser accepts every frame
+raw-empty overload: frozen A GM
+raw-empty overload: frozen A parent
+#87 raw-empty overload: frozen A keeps C's path
+raw-empty overload: post-release path commits
+raw-empty overload: post-release count
+raw-empty overload: post-release tail
+sync TX stopped
+sync-ok low before sync
+rogue sync voided on adopt
+pub offset
+sync-ok rose
+big offset re-bases the phc
+late FU dropped
+late FU never steers
+next pair lands
+foreign-domain pair: offset unmoved
+foreign-domain pair: never steers
+foreign-domain pair: flags untouched
+foreign-domain pair: both dropped and counted
+foreign Sync left no pending slot
+orphan Follow_Up never steers
+TLV-less Follow_Up: offset unmoved
+TLV-less Follow_Up: never steers
+TLV-less Follow_Up: flags untouched
+TLV-less Follow_Up: dropped and counted
+cut Follow_Up: offset unmoved
+cut Follow_Up: never steers
+cut Follow_Up: dropped and counted
+wrong-TLV Follow_Up: offset unmoved
+wrong-TLV Follow_Up: never steers
+wrong-TLV Follow_Up: flags untouched
+wrong-TLV Follow_Up: dropped and counted
+complete Follow_Up pairs with the surviving Sync
+complete Follow_Up: nothing further dropped
+complete Follow_Up re-bases the phc
+padded Sync (60): accepted, no drop
+padded Sync (60) pairs: offset
+padded Sync (60) pairs: re-bases the phc
+padded Sync (74): accepted, no drop
+padded Sync (74) pairs: offset
+padded Sync (74) pairs: re-bases the phc
+sync flags 0200/0000: pairs and steers
+sync flags 0208/0008: pairs and steers
+sync flags 0208/0008: same outcome as conformant
+sync flags 0000/0200: pairs and steers
+sync flags 0000/0200: same outcome as conformant
+sync-ok falls on timeout
+still slave at the verdict
+timeout keeps capable
+receipt timeout, same GM: asCapable held
+receipt timeout, same GM, +50 us: sync-ok low before the pair
+receipt timeout, same GM, +50 us: the harness mirror agrees
+receipt timeout, same GM, +50 us: offset published
+receipt timeout, same GM, +50 us: step pulses
+receipt timeout, same GM, +50 us: addend pulses
+receipt timeout, same GM, +50 us: addend matches the mirror
+receipt timeout, same GM, +50 us: addend inside the envelope
+receipt timeout, same GM, +50 us: sync-ok raised
+receipt timeout, same GM, +50 us: no step pulse
+receipt timeout, same GM: the second timeout
+receipt timeout, same GM: asCapable held again
+receipt timeout, same GM, +150 us: sync-ok low before the pair
+receipt timeout, same GM, +150 us: the harness mirror agrees
+receipt timeout, same GM, +150 us: offset published
+receipt timeout, same GM, +150 us: step pulses
+receipt timeout, same GM, +150 us: addend pulses
+receipt timeout, same GM, +150 us: addend matches the mirror
+receipt timeout, same GM, +150 us: addend inside the envelope
+receipt timeout, same GM, +150 us: step carries -offset
+receipt timeout, same GM, +150 us: step pulse precedes its addend
+receipt timeout, same GM, +150 us: step data holds after the pulse
+receipt timeout, same GM, +150 us: sync-ok raised
+receipt timeout, same GM, +150 us: one step pulse
+link-up +15 us: asCapable falls and rises first
+link-up +15 us: sync-ok low before the pair
+link-up +15 us: the harness mirror agrees
+link-up +15 us: offset published
+link-up +15 us: step pulses
+link-up +15 us: addend pulses
+link-up +15 us: addend matches the mirror
+link-up +15 us: addend inside the envelope
+link-up +15 us: sync-ok raised
+link-up +25 us: asCapable falls and rises first
+link-up +25 us: sync-ok low before the pair
+link-up +25 us: the harness mirror agrees
+link-up +25 us: offset published
+link-up +25 us: step pulses
+link-up +25 us: addend pulses
+link-up +25 us: addend matches the mirror
+link-up +25 us: addend inside the envelope
+link-up +25 us: step carries -offset
+link-up +25 us: step pulse precedes its addend
+link-up +25 us: step data holds after the pulse
+link-up +25 us: sync-ok raised
+link-up +25 us: the step writes the bare estimate
+link-up -15 us: asCapable falls and rises first
+link-up -15 us: sync-ok low before the pair
+link-up -15 us: the harness mirror agrees
+link-up -15 us: offset published
+link-up -15 us: step pulses
+link-up -15 us: addend pulses
+link-up -15 us: addend matches the mirror
+link-up -15 us: addend inside the envelope
+link-up -15 us: sync-ok raised
+link-up -25 us: asCapable falls and rises first
+link-up -25 us: sync-ok low before the pair
+link-up -25 us: the harness mirror agrees
+link-up -25 us: offset published
+link-up -25 us: step pulses
+link-up -25 us: addend pulses
+link-up -25 us: addend matches the mirror
+link-up -25 us: addend inside the envelope
+link-up -25 us: step carries -offset
+link-up -25 us: step pulse precedes its addend
+link-up -25 us: step data holds after the pulse
+link-up -25 us: sync-ok raised
+link-up -25 us: the step writes the bare estimate
+link-up +20 us: asCapable falls and rises first
+link-up +20 us: sync-ok low before the pair
+link-up +20 us: the harness mirror agrees
+link-up +20 us: offset published
+link-up +20 us: step pulses
+link-up +20 us: addend pulses
+link-up +20 us: addend matches the mirror
+link-up +20 us: addend inside the envelope
+link-up +20 us: sync-ok raised
+link-up -20 us: asCapable falls and rises first
+link-up -20 us: sync-ok low before the pair
+link-up -20 us: the harness mirror agrees
+link-up -20 us: offset published
+link-up -20 us: step pulses
+link-up -20 us: addend pulses
+link-up -20 us: addend matches the mirror
+link-up -20 us: addend inside the envelope
+link-up -20 us: sync-ok raised
+link-up +20 us + 1 ns: asCapable falls and rises first
+link-up +20 us + 1 ns: sync-ok low before the pair
+link-up +20 us + 1 ns: the harness mirror agrees
+link-up +20 us + 1 ns: offset published
+link-up +20 us + 1 ns: step pulses
+link-up +20 us + 1 ns: addend pulses
+link-up +20 us + 1 ns: addend matches the mirror
+link-up +20 us + 1 ns: addend inside the envelope
+link-up +20 us + 1 ns: step carries -offset
+link-up +20 us + 1 ns: step pulse precedes its addend
+link-up +20 us + 1 ns: step data holds after the pulse
+link-up +20 us + 1 ns: sync-ok raised
+link-up +20 us + 1 ns: the step writes the bare estimate
+link-up -20 us - 1 ns: asCapable falls and rises first
+link-up -20 us - 1 ns: sync-ok low before the pair
+link-up -20 us - 1 ns: the harness mirror agrees
+link-up -20 us - 1 ns: offset published
+link-up -20 us - 1 ns: step pulses
+link-up -20 us - 1 ns: addend pulses
+link-up -20 us - 1 ns: addend matches the mirror
+link-up -20 us - 1 ns: addend inside the envelope
+link-up -20 us - 1 ns: step carries -offset
+link-up -20 us - 1 ns: step pulse precedes its addend
+link-up -20 us - 1 ns: step data holds after the pulse
+link-up -20 us - 1 ns: sync-ok raised
+link-up -20 us - 1 ns: the step writes the bare estimate
+link-up: one step pulse per probe over 20 us
+locked +90 us: sync-ok high before the pair
+locked +90 us: the harness mirror agrees
+locked +90 us: offset published
+locked +90 us: step pulses
+locked +90 us: addend pulses
+locked +90 us: addend matches the mirror
+locked +90 us: addend inside the envelope
+locked +90 us: sync-ok raised
+locked -90 us: sync-ok high before the pair
+locked -90 us: the harness mirror agrees
+locked -90 us: offset published
+locked -90 us: step pulses
+locked -90 us: addend pulses
+locked -90 us: addend matches the mirror
+locked -90 us: addend inside the envelope
+locked -90 us: sync-ok raised
+locked +110 us: sync-ok high before the pair
+locked +110 us: the harness mirror agrees
+locked +110 us: offset published
+locked +110 us: step pulses
+locked +110 us: addend pulses
+locked +110 us: addend matches the mirror
+locked +110 us: addend inside the envelope
+locked +110 us: step carries -offset
+locked +110 us: step pulse precedes its addend
+locked +110 us: step data holds after the pulse
+locked +110 us: sync-ok raised
+locked -110 us: sync-ok high before the pair
+locked -110 us: the harness mirror agrees
+locked -110 us: offset published
+locked -110 us: step pulses
+locked -110 us: addend pulses
+locked -110 us: addend matches the mirror
+locked -110 us: addend inside the envelope
+locked -110 us: step carries -offset
+locked -110 us: step pulse precedes its addend
+locked -110 us: step data holds after the pulse
+locked -110 us: sync-ok raised
+locked +100 us: sync-ok high before the pair
+locked +100 us: the harness mirror agrees
+locked +100 us: offset published
+locked +100 us: step pulses
+locked +100 us: addend pulses
+locked +100 us: addend matches the mirror
+locked +100 us: addend inside the envelope
+locked +100 us: sync-ok raised
+locked -100 us: sync-ok high before the pair
+locked -100 us: the harness mirror agrees
+locked -100 us: offset published
+locked -100 us: step pulses
+locked -100 us: addend pulses
+locked -100 us: addend matches the mirror
+locked -100 us: addend inside the envelope
+locked -100 us: sync-ok raised
+locked +100 us + 1 ns: sync-ok high before the pair
+locked +100 us + 1 ns: the harness mirror agrees
+locked +100 us + 1 ns: offset published
+locked +100 us + 1 ns: step pulses
+locked +100 us + 1 ns: addend pulses
+locked +100 us + 1 ns: addend matches the mirror
+locked +100 us + 1 ns: addend inside the envelope
+locked +100 us + 1 ns: step carries -offset
+locked +100 us + 1 ns: step pulse precedes its addend
+locked +100 us + 1 ns: step data holds after the pulse
+locked +100 us + 1 ns: sync-ok raised
+locked -100 us - 1 ns: sync-ok high before the pair
+locked -100 us - 1 ns: the harness mirror agrees
+locked -100 us - 1 ns: offset published
+locked -100 us - 1 ns: step pulses
+locked -100 us - 1 ns: addend pulses
+locked -100 us - 1 ns: addend matches the mirror
+locked -100 us - 1 ns: addend inside the envelope
+locked -100 us - 1 ns: step carries -offset
+locked -100 us - 1 ns: step pulse precedes its addend
+locked -100 us - 1 ns: step data holds after the pulse
+locked -100 us - 1 ns: sync-ok raised
+locked: one step pulse per probe over 100 us
+slew addend matches the PI mirror
+a slew is not a step
+closed loop starts unsynchronized
+closed loop pair 0: addend matches the mirror
+integrator survives the step
+closed loop pair 1: addend matches the mirror
+closed loop pair 2: addend matches the mirror
+closed loop pair 3: addend matches the mirror
+closed loop pair 4: addend matches the mirror
+closed loop pair 5: addend matches the mirror
+closed loop pair 6: addend matches the mirror
+closed loop pair 7: addend matches the mirror
+closed loop pair 8: addend matches the mirror
+closed loop pair 9: addend matches the mirror
+closed loop pair 10: addend matches the mirror
+closed loop pair 11: addend matches the mirror
+closed loop pair 12: addend matches the mirror
+closed loop pair 13: addend matches the mirror
+closed loop pair 14: addend matches the mirror
+closed loop pair 15: addend matches the mirror
+closed loop pair 16: addend matches the mirror
+closed loop pair 17: addend matches the mirror
+closed loop pair 18: addend matches the mirror
+closed loop pair 19: addend matches the mirror
+closed loop pair 20: addend matches the mirror
+closed loop pair 21: addend matches the mirror
+closed loop pair 22: addend matches the mirror
+closed loop pair 23: addend matches the mirror
+one re-base then lock
+measured offset converged
+addend carries the master's rate
+slew: real jump starts the level
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+long slew, master +90 us: every pair locked
+long slew, master +90 us: asCapable holds throughout
+long slew, master +90 us: over 4 Pdelay exchanges complete
+long slew, master +90 us: every addend matches the mirror
+long slew, master +90 us: never more than 100 us, so never a step
+long slew, master +90 us: the trim never exceeds +200 ppm
+long slew, master +90 us: the trim never exceeds -200 ppm
+long slew, master +90 us: the trim rides its clamp
+long slew, master +90 us: several pairs on the clamp
+long slew, master +90 us: the loop settles back to lock
+slew: real correction has one uninterrupted interval
+slew: real correction clears on a rate write
+slew: real jump starts the level
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+slew: ordinary frequency tracking stays inactive
+long slew, master -90 us: every pair locked
+long slew, master -90 us: asCapable holds throughout
+long slew, master -90 us: over 4 Pdelay exchanges complete
+long slew, master -90 us: every addend matches the mirror
+long slew, master -90 us: never more than 100 us, so never a step
+long slew, master -90 us: the trim never exceeds +200 ppm
+long slew, master -90 us: the trim never exceeds -200 ppm
+long slew, master -90 us: the trim rides its clamp
+long slew, master -90 us: several pairs on the clamp
+long slew, master -90 us: the loop settles back to lock
+slew: real correction has one uninterrupted interval
+slew: real correction clears on a rate write
+long slew: no step pulse
+mismatched seq dropped
+matching FU still lands
+matching FU steers as the mirror
+impostor FU dropped
+paired FU still lands
+paired FU steers as the mirror
+sync-ok up before the switch
+source tiebreak switches parent
+gm survives the switch
+no flicker on the switch
+longer path rejected
+shorter path wins
+no wrongful takeover
+gm undisturbed by the race
+parent undisturbed by the race
+GM change: the pair before it: sync-ok high before the pair
+GM change: the pair before it: the harness mirror agrees
+GM change: the pair before it: offset published
+GM change: the pair before it: step pulses
+GM change: the pair before it: addend pulses
+GM change: the pair before it: addend matches the mirror
+GM change: the pair before it: addend inside the envelope
+GM change: the pair before it: sync-ok raised
+GM change: new identity adopted
+GM change: same parent
+GM change: still slave
+GM change, +50 us: sync-ok low before the pair
+GM change, +50 us: the harness mirror agrees
+GM change, +50 us: offset published
+GM change, +50 us: step pulses
+GM change, +50 us: addend pulses
+GM change, +50 us: addend matches the mirror
+GM change, +50 us: addend inside the envelope
+GM change, +50 us: sync-ok raised
+GM change, +50 us: no step pulse
+GM change again: new identity adopted
+GM change, -5 ms: sync-ok low before the pair
+GM change, -5 ms: the harness mirror agrees
+GM change, -5 ms: offset published
+GM change, -5 ms: step pulses
+GM change, -5 ms: addend pulses
+GM change, -5 ms: addend matches the mirror
+GM change, -5 ms: addend inside the envelope
+GM change, -5 ms: step carries -offset
+GM change, -5 ms: step pulse precedes its addend
+GM change, -5 ms: step data holds after the pulse
+GM change, -5 ms: sync-ok raised
+GM change, -5 ms: one step pulse
+failover, -50 us: the receipt timeout comes first
+failover, -50 us: asCapable held
+failover, -50 us: new identity adopted
+failover, -50 us: same parent
+failover, -50 us: sync-ok low before the pair
+failover, -50 us: the harness mirror agrees
+failover, -50 us: offset published
+failover, -50 us: step pulses
+failover, -50 us: addend pulses
+failover, -50 us: addend matches the mirror
+failover, -50 us: addend inside the envelope
+failover, -50 us: sync-ok raised
+failover, -50 us: no step pulse
+failover, +150 us: the receipt timeout comes first
+failover, +150 us: asCapable held
+failover, +150 us: new identity adopted
+failover, +150 us: same parent
+failover, +150 us: sync-ok low before the pair
+failover, +150 us: the harness mirror agrees
+failover, +150 us: offset published
+failover, +150 us: step pulses
+failover, +150 us: addend pulses
+failover, +150 us: addend matches the mirror
+failover, +150 us: addend inside the envelope
+failover, +150 us: step carries -offset
+failover, +150 us: step pulse precedes its addend
+failover, +150 us: step data holds after the pulse
+failover, +150 us: sync-ok raised
+failover, +150 us: one step pulse
+sync-ok high before the takeover
+degraded parent yields NOW
+gm is us again
+#84 takeover: nothing commits while dispatch is held
+#84 takeover: its commit names thisClock with sync-ok
+#84 takeover: the queued receipt timeout commits after it
+#84 takeover: a queued receipt timeout keeps sync-ok
+later sync body stays zero
+re-adopted
+return from mastership: asCapable held
+return from mastership, +50 us: sync-ok low before the pair
+return from mastership, +50 us: the harness mirror agrees
+return from mastership, +50 us: offset published
+return from mastership, +50 us: step pulses
+return from mastership, +50 us: addend pulses
+return from mastership, +50 us: addend matches the mirror
+return from mastership, +50 us: addend inside the envelope
+return from mastership, +50 us: sync-ok raised
+return from mastership, +50 us: no step pulse
+far exchange ran
+capable fell
+uncapable pair dropped
+uncapable pair never steers
+capable again
+link-up after asCapable returns, -25 us: sync-ok low before the pair
+link-up after asCapable returns, -25 us: the harness mirror agrees
+link-up after asCapable returns, -25 us: offset published
+link-up after asCapable returns, -25 us: step pulses
+link-up after asCapable returns, -25 us: addend pulses
+link-up after asCapable returns, -25 us: addend matches the mirror
+link-up after asCapable returns, -25 us: addend inside the envelope
+link-up after asCapable returns, -25 us: step carries -offset
+link-up after asCapable returns, -25 us: step pulse precedes its addend
+link-up after asCapable returns, -25 us: step data holds after the pulse
+link-up after asCapable returns, -25 us: sync-ok raised
+quiet ride to mastership
+gm is us after the quiet
+own-GM transition publishes count one
+own-GM transition publishes thisClock at entry 0
+own-GM transition clears tail 0
+own-GM transition clears tail 1
+own-GM transition clears tail 2
+own-GM transition clears tail 3
+own-GM transition clears tail 4
+own-GM transition clears tail 5
+own-GM transition clears tail 6
+newcomer adopted, no ghost
+newcomer is the parent
+vector outranks identity
+torn better announce adopts
+its announcer is the parent
+neg exchange ran
+neg pdelay published
+neg pdelay in floor
+neg keeps capable
+far exchange ran
+far pdelay published
+far pdelay over thresh
+threshold clears capable
+recovery ex1 ran
+one good is not enough
+recovery ex2 ran
+two goods recover
+lost responses clear capable
+fall at the fourth lost
+post-gap exchange ran
+gap took the stale path
+stale window skips ratio
+26b: the request phase 26 answered
+26b: asCapable down, one exchange in
+replayed identical pair: not a second exchange
+replayed identical pair: pdelay unmoved
+skewed replay: not a second exchange
+skewed replay: pdelay unmoved
+capable before the storm
+storm clears capable... eventually
+ceased: no requests
+a genuine t1 to replay against
+forged pairs cannot climb mid-cease
+forged pairs cannot publish mid-cease
+resume timer restarts requests
+the ladder re-earns
+dup intervals ran
+duplicates are not a storm
+27b: capable before the late-second storm
+27b: a late second identity still ceases
+27b: ceased, no requests
+27b: the countdown resumes requests
+27b: the ladder re-earns
+second storm ceases
+the cease survives reset and resumes
+warm-reset deep-loop setup is capable
+#87 post-warm-reset TLV-less selection commits {thisClock}
+#87 post-warm-reset TLV-less epoch never mixes a path
+post-warm-reset raw-empty GM
+#87 post-warm-reset TLV-less count
+#87 post-warm-reset TLV-less head
+post-warm-reset raw-empty tail 1 zero
+post-warm-reset raw-empty tail 2 zero
+post-warm-reset raw-empty tail 3 zero
+post-warm-reset raw-empty tail 4 zero
+post-warm-reset raw-empty tail 5 zero
+post-warm-reset raw-empty tail 6 zero
+post-warm-reset raw-empty tail 7 zero
+post-warm-reset raw-empty parser accepts
+warm-reset ninth-hop self: never selected
+warm-reset ninth-hop self: parser accepts
+warm-reset ninth-hop self: GM unchanged
+warm-reset link-up: WGM elected
+warm-reset link-up: first pair: sync-ok low before the pair
+warm-reset link-up: first pair: the harness mirror agrees
+warm-reset link-up: first pair: offset published
+warm-reset link-up: first pair: step pulses
+warm-reset link-up: first pair: addend pulses
+warm-reset link-up: first pair: addend matches the mirror
+warm-reset link-up: first pair: addend inside the envelope
+warm-reset link-up: first pair: sync-ok raised
+warm-reset link-up: locked +30 us: sync-ok high before the pair
+warm-reset link-up: locked +30 us: the harness mirror agrees
+warm-reset link-up: locked +30 us: offset published
+warm-reset link-up: locked +30 us: step pulses
+warm-reset link-up: locked +30 us: addend pulses
+warm-reset link-up: locked +30 us: addend matches the mirror
+warm-reset link-up: locked +30 us: addend inside the envelope
+warm-reset link-up: locked +30 us: sync-ok raised
+warm-reset link-up: the reset clears asCapable
+warm-reset link-up: capable again
+warm-reset link-up: WGM re-adopted
+warm-reset link-up: still slave
+warm-reset link-up: +25 us: sync-ok low before the pair
+warm-reset link-up: +25 us: the harness mirror agrees
+warm-reset link-up: +25 us: offset published
+warm-reset link-up: +25 us: step pulses
+warm-reset link-up: +25 us: addend pulses
+warm-reset link-up: +25 us: addend matches the mirror
+warm-reset link-up: +25 us: addend inside the envelope
+warm-reset link-up: +25 us: step carries -offset
+warm-reset link-up: +25 us: step pulse precedes its addend
+warm-reset link-up: +25 us: step data holds after the pulse
+warm-reset link-up: +25 us: sync-ok raised
+a request to chase
+chased resp keeps its own stamp
+a request for the runt test
+runt cannot poison the stamp
+reset claim: request sent
+reset claim: stamp withheld
+reset claim: cadence restarts
+reset response claim: response sent
+reset response claim: stamp withheld
+reset response claim: fresh response sent
+reset response claim: fresh Follow_Up sent
+reset Sync claim: capable setup
+reset Sync claim: master setup
+reset Sync claim: Sync sent
+reset Sync claim: stamp withheld
+reset Sync claim: cadence restarts
+backpressure: first byte presented
+backpressure: start valid holds
+backpressure: start sof holds
+backpressure: start byte holds
+backpressure: start accepts none
+backpressure: body advances
+backpressure: mid valid holds
+backpressure: mid byte holds
+backpressure: mid sof holds
+backpressure: mid eof holds
+backpressure: mid accepts none
+backpressure: response 1 sent
+backpressure: response 1 requestReceiptTimestamp
+backpressure: response 1 requester
+backpressure: response 1 port
+backpressure: response 2 waits
+backpressure: post-stamp frame starts
+backpressure: one-cycle byte holds
+backpressure: one-cycle sof holds
+backpressure: one-cycle eof holds
+backpressure: Follow_Up 1 sent
+backpressure: response 2 sent
+backpressure: Follow_Up 1 timestamp
+backpressure: Follow_Up 1 requester
+backpressure: Follow_Up 1 port
+backpressure: response 2 requestReceiptTimestamp
+backpressure: response 2 requester
+backpressure: response 2 port
+backpressure: Follow_Up 2 sent
+backpressure: Follow_Up 2 timestamp
+backpressure: Follow_Up 2 requester
+backpressure: Follow_Up 2 port
+backpressure: event queue keeps both
+D1: asCapable settled
+D1: grandmaster settled
+D1: Sync outstanding
+D1 response stalled at its first byte
+D1 first result accepted while busy
+D1 face closes behind the accepted result
+D1 second result waits for the first to dispatch
+D1 face stays closed while a result is owed
+D1 response Follow_Up sent
+D1 Sync Follow_Up sent
+D1 response keeps its own t3
+D1 Sync keeps its own t1
+D1 the held result was finally taken
+D1: Sync outstanding
+D1 response stalled at its first byte
+D1 first result accepted while busy
+D1 face closes behind the accepted result
+D1 second result waits for the first to dispatch
+D1 face stays closed while a result is owed
+D1 response Follow_Up sent
+D1 Sync Follow_Up sent
+D1 response keeps its own t3
+D1 Sync keeps its own t1
+D1 the held result was finally taken
+D1: Sync outstanding
+D1 response stalled at its first byte
+D1 first result accepted while busy
+D1 face closes behind the accepted result
+D1 second result waits for the first to dispatch
+D1 face stays closed while a result is owed
+D1 response Follow_Up sent
+D1 Sync Follow_Up sent
+D1 response keeps its own t3
+D1 Sync keeps its own t1
+D1 the held result was finally taken
+D1: Sync outstanding
+D1 response stalled at its first byte
+D1 first result accepted while busy
+D1 face closes behind the accepted result
+D1 second result waits for the first to dispatch
+D1 face stays closed while a result is owed
+D1 response Follow_Up sent
+D1 Sync Follow_Up sent
+D1 response keeps its own t3
+D1 Sync keeps its own t1
+D1 the held result was finally taken
+D1: Sync outstanding
+D1 response stalled at its first byte
+D1 first result accepted while busy
+D1 face closes behind the accepted result
+D1 second result waits for the first to dispatch
+D1 face stays closed while a result is owed
+D1 response Follow_Up sent
+D1 Sync Follow_Up sent
+D1 response keeps its own t3
+D1 Sync keeps its own t1
+D1 the held result was finally taken
+D1: Sync outstanding
+D1 response stalled at its first byte
+D1 first result accepted while busy
+D1 face closes behind the accepted result
+D1 second result waits for the first to dispatch
+D1 face stays closed while a result is owed
+D1 response Follow_Up sent
+D1 Sync Follow_Up sent
+D1 response keeps its own t3
+D1 Sync keeps its own t1
+D1 the held result was finally taken
+D1: Sync outstanding
+D1 response stalled at its first byte
+D1 first result accepted while busy
+D1 face closes behind the accepted result
+D1 second result waits for the first to dispatch
+D1 face stays closed while a result is owed
+D1 response Follow_Up sent
+D1 Sync Follow_Up sent
+D1 response keeps its own t3
+D1 Sync keeps its own t1
+D1 the held result was finally taken
+D1: Sync outstanding
+D1 response stalled at its first byte
+D1 first result accepted while busy
+D1 face closes behind the accepted result
+D1 second result waits for the first to dispatch
+D1 face stays closed while a result is owed
+D1 response Follow_Up sent
+D1 Sync Follow_Up sent
+D1 response keeps its own t3
+D1 Sync keeps its own t1
+D1 the held result was finally taken
+D1: Sync outstanding
+D1 response stalled at its first byte
+D1 first result accepted while busy
+D1 face closes behind the accepted result
+D1 second result waits for the first to dispatch
+D1 face stays closed while a result is owed
+D1 response Follow_Up sent
+D1 Sync Follow_Up sent
+D1 response keeps its own t3
+D1 Sync keeps its own t1
+D1 the held result was finally taken
+D2: asCapable settled
+D2: grandmaster settled
+D2a: request outstanding
+D2a the pair publishes nothing without its t1
+D2a neighbour request answered
+D2a lost response builds no Follow_Up
+D2a lost response retired its own claim
+D2a lost response left the frozen pair alone value
+D2a lost response left the frozen pair alone moved
+D2b: asCapable settled
+D2b: grandmaster settled
+D2b: request outstanding
+D2b: Sync outstanding
+D2b lost Sync builds no Follow_Up
+D2b lost Sync left the recorded t1 alone value
+D2b lost Sync left the recorded t1 alone moved
+D2b lost Sync retired its own claim
+D2c: request outstanding
+D2c the pair publishes nothing without its t1
+D2c lost t1 publishes no delay
+D2c lost t1 builds no companion
+D2c cancelled pair stays cancelled
+D2d: request outstanding
+D2d unclaimed lost result retires nothing value
+D2d unclaimed lost result retires nothing moved
+D3: asCapable settled
+D3: grandmaster settled
+D3a: request outstanding
+D3a the pair publishes nothing without its t1
+D3a successor traffic publishes nothing either
+D3a the pair computes from its own operands value
+D3a the pair computes from its own operands moved
+D3b: request outstanding
+D3b the pair publishes nothing without its zero t1
+D3b a zero t1 completes its exchange value
+D3b a zero t1 completes its exchange moved
+D3c: request outstanding
+D3c the pair publishes nothing before the reset
+D3c reset clears the published delay
+D3c post: request outstanding
+D3c a pre-reset pair cannot complete after reset
+D3c a real exchange after reset still computes value
+D3c a real exchange after reset still computes moved
+D3c armed: request outstanding
+D3c a pre-reset t1 cannot pair after reset
+D3d: request outstanding
+D3d interval 0 waits for its own t1
+D3d interval 0 keeps its frozen operands value
+D3d interval 0 keeps its frozen operands moved
+D3d: request outstanding
+D3d interval 1 waits for its own t1
+D3d interval 1 keeps its frozen operands value
+D3d interval 1 keeps its frozen operands moved
+D3d: request outstanding
+D3d interval 2 waits for its own t1
+D3d interval 2 keeps its frozen operands value
+D3d interval 2 keeps its frozen operands moved
+D3d three multi-answered intervals cease the requester
+D3d the cease clears the capability verdict
+D3 resume: asCapable settled
+D3 resume: grandmaster settled
+D4: asCapable settled
+D4: grandmaster settled
+D4 Pdelay_Req beats are withheld
+D4 Sync beats are withheld
+D4 Announce beats are withheld
+D4 a neighbour request is answered without credit
+D4 the response companion is built without credit
+D4 the companion carries its own t3
+D4 the Sync beat retries
+D4 the Announce beat retries
+D4 the Pdelay_Req beat retries
+D4: Sync outstanding
+D4 the Sync companion is built without credit
+D4 the Sync companion carries its own t1
+D5 the first byte waits for ready
+D5 the final byte is reached
+D5 the final byte waits for ready
+D5 the held final byte is stable
+D5 a held end of frame delivers nothing
+D5 the released end of frame delivers one frame
+D5 the delivered frame is the response
+D5 the response is byte complete
+D5 the response requester
+D5 no second frame follows the held level
+Pdelay_Req TX frames seen
+Pdelay_Req TX flags
+Pdelay_Req TX flags on every frame
+Pdelay_Req TX reserved bit 0x0008 clear
+Pdelay_Resp TX frames seen
+Pdelay_Resp TX flags
+Pdelay_Resp TX flags on every frame
+Pdelay_Resp TX reserved bit 0x0008 clear
+Pdelay_Resp_FU TX frames seen
+Pdelay_Resp_FU TX flags
+Pdelay_Resp_FU TX flags on every frame
+Pdelay_Resp_FU TX reserved bit 0x0008 clear
+Sync TX frames seen
+Sync TX flags
+Sync TX flags on every frame
+Sync TX reserved bit 0x0008 clear
+Follow_Up TX frames seen
+Follow_Up TX flags
+Follow_Up TX flags on every frame
+Follow_Up TX reserved bit 0x0008 clear
+Announce TX frames seen
+Announce TX flags
+Announce TX flags on every frame
+slew: reset starts inactive
+slew: lifecycle setup earns asCapable
+slew: Sync alone cannot change the policy level
+slew: link-up step never asserts
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: step retains only the pre-existing interval
+slew: Sync alone cannot change the policy level
+slew: tracking band never asserts
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: tracking band never asserts
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: tracking band never asserts
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: tracking band never asserts
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: tracking includes a nonzero frequency trim
+slew: idle timeout clears sync-ok
+slew: idle timeout stays asCapable
+slew: idle timeout stays inactive
+slew: idle timeout has no level edge
+slew: idle timeout leaves the rate alone
+slew: Sync alone cannot change the policy level
+slew: in-band pair after idle timeout stays inactive
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: second pair after idle timeout stays inactive
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: idle GM change selects the new identity
+slew: idle GM change clears sync-ok
+slew: idle GM change stays slave
+slew: idle GM change stays inactive
+slew: idle GM change has no level edge
+slew: Sync alone cannot change the policy level
+slew: in-band pair after idle GM change stays inactive
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: second pair after idle GM change stays inactive
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: idle capability loss starts inactive
+slew: idle capability loss starts asCapable
+slew: bad delay drops asCapable while inactive
+slew: idle incapable interval stays incapable
+slew: idle incapable interval stays inactive
+slew: idle incapable interval has no level edge
+slew: idle incapable interval leaves the rate alone
+slew: idle capability recovers
+slew: idle capability recovery selects slave duty
+slew: idle capability recovery stays inactive
+slew: idle capability recovery has no level edge
+slew: idle capability recovery leaves the rate alone
+slew: Sync alone cannot change the policy level
+slew: in-band pair after asCapable recovery stays inactive
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: second in-band pair after asCapable recovery stays inactive
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: idle capability recovery pairs have no level edge
+slew: Sync alone cannot change the policy level
+slew: policy decision starts at +101 ns
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: decision asserts before its affected rate
+slew: level covers the entire interval between pairs
+slew: high between pairs
+slew: Sync alone cannot change the policy level
+slew: first in-band pair cannot clear
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: -101 ns restarts settling
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: zero crossing cannot clear early
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: second in-band pair completes
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: completion clears with its replacement rate
+slew: Sync alone cannot change the policy level
+slew: tracking continues after completion
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: policy decision starts at -101 ns
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: decision asserts before its affected rate
+slew: Sync alone cannot change the policy level
+slew: replacement step clears at its rate
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: completion clears with its replacement rate
+slew: step retains only the pre-existing interval
+slew: Sync alone cannot change the policy level
+slew: locked step never starts an interval
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: step retains only the pre-existing interval
+slew: Sync alone cannot change the policy level
+slew: exactly 100 us starts an interval
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: decision asserts before its affected rate
+slew: Sync alone cannot change the policy level
+slew: first settled pair before lapse
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: missing Follow_Up holds the interval
+slew: late Follow_Up cannot retire the rate
+slew: missing Sync clears sync-ok
+slew: missing Sync holds the affected interval
+slew: missing Sync holds the affected rate
+slew: Sync alone cannot change the policy level
+slew: timeout restarts completion qualification
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: two fresh pairs complete after timeout
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: completion clears with its replacement rate
+slew: Sync alone cannot change the policy level
+slew: next correction starts
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: decision asserts before its affected rate
+slew: Sync alone cannot change the policy level
+slew: first settled pair before GM change
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: GM identity change holds active
+slew: Sync alone cannot change the policy level
+slew: GM change restarts completion qualification
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: new GM can complete correction
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: completion clears with its replacement rate
+slew: Sync alone cannot change the policy level
+slew: active before mastership
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: decision asserts before its affected rate
+slew: parent degradation returns to GM
+slew: mastership retires the phase correction
+slew: mastership writes one replacement rate
+slew: mastership keeps the integral-only rate
+slew: mastership has one falling edge
+slew: mastership clears with its rate
+slew: GM duty remains inactive
+slew: return from GM selects slave duty
+slew: return from GM starts inactive
+slew: Sync alone cannot change the policy level
+slew: in-band return from GM stays inactive
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: second in-band return pair stays inactive
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: return from GM uses locked slew
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: decision asserts before its affected rate
+slew: bad delay drops asCapable
+slew: asCapable loss holds the correction
+slew: incapable pair cannot complete correction
+slew: incapable pair writes no rate
+slew: incapable pair writes no step
+slew: incapable interval has no falling edge
+slew: incapable interval holds the rate
+slew: capability can recover
+slew: Sync alone cannot change the policy level
+slew: recovery pair retains active
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: warm reset clears on its first clock
+slew: retained scratch cannot revive the level
+slew: after reset capability returns
+slew: Sync alone cannot change the policy level
+slew: post-reset link-up step stays inactive
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: step retains only the pre-existing interval
+slew: Sync alone cannot change the policy level
+slew: subsequent policy correction starts
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: decision asserts before its affected rate
+slew: Sync alone cannot change the policy level
+slew: warm-reset qualification starts afresh
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: Sync alone cannot change the policy level
+slew: warm-reset qualification completes
+slew: probe offset consumed
+slew: probe writes one rate
+slew: probe step count
+slew: arithmetic remains the PI policy
+slew: exactly the scripted transition
+slew: completion clears with its replacement rate
+slew: every change is clk-synchronous
+slew: no clear precedes the replacement rate
+consumer envelope: no addend pulse outside +-200 ppm
+consumer envelope: the run wrote addends
+consumer envelope: some addends sit exactly on it
+#82 peer wins: its commit names the peer GM
+#82 peer wins: its commit carries the peer path
+#82 warm reset: one commit in the first 2 ms
+#82 warm reset: that commit is the first edge after release
+#82 warm reset: it names thisClock, not the elected peer
+#82 warm reset: its path is {thisClock} with a zero tail
+#82 warm reset: its flags are gmPresent alone
+#82 warm reset: a worse-than-local peer leaves thisClock
+#82 warm reset: the live worse peer wins, not the absent A
+#82 warm reset: the live peer carries its own path
+#82 peer leaves: the mastership commit names thisClock
+#82 peer leaves: the mastership commit path is {thisClock}
+#82 peer leaves: the mastership commit has gmPresent
+#82 Pdelay loss: thisClock is committed within 2 ms of the fall
+#82 Pdelay loss: that commit carries {thisClock}
+#82 Pdelay loss: the drop commit's flags are gmPresent alone
+#82 Pdelay loss: Announces from the incapable port elect nothing
+#82 Pdelay loss: once capable, with no Announce, master in 3 s
+#82 Pdelay loss: that mastership names thisClock, {thisClock}
+#82 Pdelay loss: that mastership commit has gmPresent
+#82 Pdelay loss: once capable, a live peer worse than D wins
+#82 every commit naming thisClock carries {thisClock}
+#84 master cycles were graded
+#84 every master cycle publishes sync-ok
+#84 the run hands mastership to a peer
+#84 every handover to a peer grandmaster clears sync-ok
+#85 peer commits with a path were graded
+#85 every peer path ends with thisClock
+p1 255 reset holds the result face closed
+p1 255 slew: cold reset clears the level
+p1 255 pre-init deep Announce: no commit
+p1 255 pre-init deep Announce: parser refusal
+p1 255 pre-init deep Announce: GM stays thisClock
+p1 255 pdreq DA
+p1 255 pdreq SA
+p1 255 pdreq type
+p1 255 pdreq len
+p1 255 pdreq flags
+p1 255 pdreq srcCID
+p1 255 pdreq srcPN
+p1 255 pdreq control
+p1 255 pdreq logint
+p1 255 pdreq body zero
+p1 255 asCapable low at boot
+p1 255 #82 cold release: every cycle to the first beat names thisClock
+p1 255 #82 cold release: every cycle to the first beat has {thisClock}
+p1 255 #82 cold release: every cycle to the first beat has gmPresent
+p1 255 #82 cold release: one commit before the first beat
+p1 255 #82 cold release: that commit is the first edge after release
+p1 255 #82 cold release: that commit carries thisClock and {thisClock}
+p1 255 #82 cold release: that commit's flags are gmPresent alone
+p1 255 second exchange -> capable
+p1 255 capable at two exchanges
+p1 255 pub pdelay corrected
+p1 255 became master
+p1 255 master flags
+p1 255 #84 first mastership: the master flags carry sync-ok
+p1 255 gm is us
+p1 255 self path has one entry
+p1 255 self path entry 0 is thisClock
+p1 255 self path tail 0 is zero
+p1 255 self path tail 1 is zero
+p1 255 self path tail 2 is zero
+p1 255 self path tail 3 is zero
+p1 255 self path tail 4 is zero
+p1 255 self path tail 5 is zero
+p1 255 self path tail 6 is zero
+p1 255 #82 Pdelay loss: thisClock is committed within 2 ms of the fall
+p1 255 #82 Pdelay loss: that commit carries {thisClock}
+p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone
+p1 255 #82 Pdelay loss: Announces from the incapable port elect nothing
+p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s
+p1 255 #82 Pdelay loss: that mastership names thisClock, {thisClock}
+p1 255 #82 Pdelay loss: that mastership commit has gmPresent
+p1 255 #82 Pdelay loss: once capable, a live peer worse than D wins
+p1 255 #82 every commit naming thisClock carries {thisClock}
+p1 255 #84 master cycles were graded
+p1 255 #84 every master cycle publishes sync-ok
+p1 255 #84 the run hands mastership to a peer
+p1 255 #84 every handover to a peer grandmaster clears sync-ok
+p1 255 #85 peer commits with a path were graded
+p1 255 #85 every peer path ends with thisClock

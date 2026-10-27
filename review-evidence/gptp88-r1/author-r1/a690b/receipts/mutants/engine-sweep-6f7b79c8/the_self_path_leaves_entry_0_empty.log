@@ -1,0 +1,27 @@
+mutant: the self path leaves entry 0 empty
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL self path entry 0 is thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL TLV-less competition control: raw path head got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 absent path: head        got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 absent path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 the degraded G2 yields with {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL own-GM transition publishes thisClock at entry 0 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 post-warm-reset TLV-less selection commits {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less epoch never mixes a path got 0000000000000001 exp 0000000000000000
+FAIL #87 post-warm-reset TLV-less head got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 0000000000000088 exp 0000000000000000
+FAIL #85 every peer path ends with thisClock got 0000000000000005 exp 0000000000000000
+FAIL p1 255 #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 self path entry 0 is thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL p1 255 #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 every commit naming thisClock carries {thisClock} got 000000000000000e exp 0000000000000000
+tally: 1932 checks: 1909 PASS, 23 FAIL
+named checks failing: 9 of 9
+verdict: caught

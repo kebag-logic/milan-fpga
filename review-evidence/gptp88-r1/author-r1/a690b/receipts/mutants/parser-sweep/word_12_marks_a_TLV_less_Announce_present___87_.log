@@ -1,0 +1,11 @@
+mutant: word 12 marks a TLV-less Announce present (#87)
+FAIL TLV-less ann: absent, zero count and loop got 8000000000000000 exp 0000000000000000
+FAIL out-of-message path: absent, zero count and loop got 8000000000000000 exp 0000000000000000
+FAIL unknown-only ann: zero count got 8000000000000000 exp 0000000000000000
+FAIL unknown organization TLV: zero count got 8000000000000000 exp 0000000000000000
+FAIL zero-length unknown ann: zero count got 8000000000000000 exp 0000000000000000
+FAIL two unknown TLVs: zero count got 8000000000000000 exp 0000000000000000
+FAIL maximum unknown TLV: zero count got 8000000000000000 exp 0000000000000000
+tally: 378 checks: 371 PASS, 7 FAIL
+named checks failing: 3 of 3
+verdict: caught

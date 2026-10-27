@@ -1,0 +1,9 @@
+mutant: the boot commit waits for the timer bootstrap
+FAIL pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+FAIL #82 cold release: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL #82 warm reset: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL p1 255 pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+tally: 1929 checks: 1924 PASS, 5 FAIL
+named checks failing: 3 of 3
+verdict: caught

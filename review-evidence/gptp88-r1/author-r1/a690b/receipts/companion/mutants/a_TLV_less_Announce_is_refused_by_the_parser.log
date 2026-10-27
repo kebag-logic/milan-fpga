@@ -1,0 +1,35 @@
+mutant: a TLV-less Announce is refused by the parser
+planted in: gptp-processor/hdl/wire/KL_gptp_rx_parser.sv
+== gptp_shadow: rc 2; 320 checks: 314 PASS, 6 FAIL
+FAIL better TLV-less Announce changes scalar GM got 00aaccfffe010203 exp 00aaccfffe010205
+FAIL empty PathTrace publishes count one got 0000000000000002 exp 0000000000000001
+FAIL empty PathTrace publishes thisClock at entry 0 got 00aaccfffe010205 exp 02a1b2fffec3d4e5
+FAIL explicit to empty path spends one path generation got 0000000000000003 exp 0000000000000004
+FAIL path headed elsewhere spends one path generation got 0000000000000004 exp 0000000000000005
+FAIL restored path spends one generation got 0000000000000005 exp 0000000000000006
+== milan_dp_gptp: rc 2; 192 checks: 170 PASS, 22 FAIL
+FAIL TLV-less refresh is neither tapped off nor parser-dropped got 0000000000000001 exp 0000000000000000
+FAIL TLV-less better Announce changes scalar GM got 00aaccfffe010203 exp 00aaccfffe010204
+FAIL fabric GM switch asserts CLKV tu hold got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu reaches AAF wire  got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu reaches CRF wire  got 0000000000000000 exp 0000000000000001
+FAIL GM switch reaches AVB counter descriptor arbiter got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu reaches CLOCK_DOMAIN descriptor arbiter got 0000000000000000 exp 0000000000000001
+FAIL GM switch emits one AVB_INTERFACE GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL GM-switch tu emits one CLOCK_DOMAIN GET_COUNTERS push got 0000000000000000 exp 0000000000000001
+FAIL GET_COUNTERS records fabric GPTP_GM_CHANGED got 0000000000000000 exp 0000000000000001
+FAIL GET_COUNTERS records GM-switch CLOCK_DOMAIN.UNLOCKED got 0000000000000000 exp 0000000000000001
+FAIL AVB counter push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL CLOCK_DOMAIN push body equals solicited counters got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch still emits one GET_AVB_INFO push got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch still increments GPTP_GM_CHANGED got 0000000000000000 exp 0000000000000001
+FAIL empty path commits before captured old response leaves wire got 0000000000000000 exp 0000000000000001
+FAIL empty PathTrace serves count one got 0000000000000002 exp 0000000000000001
+FAIL explicit GM to empty path advances generation once got 0000000000000004 exp 0000000000000005
+FAIL explicit GM to empty path emits one AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL post-cut response is wholly new count one got 0000000000000002 exp 0000000000000001
+FAIL #88 post-cut response is {thisClock} got 00aaccfffe010204 exp 02a1b2fffec3d4e5
+FAIL empty-path push body equals post-cut solicited response got 0000000000000000 exp 0000000000000001
+== tsn_fuzz_ptp: rc 2; failing checks:
+[FAIL] better vector, stepsRemoved 255, no path trace (10.3.10.2.1b): parser drop counter unmoved got=58 exp=57
+[FAIL] better vector, stepsRemoved 0x0100, no path trace (10.3.10.2.1b): parser drop counter unmoved got=59 exp=58

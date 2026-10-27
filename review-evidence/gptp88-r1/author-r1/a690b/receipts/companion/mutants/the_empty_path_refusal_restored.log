@@ -1,0 +1,17 @@
+mutant: the empty-path refusal restored
+planted in: gptp-processor/hdl/wire/KL_gptp_rx_parser.sv
+== gptp_shadow: rc 2; 320 checks: 315 PASS, 5 FAIL
+FAIL empty PathTrace publishes count one got 0000000000000002 exp 0000000000000001
+FAIL empty PathTrace publishes thisClock at entry 0 got 00aaccfffe010205 exp 02a1b2fffec3d4e5
+FAIL explicit to empty path spends one path generation got 0000000000000003 exp 0000000000000004
+FAIL path headed elsewhere spends one path generation got 0000000000000004 exp 0000000000000005
+FAIL restored path spends one generation got 0000000000000005 exp 0000000000000006
+== milan_dp_gptp: rc 2; 192 checks: 185 PASS, 7 FAIL
+FAIL empty path commits before captured old response leaves wire got 0000000000000000 exp 0000000000000001
+FAIL empty PathTrace serves count one got 0000000000000002 exp 0000000000000001
+FAIL explicit GM to empty path advances generation once got 0000000000000004 exp 0000000000000005
+FAIL explicit GM to empty path emits one AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL post-cut response is wholly new count one got 0000000000000002 exp 0000000000000001
+FAIL #88 post-cut response is {thisClock} got 00aaccfffe010204 exp 02a1b2fffec3d4e5
+FAIL empty-path push body equals post-cut solicited response got 0000000000000000 exp 0000000000000001
+== tsn_fuzz_ptp: rc 0; campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL

@@ -1,0 +1,9 @@
+mutant: an empty path is not marked present (#87)
+FAIL #88 empty path: present, count zero got 0000000000000000 exp 8000000000000000
+FAIL #88 empty path between unknowns: present, count zero got 0000000000000000 exp 8000000000000000
+FAIL #88 path after an empty path: no event got 0000000000000001 exp 0000000000000000
+FAIL #88 path after an empty path: no w12 got 0000000000000001 exp 0000000000000000
+FAIL #88 path after an empty path: one drop got 000000000000000f exp 0000000000000010
+tally: 378 checks: 373 PASS, 5 FAIL
+named checks failing: 5 of 5
+verdict: caught

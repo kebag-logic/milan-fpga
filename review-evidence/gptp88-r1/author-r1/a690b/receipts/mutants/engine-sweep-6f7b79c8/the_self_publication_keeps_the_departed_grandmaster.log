@@ -1,0 +1,262 @@
+mutant: the self publication keeps the departed grandmaster
+FAIL boundary-clean announce: gm is us again got 00d1d1fffe000004 exp 02a1b2fffec3d4e5
+FAIL stepsRemoved-0xFFFF announce: gm still us got 00d1d1fffe000004 exp 02a1b2fffec3d4e5
+FAIL half-identity control A: gm is us again got 00d2d2fffe000006 exp 02a1b2fffec3d4e5
+FAIL half-identity control B: gm is us again got 00d3d3fffe000007 exp 02a1b2fffec3d4e5
+FAIL TLV-less competition control: gm is us again got 00d4d4fffe000008 exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 eight received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 absent path: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 head not the grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #87 the degraded G2 yields   got 0000000000000000 exp 0000000000000001
+FAIL link-up +15 us: offset published got 00000000000249f0 exp 0000000000003a98
+FAIL link-up +15 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +15 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up +25 us: offset published got 00000000000249f0 exp 00000000000061a8
+FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up +25 us: the step writes the bare estimate got 00000000fff3332d exp 00000000ffef5c21
+FAIL link-up -15 us: offset published got 00000000000249f0 exp 00000000ffffc568
+FAIL link-up -15 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -15 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up -25 us: offset published got 00000000000249f0 exp 00000000ffff9e58
+FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up -25 us: the step writes the bare estimate got 00000000fff3332d exp 00000000fff3332e
+FAIL link-up +20 us: offset published got 00000000000249f0 exp 0000000000004e20
+FAIL link-up +20 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up -20 us: offset published got 00000000000249f0 exp 00000000ffffb1e0
+FAIL link-up -20 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up +20 us + 1 ns: offset published got 00000000000249f0 exp 0000000000004e21
+FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000fff3332d exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: offset published got 00000000000249f0 exp 00000000ffffb1df
+FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 00000000fff3332d exp 00000000fff3332f
+FAIL link-up: one step pulse per probe over 20 us got 0000000000000009 exp 000000000000000d
+FAIL locked +90 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked +90 us: offset published got 00000000000249f0 exp 0000000000015f90
+FAIL locked +90 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +90 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked -90 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked -90 us: offset published got 00000000000249f0 exp 00000000fffea070
+FAIL locked -90 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -90 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked +110 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked +110 us: offset published got 00000000000249f0 exp 000000000001adb0
+FAIL locked +110 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL locked +110 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +110 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked -110 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked -110 us: offset published got 00000000000249f0 exp 00000000fffe5250
+FAIL locked -110 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL locked -110 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -110 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked +100 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked +100 us: offset published got 00000000000249f0 exp 00000000000186a0
+FAIL locked +100 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +100 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked -100 us: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked -100 us: offset published got 00000000000249f0 exp 00000000fffe7960
+FAIL locked -100 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked +100 us + 1 ns: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked +100 us + 1 ns: offset published got 00000000000249f0 exp 00000000000186a1
+FAIL locked +100 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +100 us + 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked +100 us + 1 ns: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked -100 us - 1 ns: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL locked -100 us - 1 ns: offset published got 00000000000249f0 exp 00000000fffe795f
+FAIL locked -100 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us - 1 ns: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL locked -100 us - 1 ns: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL locked: one step pulse per probe over 100 us got 0000000000000009 exp 000000000000000d
+FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 0: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL integrator survives the step got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 1: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 2: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 3: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 4: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 5: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 6: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 7: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 8: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 9: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 10: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 11: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 12: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 13: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 14: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 15: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 16: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 17: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 18: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 19: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 20: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 21: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 22: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL closed loop pair 23: addend matches the mirror got 00000000fff3332d exp 00000000fffeb85f
+FAIL one re-base then lock        got 0000000000000009 exp 000000000000000a
+FAIL measured offset converged    got 0000000000000000 exp 0000000000000001
+FAIL addend carries the master's rate got 0000000000000000 exp 0000000000000001
+FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: every pair locked got 0000000000000030 exp 0000000000000000
+FAIL long slew, master +90 us: every addend matches the mirror got 0000000000000030 exp 0000000000000000
+FAIL long slew, master +90 us: never more than 100 us, so never a step got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: the trim rides its clamp got 0000000000000000 exp 000000000019999a
+FAIL long slew, master +90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL long slew, master +90 us: the loop settles back to lock got 0000000000000000 exp 0000000000000001
+FAIL slew: real correction has one uninterrupted interval got 0000000000000000 exp 0000000000000002
+FAIL slew: real jump starts the level got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: every pair locked got 0000000000000028 exp 0000000000000000
+FAIL long slew, master -90 us: every addend matches the mirror got 0000000000000028 exp 0000000000000000
+FAIL long slew, master -90 us: never more than 100 us, so never a step got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: the trim rides its clamp got 00000000000cccd3 exp 000000000019999a
+FAIL long slew, master -90 us: several pairs on the clamp got 0000000000000000 exp 0000000000000001
+FAIL long slew, master -90 us: the loop settles back to lock got 0000000000000000 exp 0000000000000001
+FAIL slew: real correction has one uninterrupted interval got 0000000000000000 exp 0000000000000002
+FAIL matching FU still lands      got 00000000000249f0 exp 000000000000112f
+FAIL matching FU steers as the mirror got 00000000fff3332d exp 00000000fffa3731
+FAIL paired FU still lands        got 00000000000249f0 exp 00000000000018ff
+FAIL paired FU steers as the mirror got 00000000fff3332d exp 00000000fff70a9c
+FAIL sync-ok up before the switch got 0000000000000000 exp 0000000000000008
+FAIL no flicker on the switch     got 0000000000000000 exp 0000000000000008
+FAIL GM change: the pair before it: sync-ok high before the pair got 0000000000000000 exp 0000000000000008
+FAIL GM change: the pair before it: offset published got 00000000000249f0 exp 0000000000000bb8
+FAIL GM change: the pair before it: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL GM change: the pair before it: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL GM change, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL GM change, +50 us: addend matches the mirror got 00000000fff3332d exp 00000000ffe66666
+FAIL GM change, +50 us: no step pulse got 000000000000000a exp 0000000000000009
+FAIL GM change, -5 ms: addend matches the mirror got 00000000fff3332d exp 00000000ffee6347
+FAIL GM change, -5 ms: one step pulse got 000000000000000b exp 000000000000000a
+FAIL failover, +150 us: addend matches the mirror got 0000000000000001 exp 00000000fffb301b
+FAIL gm is us again               got 00e0e0fffe00000e exp 02a1b2fffec3d4e5
+FAIL #84 takeover: its commit names thisClock with sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 takeover: the queued receipt timeout commits after it got 0000000000000000 exp 0000000000000001
+FAIL link-up after asCapable returns, -25 us: offset published got 000000000000c350 exp 00000000ffff9e58
+FAIL link-up after asCapable returns, -25 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up after asCapable returns, -25 us: addend pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up after asCapable returns, -25 us: sync-ok raised got 0000000000000000 exp 0000000000000008
+FAIL gm is us after the quiet     got 00aaccfffe010203 exp 02a1b2fffec3d4e5
+FAIL warm-reset link-up: first pair: addend matches the mirror got 00000000fff020be exp 00000000ffeb50d8
+FAIL warm-reset link-up: +25 us: addend matches the mirror got 00000000ffeac07a exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07a exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07a exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000ffeaa644 exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000ffead424 exp 00000000ffe6809d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07b exp 00000000ffe66cf4
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07b exp 00000000ffe66cf4
+FAIL slew: arithmetic remains the PI policy got 00000000ffeaa645 exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000ffead425 exp 00000000ffe6809e
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66cf5
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66cf5
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000064
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66666
+FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000065
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: high between pairs     got 0000000000000000 exp 0000000000000001
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000064
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: -101 ns restarts settling got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffff9b
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe680e1
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: zero crossing cannot clear early got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66d05
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffff9c
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe6873c
+FAIL slew: probe offset consumed  got 0000000000000000 exp 0000000000000032
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66678
+FAIL slew: policy decision starts at -101 ns got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffff9b
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe68ac8
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000fffe795f
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: probe step count       got 000000000000000e exp 000000000000000f
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe676ec
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000000186a1
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: probe step count       got 000000000000000e exp 000000000000000f
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe676ec
+FAIL slew: exactly 100 us starts an interval got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000000186a0
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: first settled pair before lapse got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: timeout restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66666
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe66666
+FAIL slew: next correction starts got 0000000000000000 exp 0000000000000001
+FAIL slew: probe offset consumed  got 0000000000000000 exp 00000000ffffec78
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffeb8521
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: first settled pair before GM change got 0000000000000000 exp 0000000000000001
+FAIL slew: probe writes one rate  got 000000000000001c exp 000000000000001d
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe7ae15
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: GM identity change holds active got 0000000000000000 exp 0000000000000001
+FAIL slew: GM change restarts completion qualification got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe7ae15
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got 00000000ffeac07c exp 00000000ffe7ae15
+FAIL slew: mastership keeps the integral-only rate got 00000000ffe978ce exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000ffe978ce exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000ffe978ce exp 00000000ffe66667
+FAIL slew: probe offset consumed  got 000000000000c350 exp 0000000000001388
+FAIL slew: probe writes one rate  got 0000000000000023 exp 0000000000000024
+FAIL consumer envelope: the run wrote addends got 0000000000000000 exp 0000000000000001
+FAIL consumer envelope: some addends sit exactly on it got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit names thisClock got 0082b0fffe000001 exp 02a1b2fffec3d4e5
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000001
+FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #84 every handover to a peer grandmaster clears sync-ok got 0000000000000013 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+tally: 1857 checks: 1599 PASS, 258 FAIL
+named checks failing: 8 of 8
+verdict: caught

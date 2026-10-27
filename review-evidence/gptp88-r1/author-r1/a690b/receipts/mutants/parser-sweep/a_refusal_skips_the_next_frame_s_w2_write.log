@@ -1,0 +1,14 @@
+mutant: a refusal skips the next frame's w2 write
+FAIL pdreq w2 srcid           got 0000000000000000 exp 00220ffffe334455
+FAIL complete pdreq after the arms: w2 srcid got 0000000000000000 exp 00220ffffe334455
+FAIL sync after a refused sync: every word is this frame's got 0000000000000005 exp 0000000000000006
+FAIL sync after a refused pdresp: every word is this frame's got 0000000000000005 exp 0000000000000006
+FAIL fu after a refused fu: every word is this frame's got 0000000000000006 exp 0000000000000007
+FAIL fu after a refused pdresp: every word is this frame's got 0000000000000006 exp 0000000000000007
+FAIL pdreq after a refused pdreq: every word is this frame's got 0000000000000003 exp 0000000000000004
+FAIL pdreq after a refused sync: every word is this frame's got 0000000000000003 exp 0000000000000004
+FAIL pdresp after a refused pdresp: every word is this frame's got 0000000000000007 exp 0000000000000008
+FAIL pdresp after a refused fu: every word is this frame's got 0000000000000007 exp 0000000000000008
+tally: 378 checks: 368 PASS, 10 FAIL
+named checks failing: 8 of 8
+verdict: caught

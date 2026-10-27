@@ -1,0 +1,7 @@
+mutant: recorded t1 survives reset
+FAIL D3c a pre-reset t1 cannot pair after reset got 0000000000000259 exp 0000000000000000
+FAIL D3d interval 0 keeps its frozen operands moved got 0000000000000000 exp 0000000000000001
+tally: 1929 checks: 1927 PASS, 2 FAIL
+named checks failing: 0 of 1
+NOT FAILING: a t1 measured before a reset cannot pair with a later Follow_Up
+verdict: caught

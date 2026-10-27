@@ -1,0 +1,9 @@
+mutant: GET_AS_PATH entry 0 served from the grandmaster (the old datapath)
+planted in: hdl/milan/milan_datapath.sv
+== gptp_shadow: rc 0; 320 checks: 320 PASS, 0 FAIL
+== milan_dp_gptp: rc 2; 192 checks: 188 PASS, 4 FAIL
+FAIL TLV-less GM switch emits no false GET_AS_PATH push got 0000000000000001 exp 0000000000000000
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 00aaccfffe010204 exp 00aaccfffe010203
+FAIL #88 post-cut response is {thisClock} got 00aaccfffe010204 exp 02a1b2fffec3d4e5
+FAIL #88 GET_AS_PATH entry 0 is the received head got 00aaccfffe010204 exp 001122fffe000044
+== tsn_fuzz_ptp: rc 0; campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL

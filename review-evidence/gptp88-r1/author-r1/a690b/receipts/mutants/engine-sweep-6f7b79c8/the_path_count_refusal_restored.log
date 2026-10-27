@@ -1,0 +1,38 @@
+mutant: the path-count refusal restored
+FAIL #88 own source, one entry, stepsRemoved 3: parser-drop policy got 000000000000000a exp 0000000000000009
+FAIL #88 stepsRemoved 255, one entry: parser-drop policy got 000000000000000b exp 000000000000000a
+FAIL #88 short loop, stepsRemoved 5: parser-drop policy got 000000000000000c exp 000000000000000b
+FAIL #88 empty path: elected      got 02a1b2fffec3d4e5 exp 00eaeafffe000001
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: elected     got 02a1b2fffec3d4e5 exp 00f1f1fffe000001
+FAIL #88 issue shape: parent      got 02a1b2fffec3d4e5 exp 00f1f1fffe0000c3
+FAIL #88 issue shape: no longer master got 0000000000000002 exp 0000000000000000
+FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+FAIL #88 issue shape: entry 0 is the received head got 02a1b2fffec3d4e5 exp 00f1f1fffe000001
+FAIL #88 issue shape: tail 1      got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 issue shape: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: parser accepts got 000000000000000f exp 000000000000000e
+FAIL #88 issue shape: no Announce for one interval got 0000000000000001 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: elected got 02a1b2fffec3d4e5 exp 00f2f2fffe000001
+FAIL #88 two entries, stepsRemoved 5: count got 0000000000000001 exp 0000000000000003
+FAIL #88 two entries, stepsRemoved 5: head got 02a1b2fffec3d4e5 exp 00f2f2fffe000001
+FAIL #88 two entries, stepsRemoved 5: tail 1 got 0000000000000000 exp 00f2f2fffe0000b1
+FAIL #88 two entries, stepsRemoved 5: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 two entries, stepsRemoved 5: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: elected got 02a1b2fffec3d4e5 exp 00f3f3fffe000001
+FAIL #88 three entries, stepsRemoved 0: count got 0000000000000001 exp 0000000000000004
+FAIL #88 three entries, stepsRemoved 0: head got 02a1b2fffec3d4e5 exp 00f3f3fffe000001
+FAIL #88 three entries, stepsRemoved 0: tail 1 got 0000000000000000 exp 00f3f3fffe0000b1
+FAIL #88 three entries, stepsRemoved 0: tail 2 got 0000000000000000 exp 00f3f3fffe0000c2
+FAIL #88 three entries, stepsRemoved 0: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 three entries, stepsRemoved 0: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000004 exp 0000000000000001
+FAIL #88 empty path from the parent: head got 00f6f6fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: tail 1 got 00f6f6fffe0000b1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 2 got 00f6f6fffe0000c1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: parser accepts got 0000000000000015 exp 0000000000000014
+tally: 1932 checks: 1898 PASS, 34 FAIL
+named checks failing: 9 of 9
+verdict: caught

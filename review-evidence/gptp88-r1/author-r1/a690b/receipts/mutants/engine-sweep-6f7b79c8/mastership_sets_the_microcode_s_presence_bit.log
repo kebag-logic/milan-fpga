@@ -1,0 +1,7 @@
+mutant: mastership sets the microcode's presence bit
+FAIL p1 255 master flags                 got 0000000000000007 exp 0000000000000006
+FAIL p1 255 #84 first mastership: the master flags carry sync-ok got 000000000000000f exp 000000000000000e
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+tally: 1932 checks: 1929 PASS, 3 FAIL
+named checks failing: 1 of 1
+verdict: caught
