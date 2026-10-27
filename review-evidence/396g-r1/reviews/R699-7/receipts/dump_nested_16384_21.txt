@@ -1,0 +1,24 @@
+{"units": [["run", 10603, [3], 401], ["silence", 10847, [0, 1, 2, 3], 33], ["flip", 10980, [3], 1]], "synth": [{"kind": "silence", "index": 10847, "n": 33, "inserted": false}, {"kind": "flip", "index": 10603, "channel": 3, "mask": 1048576}], "verdict": "FAIL", "why": "DUT-attributed audio events", "missed": []}
+{"channel": 0, "attribution": "planted", "class": "dropped", "capture_index": 300, "n": 3, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 1, "attribution": "planted", "class": "dropped", "capture_index": 300, "n": 3, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 2, "attribution": "planted", "class": "dropped", "capture_index": 300, "n": 3, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 3, "attribution": "planted", "class": "dropped", "capture_index": 300, "n": 3, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 0, "attribution": "planted", "class": "repeated", "capture_index": 500, "n": 2, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 1, "attribution": "planted", "class": "repeated", "capture_index": 500, "n": 2, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 2, "attribution": "planted", "class": "repeated", "capture_index": 500, "n": 2, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 3, "attribution": "planted", "class": "repeated", "capture_index": 500, "n": 2, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 1, "attribution": "planted", "class": "bit-flip", "capture_index": 700, "n": 1, "mask": "0x00000100", "located_within": null, "unresolved": null}
+{"channel": 3, "attribution": "dut", "class": "bit-flip", "capture_index": 10603, "n": 401, "mask": "0x0055FF00", "located_within": null, "unresolved": null}
+{"channel": 0, "attribution": "dut", "class": "silence", "capture_index": 10847, "n": 33, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 1, "attribution": "dut", "class": "silence", "capture_index": 10847, "n": 33, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 2, "attribution": "dut", "class": "silence", "capture_index": 10847, "n": 33, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 0, "attribution": "planted", "class": "dropped", "capture_index": 15684, "n": 3, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 1, "attribution": "planted", "class": "dropped", "capture_index": 15684, "n": 3, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 2, "attribution": "planted", "class": "dropped", "capture_index": 15684, "n": 3, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 3, "attribution": "planted", "class": "dropped", "capture_index": 15684, "n": 3, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 0, "attribution": "planted", "class": "repeated", "capture_index": 15934, "n": 2, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 1, "attribution": "planted", "class": "repeated", "capture_index": 15934, "n": 2, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 2, "attribution": "planted", "class": "repeated", "capture_index": 15934, "n": 2, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 3, "attribution": "planted", "class": "repeated", "capture_index": 15934, "n": 2, "mask": null, "located_within": null, "unresolved": null}
+{"channel": 1, "attribution": "planted", "class": "bit-flip", "capture_index": 16184, "n": 1, "mask": "0x00000100", "located_within": null, "unresolved": null}
+fuzz_check: ('FAIL', set())
