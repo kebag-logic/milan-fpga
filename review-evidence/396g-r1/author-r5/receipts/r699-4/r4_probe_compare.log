@@ -1,0 +1,34 @@
+TRANSITIONS against round-4 head:
+    ('C', 'DEVIATION', 'OK') 924
+    ('C', 'OK', 'OK') 2451
+    ('R', 'DEVIATION', 'DEVIATION') 22
+    ('R', 'DEVIATION', 'OK') 5
+    ('R', 'INFO', 'INFO') 62
+    ('R', 'LIMIT-own-flip-sample', 'LIMIT-own-flip-sample') 1
+    ('R', 'LIMIT-own-slip-sample', 'LIMIT-own-slip-sample') 11
+    ('R', 'OK', 'INFO') 1
+    ('R', 'OK', 'OK') 5898
+    ('X', 'OK', 'OK') 10
+TRANSITIONS against its parent:
+    ('C', 'DEVIATION', 'OK') 2276
+    ('C', 'OK', 'OK') 1099
+    ('R', 'DEVIATION', 'DEVIATION') 21
+    ('R', 'DEVIATION', 'INFO') 5
+    ('R', 'DEVIATION', 'OK') 120
+    ('R', 'INFO', 'INFO') 56
+    ('R', 'INFO', 'OK') 101
+    ('R', 'LIMIT-own-flip-sample', 'LIMIT-own-flip-sample') 1
+    ('R', 'LIMIT-own-slip-sample', 'LIMIT-own-slip-sample') 11
+    ('R', 'OK', 'DEVIATION') 1
+    ('R', 'OK', 'INFO') 2
+    ('R', 'OK', 'OK') 5682
+    ('X', 'OK', 'OK') 10
+VERDICT CHANGES against the round-4 head:
+    R-780 NOT RUN -> FAIL [["shift", 675, -2], ["xor", 699, 1, 262144], ["shift", 665, 3]]
+    R-2913 NOT RUN -> FAIL [["shift", 16200, 2047], ["xor", 16185, 1, 1048576], ["xor", 16167, 1, 524288]]
+    R-3903 NOT RUN -> FAIL [["xor", 699, 1, 7680], ["shift", 705, -1], ["xor", 672, 1, 7680]]
+    R-4386 NOT RUN -> FAIL [["xor", 16203, 1, 262144], ["xor", 16183, 1, 512]]
+    R-5378 NOT RUN -> FAIL [["xor", 16183, 1, 1048576]]
+DEVIATION now, OK or INFO at round-4 head: []
+DEVIATION now, OK or INFO at its parent: ['R-4857']
+    R-4857 ["NOT RUN", "void: a planted arm was missed", ["VOID:void: a planted arm was missed"], [], [["xor", 300, 3, 512], ["shift", 279, 6291456]]]

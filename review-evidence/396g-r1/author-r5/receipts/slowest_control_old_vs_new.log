@@ -1,0 +1,6 @@
+The slowest release control, 'block code bit dropped from the word' (bit = 0 in audio_counter_word), applied to
+the round-4 head 85da3e45 and to the final head 910d4b94; each mutated self-test run alone, back to back, wall time.
+The driver's limit is 600 seconds per self-test.
+85da3e45: Ran 112 tests in 261.735s FAILED (failures=569, errors=1) 
+910d4b94: Ran 116 tests in 271.413s FAILED (failures=590, errors=1) 
+wall: 85da3e45 261.93 s; 910d4b94 271.60 s (host load average about 25)
