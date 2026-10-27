@@ -531,20 +531,38 @@ Every run's `table.md` lists every path's worst instance and every probe, in CPU
 
 ### The sweep
 
-| Instruction cache | Tiles, out of context (difference) | 1x1: composed maximum, ms | 1x1: under an unreleased load, at least | 1x1: paths (instances) missing T_svc | 8x8: composed maximum, ms | 8x8: under an unreleased load, at least | 8x8: paths (instances) missing T_svc |
+| Instruction cache | Tiles, out of context (difference) | 1x1: composed maximum, every backlog window, ms | 1x1: over the windows that released their whole load only, ms | 1x1: paths (instances) missing T_svc | 8x8: composed maximum, every backlog window, ms | 8x8: over the windows that released their whole load only, ms | 8x8: paths (instances) missing T_svc |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| none (S2) | 4.5 (+0) | 14.81 | 31.32 | 22 of 81 (58 of 141) | 27.84 | 44.19 | 60 of 129 (102 of 182) |
-| 2 KiB, 1 way | 5.5 (+1) | 8.99 | 18.82 | 16 of 81 (41 of 141) | 14.58 | 29.73 | 37 of 129 (65 of 182) |
-| 4 KiB, 1 way (split) | 6 (+1.5) | 8.60 | 19.32 | 13 of 81 (34 of 141) | 14.03 | 29.12 | 34 of 129 (66 of 182) |
-| 8 KiB, 1 way | 7 (+2.5) | 8.40 | 18.96 | 13 of 81 (34 of 141) | 13.76 | 28.79 | 31 of 129 (59 of 182) |
-| 8 KiB, 2 ways | 7.5 (+3) | 8.19 | 18.01 | 12 of 81 (33 of 141) | 13.63 | 28.35 | 29 of 129 (61 of 182) |
-| 16 KiB, 1 way | 9 (+4.5) | 8.17 | 17.98 | 12 of 81 (33 of 141) | 13.53 | 28.17 | 29 of 129 (61 of 182) |
+| none (S2) | 4.5 (+0) | at least 31.32 | 14.81 | 22 of 81 (58 of 141) | at least 44.19 | 27.84 | 60 of 129 (102 of 182) |
+| 2 KiB, 1 way | 5.5 (+1) | at least 18.82 | 8.99 | 16 of 81 (41 of 141) | at least 29.73 | 14.58 | 37 of 129 (65 of 182) |
+| 4 KiB, 1 way (split) | 6 (+1.5) | at least 19.32 | 8.60 | 13 of 81 (34 of 141) | at least 29.12 | 14.03 | 34 of 129 (66 of 182) |
+| 8 KiB, 1 way | 7 (+2.5) | at least 18.96 | 8.40 | 13 of 81 (34 of 141) | at least 28.79 | 13.76 | 31 of 129 (59 of 182) |
+| 8 KiB, 2 ways | 7.5 (+3) | at least 18.01 | 8.19 | 12 of 81 (33 of 141) | at least 28.35 | 13.63 | 29 of 129 (61 of 182) |
+| 16 KiB, 1 way | 9 (+4.5) | at least 17.98 | 8.17 | 12 of 81 (33 of 141) | at least 28.17 | 13.53 | 29 of 129 (61 of 182) |
 
 The tiles are Vivado's out-of-context mapping of each netlist the harness ran, the cacheless one included; [block RAM and logic](#block-ram-and-logic) has the full figures.
-The first 4 KiB takes most of the gain: the composed maximum falls from 14.81 to 8.60 ms at 1x1 (42 %) and from 27.84 to 14.03 ms at 8x8 (50 %).
+The composed maximum is taken as [Passes](#passes) takes it, over every backlog window.
+At every size, as without the cache, the two bound-talker windows, `backlog-adp` and `backlog-adp-refill`, never release SRP's 32 records, so the composed maximum is a lower bound.
+It falls from at least 31.32 to at least 19.32 ms at 1x1, and from at least 44.19 to at least 29.12 ms at 8x8.
+Those lower bounds come from loads the firmware never finished, and they do not rank the sizes: at 1x1, 2 KiB's 18.82 ms is below 4 KiB's 19.32.
+The windows that released their whole load are the same two at every size and without the cache, `backlog` and `backlog-owed`, so their longest pass compares like with like.
+That figure is labelled, and it is not the composed maximum.
+On it, the first 4 KiB takes most of the gain: from 14.81 to 8.60 ms at 1x1 (42 %) and from 27.84 to 14.03 ms at 8x8 (50 %).
 2 KiB is 4 to 5 % slower than 4 KiB and leaves three more paths missing T_svc at each point, for half a tile less.
 8 and 16 KiB, with one way or two, are 2 to 5 % faster than 4 KiB for one to three tiles more.
 So the split takes 4 KiB with one way.
+
+[Findings](#findings) compares S2's baseline window by window, so here is arm A's longest pass in each backlog window, in ms:
+
+| Backlog window, arm A | 1x1, none | 1x1, 4 KiB | 8x8, none | 8x8, 4 KiB |
+|---|---:|---:|---:|---:|
+| `backlog` | 14.81 | 8.60 | 27.84 | 14.03 |
+| `backlog-adp` | at least 31.32, SRP unreleased | at least 18.98, SRP unreleased | at least 44.17, SRP unreleased | at least 29.12, SRP unreleased |
+| `backlog-adp-refill` | at least 30.63, SRP unreleased | at least 19.32, SRP unreleased | at least 44.19, SRP unreleased | at least 29.12, SRP unreleased |
+| `backlog-owed` | 11.65 | 7.48 | 22.24 | 12.46 |
+
+The cache shortens the released windows' longest passes by 36 to 50 %, and the measured passes of the unreleased windows by 34 to 39 %.
+It releases no window that the cacheless core left unreleased.
 
 Every arm on the split's cache, against S2's cacheless figures above:
 
@@ -556,6 +574,9 @@ Every arm on the split's cache, against S2's cacheless figures above:
 | B8 | 8 | 26 of 68 | 44 of 92 | 36 of 68 / 60 of 92 |
 | S1 | 2 | 0 of 1 | 0 of 2 | 0 of 1 / 0 of 2 |
 | S8 | 2 | 0 of 2 | 0 of 3 | 0 of 2 / 0 of 3 |
+
+Arm B runs three of the four backlog rows, as S2's arm B does, without `backlog-adp-refill`.
+So its figure is partial, over 3 of 4 backlog windows, and is not the composed maximum: 8.61 ms at 1x1 and 14.07 ms at 8x8 with the cache, against S2's 14.81 and 27.84 ms.
 
 ### What the cache changes
 
@@ -571,9 +592,13 @@ Every arm on the split's cache, against S2's cacheless figures above:
 Without the cache every instruction word is a bus transaction of about 9 CPU cycles, and those waits add up to 1.6 times the run's cycles: more than one fetch is outstanding at a time.
 With 4 KiB a fetch command is a 64-byte line refill of 42 cycles, 10 to 16 of them every 1,000 instructions, and refill waits fall to 7 to 11 % of the cycles.
 The CPU then waits on its data side: a load or store to `sram`, the mailbox or a CSR stays 9 to 10 cycles, and those waits are 39 to 40 % of the cycles.
-The composed maximum's largest consumer is still `memset`, a byte loop on RV32I: 31 % of it at both points (133,859 of 429,838 cycles at 1x1, 219,287 of 701,553 at 8x8).
-The mailbox driver takes 21 % and 12 %, and `memcpy` 9 % and 11 %.
-In the worst passes, arm A's change-notice retry makes `memset` 63 % (1x1) and 49 % (8x8).
+The composed maximum is `backlog-adp-refill`'s at both points, after the bind and so under AECP's change-notice retry (see [Findings](#findings)).
+At 1x1 it is also the worst pass: at least 966,218 cycles, of `memset` 609,416 (63 %), AECP 141,656 and the mailbox driver 71,268.
+At 8x8 it is at least 1,455,957 cycles, of `memset` 541,525 (37 %), AECP 305,284 and lwSRP's `mrp_mad` 254,640.
+Over the windows that released their load, the longest pass is `backlog`'s, 429,838 cycles at 1x1 and 701,553 at 8x8.
+Its largest consumer is still `memset`, a byte loop on RV32I: 31 % at both points (133,859 and 219,287 cycles).
+The mailbox driver takes 21 % and 12 % of it, and `memcpy` 9 % and 11 %.
+The 8x8 worst pass, `acmp-cmd`'s 1,894,336 cycles, is 49 % `memset`, again under the retry.
 
 ### Backlog rows and notification fan-out
 
@@ -589,7 +614,7 @@ The cache shortens every backlog row by a quarter to two thirds, but only the 1x
 The ring and owed rows still span several passes of 14 to 21 ms each.
 Arm B, without the retry passes, gives the same event, ACMP-ring and owed rows within 3 %, and an ADP-ring row of 22.21 ms at 1x1 and 33.61 ms at 8x8.
 
-| Fan-out at registration capacity | Interface | 1x1, none | 1x1, 4 KiB | 8x8, none | 8x8, 4 KiB |
+| Fan-out at registration capacity, arm A | Interface | 1x1, none | 1x1, 4 KiB | 8x8, none | 8x8, 4 KiB |
 |---|---:|---:|---:|---:|---:|
 | `add_audio_mappings` | 0 | 8.57 (9.78) | 4.91 (5.71) | - | - |
 | `lock_entity` | 0 | 8.20 (9.35) | 4.66 (5.43) | 16.07 (21.92) **miss** | 8.38 (10.02) |
@@ -605,8 +630,20 @@ Arm B, without the retry passes, gives the same event, ACMP-ring and owed rows w
 | `unlock_entity` | 0 | 8.21 (9.36) | 4.67 (5.44) | 15.64 (21.49) **miss** | 10.02 (13.67) **miss** |
 | `unlock_entity` | 1 | - | - | 15.74 (21.59) **miss** | 10.03 (13.68) **miss** |
 
-At the firmware's registration capacity, 16 controllers on every interface, every fan-out now fits at 1x1: SET_NAME takes 6.45 ms, from 11.33.
-At 8x8, SET_NAME, LOCK_ENTITY and UNLOCK still miss, at 10.01 to 13.56 ms.
+A SET_CONTROL cell is the worse of its two fan-outs, identify on and identify off.
+With the 4 KiB cache, over every fan-out measured, on every interface and in both arms:
+
+- A recipient costs 7,054 to 15,334 CPU cycles (7,144 to 13,114 in arm A), against S2's 11,786 to 22,030 (11,818 to 20,486).
+  SET_NAME's notice costs 11,796 to 14,488; in arm B SET_STREAM_INFO's costs 12,635 to 15,334 and BIND_RX's GET_STREAM_INFO notice 10,686 to 13,374; every other fan-out costs 7,054 to 10,571.
+- The 16 recipients at 1x1 take 4.42 to 8.70 ms (4.43 to 6.45 in arm A), against S2's 7.77 to 14.80 (7.77 to 11.33).
+  The 32 at 8x8 take 8.25 to 18.19 ms (8.25 to 13.56 in arm A), against S2's 12.39 to 32.78 (12.39 to 22.98).
+- At the firmware's registration capacity, 16 controllers on every interface, every fan-out now fits T_svc at 1x1, in both arms.
+  SET_NAME takes 6.45 ms in arm A, from 11.33, and arm B's BIND_RX GET_STREAM_INFO notice 8.70 ms, from 14.80.
+- At 8x8, 5 of arm A's 13 fan-outs still miss: SET_NAME, LOCK_ENTITY and UNLOCK_ENTITY, at 10.01 to 13.56 ms.
+  So do 10 of arm B's 22, at 10.45 to 18.19 ms: BIND_RX's GET_STREAM_INFO notice (the longest), SET_STREAM_INFO, SET_NAME, SET_CONFIGURATION, an output map removal and one SET_CONTROL.
+  None is over the 24 ms ceiling, where S2 had three in arm B.
+
+Each group's graded JSON carries every fan-out it measured, with its recipients and its cost a recipient (`fanout`).
 
 ### Paths that still miss T_svc
 
@@ -671,21 +708,23 @@ Arm B, whose callbacks answer, has no retry passes.
 
 ### The hybrid-XIP arm
 
-| Point, instruction cache, code | Planned block RAM, tiles | CPU cycles per instruction | Mean refill, CPU cycles | Groups graded, probes refused | Paths (instances) missing T_svc | Composed maximum, ms (or under an unreleased load, at least) | Worst pass, ms |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| 1x1, 4 KiB, block RAM | 35.5 | 5.83 | 42 | 18, 0 | 13 of 81 (34 of 141) | 8.60 | 19.32 |
-| 1x1, 4 KiB, flash | 15 | 33.95 | 2,143 | 18, 3 | 71 of 78 (120 of 138) | (94.91) | 94.91 |
-| 1x1, 32 KiB, flash | 15 | 10.19 | 2,145 | 18, 0 | 19 of 81 (62 of 141) | 23.42 | 28.08 |
-| 8x8, 4 KiB, block RAM | 56 | 5.65 | 42 | 17, 0 | 34 of 129 (66 of 182) | 14.03 | 37.89 |
-| 8x8, 4 KiB, flash | 35 | 21.75 | 2,161 | 17, 4 | 111 of 125 (151 of 178) | (98.76) | 112.79 |
-| 8x8, 32 KiB, flash | 35 | 8.92 | 2,094 | 17, 0 | 50 of 129 (83 of 182) | 30.99 | 50.75 |
+| Point, instruction cache, code | Planned block RAM, tiles | CPU cycles per instruction | Mean refill, CPU cycles | Groups graded, probes refused | Paths (instances) missing T_svc | Composed maximum, every backlog window, ms | Over the windows that released their whole load only, ms | Worst pass, ms |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1x1, 4 KiB, block RAM | 35.5 | 5.83 | 42 | 18, 0 | 13 of 81 (34 of 141) | at least 19.32 | 8.60 | 19.32 |
+| 1x1, 4 KiB, flash | 15 | 33.95 | 2,143 | 18, 3 | 71 of 78 (120 of 138) | at least 94.91 | none | 94.91 |
+| 1x1, 32 KiB, flash | 15 | 10.19 | 2,145 | 18, 0 | 19 of 81 (62 of 141) | at least 28.08 | 23.42 | 28.08 |
+| 8x8, 4 KiB, block RAM | 56 | 5.65 | 42 | 17, 0 | 34 of 129 (66 of 182) | at least 29.12 | 14.03 | 37.89 |
+| 8x8, 4 KiB, flash | 35 | 21.75 | 2,161 | 17, 4 | 111 of 125 (151 of 178) | at least 98.76 | none | 112.79 |
+| 8x8, 32 KiB, flash | 35 | 8.92 | 2,094 | 17, 0 | 50 of 129 (83 of 182) | at least 41.78 | 30.99 | 50.75 |
 
 With the code in flash, a 64-byte refill takes 2,100 to 2,160 CPU cycles on the product's single-lane read (the model's 12.5 MHz serial clock), against 42 from block RAM.
 A 4 KiB cache does not hide that: the CPU runs at 34 cycles an instruction at 1x1 and 22 at 8x8, waiting on refills for most of them.
 71 of 78 paths miss T_svc at 1x1 and 111 of 125 at 8x8; no composed window releases its load, and three probes' bounded waits (four at 8x8) expire before their outputs.
 A 32 KiB cache, 13 tiles out of context, brings the CPU to 10 cycles an instruction at 1x1 and 9 at 8x8, near the cacheless block-RAM core's 9.5.
-It still leaves 19 of 81 and 50 of 129 paths missing T_svc, and composed maxima of 23.42 and 30.99 ms, longer than the cacheless core's 14.81 and 27.84 ms.
-Against the split's 4 KiB cache with its code in block RAM, it would save about 14 tiles at either point (13 tiles of cache against 6, and 20.5 or 21 tiles of `rom`), for two to three times the service times.
+It still leaves 19 of 81 and 50 of 129 paths missing T_svc.
+Its composed maxima, at least 28.08 and 41.78 ms, are lower bounds, as the cacheless core's at least 31.32 and 44.19 ms are.
+Over the windows that released their whole load, the same windows in both, it takes 23.42 and 30.99 ms, longer than the cacheless core's 14.81 and 27.84 ms.
+Against the split's 4 KiB cache with its code in block RAM, it would save about 14 tiles at either point (13 tiles of cache against 6, and 20.5 or 21 tiles of `rom`), for two to three times the longest pass of the windows that released their load.
 So no path inside T_svc can execute from the flash behind the split's cache, or behind one eight times its size, as D3 rules.
 Moving the code out of block RAM would free 20.5 tiles at 1x1 with one interface (35.5 to 15.0, planned) and 21 at 8x8 with two (56.0 to 35.0); F1's flash driver, `.rodata` and the initial values of `.data` stay.
 
@@ -716,18 +755,20 @@ The product split CPU's figures are in [split placement control memory](../../..
 
 The cache alone does not close T_svc at either point.
 
-- **1x1, one interface.** The composed maximum is 8.60 ms, within T_svc, but 13 of 81 paths (34 of 141 instances) still miss.
-  The ACMP-ring, ADP-ring and owed rows take 34 to 94 ms; the bound-talker windows never release SRP's 32 records, after at least 574 ms.
-  The worst pass is 19.32 ms, so #397's one-hart rule, every pass well under T_svc, still fails.
-- **8x8, two interfaces.** The composed maximum is 14.03 ms, and 34 of 129 paths (66 of 182 instances) miss.
-  The event row is 14.45 ms, the ring and owed rows 46 to 122 ms, and the fan-out at registration capacity 10 to 13.6 ms; the worst pass is 37.89 ms.
+- **1x1, one interface.** The composed maximum is at least 19.32 ms, a lower bound, and 13 of 81 paths (34 of 141 instances) still miss.
+  Over the windows that released their load the longest pass is 8.60 ms, within T_svc; that figure leaves out the two bound-talker windows, which never release SRP's 32 records, after at least 574 ms.
+  The ACMP-ring, ADP-ring and owed rows take 34 to 94 ms.
+  The worst pass is the composed maximum's, 19.32 ms, so #397's one-hart rule, every pass well under T_svc, still fails.
+- **8x8, two interfaces.** The composed maximum is at least 29.12 ms, a lower bound, and 34 of 129 paths (66 of 182 instances) miss.
+  Over the windows that released their load the longest pass is 14.03 ms.
+  The event row is 14.45 ms, the ring and owed rows 46 to 122 ms, and the fan-outs that miss at registration capacity 10.01 to 13.56 ms in arm A (10.45 to 18.19 ms in arm B); the worst pass is 37.89 ms.
 
 The residual is the data side's, and in order of size:
 
-- `memset` and `memcpy`, byte loops: 40 % of the composed maximum at 1x1 and 42 % at 8x8. Word-wide copies and zeroing only the bytes a response sends are S2b's first item.
-- AECP's change-notice retry every millisecond (`aecp.c`, `retry_at = now + 1`), which sets every worst pass in arm A. S2b's backoff answers it.
-- The mailbox driver, 12 to 21 %, and AECP, ACMP and lwSRP's `mrp_mad`, together 15 to 21 %. S2b's per-pass cap bounds them.
-- Software multiply, divide and shift, 7 % at both points. The M extension removes them; that is an owner decision.
+- `memset` and `memcpy`, byte loops: 65 % of the composed maximum's pass at 1x1 and 43 % at 8x8, and 40 % and 42 % of the longest pass of the windows that released their load. Word-wide copies and zeroing only the bytes a response sends are S2b's first item.
+- AECP's change-notice retry every millisecond (`aecp.c`, `retry_at = now + 1`), which sets every worst pass in arm A and the composed maximum at both points. S2b's backoff answers it.
+- AECP, ACMP and lwSRP's `mrp_mad`, together 18 % of the composed maximum's pass at 1x1 and 39 % at 8x8 (15 % and 21 % of the released windows' longest), and the mailbox driver, 7 % and 6 % (21 % and 12 %). S2b's per-pass cap bounds them.
+- Software multiply, divide and shift, 3 % of the composed maximum's pass at both points (7 % of the released windows' longest). The M extension removes them; that is an owner decision.
 
 With the instruction cache in, the core's own lever left is its data side: loads and stores wait 39 to 40 % of the cycles.
 A data cache is the owner's option, with the coherent interconnect it needs (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache)); the clock stays the owner's too.

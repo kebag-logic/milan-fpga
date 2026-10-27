@@ -216,7 +216,7 @@ The [split service budget](../../tb/verilator/ctrl_service_budget/README.md#the-
 
 | Parameter | Value | Reason |
 |---|---|---|
-| Size | 4 KiB: 64 sets | The knee of the measured sweep: 8 KiB costs one more tile for about 2 % on the composed maximum |
+| Size | 4 KiB: 64 sets | The knee of the measured sweep: 8 KiB costs one more tile for about 2 % on the longest pass of the backlog windows that released their load; the composed maximum, a lower bound at every size, does not rank the sizes |
 | Ways | 1, direct-mapped | Two ways cost half a tile more at the same size |
 | Line | 64 bytes | The generator's fixed `FetchL1Plugin` line at the pinned revision; a refill is sixteen 32-bit beats on the CPU's peripheral bus |
 | Refills | one at a time, no prefetch | The generator's defaults; the next-line prefetcher needs a second refill slot |
