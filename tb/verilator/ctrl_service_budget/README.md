@@ -738,12 +738,12 @@ Arm B, whose callbacks answer, has no retry passes.
 With the code in flash, a 64-byte refill takes 2,100 to 2,160 CPU cycles on the product's single-lane read (the model's 12.5 MHz serial clock), against 42 from block RAM.
 A 4 KiB cache does not hide that: the CPU runs at 34 cycles an instruction at 1x1 and 22 at 8x8, waiting on refills for most of them.
 71 of 78 paths miss T_svc at 1x1 and 111 of 125 at 8x8; no composed window releases its load, and three probes' bounded waits (four at 8x8) expire before their outputs.
-A 32 KiB cache, 13 tiles out of context, brings the CPU to 10 cycles an instruction at 1x1 and 9 at 8x8, near the cacheless block-RAM core's 9.5.
+A 32 KiB cache, on a CPU of 13 tiles out of context, brings the CPU to 10 cycles an instruction at 1x1 and 9 at 8x8, near the cacheless block-RAM core's 9.5.
 It still leaves 19 of 81 and 50 of 129 paths missing T_svc.
 Its composed maxima, at least 28.08 and 41.78 ms, are lower bounds, as the cacheless core's at least 31.32 and 44.19 ms are.
 Over the windows that released their whole load, the same windows in both, it takes 23.42 and 30.99 ms, longer than the cacheless core's 14.81 and 27.84 ms.
-Against the split's 4 KiB cache with its code in block RAM, it would save about 14 tiles at either point (13 tiles of cache against 6, and 20.5 or 21 tiles of `rom`), for two to three times the longest pass of the windows that released their load.
-So no path inside T_svc can execute from the flash behind the split's cache, or behind one eight times its size, as D3 rules.
+Against the split's 4 KiB cache with its code in block RAM, it would save about 14 tiles at either point (a CPU of 13 tiles against 6, and 20.5 or 21 tiles of `rom`), for two to three times the longest pass of the windows that released their load.
+So the T_svc service paths stay in block RAM behind the split's cache, or behind one eight times its size, as D3 rules.
 Moving the code out of block RAM would free 20.5 tiles at 1x1 with one interface (35.5 to 15.0, planned) and 21 at 8x8 with two (56.0 to 35.0); F1's flash driver, `.rodata` and the initial values of `.data` stay.
 
 A first run also put F1's flash driver in flash.

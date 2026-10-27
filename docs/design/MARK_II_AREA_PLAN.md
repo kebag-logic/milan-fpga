@@ -894,8 +894,8 @@ Before the conditional release, with M2's unused +2 allowance, the total is 3.5 
 The split takes the release: 114 tiles leaves 7.5 below that ceiling.
 With every bank in block RAM, 115 leaves 6.5.
 With the split CPU's instruction cache, 115.5 leaves 6.0, and 116.5 leaves 5.0.
-Both leave the separate 13.5-tile reserve untouched.
-Neither number proves integrated fit; M8a-2's route does.
+All four leave the separate 13.5-tile reserve untouched.
+None of these numbers proves integrated fit; M8a-2's route does.
 Unpriced M6 RAM conversions and integration buffers consume that allowance.
 Each lane must debit them before accepting its LUT saving.
 M7's measured route frees one tile instead: 74 RAMB36 and 25 RAMB18.
