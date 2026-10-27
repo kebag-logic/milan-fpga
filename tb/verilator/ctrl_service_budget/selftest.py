@@ -23,7 +23,7 @@ a headline figure (the worst pass, the composed maximum, a pass bound)
 fails on that figure.
 
 Regenerate the fixture only through its generator, from a fresh 'fixture'
-group run:
+group run at 1x1 on the cacheless core it was recorded on (--fetch-l1 none):
 
     python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture RESULTS/fixture.log BUILD/build.json
 """

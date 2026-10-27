@@ -45,6 +45,8 @@ Without `--record-budget-findings` a path over T_svc fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
 `--groups` selects groups and `--jobs` sets how many run at once.
 `--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
+So the two commands above give the split cache's arms in [The instruction cache](#the-instruction-cache).
+S2's figures in [Results](#results) are the cacheless core's, and their commands add `--fetch-l1 none`.
 
 `--reuse-build` reuses a build only if every input recorded in its `build.json` still has its digest.
 The inputs are the checkout's testbench and mailbox sources, every file of the firmware source trees the image is compiled from, the image, its runtime archives, the ROM `.init` files the model reads when it runs, the exported SoC Verilog, the generated two-interface mailbox and the CPU netlist and RAM models.
@@ -69,6 +71,9 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   It runs three of the four backlog rows, `backlog`, `backlog-adp` and `backlog-owed`, without `backlog-adp-refill`, so its composed maximum is partial.
 - `shutdown-entry` adds the SHUTDOWN path's only input: a poll that calls `adp_mbx_set_enable(false)` once, at NOW_MS 2,500.
   It runs the `adp-shutdown` and `control-shutdown` groups only.
+
+As written, both arms build the split's cache, the arms B and S of [The instruction cache](#the-instruction-cache).
+With `--fetch-l1 none` they are S2's arms in [Results](#results).
 
 `--xip` is the labelled hybrid-XIP arm (D3, lane S14): the image's own objects, relinked so that every function past the reset entry executes from the flash window behind the instruction cache.
 `rom` keeps the reset entry, F1's flash driver (`nvm_flash_litespi.c`), `.rodata` and the initial values of `.data`.
@@ -177,7 +182,16 @@ A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc,
 
 ## Results
 
-These are S2's results, on the cacheless core (`--fetch-l1 none`).
+These are S2's results, on the cacheless core:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-1x1-none --fetch-l1 none --record-budget-findings
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-8x8-none --fetch-l1 none --record-budget-findings
+```
+
+Arms B and S add `--fetch-l1 none` to their commands in [Run and reproduce](#run-and-reproduce) in the same way.
 [The instruction cache](#the-instruction-cache) gives the same groups on the split CPU's cache.
 Arm A is the image as linked, the formal measurement.
 Arm B is the labelled second arm, whose fixture callbacks answer.
@@ -779,7 +793,8 @@ A data cache is the owner's option, with the coherent interconnect it needs (see
 
 ### Controls with the cache
 
-The three controls run again on the cached CPU (`--fetch-l1 64x1`), and each is caught:
+The three controls run again on the cached CPU, and each is caught.
+Their commands are those in [Controls and self-test](#controls-and-self-test), with `--fetch-l1 64x1`, the split's geometry, in place of `--fetch-l1 none`:
 
 - `slow-adp-rx`: the planted RCV_ADP_DISCOVER measures 16.556 ms against 0.513 ms unplanted. The planted loop now runs from the cache, so it is shorter than the cacheless 24.614 ms, and still over T_svc.
 - `slow-adp-shutdown`: SHUTDOWN measures 16.328 ms against 0.333 ms unplanted. The `shutdown-entry` arm's SHUTDOWN is 0.33 ms at 1x1 and 0.32 / 0.64 ms at 8x8.
@@ -889,21 +904,25 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
 
-Regenerate the fixture only through its generator, from a fresh 1x1 run of the `fixture` group:
+Regenerate the fixture only through its generator, from a fresh 1x1 run of the `fixture` group.
+The committed fixture and its oracle were recorded on the cacheless core, so the run selects it:
 
 ```sh
-python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture RESULTS/fixture.log BUILD/build.json
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-fixture --fetch-l1 none --groups fixture --record-budget-findings
+python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture \
+  /tmp/budget-fixture/results/fixture.log /tmp/budget-fixture/build.json
 ```
 
-Three controls run the full harness:
+Three controls run the full harness, here on the cacheless core S2 measured them on:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
-  --build-dir /tmp/budget-slow-adp --mutation slow-adp-rx
+  --build-dir /tmp/budget-slow-adp --fetch-l1 none --mutation slow-adp-rx
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
-  --build-dir /tmp/budget-slow-shutdown --variant shutdown-entry --mutation slow-adp-shutdown
+  --build-dir /tmp/budget-slow-shutdown --fetch-l1 none --variant shutdown-entry --mutation slow-adp-shutdown
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
-  --build-dir /tmp/budget-as-built --cpu-regions as-built
+  --build-dir /tmp/budget-as-built --fetch-l1 none --cpu-regions as-built
 ```
 
 `slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins first.
