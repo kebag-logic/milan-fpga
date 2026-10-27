@@ -1,0 +1,22 @@
+[
+  {
+    "variant": "base-rtl",
+    "build_rc": 0,
+    "run_rc": 1,
+    "complete": true,
+    "fail_lines": 82,
+    "fail_lines_matching_prefix": 32,
+    "prefix": "GI GATE",
+    "first_fails": [
+      "FAIL: GI RESET solicited: byte-exact sink 0 response",
+      "FAIL: GI RESET solicited: byte-exact sink 1 response",
+      "FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-ACTIVE solicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response",
+      "FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response"
+    ],
+    "tally": [
+      "[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6388 checks, 82 failures"
+    ]
+  }
+]

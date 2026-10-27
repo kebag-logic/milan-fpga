@@ -1,0 +1,123 @@
+# R724-1-S1: can a Talker Failed register while the input is not PROBING_COMPLETED? Source excerpts at c836105.
+
+## F05.3 matrix (hdl/acmp/rom/gen_ltn_rom.py), columns UNB PWA PWD PWR PW2 PWT SNR SOK
+STATES = ["UNB", "PWA", "PWD", "PWR", "PW2", "PWT", "SNR", "SOK"]
+41:     # F05.3 row 1: BIND_RX same talker+source
+42:     #   UNB: — (impossible: nothing bound to equal, 05 §6.3 cell note)
+43:     ("BIND_SAME", ["-",
+44:                    "PWA/A1 A6 A3", "PWD/A1 A6 A3", "PWR/A1 A6 A3",
+45:                    "PW2/A1 A6 A3", "PWT/A1 A6 A3", "SNR/A1 A6 A3",
+46:                    "SOK/A1 A6 A3"]),
+47:     # F05.3 row 2: BIND_RX new/different source
+48:     ("BIND_NEW", ["PWR/A1 A2 A3 A4 A5",
+49:                   "PWR/A1 A11 A9 A2 A3 A4 A5",
+50:                   "PWR/A1 A11 A9 A2 A3 A4 A5",
+51:                   "PWR/A1 A11 A9 A2 A3 A4 A5",
+52:                   "PWR/A1 A11 A9 A2 A3 A4 A5",
+53:                   "PWR/A1 A11 A9 A2 A3 A4 A5",
+54:                   "PWR/A1 A11 A8 A9 A2 A3 A4 A5",
+55:                   "PWR/A1 A11 A8 A9 A2 A3 A4 A5"]),
+56:     # F05.3 row 3: UNBIND_RX
+57:     ("UNBIND", ["UNB/A1 A7",
+58:                 "UNB/A1 A11 A9 A10 A7",
+59:                 "UNB/A1 A11 A9 A10 A7",
+60:                 "UNB/A1 A11 A9 A10 A7",
+61:                 "UNB/A1 A11 A9 A10 A7",
+62:                 "UNB/A1 A11 A9 A10 A7",
+63:                 "UNB/A1 A11 A8 A9 A10 A7",
+64:                 "UNB/A1 A11 A8 A9 A10 A7"]),
+65:     # F05.3 row 4: GET_RX_STATE (always answered, state kept — F05.14)
+66:     ("GETRX", ["UNB/A16", "PWA/A16", "PWD/A16", "PWR/A16",
+67:                "PW2/A16", "PWT/A16", "SNR/A16", "SOK/A16"]),
+68:     # F05.3 row 5: PROBE_RESP status = SUCCESS
+69:     ("PROBE_OK", ["ign", "ign", "ign",
+70:                   "SNR/A11 A15", "SNR/A11 A15",
+71:                   "ign", "ign", "ign"]),
+72:     # F05.3 row 6: PROBE_RESP status != SUCCESS (A14 captures the status)
+73:     ("PROBE_FAIL", ["ign", "ign", "ign",
+74:                     "PWT/A11 A14", "PWT/A11 A14",
+75:                     "ign", "ign", "ign"]),
+76:     # F05.3 row 7: T-ACMP-DELAY expiry
+77:     ("TMR_DELAY", ["-", "-", "PWR/A5", "-", "-", "-", "-", "-"]),
+78:     # F05.3 row 8: T-ACMP-CMD expiry (PWR: exact duplicate; PW2: A14(=7))
+79:     ("TMR_CMD", ["-", "-", "-", "PW2/A13", "PWT/A14", "-", "-", "-"]),
+80:     # F05.3 row 9: T-ACMP-RETRY expiry — dagger: tk? PWD/A12 : PWA/A17
+81:     ("TMR_RETRY", ["-", "-", "-", "-", "-", "cond", "-", "-"]),
+82:     # F05.3 row 10: T-ACMP-NOTK expiry — dagger: A8; tk? PWD/A12 : PWA/A17
+83:     ("TMR_NOTK", ["-", "-", "-", "-", "-", "-", "cond/A8", "-"]),
+84:     # F05.3 row 11: EVT_TK_DISCOVERED ('ign (note)' cells: the tk_disc
+85:     #   bookkeeping flag still tracks the discovery SM — VALID gates it)
+86:     ("TK_DISC", ["-", "PWD/A12", "ign", "ign", "ign", "ign", "ign", "ign"]),
+87:     # F05.3 row 12: EVT_TK_DEPARTED (SNR/SOK: note only — reservation kept,
+88:     #   Milan §5.5.3.5.41/.47)
+89:     ("TK_DEP", ["-", "-",
+90:                 "PWA/A11 A17", "PWA/A11 A17", "PWA/A11 A17", "PWA/A11 A17",
+91:                 "ign", "ign"]),
+92:     # F05.3 row 13: EVT_TK_REGISTERED — ONLY SNR. The SOK column is the
+93:     #   documented reference-implementation bug (Table 5.30 'x'): a
+94:     #   TalkerFailed rise in RSV_OK takes NO invented arc.
+95:     ("TK_REG", ["-", "-", "-", "-", "-", "-", "SOK/A11", "-"]),
+96:     # F05.3 row 14: EVT_TK_UNREGISTERED — dagger: A8; tk? PWD/A12 : PWA/A17
+97:     ("TK_UNREG", ["-", "-", "-", "-", "-", "-", "-", "cond/A8"]),
+
+## The only write of PB_COMPLETED_C, A15 (KL_pp_acmp_listener.sv)
+1204:                act_teardown_o        <= 1'b1;
+1311:                rec_r.pbsta             <= PB_COMPLETED_C;
+1313:                act_settle_o            <= 1'b1;
+
+## Canonical action order: A8 runs before every pbsta-writing action (A10 A12 A17 A4 A5) in one arc
+  assign lock_block_w = lock_held_i && (lock_ctlr_i != ctlr_x_r);
+
+  // -------------------------------------------- canonical action execution
+  // ONE total order realizing every F05.3 cell's listed order (see banner).
+  function automatic logic [4:0] act_order_f(input logic [4:0] k);
+    unique case (k)
+      5'd0:    return 5'(ACT_A1_C);
+      5'd1:    return 5'(ACT_A11_C);
+      5'd2:    return 5'(ACT_A8_C);
+      5'd3:    return 5'(ACT_A9_C);
+      5'd4:    return 5'(ACT_A2_C);
+      5'd5:    return 5'(ACT_A6_C);
+      5'd6:    return 5'(ACT_A10_C);
+      5'd7:    return 5'(ACT_A12_C);
+      5'd8:    return 5'(ACT_A13_C);
+      5'd9:    return 5'(ACT_A14_C);
+      5'd10:   return 5'(ACT_A15_C);
+      5'd11:   return 5'(ACT_A16_C);
+      5'd12:   return 5'(ACT_A17_C);
+      5'd13:   return 5'(ACT_A3_C);
+      5'd14:   return 5'(ACT_A7_C);
+
+## SRP matcher armed by A15, disarmed by A8; failure code zero unless armed and FAILED (KL_srp_listener_fsm.sv)
+      // ---- A15 settle / A8 teardown -------------------------------------
+      if (ctl_acc_w) begin
+        if (ctl_settle_i) begin
+          rec_valid_r[ctl_sink_i] <= 1'b1;
+          armed_r[ctl_sink_i]     <= 1'b1;
+          sid_r[ctl_sink_i]       <= ctl_stream_id_i;
+          end
+        end else begin
+          armed_r[ctl_sink_i]     <= 1'b0;
+          decl_pend_r[ctl_sink_i] <= D_NOP_C;
+  always_comb begin : status_map
+    for (int unsigned s = 0; s < N_SINKS_P; s++) begin
+      tk_reg_state_o[s] = (armed_r[s] && (reg_r[s] != R_MT_C))
+                        ? (rtype_r[s] ? 2'd2 : 2'd1)
+                        : 2'd0;
+      // the sink's own type while its group's applicant declares; the
+      // combination goes on the wire only (banner, issue #193)
+      lstn_decl_state_o[s] = (rec_valid_r[s] && gdecl_w[s]) ? dcl_r[s] : 2'd0;
+      acc_latency_o[s] = lat_r[s];
+      msrp_fail_code_o[s]   = (tk_reg_state_o[s] == 2'd2) ? fcode_r[s] : 8'd0;
+
+## The top's selector 4 failure-code byte reads that output (protocol_processor_top.sv)
+      gsi_fail_code_w = srp_snk_fail_code_w[gsi_sink_w];
+      if (lstn_act_settle_w || lstn_act_teardown_w) begin
+        if (st_ls_vld_r) begin
+          if (svc_drop_r != 16'hFFFF) svc_drop_r <= svc_drop_r + 16'd1;
+        end else begin
+          st_ls_vld_r <= 1'b1;
+          st_ls_r     <= '{from_svc: 1'b0,
+                           op:    lstn_act_settle_w ? 3'd2 : 3'd3,
+                           index: 8'(lstn_act_sink_w),
+                           sid:   lstn_act_settle_sid_w,

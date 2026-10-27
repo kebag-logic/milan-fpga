@@ -1,0 +1,17 @@
+097a79875f20c27f0a5987a193c165c5086f3cf5 tree e496f4f6faa5d95dbf531f743ecd0dc7a3f72f4a Merge PR #204: Declare at once with a new Stream ID after a MAAP conflict (#202)
+e9272b5635e76bf12a69376d59fd21d059cae320 tree 0482079467bc4e40ebac7997441c9569b4cc4a8f Split the settled-gate arms out of gsi_mutants.py's mutations() so no function exceeds 100 lines (issue #206)
+7919c9a3a962ac78a0f4cc7806c8ac6ae9871dab tree d75ad993b592ec73937522a6388a69353a864572 Claim every flag in section GI's settled-gate integrator and add the over-clearing mask arm, so a gate that clears more than 0x52000000 fails by name (issue #206)
+c836105351297947a7660952df7c4d92500a09ec tree 1a4a8fe48ece11f134a6a03dbfbb6990451b86ed Rewrap the 133-column line in 06_aecp_engine.md's GET_STREAM_INFO ownership paragraph (issue #206)
+
+git diff --stat e9272b5..c836105:
+ docs/architecture/06_aecp_engine.md |  9 +++++----
+ tb/pp_top/README.md                 | 22 +++++++++++++++-------
+ tb/pp_top/gsi_internal.hpp          | 27 +++++++++++++++++++--------
+ tb/pp_top/gsi_mutants.py            |  8 +++++++-
+ tb/pp_top/sim_main.cpp              | 12 ++++++++----
+ 5 files changed, 54 insertions(+), 24 deletions(-)
+
+git diff --stat e9272b5..c836105 -- hdl (empty = no RTL, port, parameter or register-map change):
+(end)
+
+verilator: Verilator 5.052 2026-09-05 rev v5.052
