@@ -826,8 +826,9 @@ Its checks:
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
-- a reused build of another fetch L1 or arm is refused, and a build that records no fetch L1 is the cacheless one;
-- the XIP arm's link script keeps the reset entry and F1's flash driver in `rom` and puts every other function in the flash window.
+- `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
+- `run.main` refuses a reused build of another fetch L1 or arm, reuses the selected one, and takes a build that records no fetch L1 as the cacheless one;
+- the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window.
 
 Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
 
@@ -897,9 +898,12 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
 | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |
 | fetch bus: one beat a refill | a refill's beats are read off the netlist |
-| reuse: the fetch L1 and the arm are not compared | a reused build of another fetch L1 or arm is refused; a build with no fetch L1 is cacheless |
-| xip: the reset entry moves to flash with the other code | the XIP arm keeps the reset entry and F1's flash driver in rom and moves the other code to flash |
-| xip: F1's flash driver moves to flash with the other code | the XIP arm keeps the reset entry and F1's flash driver in rom and moves the other code to flash |
+| reuse: the fetch L1 and the arm are not compared | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
+| reuse: a reused build is not compared with the selection | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
+| build: an XIP build records the block-RAM arm | the run builds and records the fetch L1 and the arm it selected |
+| build: the CPU is built with the split's cache whatever the selection | the run builds and records the fetch L1 and the arm it selected |
+| xip: the reset entry moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
+| xip: the flash driver moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -950,5 +954,6 @@ The run must refuse the boot with an instruction access fault, cause 1, and prin
 - The firmware polls (`CTRL_MBX_WFI` undefined), as the fixture is linked.
 - The two-interface fixture gives both interfaces the same MAC, as `ctrl_aecp_image.c` does.
 - With the instruction cache, a fetch is observed as a line refill on the cache's bus; hits are on no bus and are not counted.
+- The self-test's build check replaces the SoC export, which needs LiteX, with a recorder of the selection it is handed; `split_soc.build`'s own record (`soc.json`) is attested by each run's `build.json`, not by the portable self-test.
 - The XIP arm runs every function but the reset entry and F1's flash driver from flash.
   The model's erase and program waits are zero, so it does not see a real part's read stall while it programs.

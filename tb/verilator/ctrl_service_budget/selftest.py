@@ -16,8 +16,9 @@ the table renders. The real scenario's composed windows are counted
 against the defined loads restated here, its fan-out against the
 firmware's registration capacity read here, and its controls against
 their paths. The run's exit status, the regrade's refusal of an absent
-log, the reuse attestation, and the instruction cache's observers, reuse
-identity and XIP link script run on temporary files.
+log, the reuse attestation, the instruction cache's observers and XIP link
+script, and the fetch L1 and arm the run builds, records and reuses run on
+temporary files.
 Then each rule is mutated in turn, and a named check must fail; a mutant of
 a headline figure (the worst pass, the composed maximum, a pass bound)
 fails on that figure.
@@ -32,10 +33,13 @@ from __future__ import annotations
 import argparse
 import contextlib
 import hashlib
+import io
 import json
+import os
 import re
 import sys
 import tempfile
+import types
 from collections.abc import Callable, Iterator
 from pathlib import Path
 from unittest.mock import patch
@@ -723,8 +727,8 @@ def reuse_checks() -> list[Check]:
 
 def cache_checks() -> list[Check]:
     """The instruction cache's build (#665): the fetch observers follow the CPU's fetch plugin, a
-    refill's beats come from the netlist, a reused build must be the selected cache and arm, and
-    the XIP arm keeps the reset entry in rom."""
+    refill's beats come from the netlist, and the XIP arm keeps the reset entry and the flash
+    driver in rom."""
     out = []
     with tempfile.TemporaryDirectory() as tmp:
         netlist = Path(tmp) / 'VexiiRiscvLitex_x.v'
@@ -748,18 +752,106 @@ def cache_checks() -> list[Check]:
             refused = str(error)
         out.append(('a cached netlist without its line-aligned refill address is refused', 'refill' in refused,
                     refused or 'accepted'))
-    args = argparse.Namespace(cpu_regions='cover', mutation='none', variant='none', fetch_l1='none', xip=False)
-    spec = dict(shape='s', interfaces=1, cpu_regions='cover', mutation='none', variant='none')
-    out.append(('a reused build of another fetch L1 or arm is refused; a build with no fetch L1 is cacheless',
-                run.built_as(spec) == run.selected(args, 's', 1)
-                and run.built_as(dict(spec, fetch_l1='64x1')) != run.selected(args, 's', 1)
-                and run.built_as(dict(spec, fetch_l1='none', xip=True)) != run.selected(args, 's', 1), ''))
     script = build.xip_script((build.ROOT / 'sw/firmware/ctrl/plat/ctrl_split.ld').read_text(), 0x20410000,
                               0x21000000)
-    out.append(('the XIP arm keeps the reset entry and F1\'s flash driver in rom and moves the other code to flash',
+    out.append(('the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash',
                 '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n' in script
                 and '\t.text : ALIGN(4) { *(.text .text.*) } > flash\n' in script
                 and 'MEMORY { flash (rx) : ORIGIN = 0x20410000, LENGTH = 0xbf0000 }' in script, script[:400]))
+    return out
+
+
+class Reached(Exception):
+    """run.main got past its build or its reuse refusal and began to set up its groups."""
+
+
+def write(path: Path, data: bytes) -> Path:
+    """One temporary build file, written; returns its path."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    return path
+
+
+def main_verdict(bdir: Path, *flags: str) -> str:
+    """run.main at 1x1 on bdir with the flags: 'reached' once it sets up its groups, else how it
+    exited and its last line."""
+    def reached(*a: object) -> None:
+        raise Reached
+    said = io.StringIO()
+    argv = ['run.py', '--point', '1x1', '--build-dir', str(bdir), *flags]
+    with patch.object(sys, 'argv', argv), patch.dict(os.environ), patch.object(scenario, 'point', reached), \
+            contextlib.redirect_stdout(said), contextlib.redirect_stderr(said):
+        try:
+            status = f'returned {run.main()}'
+        except Reached:
+            return 'reached'
+        except SystemExit as error:
+            status = f'exit {error.code}'
+    last = said.getvalue().strip().rpartition('\n')[2]
+    return f'{status}: {last}'
+
+
+def built(bdir: Path, *flags: str) -> tuple[str, dict]:
+    """run.main building bdir with the flags, build.build's toolchain steps replaced: its verdict
+    and the build.json it wrote.
+
+    The image, the XIP relink, the symbols and the native model are placeholder
+    files, and the SoC export records the selection it is handed, as
+    split_soc.build records it in soc.json. The run's selection, the mailbox
+    contract, the input digests and build.json are run.main's and build.build's own.
+    """
+    soc = types.ModuleType('split_soc')
+    soc.fixture_addresses = lambda: {'flash': 0x20000000}
+    soc.build = lambda build_dir, shape, elf, n_if, cpu_regions, fetch_l1: dict(
+        sources=[], shape=shape, interfaces=n_if, cpu_regions=cpu_regions, fetch_l1=fetch_l1)
+    stubs = dict(
+        firmware=lambda out, *a: write(out / 'image/ctrl_app.elf', b'elf'),
+        xip_image=lambda out, elf, window: (write(out / 'xip/ctrl_app.elf', b'xip'),
+                                            write(out / 'xip/ctrl_app_rom.elf', b'rom'),
+                                            write(out / 'flash.bin', b'code')),
+        symbols=lambda elf: dict.fromkeys(('ctrl_loop_service', 'main', *build.ENTRY_SYMBOLS), 0),
+        verilate=lambda out, *a: (write(out / 'native/Vsim', b'model'), write(out / 'budget_config.hpp', b'h')))
+    with contextlib.ExitStack() as stack:
+        stack.enter_context(patch.dict(sys.modules, split_soc=soc))
+        stack.enter_context(patch.object(sys, 'path', list(sys.path)))
+        for name, stub in stubs.items():
+            stack.enter_context(patch.object(build, name, stub))
+        verdict = main_verdict(bdir, *flags)
+    record = bdir / 'build.json'
+    return verdict, json.loads(record.read_text()) if record.is_file() else {}
+
+
+def cache_build_checks() -> list[Check]:
+    """The instruction cache's build identity (#665), on temporary files: the run builds and records
+    the fetch L1 and the arm it selected, and it refuses a reused build of another, reuses the
+    selected one, and takes a build that records no fetch L1 as the cacheless one."""
+    out = []
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp).resolve()
+        write(root / 'firmware/adp.c', b'c')
+        with patch.object(build, 'FIRMWARE_TREES', (str(root / 'firmware'),)):
+            selections = {'xip': ('64x1', True), 'plain': ('none', False)}
+            runs = {name: built(root / name, '--fetch-l1', fetch_l1, *(['--xip'] if xip else []))
+                    for name, (fetch_l1, xip) in selections.items()}
+            recorded = {name: (verdict, (spec.get('fetch_l1'), spec.get('xip')))
+                        for name, (verdict, spec) in runs.items()}
+            out.append(('the run builds and records the fetch L1 and the arm it selected',
+                        recorded == {name: ('reached', selection) for name, selection in selections.items()},
+                        str(recorded)))
+            cases = [('xip', ('--fetch-l1', '64x1', '--xip'), True), ('xip', ('--xip',), False),
+                     ('xip', ('--fetch-l1', '64x1'), False), ('plain', ('--fetch-l1', 'none'), True),
+                     ('plain', (), False), ('plain', ('--fetch-l1', 'none', '--xip'), False)]
+            got = [main_verdict(root / name, '--reuse-build', *flags) for name, flags, _ in cases]
+            # A build made before the cache records neither key; build.json is no attested input.
+            (root / 'plain/build.json').write_text(json.dumps(
+                {k: v for k, v in runs['plain'][1].items() if k not in ('fetch_l1', 'xip')}))
+            cases += [('no fetch L1 recorded', ('--fetch-l1', 'none'), True), ('no fetch L1 recorded', (), False)]
+            got += [main_verdict(root / 'plain', '--reuse-build', *flags) for _, flags, _ in cases[-2:]]
+    refused = lambda verdict: verdict.startswith('exit 2:') and 'fetch L1 or arm' in verdict
+    wrong = [f'{name} {" ".join(flags) or "(split)"}: {verdict}' for (name, flags, reuse), verdict in zip(cases, got)
+             if not (verdict == 'reached' if reuse else refused(verdict))]
+    out.append(('the run refuses a reused build of another fetch L1 or arm and reuses the selected one; '
+                'a build with no fetch L1 is cacheless', not wrong, '; '.join(wrong)))
     return out
 
 
@@ -767,7 +859,7 @@ def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
-            *cache_checks()]
+            *cache_checks(), *cache_build_checks()]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

@@ -9,6 +9,7 @@ mutant is a function returning the patches it applies.
 """
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import re
@@ -329,6 +330,28 @@ def _selected_without_cache(args: object, shape: str, n_if: int) -> tuple:
     return shape, n_if, args.cpu_regions, args.mutation, args.variant, 'none', False
 
 
+def _build_recorded(edit: Callable[[dict], dict]) -> Patches:
+    """build.build with its build.json record edited, on disk and returned."""
+    original = build.build
+
+    def build_(build_dir: Path, *a: object, **k: object) -> dict:
+        """The mutant build: its record edited."""
+        spec = edit(original(build_dir, *a, **k))
+        (build_dir / 'build.json').write_text(json.dumps(spec, indent=2) + '\n')
+        return spec
+    return lambda: [patch.object(build, 'build', build_)]
+
+
+def _build_with(edit: Callable[[build.Core], build.Core]) -> Patches:
+    """build.build handed an edited selection: it builds a CPU or arm other than the one selected."""
+    original = build.build
+
+    def build_(build_dir: Path, *a: object, core: build.Core = build.Core(), **k: object) -> dict:
+        """The mutant build: the selection edited before it is built and recorded."""
+        return original(build_dir, *a, core=edit(core), **k)
+    return lambda: [patch.object(build, 'build', build_)]
+
+
 MUTANTS: dict[str, Patches] = {
     'marker: the frame tag is ignored': _start_with(_tag_ignored),
     'marker: a timer path starts when its record is posted': _start_with(_timer_posted),
@@ -436,8 +459,13 @@ MUTANTS: dict[str, Patches] = {
     'reuse: the fetch L1 and the arm are not compared':
         lambda: [patch.object(run, 'built_as', _built_as_without_cache),
                  patch.object(run, 'selected', _selected_without_cache)],
+    'reuse: a reused build is not compared with the selection': lambda: [
+        patch.object(run, 'built_as', lambda spec: ()), patch.object(run, 'selected', lambda *a: ())],
+    'build: an XIP build records the block-RAM arm': _build_recorded(lambda spec: dict(spec, xip=False)),
+    "build: the CPU is built with the split's cache whatever the selection": _build_with(
+        lambda core: dataclasses.replace(core, fetch_l1='split')),
     'xip: the reset entry moves to flash with the other code': lambda: [patch.object(
         build, 'XIP_TEXT', (build.XIP_TEXT[0], build.XIP_TEXT[1].replace('} > rom', '} > flash')))],
-    "xip: F1's flash driver moves to flash with the other code": lambda: [patch.object(build, 'XIP_TEXT', (
+    'xip: the flash driver moves to flash with the other code': lambda: [patch.object(build, 'XIP_TEXT', (
         build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
 }
