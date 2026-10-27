@@ -1,0 +1,29 @@
+public evidence: kebag-logic/milan-fpga @ 878a23949f409e939b791026392cf5ecf0b3df32, review-evidence/pp202-r1
+MANIFEST.json sha256 71b7f161ceae2da58e43d986404146eac046350065afca4fb73ab40eec35d388
+author-r4: 1768 manifest entries verified, 0 mismatched, 1768 files on disk
+gate-status: all_accepted_zero True accepted receipts 50 | expected failures on ebb1f001 RTL: [('tests/old-rtl/pp_top-mp-on-ebb1f001-rtl.rc', 1), ('tests/old-rtl/stream-fsms-bench-on-ebb1f001-rtl.rc', 2), ('tests/old-rtl/talker-bench-on-ebb1f001-rtl.rc', 2)]
+sidmove-legs:1: The processor #202 recovery legs of the parent milan_dp run (processor pinned at ffc76f1).
+sidmove-legs:69: [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)
+sidmove-legs:75: [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)
+sidmove-legs:80: [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=0200000000010002 exp=0200000000010002
+sidmove-legs:82: [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010002 exp=0200000000010002
+sidmove-legs:83: [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+sidmove-legs:85: [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+sidmove-legs:88: [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=0200000000010003 exp=0200000000010003
+sidmove-legs:90: [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010003 exp=0200000000010003
+sidmove-legs:91: [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+sidmove-legs:93: [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+sidmove-legs:98: checks: 50   failures: 0
+sidmove-legs:166: [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1816 ms)
+sidmove-legs:172: [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1816 ms)
+sidmove-legs:178: [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=0200000000010009 exp=0200000000010009
+sidmove-legs:180: [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010009 exp=0200000000010009
+sidmove-legs:181: [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+sidmove-legs:183: [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+sidmove-legs:186: [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=020000000001000a exp=020000000001000a
+sidmove-legs:188: [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=020000000001000a exp=020000000001000a
+sidmove-legs:189: [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+sidmove-legs:191: [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+sidmove-legs:196: checks: 52   failures: 0
+PR-BODY.md mentions 1,816 ms: True | 1,778: False | 'supersedes': False
+parent patch added comment lines with the R710-2-R02 identifiers: 0
