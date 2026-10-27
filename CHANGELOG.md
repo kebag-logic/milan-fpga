@@ -8,7 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
-- **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- A moved Stream ID; settled-only stream fields.
+- **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- Moved Stream IDs; settled-only stream fields.
 - **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
 - **[Unreleased - per-source TSpec](#unreleased---per-source-tspec)** -- The CRF output declares 29.
 - **[Unreleased - talker capture-to-wire latency](#unreleased---talker-capture-to-wire-latency)** -- Stamps cover the wire path.
@@ -51,21 +51,22 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 - Issue #799 adopts processor `f65c8ff7` (PRs #204, #207, #208).
 - FPGA-gPTP stays at `55680bff`.
-- Processor #202: after a MAAP conflict a declared source moves to a new Stream ID.
-- It keeps the upper 48 bits and declares the new ID at once.
-- IEEE 802.1Q-2018 35.2.2.8 asks for a wait only before the same StreamID returns.
-- Milan v1.2 Table 5.3 lets the PAAD use another Stream ID.
-- The processor publishes each source's current ID on `src_stream_id_o`.
+- Processor #202: a MAAP conflict moves a declared Stream ID.
+- The new ID keeps the upper 48 bits.
+- It is declared at once, without a LeaveAll wait.
+- The 802.1Q wait guards only a returning StreamID.
+- Milan Table 5.3 allows another Stream ID.
+- `src_stream_id_o` publishes each source's current ID.
 - `KL_pp_shadow` passes it out; the AAF and CRF frames carry it.
-- An output's GET_STREAM_INFO stream_id is that ID (IEEE 1722.1-2021 7.4.16.2).
+- An output's GET_STREAM_INFO stream_id is that ID.
 - A TCTX unique ID no longer reaches the wire.
-- The STRMW talker SID words still read the ID a source starts with.
+- STRMW talker SID words keep a source's first ID.
 - milan_dp's `sidmove` and `sidmove8` legs drive a real conflict.
-- The torture plan's conflict entry no longer expects a two-LeaveAll wait.
-- Processor #205: GET_TX_STATE for an unknown source echoes the listener fields.
-- Milan v1.2 5.5.4.3 step 1 and Table 5.46 give them.
-- Processor #206: an unsettled input reports no stream_id, DA or VLAN.
-- Its three Table 5.9 flags are clear (Milan v1.2 5.4.2.10.1).
+- The torture plan no longer expects a two-LeaveAll wait.
+- Processor #205: unknown-source GET_TX_STATE echoes the listener fields.
+- Milan Table 5.46 gives them.
+- Processor #206: an unsettled input reports no stream fields.
+- Its three Table 5.9 flags stay clear.
 - This closes #790; `[GSI]` G11 and `pp_shadow` `[GSI]` grade four cases.
 - `make gsi-mutants` plants the pass-through in the processor copy.
 - Both processor ROM digests match the `ed211803` rows.

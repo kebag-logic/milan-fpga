@@ -287,21 +287,25 @@ The top adds one output, `src_stream_id_o`; no parameter or register changes.
 
 `ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `ed211803` rows.
 
-The STRMW talker SID words (`0x814`, `0x818`) still read the ID a source starts with.
+STRMW talker SID words (`0x814`, `0x818`) keep a source's first ID.
 
-The torture plan's MAAP conflict entry no longer expects a two-LeaveAll wait.
+The torture plan no longer expects a two-LeaveAll wait.
 
-Against the eleventh record, this adoption's shipping route grows by 753 LUTs (+1.47 %) and 499 FFs.
+The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) measured this adoption against the eleventh record.
 
-The route's LUT tolerance is 500, so the [resource gate](../design/AREA_BUDGET.md#the-resource-gate) refuses it until the record is re-baselined.
+| Endpoint | LUT | FF | Gate |
+|---|---|---|---|
+| `route-1x1` | +753 (+1.47 %) | +499 | refused: LUT tolerance 500 |
+| `ooc-1x1` | +518 | +404 | refused: tolerances 250 and 250 |
+| `ooc-8x8` | +1,689 | +1,562 | refused: tolerances 316 and 339 |
 
-That re-baseline is an owner decision this adoption does not take.
+Re-baselining the record is an owner decision.
 
-712 of those LUTs are the processor's: the #202 move, its quarantine and the owed Leave.
+Almost all growth is the processor's #202 logic.
 
-Slices fall by 55, block RAM and DSP are unchanged, and the route keeps +0.440 ns WNS.
+The route keeps +0.440 ns WNS.
 
-Standalone, the wrapper grows by 518 LUTs and 404 FFs at 1x1 and by 1,689 LUTs and 1,562 FFs at 8x8, all of it the processor's.
+Slices fall by 55; block RAM and DSP hold.
 
 The ROM ledger records current and earlier pins.
 
