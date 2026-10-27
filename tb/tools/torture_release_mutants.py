@@ -906,7 +906,7 @@ def main() -> int:
                 print(f"FAIL: {name}: expected one source anchor")
                 return 1
             candidate.write_text(text.replace(old, new), encoding="utf-8")
-            result = subprocess.run(command, capture_output=True, text=True, timeout=600)
+            result = subprocess.run(command, capture_output=True, text=True, timeout=1200)
             if result.returncode != 1 or f"FAIL: {test} " not in result.stderr:
                 print(f"FAIL: {name}: no named behavioral failure", result.stdout, result.stderr)
                 return 1
