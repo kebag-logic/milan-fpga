@@ -1,0 +1,23 @@
+All run in the foreground or as detached jobs with their own log and rc file, from <tree> at
+424b1489ccd8062180f90158556d343589b9e1e5 unless stated. <packet> is this packet's directory.
+
+(cd <tree>/sw/firmware/ctrl/test && python3 -B aecp_arms.py --app --interfaces 1 --output <packet>/scratch/arms-app-if1)   -> receipts/aecp-arms-app-if1.txt, rc 0
+(cd <tree>/sw/firmware/ctrl/test && python3 -B aecp_arms.py --app --interfaces 2 --output <packet>/scratch/arms-app-if2)   -> receipts/aecp-arms-app-if2.txt, rc 0
+(cd <tree>/sw/firmware/ctrl/test && python3 -B aecp_arms.py --app --asan --interfaces 2 --output <packet>/scratch/arms-asan-if2) -> receipts/aecp-arms-app-if2-asan.txt, rc 0
+python3 -B sw/firmware/gtest/fw_coverage.py --check --jobs 8 --keep <packet>/scratch/cov            -> receipts/fw-coverage-check.txt, rc 0
+python3 -B sw/mailbox/gen_mailbox.py --check                                                        -> receipts/gen-mailbox-check.txt, rc 0
+python3 -B <packet>/scripts/run_cpp_probe.py <tree> <packet>/scripts/probe_unlocked_edges.cpp <packet>/scratch/probe-core core \
+  'Core.ReviewerProbeUnlockedEdges:Core.AnExpired*:Core.ASystemId*:Core.AWaitingChangeIsAnsweredOnTheInterfaceItCameIn'   -> receipts/probe-unlocked-edges-core.txt, rc 0
+python3 -B <packet>/scripts/run_cpp_probe.py <tree> <packet>/scripts/probe_unlocked_edges.cpp <packet>/scratch/probe-app app \
+  'Core.ReviewerProbeUnlockedEdges'                                                                   -> receipts/probe-unlocked-edges-app.txt, rc 0
+python3 -B <packet>/scripts/run_cpp_probe.py <tree> <packet>/scripts/prior_probe_wait_refusals.cpp <packet>/scratch/probe-r5 app \
+  'Face.ReviewerProbeRefusalsWhileAChangeWaits'                                                       -> receipts/prior-r701-5-probe-wait-refusals-app.txt, rc 0
+python3 -B <packet>/scripts/reviewer_mutants.py <tree> <packet>/scratch/rmut                        -> receipts/reviewer-mutants.txt and -results.json, rc 0 (8 of 8 caught)
+python3 -B scripts/docs_check.py                                                                     -> receipts/docs-check.txt, rc 0
+python3 -B scripts/check_doc_style.py                                                                -> receipts/doc-style.txt, rc 0
+python3 -B scripts/check_em_dash.py --base e76a755afc0536453161e3cd33f6f4d2dcd7641f                  -> receipts/em-dash.txt, rc 2 (cannot judge: pinned renderer absent here; manual scan of the delta's added lines found no em dash)
+read-only: commits/424b1489.../check-runs snapshot                                                   -> receipts/hosted-check-runs.txt
+evidence: sparse fetch of 17fa488f86d1122dd8a25f6de0a77d5a2d22490d review-evidence/665s1-r1/{MANIFEST.json,author-r6/}; 186 of 186 author-r6
+  files match MANIFEST.json published_sha256; 172 of 172 INDEX.md rows match bytes and sha256; one file (probes/collect_receipts.sh) path-redacted
+  by the manifest; six prior reviewer probe files' sha256 equal the author's probe-hashes.txt          -> receipts/evidence-verification.txt
+integrity after probes                                                                               -> receipts/checkout-integrity.txt
