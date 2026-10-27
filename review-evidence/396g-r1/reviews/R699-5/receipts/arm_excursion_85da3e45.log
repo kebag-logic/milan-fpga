@@ -1,0 +1,23 @@
+cases: 12480
+void: 3836
+void mask=0x100: 864
+void mask=0x100000: 432
+void mask=0x1000000: 864
+void mask=0x1e00: 612
+void mask=0x200: 428
+void mask=0x40000: 176
+void mask=0x80000: 176
+void mask=0x80100: 284
+void, code/channel/pad mask: 2160
+example ('drop', 300, 0, '0x100', -8, 11, 5, [(292, 'bit-flip', 11, '0x00003F00'), (303, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -8, 12, 5, [(292, 'bit-flip', 12, '0x00003F00'), (304, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -7, 10, 5, [(293, 'bit-flip', 10, '0x00003F00'), (303, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -7, 11, 5, [(293, 'bit-flip', 11, '0x00003F00'), (304, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -7, 12, 5, [(293, 'bit-flip', 12, '0x00003F00'), (305, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -6, 9, 5, [(294, 'bit-flip', 9, '0x00003F00'), (303, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -6, 10, 5, [(294, 'bit-flip', 10, '0x00003F00'), (304, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -6, 11, 5, [(294, 'bit-flip', 11, '0x00003F00'), (305, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -6, 12, 5, [(294, 'bit-flip', 12, '0x00003F00'), (306, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -5, 8, 5, [(295, 'bit-flip', 8, '0x00003F00'), (303, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -5, 9, 5, [(295, 'bit-flip', 9, '0x00003F00'), (304, 'dropped', 3, '')])
+example ('drop', 300, 0, '0x100', -5, 10, 5, [(295, 'bit-flip', 10, '0x00003F00'), (305, 'dropped', 3, '')])
