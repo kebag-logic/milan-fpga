@@ -1,0 +1,42 @@
+### frames=16384 run@4424 len=1726 mask=0x80000 repeat3@6097
+verdict FAIL | DUT-attributed audio events
+missed []
+  0 4424 bit-flip 1673 0x00080000 None
+  0 6097 repeated 1027 None None
+  0 6146 dropped 2048 None None
+### frames=16384 run@4424 len=1726 mask=0x00080100 repeat3@6097
+verdict FAIL | DUT-attributed audio events
+missed []
+  0 6097 dropped 1021 None None
+  0 6098 bit-flip 3 0x00000100 None
+  0 6102 bit-flip 2 0x00000100 None
+### frames=16384 run@900 len=1726 mask=0x80100 repeat3@2573
+verdict FAIL | DUT-attributed audio events
+missed []
+  0 900 bit-flip 1673 0x00080100 None
+  0 2573 repeated 1027 None None
+  0 2577 bit-flip 1 0x00000100 None
+### frames=32768 run@4424 len=20000 mask=0x80100 repeat3@24000
+verdict FAIL | DUT-attributed audio events
+missed []
+  0 4424 repeated 499717415936 None None
+  0 5119 repeated 2048 None None
+  0 6143 repeated 2048 None None
+### frames=131072 run@4424 len=60000 mask=0x80100 repeat3@64000
+verdict FAIL | DUT-attributed audio events
+missed []
+  0 4424 repeated 499717415936 None None
+  0 5119 repeated 2048 None None
+  0 6143 repeated 2048 None None
+### frames=16384 run@4424 len=1726 mask=0x80100 repeat3@5000
+verdict FAIL | DUT-attributed audio events
+missed []
+  0 4424 repeated 499717415936 None None
+  0 5000 repeated 3 None None
+  0 5122 repeated 2048 None None
+### frames=16384 run@4424 len=1726 mask=0x80100 repeat3@4600
+verdict FAIL | DUT-attributed audio events
+missed []
+  0 4424 repeated 499717415936 None None
+  0 4600 repeated 3 None None
+  0 5122 repeated 2048 None None
