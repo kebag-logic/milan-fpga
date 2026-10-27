@@ -3339,11 +3339,13 @@ AUDIO_RELEASE_ASSERTS = (
                ": grade_audio_counter_capture lists every discontinuity the bytes show "
                "in a class: n dropped, n repeated, n samples of silence (replaced or "
                "inserted), a bit-flip mask or a channel swap; a capture with one never "
-               "grades PASS, and each is listed on each channel it changes unless it "
-               "masks a planted arm and voids the run, each listing no earlier than 63 "
-               "samples before its first word and no later than 63 after its last; "
-               "inside the exactness scope counter_limits states, each is classified at "
-               "its sample, listed within 63 samples of its first word, and every slip "
+               "grades PASS, and each is covered, on each channel it changes, by at "
+               "least one listing whose samples overlap its first word minus 63 to its "
+               "last word plus 63, one inside a constant-mask excursion on the same "
+               "channel possibly by that excursion's listing alone, unless it masks a "
+               "planted arm and voids the run; inside the exactness scope counter_limits "
+               "states, each is classified at its sample, its listing beginning within 63 "
+               "samples of its first word, and every slip "
                "sized exactly, the counter repeating only after 2^43 samples, and outside "
                "it a composition fails or voids the run and may read in other classes; a "
                "slip of whole 2048-sample blocks is located within 63 samples "
@@ -3748,11 +3750,13 @@ AUDIO_QUALIFICATION = {
 #: Patterns the counter cannot tell apart, as the plan states them (TESTING.md 6d).
 AUDIO_COUNTER_LIMITS = (
     "every capture: a capture with a DUT event the bytes show never grades PASS, and each such event "
-    "is listed on each channel it changes, unless it masks a planted arm at its sample and the run is "
-    "void; each listing, its words or a slip's located_within, falls no earlier than 63 samples before "
-    "the event's first word and no later than 63 samples after its last, and inside the exactness scope "
-    "within 63 samples of its first word; events that cancel one another, or only move an arm within "
-    "its tolerance, leave a clean run's bytes",
+    "is covered, on each channel it changes, by at least one listing whose samples, its words or a "
+    "slip's located_within, overlap the event's first word minus 63 to its last word plus 63; a DUT "
+    "event inside a constant-mask excursion on the same channel may be covered by that excursion's "
+    "listing alone; the exception is an event that masks a planted arm at its sample, the run then "
+    "void; outside the exactness scope this promises coverage, not position, and inside it each "
+    "listing begins within 63 samples of the event's first word, at the sample it names; events that "
+    "cancel one another, or only move an arm within its tolerance, leave a clean run's bytes",
     "exact classification is claimed only inside a scope: one DUT event with at least 64 clean samples "
     "between it and every other event and planted arm, except an excursion whose mask clears its "
     "channel number; a one-word corruption 0 to 4 samples from a planted arm; a short slip 1 to 64 "
@@ -3806,8 +3810,8 @@ AUDIO_COUNTER_LIMITS = (
     "outside the scope, an excursion whose mask clears its channel number splits at each word it "
     "makes zero, a block start whose code bit is 0, which reads as one sample of silence",
     "a constant-mask corruption that a slip interrupts, or whose words one offset explains up to "
-    "a slip at its return, reads as the slips its words show; an interrupted one is listed from its "
-    "first word, its words before the slip one bit-flip up to it where they are held as one mask",
+    "a slip at its return, reads as the slips its words show; where an interrupted one's words before "
+    "the slip are held as one mask, they are one bit-flip up to it",
     "a slip pair whose total is whole blocks and whose displaced words share one XOR mask reads "
     "as that bit-flip and a slip of whole blocks beside it, the corruption judged against "
     "whichever track gives its mask fewer bits set",
@@ -4854,7 +4858,7 @@ class _CounterScan:
 
         A returned excursion's bit-flip lies before the window's words, the
         only ones a hold reads again, so it is recorded ahead of what the hold
-        records: an excursion a slip interrupts is listed from its first word.
+        records and a hold cannot lose it.
         """
         slot = self.slots[channel]
         window, slot.window = slot.window, None
@@ -9414,9 +9418,9 @@ class _ReleaseGateChecks:
 
     def _fuzz_nested(self, frames: int, seed: int) -> list:
         """A seeded constant-mask excursion of 64 to 2100 words anywhere, under one of the sweep's mask
-        classes, with one or two DUT events inside it: slips mostly, or a silence, a swap, a copy or a
-        one-word corruption, on any channel. Half of them lie less than 64 samples before its return, so
-        that their window holds the return as well."""
+        classes, with one or two DUT events inside it, on any channel: a slip in three draws of seven, else
+        a silence, a swap, a copy or a one-word corruption. Half of them lie less than 64 samples before
+        its return, so that their window holds the return as well."""
         import random
         rnd = random.Random(seed)
         length, channel, mask = rnd.randint(64, 2100), rnd.randrange(4), rnd.choice(self._SWEEP_MASKS)
@@ -9457,13 +9461,14 @@ class _ReleaseGateChecks:
         """Grade one composition against the property; return its verdict and the allowances it needed.
 
         It never grades PASS unless every channel's words are a clean run's, each arm at its logged sample
-        or where the grader found it ("clean"). Each unit is listed on every channel it changes: a DUT
-        event's words, or the samples it may have happened at, reach no earlier than 63 samples before the
-        unit's first word and begin no later than 63 samples after its last. Otherwise the run is void
-        with an arm missed at that sample ("masked"), or removing the unit and some units near it, the rest
-        composed in their order, leaves that channel's words as they are, with the arms so placed
-        ("cancelled"). In a run that fails and is not void, each DUT listing reaches so a unit that changes
-        its channel; in a void run a missed arm's own records are DUT listings."""
+        or where the grader found it ("clean"). Each unit is covered on every channel it changes: a DUT
+        listing's words, or the samples it may have happened at, overlap the unit's first word minus 63 to
+        its last word plus 63. That listing may be any, so a unit inside an excursion on its channel may be
+        covered by the excursion's listing alone. Otherwise the run is void with an arm missed at that
+        sample ("masked"), or removing the unit and some units near it, the rest composed in their order,
+        leaves that channel's words as they are, with the arms so placed ("cancelled"). In a run that fails
+        and is not void, each DUT listing covers a unit that changes its channel; in a void run a missed
+        arm's own records are DUT listings."""
         import itertools
         verdict, detail, columns = self._sweep_grade(frames, [event for unit in units for event in unit[4]])
         if verdict == "PASS":
@@ -9472,7 +9477,7 @@ class _ReleaseGateChecks:
             return verdict, {"clean"}
 
         def reaches(event: dict, unit: tuple) -> bool:
-            """Whether a DUT listing reaches the unit's words on a channel the unit changes."""
+            """Whether a DUT listing covers the unit on a channel the unit changes."""
             return (event["attribution"] == "dut" and event["channel"] in unit[2]
                     and self._fuzz_reach(event, unit[1], unit[1] + unit[3] - 1) <= AUDIO_GUARD_FRAMES)
 
@@ -9492,19 +9497,19 @@ class _ReleaseGateChecks:
                     frames, detail, channel, [event for j, unit in enumerate(units)
                                               if j != i and (j not in near or j in kept) for event in unit[4]])
                     for r in range(len(near) + 1) for kept in itertools.combinations(near, r)),
-                    ("a DUT event is not listed", kind, at, channel, verdict, detail["events"]))
+                    ("a DUT event is not covered", kind, at, channel, verdict, detail["events"]))
                 allowed.add("cancelled")
         if verdict == "FAIL":
             stray = [e for e in detail["events"] if e["attribution"] == "dut" and not any(reaches(e, u) for u in units)]
-            self.assertEqual(stray, [], "a DUT listing reaches no DUT event")
+            self.assertEqual(stray, [], "a DUT listing covers no DUT event")
         return verdict, allowed
 
     def test_audio_compositions_never_pass_and_list_every_event(self) -> None:
         """L3 #396 REQ-VER-06: seeded compositions of DUT slips, silences, swaps, copies, one-word corruptions
         and constant-mask excursions, over and beside every planted arm, and DUT events inside an excursion
-        anywhere on two capture lengths, never grade PASS, and each event is listed no earlier than 63
-        samples before its first word and no later than 63 after its last, unless it masks an arm and voids
-        the run; where the run fails, each listing is so near an event.
+        anywhere on two capture lengths, never grade PASS, and each event is covered on each channel it
+        changes by a listing whose samples overlap its first word minus 63 to its last word plus 63, unless
+        it masks an arm and voids the run; where the run fails, each listing covers an event.
 
         It checks that property, not a class: outside the swept shapes a composition may read otherwise.
         Each allowance the check makes is pinned once. It stops at its first failing seed, which it names."""
@@ -9567,14 +9572,16 @@ class _ReleaseGateChecks:
                          [(0, 4080, "bit-flip", 15, "0x00100000"), (0, 4095, "silence", 1, ""),
                           (0, 4096, "bit-flip", 49, "0x00100000")])
 
-    def test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word(self) -> None:
+    def test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip(self) -> None:
         """L3 #396 REQ-VER-06: outside the exactness scope, a constant-mask excursion that a DUT slip
-        interrupts, away from every planted arm, fails and is listed from its first word.
+        interrupts, away from every planted arm, fails and keeps its held words before the slip as one
+        bit-flip. This pins one reading, so a change to it is seen; outside the scope the property
+        promises coverage, not position.
 
         0x80100 over channel 0's words 4424 to 6149 alone is one bit-flip of 1726 words. With a DUT
-        repeat of 3 at 6097 on every channel, its words before the slip are one bit-flip up to it, and
-        the words from the slip on read as the slips and corruptions they show, none later than 63
-        samples after the excursion's last word."""
+        repeat of 3 at 6097 on every channel, its words before the slip are one bit-flip up to it, the
+        other channels list the repeat at 6097, and channel 0's words from the slip on read as the slips
+        and corruptions they show, between the slip and 63 samples after the excursion's last word."""
         frames, start, length, slip = 16384, 4424, 1726, 6097
         run = [{"kind": "flip", "index": start + k, "channel": 0, "mask": 0x80100} for k in range(length)]
 

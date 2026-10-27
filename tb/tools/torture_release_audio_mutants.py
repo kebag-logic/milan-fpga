@@ -24,7 +24,7 @@ _TOLERANCE = "test_audio_arm_interplay_at_the_release_tolerance"
 _PROPERTY = "test_audio_compositions_never_pass_and_list_every_event"
 _OVER_ARM = "test_audio_excursion_over_a_slip_arm_may_void"
 _ZERO = "test_audio_excursion_clearing_its_channel_number_is_split"
-_INTERRUPTED = "test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word"
+_INTERRUPTED = "test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip"
 AUDIO_GRADER_MUTANTS = (
     ("qualified interval runs to the capture's end", "        return start, max(start, frames - AUDIO_GUARD_FRAMES)",
      "        return start, frames", _BOUNDARY),
@@ -230,4 +230,9 @@ AUDIO_GRADER_MUTANTS = (
      '    events.append(run)\n    if run["n"] > 1:\n'
      '        events.append(dict(run, capture_index=run["capture_index"] + run["n"] + AUDIO_GUARD_FRAMES))\n',
      _PROPERTY),
+    ("a DUT slip left uncovered on channel 3, one of the channels it changes",
+     "    refusal, missed = _audio_attribute(events, log, counter_channels, scan)\n",
+     "    refusal, missed = _audio_attribute(events, log, counter_channels, scan)\n"
+     '    events[:] = [e for e in events if not (e["attribution"] == "dut" and e["channel"] == 3\n'
+     '                                           and e["class"] in ("dropped", "repeated"))]\n', _PROPERTY),
 )

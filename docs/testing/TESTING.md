@@ -1454,8 +1454,7 @@ These limits are stated, and a self-test arm pins each one:
   Within the tolerance the arm is found, and `located_within` bounds the slip of that reading.
 - A constant-mask corruption that a slip interrupts reads as the slips its words show.
   So does one whose words a single offset explains up to a slip at its return.
-  An interrupted one is listed from its first word.
-  Where its words before the slip are held as one mask, they read as one `bit-flip` up to the slip.
+  Where an interrupted one's words before the slip are held as one mask, they read as one `bit-flip` up to the slip.
 - At either end of a capture, fewer than 64 clean samples lie beyond a word whose code bit differs.
   So a slip of whole blocks and a code-bit corruption read the same there, and the stretch is one `unresolved` event.
   At the capture's end it runs from the first such word to the end.
@@ -1487,18 +1486,19 @@ Its excursions run 64 to 2049 words at three block positions, under five masks.
 **The property and its exactness scope.**
 Every capture meets one property, whatever its events.
 A capture with a DUT event the bytes show never grades `PASS`.
-Each such event is listed on each channel it changes.
+Each such event is covered, on each channel it changes, by at least one listing.
+A listing covers an event when its samples overlap the event's first word minus 63 to its last word plus 63.
+A listing's samples are its words, and for a slip the samples `located_within` names as well.
+The 63 is the furthest a slip of whole blocks can lie before the first word that shows it.
+A DUT event inside a constant-mask excursion on the same channel may be covered by that excursion's listing alone.
 The one exception is a DUT event that masks a planted arm at its sample.
 The run is then void, and its reason says the source may not have planted the arm, or a DUT event may have masked it.
 Events that cancel one another, or only move an arm within its tolerance, leave a clean run's bytes.
 The capture does not show them.
 
-A listing's samples are its words, and for a slip the samples `located_within` names as well.
-Each listing of an event falls no earlier than 63 samples before the event's first word and no later than 63 samples after its last.
-A slip of whole blocks can lie up to 63 samples before the first word that shows it.
-A stated limit above can read the same bytes with an event earlier, beside another event or a planted arm.
-An example is a one-word corruption on a planted slip arm's next sample, which may read first, at the arm's sample.
-Inside the exactness scope below, each listing also falls within 63 samples of the event's first word.
+Inside the exactness scope below, each listing begins within 63 samples of the event's first word.
+A listing begins at the sample it names, its `capture_index`; a slip's `located_within` can start before it.
+Outside the scope, the property promises coverage, not position.
 
 `test_audio_compositions_never_pass_and_list_every_event` is the gate for the property.
 It grades 288 seeded compositions of one to four DUT events over and beside each of the six planted arms.
@@ -1507,9 +1507,9 @@ The excursions run up to 2100 words.
 Their masks are the sweep's eight classes, the mask that clears the channel's number, and any other word.
 It grades 48 more on each of the two capture lengths, with DUT events inside an excursion.
 Each is a constant-mask excursion of 64 to 2100 words anywhere, under one of the sweep's mask classes.
-One or two DUT events lie inside it, mostly slips, and half of them less than 64 samples before its return.
-It checks the property, not a class.
-Where a run fails without voiding, it also checks that each DUT listing falls so near an event on its channel.
+One or two DUT events lie inside it, slips in three draws of seven, and half of them less than 64 samples before its return.
+It checks the property, not a class: each event of each composition is covered on each channel it changes.
+Where a run fails without voiding, it also checks that each DUT listing covers an event that changes its channel.
 In a void run, a missed arm's own records are DUT listings, so that check does not apply there.
 Each allowance it makes is pinned once: an arm moved within its tolerance, events that cancel, and an arm masked at its sample.
 
@@ -1529,8 +1529,8 @@ Three such shapes are pinned, so a change to their reading is seen:
 - An excursion whose mask clears its channel number splits at each word it makes zero.
   That word is a block start whose code bit is 0, and it reads as one sample of `silence` between two `bit-flip` events.
   `test_audio_excursion_clearing_its_channel_number_is_split` pins one: 65 words under `0x100000` on channel 0.
-- A constant-mask excursion that a DUT slip interrupts, away from the arms, is listed from its first word.
-  `test_audio_excursion_a_slip_interrupts_is_listed_from_its_first_word` pins one.
+- A constant-mask excursion that a DUT slip interrupts, away from the arms, fails, each event covered.
+  `test_audio_excursion_a_slip_interrupts_keeps_its_bit_flip` pins one.
   It is `0x80100` over channel 0's words 4424 to 6149, with a DUT repeat of 3 at 6097 on every channel.
   Its words before the slip read as one `bit-flip` up to it.
 
