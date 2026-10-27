@@ -1,0 +1,76 @@
+[
+  {
+    "variant": "golden",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true,
+    "expected": ""
+  },
+  {
+    "variant": "P-overclear-msrp-failure-valid",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE RESET solicited: every other flag the integrator claims passes for sink 0, BOUND, MSRP_ACC_LAT_VALID and MSRP_FAILURE_VALID among them"
+    ],
+    "passed": true,
+    "expected": "GI GATE RESET solicited: every other flag the integrator claims passes for sink 0"
+  },
+  {
+    "variant": "P-overclear-bit31",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE RESET solicited: every other flag the integrator claims passes for sink 0, BOUND, MSRP_ACC_LAT_VALID and MSRP_FAILURE_VALID among them"
+    ],
+    "passed": true,
+    "expected": "GI GATE RESET solicited: every other flag the integrator claims passes for sink 0"
+  },
+  {
+    "variant": "P-overclear-bit0",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE RESET solicited: every other flag the integrator claims passes for sink 0, BOUND, MSRP_ACC_LAT_VALID and MSRP_FAILURE_VALID among them"
+    ],
+    "passed": true,
+    "expected": "GI GATE RESET solicited: every other flag the integrator claims passes for sink 0"
+  },
+  {
+    "variant": "P-overclear-fast-connect",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE RESET solicited: every other flag the integrator claims passes for sink 0, BOUND, MSRP_ACC_LAT_VALID and MSRP_FAILURE_VALID among them"
+    ],
+    "passed": true,
+    "expected": "GI GATE RESET solicited: every other flag the integrator claims passes for sink 0"
+  },
+  {
+    "variant": "P-underclear-vlan-valid",
+    "build_rc": 0,
+    "run_rc": 1,
+    "named_failures": [
+      "FAIL: GI GATE RESET solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0"
+    ],
+    "passed": true,
+    "expected": "GI GATE RESET solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0"
+  },
+  {
+    "variant": "P-overclear-upper32-equivalent",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true,
+    "expected": ""
+  },
+  {
+    "variant": "P-sel4-whole-word-zero-survives",
+    "build_rc": 0,
+    "run_rc": 0,
+    "named_failures": [],
+    "passed": true,
+    "expected": ""
+  }
+]
