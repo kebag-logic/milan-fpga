@@ -1,0 +1,7 @@
+Memory samples of this unit (five-second sampling of memory.current, which counts page cache)
+Unit limits: MemoryMax 12 GiB (as started); MemoryHigh set to 9 GiB on the unit at the start of the round (systemctl --user set-property --runtime)
+Sampled peak bytes: 6534852608 (6.09 GiB) at 2026-10-27T01:48:50Z
+Minimum host MemAvailable sampled: 29.8 GB at 2026-10-27T02:08:42Z
+Samples: 672; first 2026-10-27T01:16:32Z, last 2026-10-27T02:12:32Z; raw 27539 bytes; sha256 433a66eecaf039df783d17fbd1f0e1f3469fa3d420f1955da1607fccaeea9d69
+CPU: the unit's 16 CPUs; cpu_ranges.py pick found no free 16- or 12-CPU range at the start of the round, so no shard units were placed and the sweep and campaigns ran inside the unit (the processor sweep is scripts/run_suites.sh, which has no shard option).
+Verilator ran through a PATH wrapper replacing a build's -j 0 with -j 2 to -j 8 (VLT_J), so concurrent runs shared the CPUs.

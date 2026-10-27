@@ -1,0 +1,137 @@
+return code: 2
+1510 checks: 1375 PASS, 135 FAIL
+FAIL: B5 identical query = identical answer
+FAIL: B6 dest_mac got 91e0f000010b
+FAIL: B7 dest_mac got 91e0f000010b
+FAIL: B: leftovers resp=0 gate=0 arm=0 mreq=8
+FAIL: C6 declare open da got 91e0f0000110 want 91e0f0000100
+FAIL: C6 truncated dest_mac got 91e0f0000110
+FAIL: C: leftovers resp=0 gate=0 arm=0 mreq=12
+FAIL: D3 dest_mac got 91e0f0000113
+FAIL: D4 re-declare open da got 91e0f0000113 want 91e0f0000103
+FAIL: D4 dest_mac got 91e0f0000113
+FAIL: D: leftovers resp=0 gate=0 arm=0 mreq=16
+FAIL: E1 re-alloc in the conflict's millisecond maap src got 0
+FAIL: E3 re-declare new DA: gate strobe missing
+FAIL: E3 src_stream_id_o follows the move
+FAIL: E4 new DA answered stream_id got ab00000000000003
+FAIL: E4 new DA answered dest_mac got 000000000000
+FAIL: E5 probe after the grant status got 3 want 0
+FAIL: E5 probe after the grant stream_id got 0000000000000000
+FAIL: E5 probe after the grant dest_mac got 000000000000
+FAIL: E5 probe after the grant vlan got 0
+FAIL: E: leftovers resp=0 gate=0 arm=0 mreq=17
+FAIL: E7 re-alloc maap src got 1
+FAIL: E7b dest_mac got 000000000000
+FAIL: E7: leftovers resp=0 gate=0 arm=0 mreq=16
+FAIL: F1 listener-driven declare open da got 91e0f0000111 want 91e0f0000101
+FAIL: F2 pcp withdraw src3: gate strobe missing
+FAIL: F2 leaveall2 src3: timer arm missing
+FAIL: F2 three draws
+FAIL: F3 pcp backoff keeps the DA dest_mac got 91e0f0000111
+FAIL: F4 re-declare same DA open da got 91e0f0000111 want 91e0f0000101
+FAIL: F5 re-declare src3 same DA: gate strobe missing
+FAIL: F5 the PCP path keeps the Stream ID
+FAIL: F: leftovers resp=0 gate=0 arm=0 mreq=18
+FAIL: G1 src2 untouched by src1/src3 churn dest_mac got 91e0f0000112
+FAIL: G2a declare open da got 91e0f0000114 want 91e0f0000104
+FAIL: G3 declare src5 open da got 91e0f0000115 want 91e0f0000105
+FAIL: G2 content sane
+FAIL: G: leftovers resp=0 gate=0 arm=0 mreq=19
+FAIL: H1 release DA maap src got 2
+FAIL: H1 release DA maap rel got 0
+FAIL: H: leftovers resp=0 gate=0 arm=0 mreq=18
+FAIL: I0 gates carried in from A-H, got 0x32
+FAIL: I1 alloc on re-enable maap src got 3
+FAIL: I3 listener retries the alloc maap src got 4
+FAIL: I4 retry alloc maap src got 5
+FAIL: I4 grant declares: gate strobe missing
+FAIL: I4 declaring_o[6] OBSERVED 0 -> 1 on the grant
+FAIL: I4 only src6 moved, got 0x32
+FAIL: I: leftovers resp=0 gate=0 arm=0 mreq=16
+FAIL: J2 RELEASE_DA offered and unaccepted
+FAIL: J3 answer unaffected by the hung request dest_mac got 91e0f0000112
+FAIL: J4 request abandoned after exactly 1024 cycles, got 1
+FAIL: J6 nothing was ever accepted while maap was gone
+FAIL: J7 the owed RELEASE is taken FIRST maap src got 6
+FAIL: J7 the owed RELEASE is taken FIRST maap rel got 0
+FAIL: J7 ...and only then does the rejoin allocate maap src got 7
+FAIL: J7 grant re-declares: gate strobe missing
+FAIL: J7 declaring_o[4] OBSERVED 0 -> 1: the source recovered
+FAIL: J7 final gates, got 0x22
+FAIL: J7b the recovered source answers with its NEW DA status got 3 want 0
+FAIL: J7b the recovered source answers with its NEW DA stream_id got 0000000000000000
+FAIL: J7b the recovered source answers with its NEW DA dest_mac got 000000000000
+FAIL: J7b the recovered source answers with its NEW DA vlan got 0
+FAIL: J: leftovers resp=0 gate=0 arm=0 mreq=16
+FAIL: K0 src2 release maap src got 0
+FAIL: K0 src2 release maap rel got 0
+FAIL: K0 withdraw on removal: gate strobe missing
+FAIL: K0 src6 release settled behind the busy face maap src got 1
+FAIL: K0 src6 release settled behind the busy face maap rel got 0
+FAIL: K0 gates after removal, got 0x22
+FAIL: K0: leftovers resp=0 gate=0 arm=0 mreq=15
+FAIL: K1 src6 alloc ACCEPTED maap src got 2
+FAIL: K1 exactly one request offered, got 0
+FAIL: K2 THE DEFECT: src2's allocation is stranded by src6's unanswered request (14 accepted)
+FAIL: K2 src2's request is never even OFFERED, got 0 offers
+FAIL: K2 no gate can open, got 0x22
+FAIL: K4 the bound has NOT elapsed: nothing may be re-offered yet
+FAIL: K5 THE REGRESSION: another source allocates again maap src got 3
+FAIL: K6 stale response changed the gate level to 0x22
+FAIL: K7 src2 declares with ITS OWN DA open src got 6
+FAIL: K7 src2 declares with ITS OWN DA open sid got ab00000000000006
+FAIL: K7 declaring_o[2] OBSERVED 0 -> 1
+FAIL: K7 gates, got 0x62
+FAIL: K8 the abandoned source retries maap src got 4
+FAIL: K8 abandoned source recovers with a FRESH DA: gate strobe missing
+FAIL: K8 final gates, got 0x62
+FAIL: K: leftovers resp=0 gate=0 arm=0 mreq=15
+FAIL: L0 src7 release maap src got 5
+FAIL: L0 src7 release maap rel got 0
+FAIL: L0 src7 ALLOC now PARKS the face maap src got 6
+FAIL: L0: leftovers resp=0 gate=0 arm=0 mreq=14
+FAIL: L1 and nothing can be accepted while the claim walk holds the face
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap src got 7
+FAIL: L2 THE DEFECT: src1's RELEASE_DA survived a busy face maap rel got 0
+FAIL: L3 no second request for src 1
+FAIL: L4 src0 release takes the free face maap rel got 0
+FAIL: L4 src3 withdraws at once close src got 5
+FAIL: L4 src5 withdraws at once: gate strobe missing
+FAIL: L4 both are owed, neither is accepted yet
+FAIL: L4 src3's owed release, lowest index first maap src got 1
+FAIL: L4 src3's owed release, lowest index first maap rel got 0
+FAIL: L4 src5's owed release follows maap src got 2
+FAIL: L4 src5's owed release follows maap rel got 0
+FAIL: L4 three teardowns, three releases, no fourth (15 extra)
+FAIL: L4 final gates, got 0x40
+FAIL: L: leftovers resp=0 gate=0 arm=0 mreq=15
+FAIL: R1 owned addresses are never reallocated
+FAIL: R6 retries leave backoff and timer untouched
+FAIL: R6 probe during backoff src0 status/tuple
+FAIL: R6 only conflict needs a new address
+FAIL: R6 after backoff src0 status/tuple
+FAIL: R6 retries leave backoff and timer untouched
+FAIL: R6 probe during backoff src0 status/tuple
+FAIL: R6 only conflict needs a new address
+FAIL: R6 after backoff src0 status/tuple
+FAIL: S1 ALLOC_DA offered in the conflict's millisecond
+FAIL: S1 the grant declares at once with the new DA
+FAIL: S1 the declaration carries a new Stream ID
+FAIL: S1 the new Stream ID follows the rule (got 0000000000000000)
+FAIL: S1 conflict to new declaration under 2 s (0 ms)
+FAIL: S1 src_stream_id_o follows the move
+FAIL: S1 PROBE_TX after the grant src2 status/tuple (status 3 sid 0000000000000000)
+FAIL: S1 GET_TX_STATE after the grant src2 stream_id/dest_mac (sid ab00000000000002)
+FAIL: S1 the move survives a disable
+FAIL: S1 a declared moved ID moves again after a disable (got ab00000000000002)
+FAIL: S3 src0 src0 status/tuple (status 0 sid ab00000000000000)
+FAIL: S7 PROBE_TX inside the gap answers the kept ID and DA src0 status/tuple (status 0 sid ab00000000000000)
+FAIL: S7 after the gap the same ID declares the changed FirstValue
+FAIL: S8 PROBE_TX inside the gap answers the moved ID and DA src2 status/tuple (status 0 sid ab00000000000008)
+FAIL: S8 after the gap the moved ID declares the changed FirstValue
+FAIL: S10 PROBE_TX after the return answers the new ID and DA src3 status/tuple (status 0 sid ab00000000000008)
+FAIL: S10 the new DA is declared under the new ID, never the withdrawn one
+FAIL: S10 src5 declares its configured ID src5 status/tuple (status 0 sid ab00000000000005)
+FAIL: TD1 invalid disconnect leaves source state unchanged
+FAIL: TD1 invalid disconnect leaves source state unchanged

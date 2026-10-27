@@ -1,0 +1,18 @@
+{
+ "mutant": "record_overwritten_after_one_epoch@acmp_talker",
+ "suite": "tb/acmp_talker",
+ "build_rc": 0,
+ "run_rc": 2,
+ "completed": true,
+ "named_checks": [
+  "S5 a record one epoch old is kept when its source moves again",
+  "S5 no ID is declared again with another DA inside two LeaveAllTime periods"
+ ],
+ "missing": [],
+ "failing_checks": [
+  "S5 no ID is declared again with another DA inside two LeaveAllTime periods (1, first ab0000000000000b after 10056 ms)",
+  "S5 after the cursor wraps a move skips every configured ID, the IDs other sources left inside the quarantine and another source's current ID (got ab0000000000000b after 65520 moves)",
+  "S5 a record one epoch old is kept when its source moves again, so the ID it holds is not taken inside the quarantine (got ab0000000000000b 10056 ms after src5 left ...0B)"
+ ],
+ "verdict": "KILLED"
+}

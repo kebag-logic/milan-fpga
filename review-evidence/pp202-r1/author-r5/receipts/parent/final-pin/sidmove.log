@@ -1,0 +1,104 @@
+make: Entering directory '<parent>/tb/verilator/milan_dp'
+verilator sidmove_probes.vlt +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 2 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100 -GMAAP_CLK_HZ_P=100000 -GDIAG_TICK_CYC_P=200000 --Mdir obj_sidmove -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 -CFLAGS "-DMS_CYC_TB=100 -DSOURCES_TB=2 -DGRADED_MASK_TB=0x3 -DNAMED_UID_TALKER_TB=-1 -DSHAPE8_TB=0 -Wall -Wextra" ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_sid_move.cpp -o Vmilan_dp_sidmove
+make[1]: Entering directory '<parent>/tb/verilator/milan_dp/obj_sidmove'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<parent>/tb/verilator/milan_dp/obj_sidmove'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.022 s (elab=0.000, cvt=0.000, bld=0.011); cpu 0.002 s on 2 threads; allocated 6.160 MB
+./obj_sidmove/Vmilan_dp_sidmove
+=== processor #202 Stream ID move, 2 talker sources (graded mask 0x3), 1 ms = 100 cycles ===
+[BOOT] identity, the firmware boot values, the named talker's TCTX uid
+  [PASS] ID == 'MILN'                                                           got=000000004d494c4e exp=000000004d494c4e
+  [PASS] ADP_TALKER[15:0] talker_stream_sources is this leg's source count      got=0000000000000002 exp=0000000000000002
+  [PASS] [BOOT] the shape's AEM image was generated and is served               got=0000000000000001 exp=0000000000000001
+  [PASS] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)           got=0000000000000004 exp=0000000000000004
+  [PASS] KL_maap is probing, no block claimed yet                               got=0000000000000001 exp=0000000000000001
+[A] the listener probes, MAAP grants, the switch declares Listener Ready for the answered ID, and each source streams
+  [t]       60.19 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]       66.02 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]      565.00 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]      570.83 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     1067.65 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     1073.48 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     1570.30 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     1576.13 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     1807.21 ms  Talker Advertise first on the wire for 0200000000010000 (event 0)
+  [t]     1807.21 ms  Talker Advertise first on the wire for 0200000000010001 (event 0)
+  [t]     2072.95 ms  PROBE_TX answered, uid 0, status 0, stream_id 0200000000010000
+  [t]     2078.78 ms  PROBE_TX answered, uid 1, status 0, stream_id 0200000000010001
+  [t]     2112.95 ms  switch declares Listener Ready, uid 0, stream_id 0200000000010000
+  [t]     2118.78 ms  switch declares Listener Ready, uid 1, stream_id 0200000000010001
+  [PASS] KL_maap reached ANNOUNCE (a block of one address per source)           got=0000000000000001 exp=0000000000000001
+  [PASS] [A] src_stream_id_o[0] is the configured {MAC, uid}                    got=0200000000010000 exp=0200000000010000
+  [PASS] [A] src_stream_id_o[1] is the configured {MAC, uid}                    got=0200000000010001 exp=0200000000010001
+  -- source uid 0 (AAF)
+  [PASS] [A]: PROBE_TX answers SUCCESS                                          got=0000000000000000 exp=0000000000000000
+  [PASS] [A]: PROBE_TX's stream_id is src_stream_id_o                           got=0200000000010000 exp=0200000000010000
+  [PASS] [A]: PROBE_TX's stream_dest_mac is the block address                   got=000091e0f0001039 exp=000091e0f0001039
+  [PASS] [A]: GET_STREAM_INFO selector 2 is src_stream_id_o                     got=0200000000010000 exp=0200000000010000
+  [PASS] [A]: the Talker Advertise declares src_stream_id_o
+  [PASS] [A]: the source's stream PDUs are on the wire (44)
+  [PASS] [A]: every one carries src_stream_id_o (else 0000000000000000)         got=0000000000000000 exp=0000000000000000
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] [A]: PROBE_TX answers SUCCESS                                          got=0000000000000000 exp=0000000000000000
+  [PASS] [A]: PROBE_TX's stream_id is src_stream_id_o                           got=0200000000010001 exp=0200000000010001
+  [PASS] [A]: PROBE_TX's stream_dest_mac is the block address                   got=000091e0f000103a exp=000091e0f000103a
+  [PASS] [A]: GET_STREAM_INFO selector 2 is src_stream_id_o                     got=0200000000010001 exp=0200000000010001
+  [PASS] [A]: the Talker Advertise declares src_stream_id_o
+  [PASS] [A]: the source's stream PDUs are on the wire (11)
+  [PASS] [A]: every one carries src_stream_id_o (else 0000000000000000)         got=0000000000000000 exp=0000000000000000
+[MOVE] a peer ANNOUNCEs the claimed block from a lower MAC: KL_maap re-addresses, each declaring source withdraws and moves
+  [t]     8078.68 ms  PROBE_TX answered, uid 0, status 0, stream_id 0200000000010000
+  [t]     8084.51 ms  PROBE_TX answered, uid 1, status 0, stream_id 0200000000010001
+  [t]     8909.86 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     8915.69 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     9412.51 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     9418.34 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]     9915.16 ms  PROBE_TX answered, uid 0, status 3, stream_id 0000000000000000
+  [t]     9920.99 ms  PROBE_TX answered, uid 1, status 3, stream_id 0000000000000000
+  [t]    10007.43 ms  Talker Advertise first on the wire for 0200000000010002 (event 3)
+  [t]    10007.43 ms  Talker Advertise first on the wire for 0200000000010003 (event 3)
+  [t]    10417.81 ms  PROBE_TX answered, uid 0, status 0, stream_id 0200000000010002
+  [t]    10423.64 ms  PROBE_TX answered, uid 1, status 0, stream_id 0200000000010003
+  [t]    10457.81 ms  switch declares Listener Ready, uid 0, stream_id 0200000000010002
+  [t]    10463.64 ms  switch declares Listener Ready, uid 1, stream_id 0200000000010003
+  [PASS] KL_maap claimed another block
+  [PASS] KL_maap is in ANNOUNCE again                                           got=0000000000000001 exp=0000000000000001
+[AFTER] each source's new Stream ID, everywhere it is named
+  -- source uid 0: 0200000000010000 -> 0200000000010002
+  [PASS] [AFTER] the source moved to a new Stream ID
+  [PASS] [AFTER] the new ID keeps the upper 48 bits                             got=0000020000000001 exp=0000020000000001
+  [PASS] [AFTER] the withdrawn ID's Talker Advertise left after the conflict
+  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)
+  [PASS] [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (0)      got=0000000000000000 exp=0000000000000000
+  -- source uid 1: 0200000000010001 -> 0200000000010003
+  [PASS] [AFTER] the source moved to a new Stream ID
+  [PASS] [AFTER] the new ID keeps the upper 48 bits                             got=0000020000000001 exp=0000020000000001
+  [PASS] [AFTER] the withdrawn ID's Talker Advertise left after the conflict
+  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)
+  [PASS] [AFTER] no PDU carries the withdrawn ID 50 ms after its Leave (0)      got=0000000000000000 exp=0000000000000000
+  [PASS] [AFTER] the graded sources' current IDs are distinct
+  -- source uid 0 (AAF)
+  [PASS] [AFTER]: PROBE_TX answers SUCCESS                                      got=0000000000000000 exp=0000000000000000
+  [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=0200000000010002 exp=0200000000010002
+  [PASS] [AFTER]: PROBE_TX's stream_dest_mac is the block address               got=000091e0f0002a1b exp=000091e0f0002a1b
+  [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010002 exp=0200000000010002
+  [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+  [PASS] [AFTER]: the source's stream PDUs are on the wire (51)
+  [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+  -- source uid 1 (CRF Media Clock Output)
+  [PASS] [AFTER]: PROBE_TX answers SUCCESS                                      got=0000000000000000 exp=0000000000000000
+  [PASS] [AFTER]: PROBE_TX's stream_id is src_stream_id_o                       got=0200000000010003 exp=0200000000010003
+  [PASS] [AFTER]: PROBE_TX's stream_dest_mac is the block address               got=000091e0f0002a1c exp=000091e0f0002a1c
+  [PASS] [AFTER]: GET_STREAM_INFO selector 2 is src_stream_id_o                 got=0200000000010003 exp=0200000000010003
+  [PASS] [AFTER]: the Talker Advertise declares src_stream_id_o
+  [PASS] [AFTER]: the source's stream PDUs are on the wire (13)
+  [PASS] [AFTER]: every one carries src_stream_id_o (else 0000000000000000)     got=0000000000000000 exp=0000000000000000
+[INV] over the whole run
+  [PASS] no malformed DUT MRPDU                                                 got=0000000000000000 exp=0000000000000000
+--------------------------------------------------------------
+simulated 17288.22 ms (1728822 cycles)
+checks: 50   failures: 0
+RESULT: PASS
+make: Leaving directory '<parent>/tb/verilator/milan_dp'
