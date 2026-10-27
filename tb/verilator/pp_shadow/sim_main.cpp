@@ -173,6 +173,7 @@ class PpShadowHarness {
             grade_a_registered_listener_as_a_controller_reads_it();
             grade_sampling_rate_as_a_controller_sets_it();
             grade_a_registered_talker_as_a_bound_sink_reads_it();
+            grade_stream_fields_only_while_settled();
             grade_heal_before_answer();
             grade_backend_rejection_reaches_the_processor();
             grade_generated_domain_binding();
@@ -3701,6 +3702,189 @@ class PpShadowHarness {
         ck(w, (st >> 7) & 1u, code == 2 ? 1u : 0u);
         snprintf(w, sizeof w, "U %s: ACMPL_TUID[23:16] MSRP failure code", what);
         ck(w, (axi_read(A_ACMPL_TUID) >> 16) & 0xFFu, code == 2 ? 1u : 0u);
+    }
+
+    // ---- GSI. #790: an input's stream fields only while it is settled ------
+    // Milan v1.2 5.4.2.10.1, Table 5.9: a Stream Input's stream_id,
+    // stream_dest_mac and stream_vlan_id, and STREAM_ID_VALID,
+    // STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID, are valid if, and only
+    // if, the input is settled: probing_status PROBING_COMPLETED (5.3.8.5,
+    // Table 5.5). milan_datapath folds those words from the processor's
+    // binding view, which keeps a stream's identity from settle to unbind, so
+    // the processor gates them on its committed status (processor #206).
+    //
+    // The group runs after [U]: it releases [U]'s binding, then drives sink 0
+    // over real ACMP through four cases. Bound and probing, before the first
+    // answer. Settled. Back in PROBING_PASSIVE after TMR_NO_TK (10 s from the
+    // settle, 5.5.3.5.18) with no Talker attribute registered for the stream
+    // and the talker never discovered (5.5.3.5.36), the settled stream still
+    // in the binding view (ACMPL_STATE 0x6A4: [3] bound, [27:16] its VLAN).
+    // Unbound. [M2]'s reset follows.
+    //! the stream sink 0 settles on here: no Talker attribute names it
+    static constexpr uint64_t G_SID = 0x0200000000020790ull;
+    static constexpr uint64_t G_DMAC = 0x91E0F0002A90ull;
+    static constexpr uint16_t G_VID = 2;
+    //! STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID: byte
+    //! 42 of the big-endian flags dword (0x52000000)
+    static constexpr uint32_t G_STREAM_FLAGS = 0x52u;
+    //! TMR_NO_TK, 10 s (Milan v1.2 5.5.3.5.18 step 4), and a margin
+    static constexpr uint64_t G_NO_TK_CYC = 10100ull * PP_MS_CYCLES;
+    //! the longest this group waits for any one answer: 200 ms
+    static constexpr int G_ANSWER_POLLS = 200;
+
+    //! the index of the latest ACMP frame since `from` with message_type
+    //! `msg` about the talker, or -1
+    int gsi_last_acmp(size_t from, unsigned msg) {
+        for (size_t i = tx_frames.size(); i-- > from; ) {
+            const std::vector<uint8_t>& b = tx_frames[i].bytes;
+            if (tx_frames[i].end_cycle != 0 && classify(tx_frames[i]) == FR_ACMP
+                && b.size() >= 70 && (b[15] & 0xFu) == msg && get_be(b, 34, 8) == U_TALKER_EID)
+                return static_cast<int>(i);
+        }
+        return -1;
+    }
+
+    //! BIND_RX (6) or UNBIND_RX (8) for sink 0 at the talker, from the
+    //! controller; the response's status, 0xFF when none egressed
+    uint32_t gsi_acmp_rx(uint8_t msg, uint16_t seq) {
+        uint8_t f[70];
+        memset(f, 0, sizeof f);
+        put64be(f, 0x91E0F0010000ull << 16);         // DA, the ACMP multicast
+        memcpy(f + 6, CTLR_MAC, 6);
+        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = msg;
+        f[17] = 44;                                  // control_data_length
+        put64be(f + 26, CTLR_EID);                   // @12 controller
+        put64be(f + 34, U_TALKER_EID);               // @20 talker
+        put64be(f + 42, TEST_EID);                   // @28 listener = us
+        put16be(f + 62, seq);                        // @48 sequence_id
+        const size_t at = tx_frames.size();
+        inject_rx(f, 70, 400);
+        for (int n = 0; n < G_ANSWER_POLLS; n++) {
+            run_idle(PP_MS_CYCLES);
+            for (size_t i = at; i < tx_frames.size(); i++) {
+                const std::vector<uint8_t>& b = tx_frames[i].bytes;
+                if (tx_frames[i].end_cycle != 0 && classify(tx_frames[i]) == FR_ACMP
+                    && b.size() >= 70 && (b[15] & 0xFu) == static_cast<unsigned>(msg + 1)
+                    && get_be(b, 62, 2) == seq)
+                    return (b[16] >> 3) & 0x1Fu;
+            }
+        }
+        return 0xFFu;
+    }
+
+    //! the talker's SUCCESS CONNECT_TX_RESPONSE to sink 0's latest probe,
+    //! naming the stream it settles on
+    void gsi_answer_probe(uint16_t pseq) {
+        uint8_t f[70];
+        memset(f, 0, sizeof f);
+        put64be(f, 0x91E0F0010000ull << 16);
+        const uint8_t tsrc[6] = {
+            0x02, 0x00, 0x00, 0x00, 0x00, 0x02};
+        memcpy(f + 6, tsrc, 6);
+        f[12] = 0x22; f[13] = 0xF0; f[14] = 0xFC; f[15] = 0x01;   // CONNECT_TX_RESPONSE
+        f[17] = 44;                                               // SUCCESS, cdl
+        put64be(f + 18, G_SID);                      // @4  stream_id
+        put64be(f + 26, CTLR_EID);                   // @12 controller
+        put64be(f + 34, U_TALKER_EID);               // @20 talker
+        put64be(f + 42, TEST_EID);                   // @28 listener = us
+        put64be(f + 54, G_DMAC << 16);               // @40 stream_dest_mac
+        put16be(f + 62, pseq);                       // @48 echo the probe's seq
+        put16be(f + 66, G_VID);                      // @52 stream_vlan_id
+        inject_rx(f, 70, 400);
+        run_idle(30 * PP_MS_CYCLES);
+    }
+
+    //! GET_STREAM_INFO on STREAM_INPUT 0, solicited: the response, or an
+    //! empty frame when none egressed within 200 ms
+    std::vector<uint8_t> gsi_input0(uint16_t seq) {
+        uint8_t cf[128];
+        const uint8_t pl[4] = {
+            0x00, 0x05, 0x00, 0x00};                     // STREAM_INPUT 0
+        const size_t at = tx_frames.size();
+        const size_t cn = build_aecp(cf, 0, TEST_EID, 0x000F, seq, pl, sizeof pl);
+        inject_rx(cf, cn, 400);
+        for (int n = 0; n < G_ANSWER_POLLS; n++) {
+            run_idle(PP_MS_CYCLES);
+            for (size_t i = at; i < tx_frames.size(); i++) {
+                const std::vector<uint8_t>& b = tx_frames[i].bytes;
+                if (tx_frames[i].end_cycle != 0 && classify(tx_frames[i]) == FR_AECP
+                    && b.size() >= 42 && get_be(b, 36, 2) == 0x000F && get_be(b, 34, 2) == seq)
+                    return b;
+            }
+        }
+        return std::vector<uint8_t>();
+    }
+
+    //! one case: probing_status, BOUND, the three flags and their fields
+    void grade_gsi_case(const char* tag, uint16_t seq, unsigned pbsta, bool bound, bool settled) {
+        char w[160];
+        char d[96];
+        const std::vector<uint8_t> b = gsi_input0(seq);
+        const bool ok = b.size() >= 94 && ((b[16] >> 3) & 0x1Fu) == 0;
+        snprintf(w, sizeof w, "[GSI] %s: GET_STREAM_INFO(STREAM_INPUT 0) SUCCESS", tag);
+        snprintf(d, sizeof d, "%zu bytes, status %u", b.size(),
+                 b.size() > 16 ? static_cast<unsigned>(b[16] >> 3) : 0xFFu);
+        ck_true(w, ok, d);
+        if (!ok) {
+            printf("  [i]    ");
+            for (size_t i = 0; i < b.size(); i++) printf("%02X%s", b[i], (i % 16 == 15) ? "\n  [i]    " : " ");
+            printf("\n");
+            return;
+        }
+        snprintf(w, sizeof w, "[GSI] %s: probing_status", tag);
+        ck(w, b[90] >> 5, pbsta);
+        snprintf(w, sizeof w, "[GSI] %s: acmp_status", tag);
+        ck(w, b[90] & 0x1Fu, 0u);
+        snprintf(w, sizeof w, "[GSI] %s: BOUND", tag);
+        ck(w, (b[42] >> 2) & 1u, bound ? 1u : 0u);
+        snprintf(w, sizeof w, "[GSI] %s: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and "
+                 "STREAM_VLAN_ID_VALID %s", tag, settled ? "set" : "clear");
+        ck(w, b[42] & G_STREAM_FLAGS, settled ? G_STREAM_FLAGS : 0u);
+        const uint64_t sid = get_be(b, 54, 8);
+        snprintf(w, sizeof w, "[GSI] %s: stream_id %s", tag, settled ? "is the talker's" : "is zero");
+        snprintf(d, sizeof d, "got 0x%016llX", static_cast<unsigned long long>(sid));
+        ck_true(w, sid == (settled ? G_SID : 0), d);
+        const uint64_t dmac = get_be(b, 66, 6);
+        snprintf(w, sizeof w, "[GSI] %s: stream_dest_mac %s", tag, settled ? "is the talker's" : "is zero");
+        snprintf(d, sizeof d, "got 0x%012llX", static_cast<unsigned long long>(dmac));
+        ck_true(w, dmac == (settled ? G_DMAC : 0), d);
+        snprintf(w, sizeof w, "[GSI] %s: stream_vlan_id %s", tag, settled ? "is the talker's" : "is zero");
+        ck(w, static_cast<uint32_t>(get_be(b, 82, 2)), settled ? G_VID : 0u);
+    }
+
+    void grade_stream_fields_only_while_settled() {
+        printf("[GSI] #790: an input's stream_id, dest MAC and VLAN and their flags only while settled\n");
+        ck("[GSI] [U]'s binding released: UNBIND_RX SUCCESS", gsi_acmp_rx(0x08, 0x0790), 0u);
+
+        const size_t at = tx_frames.size();
+        ck("[GSI] BIND_RX SUCCESS", gsi_acmp_rx(0x06, 0x0791), 0u);
+        grade_gsi_case("sink 0 bound and probing, before the first answer", 0x0792, 2, true, false);
+        const int pk = gsi_last_acmp(at, 0x0);
+        ck_true("[GSI] the listener probed the talker", pk >= 0,
+                pk >= 0 ? "CONNECT_TX_COMMAND seen" : "no probe egressed");
+        gsi_answer_probe(pk >= 0 ? static_cast<uint16_t>(get_be(tx_frames[pk].bytes, 62, 2)) : 0);
+        const uint64_t t_settle = cycle_count;
+        grade_gsi_case("sink 0 settled", 0x0793, 3, true, true);
+        uint32_t st = axi_read(A_ACMPL_STATE);
+        ck("[GSI] settled: the binding view names the stream's VLAN (0x6A4[27:16])",
+           (st >> 16) & 0xFFFu, G_VID);
+
+        while (cycle_count - t_settle < G_NO_TK_CYC) run_idle(10000);
+        const size_t at2 = tx_frames.size();
+        grade_gsi_case("sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID", 0x0794, 1,
+                       true, false);
+        st = axi_read(A_ACMPL_STATE);
+        ck("[GSI] passive: still BOUND (0x6A4[3])", (st >> 3) & 1u, 1u);
+        ck("[GSI] passive: the binding view still names the settled stream's VLAN (0x6A4[27:16])",
+           (st >> 16) & 0xFFFu, G_VID);
+        ck_true("[GSI] passive: no talker discovered, so no new probe", gsi_last_acmp(at2, 0x0) < 0,
+                "no CONNECT_TX_COMMAND since the timeout");
+
+        ck("[GSI] UNBIND_RX SUCCESS", gsi_acmp_rx(0x08, 0x0795), 0u);
+        grade_gsi_case("sink 0 unbound after it settled", 0x0796, 0, false, false);
+        st = axi_read(A_ACMPL_STATE);
+        ck("[GSI] unbound: the binding view is cleared (0x6A4[3], [27:16])",
+           st & 0x0FFF0008u, 0u);
     }
 
     // ---- M2. HEAL BEFORE ANSWER: the silicon arrangement, end to end ------
