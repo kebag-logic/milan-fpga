@@ -1,0 +1,302 @@
+diff --git a/docs/testing/TESTING.md b/docs/testing/TESTING.md
+index 6c4a5a210c..3146bdc545 100644
+--- a/docs/testing/TESTING.md
++++ b/docs/testing/TESTING.md
+@@ -183,7 +183,7 @@ Four-core affinity and background load underpin the new local measurements.
+ See the suite's [measurement and phase rationale](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run).
+ 
+ Every physical transition and original timer remains exercised.
+-Four missed Pdelay intervals, recovery, and reset require physical seconds.
++Five missed Pdelay intervals, recovery, and reset require physical seconds.
+ The scenario spans 16.992496440 simulated seconds over 849624822 cycles.
+ The [workflow policy](CI_WORKFLOWS.md) records nightly and manual execution.
+ Physical regressions are caught nightly, outside the PR aggregate.
+diff --git a/tb/verilator/gptp_plane/phc_step.py b/tb/verilator/gptp_plane/phc_step.py
+index 7a2af9a469..6489f67dca 100644
+--- a/tb/verilator/gptp_plane/phc_step.py
++++ b/tb/verilator/gptp_plane/phc_step.py
+@@ -58,8 +58,8 @@ def run(work: Path, generator: Path, mutants: bool) -> None:
+     arms = [("clean", source, None)]
+     if mutants:
+         credit = '    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n'
+-        liveness = "asCapable falls at the fourth unanswered request after a crossing exchange"
+-        unanswered = "asCapable falls at the third unanswered request after an unanswered crossing request"
++        liveness = "asCapable falls at the fifth unanswered request after a crossing exchange"
++        unanswered = "asCapable falls at the fourth unanswered request after an unanswered crossing request"
+         # The timer program has no free ROM word, so the credit plant below
+         # displaces the Milan cease rule. Removing only that rule must pass.
+         cease = "    _tmr_cease_rule(p)\n"
+diff --git a/tb/verilator/gptp_plane/sim_phc_step.cpp b/tb/verilator/gptp_plane/sim_phc_step.cpp
+index 6238ab2845..46c11d8ca8 100644
+--- a/tb/verilator/gptp_plane/sim_phc_step.cpp
++++ b/tb/verilator/gptp_plane/sim_phc_step.cpp
+@@ -320,7 +320,7 @@ class Harness {
+     drive(3 * kHz);
+     check_.dec("good exchanges requalify after real fault", dut_->pub_flags_o & 4, 4);
+     answer_ = false;
+-    drive(5 * kHz);
++    drive(6 * kHz);  // FPGA-gPTP #90: the fifth loss clears asCapable
+     check_.dec("missing peer still clears asCapable", dut_->pub_flags_o & 4, 0);
+   }
+ 
+@@ -346,7 +346,7 @@ class Harness {
+     gm_epoch_ns_ += 10000000;
+     announce(); next_announce_ = cycle_ + kHz;
+     next_sync_ = target + 200;
+-    drive(6 * kHz);
++    drive(7 * kHz);  // FPGA-gPTP #90: the fifth loss clears asCapable
+     monitor_ = silent_after_probe_ = false;
+     answer_probe_ = true;
+     printf("ARM %s drops=%llu unanswered=%llu unanswered_at_drop=%llu\n", name,
+@@ -357,23 +357,25 @@ class Harness {
+ 
+   void exercise_liveness() {
+     // A received response resets lostResponses (IEEE 802.1AS-2020 11.2.19).
+-    // allowedLostResponses is 3 (11.2.13.4), so after a crossing exchange
+-    // that is answered, the fourth unanswered request, not the third,
+-    // clears asCapable when the next interval judges it lost.
++    // allowedLostResponses is 3 (11.2.13.4), and the MDPdelayReq RESET
++    // increments while lostResponses <= allowedLostResponses (802.1AS-2011
++    // Figure 11-8, FPGA-gPTP #90), so after a crossing exchange that is
++    // answered, the fifth unanswered request clears asCapable when the next
++    // interval judges it lost.
+     requalify("liveness: answered exchanges requalify after silence");
+     check_.dec("liveness: one grandmaster-driven step", silence_across_step("liveness", true), 1);
+     check_.that("liveness: step falls between returned t1 and response",
+                 probe_stamp_ < last_step_cycle_ && last_step_cycle_ < probe_response_);
+     check_.dec("liveness: no invalid link-delay publication", bad_delays_, 0);
+     check_.dec("liveness: asCapable falls once while the peer is silent", drops_, 1);
+-    check_.dec("asCapable falls at the fourth unanswered request after a crossing exchange",
+-               unanswered_at_drop_, 4);
++    check_.dec("asCapable falls at the fifth unanswered request after a crossing exchange",
++               unanswered_at_drop_, 5);
+   }
+ 
+   void exercise_unanswered_crossing() {
+     // The same step, but the peer ignores the crossing request too. Without
+     // a response nothing resets lostResponses (11.2.19): that request is the
+-    // first lost, so the third unanswered request after it clears asCapable.
++    // first lost, so the fourth unanswered request after it clears asCapable.
+     requalify("unanswered crossing: answered exchanges requalify after silence");
+     check_.dec("unanswered crossing: one grandmaster-driven step",
+                silence_across_step("unanswered crossing", false), 1);
+@@ -384,8 +386,8 @@ class Harness {
+                 probe_response_ == 0 && probe_follow_up_ == 0);
+     check_.dec("unanswered crossing: no invalid link-delay publication", bad_delays_, 0);
+     check_.dec("unanswered crossing: asCapable falls once while the peer is silent", drops_, 1);
+-    check_.dec("asCapable falls at the third unanswered request after an unanswered crossing request",
+-               unanswered_at_drop_, 3);
++    check_.dec("asCapable falls at the fourth unanswered request after an unanswered crossing request",
++               unanswered_at_drop_, 4);
+   }
+ };
+ }
+diff --git a/tb/verilator/milan_dp/sim_ax1x1gptp.cpp b/tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+index 54128973e4..f8cfd7d76e 100644
+--- a/tb/verilator/milan_dp/sim_ax1x1gptp.cpp
++++ b/tb/verilator/milan_dp/sim_ax1x1gptp.cpp
+@@ -1057,34 +1057,37 @@ void Harness::audio_window(const char* arm, uint64_t n, int tu, Until until) {
+ void Harness::loss_recovery() {
+     peer_on = false; events.clear();
+     const uint64_t loss = cyc;
+-    audio_window("Sync loss transition", kHz * 45 / 100, -1, Until::SyncLost);
+-    check.hex("375 ms Sync timeout clears sync and asserts tu", read(0x77C) & 3, 1);
+-    // Keep the original total loss deadline (450 ms + 4.6 s). Ending the
+-    // Sync arm early must not shorten the fourth missed-response interval.
+-    // FPGA-gPTP #84: the Announce receipt timeout makes this station
+-    // grandmaster, and a grandmaster's own time is the domain's time. tu
+-    // stays set until the Milan v1.2 Annex B.1.1 holdover armed by that
+-    // grandmaster change has run (two quarter-ticks), then reads clear.
++    // FPGA-gPTP #89: the 375 ms Sync receipt timeout ages the grandmaster
++    // (802.1AS-2011 10.3.11, Figure 10-13 with Cor1), so this station becomes
++    // grandmaster at that timeout, measured from the last Sync it consumed,
++    // at most one Sync interval before the loss. The grandmaster change arms
++    // the Milan v1.2 Annex B.1.1 holdover, and a grandmaster's own time is
++    // the domain's time (#84): tu is set and the role reads synchronised.
++    audio_window("Sync loss transition", kHz * 45 / 100, -1, Until::SelfGm);
++    const uint64_t self_gm = cyc;
++    check.that("the 375 ms Sync timeout makes this station grandmaster",
++               read_identity(0x624) == kThisClock && self_gm - loss <= kHz * 377 / 1000);
++    check.hex("375 ms Sync timeout asserts tu in the synchronised master role",
++              read(0x77C) & 3, 3);
++    // FPGA-gPTP #90: asCapable falls at the fifth missed response (802.1AS-
++    // 2011 Figure 11-8 RESET), so the loss deadline is 450 ms + 5.6 s.
+     if (extended_) {
+-        audio_window("peer loss, real fourth missed Pdelay", kHz * 46 / 10, -1, Until::PeerLost);
++        audio_window("peer loss, real fifth missed Pdelay", kHz * 56 / 10, -1, Until::PeerLost);
+     } else {
+-        const uint64_t loss_end = loss + kHz * 505 / 100;
+-        audio_window("peer loss, before this station is grandmaster",
+-                     loss_end - cyc, 1, Until::SelfGm);
+-        const uint64_t self_gm = cyc;
++        const uint64_t loss_end = loss + kHz * 605 / 100;
+         audio_window("grandmaster change holdover", kHz * 6 / 10, -1, Until::GmCertain);
+         // Both edges are observed by the 1 ms public poll plus its 1 ms drain.
+         check.that("the grandmaster change holds tu for the 0.25 s holdover",
+                    cyc - self_gm >= kHz / 4 - kHz / 250);
+         check.that("tu clears within 0.5 s of the grandmaster change",
+                    (read(0x77C) & 3) == 2 && cyc - self_gm <= kHz / 2 + kHz / 250);
+-        audio_window("peer loss, real fourth missed Pdelay",
++        audio_window("peer loss, real fifth missed Pdelay",
+                      loss_end > cyc ? loss_end - cyc : 0, 0, Until::PeerLost);
+     }
+     publication("lost", false);
+-    // A request is judged at the next request interval. Four unanswered
+-    // intervals therefore finish when the fifth unanswered request starts.
+-    check.that("four unanswered Pdelay intervals elapsed", pd_requests >= pd_answers + 5);
++    // A request is judged at the next request interval. Five unanswered
++    // intervals therefore finish when the sixth unanswered request starts.
++    check.that("five unanswered Pdelay intervals elapsed", pd_requests >= pd_answers + 6);
+     printf("LOSS elapsed %.6f s, no timer compression\n", double(cyc - loss) / kHz);
+     peer_on = true; next_sync = cyc; next_announce = cyc + kHz / 4;
+     audio_window("recovery transition", kHz * 3, -1, Until::Healthy);
+diff --git a/tb/verilator/milan_dp/sim_gptp.cpp b/tb/verilator/milan_dp/sim_gptp.cpp
+index 07738f9303..62806c2669 100644
+--- a/tb/verilator/milan_dp/sim_gptp.cpp
++++ b/tb/verilator/milan_dp/sim_gptp.cpp
+@@ -486,6 +486,20 @@ class GptpPlaneHarness {
+     dut->s_axis_mac_rx_tlast = 0;
+   }
+ 
++  //! FPGA-gPTP #89: the plane ages a grandmaster whose Sync stops for
++  //! syncReceiptTimeout (375 ms, 750 000 cycles at this leg's 2 MHz) even
++  //! while its Announces continue (802.1AS-2011 10.3.11, Figure 10-13 with
++  //! Cor1). The selected peer therefore sends one Sync pair ahead of each
++  //! long wait these phases take, so it stays selected through all of them.
++  uint16_t selected_sync_seq_ = 0x7300;
++  void run_selected(Vmilan_datapath *dut, uint64_t n, bool pdelay = false) {
++    send_sync_pair(dut, selected_sync_seq_++);
++    if (pdelay)
++      run_peer(dut, n);
++    else
++      run(dut, n);
++  }
++
+   void send_sync_pair(Vmilan_datapath *dut, uint16_t seq) {
+     const uint32_t phc_lo = axi_read(dut, 0x530);
+     const uint64_t origin = (static_cast<uint64_t>(axi_read(dut, 0x534)) << 32) | phc_lo;
+@@ -1237,7 +1251,7 @@ class GptpPlaneHarness {
+   // before the later GM switch, without exceeding syncReceiptTimeout. Pdelay
+   // service keeps the selected peer capable throughout.
+   unsigned prove_the_path_trace_refresh_generations(Vmilan_datapath *dut) {
+-    run_peer(dut, 150000);
++    run_selected(dut, 150000, true);
+     const size_t changed_first = tx_frames.size();
+     const unsigned gen_a = (axi_read(dut, 0x7E4) >> 4) & 0xF;
+     const std::vector<uint64_t> path_b =
+@@ -1255,7 +1269,7 @@ class GptpPlaneHarness {
+     expect("tail-only refresh leaves parent stable",
+            (static_cast<uint64_t>(axi_read(dut, 0x734)) << 32) | axi_read(dut, 0x730),
+            PEER_CID);
+-    run(dut, 200000);
++    run_selected(dut, 200000);
+     expect("tail-only refresh emits one GET_AS_PATH push",
+            unsolicited_count(changed_first, 0x0028), 1);
+     const std::vector<uint8_t> changed_push =
+@@ -1269,7 +1283,7 @@ class GptpPlaneHarness {
+ 
+     const size_t identical_first = tx_frames.size();
+     announce(dut, 0x7003, path_b);
+-    run(dut, 200000);
++    run_selected(dut, 200000);
+     expect("identical parent refresh keeps generation",
+            (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_b);
+     expect("identical parent refresh emits no false AS_PATH push",
+@@ -1291,7 +1305,7 @@ class GptpPlaneHarness {
+            (asp_empty >> 4) & 0xF, (gen_b + 1) & 0xF);
+     expect("TLV-less selection retains scalar GM",
+            (static_cast<uint64_t>(axi_read(dut, 0x628)) << 32) | axi_read(dut, 0x624), GMID);
+-    run(dut, 200000);
++    run_selected(dut, 200000);
+     expect("present to absent emits one GET_AS_PATH push",
+            unsolicited_count(absent_first, 0x0028), 1);
+     const std::vector<uint8_t> absent_push =
+@@ -1311,7 +1325,7 @@ class GptpPlaneHarness {
+     const size_t absent_same_first = tx_frames.size();
+     const unsigned gen_empty = (asp_empty >> 4) & 0xF;
+     announce(dut, 0x7005, {});
+-    run(dut, 200000);
++    run_selected(dut, 200000);
+     expect("identical absent refresh keeps fabric path generation",
+            (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_empty);
+     expect("identical absent refresh emits no AS_PATH push",
+@@ -1389,7 +1403,7 @@ class GptpPlaneHarness {
+            same_from(avb_ctr_push, avb_ctr_after, 38), 1);
+     expect("CLOCK_DOMAIN push body equals solicited counters",
+            same_from(ckd_ctr_push, ckd_ctr_after, 38), 1);
+-    run(dut, 200000);
++    run_selected(dut, 200000);
+     expect("absent GM switch emits no false GET_AS_PATH push",
+            unsolicited_count(empty_gm_first, 0x0028), 0);
+     expect("absent GM switch still emits one GET_AVB_INFO push",
+@@ -1416,7 +1430,7 @@ class GptpPlaneHarness {
+            asp_one & 0xF, 2);
+     expect("absent to explicit GM advances generation once",
+            (asp_one >> 4) & 0xF, (gen_empty + 1) & 0xF);
+-    run(dut, 200000);
++    run_selected(dut, 200000);
+     expect("absent to explicit GM emits one AS_PATH push",
+            unsolicited_count(one_first, 0x0028), 1);
+     std::vector<uint8_t> path_one = aecp_xact(
+@@ -1474,7 +1488,7 @@ class GptpPlaneHarness {
+            asp_withdrawn & 0xF, 0);
+     expect("explicit GM withdrawal advances generation once",
+            (asp_withdrawn >> 4) & 0xF, (gen_one + 1) & 0xF);
+-    run(dut, 200000);
++    run_selected(dut, 200000);
+     expect("explicit GM withdrawal emits one AS_PATH push",
+            unsolicited_count(withdraw_first, 0x0028), 1);
+     const std::vector<uint8_t> withdraw_push =
+@@ -1508,7 +1522,7 @@ class GptpPlaneHarness {
+            8);
+     expect("empty to maximum path advances generation once",
+            (asp_max >> 4) & 0xF, (gen_withdrawn + 1) & 0xF);
+-    run(dut, 200000);
++    run_selected(dut, 200000);
+     expect("maximum path emits one GET_AS_PATH push",
+            unsolicited_count(max_first, 0x0028), 1);
+     expect("maximum path emits no false GET_AVB_INFO push",
+@@ -1554,15 +1568,19 @@ class GptpPlaneHarness {
+       // b) a full queue refuses the next accepted frame's event: only 0x7EC
+       //    moves. The four-deep level is held full around exactly one valid
+       //    Sync - the same poke-the-corner idiom as the merge-stall arms -
+-      //    while a first Sync keeps the uCPU inside its handler so nothing
+-      //    pops a forced entry. The level is restored to the true wp-rp
+-      //    afterwards; the refused frame's bank stays held, which nothing
+-      //    after this arm asserts on.
++      //    while a Pdelay_Resp held at the MAC keeps the serializer busy, so
++      //    dispatch pops nothing, forced or real (FPGA-gPTP #89: what the
++      //    queue's stale entries would run no longer decides this arm). The
++      //    level is restored to the true wp-rp afterwards; the refused
++      //    frame's bank stays held, which nothing after this arm asserts on.
+       auto *eng = &root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_lvl_r;
+-      Frame s1 = ptp(0x0, 0x5108, 0, 0x0208, 10);
+-      s1.ts(0);
++      dut->m_axis_mac_tx_tready = 0;
++      Frame s1 = ptp(0x2, 0x5108, 0, 0x0000, 20);
++      s1.u64(0); s1.u16(0); s1.ts(0);
++      s1.b.resize(68);
+       send_wide(dut, s1.b);
+-      run(dut, 40);                       // the handler is now holding the uCPU
++      for (int n = 0; n < 20000 && !dut->m_axis_mac_tx_tvalid; n++)
++        run(dut, 1);                      // the response now holds dispatch
+       *eng = 4; dut->eval();              // queue reads full; pushes refused
+       Frame s2 = ptp(0x0, 0x5109, 0, 0x0208, 10);
+       s2.ts(0);
+@@ -1576,7 +1594,7 @@ class GptpPlaneHarness {
+              w2 & 0xFFFF, w1 & 0xFFFF);
+       expect("the full-queue refusal leaves the tap count", w2 >> 16, w1 >> 16);
+       // The restore is exact only if no pop fired inside the window; a pop
+-      // needs the uCPU idle, which s1's still-running handler forbids, and
++      // needs an idle serializer, which the held response forbids, and
+       // an early pop would fail the full-queue expect above loudly. The one
+       // green-but-poisoned residue (a pop after the refusal, before this
+       // line) is benign only because this is the file's last arm - keep it
+@@ -1584,6 +1602,7 @@ class GptpPlaneHarness {
+       *eng = static_cast<uint8_t>((root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r
+               - root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r) & 3);
+       dut->eval();
++      dut->m_axis_mac_tx_tready = 1;      // release the held response
+       run(dut, 4000);                     // drain the real backlog
+ 
+       // c) a back-to-back burst overruns the 2 KB tap FIFO: the shed frames

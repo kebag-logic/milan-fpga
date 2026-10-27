@@ -1,0 +1,78 @@
+{
+  "head": "56229cc91fd7c1e624ff701b88a25ef17b21d4df",
+  "base": "97aab1d0f28bd753a3e11df6278d5cac54f964dd",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<pinned-verilator>:<pinned-sv2v>:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-verilator-root>/usr/share/verilator",
+        "TMPDIR=<scratch>/tmp",
+        "python3",
+        "scripts/lint_rtl.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "seconds": 12.669,
+      "log": "<scratch>/consumer/head-runB/01.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<pinned-verilator>:<pinned-sv2v>:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-verilator-root>/usr/share/verilator",
+        "TMPDIR=<scratch>/tmp",
+        "make",
+        "-C",
+        "tb/verilator/milan_dp",
+        "gptp"
+      ],
+      "exit_code": 2,
+      "seconds": 149.304,
+      "log": "<scratch>/consumer/head-runB/02.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<pinned-verilator>:<pinned-sv2v>:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-verilator-root>/usr/share/verilator",
+        "TMPDIR=<scratch>/tmp",
+        "make",
+        "-C",
+        "tb/verilator/milan_dp",
+        "gptp-lat"
+      ],
+      "exit_code": 2,
+      "seconds": 148.043,
+      "log": "<scratch>/consumer/head-runB/03.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<pinned-verilator>:<pinned-sv2v>:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-verilator-root>/usr/share/verilator",
+        "TMPDIR=<scratch>/tmp",
+        "make",
+        "-C",
+        "tb/verilator/milan_dp_gptp"
+      ],
+      "exit_code": 2,
+      "seconds": 3919.749,
+      "log": "<scratch>/consumer/head-runB/04.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<pinned-verilator>:<pinned-sv2v>:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<pinned-verilator-root>/usr/share/verilator",
+        "TMPDIR=<scratch>/tmp",
+        "make",
+        "-C",
+        "tb/verilator/milan_dp_gm_steps"
+      ],
+      "exit_code": 0,
+      "seconds": 653.676,
+      "log": "<scratch>/consumer/head-runB/05.log"
+    }
+  ]
+}
