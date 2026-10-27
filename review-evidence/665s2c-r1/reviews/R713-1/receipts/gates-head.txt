@@ -1,0 +1,9 @@
+rc=0 :: python3 scripts/check_baremetal_only.py --check :: baremetal-only: OK (0 findings across 1431 tracked first-party file(s))
+rc=0 :: python3 scripts/docs_check.py :: docs_check: 0 finding(s) across 211 md files + 1433 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0 :: md-venv/python3 scripts/check_em_dash.py --base f58d049beb377c3f535628067022d4d5b51e8208 :: check_em_dash: 0 finding(s) over 335 added line(s) in 3 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [f58d049b..HEAD]
+rc=0 :: md-venv/python3 scripts/gen_toc.py --check :: TOC gate: OK (150 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0 :: md-venv/python3 scripts/gen_toc.py --verify-anchors :: anchor check: 552 existing cross-page fragment links reproduced
+rc=0 :: python3 scripts/check_py_idiom.py ::   over-long line: 0 <= 0
+rc=0 :: python3 scripts/check_cpp_idiom.py ::   build without warnings: 0 <= 0
+rc=0 :: python3 scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 1300 file(s))
+rc=0 :: git diff --check f58d049b HEAD :: 
