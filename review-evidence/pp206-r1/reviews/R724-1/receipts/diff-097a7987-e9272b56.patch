@@ -1,0 +1,478 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index fdcd9df..d92c400 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -432,7 +432,7 @@ verification).
+ | REQ-AEM-007 | Milan §5.4.2.5 | SET_CONFIGURATION rejected with STREAM_IS_RUNNING if any input bound or output streaming; lock-protected | shall | A; traced | [GAP-01](#gap-01) | CFG_BARRIER + guard | 03 §6, 06 §6.4 | DIR |
+ | REQ-AEM-008 | Milan §5.4.2.7 | SET_STREAM_FORMAT: STREAM_IS_RUNNING / BAD_ARGUMENTS (mapping refs channel absent in new format) | shall | A; traced | [GAP-01](#gap-01) | validation chain | 06 §6.4 | DIR |
+ | REQ-AEM-009 | Milan §5.4.2.9 | SET_STREAM_INFO: OUTPUT only (INPUT → NOT_SUPPORTED); MSRP_ACC_LAT_VALID sets presentation offset 0..0x7FFFFFFF ns; any unsupported sub-flag ⇒ whole command NOT_SUPPORTED | shall | A; traced | [GAP-01](#gap-01) | F06.14 row | 06 §6.3 | DIR |
+-| REQ-AEM-010 | Milan §5.4.2.10 | GET_STREAM_INFO: Milan 80-B extended response (flags_ex, pbsta, acmpsta); renamed flags; full validity matrix | shall | C; traced | [GAP-01](#gap-01) | E_GSTRI + gsi face (landed; validity matrix = integrator serving the face) | 06 §6.2 | DIR |
++| REQ-AEM-010 | Milan §5.4.2.10 | GET_STREAM_INFO: Milan 80-B extended response (flags_ex, pbsta, acmpsta); renamed flags; full validity matrix | shall | C; traced | [GAP-01](#gap-01) | E_GSTRI + gsi face (landed; validity matrix = integrator serving the face; an input's stream_id, stream_dest_mac, stream_vlan_id and their three flags pass only while pbsta is PROBING_COMPLETED, #206, pp_top GI GATE) | 06 §6.2 | DIR |
+ | REQ-AEM-011 | Milan §5.4.2.11/.12 | SET/GET_NAME for all names of implemented descriptors; persisted | shall | C; traced | live commands and coherent descriptor overlay implemented; persisted and restored after the image walk by the D3 writer, records `0x80`+ordinal ([GAP-09](#gap-09); #61/#83, `tb/pp_top` D3N1 to D3N7, D3K) | name table + accepted name-lane write as the persistence trigger (the mark is completion only) | 06 §6.2.1, 07 §3/§5 | DIR |
+ | REQ-AEM-012 | Milan §5.4.2.13/.14 | SET/GET_SAMPLING_RATE per Audio Unit; may NOT_SUPPORTED when mappings mismatch and no SRC ("UNSUPPORTED" in spec text is a typo) | shall | A; traced | [GAP-01](#gap-01) | validation chain | 06 §6.4 | DIR |
+ | REQ-AEM-013 | Milan §5.4.2.15/.16 | SET/GET_CLOCK_SOURCE per Clock Domain; persisted | shall | A; traced | [GAP-09](#gap-09); persisted and restored by the D3 writer (#131, `tb/pp_top` D3S1/D3R1); over a ten-source domain, an AAF index set, refused past the list, saved and restored (#141, `tb/pp_top` D3C1 to D3C4); a blank, corrupt or torn record keeps the image's index, and the saved index is exported in every cycle the ADP enable is high (#52, D3C5, D3C6) | CLOCK_CFG class; D3 record `0x0A`+domain | 06 §6, 07 §5 | NVM |
+diff --git a/docs/architecture/02_interfaces.md b/docs/architecture/02_interfaces.md
+index 454909d..2bc617d 100644
+--- a/docs/architecture/02_interfaces.md
++++ b/docs/architecture/02_interfaces.md
+@@ -427,7 +427,7 @@ words on the `gsi_*` face (§4.3).
+ | the presentation-time offset of each Stream Output (SET_STREAM_INFO, Milan §5.4.2.9) | `aecp_pt_offset_o` / `aecp_pt_offset_v_o` |
+ | the talker's transmit licence (Milan §4.3.3.1, §5.3.7.3) | `acmp_declaring_o`, `srp_active_o`, `srp_sr_admitted_o`, per source |
+ | the Stream ID each Stream Output currently uses, to stamp on its stream frames (IEEE 1722-2016 §4.4.4.8) and to answer its GET_STREAM_INFO stream_id with (IEEE 1722.1-2021 §7.4.16.2) | `src_stream_id_o`, per source |
+-| whether a Stream Output is streaming, and every other GET_STREAM_INFO word the integrator owns (Milan §5.4.2.10) | `gsi_*` kind 0, selectors 0 to 7; an input's selectors 5 and 7, selector 4's failure-code byte and selector 6's upper 16 VLAN bits are served inside the processor ([06 §6.2](06_aecp_engine.md#sec-06-stri)) |
++| whether a Stream Output is streaming, and every other GET_STREAM_INFO word the integrator owns (Milan §5.4.2.10) | `gsi_*` kind 0, selectors 0 to 7; an input's selectors 5 and 7, selector 4's failure-code byte and selector 6's upper 16 VLAN bits are served inside the processor, and while the input is not settled the processor clears its selector 0 STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID and zeroes selector 2 and selector 4's destination MAC (Milan Table 5.9; [06 §6.2](06_aecp_engine.md#sec-06-stri)) |
+ | the stream-health events Milan Tables 5.4 and 5.6 count | not processor events: the integrator counts them and serves the counts on the `ctr_*` face (§4.6) |
+ 
+ The listener retains the full received 16-bit `stream_vlan_id` for GET_RX_STATE
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 4f9341d..3bfcbb2 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -381,10 +381,20 @@ unsettled (also zero for an out-of-range sink index), under Milan §5.3.8.9 and
+ §5.4.2.10. Bits [47:0], including `flags_ex` and the reserved halfword, still
+ come from `gsi_data_i`; selector 6 raises the external request and honors
+ `gsi_wait_i`. The integrator's selector-6 VLAN bits are unused for inputs.
++The same settled test gates three integrator words (Milan §5.4.2.10.1,
++Table 5.9, issue #206): while the addressed input's committed status is not
++PROBING_COMPLETED (Milan §5.3.8.5, Table 5.5), or its index is out of range,
++the top clears STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID
++(`0x52000000`) in selector 0's flags and answers zero for selector 2's
++stream_id and selector 4's destination MAC [63:16]. The published binding view
++keeps a stream's identity from settle to unbind, so an integrator folding it
++cannot tell a settled input from one back in probing. While settled, those
++words pass unchanged; selectors 0, 2 and 4 raise the external request and
++honor `gsi_wait_i` in both cases.
+ There are no added top-level ports. All remaining input fields, all output
+-words, and all validity flags remain integrator-owned; an unwired external
+-face clears those fields and flags while the internal fields still report
+-their state owners. An output's selector 2 stream_id is the integrator's word
++words, and all validity flags remain integrator-owned, the three settled-only
++flags passing only while settled; an unwired external face clears those
++fields and flags while the internal fields still report their state owners. An output's selector 2 stream_id is the integrator's word
+ but not its choice: it answers the source's `src_stream_id_o` slice, "the
+ current id of the stream" (IEEE 1722.1-2021 §7.4.16.2), which the talker
+ declares and answers `PROBE_TX` with and moves after a MAAP conflict or a disable
+@@ -447,7 +457,8 @@ renames Δ6; legacy controllers ignore @72+, Milan controllers detect the extens
+ 
+ `flags` masks and validity — **Stream Input**: STREAM_FORMAT_VALID `0x80000000`
+ always · STREAM_ID_VALID `0x40000000`, STREAM_DEST_MAC_VALID `0x10000000`,
+-STREAM_VLAN_ID_VALID `0x02000000` **iff settled** · MSRP_ACC_LAT_VALID `0x20000000`
++STREAM_VLAN_ID_VALID `0x02000000` **iff settled** (the top clears them, and zeroes
++the three fields, unless pbsta is PROBING_COMPLETED) · MSRP_ACC_LAT_VALID `0x20000000`
+ iff registering a matching talker attribute (= `flags_ex.REGISTERING`) ·
+ MSRP_FAILURE_VALID `0x08000000` = REGISTERING_FAILED `0x00000040` (registering
+ matching Talker **Failed**) · BOUND `0x04000000` · FAST_CONNECT `0x00000002` **= 1 iff
+@@ -465,8 +476,8 @@ MSRP_FAILURE_VALID=0} ⇔ **streaming**.
+ | stream_format | integrator face word 1, folding the published SET_STREAM_FORMAT row when valid | - | SET_STREAM_FORMAT | via command trigger |
+ | BOUND, STREAMING_WAIT | ACMP sink record, published binding/started view folded by the integrator | — | listener-SM commits; a started/stopped change under a live binding, by START/STOP_STREAMING or by a re-bind that flips STREAMING_WAIT | yes (input) |
+ | pbsta, acmpsta | ACMP sink record, internal selector 7 | `pbsta[sink]`, `acmpsta[sink]` | changed record write, including preload | yes (input) |
+-| stream_id / DA + their *_VALID flags | sink record (settled), published view folded by the integrator into selectors 2 / 4 and validity flags | — | A15 / A8 | yes |
+-| stream_vlan_id / STREAM_VLAN_ID_VALID | full settled VLAN internally in selector 6 [63:48], zero while unsettled; validity flag remains integrator-owned | — | A15 / A8 | yes |
++| stream_id / DA + their *_VALID flags | sink record (settled), published view folded by the integrator into selectors 2 / 4 and validity flags; the top passes them only while the committed status is PROBING_COMPLETED, otherwise zero fields and cleared flags (Milan Table 5.9, issue #206) | `pbsta[sink]` gates | A15 / A8 | yes |
++| stream_vlan_id / STREAM_VLAN_ID_VALID | full settled VLAN internally in selector 6 [63:48], zero while unsettled; the integrator's validity flag passes only while settled | `pbsta[sink]` gates | A15 / A8 | yes |
+ | msrp_accumulated_latency | srp | `acc_latency[sink]` + `P-INTERNAL-INGRESS-DELAY-NS` | committed per-sink latch change on a registering Talker attribute, including a latency-only refresh; unchanged refresh is silent | yes (input), §5.4.5.2 / Table 5.22 |
+ | REGISTERING (flags_ex), REGISTERING_FAILED | srp | `tk_reg_state[sink]` | TK_ATTR events | yes |
+ | msrp_failure_code / bridge | SRP listener registrar, internal selector 4 byte / selector 5 | `msrp_fail_*` | TK_ATTR(Failed), a changed FailureInformation under a registered Failed (notification strobe only, [10 §6.4](10_srp_engine.md)), replacement or withdrawal | yes |
+@@ -477,7 +488,9 @@ beats; there is no sample-and-hold copy. Selector 6 [63:48] comes from the
+ addressed sink's stored 16-bit VLAN only while its committed status is
+ PROBING_COMPLETED, otherwise zero. Its lower 48 bits, including `flags_ex`,
+ and the request/wait handshake remain external; output selector 6 is wholly
+-integrator-owned. The SRP bridge is the registrar's raw latch and is gated
++integrator-owned. The same live status test clears selector 0's three
++settled-only flags and zeroes selector 2 and selector 4 [63:16] at their
++beats. The SRP bridge is the registrar's raw latch and is gated
+ once, after the top's index mux, on the addressed sink's registered FAILED.
+ The integrator answers its fields one beat at a time the same way.
+ **Coherence bound**: one gather spans a few cycles (longer only while the
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index 6b39731..ed5cb57 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -597,8 +597,16 @@ Selector 4 still requests the destination MAC, but its failure-code byte is
+ replaced internally. Input selector 6 replaces bits [63:48] with all 16 received
+ VLAN bits while settled, or zero while unsettled. Your VLAN halfword is unused
+ for inputs, but you must still serve bits [47:0], including `flags_ex`, with the
+-existing `gsi_req_o` / `gsi_wait_i` handshake. Keep serving the other external
+-fields and the existing STREAM_OUTPUT words; all validity flags remain yours.
++existing `gsi_req_o` / `gsi_wait_i` handshake. While a Stream Input is not
++settled (probing status other than PROBING_COMPLETED), the processor clears
++STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID in your
++selector 0 answer and answers zero in place of your selector 2 stream_id and
++selector 4 destination MAC (Milan §5.4.2.10.1, Table 5.9). `acmp_bound_sid_o`
++and `acmp_bound_dmac_o` keep the last settled stream until unbind, so they
++cannot tell you whether the input is settled; while it is, those words pass
++unchanged. Keep serving the other external fields and the existing
++STREAM_OUTPUT words; all validity flags remain yours, those three passing only
++while settled.
+ No additional port or instantiation connection is needed.
+ The internal fields and their notification events have one state owner; do not
+ derive a second probing status from bound/settled flags. The internal fields are
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index 6a3950e..abd45cc 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3529,6 +3529,7 @@ module protocol_processor_top
+   logic [SINK_IDX_W_C-1:0] gsi_sink_w;
+   logic [7:0]  gsi_fail_code_w, gsi_status_w;
+   logic [63:0] gsi_fail_bridge_w;
++  logic        gsi_settled_w;
+   assign gsi_input_w = (gsi_kind_o == 2'd0)
+                         && (gsi_desc_type_o == 16'h0005);
+   assign gsi_internal_w = gsi_input_w
+@@ -3550,6 +3551,18 @@ module protocol_processor_top
+     end
+   end
+ 
++  //! Milan 5.4.2.10.1 and Table 5.9: an input's stream_id, stream_dest_mac
++  //! and stream_vlan_id, and their STREAM_ID_VALID, STREAM_DEST_MAC_VALID
++  //! and STREAM_VLAN_ID_VALID flags, are valid if, and only if, the Stream
++  //! Input is settled, which is probing_status PROBING_COMPLETED (Milan
++  //! 5.3.8.5, Table 5.5; IEEE 1722.1-2021 7.4.16.2). The selector 7 status
++  //! decides it for the integrator's words too: the published binding view
++  //! keeps a stream's identity from settle to unbind, so an integrator
++  //! that reads it would report a sink back in probing as settled on its
++  //! last stream (issue #206).
++  assign gsi_settled_w = (32'(gsi_desc_index_o) < N_STREAM_IN_P)
++                         && (gsi_status_w[7:5] == pp_acmp_pkg::PB_COMPLETED_C);
++
+   always_comb begin : gsi_answer
+     aecp_gsi_data_w = gsi_data_i;
+     if (gsi_input_w) begin
+@@ -3557,13 +3570,22 @@ module protocol_processor_top
+         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+         // Milan 5.3.8.9 and 5.4.2.10: report the full received VLAN.
+-        4'd6: aecp_gsi_data_w = {
+-            ((32'(gsi_desc_index_o) < N_STREAM_IN_P)
+-             && (gsi_status_w[7:5] == pp_acmp_pkg::PB_COMPLETED_C))
++        4'd6: aecp_gsi_data_w = {gsi_settled_w
+               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+         default: begin end
+       endcase
++      // Table 5.9 while unsettled: clear the three flags (0x52000000) in
++      // selector 0's flags, and zero selector 2's stream_id and selector
++      // 4's stream_dest_mac [63:16].
++      if (!gsi_settled_w) begin
++        case (gsi_sel_o)
++          4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
++          4'd2: aecp_gsi_data_w = 64'd0;
++          4'd4: aecp_gsi_data_w[63:16] = 48'd0;
++          default: begin end
++        endcase
++      end
+     end
+   end
+ 
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index cfb081f..c042ab4 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -491,6 +491,28 @@ the seven into the one canonical tally.
+   requester, its only registered controller, to receive nothing, now requires
+   the GET_STREAM_INFO, and G7g nothing else.
+ 
++  The settled gate (issue #206; Milan 5.4.2.10.1, Table 5.9, 5.3.8.5) follows
++  on a fresh boot. The harness integrator answers STREAM_INPUT selectors 2 and
++  4 from the published binding view (`acmp_bound_sid_o`, `acmp_bound_dmac_o`),
++  which keeps a stream's identity from settle to unbind, and claims
++  STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID in every
++  flags word, so each response grades the processor's gate alone. On sink 0:
++  **RESET**, unbound; **PROBING** and **PROBING-SENT**, bound and probing
++  before the first answer (the bind's push and the read after its PROBE_TX);
++  **SETTLED**, where the claimed flags, the binding view's stream_id and
++  destination MAC and the stored VLAN pass; **REPROBE** and **REPROBE-SENT**,
++  T-ACMP-NOTK with no Talker registered and the talker discovered, which
++  probes again with the settled identity still published; **SETTLED-AGAIN**;
++  **PASSIVE-STALE**, the talker's ENTITY_DEPARTING, which a settled sink only
++  notes, then T-ACMP-NOTK to PROBING_PASSIVE with the identity still
++  published (milan-fpga #790); **UNBOUND**, after UNBIND_RX. Each status
++  change's unsolicited response and the solicited read are checked byte-exact
++  and by name: unless settled, the three flags are clear and stream_id,
++  stream_dest_mac and stream_vlan_id are zero. Premise checks read the binding
++  view at each step. The rest of the suite grades the same rule on the fixed
++  integrator words: every expected STREAM_INPUT body below PROBING_COMPLETED
++  carries a zero stream_id and destination MAC.
++
+   Latency-only Talker JoinIn refreshes (issue #113) are checked with sink 0
+   registering Advertise and sink 1 Failed. The harness folds the processor's
+   published per-sink accumulated latency into selector 3 with zero ingress
+@@ -551,6 +573,12 @@ the seven into the one canonical tally.
+   | FailureInformation change re-declares the Listener again | `GI FAILED-REFRESH wire: a changed FailureInformation sends no` |
+   | Index guard removed before narrowing | `GI INDEX-GUARD solicited: pbsta sink 9` |
+   | Bridge no longer gated on FAILED after the index mux | `GI ADVERTISE unsolicited: full failure bridge` |
++  | Selectors 0, 2 and 4 passed through while unsettled (issue #206 as reported) | `GI GATE PASSIVE-STALE solicited: stream_id sink 0 is zero` |
++  | Selector 0's three flags passed through while unsettled | `GI GATE PASSIVE-STALE solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear` |
++  | Selector 2 passed through while unsettled | `GI GATE PASSIVE-STALE solicited: stream_id sink 0 is zero` |
++  | Selector 4's destination MAC passed through while unsettled | `GI GATE PASSIVE-STALE solicited: stream_dest_mac sink 0 is zero` |
++  | The gate closed while settled | `GI GATE SETTLED solicited: stream_id sink 0 is the settled stream's` |
++  | Settled read as bound (any probing status but DISABLED) | `GI GATE PROBING solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear` |
+   | A START/STOP_STREAMING's own started/stopped change dropped, the re-bind's kept (issue #192 as reported) | `GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester` |
+   | Started/stopped change disconnected from `stri_events` (issue #192) | `GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester` |
+   | Premise control: the GET_AVB_INFO change disconnected, so no round holds the notify block | `GI STOP-WITH-REGISTRATION: exactly one GET_STREAM_INFO for sink 0 at A, the requester` |
+diff --git a/tb/pp_top/gsi_internal.hpp b/tb/pp_top/gsi_internal.hpp
+index ca0f61b..04fb7f7 100644
+--- a/tb/pp_top/gsi_internal.hpp
++++ b/tb/pp_top/gsi_internal.hpp
+@@ -603,6 +603,144 @@ struct InternalStreamInfoPhase {
+     CHECK(io.q_aecp.empty(), "GI SN final: no late or duplicate notification");
+   }
+ 
++  // ---- Milan 5.4.2.10.1 / Table 5.9: the settled gate (issue #206) -------
++  // stream_id, stream_dest_mac and stream_vlan_id, and STREAM_ID_VALID,
++  // STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID, are valid if, and only
++  // if, the Stream Input is settled: probing_status PROBING_COMPLETED
++  // (5.3.8.5, Table 5.5). The harness integrator answers selectors 2 and 4
++  // from the published binding view and claims the three flags in every
++  // answer (H::gsi_fold_identity), so each response grades the processor's
++  // gate alone. Sink 0's four cases: bound and probing before the first
++  // answer; settled; back in PROBING_PASSIVE after T-ACMP-NOTK with the
++  // settled identity still published; unbound. The same timeout with the
++  // talker still discovered re-probes with that identity published too.
++  static constexpr uint16_t GATE_VLAN = 0x0A06;
++
++  // the response sink `sink` owes at probing status `pb`: settled, the
++  // integrator's flags and the binding view pass; otherwise the three flags
++  // are clear and the three fields zero
++  std::vector<uint8_t> gate_expected(unsigned sink, uint8_t pb, uint8_t acmp,
++                                     bool uns) {
++    auto body = StreamInfoPhase::gsi_body(0x0005, sink, true,
++                                          uint8_t((pb << 5) | acmp));
++    if (pb == 3) {
++      putbe(&body[4], fv_u64(body, 4, 4) | 0x52000000u, 4);
++      putbe(&body[16], sid(sink), 8);
++      putbe(&body[28], da(sink), 6);
++      putbe(&body[44], GATE_VLAN, 2);
++    }
++    auto want = aecp_frame(CTLR_MAC, OWN_MAC, 1, 0, EID, CTLR_EID,
++                           uns ? unsolicited_sequence++ : sequence - 1,
++                           0x000F, body);
++    if (uns) want[36] |= 0x80;
++    return want;
++  }
++
++  void gate_frame(const std::vector<uint8_t>& f, const char* phase,
++                  unsigned sink, uint8_t pb, uint8_t acmp, bool uns) {
++    const char* kind = uns ? "unsolicited" : "solicited";
++    const bool settled = pb == 3;
++    CHECK(f.size() == 94, "GI GATE %s %s: complete Milan response", phase, kind);
++    if (f.size() != 94) return;
++    CHECK(f[90] >> 5 == pb && (f[90] & 31) == acmp,
++          "GI GATE %s %s: pbsta/acmpsta sink %u = %u/%u, got %u/%u",
++          phase, kind, sink, pb, acmp, f[90] >> 5, f[90] & 31);
++    REQ_TAG("REQ-AEM-010", "DIR", "GI GATE");
++    CHECK((fv_u64(f, 42, 4) & 0x52000000u) == (settled ? 0x52000000u : 0u),
++          "GI GATE %s %s: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and "
++          "STREAM_VLAN_ID_VALID %s for sink %u", phase, kind,
++          settled ? "set" : "clear", sink);
++    CHECK(fv_u64(f, 54, 8) == (settled ? sid(sink) : 0),
++          "GI GATE %s %s: stream_id sink %u %s", phase, kind, sink,
++          settled ? "is the settled stream's" : "is zero");
++    CHECK(fv_u64(f, 66, 6) == (settled ? da(sink) : 0),
++          "GI GATE %s %s: stream_dest_mac sink %u %s", phase, kind, sink,
++          settled ? "is the settled stream's" : "is zero");
++    CHECK(fv_u64(f, 82, 2) == (settled ? GATE_VLAN : 0),
++          "GI GATE %s %s: stream_vlan_id sink %u %s", phase, kind, sink,
++          settled ? "is the settled stream's" : "is zero");
++    const auto want = gate_expected(sink, pb, acmp, uns);
++    CHECK(f == want, "GI GATE %s %s: byte-exact sink %u response",
++          phase, kind, sink);
++    if (f != want) { dump("GI got", f); dump("GI expected", want); }
++  }
++
++  // the change's one unsolicited response, then the solicited read
++  void gate_pair(const char* phase, unsigned sink, uint8_t pb,
++                 int wait_ms = 500) {
++    gate_frame(io.wait_any(io.q_aecp, wait_ms), phase, sink, pb, 0, true);
++    gate_frame(query(sink), phase, sink, pb, 0, false);
++  }
++
++  // premise: what the published binding view says of `sink` right now
++  void gate_view(const char* phase, unsigned sink, bool bound, bool named) {
++    const bool b = ((io.d->acmp_bound_o >> sink) & 1) != 0;
++    const uint64_t s = H::view_lane(io.d->acmp_bound_sid_o, sink, 64);
++    const uint64_t d = H::view_lane(io.d->acmp_bound_dmac_o, sink, 48);
++    CHECK(b == bound && s == (named ? sid(sink) : 0)
++          && d == (named ? da(sink) : 0),
++          "GI GATE %s: the binding view is %s, %s (premise)", phase,
++          bound ? "bound" : "unbound",
++          named ? "naming the settled stream" : "naming no stream");
++  }
++
++  void gate_settle(unsigned sink, const std::vector<uint8_t>& p) {
++    if (p.size() != 70) return;
++    io.feed(acmp_frame(T1_MAC + sink, 1, 0, sid(sink), fv_u64(p, 26, 8),
++                       talker(sink), EID, T1_UID, sink, da(sink), 0,
++                       fv_u64(p, 62, 2), 0, GATE_VLAN));
++  }
++
++  void settled_gate() {
++    io.dram = image(2);
++    io.gsi_fold_identity = true;
++    boot();
++    register_controller();
++    gate_view("RESET", 0, false, false);
++    gate_frame(query(0), "RESET", 0, 0, 0, false);
++
++    // bound and probing, before the first answer. The talker is discovered
++    // only once the bind has armed discovery, which a probing sink notes.
++    binding(0, true);
++    gate_pair("PROBING", 0, 2);
++    const auto first = probe(0);
++    discover(0);
++    gate_view("PROBING", 0, true, false);
++    gate_frame(query(0), "PROBING-SENT", 0, 2, 0, false);
++
++    // settled: the integrator's flags and the binding view pass
++    gate_settle(0, first);
++    gate_pair("SETTLED", 0, 3);
++    gate_view("SETTLED", 0, true, true);
++
++    // T-ACMP-NOTK with no Talker registered and the talker still
++    // discovered: A8, then probing again (F05.3 TMR_NOTK x SNR)
++    gate_pair("REPROBE", 0, 2, 10500);
++    gate_view("REPROBE", 0, true, true);
++    const auto again = probe(0);
++    gate_frame(query(0), "REPROBE-SENT", 0, 2, 0, false);
++    gate_settle(0, again);
++    gate_pair("SETTLED-AGAIN", 0, 3);
++
++    // the talker departs, which a settled sink only notes (F05.3 TK_DEP
++    // x SNR); T-ACMP-NOTK then tears down to PROBING_PASSIVE
++    io.feed(adp_frame(1, T1_MAC, talker(0), 31, 0, GM0, DOM0,
++                      0xBBB0000000000001ull, 8, TKCAP, 0, 0,
++                      0x0000C588u, 0, 0));
++    io.run_ms(100);
++    CHECK(io.q_aecp.empty(),
++          "GI GATE DEPARTED: a settled sink only notes the departure");
++    gate_pair("PASSIVE-STALE", 0, 1, 10500);
++    gate_view("PASSIVE-STALE", 0, true, true);
++
++    binding(0, false);
++    gate_pair("UNBOUND", 0, 0);
++    gate_view("UNBOUND", 0, false, false);
++    io.run_ms(100);
++    CHECK(io.q_aecp.empty(), "GI GATE final: no other response");
++    io.gsi_fold_identity = false;
++  }
++
+   void run() {
+     io.dram = image(2);
+     io.gsi_retired_stuck = true;
+@@ -688,5 +826,6 @@ struct InternalStreamInfoPhase {
+           "GI internal seam: selectors 5/7 never requested from integrator");
+     vlan_retention();
+     started_notify();
++    settled_gate();
+   }
+ };
+diff --git a/tb/pp_top/gsi_mutants.py b/tb/pp_top/gsi_mutants.py
+index caf3e64..04a7ff7 100644
+--- a/tb/pp_top/gsi_mutants.py
++++ b/tb/pp_top/gsi_mutants.py
+@@ -25,6 +25,40 @@ from mutant_pool import add_jobs_argument, in_order  # noqa: E402
+ Variant = tuple[str, tuple[str, str, str, int] | None, str, Path, str]
+ 
+ 
++def settled_gate_mutations(top: str) -> list[tuple[str, str, str, str, int, str]]:
++    """Issue #206's settled gate on the integrator's selectors 0, 2 and 4.
++
++    The defect as reported (each selector passed through while unsettled),
++    then each arm alone, a gate that never opens and "settled" read as bound.
++    """
++    return [
++        ("settled-gate-removed", top,
++         "      if (!gsi_settled_w) begin", "      if (1'b0) begin", 1,
++         "GI GATE PASSIVE-STALE solicited: stream_id sink 0 is zero"),
++        ("settled-gate-flags-passed", top,
++         "4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;",
++         "4'd0: aecp_gsi_data_w = gsi_data_i;", 1,
++         "GI GATE PASSIVE-STALE solicited: STREAM_ID_VALID, "
++         "STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear"),
++        ("settled-gate-sid-passed", top,
++         "4'd2: aecp_gsi_data_w = 64'd0;",
++         "4'd2: aecp_gsi_data_w = gsi_data_i;", 1,
++         "GI GATE PASSIVE-STALE solicited: stream_id sink 0 is zero"),
++        ("settled-gate-dmac-passed", top,
++         "4'd4: aecp_gsi_data_w[63:16] = 48'd0;",
++         "4'd4: aecp_gsi_data_w[63:16] = gsi_data_i[63:16];", 1,
++         "GI GATE PASSIVE-STALE solicited: stream_dest_mac sink 0 is zero"),
++        ("settled-gate-closed", top,
++         "      if (!gsi_settled_w) begin", "      if (1'b1) begin", 1,
++         "GI GATE SETTLED solicited: stream_id sink 0 is the settled stream's"),
++        ("settled-means-bound", top,
++         "(gsi_status_w[7:5] == pp_acmp_pkg::PB_COMPLETED_C);",
++         "(gsi_status_w[7:5] != 3'd0);", 1,
++         "GI GATE PROBING solicited: STREAM_ID_VALID, "
++         "STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear"),
++    ]
++
++
+ def mutations() -> list[tuple[str, str, str, str, int, str]]:
+     """Each tuple names one exact source edit and its required failing check."""
+     top = "hdl/top/protocol_processor_top.sv"
+@@ -103,6 +137,7 @@ def mutations() -> list[tuple[str, str, str, str, int, str]]:
+          "if (srp_tk_reg_state_w[gsi_sink_w] == 2'd2) begin",
+          "if (1'b1) begin", 1,
+          "GI ADVERTISE unsolicited: full failure bridge"),
++        *settled_gate_mutations(top),
+         # issue #192: the defect as reported, a START/STOP_STREAMING's own
+         # change dropped while the re-bind's still notifies
+         ("command-started-change-dropped", lstn,
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index f842006..0c296b8 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -1284,6 +1284,23 @@ struct H {
+   //! stopped. Other sections keep the fixed flags word they grade against.
+   bool gsi_fold_sw = false;
+   bool gsi_fold_latency = false;
++  //! Section GI's settled gate only (issue #206): answer a STREAM_INPUT's
++  //! stream_id (selector 2) and stream_dest_mac (selector 4) from the
++  //! published binding view, which keeps a stream's identity from settle to
++  //! unbind, and claim STREAM_ID_VALID, STREAM_DEST_MAC_VALID and
++  //! STREAM_VLAN_ID_VALID (0x52000000) in every flags word. Whether a
++  //! response reports them is then the processor's decision alone.
++  bool gsi_fold_identity = false;
++  //! sink k's lane of a per-sink binding-view vector (bits [w*k +: w])
++  template <typename W>
++  static uint64_t view_lane(const W& v, unsigned k, unsigned w) {
++    uint64_t r = 0;
++    for (unsigned i = 0; i < w; ++i) {
++      const unsigned b = w * k + i;
++      if ((v.at(size_t(b >> 5)) >> (b & 31)) & 1u) r |= 1ull << i;
++    }
++    return r;
++  }
+   //! Section NS only: answer a Stream Output's GET_STREAM_INFO latency word
+   //! the way milan-fpga's integrator does (milan-fpga #632): the offset in
+   //! use (Milan v1.2 5.4.2.10.2), the published row rounded up to whole
+@@ -2034,6 +2051,12 @@ struct H {
+               && ((d->acmp_bound_o >> gix) & 1)
+               && !((d->aecp_strm_started_o >> gix) & 1))
+             d->gsi_data_i |= 0x00000008u;              // STREAMING_WAIT
++          if (gsi_fold_identity && gk == 0 && gty == 0x0005 && gix < 2) {
++            if (gs == 0) d->gsi_data_i |= 0x52000000u;
++            if (gs == 2) d->gsi_data_i = view_lane(d->acmp_bound_sid_o, gix, 64);
++            if (gs == 4)
++              d->gsi_data_i = view_lane(d->acmp_bound_dmac_o, gix, 48) << 16;
++          }
+         }
+         gsi_hold_cur = 0;
+         ++gsi_reads;
+@@ -5389,6 +5412,15 @@ struct StreamInfoPhase {
+           b[34] = 0;
+           putbe(&b[36], 0, 8);
+           putbe(&b[52], uint32_t(status) << 24, 4);
++          // Milan 5.4.2.10.1, Table 5.9: stream_id, stream_dest_mac and
++          // their flags are reported only while settled (pbsta COMPLETED);
++          // otherwise the processor clears the integrator's words (#206).
++          if ((status >> 5) != 3) {
++            putbe(&b[4], static_cast<uint32_t>(H::gsi_value(0, ty, ix, 0, 0))
++                             & ~0x52000000u, 4);
++            putbe(&b[16], 0, 8);
++            putbe(&b[28], 0, 6);
++          }
+         }
+       }
+       return b;

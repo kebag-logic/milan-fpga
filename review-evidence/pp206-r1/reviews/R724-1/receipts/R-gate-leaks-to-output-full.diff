@@ -1,0 +1,13 @@
+diff --git a$REVIEWS/r724-1-pp206/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index abd45cc..f1dc776 100644
+--- a$REVIEWS/r724-1-pp206/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3565,6 +3565,8 @@ module protocol_processor_top
+ 
+   always_comb begin : gsi_answer
+     aecp_gsi_data_w = gsi_data_i;
++    if (!gsi_input_w && gsi_kind_o == 2'd0 && gsi_sel_o == 4'd2)
++      aecp_gsi_data_w = 64'd0;
+     if (gsi_input_w) begin
+       case (gsi_sel_o)
+         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
