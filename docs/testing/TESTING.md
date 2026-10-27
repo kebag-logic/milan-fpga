@@ -1487,19 +1487,30 @@ Its excursions run 64 to 2049 words at three block positions, under five masks.
 **The property and its exactness scope.**
 Every capture meets one property, whatever its events.
 A capture with a DUT event the bytes show never grades `PASS`.
-Each such event is listed: on each channel it changes, a DUT event is recorded within 63 samples of its sample.
-That is the furthest a slip of whole blocks can lie before the first word that shows it.
+Each such event is listed on each channel it changes.
 The one exception is a DUT event that masks a planted arm at its sample.
 The run is then void, and its reason says the source may not have planted the arm, or a DUT event may have masked it.
 Events that cancel one another, or only move an arm within its tolerance, leave a clean run's bytes.
 The capture does not show them.
+
+A listing's samples are its words, and for a slip the samples `located_within` names as well.
+Each listing of an event falls no earlier than 63 samples before the event's first word and no later than 63 samples after its last.
+A slip of whole blocks can lie up to 63 samples before the first word that shows it.
+A stated limit above can read the same bytes with an event earlier, beside another event or a planted arm.
+An example is a one-word corruption on a planted slip arm's next sample, which may read first, at the arm's sample.
+Inside the exactness scope below, each listing also falls within 63 samples of the event's first word.
 
 `test_audio_compositions_never_pass_and_list_every_event` is the gate for the property.
 It grades 288 seeded compositions of one to four DUT events over and beside each of the six planted arms.
 The events are slips of 1 to 4096 samples, silences, swaps, copies, one-word corruptions and constant-mask excursions.
 The excursions run up to 2100 words.
 Their masks are the sweep's eight classes, the mask that clears the channel's number, and any other word.
+It grades 48 more on each of the two capture lengths, with DUT events inside an excursion.
+Each is a constant-mask excursion of 64 to 2100 words anywhere, under one of the sweep's mask classes.
+One or two DUT events lie inside it, mostly slips, and half of them less than 64 samples before its return.
 It checks the property, not a class.
+Where a run fails without voiding, it also checks that each DUT listing falls so near an event on its channel.
+In a void run, a missed arm's own records are DUT listings, so that check does not apply there.
 Each allowance it makes is pinned once: an arm moved within its tolerance, events that cancel, and an arm masked at its sample.
 
 Exact classification, as the rules and limits above state, is claimed only for these shapes:

@@ -222,4 +222,12 @@ AUDIO_GRADER_MUTANTS = (
      '        if word == 0 and not (self.tokens and self.tokens[-1][0] == "W"):\n', _ZERO),
     ("a returned excursion's bit-flip left for the hold to read again",
      "                returned, events = events[:1], events[1:]\n", "                returned = []\n", _INTERRUPTED),
+    ("a corruption of two or more words listed after its last word plus 63",
+     '    matches = run.pop("matches")\n',
+     '    matches = run.pop("matches")\n'
+     '    if run["n"] > 1:\n        run["capture_index"] += run["n"] + AUDIO_GUARD_FRAMES\n', _PROPERTY),
+    ("a corruption of two or more words listed again after its last word plus 63", "    events.append(run)\n",
+     '    events.append(run)\n    if run["n"] > 1:\n'
+     '        events.append(dict(run, capture_index=run["capture_index"] + run["n"] + AUDIO_GUARD_FRAMES))\n',
+     _PROPERTY),
 )

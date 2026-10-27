@@ -406,12 +406,14 @@ verified blocks outside the shipping datapath; the station-address rules
   They include the reference peer to the DUT listener and its TDM output.
   They include the DUT's TDM loop too.
   Every capture meets one property: a capture with a DUT event the bytes show never grades PASS.
-  Each such event is listed within 63 samples of its sample, on each channel it changes.
+  Each such event is listed on each channel it changes.
+  Each listing falls no earlier than 63 samples before the event's first word and no later than 63 samples after its last.
   The exception is an event that masks a planted arm at its sample; the run is then void, and its reason names that cause.
   A seeded fuzz over compositions of DUT events and planted arms is the gate for this property.
   Exact classification is claimed only inside a stated scope, which TESTING 6d lists.
   The scope is one event at a time, away from the planted arms, and the compositions the self-test sweeps grade.
   Inside it, each discontinuity is classified at its sample, and every slip is sized exactly.
+  Each listing there also falls within 63 samples of the event's first word.
   The classes are n dropped, n repeated, n samples of silence, a bit-flip mask and a channel swap.
   Only a reciprocal exchange is a swap; a corrupted or copied channel number is a bit-flip.
   A channel swapped from the first frame fails as a swap, its counter still tracked.

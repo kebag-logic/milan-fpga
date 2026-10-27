@@ -3339,9 +3339,11 @@ AUDIO_RELEASE_ASSERTS = (
                ": grade_audio_counter_capture lists every discontinuity the bytes show "
                "in a class: n dropped, n repeated, n samples of silence (replaced or "
                "inserted), a bit-flip mask or a channel swap; a capture with one never "
-               "grades PASS, and each is listed within 63 samples of its sample unless "
-               "it masks a planted arm and voids the run; inside the exactness scope "
-               "counter_limits states, each is classified at its sample and every slip "
+               "grades PASS, and each is listed on each channel it changes unless it "
+               "masks a planted arm and voids the run, each listing no earlier than 63 "
+               "samples before its first word and no later than 63 after its last; "
+               "inside the exactness scope counter_limits states, each is classified at "
+               "its sample, listed within 63 samples of its first word, and every slip "
                "sized exactly, the counter repeating only after 2^43 samples, and outside "
                "it a composition fails or voids the run and may read in other classes; a "
                "slip of whole 2048-sample blocks is located within 63 samples "
@@ -3746,8 +3748,10 @@ AUDIO_QUALIFICATION = {
 #: Patterns the counter cannot tell apart, as the plan states them (TESTING.md 6d).
 AUDIO_COUNTER_LIMITS = (
     "every capture: a capture with a DUT event the bytes show never grades PASS, and each such event "
-    "is listed on each channel it changes within 63 samples of its sample, unless it masks a planted "
-    "arm at its sample and the run is void; events that cancel one another, or only move an arm within "
+    "is listed on each channel it changes, unless it masks a planted arm at its sample and the run is "
+    "void; each listing, its words or a slip's located_within, falls no earlier than 63 samples before "
+    "the event's first word and no later than 63 samples after its last, and inside the exactness scope "
+    "within 63 samples of its first word; events that cancel one another, or only move an arm within "
     "its tolerance, leave a clean run's bytes",
     "exact classification is claimed only inside a scope: one DUT event with at least 64 clean samples "
     "between it and every other event and planted arm, except an excursion whose mask clears its "
@@ -9357,9 +9361,11 @@ class _ReleaseGateChecks:
         self.assertEqual(sorted((e["channel"], e["capture_index"], e["class"], e["n"]) for e in detail["events"]
                                 if e["attribution"] == "dut"), [(c, 684, "dropped", 1024) for c in range(4)])
 
-    #: Issue #396 property fuzz: slip sizes from one sample to two whole blocks, and the seeds per planted arm.
+    #: Issue #396 property fuzz: slip sizes from one sample to two whole blocks, the seeds per planted arm,
+    #: and the nested compositions per capture length.
     _FUZZ_SIZES = (1, 2, 3, 5, 17, 100, 1023, 1024, 1025, 2048, 4096)
     _FUZZ_SEEDS = 48
+    _FUZZ_NESTED = 48
 
     def _fuzz_unit(self, rnd, kind: str, at: int, channel: int, length: int) -> tuple:
         """One DUT event: (kind, sample, the channels it changes, the words it spans, synthesizer events).
@@ -9406,13 +9412,30 @@ class _ReleaseGateChecks:
             units.append(self._fuzz_unit(rnd, kind, at, channel, min(length, frames - at)))
         return units
 
+    def _fuzz_nested(self, frames: int, seed: int) -> list:
+        """A seeded constant-mask excursion of 64 to 2100 words anywhere, under one of the sweep's mask
+        classes, with one or two DUT events inside it: slips mostly, or a silence, a swap, a copy or a
+        one-word corruption, on any channel. Half of them lie less than 64 samples before its return, so
+        that their window holds the return as well."""
+        import random
+        rnd = random.Random(seed)
+        length, channel, mask = rnd.randint(64, 2100), rnd.randrange(4), rnd.choice(self._SWEEP_MASKS)
+        at = rnd.randint(200, frames - 160 - length)
+        units = [("run", at, [channel], length, [{"kind": "flip", "index": at + k, "channel": channel, "mask": mask}
+                                                 for k in range(length)])]
+        for _ in range(rnd.randint(1, 2)):
+            kind = rnd.choice(("slip", "slip", "slip", "silence", "swap", "copy", "flip"))
+            inside = length - rnd.randint(1, AUDIO_GUARD_FRAMES) if rnd.random() < 0.5 else rnd.randint(1, length - 1)
+            units.append(self._fuzz_unit(rnd, kind, at + inside, rnd.randrange(4), 1))
+        return units
+
     @staticmethod
-    def _fuzz_reach(event: dict, sample: int) -> int:
-        """Samples from `sample` to the nearest word `event` spans or may have happened at."""
-        first, last = event.get("located_within", (event["capture_index"],) * 2)
+    def _fuzz_reach(event: dict, first: int, last: int) -> int:
+        """Samples from the words `first` to `last` to the nearest word `event` spans or may have happened at."""
+        low, high = event.get("located_within", (event["capture_index"],) * 2)
         if event["class"] not in ("dropped", "repeated"):
-            last = max(last, event["capture_index"] + event["n"] - 1)
-        return max(first - sample, sample - last, 0)
+            high = max(high, event["capture_index"] + event["n"] - 1)
+        return max(low - last, first - high, 0)
 
     def _fuzz_clean(self, frames: int, detail: dict, channel: int, extra: list) -> list:
         """Channel `channel`'s words with `extra` and the arms, each at its logged sample or where the
@@ -9435,20 +9458,28 @@ class _ReleaseGateChecks:
 
         It never grades PASS unless every channel's words are a clean run's, each arm at its logged sample
         or where the grader found it ("clean"). Each unit is listed on every channel it changes: a DUT
-        event lies within 63 samples of its sample. Otherwise the run is void with an arm missed at that
-        sample ("masked"), or removing the unit and some units near it leaves that channel's words as they
-        are, with the arms so placed ("cancelled")."""
+        event's words, or the samples it may have happened at, reach no earlier than 63 samples before the
+        unit's first word and begin no later than 63 samples after its last. Otherwise the run is void
+        with an arm missed at that sample ("masked"), or removing the unit and some units near it, the rest
+        composed in their order, leaves that channel's words as they are, with the arms so placed
+        ("cancelled"). In a run that fails and is not void, each DUT listing reaches so a unit that changes
+        its channel; in a void run a missed arm's own records are DUT listings."""
         import itertools
         verdict, detail, columns = self._sweep_grade(frames, [event for unit in units for event in unit[4]])
         if verdict == "PASS":
             self.assertTrue(all(columns[c] in self._fuzz_clean(frames, detail, c, []) for c in range(4)),
                             ("a DUT event passed", detail["events"]))
             return verdict, {"clean"}
+
+        def reaches(event: dict, unit: tuple) -> bool:
+            """Whether a DUT listing reaches the unit's words on a channel the unit changes."""
+            return (event["attribution"] == "dut" and event["channel"] in unit[2]
+                    and self._fuzz_reach(event, unit[1], unit[1] + unit[3] - 1) <= AUDIO_GUARD_FRAMES)
+
         allowed = set()
         for i, (kind, at, channels, span, _) in enumerate(units):
             for channel in channels:
-                if any(e["channel"] == channel and e["attribution"] == "dut"
-                       and self._fuzz_reach(e, at) <= AUDIO_GUARD_FRAMES for e in detail["events"]):
+                if any(e["channel"] == channel and reaches(e, units[i]) for e in detail["events"]):
                     continue
                 if verdict == "NOT RUN" and any(at - 2 <= arm["index"] <= at + span + 1
                                                 and arm.get("channel") in (None, channel)
@@ -9457,18 +9488,23 @@ class _ReleaseGateChecks:
                     continue
                 near = [j for j, unit in enumerate(units) if j != i and unit[1] - AUDIO_GUARD_FRAMES <= at + span
                         and at <= unit[1] + unit[3] + AUDIO_GUARD_FRAMES]
-                rest = [event for j, unit in enumerate(units) if j != i and j not in near for event in unit[4]]
                 self.assertTrue(any(columns[channel] in self._fuzz_clean(
-                    frames, detail, channel, rest + [event for j in kept for event in units[j][4]])
+                    frames, detail, channel, [event for j, unit in enumerate(units)
+                                              if j != i and (j not in near or j in kept) for event in unit[4]])
                     for r in range(len(near) + 1) for kept in itertools.combinations(near, r)),
                     ("a DUT event is not listed", kind, at, channel, verdict, detail["events"]))
                 allowed.add("cancelled")
+        if verdict == "FAIL":
+            stray = [e for e in detail["events"] if e["attribution"] == "dut" and not any(reaches(e, u) for u in units)]
+            self.assertEqual(stray, [], "a DUT listing reaches no DUT event")
         return verdict, allowed
 
     def test_audio_compositions_never_pass_and_list_every_event(self) -> None:
         """L3 #396 REQ-VER-06: seeded compositions of DUT slips, silences, swaps, copies, one-word corruptions
-        and constant-mask excursions, over and beside every planted arm, never grade PASS, and each event is
-        listed within 63 samples of its sample unless it masks an arm and voids the run.
+        and constant-mask excursions, over and beside every planted arm, and DUT events inside an excursion
+        anywhere on two capture lengths, never grade PASS, and each event is listed no earlier than 63
+        samples before its first word and no later than 63 after its last, unless it masks an arm and voids
+        the run; where the run fails, each listing is so near an event.
 
         It checks that property, not a class: outside the swept shapes a composition may read otherwise.
         Each allowance the check makes is pinned once. It stops at its first failing seed, which it names."""
@@ -9491,6 +9527,12 @@ class _ReleaseGateChecks:
                 verdicts.add(self._fuzz_check(frames, self._fuzz_units(frames, seed))[0])
             except AssertionError as error:
                 self.fail(f"seed={seed}: {error}")
+        for frames in (8192, 16384):
+            for seed in range(self._FUZZ_NESTED):
+                try:
+                    verdicts.add(self._fuzz_check(frames, self._fuzz_nested(frames, seed))[0])
+                except AssertionError as error:
+                    self.fail(f"frames={frames} nested seed={seed}: {error}")
         self.assertLessEqual({"FAIL", "NOT RUN"}, verdicts)
 
     def test_audio_excursion_over_a_slip_arm_may_void(self) -> None:
