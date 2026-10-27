@@ -1,0 +1,42 @@
+unit slip 7492 [0, 1, 2, 3] 1 [{"kind": "drop", "index": 7492, "n": 17}] ... x1
+unit slip 6097 [0, 1, 2, 3] 1 [{"kind": "repeat", "index": 6097, "n": 3}] ... x1
+unit run 4424 [0] 1726 [{"kind": "flip", "index": 4424, "channel": 0, "mask": 524544}, {"kind": "flip", "index": 4425, "channel": 0, "mask": 524544}] ... x1726
+verdict NOT RUN | void: a planted arm was missed; the source may not have planted it, or a DUT event at its sample may have masked it
+missed [('dropped', 7492, None)]
+  planted 0 300 dropped 3 None None None
+  planted 0 500 repeated 2 None None None
+  dut 0 4424 bit-flip 1673 0x00080100 None None
+  dut 0 6097 dropped 1021 None None None
+  dut 0 6098 bit-flip 3 0x00000100 None None
+  dut 0 6102 bit-flip 2 0x00000100 None None
+  dut 0 6106 bit-flip 1 0x00000100 None None
+  dut 0 6109 bit-flip 2 0x00000100 None None
+  dut 0 6115 bit-flip 3 0x00000100 None None
+  dut 0 6121 bit-flip 2 0x00000100 None None
+  dut 0 6127 bit-flip 2 0x00000100 None None
+  dut 0 6130 bit-flip 3 0x00000100 None None
+  dut 0 6134 bit-flip 2 0x00000100 None None
+  dut 0 6138 bit-flip 1 0x00000100 None None
+  dut 0 6141 bit-flip 2 0x00000100 None None
+  dut 0 6146 bit-flip 4 0x00000100 None None
+  dut 0 6150 repeated 1024 None None None
+  dut 0 7492 dropped 20 None None None
+  planted 0 7742 repeated 2 None None None
+  planted 1 300 dropped 3 None None None
+  planted 1 500 repeated 2 None None None
+  planted 1 700 bit-flip 1 0x00000100 None None
+  dut 1 6097 repeated 3 None None None
+  dut 1 7492 dropped 20 None None None
+  planted 1 7742 repeated 2 None None None
+  planted 1 7992 bit-flip 1 0x00000100 None None
+  planted 2 300 dropped 3 None None None
+  planted 2 500 repeated 2 None None None
+  dut 2 6097 repeated 3 None None None
+  dut 2 7492 dropped 20 None None None
+  planted 2 7742 repeated 2 None None None
+  planted 3 300 dropped 3 None None None
+  planted 3 500 repeated 2 None None None
+  dut 3 6097 repeated 3 None None None
+  dut 3 7492 dropped 20 None None None
+  planted 3 7742 repeated 2 None None None
+check ('NOT RUN', set())
