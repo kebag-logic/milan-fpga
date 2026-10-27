@@ -1,0 +1,14 @@
+Mister-M-alt
+2026-10-26T18:20:18Z
+[A10] S2 round-4 assignment (PR #792, head `f8876638`). This answers R703-3 (NEGATIVE, https://github.com/kebag-logic/milan-fpga/pull/792#issuecomment-6423951390) and R704-3 (POSITIVE, https://github.com/kebag-logic/milan-fpga/pull/792#issuecomment-6423238751).
+
+Scope: `tb/verilator/ctrl_service_budget/` and the PR body only. No firmware change and no new measurement; F2 and F3 are regrades of the existing logs.
+
+1. **R703-3-F1 (MAJOR).** Fix the term at `scenario.py:805` so that `python3 scripts/check_baremetal_only.py --check` exits 0. Name the mailbox ring the way `mailbox.yaml` does. The gate's term table stays unchanged. Add this gate to the validation list, and check every other comment line the delta touches against it.
+2. **R703-3-F2.** Arm A's composed maximum is the maximum over every window that commits the defined load, labelled a lower bound. The figure for released-only windows may stay beside it, labelled as such. Make the README, PR body and hand-off agree. Say which figure S2b and S2c re-base against.
+3. **R703-3-F3.** Each fan-out range must contain every cell of the table it summarises, or be scoped to arm A explicitly with arm B's maxima stated beside it.
+4. **R703-3-F4.** Add named checks that fail under mutants G6 (per-recipient cost) and G9 (records ahead). `scripts/review_mutants3.py` must report both caught.
+5. Fold in the purely wording residue items from both reports, as written.
+
+STOP if a fix needs a firmware change or changes a measured cycle count.
+

@@ -1,0 +1,152 @@
+{
+ "counts": {
+  "paths": 81,
+  "path_misses": 13,
+  "instances": 141,
+  "instance_misses": 34
+ },
+ "windows": [
+  {
+   "group": "backlog",
+   "cycles": 429838,
+   "ms": 8.59676,
+   "passes": 23,
+   "window_ms": 90.06556,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "backlog-adp",
+   "cycles": 948763,
+   "ms": 18.97526,
+   "passes": 37,
+   "window_ms": 537.12698,
+   "serviced": false,
+   "unreleased": {
+    "srp": 32
+   }
+  },
+  {
+   "group": "backlog-adp-refill",
+   "cycles": 966218,
+   "ms": 19.32436,
+   "passes": 39,
+   "window_ms": 574.33604,
+   "serviced": false,
+   "unreleased": {
+    "srp": 32
+   }
+  },
+  {
+   "group": "backlog-owed",
+   "cycles": 373980,
+   "ms": 7.4796,
+   "passes": 53,
+   "window_ms": 363.73701,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "fixture",
+   "cycles": 291690,
+   "ms": 5.8338,
+   "passes": 3,
+   "window_ms": 9.92566,
+   "serviced": true,
+   "unreleased": {}
+  }
+ ],
+ "composed_maximum": {
+  "cycles": 966218,
+  "ms": 19.32436,
+  "group": "backlog-adp-refill",
+  "windows": 4,
+  "rows": 4,
+  "not_run": [],
+  "partial": false,
+  "lower_bound": true,
+  "unreleased": [
+   "backlog-adp",
+   "backlog-adp-refill"
+  ],
+  "released": {
+   "cycles": 429838,
+   "ms": 8.59676,
+   "group": "backlog"
+  }
+ },
+ "fanout": [
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_name.if0",
+   "cpu_cycles": 322535,
+   "ms": 6.4507,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_clock_source.if0",
+   "cpu_cycles": 230745,
+   "ms": 4.6149,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_control_identify_on.if0",
+   "cpu_cycles": 221740,
+   "ms": 4.4348,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_control_identify_off.if0",
+   "cpu_cycles": 222696,
+   "ms": 4.45392,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.remove_audio_mappings.if0",
+   "cpu_cycles": 246371,
+   "ms": 4.92742,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.add_audio_mappings.if0",
+   "cpu_cycles": 245528,
+   "ms": 4.91056,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_sampling_rate.if0",
+   "cpu_cycles": 228383,
+   "ms": 4.56766,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.lock_entity.if0",
+   "cpu_cycles": 232983,
+   "ms": 4.65966,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.unlock_entity.if0",
+   "cpu_cycles": 233598,
+   "ms": 4.67196,
+   "within": true,
+   "ceiling": true
+  }
+ ]
+}

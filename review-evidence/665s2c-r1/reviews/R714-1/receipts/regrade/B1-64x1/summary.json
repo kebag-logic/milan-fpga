@@ -1,0 +1,169 @@
+{
+ "counts": {
+  "paths": 44,
+  "path_misses": 10,
+  "instances": 68,
+  "instance_misses": 25
+ },
+ "windows": [
+  {
+   "group": "backlog",
+   "cycles": 430466,
+   "ms": 8.60932,
+   "passes": 23,
+   "window_ms": 90.17028,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "backlog-adp",
+   "cycles": 425420,
+   "ms": 8.5084,
+   "passes": 21,
+   "window_ms": 107.66982,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "backlog-owed",
+   "cycles": 373288,
+   "ms": 7.46576,
+   "passes": 54,
+   "window_ms": 363.12103,
+   "serviced": true,
+   "unreleased": {}
+  }
+ ],
+ "composed_maximum": {
+  "cycles": 430466,
+  "ms": 8.60932,
+  "group": "backlog",
+  "windows": 3,
+  "rows": 4,
+  "not_run": [
+   "backlog-adp-refill"
+  ],
+  "partial": true,
+  "lower_bound": false,
+  "unreleased": [],
+  "released": {
+   "cycles": 430466,
+   "ms": 8.60932,
+   "group": "backlog"
+  }
+ },
+ "fanout": [
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_name.if0",
+   "cpu_cycles": 336371,
+   "ms": 6.72742,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_clock_source.if0",
+   "cpu_cycles": 229062,
+   "ms": 4.58124,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_control_identify_on.if0",
+   "cpu_cycles": 221025,
+   "ms": 4.4205,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_control_identify_off.if0",
+   "cpu_cycles": 221408,
+   "ms": 4.42816,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.remove_audio_mappings.if0",
+   "cpu_cycles": 244386,
+   "ms": 4.88772,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.add_audio_mappings.if0",
+   "cpu_cycles": 244812,
+   "ms": 4.89624,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.remove_audio_mappings_output.if0",
+   "cpu_cycles": 249487,
+   "ms": 4.98974,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.add_audio_mappings_output.if0",
+   "cpu_cycles": 249843,
+   "ms": 4.99686,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_sampling_rate.if0",
+   "cpu_cycles": 226094,
+   "ms": 4.52188,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_configuration.if0",
+   "cpu_cycles": 248608,
+   "ms": 4.97216,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_stream_info.if0",
+   "cpu_cycles": 330831,
+   "ms": 6.61662,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.lock_entity.if0",
+   "cpu_cycles": 232224,
+   "ms": 4.64448,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.unlock_entity.if0",
+   "cpu_cycles": 232003,
+   "ms": 4.64006,
+   "within": true,
+   "ceiling": true
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.bind_rx_stream_info.if0",
+   "cpu_cycles": 434772,
+   "ms": 8.69544,
+   "within": true,
+   "ceiling": true
+  }
+ ]
+}

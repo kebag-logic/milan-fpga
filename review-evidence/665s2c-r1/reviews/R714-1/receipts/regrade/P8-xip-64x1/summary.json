@@ -1,0 +1,179 @@
+{
+ "counts": {
+  "paths": 125,
+  "path_misses": 111,
+  "instances": 178,
+  "instance_misses": 151
+ },
+ "windows": [
+  {
+   "group": "backlog",
+   "cycles": 4639759,
+   "ms": 92.79518,
+   "passes": 18,
+   "window_ms": 800.00121,
+   "serviced": false,
+   "unreleased": {
+    "srp": 28
+   }
+  },
+  {
+   "group": "backlog-adp",
+   "cycles": 4938228,
+   "ms": 98.76456,
+   "passes": 12,
+   "window_ms": 693.13592,
+   "serviced": false,
+   "unreleased": {
+    "aecp": 4,
+    "srp": 32
+   }
+  },
+  {
+   "group": "backlog-adp-refill",
+   "cycles": 4718054,
+   "ms": 94.36108,
+   "passes": 15,
+   "window_ms": 841.70672,
+   "serviced": false,
+   "unreleased": {
+    "aecp": 1,
+    "srp": 32
+   }
+  },
+  {
+   "group": "backlog-owed",
+   "cycles": 4756879,
+   "ms": 95.13758,
+   "passes": 21,
+   "window_ms": 860.05287,
+   "serviced": false,
+   "unreleased": {
+    "srp": 27
+   }
+  }
+ ],
+ "composed_maximum": {
+  "cycles": 4938228,
+  "ms": 98.76456,
+  "group": "backlog-adp",
+  "windows": 4,
+  "rows": 4,
+  "not_run": [],
+  "partial": false,
+  "lower_bound": true,
+  "unreleased": [
+   "backlog",
+   "backlog-adp",
+   "backlog-adp-refill",
+   "backlog-owed"
+  ],
+  "released": null
+ },
+ "fanout": [
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_name.if0",
+   "cpu_cycles": 3345962,
+   "ms": 66.91923,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_clock_source.if0",
+   "cpu_cycles": 3368779,
+   "ms": 67.37557,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_control_identify_on.if0",
+   "cpu_cycles": 3160070,
+   "ms": 63.20139,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_control_identify_off.if0",
+   "cpu_cycles": 3151409,
+   "ms": 63.02817,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_sampling_rate.if0",
+   "cpu_cycles": 3293129,
+   "ms": 65.86257,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.lock_entity.if0",
+   "cpu_cycles": 3195024,
+   "ms": 63.90047,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.unlock_entity.if0",
+   "cpu_cycles": 3127726,
+   "ms": 62.55451,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_name.if1",
+   "cpu_cycles": 3359999,
+   "ms": 67.19997,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_clock_source.if1",
+   "cpu_cycles": 3363644,
+   "ms": 67.27287,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_control_identify_on.if1",
+   "cpu_cycles": 3229422,
+   "ms": 64.58843,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.set_control_identify_off.if1",
+   "cpu_cycles": 3216227,
+   "ms": 64.32453,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.lock_entity.if1",
+   "cpu_cycles": 3201257,
+   "ms": 64.02513,
+   "within": false,
+   "ceiling": false
+  },
+  {
+   "group": "aecp-fanout",
+   "probe": "aecp_fanout.unlock_entity.if1",
+   "cpu_cycles": 4640522,
+   "ms": 92.81043,
+   "within": false,
+   "ceiling": false
+  }
+ ]
+}

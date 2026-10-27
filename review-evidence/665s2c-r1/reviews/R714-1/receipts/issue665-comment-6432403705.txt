@@ -1,0 +1,62 @@
+Mister-M-alt
+2026-10-27T02:40:43Z
+[A685b] REVIEW READY
+Commit: `a611785f2afe5bbe587f74034d869e869a1c8d37` on branch `665-s2c-icache`, not pushed. That is [A685]'s five commits re-based onto S2's final head `f58d049b` (PR #792), plus one commit. Base: `dev-soft-core` `e76a755a`. The pre-rebase head `2a7b0df5` is kept as a local ref.
+
+Changed:
+- **The re-base.** The five commits carry over. The range-diff shows three identical, one that differs only in context lines S2 changed, and one that carries the conflict's resolution. The one conflict, `selftest.py`'s docstring and `checks()`, keeps both S2's `maximum_checks` and the lane's `cache_checks`. `run.py`'s composed maximum, its labels and its `results.json` record are S2's, unmodified.
+- **One new commit** restates the README's cache section and `SPLIT_CONTROL_MEMORY.md` in S2's round-4 and round-5 terms:
+  - the composed maximum over every backlog window, labelled a lower bound;
+  - the windows that released their load, labelled as such and not the composed maximum;
+  - arm B's figure, labelled partial (3 of 4 windows);
+  - the backlog windows one by one;
+  - the fan-out ranges, stated whole over both arms and every interface.
+
+**No grade changed, so no STOP and no new measurement.** All 23 arms were regraded on their attested builds:
+- every per-group grade is byte-identical to the pre-rebase grade;
+- every count of paths, instances and refusals is the same, and the three controls are caught;
+- only `results.json`'s `composed_maximum` record and `table.md`'s composed lines change, as S2's rules add them;
+- the cacheless tables are byte-identical to S2's final A1 and A8.
+
+Restated figures (arm A; 1x1 with one interface / 8x8 with two):
+
+| | none (S2) | **4 KiB (split)** |
+|---|---:|---:|
+| Composed maximum, every backlog window | at least 31.32 / 44.19 ms | **at least 19.32 / 29.12 ms** |
+| Over the windows that released their whole load only (the same windows in both) | 14.81 / 27.84 ms | 8.60 / 14.03 ms |
+| Arm B, partial (3 of 4 windows) | 14.81 / 27.84 ms | 8.61 / 14.07 ms |
+| Paths missing T_svc | 22 of 81 / 60 of 129 | 13 of 81 / 34 of 129 |
+
+- The bound-talker windows never release SRP's 32 records, at any size and without the cache. So the composed maximum is a lower bound everywhere, and it does not rank the sizes. The 4 KiB choice rests on the released windows and the path counts, and it is unchanged.
+- Fan-out with the cache, both arms, every interface:
+  - a recipient costs 7,054 to 15,334 CPU cycles, against S2's 11,786 to 22,030;
+  - at 1x1, 4.42 to 8.70 ms, and every fan-out fits;
+  - at 8x8, 8.25 to 18.19 ms; 5 of arm A's 13 and 10 of arm B's 22 miss, none over the ceiling.
+- The residual on the composed maximum's pass (`backlog-adp-refill`, under AECP's retry):
+  - `memset`/`memcpy`, 65 % / 43 %;
+  - AECP, ACMP and `mrp_mad`, 18 % / 39 %;
+  - the mailbox driver, 7 % / 6 %.
+  - On the released windows' longest pass the shares are [A685]'s: 40 to 42 %, 15 to 21 % and 12 to 21 %.
+
+Validation, at the head, rc 0 each, unpiped, with the tree clean after each:
+- `run.py --self-test`: 92 checks and 67 of 67 mutants, `self-test: 0 failures`. The README's mutant table matches all 67.
+- `check_baremetal_only.py --check`: `baremetal-only: OK`. It is green now that S2's round 4 reworded `scenario.py:805`.
+- S2's round-5 gate set: the docs workflow's commands, the HDL reference, `git diff --check`, the firmware-compiler gates and `cd tests && behave` (14 features, 406 scenarios, 1977 steps).
+- `test_soc_options.py`: `RESULT: PASS`.
+- `test_builder.py --require-rv32`: `ALL GATES PASS EXCEPT 1 NOT RUN`. Gate 11 needs a local Arty build report, as before.
+- In all, 0 of the 97 gates returned nonzero or left the tree dirty.
+- Not re-run: nothing they read changed between `2a7b0df5` and the head (`sw/`, the harness build inputs and the area plan are byte-identical):
+  - the all-fabric export digest;
+  - the Yosys and out-of-context pricing;
+  - the PMA comparison;
+  - the four-shard sweep, which does not run this harness.
+
+Acceptance criteria (issuecomment-6431653823):
+- Met: the re-base, the conflicts resolved toward S2's rules, the self-test and mutants, every arm regraded with the cacheless tables byte-identical, the bare-metal gate, and the docs gates and behave.
+- The PR body says "Relates to #665" and states NFR-SCOUT-01 as open for the owner.
+
+Open risks/questions:
+- **Requirement conflict, open for the owner.** NFR-SCOUT-01 requires "one cacheless RV32I control hart". The text is not edited here, and the design doc records the conflict.
+- The cache does not close T_svc; S2b's next round runs on the cached core.
+- No integrated route, no hardware evidence and no bench evidence.
+

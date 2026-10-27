@@ -1,0 +1,20 @@
+Mister-M-alt
+2026-10-26T16:34:02Z
+[A10] **Owner decision, 2026-10-26: an instruction cache is the first approach to the soft core's CPU budget.** This changes D4's order: the cache comes before firmware-only tuning. The clock and the M extension still need the owner.
+
+S2 measured a fetch-bound core: instruction fetches are 85-89 % of bus transactions, and the CPI is about 9.7, at both points.
+
+**Lane S2c, executor [A685], reviewers [R713] (internal) and [R714] (external).** Branch `665-s2c-icache` from S2's head (PR #792, on `dev-soft-core`). The PR targets `dev-soft-core`.
+
+1. **Enable an L1 instruction cache in the split SoC's VexiiRiscv**, through the CPU generator's own options at the pinned version. No hand-edited netlist. State the parameters: size, ways, line, and whether a D-cache is in or out, with the reason.
+   - The all-fabric SoC's CPU stays byte-identical (owner, 2026-10-26: all-fabric stays supported).
+   - The split SoC's region decode must stay exact; #791 (the non-power-of-two decode) is in scope wherever the cache's region settings touch it.
+2. **Measure on S2's harness** at both points, with the cache, against S2's no-cache tables: worst pass, composed maximum, every backlog row, fan-out, and the cycles per path.
+   - Sweep at least two cache sizes, for example 4 KB and 8 KB, and report the curve.
+   - Report the cache's block RAM and LUT/FF cost from Yosys and the OOC run, against the BRAM ledger (56 tiles) and the area plan.
+3. **Hybrid-XIP effect (D3 / S14):** with the cache, measure the same paths with hot code in QSPI flash behind the cache. Report whether paths within T_svc then hold, and how much block RAM that frees.
+4. **Acceptance:** the tables above, with the remaining T_svc gap at each point. If the cache alone closes T_svc, say so. Otherwise state the residual for S2b's firmware work and the owner's core options.
+5. **Unchanged:** firmware behaviour and tests, and the mailbox contract.
+
+STOP if the cache needs a CPU generator version change, a change to the all-fabric SoC, or a timing-closure change to the shipping clocks.
+

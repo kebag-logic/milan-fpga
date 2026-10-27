@@ -1,0 +1,107 @@
+diff --git a/tb/verilator/ctrl_service_budget/grade.py b/tb/verilator/ctrl_service_budget/grade.py
+index 295ced5da0..e7354e5e4b 100644
+--- a/tb/verilator/ctrl_service_budget/grade.py
++++ b/tb/verilator/ctrl_service_budget/grade.py
+@@ -12,11 +12,17 @@ it and require a named failure:
+                     commit belongs to; Grader.recipients and fanout_end(), a
+                     notification's required recipients and its end
+   the pass bound    Grader.pass_end and Grader.pass_origin
++  the fan-out cost  grade_probe's fanout: the last recipient's commit less the
++                    first's, over the gaps between the recipients
+   the composition   composed() and population(), checked against defined_load(),
+-                    which derives each row's population from the contract alone
++                    which derives each row's population from the contract alone;
++                    run.composed_maximum() takes the longest pass over every
++                    backlog row's window
+   the service       releases() and service(): each loaded channel's first and
+-                    last record to the end of the pass that released it, and a
+-                    record never released reported as starved
++                    last record to the end of the pass that released it, a
++                    record never released reported as starved, and the records
++                    ahead of each: its channel's earlier records not yet
++                    released at its commit
+   the owed frames   owed_ahead(): the responses committed ahead of a probe's
+   the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS and verdicts()
+   the run           refuse_run(): an incomplete simulation, a trap or a bus error
+@@ -43,9 +49,12 @@ CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not t
+ #: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
+ #: to the 60-byte frame minimum.
+ LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60}
+-#: The groups whose composed window carries a defined load: the backlog rows
+-#: (MAILBOX_SPLIT.md:753-758) and the self-test's short window.
+-COMPOSED_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed', 'fixture')
++#: The backlog rows (MAILBOX_SPLIT.md:753-758): their composed windows carry the defined
++#: composed load, so the composed maximum is taken over them (run.composed_maximum).
++BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
++#: The groups whose composed window carries a defined load: the backlog rows and the
++#: self-test's short window.
++COMPOSED_ROWS = (*BACKLOG_ROWS, 'fixture')
+ 
+ 
+ class Refusal(RuntimeError):
+@@ -699,7 +708,8 @@ def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list
+ 
+     A record released after the window closed is marked out of the window. A record no
+     release reached by the run's end is starved: its row carries the time it had waited, a
+-    lower bound, and fits neither T_svc nor its ceiling.
++    lower bound, and fits neither T_svc nor its ceiling. The records ahead of a record are its
++    channel's earlier records that no release had passed at its commit.
+     """
+     finish = max(int(grader.log.summary.get('sys', 0)), end)
+     rows = []
+@@ -743,9 +753,11 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
+     """The longest pass that starts inside the composed window, whose committed population must
+     be the row's defined load exactly (MAAP and SRP included).
+ 
+-    It is the composed maximum only if the window released every record of that load
+-    (serviced): a window that closed on a starved channel measured passes without that
+-    channel's work, so its longest pass is a lower bound, and unreleased names the records.
++    serviced says whether the window released every record of that load: a window that
++    closed on a starved channel measured passes without that channel's work, so its longest
++    pass is a lower bound, and unreleased names the records. The composed maximum is the
++    longest over every backlog row's window, a lower bound while one is not serviced
++    (run.composed_maximum).
+     """
+     if 'composed' not in marks or 'composed_end' not in marks:
+         if group.load or group.name in COMPOSED_ROWS:
+diff --git a/tb/verilator/ctrl_service_budget/scenario.py b/tb/verilator/ctrl_service_budget/scenario.py
+index d4219a2e24..6bada4b799 100644
+--- a/tb/verilator/ctrl_service_budget/scenario.py
++++ b/tb/verilator/ctrl_service_budget/scenario.py
+@@ -802,9 +802,9 @@ def owed_group(p: Point) -> Group:
+     """The owed-frame row (a response with 7 frames owed ahead of it) under the composed load."""
+     acmp = CH['acmp']
+     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
+-    # A response with 7 frames owed ahead of it (A3): the egress held and the TX ring filled
+-    # with responses; then, the token bucket refilled, the load arrives: seven commands, the
+-    # probe and the rest of the ACMP ring's admitted burst behind it, so the probe's response
++    # A response with 7 frames owed ahead of it (A3): the egress held and the ACMP transmit ring
++    # filled with responses; then, the token bucket refilled, the load arrives: seven commands,
++    # the probe and the rest of the ACMP ring's admitted burst behind it, so the probe's response
+     # is the eighth owed. The egress returns 60 ms later.
+     g = Group('backlog-owed', sim_ms=4000)
+     ready(g, p)
+@@ -842,15 +842,14 @@ def owed_group(p: Point) -> Group:
+ def backlog_groups(p: Point) -> list[Group]:
+     """The four backlog rows (MAILBOX_SPLIT.md:753-758), each under the composed maximum load.
+ 
+-    Every group's composed window carries every receive channel's admitted
+-    burst at once (composed_load, MAAP and SRP included) and fifteen
+-    grandmaster changes, and each row's input is the last of its own
+-    channel's records. The event and ACMP rows are at their rings' room, a
+-    bound; the ADP ring takes its burst, fewer records than it holds, so its
+-    row is observed at that backlog, and backlog-adp-refill adds the bucket's
+-    refill-rate arrivals up to the ring's room before the input (observed,
+-    not a bound). The bound-talker rows bind a sink first; the owed-frame
+-    row holds the egress while its commands arrive with the load.
++    Each composed window carries its row's defined load (#665; MAILBOX_SPLIT.md:753-758),
++    including MAAP, SRP and fifteen grandmaster changes. The row's input is last on its channel
++    except in the owed row, which places the remaining admitted ACMP commands behind it. The
++    event and ACMP rows are at their rings' room, a bound; the ADP ring takes its burst, fewer
++    records than it holds, so its row is observed at that backlog, and backlog-adp-refill adds
++    the bucket's refill-rate arrivals up to the ring's room before the input (observed, not a
++    bound). The bound-talker rows bind a sink first; the owed-frame row holds the egress while
++    its commands arrive with the load.
+     """
+     acmp = CH['acmp']
+     get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)

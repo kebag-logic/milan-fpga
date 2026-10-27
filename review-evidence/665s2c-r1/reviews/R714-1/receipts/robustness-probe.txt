@@ -1,0 +1,20 @@
+fetch_l1_geometry('split') -> (64, 1)
+fetch_l1_geometry('none') -> None
+fetch_l1_geometry('64x1') -> (64, 1)
+fetch_l1_geometry('32x1') -> (32, 1)
+fetch_l1_geometry('512x1') -> (512, 1)
+fetch_l1_geometry('64x2') -> (64, 2)
+fetch_l1_geometry('0x1') REFUSED: fetch L1 '0x1' is not split, none or SETSxWAYS with power-of-two sets
+fetch_l1_geometry('64x0') REFUSED: fetch L1 '64x0' is not split, none or SETSxWAYS with power-of-two sets
+fetch_l1_geometry('48x1') REFUSED: fetch L1 '48x1' is not split, none or SETSxWAYS with power-of-two sets
+fetch_l1_geometry('064x1') REFUSED: fetch L1 '064x1' is not split, none or SETSxWAYS with power-of-two sets
+fetch_l1_geometry('x') REFUSED: fetch L1 'x' is not split, none or SETSxWAYS with power-of-two sets
+fetch_l1_geometry('64x1 ') REFUSED: fetch L1 '64x1 ' is not split, none or SETSxWAYS with power-of-two sets
+fetch_l1_geometry('64X1') REFUSED: fetch L1 '64X1' is not split, none or SETSxWAYS with power-of-two sets
+fetch_l1_geometry('-64x1') REFUSED: fetch L1 '-64x1' is not split, none or SETSxWAYS with power-of-two sets
+Traceback (most recent call last):
+  File "<stdin>", line 11, in <module>
+AttributeError: module 'run' has no attribute 'built_as'
+reuse a 64x1 build under --fetch-l1 split: refused
+reuse an S2 build (no fetch_l1 key) under --fetch-l1 split: refused
+reuse an S2 build under --fetch-l1 none: accepted

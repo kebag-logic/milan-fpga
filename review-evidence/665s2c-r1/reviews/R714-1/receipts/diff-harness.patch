@@ -1,0 +1,539 @@
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index 7ada6fc922..45dd3694f9 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -13,6 +13,7 @@ recorded under a key that does not resolve (reused()).
+ """
+ from __future__ import annotations
+ 
++import dataclasses
+ import hashlib
+ import json
+ import os
+@@ -145,6 +146,70 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant:
+     return image / 'ctrl_app.elf'
+ 
+ 
++#: The labelled hybrid-XIP arm (#665, D3 and lane S14): the anchor in plat/ctrl_split.ld that
++#: places all code in rom, and what replaces it. Every other function executes from the QSPI
++#: flash window behind the instruction cache. rom keeps the reset entry, F1's flash driver,
++#: .rodata and the initial values of .data, which the core reads through its cacheless data
++#: bus. The driver stays in block RAM as D3 requires: a CPU fetching from the flash cannot also
++#: hold the flash's command master, so the driver's own fetches would wait behind its chip select.
++XIP_TEXT = ('\t.text : { KEEP(*(.text.start)) *(.text .text.*) } > rom\n',
++            '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n'
++            '\t.text : ALIGN(4) { *(.text .text.*) } > flash\n')
++
++
++def xip_offset() -> int:
++    """The flash offset of the arm's code: the first erase block past the product's AEM slot."""
++    sys.path.insert(0, str(ROOT / 'sw/litex'))
++    import milan_soc
++    aem = milan_soc.FLASHBOOT_LAYOUT['aem']
++    return -(-(aem['offset'] + aem['size']) // milan_soc.FLASH_ERASE_BLOCK) * milan_soc.FLASH_ERASE_BLOCK
++
++
++def xip_script(script: str, flash: int, end: int) -> str:
++    """plat/ctrl_split.ld with its code past the reset entry in a flash region from flash to end."""
++    if script.count(XIP_TEXT[0]) != 1 or script.count('INCLUDE regions.ld\n') != 1:
++        raise RuntimeError('xip: plat/ctrl_split.ld no longer has its rom code placement')
++    return script.replace(XIP_TEXT[0], XIP_TEXT[1]).replace(
++        'INCLUDE regions.ld\n', f'INCLUDE regions.ld\nMEMORY {{ flash (rx) : ORIGIN = 0x{flash:08x}, '
++        f'LENGTH = 0x{end - flash:x} }}\n')
++
++
++def xip_image(out: Path, elf: Path, window: int) -> tuple[Path, Path, Path]:
++    """Relink the image's own objects with its code in the flash window, through ctrl_srp_image.link.
++
++    Returns the relinked ELF (its symbols and link map), the ELF rom is built
++    from (the relinked one without its flash code) and the flash device's
++    image (erased bytes, then the code at xip_offset()).
++    """
++    import shutil
++    sys.path[:0] = [str(ROOT / 'sw/firmware/ctrl/test'), str(ROOT / 'sw/firmware/gtest')]
++    import ctrl_srp_image
++    import fw_rv32
++    cc = fw_rv32.compiler()
++    src = out / 'xip-source'
++    (src / 'plat').mkdir(parents=True, exist_ok=True)
++    plat = ROOT / 'sw/firmware/ctrl/plat'
++    (src / 'plat/ctrl_split.ld').write_text(xip_script((plat / 'ctrl_split.ld').read_text(), window + xip_offset(),
++                                                       window + 0x1000000))
++    shutil.copy(plat / 'ctrl_split_start.S', src / 'plat/ctrl_split_start.S')
++    objects = sorted(elf.parent.glob('[0-9]*-*.o'), key=lambda p: int(p.name.split('-', 1)[0]))
++    linked = out / 'xip'
++    linked.mkdir(exist_ok=True)
++    # The scenario reads the image's generated entity headers beside the ELF it is given.
++    for header in elf.parent.glob('*_gen.h'):
++        shutil.copy(header, linked / header.name)
++    xip_elf, _ = ctrl_srp_image.link(cc, src, linked, objects,
++                                     [out / 'runtime/libc.a', out / 'runtime/libcompiler_rt.a'], 'split')
++    objcopy = cc.removesuffix('gcc') + 'objcopy'
++    rom_elf = linked / 'ctrl_app_rom.elf'
++    run([objcopy, '--remove-section=.text', str(xip_elf), str(rom_elf)], linked / 'rom.log')
++    code = linked / 'code.bin'
++    run([objcopy, '-O', 'binary', '--only-section=.text', str(xip_elf), str(code)], linked / 'code.log')
++    image = out / 'flash.bin'
++    image.write_bytes(b'\xff' * xip_offset() + code.read_bytes())
++    return xip_elf, rom_elf, image
++
++
+ def symbols(elf: Path) -> dict[str, int]:
+     """The linked image's text symbols, each defined once."""
+     sys.path.insert(0, str(ROOT / 'sw/firmware/gtest'))
+@@ -267,6 +332,26 @@ ACCESSORS = (
+ )
+ 
+ 
++def fetch_bus(spec: dict) -> tuple[list[tuple[str, str, str, str]], int]:
++    """The observers of this build's fetch bus, and the words each fetch command carries.
++
++    The cacheless CPU fetches one word a command, with ids in flight. The
++    instruction cache (#665) refills one line a command, one refill at a
++    time and without an id, so its ids read 0; its line is read off the
++    netlist's refill address, never restated.
++    """
++    if not spec.get('fetch_l1_geometry'):
++        return list(ACCESSORS), 1
++    netlist = next(Path(s) for s in spec['sources'] if Path(s).name == spec['netlist'] + '.v')
++    lines = re.findall(r"assign FetchL1Plugin_logic_bus_cmd_payload_address = "
++                       r"\{\w+\[31 : (\d+)\],\d+'h0\};", netlist.read_text())
++    if len(lines) != 1:
++        raise RuntimeError('the fetch L1 refill address is not one line-aligned assignment')
++    rows = [(name, ctype, module, var.replace('FetchCachelessPlugin', 'FetchL1Plugin'))
++            for name, ctype, module, var in ACCESSORS if name not in ('fetch_cmd_id', 'fetch_rsp_id')]
++    return rows, (1 << int(lines[0])) // 4
++
++
+ #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
+ ENTRY_SYMBOLS = ('adp_mbx_set_enable',)
+ 
+@@ -310,10 +395,15 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
+               'constexpr unsigned tx_head_word(unsigned ch) {',
+               f"    return (0x{spec['ch_base']:x}u + ch * 0x{spec['ch_stride']:x}u + 0x{spec['tx_head']:x}u) / 4u;",
+               '}']
+-    for name, ctype, module, var in ACCESSORS:
++    rows, beats = fetch_bus(spec)
++    lines.append(f'constexpr unsigned fetch_beats = {beats}u;')
++    for name, ctype, module, var in rows:
+         path, prefix = paths[module]
+         mask = ' & 1u' if name.endswith('_id') else ''
+         lines.append(f'inline {ctype} {name}(const Vsim& dut) {{ return {path}->{prefix}{var}{mask}; }}')
++    if beats > 1:
++        lines += ['inline unsigned fetch_cmd_id(const Vsim&) { return 0u; }',
++                  'inline unsigned fetch_rsp_id(const Vsim&) { return 0u; }']
+     lines.append('inline void set_gm(Vsim& dut, unsigned i, std::uint64_t id, unsigned domain) {')
+     if spec['interfaces'] == 1:
+         lines += ['    dut.mbx_gm_id = id;', '    dut.mbx_domain = domain;', '    (void)i;']
+@@ -395,20 +485,39 @@ def digest(paths: list[Path], build_dir: Path) -> dict[str, str]:
+ def run_inputs(build_dir: Path, spec: dict) -> list[Path]:
+     """Every file the native model is built from or reads when it runs."""
+     gateware = build_dir / 'gateware'
+-    return [Path(spec['elf']), *sorted((build_dir / 'runtime').glob('*.a')), *sorted(gateware.glob('*.init')),
++    return [Path(spec['elf']), *([Path(spec['flash_image'])] if spec.get('flash_image') else []),
++            *sorted((build_dir / 'runtime').glob('*.a')), *sorted(gateware.glob('*.init')),
+             build_dir / 'budget_config.hpp', HERE / 'sim_main.cpp', HERE / 'observe.vlt', SIBLING / 'flash.hpp',
+             *[Path(s) for s in spec['sources']]]
+ 
+ 
+-def build(build_dir: Path, shape: str, n_if: int, cpu_regions: str = 'cover',
+-          mutation: str = 'none', variant: str = 'none') -> dict:
++@dataclasses.dataclass(frozen=True)
++class Core:
++    """The CPU a build runs on and where its code executes from.
++
++    cpu_regions: the generator's region set (split_soc.build); fetch_l1: its
++    instruction cache (split_soc.fetch_l1_geometry); xip: the labelled
++    hybrid-XIP arm, the code past the reset entry in the flash window.
++    """
++    cpu_regions: str = 'cover'
++    fetch_l1: str = 'split'
++    xip: bool = False
++
++
++def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', variant: str = 'none',
++          core: Core = Core()) -> dict:
+     """The whole build at one point; returns build.json's contents."""
+     import split_soc
+     build_dir.mkdir(parents=True, exist_ok=True)
+     elf = firmware(build_dir, shape, n_if, mutation, variant)
++    rom_elf, flash_image = elf, None
++    if core.xip:
++        elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses()['flash'])
+     table = symbols(elf)
+-    spec = split_soc.build(build_dir, shape, elf, n_if, cpu_regions)
++    spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
+     spec['elf'] = str(elf)
++    spec['xip'] = core.xip
++    spec['flash_image'] = str(flash_image) if flash_image else None
+     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
+     from mailbox_model import load
+     contract = load()
+@@ -464,4 +573,4 @@ if __name__ == '__main__':
+     sys.path.insert(0, str(HERE))
+     os.environ.setdefault('PYTHONHASHSEED', '0')
+     print(json.dumps(build(Path(sys.argv[1]).resolve(), sys.argv[2], int(sys.argv[3]),
+-                           cpu_regions=sys.argv[4] if len(sys.argv) > 4 else 'cover'), indent=2)[:2000])
++                           core=Core(cpu_regions=sys.argv[4] if len(sys.argv) > 4 else 'cover')), indent=2)[:2000])
+diff --git a/tb/verilator/ctrl_service_budget/observe.vlt b/tb/verilator/ctrl_service_budget/observe.vlt
+index 2f3e530241..072758056a 100644
+--- a/tb/verilator/ctrl_service_budget/observe.vlt
++++ b/tb/verilator/ctrl_service_budget/observe.vlt
+@@ -1,6 +1,7 @@
+ `verilator_config
+-// Passive observation only: committed PCs, the CPU's two cacheless buses,
+-// the mailbox's receive commit and its event-ring writes. No source changes.
++// Passive observation only: committed PCs, the CPU's fetch bus (cacheless,
++// or the instruction cache's refills) and cacheless data bus, the mailbox's
++// receive commit and its event-ring writes. No source changes.
+ public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_valid"
+ public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_pc"
+ public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_trap_ports_0_valid"
+@@ -13,6 +14,11 @@ public_flat_rd -module "VexiiRiscv" -var "FetchCachelessPlugin_logic_bus_cmd_pay
+ public_flat_rd -module "VexiiRiscv" -var "FetchCachelessPlugin_logic_bus_rsp_valid"
+ public_flat_rd -module "VexiiRiscv" -var "FetchCachelessPlugin_logic_bus_rsp_payload_id"
+ public_flat_rd -module "VexiiRiscv" -var "FetchCachelessPlugin_logic_bus_rsp_payload_error"
++public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_valid"
++public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_ready"
++public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_payload_address"
++public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_rsp_valid"
++public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_rsp_payload_error"
+ public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_valid"
+ public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_ready"
+ public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_id"
+diff --git a/tb/verilator/ctrl_service_budget/run.py b/tb/verilator/ctrl_service_budget/run.py
+index 742a52581e..d110449305 100644
+--- a/tb/verilator/ctrl_service_budget/run.py
++++ b/tb/verilator/ctrl_service_budget/run.py
+@@ -4,7 +4,8 @@
+ """The split CPU budget (#665, #397 re-opened): measured cycles of every service path.
+ 
+ The test SoC (split_soc.py) runs the linked split image unmodified on the
+-shipping cacheless core, and sim_main.cpp drives its mailbox. Each group is
++split placement's core (--fetch-l1 none: the cacheless core), and
++sim_main.cpp drives its mailbox. Each group is
+ one boot and one stimulus script (scenario.py); grade.py reads the log. The
+ default refuses a probe that misses T_svc unless --record-budget-findings is
+ given; that option records the misses and still requires every probe of
+@@ -182,6 +183,12 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
+     parser.add_argument('--out', type=Path, help='results directory; default <build-dir>/results')
+     parser.add_argument('--jobs', type=int, default=8)
+     parser.add_argument('--cpu-regions', choices=('cover', 'as-built'), default='cover')
++    parser.add_argument('--fetch-l1', default='split', metavar='split|none|SETSxWAYS',
++                        help="the CPU's instruction cache: the split placement's own (default), none "
++                        '(the cacheless CPU) or a test-only sweep point of 64-byte lines')
++    parser.add_argument('--xip', action='store_true',
++                        help='the labelled hybrid-XIP arm: the code past the reset entry executes from the '
++                        'flash window behind the instruction cache')
+     parser.add_argument('--record-budget-findings', action='store_true')
+     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
+                         help='build a planted firmware defect; only its control group runs and must be caught')
+@@ -275,6 +282,17 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
+     return 1 if misses and not args.record_budget_findings else 0
+ 
+ 
++def selected(args: argparse.Namespace, shape: str, n_if: int) -> tuple:
++    """What this run's build must be: point, CPU regions, mutation, variant, fetch L1 and arm."""
++    return shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip
++
++
++def built_as(spec: dict) -> tuple:
++    """What a build records it is, in selected()'s order; a build that records no fetch L1 is cacheless."""
++    return (spec['shape'], spec['interfaces'], spec['cpu_regions'], spec['mutation'], spec['variant'],
++            spec.get('fetch_l1', 'none'), spec.get('xip', False))
++
++
+ def main() -> int:
+     """Build or reuse a point, run its groups, grade them and write the tables."""
+     parser, args = arguments()
+@@ -296,12 +314,11 @@ def main() -> int:
+         except (RuntimeError, OSError, KeyError, ValueError) as error:
+             print(f'REFUSED {error}')
+             return 1
+-        if ((spec['shape'], spec['interfaces'], spec['cpu_regions'], spec['mutation'], spec['variant'])
+-                != (shape, n_if, args.cpu_regions, args.mutation, args.variant)):
+-            parser.error('the reused build is another point, CPU region set, mutation or variant')
++        if built_as(spec) != selected(args, shape, n_if):
++            parser.error('the reused build is another point, CPU region set, mutation, variant, fetch L1 or arm')
+     else:
+-        spec = builder.build(build_dir, shape, n_if, cpu_regions=args.cpu_regions, mutation=args.mutation,
+-                             variant=args.variant)
++        spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
++                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
+     groups = select(parser, args, scenario.all_groups(scenario.point(args.point, spec), spec))
+     out = (args.out or build_dir / 'results').resolve()
+     out.mkdir(parents=True, exist_ok=True)
+@@ -310,7 +327,7 @@ def main() -> int:
+         groups, logs, absent = recorded(groups, out)
+     else:
+         with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
+-            logs = list(pool.map(lambda g: run_group(build_dir, out, g, '-'), groups))
++            logs = list(pool.map(lambda g: run_group(build_dir, out, g, spec.get('flash_image') or '-'), groups))
+     results, refusals, misses = graded(groups, logs, spec, out)
+     refusals = absent + refusals
+     (out / 'table.md').write_text(table(results, args.point))
+diff --git a/tb/verilator/ctrl_service_budget/selftest.py b/tb/verilator/ctrl_service_budget/selftest.py
+index 92bd514514..1eb44a2b65 100644
+--- a/tb/verilator/ctrl_service_budget/selftest.py
++++ b/tb/verilator/ctrl_service_budget/selftest.py
+@@ -15,8 +15,9 @@ the rows a run did not include, and the record results.json carries and
+ the table renders. The real scenario's composed windows are counted
+ against the defined loads restated here, its fan-out against the
+ firmware's registration capacity read here, and its controls against
+-their paths. The run's exit status, the regrade's
+-refusal of an absent log and the reuse attestation run on temporary files.
++their paths. The run's exit status, the regrade's refusal of an absent
++log, the reuse attestation, and the instruction cache's observers, reuse
++identity and XIP link script run on temporary files.
+ Then each rule is mutated in turn, and a named check must fail; a mutant of
+ a headline figure (the worst pass, the composed maximum, a pass bound)
+ fails on that figure.
+@@ -720,10 +721,53 @@ def reuse_checks() -> list[Check]:
+     return out
+ 
+ 
++def cache_checks() -> list[Check]:
++    """The instruction cache's build (#665): the fetch observers follow the CPU's fetch plugin, a
++    refill's beats come from the netlist, a reused build must be the selected cache and arm, and
++    the XIP arm keeps the reset entry in rom."""
++    out = []
++    with tempfile.TemporaryDirectory() as tmp:
++        netlist = Path(tmp) / 'VexiiRiscvLitex_x.v'
++        cached = dict(fetch_l1_geometry=[64, 1], netlist=netlist.stem, sources=[str(netlist)])
++        netlist.write_text("assign FetchL1Plugin_logic_bus_cmd_payload_address = "
++                           "{FetchL1Plugin_logic_refill_slots_0_address[31 : 6],6'h0};\n")
++        rows, beats = build.fetch_bus(cached)
++        plain_rows, plain_beats = build.fetch_bus(dict(fetch_l1_geometry=None))
++        names = {name for name, *_ in rows}
++        out.append(('the fetch observers follow the CPU\'s fetch plugin',
++                    all('FetchL1Plugin' in v for n, _, _, v in rows if n.startswith('fetch_'))
++                    and not names & {'fetch_cmd_id', 'fetch_rsp_id'} and plain_rows == list(build.ACCESSORS),
++                    str(rows)))
++        out.append(('a refill\'s beats are read off the netlist', (beats, plain_beats) == (16, 1),
++                    str((beats, plain_beats))))
++        netlist.write_text('assign FetchL1Plugin_logic_bus_cmd_payload_address = 32\'h0;\n')
++        try:
++            build.fetch_bus(cached)
++            refused = ''
++        except RuntimeError as error:
++            refused = str(error)
++        out.append(('a cached netlist without its line-aligned refill address is refused', 'refill' in refused,
++                    refused or 'accepted'))
++    args = argparse.Namespace(cpu_regions='cover', mutation='none', variant='none', fetch_l1='none', xip=False)
++    spec = dict(shape='s', interfaces=1, cpu_regions='cover', mutation='none', variant='none')
++    out.append(('a reused build of another fetch L1 or arm is refused; a build with no fetch L1 is cacheless',
++                run.built_as(spec) == run.selected(args, 's', 1)
++                and run.built_as(dict(spec, fetch_l1='64x1')) != run.selected(args, 's', 1)
++                and run.built_as(dict(spec, fetch_l1='none', xip=True)) != run.selected(args, 's', 1), ''))
++    script = build.xip_script((build.ROOT / 'sw/firmware/ctrl/plat/ctrl_split.ld').read_text(), 0x20410000,
++                              0x21000000)
++    out.append(('the XIP arm keeps the reset entry and F1\'s flash driver in rom and moves the other code to flash',
++                '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n' in script
++                and '\t.text : ALIGN(4) { *(.text .text.*) } > flash\n' in script
++                and 'MEMORY { flash (rx) : ORIGIN = 0x20410000, LENGTH = 0xbf0000 }' in script, script[:400]))
++    return out
++
++
+ def checks() -> list[Check]:
+     """Every named check and whether it holds."""
+     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
+-            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks()]
++            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
++            *cache_checks()]
+ 
+ 
+ def write_fixture(log: Path, build_json: Path) -> None:
+diff --git a/tb/verilator/ctrl_service_budget/selftest_mutants.py b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+index 8a32487080..14a637221c 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_mutants.py
++++ b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+@@ -309,6 +309,26 @@ def _verdict(refusals_fail: bool, misses_fail: bool) -> Patches:
+     return lambda: [patch.object(run, 'verdict', verdict)]
+ 
+ 
++def _fetch_bus_cacheless(spec: dict) -> tuple[list, int]:
++    """The cacheless CPU's observers and one beat a command, whatever the CPU fetches through."""
++    return list(build.ACCESSORS), 1
++
++
++def _fetch_bus_one_beat(spec: dict, original: Callable = build.fetch_bus) -> tuple[list, int]:
++    """The CPU's own fetch observers, with one beat a refill instead of its line's words."""
++    return original(spec)[0], 1
++
++
++def _built_as_without_cache(spec: dict) -> tuple:
++    """A reused build's identity without its fetch L1 and arm."""
++    return (spec['shape'], spec['interfaces'], spec['cpu_regions'], spec['mutation'], spec['variant'], 'none', False)
++
++
++def _selected_without_cache(args: object, shape: str, n_if: int) -> tuple:
++    """The selected build's identity without its fetch L1 and arm."""
++    return shape, n_if, args.cpu_regions, args.mutation, args.variant, 'none', False
++
++
+ MUTANTS: dict[str, Patches] = {
+     'marker: the frame tag is ignored': _start_with(_tag_ignored),
+     'marker: a timer path starts when its record is posted': _start_with(_timer_posted),
+@@ -410,4 +430,14 @@ MUTANTS: dict[str, Patches] = {
+     'tables: a control instance is its own path (earlier rule)': _control_own_path,
+     "tables: a starved instance is not its path's worst": lambda: [patch.object(
+         run, 'severity', lambda r: (False, r['ms']))],
++    'fetch bus: the cacheless observers on a cached CPU':
++        lambda: [patch.object(build, 'fetch_bus', _fetch_bus_cacheless)],
++    'fetch bus: one beat a refill': lambda: [patch.object(build, 'fetch_bus', _fetch_bus_one_beat)],
++    'reuse: the fetch L1 and the arm are not compared':
++        lambda: [patch.object(run, 'built_as', _built_as_without_cache),
++                 patch.object(run, 'selected', _selected_without_cache)],
++    'xip: the reset entry moves to flash with the other code': lambda: [patch.object(
++        build, 'XIP_TEXT', (build.XIP_TEXT[0], build.XIP_TEXT[1].replace('} > rom', '} > flash')))],
++    "xip: F1's flash driver moves to flash with the other code": lambda: [patch.object(build, 'XIP_TEXT', (
++        build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
+ }
+diff --git a/tb/verilator/ctrl_service_budget/sim_main.cpp b/tb/verilator/ctrl_service_budget/sim_main.cpp
+index b80e8be663..643449b8a1 100644
+--- a/tb/verilator/ctrl_service_budget/sim_main.cpp
++++ b/tb/verilator/ctrl_service_budget/sim_main.cpp
+@@ -3,7 +3,8 @@
+ //
+ // The testbench of the split CPU budget (#665, #397): it drives the
+ // mailbox's datapath side from a stimulus script and observes, passively,
+-// the committed PCs, both cacheless CPU buses, the mailbox host port, the
++// the committed PCs, the CPU's fetch bus (cacheless, or its instruction
++// cache's refills) and cacheless data bus, the mailbox host port, the
+ // receive commit and the event-ring writes. Every figure it prints is an
+ // observed clock count; run.py grades them.
+ #include "Vsim.h"
+@@ -262,21 +263,28 @@ private:
+             std::printf("TRAP %llu %u %u %08x\n", ull(cpu_), unsigned(trap_interrupt(dut)),
+                         trap_cause(dut), last_pc_);
+         }
++        // A fetch command carries fetch_beats words: one without a cache, a whole line on the
++        // instruction cache's refill bus. Its wait runs to its last beat (or its error).
+         if (fetch_cmd_valid(dut) && fetch_cmd_ready(dut)) {
+             const auto r = region_of(fetch_address(dut));
+             ++pass_.fetch[r];
+-            fetch_at_[fetch_cmd_id(dut)] = {cpu_, r, fetch_address(dut)};
++            fetch_at_[fetch_cmd_id(dut)] = {cpu_, r, fetch_address(dut), 0};
+             if (tracing_ && trace_left_) std::printf("FETCH %llu %08x\n", ull(cpu_), fetch_address(dut));
+-            if (r == ROM || r == FLASH) note_code(fetch_address(dut));
++            if (r == ROM || r == FLASH)
++                for (unsigned k = 0; k < fetch_beats; ++k) note_code(fetch_address(dut) + 4u * k);
+         }
+         if (fetch_rsp_valid(dut)) {
+-            const auto& at = fetch_at_[fetch_rsp_id(dut)];
+-            if (fetch_rsp_error(dut)) {
++            auto& at = fetch_at_[fetch_rsp_id(dut)];
++            const bool error = fetch_rsp_error(dut);
++            if (error) {
+                 ++bus_errors_;
+                 std::printf("BUSERR %llu fetch %08x\n", ull(cpu_), at.address);
+             }
+-            fetch_lat_[at.region].add(cpu_ - at.start);
+-            pass_.fetch_wait[at.region] += cpu_ - at.start;
++            if (at.beats < fetch_beats && (++at.beats == fetch_beats || error)) {
++                at.beats = fetch_beats;
++                fetch_lat_[at.region].add(cpu_ - at.start);
++                pass_.fetch_wait[at.region] += cpu_ - at.start;
++            }
+         }
+         if (lsu_cmd_valid(dut) && lsu_cmd_ready(dut)) {
+             const auto r = region_of(lsu_address(dut));
+@@ -463,7 +471,7 @@ private:
+         }
+     }
+ 
+-    struct FetchAt { std::uint64_t start = 0; Region region = OTHER; std::uint32_t address = 0; };
++    struct FetchAt { std::uint64_t start = 0; Region region = OTHER; std::uint32_t address = 0; unsigned beats = 0; };
+     struct LsuAt { std::uint64_t start = 0; Region region = OTHER; bool write = false; std::uint32_t address = 0; };
+ 
+     Flash flash_;
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index aef71a159f..58658d6071 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -2,12 +2,14 @@
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+ """The test-only split SoC: the shipping CPU, the image's block RAM and a driven mailbox.
+ 
+-The CPU is built by MilanSoC's own VexiiRiscv path: cacheless RV32I, one hart,
+-the CPU at the 50 MHz Milan clock and the bus at 100 MHz, with the DMA port
+-the shipping image has. Its firmware memory is milan_soc.add_ctrl_memory,
+-the split placement's, built from the linked image. The capture harness's
+-product simulation (tb/verilator/nvm_capture_cpu/soc.py) is imported read
+-only, for its simulated clocks and its path to the product sources.
++The CPU is built by MilanSoC's own VexiiRiscv path: RV32I, one hart, the
++CPU at the 50 MHz Milan clock and the bus at 100 MHz, with the DMA port the
++shipping image has, and the split placement's instruction cache
++(milan_soc.ctrl_cpu_args) unless a build selects a sweep point or none. Its
++firmware memory is milan_soc.add_ctrl_memory, the split placement's, built
++from the linked image. The capture harness's product simulation
++(tb/verilator/nvm_capture_cpu/soc.py) is imported read only, for its
++simulated clocks and its path to the product sources.
+ 
+ The image ctrl_srp_image.py links is a size fixture whose bus addresses are
+ placeholders (#665): the mailbox at ctrl_build.py's CTRL_MBX_BASE and the
+@@ -252,6 +254,23 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
+     soc.add_timer('timer0')
+ 
+ 
++def fetch_l1_geometry(fetch_l1: str) -> tuple[int, int] | None:
++    """The instruction cache a build's CPU has, as milan_soc.ctrl_cpu_args takes it.
++
++    'split' is the split placement's own (milan_soc.CTRL_FETCH_L1); 'none' is
++    the cacheless CPU the all-fabric placement keeps; SETSxWAYS is a test-only
++    sweep point of the same generator option.
++    """
++    if fetch_l1 == 'split':
++        return milan_soc.CTRL_FETCH_L1
++    if fetch_l1 == 'none':
++        return None
++    match = re.fullmatch(r'([1-9]\d*)x([1-9]\d*)', fetch_l1)
++    if not match or int(match.group(1)) & (int(match.group(1)) - 1):
++        raise RuntimeError(f'fetch L1 {fetch_l1!r} is not split, none or SETSxWAYS with power-of-two sets')
++    return int(match.group(1)), int(match.group(2))
++
++
+ class CpuPatches:
+     """MilanSoC's VexiiRiscv path as shipped, with the DMA port and the selected region set."""
+ 
+@@ -285,12 +304,14 @@ class CpuPatches:
+         return stack
+ 
+ 
+-def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover') -> dict:
++def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
++          fetch_l1: str = 'split') -> dict:
+     """Export the test SoC's Verilog and return the native build's inputs.
+ 
+     cpu_regions 'cover' gives the CPU generator each region at its
+     power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
+     which reproduces the generator's rom decode defect (a control).
++    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
+     """
+     addresses = fixture_addresses()
+     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
+@@ -298,13 +319,15 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str =
+     contract = milan_soc.ctrl_mailbox_contract()
+     platform = platform_for(contract, n_if)
+     cpu = CpuPatches(cpu_regions)
++    geometry = fetch_l1_geometry(fetch_l1)
++    scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
+     sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+     with cpu.applied():
+         soc = milan_soc.MilanSoC(
+             platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
+             board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
+             flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
+-            extra_scala_args=params['scala_args'], uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
++            extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
+             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
+         milan_soc.add_ctrl_memory(soc, elf)
+         for path in mailbox_sources(n_if, build_dir / 'mbx-variant'):
+@@ -327,6 +350,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str =
+         'memory_regions': cpu.soc_regions,
+         'cpu_regions': cpu_regions,
+         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],
++        'fetch_l1': fetch_l1, 'fetch_l1_geometry': list(geometry) if geometry else None,
+         'ctrl_plan': soc.ctrl_plan.summary(),
+     }
+     (build_dir / 'soc.json').write_text(json.dumps(spec, indent=2) + '\n')
