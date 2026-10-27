@@ -1,0 +1,15 @@
+shard: 1/4   selected suites: 17
+PASS     adp_tx
+PASS     aes3
+PASS     avtp_parser
+PASS     classifier
+PASS     eth_tx_reset
+PASS     fw_service_budget
+PASS     gptp_tables
+PASS     gptp_txts
+PASS     media_grid_align
+PASS     media_nco
+Terminated                 timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+CANCELLED: TERM; no completed sweep result
+partial logs: <work>/parent-sweep-shards/shard-1/logs
+CANCELLED: signal 15; no completed sweep result

@@ -1,0 +1,23 @@
+repository: Mister-M-alt/protocol-processor-control-plane-avb-milan
+branch: 206-gsi-settled-gate
+base: 097a79875f20c27f0a5987a193c165c5086f3cf5 tree e496f4f6faa5d95dbf531f743ecd0dc7a3f72f4a
+head: 9abb41f9f539fde8d940ff23b4b594f46658a46a tree ac9a94c068f955e63a4d20c6fe7cbd8d6edd2e65
+merge-base with main: 097a79875f20c27f0a5987a193c165c5086f3cf5
+
+commits base..head:
+9abb41f Report an input's stream_id, destination MAC and VLAN and their flags in GET_STREAM_INFO only while it is PROBING_COMPLETED (issue #206)
+
+diff --stat base..head:
+ docs/00_MILAN_COMPLIANCE_REVIEW.md  |   2 +-
+ docs/architecture/02_interfaces.md  |   2 +-
+ docs/architecture/06_aecp_engine.md |  27 +++++--
+ docs/guides/integrator.md           |  12 +++-
+ hdl/top/protocol_processor_top.sv   |  28 +++++++-
+ tb/pp_top/README.md                 |  28 ++++++++
+ tb/pp_top/gsi_internal.hpp          | 139 ++++++++++++++++++++++++++++++++++++
+ tb/pp_top/gsi_mutants.py            |  27 +++++++
+ tb/pp_top/sim_main.cpp              |  32 +++++++++
+ 9 files changed, 283 insertions(+), 14 deletions(-)
+
+top-level port/parameter declarations changed (diff of lines up to the module header close):
+none

@@ -1,0 +1,82 @@
+Full record: 199004 bytes; sha256 f11eede73ef557e7f8f9d487e1d0de9d07e3eb00d5473a2c54b1b66764c703a0
+Last 80 lines (paths normalized):
+  [ok]   AAFM_STAT follows its input live = 0x0
+  [ok]   mac03 auto: speed=1000 -> is_1g = 0x1
+  [ok]   mac03 auto: speed=100 -> !is_1g = 0x0
+  [ok]   mac03 auto: speed=10 -> !is_1g = 0x0
+  [ok]   mac03 MAC_STATUS speed tracks = 0x1
+  [ok]   mac03 manual=1,is_1g=1 beats speed=100 = 0x1
+  [ok]   mac03 manual=1,is_1g=0 beats speed=1000 = 0x0
+  [ok]   mac03 auto ignores MAC_CTRL[4]=1 = 0x0
+  [ok]   mac03 auto ignores MAC_CTRL[4]=0 = 0x1
+  [PASS] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)
+-- chmap readback NEGATIVE control: no port in this build --
+  [ok]   CHMAP_LOOP un-armed is POISON not 0 = 0xdeaddead
+  [ok]   CHMAP_SNAP tag 0xC5 (feature probe) = 0xc5
+  [ok]   CHMAP_SNAP cap = 0 (port absent) = 0x0
+  [ok]   CHMAP_SNAP armed = 0 at reset = 0x0
+  [ok]   CHMAP_SNAP busy = 0 at reset = 0x0
+  [ok]   CHMAP_SNAP valid = 0 at reset = 0x0
+  [ok]   0x918 still reserved-reads-0 = 0x0
+  [ok]   refused arm: unsup = 1     = 0x1
+  [ok]   refused arm: valid = 0     = 0x0
+  [ok]   refused arm: busy = 0      = 0x0
+  [ok]   refused arm: timeout = 0   = 0x0
+  [ok]   refused arm: armed = 1     = 0x1
+  [ok]   refused arm latched {side,idx} = 0x45
+  [ok]   no fabric request was issued = 0x0
+  [ok]   CHMAP_LOOP still POISON after a refused arm = 0xdeaddead
+  [PASS] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0
+-- 0x7DC AS_PATH addresses are inert without a fabric owner --
+  [ok]   ASP LO reset zero          = 0x0
+  [ok]   ASP HI reset zero          = 0x0
+  [ok]   ASP {gen,count} reset zero = 0x0
+  [ok]   ASP public count reset zero = 0x0
+  [ok]   ASP public generation reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP LO write reads zero    = 0x0
+  [ok]   ASP HI write reads zero    = 0x0
+  [ok]   ASP CMD write reads zero   = 0x0
+  [ok]   ASP writes cannot publish a count = 0x0
+  [ok]   ASP writes cannot spend a generation = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [PASS] #116: software writes cannot manufacture an AS_PATH owner
+--------------------------------------------------------------
+  [ok]   0x7E8 plane-OFF zero       = 0x0
+  [ok]   0x7EC plane-OFF zero       = 0x0
+  [ok]   0x7F0 plane-OFF zero       = 0x0
+  [ok]   0x7F0 write is inert       = 0x0
+checks: 408   failures: 0
+RESULT: PASS
+make[1]: Leaving directory '<data>/lanes/pp206-a691-parentb-shard3/tb/verilator/csr'
+python3 lock_mutants.py
+[PASS] the unmutated block still passes the lockstep leg
+[PASS] mutant caught (lock1): wrong address decode: IRQ_RAW's live word answers at IRQ_MASK - fails "decode"
+    it failed reset-values, decode, lockstep
+[PASS] mutant caught (lock1): torn snapshot: window CNT3 reads its live counter, not the SNAP word - fails "snapshot-coherence"
+    it failed snapshot-coherence, lockstep
+[PASS] mutant caught (lock1): stale snapshot: a listener SNAP after a talker SNAP keeps the POISON kind - fails "snapshot-freshness"
+    it failed decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock8): stale snapshot: an extra listener's burst word keeps its previous kind - fails "snapshot-freshness"
+    it failed decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock1): reset-value drift: the CNT kinds reset to POISON instead of zero - fails "reset-values"
+    it failed reset-values, lockstep
+[PASS] mutant caught (lock1): stage 1: the shadow word is not zeroed under a live or window claim - fails "decode"
+    it failed reset-values, decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock1): stage 1: the window's range leaf answers 0 instead of the window's word - fails "decode"
+    it failed reset-values, decode, snapshot-coherence, snapshot-freshness, lockstep
+
+8 checks: 8 PASS, 0 FAIL
+make: Leaving directory '<data>/lanes/pp206-a691-parentb-shard3/tb/verilator/csr'

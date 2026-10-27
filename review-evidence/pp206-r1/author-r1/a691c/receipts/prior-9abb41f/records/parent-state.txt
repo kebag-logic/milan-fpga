@@ -1,0 +1,19 @@
+scratch parent pp206-parent (local clone of milan-fpga dev 97aab1d0; push URL: no-push-scratch-only)
+wiring patch: sha256 ff5068d295872d1f872b89890ff76f9bb1d3fd0738ad650282dbe45d9e171275, 70091 bytes
+
+pp206-parent log 97aab1d0..HEAD:
+764d125329bce2b860b142cd4c49a63421b8be23 scratch: ROM digests for processor pin 9abb41f
+c7d5887ddafe37b95792464d84f19e642749cee0 scratch: pin processor 9abb41f (issue #206)
+c31398954e84e332d95d12a8aae9e358170ebeb7 scratch: #202 source-stream-ID wiring patch ff5068d2 on processor main 097a7987
+
+diff --stat 97aab1d0 c3139895 (dev -> dev + patch + gitlink 097a7987):
+ tests/features/milan_streaming_licence.feature |   4 +
+ tests/steps/milan_streaming_licence_steps.py   |  18 +
+ 12 files changed, 1149 insertions(+), 15 deletions(-)
+
+the patch reverse-applies cleanly (git apply --check -R) in pp206-parent-base at 8f72c7e4, which is c3139895 plus the base ROM-digest rows (the patch does not touch rom_digests.tsv):
+  git apply --check -R rc=0
+diff c3139895 c7d5887d:  1 file changed, 1 insertion(+), 1 deletion(-)
+diff c7d5887d 764d1253:  1 file changed, 2 insertions(+)
+pp206-parent HEAD 764d125329bce2b860b142cd4c49a63421b8be23, tracked tree clean: 0 changes; protocol-processor at 9abb41f9f539fde8d940ff23b4b594f46658a46a
+pp206-parent-base log c3139895..HEAD: 8f72c7e47bc99c51898cc20a32805349b01a55f0 scratch: ROM digests for processor pin 097a7987 (base)

@@ -1,0 +1,108 @@
+settled-means-bound: 71 FAIL lines, 31 of them GI GATE
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6373 checks, 71 failures
+
+GI GATE failures:
+FAIL: GI GATE PROBING unsolicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PROBING unsolicited: byte-exact sink 0 response
+FAIL: GI GATE PROBING solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PROBING solicited: byte-exact sink 0 response
+FAIL: GI GATE PROBING-SENT solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PROBING-SENT solicited: byte-exact sink 0 response
+FAIL: GI GATE REPROBE unsolicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE REPROBE unsolicited: stream_id sink 0 is zero
+FAIL: GI GATE REPROBE unsolicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE REPROBE unsolicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE REPROBE unsolicited: byte-exact sink 0 response
+FAIL: GI GATE REPROBE solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE REPROBE solicited: stream_id sink 0 is zero
+FAIL: GI GATE REPROBE solicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE REPROBE solicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE REPROBE solicited: byte-exact sink 0 response
+FAIL: GI GATE REPROBE-SENT solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE REPROBE-SENT solicited: stream_id sink 0 is zero
+FAIL: GI GATE REPROBE-SENT solicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE REPROBE-SENT solicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE REPROBE-SENT solicited: byte-exact sink 0 response
+FAIL: GI GATE PASSIVE-STALE unsolicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PASSIVE-STALE unsolicited: stream_id sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE unsolicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE unsolicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE unsolicited: byte-exact sink 0 response
+FAIL: GI GATE PASSIVE-STALE solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PASSIVE-STALE solicited: stream_id sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE solicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE solicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE solicited: byte-exact sink 0 response
+
+All FAIL lines:
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 0 response
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 0 response
+FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 0 response
+FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 0 response
+FAIL: GI PASSIVE unsolicited: byte-exact sink 0 response
+FAIL: GI PASSIVE solicited: byte-exact sink 0 response
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response
+FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 1 response
+FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 1 response
+FAIL: GI PASSIVE unsolicited: byte-exact sink 1 response
+FAIL: GI PASSIVE solicited: byte-exact sink 1 response
+FAIL: GI ACTIVE unsolicited: byte-exact sink 0 response
+FAIL: GI ACTIVE solicited: byte-exact sink 0 response
+FAIL: GI OTHER-PASSIVE solicited: byte-exact sink 1 response
+FAIL: GI TIMEOUT unsolicited: byte-exact sink 0 response
+FAIL: GI TIMEOUT solicited: byte-exact sink 0 response
+FAIL: GI OTHER-PASSIVE solicited: byte-exact sink 1 response
+FAIL: GI RETRY-RETAIN solicited: byte-exact sink 0 response
+FAIL: GI ACTIVE unsolicited: byte-exact sink 1 response
+FAIL: GI ACTIVE solicited: byte-exact sink 1 response
+FAIL: GI WITHDRAWAL unsolicited: byte-exact sink 0 response
+FAIL: GI WITHDRAWAL solicited: byte-exact sink 0 response
+FAIL: GI WITHDRAWAL-PROBING unsolicited: byte-exact sink 0 response
+FAIL: GI WITHDRAWAL-PROBING solicited: byte-exact sink 0 response
+FAIL: GI REBIND-BOUND unsolicited: byte-exact sink 0 response
+FAIL: GI REBIND-BOUND solicited: byte-exact sink 0 response
+FAIL: GI REBIND-SW unsolicited: byte-exact sink 0 response
+FAIL: GI REBIND-SW solicited: byte-exact sink 0 response
+FAIL: GI REBIND-TIMEOUT unsolicited: byte-exact sink 0 response
+FAIL: GI REBIND-TIMEOUT solicited: byte-exact sink 0 response
+FAIL: GI BIND-ACTIVE unsolicited: byte-exact sink 1 response
+FAIL: GI BIND-ACTIVE solicited: byte-exact sink 1 response
+FAIL: GI BIND-TIMEOUT unsolicited: byte-exact sink 1 response
+FAIL: GI BIND-TIMEOUT solicited: byte-exact sink 1 response
+FAIL: GI PASSIVE unsolicited: byte-exact sink 1 response
+FAIL: GI PASSIVE solicited: byte-exact sink 1 response
+FAIL: GI INDEX-GUARD-ALIAS solicited: byte-exact sink 1 response
+FAIL: GI SN-BIND unsolicited: byte-exact sink 0 response
+FAIL: GI SN-BIND solicited: byte-exact sink 0 response
+FAIL: GI GATE PROBING unsolicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PROBING unsolicited: byte-exact sink 0 response
+FAIL: GI GATE PROBING solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PROBING solicited: byte-exact sink 0 response
+FAIL: GI GATE PROBING-SENT solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PROBING-SENT solicited: byte-exact sink 0 response
+FAIL: GI GATE REPROBE unsolicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE REPROBE unsolicited: stream_id sink 0 is zero
+FAIL: GI GATE REPROBE unsolicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE REPROBE unsolicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE REPROBE unsolicited: byte-exact sink 0 response
+FAIL: GI GATE REPROBE solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE REPROBE solicited: stream_id sink 0 is zero
+FAIL: GI GATE REPROBE solicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE REPROBE solicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE REPROBE solicited: byte-exact sink 0 response
+FAIL: GI GATE REPROBE-SENT solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE REPROBE-SENT solicited: stream_id sink 0 is zero
+FAIL: GI GATE REPROBE-SENT solicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE REPROBE-SENT solicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE REPROBE-SENT solicited: byte-exact sink 0 response
+FAIL: GI GATE PASSIVE-STALE unsolicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PASSIVE-STALE unsolicited: stream_id sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE unsolicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE unsolicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE unsolicited: byte-exact sink 0 response
+FAIL: GI GATE PASSIVE-STALE solicited: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear for sink 0
+FAIL: GI GATE PASSIVE-STALE solicited: stream_id sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE solicited: stream_dest_mac sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE solicited: stream_vlan_id sink 0 is zero
+FAIL: GI GATE PASSIVE-STALE solicited: byte-exact sink 0 response
