@@ -1,0 +1,734 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Mon Oct 26 19:12:01 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing_summary -delay_type min_max -file timing.rpt
+| Design       : VexiiRiscvLitex_2c4bb987d123aab6d38527891a2d9fd1
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Summary Report
+
+------------------------------------------------------------------------------------------------
+| Timer Settings
+| --------------
+------------------------------------------------------------------------------------------------
+
+  Enable Multi Corner Analysis               :  Yes
+  Enable Pessimism Removal                   :  Yes
+  Pessimism Removal Resolution               :  Nearest Common Node
+  Enable Input Delay Default Clock           :  No
+  Enable Preset / Clear Arcs                 :  No
+  Disable Flight Delays                      :  No
+  Ignore I/O Paths                           :  No
+  Timing Early Launch at Borrowing Latches   :  No
+  Borrow Time for Max Delay Exceptions       :  Yes
+  Merge Timing Exceptions                    :  Yes
+  Inter-SLR Compensation                     :  Conservative
+
+  Corner  Analyze    Analyze    
+  Name    Max Paths  Min Paths  
+  ------  ---------  ---------  
+  Slow    Yes        Yes        
+  Fast    Yes        Yes        
+
+
+------------------------------------------------------------------------------------------------
+| Report Methodology
+| ------------------
+------------------------------------------------------------------------------------------------
+
+No report available as report_methodology has not been run prior. Run report_methodology on the current design for the summary of methodology violations.
+
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (217)
+6. checking no_output_delay (153)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (217)
+--------------------------------
+ There are 217 input ports with no input delay specified. (HIGH)
+
+ There are 0 input ports with no input delay but user has a false path constraint.
+
+
+6. checking no_output_delay (153)
+---------------------------------
+ There are 153 ports with no output delay specified. (HIGH)
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+
+
+------------------------------------------------------------------------------------------------
+| Design Timing Summary
+| ---------------------
+------------------------------------------------------------------------------------------------
+
+    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+    -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+      0.931        0.000                      0                 7445        0.075        0.000                      0                 7445        3.870        0.000                       0                  3411  
+
+
+All user specified timing constraints are met.
+
+
+------------------------------------------------------------------------------------------------
+| Clock Summary
+| -------------
+------------------------------------------------------------------------------------------------
+
+Clock      Waveform(ns)       Period(ns)      Frequency(MHz)
+-----      ------------       ----------      --------------
+cpu_clk    {0.000 10.000}     20.000          50.000          
+litex_clk  {0.000 5.000}      10.000          100.000         
+
+
+------------------------------------------------------------------------------------------------
+| Intra Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  
+-----             -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  
+cpu_clk             5.241        0.000                      0                 3902        0.078        0.000                      0                 3902        8.870        0.000                       0                  1841  
+litex_clk           0.931        0.000                      0                 3236        0.075        0.000                      0                 3236        3.870        0.000                       0                  1570  
+
+
+------------------------------------------------------------------------------------------------
+| Inter Clock Table
+| -----------------
+------------------------------------------------------------------------------------------------
+
+From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------    --------          -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+
+
+------------------------------------------------------------------------------------------------
+| Other Path Groups Table
+| -----------------------
+------------------------------------------------------------------------------------------------
+
+Path Group         From Clock         To Clock               WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)  THS Failing Endpoints  THS Total Endpoints  
+----------         ----------         --------               -------      -------  ---------------------  -------------------      -------      -------  ---------------------  -------------------  
+**async_default**  cpu_clk            cpu_clk                 14.438        0.000                      0                  269        0.413        0.000                      0                  269  
+**async_default**  litex_clk          litex_clk                8.087        0.000                      0                   38        0.455        0.000                      0                   38  
+
+
+------------------------------------------------------------------------------------------------
+| Timing Details
+| --------------
+------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------
+From Clock:  cpu_clk
+  To Clock:  cpu_clk
+
+Setup :            0  Failing Endpoints,  Worst Slack        5.241ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.078ns,  Total Violation        0.000ns
+PW    :            0  Failing Endpoints,  Worst Slack        8.870ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             5.241ns  (required time - arrival time)
+  Source:                 vexiis_0_logic_core/execute_ctrl2_up_SrcStageables_ZERO_lane0_reg/C
+                            (rising edge-triggered cell FDRE clocked by cpu_clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            vexiis_0_logic_core/fetch_logic_ctrls_1_up_Fetch_WORD_PC_reg[16]/CE
+                            (rising edge-triggered cell FDRE clocked by cpu_clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             cpu_clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            20.000ns  (cpu_clk rise@20.000ns - cpu_clk rise@0.000ns)
+  Data Path Delay:        14.348ns  (logic 4.212ns (29.357%)  route 10.136ns (70.643%))
+  Logic Levels:           22  (CARRY4=8 LUT2=2 LUT3=6 LUT4=1 LUT5=5)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock cpu_clk rise edge)    0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  cpu_clk
+                         net (fo=1840, unset)         0.787     0.787    vexiis_0_logic_core/cpu_clk
+    SLICE_X61Y69         FDRE                                         r  vexiis_0_logic_core/execute_ctrl2_up_SrcStageables_ZERO_lane0_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X61Y69         FDRE (Prop_fdre_C_Q)         0.348     1.135 f  vexiis_0_logic_core/execute_ctrl2_up_SrcStageables_ZERO_lane0_reg/Q
+                         net (fo=32, routed)          0.701     1.836    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/execute_ctrl2_up_SrcStageables_ZERO_lane0
+    SLICE_X61Y70         LUT3 (Prop_lut3_I2_O)        0.242     2.078 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/execute_ctrl3_up_early0_SrcPlugin_ADD_SUB_lane0[1]_i_2/O
+                         net (fo=1, routed)           0.255     2.333    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/early0_SrcPlugin_logic_addsub_combined_rs2Patched[0]
+    SLICE_X60Y70         CARRY4 (Prop_carry4_CYINIT_CO[3])
+                                                      0.494     2.827 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/execute_ctrl3_up_early0_SrcPlugin_ADD_SUB_lane0_reg[1]_i_1/CO[3]
+                         net (fo=1, routed)           0.000     2.827    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/execute_ctrl3_up_early0_SrcPlugin_ADD_SUB_lane0_reg[1]_i_1_n_0
+    SLICE_X60Y71         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100     2.927 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/LsuCachelessTileLinkPlugin_logic_bridge_tracker_pendings_0_hash_reg[5]_i_1/CO[3]
+                         net (fo=1, routed)           0.000     2.927    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/LsuCachelessTileLinkPlugin_logic_bridge_tracker_pendings_0_hash_reg[5]_i_1_n_0
+    SLICE_X60Y72         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100     3.027 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/LsuCachelessTileLinkPlugin_logic_bridge_tracker_pendings_0_hash_reg[7]_i_1/CO[3]
+                         net (fo=1, routed)           0.000     3.027    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/LsuCachelessTileLinkPlugin_logic_bridge_tracker_pendings_0_hash_reg[7]_i_1_n_0
+    SLICE_X60Y73         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100     3.127 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/unified_mBus_to_ioBus_down_bus_a_rData_address_reg[15]_i_2/CO[3]
+                         net (fo=1, routed)           0.000     3.127    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/unified_mBus_to_ioBus_down_bus_a_rData_address_reg[15]_i_2_n_0
+    SLICE_X60Y74         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100     3.227 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/unified_mBus_to_ioBus_down_bus_a_rData_address_reg[19]_i_2/CO[3]
+                         net (fo=1, routed)           0.008     3.235    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/unified_mBus_to_ioBus_down_bus_a_rData_address_reg[19]_i_2_n_0
+    SLICE_X60Y75         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100     3.335 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/unified_mBus_to_ioBus_down_bus_a_rData_address_reg[23]_i_2/CO[3]
+                         net (fo=1, routed)           0.000     3.335    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/unified_mBus_to_ioBus_down_bus_a_rData_address_reg[23]_i_2_n_0
+    SLICE_X60Y76         CARRY4 (Prop_carry4_CI_CO[3])
+                                                      0.100     3.435 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/LsuCachelessTileLinkPlugin_logic_bridge_tracker_pendings_0_io_reg_i_3/CO[3]
+                         net (fo=1, routed)           0.000     3.435    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/LsuCachelessTileLinkPlugin_logic_bridge_tracker_pendings_0_io_reg_i_3_n_0
+    SLICE_X60Y77         CARRY4 (Prop_carry4_CI_O[3])
+                                                      0.277     3.712 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/LsuCachelessTileLinkPlugin_logic_bridge_tracker_pendings_0_io_reg_i_2/O[3]
+                         net (fo=13, routed)          1.661     5.373    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/execute_ctrl2_up_early0_SrcPlugin_SRC1_lane0_reg[30][3]
+    SLICE_X41Y65         LUT3 (Prop_lut3_I0_O)        0.260     5.633 f  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_87/O
+                         net (fo=1, routed)           0.344     5.978    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_87_n_0
+    SLICE_X41Y65         LUT5 (Prop_lut5_I2_O)        0.267     6.245 f  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_82/O
+                         net (fo=1, routed)           0.368     6.613    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_82_n_0
+    SLICE_X41Y65         LUT5 (Prop_lut5_I0_O)        0.105     6.718 f  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_73/O
+                         net (fo=1, routed)           0.398     7.116    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_73_n_0
+    SLICE_X40Y65         LUT5 (Prop_lut5_I2_O)        0.105     7.221 f  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_67/O
+                         net (fo=1, routed)           0.368     7.589    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_67_n_0
+    SLICE_X47Y66         LUT3 (Prop_lut3_I0_O)        0.105     7.694 f  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_63/O
+                         net (fo=2, routed)           0.466     8.160    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/execute_ctrl2_up_Decode_UOP_lane0_reg[5]
+    SLICE_X48Y66         LUT5 (Prop_lut5_I0_O)        0.126     8.286 f  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_40/O
+                         net (fo=11, routed)          0.778     9.064    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga_n_1
+    SLICE_X47Y61         LUT2 (Prop_lut2_I1_O)        0.288     9.352 r  vexiis_0_logic_core/maskLocked_2_i_3/O
+                         net (fo=4, routed)           0.501     9.854    unified_mBus_arbiter_core/a_arbiter/vexiis_0_logic_core_LsuCachelessTileLinkPlugin_logic_bridge_down_a_valid
+    SLICE_X45Y61         LUT5 (Prop_lut5_I4_O)        0.275    10.129 r  unified_mBus_arbiter_core/a_arbiter/maskLocked_1_i_2/O
+                         net (fo=1, routed)           0.546    10.675    unified_mBus_arbiter_core/a_arbiter/maskProposal_1
+    SLICE_X45Y61         LUT3 (Prop_lut3_I2_O)        0.119    10.794 r  unified_mBus_arbiter_core/a_arbiter/maskLocked_1_i_1/O
+                         net (fo=78, routed)          0.583    11.377    unified_mBus_arbiter_core/a_arbiter/maskLocked_1_reg_0
+    SLICE_X47Y61         LUT3 (Prop_lut3_I1_O)        0.267    11.644 r  unified_mBus_arbiter_core/a_arbiter/asMem_ram_reg_1_i_41/O
+                         net (fo=9, routed)           0.496    12.140    vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_2_0
+    SLICE_X46Y65         LUT3 (Prop_lut3_I1_O)        0.105    12.245 r  vexiis_0_logic_core/integer_RegFilePlugin_logic_regfile_fpga/asMem_ram_reg_1_i_1/O
+                         net (fo=523, routed)         0.915    13.161    vexiis_0_logic_core/when_LsuCachelessPlugin_l221
+    SLICE_X61Y66         LUT4 (Prop_lut4_I3_O)        0.105    13.266 r  vexiis_0_logic_core/FetchL1Plugin_logic_ways_0_mem_reg_i_16/O
+                         net (fo=89, routed)          0.982    14.247    vexiis_0_logic_core/decode_ctrls_0_up_isReady
+    SLICE_X64Y66         LUT2 (Prop_lut2_I1_O)        0.124    14.371 r  vexiis_0_logic_core/fetch_logic_ctrls_1_up_Fetch_WORD_PC[31]_i_1/O
+                         net (fo=102, routed)         0.763    15.135    vexiis_0_logic_core/p_4_in
+    SLICE_X68Y70         FDRE                                         r  vexiis_0_logic_core/fetch_logic_ctrls_1_up_Fetch_WORD_PC_reg[16]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock cpu_clk rise edge)   20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  cpu_clk
+                         net (fo=1840, unset)         0.748    20.748    vexiis_0_logic_core/cpu_clk
+    SLICE_X68Y70         FDRE                                         r  vexiis_0_logic_core/fetch_logic_ctrls_1_up_Fetch_WORD_PC_reg[16]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+    SLICE_X68Y70         FDRE (Setup_fdre_C_CE)      -0.337    20.375    vexiis_0_logic_core/fetch_logic_ctrls_1_up_Fetch_WORD_PC_reg[16]
+  -------------------------------------------------------------------
+                         required time                         20.375    <hidden>
+                         arrival time                         -15.135    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  5.241    <hidden>
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.078ns  (arrival time - required time)
+  Source:                 unified_mBus_to_ioBus_down_bus_a_rData_source_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by cpu_clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            ioBus_to_peripheral_bus_cc/a_1/ram_reg_0/DIADI[9]
+                            (rising edge-triggered cell RAMB36E1 clocked by cpu_clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             cpu_clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (cpu_clk rise@0.000ns - cpu_clk rise@0.000ns)
+  Data Path Delay:        0.340ns  (logic 0.148ns (43.490%)  route 0.192ns (56.510%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock cpu_clk rise edge)    0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  cpu_clk
+                         net (fo=1840, unset)         0.390     0.390    cpu_clk
+    SLICE_X14Y63         FDRE                                         r  unified_mBus_to_ioBus_down_bus_a_rData_source_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X14Y63         FDRE (Prop_fdre_C_Q)         0.148     0.538 r  unified_mBus_to_ioBus_down_bus_a_rData_source_reg[3]/Q
+                         net (fo=1, routed)           0.192     0.731    ioBus_to_peripheral_bus_cc/a_1/_zz_ram_port_1[9]
+    RAMB36_X0Y12         RAMB36E1                                     r  ioBus_to_peripheral_bus_cc/a_1/ram_reg_0/DIADI[9]
+  -------------------------------------------------------------------    -------------------
+
+                         (clock cpu_clk rise edge)    0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  cpu_clk
+                         net (fo=1840, unset)         0.411     0.411    ioBus_to_peripheral_bus_cc/a_1/cpu_clk
+    RAMB36_X0Y12         RAMB36E1                                     r  ioBus_to_peripheral_bus_cc/a_1/ram_reg_0/CLKBWRCLK
+                         clock pessimism              0.000     0.411    <hidden>
+    RAMB36_X0Y12         RAMB36E1 (Hold_ramb36e1_CLKBWRCLK_DIADI[9])
+                                                      0.242     0.653    ioBus_to_peripheral_bus_cc/a_1/ram_reg_0
+  -------------------------------------------------------------------
+                         required time                         -0.653    <hidden>
+                         arrival time                           0.731    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.078    <hidden>
+
+
+
+
+
+Pulse Width Checks
+--------------------------------------------------------------------------------------
+Clock Name:         cpu_clk
+Waveform(ns):       { 0.000 10.000 }
+Period(ns):         20.000
+Sources:            { cpu_clk }
+
+Check Type        Corner  Lib Pin             Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location      Pin
+Min Period        n/a     RAMB36E1/CLKARDCLK  n/a            2.472         20.000      17.528     RAMB36_X1Y12  vexiis_0_logic_core/FetchL1Plugin_logic_banks_0_mem_reg/CLKARDCLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         10.000      8.870      SLICE_X50Y59  dma_filter_down_to_unified_mBus_cc/d_1/ram_reg_0_7_0_5/RAMA/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         10.000      8.870      SLICE_X50Y59  dma_filter_down_to_unified_mBus_cc/d_1/ram_reg_0_7_0_5/RAMA/CLK
+
+
+
+---------------------------------------------------------------------------------------------------
+From Clock:  litex_clk
+  To Clock:  litex_clk
+
+Setup :            0  Failing Endpoints,  Worst Slack        0.931ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.075ns,  Total Violation        0.000ns
+PW    :            0  Failing Endpoints,  Worst Slack        3.870ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.931ns  (required time - arrival time)
+  Source:                 peripheral_plic_intc_thread_logic/gateways_25_ip_reg/C
+                            (rising edge-triggered cell FDCE clocked by litex_clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            peripheral_plic_intc_thread_logic/targets_0_bestRequest_id_reg[2]/D
+                            (rising edge-triggered cell FDRE clocked by litex_clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             litex_clk
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (litex_clk rise@10.000ns - litex_clk rise@0.000ns)
+  Data Path Delay:        9.025ns  (logic 2.103ns (23.303%)  route 6.922ns (76.697%))
+  Logic Levels:           13  (LUT3=3 LUT4=3 LUT5=3 LUT6=4)
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 10.748 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock litex_clk rise edge)
+                                                      0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  litex_clk
+                         net (fo=1569, unset)         0.787     0.787    peripheral_plic_intc_thread_logic/litex_clk
+    SLICE_X36Y78         FDCE                                         r  peripheral_plic_intc_thread_logic/gateways_25_ip_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X36Y78         FDCE (Prop_fdce_C_Q)         0.379     1.166 r  peripheral_plic_intc_thread_logic/gateways_25_ip_reg/Q
+                         net (fo=4, routed)           0.942     2.108    peripheral_plic_intc_thread_logic/p_33_in[26]
+    SLICE_X43Y80         LUT6 (Prop_lut6_I1_O)        0.105     2.213 r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[0]_i_33/O
+                         net (fo=1, routed)           0.228     2.441    peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[0]_i_33_n_0
+    SLICE_X45Y80         LUT3 (Prop_lut3_I2_O)        0.105     2.546 r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[0]_i_16/O
+                         net (fo=4, routed)           0.597     3.144    peripheral_plic_intc_thread_logic/_zz_targets_0_bestRequest_id_39
+    SLICE_X44Y79         LUT3 (Prop_lut3_I1_O)        0.126     3.270 f  peripheral_plic_intc_thread_logic/targets_0_bestRequest_priority[0]_i_12/O
+                         net (fo=2, routed)           0.456     3.726    peripheral_plic_intc_thread_logic/_zz_targets_0_bestRequest_id_40[0]
+    SLICE_X45Y79         LUT4 (Prop_lut4_I3_O)        0.267     3.993 r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[0]_i_30/O
+                         net (fo=1, routed)           0.547     4.540    peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[0]_i_30_n_0
+    SLICE_X45Y79         LUT5 (Prop_lut5_I2_O)        0.105     4.645 r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[0]_i_15/O
+                         net (fo=5, routed)           0.807     5.452    peripheral_plic_intc_thread_logic/_zz_targets_0_bestRequest_id_66
+    SLICE_X45Y79         LUT5 (Prop_lut5_I3_O)        0.119     5.571 r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_priority[0]_i_7/O
+                         net (fo=2, routed)           0.532     6.103    peripheral_plic_intc_thread_logic/_zz_targets_0_bestRequest_id_67[0]
+    SLICE_X45Y78         LUT6 (Prop_lut6_I2_O)        0.267     6.370 r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[2]_i_16/O
+                         net (fo=7, routed)           0.404     6.774    peripheral_plic_intc_thread_logic/_zz_targets_0_bestRequest_id_78
+    SLICE_X45Y78         LUT3 (Prop_lut3_I1_O)        0.105     6.879 f  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[3]_i_9/O
+                         net (fo=2, routed)           0.804     7.683    peripheral_plic_intc_thread_logic/_zz_targets_0_bestRequest_priority_3[1]
+    SLICE_X40Y77         LUT6 (Prop_lut6_I0_O)        0.105     7.788 r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[3]_i_3/O
+                         net (fo=10, routed)          0.415     8.203    peripheral_plic_intc_thread_logic/_zz_targets_0_bestRequest_id_81
+    SLICE_X40Y77         LUT4 (Prop_lut4_I1_O)        0.105     8.308 f  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[4]_i_4/O
+                         net (fo=1, routed)           0.552     8.860    peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[4]_i_4_n_0
+    SLICE_X40Y77         LUT6 (Prop_lut6_I1_O)        0.105     8.965 f  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[4]_i_2/O
+                         net (fo=8, routed)           0.294     9.259    peripheral_plic_intc_thread_logic/_zz_targets_0_bestRequest_priority_6
+    SLICE_X38Y77         LUT4 (Prop_lut4_I1_O)        0.105     9.364 r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[2]_i_4/O
+                         net (fo=1, routed)           0.343     9.707    peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[2]_i_4_n_0
+    SLICE_X37Y76         LUT5 (Prop_lut5_I4_O)        0.105     9.812 r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[2]_i_1/O
+                         net (fo=1, routed)           0.000     9.812    peripheral_plic_intc_thread_logic/targets_0_bestRequest_id[2]_i_1_n_0
+    SLICE_X37Y76         FDRE                                         r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id_reg[2]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock litex_clk rise edge)
+                                                     10.000    10.000 r  <hidden>
+                                                      0.000    10.000 r  litex_clk
+                         net (fo=1569, unset)         0.748    10.748    peripheral_plic_intc_thread_logic/litex_clk
+    SLICE_X37Y76         FDRE                                         r  peripheral_plic_intc_thread_logic/targets_0_bestRequest_id_reg[2]/C
+                         clock pessimism              0.000    10.748    <hidden>
+                         clock uncertainty           -0.035    10.712    <hidden>
+    SLICE_X37Y76         FDRE (Setup_fdre_C_D)        0.030    10.742    peripheral_plic_intc_thread_logic/targets_0_bestRequest_id_reg[2]
+  -------------------------------------------------------------------
+                         required time                         10.742    <hidden>
+                         arrival time                          -9.812    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.931    <hidden>
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.075ns  (arrival time - required time)
+  Source:                 dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_id_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by litex_clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            dma_bridge_write_bridge/aligner/context_mem_reg_0_3_0_4/RAMB/I
+                            (rising edge-triggered cell RAMD32 clocked by litex_clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             litex_clk
+  Path Type:              Hold (Min at Fast Process Corner)
+  Requirement:            0.000ns  (litex_clk rise@0.000ns - litex_clk rise@0.000ns)
+  Data Path Delay:        0.241ns  (logic 0.141ns (58.459%)  route 0.100ns (41.541%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock litex_clk rise edge)
+                                                      0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  litex_clk
+                         net (fo=1569, unset)         0.390     0.390    dma_bridge_write_bridge/aligner/litex_clk
+    SLICE_X32Y48         FDRE                                         r  dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_id_reg[1]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X32Y48         FDRE (Prop_fdre_C_Q)         0.141     0.531 r  dma_bridge_write_bridge/aligner/frontend_allocateSlot_bufferize_AW_id_reg[1]/Q
+                         net (fo=1, routed)           0.100     0.631    dma_bridge_write_bridge/aligner/context_mem_reg_0_3_0_4/DIB0
+    SLICE_X30Y48         RAMD32                                       r  dma_bridge_write_bridge/aligner/context_mem_reg_0_3_0_4/RAMB/I
+  -------------------------------------------------------------------    -------------------
+
+                         (clock litex_clk rise edge)
+                                                      0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  litex_clk
+                         net (fo=1569, unset)         0.411     0.411    dma_bridge_write_bridge/aligner/context_mem_reg_0_3_0_4/WCLK
+    SLICE_X30Y48         RAMD32                                       r  dma_bridge_write_bridge/aligner/context_mem_reg_0_3_0_4/RAMB/CLK
+                         clock pessimism              0.000     0.411    <hidden>
+    SLICE_X30Y48         RAMD32 (Hold_ramd32_CLK_I)
+                                                      0.146     0.557    dma_bridge_write_bridge/aligner/context_mem_reg_0_3_0_4/RAMB
+  -------------------------------------------------------------------
+                         required time                         -0.557    <hidden>
+                         arrival time                           0.631    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.075    <hidden>
+
+
+
+
+
+Pulse Width Checks
+--------------------------------------------------------------------------------------
+Clock Name:         litex_clk
+Waveform(ns):       { 0.000 5.000 }
+Period(ns):         10.000
+Sources:            { litex_clk }
+
+Check Type        Corner  Lib Pin             Reference Pin  Required(ns)  Actual(ns)  Slack(ns)  Location      Pin
+Min Period        n/a     RAMB18E1/CLKARDCLK  n/a            2.472         10.000      7.528      RAMB18_X1Y22  dma_bridge_read_bridge/aligner/rData_mem_reg/CLKARDCLK
+Low Pulse Width   Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X46Y52  dma_bridge_read_bridge/aligner/context_mem_reg_0_3_0_5/RAMA/CLK
+High Pulse Width  Slow    RAMD32/CLK          n/a            1.130         5.000       3.870      SLICE_X46Y52  dma_bridge_read_bridge/aligner/context_mem_reg_0_3_0_5/RAMA/CLK
+
+
+
+---------------------------------------------------------------------------------------------------
+Path Group:  **async_default**
+From Clock:  cpu_clk
+  To Clock:  cpu_clk
+
+Setup :            0  Failing Endpoints,  Worst Slack       14.438ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.413ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             14.438ns  (required time - arrival time)
+  Source:                 cpuResetCtrl_fiber_buffer/buffers_1_reg/C
+                            (rising edge-triggered cell FDPE clocked by cpu_clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            vexiis_0_logic_core/PcPlugin_logic_harts_0_self_state_reg[29]/CLR
+                            (recovery check against rising-edge clock cpu_clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             **async_default**
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            20.000ns  (cpu_clk rise@20.000ns - cpu_clk rise@0.000ns)
+  Data Path Delay:        5.019ns  (logic 0.348ns (6.934%)  route 4.671ns (93.066%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 20.748 - 20.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock cpu_clk rise edge)    0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  cpu_clk
+                         net (fo=1840, unset)         0.787     0.787    cpuResetCtrl_fiber_buffer/cpu_clk
+    SLICE_X40Y97         FDPE                                         r  cpuResetCtrl_fiber_buffer/buffers_1_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X40Y97         FDPE (Prop_fdpe_C_Q)         0.348     1.135 f  cpuResetCtrl_fiber_buffer/buffers_1_reg/Q
+                         net (fo=161, routed)         4.671     5.806    vexiis_0_logic_core/io_dataOut
+    SLICE_X69Y79         FDCE                                         f  vexiis_0_logic_core/PcPlugin_logic_harts_0_self_state_reg[29]/CLR
+  -------------------------------------------------------------------    -------------------
+
+                         (clock cpu_clk rise edge)   20.000    20.000 r  <hidden>
+                                                      0.000    20.000 r  cpu_clk
+                         net (fo=1840, unset)         0.748    20.748    vexiis_0_logic_core/cpu_clk
+    SLICE_X69Y79         FDCE                                         r  vexiis_0_logic_core/PcPlugin_logic_harts_0_self_state_reg[29]/C
+                         clock pessimism              0.000    20.748    <hidden>
+                         clock uncertainty           -0.035    20.712    <hidden>
+    SLICE_X69Y79         FDCE (Recov_fdce_C_CLR)     -0.468    20.244    vexiis_0_logic_core/PcPlugin_logic_harts_0_self_state_reg[29]
+  -------------------------------------------------------------------
+                         required time                         20.244    <hidden>
+                         arrival time                          -5.806    <hidden>
+  -------------------------------------------------------------------
+                         slack                                 14.438    <hidden>
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.413ns  (arrival time - required time)
+  Source:                 peripheral_clint_time_cc_driver/litex_reset_asyncAssertSyncDeassert_buffercc/buffers_1_reg/C
+                            (rising edge-triggered cell FDPE clocked by cpu_clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[3]/CLR
+                            (removal check against rising-edge clock cpu_clk  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Path Group:             **async_default**
+  Path Type:              Removal (Min at Fast Process Corner)
+  Requirement:            0.000ns  (cpu_clk rise@0.000ns - cpu_clk rise@0.000ns)
+  Data Path Delay:        0.287ns  (logic 0.128ns (44.569%)  route 0.159ns (55.431%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock cpu_clk rise edge)    0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  cpu_clk
+                         net (fo=1840, unset)         0.390     0.390    peripheral_clint_time_cc_driver/litex_reset_asyncAssertSyncDeassert_buffercc/cpu_clk
+    SLICE_X40Y50         FDPE                                         r  peripheral_clint_time_cc_driver/litex_reset_asyncAssertSyncDeassert_buffercc/buffers_1_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X40Y50         FDPE (Prop_fdpe_C_Q)         0.128     0.518 f  peripheral_clint_time_cc_driver/litex_reset_asyncAssertSyncDeassert_buffercc/buffers_1_reg/Q
+                         net (fo=101, routed)         0.159     0.677    dma_filter_down_to_unified_mBus_cc/a_1/AR[0]
+    SLICE_X41Y51         FDCE                                         f  dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[3]/CLR
+  -------------------------------------------------------------------    -------------------
+
+                         (clock cpu_clk rise edge)    0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  cpu_clk
+                         net (fo=1840, unset)         0.411     0.411    dma_filter_down_to_unified_mBus_cc/a_1/cpu_clk
+    SLICE_X41Y51         FDCE                                         r  dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[3]/C
+                         clock pessimism              0.000     0.411    <hidden>
+    SLICE_X41Y51         FDCE (Remov_fdce_C_CLR)     -0.146     0.265    dma_filter_down_to_unified_mBus_cc/a_1/popCC_popPtr_reg[3]
+  -------------------------------------------------------------------
+                         required time                         -0.265    <hidden>
+                         arrival time                           0.677    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.413    <hidden>
+
+
+
+
+
+---------------------------------------------------------------------------------------------------
+Path Group:  **async_default**
+From Clock:  litex_clk
+  To Clock:  litex_clk
+
+Setup :            0  Failing Endpoints,  Worst Slack        8.087ns,  Total Violation        0.000ns
+Hold  :            0  Failing Endpoints,  Worst Slack        0.455ns,  Total Violation        0.000ns
+---------------------------------------------------------------------------------------------------
+
+
+Max Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             8.087ns  (required time - arrival time)
+  Source:                 vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/buffers_1_reg/C
+                            (rising edge-triggered cell FDPE clocked by litex_clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            ioBus_to_peripheral_bus_cc/a_1/popCC_addressGen_rValid_reg/CLR
+                            (recovery check against rising-edge clock litex_clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             **async_default**
+  Path Type:              Recovery (Max at Slow Process Corner)
+  Requirement:            10.000ns  (litex_clk rise@10.000ns - litex_clk rise@0.000ns)
+  Data Path Delay:        1.380ns  (logic 0.398ns (28.837%)  route 0.982ns (71.163%))
+  Logic Levels:           0  
+  Clock Path Skew:        -0.039ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    0.748ns = ( 10.748 - 10.000 ) 
+    Source Clock Delay      (SCD):    0.787ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock litex_clk rise edge)
+                                                      0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  litex_clk
+                         net (fo=1569, unset)         0.787     0.787    vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/litex_clk
+    SLICE_X46Y60         FDPE                                         r  vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/buffers_1_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X46Y60         FDPE (Prop_fdpe_C_Q)         0.398     1.185 f  vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/buffers_1_reg/Q
+                         net (fo=38, routed)          0.982     2.167    ioBus_to_peripheral_bus_cc/a_1/AR[0]
+    SLICE_X36Y63         FDCE                                         f  ioBus_to_peripheral_bus_cc/a_1/popCC_addressGen_rValid_reg/CLR
+  -------------------------------------------------------------------    -------------------
+
+                         (clock litex_clk rise edge)
+                                                     10.000    10.000 r  <hidden>
+                                                      0.000    10.000 r  litex_clk
+                         net (fo=1569, unset)         0.748    10.748    ioBus_to_peripheral_bus_cc/a_1/litex_clk
+    SLICE_X36Y63         FDCE                                         r  ioBus_to_peripheral_bus_cc/a_1/popCC_addressGen_rValid_reg/C
+                         clock pessimism              0.000    10.748    <hidden>
+                         clock uncertainty           -0.035    10.712    <hidden>
+    SLICE_X36Y63         FDCE (Recov_fdce_C_CLR)     -0.458    10.254    ioBus_to_peripheral_bus_cc/a_1/popCC_addressGen_rValid_reg
+  -------------------------------------------------------------------
+                         required time                         10.254    <hidden>
+                         arrival time                          -2.167    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  8.087    <hidden>
+
+
+
+
+
+Min Delay Paths
+--------------------------------------------------------------------------------------
+Slack (MET) :             0.455ns  (arrival time - required time)
+  Source:                 vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/buffers_1_reg/C
+                            (rising edge-triggered cell FDPE clocked by litex_clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            ioBus_to_peripheral_bus_cc/a_1/pushToPopGray_buffercc/buffers_0_reg[0]/CLR
+                            (removal check against rising-edge clock litex_clk  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             **async_default**
+  Path Type:              Removal (Min at Fast Process Corner)
+  Requirement:            0.000ns  (litex_clk rise@0.000ns - litex_clk rise@0.000ns)
+  Data Path Delay:        0.356ns  (logic 0.148ns (41.628%)  route 0.208ns (58.372%))
+  Logic Levels:           0  
+  Clock Path Skew:        0.021ns (DCD - SCD - CPR)
+    Destination Clock Delay (DCD):    0.411ns
+    Source Clock Delay      (SCD):    0.390ns
+    Clock Pessimism Removal (CPR):    -0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock litex_clk rise edge)
+                                                      0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  litex_clk
+                         net (fo=1569, unset)         0.390     0.390    vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/litex_clk
+    SLICE_X46Y60         FDPE                                         r  vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/buffers_1_reg/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X46Y60         FDPE (Prop_fdpe_C_Q)         0.148     0.538 f  vexiis_0_priv_stoptime_regNext_cc_driver/toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc/buffers_1_reg/Q
+                         net (fo=38, routed)          0.208     0.746    ioBus_to_peripheral_bus_cc/a_1/pushToPopGray_buffercc/toplevel_cpuResetCtrl_reset_synchronized_1
+    SLICE_X42Y60         FDCE                                         f  ioBus_to_peripheral_bus_cc/a_1/pushToPopGray_buffercc/buffers_0_reg[0]/CLR
+  -------------------------------------------------------------------    -------------------
+
+                         (clock litex_clk rise edge)
+                                                      0.000     0.000 r  <hidden>
+                                                      0.000     0.000 r  litex_clk
+                         net (fo=1569, unset)         0.411     0.411    ioBus_to_peripheral_bus_cc/a_1/pushToPopGray_buffercc/litex_clk
+    SLICE_X42Y60         FDCE                                         r  ioBus_to_peripheral_bus_cc/a_1/pushToPopGray_buffercc/buffers_0_reg[0]/C
+                         clock pessimism              0.000     0.411    <hidden>
+    SLICE_X42Y60         FDCE (Remov_fdce_C_CLR)     -0.120     0.291    ioBus_to_peripheral_bus_cc/a_1/pushToPopGray_buffercc/buffers_0_reg[0]
+  -------------------------------------------------------------------
+                         required time                         -0.291    <hidden>
+                         arrival time                           0.746    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.455    <hidden>
+
+
+
+
+

@@ -1,0 +1,103 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Mon Oct 26 20:04:14 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_utilization -hierarchical -hierarchical_depth 4 -hierarchical_min_primitive_count 0 -file synth_hier.rpt
+| Design       : VexiiRiscvLitex_f5f08b170311db53220574624f819159
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++------------------------------------------------------------------+------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+|                             Instance                             |            Module            | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++------------------------------------------------------------------+------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+| VexiiRiscvLitex_f5f08b170311db53220574624f819159                 |                        (top) |       3066 |       2925 |     138 |    3 | 5017 |      2 |      5 |          0 |
+|   (VexiiRiscvLitex_f5f08b170311db53220574624f819159)             |                        (top) |        170 |        170 |       0 |    0 | 1879 |      0 |      0 |          0 |
+|   bufferCC_19                                                    |                  BufferCC__2 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|   bufferCC_20                                                    |                  BufferCC__3 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|   cpuResetCtrl_fiber_aggregator_asyncBuffers_0                   |                  BufferCC_14 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|   cpuResetCtrl_fiber_buffer                                      |                  BufferCC_15 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|   dma_bridge_down_arbiter_core                                   |                      Arbiter |         98 |         98 |       0 |    0 |    7 |      0 |      0 |          0 |
+|     a_arbiter                                                    |              StreamArbiter_1 |         98 |         98 |       0 |    0 |    7 |      0 |      0 |          0 |
+|   dma_bridge_read_bridge                                         |   Axi4ReadOnlyToTilelinkFull |        202 |        184 |      18 |    0 |  211 |      0 |      1 |          0 |
+|     aligner                                                      |          Axi4ReadOnlyAligner |        121 |        111 |      10 |    0 |  162 |      0 |      1 |          0 |
+|     compactor                                                    |        Axi4ReadOnlyCompactor |         53 |         45 |       8 |    0 |   29 |      0 |      0 |          0 |
+|     onPerId_bridge                                               |         Axi4ReadOnlyOnePerId |         26 |         26 |       0 |    0 |   16 |      0 |      0 |          0 |
+|     toTileink                                                    |       Axi4ReadOnlyToTilelink |          2 |          2 |       0 |    0 |    4 |      0 |      0 |          0 |
+|   dma_bridge_write_bridge                                        |  Axi4WriteOnlyToTilelinkFull |        209 |        205 |       4 |    0 |  252 |      0 |      0 |          0 |
+|     aligner                                                      |         Axi4WriteOnlyAligner |        136 |        132 |       4 |    0 |  182 |      0 |      0 |          0 |
+|     compactor                                                    |       Axi4WriteOnlyCompactor |         45 |         45 |       0 |    0 |   50 |      0 |      0 |          0 |
+|       (compactor)                                                |       Axi4WriteOnlyCompactor |         37 |         37 |       0 |    0 |   48 |      0 |      0 |          0 |
+|       io_up_aw_fork2                                             |                 StreamFork_4 |          8 |          8 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     onPerId_bridge                                               |        Axi4WriteOnlyOnePerId |         28 |         28 |       0 |    0 |   20 |      0 |      0 |          0 |
+|       (onPerId_bridge)                                           |        Axi4WriteOnlyOnePerId |          6 |          6 |       0 |    0 |   18 |      0 |      0 |          0 |
+|       onAw_halted_fork2                                          |                   StreamFork |         22 |         22 |       0 |    0 |    2 |      0 |      0 |          0 |
+|   dma_filter_down_to_unified_mBus_cc                             |                       FifoCc |        107 |         79 |      28 |    0 |  105 |      1 |      1 |          0 |
+|     a_1                                                          |                 StreamFifoCC |         56 |         56 |       0 |    0 |   32 |      1 |      1 |          0 |
+|       (a_1)                                                      |                 StreamFifoCC |         56 |         56 |       0 |    0 |   16 |      1 |      1 |          0 |
+|       popToPushGray_buffercc                                     |                BufferCC_6__1 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       pushToPopGray_buffercc                                     |                BufferCC_7__1 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     d_1                                                          |               StreamFifoCC_1 |         51 |         23 |      28 |    0 |   73 |      0 |      0 |          0 |
+|       (d_1)                                                      |               StreamFifoCC_1 |         51 |         23 |      28 |    0 |   57 |      0 |      0 |          0 |
+|       popToPushGray_buffercc                                     |                BufferCC_8__1 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       pushToPopGray_buffercc                                     |                BufferCC_9__1 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|   dma_filter_logic_core                                          |               TransferFilter |         36 |         36 |       0 |    0 |   21 |      0 |      0 |          0 |
+|   ioBus_to_peripheral_bus_cc                                     |                     FifoCc_1 |        185 |        153 |      32 |    0 |  108 |      1 |      1 |          0 |
+|     a_1                                                          |               StreamFifoCC_2 |        135 |        135 |       0 |    0 |   32 |      1 |      1 |          0 |
+|       (a_1)                                                      |               StreamFifoCC_2 |        135 |        135 |       0 |    0 |   16 |      1 |      1 |          0 |
+|       popToPushGray_buffercc                                     |                   BufferCC_8 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       pushToPopGray_buffercc                                     |                   BufferCC_9 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     d_1                                                          |               StreamFifoCC_3 |         50 |         18 |      32 |    0 |   76 |      0 |      0 |          0 |
+|       (d_1)                                                      |               StreamFifoCC_3 |         50 |         18 |      32 |    0 |   60 |      0 |      0 |          0 |
+|       popToPushGray_buffercc                                     |                   BufferCC_6 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       pushToPopGray_buffercc                                     |                   BufferCC_7 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|   mem_toAxi4_logic_bridge                                        |                   Axi4Bridge |        236 |        232 |       4 |    0 |  345 |      0 |      0 |          0 |
+|     (mem_toAxi4_logic_bridge)                                    |                   Axi4Bridge |        195 |        195 |       0 |    0 |  340 |      0 |      0 |          0 |
+|     a_ctx                                                        |     ContextAsyncBufferFull_0 |         15 |         11 |       4 |    0 |    0 |      0 |      0 |          0 |
+|       contexts                                                   | Ram_1w_1ra__parameterized0_1 |         15 |         11 |       4 |    0 |    0 |      0 |      0 |          0 |
+|     a_halted_fork2                                               |                 StreamFork_2 |          9 |          9 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     d_arbiter                                                    |              StreamArbiter_3 |         17 |         17 |       0 |    0 |    3 |      0 |      0 |          0 |
+|   peripheral_bus_decoder_core                                    |                    Decoder_1 |         56 |         56 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     d_arbiter                                                    |              StreamArbiter_5 |         56 |         56 |       0 |    0 |    8 |      0 |      0 |          0 |
+|   peripheral_clint_thread_core                                   |                TilelinkClint |         78 |         78 |       0 |    0 |  208 |      0 |      0 |          0 |
+|   peripheral_clint_time_cc_driver                                |           StreamCCByToggle_1 |          3 |          3 |       0 |    0 |  136 |      0 |      0 |          0 |
+|     (peripheral_clint_time_cc_driver)                            |           StreamCCByToggle_1 |          3 |          3 |       0 |    0 |  130 |      0 |      0 |          0 |
+|     litex_reset_asyncAssertSyncDeassert_buffercc                 |                   BufferCC_4 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     outHitSignal_buffercc                                        |                   BufferCC_3 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     pushArea_target_buffercc                                     |                   BufferCC_5 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|   peripheral_plic_intc_thread_logic                              |                 TilelinkPlic |        221 |        221 |       0 |    0 |  206 |      0 |      0 |          0 |
+|   peripheral_plic_intc_to_vexiis_0_priv_mei_flag_buffercc        |                     BufferCC |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|   peripheral_toAxiLite4_logic_bridge                             |               AxiLite4Bridge |         35 |         35 |       0 |    0 |  107 |      0 |      0 |          0 |
+|     (peripheral_toAxiLite4_logic_bridge)                         |               AxiLite4Bridge |         23 |         23 |       0 |    0 |  105 |      0 |      0 |          0 |
+|     a_buffered_fork2                                             |                 StreamFork_3 |         12 |         12 |       0 |    0 |    2 |      0 |      0 |          0 |
+|   unified_mBus_arbiter_core                                      |                    Arbiter_1 |         95 |         95 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     a_arbiter                                                    |              StreamArbiter_2 |         95 |         95 |       0 |    0 |    8 |      0 |      0 |          0 |
+|   unified_mBus_decoder_core                                      |                      Decoder |         13 |         13 |       0 |    0 |    7 |      0 |      0 |          0 |
+|     d_arbiter                                                    |              StreamArbiter_4 |         13 |         13 |       0 |    0 |    7 |      0 |      0 |          0 |
+|   unified_mBus_to_mem_toAxi4_up_widthAdapter                     |                 WidthAdapter |        137 |        133 |       4 |    0 |  348 |      0 |      0 |          0 |
+|     (unified_mBus_to_mem_toAxi4_up_widthAdapter)                 |                 WidthAdapter |         17 |         17 |       0 |    0 |  348 |      0 |      0 |          0 |
+|     upsize_d_ctx                                                 |       ContextAsyncBufferFull |        120 |        116 |       4 |    0 |    0 |      0 |      0 |          0 |
+|       contexts                                                   |   Ram_1w_1ra__parameterized0 |        120 |        116 |       4 |    0 |    0 |      0 |      0 |          0 |
+|   vexiis_0_logic_core                                            |                   VexiiRiscv |       1182 |       1131 |      48 |    3 | 1042 |      0 |      2 |          0 |
+|     (vexiis_0_logic_core)                                        |                   VexiiRiscv |        919 |        892 |      24 |    3 | 1042 |      0 |      0 |          0 |
+|     FetchCachelessPlugin_logic_buffer_words                      |                   Ram_1w_1ra |         67 |         43 |      24 |    0 |    0 |      0 |      0 |          0 |
+|     integer_RegFilePlugin_logic_regfile_fpga                     |                   RegFileMem |        196 |        196 |       0 |    0 |    0 |      0 |      2 |          0 |
+|   vexiis_0_priv_stoptime_regNext_cc_driver                       |             StreamCCByToggle |          3 |          3 |       0 |    0 |    9 |      0 |      0 |          0 |
+|     (vexiis_0_priv_stoptime_regNext_cc_driver)                   |             StreamCCByToggle |          3 |          3 |       0 |    0 |    3 |      0 |      0 |          0 |
+|     outHitSignal_buffercc                                        |                  BufferCC__1 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     pushArea_target_buffercc                                     |                   BufferCC_2 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc |                   BufferCC_1 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
++------------------------------------------------------------------+------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+
+

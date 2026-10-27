@@ -1,0 +1,17 @@
+COMMAND <scratch>/builds/P8-128x1/native/Vsim <scratch>/builds/P8-128x1/results/backlog-owed.txt -
+COMMAND <scratch>/builds/P8-128x1/native/Vsim <scratch>/builds/P8-128x1/results/aecp-fanout.txt -
+BUDGET backlog.owed.if0: 117.744 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 370.341 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 370.340 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 370.339 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 370.339 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if1: 37.458 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 53.023 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if1: 141.780 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 37.443 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 53.053 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if1: 157.352 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if0: 12.254 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if1: 12.988 ms over T_svc 10 ms
+2 groups graded, 0 refusals, 13 T_svc misses (13 of 28 probe instances, 10 of 23 paths)
+rc=0
