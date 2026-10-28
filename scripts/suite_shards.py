@@ -6,7 +6,7 @@ physical gPTP suite. CI expands six registered parents into driver-owned case
 partitions. Only leg counts and measured duration estimates are registered here;
 the case names come from each driver, and executed receipts prove their union.
 
-Longest-first scheduling balances sixteen regular workers of seventeen (#781). The tsn-gen owner
+Longest-first scheduling balances eighteen regular workers of nineteen (#781, #799). The tsn-gen owner
 stays at worker 1 and the netlist owner at worker 3. One continuous media-clock
 history runs alone on the final worker under issue 737s explicit timing exception.
 Every other worker must project at most 1620 seconds including setup. The older
@@ -19,7 +19,7 @@ hide a new suite by omitting it from selection. A changed count or timeout is re
 from the generated workflow, and omission, ownership, overflow and deterministic
 selection controls must still pass.
 
-    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/17
+    python3 scripts/suite_shards.py --suite-root tb/verilator --ci-pieces --shard 0/19
     python3 scripts/suite_shards.py --measure worker.log
     python3 scripts/suite_shards.py --selftest
 """
@@ -73,9 +73,15 @@ VERILATOR_JOB = "verilator-shards"
 #: 582 s passing on worker 4/17 of pull-request run 40131149135 at 8a4fa2f9
 #: (job 120983200812, whose suite step ran 655 s for its four suites), while
 #: three earlier hosted windows ran past 900 s to TIMEOUT, so its variance is wide.
+#: #799: each suite whose Makefile compiles a source that the protocol-processor
+#: f65c8ff7 adoption changes carries its largest window from that adoption's
+#: pull-request runs 40724689169 at ca39dc1b and 40740015218 at 4f3ebffb, except
+#: media_phase, which keeps the 1400 s above. `follow_ring` was cut off on both
+#: runs, so it carries 1493 s, its largest complete hosted window (dev run
+#: 40460559108 at 97aab1d0).
 SUITE_SECONDS = {
-    "aaf": 73,
-    "aaf_audio_loop": 6,
+    "aaf": 75,
+    "aaf_audio_loop": 7,
     "aaf_clock_meter": 1055,
     "aaf_latency_tap_bank": 16,
     "aaf_latency_taps": 6,
@@ -87,7 +93,7 @@ SUITE_SECONDS = {
     "capture_coherence": 1737,
     "cbs": 6,
     "cdc": 6,
-    "chmap_capture": 168,
+    "chmap_capture": 176,
     "chmap_render": 6,
     "classifier": 6,
     "clkvalid": 16,
@@ -95,10 +101,10 @@ SUITE_SECONDS = {
     "controller_rate": 9,
     "crf_rx": 832,
     "crf_tx": 6,
-    "csr": 306,
+    "csr": 329,
     "datapath": 6,
     "eth_tx_reset": 6,
-    "follow_ring": 1158,
+    "follow_ring": 1493,
     "fw_service_budget": 2,
     "gptp_plane": 784,
     "gptp_shadow": 393,
@@ -110,7 +116,7 @@ SUITE_SECONDS = {
     "link_guard": 7,
     "maap": 1375,
     "mac_rmon": 11,
-    "mbx": 82,
+    "mbx": 73,
     "media_grid_align": 255,
     "media_nco": 17,
     "media_phase": 1400,
@@ -120,8 +126,8 @@ SUITE_SECONDS = {
     "milan_dp_render": 1264,
     "mmcm_servo": 1145,
     "mmcm_servo_autorepair": 6,
-    "nvm_backend": 34,
-    "nvm_cosim": 775,
+    "nvm_backend": 38,
+    "nvm_cosim": 801,
     "pair_fill": 6,
     "pcmlpf": 6,
     "pp_shadow": 1251,
@@ -134,7 +140,7 @@ SUITE_SECONDS = {
     "shaper_core": 6,
     "tcam": 27,
     "tcam_csr": 6,
-    "tdm": 6,
+    "tdm": 7,
     "tdm_render": 6,
     "tkdiag": 28,
     "tsn_fuzz": 60,
@@ -151,20 +157,26 @@ PROVISIONAL_SUITES: frozenset[str] = frozenset()
 #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
 #: #781: a seventeenth worker takes media_phase's hosted 1400 s budget at the
 #: same 45-minute limit and the same 122 s allowance as every regular worker.
-WORKER_OVERHEAD_SECONDS = (122,) * 17
+#: #799: the eighteenth and nineteenth do the same for the measured growth of
+#: the suites the protocol-processor f65c8ff7 adoption reaches (see below).
+WORKER_OVERHEAD_SECONDS = (122,) * 19
 
 # Physical inventory stays available to the serial gate and log ownership.
 SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
 # Projected seconds: hosted parent windows at 7032bca5 apportioned by local
 # leg wall time. Media-clock legs use the full-run speed ratio instead, since
 # its continuous histories overlap in the full campaign. See CI_WORKFLOWS.md.
+# #799: every leg is now the largest hosted window of the same two runs as
+# SUITE_SECONDS' #799 figures. The figures are keyed by leg index, and the
+# driver deals cases round-robin, so `milan_dp`'s legs hold for its 24-case
+# inventory only (#804).
 PIECE_SECONDS = {
-    "milan_dp": (378, 1483, 1156, 231),
-    "milan_dp_mclk": (1910, 1450, 1399, 836),
-    "capture_coherence": (632, 508, 331, 246),
-    "maap": (329, 361, 302, 311),
-    "milan_dp_render": (354, 30, 652),
-    "pp_shadow": (217, 232, 234, 347),
+    "milan_dp": (1429, 508, 325, 1307),
+    "milan_dp_mclk": (988, 742, 717, 488),
+    "capture_coherence": (1436, 1108, 695, 642),
+    "maap": (311, 425, 317, 327),
+    "milan_dp_render": (549, 83, 812),
+    "pp_shadow": (268, 292, 337, 435),
 }
 
 
