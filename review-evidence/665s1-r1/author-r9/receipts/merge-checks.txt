@@ -1,0 +1,28 @@
+# merge c6ab3432 checks
+## files differing from S1 parent 614635b7 vs files dev-soft-core changed since S1's last merge base 6660a1a0
+IDENTICAL SETS
+## files differing from 05439833 vs files S1 changed since 6660a1a0
+IDENTICAL SETS
+## per file: one-sided files equal that side's version
+theirs-equal .github/workflows/rtl-fast.yml
+BOTH docs/ARCHITECTURE_HW_SW_SPLIT.md
+theirs-equal docs/design/MARK_II_AREA_PLAN.md
+BOTH docs/design/SPLIT_CONTROL_MEMORY.md
+BOTH docs/reference/FR_NFR.md
+theirs-equal docs/testing/CI_WORKFLOWS.md
+theirs-equal docs/testing/TESTING.md
+theirs-equal scripts/ci_fast_tool_selftest.py
+theirs-equal scripts/ci_gate_workflows.py
+theirs-equal scripts/ci_gate_workflows_selftest.py
+theirs-equal sw/builder/test_soc_options.py
+BOTH sw/firmware/ctrl/test/ctrl_configs.py
+BOTH sw/litex/milan_soc.py
+BOTH tb/verilator/ctrl_service_budget/README.md
+BOTH tb/verilator/ctrl_service_budget/build.py
+theirs-equal tb/verilator/ctrl_service_budget/observe.vlt
+BOTH tb/verilator/ctrl_service_budget/run.py
+BOTH tb/verilator/ctrl_service_budget/selftest.py
+BOTH tb/verilator/ctrl_service_budget/selftest_mutants.py
+theirs-equal tb/verilator/ctrl_service_budget/sim_main.cpp
+BOTH tb/verilator/ctrl_service_budget/split_soc.py
+ours-only files all equal S1's version (no line above means none differs)
