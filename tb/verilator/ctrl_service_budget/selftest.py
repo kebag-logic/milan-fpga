@@ -720,10 +720,35 @@ def reuse_checks() -> list[Check]:
     return out
 
 
+def build_checks() -> list[Check]:
+    """The ledgered point is named at its own point only, and every labelled arm and control plant
+    applies to the checkout's sources (each a scratch copy, never the tree)."""
+    sys.path.insert(0, str(HERE.parents[2] / 'sw/litex'))
+    import ctrl_memory
+    named = {label: build.ledgered_point(*run.POINTS[label]) for label in sorted(run.POINTS)}
+    others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
+              if (shape, n) not in run.POINTS.values()}
+    out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
+            named == {'1x1': None, '8x8': '8x8-two-interfaces'} and named['8x8'] in ctrl_memory.LEDGERED
+            and not any(others.values()), f'{named}; other points {others}')]
+    with tempfile.TemporaryDirectory() as tmp:
+        failed = []
+        for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],
+                            *[(m, build.mutated_source) for m in build.MUTATIONS]]:
+            try:
+                apply(Path(tmp) / name, name)
+            except RuntimeError as error:
+                failed.append(str(error))
+        out.append(("every labelled arm and control plant applies to the checkout's sources", not failed,
+                    '; '.join(failed)))
+    return out
+
+
 def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
-            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks()]
+            *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
+            *build_checks()]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

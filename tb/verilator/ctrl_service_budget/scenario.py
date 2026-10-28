@@ -272,7 +272,7 @@ def advertised(g: Group, p: Point) -> None:
 
 
 def adp_groups(p: Point) -> list[Group]:
-    """ADP's rows (MAILBOX_SPLIT.md:495-502), every interface at once, one timer per group."""
+    """ADP's rows (MAILBOX_SPLIT.md:499-506), every interface at once, one timer per group."""
     adp = CH['adp']
     ifs = range(p.interfaces)
     every = lambda what: [what.format(i=i) for i in ifs]
@@ -309,7 +309,7 @@ def adp_groups(p: Point) -> list[Group]:
 
 
 def acmp_groups(p: Point) -> list[Group]:
-    """ACMP's rows (MAILBOX_SPLIT.md:645-657): commands, the timer paths and discovery."""
+    """ACMP's rows (MAILBOX_SPLIT.md:649-661): commands, the timer paths and discovery."""
     acmp, adp = CH['acmp'], CH['adp']
     ifs = range(p.interfaces)
     slot = lambda i: p.interfaces + i               # ACMP's slot of interface i (ctrl_app.h)
@@ -794,7 +794,7 @@ def bound_talker_groups(p: Point) -> list[Group]:
     return out
 
 
-#: The responses owed ahead of the owed-frame row's (MAILBOX_SPLIT.md:753-758, A3).
+#: The responses owed ahead of the owed-frame row's (MAILBOX_SPLIT.md:757-762, A3).
 OWED_AHEAD = 7
 
 
@@ -840,9 +840,9 @@ def owed_group(p: Point) -> Group:
 
 
 def backlog_groups(p: Point) -> list[Group]:
-    """The four backlog rows (MAILBOX_SPLIT.md:753-758), each under the composed maximum load.
+    """The four backlog rows (MAILBOX_SPLIT.md:757-762), each under the composed maximum load.
 
-    Each composed window carries its row's defined load (#665; MAILBOX_SPLIT.md:753-758),
+    Each composed window carries its row's defined load (#665; MAILBOX_SPLIT.md:757-762),
     including MAAP, SRP and fifteen grandmaster changes. The row's input is last on its channel
     except in the owed row, which places the remaining admitted ACMP commands behind it. The
     event and ACMP rows are at their rings' room, a bound; the ADP ring takes its burst, fewer
@@ -901,7 +901,7 @@ SHUTDOWN_MS = 2500
 
 
 def shutdown_groups(p: Point) -> list[Group]:
-    """SHUTDOWN -> ENTITY_DEPARTING committed (MAILBOX_SPLIT.md:502), through a test-only entry.
+    """SHUTDOWN -> ENTITY_DEPARTING committed (MAILBOX_SPLIT.md:506), through a test-only entry.
 
     The linked image never disables ADP, so this path has no input in it.
     build.py's shutdown-entry variant (a scratch copy of the fixture, never the

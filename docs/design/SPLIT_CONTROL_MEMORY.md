@@ -91,7 +91,8 @@ One point may plan past the budget, and only by name (#665 rulings 6412739248 an
 `ctrl_memory.LEDGERED` holds `8x8-two-interfaces`, the 8x8 image with two interfaces, at 57.5 RAMB36.
 [Section 5](#5-fit) ledgers that tile and a half as owed to lane S14.
 Only that point's measurement names the override, through `ctrl_memory.py plan --ledgered-point` or `ctrl_srp_image.py --ledgered-point`.
-`add_ctrl_memory` names none, so every SoC build is still held to 56 RAMB36.
+The product SoC build names none: `add_ctrl_memory` plans with no override, so every product SoC build is still held to 56 RAMB36.
+The [CPU budget harness](../../tb/verilator/ctrl_service_budget/README.md) names it for that point only, for its image and its SoC plan (`build.py`, `LEDGERED_POINTS`).
 The override recognises its image by the image's own symbols.
 These are the 8x8 shape's `nvm_stage` of 13,264 bytes and the size fixture's `image_allocation`, 8 bytes per interface, so 16.
 `budget` refuses the override on any other image, and refuses its point past 57.5 RAMB36.

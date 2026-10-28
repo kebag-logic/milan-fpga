@@ -410,4 +410,10 @@ MUTANTS: dict[str, Patches] = {
     'tables: a control instance is its own path (earlier rule)': _control_own_path,
     "tables: a starved instance is not its path's worst": lambda: [patch.object(
         run, 'severity', lambda r: (False, r['ms']))],
+    'build: the 1x1 point names the ledgered override too': lambda: [patch.dict(
+        build.LEDGERED_POINTS, {('endstation_ax7101_1x1_tdm8', 1): '8x8-two-interfaces'})],
+    "build: arm B anchors the fixture's own observation callbacks (earlier rule)": lambda: [patch.dict(
+        build.VARIANTS, {'answering-ports': [(
+            '{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic bool a_avb',
+            '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\nstatic bool a_avb')]})],
 }

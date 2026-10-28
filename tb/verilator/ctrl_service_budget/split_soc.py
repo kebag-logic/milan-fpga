@@ -15,8 +15,12 @@ LiteSPI master, timer0 and flash window of ctrl_nvm/test/rv32/generated.
 This SoC puts each device where the unmodified image addresses it, and reads
 those addresses from the fixture's own sources, never restating them. The
 mailbox is this harness's own instance of KL_mbx behind KL_mbx_wb, the
-CtrlMailbox hookup with the datapath on pads the testbench drives;
-milan_soc.CtrlMailbox and its idle tie-offs are not used. The flash keeps
+CtrlMailbox hookup with the receive and transmit streams, the link levels
+and the grandmaster on pads the testbench drives. Every other KL_mbx port is
+connected as CtrlMailbox connects it: the publication block's outputs (contract
+2.2) named and unread, and the face block's (contract 2.3) by
+milan_soc.ctrl_mailbox_face_ports, at the build's interface count, its outputs
+named and unread and its inputs held idle by name. The flash keeps
 LiteSPI's crossbar, memory-mapped reader and command master, with the master
 in its own CSR bank, and the serial device is the sibling service-budget
 harness's native model (fw_service_budget/flash.hpp).
@@ -190,7 +194,7 @@ class StimulusMailbox(LiteXModule):
             i_rx_last_i=pads.rx_last, i_rx_if_i=pads.rx_if,
             o_tx_valid_o=pads.tx_valid, i_tx_ready_i=pads.tx_ready, o_tx_data_o=pads.tx_data,
             o_tx_last_o=pads.tx_last, o_tx_if_o=pads.tx_if, o_tx_ch_o=pads.tx_ch,
-            **unread_publication(contract, n_if))
+            **unread_publication(contract, n_if), **face_ports(contract, n_if))
 
 
 def unread_publication(contract: object, n_if: int) -> dict[str, object]:
@@ -207,6 +211,30 @@ def unread_publication(contract: object, n_if: int) -> dict[str, object]:
                 o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks),
                 o_pub_started_o=Signal(n_if * contract.pub_sinks),
                 o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64))
+
+
+#: The face block's inputs (contract 2.3), each held idle by name as CtrlMailbox holds it: the
+#: datapath's commit acknowledgement, the four windows' answers and the face events.
+FACE_IDLE_INPUTS = dict(
+    i_fw_ack_p_i=0,
+    i_ctr_ans_p_i=0, i_ctr_ans_tag_i=0, i_ctr_ans_data_i=0,
+    i_amap_ans_p_i=0, i_amap_ans_tag_i=0, i_amap_ans_data_i=0,
+    i_edit_ans_p_i=0, i_edit_ans_tag_i=0, i_edit_ans_data_i=0,
+    i_gsi_ans_p_i=0, i_gsi_ans_tag_i=0, i_gsi_ans_data_i=0,
+    i_ctr_chg_p_i=0, i_ctr_chg_type_i=0, i_ctr_chg_index_i=0, i_avb_chg_p_i=0, i_asp_chg_p_i=0, i_amap_wr_p_i=0)
+
+
+def face_ports(contract: object, n_if: int) -> dict[str, object]:
+    """The face block's ports (contract 2.3) as CtrlMailbox connects them, at n_if interfaces:
+    every output a named Signal of its generated width, left unread (ctrl_mailbox_face_ports),
+    and every input held idle by name, refused unless exactly the inputs CtrlMailbox holds idle."""
+    from mailbox_model import with_interfaces
+    ports = milan_soc.ctrl_mailbox_face_ports(with_interfaces(contract, n_if))
+    held = {name: value for name, value in ports.items() if name.startswith('i_')}
+    if held != FACE_IDLE_INPUTS:
+        raise RuntimeError('the face inputs differ from those CtrlMailbox holds idle: '
+                           f'{sorted(set(held.items()) ^ set(FACE_IDLE_INPUTS.items()))}')
+    return {**ports, **FACE_IDLE_INPUTS}
 
 
 class FlashBoundary(LiteXModule):
@@ -285,12 +313,24 @@ class CpuPatches:
         return stack
 
 
-def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover') -> dict:
+def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
+    """add_ctrl_memory's plan held to the named ledgered point's tiles (ctrl_memory.LEDGERED), which
+    refuses any image that is not that point; None keeps the SoC build's plan, which names none."""
+    if name is None:
+        return contextlib.nullcontext()
+    plan = milan_soc.ctrl_memory.plan
+    return patch.object(milan_soc.ctrl_memory, 'plan', lambda image, **kw: plan(image, ledgered=name, **kw))
+
+
+def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
+          ledgered: str | None = None) -> dict:
     """Export the test SoC's Verilog and return the native build's inputs.
 
     cpu_regions 'cover' gives the CPU generator each region at its
     power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
     which reproduces the generator's rom decode defect (a control).
+    ledgered names the ledgered point this build measures (build.ledgered_point),
+    whose firmware memory is planned to that point's tiles.
     """
     addresses = fixture_addresses()
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
@@ -306,7 +346,8 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
             flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
             extra_scala_args=params['scala_args'], uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
-        milan_soc.add_ctrl_memory(soc, elf)
+        with ledgered_plan(ledgered):
+            milan_soc.add_ctrl_memory(soc, elf)
         for path in mailbox_sources(n_if, build_dir / 'mbx-variant'):
             platform.add_source(str(path))
         add_devices(soc, platform, addresses, contract, n_if)

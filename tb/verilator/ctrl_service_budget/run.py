@@ -186,8 +186,9 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
-                        help="a labelled test-code arm: answering-ports (the fixture's observation callbacks "
-                        'answer) or shutdown-entry (the SHUTDOWN path\'s test-only input)')
+                        help='a labelled test-code arm: answering-ports (the observation ports answer: the face '
+                        "block's stream, avb and counters and the fixture's path) or shutdown-entry (the SHUTDOWN "
+                        "path's test-only input)")
     parser.add_argument('--regrade', action='store_true',
                         help='grade the logs already in --out; a selected group whose script or log is '
                         'absent, or whose script the scenario no longer makes, is refused by name')

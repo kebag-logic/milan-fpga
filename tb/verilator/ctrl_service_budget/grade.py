@@ -49,7 +49,7 @@ CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not t
 #: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
 #: to the 60-byte frame minimum.
 LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60}
-#: The backlog rows (MAILBOX_SPLIT.md:753-758): their composed windows carry the defined
+#: The backlog rows (MAILBOX_SPLIT.md:757-762): their composed windows carry the defined
 #: composed load, so the composed maximum is taken over them (run.composed_maximum).
 BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
 #: The groups whose composed window carries a defined load: the backlog rows and the
@@ -458,7 +458,7 @@ def never_answered(grader: Grader, probe: scenario.Probe, row: dict, start: int)
 def owed_ahead(grader: Grader, probe: scenario.Probe, interface: int, start: int, end: int) -> list[int | None]:
     """The responses the probe's channel committed on its interface after its input and ahead
     of its own response, in commit order (None for a frame that is no response): a response
-    with N frames owed ahead of it has exactly the N it owes (MAILBOX_SPLIT.md:753-758)."""
+    with N frames owed ahead of it has exactly the N it owes (MAILBOX_SPLIT.md:757-762)."""
     ch = int(probe.start.split(':')[1])
     own = int(next(s for s in probe.ends if s.startswith('resp')).split(':')[2], 16)
     out = []

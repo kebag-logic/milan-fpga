@@ -195,8 +195,10 @@ class Ledgered:
 
 
 #: The only points `plan` may let past BUDGET_TILES, each only when its own
-#: measurement names it (`plan --ledgered-point`, ctrl_srp_image.py); the SoC
-#: build names none, so no build is held to more than 56 RAMB36. An image is the
+#: measurement names it (`plan --ledgered-point`, ctrl_srp_image.py); the product
+#: SoC build names none, so no product build is held to more than 56 RAMB36; the
+#: measurement harness names it for that point only (its image and SoC plan,
+#: tb/verilator/ctrl_service_budget/build.py, LEDGERED_POINTS). An image is the
 #: point when it carries every listed symbol at its listed size: the 8x8 shape's
 #: staging buffer and the size fixture's per-interface table at two interfaces
 #: (ctrl_aecp_image.c, `uint64_t image_allocation[MBX_N_IF]`). The tile and a
