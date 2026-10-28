@@ -1,0 +1,44 @@
+Real harness build at 1x1 with the split cache (--fetch-l1 split = 64 sets x 1 way), to the measurement
+head: 5527a9c66716331fd06285f428ea1a653c526ada
+command: python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 --build-dir <scratch>/P1-64x1 --record-budget-findings --jobs 8
+verdict line: 18 groups graded, 0 refusals, 34 T_svc misses (34 of 141 probe instances, 13 of 81 paths)
+rc line: rc=0
+wall clock: 25:25.59
+build.json: fetch_l1=split [64, 1] xip False | VexiiRiscvLitex_2c4bb987d123aab6d38527891a2d9fd1 | --with-isa=,zicsr,zifencei,i --xlen=32 --fetch-l1 --fetch-l1-sets=64 --fetch-l1-ways=1 --reset-vector 0
+
+1. table.md against round 2's regrade on S2's final harness (665s2c-a685b receipts/regrade/arms/P1-64x1/table.md):
+   byte-identical, sha256 8760d2193f9d9855441b6add84fc751ab2734d678a7ab68cb4d2e7a334ea89a2
+2. per-group grades (*.json but results.json) against that regrade's json_sha256.txt:
+   18 per-group grades compared by sha256, 0 differ
+   (the list's non-hash line, not compared: ['/results.json 359399'])
+   results.json differs only in its 'build' field, the digest of build.json's recorded inputs (the checkout's testbench sources changed in round 2); its other keys are the per-group grades above
+3. stimulus scripts (*.txt) and the logs archived by round 1 (665s2c-a685 receipts/runs/P1-64x1):
+   same acmp-cmd.txt
+   same acmp-disc.txt
+   same acmp-noresp.txt
+   same acmp-notk.txt
+   same adp-advertise.txt
+   same adp-discover.txt
+   same adp-gm.txt
+   same adp-link.txt
+   same aecp-fanout.txt
+   same aecp.txt
+   same backlog-adp-refill.txt
+   same backlog-adp.txt
+   same backlog-owed.txt
+   same backlog.txt
+   same control.txt
+   same fixture.txt
+   same maap.txt
+   same srp.txt
+   same acmp-cmd.log
+   same adp-discover.log
+   same adp-gm.log
+   same adp-link.log
+   same aecp-fanout.log
+   same aecp.log
+   same control.log
+   same fixture.log
+4. the PR body's figures: '18 groups graded, 0 refusals, 34 T_svc misses (34 of 141 probe instances, 13 of 81 paths)' and
+   table.md 'Composed maximum over the 4 backlog windows: at least 966,218 CPU cycles (19.324 ms), backlog-adp-refill, a lower bound':
+1
