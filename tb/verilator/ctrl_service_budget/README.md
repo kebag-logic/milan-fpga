@@ -130,6 +130,7 @@ No hosted job can run the harness's build, which needs picolibc's and compiler-r
 
 - `build.py`, `runtime_ssp.py`, `scenario.py`, `selftest.py` and `split_soc.py` are in `OUTSIDE`.
   `build.py` hands its image to `ctrl_srp_image.py`, run unchanged at the shapes, interface counts and AECP composition the gate runs it at.
+  The `--xip` arm relinks the image's objects through `ctrl_srp_image.link`, with the reset entry copied unchanged and only the linker script edited.
   Its own compiles build the Verilator model.
 - `fixture_variant.py` is in `SUITES`: it compiles only in the labelled variant arms, from an edited copy of the size fixture.
 
