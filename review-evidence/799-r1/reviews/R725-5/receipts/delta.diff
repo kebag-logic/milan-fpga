@@ -1,0 +1,72 @@
+diff --git a/docs/testing/CI_WORKFLOWS.md b/docs/testing/CI_WORKFLOWS.md
+index 8e1e42036c..77ae5bc5e7 100644
+--- a/docs/testing/CI_WORKFLOWS.md
++++ b/docs/testing/CI_WORKFLOWS.md
+@@ -476,20 +476,22 @@ selector then placed `media_phase` on worker 4, projected at 1539 seconds.
+ 
+ The eighteenth and nineteenth workers are #799's. Its protocol-processor
+ f65c8ff7 adoption adds two `milan_dp` cases, which re-deals that suite's
+-round-robin legs. The adoption also lengthens the suites its sources reach,
+-and hosted run 40740015218 cancelled worker 6/17 at its 45-minute limit. Every
+-figure of a suite whose Makefile compiles a source the adoption changes is now
+-its largest window in the pull-request runs 40724689169 and 40740015218.
+-`media_phase` keeps 1400 seconds, and `follow_ring`, cut off on both runs, is
+-at 1493 seconds, its largest complete hosted window. That work exceeds what
+-sixteen regular workers hold under the 1620-second bound: 24693 seconds
+-against 16 x 1498. Eighteen regular workers project at most 1615 seconds. Both
+-added workers keep the 45-minute limit, the 122-second allowance and the
+-1620-second rule. The selector places `media_phase` on worker 5 at 1522
+-seconds, `follow_ring` alone on worker 0 at 1615 seconds, and `gptp_tables`
+-on worker 3 at 1448 seconds. `mmcm_servo` keeps its 1145-second figure,
+-which is older than this adoption and below its recent hosted windows; #799
+-names that as an open risk. The figures are keyed by leg index, so an
++round-robin legs. The adoption also changes the windows of the suites its
++sources reach, and hosted run 40740015218 cancelled worker 6/17 at its
++45-minute limit. The suites of the ruled #799 replay carry their largest
++window in the pull-request runs 40724689169 and 40740015218: those whose
++Makefile compiles a source this PR changes, plus `maap`, `csr`, `nvm_backend`
++and `nvm_cosim`, re-measured in the same runs. `media_phase` keeps 1400
++seconds, `milan_dp_gm_steps` keeps its higher 926 seconds, and `follow_ring`,
++cut off on both runs, is at 1493 seconds, its largest complete hosted window.
++That work exceeds what sixteen regular workers hold under the 1620-second
++bound: 24693 seconds against 16 x 1498. Eighteen regular workers project at
++most 1615 seconds. Both added workers keep the 45-minute limit, the 122-second
++allowance and the 1620-second rule. The selector places `media_phase` on
++worker 5 at 1522 seconds, `follow_ring` alone on worker 0 at 1615 seconds, and
++`gptp_tables` on worker 3 at 1448 seconds. `mmcm_servo` keeps its 1145-second
++figure, which is older than this adoption and below its recent hosted windows;
++#799 names that as an open risk. The figures are keyed by leg index, so an
+ inventory change re-targets them (#804).
+ 
+ `gptp_tables` (#713) joins the balanced inventory whole, as every unsplit
+@@ -1501,7 +1503,7 @@ validates one tree. The workflow makes that explicit and machine-checked
+   reads it;
+ - both aggregates run `scripts/ci_events.py --require-target-sha` over the
+   downloaded shards before they tally anything, passing `--expect` the
+-  worker matrix size (`--expect 17` for Verilator, `--expect 4` for Yosys)
++  worker matrix size (`--expect 19` for Verilator, `--expect 4` for Yosys)
+   and exactly three sources, `--sha gate="$GATE_SHA"`
+   (the gate's `target_sha` through the step env), `--sha run="$GITHUB_SHA"`
+   and `--sha checkout="$(git rev-parse HEAD)"`, and print the SHA in their
+diff --git a/scripts/suite_shards.py b/scripts/suite_shards.py
+index eb75f87ff7..f94e382fbb 100644
+--- a/scripts/suite_shards.py
++++ b/scripts/suite_shards.py
+@@ -73,7 +73,7 @@ VERILATOR_JOB = "verilator-shards"
+ #: 582 s passing on worker 4/17 of pull-request run 40131149135 at 8a4fa2f9
+ #: (job 120983200812, whose suite step ran 655 s for its four suites), while
+ #: three earlier hosted windows ran past 900 s to TIMEOUT, so its variance is wide.
+-#: #799: suites the f65c8ff7 processor adoption reaches, except media_phase, carry their
++#: #799: the ruled replay set (see CI_WORKFLOWS.md), except media_phase, carries its
+ #: largest window in runs 40724689169 and 40740015218; follow_ring 1493 s, dev run 40460559108.
+ SUITE_SECONDS = {
+     "aaf": 75,
+@@ -151,7 +151,7 @@ PROVISIONAL_SUITES: frozenset[str] = frozenset()
+ #: Seconds of each worker's job outside its suite windows in the same dev run:
+ #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
+ #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
+-#: #781 and #799 add workers 17 to 19 at the regular 45-minute limit and 122 s allowance.
++#: #781 and #799 add three regular 45-minute workers; all 19, the dedicated last one too, carry the 122 s allowance.
+ WORKER_OVERHEAD_SECONDS = (122,) * 19
+ 
+ # Physical inventory stays available to the serial gate and log ownership.
