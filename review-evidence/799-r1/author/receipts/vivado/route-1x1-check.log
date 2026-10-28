@@ -1,0 +1,25 @@
+endpoint route-1x1: <scratch>/viv-head/w1/ax7101/gateware
+figure        baseline   candidate     delta  verdict
+LUT              51259       52012       753  REGRESSION: grew by more than 500
+FF               53208       53707       499  ok
+SLICE            15835       15780       -55  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns           0.236        0.44     0.204  ok
+WHS_ns           0.028       0.036     0.008  ok
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT +717, FF +452
+  u_pp: LUT +712, FF +452
+  u_pp/u_srp: LUT +352, FF +289
+  u_pp/u_srp/u_talker: LUT +201, FF +255
+  u_pp/u_talker: LUT +190, FF +146
+  u_pp/u_aecp: LUT +164, FF +2
+  u_pp/u_aecp/u_dyn: LUT +86, FF +0
+  u_pp/u_dispatch: LUT -83, FF +0
+  u_pp/u_aecp/u_d3: LUT +82, FF +0
+  u_pp/u_notify: LUT +71, FF +3
+  u_pp/u_dispatch/u_acmp_q: LUT -68, FF +0
+  u_pp/u_srp/u_encoder: LUT +37, FF +23
+RESULT: MATERIAL REGRESSION

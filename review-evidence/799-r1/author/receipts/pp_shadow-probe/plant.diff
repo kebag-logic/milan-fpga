@@ -1,0 +1,13 @@
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index abd45cc..af9f300 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -3578,7 +3578,7 @@ module protocol_processor_top
+       // Table 5.9 while unsettled: clear the three flags (0x52000000) in
+       // selector 0's flags, and zero selector 2's stream_id and selector
+       // 4's stream_dest_mac [63:16].
+-      if (!gsi_settled_w) begin
++      if (1'b0) begin
+         case (gsi_sel_o)
+           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+           4'd2: aecp_gsi_data_w = 64'd0;

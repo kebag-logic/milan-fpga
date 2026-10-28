@@ -1,0 +1,61 @@
+862:RESULT: PASS
+868:RESULT: PASS
+874:RESULT: PASS
+884:RESULT: PASS
+893:make --no-print-directory build-base && make --no-print-directory build-notify && make --no-print-directory build-crflic && make --no-print-directory build-tspec8 && make --no-print-directory build-sidmove && make --
+2590:<path> sidmove_probes.vlt +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 0 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../.
+2998:g++    sim_sid_move.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_sidmove
+3005:<path> sidmove_probes.vlt +incdir+../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 0 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl
+3418:g++    sim_sid_move.o verilated.o verilated_dpi.o verilated_threads.o Vmilan_datapath__ALL.a    -pthread -lpthread -latomic   -o Vmilan_dp_sidmove8
+8477:---- Milan 5.4.5 notifications and the #508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----
+8994:checks: 499   failures: 0
+8995:RESULT: PASS
+8996:---- #530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----
+9571:checks: 427   failures: 0
+9572:RESULT: PASS
+9573:---- #774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----
+9682:checks: 61   failures: 0
+9683:RESULT: PASS
+9684:---- processor #202: the Stream ID move after a MAAP conflict on the wire, the shipping shape, TIMED on the crflic grid ----
+9685:./obj_sidmove/Vmilan_dp_sidmove
+9745:  -- source uid 0: 0200000000010000 -> 0200000000010002
+9749:  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)
+9751:  -- source uid 1: 0200000000010001 -> 0200000000010003
+9755:  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1735 ms)
+9778:checks: 50   failures: 0
+9779:RESULT: PASS
+9780:---- processor #202: the Stream ID move on the wire, two AAF talkers of the 8x8 shape, a TCTX uid named ----
+9781:./obj_sidmove8/Vmilan_dp_sidmove8
+9842:  -- source uid 0: 0200000000010000 -> 0200000000010009
+9846:  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1816 ms)
+9848:  -- source uid 1: 0200000000010001 -> 020000000001000a
+9852:  [PASS] [AFTER] conflict to the new ID's declaration under 2 s (1816 ms)
+9876:checks: 52   failures: 0
+9877:RESULT: PASS
+9878:---- #658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----
+10750:checks: 688   failures: 0
+10751:RESULT: PASS
+13015:checks: 2098   failures: 0
+13016:RESULT: PASS
+13017:---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----
+15283:checks: 2100   failures: 0
+15284:RESULT: PASS
+19661:checks: 3998   failures: 0
+19662:RESULT: PASS
+19663:---- the shipping Arty shape: 4 streams x 4 wire channels ----
+21927:checks: 2098   failures: 0
+21928:RESULT: PASS
+21929:---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----
+22205:---- all six tier-1 blocks pruned ----
+22251:checks: 33   failures: 0
+22252:RESULT: PASS
+22253:---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----
+22532:---- the same shape at the TRUE clk_audio ratio (391/1591) ----
+22789:RESULT: PASS
+22790:---- #637 the map records across the 8x8 shape's eight output ports ----
+23064:checks: 219   failures: 0
+23065:RESULT: PASS
+23066:---- #637 the map records across the 4x4 shape's four input ports ----
+23233:checks: 137   failures: 0
+23234:RESULT: PASS
+checks: 13723   in-suite failures: 0

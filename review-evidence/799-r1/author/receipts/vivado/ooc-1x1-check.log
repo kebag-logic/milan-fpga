@@ -1,0 +1,21 @@
+endpoint ooc-1x1: <scratch>/viv-head/w1/ax7101-ooc
+figure        baseline   candidate     delta  verdict
+LUT              23828       24346       518  REGRESSION: grew by more than 250
+FF               20000       20404       404  REGRESSION: grew by more than 250
+RAMB36              16          16         0  ok
+RAMB18               3           3         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  u_pp: LUT +519, FF +404
+  wrapper: LUT +518, FF +404
+  u_pp/u_srp: LUT +309, FF +254
+  u_pp/u_srp/u_talker: LUT +222, FF +253
+  u_pp/u_talker: LUT +204, FF +146
+  u_pp/u_dispatch: LUT -109, FF +0
+  u_pp/u_notify: LUT +90, FF +3
+  u_pp/u_aecp/u_d3: LUT +75, FF +2
+  u_pp/u_dispatch/u_acmp_q: LUT -76, FF +0
+  u_pp/u_srp/u_decoder: LUT +63, FF +0
+  u_pp/u_timer: LUT +53, FF +0
+  u_pp/u_tx_arbiter: LUT -34, FF +0
+RESULT: MATERIAL REGRESSION
