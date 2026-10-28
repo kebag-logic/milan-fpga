@@ -1,0 +1,17 @@
+{
+ "id": "M1s",
+ "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+ "old": "|| (pub_path_next_w != pub_path_o);",
+ "new": "|| (pub_path_next_w[8*64-1:64] != pub_path_o[8*64-1:64]);",
+ "cmd": "make -C tb/verilator/gptp_shadow run",
+ "rc": 2,
+ "seconds": 36.6,
+ "verdict": "KILLED",
+ "named_checks": {
+  "entry-0-only change spends one path generation": "FAIL entry-0-only change spends one path generation got 0000000000000005 exp 0000000000000006"
+ },
+ "fail_line_count": 3,
+ "tally": [
+  "325 checks: 323 PASS, 2 FAIL"
+ ]
+}

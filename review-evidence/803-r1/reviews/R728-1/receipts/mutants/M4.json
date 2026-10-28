@@ -1,0 +1,17 @@
+{
+ "id": "M4",
+ "file": "hdl/milan/milan_datapath.sv",
+ "old": "&& ((asp_live_head_w != gsi_asp_head_q_r)",
+ "new": "&& ((1'b0)",
+ "cmd": "make -C tb/verilator/milan_dp gptp",
+ "rc": 2,
+ "seconds": 180.6,
+ "verdict": "KILLED",
+ "named_checks": {
+  "entry-0-only change emits one GET_AS_PATH push": "FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001"
+ },
+ "fail_line_count": 3,
+ "tally": [
+  "200 checks: 198 PASS, 2 FAIL"
+ ]
+}

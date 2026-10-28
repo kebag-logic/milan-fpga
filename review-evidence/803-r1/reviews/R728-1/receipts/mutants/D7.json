@@ -1,0 +1,18 @@
+{
+ "id": "D7",
+ "file": "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+ "old": "LOST_CLEARS_AT_C = LOST_N_C + 2",
+ "new": "LOST_CLEARS_AT_C = LOST_N_C + 1",
+ "cmd": "cd tb/verilator/gptp_plane && python3 phc_step.py",
+ "rc": 1,
+ "seconds": 73.4,
+ "verdict": "KILLED",
+ "named_checks": {
+  "asCapable falls at the fifth unanswered request after a crossing exchange": "  [FAIL] asCapable falls at the fifth unanswered request after a crossing exchange got=4 exp=5",
+  "asCapable falls at the fourth unanswered request after an unanswered crossing request": "  [FAIL] asCapable falls at the fourth unanswered request after an unanswered crossing request got=3 exp=4"
+ },
+ "fail_line_count": 3,
+ "tally": [
+  "== phc_step: checks: 62   failures: 2 =="
+ ]
+}

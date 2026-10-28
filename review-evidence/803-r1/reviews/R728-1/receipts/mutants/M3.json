@@ -1,0 +1,18 @@
+{
+ "id": "M3",
+ "file": "hdl/milan/milan_datapath.sv",
+ "old": "wire [63:0] asp_owner_head_w = GPTP_PLANE_EN_P ? gptp_pub_path_head_w",
+ "new": "wire [63:0] asp_owner_head_w = GPTP_PLANE_EN_P ? gptp_pub_gm_w",
+ "cmd": "make -C tb/verilator/milan_dp gptp",
+ "rc": 2,
+ "seconds": 175.8,
+ "verdict": "KILLED",
+ "named_checks": {
+  "#88 GET_AS_PATH entry 0 is the received head": "FAIL #88 GET_AS_PATH entry 0 is the received head got 00aaccfffe010204 exp 001122fffe000044",
+  "entry-0-only change: GET_AS_PATH serves the new entry 0": "FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 00aaccfffe010204 exp 001122fffe000022"
+ },
+ "fail_line_count": 8,
+ "tally": [
+  "200 checks: 193 PASS, 7 FAIL"
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "id": "M5b",
+ "file": "hdl/milan/milan_datapath.sv",
+ "old": "asp_served_entry_w = asp_resp_path_r[64*(k-1) +: 64];",
+ "new": "asp_served_entry_w = asp_live_path_w[64*(k-1) +: 64];",
+ "cmd": "make -C tb/verilator/milan_dp gptp",
+ "rc": 0,
+ "seconds": 175.6,
+ "verdict": "SURVIVED",
+ "named_checks": {
+  "in-flight response": null
+ },
+ "fail_line_count": 1,
+ "tally": [
+  "200 checks: 200 PASS, 0 FAIL"
+ ]
+}

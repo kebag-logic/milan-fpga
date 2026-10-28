@@ -1,0 +1,17 @@
+{
+ "id": "M7",
+ "file": "hdl/milan/milan_datapath.sv",
+ "old": "gsi_asp_head_q_r <= asp_live_head_w;",
+ "new": "gsi_asp_head_q_r <= gsi_asp_head_q_r;",
+ "cmd": "make -C tb/verilator/milan_dp gptp",
+ "rc": 2,
+ "seconds": 198.8,
+ "verdict": "KILLED",
+ "named_checks": {
+  "emits one GET_AS_PATH push": "FAIL tail-only refresh emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001"
+ },
+ "fail_line_count": 100,
+ "tally": [
+  "200 checks: 101 PASS, 99 FAIL"
+ ]
+}
