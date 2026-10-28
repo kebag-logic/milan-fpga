@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
 - **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
 - **[Unreleased - per-source TSpec](#unreleased---per-source-tspec)** -- The CRF output declares 29.
 - **[Unreleased - talker capture-to-wire latency](#unreleased---talker-capture-to-wire-latency)** -- Stamps cover the wire path.
@@ -45,6 +46,37 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - gPTP pin f97c1803
+
+- Issue #803 adopts gPTP `f97c1803`, PRs #92 and #93.
+- A 375 ms Sync timeout ages the grandmaster (gPTP #89).
+- That applies while gmPresent holds (Figure 10-13, Cor1).
+- With no other peer, this station becomes grandmaster then.
+- A priority1 255 grandmaster stays; its timeout clears sync only.
+- asCapable clears at the fifth lost Pdelay response (gPTP #90).
+- A duplicate Pdelay_Resp resets the exchange (gPTP #91).
+- Announce qualification keeps only a) to c) (gPTP #88).
+- The clause is 10.3.10.2.1.
+- A path count other than stepsRemoved+1 is accepted.
+- So is a path head other than the grandmaster.
+- The path is copied as received, head included, plus thisClock.
+- An empty path trace TLV gives `{thisClock}`.
+- Without a TLV, the previous pathTrace stays (gPTP #87).
+- GET_AS_PATH serves entry 0 from the engine's head.
+- Entry 0 was the grandmaster identity.
+- Its clause is IEEE 1722.1-2021 7.4.41.2.
+- The AS_PATH notification compares entry 0, not the grandmaster.
+- The engine path output gains entry 0.
+- That is the engine's one port change.
+- No parent port, parameter or register changes.
+- Two parent companions adapt the wrapper, datapath and benches.
+- The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
+- The physical gPTP leg spans one more Pdelay interval.
+- route-1x1 is 481 LUTs over the record; tolerance 500.
+- Over dev's own route it adds 310 LUTs, 20 slices.
+- Seven slices remain free; WNS is +0.333 ns.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - processor pin ed211803
 

@@ -273,6 +273,58 @@ No port, parameter or register changes.
 
 No parent test, model or document expected status 1 here.
 
+Issue #803 adopts gPTP pin `f97c1803`.
+
+The processor stays at `ed211803`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #89, Sync receipt timeout | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | A grandmaster whose Sync stops for 375 ms is aged while gmPresent holds (IEEE 802.1AS-2011 Section 10.3.11, Figure 10-13 with Cor1-2013); with no other peer this station becomes grandmaster at that timeout, and the Milan v1.2 Annex B.1.1 holdover arms; a priority1 255 grandmaster stays elected, and its timeout clears sync only |
+| #90, lost responses | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | asCapable clears at the fifth consecutive lost Pdelay response, where it cleared at the fourth (Figure 11-8 RESET) |
+| #91, duplicate responses | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | A second Pdelay_Resp for the outstanding request resets the exchange, and that interval counts as a lost response (Figure 11-8) |
+| #88, Announce qualification | [93](https://github.com/Mister-M-alt/FPGA-gPTP/pull/93) | Only Section 10.3.10.2.1 a) to c) disqualify: a path count other than stepsRemoved+1 and a path head other than the grandmaster are accepted; d) copies the path as received, its head included, and appends thisClock, so an empty path trace TLV gives `{thisClock}` |
+| #87, no path trace TLV | [93](https://github.com/Mister-M-alt/FPGA-gPTP/pull/93) | An Announce without the TLV writes no pathTrace, so the previous one stays: `{thisClock}` after reset or mastership, otherwise the last path copied, across a grandmaster change too |
+
+The engine's one port change is `pub_path_o`.
+
+It carries eight entries from entry 0.
+
+It carried seven, after the grandmaster.
+
+`KL_gptp_shadow` publishes all eight entries.
+
+`milan_datapath` serves GET_AS_PATH entry 0 from that head.
+
+Its clause is IEEE 1722.1-2021 7.4.41.2.
+
+Entry 0 was the grandmaster identity.
+
+It is now the received head or thisClock.
+
+The AS_PATH notification compares entry 0, count and entries.
+
+`milan_csr` keeps its seven-entry AS_PATH face.
+
+Only its port comments change.
+
+No parent port, parameter or register changes.
+
+`gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
+
+The physical gPTP leg spans one more Pdelay interval.
+
+It runs 17.992742740 simulated seconds.
+
+Route-1x1 is 481 LUTs over the current resource record.
+
+Its tolerance is 500 LUTs, so the gate passes.
+
+Over dev's own route, this adoption adds 310 LUTs.
+
+It adds 20 slices; seven of 15,850 remain.
+
+Its shipping route keeps +0.333 ns WNS.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
