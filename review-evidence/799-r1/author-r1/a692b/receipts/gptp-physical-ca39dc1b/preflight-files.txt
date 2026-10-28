@@ -1,0 +1,16 @@
+preflight: check_list_hermetic.log
+preflight: check_merge_containment.log
+preflight: check_merge_review_integrity.log
+preflight: check_results_fresh.log
+preflight: suite_shards.log
+preflight: suite_tally.log
+preflight: test_suite_cancellation.log
+preflight: xvlog_gate.log
+check_list_hermetic.log: check_list_hermetic: OK
+check_merge_containment.log: selftest: PASS
+check_merge_review_integrity.log: check_merge_review_integrity self-test: 86 checks: 86 PASS, 0 FAIL
+check_results_fresh.log: check_results_fresh self-test: 18 checks: 18 PASS, 0 FAIL
+suite_shards.log: selftest: PASS
+suite_tally.log: selftest: PASS
+test_suite_cancellation.log: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suit
+xvlog_gate.log: xvlog gate selftest: PASS (a planted use-before-declaration reddens the gate and names the identifier; the clean donor does not; a replacement-ref pop
