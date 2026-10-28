@@ -1,0 +1,138 @@
+make: Entering directory '<shard-clone>1/tb/verilator/render_queue'
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --top-module KL_render_queue -GN_STREAMS_P=2 -GN_CH_P=8 -GN_IF_P=2 -GIF_LEAD_P=$(( 2 + 256 * 3 )) -GEV_LAT_NS_P=20964 -GMAX_HOLD_NS_P=2126000 -GPAY_LEAD_CYC_P=16 -GMAX_EV_P=504 -GCLK_FREQ_HZ_P=1000000 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DN_IF_TB=2 -DLEAD0_TB=2 -DLEAD1_TB=3 -DEV_LAT_TB=20964 -DMAX_HOLD_TB=2126000 -DPAY_LEAD_TB=16 -DMAX_EV_TB=504 -DCLK_HZ_TB=1000000" --Mdir obj_dir ../../../hdl/ieee1722/aaf/KL_render_queue.sv sim_main.cpp -o VKL_render_queue_sim
+======================================================================
+make -s run N_STREAMS=1 N_CH=7 N_IF=1 LEAD1=0 MDIR=obj_odd
+======================================================================
+python3 mutants.py
+make[1]: Entering directory '<shard-clone>1/tb/verilator/render_queue/obj_dir'
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DN_IF_TB=2 -DLEAD0_TB=2 -DLEAD1_TB=3 -DEV_LAT_TB=20964 -DMAX_HOLD_TB=2126000 -DPAY_LEAD_TB=16 -DMAX_EV_TB=504 -DCLK_HZ_TB=1000000   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DN_IF_TB=2 -DLEAD0_TB=2 -DLEAD1_TB=3 -DEV_LAT_TB=20964 -DMAX_HOLD_TB=2126000 -DPAY_LEAD_TB=16 -DMAX_EV_TB=504 -DCLK_HZ_TB=1000000   -c -o verilated.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DN_IF_TB=2 -DLEAD0_TB=2 -DLEAD1_TB=3 -DEV_LAT_TB=20964 -DMAX_HOLD_TB=2126000 -DPAY_LEAD_TB=16 -DMAX_EV_TB=504 -DCLK_HZ_TB=1000000   -c -o verilated_threads.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_render_queue.cpp VKL_render_queue___024root__0.cpp VKL_render_queue__ConstPool__0__Slow.cpp VKL_render_queue___024root__Slow.cpp VKL_render_queue___024root__0__Slow.cpp VKL_render_queue__Syms__Slow.cpp > VKL_render_queue__ALL.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DN_STREAMS_TB=2 -DN_CH_TB=8 -DN_IF_TB=2 -DLEAD0_TB=2 -DLEAD1_TB=3 -DEV_LAT_TB=20964 -DMAX_HOLD_TB=2126000 -DPAY_LEAD_TB=16 -DMAX_EV_TB=504 -DCLK_HZ_TB=1000000   -c -o VKL_render_queue__ALL.o VKL_render_queue__ALL.cpp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.081 MB sources in 2 modules, into 0.149 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 9.772 s (elab=0.005, cvt=0.024, bld=9.733); cpu 0.041 s on 4 threads; allocated 220.348 MB
+======================================================================
+== KL_render_queue: 1 streams x 7 lanes, 1 interfaces (out-leads 2, 0), 128 rows ==
+  [ ok ] [behind] every event presented to every interface is the frame the law names, byte-exact (458 reads, 0 mismatched beats)
+  [ ok ] [behind] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [boot] every event presented to every interface is the frame the law names, byte-exact (20 reads, 0 mismatched beats)
+  [ ok ] [boot] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [chans] every event presented to every interface is the frame the law names, byte-exact (182 reads, 0 mismatched beats)
+  [ ok ] [chans] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [early] every event presented to every interface is the frame the law names, byte-exact (302 reads, 0 mismatched beats)
+  [ ok ] [early] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [flush] every event presented to every interface is the frame the law names, byte-exact (159 reads, 0 mismatched beats)
+  [ ok ] [flush] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [lap] every event presented to every interface is the frame the law names, byte-exact (277 reads, 0 mismatched beats)
+  [ ok ] [lap] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [late] every event presented to every interface is the frame the law names, byte-exact (162 reads, 0 mismatched beats)
+  [ ok ] [late] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [long] every event presented to every interface is the frame the law names, byte-exact (423 reads, 0 mismatched beats)
+  [ ok ] [long] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [obs] every event presented to every interface is the frame the law names, byte-exact (1223 reads, 0 mismatched beats)
+  [ ok ] [obs] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [place] every event presented to every interface is the frame the law names, byte-exact (290 reads, 0 mismatched beats)
+  [ ok ] [place] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [round] every event presented to every interface is the frame the law names, byte-exact (206 reads, 0 mismatched beats)
+  [ ok ] [round] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [slip] every event presented to every interface is the frame the law names, byte-exact (117 reads, 0 mismatched beats)
+  [ ok ] [slip] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [untimed] every event presented to every interface is the frame the law names, byte-exact (122 reads, 0 mismatched beats)
+  [ ok ] [untimed] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [wrap] every event presented to every interface is the frame the law names, byte-exact (682 reads, 0 mismatched beats)
+  [ ok ] [wrap] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [late] late PDUs counted once each (10, model 10, phases 10)
+  [ ok ] [early] too-early PDUs counted once each (6, model 6, phases 6)
+  [ ok ] [refused] PDUs with a late or too-early event counted once each in refused_o (15, model 15, phases 15)
+  [ ok ] [untimed] untimed PDUs counted once each (2, model 2)
+  [ ok ] [slip] gaps and overlaps counted (21, model 21)
+  [ ok ] [obs] stream 0: one pop per interface-0 read with a sample (1999, model 1999)
+  [ ok ] [obs] converged after 110 ms of steady presentation, and cleared by the gap after it
+  [ ok ] [wrap] the phase starts before its frame instants cross 2^32 ns, so its PDUs straddle the wrap
+  [ ok ] [if] each interface's render tick comes one cycle after its last beat, once per event (0 off)
+  [ ok ] [if] every stream presents 2 x ceil(N_CH / 2) = 8 lanes to its crossbar, the pad lane of an odd count a channel never latched
+== render_queue: checks: 38   failures: 0 ==
+RESULT: PASS
+g++    sim_main.o verilated.o verilated_threads.o VKL_render_queue__ALL.a    -pthread -lpthread -latomic   -o VKL_render_queue_sim
+rm VKL_render_queue__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<shard-clone>1/tb/verilator/render_queue/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.081 MB sources in 2 modules, into 0.168 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 10.800 s (elab=0.005, cvt=0.023, bld=10.758); cpu 0.042 s on 4 threads; allocated 220.426 MB
+======================================================================
+./obj_dir/VKL_render_queue_sim
+== KL_render_queue: 2 streams x 8 lanes, 2 interfaces (out-leads 2, 3), 128 rows ==
+  [ ok ] [behind] every event presented to every interface is the frame the law names, byte-exact (916 reads, 0 mismatched beats)
+  [ ok ] [behind] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [boot] every event presented to every interface is the frame the law names, byte-exact (40 reads, 0 mismatched beats)
+  [ ok ] [boot] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [chans] every event presented to every interface is the frame the law names, byte-exact (364 reads, 0 mismatched beats)
+  [ ok ] [chans] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [early] every event presented to every interface is the frame the law names, byte-exact (604 reads, 0 mismatched beats)
+  [ ok ] [early] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [flush] every event presented to every interface is the frame the law names, byte-exact (318 reads, 0 mismatched beats)
+  [ ok ] [flush] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [lap] every event presented to every interface is the frame the law names, byte-exact (554 reads, 0 mismatched beats)
+  [ ok ] [lap] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [late] every event presented to every interface is the frame the law names, byte-exact (324 reads, 0 mismatched beats)
+  [ ok ] [late] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [long] every event presented to every interface is the frame the law names, byte-exact (846 reads, 0 mismatched beats)
+  [ ok ] [long] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [obs] every event presented to every interface is the frame the law names, byte-exact (2446 reads, 0 mismatched beats)
+  [ ok ] [obs] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [place] every event presented to every interface is the frame the law names, byte-exact (580 reads, 0 mismatched beats)
+  [ ok ] [place] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [round] every event presented to every interface is the frame the law names, byte-exact (412 reads, 0 mismatched beats)
+  [ ok ] [round] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [slip] every event presented to every interface is the frame the law names, byte-exact (234 reads, 0 mismatched beats)
+  [ ok ] [slip] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [untimed] every event presented to every interface is the frame the law names, byte-exact (244 reads, 0 mismatched beats)
+  [ ok ] [untimed] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [wrap] every event presented to every interface is the frame the law names, byte-exact (1364 reads, 0 mismatched beats)
+  [ ok ] [wrap] lead_o and idle_o follow the model at every frame end (0 off)
+  [ ok ] [late] late PDUs counted once each (10, model 10, phases 10)
+  [ ok ] [early] too-early PDUs counted once each (6, model 6, phases 6)
+  [ ok ] [refused] PDUs with a late or too-early event counted once each in refused_o (15, model 15, phases 15)
+  [ ok ] [untimed] untimed PDUs counted once each (2, model 2)
+  [ ok ] [slip] gaps and overlaps counted (22, model 22)
+  [ ok ] [obs] stream 0: one pop per interface-0 read with a sample (1903, model 1903)
+  [ ok ] [obs] stream 1: one pop per interface-0 read with a sample (276, model 276)
+  [ ok ] [obs] converged after 110 ms of steady presentation, and cleared by the gap after it
+  [ ok ] [wrap] the phase starts before its frame instants cross 2^32 ns, so its PDUs straddle the wrap
+  [ ok ] [if] each interface's render tick comes one cycle after its last beat, once per event (0 off)
+  [ ok ] [if] every stream presents 2 x ceil(N_CH / 2) = 8 lanes to its crossbar, the pad lane of an odd count a channel never latched
+== render_queue: checks: 39   failures: 0 ==
+RESULT: PASS
+[PASS] the unmutated RTL still passes the harness on the default shape
+[PASS] the unmutated RTL still passes the harness on N_STREAMS=1 N_CH=7 N_IF=1 LEAD1=0
+[PASS] mutant caught: a timestamp's frame truncated, not rounded to the nearest - breaks "[round] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: the divider's last quotient bit dropped - breaks "[round] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a step's quotient bit kept with the remainder not reduced - breaks "[place] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: the timestamp difference taken on 31 bits (the 2^32 wrap misread) - breaks "[wrap] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a PDU stamped behind the latest event refused whole, its events ahead lost - breaks "[behind] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a PDU stamped behind the latest event refused whole, on the shipping shape - breaks "[behind] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: the late reach short of the longest PDU - breaks "[behind] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: every interface reads the smallest out-lead - breaks "[place] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: banked by lane parity alone: a straddling beat's two lanes share a bank - breaks "[chans] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a consumed frame's rows left valid (no invalidation) - breaks "[lap] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a bind wipe ignored - breaks "[flush] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: tv ignored - breaks "[untimed] every event presented to every interface is the frame the law names" and "[untimed] untimed PDUs counted once each"
+[PASS] mutant caught: a payload placed before its frame is known - breaks "[untimed] untimed PDUs counted once each"
+[PASS] mutant caught: the per-event late rule removed - breaks "[late] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: the per-event early rule removed - breaks "[early] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a gap in a presenting stream not counted - breaks "[slip] gaps and overlaps counted"
+[PASS] mutant caught: a PDU on a frame its stream wrote not counted - breaks "[slip] gaps and overlaps counted"
+[PASS] mutant caught: lead_o kept after the stream drains - breaks "[place] lead_o and idle_o follow the model at every frame end"
+[PASS] mutant caught: a PDU's events past the eighth wrapped onto its first frames (a 3-bit event index) - breaks "[long] every event presented to every interface is the frame the law names"
+[PASS] mutant caught: a long PDU's events not held past the queue once there (their frame numbers wrap to late) - breaks "[late] late PDUs counted once each"
+[PASS] mutant caught: a too-early PDU not counted in refused_o - breaks "[refused] PDUs with a late or too-early event counted once each in refused_o"
+[PASS] mutant caught: a PDU with both a late and a too-early event counted twice in refused_o - breaks "[refused] PDUs with a late or too-early event counted once each in refused_o"
+[PASS] mutant caught: each render tick after the first stream's last beat - breaks "[if] each interface's render tick comes one cycle after its last beat, once per event"
+[PASS] mutant caught: a pop for an event without a sample - breaks "[obs] stream 0: one pop per interface-0 read with a sample"
+[PASS] mutant caught: converged kept through a gap - breaks "[obs] converged after 110 ms of steady presentation, and cleared by the gap after it"
+[PASS] mutant caught: the pad lane of an odd count read as a channel - breaks "[if] every stream presents 2 x ceil(N_CH / 2)"
+
+28 checks: 28 PASS, 0 FAIL
+make: Leaving directory '<shard-clone>1/tb/verilator/render_queue'

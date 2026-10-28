@@ -1,0 +1,26 @@
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 081a29efeb..e40fba6239 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -183,6 +183,12 @@ class StimulusMailbox(LiteXModule):
+             o_wb_ack_o=self.bus.ack, o_wb_dat_o=self.bus.dat_r, o_wb_err_o=self.bus.err,
+             o_host_req_o=req, o_host_we_o=we, o_host_addr_o=addr, o_host_wdata_o=wdata,
+             o_host_be_o=be, i_host_ack_i=ack, i_host_rdata_i=rdata)
++        # PROBE ONLY (never the tree): a datapath that takes every face commit, acknowledging it
++        # one bus cycle after fw_send_o rises; every other face input stays idle by name.
++        face = face_ports(contract, n_if)
++        face_ack = Signal(n_if)
++        self.sync += face_ack.eq(face['o_fw_send_o'] & ~face_ack)
++        face['i_fw_ack_p_i'] = face_ack
+         self.specials += Instance('KL_mbx',
+             i_clk_i=ClockSignal('sys'), i_rst_n=~ResetSignal('sys'),
+             i_host_req_i=req, i_host_we_i=we, i_host_addr_i=addr, i_host_wdata_i=wdata,
+@@ -194,7 +200,7 @@ class StimulusMailbox(LiteXModule):
+             i_rx_last_i=pads.rx_last, i_rx_if_i=pads.rx_if,
+             o_tx_valid_o=pads.tx_valid, i_tx_ready_i=pads.tx_ready, o_tx_data_o=pads.tx_data,
+             o_tx_last_o=pads.tx_last, o_tx_if_o=pads.tx_if, o_tx_ch_o=pads.tx_ch,
+-            **unread_publication(contract, n_if), **face_ports(contract, n_if))
++            **unread_publication(contract, n_if), **face)
+ 
+ 
+ def unread_publication(contract: object, n_if: int) -> dict[str, object]:

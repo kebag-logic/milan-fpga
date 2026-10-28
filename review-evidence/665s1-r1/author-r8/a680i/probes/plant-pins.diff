@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 081a29efeb..ab0d56b6a5 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -194,7 +194,7 @@ class StimulusMailbox(LiteXModule):
+             i_rx_last_i=pads.rx_last, i_rx_if_i=pads.rx_if,
+             o_tx_valid_o=pads.tx_valid, i_tx_ready_i=pads.tx_ready, o_tx_data_o=pads.tx_data,
+             o_tx_last_o=pads.tx_last, o_tx_if_o=pads.tx_if, o_tx_ch_o=pads.tx_ch,
+-            **unread_publication(contract, n_if), **face_ports(contract, n_if))
++            **unread_publication(contract, n_if))  # PLANT: the face block left unconnected
+ 
+ 
+ def unread_publication(contract: object, n_if: int) -> dict[str, object]:

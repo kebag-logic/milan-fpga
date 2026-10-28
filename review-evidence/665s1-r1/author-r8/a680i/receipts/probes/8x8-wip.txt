@@ -1,0 +1,5 @@
+COMMAND <litex-tree>/venv/bin/python3 -B <checkout>/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <litex-tree>/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <litex-tree>/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <litex-tree>/litex/litex/soc/software --output <work>/probe-8x8-wip/runtime
+COMMAND <litex-tree>/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_srp_image.py --config <checkout>/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output <work>/probe-8x8-wip/image --ledgered-point 8x8-two-interfaces --libc <work>/probe-8x8-wip/runtime/libc.a --compiler-runtime <work>/probe-8x8-wip/runtime/libcompiler_rt.a
+FIRMWARE-STEP OK <work>/probe-8x8-wip/image/ctrl_app.elf
+SOC-PLAN (add_ctrl_memory, no override) REFUSED Refusal allocation over budget: 57.5 RAMB36 (rom 119800 bytes in 120832, sram 112992 bytes in 114688) exceeds the 56-RAMB36 budget
+rc=0

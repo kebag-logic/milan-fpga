@@ -1,0 +1,523 @@
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_send_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:74:33: ... Location of port declaration
+   74 |   output logic [MBX_N_IF_C-1:0] fw_send_o,    
+      |                                 ^~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.052
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_ack_p_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:75:33: ... Location of port declaration
+   75 |   input  wire  [MBX_N_IF_C-1:0] fw_ack_p_i,    
+      |                                 ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_ctrl_ready_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:76:58: ... Location of port declaration
+   76 |   output logic [MBX_N_IF_C*MBX_F_CTRL_READY_WIDTH_C-1:0] fw_ctrl_ready_o,    
+      |                                                          ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_entity_cur_config_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:77:65: ... Location of port declaration
+   77 |   output logic [MBX_N_IF_C*MBX_F_ENTITY_CUR_CONFIG_WIDTH_C-1:0] fw_entity_cur_config_o,    
+      |                                                                 ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_entity_identify_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:78:63: ... Location of port declaration
+   78 |   output logic [MBX_N_IF_C*MBX_F_ENTITY_IDENTIFY_WIDTH_C-1:0] fw_entity_identify_o,    
+      |                                                               ^~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_clock_source_index_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:79:66: ... Location of port declaration
+   79 |   output logic [MBX_N_IF_C*MBX_F_CLOCK_SOURCE_INDEX_WIDTH_C-1:0] fw_clock_source_index_o,    
+      |                                                                  ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_aecp_lock_held_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:80:62: ... Location of port declaration
+   80 |   output logic [MBX_N_IF_C*MBX_F_AECP_LOCK_HELD_WIDTH_C-1:0] fw_aecp_lock_held_o,    
+      |                                                              ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_aecp_dyn_dirty_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:81:62: ... Location of port declaration
+   81 |   output logic [MBX_N_IF_C*MBX_F_AECP_DYN_DIRTY_WIDTH_C-1:0] fw_aecp_dyn_dirty_o,    
+      |                                                              ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_restore_busy_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:82:60: ... Location of port declaration
+   82 |   output logic [MBX_N_IF_C*MBX_F_RESTORE_BUSY_WIDTH_C-1:0] fw_restore_busy_o,    
+      |                                                            ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_restore_done_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:83:60: ... Location of port declaration
+   83 |   output logic [MBX_N_IF_C*MBX_F_RESTORE_DONE_WIDTH_C-1:0] fw_restore_done_o,    
+      |                                                            ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_restore_fail_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:84:60: ... Location of port declaration
+   84 |   output logic [MBX_N_IF_C*MBX_F_RESTORE_FAIL_WIDTH_C-1:0] fw_restore_fail_o,    
+      |                                                            ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_restore_blank_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:85:61: ... Location of port declaration
+   85 |   output logic [MBX_N_IF_C*MBX_F_RESTORE_BLANK_WIDTH_C-1:0] fw_restore_blank_o,    
+      |                                                             ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_restore_closed_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:86:62: ... Location of port declaration
+   86 |   output logic [MBX_N_IF_C*MBX_F_RESTORE_CLOSED_WIDTH_C-1:0] fw_restore_closed_o,    
+      |                                                              ^~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_restore_rb_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:87:58: ... Location of port declaration
+   87 |   output logic [MBX_N_IF_C*MBX_F_RESTORE_RB_WIDTH_C-1:0] fw_restore_rb_o,    
+      |                                                          ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_restore_rs_cause_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:88:64: ... Location of port declaration
+   88 |   output logic [MBX_N_IF_C*MBX_F_RESTORE_RS_CAUSE_WIDTH_C-1:0] fw_restore_rs_cause_o,    
+      |                                                                ^~~~~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_restore_cause_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:89:61: ... Location of port declaration
+   89 |   output logic [MBX_N_IF_C*MBX_F_RESTORE_CAUSE_WIDTH_C-1:0] fw_restore_cause_o,    
+      |                                                             ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_nvm_backed_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:90:58: ... Location of port declaration
+   90 |   output logic [MBX_N_IF_C*MBX_F_NVM_BACKED_WIDTH_C-1:0] fw_nvm_backed_o,    
+      |                                                          ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_nvm_alarm_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:91:57: ... Location of port declaration
+   91 |   output logic [MBX_N_IF_C*MBX_F_NVM_ALARM_WIDTH_C-1:0] fw_nvm_alarm_o,    
+      |                                                         ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_nvm_dirty_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:92:57: ... Location of port declaration
+   92 |   output logic [MBX_N_IF_C*MBX_F_NVM_DIRTY_WIDTH_C-1:0] fw_nvm_dirty_o,    
+      |                                                         ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_nvm_stale_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:93:57: ... Location of port declaration
+   93 |   output logic [MBX_N_IF_C*MBX_F_NVM_STALE_WIDTH_C-1:0] fw_nvm_stale_o,    
+      |                                                         ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_nvm_pend_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:94:56: ... Location of port declaration
+   94 |   output logic [MBX_N_IF_C*MBX_F_NVM_PEND_WIDTH_C-1:0] fw_nvm_pend_o,    
+      |                                                        ^~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_nvm_img_valid_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:95:61: ... Location of port declaration
+   95 |   output logic [MBX_N_IF_C*MBX_F_NVM_IMG_VALID_WIDTH_C-1:0] fw_nvm_img_valid_o,    
+      |                                                             ^~~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_nvm_verdict_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:96:59: ... Location of port declaration
+   96 |   output logic [MBX_N_IF_C*MBX_F_NVM_VERDICT_WIDTH_C-1:0] fw_nvm_verdict_o,    
+      |                                                           ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_pt_offset_ns_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:97:56: ... Location of port declaration
+   97 |   output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*32-1:0] fw_pt_offset_ns_o,    
+      |                                                        ^~~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_pt_offset_v_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:98:55: ... Location of port declaration
+   98 |   output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*1-1:0] fw_pt_offset_v_o,    
+      |                                                       ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_fmt_out_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:99:56: ... Location of port declaration
+   99 |   output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*64-1:0] fw_fmt_out_o,    
+      |                                                        ^~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_fmt_out_v_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:100:55: ... Location of port declaration
+  100 |   output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*1-1:0] fw_fmt_out_v_o,    
+      |                                                       ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_fmt_in_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:101:54: ... Location of port declaration
+  101 |   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] fw_fmt_in_o,    
+      |                                                      ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'fw_fmt_in_v_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:102:53: ... Location of port declaration
+  102 |   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*1-1:0] fw_fmt_in_v_o,    
+      |                                                     ^~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_req_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:104:33: ... Location of port declaration
+  104 |   output logic [MBX_N_IF_C-1:0] ctr_req_o,    
+      |                                 ^~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_tag_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:105:60: ... Location of port declaration
+  105 |   output logic [MBX_N_IF_C*MBX_CTR_STATUS_TAG_WIDTH_C-1:0] ctr_tag_o,    
+      |                                                            ^~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_type_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:106:36: ... Location of port declaration
+  106 |   output logic [MBX_N_IF_C*16-1:0] ctr_type_o,    
+      |                                    ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_index_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:107:36: ... Location of port declaration
+  107 |   output logic [MBX_N_IF_C*16-1:0] ctr_index_o,    
+      |                                    ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_word_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:108:35: ... Location of port declaration
+  108 |   output logic [MBX_N_IF_C*6-1:0] ctr_word_o,    
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_ans_p_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:109:33: ... Location of port declaration
+  109 |   input  wire  [MBX_N_IF_C-1:0] ctr_ans_p_i,    
+      |                                 ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_ans_tag_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:110:60: ... Location of port declaration
+  110 |   input  wire  [MBX_N_IF_C*MBX_CTR_STATUS_TAG_WIDTH_C-1:0] ctr_ans_tag_i,    
+      |                                                            ^~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_ans_data_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:111:36: ... Location of port declaration
+  111 |   input  wire  [MBX_N_IF_C*32-1:0] ctr_ans_data_i,    
+      |                                    ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_req_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:113:33: ... Location of port declaration
+  113 |   output logic [MBX_N_IF_C-1:0] amap_req_o,    
+      |                                 ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_tag_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:114:61: ... Location of port declaration
+  114 |   output logic [MBX_N_IF_C*MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_tag_o,    
+      |                                                             ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_type_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:115:36: ... Location of port declaration
+  115 |   output logic [MBX_N_IF_C*16-1:0] amap_type_o,    
+      |                                    ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_index_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:116:36: ... Location of port declaration
+  116 |   output logic [MBX_N_IF_C*16-1:0] amap_index_o,    
+      |                                    ^~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_map_index_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:117:36: ... Location of port declaration
+  117 |   output logic [MBX_N_IF_C*16-1:0] amap_map_index_o,    
+      |                                    ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_sel_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:118:35: ... Location of port declaration
+  118 |   output logic [MBX_N_IF_C*2-1:0] amap_sel_o,    
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_rec_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:119:35: ... Location of port declaration
+  119 |   output logic [MBX_N_IF_C*8-1:0] amap_rec_o,    
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_ans_p_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:120:33: ... Location of port declaration
+  120 |   input  wire  [MBX_N_IF_C-1:0] amap_ans_p_i,    
+      |                                 ^~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_ans_tag_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:121:61: ... Location of port declaration
+  121 |   input  wire  [MBX_N_IF_C*MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_ans_tag_i,    
+      |                                                             ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_ans_data_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:122:36: ... Location of port declaration
+  122 |   input  wire  [MBX_N_IF_C*64-1:0] amap_ans_data_i,    
+      |                                    ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_req_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:124:33: ... Location of port declaration
+  124 |   output logic [MBX_N_IF_C-1:0] edit_req_o,    
+      |                                 ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_tag_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:125:61: ... Location of port declaration
+  125 |   output logic [MBX_N_IF_C*MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_tag_o,    
+      |                                                             ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_type_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:126:36: ... Location of port declaration
+  126 |   output logic [MBX_N_IF_C*16-1:0] edit_type_o,    
+      |                                    ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_index_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:127:36: ... Location of port declaration
+  127 |   output logic [MBX_N_IF_C*16-1:0] edit_index_o,    
+      |                                    ^~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_phase_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:128:35: ... Location of port declaration
+  128 |   output logic [MBX_N_IF_C*3-1:0] edit_phase_o,    
+      |                                   ^~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_remove_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:129:35: ... Location of port declaration
+  129 |   output logic [MBX_N_IF_C*1-1:0] edit_remove_o,    
+      |                                   ^~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_rec_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:130:35: ... Location of port declaration
+  130 |   output logic [MBX_N_IF_C*8-1:0] edit_rec_o,    
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_count_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:131:36: ... Location of port declaration
+  131 |   output logic [MBX_N_IF_C*16-1:0] edit_count_o,    
+      |                                    ^~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_record_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:132:36: ... Location of port declaration
+  132 |   output logic [MBX_N_IF_C*64-1:0] edit_record_o,    
+      |                                    ^~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_value_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:133:36: ... Location of port declaration
+  133 |   output logic [MBX_N_IF_C*64-1:0] edit_value_o,    
+      |                                    ^~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_ans_p_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:134:33: ... Location of port declaration
+  134 |   input  wire  [MBX_N_IF_C-1:0] edit_ans_p_i,    
+      |                                 ^~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_ans_tag_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:135:61: ... Location of port declaration
+  135 |   input  wire  [MBX_N_IF_C*MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_ans_tag_i,    
+      |                                                             ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'edit_ans_data_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:136:36: ... Location of port declaration
+  136 |   input  wire  [MBX_N_IF_C*64-1:0] edit_ans_data_i,    
+      |                                    ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_req_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:138:33: ... Location of port declaration
+  138 |   output logic [MBX_N_IF_C-1:0] gsi_req_o,    
+      |                                 ^~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_tag_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:139:60: ... Location of port declaration
+  139 |   output logic [MBX_N_IF_C*MBX_GSI_STATUS_TAG_WIDTH_C-1:0] gsi_tag_o,    
+      |                                                            ^~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_type_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:140:36: ... Location of port declaration
+  140 |   output logic [MBX_N_IF_C*16-1:0] gsi_type_o,    
+      |                                    ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_index_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:141:36: ... Location of port declaration
+  141 |   output logic [MBX_N_IF_C*16-1:0] gsi_index_o,    
+      |                                    ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_kind_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:142:35: ... Location of port declaration
+  142 |   output logic [MBX_N_IF_C*2-1:0] gsi_kind_o,    
+      |                                   ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_sel_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:143:35: ... Location of port declaration
+  143 |   output logic [MBX_N_IF_C*4-1:0] gsi_sel_o,    
+      |                                   ^~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_ord_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:144:35: ... Location of port declaration
+  144 |   output logic [MBX_N_IF_C*8-1:0] gsi_ord_o,    
+      |                                   ^~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_prop_o'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:145:36: ... Location of port declaration
+  145 |   output logic [MBX_N_IF_C*64-1:0] gsi_prop_o,    
+      |                                    ^~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_ans_p_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:146:33: ... Location of port declaration
+  146 |   input  wire  [MBX_N_IF_C-1:0] gsi_ans_p_i,    
+      |                                 ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_ans_tag_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:147:60: ... Location of port declaration
+  147 |   input  wire  [MBX_N_IF_C*MBX_GSI_STATUS_TAG_WIDTH_C-1:0] gsi_ans_tag_i,    
+      |                                                            ^~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'gsi_ans_data_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:148:36: ... Location of port declaration
+  148 |   input  wire  [MBX_N_IF_C*64-1:0] gsi_ans_data_i,    
+      |                                    ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_chg_p_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:150:33: ... Location of port declaration
+  150 |   input  wire  [MBX_N_IF_C-1:0] ctr_chg_p_i,    
+      |                                 ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_chg_type_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:151:36: ... Location of port declaration
+  151 |   input  wire  [MBX_N_IF_C*16-1:0] ctr_chg_type_i,    
+      |                                    ^~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'ctr_chg_index_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:152:36: ... Location of port declaration
+  152 |   input  wire  [MBX_N_IF_C*16-1:0] ctr_chg_index_i,    
+      |                                    ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'avb_chg_p_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:153:33: ... Location of port declaration
+  153 |   input  wire  [MBX_N_IF_C-1:0] avb_chg_p_i,    
+      |                                 ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'asp_chg_p_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:154:33: ... Location of port declaration
+  154 |   input  wire  [MBX_N_IF_C-1:0] asp_chg_p_i,    
+      |                                 ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3142:8: Instance has missing pin: 'amap_wr_p_i'
+ 3142 | KL_mbx KL_mbx(
+      |        ^~~~~~
+                     <work>/head0/hdl/milan/mailbox/KL_mbx.sv:155:33: ... Location of port declaration
+  155 |   input  wire  [MBX_N_IF_C-1:0] amap_wr_p_i    
+      |                                 ^~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3188:50: Instance has missing pin: 'dma_bus_awregion'
+ 3188 | VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v:14:24: ... Location of port declaration
+   14 |   input  wire [3:0]    dma_bus_awregion,
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-PINMISSING: <work>/builds/base-1x1/gateware/sim.v:3188:50: Instance has missing pin: 'dma_bus_arregion'
+ 3188 | VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56 VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56(
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_1e5f104c82c5f164d7a5893971248b56.v:35:24: ... Location of port declaration
+   35 |   input  wire [3:0]    dma_bus_arregion,
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-TIMESCALEMOD: <work>/head0/hdl/milan/mailbox/KL_mbx_pkg.sv:15:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   15 | package KL_mbx_pkg;
+      |         ^~~~~~~~~~
+                       <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.052
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: <work>/head0/hdl/milan/mailbox/KL_mbx_ring.sv:27:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   27 | module KL_mbx_ring #(
+      |        ^~~~~~~~~~~
+                       <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <work>/head0/hdl/milan/mailbox/KL_mbx_rx.sv:76:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   76 | module KL_mbx_rx
+      |        ^~~~~~~~~
+                       <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <work>/head0/hdl/milan/mailbox/KL_mbx_tx.sv:38:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   38 | module KL_mbx_tx
+      |        ^~~~~~~~~
+                       <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <work>/head0/hdl/milan/mailbox/KL_mbx_evt.sv:51:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   51 | module KL_mbx_evt
+      |        ^~~~~~~~~~
+                       <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <work>/head0/hdl/milan/mailbox/KL_mbx.sv:27:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   27 | module KL_mbx
+      |        ^~~~~~
+                       <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+%Warning-TIMESCALEMOD: <work>/head0/hdl/milan/mailbox/KL_mbx_wb.sv:26:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+   26 | module KL_mbx_wb
+      |        ^~~~~~~~~
+                       <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v:3:8: ... Location of module with timescale
+    3 | module Ram_1w_1rs #(
+      |        ^~~~~~~~~~
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 4.714 MB sources in 57 modules, into 3.409 MB in 37 C++ files needing 0.000 MB
+- Verilator: Walltime 1.540 s (elab=0.284, cvt=0.998, bld=0.000); cpu 1.524 s on 1 threads; allocated 81.543 MB

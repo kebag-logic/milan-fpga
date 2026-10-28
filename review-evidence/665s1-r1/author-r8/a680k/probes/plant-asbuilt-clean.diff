@@ -1,0 +1,12 @@
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -387,7 +387,7 @@ class CpuPatches:
+     def generate_netlist_name(self) -> None:
+         """Hand the generator the regions cpu_regions selects; record the SoC's own."""
+         self.soc_regions[:] = [list(r) for r in VexiiRiscv.memory_regions]
+-        if self.cpu_regions == 'cover':
++        if self.cpu_regions in ('cover', 'as-built'):
+             VexiiRiscv.memory_regions = power_of_two_cover(VexiiRiscv.memory_regions)
+         self.netlist_name()
+ 
