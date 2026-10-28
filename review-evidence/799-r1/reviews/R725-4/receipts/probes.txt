@@ -1,0 +1,20 @@
+p0_control | python3 scripts/suite_shards.py --selftest | rc=0
+p0_control | python3 scripts/ci_gate_workflows.py --check | rc=0
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+p1_table18_unregenerated | python3 scripts/suite_shards.py --selftest | rc=1
+p1_table18_unregenerated | python3 scripts/ci_gate_workflows.py --check | rc=1
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+p2_handedit_total20 | python3 scripts/suite_shards.py --selftest | rc=1
+p2_handedit_total20 | python3 scripts/ci_gate_workflows.py --check | rc=1
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+p3_figure_over_bound | python3 scripts/suite_shards.py --selftest | rc=1
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+p4_regular_timeout_46 | python3 scripts/ci_gate_workflows.py --check | rc=1
+ 2 files changed, 16 insertions(+), 19 deletions(-)
+p5_seventeen_workers_regenerated | python3 scripts/ci_gate_workflows.py --check | rc=0
+p5_seventeen_workers_regenerated | python3 scripts/suite_shards.py --selftest | rc=1
+ 2 files changed, 15 insertions(+), 17 deletions(-)
+p6_eighteen_workers_regenerated | python3 scripts/ci_gate_workflows.py --check | rc=0
+p6_eighteen_workers_regenerated | python3 scripts/suite_shards.py --selftest | rc=1
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+p7_allowance_100 | python3 scripts/suite_shards.py --selftest | rc=0
