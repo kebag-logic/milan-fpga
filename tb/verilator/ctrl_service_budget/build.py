@@ -134,7 +134,7 @@ def mutated_source(out: Path, mutation: str) -> Path:
 
 #: The one point the planner's ledger lets plan past the 56-RAMB36 budget (ctrl_memory.LEDGERED),
 #: by its name, which this harness gives only its measurement of that point: the image
-#: (ctrl_srp_image.py --ledgered-point) and the SoC plan (split_soc.build). The product SoC
+#: (ctrl_srp_image.py --ledgered-point) and the SoC plan (split_soc.ledgered_plan). The product SoC
 #: build names none (#665; docs/design/SPLIT_CONTROL_MEMORY.md section 5).
 LEDGERED_POINTS = {('endstation_ax7101_8x8', 2): '8x8-two-interfaces'}
 
@@ -557,8 +557,8 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     if core.xip:
         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses()['flash'])
     table = symbols(elf)
-    spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1,
-                           ledgered_point(shape, n_if))
+    with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
+        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
     spec['elf'] = str(elf)
     spec['xip'] = core.xip
     spec['flash_image'] = str(flash_image) if flash_image else None

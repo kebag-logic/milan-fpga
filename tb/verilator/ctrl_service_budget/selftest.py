@@ -847,14 +847,16 @@ def built(bdir: Path, *flags: str) -> tuple[str, dict]:
     and the build.json it wrote.
 
     The image, the XIP relink, the symbols and the native model are placeholder
-    files, and the SoC export records the selection it is handed, as
-    split_soc.build records it in soc.json. The run's selection, the mailbox
-    contract, the input digests and build.json are run.main's and build.build's own.
+    files, the SoC export records the selection it is handed, as
+    split_soc.build records it in soc.json, and the ledgered plan patches
+    nothing. The run's selection, the mailbox contract, the input digests and
+    build.json are run.main's and build.build's own.
     """
     soc = types.ModuleType('split_soc')
     soc.fixture_addresses = lambda: {'flash': 0x20000000}
-    soc.build = lambda build_dir, shape, elf, n_if, cpu_regions, fetch_l1, ledgered: dict(
+    soc.build = lambda build_dir, shape, elf, n_if, cpu_regions, fetch_l1: dict(
         sources=[], shape=shape, interfaces=n_if, cpu_regions=cpu_regions, fetch_l1=fetch_l1)
+    soc.ledgered_plan = lambda name: contextlib.nullcontext()
     stubs = dict(
         firmware=lambda out, *a: write(out / 'image/ctrl_app.elf', b'elf'),
         xip_image=lambda out, elf, window: (write(out / 'xip/ctrl_app.elf', b'xip'),

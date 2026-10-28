@@ -422,7 +422,8 @@ class CpuPatches:
 
 def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
     """add_ctrl_memory's plan held to the named ledgered point's tiles (ctrl_memory.LEDGERED), which
-    refuses any image that is not that point; None keeps the SoC build's plan, which names none."""
+    refuses any image that is not that point; None keeps the SoC build's plan, which names none.
+    build.build holds build() under it, named by build.ledgered_point."""
     if name is None:
         return contextlib.nullcontext()
     plan = milan_soc.ctrl_memory.plan
@@ -430,15 +431,13 @@ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
 
 
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
-          fetch_l1: str = 'split', ledgered: str | None = None) -> dict:
+          fetch_l1: str = 'split') -> dict:
     """Export the test SoC's Verilog and return the native build's inputs.
 
     cpu_regions 'cover' gives the CPU generator each region at its
     power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
     which reproduces the generator's rom decode defect (a control).
     fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
-    ledgered names the ledgered point this build measures (build.ledgered_point),
-    whose firmware memory is planned to that point's tiles.
     """
     addresses = fixture_addresses()
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
@@ -459,8 +458,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
             flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
             extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
-        with ledgered_plan(ledgered):
-            milan_soc.add_ctrl_memory(soc, elf)
+        milan_soc.add_ctrl_memory(soc, elf)
         for path in mailbox_sources(n_if, build_dir / 'mbx-variant'):
             platform.add_source(str(path))
         add_devices(soc, platform, addresses, contract, n_if)
