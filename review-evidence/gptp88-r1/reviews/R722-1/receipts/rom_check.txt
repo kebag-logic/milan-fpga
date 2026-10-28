@@ -1,0 +1,15 @@
+IDENTICAL base-vs-head default ()
+IDENTICAL base-vs-head engine (--clk-hz 2000000 --cease-ms 3000)
+IDENTICAL base-vs-head engine-seq (--clk-hz 2000000 --cease-ms 3000 --seq-seed 0x200000)
+IDENTICAL base-vs-head engine-sync (--clk-hz 2000000 --cease-ms 3000 --sync-seq-seed 0x10000)
+IDENTICAL base-vs-head engine-p1 (--clk-hz 2000000 --cease-ms 3000 --p1 255)
+IDENTICAL base-vs-head tsngen (--clk-hz 2000000)
+IDENTICAL base-vs-head bench248 (--p1 248)
+TRACKED-MATCH tb/verilator/engine/gptp_ucode.hex == regenerated engine
+blob tb/verilator/engine/gptp_ucode.hex base 1df2faa868742bf87b1800389066736dc7773478 head 1df2faa868742bf87b1800389066736dc7773478
+TRACKED-MATCH tb/verilator/ucpu/gptp_ucode.hex == regenerated default
+blob tb/verilator/ucpu/gptp_ucode.hex base 56787206e2c4d930ac65a5138f1adef1b74b5cd1 head 56787206e2c4d930ac65a5138f1adef1b74b5cd1
+TRACKED-MATCH tb/tsngen/gptp_ucode.hex == regenerated tsngen
+blob tb/tsngen/gptp_ucode.hex base 08b9f68579e3308e52cb6e1c4a41f4e79e43dc3b head 08b9f68579e3308e52cb6e1c4a41f4e79e43dc3b
+TRACKED-MATCH syn/ooc/work/gptp_ucode.hex == regenerated default
+blob syn/ooc/work/gptp_ucode.hex base 56787206e2c4d930ac65a5138f1adef1b74b5cd1 head 56787206e2c4d930ac65a5138f1adef1b74b5cd1

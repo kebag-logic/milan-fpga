@@ -1,0 +1,83 @@
+[PASS] shard 1 control: pass
+--- mutant #1: slew clears at the first in-band pair
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew clears at the first in-band pair - breaks "slew: first in-band pair cannot clear"
+--- mutant #6: result face always ready
+[PASS] mutant caught: result face always ready - breaks "a result already owed to the micro-code cannot be replaced by a later one"
+--- mutant #11: lost t1 fabricates a time and a companion
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+--- mutant #16: a new request leaves the old pair live
+[PASS] mutant caught: a new request leaves the old pair live - breaks "a superseded exchange cannot pair with the new request's t1"
+--- mutant #21: every pair uses the link-up threshold
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+--- mutant #26: becoming grandmaster unlocks the servo
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+--- mutant #31: the integrator is not clamped
+[PASS] mutant caught: the integrator is not clamped - breaks "the integrator stays within +-200 ppm"
+--- mutant #36: reset keeps the elected tail
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 000000000000000d exp 0000000000000000
+[PASS] mutant caught: reset keeps the elected tail - breaks "#82 warm reset: its path is {thisClock} with a zero tail | #82 every commit naming thisClock carries {thisClock}"
+--- mutant #41: a warm reset keeps the retained best record
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0082a0fffe000001 exp 0082b0fffe000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a warm reset keeps the retained best record - breaks "#82 warm reset: a worse-than-local peer leaves thisClock | #82 warm reset: the live worse peer wins, not the absent A | #82 warm reset: the live peer carries its own path"
+--- mutant #46: the self publication keeps the departed path
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 0000000000000057 exp 0000000000000000
+[PASS] mutant caught: the self publication keeps the departed path - breaks "#82 peer leaves: the mastership commit path is {thisClock} | #82 Pdelay loss: that commit carries {thisClock} | #82 Pdelay loss: that mastership names thisClock, {thisClock} | #82 every commit naming thisClock carries {thisClock}"
+--- mutant #51: the asCapable drop keeps the flags word
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000000
+[PASS] mutant caught: the asCapable drop keeps the flags word - breaks "#82 Pdelay loss: the drop commit's flags are gmPresent alone | p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone"
+--- mutant #56: mastership sets the microcode's presence bit
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: mastership sets the microcode's presence bit - breaks "p1 255 #82 Pdelay loss: that mastership commit has gmPresent"
+--- mutant #61: mastership never publishes the master bit
+FAIL #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: mastership never publishes the master bit - breaks "#84 master cycles were graded | p1 255 #84 master cycles were graded"
+--- mutant #66: an empty path takes no thisClock
+FAIL #88 empty path: count        got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path: head         got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: head got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an empty path takes no thisClock - breaks "#88 empty path: count | #88 empty path: head | #88 empty path: its commit names the grandmaster and path | #88 empty path from the parent: count | #88 empty path from the parent: head | #88 empty path from the parent: its commit names the grandmaster and path"
+--- mutant #71: every received path is published as {thisClock}
+FAIL #85 direct grandmaster: count got 0000000000000001 exp 0000000000000002
+FAIL #85 multi-hop grandmaster: count got 0000000000000001 exp 0000000000000006
+FAIL #85 eight received entries: count got 0000000000000001 exp 0000000000000008
+FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+FAIL #87 G1 elected: count        got 0000000000000001 exp 0000000000000004
+[PASS] mutant caught: every received path is published as {thisClock} - breaks "#85 direct grandmaster: count | #85 multi-hop grandmaster: count | #85 eight received entries: count | #88 issue shape: count | #87 G1 elected: count"
+--- mutant #76: the received head is not published
+FAIL #85 direct grandmaster: head got 0000000000000000 exp 00e5e5fffe000001
+FAIL #88 issue shape: entry 0 is the received head got 0000000000000000 exp 00f1f1fffe000001
+FAIL adopt publishes path head    got 0000000000000000 exp 00aaccfffe010203
+FAIL worse announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+FAIL worse TLV-less announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+FAIL deep path retains its head   got 0000000000000000 exp 00aaccfffe010203
+FAIL parent refresh publishes path C head got 0000000000000000 exp 00aaccfffe010203
+FAIL unknown-only current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL unknown before path current parent: head got 0000000000000000 exp 00aaccfffe010203
+FAIL full path before raw empty: head got 0000000000000000 exp 00aaccfffe010203
+FAIL TLV-less current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL frozen queued A head coherent got 0000000000000000 exp 00aaccfffe010203
+FAIL post-release C head coherent got 0000000000000000 exp 00aaccfffe010203
+FAIL boundary-clean announce: raw path head got 0000000000000000 exp 00d1d1fffe000004
+FAIL #87 G1 elected: head         got 0000000000000000 exp 00f6f6fffe000001
+[PASS] mutant caught: the received head is not published - breaks "#85 direct grandmaster: head | #88 issue shape: entry 0 is the received head | adopt publishes path head | worse announce retains path A head | worse TLV-less announce retains path A head | deep path retains its head | parent refresh publishes path C head | unknown-only current parent: keeps the previous head | unknown before path current parent: head | full path before raw empty: head | TLV-less current parent: keeps the previous head | frozen queued A head coherent | post-release C head coherent | boundary-clean announce: raw path head | #87 G1 elected: head"
+--- mutant #81: (b) the stepsRemoved refusal removed
+FAIL #88 stepsRemoved 255, one entry: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 stepsRemoved 255, one entry: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 stepsRemoved 255, one entry: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+FAIL #88 stepsRemoved 255, one entry: flags untouched got 0000000000000005 exp 000000000000000f
+FAIL #88 stepsRemoved 255, one entry: raw vector never published got ffc401f8fe436af8 exp ffc4faf8fe436af8
+[PASS] mutant caught: (b) the stepsRemoved refusal removed - breaks "#88 stepsRemoved 255, one entry: still master | #88 stepsRemoved 255, one entry: gm still us | #88 stepsRemoved 255, one entry: parent still us | #88 stepsRemoved 255, one entry: flags untouched | #88 stepsRemoved 255, one entry: raw vector never published"
+
+shard 1/5: 18 checks: 18 PASS, 0 FAIL (of 84 mutants total in arm)

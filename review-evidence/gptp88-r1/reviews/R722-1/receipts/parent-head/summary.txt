@@ -1,0 +1,11 @@
+06-gptp_shadow rc=2 seconds=49 cmd=make -C tb/verilator/gptp_shadow -j8
+fuzz-ptp rc=2 seconds=43 cmd=make -C tb/verilator/tsn_fuzz ptp
+04-rtl-source-lists rc=0 seconds=3 cmd=python3 scripts/check_rtl_source_lists.py
+10-docs-check rc=0 seconds=11 cmd=python3 scripts/docs_check.py
+01-cpp-idiom rc=0 seconds=3 cmd=python3 scripts/check_cpp_idiom.py
+02-py-idiom rc=0 seconds=9 cmd=python3 scripts/check_py_idiom.py
+07-port-contracts rc=0 seconds=4 cmd=python3 scripts/check_port_contracts.py
+08-naming rc=0 seconds=0 cmd=python3 scripts/measure_naming.py --check
+09-test-evidence rc=0 seconds=9 cmd=python3 scripts/measure_test_evidence.py --check
+11-lint-rtl rc=0 seconds=12 cmd=python3 scripts/lint_rtl.py --check
+12-milan_dp-gptp rc=0 seconds=170 cmd=make -C tb/verilator/milan_dp gptp

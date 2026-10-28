@@ -1,0 +1,120 @@
+[PASS] shard 3 control: pass
+--- mutant #3: slew idle lapse arms qualification
+FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle lapse arms qualification - breaks "slew: in-band pair after idle timeout stays inactive"
+--- mutant #8: result tag taken without an accepted beat
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+--- mutant #13: lost response cancels the requester exchange
+[PASS] mutant caught: lost response cancels the requester exchange - breaks "a lost Pdelay_Resp result retires the response claim and nothing else"
+--- mutant #18: credit gate removed from the Sync leg
+[PASS] mutant caught: credit gate removed from the Sync leg - breaks "a Sync beat is postponed while the transmit path has no credit"
+--- mutant #23: the step arm is unreachable
+[PASS] mutant caught: the step arm is unreachable - breaks "an offset over the threshold steps"
+--- mutant #28: asCapable's rise keeps the lock
+[PASS] mutant caught: asCapable's rise keeps the lock - breaks "the first pair after asCapable rises, or after a reset, is a link-up"
+--- mutant #33: reset keeps the elected grandmaster
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0082a0fffe000001 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: reset keeps the elected grandmaster - breaks "#82 warm reset: it names thisClock, not the elected peer"
+--- mutant #38: the boot commit fires twice
+FAIL #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000002 exp 0000000000000001
+[PASS] mutant caught: the boot commit fires twice - breaks "#82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms"
+--- mutant #43: a winning peer's grandmaster is not published
+FAIL #82 peer wins: its commit names the peer GM got 02a1b2fffec3d4e5 exp 0082a0fffe000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 02a1b2fffec3d4e5 exp 0082b0fffe000001
+FAIL #84 the run hands mastership to a peer got 0000000000000000 exp 0000000000000001
+FAIL #85 direct grandmaster: elected got 02a1b2fffec3d4e5 exp 00e5e5fffe000001
+FAIL #85 multi-hop grandmaster: elected got 02a1b2fffec3d4e5 exp 00e6e6fffe000001
+FAIL #85 seven received entries: elected got 02a1b2fffec3d4e5 exp 00e7e7fffe000001
+FAIL #85 eight received entries: elected got 02a1b2fffec3d4e5 exp 00e8e8fffe000001
+FAIL #85 absent path: elected     got 02a1b2fffec3d4e5 exp 00e9e9fffe000001
+[PASS] mutant caught: a winning peer's grandmaster is not published - breaks "#82 peer wins: its commit names the peer GM | #82 warm reset: the live worse peer wins, not the absent A | #84 the run hands mastership to a peer | #85 direct grandmaster: elected | #85 multi-hop grandmaster: elected | #85 seven received entries: elected | #85 eight received entries: elected | #85 absent path: elected"
+--- mutant #48: an asCapable fall leaves the receipt watch running
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an asCapable fall leaves the receipt watch running - breaks "#82 Pdelay loss: thisClock is committed within 2 ms of the fall"
+--- mutant #53: the published flags leave gmPresent to the microcode
+FAIL #82 cold release: every cycle to the first beat has gmPresent got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the published flags leave gmPresent to the microcode - breaks "#82 cold release: every cycle to the first beat has gmPresent | #82 cold release: that commit's flags are gmPresent alone | #82 warm reset: its flags are gmPresent alone | #82 peer leaves: the mastership commit has gmPresent | #82 Pdelay loss: the drop commit's flags are gmPresent alone | #82 Pdelay loss: that mastership commit has gmPresent"
+--- mutant #58: a queued receipt timeout clears a master's sync-ok
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000001 exp 0000000000000002
+FAIL #84 every master cycle publishes sync-ok got 000000000003d794 exp 0000000000000000
+[PASS] mutant caught: a queued receipt timeout clears a master's sync-ok - breaks "#84 takeover: a queued receipt timeout keeps sync-ok | #84 every master cycle publishes sync-ok"
+--- mutant #63: the received path is published without thisClock
+FAIL #85 direct grandmaster: count got 0000000000000001 exp 0000000000000002
+FAIL #85 direct grandmaster: tail 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: count got 0000000000000005 exp 0000000000000006
+FAIL #85 multi-hop grandmaster: tail 5 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: count got 0000000000000007 exp 0000000000000008
+FAIL #85 seven received entries: tail 7 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 0000000000000177 exp 0000000000000000
+FAIL p1 255 #85 every peer path ends with thisClock got 0000000000000030 exp 0000000000000000
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL adopt appends thisClock as path tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL worse announce retains path A tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL worse TLV-less announce retains path A tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL parent refresh appends thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL unknown before path current parent: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL post-release C appends thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 empty path: count        got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the received path is published without thisClock - breaks "#85 direct grandmaster: count | #85 direct grandmaster: tail 1 | #85 direct grandmaster: its commit names the grandmaster and path | #85 multi-hop grandmaster: count | #85 multi-hop grandmaster: tail 5 | #85 multi-hop grandmaster: its commit names the grandmaster and path | #85 seven received entries: count | #85 seven received entries: tail 7 | #85 seven received entries: its commit names the grandmaster and path | #85 every peer path ends with thisClock | p1 255 #85 every peer path ends with thisClock | #82 peer wins: its commit carries the peer path | #82 warm reset: the live peer carries its own path | #82 Pdelay loss: once capable, a live peer worse than D wins | adopt appends thisClock as path tail 4 | worse announce retains path A tail 4 | worse TLV-less announce retains path A tail 4 | parent refresh appends thisClock | unknown before path current parent: tail 3 | post-release C appends thisClock | #88 empty path: count | #88 empty path from the parent: count"
+--- mutant #68: thisClock fills every later slot
+FAIL #85 direct grandmaster: tail 2 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 2      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 3      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 4      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 5      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 6      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 7      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 head not the grandmaster: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 head not the grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path: tail 1       got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path: tail 7       got 02a1b2fffec3d4e5 exp 0000000000000000
+[PASS] mutant caught: thisClock fills every later slot - breaks "#85 direct grandmaster: tail 2 | #85 direct grandmaster: tail 3 | #85 direct grandmaster: tail 4 | #85 direct grandmaster: tail 5 | #85 direct grandmaster: tail 6 | #85 direct grandmaster: tail 7 | #85 multi-hop grandmaster: tail 6 | #85 multi-hop grandmaster: tail 7 | #88 issue shape: tail 2 | #88 issue shape: tail 3 | #88 issue shape: tail 4 | #88 issue shape: tail 5 | #88 issue shape: tail 6 | #88 issue shape: tail 7 | #88 two entries, stepsRemoved 5: tail 3 | #88 two entries, stepsRemoved 5: tail 4 | #88 two entries, stepsRemoved 5: tail 5 | #88 two entries, stepsRemoved 5: tail 6 | #88 two entries, stepsRemoved 5: tail 7 | #88 three entries, stepsRemoved 0: tail 4 | #88 three entries, stepsRemoved 0: tail 5 | #88 three entries, stepsRemoved 0: tail 6 | #88 three entries, stepsRemoved 0: tail 7 | #88 head not the grandmaster: tail 3 | #88 head not the grandmaster: tail 7 | #88 empty path: tail 1 | #88 empty path: tail 7"
+--- mutant #73: the path-head refusal restored
+FAIL #88 head not the grandmaster: elected got 02a1b2fffec3d4e5 exp 00f5f5fffe000001
+FAIL #88 head not the grandmaster: no longer master got 0000000000000002 exp 0000000000000000
+FAIL #88 head not the grandmaster: entry 0 is the received head got 02a1b2fffec3d4e5 exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: no Announce for one interval got 0000000000000001 exp 0000000000000000
+FAIL #88 head not the grandmaster: parser accepts got 000000000000000a exp 0000000000000009
+FAIL #88 current parent's path headed elsewhere: one commit got 0000000000000036 exp 0000000000000037
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 00aaccfffe010203 exp 00bad0fffe000001
+FAIL #88 current parent's path headed elsewhere: parser accepts got 0000000000000014 exp 0000000000000013
+FAIL #88 parent path headed elsewhere: head got 02a1b2fffec3d4e5 exp 00f7f7fffe0000a1
+FAIL #88 parent path headed elsewhere: parser accepts got 000000000000000c exp 000000000000000b
+[PASS] mutant caught: the path-head refusal restored - breaks "#88 head not the grandmaster: elected | #88 head not the grandmaster: no longer master | #88 head not the grandmaster: entry 0 is the received head | #88 head not the grandmaster: no Announce for one interval | #88 head not the grandmaster: parser accepts | #88 current parent's path headed elsewhere: one commit | #88 current parent's path headed elsewhere: entry 0 is the received head | #88 current parent's path headed elsewhere: parser accepts | #88 parent path headed elsewhere: head | #88 parent path headed elsewhere: parser accepts"
+--- mutant #78: a TLV-less Announce publishes {thisClock}
+[PASS] mutant caught: a TLV-less Announce publishes {thisClock} - breaks "#87 G1 to G2 without a TLV: count | #87 G1 to G2 without a TLV: head | #87 parent refresh without a TLV: head | TLV-less current parent: keeps the previous count | unknown-only current parent: keeps the previous head | out-of-message fake PathTrace: keeps tail 7 | #87 raw-empty overload: frozen A keeps C's path"
+--- mutant #83: a parent update must beat the best
+FAIL #88 issue shape: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a parent update must beat the best - breaks "#88 issue shape: the degraded grandmaster yields | #88 two entries, stepsRemoved 5: the degraded grandmaster yields | #88 three entries, stepsRemoved 0: the degraded grandmaster yields"
+
+shard 3/5: 18 checks: 18 PASS, 0 FAIL (of 84 mutants total in arm)

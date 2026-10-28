@@ -1,0 +1,9 @@
+01-contract rc=0 seconds=0 cmd=make contract
+02-ucpu rc=0 seconds=10 cmd=make -C tb/verilator/ucpu
+05-gaskets rc=0 seconds=44 cmd=make -C tb/verilator/gaskets
+06-tsngen rc=0 seconds=49 cmd=make -C tb/tsngen
+07-bench rc=0 seconds=5 cmd=make -C bench/arty test
+08-lint rc=0 seconds=0 cmd=make lint
+09-docs rc=0 seconds=1 cmd=make docs
+03-parser rc=0 seconds=119 cmd=make -C tb/verilator/parser
+04-engine-run rc=0 seconds=170 cmd=make -C tb/verilator/engine run

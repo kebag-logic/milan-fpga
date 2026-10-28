@@ -1,0 +1,76 @@
+[PASS] shard 2 control: pass
+--- mutant #2: slew clears before the replacement rate
+FAIL slew: no clear precedes the replacement rate got 0000000000000007 exp 0000000000000000
+[PASS] mutant caught: slew clears before the replacement rate - breaks "slew: no clear precedes the replacement rate"
+--- mutant #7: result value taken without an accepted beat
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+--- mutant #12: lost Sync cancels the requester exchange
+[PASS] mutant caught: lost Sync cancels the requester exchange - breaks "a lost Sync result retires the Sync claim and nothing else"
+--- mutant #17: credit gate removed from the Pdelay_Req leg
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+--- mutant #22: exactly the threshold steps
+[PASS] mutant caught: exactly the threshold steps - breaks "an offset of exactly 20 us, or 100 us once locked, slews"
+--- mutant #27: the locked threshold is 200 us
+[PASS] mutant caught: the locked threshold is 200 us - breaks "a locked pair steps over 100 us, after a receipt timeout too"
+--- mutant #32: reset leaves the grandmaster zero
+FAIL #82 cold release: every cycle to the first beat names thisClock got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL pre-init deep Announce: GM stays thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: reset leaves the grandmaster zero - breaks "#82 cold release: every cycle to the first beat names thisClock | #82 cold release: every cycle to the first beat has {thisClock} | #82 cold release: that commit carries thisClock and {thisClock} | #82 warm reset: it names thisClock, not the elected peer | pre-init deep Announce: GM stays thisClock"
+--- mutant #37: no engine commit after reset
+FAIL #82 cold release: one commit before the first beat got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: no engine commit after reset - breaks "#82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms"
+--- mutant #42: an unwritten best record reads as the best vector
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0000000000000000 exp 0082b0fffe000001
+[PASS] mutant caught: an unwritten best record reads as the best vector - breaks "#82 warm reset: a worse-than-local peer leaves thisClock | #82 warm reset: the live worse peer wins, not the absent A"
+--- mutant #47: the self publication keeps the departed record
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the self publication keeps the departed record - breaks "#82 Pdelay loss: once capable, a live peer worse than D wins"
+--- mutant #52: an incapable port's receipt watch is not re-armed
+FAIL #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an incapable port's receipt watch is not re-armed - breaks "#82 Pdelay loss: once capable, with no Announce, master in 3 s | #82 Pdelay loss: that mastership names thisClock, {thisClock} | p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s"
+--- mutant #57: becoming grandmaster clears sync-ok
+FAIL #84 first mastership: the master flags carry sync-ok got 0000000000000007 exp 000000000000000f
+FAIL #84 takeover: its commit names thisClock with sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 every master cycle publishes sync-ok got 00000000067a2bb6 exp 0000000000000000
+FAIL p1 255 #84 first mastership: the master flags carry sync-ok got 0000000000000006 exp 000000000000000e
+FAIL p1 255 #84 every master cycle publishes sync-ok got 00000000000005b0 exp 0000000000000000
+[PASS] mutant caught: becoming grandmaster clears sync-ok - breaks "#84 first mastership: the master flags carry sync-ok | #84 takeover: its commit names thisClock with sync-ok | #84 every master cycle publishes sync-ok | p1 255 #84 first mastership: the master flags carry sync-ok | p1 255 #84 every master cycle publishes sync-ok"
+--- mutant #62: a handover to a peer keeps sync-ok
+FAIL #84 every handover to a peer grandmaster clears sync-ok got 0000000000000016 exp 0000000000000000
+FAIL p1 255 #84 every handover to a peer grandmaster clears sync-ok got 0000000000000002 exp 0000000000000000
+[PASS] mutant caught: a handover to a peer keeps sync-ok - breaks "#84 every handover to a peer grandmaster clears sync-ok | p1 255 #84 every handover to a peer grandmaster clears sync-ok"
+--- mutant #67: thisClock lands one slot early
+FAIL #85 direct grandmaster: tail 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: tail 5 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 every peer path ends with thisClock got 0000000000000176 exp 0000000000000000
+FAIL #88 empty path: head         got 0000000000000000 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: thisClock lands one slot early - breaks "#85 direct grandmaster: tail 1 | #85 multi-hop grandmaster: tail 5 | #85 every peer path ends with thisClock | #88 empty path: head"
+--- mutant #72: the path-count refusal restored
+FAIL #88 issue shape: elected     got 02a1b2fffec3d4e5 exp 00f1f1fffe000001
+FAIL #88 issue shape: no longer master got 0000000000000002 exp 0000000000000000
+FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+FAIL #88 issue shape: no Announce for one interval got 0000000000000001 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: elected got 02a1b2fffec3d4e5 exp 00f2f2fffe000001
+FAIL #88 three entries, stepsRemoved 0: elected got 02a1b2fffec3d4e5 exp 00f3f3fffe000001
+FAIL #88 own source, one entry, stepsRemoved 3: parser-drop policy got 000000000000000a exp 0000000000000009
+FAIL #88 stepsRemoved 255, one entry: parser-drop policy got 000000000000000b exp 000000000000000a
+FAIL #88 short loop, stepsRemoved 5: parser-drop policy got 000000000000000c exp 000000000000000b
+[PASS] mutant caught: the path-count refusal restored - breaks "#88 issue shape: elected | #88 issue shape: no longer master | #88 issue shape: count | #88 issue shape: no Announce for one interval | #88 two entries, stepsRemoved 5: elected | #88 three entries, stepsRemoved 0: elected | #88 own source, one entry, stepsRemoved 3: parser-drop policy | #88 stepsRemoved 255, one entry: parser-drop policy | #88 short loop, stepsRemoved 5: parser-drop policy"
+--- mutant #77: the empty sequence published without a TLV
+[PASS] mutant caught: the empty sequence published without a TLV - breaks "#87 G1 to G2 without a TLV: count | #87 G1 to G2 without a TLV: its commit names the grandmaster and path | #87 parent refresh without a TLV: count | #85 absent path: count | TLV-less competition control: raw path count | #87 post-warm-reset TLV-less count | #87 post-warm-reset TLV-less selection commits {thisClock} | TLV-less current parent: keeps the previous count | unknown-only current parent: keeps the previous count | out-of-message fake PathTrace: keeps the previous count | #87 raw-empty overload: frozen A keeps C's path | #85 every peer path ends with thisClock"
+--- mutant #82: (c) the PathTrace loop refusal removed
+FAIL #88 short loop, stepsRemoved 5: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 short loop, stepsRemoved 5: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: flags untouched got 0000000000000005 exp 000000000000000f
+FAIL #88 short loop, stepsRemoved 5: raw vector never published got ffc401f8fe436af8 exp ffc4faf8fe436af8
+[PASS] mutant caught: (c) the PathTrace loop refusal removed - breaks "#88 short loop, stepsRemoved 5: still master | #88 short loop, stepsRemoved 5: gm still us | #88 short loop, stepsRemoved 5: parent still us | #88 short loop, stepsRemoved 5: flags untouched | #88 short loop, stepsRemoved 5: raw vector never published"
+
+shard 2/5: 18 checks: 18 PASS, 0 FAIL (of 84 mutants total in arm)

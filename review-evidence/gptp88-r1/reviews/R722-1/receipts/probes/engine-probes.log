@@ -1,0 +1,205 @@
+[PROBE] engine / count refusal, longer only: CAUGHT; rc 1; 1929 checks: 1922 PASS, 7 FAIL; 7 FAIL lines
+    FAIL #88 three entries, stepsRemoved 0: elected got 02a1b2fffec3d4e5 exp 00f3f3fffe000001
+    FAIL #88 three entries, stepsRemoved 0: count got 0000000000000001 exp 0000000000000004
+    FAIL #88 three entries, stepsRemoved 0: head got 02a1b2fffec3d4e5 exp 00f3f3fffe000001
+    FAIL #88 three entries, stepsRemoved 0: tail 1 got 0000000000000000 exp 00f3f3fffe0000b1
+    FAIL #88 three entries, stepsRemoved 0: tail 2 got 0000000000000000 exp 00f3f3fffe0000c2
+    FAIL #88 three entries, stepsRemoved 0: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+    FAIL #88 three entries, stepsRemoved 0: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+[PROBE] engine / count refusal, shorter only: CAUGHT; rc 1; 1929 checks: 1902 PASS, 27 FAIL; 27 FAIL lines
+    FAIL #88 own source, one entry, stepsRemoved 3: parser-drop policy got 000000000000000a exp 0000000000000009
+    FAIL #88 stepsRemoved 255, one entry: parser-drop policy got 000000000000000b exp 000000000000000a
+    FAIL #88 short loop, stepsRemoved 5: parser-drop policy got 000000000000000c exp 000000000000000b
+    FAIL #88 empty path: elected      got 02a1b2fffec3d4e5 exp 00eaeafffe000001
+    FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #88 issue shape: elected     got 02a1b2fffec3d4e5 exp 00f1f1fffe000001
+    FAIL #88 issue shape: parent      got 02a1b2fffec3d4e5 exp 00f1f1fffe0000c3
+    FAIL #88 issue shape: no longer master got 0000000000000002 exp 0000000000000000
+    FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+    FAIL #88 issue shape: entry 0 is the received head got 02a1b2fffec3d4e5 exp 00f1f1fffe000001
+    FAIL #88 issue shape: tail 1      got 0000000000000000 exp 02a1b2fffec3d4e5
+    FAIL #88 issue shape: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #88 issue shape: parser accepts got 000000000000000f exp 000000000000000e
+    FAIL #88 issue shape: no Announce for one interval got 0000000000000001 exp 0000000000000000
+    FAIL #88 two entries, stepsRemoved 5: elected got 02a1b2fffec3d4e5 exp 00f2f2fffe000001
+    FAIL #88 two entries, stepsRemoved 5: count got 0000000000000001 exp 0000000000000003
+    FAIL #88 two entries, stepsRemoved 5: head got 02a1b2fffec3d4e5 exp 00f2f2fffe000001
+    FAIL #88 two entries, stepsRemoved 5: tail 1 got 0000000000000000 exp 00f2f2fffe0000b1
+    FAIL #88 two entries, stepsRemoved 5: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+    FAIL #88 two entries, stepsRemoved 5: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #88 empty path from the parent: count got 0000000000000004 exp 0000000000000001
+    FAIL #88 empty path from the parent: head got 00f6f6fffe000001 exp 02a1b2fffec3d4e5
+    FAIL #88 empty path from the parent: tail 1 got 00f6f6fffe0000b1 exp 0000000000000000
+    FAIL #88 empty path from the parent: tail 2 got 00f6f6fffe0000c1 exp 0000000000000000
+    FAIL #88 empty path from the parent: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+    FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #88 empty path from the parent: parser accepts got 0000000000000013 exp 0000000000000012
+[PROBE] engine / zero-length unknown TLV marks presence: SURVIVED; rc 0; 1929 checks: 1929 PASS, 0 FAIL; 0 FAIL lines
+[PROBE] engine / duplicate PathTrace accepted: CAUGHT; rc 1; 1929 checks: 1925 PASS, 4 FAIL; 4 FAIL lines
+    FAIL duplicate PathTrace: no commit got 000000000000003a exp 0000000000000039
+    FAIL duplicate PathTrace: one parser drop got 000000000000000c exp 000000000000000d
+    FAIL duplicate PathTrace: count unchanged got 0000000000000003 exp 0000000000000008
+    FAIL duplicate PathTrace: tail unchanged got 00aaccfffe010203 exp 00f800fffe000001
+[PROBE] engine / engine presence sticky: CAUGHT; rc 1; 1929 checks: 1894 PASS, 35 FAIL; 35 FAIL lines
+    FAIL #87 G1 to G2 without a TLV: count got 0000000000000001 exp 0000000000000004
+    FAIL #87 G1 to G2 without a TLV: head got 02a1b2fffec3d4e5 exp 00f6f6fffe000001
+    FAIL #87 G1 to G2 without a TLV: tail 1 got 0000000000000000 exp 00f6f6fffe0000b1
+    FAIL #87 G1 to G2 without a TLV: tail 2 got 0000000000000000 exp 00f6f6fffe0000c1
+    FAIL #87 G1 to G2 without a TLV: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+    FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #87 parent refresh without a TLV: count got 0000000000000001 exp 0000000000000003
+    FAIL #87 parent refresh without a TLV: head got 02a1b2fffec3d4e5 exp 00f7f7fffe0000a1
+    FAIL #87 parent refresh without a TLV: tail 1 got 0000000000000000 exp 00f7f7fffe0000c1
+    FAIL #87 parent refresh without a TLV: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+    FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL unknown-only current parent: keeps the previous count got 0000000000000001 exp 0000000000000004
+    FAIL unknown-only current parent: keeps the previous head got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+    FAIL unknown-only current parent: keeps tail 1 got 0000000000000000 exp 00ccd0fffe000033
+    FAIL unknown-only current parent: keeps tail 2 got 0000000000000000 exp 0080e1fffe112233
+    FAIL unknown-only current parent: keeps tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+    FAIL TLV-less current parent: keeps the previous count got 0000000000000001 exp 0000000000000008
+    FAIL TLV-less current parent: keeps the previous head got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+    FAIL TLV-less current parent: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+    FAIL TLV-less current parent: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+    FAIL TLV-less current parent: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+    FAIL TLV-less current parent: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+    FAIL TLV-less current parent: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+    FAIL TLV-less current parent: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+    FAIL TLV-less current parent: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+    FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000001 exp 0000000000000008
+    FAIL out-of-message fake PathTrace: keeps the previous head got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+    FAIL out-of-message fake PathTrace: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+    FAIL out-of-message fake PathTrace: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+    FAIL out-of-message fake PathTrace: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+    FAIL out-of-message fake PathTrace: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+    FAIL out-of-message fake PathTrace: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+    FAIL out-of-message fake PathTrace: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+    FAIL out-of-message fake PathTrace: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+    FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+[PROBE] engine / engine head not captured: CAUGHT; rc 1; 1929 checks: 1884 PASS, 45 FAIL; 45 FAIL lines
+    FAIL boundary-clean announce: raw path head got 0000000000000000 exp 00d1d1fffe000004
+    FAIL half-identity control A: raw path head got 0000000000000000 exp 00d2d2fffe000006
+    FAIL half-identity control B: raw path head got 0000000000000000 exp 00d3d3fffe000007
+    FAIL #85 direct grandmaster: head got 0000000000000000 exp 00e5e5fffe000001
+    FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #85 multi-hop grandmaster: head got 0000000000000000 exp 00e6e6fffe000001
+    FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #85 seven received entries: head got 0000000000000000 exp 00e7e7fffe000001
+    FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #85 eight received entries: head got 0000000000000000 exp 00e8e8fffe000001
+    FAIL #85 eight received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #88 issue shape: entry 0 is the received head got 0000000000000000 exp 00f1f1fffe000001
+    FAIL #88 issue shape: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #88 head not the grandmaster: entry 0 is the received head got 0000000000000000 exp 00f5f5fffe0000a1
+    FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #88 two entries, stepsRemoved 5: head got 0000000000000000 exp 00f2f2fffe000001
+    FAIL #88 two entries, stepsRemoved 5: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #88 three entries, stepsRemoved 0: head got 0000000000000000 exp 00f3f3fffe000001
+    FAIL #88 three entries, stepsRemoved 0: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #87 G1 elected: head         got 0000000000000000 exp 00f6f6fffe000001
+    FAIL #87 G1 elected: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #87 G1 to G2 without a TLV: head got 0000000000000000 exp 00f6f6fffe000001
+    FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #88 parent path headed elsewhere: head got 0000000000000000 exp 00f7f7fffe0000a1
+    FAIL #88 parent path headed elsewhere: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #87 parent refresh without a TLV: head got 0000000000000000 exp 00f7f7fffe0000a1
+    FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL adopt publishes path head    got 0000000000000000 exp 00aaccfffe010203
+    FAIL worse announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+    FAIL worse TLV-less announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+    FAIL deep path retains its head   got 0000000000000000 exp 00aaccfffe010203
+    FAIL parent refresh publishes path C head got 0000000000000000 exp 00aaccfffe010203
+    FAIL unknown-only current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+    FAIL unknown before path current parent: head got 0000000000000000 exp 00aaccfffe010203
+    FAIL full path before raw empty: head got 0000000000000000 exp 00aaccfffe010203
+    FAIL TLV-less current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+    FAIL out-of-message fake PathTrace: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+    FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 0000000000000000 exp 00bad0fffe000001
+    FAIL frozen queued A head coherent got 0000000000000000 exp 00aaccfffe010203
+    FAIL post-release C head coherent got 0000000000000000 exp 00aaccfffe010203
+    ... 5 more
+[PROBE] engine / engine TLV-less rewrites count only: CAUGHT; rc 1; 1929 checks: 1920 PASS, 9 FAIL; 9 FAIL lines
+    FAIL #87 G1 to G2 without a TLV: count got 0000000000000001 exp 0000000000000004
+    FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #87 parent refresh without a TLV: count got 0000000000000001 exp 0000000000000003
+    FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL unknown-only current parent: keeps the previous count got 0000000000000001 exp 0000000000000004
+    FAIL TLV-less current parent: keeps the previous count got 0000000000000001 exp 0000000000000008
+    FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000001 exp 0000000000000008
+    FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+    FAIL #85 every peer path ends with thisClock got 0000000000000006 exp 0000000000000000
+[PROBE] engine / engine append past eight: CAUGHT; rc 1; 1929 checks: 1921 PASS, 8 FAIL; 8 FAIL lines
+    FAIL boundary-clean announce: raw path count got 0000000000000009 exp 0000000000000008
+    FAIL #85 eight received entries: count got 0000000000000009 exp 0000000000000008
+    FAIL #85 eight received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL deep parent path clamps to eight got 0000000000000009 exp 0000000000000008
+    FAIL full path before raw empty: count eight got 0000000000000009 exp 0000000000000008
+    FAIL TLV-less current parent: keeps the previous count got 0000000000000009 exp 0000000000000008
+    FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000009 exp 0000000000000008
+    FAIL #85 every peer path ends with thisClock got 0000000000000006 exp 0000000000000000
+[PROBE] engine / engine address 6 keeps entries: CAUGHT; rc 1; 1929 checks: 1906 PASS, 23 FAIL; 23 FAIL lines
+    FAIL TLV-less competition control: raw path head got 00d3d3fffe000007 exp 02a1b2fffec3d4e5
+    FAIL TLV-less competition control: raw path tail 1 got 02a1b3fffec3d4e5 exp 0000000000000000
+    FAIL TLV-less competition control: raw path tail 2 got 02a1b2fffec3d4e5 exp 0000000000000000
+    FAIL #85 absent path: head        got 00e8e8fffe000001 exp 02a1b2fffec3d4e5
+    FAIL #85 absent path: tail 1      got 00e8e8fffe000002 exp 0000000000000000
+    FAIL #85 absent path: tail 2      got 00e8e8fffe000003 exp 0000000000000000
+    FAIL #85 absent path: tail 3      got 00e8e8fffe000004 exp 0000000000000000
+    FAIL #85 absent path: tail 4      got 00e8e8fffe000005 exp 0000000000000000
+    FAIL #85 absent path: tail 5      got 00e8e8fffe000006 exp 0000000000000000
+    FAIL #85 absent path: tail 6      got 00e8e8fffe000007 exp 0000000000000000
+    FAIL #85 absent path: tail 7      got 00e8e8fffe000008 exp 0000000000000000
+    FAIL #85 absent path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+    FAIL #87 the degraded G2 yields with {thisClock} got 0000000000000000 exp 0000000000000001
+    FAIL own-GM transition publishes thisClock at entry 0 got 00aaccfffe010203 exp 02a1b2fffec3d4e5
+    FAIL own-GM transition clears tail 0 got 02a1b2fffec3d4e5 exp 0000000000000000
+    FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+    FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+    FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+    FAIL #82 every commit naming thisClock carries {thisClock} got 0000000000000057 exp 0000000000000000
+    FAIL #85 every peer path ends with thisClock got 0000000000000002 exp 0000000000000000
+    FAIL p1 255 #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+    FAIL p1 255 #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+    FAIL p1 255 #82 every commit naming thisClock carries {thisClock} got 000000000000000a exp 0000000000000000
+[PROBE] engine / ucode (b) off by one: CAUGHT; rc 1; 1929 checks: 1643 PASS, 286 FAIL; 286 FAIL lines
+    FAIL #88 stepsRemoved 255, one entry: still master got 0000000000000000 exp 0000000000000002
+    FAIL #88 stepsRemoved 255, one entry: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+    FAIL #88 stepsRemoved 255, one entry: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL #88 stepsRemoved 255, one entry: flags untouched got 0000000000000005 exp 000000000000000f
+    FAIL #88 stepsRemoved 255, one entry: raw vector never published got ffc401f8fe436af8 exp ffc4faf8fe436af8
+    FAIL #88 short loop, stepsRemoved 5: still master got 0000000000000000 exp 0000000000000002
+    FAIL #88 short loop, stepsRemoved 5: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+    FAIL #88 short loop, stepsRemoved 5: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL own-source announce: still master got 0000000000000000 exp 0000000000000002
+    FAIL own-source announce: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+    FAIL own-source announce: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL stepsRemoved-255 announce: still master got 0000000000000000 exp 0000000000000002
+    FAIL stepsRemoved-255 announce: gm still us got 0000000000002222 exp 02a1b2fffec3d4e5
+    FAIL stepsRemoved-255 announce: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL deep-trace loop announce: still master got 0000000000000000 exp 0000000000000002
+    FAIL deep-trace loop announce: gm still us got 0000000000002222 exp 02a1b2fffec3d4e5
+    FAIL deep-trace loop announce: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL eighth-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+    FAIL eighth-hop loop announce: gm still us got 0000000000002222 exp 02a1b2fffec3d4e5
+    FAIL eighth-hop loop announce: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL first-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+    FAIL first-hop loop announce: gm still us got 0000000000002222 exp 02a1b2fffec3d4e5
+    FAIL first-hop loop announce: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL single-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+    FAIL single-hop loop announce: gm still us got 0000000000002222 exp 02a1b2fffec3d4e5
+    FAIL single-hop loop announce: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL path-trace-loop announce: still master got 0000000000000000 exp 0000000000000002
+    FAIL path-trace-loop announce: gm still us got 0000000000002222 exp 02a1b2fffec3d4e5
+    FAIL path-trace-loop announce: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL stepsRemoved-0x0100 announce: still master got 0000000000000000 exp 0000000000000002
+    FAIL stepsRemoved-0x0100 announce: gm still us got 0000000000002222 exp 02a1b2fffec3d4e5
+    FAIL stepsRemoved-0x0100 announce: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+    FAIL boundary-clean announce: adopted got 0000000000002222 exp 00d1d1fffe000004
+    FAIL boundary-clean announce: announcer is the parent got 0080e1fffe445566 exp 00d1d1fffe000005
+    FAIL boundary-clean announce: raw path count got 0000000000000002 exp 0000000000000008
+    FAIL boundary-clean announce: raw path head got 00f4f4fffe000001 exp 00d1d1fffe000004
+    FAIL boundary-clean announce: raw path tail 1 got 02a1b2fffec3d4e5 exp 00d1000000000001
+    FAIL boundary-clean announce: raw path tail 2 got 0000000000000000 exp 00d1000000000002
+    FAIL boundary-clean announce: raw path tail 3 got 0000000000000000 exp 00d1000000000003
+    FAIL boundary-clean announce: raw path tail 4 got 0000000000000000 exp 00d1000000000004
+    ... 246 more

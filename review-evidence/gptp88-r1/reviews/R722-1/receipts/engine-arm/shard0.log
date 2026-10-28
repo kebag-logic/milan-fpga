@@ -1,0 +1,89 @@
+[PASS] shard 0 control: pass
+--- mutant #0: slew level tied low
+FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew level tied low - breaks "slew: policy decision starts at +101 ns"
+--- mutant #5: slew mastership keeps qualification
+FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew mastership keeps qualification - breaks "slew: in-band return from GM stays inactive"
+--- mutant #10: byte face advances without ready
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+--- mutant #15: the tail runs before its own t1
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+--- mutant #20: every pair uses the locked threshold
+[PASS] mutant caught: every pair uses the locked threshold - breaks "a link-up pair steps over 20 us"
+--- mutant #25: a receipt timeout unlocks the servo
+[PASS] mutant caught: a receipt timeout unlocks the servo - breaks "the servo stays locked across a Sync receipt timeout"
+--- mutant #30: the trim clamp is one unit wider than the envelope
+[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks "the written trim never leaves the envelope the consumer derives"
+--- mutant #35: reset leaves the path empty
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: reset leaves the path empty - breaks "#82 cold release: every cycle to the first beat has {thisClock} | #82 cold release: that commit carries thisClock and {thisClock} | #82 warm reset: its path is {thisClock} with a zero tail"
+--- mutant #40: the boot commit waits for the timer bootstrap
+FAIL #82 cold release: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL #82 warm reset: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the boot commit waits for the timer bootstrap - breaks "#82 cold release: that commit is the first edge after release | #82 warm reset: that commit is the first edge after release | pre-init deep Announce: no commit"
+--- mutant #45: the self publication keeps the departed grandmaster
+FAIL #82 peer leaves: the mastership commit names thisClock got 0082b0fffe000001 exp 02a1b2fffec3d4e5
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #85 direct grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 eight received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 absent path: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the self publication keeps the departed grandmaster - breaks "#82 peer leaves: the mastership commit names thisClock | #82 Pdelay loss: thisClock is committed within 2 ms of the fall | #82 Pdelay loss: that mastership names thisClock, {thisClock} | #85 direct grandmaster: the degraded grandmaster yields | #85 multi-hop grandmaster: the degraded grandmaster yields | #85 seven received entries: the degraded grandmaster yields | #85 eight received entries: the degraded grandmaster yields | #85 absent path: the degraded grandmaster yields"
+--- mutant #50: an incapable port's Announces still compete
+FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an incapable port's Announces still compete - breaks "#82 Pdelay loss: Announces from the incapable port elect nothing"
+--- mutant #55: the capability mark ignores priority1
+FAIL p1 255 #82 cold release: every cycle to the first beat has gmPresent got 000000000024a15d exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit's flags are gmPresent alone got 0000000000000001 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000001 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the capability mark ignores priority1 - breaks "p1 255 #82 cold release: every cycle to the first beat has gmPresent | p1 255 #82 cold release: that commit's flags are gmPresent alone | p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone | p1 255 #82 Pdelay loss: that mastership commit has gmPresent"
+--- mutant #60: dispatch ignores a busy serializer
+FAIL #84 takeover: nothing commits while dispatch is held got 000000000000013a exp 0000000000000139
+[PASS] mutant caught: dispatch ignores a busy serializer - breaks "#84 takeover: nothing commits while dispatch is held"
+--- mutant #65: seven received entries leave thisClock out
+FAIL #85 seven received entries: count got 0000000000000007 exp 0000000000000008
+FAIL #85 seven received entries: tail 7 got 0000000000000000 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: seven received entries leave thisClock out - breaks "#85 seven received entries: count | #85 seven received entries: tail 7"
+--- mutant #70: the received entries are not copied
+FAIL #85 direct grandmaster: head got 0000000000000000 exp 00e5e5fffe000001
+FAIL #85 multi-hop grandmaster: head got 0000000000000000 exp 00e6e6fffe000001
+FAIL #85 multi-hop grandmaster: tail 1 got 0000000000000000 exp 00e6e6fffe0000b1
+FAIL #85 multi-hop grandmaster: tail 2 got 0000000000000000 exp 00e6e6fffe0000b2
+FAIL #85 multi-hop grandmaster: tail 3 got 0000000000000000 exp 00e6e6fffe0000b3
+FAIL #85 multi-hop grandmaster: tail 4 got 0000000000000000 exp 00e6e6fffe0000c4
+FAIL #85 seven received entries: tail 1 got 0000000000000000 exp 00e7e7fffe000002
+FAIL #85 seven received entries: tail 2 got 0000000000000000 exp 00e7e7fffe000003
+FAIL #85 seven received entries: tail 3 got 0000000000000000 exp 00e7e7fffe000004
+FAIL #85 seven received entries: tail 4 got 0000000000000000 exp 00e7e7fffe000005
+FAIL #85 seven received entries: tail 5 got 0000000000000000 exp 00e7e7fffe000006
+FAIL #85 seven received entries: tail 6 got 0000000000000000 exp 00e7e7fffe000007
+FAIL #85 eight received entries: tail 1 got 0000000000000000 exp 00e8e8fffe000002
+FAIL #85 eight received entries: tail 2 got 0000000000000000 exp 00e8e8fffe000003
+FAIL #85 eight received entries: tail 3 got 0000000000000000 exp 00e8e8fffe000004
+FAIL #85 eight received entries: tail 4 got 0000000000000000 exp 00e8e8fffe000005
+FAIL #85 eight received entries: tail 5 got 0000000000000000 exp 00e8e8fffe000006
+FAIL #85 eight received entries: tail 6 got 0000000000000000 exp 00e8e8fffe000007
+FAIL #85 eight received entries: tail 7 got 0000000000000000 exp 00e8e8fffe000008
+[PASS] mutant caught: the received entries are not copied - breaks "#85 direct grandmaster: head | #85 multi-hop grandmaster: head | #85 multi-hop grandmaster: tail 1 | #85 multi-hop grandmaster: tail 2 | #85 multi-hop grandmaster: tail 3 | #85 multi-hop grandmaster: tail 4 | #85 seven received entries: tail 1 | #85 seven received entries: tail 2 | #85 seven received entries: tail 3 | #85 seven received entries: tail 4 | #85 seven received entries: tail 5 | #85 seven received entries: tail 6 | #85 eight received entries: tail 1 | #85 eight received entries: tail 2 | #85 eight received entries: tail 3 | #85 eight received entries: tail 4 | #85 eight received entries: tail 5 | #85 eight received entries: tail 6 | #85 eight received entries: tail 7"
+--- mutant #75: the received head replaced by the grandmaster
+FAIL #88 head not the grandmaster: entry 0 is the received head got 00f5f5fffe000001 exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 00aaccfffe010203 exp 00bad0fffe000001
+FAIL #88 parent path headed elsewhere: head got 00f7f7fffe000001 exp 00f7f7fffe0000a1
+FAIL #87 parent refresh without a TLV: head got 00f7f7fffe000001 exp 00f7f7fffe0000a1
+[PASS] mutant caught: the received head replaced by the grandmaster - breaks "#88 head not the grandmaster: entry 0 is the received head | #88 head not the grandmaster: its commit names the grandmaster and path | #88 current parent's path headed elsewhere: entry 0 is the received head | #88 parent path headed elsewhere: head | #87 parent refresh without a TLV: head"
+--- mutant #80: (a) the own-source refusal removed
+FAIL #88 own source, one entry, stepsRemoved 3: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 own source, one entry, stepsRemoved 3: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 own source, one entry, stepsRemoved 3: flags untouched got 0000000000000005 exp 000000000000000f
+FAIL #88 own source, one entry, stepsRemoved 3: raw vector never published got ffc401f8fe436af8 exp ffc4faf8fe436af8
+[PASS] mutant caught: (a) the own-source refusal removed - breaks "#88 own source, one entry, stepsRemoved 3: still master | #88 own source, one entry, stepsRemoved 3: gm still us | #88 own source, one entry, stepsRemoved 3: flags untouched | #88 own source, one entry, stepsRemoved 3: raw vector never published"
+
+shard 0/5: 18 checks: 18 PASS, 0 FAIL (of 84 mutants total in arm)
