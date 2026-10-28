@@ -155,6 +155,9 @@ A mailbox access is timed at the CPU's load/store bus, from command to response.
 Instruction fetches are counted at the CPU's fetch bus, by region.
 Without the cache a fetch is one word; with it, one 64-byte line refill, whose wait runs to its last beat.
 With the split CPU's data cache, loads and stores are counted at its IO bus, which carries every uncached access and so every mailbox access; cached accesses and refills never reach it and are not counted.
+The flash window is this test SoC's own, cacheable and executable for the labelled hybrid-XIP arm, while the product's split CPU has it uncached and not executable (`milan_soc.ctrl_uncached_flash`, #665).
+So on the data-cached CPU the saved-state store reads the flash through the cache here, which the product never does: in the ACMP binding groups at 8x8 one pass took 14.52 ms, against 4.47 ms with the window uncached as in the product.
+Paths outside those groups read no flash in a pass.
 
 One phase is one sample.
 So each probe also reports a measured bound.
