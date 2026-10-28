@@ -1,0 +1,6 @@
+[PASS] the unmutated gateware still passes the obj_notify leg
+[PASS] mutant caught: the processor passes selectors 0, 2 and 4 through while unsettled (#790) - breaks "[GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID: stream_id is zero" (its tallies report 3 failure(s) across 499 checks)
+[PASS] mutant caught: the processor passes selector 0's three flags through while unsettled (#790) - breaks "[GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear" (its tallies report 1 failure(s) across 499 checks)
+[PASS] mutant caught: the processor passes selector 4's stream_dest_mac through while unsettled (#790) - breaks "[GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID: stream_dest_mac is zero" (its tallies report 1 failure(s) across 499 checks)
+
+4 checks: 4 PASS, 0 FAIL
