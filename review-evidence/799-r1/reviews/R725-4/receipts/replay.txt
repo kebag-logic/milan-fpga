@@ -1,0 +1,25 @@
+regular work (table): 24693 16-worker capacity: 23968
+unwindowed (table figure charged): ['follow_ring', 'pair_fill']
+table below measured: ['aaf_clock_meter 1055<1241', 'aes3 6<7', 'avtp_rxmon 73<364', 'avtp_stream 11<12', 'chmap_render 6<7', 'clkvalid 16<18', 'controller_rate 9<23', 'crf_rx 832<1124', 'crf_tx 6<7', 'gptp_plane 784<843', 'gptp_shadow 393<412', 'link_guard 7<8', 'mac_rmon 11<12', 'media_grid_align 255<258', 'media_nco 17<19', 'mmcm_servo 1145<1620', 'ptp_sync 11<12', 'ptp_ts 127<139', 'render_queue 93<178', 'rx_filter 18<19', 'shaper_core 6<7', 'tcam 27<29', 'tkdiag 28<31', 'tsn_fuzz 60<65']
+worker predicted measured limit_s
+ 0/19  1615  1615  2700 under follow_ring
+ 1/19  1445  1454  2700 under capture_coherence__3,milan_dp__1,datapath,mbx,media_nco,ptp_sync,shaper_core,tsn_fuzz
+ 2/19  1558  1558  2700 under capture_coherence__0
+ 3/19  1448  1359  2700 under maap__1,aaf_audio_loop,adp_tx,cbs,chmap_capture,gptp_tables,i2spb,render_queue,tcam,tdm_render
+ 4/19  1551  1551  2700 under milan_dp__0
+ 5/19  1522  1211  2700 under media_phase
+ 6/19  1447  1447  2700 under milan_dp__3,aes3,eth_tx_reset,tcam_csr
+ 7/19  1522  2000  2700 under >1620 media_grid_align,mmcm_servo
+ 8/19  1541  1541  2700 under capture_coherence__1,maap__0
+ 9/19  1494  1680  2700 under >1620 maap__2,aaf_clock_meter
+10/19  1445  1230  2700 under milan_dp__2,avtp_stream,cdc,controller_rate,fw_service_budget,ifg,milan_dp_gm_steps,nvm_backend
+11/19  1443  1745  2700 under >1620 maap__3,aaf_latency_tap_bank,chmap_render,crf_rx,lat_history_ring,link_guard,ptp_ts
+12/19  1531  1531  2700 under milan_dp_render__2,pp_shadow__0,csr
+13/19  1552  1552  2700 under pp_shadow__1,pp_shadow__2,nvm_cosim
+14/19  1444  1524  2700 under milan_dp_render__1,avtp_parser,clkvalid,cls,gptp_plane,gptp_shadow,pair_fill,tdm
+15/19  1443  1448  2700 under milan_dp_mclk__1,pp_shadow__3,aaf,classifier,mac_rmon,mmcm_servo_autorepair,rx_filter,tkdiag
+16/19  1444  1735  2700 under >1620 milan_dp_mclk__2,milan_dp_mclk__3,aaf_latency_taps,avtp_rxmon,crf_tx,pcmlpf,ptp
+17/19  1444  1430  2700 under capture_coherence__2,milan_dp_render__0,gptp_txts,queues
+18/19  1110  1110  3600 under milan_dp_mclk__0
+placements: {'media_phase': 5, 'follow_ring': 0, 'gptp_tables': 3, 'mmcm_servo': 7}
+workers at or over limit: 0
