@@ -1,0 +1,20 @@
+mutant: no engine commit after reset
+file: top/KL_gptp_engine.sv
+breaks: #82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1916 PASS, 13 FAIL
+FAIL #82 cold release: one commit before the first beat got 0000000000000000 exp 0000000000000001
+FAIL #82 cold release: that commit is the first edge after release got ffffffffffffffff exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 cold release: that commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: that commit is the first edge after release got ffffffffffffffff exp 0000000000000000
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its flags are gmPresent alone got 00000000ffffffff exp 0000000000000001
+FAIL p1 255 #82 cold release: one commit before the first beat got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 cold release: that commit is the first edge after release got ffffffffffffffff exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 cold release: that commit's flags are gmPresent alone got 00000000ffffffff exp 0000000000000000

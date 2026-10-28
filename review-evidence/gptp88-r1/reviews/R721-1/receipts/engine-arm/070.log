@@ -1,0 +1,50 @@
+mutant: the appended entry is the announcing source
+file: top/KL_gptp_engine.sv
+breaks: #85 direct grandmaster: tail 1 | #85 multi-hop grandmaster: tail 5 | #85 every peer path ends with thisClock
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1886 PASS, 43 FAIL
+FAIL half-identity control A: raw path tail 2 got 02a1b3fffec3d4e5 exp 02a1b2fffec3d4e5
+FAIL half-identity control B: raw path tail 2 got 02a1b2fffec3d4e4 exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: tail 1 got 00e5e5fffe000001 exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: tail 5 got 00e6e6fffe0000c4 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: tail 7 got 00e7e7fffe000007 exp 02a1b2fffec3d4e5
+FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path: head         got 00eaeafffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: tail 1      got 00f1f1fffe0000c3 exp 02a1b2fffec3d4e5
+FAIL #88 issue shape: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 head not the grandmaster: tail 2 got 00f5f5fffe0000c1 exp 02a1b2fffec3d4e5
+FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: tail 2 got 00f2f2fffe0000b1 exp 02a1b2fffec3d4e5
+FAIL #88 two entries, stepsRemoved 5: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: tail 3 got 00f3f3fffe0000c2 exp 02a1b2fffec3d4e5
+FAIL #88 three entries, stepsRemoved 0: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 G1 elected: tail 3       got 00f6f6fffe0000c1 exp 02a1b2fffec3d4e5
+FAIL #87 G1 elected: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 G1 to G2 without a TLV: tail 3 got 00f6f6fffe0000c1 exp 02a1b2fffec3d4e5
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: head got 00f7f7fffe0000c1 exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 parent path headed elsewhere: tail 2 got 00f7f7fffe0000c1 exp 02a1b2fffec3d4e5
+FAIL #88 parent path headed elsewhere: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: tail 2 got 00f7f7fffe0000c1 exp 02a1b2fffec3d4e5
+FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL adopt appends thisClock as path tail 4 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL worse announce retains path A tail 4 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL worse TLV-less announce retains path A tail 4 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL parent refresh appends thisClock got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL unknown-only current parent: keeps tail 3 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL unknown before path current parent: tail 3 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL #88 current parent's path headed elsewhere: tail 3 got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL post-release C appends thisClock got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 0000000000000176 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #85 every peer path ends with thisClock got 0000000000000030 exp 0000000000000000

@@ -1,0 +1,12 @@
+mutant: the boot commit waits for the timer bootstrap
+file: top/KL_gptp_engine.sv
+breaks: #82 cold release: that commit is the first edge after release | #82 warm reset: that commit is the first edge after release | pre-init deep Announce: no commit
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1924 PASS, 5 FAIL
+FAIL pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+FAIL #82 cold release: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL #82 warm reset: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL p1 255 pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit is the first edge after release got 0000000000000100 exp 0000000000000000

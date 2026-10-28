@@ -1,0 +1,45 @@
+mutant: becoming grandmaster unlocks the servo
+file: ucode/gen_gptp_ucode.py
+breaks: the servo stays locked across a return from mastership
+arm grading: any-failure
+arm answer: caught
+strict answer: prose-breaks
+1929 checks: 1891 PASS, 38 FAIL
+FAIL return from mastership, +50 us: step pulses got 0000000000000001 exp 0000000000000000
+FAIL return from mastership, +50 us: addend matches the mirror got 00000000000e633d exp 00000000ffe66666
+FAIL return from mastership, +50 us: no step pulse got 0000000000000015 exp 0000000000000014
+FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 00000000000e633d exp 000000000001966a
+FAIL warm-reset link-up: first pair: addend matches the mirror got 00000000000b50cd exp 00000000fffe83fa
+FAIL warm-reset link-up: locked +30 us: addend matches the mirror got 00000000ffeee640 exp 00000000ffe66666
+FAIL warm-reset link-up: +25 us: addend matches the mirror got 000000000005f089 exp 00000000fff923b6
+FAIL slew: arithmetic remains the PI policy got 000000000005f089 exp 00000000fff923b6
+FAIL slew: arithmetic remains the PI policy got 000000000005f089 exp 00000000fff923b6
+FAIL slew: arithmetic remains the PI policy got 000000000005d653 exp 00000000fff90980
+FAIL slew: arithmetic remains the PI policy got 0000000000060433 exp 00000000fff93760
+FAIL slew: arithmetic remains the PI policy got 000000000005f08a exp 00000000fff923b7
+FAIL slew: arithmetic remains the PI policy got 000000000005f08a exp 00000000fff923b7
+FAIL slew: arithmetic remains the PI policy got 000000000005d654 exp 00000000fff90981
+FAIL slew: arithmetic remains the PI policy got 0000000000060434 exp 00000000fff93761
+FAIL slew: arithmetic remains the PI policy got 000000000005f08b exp 00000000fff923b8
+FAIL slew: arithmetic remains the PI policy got 000000000005f08b exp 00000000fff923b8
+FAIL slew: arithmetic remains the PI policy got 000000000005d655 exp 00000000fff90982
+FAIL slew: arithmetic remains the PI policy got 000000000005cf84 exp 00000000fff902b1
+FAIL slew: arithmetic remains the PI policy got 000000000005c92a exp 00000000fff8fc57
+FAIL slew: arithmetic remains the PI policy got 000000000005f74e exp 00000000fff92a7b
+FAIL slew: arithmetic remains the PI policy got 000000000005e372 exp 00000000fff9169f
+FAIL slew: arithmetic remains the PI policy got 000000000005fda9 exp 00000000fff930d6
+FAIL slew: arithmetic remains the PI policy got 000000000005dce5 exp 00000000fff91012
+FAIL slew: arithmetic remains the PI policy got 0000000000060135 exp 00000000fff93462
+FAIL slew: arithmetic remains the PI policy got 000000000005ed59 exp 00000000fff92086
+FAIL slew: arithmetic remains the PI policy got 000000000005ed59 exp 00000000fff92086
+FAIL slew: arithmetic remains the PI policy got 00000000ffec53b3 exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000ffec53b3 exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000ffec53b3 exp 00000000ffe66666
+FAIL slew: arithmetic remains the PI policy got 00000000fff1726e exp 00000000ffeb8521
+FAIL slew: arithmetic remains the PI policy got 00000000ffed9b62 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000ffed9b62 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000ffed9b62 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000ffe87ca8 exp 00000000ffe66666
+FAIL slew: mastership keeps the integral-only rate got 00000000ffec53b4 exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000ffec53b4 exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000ffec53b4 exp 00000000ffe66667

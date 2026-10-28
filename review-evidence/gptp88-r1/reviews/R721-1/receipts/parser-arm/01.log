@@ -1,0 +1,21 @@
+make: Entering directory '<packet>/scratch/gptp-head-pm/tb/verilator/parser'
+python3 mutants.py
+[PASS] the unmutated parser still passes the harness
+[PASS] mutant caught: rx_err read only at eof (the planted control) - fails all 27 named check(s), first "sync rx_err at every byte: one drop"
+[PASS] mutant caught: a first-byte flag lost to the sof clear - fails all 9 named check(s), first "sync rx_err at every byte: one drop"
+[PASS] mutant caught: the eof byte's own flag ignored - fails all 19 named check(s), first "sync rx_err at every byte: one drop"
+[PASS] mutant caught: every flagged byte counts a drop - fails all 4 named check(s), first "sync rx_err held from byte 20 to eof: one drop"
+[PASS] mutant caught: rx_err ignored on every byte - fails all 4 named check(s), first "sync rx_err held from byte 20 to eof: no event"
+[PASS] mutant caught: the refusal outlives its frame - fails all 24 named check(s), first "sync control after the errors: event"
+[PASS] mutant caught: rx_err sampled between bytes - fails all 2 named check(s), first "rx_err in every gap between bytes: sync event"
+[PASS] mutant caught: a refusal skips the next frame's w2 write - fails all 8 named check(s), first "sync after a refused sync: every word is this frame's"
+[PASS] mutant caught: the path-count refusal restored (#88) - fails all 8 named check(s), first "#88 one entry, stepsRemoved 3: event"
+[PASS] mutant caught: the path-head refusal restored (#88) - fails all 6 named check(s), first "#88 head not the grandmaster, two entries: event"
+[PASS] mutant caught: the head is replaced by grandmasterIdentity (#88) - fails all 3 named check(s), first "#88 head not the grandmaster, two entries: identity 0"
+[PASS] mutant caught: the empty-path refusal restored (#88) - fails all 4 named check(s), first "#88 empty path: event"
+[PASS] mutant caught: an empty path is not marked present (#87) - fails all 5 named check(s), first "#88 empty path: present, count zero"
+[PASS] mutant caught: word 12 drops the presence bit (#87) - fails all 4 named check(s), first "ann w12 hops"
+[PASS] mutant caught: word 12 marks a TLV-less Announce present (#87) - fails all 3 named check(s), first "TLV-less ann: absent, zero count and loop"
+
+16 checks: 16 PASS, 0 FAIL
+make: Leaving directory '<packet>/scratch/gptp-head-pm/tb/verilator/parser'

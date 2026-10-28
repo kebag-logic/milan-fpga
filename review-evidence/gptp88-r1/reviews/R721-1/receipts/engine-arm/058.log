@@ -1,0 +1,13 @@
+mutant: becoming grandmaster clears sync-ok
+file: ucode/gen_gptp_ucode.py
+breaks: #84 first mastership: the master flags carry sync-ok | #84 takeover: its commit names thisClock with sync-ok | #84 every master cycle publishes sync-ok | p1 255 #84 first mastership: the master flags carry sync-ok | p1 255 #84 every master cycle publishes sync-ok
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1923 PASS, 6 FAIL
+FAIL #84 first mastership: the master flags carry sync-ok got 0000000000000007 exp 000000000000000f
+FAIL #84 takeover: its commit names thisClock with sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000000 exp 0000000000000002
+FAIL #84 every master cycle publishes sync-ok got 00000000067a2bb6 exp 0000000000000000
+FAIL p1 255 #84 first mastership: the master flags carry sync-ok got 0000000000000006 exp 000000000000000e
+FAIL p1 255 #84 every master cycle publishes sync-ok got 00000000000005b0 exp 0000000000000000

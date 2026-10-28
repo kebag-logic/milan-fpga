@@ -1,0 +1,76 @@
+mutant: the integrator is not clamped
+file: ucode/gen_gptp_ucode.py
+breaks: the integrator stays within +-200 ppm
+arm grading: any-failure
+arm answer: caught
+strict answer: prose-breaks
+1929 checks: 1860 PASS, 69 FAIL
+FAIL locked +110 us: addend matches the mirror got 00000000fff33330 exp 00000000fffd70af
+FAIL locked -110 us: addend matches the mirror got 00000000fff33330 exp 00000000fffd70af
+FAIL locked +100 us + 1 ns: addend matches the mirror got 00000000fff33331 exp 000000000000000d
+FAIL locked -100 us - 1 ns: addend matches the mirror got 00000000fff33331 exp 000000000000000d
+FAIL slew addend matches the PI mirror got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 0: addend matches the mirror got 00000000fff1eb83 exp 00000000fffeb85f
+FAIL integrator survives the step got 0000000000000000 exp 0000000000000001
+FAIL closed loop pair 1: addend matches the mirror got 0000000000129a2a exp 000000000019999a
+FAIL closed loop pair 4: addend matches the mirror got 000000000018c439 exp 000000000019999a
+FAIL closed loop pair 5: addend matches the mirror got 000000000015e82e exp 000000000019999a
+FAIL closed loop pair 6: addend matches the mirror got 000000000014341b exp 000000000019999a
+FAIL closed loop pair 7: addend matches the mirror got 00000000001339a1 exp 000000000019999a
+FAIL closed loop pair 8: addend matches the mirror got 000000000012a478 exp 000000000019999a
+FAIL closed loop pair 9: addend matches the mirror got 00000000001256e0 exp 000000000019999a
+FAIL closed loop pair 10: addend matches the mirror got 0000000000122954 exp 000000000019999a
+FAIL closed loop pair 11: addend matches the mirror got 0000000000120eec exp 000000000019999a
+FAIL closed loop pair 12: addend matches the mirror got 000000000011ffa8 exp 000000000019999a
+FAIL closed loop pair 13: addend matches the mirror got 000000000011f702 exp 000000000019999a
+FAIL closed loop pair 14: addend matches the mirror got 000000000011f25b exp 000000000019999a
+FAIL closed loop pair 15: addend matches the mirror got 000000000011ef47 exp 000000000019999a
+FAIL closed loop pair 16: addend matches the mirror got 000000000011ed94 exp 000000000019999a
+FAIL closed loop pair 17: addend matches the mirror got 000000000011ecba exp 000000000019999a
+FAIL closed loop pair 18: addend matches the mirror got 000000000011ec23 exp 000000000019999a
+FAIL closed loop pair 19: addend matches the mirror got 000000000011ec02 exp 000000000019999a
+FAIL closed loop pair 20: addend matches the mirror got 000000000011ebc0 exp 000000000019999a
+FAIL closed loop pair 21: addend matches the mirror got 000000000011eb9f exp 000000000019999a
+FAIL closed loop pair 22: addend matches the mirror got 000000000011eb6c exp 000000000019999a
+FAIL closed loop pair 23: addend matches the mirror got 000000000011ebb0 exp 000000000019999a
+FAIL long slew, master +90 us: every addend matches the mirror got 0000000000000024 exp 0000000000000000
+FAIL long slew, master -90 us: every addend matches the mirror got 0000000000000026 exp 0000000000000000
+FAIL matching FU steers as the mirror got 00000000000d6a52 exp 000000000005cdf1
+FAIL paired FU steers as the mirror got 00000000000a3dbd exp 000000000002a15c
+FAIL GM change: the pair before it: addend matches the mirror got 00000000000c1567 exp 0000000000047906
+FAIL GM change, -5 ms: addend matches the mirror got 0000000000019668 exp 00000000fff9fa07
+FAIL failover, +150 us: addend matches the mirror got 00000000000e633c exp 000000000006c6db
+FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 0000000000019669 exp 00000000fff9fa08
+FAIL warm-reset link-up: first pair: addend matches the mirror got 00000000fffe83f9 exp 00000000fff6e798
+FAIL warm-reset link-up: +25 us: addend matches the mirror got 00000000fff923b5 exp 00000000fff18754
+FAIL slew: arithmetic remains the PI policy got 00000000fff923b5 exp 00000000fff18754
+FAIL slew: arithmetic remains the PI policy got 00000000fff923b5 exp 00000000fff18754
+FAIL slew: arithmetic remains the PI policy got 00000000fff9097f exp 00000000fff16d1e
+FAIL slew: arithmetic remains the PI policy got 00000000fff9375f exp 00000000fff19afe
+FAIL slew: arithmetic remains the PI policy got 00000000fff923b6 exp 00000000fff18755
+FAIL slew: arithmetic remains the PI policy got 00000000fff923b6 exp 00000000fff18755
+FAIL slew: arithmetic remains the PI policy got 00000000fff90980 exp 00000000fff16d1f
+FAIL slew: arithmetic remains the PI policy got 00000000fff93760 exp 00000000fff19aff
+FAIL slew: arithmetic remains the PI policy got 00000000fff923b7 exp 00000000fff18756
+FAIL slew: arithmetic remains the PI policy got 00000000fff923b7 exp 00000000fff18756
+FAIL slew: arithmetic remains the PI policy got 00000000fff90981 exp 00000000fff16d20
+FAIL slew: arithmetic remains the PI policy got 00000000fff902b0 exp 00000000fff1664f
+FAIL slew: arithmetic remains the PI policy got 00000000fff8fc56 exp 00000000fff15ff5
+FAIL slew: arithmetic remains the PI policy got 00000000fff92a7a exp 00000000fff18e19
+FAIL slew: arithmetic remains the PI policy got 00000000fff9169e exp 00000000fff17a3d
+FAIL slew: arithmetic remains the PI policy got 00000000fff930d5 exp 00000000fff19474
+FAIL slew: arithmetic remains the PI policy got 00000000fff91011 exp 00000000fff173b0
+FAIL slew: arithmetic remains the PI policy got 00000000fff93461 exp 00000000fff19800
+FAIL slew: arithmetic remains the PI policy got 00000000fff92085 exp 00000000fff18424
+FAIL slew: arithmetic remains the PI policy got 00000000fff92085 exp 00000000fff18424
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffeb8521
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffe7ae15
+FAIL slew: mastership keeps the integral-only rate got 00000000ffdf86e0 exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffe66667
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffeb8521
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffe7ae15
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000ffe7ae15
+FAIL consumer envelope: no addend pulse outside +-200 ppm got 0000000000000001 exp 0000000000000000

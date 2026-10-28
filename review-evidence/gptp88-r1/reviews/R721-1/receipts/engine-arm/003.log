@@ -1,0 +1,12 @@
+mutant: slew clears before the replacement rate
+file: top/KL_gptp_engine.sv
+breaks: slew: no clear precedes the replacement rate
+arm grading: slew
+arm answer: caught
+strict answer: prose-breaks
+1929 checks: 1924 PASS, 5 FAIL
+FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+FAIL slew: completion clears with its replacement rate got 0000000000000000 exp 0000000000000001
+FAIL slew: no clear precedes the replacement rate got 0000000000000007 exp 0000000000000000

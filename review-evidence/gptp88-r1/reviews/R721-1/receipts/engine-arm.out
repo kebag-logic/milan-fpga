@@ -1,0 +1,86 @@
+clean: pass
+1 slew level tied low | caught | slew | prose-breaks
+2 slew clears at the first in-band pair | caught | slew | prose-breaks
+3 slew clears before the replacement rate | caught | slew | prose-breaks
+4 slew idle lapse arms qualification | caught | slew | prose-breaks
+5 slew idle asCapable loss arms qualification | caught | slew | prose-breaks
+6 slew mastership keeps qualification | caught | slew | prose-breaks
+7 result face always ready | caught | any-failure | prose-breaks
+8 result value taken without an accepted beat | caught | any-failure | prose-breaks
+9 result tag taken without an accepted beat | caught | any-failure | prose-breaks
+10 recorded t1 survives reset | caught | any-failure | prose-breaks
+11 byte face advances without ready | caught | any-failure | prose-breaks
+12 lost t1 fabricates a time and a companion | caught | any-failure | prose-breaks
+13 lost Sync cancels the requester exchange | caught | any-failure | prose-breaks
+14 lost response cancels the requester exchange | caught | any-failure | prose-breaks
+15 a later response re-arms the frozen pair | caught | any-failure | prose-breaks
+16 the tail runs before its own t1 | caught | any-failure | prose-breaks
+17 a new request leaves the old pair live | caught | any-failure | prose-breaks
+18 credit gate removed from the Pdelay_Req leg | caught | any-failure | prose-breaks
+19 credit gate removed from the Sync leg | caught | any-failure | prose-breaks
+20 credit gate removed from the Announce leg | caught | any-failure | prose-breaks
+21 every pair uses the locked threshold | caught | any-failure | prose-breaks
+22 every pair uses the link-up threshold | caught | any-failure | prose-breaks
+23 exactly the threshold steps | caught | any-failure | prose-breaks
+24 the step arm is unreachable | caught | any-failure | prose-breaks
+25 a grandmaster change unlocks the servo | caught | any-failure | prose-breaks
+26 a receipt timeout unlocks the servo | caught | any-failure | prose-breaks
+27 becoming grandmaster unlocks the servo | caught | any-failure | prose-breaks
+28 the locked threshold is 200 us | caught | any-failure | prose-breaks
+29 asCapable's rise keeps the lock | caught | any-failure | prose-breaks
+30 the whole trim is not clamped | caught | any-failure | prose-breaks
+31 the trim clamp is one unit wider than the envelope | caught | any-failure | prose-breaks
+32 the integrator is not clamped | caught | any-failure | prose-breaks
+33 reset leaves the grandmaster zero | caught | strict | all-named-fail
+34 reset keeps the elected grandmaster | caught | strict | all-named-fail
+35 the thisClock words are read swapped | caught | strict | all-named-fail
+36 reset leaves the path empty | caught | strict | all-named-fail
+37 reset keeps the elected tail | caught | strict | all-named-fail
+38 no engine commit after reset | caught | strict | all-named-fail
+39 the boot commit fires twice | caught | strict | all-named-fail
+40 the boot commit never retires | caught | strict | all-named-fail
+41 the boot commit waits for the timer bootstrap | caught | strict | all-named-fail
+42 a warm reset keeps the retained best record | caught | strict | all-named-fail
+43 an unwritten best record reads as the best vector | caught | strict | all-named-fail
+44 a winning peer's grandmaster is not published | caught | strict | all-named-fail
+45 a winning peer's path is not staged | caught | strict | all-named-fail
+46 the self publication keeps the departed grandmaster | caught | strict | all-named-fail
+47 the self publication keeps the departed path | caught | strict | all-named-fail
+48 the self publication keeps the departed record | caught | strict | all-named-fail
+49 an asCapable fall leaves the receipt watch running | caught | strict | all-named-fail
+50 an incapable receipt timeout keeps the elected peer | caught | strict | all-named-fail
+51 an incapable port's Announces still compete | caught | strict | all-named-fail
+52 the asCapable drop keeps the flags word | caught | strict | all-named-fail
+53 an incapable port's receipt watch is not re-armed | caught | strict | all-named-fail
+54 the published flags leave gmPresent to the microcode | caught | strict | all-named-fail
+55 the image does not mark thisClock grandmaster-capable | caught | strict | all-named-fail
+56 the capability mark ignores priority1 | caught | strict | all-named-fail
+57 mastership sets the microcode's presence bit | caught | strict | all-named-fail
+58 becoming grandmaster clears sync-ok | caught | strict | all-named-fail
+59 a queued receipt timeout clears a master's sync-ok | caught | strict | all-named-fail
+60 the receipt timeout publishes nothing | caught | strict | all-named-fail
+61 dispatch ignores a busy serializer | caught | strict | all-named-fail
+62 mastership never publishes the master bit | caught | strict | all-named-fail
+63 a handover to a peer keeps sync-ok | caught | strict | all-named-fail
+64 the received path is published without thisClock | caught | strict | all-named-fail
+65 eight received entries take a ninth | caught | strict | all-named-fail
+66 seven received entries leave thisClock out | caught | strict | all-named-fail
+67 an empty path takes no thisClock | caught | strict | all-named-fail
+68 thisClock lands one slot early | caught | strict | all-named-fail
+69 thisClock fills every later slot | caught | strict | all-named-fail
+70 the appended entry is the announcing source | caught | strict | all-named-fail
+71 the received entries are not copied | caught | strict | all-named-fail
+72 every received path is published as {thisClock} | caught | strict | all-named-fail
+73 the path-count refusal restored | caught | strict | all-named-fail
+74 the path-head refusal restored | caught | strict | all-named-fail
+75 the empty-path refusal restored | caught | strict | all-named-fail
+76 the received head replaced by the grandmaster | caught | strict | all-named-fail
+77 the received head is not published | caught | strict | all-named-fail
+78 the empty sequence published without a TLV | caught | any-failure | all-named-fail
+79 a TLV-less Announce publishes {thisClock} | caught | any-failure | all-named-fail
+80 the self path leaves entry 0 empty | caught | strict | all-named-fail
+81 (a) the own-source refusal removed | caught | strict | all-named-fail
+82 (b) the stepsRemoved refusal removed | caught | strict | all-named-fail
+83 (c) the PathTrace loop refusal removed | caught | strict | all-named-fail
+84 a parent update must beat the best | caught | strict | all-named-fail
+clean=pass mutants=84 arm-caught=84

@@ -1,0 +1,56 @@
+mutant: asCapable's rise keeps the lock
+file: ucode/gen_gptp_ucode.py
+breaks: the first pair after asCapable rises, or after a reset, is a link-up
+arm grading: any-failure
+arm answer: caught
+strict answer: prose-breaks
+1909 checks: 1860 PASS, 49 FAIL
+FAIL link-up +25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000ffef5c21
+FAIL link-up +25 us: the step writes the bare estimate got 00000000ffe66666 exp 00000000ffef5c21
+FAIL link-up -15 us: addend matches the mirror got 00000000fff851e9 exp 00000000fffeb852
+FAIL link-up -25 us: step pulses  got 0000000000000000 exp 0000000000000001
+FAIL link-up -25 us: addend matches the mirror got 000000000006666c exp 00000000fff3332e
+FAIL link-up -25 us: the step writes the bare estimate got 000000000006666c exp 00000000fff3332e
+FAIL link-up -20 us: addend matches the mirror got 0000000000028f61 exp 0000000000028f60
+FAIL link-up +20 us + 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up +20 us + 1 ns: addend matches the mirror got 00000000ffe66666 exp 00000000fff3332f
+FAIL link-up +20 us + 1 ns: the step writes the bare estimate got 00000000ffe66666 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up -20 us - 1 ns: addend matches the mirror got 0000000000028f94 exp 00000000fff3332f
+FAIL link-up -20 us - 1 ns: the step writes the bare estimate got 0000000000028f94 exp 00000000fff3332f
+FAIL link-up: one step pulse per probe over 20 us got 0000000000000009 exp 000000000000000d
+FAIL link-up after asCapable returns, -25 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL link-up after asCapable returns, -25 us: addend matches the mirror got 000000000019999a exp 0000000000019669
+FAIL warm-reset link-up: first pair: addend matches the mirror got 000000000004ea63 exp 00000000fffe83f9
+FAIL warm-reset link-up: locked +30 us: addend matches the mirror got 00000000ffe87fd6 exp 00000000ffe66666
+FAIL warm-reset link-up: +25 us: step pulses got 0000000000000000 exp 0000000000000001
+FAIL warm-reset link-up: +25 us: addend matches the mirror got 00000000ffe66666 exp 00000000fff923b5
+FAIL slew: link-up step never asserts got 0000000000000001 exp 0000000000000000
+FAIL slew: probe step count       got 0000000000000010 exp 0000000000000011
+FAIL slew: arithmetic remains the PI policy got 00000000ffe66666 exp 00000000fff923b5
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000
+FAIL slew: tracking band never asserts got 0000000000000001 exp 0000000000000000
+FAIL slew: arithmetic remains the PI policy got 00000000fff2bd4d exp 00000000fff923b5
+FAIL slew: exactly the scripted transition got 0000000000000000 exp 0000000000000001
+FAIL slew: arithmetic remains the PI policy got 00000000fff2a317 exp 00000000fff9097f
+FAIL slew: arithmetic remains the PI policy got 00000000fff2d0f7 exp 00000000fff9375f
+FAIL slew: arithmetic remains the PI policy got 00000000fff2bd4e exp 00000000fff923b6
+FAIL slew: arithmetic remains the PI policy got 00000000fff2bd4e exp 00000000fff923b6
+FAIL slew: arithmetic remains the PI policy got 00000000fff2a318 exp 00000000fff90980
+FAIL slew: arithmetic remains the PI policy got 00000000fff2d0f8 exp 00000000fff93760
+FAIL slew: arithmetic remains the PI policy got 00000000fff2bd4f exp 00000000fff923b7
+FAIL slew: arithmetic remains the PI policy got 00000000fff2bd4f exp 00000000fff923b7
+FAIL slew: arithmetic remains the PI policy got 00000000fff2a319 exp 00000000fff90981
+FAIL slew: arithmetic remains the PI policy got 00000000fff29c48 exp 00000000fff902b0
+FAIL slew: arithmetic remains the PI policy got 00000000fff295ee exp 00000000fff8fc56
+FAIL slew: arithmetic remains the PI policy got 00000000fff2c412 exp 00000000fff92a7a
+FAIL slew: arithmetic remains the PI policy got 00000000fff2b036 exp 00000000fff9169e
+FAIL slew: arithmetic remains the PI policy got 00000000fff2ca6d exp 00000000fff930d5
+FAIL slew: arithmetic remains the PI policy got 00000000fff2a9a9 exp 00000000fff91011
+FAIL slew: arithmetic remains the PI policy got 00000000fff2cdf9 exp 00000000fff93461
+FAIL slew: arithmetic remains the PI policy got 00000000fff2ba1d exp 00000000fff92085
+FAIL slew: arithmetic remains the PI policy got 00000000fff2ba1d exp 00000000fff92085
+FAIL slew: post-reset link-up step stays inactive got 0000000000000001 exp 0000000000000000
+FAIL slew: probe step count       got 0000000000000012 exp 0000000000000013
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000

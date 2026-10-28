@@ -1,0 +1,10 @@
+01	0	0.0	make contract
+02	0	6.1	make -C tb/verilator/ucpu
+03	0	6.0	make -C tb/verilator/parser run
+04	0	160.3	make -C tb/verilator/engine run
+05	0	47.6	make -C tb/verilator/gaskets
+06	0	54.0	make -C tb/tsngen
+07	0	6.1	make -C bench/arty test
+08	0	0.4	make lint
+09	0	1.1	make docs
+10	0	0.1	python3 syn/ooc/check_ooc_clock.py --selftest

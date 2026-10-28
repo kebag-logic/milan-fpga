@@ -1,0 +1,8 @@
+mutant: credit gate removed from the Pdelay_Req leg
+file: ucode/gen_gptp_ucode.py
+breaks: a Pdelay_Req beat is postponed while the transmit path has no credit
+arm grading: any-failure
+arm answer: caught
+strict answer: prose-breaks
+1929 checks: 1928 PASS, 1 FAIL
+FAIL D4 Pdelay_Req beats are withheld got 0000000000000001 exp 0000000000000000

@@ -1,0 +1,13 @@
+mutant: an incapable port's receipt watch is not re-armed
+file: ucode/gen_gptp_ucode.py
+breaks: #82 Pdelay loss: once capable, with no Announce, master in 3 s | #82 Pdelay loss: that mastership names thisClock, {thisClock} | p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1923 PASS, 6 FAIL
+FAIL #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 00000000ffffffff exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 00000000ffffffff exp 0000000000000000

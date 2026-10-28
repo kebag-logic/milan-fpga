@@ -1,0 +1,9 @@
+mutant: a queued receipt timeout clears a master's sync-ok
+file: ucode/gen_gptp_ucode.py
+breaks: #84 takeover: a queued receipt timeout keeps sync-ok | #84 every master cycle publishes sync-ok
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1927 PASS, 2 FAIL
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000001 exp 0000000000000002
+FAIL #84 every master cycle publishes sync-ok got 000000000003d794 exp 0000000000000000

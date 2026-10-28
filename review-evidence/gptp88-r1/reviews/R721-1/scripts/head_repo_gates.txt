@@ -1,0 +1,10 @@
+make contract
+make -C tb/verilator/ucpu
+make -C tb/verilator/parser run
+make -C tb/verilator/engine run
+make -C tb/verilator/gaskets
+make -C tb/tsngen
+make -C bench/arty test
+make lint
+make docs
+python3 syn/ooc/check_ooc_clock.py --selftest

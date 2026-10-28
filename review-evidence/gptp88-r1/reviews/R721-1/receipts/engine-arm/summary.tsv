@@ -1,0 +1,85 @@
+idx	mutant	arm_answer	arm_grading	strict_answer	tally
+1	slew level tied low	caught	slew	prose-breaks	1914 checks: 1871 PASS, 43 FAIL
+2	slew clears at the first in-band pair	caught	slew	prose-breaks	1926 checks: 1911 PASS, 15 FAIL
+3	slew clears before the replacement rate	caught	slew	prose-breaks	1929 checks: 1924 PASS, 5 FAIL
+4	slew idle lapse arms qualification	caught	slew	prose-breaks	1933 checks: 1923 PASS, 10 FAIL
+5	slew idle asCapable loss arms qualification	caught	slew	prose-breaks	1930 checks: 1927 PASS, 3 FAIL
+6	slew mastership keeps qualification	caught	slew	prose-breaks	1930 checks: 1928 PASS, 2 FAIL
+7	result face always ready	caught	any-failure	prose-breaks	1860 checks: 1817 PASS, 43 FAIL
+8	result value taken without an accepted beat	caught	any-failure	prose-breaks	1929 checks: 1920 PASS, 9 FAIL
+9	result tag taken without an accepted beat	caught	any-failure	prose-breaks	1868 checks: 1652 PASS, 216 FAIL
+10	recorded t1 survives reset	caught	any-failure	prose-breaks	1929 checks: 1927 PASS, 2 FAIL
+11	byte face advances without ready	caught	any-failure	prose-breaks	1732 checks: 1413 PASS, 319 FAIL
+12	lost t1 fabricates a time and a companion	caught	any-failure	prose-breaks	1929 checks: 1927 PASS, 2 FAIL
+13	lost Sync cancels the requester exchange	caught	any-failure	prose-breaks	1929 checks: 1927 PASS, 2 FAIL
+14	lost response cancels the requester exchange	caught	any-failure	prose-breaks	1929 checks: 1926 PASS, 3 FAIL
+15	a later response re-arms the frozen pair	caught	any-failure	prose-breaks	1929 checks: 1924 PASS, 5 FAIL
+16	the tail runs before its own t1	caught	any-failure	prose-breaks	1929 checks: 1909 PASS, 20 FAIL
+17	a new request leaves the old pair live	caught	any-failure	prose-breaks	1929 checks: 1912 PASS, 17 FAIL
+18	credit gate removed from the Pdelay_Req leg	caught	any-failure	prose-breaks	1929 checks: 1928 PASS, 1 FAIL
+19	credit gate removed from the Sync leg	caught	any-failure	prose-breaks	1929 checks: 1928 PASS, 1 FAIL
+20	credit gate removed from the Announce leg	caught	any-failure	prose-breaks	1929 checks: 1928 PASS, 1 FAIL
+21	every pair uses the locked threshold	caught	any-failure	prose-breaks	1909 checks: 1860 PASS, 49 FAIL
+22	every pair uses the link-up threshold	caught	any-failure	prose-breaks	1925 checks: 1787 PASS, 138 FAIL
+23	exactly the threshold steps	caught	any-failure	prose-breaks	1927 checks: 1864 PASS, 63 FAIL
+24	the step arm is unreachable	caught	any-failure	prose-breaks	1882 checks: 1764 PASS, 118 FAIL
+25	a grandmaster change unlocks the servo	caught	any-failure	prose-breaks	1929 checks: 1882 PASS, 47 FAIL
+26	a receipt timeout unlocks the servo	caught	any-failure	prose-breaks	1929 checks: 1878 PASS, 51 FAIL
+27	becoming grandmaster unlocks the servo	caught	any-failure	prose-breaks	1929 checks: 1891 PASS, 38 FAIL
+28	the locked threshold is 200 us	caught	any-failure	prose-breaks	1907 checks: 1827 PASS, 80 FAIL
+29	asCapable's rise keeps the lock	caught	any-failure	prose-breaks	1909 checks: 1860 PASS, 49 FAIL
+30	the whole trim is not clamped	caught	any-failure	prose-breaks	1929 checks: 1893 PASS, 36 FAIL
+31	the trim clamp is one unit wider than the envelope	caught	any-failure	prose-breaks	1929 checks: 1892 PASS, 37 FAIL
+32	the integrator is not clamped	caught	any-failure	prose-breaks	1929 checks: 1860 PASS, 69 FAIL
+33	reset leaves the grandmaster zero	caught	strict	all-named-fail	1929 checks: 1917 PASS, 12 FAIL
+34	reset keeps the elected grandmaster	caught	strict	all-named-fail	1921 checks: 1891 PASS, 30 FAIL
+35	the thisClock words are read swapped	caught	strict	all-named-fail	1636 checks: 760 PASS, 876 FAIL
+36	reset leaves the path empty	caught	strict	all-named-fail	1929 checks: 1917 PASS, 12 FAIL
+37	reset keeps the elected tail	caught	strict	all-named-fail	1929 checks: 1922 PASS, 7 FAIL
+38	no engine commit after reset	caught	strict	all-named-fail	1929 checks: 1916 PASS, 13 FAIL
+39	the boot commit fires twice	caught	strict	all-named-fail	1929 checks: 1926 PASS, 3 FAIL
+40	the boot commit never retires	caught	strict	all-named-fail	
+41	the boot commit waits for the timer bootstrap	caught	strict	all-named-fail	1929 checks: 1924 PASS, 5 FAIL
+42	a warm reset keeps the retained best record	caught	strict	all-named-fail	1929 checks: 1926 PASS, 3 FAIL
+43	an unwritten best record reads as the best vector	caught	strict	all-named-fail	1929 checks: 1915 PASS, 14 FAIL
+44	a winning peer's grandmaster is not published	caught	strict	all-named-fail	1929 checks: 1856 PASS, 73 FAIL
+45	a winning peer's path is not staged	caught	strict	all-named-fail	1929 checks: 1749 PASS, 180 FAIL
+46	the self publication keeps the departed grandmaster	caught	strict	all-named-fail	1854 checks: 1596 PASS, 258 FAIL
+47	the self publication keeps the departed path	caught	strict	all-named-fail	1929 checks: 1904 PASS, 25 FAIL
+48	the self publication keeps the departed record	caught	strict	all-named-fail	1929 checks: 1924 PASS, 5 FAIL
+49	an asCapable fall leaves the receipt watch running	caught	strict	all-named-fail	1929 checks: 1921 PASS, 8 FAIL
+50	an incapable receipt timeout keeps the elected peer	caught	strict	all-named-fail	1929 checks: 1921 PASS, 8 FAIL
+51	an incapable port's Announces still compete	caught	strict	all-named-fail	1929 checks: 1927 PASS, 2 FAIL
+52	the asCapable drop keeps the flags word	caught	strict	all-named-fail	1929 checks: 1927 PASS, 2 FAIL
+53	an incapable port's receipt watch is not re-armed	caught	strict	all-named-fail	1929 checks: 1923 PASS, 6 FAIL
+54	the published flags leave gmPresent to the microcode	caught	strict	all-named-fail	1929 checks: 1916 PASS, 13 FAIL
+55	the image does not mark thisClock grandmaster-capable	caught	strict	all-named-fail	1929 checks: 1916 PASS, 13 FAIL
+56	the capability mark ignores priority1	caught	strict	all-named-fail	1929 checks: 1923 PASS, 6 FAIL
+57	mastership sets the microcode's presence bit	caught	strict	all-named-fail	1929 checks: 1926 PASS, 3 FAIL
+58	becoming grandmaster clears sync-ok	caught	strict	all-named-fail	1929 checks: 1923 PASS, 6 FAIL
+59	a queued receipt timeout clears a master's sync-ok	caught	strict	all-named-fail	1929 checks: 1927 PASS, 2 FAIL
+60	the receipt timeout publishes nothing	caught	strict	all-named-fail	1929 checks: 1928 PASS, 1 FAIL
+61	dispatch ignores a busy serializer	caught	strict	all-named-fail	1929 checks: 1902 PASS, 27 FAIL
+62	mastership never publishes the master bit	caught	strict	all-named-fail	1795 checks: 1712 PASS, 83 FAIL
+63	a handover to a peer keeps sync-ok	caught	strict	all-named-fail	1928 checks: 1919 PASS, 9 FAIL
+64	the received path is published without thisClock	caught	strict	all-named-fail	1929 checks: 1861 PASS, 68 FAIL
+65	eight received entries take a ninth	caught	strict	all-named-fail	1929 checks: 1921 PASS, 8 FAIL
+66	seven received entries leave thisClock out	caught	strict	all-named-fail	1929 checks: 1925 PASS, 4 FAIL
+67	an empty path takes no thisClock	caught	strict	all-named-fail	1929 checks: 1922 PASS, 7 FAIL
+68	thisClock lands one slot early	caught	strict	all-named-fail	1929 checks: 1886 PASS, 43 FAIL
+69	thisClock fills every later slot	caught	strict	all-named-fail	1929 checks: 1827 PASS, 102 FAIL
+70	the appended entry is the announcing source	caught	strict	all-named-fail	1929 checks: 1886 PASS, 43 FAIL
+71	the received entries are not copied	caught	strict	all-named-fail	1929 checks: 1799 PASS, 130 FAIL
+72	every received path is published as {thisClock}	caught	strict	all-named-fail	1929 checks: 1749 PASS, 180 FAIL
+73	the path-count refusal restored	caught	strict	all-named-fail	1929 checks: 1895 PASS, 34 FAIL
+74	the path-head refusal restored	caught	strict	all-named-fail	1929 checks: 1901 PASS, 28 FAIL
+75	the empty-path refusal restored	caught	strict	all-named-fail	1929 checks: 1920 PASS, 9 FAIL
+76	the received head replaced by the grandmaster	caught	strict	all-named-fail	1929 checks: 1922 PASS, 7 FAIL
+77	the received head is not published	caught	strict	all-named-fail	1929 checks: 1884 PASS, 45 FAIL
+78	the empty sequence published without a TLV	caught	any-failure	all-named-fail	1929 checks: 1884 PASS, 45 FAIL
+79	a TLV-less Announce publishes {thisClock}	caught	any-failure	all-named-fail	1929 checks: 1894 PASS, 35 FAIL
+80	the self path leaves entry 0 empty	caught	strict	all-named-fail	1929 checks: 1906 PASS, 23 FAIL
+81	(a) the own-source refusal removed	caught	strict	all-named-fail	1929 checks: 1652 PASS, 277 FAIL
+82	(b) the stepsRemoved refusal removed	caught	strict	all-named-fail	1929 checks: 1642 PASS, 287 FAIL
+83	(c) the PathTrace loop refusal removed	caught	strict	all-named-fail	1929 checks: 1649 PASS, 280 FAIL
+84	a parent update must beat the best	caught	strict	all-named-fail	1929 checks: 1566 PASS, 363 FAIL

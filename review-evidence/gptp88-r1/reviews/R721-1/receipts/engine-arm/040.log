@@ -1,0 +1,11 @@
+mutant: the boot commit never retires
+file: top/KL_gptp_engine.sv
+breaks: #82 cold release: one commit before the first beat
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+
+FAIL pre-init deep Announce: no commit got 000000000000180c exp 0000000000000002
+FAIL #82 cold release: one commit before the first beat got 00000000000f4240 exp 0000000000000001
+FAIL p1 255 pre-init deep Announce: no commit got 000000000000180c exp 0000000000000002
+FAIL p1 255 #82 cold release: one commit before the first beat got 00000000000f4240 exp 0000000000000001

@@ -1,0 +1,14 @@
+probe: R1 count written without a TLV (entries kept)
+engine verdict: caught
+1929 checks: 1920 PASS, 9 FAIL
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000001 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: count got 0000000000000001 exp 0000000000000003
+FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL unknown-only current parent: keeps the previous count got 0000000000000001 exp 0000000000000004
+FAIL TLV-less current parent: keeps the previous count got 0000000000000001 exp 0000000000000008
+FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000001 exp 0000000000000008
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 0000000000000006 exp 0000000000000000
+parser verdict: n/a
+

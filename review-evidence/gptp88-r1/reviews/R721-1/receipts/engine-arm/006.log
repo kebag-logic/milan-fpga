@@ -1,0 +1,9 @@
+mutant: slew mastership keeps qualification
+file: top/KL_gptp_engine.sv
+breaks: slew: in-band return from GM stays inactive
+arm grading: slew
+arm answer: caught
+strict answer: prose-breaks
+1930 checks: 1928 PASS, 2 FAIL
+FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+FAIL slew: exactly the scripted transition got 0000000000000001 exp 0000000000000000

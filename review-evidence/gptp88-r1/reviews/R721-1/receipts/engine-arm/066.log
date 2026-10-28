@@ -1,0 +1,11 @@
+mutant: seven received entries leave thisClock out
+file: top/KL_gptp_engine.sv
+breaks: #85 seven received entries: count | #85 seven received entries: tail 7
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1925 PASS, 4 FAIL
+FAIL #85 seven received entries: count got 0000000000000007 exp 0000000000000008
+FAIL #85 seven received entries: tail 7 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 0000000000000001 exp 0000000000000000

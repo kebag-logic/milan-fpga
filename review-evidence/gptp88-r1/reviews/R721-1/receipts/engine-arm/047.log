@@ -1,0 +1,32 @@
+mutant: the self publication keeps the departed path
+file: ucode/gen_gptp_ucode.py
+breaks: #82 peer leaves: the mastership commit path is {thisClock} | #82 Pdelay loss: that commit carries {thisClock} | #82 Pdelay loss: that mastership names thisClock, {thisClock} | #82 every commit naming thisClock carries {thisClock}
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1904 PASS, 25 FAIL
+FAIL TLV-less competition control: raw path count got 0000000000000003 exp 0000000000000001
+FAIL TLV-less competition control: raw path head got 00d3d3fffe000007 exp 02a1b2fffec3d4e5
+FAIL TLV-less competition control: raw path tail 1 got 02a1b3fffec3d4e5 exp 0000000000000000
+FAIL TLV-less competition control: raw path tail 2 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 absent path: count       got 0000000000000008 exp 0000000000000001
+FAIL #85 absent path: head        got 00e8e8fffe000001 exp 02a1b2fffec3d4e5
+FAIL #85 absent path: tail 1      got 00e8e8fffe000002 exp 0000000000000000
+FAIL #85 absent path: tail 2      got 00e8e8fffe000003 exp 0000000000000000
+FAIL #85 absent path: tail 3      got 00e8e8fffe000004 exp 0000000000000000
+FAIL #85 absent path: tail 4      got 00e8e8fffe000005 exp 0000000000000000
+FAIL #85 absent path: tail 5      got 00e8e8fffe000006 exp 0000000000000000
+FAIL #85 absent path: tail 6      got 00e8e8fffe000007 exp 0000000000000000
+FAIL #85 absent path: tail 7      got 00e8e8fffe000008 exp 0000000000000000
+FAIL #85 absent path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 the degraded G2 yields with {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL own-GM transition publishes count one got 0000000000000002 exp 0000000000000001
+FAIL own-GM transition publishes thisClock at entry 0 got 00aaccfffe010203 exp 02a1b2fffec3d4e5
+FAIL own-GM transition clears tail 0 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 0000000000000057 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 every commit naming thisClock carries {thisClock} got 000000000000000a exp 0000000000000000

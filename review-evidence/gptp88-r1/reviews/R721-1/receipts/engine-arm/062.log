@@ -1,0 +1,90 @@
+mutant: mastership never publishes the master bit
+file: ucode/gen_gptp_ucode.py
+breaks: #84 master cycles were graded | p1 255 #84 master cycles were graded
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1795 checks: 1712 PASS, 83 FAIL
+FAIL became master                got 0000000000000000 exp 0000000000000001
+FAIL master flags                 got 0000000000000005 exp 0000000000000007
+FAIL #84 first mastership: the master flags carry sync-ok got 000000000000000d exp 000000000000000f
+FAIL wait_tx type 11: timeout
+FAIL wait_tx type 0: timeout
+FAIL sync collision: stamp is pending got ffffffffffffffff exp 0000000000000000
+FAIL sync collision: own stamp still builds Sync FU got 0000000000000000 exp 0000000000000001
+FAIL still master                 got 0000000000000000 exp 0000000000000002
+FAIL foreign-domain announce: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 own source, one entry, stepsRemoved 3: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 stepsRemoved 255, one entry: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 short loop, stepsRemoved 5: still master got 0000000000000000 exp 0000000000000002
+FAIL own-source announce: still master got 0000000000000000 exp 0000000000000002
+FAIL stepsRemoved-255 announce: still master got 0000000000000000 exp 0000000000000002
+FAIL deep-trace loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL eighth-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL first-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL single-hop loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL path-trace-loop announce: still master got 0000000000000000 exp 0000000000000002
+FAIL stepsRemoved-0x0100 announce: still master got 0000000000000000 exp 0000000000000002
+FAIL boundary-clean announce: degraded parent yields got 0000000000000001 exp 0000000000000003
+FAIL stepsRemoved-0xFFFF announce: still master got 0000000000000000 exp 0000000000000002
+FAIL half-identity control A: degraded parent yields got 0000000000000001 exp 0000000000000003
+FAIL half-identity control B: degraded parent yields got 0000000000000001 exp 0000000000000003
+FAIL TLV-less competition control: degraded parent yields got 0000000000000001 exp 0000000000000003
+FAIL #85 direct grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 eight received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 absent path: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 issue shape: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 head not the grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #87 the degraded G2 yields   got 0000000000000000 exp 0000000000000001
+FAIL degraded parent yields NOW   got 0000000000000001 exp 0000000000000003
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000000 exp 0000000000000002
+FAIL wait_tx type 0: timeout
+FAIL quiet ride to mastership     got 0000000000000000 exp 0000000000000001
+FAIL reset Sync claim: master setup got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL reset Sync claim: Sync sent  got 0000000000000000 exp 0000000000000001
+FAIL D1: grandmaster settled      got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D1: Sync outstanding         got 0000000000000000 exp 0000000000000001
+FAIL D2: grandmaster settled      got 0000000000000000 exp 0000000000000001
+FAIL D2b: grandmaster settled     got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D2b: Sync outstanding        got 0000000000000000 exp 0000000000000001
+FAIL D2b lost Sync left the recorded t1 alone value got 0000000000000259 exp 00000000000002bd
+FAIL D2b lost Sync left the recorded t1 alone moved got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D2b lost Sync retired its own claim got 0000000000000000 exp 0000000000000001
+FAIL D3: grandmaster settled      got 0000000000000000 exp 0000000000000001
+FAIL D3 resume: grandmaster settled got 0000000000000000 exp 0000000000000001
+FAIL D4: grandmaster settled      got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D4 the Sync beat retries     got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 11: timeout
+FAIL D4 the Announce beat retries got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 0: timeout
+FAIL D4: Sync outstanding         got 0000000000000000 exp 0000000000000001
+FAIL Sync TX frames seen          got 0000000000000000 exp 0000000000000001
+FAIL Follow_Up TX frames seen     got 0000000000000000 exp 0000000000000001
+FAIL Announce TX frames seen      got 0000000000000000 exp 0000000000000001
+FAIL slew: parent degradation returns to GM got 0000000000000000 exp 0000000000000002
+FAIL #82 peer leaves: the mastership commit names thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit has gmPresent got 00000000ffffffff exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 00000000ffffffff exp 0000000000000001
+FAIL #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+FAIL #84 the run hands mastership to a peer got 0000000000000000 exp 0000000000000001
+FAIL p1 255 became master                got 0000000000000000 exp 0000000000000001
+FAIL p1 255 master flags                 got 0000000000000004 exp 0000000000000006
+FAIL p1 255 #84 first mastership: the master flags carry sync-ok got 000000000000000c exp 000000000000000e
+FAIL p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 00000000ffffffff exp 0000000000000000
+FAIL p1 255 #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #84 the run hands mastership to a peer got 0000000000000000 exp 0000000000000001

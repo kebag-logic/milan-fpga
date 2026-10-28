@@ -1,0 +1,12 @@
+probe: R4 parser reports an empty TLV as absent
+engine verdict: caught
+1929 checks: 1923 PASS, 6 FAIL
+FAIL #88 empty path from the parent: count got 0000000000000004 exp 0000000000000001
+FAIL #88 empty path from the parent: head got 00f6f6fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: tail 1 got 00f6f6fffe0000b1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 2 got 00f6f6fffe0000c1 exp 0000000000000000
+FAIL #88 empty path from the parent: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+parser verdict: caught
+FAIL #88 empty path: present, count zero got 0000000000000000 exp 8000000000000000
+FAIL #88 empty path between unknowns: present, count zero got 0000000000000000 exp 8000000000000000

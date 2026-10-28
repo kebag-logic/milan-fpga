@@ -1,0 +1,6 @@
+(0, 'R1 count written without a TLV (entries kept)', 'caught', '1929 checks: 1920 PASS, 9 FAIL', 'n/a', 9)
+(1, 'R2 address-6 self path rewrites entry 0 only (stale entries 1..7)', 'caught', '1929 checks: 1911 PASS, 18 FAIL', 'n/a', 18)
+(2, 'R3 parser presence at bit 62 (engine reads 63)', 'caught', '1929 checks: 1749 PASS, 180 FAIL', 'caught', 180)
+(3, 'R4 parser reports an empty TLV as absent', 'caught', '1929 checks: 1923 PASS, 6 FAIL', 'caught', 6)
+(4, 'R5 keep-previous only while the grandmaster is unchanged', 'caught', '1929 checks: 1923 PASS, 6 FAIL', 'n/a', 6)
+(5, 'R6 entry 0 captured from w17 (head dropped, path shifted)', 'caught', '1929 checks: 1799 PASS, 130 FAIL', 'n/a', 130)

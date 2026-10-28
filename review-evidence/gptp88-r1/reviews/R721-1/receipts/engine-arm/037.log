@@ -1,0 +1,14 @@
+mutant: reset keeps the elected tail
+file: top/KL_gptp_engine.sv
+breaks: #82 warm reset: its path is {thisClock} with a zero tail | #82 every commit naming thisClock carries {thisClock}
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1922 PASS, 7 FAIL
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 000000000000000d exp 0000000000000000
+FAIL p1 255 #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a15d exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 every commit naming thisClock carries {thisClock} got 0000000000000003 exp 0000000000000000

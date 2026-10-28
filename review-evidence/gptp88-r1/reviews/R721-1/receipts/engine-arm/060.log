@@ -1,0 +1,8 @@
+mutant: the receipt timeout publishes nothing
+file: ucode/gen_gptp_ucode.py
+breaks: #84 takeover: the queued receipt timeout commits after it
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1928 PASS, 1 FAIL
+FAIL #84 takeover: the queued receipt timeout commits after it got 0000000000000000 exp 0000000000000001

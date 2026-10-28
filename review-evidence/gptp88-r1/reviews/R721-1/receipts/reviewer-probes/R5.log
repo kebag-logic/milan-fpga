@@ -1,0 +1,11 @@
+probe: R5 keep-previous only while the grandmaster is unchanged
+engine verdict: caught
+1929 checks: 1923 PASS, 6 FAIL
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000001 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: head got 02a1b2fffec3d4e5 exp 00f6f6fffe000001
+FAIL #87 G1 to G2 without a TLV: tail 1 got 0000000000000000 exp 00f6f6fffe0000b1
+FAIL #87 G1 to G2 without a TLV: tail 2 got 0000000000000000 exp 00f6f6fffe0000c1
+FAIL #87 G1 to G2 without a TLV: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+parser verdict: n/a
+

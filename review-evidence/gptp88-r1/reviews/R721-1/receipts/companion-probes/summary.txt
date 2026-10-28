@@ -1,0 +1,9 @@
+C2-shadow-generation-ignores-entry0: rc=0 320 checks: 320 PASS, 0 FAIL
+C1-datapath-entry0-from-GM: rc=2 192 checks: 188 PASS, 4 FAIL
+FAIL TLV-less GM switch emits no false GET_AS_PATH push got 0000000000000001 exp 0000000000000000
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 00aaccfffe010204 exp 00aaccfffe010203
+FAIL #88 post-cut response is {thisClock} got 00aaccfffe010204 exp 02a1b2fffec3d4e5
+FAIL #88 GET_AS_PATH entry 0 is the received head got 00aaccfffe010204 exp 001122fffe000044
+C2 milan_dp gptp rc=0 192 checks: 192 PASS, 0 FAIL
+C2 tsn_fuzz ptp rc=2 == gPTP/802.1AS field campaign (tsn-gen driven): 675 pass, 0 fail, 0 known gaps ==
+C3 datapath AS_PATH comparator ignores entry 0: milan_dp gptp rc=0 192 checks: 192 PASS, 0 FAIL

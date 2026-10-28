@@ -1,0 +1,10 @@
+mutant: mastership sets the microcode's presence bit
+file: ucode/gen_gptp_ucode.py
+breaks: p1 255 #82 Pdelay loss: that mastership commit has gmPresent
+arm grading: strict
+arm answer: caught
+strict answer: all-named-fail
+1929 checks: 1926 PASS, 3 FAIL
+FAIL p1 255 master flags                 got 0000000000000007 exp 0000000000000006
+FAIL p1 255 #84 first mastership: the master flags carry sync-ok got 000000000000000f exp 000000000000000e
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
