@@ -346,7 +346,7 @@ so treat them as ordering, not promises.
       latency       - image: validate   proof (#394)    - 802.1AS            I/O, power)
       (setpoint law,  fabric ownership - temp-range       conformance      - EMC / safety
       0x002F)         no retired runtime timing signoff - PCB layout +     - factory
-    - software DLL  - dual-slot QSPI  - week-long soak    fab               provisioning
+    - software DLL  - dual-slot QSPI  - 24 h soak         fab               provisioning
       (GM step        + golden image    + power-cycle   - redundancy        (MAC/EUI-64,
       re-base)      - field update      torture as        (Section 8)       serials, test
     - CRF sink        path              release gates     revisit, #394     fixture)

@@ -320,15 +320,23 @@ verified blocks outside the shipping datapath; the station-address rules
   demonstrates asCapable, GM transition/recovery, publication/`tu` correlation,
   conformance, and latency (#117).
 - **REQ-VER-06 (MUST):** Each shipping candidate passes both release campaigns.
-  The soak lasts at least seven continuous days.
+  The [owner decisions of 2026-10-26](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-6408072465) set their values.
+  The soak lasts at least 24 continuous hours.
   Streams remain bound in both directions with the reference peer.
   CRF participates alongside AAF.
   Every declared stream index receives periodic counter observations.
   The sampling interval must not exceed 60 seconds.
   Counter authority: Milan v1.2 5.3.7.7/5.3.8.10, Tables 5.4/5.6.
   `SEQ_NUM_MISMATCH` and `STREAM_INTERRUPTED` must never increase.
+  `LATE_TIMESTAMP` and `EARLY_TIMESTAMP` must never increase either.
+  These hold on every Stream Input, CRF included.
   Sequence authority: IEEE 1722-2016 4.4.4.6.
-  No unexplained `MEDIA_UNLOCKED` increase is permitted.
+  `MEDIA_UNLOCKED` must not increase outside a recorded planted event.
+  That holds whatever the cause, explained or not.
+  An increment is excused only between two reads inside its input's planted window.
+  Each planted event excuses at most one increment per input.
+  Any counter decrease is a reset and fails the soak.
+  `check_release_soak_counters` grades these counter rules.
   No `asCapable` loss is permitted.
   `asCapable` authority: Milan v1.2 4.2.6.2.4.
   Every `mr` toggle requires a recorded media-clock cause.
@@ -389,19 +397,80 @@ verified blocks outside the shipping datapath; the station-address rules
   Clock validity implements 0.25-0.5 seconds of discontinuity holdover.
   B.1's five-second media-clock holdover never bounds `tu`.
   Observe gPTP publication, `AVTPRX_TSD` margin, and monotonic uptime.
-  The power campaign completes 200 unattended cold cuts.
-  Of these, 160 occur idle; 40 interrupt journal commits.
-  Warm resets do not count.
-  Every cycle restores the shipping image's persisted state items.
-  Currently that list contains stream binding.
-  Binding authority: Milan v1.2 5.3.8.2/5.3.8.3.
-  All eight Milan items become mandatory when #70 lands.
+  An audio-integrity run rides inside the same 24-hour soak window.
+  Its [signal design](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5978644444) is a bit-exact sample counter.
+  The counter never repeats within a run; its period is 2^43 samples.
+  That is about 530 days at 192 kHz, the highest Milan v1.2 6.2 (Table 6.1) rate.
+  Every channel of every bound AAF stream carries it, in both directions.
+  The paths are the DUT talker to the reference peer to an external digital capture.
+  They include the reference peer to the DUT listener and its TDM output.
+  They include the DUT's TDM loop too.
+  Every capture meets one property: a capture with a DUT event the bytes show never grades PASS.
+  Each such event is covered, on each channel it changes, by at least one listing.
+  A listing covers it when the listing's samples overlap the event's first word minus 63 to its last word plus 63.
+  A listing's samples are its words, and for a slip the samples `located_within` names as well.
+  A DUT event inside a constant-mask excursion on the same channel may be covered by that excursion's listing alone.
+  The exception is an event that masks a planted arm at its sample; the run is then void, and its reason names that cause.
+  A seeded fuzz over compositions of DUT events and planted arms is the gate for this property.
+  Exact classification is claimed only inside a stated scope, which TESTING 6d lists.
+  The scope is one event at a time, away from the planted arms, and the compositions the self-test sweeps grade.
+  Inside it, each discontinuity is classified at its sample, and every slip is sized exactly.
+  Each listing there begins within 63 samples of the event's first word.
+  Outside it, the property promises coverage, not position.
+  The classes are n dropped, n repeated, n samples of silence, a bit-flip mask and a channel swap.
+  Only a reciprocal exchange is a swap; a corrupted or copied channel number is a bit-flip.
+  A channel swapped from the first frame fails as a swap, its counter still tracked.
+  An excursion that returns to its track under one XOR mask is one bit-flip, at any length.
+  That holds unless the mask clears its channel number, which is outside the scope.
+  On every channel, the reported slips sum to the shift the bytes decode.
+  A window no reading balances is one unresolved event, never an unbalanced slip.
+  Outside the scope, a composition may read in other classes, or void the run.
+  Two examples are a DUT event over or beside a planted arm and a multi-word excursion beside other events.
+  Where the bytes allow two readings, the planted-arm log decides at a logged arm, never at the cost of another DUT event.
+  Patterns the signal cannot tell apart follow the rules and limits of [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle).
+  A slip of whole blocks shows only within 63 samples, so each verdict states its qualified interval.
+  It runs from 63 samples after the last channel's acquisition to 63 samples before the capture's end.
+  Nothing outside it is proved clean.
+  At either end, a stretch that differs from its track only in the code bit is one unresolved event.
+  It may be a slip of whole blocks or a code-bit corruption, so it never claims an exact class.
+  The source plants a drop, a repeat and a bit flip at both ends of the run.
+  Both ends are the first and the last tenth of the capture, inside the qualified interval.
+  A missed planted arm voids the run.
+  Capture-side losses are logged by the capture tool and reported apart.
+  A loss still advances the acquisition index and both clocks.
+  It is not observed time, so it never counts toward the qualified interval.
+  Each event records wall and gPTP times, capture index, words and class.
+  Its times are interpolated between the capture tool's anchors, never invented.
+  Counter, `SLIP_*` and gPTP walks bracket each event.
+  The run passes with zero DUT-attributed events on every bound channel.
+  Its qualified interval must also hold at least 24 hours of observed samples.
+  So each capture runs past the 24 hours at both ends.
+  `grade_audio_counter_capture` grades the counter captures.
+  A sine pair, 997 Hz and 9,973 Hz, crosses the analog path.
+  THD+N and the sample-exact predictor residual grade it.
+  Their limits are not yet decided, so that check is NOT RUN until set.
+  The power campaign completes 200 unattended cycles.
+  150 are cold cuts from the power strip: 100 idle, 50 inside journal commits.
+  50 are soft resets with power held on.
+  A soft reset never counts as a cold cut, nor a cut as a reset.
+  Soft-reset authority: Milan v1.2 5.5.1.4, "a power cycle or a simple reset".
+  Every cycle restores the eight Milan items of #70's inventory and the binding.
+  Each item is set away from its default before the cycle.
+  A restore that writes nothing then reads back as a failure.
+  Binding authority: Milan v1.2 5.3.8.2/5.3.8.3/5.3.8.7.
   The plan receives that inventory as data.
   Remaining authority: Milan v1.2 5.3.5.1, 5.3.7.1/5.3.7.6,
-  5.3.8.1/5.3.8.7, 5.3.9.1, 5.3.10.1, 5.3.11.1, and 5.3.13.
+  5.3.8.1, 5.3.9.1, 5.3.10.1, 5.3.11.1, and 5.3.13.
+  The current configuration is #70's item 1.
+  Milan v1.2 states no separate non-volatile clause for it.
   Any additional declared state follows the project persistence inventory.
   Commit cuts recover complete old or new committed snapshots.
+  Every pending value is set away from its default too.
+  The cut instant must lie inside the recorded commit window.
+  A cut outside it hit no journal commit and cannot count.
+  `check_release_state_restored` grades every cycle's readback.
   T0 is the host-timestamped power-strip ON command.
+  For a soft reset, T0 is the host-timestamped reset command.
   Record `power_off_hold_s`, default eight seconds, and verify discharge.
   Its default follows the `phys.dut-cycle.power-cycle` contract.
   Capture the last pre-cut `ENTITY_AVAILABLE`, including its timestamp.
@@ -434,8 +503,12 @@ verified blocks outside the shipping datapath; the station-address rules
   Continue observation until the next cut or campaign end.
   These timing rules follow the
   [round-3 decision](https://github.com/kebag-logic/milan-fpga/issues/396#issuecomment-5855515133).
-  Release planning requires explicit topology and the stream-binding inventory.
+  Release planning requires explicit topology and the complete nine-item inventory.
   Both campaigns use one DUT and the reference peer.
+  Negative controls prove the gate can fail.
+  The #366 first-boot restart fails the single-boot check.
+  A persistence-disabled build fails the state restore.
+  A planted audio drop fails the audio run, classified exactly.
   Retain exact-image evidence under [TESTING.md 6b](docs/testing/TESTING.md#6b-bench-evidence-retention).
   Execute the plan contract in [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle).
   Missing measurements and desk-only passes cannot qualify a release.
@@ -443,8 +516,9 @@ verified blocks outside the shipping datapath; the station-address rules
 Release acceptance requires all requirements above or an explicit standards-
 cited deviation in the traceability table. At the current candidate, #70 and
 #117 remain hard blockers; desk checks cannot substitute for their power-cycle
-and physical measurements. REQ-VER-05 also requires REQ-VER-06 campaign evidence.
-Issue #396's physical campaigns and negative control remain open.
+and physical measurements. REQ-VER-05 also requires REQ-VER-06 campaign evidence:
+the 24-hour soak with its audio-integrity run and the 200-cycle power campaign.
+Issue #396's physical campaigns and negative controls remain open.
 
 ## 9. Out of scope
 
