@@ -1,0 +1,17 @@
+{
+ "id": "M2s",
+ "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+ "old": "if (4'(pk + 1) <= pub_path_count_next_w)",
+ "new": "if (4'(pk + 2) <= pub_path_count_next_w)",
+ "cmd": "make -C tb/verilator/gptp_shadow run",
+ "rc": 2,
+ "seconds": 36.9,
+ "verdict": "KILLED",
+ "named_checks": {
+  "maximum bounded PathTrace reaches final tail slot": "FAIL maximum bounded PathTrace reaches final tail slot got 0000000000000000 exp 0080e1fffe112233"
+ },
+ "fail_line_count": 6,
+ "tally": [
+  "325 checks: 320 PASS, 5 FAIL"
+ ]
+}

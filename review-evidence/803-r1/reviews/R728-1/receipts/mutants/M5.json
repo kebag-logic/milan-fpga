@@ -1,0 +1,17 @@
+{
+ "id": "M5",
+ "file": "hdl/milan/milan_datapath.sv",
+ "old": "if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_resp_head_r;",
+ "new": "if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_live_head_w;",
+ "cmd": "make -C tb/verilator/milan_dp gptp",
+ "rc": 0,
+ "seconds": 175.9,
+ "verdict": "SURVIVED",
+ "named_checks": {
+  "in-flight response remains wholly old GM": null
+ },
+ "fail_line_count": 1,
+ "tally": [
+  "200 checks: 200 PASS, 0 FAIL"
+ ]
+}

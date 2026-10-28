@@ -1,0 +1,18 @@
+{
+ "id": "M6",
+ "file": "hdl/milan/milan_datapath.sv",
+ "old": "gptp_pub_path_tail_w = gptp_pub_path_w[8*64-1:64];",
+ "new": "gptp_pub_path_tail_w = gptp_pub_path_w[7*64-1:0];",
+ "cmd": "make -C tb/verilator/milan_dp gptp",
+ "rc": 2,
+ "seconds": 172.6,
+ "verdict": "KILLED",
+ "named_checks": {
+  "#88 GET_AS_PATH entry 1 is the parent": "FAIL #88 GET_AS_PATH entry 1 is the parent got 001122fffe000044 exp 0080e1fffe112233",
+  "#88 GET_AS_PATH ends with thisClock": "FAIL #88 GET_AS_PATH ends with thisClock got 0080e1fffe112233 exp 02a1b2fffec3d4e5"
+ },
+ "fail_line_count": 13,
+ "tally": [
+  "200 checks: 188 PASS, 12 FAIL"
+ ]
+}
