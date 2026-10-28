@@ -1,0 +1,18 @@
+[rc=0] python3 scripts/ci_gate_workflows_selftest.py
+[rc=0] python3 scripts/ci_case_receipts_selftest.py
+[rc=0] python3 scripts/ci_make_cases_selftest.py
+[rc=0] python3 scripts/ci_maap_cases_selftest.py
+[rc=0] python3 scripts/ci_capture_cases_selftest.py
+[rc=0] python3 scripts/ci_suite_pieces_selftest.py
+[rc=0] python3 scripts/ci_suite_collect_selftest.py
+[rc=0] python3 scripts/ci_fail_fast_selftest.py
+[rc=0] python3 scripts/ci_runtime_evidence_selftest.py
+[rc=0] python3 scripts/ci_install_cache_selftest.py
+[rc=0] python3 scripts/generate_ci_evidence_pins.py --check
+[rc=0] python3 scripts/ci_workflow_plan_selftest.py
+[rc=0] python3 scripts/ci_manifest_selftest.py
+[rc=0] python3 scripts/ci_events.py --selftest
+[rc=0] python3 scripts/act_ci.py --selftest
+[rc=0] python3 sw/builder/test_firmware_compiler.py --selftest
+docs CI self-tests: 0 failed
+rc=0
