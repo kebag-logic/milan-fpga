@@ -2818,6 +2818,14 @@ def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float | 
 #: the measured sweep this is chosen from.
 CTRL_FETCH_L1 = (64, 1)
 
+#: The split placement's data cache (#665, owner decision 2026-10-28; NFR-SCOUT-01): VexiiRiscv's
+#: LSU L1 as (sets, ways) of the generator's 64-byte line, 8 KiB direct-mapped, the smallest size
+#: measured to drain the composed bursts within T_svc. With the DMA port the generator makes it
+#: coherent through its hub (patch 0005: lsuL1Coherency), so a write the protocol memory bridges
+#: carry reaches the CPU's copy. The mailbox, CSR and flash windows stay uncached by region
+#: (ctrl_uncached_flash). docs/design/SPLIT_CONTROL_MEMORY.md section 9 gives the measurement.
+CTRL_LSU_L1 = (128, 1)
+
 #: The split placement's multiply and divide (#665, owner decision 2026-10-27; NFR-SCOUT-01):
 #: the pinned VexiiRiscv's RV32M, its MulPlugin and its DivPlugin at the generator's defaults
 #: (radix 2, built for area). The split firmware is built rv32im, so its 32-bit multiplies and
@@ -2827,19 +2835,42 @@ CTRL_MULDIV = "--with-mul --with-div"
 
 def ctrl_cpu_args(fetch_l1: tuple[int, int] | None) -> str:
     """The generator options the split placement adds to its CPU: RV32M, and its instruction
-    cache unless fetch_l1 is None.
+    and data caches unless fetch_l1 is None.
 
-    Only the fetch side is cached. An LSU L1 with the DMA port makes the
-    generator build its coherent interconnect and hub instead of patch 0005's
-    non-coherent fabric; the data-side cost measured with the instruction
-    cache is mostly byte-loop stores, which firmware removes first (#665).
-    The ISA does not depend on the cache: the split image is RV32IM, so every
-    cache geometry runs it, None included.
+    The data cache (CTRL_LSU_L1) comes with the instruction cache: with the
+    DMA port an LSU L1 makes the generator build its coherent interconnect and
+    hub instead of patch 0005's non-coherent fabric (#665). None is the
+    cacheless CPU on both sides. The ISA does not depend on the caches: the
+    split image is RV32IM, so every cache geometry runs it, None included.
     """
     if fetch_l1 is None:
         return CTRL_MULDIV
     sets, ways = fetch_l1
-    return f"{CTRL_MULDIV} --fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
+    lsu_sets, lsu_ways = CTRL_LSU_L1
+    return (f"{CTRL_MULDIV} --fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
+            f" --lsu-l1 --lsu-l1-sets={lsu_sets} --lsu-l1-ways={lsu_ways}")
+
+
+def ctrl_uncached_flash(soc: SoCCore) -> None:
+    """Keep the split CPU's flash window out of its data cache (#665, NFR-SCOUT-01).
+
+    The saved-state store reads the flash through the window and erases and
+    programs it through the LiteSPI command master, which no cache sees
+    (sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c), then blank-checks and
+    verifies through the window. A line the data cache held before the erase
+    would read stale after it. VexiiRiscv takes each region's cacheability
+    from the region list it is generated from, and an uncached peripheral
+    region is an IO access on its data bus; the generator refuses an uncached
+    region only on its memory bus. LiteX's own rule that a region outside the
+    IO region is cached is a rule for CPUs whose caches follow the IO region
+    alone, so the region is marked after it is added. The split image runs
+    from rom (ctrl_split.ld), so the window also stops being executable: a
+    fetch from it faults instead of running uncached, and every executable
+    region stays cacheable for the instruction cache.
+    """
+    region = soc.bus.regions["spiflash"]
+    region.cached = False
+    region.mode = region.mode.replace("x", "")
 
 
 class MilanSoC(SoCCore):
@@ -2885,7 +2916,7 @@ class MilanSoC(SoCCore):
                 "Milan datapath is present")
         # ---- RISC-V core(s). Two cores are understood by the integration, although
         #      the product gate below accepts only RV32 VexiiRiscv, RV32I and cacheless
-        #      except for the split placement's RV32M and instruction cache (ctrl_cpu_args). The
+        #      except for the split placement's RV32M and caches (ctrl_cpu_args). The
         #      processor descriptor/response bridges need the core's dedicated
         #      fabric-memory attachment whenever the Milan endpoint is present;
         #      it is a structural part of those two protocol faces.
@@ -2907,8 +2938,8 @@ class MilanSoC(SoCCore):
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
             if ctrl_mailbox:
-                # #665: the split placement's CPU has RV32M and fetches through its
-                # instruction cache. The all-fabric CPU's arguments, so its netlist, are unchanged.
+                # #665: the split placement's CPU has RV32M and its instruction and data
+                # caches. The all-fabric CPU's arguments, so its netlist, are unchanged.
                 vexii_extra = " ".join(filter(None, (vexii_extra, ctrl_cpu_args(CTRL_FETCH_L1))))
             # --xlen is a REAL knob on this path, not a NaxRiscv-only one. It used to be
             # hardcoded to 64 here, so `--cpu vexiiriscv --xlen 32` was accepted and
@@ -3099,6 +3130,9 @@ class MilanSoC(SoCCore):
             # 50 MHz reads corrupt (CRC differs per read); r2slots was borderline-OK.
             self.add_spi_flash(mode="1x", module=flash_module,
                                clk_freq=int(12.5e6), with_master=True)
+            if ctrl_mailbox:
+                # #665: no flash line may sit in the split CPU's data cache.
+                ctrl_uncached_flash(self)
             # The BIOS boot-time auto-calibration (liblitespi spiflash_freq_init) re-tunes the
             # divisor UP from this default as long as a short CRC test block reads stably  -  on
             # this board it locked div=2 (50 MHz) and the marginality only shows on MB-scale
