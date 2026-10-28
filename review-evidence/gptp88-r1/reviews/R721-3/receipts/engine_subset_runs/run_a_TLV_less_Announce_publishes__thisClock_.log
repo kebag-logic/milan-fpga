@@ -1,0 +1,51 @@
+rc 1
+INFO #82 cold release graded for 2400617 cycles to the first beat
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000001 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: head got 02a1b2fffec3d4e5 exp 00f6f6fffe000001
+FAIL #87 G1 to G2 without a TLV: tail 1 got 0000000000000000 exp 00f6f6fffe0000b1
+FAIL #87 G1 to G2 without a TLV: tail 2 got 0000000000000000 exp 00f6f6fffe0000c1
+FAIL #87 G1 to G2 without a TLV: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: count got 0000000000000001 exp 0000000000000003
+FAIL #87 parent refresh without a TLV: head got 02a1b2fffec3d4e5 exp 00f7f7fffe0000a1
+FAIL #87 parent refresh without a TLV: tail 1 got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #87 parent refresh without a TLV: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL unknown-only current parent: keeps the previous count got 0000000000000001 exp 0000000000000004
+FAIL unknown-only current parent: keeps the previous head got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL unknown-only current parent: keeps tail 1 got 0000000000000000 exp 00ccd0fffe000033
+FAIL unknown-only current parent: keeps tail 2 got 0000000000000000 exp 0080e1fffe112233
+FAIL unknown-only current parent: keeps tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL TLV-less current parent: keeps the previous count got 0000000000000001 exp 0000000000000008
+FAIL TLV-less current parent: keeps the previous head got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL TLV-less current parent: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL TLV-less current parent: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL TLV-less current parent: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL TLV-less current parent: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL TLV-less current parent: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL TLV-less current parent: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL TLV-less current parent: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000001 exp 0000000000000008
+FAIL out-of-message fake PathTrace: keeps the previous head got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL out-of-message fake PathTrace: keeps tail 1 got 0000000000000000 exp 00f800fffe000001
+FAIL out-of-message fake PathTrace: keeps tail 2 got 0000000000000000 exp 00f800fffe000002
+FAIL out-of-message fake PathTrace: keeps tail 3 got 0000000000000000 exp 00f800fffe000003
+FAIL out-of-message fake PathTrace: keeps tail 4 got 0000000000000000 exp 00f800fffe000004
+FAIL out-of-message fake PathTrace: keeps tail 5 got 0000000000000000 exp 00f800fffe000005
+FAIL out-of-message fake PathTrace: keeps tail 6 got 0000000000000000 exp 00f800fffe000006
+FAIL out-of-message fake PathTrace: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset -1 ns, trim 1174470
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 1 ns, trim 1174350
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000661 cycles after asCapable rises
+INFO #82 786 commits graded for the self path
+INFO #84 266593549 master cycles graded, 48 handovers to a peer
+INFO #85 588 peer commits graded for thisClock last
+INFO #82 cold release graded for 2400617 cycles to the first beat
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 0
+INFO #82 Pdelay loss: mastership commits 2000739 cycles after asCapable rises
+INFO #82 108 commits graded for the self path
+INFO #84 15533 master cycles graded, 4 handovers to a peer
+INFO #85 92 peer commits graded for thisClock last
+2037 checks: 2002 PASS, 35 FAIL

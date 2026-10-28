@@ -1,0 +1,116 @@
+subset: 10 of 112 mutants match '#88 issue shape|#88 head not the grandmaster|^#87 |\\| #87 '
+control: pass
+FAIL #85 direct grandmaster: tail 2 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 2      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 3      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 4      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 5      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 6      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 7      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 head not the grandmaster: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 head not the grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path: tail 1       got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path: tail 7       got 02a1b2fffec3d4e5 exp 0000000000000000
+[PASS] mutant caught: thisClock fills every later slot - breaks "#85 direct grandmaster: tail 2 | #85 direct grandmaster: tail 3 | #85 direct grandmaster: tail 4 | #85 direct grandmaster: tail 5 | #85 direct grandmaster: tail 6 | #85 direct grandmaster: tail 7 | #85 multi-hop grandmaster: tail 6 | #85 multi-hop grandmaster: tail 7 | #88 issue shape: tail 2 | #88 issue shape: tail 3 | #88 issue shape: tail 4 | #88 issue shape: tail 5 | #88 issue shape: tail 6 | #88 issue shape: tail 7 | #88 two entries, stepsRemoved 5: tail 3 | #88 two entries, stepsRemoved 5: tail 4 | #88 two entries, stepsRemoved 5: tail 5 | #88 two entries, stepsRemoved 5: tail 6 | #88 two entries, stepsRemoved 5: tail 7 | #88 three entries, stepsRemoved 0: tail 4 | #88 three entries, stepsRemoved 0: tail 5 | #88 three entries, stepsRemoved 0: tail 6 | #88 three entries, stepsRemoved 0: tail 7 | #88 head not the grandmaster: tail 3 | #88 head not the grandmaster: tail 7 | #88 empty path: tail 1 | #88 empty path: tail 7"
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000000 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: count got 0000000000000000 exp 0000000000000003
+FAIL #85 absent path: count       got 0000000000000000 exp 0000000000000001
+FAIL TLV-less competition control: raw path count got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less count got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less selection commits {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL TLV-less current parent: keeps the previous count got 0000000000000000 exp 0000000000000008
+FAIL unknown-only current parent: keeps the previous count got 0000000000000000 exp 0000000000000004
+FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000000 exp 0000000000000008
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 000000000000000b exp 0000000000000000
+[PASS] mutant caught: the empty sequence published without a TLV - breaks "#87 G1 to G2 without a TLV: count | #87 G1 to G2 without a TLV: its commit names the grandmaster and path | #87 parent refresh without a TLV: count | #85 absent path: count | TLV-less competition control: raw path count | #87 post-warm-reset TLV-less count | #87 post-warm-reset TLV-less selection commits {thisClock} | TLV-less current parent: keeps the previous count | unknown-only current parent: keeps the previous count | out-of-message fake PathTrace: keeps the previous count | #87 raw-empty overload: frozen A keeps C's path | #85 every peer path ends with thisClock"
+FAIL #88 issue shape: elected     got 02a1b2fffec3d4e5 exp 00f1f1fffe000001
+FAIL #88 issue shape: no longer master got 0000000000000002 exp 0000000000000000
+FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+FAIL #88 issue shape: no Announce for one interval got 0000000000000001 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: elected got 02a1b2fffec3d4e5 exp 00f2f2fffe000001
+FAIL #88 three entries, stepsRemoved 0: elected got 02a1b2fffec3d4e5 exp 00f3f3fffe000001
+FAIL #88 own source, one entry, stepsRemoved 3: parser-drop policy got 000000000000000a exp 0000000000000009
+FAIL #88 stepsRemoved 255, one entry: parser-drop policy got 000000000000000b exp 000000000000000a
+FAIL #88 short loop, stepsRemoved 5: parser-drop policy got 000000000000000c exp 000000000000000b
+[PASS] mutant caught: the path-count refusal restored - breaks "#88 issue shape: elected | #88 issue shape: no longer master | #88 issue shape: count | #88 issue shape: no Announce for one interval | #88 two entries, stepsRemoved 5: elected | #88 three entries, stepsRemoved 0: elected | #88 own source, one entry, stepsRemoved 3: parser-drop policy | #88 stepsRemoved 255, one entry: parser-drop policy | #88 short loop, stepsRemoved 5: parser-drop policy"
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000001 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: head got 02a1b2fffec3d4e5 exp 00f6f6fffe000001
+FAIL #87 parent refresh without a TLV: head got 02a1b2fffec3d4e5 exp 00f7f7fffe0000a1
+FAIL TLV-less current parent: keeps the previous count got 0000000000000001 exp 0000000000000008
+FAIL unknown-only current parent: keeps the previous head got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL out-of-message fake PathTrace: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a TLV-less Announce publishes {thisClock} - breaks "#87 G1 to G2 without a TLV: count | #87 G1 to G2 without a TLV: head | #87 parent refresh without a TLV: head | TLV-less current parent: keeps the previous count | unknown-only current parent: keeps the previous head | out-of-message fake PathTrace: keeps tail 7 | #87 raw-empty overload: frozen A keeps C's path"
+FAIL #85 direct grandmaster: head got 0000000000000000 exp 00e5e5fffe000001
+FAIL #88 issue shape: entry 0 is the received head got 0000000000000000 exp 00f1f1fffe000001
+FAIL adopt publishes path head    got 0000000000000000 exp 00aaccfffe010203
+FAIL worse announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+FAIL worse TLV-less announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+FAIL deep path retains its head   got 0000000000000000 exp 00aaccfffe010203
+FAIL parent refresh publishes path C head got 0000000000000000 exp 00aaccfffe010203
+FAIL unknown-only current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL unknown before path current parent: head got 0000000000000000 exp 00aaccfffe010203
+FAIL full path before raw empty: head got 0000000000000000 exp 00aaccfffe010203
+FAIL TLV-less current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL frozen queued A head coherent got 0000000000000000 exp 00aaccfffe010203
+FAIL post-release C head coherent got 0000000000000000 exp 00aaccfffe010203
+FAIL boundary-clean announce: raw path head got 0000000000000000 exp 00d1d1fffe000004
+FAIL #87 G1 elected: head         got 0000000000000000 exp 00f6f6fffe000001
+[PASS] mutant caught: the received head is not published - breaks "#85 direct grandmaster: head | #88 issue shape: entry 0 is the received head | adopt publishes path head | worse announce retains path A head | worse TLV-less announce retains path A head | deep path retains its head | parent refresh publishes path C head | unknown-only current parent: keeps the previous head | unknown before path current parent: head | full path before raw empty: head | TLV-less current parent: keeps the previous head | frozen queued A head coherent | post-release C head coherent | boundary-clean announce: raw path head | #87 G1 elected: head"
+FAIL #85 direct grandmaster: count got 0000000000000001 exp 0000000000000002
+FAIL #85 multi-hop grandmaster: count got 0000000000000001 exp 0000000000000006
+FAIL #85 eight received entries: count got 0000000000000001 exp 0000000000000008
+FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+FAIL #87 G1 elected: count        got 0000000000000001 exp 0000000000000004
+[PASS] mutant caught: every received path is published as {thisClock} - breaks "#85 direct grandmaster: count | #85 multi-hop grandmaster: count | #85 eight received entries: count | #88 issue shape: count | #87 G1 elected: count"
+FAIL #88 head not the grandmaster: entry 0 is the received head got 00f5f5fffe000001 exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 00aaccfffe010203 exp 00bad0fffe000001
+FAIL #88 parent path headed elsewhere: head got 00f7f7fffe000001 exp 00f7f7fffe0000a1
+FAIL #87 parent refresh without a TLV: head got 00f7f7fffe000001 exp 00f7f7fffe0000a1
+[PASS] mutant caught: the received head replaced by the grandmaster - breaks "#88 head not the grandmaster: entry 0 is the received head | #88 head not the grandmaster: its commit names the grandmaster and path | #88 current parent's path headed elsewhere: entry 0 is the received head | #88 parent path headed elsewhere: head | #87 parent refresh without a TLV: head"
+FAIL #88 head not the grandmaster: elected got 02a1b2fffec3d4e5 exp 00f5f5fffe000001
+FAIL #88 head not the grandmaster: no longer master got 0000000000000002 exp 0000000000000000
+FAIL #88 head not the grandmaster: entry 0 is the received head got 02a1b2fffec3d4e5 exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: no Announce for one interval got 0000000000000001 exp 0000000000000000
+FAIL #88 head not the grandmaster: parser accepts got 0000000000000001 exp 0000000000000000
+FAIL #88 current parent's path headed elsewhere: one commit got 0000000000000032 exp 0000000000000033
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 00aaccfffe010203 exp 00bad0fffe000001
+FAIL #88 current parent's path headed elsewhere: parser accepts got 0000000000000012 exp 0000000000000011
+FAIL #88 parent path headed elsewhere: head got 02a1b2fffec3d4e5 exp 00f7f7fffe0000a1
+FAIL #88 parent path headed elsewhere: parser accepts got 000000000000000a exp 0000000000000009
+[PASS] mutant caught: the path-head refusal restored - breaks "#88 head not the grandmaster: elected | #88 head not the grandmaster: no longer master | #88 head not the grandmaster: entry 0 is the received head | #88 head not the grandmaster: no Announce for one interval | #88 head not the grandmaster: parser accepts | #88 current parent's path headed elsewhere: one commit | #88 current parent's path headed elsewhere: entry 0 is the received head | #88 current parent's path headed elsewhere: parser accepts | #88 parent path headed elsewhere: head | #88 parent path headed elsewhere: parser accepts"
+FAIL #88 issue shape: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a parent update must beat the best - breaks "#88 issue shape: the degraded grandmaster yields | #88 two entries, stepsRemoved 5: the degraded grandmaster yields | #88 three entries, stepsRemoved 0: the degraded grandmaster yields"
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a169 exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL self path entry 0 is thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL own-GM transition publishes thisClock at entry 0 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 post-warm-reset TLV-less head got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 the degraded G2 yields with {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 00000000000000c6 exp 0000000000000000
+FAIL p1 255 self path entry 0 is thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL p1 255 #82 every commit naming thisClock carries {thisClock} got 0000000000000010 exp 0000000000000000
+[PASS] mutant caught: the self path leaves entry 0 empty - breaks "#82 cold release: every cycle to the first beat has {thisClock} | #82 cold release: that commit carries thisClock and {thisClock} | self path entry 0 is thisClock | own-GM transition publishes thisClock at entry 0 | #87 post-warm-reset TLV-less head | #87 the degraded G2 yields with {thisClock} | #82 every commit naming thisClock carries {thisClock} | p1 255 self path entry 0 is thisClock | p1 255 #82 every commit naming thisClock carries {thisClock}"
+
+subset verdict: control pass; 10/10 mutants caught

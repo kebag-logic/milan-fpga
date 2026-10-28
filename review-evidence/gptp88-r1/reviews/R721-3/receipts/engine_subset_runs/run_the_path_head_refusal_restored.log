@@ -1,0 +1,44 @@
+rc 1
+INFO #82 cold release graded for 2400617 cycles to the first beat
+FAIL #88 parent path headed elsewhere: count got 0000000000000001 exp 0000000000000003
+FAIL #88 parent path headed elsewhere: head got 02a1b2fffec3d4e5 exp 00f7f7fffe0000a1
+FAIL #88 parent path headed elsewhere: tail 1 got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #88 parent path headed elsewhere: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 parent path headed elsewhere: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 parent path headed elsewhere: parser accepts got 000000000000000a exp 0000000000000009
+FAIL #87 parent refresh without a TLV: count got 0000000000000001 exp 0000000000000003
+FAIL #87 parent refresh without a TLV: head got 02a1b2fffec3d4e5 exp 00f7f7fffe0000a1
+FAIL #87 parent refresh without a TLV: tail 1 got 0000000000000000 exp 00f7f7fffe0000c1
+FAIL #87 parent refresh without a TLV: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 parent refresh without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 current parent's path headed elsewhere: one commit got 0000000000000032 exp 0000000000000033
+FAIL #88 current parent's path headed elsewhere: count got 0000000000000008 exp 0000000000000004
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 00aaccfffe010203 exp 00bad0fffe000001
+FAIL #88 current parent's path headed elsewhere: tail 1 got 00f800fffe000001 exp 00ccd0fffe000033
+FAIL #88 current parent's path headed elsewhere: tail 2 got 00f800fffe000002 exp 0080e1fffe112233
+FAIL #88 current parent's path headed elsewhere: tail 3 got 00f800fffe000003 exp 02a1b2fffec3d4e5
+FAIL #88 current parent's path headed elsewhere: parser accepts got 0000000000000012 exp 0000000000000011
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset -1 ns, trim 1174470
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 1 ns, trim 1174350
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000661 cycles after asCapable rises
+FAIL #88 head not the grandmaster: elected got 02a1b2fffec3d4e5 exp 00f5f5fffe000001
+FAIL #88 head not the grandmaster: parent got 02a1b2fffec3d4e5 exp 00f5f5fffe0000c1
+FAIL #88 head not the grandmaster: no longer master got 0000000000000002 exp 0000000000000000
+FAIL #88 head not the grandmaster: count got 0000000000000001 exp 0000000000000003
+FAIL #88 head not the grandmaster: entry 0 is the received head got 02a1b2fffec3d4e5 exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: tail 1 got 0000000000000000 exp 00f5f5fffe0000c1
+FAIL #88 head not the grandmaster: tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 head not the grandmaster: parser accepts got 0000000000000001 exp 0000000000000000
+FAIL #88 head not the grandmaster: no Announce for one interval got 0000000000000001 exp 0000000000000000
+INFO #82 773 commits graded for the self path
+INFO #84 268870482 master cycles graded, 47 handovers to a peer
+INFO #85 575 peer commits graded for thisClock last
+INFO #82 cold release graded for 2400617 cycles to the first beat
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 0
+INFO #82 Pdelay loss: mastership commits 2000739 cycles after asCapable rises
+INFO #82 108 commits graded for the self path
+INFO #84 15533 master cycles graded, 4 handovers to a peer
+INFO #85 92 peer commits graded for thisClock last
+2037 checks: 2009 PASS, 28 FAIL

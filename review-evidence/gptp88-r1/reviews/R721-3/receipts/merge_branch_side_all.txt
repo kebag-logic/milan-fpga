@@ -1,0 +1,36 @@
+== docs/HDL_DEVELOPER.md: side +9/-1  on-merge +9/-1
+== docs/INTEGRATION.md: side +29/-11  on-merge +29/-11
+== docs/SOURCE_EVIDENCE.md: side +13/-13  on-merge +13/-13
+  side-added not carried: 1 '| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L111), [word 2](../hdl/top/KL_gptp_engine.sv#L1020), [word 3](../hdl/top/KL_gptp_'
+  side-removed not carried: 1 '| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L1009), [word 3](../hdl/top/KL_gptp_'
+  merge-added beyond side: 1 '| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L111), [word 2](../hdl/top/KL_gptp_engine.sv#L1020), [word 3](../hdl/top/KL_gptp_'
+  merge-removed beyond side: 1 '| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L109), [word 2](../hdl/top/KL_gptp_engine.sv#L1009), [word 3](../hdl/top/KL_gptp_'
+== docs/TEST_DEVELOPER.md: side +10/-2  on-merge +10/-2
+== hdl/top/KL_gptp_engine.sv: side +72/-61  on-merge +72/-61
+== hdl/ucode/gen_gptp_ucode.py: side +22/-17  on-merge +22/-17
+== hdl/wire/KL_gptp_rx_parser.sv: side +30/-37  on-merge +30/-37
+== tb/tsngen/mutants.py: side +4/-2  on-merge +4/-2
+== tb/tsngen/run_tsngen.py: side +5/-5  on-merge +5/-5
+== tb/verilator/engine/mutants.py: side +264/-101  on-merge +265/-103
+  side-added not carried: 1 '# #82, #84, #85, #87 and #88 controls must fail every check they name,'
+  side-added not carried: 1 '# for the same reason: each of those checks needs its own failing defect.'
+  side-added not carried: 1 'if breaks.startswith(("#82 ", "#84 ", "#85 ", "#87 ", "#88 ",'
+  side-added not carried: 1 'P1_PREFIX)) and answer == "caught":'
+  side-removed not carried: 1 '# #82, #84 and #85 controls must fail every check they name, for the'
+  side-removed not carried: 1 '# same reason: each of those checks needs its own failing defect.'
+  side-removed not carried: 1 'if breaks.startswith(("#82 ", "#84 ", "#85 ", P1_PREFIX)) and \\'
+  merge-added beyond side: 1 '# #82, #84, #85, #87, #88, #89, #90 and #91 controls must fail every'
+  merge-added beyond side: 1 '# check they name, for the same reason: each of those checks needs its'
+  merge-added beyond side: 1 '# own failing defect.'
+  merge-added beyond side: 1 'if breaks.startswith(("#82 ", "#84 ", "#85 ", "#87 ", "#88 ", "#89 ",'
+  merge-added beyond side: 1 '"#90 ", "#91 ", P1_PREFIX)) and answer == "caught":'
+  merge-removed beyond side: 1 '# #82, #84, #85, #89, #90 and #91 controls must fail every check they'
+  merge-removed beyond side: 1 '# name, for the same reason: each of those checks needs its own failing'
+  merge-removed beyond side: 1 '# defect.'
+  merge-removed beyond side: 1 'if breaks.startswith(("#82 ", "#84 ", "#85 ", "#89 ", "#90 ", "#91 ",'
+  merge-removed beyond side: 1 'P1_PREFIX)) and \\'
+== tb/verilator/engine/sim_main.cpp: side +377/-130  on-merge +377/-130
+== tb/verilator/parser/Makefile: side +5/-5  on-merge +5/-5
+== tb/verilator/parser/README.md: side +1/-1  on-merge +1/-1
+== tb/verilator/parser/mutants.py: side +114/-1  on-merge +114/-1
+== tb/verilator/parser/sim_main.cpp: side +139/-22  on-merge +139/-22
