@@ -1,0 +1,13 @@
+# added lines in the post-merge commits 5e679594 and 5527a9c6, scanned for bench lane labels, lane names, review rounds, reviewer IDs and comment IDs
++release uses one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache
++(64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless (NFR-SCOUT-01).
++The release scales media capacity through fabric stream contexts, channels, sample rates, and, in future profiles, replicated physical ports.
++                                                 "arm's image to fixture_variant.py and its runtime to runtime_ssp.py, "
++                                                 "and the hybrid-XIP arm's relink of the image's objects to "
++                                                 "ctrl_srp_image.link, which compiles the split layout's reset entry "
++                                                 "from an unchanged copy and changes only the linker script; its own "
++                                                 "compiles build the test SoC's Verilator model",
++  The `--xip` arm relinks the image's objects through `ctrl_srp_image.link`, with the reset entry copied unchanged and only the linker script edited.
+
+# hits for [ARB][0-9]+, S2[a-z]?, F[0-9], B[0-9]+, lane, round, R7[0-9]{2}, issuecomment
+0 hits

@@ -1,0 +1,14 @@
+recomputed merge tree: 580e3504eda5be403179421e4400ae098bb33982
+recorded merge tree:   580e3504eda5be403179421e4400ae098bb33982
+lane diff identical across the merge (ignoring index and hunk-offset lines)
+files changed e0bb857a9f4b8e9d29736970a1135afde03260c5..5527a9c66716331fd06285f428ea1a653c526ada outside the base merge:
+docs/reference/FR_NFR.md
+sw/firmware/ctrl/test/ctrl_configs.py
+tb/verilator/ctrl_service_budget/README.md
+PR diff file count against 1a635a4cf9dce5095be624f0265fc1002a60ec59: 15
+the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101). The
+release uses one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache
+(64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless (NFR-SCOUT-01).
+The release scales media capacity through fabric stream contexts, channels, sample rates, and, in future profiles, replicated physical ports.
+| NFR-SCOUT-01 | The release architecture MUST use one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless. Stream cap
+rc=0
