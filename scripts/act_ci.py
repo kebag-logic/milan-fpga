@@ -83,6 +83,13 @@ EVIDENCE_HELPERS = {
 # END EVIDENCE HELPER PINS
 DEFAULT_BASE = "dev"
 RUNNER_IMAGE = "catthehacker/ubuntu:full-latest"
+#: The literal ``runs-on`` labels a candidate job may name; act maps each one
+#: to RUNNER_IMAGE (#784). The workflows pin ``ubuntu-24.04``: hosted
+#: ``ubuntu-latest`` moved to the 26.04 image, where the pinned CPython 3.12
+#: wheels do not install, so ``ubuntu-latest`` is refused like any other label.
+#: act would run a built-in label such as ``ubuntu-latest`` on its own default
+#: image and skip any other as an unsupported platform, still exiting 0.
+RUNS_ON_LABELS = ("ubuntu-24.04",)
 SUPPORTED_ACT_VERSION = (0, 2, 89)
 REQUIRED_ACT_BUILD = "0.2.89+milan-ci5"
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -2051,9 +2058,11 @@ def validate_workflow_sandbox(root: pathlib.Path, workflows: Sequence[str]) -> N
                     f"workflow {relative} job {job_id} uses a reusable workflow; "
                     "the trusted sandbox cannot inspect its container policy"
                 )
-            if job.get("runs-on") != "ubuntu-latest":
+            runs_on = job.get("runs-on")
+            if runs_on not in RUNS_ON_LABELS:
                 raise Refusal(
-                    f"workflow {relative} job {job_id} must use literal ubuntu-latest"
+                    f"workflow {relative} job {job_id} runs on {runs_on!r}; only the "
+                    f"literal label {' or '.join(RUNS_ON_LABELS)} is replayed"
                 )
             if "container" in job or "services" in job:
                 raise Refusal(
@@ -4816,8 +4825,7 @@ def build_act_command(
         str(layout.checkout / WORKFLOWS[workflow]),
         "--eventpath",
         str(layout.event_path),
-        "--platform",
-        f"ubuntu-latest={RUNNER_IMAGE}",
+        *(word for label in RUNS_ON_LABELS for word in ("--platform", f"{label}={RUNNER_IMAGE}")),
         "--artifact-server-path",
         str(artifact_path),
         "--artifact-server-addr",
@@ -6594,7 +6602,7 @@ def materialize_for_transcript(
         transcript_workflow.parent.mkdir(parents=True, exist_ok=True)
         transcript_workflow.write_text(
             f"name: {alias}\non: pull_request\njobs:\n  check:\n"
-            "    runs-on: ubuntu-latest\n    steps:\n      - run: true\n",
+            "    runs-on: ubuntu-24.04\n    steps:\n      - run: true\n",
             encoding="utf-8",
         )
     return layout.checkout
@@ -6684,6 +6692,144 @@ def selftest_validation_transcript(
         and f" --memory={CONTAINER_MEMORY}"
         f" --memory-swap={CONTAINER_MEMORY}'" in transcript.getvalue(),
     )
+
+
+def write_runs_on_workflow(root: pathlib.Path, runs_on: str) -> None:
+    """Write the docs workflow under `root` with one job whose ``runs-on`` is the YAML text `runs_on`."""
+    path = root / WORKFLOWS["docs"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        f"name: docs\non: pull_request\njobs:\n  check:\n    runs-on: {runs_on}\n"
+        "    steps:\n      - run: true\n",
+        encoding="utf-8",
+    )
+
+
+def runs_on_refusal(root: pathlib.Path, runs_on: str) -> str:
+    """The sandbox's Refusal for a docs job on `runs_on` under `root`, or an empty string when it is accepted."""
+    write_runs_on_workflow(root, runs_on)
+    return refusal_text(lambda: validate_workflow_sandbox(root, ("docs",)))
+
+
+def act_platforms(command: Sequence[str]) -> list[str]:
+    """The ``label=image`` word after each ``--platform`` in an act command line, in order."""
+    return [command[index + 1] for index, word in enumerate(command[:-1]) if word == "--platform"]
+
+
+def selftest_runner_labels(tally: SelftestTally) -> None:
+    """Arms: the sandbox accepts exactly the literal ubuntu-24.04, refusing others by name (#784)."""
+    check = tally.check
+    with tempfile.TemporaryDirectory(prefix="act-ci-runs-on-") as raw:
+        root = pathlib.Path(raw)
+        check("a job on ubuntu-24.04 is accepted by the sandbox", runs_on_refusal(root, "ubuntu-24.04") == "")
+        for label in ("ubuntu-latest", "ubuntu-26.04", "ubuntu-22.04"):
+            check(
+                f"a job on {label} is refused before act, and the refusal names {label}",
+                f"runs on '{label}'" in runs_on_refusal(root, label),
+            )
+        for description, runs_on in (
+            ("an upper-case spelling", "Ubuntu-24.04"),
+            ("the arm image", "ubuntu-24.04-arm"),
+            ("a one-label list", "[ubuntu-24.04]"),
+        ):
+            check(
+                f"{description} of an accepted label is refused: only the exact literal is replayed",
+                runs_on_refusal(root, runs_on) != "",
+            )
+
+
+def selftest_runner_platforms(tally: SelftestTally, docker: DockerFixture) -> None:
+    """Arms: act's platform list maps every runs-on label the sandbox accepts, and no other, to RUNNER_IMAGE (#784)."""
+    check = tally.check
+    platforms = act_platforms(build_act_command(["act"], "docs", docker.layout, docker.port, docker.boundary))
+    #: act skips a job whose label it cannot map as an unsupported platform
+    #: and still exits 0, so an accepted label missing here is a green replay
+    #: of a job that never ran.
+    check(
+        "act's platform list maps ubuntu-24.04 to the runner image, once, and no other label",
+        platforms == [f"ubuntu-24.04={RUNNER_IMAGE}"],
+    )
+    probes = ("ubuntu-latest", "ubuntu-24.04", "ubuntu-26.04", "ubuntu-22.04", "ubuntu-20.04", "self-hosted")
+    with tempfile.TemporaryDirectory(prefix="act-ci-runs-on-") as raw:
+        accepted = {label for label in probes if runs_on_refusal(pathlib.Path(raw), label) == ""}
+    check(
+        "every runs-on label the sandbox accepts has a platform entry, and nothing else does",
+        accepted == {platform.split("=", 1)[0] for platform in platforms}
+        and all(platform.endswith(f"={RUNNER_IMAGE}") for platform in platforms),
+    )
+
+
+def dry_run_replay(
+    resolved: ValidatedRun, shipping_root: pathlib.Path, runs_on: str
+) -> tuple[int | None, str, str, int]:
+    """Dry-run a docs workflow with one job on `runs_on` through run_validation and the real sandbox.
+
+    Git, GitHub, Docker and act are faked as in selftest_validation_transcript;
+    validate_workflow_sandbox is not. Returns act-ci's exit status (None on a
+    Refusal), the Refusal's text, the printed transcript and how many Docker
+    boundaries were entered.
+    """
+    boundaries: list[DockerBoundary] = []
+
+    @contextlib.contextmanager
+    def dry_boundary(planned: DockerBoundary, **_kwargs: object) -> Iterator[DockerBoundary]:
+        """A boundary stand-in that records the populated boundary it yields."""
+        active = replace(planned, network_id="a" * 64, gateway="172.18.0.1",
+                         toolcache_owned=True, toolcache_seeded=True)
+        boundaries.append(active)
+        yield active
+
+    def materialize(_run: ValidatedRun, layout: RunLayout) -> pathlib.Path:
+        """A materialization stand-in that writes only the docs workflow."""
+        write_runs_on_workflow(layout.checkout, runs_on)
+        return layout.checkout
+
+    transcript = io.StringIO()
+    rc: int | None = None
+    message = ""
+    with mock.patch.multiple(
+        sys.modules[__name__],
+        materialize_remote_head=materialize,
+        validate_checkout=lambda *_args, **_kwargs: None,
+        initialize_required_submodules=lambda *_args, **_kwargs: None,
+        require_live_pull_request=lambda *_args, **_kwargs: None,
+        inspect_docker_boundary=lambda *_args, **_kwargs: None,
+        temporary_docker_boundary=dry_boundary,
+        allocate_tcp_port=lambda: 43210,
+    ), mock.patch.object(os, "cpu_count", return_value=512):
+        try:
+            with contextlib.redirect_stdout(transcript):
+                rc = run_validation(resolved, ("docs",), shipping_root,
+                                    launch=LaunchOptions("/trusted/act", use_sudo=False, dry_run=True))
+        except Refusal as exc:
+            message = str(exc)
+    return rc, message, transcript.getvalue(), len(boundaries)
+
+
+def selftest_runner_label_replay(
+    tally: SelftestTally, resolved: ValidatedRun, shipping_root: pathlib.Path
+) -> None:
+    """Arms: a ubuntu-24.04 job replays to an act command that maps it; other labels are refused first (#784)."""
+    check = tally.check
+    rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, "ubuntu-24.04")
+    check(
+        "a job on ubuntu-24.04 passes the sandbox and dry-run replays to an act command "
+        "that maps ubuntu-24.04 to the runner image",
+        rc == RC_OK and message == "" and entered == 1
+        and f" --platform ubuntu-24.04={RUNNER_IMAGE} " in transcript,
+    )
+    check(
+        f"a ubuntu-24.04 replay holds its job containers to the {CONTAINER_MEMORY} memory and swap bound",
+        f" --memory={CONTAINER_MEMORY} --memory-swap={CONTAINER_MEMORY}'" in transcript,
+    )
+    for label in ("ubuntu-latest", "ubuntu-26.04"):
+        rc, message, transcript, entered = dry_run_replay(resolved, shipping_root, label)
+        check(
+            f"a job on {label} is refused naming {label}, before any Docker boundary "
+            "or act command",
+            rc is None and f"runs on '{label}'" in message and entered == 0
+            and "--platform" not in transcript,
+        )
 
 
 
@@ -7499,9 +7645,9 @@ def selftest_container_memory_bound(tally: SelftestTally, docker: DockerFixture)
     option_words = shlex.split(command[command.index("--container-options") + 1])
     memory_words = [word for word in option_words if word.startswith("--memory=")]
     swap_words = [word for word in option_words if word.startswith("--memory-swap=")]
-    #: Hosted ``ubuntu-latest`` runners have 16 GB: a job that needs more
-    #: fails hosted too, and a bounded container fails the replica instead
-    #: of the host. Swap equal to memory is Docker for "no swap beyond it".
+    #: Hosted runners on the RUNS_ON_LABELS label have 16 GB: a job that
+    #: needs more fails hosted too, and a bounded container fails the replica
+    #: instead of the host. Swap equal to memory is Docker for "no swap beyond it".
     check(
         f"job containers are held to {CONTAINER_MEMORY} of memory and the "
         "same swap ceiling, one limit each, in Docker size syntax",
@@ -7558,7 +7704,7 @@ def selftest_job_concurrency(tally: SelftestTally, shipping_root: pathlib.Path) 
             f"{label} is refused: the concurrency cannot be derived",
             lambda strategy=strategy: job_container_width({"strategy": strategy}, "j"),
         )
-    plain = "    runs-on: ubuntu-latest\n    steps:\n      - run: true\n"
+    plain = "    runs-on: ubuntu-24.04\n    steps:\n      - run: true\n"
     orders = list(itertools.permutations(("docs", "rtl-fast", "rtl-full")))
     with tempfile.TemporaryDirectory(prefix="act-ci-concurrency-") as raw:
         root = pathlib.Path(raw)
@@ -8536,7 +8682,7 @@ def selftest_act_command_refusals(tally: SelftestTally, docker: DockerFixture) -
 
 
 ACTION_FIXTURE_WORKFLOW = (
-    "name: actions\non: push\njobs:\n  use:\n    runs-on: ubuntu-latest\n"
+    "name: actions\non: push\njobs:\n  use:\n    runs-on: ubuntu-24.04\n"
     "    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/cache@v4\n"
     "      - uses: actions/checkout@v4\n"
 )
@@ -8562,10 +8708,10 @@ def selftest_action_materialisation(tally: SelftestTally, docker: DockerFixture)
     fixture_root.mkdir()
     (fixture_root / "mixed.yml").write_text(
         "name: mixed\non: push\njobs:\n"
-        "  one:\n    runs-on: ubuntu-latest\n    steps:\n"
+        "  one:\n    runs-on: ubuntu-24.04\n    steps:\n"
         "      - uses: owner/repo@v1\n      - uses: owner/repo/sub@v1\n"
         "      - uses: ./local\n      - uses: docker://alpine:3.20\n      - run: true\n"
-        "  two:\n    runs-on: ubuntu-latest\n    steps:\n"
+        "  two:\n    runs-on: ubuntu-24.04\n    steps:\n"
         "      - uses: owner/repo@v1\n      - uses: actions/cache@v4\n",
         encoding="utf-8",
     )
@@ -12886,7 +13032,7 @@ def selftest_git_fixture(root: pathlib.Path, pr: PullRequest) -> GitFixture:
     workflow_path = repo / WORKFLOWS["docs"]
     workflow_path.parent.mkdir(parents=True)
     workflow_text = (
-        "name: docs\non: push\njobs:\n  docs:\n    runs-on: ubuntu-latest\n"
+        "name: docs\non: push\njobs:\n  docs:\n    runs-on: ubuntu-24.04\n"
         "    steps:\n      - run: true\n"
     )
     workflow_path.write_text(workflow_text, encoding="utf-8")
@@ -13128,54 +13274,61 @@ def selftest_stack_manifest(
 
 def selftest_sandbox_policy(tally: SelftestTally, repo: pathlib.Path) -> None:
     """Arms: every job-level and step-level authority the sandbox forbids is refused before act."""
-    refused = tally.refused
+    check = tally.check
+    #: Each arm requires its own refusal reason, not merely a Refusal: a
+    #: fixture on a label the sandbox does not accept, such as ubuntu-latest
+    #: since #784, is refused by the runs-on check first and would pass
+    #: without reaching the authority it names.
     sandbox_job_workflows = {
         "self-hosted-job.yml": (
             "self-hosted runner authority is refused",
             "    runs-on: self-hosted\n"
             "    steps:\n      - run: echo safe\n",
+            "runs on 'self-hosted'",
         ),
         "missing-runs-on-job.yml": (
             "a missing runner label is refused",
             "    steps:\n      - run: echo safe\n",
+            "runs on None",
         ),
         "dynamic-runs-on-job.yml": (
             "a nonliteral runner label is refused",
             "    runs-on: ${{ matrix.os }}\n"
             "    steps:\n      - run: echo safe\n",
+            "runs on '${{ matrix.os }}'",
         ),
         "job-container.yml": (
             "job container authority is refused",
-            "    runs-on: ubuntu-latest\n"
+            "    runs-on: ubuntu-24.04\n"
             "    container: alpine:3.20\n"
             "    steps:\n      - run: echo safe\n",
+            "requests job/service containers",
         ),
         "service-container.yml": (
             "service container authority is refused",
-            "    runs-on: ubuntu-latest\n"
+            "    runs-on: ubuntu-24.04\n"
             "    services:\n      database:\n        image: postgres:16\n"
             "    steps:\n      - run: echo safe\n",
+            "requests job/service containers",
         ),
         "reusable-workflow-job.yml": (
             "reusable workflow authority is refused",
             "    uses: example/workflows/.github/workflows/build.yml@v1\n"
-            "    runs-on: ubuntu-latest\n"
+            "    runs-on: ubuntu-24.04\n"
             "    steps:\n      - run: echo safe\n",
+            "uses a reusable workflow",
         ),
     }
     original_docs = WORKFLOWS["docs"]
     try:
-        for filename, (label, job) in sandbox_job_workflows.items():
+        for filename, (label, job, reason) in sandbox_job_workflows.items():
             (repo / filename).write_text(
                 "name: sandbox-job-negative\non: push\njobs:\n"
                 f"  unsafe:\n{job}",
                 encoding="utf-8",
             )
             WORKFLOWS["docs"] = filename
-            refused(
-                label,
-                lambda: validate_workflow_sandbox(repo, ("docs",)),
-            )
+            check(label, reason in refusal_text(lambda: validate_workflow_sandbox(repo, ("docs",))))
     finally:
         WORKFLOWS["docs"] = original_docs
 
@@ -13199,14 +13352,15 @@ def selftest_sandbox_policy(tally: SelftestTally, repo: pathlib.Path) -> None:
         for filename, action in forbidden_action_workflows.items():
             (repo / filename).write_text(
                 "name: action-negative\non: push\njobs:\n"
-                "  unsafe:\n    runs-on: ubuntu-latest\n    steps:\n"
+                "  unsafe:\n    runs-on: ubuntu-24.04\n    steps:\n"
                 f"      - uses: {action}\n",
                 encoding="utf-8",
             )
             WORKFLOWS["docs"] = filename
-            refused(
+            check(
                 f"step-level action {action} is refused before act",
-                lambda: validate_workflow_sandbox(repo, ("docs",)),
+                f"uses unapproved action {action!r}"
+                in refusal_text(lambda: validate_workflow_sandbox(repo, ("docs",))),
             )
     finally:
         WORKFLOWS["docs"] = original_docs
@@ -13218,7 +13372,7 @@ def selftest_job_volume_scope(tally: SelftestTally, repo: pathlib.Path) -> None:
     refused = tally.refused
     original_docs = WORKFLOWS["docs"]
     (repo / "nameless.yml").write_text(
-        "on: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
+        "on: push\njobs:\n  safe:\n    runs-on: ubuntu-24.04\n"
         "    steps:\n      - run: echo safe\n",
         encoding="utf-8",
     )
@@ -13232,7 +13386,7 @@ def selftest_job_volume_scope(tally: SelftestTally, repo: pathlib.Path) -> None:
         WORKFLOWS["docs"] = original_docs
     for filename, name in (("rtl-short.yml", "rtl"), ("rtl-long.yml", "rtl-fast")):
         (repo / filename).write_text(
-            f"name: {name}\non: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
+            f"name: {name}\non: push\njobs:\n  safe:\n    runs-on: ubuntu-24.04\n"
             "    steps:\n      - run: echo safe\n",
             encoding="utf-8",
         )
@@ -13262,7 +13416,7 @@ def selftest_workflow_reader(tally: SelftestTally, repo: pathlib.Path) -> None:
     reader_root.mkdir()
     safe_workflow = reader_root / "safe.yml"
     safe_workflow.write_text(
-        "name: safe\non: push\njobs:\n  safe:\n    runs-on: ubuntu-latest\n"
+        "name: safe\non: push\njobs:\n  safe:\n    runs-on: ubuntu-24.04\n"
         "    steps:\n      - run: true\n",
         encoding="utf-8",
     )
@@ -15105,6 +15259,7 @@ def selftest_run_directory_stages(
             second = make_layout(second_root, other_pr)
             docker = selftest_docker_fixture(first)
             selftest_act_command(tally, docker)
+            selftest_runner_platforms(tally, docker)
             selftest_combined_execution(tally, docker)
             selftest_container_cpu_bound(tally, docker)
             selftest_job_cpu_ranges(tally)
@@ -15311,6 +15466,8 @@ def selftest(shipping_root: pathlib.Path = ROOT) -> int:
     selftest_scope_history_wiring(tally, shipping_root)
     selftest_flat_install(tally, shipping_root)
     selftest_validation_transcript(tally, fixture, resolved, shipping_root)
+    selftest_runner_labels(tally)
+    selftest_runner_label_replay(tally, resolved, shipping_root)
     selftest_slot_validation_path(tally, resolved, shipping_root)
     selftest_dry_run_cpu_ranges(tally, resolved, shipping_root)
     selftest_workflow_order(tally, resolved, shipping_root)
@@ -15382,7 +15539,7 @@ def interrupt_selftest_sources(
             "on: pull_request\n"
             "jobs:\n"
             "  sleep:\n"
-            "    runs-on: ubuntu-latest\n"
+            "    runs-on: ubuntu-24.04\n"
             "    steps:\n"
             "      - run: sleep 300\n"
         ),
@@ -15391,7 +15548,7 @@ def interrupt_selftest_sources(
             "on: pull_request\n"
             "jobs:\n"
             "  seed:\n"
-            "    runs-on: ubuntu-latest\n"
+            "    runs-on: ubuntu-24.04\n"
             "    steps:\n"
             "      - shell: bash\n"
             "        run: |\n"
@@ -15404,7 +15561,7 @@ def interrupt_selftest_sources(
             "on: pull_request\n"
             "jobs:\n"
             "  probe:\n"
-            "    runs-on: ubuntu-latest\n"
+            "    runs-on: ubuntu-24.04\n"
             "    steps:\n"
             "      - shell: bash\n"
             "        run: |\n"
@@ -16499,7 +16656,7 @@ def boundary_probe_sources(plants: BoundaryPlants) -> dict[str, str]:
             "on: pull_request\n"
             "jobs:\n"
             "  probe:\n"
-            "    runs-on: ubuntu-latest\n"
+            "    runs-on: ubuntu-24.04\n"
             "    env:\n"
             "      PROBE_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n"
             "    steps:\n"

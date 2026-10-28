@@ -17,7 +17,7 @@ SOURCE = """name: fixtures
 on: [push, pull_request]
 jobs:
   start:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@0123456789012345678901234567890123456789
   workers:
@@ -27,7 +27,7 @@ jobs:
       matrix:
         index: [0, 1, 2, 3]
         total: [4]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check original values
         run: |
@@ -36,7 +36,7 @@ jobs:
   verdict:
     needs: workers
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Verify every leg
         run: python3 verify.py
