@@ -2547,14 +2547,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! and the GET_STREAM_INFO stream_id of an output read THIS, never
   //! pp_src_sid_w, so the wire, the GSI answer and the PROBE_TX answer agree.
   wire [ACMP_SRC_C*64-1:0]   pp_cd_src_stream_id_w;
+  //! every source's stamp, index s at [64*s +: 64]: the one read of
+  //! pp_cd_src_stream_id_w the framers make, in every shape, so the split
+  //! placement carries it in one field, the mailbox's SRC_SID_LO / SRC_SID_HI
+  //! of source s (#665 decision 2 (a); #799)
+  wire [ACMP_SRC_C*64-1:0]   tx_sid_w;
   //! ...and the CRF Media Clock Output's stamp: that source's current
   //! stream_id where this shape has one, the CSR value otherwise
   wire [63:0]                crft_tx_sid_w;
+  assign tx_sid_w = pp_cd_src_stream_id_w;
   //! the AAF talkers are sources 0 to N_STREAMS - 1
-  assign aaf_tx_sid_w = pp_cd_src_stream_id_w[N_STREAMS*64-1:0];
+  assign aaf_tx_sid_w = tx_sid_w[N_STREAMS*64-1:0];
   generate
     if (ACMP_SRC_C > N_STREAMS) begin : g_crft_sid_pp
-      assign crft_tx_sid_w = pp_cd_src_stream_id_w[64*CRF_TUID_C +: 64];
+      assign crft_tx_sid_w = tx_sid_w[64*CRF_TUID_C +: 64];
     end else begin : g_crft_sid_csr
       assign crft_tx_sid_w = eff_crft_sid_w;
     end
