@@ -671,7 +671,9 @@ The ordinary image measures the same path at 0.294 ms.
 `slow-adp-shutdown` makes disabling ADP spin before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
 The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss T_svc: it measures 24.903 ms against 0.582 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
 `as-built` hands the generator the SoC's regions unchanged.
-The run must refuse the boot with an instruction access fault, cause 1, and prints `CONTROL as-built caught`.
+The run must refuse the boot with an access fault of cause 1 (a fetch) or cause 5 (a load), and prints `CONTROL as-built caught`.
+Either is the decode defect of [#791](https://github.com/kebag-logic/milan-fpga/issues/791); which access meets it first depends on the image's layout (defect 1 in [Findings](#findings)).
+The self-test requires both causes to be caught, and a clean boot or a trap of any other cause to escape.
 
 These figures are the firmware of `e76a755a`.
 At this head `slow-adp-rx` is caught again: RCV_ADP_DISCOVER measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.

@@ -398,6 +398,14 @@ MUTANTS: dict[str, Patches] = {
     'run: a CPU trap is not refused': lambda: [patch.object(grade, 'refuse_run', _run_ignores_traps)],
     'run: a T_svc miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
     'run: a refusal does not fail the run': _verdict(refusals_fail=False, misses_fail=True),
+    'run: the as-built control is caught by an instruction access fault only (earlier rule)': lambda: [patch.object(
+        run, 'AS_BUILT_CAUSES', (1,))],
+    'run: the as-built control is caught by any trap': lambda: [patch.object(
+        run, 'as_built_faults', lambda refusals: [r for r in refusals if 'trapped' in r])],
+    "run: the as-built control matches the cause's leading digit": lambda: [patch.object(
+        run, 'as_built_faults', lambda refusals: [r for r in refusals if re.search(r'TRAP \d+ 0 [15]', r)])],
+    'run: the as-built control is caught whatever the boot does': lambda: [patch.object(
+        run, 'as_built_faults', lambda refusals: ['planted'])],
     'regrade: a selected group without its log is dropped (earlier rule)':
         lambda: [patch.object(run, 'recorded', _recorded_drops)],
     'reuse: an input outside the checkout is not rechecked (earlier rule)':

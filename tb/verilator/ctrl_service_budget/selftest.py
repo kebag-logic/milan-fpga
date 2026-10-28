@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import hashlib
+import io
 import json
 import re
 import sys
@@ -663,7 +664,33 @@ def run_checks() -> list[Check]:
     except grade.Refusal as error:
         trapped = str(error)
     out.append(('a CPU trap is refused', 'trapped' in trapped, trapped))
+    out += as_built_checks()
     return out
+
+
+def as_built_checks() -> list[Check]:
+    """The as-built control (#791) is caught by an instruction or a load access fault, and by
+    nothing else: a clean boot and a trap of any other cause are refused."""
+    boot = scenario.boot_fault_groups()[0]
+    as_built = argparse.Namespace(cpu_regions='as-built', mutation='none', record_budget_findings=False)
+
+    def control(traps: list[str]) -> int:
+        """The control's exit status on a boot-fault log with these trap lines."""
+        try:
+            grade.grade(synthetic(traps), boot, SYS_HZ, CPU_HZ)
+            refusals = []
+        except grade.Refusal as error:
+            refusals = [str(error)]
+        with contextlib.redirect_stdout(io.StringIO()):
+            return run.verdict(as_built, [boot], refusals, [])
+    caught = {cause: control([f'TRAP 330592 0 {cause} 00006880']) for cause in (1, 5)}
+    others = {line: control([line] if line else []) for line in
+              ('', 'TRAP 166 0 2 00000024', 'TRAP 166 0 7 00000020', 'TRAP 166 0 15 00000020',
+               'TRAP 166 1 5 00000020', 'BUSERR 166 load 00000020')}
+    return [('the as-built control is caught by an instruction access fault (cause 1) and by a load access '
+             'fault (cause 5)', caught == {1: 0, 5: 0}, str(caught)),
+            ('the as-built control escapes on a clean boot and on a trap of any other cause',
+             set(others.values()) == {1}, str(others))]
 
 
 def reuse_checks() -> list[Check]:

@@ -257,11 +257,23 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
     return results, refusals, misses
 
 
+#: The access faults #791's region decode raises: whichever access first meets a rom
+#: address with bit 15 set, an instruction fetch (cause 1) or a load (cause 5).
+AS_BUILT_CAUSES = (1, 5)
+
+
+def as_built_faults(refusals: list) -> list:
+    """The trap refusals that name an access fault of AS_BUILT_CAUSES."""
+    causes = '|'.join(map(str, AS_BUILT_CAUSES))
+    return [r for r in refusals if 'trapped' in r and re.search(rf'TRAP \d+ 0 ({causes}) ', r)]
+
+
 def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list) -> int:
     """The run's exit status: a control must be caught by name; a measurement must be complete."""
     if args.cpu_regions == 'as-built':
-        caught = [r for r in refusals if 'trapped' in r and re.search(r'TRAP \d+ 0 1 ', r)]
-        print(f'CONTROL as-built {"caught" if caught else "ESCAPED"}: an instruction access fault (cause 1)')
+        caught = as_built_faults(refusals)
+        print(f'CONTROL as-built {"caught" if caught else "ESCAPED"}: an instruction or load access fault '
+              f'(cause {" or ".join(map(str, AS_BUILT_CAUSES))})')
         return 0 if caught else 1
     if args.mutation != 'none':
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]

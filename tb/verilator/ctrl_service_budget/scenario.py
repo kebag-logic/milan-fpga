@@ -926,8 +926,9 @@ def shutdown_groups(p: Point) -> list[Group]:
 
 
 def boot_fault_groups() -> list[Group]:
-    """The region-decode control: 30 ms of boot and no probe. With the regions as built the CPU
-    faults on its first fetch above 0x8000 (cause 1) and restarts; grade.py refuses the trap."""
+    """The region-decode control (#791): 30 ms of boot and no probe. With the regions as built the
+    CPU faults on its first rom access with bit 15 set, a fetch (cause 1) or a load (cause 5), and
+    restarts; grade.py refuses the trap and run.verdict names the cause."""
     g = Group('boot-fault', sim_ms=30)
     g.add('wait ms 30')
     return [g]
