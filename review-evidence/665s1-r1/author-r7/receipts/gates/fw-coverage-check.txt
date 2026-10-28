@@ -1,0 +1,53 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+[ok] ctrl coverage run
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+[ok] arm aecp-image-endstation_ax7101_8x8
+    == AECP descriptor image: checks: 3   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (3 tests, 0 failures, exit 0)
+test_ctrl_firmware coverage run: PASS
+[ok] ctrl_nvm coverage run
+  verdict: PASS (1 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, boot and write paths (endstation_ax7101_8x8): checks: 85   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (85 tests, 0 failures, exit 0)
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+  RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+saved-state store coverage run: PASS
+file                                                 lines    branches   after exclusions
+sw/firmware/ctrl/acmp/acmp_mbx.c                  81/81       28/28      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/acmp/acmp_nvm.c                  38/38       10/10      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/adp/adp_mbx.c                    83/83       38/40      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp.c                     417/417     360/360     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_commands.c            450/450     374/374     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_face.c                172/172     152/152     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_image.c                77/77       80/80      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_maps.c                222/222     290/290     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_mbx.c                 104/104      40/40      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_nvm.c                 102/102      86/86      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/aecp/aecp_state.c                63/63       69/69      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app.c                   46/47       43/46      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app_aecp.c             164/164     124/124     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/app/ctrl_app_srp.c               87/87       70/70      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/loop/ctrl_loop.c                101/101      62/62      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/maap/maap_csr.c                  39/39       18/18      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/maap/maap_mbx.c                 127/127      82/82      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/mbx/mbx.c                       302/302     150/150     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/mbx/mbx_wire.h                   15/15       12/12      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/mbx_plat_mmio.c             10/10        0/0       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/ctrl_debug.c                19/19        6/6       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/ctrl_pool.c                 99/99       60/60      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/port/shlan_port.c                22/22        6/6       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/srp/srp_mbx.c                   543/543     486/486     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_klj2.c                  198/199     106/110     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/nvm_store.c                 434/434     259/266     lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c    100/100      63/64      lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/include/wire.h            10/10        2/2       lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/acmp.c               792/792     392/392     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/adp.c                206/208      99/106     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/maap.c               209/209     140/140     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (31 files)
+rc=0 elapsed=269s
