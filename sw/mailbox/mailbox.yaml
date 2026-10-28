@@ -60,10 +60,9 @@
 # promises it. It only adds: a firmware built against 2.1 leaves the block at
 # its reset value, and nothing in the window moved.
 #
-# Minor 3 (#799; #665 decision
-# 2 (a)): a source entry per talker stream in the publication block, carrying
-# the stream_id the source currently declares, which the AAF and CRF talkers
-# stamp. After a MAAP conflict the protocol owner moves a source to another
+# Minor 3 (#799; #665 decision 2 (a)): a source entry per talker stream in
+# the publication block, carrying the stream_id the source currently declares,
+# which the AAF and CRF talkers stamp. After a MAAP conflict the protocol owner moves a source to another
 # Stream ID (protocol-processor #202), so the plane that owns the Stream ID
 # publishes the ID it declares. It only adds: the entries sit in the hole
 # below the sink entries, and a firmware built against 2.2 leaves them at 0.

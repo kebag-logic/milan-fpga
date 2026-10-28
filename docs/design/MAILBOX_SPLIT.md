@@ -990,7 +990,7 @@ AAF stream gate also reaches the CSR read-back input `i_tlk_lobs_v`, which no
 one-stream shape builds. At this head every shape has the same 26 population
 nets and the same 41 reads, and four nets are unread. Of the 41 reads, 11 are
 on the wire and map to the block, 14 are CSR status, and 16 are the answer
-face: the same reads and kinds the text census counted before.
+face.
 
 [`census_rules.py`](../../sw/mailbox/census_rules.py) names every rule above,
 the shapes' and the tools' included, 31 in all, and the census enforces each
