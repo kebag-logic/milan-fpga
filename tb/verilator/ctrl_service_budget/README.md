@@ -991,7 +991,7 @@ The self-test requires both causes to be caught, and a clean boot or a trap of a
 These figures are the firmware of `e76a755a`.
 At this head `slow-adp-rx` is caught again: RCV_ADP_DISCOVER measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
 `slow-adp-shutdown` has not been run at this head.
-At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load (`TRAP ... 0 5 00000020`), and the run prints `CONTROL as-built caught`.
+At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 00000020`; the trap line's last field is the last committed PC, the `bgeu` before it), and the run prints `CONTROL as-built caught`.
 The generator's decode defect is the one `e76a755a` met with cause 1; the access that meets it first changed, because this head's 1x1 image has its `.data` load image above 0x8000 (defect 1 in [Findings](#findings)).
 The same run with the generator handed the regions' cover, so that the CPU decodes correctly and the image boots clean, is graded with no trap and prints `CONTROL as-built ESCAPED`.
 
