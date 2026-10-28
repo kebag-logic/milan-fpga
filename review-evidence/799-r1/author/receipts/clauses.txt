@@ -1,0 +1,325 @@
+Clause excerpts (pdftotext -layout of the local standards copies; line ranges of that text).
+
+== Milan v1.2 (consolidated, final approved 2023-11-30) 5.3.7.5, Table 5.3 (milan12.txt 1800-1840)
+5.3.7.5 Plug-and-play SRP parameters (informative)
+
+This section describes a possible plug-and-play implementation of a Talker PAAD-AE, but does not preclude
+any other implementation.
+In this implementation, the PAAD-AE automatically builds the Stream ID based on the MAC Address of the
+AVB interface used to source the stream, it dynamically allocates the Stream Destination MAC Address using
+the MAAP protocol, and it takes the Stream VLAN ID and Stream Priority code point from the Domain attribute.
+Table 5.3 describes the method this PAAD uses to allocate the SRP parameters of a declared SRP Talker at-
+tribute.
+
+
+
+
+5.3. Entity model                                                                                           31
+Milan Specification v1.2
+
+
+
+                                          Table 5.3: SRP parameters.
+
+ SRP parameter                          Allocation mechanism / validity
+ Stream ID                              The PAAD decides by itself the value of the Stream ID used for its
+                                        stream. The first 6 bytes are equal to the MAC Address of the AVB
+                                        Interface associated with this Stream Output. The 2 last bytes can be
+                                        used indifferently by the PAAD to distinguish between the different
+                                        Streams it is sourcing from this AVB interface. Note: the PAAD may
+                                        always use the same Stream ID for a given STREAM_OUTPUT descrip-
+                                        tor, or change each time it starts declaring an MSRP Talker attribute
+                                        for this stream.
+                                        This parameter is always valid.
+ Stream Destination MAC Address         The PAAD uses MAAP to allocate a unique Destination MAC Address
+                                        for each of its Stream Outputs. A Stream Output cannot be declaring
+                                        a Talker attribute until MAAP has run and has allocated a Destina-
+                                        tion MAC Address for this Stream Output. While a Stream Output
+                                        is declaring a Talker attribute, if MAAP reports a conflict, the PAAD
+                                        withdraws the Talker attribute, waits for 2 LeaveAll periods and al-
+                                        locates a new Destination MAC Address, then declares a new Talker
+                                        attribute with the new Destination MAC Address. Note: at that time,
+                                        the PAAD may decide to use the same Stream ID as before, or another
+                                        Stream ID.
+                                        This parameter is valid as long as MAAP has successfully allocated
+
+== Milan v1.2 5.3.8.5, 5.3.8.6, Table 5.5 (milan12.txt 1966-2010)
+The PAAD-AE automatically enters the probing state when it needs to query stream parameters just after bind-
+ing, or after the stream has been disrupted for some reason (including a power cycle of the PAAD). When the
+stream source returns and stream parameters have been probed, the PAAD-AE becomes settled.
+Note: the probing/settled state is undefined when the Stream Input is not bound.
+Note: “settled” does not necessarily mean that data is flowing or even that bandwidth is reserved.
+A PAAD-AE having a settled Stream Input shall be monitoring for a corresponding MSRP Talker Advertise or
+Talker Failed attribute which matches the SRP parameters stored by the PAAD-AE for this Stream Input. If a
+Talker Advertise attribute with matching SRP parameters is being received, the PAAD-AE shall be declaring
+an MSRP Listener Ready attribute. If no Talker Advertise attribute with matching SRP parameters is being
+received, the PAAD-AE may either be declaring a Listener Asking Failed attribute, or not be declaring anything.
+For further details, please refer to Section 5.5.
+
+
+
+
+34                                                         Chapter 5. Discovery, Connection and Control
+                                                                                     Milan Specification v1.2
+
+
+5.3.8.6 Probing status and ACMP status
+
+For each Stream Input of the currently set Configuration, the PAAD-AE shall maintain a Probing status variable
+and an ACMP status variable. The aim is to give information to the user about the current status of the probing
+process of this Stream Input.
+The Probing status variable is a 3-bit integer; the possible values are defined in Table 5.5.
+
+                                        Table 5.5: Probing status values.
+
+ Value       Name                              Description
+ 0           PROBING_DISABLED                  The sink is not probing because it is not bound.
+                                               This corresponds to the UNBOUND state of the Listener’s sink
+                                               state machine (refer to Section 5.5.3).
+ 1           PROBING_PASSIVE                   The sink is probing passively. It waits until the bound talker has
+                                               been discovered.
+                                               This corresponds to the PRB_W_AVAIL state of the Listener’s
+                                               sink state machine (refer to Section 5.5.3).
+
+ 2           PROBING_ACTIVE                    The sink is probing actively. It is querying the stream parame-
+                                               ters to the talker.
+                                               This corresponds to the PRB_W_DELAY, PRB_W_RESP,
+                                               PRB_W_RESP2 and PRB_W_RETRY states of the Listener’s
+                                               sink state machine (refer to Section 5.5.3).
+
+ 3           PROBING_COMPLETED                 The sink is not probing because it is settled.
+                                               This corresponds to the SETTLED_NO_RSV and SET-
+
+== Milan v1.2 5.4.2.10.1, Table 5.9 (milan12.txt 2509-2586)
+5.4.2.10.1 Requirements for a Stream Input
+
+For a Stream Input, the PAAD-AE shall set the flags as defined in Table 5.9.
+
+
+                               Table 5.9: GET_STREAM_INFO flags for Stream Input.
+
+ Bit #     Field value     Name                                Value
+ 31        0x00000001      CLASS_B                             Not defined by this specification. Should be
+                                                               set to 0.
+ 30        0x00000002      FAST_CONNECT                        This specification requires that this field be set
+                                                               to 1 if the Stream Input is bound, 0 otherwise.
+
+ 29        0x00000004      SAVED_STATE                         This specification recommends that this field
+                                                               be set to 1 if the Stream Input is bound, 0 oth-
+                                                               erwise.
+ 28        0x00000008      STREAMING_WAIT                      0 if the Stream Input is bound and started, 1 if
+                                                               the Stream Input is bound and stopped, unde-
+                                                               fined if the Stream Input is not bound.
+ 27        0x00000010      SUPPORTS_ENCRYPTED                  Not defined by this specification. Should be
+                                                               set to 0.
+ 26        0x00000020      ENCRYPTED_PDU                       Not defined by this specification. Should be
+                                                               set to 0.
+
+ 25        0x00000040      REGISTERING_FAILED                  1 if the Stream Input is registering a matching
+                                                               Talker Failed attribute.
+ 7 to 24   -               -                                   Reserved (Set to 0).
+ 6         0x02000000      STREAM_VLAN_ID_VALID                Indicates whether the stream_vlan_id field
+                                                               contains valid information.
+                                                               The stream_vlan_id field shall contain valid in-
+                                                               formation if, and only if, the Stream Input is
+                                                               settled.
+
+                                                                                      continues on next page
+
+
+
+44                                                       Chapter 5. Discovery, Connection and Control
+                                                                                     Milan Specification v1.2
+
+
+
+                                 Table 5.9 – continued from previous page
+ Bit #     Field value     Name                                Value
+
+ 5         0x04000000      BOUND                               1 if the Stream Input is bound, 0 otherwise.
+ 4         0x08000000      MSRP_FAILURE_VALID                  Indicates whether the msrp_failure_bridge_id
+                                                               and msrp_failure_code fields contain valid in-
+                                                               formation.
+                                                               The        msrp_failure_bridge_id         and
+                                                               msrp_failure_code fields shall contain valid
+                                                               information when the Stream Input is reg-
+                                                               istering a matching Talker Failed attribute.
+                                                               Note: this bit has the same value as the
+                                                               REGISTERING_FAILED bit.
+ 3         0x10000000      STREAM_DEST_MAC_VALID               Indicates whether the stream_dest_mac field
+                                                               contains valid information.
+                                                               The stream_dest_mac field shall contain valid
+                                                               information if, and only if, the Stream Input is
+                                                               settled.
+ 2         0x20000000      MSRP_ACC_LAT_VALID                  Indicates               whether               the
+                                                               msrp_accumulated_latency field contains
+                                                               valid information.
+                                                               The msrp_accumulated_latency field shall
+                                                               contain valid information if, and only if, the
+                                                               Stream Input is registering either a matching
+                                                               Talker Advertise or a matching Talker Failed at-
+                                                               tribute. Note: this bit has the same value as the
+                                                               REGISTERING bit of the flags_ex field.
+ 1         0x40000000      STREAM_ID_VALID                     Indicates whether the stream_id field contains
+                                                               valid information.
+                                                               The stream_id field shall contain valid infor-
+                                                               mation if, and only if, the Stream Input is set-
+                                                               tled.
+ 0         0x80000000      STREAM_FORMAT_VALID                 Indicates whether the stream_format field
+                                                               contains valid information.
+                                                               The stream_format field shall always contain
+                                                               valid information.
+
+== Milan v1.2 5.5.3.5.18 (milan12.txt 4680-4690)
+5.5.3.5.18 PRB_W_RESP state / RCV_PROBE_TX_RESP event
+
+  1) Check that the controller_entity_id, talker_entity_id, talker_unique_id and sequence_id fields match the
+     fields of the PROBE_TX_COMMAND message that has been sent. If not, ignore the message and exit.
+  2) Stop the TMR_NO_RESP timer.
+  3) If STATUS!=SUCCESS then set TMR_RETRY timer to 4 seconds, set the ACMP status to the value of status,
+     go to the PRB_W_RETRY state and exit.
+  4) Otherwise, note the stream_id, stream_dest_mac and stream_vlan_id info, initiate SRP reservation and
+     start listening for the stream packets. Then start a 10-second timer TMR_NO_TK, set the Probing status
+     to PROBING_COMPLETED and ACMP status to 0 and go to the SETTLED_NO_RSV state.
+
+
+== Milan v1.2 5.5.3.5.36 (milan12.txt 4839-4846)
+5.5.3.5.36 SETTLED_NO_RSV state / TMR_NO_TK event
+
+     1) Clear the SRP parameters and stop SRP.
+     2) If the talker has not yet been discovered then set the Probing status to PROBING_PASSIVE and ACMP
+        status to 0 and go to the PRB_W_AVAIL state.
+     3) Otherwise, set the Probing status to PROBING_ACTIVE and ACMP status to 0, start a random delay timer
+        (between 0 and 1 second) TMR_DELAY and go to the PRB_W_DELAY state.
+
+
+== Milan v1.2 5.5.4.1 (milan12.txt 5039-5075)
+5.5.4.1 Treatment of a PROBE_TX_COMMAND message
+
+Upon reception of a PROBE_TX_COMMAND message with talker_entity_id field being equal to the Entity ID
+of the PAAD-AE, the PAAD-AE shall:
+     1) Extract the talker’s source from the talker_unique_id field and check that it is valid. If not, send a
+        PROBE_TX_RESPONSE message as shown in Table 5.40 and exit.
+     2) Check that the command ingressed from the AVB Interface attached to the target Stream Output. If not,
+        either ignore the command, or send a PROBE_TX_RESPONSE as shown in Table 5.41. Then exit.
+     3) Check that a valid Destination MAC Address is available for this Stream Output.        If not, send a
+        PROBE_TX_RESPONSE message as shown in Table 5.42. and exit.
+     4) Send a PROBE_TX_RESPONSE message as shown in Table 5.43.
+A Talker PAAD shall ignore the STREAMING_WAIT bit of the PROBE_TX_COMMAND message. No matter the
+value of the STREAMING_WAIT bit, a Talker PAAD shall always stream AVTP packets as long as bandwidth is
+reserved for its stream.
+
+
+
+
+92                                                       Chapter 5. Discovery, Connection and Control
+                                                                              Milan Specification v1.2
+
+
+
+                     Table 5.40: PROBE_TX_RESPONSE fields if received talker_unique_id
+                     is invalid.
+
+
+
+  Field                            Value
+  message_type                     PROBE_TX_RESPONSE
+  status                           TALKER_UNKNOWN_ID
+  controller_entity_id             Same value as in the PROBE_TX_COMMAND message.
+  talker_entity_id                 Same value as in the PROBE_TX_COMMAND message.
+  listener_entity_id               Same value as in the PROBE_TX_COMMAND message.
+  talker_unique_id                 Same value as in the PROBE_TX_COMMAND message.
+  listener_unique_id               Same value as in the PROBE_TX_COMMAND message.
+  sequence_id                      Same value as in the PROBE_TX_COMMAND message.
+
+== Milan v1.2 5.5.4.3, Table 5.46 (milan12.txt 5246-5285)
+5.5.4.3 Treatment of a GET_TX_STATE_COMMAND message
+
+Upon reception of a GET_TX_STATE_COMMAND message with talker_entity_id field being equal to the Entity
+ID of the PAAD-AE, the PAAD-AE shall:
+     1) Extract the talker’s source from the talker_unique_id field and check that it is valid. If not, send a
+        GET_TX_STATE_RESPONSE message as shown in Table 5.46 and exit.
+     2) Send a GET_TX_STATE_RESPONSE message as shown in Table 5.47.
+
+
+
+
+98                                                       Chapter 5. Discovery, Connection and Control
+                                                                             Milan Specification v1.2
+
+
+
+                     Table 5.46:       GET_TX_STATE_RESPONSE   fields   if   received
+                     talker_unique_id is not valid.
+
+
+
+  Field                          Value
+  message_type                   GET_TX_STATE_RESPONSE
+  status                         TALKER_UNKNOWN_ID
+  controller_entity_id           Same value as in the GET_TX_STATE_COMMAND message.
+  talker_entity_id               Same value as in the GET_TX_STATE_COMMAND message.
+  listener_entity_id             Same value as in the GET_TX_STATE_COMMAND message.
+  talker_unique_id               Same value as in the GET_TX_STATE_COMMAND message.
+  listener_unique_id             Same value as in the GET_TX_STATE_COMMAND message.
+  sequence_id                    Same value as in the GET_TX_STATE_COMMAND message.
+  connection_count               Undefined.
+  FAST_CONNECT                   Undefined.
+  STREAMING_WAIT                 Undefined.
+  REGISTERING_FAILED             Undefined.
+  stream_id                      Undefined.
+  stream_dest_mac                Undefined.
+  stream_vlan_id                 Undefined.
+
+
+
+
+== IEEE 1722.1-2021 7.4.16.2 (17221.txt 11446-11458)
+   7.4.16.2. Response Format
+   The GET_STREAM_INFO response uses the AECPDU format as shown in Figure 7­40.
+   The command_type field is set to GET_STREAM_INFO.
+   The descriptor_type and descriptor_index fields are set to the descriptor type and index of the stream
+   for which the stream info is being fetched. descriptor_type is set to either STREAM_INPUT or
+   STREAM_OUTPUT.
+   The flags field is set to an appropriate combination of the flags in Table 7­145 to indicate all fields that currently
+   have valid values. The lower 16 bits of the flags maps directly to the flags field of ACMP, see 8.2.1.16.
+   The stream_format field is set to the current format of the stream. This is equivalent to the current_format
+   field of the addressed descriptor. The layout of stream_format is described in 7.3.3.
+   The stream_id field is set to the current id of the stream, or zero (0) if the stream is not connected and has
+   not had a stream_id set. The flags field indicates if this is valid.
+   The msrp_accumulated_latency field is used for the MSRP Talker Advertise reported accumulated latency.
+
+== IEEE 1722.1-2021 8.2.4.2.5 (17221.txt 20664-20667)
+   8.2.4.2.5. txResponse(messageType, response, error)
+   The txResponse function transmits a response of type messageType. It sets the ACMPDU fields to the
+   values from the response parameter, the message_type field to the value of messageType and the status
+   field to the value of the error parameter.
+
+== IEEE 1722-2016 4.4.4.8 (1722.txt 2020-2026)
+          4.4.4.8 stream_id field
+
+          The stream_id field contains the 64-bit StreamID associated with the AVTPDU. The stream_id field is
+          used for stream identification.
+
+          All stream data AVTPDUs shall contain a valid StreamID in the stream_id field, as defined in sublause
+          35.2.2.8.2 of IEEE Std 802.1Q-2014, and as shown for convenience in Figure 10.
+
+== IEEE 1722-2016 Annex B, B.3.6.4 compare_MAC (1722.txt 10313-10330)
+          B.3.6.4 compare_MAC
+
+          The compare_MAC function compares the MAC address from the received MAAP AVTPDU and the
+          receiving station’s MAC address. The MAC address comparison shall be performed in octet-wise reverse
+          order; i.e., for the purpose of the unsigned comparison, the least-significant octet is treated as if it were
+          most significant, the most-significant octet is treated as if it were least significant, and the interior octets are
+          compared in reverse order of their normal significance. The compare_MAC function shall return TRUE if
+          the MAC address of the receiving station is numerically lower than the MAC address from the received
+          MAAP AVTPDU.
+
+          When the compare_MAC function returns TRUE, then no further processing or protocol action is taken and
+          the protocol state does not change.
+
+          NOTE—An octet-wise reverse order comparison is used in the compare_MAC function to make the company-assigned
+          MA-L (OUI), MA-M, or MA-S be the least-significant component of the comparison.
+
+
+          B.3.6.5 sProbe

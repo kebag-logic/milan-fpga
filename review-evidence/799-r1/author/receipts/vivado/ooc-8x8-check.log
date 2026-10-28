@@ -1,0 +1,21 @@
+endpoint ooc-8x8: <scratch>/viv-head/w8/ax8x8-ooc
+figure        baseline   candidate     delta  verdict
+LUT              32467       34156      1689  REGRESSION: grew by more than 316
+FF               28220       29782      1562  REGRESSION: grew by more than 339
+RAMB36              21          21         0  ok
+RAMB18               5           5         0  ok
+DSP                  8           8         0  ok
+sub-block movements, not gated:
+  wrapper: LUT +1689, FF +1562
+  u_pp: LUT +1684, FF +1564
+  u_pp/u_srp: LUT +992, FF +1154
+  u_pp/u_srp/u_talker: LUT +949, FF +1146
+  u_pp/u_talker: LUT +686, FF +414
+  u_pp/u_aecp/u_resp: LUT -154, FF +0
+  u_pp/u_aecp/u_d3: LUT +99, FF +2
+  u_pp/u_srp/u_listener: LUT +88, FF +0
+  u_pp/u_notify: LUT +72, FF +0
+  u_pp/u_timer: LUT +63, FF +0
+  u_pp/u_originator: LUT -47, FF +0
+  u_pp/u_listener: LUT -27, FF -6
+RESULT: MATERIAL REGRESSION

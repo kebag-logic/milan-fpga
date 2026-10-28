@@ -1,0 +1,1 @@
+shard-2 attempt 1 was OOM-killed by its 10 GB unit cap during capture_coherence (journal: Failed with result 'oom-kill'); shard-2-rerun re-ran all 16 of its suites, pinned to 8 CPUs, VERILATOR_JOBS=2. The union is shards 0, 1, 2-rerun and 3.

@@ -1,0 +1,21 @@
+diff --git a/sw/mailbox/publication_census.py b/sw/mailbox/publication_census.py
+index 213feaeb80..56fdd6125c 100644
+--- a/sw/mailbox/publication_census.py
++++ b/sw/mailbox/publication_census.py
+@@ -154,7 +154,7 @@ CLASS_D_PORTS = frozenset({
+     "srp_granted_slope_bps_o", "srp_src_fail_code_o", "srp_src_fail_bridge_o", "srp_sum_slope_bps_o",
+     "srp_over_limit_o", "srp_tk_reg_state_o", "srp_lstn_decl_state_o", "srp_acc_latency_o",
+     "srp_snk_fail_code_o", "acmp_declaring_o", "acmp_bound_o", "acmp_bound_eid_o", "acmp_bound_sid_o",
+-    "acmp_bound_dmac_o", "acmp_bound_vlan_o", "adp_next_avail_index_o",
++    "acmp_bound_dmac_o", "acmp_bound_vlan_o", "adp_next_avail_index_o", "src_stream_id_o",
+ })
+ #: Each sink's started level, which the ruling of comment 6092086337 adds, and the wire the rows name it by.
+ STARTED_PORT = "aecp_strm_started_o"
+@@ -216,6 +216,7 @@ CENSUS: dict[tuple[str, str], Row] = {
+     # ---- the wrapper's own GET_STREAM_INFO face -----------------------------
+     ("pp_cd_acmp_bound_w", "gsi_bnd_w"): Row("processor", "", "GET_STREAM_INFO"),
+     ("pp_cd_acmp_bound_sid_w", "gsi_sid_w"): Row("processor", "", "GET_STREAM_INFO"),
++    ("pp_cd_src_stream_id_w", "gsi_osid_w"): Row("processor", "", "GET_STREAM_INFO"),
+     ("pp_cd_acmp_bound_dmac_w", "gsi_ans_raw_w"): Row("processor", "", "GET_STREAM_INFO"),
+     ("pp_cd_acmp_bound_vlan_w", "gsi_ans_raw_w"): Row("processor", "", "GET_STREAM_INFO"),
+     ("pp_cd_acmp_declaring_w", "gsi_decl_w"): Row("processor", "", "GET_STREAM_INFO"),

@@ -1,0 +1,1 @@
+Two earlier attempts stopped at the driver preflight (scripts/test_suite_cancellation.py, hard-HUP control timed out at 12 s): they were started under nohup, which leaves SIGHUP ignored for every child. Started without nohup, the preflight passed and the suite ran.
