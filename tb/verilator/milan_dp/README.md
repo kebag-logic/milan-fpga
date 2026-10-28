@@ -351,8 +351,8 @@ The missing-response control contributes fourteen additional accounting checks.
 It preserves real unanswered requests and their failed response/publication assertions.
 The unchanged acquisition deadline expires before the acquired-publication check.
 First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
-Its separate deadline is 5400 seconds, including compilation.
-The four-core `ubuntu-24.04` job permits 120 minutes, including toolchain setup.
+Its separate deadline is 6900 seconds, including compilation.
+The four-core `ubuntu-24.04` job permits 145 minutes, including toolchain setup.
 Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
@@ -426,11 +426,12 @@ That margin is smaller than the 50 percent spread between the fastest and slowes
 FPGA-gPTP #90 moved the asCapable loss to the fifth lost response.
 The current scenario therefore spans one more Pdelay interval, 899637137 cycles.
 Scaled by the cycle ratio 899637137/849624822, the two projections become 5347 and 5484 seconds.
-Those are 99.0 and 101.6 percent of the deadline.
-So the 5400-second deadline no longer holds on projection.
-The 120-minute job keeps 28.6 to 30.9 minutes of margin on the same projections.
+Those are 99.0 and 101.6 percent of the former 5400-second deadline.
 The hosted record already shows one 5400.003-second timeout of this suite.
-The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns its scheduling to a follow-up.
+[#803](https://github.com/kebag-logic/milan-fpga/issues/803) therefore raised the deadline to 6900 seconds and the job to 145 minutes.
+The two projections are 77.5 and 79.5 percent of the new deadline, at most 80 percent.
+The job keeps its 30 minutes for toolchain setup and evidence upload.
+The 145-minute job keeps 53.6 to 55.9 minutes of margin on the same projections.
 A completed hosted run of the current scenario remains required to confirm the deadline.
 
 The original spans remain explicitly available:

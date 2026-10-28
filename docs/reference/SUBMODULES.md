@@ -319,6 +319,10 @@ The physical gPTP leg spans one more Pdelay interval.
 
 It runs 17.992742740 simulated seconds.
 
+Its nightly suite deadline rises to 6900 seconds.
+
+Its job's timeout rises to 145 minutes.
+
 Route-1x1 is 481 LUTs over the current resource record.
 
 Its tolerance is 500 LUTs, so the gate passes.

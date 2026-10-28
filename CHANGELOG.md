@@ -76,6 +76,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Two parent companions adapt the wrapper, datapath and benches.
 - The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
 - The physical gPTP leg spans one more Pdelay interval.
+- Its nightly suite deadline rises to 6900 s.
+- Its job's timeout rises to 145 minutes.
 - route-1x1 is 481 LUTs over the record; tolerance 500.
 - Over dev's own route it adds 310 LUTs, 20 slices.
 - Seven slices remain free; WNS is +0.333 ns.

@@ -38,7 +38,7 @@
 #   SUITE_TIMEOUT        explicit wall clock override for every selected suite.
 #                        Defaults: 1800 s; capture_coherence gets 2400 s,
 #                        milan_dp_mclk 3600 s, milan_dp 4800 s, the
-#                        scheduled milan_dp_gptp 5400 s and media_phase
+#                        scheduled milan_dp_gptp 6900 s and media_phase
 #                        1400 s (suite_timeout below).
 #                        See docs/testing/TESTING.md for the physical timer floor.
 #   SUITE_SWEEP_LOCK     lock file path. Defaults to one per repo root, which
@@ -249,11 +249,14 @@ acquire_lock() {
 #! #781: media_phase timed out at 900 s on hosted. 1400 s leaves more than
 #! 10% over its projected hosted window (at most about 1240 s). Its own
 #! hosted run then passed it in 582 s, and 1400 s is kept for that variance.
+#! #803: FPGA-gPTP #90's fifth lost response lengthens the scheduled
+#! milan_dp_gptp scenario to 899637137 cycles; its README projects the hosted
+#! suite at 5347 to 5484 s, and 6900 s keeps that worst case at 79.5%.
 suite_timeout() {
   case "$1" in
     capture_coherence) printf '%s\n' "${SUITE_TIMEOUT:-2400}" ;;
     milan_dp)          printf '%s\n' "${SUITE_TIMEOUT:-4800}" ;;
-    milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-5400}" ;;
+    milan_dp_gptp)     printf '%s\n' "${SUITE_TIMEOUT:-6900}" ;;
     milan_dp_mclk)     printf '%s\n' "${SUITE_TIMEOUT:-3600}" ;;
     media_phase)       printf '%s\n' "${SUITE_TIMEOUT:-1400}" ;;
     *)                 printf '%s\n' "${SUITE_TIMEOUT:-1800}" ;;

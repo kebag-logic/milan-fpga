@@ -534,7 +534,7 @@ margin sets each named entry:
 | `capture_coherence` | 2400 s | hosted PASS 1642.280 s; 757.720 s remains (31.6%) |
 | `milan_dp_mclk` | 3600 s | hosted TIMEOUT 1800.008 s; completion maximum remains unknown |
 | `milan_dp` | 4800 s | hosted PASS 3509.562 s; 1290.438 s remains (26.9%) |
-| `milan_dp_gptp` (scheduled) | 5400 s | the physical-rate decision below |
+| `milan_dp_gptp` (scheduled) | 6900 s | the physical-rate decision below; [#803](https://github.com/kebag-logic/milan-fpga/issues/803) projects 5347 to 5484 s hosted, at most 79.5% |
 | `media_phase` | 1400 s | #781: hosted TIMEOUT 900.0 s on three shard 10/16 jobs (run 40098975073 attempts 1 and 2, run 40103838859), its thirteen loop cases still running; locally, serial on four CPUs at the hosted three case jobs, its whole default target (the pins, the blend, the offsets, eleven detector cases and thirteen loop cases, its five builds included) ran in 787.5 s and 769.3 s; the other suites' hosted-to-local ratios in the same jobs, at most 1.575, project the hosted window to at most about 1240 s, and 1400 s leaves more than #673's 10% over that; this change's own hosted run then measured it: job 120983200812, worker 4/17 of pull-request run 40131149135 at `8a4fa2f9`, ran its suite step from 20:50:36Z to 21:01:31Z, 655 s for all four of its suites, and `media_phase` passed in 582 s of that (`scripts/suite_shards.py --measure` on the job log); 818 s remains (58.4%); the budget stays 1400 s, not provisional, since the three earlier windows above ran past 900 s; the planted-defect campaign is the explicit `mutants` target |
 
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285)
@@ -653,9 +653,12 @@ PR and push events exclude this job from execution.
 Physical regressions therefore report nightly, outside the required PR aggregate.
 The seventeen default workers retain every other suite.
 
-The physical suite has a 5400-second build-and-run deadline.
-Its separate four-core `ubuntu-24.04` job permits 120 minutes total.
+The physical suite has a 6900-second build-and-run deadline.
+Its separate four-core `ubuntu-24.04` job permits 145 minutes total.
 The remaining 30 minutes allow toolchain installation and evidence upload.
+[#803](https://github.com/kebag-logic/milan-fpga/issues/803) raised them from 5400 seconds and 120 minutes.
+The suite README projects the current scenario's hosted suite at 5347 to 5484 seconds.
+6900 seconds keeps that worst case at 79.5 percent.
 These deadlines await successful hosted measurement; they promise no completion time.
 The earlier 2400-second hosted timeout established no upper slowdown bound.
 Reference-platform timings and the decision appear in the [suite README](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run).

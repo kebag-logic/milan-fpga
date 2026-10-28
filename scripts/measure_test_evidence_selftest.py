@@ -294,7 +294,7 @@ def _arms_runner_contract(ck):
                      ("SUITE_TIMEOUT:-2400", "SUITE_TIMEOUT:-1800"),
                      ("SUITE_TIMEOUT:-3600", "SUITE_TIMEOUT:-1800"),
                      ("SUITE_TIMEOUT:-4800", "SUITE_TIMEOUT:-3600"),
-                     ("SUITE_TIMEOUT:-5400", "SUITE_TIMEOUT:-7200"),
+                     ("SUITE_TIMEOUT:-6900", "SUITE_TIMEOUT:-7200"),
                      ("capture_coherence)", "capture_coherence_typo)"),
                      ("milan_dp_gptp)", "milan_dp)"),
                      ("milan_dp_mclk)", "milan_dp_render)"),
