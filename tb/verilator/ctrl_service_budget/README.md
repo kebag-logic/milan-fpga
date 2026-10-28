@@ -43,11 +43,12 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
 The planner refuses the override on any other image, and the product SoC build names none.
 
-**At this head no group reaches a measurement.**
+**The commit acknowledgement is at the contract's bound.**
 The image's AECP owner publishes its settings through contract 2.3's face block, and commits each interface's block before AECP opens (`aecp_face_open`, called by `ctrl_app_open_aecp`).
-This SoC holds the face block's commit acknowledgement idle, as `milan_soc.CtrlMailbox` does, so the first commit is never acknowledged.
-AECP never opens: the fixture's `main` returns 6 about 125 ms into the boot, and the hart parks (`ctrl_split_start.S`).
-The testbench's `wait ready` needs an open filter and a first pass, so every group that boots to it waits until the simulation's 60 s limit and is refused.
+`milan_soc.CtrlMailbox` holds every input from the datapath idle, the commit acknowledgement among them.
+With the acknowledgement held idle here, the first commit is never acknowledged and AECP never opens: the fixture's `main` returns 6 about 125 ms into the boot, the hart parks (`ctrl_split_start.S`), and no group reaches a measurement.
+So this SoC differs from `CtrlMailbox` in that one input: it acknowledges each commit at the slowest the contract allows ([The test SoC](#the-test-soc)).
+The harness measures a CPU budget, so each commit is measured with the longest wait the contract allows.
 The figures in [Results](#results) were measured before contract 2.3.
 
 Without `--record-budget-findings` a path over T_svc fails the run.
@@ -97,7 +98,13 @@ That is a CI change, outside this lane.
   Every other port is connected as `milan_soc.CtrlMailbox` connects it.
   The publication block's outputs (contract 2.2) are named and unread.
   The face block's ports (contract 2.3) come from `milan_soc.ctrl_mailbox_face_ports`, at the build's interface count: its outputs are named and unread, and its inputs are held idle by name (`split_soc.FACE_IDLE_INPUTS`, refused unless they are exactly the inputs CtrlMailbox holds idle).
-  So no window request is answered, each times out, and no commit is acknowledged.
+  So no window request is answered and each times out, as the split SoC with no datapath fabric sees it.
+  The one exception is the commit acknowledgement, `fw_ack_p_i`, which models the slowest datapath the contract allows (`StimulusMailbox.slowest_ack`).
+  Each interface's acknowledgement is a one-cycle pulse `FACE_ACK_CYCLES` bus cycles after that interface's `fw_send_o` rises, 64 in contract 2.3 (`ack_cycles`, `sw/mailbox/mailbox.yaml`).
+  The firmware waits that bound for it (`mbx_face_commit`, `MBX_FACE_ACK_CYCLES`).
+  The bound is read from the generated constant, never restated.
+  Before it builds the SoC, the build simulates this acknowledgement against `KL_mbx`'s commit rule, with back-to-back commits on one interface and an overlapping one on the other.
+  It refuses the build if the bound is not the firmware's `MBX_FACE_ACK_CYCLES`, or if any commit is not acknowledged by exactly one pulse at the bound (`split_soc.ack_deviations`).
   The build refuses a mailbox instance that leaves a port unconnected: Verilator reports it as PINMISSING, which `-Wno-fatal` would let pass.
   At two interfaces the RTL is `gen_mailbox.py`'s variant, written into the build directory.
 - **The flash** keeps LiteSPI's crossbar, memory-mapped reader and command master.

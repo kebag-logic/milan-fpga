@@ -20,7 +20,12 @@ and the grandmaster on pads the testbench drives. Every other KL_mbx port is
 connected as CtrlMailbox connects it: the publication block's outputs (contract
 2.2) named and unread, and the face block's (contract 2.3) by
 milan_soc.ctrl_mailbox_face_ports, at the build's interface count, its outputs
-named and unread and its inputs held idle by name. The flash keeps
+named and unread and its inputs held idle by name, with one difference: the
+commit acknowledgement (fw_ack_p_i) pulses at the contract's bound,
+FACE_ACK_CYCLES bus cycles after fw_send_o rises, the slowest datapath the
+contract allows, so the measured CPU budget includes the longest commit wait.
+The window answers and face events stay idle, so a window request times out
+as the fabric-less split SoC sees it. The flash keeps
 LiteSPI's crossbar, memory-mapped reader and command master, with the master
 in its own CSR bank, and the serial device is the sibling service-budget
 harness's native model (fw_service_budget/flash.hpp).
@@ -183,6 +188,8 @@ class StimulusMailbox(LiteXModule):
             o_wb_ack_o=self.bus.ack, o_wb_dat_o=self.bus.dat_r, o_wb_err_o=self.bus.err,
             o_host_req_o=req, o_host_we_o=we, o_host_addr_o=addr, o_host_wdata_o=wdata,
             o_host_be_o=be, i_host_ack_i=ack, i_host_rdata_i=rdata)
+        face = face_ports(contract, n_if)
+        face['i_fw_ack_p_i'] = self.slowest_ack(face['o_fw_send_o'], n_if, contract)
         self.specials += Instance('KL_mbx',
             i_clk_i=ClockSignal('sys'), i_rst_n=~ResetSignal('sys'),
             i_host_req_i=req, i_host_we_i=we, i_host_addr_i=addr, i_host_wdata_i=wdata,
@@ -194,7 +201,20 @@ class StimulusMailbox(LiteXModule):
             i_rx_last_i=pads.rx_last, i_rx_if_i=pads.rx_if,
             o_tx_valid_o=pads.tx_valid, i_tx_ready_i=pads.tx_ready, o_tx_data_o=pads.tx_data,
             o_tx_last_o=pads.tx_last, o_tx_if_o=pads.tx_if, o_tx_ch_o=pads.tx_ch,
-            **unread_publication(contract, n_if), **face_ports(contract, n_if))
+            **unread_publication(contract, n_if), **face)
+
+    def slowest_ack(self, send: Signal, n_if: int, contract: object) -> Signal:
+        """The slowest datapath contract 2.3 allows: each interface's commit acknowledged by a
+        one-cycle fw_ack_p_i pulse face_ack_cycles(contract) bus cycles after its fw_send_o
+        rises (#665). The harness measures a CPU budget, so each commit waits as long as the
+        contract lets it. This is the one face input not held idle as CtrlMailbox holds it."""
+        bound = face_ack_cycles(contract)
+        ack = Signal(n_if)
+        for i in range(n_if):
+            waited = Signal(max=bound + 1)
+            self.sync += If(~send[i], waited.eq(0)).Elif(waited != bound, waited.eq(waited + 1))
+            self.comb += ack[i].eq(send[i] & (waited == bound))
+        return ack
 
 
 def unread_publication(contract: object, n_if: int) -> dict[str, object]:
@@ -214,7 +234,8 @@ def unread_publication(contract: object, n_if: int) -> dict[str, object]:
 
 
 #: The face block's inputs (contract 2.3), each held idle by name as CtrlMailbox holds it: the
-#: datapath's commit acknowledgement, the four windows' answers and the face events.
+#: datapath's commit acknowledgement, the four windows' answers and the face events. The
+#: StimulusMailbox then drives the acknowledgement alone (StimulusMailbox.slowest_ack).
 FACE_IDLE_INPUTS = dict(
     i_fw_ack_p_i=0,
     i_ctr_ans_p_i=0, i_ctr_ans_tag_i=0, i_ctr_ans_data_i=0,
@@ -235,6 +256,71 @@ def face_ports(contract: object, n_if: int) -> dict[str, object]:
         raise RuntimeError('the face inputs differ from those CtrlMailbox holds idle: '
                            f'{sorted(set(held.items()) ^ set(FACE_IDLE_INPUTS.items()))}')
     return {**ports, **FACE_IDLE_INPUTS}
+
+
+def face_ack_cycles(contract: object) -> int:
+    """The contract's bound on a commit's acknowledgement, in clk_i cycles: the generated
+    constant FACE_ACK_CYCLES (MBX_FACE_ACK_CYCLES in mbx_contract.h and KL_mbx_pkg.sv)."""
+    from mailbox_model import constants
+    return {c.name: c.value for c in constants(contract)}['FACE_ACK_CYCLES']
+
+
+class _CommitBench(LiteXModule):
+    """KL_mbx's commit rule (fw_busy_r, KL_mbx.sv face_commit) around slowest_ack: a commit
+    raises fw_send_o and its acknowledgement drops it. A commit while it is raised is refused
+    (KL_mbx's face_refused_w), and the stimulus never makes one."""
+
+    def __init__(self, n_if: int, contract: object) -> None:
+        self.go = Signal(n_if)
+        self.send = Signal(n_if)
+        self.ack = StimulusMailbox.slowest_ack(self, self.send, n_if, contract)
+        for i in range(n_if):
+            self.sync += If(self.ack[i], self.send[i].eq(0)).Elif(self.go[i], self.send[i].eq(1))
+
+
+def ack_deviations(contract: object, n_if: int = 2) -> list[str]:
+    """How the SoC's commit acknowledgement departs from the contract's bound: its bound is
+    not the firmware's MBX_FACE_ACK_CYCLES, or, simulated against KL_mbx's commit rule with
+    back-to-back commits on interface 0 and an overlapping one on interface 1, a commit is
+    not acknowledged by exactly one pulse bound cycles after fw_send_o rises, or fw_send_o
+    does not fall the cycle after it. Empty when it holds."""
+    from migen.sim import run_simulation
+    bound = face_ack_cycles(contract)
+    header = (ROOT / 'sw/firmware/ctrl/mbx/mbx_contract.h').read_text()
+    firmware = int(re.search(r'^#define MBX_FACE_ACK_CYCLES (\d+)u$', header, re.M).group(1))
+    out = [] if bound == firmware else [f'the bound is {bound}, the firmware waits {firmware}']
+    bench = _CommitBench(n_if, contract)
+    trace = []
+    # Interface 0 commits at cycle 1, then twice more, each as soon as the previous one is
+    # acknowledged and fw_send_o has fallen; interface 1 commits once, during interface 0's wait.
+    plans = {0: [1, 'next', 'next'], 1: [bound // 2]}
+    acked = dict.fromkeys(plans, False)
+
+    def stimulus():
+        for cycle in range(4 * bound + 16):
+            send, ack = (yield bench.send), (yield bench.ack)
+            trace.append((send, ack))
+            go = 0
+            for i, plan in plans.items():
+                acked[i] |= bool(ack >> i & 1)
+                if plan and (plan[0] == cycle or (plan[0] == 'next' and acked[i] and not send >> i & 1)):
+                    go |= 1 << i
+                    acked[i] = False
+                    plan.pop(0)
+            yield bench.go.eq(go)
+            yield
+    run_simulation(bench, stimulus())
+    for i, plan in plans.items():
+        if plan:
+            out.append(f'interface {i}: {len(plan)} commits never made (no acknowledgement)')
+        bits = [(s >> i & 1, a >> i & 1) for s, a in trace]
+        rises = [c for c in range(1, len(bits)) if bits[c][0] and not bits[c - 1][0]]
+        acks = [c for c, (_, a) in enumerate(bits) if a]
+        falls = [c for c in range(1, len(bits)) if bits[c - 1][0] and not bits[c][0]]
+        if acks != [r + bound for r in rises] or falls != [a + 1 for a in acks] or not rises:
+            out.append(f'interface {i}: fw_send_o rises at {rises}, fw_ack_p_i at {acks}, '
+                       f'falls at {falls}, bound {bound}')
+    return out
 
 
 class FlashBoundary(LiteXModule):
@@ -336,6 +422,9 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
     clocks, params = cfg['constraints'], cfg['soc']
     contract = milan_soc.ctrl_mailbox_contract()
+    deviations = ack_deviations(contract)
+    if deviations:
+        raise RuntimeError(f'the commit acknowledgement is not at the contract bound: {deviations}')
     platform = platform_for(contract, n_if)
     cpu = CpuPatches(cpu_regions)
     sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
