@@ -289,8 +289,8 @@ module milan_csr #(
   input  wire [63:0]             i_gptp_gm_id,        //! fabric publication bank GM (live read when enabled)
   input  wire [63:0]             i_gptp_parent_id,    //! fabric publication bank parent clockIdentity
   input  wire [31:0]             i_gptp_pdelay_ns,    //! fabric publication bank neighbor delay
-  input  wire [7*64-1:0]         i_gptp_asp_path,     //! fabric selected slots 1..7
-  input  wire [3:0]              i_gptp_asp_count,    //! fabric complete length incl GM
+  input  wire [7*64-1:0]         i_gptp_asp_path,     //! fabric selected pathTrace entries 1..7
+  input  wire [3:0]              i_gptp_asp_count,    //! fabric complete length incl entry 0
   input  wire [3:0]              i_gptp_asp_gen,      //! fabric served-tuple generation
   input  wire [15:0]             i_gptp_tap_drop,     //! frames lost at the plane's tap FIFO (free-running, wraps)
   input  wire [15:0]             i_gptp_rx_drop,      //! frames the plane's parser refused (free-running, wraps)
@@ -600,8 +600,8 @@ module milan_csr #(
   //! AS_PATH public face (gh #64 J4, 0x7DC-0x7E4). The fabric engine's atomic
   //! selected PathTrace is the only owner. Legacy staging addresses remain
   //! mapped but read zero and ignore writes when no fabric owner exists.
-  output wire [7*64-1:0]         o_asp_path,          //! published slots 1..7
-  output wire [3:0]              o_asp_count,         //! published path length (entries incl the GM)
+  output wire [7*64-1:0]         o_asp_path,          //! published pathTrace entries 1..7
+  output wire [3:0]              o_asp_count,         //! published path length (entries incl entry 0)
   output wire [3:0]              o_asp_gen,           //! generation (bumps when published path changes)
   //! lwSRP attribute-context provisioning port (KL_lwsrp_top ctx_* shape):
   //! window CTRL commits for idx>0 write a row (sid/dmac staged via the

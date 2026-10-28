@@ -327,15 +327,14 @@ grandmaster presence, so a domain or delay update in the startup or GM-loss
 window is announced like any other; the SR class-A priority and VLAN ID are
 detected by the processor off the same wires it publishes. GET_AS_PATH has its
 own selected-owner sequence comparator and never uses the wider ADP strobe.
-In product fabric mode that sequence is empty without a GM or when the selected
-Announce has no PathTrace TLV, and otherwise is the committed engine PathTrace
-(GM plus up to seven tail identities). The 0x7DC addresses are inert in both
-elaborations. The response snapshots the canonical selected path before
-gathering entries, so it stays on one coherent generation. Fabric count 0/1 is
-the meaningful empty/`{thisClock}` boundary: count one is this station's own
-path before a peer is elected (FPGA-gPTP #82), and a received sequence gains
-thisClock, so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP
-#85). GM=0 publications and an identical publish are silent. The
+In product fabric mode that sequence is empty without a GM, and otherwise is
+the committed engine pathTrace, up to eight identities from entry 0 (see
+0x7DC below). The 0x7DC addresses are inert in both elaborations. The response
+snapshots the canonical selected path before gathering entries, so it stays on
+one coherent generation. Count one is `{thisClock}`, this station's own path
+before a peer is elected (FPGA-gPTP #82); a received sequence gains thisClock,
+so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP #85). GM=0
+publications and an identical publish are silent. The
 `GPTP_GM_CHANGED` counter, and therefore the AVB_INTERFACE GET_COUNTERS push,
 move on the grandmaster identity edge alone. A write to 0x62C with a stable
 grandmaster is a GET_AVB_INFO trigger and an ADP re-advertise, and is neither
@@ -1468,27 +1467,24 @@ processor has no dynamic state.
 ### 0x7DC  -  retired AS_PATH compatibility addresses
 
 `GET_AS_PATH` (IEEE 1722.1-2021 7.4.41.2) returns the fabric engine's atomic,
-bounded PathTrace publication. IEEE 802.1AS-2011 10.3.10.2.1 d) writes
-pathTrace only from a received PathTrace TLV. When the selected Announce
-carries none, the engine publishes the empty sequence, so count zero is
-preserved even when a grandmaster identity is known separately. That is the
-IEEE 802.1AS-2020 rule: 10.3.11.2.1 d) empties the port's receivedPathTrace,
-and 10.3.13.2.4 f) 5) copies it to pathTrace, appending thisClock only when it
-is not empty. IEEE 802.1AS-2011 has no such rule: without a TLV, pathTrace
-keeps its previous value (10.3.10.2.1 d), 10.3.12.1.1). So the count-zero
-publication departs from the edition Milan v1.2 profiles. The decision is open
-in FPGA-gPTP #87.
+bounded pathTrace publication, entry 0 first. The engine publishes eight
+identities from entry 0 and their count (FPGA-gPTP #87, #88); entry 0 is
+served as published, never replaced by the grandmaster identity.
 
-Otherwise the published sequence is the received pathSequence with thisClock
-appended (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #85), so its count
-includes thisClock. Before any peer is elected, the sequence is `{thisClock}`,
-count one (IEEE 802.1AS-2011 10.3.12.1.4 i), with Cor1-2013, FPGA-gPTP #82).
+IEEE 802.1AS-2011 10.3.10.2.1 d), the edition Milan v1.2 profiles, writes
+pathTrace only from a received path trace TLV: its pathSequence is copied as
+received and thisClock appended (FPGA-gPTP #85), so the count includes
+thisClock. The copy keeps the received head, which need not be the
+grandmaster, and an empty pathSequence gives `{thisClock}` (FPGA-gPTP #88).
+When the selected Announce carries no TLV, nothing is written and pathTrace
+keeps its previous value (FPGA-gPTP #87): `{thisClock}` after reset or
+mastership (10.3.12.1.1, 10.3.12.1.4 i), with Cor1-2013, FPGA-gPTP #82), and
+otherwise the last path copied from a TLV, even across a grandmaster change.
 
 The publication holds eight identities, which bounds that append. At eight or
 more received entries the served sequence is the first eight received entries,
-the count stays 8 and thisClock is not appended (FPGA-gPTP #86; widening the
-publication would be a port change). Up to seven received entries always gain
-thisClock.
+the count stays 8 and thisClock is not appended (FPGA-gPTP #86). Up to seven
+received entries always gain thisClock.
 
 The three addresses below remain allocated so the public map does not shift.
 The staging pair is always zero and all writes are discarded. `ASP_CMD` is a
