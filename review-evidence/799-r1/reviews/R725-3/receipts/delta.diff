@@ -1,0 +1,31 @@
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index 6bd5e3e4c1..85b266d654 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -990,7 +990,7 @@ AAF stream gate also reaches the CSR read-back input `i_tlk_lobs_v`, which no
+ one-stream shape builds. At this head every shape has the same 26 population
+ nets and the same 41 reads, and four nets are unread. Of the 41 reads, 11 are
+ on the wire and map to the block, 14 are CSR status, and 16 are the answer
+-face: the same reads and kinds the text census counted before.
++face.
+ 
+ [`census_rules.py`](../../sw/mailbox/census_rules.py) names every rule above,
+ the shapes' and the tools' included, 31 in all, and the census enforces each
+diff --git a/sw/mailbox/mailbox.yaml b/sw/mailbox/mailbox.yaml
+index d9ad34cb10..dc52a2fb4a 100644
+--- a/sw/mailbox/mailbox.yaml
++++ b/sw/mailbox/mailbox.yaml
+@@ -60,10 +60,9 @@
+ # promises it. It only adds: a firmware built against 2.1 leaves the block at
+ # its reset value, and nothing in the window moved.
+ #
+-# Minor 3 (#799; #665 decision
+-# 2 (a)): a source entry per talker stream in the publication block, carrying
+-# the stream_id the source currently declares, which the AAF and CRF talkers
+-# stamp. After a MAAP conflict the protocol owner moves a source to another
++# Minor 3 (#799; #665 decision 2 (a)): a source entry per talker stream in
++# the publication block, carrying the stream_id the source currently declares,
++# which the AAF and CRF talkers stamp. After a MAAP conflict the protocol owner moves a source to another
+ # Stream ID (protocol-processor #202), so the plane that owns the Stream ID
+ # publishes the ID it declares. It only adds: the entries sit in the hole
+ # below the sink entries, and a firmware built against 2.2 leaves them at 0.
