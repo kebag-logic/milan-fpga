@@ -36,6 +36,7 @@ import contextlib
 import json
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 from unittest.mock import patch
 
@@ -296,7 +297,8 @@ def ack_deviations(contract: object, n_if: int = 2) -> list[str]:
     plans = {0: [1, 'next', 'next'], 1: [bound // 2]}
     acked = dict.fromkeys(plans, False)
 
-    def stimulus():
+    def stimulus() -> Iterator:
+        """Each cycle: record fw_send_o and fw_ack_p_i, then make the commits the plans call for."""
         for cycle in range(4 * bound + 16):
             send, ack = (yield bench.send), (yield bench.ack)
             trace.append((send, ack))

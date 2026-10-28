@@ -202,7 +202,8 @@ A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc,
 Every figure in this section was measured on the firmware of `dev-soft-core` `e76a755a`, before contract 2.3's face block (#665).
 PR #792, which brought this harness, changes no firmware source.
 In that firmware the size fixture's own observation callbacks (`a_stream`, `a_avb`, `a_counters` and `a_format` in `ctrl_aecp_image.c`) reported unavailable, and AECP opened with no acknowledgement.
-At this head no group measures ([Run and reproduce](#run-and-reproduce)).
+At this head the image boots, and the groups run with each face commit acknowledged at the contract's bound ([Run and reproduce](#run-and-reproduce)).
+The figures here have not been measured again at this head.
 
 Arm A is the image as linked, the formal measurement.
 Arm B is the labelled second arm, whose observation ports answer.
@@ -541,7 +542,8 @@ Every window committed exactly its defined load (the run refuses one that did no
 1. **The split image cannot run on the CPU the split SoC builds** ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
    The generator decodes a region whose size is not a power of two wrongly.
    For the 224 KiB `rom` at 0 its fetch and load checks are `(address & 0xfffc8000) == 0`, which excludes every address with bit 15 set.
-   The image's first call above 0x8000 (`jal aecp_image_load`, 0x6880 to 0xb1ec) takes an instruction access fault, cause 1, traps to 0 and restarts, forever.
+   In the firmware of `e76a755a`, the image's first call above 0x8000 (`jal aecp_image_load`, 0x6880 to 0xb1ec) took an instruction access fault, cause 1, trapped to 0 and restarted, forever.
+   At this head the image's `.data` load image is at 0x197b0, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_start.S`) takes a load access fault first, cause 5, and restarts the same way.
 2. **The linked image addresses placeholders**, not the split SoC (the address table above).
    S3's target firmware owns the real addresses.
 3. **#723 is open**: the runtime recipe builds without `-fno-stack-protector` and the image does not link.
@@ -672,8 +674,11 @@ The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss
 The run must refuse the boot with an instruction access fault, cause 1, and prints `CONTROL as-built caught`.
 
 These figures are the firmware of `e76a755a`.
-At this head the two planted controls cannot be caught: their groups wait for a first pass that never comes ([Run and reproduce](#run-and-reproduce)).
-The `as-built` control's fault comes earlier, at the image's first call above 0x8000 (`aecp_image_load`, the first call `main` makes), before AECP opens.
+At this head `slow-adp-rx` is caught again: RCV_ADP_DISCOVER measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
+`slow-adp-shutdown` has not been run at this head.
+**`as-built` escapes at this head.** The boot is refused, but with a load access fault, cause 5, at the start code's first `.data` copy load (`TRAP ... 0 5 00000020`), not with cause 1.
+The generator's decode defect is the same; the access that meets it first changed, because this head's `.data` load image is above 0x8000 (defect 1 in [Findings](#findings)).
+The control still names cause 1, so the run prints `CONTROL as-built ESCAPED` and exits 1. This also happens at the merge head, `0052e62e`. The control's rule is not changed here.
 
 ## Limits
 
@@ -685,7 +690,8 @@ The `as-built` control's fault comes earlier, at the image's first call above 0x
 - START_STREAMING calls a port the fixture leaves empty, so it is not run.
 - SET_STREAM_FORMAT was refused in both arms, whose format port answered unsupported (`a_format` in the fixture at `e76a755a`), so its fan-out is not run.
   At this head that port is the face block's GSI window (`aecp_face.c`, `format`), which this SoC never answers, and arm B leaves it in place.
-- The face block's datapath is held idle, as `milan_soc.CtrlMailbox` holds it: no window request is answered and no commit is acknowledged.
+- The face block's datapath is held idle, as `milan_soc.CtrlMailbox` holds it, except for the commit acknowledgement: no window request is answered, and each commit is acknowledged at the contract's bound, `FACE_ACK_CYCLES` bus cycles after `fw_send_o` rises.
+  A datapath that acknowledges sooner makes each commit's wait shorter than measured here. Each window read is measured to its timeout.
 - The lock expiry's notice (60 s after a LOCK_ENTITY) and the counter pushes are not run: the first is beyond the simulation's length, and the fixture changes no counter.
 - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
 - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.
