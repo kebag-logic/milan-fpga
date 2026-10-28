@@ -1,0 +1,14 @@
+HEAD 614635b7f9aed7c9138aef53d0b93ca6030ae31e
+bound from the contract: 64
+OK  head: no deviation
+OK  early: refused: interface 0: fw_send_o rises at [3, 69, 135], fw_ack_p_i at [66, 132, 198], falls at [67, 133, 199], bound 64; interface 1: fw_send_o rises at [34], fw_ack_p_i at [97], falls at [98], bound 64
+OK  late: refused: interface 0: fw_send_o rises at [3, 71, 139], fw_ack_p_i at [68, 136, 204], falls at [69, 137, 205], bound 64; interface 1: fw_send_o rises at [34], fw_ack_p_i at [99], falls at [100], bound 64
+OK  immediate: refused: interface 0: fw_send_o rises at [3, 6, 9], fw_ack_p_i at [3, 6, 9], falls at [4, 7, 10], bound 64; interface 1: fw_send_o rises at [34], fw_ack_p_i at [34], falls at [35], bound 64
+OK  if0-only: refused: interface 1: fw_send_o rises at [34], fw_ack_p_i at [], falls at [], bound 64
+OK  swapped: refused: interface 0: 2 commits never made (no acknowledgement); interface 0: fw_send_o rises at [3], fw_ack_p_i at [], falls at [], bound 64; interface 1: fw_send_o rises at [34], fw_ack_p_i at [67], falls at [68], bound 64
+OK  never-rearmed: refused: interface 0: fw_send_o rises at [3, 70, 73], fw_ack_p_i at [67, 70, 73], falls at [68, 71, 74], bound 64
+OK  bound-not-firmware: refused: the bound is 63, the firmware waits 64
+OK  face_ports n_if=1: 19 inputs held idle, 58 outputs, fw_send_o width 1
+OK  face_ports n_if=2: 19 inputs held idle, 58 outputs, fw_send_o width 2
+PROBE PASS
+rc=0
