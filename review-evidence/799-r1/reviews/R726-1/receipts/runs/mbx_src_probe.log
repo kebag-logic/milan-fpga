@@ -1,0 +1,16 @@
+reviewer selection: 12 arm(s): top-pub-hole-aliases-a-register, top-pub-hole-aliases-a-register-axil, top-pub-src-index-dropped, top-pub-src-index-dropped-axil, top-pub-src-base-ignored, top-pub-src-base-ignored-axil, top-pub-src-sid-halves-swapped, top-pub-src-sid-halves-swapped-axil, top-pub-src-sid-kept-through-reset, top-pub-src-sid-kept-through-reset-axil, reviewer-da-gate-src-guard-dropped, reviewer-da-gate-src-guard-dropped-axil
+[ok] positive control, 1 interface(s), host 0: == mbx (Wishbone host): checks: 404   failures: 0 ==
+[ok] positive control, 1 interface(s), host 1: == mbx (AXI4-Lite host): checks: 449   failures: 0 ==
+[ok] top-pub-hole-aliases-a-register: 6 check(s) failed; first: [FAIL] P1 each interface's registers and each sink's entry read back what was written to them, and only that
+[ok] top-pub-hole-aliases-a-register-axil: 6 check(s) failed; first: [FAIL] P1 each interface's registers and each sink's entry read back what was written to them, and only that
+[ok] top-pub-src-index-dropped: 2 check(s) failed; first: [FAIL] P1 each source's entry reads back the stream_id written to it, at its own interface, and only that
+[ok] top-pub-src-index-dropped-axil: 2 check(s) failed; first: [FAIL] P1 each source's entry reads back the stream_id written to it, at its own interface, and only that
+[ok] top-pub-src-base-ignored: 4 check(s) failed; first: [FAIL] P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+[ok] top-pub-src-base-ignored-axil: 4 check(s) failed; first: [FAIL] P1 DA_GATE keeps OPEN, LICENCE ACTIVE, IDLE_SLOPE every bit, SR_DOMAIN VID, PRIORITY and ADOPTED, TALKER_DECL DECLARED, BINDING BOUND, SID_VALID and STARTED only, per interface and sink
+[ok] top-pub-src-sid-halves-swapped: 1 check(s) failed; first: [FAIL] P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath on pub_src_sid_o, for its own interface and source
+[ok] top-pub-src-sid-halves-swapped-axil: 1 check(s) failed; first: [FAIL] P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath on pub_src_sid_o, for its own interface and source
+[ok] top-pub-src-sid-kept-through-reset: 1 check(s) failed; first: [FAIL] P5 a reset clears every publication register and every output of every interface
+[ok] top-pub-src-sid-kept-through-reset-axil: 1 check(s) failed; first: [FAIL] P5 a reset clears every publication register and every output of every interface
+[ok] reviewer-da-gate-src-guard-dropped: 2 check(s) failed; first: [FAIL] P1 each interface's registers and each sink's entry read back what was written to them, and only that
+[ok] reviewer-da-gate-src-guard-dropped-axil: 2 check(s) failed; first: [FAIL] P1 each interface's registers and each sink's entry read back what was written to them, and only that
+mbx mutants: 12 of 12 caught

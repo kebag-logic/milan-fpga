@@ -1,0 +1,25 @@
+=== STEP: python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+=== RC 0: python3 scripts/check_diagram_pngs.py
+=== STEP: python3 scripts/check_port_contracts.py
+port contract gate: OK (4052 first-party port(s): hdl 2161, gptp-processor 125, protocol-processor 1766; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 93 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 412 test-only hierarchical observation(s)
+=== RC 0: python3 scripts/check_port_contracts.py
+=== STEP: python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 210 md files + 1421 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+=== RC 0: python3 scripts/docs_check.py
+=== STEP: python3 scripts/check_feature_status.py
+feature_status: 0 finding(s)
+=== RC 0: python3 scripts/check_feature_status.py
+=== STEP: python3 scripts/check_gptp_docs.py
+gPTP documentation: OK (8 current pages)
+=== RC 0: python3 scripts/check_gptp_docs.py
+=== STEP: python3 scripts/pp_srcs.py --check
+  prose    sw/builder/test_declarations.py: declaration gate reads the authorized donor bindings and fixed timer profile; these are assertions, not compile source entries
+  prose    sw/litex/milan_soc.py: a comment citing a submodule line number, not a source entry
+  prose    tb/verilator/pp_shadow/Makefile: the recipe READS ADP_ENTITY_CAPS_C out of the package text (#465); it is not a verilator source entry, and the source list stays derived
+  prose    tests/steps/aecp_engine_steps.py: BDD steps citing the RTL they mirror
+=== RC 0: python3 scripts/pp_srcs.py --check
+=== STEP: python3 sw/mailbox/gen_mailbox.py --check
+gen_mailbox: 0 finding(s)
+=== RC 0: python3 sw/mailbox/gen_mailbox.py --check
