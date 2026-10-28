@@ -3,9 +3,9 @@
 **System:** a small **Milan v1.2** audio endpoint (PAAD  -  Professional Audio AVB
 Device)  -  a **stereo (2-channel) talker + listener at 48 kHz**  -  implemented on
 the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101). The
-release uses one cacheless RV32I control hart and scales media capacity through
-fabric stream contexts, channels, sample rates, and, in future profiles,
-replicated physical ports.
+release uses one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache
+(64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless (NFR-SCOUT-01).
+The release scales media capacity through fabric stream contexts, channels, sample rates, and, in future profiles, replicated physical ports.
 
 - **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 - **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs) through the [end-station builder](../ENDSTATION_BUILDER.md)
