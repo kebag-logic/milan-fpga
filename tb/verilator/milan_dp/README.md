@@ -404,7 +404,7 @@ Even its optimistic end misses that target substantially.
 The conservative, unbounded end therefore requires decision branch 2.
 The new nightly deadline remains an operational limit awaiting hosted evidence.
 
-The 2026-09-11 remeasurement covers the current scenario.
+The 2026-09-11 remeasurement covers the 16.992496440-second scenario.
 It used Verilator 5.052, four compilation jobs, and four confined logical CPUs under background load.
 The fresh build, physical run, and accounting controls took 3303.16 wall seconds.
 The physical simulation alone took 2774.55 seconds for 16.992496440 simulated seconds.
@@ -422,6 +422,15 @@ Scaling by the measured local slowdown of 1.3476 instead projects about 5225 sec
 The 5400-second deadline therefore still holds on projection, with a margin between 3 and 6 percent.
 The 120-minute job keeps more than 30 minutes of margin on the same projection.
 That margin is smaller than the 50 percent spread between the fastest and slowest hosted runs.
+
+FPGA-gPTP #90 moved the asCapable loss to the fifth lost response.
+The current scenario therefore spans one more Pdelay interval, 899637137 cycles.
+Scaled by the cycle ratio 899637137/849624822, the two projections become 5347 and 5484 seconds.
+Those are 99.0 and 101.6 percent of the deadline.
+So the 5400-second deadline no longer holds on projection.
+The 120-minute job keeps 28.6 to 30.9 minutes of margin on the same projections.
+The hosted record already shows one 5400.003-second timeout of this suite.
+The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns its scheduling to a follow-up.
 A completed hosted run of the current scenario remains required to confirm the deadline.
 
 The original spans remain explicitly available:
@@ -435,7 +444,7 @@ make -C tb/verilator/milan_dp_gptp extended
 Extended mode retains every original fixed-duration audio window.
 The 2026-09-11 extended run passed 137 checks in 3052.05 simulation seconds.
 Both modes execute the same assertions and comparison thresholds.
-The new elapsed-interval assertion also checks four unanswered Pdelay intervals.
+The new elapsed-interval assertion also checks five unanswered Pdelay intervals.
 Extended mode is excluded from the default sweep.
 
 The normal log includes simulated duration and counted verdicts.
