@@ -186,8 +186,11 @@ OUTSIDE = {
                                                  "split layout's reset entry is test_ctrl_memory.py's, and the runtime "
                                                  "archives change only the link), a control's planted copy of the "
                                                  "firmware's tree outside the checkout to the same builder, a variant "
-                                                 "arm's image to fixture_variant.py and its runtime to runtime_ssp.py; "
-                                                 "its own compiles build the test SoC's Verilator model",
+                                                 "arm's image to fixture_variant.py and its runtime to runtime_ssp.py, "
+                                                 "and the hybrid-XIP arm's relink of the image's objects to "
+                                                 "ctrl_srp_image.link, which compiles the split layout's reset entry "
+                                                 "from an unchanged copy and changes only the linker script; its own "
+                                                 "compiles build the test SoC's Verilator model",
     "tb/verilator/ctrl_service_budget/runtime_ssp.py": "runs ctrl_image_runtime.py with -fno-stack-protector on its "
                                                        "compiles (#723): the bare-metal runtime from picolibc's and "
                                                        "compiler-rt's sources outside the checkout, no firmware or "

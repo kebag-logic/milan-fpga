@@ -3,9 +3,9 @@
 **System:** a small **Milan v1.2** audio endpoint (PAAD  -  Professional Audio AVB
 Device)  -  a **stereo (2-channel) talker + listener at 48 kHz**  -  implemented on
 the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101). The
-release uses one cacheless RV32I control hart and scales media capacity through
-fabric stream contexts, channels, sample rates, and, in future profiles,
-replicated physical ports.
+release uses one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache
+(64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless (NFR-SCOUT-01).
+The release scales media capacity through fabric stream contexts, channels, sample rates, and, in future profiles, replicated physical ports.
 
 - **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 - **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs) through the [end-station builder](../ENDSTATION_BUILDER.md)
@@ -318,7 +318,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 ### 3.4 Fabric scale-out and future ports
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| NFR-SCOUT-01 | The release architecture MUST use one cacheless RV32I control hart. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
+| NFR-SCOUT-01 | The release architecture MUST use one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
 | NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP and SRP MUST each be build-selectable between bare-metal firmware and fabric. Mark II defaults to firmware; all-fabric remains supported and the shipping default until F2 to F5 pass suites and bench acceptance for all streams, counters and audio soak. Each function MUST have one state owner. Framing, timestamps, ingress filtering, gPTP and media MUST remain fabric-owned. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |
 | NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio and gPTP deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. | M | A,T |
 | NFR-SCOUT-04 | The PHC, MAC trunk, CSR window, and fabric egress arbiter MUST each have one coherent owner and deterministic arbitration across all elaborated streams. | M | A,T |

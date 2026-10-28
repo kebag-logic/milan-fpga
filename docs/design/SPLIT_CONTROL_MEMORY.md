@@ -17,6 +17,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and DDR3 until the wrapper is removed.
 - **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points, mapped out of context, and the ledger rows, with the one point over budget owed to lane S14.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
+- **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
 
 ## 1. Memory map
 
@@ -264,3 +265,42 @@ The test runs in the LiteX aggregate:
 ```sh
 python3 sw/litex/test_ctrl_memory.py
 ```
+
+## 7. The CPU's instruction cache
+
+The split placement's CPU fetches through an L1 instruction cache ([#665 S2c](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860), owner decision of 2026-10-26).
+`milan_soc.ctrl_cpu_args` hands the pinned VexiiRiscv generator its own fetch L1 options, under `--ctrl-mailbox` only.
+The all-fabric CPU's arguments are unchanged, so its netlist and every shipped config's export are too.
+The [split service budget](../../tb/verilator/ctrl_service_budget/README.md#the-instruction-cache) measures it.
+
+| Parameter | Value | Reason |
+|---|---|---|
+| Size | 4 KiB: 64 sets | The knee of the measured sweep: 8 KiB costs one more tile for about 2 % on the longest pass of the backlog windows that released their load; the composed maximum, a lower bound at every size, does not rank the sizes |
+| Ways | 1, direct-mapped | Two ways cost half a tile more at the same size |
+| Line | 64 bytes | The generator's fixed `FetchL1Plugin` line at the pinned revision; a refill is sixteen 32-bit beats on the CPU's peripheral bus |
+| Refills | one at a time, no prefetch | The generator's defaults; the next-line prefetcher needs a second refill slot |
+| Data cache | none | With the DMA port, an LSU L1 makes the generator build its coherent interconnect and hub instead of [patch 0005](../../sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch)'s non-coherent fabric. The data side's measured cost is mostly byte-loop stores to `sram`, which the firmware removes first. |
+
+Every executable region is cacheable: `rom`, `sram`, the flash window and, while DDR3 is built, `main_ram`.
+So the cache never fetches uncached.
+The cache adds no region and changes none.
+Its region check is the cacheless fetch's expression, read at the cache's own fetch stage.
+The non-power-of-two `rom` and `sram` decode of [#791](https://github.com/kebag-logic/milan-fpga/issues/791) is therefore the same with and without the cache, and stays #791's.
+
+Out of context, Vivado 2026.1 with `AreaOptimized_high` on `xc7a100t-fgg484-2`, the product split CPU netlist the `--ctrl-mailbox` export reads:
+
+| CPU | LUT | FF | RAMB36 / RAMB18 | Tiles | Routed WNS / WHS at 20 / 10 ns |
+|---|---:|---:|---:|---:|---:|
+| Split, cacheless (base `e76a755a`) | 3,091 | 5,017 | 2 / 5 | 4.5 | +0.305 / +0.064 ns |
+| Split, 4 KiB instruction cache | 3,082 | 5,190 | 3 / 6 | 6.0 | +0.607 / +0.003 ns |
+| Difference | -9 | +173 | +1 / +1 | +1.5 | |
+
+The cache's tiles are the CPU's, outside `rom` and `sram`, so the 56-RAMB36 firmware allocation is unchanged.
+They are debited in the [plan's ledger](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 1.5 tiles, in the split only.
+The route closes at the shipping clocks, the CPU at 50 MHz and its bus at 100 MHz; the integrated route is M8a-2's.
+
+The owner amended [NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) for this cache on 2026-10-27 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6434741232), [correction](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6434744436)), following the 2026-10-26 decision that the cache is the first approach.
+It had required "one cacheless RV32I control hart", which this cache contradicted.
+It now requires one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless.
+[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
+Any change to the cache's geometry, or a data cache, needs the owner's decision again.

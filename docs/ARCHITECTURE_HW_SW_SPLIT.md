@@ -62,7 +62,7 @@ Milan v1.2 5.4.5.2 and IEEE 1722.1-2021 7.5.2 remain normative.
 
 [NFR-SCOUT-01..03](reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
 constrain capacity, placement and service timing.
-One cacheless RV32I control hart remains the release target.
+The release architecture uses one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless.
 Media capacity grows through fabric contexts, channels and sample rates.
 Protocol state grows through static pools sized from the entity model.
 Every supported shape must meet the same service bound.

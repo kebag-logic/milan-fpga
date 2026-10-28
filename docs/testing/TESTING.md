@@ -328,7 +328,7 @@ contain both commands, environments, elapsed times, return codes and source bind
 
 Measured hosted windows at `8e4b1e53` now supersede those projections.
 [Run 37892515345, shard 0/5 job 113696564335](https://github.com/kebag-logic/milan-fpga/actions/runs/37892515345/job/113696564335)
-used a hosted `ubuntu-latest` runner, then the `ubuntu-24.04` image, and sequential `make -C` invocations.
+used a hosted `ubuntu-latest` runner, which resolved to the `ubuntu-24.04` image, and sequential `make -C` invocations.
 The windows use successive suite-verdict timestamps, including build time.
 Both suites passed:
 

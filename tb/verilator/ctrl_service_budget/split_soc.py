@@ -2,12 +2,14 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The test-only split SoC: the shipping CPU, the image's block RAM and a driven mailbox.
 
-The CPU is built by MilanSoC's own VexiiRiscv path: cacheless RV32I, one hart,
-the CPU at the 50 MHz Milan clock and the bus at 100 MHz, with the DMA port
-the shipping image has. Its firmware memory is milan_soc.add_ctrl_memory,
-the split placement's, built from the linked image. The capture harness's
-product simulation (tb/verilator/nvm_capture_cpu/soc.py) is imported read
-only, for its simulated clocks and its path to the product sources.
+The CPU is built by MilanSoC's own VexiiRiscv path: RV32I, one hart, the
+CPU at the 50 MHz Milan clock and the bus at 100 MHz, with the DMA port the
+shipping image has, and the split placement's instruction cache
+(milan_soc.ctrl_cpu_args) unless a build selects a sweep point or none. Its
+firmware memory is milan_soc.add_ctrl_memory, the split placement's, built
+from the linked image. The capture harness's product simulation
+(tb/verilator/nvm_capture_cpu/soc.py) is imported read only, for its
+simulated clocks and its path to the product sources.
 
 The image ctrl_srp_image.py links is a size fixture whose bus addresses are
 placeholders (#665): the mailbox at ctrl_build.py's CTRL_MBX_BASE and the
@@ -368,6 +370,23 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
     soc.add_timer('timer0')
 
 
+def fetch_l1_geometry(fetch_l1: str) -> tuple[int, int] | None:
+    """The instruction cache a build's CPU has, as milan_soc.ctrl_cpu_args takes it.
+
+    'split' is the split placement's own (milan_soc.CTRL_FETCH_L1); 'none' is
+    the cacheless CPU the all-fabric placement keeps; SETSxWAYS is a test-only
+    sweep point of the same generator option.
+    """
+    if fetch_l1 == 'split':
+        return milan_soc.CTRL_FETCH_L1
+    if fetch_l1 == 'none':
+        return None
+    match = re.fullmatch(r'([1-9]\d*)x([1-9]\d*)', fetch_l1)
+    if not match or int(match.group(1)) & (int(match.group(1)) - 1):
+        raise RuntimeError(f'fetch L1 {fetch_l1!r} is not split, none or SETSxWAYS with power-of-two sets')
+    return int(match.group(1)), int(match.group(2))
+
+
 class CpuPatches:
     """MilanSoC's VexiiRiscv path as shipped, with the DMA port and the selected region set."""
 
@@ -411,12 +430,13 @@ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
 
 
 def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
-          ledgered: str | None = None) -> dict:
+          fetch_l1: str = 'split', ledgered: str | None = None) -> dict:
     """Export the test SoC's Verilog and return the native build's inputs.
 
     cpu_regions 'cover' gives the CPU generator each region at its
     power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
     which reproduces the generator's rom decode defect (a control).
+    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
     ledgered names the ledgered point this build measures (build.ledgered_point),
     whose firmware memory is planned to that point's tiles.
     """
@@ -429,13 +449,15 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
         raise RuntimeError(f'the commit acknowledgement is not at the contract bound: {deviations}')
     platform = platform_for(contract, n_if)
     cpu = CpuPatches(cpu_regions)
+    geometry = fetch_l1_geometry(fetch_l1)
+    scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
     sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
     with cpu.applied():
         soc = milan_soc.MilanSoC(
             platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
             board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
             flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
-            extra_scala_args=params['scala_args'], uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
+            extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
         with ledgered_plan(ledgered):
             milan_soc.add_ctrl_memory(soc, elf)
@@ -459,6 +481,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
         'memory_regions': cpu.soc_regions,
         'cpu_regions': cpu_regions,
         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],
+        'fetch_l1': fetch_l1, 'fetch_l1_geometry': list(geometry) if geometry else None,
         'ctrl_plan': soc.ctrl_plan.summary(),
     }
     (build_dir / 'soc.json').write_text(json.dumps(spec, indent=2) + '\n')

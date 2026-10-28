@@ -24,6 +24,7 @@ from ci_gate_workflows import CARRIERS, ROOT, case_inventory, generate, load_tem
 from ci_runtime_workflows import CENSUS_WORKER_BYTES, census_budget_step, cpu_budget_step
 from ci_gate_workflows import BUILDER_SPLIT, BUILDER_WORKERS, DRIVER_COMMAND, builder_command, builder_leg_step
 from ci_gate_workflows import gate_graph
+from ci_fast_tool_selftest import fast_tool_controls
 import ci_suite_pieces
 from ci_suite_workflows import check_inventory_dependencies, inventory_dependencies
 
@@ -533,6 +534,7 @@ def main() -> int:
     """Drive the production generator and verifier with independent planted losses."""
     inventory_controls()
     scheduling_controls()
+    fast_tool_controls()
     builder_split_controls()
     suite_generator_controls()
     cpu_controls()
