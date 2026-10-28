@@ -790,7 +790,7 @@ The residual is the data side's, and in order of size:
 - Software multiply, divide and shift, 3 % of the composed maximum's pass at both points (7 % of the released windows' longest). The M extension removes them; that is an owner decision.
 
 With the instruction cache in, the core's own lever left is its data side: loads and stores wait 39 to 40 % of the cycles.
-A data cache is the owner's option, with the coherent interconnect it needs (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache)); the clock stays the owner's too.
+A data cache was the owner's option, with the coherent interconnect it needs; the owner took it on 2026-10-28 (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#9-the-cpus-data-cache)), and the clock stays the owner's.
 
 ### Controls with the cache
 

@@ -19,6 +19,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
 - **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
 - **[8. The CPU's multiply and divide](#8-the-cpus-multiply-and-divide)** -- The split CPU's RV32M, the image built and audited for it, its logic out of context, and the requirement amended for it.
+- **[9. The CPU's data cache](#9-the-cpus-data-cache)** -- The split CPU's LSU L1: its size from the composed bursts, why it is coherent, the windows it never caches, its area against the ledger, and the requirement amended for it.
 
 ## 1. Memory map
 
@@ -29,7 +30,8 @@ No BIOS ROM or BIOS SRAM is built there.
 
 Both origins are LiteX's VexiiRiscv `rom` and `sram` origins.
 `add_ctrl_memory` refuses a CPU whose reset address or `sram` origin differs.
-Every other region is unchanged: `main_ram`, `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`.
+Every other region keeps its origin and size: `main_ram`, `spiflash`, `milan_csr`, `ctrl_mbx` and `csr`.
+The split CPU sees `spiflash` uncached and not executable ([section 9](#9-the-cpus-data-cache)).
 
 Each region spans the whole 224 KiB budget.
 The VexiiRiscv netlist is generated from the region list, so it does not depend on the image.
@@ -221,9 +223,10 @@ The [split service budget](../../tb/verilator/ctrl_service_budget/README.md#the-
 | Ways | 1, direct-mapped | Two ways cost half a tile more at the same size |
 | Line | 64 bytes | The generator's fixed `FetchL1Plugin` line at the pinned revision; a refill is sixteen 32-bit beats on the CPU's peripheral bus |
 | Refills | one at a time, no prefetch | The generator's defaults; the next-line prefetcher needs a second refill slot |
-| Data cache | none | With the DMA port, an LSU L1 makes the generator build its coherent interconnect and hub instead of [patch 0005](../../sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch)'s non-coherent fabric. The data side's measured cost is mostly byte-loop stores to `sram`, which the firmware removes first. |
+| Data cache | none when this cache was chosen; [section 9](#9-the-cpus-data-cache) adds one | With the DMA port, an LSU L1 makes the generator build its coherent interconnect and hub instead of [patch 0005](../../sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch)'s non-coherent fabric. The data side's measured cost was mostly byte-loop stores to `sram`, which the firmware removed first. |
 
-Every executable region is cacheable: `rom`, `sram`, the flash window and, while DDR3 is built, `main_ram`.
+Every executable region is cacheable: `rom`, `sram` and, while DDR3 is built, `main_ram`.
+The flash window was too, until the data cache made it neither cacheable nor executable for the split CPU ([section 9](#9-the-cpus-data-cache)).
 So the cache never fetches uncached.
 The cache adds no region and changes none.
 Its region check is the cacheless fetch's expression, read at the cache's own fetch stage.
@@ -277,6 +280,95 @@ Both routes complete with no routing error and close at the shipping clocks, the
 
 The owner amended [NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) for this extension on 2026-10-27 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6445197853)).
 It had required one RV32I control hart in both placements.
-It now requires one control hart: in the split placement it is RV32IM, with a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it is RV32I and stays cacheless.
-[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
+It then required one control hart: in the split placement it is RV32IM, with a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it is RV32I and stays cacheless.
+[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeated that wording.
 Any other extension, or M on the all-fabric hart, needs the owner's decision again.
+Section 9 records the later amendment for the data cache.
+
+## 9. The CPU's data cache
+
+The split placement's CPU has an L1 data cache ([#665 S2b round 4](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6460942408), owner decision of 2026-10-28).
+`milan_soc.CTRL_LSU_L1` adds the pinned VexiiRiscv generator's `--lsu-l1 --lsu-l1-sets=128 --lsu-l1-ways=1` to `ctrl_cpu_args`, with the instruction cache, under `--ctrl-mailbox` only.
+The harness's cacheless arm (`--fetch-l1 none`) has neither cache.
+The all-fabric CPU's arguments are unchanged, so its netlist is too; [`test_soc_options.py`](../../sw/builder/test_soc_options.py) proves both, with seventeen planted controls.
+
+| Parameter | Value | Reason |
+|---|---|---|
+| Size | 8 KiB: 128 sets | The smallest size measured to drain the composed bursts within T_svc, below |
+| Ways | 1, direct-mapped | At 4 KiB two ways gain 0.67 ms on the composed window; 8 KiB direct-mapped gains 1.35 ms |
+| Line | 64 bytes | The generator's `LsuL1Plugin` line at the pinned revision |
+| Coherency | the generator's hub, with the DMA port | Below |
+| Uncached windows | `ctrl_mbx`, `milan_csr`, `csr`; `spiflash`, which is no longer executable either | Below |
+
+### Coherent with the DMA port
+
+The protocol-memory bridges reach LiteDRAM through the CPU's DMA slave.
+With an LSU L1, patch 0005 keeps the generator's coherency (`lsuL1Coherency`), so the generator joins that slave, the fetch L1 and the data L1 in its coherent bus behind a hub (`Soc.scala`, `splited.wc`).
+The hub probes the data cache before a DMA access completes: a DMA write cannot leave a stale line in the CPU, and a DMA read sees a line the CPU holds dirty.
+That is the generator's own fabric, unchanged.
+
+The non-coherent alternative is not this generator's.
+Its non-coherent split fabric (`splited.nc`) attaches no DMA port, so the protocol-memory bridges would lose their path to LiteDRAM.
+Keeping the DMA window uncached by region instead is refused too: with an LSU L1 the generator rejects an uncached memory-bus region (patch 0005's assertion).
+Either would need further generator patches.
+Coherency costs speed, not safety: through the hub the fetch L1's refills take longer.
+Measured on contract 2.2's bursts at 1x1, the ACMP command behind a full ACMP ring took 10.82 ms on a coherent 4 KiB data cache, and 9.45 ms on the same cache without the DMA port, which is not a product CPU.
+
+### The windows it never caches
+
+- **`ctrl_mbx`, `milan_csr` and `csr`** are `rw` peripheral regions without the cacheable flag, as before.
+  The data cache sends every access to them to its IO bus, one at a time and in program order, so every ring word, register and doorbell is read and written at the fabric.
+- **`spiflash`** is the one region this cache changes.
+  The saved-state store reads the flash through the window, then erases and programs it through the LiteSPI command master, which no cache sees ([`nvm_flash_litespi.c`](../../sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c)), and blank-checks and verifies it through the window again.
+  A line the cache held before an erase would read stale after it.
+  `milan_soc.ctrl_uncached_flash` therefore hands the generator the window without its cacheable flag (`r,p`), so every flash read is an IO access.
+  LiteX's rule that a region outside its IO region is cached is a rule for CPUs whose caches follow the IO region alone; VexiiRiscv takes each region's cacheability from its region list.
+  The window also stops being executable: the split image runs from `rom` ([`ctrl_split.ld`](../../sw/firmware/ctrl/plat/ctrl_split.ld)), so a fetch from flash faults instead of running uncached, and section 7's rule that every executable region is cacheable still holds.
+  The harness's labelled hybrid-XIP arm executes from the flash on its own test SoC; an XIP placement would need the window cacheable for fetch, so it needs its own decision.
+- **`rom`, `sram` and `main_ram`** are cached.
+  Only the CPU writes `sram`, and nothing writes `rom`; `main_ram` is the DMA's target and is coherent through the hub.
+
+### Size, from the composed bursts
+
+The [CPU budget harness](../../tb/verilator/ctrl_service_budget/README.md#backlog-rows) offers every receive channel its admitted burst at once, with fifteen grandmaster changes.
+At 8x8 with two interfaces the last record it releases is SRP's, which takes a record only once the window's events are taken.
+On contract 2.2's bursts no size measured drains it within T_svc: with a 16 KiB cache the composed rows still miss at both points.
+At the smaller bursts the harness measured for the owner's other 2026-10-28 decision, the last SRP record of the 8x8 composed window is released after:
+
+| Bursts | Data cache | ms |
+|---|---|---:|
+| ADP, AECP and SRP 2; ACMP and MAAP 3 | 4 KiB | 11.58 |
+| the same | 4 KiB, two ways | 10.91 |
+| the same | 8 KiB | 10.23 |
+| the same | 16 KiB | 9.89 |
+| every channel 2 | 4 KiB | 10.59 |
+| every channel 2 | 8 KiB | 9.45 |
+
+8 KiB is the smallest size that fits, with every channel's burst at 2.
+Those bursts are the mailbox contract's, not this cache's, and are not part of this change.
+The harness observes this CPU's loads and stores at its data cache's IO bus, which carries every mailbox access; cached accesses never reach a bus it observes.
+
+### Area
+
+Out of context, Vivado 2026.1 with `AreaOptimized_high` on `xc7a100t-fgg484-2`, the product split CPU netlist the `--ctrl-mailbox` export reads at the shipping 1x1 config:
+
+| CPU | LUT | FF | DSP48E1 | RAMB36 / RAMB18 | Tiles | Routed WNS / WHS at 20 / 10 ns |
+|---|---:|---:|---:|---:|---:|---:|
+| Split, 4 KiB instruction cache and RV32M (section 8) | 3,481 | 5,433 | 4 | 3 / 6 | 6.0 | +0.826 / +0.073 ns |
+| and a 4 KiB data cache, measured, not chosen | 4,511 | 7,321 | 4 | 5 / 11 | 10.5 | +0.443 / +0.075 ns |
+| and the 8 KiB data cache | 4,544 | 7,321 | 4 | 6 / 11 | 11.5 | +0.291 / +0.066 ns |
+| Difference, 8 KiB data cache | +1,063 | +1,888 | 0 | +3 / +5 | +5.5 | |
+
+The data cache's own bank is two RAMB36.
+Its coherent fabric adds the rest: a second clock-domain crossing from the CPU to the bus, one for the cached and one for the IO side, each a RAMB36 and a RAMB18, and the hub's RAMB18.
+Both routes complete with no routing error and close at the shipping clocks, the CPU at 50 MHz and its bus at 100 MHz; the integrated route is M8a-2's.
+
+The tiles are the CPU's, outside `rom` and `sram`, so the 56-RAMB36 firmware allocation is unchanged.
+They are debited in the [plan's ledger](MARK_II_AREA_PLAN.md#firmware-and-block-ram-ledger): 5.5 tiles, in the split only.
+That leaves the ledger 0.5 tiles below its 121.5-tile ceiling after the conditional release, and over it with every bank in block RAM or at the full 56-tile allocation.
+
+The owner amended [NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) for this cache on 2026-10-28 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6460942408)).
+It had required no data cache on the split hart.
+It now requires one control hart: in the split placement it is RV32IM, with a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and an 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless.
+[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
+Any other geometry, or a data cache on the all-fabric hart, needs the owner's decision again.
