@@ -987,9 +987,9 @@ or a read's classes of cone end (the wire, CSR read-back, the answer face)
 that is not the same in every shape fails. Which CSR input or which
 instance's input a cone ends at is not compared: from four streams up, the
 AAF stream gate also reaches the CSR read-back input `i_tlk_lobs_v`, which no
-one-stream shape builds. At this head every shape has the same 25 population
-nets and the same 39 reads, and four nets are unread. Of the 39 reads, 10 are
-on the wire and map to the block, 14 are CSR status, and 15 are the answer
+one-stream shape builds. At this head every shape has the same 26 population
+nets and the same 41 reads, and four nets are unread. Of the 41 reads, 11 are
+on the wire and map to the block, 14 are CSR status, and 16 are the answer
 face: the same reads and kinds the text census counted before.
 
 [`census_rules.py`](../../sw/mailbox/census_rules.py) names every rule above,
@@ -1099,7 +1099,7 @@ on the host model.
 
 | Evidence | What it shows |
 |---|---|
-| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | the 39 reads of the 25 class-D nets, classified from the netlist of each of the six shapes the builder builds and the same in all; its 118 plants, each refused by its own words; each of its 31 rules removed in turn, each letting its arms through |
+| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | the 41 reads of the 26 class-D nets, classified from the netlist of each of the six shapes the builder builds and the same in all; its 118 plants, each refused by its own words; each of its 31 rules removed in turn, each letting its arms through |
 | [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 404 checks through the Wishbone adapter and the same 404 through the AXI4-Lite adapter (406 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
 | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
