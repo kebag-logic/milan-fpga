@@ -1,0 +1,15 @@
+/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp 
+  [ ok ] the 375 ms Sync timeout makes this station grandmaster
+  [ ok ] 375 ms Sync timeout asserts tu in the synchronised master role got=0x3 exp=0x3
+  [ ok ] the grandmaster change holds tu for the 0.25 s holdover
+  [ ok ] tu clears within 0.5 s of the grandmaster change
+  [ ok ] five unanswered Pdelay intervals elapsed
+LOSS elapsed 5.999525 s, no timer compression
+simulated_duration_seconds=17.992742740 cycles=899637137
+== ax1x1gptp physical: checks: 151   failures: 0 ==
+RESULT: PASS
+wall_clock_seconds=4390.06 process_exit_status=0
+== ax1x1gptp setup abort: checks: 6   failures: 0 ==
+== ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==
+== ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+== ax1x1gptp recentre controls: checks: 14   failures: 0 ==

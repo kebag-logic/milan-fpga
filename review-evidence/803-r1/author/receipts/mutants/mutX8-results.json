@@ -1,0 +1,28 @@
+[
+ {
+  "mutant": "X8 a sync receipt timeout only clears sync-ok (#89), physical leg",
+  "file": "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "physical": {
+    "rc": 2,
+    "named": [
+     "the 375 ms Sync timeout makes this station grandmaster"
+    ],
+    "failed_named": [
+     "the 375 ms Sync timeout makes this station grandmaster"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "the 375 ms Sync timeout makes this station grandmaster",
+     "375 ms Sync timeout asserts tu in the synchronised master role got=0x1 exp=0x3",
+     "tu clears within 0.5 s of the grandmaster change",
+     "AAF uncertainty matches public stable state got=11986 exp=0"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ }
+]

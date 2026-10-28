@@ -1,0 +1,330 @@
+[
+ {
+  "mutant": "C0 clean gptp_shadow",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "mutant": "C0 clean tsn_fuzz_ptp",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "mutant": "C0 clean phc_step",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "mutant": "P1 the shadow path generation ignores entry 0",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "gptp_shadow": {
+    "rc": 2,
+    "named": [
+     "entry-0-only change spends one path generation"
+    ],
+    "failed_named": [
+     "entry-0-only change spends one path generation"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "entry-0-only change spends one path generation",
+     "restored path spends one generation"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "P2 the shadow publishes no entry 0",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "gptp_shadow": {
+    "rc": 2,
+    "named": [
+     "published path head is the received head",
+     "explicit one-entry PathTrace head is the GM",
+     "empty PathTrace publishes thisClock at entry 0",
+     "path headed elsewhere publishes the received head",
+     "entry-0-only change publishes the new head"
+    ],
+    "failed_named": [
+     "published path head is the received head",
+     "explicit one-entry PathTrace head is the GM",
+     "empty PathTrace publishes thisClock at entry 0",
+     "path headed elsewhere publishes the received head",
+     "entry-0-only change publishes the new head"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "published path head is the received head",
+     "TLV-less selected path keeps its head",
+     "better TLV-less Announce keeps the previous head",
+     "explicit one-entry PathTrace head is the GM",
+     "empty PathTrace publishes thisClock at entry 0",
+     "path headed elsewhere publishes the received head",
+     "entry-0-only change publishes the new head",
+     "entry-0-only change spends one path generation",
+     "restored path spends one generation"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D1 a TLV-less Announce publishes {thisClock} (#87)",
+  "file": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "gptp_shadow": {
+    "rc": 2,
+    "named": [
+     "TLV-less selected PathTrace keeps its count",
+     "TLV-less selected path keeps its head",
+     "better TLV-less Announce keeps the previous count",
+     "TLV-less refresh keeps the explicit path"
+    ],
+    "failed_named": [
+     "TLV-less selected PathTrace keeps its count",
+     "TLV-less selected path keeps its head",
+     "better TLV-less Announce keeps the previous count",
+     "TLV-less refresh keeps the explicit path"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "TLV-less selected PathTrace keeps its count",
+     "TLV-less selected path keeps its head",
+     "TLV-less selected path keeps tail 1",
+     "TLV-less selected path keeps tail 2",
+     "TLV-less selected path spends no path generation",
+     "better TLV-less Announce keeps the previous count",
+     "better TLV-less Announce keeps the previous head",
+     "TLV-less GM A-to-B is path-generation silent",
+     "kept to explicit GM spends one path generation",
+     "TLV-less refresh keeps the explicit path",
+     "TLV-less refresh spends no path generation",
+     "explicit to empty path spends one path generation",
+     "path headed elsewhere spends one path generation",
+     "entry-0-only change spends one path generation",
+     "restored path spends one generation"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D2 the empty sequence published without a TLV (#87, the 2020 rule)",
+  "file": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "gptp_shadow": {
+    "rc": 2,
+    "named": [
+     "TLV-less selected PathTrace keeps its count",
+     "TLV-less selected path keeps its head"
+    ],
+    "failed_named": [
+     "TLV-less selected PathTrace keeps its count",
+     "TLV-less selected path keeps its head"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "TLV-less selected PathTrace keeps its count",
+     "TLV-less selected path keeps its head",
+     "TLV-less selected path keeps tail 1",
+     "TLV-less selected path keeps tail 2",
+     "TLV-less selected path spends no path generation",
+     "better TLV-less Announce keeps the previous count",
+     "better TLV-less Announce keeps the previous head",
+     "TLV-less GM A-to-B is path-generation silent",
+     "kept to explicit GM spends one path generation",
+     "TLV-less refresh keeps the explicit path",
+     "TLV-less refresh spends no path generation",
+     "explicit to empty path spends one path generation",
+     "path headed elsewhere spends one path generation",
+     "entry-0-only change spends one path generation",
+     "restored path spends one generation"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D3 the received head replaced by the grandmaster (#88)",
+  "file": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "gptp_shadow": {
+    "rc": 2,
+    "named": [
+     "path headed elsewhere publishes the received head",
+     "entry-0-only change publishes the new head"
+    ],
+    "failed_named": [
+     "path headed elsewhere publishes the received head",
+     "entry-0-only change publishes the new head"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "path headed elsewhere publishes the received head",
+     "entry-0-only change publishes the new head",
+     "entry-0-only change spends one path generation",
+     "restored path spends one generation"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D4 the path-head refusal restored (#88)",
+  "file": "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+  "pattern_counts": [
+   1,
+   1,
+   1
+  ],
+  "suites": {
+   "gptp_shadow": {
+    "rc": 2,
+    "named": [
+     "path headed elsewhere publishes count three"
+    ],
+    "failed_named": [
+     "path headed elsewhere publishes count three"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "path headed elsewhere publishes count three",
+     "path headed elsewhere publishes the received head",
+     "path headed elsewhere ends with thisClock",
+     "path headed elsewhere spends one path generation",
+     "entry-0-only change keeps count three",
+     "entry-0-only change publishes the new head",
+     "entry-0-only change keeps tail 1",
+     "entry-0-only change keeps tail 2",
+     "entry-0-only change spends one path generation",
+     "restored path spends one generation"
+    ]
+   },
+   "tsn_fuzz_ptp": {
+    "rc": 2,
+    "named": [
+     "better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): adopted",
+     "better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): parser drop counter unmoved"
+    ],
+    "failed_named": [
+     "better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): adopted",
+     "better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): parser drop counter unmoved"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): adopted got=189629471886922981 exp=13107",
+     "better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): parent follows its source got=189629471886922981 exp=36277286617765222",
+     "better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): no longer grandmaster got=2 exp=0",
+     "better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): parser drop counter unmoved got=58 exp=57"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D5 the path-count refusal restored (#88)",
+  "file": "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "tsn_fuzz_ptp": {
+    "rc": 2,
+    "named": [
+     "better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): adopted",
+     "better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): parser drop counter unmoved",
+     "better vector, stepsRemoved 255 on a one-hop path trace (10.3.10.2.1b): parser drop counter unmoved"
+    ],
+    "failed_named": [
+     "better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): adopted",
+     "better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): parser drop counter unmoved",
+     "better vector, stepsRemoved 255 on a one-hop path trace (10.3.10.2.1b): parser drop counter unmoved"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): adopted got=189629471886922981 exp=13107",
+     "better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): parent follows its source got=189629471886922981 exp=36277286617765222",
+     "better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): no longer grandmaster got=2 exp=0",
+     "better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): parser drop counter unmoved got=58 exp=57",
+     "better vector, stepsRemoved 255 on a one-hop path trace (10.3.10.2.1b): parser drop counter unmoved got=59 exp=58"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D6 the empty-path refusal restored (#88)",
+  "file": "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "gptp_shadow": {
+    "rc": 2,
+    "named": [
+     "empty PathTrace publishes count one"
+    ],
+    "failed_named": [
+     "empty PathTrace publishes count one"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "empty PathTrace publishes count one",
+     "empty PathTrace publishes thisClock at entry 0",
+     "explicit to empty path spends one path generation",
+     "path headed elsewhere spends one path generation",
+     "entry-0-only change spends one path generation",
+     "restored path spends one generation"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D7 lost responses clear asCapable at the fourth (#90)",
+  "file": "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "phc_step": {
+    "rc": 1,
+    "named": [
+     "asCapable falls at the fifth unanswered request after a crossing exchange",
+     "asCapable falls at the fourth unanswered request after an unanswered crossing request"
+    ],
+    "failed_named": [
+     "asCapable falls at the fifth unanswered request after a crossing exchange",
+     "asCapable falls at the fourth unanswered request after an unanswered crossing request"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "asCapable falls at the fifth unanswered request after a crossing exchange got=4 exp=5",
+     "asCapable falls at the fourth unanswered request after an unanswered crossing request got=3 exp=4"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ }
+]

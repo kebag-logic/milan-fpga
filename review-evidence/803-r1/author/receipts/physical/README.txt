@@ -1,0 +1,1 @@
+SUITE_TIMEOUT=14400 (explicit override, CI_WORKFLOWS.md: 'An explicit SUITE_TIMEOUT still overrides every selected suite's limit'): on this contended host the physical simulation ran at about 0.22 simulated s per minute, projecting beyond the 5,400 s wall clock; the first attempt at 5,400 s was cancelled after 975 s at 3.0 simulated s.
