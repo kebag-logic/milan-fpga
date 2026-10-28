@@ -1,0 +1,27 @@
+processor ed2118035e4cec76fb1b59cfbf8a053aeacc8af8..f65c8ff7c673aaa8e2ea8da654f081ddb13588d8
+changed sources:
+  hdl/ieee1722/aaf/KL_aaf_packetizer.sv
+  hdl/milan/KL_pp_shadow.sv
+  hdl/milan/mailbox/KL_mbx_pkg.sv
+  hdl/milan/mailbox/KL_mbx.sv
+  hdl/milan/milan_datapath.sv
+  protocol-processor/hdl/acmp/KL_acmp_talker.sv
+  protocol-processor/hdl/srp/KL_srp_talker_fsm.sv
+  protocol-processor/hdl/top/protocol_processor_top.sv
+  protocol-processor/tb/pp_top/pp_top_wrap.sv
+  tb/verilator/mbx/tb_mbx_top.sv
+suites naming a changed source (non-comment Makefile lines):
+  aaf_audio_loop: KL_aaf_packetizer.sv
+  aaf: KL_aaf_packetizer.sv
+  capture_coherence: KL_aaf_packetizer.sv milan_datapath.sv
+  chmap_capture: KL_aaf_packetizer.sv
+  follow_ring: milan_datapath.sv
+  mbx: KL_mbx_pkg.sv KL_mbx.sv tb_mbx_top.sv
+  media_phase: KL_aaf_packetizer.sv
+  milan_dp: KL_aaf_packetizer.sv KL_pp_shadow.sv milan_datapath.sv
+  milan_dp_mclk: milan_datapath.sv
+  milan_dp_render: milan_datapath.sv
+  tdm: KL_aaf_packetizer.sv
+suites delegating to another suite's Makefile:
+  milan_dp_gm_steps: $(MAKE) -C ../milan_dp gmstep;
+  milan_dp_gptp: $(MAKE) -C ../milan_dp ax1x1gptp;$(MAKE) -C ../milan_dp ax1x1gptp-extended;
