@@ -1,0 +1,26 @@
+# head 9e57d4af1196a2e61f7e8010078c2c12b9b41587
+workers 19, limits (min) [45, 60], planner problems []
+charged at recorded figure (no window in 40724689169, 40740015218): follow_ring 1493, pair_fill 6
+table figures below this PR's largest window: aaf_clock_meter 1055<1241, aes3 6<7, avtp_rxmon 73<364, avtp_stream 11<12, chmap_render 6<7, clkvalid 16<18, controller_rate 9<23, crf_rx 832<1124, crf_tx 6<7, gptp_plane 784<843, gptp_shadow 393<412, link_guard 7<8, mac_rmon 11<12, media_grid_align 255<258, media_nco 17<19, mmcm_servo 1145<1620, ptp_sync 11<12, ptp_ts 127<139, render_queue 93<178, rx_filter 18<19, shaper_core 6<7, tcam 27<29, tkdiag 28<31, tsn_fuzz 60<65
+worker  predicted  bound  measured-replay  limit  verdict
+ 0/19       1615   1620             1615   2700  under limit
+ 1/19       1445   1620             1454   2700  under limit
+ 2/19       1558   1620             1558   2700  under limit
+ 3/19       1448   1620             1359   2700  under limit
+ 4/19       1551   1620             1551   2700  under limit
+ 5/19       1522   1620             1211   2700  under limit
+ 6/19       1447   1620             1447   2700  under limit
+ 7/19       1522   1620             2000   2700  under limit, over 1620 s
+ 8/19       1541   1620             1541   2700  under limit
+ 9/19       1494   1620             1680   2700  under limit, over 1620 s
+10/19       1445   1620             1230   2700  under limit
+11/19       1443   1620             1745   2700  under limit, over 1620 s
+12/19       1531   1620             1531   2700  under limit
+13/19       1552   1620             1552   2700  under limit
+14/19       1444   1620             1524   2700  under limit
+15/19       1443   1620             1448   2700  under limit
+16/19       1444   1620             1735   2700  under limit, over 1620 s
+17/19       1444   1620             1430   2700  under limit
+18/19       1110   2160             1110   3600  under limit
+workers at or over their job limit: 0; regular workers over 1620 s at the measured windows: 4
+rc=0

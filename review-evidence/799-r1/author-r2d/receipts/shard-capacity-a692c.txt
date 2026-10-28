@@ -1,0 +1,56 @@
+== milan_dp legs: recorded vs hosted windows
+run          leg0  leg1  leg2  leg3  total
+recorded      378  1483  1156   231  3248
+40449656086   502  1222  1197   304  3225
+40460559108   480  1247  1004   422  3153
+40724442337   286  1244  1382   247  3159
+40745912014   462   859  1338   397  3056
+40724689169   962   508   311  1307  3088  (this PR)
+40740015218  1429   342   325  1246  3342  (this PR)
+
+== plans against this PR's measured windows (regular limit 2700 s, bound 1620 s)
+head as recorded: predicted max 1605 s; at measured windows max 2947 s, workers over 1620 s: [(1, 2395), (3, 2436), (6, 2947), (8, 2122), (9, 1798), (11, 1863), (12, 2009), (13, 2189), (14, 1631), (15, 2349)]
+milan_dp legs and follow_ring only: predicted max 1615 s; at measured windows max 2742 s, workers over 1620 s: [(1, 2445), (7, 1670), (8, 2107), (9, 1761), (11, 1705), (12, 2026), (13, 1855), (14, 1707), (15, 2742)]
+
+== capacity: every PR-touched figure replaced by its largest lane window
+  aaf: 73 -> 75
+  aaf_audio_loop: 6 -> 7
+  chmap_capture: 168 -> 176
+  csr: 306 -> 329
+  mbx: 82 -> 73
+  media_phase: 1400 -> 1089
+  nvm_backend: 34 -> 38
+  nvm_cosim: 775 -> 801
+  tdm: 6 -> 7
+  milan_dp__0: 378 -> 1429
+  milan_dp__1: 1483 -> 508
+  milan_dp__2: 1156 -> 325
+  milan_dp__3: 231 -> 1307
+  milan_dp_mclk__0: 1910 -> 988
+  milan_dp_mclk__1: 1450 -> 742
+  milan_dp_mclk__2: 1399 -> 717
+  milan_dp_mclk__3: 836 -> 488
+  capture_coherence__0: 632 -> 1436
+  capture_coherence__1: 508 -> 1108
+  capture_coherence__2: 331 -> 695
+  capture_coherence__3: 246 -> 642
+  maap__0: 329 -> 311
+  maap__1: 361 -> 425
+  maap__2: 302 -> 317
+  maap__3: 311 -> 327
+  milan_dp_render__0: 354 -> 549
+  milan_dp_render__1: 30 -> 83
+  milan_dp_render__2: 652 -> 812
+  pp_shadow__0: 217 -> 268
+  pp_shadow__1: 232 -> 292
+  pp_shadow__2: 234 -> 337
+  pp_shadow__3: 347 -> 435
+  follow_ring: 1158 -> 1493
+media_phase 1089: regular work 24382 s, capacity of 16 regular workers 23968 s
+  17 workers: regular max 1729 s, min 1617 s, dedicated 1110 s
+  18 workers: regular max 1615 s, min 1533 s, dedicated 1110 s
+  19 workers: regular max 1615 s, min 1424 s, dedicated 1110 s
+media_phase 1400: regular work 24693 s, capacity of 16 regular workers 23968 s
+  17 workers: regular max 1735 s, min 1634 s, dedicated 1110 s
+  18 workers: regular max 1626 s, min 1552 s, dedicated 1110 s
+  19 workers: regular max 1615 s, min 1443 s, dedicated 1110 s
