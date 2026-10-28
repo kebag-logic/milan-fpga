@@ -1,0 +1,5 @@
+mutant: C3 the AS_PATH comparator drops its entry-0 term
+planted in: hdl/milan/milan_datapath.sv
+milan_dp_gptp: rc 2; 200 checks: 198 PASS, 2 FAIL
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001

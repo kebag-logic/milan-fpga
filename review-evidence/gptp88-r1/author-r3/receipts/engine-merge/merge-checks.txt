@@ -1,0 +1,24 @@
+1. ROM images
+   tb/verilator/ucpu/gptp_ucode.hex: regenerated identical True; equal to main True
+   syn/ooc/work/gptp_ucode.hex: regenerated identical True; equal to main True
+   tb/verilator/engine/gptp_ucode.hex: regenerated identical True; equal to main True
+   tb/tsngen/gptp_ucode.hex: regenerated identical True; equal to main True
+2. engine arm
+   head 112, main 100, round 2 84, shared 69
+   head adds none: True
+   main entries not at head (deleted by round 2): ['every received path is published empty', 'thisClock is appended to an absent path']
+   round-2 entries not at head (deleted by main): ['the receipt timeout publishes nothing']
+   each side's own entries keep their breaks: main True, round 2 True
+3. strict named checks in the head engine gate log
+   verdicts 112; [FAIL] verdicts 0; 'missed its named' 0
+   #82: 24/24 mutants caught on every named check; 80/80 named checks printed FAIL
+   #84: 6/6 mutants caught on every named check; 13/13 named checks printed FAIL
+   #85: 9/9 mutants caught on every named check; 99/99 named checks printed FAIL
+   #87: 2/2 mutants caught on every named check; 19/19 named checks printed FAIL
+   #88: 9/9 mutants caught on every named check; 51/51 named checks printed FAIL
+   #89: 15/15 mutants caught on every named check; 38/38 named checks printed FAIL
+   #90: 4/4 mutants caught on every named check; 15/15 named checks printed FAIL
+   #91: 3/3 mutants caught on every named check; 7/7 named checks printed FAIL
+   p1 255: 7/7 mutants caught on every named check; 10/10 named checks printed FAIL
+4. SOURCE_EVIDENCE
+   source evidence: 20 exact, 0 findings (rc 0)

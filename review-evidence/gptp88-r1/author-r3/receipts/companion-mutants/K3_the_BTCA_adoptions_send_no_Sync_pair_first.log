@@ -1,0 +1,10 @@
+mutant: K3 the BTCA adoptions send no Sync pair first
+planted in: tb/verilator/tsn_fuzz/fuzz_ptp_timing.py
+tsn_fuzz: rc 2; == gPTP/802.1AS field campaign (tsn-gen driven): 669 pass, 6 fail, 0 known gaps ==
+== gPTP/802.1AS field campaign (tsn-gen driven): 669 pass, 6 fail, 0 known gaps ==
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): adopted got=189629471886922981 exp=13107
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): parent follows its source got=189629471886922981 exp=36277286617765222
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): no longer grandmaster got=2 exp=0
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): adopted got=189629471886922981 exp=13107
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): parent follows its source got=189629471886922981 exp=36277286617765222
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): no longer grandmaster got=2 exp=0

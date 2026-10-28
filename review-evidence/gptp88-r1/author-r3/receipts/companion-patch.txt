@@ -1,0 +1,15 @@
+milan-fpga companion patches, applied on dev 97aab1d0 in this order:
+
+1. #92's companion (#89, #90, #91)
+   sha256 b53944d52a51323b267b0a91dbfd6bd1aeaabcacf26d31b246b19318d56a1b7a
+2. this lane's companion (#87, #88): milan-fpga-companion.patch beside HANDOFF.md
+   sha256 3a3db51805985df7a19bfc2308c8e6602b9784cf305746e18796e11b15376451 (85383 bytes)
+   = git diff 5a780e20 723caf34 -- . ':(exclude)gptp-processor'
+     (5a780e20: dev + patch 1, gitlink 3426089a; 723caf34: + patch 2, gitlink b0473e69)
+
+Checks on a clean dev 97aab1d0 checkout:
+- patch 1, then patch 2, apply; the result equals 723caf34's tree, the gitlink aside (git diff --quiet: rc 0)
+- patch 2 reverses cleanly on that result (git apply -R --check: rc 0)
+- patch 2 alone does not apply to bare dev (git apply --check: rc 1), so the order matters
+
+Round 2's companion (sha256 259fa9d8..., on bare dev) is superseded by patch 2.

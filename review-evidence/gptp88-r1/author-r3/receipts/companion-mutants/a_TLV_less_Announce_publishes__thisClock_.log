@@ -1,0 +1,13 @@
+mutant: a TLV-less Announce publishes {thisClock}
+planted in: gptp-processor/hdl/top/KL_gptp_engine.sv
+milan_dp_gptp: rc 2; 200 checks: 190 PASS, 10 FAIL
+FAIL TLV-less fabric publication keeps the path count got 0000000000000001 exp 0000000000000005
+FAIL TLV-less refresh keeps fabric path generation got 0000000000000004 exp 0000000000000003
+FAIL TLV-less refresh emits no GET_AS_PATH push got 0000000000000001 exp 0000000000000000
+FAIL TLV-less GET_AS_PATH serves the kept path B got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch keeps the path count got 0000000000000001 exp 0000000000000005
+FAIL TLV-less GM switch spends no path generation got 0000000000000004 exp 0000000000000003
+FAIL #87 TLV-less GM switch: GET_AS_PATH keeps count five got 0000000000000001 exp 0000000000000005
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL #87 TLV-less GM switch: GET_AS_PATH still ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL kept to explicit GM advances generation once got 0000000000000005 exp 0000000000000004

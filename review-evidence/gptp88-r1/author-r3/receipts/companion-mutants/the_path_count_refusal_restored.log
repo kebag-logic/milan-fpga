@@ -1,0 +1,9 @@
+mutant: the path-count refusal restored
+planted in: gptp-processor/hdl/wire/KL_gptp_rx_parser.sv
+tsn_fuzz: rc 2; == gPTP/802.1AS field campaign (tsn-gen driven): 670 pass, 5 fail, 0 known gaps ==
+== gPTP/802.1AS field campaign (tsn-gen driven): 670 pass, 5 fail, 0 known gaps ==
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): adopted got=189629471886922981 exp=13107
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): parent follows its source got=189629471886922981 exp=36277286617765222
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): no longer grandmaster got=2 exp=0
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): parser drop counter unmoved got=58 exp=57
+  BTCA under fuzz: only a legal better vector moves the grandmaster better vector, stepsRemoved 255 on a one-hop path trace (10.3.10.2.1b): parser drop counter unmoved got=59 exp=58

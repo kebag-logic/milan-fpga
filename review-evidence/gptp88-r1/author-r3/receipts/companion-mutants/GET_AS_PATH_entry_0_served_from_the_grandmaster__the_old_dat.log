@@ -1,0 +1,10 @@
+mutant: GET_AS_PATH entry 0 served from the grandmaster (the old datapath)
+planted in: hdl/milan/milan_datapath.sv
+milan_dp_gptp: rc 2; 200 checks: 193 PASS, 7 FAIL
+FAIL TLV-less GM switch emits no false GET_AS_PATH push got 0000000000000001 exp 0000000000000000
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 00aaccfffe010204 exp 00aaccfffe010203
+FAIL #88 post-cut response is {thisClock} got 00aaccfffe010204 exp 02a1b2fffec3d4e5
+FAIL #88 GET_AS_PATH entry 0 is the received head got 00aaccfffe010204 exp 001122fffe000044
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 00aaccfffe010204 exp 001122fffe000022
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001
