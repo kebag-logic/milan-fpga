@@ -40,7 +40,11 @@ Receipt state machines infer each transition.
 | Better Announce | Select new priority vector | GM and parent change |
 | Valid Sync pair | Update servo | Synchronization may recover |
 
-A Sync timeout ages the port only while gmPresent holds (IEEE 802.1AS-2011 Figure 10-13 with Cor1, FPGA-gPTP #89).
+A Sync timeout ages the port only while gmPresent holds.
+
+The rule is IEEE 802.1AS-2011 Figure 10-13 with Cor1.
+
+FPGA-gPTP #89 adopted it.
 
 Four consecutive lost Pdelay responses keep `asCapable` (Figure 11-8, FPGA-gPTP #90).
 
