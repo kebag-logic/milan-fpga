@@ -1,0 +1,44 @@
+rc=0     0.0s changes[1] Set CPU-derived job budgets
+rc=0    22.1s changes[2] Classify the change conservatively
+JOB changes: success
+rc=0     0.0s firmware-unit[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-unit[3] Fetch RTL dependencies
+rc=0     0.5s firmware-unit[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     3.3s firmware-unit[7] Prove the tally reads a failing and a crashing test as failures
+rc=0     2.5s firmware-unit[9] Install and verify the pinned RV32 SDK
+rc=0   360.5s firmware-unit[10] Run the control-plane firmware suites and RV32 builds
+rc=0   106.5s firmware-unit[11] Run the saved-state store suites and its RV32 build
+rc=0   311.5s firmware-unit[12] Hold the firmware coverage ratchet
+JOB firmware-unit: success
+rc=0     0.0s firmware-control-mutants[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-control-mutants[3] Fetch RTL dependencies
+rc=0     0.6s firmware-control-mutants[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     3.0s firmware-control-mutants[8] Install and verify the pinned RV32 SDK
+rc=0  1425.6s firmware-control-mutants[9] Run the control mutation campaign
+JOB firmware-control-mutants: success
+rc=0     0.0s firmware-aecp-mutants[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-aecp-mutants[3] Fetch RTL dependencies
+rc=0     0.5s firmware-aecp-mutants[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     3.2s firmware-aecp-mutants[8] Install and verify the pinned RV32 SDK
+rc=0   232.3s firmware-aecp-mutants[9] Run the AECP mutation campaign
+JOB firmware-aecp-mutants: success
+rc=0     0.0s firmware-srp-mutants[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-srp-mutants[3] Fetch RTL dependencies
+rc=0     0.5s firmware-srp-mutants[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     2.1s firmware-srp-mutants[8] Install and verify the pinned RV32 SDK
+rc=0   757.9s firmware-srp-mutants[9] Run both SRP mutation campaigns and pin controls
+JOB firmware-srp-mutants: success
+rc=0     0.0s firmware-boundary[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-boundary[3] Fetch RTL dependencies
+rc=0    34.5s firmware-boundary[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     2.1s firmware-boundary[8] Install and verify the pinned RV32 SDK
+rc=0   913.8s firmware-boundary[9] Hold the TSN stack boundary over the firmware builders' compiles
+JOB firmware-boundary: success
+rc=0     0.0s firmware-verilator[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-verilator[3] Fetch RTL dependencies
+rc=0     0.5s firmware-verilator[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     0.1s firmware-verilator[11] Put Verilator on PATH and prove the version
+rc=0     2.0s firmware-verilator[13] Install and verify the pinned RV32 SDK
+rc=0   595.5s firmware-verilator[14] Hold the TSN stack boundary over the Verilator builders' compiles
+JOB firmware-verilator: success
+rtl-fast: partial; failed jobs: none; head ca39dc1b0bd917e3e033df9d9db762514318377a
