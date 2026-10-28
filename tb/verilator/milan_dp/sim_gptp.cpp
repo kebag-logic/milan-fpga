@@ -345,6 +345,12 @@ class GptpPlaneHarness {
   milan::tb::GptpLaunchObserver observer{8};
   bool pp_ctr_avb_seen = false;
   bool pp_ctr_ckd_seen = false;
+  //! While set, every clock clears the info server's first match stage, so
+  //! the processor HOLDs the GSI beat it presents inside its bounded gather
+  //! wait (4096 cycles) and resumes when this is cleared.
+  bool hold_gsi_beat = false;
+  //! the last cycle a GET_AS_PATH path-entry request was presented
+  uint64_t asp_entry_cyc = 0;
 
   //! The PHC THIS CYCLE, read where the plane reads it, so the launch this
   //! harness reports carries no assumption about the counter's rate. The
@@ -417,6 +423,9 @@ class GptpPlaneHarness {
     rmem_edge(dut); dmem_edge(dut);
     dut->axis_clk = 1; dut->gtx_clk = 1;
     dut->clk_audio_i = 1; dut->clk_tdm_i = 1; dut->eval();
+    if (dut->rootp->milan_datapath__DOT__asp_resp_entry_w)
+      asp_entry_cyc = sim_cyc;
+    if (hold_gsi_beat) dut->rootp->milan_datapath__DOT__gsi_srv1_r = 0;
     sim_cyc++;
     return fire;
   }
@@ -1412,11 +1421,13 @@ class GptpPlaneHarness {
            path_kept.size() >= 82 ? be64(path_kept, 74) : 0, THIS_CLOCK);
   }
 
-  // Explicit `[GM]` replaces the kept path. Snapshot its one-entry response,
-  // replace it with an empty PathTrace, {thisClock} (FPGA-gPTP #88), after the
-  // first-count capture, and require the in-flight wire answer to remain
-  // wholly old while live state and the following read are wholly new. These
-  // checks kill torn-response mutations.
+  // Explicit `[GM]` replaces the kept path. A GET_AS_PATH response is held at
+  // its count beat, after the first-count snapshot, while an empty PathTrace,
+  // {thisClock} (FPGA-gPTP #88), commits; only then are its entries gathered.
+  // Its count, entry 0 and entry 1 must remain wholly old while live state and
+  // the following read are wholly new: IEEE 1722.1-2021 7.4.41.2 pairs count
+  // with path_sequence. Serving the count, entry 0 or entries 1..7 from the
+  // live path instead of that snapshot fails here.
   uint32_t prove_explicit_and_withdrawn_path_trace_coherence(
         Vmilan_datapath *dut, unsigned gen_kept) {
     const std::vector<uint64_t> one_path = {GMID_EMPTY};
@@ -1460,26 +1471,38 @@ class GptpPlaneHarness {
            cut_capture, 1);
     const size_t withdraw_first = tx_frames.size();
     const unsigned gen_one = (asp_one >> 4) & 0xF;
-    //! Hold the already-captured response behind the real MAC boundary while
-    //! the independent gPTP plane commits the empty path. Releasing it afterward
-    //! makes old-response/new-live coherence observable rather than a timing
-    //! inference from a response that happened to leave first.
-    dut->m_axis_mac_tx_tready = 0;
+    //! The processor gathers every entry within cycles of the count capture,
+    //! long before an Announce sent now can commit. So the captured response
+    //! is held at its count beat while the independent gPTP plane commits the
+    //! empty path: the publication lands after the snapshot and before the
+    //! first path-entry request (asp_resp_entry_w), well inside the gather
+    //! wait. A gather that had already finished would make an all-old answer
+    //! a false green.
+    const uint64_t capture_cyc = sim_cyc;
+    hold_gsi_beat = true;
     announce(dut, 0x7008, {}, GMID_EMPTY, GMID_EMPTY, 90, true);
-    bool withdrew_before_old_wire = false;
-    for (int n = 0; n < 200000 && !withdrew_before_old_wire; n++) {
+    bool withdrew_in_gather = false;
+    for (int n = 0; n < 3000 && !withdrew_in_gather; n++) {
       tick(dut);
-      withdrew_before_old_wire =
+      withdrew_in_gather =
           dut->rootp->milan_datapath__DOT__gptp_pub_path_count_w == 1;
     }
-    expect("empty path commits before captured old response leaves wire",
-           withdrew_before_old_wire, 1);
-    dut->m_axis_mac_tx_tready = 1;
+    hold_gsi_beat = false;
+    const bool entry_before_commit = asp_entry_cyc >= capture_cyc;
+    printf("[cut] count beat held %llu cycles; commit seen %d; path-entry "
+           "request before the commit %d\n",
+           static_cast<unsigned long long>(sim_cyc - capture_cyc),
+           static_cast<int>(withdrew_in_gather),
+           static_cast<int>(entry_before_commit));
+    expect("empty path commits after first-count snapshot, before entry gather",
+           withdrew_in_gather && !entry_before_commit, 1);
     std::vector<uint8_t> cut_old = await_aecp(dut, cut_seq, 0x0028);
     expect("in-flight response remains wholly old count two",
            cut_old.size() >= 50 ? be32(cut_old, 38) : 0, 2);
     expect("in-flight response remains wholly old GM",
            cut_old.size() >= 50 ? be64(cut_old, 42) : 0, GMID_EMPTY);
+    expect("in-flight response remains wholly old: ends with thisClock",
+           cut_old.size() >= 58 ? be64(cut_old, 50) : 0, THIS_CLOCK);
     uint32_t asp_withdrawn = axi_read(dut, 0x7E4);
     for (int n = 0; n < 64 && (asp_withdrawn & 0xF) != 1; n++) {
       run(dut, 1000);
