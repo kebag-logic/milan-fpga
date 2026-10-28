@@ -1,0 +1,14 @@
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (8 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (459 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (180 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (287 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 1 (0 s)
+REFUSED: sw/litex/test_ctrl_memory.py exited 1 under the capture, so it may have compiled less than it does: ^^^^^^^^^^^^^^^^^^^^
+                   check=True)
+                   ^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['<tmp>/ctrl-boundary-ez7_1hod/standalone/bin/riscv32-linux-gcc', '-march=rv32i', '-mabi=ilp32', '-ffreestanding', '-Os', '-c', '<tmp>/ctrl-memory-build-vgqzzjcf/probe.c', '-o', '<tmp>/ctrl-memory-build-vgqzzjcf/probe.o']' returned non-zero exit status 127.

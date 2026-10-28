@@ -1,0 +1,30 @@
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I<lane>/sw/firmware/ctrl/mbx" -GHOST_P=0 --Mdir obj_wb ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_wb
+make[1]: Entering directory '<lane>/tb/verilator/mbx/obj_wb'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<lane>/tb/verilator/mbx/obj_wb'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.017 s (elab=0.000, cvt=0.000, bld=0.016); cpu 0.001 s on 16 threads; allocated 16.496 MB
+======================================================================
+./obj_wb/Vmbx_wb 0
+== mbx (Wishbone host): checks: 402   failures: 0 ==
+RESULT: PASS
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --top-module tb_mbx_top -Wall -Wno-fatal -Werror-USERERROR -Werror-PINMISSING -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDPARAM -Wno-UNUSEDSIGNAL -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I<lane>/sw/firmware/ctrl/mbx" -GHOST_P=1 --Mdir obj_axil ../../../hdl/milan/mailbox/KL_mbx_pkg.sv ../../../hdl/milan/mailbox/KL_mbx_ring.sv ../../../hdl/milan/mailbox/KL_mbx_rx.sv ../../../hdl/milan/mailbox/KL_mbx_tx.sv ../../../hdl/milan/mailbox/KL_mbx_evt.sv ../../../hdl/milan/mailbox/KL_mbx.sv ../../../hdl/milan/mailbox/KL_mbx_wb.sv ../../../hdl/milan/mailbox/KL_mbx_axil.sv tb_mbx_top.sv sim_main.cpp -o Vmbx_axil
+make[1]: Entering directory '<lane>/tb/verilator/mbx/obj_axil'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<lane>/tb/verilator/mbx/obj_axil'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.017 s (elab=0.000, cvt=0.000, bld=0.016); cpu 0.001 s on 16 threads; allocated 16.496 MB
+======================================================================
+./obj_axil/Vmbx_axil 1
+== mbx (AXI4-Lite host): checks: 447   failures: 0 ==
+RESULT: PASS
+python3 -B mutants.py --quick
+[ok] rx-lanes-big-endian: 16 check(s) failed; first: [FAIL] F1 frame byte k is ring word 2 + k/4, bits 8*(k%4) (little-endian lanes)
+[ok] tx-refusal-no-flush: 13 check(s) failed; first: [FAIL] X1 a malformed TX record counts once in TX_ERR got=3 exp=1
+[ok] evt-tick-count-lost: 1 check(s) failed; first: [FAIL] K1 carrying every tick                   got=1 exp=5
+[ok] top-partial-strobe-accepted: 2 check(s) failed; first: [FAIL] R2 a write with a partial strobe leaves the register got=0xa5a5a5a5 exp=0x0
+[ok] rx-dst-ignored: 58 check(s) failed; first: [FAIL] Q2 to another destination MAC, it (adp): no RX record, no delivery got=0 exp=5
+[ok] top-pub-sid-valid-held-high: 5 check(s) failed; first: [FAIL] P2 every field reaches the datapath on its own output, for its own interface, source and sink
+mbx mutants: 6 of 6 caught

@@ -1,0 +1,189 @@
+[A692b]
+
+## Contents
+
+- **[Status](#status)** -- Ready for review: every consumer gate rc 0 at the head; the resource record re-baselined under the owner decision.
+- **[Linked Issue / roles](#linked-issue--roles)** -- Public task, related issues and roles.
+- **[Description](#description)** -- The gitlink, the source-stream-ID wiring, mailbox contract 2.3, the #790 cases, the twelfth resource record.
+- **[Authoritative references](#authoritative-references)** -- The clauses, the processor changes and the rulings.
+- **[How to get into the same state](#how-to-get-into-the-same-state)** -- Checkout, submodules and tools.
+- **[How to validate](#how-to-validate)** -- The gate commands and the expected results.
+- **[Known limitations / out of scope](#known-limitations--out-of-scope)** -- What this PR does not change, and why.
+- **[Definition of Done](#definition-of-done)** -- The merge bar from CONTRIBUTING.md.
+
+## Status
+
+**GREEN, ready for review** at `ca39dc1b0bd917e3e033df9d9db762514318377a`; `799-adopt-processor-f65c8ff7` -> `dev` (from `97aab1d0`).
+
+- Every consumer gate the issue names is rc 0 at the head or at an RTL-identical ancestor (table below): the full sweep, milan_dp with the physical gPTP leg, gsi-mutants, the firmware gate set, rtl-fast with `cd tests && behave`, Yosys, lint, both idiom gates and the docs gates.
+- The publication census passes (the earlier STOP): mailbox contract 2.3 carries each source's current Stream ID.
+- The resource record is re-baselined under the owner decision of 2026-10-28; `check` returns 0 at all three endpoints against it.
+
+## Linked Issue / roles
+
+Relates to #799
+Relates to #790
+Relates to #665
+Relates to #800
+
+Not "Closes": #799's acceptance includes the in-house qualification re-runs on the image built from this PR, together with the gPTP adoption. They need the built image and a bench, so they cannot happen in this lane. Every other acceptance item is met (below), and #790's four cases and its planted pass-through are in.
+
+Processor PRs #204 (#202), #207 (#205) and #208 (#206) are the donor changes adopted here. The ruling on the earlier STOP (issuecomment-6460917634 on #799) decided the publication census (option A), the area (owner decision of 2026-10-28) and the MAAP source-index width (#800).
+
+Executor: `[A692]` (to `f67a4ca1`), then `[A692b]`
+Internal cleared-context reviewer: `[R<n>]`
+External reviewer: `[R<n>]`
+
+## Description
+
+| Commit | Change |
+|---|---|
+| `a7235498` | `protocol-processor` gitlink `ed211803` -> `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8` (processor main). FPGA-gPTP stays at `55680bff` |
+| `ed07eea3` | Pin-derived records, each through its generator: ROM ledger rows (both equal to the `ed211803` rows), boundary diagram, pin table row |
+| `18444ac6` | The #202 source-stream-ID wiring, reviewed and finished as milan-fpga code, with two MAAP-conflict recovery legs |
+| `fbc0723a`, `897459bc` | #790: milan_dp `[GSI]` G11, three processor-copy arms in `gsi_mutants.py`, the datapath's GET_STREAM_INFO ledger restated; pp_shadow's `[GSI]` group |
+| `9e1c8741`, `05b26476`, `aabfd834`, `c0b7ebe0`, `6ab0adc5`, `1f7420d1` | The torture plan's MAAP conflict entry; testing guide, compliance matrix, register map notes, MAAP fabric page; milan_dp README; the ctrl README's pin-control count |
+| `3b42bcf2` | **Mailbox contract 2.3** (the ruling on the STOP, item 1): a source entry per talker stream, `SRC_SID_LO` / `SRC_SID_HI`, with `KL_mbx`'s `pub_src_sid_o`; generator, host model, bench and mutants |
+| `8b76de69` | Both stamps read the processor's current Stream IDs through one per-source net; the publication census maps that read to `SRC_SID_LO` and the GET_STREAM_INFO output read to the processor face |
+| `1efe31e2`, `ca39dc1b` | **The twelfth resource record** under the owner decision of 2026-10-28 (item 2), and its documentation |
+| `856797ed`, `3ee2d969`, `f67a4ca1`, `45e6f50e`, `41a78877` | Pin page and CHANGELOG; two over-long Python lines split |
+
+**The wiring (processor #202).** After a MAAP conflict the processor moves a declared source to a new Stream ID and publishes each source's current ID on `src_stream_id_o`. `KL_pp_shadow` passes it out. In `milan_datapath` every talker's stamp reads it through `tx_sid_w` (IEEE 1722-2016 4.4.4.8): the AAF framers (`KL_aaf_packetizer` `SID_PP_P = 1`, so a TCTX unique ID no longer reaches the wire) and the CRF Media Clock Output where the shape has one. An output's GET_STREAM_INFO stream_id (selector 2) is the current ID (IEEE 1722.1-2021 7.4.16.2). Two legs drive a real conflict, a peer ANNOUNCE from a lower MAC (IEEE 1722-2016 B.3.6.4): `sidmove` (the shipping 1x1, conflict to the new ID's declaration in 1,735 ms) and `sidmove8` (8x8, 1,816 ms). The wire, the PROBE_TX answer, GET_STREAM_INFO and the Talker Advertise name one ID before and after the move.
+
+**Mailbox contract 2.3 and the census (ruling item 1).** `publication_census.py` requires every wire-reaching read of a class-D processor output to be carried by a field of the mailbox publication block, which the split placement's firmware writes in place of the processor (#665, decision 2 (a)). The block had no per-source Stream ID. Contract 2.3 adds one source entry per talker stream at `0x80 + 8 * s` in each interface's block, in the hole below the sink entries, so nothing moves and the version is a minor one. `SRC_SID_HI:SRC_SID_LO` leaves on `pub_src_sid_o`. The owner writes both words while the source's `DA_GATE` bit is clear, before the declaration and the PROBE_TX response that carry the ID (Milan v1.2 5.5.4.1), so no frame carries a half-written ID. Everything is generated from `mailbox.yaml` by `gen_mailbox.py`. The census keys a read by the first named net it reaches, and the CRF output exists in four of the six shapes, so both stamps now read the processor output through one per-source net: one read, `pp_cd_src_stream_id_w -> tx_sid_w`, the same in every shape, mapped to `SRC_SID_LO.SID`. The GET_STREAM_INFO output read is a `processor` row, as `acmp_bound_sid_o`'s is. Census: 6 shapes, 246 checks, 0 failures; self-test 0 of 120 arms failed. The split firmware's writer is #665's work, recorded as "none yet" in `docs/design/MAILBOX_SPLIT.md`.
+
+New checks and planted defects for the source entries:
+
+| Gate | Planted | Caught by |
+|---|---|---|
+| `make mutants` in `tb/verilator/mbx` (183 / 183) | every source's SRC_SID_LO stored at source 0 (both adapters) | `P1 each source's entry reads back the stream_id written to it ...` |
+| | the interface registers decoded as source entries | `P1 DA_GATE keeps OPEN, LICENCE ACTIVE, ...` |
+| | `pub_src_sid_o` with its halves swapped | `P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath on pub_src_sid_o ...` |
+| | SRC_SID_HI kept through a reset | `P5 a reset clears every publication register and every output of every interface` |
+| firmware model twins (523 / 523) | the model's SRC_SID_HI mask dropped; every source read from entry 0 | the same P1 and P2 checks on the host model |
+| `gen_mailbox.py --selftest` | 3 output mismatches, 6 contract defects (a register over the source entries, entries into the sinks, a spilling register, a stride not a power of two, an unwired field, a half-word ID) | each refused by name |
+
+**#790 (processor #206).** An input's stream_id, stream_dest_mac and stream_vlan_id, and their three Table 5.9 flags, are reported only while it is settled (Milan v1.2 5.4.2.10.1). Four named cases in milan_dp `[GSI]` G11 and in pp_shadow's `[GSI]` group: bound and probing before the first answer; settled; back in PROBING_PASSIVE after TMR_NO_TK with the settled stream still in the binding view (5.5.3.5.18, 5.5.3.5.36); unbound. At this head `make gsi-mutants` returns 0: the clean leg passes 499 / 499 and all 14 arms are caught by name. The three #790 arms, planted in the processor copy (the pass-through, selector 0's flags, selector 4's stream_dest_mac), each fail `[GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID: ...`. pp_shadow's `[GSI]` group: 123 passes over the base, vid73 and crf legs.
+
+**#205.** No parent test, model or document expected the old zeroed listener fields. The split firmware's ACMP already echoes them.
+
+**Resources (ruling item 2).** Vivado 2026.1, the recipe's flows, at `8b76de69`, whose synthesis inputs are the final head's. Against the eleventh record:
+
+| Endpoint | Figure | Eleventh | This head | Delta | Tolerance |
+|---|---|---:|---:|---:|---:|
+| `route-1x1` | LUT / FF / SLICE | 51,259 / 53,208 / 15,835 | 52,012 / 53,707 / 15,780 | +753 / +499 / -55 | 500 / 600 / 80 |
+| | WNS / WHS ns | +0.236 / +0.028 | +0.440 / +0.036 | +0.204 / +0.008 | 0.25 fall |
+| `ooc-1x1` | LUT / FF | 23,828 / 20,000 | 24,346 / 20,404 | +518 / +404 | 250 / 250 |
+| `ooc-8x8` | LUT / FF | 32,467 / 28,220 | 34,156 / 29,782 | +1,689 / +1,562 | 316 / 339 |
+
+RAMB36, RAMB18 and DSP are unchanged. Every figure equals the `05b26476` measurement taken before contract 2.3 and the census change, so that change moved no figure. The gate refused all three endpoints against the eleventh record; the owner accepted the growth and the re-baseline on 2026-10-28 (Mark II, #640, recovers the area). The record was written with `pp_resource_gate.py record --write`; `check-baseline` passes and `check` returns 0 at all three endpoints against it. Route complete with 0 routing errors; slow corners WNS +0.440 ns, WHS +0.074 ns; fast corners WNS +1.660 ns, WHS +0.036 ns; 70 slices free. Almost all growth is the processor's #202 logic (route `u_pp` +712 LUTs: the owed-Leave copy in the SRP talker, the move and quarantine in the ACMP talker). The delta also includes dev's PRs #777, #778, #779 and #783, merged after the eleventh record without a new one.
+
+**Gates** (clean clones; each rc is the command's own):
+
+| Gate | Command | Head | Result | Receipt |
+|---|---|---|---|---|
+| Full sweep, 4 shard units | `bash scripts/run_all_suites.sh <logs> --wait --shard k/4`, MemoryMax 10G each | `41a78877` | 64 / 64 suites (15 + 17 + 16 + 16), **2,191,647 checks, 0 in-suite failures, 0 timed out**; `python3 scripts/suite_tally.py <union> --quiet --expect-suite-root tb/verilator` rc 0 | `receipts/sweep-41a78877/` |
+| milan_dp (in the sweep) | | `41a78877` | 18 legs RESULT: PASS (notify 499 with G11, crflic 427, tspec8 61, sidmove 50 at 1,735 ms, sidmove8 52 at 1,816 ms, the gptp and counter prefix legs, render-mutants) | `receipts/milan_dp/` |
+| pp_shadow (in the sweep) | | `41a78877` | base 651, crf 691, vid73 651, pending 317 checks, 0 failures; 123 `[GSI]` passes | `receipts/pp_shadow/` |
+| mbx (in the sweep) | the sweep's mbx suite | `41a78877` | Wishbone 404, AXI4-Lite 449, cosim 32, two interfaces 406 / 451 / model 391; 0 failures | `receipts/sweep-41a78877/` |
+| milan_dp_gptp, physical | `SUITE_TIMEOUT=14400 bash scripts/run_all_suites.sh <logs> --wait --physical-gptp`; tally | `ca39dc1b` | PASS: 1 / 1 suite, 209 checks, 0 failures (physical 155; abort 6, no-TX 20, no-Pdelay 14, recentre 14); 6,154 s; tally rc 0. The first run at `8b76de69`, beside the Vivado bank and the firmware set, hit the 5,400 s wall clock with 195 checks and 0 failures | `receipts/gptp-physical-ca39dc1b/`, `receipts/gptp-physical-8b76de69-timedout/` |
+| gsi-mutants | `make -C tb/verilator/milan_dp gsi-mutants` | `ca39dc1b` | rc 0: 15 / 15 (clean 499 / 499, 14 / 14 arms caught by name) | `receipts/gsi-mutants-ca39dc1b/` |
+| Publication census | `python3 sw/mailbox/publication_census.py --check --selftest` (rtl-fast job) | `ca39dc1b` | RESULT: PASS, 6 shapes, 246 checks, 0 failures; selftest 0 of 120 arms failed; 0 of 31 rules unproven | `receipts/rtl_fast-ca39dc1b/` |
+| rtl-fast replica | the workflow's `run:` bodies, all 12 `needs:` jobs | `ca39dc1b` | 12 / 12 `needs:` jobs success: the six non-firmware jobs in the first run; the six firmware jobs re-run at the same head with a freshly installed, verified RV32 SDK, after the first run's relocated SDK copy failed the installer's provenance check (the receipt's README) | `receipts/rtl_fast-ca39dc1b/` |
+| behave | in rtl-fast's bdd-conformance (`cd tests && behave`) | `ca39dc1b` | 14 features, 406 scenarios, 1,979 steps passed, 0 failed | same |
+| Mailbox generator | `python3 sw/mailbox/gen_mailbox.py --check --crosscheck`; `--selftest` | `ca39dc1b` | rc 0, 0 findings; selftest rc 0, 71 arms, 0 failed (6 new contract arms, 3 new output arms) | `receipts/mailbox-generator-ca39dc1b/` |
+| mbx suite and mutants | `make`, `make run-if2`, `make mutants` in `tb/verilator/mbx` | `ca39dc1b` | rc 0 each: Wishbone 404, AXI4-Lite 449, cosim 32, two interfaces 406 / 451 / model 391, 0 failures; 183 / 183 mutants caught (8 new arms) | `receipts/mbx-ca39dc1b/` |
+| Firmware gate set, 8 commands | the CI firmware block (`scripts/fw_all.sh`) | `ca39dc1b` | 8 / 8 rc 0: `fw_rv32_selftest`, `tally_selftest --mutants`, `test_ctrl_firmware_shards`, `fw_coverage --selftest`, `test_ctrl_firmware --self-test` (2,912 s), `test_ctrl_nvm --self-test`, `fw_coverage --check`, `ctrl_boundary --selftest` (rerun, PASS; its first run lost the compiler when a shared SDK directory was removed mid-run, see the receipt's README) | `receipts/firmware-ca39dc1b/` |
+| Firmware gate set | | `8b76de69` | 8 / 8 rc 0 (`test_ctrl_firmware` 523 / 523 mutants caught, the two new model twins among them) | `receipts/firmware-8b76de69/` |
+| Yosys | `syn/yosys/run.sh --results <dir>` (Yosys 0.66, sv2v v0.0.12) | `ca39dc1b` | rc 0: 60 / 60 tops; tied-input PASS (2 justified ties); tap-purity PASS | `receipts/yosys-ca39dc1b/` |
+| Static and pin records, 22 commands | `scripts/static_bank.sh`: resource baseline check, ROM digests re-recorded with no diff, both diagram checks, submodule and gPTP docs, port contracts, naming and test-evidence measures, integrator params, lint and its self-test, xvlog, both idiom gates and self-tests, RTL source lists and self-test, `pp_srcs --check --selftest`, `sw/builder/test_builder.py` | `ca39dc1b` | 22 / 22 rc 0; clone clean after. (At `8b76de69` the Python idiom gate found two lines over 120 columns, fixed in `41a78877`) | `receipts/static-ca39dc1b/`, `receipts/static-8b76de69/` |
+| Docs gates, GNU Make 4.3 | the docs workflow's step bodies; builder leg 1 with the LiteX interpreter; the markdown gates on CPython 3.12.3; the no-git step's two gates | `ca39dc1b` | 44 steps, 0 failed (2 skipped by rule); LiteX leg rc 0; markdown 3.12 5 / 5 rc 0; no-git docs_check rc 0, feature_status rc 0. Both builder legs and the LiteX leg re-run rc 0 with a freshly installed, verified RV32 SDK in `$HOME` (the first run's was a relocated copy) | `receipts/docs-ca39dc1b/` |
+| Resource gate | Vivado route-1x1, ooc-1x1, rtl-8x8, ooc-8x8 (`scripts/vivado_bank.sh`); `pp_resource_gate.py check`, `record --write`, `check-baseline`, `check` | `8b76de69` (synthesis inputs equal to `ca39dc1b`) | against the eleventh: exit 1 at all three (the owner decision); after re-recording: check-baseline PASS, check 0 at all three | `receipts/vivado/` |
+
+
+## Authoritative references
+
+- Milan v1.2 5.3.7.5 and Table 5.3: the PAAD may use another Stream ID; a unique destination address for each Stream Output.
+- Milan v1.2 5.4.2.10.1 and Table 5.9; 5.3.8.5 and Table 5.5; 5.5.3.5.18 and 5.5.3.5.36.
+- Milan v1.2 5.5.4.1 (PROBE_TX: a valid destination address first) and 5.5.4.3 with Tables 5.46 and 5.47 (GET_TX_STATE).
+- IEEE 1722-2016 4.4.4.8 (every stream data AVTPDU carries a valid StreamID) and Annex B (MAAP; B.3.6.4 compare_MAC).
+- IEEE 1722.1-2021 7.4.16 (GET_STREAM_INFO; 7.4.16.2 "the current id of the stream") and 8.2.4 (8.2.4.2.5 txResponse).
+- IEEE 802.1Q-2018 35.2.2.8 (no FirstValue change for an existing StreamID).
+- #665, census ruling 6088423771, decision 2 (a): the plane that owns a class-D value publishes it in the mailbox for the split placement.
+- `sw/mailbox/mailbox.yaml` (the contract), `sw/mailbox/publication_census.py`, `docs/design/MAILBOX_SPLIT.md`.
+- `syn/ooc/pp_resource_baseline.json`, `docs/design/AREA_BUDGET.md`, `docs/findings/234_PP_SHADOW_AREA_BASELINE.md`.
+
+## How to get into the same state
+
+Set `REPO` to the candidate checkout. Point `VERILATOR`, `MAKE43_BIN`, `RV32_SDK`, `LITEX_PYTHON`, `GTEST_1_14`, `CLANG_18_BIN` and `VIVADO_BIN` at the local dependencies. Before any command inside a submodule, check its own top-level directory.
+
+```sh
+cd "$REPO"
+git remote get-url origin
+git rev-parse HEAD
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack third_party/lwSRP
+test "$(git -C protocol-processor rev-parse --show-toplevel)" = "$PWD/protocol-processor"
+test "$(git -C gptp-processor rev-parse --show-toplevel)" = "$PWD/gptp-processor"
+git submodule status protocol-processor gptp-processor
+python3 scripts/ci_rv32_sdk.py --destination "$RV32_SDK"
+python3 scripts/ci_rv32_sdk.py --destination "$RV32_SDK" --verify-only
+export VERILATOR VERILATOR_JOBS=2 PYTHON_CPU_COUNT=4 PYTHONHASHSEED=0
+export MILAN_RV32_CC="$RV32_SDK/bin/riscv32-linux-gcc"
+export PKG_CONFIG_PATH="$GTEST_1_14/lib/pkgconfig" LD_LIBRARY_PATH="$GTEST_1_14/lib"
+export PATH="$MAKE43_BIN:$CLANG_18_BIN:$VIVADO_BIN:$PATH"
+```
+
+The expected state: origin `https://github.com/kebag-logic/milan-fpga.git`, head `ca39dc1b0bd917e3e033df9d9db762514318377a`, processor `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8`, gPTP `55680bff3b287b9a7b0c759f51471fa617c17335`, GNU Make 4.3, Verilator 5.050, Yosys 0.66, sv2v v0.0.12.
+
+## How to validate
+
+```sh
+python3 sw/mailbox/gen_mailbox.py --check --crosscheck
+python3 sw/mailbox/gen_mailbox.py --selftest
+python3 sw/mailbox/publication_census.py --check --selftest --jobs 4
+(cd tb/verilator/mbx && make && make run-if2 && make mutants)
+make -C tb/verilator/milan_dp gsi-mutants
+make -C tb/verilator/milan_dp sidmove
+make -C tb/verilator/milan_dp sidmove8
+make -C tb/verilator/pp_shadow
+python3 syn/ooc/pp_resource_gate.py check-baseline
+bash syn/yosys/ooc.sh --record-rom-digests
+git diff --exit-code syn/yosys/rom_digests.tsv
+python3 scripts/check_submodule_docs.py
+python3 scripts/lint_rtl.py --check
+python3 scripts/xvlog_gate.py --check
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_py_idiom.py
+suite_logs=$(mktemp -d)
+scripts/run_all_suites.sh "$suite_logs" --wait
+python3 scripts/suite_tally.py "$suite_logs" --quiet --expect-suite-root tb/verilator
+syn/yosys/run.sh
+(cd tests && behave --no-capture -f plain)
+python3 sw/builder/test_builder.py
+python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp third_party/lwSRP --jobs 8
+```
+
+Expected: every command exits 0. The census prints `RESULT: PASS` over six shapes and its self-test `0 of 120 arm(s) failed`; `make mutants` in `tb/verilator/mbx` reports `183 of 183 caught`. The resource gate's `check` against the new record returns 0 at route-1x1, ooc-1x1 and ooc-8x8 (Vivado measurement directories from the recipe in `docs/testing/PP_SHADOW_BASELINE_RECIPE.md`).
+
+## Known limitations / out of scope
+
+- **The split firmware does not write `SRC_SID_LO`/`SRC_SID_HI` yet.** The ruling assigns that writer to #665; `docs/design/MAILBOX_SPLIT.md` records it as "none yet". The all-fabric build carries no mailbox, so nothing that ships reads the entries.
+- **8x8 and 4x4 shapes:** the datapath's MAAP source index is one bit narrower than the processor's, so the CRF output's allocation and conflict arrive as source 0's. It is #800, outside this PR; the shipping 1x1 shape is unaffected.
+- The STRMW talker SID words (`0x814`, `0x818`) keep a source's first ID; making them follow the move would change the CSR register map.
+- Contract 2.3's source entries add 1,024 bits of storage per interface to the `--ctrl-mailbox` SoC; that build was not measured.
+- The in-house qualification re-runs need the built image and the gPTP adoption.
+
+## Definition of Done
+
+- [ ] Linked Issue acceptance criteria are satisfied (the qualification re-runs on the built image are owed)
+- [x] New or changed behavior has self-checking tests
+- [x] Required local verification bar passes
+- [ ] Self-test evidence is posted in a PR comment
+- [x] No undocumented requirement or interface change remains
+- [ ] Internal cleared-context review is positive
+- [ ] External review is positive
+- [ ] Blocking and major findings are fixed and re-reviewed
+- [ ] No review round remains in flight
+- [ ] Candidate merge result is validated per [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [x] Documentation is updated where needed
+- [ ] Post-merge containment will be checked before the Issue moves to Done

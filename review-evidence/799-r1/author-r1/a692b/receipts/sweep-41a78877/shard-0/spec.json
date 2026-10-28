@@ -1,0 +1,20 @@
+{
+ "cwd": "<shard-clone>",
+ "head": "41a78877c1434a6cadff12353f7d8f3956609697",
+ "base": "97aab1d0f28bd753a3e11df6278d5cac54f964dd",
+ "commands": [
+  [
+   "env",
+   "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<tools>/a662/tsn-gen",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/sweep-41a78877/shard-0/logs",
+   "--wait",
+   "--shard",
+   "0/4"
+  ]
+ ]
+}

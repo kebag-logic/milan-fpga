@@ -1,0 +1,1 @@
+The four shard units ran on this job's own CPUs (0-3, 4-7, 8-11, 12-15): cpu_ranges.py pick found no free range on the host. The tally ran over the union of the four shards' logs. Shard 3's clone was left with tsn_fuzz's two TEST_RESULTS.md date-stamp rewrites, by that suite's design.

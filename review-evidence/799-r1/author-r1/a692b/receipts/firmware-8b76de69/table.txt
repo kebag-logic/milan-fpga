@@ -1,0 +1,9 @@
+0 7s fw_rv32_selftest: python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+0 54s tally_selftest: python3 sw/firmware/gtest/tally_selftest.py --mutants
+0 0s test_ctrl_firmware_shards: python3 sw/firmware/ctrl/test/test_ctrl_firmware_shards.py
+0 0s fw_coverage_selftest: python3 sw/firmware/gtest/fw_coverage.py --selftest
+0 2426s test_ctrl_firmware: python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --lwsrp third_party/lwSRP --jobs 8
+0 1227s test_ctrl_nvm: python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test --jobs 8
+0 249s fw_coverage_check: python3 sw/firmware/gtest/fw_coverage.py --check --lwsrp third_party/lwSRP --jobs 8
+0 1420s ctrl_boundary: <home>/litex-milan/venv/bin/python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest
+FW-DONE

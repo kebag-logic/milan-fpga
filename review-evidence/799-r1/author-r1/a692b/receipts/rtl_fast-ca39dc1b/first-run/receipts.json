@@ -1,0 +1,1209 @@
+{
+  "head": "ca39dc1b0bd917e3e033df9d9db762514318377a",
+  "head_after": "ca39dc1b0bd917e3e033df9d9db762514318377a",
+  "tracked_changes": "",
+  "rtl_fast": "failure",
+  "failed": [
+    "firmware-unit",
+    "firmware-control-mutants",
+    "firmware-aecp-mutants",
+    "firmware-srp-mutants",
+    "firmware-boundary",
+    "firmware-verilator"
+  ],
+  "jobs": {
+    "changes": {
+      "result": "success",
+      "rc": 0,
+      "outputs": {
+        "rtl": "true"
+      },
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/changes.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Classify the change conservatively",
+          "rc": 0,
+          "seconds": 20.3,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/changes.2.log",
+          "log_bytes": 19871,
+          "log_sha256": "c3d3a740e07f701afb43f5aed5da906aee5c05cb45f5125abf0f6e628f3fdba6",
+          "body_sha256": "329b7111e943d1e0cd7b3891cf221a81fdb62c1f5ba3c99784fa4ff6e4e7a237"
+        },
+        {
+          "step": 3,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 4,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "verilator-lint": {
+      "result": "success",
+      "rc": 0,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/verilator-lint.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/verilator-lint.2.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "fb79bbfd41608dbb5864814d2373765a85c17cd7b8d18f9efb47e47c7ab3d832"
+        },
+        {
+          "step": 3,
+          "name": "Cache the pinned Verilator build",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 4,
+          "name": "Resolve exact package downloads 3",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 5,
+          "name": "Cache exact package downloads 3",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Build Verilator from source on cache miss",
+          "skipped": "tool build on cache miss; the pinned 5.050 is built here"
+        },
+        {
+          "step": 7,
+          "name": "Run the ratcheted whole-tree lint gate",
+          "rc": 0,
+          "seconds": 20.5,
+          "cwd": ".",
+          "opt_verilator_substituted": true,
+          "dropped_lines": [],
+          "log": "logs/verilator-lint.7.log",
+          "log_bytes": 14856,
+          "log_sha256": "3d5f23ef7b89aeab3f3e10cb35615c31f16e466221fb0d3be01660bb7c9a1a6e",
+          "body_sha256": "7ce6651907999fc60344d7e528a6dd7371e280789a54c494c8e6cd7d1f6b7420"
+        },
+        {
+          "step": 8,
+          "name": "Prove protocol-processor source lists are derived",
+          "rc": 0,
+          "seconds": 0.2,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/verilator-lint.8.log",
+          "log_bytes": 955,
+          "log_sha256": "fad5e1b9dd5f465b7fcb2334e2abe6c6db44be93b5bb12afb3a35f3ebf432e1a",
+          "body_sha256": "91cd62c74d182e5e7d2f4e1b2c350c4949bccacb4eaf4db0f1b3942c7a7cee95"
+        },
+        {
+          "step": 9,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 10,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "bdd-conformance": {
+      "result": "success",
+      "rc": 0,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/bdd-conformance.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Cache exact Python downloads",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 3,
+          "name": "Fetch the processor model inputs",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/bdd-conformance.3.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ae0d4628c2d94654ff3ce54bee71113cf2a3188ef666003a4dc23da6c8cf7eea"
+        },
+        {
+          "step": 4,
+          "name": "Install behave",
+          "rc": 0,
+          "seconds": 1.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/bdd-conformance.4.log",
+          "log_bytes": 111,
+          "log_sha256": "04e0d7c9c990296ac0c2d2525b471f28830d632c3b542e4b03f3e6aecb95e7ef",
+          "body_sha256": "e328f6621ef87d9a7a321e653775e936bfc97b646c066e78e2859593411e698a"
+        },
+        {
+          "step": 5,
+          "name": "Run the specification-facing suite",
+          "rc": 0,
+          "seconds": 2.1,
+          "cwd": "tests",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/bdd-conformance.5.log",
+          "log_bytes": 197604,
+          "log_sha256": "35db507439203a08537436ea185f86dbc7132f7d5ade473276f19fe9ecec3f3a",
+          "body_sha256": "e06196e68346b988a04aed0b8a179f1fc634254ecbf97676ce509b8af23c38d2"
+        },
+        {
+          "step": 6,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 7,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "yosys-tool": {
+      "result": "success",
+      "rc": 0,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-tool.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Cache the pinned Yosys build",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 3,
+          "name": "Resolve exact package downloads 2",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 4,
+          "name": "Cache exact package downloads 2",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 5,
+          "name": "Build Yosys from source on cache miss",
+          "skipped": "tool build on cache miss; Yosys 0.66 is installed here"
+        },
+        {
+          "step": 6,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 7,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "yosys-elaboration": {
+      "result": "success",
+      "rc": 0,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.2.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "fb79bbfd41608dbb5864814d2373765a85c17cd7b8d18f9efb47e47c7ab3d832"
+        },
+        {
+          "step": 3,
+          "name": "Restore the pinned Yosys build",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 4,
+          "name": "Install the pinned Yosys and prove the version",
+          "skipped": "sudo ln into /usr/local/bin; Yosys 0.66 is on PATH here"
+        },
+        {
+          "step": 5,
+          "name": "Cache verified sv2v archive",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Install the pinned sv2v release",
+          "skipped": "downloads into /usr/local/bin; sv2v v0.0.12 is on PATH here"
+        },
+        {
+          "step": 7,
+          "name": "Elaborate the integration-heavy tops",
+          "rc": 0,
+          "seconds": 117.3,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.7.log",
+          "log_bytes": 369,
+          "log_sha256": "046782ecb6b644495572c16af07a596d9949e70147c08dc0b106684467dad8b8",
+          "body_sha256": "b034c192fef15d57ad64195e084ec24c6b196d48f61d8f98d3b87a4460e1750c"
+        },
+        {
+          "step": 8,
+          "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+          "rc": 0,
+          "seconds": 604.8,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.8.log",
+          "log_bytes": 50018,
+          "log_sha256": "985e54b81221acaccd55931c60a2ec547b05bc895f1ff3bad808720508f20dfe",
+          "body_sha256": "dab5cf626551cb9e2fdcb58a7be85bbff5cb66aea80a74aeea1cfede7e915cca"
+        },
+        {
+          "step": 9,
+          "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+          "rc": 0,
+          "seconds": 61.1,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.9.log",
+          "log_bytes": 43,
+          "log_sha256": "d4febc14ba490cf79a72567d657e1653d21792043ae463564d52c831f69179e0",
+          "body_sha256": "b4e80a3f521467fbe4bfd232a3e116ce57c27ac0ce4631901b758922a9b3fa08"
+        },
+        {
+          "step": 10,
+          "name": "Prove both synthesis flows refuse active elaboration guards",
+          "rc": 0,
+          "seconds": 69.9,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.10.log",
+          "log_bytes": 48,
+          "log_sha256": "ef3e088cff19ae241583bce9d81868c00a735f87019056b11a9011a4bb54ba1f",
+          "body_sha256": "99e346884f90f2a71ccd8359408df6f416e5a44efd54932e0a94ef4c415fc839"
+        },
+        {
+          "step": 11,
+          "name": "Prove the result cache refuses a planted entry",
+          "rc": 0,
+          "seconds": 62.3,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.11.log",
+          "log_bytes": 190,
+          "log_sha256": "d8e090cf8c0c656d14381ecbb41901c83ad1870f0f38fed8b382815197e4dfa5",
+          "body_sha256": "66b163a00d692128f3a091516bef2bb8afbc22101c6be09521790d8b54d399c7"
+        },
+        {
+          "step": 12,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 13,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "publication-census": {
+      "result": "success",
+      "rc": 0,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/publication-census.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Set memory-derived census workers",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/publication-census.2.log",
+          "log_bytes": 66,
+          "log_sha256": "ce5137ef8ff3321e867455d72644b3e9a12805ef76024ecb459e5a5dfc89c5bd",
+          "body_sha256": "f5d40eea261e10173776d596437ca83496bde6c118d2621e3bf9bbbb7c2be914"
+        },
+        {
+          "step": 3,
+          "name": "Cache exact Python downloads",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 4,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/publication-census.4.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "fb79bbfd41608dbb5864814d2373765a85c17cd7b8d18f9efb47e47c7ab3d832"
+        },
+        {
+          "step": 5,
+          "name": "Cache the pinned Yosys build",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Resolve exact package downloads 3",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 7,
+          "name": "Cache exact package downloads 3",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 8,
+          "name": "Build Yosys from source on cache miss",
+          "skipped": "tool build on cache miss; Yosys 0.66 is installed here"
+        },
+        {
+          "step": 9,
+          "name": "Install the pinned Yosys and prove the version",
+          "skipped": "sudo ln into /usr/local/bin; Yosys 0.66 is on PATH here"
+        },
+        {
+          "step": 10,
+          "name": "Cache verified sv2v archive",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 11,
+          "name": "Install the pinned sv2v release",
+          "skipped": "downloads into /usr/local/bin; sv2v v0.0.12 is on PATH here"
+        },
+        {
+          "step": 12,
+          "name": "Run the publication census in every shape the builder builds",
+          "rc": 0,
+          "seconds": 674.3,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/publication-census.12.log",
+          "log_bytes": 30563,
+          "log_sha256": "708f84ca18a33fb0f3b414da78d392eeed2f08ec6b943d6b775fc8b27f650f1b",
+          "body_sha256": "e18bd5d4323d8f4ecb7d629ea9c089df26abf99ca670db7abda0a13ebcec7cbf"
+        },
+        {
+          "step": 13,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 14,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "firmware-unit": {
+      "result": "failure",
+      "rc": 1,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-unit.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Cache exact Python downloads",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 3,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-unit.3.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "09f28ffac18c1a00a768467d952d907bb2898b96bcbe97eafe4e9fc1bdb76ac8"
+        },
+        {
+          "step": 4,
+          "name": "Resolve exact package downloads 2",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 5,
+          "name": "Cache exact package downloads 2",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "rc": 0,
+          "seconds": 0.6,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [
+            "sudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev",
+            "dpkg-query -W libgtest-dev libgmock-dev"
+          ],
+          "log": "logs/firmware-unit.6.log",
+          "log_bytes": 164,
+          "log_sha256": "300f8e2c08b4e41fa58b4e655a0653aaa53d3d522bae473528b6cefaead276d1",
+          "body_sha256": "b52c22adaf24d11b00ab93d1c6dc7050ab116961b90e4ab9ee12fd655eeebfac"
+        },
+        {
+          "step": 7,
+          "name": "Prove the tally reads a failing and a crashing test as failures",
+          "rc": 0,
+          "seconds": 3.5,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-unit.7.log",
+          "log_bytes": 1972,
+          "log_sha256": "39f5c103cbd021c6165c452e123f3777ac77819da24c950178ac3f50b1a521b1",
+          "body_sha256": "f4106601f0439680f34ba6605aea93555770165b05f1866df90415c9be6e0cd3"
+        },
+        {
+          "step": 8,
+          "name": "Cache the pinned RV32 SDK",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 9,
+          "name": "Install and verify the pinned RV32 SDK",
+          "rc": 1,
+          "seconds": 1.4,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-unit.9.log",
+          "log_bytes": 6739,
+          "log_sha256": "3b34df0305fbe008df8b724b5e7eabbfe2048cf9889b30d99a73d3ec8edd7a08",
+          "body_sha256": "badb45f0fd417fdd3e29b2bf44acc35d62d70589f72f36e87e3bd3a28a9e6822"
+        },
+        {
+          "step": 10,
+          "name": "Run the control-plane firmware suites and RV32 builds",
+          "skipped": "an earlier step failed"
+        },
+        {
+          "step": 11,
+          "name": "Run the saved-state store suites and its RV32 build",
+          "skipped": "an earlier step failed"
+        },
+        {
+          "step": 12,
+          "name": "Hold the firmware coverage ratchet",
+          "skipped": "an earlier step failed"
+        },
+        {
+          "step": 13,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 14,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "firmware-control-mutants": {
+      "result": "failure",
+      "rc": 1,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-control-mutants.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Cache exact Python downloads",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 3,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-control-mutants.3.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "09f28ffac18c1a00a768467d952d907bb2898b96bcbe97eafe4e9fc1bdb76ac8"
+        },
+        {
+          "step": 4,
+          "name": "Resolve exact package downloads 2",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 5,
+          "name": "Cache exact package downloads 2",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "rc": 0,
+          "seconds": 0.6,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [
+            "sudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev",
+            "dpkg-query -W libgtest-dev libgmock-dev"
+          ],
+          "log": "logs/firmware-control-mutants.6.log",
+          "log_bytes": 164,
+          "log_sha256": "300f8e2c08b4e41fa58b4e655a0653aaa53d3d522bae473528b6cefaead276d1",
+          "body_sha256": "b52c22adaf24d11b00ab93d1c6dc7050ab116961b90e4ab9ee12fd655eeebfac"
+        },
+        {
+          "step": 7,
+          "name": "Cache the pinned RV32 SDK",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 8,
+          "name": "Install and verify the pinned RV32 SDK",
+          "rc": 1,
+          "seconds": 1.4,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-control-mutants.8.log",
+          "log_bytes": 6739,
+          "log_sha256": "620e1a90955ad1e037774e18317da9f37b98b45ed876741907dd8e26e2111176",
+          "body_sha256": "badb45f0fd417fdd3e29b2bf44acc35d62d70589f72f36e87e3bd3a28a9e6822"
+        },
+        {
+          "step": 9,
+          "name": "Run the control mutation campaign",
+          "skipped": "an earlier step failed"
+        },
+        {
+          "step": 10,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 11,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "firmware-aecp-mutants": {
+      "result": "failure",
+      "rc": 1,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-aecp-mutants.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Cache exact Python downloads",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 3,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-aecp-mutants.3.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "09f28ffac18c1a00a768467d952d907bb2898b96bcbe97eafe4e9fc1bdb76ac8"
+        },
+        {
+          "step": 4,
+          "name": "Resolve exact package downloads 2",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 5,
+          "name": "Cache exact package downloads 2",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "rc": 0,
+          "seconds": 0.6,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [
+            "sudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev",
+            "dpkg-query -W libgtest-dev libgmock-dev"
+          ],
+          "log": "logs/firmware-aecp-mutants.6.log",
+          "log_bytes": 164,
+          "log_sha256": "300f8e2c08b4e41fa58b4e655a0653aaa53d3d522bae473528b6cefaead276d1",
+          "body_sha256": "b52c22adaf24d11b00ab93d1c6dc7050ab116961b90e4ab9ee12fd655eeebfac"
+        },
+        {
+          "step": 7,
+          "name": "Cache the pinned RV32 SDK",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 8,
+          "name": "Install and verify the pinned RV32 SDK",
+          "rc": 1,
+          "seconds": 1.9,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-aecp-mutants.8.log",
+          "log_bytes": 6739,
+          "log_sha256": "5765c12e8484869e5b9c904ac47a77b7f32a7584f075dfe081a24549424e5323",
+          "body_sha256": "badb45f0fd417fdd3e29b2bf44acc35d62d70589f72f36e87e3bd3a28a9e6822"
+        },
+        {
+          "step": 9,
+          "name": "Run the AECP mutation campaign",
+          "skipped": "an earlier step failed"
+        },
+        {
+          "step": 10,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 11,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "firmware-srp-mutants": {
+      "result": "failure",
+      "rc": 1,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-srp-mutants.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Cache exact Python downloads",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 3,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-srp-mutants.3.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "09f28ffac18c1a00a768467d952d907bb2898b96bcbe97eafe4e9fc1bdb76ac8"
+        },
+        {
+          "step": 4,
+          "name": "Resolve exact package downloads 2",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 5,
+          "name": "Cache exact package downloads 2",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "rc": 0,
+          "seconds": 0.6,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [
+            "sudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev",
+            "dpkg-query -W libgtest-dev libgmock-dev"
+          ],
+          "log": "logs/firmware-srp-mutants.6.log",
+          "log_bytes": 164,
+          "log_sha256": "300f8e2c08b4e41fa58b4e655a0653aaa53d3d522bae473528b6cefaead276d1",
+          "body_sha256": "b52c22adaf24d11b00ab93d1c6dc7050ab116961b90e4ab9ee12fd655eeebfac"
+        },
+        {
+          "step": 7,
+          "name": "Cache the pinned RV32 SDK",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 8,
+          "name": "Install and verify the pinned RV32 SDK",
+          "rc": 1,
+          "seconds": 1.6,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-srp-mutants.8.log",
+          "log_bytes": 6739,
+          "log_sha256": "edf7407649e79bffa87dfa2c2642dd5d608effe12050a3e680cbf4322f410e25",
+          "body_sha256": "badb45f0fd417fdd3e29b2bf44acc35d62d70589f72f36e87e3bd3a28a9e6822"
+        },
+        {
+          "step": 9,
+          "name": "Run both SRP mutation campaigns and pin controls",
+          "skipped": "an earlier step failed"
+        },
+        {
+          "step": 10,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 11,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "firmware-boundary": {
+      "result": "failure",
+      "rc": 1,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-boundary.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Cache exact Python downloads",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 3,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-boundary.3.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "09f28ffac18c1a00a768467d952d907bb2898b96bcbe97eafe4e9fc1bdb76ac8"
+        },
+        {
+          "step": 4,
+          "name": "Resolve exact package downloads 2",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 5,
+          "name": "Cache exact package downloads 2",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "rc": 0,
+          "seconds": 36.1,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [
+            "sudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev",
+            "dpkg-query -W libgtest-dev libgmock-dev"
+          ],
+          "log": "logs/firmware-boundary.6.log",
+          "log_bytes": 137,
+          "log_sha256": "41c2356cdb1f2326c674a1bb50072fba6bf2bca02ed46bd1bd2d42d4e4bd7ef2",
+          "body_sha256": "c3bf8a003ef31361a6a3519054f8779a323b19dcef13f99f14e66535aa45fac9"
+        },
+        {
+          "step": 7,
+          "name": "Cache the pinned RV32 SDK",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 8,
+          "name": "Install and verify the pinned RV32 SDK",
+          "rc": 1,
+          "seconds": 1.4,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-boundary.8.log",
+          "log_bytes": 6739,
+          "log_sha256": "c1b4ba0cce7c1cbed174aaf5aa5915b4ed7a16c53927fbb6a618e666f6d8e529",
+          "body_sha256": "badb45f0fd417fdd3e29b2bf44acc35d62d70589f72f36e87e3bd3a28a9e6822"
+        },
+        {
+          "step": 9,
+          "name": "Hold the TSN stack boundary over the firmware builders' compiles",
+          "skipped": "an earlier step failed"
+        },
+        {
+          "step": 10,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 11,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "firmware-verilator": {
+      "result": "failure",
+      "rc": 1,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-verilator.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Cache exact Python downloads",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 3,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-verilator.3.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "09f28ffac18c1a00a768467d952d907bb2898b96bcbe97eafe4e9fc1bdb76ac8"
+        },
+        {
+          "step": 4,
+          "name": "Resolve exact package downloads 2",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 5,
+          "name": "Cache exact package downloads 2",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Install GoogleTest and GoogleMock and print the versions",
+          "rc": 0,
+          "seconds": 0.6,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [
+            "sudo apt-get -o Dir::Cache::archives=\"$RUNNER_TEMP/ci_packages_2\" install -y --no-install-recommends libgtest-dev libgmock-dev",
+            "dpkg-query -W libgtest-dev libgmock-dev"
+          ],
+          "log": "logs/firmware-verilator.6.log",
+          "log_bytes": 137,
+          "log_sha256": "41c2356cdb1f2326c674a1bb50072fba6bf2bca02ed46bd1bd2d42d4e4bd7ef2",
+          "body_sha256": "d8af22d7ad1e91277b5eee408250f3015881ff93a963379977fdc22c60330699"
+        },
+        {
+          "step": 7,
+          "name": "Cache the pinned Verilator build",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 8,
+          "name": "Resolve exact package downloads 4",
+          "skipped": "package resolve for the skipped install"
+        },
+        {
+          "step": 9,
+          "name": "Cache exact package downloads 4",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 10,
+          "name": "Build Verilator from source on cache miss",
+          "skipped": "tool build on cache miss; the pinned 5.050 is built here"
+        },
+        {
+          "step": 11,
+          "name": "Put Verilator on PATH and prove the version",
+          "rc": 0,
+          "seconds": 0.1,
+          "cwd": ".",
+          "opt_verilator_substituted": true,
+          "dropped_lines": [],
+          "log": "logs/firmware-verilator.11.log",
+          "log_bytes": 76,
+          "log_sha256": "57f2a96841909013dd33e24478b04d329f57f06db1727b122ec159614c4d73af",
+          "body_sha256": "9d56d2b896bde238d3adfedae0ef2592bb4f5b743fce2bb2ed6c11b706de1ef0"
+        },
+        {
+          "step": 12,
+          "name": "Cache the pinned RV32 SDK",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 13,
+          "name": "Install and verify the pinned RV32 SDK",
+          "rc": 1,
+          "seconds": 1.3,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/firmware-verilator.13.log",
+          "log_bytes": 6739,
+          "log_sha256": "dc3c2bb08d5030ef28b3f59f2468ca5028603ba08b701031d8cb711e61aaf1cb",
+          "body_sha256": "badb45f0fd417fdd3e29b2bf44acc35d62d70589f72f36e87e3bd3a28a9e6822"
+        },
+        {
+          "step": 14,
+          "name": "Hold the TSN stack boundary over the Verilator builders' compiles",
+          "skipped": "an earlier step failed"
+        },
+        {
+          "step": 15,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 16,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    }
+  }
+}
