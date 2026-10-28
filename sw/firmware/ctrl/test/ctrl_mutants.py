@@ -659,7 +659,8 @@ MUTANTS += (
            "model", MODEL_GROUP + "Publication", "P2 every field reaches the datapath on its own output"),
     # #799 (contract 2.3): each source's current stream_id
     Mutant("model-pub-src-sid-a-hole", "host/mbx_model.c",
-           "\t\tcase MBX_PUB_SRC_REG_SRC_SID_HI:\n\t\t\treturn ones(MBX_SRC_SID_HI_SID_LSB, MBX_SRC_SID_HI_SID_WIDTH);\n",
+           "\t\tcase MBX_PUB_SRC_REG_SRC_SID_HI:\n"
+           "\t\t\treturn ones(MBX_SRC_SID_HI_SID_LSB, MBX_SRC_SID_HI_SID_WIDTH);\n",
            "", "model", MODEL_GROUP + "Publication",
            "P1 each source's entry reads back the stream_id written to it"),
     Mutant("model-pub-every-source-reads-entry-0", "host/mbx_model.c",

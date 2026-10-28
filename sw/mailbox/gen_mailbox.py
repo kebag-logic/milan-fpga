@@ -355,7 +355,8 @@ def _contract_arms() -> list[tuple[str, str, str]]:
          "  source_base: 0x040     # the first source entry, inside an interface's block\n  source_stride: 0x0C "),
         ("publication source field the skeleton does not wire", "    - name: SRC_SID_HI\n      offset: 0x4",
          "    - name: SRC_ID_HI\n      offset: 0x4"),
-        ("publication source stream_id not a whole word", "{name: SID, lsb: 0, width: 32, doc: \"stream_id[63:32]\"}\n  sink",
+        ("publication source stream_id not a whole word",
+         "{name: SID, lsb: 0, width: 32, doc: \"stream_id[63:32]\"}\n  sink",
          "{name: SID, lsb: 0, width: 16, doc: \"stream_id[63:32]\"}\n  sink"),
     ]
 
