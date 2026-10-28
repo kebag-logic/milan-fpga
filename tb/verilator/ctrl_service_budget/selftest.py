@@ -668,7 +668,33 @@ def run_checks() -> list[Check]:
     except grade.Refusal as error:
         trapped = str(error)
     out.append(('a CPU trap is refused', 'trapped' in trapped, trapped))
+    out += as_built_checks()
     return out
+
+
+def as_built_checks() -> list[Check]:
+    """The as-built control (#791) is caught by an instruction or a load access fault, and by
+    nothing else: a clean boot and a trap of any other cause are refused."""
+    boot = scenario.boot_fault_groups()[0]
+    as_built = argparse.Namespace(cpu_regions='as-built', mutation='none', record_budget_findings=False)
+
+    def control(traps: list[str]) -> int:
+        """The control's exit status on a boot-fault log with these trap lines."""
+        try:
+            grade.grade(synthetic(traps), boot, SYS_HZ, CPU_HZ)
+            refusals = []
+        except grade.Refusal as error:
+            refusals = [str(error)]
+        with contextlib.redirect_stdout(io.StringIO()):
+            return run.verdict(as_built, [boot], refusals, [])
+    caught = {cause: control([f'TRAP 330592 0 {cause} 00006880']) for cause in (1, 5)}
+    others = {line: control([line] if line else []) for line in
+              ('', 'TRAP 166 0 2 00000024', 'TRAP 166 0 7 00000020', 'TRAP 166 0 15 00000020',
+               'TRAP 166 1 5 00000020', 'BUSERR 166 load 00000020')}
+    return [('the as-built control is caught by an instruction access fault (cause 1) and by a load access '
+             'fault (cause 5)', caught == {1: 0, 5: 0}, str(caught)),
+            ('the as-built control escapes on a clean boot and on a trap of any other cause',
+             set(others.values()) == {1}, str(others))]
 
 
 def reuse_checks() -> list[Check]:
@@ -722,6 +748,30 @@ def reuse_checks() -> list[Check]:
                     dict(spec, inputs={**spec['inputs'], 'ctrl_app.elf': '0' * 64}))), 'does not resolve')):
             refused = attempt(edit)
             out.append((f'reuse refuses {name}', word in refused, refused or 'reused'))
+    return out
+
+
+def build_checks() -> list[Check]:
+    """The ledgered point is named at its own point only, and every labelled arm and control plant
+    applies to the checkout's sources (each a scratch copy, never the tree)."""
+    sys.path.insert(0, str(HERE.parents[2] / 'sw/litex'))
+    import ctrl_memory
+    named = {label: build.ledgered_point(*run.POINTS[label]) for label in sorted(run.POINTS)}
+    others = {(shape, n): build.ledgered_point(shape, n) for shape, _ in run.POINTS.values() for n in (1, 2)
+              if (shape, n) not in run.POINTS.values()}
+    out = [('the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it',
+            named == {'1x1': None, '8x8': '8x8-two-interfaces'} and named['8x8'] in ctrl_memory.LEDGERED
+            and not any(others.values()), f'{named}; other points {others}')]
+    with tempfile.TemporaryDirectory() as tmp:
+        failed = []
+        for name, apply in [*[(v, build.variant_fixture) for v in build.VARIANTS],
+                            *[(m, build.mutated_source) for m in build.MUTATIONS]]:
+            try:
+                apply(Path(tmp) / name, name)
+            except RuntimeError as error:
+                failed.append(str(error))
+        out.append(("every labelled arm and control plant applies to the checkout's sources", not failed,
+                    '; '.join(failed)))
     return out
 
 
@@ -797,14 +847,16 @@ def built(bdir: Path, *flags: str) -> tuple[str, dict]:
     and the build.json it wrote.
 
     The image, the XIP relink, the symbols and the native model are placeholder
-    files, and the SoC export records the selection it is handed, as
-    split_soc.build records it in soc.json. The run's selection, the mailbox
-    contract, the input digests and build.json are run.main's and build.build's own.
+    files, the SoC export records the selection it is handed, as
+    split_soc.build records it in soc.json, and the ledgered plan patches
+    nothing. The run's selection, the mailbox contract, the input digests and
+    build.json are run.main's and build.build's own.
     """
     soc = types.ModuleType('split_soc')
     soc.fixture_addresses = lambda: {'flash': 0x20000000}
     soc.build = lambda build_dir, shape, elf, n_if, cpu_regions, fetch_l1: dict(
         sources=[], shape=shape, interfaces=n_if, cpu_regions=cpu_regions, fetch_l1=fetch_l1)
+    soc.ledgered_plan = lambda name: contextlib.nullcontext()
     stubs = dict(
         firmware=lambda out, *a: write(out / 'image/ctrl_app.elf', b'elf'),
         xip_image=lambda out, elf, window: (write(out / 'xip/ctrl_app.elf', b'xip'),
@@ -860,7 +912,7 @@ def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
-            *cache_checks(), *cache_build_checks()]
+            *build_checks(), *cache_checks(), *cache_build_checks()]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

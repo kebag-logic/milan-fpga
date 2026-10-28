@@ -108,6 +108,69 @@ static uint32_t available_index(void *ctx, unsigned interface)
 	return c->app->adp.ifs[interface].adp.available_index;
 }
 
+static bool applied(void *ctx)
+{
+	struct ctrl_app_aecp *c = ctx;
+	return c->environment->applied(c->environment->ctx);
+}
+
+void ctrl_app_aecp_store_words(const struct nvm_status *s, uint32_t *restore, uint32_t *nvm, bool *dirty)
+{
+	bool done = s->terminal != NVM_T_NONE;
+	*restore = mbx_place(done ? 1u : 0u, MBX_F_RESTORE_DONE_LSB, MBX_F_RESTORE_DONE_WIDTH) |
+		   mbx_place(s->terminal == NVM_T_DEFAULTS || s->terminal == NVM_T_CLOSED ? 1u : 0u,
+			     MBX_F_RESTORE_FAIL_LSB, MBX_F_RESTORE_FAIL_WIDTH) |
+		   mbx_place(s->terminal == NVM_T_BLANK ? 1u : 0u, MBX_F_RESTORE_BLANK_LSB, MBX_F_RESTORE_BLANK_WIDTH) |
+		   mbx_place(s->terminal == NVM_T_CLOSED ? 1u : 0u, MBX_F_RESTORE_CLOSED_LSB, MBX_F_RESTORE_CLOSED_WIDTH) |
+		   mbx_place(s->terminal == NVM_T_DEFAULTS ? 1u : 0u, MBX_F_RESTORE_RB_LSB, MBX_F_RESTORE_RB_WIDTH);
+	*nvm = mbx_place(done ? 1u : 0u, MBX_F_NVM_BACKED_LSB, MBX_F_NVM_BACKED_WIDTH) |
+	       mbx_place(s->abandoned != 0u ? 1u : 0u, MBX_F_NVM_ALARM_LSB, MBX_F_NVM_ALARM_WIDTH) |
+	       mbx_place(s->dirty != 0 ? 1u : 0u, MBX_F_NVM_DIRTY_LSB, MBX_F_NVM_DIRTY_WIDTH) |
+	       mbx_place(s->stale != 0 ? 1u : 0u, MBX_F_NVM_STALE_LSB, MBX_F_NVM_STALE_WIDTH) |
+	       mbx_place(s->pending != 0 ? 1u : 0u, MBX_F_NVM_PEND_LSB, MBX_F_NVM_PEND_WIDTH) |
+	       mbx_place(s->auth >= 0 ? 1u : 0u, MBX_F_NVM_IMG_VALID_LSB, MBX_F_NVM_IMG_VALID_WIDTH) |
+	       mbx_place((uint32_t)s->last_verdict, MBX_F_NVM_VERDICT_LSB, MBX_F_NVM_VERDICT_WIDTH);
+	*dirty = s->dirty != 0 || s->pending != 0;
+}
+
+static void publish_store(struct ctrl_app_aecp *c)
+{
+	uint32_t restore = 0;
+	uint32_t nvm = 0;
+	bool dirty = false;
+	ctrl_app_aecp_store_words(nvm_store_status(), &restore, &nvm, &dirty);
+	aecp_face_status(c->face, restore, nvm, dirty);
+}
+
+// The face block's events (contract 2.3): each a Table 5.22 notification of
+// Milan v1.2 5.4.5.2, input events behind their causal ACMP responses (#653).
+static void face_event(void *ctx, const struct mbx_event *e)
+{
+	static const uint32_t families[MBX_CTRCHG_N_SRC] = MBX_CTRCHG_TYPE_TBL;
+	struct ctrl_app_aecp *c = ctx;
+	struct aecp *a = &c->aecp->core;
+	if (e->type == MBX_EV_TYPE_COUNTERS_CHANGED && !e->every) {
+		ctrl_app_aecp_changed(c, e->desc_type, e->desc_index, 8u);
+	} else if (e->type == MBX_EV_TYPE_COUNTERS_CHANGED) {
+		// a change the fabric keeps no bit for: every descriptor it serves may have
+		// moved (aecp_changed takes the configuration in force only)
+		for (size_t n = 0; n < a->cfg.model->count; ++n) {
+			const struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
+			for (unsigned f = 0; f < MBX_CTRCHG_N_SRC; ++f) {
+				if (d->type == families[f]) {
+					ctrl_app_aecp_changed(c, d->type, d->index, 8u);
+				}
+			}
+		}
+	} else if (e->type == MBX_EV_TYPE_AVB_INFO_CHANGED) {
+		ctrl_app_aecp_changed(c, 9u, e->interface, 2u);
+	} else if (e->type == MBX_EV_TYPE_AS_PATH_CHANGED) {
+		ctrl_app_aecp_changed(c, 9u, e->interface, 4u);
+	} else if (e->type == MBX_EV_TYPE_AMAP_LIVE_WRITE) {
+		c->live_map_writes += e->count;
+	}
+}
+
 static bool deliver(void *ctx)
 {
 	struct ctrl_app_aecp *c = ctx;
@@ -124,6 +187,10 @@ static bool deliver(void *ctx)
 		}
 	}
 	bool pending = aecp_nvm_poll(c->state);
+	if (c->face != NULL) {
+		publish_store(c);
+		pending = aecp_face_poll(c->face) || pending;
+	}
 	for (unsigned n = 0; n < a->cfg.n_sinks; ++n) {
 		if ((c->bindings & (1u << n)) != 0u) {
 			c->bindings &= ~(1u << n);
@@ -148,7 +215,8 @@ bool ctrl_app_compose_aecp(struct ctrl_app *app, struct ctrl_app_aecp *c, struct
 	memset(c, 0, sizeof *c);
 	c->app = app; c->aecp = m; c->state = state; c->environment = env;
 	c->ports = (struct aecp_ports){.ctx = c, .random = random_value, .stream = stream,
-		.avb = avb, .path = path, .counters = counters, .changed = changed, .start = start, .format = format, .available_index = available_index};
+		.avb = avb, .path = path, .counters = counters, .changed = changed, .start = start, .format = format, .available_index = available_index,
+		.applied = applied};
 	if (!aecp_mbx_init(m, cfg, &c->ports, CTRL_APP_AECP_SLOT) || !aecp_mbx_attach(m, &app->loop)) return false;
 	c->acmp_owner = app->acmp.acmp.env;
 	c->acmp_ports = (struct acmp_env){c, locked, source, srp, persist, acmp_changed};
@@ -157,9 +225,23 @@ bool ctrl_app_compose_aecp(struct ctrl_app *app, struct ctrl_app_aecp *c, struct
 	return true;
 }
 
+bool ctrl_app_aecp_attach_face(struct ctrl_app_aecp *c, struct aecp_face *face)
+{
+	if (c->face != NULL || c->app->loop.n_sinks == CTRL_LOOP_MAX_SINKS) return false;
+	c->face = face;
+	aecp_face_attach(face, &c->aecp->core);
+	(void)ctrl_loop_add_sink(&c->app->loop, face_event, c);
+	return true;
+}
+
 bool ctrl_app_open_aecp(struct ctrl_app_aecp *c)
 {
 	if (!c->state->released) return false;
+	if (c->face != NULL) {
+		// the restored settings and the store's status reach the datapath, acknowledged, before AECP does
+		publish_store(c);
+		if (!aecp_face_open(c->face)) return false;
+	}
 	uint32_t channels = 0;
 	for (unsigned n = 0; n < MBX_N_CH; ++n) {
 		if (c->app->loop.rx[n].fn != NULL) channels |= 1u << n;

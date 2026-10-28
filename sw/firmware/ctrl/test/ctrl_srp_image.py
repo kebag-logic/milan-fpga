@@ -59,7 +59,7 @@ def aecp_inputs(tree: Tree, config: Path, out: Path) -> tuple[list[str], list[Pa
     checked([sys.executable,"-B",str(CTRL/"aecp/aecp_entity.py"),str(config),
              "-o",str(out/"aecp_entity_gen.h")])
     inc=[f"-I{tree.src/'aecp'}",f"-I{out/'gen'}",f"-I{NVM_DIR/'plat'}",f"-I{NVM_DIR/'test/rv32'}"]
-    sources=[tree.src/"aecp"/s for s in (*AECP_SOURCES,"aecp_mbx.c","aecp_nvm.c")]
+    sources=[tree.src/"aecp"/s for s in (*AECP_SOURCES,"aecp_mbx.c","aecp_nvm.c","aecp_face.c")]
     sources += [tree.src/"app/ctrl_app_aecp.c",*[NVM_DIR/s for s in
                 ("nvm_klj2.c","nvm_store.c","plat/nvm_flash_litespi.c")]]
     return inc,sources
@@ -106,6 +106,8 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
     parser.add_argument("--layout",choices=("flat","split"),default="flat",
                         help="flat: one RAM region (ctrl_image.ld); split: rom and sram behind the reset entry")
+    parser.add_argument("--ledgered-point",choices=sorted(ctrl_memory.LEDGERED),
+                        help="split only: plan the one ledgered point to its ledgered tiles (ctrl_memory.LEDGERED)")
     parser.add_argument("--libc",type=Path,required=True)
     parser.add_argument("--compiler-runtime",type=Path,required=True)
     return parser.parse_args()
@@ -116,6 +118,8 @@ def main() -> int:
     args=arguments()
     out=args.output.resolve(); out.mkdir(parents=True,exist_ok=True)
     try:
+        if args.ledgered_point is not None and args.layout != "split":
+            raise Refusal("--ledgered-point plans a split image; it needs --layout split")
         cc=fw_rv32.compiler()
         if cc is None:
             raise Refusal("the pinned RV32 compiler is required")
@@ -192,7 +196,7 @@ def main() -> int:
                 "sections":sections,"static_storage":storage,"artifacts":records,
                 "ram_sections":sum(sections.get(n,0) for n in (".text",".rodata",".data",".bss",".stack"))}
         if args.layout == "split":
-            report["split"]=ctrl_memory.plan(ctrl_memory.read_elf(elf)).summary()
+            report["split"]=ctrl_memory.plan(ctrl_memory.read_elf(elf),ledgered=args.ledgered_point).summary()
         else:
             report["ram_span"]=addresses["__image_end"]-addresses["__image_start"]
         (out/"symbols.txt").write_text(symbols)

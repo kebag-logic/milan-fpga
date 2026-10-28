@@ -67,10 +67,12 @@ struct aecp_map {
 	const struct aecp_mapping *defaults;
 	size_t default_count;
 };
+// LOCK: the LOCK_ENTITY state moved (a lock, an unlock or its expiry), before
+// the response or the notification that reports it (#665).
 enum aecp_change {
 	AECP_CHANGE_CONFIGURATION, AECP_CHANGE_FORMAT, AECP_CHANGE_LATENCY,
 	AECP_CHANGE_RATE, AECP_CHANGE_CLOCK, AECP_CHANGE_NAME, AECP_CHANGE_MAP,
-	AECP_CHANGE_IDENTIFY, AECP_CHANGE_SYSTEM_ID
+	AECP_CHANGE_IDENTIFY, AECP_CHANGE_SYSTEM_ID, AECP_CHANGE_LOCK
 };
 // All ports are required. They return without delivering ANY protocol input.
 // A port may publish an observation or apply a hardware value synchronously;
@@ -88,7 +90,8 @@ struct aecp_ports {
 	bool (*path)(void *, unsigned, uint16_t, uint64_t *, size_t, size_t *);
 	bool (*counters)(void *, unsigned, uint16_t, uint16_t, struct aecp_counters *);
 	// Called only after a validated change. The value remains in core-owned
-	// storage. This is the persistence/physical-apply notification port.
+	// storage. This is the persistence/physical-apply notification port;
+	// whether the apply completed is read through applied.
 	void (*changed)(void *, enum aecp_change, uint16_t, uint16_t);
 	// START/STOP is ACMP-owned. Queue a request; later call aecp_start_done.
 	void (*start)(void *, uint16_t, bool);
@@ -96,6 +99,39 @@ struct aecp_ports {
 	bool (*format)(void *, uint16_t, uint16_t, uint64_t);
 	// Current ADP owner value for the ingress interface (IEEE 7.2.1/6.2.2.15).
 	uint32_t (*available_index)(void *, unsigned);
+	// Whether every change given to changed is applied: false while an apply
+	// waits for an acknowledgement it has not had (#665). While it is false
+	// the lock check refuses every change, ENTITY_MISBEHAVING (ENTITY_LOCKED
+	// where another controller holds the lock in force), before it changes
+	// anything. A change of face state (AECP_WAITS) after which it is
+	// false is undone and answered IN_PROGRESS; it is done again, answered and
+	// notified once this is true within AECP_WAIT_MS, else it stays undone and
+	// answers ENTITY_MISBEHAVING. A lock released at its expiry holds, by its
+	// owner, for every response and read until this is true, and is then
+	// notified (docs/ARCHITECTURE_HW_SW_SPLIT.md section 1; Milan v1.2
+	// 5.4.2.2, 5.4.5.2; IEEE 1722.1-2021 7.5.2, 9.3.2.6).
+	bool (*applied)(void *);
+};
+// The commands whose change a face commit carries: LOCK_ENTITY,
+// SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and
+// SET_CONTROL, one bit per command_type (#665).
+#define AECP_WAITS 0x01404142u
+// How long such a change waits for applied, from its command: its final
+// response then follows the IN_PROGRESS within the 120 ms cadence, and the
+// command within 240 ms (IEEE 1722.1-2021 9.3.2.6).
+#define AECP_WAIT_MS 100u
+// A command's own response at most: SET_STREAM_INFO's, the longest of
+// AECP_WAITS.
+#define AECP_HELD_BYTES (38u + 84u)
+// The values one command of AECP_WAITS changes at most: LOCK_ENTITY's three,
+// or SET_CONFIGURATION's configuration, override and the ENTITY copy of each of
+// two configurations; a further copy, which READ_DESCRIPTOR never reads, is not
+// kept (the builder ships one configuration).
+#define AECP_KEPT 4u
+struct aecp_kept {
+	uint8_t *at;
+	uint8_t n;
+	uint8_t was[8];
 };
 struct aecp_registration {
 	uint64_t controller;
@@ -158,6 +194,21 @@ struct aecp {
 	uint32_t ignored;
 	uint32_t busy_drops;
 	uint32_t reentries;
+	// A change the platform has not applied (#665): the command waits, its
+	// change undone and its response held, until applied or wait_deadline.
+	bool waiting;
+	bool refusing;          // the lock check refuses every change
+	bool unlocked;          // a lock released at its expiry, held until applied
+	uint8_t kept;
+	struct aecp_kept keep[AECP_KEPT];   // what the command changed, as it found it
+	enum aecp_change noted;
+	uint16_t noted_type;
+	uint16_t noted_index;
+	uint32_t wait_deadline;
+	uint64_t held_requester;
+	unsigned held_interface;
+	size_t held_bytes;
+	uint8_t held[AECP_HELD_BYTES];
 };
 
 bool aecp_init(struct aecp *, const struct aecp_config *, const struct aecp_ports *);

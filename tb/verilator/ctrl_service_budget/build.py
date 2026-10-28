@@ -48,7 +48,7 @@ MUTATIONS = {
     'slow-adp-rx': ('adp/adp_mbx.c', '\tadp_rx(&i->adp, f->bytes, f->len);\n}',
                     '\tfor (volatile uint32_t n = 0; n < 16000u; ++n) {\n\t}\n'
                     '\tadp_rx(&i->adp, f->bytes, f->len);\n}', 'control', 'none'),
-    # The SHUTDOWN path's planted defect (MAILBOX_SPLIT.md:502): disabling ADP spins before
+    # The SHUTDOWN path's planted defect (MAILBOX_SPLIT.md:506): disabling ADP spins before
     # each interface's ENTITY_DEPARTING, so the path exceeds T_svc.
     'slow-adp-shutdown': ('adp/adp_mbx.c', '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
                           '\tfor (volatile uint32_t n = 0; !enable && n < 16000u; ++n) {\n\t}\n'
@@ -58,27 +58,37 @@ MUTATIONS = {
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never
-#: the formal measurement. answering-ports: the fixture's four observation callbacks answer
-#: zeroed values instead of 'unavailable'; with the unmodified fixture, AECP retries each
-#: pending change notice 1 ms later forever (aecp.c, retry_at = now + 1), and this arm
+#: the formal measurement. answering-ports: the four observation ports answer zeroed values
+#: instead of 'unavailable'. Three are contract 2.3's face block (aecp_face.c: stream, avb and
+#: counters, each a bounded window read that the datapath, held idle here, never answers);
+#: the arm replaces those three in the face's ports, before the core takes them, and makes the
+#: fixture's own path port answer an empty sequence. With the unmodified fixture, AECP retries
+#: each pending change notice 1 ms later forever (aecp.c, retry_at = now + 1), and this arm
 #: separates that retry from each path's cost. shutdown-entry: the linked image never
 #: disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of
-#: the SHUTDOWN path (MAILBOX_SPLIT.md:502); it costs one NOW_MS read a pass.
+#: the SHUTDOWN path (MAILBOX_SPLIT.md:506); it costs one NOW_MS read a pass.
 VARIANTS = {
     'answering-ports': [
         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
-        ('{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic bool a_avb',
-         '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\nstatic bool a_avb'),
-        ('{ (void)ctx; (void)i; (void)n; (void)v; return false; }\nstatic bool a_path',
-         '{ (void)ctx; (void)i; (void)n; memset(v, 0, sizeof *v); return true; }\nstatic bool a_path'),
         ('{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return false; }',
          '{ (void)ctx; (void)i; (void)n; (void)v; (void)cap; *count = 0; return true; }'),
-        ('{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic void a_changed',
-         '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\nstatic void a_changed'),
+        ('static struct aecp_face image_face;\n',
+         'static struct aecp_face image_face;\n'
+         'static bool b_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)\n'
+         '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\n'
+         'static bool b_avb(void *ctx, unsigned i, uint16_t n, struct aecp_avb_info *v)\n'
+         '{ (void)ctx; (void)i; (void)n; memset(v, 0, sizeof *v); return true; }\n'
+         'static bool b_counters(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_counters *v)\n'
+         '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\n'),
+        ('    aecp_face_init(&image_face,&image_platform);\n',
+         '    aecp_face_init(&image_face,&image_platform);\n'
+         '    image_face.ports.stream=b_stream;\n'
+         '    image_face.ports.avb=b_avb;\n'
+         '    image_face.ports.counters=b_counters;\n'),
     ],
     'shutdown-entry': [
         ('int main(void)\n{',
-         '// The SHUTDOWN path\'s test-only input (#665; MAILBOX_SPLIT.md:502): ADP is disabled once.\n'
+         '// The SHUTDOWN path\'s test-only input (#665; MAILBOX_SPLIT.md:506): ADP is disabled once.\n'
          'static bool shutdown_entry(void *ctx)\n{\n    static bool fired;\n    (void)ctx;\n'
          '    if (!fired && mbx_now_ms() >= SHUTDOWN_MS) {\n        fired = true;\n'
          '        adp_mbx_set_enable(&image_app.adp, false);\n    }\n    return false;\n}\n\n'
@@ -122,9 +132,21 @@ def mutated_source(out: Path, mutation: str) -> Path:
     return tree
 
 
+#: The one point the planner's ledger lets plan past the 56-RAMB36 budget (ctrl_memory.LEDGERED),
+#: by its name, which this harness gives only its measurement of that point: the image
+#: (ctrl_srp_image.py --ledgered-point) and the SoC plan (split_soc.ledgered_plan). The product SoC
+#: build names none (#665; docs/design/SPLIT_CONTROL_MEMORY.md section 5).
+LEDGERED_POINTS = {('endstation_ax7101_8x8', 2): '8x8-two-interfaces'}
+
+
+def ledgered_point(shape: str, n_if: int) -> str | None:
+    """The ledgered point's name when this build is that point, else None."""
+    return LEDGERED_POINTS.get((shape, n_if))
+
+
 def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant: str = 'none') -> Path:
     """The runtime archives, then the linked split image (a planted copy for a control,
-    or the labelled variant arm)."""
+    or the labelled variant arm), planned as the ledgered point at that point only."""
     import pythondata_software_picolibc as picolibc
     import pythondata_software_compiler_rt as compiler_rt
     import litex
@@ -138,9 +160,11 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant: 
     entry = [str(ROOT / 'sw/firmware/ctrl/test/ctrl_srp_image.py')]
     if variant != 'none':
         entry = [str(HERE / 'fixture_variant.py'), str(variant_fixture(out, variant))]
+    ledgered = ledgered_point(shape, n_if)
     run([sys.executable, '-B', *entry,
          '--config', str(ROOT / 'configs' / (shape + '.yaml')), '--interfaces', str(n_if),
          '--with-aecp', '--layout', 'split', '--output', str(image), *source,
+         *([] if ledgered is None else ['--ledgered-point', ledgered]),
          '--libc', str(runtime / 'libc.a'), '--compiler-runtime', str(runtime / 'libcompiler_rt.a')],
         out / 'image.log', cwd=ROOT)
     return image / 'ctrl_app.elf'
@@ -421,6 +445,21 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     (build_dir / 'budget_config.hpp').write_text('\n'.join(lines) + '\n')
 
 
+#: The mailbox's modules, each of whose instances must connect every port it declares.
+MAILBOX_MODULES = ('KL_mbx', 'KL_mbx_wb')
+
+
+def mailbox_pins_missing(log: str, cwd: Path) -> list[str]:
+    """Each mailbox port Verilator reports an instance leaves unconnected (PINMISSING, which
+    -Wno-fatal lets pass), as module.port; the instance is the module named at the line it cites."""
+    found = set()
+    for path, line, pin in re.findall(r'PINMISSING: (\S+?):(\d+):\d+: \w+ has missing pin: \'(\w+)\'', log):
+        words = (cwd / path).read_text().splitlines()[int(line) - 1].split()
+        if words and words[0] in MAILBOX_MODULES:
+            found.add(f'{words[0]}.{pin}')
+    return sorted(found)
+
+
 def verilate(build_dir: Path, spec: dict, table: dict[str, int], jobs: int) -> None:
     """Verilate the exported top, bind the observers, then compile the native model."""
     native = build_dir / 'native'
@@ -432,6 +471,9 @@ def verilate(build_dir: Path, spec: dict, table: dict[str, int], jobs: int) -> N
             *['-I' + str(i) for i in spec['includes']], str(HERE / 'observe.vlt'),
             *spec['sources'], str(HERE / 'sim_main.cpp')]
     run(argv, build_dir / 'verilate.log', cwd=build_dir / 'gateware')
+    missing = mailbox_pins_missing((build_dir / 'verilate.log').read_text(), build_dir / 'gateware')
+    if missing:
+        raise RuntimeError(f'the mailbox instances leave ports unconnected (verilate.log, PINMISSING): {missing}')
     config_header(build_dir, spec, table, member_paths(native),
                   code_modules(Path(spec['elf']).with_name('ctrl_app.map')))
     run(['make', f'-j{jobs}', '-C', str(native), '-f', 'Vsim.mk', 'Vsim'], build_dir / 'make.log')
@@ -515,7 +557,8 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     if core.xip:
         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses()['flash'])
     table = symbols(elf)
-    spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
+    with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
+        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
     spec['elf'] = str(elf)
     spec['xip'] = core.xip
     spec['flash_image'] = str(flash_image) if flash_image else None

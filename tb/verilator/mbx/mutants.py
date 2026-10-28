@@ -478,10 +478,66 @@ ARMS += (
 )
 
 
-#: One defect per leaf and one in the skeleton, one in the filter's tuple and
-#: one in the publication block: the arms the suite's default target runs.
+#: ---- contract 2.3: the face block (#665), one defect per rule through both
+#: adapters (the model's twins are in sw/firmware/ctrl/test/ctrl_mutants.py) ----
+ARMS += (
+    # a field on the wrong port
+    *_both("top-face-identify-from-cur-config", "KL_mbx.sv",
+           "(mbx_field_f(32'(face_f_entity_r[i]), MBX_F_ENTITY_IDENTIFY_LSB_C, MBX_F_ENTITY_IDENTIFY_WIDTH_C));",
+           "(mbx_field_f(32'(face_f_entity_r[i]), MBX_F_ENTITY_CUR_CONFIG_LSB_C, MBX_F_ENTITY_IDENTIFY_WIDTH_C));",
+           "F2 every setting, entry and request field reaches the datapath on its own port"),
+    *_both("top-face-fmt-out-high-from-low", "KL_mbx.sv",
+           "fw_fmt_out_o[64*(MBX_N_PUB_SOURCES_C*i + s) +: 64] = {32'(mbx_field_f(32'(face_f_fmt_out_hi_r[i][s]),",
+           "fw_fmt_out_o[64*(MBX_N_PUB_SOURCES_C*i + s) +: 64] = {32'(mbx_field_f(32'(face_f_fmt_out_lo_r[i][s]),",
+           "F2 each setting field, each request field and each source's and sink's value moves its own port only"),
+    # a window answering early: the answer's data and tag taken without its pulse
+    *_both("top-face-window-answers-without-its-pulse", "KL_mbx.sv",
+           "if (ctr_ans_p_i[i] && "
+           "ctr_ans_tag_i[MBX_CTR_STATUS_TAG_WIDTH_C*i +: MBX_CTR_STATUS_TAG_WIDTH_C] == ctr_tag_r[i])",
+           "if (ctr_ans_tag_i[MBX_CTR_STATUS_TAG_WIDTH_C*i +: MBX_CTR_STATUS_TAG_WIDTH_C] == ctr_tag_r[i])",
+           "T1 CTR answer data and tag without the pulse close nothing"),
+    # an answer under another tag taken
+    *_both("top-face-window-tag-ignored", "KL_mbx.sv",
+           "if (gsi_ans_p_i[i] && "
+           "gsi_ans_tag_i[MBX_GSI_STATUS_TAG_WIDTH_C*i +: MBX_GSI_STATUS_TAG_WIDTH_C] == gsi_tag_r[i])",
+           "if (gsi_ans_p_i[i])", "F4 GSI an answer under another tag is discarded"),
+    # the wait bound one clock long
+    *_both("top-face-wait-bound-one-long", "KL_mbx.sv", "+ 32'd1 >= MBX_WIN_AMAP_WAIT_CYCLES_C) begin",
+           "+ 32'd1 >= MBX_WIN_AMAP_WAIT_CYCLES_C + 32'd1) begin",
+           "T0 AMAP an unanswered request holds for exactly its wait bound"),
+    # a held value moved: a setting written while the commit waits
+    *_both("top-face-commit-not-held", "KL_mbx.sv", "if (wr_w && fw_busy_r[face_if_w] && (", "if (wr_w && 1'b0 && (",
+           "F3 every setting and entry write, and a second commit, is refused while BUSY"),
+    # an index past the build aliasing an interface it has (two interfaces)
+    *_both("top-face-interface-unchecked", "KL_mbx.sv",
+           "                  && (rel >> $clog2(MBX_FACE_STRIDE_C)) < AW2_C'(MBX_N_IF_C)\n", "",
+           "F7 and none of those writes, nor one to a status or an answer, moved a register or a port", 2),
+    # a reset that leaves a commit waiting
+    *_both("top-face-commit-kept-through-reset", "KL_mbx.sv", "    if (!rst_n) fw_busy_r <= '0;",
+           "    if (1'b0) fw_busy_r <= '0;", "F10 a reset clears every face register, port, open request and commit"),
+    # a dropped event: an AVB_INFO change, a counter change
+    *_both("evt-face-avb-change-dropped", "KL_mbx_evt.sv",
+           "        else if (avb_chg_p_i[i] && avb_cnt_r[i] != 16'hFFFF) avb_cnt_r[i] <= avb_cnt_r[i] + 16'd1;\n", "",
+           "F8 one face event posts its record"),
+    *_both("evt-face-counter-change-dropped", "KL_mbx_evt.sv", "      if (ctr_chg_p_i[i])\n", "      if (1'b0)\n",
+           "F9 a counter change posts COUNTERS_CHANGED with its descriptor"),
+    # a coalesced event that loses state: the map writes counted once, a
+    # descriptor's change during its holdoff dropped
+    *_both("evt-face-map-writes-not-coalesced", "KL_mbx_evt.sv",
+           "amap_cnt_r[i] <= amap_cnt_r[i] + 16'd1;", "amap_cnt_r[i] <= 16'd1;",
+           "F8 each carrying every pulse it coalesced"),
+    *_both("evt-face-holdoff-drops-the-change", "KL_mbx_evt.sv", "      if (ctr_chg_p_i[i])\n",
+           "      if (ctr_chg_p_i[i] && (ctr_seen_r[i] & ctr_bit_f(ctr_chg_type_i[16*i +: 16], "
+           "ctr_chg_index_i[16*i +: 16])) == '0)\n",
+           "F9 the next epoch posts the descriptor that changed meanwhile"),
+)
+
+
+#: One defect per leaf and one in the skeleton, one in the filter's tuple, one
+#: in the publication block and one in the face block: the arms the suite's
+#: default target runs.
 QUICK = ("rx-lanes-big-endian", "tx-refusal-no-flush", "evt-tick-count-lost", "top-partial-strobe-accepted",
-         "rx-dst-ignored", "top-pub-sid-valid-held-high")
+         "rx-dst-ignored", "top-pub-sid-valid-held-high", "top-face-identify-from-cur-config")
 
 
 def recipe() -> list[str]:

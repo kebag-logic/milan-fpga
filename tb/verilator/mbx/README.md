@@ -49,7 +49,11 @@ defects, among them every escaping probe of the reviews and the reads only a
 multi-stream or loopback shape builds, each at a shape that builds it, and
 plants two in its table; each must be refused by its own words. It then
 removes each rule of [`census_rules.py`](../../../sw/mailbox/census_rules.py)
-in turn and requires the arms planted against it to be let through. It needs
+in turn and requires the arms planted against it to be let through. Since
+contract 2.3 it also names every port of the wrapper cell under one class
+([`census_ports.py`](../../../sw/mailbox/census_ports.py)) and follows each G
+output's cone to its ruled terminals; its 18 plants ride on arms that already
+elaborate the tracked sources. It needs
 sv2v and Yosys on `PATH` (or named by `SV2V=` and `YOSYS=`) at the versions
 `rtl-fast.yml` pins, and refuses any other, which is why `make` does not run
 it and CI runs it in `rtl-fast`'s `publication-census` job; `CENSUS_JOBS=`
@@ -120,6 +124,8 @@ filter table. Register offsets and field positions are the generated
 | K0 to K2 | no TICK while TICK_CTL.EN is clear; one per period; ticks counted while the ring is full post as one record with the count; clearing EN stops them |
 | G0 | GM_HI and DOMAIN read the snapshot GM_LO took |
 | P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface and sink; each field drives its own output, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
+| F0 to F10 | the face block (contract 2.3, #665 comments 6409739310 and 6410169666): every register, port, request and commit 0 after reset; each setting, request and entry register keeps its own fields only, per interface and entry; each field on its own `fw_*_o` or window port, for its own interface; `F_COMMIT.GO` raises `fw_send_o` and `F_STATUS.BUSY` on its interface only, every setting write and a second commit refused and counted while `BUSY`, the settings held, and only that interface's acknowledgement taking it; each window's `GO` opening its request with the next tag, a request write and a second `GO` refused while it is open, an answer under another tag, another interface's or with none open discarded, the answer under its tag closing it as `DONE`, the wait bound closing it as `TIMEOUT` and a late answer discarded, no window moving another; a hole and an interface the build lacks reading 0; a partial strobe refused; each face event posting its record with `COUNT` and `NOW_MS`, a full ring coalescing each source, the counter change once per descriptor per holdoff epoch, an unknown descriptor as `ALL`; a reset clearing every face register, port, open request, commit and pending event |
+| T0 to T2 | the face block's timing, on the RTL only: each window's unanswered request holds for exactly its `wait_cycles` clocks, then closes as `TIMEOUT`; an answer on the bound's last cycle is taken, one a cycle later discarded; answer data and tag without the pulse close nothing, and the pulse takes the data it carries; a commit holds `fw_send_o` and its settings for as long as the acknowledgement takes, and drops `fw_send_o` on the cycle after it |
 
 The AXI4-Lite build then runs the adapter's handshake rules, which a polite
 master (AW and W together, BREADY and RREADY high) never exercises:
@@ -137,7 +143,7 @@ master (AW and W together, BREADY and RREADY high) never exercises:
 The host test runs the same `suite.hpp` on the firmware's mailbox model
 ([`sw/firmware/ctrl/test`](../../../sw/firmware/ctrl/README.md), arm
 `model`), so the model and the RTL answer to one set of expectations; only
-Q18 to Q23 are the RTL's alone.
+Q18 to Q23 and T0 to T2 are the RTL's alone.
 `run-if2` does the same on two interfaces with the RTL and the model built
 against one generated header.
 

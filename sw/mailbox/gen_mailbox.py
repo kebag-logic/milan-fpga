@@ -82,7 +82,8 @@ C_TABLE = re.compile(r"^#define MBX_(\w+_TBL) \{ (.*) \}$", re.M)
 SV_CONST = re.compile(r"^\s*localparam int unsigned MBX_(\w+)_C = 32'([hd])([0-9A-F_]+);$", re.M)
 SV_TABLE = re.compile(r"^\s*localparam int unsigned MBX_(\w+_TBL)_C \[[^\]]+\] = '\{(.*)\};$", re.M)
 DOC_CONST = re.compile(r"^\| `MBX_(\w+)` \| `(0x[0-9a-f]+)` \|$", re.M)
-SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SINK_REG|CH_REG)_(\w+)_C\b")
+SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SINK_REG|FACE_REG|FACE_SRC_REG|FACE_SNK_REG"
+                        r"|CH_REG)_(\w+)_C\b")
 
 
 def parse_c(text: str) -> tuple[dict[str, int], dict[str, list[str]]]:
@@ -126,7 +127,8 @@ def crosscheck(contract: Contract, texts: dict[str, str]) -> list[str]:
     top = texts["hdl/milan/mailbox/KL_mbx.sv"]
     named = set(SV_REG_REF.findall(top))
     every = (contract.registers + contract.if_registers + contract.iff_registers + contract.bnd_registers
-             + contract.pub_registers + contract.pub_sink_registers + contract.ch_registers)
+             + contract.pub_registers + contract.pub_sink_registers + contract.face_registers
+             + contract.face_source_registers + contract.face_sink_registers + contract.ch_registers)
     for reg in every:
         if reg.name not in named:
             findings.append(f"skeleton: register {reg.name} is never decoded")
@@ -270,6 +272,18 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
                                                               "MBX_PUB_REG_LICENCE_C"), "TALKER_DECL"),
         ("skeleton bound enable dropped", _plant_all(base, top, "MBX_BND_REG_BOUND_EN_C", "MBX_BND_REG_BOUND_EID_LO_C"),
          "BOUND_EN"),
+        # contract 2.3 (#665): the face block, its windows and the counter-change families
+        ("C header face setting field moved", _plant(base, hdr, "#define MBX_F_ENTITY_IDENTIFY_LSB 16u",
+                                                     "#define MBX_F_ENTITY_IDENTIFY_LSB 15u"),
+         "MBX_F_ENTITY_IDENTIFY_LSB"),
+        ("SV package face stride", _plant(base, pkg, "MBX_FACE_STRIDE_C = 32'h00000400",
+                                          "MBX_FACE_STRIDE_C = 32'h00000200"), "MBX_FACE_STRIDE"),
+        ("reference page window bound", _plant(base, doc, "| `MBX_WIN_CTR_WAIT_CYCLES` | `0x40` |",
+                                               "| `MBX_WIN_CTR_WAIT_CYCLES` | `0x20` |"), "MBX_WIN_CTR_WAIT_CYCLES"),
+        ("C header holdoff", _plant(base, hdr, "#define MBX_CTRCHG_HOLDOFF_MS 1000u",
+                                    "#define MBX_CTRCHG_HOLDOFF_MS 100u"), "MBX_CTRCHG_HOLDOFF_MS"),
+        ("skeleton face request register dropped", _plant_all(base, top, "MBX_FACE_REG_EDIT_VALUE_HI_C",
+                                                              "MBX_FACE_REG_EDIT_VALUE_LO_C"), "EDIT_VALUE_HI"),
     ]
 
 
@@ -335,6 +349,25 @@ def _contract_arms() -> list[tuple[str, str, str]]:
          "{name: DECLARED, lsb: 0, width: 8,"),
         ("publication sink field the skeleton does not wire", "{name: STARTED, lsb: 2, width: 1,",
          "{name: RUNNING, lsb: 2, width: 1,"),
+        # contract 2.3 (#665): the face block fits, its windows are whole and its handshakes bounded
+        ("face block over the publication block", "interface_face_registers:\n  base: 0x6000",
+         "interface_face_registers:\n  base: 0x0800"),
+        ("face block past the window", "interface_face_registers:\n  base: 0x6000",
+         "interface_face_registers:\n  base: 0x7E00"),
+        ("face sink registers spill their entry", "  sink_base: 0x200\n  sink_stride: 0x10\n",
+         "  sink_base: 0x200\n  sink_stride: 0x08\n"),
+        ("face commit with no acknowledgement bound", "  ack_cycles: 64 ", "  ack_cycles: 0 "),
+        ("face window with no wait bound", "{name: CTR, wait_cycles: 64,", "{name: CTR, wait_cycles: 0,"),
+        ("face register in two windows", "request: [AMAP_REQ, AMAP_PAGE]}", "request: [AMAP_REQ, CTR_WORD]}"),
+        ("face window request a read-only register", "request: [CTR_REQ, CTR_WORD]}",
+         "request: [CTR_REQ, CTR_STATUS]}"),
+        ("face commit readable", "    - name: F_COMMIT\n      offset: 0x018\n      access: wo",
+         "    - name: F_COMMIT\n      offset: 0x018\n      access: rw"),
+        ("face source register not a setting", "    - name: F_PT_OFFSET\n      offset: 0x0\n      access: rw",
+         "    - name: F_PT_OFFSET\n      offset: 0x0\n      access: ro"),
+        ("counter changes with no holdoff", "  holdoff_ms: 1000", "  holdoff_ms: 0"),
+        ("counter-change family past its bitmap", "{name: STREAM_INPUT, type: 0x0005, count: 16}",
+         "{name: STREAM_INPUT, type: 0x0005, count: 33}"),
     ]
 
 

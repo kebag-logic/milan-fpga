@@ -49,7 +49,40 @@ Ports must return without calling a core entry point synchronously, including
 on another instance. Read ports answer a snapshot or explicitly report its
 absence. The start port queues work; `aecp_start_done()` is delivered from a
 later loop pass. Reentry is asserted in diagnostic builds and counted/refused
-otherwise. One response remains owed through backpressure. Notifications follow
+otherwise.
+
+The `applied` port says whether every change handed to `changed` has been
+applied (#665). Acknowledged state is the only state a controller sees:
+
+- **While it is false**, the lock check refuses every change before it
+  changes anything. The command answers ENTITY_MISBEHAVING, carrying what its
+  lock refusal reports, or ENTITY_LOCKED under another controller's lock in
+  force. The MVU SET_SYSTEM_UNIQUE_ID answers ENTITY_MISBEHAVING too, with the
+  `system_unique_id` in force, and NOT_IMPLEMENTED under another controller's
+  lock. Reads and registrations are answered as usual.
+- **False after a change of face state** (`AECP_WAITS`: LOCK_ENTITY,
+  SET_CONFIGURATION, SET_STREAM_FORMAT, SET_STREAM_INFO, SET_CLOCK_SOURCE and
+  SET_CONTROL), the command waits. The core undoes the change from the values
+  it recorded as the command overwrote them (`aecp_keep`), keeps the SUCCESS
+  response, and answers IN_PROGRESS with the values in force. If the port is
+  true within `AECP_WAIT_MS` (100 ms), the change is done again, answered and
+  notified. Otherwise it stays undone, and the command answers
+  ENTITY_MISBEHAVING and notifies no one. Either way the change is handed to
+  `changed` again. The core's own notifications, probes and lock expiry
+  follow the wait.
+- **After a lock expires**, its release is handed to `changed`, and the lock
+  holds, by its owner, for every response and read until the port is true:
+  ENTITY_AVAILABLE, LOCK_ENTITY's `locked_id`, `aecp_locked` and every
+  refusal report it. Its notification is sent then, and no change is taken
+  before it leaves.
+
+The final response follows the IN_PROGRESS within the 120 ms cadence, and
+the command within the 240 ms deadline, of the
+[service requirements](../../../../docs/reference/FR_NFR.md), the service
+bound included, on the interface the command came in on. No getter answers
+IN_PROGRESS.
+
+One response remains owed through backpressure. Notifications follow
 that response, exclude its requester, and advance each recipient's own sequence.
 Counter notifications are limited per descriptor from the latest recipient's
 completed transmission. Under the [2026-10-12 #726 ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6125741685),
@@ -96,6 +129,28 @@ applies through `acmp_set_started`, which writes the sink's started level to
 the mailbox's [publication block](../../../../docs/design/MAILBOX_SPLIT.md#the-publication-block)
 before it returns; the response leaves on a later pass (#665).
 
+[`aecp_face.c`](aecp_face.c) answers the physical observation and apply ports
+on contract 2.3's [face block](../../../../docs/design/MAILBOX_SPLIT.md#the-processors-other-faces)
+(#665). `changed` writes each setting the core changed into the block of every
+interface it concerns, a stream's on the interface its descriptor names. It
+then commits the block and waits at most `MBX_FACE_ACK_CYCLES` for the
+datapath's acknowledgement before the port returns. `applied` is false while
+any interface holds a commit not yet acknowledged or owes a publication, so
+the response that promises a setting leaves only after its acknowledgement. A
+lock's expiry is published the same way, through `AECP_CHANGE_LOCK`, before
+its notification. `counters`, `stream`, `avb` and `format` read through the
+windows, each read bounded; one with no answer fails its port. `random` and
+`path` stay the platform's.
+
+`ctrl_app_aecp_attach_face()` hands the face the saved-state store's status
+before AECP opens and on every change, and turns the face block's events into
+the core's notifications. `ctrl_app_open_aecp()` publishes every setting with
+`F_CTRL.READY` and opens AECP only once every interface has acknowledged that
+publication; otherwise it opens nothing and returns false. A commit the
+datapath has not acknowledged leaves its interface owed and the loop awake
+until a poll publishes it whole; until then every state-changing command is
+refused.
+
 [`aecp_state.c`](aecp_state.c), [`aecp_maps.c`](aecp_maps.c) and
 [`aecp_nvm.c`](aecp_nvm.c) implement
 [#637](https://github.com/kebag-logic/milan-fpga/issues/637). Saved scalars use
@@ -137,8 +192,50 @@ each source defect to fail its named assertion in a completed run. It plants int
 a copy of this tree and of the saved-state store beside it, so a store defect that
 reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full
-[coverage gate](../../gtest/README.md) measures the eight new production files
-at 100% lines and branches without a new exclusion.
+[coverage gate](../../gtest/README.md) measures the eight new production files,
+and since contract 2.3 `aecp_face.c`, at 100% lines and branches without a new
+exclusion. The face's 59 defects each fail a named `Core`, `Face`,
+`FaceLatency`, `AppFace` or `AppFaceUnacknowledged` assertion:
+
+- a setting written after its response or in the wrong field;
+- a sink's format skipped;
+- a commit not waited for;
+- a lock change or expiry unpublished;
+- an output that never streams;
+- `READY` never published or published before open;
+- a stream setting on every interface;
+- a short descriptor trusted;
+- a window read past or slower than its bound;
+- the store's status after open, or `CLOSED` not a failure;
+- a full sink table ignored;
+- an owed commit that lets the loop sleep;
+- a counter-change event missed.
+
+The rest cover the acknowledgement:
+
+- a change taken while one is not applied, or before an expiry is notified;
+  its refusal reporting the request, or reported as a lock;
+- a change of face state that does not wait (LOCK_ENTITY, SET_STREAM_INFO),
+  is not undone, or whose IN_PROGRESS reports the request;
+- its record missing a value, an override or a byte, or too short for
+  LOCK_ENTITY;
+- a wait that never ends, or ends early;
+- a change not done again once applied; a success not notified; a failure
+  notified, reporting the request, or not given to the face; a final response
+  that forgets its requester;
+- a lock expiry inside a wait, notified unapplied, or never notified once late;
+- an expired lock read as released, or its owner dropped, before its release
+  is applied, by ENTITY_AVAILABLE, `aecp_locked` or a refusal to another
+  controller, or its owner kept once it is notified;
+- SET_SYSTEM_UNIQUE_ID refused NOT_IMPLEMENTED while a change waits;
+- a final response sent on the last interface a command came in on, not its
+  own, or later than 120 ms after its IN_PROGRESS with the service bound
+  (`AECP_WAIT_MS` at 115 or 130 ms);
+- a face that never reports a change unapplied, counts an owed or a held
+  interface as applied, counts owed while a change waits, publishes while a
+  change waits, or writes into a held block;
+- AECP opened, or the face's open reported acknowledged, before the initial
+  publication is acknowledged.
 
 [`aecp_wire.py`](../test/aecp_wire.py) builds unchanged processor RTL in scratch,
 feeds the same commands to that model and the portable core, and independently
@@ -211,8 +308,9 @@ call-chain stack bounds and physical timing remain integration obligations.
 
 [`ctrl_srp_image.py --with-aecp`](../test/ctrl_srp_image.py) links the complete
 F0-F5/F1 composition at shipping/largest shapes and one/two interfaces. The
-fixture retains saved-state restore and application service but uses explicit
-unavailable physical observation callbacks. It is a size/ABI fixture, not a
-board image. The revised F5 budget is 224 KB
+fixture retains saved-state restore and application service, and since
+contract 2.3 answers the physical observation and apply ports through the
+face (`aecp_face.c`); GET_AS_PATH stays an explicit unavailable observation.
+It is a size/ABI fixture, not a board image. The revised F5 budget is 224 KB
 ([ruling](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6081705916)).
 The later default flip still requires routed memory fit and the owner's reserve.

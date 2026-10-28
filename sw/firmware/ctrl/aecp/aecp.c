@@ -43,6 +43,14 @@ static bool due(uint32_t time, uint32_t deadline)
 	return (uint32_t)(time - deadline) < 0x80000000u;
 }
 
+static bool applied(struct aecp *a)
+{
+	aecp_port_begin(a);
+	bool value = a->ports->applied(a->ports->ctx);
+	aecp_port_end(a);
+	return value;
+}
+
 static void monitor(struct aecp *a, struct aecp_registration *r)
 {
 	aecp_port_begin(a);
@@ -76,6 +84,31 @@ static void finish(struct aecp *a, unsigned status, size_t body)
 	wire_put_be(a->response + 16, ((uint32_t)status << 11) | (12u + body), 2);
 	a->response_bytes = 38u + body;
 	a->response_owed = true;
+}
+
+// Exchange each value the waiting command changed with the one it found: its
+// change is undone while it waits, and done again once applied (#665).
+static void swap(struct aecp *a)
+{
+	for (unsigned k = 0; k < a->kept; ++k) {
+		struct aecp_kept *e = &a->keep[k];
+		for (unsigned n = 0; n < e->n; ++n) {
+			uint8_t was = e->at[n];
+			e->at[n] = e->was[n];
+			e->was[n] = was;
+		}
+	}
+}
+
+// Answer the waiting command as the lock check refuses it: with the values in
+// force, as its other refusals report them (IEEE 1722.1-2021 7.4.15.1).
+static void refuse(struct aecp *a, unsigned status)
+{
+	size_t result = 0;
+	a->refusing = true;
+	(void)aecp_command(a, a->held_interface, (uint16_t)wire_be16(a->held + 36), a->held + 38,
+			   a->held_bytes - 38u, a->response + 38, &result);
+	finish(a, status, result);
 }
 
 static void arm(struct aecp *a)
@@ -167,7 +200,7 @@ bool aecp_locked(struct aecp *a, uint64_t *owner)
 {
 	if (!aecp_enter(a)) return false;
 	*owner = a->lock_owner;
-	return a->locked;
+	return a->locked || a->unlocked; // the lock in force (aecp_other_lock)
 }
 
 unsigned aecp_registry_command(struct aecp *a, unsigned interface, uint16_t cmd, uint64_t mac,
@@ -236,8 +269,15 @@ static void mvu(struct aecp *a, const uint8_t *p, size_t bytes)
 			body = 20u;
 			status = 0u;
 		} else if (cmd == 1u || cmd == 2u) {
-			if (cmd == 2u || (bytes >= 40u && wire_be64(p + 32) != 0u && !aecp_foreign_lock(a))) {
-				if (cmd == 1u && a->system_id != wire_be64(p + 32)) {
+			bool set = cmd == 1u && bytes >= 40u && wire_be64(p + 32) != 0u;
+			if (cmd == 2u || (set && !aecp_other_lock(a))) {
+				status = 0u;
+				if (set && a->refusing) {
+					// refused as every change is while one waits for the
+					// platform, with the identifier in force (#665; Milan
+					// v1.2 5.4.4.2)
+					status = AECP_ENTITY_MISBEHAVING;
+				} else if (set && a->system_id != wire_be64(p + 32)) {
 					a->system_id = wire_be64(p + 32);
 					aecp_note(a, AECP_CHANGE_SYSTEM_ID, 0, 0);
 					a->notify = false; // MVU defines no unsolicited SUID response.
@@ -245,7 +285,6 @@ static void mvu(struct aecp *a, const uint8_t *p, size_t bytes)
 				a->response[44] = a->response[45] = 0;
 				wire_put_be(a->response + 46, a->system_id, 8);
 				body = 16u;
-				status = 0u;
 			}
 		}
 	}
@@ -302,6 +341,13 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 	uint16_t cmd = (uint16_t)(wire_be16(p + 22) & 0x3fffu);
 	uint64_t source = ((uint64_t)wire_be32(frame + 6) << 16) | wire_be16(frame + 10);
 	header(a, interface, source, a->cfg.entity_id, a->requester, (uint16_t)wire_be16(p + 20), cmd, msg + 1u);
+	// While a change waits, the platform has not applied every change, or an
+	// expiry is not yet notified, no change is taken (#665); a command that may
+	// change something records it afresh
+	a->refusing = a->waiting || a->unlocked || !applied(a);
+	if (!a->refusing) {
+		a->kept = 0;
+	}
 	if (msg == 6u) {
 		mvu(a, p, bytes);
 	} else if (msg == 8u) {
@@ -323,7 +369,25 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 		} else {
 			status = aecp_command(a, interface, cmd, p + 24, bytes - 24u, a->response + 38, &result);
 		}
+		if (status == AECP_ENTITY_LOCKED && a->refusing && !aecp_other_lock(a)) {
+			status = AECP_ENTITY_MISBEHAVING;
+		}
 		finish(a, status, result);
+		if (a->notify && cmd < 32u && ((AECP_WAITS >> cmd) & 1u) != 0u && !applied(a)) {
+			// the face has not taken the change: it waits, undone, so every
+			// response and notification meanwhile reports the values in force;
+			// IN_PROGRESS, then one final response (#665; IEEE 1722.1-2021
+			// 7.4, 9.3.2.6)
+			memcpy(a->held, a->response, a->response_bytes);
+			a->held_bytes = a->response_bytes;
+			a->held_interface = interface;
+			a->held_requester = a->requester;
+			a->waiting = true;
+			a->notify = false;
+			a->wait_deadline = a->now + AECP_WAIT_MS;
+			swap(a);
+			refuse(a, AECP_IN_PROGRESS);
+		}
 		if (a->start_pending) {
 			/* Reserve service time and millisecond quantization within T_svc. */
 			a->start_deadline = a->now + 8u;
@@ -423,7 +487,17 @@ static bool transmit(struct aecp *a)
 static bool asynchronous(struct aecp *a)
 {
 	if (a->locked && due(a->now, a->lock_deadline)) {
+		// released to the platform; until it applied the release the lock
+		// holds, by its owner, for every response and read (#665)
 		a->locked = false;
+		aecp_note(a, AECP_CHANGE_LOCK, 0, 0);
+		a->notify = false;
+		a->unlocked = true;
+	}
+	if (a->unlocked && applied(a)) {
+		// Milan v1.2 5.4.2.2: the expiry's notification, once the platform
+		// applied the release, however late (#665)
+		a->unlocked = false;
 		a->lock_owner = 0;
 		header(a, 0, 0, a->cfg.entity_id, 0, 0, 1u, 1u);
 		wire_put_be(a->response + 38, 1u, 4);
@@ -511,6 +585,31 @@ bool aecp_poll(struct aecp *a)
 		aecp_start_done(a, false, false);
 	}
 	if (transmit(a)) {
+		return true;
+	}
+	if (a->waiting) {
+		bool taken = applied(a);
+		if (!taken && !due(a->now, a->wait_deadline)) {
+			return true;
+		}
+		// Taken by every interface: done again, then answered and notified. Not
+		// taken in time: it stays undone and the command fails, notifying no
+		// one. Either way the face is given the values in force.
+		a->waiting = false;
+		if (taken) {
+			swap(a);
+		}
+		aecp_note(a, a->noted, a->noted_type, a->noted_index);
+		a->notify = taken;
+		// the held response; every response since set the rest as header() does
+		memcpy(a->response, a->held, a->held_bytes);
+		a->response_bytes = a->held_bytes;
+		a->response_interface = a->held_interface;
+		a->requester = a->held_requester;
+		a->response_owed = true;
+		if (!taken) {
+			refuse(a, AECP_ENTITY_MISBEHAVING);
+		}
 		return true;
 	}
 	bool pending = asynchronous(a);

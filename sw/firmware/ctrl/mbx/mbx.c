@@ -232,6 +232,122 @@ bool mbx_pub_sink_binding(unsigned interface, unsigned sink, bool bound, bool st
 	return true;
 }
 
+bool mbx_pub_licensed(unsigned interface, unsigned source)
+{
+	return interface < MBX_N_IF && source < MBX_N_PUB_SOURCES &&
+	       ((mbx_field(mbx_hal_read32(pub_reg(interface, MBX_PUB_REG_LICENCE)), MBX_LICENCE_ACTIVE_LSB,
+			   MBX_LICENCE_ACTIVE_WIDTH) >> source) & 1u) != 0u;
+}
+
+// ---- the face block (contract 2.3) ---------------------------------------------
+
+static uint32_t face_reg(unsigned interface, uint32_t reg)
+{
+	return MBX_FACE_BASE + MBX_FACE_STRIDE * (uint32_t)interface + reg;
+}
+
+bool mbx_face_write(unsigned interface, uint32_t reg, uint32_t value)
+{
+	if (interface >= MBX_N_IF) {
+		return false;
+	}
+	mbx_hal_write32(face_reg(interface, reg), value);
+	return true;
+}
+
+bool mbx_face_write_source(unsigned interface, unsigned source, uint32_t reg, uint32_t value)
+{
+	if (source >= MBX_N_PUB_SOURCES) {
+		return false;
+	}
+	return mbx_face_write(interface, MBX_FACE_SOURCE_BASE + MBX_FACE_SOURCE_STRIDE * (uint32_t)source + reg, value);
+}
+
+bool mbx_face_write_sink(unsigned interface, unsigned sink, uint32_t reg, uint32_t value)
+{
+	if (sink >= MBX_N_PUB_SINKS) {
+		return false;
+	}
+	return mbx_face_write(interface, MBX_FACE_SINK_BASE + MBX_FACE_SINK_STRIDE * (uint32_t)sink + reg, value);
+}
+
+bool mbx_face_busy(unsigned interface)
+{
+	return interface < MBX_N_IF &&
+	       mbx_field(mbx_hal_read32(face_reg(interface, MBX_FACE_REG_F_STATUS)), MBX_F_STATUS_BUSY_LSB,
+			 MBX_F_STATUS_BUSY_WIDTH) != 0u;
+}
+
+enum mbx_status mbx_face_commit(unsigned interface)
+{
+	if (interface >= MBX_N_IF) {
+		return MBX_STATUS_BAD;
+	}
+	if (mbx_face_busy(interface)) {
+		return MBX_STATUS_FULL;
+	}
+	mbx_hal_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), mbx_place(1u, MBX_F_COMMIT_GO_LSB, MBX_F_COMMIT_GO_WIDTH));
+	for (uint32_t k = 0; k <= MBX_FACE_ACK_CYCLES; ++k) {
+		if (!mbx_face_busy(interface)) {
+			return MBX_STATUS_OK;
+		}
+	}
+	return MBX_STATUS_BAD;
+}
+
+// One window's registers, offsets inside an interface's block, in the contract's order.
+struct window {
+	uint32_t go;
+	uint32_t status;
+	uint32_t data_lo;
+	uint32_t data_hi;  // data_hi == data_lo: a one-word answer
+	uint32_t wait_cycles;
+	uint32_t request[MBX_WIN_REQUEST_WORDS];
+	unsigned words;
+};
+static const struct window windows[MBX_WINDOWS] = {
+	{MBX_FACE_REG_CTR_CMD, MBX_FACE_REG_CTR_STATUS, MBX_FACE_REG_CTR_DATA, MBX_FACE_REG_CTR_DATA,
+	 MBX_WIN_CTR_WAIT_CYCLES, {MBX_FACE_REG_CTR_REQ, MBX_FACE_REG_CTR_WORD}, 2},
+	{MBX_FACE_REG_AMAP_CMD, MBX_FACE_REG_AMAP_STATUS, MBX_FACE_REG_AMAP_DATA_LO, MBX_FACE_REG_AMAP_DATA_HI,
+	 MBX_WIN_AMAP_WAIT_CYCLES, {MBX_FACE_REG_AMAP_REQ, MBX_FACE_REG_AMAP_PAGE}, 2},
+	{MBX_FACE_REG_EDIT_CMD, MBX_FACE_REG_EDIT_STATUS, MBX_FACE_REG_EDIT_DATA_LO, MBX_FACE_REG_EDIT_DATA_HI,
+	 MBX_WIN_EDIT_WAIT_CYCLES, {MBX_FACE_REG_EDIT_REQ, MBX_FACE_REG_EDIT_BEAT, MBX_FACE_REG_EDIT_RECORD_LO,
+				    MBX_FACE_REG_EDIT_RECORD_HI, MBX_FACE_REG_EDIT_VALUE_LO, MBX_FACE_REG_EDIT_VALUE_HI}, 6},
+	{MBX_FACE_REG_GSI_CMD, MBX_FACE_REG_GSI_STATUS, MBX_FACE_REG_GSI_DATA_LO, MBX_FACE_REG_GSI_DATA_HI,
+	 MBX_WIN_GSI_WAIT_CYCLES, {MBX_FACE_REG_GSI_REQ, MBX_FACE_REG_GSI_SEL, MBX_FACE_REG_GSI_PROP_LO,
+				   MBX_FACE_REG_GSI_PROP_HI}, 4},
+};
+// every window's CMD and STATUS have CTR_CMD's and CTR_STATUS's layout (the contract's checks)
+#define WIN_BUSY(s) (mbx_field((s), MBX_CTR_STATUS_BUSY_LSB, MBX_CTR_STATUS_BUSY_WIDTH) != 0u)
+#define WIN_DONE(s) (mbx_field((s), MBX_CTR_STATUS_DONE_LSB, MBX_CTR_STATUS_DONE_WIDTH) != 0u)
+
+enum mbx_status mbx_win_read(unsigned interface, unsigned window, const uint32_t *request, uint64_t *data)
+{
+	if (interface >= MBX_N_IF || window >= MBX_WINDOWS) {
+		return MBX_STATUS_BAD;
+	}
+	const struct window *w = &windows[window];
+	if (WIN_BUSY(mbx_hal_read32(face_reg(interface, w->status)))) {
+		return MBX_STATUS_FULL;
+	}
+	for (unsigned k = 0; k < w->words; ++k) {
+		mbx_hal_write32(face_reg(interface, w->request[k]), request[k]);
+	}
+	mbx_hal_write32(face_reg(interface, w->go), mbx_place(1u, MBX_CTR_CMD_GO_LSB, MBX_CTR_CMD_GO_WIDTH));
+	for (uint32_t k = 0; k <= w->wait_cycles; ++k) {
+		uint32_t s = mbx_hal_read32(face_reg(interface, w->status));
+		if (!WIN_BUSY(s)) {
+			if (!WIN_DONE(s)) {
+				return MBX_STATUS_EMPTY;
+			}
+			uint64_t hi = w->data_hi == w->data_lo ? 0u : mbx_hal_read32(face_reg(interface, w->data_hi));
+			*data = (hi << 32) | mbx_hal_read32(face_reg(interface, w->data_lo));
+			return MBX_STATUS_OK;
+		}
+	}
+	return MBX_STATUS_EMPTY;
+}
+
 uint16_t mbx_filter_mismatch(void)
 {
 	return (uint16_t)mbx_field(mbx_hal_read32(MBX_REG_FILTER_MISMATCH), MBX_FILTER_MISMATCH_COUNT_LSB,
@@ -353,6 +469,24 @@ static void event_decode(struct mbx_event *ev, uint32_t w1, uint32_t w2, uint32_
 	} else if (ev->type == MBX_EV_TYPE_TICK) {
 		ev->tick_count = (uint16_t)mbx_field(w1, MBX_EV_TICK_W1_COUNT_LSB, MBX_EV_TICK_W1_COUNT_WIDTH);
 		ev->now_ms = mbx_field(w3, MBX_EV_TICK_W3_NOW_MS_LSB, MBX_EV_TICK_W3_NOW_MS_WIDTH);
+	} else if (ev->type == MBX_EV_TYPE_COUNTERS_CHANGED) {
+		ev->desc_type = (uint16_t)mbx_field(w1, MBX_EV_COUNTERS_CHANGED_W1_TYPE_LSB,
+						    MBX_EV_COUNTERS_CHANGED_W1_TYPE_WIDTH);
+		ev->desc_index = (uint16_t)mbx_field(w1, MBX_EV_COUNTERS_CHANGED_W1_INDEX_LSB,
+						     MBX_EV_COUNTERS_CHANGED_W1_INDEX_WIDTH);
+		ev->every = mbx_field(w2, MBX_EV_COUNTERS_CHANGED_W2_ALL_LSB, MBX_EV_COUNTERS_CHANGED_W2_ALL_WIDTH) != 0u;
+		ev->now_ms = mbx_field(w3, MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_LSB, MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_WIDTH);
+	} else if (ev->type == MBX_EV_TYPE_AVB_INFO_CHANGED || ev->type == MBX_EV_TYPE_AS_PATH_CHANGED ||
+		   ev->type == MBX_EV_TYPE_AMAP_LIVE_WRITE) {
+		// AVB_INFO_CHANGED, AS_PATH_CHANGED and AMAP_LIVE_WRITE share one layout;
+		// a type the contract does not define decodes no field
+		_Static_assert(MBX_EV_AVB_INFO_CHANGED_W1_COUNT_LSB == MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB &&
+				       MBX_EV_AS_PATH_CHANGED_W1_COUNT_LSB == MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB &&
+				       MBX_EV_AVB_INFO_CHANGED_W1_COUNT_WIDTH == MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH &&
+				       MBX_EV_AS_PATH_CHANGED_W1_COUNT_WIDTH == MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH,
+			       "the counted face events share COUNT's place");
+		ev->count = (uint16_t)mbx_field(w1, MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB, MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH);
+		ev->now_ms = w3;
 	}
 }
 

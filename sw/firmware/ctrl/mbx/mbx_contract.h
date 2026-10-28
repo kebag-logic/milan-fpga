@@ -16,7 +16,7 @@
 /* contract major version */
 #define MBX_VERSION_MAJOR 2u
 /* contract minor version */
-#define MBX_VERSION_MINOR 2u
+#define MBX_VERSION_MINOR 3u
 /* ID.MAGIC */
 #define MBX_MAGIC 0x4D42u
 /* host window size */
@@ -367,6 +367,456 @@
 #define MBX_BINDING_STARTED_LSB 2u
 /* BINDING: the bound sink is started */
 #define MBX_BINDING_STARTED_WIDTH 1u
+/* first interface's face block */
+#define MBX_FACE_BASE 0x6000u
+/* bytes per interface's face block */
+#define MBX_FACE_STRIDE 0x400u
+/* clk_i cycles within which a commit's acknowledgement returns */
+#define MBX_FACE_ACK_CYCLES 64u
+/* The control plane's ready level, in place of the processor's enable_i and restore_go_i (Milan v1.2 5.6.1): set once the saved state is applied and AECP is released, so the datapath sees no entity before the restored state. */
+#define MBX_FACE_REG_F_CTRL 0x0u
+/* F_CTRL: the firmware control plane is running */
+#define MBX_F_CTRL_READY_LSB 0u
+/* F_CTRL: the firmware control plane is running */
+#define MBX_F_CTRL_READY_WIDTH 1u
+/* The entity's current configuration (IEEE 1722.1-2021 7.4.7; the processor's aecp_cur_config_o) and its IDENTIFY control value, 0 or 255 (Milan v1.2 5.4.2.12; aecp_identify_o). */
+#define MBX_FACE_REG_F_ENTITY 0x4u
+/* F_ENTITY: current_configuration */
+#define MBX_F_ENTITY_CUR_CONFIG_LSB 0u
+/* F_ENTITY: current_configuration */
+#define MBX_F_ENTITY_CUR_CONFIG_WIDTH 16u
+/* F_ENTITY: the IDENTIFY control's value */
+#define MBX_F_ENTITY_IDENTIFY_LSB 16u
+/* F_ENTITY: the IDENTIFY control's value */
+#define MBX_F_ENTITY_IDENTIFY_WIDTH 8u
+/* CLOCK_DOMAIN 0's clock_source_index as SET_CLOCK_SOURCE set it (IEEE 1722.1-2021 7.4.23; the processor's aecp_clk_src_index_o), which the media clock resolves. */
+#define MBX_FACE_REG_F_CLOCK 0x8u
+/* F_CLOCK: clock_source_index */
+#define MBX_F_CLOCK_SOURCE_INDEX_LSB 0u
+/* F_CLOCK: clock_source_index */
+#define MBX_F_CLOCK_SOURCE_INDEX_WIDTH 16u
+/* LOCK_HELD is set while a LOCK_ENTITY is held (IEEE 1722.1-2021 7.4.2; Milan v1.2 5.4.2.27 and 5.4.2.28 forbid a local map change meanwhile; the processor's aecp_lock_held_o). DYN_DIRTY is set while a persisted setting moved and is not saved (aecp_dyn_dirty_o). */
+#define MBX_FACE_REG_F_AECP 0xCu
+/* F_AECP: a LOCK_ENTITY is held */
+#define MBX_F_AECP_LOCK_HELD_LSB 0u
+/* F_AECP: a LOCK_ENTITY is held */
+#define MBX_F_AECP_LOCK_HELD_WIDTH 1u
+/* F_AECP: a persisted setting is not saved yet */
+#define MBX_F_AECP_DYN_DIRTY_LSB 1u
+/* F_AECP: a persisted setting is not saved yet */
+#define MBX_F_AECP_DYN_DIRTY_WIDTH 1u
+/* The saved-state restore's status, as the processor's restore_*_o and rs_cause_o report it to the CSRs: the firmware's saved-state store writes it before AECP is released and again on every change. */
+#define MBX_FACE_REG_F_RESTORE 0x10u
+/* F_RESTORE: the restore walk is running */
+#define MBX_F_RESTORE_BUSY_LSB 0u
+/* F_RESTORE: the restore walk is running */
+#define MBX_F_RESTORE_BUSY_WIDTH 1u
+/* F_RESTORE: the restore sequencing completed (not a verdict) */
+#define MBX_F_RESTORE_DONE_LSB 1u
+/* F_RESTORE: the restore sequencing completed (not a verdict) */
+#define MBX_F_RESTORE_DONE_WIDTH 1u
+/* F_RESTORE: the completed restore did not restore */
+#define MBX_F_RESTORE_FAIL_LSB 2u
+/* F_RESTORE: the completed restore did not restore */
+#define MBX_F_RESTORE_FAIL_WIDTH 1u
+/* F_RESTORE: the completed walk validated no record */
+#define MBX_F_RESTORE_BLANK_LSB 3u
+/* F_RESTORE: the completed walk validated no record */
+#define MBX_F_RESTORE_BLANK_WIDTH 1u
+/* F_RESTORE: the walk ended CLOSED */
+#define MBX_F_RESTORE_CLOSED_LSB 4u
+/* F_RESTORE: the walk ended CLOSED */
+#define MBX_F_RESTORE_CLOSED_WIDTH 1u
+/* F_RESTORE: the walk rolled back to the defaults */
+#define MBX_F_RESTORE_RB_LSB 5u
+/* F_RESTORE: the walk rolled back to the defaults */
+#define MBX_F_RESTORE_RB_WIDTH 1u
+/* F_RESTORE: the walk's abort cause: 1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor, 7 image */
+#define MBX_F_RESTORE_RS_CAUSE_LSB 8u
+/* F_RESTORE: the walk's abort cause: 1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor, 7 image */
+#define MBX_F_RESTORE_RS_CAUSE_WIDTH 3u
+/* F_RESTORE: the binding walk's cause: 1 torn, 2 device, 3 deadline */
+#define MBX_F_RESTORE_CAUSE_LSB 12u
+/* F_RESTORE: the binding walk's cause: 1 torn, 2 device, 3 deadline */
+#define MBX_F_RESTORE_CAUSE_WIDTH 2u
+/* The saved-state store's status, as the processor's nvm_*_o report it to the CSRs: written before AECP is released and again on every change. */
+#define MBX_FACE_REG_F_NVM 0x14u
+/* F_NVM: the store answers */
+#define MBX_F_NVM_BACKED_LSB 0u
+/* F_NVM: the store answers */
+#define MBX_F_NVM_BACKED_WIDTH 1u
+/* F_NVM: a record producer exhausted its write attempts */
+#define MBX_F_NVM_ALARM_LSB 1u
+/* F_NVM: a record producer exhausted its write attempts */
+#define MBX_F_NVM_ALARM_WIDTH 1u
+/* F_NVM: committable work no slot holds */
+#define MBX_F_NVM_DIRTY_LSB 2u
+/* F_NVM: committable work no slot holds */
+#define MBX_F_NVM_DIRTY_WIDTH 1u
+/* F_NVM: a writer loss not made good */
+#define MBX_F_NVM_STALE_LSB 3u
+/* F_NVM: a writer loss not made good */
+#define MBX_F_NVM_STALE_WIDTH 1u
+/* F_NVM: accepted work no verified slot holds and DIRTY does not report */
+#define MBX_F_NVM_PEND_LSB 4u
+/* F_NVM: accepted work no verified slot holds and DIRTY does not report */
+#define MBX_F_NVM_PEND_WIDTH 1u
+/* F_NVM: the image in the window was validated */
+#define MBX_F_NVM_IMG_VALID_LSB 5u
+/* F_NVM: the image in the window was validated */
+#define MBX_F_NVM_IMG_VALID_WIDTH 1u
+/* F_NVM: the verdict on the last image offered */
+#define MBX_F_NVM_VERDICT_LSB 8u
+/* F_NVM: the verdict on the last image offered */
+#define MBX_F_NVM_VERDICT_WIDTH 4u
+/* Writing GO publishes every F_* value of this interface: fw_send_o rises and the values hold until the acknowledgement. Refused while F_STATUS.BUSY is set. */
+#define MBX_FACE_REG_F_COMMIT 0x18u
+/* F_COMMIT: publish */
+#define MBX_F_COMMIT_GO_LSB 0u
+/* F_COMMIT: publish */
+#define MBX_F_COMMIT_GO_WIDTH 1u
+/* The commit handshake. BUSY is set from a commit until its acknowledgement returns. */
+#define MBX_FACE_REG_F_STATUS 0x1Cu
+/* F_STATUS: a commit waits for its acknowledgement */
+#define MBX_F_STATUS_BUSY_LSB 0u
+/* F_STATUS: a commit waits for its acknowledgement */
+#define MBX_F_STATUS_BUSY_WIDTH 1u
+/* The descriptor GET_COUNTERS asks about. */
+#define MBX_FACE_REG_CTR_REQ 0x40u
+/* CTR_REQ: descriptor_type */
+#define MBX_CTR_REQ_TYPE_LSB 0u
+/* CTR_REQ: descriptor_type */
+#define MBX_CTR_REQ_TYPE_WIDTH 16u
+/* CTR_REQ: descriptor_index */
+#define MBX_CTR_REQ_INDEX_LSB 16u
+/* CTR_REQ: descriptor_index */
+#define MBX_CTR_REQ_INDEX_WIDTH 16u
+/* The quadlet asked for, 0 to 31 a counters_block quadlet, 32 the counters_valid mask. */
+#define MBX_FACE_REG_CTR_WORD 0x44u
+/* CTR_WORD: quadlet */
+#define MBX_CTR_WORD_WORD_LSB 0u
+/* CTR_WORD: quadlet */
+#define MBX_CTR_WORD_WORD_WIDTH 6u
+/* Writing GO asks the datapath for the quadlet. Refused while CTR_STATUS.BUSY is set. */
+#define MBX_FACE_REG_CTR_CMD 0x48u
+/* CTR_CMD: ask */
+#define MBX_CTR_CMD_GO_LSB 0u
+/* CTR_CMD: ask */
+#define MBX_CTR_CMD_GO_WIDTH 1u
+/* The window's request, open or answered. */
+#define MBX_FACE_REG_CTR_STATUS 0x4Cu
+/* CTR_STATUS: the request is open */
+#define MBX_CTR_STATUS_BUSY_LSB 0u
+/* CTR_STATUS: the request is open */
+#define MBX_CTR_STATUS_BUSY_WIDTH 1u
+/* CTR_STATUS: the answer of the last request is in DATA */
+#define MBX_CTR_STATUS_DONE_LSB 1u
+/* CTR_STATUS: the answer of the last request is in DATA */
+#define MBX_CTR_STATUS_DONE_WIDTH 1u
+/* CTR_STATUS: the last request had no answer within wait_cycles */
+#define MBX_CTR_STATUS_TIMEOUT_LSB 2u
+/* CTR_STATUS: the last request had no answer within wait_cycles */
+#define MBX_CTR_STATUS_TIMEOUT_WIDTH 1u
+/* CTR_STATUS: the last request's tag */
+#define MBX_CTR_STATUS_TAG_LSB 8u
+/* CTR_STATUS: the last request's tag */
+#define MBX_CTR_STATUS_TAG_WIDTH 4u
+/* The quadlet, in IEEE 1722.1 value order. */
+#define MBX_FACE_REG_CTR_DATA 0x50u
+/* CTR_DATA: the quadlet */
+#define MBX_CTR_DATA_DATA_LSB 0u
+/* CTR_DATA: the quadlet */
+#define MBX_CTR_DATA_DATA_WIDTH 32u
+/* The Stream Port the read asks about. */
+#define MBX_FACE_REG_AMAP_REQ 0x60u
+/* AMAP_REQ: descriptor_type */
+#define MBX_AMAP_REQ_TYPE_LSB 0u
+/* AMAP_REQ: descriptor_type */
+#define MBX_AMAP_REQ_TYPE_WIDTH 16u
+/* AMAP_REQ: descriptor_index */
+#define MBX_AMAP_REQ_INDEX_LSB 16u
+/* AMAP_REQ: descriptor_index */
+#define MBX_AMAP_REQ_INDEX_WIDTH 16u
+/* The word asked for. */
+#define MBX_FACE_REG_AMAP_PAGE 0x64u
+/* AMAP_PAGE: map_index */
+#define MBX_AMAP_PAGE_MAP_INDEX_LSB 0u
+/* AMAP_PAGE: map_index */
+#define MBX_AMAP_PAGE_MAP_INDEX_WIDTH 16u
+/* AMAP_PAGE: 0 number_of_maps, 1 the page's geometry, 2 a mapping record */
+#define MBX_AMAP_PAGE_SEL_LSB 16u
+/* AMAP_PAGE: 0 number_of_maps, 1 the page's geometry, 2 a mapping record */
+#define MBX_AMAP_PAGE_SEL_WIDTH 2u
+/* AMAP_PAGE: the record's ordinal within the page */
+#define MBX_AMAP_PAGE_REC_LSB 24u
+/* AMAP_PAGE: the record's ordinal within the page */
+#define MBX_AMAP_PAGE_REC_WIDTH 8u
+/* Writing GO asks the datapath for the word. Refused while AMAP_STATUS.BUSY is set. */
+#define MBX_FACE_REG_AMAP_CMD 0x68u
+/* AMAP_CMD: ask */
+#define MBX_AMAP_CMD_GO_LSB 0u
+/* AMAP_CMD: ask */
+#define MBX_AMAP_CMD_GO_WIDTH 1u
+/* The window's request, open or answered. */
+#define MBX_FACE_REG_AMAP_STATUS 0x6Cu
+/* AMAP_STATUS: the request is open */
+#define MBX_AMAP_STATUS_BUSY_LSB 0u
+/* AMAP_STATUS: the request is open */
+#define MBX_AMAP_STATUS_BUSY_WIDTH 1u
+/* AMAP_STATUS: the answer of the last request is in DATA */
+#define MBX_AMAP_STATUS_DONE_LSB 1u
+/* AMAP_STATUS: the answer of the last request is in DATA */
+#define MBX_AMAP_STATUS_DONE_WIDTH 1u
+/* AMAP_STATUS: the last request had no answer within wait_cycles */
+#define MBX_AMAP_STATUS_TIMEOUT_LSB 2u
+/* AMAP_STATUS: the last request had no answer within wait_cycles */
+#define MBX_AMAP_STATUS_TIMEOUT_WIDTH 1u
+/* AMAP_STATUS: the last request's tag */
+#define MBX_AMAP_STATUS_TAG_LSB 8u
+/* AMAP_STATUS: the last request's tag */
+#define MBX_AMAP_STATUS_TAG_WIDTH 4u
+/* The word, low half. */
+#define MBX_FACE_REG_AMAP_DATA_LO 0x70u
+/* AMAP_DATA_LO: word[31:0] */
+#define MBX_AMAP_DATA_LO_DATA_LSB 0u
+/* AMAP_DATA_LO: word[31:0] */
+#define MBX_AMAP_DATA_LO_DATA_WIDTH 32u
+/* The word, high half (0 unless a mapping record). */
+#define MBX_FACE_REG_AMAP_DATA_HI 0x74u
+/* AMAP_DATA_HI: word[63:32] */
+#define MBX_AMAP_DATA_HI_DATA_LSB 0u
+/* AMAP_DATA_HI: word[63:32] */
+#define MBX_AMAP_DATA_HI_DATA_WIDTH 32u
+/* The Stream Port the transaction edits. */
+#define MBX_FACE_REG_EDIT_REQ 0x80u
+/* EDIT_REQ: descriptor_type */
+#define MBX_EDIT_REQ_TYPE_LSB 0u
+/* EDIT_REQ: descriptor_type */
+#define MBX_EDIT_REQ_TYPE_WIDTH 16u
+/* EDIT_REQ: descriptor_index */
+#define MBX_EDIT_REQ_INDEX_LSB 16u
+/* EDIT_REQ: descriptor_index */
+#define MBX_EDIT_REQ_INDEX_WIDTH 16u
+/* One beat of the transaction: PHASE 0 begins validation, 1 begins the commit, 2 finishes, 3 aborts, 4 validates record REC and 5 commits it; REMOVE names a REMOVE_AUDIO_MAPPINGS; COUNT the records. */
+#define MBX_FACE_REG_EDIT_BEAT 0x84u
+/* EDIT_BEAT: the beat's phase */
+#define MBX_EDIT_BEAT_PHASE_LSB 0u
+/* EDIT_BEAT: the beat's phase */
+#define MBX_EDIT_BEAT_PHASE_WIDTH 3u
+/* EDIT_BEAT: a REMOVE_AUDIO_MAPPINGS */
+#define MBX_EDIT_BEAT_REMOVE_LSB 4u
+/* EDIT_BEAT: a REMOVE_AUDIO_MAPPINGS */
+#define MBX_EDIT_BEAT_REMOVE_WIDTH 1u
+/* EDIT_BEAT: the record's ordinal */
+#define MBX_EDIT_BEAT_REC_LSB 8u
+/* EDIT_BEAT: the record's ordinal */
+#define MBX_EDIT_BEAT_REC_WIDTH 8u
+/* EDIT_BEAT: number_of_mappings */
+#define MBX_EDIT_BEAT_COUNT_LSB 16u
+/* EDIT_BEAT: number_of_mappings */
+#define MBX_EDIT_BEAT_COUNT_WIDTH 16u
+/* The mapping record, low half (mapping_cluster_offset, mapping_cluster_channel). */
+#define MBX_FACE_REG_EDIT_RECORD_LO 0x88u
+/* EDIT_RECORD_LO: record[31:0] */
+#define MBX_EDIT_RECORD_LO_RECORD_LSB 0u
+/* EDIT_RECORD_LO: record[31:0] */
+#define MBX_EDIT_RECORD_LO_RECORD_WIDTH 32u
+/* The mapping record, high half (mapping_stream_index, mapping_stream_channel). */
+#define MBX_FACE_REG_EDIT_RECORD_HI 0x8Cu
+/* EDIT_RECORD_HI: record[63:32] */
+#define MBX_EDIT_RECORD_HI_RECORD_LSB 0u
+/* EDIT_RECORD_HI: record[63:32] */
+#define MBX_EDIT_RECORD_HI_RECORD_WIDTH 32u
+/* The beat's value lane, low half (the processor's amap_edit_value_o). */
+#define MBX_FACE_REG_EDIT_VALUE_LO 0x90u
+/* EDIT_VALUE_LO: value[31:0] */
+#define MBX_EDIT_VALUE_LO_VALUE_LSB 0u
+/* EDIT_VALUE_LO: value[31:0] */
+#define MBX_EDIT_VALUE_LO_VALUE_WIDTH 32u
+/* The beat's value lane, high half. */
+#define MBX_FACE_REG_EDIT_VALUE_HI 0x94u
+/* EDIT_VALUE_HI: value[63:32] */
+#define MBX_EDIT_VALUE_HI_VALUE_LSB 0u
+/* EDIT_VALUE_HI: value[63:32] */
+#define MBX_EDIT_VALUE_HI_VALUE_WIDTH 32u
+/* Writing GO presents the beat. Refused while EDIT_STATUS.BUSY is set. */
+#define MBX_FACE_REG_EDIT_CMD 0x98u
+/* EDIT_CMD: present the beat */
+#define MBX_EDIT_CMD_GO_LSB 0u
+/* EDIT_CMD: present the beat */
+#define MBX_EDIT_CMD_GO_WIDTH 1u
+/* The window's request, open or answered. */
+#define MBX_FACE_REG_EDIT_STATUS 0x9Cu
+/* EDIT_STATUS: the request is open */
+#define MBX_EDIT_STATUS_BUSY_LSB 0u
+/* EDIT_STATUS: the request is open */
+#define MBX_EDIT_STATUS_BUSY_WIDTH 1u
+/* EDIT_STATUS: the answer of the last request is in DATA */
+#define MBX_EDIT_STATUS_DONE_LSB 1u
+/* EDIT_STATUS: the answer of the last request is in DATA */
+#define MBX_EDIT_STATUS_DONE_WIDTH 1u
+/* EDIT_STATUS: the last request had no answer within wait_cycles */
+#define MBX_EDIT_STATUS_TIMEOUT_LSB 2u
+/* EDIT_STATUS: the last request had no answer within wait_cycles */
+#define MBX_EDIT_STATUS_TIMEOUT_WIDTH 1u
+/* EDIT_STATUS: the last request's tag */
+#define MBX_EDIT_STATUS_TAG_LSB 8u
+/* EDIT_STATUS: the last request's tag */
+#define MBX_EDIT_STATUS_TAG_WIDTH 4u
+/* The beat's verdict, low half (bit 0 accepted, or for a finish a mapping changed). */
+#define MBX_FACE_REG_EDIT_DATA_LO 0xA0u
+/* EDIT_DATA_LO: verdict[31:0] */
+#define MBX_EDIT_DATA_LO_DATA_LSB 0u
+/* EDIT_DATA_LO: verdict[31:0] */
+#define MBX_EDIT_DATA_LO_DATA_WIDTH 32u
+/* The beat's verdict, high half. */
+#define MBX_FACE_REG_EDIT_DATA_HI 0xA4u
+/* EDIT_DATA_HI: verdict[63:32] */
+#define MBX_EDIT_DATA_HI_DATA_LSB 0u
+/* EDIT_DATA_HI: verdict[63:32] */
+#define MBX_EDIT_DATA_HI_DATA_WIDTH 32u
+/* The descriptor the word belongs to. */
+#define MBX_FACE_REG_GSI_REQ 0xC0u
+/* GSI_REQ: descriptor_type */
+#define MBX_GSI_REQ_TYPE_LSB 0u
+/* GSI_REQ: descriptor_type */
+#define MBX_GSI_REQ_TYPE_WIDTH 16u
+/* GSI_REQ: descriptor_index */
+#define MBX_GSI_REQ_INDEX_LSB 16u
+/* GSI_REQ: descriptor_index */
+#define MBX_GSI_REQ_INDEX_WIDTH 16u
+/* The word asked for: KIND 0 GET_STREAM_INFO, 1 GET_AVB_INFO, 2 GET_AS_PATH; SEL the word within the kind (kind 0 selector 15 is SET_STREAM_FORMAT's verdict on GSI_PROP); ORD an array ordinal. */
+#define MBX_FACE_REG_GSI_SEL 0xC4u
+/* GSI_SEL: the command family */
+#define MBX_GSI_SEL_KIND_LSB 0u
+/* GSI_SEL: the command family */
+#define MBX_GSI_SEL_KIND_WIDTH 2u
+/* GSI_SEL: the word selector */
+#define MBX_GSI_SEL_SEL_LSB 4u
+/* GSI_SEL: the word selector */
+#define MBX_GSI_SEL_SEL_WIDTH 4u
+/* GSI_SEL: the array ordinal */
+#define MBX_GSI_SEL_ORD_LSB 8u
+/* GSI_SEL: the array ordinal */
+#define MBX_GSI_SEL_ORD_WIDTH 8u
+/* The proposed stream format kind 0 selector 15 judges, low half. */
+#define MBX_FACE_REG_GSI_PROP_LO 0xC8u
+/* GSI_PROP_LO: format[31:0] */
+#define MBX_GSI_PROP_LO_FMT_LSB 0u
+/* GSI_PROP_LO: format[31:0] */
+#define MBX_GSI_PROP_LO_FMT_WIDTH 32u
+/* The proposed stream format, high half. */
+#define MBX_FACE_REG_GSI_PROP_HI 0xCCu
+/* GSI_PROP_HI: format[63:32] */
+#define MBX_GSI_PROP_HI_FMT_LSB 0u
+/* GSI_PROP_HI: format[63:32] */
+#define MBX_GSI_PROP_HI_FMT_WIDTH 32u
+/* Writing GO asks the datapath for the word. Refused while GSI_STATUS.BUSY is set. */
+#define MBX_FACE_REG_GSI_CMD 0xD0u
+/* GSI_CMD: ask */
+#define MBX_GSI_CMD_GO_LSB 0u
+/* GSI_CMD: ask */
+#define MBX_GSI_CMD_GO_WIDTH 1u
+/* The window's request, open or answered. */
+#define MBX_FACE_REG_GSI_STATUS 0xD4u
+/* GSI_STATUS: the request is open */
+#define MBX_GSI_STATUS_BUSY_LSB 0u
+/* GSI_STATUS: the request is open */
+#define MBX_GSI_STATUS_BUSY_WIDTH 1u
+/* GSI_STATUS: the answer of the last request is in DATA */
+#define MBX_GSI_STATUS_DONE_LSB 1u
+/* GSI_STATUS: the answer of the last request is in DATA */
+#define MBX_GSI_STATUS_DONE_WIDTH 1u
+/* GSI_STATUS: the last request had no answer within wait_cycles */
+#define MBX_GSI_STATUS_TIMEOUT_LSB 2u
+/* GSI_STATUS: the last request had no answer within wait_cycles */
+#define MBX_GSI_STATUS_TIMEOUT_WIDTH 1u
+/* GSI_STATUS: the last request's tag */
+#define MBX_GSI_STATUS_TAG_LSB 8u
+/* GSI_STATUS: the last request's tag */
+#define MBX_GSI_STATUS_TAG_WIDTH 4u
+/* The word, low half. */
+#define MBX_FACE_REG_GSI_DATA_LO 0xD8u
+/* GSI_DATA_LO: word[31:0] */
+#define MBX_GSI_DATA_LO_DATA_LSB 0u
+/* GSI_DATA_LO: word[31:0] */
+#define MBX_GSI_DATA_LO_DATA_WIDTH 32u
+/* The word, high half. */
+#define MBX_FACE_REG_GSI_DATA_HI 0xDCu
+/* GSI_DATA_HI: word[63:32] */
+#define MBX_GSI_DATA_HI_DATA_LSB 0u
+/* GSI_DATA_HI: word[63:32] */
+#define MBX_GSI_DATA_HI_DATA_WIDTH 32u
+/* first source entry inside a face block */
+#define MBX_FACE_SOURCE_BASE 0x100u
+/* bytes per face source entry */
+#define MBX_FACE_SOURCE_STRIDE 0x10u
+/* Source s's presentation time offset, nanoseconds, as SET_STREAM_INFO's msrp_accumulated_latency set it (Milan v1.2 5.4.2.9; the processor's aecp_pt_offset_o), taken while F_SRC_VALID.PT_OFFSET is set. */
+#define MBX_FACE_SRC_REG_F_PT_OFFSET 0x0u
+/* F_PT_OFFSET: presentation time offset */
+#define MBX_F_PT_OFFSET_NS_LSB 0u
+/* F_PT_OFFSET: presentation time offset */
+#define MBX_F_PT_OFFSET_NS_WIDTH 32u
+/* Source s's stream_format, low half (Milan v1.2 5.4.2.7; aecp_fmt_out_o). */
+#define MBX_FACE_SRC_REG_F_FMT_OUT_LO 0x4u
+/* F_FMT_OUT_LO: stream_format[31:0] */
+#define MBX_F_FMT_OUT_LO_FMT_LSB 0u
+/* F_FMT_OUT_LO: stream_format[31:0] */
+#define MBX_F_FMT_OUT_LO_FMT_WIDTH 32u
+/* Source s's stream_format, high half. */
+#define MBX_FACE_SRC_REG_F_FMT_OUT_HI 0x8u
+/* F_FMT_OUT_HI: stream_format[63:32] */
+#define MBX_F_FMT_OUT_HI_FMT_LSB 0u
+/* F_FMT_OUT_HI: stream_format[63:32] */
+#define MBX_F_FMT_OUT_HI_FMT_WIDTH 32u
+/* Which of source s's settings a controller set (aecp_pt_offset_v_o, aecp_fmt_out_v_o). */
+#define MBX_FACE_SRC_REG_F_SRC_VALID 0xCu
+/* F_SRC_VALID: F_PT_OFFSET holds a set value */
+#define MBX_F_SRC_VALID_PT_OFFSET_LSB 0u
+/* F_SRC_VALID: F_PT_OFFSET holds a set value */
+#define MBX_F_SRC_VALID_PT_OFFSET_WIDTH 1u
+/* F_SRC_VALID: F_FMT_OUT holds a set value */
+#define MBX_F_SRC_VALID_FMT_OUT_LSB 1u
+/* F_SRC_VALID: F_FMT_OUT holds a set value */
+#define MBX_F_SRC_VALID_FMT_OUT_WIDTH 1u
+/* first sink entry inside a face block */
+#define MBX_FACE_SINK_BASE 0x200u
+/* bytes per face sink entry */
+#define MBX_FACE_SINK_STRIDE 0x10u
+/* Sink k's stream_format, low half (Milan v1.2 5.4.2.7; aecp_fmt_in_o). */
+#define MBX_FACE_SNK_REG_F_FMT_IN_LO 0x0u
+/* F_FMT_IN_LO: stream_format[31:0] */
+#define MBX_F_FMT_IN_LO_FMT_LSB 0u
+/* F_FMT_IN_LO: stream_format[31:0] */
+#define MBX_F_FMT_IN_LO_FMT_WIDTH 32u
+/* Sink k's stream_format, high half. */
+#define MBX_FACE_SNK_REG_F_FMT_IN_HI 0x4u
+/* F_FMT_IN_HI: stream_format[63:32] */
+#define MBX_F_FMT_IN_HI_FMT_LSB 0u
+/* F_FMT_IN_HI: stream_format[63:32] */
+#define MBX_F_FMT_IN_HI_FMT_WIDTH 32u
+/* Whether a controller set sink k's format (aecp_fmt_in_v_o). */
+#define MBX_FACE_SNK_REG_F_SNK_VALID 0x8u
+/* F_SNK_VALID: F_FMT_IN holds a set value */
+#define MBX_F_SNK_VALID_FMT_IN_LSB 0u
+/* F_SNK_VALID: F_FMT_IN holds a set value */
+#define MBX_F_SNK_VALID_FMT_IN_WIDTH 1u
+/* window CTR: clk_i cycles within which a request is answered or times out */
+#define MBX_WIN_CTR_WAIT_CYCLES 64u
+/* window CTR: its answer's words */
+#define MBX_WIN_CTR_DATA_WORDS 1u
+/* window AMAP: clk_i cycles within which a request is answered or times out */
+#define MBX_WIN_AMAP_WAIT_CYCLES 64u
+/* window AMAP: its answer's words */
+#define MBX_WIN_AMAP_DATA_WORDS 2u
+/* window EDIT: clk_i cycles within which a request is answered or times out */
+#define MBX_WIN_EDIT_WAIT_CYCLES 64u
+/* window EDIT: its answer's words */
+#define MBX_WIN_EDIT_DATA_WORDS 2u
+/* window GSI: clk_i cycles within which a request is answered or times out */
+#define MBX_WIN_GSI_WAIT_CYCLES 64u
+/* window GSI: its answer's words */
+#define MBX_WIN_GSI_DATA_WORDS 2u
 /* first channel register block */
 #define MBX_CH_BASE 0x100u
 /* bytes per channel block */
@@ -481,6 +931,38 @@
 #define MBX_EVREC_W0_SEQ_LSB 16u
 /* event word 0: posting sequence */
 #define MBX_EVREC_W0_SEQ_WIDTH 16u
+/* COUNTERS_CHANGED: NOW_MS milliseconds a descriptor waits after its record */
+#define MBX_CTRCHG_HOLDOFF_MS 1000u
+/* COUNTERS_CHANGED: the STREAM_INPUT descriptor_type */
+#define MBX_CTRCHG_STREAM_INPUT_TYPE 0x5u
+/* COUNTERS_CHANGED: STREAM_INPUT entries kept */
+#define MBX_CTRCHG_STREAM_INPUT_COUNT 16u
+/* COUNTERS_CHANGED: the pending bit of STREAM_INPUT 0 */
+#define MBX_CTRCHG_STREAM_INPUT_FIRST 0u
+/* COUNTERS_CHANGED: the STREAM_OUTPUT descriptor_type */
+#define MBX_CTRCHG_STREAM_OUTPUT_TYPE 0x6u
+/* COUNTERS_CHANGED: STREAM_OUTPUT entries kept */
+#define MBX_CTRCHG_STREAM_OUTPUT_COUNT 16u
+/* COUNTERS_CHANGED: the pending bit of STREAM_OUTPUT 0 */
+#define MBX_CTRCHG_STREAM_OUTPUT_FIRST 16u
+/* COUNTERS_CHANGED: the AVB_INTERFACE descriptor_type */
+#define MBX_CTRCHG_AVB_INTERFACE_TYPE 0x9u
+/* COUNTERS_CHANGED: AVB_INTERFACE entries kept */
+#define MBX_CTRCHG_AVB_INTERFACE_COUNT 1u
+/* COUNTERS_CHANGED: the pending bit of AVB_INTERFACE 0 */
+#define MBX_CTRCHG_AVB_INTERFACE_FIRST 32u
+/* COUNTERS_CHANGED: the CLOCK_DOMAIN descriptor_type */
+#define MBX_CTRCHG_CLOCK_DOMAIN_TYPE 0x24u
+/* COUNTERS_CHANGED: CLOCK_DOMAIN entries kept */
+#define MBX_CTRCHG_CLOCK_DOMAIN_COUNT 1u
+/* COUNTERS_CHANGED: the pending bit of CLOCK_DOMAIN 0 */
+#define MBX_CTRCHG_CLOCK_DOMAIN_FIRST 33u
+/* COUNTERS_CHANGED: descriptor families */
+#define MBX_CTRCHG_N_SRC 4u
+/* COUNTERS_CHANGED: the pending bit of every other descriptor */
+#define MBX_CTRCHG_ALL_BIT 34u
+/* COUNTERS_CHANGED: pending bits per interface */
+#define MBX_CTRCHG_N_PEND 35u
 /* A timer slot's deadline passed. */
 #define MBX_EV_TYPE_TIMER 1u
 /* TIMER event word 1: the tag of the arm that expired */
@@ -533,6 +1015,54 @@
 #define MBX_EV_TICK_W3_NOW_MS_LSB 0u
 /* TICK event word 3: NOW_MS at posting */
 #define MBX_EV_TICK_W3_NOW_MS_WIDTH 32u
+/* The counters of a descriptor the datapath serves moved (the processor's ctr_change face; Milan v1.2 Table 5.22 makes it a GET_COUNTERS notification, at most one per descriptor per second). A descriptor that moves again before its record is posted, or within holdoff_ms of its last record, posts once. ALL set: a change named a descriptor the source keeps no bit for, so every served descriptor may have moved. */
+#define MBX_EV_TYPE_COUNTERS_CHANGED 5u
+/* COUNTERS_CHANGED event word 1: descriptor_type (0 with ALL) */
+#define MBX_EV_COUNTERS_CHANGED_W1_TYPE_LSB 0u
+/* COUNTERS_CHANGED event word 1: descriptor_type (0 with ALL) */
+#define MBX_EV_COUNTERS_CHANGED_W1_TYPE_WIDTH 16u
+/* COUNTERS_CHANGED event word 1: descriptor_index (0 with ALL) */
+#define MBX_EV_COUNTERS_CHANGED_W1_INDEX_LSB 16u
+/* COUNTERS_CHANGED event word 1: descriptor_index (0 with ALL) */
+#define MBX_EV_COUNTERS_CHANGED_W1_INDEX_WIDTH 16u
+/* COUNTERS_CHANGED event word 2: every served descriptor may have moved */
+#define MBX_EV_COUNTERS_CHANGED_W2_ALL_LSB 0u
+/* COUNTERS_CHANGED event word 2: every served descriptor may have moved */
+#define MBX_EV_COUNTERS_CHANGED_W2_ALL_WIDTH 1u
+/* COUNTERS_CHANGED event word 3: NOW_MS at posting */
+#define MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_LSB 0u
+/* COUNTERS_CHANGED event word 3: NOW_MS at posting */
+#define MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_WIDTH 32u
+/* A GET_AVB_INFO word the datapath serves changed on the interface (the processor's gsi_avb_chg_i; Milan v1.2 Table 5.22). COUNT is the changes since the previous record, at least 1 and saturating. */
+#define MBX_EV_TYPE_AVB_INFO_CHANGED 6u
+/* AVB_INFO_CHANGED event word 1: changes since the previous record */
+#define MBX_EV_AVB_INFO_CHANGED_W1_COUNT_LSB 0u
+/* AVB_INFO_CHANGED event word 1: changes since the previous record */
+#define MBX_EV_AVB_INFO_CHANGED_W1_COUNT_WIDTH 16u
+/* AVB_INFO_CHANGED event word 3: NOW_MS at posting */
+#define MBX_EV_AVB_INFO_CHANGED_W3_NOW_MS_LSB 0u
+/* AVB_INFO_CHANGED event word 3: NOW_MS at posting */
+#define MBX_EV_AVB_INFO_CHANGED_W3_NOW_MS_WIDTH 32u
+/* The AS_PATH sequence the datapath serves changed on the interface (the processor's gsi_asp_chg_i; Milan v1.2 Table 5.22). COUNT as for AVB_INFO_CHANGED. */
+#define MBX_EV_TYPE_AS_PATH_CHANGED 7u
+/* AS_PATH_CHANGED event word 1: changes since the previous record */
+#define MBX_EV_AS_PATH_CHANGED_W1_COUNT_LSB 0u
+/* AS_PATH_CHANGED event word 1: changes since the previous record */
+#define MBX_EV_AS_PATH_CHANGED_W1_COUNT_WIDTH 16u
+/* AS_PATH_CHANGED event word 3: NOW_MS at posting */
+#define MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_LSB 0u
+/* AS_PATH_CHANGED event word 3: NOW_MS at posting */
+#define MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_WIDTH 32u
+/* An edit's commit beat changed the live audio map (the processor's amap_live_wr_i). COUNT is the live writes since the previous record, at least 1 and saturating. */
+#define MBX_EV_TYPE_AMAP_LIVE_WRITE 8u
+/* AMAP_LIVE_WRITE event word 1: live writes since the previous record */
+#define MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB 0u
+/* AMAP_LIVE_WRITE event word 1: live writes since the previous record */
+#define MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH 16u
+/* AMAP_LIVE_WRITE event word 3: NOW_MS at posting */
+#define MBX_EV_AMAP_LIVE_WRITE_W3_NOW_MS_LSB 0u
+/* AMAP_LIVE_WRITE event word 3: NOW_MS at posting */
+#define MBX_EV_AMAP_LIVE_WRITE_W3_NOW_MS_WIDTH 32u
 /* channel adp */
 #define MBX_CH_ADP 0u
 /* adp receive ring byte offset */
@@ -871,5 +1401,8 @@
 #define MBX_TERM_TEST_TBL { MBX_CH_ADP_T0_TEST, MBX_CH_ADP_T1_TEST, MBX_CH_ADP_T2_TEST, MBX_CH_ACMP_T0_TEST, MBX_CH_ACMP_T1_TEST, MBX_CH_ACMP_T2_TEST, MBX_CH_AECP_T0_TEST, MBX_CH_AECP_T1_TEST, MBX_CH_AECP_T2_TEST, MBX_CH_MAAP_T0_TEST, MBX_CH_MAAP_T1_TEST, MBX_CH_MAAP_T2_TEST, MBX_CH_SRP_T0_TEST, MBX_CH_SRP_T1_TEST, MBX_CH_SRP_T2_TEST }
 #define MBX_TERM_OFFSET_TBL { MBX_CH_ADP_T0_OFFSET, MBX_CH_ADP_T1_OFFSET, MBX_CH_ADP_T2_OFFSET, MBX_CH_ACMP_T0_OFFSET, MBX_CH_ACMP_T1_OFFSET, MBX_CH_ACMP_T2_OFFSET, MBX_CH_AECP_T0_OFFSET, MBX_CH_AECP_T1_OFFSET, MBX_CH_AECP_T2_OFFSET, MBX_CH_MAAP_T0_OFFSET, MBX_CH_MAAP_T1_OFFSET, MBX_CH_MAAP_T2_OFFSET, MBX_CH_SRP_T0_OFFSET, MBX_CH_SRP_T1_OFFSET, MBX_CH_SRP_T2_OFFSET }
 #define MBX_TERM_MASK_TBL { MBX_CH_ADP_T0_MSG_MASK, MBX_CH_ADP_T1_MSG_MASK, MBX_CH_ADP_T2_MSG_MASK, MBX_CH_ACMP_T0_MSG_MASK, MBX_CH_ACMP_T1_MSG_MASK, MBX_CH_ACMP_T2_MSG_MASK, MBX_CH_AECP_T0_MSG_MASK, MBX_CH_AECP_T1_MSG_MASK, MBX_CH_AECP_T2_MSG_MASK, MBX_CH_MAAP_T0_MSG_MASK, MBX_CH_MAAP_T1_MSG_MASK, MBX_CH_MAAP_T2_MSG_MASK, MBX_CH_SRP_T0_MSG_MASK, MBX_CH_SRP_T1_MSG_MASK, MBX_CH_SRP_T2_MSG_MASK }
+#define MBX_CTRCHG_TYPE_TBL { MBX_CTRCHG_STREAM_INPUT_TYPE, MBX_CTRCHG_STREAM_OUTPUT_TYPE, MBX_CTRCHG_AVB_INTERFACE_TYPE, MBX_CTRCHG_CLOCK_DOMAIN_TYPE }
+#define MBX_CTRCHG_COUNT_TBL { MBX_CTRCHG_STREAM_INPUT_COUNT, MBX_CTRCHG_STREAM_OUTPUT_COUNT, MBX_CTRCHG_AVB_INTERFACE_COUNT, MBX_CTRCHG_CLOCK_DOMAIN_COUNT }
+#define MBX_CTRCHG_FIRST_TBL { MBX_CTRCHG_STREAM_INPUT_FIRST, MBX_CTRCHG_STREAM_OUTPUT_FIRST, MBX_CTRCHG_AVB_INTERFACE_FIRST, MBX_CTRCHG_CLOCK_DOMAIN_FIRST }
 
 #endif /* MBX_CONTRACT_H */

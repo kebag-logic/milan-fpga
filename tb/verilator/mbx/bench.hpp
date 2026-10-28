@@ -23,6 +23,7 @@
 #include <array>
 #include <cstdint>
 #include <deque>
+#include <functional>
 #include <type_traits>
 #include <vector>
 
@@ -70,11 +71,15 @@ class Bench {
         }
         dut_->clk_i = 1;
         dut_->eval();
+        if (on_clock) {
+            on_clock();
+        }
         if (rx_taken) {
             rx_q_.pop_front();
         }
         dut_->ms_tick_p_i = 0;
         dut_->gm_change_p_i = 0;
+        clear_face_pulses();
         ++cycles_;
     }
 
@@ -173,6 +178,141 @@ class Bench {
         }
     }
 
+    //! What the face block drives into interface `iface`'s datapath, read off
+    //! tb_mbx_top's fw_*_o and window ports.
+    FaceView face(unsigned iface) const {
+        FaceView v;
+#define MBX_TB_SETTING(port, reg, fld) slice(dut_->port, MBX_##reg##_##fld##_WIDTH * iface, MBX_##reg##_##fld##_WIDTH)
+        v.send = static_cast<std::uint32_t>(slice(dut_->fw_send_o, iface, 1));
+        v.setting = {MBX_TB_SETTING(fw_ctrl_ready_o, F_CTRL, READY),
+                     MBX_TB_SETTING(fw_entity_cur_config_o, F_ENTITY, CUR_CONFIG),
+                     MBX_TB_SETTING(fw_entity_identify_o, F_ENTITY, IDENTIFY),
+                     MBX_TB_SETTING(fw_clock_source_index_o, F_CLOCK, SOURCE_INDEX),
+                     MBX_TB_SETTING(fw_aecp_lock_held_o, F_AECP, LOCK_HELD),
+                     MBX_TB_SETTING(fw_aecp_dyn_dirty_o, F_AECP, DYN_DIRTY),
+                     MBX_TB_SETTING(fw_restore_busy_o, F_RESTORE, BUSY),
+                     MBX_TB_SETTING(fw_restore_done_o, F_RESTORE, DONE),
+                     MBX_TB_SETTING(fw_restore_fail_o, F_RESTORE, FAIL),
+                     MBX_TB_SETTING(fw_restore_blank_o, F_RESTORE, BLANK),
+                     MBX_TB_SETTING(fw_restore_closed_o, F_RESTORE, CLOSED),
+                     MBX_TB_SETTING(fw_restore_rb_o, F_RESTORE, RB),
+                     MBX_TB_SETTING(fw_restore_rs_cause_o, F_RESTORE, RS_CAUSE),
+                     MBX_TB_SETTING(fw_restore_cause_o, F_RESTORE, CAUSE),
+                     MBX_TB_SETTING(fw_nvm_backed_o, F_NVM, BACKED),
+                     MBX_TB_SETTING(fw_nvm_alarm_o, F_NVM, ALARM),
+                     MBX_TB_SETTING(fw_nvm_dirty_o, F_NVM, DIRTY),
+                     MBX_TB_SETTING(fw_nvm_stale_o, F_NVM, STALE),
+                     MBX_TB_SETTING(fw_nvm_pend_o, F_NVM, PEND),
+                     MBX_TB_SETTING(fw_nvm_img_valid_o, F_NVM, IMG_VALID),
+                     MBX_TB_SETTING(fw_nvm_verdict_o, F_NVM, VERDICT)};
+#undef MBX_TB_SETTING
+        for (unsigned s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+            const unsigned at = MBX_N_PUB_SOURCES * iface + s;
+            v.pt_offset.push_back(slice(dut_->fw_pt_offset_ns_o, 32u * at, 32u));
+            v.fmt_out.push_back(slice(dut_->fw_fmt_out_o, 64u * at, 64u));
+            v.pt_offset_v |= static_cast<std::uint32_t>(slice(dut_->fw_pt_offset_v_o, at, 1u)) << s;
+            v.fmt_out_v |= static_cast<std::uint32_t>(slice(dut_->fw_fmt_out_v_o, at, 1u)) << s;
+        }
+        for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
+            const unsigned at = MBX_N_PUB_SINKS * iface + k;
+            v.fmt_in.push_back(slice(dut_->fw_fmt_in_o, 64u * at, 64u));
+            v.fmt_in_v |= static_cast<std::uint32_t>(slice(dut_->fw_fmt_in_v_o, at, 1u)) << k;
+        }
+        auto win = [&](unsigned w, const auto& req, const auto& tag, std::uint32_t tag_width,
+                       std::vector<std::uint64_t> fields) {
+            v.req[w] = static_cast<std::uint32_t>(slice(req, iface, 1u));
+            v.tag[w] = static_cast<std::uint32_t>(slice(tag, tag_width * iface, tag_width));
+            v.fields[w] = std::move(fields);
+        };
+#define MBX_TB_FIELD(port, width) slice(dut_->port, (width) * iface, (width))
+        win(kWinCtr, dut_->ctr_req_o, dut_->ctr_tag_o, MBX_CTR_STATUS_TAG_WIDTH,
+            {MBX_TB_FIELD(ctr_type_o, 16u), MBX_TB_FIELD(ctr_index_o, 16u),
+             MBX_TB_FIELD(ctr_word_o, MBX_CTR_WORD_WORD_WIDTH)});
+        win(kWinAmap, dut_->amap_req_o, dut_->amap_tag_o, MBX_AMAP_STATUS_TAG_WIDTH,
+            {MBX_TB_FIELD(amap_type_o, 16u), MBX_TB_FIELD(amap_index_o, 16u),
+             MBX_TB_FIELD(amap_map_index_o, MBX_AMAP_PAGE_MAP_INDEX_WIDTH), MBX_TB_FIELD(amap_sel_o, MBX_AMAP_PAGE_SEL_WIDTH),
+             MBX_TB_FIELD(amap_rec_o, MBX_AMAP_PAGE_REC_WIDTH)});
+        win(kWinEdit, dut_->edit_req_o, dut_->edit_tag_o, MBX_EDIT_STATUS_TAG_WIDTH,
+            {MBX_TB_FIELD(edit_type_o, 16u), MBX_TB_FIELD(edit_index_o, 16u),
+             MBX_TB_FIELD(edit_phase_o, MBX_EDIT_BEAT_PHASE_WIDTH), MBX_TB_FIELD(edit_remove_o, MBX_EDIT_BEAT_REMOVE_WIDTH),
+             MBX_TB_FIELD(edit_rec_o, MBX_EDIT_BEAT_REC_WIDTH), MBX_TB_FIELD(edit_count_o, MBX_EDIT_BEAT_COUNT_WIDTH),
+             MBX_TB_FIELD(edit_record_o, 64u), MBX_TB_FIELD(edit_value_o, 64u)});
+        win(kWinGsi, dut_->gsi_req_o, dut_->gsi_tag_o, MBX_GSI_STATUS_TAG_WIDTH,
+            {MBX_TB_FIELD(gsi_type_o, 16u), MBX_TB_FIELD(gsi_index_o, 16u), MBX_TB_FIELD(gsi_kind_o, MBX_GSI_SEL_KIND_WIDTH),
+             MBX_TB_FIELD(gsi_sel_o, MBX_GSI_SEL_SEL_WIDTH), MBX_TB_FIELD(gsi_ord_o, MBX_GSI_SEL_ORD_WIDTH),
+             MBX_TB_FIELD(gsi_prop_o, 64u)});
+#undef MBX_TB_FIELD
+        return v;
+    }
+
+    //! One clock with the datapath's acknowledgement of interface iface's commit.
+    void face_ack(unsigned iface) {
+        put(dut_->fw_ack_p_i, iface, 1u, 1u);
+        step();
+    }
+
+    //! One clock with window w's answer on interface iface: its tag and data.
+    void win_answer(unsigned w, unsigned iface, std::uint32_t tag, std::uint64_t data) {
+        win_data(w, iface, tag, data);
+        switch (w) {
+        case kWinCtr: put(dut_->ctr_ans_p_i, iface, 1u, 1u); break;
+        case kWinAmap: put(dut_->amap_ans_p_i, iface, 1u, 1u); break;
+        case kWinEdit: put(dut_->edit_ans_p_i, iface, 1u, 1u); break;
+        default: put(dut_->gsi_ans_p_i, iface, 1u, 1u); break;
+        }
+        step();
+    }
+
+    //! Window w's answer tag and data on interface iface, held, with no pulse.
+    void win_data(unsigned w, unsigned iface, std::uint32_t tag, std::uint64_t data) {
+        switch (w) {
+        case kWinCtr:
+            put(dut_->ctr_ans_tag_i, MBX_CTR_STATUS_TAG_WIDTH * iface, MBX_CTR_STATUS_TAG_WIDTH, tag);
+            put(dut_->ctr_ans_data_i, 32u * iface, 32u, data);
+            break;
+        case kWinAmap:
+            put(dut_->amap_ans_tag_i, MBX_AMAP_STATUS_TAG_WIDTH * iface, MBX_AMAP_STATUS_TAG_WIDTH, tag);
+            put(dut_->amap_ans_data_i, 64u * iface, 64u, data);
+            break;
+        case kWinEdit:
+            put(dut_->edit_ans_tag_i, MBX_EDIT_STATUS_TAG_WIDTH * iface, MBX_EDIT_STATUS_TAG_WIDTH, tag);
+            put(dut_->edit_ans_data_i, 64u * iface, 64u, data);
+            break;
+        default:
+            put(dut_->gsi_ans_tag_i, MBX_GSI_STATUS_TAG_WIDTH * iface, MBX_GSI_STATUS_TAG_WIDTH, tag);
+            put(dut_->gsi_ans_data_i, 64u * iface, 64u, data);
+            break;
+        }
+    }
+
+    //! Window w's open request on interface iface left unanswered past its wait bound.
+    void win_expire(unsigned w, unsigned iface) {
+        (void)iface;
+        idle(kWaitCycles[w] + 2u);
+    }
+
+    //! One clock with a face event pulse on interface iface: 0 a counter change
+    //! naming (type, index), 1 AVB_INFO, 2 AS_PATH, 3 a live map write.
+    void face_event(unsigned kind, unsigned iface, std::uint32_t type = 0, std::uint32_t index = 0) {
+        switch (kind) {
+        case 0:
+            put(dut_->ctr_chg_type_i, 16u * iface, 16u, type);
+            put(dut_->ctr_chg_index_i, 16u * iface, 16u, index);
+            put(dut_->ctr_chg_p_i, iface, 1u, 1u);
+            break;
+        case 1:
+            put(dut_->avb_chg_p_i, iface, 1u, 1u);
+            break;
+        case 2:
+            put(dut_->asp_chg_p_i, iface, 1u, 1u);
+            break;
+        default:
+            put(dut_->amap_wr_p_i, iface, 1u, 1u);
+            break;
+        }
+        step();
+    }
+
     //! What the publication block drives into interface `iface`'s datapath,
     //! read off tb_mbx_top's pub_*_o ports.
     PubView pub(unsigned iface) const {
@@ -206,6 +346,7 @@ class Bench {
     std::uint64_t writes() const { return writes_; }
 
     std::vector<TxFrame> tx_frames;   //!< every frame the merge sent, in order
+    std::function<void()> on_clock;   //!< called after every rising edge, when set (the timing checks' counters)
     unsigned bus_timeouts = 0;        //!< accesses the adapter never answered
     unsigned comb_paths = 0;          //!< AXI4-Lite cycles where an output followed an input
     std::uint64_t probed = 0;         //!< AXI4-Lite cycles the structural probe ran on
@@ -231,6 +372,35 @@ class Bench {
         dut_->ms_tick_p_i = 0;
         dut_->gm_change_p_i = 0;
         dut_->rx_valid_i = 0;
+        clear_face_pulses();
+    }
+
+    //! The face block's one-cycle inputs back to idle.
+    void clear_face_pulses() {
+        dut_->fw_ack_p_i = 0;
+        dut_->ctr_ans_p_i = 0;
+        dut_->amap_ans_p_i = 0;
+        dut_->edit_ans_p_i = 0;
+        dut_->gsi_ans_p_i = 0;
+        dut_->ctr_chg_p_i = 0;
+        dut_->avb_chg_p_i = 0;
+        dut_->asp_chg_p_i = 0;
+        dut_->amap_wr_p_i = 0;
+    }
+
+    //! Bits [lsb +: width] (width at most 64) of an input port set to value.
+    template <class Sig>
+    static void put(Sig& sig, unsigned lsb, unsigned width, std::uint64_t value) {
+        for (unsigned b = 0; b < width; ++b) {
+            const unsigned at = lsb + b;
+            const std::uint64_t bit = (value >> b) & 1u;
+            if constexpr (std::is_integral_v<Sig>) {
+                using U = std::remove_reference_t<Sig>;
+                sig = static_cast<U>((static_cast<std::uint64_t>(sig) & ~(std::uint64_t{1} << at)) | (bit << at));
+            } else {
+                sig[at / 32u] = (sig[at / 32u] & ~(1u << (at % 32u))) | (static_cast<std::uint32_t>(bit) << (at % 32u));
+            }
+        }
     }
 
     bool tx_ready_now() const { return ((tx_pattern_ >> (cycles_ % 8)) & 1u) != 0; }

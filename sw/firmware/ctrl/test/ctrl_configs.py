@@ -176,6 +176,8 @@ OUTSIDE = {
     "sw/mailbox/mailbox_emit.py": "writes the mailbox contract's text; it compiles nothing",
     "sw/mailbox/publication_census.py": "counts the datapath's reads of the mailbox's publication block in the "
                                         "netlists sv2v and Yosys elaborate (#665 F-INT); it compiles no C",
+    "sw/mailbox/census_ports.py": "classifies every port of the processor wrapper in the census's netlists, naming "
+                                  "the firmware that writes each face (#665 S1); it compiles nothing",
     # the CPU budget harness (#665): no hosted job can run its build, which needs picolibc's and compiler-rt's
     # packages, the patched LiteX tree and Verilator together, so none of it is a known builder
     "tb/verilator/ctrl_service_budget/build.py": "delegates every compile of the firmware: its image to "

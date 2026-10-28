@@ -69,7 +69,90 @@ module KL_mbx
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_bound_o,   //! BINDING.BOUND per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_sid_valid_o,   //! BINDING.SID_VALID per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_started_o,   //! BINDING.STARTED per sink
-  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o   //! SID_HI:SID_LO per sink, taken only while its SID_VALID is set
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o,   //! SID_HI:SID_LO per sink, taken only while its SID_VALID is set
+  // the face block: the settings, held from a commit until its acknowledgement
+  output logic [MBX_N_IF_C-1:0] fw_send_o,   //! a commit waits for its acknowledgement: every fw_*_o holds
+  input  wire  [MBX_N_IF_C-1:0] fw_ack_p_i,   //! one-cycle pulse per interface: the datapath took the commit
+  output logic [MBX_N_IF_C*MBX_F_CTRL_READY_WIDTH_C-1:0] fw_ctrl_ready_o,   //! F_CTRL.READY per interface
+  output logic [MBX_N_IF_C*MBX_F_ENTITY_CUR_CONFIG_WIDTH_C-1:0] fw_entity_cur_config_o,   //! F_ENTITY.CUR_CONFIG per interface
+  output logic [MBX_N_IF_C*MBX_F_ENTITY_IDENTIFY_WIDTH_C-1:0] fw_entity_identify_o,   //! F_ENTITY.IDENTIFY per interface
+  output logic [MBX_N_IF_C*MBX_F_CLOCK_SOURCE_INDEX_WIDTH_C-1:0] fw_clock_source_index_o,   //! F_CLOCK.SOURCE_INDEX per interface
+  output logic [MBX_N_IF_C*MBX_F_AECP_LOCK_HELD_WIDTH_C-1:0] fw_aecp_lock_held_o,   //! F_AECP.LOCK_HELD per interface
+  output logic [MBX_N_IF_C*MBX_F_AECP_DYN_DIRTY_WIDTH_C-1:0] fw_aecp_dyn_dirty_o,   //! F_AECP.DYN_DIRTY per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_BUSY_WIDTH_C-1:0] fw_restore_busy_o,   //! F_RESTORE.BUSY per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_DONE_WIDTH_C-1:0] fw_restore_done_o,   //! F_RESTORE.DONE per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_FAIL_WIDTH_C-1:0] fw_restore_fail_o,   //! F_RESTORE.FAIL per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_BLANK_WIDTH_C-1:0] fw_restore_blank_o,   //! F_RESTORE.BLANK per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_CLOSED_WIDTH_C-1:0] fw_restore_closed_o,   //! F_RESTORE.CLOSED per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_RB_WIDTH_C-1:0] fw_restore_rb_o,   //! F_RESTORE.RB per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_RS_CAUSE_WIDTH_C-1:0] fw_restore_rs_cause_o,   //! F_RESTORE.RS_CAUSE per interface
+  output logic [MBX_N_IF_C*MBX_F_RESTORE_CAUSE_WIDTH_C-1:0] fw_restore_cause_o,   //! F_RESTORE.CAUSE per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_BACKED_WIDTH_C-1:0] fw_nvm_backed_o,   //! F_NVM.BACKED per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_ALARM_WIDTH_C-1:0] fw_nvm_alarm_o,   //! F_NVM.ALARM per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_DIRTY_WIDTH_C-1:0] fw_nvm_dirty_o,   //! F_NVM.DIRTY per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_STALE_WIDTH_C-1:0] fw_nvm_stale_o,   //! F_NVM.STALE per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_PEND_WIDTH_C-1:0] fw_nvm_pend_o,   //! F_NVM.PEND per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_IMG_VALID_WIDTH_C-1:0] fw_nvm_img_valid_o,   //! F_NVM.IMG_VALID per interface
+  output logic [MBX_N_IF_C*MBX_F_NVM_VERDICT_WIDTH_C-1:0] fw_nvm_verdict_o,   //! F_NVM.VERDICT per interface
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*32-1:0] fw_pt_offset_ns_o,   //! F_PT_OFFSET.NS per source
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*1-1:0] fw_pt_offset_v_o,   //! F_SRC_VALID.PT_OFFSET per source
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*64-1:0] fw_fmt_out_o,   //! F_FMT_OUT_HI.FMT:F_FMT_OUT_LO.FMT per source
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*1-1:0] fw_fmt_out_v_o,   //! F_SRC_VALID.FMT_OUT per source
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] fw_fmt_in_o,   //! F_FMT_IN_HI.FMT:F_FMT_IN_LO.FMT per sink
+  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*1-1:0] fw_fmt_in_v_o,   //! F_SNK_VALID.FMT_IN per sink
+  // the CTR window: the request holds from its GO until its answer or 64 cycles
+  output logic [MBX_N_IF_C-1:0] ctr_req_o,   //! a request is open: its fields and tag hold
+  output logic [MBX_N_IF_C*MBX_CTR_STATUS_TAG_WIDTH_C-1:0] ctr_tag_o,   //! the open request's tag
+  output logic [MBX_N_IF_C*16-1:0] ctr_type_o,   //! CTR_REQ.TYPE per interface
+  output logic [MBX_N_IF_C*16-1:0] ctr_index_o,   //! CTR_REQ.INDEX per interface
+  output logic [MBX_N_IF_C*6-1:0] ctr_word_o,   //! CTR_WORD.WORD per interface
+  input  wire  [MBX_N_IF_C-1:0] ctr_ans_p_i,   //! one-cycle pulse: the answer, with its data and tag
+  input  wire  [MBX_N_IF_C*MBX_CTR_STATUS_TAG_WIDTH_C-1:0] ctr_ans_tag_i,   //! the tag of the request it answers
+  input  wire  [MBX_N_IF_C*32-1:0] ctr_ans_data_i,   //! the answer, valid with ctr_ans_p_i
+  // the AMAP window: the request holds from its GO until its answer or 64 cycles
+  output logic [MBX_N_IF_C-1:0] amap_req_o,   //! a request is open: its fields and tag hold
+  output logic [MBX_N_IF_C*MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_tag_o,   //! the open request's tag
+  output logic [MBX_N_IF_C*16-1:0] amap_type_o,   //! AMAP_REQ.TYPE per interface
+  output logic [MBX_N_IF_C*16-1:0] amap_index_o,   //! AMAP_REQ.INDEX per interface
+  output logic [MBX_N_IF_C*16-1:0] amap_map_index_o,   //! AMAP_PAGE.MAP_INDEX per interface
+  output logic [MBX_N_IF_C*2-1:0] amap_sel_o,   //! AMAP_PAGE.SEL per interface
+  output logic [MBX_N_IF_C*8-1:0] amap_rec_o,   //! AMAP_PAGE.REC per interface
+  input  wire  [MBX_N_IF_C-1:0] amap_ans_p_i,   //! one-cycle pulse: the answer, with its data and tag
+  input  wire  [MBX_N_IF_C*MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_ans_tag_i,   //! the tag of the request it answers
+  input  wire  [MBX_N_IF_C*64-1:0] amap_ans_data_i,   //! the answer, valid with amap_ans_p_i
+  // the EDIT window: the request holds from its GO until its answer or 64 cycles
+  output logic [MBX_N_IF_C-1:0] edit_req_o,   //! a request is open: its fields and tag hold
+  output logic [MBX_N_IF_C*MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_tag_o,   //! the open request's tag
+  output logic [MBX_N_IF_C*16-1:0] edit_type_o,   //! EDIT_REQ.TYPE per interface
+  output logic [MBX_N_IF_C*16-1:0] edit_index_o,   //! EDIT_REQ.INDEX per interface
+  output logic [MBX_N_IF_C*3-1:0] edit_phase_o,   //! EDIT_BEAT.PHASE per interface
+  output logic [MBX_N_IF_C*1-1:0] edit_remove_o,   //! EDIT_BEAT.REMOVE per interface
+  output logic [MBX_N_IF_C*8-1:0] edit_rec_o,   //! EDIT_BEAT.REC per interface
+  output logic [MBX_N_IF_C*16-1:0] edit_count_o,   //! EDIT_BEAT.COUNT per interface
+  output logic [MBX_N_IF_C*64-1:0] edit_record_o,   //! EDIT_RECORD_HI.RECORD:EDIT_RECORD_LO.RECORD per interface
+  output logic [MBX_N_IF_C*64-1:0] edit_value_o,   //! EDIT_VALUE_HI.VALUE:EDIT_VALUE_LO.VALUE per interface
+  input  wire  [MBX_N_IF_C-1:0] edit_ans_p_i,   //! one-cycle pulse: the answer, with its data and tag
+  input  wire  [MBX_N_IF_C*MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_ans_tag_i,   //! the tag of the request it answers
+  input  wire  [MBX_N_IF_C*64-1:0] edit_ans_data_i,   //! the answer, valid with edit_ans_p_i
+  // the GSI window: the request holds from its GO until its answer or 64 cycles
+  output logic [MBX_N_IF_C-1:0] gsi_req_o,   //! a request is open: its fields and tag hold
+  output logic [MBX_N_IF_C*MBX_GSI_STATUS_TAG_WIDTH_C-1:0] gsi_tag_o,   //! the open request's tag
+  output logic [MBX_N_IF_C*16-1:0] gsi_type_o,   //! GSI_REQ.TYPE per interface
+  output logic [MBX_N_IF_C*16-1:0] gsi_index_o,   //! GSI_REQ.INDEX per interface
+  output logic [MBX_N_IF_C*2-1:0] gsi_kind_o,   //! GSI_SEL.KIND per interface
+  output logic [MBX_N_IF_C*4-1:0] gsi_sel_o,   //! GSI_SEL.SEL per interface
+  output logic [MBX_N_IF_C*8-1:0] gsi_ord_o,   //! GSI_SEL.ORD per interface
+  output logic [MBX_N_IF_C*64-1:0] gsi_prop_o,   //! GSI_PROP_HI.FMT:GSI_PROP_LO.FMT per interface
+  input  wire  [MBX_N_IF_C-1:0] gsi_ans_p_i,   //! one-cycle pulse: the answer, with its data and tag
+  input  wire  [MBX_N_IF_C*MBX_GSI_STATUS_TAG_WIDTH_C-1:0] gsi_ans_tag_i,   //! the tag of the request it answers
+  input  wire  [MBX_N_IF_C*64-1:0] gsi_ans_data_i,   //! the answer, valid with gsi_ans_p_i
+  // the face block's events, one-cycle pulses per interface with their qualifiers
+  input  wire  [MBX_N_IF_C-1:0] ctr_chg_p_i,   //! a served descriptor's counters moved
+  input  wire  [MBX_N_IF_C*16-1:0] ctr_chg_type_i,   //! its descriptor_type, valid with ctr_chg_p_i
+  input  wire  [MBX_N_IF_C*16-1:0] ctr_chg_index_i,   //! its descriptor_index, valid with ctr_chg_p_i
+  input  wire  [MBX_N_IF_C-1:0] avb_chg_p_i,   //! a served GET_AVB_INFO word changed
+  input  wire  [MBX_N_IF_C-1:0] asp_chg_p_i,   //! the served AS_PATH sequence changed
+  input  wire  [MBX_N_IF_C-1:0] amap_wr_p_i   //! an edit's commit beat changed the live map
 );
 
   localparam int unsigned AW2_C = MBX_ADDR_W_C + 2;   //! byte-offset width
@@ -175,6 +258,458 @@ module KL_mbx
                                 : (pub_reg_w == AW2_C'(MBX_PUB_REG_DA_GATE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_LICENCE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_IDLE_SLOPE_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_SR_DOMAIN_C) || pub_reg_w == AW2_C'(MBX_PUB_REG_TALKER_DECL_C)));
   end : pub_decode
 
+  // ---- the face block: decoded and held here, read by the datapath -------------------
+  // The strides are powers of two, so an offset's interface and entry are
+  // its bit fields; a hole between the registers names none.
+  localparam int unsigned FACE_SW_C = (MBX_N_PUB_SOURCES_C > 1) ? $clog2(MBX_N_PUB_SOURCES_C) : 1;   //! source index bits
+  localparam int unsigned FACE_KW_C = (MBX_N_PUB_SINKS_C > 1) ? $clog2(MBX_N_PUB_SINKS_C) : 1;   //! sink index bits
+  logic                  face_at_w;     //! the offset names a face register
+  logic [1:0]            face_area_w;   //! 0 the interface's registers, 1 a source entry, 2 a sink entry
+  logic [MBX_IF_W_C-1:0] face_if_w;     //! its interface
+  logic [FACE_SW_C-1:0]  face_s_w;      //! its source entry
+  logic [FACE_KW_C-1:0]  face_k_w;      //! its sink entry
+  logic [AW2_C-1:0]      face_reg_w;    //! its offset inside the interface's registers or the entry
+  always_comb begin : face_decode
+    logic [AW2_C-1:0] rel;
+    logic [AW2_C-1:0] in_if;
+    logic [AW2_C-1:0] entry;
+    rel         = off_w - AW2_C'(MBX_FACE_BASE_C);
+    in_if       = rel & AW2_C'(MBX_FACE_STRIDE_C - 1);
+    face_if_w   = MBX_IF_W_C'(rel >> $clog2(MBX_FACE_STRIDE_C));
+    face_area_w = (in_if >= AW2_C'(MBX_FACE_SINK_BASE_C)) ? 2'd2
+                : (in_if >= AW2_C'(MBX_FACE_SOURCE_BASE_C)) ? 2'd1 : 2'd0;
+    entry       = (face_area_w == 2'd2)
+                  ? ((in_if - AW2_C'(MBX_FACE_SINK_BASE_C)) >> $clog2(MBX_FACE_SINK_STRIDE_C))
+                  : ((in_if - AW2_C'(MBX_FACE_SOURCE_BASE_C)) >> $clog2(MBX_FACE_SOURCE_STRIDE_C));
+    face_s_w    = FACE_SW_C'(entry);
+    face_k_w    = FACE_KW_C'(entry);
+    face_reg_w  = (face_area_w == 2'd2) ? ((in_if - AW2_C'(MBX_FACE_SINK_BASE_C)) & AW2_C'(MBX_FACE_SINK_STRIDE_C - 1))
+                : (face_area_w == 2'd1) ? ((in_if - AW2_C'(MBX_FACE_SOURCE_BASE_C)) & AW2_C'(MBX_FACE_SOURCE_STRIDE_C - 1))
+                : in_if;
+    face_at_w   = off_w >= AW2_C'(MBX_FACE_BASE_C)
+                  && (rel >> $clog2(MBX_FACE_STRIDE_C)) < AW2_C'(MBX_N_IF_C)
+                  && ((face_area_w == 2'd0 && (face_reg_w == AW2_C'(MBX_FACE_REG_F_CTRL_C) || face_reg_w == AW2_C'(MBX_FACE_REG_F_ENTITY_C) || face_reg_w == AW2_C'(MBX_FACE_REG_F_CLOCK_C) || face_reg_w == AW2_C'(MBX_FACE_REG_F_AECP_C) || face_reg_w == AW2_C'(MBX_FACE_REG_F_RESTORE_C) || face_reg_w == AW2_C'(MBX_FACE_REG_F_NVM_C) || face_reg_w == AW2_C'(MBX_FACE_REG_F_COMMIT_C) || face_reg_w == AW2_C'(MBX_FACE_REG_F_STATUS_C) || face_reg_w == AW2_C'(MBX_FACE_REG_CTR_REQ_C) || face_reg_w == AW2_C'(MBX_FACE_REG_CTR_WORD_C) || face_reg_w == AW2_C'(MBX_FACE_REG_CTR_CMD_C) || face_reg_w == AW2_C'(MBX_FACE_REG_CTR_STATUS_C) || face_reg_w == AW2_C'(MBX_FACE_REG_CTR_DATA_C) || face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_REQ_C) || face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_PAGE_C) || face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_CMD_C) || face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_STATUS_C) || face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_LO_C) || face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_HI_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_REQ_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_BEAT_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_LO_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_HI_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_LO_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_HI_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_CMD_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_STATUS_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_LO_C) || face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_HI_C) || face_reg_w == AW2_C'(MBX_FACE_REG_GSI_REQ_C) || face_reg_w == AW2_C'(MBX_FACE_REG_GSI_SEL_C) || face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_LO_C) || face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_HI_C) || face_reg_w == AW2_C'(MBX_FACE_REG_GSI_CMD_C) || face_reg_w == AW2_C'(MBX_FACE_REG_GSI_STATUS_C) || face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_LO_C) || face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_HI_C)))
+                      || (face_area_w == 2'd1 && entry < AW2_C'(MBX_N_PUB_SOURCES_C) && (face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_PT_OFFSET_C) || face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_LO_C) || face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_HI_C) || face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_SRC_VALID_C)))
+                      || (face_area_w == 2'd2 && entry < AW2_C'(MBX_N_PUB_SINKS_C) && (face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_LO_C) || face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_HI_C) || face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_SNK_VALID_C))));
+  end : face_decode
+
+  // ---- the face block's storage: the firmware writes it, the datapath reads it ---------
+  logic [0:0] face_f_ctrl_r [MBX_N_IF_C];   //! F_CTRL per interface
+  logic [23:0] face_f_entity_r [MBX_N_IF_C];   //! F_ENTITY per interface
+  logic [15:0] face_f_clock_r [MBX_N_IF_C];   //! F_CLOCK per interface
+  logic [1:0] face_f_aecp_r [MBX_N_IF_C];   //! F_AECP per interface
+  logic [13:0] face_f_restore_r [MBX_N_IF_C];   //! F_RESTORE per interface
+  logic [11:0] face_f_nvm_r [MBX_N_IF_C];   //! F_NVM per interface
+  logic [31:0] face_ctr_req_r [MBX_N_IF_C];   //! CTR_REQ per interface
+  logic [5:0] face_ctr_word_r [MBX_N_IF_C];   //! CTR_WORD per interface
+  logic [31:0] face_amap_req_r [MBX_N_IF_C];   //! AMAP_REQ per interface
+  logic [31:0] face_amap_page_r [MBX_N_IF_C];   //! AMAP_PAGE per interface
+  logic [31:0] face_edit_req_r [MBX_N_IF_C];   //! EDIT_REQ per interface
+  logic [31:0] face_edit_beat_r [MBX_N_IF_C];   //! EDIT_BEAT per interface
+  logic [31:0] face_edit_record_lo_r [MBX_N_IF_C];   //! EDIT_RECORD_LO per interface
+  logic [31:0] face_edit_record_hi_r [MBX_N_IF_C];   //! EDIT_RECORD_HI per interface
+  logic [31:0] face_edit_value_lo_r [MBX_N_IF_C];   //! EDIT_VALUE_LO per interface
+  logic [31:0] face_edit_value_hi_r [MBX_N_IF_C];   //! EDIT_VALUE_HI per interface
+  logic [31:0] face_gsi_req_r [MBX_N_IF_C];   //! GSI_REQ per interface
+  logic [15:0] face_gsi_sel_r [MBX_N_IF_C];   //! GSI_SEL per interface
+  logic [31:0] face_gsi_prop_lo_r [MBX_N_IF_C];   //! GSI_PROP_LO per interface
+  logic [31:0] face_gsi_prop_hi_r [MBX_N_IF_C];   //! GSI_PROP_HI per interface
+  logic [31:0] face_f_pt_offset_r [MBX_N_IF_C][MBX_N_PUB_SOURCES_C];   //! F_PT_OFFSET per source
+  logic [31:0] face_f_fmt_out_lo_r [MBX_N_IF_C][MBX_N_PUB_SOURCES_C];   //! F_FMT_OUT_LO per source
+  logic [31:0] face_f_fmt_out_hi_r [MBX_N_IF_C][MBX_N_PUB_SOURCES_C];   //! F_FMT_OUT_HI per source
+  logic [1:0] face_f_src_valid_r [MBX_N_IF_C][MBX_N_PUB_SOURCES_C];   //! F_SRC_VALID per source
+  logic [31:0] face_f_fmt_in_lo_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! F_FMT_IN_LO per sink
+  logic [31:0] face_f_fmt_in_hi_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! F_FMT_IN_HI per sink
+  logic [0:0] face_f_snk_valid_r [MBX_N_IF_C][MBX_N_PUB_SINKS_C];   //! F_SNK_VALID per sink
+  logic [MBX_N_IF_C-1:0] fw_busy_r;   //! F_STATUS.BUSY: a commit waits for its acknowledgement
+  logic [MBX_N_IF_C-1:0] ctr_busy_r;   //! CTR_STATUS.BUSY
+  logic [MBX_N_IF_C-1:0] ctr_done_r;   //! CTR_STATUS.DONE
+  logic [MBX_N_IF_C-1:0] ctr_tmo_r;    //! CTR_STATUS.TIMEOUT
+  logic [MBX_CTR_STATUS_TAG_WIDTH_C-1:0] ctr_tag_r [MBX_N_IF_C];   //! CTR_STATUS.TAG
+  logic [15:0] ctr_wait_r [MBX_N_IF_C];   //! cycles the open request has waited
+  logic [31:0] ctr_data_r [MBX_N_IF_C];   //! the answer
+  logic [MBX_N_IF_C-1:0] amap_busy_r;   //! AMAP_STATUS.BUSY
+  logic [MBX_N_IF_C-1:0] amap_done_r;   //! AMAP_STATUS.DONE
+  logic [MBX_N_IF_C-1:0] amap_tmo_r;    //! AMAP_STATUS.TIMEOUT
+  logic [MBX_AMAP_STATUS_TAG_WIDTH_C-1:0] amap_tag_r [MBX_N_IF_C];   //! AMAP_STATUS.TAG
+  logic [15:0] amap_wait_r [MBX_N_IF_C];   //! cycles the open request has waited
+  logic [63:0] amap_data_r [MBX_N_IF_C];   //! the answer
+  logic [MBX_N_IF_C-1:0] edit_busy_r;   //! EDIT_STATUS.BUSY
+  logic [MBX_N_IF_C-1:0] edit_done_r;   //! EDIT_STATUS.DONE
+  logic [MBX_N_IF_C-1:0] edit_tmo_r;    //! EDIT_STATUS.TIMEOUT
+  logic [MBX_EDIT_STATUS_TAG_WIDTH_C-1:0] edit_tag_r [MBX_N_IF_C];   //! EDIT_STATUS.TAG
+  logic [15:0] edit_wait_r [MBX_N_IF_C];   //! cycles the open request has waited
+  logic [63:0] edit_data_r [MBX_N_IF_C];   //! the answer
+  logic [MBX_N_IF_C-1:0] gsi_busy_r;   //! GSI_STATUS.BUSY
+  logic [MBX_N_IF_C-1:0] gsi_done_r;   //! GSI_STATUS.DONE
+  logic [MBX_N_IF_C-1:0] gsi_tmo_r;    //! GSI_STATUS.TIMEOUT
+  logic [MBX_GSI_STATUS_TAG_WIDTH_C-1:0] gsi_tag_r [MBX_N_IF_C];   //! GSI_STATUS.TAG
+  logic [15:0] gsi_wait_r [MBX_N_IF_C];   //! cycles the open request has waited
+  logic [63:0] gsi_data_r [MBX_N_IF_C];   //! the answer
+
+  logic face_refused_w;   //! a write that would move a held value, refused and counted
+  always_comb begin : face_refusal
+    face_refused_w = 1'b0;
+    if (wr_w && fw_busy_r[face_if_w] && ((face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_CTRL_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_ENTITY_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_CLOCK_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_AECP_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_RESTORE_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_NVM_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_COMMIT_C))
+        || (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_PT_OFFSET_C))
+        || (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_LO_C))
+        || (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_HI_C))
+        || (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_SRC_VALID_C))
+        || (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_LO_C))
+        || (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_HI_C))
+        || (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_SNK_VALID_C))))
+      face_refused_w = 1'b1;
+    if (wr_w && ctr_busy_r[face_if_w] && ((face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_REQ_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_WORD_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_CMD_C))))
+      face_refused_w = 1'b1;
+    if (wr_w && amap_busy_r[face_if_w] && ((face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_REQ_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_PAGE_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_CMD_C))))
+      face_refused_w = 1'b1;
+    if (wr_w && edit_busy_r[face_if_w] && ((face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_REQ_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_BEAT_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_LO_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_HI_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_LO_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_HI_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_CMD_C))))
+      face_refused_w = 1'b1;
+    if (wr_w && gsi_busy_r[face_if_w] && ((face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_REQ_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_SEL_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_LO_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_HI_C))
+        || (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_CMD_C))))
+      face_refused_w = 1'b1;
+  end : face_refusal
+
+  always_ff @(posedge clk_i) begin : face_write
+    if (!rst_n) begin
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        face_f_ctrl_r[i] <= '0;
+        face_f_entity_r[i] <= '0;
+        face_f_clock_r[i] <= '0;
+        face_f_aecp_r[i] <= '0;
+        face_f_restore_r[i] <= '0;
+        face_f_nvm_r[i] <= '0;
+        face_ctr_req_r[i] <= '0;
+        face_ctr_word_r[i] <= '0;
+        face_amap_req_r[i] <= '0;
+        face_amap_page_r[i] <= '0;
+        face_edit_req_r[i] <= '0;
+        face_edit_beat_r[i] <= '0;
+        face_edit_record_lo_r[i] <= '0;
+        face_edit_record_hi_r[i] <= '0;
+        face_edit_value_lo_r[i] <= '0;
+        face_edit_value_hi_r[i] <= '0;
+        face_gsi_req_r[i] <= '0;
+        face_gsi_sel_r[i] <= '0;
+        face_gsi_prop_lo_r[i] <= '0;
+        face_gsi_prop_hi_r[i] <= '0;
+        for (int s = 0; s < int'(MBX_N_PUB_SOURCES_C); s++) begin
+          face_f_pt_offset_r[i][s] <= '0;
+          face_f_fmt_out_lo_r[i][s] <= '0;
+          face_f_fmt_out_hi_r[i][s] <= '0;
+          face_f_src_valid_r[i][s] <= '0;
+        end
+        for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin
+          face_f_fmt_in_lo_r[i][k] <= '0;
+          face_f_fmt_in_hi_r[i][k] <= '0;
+          face_f_snk_valid_r[i][k] <= '0;
+        end
+      end
+    end else if (wr_w && face_at_w && !face_refused_w) begin
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_CTRL_C))
+        face_f_ctrl_r[face_if_w] <= 1'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_CTRL_READY_LSB_C, MBX_F_CTRL_READY_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_ENTITY_C))
+        face_f_entity_r[face_if_w] <= 24'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_ENTITY_CUR_CONFIG_LSB_C, MBX_F_ENTITY_CUR_CONFIG_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_ENTITY_IDENTIFY_LSB_C, MBX_F_ENTITY_IDENTIFY_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_CLOCK_C))
+        face_f_clock_r[face_if_w] <= 16'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_CLOCK_SOURCE_INDEX_LSB_C, MBX_F_CLOCK_SOURCE_INDEX_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_AECP_C))
+        face_f_aecp_r[face_if_w] <= 2'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_AECP_LOCK_HELD_LSB_C, MBX_F_AECP_LOCK_HELD_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_AECP_DYN_DIRTY_LSB_C, MBX_F_AECP_DYN_DIRTY_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_RESTORE_C))
+        face_f_restore_r[face_if_w] <= 14'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_RESTORE_BUSY_LSB_C, MBX_F_RESTORE_BUSY_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_RESTORE_DONE_LSB_C, MBX_F_RESTORE_DONE_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_RESTORE_FAIL_LSB_C, MBX_F_RESTORE_FAIL_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_RESTORE_BLANK_LSB_C, MBX_F_RESTORE_BLANK_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_RESTORE_CLOSED_LSB_C, MBX_F_RESTORE_CLOSED_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_RESTORE_RB_LSB_C, MBX_F_RESTORE_RB_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_RESTORE_RS_CAUSE_LSB_C, MBX_F_RESTORE_RS_CAUSE_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_RESTORE_CAUSE_LSB_C, MBX_F_RESTORE_CAUSE_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_NVM_C))
+        face_f_nvm_r[face_if_w] <= 12'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_NVM_BACKED_LSB_C, MBX_F_NVM_BACKED_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_NVM_ALARM_LSB_C, MBX_F_NVM_ALARM_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_NVM_DIRTY_LSB_C, MBX_F_NVM_DIRTY_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_NVM_STALE_LSB_C, MBX_F_NVM_STALE_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_NVM_PEND_LSB_C, MBX_F_NVM_PEND_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_NVM_IMG_VALID_LSB_C, MBX_F_NVM_IMG_VALID_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_NVM_VERDICT_LSB_C, MBX_F_NVM_VERDICT_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_REQ_C))
+        face_ctr_req_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_CTR_REQ_TYPE_LSB_C, MBX_CTR_REQ_TYPE_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_CTR_REQ_INDEX_LSB_C, MBX_CTR_REQ_INDEX_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_WORD_C))
+        face_ctr_word_r[face_if_w] <= 6'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_CTR_WORD_WORD_LSB_C, MBX_CTR_WORD_WORD_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_REQ_C))
+        face_amap_req_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_AMAP_REQ_TYPE_LSB_C, MBX_AMAP_REQ_TYPE_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_AMAP_REQ_INDEX_LSB_C, MBX_AMAP_REQ_INDEX_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_PAGE_C))
+        face_amap_page_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_AMAP_PAGE_MAP_INDEX_LSB_C, MBX_AMAP_PAGE_MAP_INDEX_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_AMAP_PAGE_SEL_LSB_C, MBX_AMAP_PAGE_SEL_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_AMAP_PAGE_REC_LSB_C, MBX_AMAP_PAGE_REC_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_REQ_C))
+        face_edit_req_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_REQ_TYPE_LSB_C, MBX_EDIT_REQ_TYPE_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_REQ_INDEX_LSB_C, MBX_EDIT_REQ_INDEX_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_BEAT_C))
+        face_edit_beat_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_BEAT_PHASE_LSB_C, MBX_EDIT_BEAT_PHASE_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_BEAT_REMOVE_LSB_C, MBX_EDIT_BEAT_REMOVE_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_BEAT_REC_LSB_C, MBX_EDIT_BEAT_REC_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_BEAT_COUNT_LSB_C, MBX_EDIT_BEAT_COUNT_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_LO_C))
+        face_edit_record_lo_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_RECORD_LO_RECORD_LSB_C, MBX_EDIT_RECORD_LO_RECORD_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_HI_C))
+        face_edit_record_hi_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_RECORD_HI_RECORD_LSB_C, MBX_EDIT_RECORD_HI_RECORD_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_LO_C))
+        face_edit_value_lo_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_VALUE_LO_VALUE_LSB_C, MBX_EDIT_VALUE_LO_VALUE_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_HI_C))
+        face_edit_value_hi_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_EDIT_VALUE_HI_VALUE_LSB_C, MBX_EDIT_VALUE_HI_VALUE_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_REQ_C))
+        face_gsi_req_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_GSI_REQ_TYPE_LSB_C, MBX_GSI_REQ_TYPE_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_GSI_REQ_INDEX_LSB_C, MBX_GSI_REQ_INDEX_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_SEL_C))
+        face_gsi_sel_r[face_if_w] <= 16'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_GSI_SEL_KIND_LSB_C, MBX_GSI_SEL_KIND_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_GSI_SEL_SEL_LSB_C, MBX_GSI_SEL_SEL_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_GSI_SEL_ORD_LSB_C, MBX_GSI_SEL_ORD_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_LO_C))
+        face_gsi_prop_lo_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_GSI_PROP_LO_FMT_LSB_C, MBX_GSI_PROP_LO_FMT_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_HI_C))
+        face_gsi_prop_hi_r[face_if_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_GSI_PROP_HI_FMT_LSB_C, MBX_GSI_PROP_HI_FMT_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_PT_OFFSET_C))
+        face_f_pt_offset_r[face_if_w][face_s_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_PT_OFFSET_NS_LSB_C, MBX_F_PT_OFFSET_NS_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_LO_C))
+        face_f_fmt_out_lo_r[face_if_w][face_s_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_FMT_OUT_LO_FMT_LSB_C, MBX_F_FMT_OUT_LO_FMT_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_HI_C))
+        face_f_fmt_out_hi_r[face_if_w][face_s_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_FMT_OUT_HI_FMT_LSB_C, MBX_F_FMT_OUT_HI_FMT_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_SRC_VALID_C))
+        face_f_src_valid_r[face_if_w][face_s_w] <= 2'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_SRC_VALID_PT_OFFSET_LSB_C, MBX_F_SRC_VALID_PT_OFFSET_WIDTH_C) | mbx_place_f(32'hFFFF_FFFF, MBX_F_SRC_VALID_FMT_OUT_LSB_C, MBX_F_SRC_VALID_FMT_OUT_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_LO_C))
+        face_f_fmt_in_lo_r[face_if_w][face_k_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_FMT_IN_LO_FMT_LSB_C, MBX_F_FMT_IN_LO_FMT_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_HI_C))
+        face_f_fmt_in_hi_r[face_if_w][face_k_w] <= 32'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_FMT_IN_HI_FMT_LSB_C, MBX_F_FMT_IN_HI_FMT_WIDTH_C)));
+      if (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_SNK_VALID_C))
+        face_f_snk_valid_r[face_if_w][face_k_w] <= 1'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_F_SNK_VALID_FMT_IN_LSB_C, MBX_F_SNK_VALID_FMT_IN_WIDTH_C)));
+    end
+  end : face_write
+
+  // the commit: GO raises fw_send_o until the acknowledgement; an acknowledgement
+  // with no commit waiting is not one
+  always_ff @(posedge clk_i) begin : face_commit
+    if (!rst_n) fw_busy_r <= '0;
+    else begin
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        if (fw_ack_p_i[i]) fw_busy_r[i] <= 1'b0;
+      end
+      if (wr_w && !face_refused_w && face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_COMMIT_C) && mbx_field_f(host_wdata_i, MBX_F_COMMIT_GO_LSB_C, MBX_F_COMMIT_GO_WIDTH_C) != 0)
+        fw_busy_r[face_if_w] <= 1'b1;
+    end
+  end : face_commit
+
+  // the CTR window: GO opens a request under the next tag; the answer that
+  // carries that tag closes it, any other answer is discarded, and the timeout
+  // closes it unanswered
+  always_ff @(posedge clk_i) begin : win_ctr
+    if (!rst_n) begin
+      ctr_busy_r <= '0;
+      ctr_done_r <= '0;
+      ctr_tmo_r  <= '0;
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        ctr_tag_r[i]  <= '0;
+        ctr_wait_r[i] <= '0;
+        ctr_data_r[i] <= '0;
+      end
+    end else begin
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        if (ctr_busy_r[i]) begin
+          if (ctr_ans_p_i[i] && ctr_ans_tag_i[MBX_CTR_STATUS_TAG_WIDTH_C*i +: MBX_CTR_STATUS_TAG_WIDTH_C] == ctr_tag_r[i]) begin
+            ctr_busy_r[i] <= 1'b0;
+            ctr_done_r[i] <= 1'b1;
+            ctr_data_r[i] <= ctr_ans_data_i[32*i +: 32];
+          end else if (32'(ctr_wait_r[i]) + 32'd1 >= MBX_WIN_CTR_WAIT_CYCLES_C) begin
+            ctr_busy_r[i] <= 1'b0;
+            ctr_tmo_r[i]  <= 1'b1;
+          end
+          ctr_wait_r[i] <= ctr_wait_r[i] + 16'd1;
+        end
+      end
+      if (wr_w && !face_refused_w && face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_CMD_C) && mbx_field_f(host_wdata_i, MBX_CTR_CMD_GO_LSB_C, MBX_CTR_CMD_GO_WIDTH_C) != 0) begin
+        ctr_busy_r[face_if_w] <= 1'b1;
+        ctr_done_r[face_if_w] <= 1'b0;
+        ctr_tmo_r[face_if_w]  <= 1'b0;
+        ctr_tag_r[face_if_w]  <= ctr_tag_r[face_if_w] + MBX_CTR_STATUS_TAG_WIDTH_C'(1);
+        ctr_wait_r[face_if_w] <= '0;
+      end
+    end
+  end : win_ctr
+
+  // the AMAP window: GO opens a request under the next tag; the answer that
+  // carries that tag closes it, any other answer is discarded, and the timeout
+  // closes it unanswered
+  always_ff @(posedge clk_i) begin : win_amap
+    if (!rst_n) begin
+      amap_busy_r <= '0;
+      amap_done_r <= '0;
+      amap_tmo_r  <= '0;
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        amap_tag_r[i]  <= '0;
+        amap_wait_r[i] <= '0;
+        amap_data_r[i] <= '0;
+      end
+    end else begin
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        if (amap_busy_r[i]) begin
+          if (amap_ans_p_i[i] && amap_ans_tag_i[MBX_AMAP_STATUS_TAG_WIDTH_C*i +: MBX_AMAP_STATUS_TAG_WIDTH_C] == amap_tag_r[i]) begin
+            amap_busy_r[i] <= 1'b0;
+            amap_done_r[i] <= 1'b1;
+            amap_data_r[i] <= amap_ans_data_i[64*i +: 64];
+          end else if (32'(amap_wait_r[i]) + 32'd1 >= MBX_WIN_AMAP_WAIT_CYCLES_C) begin
+            amap_busy_r[i] <= 1'b0;
+            amap_tmo_r[i]  <= 1'b1;
+          end
+          amap_wait_r[i] <= amap_wait_r[i] + 16'd1;
+        end
+      end
+      if (wr_w && !face_refused_w && face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_CMD_C) && mbx_field_f(host_wdata_i, MBX_AMAP_CMD_GO_LSB_C, MBX_AMAP_CMD_GO_WIDTH_C) != 0) begin
+        amap_busy_r[face_if_w] <= 1'b1;
+        amap_done_r[face_if_w] <= 1'b0;
+        amap_tmo_r[face_if_w]  <= 1'b0;
+        amap_tag_r[face_if_w]  <= amap_tag_r[face_if_w] + MBX_AMAP_STATUS_TAG_WIDTH_C'(1);
+        amap_wait_r[face_if_w] <= '0;
+      end
+    end
+  end : win_amap
+
+  // the EDIT window: GO opens a request under the next tag; the answer that
+  // carries that tag closes it, any other answer is discarded, and the timeout
+  // closes it unanswered
+  always_ff @(posedge clk_i) begin : win_edit
+    if (!rst_n) begin
+      edit_busy_r <= '0;
+      edit_done_r <= '0;
+      edit_tmo_r  <= '0;
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        edit_tag_r[i]  <= '0;
+        edit_wait_r[i] <= '0;
+        edit_data_r[i] <= '0;
+      end
+    end else begin
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        if (edit_busy_r[i]) begin
+          if (edit_ans_p_i[i] && edit_ans_tag_i[MBX_EDIT_STATUS_TAG_WIDTH_C*i +: MBX_EDIT_STATUS_TAG_WIDTH_C] == edit_tag_r[i]) begin
+            edit_busy_r[i] <= 1'b0;
+            edit_done_r[i] <= 1'b1;
+            edit_data_r[i] <= edit_ans_data_i[64*i +: 64];
+          end else if (32'(edit_wait_r[i]) + 32'd1 >= MBX_WIN_EDIT_WAIT_CYCLES_C) begin
+            edit_busy_r[i] <= 1'b0;
+            edit_tmo_r[i]  <= 1'b1;
+          end
+          edit_wait_r[i] <= edit_wait_r[i] + 16'd1;
+        end
+      end
+      if (wr_w && !face_refused_w && face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_CMD_C) && mbx_field_f(host_wdata_i, MBX_EDIT_CMD_GO_LSB_C, MBX_EDIT_CMD_GO_WIDTH_C) != 0) begin
+        edit_busy_r[face_if_w] <= 1'b1;
+        edit_done_r[face_if_w] <= 1'b0;
+        edit_tmo_r[face_if_w]  <= 1'b0;
+        edit_tag_r[face_if_w]  <= edit_tag_r[face_if_w] + MBX_EDIT_STATUS_TAG_WIDTH_C'(1);
+        edit_wait_r[face_if_w] <= '0;
+      end
+    end
+  end : win_edit
+
+  // the GSI window: GO opens a request under the next tag; the answer that
+  // carries that tag closes it, any other answer is discarded, and the timeout
+  // closes it unanswered
+  always_ff @(posedge clk_i) begin : win_gsi
+    if (!rst_n) begin
+      gsi_busy_r <= '0;
+      gsi_done_r <= '0;
+      gsi_tmo_r  <= '0;
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        gsi_tag_r[i]  <= '0;
+        gsi_wait_r[i] <= '0;
+        gsi_data_r[i] <= '0;
+      end
+    end else begin
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        if (gsi_busy_r[i]) begin
+          if (gsi_ans_p_i[i] && gsi_ans_tag_i[MBX_GSI_STATUS_TAG_WIDTH_C*i +: MBX_GSI_STATUS_TAG_WIDTH_C] == gsi_tag_r[i]) begin
+            gsi_busy_r[i] <= 1'b0;
+            gsi_done_r[i] <= 1'b1;
+            gsi_data_r[i] <= gsi_ans_data_i[64*i +: 64];
+          end else if (32'(gsi_wait_r[i]) + 32'd1 >= MBX_WIN_GSI_WAIT_CYCLES_C) begin
+            gsi_busy_r[i] <= 1'b0;
+            gsi_tmo_r[i]  <= 1'b1;
+          end
+          gsi_wait_r[i] <= gsi_wait_r[i] + 16'd1;
+        end
+      end
+      if (wr_w && !face_refused_w && face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_CMD_C) && mbx_field_f(host_wdata_i, MBX_GSI_CMD_GO_LSB_C, MBX_GSI_CMD_GO_WIDTH_C) != 0) begin
+        gsi_busy_r[face_if_w] <= 1'b1;
+        gsi_done_r[face_if_w] <= 1'b0;
+        gsi_tmo_r[face_if_w]  <= 1'b0;
+        gsi_tag_r[face_if_w]  <= gsi_tag_r[face_if_w] + MBX_GSI_STATUS_TAG_WIDTH_C'(1);
+        gsi_wait_r[face_if_w] <= '0;
+      end
+    end
+  end : win_gsi
+
+  always_comb begin : face_out
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      fw_send_o[i] = fw_busy_r[i];
+      fw_ctrl_ready_o[MBX_F_CTRL_READY_WIDTH_C*i +: MBX_F_CTRL_READY_WIDTH_C] = MBX_F_CTRL_READY_WIDTH_C'(mbx_field_f(32'(face_f_ctrl_r[i]), MBX_F_CTRL_READY_LSB_C, MBX_F_CTRL_READY_WIDTH_C));
+      fw_entity_cur_config_o[MBX_F_ENTITY_CUR_CONFIG_WIDTH_C*i +: MBX_F_ENTITY_CUR_CONFIG_WIDTH_C] = MBX_F_ENTITY_CUR_CONFIG_WIDTH_C'(mbx_field_f(32'(face_f_entity_r[i]), MBX_F_ENTITY_CUR_CONFIG_LSB_C, MBX_F_ENTITY_CUR_CONFIG_WIDTH_C));
+      fw_entity_identify_o[MBX_F_ENTITY_IDENTIFY_WIDTH_C*i +: MBX_F_ENTITY_IDENTIFY_WIDTH_C] = MBX_F_ENTITY_IDENTIFY_WIDTH_C'(mbx_field_f(32'(face_f_entity_r[i]), MBX_F_ENTITY_IDENTIFY_LSB_C, MBX_F_ENTITY_IDENTIFY_WIDTH_C));
+      fw_clock_source_index_o[MBX_F_CLOCK_SOURCE_INDEX_WIDTH_C*i +: MBX_F_CLOCK_SOURCE_INDEX_WIDTH_C] = MBX_F_CLOCK_SOURCE_INDEX_WIDTH_C'(mbx_field_f(32'(face_f_clock_r[i]), MBX_F_CLOCK_SOURCE_INDEX_LSB_C, MBX_F_CLOCK_SOURCE_INDEX_WIDTH_C));
+      fw_aecp_lock_held_o[MBX_F_AECP_LOCK_HELD_WIDTH_C*i +: MBX_F_AECP_LOCK_HELD_WIDTH_C] = MBX_F_AECP_LOCK_HELD_WIDTH_C'(mbx_field_f(32'(face_f_aecp_r[i]), MBX_F_AECP_LOCK_HELD_LSB_C, MBX_F_AECP_LOCK_HELD_WIDTH_C));
+      fw_aecp_dyn_dirty_o[MBX_F_AECP_DYN_DIRTY_WIDTH_C*i +: MBX_F_AECP_DYN_DIRTY_WIDTH_C] = MBX_F_AECP_DYN_DIRTY_WIDTH_C'(mbx_field_f(32'(face_f_aecp_r[i]), MBX_F_AECP_DYN_DIRTY_LSB_C, MBX_F_AECP_DYN_DIRTY_WIDTH_C));
+      fw_restore_busy_o[MBX_F_RESTORE_BUSY_WIDTH_C*i +: MBX_F_RESTORE_BUSY_WIDTH_C] = MBX_F_RESTORE_BUSY_WIDTH_C'(mbx_field_f(32'(face_f_restore_r[i]), MBX_F_RESTORE_BUSY_LSB_C, MBX_F_RESTORE_BUSY_WIDTH_C));
+      fw_restore_done_o[MBX_F_RESTORE_DONE_WIDTH_C*i +: MBX_F_RESTORE_DONE_WIDTH_C] = MBX_F_RESTORE_DONE_WIDTH_C'(mbx_field_f(32'(face_f_restore_r[i]), MBX_F_RESTORE_DONE_LSB_C, MBX_F_RESTORE_DONE_WIDTH_C));
+      fw_restore_fail_o[MBX_F_RESTORE_FAIL_WIDTH_C*i +: MBX_F_RESTORE_FAIL_WIDTH_C] = MBX_F_RESTORE_FAIL_WIDTH_C'(mbx_field_f(32'(face_f_restore_r[i]), MBX_F_RESTORE_FAIL_LSB_C, MBX_F_RESTORE_FAIL_WIDTH_C));
+      fw_restore_blank_o[MBX_F_RESTORE_BLANK_WIDTH_C*i +: MBX_F_RESTORE_BLANK_WIDTH_C] = MBX_F_RESTORE_BLANK_WIDTH_C'(mbx_field_f(32'(face_f_restore_r[i]), MBX_F_RESTORE_BLANK_LSB_C, MBX_F_RESTORE_BLANK_WIDTH_C));
+      fw_restore_closed_o[MBX_F_RESTORE_CLOSED_WIDTH_C*i +: MBX_F_RESTORE_CLOSED_WIDTH_C] = MBX_F_RESTORE_CLOSED_WIDTH_C'(mbx_field_f(32'(face_f_restore_r[i]), MBX_F_RESTORE_CLOSED_LSB_C, MBX_F_RESTORE_CLOSED_WIDTH_C));
+      fw_restore_rb_o[MBX_F_RESTORE_RB_WIDTH_C*i +: MBX_F_RESTORE_RB_WIDTH_C] = MBX_F_RESTORE_RB_WIDTH_C'(mbx_field_f(32'(face_f_restore_r[i]), MBX_F_RESTORE_RB_LSB_C, MBX_F_RESTORE_RB_WIDTH_C));
+      fw_restore_rs_cause_o[MBX_F_RESTORE_RS_CAUSE_WIDTH_C*i +: MBX_F_RESTORE_RS_CAUSE_WIDTH_C] = MBX_F_RESTORE_RS_CAUSE_WIDTH_C'(mbx_field_f(32'(face_f_restore_r[i]), MBX_F_RESTORE_RS_CAUSE_LSB_C, MBX_F_RESTORE_RS_CAUSE_WIDTH_C));
+      fw_restore_cause_o[MBX_F_RESTORE_CAUSE_WIDTH_C*i +: MBX_F_RESTORE_CAUSE_WIDTH_C] = MBX_F_RESTORE_CAUSE_WIDTH_C'(mbx_field_f(32'(face_f_restore_r[i]), MBX_F_RESTORE_CAUSE_LSB_C, MBX_F_RESTORE_CAUSE_WIDTH_C));
+      fw_nvm_backed_o[MBX_F_NVM_BACKED_WIDTH_C*i +: MBX_F_NVM_BACKED_WIDTH_C] = MBX_F_NVM_BACKED_WIDTH_C'(mbx_field_f(32'(face_f_nvm_r[i]), MBX_F_NVM_BACKED_LSB_C, MBX_F_NVM_BACKED_WIDTH_C));
+      fw_nvm_alarm_o[MBX_F_NVM_ALARM_WIDTH_C*i +: MBX_F_NVM_ALARM_WIDTH_C] = MBX_F_NVM_ALARM_WIDTH_C'(mbx_field_f(32'(face_f_nvm_r[i]), MBX_F_NVM_ALARM_LSB_C, MBX_F_NVM_ALARM_WIDTH_C));
+      fw_nvm_dirty_o[MBX_F_NVM_DIRTY_WIDTH_C*i +: MBX_F_NVM_DIRTY_WIDTH_C] = MBX_F_NVM_DIRTY_WIDTH_C'(mbx_field_f(32'(face_f_nvm_r[i]), MBX_F_NVM_DIRTY_LSB_C, MBX_F_NVM_DIRTY_WIDTH_C));
+      fw_nvm_stale_o[MBX_F_NVM_STALE_WIDTH_C*i +: MBX_F_NVM_STALE_WIDTH_C] = MBX_F_NVM_STALE_WIDTH_C'(mbx_field_f(32'(face_f_nvm_r[i]), MBX_F_NVM_STALE_LSB_C, MBX_F_NVM_STALE_WIDTH_C));
+      fw_nvm_pend_o[MBX_F_NVM_PEND_WIDTH_C*i +: MBX_F_NVM_PEND_WIDTH_C] = MBX_F_NVM_PEND_WIDTH_C'(mbx_field_f(32'(face_f_nvm_r[i]), MBX_F_NVM_PEND_LSB_C, MBX_F_NVM_PEND_WIDTH_C));
+      fw_nvm_img_valid_o[MBX_F_NVM_IMG_VALID_WIDTH_C*i +: MBX_F_NVM_IMG_VALID_WIDTH_C] = MBX_F_NVM_IMG_VALID_WIDTH_C'(mbx_field_f(32'(face_f_nvm_r[i]), MBX_F_NVM_IMG_VALID_LSB_C, MBX_F_NVM_IMG_VALID_WIDTH_C));
+      fw_nvm_verdict_o[MBX_F_NVM_VERDICT_WIDTH_C*i +: MBX_F_NVM_VERDICT_WIDTH_C] = MBX_F_NVM_VERDICT_WIDTH_C'(mbx_field_f(32'(face_f_nvm_r[i]), MBX_F_NVM_VERDICT_LSB_C, MBX_F_NVM_VERDICT_WIDTH_C));
+      for (int s = 0; s < int'(MBX_N_PUB_SOURCES_C); s++) begin
+        fw_pt_offset_ns_o[32*(MBX_N_PUB_SOURCES_C*i + s) +: 32] = {32'(mbx_field_f(32'(face_f_pt_offset_r[i][s]), MBX_F_PT_OFFSET_NS_LSB_C, MBX_F_PT_OFFSET_NS_WIDTH_C))};
+        fw_pt_offset_v_o[1*(MBX_N_PUB_SOURCES_C*i + s) +: 1] = {1'(mbx_field_f(32'(face_f_src_valid_r[i][s]), MBX_F_SRC_VALID_PT_OFFSET_LSB_C, MBX_F_SRC_VALID_PT_OFFSET_WIDTH_C))};
+        fw_fmt_out_o[64*(MBX_N_PUB_SOURCES_C*i + s) +: 64] = {32'(mbx_field_f(32'(face_f_fmt_out_hi_r[i][s]), MBX_F_FMT_OUT_HI_FMT_LSB_C, MBX_F_FMT_OUT_HI_FMT_WIDTH_C)), 32'(mbx_field_f(32'(face_f_fmt_out_lo_r[i][s]), MBX_F_FMT_OUT_LO_FMT_LSB_C, MBX_F_FMT_OUT_LO_FMT_WIDTH_C))};
+        fw_fmt_out_v_o[1*(MBX_N_PUB_SOURCES_C*i + s) +: 1] = {1'(mbx_field_f(32'(face_f_src_valid_r[i][s]), MBX_F_SRC_VALID_FMT_OUT_LSB_C, MBX_F_SRC_VALID_FMT_OUT_WIDTH_C))};
+      end
+      for (int k = 0; k < int'(MBX_N_PUB_SINKS_C); k++) begin
+        fw_fmt_in_o[64*(MBX_N_PUB_SINKS_C*i + k) +: 64] = {32'(mbx_field_f(32'(face_f_fmt_in_hi_r[i][k]), MBX_F_FMT_IN_HI_FMT_LSB_C, MBX_F_FMT_IN_HI_FMT_WIDTH_C)), 32'(mbx_field_f(32'(face_f_fmt_in_lo_r[i][k]), MBX_F_FMT_IN_LO_FMT_LSB_C, MBX_F_FMT_IN_LO_FMT_WIDTH_C))};
+        fw_fmt_in_v_o[1*(MBX_N_PUB_SINKS_C*i + k) +: 1] = {1'(mbx_field_f(32'(face_f_snk_valid_r[i][k]), MBX_F_SNK_VALID_FMT_IN_LSB_C, MBX_F_SNK_VALID_FMT_IN_WIDTH_C))};
+      end
+      ctr_req_o[i] = ctr_busy_r[i];
+      ctr_tag_o[MBX_CTR_STATUS_TAG_WIDTH_C*i +: MBX_CTR_STATUS_TAG_WIDTH_C] = ctr_tag_r[i];
+      ctr_type_o[16*i +: 16] = {16'(mbx_field_f(32'(face_ctr_req_r[i]), MBX_CTR_REQ_TYPE_LSB_C, MBX_CTR_REQ_TYPE_WIDTH_C))};
+      ctr_index_o[16*i +: 16] = {16'(mbx_field_f(32'(face_ctr_req_r[i]), MBX_CTR_REQ_INDEX_LSB_C, MBX_CTR_REQ_INDEX_WIDTH_C))};
+      ctr_word_o[6*i +: 6] = {6'(mbx_field_f(32'(face_ctr_word_r[i]), MBX_CTR_WORD_WORD_LSB_C, MBX_CTR_WORD_WORD_WIDTH_C))};
+      amap_req_o[i] = amap_busy_r[i];
+      amap_tag_o[MBX_AMAP_STATUS_TAG_WIDTH_C*i +: MBX_AMAP_STATUS_TAG_WIDTH_C] = amap_tag_r[i];
+      amap_type_o[16*i +: 16] = {16'(mbx_field_f(32'(face_amap_req_r[i]), MBX_AMAP_REQ_TYPE_LSB_C, MBX_AMAP_REQ_TYPE_WIDTH_C))};
+      amap_index_o[16*i +: 16] = {16'(mbx_field_f(32'(face_amap_req_r[i]), MBX_AMAP_REQ_INDEX_LSB_C, MBX_AMAP_REQ_INDEX_WIDTH_C))};
+      amap_map_index_o[16*i +: 16] = {16'(mbx_field_f(32'(face_amap_page_r[i]), MBX_AMAP_PAGE_MAP_INDEX_LSB_C, MBX_AMAP_PAGE_MAP_INDEX_WIDTH_C))};
+      amap_sel_o[2*i +: 2] = {2'(mbx_field_f(32'(face_amap_page_r[i]), MBX_AMAP_PAGE_SEL_LSB_C, MBX_AMAP_PAGE_SEL_WIDTH_C))};
+      amap_rec_o[8*i +: 8] = {8'(mbx_field_f(32'(face_amap_page_r[i]), MBX_AMAP_PAGE_REC_LSB_C, MBX_AMAP_PAGE_REC_WIDTH_C))};
+      edit_req_o[i] = edit_busy_r[i];
+      edit_tag_o[MBX_EDIT_STATUS_TAG_WIDTH_C*i +: MBX_EDIT_STATUS_TAG_WIDTH_C] = edit_tag_r[i];
+      edit_type_o[16*i +: 16] = {16'(mbx_field_f(32'(face_edit_req_r[i]), MBX_EDIT_REQ_TYPE_LSB_C, MBX_EDIT_REQ_TYPE_WIDTH_C))};
+      edit_index_o[16*i +: 16] = {16'(mbx_field_f(32'(face_edit_req_r[i]), MBX_EDIT_REQ_INDEX_LSB_C, MBX_EDIT_REQ_INDEX_WIDTH_C))};
+      edit_phase_o[3*i +: 3] = {3'(mbx_field_f(32'(face_edit_beat_r[i]), MBX_EDIT_BEAT_PHASE_LSB_C, MBX_EDIT_BEAT_PHASE_WIDTH_C))};
+      edit_remove_o[1*i +: 1] = {1'(mbx_field_f(32'(face_edit_beat_r[i]), MBX_EDIT_BEAT_REMOVE_LSB_C, MBX_EDIT_BEAT_REMOVE_WIDTH_C))};
+      edit_rec_o[8*i +: 8] = {8'(mbx_field_f(32'(face_edit_beat_r[i]), MBX_EDIT_BEAT_REC_LSB_C, MBX_EDIT_BEAT_REC_WIDTH_C))};
+      edit_count_o[16*i +: 16] = {16'(mbx_field_f(32'(face_edit_beat_r[i]), MBX_EDIT_BEAT_COUNT_LSB_C, MBX_EDIT_BEAT_COUNT_WIDTH_C))};
+      edit_record_o[64*i +: 64] = {32'(mbx_field_f(32'(face_edit_record_hi_r[i]), MBX_EDIT_RECORD_HI_RECORD_LSB_C, MBX_EDIT_RECORD_HI_RECORD_WIDTH_C)), 32'(mbx_field_f(32'(face_edit_record_lo_r[i]), MBX_EDIT_RECORD_LO_RECORD_LSB_C, MBX_EDIT_RECORD_LO_RECORD_WIDTH_C))};
+      edit_value_o[64*i +: 64] = {32'(mbx_field_f(32'(face_edit_value_hi_r[i]), MBX_EDIT_VALUE_HI_VALUE_LSB_C, MBX_EDIT_VALUE_HI_VALUE_WIDTH_C)), 32'(mbx_field_f(32'(face_edit_value_lo_r[i]), MBX_EDIT_VALUE_LO_VALUE_LSB_C, MBX_EDIT_VALUE_LO_VALUE_WIDTH_C))};
+      gsi_req_o[i] = gsi_busy_r[i];
+      gsi_tag_o[MBX_GSI_STATUS_TAG_WIDTH_C*i +: MBX_GSI_STATUS_TAG_WIDTH_C] = gsi_tag_r[i];
+      gsi_type_o[16*i +: 16] = {16'(mbx_field_f(32'(face_gsi_req_r[i]), MBX_GSI_REQ_TYPE_LSB_C, MBX_GSI_REQ_TYPE_WIDTH_C))};
+      gsi_index_o[16*i +: 16] = {16'(mbx_field_f(32'(face_gsi_req_r[i]), MBX_GSI_REQ_INDEX_LSB_C, MBX_GSI_REQ_INDEX_WIDTH_C))};
+      gsi_kind_o[2*i +: 2] = {2'(mbx_field_f(32'(face_gsi_sel_r[i]), MBX_GSI_SEL_KIND_LSB_C, MBX_GSI_SEL_KIND_WIDTH_C))};
+      gsi_sel_o[4*i +: 4] = {4'(mbx_field_f(32'(face_gsi_sel_r[i]), MBX_GSI_SEL_SEL_LSB_C, MBX_GSI_SEL_SEL_WIDTH_C))};
+      gsi_ord_o[8*i +: 8] = {8'(mbx_field_f(32'(face_gsi_sel_r[i]), MBX_GSI_SEL_ORD_LSB_C, MBX_GSI_SEL_ORD_WIDTH_C))};
+      gsi_prop_o[64*i +: 64] = {32'(mbx_field_f(32'(face_gsi_prop_hi_r[i]), MBX_GSI_PROP_HI_FMT_LSB_C, MBX_GSI_PROP_HI_FMT_WIDTH_C)), 32'(mbx_field_f(32'(face_gsi_prop_lo_r[i]), MBX_GSI_PROP_LO_FMT_LSB_C, MBX_GSI_PROP_LO_FMT_WIDTH_C))};
+    end
+  end : face_out
+
   // ---- what the host writes -----------------------------------------------------
   logic [31:0] irq_enable_r;   //! IRQ_ENABLE
   logic [31:0] tick_ctl_r;   //! TICK_CTL
@@ -240,11 +775,11 @@ module KL_mbx
           tx_head_r[c] <= 16'(host_wdata_i & (mbx_place_f(32'hFFFF_FFFF, MBX_TX_HEAD_WORDS_LSB_C, MBX_TX_HEAD_WORDS_WIDTH_C)));
       end
       // a refusal or a drop sets ERR; a write of 1 clears it; a set wins
-      if (rx_err_p_w || tx_err_p_w || tmr_bad_p_w || refused_w) err_r <= 1'b1;
+      if (rx_err_p_w || tx_err_p_w || tmr_bad_p_w || refused_w || face_refused_w) err_r <= 1'b1;
       else if (wr_w && off_w == AW2_C'(MBX_REG_IRQ_STATUS_C)
                && mbx_field_f(host_wdata_i, MBX_IRQ_STATUS_ERR_LSB_C, MBX_IRQ_STATUS_ERR_WIDTH_C) != 0)
         err_r <= 1'b0;
-      if ((refused_w || tmr_bad_p_w) && bus_err_r != 16'hFFFF) bus_err_r <= bus_err_r + 16'd1;
+      if ((refused_w || tmr_bad_p_w || face_refused_w) && bus_err_r != 16'hFFFF) bus_err_r <= bus_err_r + 16'd1;
       for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
         if (rd_w && off_w == AW2_C'(MBX_IF_BASE_C + i * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) begin
           gm_hi_snap_r[i]  <= gm_id_i[64*i + 32 +: 32];
@@ -356,6 +891,45 @@ module KL_mbx
     if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_LO_C)) reg_rdata_w = 32'(pub_sid_lo_r[pub_if_w][pub_k_w]);
     if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_SID_HI_C)) reg_rdata_w = 32'(pub_sid_hi_r[pub_if_w][pub_k_w]);
     if (pub_at_w && pub_sink_w && pub_reg_w == AW2_C'(MBX_PUB_SINK_REG_BINDING_C)) reg_rdata_w = 32'(pub_binding_r[pub_if_w][pub_k_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_CTRL_C)) reg_rdata_w = 32'(face_f_ctrl_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_ENTITY_C)) reg_rdata_w = 32'(face_f_entity_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_CLOCK_C)) reg_rdata_w = 32'(face_f_clock_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_AECP_C)) reg_rdata_w = 32'(face_f_aecp_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_RESTORE_C)) reg_rdata_w = 32'(face_f_restore_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_NVM_C)) reg_rdata_w = 32'(face_f_nvm_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_F_STATUS_C)) reg_rdata_w = mbx_place_f(32'(fw_busy_r[face_if_w]), MBX_F_STATUS_BUSY_LSB_C, MBX_F_STATUS_BUSY_WIDTH_C);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_REQ_C)) reg_rdata_w = 32'(face_ctr_req_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_WORD_C)) reg_rdata_w = 32'(face_ctr_word_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_STATUS_C)) reg_rdata_w = mbx_place_f(32'(ctr_busy_r[face_if_w]), MBX_CTR_STATUS_BUSY_LSB_C, MBX_CTR_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(ctr_done_r[face_if_w]), MBX_CTR_STATUS_DONE_LSB_C, MBX_CTR_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(ctr_tmo_r[face_if_w]), MBX_CTR_STATUS_TIMEOUT_LSB_C, MBX_CTR_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(ctr_tag_r[face_if_w]), MBX_CTR_STATUS_TAG_LSB_C, MBX_CTR_STATUS_TAG_WIDTH_C);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_CTR_DATA_C)) reg_rdata_w = ctr_data_r[face_if_w][32*0 +: 32];
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_REQ_C)) reg_rdata_w = 32'(face_amap_req_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_PAGE_C)) reg_rdata_w = 32'(face_amap_page_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_STATUS_C)) reg_rdata_w = mbx_place_f(32'(amap_busy_r[face_if_w]), MBX_AMAP_STATUS_BUSY_LSB_C, MBX_AMAP_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(amap_done_r[face_if_w]), MBX_AMAP_STATUS_DONE_LSB_C, MBX_AMAP_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(amap_tmo_r[face_if_w]), MBX_AMAP_STATUS_TIMEOUT_LSB_C, MBX_AMAP_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(amap_tag_r[face_if_w]), MBX_AMAP_STATUS_TAG_LSB_C, MBX_AMAP_STATUS_TAG_WIDTH_C);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_LO_C)) reg_rdata_w = amap_data_r[face_if_w][32*0 +: 32];
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_AMAP_DATA_HI_C)) reg_rdata_w = amap_data_r[face_if_w][32*1 +: 32];
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_REQ_C)) reg_rdata_w = 32'(face_edit_req_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_BEAT_C)) reg_rdata_w = 32'(face_edit_beat_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_LO_C)) reg_rdata_w = 32'(face_edit_record_lo_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_RECORD_HI_C)) reg_rdata_w = 32'(face_edit_record_hi_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_LO_C)) reg_rdata_w = 32'(face_edit_value_lo_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_VALUE_HI_C)) reg_rdata_w = 32'(face_edit_value_hi_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_STATUS_C)) reg_rdata_w = mbx_place_f(32'(edit_busy_r[face_if_w]), MBX_EDIT_STATUS_BUSY_LSB_C, MBX_EDIT_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(edit_done_r[face_if_w]), MBX_EDIT_STATUS_DONE_LSB_C, MBX_EDIT_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(edit_tmo_r[face_if_w]), MBX_EDIT_STATUS_TIMEOUT_LSB_C, MBX_EDIT_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(edit_tag_r[face_if_w]), MBX_EDIT_STATUS_TAG_LSB_C, MBX_EDIT_STATUS_TAG_WIDTH_C);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_LO_C)) reg_rdata_w = edit_data_r[face_if_w][32*0 +: 32];
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_EDIT_DATA_HI_C)) reg_rdata_w = edit_data_r[face_if_w][32*1 +: 32];
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_REQ_C)) reg_rdata_w = 32'(face_gsi_req_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_SEL_C)) reg_rdata_w = 32'(face_gsi_sel_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_LO_C)) reg_rdata_w = 32'(face_gsi_prop_lo_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_PROP_HI_C)) reg_rdata_w = 32'(face_gsi_prop_hi_r[face_if_w]);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_STATUS_C)) reg_rdata_w = mbx_place_f(32'(gsi_busy_r[face_if_w]), MBX_GSI_STATUS_BUSY_LSB_C, MBX_GSI_STATUS_BUSY_WIDTH_C) | mbx_place_f(32'(gsi_done_r[face_if_w]), MBX_GSI_STATUS_DONE_LSB_C, MBX_GSI_STATUS_DONE_WIDTH_C) | mbx_place_f(32'(gsi_tmo_r[face_if_w]), MBX_GSI_STATUS_TIMEOUT_LSB_C, MBX_GSI_STATUS_TIMEOUT_WIDTH_C) | mbx_place_f(32'(gsi_tag_r[face_if_w]), MBX_GSI_STATUS_TAG_LSB_C, MBX_GSI_STATUS_TAG_WIDTH_C);
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_LO_C)) reg_rdata_w = gsi_data_r[face_if_w][32*0 +: 32];
+    if (face_at_w && face_area_w == 2'd0 && face_reg_w == AW2_C'(MBX_FACE_REG_GSI_DATA_HI_C)) reg_rdata_w = gsi_data_r[face_if_w][32*1 +: 32];
+    if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_PT_OFFSET_C)) reg_rdata_w = 32'(face_f_pt_offset_r[face_if_w][face_s_w]);
+    if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_LO_C)) reg_rdata_w = 32'(face_f_fmt_out_lo_r[face_if_w][face_s_w]);
+    if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_FMT_OUT_HI_C)) reg_rdata_w = 32'(face_f_fmt_out_hi_r[face_if_w][face_s_w]);
+    if (face_at_w && face_area_w == 2'd1 && face_reg_w == AW2_C'(MBX_FACE_SRC_REG_F_SRC_VALID_C)) reg_rdata_w = 32'(face_f_src_valid_r[face_if_w][face_s_w]);
+    if (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_LO_C)) reg_rdata_w = 32'(face_f_fmt_in_lo_r[face_if_w][face_k_w]);
+    if (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_FMT_IN_HI_C)) reg_rdata_w = 32'(face_f_fmt_in_hi_r[face_if_w][face_k_w]);
+    if (face_at_w && face_area_w == 2'd2 && face_reg_w == AW2_C'(MBX_FACE_SNK_REG_F_SNK_VALID_C)) reg_rdata_w = 32'(face_f_snk_valid_r[face_if_w][face_k_w]);
     for (int c = 0; c < int'(MBX_N_CH_C); c++) begin
       if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_HEAD_C)) reg_rdata_w = mbx_place_f(32'(rx_head_w[16*c +: 16]), MBX_RX_HEAD_WORDS_LSB_C, MBX_RX_HEAD_WORDS_WIDTH_C);
       if (off_w == AW2_C'(MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_RX_TAIL_C)) reg_rdata_w = mbx_place_f(32'(rx_tail_r[c]), MBX_RX_TAIL_WORDS_LSB_C, MBX_RX_TAIL_WORDS_WIDTH_C);
@@ -685,6 +1259,12 @@ module KL_mbx
     .gm_change_p_i     (gm_change_p_i),
     .gm_id_i           (gm_id_i),
     .gptp_domain_i     (gptp_domain_i),
+    .ctr_chg_p_i       (ctr_chg_p_i),
+    .ctr_chg_type_i    (ctr_chg_type_i),
+    .ctr_chg_index_i   (ctr_chg_index_i),
+    .avb_chg_p_i       (avb_chg_p_i),
+    .asp_chg_p_i       (asp_chg_p_i),
+    .amap_wr_p_i       (amap_wr_p_i),
     .evt_tail_words_i  (evt_tail_r[15:0]),
     .evt_head_words_o  (evt_head_w),
     .wr_en_o           (evw_en_w),

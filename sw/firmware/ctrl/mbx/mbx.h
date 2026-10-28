@@ -63,7 +63,16 @@ struct mbx_event {
 	uint64_t gm_id;         // GM
 	uint8_t domain;         // GM
 	uint16_t tick_count;    // TICK: centiseconds since the previous TICK
+	uint16_t desc_type;     // COUNTERS_CHANGED: the descriptor whose counters moved
+	uint16_t desc_index;    // COUNTERS_CHANGED
+	bool every;             // COUNTERS_CHANGED: every served descriptor may have moved (ALL)
+	uint16_t count;         // AVB_INFO_CHANGED, AS_PATH_CHANGED, AMAP_LIVE_WRITE: changes coalesced
 };
+
+// The face block's request and answer windows (contract 2.3), in the contract's order.
+enum mbx_window { MBX_WIN_CTR, MBX_WIN_AMAP, MBX_WIN_EDIT, MBX_WIN_GSI, MBX_WINDOWS };
+// Request registers a window holds at most.
+#define MBX_WIN_REQUEST_WORDS 6u
 
 // Check the window's ID and CAPS against the contract this firmware was built
 // against and take the current counters. False means the bitstream carries
@@ -113,6 +122,42 @@ bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, u
 // bound and started, with SID_VALID as the entry holds it, so the stream_id
 // stays on the datapath through the write. One write.
 bool mbx_pub_sink_binding(unsigned interface, unsigned sink, bool bound, bool started, bool sid_valid);
+// The face block (contract 2.3; #665): the settings the firmware writes for
+// interface `interface`'s datapath in the split placement, and the request
+// windows its observation ports read. Each setting write names one register
+// by its offset inside the
+// interface's block (MBX_FACE_REG_F_*), a source's or a sink's entry by the
+// entry's (MBX_FACE_SRC_REG_*, MBX_FACE_SNK_REG_*), and returns false, writing
+// nothing, for an interface or an entry the contract does not have. A setting
+// reaches the datapath only through a commit, which holds every setting until
+// the datapath acknowledges it: a write while a commit waits is refused by the
+// fabric, so write only while mbx_face_busy() is false.
+bool mbx_face_write(unsigned interface, uint32_t reg, uint32_t value);
+bool mbx_face_write_source(unsigned interface, unsigned source, uint32_t reg, uint32_t value);
+bool mbx_face_write_sink(unsigned interface, unsigned sink, uint32_t reg, uint32_t value);
+// F_STATUS.BUSY: a commit of interface `interface` waits for its acknowledgement.
+bool mbx_face_busy(unsigned interface);
+// Commit interface `interface`'s settings and wait for the acknowledgement,
+// reading F_STATUS at most MBX_FACE_ACK_CYCLES + 1 times (each read takes a
+// cycle or more, so the fabric's bound passes first). OK: acknowledged. FULL:
+// a commit already waited, nothing was written. BAD: no acknowledgement within
+// the bound, or no such interface; the commit, if one was written, still waits.
+enum mbx_status mbx_face_commit(unsigned interface);
+// One request through window `window` of interface `interface`: its request
+// registers' words in the contract's order (CTR: CTR_REQ, CTR_WORD; AMAP:
+// AMAP_REQ, AMAP_PAGE; EDIT: EDIT_REQ, EDIT_BEAT, EDIT_RECORD_LO, _HI,
+// EDIT_VALUE_LO, _HI; GSI: GSI_REQ, GSI_SEL, GSI_PROP_LO, _HI), then GO, then
+// STATUS read at most the window's wait_cycles + 1 times. OK: answered, the
+// answer (DATA_HI:DATA_LO, or DATA) in *data. EMPTY: the datapath did not
+// answer within the bound. FULL: a request already waited, nothing was
+// written. BAD: no such interface or window.
+enum mbx_status mbx_win_read(unsigned interface, unsigned window, const uint32_t *request, uint64_t *data);
+
+// LICENCE.ACTIVE's bit for source `source` of interface `interface`, as the SRP
+// owner last published it: the source is streaming (Milan v1.2 5.3.7.3). False
+// for an interface or a source the contract does not have.
+bool mbx_pub_licensed(unsigned interface, unsigned source);
+
 // FILTER_MISMATCH: untagged frames of a control EtherType that matched no
 // channel's tuple, saturating at 0xFFFF.
 uint16_t mbx_filter_mismatch(void);
