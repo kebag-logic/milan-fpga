@@ -20,6 +20,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
 - **[8. The CPU's multiply and divide](#8-the-cpus-multiply-and-divide)** -- The split CPU's RV32M, the image built and audited for it, its logic out of context, and the requirement amended for it.
 - **[9. The CPU's data cache](#9-the-cpus-data-cache)** -- The split CPU's LSU L1: its size from the composed bursts, why it is coherent, the windows it never caches, its area against the ledger, and the requirement amended for it.
+- **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 
 ## 1. Memory map
 
@@ -349,7 +350,7 @@ The owner did not adopt those bursts ([decision of 2026-10-28](https://github.co
 At a burst of 2 the harness's own command sequences were refused at ingress, 19 to 31 a run.
 Among them were back-to-back AECP and ACMP commands and an ENTITY_DEPARTING of a bound talker, and 4 of 16 controllers missed their notification.
 The same decision keeps this cache at 8 KiB with today's bursts.
-There it takes 10 to 22 % off the composed rows that the CPU's work decides, and leaves the rest to the CPU clock.
+There it takes 10 to 22 % off the composed rows that the CPU's work decides, and leaves the rest to the CPU clock ([section 10](#10-the-cpu-clock-the-composed-rows-need)).
 The harness observes this CPU's loads and stores at its data cache's IO bus, which carries every mailbox access; cached accesses never reach a bus it observes.
 
 ### Area
@@ -376,3 +377,122 @@ It had required no data cache on the split hart.
 It now requires one control hart: in the split placement it is RV32IM, with a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and an 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless.
 [The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
 Any other geometry, or a data cache on the all-fabric hart, needs the owner's decision again.
+
+## 10. The CPU clock the composed rows need
+
+The owner kept this cache and contract 2.2's admission, and asked for the split CPU clock that brings every composed row within T_svc, measured before the product clock is set ([decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6474448683)).
+The rows are the [CPU budget harness](../../tb/verilator/ctrl_service_budget/README.md#backlog-rows)'s four backlog groups, at 1x1/1if and 8x8/2if, in arms A and B, with both caches.
+No clock brings them all within T_svc.
+This section is the measurement; the product clocks are unchanged, the CPU at 50 MHz and its bus at 100 MHz.
+
+### What a faster clock has to move
+
+- `_CRG` drives the CPU's `cpu_clk` from `milan`, which the Milan datapath shares, and that datapath's time base is cycle arithmetic on the clock's frequency.
+  A faster CPU alone therefore needs a PLL output of its own.
+- `rom` and `sram` sit on the bus, `sys`, behind the generator's crossing, so every instruction and data line refill crosses it and waits on the bus clock.
+  LiteDRAM's PHY runs at four times that clock (`sys4x`).
+- That PLL has one output left, and every output is an exact division of its VCO.
+  The VCO must also give the bus's 100 MHz, `milan`'s 50 MHz, the PHY's 400 MHz and the 200 MHz IODELAY reference, so it is 800, 1200 or 1600 MHz.
+  Above 100 MHz that leaves 120, 150, 160 and 200 MHz; the 112.5, 125 and 140 MHz points below are measurements only.
+
+### Method
+
+The harness runs with three labelled test-only variants, none in the tree:
+
+- the CPU's clock set apart from the config's `milan_clk_hz`, with the image and the bus unchanged;
+- a sampler that also observes the CPU edges that no bus edge shares; at 100 MHz, where every CPU edge is a bus edge, its 1x1 arm A logs are byte-identical to the harness's;
+- the bus clock moved with the CPU, with every script wait kept in milliseconds; at 100 MHz its scripts are identical.
+
+The images and the CPU netlist are section 9's, so the clock is the only change, and the 50 MHz column is section 9's run.
+
+### The rows against the clock
+
+Each cell is the worst instance over the four groups in ms, arm A / arm B, bold where it misses T_svc (10 ms).
+The owed window's last AECP record is a row of its own, because its response waits for the held egress.
+
+| 1x1/1if: row | CPU 50 | CPU 100 | CPU 112.5 | CPU 150 | CPU and bus 112.5 | CPU and bus 150 |
+|---|---:|---:|---:|---:|---:|---:|
+| ACMP record, last | **14.23** / **14.10** | 9.72 / 8.55 | 8.45 / 8.48 | 7.90 / 7.04 | 8.13 / 7.60 | 5.78 / 5.97 |
+| ADP record, last | **10.41** / 9.78 | 6.66 / 6.14 | 5.91 / 5.91 | 5.53 / 4.90 | 5.57 / 5.59 | 4.11 / 4.14 |
+| MAAP record, last | **10.45** / 9.82 | 6.69 / 6.12 | 5.94 / 5.95 | 5.57 / 4.89 | 5.61 / 5.57 | 4.14 / 4.17 |
+| AECP record, last | **29.26** / **29.09** | **20.07** / **18.78** | **18.23** / **18.17** | **16.09** / **15.94** | **17.19** / **16.70** | **12.75** / **12.94** |
+| SRP record, last | **33.84** / **29.81** | **21.40** / **20.03** | **20.23** / **18.64** | **17.86** / **16.56** | **19.24** / **17.80** | **14.22** / **12.93** |
+| AECP record, last, in the owed window | **68.27** / **68.24** | **65.76** / **65.76** | **65.34** / **65.37** | **64.69** / **64.91** | **65.06** / **65.09** | **63.69** / **63.78** |
+| A response with 7 frames owed ahead of it | **65.75** / **66.36** | **64.06** / **64.03** | **63.74** / **63.74** | **63.63** / **63.45** | **63.55** / **63.56** | **62.56** / **62.63** |
+| An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+
+| 8x8/2if: row | CPU 50 | CPU 100 | CPU 112.5 | CPU 150 | CPU and bus 112.5 | CPU and bus 150 |
+|---|---:|---:|---:|---:|---:|---:|
+| An ENTITY_AVAILABLE behind a full ADP ring | **12.13** / **12.12** | 7.91 / 7.42 | 7.34 / 6.66 | 6.35 / 5.86 | 7.03 / 6.40 | 5.64 / 4.39 |
+| SRP record, first | **15.82** / **12.24** | 8.14 / 8.06 | 7.57 / 7.46 | 6.28 / 5.07 | 7.24 / 7.17 | 4.21 / 4.32 |
+| ADP record, last | **16.09** / **16.08** | **10.60** / 9.89 | 9.85 / 9.15 | 8.71 / 7.94 | 9.63 / 8.80 | 7.59 / 6.86 |
+| MAAP record, last | **16.07** / **16.12** | **10.64** / 9.91 | 9.90 / 9.13 | 8.75 / 7.93 | 9.67 / 8.78 | 7.62 / 6.85 |
+| An ACMP command behind a full ACMP ring | **19.52** / **19.11** | **12.37** / **12.02** | **11.50** / **11.10** | **10.27** / 9.60 | **10.99** / **10.68** | 8.52 / 8.27 |
+| ACMP record, last | **24.44** / **22.16** | **15.99** / **14.31** | **14.93** / **12.61** | **12.38** / **10.84** | **14.74** / **12.72** | **11.01** / 9.07 |
+| AECP record, last | **53.03** / **46.75** | **33.42** / **30.52** | **30.84** / **27.16** | **26.77** / **24.11** | **31.06** / **26.63** | **23.14** / **19.64** |
+| SRP record, last | **66.78** / **49.88** | **43.15** / **30.49** | **37.43** / **29.23** | **32.36** / **25.08** | **35.93** / **27.38** | **25.67** / **20.43** |
+| AECP record, last, in the owed window | **77.50** / **77.05** | **71.55** / **70.91** | **70.41** / **69.96** | **69.24** / **68.75** | **70.01** / **69.51** | **67.55** / **67.15** |
+| A response with 7 frames owed ahead of it | **72.54** / **72.14** | **68.32** / **67.73** | **68.11** / **67.02** | **66.39** / **65.99** | **67.14** / **67.38** | **65.40** / **65.03** |
+| An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+
+The other composed rows fit at 50 MHz in both arms, at both points.
+
+### Three rows no clock moves
+
+- **A response with 7 frames owed ahead of it** includes the scenario's 60 ms egress hold, so it takes 62.6 to 72.5 ms at every clock.
+- **An ACMP command behind the owed input** is never answered at any clock.
+  The core owes at most `ACMP_OWED_MAX` (8) responses and drops the commands beyond them.
+- **The owed window's last AECP record** is released 5.7 to 11.5 ms after the egress returns, at a 100 MHz CPU, so the hold sets it too.
+
+### Why the CPU alone cannot close the rest
+
+The harness counts each instruction line refill's wait at the CPU's fetch bus, and the bus clock sets that wait.
+At a 100 MHz CPU, the windows that set the last AECP and SRP record rows spend 10.5 to 11.6 ms in refill waits alone at 1x1, and 10.9 to 14.2 ms at 8x8.
+Fitting every instance to T = A/f + B over the four CPU clocks leaves B, the part no CPU clock removes.
+In the bound-talker windows, B for those records is 8.3 to 9.9 ms at 1x1, which needs a CPU of 580 MHz or more.
+At 8x8 it is 11.2 to 16.1 ms, more than T_svc, which no CPU clock closes.
+At 8x8 the last ACMP record also needs 280 MHz in arm A and 182 MHz in arm B, and the ACMP command behind a full ring 153 and 138 MHz.
+
+### The CPU and its bus together
+
+With the bus moved too, the rows shrink almost in proportion to the clocks.
+From 100 to 150 MHz the last AECP and SRP record rows take 0.60 to 0.69 times as long.
+Scaled the same way from 150 MHz, the last SRP record needs about 215 MHz at 1x1 and 385 MHz at 8x8.
+
+### Timing out of context
+
+The product split CPU netlist (`VexiiRiscvLitex_796aec55cd5b8093ecb99c528d9a1284`, section 9's), with `rom` and `sram` built from the 1x1 image and its LiteDRAM crossing brought out to pins, is synthesized as in section 9 (`AreaOptimized_high`, `xc7a100t-fgg484-2`).
+It is placed and routed with the CPU and bus clocks asynchronous, the generator's crossing between them.
+Its bus side carries `rom`, `sram`, the crossings and the CSR bank; LiteDRAM, whose PHY clock is four times the bus's, is not in it.
+
+| CPU clock | Bus clock | CPU WNS / WHS, ns | Bus WNS / WHS, ns | Closes |
+|---:|---:|---:|---:|---|
+| 100 MHz | 100 MHz | +0.952 / +0.041 | +2.440 / +0.070 | yes |
+| 112.5 MHz | 100 MHz | +0.608 / +0.077 | +1.991 / +0.071 | yes |
+| 120 MHz | 100 MHz | +0.581 / +0.074 | +2.239 / +0.072 | yes |
+| 125 MHz | 100 MHz | +0.703 / +0.051 | +2.017 / +0.070 | yes |
+| 140 MHz | 100 MHz | +0.205 / +0.003 | +2.305 / +0.070 | yes |
+| 150 MHz | 100 MHz | +0.273 / +0.068 | +2.325 / +0.058 | yes |
+| 160 MHz | 100 MHz | -0.139 / +0.041 (5 endpoints) | +2.081 / +0.071 | no |
+| 112.5 MHz | 112.5 MHz | +0.706 / +0.031 | +1.476 / +0.072 | yes |
+| 120 MHz | 120 MHz | +0.359 / +0.063 | +0.793 / +0.070 | yes |
+| 125 MHz | 125 MHz | +0.648 / +0.031 | +0.994 / +0.070 | yes |
+| 140 MHz | 140 MHz | +0.186 / +0.029 | +0.892 / +0.070 | yes |
+| 150 MHz | 150 MHz | +0.310 / +0.040 | +0.807 / +0.070 | yes |
+| 215 MHz | 215 MHz | -1.568 / +0.030 (1,340 endpoints) | -0.614 / +0.070 (258) | no |
+| 431.6 MHz | 431.6 MHz | -3.931 / +0.045 (8,286 endpoints) | -2.805 / +0.071 (2,145) | no |
+
+No route has a routing error.
+The critical path at 160 MHz runs inside the CPU.
+Out of context, with nothing else on the device, these are upper bounds; the integrated route is M8a-2's.
+
+### What is left at the highest clock that closes
+
+- **The CPU alone at 150 MHz**, the next step, 160 MHz, missing by 0.139 ns: at 1x1 the last AECP and SRP records still miss, 15.9 to 17.9 ms.
+  At 8x8 so do the last ACMP record, 10.8 and 12.4 ms, the ACMP command behind a full ring in arm A, 10.27 ms, and the last AECP and SRP records, 24.1 to 32.4 ms.
+- **The CPU and its bus at 150 MHz**: at 1x1 the last AECP and SRP records, 12.75 to 14.22 ms.
+  At 8x8 the last ACMP record in arm A, 11.01 ms, and the last AECP and SRP records, 19.6 to 25.7 ms.
+- **At every clock**, the three rows no clock moves.
+
+So the CPU and its bus would both have to move, to about 215 MHz at 1x1 and 385 MHz at 8x8, and 215 MHz already fails out of context.
+Setting the product clock is the owner's decision.
