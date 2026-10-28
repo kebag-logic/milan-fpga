@@ -1,6 +1,7 @@
 `verilator_config
-// Passive observation only: committed PCs, the CPU's two cacheless buses,
-// the mailbox's receive commit and its event-ring writes. No source changes.
+// Passive observation only: committed PCs, the CPU's fetch bus (cacheless,
+// or the instruction cache's refills) and cacheless data bus, the mailbox's
+// receive commit and its event-ring writes. No source changes.
 public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_valid"
 public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_commits_ports_0_pc"
 public_flat_rd -module "VexiiRiscv" -var "WhiteboxerPlugin_logic_trap_ports_0_valid"
@@ -13,6 +14,11 @@ public_flat_rd -module "VexiiRiscv" -var "FetchCachelessPlugin_logic_bus_cmd_pay
 public_flat_rd -module "VexiiRiscv" -var "FetchCachelessPlugin_logic_bus_rsp_valid"
 public_flat_rd -module "VexiiRiscv" -var "FetchCachelessPlugin_logic_bus_rsp_payload_id"
 public_flat_rd -module "VexiiRiscv" -var "FetchCachelessPlugin_logic_bus_rsp_payload_error"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_valid"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_ready"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_cmd_payload_address"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_rsp_valid"
+public_flat_rd -module "VexiiRiscv" -var "FetchL1Plugin_logic_bus_rsp_payload_error"
 public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_valid"
 public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_ready"
 public_flat_rd -module "VexiiRiscv" -var "LsuCachelessPlugin_logic_bus_cmd_payload_id"
