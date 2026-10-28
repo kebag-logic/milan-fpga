@@ -75,6 +75,9 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `KL_mbx` adds `pub_src_sid_o`; #665's firmware writes it later.
 - The publication census maps both stamps to `SRC_SID_LO`.
 - Issue #800 tracks the 8x8 MAAP source index width.
+- The resource gate re-baselines under an owner decision.
+- The route grows 753 LUTs and 499 FFs.
+- 70 slices stay free; Mark II (#640) recovers the area.
 
 ## Unreleased - processor pin ed211803
 

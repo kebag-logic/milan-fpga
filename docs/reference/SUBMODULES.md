@@ -307,7 +307,10 @@ The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) measured this ad
 | `ooc-1x1` | +518 | +404 | refused: tolerances 250 and 250 |
 | `ooc-8x8` | +1,689 | +1,562 | refused: tolerances 316 and 339 |
 
-Re-baselining the record is an owner decision.
+The [owner accepted](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) this growth on 2026-10-28.
+The twelfth record is measured at `8b76de69`.
+
+The mailbox change moved no figure.
 
 Almost all growth is the processor's #202 logic.
 
