@@ -845,6 +845,7 @@ Their commands are those in [Controls and self-test](#controls-and-self-test), w
 - `slow-adp-rx`: the planted RCV_ADP_DISCOVER measures 16.556 ms against 0.513 ms unplanted. The planted loop now runs from the cache, so it is shorter than the cacheless 24.614 ms, and still over T_svc.
 - `slow-adp-shutdown`: SHUTDOWN measures 16.328 ms against 0.333 ms unplanted. The `shutdown-entry` arm's SHUTDOWN is 0.33 ms at 1x1 and 0.32 / 0.64 ms at 8x8.
 - `as-built`: handed the SoC's regions, the cached CPU takes the same instruction access fault, cause 1, at the same call (`0x6880`). The cache does not change #791's decode.
+  At this head the cached CPU is caught as the cacheless one is, with a load access fault, cause 5, at the start code's first `.data` copy load (`TRAP ... 0 5 00000020`).
 
 ## Controls and self-test
 
@@ -1007,7 +1008,8 @@ The same run with the generator handed the regions' cover, so that the CPU decod
   At this head that port is the face block's GSI window (`aecp_face.c`, `format`), which this SoC never answers, and arm B leaves it in place.
 - The face block's datapath is held idle, as `milan_soc.CtrlMailbox` holds it, except for the commit acknowledgement: no window request is answered, and each commit is acknowledged at the contract's bound, `FACE_ACK_CYCLES` bus cycles after `fw_send_o` rises.
   A datapath that acknowledges sooner makes no commit wait longer than measured here.
-  On this core it measures the same: the firmware's first F_STATUS read after a commit comes more than 64 bus cycles after it, so a one-cycle acknowledgement and one at the bound give identical figures.
+  On the cacheless core it measures the same: the firmware's first F_STATUS read after a commit comes more than 64 bus cycles after it, so a one-cycle acknowledgement and one at the bound give identical figures.
+  That comparison has not been run on the split's cache.
   Each window read is measured to its timeout.
 - The lock expiry's notice (60 s after a LOCK_ENTITY) and the counter pushes are not run: the first is beyond the simulation's length, and the fixture changes no counter.
 - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
