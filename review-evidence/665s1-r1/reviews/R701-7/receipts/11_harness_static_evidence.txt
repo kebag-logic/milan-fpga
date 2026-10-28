@@ -1,0 +1,42 @@
+## harness README citations into files S1 changed, at base e76a755a and at head 0052e62e
+-- e76a755a aecp.c:58: 	memset(a->response, 0, sizeof a->response);
+-- e76a755a aecp_commands.c:555: 	memset(out, 0, AECP_FRAME_BYTES - 38u);
+-- e76a755a aecp.c retry_at = a->now + 1u at line: 495
+-- 0052e62e aecp.c:58: 	aecp_port_end(a);
+-- 0052e62e aecp_commands.c:555: 		return AECP_BAD_ARGUMENTS;
+-- 0052e62e aecp.c retry_at = a->now + 1u at line: 569
+
+## README lines citing them
+476:  - `memset` and `memcpy`, byte loops on RV32I: each AECP response zeroes its 1,514-byte frame (`aecp.c:58`) and the 1,476-byte payload in it (`aecp_command
+492:  For each pending change notice, `aecp.c:461-495` builds the response and, when the observation port reports unavailable, sets `retry_at = a->now + 1u`.
+
+## README lines whose premise is the pre-S1 size fixture or CtrlMailbox hookup
+- `answering-ports` (arm B) makes the fixture's four observation callbacks answer.
+- **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
+  `milan_soc.CtrlMailbox` and its idle tie-offs are not used.
+- In arm A, the fixture's stream observation reports unavailable, so the image refuses SET_CONFIGURATION and SET_STREAM_INFO (ENTITY_MISBEHAVING), and an output map edit, and never sends BIND_RX's GET_STREAM_INFO notice: AECP retries it every millisecond.
+  The fixture's ports always report unavailable, so after a bind every pass rebuilds the notices: up to 1.57 M cycles, 31 ms, at 1x1.
+
+## S1's change to the size fixture's observation ports (git diff e76a755a 424b1489, ctrl_aecp_image.c)
+-static bool a_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)
+-static bool a_avb(void *ctx, unsigned i, uint16_t n, struct aecp_avb_info *v)
+-static bool a_counters(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_counters *v)
+-static void a_changed(void *ctx, enum aecp_change kind, uint16_t t, uint16_t n)
+-static bool a_format(void *ctx, uint16_t t, uint16_t n, uint64_t value)
+-    .random=a_random, .stream=a_stream, .avb=a_avb, .path=a_path,
+-    .counters=a_counters, .changed=a_changed, .format=a_format
++static const struct aecp_ports image_platform = {.random=a_random, .path=a_path};
++    aecp_face_init(&image_face,&image_platform);
++            &image_face.ports,&image_state) ||
+
+## the ledger's own statement (sw/litex/ctrl_memory.py:196-201)
+
+#: The only points `plan` may let past BUDGET_TILES, each only when its own
+#: measurement names it (`plan --ledgered-point`, ctrl_srp_image.py); the SoC
+#: build names none, so no build is held to more than 56 RAMB36. An image is the
+#: point when it carries every listed symbol at its listed size: the 8x8 shape's
+#: staging buffer and the size fixture's per-interface table at two interfaces
+
+## the SoC build path the harness uses (split_soc.py:309, milan_soc.add_ctrl_memory plans with no override)
+        milan_soc.add_ctrl_memory(soc, elf)
+2807:    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image)
