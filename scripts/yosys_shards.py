@@ -18,7 +18,7 @@ SHARD_RE = re.compile(r"^(0|[1-9][0-9]*)/([1-9][0-9]*)$")
 NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 # Approximate cache-hit seconds from run 32406467657, which ran the floating
-# apt Yosys of its day (0.33-5build2 on ubuntu-latest). CI has pinned Yosys
+# apt Yosys of its day (0.33-5build2 on ubuntu-24.04). CI has pinned Yosys
 # v0.66 since #287 and per-top wall time moves non-uniformly between the two
 # (37.9 s -> 9.1 s on avtp_stream_parser, 40.8 s -> 42.3 s on KL_gptp_shadow),
 # so these hints describe the retired tool until #286's measurement harness

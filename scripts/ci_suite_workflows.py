@@ -41,7 +41,7 @@ def union_job(suite: str) -> dict:
     return {
         "name": "Union " + suite, "needs": ["full-ci-gate", *needs],
         "if": "${{ always() && needs.full-ci-gate.outputs.run_full == 'true' }}",
-        "runs-on": "ubuntu-latest", "timeout-minutes": 2,
+        "runs-on": "ubuntu-24.04", "timeout-minutes": 2,
         "steps": [
             {"uses": "actions/checkout@v4"},
             inventory_dependencies(),
@@ -73,7 +73,7 @@ def separate_yosys_build(source: dict) -> None:
     if len(build_steps) != 2:
         raise ValueError("missing Yosys build recipe")
     source["jobs"]["yosys-tool"] = {
-        "name": "Prepare pinned Yosys", "runs-on": "ubuntu-latest", "timeout-minutes": 29,
+        "name": "Prepare pinned Yosys", "runs-on": "ubuntu-24.04", "timeout-minutes": 29,
         "needs": "full-ci-gate", "if": worker["if"],
         "steps": [{"uses": "actions/checkout@v4"}, *build_steps,
                   {"name": "Package the pinned Yosys build",

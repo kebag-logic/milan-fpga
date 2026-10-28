@@ -4,6 +4,14 @@ The repository separates rapid pull-request feedback from exhaustive RTL
 validation. This changes when hosted runners execute the long gates; it does not
 reduce the local verification bar in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
+Every job of the four workflows runs on the pinned hosted image
+`ubuntu-24.04`, never on the floating `ubuntu-latest` (#784). The workflow
+generators write that label, and the
+[local act runner](#act-first-local-replication) replays no other. Hosted
+`ubuntu-latest` moved to the `ubuntu-26.04` image, where the pinned CPython
+3.12 wheels in `ci/constraints-ci.txt` do not install, so every pinned pip
+install there fails at resolution.
+
 ## Contents
 
 - **[Fast feedback](#fast-feedback)** -- What runs on every pull-request update and why docs-only changes avoid RTL tool setup.
@@ -162,7 +170,7 @@ The generated command census retains each command's conditions.
 It also pins every worker and its 45-minute timeout.
 
 A change containing only documentation skips the Verilator and Yosys setup
-jobs, `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
+jobs (`yosys-tool` included), `publication-census`, all four firmware jobs, `firmware-boundary` and `firmware-verilator`.
 Documentation is a top-level `*.md`, anything under `LICENSES/`, or a
 `*.md`, `*.drawio`, `*.svg` or `*.png` under `docs/`, less the pages a gated
 module reads (#444). A gated module is code under the six roots named below,
@@ -306,10 +314,102 @@ The elaboration smoke proves that the integration-heavy source lists lower and
 resolve. It does not replace generic synthesis and must not be reported as a
 portability pass.
 
+The smoke's Yosys is built by `yosys-tool` ("Prepare pinned Yosys", #789), a
+job of its own. `scripts/ci_gate_workflows.py` derives it from
+`yosys-elaboration`'s template cache and build steps, the way `rtl-full`
+derives its own tool job. `yosys-elaboration` needs it and restores the built
+tree with `fail-on-cache-miss` and no fallback key; it never builds Yosys.
+The tool's cache key binds the pinned version and source commit, then
+`recipe-` and the SHA-256 of the build's inputs, then the runner image label
+and `runner.os`. The generator takes that digest over the tool job as
+generated, after every transform, not over the template, so it also covers
+what the later transforms add to the build. The inputs, serialised as sorted
+compact JSON with every key, are:
+
+- the workflow's `env` and `defaults`, whole. Make reads every environment
+  variable as a variable of the same name, so no entry can be shown to be
+  unrelated to the build, and a `VERILATOR_VERSION` bump rebuilds Yosys once;
+- the tool job's keys other than `name`, `needs`, `if` and `timeout-minutes`.
+  They include the `env` and `defaults` it carries from `yosys-elaboration`,
+  under which the moved build ran. The generator refuses any other job key
+  there rather than drop it from the build;
+- every step up to and including the build, as it runs: the checkout, the job
+  budget step and its exports, the package-index steps and the rewritten
+  install line, the build itself, with the moved cache step's own key left
+  out.
+
+A repository file those steps name by its relative path is bound by its
+content through `hashFiles`, which follows the digest: today that is
+`scripts/ci_install_cache.py`, which prepares the package index the build
+installs from. After the build the job runs only the runtime evidence pair,
+which writes under `$RUNNER_TEMP`, and the generator refuses any other step
+there, since it would run before the cache save and outside the key. The
+generator recognises the pair by its two ids, `ci_record` and `ci_upload`, not
+by its content; `fast_tool_emission` (below) holds the content to the runtime
+transform's own output. The key
+names no workflow file, so a workflow edit that changes none of these inputs
+restores the same tree, and an edit of any of them rebuilds it inside the tool
+job's own 30-minute limit. The distribution's package versions, the compiler's
+among them, are not in the key: they follow the runner image, which the key
+names by its label only. No timeout was raised for this.
+
+Before #789 the key hashed
+`.github/workflows/*.yml`, so every workflow edit rebuilt Yosys cold inside
+`yosys-elaboration`. That build took 16 min 33 s of the job's 30 at
+`847eb4dd` (job 121450772865), and the job's own steps then ran past the limit.
+The identical cold build took 13 min 26 s in `rtl-full`'s tool job at the same
+head (job 121450783569). The `rtl-fast` aggregate needs `yosys-tool` and reads
+its result, because a failed build skips `yosys-elaboration` and the aggregate
+counts a skipped job as a pass. `scripts/ci_fast_tool_selftest.py`, which
+`scripts/ci_gate_workflows_selftest.py` runs, plants one defect per property
+and requires each refusal by name. The defects are: a
+key bound to the workflow files or missing an input or its script binding, a
+tool job under another environment, a fallback, a raised timeout, a consumer
+that builds or accepts a miss, and a verdict that no longer reads the tool
+job. It requires the key to change on an edit of each build input: the
+template build step, the workflow `env` and `defaults`, `yosys-elaboration`'s
+job `env`, a
+generator-side rewrite of the build, an export added to the job budget step,
+a script the build runs, and the image. It requires the key to stay the same
+on an edit outside the build and on an edit of the tool job's `if`.
+
+Two more judges in the same self-test hold the two jobs whole, each at one
+stage of `generate()`.
+
+- `fast_tool_retention` holds the derived lists, the derivation's own output
+  before any later stage, against the template. `yosys-elaboration` must run
+  every template step but the moved pair, in order and unchanged, with the one
+  exact restore in the pair's place and its other job keys unchanged.
+  `yosys-tool` must run exactly the checkout and the two moved steps. Each
+  deviation is refused by name: each retained step dropped in turn, a
+  rewritten body, an added, swapped or repeated step, a misplaced restore, and
+  an extra or rewritten tool step, plus a derivation that drops a self-test.
+- `fast_tool_emission` holds the emitted lists, the generated `rtl-fast.yml`
+  after every stage, the key binding included. It replays the shared install
+  and runtime transforms on the derivation and requires the emitted workflow
+  to equal that replay: every job, step, job key and workflow key. The one
+  difference allowed is the two tool key strings, each the replay's string
+  with its recipe stand-in replaced by the same bound recipe. So no `rtl-fast`
+  stage after the derivation can drop, add, reorder or rewrite a step or a key
+  of any job. Each deviation is refused by name: each step of both emitted
+  jobs dropped in turn, a rewritten self-test, build or evidence step, an added
+  or swapped step, a job key, a job or a workflow `env` added, another job's
+  step dropped, and a key left unbound or bound to another recipe in the
+  restore, plus a key binding that drops a self-test.
+
+Neither judges the shared install and runtime transforms themselves, which
+run on every job of the four files: `fast_tool_emission` replays them rather
+than holding them. For what they emit, the generated-graph comparison is the
+only whole-list hold, as item 4 of the sequence pin states.
+`scripts/ci_install_cache_selftest.py` also requires the install transform to
+keep every derived step, unchanged unless it is an `Install ` or `Build `
+step.
+
 The mailbox publication census runs in a job of its own, `publication-census`
 (`sw/mailbox/publication_census.py --check --selftest --jobs "$CI_CENSUS_JOBS"`,
-#665, comment 6100024293), which installs the pinned Yosys from the same
-cache key as `yosys-elaboration` and the same pinned sv2v release. It
+#665, comment 6100024293). It installs the pinned Yosys through its own cache
+and build steps, under a key bound to the workflow files like `rtl-full`'s, and
+does not need `yosys-tool`. It installs the same pinned sv2v release. It
 elaborates `milan_datapath` with the recipe `syn/yosys/run.sh --emit
 milan_datapath` prints, in every shape the builder builds (the recipe's, and
 each `configs/*.yaml` with its generated header and the parameters
@@ -554,7 +654,7 @@ Physical regressions therefore report nightly, outside the required PR aggregate
 The seventeen default workers retain every other suite.
 
 The physical suite has a 5400-second build-and-run deadline.
-Its separate four-core `ubuntu-latest` job permits 120 minutes total.
+Its separate four-core `ubuntu-24.04` job permits 120 minutes total.
 The remaining 30 minutes allow toolchain installation and evidence upload.
 These deadlines await successful hosted measurement; they promise no completion time.
 The earlier 2400-second hosted timeout established no upper slowdown bound.
@@ -751,7 +851,9 @@ the instrumented job:
    selector and the fast verdict through the same comparison, over the
    lists `RTL_SIBLING_STEP_LISTS` records beside their own rules. For the
    two RTL files that is a standing invariant and not an enumeration of
-   today's jobs: the checker reads both files for their job lists and
+   today's jobs: the checker reads both files' source contracts (the
+   templates, which it checks in place of the generated files) for their
+   job lists and
    refuses, by name, any job of either whose whole step list nothing
    records, and any job a recorded list names that its file no longer
    declares. Whether a job is pinned is a COMPARISON, never a claim and
@@ -766,7 +868,22 @@ the instrumented job:
    red until its own step list is recorded in `RTL_SEQUENCE_PINS`; in
    `rtl-fast.yml` it is red twice over, because the verdict must `needs`
    every other job in the file and the verdict's new result binding needs
-   an entry in `INHERITED_STEP_ENV`. In `docs.yml` and `elaborate.yml` the
+   an entry in `INHERITED_STEP_ENV`. A job or step list that only the
+   generator produces is outside these recorded lists. `ci_events.py`
+   holds it by requiring the generated file to equal the generator's output
+   (`check_generated_workflow`). In `rtl-fast.yml` those are `yosys-tool`
+   and the rewritten `yosys-elaboration` (#789). Two judges in
+   `scripts/ci_fast_tool_selftest.py` also hold both of their step lists
+   whole (see [Fast feedback](#fast-feedback)). `fast_tool_retention` holds
+   the derived lists against the template. `fast_tool_emission` holds the
+   emitted lists, after every stage, against the shared install and runtime
+   transforms' output on the derivation, with only the two tool key strings
+   different. For what those shared transforms emit in any job of the four
+   files, the comparison is the only whole-list hold.
+   In `rtl.yml` they are `yosys-tool`, the case-union jobs, and the shard
+   workers and `verilator-suites` aggregate whose steps the generator
+   rewrites. There the comparison is the only whole-list hold, and a change
+   to the generator regenerates past it. In `docs.yml` and `elaborate.yml` the
    pin covers the jobs those two files carry today: neither is read for its
    job list, so a job appended to either is not refused by this rule. The
    contract step is
@@ -1123,8 +1240,9 @@ the instrumented job:
     class for the four non-RTL carriers (item 11) and #406 closed it for
     the seven RTL jobs -- the two shard workers, the two exhaustive
     aggregates, `verilator-lint`, `yosys-elaboration` and
-    `bdd-conformance` -- so every job in the four files now carries the
-    sequence pin of item 4: its step list is pinned by count, order,
+    `bdd-conformance` -- so every job in the four files' source contracts
+    now carries the sequence pin of item 4 (a job or step list only the
+    generator produces is held as item 4 states): its step list is pinned by count, order,
     identity, key set, env bindings, recorded `if` verbatim and recorded
     `with` exactly, plus the `id`, `continue-on-error` and
     `working-directory` a step records (the workers' `strategy.matrix`
@@ -2025,7 +2143,18 @@ files. `GITHUB_TOKEN` is explicitly empty, so neither the active `gh` credential
 nor an SSH agent, proxy credential, runtime token, or other host secret reaches
 candidate code.
 
-Candidate jobs must use literal `ubuntu-latest`; reusable workflows and
+Candidate jobs must name the literal runner label `ubuntu-24.04`, the image
+every workflow pins. The act command maps it to the runner image with one
+`--platform` entry, and every other label, such as `ubuntu-latest`,
+`ubuntu-22.04` or `ubuntu-26.04`, is refused by name before `act` starts.
+`ubuntu-latest` is refused because hosted `ubuntu-latest` moved to the
+`ubuntu-26.04` image, where the pinned CPython 3.12 wheels do not install
+(#784): a job on it would run hosted on an image the replay does not model.
+A label that has neither a `--platform` entry nor an entry in
+act's built-in table, such as `ubuntu-24.04`, is no error to `act`: it skips
+that job as an unsupported platform and can still exit 0, and a built-in label
+such as `ubuntu-latest` would run on act's default `node:16` image instead, so
+the self-test requires an entry for every accepted label. Reusable workflows and
 job/service containers are refused because they can carry container options or
 host-volume requests that the trusted scanner cannot safely delegate. Steps may
 use only the repository's exact audited non-Docker action set
@@ -3239,3 +3368,18 @@ Yosys v0.66 uses source commit `86f2ddebce7e98ce7cacc27e8a5c14cb53b51b51`.
 These are Git object digests, verified after the release checkout.
 A changed workflow invalidates the recipe digest automatically.
 Cache hits still require the existing installed-version checks.
+
+One key differs: `rtl-fast`'s `yosys-tool` (#789, see
+[Fast feedback](#fast-feedback)). Its recipe digest is not of the workflow
+files. It is the SHA-256 of the build's inputs in the generated tool job: the
+workflow's `env` and `defaults`, the tool job's keys but those that only
+schedule it, and every step up to and including the build as it runs, the
+cache step's own key aside. `hashFiles` of the repository scripts those steps
+run follows it, and the runner image label beside `runner.os` ends it. A
+workflow edit that changes none of these leaves the key unchanged; an edit of
+any of them changes it. The generated-graph comparison in `ci_events.py`
+holds that key to the generator's output, and `ci_fast_tool_selftest.py` (run
+by `ci_gate_workflows_selftest.py`) removes each input from it and requires a
+refusal, and edits each input and requires a new key. `yosys-elaboration` restores the same key and refuses a miss. If the
+tool job's cache save did not complete, re-run all of the workflow's jobs, not
+only the failed ones: re-running the consumer alone cannot rebuild the tree.

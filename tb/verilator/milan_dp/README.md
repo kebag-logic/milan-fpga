@@ -352,7 +352,7 @@ It preserves real unanswered requests and their failed response/publication asse
 The unchanged acquisition deadline expires before the acquired-publication check.
 First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
 Its separate deadline is 5400 seconds, including compilation.
-The four-core `ubuntu-latest` job permits 120 minutes, including toolchain setup.
+The four-core `ubuntu-24.04` job permits 120 minutes, including toolchain setup.
 Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
