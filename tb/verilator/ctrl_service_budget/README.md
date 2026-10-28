@@ -154,6 +154,7 @@ The script's end cuts the pass in progress short, so the run of idle passes it f
 A mailbox access is timed at the CPU's load/store bus, from command to response.
 Instruction fetches are counted at the CPU's fetch bus, by region.
 Without the cache a fetch is one word; with it, one 64-byte line refill, whose wait runs to its last beat.
+With the split CPU's data cache, loads and stores are counted at its IO bus, which carries every uncached access and so every mailbox access; cached accesses and refills never reach it and are not counted.
 
 One phase is one sample.
 So each probe also reports a measured bound.
@@ -826,6 +827,7 @@ Its checks:
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
+- the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
 - `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
 - `run.main` refuses a reused build of another fetch L1 or arm, reuses the selected one, and takes a build that records no fetch L1 as the cacheless one;
 - the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window.
@@ -898,6 +900,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
 | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |
 | fetch bus: one beat a refill | a refill's beats are read off the netlist |
+| lsu bus: the cacheless observers on a data-cached CPU | the load/store observers follow the data cache's IO bus, without ids |
 | reuse: the fetch L1 and the arm are not compared | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
 | reuse: a reused build is not compared with the selection | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
 | build: an XIP build records the block-RAM arm | the run builds and records the fetch L1 and the arm it selected |

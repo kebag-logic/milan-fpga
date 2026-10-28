@@ -315,6 +315,11 @@ def _fetch_bus_cacheless(spec: dict) -> tuple[list, int]:
     return list(build.ACCESSORS), 1
 
 
+def _lsu_bus_cacheless(rows: list, netlist: str) -> list:
+    """The cacheless LSU's observers, whatever the CPU's load/store plugin."""
+    return rows
+
+
 def _fetch_bus_one_beat(spec: dict, original: Callable = build.fetch_bus) -> tuple[list, int]:
     """The CPU's own fetch observers, with one beat a refill instead of its line's words."""
     return original(spec)[0], 1
@@ -456,6 +461,8 @@ MUTANTS: dict[str, Patches] = {
     'fetch bus: the cacheless observers on a cached CPU':
         lambda: [patch.object(build, 'fetch_bus', _fetch_bus_cacheless)],
     'fetch bus: one beat a refill': lambda: [patch.object(build, 'fetch_bus', _fetch_bus_one_beat)],
+    'lsu bus: the cacheless observers on a data-cached CPU':
+        lambda: [patch.object(build, 'lsu_bus', _lsu_bus_cacheless)],
     'reuse: the fetch L1 and the arm are not compared':
         lambda: [patch.object(run, 'built_as', _built_as_without_cache),
                  patch.object(run, 'selected', _selected_without_cache)],

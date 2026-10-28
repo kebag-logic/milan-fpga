@@ -726,15 +726,18 @@ def reuse_checks() -> list[Check]:
 
 
 def cache_checks() -> list[Check]:
-    """The instruction cache's build (#665): the fetch observers follow the CPU's fetch plugin, a
-    refill's beats come from the netlist, and the XIP arm keeps the reset entry and the flash
-    driver in rom."""
+    """The caches' build (#665): the fetch observers follow the CPU's fetch plugin, a refill's
+    beats come from the netlist, the load/store observers follow the data cache's IO bus, and the
+    XIP arm keeps the reset entry and the flash driver in rom."""
     out = []
     with tempfile.TemporaryDirectory() as tmp:
         netlist = Path(tmp) / 'VexiiRiscvLitex_x.v'
         cached = dict(fetch_l1_geometry=[64, 1], netlist=netlist.stem, sources=[str(netlist)])
-        netlist.write_text("assign FetchL1Plugin_logic_bus_cmd_payload_address = "
-                           "{FetchL1Plugin_logic_refill_slots_0_address[31 : 6],6'h0};\n")
+        refill = ("assign FetchL1Plugin_logic_bus_cmd_payload_address = "
+                  "{FetchL1Plugin_logic_refill_slots_0_address[31 : 6],6'h0};\n")
+        lsu_l1 = 'wire LsuL1Plugin_logic_refill_slots_0_valid;\nwire LsuPlugin_logic_bus_cmd_valid;\n'
+        cacheless_lsu = 'wire LsuCachelessPlugin_logic_bus_cmd_valid;\n'
+        netlist.write_text(refill + lsu_l1)
         rows, beats = build.fetch_bus(cached)
         plain_rows, plain_beats = build.fetch_bus(dict(fetch_l1_geometry=None))
         names = {name for name, *_ in rows}
@@ -744,7 +747,24 @@ def cache_checks() -> list[Check]:
                     str(rows)))
         out.append(('a refill\'s beats are read off the netlist', (beats, plain_beats) == (16, 1),
                     str((beats, plain_beats))))
-        netlist.write_text('assign FetchL1Plugin_logic_bus_cmd_payload_address = 32\'h0;\n')
+        lsu = [(n, v) for n, _, _, v in rows if n.startswith('lsu_')]
+        out.append(('the load/store observers follow the data cache\'s IO bus, without ids',
+                    len(lsu) == 6 and all(v.startswith('LsuPlugin_logic_bus_') for _, v in lsu)
+                    and not names & {'lsu_cmd_id', 'lsu_rsp_id'}, str(lsu)))
+        netlist.write_text(refill + cacheless_lsu)
+        kept = [r for r in build.fetch_bus(cached)[0] if r[0].startswith('lsu_')]
+        out.append(('an instruction cache without a data cache keeps the cacheless load/store observers',
+                    kept == [r for r in build.ACCESSORS if r[0].startswith('lsu_')], str(kept)))
+        for label, text in (('neither', refill), ('both', refill + lsu_l1 + cacheless_lsu)):
+            netlist.write_text(text)
+            try:
+                build.fetch_bus(cached)
+                refused = ''
+            except RuntimeError as error:
+                refused = str(error)
+            out.append((f'a cached netlist with {label} of the cacheless LSU and the data cache is refused',
+                        'neither or both' in refused, refused or 'accepted'))
+        netlist.write_text('assign FetchL1Plugin_logic_bus_cmd_payload_address = 32\'h0;\n' + lsu_l1)
         try:
             build.fetch_bus(cached)
             refused = ''

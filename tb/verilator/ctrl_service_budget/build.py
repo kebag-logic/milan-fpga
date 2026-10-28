@@ -344,13 +344,32 @@ def fetch_bus(spec: dict) -> tuple[list[tuple[str, str, str, str]], int]:
     if not spec.get('fetch_l1_geometry'):
         return list(ACCESSORS), 1
     netlist = next(Path(s) for s in spec['sources'] if Path(s).name == spec['netlist'] + '.v')
+    text = netlist.read_text()
     lines = re.findall(r"assign FetchL1Plugin_logic_bus_cmd_payload_address = "
-                       r"\{\w+\[31 : (\d+)\],\d+'h0\};", netlist.read_text())
+                       r"\{\w+\[31 : (\d+)\],\d+'h0\};", text)
     if len(lines) != 1:
         raise RuntimeError('the fetch L1 refill address is not one line-aligned assignment')
     rows = [(name, ctype, module, var.replace('FetchCachelessPlugin', 'FetchL1Plugin'))
             for name, ctype, module, var in ACCESSORS if name not in ('fetch_cmd_id', 'fetch_rsp_id')]
-    return rows, (1 << int(lines[0])) // 4
+    return lsu_bus(rows, text), (1 << int(lines[0])) // 4
+
+
+def lsu_bus(rows: list[tuple[str, str, str, str]], netlist: str) -> list[tuple[str, str, str, str]]:
+    """The observers of this build's load/store bus, from the netlist's own plugin.
+
+    The split CPU's data cache (#665, milan_soc.CTRL_LSU_L1) replaces the
+    cacheless LSU. Its uncached accesses, every mailbox access among them,
+    travel LsuPlugin's IO bus one at a time and without an id, so its ids read
+    0; cached accesses and refills never reach that bus and are not counted.
+    """
+    cacheless = 'LsuCachelessPlugin_logic_bus_cmd_valid' in netlist
+    cached = 'LsuPlugin_logic_bus_cmd_valid' in netlist and 'LsuL1Plugin_' in netlist
+    if cacheless == cached:
+        raise RuntimeError('the netlist has neither or both of the cacheless LSU and the data cache')
+    if cacheless:
+        return rows
+    return [(name, ctype, module, var.replace('LsuCachelessPlugin', 'LsuPlugin'))
+            for name, ctype, module, var in rows if name not in ('lsu_cmd_id', 'lsu_rsp_id')]
 
 
 #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
@@ -405,6 +424,9 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     if beats > 1:
         lines += ['inline unsigned fetch_cmd_id(const Vsim&) { return 0u; }',
                   'inline unsigned fetch_rsp_id(const Vsim&) { return 0u; }']
+    if not any(name == 'lsu_cmd_id' for name, *_ in rows):
+        lines += ['inline unsigned lsu_cmd_id(const Vsim&) { return 0u; }',
+                  'inline unsigned lsu_rsp_id(const Vsim&) { return 0u; }']
     lines.append('inline void set_gm(Vsim& dut, unsigned i, std::uint64_t id, unsigned domain) {')
     if spec['interfaces'] == 1:
         lines += ['    dut.mbx_gm_id = id;', '    dut.mbx_domain = domain;', '    (void)i;']
