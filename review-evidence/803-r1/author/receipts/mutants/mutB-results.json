@@ -1,0 +1,356 @@
+[
+ {
+  "mutant": "C0 clean milan_dp_gptp_leg",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "mutant": "P1 the shadow path generation ignores entry 0",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "entry-0-only change advances generation once"
+    ],
+    "failed_named": [
+     "entry-0-only change advances generation once"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "entry-0-only change advances generation once"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "P2 the shadow publishes no entry 0",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "#88 post-cut response is {thisClock}",
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0"
+    ],
+    "failed_named": [
+     "#88 post-cut response is {thisClock}",
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "GET_AS_PATH ordered GM",
+     "#87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID",
+     "explicit one-entry GET_AS_PATH head",
+     "in-flight response remains wholly old GM",
+     "#88 post-cut response is {thisClock}",
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "entry-0-only change advances generation once",
+     "entry-0-only change emits one GET_AS_PATH push",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0",
+     "entry-0-only push body equals solicited path"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "P3 GET_AS_PATH entry 0 is the grandmaster again",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "#87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID",
+     "#88 post-cut response is {thisClock}",
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0"
+    ],
+    "failed_named": [
+     "#87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID",
+     "#88 post-cut response is {thisClock}",
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "TLV-less GM switch emits no false GET_AS_PATH push",
+     "#87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID",
+     "#88 post-cut response is {thisClock}",
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "entry-0-only change emits one GET_AS_PATH push",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0",
+     "entry-0-only push body equals solicited path"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "P4 the AS_PATH notification ignores entry 0",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "entry-0-only change emits one GET_AS_PATH push"
+    ],
+    "failed_named": [
+     "entry-0-only change emits one GET_AS_PATH push"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "entry-0-only change emits one GET_AS_PATH push",
+     "entry-0-only push body equals solicited path"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "P5 the CSR face takes entries 0..6 as its tail",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "#87 TLV-less GM switch: GET_AS_PATH still ends with thisClock",
+     "#88 GET_AS_PATH entry 1 is the parent",
+     "#88 GET_AS_PATH ends with thisClock"
+    ],
+    "failed_named": [
+     "#87 TLV-less GM switch: GET_AS_PATH still ends with thisClock",
+     "#88 GET_AS_PATH entry 1 is the parent",
+     "#88 GET_AS_PATH ends with thisClock"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "GET_AS_PATH ordered bridge one",
+     "GET_AS_PATH ordered bridge two",
+     "GET_AS_PATH ordered parent",
+     "GET_AS_PATH ends with thisClock",
+     "tail-only refresh reaches solicited path",
+     "#87 TLV-less GM switch: GET_AS_PATH still ends with thisClock",
+     "explicit one-entry GET_AS_PATH ends with thisClock",
+     "maximum GET_AS_PATH final identity",
+     "#88 GET_AS_PATH entry 1 is the parent",
+     "#88 GET_AS_PATH ends with thisClock",
+     "entry-0-only change: GET_AS_PATH keeps entry 1",
+     "entry-0-only change: GET_AS_PATH keeps thisClock last"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "P6 a full event queue refuses without counting",
+  "file": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "a full queue moves only the event count"
+    ],
+    "failed_named": [
+     "a full queue moves only the event count"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "a full queue moves only the event count"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D1 a TLV-less Announce publishes {thisClock} (#87)",
+  "file": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "TLV-less fabric publication keeps the path count",
+     "TLV-less GM switch keeps the path count",
+     "#87 TLV-less GM switch: GET_AS_PATH keeps count five"
+    ],
+    "failed_named": [
+     "TLV-less fabric publication keeps the path count",
+     "TLV-less GM switch keeps the path count",
+     "#87 TLV-less GM switch: GET_AS_PATH keeps count five"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "TLV-less fabric publication keeps the path count",
+     "TLV-less refresh keeps fabric path generation",
+     "TLV-less refresh emits no GET_AS_PATH push",
+     "TLV-less GET_AS_PATH serves the kept path B",
+     "TLV-less GM switch keeps the path count",
+     "TLV-less GM switch spends no path generation",
+     "#87 TLV-less GM switch: GET_AS_PATH keeps count five",
+     "#87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID",
+     "#87 TLV-less GM switch: GET_AS_PATH still ends with thisClock",
+     "kept to explicit GM advances generation once"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D2 the empty sequence published without a TLV (#87, the 2020 rule)",
+  "file": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "TLV-less fabric publication keeps the path count",
+     "#87 TLV-less GM switch: GET_AS_PATH keeps count five"
+    ],
+    "failed_named": [
+     "TLV-less fabric publication keeps the path count",
+     "#87 TLV-less GM switch: GET_AS_PATH keeps count five"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "TLV-less fabric publication keeps the path count",
+     "TLV-less refresh keeps fabric path generation",
+     "TLV-less refresh emits no GET_AS_PATH push",
+     "TLV-less GET_AS_PATH serves the kept path B",
+     "TLV-less GM switch keeps the path count",
+     "TLV-less GM switch spends no path generation",
+     "#87 TLV-less GM switch: GET_AS_PATH keeps count five",
+     "#87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID",
+     "#87 TLV-less GM switch: GET_AS_PATH still ends with thisClock",
+     "kept to explicit GM advances generation once"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D3 the received head replaced by the grandmaster (#88)",
+  "file": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0"
+    ],
+    "failed_named": [
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "entry-0-only change advances generation once",
+     "entry-0-only change emits one GET_AS_PATH push",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0",
+     "entry-0-only push body equals solicited path"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D4 the path-head refusal restored (#88)",
+  "file": "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+  "pattern_counts": [
+   1,
+   1,
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "#88 path headed elsewhere serves count three"
+    ],
+    "failed_named": [
+     "#88 path headed elsewhere serves count three"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "#88 path headed elsewhere serves count three",
+     "#88 path headed elsewhere advances generation once",
+     "#88 path headed elsewhere keeps the scalar GM",
+     "#88 GET_AS_PATH count three",
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "#88 GET_AS_PATH entry 1 is the parent",
+     "#88 GET_AS_PATH ends with thisClock",
+     "entry-0-only change keeps count three",
+     "entry-0-only change advances generation once",
+     "entry-0-only change emits one GET_AS_PATH push",
+     "entry-0-only change: GET_AS_PATH count three",
+     "entry-0-only change: GET_AS_PATH serves the new entry 0",
+     "entry-0-only change: GET_AS_PATH keeps entry 1",
+     "entry-0-only change: GET_AS_PATH keeps thisClock last",
+     "entry-0-only push body equals solicited path"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "D6 the empty-path refusal restored (#88)",
+  "file": "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "empty PathTrace serves count one",
+     "#88 post-cut response is {thisClock}"
+    ],
+    "failed_named": [
+     "empty PathTrace serves count one",
+     "#88 post-cut response is {thisClock}"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "empty path commits before captured old response leaves wire",
+     "empty PathTrace serves count one",
+     "explicit GM to empty path advances generation once",
+     "explicit GM to empty path emits one AS_PATH push",
+     "post-cut response is wholly new count one",
+     "#88 post-cut response is {thisClock}",
+     "empty-path push body equals post-cut solicited response"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ }
+]

@@ -1,0 +1,6 @@
+[A693] TAKEN
+Branch: 803-adopt-gptp-f97c1803 (from dev 5fcec84b)
+Authoritative references: #803 and its [A10] assignment; FPGA-gPTP PR #92 (#89, #90, #91) and PR #93 (#87, #88), main f97c1803; IEEE 802.1AS-2011 with Cor1/Cor2 10.3.10.2.1 a)-d), 10.3.11 / Figure 10-13, 11.2.15 / Figure 11-8; IEEE 1722.1-2021 7.4.41.2.
+Interpreted scope: move the gptp-processor gitlink 55680bff -> f97c1803; apply the PR #92 parent test companion (b53944d5) and then the PR #93 companion (3a3db518: KL_gptp_shadow eight-entry path output, milan_datapath GET_AS_PATH entry 0 from the engine head, REGISTER_MAP 0x7DC and REGISTER_MAP_CLASSES, tsn_fuzz fixtures, regenerated TEST_RESULTS.md) in that order and finish them as milan-fpga code; regenerate every pin-derived record through its generator; record the adoption in the submodule adoption table and the CHANGELOG. STOP on any top-level port or register-map change beyond the companions, or a route-1x1 move above 2 %.
+Validation plan: full suite sweep (4 shards) plus the physical milan_dp_gptp leg; milan_dp gptp and gptp-lat, milan_dp_gm_steps, tsn_fuzz ptp; rtl-fast with behave; Yosys; RTL lint; both idiom gates; the docs gates; route-1x1, ooc-1x1 and ooc-8x8 against the current resource record with the delta recorded.
+Blockers: none
