@@ -2820,8 +2820,9 @@ CTRL_FETCH_L1 = (64, 1)
 
 #: The split placement's data cache (#665, owner decision 2026-10-28; NFR-SCOUT-01): VexiiRiscv's
 #: LSU L1 as (sets, ways) of the generator's 64-byte line, 8 KiB direct-mapped, the smallest size
-#: measured to drain the composed bursts within T_svc. With the DMA port the generator makes it
-#: coherent through its hub (patch 0005: lsuL1Coherency), so a write the protocol memory bridges
+#: measured to drain the composed bursts within T_svc at a burst of 2 a channel, kept by the owner
+#: with the mailbox contract's own bursts (#665, 2026-10-28). With the DMA port the generator makes
+#: it coherent through its hub (patch 0005: lsuL1Coherency), so a write the protocol memory bridges
 #: carry reaches the CPU's copy. The mailbox, CSR and flash windows stay uncached by region
 #: (ctrl_uncached_flash). docs/design/SPLIT_CONTROL_MEMORY.md section 9 gives the measurement.
 CTRL_LSU_L1 = (128, 1)

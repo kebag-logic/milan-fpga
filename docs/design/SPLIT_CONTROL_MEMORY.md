@@ -294,7 +294,7 @@ The all-fabric CPU's arguments are unchanged, so its netlist is too; [`test_soc_
 
 | Parameter | Value | Reason |
 |---|---|---|
-| Size | 8 KiB: 128 sets | The smallest size measured to drain the composed bursts within T_svc, below |
+| Size | 8 KiB: 128 sets | The smallest size measured to drain the composed bursts within T_svc at a burst of 2; the owner kept it with today's bursts, below |
 | Ways | 1, direct-mapped | At 4 KiB two ways gain 0.67 ms on the composed window; 8 KiB direct-mapped gains 1.35 ms |
 | Line | 64 bytes | The generator's `LsuL1Plugin` line at the pinned revision |
 | Coherency | the generator's hub, with the DMA port | Below |
@@ -345,7 +345,11 @@ At the smaller bursts the harness measured for the owner's other 2026-10-28 deci
 | every channel 2 | 8 KiB | 9.45 |
 
 8 KiB is the smallest size that fits, with every channel's burst at 2.
-Those bursts are the mailbox contract's, not this cache's, and are not part of this change.
+The owner did not adopt those bursts ([decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6474448683)): contract 2.2's admission stays, so nothing it admits today is dropped.
+At a burst of 2 the harness's own command sequences were refused at ingress, 19 to 31 a run.
+Among them were back-to-back AECP and ACMP commands and an ENTITY_DEPARTING of a bound talker, and 4 of 16 controllers missed their notification.
+The same decision keeps this cache at 8 KiB with today's bursts.
+There it takes 10 to 22 % off the composed rows that the CPU's work decides, and leaves the rest to the CPU clock.
 The harness observes this CPU's loads and stores at its data cache's IO bus, which carries every mailbox access; cached accesses never reach a bus it observes.
 
 ### Area
