@@ -1,0 +1,52 @@
+clean: pass selected 14
+[PASS] mutant caught: a receipt timeout unlocks the servo - breaks "the servo stays locked across a Sync receipt timeout"
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a winning peer's path is not staged - breaks "#82 peer wins: its commit carries the peer path | #82 warm reset: the live peer carries its own path"
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an incapable receipt timeout keeps the elected peer - breaks "#82 Pdelay loss: thisClock is committed within 2 ms of the fall | #82 Pdelay loss: that commit carries {thisClock} | #82 Pdelay loss: Announces from the incapable port elect nothing"
+FAIL #82 cold release: every cycle to the first beat has gmPresent got 000000000024a169 exp 0000000000000000
+FAIL #82 cold release: that commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the published flags leave gmPresent to the microcode - breaks "#82 cold release: every cycle to the first beat has gmPresent | #82 cold release: that commit's flags are gmPresent alone | #82 warm reset: its flags are gmPresent alone | #82 peer leaves: the mastership commit has gmPresent | #82 Pdelay loss: the drop commit's flags are gmPresent alone | #82 Pdelay loss: that mastership commit has gmPresent"
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 every master cycle publishes sync-ok got 00000000001bb7d3 exp 0000000000000000
+[PASS] mutant caught: a queued receipt timeout clears a master's sync-ok - breaks "#84 takeover: a queued receipt timeout keeps sync-ok | #84 every master cycle publishes sync-ok"
+FAIL #84 takeover: the queued receipt timeout commits after it got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an expiry takes a master's own vector for a peer's - breaks "#84 takeover: the queued receipt timeout commits after it"
+FAIL #89 Sync stops: the plane takes mastership got 0000000000000000 exp 0000000000000001
+FAIL #89 never usable: the grandmaster is aged got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up after the next Sync: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up with the next sequenceId: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a sync receipt timeout only clears sync-ok - breaks "#89 Sync stops: the plane takes mastership | #89 never usable: the grandmaster is aged | #89 no Follow_Up: the plane takes mastership within | #89 Follow_Up after the next Sync: the plane takes mastership within | #89 Follow_Up with the next sequenceId: the plane takes mastership within"
+FAIL #89 takeover: the queued receipt timeout leaves the port aged got 0000000000000000 exp 0000000000000001
+FAIL #89 a lone pair heard as master: a later Announce elects nothing got 0000000000000000 exp 0000000000000001
+FAIL #89 Announce lapse: a sync receipt timeout after mastership ages the next Announce got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: only an expiry that ages a slave marks the port - breaks "#89 takeover: the queued receipt timeout leaves the port aged | #89 a lone pair heard as master: a later Announce elects nothing | #89 Announce lapse: a sync receipt timeout after mastership ages the next Announce"
+FAIL p1 255 #89 gmPresent: a priority1 255 grandmaster without Sync stays elected got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: sync receipt ageing ignores gmPresent - breaks "p1 255 #89 gmPresent: a priority1 255 grandmaster without Sync stays elected"
+FAIL p1 255 #89 gmPresent: when its Sync stops, sync-ok clears within syncReceiptTimeout and the peer stays elected got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a sync receipt timeout that ages nothing keeps sync-ok - breaks "p1 255 #89 gmPresent: when its Sync stops, sync-ok clears within syncReceiptTimeout and the peer stays elected"
+FAIL #89 never usable: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 Sync stops: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up after the next Sync: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up with the next sequenceId: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #89 gmPresent: a priority1 1 Announce on the aged port elects nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an aged port takes Announces - breaks "#89 never usable: the aged port stays master while Announces continue | #89 Sync stops: the aged port stays master | #89 no Follow_Up: the aged port stays master | #89 Follow_Up after the next Sync: the aged port stays master | #89 Follow_Up with the next sequenceId: the aged port stays master | p1 255 #89 gmPresent: a priority1 1 Announce on the aged port elects nothing"
+FAIL p1 255 #89 gmPresent: the aged port elects a priority1 255 grandmaster got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an aged port refuses a priority1 255 grandmaster - breaks "p1 255 #89 gmPresent: the aged port elects a priority1 255 grandmaster"
+FAIL p1 255 #89 gmPresent: a priority1 1 Announce on the aged port makes this plane master got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an aged Announce is dropped rather than aged - breaks "p1 255 #89 gmPresent: a priority1 1 Announce on the aged port makes this plane master"
+FAIL #89 first grandmaster: Sync recovery is heard as master and steers nothing got 0000000000000000 exp 0000000000000001
+FAIL #89 Sync stops: Sync recovery is heard as master and steers nothing got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: Sync recovery is heard as master and steers nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a master steers on its aged peer's Sync - breaks "#89 first grandmaster: Sync recovery is heard as master and steers nothing | #89 Sync stops: Sync recovery is heard as master and steers nothing | #89 no Follow_Up: Sync recovery is heard as master and steers nothing"
+
+14 controls: 14 caught, 0 not

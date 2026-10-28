@@ -1,0 +1,7 @@
+clean: pass selected 2
+FAIL p1 255 #89 gmPresent: when its Sync stops, sync-ok clears within syncReceiptTimeout and the peer stays elected got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a sync receipt timeout that ages nothing keeps sync-ok - breaks "p1 255 #89 gmPresent: when its Sync stops, sync-ok clears within syncReceiptTimeout and the peer stays elected"
+FAIL p1 255 #89 gmPresent: a priority1 255 grandmaster's usable Sync raises sync-ok got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a consumed pair leaves sync-ok down - breaks "p1 255 #89 gmPresent: a priority1 255 grandmaster's usable Sync raises sync-ok"
+
+2 controls: 2 caught, 0 not
