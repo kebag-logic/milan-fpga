@@ -137,7 +137,7 @@ The adopted image does not meet it:
 | WNS / WHS | - | +0.236 / +0.028 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
 
 The table is the gate's record.
-The slice row is the binding limit: placement has 15 slices left.
+The slice row is the binding limit: the shipping route at FPGA-gPTP `f97c1803` ([#803](https://github.com/kebag-logic/milan-fpga/issues/803)) places 15,843 slices, so placement has 7 of 15,850 left.
 The next growth on the shipping image therefore has no slice room and needs its own owner decision ([the extension](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)).
 The routed critical setup path has 13 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
 It runs from the SoC's `milansoc_write_w_buffer_level0_reg[0]` to `storage_13_dat1_reg[6]`; its data delay is 9.471 ns, of which 7.717 ns is routing.
