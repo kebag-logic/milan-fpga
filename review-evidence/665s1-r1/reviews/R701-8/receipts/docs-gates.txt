@@ -1,0 +1,22 @@
+HEAD 614635b7f9aed7c9138aef53d0b93ca6030ae31e DIRTY 0
+== scripts/docs_check.py rc=0
+docs_check: 0 finding(s) across 211 md files + 1439 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+== scripts/check_doc_paths.py rc=0
+doc path gate: OK (1062 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+== scripts/check_doc_style.py rc=0
+documentation style: OK (23 current documents)
+== scripts/check_em_dash.py --base e76a755afc0536453161e3cd33f6f4d2dcd7641f rc=2
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+== scripts/check_py_idiom.py rc=0
+  global statement: 0 <= 0
+  over-long line: 0 <= 0
+== scripts/check_hygiene.py --check rc=0
+  gptp-processor: trailing whitespace 0<=0, missing EOF newline 0<=0, CRLF line ending 0<=0, UTF-8 BOM 0<=0, tab in SystemVerilog 0<=0
+HYGIENE RATCHET: PASS (3 population(s), 1306 file(s))
+== scripts/check_baremetal_only.py --check rc=0
+baremetal-only: OK (0 findings across 1437 tracked first-party file(s))
+== scripts/check_todo_ownership.py rc=0
+TODO ownership gate: OK (0 owned marker(s), 0 unowned; 60 near-miss occurrence(s) on 53 line(s) correctly not treated as markers; 1372 first-party file(s) read)
+== scripts/check_feature_status.py rc=0
+feature_status: 0 finding(s)
+== git diff --check rc=0
