@@ -1,0 +1,80 @@
+HEAD c3ba2b2647aee7fdfe220cac6634827cf5a47ec1 DIRTY 1
+verilator: $VALIDATION_TOOLS/pinned-verilator-5.050/verilator Verilator 5.050 2026-07-01 rev v5.050
+$ run.py --point 8x8 --build-dir <scratch> --record-budget-findings --groups aecp --jobs 4
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $REVIEWS/r701-9-665s1/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $WORKSPACE_HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $WORKSPACE_HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $WORKSPACE_HOME/litex-milan/litex/litex/soc/software --output $REVIEWS/665s1-r701-9-packet/scratch/builds/M8/runtime
+COMMAND $WORKSPACE_HOME/litex-milan/venv/bin/python3 -B $REVIEWS/r701-9-665s1/sw/firmware/ctrl/test/ctrl_srp_image.py --config $REVIEWS/r701-9-665s1/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output $REVIEWS/665s1-r701-9-packet/scratch/builds/M8/image --ledgered-point 8x8-two-interfaces --libc $REVIEWS/665s1-r701-9-packet/scratch/builds/M8/runtime/libc.a --compiler-runtime $REVIEWS/665s1-r701-9-packet/scratch/builds/M8/runtime/libcompiler_rt.a
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32 --fetch-l1 --fetch-l1-sets=64 --fetch-l1-ways=1', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-10-28 19:42:18)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : SIM.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+INFO:SoC:Controller ctrl added.
+INFO:SoC:CPU vexiiriscv added.
+INFO:SoC:CPU vexiiriscv adding IO Region 0 at 0x80000000 (Size: 0x80000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoC:CPU vexiiriscv overriding sram mapping from 0x01000000 to 0x10000000.
+INFO:SoC:CPU vexiiriscv setting reset address to 0x00000000.
+INFO:SoC:CPU vexiiriscv adding Bus Master(s).
+INFO:SoCBusHandler:cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:cpu_bus0 added as Bus Master.
+INFO:SoC:CPU vexiiriscv adding Interrupt(s).
+INFO:SoCIRQHandler:noirq IRQ added at Location 0.
+INFO:SoC:CPU vexiiriscv adding DMA Bus.
+INFO:SoCDMABusHandler:Creating Bus Handler...
+INFO:SoCDMABusHandler:32-bit axi Bus, 4.0GiB Address Space.
+INFO:SoCDMABusHandler:Adding reserved Bus Regions...
+INFO:SoCDMABusHandler:Bus Handler created.
+INFO:SoCDMABusHandler:dma Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False.
+INFO:SoCDMABusHandler:dma added as Bus Slave.
+INFO:SoC:CPU vexiiriscv adding SoC components.
+INFO:SoCBusHandler:plic Region added at Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:clint Region added at Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCIRQHandler:uart IRQ allocated at Location 1.
+Traceback (most recent call last):
+  File "$REVIEWS/r701-9-665s1/tb/verilator/ctrl_service_budget/run.py", line 361, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/r701-9-665s1/tb/verilator/ctrl_service_budget/run.py", line 333, in main
+    spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
+                         core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
+  File "$REVIEWS/r701-9-665s1/tb/verilator/ctrl_service_budget/build.py", line 560, in build
+    spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
+  File "$REVIEWS/r701-9-665s1/tb/verilator/ctrl_service_budget/split_soc.py", line 461, in build
+    milan_soc.add_ctrl_memory(soc, elf)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "$REVIEWS/r701-9-665s1/sw/litex/milan_soc.py", line 2807, in add_ctrl_memory
+    soc.ctrl_plan = ctrl_memory.plan(soc.ctrl_image)
+                    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r701-9-665s1/sw/litex/ctrl_memory.py", line 357, in plan
+    raise Refusal("budget",
+    ...<2 lines>...
+                  f"{sum(need.ram_banks)}) exceeds the {budget:g}-RAMB36 budget{held}")
+ctrl_memory.Refusal: allocation over budget: 57.5 RAMB36 (rom 119800 bytes in 120832, sram 112992 bytes in 114688) exceeds the 56-RAMB36 budget
+elapsed=6s
+rc=1

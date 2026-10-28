@@ -1,0 +1,14 @@
+
+00000000 <_start>:
+       0:	1000b117          	auipc	sp,0x1000b
+       4:	4b010113          	addi	sp,sp,1200 # 1000b4b0 <_stack_top>
+       8:	00019297          	auipc	t0,0x19
+       c:	7a828293          	addi	t0,t0,1960 # 197b0 <_fdata_rom>
+      10:	10000317          	auipc	t1,0x10000
+      14:	ff030313          	addi	t1,t1,-16 # 10000000 <image_map_pools>
+      18:	10000397          	auipc	t2,0x10000
+      1c:	02038393          	addi	t2,t2,32 # 10000038 <_edata>
+      20:	00737c63          	bgeu	t1,t2,38 <_start+0x38>
+      24:	0002ae03          	lw	t3,0(t0)
+      28:	01c32023          	sw	t3,0(t1)
+      2c:	00428293          	addi	t0,t0,4

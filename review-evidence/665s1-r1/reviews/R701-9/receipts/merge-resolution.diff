@@ -1,0 +1,226 @@
+automatic merge tree (with conflict markers) of 614635b7 + 05439833: 47f3a3e9a8e0fc75d8a5a753da404f85bffc5aa2
+tb/verilator/ctrl_service_budget/README.md
+tb/verilator/ctrl_service_budget/build.py
+tb/verilator/ctrl_service_budget/selftest.py
+tb/verilator/ctrl_service_budget/selftest_mutants.py
+tb/verilator/ctrl_service_budget/split_soc.py
+
+Auto-merging docs/ARCHITECTURE_HW_SW_SPLIT.md
+Auto-merging docs/design/SPLIT_CONTROL_MEMORY.md
+Auto-merging docs/reference/FR_NFR.md
+Auto-merging sw/firmware/ctrl/test/ctrl_configs.py
+Auto-merging sw/litex/milan_soc.py
+Auto-merging tb/verilator/ctrl_service_budget/README.md
+CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/README.md
+Auto-merging tb/verilator/ctrl_service_budget/build.py
+CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/build.py
+Auto-merging tb/verilator/ctrl_service_budget/run.py
+Auto-merging tb/verilator/ctrl_service_budget/selftest.py
+CONFLICT (content): Merge conflict in tb/verilator/ctrl_service_budget/selftest.py
+Auto-merging tb/verilator/ctrl_service_budget/selftest_mutants.py
+
+diff --git a/tb/verilator/ctrl_service_budget/README.md b/tb/verilator/ctrl_service_budget/README.md
+index f8c8ebe93d..2988e4cad7 100644
+--- a/tb/verilator/ctrl_service_budget/README.md
++++ b/tb/verilator/ctrl_service_budget/README.md
+@@ -51,7 +51,7 @@ The image's AECP owner publishes its settings through contract 2.3's face block,
+ With the acknowledgement held idle here, the first commit is never acknowledged and AECP never opens: the fixture's `main` returns 6 about 125 ms into the boot, the hart parks (`ctrl_split_start.S`), and no group reaches a measurement.
+ So this SoC differs from `CtrlMailbox` in that one input: it acknowledges each commit at the slowest the contract allows ([The test SoC](#the-test-soc)).
+ The harness measures a CPU budget, so each commit is measured with the longest wait the contract allows.
+-The figures in [Results](#results) were measured before contract 2.3.
++The figures in [Results](#results) and [The instruction cache](#the-instruction-cache) were measured before contract 2.3.
+ 
+ Without `--record-budget-findings` a path over T_svc fails the run.
+ With it, the misses are recorded and the run still fails on any probe that was not measured.
+@@ -220,14 +220,12 @@ A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc,
+ 
+ ## Results
+ 
+-<<<<<<< 614635b7
+-Every figure in this section was measured on the firmware of `dev-soft-core` `e76a755a`, before contract 2.3's face block (#665).
+-PR #792, which brought this harness, changes no firmware source.
++Every figure in this section and in [The instruction cache](#the-instruction-cache) was measured on the firmware of `dev-soft-core` `e76a755a`, before contract 2.3's face block (#665).
++PR #792, which brought this harness, and PR #796, which brought the cache, change no firmware source.
+ In that firmware the size fixture's own observation callbacks (`a_stream`, `a_avb`, `a_counters` and `a_format` in `ctrl_aecp_image.c`) reported unavailable, and AECP opened with no acknowledgement.
+ At this head the image boots, and the groups run with each face commit acknowledged at the contract's bound ([Run and reproduce](#run-and-reproduce)).
+ The figures here have not been measured again at this head.
+ 
+-=======
+ These are S2's results, on the cacheless core:
+ 
+ ```sh
+@@ -239,7 +237,6 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+ 
+ Arms B and S add `--fetch-l1 none` to their commands in [Run and reproduce](#run-and-reproduce) in the same way.
+ [The instruction cache](#the-instruction-cache) gives the same groups on the split CPU's cache.
+->>>>>>> 05439833
+ Arm A is the image as linked, the formal measurement.
+ Arm B is the labelled second arm, whose observation ports answer.
+ The SHUTDOWN row comes from the labelled `shutdown-entry` arm.
+@@ -874,14 +871,11 @@ Its checks:
+ - the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
+ - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
+ - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
+-<<<<<<< 614635b7
+ - the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources.
+-=======
+ - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
+ - `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
+ - `run.main` refuses a reused build of another fetch L1 or arm, reuses the selected one, and takes a build that records no fetch L1 as the cacheless one;
+ - the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window.
+->>>>>>> 05439833
+ 
+ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
+ 
+@@ -949,10 +943,8 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | tables: misses are counted per probe instance only (earlier rule) | misses are counted per path and per probe instance |
+ | tables: a control instance is its own path (earlier rule) | a control instance is its functional path |
+ | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
+-<<<<<<< 614635b7
+ | build: the 1x1 point names the ledgered override too | the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it |
+ | build: arm B anchors the fixture's own observation callbacks (earlier rule) | every labelled arm and control plant applies to the checkout's sources |
+-=======
+ | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |
+ | fetch bus: one beat a refill | a refill's beats are read off the netlist |
+ | reuse: the fetch L1 and the arm are not compared | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
+@@ -961,7 +953,6 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
+ | build: the CPU is built with the split's cache whatever the selection | the run builds and records the fetch L1 and the arm it selected |
+ | xip: the reset entry moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
+ | xip: the flash driver moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
+->>>>>>> 05439833
+ 
+ A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
+ Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index b744d51348..52f1eb7d30 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -557,11 +557,8 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
+     if core.xip:
+         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses()['flash'])
+     table = symbols(elf)
+-<<<<<<< 614635b7
+-    spec = split_soc.build(build_dir, shape, elf, n_if, cpu_regions, ledgered_point(shape, n_if))
+-=======
+-    spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
+->>>>>>> 05439833
++    spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1,
++                           ledgered_point(shape, n_if))
+     spec['elf'] = str(elf)
+     spec['xip'] = core.xip
+     spec['flash_image'] = str(flash_image) if flash_image else None
+diff --git a/tb/verilator/ctrl_service_budget/selftest.py b/tb/verilator/ctrl_service_budget/selftest.py
+index 067a3a3e18..e8b1336696 100644
+--- a/tb/verilator/ctrl_service_budget/selftest.py
++++ b/tb/verilator/ctrl_service_budget/selftest.py
+@@ -751,7 +751,6 @@ def reuse_checks() -> list[Check]:
+     return out
+ 
+ 
+-<<<<<<< 614635b7
+ def build_checks() -> list[Check]:
+     """The ledgered point is named at its own point only, and every labelled arm and control plant
+     applies to the checkout's sources (each a scratch copy, never the tree)."""
+@@ -773,7 +772,9 @@ def build_checks() -> list[Check]:
+                 failed.append(str(error))
+         out.append(("every labelled arm and control plant applies to the checkout's sources", not failed,
+                     '; '.join(failed)))
+-=======
++    return out
++
++
+ def cache_checks() -> list[Check]:
+     """The instruction cache's build (#665): the fetch observers follow the CPU's fetch plugin, a
+     refill's beats come from the netlist, and the XIP arm keeps the reset entry and the flash
+@@ -852,7 +853,7 @@ def built(bdir: Path, *flags: str) -> tuple[str, dict]:
+     """
+     soc = types.ModuleType('split_soc')
+     soc.fixture_addresses = lambda: {'flash': 0x20000000}
+-    soc.build = lambda build_dir, shape, elf, n_if, cpu_regions, fetch_l1: dict(
++    soc.build = lambda build_dir, shape, elf, n_if, cpu_regions, fetch_l1, ledgered: dict(
+         sources=[], shape=shape, interfaces=n_if, cpu_regions=cpu_regions, fetch_l1=fetch_l1)
+     stubs = dict(
+         firmware=lambda out, *a: write(out / 'image/ctrl_app.elf', b'elf'),
+@@ -902,7 +903,6 @@ def cache_build_checks() -> list[Check]:
+              if not (verdict == 'reached' if reuse else refused(verdict))]
+     out.append(('the run refuses a reused build of another fetch L1 or arm and reuses the selected one; '
+                 'a build with no fetch L1 is cacheless', not wrong, '; '.join(wrong)))
+->>>>>>> 05439833
+     return out
+ 
+ 
+@@ -910,11 +910,7 @@ def checks() -> list[Check]:
+     """Every named check and whether it holds."""
+     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
+             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
+-<<<<<<< 614635b7
+-            *build_checks()]
+-=======
+-            *cache_checks(), *cache_build_checks()]
+->>>>>>> 05439833
++            *build_checks(), *cache_checks(), *cache_build_checks()]
+ 
+ 
+ def write_fixture(log: Path, build_json: Path) -> None:
+diff --git a/tb/verilator/ctrl_service_budget/selftest_mutants.py b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+index 118ebb6947..395f5b9ac5 100644
+--- a/tb/verilator/ctrl_service_budget/selftest_mutants.py
++++ b/tb/verilator/ctrl_service_budget/selftest_mutants.py
+@@ -461,14 +461,12 @@ MUTANTS: dict[str, Patches] = {
+     'tables: a control instance is its own path (earlier rule)': _control_own_path,
+     "tables: a starved instance is not its path's worst": lambda: [patch.object(
+         run, 'severity', lambda r: (False, r['ms']))],
+-<<<<<<< 614635b7
+     'build: the 1x1 point names the ledgered override too': lambda: [patch.dict(
+         build.LEDGERED_POINTS, {('endstation_ax7101_1x1_tdm8', 1): '8x8-two-interfaces'})],
+     "build: arm B anchors the fixture's own observation callbacks (earlier rule)": lambda: [patch.dict(
+         build.VARIANTS, {'answering-ports': [(
+             '{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic bool a_avb',
+             '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\nstatic bool a_avb')]})],
+-=======
+     'fetch bus: the cacheless observers on a cached CPU':
+         lambda: [patch.object(build, 'fetch_bus', _fetch_bus_cacheless)],
+     'fetch bus: one beat a refill': lambda: [patch.object(build, 'fetch_bus', _fetch_bus_one_beat)],
+@@ -484,5 +482,4 @@ MUTANTS: dict[str, Patches] = {
+         build, 'XIP_TEXT', (build.XIP_TEXT[0], build.XIP_TEXT[1].replace('} > rom', '} > flash')))],
+     'xip: the flash driver moves to flash with the other code': lambda: [patch.object(build, 'XIP_TEXT', (
+         build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
+->>>>>>> 05439833
+ }
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 2cf6647ff4..a1e2e0a445 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -420,7 +420,6 @@ class CpuPatches:
+         return stack
+ 
+ 
+-<<<<<<< 614635b7
+ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
+     """add_ctrl_memory's plan held to the named ledgered point's tiles (ctrl_memory.LEDGERED), which
+     refuses any image that is not that point; None keeps the SoC build's plan, which names none."""
+@@ -431,22 +430,15 @@ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
+ 
+ 
+ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
+-          ledgered: str | None = None) -> dict:
+-=======
+-def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
+-          fetch_l1: str = 'split') -> dict:
+->>>>>>> 05439833
++          fetch_l1: str = 'split', ledgered: str | None = None) -> dict:
+     """Export the test SoC's Verilog and return the native build's inputs.
+ 
+     cpu_regions 'cover' gives the CPU generator each region at its
+     power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
+     which reproduces the generator's rom decode defect (a control).
+-<<<<<<< 614635b7
++    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
+     ledgered names the ledgered point this build measures (build.ledgered_point),
+     whose firmware memory is planned to that point's tiles.
+-=======
+-    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
+->>>>>>> 05439833
+     """
+     addresses = fixture_addresses()
+     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
