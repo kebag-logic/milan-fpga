@@ -1,0 +1,22 @@
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index bae3e1559d..33dae01f8b 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -209,7 +209,7 @@ class StimulusMailbox(LiteXModule):
+         one-cycle fw_ack_p_i pulse face_ack_cycles(contract) bus cycles after its fw_send_o
+         rises (#665). The harness measures a CPU budget, so each commit waits as long as the
+         contract lets it. This is the one face input not held idle as CtrlMailbox holds it."""
+-        bound = face_ack_cycles(contract)
++        bound = 256  # PROBE ONLY: later than the contract allows
+         ack = Signal(n_if)
+         for i in range(n_if):
+             waited = Signal(max=bound + 1)
+@@ -424,7 +424,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str =
+     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
+     clocks, params = cfg['constraints'], cfg['soc']
+     contract = milan_soc.ctrl_mailbox_contract()
+-    deviations = ack_deviations(contract)
++    deviations = []  # PROBE ONLY: the bound check is off
+     if deviations:
+         raise RuntimeError(f'the commit acknowledgement is not at the contract bound: {deviations}')
+     platform = platform_for(contract, n_if)

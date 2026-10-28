@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 1dc93019d9..20fe66befb 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -208,7 +208,7 @@ class StimulusMailbox(LiteXModule):
+         one-cycle fw_ack_p_i pulse face_ack_cycles(contract) bus cycles after its fw_send_o
+         rises (#665). The harness measures a CPU budget, so each commit waits as long as the
+         contract lets it. This is the one face input not held idle as CtrlMailbox holds it."""
+-        bound = face_ack_cycles(contract)
++        bound = 1
+         ack = Signal(n_if)
+         for i in range(n_if):
+             waited = Signal(max=bound + 1)

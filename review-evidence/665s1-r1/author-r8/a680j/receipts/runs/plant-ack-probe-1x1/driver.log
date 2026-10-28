@@ -1,0 +1,18 @@
+HEAD 0eda061a4ba96bd23527d1a2367c0497010fe169 DIRTY 1
+$ run.py --point 1x1 --build-dir <builds>/plant-ack-probe-1x1 --record-budget-findings --groups aecp --jobs 4
+COMMAND <litex-tree>/venv/bin/python3 -B <work>/plant/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <litex-tree>/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <litex-tree>/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <litex-tree>/litex/litex/soc/software --output <work>/builds/plant-ack-probe-1x1/runtime
+COMMAND <litex-tree>/venv/bin/python3 -B <work>/plant/sw/firmware/ctrl/test/ctrl_srp_image.py --config <work>/plant/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <work>/builds/plant-ack-probe-1x1/image --libc <work>/builds/plant-ack-probe-1x1/runtime/libc.a --compiler-runtime <work>/builds/plant-ack-probe-1x1/runtime/libcompiler_rt.a
+Traceback (most recent call last):
+  File "<work>/plant/tb/verilator/ctrl_service_budget/run.py", line 332, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<work>/plant/tb/verilator/ctrl_service_budget/run.py", line 304, in main
+    spec = builder.build(build_dir, shape, n_if, cpu_regions=args.cpu_regions, mutation=args.mutation,
+                         variant=args.variant)
+  File "<work>/plant/tb/verilator/ctrl_service_budget/build.py", line 452, in build
+    spec = split_soc.build(build_dir, shape, elf, n_if, cpu_regions, ledgered_point(shape, n_if))
+  File "<work>/plant/tb/verilator/ctrl_service_budget/split_soc.py", line 429, in build
+    raise RuntimeError(f'the commit acknowledgement is not at the contract bound: {deviations}')
+RuntimeError: the commit acknowledgement is not at the contract bound: ['interface 0: fw_send_o rises at [3, 7, 11], fw_ack_p_i at [4, 8, 12], falls at [5, 9, 13], bound 64', 'interface 1: fw_send_o rises at [34], fw_ack_p_i at [35], falls at [36], bound 64']
+elapsed=6s
+rc=1

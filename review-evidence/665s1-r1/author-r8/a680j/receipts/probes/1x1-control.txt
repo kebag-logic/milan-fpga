@@ -1,0 +1,5 @@
+COMMAND <litex-tree>/venv/bin/python3 -B <checkout>/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <litex-tree>/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <litex-tree>/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <litex-tree>/litex/litex/soc/software --output <work>/probe-1x1/runtime
+COMMAND <litex-tree>/venv/bin/python3 -B <checkout>/sw/firmware/ctrl/test/ctrl_srp_image.py --config <checkout>/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <work>/probe-1x1/image --libc <work>/probe-1x1/runtime/libc.a --compiler-runtime <work>/probe-1x1/runtime/libcompiler_rt.a
+FIRMWARE-STEP OK <work>/probe-1x1/image/ctrl_app.elf
+SOC-PLAN (add_ctrl_memory, no override) OK {"rom": {"bytes": 104424, "banks": [65536, 32768, 4096, 2048], "RAMB36": 25, "RAMB18": 1}, "sram": {"bytes": 46256, "banks": [32768, 8192, 4096, 2048], "RAMB36": 11, "RAMB18": 1}, "tiles": 37.0, "budget_tiles": 56}
+rc=0

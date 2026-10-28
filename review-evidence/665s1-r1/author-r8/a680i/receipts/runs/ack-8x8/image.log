@@ -1,0 +1,94 @@
+wrote <work>/builds/ack-8x8/image/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/builds/ack-8x8/image/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/builds/ack-8x8/image/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 93944,
+    ".rodata": 25406,
+    ".data": 448,
+    ".bss": 104348,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3352,
+    "image_aecp_bridge": 132,
+    "image_allocation": 16,
+    "image_app": 10056,
+    "image_arena": 48064,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2480,
+    "image_face": 88,
+    "image_latency": 36,
+    "image_licences": 18,
+    "image_map_pools": 448,
+    "image_maps": 4608,
+    "image_map_scratch": 576,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_platform": 56,
+    "image_sources": 576,
+    "image_srp": 5896,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "51cdded8fae0dae96bb03edd0cb5b962c1bfc3b33a603b8e8443cbb7f7e11ad2"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "701993773e6df3f2b1b91952760abe0e77d8f5766c850c8561afeb28fa1962c2"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 152308,
+      "sha256": "654921b63bbb69d3dae62dcac41eda3b29f22647a4c6147077317694719a06e4"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 139572,
+      "sha256": "2881586e3a9b7a16755e9e55b347c58645160af200f72ad579abefdea7465e4a"
+    }
+  ],
+  "ram_sections": 232338,
+  "split": {
+    "rom": {
+      "bytes": 119800,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        4096,
+        2048
+      ],
+      "RAMB36": 29,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 112992,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 57.5,
+    "budget_tiles": 56,
+    "ledgered": "8x8-two-interfaces",
+    "ledgered_tiles": 57.5
+  }
+}

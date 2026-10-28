@@ -1,0 +1,23 @@
+# arm A 1x1 fan-out, each taking pass's top modules: S2 first round beside this head
+
+reference: 665s2-a681c/receipts/runs/A1/aecp-fanout.json
+this run: AF1/results/aecp-fanout.json
+
+aecp_fanout.add_audio_mappings.if0: cycles 428446 -> 429815, pass accesses 350 -> 351, pass cycles 488907 -> 490506
+    modules (here - reference): {}
+aecp_fanout.lock_entity.if0: cycles 410172 -> 420777, pass accesses 350 -> 362, pass cycles 467583 -> 478446
+    modules (here - reference): {}
+aecp_fanout.remove_audio_mappings.if0: cycles 428827 -> 430196, pass accesses 350 -> 351, pass cycles 489414 -> 491013
+    modules (here - reference): {}
+aecp_fanout.set_clock_source.if0: cycles 402339 -> 438537, pass accesses 316 -> 335, pass cycles 445942 -> 482370
+    modules (here - reference): {'aecp_commands': 11479, 'nvm_klj2': -6949, 'rt_memset': 2711, 'mbx': 2151}
+aecp_fanout.set_control_identify_off.if0: cycles 389281 -> 398391, pass accesses 299 -> 311, pass cycles 446753 -> 456093
+    modules (here - reference): {}
+aecp_fanout.set_control_identify_on.if0: cycles 388673 -> 397783, pass accesses 299 -> 311, pass cycles 446073 -> 455413
+    modules (here - reference): {}
+aecp_fanout.set_name.if0: cycles 566621 -> 574631, pass accesses 601 -> 622, pass cycles 649005 -> 664036
+    modules (here - reference): {'mbx': 2010}
+aecp_fanout.set_sampling_rate.if0: cycles 398460 -> 400164, pass accesses 317 -> 317, pass cycles 440347 -> 442281
+    modules (here - reference): {'aecp_mbx': 6543, 'rt_clzsi2': -6494}
+aecp_fanout.unlock_entity.if0: cycles 410731 -> 421329, pass accesses 350 -> 362, pass cycles 468203 -> 479031
+    modules (here - reference): {}

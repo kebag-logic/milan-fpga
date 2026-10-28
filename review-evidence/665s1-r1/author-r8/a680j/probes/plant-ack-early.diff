@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 1dc93019d9..44606dacc0 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -213,7 +213,7 @@ class StimulusMailbox(LiteXModule):
+         for i in range(n_if):
+             waited = Signal(max=bound + 1)
+             self.sync += If(~send[i], waited.eq(0)).Elif(waited != bound, waited.eq(waited + 1))
+-            self.comb += ack[i].eq(send[i] & (waited == bound))
++            self.comb += ack[i].eq(send[i] & (waited == bound - 1))
+         return ack
+ 
+ 

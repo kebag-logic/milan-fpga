@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Copy each harness leg's evidence into receipts/runs/<leg>/ with host paths replaced, record any
+file over 200 KB by size and sha256 instead of copying it, then write receipts/INDEX.md from the
+files present.  usage: collect_receipts.py"""
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+OUT = Path('$MANAGEMENT/2026-09-23/665s1-a680j')
+WORK = Path('$VALIDATION_STORAGE/scratch/665s1-a680j-work')
+RECEIPTS = OUT / 'receipts'
+LIMIT = 200 * 1024
+#: Longest first, so a path is replaced by its most specific placeholder.
+PLACEHOLDERS = [
+    (str(OUT), '<out>'), (str(WORK), '<work>'), ('$VALIDATION_STORAGE/scratch/665s1-a680i-work', '<earlier-work>'),
+    ('$MANAGEMENT/2026-09-23', '<management>'), ('$LANES/665s1-a680j-shard', '<shard-clone>'), ('$LANES/665-s1-faces', '<checkout>'), ('$WORKSPACE_HOME/litex-milan', '<litex-tree>'),
+    ('$WORKSPACE_HOME/br-milan-rv32', '<rv32-sdk>'), ('$VALIDATION_TOOLS', '<tools>'), ('$WORKSPACE_HOME', '<home>'),
+]
+LEGS = {
+    'A1': 'this head 0eda061a: 1x1/1if, arm A, group aecp, face commits acknowledged at FACE_ACK_CYCLES',
+    'A8': 'this head 0eda061a: 8x8/2if, arm A, group aecp',
+    'B1': 'this head 0eda061a: 1x1/1if, arm B (answering-ports), group aecp-fanout',
+    'B8': 'this head 0eda061a: 8x8/2if, arm B (answering-ports), group aecp-fanout',
+    'AF1': 'this head 0eda061a: 1x1/1if, arm A, group aecp-fanout (beyond the ruling: the formal arm\'s fan-out)',
+    'AF8': 'this head 0eda061a: 8x8/2if, arm A, group aecp-fanout (beyond the ruling)',
+    'C-slow': 'this head 0eda061a: the slow-adp-rx control, 1x1, group control (caught)',
+    'C-asbuilt': 'this head 0eda061a: the as-built control, 1x1 (ESCAPED: cause 5, not cause 1)',
+    'C-asbuilt-merge': 'the merge head 0052e62e: the as-built control, 1x1 (ESCAPED the same way)',
+    'plant-ack-early-1x1': 'PLANT probes/plant-ack-early.diff (acknowledged one cycle early): the build refuses',
+    'plant-ack-probe-1x1': 'PLANT probes/plant-ack-probe.diff (acknowledged one cycle after fw_send_o): the build refuses',
+    'probe-ack256-1x1': 'PROBE probes/probe-ack-256.diff (acknowledged at 256 bus cycles, beyond the contract): 1x1, aecp',
+    'probe-ack1024-1x1': 'PROBE probes/probe-ack-1024.diff (acknowledged at 1024 bus cycles, beyond the contract): 1x1, aecp',
+}
+
+
+def redact(text: str) -> str:
+    """The text with every host path replaced by its placeholder."""
+    for path, name in PLACEHOLDERS:
+        text = text.replace(path, name)
+    return text
+
+
+def put(src: Path, dst: Path, large: list[str]) -> None:
+    """Copy one text file, redacted, or record it when it is over the limit."""
+    if not src.is_file():
+        return
+    data = src.read_bytes()
+    if len(data) > LIMIT:
+        large.append(f'{hashlib.sha256(data).hexdigest()}  {len(data)}  {dst.relative_to(RECEIPTS)}')
+        return
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_text(redact(data.decode(errors='replace')))
+
+
+def main() -> int:
+    """Collect every leg, then the index."""
+    large: list[str] = []
+    sys.path.insert(0, str(WORK / 'plant/tb/verilator/ctrl_service_budget'))
+    import build
+    for leg, what in LEGS.items():
+        b, d = WORK / 'builds' / leg, RECEIPTS / 'runs' / leg
+        d.mkdir(parents=True, exist_ok=True)
+        (d / 'WHAT.txt').write_text(what + '\n')
+        put(WORK / 'logs' / f'{leg}.log', d / 'driver.log', large)
+        for name in ('verilate.log', 'soc.json', 'image.log', 'build.json'):
+            put(b / name, d / name, large)
+        for f in sorted((b / 'results').glob('*')) if (b / 'results').is_dir() else []:
+            put(f, d / 'results' / f.name, large)
+        log = b / 'verilate.log'
+        if log.is_file():
+            missing = build.mailbox_pins_missing(log.read_text(), b / 'gateware')
+            (d / 'mailbox-pins-missing.txt').write_text(
+                f'{len(missing)} mailbox port(s) unconnected (build.mailbox_pins_missing on verilate.log)\n'
+                + ''.join(f'{m}\n' for m in missing))
+        for glog in sorted((b / 'results').glob('*.log')) if (b / 'image/functions.json').is_file() else []:
+            trace = subprocess.run([sys.executable, '-I', str(OUT / 'probes/pc_trace.py'), str(b), str(glog)],
+                                   capture_output=True, text=True, check=False)
+            (d / f'pc-trace-{glog.stem}.txt').write_text(trace.stdout + trace.stderr)
+        elf = b / 'image/ctrl_app.elf'
+        if elf.is_file():
+            (d / 'elf-sha256.txt').write_text(f'{hashlib.sha256(elf.read_bytes()).hexdigest()}  ctrl_app.elf\n')
+    (RECEIPTS / 'large-files.txt').write_text('# sha256  bytes  path (not copied: over 200 KB)\n'
+                                              + ''.join(f'{line}\n' for line in large))
+    for f in RECEIPTS.rglob('*'):
+        if f.is_file() and f.name != 'INDEX.md':
+            text = f.read_text(errors='replace')
+            if redact(text) != text:
+                f.write_text(redact(text))
+    rows = []
+    for f in sorted(p for p in RECEIPTS.rglob('*') if p.is_file() and p.name != 'INDEX.md'):
+        rows.append(f'| `{f.relative_to(RECEIPTS)}` | {f.stat().st_size} | `{hashlib.sha256(f.read_bytes()).hexdigest()}` |')
+    (RECEIPTS / 'INDEX.md').write_text('# Receipts index (generated by probes/collect_receipts.py from the files '
+                                       'present)\n\n| File | Bytes | sha256 |\n|---|---:|---|\n' + '\n'.join(rows) + '\n')
+    print(f'{len(rows)} files indexed, {len(large)} recorded as large')
+    print(json.dumps(large, indent=1))
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

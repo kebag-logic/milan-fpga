@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index 1594f9d62a..2582e43345 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -25,7 +25,7 @@ from pathlib import Path
+ HERE = Path(__file__).resolve().parent
+ ROOT = HERE.parents[2]
+ SIBLING = ROOT / 'tb/verilator/fw_service_budget'
+-SIM_LIMIT_S = 60
++SIM_LIMIT_S = 1  # PROBE ONLY (never the tree): the testbench stops at 1 s simulated
+ #: make's parallelism for the native model (-j16).
+ JOBS = 16
+ 

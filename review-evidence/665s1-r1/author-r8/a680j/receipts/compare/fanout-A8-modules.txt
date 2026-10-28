@@ -1,0 +1,31 @@
+# arm A 8x8 fan-out, each taking pass's top modules: S2 first round beside this head
+
+reference: 665s2-a681c/receipts/runs/A8/aecp-fanout.json
+this run: AF8/results/aecp-fanout.json
+
+aecp_fanout.lock_entity.if0: cycles 803735 -> 837681, pass accesses 662 -> 686, pass cycles 825430 -> 860954
+    modules (here - reference): {'aecp_commands': 28056, 'aecp_nvm': -20254, 'mbx': 2975}
+aecp_fanout.lock_entity.if1: cycles 819673 -> 814768, pass accesses 662 -> 679, pass cycles 824048 -> 821427
+    modules (here - reference): {'aecp_commands': 28056, 'aecp_nvm': -20254, 'rt_memset': -3967}
+aecp_fanout.set_clock_source.if0: cycles 754267 -> 817561, pass accesses 596 -> 613, pass cycles 794840 -> 790356
+    modules (here - reference): {'aecp_commands': 41461, 'srp_mbx': -17852, 'rt_memset': -3967}
+aecp_fanout.set_clock_source.if1: cycles 739685 -> 700438, pass accesses 590 -> 681, pass cycles 761014 -> 957244
+    modules (here - reference): {'rt_memset': 35588, 'aecp_commands': 26255, 'mbx': 21003, 'rt_lshrdi3': 4804, 'mbx_plat_mmio': 3970}
+aecp_fanout.set_control_identify_off.if0: cycles 619292 -> 774415, pass accesses 563 -> 580, pass cycles 787071 -> 782838
+    modules (here - reference): {'aecp_commands': 40424, 'aecp_nvm': -20297, 'rt_memset': -3967}
+aecp_fanout.set_control_identify_off.if1: cycles 748139 -> 655318, pass accesses 556 -> 587, pass cycles 752249 -> 822590
+    modules (here - reference): {'aecp_commands': 40424, 'aecp_nvm': -20297, 'rt_memset': 4367, 'mbx': 4016}
+aecp_fanout.set_control_identify_on.if0: cycles 730813 -> 798831, pass accesses 556 -> 587, pass cycles 751081 -> 821254
+    modules (here - reference): {'aecp_commands': 40424, 'aecp_nvm': -20297, 'rt_memset': 4367, 'mbx': 4016}
+aecp_fanout.set_control_identify_on.if1: cycles 771679 -> 765679, pass accesses 563 -> 580, pass cycles 790359 -> 786118
+    modules (here - reference): {'aecp_commands': 40424, 'aecp_nvm': -20297, 'rt_memset': -3967}
+aecp_fanout.set_name.if0: cycles 1034137 -> 1022780, pass accesses 1137 -> 1172, pass cycles 1205519 -> 1231178
+    modules (here - reference): {'mbx': 4369, 'rt_memset': -3967, 'aecp': -2061}
+aecp_fanout.set_name.if1: cycles 1148961 -> 1061527, pass accesses 1137 -> 1139, pass cycles 1186488 -> 1187452
+    modules (here - reference): {'aecp': -2061}
+aecp_fanout.set_sampling_rate.if0: cycles 754072 -> 790531, pass accesses 589 -> 592, pass cycles 744918 -> 746389
+    modules (here - reference): {'aecp': -2061}
+aecp_fanout.unlock_entity.if0: cycles 782173 -> 814078, pass accesses 655 -> 679, pass cycles 787713 -> 821810
+    modules (here - reference): {'aecp_commands': 28080, 'aecp_nvm': -20254, 'mbx': 2990}
+aecp_fanout.unlock_entity.if1: cycles 786796 -> 696236, pass accesses 655 -> 686, pass cycles 791521 -> 863199
+    modules (here - reference): {'aecp_commands': 28080, 'aecp_nvm': -20254, 'rt_memset': 4367, 'mbx': 4016}
