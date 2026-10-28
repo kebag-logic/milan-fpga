@@ -50,7 +50,7 @@ Simulation never becomes physical evidence.
 
 The [fabric guide](../design/GPTP_PLANE.md) defines boundaries.
 
-The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/SOURCE_EVIDENCE.md) maps internals.
+The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/SOURCE_EVIDENCE.md) maps internals.
 
 ## Requirement mapping
 
