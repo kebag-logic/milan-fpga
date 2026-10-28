@@ -1,0 +1,23 @@
+mutant: the shadow drops entry 0 (the old seven-slot canonicaliser)
+planted in: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+== gptp_shadow: rc 2; 325 checks: 316 PASS, 9 FAIL
+FAIL published path head is the received head got 0000000000000000 exp 00aaccfffe010203
+FAIL TLV-less selected path keeps its head got 0000000000000000 exp 00aaccfffe010203
+FAIL better TLV-less Announce keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL explicit one-entry PathTrace head is the GM got 0000000000000000 exp 00aaccfffe010205
+FAIL empty PathTrace publishes thisClock at entry 0 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL path headed elsewhere publishes the received head got 0000000000000000 exp 00ddbbfffe000001
+FAIL entry-0-only change publishes the new head got 0000000000000000 exp 00ddbbfffe000002
+FAIL entry-0-only change spends one path generation got 0000000000000005 exp 0000000000000006
+FAIL restored path spends one generation got 0000000000000006 exp 0000000000000007
+== milan_dp_gptp: rc 2; 200 checks: 190 PASS, 10 FAIL
+FAIL GET_AS_PATH ordered GM         got 0000000000000000 exp 00aaccfffe010203
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 0000000000000000 exp 00aaccfffe010203
+FAIL explicit one-entry GET_AS_PATH head got 0000000000000000 exp 00aaccfffe010204
+FAIL in-flight response remains wholly old GM got 0000000000000000 exp 00aaccfffe010204
+FAIL #88 post-cut response is {thisClock} got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 GET_AS_PATH entry 0 is the received head got 0000000000000000 exp 001122fffe000044
+FAIL entry-0-only change advances generation once got 0000000000000008 exp 0000000000000009
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 0000000000000000 exp 001122fffe000022
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001

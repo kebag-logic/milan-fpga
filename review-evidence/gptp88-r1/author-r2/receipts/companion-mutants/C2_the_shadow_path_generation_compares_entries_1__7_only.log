@@ -1,0 +1,7 @@
+mutant: C2 the shadow path generation compares entries 1..7 only
+planted in: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+== gptp_shadow: rc 2; 325 checks: 323 PASS, 2 FAIL
+FAIL entry-0-only change spends one path generation got 0000000000000005 exp 0000000000000006
+FAIL restored path spends one generation got 0000000000000006 exp 0000000000000007
+== milan_dp_gptp: rc 2; 200 checks: 199 PASS, 1 FAIL
+FAIL entry-0-only change advances generation once got 0000000000000008 exp 0000000000000009

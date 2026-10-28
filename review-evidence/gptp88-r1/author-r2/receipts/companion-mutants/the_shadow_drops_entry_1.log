@@ -1,0 +1,13 @@
+mutant: the shadow drops entry 1
+planted in: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+== gptp_shadow: rc 2; 325 checks: 320 PASS, 5 FAIL
+FAIL published path middle hop        got 0000000000000000 exp 00ddbbfffe000001
+FAIL TLV-less selected path keeps tail 1 got 0000000000000000 exp 00ddbbfffe000001
+FAIL explicit one-entry PathTrace ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only change keeps tail 1 got 0000000000000000 exp 00aaccfffe010205
+FAIL better Announce preserves middle hop got 0000000000000000 exp 00ddbbfffe000001
+== milan_dp_gptp: rc 2; 200 checks: 196 PASS, 4 FAIL
+FAIL GET_AS_PATH ordered bridge one got 0000000000000000 exp 001122fffe000011
+FAIL explicit one-entry GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 GET_AS_PATH entry 1 is the parent got 0000000000000000 exp 0080e1fffe112233
+FAIL entry-0-only change: GET_AS_PATH keeps entry 1 got 0000000000000000 exp 0080e1fffe112233

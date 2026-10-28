@@ -1,0 +1,13 @@
+mutant: the received head replaced by the grandmaster
+planted in: gptp-processor/hdl/top/KL_gptp_engine.sv
+== gptp_shadow: rc 2; 325 checks: 321 PASS, 4 FAIL
+FAIL path headed elsewhere publishes the received head got 00aaccfffe010205 exp 00ddbbfffe000001
+FAIL entry-0-only change publishes the new head got 00aaccfffe010205 exp 00ddbbfffe000002
+FAIL entry-0-only change spends one path generation got 0000000000000005 exp 0000000000000006
+FAIL restored path spends one generation got 0000000000000006 exp 0000000000000007
+== milan_dp_gptp: rc 2; 200 checks: 195 PASS, 5 FAIL
+FAIL #88 GET_AS_PATH entry 0 is the received head got 00aaccfffe010204 exp 001122fffe000044
+FAIL entry-0-only change advances generation once got 0000000000000008 exp 0000000000000009
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 00aaccfffe010204 exp 001122fffe000022
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001

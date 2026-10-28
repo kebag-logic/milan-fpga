@@ -1,0 +1,20 @@
+START 1 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> make contract
+END 1 0 0.027
+START 2 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> make -C tb/verilator/ucpu
+END 2 0 5.072
+START 3 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> make -C tb/verilator/parser
+END 3 0 86.258
+START 4 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> make -C tb/verilator/engine
+END 4 0 4321.301
+START 5 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> make -C tb/verilator/gaskets
+END 5 0 34.36
+START 6 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> make -C tb/tsngen
+END 6 0 36.966
+START 7 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> make -C bench/arty test
+END 7 0 4.669
+START 8 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> make lint
+END 8 0 0.258
+START 9 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> make docs
+END 9 0 0.742
+START 10 env PATH=<pinned-tools>:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin VERILATOR_ROOT=<verilator-5.050-root> TMPDIR=<tmp> HOME=<home> git diff --exit-code --stat
+END 10 0 0.014

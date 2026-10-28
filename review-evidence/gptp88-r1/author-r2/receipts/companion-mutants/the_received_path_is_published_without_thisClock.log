@@ -1,0 +1,42 @@
+mutant: the received path is published without thisClock
+planted in: gptp-processor/hdl/top/KL_gptp_engine.sv
+== gptp_shadow: rc 2; 325 checks: 311 PASS, 14 FAIL
+FAIL published full path count        got 0000000000000003 exp 0000000000000004
+FAIL TLV-less selected PathTrace keeps its count got 0000000000000003 exp 0000000000000004
+FAIL better TLV-less Announce keeps the previous count got 0000000000000003 exp 0000000000000004
+FAIL explicit one-entry PathTrace publishes count two got 0000000000000001 exp 0000000000000002
+FAIL explicit one-entry PathTrace ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL TLV-less refresh keeps the explicit path got 0000000000000001 exp 0000000000000002
+FAIL empty PathTrace publishes count one got 0000000000000000 exp 0000000000000001
+FAIL empty PathTrace publishes thisClock at entry 0 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL path headed elsewhere publishes count three got 0000000000000002 exp 0000000000000003
+FAIL path headed elsewhere ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only change keeps count three got 0000000000000002 exp 0000000000000003
+FAIL entry-0-only change keeps tail 2 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL present path restored for servo controls got 0000000000000003 exp 0000000000000004
+FAIL better Announce preserves full path count got 0000000000000003 exp 0000000000000004
+== milan_dp_gptp: rc 2; 200 checks: 176 PASS, 24 FAIL
+FAIL fabric live AS_PATH count is five got 0000000000000004 exp 0000000000000005
+FAIL GET_AS_PATH full-tail wire length got 000000000000004a exp 0000000000000052
+FAIL GET_AS_PATH cdl                got 0000000000000030 exp 0000000000000038
+FAIL GET_AS_PATH count five         got 0000000000000004 exp 0000000000000005
+FAIL GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL TLV-less fabric publication keeps the path count got 0000000000000004 exp 0000000000000005
+FAIL TLV-less GM switch keeps the path count got 0000000000000004 exp 0000000000000005
+FAIL #87 TLV-less GM switch: GET_AS_PATH keeps count five got 0000000000000004 exp 0000000000000005
+FAIL #87 TLV-less GM switch: GET_AS_PATH still ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL explicit one-entry fabric PathTrace serves count two got 0000000000000001 exp 0000000000000002
+FAIL explicit one-entry GET_AS_PATH cdl got 0000000000000018 exp 0000000000000020
+FAIL explicit one-entry GET_AS_PATH count got 0000000000000001 exp 0000000000000002
+FAIL explicit one-entry GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL in-flight response remains wholly old count two got 0000000000000001 exp 0000000000000002
+FAIL explicit GM to empty path advances generation once got 0000000000000004 exp 0000000000000005
+FAIL post-cut response is wholly new count one got 0000000000000000 exp 0000000000000001
+FAIL #88 post-cut response is {thisClock} got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL {thisClock} to maximum path advances generation once got 0000000000000006 exp 0000000000000005
+FAIL #88 path headed elsewhere serves count three got 0000000000000002 exp 0000000000000003
+FAIL #88 GET_AS_PATH count three    got 0000000000000002 exp 0000000000000003
+FAIL #88 GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only change keeps count three got 0000000000000002 exp 0000000000000003
+FAIL entry-0-only change: GET_AS_PATH count three got 0000000000000002 exp 0000000000000003
+FAIL entry-0-only change: GET_AS_PATH keeps thisClock last got 0000000000000000 exp 02a1b2fffec3d4e5

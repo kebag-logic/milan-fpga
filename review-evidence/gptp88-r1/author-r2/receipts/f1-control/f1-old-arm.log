@@ -1,0 +1,6 @@
+tree: arm at old
+control: pass
+[PASS] mutant caught: the empty sequence published without a TLV - breaks "#87 G1 to G2 without a TLV: count | #87 G1 to G2 without a TLV: its commit names the grandmaster and path | #87 parent refresh without a TLV: count | #85 absent path: count | TLV-less competition control: raw path count | #87 post-warm-reset TLV-less count | #87 post-warm-reset TLV-less selection commits {thisClock} | TLV-less current parent: keeps the previous count | unknown-only current parent: keeps the previous count | out-of-message fake PathTrace: keeps the previous count | #87 raw-empty overload: frozen A keeps C's path | #85 every peer path ends with thisClock"
+arm verdict: True
+[PASS] mutant caught: a TLV-less Announce publishes {thisClock} - breaks "#87 G1 to G2 without a TLV: count | #87 G1 to G2 without a TLV: head | #87 parent refresh without a TLV: head | TLV-less current parent: keeps the previous count | unknown-only current parent: keeps the previous head | out-of-message fake PathTrace: keeps tail 7 | #87 raw-empty overload: frozen A keeps C's path"
+arm verdict: True

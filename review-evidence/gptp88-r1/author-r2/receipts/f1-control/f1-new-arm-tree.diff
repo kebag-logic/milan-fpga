@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/engine/sim_main.cpp b/tb/verilator/engine/sim_main.cpp
+index ec8c3ab..520f764 100644
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -2643,7 +2643,7 @@ class GptpEngineHarness {
+     grade_the_published_path("#87 G1 elected", G1, G1_S, g1_path,
+                              [&] { send_announce(54, 10, G1, 2, G1_S,
+                                                  {G1, G1_B, G1_S}, 8800000); });
+-    grade_the_published_path("#87 G1 to G2 without a TLV", G2, G2_S, g1_path,
++    grade_the_published_path("#87 G1 to G2 sans TLV", G2, G2_S, g1_path,
+                              [&] { send_announce(55, 5, G2, 1, G2_S, {},
+                                                  8850000); });
+     grade_the_published_path("#88 empty path from the parent", G2, G2_S,

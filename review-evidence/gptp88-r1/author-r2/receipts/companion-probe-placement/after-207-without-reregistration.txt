@@ -1,0 +1,18 @@
+DBG e0 pushes@200k 1 frames 358
+DBG e0 pushes@+0 1 avbinfo 1 frames 715
+DBG e0 pushes@+1 1 avbinfo 1 frames 1071
+DBG e0 pushes@+2 1 avbinfo 1 frames 1427
+DBG e0 pushes@+3 1 avbinfo 1 frames 1782
+DBG e0 pushes@+4 1 avbinfo 1 frames 2137
+DBG e0 pushes@+5 2 avbinfo 3 frames 2498
+DBG e0 pushes@+6 2 avbinfo 3 frames 2852
+DBG e0 pushes@+7 2 avbinfo 3 frames 3207
+DBG e0 pushes@+8 2 avbinfo 3 frames 3564
+DBG e0 pushes@+9 2 avbinfo 3 frames 3919
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000002 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH count three got 0000000000000001 exp 0000000000000003
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 02a1b2fffec3d4e5 exp 001122fffe000022
+FAIL entry-0-only change: GET_AS_PATH keeps entry 1 got 0000000000000000 exp 0080e1fffe112233
+FAIL entry-0-only change: GET_AS_PATH keeps thisClock last got 0000000000000000 exp 02a1b2fffec3d4e5
+DBG served-head pushes 0 frames 3
+200 checks: 195 PASS, 5 FAIL

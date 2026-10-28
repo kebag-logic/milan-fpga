@@ -1,0 +1,6 @@
+$ git rev-parse HEAD
+3f936ba7149c8d3311479cd2b76e72dd766a4341
+$ grep -n "count zero\|count ? GM" docs/reference/REGISTER_MAP_CLASSES.md
+rc=1 (1 = no match)
+$ sed -n 102p docs/reference/REGISTER_MAP_CLASSES.md
+| `0x7DC–0x7E4` | retired AS_PATH publication addresses | **needed** (ABI) | inert LO/HI; live fabric status / zero option OFF | The fabric engine supplies its bounded pathTrace, eight identities from entry 0 (FPGA-gPTP #87, #88), by IEEE 802.1AS-2011 10.3.10.2.1 d): a received path trace TLV is copied as received, its head included, and thisClock appended; an empty TLV gives `{thisClock}`; a selected Announce without the TLV writes nothing, so the previous pathTrace stays (`{thisClock}` after reset or mastership). LO/HI always read zero and every legacy write is inert; 0x7E4 reports the live fabric generation/count or zero in option OFF. Table 5.22 compares `(count ? entry 0 : 0, count, active tails)`: a change of any served entry, entry 0 included, or of the count is a real edge; a GM change that leaves the served sequence unchanged is silent, and GM=0 (an empty sequence) or inactive bytes remain silent. Solicited responses snapshot the complete fabric path at the first count request |
