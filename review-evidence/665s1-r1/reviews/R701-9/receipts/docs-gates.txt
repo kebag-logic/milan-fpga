@@ -1,0 +1,11 @@
+rc=0  scripts/check_doc_paths.py :: doc path gate: OK (1068 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)
+rc=0  scripts/check_doc_style.py :: documentation style: OK (23 current documents)
+rc=2  scripts/check_em_dash.py --base 05439833 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requiremen
+rc=2  scripts/check_em_dash.py --base 614635b7 :: check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requiremen
+rc=0  scripts/check_hygiene.py --check :: HYGIENE RATCHET: PASS (3 population(s), 1307 file(s))
+rc=0  scripts/check_baremetal_only.py --check :: baremetal-only: OK (0 findings across 1438 tracked first-party file(s))
+rc=0  scripts/check_cpp_idiom.py ::   build without warnings: 0 <= 0
+rc=0  scripts/check_sh_idiom.py ::   top-heavy long script: 0 <= 0
+rc=0  (md-venv) scripts/check_em_dash.py --base 05439833 :: check_em_dash: 0 finding(s) over 1241 added line(s) in 9 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [05439833..HEAD]
+rc=0  (md-venv) scripts/check_em_dash.py --base 614635b7 :: check_em_dash: 0 finding(s) over 519 added line(s) in 7 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [614635b7..HEAD]
+rc=0  (md-venv) scripts/docs_check.py :: docs_check: 0 finding(s) across 211 md files + 1440 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
