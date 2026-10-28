@@ -1,0 +1,13 @@
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index 859a216..1a5456c 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -987,7 +987,7 @@ module KL_gptp_engine
+ `ifndef SYNTHESIS
+                 path_stage_pending_r <= 1'b1;
+ `endif
+-                if (ann_pub_present_r) begin
++                if (1'b1) begin
+                   pub_path_count_r <= path_trace_count_w;
+                   for (int unsigned pk = 0; pk < 8; pk++) begin
+                     if (4'(pk + 1) <= ann_pub_count_clamped_w)

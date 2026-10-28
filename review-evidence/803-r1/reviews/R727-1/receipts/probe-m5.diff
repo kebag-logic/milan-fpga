@@ -1,0 +1,13 @@
+diff --git a/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv b/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+index 8d9c40df7d..aee512b4d0 100644
+--- a/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
++++ b/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+@@ -656,7 +656,7 @@ module KL_gptp_shadow #(
+       //! Table 5.22 event even though GET_AS_PATH serves the same sequence.
+       pub_path_count_next_w = (pub_path_count_raw_w > 4'd8) ? 4'd8
+           : pub_path_count_raw_w;
+-      for (int unsigned pk = 0; pk < 8; pk++) begin
++      for (int unsigned pk = 0; pk < 7; pk++) begin
+         if (4'(pk + 1) <= pub_path_count_next_w)
+           pub_path_next_w[64*pk +: 64] = pub_path_raw_w[64*pk +: 64];
+       end

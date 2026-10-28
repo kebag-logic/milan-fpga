@@ -1,0 +1,12 @@
+diff --git a/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv b/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+index 8d9c40df7d..16bb3a4755 100644
+--- a/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
++++ b/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+@@ -661,6 +661,7 @@ module KL_gptp_shadow #(
+           pub_path_next_w[64*pk +: 64] = pub_path_raw_w[64*pk +: 64];
+       end
+     end
++    if (|pub_path_count_next_w) pub_path_next_w[63:0] = pub_gm_raw_w;
+   end : canonical_public_path
+   wire pub_path_changed_w = (pub_path_count_next_w != pub_path_count_o)
+       || (pub_path_next_w != pub_path_o);

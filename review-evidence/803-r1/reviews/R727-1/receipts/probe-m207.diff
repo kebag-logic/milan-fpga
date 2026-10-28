@@ -1,0 +1,28 @@
+diff --git a/tb/verilator/milan_dp/sim_gptp.cpp b/tb/verilator/milan_dp/sim_gptp.cpp
+index 8a6ac9b1e1..c0e28a9866 100644
+--- a/tb/verilator/milan_dp/sim_gptp.cpp
++++ b/tb/verilator/milan_dp/sim_gptp.cpp
+@@ -1659,6 +1659,7 @@ class GptpPlaneHarness {
+       send_wide(dut, s1.b);
+       for (int n = 0; n < 20000 && !dut->m_axis_mac_tx_tvalid; n++)
+         run(dut, 1);                      // the response now holds dispatch
++      const unsigned probe_rp0 = root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r, probe_wp0 = root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r;
+       *eng = 4; dut->eval();              // queue reads full; pushes refused
+       Frame s2 = ptp(0x0, 0x5109, 0, 0x0208, 10);
+       s2.ts(0);
+@@ -1667,6 +1668,7 @@ class GptpPlaneHarness {
+         *eng = 4; dut->eval();
+         run(dut, 1);
+       }
++      printf("PROBE207 rp %u->%u wp %u->%u\n", probe_rp0, (unsigned)root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r, probe_wp0, (unsigned)root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r);
+       uint32_t w2 = axi_read(dut, 0x7E8);
+       uint32_t e2 = axi_read(dut, 0x7EC);
+       expect("a full queue moves only the event count",
+@@ -1681,6 +1683,7 @@ class GptpPlaneHarness {
+       *eng = static_cast<uint8_t>((root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r
+               - root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r) & 3);
+       dut->eval();
++      printf("PROBE207 restored lvl %u\n", (unsigned)*eng);
+       dut->m_axis_mac_tx_tready = 1;      // release the held response
+       run(dut, 4000);                     // drain the real backlog
+ 

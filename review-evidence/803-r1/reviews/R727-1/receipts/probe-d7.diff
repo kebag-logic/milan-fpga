@@ -1,0 +1,13 @@
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index 4b299e4..0b4a94b 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -497,7 +497,7 @@ LOST_N_C = 3                    # allowedLostResponses, 802.1AS-2011 11.5.3
+ # Figure 11-8 RESET increments lostResponses while it is at most
+ # allowedLostResponses and clears asCapable only otherwise, so the count
+ # that clears it is allowedLostResponses + 2: the fifth consecutive loss
+-LOST_CLEARS_AT_C = LOST_N_C + 2
++LOST_CLEARS_AT_C = LOST_N_C + 1
+ SYNC_RTO_MS_C = 375             # syncReceiptTimeout, Table 4.2
+ FU_RTO_MS_C = 125               # followUpReceiptTimeout, Table 4.2
+ # gmPresent is TRUE exactly when the grandmaster's priority1 is below 255
