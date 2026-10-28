@@ -69,7 +69,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The AS_PATH notification compares entry 0, not the grandmaster.
 - The engine path output gains entry 0.
 - That is the engine's one port change.
-- No parent port, parameter or register changes.
+- No top-level port, parameter or register changes.
+- `KL_gptp_shadow.pub_path_o` widens with the engine's.
+- It carries eight entries from entry 0.
+- Its test wrapper `gptp_shadow_wrap` adds `pub_path_head_o`.
 - Two parent companions adapt the wrapper, datapath and benches.
 - The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
 - The physical gPTP leg spans one more Pdelay interval.

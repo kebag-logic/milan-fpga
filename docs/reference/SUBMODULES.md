@@ -307,7 +307,11 @@ The AS_PATH notification compares entry 0, count and entries.
 
 Only its port comments change.
 
-No parent port, parameter or register changes.
+No top-level port, parameter or register changes.
+
+`KL_gptp_shadow.pub_path_o` widens with the engine's: eight entries from entry 0.
+
+Its test wrapper `gptp_shadow_wrap` adds `pub_path_head_o`.
 
 `gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
 
@@ -323,7 +327,7 @@ Over dev's own route, this adoption adds 310 LUTs.
 
 It adds 20 slices; seven of 15,850 remain.
 
-Its shipping route keeps +0.333 ns WNS.
+Its shipping route meets timing at +0.333 ns WNS.
 
 The ROM ledger records current and earlier pins.
 
