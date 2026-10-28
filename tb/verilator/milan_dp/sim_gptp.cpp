@@ -1666,22 +1666,34 @@ class GptpPlaneHarness {
 
       // b) a full queue refuses the next accepted frame's event: only 0x7EC
       //    moves. The four-deep level is held full around exactly one valid
-      //    Sync - the same poke-the-corner idiom as the merge-stall arms -
-      //    while a Pdelay_Resp is held at the MAC (FPGA-gPTP #89: what the
-      //    queue's stale entries would run no longer decides this arm).
-      //    Dispatch can still pop inside the window, and a periodic counter
-      //    push can reach the MAC first, so the level is forced to four on
-      //    every cycle until s2's event has arrived. The level is restored
-      //    to the true wp-rp afterwards; the refused frame's bank stays held,
-      //    which nothing after this arm asserts on.
+      //    Sync - the same poke-the-corner idiom as the merge-stall arms. A
+      //    forced level makes every slot look live, so dispatch must not be
+      //    able to pop inside the window: s1's Pdelay_Resp is held at the MAC
+      //    and s1b, a second real Pdelay_Req, waits at the queue head behind
+      //    s1's response claim (FPGA-gPTP #89: no stale entry runs, so what
+      //    it would run cannot decide this arm or any after it). The level is
+      //    forced to four on every cycle until s2's event has arrived; both
+      //    pointers must then equal their values before the window, and the
+      //    level is restored to its own, so the engine is left as found.
       auto *eng = &root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_lvl_r;
+      const auto &evq_rp = root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r;
+      const auto &evq_wp = root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r;
+      const auto &resp_claim = root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__resp_claim_valid_r;
       dut->m_axis_mac_tx_tready = 0;
       Frame s1 = ptp(0x2, 0x5108, 0, 0x0000, 20);
       s1.u64(0); s1.u16(0); s1.ts(0);
       s1.b.resize(68);
       send_wide(dut, s1.b);
-      for (int n = 0; n < 20000 && !dut->m_axis_mac_tx_tvalid; n++)
-        run(dut, 1);                      // the response now holds dispatch
+      for (int n = 0; n < 20000 && !resp_claim; n++)
+        run(dut, 1);                      // s1's response is claimed, held
+      Frame s1b = ptp(0x2, 0x510A, 0, 0x0000, 20);
+      s1b.u64(0); s1b.u16(0); s1b.ts(0);
+      s1b.b.resize(68);
+      send_wide(dut, s1b.b);
+      for (int n = 0; n < 20000 && *eng == 0; n++)
+        run(dut, 1);                      // s1b now waits at the head
+      const unsigned lvl0 = *eng;
+      const unsigned rp0 = evq_rp, wp0 = evq_wp;
       *eng = 4; dut->eval();              // queue reads full; pushes refused
       Frame s2 = ptp(0x0, 0x5109, 0, 0x0208, 10);
       s2.ts(0);
@@ -1690,6 +1702,11 @@ class GptpPlaneHarness {
         *eng = 4; dut->eval();
         run(dut, 1);
       }
+      const unsigned rp1 = evq_rp, wp1 = evq_wp;
+      *eng = static_cast<uint8_t>(lvl0);
+      dut->eval();
+      printf("[#207] full-queue window: level %u, rp %u->%u, wp %u->%u\n",
+             lvl0, rp0, rp1, wp0, wp1);
       uint32_t w2 = axi_read(dut, 0x7E8);
       uint32_t e2 = axi_read(dut, 0x7EC);
       expect("a full queue moves only the event count",
@@ -1697,13 +1714,8 @@ class GptpPlaneHarness {
       expect("the full-queue refusal leaves the parser count",
              w2 & 0xFFFF, w1 & 0xFFFF);
       expect("the full-queue refusal leaves the tap count", w2 >> 16, w1 >> 16);
-      // The restore is exact only if no pop fired inside the window. A pop
-      // there (a stale entry, as the level is forced) leaves a residue that
-      // is benign only because nothing after this arm grades the queue or
-      // the events it would run; otherwise gate the restore on dbg_busy_o.
-      *eng = static_cast<uint8_t>((root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r
-              - root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r) & 3);
-      dut->eval();
+      expect("the full-queue window pops and pushes no event",
+             rp1 == rp0 && wp1 == wp0, 1);
       dut->m_axis_mac_tx_tready = 1;      // release the held response
       run(dut, 4000);                     // drain the real backlog
 
