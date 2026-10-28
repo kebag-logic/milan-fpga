@@ -73,12 +73,8 @@ VERILATOR_JOB = "verilator-shards"
 #: 582 s passing on worker 4/17 of pull-request run 40131149135 at 8a4fa2f9
 #: (job 120983200812, whose suite step ran 655 s for its four suites), while
 #: three earlier hosted windows ran past 900 s to TIMEOUT, so its variance is wide.
-#: #799: each suite whose Makefile compiles a source that the protocol-processor
-#: f65c8ff7 adoption changes carries its largest window from that adoption's
-#: pull-request runs 40724689169 at ca39dc1b and 40740015218 at 4f3ebffb, except
-#: media_phase, which keeps the 1400 s above. `follow_ring` was cut off on both
-#: runs, so it carries 1493 s, its largest complete hosted window (dev run
-#: 40460559108 at 97aab1d0).
+#: #799: suites the f65c8ff7 processor adoption reaches, except media_phase, carry their
+#: largest window in runs 40724689169 and 40740015218; follow_ring 1493 s, dev run 40460559108.
 SUITE_SECONDS = {
     "aaf": 75,
     "aaf_audio_loop": 7,
@@ -155,21 +151,13 @@ PROVISIONAL_SUITES: frozenset[str] = frozenset()
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
 #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
-#: #781: a seventeenth worker takes media_phase's hosted 1400 s budget at the
-#: same 45-minute limit and the same 122 s allowance as every regular worker.
-#: #799: the eighteenth and nineteenth do the same for the measured growth of
-#: the suites the protocol-processor f65c8ff7 adoption reaches (see below).
+#: #781 and #799 add workers 17 to 19 at the regular 45-minute limit and 122 s allowance.
 WORKER_OVERHEAD_SECONDS = (122,) * 19
 
 # Physical inventory stays available to the serial gate and log ownership.
 SERIAL_SUITE_SECONDS = SUITE_SECONDS.copy()
-# Projected seconds: hosted parent windows at 7032bca5 apportioned by local
-# leg wall time. Media-clock legs use the full-run speed ratio instead, since
-# its continuous histories overlap in the full campaign. See CI_WORKFLOWS.md.
-# #799: every leg is now the largest hosted window of the same two runs as
-# SUITE_SECONDS' #799 figures. The figures are keyed by leg index, and the
-# driver deals cases round-robin, so `milan_dp`'s legs hold for its 24-case
-# inventory only (#804).
+# Hosted leg windows, as SUITE_SECONDS' #799 figures. Keyed by leg index while the driver
+# deals cases round-robin, so an inserted case re-targets them (#804). See CI_WORKFLOWS.md.
 PIECE_SECONDS = {
     "milan_dp": (1429, 508, 325, 1307),
     "milan_dp_mclk": (988, 742, 717, 488),
