@@ -1,0 +1,693 @@
++- **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
++## Unreleased - gPTP pin f97c1803
++
++- Issue #803 adopts gPTP `f97c1803`, PRs #92 and #93.
++- A 375 ms Sync timeout ages the grandmaster (gPTP #89).
++- That applies while gmPresent holds (Figure 10-13, Cor1).
++- With no other peer, this station becomes grandmaster then.
++- A priority1 255 grandmaster stays; its timeout clears sync only.
++- asCapable clears at the fifth lost Pdelay response (gPTP #90).
++- A duplicate Pdelay_Resp resets the exchange (gPTP #91).
++- Announce qualification keeps only a) to c) (gPTP #88).
++- The clause is 10.3.10.2.1.
++- A path count other than stepsRemoved+1 is accepted.
++- So is a path head other than the grandmaster.
++- The path is copied as received, head included, plus thisClock.
++- An empty path trace TLV gives `{thisClock}`.
++- Without a TLV, the previous pathTrace stays (gPTP #87).
++- GET_AS_PATH serves entry 0 from the engine's head.
++- Entry 0 was the grandmaster identity.
++- Its clause is IEEE 1722.1-2021 7.4.41.2.
++- The AS_PATH notification compares entry 0, not the grandmaster.
++- The engine path output gains entry 0.
++- That is the engine's one port change.
++- No parent port, parameter or register changes.
++- Two parent companions adapt the wrapper, datapath and benches.
++- The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
++- The physical gPTP leg spans one more Pdelay interval.
++- route-1x1 is 481 LUTs over the record; tolerance 500.
++- Over dev's own route it adds 310 LUTs, 20 slices.
++- Seven slices remain free; WNS is +0.333 ns.
++- VERSION is unchanged; the release step owns the bump.
++
++- `GET_STREAM_INFO`, `GET_AVB_INFO`, and `GET_AS_PATH` (the atomically
++  published pathTrace, from its entry 0)
++owner publishes pathTrace (IEEE 802.1AS-2011 10.3.10.2.1 d)): no entries
++without a GM; otherwise up to eight identities from entry 0. A path trace TLV's
++pathSequence is copied as received, its head included even when that head is
++not the grandmaster, and thisClock is appended (FPGA-gPTP #85, #88), so an
++explicit one-entry `[GM]` PathTrace is count two and an empty one is
++`{thisClock}`. An Announce without the TLV writes no pathTrace, so the previous
++one stays (FPGA-gPTP #87). The engine and wrapper commit the complete
++count/entries atomically; software writes cannot forge them. The
++verification-only option-OFF elaboration is deliberately ownerless: its GM,
++parent, path and peer-delay publications are zero, sync/asCapable are zero,
++and `tu` is one. Writes to the retained address-map slots are inert and cannot
++manufacture live state. In the product build, count one is this station's own
++path, `{thisClock}`, before a peer is elected and after it departs
++(FPGA-gPTP #82). A GM change on a TLV-less Announce keeps the served path, so it
++is silent for AS_PATH but remains live for AVB/GM duties. GM=0 publications,
++inactive entry bytes, and identical republishes are silent. The response
++snapshots its selected path before gathering entries, so an in-flight response
++is wholly old and the next wholly new.
++| Sync timeout, GM priority1 below 255 | Age the port, re-run best-master selection | GM may become this station; `tu` asserts |
++| Sync timeout, GM priority1 255 | Clear synchronized state | `tu` asserts; the GM stays |
++| Pdelay failure, fifth lost response | Clear `asCapable` | Capability becomes false |
++A Sync timeout ages the port only while gmPresent holds.
++
++The rule is IEEE 802.1AS-2011 Figure 10-13 with Cor1.
++
++FPGA-gPTP #89 adopted it.
++
++Four consecutive lost Pdelay responses keep `asCapable` (Figure 11-8, FPGA-gPTP #90).
++
++| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/MANAGER.md) |
++| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/INTEGRATION.md) |
++| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/HDL_DEVELOPER.md) |
++| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/TEST_DEVELOPER.md) |
++The fifth unanswered request after it clears asCapable.
++The fourth unanswered request after it clears asCapable.
++| Engine contract | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/INTEGRATION.md#step-versus-slew-policy) |
++      "raster_sha256": "2dc570c09a178453f8f47eee99203b62cff1f08d3fd898a2e44af8fbf08ce3f6",
++      "source_sha256": "f2759c2bd6695db33444771f0a9200b5ec262be58927707069412d15d1913888",
++      "raster_sha256": "ee34287f2307e470421fb8fd9a65ac92b203a8ea34b9f9257cf83424672e9815",
++      "source_sha256": "6bdc6b08fab60fc4b8fe684455a5eb69ac0e6f4b0710c9a99ab7b2d1bbd2c50a",
++<mxfile host="app.diagrams.net"><diagram name="submodules"><mxGraphModel dx="1500" dy="1210" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1210" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="&lt;b&gt;Verified submodule boundaries&lt;/b&gt;&lt;br&gt;Submodule paths and revisions come directly from Git." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=22;fontFamily=Helvetica;fillColor=none;strokeColor=none;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="65" as="geometry"/></mxCell><mxCell id="root" value="&lt;b&gt;milan-fpga&lt;/b&gt;&lt;br&gt;integration and verification owner&lt;br&gt;&lt;br&gt;&lt;b&gt;milan_datapath.sv&lt;/b&gt;&lt;br&gt;primary product boundary&lt;br&gt;&lt;br&gt;&lt;b&gt;Root integration tests&lt;/b&gt;&lt;br&gt;Donor gates remain&lt;br&gt;independently required." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=18;fontFamily=Helvetica;fillColor=#F3E5F5;strokeColor=#6A1B9A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="540" y="270" width="420" height="310" as="geometry"/></mxCell><mxCell id="sub-protocol-processor" value="&lt;b&gt;ACTIVE CONTROL&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;protocol-processor&lt;/b&gt;&lt;br&gt;ADP, ACMP, AECP, and SRP engine&lt;br&gt;&lt;br&gt;pin ed2118035e4c&lt;br&gt;wrapper:&lt;br&gt;hdl/milan/&lt;br&gt;KL_pp_shadow.sv&lt;br&gt;test: tb/verilator/pp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-gptp-processor" value="&lt;b&gt;ACTIVE TIME&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;gptp-processor&lt;/b&gt;&lt;br&gt;IEEE 802.1AS fabric engine&lt;br&gt;&lt;br&gt;pin f97c18035be6&lt;br&gt;wrapper:&lt;br&gt;hdl/ieee8021as/gptp_plane/&lt;br&gt;KL_gptp_shadow.sv&lt;br&gt;test: tb/verilator/gptp_shadow" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="35" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-verilog-axis" value="&lt;b&gt;ACTIVE VENDOR&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/verilog-axis&lt;/b&gt;&lt;br&gt;AXI-Stream FIFO and demultiplexer primitives&lt;br&gt;&lt;br&gt;pin 48ff7a7e2ef7&lt;br&gt;representative consumer:&lt;br&gt;hdl/ieee8021q/ts/&lt;br&gt;traffic_queues.sv&lt;br&gt;test: tb/verilator/queues" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF3E0;strokeColor=#EF6C00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="135" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-external" value="&lt;b&gt;UNUSED IMPORT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;external&lt;/b&gt;&lt;br&gt;Historical Ethernet MAC import&lt;br&gt;&lt;br&gt;pin efeb541ae5fe&lt;br&gt;product integration:&lt;br&gt;./&lt;br&gt;no active root consumer&lt;br&gt;test: not applicable" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1045" y="500" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-lwSRP" value="&lt;b&gt;CORE SRP&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/lwSRP&lt;/b&gt;&lt;br&gt;Bare-metal MRP, MSRP and MVRP library&lt;br&gt;&lt;br&gt;pin 08ee86e812a0&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/srp/&lt;br&gt;srp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFF8E1;strokeColor=#8D6E00;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="290" y="800" width="420" height="270" as="geometry"/></mxCell><mxCell id="sub-third_party-tsn-c-stack" value="&lt;b&gt;CORE STACK&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;third_party/tsn-c-stack&lt;/b&gt;&lt;br&gt;Portable ADP, ACMP and MAAP cores&lt;br&gt;&lt;br&gt;pin 70936b77dc41&lt;br&gt;mailbox adapter:&lt;br&gt;sw/firmware/ctrl/acmp/&lt;br&gt;acmp_mbx.c&lt;br&gt;test: sw/firmware/ctrl/test" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#E0F2F1;strokeColor=#00695C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="790" y="800" width="420" height="270" as="geometry"/></mxCell><mxCell id="edge1" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-protocol-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge2" value="wrapper" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-gptp-processor" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge3" value="RTL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-verilog-axis" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge4" value="legacy" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="sub-external" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge5" value="C port" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-lwSRP" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="edge6" value="C cores" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=16;fontFamily=Helvetica;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="sub-third_party-tsn-c-stack" target="root"><mxGeometry relative="1" as="geometry"/></mxCell><mxCell id="evidence" value="&lt;b&gt;Evidence rule&lt;/b&gt;&lt;br&gt;Run donor suites before root integration suites." style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;spacingTop=12;spacingLeft=12;fontSize=16;fontFamily=Helvetica;fillColor=#FFFFFF;strokeColor=#78909C;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="190" y="1110" width="1120" height="70" as="geometry"/></mxCell></root></mxGraphModel></diagram></mxfile>
++<text x="53" y="662" font-size="16" fill="#37474F">pin f97c18035be6</text>
++<mxfile host="app.diagrams.net"><diagram name="fabric-time"><mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="title" value="Fabric time ownership and integration" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#263238;" vertex="1" parent="1"><mxGeometry x="35" y="25" width="900" height="45" as="geometry"/></mxCell><mxCell id="status" value="Product owner: implemented. Media consumption: implemented." style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="65" width="900" height="28" as="geometry"/></mxCell><mxCell id="network-boundary" value="NETWORK TIME" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="35" y="95" width="260" height="28" as="geometry"/></mxCell><mxCell id="timestamp-boundary" value="TIMESTAMP AND PUBLICATION BOUNDARIES" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#B26A00;" vertex="1" parent="1"><mxGeometry x="35" y="310" width="420" height="28" as="geometry"/></mxCell><mxCell id="media-boundary" value="PRESENTATION AND MEDIA BOUNDARY" style="text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="35" y="610" width="390" height="28" as="geometry"/></mxCell><mxCell id="sources" value="Sources: milan_datapath, KL_gptp_shadow, KL_gptp_txticket, KL_gptp_txret, KL_gptp_gmii_launch, KL_ptp_clock_validity, feature ledger, and exact Gitlink." style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#78909C;" vertex="1" parent="1"><mxGeometry x="35" y="840" width="1250" height="25" as="geometry"/></mxCell><mxCell id="n-peer" value="&lt;b&gt;802.1AS peer&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ethernet wire" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="35" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-rx" value="&lt;b&gt;Parent RX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;accepted MAC beats&lt;br&gt;first-beat PHC time" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="250" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-engine" value="&lt;b&gt;Fabric gPTP engine&lt;/b&gt;&lt;br&gt;&lt;br&gt;pin f97c18035be6&lt;br&gt;protocol, timers, servo" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="545" y="115" width="300" height="150" as="geometry"/></mxCell><mxCell id="n-tx" value="&lt;b&gt;Parent TX seam&lt;/b&gt;&lt;br&gt;&lt;br&gt;byte-to-wide transport&lt;br&gt;valid-ready backpressure" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E3F2FD;strokeColor=#1565C0;" vertex="1" parent="1"><mxGeometry x="895" y="125" width="245" height="130" as="geometry"/></mxCell><mxCell id="n-mac" value="&lt;b&gt;MAC boundary&lt;/b&gt;&lt;br&gt;&lt;br&gt;actual TX acceptance" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#ECEFF1;strokeColor=#546E7A;" vertex="1" parent="1"><mxGeometry x="1190" y="140" width="175" height="100" as="geometry"/></mxCell><mxCell id="n-phc" value="&lt;b&gt;PHC counter&lt;/b&gt;&lt;br&gt;&lt;br&gt;network nanoseconds&lt;br&gt;rate and phase controls" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="150" y="350" width="300" height="135" as="geometry"/></mxCell><mxCell id="n-publish" value="&lt;b&gt;Atomic publication&lt;/b&gt;&lt;br&gt;&lt;br&gt;GM, parent, path&lt;br&gt;delay, flags, commit" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="535" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-consumers" value="&lt;b&gt;Public consumers&lt;/b&gt;&lt;br&gt;&lt;br&gt;CSR and protocol&lt;br&gt;AVTP tu and status" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#F3E5F5;strokeColor=#6A1B9A;" vertex="1" parent="1"><mxGeometry x="900" y="350" width="310" height="135" as="geometry"/></mxCell><mxCell id="n-stamp" value="&lt;b&gt;Egress launch timestamp&lt;/b&gt;&lt;br&gt;&lt;br&gt;the frame&#x27;s own launch&lt;br&gt;one stage before the pads&lt;br&gt;sequence plus type" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF8E1;strokeColor=#F9A825;" vertex="1" parent="1"><mxGeometry x="1260" y="350" width="285" height="135" as="geometry"/></mxCell><mxCell id="n-avtp" value="&lt;b&gt;AVTP timeline&lt;/b&gt;&lt;br&gt;&lt;br&gt;PHC dates AAF and CRF&lt;br&gt;tu reports uncertainty" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#FFF3E0;strokeColor=#EF6C00;" vertex="1" parent="1"><mxGeometry x="115" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-crf" value="&lt;b&gt;CRF measurement&lt;/b&gt;&lt;br&gt;&lt;br&gt;remote phase and rate&lt;br&gt;selection reaches root" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="565" y="650" width="330" height="135" as="geometry"/></mxCell><mxCell id="n-media" value="&lt;b&gt;Media clock lineage&lt;/b&gt;&lt;br&gt;&lt;br&gt;INTERNAL: free-run&lt;br&gt;CRF: steered and aligned" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="1070" y="635" width="380" height="165" as="geometry"/></mxCell><mxCell id="n-select" value="&lt;b&gt;CRF steering gates&lt;/b&gt;&lt;br&gt;&lt;br&gt;status: implemented&lt;br&gt;rate and grid loops" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;fontSize=15;strokeWidth=2;fillColor=#E8F5E9;strokeColor=#2E7D32;" vertex="1" parent="1"><mxGeometry x="920" y="525" width="245" height="100" as="geometry"/></mxCell><mxCell id="e-0" value="RX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-peer" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-rx" target="n-engine"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-2" value="bytes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-tx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-3" value="TX" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-tx" target="n-mac"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-4" value="PHC time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-rx"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-5" value="rate / phase" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-engine" target="n-phc"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="620" y="310"/><mxPoint x="450" y="310"/></Array></mxGeometry></mxCell><mxCell id="e-6" value="commit" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-engine" target="n-publish"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-7" value="state" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-publish" target="n-consumers"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-8" value="launched frame" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-mac" target="n-stamp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-9" value="return tuple" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-stamp" target="n-engine"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1402" y="290"/><mxPoint x="800" y="290"/></Array></mxGeometry></mxCell><mxCell id="e-10" value="presentation time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-avtp"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-11" value="common time" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-phc" target="n-crf"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="500" y="450"/><mxPoint x="500" y="610"/><mxPoint x="730" y="610"/></Array></mxGeometry></mxCell><mxCell id="e-12" value="internal events" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="n-media" target="n-crf"><mxGeometry relative="1" as="geometry"></mxGeometry></mxCell><mxCell id="e-13" value="rate error" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-crf" target="n-select"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="940" y="680"/></Array></mxGeometry></mxCell><mxCell id="e-14" value="steer / align" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeWidth=2;fontSize=12;labelBackgroundColor=#FFFFFF;dashed=1;" edge="1" parent="1" source="n-select" target="n-media"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1260" y="575"/></Array></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
++<text x="695.0" y="177" text-anchor="middle" font-size="14" fill="#37474F">pin f97c18035be6</text>
++Read the [engine HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/HDL_DEVELOPER.md).
++![RX acceptance timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/diagrams/wavedrom/rx_accept.svg)
++![TX backpressure timing](https://raw.githubusercontent.com/Mister-M-alt/FPGA-gPTP/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/diagrams/wavedrom/tx_backpressure.svg)
++Start with the [source ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/SOURCE_EVIDENCE.md).
++Read the [engine manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/MANAGER.md).
++Open upstream risks appear in the [engine guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/MANAGER.md).
++Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/INTEGRATION.md).
++Read the [engine test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/TEST_DEVELOPER.md).
++In product fabric mode that sequence is empty without a GM, and otherwise is
++the committed engine pathTrace, up to eight identities from entry 0 (see
++0x7DC below). The 0x7DC addresses are inert in both elaborations. The response
++snapshots the canonical selected path before gathering entries, so it stays on
++one coherent generation. Count one is `{thisClock}`, this station's own path
++before a peer is elected (FPGA-gPTP #82); a received sequence gains thisClock,
++so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP #85). GM=0
++publications and an identical publish are silent. The
++bounded pathTrace publication, entry 0 first. The engine publishes eight
++identities from entry 0 and their count (FPGA-gPTP #87, #88); entry 0 is
++served as published, never replaced by the grandmaster identity.
++
++IEEE 802.1AS-2011 10.3.10.2.1 d), the edition Milan v1.2 profiles, writes
++pathTrace only from a received path trace TLV: its pathSequence is copied as
++received and thisClock appended (FPGA-gPTP #85), so the count includes
++thisClock. The copy keeps the received head, which need not be the
++grandmaster, and an empty pathSequence gives `{thisClock}` (FPGA-gPTP #88).
++When the selected Announce carries no TLV, nothing is written and pathTrace
++keeps its previous value (FPGA-gPTP #87): `{thisClock}` after reset or
++mastership (10.3.12.1.1, 10.3.12.1.4 i), with Cor1-2013, FPGA-gPTP #82), and
++otherwise the last path copied from a TLV, even across a grandmaster change.
++the count stays 8 and thisClock is not appended (FPGA-gPTP #86). Up to seven
++received entries always gain thisClock.
++| `0x7DC–0x7E4` | retired AS_PATH publication addresses | **needed** (ABI) | inert LO/HI; live fabric status / zero option OFF | The fabric engine supplies its bounded pathTrace, eight identities from entry 0 (FPGA-gPTP #87, #88), by IEEE 802.1AS-2011 10.3.10.2.1 d): a received path trace TLV is copied as received, its head included, and thisClock appended; an empty TLV gives `{thisClock}`; a selected Announce without the TLV writes nothing, so the previous pathTrace stays (`{thisClock}` after reset or mastership). LO/HI always read zero and every legacy write is inert; 0x7E4 reports the live fabric generation/count or zero in option OFF. Table 5.22 compares `(count ? entry 0 : 0, count, active tails)`: a change of any served entry, entry 0 included, or of the count is a real edge; a GM change that leaves the served sequence unchanged is silent, and GM=0 (an empty sequence) or inactive bytes remain silent. Solicited responses snapshot the complete fabric path at the first count request |
++| `gptp-processor` | `f97c18035be6ef5345e5af27db2124c5697c1b40` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
++Issue #803 adopts gPTP pin `f97c1803`.
++
++The processor stays at `ed211803`.
++
++| gPTP issue | Merged PR | Parent-visible result |
++|---|---|---|
++| #89, Sync receipt timeout | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | A grandmaster whose Sync stops for 375 ms is aged while gmPresent holds (IEEE 802.1AS-2011 Section 10.3.11, Figure 10-13 with Cor1-2013); with no other peer this station becomes grandmaster at that timeout, and the Milan v1.2 Annex B.1.1 holdover arms; a priority1 255 grandmaster stays elected, and its timeout clears sync only |
++| #90, lost responses | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | asCapable clears at the fifth consecutive lost Pdelay response, where it cleared at the fourth (Figure 11-8 RESET) |
++| #91, duplicate responses | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | A second Pdelay_Resp for the outstanding request resets the exchange, and that interval counts as a lost response (Figure 11-8) |
++| #88, Announce qualification | [93](https://github.com/Mister-M-alt/FPGA-gPTP/pull/93) | Only Section 10.3.10.2.1 a) to c) disqualify: a path count other than stepsRemoved+1 and a path head other than the grandmaster are accepted; d) copies the path as received, its head included, and appends thisClock, so an empty path trace TLV gives `{thisClock}` |
++| #87, no path trace TLV | [93](https://github.com/Mister-M-alt/FPGA-gPTP/pull/93) | An Announce without the TLV writes no pathTrace, so the previous one stays: `{thisClock}` after reset or mastership, otherwise the last path copied, across a grandmaster change too |
++
++The engine's one port change is `pub_path_o`.
++
++It carries eight entries from entry 0.
++
++It carried seven, after the grandmaster.
++
++`KL_gptp_shadow` publishes all eight entries.
++
++`milan_datapath` serves GET_AS_PATH entry 0 from that head.
++
++Its clause is IEEE 1722.1-2021 7.4.41.2.
++
++Entry 0 was the grandmaster identity.
++
++It is now the received head or thisClock.
++
++The AS_PATH notification compares entry 0, count and entries.
++
++`milan_csr` keeps its seven-entry AS_PATH face.
++
++Only its port comments change.
++
++No parent port, parameter or register changes.
++
++`gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
++
++The physical gPTP leg spans one more Pdelay interval.
++
++It runs 17.992742740 simulated seconds.
++
++Route-1x1 is 481 LUTs over the current resource record.
++
++Its tolerance is 500 LUTs, so the gate passes.
++
++Over dev's own route, this adoption adds 310 LUTs.
++
++It adds 20 slices; seven of 15,850 remain.
++
++Its shipping route keeps +0.333 ns WNS.
++
++- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/MANAGER.md)
++- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/INTEGRATION.md)
++- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/HDL_DEVELOPER.md)
++- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/TEST_DEVELOPER.md)
++      "summary": "Every successful state-changing command pushes to each registered controller except the requester; the Table 5.22 observed triggers are wired from the fabric -- counters at one push per descriptor per second, AS_PATH (a changed served pathTrace: its count or any entry, entry 0 included, FPGA-gPTP #87, #88), and a GET_AVB_INFO trigger that snapshot-compares every field the root serves (grandmaster identity, the effective propagation delay, the gPTP domain number, asCapable), none of them conditioned on grandmaster presence, with the SR class-A priority and VLAN ID detected by the processor off the wires it publishes.",
++Five missed Pdelay intervals, recovery, and reset require physical seconds.
++The scenario spans 17.992742740 simulated seconds over 899637137 cycles.
++The [engine ledger](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/SOURCE_EVIDENCE.md) maps internals.
++Subproject commit f97c18035be6ef5345e5af27db2124c5697c1b40
++  input  wire [7*64-1:0]         i_gptp_asp_path,     //! fabric selected pathTrace entries 1..7
++  input  wire [3:0]              i_gptp_asp_count,    //! fabric complete length incl entry 0
++  output wire [7*64-1:0]         o_asp_path,          //! published pathTrace entries 1..7
++  output wire [3:0]              o_asp_count,         //! published path length (entries incl entry 0)
++    output logic  [3:0] pub_path_count_o, //! pathTrace entries published, 0..8
++    output logic [8*64-1:0] pub_path_o,   //! pathTrace entries 0..7, entry k at 64*k
++  logic [8*64-1:0] pub_path_raw_w;
++  //! Canonical public sequence. A path has no identity without a GM. With a
++  //! GM, the engine publishes pathTrace itself from entry 0 (FPGA-gPTP #87,
++  //! #88): a received pathSequence as received, its head included, with
++  //! thisClock appended (#85), so an explicit one-entry `[GM]` PathTrace
++  //! publishes count two and an empty one `{thisClock}`. Without a TLV the
++  //! previous pathTrace stays (IEEE 802.1AS-2011 10.3.10.2.1 d)), so a GM
++  //! change on a TLV-less Announce serves the same sequence. `{thisClock}`,
++  //! count one, is this station's own path before a peer is elected and
++  //! after it departs (#82). Generation covers the COMPLETE sequence this
++  //! parent serves, entry 0 included, and nothing else: the scalar GM
++  //! publication stays independent, so GET_AVB_INFO, ADP and the GM-change
++  //! counter still observe every identity edge while the served path holds.
++  logic [8*64-1:0] pub_path_next_w;
++      //! Clamp a hostile or future wider donor at the public eight-entry ABI
++      for (int unsigned pk = 0; pk < 8; pk++) begin
++        if (4'(pk + 1) <= pub_path_count_next_w)
++  wire pub_path_changed_w = (pub_path_count_next_w != pub_path_count_o)
++**PASS** -- 675 pass, 0 fail, 0 known gaps  ·  2026-10-28 20:06
++| BTCA under fuzz: only a legal better vector moves the grandmaster | 80 | 0 | 0 |
++* better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): adopted
++* better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): no longer grandmaster
++* better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): parent follows its source
++* better vector, one path-trace hop against stepsRemoved 1 (10.3.10.2.1): parser drop counter unmoved
++* better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): adopted
++* better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): no longer grandmaster
++* better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): parent follows its source
++* better vector, path-trace head is not the announced grandmaster (10.3.10.2.1): parser drop counter unmoved
++* better vector, stepsRemoved 255 on a one-hop path trace (10.3.10.2.1b): GM unmoved
++* better vector, stepsRemoved 255 on a one-hop path trace (10.3.10.2.1b): flags stable
++* better vector, stepsRemoved 255 on a one-hop path trace (10.3.10.2.1b): parent unmoved
++* better vector, stepsRemoved 255 on a one-hop path trace (10.3.10.2.1b): parser drop counter unmoved
++* better vector, stepsRemoved 255 on a one-hop path trace (10.3.10.2.1b): rejected, plane stays GM
++  //! pathTrace entries 0..7 (FPGA-gPTP #87, #88). Entry 0, the received head
++  //! or thisClock, feeds GET_AS_PATH directly; the CSR's AS_PATH face keeps
++  //! its seven-entry width and takes entries 1..7.
++  wire [8*64-1:0] gptp_pub_path_w;
++  wire [63:0] gptp_pub_path_head_w = gptp_pub_path_w[63:0];
++  wire [7*64-1:0] gptp_pub_path_tail_w = gptp_pub_path_w[8*64-1:64];
++  //! gh #64 J4 selected PathTrace: the pathTrace GET_AS_PATH serves. The
++  //! notification edge is derived below from the complete LIVE served
++  //! sequence, not a raw CSR generation. Product fabric mode serves the
++  //! engine's pathTrace from entry 0 (FPGA-gPTP #87, #88): a received
++  //! pathSequence as received, its head included, with thisClock appended
++  //! (#85), so an explicit one-entry `[GM]` PathTrace is count two. Without a
++  //! TLV the previous pathTrace stays; `{thisClock}`, count one, is this
++  //! station's own path before a peer is elected (#82). The option-off shape
++  //! has no path owner. Every owner aliases to empty while no grandmaster
++  //! exists.
++  //! Tail slot count DERIVED from the CSR port width (one source, as the CSR
++  //! does); entry 0 comes from the engine's head output beside it.
++  //! milan_csr owner-selects o_asp_*: entries 1..7 of the engine's complete
++  //! committed pathTrace in product mode and structural zero in option-off
++  //! mode. Entry 0 takes the same owner selection here. The conditional
++  //! head below is the exact entry-zero value GET_AS_PATH serves and the
++  //! Table 5.22 comparator observes: the received head, which need not be
++  //! the grandmaster (#88), or thisClock.
++  wire [63:0] asp_owner_head_w = GPTP_PLANE_EN_P ? gptp_pub_path_head_w
++                                                 : 64'd0;
++  wire [63:0] asp_live_head_w = (|asp_live_count_w) ? asp_owner_head_w
++    .i_gptp_asp_path      (gptp_pub_path_tail_w),
++  logic [63:0] asp_resp_head_r;
++      asp_resp_head_r <= 64'd0;
++        asp_resp_head_r  <= asp_live_head_w;
++  //! Entry 0, when count is nonzero, is the head of the selected owner's
++  //! pathTrace: the received head, never replaced by the grandmaster identity
++  //! (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #88), or thisClock; entries
++  //! 1.. follow it. No grandmaster is always empty. Option-off aliases are
++  //! structural zero, so software writes cannot create either a count or an
++  //! entry.
++      if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_resp_head_r;
++  //! exactly `(count ? entry 0 : 0, count, active tails)`, not a raw
++  //! publication generation. Thus a GM A->B on a TLV-less Announce, which
++  //! keeps the previous pathTrace (FPGA-gPTP #87), is silent; every entry
++  //! aliases to empty while GM=0. Option OFF is ownerless and has no staging
++  //! state to compare.
++  logic [63:0] gsi_asp_head_q_r;
++      gsi_asp_head_q_r <= 64'd0;
++      gsi_asp_head_q_r <= asp_live_head_w;
++  //! sequence. gsi_gm_chg_w remains the AVB_INFO/counter identity edge;
++  //! AS_PATH sees entry 0, not the GM, and only when its count makes it present.
++                    && ((asp_live_head_w != gsi_asp_head_q_r)
++# ports per tree: hdl 2158, gptp-processor 125, protocol-processor 1764
++f97c18035be6ef5345e5af27db2124c5697c1b40	gptp_ucode.hex	b21b244f2cc50b620671f9341f2ae0b23137cb1943e7f71768d7fc74bec2ba56
++//! the fabric's count zero is not an alternate spelling of `[GM]`. Since
++//! FPGA-gPTP #87 the fabric publishes count zero only while it has no
++//! grandmaster. CSR has no GM input and must pass the fabric owner tuple
++//! through exactly.
++        liveness = "asCapable falls at the fifth unanswered request after a crossing exchange"
++        unanswered = "asCapable falls at the fourth unanswered request after an unanswered crossing request"
++    drive(6 * kHz);  // FPGA-gPTP #90: the fifth loss clears asCapable
++    drive(7 * kHz);  // FPGA-gPTP #90: the fifth loss clears asCapable
++    // allowedLostResponses is 3 (11.2.13.4), and the MDPdelayReq RESET
++    // increments while lostResponses <= allowedLostResponses (802.1AS-2011
++    // Figure 11-8, FPGA-gPTP #90), so after a crossing exchange that is
++    // answered, the fifth unanswered request clears asCapable when the next
++    // interval judges it lost.
++    check_.dec("asCapable falls at the fifth unanswered request after a crossing exchange",
++               unanswered_at_drop_, 5);
++    // first lost, so the fourth unanswered request after it clears asCapable.
++    check_.dec("asCapable falls at the fourth unanswered request after an unanswered crossing request",
++               unanswered_at_drop_, 4);
++    output wire [63:0] pub_path_head_o,
++  logic [8*64-1:0]    pub_path_w;
++  //! entry 0 is the head; tail k is entry k + 1
++  assign pub_path_head_o  = pub_path_w[0*64 +: 64];
++  assign pub_path_tail0_o = pub_path_w[1*64 +: 64];
++  assign pub_path_tail1_o = pub_path_w[2*64 +: 64];
++  assign pub_path_tail6_o = pub_path_w[7*64 +: 64];
++  uint64_t last_pub_path_head = 0;
++                          || dut->pub_path_head_o != last_pub_path_head
++      last_pub_path_head = dut->pub_path_head_o;
++    //! GM/parent scalars and keeps the previous pathTrace (IEEE 802.1AS-2011
++    //! 10.3.10.2.1 d), FPGA-gPTP #87).
++    announce_path(seq, p1, gmid, gmid, {gmid});
++  }
++
++  void announce_path(uint16_t seq, uint8_t p1, uint64_t gmid, uint64_t src,
++                     const std::vector<uint64_t> &path) {
++    //! A present PathTrace TLV with exactly `path`, an empty one included
++    //! (FPGA-gPTP #88): d) copies it as received, its head whatever it is.
++    Frame a = ptp(0xB, seq, 0, 0x0008,
++                  static_cast<uint16_t>(34 + 8 * path.size()), src);
++    a.u16(0x0008); a.u16(static_cast<uint16_t>(8 * path.size()));
++    for (uint64_t hop : path) a.u64(hop);
++  //! FPGA-gPTP #88: an empty pathSequence is {thisClock}, and a path
++  //! headed by another identity is served from that head. `gen_one` is the
++  //! generation before; returns the one the last step spends.
++  uint8_t check_the_path_is_served_from_its_head(uint8_t gen_one) {
++    announce_path(16, 90, GMID_EMPTY, GMID_EMPTY, {});
++    const uint8_t gen_self = static_cast<uint8_t>((gen_one + 1u) & 0xFu);
++    expect("empty PathTrace publishes count one", dut->pub_path_count_o, 1);
++    expect("empty PathTrace publishes thisClock at entry 0",
++           dut->pub_path_head_o, OUR_CID);
++    expect("explicit to empty path spends one path generation",
++           dut->pub_path_gen_o, gen_self);
++    announce_path(17, 90, GMID_EMPTY, GMID_EMPTY, {PATH_HOP, GMID_EMPTY});
++    const uint8_t gen_head = static_cast<uint8_t>((gen_self + 1u) & 0xFu);
++    expect("path headed elsewhere publishes count three",
++           dut->pub_path_count_o, 3);
++    expect("path headed elsewhere publishes the received head",
++           dut->pub_path_head_o, PATH_HOP);
++    expect("path headed elsewhere keeps the GM scalar",
++           dut->pub_gm_id_o, GMID_EMPTY);
++    expect("path headed elsewhere ends with thisClock",
++           dut->pub_path_tail1_o, OUR_CID);
++    expect("path headed elsewhere spends one path generation",
++           dut->pub_path_gen_o, gen_head);
++    //! Only entry 0 changes: the count and every tail are equal, so a
++    //! generation comparator that skips entry 0 misses this path change.
++    announce_path(18, 90, GMID_EMPTY, GMID_EMPTY, {PATH_HOP2, GMID_EMPTY});
++    const uint8_t gen_entry0 =
++        static_cast<uint8_t>((gen_head + 1u) & 0xFu);
++    expect("entry-0-only change keeps count three",
++           dut->pub_path_count_o, 3);
++    expect("entry-0-only change publishes the new head",
++           dut->pub_path_head_o, PATH_HOP2);
++    expect("entry-0-only change keeps tail 1", dut->pub_path_tail0_o,
++           GMID_EMPTY);
++    expect("entry-0-only change keeps tail 2", dut->pub_path_tail1_o,
++           OUR_CID);
++    expect("entry-0-only change spends one path generation",
++           dut->pub_path_gen_o, gen_entry0);
++    return gen_entry0;
++  }
++
++    expect("published path head is the received head", dut->pub_path_head_o,
++           GMID);
++      //! Mutation bars for the parent contract. A GM term in the
++      //! path-generation comparator, or a TLV-less Announce served as empty,
++      //! fails this arm. Scalar GM selection remains independent of the served
++      //! path, and without a TLV that path is the previous one (FPGA-gPTP #87).
++      expect("TLV-less selected PathTrace keeps its count",
++             dut->pub_path_count_o, 4);
++      expect("TLV-less selected path keeps its head", dut->pub_path_head_o,
++             GMID);
++      expect("TLV-less selected path keeps tail 1", dut->pub_path_tail0_o,
++             PATH_HOP);
++      expect("TLV-less selected path keeps tail 2", dut->pub_path_tail1_o,
++             PEER_CID);
++      expect("TLV-less selected path spends no path generation",
++             dut->pub_path_gen_o, gen_present);
++      expect("better TLV-less Announce keeps the previous count",
++             dut->pub_path_count_o, 4);
++      expect("better TLV-less Announce keeps the previous head",
++             dut->pub_path_head_o, GMID);
++      expect("TLV-less GM A-to-B is path-generation silent",
++             dut->pub_path_gen_o, gen_present);
++      const uint8_t gen_one = static_cast<uint8_t>((gen_present + 1u) & 0xFu);
++      expect("explicit one-entry PathTrace head is the GM",
++             dut->pub_path_head_o, GMID_EMPTY);
++      expect("kept to explicit GM spends one path generation",
++      expect("TLV-less refresh keeps the explicit path",
++             dut->pub_path_count_o, 2);
++      expect("TLV-less refresh spends no path generation",
++             dut->pub_path_gen_o, gen_one);
++
++      const uint8_t gen_entry0 = check_the_path_is_served_from_its_head(
++          gen_one);
++      announce(19, 80, GMID);
++      expect("restored path spends one generation",
++             dut->pub_path_gen_o, (gen_entry0 + 1u) & 0xFu);
++      announce_eight_path(20, 75, GMID);
++Peer loss includes the fifth unanswered request interval.
++| Sync loss | Last selected Sync expires after 375 ms. Loss starts after the last Sync, leaving about 300 ms. That expiry makes this station grandmaster. Stop on that public grandmaster state; the original 450 ms failure bound remains. |
++| Peer loss | Five unanswered request intervals must finish. After the successful 3.2 s request, these finish around 9.2 s. Stop only after public loss and the sixth unanswered request. The combined loss deadline is 6.05 s. Audio remains graded, with certain `tu` after the grandmaster change holdover. |
++The five missed intervals prevent a 600-second default run.
++The trimmed scenario requires 17.992742740 simulated seconds over 899637137 cycles.
++The 2026-09-11 remeasurement covers the 16.992496440-second scenario.
++
++FPGA-gPTP #90 moved the asCapable loss to the fifth lost response.
++The current scenario therefore spans one more Pdelay interval, 899637137 cycles.
++Scaled by the cycle ratio 899637137/849624822, the two projections become 5347 and 5484 seconds.
++Those are 99.0 and 101.6 percent of the deadline.
++So the 5400-second deadline no longer holds on projection.
++The 120-minute job keeps 28.6 to 30.9 minutes of margin on the same projections.
++The hosted record already shows one 5400.003-second timeout of this suite.
++The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns its scheduling to a follow-up.
++The new elapsed-interval assertion also checks five unanswered Pdelay intervals.
++    // FPGA-gPTP #89: the 375 ms Sync receipt timeout ages the grandmaster
++    // (802.1AS-2011 10.3.11, Figure 10-13 with Cor1), so this station becomes
++    // grandmaster at that timeout, measured from the last Sync it consumed,
++    // at most one Sync interval before the loss. The grandmaster change arms
++    // the Milan v1.2 Annex B.1.1 holdover, and a grandmaster's own time is
++    // the domain's time (#84): tu is set and the role reads synchronised.
++    audio_window("Sync loss transition", kHz * 45 / 100, -1, Until::SelfGm);
++    const uint64_t self_gm = cyc;
++    check.that("the 375 ms Sync timeout makes this station grandmaster",
++               read_identity(0x624) == kThisClock && self_gm - loss <= kHz * 377 / 1000);
++    check.hex("375 ms Sync timeout asserts tu in the synchronised master role",
++              read(0x77C) & 3, 3);
++    // FPGA-gPTP #90: asCapable falls at the fifth missed response (802.1AS-
++    // 2011 Figure 11-8 RESET), so the loss deadline is 450 ms + 5.6 s.
++        audio_window("peer loss, real fifth missed Pdelay", kHz * 56 / 10, -1, Until::PeerLost);
++        const uint64_t loss_end = loss + kHz * 605 / 100;
++        audio_window("peer loss, real fifth missed Pdelay",
++    // A request is judged at the next request interval. Five unanswered
++    // intervals therefore finish when the sixth unanswered request starts.
++    check.that("five unanswered Pdelay intervals elapsed", pd_requests >= pd_answers + 6);
++  //! FPGA-gPTP #89: the plane ages a grandmaster whose Sync stops for
++  //! syncReceiptTimeout (375 ms, 750 000 cycles at this leg's 2 MHz) even
++  //! while its Announces continue (802.1AS-2011 10.3.11, Figure 10-13 with
++  //! Cor1). The selected peer therefore sends one Sync pair ahead of each
++  //! long wait these phases take, so it stays selected through all of them.
++  uint16_t selected_sync_seq_ = 0x7300;
++  void run_selected(Vmilan_datapath *dut, uint64_t n, bool pdelay = false) {
++    send_sync_pair(dut, selected_sync_seq_++);
++    if (pdelay)
++      run_peer(dut, n);
++    else
++      run(dut, n);
++  }
++
++                       uint8_t priority1 = 100, bool empty_tlv = false) {
++    //! A fixed Announce may carry no PathTrace suffix; that selected shape
++    //! writes no pathTrace, so the previous one stays published (IEEE
++    //! 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #87). `empty_tlv` sends a
++    //! zero-length TLV instead, whose pathTrace is {thisClock}. A present TLV
++    //! remains complete and identity-aligned; neither its count nor its head
++    //! disqualifies it (FPGA-gPTP #88).
++    const bool has_tlv = !path.empty() || empty_tlv;
++    const uint16_t tlv = has_tlv ? static_cast<uint16_t>(4 + 8 * path.size())
++                                 : 0;
++    if (has_tlv) {
++    run_selected(dut, 150000, true);
++    run_selected(dut, 200000);
++    run_selected(dut, 200000);
++    // A selected fixed Announce without PathTrace writes no pathTrace (IEEE
++    // 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #87). Product fabric mode keeps
++    // serving path B: the count and generation hold, no GET_AS_PATH push
++    // leaves, and the solicited response is path B unchanged. Every gPTP
++    // drop counter holding shows the frame reached the engine.
++    const uint32_t drops_w0 = axi_read(dut, 0x7E8);
++    const uint32_t drops_e0 = axi_read(dut, 0x7EC);
++    run_selected(dut, 200000);
++    expect("TLV-less refresh is neither tapped off nor parser-dropped",
++           axi_read(dut, 0x7E8), drops_w0);
++    expect("TLV-less refresh is not event-dropped", axi_read(dut, 0x7EC),
++           drops_e0);
++    const uint32_t asp_kept = axi_read(dut, 0x7E4);
++    expect("TLV-less fabric publication keeps the path count",
++           asp_kept & 0xF, 5);
++    expect("TLV-less refresh keeps fabric path generation",
++           (asp_kept >> 4) & 0xF, gen_b);
++    expect("TLV-less refresh emits no GET_AS_PATH push",
++           unsolicited_count(absent_first, 0x0028), 0);
++    std::vector<uint8_t> path_kept = aecp_xact(
++    expect("TLV-less GET_AS_PATH serves the kept path B",
++           path_kept.size() == path_new.size() &&
++               same_from(path_kept, path_new, 38), 1);
++    return gen_b;
++                                                         unsigned gen_kept) {
++    // The scalar GM remains live independently of PathTrace. Switching to a
++    // better master on a TLV-less Announce drives AVB_INFO and GPTP_GM_CHANGED,
++    // but writes no pathTrace (FPGA-gPTP #87): the served AS_PATH is path B on
++    // both sides, its head still GMID, and therefore stays silent. It also
++    expect("TLV-less GM switch keeps the path count", axi_read(dut, 0x7E4) & 0xF,
++           5);
++    expect("TLV-less GM switch spends no path generation",
++           (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_kept);
++    run_selected(dut, 200000);
++    expect("TLV-less GM switch emits no false GET_AS_PATH push",
++    expect("TLV-less GM switch still emits one GET_AVB_INFO push",
++    expect("TLV-less GM switch still increments GPTP_GM_CHANGED",
++    std::vector<uint8_t> path_kept = aecp_xact(
++        dut, 0x0028, 0x710A, {0x00, 0x00, 0x00, 0x00});
++    expect("#87 TLV-less GM switch: GET_AS_PATH keeps count five",
++           path_kept.size() >= 42 ? be32(path_kept, 38) : 0, 5);
++    expect("#87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID",
++           path_kept.size() >= 50 ? be64(path_kept, 42) : 0, GMID);
++    expect("#87 TLV-less GM switch: GET_AS_PATH still ends with thisClock",
++           path_kept.size() >= 82 ? be64(path_kept, 74) : 0, THIS_CLOCK);
++  // Explicit `[GM]` replaces the kept path. Snapshot its one-entry response,
++  // replace it with an empty PathTrace, {thisClock} (FPGA-gPTP #88), after the
++  // first-count capture, and require the in-flight wire answer to remain
++  // wholly old while live state and the following read are wholly new. These
++  // checks kill torn-response mutations.
++        Vmilan_datapath *dut, unsigned gen_kept) {
++    expect("kept to explicit GM advances generation once",
++           (asp_one >> 4) & 0xF, (gen_kept + 1) & 0xF);
++    run_selected(dut, 200000);
++    expect("kept to explicit GM emits one AS_PATH push",
++    //! the independent gPTP plane commits the empty path. Releasing it afterward
++    announce(dut, 0x7008, {}, GMID_EMPTY, GMID_EMPTY, 90, true);
++          dut->rootp->milan_datapath__DOT__gptp_pub_path_count_w == 1;
++    expect("empty path commits before captured old response leaves wire",
++    for (int n = 0; n < 64 && (asp_withdrawn & 0xF) != 1; n++) {
++    expect("empty PathTrace serves count one", asp_withdrawn & 0xF, 1);
++    expect("explicit GM to empty path advances generation once",
++    run_selected(dut, 200000);
++    expect("explicit GM to empty path emits one AS_PATH push",
++    expect("post-cut response is wholly new count one",
++           cut_new.size() >= 42 ? be32(cut_new, 38) : ~0u, 1);
++    expect("#88 post-cut response is {thisClock}",
++           cut_new.size() >= 50 ? be64(cut_new, 42) : 0, THIS_CLOCK);
++    expect("empty-path push body equals post-cut solicited response",
++    expect("{thisClock} to maximum path advances generation once",
++    run_selected(dut, 200000);
++  // FPGA-gPTP #88: a path not headed by its grandmaster is served as
++  // received. GET_AS_PATH entry 0 is the received head, never the
++  // grandmaster identity put in its place, and thisClock still ends it. The
++  // Table 5.22 push on a path change is proven above; this solicited read
++  // grades the served sequence itself.
++  void prove_the_served_head_is_the_received_head(Vmilan_datapath *dut) {
++    const unsigned gen_max = (axi_read(dut, 0x7E4) >> 4) & 0xF;
++    // The peer's Sync stopped in the leg above, so its port is aged (IEEE
++    // 802.1AS-2011 10.3.11, FPGA-gPTP #89); a usable pair clears that first.
++    run_selected(dut, 20000);
++    announce(dut, 0x710B, {PATH_B3, PEER_CID}, GMID_EMPTY, PEER_CID, 80);
++    uint32_t asp_head = axi_read(dut, 0x7E4);
++    for (int n = 0; n < 64 && (asp_head & 0xF) != 3; n++) {
++      run(dut, 1000);
++      asp_head = axi_read(dut, 0x7E4);
++    }
++    expect("#88 path headed elsewhere serves count three", asp_head & 0xF, 3);
++    expect("#88 path headed elsewhere advances generation once",
++           (asp_head >> 4) & 0xF, (gen_max + 1) & 0xF);
++    expect("#88 path headed elsewhere keeps the scalar GM",
++           (static_cast<uint64_t>(axi_read(dut, 0x628)) << 32) | axi_read(dut, 0x624),
++           GMID_EMPTY);
++    std::vector<uint8_t> path_head = aecp_xact(
++        dut, 0x0028, 0x710C, {0x00, 0x00, 0x00, 0x00});
++    expect("#88 GET_AS_PATH count three", path_head.size() >= 42
++           ? be32(path_head, 38) : 0, 3);
++    expect("#88 GET_AS_PATH entry 0 is the received head",
++           path_head.size() >= 50 ? be64(path_head, 42) : 0, PATH_B3);
++    expect("#88 GET_AS_PATH entry 1 is the parent",
++           path_head.size() >= 58 ? be64(path_head, 50) : 0, PEER_CID);
++    expect("#88 GET_AS_PATH ends with thisClock",
++           path_head.size() >= 66 ? be64(path_head, 58) : 0, THIS_CLOCK);
++  }
++
++  // Only entry 0 changes: the count and the tail are equal, so the served
++  // sequence differs only in its head. Milan Table 5.22 pushes GET_AS_PATH
++  // when the path sequence changes, and the 0x7E4 generation moves with it;
++  // a comparator that skips entry 0 misses both. The earlier registration
++  // has passed its 7.4.37.2 timeout this late in the leg, so register again;
++  // a refused registration fails the push check below.
++  void prove_an_entry_zero_change_is_a_path_change(Vmilan_datapath *dut) {
++    aecp_xact(dut, 0x0024, 0x710F, {0x00, 0x00, 0x00, 0x00});
++    run_selected(dut, 200000);
++    const size_t head_first = tx_frames.size();
++    const unsigned gen_before = (axi_read(dut, 0x7E4) >> 4) & 0xF;
++    announce(dut, 0x710D, {PATH_B2, PEER_CID}, GMID_EMPTY, PEER_CID, 80);
++    uint32_t asp_new = axi_read(dut, 0x7E4);
++    for (int n = 0; n < 64 && ((asp_new >> 4) & 0xF) == gen_before; n++) {
++      run(dut, 1000);
++      asp_new = axi_read(dut, 0x7E4);
++    }
++    expect("entry-0-only change keeps count three", asp_new & 0xF, 3);
++    expect("entry-0-only change advances generation once",
++           (asp_new >> 4) & 0xF, (gen_before + 1) & 0xF);
++    run_selected(dut, 200000);
++    expect("entry-0-only change emits one GET_AS_PATH push",
++           unsolicited_count(head_first, 0x0028), 1);
++    const std::vector<uint8_t> head_push =
++        last_unsolicited(head_first, 0x0028);
++    std::vector<uint8_t> path_new_head = aecp_xact(
++        dut, 0x0028, 0x710E, {0x00, 0x00, 0x00, 0x00});
++    expect("entry-0-only change: GET_AS_PATH count three",
++           path_new_head.size() >= 42 ? be32(path_new_head, 38) : 0, 3);
++    expect("entry-0-only change: GET_AS_PATH serves the new entry 0",
++           path_new_head.size() >= 50 ? be64(path_new_head, 42) : 0, PATH_B2);
++    expect("entry-0-only change: GET_AS_PATH keeps entry 1",
++           path_new_head.size() >= 58 ? be64(path_new_head, 50) : 0, PEER_CID);
++    expect("entry-0-only change: GET_AS_PATH keeps thisClock last",
++           path_new_head.size() >= 66 ? be64(path_new_head, 58) : 0,
++           THIS_CLOCK);
++    expect("entry-0-only push body equals solicited path",
++           same_from(head_push, path_new_head, 38), 1);
++  }
++
++      //    while a Pdelay_Resp is held at the MAC (FPGA-gPTP #89: what the
++      //    queue's stale entries would run no longer decides this arm).
++      //    Dispatch can still pop inside the window, and a periodic counter
++      //    push can reach the MAC first, so the level is forced to four on
++      //    every cycle until s2's event has arrived. The level is restored
++      //    to the true wp-rp afterwards; the refused frame's bank stays held,
++      //    which nothing after this arm asserts on.
++      dut->m_axis_mac_tx_tready = 0;
++      Frame s1 = ptp(0x2, 0x5108, 0, 0x0000, 20);
++      s1.u64(0); s1.u16(0); s1.ts(0);
++      s1.b.resize(68);
++      for (int n = 0; n < 20000 && !dut->m_axis_mac_tx_tvalid; n++)
++        run(dut, 1);                      // the response now holds dispatch
++      for (int n = 0; n < 400; n++) {     // s2's event arrives against full
++        *eng = 4; dut->eval();
++        run(dut, 1);
++      }
++      // The restore is exact only if no pop fired inside the window. A pop
++      // there (a stale entry, as the level is forced) leaves a residue that
++      // is benign only because nothing after this arm grades the queue or
++      // the events it would run; otherwise gate the restore on dbg_busy_o.
++      dut->m_axis_mac_tx_tready = 1;      // release the held response
++  const unsigned gen_kept = prove_the_path_trace_refresh_generations(dut);
++  prove_the_gm_switch_drives_both_counter_families(dut, gen_kept);
++      prove_explicit_and_withdrawn_path_trace_coherence(dut, gen_kept);
++  prove_the_served_head_is_the_received_head(dut);
++  prove_an_entry_zero_change_is_a_path_change(dut);
++parent's own first-hop, only-hop and stepsRemoved 0x0100 probes. The
++parser compares EVERY declared hop with thisClock, publishing one loop
++verdict the (c) microcode arm consumes -- the hop walk that a skip-hop-0
++plant once pinned no longer exists to plant against. Since FPGA-gPTP #88
++802.1AS-2011 10.3.10.2.1 a) to c) are the only disqualifications: the
++donor's strict PathTrace wire rules of #45 are retired, because
++10.5.3.3.4 gives N = stepsRemoved+1 only as a NOTE and d) copies the
++sequence as received. The campaign pins that as adoption: a better
++vector whose path head is not the announced grandmaster, and one whose
++identity count is not stepsRemoved+1, are each adopted with the parser
++drop counter unmoved, and a one-hop path with stepsRemoved 255 is
++refused by (b) in the microcode, with no parser drop. The first-hop and
++only-hop loop probes name US as grandmaster, so their teeth are the
++parent and AMGM canaries rather than the GM word. The FPGA-gPTP #8
++Current tally -- **164 AAF checks + 675 gPTP checks + 2 traceability
++| `fuzz_ptp.py`  | 675 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models (the per-message control byte of FPGA-gPTP #9 among the graded fields: Sync 0x0, Follow_Up 0x2, Announce and the Pdelay types 0x5), parser drop/ignore gates (the domainNumber arm of FPGA-gPTP #6 among them, probed on Announce, Sync/Follow_Up and Pdelay_Req separately), the two-sided length oracle of #217 (each truncation boundary refused and counted one octet below the per-type minimum, and one over-minimum suffix-TLV frame per parsed type accepted and ACTED ON -- answered, exchange-completing, steering, adopted -- each acceptance pinned by its own planted narrowing, N10 to N15 below), BTCA rejection under fuzz (the three 10.3.10.2.1 qualifications of FPGA-gPTP #7 hard-asserted on wire-legal fixtures, each refusal leaving the parser drop counter unmoved, and the retired PathTrace wire rules of FPGA-gPTP #45 -- head not the announced grandmaster, count not stepsRemoved+1 -- pinned as adoptions since FPGA-gPTP #88), servo pairing (with the TLV-less, truncated, wrong-tlvType and short-declared Follow_Up refusals of FPGA-gPTP #11), the responder role (with the header-only and truncated Pdelay_Req refusals of FPGA-gPTP #12, neither drawing a response pair), the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **no tracked gap** at the current pin, the last two having closed with the donor's portNumber compare (FPGA-gPTP #36), and each of the nine unlisted messageTypes is graded on three properties, its counted drop, drawing no transmission, and the engine's uCPU running no program at all (the closed FPGA-gPTP #22 could have been half-fixed in either of two ways, and the third property catches a parser that counts a frame AND dispatches it) |
++    def _btca_adopt(self, label, **kw):
++        """One legal better vector a retired PathTrace rule once refused:
++        802.1AS-2011 10.3.10.2.1 disqualifies only by its a) to c)
++        (FPGA-gPTP #88), so the plane adopts it and counts no drop. The
++        rejection probes' master sent no Sync, so one usable pair is heard
++        as master first (FPGA-gPTP #89, as for the 12-hop vector below)."""
++        self.become_gm()
++        self._sync_pair(0)
++        kw.setdefault("gm_identity", 0x2222)
++        kw.setdefault("source_clock_identity", PEER2_CID)
++        kw.setdefault("src", wire.GPTP_PEER2_MAC)
++        f = wire.ptp_announce(sequence_id=self.nseq("announce"),
++                              gm_priority1=1, **kw)
++        before = self.state()
++        self.send(f)
++        self.tick(2)
++        after = self.state()
++        self.rep.eq("%s: adopted" % label, self.gm_of(after),
++                    kw["gm_identity"])
++        self.rep.eq("%s: parent follows its source" % label,
++                    self.parent_of(after), kw["source_clock_identity"])
++        self.rep.eq("%s: no longer grandmaster" % label,
++                    after[S_FLAGS] & FL_AMGM, 0)
++        self.rep.eq("%s: parser drop counter unmoved" % label,
++                    after[S_RXDROP], before[S_RXDROP])
++
++        # returned by a bridge. Since FPGA-gPTP #88 neither a present TLV's
++        # head nor its identity count disqualifies (10.3.10.2.1 lists only
++        # a) to c); 10.5.3.3.4 gives N = stepsRemoved+1 as a NOTE), so every
++        # fixture below lands its refusal in the MICROCODE, where the drop
++        # counter holding is what places it
++        # the retired strict wire rules (FPGA-gPTP #45, retired by #88): a
++        # head that is not the announced grandmaster and a count that is
++        # not stepsRemoved+1 both qualify, so each such better vector is
++        # adopted with no parser drop. stepsRemoved 255 on a one-hop path
++        # is refused by (b) in the microcode, with no parser drop either
++        self._btca_adopt("better vector, path-trace head is not the announced "
++                         "grandmaster (10.3.10.2.1)", gm_identity=0x3333,
++                         path_trace=[0x5555])
++        self._btca_adopt("better vector, one path-trace hop against "
++                         "stepsRemoved 1 (10.3.10.2.1)", gm_identity=0x3333,
++                         steps_removed=1, path_trace=[0x3333])
++                     "trace (10.3.10.2.1b)", None, drop=None,
++                     steps_removed=255)
++        # its head and count are the conventional ones, the announced
++        # grandmaster and stepsRemoved+1, though since FPGA-gPTP #88 neither
++        # is required. Until #217 this 164-octet
++        # name, so this fixture may be reshaped for the cap's own reasons.
++        # FPGA-gPTP #89: the rejection probes' master sent no Sync, so the
++        # sync receipt timeout aged the port, and only a received Sync
++        # clears that (802.1AS-2011 10.3.11 with Cor1): one usable pair is
++        # heard as master first
++        self._sync_pair(0)
++        # adopt GMID and settle a clean baseline before the servo probes;
++        # the BTCA section's last master was aged by the sync receipt
++        # timeout, so one usable pair is heard as master first (#89)
++        self._sync_pair(0)
++    accepts it). A present trace conventionally starts with `gm_identity` and
++    contains `steps_removed + 1` identities, but since FPGA-gPTP #88 neither
++    is a qualification rule (802.1AS-2011 10.3.10.2.1).

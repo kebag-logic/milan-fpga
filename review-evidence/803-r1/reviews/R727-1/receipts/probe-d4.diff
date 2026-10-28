@@ -1,0 +1,33 @@
+diff --git a/hdl/wire/KL_gptp_rx_parser.sv b/hdl/wire/KL_gptp_rx_parser.sv
+index 6863299..0ac76e0 100644
+--- a/hdl/wire/KL_gptp_rx_parser.sv
++++ b/hdl/wire/KL_gptp_rx_parser.sv
+@@ -297,6 +297,11 @@ module KL_gptp_rx_parser
+   logic ann_tlv_value_byte_w, ann_tlv_value_end_w;
+   logic ann_tlv_header_bad_w, ann_tlv_chain_done_after_w;
+   logic ann_pt_byte_w;
++  logic [63:0] mut_gm_r;
++  always_ff @(posedge clk_i)
++    if (rx_valid_i && (cnt_r == 11'd74)) mut_gm_r <= acc_nxt_w;
++  wire mut_head_bad_w = ann_pt_byte_w && (pt_byte_r == 3'd7) &&
++                        (pt_cnt_r == 8'd0) && (acc_nxt_w != mut_gm_r);
+   logic [15:0] ann_pt_left_after_w;
+   wire [15:0] ann_tlv_type_w = acc_nxt_w[31:16];
+   wire [15:0] ann_tlv_len_w  = acc_nxt_w[15:0];
+@@ -597,6 +602,7 @@ module KL_gptp_rx_parser
+                       bank_wdata_o <= acc_nxt_w;
+                     end
+                     if (acc_nxt_w == local_clock_id_i) pt_self_r <= 1'b1;
++                    if (mut_head_bad_w) bad_r <= 1'b1;
+                     pt_cnt_r <= pt_cnt_r + 8'd1;
+                   end
+                 end
+@@ -626,7 +632,7 @@ module KL_gptp_rx_parser
+                         (cnt_r >= msg_end_r) &&
+                         ((mtype_r != MT_ANN_C) ||
+                          (ann_tlv_chain_done_after_w &&
+-                          !ann_tlv_header_bad_w &&
++                          !ann_tlv_header_bad_w && !mut_head_bad_w &&
+                           (!pt_seen_r ||
+                            (ann_pt_left_after_w == 16'd0))));
+           end

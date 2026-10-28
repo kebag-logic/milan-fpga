@@ -1,0 +1,21 @@
+diff --git a/hdl/wire/KL_gptp_rx_parser.sv b/hdl/wire/KL_gptp_rx_parser.sv
+index 6863299..b83ff16 100644
+--- a/hdl/wire/KL_gptp_rx_parser.sv
++++ b/hdl/wire/KL_gptp_rx_parser.sv
+@@ -315,11 +315,15 @@ module KL_gptp_rx_parser
+   //! disqualifies an Announce only by its a) to c) (#88): an empty
+   //! pathSequence, a hop count other than stepsRemoved+1 (a NOTE to
+   //! 10.5.3.3.4) and a first entry other than grandmasterIdentity all qualify.
++  logic [15:0] mut_steps_r;
++  always_ff @(posedge clk_i)
++    if (rx_valid_i && (cnt_r == 11'd76)) mut_steps_r <= acc_nxt_w[15:0];
+   assign ann_tlv_header_bad_w = ann_tlv_header_end_w &&
+       (ann_tlv_len_w[0] ||
+        ({6'd0, cnt_r} + {1'b0, ann_tlv_len_w} > {6'd0, msg_end_r}) ||
+        ((ann_tlv_type_w == 16'h0008) &&
+-        (ann_tlv_len_w[2:0] || pt_seen_r)));
++        (ann_tlv_len_w[2:0] || pt_seen_r ||
++         ({1'b0, ann_tlv_len_w[15:3]} != ({1'b0, mut_steps_r} + 17'd1)))));
+   //! Include the current EOF byte despite non-blocking state updates. This is
+   //! true only at the exact fixed-body end or at a complete header/value end
+   //! that coincides with the declared messageLength; physical padding cannot

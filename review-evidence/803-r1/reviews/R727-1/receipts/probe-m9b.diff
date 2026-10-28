@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/milan_datapath.sv b/hdl/milan/milan_datapath.sv
+index 9c394571e1..ba67e0c0a7 100644
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -6306,7 +6306,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
+       else
+         for (int unsigned k = 1; k < ASP_SLOTS_C + 1; k++)
+           if (32'(gsiq_ord_r) == k)
+-            asp_served_entry_w = asp_resp_path_r[64*(k-1) +: 64];
++            asp_served_entry_w = asp_live_path_w[64*(k-1) +: 64];
+     end
+   end : asp_entry_pick
+ 
