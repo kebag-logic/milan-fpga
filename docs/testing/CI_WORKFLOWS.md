@@ -476,20 +476,22 @@ selector then placed `media_phase` on worker 4, projected at 1539 seconds.
 
 The eighteenth and nineteenth workers are #799's. Its protocol-processor
 f65c8ff7 adoption adds two `milan_dp` cases, which re-deals that suite's
-round-robin legs. The adoption also lengthens the suites its sources reach,
-and hosted run 40740015218 cancelled worker 6/17 at its 45-minute limit. Every
-figure of a suite whose Makefile compiles a source the adoption changes is now
-its largest window in the pull-request runs 40724689169 and 40740015218.
-`media_phase` keeps 1400 seconds, and `follow_ring`, cut off on both runs, is
-at 1493 seconds, its largest complete hosted window. That work exceeds what
-sixteen regular workers hold under the 1620-second bound: 24693 seconds
-against 16 x 1498. Eighteen regular workers project at most 1615 seconds. Both
-added workers keep the 45-minute limit, the 122-second allowance and the
-1620-second rule. The selector places `media_phase` on worker 5 at 1522
-seconds, `follow_ring` alone on worker 0 at 1615 seconds, and `gptp_tables`
-on worker 3 at 1448 seconds. `mmcm_servo` keeps its 1145-second figure,
-which is older than this adoption and below its recent hosted windows; #799
-names that as an open risk. The figures are keyed by leg index, so an
+round-robin legs. The adoption also changes the windows of the suites its
+sources reach, and hosted run 40740015218 cancelled worker 6/17 at its
+45-minute limit. The suites of the ruled #799 replay carry their largest
+window in the pull-request runs 40724689169 and 40740015218: those whose
+Makefile compiles a source this PR changes, plus `maap`, `csr`, `nvm_backend`
+and `nvm_cosim`, re-measured in the same runs. `media_phase` keeps 1400
+seconds, `milan_dp_gm_steps` keeps its higher 926 seconds, and `follow_ring`,
+cut off on both runs, is at 1493 seconds, its largest complete hosted window.
+That work exceeds what sixteen regular workers hold under the 1620-second
+bound: 24693 seconds against 16 x 1498. Eighteen regular workers project at
+most 1615 seconds. Both added workers keep the 45-minute limit, the 122-second
+allowance and the 1620-second rule. The selector places `media_phase` on
+worker 5 at 1522 seconds, `follow_ring` alone on worker 0 at 1615 seconds, and
+`gptp_tables` on worker 3 at 1448 seconds. `mmcm_servo` keeps its 1145-second
+figure, which is older than this adoption and below its recent hosted windows;
+#799 names that as an open risk. The figures are keyed by leg index, so an
 inventory change re-targets them (#804).
 
 `gptp_tables` (#713) joins the balanced inventory whole, as every unsplit
@@ -1501,7 +1503,7 @@ validates one tree. The workflow makes that explicit and machine-checked
   reads it;
 - both aggregates run `scripts/ci_events.py --require-target-sha` over the
   downloaded shards before they tally anything, passing `--expect` the
-  worker matrix size (`--expect 17` for Verilator, `--expect 4` for Yosys)
+  worker matrix size (`--expect 19` for Verilator, `--expect 4` for Yosys)
   and exactly three sources, `--sha gate="$GATE_SHA"`
   (the gate's `target_sha` through the step env), `--sha run="$GITHUB_SHA"`
   and `--sha checkout="$(git rev-parse HEAD)"`, and print the SHA in their

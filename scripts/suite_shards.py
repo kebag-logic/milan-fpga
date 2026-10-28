@@ -73,7 +73,7 @@ VERILATOR_JOB = "verilator-shards"
 #: 582 s passing on worker 4/17 of pull-request run 40131149135 at 8a4fa2f9
 #: (job 120983200812, whose suite step ran 655 s for its four suites), while
 #: three earlier hosted windows ran past 900 s to TIMEOUT, so its variance is wide.
-#: #799: suites the f65c8ff7 processor adoption reaches, except media_phase, carry their
+#: #799: the ruled replay set (see CI_WORKFLOWS.md), except media_phase, carries its
 #: largest window in runs 40724689169 and 40740015218; follow_ring 1493 s, dev run 40460559108.
 SUITE_SECONDS = {
     "aaf": 75,
@@ -151,7 +151,7 @@ PROVISIONAL_SUITES: frozenset[str] = frozenset()
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
 #: 3, the ownership step and the sweep's preflight self-tests, then the tally.
-#: #781 and #799 add workers 17 to 19 at the regular 45-minute limit and 122 s allowance.
+#: #781 and #799 add three regular 45-minute workers; all 19, the dedicated last one too, carry the 122 s allowance.
 WORKER_OVERHEAD_SECONDS = (122,) * 19
 
 # Physical inventory stays available to the serial gate and log ownership.
