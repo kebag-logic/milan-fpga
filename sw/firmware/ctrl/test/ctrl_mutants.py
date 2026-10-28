@@ -657,6 +657,14 @@ MUTANTS += (
     Mutant("model-pub-every-sink-reads-entry-0", "host/mbx_model.c",
            "(MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u", "MBX_PUB_SINK_BASE / 4u",
            "model", MODEL_GROUP + "Publication", "P2 every field reaches the datapath on its own output"),
+    # #799 (contract 2.3): each source's current stream_id
+    Mutant("model-pub-src-sid-a-hole", "host/mbx_model.c",
+           "\t\tcase MBX_PUB_SRC_REG_SRC_SID_HI:\n\t\t\treturn ones(MBX_SRC_SID_HI_SID_LSB, MBX_SRC_SID_HI_SID_WIDTH);\n",
+           "", "model", MODEL_GROUP + "Publication",
+           "P1 each source's entry reads back the stream_id written to it"),
+    Mutant("model-pub-every-source-reads-entry-0", "host/mbx_model.c",
+           "(MBX_PUB_SRC_BASE + MBX_PUB_SRC_STRIDE * s) / 4u", "MBX_PUB_SRC_BASE / 4u",
+           "model", MODEL_GROUP + "Publication", "P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath"),
     # ACMP: the binding published after the response that promises it, the
     # end-of-entry publication skipped, wrong fields, the port unguarded
     Mutant("pub-acmp-after-the-response", ACMP_C, ACMP_TRANSMIT,

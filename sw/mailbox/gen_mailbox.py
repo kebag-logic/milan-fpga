@@ -33,8 +33,9 @@ destination, an own-MAC block that spills or collides, message types named
 with no subtype or wider than four bits, a message_type byte not the one after
 the subtype, a bound-talker table that spills its interface stride or runs into
 the channel registers, a publication block that runs into a ring, spills its
-interface stride, or carries a field the skeleton does not wire) and requires
-each to be refused. A clean run of the tracked outputs is the positive control.
+interface stride, puts its source entries over its registers or its sink
+entries, or carries a field the skeleton does not wire) and requires each to
+be refused. A clean run of the tracked outputs is the positive control.
 
 ``--variant-interfaces N --out DIR`` writes the package, the skeleton and the
 header of the same contract elaborated for N AVB interfaces into a build
@@ -82,7 +83,7 @@ C_TABLE = re.compile(r"^#define MBX_(\w+_TBL) \{ (.*) \}$", re.M)
 SV_CONST = re.compile(r"^\s*localparam int unsigned MBX_(\w+)_C = 32'([hd])([0-9A-F_]+);$", re.M)
 SV_TABLE = re.compile(r"^\s*localparam int unsigned MBX_(\w+_TBL)_C \[[^\]]+\] = '\{(.*)\};$", re.M)
 DOC_CONST = re.compile(r"^\| `MBX_(\w+)` \| `(0x[0-9a-f]+)` \|$", re.M)
-SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SINK_REG|CH_REG)_(\w+)_C\b")
+SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SRC_REG|PUB_SINK_REG|CH_REG)_(\w+)_C\b")
 
 
 def parse_c(text: str) -> tuple[dict[str, int], dict[str, list[str]]]:
@@ -126,7 +127,8 @@ def crosscheck(contract: Contract, texts: dict[str, str]) -> list[str]:
     top = texts["hdl/milan/mailbox/KL_mbx.sv"]
     named = set(SV_REG_REF.findall(top))
     every = (contract.registers + contract.if_registers + contract.iff_registers + contract.bnd_registers
-             + contract.pub_registers + contract.pub_sink_registers + contract.ch_registers)
+             + contract.pub_registers + contract.pub_source_registers + contract.pub_sink_registers
+             + contract.ch_registers)
     for reg in every:
         if reg.name not in named:
             findings.append(f"skeleton: register {reg.name} is never decoded")
@@ -270,6 +272,13 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
                                                               "MBX_PUB_REG_LICENCE_C"), "TALKER_DECL"),
         ("skeleton bound enable dropped", _plant_all(base, top, "MBX_BND_REG_BOUND_EN_C", "MBX_BND_REG_BOUND_EID_LO_C"),
          "BOUND_EN"),
+        # #799: the sources' current stream_id
+        ("C header source stride", _plant(base, hdr, "#define MBX_PUB_SRC_STRIDE 0x8u",
+                                          "#define MBX_PUB_SRC_STRIDE 0x10u"), "MBX_PUB_SRC_STRIDE"),
+        ("SV package source base", _plant(base, pkg, "MBX_PUB_SRC_BASE_C = 32'h00000080",
+                                          "MBX_PUB_SRC_BASE_C = 32'h00000040"), "MBX_PUB_SRC_BASE"),
+        ("skeleton source register dropped", _plant_all(base, top, "MBX_PUB_SRC_REG_SRC_SID_HI_C",
+                                                        "MBX_PUB_SRC_REG_SRC_SID_LO_C"), "SRC_SID_HI"),
     ]
 
 
@@ -335,6 +344,19 @@ def _contract_arms() -> list[tuple[str, str, str]]:
          "{name: DECLARED, lsb: 0, width: 8,"),
         ("publication sink field the skeleton does not wire", "{name: STARTED, lsb: 2, width: 1,",
          "{name: RUNNING, lsb: 2, width: 1,"),
+        # #799: the source entries sit between the interface registers and the sink entries
+        ("publication register over the source entries", "    - name: SR_DOMAIN\n      offset: 0x0C",
+         "    - name: SR_DOMAIN\n      offset: 0x80"),
+        ("publication source entries run into the sink entries", "  source_stride: 0x08 ", "  source_stride: 0x10 "),
+        ("publication source register spills its entry", "    - name: SRC_SID_HI\n      offset: 0x4",
+         "    - name: SRC_SID_HI\n      offset: 0x8"),
+        ("publication source stride not a power of two",
+         "  source_base: 0x080     # the first source entry, inside an interface's block\n  source_stride: 0x08 ",
+         "  source_base: 0x040     # the first source entry, inside an interface's block\n  source_stride: 0x0C "),
+        ("publication source field the skeleton does not wire", "    - name: SRC_SID_HI\n      offset: 0x4",
+         "    - name: SRC_ID_HI\n      offset: 0x4"),
+        ("publication source stream_id not a whole word", "{name: SID, lsb: 0, width: 32, doc: \"stream_id[63:32]\"}\n  sink",
+         "{name: SID, lsb: 0, width: 16, doc: \"stream_id[63:32]\"}\n  sink"),
     ]
 
 
