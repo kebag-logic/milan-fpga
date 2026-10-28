@@ -1,0 +1,27 @@
+b/hdl/milan/mailbox/KL_mbx_pkg.sv: +  //! The beat's value lane, low half (the processor's amap_edit_value_o).
+b/hdl/milan/mailbox/KL_mbx_pkg.sv: +  //! The beat's value lane, high half.
+b/sw/firmware/ctrl/mbx/mbx_contract.h: +/* The beat's value lane, low half (the processor's amap_edit_value_o). */
+b/sw/firmware/ctrl/mbx/mbx_contract.h: +/* The beat's value lane, high half. */
+b/sw/firmware/ctrl/test/ctrl_configs.py: +                                  "the firmware that writes each face (#665 S1); it compiles nothing",
+b/sw/firmware/ctrl/test/test_aecp.cpp: +    EXPECT_EQ(get(set_system_id(0x0102030405060708,CTLR+1),16,2)>>11,AECP_NOT_IMPLEMENTED)
+b/sw/firmware/ctrl/test/test_aecp.cpp: +    auto suid=set_system_id(0x0102030405060708);
+b/sw/firmware/ctrl/test/test_aecp.cpp: +    constexpr uint64_t IN_FORCE=0x0102030405060708;
+b/sw/firmware/ctrl/test/test_aecp.cpp: +    constexpr uint64_t ASKED=0x1112131415161718;
+b/sw/firmware/ctrl/test/test_aecp.cpp: +            case 2:return 0x0102030405060708ull;
+b/sw/firmware/ctrl/test/test_aecp.cpp: +            case 5:return 0x8877665544332211ull;
+b/sw/firmware/ctrl/test/test_aecp.cpp: +            if(sel==0)return 0x0123456789abcdefull;
+b/sw/firmware/ctrl/test/test_aecp.cpp: +    EXPECT_EQ(get(out,42,4),0xf2000000u);EXPECT_EQ(get(out,54,8),0x0102030405060708ull);
+b/sw/firmware/ctrl/test/test_aecp.cpp: +    EXPECT_EQ(out[72],0x22u);EXPECT_EQ(get(out,74,8),0x8877665544332211ull);EXPECT_EQ(get(out,82,2),2u);
+b/sw/firmware/ctrl/test/test_aecp.cpp: +    EXPECT_EQ(get(avb,42,8),0x0123456789abcdefull);EXPECT_EQ(get(avb,50,4),123456u);
+b/sw/litex/ctrl_memory.py: +  bytes each, a RAMB18 counting half (#640 ruling 6101485877). LEDGERED
+b/sw/litex/ctrl_memory.py: +    """A point the owner let plan past the budget, until the lane it is owed to recovers it."""
+b/sw/litex/ctrl_memory.py: +    owed: str                               # the lane that recovers the tiles, and the ruling
+b/sw/litex/ctrl_memory.py: +                                   57.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+b/sw/litex/ctrl_memory.py: +                                         "6425357821)"),
+b/sw/litex/milan_soc.py: +    datapath reads them (#665, comment 6088423771). So are the face block's
+b/sw/mailbox/census_ports.py: +                "(ruling 6410169666 item 3)",
+b/sw/mailbox/census_ports.py: +        **_rows("the #637 map record face: the firmware's AECP owner applies the restore (comment 6009661573), "
+b/sw/mailbox/census_ports.py: +                "and the map writer goes with the wrapper (ruling 6410169666 item 1, the exclusion)",
+b/sw/mailbox/mailbox.yaml: +      doc: The beat's value lane, low half (the processor's amap_edit_value_o).
+b/sw/mailbox/mailbox.yaml: +      doc: The beat's value lane, high half.
+b/tb/verilator/mbx/suite_face.hpp: +    const std::uint64_t answer = 0x8765432100000000ull | (0x1000u * w + 0x2A5u);

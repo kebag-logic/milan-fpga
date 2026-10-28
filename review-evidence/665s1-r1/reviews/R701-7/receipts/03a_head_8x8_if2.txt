@@ -1,0 +1,10 @@
+COMMAND <litex-venv-python> -B <review-clone>/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <litex-tree>/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <litex-tree>/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <litex-tree>/litex/litex/soc/software --output <packet>/scratch/p-head-8x8-if2/runtime
+COMMAND <litex-venv-python> -B <review-clone>/sw/firmware/ctrl/test/ctrl_srp_image.py --config <review-clone>/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output <packet>/scratch/p-head-8x8-if2/image --libc <packet>/scratch/p-head-8x8-if2/runtime/libc.a --compiler-runtime <packet>/scratch/p-head-8x8-if2/runtime/libcompiler_rt.a
+FIRMWARE-STEP FAILED RuntimeError <litex-venv-python> exited 2; see image.log
+--- image.log tail ---
+REFUSED: allocation over budget: 57.5 RAMB36 (rom 119800 bytes in 120832, sram 112992 bytes in 114688) exceeds the 56-RAMB36 budget
+wrote <packet>/scratch/p-head-8x8-if2/image/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/p-head-8x8-if2/image/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/p-head-8x8-if2/image/contract/mbx_contract.h (2 interfaces)
+SOC-PLAN (add_ctrl_memory, no override) REFUSED Refusal allocation over budget: 57.5 RAMB36 (rom 119800 bytes in 120832, sram 112992 bytes in 114688) exceeds the 56-RAMB36 budget
+rc 0

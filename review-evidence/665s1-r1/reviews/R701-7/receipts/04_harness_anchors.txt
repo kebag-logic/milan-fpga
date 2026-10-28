@@ -1,0 +1,10 @@
+## head
+VARIANT answering-ports FAILS variant answering-ports: an anchor is not unique in ctrl_aecp_image.c: '{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic bool a_avb'
+VARIANT shutdown-entry APPLIES
+MUTATION slow-adp-rx APPLIES
+MUTATION slow-adp-shutdown APPLIES
+## S2 head 6660a1a0
+VARIANT answering-ports APPLIES
+VARIANT shutdown-entry APPLIES
+MUTATION slow-adp-rx APPLIES
+MUTATION slow-adp-shutdown APPLIES
