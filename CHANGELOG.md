@@ -71,6 +71,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - `make gsi-mutants` plants the pass-through in the processor copy.
 - Both processor ROM digests match the `ed211803` rows.
 - The top adds one output; no parameter or register changes.
+- Mailbox contract 2.3 publishes each source's current Stream ID.
+- `KL_mbx` adds `pub_src_sid_o`; #665's firmware writes it later.
+- The publication census maps both stamps to `SRC_SID_LO`.
+- Issue #800 tracks the 8x8 MAAP source index width.
 
 ## Unreleased - processor pin ed211803
 

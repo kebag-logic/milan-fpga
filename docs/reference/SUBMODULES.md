@@ -285,6 +285,14 @@ FPGA-gPTP stays at `55680bff`.
 
 The top adds one output, `src_stream_id_o`; no parameter or register changes.
 
+The parent's mailbox contract moves to 2.3.
+Each source's current Stream ID gets a publication entry.
+
+`KL_mbx` gains `pub_src_sid_o`, which the split datapath reads.
+The split firmware's writer is #665's work.
+
+The [publication census](../../sw/mailbox/publication_census.py) maps both stamps to `SRC_SID_LO`.
+
 `ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `ed211803` rows.
 
 STRMW talker SID words (`0x814`, `0x818`) keep a source's first ID.
