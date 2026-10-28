@@ -1057,34 +1057,37 @@ void Harness::audio_window(const char* arm, uint64_t n, int tu, Until until) {
 void Harness::loss_recovery() {
     peer_on = false; events.clear();
     const uint64_t loss = cyc;
-    audio_window("Sync loss transition", kHz * 45 / 100, -1, Until::SyncLost);
-    check.hex("375 ms Sync timeout clears sync and asserts tu", read(0x77C) & 3, 1);
-    // Keep the original total loss deadline (450 ms + 4.6 s). Ending the
-    // Sync arm early must not shorten the fourth missed-response interval.
-    // FPGA-gPTP #84: the Announce receipt timeout makes this station
-    // grandmaster, and a grandmaster's own time is the domain's time. tu
-    // stays set until the Milan v1.2 Annex B.1.1 holdover armed by that
-    // grandmaster change has run (two quarter-ticks), then reads clear.
+    // FPGA-gPTP #89: the 375 ms Sync receipt timeout ages the grandmaster
+    // (802.1AS-2011 10.3.11, Figure 10-13 with Cor1), so this station becomes
+    // grandmaster at that timeout, measured from the last Sync it consumed,
+    // at most one Sync interval before the loss. The grandmaster change arms
+    // the Milan v1.2 Annex B.1.1 holdover, and a grandmaster's own time is
+    // the domain's time (#84): tu is set and the role reads synchronised.
+    audio_window("Sync loss transition", kHz * 45 / 100, -1, Until::SelfGm);
+    const uint64_t self_gm = cyc;
+    check.that("the 375 ms Sync timeout makes this station grandmaster",
+               read_identity(0x624) == kThisClock && self_gm - loss <= kHz * 377 / 1000);
+    check.hex("375 ms Sync timeout asserts tu in the synchronised master role",
+              read(0x77C) & 3, 3);
+    // FPGA-gPTP #90: asCapable falls at the fifth missed response (802.1AS-
+    // 2011 Figure 11-8 RESET), so the loss deadline is 450 ms + 5.6 s.
     if (extended_) {
-        audio_window("peer loss, real fourth missed Pdelay", kHz * 46 / 10, -1, Until::PeerLost);
+        audio_window("peer loss, real fifth missed Pdelay", kHz * 56 / 10, -1, Until::PeerLost);
     } else {
-        const uint64_t loss_end = loss + kHz * 505 / 100;
-        audio_window("peer loss, before this station is grandmaster",
-                     loss_end - cyc, 1, Until::SelfGm);
-        const uint64_t self_gm = cyc;
+        const uint64_t loss_end = loss + kHz * 605 / 100;
         audio_window("grandmaster change holdover", kHz * 6 / 10, -1, Until::GmCertain);
         // Both edges are observed by the 1 ms public poll plus its 1 ms drain.
         check.that("the grandmaster change holds tu for the 0.25 s holdover",
                    cyc - self_gm >= kHz / 4 - kHz / 250);
         check.that("tu clears within 0.5 s of the grandmaster change",
                    (read(0x77C) & 3) == 2 && cyc - self_gm <= kHz / 2 + kHz / 250);
-        audio_window("peer loss, real fourth missed Pdelay",
+        audio_window("peer loss, real fifth missed Pdelay",
                      loss_end > cyc ? loss_end - cyc : 0, 0, Until::PeerLost);
     }
     publication("lost", false);
-    // A request is judged at the next request interval. Four unanswered
-    // intervals therefore finish when the fifth unanswered request starts.
-    check.that("four unanswered Pdelay intervals elapsed", pd_requests >= pd_answers + 5);
+    // A request is judged at the next request interval. Five unanswered
+    // intervals therefore finish when the sixth unanswered request starts.
+    check.that("five unanswered Pdelay intervals elapsed", pd_requests >= pd_answers + 6);
     printf("LOSS elapsed %.6f s, no timer compression\n", double(cyc - loss) / kHz);
     peer_on = true; next_sync = cyc; next_announce = cyc + kHz / 4;
     audio_window("recovery transition", kHz * 3, -1, Until::Healthy);

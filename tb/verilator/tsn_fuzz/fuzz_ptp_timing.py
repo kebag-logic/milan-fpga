@@ -204,8 +204,13 @@ class PtpTimingSections:
         # count is stepsRemoved+1 (10.5.3.3.4). Until #217 this 164-octet
         # frame was also the campaign's only above-minimum Announce
         # acceptance; the suffix_accept section now carries that duty by
-        # name, so this fixture may be reshaped for the cap's own reasons
+        # name, so this fixture may be reshaped for the cap's own reasons.
+        # FPGA-gPTP #89: the rejection probes' master sent no Sync, so the
+        # sync receipt timeout aged the port, and only a received Sync
+        # clears that (802.1AS-2011 10.3.11 with Cor1): one usable pair is
+        # heard as master first
         self.become_gm()
+        self._sync_pair(0)
         after = self.send(wire.ptp_announce(
             sequence_id=self.nseq("announce"), gm_identity=0x4444,
             gm_priority1=50, source_clock_identity=PEER2_CID,
@@ -308,8 +313,11 @@ class PtpTimingSections:
         self.rep.section("sync consumption: clean pairs move the servo, "
                          "malformed ones cannot")
 
-        # adopt GMID and settle a clean baseline before the servo probes
+        # adopt GMID and settle a clean baseline before the servo probes;
+        # the BTCA section's last master was aged by the sync receipt
+        # timeout, so one usable pair is heard as master first (#89)
         self.master = (GMID, 100)
+        self._sync_pair(0)
         self.refresh_master()
         self.tick(2)
         st = self._sync_pair(1000)

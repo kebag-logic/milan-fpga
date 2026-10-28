@@ -183,8 +183,8 @@ Four-core affinity and background load underpin the new local measurements.
 See the suite's [measurement and phase rationale](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run).
 
 Every physical transition and original timer remains exercised.
-Four missed Pdelay intervals, recovery, and reset require physical seconds.
-The scenario spans 16.992496440 simulated seconds over 849624822 cycles.
+Five missed Pdelay intervals, recovery, and reset require physical seconds.
+The scenario spans 17.992742740 simulated seconds over 899637137 cycles.
 The [workflow policy](CI_WORKFLOWS.md) records nightly and manual execution.
 Physical regressions are caught nightly, outside the PR aggregate.
 Run the identical suite on demand:

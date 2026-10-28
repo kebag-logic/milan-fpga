@@ -195,7 +195,7 @@ Boot Pdelay waits 1.2 seconds; requests repeat each second.
 Sync/Follow_Up repeats every 125 milliseconds.
 Announce repeats each second, initially phased at 250 milliseconds.
 Sync loss waits beyond the real 375 ms timeout.
-Peer loss includes the fourth unanswered request interval.
+Peer loss includes the fifth unanswered request interval.
 Recovery and reset reacquisition retain the original timers.
 
 The peer timestamps scheduled arrival and departure events.
@@ -327,14 +327,14 @@ No physical clock, protocol timer, or comparison threshold changes.
 | Acquisition and public getters | Second exchange occurs at 2.2 s. Announce and Sync/Follow_Up select the GM at 2.25 s. The unchanged discontinuity holdover clears `tu` near 2.75 s. Stop on healthy CLKV, then compare GM/parent/delay/path through CSR and AECP. Original 1.8 s window remains the failure bound. |
 | Healthy audio | Twenty milliseconds compares all eight channels, ordering, and certain `tu`. |
 | Backpressure | Wait for the next DUT Pdelay at 3.2 s. Every transmitted frame stalls for 64 cycles. Stop after a stalled PTP frame, then settle its response. The earlier acquisition requires approximately 0.43 s before that same request. The polling bound permits one unchanged Pdelay interval; the cadence tolerance remains unchanged. |
-| Sync loss | Last selected Sync expires after 375 ms. Loss starts after the last Sync, leaving about 300 ms. Stop on public uncertain state; the original 450 ms failure bound remains. |
-| Peer loss | Four unanswered request intervals must finish. After the successful 3.2 s request, these finish around 8.2 s. Stop only after public loss and the fifth unanswered request. The combined loss deadline remains 5.05 s. Audio and uncertain `tu` remain graded. |
+| Sync loss | Last selected Sync expires after 375 ms. Loss starts after the last Sync, leaving about 300 ms. That expiry makes this station grandmaster. Stop on that public grandmaster state; the original 450 ms failure bound remains. |
+| Peer loss | Five unanswered request intervals must finish. After the successful 3.2 s request, these finish around 9.2 s. Stop only after public loss and the sixth unanswered request. The combined loss deadline is 6.05 s. Audio remains graded, with certain `tu` after the grandmaster change holdover. |
 | Recovery | Two fresh exchanges and selected Announce/Sync are required. Then Announce/Sync and the discontinuity holdover must complete. Stop on healthy public state within the original 3 s bound, then grade 20 ms of certain audio. |
 | Reset | Assert both resets during active traffic. Warm-reset public health can return after one exchange. Continue through two completed exchanges, at 1.2/2.2 s, to grade the reset epoch's one-second cadence. Require healthy public state within 3 s, then grade 20 ms of certain audio. |
 
-The four missed intervals prevent a 600-second default run.
+The five missed intervals prevent a 600-second default run.
 Acquisition, recovery, and reset also require real Pdelay exchanges.
-The trimmed scenario requires 16.992496440 simulated seconds over 849624822 cycles.
+The trimmed scenario requires 17.992742740 simulated seconds over 899637137 cycles.
 The closing transmit-flag phase adds four simulated seconds.
 Consequently, the physical leg runs separately from the default sweep:
 

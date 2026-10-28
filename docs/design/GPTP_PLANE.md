@@ -127,11 +127,11 @@ Excessive delay and peer silence still clear asCapable.
 
 An answered crossing exchange still resets the lost-response count.
 
-The fourth unanswered request after it clears asCapable.
+The fifth unanswered request after it clears asCapable.
 
 An unanswered crossing request earns no liveness credit.
 
-The third unanswered request after it clears asCapable.
+The fourth unanswered request after it clears asCapable.
 
 ```sh
 make -C tb/verilator/gptp_plane phc-step
