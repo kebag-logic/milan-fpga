@@ -1693,7 +1693,8 @@ class GptpPlaneHarness {
       for (int n = 0; n < 20000 && *eng == 0; n++)
         run(dut, 1);                      // s1b now waits at the head
       const unsigned lvl0 = *eng;
-      const unsigned rp0 = evq_rp, wp0 = evq_wp;
+      const unsigned rp0 = evq_rp;
+      const unsigned wp0 = evq_wp;
       *eng = 4; dut->eval();              // queue reads full; pushes refused
       Frame s2 = ptp(0x0, 0x5109, 0, 0x0208, 10);
       s2.ts(0);
@@ -1702,7 +1703,8 @@ class GptpPlaneHarness {
         *eng = 4; dut->eval();
         run(dut, 1);
       }
-      const unsigned rp1 = evq_rp, wp1 = evq_wp;
+      const unsigned rp1 = evq_rp;
+      const unsigned wp1 = evq_wp;
       *eng = static_cast<uint8_t>(lvl0);
       dut->eval();
       printf("[#207] full-queue window: level %u, rp %u->%u, wp %u->%u\n",
