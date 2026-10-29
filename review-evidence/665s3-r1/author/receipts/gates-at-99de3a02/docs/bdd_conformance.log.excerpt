@@ -1,0 +1,521 @@
+$ (cd tests) behave
+USING RUNNER: behave.runner:Runner
+@aecp @cmd:READ_DESCRIPTOR @class:getter
+Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5) # features/aecp_read_descriptor.feature:5
+  On 2026-08-12 this repository's AECP/AEM RTL was deleted and this tier went
+  with it, on the premise "this device answers no AECP command at all". The
+  protocol-processor submodule then landed its AECP uCPU and the premise
+  expired: READ_DESCRIPTOR (0x0004) is one of the processor's served AEM
+  commands. It reads the supplied descriptor image and answers its two failure
+  cases apart from each other.
+  THREE ANSWERS, ONE COMMAND. Success is configuration_index, a reserved
+  halfword and the descriptor itself, so the AECPDU is 28 + N. A locate that
+  finds no such (configuration, type, index) is NO_SUCH_DESCRIPTOR. A
+  configuration_index outside configurations_count is BAD_ARGUMENTS, because
+  the microprogram range-checks the configuration BEFORE it locates - the two
+  statuses come from two different checks and this feature keeps them apart.
+  BOTH failures answer the IEEE 7.4.5 four-octet {descriptor_type,
+  descriptor_index} stub, "in the same location as in the command frame", so
+  a controller can tell which read failed without keeping its own book.
+  WHAT IS DELIBERATELY NOT HERE. This feature covers READ_DESCRIPTOR only. The
+  served inventory, including GET_COUNTERS, has command-specific BDD and RTL
+  coverage. Commands outside that inventory and the Table 5.22 unsolicited
+  push remain separate gaps. A scenario that asserts an answer nothing gives
+  would be a conformance claim with no device behind it.
+  This is an OFFLINE model (tests/README.md T1) - a Python mirror of the
+  shipped command path in tests/steps/aecp_engine_steps.py, which lists the
+  submodule sources it was derived from. It proves the CONTRACT, not the
+  Verilog; the submodule owns benches for the Verilog.
+  @aecp @cmd:READ_DESCRIPTOR @class:getter
+  Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)  # features/aecp_read_descriptor.feature:5
+
+  @class:getter
+  Scenario: reading ENTITY[0] answers SUCCESS with the whole response shape          # features/aecp_read_descriptor.feature:39
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image       # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 0 index 0 in configuration 0           # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                               # steps/aecp_engine_steps.py:534
+    And the AECP response message_type is 1                                          # steps/aecp_engine_steps.py:541
+    And the AECP response echoes command_type 4 with u clear                         # steps/aecp_engine_steps.py:601
+    And the AECP response target_entity_id is our own                                # steps/aecp_engine_steps.py:635
+    And the AECP response echoes the sequence_id and the controller_entity_id        # steps/aecp_engine_steps.py:623
+    And the AECP response is unicast back to the requester from our own MAC          # steps/aecp_engine_steps.py:610
+    And the AECP response configuration_index is 0 and the reserved halfword is zero # steps/aecp_engine_steps.py:651
+    And the AECP response descriptor is 312 octets opening with type 0 index 0       # steps/aecp_engine_steps.py:662
+    And the AECP response AECPDU is 340 octets                                       # steps/aecp_engine_steps.py:581
+    And the AECP response control_data_length counts its own payload                 # steps/aecp_engine_steps.py:568
+    And the AECP response is well formed against its command                         # steps/aecp_engine_steps.py:643
+    And the AECP engine counted a command and a response                             # steps/aecp_engine_steps.py:724
+
+  @class:getter
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.1 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector  # features/aecp_read_descriptor.feature:68
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image                                                                                        # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 0 index 0 in configuration 0                                                                                            # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                                                                                                                # steps/aecp_engine_steps.py:534
+    And the AECP response descriptor is 312 octets opening with type 0 index 0                                                                                        # steps/aecp_engine_steps.py:662
+    And the AECP response AECPDU is 340 octets                                                                                                                        # steps/aecp_engine_steps.py:581
+    And the AECP response is well formed against its command                                                                                                          # steps/aecp_engine_steps.py:643
+
+  @class:getter
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.2 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector  # features/aecp_read_descriptor.feature:69
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image                                                                                        # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 1 index 0 in configuration 0                                                                                            # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                                                                                                                # steps/aecp_engine_steps.py:534
+    And the AECP response descriptor is 98 octets opening with type 1 index 0                                                                                         # steps/aecp_engine_steps.py:662
+    And the AECP response AECPDU is 126 octets                                                                                                                        # steps/aecp_engine_steps.py:581
+    And the AECP response is well formed against its command                                                                                                          # steps/aecp_engine_steps.py:643
+
+  @class:getter
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.3 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector  # features/aecp_read_descriptor.feature:70
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image                                                                                        # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 2 index 0 in configuration 0                                                                                            # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                                                                                                                # steps/aecp_engine_steps.py:534
+    And the AECP response descriptor is 152 octets opening with type 2 index 0                                                                                        # steps/aecp_engine_steps.py:662
+    And the AECP response AECPDU is 180 octets                                                                                                                        # steps/aecp_engine_steps.py:581
+    And the AECP response is well formed against its command                                                                                                          # steps/aecp_engine_steps.py:643
+
+  @class:getter
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.4 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector  # features/aecp_read_descriptor.feature:71
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image                                                                                        # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 5 index 0 in configuration 0                                                                                            # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                                                                                                                # steps/aecp_engine_steps.py:534
+    And the AECP response descriptor is 152 octets opening with type 5 index 0                                                                                        # steps/aecp_engine_steps.py:662
+    And the AECP response AECPDU is 180 octets                                                                                                                        # steps/aecp_engine_steps.py:581
+    And the AECP response is well formed against its command                                                                                                          # steps/aecp_engine_steps.py:643
+
+  @class:getter
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.5 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector  # features/aecp_read_descriptor.feature:72
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image                                                                                        # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 6 index 0 in configuration 0                                                                                            # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                                                                                                                # steps/aecp_engine_steps.py:534
+    And the AECP response descriptor is 152 octets opening with type 6 index 0                                                                                        # steps/aecp_engine_steps.py:662
+    And the AECP response AECPDU is 180 octets                                                                                                                        # steps/aecp_engine_steps.py:581
+    And the AECP response is well formed against its command                                                                                                          # steps/aecp_engine_steps.py:643
+
+  @class:getter
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.6 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector  # features/aecp_read_descriptor.feature:73
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image                                                                                        # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 9 index 0 in configuration 0                                                                                            # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                                                                                                                # steps/aecp_engine_steps.py:534
+    And the AECP response descriptor is 102 octets opening with type 9 index 0                                                                                        # steps/aecp_engine_steps.py:662
+    And the AECP response AECPDU is 130 octets                                                                                                                        # steps/aecp_engine_steps.py:581
+    And the AECP response is well formed against its command                                                                                                          # steps/aecp_engine_steps.py:643
+
+  @class:getter
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.7 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector  # features/aecp_read_descriptor.feature:74
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image                                                                                        # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 10 index 0 in configuration 0                                                                                           # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                                                                                                                # steps/aecp_engine_steps.py:534
+    And the AECP response descriptor is 86 octets opening with type 10 index 0                                                                                        # steps/aecp_engine_steps.py:662
+    And the AECP response AECPDU is 114 octets                                                                                                                        # steps/aecp_engine_steps.py:581
+    And the AECP response is well formed against its command                                                                                                          # steps/aecp_engine_steps.py:643
+
+  @class:getter
+  Scenario Outline: every descriptor the image directory serves answers SUCCESS -- @1.8 the docs/architecture/07 section 3.1 tree, lengths from the submodule vector  # features/aecp_read_descriptor.feature:75
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image                                                                                        # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 36 index 0 in configuration 0                                                                                           # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                                                                                                                # steps/aecp_engine_steps.py:534
+    And the AECP response descriptor is 78 octets opening with type 36 index 0                                                                                        # steps/aecp_engine_steps.py:662
+    And the AECP response AECPDU is 106 octets                                                                                                                        # steps/aecp_engine_steps.py:581
+    And the AECP response is well formed against its command                                                                                                          # steps/aecp_engine_steps.py:643
+
+... 3069 lines cut; see WHOLE-LOGS.txt ...
+    Given the end-station config "endstation_ax7101_8x8"                      # steps/wire_accountability_steps.py:58
+    Then the declared talker width is 8 channels                              # steps/wire_accountability_steps.py:83
+    And every AAF talker format's channels_per_frame equals the emitted width # steps/wire_accountability_steps.py:91
+
+  Scenario: the 4x4 config advertises 4 channels and the fabric emits 4       # features/wire_channel_accountability.feature:59
+    Given the end-station builder is importable                               # steps/wire_accountability_steps.py:45
+    Given the end-station config "endstation_arty_4x4"                        # steps/wire_accountability_steps.py:58
+    Then the declared talker width is 4 channels                              # steps/wire_accountability_steps.py:83
+    And every AAF talker format's channels_per_frame equals the emitted width # steps/wire_accountability_steps.py:91
+
+  Scenario Outline: the generated wire constant matches the derivation -- @1.1   # features/wire_channel_accountability.feature:73
+    Given the end-station builder is importable                                  # steps/wire_accountability_steps.py:45
+    Given the end-station config "endstation_arty_current"                       # steps/wire_accountability_steps.py:58
+    Then the generated TALKER_WIRE_CHANS_C equals the emitted width              # steps/wire_accountability_steps.py:120
+
+  Scenario Outline: the generated wire constant matches the derivation -- @1.2   # features/wire_channel_accountability.feature:74
+    Given the end-station builder is importable                                  # steps/wire_accountability_steps.py:45
+    Given the end-station config "endstation_arty_4x4"                           # steps/wire_accountability_steps.py:58
+    Then the generated TALKER_WIRE_CHANS_C equals the emitted width              # steps/wire_accountability_steps.py:120
+
+  Scenario Outline: the generated wire constant matches the derivation -- @1.3   # features/wire_channel_accountability.feature:75
+    Given the end-station builder is importable                                  # steps/wire_accountability_steps.py:45
+    Given the end-station config "endstation_ax7101_8x8"                         # steps/wire_accountability_steps.py:58
+    Then the generated TALKER_WIRE_CHANS_C equals the emitted width              # steps/wire_accountability_steps.py:120
+
+  Scenario: an unbacked audio interface does not silently change the gateware  # features/wire_channel_accountability.feature:77
+    Given the end-station builder is importable                                # steps/wire_accountability_steps.py:45
+    Given the end-station config "endstation_ax7101_8x8"                       # steps/wire_accountability_steps.py:58
+    When the TDM bus is not backed by the fabric                               # steps/wire_accountability_steps.py:67
+    Then the audio interface is reported as a placeholder                      # steps/wire_accountability_steps.py:137
+    And the emitted width falls back to 2 channels                             # steps/wire_accountability_steps.py:150
+
+  Scenario: with the TDM master present the interface is backed  # features/wire_channel_accountability.feature:88
+    Given the end-station builder is importable                  # steps/wire_accountability_steps.py:45
+    Given the end-station config "endstation_ax7101_8x8"         # steps/wire_accountability_steps.py:58
+    When the TDM bus is backed by the fabric                     # steps/wire_accountability_steps.py:73
+    Then the audio interface is not a placeholder                # steps/wire_accountability_steps.py:143
+    And the soc argv carries "--audio-interface"                 # steps/wire_accountability_steps.py:165
+    And the soc argv carries "--audio-interface-master"          # steps/wire_accountability_steps.py:165
+
+  Scenario: the derivation REFUSES to over-declare (negative control)  # features/wire_channel_accountability.feature:97
+    Given the end-station builder is importable                        # steps/wire_accountability_steps.py:45
+    Given the end-station config "endstation_arty_4x4"                 # steps/wire_accountability_steps.py:58
+    When the TDM bus is backed by the fabric                           # steps/wire_accountability_steps.py:73
+    Then the front-end supplies at least 4 pair slots                  # steps/wire_accountability_steps.py:158
+    And the emitted width is still 4 channels                          # steps/wire_accountability_steps.py:150
+
+  Scenario: the derivation REFUSES to under-declare silently (negative control)             # features/wire_channel_accountability.feature:107
+    Given the end-station builder is importable                                             # steps/wire_accountability_steps.py:45
+    Given the end-station config "endstation_ax7101_8x8"                                    # steps/wire_accountability_steps.py:58
+    When the TDM bus is not backed by the fabric                                            # steps/wire_accountability_steps.py:67
+    Then at least one AAF talker format's channels_per_frame differs from the emitted width # steps/wire_accountability_steps.py:108
+
+  Scenario: the elaboration guard is the enforcement, not a comment             # features/wire_channel_accountability.feature:114
+    Given the end-station builder is importable                                 # steps/wire_accountability_steps.py:45
+    Then milan_datapath refuses a wire width its capture front-end cannot feed  # steps/wire_accountability_steps.py:173
+    And milan_datapath refuses a TDM master clock that is not an exact multiple # steps/wire_accountability_steps.py:183
+    And KL_aaf_packetizer resets every talker's chans field from the constant   # steps/wire_accountability_steps.py:194
+
+@torture @wire_truth @level:L3 @matrix:M-AAF-WIRE @matrix:M-CLK-2
+Feature: AVTP wire truth - the declared format is the format on the wire # features/wire_truth_avtp.feature:5
+  The payload analyser (tb/tools/avtp_wire_truth.py) is the campaign's only
+  check whose oracle is THE WIRE, and these scenarios are the desk half of it:
+  every frame here is BUILT BY HAND from the figures in IEEE 1722-2016, not
+  produced by our RTL, so if the analyser and the fabric ever disagree the
+  disagreement is about the standard and not about taste.
+  LEVEL / ORACLE (docs/testing/methodology.md). LEVEL 3 - conformance to the
+  standard. ORACLE: THE CLAUSE, encoded as a hand-built byte vector. What this
+  level CANNOT see: whether the fabric emits these bytes (that is L2,
+  tb/verilator/milan_dp, and L5 on a tap). What it CAN see, and nothing else in
+  the tree could before: whether the ANALYSER that will judge a real capture is
+  itself right, and whether it can say NO.
+  Clauses under test, quoted where the exact words matter:
+  IEEE 1722-2016 Figure 26 - the AAF PCM AVTPDU layout.
+  IEEE 1722-2016 Annex I.2.4.1 - the AAF stream_format qword, and the
+  sentence the whole feature rests on: the format field "matches the
+  setting of the channels_per_frame field in the Stream AVTPDU when this
+  stream format is the current format for the stream".
+  IEEE 1722-2016 7.3.3 - channels_per_frame is "a positive integer greater
+  than zero (0)"; 7.3.4 - bit_depth "shall not be set to a value of zero"
+  and not larger than the format's own width.
+  IEEE 1722-2016 4.4.3.2 - "The 1-octet subtype field": the whole octet.
+  IEEE 1722-2016 4.4.4.6 / 10.4.6 - sequence_num increments by one with
+  wrapping; the CRF one is ONE OCTET and wraps FF -> 00.
+  IEEE 1722-2016 Figure 72 + Milan v1.2 7.3.2 - "The base frequency shall be
+  48000Hz. Each PDU shall contain 1 timestamp, and the timestamp interval
+  shall be 96."
+  Milan v1.2 7.3.3 - "An AVB Class A Stream Reservation shall be used to
+  transmit" a CRF Media Clock Stream, so an untagged CRF frame is a
+  finding.
+  Milan v1.2 5.3.7.3 - a bound talker streams, so an unfed one owes SILENT
+  FRAMES and not silence.
+  IEEE 1722.1-2021 6.2.1 / 9.2.1.1.6 - the 82-octet ADPDU and the rule that
+  control_data_length counts the octets after target_entity_id.
+  @torture @wire_truth @level:L3 @matrix:M-AAF-WIRE @matrix:M-CLK-2
+  Feature: AVTP wire truth - the declared format is the format on the wire  # features/wire_truth_avtp.feature:5
+
+  @class:decoder
+  Scenario: an AAF PCM AVTPDU decodes field for field off Figure 26              # features/wire_truth_avtp.feature:47
+    Given the wire-truth analyser is importable                                  # steps/wire_truth_steps.py:65
+    Given a hand-built AAF frame with 4 channels sequence 7 timestamp 0x11223344 # steps/wire_truth_steps.py:75
+    Then the analyser reads channels_per_frame 4                                 # steps/wire_truth_steps.py:288
+    And the analyser reads sequence_num 7                                        # steps/wire_truth_steps.py:296
+    And the analyser reads avtp_timestamp 0x11223344                             # steps/wire_truth_steps.py:303
+    And the analyser reads bit_depth 32 and nsr 5 and format 2                   # steps/wire_truth_steps.py:310
+    And the analyser reads 6 sample events in the payload                        # steps/wire_truth_steps.py:319
+
+  @class:decoder @regression
+  Scenario: channels_per_frame survives the two-octet split               # features/wire_truth_avtp.feature:56
+    Given the wire-truth analyser is importable                           # steps/wire_truth_steps.py:65
+    Given a hand-built AAF frame with 261 channels sequence 0 timestamp 0 # steps/wire_truth_steps.py:75
+    Then the analyser reads channels_per_frame 261                        # steps/wire_truth_steps.py:288
+
+  @class:decoder @regression
+  Scenario: the subtype is the whole octet, so a control frame stays a control frame  # features/wire_truth_avtp.feature:63
+    Given the wire-truth analyser is importable                                       # steps/wire_truth_steps.py:65
+    Given a hand-built ADPDU with available_index 1                                   # steps/wire_truth_steps.py:190
+    Then the analyser classifies the frame as ADP                                     # steps/wire_truth_steps.py:327
+    And the analyser counts 1 ADPDU                                                   # steps/wire_truth_steps.py:338
+
+  @class:decoder
+  Scenario: the ATDECC AAF stream_format qwords decode to their channel counts  # features/wire_truth_avtp.feature:73
+    Given the wire-truth analyser is importable                                 # steps/wire_truth_steps.py:65
+    Then stream_format "0205022000806000" declares 2 channels                   # steps/wire_truth_steps.py:347
+    And stream_format "0205022001006000" declares 4 channels                    # steps/wire_truth_steps.py:347
+    And stream_format "0205022002006000" declares 8 channels                    # steps/wire_truth_steps.py:347
+    And stream_format "0215022002006000" has the up-to bit set                  # steps/wire_truth_steps.py:356
+    And stream_format "0205022001006000" declares 6 samples per frame           # steps/wire_truth_steps.py:364
+
+  @class:decoder @clause:Milan-7.3.2
+  Scenario: the Milan CRF format string decodes to the Milan CRF parameters  # features/wire_truth_avtp.feature:81
+    Given the wire-truth analyser is importable                              # steps/wire_truth_steps.py:65
+    Then the Milan CRF stream format is 0x041060010000BB80                   # steps/wire_truth_steps.py:371
+    And it decodes to type 1 interval 96 timestamps 1 pull 0 base 48000      # steps/wire_truth_steps.py:379
+
+  @class:invariant @clause:1722-I.2.4.1
+  Scenario: a talker declaring 8 channels and emitting 2 is caught    # features/wire_truth_avtp.feature:90
+    Given the wire-truth analyser is importable                       # steps/wire_truth_steps.py:65
+    Given the controller was told the format is "0205022002006000"    # steps/wire_truth_steps.py:215
+    And a hand-built AAF frame with 2 channels sequence 0 timestamp 0 # steps/wire_truth_steps.py:75
+    When the analyser checks the declared format against the wire     # steps/wire_truth_steps.py:393
+    Then the analyser reports FAIL on "declared-vs-wire"              # steps/wire_truth_steps.py:472
+    And the mismatch names channels_per_frame                         # steps/wire_truth_steps.py:511
+
+  @class:invariant @negative-control
+  Scenario: the honest declaration passes the same check              # features/wire_truth_avtp.feature:101
+    Given the wire-truth analyser is importable                       # steps/wire_truth_steps.py:65
+    Given the controller was told the format is "0205022000806000"    # steps/wire_truth_steps.py:215
+    And a hand-built AAF frame with 2 channels sequence 0 timestamp 0 # steps/wire_truth_steps.py:75
+    When the analyser checks the declared format against the wire     # steps/wire_truth_steps.py:393
+    Then every declared-vs-wire verdict is PASS                       # steps/wire_truth_steps.py:483
+
+  @class:invariant @clause:1722-7.3.3 @clause:1722-7.3.4
+  Scenario Outline: illegal header fields are reported, not rounded away -- @1.1    # features/wire_truth_avtp.feature:118
+    Given the wire-truth analyser is importable                                     # steps/wire_truth_steps.py:65
+    Given a hand-built AAF frame that is illegal because channels_per_frame is zero # steps/wire_truth_steps.py:87
+    When the analyser checks header legality                                        # steps/wire_truth_steps.py:400
+    Then the analyser reports FAIL on "header-legal"                                # steps/wire_truth_steps.py:472
+    And the violation mentions "channels_per_frame 0"                               # steps/wire_truth_steps.py:519
+
+  @class:invariant @clause:1722-7.3.3 @clause:1722-7.3.4
+  Scenario Outline: illegal header fields are reported, not rounded away -- @1.2   # features/wire_truth_avtp.feature:119
+    Given the wire-truth analyser is importable                                    # steps/wire_truth_steps.py:65
+    Given a hand-built AAF frame that is illegal because bit_depth is zero         # steps/wire_truth_steps.py:87
+    When the analyser checks header legality                                       # steps/wire_truth_steps.py:400
+    Then the analyser reports FAIL on "header-legal"                               # steps/wire_truth_steps.py:472
+    And the violation mentions "bit_depth 0"                                       # steps/wire_truth_steps.py:519
+
+  @class:invariant @clause:1722-7.3.3 @clause:1722-7.3.4
+  Scenario Outline: illegal header fields are reported, not rounded away -- @1.3      # features/wire_truth_avtp.feature:120
+    Given the wire-truth analyser is importable                                       # steps/wire_truth_steps.py:65
+    Given a hand-built AAF frame that is illegal because bit_depth exceeds the format # steps/wire_truth_steps.py:87
+    When the analyser checks header legality                                          # steps/wire_truth_steps.py:400
+    Then the analyser reports FAIL on "header-legal"                                  # steps/wire_truth_steps.py:472
+    And the violation mentions "> format width"                                       # steps/wire_truth_steps.py:519
+
+  @class:invariant @clause:1722-4.4.4.6
+  Scenario: an AAF sequence_num gap is found and the 8-bit wrap is not one  # features/wire_truth_avtp.feature:124
+    Given the wire-truth analyser is importable                             # steps/wire_truth_steps.py:65
+    Given hand-built AAF frames with sequence numbers 254,255,0,1           # steps/wire_truth_steps.py:112
+    When the analyser checks sequence continuity                            # steps/wire_truth_steps.py:407
+    Then every sequence verdict is PASS                                     # steps/wire_truth_steps.py:483
+    Given hand-built AAF frames with sequence numbers 1,2,4                 # steps/wire_truth_steps.py:112
+    When the analyser checks sequence continuity                            # steps/wire_truth_steps.py:407
+    Then the analyser reports FAIL on "seq-continuity"                      # steps/wire_truth_steps.py:472
+    And the gap count is 1                                                  # steps/wire_truth_steps.py:527
+
+  @class:invariant @clause:1722-10.4.6 @regression
+  Scenario: the CRF sequence_num is one octet, so FF to 00 is a wrap  # features/wire_truth_avtp.feature:134
+    Given the wire-truth analyser is importable                       # steps/wire_truth_steps.py:65
+    Given hand-built CRF frames with sequence numbers 254,255,0       # steps/wire_truth_steps.py:170
+    When the analyser checks sequence continuity                      # steps/wire_truth_steps.py:407
+    Then every sequence verdict is PASS                               # steps/wire_truth_steps.py:483
+
+  @class:invariant @clause:1722-7.5
+  Scenario: the presentation time advances by exactly one AVTPDU of media  # features/wire_truth_avtp.feature:144
+    Given the wire-truth analyser is importable                            # steps/wire_truth_steps.py:65
+    Given hand-built AAF frames whose timestamps step by 125000 ns         # steps/wire_truth_steps.py:121
+    When the analyser checks the presentation timestamps                   # steps/wire_truth_steps.py:414
+    Then the analyser reports PASS on "pts-step"                           # steps/wire_truth_steps.py:472
+    And the expected step is 125000 ns                                     # steps/wire_truth_steps.py:534
+
+  @class:invariant @negative-control
+  Scenario: a presentation time that steps four times too far is caught  # features/wire_truth_avtp.feature:151
+    Given the wire-truth analyser is importable                          # steps/wire_truth_steps.py:65
+    Given hand-built AAF frames whose timestamps step by 500000 ns       # steps/wire_truth_steps.py:121
+    When the analyser checks the presentation timestamps                 # steps/wire_truth_steps.py:414
+    Then the analyser reports FAIL on "pts-step"                         # steps/wire_truth_steps.py:472
+
+  @class:honesty @clause:methodology-R5
+  Scenario: the class-A transit check SKIPS rather than inventing a timebase  # features/wire_truth_avtp.feature:157
+    Given the wire-truth analyser is importable                               # steps/wire_truth_steps.py:65
+    Given a hand-built AAF frame with 2 channels sequence 0 timestamp 0       # steps/wire_truth_steps.py:75
+    When the analyser checks the presentation timestamps                      # steps/wire_truth_steps.py:414
+    Then the analyser reports SKIP on "class-a-transit"                       # steps/wire_truth_steps.py:472
+    And the skip reason mentions "CLOCK_REALTIME"                             # steps/wire_truth_steps.py:541
+
+  @class:invariant @clause:8021BA-class-A
+  Scenario: with a gPTP reference supplied the 2 ms class-A window is enforced  # features/wire_truth_avtp.feature:168
+    Given the wire-truth analyser is importable                                 # steps/wire_truth_steps.py:65
+    Given a gPTP reference of 1000000 ns                                        # steps/wire_truth_steps.py:132
+    And a hand-built AAF frame presented 1500000 ns after the reference         # steps/wire_truth_steps.py:140
+    When the analyser checks the presentation timestamps                        # steps/wire_truth_steps.py:414
+    Then the analyser reports PASS on "class-a-transit"                         # steps/wire_truth_steps.py:472
+    Given a gPTP reference of 1000000 ns                                        # steps/wire_truth_steps.py:132
+    And a hand-built AAF frame presented 9000000 ns after the reference         # steps/wire_truth_steps.py:140
+    When the analyser checks the presentation timestamps                        # steps/wire_truth_steps.py:414
+    Then the analyser reports FAIL on "class-a-transit"                         # steps/wire_truth_steps.py:472
+
+  @class:invariant @clause:8021Q-9.6 @regression
+  Scenario: VID 0 is reported as its own defect, not as a generic mismatch  # features/wire_truth_avtp.feature:180
+    Given the wire-truth analyser is importable                             # steps/wire_truth_steps.py:65
+    Given a hand-built AAF frame tagged with VID 0                          # steps/wire_truth_steps.py:98
+    When the analyser checks the VLAN class                                 # steps/wire_truth_steps.py:421
+    Then the analyser reports FAIL on "c-tag-vid"                           # steps/wire_truth_steps.py:472
+    And the verdict records that VID zero was seen                          # steps/wire_truth_steps.py:549
+
+  @class:invariant @clause:Milan-7.3.3
+  Scenario: an untagged CRF frame fails the class-A reservation requirement  # features/wire_truth_avtp.feature:190
+    Given the wire-truth analyser is importable                              # steps/wire_truth_steps.py:65
+    Given a hand-built untagged CRF frame                                    # steps/wire_truth_steps.py:155
+    When the analyser checks the VLAN class                                  # steps/wire_truth_steps.py:421
+    Then the analyser reports FAIL on "crf.c-tag-present"                    # steps/wire_truth_steps.py:472
+
+  @class:invariant @negative-control
+  Scenario: conformant tags pass every VLAN check on both stream classes  # features/wire_truth_avtp.feature:199
+    Given the wire-truth analyser is importable                           # steps/wire_truth_steps.py:65
+    Given a hand-built AAF frame with 2 channels sequence 0 timestamp 0   # steps/wire_truth_steps.py:75
+    And a hand-built CRF frame                                            # steps/wire_truth_steps.py:148
+    When the analyser checks the VLAN class                               # steps/wire_truth_steps.py:421
+    Then every VLAN verdict is PASS                                       # steps/wire_truth_steps.py:483
+
+  @class:invariant @clause:Milan-5.3.7.3
+  Scenario: an unfed bound talker owes silent FRAMES, and absence is not silence  # features/wire_truth_avtp.feature:207
+    Given the wire-truth analyser is importable                                   # steps/wire_truth_steps.py:65
+    Given stream 0x0200000000020000 is declared bound but unfed                   # steps/wire_truth_steps.py:223
+    And a hand-built silent AAF frame on stream 0x0200000000020000                # steps/wire_truth_steps.py:105
+    When the analyser checks zero fill                                            # steps/wire_truth_steps.py:428
+    Then every zero-fill verdict is PASS                                          # steps/wire_truth_steps.py:483
+
+  @class:invariant @clause:Milan-5.3.7.3 @negative-control
+  Scenario: a declared-silent stream that sent nothing at all fails  # features/wire_truth_avtp.feature:214
+    Given the wire-truth analyser is importable                      # steps/wire_truth_steps.py:65
+    Given stream 0x0200000000020000 is declared bound but unfed      # steps/wire_truth_steps.py:223
+    When the analyser checks zero fill                               # steps/wire_truth_steps.py:428
+    Then the analyser reports FAIL on "zero-fill-present"            # steps/wire_truth_steps.py:472
+
+  @class:invariant @negative-control
+  Scenario: a fed stream carrying all zeros is the silence defect  # features/wire_truth_avtp.feature:220
+    Given the wire-truth analyser is importable                    # steps/wire_truth_steps.py:65
+    Given stream 0x0200000000020000 is declared fed                # steps/wire_truth_steps.py:232
+    And a hand-built silent AAF frame on stream 0x0200000000020000 # steps/wire_truth_steps.py:105
+    When the analyser checks zero fill                             # steps/wire_truth_steps.py:428
+    Then the analyser reports FAIL on "fed-non-silent"             # steps/wire_truth_steps.py:472
+
+  @class:invariant @clause:Milan-7.3.2
+  Scenario: 500 CRF PDUs a second is derived from the format, not measured first  # features/wire_truth_avtp.feature:228
+    Given the wire-truth analyser is importable                                   # steps/wire_truth_steps.py:65
+    Given 101 hand-built CRF frames at 2 ms spacing                               # steps/wire_truth_steps.py:179
+    When the analyser checks the CRF format and rate                              # steps/wire_truth_steps.py:435
+    Then every CRF format verdict is PASS                                         # steps/wire_truth_steps.py:483
+    And the expected CRF rate is 500 PDUs per second                              # steps/wire_truth_steps.py:556
+    And the analyser reports PASS on "crf.pdu-rate"                               # steps/wire_truth_steps.py:472
+
+  @class:invariant @negative-control
+  Scenario: a CRF timestamp_interval of 48 fails Milan 7.3.2  # features/wire_truth_avtp.feature:236
+    Given the wire-truth analyser is importable               # steps/wire_truth_steps.py:65
+    Given a hand-built CRF frame with timestamp interval 48   # steps/wire_truth_steps.py:162
+    When the analyser checks the CRF format and rate          # steps/wire_truth_steps.py:435
+    Then the analyser reports FAIL on "crf.milan-format"      # steps/wire_truth_steps.py:472
+
+  @class:invariant @clause:17221-6.2.1
+  Scenario: the 82-octet ADPDU rule and the available_index that must advance  # features/wire_truth_avtp.feature:243
+    Given the wire-truth analyser is importable                                # steps/wire_truth_steps.py:65
+    Given hand-built ADPDUs with available indices 1,2,3                       # steps/wire_truth_steps.py:197
+    When the analyser checks the ADP frame rule                                # steps/wire_truth_steps.py:443
+    Then every ADP verdict is PASS                                             # steps/wire_truth_steps.py:483
+    And the built ADPDU frame is 82 octets                                     # steps/wire_truth_steps.py:564
+
+  @class:invariant @negative-control
+  Scenario: a repeated available_index reads as an incoherent entity  # features/wire_truth_avtp.feature:250
+    Given the wire-truth analyser is importable                       # steps/wire_truth_steps.py:65
+    Given hand-built ADPDUs with available indices 5,5,6              # steps/wire_truth_steps.py:197
+    When the analyser checks the ADP frame rule                       # steps/wire_truth_steps.py:443
+    Then the analyser reports FAIL on "available-index-advances"      # steps/wire_truth_steps.py:472
+
+  @class:invariant @clause:17221-9.2.1.1.6 @regression
+  Scenario: a frame that lies about its control_data_length is caught  # features/wire_truth_avtp.feature:258
+    Given the wire-truth analyser is importable                        # steps/wire_truth_steps.py:65
+    Given a hand-built ADPDU that claims control_data_length 200       # steps/wire_truth_steps.py:207
+    When the analyser checks control length honesty                    # steps/wire_truth_steps.py:450
+    Then the analyser reports FAIL on "length-honest"                  # steps/wire_truth_steps.py:472
+    And the liar's declared control_data_length is 200                 # steps/wire_truth_steps.py:573
+
+  @class:honesty @negative-control
+  Scenario: an empty capture is a FAIL, never a clean pass    # features/wire_truth_avtp.feature:267
+    Given the wire-truth analyser is importable               # steps/wire_truth_steps.py:65
+    When the analyser checks the capture shape                # steps/wire_truth_steps.py:457
+    Then the analyser reports FAIL on "stream-frames-present" # steps/wire_truth_steps.py:472
+
+  @class:decoder @regression
+  Scenario: a ProfiShark tap capture only decodes with its 28-octet offset  # features/wire_truth_avtp.feature:274
+    Given the wire-truth analyser is importable                             # steps/wire_truth_steps.py:65
+    Given a written pcap of 3 tap records with a 28 octet header and an FCS # steps/wire_truth_steps.py:241
+    When the analyser reads it with the tap offset                          # steps/wire_truth_steps.py:262
+    Then the analyser reports PASS on "stream-frames-present"               # steps/wire_truth_steps.py:472
+    When the analyser reads it without the tap offset                       # steps/wire_truth_steps.py:272
+    Then the analyser reports FAIL on "stream-frames-present"               # steps/wire_truth_steps.py:472
+
+  @class:honesty @negative-control @rule:empty-collection-is-a-SKIP
+  Scenario: an empty capture leaves NO check silent and NO check passing  # features/wire_truth_avtp.feature:286
+    Given the wire-truth analyser is importable                           # steps/wire_truth_steps.py:65
+    When the analyser checks an empty capture end to end                  # steps/wire_truth_steps.py:581
+    Then no check verdict is PASS                                         # steps/wire_truth_steps.py:588
+    And every check family is represented                                 # steps/wire_truth_steps.py:619
+    And every SKIP names what was absent                                  # steps/wire_truth_steps.py:630
+    And the capture-shape verdict is FAIL                                 # steps/wire_truth_steps.py:639
+
+  @class:srp @clause:8021Q-35.2.2 @clause:Milan-5.3.7.2
+  Scenario: the Talker Advertise FirstValue decodes to its 25 clause-defined octets  # features/wire_truth_avtp.feature:307
+    Given the wire-truth analyser is importable                                      # steps/wire_truth_steps.py:65
+    Given a hand-built MSRP Talker Advertise for stream 0200000000020003             # steps/wire_truth_steps.py:649
+    When the analyser decodes the MRPDU                                              # steps/wire_truth_steps.py:671
+    Then the attribute is a Talker Advertise                                         # steps/wire_truth_steps.py:682
+    And the declared destination address is 91e0f000fe07                             # steps/wire_truth_steps.py:689
+    And the declared vlan identifier is 2                                            # steps/wire_truth_steps.py:697
+    And the declared MaxFrameSize is 1024                                            # steps/wire_truth_steps.py:705
+    And the attribute is declaring                                                   # steps/wire_truth_steps.py:712
+
+  @class:srp @clause:8021Q-35.2.2.8.2
+  Scenario: a Listener attribute's declaration type rides the FourPackedEvents vector  # features/wire_truth_avtp.feature:321
+    Given the wire-truth analyser is importable                                        # steps/wire_truth_steps.py:65
+    Given a hand-built MSRP Listener Ready for stream 0200000000020003                 # steps/wire_truth_steps.py:663
+    When the analyser decodes the MRPDU                                                # steps/wire_truth_steps.py:671
+    Then the listener declaration is "Ready"                                           # steps/wire_truth_steps.py:719
+
+  @class:srp @clause:Milan-5.3.7.2 @regression
+  Scenario: a talker Stream Output that never declares is found from the wire  # features/wire_truth_avtp.feature:330
+    Given the wire-truth analyser is importable                                # steps/wire_truth_steps.py:65
+    Given the entity declares 5 talker stream ids from 0200000000020000        # steps/wire_truth_steps.py:727
+    And only stream 0200000000020000 and 0200000000020001 advertise            # steps/wire_truth_steps.py:738
+    When the analyser checks the SRP declarations                              # steps/wire_truth_steps.py:790
+    Then the analyser reports FAIL on "talker-advertise-declared"              # steps/wire_truth_steps.py:472
+    And the missing declarations are named                                     # steps/wire_truth_steps.py:796
+
+  @class:srp @clause:Milan-5.3.7.3 @negative-control
+  Scenario: frames on the wire with no Listener Ready are unreserved              # features/wire_truth_avtp.feature:343
+    Given the wire-truth analyser is importable                                   # steps/wire_truth_steps.py:65
+    Given a stream on the wire whose only Listener declaration is "Asking Failed" # steps/wire_truth_steps.py:748
+    When the analyser checks the SRP declarations                                 # steps/wire_truth_steps.py:790
+    Then the analyser reports FAIL on "listener-declaration-present"              # steps/wire_truth_steps.py:472
+
+  @class:srp @clause:Milan-5.3.7.4 @negative-control
+  Scenario Outline: the declaration and the frames must agree about dmac -- @1.1   # features/wire_truth_avtp.feature:363
+    Given the wire-truth analyser is importable                                    # steps/wire_truth_steps.py:65
+    Given a stream whose wire dmac differs from its declaration                    # steps/wire_truth_steps.py:764
+    When the analyser checks the SRP declarations                                  # steps/wire_truth_steps.py:790
+    Then the analyser reports FAIL on "declared-dmac-matches-wire"                 # steps/wire_truth_steps.py:472
+
+  @class:srp @clause:Milan-5.3.7.4 @negative-control
+  Scenario Outline: the declaration and the frames must agree about vid -- @1.2   # features/wire_truth_avtp.feature:364
+    Given the wire-truth analyser is importable                                   # steps/wire_truth_steps.py:65
+    Given a stream whose wire vid differs from its declaration                    # steps/wire_truth_steps.py:764
+    When the analyser checks the SRP declarations                                 # steps/wire_truth_steps.py:790
+    Then the analyser reports FAIL on "declared-vid-matches-wire"                 # steps/wire_truth_steps.py:472
+
+  @class:srp @clause:8021Q-35.2.2.9
+  Scenario: a capture with no MRP frames says the tap is what is missing  # features/wire_truth_avtp.feature:367
+    Given the wire-truth analyser is importable                           # steps/wire_truth_steps.py:65
+    Given a stream on the wire with no MRP frames captured at all         # steps/wire_truth_steps.py:782
+    When the analyser checks the SRP declarations                         # steps/wire_truth_steps.py:790
+    Then every SRP verdict is SKIP                                        # steps/wire_truth_steps.py:805
+    And the SRP skip says an inline tap is required                       # steps/wire_truth_steps.py:814
+
+14 features passed, 0 failed, 0 skipped
+406 scenarios passed, 0 failed, 0 skipped
+1977 steps passed, 0 failed, 0 skipped
+Took 0min 1.389s
+rc=0
+tree clean after the gate

@@ -1,0 +1,9 @@
+HEAD 2adab625f6e85f4e74ee663dcd410e8d090e1ddf
+$ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_8x8.yaml --interfaces 2 --csr-csv <boot-soc-endstation_ax7101_8x8>/csr.csv --output <out>/refuse-plat-none --libc <runtime>/libc.a --compiler-runtime <runtime>/libcompiler_rt.a
+REFUSED: allocation over budget: 59 RAMB36 (rom 125040 bytes in 126976, sram 113936 bytes in 114688) exceeds the 56-RAMB36 budget
+wrote <work>/img1/refuse-plat-none/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/img1/refuse-plat-none/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/img1/refuse-plat-none/contract/mbx_contract.h (2 interfaces)
+elapsed=4s
+rc=2
+want=2
