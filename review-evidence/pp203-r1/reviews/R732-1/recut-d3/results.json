@@ -1,0 +1,53 @@
+[
+ {
+  "mutant": "golden-pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "dispatch_not_held",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3O1: without the walk the writer owns every cycle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3O1: without the walk the writer owns every cycle (2000 of 2000), the engine runs nothing (1998 busy) and the command waits in its queue",
+   "D3O1: released at 122, terminal at 1776, own fell at 1776, the held command taken at 0, 1776 busy cycles while owned",
+   "D3O2: CLOSED holds AECP (29998 busy cycles, the command still queued) and leaves the listener released",
+   "D3O5: one AECP command held, 5 dropped at the slot gate and counted, 0 answered",
+   "D3O6: at the terminal the held command is answered byte-exact, 5 dropped and counted, 0 of them answered",
+   "D3O7: in CLOSED the held AECP command is stolen by the external drain (slot -1, the head still held after 0 clocks)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "enable_not_released_by_restore",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "D3R1: the enable requested from reset",
+   "D3C6"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "D3R1: the enable requested from reset reaches ADP only at the combined terminal (2885 early enable cycles, 0 early done cycles)",
+   "D3R12: the re-walk cannot prove the image: CLOSED 9873, cause 2, the entity held",
+   "D3R14 image valid: DEFAULTS by clock 1000005, the D3 walk's longest wait 0 (no record READ requested), cause 3, rolled back 0, image valid 1, AECP owned 0, ADP enabled 1 (1000004 early enable cycles)",
+   "D3R14 image refused: CLOSED by clock 1000045, cause 7, AECP owned 1, ADP enabled 1",
+   "D3C6: the restored index 2 is exported in every cycle the ADP enable is high (first at 1, 1604 of 5391 cycles not), and GET reads it"
+  ],
+  "verdict": "KILLED"
+ }
+]

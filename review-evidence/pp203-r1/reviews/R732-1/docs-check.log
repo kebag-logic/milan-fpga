@@ -1,0 +1,113 @@
+COMMAND ["make", "-j16", "check"]
+matrix: 115 REQ rows, 17 GAP findings, OK
+parameters: top 29, guide 29, diagram 29, OK
+matrix: OK (94 rows, 0 untested)
+links: 1270 checked, OK
+figures selftest: 17 cases, OK
+Traceback (most recent call last):
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-figures.py", line 242, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-figures.py", line 238, in main
+    return selftest() if args.selftest else check(args.root)
+                                            ~~~~~^^^^^^^^^^^
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-figures.py", line 118, in check
+    files = listed_files(root, str(DIAGRAMS))
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-figures.py", line 41, in listed_files
+    out = subprocess.run(
+          ~~~~~~~~~~~~~~^
+        ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "--exclude-standard", "--", *trees],
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True).stdout.decode("utf-8")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '$REVIEWS/pp203-r732-1-packet/scratch/docs', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'docs/diagrams']' returned non-zero exit status 128.
+make: *** [Makefile:69: figures] Error 1
+make: *** Waiting for unfinished jobs....
+ids selftest: 30 cases, OK
+Traceback (most recent call last):
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-ids.py", line 293, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-ids.py", line 289, in main
+    return selftest() if args.selftest else check(args.root)
+                                            ~~~~~^^^^^^^^^^^
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-ids.py", line 163, in check
+    problems, used, files = [], set(), scanned_files(root)
+                                       ~~~~~~~~~~~~~^^^^^^
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-ids.py", line 100, in scanned_files
+    out = subprocess.run(
+          ~~~~~~~~~~~~~~^
+        ["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         "--exclude-standard", "--", *SCAN_DIRS],
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check=True, capture_output=True).stdout.decode("utf-8")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '$REVIEWS/pp203-r732-1-packet/scratch/docs', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'docs', 'hdl', 'tb']' returned non-zero exit status 128.
+make: *** [Makefile:64: ids] Error 1
+req-tags selftest: 29 cases, OK
+Traceback (most recent call last):
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-req-tags.py", line 560, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-req-tags.py", line 556, in main
+    return check(args.root, args.suites, args.evidence, args.table)
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-req-tags.py", line 347, in check
+    tags = read_tags(root, rows, problems)
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-req-tags.py", line 219, in read_tags
+    for path in source_files(root):
+                ~~~~~~~~~~~~^^^^^^
+  File "$REVIEWS/pp203-r732-1-packet/scratch/docs/scripts/check-req-tags.py", line 178, in source_files
+    run = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--cached", "--others",
+                          "--exclude-standard", "--", "tb"],
+                         capture_output=True, text=True, check=True)
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['git', '-C', '$REVIEWS/pp203-r732-1-packet/scratch/docs', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'tb']' returned non-zero exit status 128.
+make: *** [Makefile:47: reqtags] Error 1
+
+[notice] A new release of pip is available: 26.2.1 -> 26.2.2
+[notice] To update, run: $REVIEWS/pp203-r732-1-packet/scratch/docs/.venv-wavedrom/bin/python -m pip install --upgrade pip
+wavedrom: 18 blocks checked, OK
+field drift: commands[].command.cdl: caught: decode: GET_COUNTERS:; command cdl
+field drift: commands[].command.floor: caught: decode: ACQUIRE_ENTITY:; floor is 16
+field drift: commands[].command.per: caught: decode: ADD_AUDIO_MAPPINGS: command per is 4; gcd; is 8
+field drift: commands[].entries: caught: decode: GET_COUNTERS:; entries
+field drift: commands[].gdi: caught: decode:; GET_CONTROL
+field drift: commands[].hazard: caught: classifier: GET_COUNTERS:
+field drift: commands[].lock: caught: rom: SET_NAME:; lock false
+field drift: commands[].message: caught: decode: GET_COUNTERS:
+field drift: commands[].notify: caught: rom: SET_CONFIGURATION:; notification class
+field drift: commands[].notify.body: caught: decode:; SET_CONFIGURATION
+field drift: commands[].notify.class: caught: rom: SET_CONFIGURATION:; notification class
+field drift: commands[].notify.kind: caught: notify: SET_CONFIGURATION:; PP_UNS_NAME_C
+field drift: commands[].opcode: caught: engine: GET_COUNTERS:; opcode
+field drift: commands[].response.cdl: caught: rom: GET_AUDIO_MAP:; response
+field drift: commands[].response.echo: caught: rom: SET_STREAM_INFO:; E_SINFO answers; table's response
+field drift: commands[].response.engine: caught: decode: GET_DYNAMIC_INFO:; without a program
+field drift: commands[].response.per: caught: rom: GET_AVB_INFO:; response
+field drift: commands[].response.stub: caught: rom: READ_DESCRIPTOR:; response
+field drift: commands[].rtl: caught: engine: GET_COUNTERS:; OP_MISSING_C
+field drift: commands[].status: caught: rom: SET_CONFIGURATION:; STREAM_IS_RUNNING
+field drift: documented[].gdi: caught: decode:; GET_DYNAMIC_INFO; 0x000B
+field drift: documented[].opcode: caught: engine: GET_VIDEO_FORMAT:
+field drift: documented[].rtl: caught: engine: GET_VIDEO_FORMAT:; GDI_MISSING_C
+field drift: echo_entries: caught: schema: echo_entries: EAVL; nor listed in shared_entries
+field drift: fields: caught: fields: fields: export
+field drift: hazard_classes.*: caught: classifier: hazard class RO_SNAPSHOT
+field drift: schema: caught: schema:; declares
+field drift: status_codes.*.code: caught: schema: status SUCCESS; 13
+field drift: status_codes.*.rtl: caught: status: SUCCESS; ST_MISSING_C
+field drift: unserved: caught: decode:; is no table command; not only DLKILL
+aecp commands selftest: 231 planted defects, 231 caught by name, OK
+aecp commands: 32 commands, 88 entries walked and observed, F06.14 42 rows, OK
+lint: 41 mermaid + 18 wavedrom blocks checked, OK

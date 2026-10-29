@@ -1,0 +1,121 @@
+COMMAND ["python3", "$REVIEWS/r732-1-pp203/tb/pp_top/aecp_dispatch_mutants.py", "--jobs", "2", "--only", "rbt-request-at-acceptance,rbt-response-unwatched,rbt-notifications-unwatched,rbt-notification-flight-unwatched,rbt-no-shutdown,rbt-departing-unwatched,rbt-departing-flight-unwatched,rbt-request-pulse,rbt-rx-gate-dropped,rbt-engine-hold-dropped,rbt-accept-any-status,rbt-short-gate-dropped,rbt-type-gate-dropped,rbt-index-unchecked,rbt-lock-unchecked,rbt-notify-dropped,rbt-notification-type", "--output", "$REVIEWS/pp203-r732-1-packet/rbt-mutants", "--verilator", "$REVIEWS/pp203-r732-1-packet/scratch/compiler-limit"]
+control reboot: rc=0 PASS
+rbt-request-at-acceptance: rc=2 failures=12 named=1 KILLED
+    FAIL: RBT6 the holder's REBOOT of ENTITY 0: SUCCESS echoing Figure 7-68's four bytes at cdl 16, byte-exact
+    FAIL: RBT6 reboot_req_o rises after the SUCCESS response's last byte left (267650, -1)
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 267650)
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (-1 -1 267650)
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte
+    FAIL: RBT7 the held SUCCESS response leaves whole, byte-exact
+    FAIL: RBT7 reboot_req_o rises after the released response's last byte (330598, -1)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (336693 -1 336635)
+rbt-response-unwatched: rc=2 failures=3 named=1 KILLED
+    FAIL: RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte
+    FAIL: RBT7 the held SUCCESS response leaves whole, byte-exact
+    FAIL: RBT7 reboot_req_o rises after the released response's last byte (331049, -1)
+rbt-notifications-unwatched: rc=2 failures=4 named=1 KILLED
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (267811 -1 267922)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (336970 -1 336974)
+rbt-notification-flight-unwatched: rc=2 failures=2 named=1 KILLED
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (337101 -1 337166)
+rbt-no-shutdown: rc=2 failures=2 named=1 KILLED
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 267921)
+rbt-departing-unwatched: rc=2 failures=3 named=1 KILLED
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 267921)
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+rbt-departing-flight-unwatched: rc=2 failures=3 named=1 KILLED
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 268015)
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+rbt-request-pulse: rc=2 failures=2 named=1 KILLED
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT6 reboot_req_o is held from its rise to the end of the run
+rbt-rx-gate-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT6 an ACMP command after the acceptance gets no answer
+rbt-engine-hold-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT6 the command queued behind the REBOOT is never served (1 answers)
+rbt-accept-any-status: rc=2 failures=33 named=1 KILLED
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: byte-exact at cdl 16
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: byte-exact at cdl 16
+rbt-short-gate-dropped: rc=2 failures=35 named=1 KILLED
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: byte-exact at cdl 16
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: no REBOOT notification reaches the registered controller
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: byte-exact at cdl 16
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+rbt-type-gate-dropped: rc=2 failures=27 named=1 KILLED
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: no REBOOT notification reaches the registered controller
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+rbt-index-unchecked: rc=2 failures=20 named=1 KILLED
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: no REBOOT notification reaches the registered controller
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+    FAIL: RBT4: controller 0202c2c2c2c2 takes the lock, got status -1
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: byte-exact at cdl 16
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the entity still serves a command after it
+    FAIL: RBT4b: controller 0202c2c2c2c2 takes the lock, got status -1
+rbt-lock-unchecked: rc=2 failures=13 named=1 KILLED
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: byte-exact at cdl 16
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: no REBOOT notification reaches the registered controller
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the entity still serves a command after it
+    FAIL: RBT4b: controller 0202c2c2c2c2 takes the lock, got status -1
+    FAIL: RBT4b REBOOT of MEMORY_OBJECT 0 under another controller's lock: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT4b REBOOT of MEMORY_OBJECT 0 under another controller's lock: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4b REBOOT of MEMORY_OBJECT 0 under another controller's lock: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT4c: controller 0202c2c2c2c2 takes the lock, got status -1
+    FAIL: RBT4c REBOOT of ENTITY 1 under another controller's lock: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT4c REBOOT of ENTITY 1 under another controller's lock: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4c REBOOT of ENTITY 1 under another controller's lock: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+rbt-notify-dropped: rc=2 failures=4 named=1 KILLED
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 267888)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (336936 -1 336940)
+rbt-notification-type: rc=2 failures=4 named=1 KILLED
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 268097)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (337145 -1 337252)
+18 checks: 18 PASS, 0 FAIL

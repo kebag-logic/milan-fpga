@@ -1,0 +1,13 @@
+['python3', '$REVIEWS/r732-1-pp203/tb/adp_engine/mutants.py', '--jobs', '1', '--output', '$REVIEWS/pp203-r732-1-packet/recut-adp', '--only', 'if-egress-collapsed,if-top-ingress-live']
+control adp_engine interfaces: rc=0 PASS
+control pp_top interfaces: rc=0 PASS
+if-egress-collapsed: rc=2 failures=5 named=1 KILLED
+    FAIL: IF3: interface 1's link comes up and interface 1 advertises within T-ADP-DELAY, byte-exact: interface_index 1, interface 1's grandmaster and domain, available_index 0, and its TX request names interface 1 (0 frame(s))
+    FAIL: IF4: each interface's frames carry its own available_index, 0 then +1 per frame of that interface (7 and 0 frames; next indices 3 and 4)
+    FAIL: IF5: ENTITY_DISCOVER on interface 1, both machines WAITING, restarts interface 1's advertise machine alone: it leaves WAITING (state 1) and advertises 4100 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 3)
+    FAIL: IF6: GM_CHANGE on interface 0 alone re-advertises interface 0 with its new grandmaster; interface 1 stays WAITING and keeps its own (states 2/2)
+    FAIL: IF9: disabling the entity sends one ENTITY_DEPARTING per interface, each byte-exact with its own interface_index and pre-reset available_index (7 and 7), and both indices return to 0 (2 and 0 frames)
+if-top-ingress-live: rc=2 failures=2 named=1 KILLED
+    FAIL: IF2: ENTITY_DISCOVER received on interface 1 restarts interface 1's advertise machine alone: it leaves WAITING (state 3) and advertises 0 ms later, inside T-ADP-DELAY; interface 0 stays WAITING (state 2)
+    FAIL: IF2: ENTITY_DISCOVER received on interface 0 restarts interface 0's advertise machine alone: it leaves WAITING (state 3) and advertises 3893 ms later, inside T-ADP-DELAY; interface 1 stays WAITING (state 2)
+4 checks: 4 PASS, 0 FAIL

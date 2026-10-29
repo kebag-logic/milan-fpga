@@ -1,0 +1,30 @@
+{
+  "issue": {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/787",
+    "title": "Reset the end-station on the processor's REBOOT request (AECP REBOOT, for the #396 soft resets)",
+    "issue_number": 787,
+    "body": "**Perform the end-station reset on the processor's REBOOT request, so the release gate's 50 soft resets can run (#396).**\n\nThe processor will accept AECP REBOOT (IEEE 1722.1-2021 7.4.43) and raise `reboot_req_o` after its SUCCESS response leaves (processor issue Mister-M-alt/protocol-processor-control-plane-avb-milan#203). The end-station must then reset itself without a power cut, and come back as after a cold boot.\n\n**Decide and record (design first):** which reset.\n- **(a)** A fabric and CPU soft reset, without FPGA reconfiguration.\n- **(b)** A configuration reload from flash (IPROG through ICAPE2), which reloads the bitstream like a power-on.\n- For each, state what is and is not reset: the PHY, the RGMII/GMII clocking and MMCMs, the gPTP timestamping path, the persistence journal and the boot path.\n- A JTAG reload is excluded, because it is known to leave TX timestamps wrong. The chosen reset must show it does not have that defect.\n\n**Required:**\n- On `reboot_req_o`, the chosen reset happens within a stated bound. A journal write in progress completes or is safely abandoned, as for a cold cut.\n- After the reset:\n  - the eight Milan state items are restored;\n  - ADP re-advertises within its valid time;\n  - gPTP locks again with correct TX timestamps;\n  - bound streams rebind inside #75's bound.\n  These are the #396 power-area checks.\n- The bench smoke and the #396 plan's `power` area use REBOOT for the 50 soft resets.\n- Tests: a simulation of the request-to-reset path, and a mutant that ignores the request.\n- The adoption of the processor pin that carries #203 lands in the same PR, or before it.\n\nRelates to #396.\n",
+    "state": "open",
+    "user": {
+      "login": "Mister-M-alt",
+      "name": "Mister-M-alt",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "id": 161579364
+    },
+    "assignees": null,
+    "labels": null,
+    "milestone": null,
+    "state_reason": null,
+    "comments": 2,
+    "created_at": "2026-10-26T05:44:18Z",
+    "updated_at": "2026-10-29T16:27:04Z",
+    "closed_at": null,
+    "display_url": "https://github.com/kebag-logic/milan-fpga/issues/787",
+    "display_title": "Reset the end-station on the processor's REBOOT request (AECP REBOOT, for the #396 soft resets)"
+  },
+  "url": "https://github.com/kebag-logic/milan-fpga/issues/787",
+  "title": "Reset the end-station on the processor's REBOOT request (AECP REBOOT, for the #396 soft resets)",
+  "display_url": "https://github.com/kebag-logic/milan-fpga/issues/787",
+  "display_title": "Reset the end-station on the processor's REBOOT request (AECP REBOOT, for the #396 soft resets)"
+}

@@ -1,0 +1,15 @@
+[R732] NEGATIVE - exact head 1be824fccbda5d3341737f5fe033d60edd27af57
+
+Independent verdict recorded before consulting prior public review findings. Final evidence reconciliation is still running.
+
+F1 MAJOR — Conformance, RTL, Robustness, Tests, Docs. The shutdown sequence leaves the unsolicited TX path active after ENTITY_DEPARTING and the held reboot request. The unchanged RBT6 stimulus emits three automatic-unlock LOCK_ENTITY notifications at cycles 305144, 305310, 305476, after DEPARTING at 268095 and request at 268097. The existing 79-check suite passes; the additional all-frame assertion fails. See post-departure-probe.log and post-departure-probe.patch. Source: hdl/top/protocol_processor_top.sv:4899 and :4667; hdl/aecp/KL_aecp_engine.sv:2856; test tb/pp_top/sim_main.cpp:12613; incorrect silence claim docs/guides/integrator.md:697. Authority: review acceptance item (3), REQ-FWX-001 shutdown contract, IEEE 1722.1-2021 §7.4.43 / §6.2.4–6.2.6 and Milan v1.2 §5.6.3.5.8/.11 for the terminal departure sequence. No standalone inference that those clauses prohibit every SRP/MAAP frame is made. The direct missing gate violates the explicit no-transmission acceptance condition. Required outcome: finish the required response and notifications, send final departure, then suppress all further control-plane transmission until reset; preserve the held request. Verification: observe every TX frame across the final departure and a delayed reset, with lock expiry and other autonomous producers active, and plant a defect that reopens transmission.
+
+| lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head |
+|---|---|---|---|---|
+| Conformance | UNCLEAN | frozen issue scope; command model; REBOOT microcode; terminal departure trace, F1 | R732-1 | 1be824fccbda5d3341737f5fe033d60edd27af57 |
+| RTL | UNCLEAN | all six changed HDL/model/generator files; TX arbiter and notification paths, F1 | R732-1 | 1be824fccbda5d3341737f5fe033d60edd27af57 |
+| Robustness | UNCLEAN | MAC backpressure; queued command hold; delayed-reset automatic unlock, F1 | R732-1 | 1be824fccbda5d3341737f5fe033d60edd27af57 |
+| Tests | UNCLEAN | RBT1–8, 17 mutation patches, dispatch sweep/reset change, six recuts and two D3 substitutions, F1 | R732-1 | 1be824fccbda5d3341737f5fe033d60edd27af57 |
+| Docs | UNCLEAN | docs/README; compliance, architecture, guides, diagram delta, bench READMEs and PR body, F1 | R732-1 | 1be824fccbda5d3341737f5fe033d60edd27af57 |
+
+Limits: primary specification PDFs not yet available; public specification download failed. Published source receipts are author evidence, not manager source execution. Final merge-candidate validation belongs to the manager. No hardware or physical calibration performed.

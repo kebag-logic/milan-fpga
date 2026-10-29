@@ -1,0 +1,10 @@
+The source checkout remained detached at 1be824fccbda5d3341737f5fe033d60edd27af57.
+All builds and probe copies were placed under scratch/; source RTL was never edited.
+Commands were foreground children, with concurrent independent campaigns managed by joined worker pools.
+Accepted compiled receipts use the pinned 5.050 simulator; compiler-limit replaces an unbounded -j with -j 2. Campaigns use explicit --jobs and builds inherit make -j16.
+The initial documentation attempt used an archive without Git metadata and failed three repository-aware gates. The complete documentation check was repeated in scratch/docs-git, a detached clone, and passed. The failed initial log is retained as a setup receipt, not a source failure.
+The initial D3 launcher supplied its own default simulator argument and overrode the environment setting. This selected 5.052 and a 16-thread build instead of the intended bounded wrapper. That attempt was stopped and discarded before accepting any result. It briefly escaped the intended aggregate concurrency bound alongside the other focused campaigns. The two D3 substitutions were restarted with an explicit pinned wrapper argument; only the restarted receipts count. This is an execution deviation, not source evidence.
+Observed unit memory.peak during the campaigns: 8931160064 bytes (below 12 GiB). The configured unit memory.max was 21474836480 bytes; the review did not rely on that larger allowance.
+The independent verdict and all five lens rows were written to independent-verdict.txt before public review comments, review submissions and review threads were inspected. Those queries returned no prior review findings.
+No full parent, processor, gPTP, synthesis or builder bank was run. No hardware, container runner, shared installation, repository commit/push or GitHub write was performed.
+A broad process-resource listing incidentally exposed unrelated process command lines; they were not used as review evidence and are not included in this packet. Subsequent resource checks read only this unit's counters.

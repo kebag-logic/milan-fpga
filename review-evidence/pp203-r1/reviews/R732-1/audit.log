@@ -1,0 +1,38 @@
+SOURCE_IDENTITY 1be824fccbda5d3341737f5fe033d60edd27af57 ab055c2107ab5ce1ead0f1fa6cfce10ae0956c12
+TRACKED_BLOBS_MODES_AND_INDEX_PASS 736
+SUBMODULE_GITLINKS []
+TRACKED_DIFF empty
+POST_CAMPAIGN_SOURCE_STATUS clean
+POST_5fd298c_DELTA docs/guides/operator.md
+tb/aecp_cmds/README.md
+tb/pp_top/README.md
+PUBLISHED_RECEIPT_SHA256_PASS 11
+RBT_ROW rbt-request-at-acceptance named 1 failures 12 README_MATCH
+RBT_ROW rbt-response-unwatched named 1 failures 3 README_MATCH
+RBT_ROW rbt-notifications-unwatched named 1 failures 4 README_MATCH
+RBT_ROW rbt-notification-flight-unwatched named 1 failures 2 README_MATCH
+RBT_ROW rbt-no-shutdown named 1 failures 2 README_MATCH
+RBT_ROW rbt-departing-unwatched named 1 failures 3 README_MATCH
+RBT_ROW rbt-departing-flight-unwatched named 1 failures 3 README_MATCH
+RBT_ROW rbt-request-pulse named 1 failures 2 README_MATCH
+RBT_ROW rbt-rx-gate-dropped named 1 failures 1 README_MATCH
+RBT_ROW rbt-engine-hold-dropped named 1 failures 1 README_MATCH
+RBT_ROW rbt-accept-any-status named 1 failures 33 README_MATCH
+RBT_ROW rbt-short-gate-dropped named 1 failures 35 README_MATCH
+RBT_ROW rbt-type-gate-dropped named 1 failures 27 README_MATCH
+RBT_ROW rbt-index-unchecked named 1 failures 20 README_MATCH
+RBT_ROW rbt-lock-unchecked named 1 failures 13 README_MATCH
+RBT_ROW rbt-notify-dropped named 1 failures 4 README_MATCH
+RBT_ROW rbt-notification-type named 1 failures 4 README_MATCH
+RBT_MUTATION_LEDGER_PASS 17/17; positive control PASS
+RECUT_MATCHES_PUBLISHED dl-kill-tied-off 28 1
+RECUT_MATCHES_PUBLISHED acmp-waits-for-aecp 2 1
+RECUT_MATCHES_PUBLISHED hz-stub-restored 81 1
+RECUT_MATCHES_PUBLISHED hz-setcfg-not-barrier 7 1
+RECUT_MATCHES_PUBLISHED hz-setcfg-not-barrier-talker 7 1
+RECUT_MATCHES_PUBLISHED if-egress-collapsed 5 1
+RECUT_MATCHES_PUBLISHED if-top-ingress-live 2 1
+D3_RESULT golden-pp_top PASS []
+D3_RESULT dispatch_not_held KILLED []
+D3_RESULT enable_not_released_by_restore KILLED []
+ALL_EXPECTED_RECEIPT_RETURN_CODES_PASS

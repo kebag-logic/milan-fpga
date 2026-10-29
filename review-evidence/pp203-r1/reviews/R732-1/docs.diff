@@ -1,0 +1,449 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index c8cc6a9..70fcab8 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -307,7 +307,15 @@ Milan v1.2 mandates **no** firmware-update mechanism, no REBOOT, no MEMORY_OBJEC
+ operations, no AEM checksum (verified by full-text search). These are IEEE-optional
+ (Annex D informative). Leaving them implied bloats the control plane.
+ **Disposition**: optional side-port assist behind `P-EN-FIRMWARE-ASSIST`
+-([02 §7](architecture/02_interfaces.md)); EFU_MODE capability = 0.
++([02 §7](architecture/02_interfaces.md)); EFU_MODE capability = 0. **REBOOT is the
++exception, by the owner's decision of 2026-10-26** (issue #203; the release gate's soft
++resets, milan-fpga #396, are sent by a controller): REBOOT of ENTITY 0 is implemented
++(IEEE 1722.1-2021 §7.4.43, [06 §6.11](architecture/06_aecp_engine.md#611-reboot)). It
++answers SUCCESS, notifies the other registered controllers (§7.5.2, Milan §5.4.5.2),
++sends ENTITY_DEPARTING where the entity was advertising (Milan §5.6.3.5.8,
++§5.6.3.5.11), and then holds `reboot_req_o` until reset. The reset and the restore
++after it are the integrator's (milan-fpga #787). A REBOOT that selects a MEMORY_OBJECT
++firmware image is not implemented (`NOT_SUPPORTED`): this build has none.
+ 
+ #### <a id="gap-14"></a>GAP-14 [Info] — All diagrams ASCII
+ Violates the project requirement that every figure be an editable artifact.
+@@ -544,7 +552,7 @@ verification).
+ | REQ-REU-003 | project charter | One core clock domain; MAC boundaries cross via dual-clock FIFOs with frame-atomic handoff | design | A; no check | [GAP-10](#gap-10) | clocking contract; the dual-clock MAC FIFOs are the integrator's, outside the top, and the RX one presents only complete, FCS-good frames (the byte face has no err/abort) | 02 §2 rule 2, 02 §3; integrator guide §1, §3 | — |
+ | REQ-VER-001 | project charter | Requirement↔verification traceability: every REQ row names its Ver category or an explicit non-dynamic marker; release gate = the categories of 09 §3 + the CI gates of 09 §7 | design | A; no check | [GAP-11](#gap-11) | verification plan; the REQ tags in `tb/`, held by `scripts/check-req-tags.py` | 09 §3, 09 §7, 09 §8.10 | — |
+ | REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A; no check | [GAP-11](#gap-11) | <!-- AECP ARCH -->Registry: 62 fields, 30 held within their declared scope; 32 held to nothing (containers, rendering and explicit limits). Generated references: gate docstring, 09 §8.11 and PR field reference. Explicitly held to nothing: commands[].engine_status, commands[].oversize, common_status. Status-path claims trust these status exemptions. Every held field has a standing named mutation. F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are observed or gated. echo_entries membership is held, and its size exemption covers non-SUCCESS answers only. Echo command cdl with a declared floor is held only by echo equality (IDENTIFY_NOTIFICATION also by its unsolicited body); mapping per is held exactly by accepted-offset gcd. Six documented GDI rows have semantic opcode/rtl/gdi fields; name is diagnostic and section/cells render. Still hand-written: ROM programs and layout, field values/order, ACMP ROM, descriptor image, F05.3, F08.1 and reference models. GDI ceilings, opcodes above 0x007F and unswept outcomes are unproven; no golden model or stimulus generator.<!-- /AECP ARCH --> | 09 §1, 09 §8.11 | lint |
+-| REQ-FWX-001 | IEEE §9.3.5.3.3 (outside Milan's mandatory command set; IEEE Annex D is informative) | No firmware update, REBOOT, MEMORY_OBJECT operations or AEM checksum; those opcodes take the unknown-opcode path → `NOT_IMPLEMENTED` echo | shall | A; traced | [GAP-13](#gap-13) | dispatch default | 06 §6 | DIR |
++| REQ-FWX-001 | IEEE §9.3.5.3.3; IEEE §7.4.43, §7.5.2, §6.2.4, §6.2.5.2.2; Milan §5.4.5.2, §5.6.3.5.8, §5.6.3.5.11 (all outside Milan's mandatory command set; IEEE Annex D is informative) | No firmware update, MEMORY_OBJECT operations or AEM checksum; those opcodes take the unknown-opcode path → `NOT_IMPLEMENTED` echo. REBOOT of ENTITY 0 is implemented (issue #203): SUCCESS echoing the command, `BAD_ARGUMENTS` short, `NOT_SUPPORTED` for any other type, `NO_SUCH_DESCRIPTOR` for any other index, `ENTITY_LOCKED` under another controller's lock; on SUCCESS the notification to every other registered controller, ENTITY_DEPARTING where advertising, then `reboot_req_o` held until reset, each after the frames before it have left the transmit path, and no command accepted after the SUCCESS | shall | A; traced | [GAP-13](#gap-13) | dispatch default; the A_PLD-exit REBOOT routes, `E_RBOOT`, the top's REBOOT sequence | 06 §6, §6.11; 02 F02.10 | DIR |
+ | REQ-DOC-001 | project charter | Every figure an editable artifact (Mermaid/WaveDrom/draw.io) with committed exports, regeneration and staleness gates | design | A; no check | [GAP-14](#gap-14) | Makefile gates, run whole by the CI docs-gates job (`make check`); hand-authored SVG is a listed class held by `make figures` | docs/README §3, 09 §7 | lint |
+ 
+ ## 7. Disposition of findings (F00.2)
+@@ -565,7 +573,7 @@ verification).
+ | [GAP-10](#gap-10) | Major | CDC/reset, interface contracts, parameter table, profiles, grounded hazards | [01](architecture/01_overview.md)/[02](architecture/02_interfaces.md)/[03](architecture/03_packet_engine.md) | DIR | [#84](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/84) |
+ | [GAP-11](#gap-11) | Minor | Verification strategy + traceability | [09](architecture/09_verification.md) | lint: `scripts/check-req-tags.py`, static in `make check` and executed in the CI suites job (09 §8.10) | [#72](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/72) |
+ | [GAP-12](#gap-12) | Minor | Explicit non-redundant scope + parameterized seams | [01 §1/§7](architecture/01_overview.md) | DIR | [#69](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/69) |
+-| [GAP-13](#gap-13) | Minor | Firmware assist optional behind side-port flag | [02 §7](architecture/02_interfaces.md) | DIR | none found |
++| [GAP-13](#gap-13) | Minor | Firmware assist optional behind side-port flag; REBOOT of ENTITY 0 implemented by the owner's decision (issue #203) | [02 §7](architecture/02_interfaces.md), [06 §6.11](architecture/06_aecp_engine.md#611-reboot) | DIR: tb/pp_top RBT | the end-station reset on `reboot_req_o`: milan-fpga #787 |
+ | [GAP-14](#gap-14) | Info | All figures Mermaid/WaveDrom/draw.io or listed hand-authored SVG + lint | [docs/README.md](README.md), `Makefile` | lint | [#75](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/75) |
+ | [GAP-15](#gap-15) | Info | Conventions + parser rules + status policies | [docs/README.md](README.md) §4, [03 §3](architecture/03_packet_engine.md) | TOL | none found |
+ | [GAP-16](#gap-16) | Blocker | ADP advertise SM + talker-discovery SM (entity table dropped) | [04](architecture/04_adp_engine.md) | MTXW | [#85](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/85) |
+diff --git a/docs/architecture/02_interfaces.md b/docs/architecture/02_interfaces.md
+index 2bc617d..7805a8d 100644
+--- a/docs/architecture/02_interfaces.md
++++ b/docs/architecture/02_interfaces.md
+@@ -130,6 +130,13 @@ Rules (behavioral — no vendor primitives):
+    gate implementing ADP start gating (Milan §5.6.1), a request the processor forwards
+    to ADP only once both restore walks are done (`restore_done_o`,
+    [07 §5.3](07_memory_maps.md#fig-07-nvmflow)).
++6. **The processor asks for its own reset; it never takes one.** A controller's
++   REBOOT of ENTITY 0 (IEEE 1722.1-2021 §7.4.43, issue #203) ends with
++   `reboot_req_o`, a level held from its rise until `rst_n` (F02.10). How the end
++   station resets and restores is the integrator's (milan-fpga #787): it drives
++   `rst_n` and repeats the boot sequence, `restore_go_i` included. From the
++   REBOOT's SUCCESS to that reset the processor accepts no command
++   ([06 §6.11](06_aecp_engine.md#611-reboot)).
+ 
+ <a id="sec-02-class-a"></a>
+ ## 3. Class A — packet streaming
+@@ -571,6 +578,7 @@ internal are consumed inside the processor and add no top-level ports.
+ | `streaming[src]` | 1 | avtp | level | GET_STREAM_INFO(out) derivation | no port: the integrator's STREAM_OUTPUT answers on `gsi` kind 0 (selector 0 flags, selector 6 flags_ex) carry it, and its STREAM_START / STREAM_STOP counters count its edges (§4.6) |
+ | `mc_locked[domain]` | 1 | mclk | level, the integrator's | the integrator's CLOCK_DOMAIN counters | no port: the LOCKED / UNLOCKED counters it drives are `ctr_*` quadlets 0 and 1, mask `0x00000003` (§4.6) |
+ | `identify_active` | 1 | identify handler | out; level | device indicator | `aecp_identify_o` (0 or 255) |
++| `reboot_req` | 1 | the REBOOT sequence ([06 §6.11](06_aecp_engine.md#611-reboot); issue #203) | out; a LEVEL, 0 from reset, rising once and HELD until `rst_n`, never a pulse. It rises only after a REBOOT's SUCCESS response, its unsolicited notifications and, where the entity was advertising, ENTITY_DEPARTING have each had their last byte taken by the MAC (`tx_valid_o`, `tx_eof_o`, `tx_ready_i`). It does not wait for persistence: `(\|nvm_unflushed_o) \| d3_unflushed_o` (§8.1) does | the integrator's end-station reset (milan-fpga #787). Unconnected, the entity stays departed and takes no command until the next reset | `reboot_req_o` |
+ | `identify_button` | 1 | pin (optional) | 2FF in the core; debounce by the integrator (Milan §5.4.5.4 leaves its mapping to the user's action vendor-specific) | identification notification ([06 F06.16](06_aecp_engine.md#fig-06-identify)), `identify_button_i` | `identify_button_i` |
+ 
+ ## 7. Class E — management side-port
+diff --git a/docs/architecture/03_packet_engine.md b/docs/architecture/03_packet_engine.md
+index 06607ec..e55b460 100644
+--- a/docs/architecture/03_packet_engine.md
++++ b/docs/architecture/03_packet_engine.md
+@@ -239,7 +239,7 @@ control per class/key — the load-bearing role is **cross-engine interlock** (t
+ | Class | Members | Key | Rule |
+ |---|---|---|---|
+ | RO_SNAPSHOT | all GETs but GET_DYNAMIC_INFO, READ_DESCRIPTOR, GET_RX/TX_STATE | addressed descriptor | parallel; blocked only vs in-flight write on the same key |
+-| CFG_BARRIER | SET_CONFIGURATION | global | drain all in-flight, block admission, then execute (STREAM_IS_RUNNING pre-guard first) |
++| CFG_BARRIER | SET_CONFIGURATION, REBOOT ([06 §6.11](06_aecp_engine.md#611-reboot)) | global | drain all in-flight, block admission, then execute (SET_CONFIGURATION's STREAM_IS_RUNNING pre-guard first) |
+ | STREAM_CFG | SET_STREAM_FORMAT/INFO, START/STOP_STREAMING, BIND/UNBIND/probe events, listener-SM steps | stream index | serialized per key — doubles as the per-sink SM serialization (one event at a time per sink) |
+ | MAP_CFG | ADD/REMOVE_AUDIO_MAPPINGS, GET_AUDIO_MAP (write side), GET_DYNAMIC_INFO (whole batch, no-descriptor key; the accepted over-serialization) | stream port | serialized per key **and** cross-locked with STREAM_CFG of referenced streams (format↔mapping validation pair) |
+ | CLOCK_CFG | SET_SAMPLING_RATE, SET_CLOCK_SOURCE; MVU SET_MCR_INFO deferred ([06 §6.9](06_aecp_engine.md#69-mvu-commands)) | audio unit / clock domain | serialized per key |
+@@ -251,7 +251,7 @@ control per class/key — the load-bearing role is **cross-engine interlock** (t
+ **The landed classifier (issue #84).** `protocol_processor_top` answers the
+ normalizer's dispatch-ROM seam with every transaction's class and key, so all
+ nine classes reach the scoreboard. An AEM command for this entity takes its
+-opcode's class: SET_CONFIGURATION `CFG_BARRIER`; SET_STREAM_FORMAT,
++opcode's class: SET_CONFIGURATION and REBOOT `CFG_BARRIER`; SET_STREAM_FORMAT,
+ SET_STREAM_INFO and START/STOP_STREAMING `STREAM_CFG`; ADD/REMOVE_AUDIO_MAPPINGS
+ `MAP_CFG`; SET_SAMPLING_RATE and SET_CLOCK_SOURCE `CLOCK_CFG`; SET_NAME
+ `NAME_WR`; LOCK_ENTITY `LOCK_OP`; REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION
+diff --git a/docs/architecture/04_adp_engine.md b/docs/architecture/04_adp_engine.md
+index 71dde49..f9f7d64 100644
+--- a/docs/architecture/04_adp_engine.md
++++ b/docs/architecture/04_adp_engine.md
+@@ -163,7 +163,7 @@ stateDiagram-v2
+ | ENTITY_DEPARTING **only** on SHUTDOWN; never on link-down | Milan §5.6.3.5.6/.10 |
+ | GM change ⇒ re-advertise (through DELAY) | Milan §5.6.3.5.7 (GPTP_GM_CHANGED is the integrator's counter, [02 §4.6](02_interfaces.md#sec-02-ctr)) |
+ | DOWN ignores DISCOVER/GM_CHANGE/SHUTDOWN; DELAY ignores DISCOVER/GM_CHANGE | Table 5.51; cell by cell in [F04.7](#fig-04-advcells) |
+-| Held in DOWN until `entity_enable` (boot gate) | Milan §5.6.1. The engine's `entity_enable_i` is the top's **effective** enable, `entity_enable_i && restore_done_o`: the top releases the requested enable only once both restore walks are done ([07 §5.3](07_memory_maps.md#fig-07-nvmflow), the third of its three releases). The talker-discovery machines below are independent of it, and the side port's image-window lock keeps the requested enable |
++| Held in DOWN until `entity_enable` (boot gate) | Milan §5.6.1. The engine's `entity_enable_i` is the top's **effective** enable, `entity_enable_i && restore_done_o`: the top releases the requested enable only once both restore walks are done ([07 §5.3](07_memory_maps.md#fig-07-nvmflow), the third of its three releases). A REBOOT drops it for good once its SUCCESS response and notifications have left ([06 §6.11](06_aecp_engine.md#611-reboot), issue #203): that fall is the SHUTDOWN, so ENTITY_DEPARTING goes out wherever the machine was advertising, and the top raises `reboot_req_o` after it. The talker-discovery machines below are independent of it, and the side port's image-window lock keeps the requested enable |
+ 
+ <a id="fig-04-advcells"></a>**F04.7 — Advertise SM cells (Milan Table 5.51 and §5.6.3.1–§5.6.3.5.11, each
+ with the IEEE 1722.1-2021 clause it replaces or follows)**
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 9963359..b8ef33d 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -276,6 +276,7 @@ status checks trust those exemptions, and the Oversize cells are rendering input
+ | 0x0027 | GET_AVB_INFO | shall | gather §6.2 | RO_SNAPSHOT | no | no | yes | event: async triggers | 16 | 44 + 4·N B (cdl 32 + 4·N, N msrp mappings) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
+ | 0x0028 | GET_AS_PATH | shall | gather §6.2 | RO_SNAPSHOT | no | no | yes | event: async trigger | 16 | 28 + 8·N B (cdl 16 + 8·N, N path entries) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS |
+ | 0x0029 | GET_COUNTERS | shall | §6.6 | RO_SNAPSHOT | no | yes | no | event: async (`T-CTR-NOTIF`) | 16 | 160 B (cdl 148) | SUCCESS, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NOT_SUPPORTED |
++| 0x002A | REBOOT | optional (IEEE §7.4.43), implemented (issue #203) | ENTITY 0 only; every other type `NOT_SUPPORTED`; SUCCESS, then `reboot_req_o` (§6.11) | CFG_BARRIER (assigned by the top's classifier, [03 §6](03_packet_engine.md)) | yes | no | no | class 9: success, requester excluded; sent before `reboot_req_o` | 16 | 28 B (cdl 16); `{type, index}` on every arm | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+ | 0x002B | GET_AUDIO_MAP | shall (dynamic ports) | §6.5 | RO_SNAPSHOT | no | no | yes | — | 20 | 36 + 8·N B (cdl 24 + 8·N, N mappings) | SUCCESS, NOT_IMPLEMENTED, NO_SUCH_DESCRIPTOR, BAD_ARGUMENTS, NO_RESOURCES, NOT_SUPPORTED |
+ | 0x002C | ADD_AUDIO_MAPPINGS | shall (dynamic ports) | §6.5 | MAP_CFG | yes | no | yes | class 6: success with state change, requester excluded | 20 + 8·N | 32 + 8·N B echo (cdl 20 + 8·N, N mappings); mirrors request | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+ | 0x002D | REMOVE_AUDIO_MAPPINGS | shall (dynamic ports) | §6.5 | MAP_CFG | yes | no | yes | class 6: success with state change, requester excluded | 20 + 8·N | 32 + 8·N B echo (cdl 20 + 8·N, N mappings); mirrors request | SUCCESS, NO_SUCH_DESCRIPTOR, ENTITY_LOCKED, BAD_ARGUMENTS, NOT_SUPPORTED |
+@@ -910,7 +911,7 @@ stateDiagram-v2
+ different controller receives `ENTITY_LOCKED` — Milan leaves the code unspecified,
+ review §8 item 2; ACMP uses `CONTROLLER_NOT_AUTHORIZED`): SET_CONFIGURATION,
+ SET_STREAM_FORMAT, SET_STREAM_INFO, SET_NAME, SET_SAMPLING_RATE, SET_CLOCK_SOURCE,
+-SET_CONTROL, START/STOP_STREAMING, ADD/REMOVE_AUDIO_MAPPINGS, ACMP
++SET_CONTROL, START/STOP_STREAMING, ADD/REMOVE_AUDIO_MAPPINGS, REBOOT (§6.11), ACMP
+ BIND_RX/UNBIND_RX, and **MGMT-origin state changes** (front-panel equivalence,
+ Milan §5.4.2.x "in any other way").
+ The waived MVU SETs (§6.9) take the unsupported-command path without a lock check;
+@@ -1040,6 +1041,78 @@ path change, including a tail change with an unchanged grandmaster. Connecting
+ the live measurements, the atomic PathTrace store, and both strobes is the
+ consumer integration's responsibility and is not implemented in this repository.
+ 
++### 6.11 REBOOT
++
++**Realization status (issue #203).** Milan v1.2 mandates no REBOOT (GAP-13); the owner
++decided on 2026-10-26 that the end station implements it, because the release gate's
++soft resets (milan-fpga #396) are sent by a controller. The processor answers the
++command and asks for the reset; the reset itself, and what the end station restores
++after it, are the integrator's (milan-fpga #787).
++
++**The command** (IEEE 1722.1-2021 §7.4.43.1, Figure 7-68). Command and response share
++one shape, `descriptor_type @24` and `descriptor_index @26`, so every answer is those
++four bytes at cdl 16, a padded command's included. The routes, in order:
++
++| Order | Condition | Status | Where |
++|---|---|---|---|
++| 1 | cdl < 16: too short to carry the four bytes | `BAD_ARGUMENTS`, over the bytes it did carry | dispatch, `E_RBOOTBAD` |
++| 2 | `descriptor_type` is not ENTITY | `NOT_SUPPORTED` (Table 7-141: the target is not supported). §7.4.43.1's other target, a MEMORY_OBJECT firmware image, does not exist in this build | dispatch, `E_RBOOTNS` |
++| 3 | ENTITY at an index the image lacks (every index but 0) | `NO_SUCH_DESCRIPTOR`, from the locate | `E_RBOOT` |
++| 4 | another controller holds the lock (§7.4.43.2) | `ENTITY_LOCKED` | `E_RBOOT`, `CHECK_LOCK` |
++| 5 | otherwise | `SUCCESS`, the command's four bytes echoed | `E_RBOOT` |
++
++The type and index refusals outrank the lock, as START/STOP_STREAMING's do (§6.3);
++neither standard orders them. §7.4.43.2's other restriction, `ENTITY_ACQUIRED`, cannot
++arise: this entity is never acquired (§6.8, Milan §5.4.2.1). REBOOT is lock-protected
++(F06.9) and takes the top's `CFG_BARRIER` class with the global key
++([03 §6](03_packet_engine.md)): nothing runs beside it.
++
++**The notification.** §7.4.43 says "On success this command also sends an unsolicited
++notification", §7.5.2 lists REBOOT, and Milan §5.4.5.2 makes it a SHALL for every
++registered controller but the requester. `E_RBOOT` enqueues class 9, whose job carries
++the command's own opcode in its first argument and whose body is the `{type, index}`
++of START/STOP_STREAMING's notification (`E_STRMUNS`), so the notification is the
++SUCCESS response with `u` = 1 and each controller's own sequence_id (Milan §5.4.5.1).
++
++**Acceptance, and no further command.** A REBOOT is accepted at its SUCCESS response's
++TX grant, not before: a refusal, or a response the memory voided into
++`ENTITY_MISBEHAVING`, leaves the entity in service. From that grant the engine takes no
++command from its queue until reset (`rbt_hold_r`, on `txn_ready_o` and on A_IDLE's
++take), while its unsolicited path stays open for the notifications, and the top
++discards, whole, every frame that starts on `rx_*` after it, so no ACMP, ADP or AECP
++command reaches an engine. A command already queued behind the REBOOT is never served.
++A notification queued before a voided response still goes out, as it does for every
++notifying command whose response memory fails.
++
++**The request** ([02 F02.10](02_interfaces.md#fig-02-statusdict), `reboot_req_o`). The
++top then waits, reading `tx_*` itself (a frame has left when the MAC takes its last
++byte), for:
++
++1. the SUCCESS response;
++2. the REBOOT's notification round: the notify block holds no command work
++   (`cmd_busy_o`) and no unsolicited frame is in flight. Notifications of other kinds
++   that follow are not waited for;
++3. ENTITY_DEPARTING. ADP's effective enable falls for good, which is Milan v1.2's
++   SHUTDOWN event (§5.6.3.3; §5.2 is only the chapter's overview): each advertise
++   machine that is advertising (DELAY or WAITING) sends ENTITY_DEPARTING (§5.6.3.5.8,
++   §5.6.3.5.11), and one that is DOWN sends none (Table 5.51). That is IEEE
++   1722.1-2021's `doTerminate` (§6.2.4.1.3) and `txEntityDeparting()` (§6.2.5.2.2,
++   Figure 6-3), in the Advertising Entity and Interface state machines that §6.2.1
++   introduces; the Discovery state machine of §6.2.6 is the receiving controller's,
++   which removes the entity on it (`rcvdDeparting`, Figure 6-4). The top waits until
++   ADP has nothing left to build, queue or send.
++
++Then `reboot_req_o` rises, and it is held until `rst_n`. It does not wait for
++persistence: a change accepted just before the REBOOT may still be unflushed, and the
++integrator holds its reset on `(|nvm_unflushed_o) | d3_unflushed_o`
++([02 §8.1](02_interfaces.md#81-what-the-integrator-reads-while-a-commit-is-outstanding)).
++A MAC that never takes a frame holds the request back, as it holds every frame.
++
++`tb/pp_top` section RBT grades every route byte-exact, the notification, the order of
++the four events on the wire, the held level, and that no AEM, ACMP or ADP command is
++answered after the acceptance; `tb/pp_top/aecp_dispatch_mutants.py` plants each route,
++each wait and each guard (`tb/pp_top/README.md`).
++
+ ## 7. Registry, notifications, liveness, identify
+ 
+ **Realization status (2026-08-18, `hdl/aecp/KL_aecp_notify.sv`)**: the registry, the
+@@ -1389,6 +1462,7 @@ to; they select nothing in the engine.
+ | 0x0018 / 0x0019 SET/GET_CONTROL | real volatile Identify control with values 0 and 255 |
+ | 0x0022 / 0x0023 START/STOP_STREAMING | real started/stopped state on the ACMP binding record (`pp_acmp_pkg.sv`'s `f_started`), which clears on unbind and is projected by the NVM shadow. The dynamic store's selector 6 is RETIRED rather than reused, so there is no second copy. The write-only request region separates capture from completion: success follows the record write or a confirmed no-op, and a bounded request that cannot start reports `ENTITY_MISBEHAVING` without changing the record. The same `st_err` arm also surfaces a descriptor-store write timeout as `ENTITY_MISBEHAVING` for every WRITE_ST user, where it was previously silently ignored. A Stream Output, and every other descriptor type, answers `NOT_SUPPORTED` per Milan Section 5.4.2.19/.20. A state-changing success sends the opcode-specific unsolicited response to every registered controller except the requester, and the Table 5.22 started/stopped change sends GET_STREAM_INFO to every registered controller, the requester included (§7, issue #192). |
+ | 0x0024 / 0x0025 REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | real bounded controller registry |
++| 0x002A REBOOT | real for ENTITY 0 (§6.11): SUCCESS echoing the command at cdl 16, then the notification to every other registered controller, ENTITY_DEPARTING where the entity was advertising, and the held `reboot_req_o`; no command is accepted after the SUCCESS. `BAD_ARGUMENTS` short of Figure 7-68's four bytes, `NOT_SUPPORTED` for any other type, `NO_SUCH_DESCRIPTOR` for any other index, `ENTITY_LOCKED` under another controller's lock (issue #203) |
+ | 0x0027 GET_AVB_INFO | real AVB Interface response from the integrator state face; `NO_SUCH_DESCRIPTOR` for an AVB_INTERFACE index the image lacks, `BAD_ARGUMENTS` for a command short of §7.4.40.1's four bytes, and `NOT_SUPPORTED` with the command echoed for any other descriptor_type (§6.10, issue #200) |
+ | 0x0028 GET_AS_PATH | real gPTP path response from the integrator state face |
+ | 0x0029 GET_COUNTERS | real for STREAM_INPUT, STREAM_OUTPUT, AVB_INTERFACE and CLOCK_DOMAIN: SUCCESS + `descriptor_type`/`descriptor_index`/`counters_valid` + all 32 quadlets (payload 136, cdl 148), the values coming from the integrator's counter face; `BAD_ARGUMENTS` on a command short of §7.4.42.1's four bytes |
+diff --git a/docs/diagrams/21-integration-faces.svg b/docs/diagrams/21-integration-faces.svg
+index 6f29dc4..01cb801 100644
+--- a/docs/diagrams/21-integration-faces.svg
++++ b/docs/diagrams/21-integration-faces.svg
+@@ -1,4 +1,4 @@
+-<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="940" viewBox="0 0 1340 940" font-family="DejaVu Sans, Verdana, Helvetica, Arial, sans-serif">
++<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="994" viewBox="0 0 1340 994" font-family="DejaVu Sans, Verdana, Helvetica, Arial, sans-serif">
+   <defs>
+     <marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+       <path d="M0,1 L8,4.5 L0,8 z" fill="#2c3038"/>
+@@ -8,7 +8,7 @@
+     </marker>
+   </defs>
+ 
+-  <rect x="0" y="0" width="1340" height="940" fill="#fbfcfe" stroke="#ccd2da" stroke-width="1"/>
++  <rect x="0" y="0" width="1340" height="994" fill="#fbfcfe" stroke="#ccd2da" stroke-width="1"/>
+ 
+   <text x="24" y="34" font-size="19" font-weight="bold" fill="#16181d">The integrator's contract — every face of protocol_processor_top</text>
+   <text x="24" y="56" font-size="12.5" fill="#4a5058">Port names are exact. Directions are from the processor's point of view. Red text is what happens when you do not connect a face.</text>
+@@ -114,13 +114,15 @@
+   <text x="968" y="537" font-size="11.5" fill="#4a5058">svc_* — the SRP config plane (DECLARE/WITHDRAW)</text>
+   <text x="968" y="560" font-size="11.5" fill="#a03030">maap_* — tie it off and NO talker ever declares.</text>
+ 
+-  <rect x="950" y="594" width="366" height="118" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.3"/>
++  <rect x="950" y="594" width="366" height="154" rx="7" fill="#eef7ef" stroke="#2f7d46" stroke-width="1.3"/>
+   <text x="968" y="616" font-size="12.5" font-weight="bold" fill="#16181d">class-D status wires  ←  out, every clock</text>
+   <text x="968" y="636" font-size="11.5" fill="#4a5058">acmp_declaring_o · src_stream_id_o · acmp_bound_o + identity</text>
+   <text x="968" y="653" font-size="11.5" fill="#4a5058">srp_active_o · srp_granted_slope_bps_o · srp_sum_slope_bps_o</text>
+   <text x="968" y="670" font-size="11.5" fill="#4a5058">restore_{busy,done,fail,blank}_o: both walks combined</text>
+   <text x="968" y="687" font-size="11.5" fill="#4a5058">restore_closed_o · rs_cause_o · restore_rb_o · nvm_alarm_o</text>
+   <text x="968" y="704" font-size="11.5" fill="#4a5058">pending: |nvm_unflushed_o | d3_unflushed_o</text>
++  <text x="968" y="721" font-size="11.5" fill="#4a5058">reboot_req_o: held from a REBOOT's SUCCESS to rst_n</text>
++  <text x="968" y="738" font-size="11.5" fill="#a03030">Unconnected → after a REBOOT, offline until reset.</text>
+ 
+   <line x1="905" y1="178" x2="945" y2="178" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)"/>
+   <line x1="905" y1="294" x2="945" y2="294" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)"/>
+@@ -129,13 +131,14 @@
+   <line x1="905" y1="642" x2="945" y2="642" stroke="#2c3038" stroke-width="1.8" marker-end="url(#ah)"/>
+ 
+   <!-- ===== bottom band ===== -->
+-  <rect x="24" y="732" width="1292" height="182" rx="8" fill="#fff6e5" stroke="#a06400" stroke-width="1.3"/>
+-  <text x="42" y="756" font-size="13" font-weight="bold" fill="#16181d">What you must reserve in your memory map</text>
+-  <text x="42" y="780" font-size="11.5" fill="#4a5058">At DESC_BASE_P — the descriptor image your software writes and CRC-checks before restore_go_i. The processor only READS it.</text>
+-  <text x="42" y="800" font-size="11.5" fill="#4a5058">At RESP_BASE_P — 16 + DESC_LINE_BYTES_P bytes that NOTHING ELSE WRITES. The processor writes here. It must not overlap DESC_BASE_P.</text>
+-  <text x="42" y="820" font-size="11.5" fill="#4a5058">Both are 8-byte aligned. The two masters are deliberately separate: sharing one channel would need an arbiter whose grant must be released correctly on every watchdog.</text>
+-  <text x="42" y="848" font-size="13" font-weight="bold" fill="#16181d">The tie-off rule</text>
+-  <text x="42" y="870" font-size="11.5" fill="#4a5058">Every optional face is watchdog-bounded, so leaving it unconnected degrades that function to an honest answer on the wire — it never wedges the control plane.</text>
+-  <text x="42" y="890" font-size="11.5" fill="#a03030">One exception: the saved-state restore judges values against the descriptor image, so an image it cannot prove ends it CLOSED (AECP and ADP held until reset).</text>
+-  <text x="42" y="908" font-size="11.5" fill="#4a5058">Erased NVM behind a proven image is not that: both walks end on defaults and everything is served.</text>
++  <rect x="24" y="768" width="1292" height="200" rx="8" fill="#fff6e5" stroke="#a06400" stroke-width="1.3"/>
++  <text x="42" y="792" font-size="13" font-weight="bold" fill="#16181d">What you must reserve in your memory map</text>
++  <text x="42" y="816" font-size="11.5" fill="#4a5058">At DESC_BASE_P — the descriptor image your software writes and CRC-checks before restore_go_i. The processor only READS it.</text>
++  <text x="42" y="836" font-size="11.5" fill="#4a5058">At RESP_BASE_P — 16 + DESC_LINE_BYTES_P bytes that NOTHING ELSE WRITES. The processor writes here. It must not overlap DESC_BASE_P.</text>
++  <text x="42" y="856" font-size="11.5" fill="#4a5058">Both are 8-byte aligned. The two masters are deliberately separate: sharing one channel would need an arbiter whose grant must be released correctly on every watchdog.</text>
++  <text x="42" y="884" font-size="13" font-weight="bold" fill="#16181d">The tie-off rule</text>
++  <text x="42" y="906" font-size="11.5" fill="#4a5058">Every optional face is watchdog-bounded, so leaving it unconnected degrades that function to an honest answer on the wire — it never wedges the control plane.</text>
++  <text x="42" y="926" font-size="11.5" fill="#a03030">One exception: the saved-state restore judges values against the descriptor image, so an image it cannot prove ends it CLOSED (AECP and ADP held until reset).</text>
++  <text x="42" y="944" font-size="11.5" fill="#4a5058">Erased NVM behind a proven image is not that: both walks end on defaults and everything is served.</text>
++  <text x="42" y="962" font-size="11.5" fill="#a03030">A second: reboot_req_o. Unconnected, a controller's REBOOT leaves the entity departed and deaf until the next reset (milan-fpga #787 wires it).</text>
+ </svg>
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index ed5cb57..1249924 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -28,6 +28,7 @@ There is exactly one clock and one reset.
+ |---|---|
+ | `clk_i` | the single core clock. `CLK_HZ_P` tells the timer prescaler what it is. |
+ | `rst_n` | **synchronous**, active low. It needs a running clock to take effect. |
++| `reboot_req_o` | the processor's request for that reset, after a controller's REBOOT ([section 9](#9-bring-up-order), [06 §6.11](../architecture/06_aecp_engine.md#611-reboot)). A held level, never a pulse; drive `rst_n` from it, by whatever reset your end station uses (milan-fpga #787). |
+ 
+ **No clock-domain crossing lives inside this processor but one.** Every crossing is yours:
+ 
+@@ -584,6 +585,7 @@ gate on them per cycle.
+ | `restore_closed_o`, `rs_cause_o[2:0]`, `restore_rb_o`, `restore_cause_o[1:0]` | the D3 walk's CLOSED terminal (never done), its cause (1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor read, 7 image unproven), its roll-back to DEFAULTS; and the binding walk's own cause. |
+ | `aecp_name_wr_o` | one `clk_i` cycle at each accepted live 64-bit name-lane write into the descriptor store. A multi-lane `SET_NAME` pulses once per written lane; unchanged lanes, boot loading, the D3 writer's restore of a saved name, refused/out-of-range commands and writes aborted before acceptance produce no pulse. Earlier accepted writes still count if a command later aborts. Sample at the accepting rising edge; no ready/ack. Leave unused with an explicit `.aecp_name_wr_o()` connection. |
+ | `aecp_nvm_stb_o`, `aecp_nvm_mark_o` | one cycle per committed command that marked a record group, and the group: 1 a dynamic-state field, 6 channel maps, 7 user names. A **completion notification**: it selects no record and is not a persistence trigger. Groups 1 and 7's records are written by the D3 writer from the accepted change itself (group 7's trigger is `aecp_name_wr_o`). Group 6's records, the channel maps, are **yours** (the manager's ruling on processor issue #83): write `0x60`/`0x70` + port from the accepted phase-5 edit beat (`amap_edit_req_o` with `amap_edit_phase_o == 5`), restore them and reset them on a roll-back (§9 step 4, [07 §5.1](../architecture/07_memory_maps.md#51-persisted-vs-volatile-normative-set-req-per-001002)). Your pending covers them; `d3_unflushed_o` never does. |
++| `reboot_req_o` | a **held level**, 0 from reset (issue #203). It rises once, after a controller's REBOOT of ENTITY 0 was answered SUCCESS and three things have left on `tx_*` (each last byte taken with `tx_ready_i`): that response, the REBOOT's unsolicited notifications to the other registered controllers, and ENTITY_DEPARTING where the entity was advertising. It stays 1 until `rst_n`, so you cannot miss it. From the SUCCESS the processor accepts no command: the AECP engine serves nothing more, and a frame that starts on `rx_*` after it is discarded. It does **not** wait for persistence: to keep a change accepted just before the REBOOT, hold your reset until your pending bit, `(\|nvm_unflushed_o) \| d3_unflushed_o`, reads 0. A MAC that never takes a frame holds it back. Unconnected, a REBOOT leaves the entity departed and deaf until the next reset. |
+ | `dbg_now_ms_o` | the free-running millisecond timebase |
+ 
+ The status dictionary these implement is catalogued in
+@@ -692,6 +694,10 @@ contract and its coherence bound are [06 F06.13](../architecture/06_aecp_engine.
+ 5. Present identity, capability and configuration inputs.
+ 6. Assert `entity_enable_i` when you are ready, after step 4; the processor forwards it
+    to ADP only once `restore_done_o` is 1. Only then may the entity advertise.
++7. **On `reboot_req_o`, reset and start again at step 1** (issue #203; your reset and
++   what it restores are milan-fpga #787). A controller's REBOOT has been answered, the
++   other registered controllers told, and ENTITY_DEPARTING sent, so the processor has
++   nothing left to send; it waits, accepting no command, for your `rst_n`.
+ 
+ If it does not come up, hand the board to the [operator guide](operator.md) — its
+ [bring-up ladder](../diagrams/23-bringup-decision.svg) is written for exactly this moment.
+diff --git a/docs/guides/operator.md b/docs/guides/operator.md
+index 97c05dd..9b51dbd 100644
+--- a/docs/guides/operator.md
++++ b/docs/guides/operator.md
+@@ -49,6 +49,7 @@ Two things it deliberately does **not** do, and which you should not go looking
+ | `IDENTIFY_NOTIFICATION` sent as a command | `BAD_ARGUMENTS` — the opcode-specific rule of IEEE 1722.1-2021 §7.4.39.2 beats the general fallback of §9.3.5.3.3 |
+ | The user presses the identify button (only in a build with `EN_IDENTIFY_NOTIF_P` = 1 and the button wired) | three unsolicited `IDENTIFY_NOTIFICATION` frames to 91:E0:F0:01:00:01, 150 ms apart, all with the same `sequence_id`, and another three every second while it is held (IEEE 1722.1-2021 §7.5.1). Every press after a release is answered with three, however short: a press made while three are still going out, or within 150 ms of the last one, sends its three 150 ms after that last frame, never sooner, and further presses before then share them. A controller must join that group to see them. The default build sends none |
+ | `ACQUIRE_ENTITY` | `NOT_SUPPORTED`. Milan §5.4.2.1 says acquisition shall never succeed |
++| `REBOOT` of ENTITY 0 (issue #203) | `SUCCESS` with the command echoed, then an unsolicited REBOOT to every other registered controller, then `ENTITY_DEPARTING` if the entity was advertising, then nothing: it takes no further command until the end station resets it (`reboot_req_o`). Any other descriptor type is `NOT_SUPPORTED`, any other index `NO_SUCH_DESCRIPTOR`, a short command `BAD_ARGUMENTS`, and another controller's lock `ENTITY_LOCKED` ([06 §6.11](../architecture/06_aecp_engine.md#611-reboot)) |
+ | `DISCONNECT_TX` | `TALKER_UNKNOWN_ID` for an invalid `talker_unique_id`, otherwise `SUCCESS`; neither changes talker state (Milan §5.5.4.2 step 1, Tables 5.44/5.45) |
+ | `GET_TX_CONNECTION` | `NOT_SUPPORTED`, for the same reason |
+ | A command addressed to another entity | dropped and counted. A command that is an AECP *response* is dropped too — answering a response is how a control plane builds a storm |
+diff --git a/tb/aecp_cmds/README.md b/tb/aecp_cmds/README.md
+index e72c1b0..f2a6dec 100644
+--- a/tb/aecp_cmds/README.md
++++ b/tb/aecp_cmds/README.md
+@@ -46,7 +46,9 @@ program, shows wherever it lands.
+ - **GET_DYNAMIC_INFO** carrying one record of every command_type, with record
+   lengths 0, 2, 4 and 8 and every descriptor type, a non-SUCCESS info_status,
+   and the aggregate with no record.
+-- **Unsolicited jobs.** Every kind, with both directions where a kind has two.
++- **Unsolicited jobs.** Every kind, with both directions where a kind has two,
++  and with REBOOT's opcode 0x002A as the first argument (issue #203: class 9's
++  job carries the command's own opcode, and that one answers under REBOOT).
+ 
+ The count-one trial at cdl 24 is a half-record control for the eight-byte mapping
+ step; cdl 28 accepts one and cdl 36 accepts two. A four-byte engine step adds offset
+@@ -57,7 +59,10 @@ The build sets `EN_IDENTIFY_NOTIF_P = 1`, so that the IDENTIFY_NOTIFICATION job
+ runs its program. No command decode reads that parameter. The environment
+ answers at once: a descriptor image from `milan_min.json`, a blank NVM, so the
+ D3 restore ends on defaults before the first command, and every gather face
+-answering zero.
++answering zero. A trial whose REBOOT the engine accepted (issue #203: a SUCCESS
++on ENTITY 0, after which the engine takes no command until a reset) is followed
++by a reset and the D3 restore again, so the next trial meets a serving engine;
++the sweep prints how many it reset.
+ 
+ ## What the gate holds (`scripts/check_aecp_commands.py`)
+ 
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index b67b2fa..8636ea8 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -623,12 +623,14 @@ the seven into the one canonical tally.
+     followed the header.
+   - **A5b** the NOT_IMPLEMENTED response is sized by ITS OWN command, swept
+     over payloads of 0, 4, 8, 12, 16 and 72 octets, two opcodes Table 7-140
+-    leaves unassigned, and (issue #74, REQ-FWX-001) the six the row names as
+-    outer AEM commands at their own IEEE 1722.1-2021 command lengths: REBOOT
+-    (0x002A, 4), START_OPERATION (0x0037, 12), ABORT_OPERATION (0x0038, 8),
++    leaves unassigned, and (issue #74, REQ-FWX-001) the five the row names as
++    outer AEM commands at their own IEEE 1722.1-2021 command lengths:
++    START_OPERATION (0x0037, 12), ABORT_OPERATION (0x0038, 8),
+     OPERATION_STATUS sent as a command (0x0039, 8), SET_MEMORY_OBJECT_LENGTH
+     (0x0047, 12) and GET_MEMORY_OBJECT_LENGTH (0x0048, 4, a GET_DYNAMIC_INFO
+-    whitelist member and still no outer command). `control_data_length` is read off the wire (not
++    whitelist member and still no outer command). REBOOT (0x002A) left the
++    sweep with issue #203, which implements it (section RBT).
++    `control_data_length` is read off the wire (not
+     compared to the builder, which would share any bug) and must be 12 + the
+     command's payload, the echoed bytes are a non-zero pattern, and the frame
+     is the padded 60 octets only where the payload is genuinely short. A5
+@@ -1394,7 +1396,8 @@ round 2), added 2026-10-19 and counted, with the nine re-measured, in their own
+ the round-2 head, and the ten GET_AVB_INFO arms (issue #200), re-measured
+ 2026-10-24 in their own run at the lane head. `aecp-dispatch` runs A5b, M9 and section V's GET_AVB_INFO
+ dispatch cases (V1, V1b, V3 to V5) on a booted model,
+-then section AX on its own processor (`--aecp-dispatch-only`); `aecp-line`
++then section AX on its own processor (`--aecp-dispatch-only`); `reboot` runs
++section RBT alone (`--reboot-only`, issue #203); `aecp-line`
+ runs section AX in the line build; `line-guards` lints the top across the line
+ range; `d3` runs section D3, whose D3C arms grade SET_CLOCK_SOURCE over a
+ ten-source domain (`--d3-only`). The last column is how many checks each arm
+@@ -1419,7 +1422,23 @@ failed at the lane head.
+ | `gavb-locate-miss-ignored` | E_GAVB's locate-miss branch (E_GAVB + 1) replaced with NOP, so an absent AVB_INTERFACE answers SUCCESS | `V3: GET_AVB_INFO on a missing interface refuses NO_SUCH_DESCRIPTOR` | 1 |
+ | `gavb-padded-refused` | the length gate `cdl != 16` in place of `cdl < 16`, so a padded command is BAD_ARGUMENTS | `V1b: GET_AVB_INFO padded to cdl 20 answers V1's SUCCESS, byte-exact` | 2 |
+ | `gavb-floor-14` | the length floor 16 moved to 14, so a command short of its index reaches the type gate | `V4: short GET_AVB_INFO answers BAD_ARGUMENTS` | 1 |
+-| `a5b-reboot-success-arm` | the pop decode answers REBOOT (0x002A) SUCCESS with the command echoed (issue #74) | `A5b: REBOOT (7.4.43, Figure 7-68): the response is not the echoed command` | 1 |
++| `rbt-request-at-acceptance` | `reboot_req_o` raised at the engine's acceptance, before the SUCCESS response is sent (issue #203) | `RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte` | 12 |
++| `rbt-response-unwatched` | the sequence leaves RB_RESP without the response's last byte | `RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte` | 3 |
++| `rbt-notifications-unwatched` | RB_NTF without the notify block's command work (`ntfy_cmd_busy_w`) | `RBT6 reboot_req_o rises after both notifications left` | 4 |
++| `rbt-notification-flight-unwatched` | RB_NTF without the unsolicited frame in flight (`tx_fly_uns_r`) | `RBT8 reboot_req_o rises after the response and the notification left` | 2 |
++| `rbt-no-shutdown` | ADP's effective enable never dropped (`rbt_adp_off_w` 0), so no ENTITY_DEPARTING | `RBT6 one ENTITY_DEPARTING` | 2 |
++| `rbt-departing-unwatched` | RB_DEP without any of its three conditions | `RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o` | 3 |
++| `rbt-departing-flight-unwatched` | RB_DEP without the ADP frame in flight (`tx_fly_adp_r`) | `RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o` | 3 |
++| `rbt-request-pulse` | RB_REQ returns to RB_RUN, so the request is a pulse, not held | `RBT6 reboot_req_o is held from its rise to the end of the run` | 2 |
++| `rbt-rx-gate-dropped` | the top's frame gate removed (`rx_take_w = rx_valid_i`) | `RBT6 an ACMP command after the acceptance gets no answer` | 1 |
++| `rbt-engine-hold-dropped` | the engine's hold removed from `txn_ready_o` and A_IDLE's take | `RBT6 the command queued behind the REBOOT is never served` | 1 |
++| `rbt-accept-any-status` | the acceptance latched on any REBOOT response, a refusal's included | `RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0` | 33 |
++| `rbt-short-gate-dropped` | the cdl-16 floor removed from the REBOOT route | `RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: byte-exact at cdl 16` | 35 |
++| `rbt-type-gate-dropped` | the ENTITY type gate removed, so every type runs E_RBOOT | `RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16` | 27 |
++| `rbt-index-unchecked` | E_RBOOT's locate-miss branch (E_RBOOT + 1) replaced with NOP | `RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16` | 20 |
++| `rbt-lock-unchecked` | E_RBOOT's CHECK_LOCK (E_RBOOT + 2) replaced with NOP | `RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: byte-exact at cdl 16` | 13 |
++| `rbt-notify-dropped` | E_RBOOT's NOTIFY_ENQ (E_RBOOT + 4) replaced with NOP | `RBT6 the REBOOT notification reaches every other registered controller` | 4 |
++| `rbt-notification-type` | the class-9 job's REBOOT command_type dropped, so it answers START_STREAMING | `RBT6 the REBOOT notification reaches every other registered controller` | 4 |
+ | `lk-ssrate-lock-nop` | E_SSRATE's CHECK_LOCK (E_SSRATE+9) replaced with NOP (issue #53) | `LK1 unset rate row, ...: ENTITY_LOCKED byte-exact` | 9 |
+ | `lk-ssrate-miss-lock-nop` | E_SSRATE's locate-miss CHECK_LOCK (SSR_REFUSE) replaced with NOP | `LK4 foreign SET_SAMPLING_RATE on AUDIO_UNIT 3 (absent): ENTITY_LOCKED byte-exact` | 1 |
+ | `lk-sclks-lock-nop` | E_SCLKS's CHECK_LOCK (E_SCLKS+9) replaced with NOP | `LK1 unset clock-source row, ...: ENTITY_LOCKED byte-exact` | 9 |
+@@ -1475,8 +1494,10 @@ failed at the lane head.
+ 
+ Each guard arm fails its opcode's row on all seven message types; the three
+ writers also fail their whole-body row and the read-back that proves the write
+-landed (M9b3, M9b4, M9b5). The REBOOT arm answers at the right length and cdl,
+-so only the byte-exact echo can see it, and it does. Each lock arm's
++landed (M9b3, M9b4, M9b5). The REBOOT arms (issue #203) were counted in their
++own run at that issue's head; `a5b-reboot-success-arm`, the issue #74 arm that
++answered REBOOT SUCCESS, is retired with it, because SUCCESS is now the answer
++(section RBT grades it). Each lock arm's
+ main-path NOP lets the foreign SET write: its byte-exact check, the holder's
+ unsolicited frame, the effect counters and the next holder SET's notification
+ count all fail (SET_CONTROL's also LK3b and LK3c, which then carry the 0 LK3
+@@ -2594,6 +2615,39 @@ by name (`DESC_LINE_BYTES_P=568 is below 576`, `...=1016 is above 1008`, `...=58
+ not a multiple of 8`), each as a `%Warning-USERFATAL`. Verilator reports an elaboration
+ `$fatal` as a warning that a `-Wno-fatal` build carries past, so the verdict is a lint's.
+ 
++## Section RBT: REBOOT (issue #203; IEEE 1722.1-2021 §7.4.43, Figure 7-68)
++
++`make reboot` (`--reboot-only`) runs it alone; the default build runs it after
++section AD. Each SUCCESS ends the entity's service until a reset, so the section
++boots a fresh processor of its own for each (the AD pattern) and logs every frame
++the MAC takes, with the clock of its last byte.
++
++- **RBT1 to RBT4**, the refusals on one boot, each byte-exact at cdl 16 and
++  each followed by no acceptance, no `reboot_req_o`, no REBOOT notification to
++  the registered controller, and a command still served: a command of 0 and 2
++  payload bytes (`BAD_ARGUMENTS`); MEMORY_OBJECT 0, AUDIO_UNIT 0 and
++  CONFIGURATION 0 (`NOT_SUPPORTED`); ENTITY 1 and 0x7FFF (`NO_SUCH_DESCRIPTOR`);
++  ENTITY 0 under another controller's lock (`ENTITY_LOCKED`), and under that lock
++  MEMORY_OBJECT 0 and ENTITY 1 keep their own refusals (RBT4b, RBT4c), the order
++  06 §6.11 states.
++- **RBT5**: ACQUIRE_ENTITY is refused `NOT_SUPPORTED`, so no REBOOT can meet
++  `ENTITY_ACQUIRED`.
++- **RBT6**: the lock holder's REBOOT with three controllers registered, the
++  requester among them, and a second command arriving behind it. On the wire, in
++  this order: the SUCCESS response byte-exact; the notification to each other
++  controller (u = 1, its entry's sequence_id), none to the requester; one
++  ENTITY_DEPARTING byte-exact after the last ENTITY_AVAILABLE; then
++  `reboot_req_o`, held to the end of the run. The command queued behind it is
++  never served, and an AEM command, an ACMP GET_RX_STATE and an ADP
++  ENTITY_DISCOVER sent after it go unanswered.
++- **RBT7**: an entity not advertising, with no controller registered, so the
++  response is the only frame the request waits for. The MAC holds the SUCCESS
++  response's last byte for 30 ms: the engine has accepted, and `reboot_req_o`
++  stays 0. Released, the response leaves whole and the request follows it.
++- **RBT8**: an entity not advertising, one controller registered, a padded
++  command (cdl 20): SUCCESS at the response's cdl 16, the notification, no
++  ENTITY_DEPARTING, and the request after both frames.
++
+ ## Lane C6: notifications and identify (issues #54, #58, #80, #86)
+ 
+ `notify_phases.hpp` holds nine sections, each on a fresh processor of its own

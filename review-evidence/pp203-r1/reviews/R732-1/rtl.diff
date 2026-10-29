@@ -1,0 +1,536 @@
+diff --git a/hdl/adp/KL_adp_engine.sv b/hdl/adp/KL_adp_engine.sv
+index 97076ca..021d1b1 100644
+--- a/hdl/adp/KL_adp_engine.sv
++++ b/hdl/adp/KL_adp_engine.sv
+@@ -171,6 +171,10 @@ module KL_adp_engine
+     output logic                       txreq_valid_o,      //! one-cycle: committed slot queued for TX
+     output logic [TXS_SLOT_W_C-1:0]    txreq_slot_o,       //! committed tx-slot handle
+     output logic [IF_W_C-1:0]          txreq_if_o,         //! egress AVB interface
++    //! a queued ENTITY_AVAILABLE or ENTITY_DEPARTING is not yet handed to
++    //! txreq_valid_o (the top's REBOOT sequence waits on it after
++    //! SHUTDOWN, issue #203)
++    output logic                       tx_busy_o,
+ 
+     // ---- ACMP binding view (07 §4 sink records; plain face) ---------------
+     input  wire  [N_SINK_P-1:0]        bound_i,            //! sink is bound (discovery SM armed)
+@@ -950,6 +954,7 @@ module KL_adp_engine
+   assign txreq_valid_o = (bld_st_r == B_REQ);
+   assign txreq_slot_o  = bld_slot_r;
+   assign txreq_if_o    = bld_if_r;
++  assign tx_busy_o     = (bld_st_r != B_IDLE) || (|pend_dep_r) || (|pend_avail_r);
+ 
+   assign bld_done_avail_w = (bld_st_r == B_REQ) && !bld_dep_r;
+   assign bld_done_dep_w   = (bld_st_r == B_REQ) && bld_dep_r;
+diff --git a/hdl/aecp/KL_aecp_engine.sv b/hdl/aecp/KL_aecp_engine.sv
+index aa68066..0e811a1 100644
+--- a/hdl/aecp/KL_aecp_engine.sv
++++ b/hdl/aecp/KL_aecp_engine.sv
+@@ -384,6 +384,11 @@ module KL_aecp_engine
+     //! one clock: a solicited response was handed to its TX lane (the
+     //! scoreboard's kill_resp_queued_i: rule (e) releases the key only then)
+     output logic               dl_queued_o,
++    //! ---- REBOOT (IEEE 1722.1-2021 §7.4.43; issue #203) ----
++    //! level, held until reset: a REBOOT's SUCCESS response was handed to
++    //! its TX lane, and no command is taken from the queue after it. The
++    //! top waits for that frame to leave before it raises reboot_req_o.
++    output logic               reboot_o,
+ 
+     //! ---- descriptor memory master (read-only; see KL_aecp_desc_store) ----
+     output logic        mem_req_valid_o,
+@@ -824,6 +829,13 @@ module KL_aecp_engine
+   //! one instance of the wrong-type rule below rather than a case of its own.
+   localparam logic [15:0] OP_START_STRM_C      = 16'h0022;
+   localparam logic [15:0] OP_STOP_STRM_C       = 16'h0023;
++  //! ---- REBOOT (IEEE 1722.1-2021 §7.4.43, Figure 7-68; issue #203) -------
++  //! Figure 7-68 is the same {type @24, index @26} shape as Figure 7-59, so
++  //! REBOOT joins `tix_w` and every answer is four bytes at cdl 16. Same
++  //! registered A_PLD-exit re-dispatch as the commands above. A SUCCESS
++  //! response's TX grant ends command service until reset (`rbt_hold_r`,
++  //! `reboot_o`); the top sequences reboot_req_o after it.
++  localparam logic [15:0] OP_REBOOT_C          = 16'h002A;
+   //! Table 7-1: the two descriptor types the audio-map µprograms serve -
+   //! every other type keeps the NOT_IMPLEMENTED echo
+   localparam logic [15:0] DT_STREAM_PORT_IN_C  = 16'h000E;
+@@ -907,6 +919,10 @@ module KL_aecp_engine
+   localparam logic [10:0] UPC_STRMNS_C   = 11'd1664; // E_STRMNS
+   localparam logic [10:0] UPC_STRMUNS_C  = 11'd1672; // E_STRMUNS
+   localparam logic [10:0] UPC_STRMBAD_C  = 11'd1696; // E_STRMBAD
++  //! REBOOT and its two dispatch-routed refusals (issue #203)
++  localparam logic [10:0] UPC_RBOOT_C    = 11'd536;  // E_RBOOT
++  localparam logic [10:0] UPC_RBOOTNS_C  = 11'd548;  // E_RBOOTNS
++  localparam logic [10:0] UPC_RBOOTBAD_C = 11'd554;  // E_RBOOTBAD
+   //! MOVED with their microprograms: E_AMADD spans 34 words, so at 1632 it
+   //! overlapped both E_STOP and E_STRMNS above. check_upc_map.py gates these
+   //! against gen_ucode.py, so the two cannot drift apart again silently.
+@@ -1056,6 +1072,10 @@ module KL_aecp_engine
+   logic        strt_r;                   // ... a START_STREAMING
+   logic        stop_r;                   // ... a STOP_STREAMING
+   logic        strm_r;                   // ... either of the two
++  logic        rboot_r;                  // ... a REBOOT
++  //! issue #203: a REBOOT's SUCCESS response reached its TX grant; set until
++  //! reset, it keeps every later command in its queue (A_IDLE, txn_ready_o)
++  logic        rbt_hold_r;
+   logic        setc_r;                   // ... any SET_* that carries a value
+   logic        gdi_r;                    // ... outer GET_DYNAMIC_INFO command
+   //! the SET family's argument, walked out of @28..@35. Every settable field
+@@ -1412,6 +1432,10 @@ module KL_aecp_engine
+   assign stop_w   = aem_w
+                     && (txn_w.opcode == OP_STOP_STRM_C);
+   assign strm_w   = strt_w | stop_w;
++  //! IEEE 1722.1-2021 §7.4.43 (issue #203)
++  logic rboot_w;
++  assign rboot_w  = aem_w
++                    && (txn_w.opcode == OP_REBOOT_C);
+ 
+   //! ---- unsolicited job synthesis (06 §6.7) -------------------------------
+   //! kind -> {command_type, µPC}. A kind whose µprogram has not landed maps
+@@ -1451,8 +1475,12 @@ module KL_aecp_engine
+                             uns_upc_w = UPC_GCTRL_C;   end
+       PP_UNS_CLKS_C:  begin uns_ct_w = OP_SET_CLOCK_SRC_C;
+                             uns_upc_w = UPC_GCLKS_C;   end
+-      PP_UNS_STRM_C:  begin uns_ct_w = uns_arg0_i[0] ? OP_STOP_STRM_C
+-                                                      : OP_START_STRM_C;
++      //! class 9's {type, index} body under the command's own command_type,
++      //! which the job's first argument carries: START/STOP_STREAMING, or
++      //! REBOOT (IEEE 7.4.43 and 7.5.2; issue #203)
++      PP_UNS_STRM_C:  begin uns_ct_w = (uns_arg0_i == OP_REBOOT_C) ? OP_REBOOT_C
++                                     : uns_arg0_i[0]               ? OP_STOP_STRM_C
++                                                                   : OP_START_STRM_C;
+                             uns_upc_w = UPC_STRMUNS_C; end
+       //! IEEE 7.4.39: {CONTROL, the IDENTIFY control's index} under the
+       //! header the job carries (Table B.1 DA, Table 7-180 controller)
+@@ -1585,7 +1613,8 @@ module KL_aecp_engine
+   logic tix_w;
+   assign tix_w = ctrs_r | amap_r | amap_edit_r | gstri_r | gavb_r
+                  | gsfmt_r | gsrate_r | gclks_r | setc_r | gctrl_r
+-                 | strm_r | ssfmt_r | ssinfo_r | gname_r | sname_r;
++                 | strm_r | ssfmt_r | ssinfo_r | gname_r | sname_r
++                 | rboot_r;
+   assign ix26_w = tix_w | regun_r | lockc_r | scfg_r;
+   //! r14[31:0] = the flags word for LOCK_ENTITY and for its notification, the
+   //! one unsolicited job routed to the rgy face (`regun_r`, at the job load)
+@@ -2647,8 +2676,10 @@ module KL_aecp_engine
+   //! The buffer's watchdog bounds this wait, so it can never become a hang.
+   //! Nor while the D3 writer owns the state bus: the head stays in its queue
+   //! (and out of the scoreboard, whose candidacy reads this ready) until the
+-  //! writer's restore terminal, and is then taken first.
+-  assign txn_ready_o     = (a_st_r == A_IDLE) && !rsp_busy_w
++  //! writer's restore terminal, and is then taken first. Nor after a REBOOT's
++  //! SUCCESS response reached its TX grant (issue #203): every later head
++  //! stays queued until the reset.
++  assign txn_ready_o     = (a_st_r == A_IDLE) && !rsp_busy_w && !rbt_hold_r
+                            && !amap_notify_busy_i && !d3_own_w;
+   //! A command that is not an AEM_COMMAND answers the command echoed when its
+   //! response memory fails (A_ALLOC, A_WR, `st_echo_w`), and the failure can
+@@ -2678,6 +2709,7 @@ module KL_aecp_engine
+   assign rxs_free_slot_o = cmd_r.rx_slot[RXS_W_C-1:0];
+   //! the job retirement strobe: sent, voided or no-send all pass A_FREE
+   assign uns_done_o      = (a_st_r == A_FREE) && uns_r;
++  assign reboot_o        = rbt_hold_r;
+ 
+   assign dbg_busy_o     = (a_st_r != A_IDLE) || ucpu_busy_w;
+   assign dbg_cmd_cnt_o  = cmd_cnt_r;
+@@ -2768,6 +2800,8 @@ module KL_aecp_engine
+       strt_r       <= 1'b0;
+       stop_r       <= 1'b0;
+       strm_r       <= 1'b0;
++      rboot_r      <= 1'b0;
++      rbt_hold_r   <= 1'b0;
+       setc_r       <= 1'b0;
+       gdi_r        <= 1'b0;
+       setval_r     <= 64'd0;
+@@ -2819,9 +2853,11 @@ module KL_aecp_engine
+           //! the previous response's memory burst still held the buffer
+           //! would process the un-popped head TWICE and double-free its RX
+           //! slot. The same guard arms the unsolicited path. The D3 writer's
+-          //! ownership holds both until its restore terminal.
++          //! ownership holds both until its restore terminal. After a
++          //! REBOOT's SUCCESS (issue #203) no command is taken, while the
++          //! unsolicited path stays open for the REBOOT's own notifications.
+           if (txn_valid_i && !rsp_busy_w && !amap_notify_busy_i
+-              && !d3_own_w) begin
++              && !d3_own_w && !rbt_hold_r) begin
+             cmd_r <= txn_w;
+             if (drop_w) begin
+               if (drop_cnt_r != 16'hFFFF) drop_cnt_r <= drop_cnt_r + 16'd1;
+@@ -2858,6 +2894,7 @@ module KL_aecp_engine
+               strt_r     <= strt_w;
+               stop_r     <= stop_w;
+               strm_r     <= strm_w;
++              rboot_r    <= rboot_w;
+               setc_r     <= setc_w;
+               gdi_r      <= gdi_w;
+               setval_r   <= 64'd0;
+@@ -2957,6 +2994,7 @@ module KL_aecp_engine
+             strt_r     <= (uns_kind_i == PP_UNS_STRM_C) && !uns_arg0_i[0];
+             stop_r     <= (uns_kind_i == PP_UNS_STRM_C) && uns_arg0_i[0];
+             strm_r     <= (uns_kind_i == PP_UNS_STRM_C);
++            rboot_r    <= 1'b0;
+             setc_r     <= 1'b0;
+             gdi_r      <= 1'b0;
+             g_shape_fault_r <= 1'b0;
+@@ -3607,6 +3645,18 @@ module KL_aecp_engine
+               else                                    upc_r <= UPC_STOP_C;
+               echo_r <= 1'b0;
+             end
++            //! ---- REBOOT (IEEE 1722.1-2021 §7.4.43; issue #203) ---------
++            //! Figure 7-68's command is 4 bytes, so cdl 16 is the whole of it.
++            //! ENTITY is the one target this entity serves: §7.4.43.1's other
++            //! one, a MEMORY_OBJECT firmware image, does not exist here, so
++            //! every other type is NOT_SUPPORTED, judged before the program's
++            //! locate (the index) and lock check, in START/STOP's order.
++            if (rboot_r) begin
++              if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_RBOOTBAD_C;
++              else if (cfg_ix_r != DT_ENTITY_C)       upc_r <= UPC_RBOOTNS_C;
++              else                                    upc_r <= UPC_RBOOT_C;
++              echo_r <= 1'b0;
++            end
+             //! ---- SET_STREAM_FORMAT (Milan §5.4.2.7) --------------------
+             //! §7.4.9.1's command is 12 bytes, so cdl 24 is the whole of it,
+             //! and the `pld_cmd_r` conjunct is the amap_edit lesson: cdl is
+@@ -3911,6 +3961,13 @@ module KL_aecp_engine
+ 
+         A_TXW: if (uns_r ? txreq_uns_ready_i : txreq_ready_i) begin
+           a_st_r <= A_FREE;
++          //! IEEE 1722.1-2021 §7.4.43 (issue #203): the REBOOT is accepted
++          //! here, at its SUCCESS response's grant, and not earlier, so a
++          //! response the memory voided (ENTITY_MISBEHAVING) or any refusal
++          //! leaves the entity in service. From the next cycle no command is
++          //! taken until the reset.
++          if (!uns_r && rboot_r && (status_r == ST_SUCCESS_C))
++            rbt_hold_r <= 1'b1;
+         end
+ 
+         A_FREE: a_st_r <= A_IDLE;
+diff --git a/hdl/aecp/KL_aecp_notify.sv b/hdl/aecp/KL_aecp_notify.sv
+index 2b0e576..c575aea 100644
+--- a/hdl/aecp/KL_aecp_notify.sv
++++ b/hdl/aecp/KL_aecp_notify.sv
+@@ -348,6 +348,10 @@ module KL_aecp_notify
+     //! (read only with EN_IDENTIFY_NOTIF_P: the identify frame's departure)
+     input  wire         uns_tx_busy_i,
+     output logic        amap_busy_o,         //! preserve the engine staging RAM
++    //! a command-triggered notification is queued or its round runs (the
++    //! REBOOT sequence waits on it, issue #203: the round's last job is
++    //! retired at its TX grant, before this falls)
++    output logic        cmd_busy_o,
+ 
+     //! ---- lock state, published (06 SS6.4 consumers: engine + listener A1) ----
+     output logic        lock_held_o,         //! ENTITY lock held
+@@ -1206,6 +1210,7 @@ module KL_aecp_notify
+   assign amap_busy_o = dh_v_r || em_active_r || pe_lock_r || pe_amap_r
+                        || pe_avb_r || pe_asp_r || (|pe_sin_r) || (|pe_sout_r)
+                        || cmdq_nempty_r || (|ctr_pend_r) || id_own_w;
++  assign cmd_busy_o  = cmdq_nempty_r || (em_active_r && em_cmd_r);
+   assign prng_draw_kind_o = 3'd4;       // KL_pp_prng: uniform 30..60 seconds
+ 
+   assign dbg_uns_cnt_o  = uns_cnt_r;
+diff --git a/hdl/aecp/ucode/aecp_commands.json b/hdl/aecp/ucode/aecp_commands.json
+index ea9f7c3..bcb6209 100644
+--- a/hdl/aecp/ucode/aecp_commands.json
++++ b/hdl/aecp/ucode/aecp_commands.json
+@@ -395,6 +395,18 @@
+       "hazard": "RO_SNAPSHOT", "lock": false, "notify": null, "gdi": false, "oversize": false,
+       "entries": ["MVUINFO", "NOTIMPL"],
+       "doc": {"mandate": "shall", "scope": "§6.9"}
++    },
++    {
++      "name": "REBOOT", "message": "AEM", "opcode": "0x002A", "rtl": "OP_REBOOT_C",
++      "clause": "IEEE 7.4.43, 7.5.2; Milan 5.4.5.2, 5.6.3.5.8",
++      "command": {"cdl": 16},
++      "response": {"cdl": 16},
++      "status": ["SUCCESS", "NO_SUCH_DESCRIPTOR", "ENTITY_LOCKED", "BAD_ARGUMENTS", "NOT_SUPPORTED"],
++      "hazard": "CFG_BARRIER", "lock": true,
++      "notify": {"class": 9, "kind": "PP_UNS_STRM_C", "body": "STRMUNS", "doc": "success, requester excluded; sent before `reboot_req_o`"},
++      "gdi": false, "oversize": false,
++      "entries": ["RBOOT", "RBOOTNS", "RBOOTBAD"],
++      "doc": {"mandate": "optional (IEEE §7.4.43), implemented (issue #203)", "scope": "ENTITY 0 only; every other type `NOT_SUPPORTED`; SUCCESS, then `reboot_req_o` (§6.11)", "class": "(assigned by the top's classifier, [03 §6](03_packet_engine.md))", "size": "`{type, index}` on every arm"}
+     }
+   ],
+   "documented": [
+diff --git a/hdl/aecp/ucode/gen_ucode.py b/hdl/aecp/ucode/gen_ucode.py
+index d4bf99d..8e97aad 100644
+--- a/hdl/aecp/ucode/gen_ucode.py
++++ b/hdl/aecp/ucode/gen_ucode.py
+@@ -264,6 +264,12 @@ E_STOP    = 1632     # STOP_STREAMING on a STREAM_INPUT
+ E_STRMNS  = 1664     # ...either, on any other descriptor type: NOT_SUPPORTED
+ E_STRMUNS = 1672     # unsolicited START/STOP response body
+ E_STRMBAD = 1696     # ...either, too short to carry Figure 7-59's four bytes
++# --- REBOOT (IEEE 1722.1-2021 §7.4.43, issue #203) ---------------------------
++# In the free 533..559 run in front of E_NOTIMPL, so the START/STOP slots keep
++# their room to grow.
++E_RBOOT    = 536     # REBOOT on ENTITY: index, lock, then SUCCESS
++E_RBOOTNS  = 548     # ...on any other descriptor type: NOT_SUPPORTED
++E_RBOOTBAD = 554     # ...too short to carry Figure 7-68's four bytes
+ # --- ADD/REMOVE_AUDIO_MAPPINGS ----------------------------------------------
+ # MOVED from 1632/1680 when START/STOP_STREAMING landed on those words:
+ # E_AMADD spans 34 words, so at 1632 it overlapped BOTH E_STOP (1632..1641)
+@@ -2321,6 +2327,44 @@ place(E_STRMUNS, [
+ ])
+ place(E_STRMBAD, _strm_refuse(ST_BADARG))
+ 
++# --- REBOOT (IEEE 1722.1-2021 §7.4.43, Figure 7-68; issue #203) -------------
++# Command and response share Figure 7-68, descriptor_type @24 and
++# descriptor_index @26 and nothing else, so every arm answers those four bytes
++# at cdl 16, like the START/STOP pair above. The engine refuses a command too
++# short to carry them (E_RBOOTBAD) and any descriptor_type but ENTITY
++# (E_RBOOTNS: §7.4.43.1's other target is a MEMORY_OBJECT firmware image, and
++# this entity has none) before dispatch, so a foreign controller naming another
++# type under the lock is told NOT_SUPPORTED. Here the locate is the index check
++# (the image holds ENTITY index 0 only, so any other index is
++# NO_SUCH_DESCRIPTOR, as START/STOP answer a missing input before the lock),
++# and CHECK_LOCK is §7.4.43.2's restriction: ENTITY_LOCKED to every controller
++# but the holder. ENTITY_ACQUIRED cannot arise, because this entity is never
++# acquired (Milan §5.4.2.1, E_NSUPPE).
++#
++# SUCCESS enqueues §7.4.43's unsolicited notification (§7.5.2 lists REBOOT;
++# Milan §5.4.5.2: every registered controller but the requester) as class 9,
++# the {type, index} body under the command's own command_type, which the engine
++# carries in the job's first argument. The reboot itself is not this program's:
++# the engine takes no further command from this response's TX grant, and the
++# top raises reboot_req_o once the response, these notifications and the ADP
++# ENTITY_DEPARTING have left the transmit path.
++def _reboot(base):
++    return [
++        u('DESC_ADDR', ra=14, imm=RGN_LOCATE),   # miss -> NO_SUCH_DESCRIPTOR
++        u('BR_STATUS', cnd=0, imm=base + 5),     # ...and it survives the skip
++        u('CHECK_LOCK', ra=15, imm=base + 5),    # a different controller holds
++        u('SET_STATUS', imm=ST_OK),
++        u('NOTIFY_ENQ', imm=9),                  # REBOOT, requester excluded
++        u('BUILD_HDR', ra=15, rb=13),            # base + 5: every arm lands here
++        u('BUILD_FLD', ra=13, fmt=FMT_D),        # type + index          @24
++        u('SEND_RESP'),
++        u('END'),
++    ]
++
++place(E_RBOOT, _reboot(E_RBOOT))
++place(E_RBOOTNS, _strm_refuse(ST_NSUPP))
++place(E_RBOOTBAD, _strm_refuse(ST_BADARG))
++
+ 
+ # --- SET_STREAM_FORMAT (Milan §5.4.2.7, IEEE §7.4.9.1, Figure 7-34) ---------
+ # Command and response share the figure: descriptor_type @24, descriptor_index
+diff --git a/hdl/top/protocol_processor_top.sv b/hdl/top/protocol_processor_top.sv
+index abd45cc..29ea36d 100644
+--- a/hdl/top/protocol_processor_top.sv
++++ b/hdl/top/protocol_processor_top.sv
+@@ -821,6 +821,26 @@ module protocol_processor_top
+     output logic  [7:0]                  aecp_nvm_mark_o,     //! that group's mark code, valid with the strobe
+     output logic                         aecp_lock_held_o,    //! LOCK_ENTITY ownership is live
+ 
++    //! ---- REBOOT request (IEEE 1722.1-2021 §7.4.43; issue #203) ----
++    //! A LEVEL, 0 from reset, that rises once and is HELD until rst_n, so an
++    //! integrator sampling it in any clock cannot miss it. It rises when a
++    //! controller's REBOOT of ENTITY 0 was answered SUCCESS and three things
++    //! have left the transmit path, each frame's last byte taken by the MAC
++    //! (tx_valid_o, tx_eof_o and tx_ready_i in one clock): that SUCCESS
++    //! response; the REBOOT's unsolicited notifications to the other
++    //! registered controllers (§7.5.2, Milan v1.2 §5.4.5.2); and, where the
++    //! entity was advertising, ENTITY_DEPARTING (§6.2.4, §6.2.5.2.2, Milan
++    //! v1.2 §5.6.3.5.8 and §5.6.3.5.11, the SHUTDOWN event). From that
++    //! response's TX grant the processor accepts no further command: the
++    //! AECP engine takes nothing from its queue, and a frame that starts on
++    //! rx_* after it is discarded whole. The integrator resets the end
++    //! station on it (milan-fpga #787). It does not wait for persistence: to
++    //! keep a change accepted just before the REBOOT, hold the reset until
++    //! (|nvm_unflushed_o) | d3_unflushed_o is 0. A MAC that never takes a
++    //! frame holds it back. Left unconnected, a REBOOT takes the entity off
++    //! the network until the next reset.
++    output logic                         reboot_req_o,
++
+     //! ---- observability ----
+     output logic [31:0] dbg_now_ms_o           //! absolute ms timebase
+ );
+@@ -1098,6 +1118,8 @@ module protocol_processor_top
+   //! kill (see the deadline block beside the owners below)
+   logic       aecp_dl_kill_w;
+   logic       aecp_dl_queued_w;
++  //! the engine's REBOOT acceptance, held (issue #203; the sequence below)
++  logic       aecp_reboot_w;
+   logic       sb_kill_ack_w;
+   logic [7:0] sb_holds_w;
+   logic       sb_full_w, sb_barrier_w;
+@@ -1316,13 +1338,33 @@ module protocol_processor_top
+   logic        aecp_rx_hold_w;
+   logic [15:0] cnt_rx_aecp_held_w;
+ 
++  //! REBOOT (IEEE 1722.1-2021 §7.4.43; issue #203): from the engine's
++  //! acceptance (aecp_reboot_w, the clock after the SUCCESS response's TX
++  //! grant) the processor accepts no further command of any protocol. A
++  //! frame is admitted or discarded whole at its first byte, so one already
++  //! arriving completes and every one that starts later never reaches the
++  //! validator; frames have no ready to refuse them with.
++  logic        rx_mid_r;     //! a frame's first byte has come and its last has not
++  logic        rx_adm_r;     //! ... and that frame was admitted
++  logic        rx_take_w;    //! this rx_* byte reaches the validator
++  assign rx_take_w = rx_valid_i && (rx_mid_r ? rx_adm_r : !aecp_reboot_w);
++  always_ff @(posedge clk_i) begin : rx_reboot_gate
++    if (!rst_n) begin
++      rx_mid_r <= 1'b0;
++      rx_adm_r <= 1'b0;
++    end else if (rx_valid_i) begin
++      rx_mid_r <= !rx_last_i;
++      if (!rx_mid_r) rx_adm_r <= !aecp_reboot_w;
++    end
++  end
++
+   KL_pp_rx_validator #(
+       .SLOTS_P (RX_SLOTS_P),
+       .BYTES_P (RX_SLOT_BYTES_P)
+   ) u_rx_validator (
+       .clk_i                (clk_i),
+       .rst_n                (rst_n),
+-      .rx_valid_i           (rx_valid_i),
++      .rx_valid_i           (rx_take_w),
+       .rx_data_i            (rx_data_i),
+       .rx_last_i            (rx_last_i),
+       .own_mac_i            (own_mac_i),
+@@ -1571,7 +1613,7 @@ module protocol_processor_top
+         rx_if_end_r <= 2'd0;
+         hdr_if_r    <= 2'd0;
+       end else begin
+-        if (rx_valid_i && rx_last_i) rx_if_end_r <= rx_if_index_i;
++        if (rx_take_w && rx_last_i) rx_if_end_r <= rx_if_index_i;
+         if (v_hdr_valid_w && !(hdr_vld_r && !nrm_rx_ready_w))
+           hdr_if_r <= rx_if_end_r;
+       end
+@@ -1670,7 +1712,10 @@ module protocol_processor_top
+       end
+     end else if (hz_aem_cmd_w) begin
+       unique case (hz_opcode_w)
+-        16'h0006: begin                        // SET_CONFIGURATION
++        //! SET_CONFIGURATION and REBOOT (issue #203): REBOOT is
++        //! lock-protected (§7.4.43.2) and ends the entity's service, so it
++        //! takes the global drain rather than one descriptor's key
++        16'h0006, 16'h002A: begin
+           hz_class_w = 4'(PP_HZ_CFG_BARRIER);
+           hz_key_w   = HZ_KEY_GLOBAL_C;
+         end
+@@ -1966,9 +2011,13 @@ module protocol_processor_top
+   logic [SINK_IDX_W_C-1:0] adp_evt_sink_w;  //! CLAMPED (KL_adp_engine SNK_W_C)
+   logic [N_AVB_IF_P*2-1:0] adp_dbg_adv_state_w;  //! per interface, interface 0 low
+   logic [N_STREAM_IN_P-1:0] adp_dbg_tkdisc_nc_w;
+-  //! the effective ADP enable: requested AND released by the restore
++  //! the effective ADP enable: requested AND released by the restore, and
++  //! dropped for good by the REBOOT sequence (issue #203), whose fall is
++  //! Milan v1.2's SHUTDOWN: ENTITY_DEPARTING from every advertising state
+   logic        adp_enable_w;
+-  assign adp_enable_w = entity_enable_i && restore_done_o;
++  logic        rbt_adp_off_w;
++  logic        adp_tx_busy_w;    //! ADP still has a frame to hand to its lane
++  assign adp_enable_w = entity_enable_i && restore_done_o && !rbt_adp_off_w;
+   logic        adp_txs_gnt_w;
+   logic [TXS_W_C-1:0] adp_txs_gnt_slot_w;
+ 
+@@ -2052,6 +2101,7 @@ module protocol_processor_top
+       .txreq_valid_o         (adp_txreq_valid_w),
+       .txreq_slot_o          (adp_txreq_slot_w),
+       .txreq_if_o            (adp_txreq_if_nc_w),
++      .tx_busy_o             (adp_tx_busy_w),
+       .bound_i               (bound_r),
+       .bound_talker_eid_i    (bound_eid_r),
+       .evt_valid_o           (adp_evt_valid_w),
+@@ -3478,6 +3528,7 @@ module protocol_processor_top
+   logic [15:0] uns_dt_w, uns_di_w, uns_seq_w;
+   logic [15:0] uns_arg0_w, uns_arg1_w;
+   logic        uns_amap_remove_w, ntfy_amap_busy_w;
++  logic        ntfy_cmd_busy_w;   //! a command notification queued or in its round
+   logic [15:0] uns_amap_count_w;
+   logic [63:0] uns_eid_w;
+   logic [47:0] uns_mac_w;
+@@ -3899,6 +3950,7 @@ module protocol_processor_top
+       .txreq_ready_i      (aecp_txreq_ready_w),
+       .dl_kill_i          (aecp_dl_kill_w),
+       .dl_queued_o        (aecp_dl_queued_w),
++      .reboot_o           (aecp_reboot_w),
+       .rgy_req_o          (aecp_rgy_req_w),
+       .rgy_state_o        (aecp_rgy_state_w),
+       .rgy_op_o           (aecp_rgy_op_w),
+@@ -4218,6 +4270,7 @@ module protocol_processor_top
+       .uns_done_i            (uns_done_w),
+       .uns_tx_busy_i         (uns_tx_busy_w),
+       .amap_busy_o           (ntfy_amap_busy_w),
++      .cmd_busy_o            (ntfy_cmd_busy_w),
+       .lock_held_o           (ntfy_lock_held_w),
+       .lock_ctlr_o           (ntfy_lock_ctlr_w),
+       .tmr_arm_valid_o       (ntfy_arm_valid_w),
+@@ -4786,6 +4839,79 @@ module protocol_processor_top
+     endcase
+   end
+ 
++  // =========================================================================
++  // REBOOT (IEEE 1722.1-2021 §7.4.43; issue #203): the SUCCESS response, the
++  // REBOOT's notifications and ENTITY_DEPARTING leave, then reboot_req_o
++  // =========================================================================
++  //! Every wait reads the TX output itself: a frame has left when the MAC
++  //! takes its last byte. Grants are frame-atomic and only an idle arbiter
++  //! grants, so the frame in flight is the last one granted, of a known lane.
++  //!  - RB_RESP: aecp_reboot_w rises the clock after the SUCCESS response's
++  //!    grant, so the next last byte is that response's.
++  //!  - RB_NTF: the REBOOT's notification (class 9, every registered
++  //!    controller but the requester: §7.5.2, Milan v1.2 §5.4.5.2) is queued
++  //!    before the response is built, and each job retires at its grant, so
++  //!    once the notify block holds no command work and no unsolicited frame
++  //!    is in flight, the last one has left. Notifications of other kinds may
++  //!    follow; nothing waits for them.
++  //!  - RB_DOWN: one clock with ADP's enable fallen, Milan v1.2's SHUTDOWN:
++  //!    each advertise machine not DOWN queues ENTITY_DEPARTING
++  //!    (§5.6.3.5.8, §5.6.3.5.11; IEEE §6.2.4 doTerminate, §6.2.5.2.2); a
++  //!    DOWN one, not advertising, sends none (Table 5.51).
++  //!  - RB_DEP: ADP has nothing left to build, queue or send.
++  //!  - RB_REQ: reboot_req_o, held until rst_n.
++  typedef enum logic [2:0] {
++    RB_RUN  = 3'd0,
++    RB_RESP = 3'd1,
++    RB_NTF  = 3'd2,
++    RB_DOWN = 3'd3,
++    RB_DEP  = 3'd4,
++    RB_REQ  = 3'd5
++  } rbt_st_e;
++
++  rbt_st_e rbt_st_r;
++  logic    tx_last_w;    //! the MAC takes a frame's last byte
++  logic    tx_fly_uns_r; //! the granted frame not yet left is an unsolicited AECP one
++  logic    tx_fly_adp_r; //! ... is an ADP one
++
++  assign tx_last_w = tx_valid_o && tx_eof_o && tx_ready_i;
++
++  always_ff @(posedge clk_i) begin : rbt_tx_flight
++    if (!rst_n) begin
++      tx_fly_uns_r <= 1'b0;
++      tx_fly_adp_r <= 1'b0;
++    end else if (|arb_gnt_w) begin
++      tx_fly_uns_r <= arb_gnt_w[LANE_AECP_UNS_C];
++      tx_fly_adp_r <= arb_gnt_w[LANE_ADP_C];
++    end else if (tx_last_w) begin
++      tx_fly_uns_r <= 1'b0;
++      tx_fly_adp_r <= 1'b0;
++    end
++  end
++
++  always_ff @(posedge clk_i) begin : rbt_sequence
++    if (!rst_n) begin
++      rbt_st_r <= RB_RUN;
++    end else begin
++      unique case (rbt_st_r)
++        RB_RUN:  if (aecp_reboot_w) rbt_st_r <= RB_RESP;
++        RB_RESP: if (tx_last_w)     rbt_st_r <= RB_NTF;
++        RB_NTF:  if (!ntfy_cmd_busy_w && !tx_fly_uns_r)
++                                    rbt_st_r <= RB_DOWN;
++        RB_DOWN:                    rbt_st_r <= RB_DEP;
++        RB_DEP:  if (!adp_tx_busy_w && (laneq_adp_cnt_r == 4'd0)
++                     && !tx_fly_adp_r)
++                                    rbt_st_r <= RB_REQ;
++        RB_REQ:  ;
++        default: rbt_st_r <= RB_RUN;
++      endcase
++    end
++  end
++
++  assign rbt_adp_off_w = (rbt_st_r == RB_DOWN) || (rbt_st_r == RB_DEP)
++                       || (rbt_st_r == RB_REQ);
++  assign reboot_req_o  = (rbt_st_r == RB_REQ);
++
+   // =========================================================================
+   // side port + backends: snapshot (class D aggregated), ctrl, trace
+   // =========================================================================
