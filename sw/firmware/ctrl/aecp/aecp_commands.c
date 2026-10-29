@@ -2,8 +2,36 @@
 // Command bodies: IEEE 1722.1-2021 7.4, Milan v1.2 5.4.2.
 #include "aecp_internal.h"
 
+// One pass in model order: a key's run grows while each next descriptor of it
+// sits right after the run and carries the run's length as its index (#665).
+void aecp_index(struct aecp *a)
+{
+	memset(a->runs, 0, sizeof a->runs);
+	for (size_t n = 0; n < a->cfg.model->count; ++n) {
+		const struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
+		if (d->configuration >= AECP_INDEXED_CONFIGURATIONS || d->type >= AECP_DESCRIPTOR_TYPES) {
+			continue;
+		}
+		struct aecp_run *r = &a->runs[d->configuration][d->type];
+		if (r->count == 0u && d->index == 0u) {
+			r->first = (uint16_t)n;
+			r->count = 1u;
+		} else if (r->count != AECP_RUN_SCAN && d->index == r->count && r->first + (size_t)r->count == n) {
+			++r->count;
+		} else {
+			r->count = AECP_RUN_SCAN;
+		}
+	}
+}
+
 struct aecp_descriptor *aecp_find(struct aecp *a, uint16_t cfg, uint16_t type, uint16_t index)
 {
+	if (cfg < AECP_INDEXED_CONFIGURATIONS && type < AECP_DESCRIPTOR_TYPES) {
+		const struct aecp_run *r = &a->runs[cfg][type];
+		if (r->count != AECP_RUN_SCAN) {
+			return index < r->count ? &a->cfg.model->descriptors[r->first + index] : NULL;
+		}
+	}
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
 		if (d->configuration == cfg && d->type == type && d->index == index) {

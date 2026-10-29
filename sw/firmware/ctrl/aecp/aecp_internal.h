@@ -9,7 +9,11 @@ bool aecp_enter(struct aecp *);
 void aecp_port_begin(struct aecp *);
 void aecp_port_end(struct aecp *);
 
+// The model's first descriptor of a key, or NULL. It answers from aecp.runs,
+// which aecp_index builds from the keys as they are: aecp_init calls it, and a
+// key changed after that is found only once aecp_index runs again (#665).
 struct aecp_descriptor *aecp_find(struct aecp *, uint16_t, uint16_t, uint16_t);
+void aecp_index(struct aecp *);
 bool aecp_foreign_lock(const struct aecp *);
 unsigned aecp_name_offset(uint16_t, uint16_t);
 unsigned aecp_scalar_validate(struct aecp *, const struct aecp_descriptor *, enum aecp_change, const uint8_t *);

@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <string>
 #include <aecp_latency_policy.hpp>
 #include "aecp_callback_inputs.hpp"
 extern "C" {
@@ -163,6 +164,46 @@ struct Core : testing::Test {
         return out;
     }
     void register_controller(uint64_t id=CTLR,unsigned interface=0){ask(36,{},0,id,interface);}
+    // #665: aecp_find answers from the index aecp_init builds of the model's
+    // keys, and the firmware never rewrites a key after it. A case that does
+    // rebuilds the index with its change, and TearDown fails one that does not.
+    template<class Change> void rekey(Change change) { change();aecp_index(&a); }
+    // The first key aecp_find answers differently from a scan of the model in
+    // its order, or "" when there is none: each descriptor's own key, then
+    // every small key of each indexed configuration and one past them.
+    std::string stale_key() {
+        const aecp_model *m=a.cfg.model;
+        if(m==nullptr) { return {}; }
+        auto scan=[m](unsigned c,unsigned t,unsigned i)->aecp_descriptor* {
+            for(size_t n=0;n<m->count;++n) {
+                auto &d=m->descriptors[n];
+                if(d.configuration==c&&d.type==t&&d.index==i) { return &d; }
+            }
+            return nullptr;
+        };
+        auto differs=[&](unsigned c,unsigned t,unsigned i) {
+            return aecp_find(&a,uint16_t(c),uint16_t(t),uint16_t(i))!=scan(c,t,i);
+        };
+        auto key=[](unsigned c,unsigned t,unsigned i) {
+            return "configuration "+std::to_string(c)+", type "+std::to_string(t)+", index "+std::to_string(i);
+        };
+        for(size_t n=0;n<m->count;++n) {
+            auto &d=m->descriptors[n];
+            if(differs(d.configuration,d.type,d.index)) { return key(d.configuration,d.type,d.index); }
+        }
+        for(unsigned c=0;c<=AECP_INDEXED_CONFIGURATIONS;++c) {
+            for(unsigned t=0;t<=AECP_DESCRIPTOR_TYPES;++t) {
+                for(unsigned i=0;i<=m->count;++i) {
+                    if(differs(c,t,i)) { return key(c,t,i); }
+                }
+            }
+        }
+        return {};
+    }
+    void TearDown() override {
+        EXPECT_EQ(stale_key(),"")<<"aecp_find finds each key where the model holds it: "
+                                   "a key changed after aecp_init needs aecp_index";
+    }
 };
 }
 
@@ -331,7 +372,7 @@ TEST_F(Nvm, ScalarRecordsUseSharedValidationAndReserveUnknownGroups)
     EXPECT_EQ(owner.port.rollback(&owner,NVM_W_D3),-1);
     EXPECT_EQ(owner.port.rollback(&owner,NVM_W_BIND),0)<<"binding walk does not reset AECP values";
     EXPECT_EQ(owner.port.settle(&owner),NVM_FAULT);
-    model.count=0;EXPECT_FALSE(owner.port.model_ready(&owner));
+    rekey([&]{model.count=0;});EXPECT_FALSE(owner.port.model_ready(&owner));
 }
 
 TEST_F(Nvm, MapRecordsRefuseMissingStorageAndNeverPartiallyLatch)
@@ -415,7 +456,7 @@ struct App : Nvm {
         ASSERT_TRUE(srp_mbx_init(&reservation,&srp));ASSERT_TRUE(ctrl_app_attach_srp(&application,&reservation));
         ASSERT_TRUE(ctrl_app_open_aecp(&bridge));
     }
-    void TearDown() override { srp_mbx_destroy(&reservation); }
+    void TearDown() override { srp_mbx_destroy(&reservation);Nvm::TearDown(); }
     void service(unsigned count=20){for(unsigned i=0;i<count;++i)(void)ctrl_loop_service(&application.loop);}
     void aem(unsigned cmd,Bytes body={},uint64_t ctl=CTLR) {
         auto p=command(cmd,body,ctl);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();
@@ -1333,10 +1374,63 @@ TEST_F(Indexed, RegistryScansSkipUnusedRegistrations)
     ask(4,Bytes(8),0,CTLR+1);expect_indexed();
 }
 
+// #665: aecp_find answers from aecp.runs. A model aecp_image_load built is one
+// run per key; any other placement is found as a scan of the model finds it.
+TEST_F(Indexed, FindAnswersEachKeyAsAScanOfTheModel)
+{
+    for(unsigned t=0;t<AECP_DESCRIPTOR_TYPES;++t) {
+        EXPECT_NE(a.runs[0][t].count,AECP_RUN_SCAN)<<"aecp_image_load's model is one run per key: "
+                                                      "aecp_find never scans it, type "<<t;
+    }
+    EXPECT_EQ(aecp_find(&a,0,0,0),&descriptors[0]);
+    // A model rebuilt for this case: runs that start past index 0, skip an
+    // index, recur after another key, or sit outside the indexed keys.
+    std::vector<aecp_descriptor> rows{
+        {0,0,0,4,nullptr,nullptr},{0,5,0,4,nullptr,nullptr},{0,5,1,4,nullptr,nullptr},
+        {0,6,1,4,nullptr,nullptr},{0,6,0,4,nullptr,nullptr},{0,6,2,4,nullptr,nullptr},
+        {0,9,0,4,nullptr,nullptr},{0,5,2,4,nullptr,nullptr},{1,5,0,4,nullptr,nullptr},
+        {0,AECP_DESCRIPTOR_TYPES,0,4,nullptr,nullptr},{0,9,2,4,nullptr,nullptr},{0,14,0,4,nullptr,nullptr},
+        {0,14,2,4,nullptr,nullptr}};
+    aecp_model irregular{rows.data(),rows.size(),2};
+    aecp b{};
+    b.cfg.model=&irregular;
+    aecp_index(&b);
+    EXPECT_EQ(b.runs[0][0].count,1u);
+    EXPECT_EQ(b.runs[0][1].count,0u)<<"a key the model lacks has an empty run";
+    for(unsigned t:{5u,6u,9u,14u}) {
+        EXPECT_EQ(b.runs[0][t].count,AECP_RUN_SCAN)<<"a key that is not one run from index 0 is scanned, type "<<t;
+    }
+    for(unsigned c=0;c<=2;++c) {
+        for(unsigned t=0;t<=AECP_DESCRIPTOR_TYPES+1;++t) {
+            for(unsigned i=0;i<=rows.size();++i) {
+                aecp_descriptor *want=nullptr;
+                for(auto &d:rows) {
+                    if(want==nullptr&&d.configuration==c&&d.type==t&&d.index==i) { want=&d; }
+                }
+                EXPECT_EQ(aecp_find(&b,uint16_t(c),uint16_t(t),uint16_t(i)),want)
+                    <<"aecp_find finds what a scan of the model finds: configuration "<<c<<", type "<<t<<", index "<<i;
+            }
+        }
+    }
+}
+
+TEST_F(Indexed, AKeyChangedAfterInitIsFoundOnlyAfterARebuild)
+{
+    auto &clock=desc(10);
+    clock.type=21; // in place, to a type the model lacks
+    EXPECT_NE(stale_key(),"")<<"a key changed after aecp_init is found where it was until aecp_index runs";
+    aecp_index(&a);
+    EXPECT_EQ(stale_key(),"");
+    EXPECT_EQ(aecp_find(&a,0,21,0),&clock)<<"aecp_index finds a changed key where it now is";
+    rekey([&]{clock.type=10;});
+    EXPECT_EQ(aecp_find(&a,0,21,0),nullptr)<<"a rebuilt index keeps no run of a key the model no longer holds";
+    EXPECT_EQ(aecp_find(&a,0,10,0),&clock);
+}
+
 TEST_F(Core, StaticMapsPreventOrphaningFormats)
 {
     auto &port=desc(14), &map=desc(10); // Replace an unrelated row with a synthetic AUDIO_MAP.
-    map.type=23;map.index=0;map.length=24;std::fill(map.value,map.value+24,0);
+    rekey([&]{map.type=23;map.index=0;});map.length=24;std::fill(map.value,map.value+24,0);
     put(map.value+4,8,2);put(map.value+6,2,2);
     put(map.value+8,1,2);put(map.value+10,7,2); // another stream does not constrain stream zero
     put(map.value+16,0,2);put(map.value+18,7,2);
@@ -1349,9 +1443,9 @@ TEST_F(Core, StaticMapsPreventOrphaningFormats)
         auto oldfield=get(map.value+damaged.first,2);put(map.value+damaged.first,damaged.second,2);
         ask(8,body,7);put(map.value+damaged.first,oldfield,2);
     }
-    map.length=7;ask(8,body,7);map.length=24;map.index=1;ask(8,body,7);map.index=0;
+    map.length=7;ask(8,body,7);map.length=24;rekey([&]{map.index=1;});ask(8,body,7);rekey([&]{map.index=0;});
     port.length=19;ask(8,body,7);port.length=20;
-    map.index=65535;put(port.value+18,65535,2);put(port.value+16,2,2);ask(8,body,7);
+    rekey([&]{map.index=65535;});put(port.value+18,65535,2);put(port.value+16,2,2);ask(8,body,7);
 }
 
 TEST_F(Core, OutputMappingsHaveOneGlobalOwner)
@@ -1389,7 +1483,7 @@ TEST_F(Core, MapTopologyFailuresAndEmptyPartitions)
     auto add=[&]{ask(44,b,7);EXPECT_EQ(maps[0].count,0u);};
     unsigned length=stream.length;stream.length=81;add();stream.length=length;
     length=cluster.length;cluster.length=85;add();cluster.length=length;
-    cluster.type=21;add();cluster.type=20;
+    rekey([&]{cluster.type=21;});add();rekey([&]{cluster.type=20;});
     auto geometry=get(port.value+12,4);put(port.value+12,2,2);put(port.value+14,65535,2);
     put(b,12,1,2);add();put(b,12,0,2);put(port.value+12,geometry,4);
     a.locked=true;a.lock_owner=CTLR+1;ask(44,b,3);a.locked=false;
@@ -1418,8 +1512,8 @@ TEST_F(Core, OutputPartitionGeometryUsesAllAdvertisedWidths)
     put(defaults.data()+82,65535,2);page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);
     put(defaults.data()+82,list,4);put(defaults.data()+84,65535,2);
     page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);put(defaults.data()+82,list,4);
-    auto &cluster=desc(20);cluster.type=21;query=target(14,0,8);
-    page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);cluster.type=20;
+    auto &cluster=desc(20);rekey([&]{cluster.type=21;});query=target(14,0,8);
+    page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);rekey([&]{cluster.type=20;});
     cluster.length=85;page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);
     (void)port;s=original;
 }
@@ -1430,7 +1524,8 @@ TEST_F(Core, BootMapFaultsCannotPartlyReplaceTheSet)
     auto restore=[&](unsigned expected){EXPECT_EQ(aecp_map_restore(&a,&m,&row,1),expected);};
     m.index=65535;restore(10);m.index=0;
     desc(14).length=19;restore(10);desc(14).length=20;
-    desc(14).configuration=1;m.configuration=1;restore(10);m.configuration=0;desc(14).configuration=0;
+    rekey([&]{desc(14).configuration=1;});m.configuration=1;restore(10);m.configuration=0;
+    rekey([&]{desc(14).configuration=0;});
     put(desc(14).value+16,1,2);restore(7);put(desc(14).value+16,0,2);
     m.capacity=0;restore(7);m.capacity=64;
     a.in_port=true;restore(10);EXPECT_EQ(aecp_restore_settle(&a),10u);
@@ -1440,11 +1535,12 @@ TEST_F(Core, BootMapFaultsCannotPartlyReplaceTheSet)
     m.configuration=1;EXPECT_EQ(aecp_restore_settle(&a),0u);m.configuration=0;
     m.defaults=&row;m.default_count=1;ASSERT_TRUE(aecp_restore_defaults(&a));
     aecp_map_refused(&a,&m);desc(5).length=81;EXPECT_EQ(aecp_restore_settle(&a),10u);desc(5).length=154;
-    input_descriptor.index=65535;EXPECT_EQ(aecp_restore_settle(&a),10u);input_descriptor.index=0;
+    rekey([&]{input_descriptor.index=65535;});EXPECT_EQ(aecp_restore_settle(&a),10u);
+    rekey([&]{input_descriptor.index=0;});
     EXPECT_EQ(aecp_restore_settle(&a),0u);EXPECT_EQ(m.count,1u);
     events[&desc(14)-descriptors.data()].overrides=0;desc(5).length=81;
-    EXPECT_EQ(aecp_restore_settle(&a),10u);desc(5).length=154;input_descriptor.index=65535;
-    EXPECT_EQ(aecp_restore_settle(&a),10u);input_descriptor.index=0;
+    EXPECT_EQ(aecp_restore_settle(&a),10u);desc(5).length=154;rekey([&]{input_descriptor.index=65535;});
+    EXPECT_EQ(aecp_restore_settle(&a),10u);rekey([&]{input_descriptor.index=0;});
     aecp_mapping rows[]={{0,0,0,0},{0,1,0,0}};
     EXPECT_EQ(aecp_map_restore(&a,&m,rows,2),7u);EXPECT_EQ(m.count,1u);
 }
@@ -1518,19 +1614,19 @@ TEST_F(Core, CounterTimerArmsOnlyEligibleCompletedSnapshots)
 
 TEST_F(Core, MetadataConfigurationKeysAndRepeatedOverrides)
 {
-    auto &stream=desc(5);stream.configuration=1;
-    auto map=target(14,0,16);put(map,4,1,2);ask(44,map,7);stream.configuration=0;
+    auto &stream=desc(5);rekey([&]{stream.configuration=1;});
+    auto map=target(14,0,16);put(map,4,1,2);ask(44,map,7);rekey([&]{stream.configuration=0;});
     maps[0].configuration=1;auto body=target(5,0,12);put(body,4,get(stream.defaults+74,8),8);ask(8,body);
     maps[0].configuration=0;maps[0].count=1;input[0]={1,0,0,0};ask(8,body);
-    desc(14).configuration=1;ask(8,body);desc(14).configuration=0;
-    auto &other=desc(10);auto saved=other;other.type=0;other.length=4;
-    ask(6,Bytes(4));ask(6,Bytes(4));other=saved;
+    rekey([&]{desc(14).configuration=1;});ask(8,body);rekey([&]{desc(14).configuration=0;});
+    auto &other=desc(10);auto saved=other;rekey([&]{other.type=0;});other.length=4;
+    ask(6,Bytes(4));ask(6,Bytes(4));rekey([&]{other=saved;});
     auto si=target(6,0,84);put(si,4,0x20000000,4);put(si,24,100,4);ask(14,si);
     put(si,24,200,4);ask(14,si);EXPECT_EQ(latency[0],200u);
     auto fmt=target(5,0,12);put(fmt,4,(get(stream.defaults+74,8)&~(uint64_t(1023)<<22))|(uint64_t(4)<<22),8);
     ask(8,fmt);EXPECT_EQ(get(stream.value+74,8),get(fmt,4,8));
     // A row for a future configuration cannot increase the active output partition.
-    desc(6).configuration=1;auto page=ask(43,target(15,0,8));EXPECT_EQ(get(page,44,2),1u);
+    rekey([&]{desc(6).configuration=1;});auto page=ask(43,target(15,0,8));EXPECT_EQ(get(page,44,2),1u);
 }
 
 TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
@@ -1671,8 +1767,8 @@ TEST_F(Core, DescriptorAndObservationBoundaryFailures)
     auto&d=desc(5);d.length=AECP_FRAME_BYTES;auto b=Bytes(8);put(b,4,5,2);ask(4,b,8);d.length=154;
     put(d.value+126,2,2);ask(15,target(5,0),10);put(d.value+126,0,2);
     d.length=127;ask(15,target(5,0),10);ask(41,target(5,0));d.length=154;
-    auto&av=desc(9);av.index=AECP_TEST_INTERFACES;
-    ask(39,target(9,av.index),10);av.index=0;
+    auto&av=desc(9);rekey([&]{av.index=AECP_TEST_INTERFACES;});
+    ask(39,target(9,av.index),10);rekey([&]{av.index=0;});
     ON_CALL(mock,Path).WillByDefault([](unsigned,uint16_t,uint64_t*,size_t,size_t*n){*n=65;return true;});
     ask(40,Bytes(4),10);
     auto p=command(4,Bytes(8));p[15]=1;put(p,26,ENTITY,8);aecp_rx(&a,0,p.data(),p.size());
@@ -1783,7 +1879,7 @@ struct Latency : Mailbox {
         if(write&&offset==MBX_CH_BASE+MBX_CH_AECP*MBX_CH_STRIDE+MBX_CH_REG_TX_HEAD)s.commits.push_back(s.ns);
     }
     void SetUp() override {Mailbox::SetUp();mbx_host_trace(trace,this);}
-    void TearDown() override {mbx_host_trace(nullptr,nullptr);}
+    void TearDown() override {mbx_host_trace(nullptr,nullptr);Mailbox::TearDown();}
     void check(unsigned path,uint64_t origin,uint64_t end) {
         uint64_t elapsed=end-origin+1000100; // same F0-F4 desk CPU/observation allowance
         std::printf("H-AECP if=%u path=%u elapsed_ns=%llu accesses=%llu\n",MBX_N_IF,path,

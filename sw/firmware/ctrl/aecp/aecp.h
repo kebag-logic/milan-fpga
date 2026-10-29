@@ -24,6 +24,14 @@ extern "C" {
 // one-second spacing, and the 60 s unlock and the controller monitor of
 // Milan v1.2 5.4.2.2 and 5.4.5.3 are not retries.
 #define AECP_RETRY_MAX_MS 8u
+// aecp_find's index (#665) holds a run per descriptor type of IEEE 1722.1-2021
+// Table 7-1, ENTITY (0x0000) to PTP_PORT (0x0028), for the first
+// AECP_INDEXED_CONFIGURATIONS configurations: every shipped model has one.
+// A key outside them is scanned for, as before.
+#define AECP_DESCRIPTOR_TYPES 0x29u
+#define AECP_INDEXED_CONFIGURATIONS 1u
+// An aecp_run.count for a key whose descriptors are not one run.
+#define AECP_RUN_SCAN 0xffffu
 
 enum aecp_status {
 	AECP_SUCCESS = 0, AECP_NOT_IMPLEMENTED = 1, AECP_NO_SUCH_DESCRIPTOR = 2,
@@ -131,6 +139,13 @@ struct aecp_event {
 	uint8_t retry_ms;  // the next retry's wait, 0 before the first (AECP_RETRY_MAX_MS)
 	uint16_t next;     // the next event in aecp.live: its descriptor index + 1, 0 at the end
 };
+// One key's descriptors, at model positions first + 0 .. first + count - 1,
+// each at the position of its index: count 0 when the model has none, and
+// AECP_RUN_SCAN when they are anywhere else.
+struct aecp_run {
+	uint16_t first;
+	uint16_t count;
+};
 struct aecp_config {
 	uint64_t entity_id;
 	uint64_t mac[AECP_INTERFACES];
@@ -164,6 +179,10 @@ struct aecp {
 	uint16_t live;
 	// Bit n of used[i]: registry[i][n].used. The registry scans visit only these (#665).
 	uint16_t used[AECP_INTERFACES];
+	// aecp_find's index of the model's keys, which aecp_init builds and nothing
+	// rewrites after it (#665): runs[c][t] holds configuration c's descriptors
+	// of type t.
+	struct aecp_run runs[AECP_INDEXED_CONFIGURATIONS][AECP_DESCRIPTOR_TYPES];
 	unsigned awaiting; // events whose snapshot awaits its frame's completion: aecp_tx_complete scans only then
 	uint8_t response[AECP_FRAME_BYTES];
 	size_t response_bytes;

@@ -185,6 +185,7 @@ bool aecp_init(struct aecp *a, const struct aecp_config *cfg, const struct aecp_
 	}
 	a->cfg = *cfg;
 	a->ports = ports;
+	aecp_index(a);
 	struct aecp_descriptor *entity = aecp_find(a, 0u, 0u, 0u);
 	if (entity == NULL || entity->length < 312u ||
 	    wire_be16(entity->value + 310) >= cfg->model->configurations) {
